@@ -25,10 +25,10 @@ class Config {
 	public $db;
 
 	protected function __construct() {
+		$this->db = new MySQL($this->database, $this->server, $this->user, $this->password);
 		$di = new DIContainer();
-		$di->db = $this->ms;
+		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);
-		$this->my = new MySQL($this->database, $this->server, $this->user, $this->password);
 	}
 
 	/**

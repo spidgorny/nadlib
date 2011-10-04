@@ -3,12 +3,13 @@
 class MySQL {
 	public $db;
 	public $lastQuery;
+	public $connection;
 
 	function __construct($db = 'f', $host = 'localhost', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 
 		$this->db = $db;
-		$c = mysql_pconnect($host, $login, $password);
+		$this->connection = mysql_pconnect($host, $login, $password);
 		mysql_selectdb($this->db);
 		mysql_set_charset('utf8');
 		//debug(mysql_client_encoding()); exit();
@@ -63,6 +64,16 @@ class MySQL {
 		return $row;
 	}
 
+	function fetchRow($res) {
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		$row = mysql_fetch_row($res);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $row;
+	}
+
 	/**
 	 * Enter description here...
 	 *
@@ -98,6 +109,10 @@ class MySQL {
 		return mysql_num_rows($res);
 	}
 
+	function dataSeek($res, $number) {
+		return mysql_data_seek($res, $number);
+	}
+
 	function lastInsertID() {
 		return mysql_insert_id();
 	}
@@ -115,12 +130,41 @@ class MySQL {
 		// pg_escape_string
 	}
 
-	function fetchSelectQuery($table, $where = array(), $order = '') {
-		$qb = new SQLBuilder();
-		$query = $qb->getSelectQuery($table, $where, $order);
-		$res = $this->perform($query);
+	/**
+	 * Return ALL rows
+	 * @param <type> $table
+	 * @param <type> $where
+	 * @param <type> $order
+	 * @return <type>
+	 */
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
+		$res = $this->runSelectQuery($table, $where, $order, $addFields);
 		$data = $this->fetchAll($res);
 		return $data;
+	}
+
+	function runSelectQuery($table, array $where, $order = '', $addFields = '') {
+		$di = new DIContainer();
+		$di->db = $this;
+		$qb = new SQLBuilder($di);
+		$res = $qb->runSelectQuery($table, $where, $order, $addFields);
+		return $res;
+	}
+
+	function runUpdateQuery($table, array $set, array $where) {
+		$di = new DIContainer();
+		$di->db = $this;
+		$qb = new SQLBuilder($di);
+		$res = $qb->runUpdateQuery($table, $set, $where);
+		return $res;
+	}
+
+	function runInsertQuery($table, array $set) {
+		$di = new DIContainer();
+		$di->db = $this;
+		$qb = new SQLBuilder($di);
+		$res = $qb->runInsertQuery($table, $set);
+		return $res;
 	}
 
 	function getTableColumns($table) {
@@ -134,6 +178,13 @@ class MySQL {
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".$this->getCaller());
 		return $columns;
+	}
+
+	function __call($method, array $params) {
+		$di = new DIContainer();
+		$di->db = $this;
+		$qb = new SQLBuilder($di);
+		return call_user_func_array(array($qb, $method), $params);
 	}
 
 }

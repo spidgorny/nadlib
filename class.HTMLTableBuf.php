@@ -67,6 +67,6 @@ class HTMLTableBuf {
 
 	function tag(HTMLTag $tag) {
 		$this->stdout .= $tag.'';
-	}
+}
 
 }
