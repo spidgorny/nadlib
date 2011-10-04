@@ -127,7 +127,7 @@ class Request {
 
 	function isSubmit() {
 		return $this->isPOST() || $this->getBool('submit');
-	}
+}
 
 	function isPOST() {
 		return $_SERVER['REQUEST_METHOD'] == 'POST';
