@@ -3,8 +3,8 @@
 class Profiler {
 	var $startTime;
 
-	function Profiler() {
-		$this->startTime = $this->getMilliTime();
+	function Profiler($startTime = NULL) {
+		$this->startTime = $startTime ?: $this->getMilliTime();
 	}
 
 	function getMilliTime() {
@@ -16,13 +16,11 @@ class Profiler {
 	function elapsed() {
 		$endTime = $this->getMilliTime();
 		$out = $endTime-$this->startTime;
-		return $out;
+		return number_format($out, 5, '.', '');
 	}
 
 	function Done() {
-		$out = number_format($this->elapsed(), 3);
+		$out = $this->elapsed();
 		print("Done in $out seconds.");
 	}
-};
-
-?>
+}
