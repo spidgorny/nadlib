@@ -19,8 +19,10 @@
 \********************************************************************************/
 
 /// Enable multiple timers to aid profiling of performance over sections of code
+
 class TaylorProfiler {
     var $description;
+    var $description2;
     var $startTime;
     var $endTime;
     var $initTime;
@@ -56,22 +58,32 @@ class TaylorProfiler {
 
     // Public Methods
 
+	function getName() {
+		$i = 3;
+		$name = dbLayerPG::getCaller($i, 2);
+		return $name;
+	}
+
     /**
     *   Start an individual timer
     *   This will pause the running timer and place it on a stack.
     *   @param string $name name of the timer
     *   @param string optional $desc description of the timer
     */
-    function startTimer($name, $desc="" ){
+    function startTimer($name = NULL, $desc="" ){
+		if (!$name) {
+			$name = $this->getName();
+		}
     	if ($this->trace_enabled) {
 	        $this->trace[] = array('time' => time(), 'function' => "$name {", 'memory' => memory_get_usage());
     	}
-    	if ($this->output_enabled) {
+		if ($this->output_enabled) {
 	        $n=array_push( $this->stack, $this->cur_timer );
 	        $this->__suspendTimer( $this->stack[$n-1] );
 	        $this->startTime[$name] = $this->getMicroTime();
 	        $this->cur_timer=$name;
 	        $this->description[$name] = $desc;
+
 	        if (!array_key_exists($name,$this->count)) {
 	            $this->count[$name] = 1;
 	        } else {
@@ -85,7 +97,8 @@ class TaylorProfiler {
     *   Restart the timer that was running before this one
     *   @param string $name name of the timer
     */
-    function stopTimer($name){
+    function stopTimer($name = NULL) {
+		$name = $name ? $name : $this->getName();
     	if ($this->trace_enabled) {
 	        $this->trace[] = array('time' => time(), 'function' => "} $name", 'memory' => memory_get_usage());
     	}
@@ -132,23 +145,22 @@ class TaylorProfiler {
     *
     */
     function printTimers($enabled=false) {
-    	$table = array();
         if ($this->output_enabled||$enabled) {
             $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
             $oaTime = $this->getMicroTime() - $this->initTime;
 
-            $together = array();
+			$together = array();
             while (list ($key, $val) = each ($this->description)) {
             	$row = array();
-            	$row['desc'] = $key;
+            	$row['desc'] = $val;
                 $row['time'] = $this->elapsedTime($key);
                 $row['total'] = $this->running[$key];
                 $row['count'] = $this->count[$key];
+                $row['avg'] = $row['total']*1000/$row['count'];
                 $row['perc'] = ($row['total']/$oaTime)*100;
-                $together[] = $row;
-
+                $together[$key] = $row;
             }
 
             // add missing
@@ -170,22 +182,34 @@ class TaylorProfiler {
 
             uasort($together, array($this, 'sort'));
 
-            foreach ($together as $key => $row) {
-				$val = $row['desc'];
-				$t = $row['time'];
-				$total = $row['total'];
-				$TimedTotal += $total;
+            $table = array();
+			foreach ($together as $key => $row) {
+			    $val = $row['desc'];
+	            $t = $row['time'];
+	            $total = $row['total'];
+                $TimedTotal += $total;
 				$count = $row['count'];
-				$perc = $row['perc'];
-				$tot_perc+=$perc;
-				$table[] = array(
-					'nr' => ++$i,
-					'count' => $count.'x',
-					'time, ms' => number_format($total*1000, 2, '.', ''),
-					'percent' => number_format($perc, 2, '.', '').'%',
-					'routine' => $row['desc'],
-				);
-			}
+	            $perc = $row['perc'];
+	            $tot_perc+=$perc;
+	            $table[] = array(
+	               	'nr' => ++$i,
+	               	'count' => '<div align="right">'.$row['count'].'</div>',
+	               	'time, ms' => '<div align="right">'.number_format($total*1000, 2, '.', '').'</div>',
+	               	'avg/1' => '<div align="right">'.number_format($row['avg'], 2, '.', '').'</div>',
+	               	'percent' => '<div align="right">'.number_format($perc, 2, '.', '').'</div>',
+	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$key.'</span>',
+	            );
+		   }
+
+            // add missing
+            $missed=$oaTime-$TimedTotal;
+            $perc = ($missed/$oaTime)*100;
+            $tot_perc+=$perc;
+            $table[] = array(
+            	'time, ms' => '<div align="right">'.number_format($missed*1000, 2, '.', '').'</div>',
+            	'percent' => '<div align="right">'.number_format($perc, 2, '.', '').'</div>',
+            	'routine' => 'Missed',
+            );
 
             $s = new slTable();
             $s->thes(array(
@@ -198,7 +222,7 @@ class TaylorProfiler {
             $s->more = 'class="view_array"';
             $s->data = $table;
             $s->footer = array(
-            	'nr' => '',
+            	'nr' => 'total',
             	'time, ms' => number_format($oaTime*1000, 2, '.', ''),
             	'percent' => number_format($tot_perc, 2, '.', '').'%',
             	'routine' => "OVERALL TIME",
@@ -238,7 +262,9 @@ class TaylorProfiler {
     *
     */
     function getMicroTime(){
-        $tmp=split(" ",microtime());
+        //Function split() is deprecated - commented and replaced split() with explode() 2011/07/12 - Soeren Klein
+        //$tmp=split(" ",microtime());
+        $tmp=explode(" ",microtime());
         $rt=$tmp[0]+$tmp[1];
         return $rt;
     }
@@ -276,7 +302,7 @@ class TaylorProfiler {
 	function renderFloat() {
 		$content .= '<div class="floatTime">'.$this->totalTime.'</div>';
 		return $content;
-	}
+}
 
 }
 
