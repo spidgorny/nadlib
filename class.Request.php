@@ -90,7 +90,7 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getTrim('c');
-		return $c ? $c : 'Overview';
+		return $c ? $c : 'Home';
 	}
 
 	function setNewController($class) {

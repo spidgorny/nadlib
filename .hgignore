@@ -1,2 +1,7 @@
 syntax: glob
 .svn
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
