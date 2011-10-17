@@ -15,12 +15,12 @@
 class AsIs {
 	protected $value;
 
-	function __construct($val) {
-		$this->value = $val;
+	function __construct($value) {
+		$this->value = $value;
 	}
 
 	function __toString() {
-		return $this->value;
+		return $this->value.'';
 	}
 
 }

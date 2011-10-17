@@ -64,13 +64,24 @@ class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			$qb = Config::getInstance()->qb;
+			$qb = new SQLBuilder();
 			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
 			$res = $this->db->perform($query);
+			$this->db->perform($query);
+			if ($_COOKIE['debug']) {
+				//debug($query); exit();
+			}
 			$this->data = array_merge($this->data, $data); // should overwrite
 		} else {
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
 		}
 		return $res;
+	}
+
+	function delete(array $data) {
+		$qb = new SQLBuilder();
+		$query = $qb->getDeleteQuery($this->table, $data);
+		$this->db->perform($query);
 	}
 
 	/**
