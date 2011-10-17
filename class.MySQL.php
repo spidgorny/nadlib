@@ -137,17 +137,17 @@ class MySQL {
 	 * @param <type> $order
 	 * @return <type>
 	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
-		$res = $this->runSelectQuery($table, $where, $order, $addFields);
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
+		$res = $this->runSelectQuery($table, $where, $order, $addFields, $exclusive);
 		$data = $this->fetchAll($res);
 		return $data;
 	}
 
-	function runSelectQuery($table, array $where, $order = '', $addFields = '') {
+	function runSelectQuery($table, array $where, $order = '', $addFields = '', $exclusive = false) {
 		$di = new DIContainer();
 		$di->db = $this;
 		$qb = new SQLBuilder($di);
-		$res = $qb->runSelectQuery($table, $where, $order, $addFields);
+		$res = $qb->runSelectQuery($table, $where, $order, $addFields, $exclusive);
 		return $res;
 	}
 

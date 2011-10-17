@@ -19,7 +19,7 @@ class DIContainer {
     return is_callable($this->values[$id]) && !is_object($this->values[$id]) ? $this->values[$id]($this) : $this->values[$id];
   }
 
-function asShared($callable)
+/*function asShared($callable)
   {
     return function ($c) use ($callable)
     {
@@ -33,5 +33,5 @@ function asShared($callable)
       return $object;
     };
   }
-
+*/
 }

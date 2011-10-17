@@ -196,7 +196,9 @@ class Request {
 	function getLocation() {
 		$docRoot = dirname($_SERVER['PHP_SELF']);
 		if (strlen($docRoot) == 1) {
-			$docRoot = '';
+			$docRoot = '/';
+		} else {
+			$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.$_SERVER['HTTP_HOST'].$docRoot;
 		//$GLOBALS['i']->content .= $url;
@@ -212,6 +214,11 @@ class Request {
 	function isAjax() {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
 		return $this->getBool('ajax') || (strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
+	}
+
+	function getHeader($name) {
+		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		return $headers[$name];
 	}
 
 	function getJson($name) {

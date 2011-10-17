@@ -4,7 +4,7 @@ class Profiler {
 	var $startTime;
 
 	function Profiler($startTime = NULL) {
-		$this->startTime = $startTime ?: $this->getMilliTime();
+		$this->startTime = $startTime ? $startTime : $this->getMilliTime();
 	}
 
 	function getMilliTime() {
