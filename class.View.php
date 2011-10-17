@@ -6,7 +6,7 @@ class View {
 	protected $parts;
 
 	function __construct($file, $copyObject = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
 		$this->file = $file;
 		if ($copyObject) {
 			$this->caller = $copyObject;
@@ -15,7 +15,7 @@ class View {
 				$this->$prop = $val;
 			}
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 
 /*	Add as many public properties as you like and use them in the PHTML file. */
@@ -80,7 +80,7 @@ class View {
 	function renderPart($i) {
 		return eval('?>'.$this->parts[$i]);
 	}
-	
+
 	function escape($str) {
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
@@ -96,7 +96,7 @@ class View {
 	function __call($func, array $args) {
 		$method = array($this->caller, $func);
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
-			$method = array('Controller', $func);
+			$method = array($this->caller, $func);
 		}
 		return call_user_func_array($method, $args);
 	}

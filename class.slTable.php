@@ -327,9 +327,9 @@ class slTable {
 					if (is_array($row[$col.'.'])) {
 						$more .= $row[$col.'.']['colspan'] ? ' colspan="'.$row[$col.'.']['colspan'].'"' : '';
 						$skipCols = $row[$col.'.']['colspan'] ? $row[$col.'.']['colspan'] - 1 : 0;
-						$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, isset($k['more']) ? $k['more'] : NULL);
-						$iCol++;
 					}
+					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, isset($k['more']) ? $k['more'] : NULL);
+					$iCol++;
 				}
 			} else {
 				$t->cell('slTable ?else?');

@@ -16,7 +16,7 @@ class MySQL {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function getCaller($stepBack = 2) {
+	function getCaller($stepBack = 3) {
 		$btl = debug_backtrace();
 		reset($btl);
 		for ($i = 0; $i < $stepBack; $i++) {

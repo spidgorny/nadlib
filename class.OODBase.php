@@ -64,7 +64,6 @@ class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			$qb = Config::getInstance()->qb;
-			$qb = new SQLBuilder();
 			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
 			$res = $this->db->perform($query);
 			$this->db->perform($query);
@@ -78,9 +77,10 @@ class OODBase {
 		return $res;
 	}
 
-	function delete(array $data) {
-		$qb = new SQLBuilder();
-		$query = $qb->getDeleteQuery($this->table, $data);
+	function delete(array $where) {
+		$qb = Config::getInstance()->qb;
+		$query = $qb->getDeleteQuery($this->table, $where);
+		//debug($query);
 		$this->db->perform($query);
 	}
 
@@ -120,15 +120,9 @@ class OODBase {
 		return $this->id;
 	}
 
-	function delete(array $where) {
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getDeleteQuery($this->table, $where);
-		//debug($query);
-		$this->db->perform($query);
-	}
-
 	function __toString() {
-		return new slTable(array(array_keys($this->data), array_values($this->data))).'';
+		//return new slTable(array(array_keys($this->data), array_values($this->data))).'';
+		return $this->getName();
 	}
 
 }
