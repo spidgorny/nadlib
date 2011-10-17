@@ -10,6 +10,7 @@ class HTMLForm {
 	var $class = "";
 	var $fieldset;
 	var $formMore = '';
+	var $target = '';
 
 	function htmlForm($action = '') {
 		$this->action = $action;
@@ -161,7 +162,7 @@ class HTMLForm {
 		$this->text("&euro;");
 	}
 
-	function textarea($name, $value = NULL, $more) {
+	function textarea($name, $value = NULL, $more = '') {
 		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>$value</textarea>";
 	}
 
@@ -188,7 +189,7 @@ class HTMLForm {
 	}
 
 	function getFormTag() {
-		$a = "<form action=\"{$this->action}\" method=\"{$this->method}\" " . ($this->enctype?" enctype=\"".$this->enctype.'"':"") . $this->formMore .">\n";
+		$a = "<form action=\"{$this->action}\" method=\"{$this->method}\" " . ($this->enctype?" enctype=\"".$this->enctype.'"':"") . $this->formMore . ($this->target ? ' target="'.$this->target.'" ' : '').">\n";
 		if ($this->fieldset) {
 			$a .= "<fieldset><legend>".$this->fieldset."</legend>";
 		}

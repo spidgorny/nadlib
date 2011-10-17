@@ -18,7 +18,7 @@ abstract class Controller {
 	function __construct() {
 		$this->index = $GLOBALS['i'];
 		$this->request = new Request();
-		$this->db = $this->index->db;
+		$this->db = Config::getInstance()->db;
 		$this->title = get_class($this);
 	}
 

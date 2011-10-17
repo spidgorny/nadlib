@@ -21,7 +21,7 @@ class OODBase {
 	 */
 	function __construct($id = NULL) {
 		$this->table = Config::getInstance()->prefixTable($this->table);
-		$this->db = Config::getInstance()->ms;
+		$this->db = Config::getInstance()->db;
 		$this->init($id);
 		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
@@ -71,12 +71,6 @@ class OODBase {
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
 		}
 		return $res;
-	}
-
-	function delete(array $data) {
-		$qb = new SQLBuilder();
-		$query = $qb->getDeleteQuery($this->table, $data);
-		$this->db->perform($query);
 	}
 
 	/**
