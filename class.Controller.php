@@ -35,7 +35,7 @@ abstract class Controller {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = $this->index->getURL($params);
+			$url = '?'.http_build_query($params);
 		}
 		return $url;
 	}

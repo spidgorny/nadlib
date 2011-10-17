@@ -40,7 +40,7 @@ class IndexBase {
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		try {
-			$class = $this->request->getController();
+			$class = $this->request->getControllerString();
 			$obj = new $class;
 			$content .= $obj->render();
 			$content = $this->content . $content;
@@ -81,7 +81,7 @@ class IndexBase {
 	}
 
 	function log($action, $bookingID) {
-		$qb = new SQLBuilder();
+		$qb = Config::getInstance()->qb;
 		$qb->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,

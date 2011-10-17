@@ -146,8 +146,9 @@ class Request {
 	}
 
 	function getControllerString() {
+		//debug(Config::getInstance()->defaultController); exit();
 		$c = $this->getTrim('c');
-		return $c ? $c : 'Home';
+		return $c ? $c : Config::getInstance()->defaultController;
 	}
 
 	/**

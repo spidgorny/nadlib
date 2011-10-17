@@ -264,7 +264,7 @@ class SQLBuilder {
 		} else if (is_bool($value)) {
 			return intval($value); // MySQL specific
 		} else {
-			if (is_string($value)) {
+			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
 			} else {
 				debug($value);
@@ -310,6 +310,10 @@ class SQLBuilder {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign $val";
+				} else if ($val instanceof SQLWherePart) {
+					$set[] = $val->__toString();
+				} else if (is_bool($val)) {
+					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {
 					$set[] = $val;
 				} else {

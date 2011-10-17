@@ -4,7 +4,7 @@ class Selectable {
 	public $name;
 	/**
 	 * Assoc
-	 * @var type 
+	 * @var type
 	 */
 	public $data = array();
 	public $selected;
@@ -16,7 +16,7 @@ class Selectable {
 		} else {
 			/*throw new Exception('Invalid selected ('.$selected.') in '.get_class($this).'<br>
 				<li>'.implode('<li>', array_keys($this->data)));
-			 * 
+			 *
 			 */
 			$this->selected = current(array_keys($this->data));
 		}
@@ -28,13 +28,13 @@ class Selectable {
 		$f = new HTMLForm();
 		$f->method('GET');
 
-		if (in_array($request->getController(), array(
+		if (in_array($request->getControllerString(), array(
 			'RoomView',
 			'EditRoomDescription',
 		))) {
 			$f->hidden('c', 'RoomView');
 		} else {
-			$f->hidden('c', $request->getController());
+			$f->hidden('c', $request->getControllerString());
 		}
 
 		$f->selection($this->name, $this->data, $this->selected, TRUE);

@@ -24,14 +24,10 @@ class Config {
 	 */
 	public $db;
 
+	public $defaultController = 'Overview';
+
 	protected function __construct() {
-		if (LIVE) {
-			$this->server = 'db1039.1und1.de';
-			$this->database = 'db211772540';
-			$this->user = 'dbo211772540';
-			$this->password = 'wuwqaeR5';
-		}
-		$this->db = new MySQL($this->database, $this->server, $this->user, $this->password);
+		$this->db = $GLOBALS['i']->db;
 		$di = new DIContainer();
 		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);

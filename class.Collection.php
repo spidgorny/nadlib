@@ -48,7 +48,7 @@ class Collection {
 		if ($this->parentID) {
 			$where[$this->parentField] = $this->parentID;
 		}
-		$qb = new SQLBuilder();
+		$qb = Config::getInstance()->qb;
 		$query = $qb->getSelectQuery($this->table.' '.$this->join, $where, "ORDER BY ".$this->orderby, 'DISTINCT '.$this->table.'.*', TRUE);
 		if ($this->pager) {
 			$this->pager->initByQuery($query);

@@ -38,8 +38,7 @@ class TaylorProfiler {
     /**
     * Initialise the timer. with the current micro time
     */
-    function TaylorProfiler( $output_enabled=false, $trace_enabled=false)
-    {
+    function TaylorProfiler( $output_enabled=false, $trace_enabled=false) {
         $this->description = array();
         $this->startTime = array();
         $this->endTime = array();
@@ -51,6 +50,8 @@ class TaylorProfiler {
         $this->count = array();
         $this->running = array();
         $this->initTime = $this->getMicroTime();
+        //$this->initTime = $_SERVER['REQUEST_TIME'];	// since PHP 5.4.0
+		//debug($this->initTime);
         $this->output_enabled = $output_enabled;
         $this->trace_enabled = $trace_enabled;
         $this->startTimer('unprofiled');
@@ -60,7 +61,8 @@ class TaylorProfiler {
 
 	function getName() {
 		$i = 3;
-		$name = dbLayerPG::getCaller($i, 2);
+		//$name = dbLayerPG::getCaller($i, 2);
+		$name = MySQL::getCaller();
 		return $name;
 	}
 
@@ -71,9 +73,7 @@ class TaylorProfiler {
     *   @param string optional $desc description of the timer
     */
     function startTimer($name = NULL, $desc="" ){
-		if (!$name) {
-			$name = $this->getName();
-		}
+		$name = $name ? $name : $this->getName();
     	if ($this->trace_enabled) {
 	        $this->trace[] = array('time' => time(), 'function' => "$name {", 'memory' => memory_get_usage());
     	}
@@ -145,7 +145,9 @@ class TaylorProfiler {
     *
     */
     function printTimers($enabled=false) {
-    	$table = array();        if ($this->output_enabled||$enabled) {
+    	$table = array();
+		if ($this->output_enabled||$enabled) {
+			$this->stopTimer('unprofiled');
             $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
@@ -172,7 +174,7 @@ class TaylorProfiler {
             $perc = ($missed/$oaTime)*100;
             $tot_perc+=$perc;
             // $perc=sprintf("%3.2f", $perc );
-            $together[] = array(
+            $together['Missed'] = array(
             	'desc' => 'Missed',
             	'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
@@ -200,16 +202,6 @@ class TaylorProfiler {
 	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$key.'</span>',
 	            );
 		   }
-
-            // add missing
-            $missed=$oaTime-$TimedTotal;
-            $perc = ($missed/$oaTime)*100;
-            $tot_perc+=$perc;
-            $table[] = array(
-            	'time, ms' => '<div align="right">'.number_format($missed*1000, 2, '.', '').'</div>',
-            	'percent' => '<div align="right">'.number_format($perc, 2, '.', '').'</div>',
-            	'routine' => 'Missed',
-            );
 
             $s = new slTable();
             $s->thes(array(

@@ -9,7 +9,7 @@ class SQLIn extends SQLWherePart {
 	}
 
 	function __toString() {
-		$qb = new SQLBuilder();
+		$qb = Config::getInstance()->qb;
 		$field = $qb->quoteKey($this->field);
 		return "$field IN ('".implode("', '", $this->list)."')";
 	}
