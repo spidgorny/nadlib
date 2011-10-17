@@ -382,7 +382,7 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array()) {
+	function getDeleteQuery($table, $where = array(), $order = "") {
 		$q = "DELETE FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {

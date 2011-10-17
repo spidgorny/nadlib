@@ -77,7 +77,7 @@ class TaylorProfiler {
     	if ($this->trace_enabled) {
 	        $this->trace[] = array('time' => time(), 'function' => "$name {", 'memory' => memory_get_usage());
     	}
-		if ($this->output_enabled) {
+    	if ($this->output_enabled) {
 	        $n=array_push( $this->stack, $this->cur_timer );
 	        $this->__suspendTimer( $this->stack[$n-1] );
 	        $this->startTime[$name] = $this->getMicroTime();
@@ -145,13 +145,13 @@ class TaylorProfiler {
     *
     */
     function printTimers($enabled=false) {
-        if ($this->output_enabled||$enabled) {
+    	$table = array();        if ($this->output_enabled||$enabled) {
             $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
             $oaTime = $this->getMicroTime() - $this->initTime;
 
-			$together = array();
+            $together = array();
             while (list ($key, $val) = each ($this->description)) {
             	$row = array();
             	$row['desc'] = $val;

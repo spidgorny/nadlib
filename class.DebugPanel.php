@@ -63,7 +63,7 @@ class DebugPanel {
 		$content .= '<link rel="stylesheet" type="text/css" href="css/debugPanel.css">';
 		//$content .= '<script src="js/jquery-1.3.2.min.js"></script>';
 		//$content .= '<script src="js/jquery-ui-1.7.2.custom.min.js"></script>';
-		$content .= '<script src="js/jquery.cookie.js"></script>';
+		//$content .= '<script src="js/jquery.cookie.js"></script>';
 		$content .= '<script src="js/jquery.json-2.2.min.js"></script>';
 		$content .= '<script src="js/debugPanel.js"></script>';
 		return $content;
