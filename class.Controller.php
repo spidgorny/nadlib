@@ -1,25 +1,40 @@
 <?php
 
 abstract class Controller {
+	/**
+	 *
+	 * @var
+	 */
 	protected $index;
+
 	/**
 	 *
 	 * @var Request
 	 */
 	public $request;
+
 	/**
 	 *
 	 * @var MySQL
 	 */
 	protected $db;
+
 	public $title = __CLASS__;
 	protected $useRouter = false;
+
+	/**
+	 * Enter description here...
+	 *
+	 * @var userMan
+	 */
+	public $user;
 
 	function __construct() {
 		$this->index = $GLOBALS['i'];
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
 		$this->title = get_class($this);
+		$this->user = $GLOBALS['UM'];
 	}
 
 	abstract function render();
@@ -40,6 +55,12 @@ abstract class Controller {
 		return $url;
 	}
 
+	function makeRelURL(array $params) {
+		return $this->makeURL(array(
+			'pageType' => get_class($this),
+		)+$params);
+	}
+
 	function makeLink($text, $params) {
 		$content = '<a href="'.$this->makeURL($params).'">'.$text.'</a>';
 		return $content;
@@ -54,6 +75,10 @@ abstract class Controller {
 
 	function __toString() {
 		return $this->render().'';
+	}
+
+	function encloseIn($title, $content) {
+		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
 	}
 
 }

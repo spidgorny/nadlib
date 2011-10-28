@@ -50,7 +50,11 @@ class HTMLFormTable extends HTMLForm {
 			case "selection":
 				if ($desc['from'] && $desc['title']) {
 					//debugster($desc);
-					$options = $GLOBALS['db']->getTableOptions($desc['from'], $desc['title'], $desc['where'], $desc['order'], 'uid', $desc['noDeleted']);
+					$options = Config::getInstance()->db->getTableOptions($desc['from'],
+						$desc['title'],
+						$desc['where'] . $desc['order'],
+						$desc['idField'] ? $desc['idField'] : 'id',
+						$desc['noDeleted']);
 				} else {
 					$options = array();
 				}
@@ -60,8 +64,11 @@ class HTMLFormTable extends HTMLForm {
 				if ($desc['null']) {
 					$options = array(NULL => "---") + $options;
 				}
-				$this->selection($fieldName, $options, $fieldValue ? $fieldValue : $desc['default'], $desc['autosubmit'],
-					($desc['size'] ? 'size="'.$desc['size'].'"' : '') . $desc['more'], $desc['multiple'], $desc);
+				$this->selection($fieldName, $options,
+					$fieldValue ? $fieldValue : $desc['default'],
+					$desc['autosubmit'],
+					($desc['size'] ? 'size="'.$desc['size'].'"' : '') . $desc['more'],
+					$desc['multiple'], $desc);
 			break;
 			case "file":
 				$this->file($fieldName);
@@ -124,7 +131,7 @@ class HTMLFormTable extends HTMLForm {
 		return $elementID;
 	}
 
-	function showCell($fieldName, $desc) {
+	function showCell($fieldName, array $desc) {
 		//t3lib_div::debug(array($fieldName, $desc));
 		if ($desc['newTD']) {
 			$this->stdout .= '</tr></table></td>   <td '.$desc['TDmore'].'><table class="htmlFormTable"><tr>';
@@ -158,6 +165,8 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '</label>';
 			}
 			if ($desc['error']) {
+				debug($fieldName, $desc);
+				print '<pre>'.debug_print_backtrace().'</pre>';
 				$desc['class'] .= ' error';
 			}
 
@@ -209,7 +218,7 @@ class HTMLFormTable extends HTMLForm {
 		$this->stdout .= "</td></tr></table>";
 	}
 
-	function showForm($formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
+	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
 		$formData = $formData ? $formData : $this->desc;
 		if ($this->mainForm) {
 			$this->mainFormStart();
@@ -229,7 +238,6 @@ class HTMLFormTable extends HTMLForm {
 			} else {
 				$path[] = $fieldName;
 			}
-			//debug($path);
 
 			if (is_array($fieldDesc) && $fieldDesc['type'] != 'hidden') {
 				$this->stdout .= "<tr".($fieldDesc['TRclass'] ? ' class="'.$fieldDesc['TRclass'].'"' : '').' '.$fieldDesc['TRmore'].">";
