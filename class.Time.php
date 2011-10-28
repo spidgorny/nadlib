@@ -112,7 +112,7 @@ class Time {
 	}
 
 	function getHumanDateTime() {
-		return date('d.m.Y H:i', $this->time);
+		return date('d.m.Y', $this->time).' '.date('H:i', $this->time);
 	}
 
 	/**
@@ -342,8 +342,9 @@ class Time {
 	    $periods = array_reverse($periods);
 
 	    $collect = array();
-	    $timestamp = $this->getAdjustedForTZ();
-	    //debug($timestamp); exit();
+	    //$timestamp = $this->getAdjustedForTZ();
+		$timestamp = $this->time;
+	    //debug($this->time, $timestamp); exit();
 	    foreach ($periods as $name => $pe) {
 	    	$result = $timestamp / $pe;
 	    	//debug(array($timestamp, $result));
@@ -382,5 +383,5 @@ class Time {
 		date_default_timezone_set($temp);
 		return $content;
 	}
-	
+
 }

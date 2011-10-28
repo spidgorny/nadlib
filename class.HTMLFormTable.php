@@ -118,7 +118,7 @@ class HTMLFormTable extends HTMLForm {
 				);
 			break;
 		}
-		if ($desc['append'] && !$desc['type'] == 'hidden') {
+		if ($desc['append'] && $desc['type'] != 'hidden') {
 			$this->text($desc['append']);
 		}
 		return $elementID;
@@ -328,6 +328,18 @@ class HTMLFormTable extends HTMLForm {
 //			$GLOBALS['error']->runtime('HTMLFormTable::fillValues second parameter not array.');
 		}
 		return $desc;
+	}
+
+	static function getForm(array $desc) {
+		$f = new self();
+		$f->showForm($desc);
+		return $f->getBuffer();
+	}
+
+	static function getSingle($fieldName, array $desc) {
+		$f = new self();
+		$f->switchType($fieldName, $desc['value'], $desc);
+		return $f->getBuffer();
 	}
 
 }
