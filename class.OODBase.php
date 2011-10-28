@@ -91,7 +91,7 @@ class OODBase {
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderby = '') {
-		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
+		$rows = Config::getInstance()->qb->fetchSelectQuery($this->table, $where, $orderby);
 		//debug($rows);
 		if ($rows) {
 			$this->data = $rows[0];

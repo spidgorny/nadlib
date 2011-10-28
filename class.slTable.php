@@ -314,7 +314,7 @@ class slTable {
 				$skipCols--;
 			} else if (!is_array($k) xor (is_array($k) && !(isset($k['!show']) && $k['!show']))) {
 				$val = $row[$col];
-				if ($val instanceof HTMLTag) {
+				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
 					$t->tag($val);
 				} else if ($val instanceof HTMLnoTag) {
 					// nothing

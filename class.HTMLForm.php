@@ -127,8 +127,8 @@ class HTMLForm {
 		$this->stdout .= "<label for=$id>$label</label>";
 	}
 
-	function file($name) {
-		$this->stdout .= "<input type=file ".$this->getName($name).">";
+	function file($name, $more = '') {
+		$this->stdout .= "<input type=file ".$this->getName($name).' '.$more.">";
 		$this->enctype = "multipart/form-data";
 	}
 
@@ -189,7 +189,11 @@ class HTMLForm {
 	}
 
 	function getFormTag() {
-		$a = "<form action=\"{$this->action}\" method=\"{$this->method}\" " . ($this->enctype?" enctype=\"".$this->enctype.'"':"") . $this->formMore . ($this->target ? ' target="'.$this->target.'" ' : '').">\n";
+		$a = "<form action=\"{$this->action}\" method=\"{$this->method}\" " . 
+			($this->enctype?" enctype=\"".$this->enctype.'"':"") . 
+			$this->formMore . 
+			($this->target ? ' target="'.$this->target.'" ' : '').
+		">\n";
 		if ($this->fieldset) {
 			$a .= "<fieldset><legend>".$this->fieldset."</legend>";
 		}
@@ -234,5 +238,16 @@ class HTMLForm {
 	function __toString() {
 		return $this->getContent();
 	}
+	
+	function formColorSelector($name, $default) {
+		$colors = explode(",", "#FFFFFF,#CCCCCC,#999999,#990099,#993300,#009900,#000099,#FF0000,#999900,#00FF00,#0000FF,#FF00FF,#FF9933,#FFFF00,#00FFFF");
+		println("<select name=$name id=$name style='width: auto'>");
+		foreach($colors as $color) {
+			println("<option style='background-color: $color' value='$color' " . ($color == $default ? "selected" : "") . ">Color</option>");
 
+		}
+		println("</select>");
+	}
+	
 }
+
