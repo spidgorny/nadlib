@@ -20,10 +20,12 @@ abstract class Scaffold extends Controller {
 	protected $data;
 	protected $desc;
 
+	protected $editIcon = '<img src="img/stock-edit-16.png"/>';
+
 	function __construct() {
 		parent::__construct();
 		$this->translateThes();
-		$this->addButton = $GLOBALS['i']->ll->T($this->addButton);
+		$this->addButton = __($this->addButton);
 		$this->action = $this->request->getTrim('action');
 		$this->id = $this->request->getInt($this->table.'_id');
 		if (!$this->id) {
@@ -80,12 +82,7 @@ abstract class Scaffold extends Controller {
 		$data = $this->fetchData();
 
 		foreach ($data as &$row) {
-			$row['edit'] = $this->makeAjaxLink('<img src="img/stock-edit-16.png"/>', array(
-				'c' => get_class($this),
-				'ajax' => TRUE,
-				'action' => 'showEdit',
-				$this->table.'.id' => $row['id'],
-			), $this->formPrefix);
+			$row['edit'] = $this->getEditIcon($row['id']);
 		}
 
 		if ($data) {
@@ -95,6 +92,18 @@ abstract class Scaffold extends Controller {
 		} else {
 			$content .= '<div class="message">No data found.</div>';
 		}
+		return $content;
+	}
+
+	public function getEditIcon($id) {
+		//makeAjaxLink
+		$content .= $this->makeLink($this->editIcon, array(
+			'c' => get_class($this),
+			'pageType' => get_class($this),
+			'ajax' => TRUE,
+			'action' => 'showEdit',
+			$this->table.'.id' => $id,
+		), $this->formPrefix);
 		return $content;
 	}
 
@@ -108,10 +117,6 @@ abstract class Scaffold extends Controller {
 	}
 
 	public function showForm(array $override = array()) {
-		//debug($override, 'override');
-		//$desc = $desc ? $desc : $this->getDesc($override); // sometimes EditAppointment showForm takes care of the $desc itself
-		//$desc = HTMLFormTable::fillValues($desc, $override); // getDesc takes care of filling - otherwise it will overwrite nice parsing in getDesc
-		//debug($desc['date']);
 		$f = $this->getForm();
 		$f->prefix('');
 		foreach ($override as $key => $val) {
@@ -187,9 +192,9 @@ abstract class Scaffold extends Controller {
 		// translate thes
 		foreach ($this->thes as $key => &$trans) {
 			if (is_string($trans) && $trans) {
-				$trans = $GLOBALS['i']->ll->T($trans);
+				$trans = __($trans);
 			} else if (is_array($trans) && $trans['name']) {
-				$trans['name'] = $GLOBALS['i']->ll->T($trans['name']);
+				$trans['name'] = __($trans['name']);
 			}
 		}
 	}

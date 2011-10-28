@@ -257,12 +257,12 @@ class SQLBuilder {
 			return "'".$value->__toString()."'";
 		} else if ($value === NULL) {
 			return "NULL";
-		} else if (is_int($value)) {
+		} else if (is_numeric($value)) {
 			return $value;
 		} else if ($value instanceof AsIs) {
 			return $value.'';
 		} else if (is_bool($value)) {
-			return intval($value); // MySQL specific
+			return $value ? 'true' : 'false';
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -326,10 +326,15 @@ class SQLBuilder {
 
 	}
 
-	function getInsertQuery($table, $columns) {
+	function getInsertQuery($table, array $columns) {
 		$set = $this->quoteLike($columns, '$key');
 		$set = implode(", ", $set);
-		$values = implode(", ", $this->quoteLike($columns, '$val'));
+
+		//$values = $this->quoteLike($columns, '$val');
+		$values = array_values($columns);
+		$values = $this->quoteValues($values);
+		$values = implode(", ", $values);
+
 		$q = "insert into ".$this->quoteKey($table)." ($set) values ($values)";
 		return $q;
 	}
