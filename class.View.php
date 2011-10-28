@@ -86,7 +86,7 @@ class View {
 	}
 
 	function __toString() {
-		return $this->render();
+		return $this->render().'';
 	}
 
 	function link(array $params) {
