@@ -36,14 +36,12 @@ abstract class Scaffold extends Controller {
 		}
 		$this->setModel();	// uses $this->id
 
-		//debug(array('isSubmit' => $this->request->isSubmit()));
-		if ($this->request->isSubmit()/* || $this->action == 'checkAvailability'*/) {
+		if ($this->request->isSubmit()) {
 			$this->data = $this->request->getArray($this->formPrefix);
 		} else {
-			//$this->data = end($this->fetchData(array('id' => $this->id)));
 			$this->data = $this->model->data;
-			//debug($this->data);
 		}
+		//debug($this->id, $this->request->isSubmit(), $this->data, $this->model);
 		$this->desc = $this->getDesc($this->data);
 	}
 
@@ -58,10 +56,7 @@ abstract class Scaffold extends Controller {
 				$content .= $this->showForm();
 			break;
 			case 'showEdit':
-				$content .= $this->showForm(array(
-					'action' => 'update',
-					$this->table.'.id' => $this->id,
-				));
+				$content .= $this->showEditForm();
 			break;
 			case 'add':
 				$content .= $this->showPerform($this->action);
@@ -116,12 +111,30 @@ abstract class Scaffold extends Controller {
 		return $content;
 	}
 
-	public function showForm(array $override = array()) {
+	public function showForm() {
+		if ($this->action == 'showEdit' || $this->action == 'update') {
+			$f = $this->showEditForm();
+		} else {
+			$f = $this->getForm();
+		}
+		return $f;
+	}
+
+	/**
+	 * Will be called by showForm() if the action is showEdit
+	 * @return HTMLFormTable
+	 */
+	protected function showEditForm() {
 		$f = $this->getForm();
+		$override = array(
+			'action' => 'update',
+			$this->table.'.id' => $this->id,
+		);
 		$f->prefix('');
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
+		debug($override);
 		return $f;
 	}
 
@@ -143,8 +156,8 @@ abstract class Scaffold extends Controller {
 		if ($v->validate()) {
 			try {
 				switch ($action) {
-					case 'add': /*$content .=*/ $this->insertRecord($this->data); break;
-					case 'update': /*$content .=*/ $this->updateRecord($this->data); break;
+					case 'add': $content .= $this->insertRecord($this->data); break;
+					case 'update': $content .= $this->updateRecord($this->data); break;
 					default: {
 						debug(__METHOD__);
 						throw new Exception(__METHOD__);
@@ -178,8 +191,9 @@ abstract class Scaffold extends Controller {
 	}
 
 	protected function getForm() {
-		$f = new HTMLFormTable();
+		$f = new HTMLFormTable('.');
 		$f->hidden('c', get_class($this));
+		$f->hidden('pageType', get_class($this));
 		$f->hidden('action', 'add');
 		$f->hidden('ajax', TRUE);
 		$f->prefix($this->formPrefix);
@@ -201,12 +215,20 @@ abstract class Scaffold extends Controller {
 
 	function insertRecord(array $userData) {
 		$res = $this->model->insert($userData);
-		return $res;
+		return $this->afterInsert();
 	}
 
 	function updateRecord(array $userData) {
 		$res = $this->model->update($userData);	// update() returns nothing
-		return $res;
+		return $this->afterUpdate();
+	}
+
+	function afterInsert() {
+		return 'Inserted';
+	}
+
+	function afterUpdate() {
+		return 'Updated';
 	}
 
 }
