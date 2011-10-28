@@ -1,6 +1,6 @@
 <?php
 
-class Config {
+class ConfigBase {
 	/**
 	 *
 	 * @var Config
@@ -38,7 +38,7 @@ class Config {
 	 * @return Config
 	 */
 	public static function getInstance() {
-		if (!self::$instance) self::$instance = new self();
+		if (!self::$instance) self::$instance = new Config();
 		return self::$instance;
 	}
 
