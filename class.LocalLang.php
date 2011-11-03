@@ -7,32 +7,52 @@
 class LocalLang {
 	protected $filename = 'lib/LocalLang.object';
 	protected $excel = 'lib/translation.xml';
-	var $ll = array();
+	var		  $ll = array();									// actual messages
 	protected $defaultLang = 'en';
-	protected $possibleLangs = array('en', 'de', 'es', 'uk', 'ru');
-	public $lang;
+	public	  $possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
+	public	  $lang;											// name of the selected language
+	protected $isCache = TRUE;
+	public    $indicateUntranslated = true;
+	protected $codeID = array();
 
-	function __construct() {
+	function __construct($forceLang = NULL) {
 		if ($_REQUEST['setLangCookie']) {
 			$_COOKIE['lang'] = $_REQUEST['setLangCookie'];
-			setcookie('lang', $_REQUEST['setLangCookie'], time()+365*24*60*60);
+			setcookie('lang', $_REQUEST['setLangCookie'], time()+365*24*60*60, dirname($_SERVER['PHP_SELF']));
 		}
 
-    		$this->ll = $this->readPersistant();
+		// detect language
+		if ($forceLang) {
+			$this->lang = $forceLang;
+		} else {
+			$this->detectLang();
+			$this->lang = $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
+				? $_COOKIE['lang']
+				: $this->lang;
+		}
+
+/*		// read from excel
+		$this->ll = $this->readPersistant();
 		if (!$this->ll) {
-			$this->ll = $this->readExcel($this->possibleLangs);
+			$this->ll = $this->readExcel(array_merge(array('code'), $this->possibleLangs));
 			if ($this->ll) {
 				$this->savePersistant($this->ll);
 			}
 		}
-		$this->detectLang();
-		$this->lang = $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)? $_COOKIE['lang'] : $this->lang;
 		$this->ll = $this->ll[$this->lang];
+*/
+		// read from DB
+		$rows = $this->readDB($this->lang);
+		if ($rows) {
+			$this->codeID = ArrayPlus::create($rows)->column_assoc('code', 'id')->getData();
+			$this->ll = ArrayPlus::create($rows)->column_assoc('code', 'text')->getData();
+		}
 	}
 
 	function readPersistant() {
+		return NULL; // temporary until this is rewritten to read data from DB
 		if (file_exists($this->filename)) {
-			if (filemtime($this->filename) > filemtime($this->excel)) {
+			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
 				$data = file_get_contents($this->filename);
 				$data = unserialize($data);
 			}
@@ -56,7 +76,7 @@ class LocalLang {
 			$namespaces = $xml->getNamespaces(true);
 			//debug($namespaces);
 			foreach ($namespaces as $prefix => $ns) {
-			    $xml->registerXPathNamespace($prefix, $ns);
+				$xml->registerXPathNamespace($prefix, $ns);
 			}
 			$s = $xml->Worksheet[0]->Table;
 			foreach ($s->Row as $row) {
@@ -78,8 +98,13 @@ class LocalLang {
 						}
 						//$cellText = mb_convert_encoding($cellText, 'Windows-1251', 'UTF-8');
 						$cellText = trim($cellText);
+						$cellIndex = $cell['ss:Index']+0;
+						//debug($cell->attributes()->asXML(), $i);
+						if (!$cellIndex) {
+							$cellIndex = sizeof($data[$key]);
+						}
 						if ($cellText) {
-							$data[$key][] = $cellText;
+							$data[$key][$cellIndex] = $cellText;
 						}
 					}
 				}
@@ -88,10 +113,23 @@ class LocalLang {
 		}
 		//debug($data);
 		foreach ($data as $lang => &$trans) {
-			$trans = array_unique($trans);
-			//debug(sizeof($trans));
-			$trans = array_slice($trans, 0, sizeof($data[$this->defaultLang]));
-			$trans = array_combine($data[$this->defaultLang], $trans);
+			if ($lang != 'code') {
+				//$trans = array_unique($trans);
+				//debug(sizeof($trans));
+				$trans = array_slice($trans, 0, sizeof($data['code']));
+/*				debug(array(
+					'array_combine',
+					$data['code'],
+					$trans,
+				));
+*/
+				if (sizeof($data['code']) == sizeof($trans)) {
+					$trans = array_combine($data['code'], $trans);
+				} else {
+					$diff = array_diff_key($data['code'], $trans);
+					debug($diff, 'Error in '.__METHOD__);
+				}
+			}
 		}
 		//debug($data);
 		return $data;
@@ -129,10 +167,101 @@ class LocalLang {
 		return $instance;
 	}
 
-	function T($text, $replace = NULL) {
-		$trans = $this->ll[$text] ? $this->ll[$text] : $text;
+	/**
+	 *
+	 * @param <type> $text
+	 * @param <type> $replace
+	 * @param <type> $s2
+	 * @return string translated message
+	 */
+	function T($text, $replace = NULL, $s2 = NULL) {
+		if (isset($this->ll[$text])) {
+			if ($this->ll[$text] && $this->ll[$text] != '.') {
+				$trans = $this->ll[$text];
+			} else {
+				if ($this->indicateUntranslated) {
+					$trans = '<span class="untranslatedMessage">{'.$text.'}</span>';
+				} else {
+					$trans = $text;
+				}
+			}
+		} else {
+			if ($this->indicateUntranslated) {
+				$trans = '<span class="missingMessage">['.$text.']</span>';
+			} else {
+				$trans = $text;
+			}
+			$this->saveMissingMessage($text);
+		}
 		$trans = str_replace('%s', $replace, $trans);
+		$trans = str_replace('%1', $replace, $trans);
+		$trans = str_replace('%2', $s2, $trans);
 		return $trans;
 	}
 
+	function saveMissingMessage($text) {
+		if ($GLOBALS['i']->development) {
+			$missingWords = array();
+			$fp = fopen('lib/missing.txt', 'r');
+			while (!feof($fp)) {
+				$line = fgets($fp);
+				$line = trim($line);
+				$missingWords[$line] = $line;
+			}
+			fclose($fp);
+			//debug($missingWords);
+
+			if (!isset($missingWords[$text])) {
+				$fp = fopen('lib/missing.txt', 'a');
+				fputs($fp, $text."\n");
+				fclose($fp);
+			}
+		}
+	}
+
+	function M($text) {
+		return $this->T($text);
+	}
+
+	function getMessages() {
+		return $this->ll;
+	}
+
+	function id($code) {
+		return $this->codeID[$code];
+	}
+
+	function readDB($lang) {
+		$db = $GLOBALS['i']->db;
+		/* @var $db MySQL */
+		if ($db) {
+			try {
+				$rows = $db->fetchSelectQuery('app_interface', array(
+					'lang' => $lang,
+				), 'ORDER BY id');
+			} catch (Exception $e) {
+				// read from DB failed, continue
+			}
+		}
+		return $rows;
+	}
+
+	function showLangSelection() {
+		$en = $this->readDB('en');
+		$countEN = sizeof($en) ? sizeof($en) : 1;
+		foreach ($this->possibleLangs as $lang) {
+			$rows = $this->readDB($lang);
+			$u = new URL();
+			$u->setParam('setLangCookie', $lang);
+			echo '<a href="?'.$u->buildQuery().'" title="'.$lang.' ('.
+				number_format(sizeof($rows)/$countEN*100, 0).'%)">
+				<img src="img/'.$lang.'.gif" width="20" height="12">
+			</a>';
+		}
+	}
+
+}
+
+function __($code, $r1 = null, $r2 = null, $r3 = null) {
+	return $GLOBALS['i']->ll->T($code, $r1, $r2, $r3);
 }

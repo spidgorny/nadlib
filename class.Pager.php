@@ -11,11 +11,11 @@ class Pager {
 		if ($itemsPerPage) {
 			$this->setItemsPerPage($itemsPerPage);
 		}
-		if ($pagerData = $_REQUEST['pager']) {
+		if (($pagerData = $_REQUEST['pager'])) {
 //			printbr("Pager initialized with REQUEST");
 			$this->currentPage = (int)($pagerData['page']);
 			$GLOBALS['i']->user->setPref('Pager', array('page' => $this->currentPage));
-		} else if ($pager = $GLOBALS['i']->user->getPref('Pager')) {
+		} else if (($pager = $GLOBALS['i']->user->getPref('Pager'))) {
 //			printbr("Pager initialized with SESSION");
 			$this->currentPage = $pager['page'];
 		} else {

@@ -2,11 +2,12 @@
 
 abstract class Controller {
 	/**
+	 * Enter description here...
 	 *
-	 * @var
+	 * @var Index
 	 */
-	protected $index;
-
+	public $index;
+	
 	/**
 	 *
 	 * @var Request
@@ -25,7 +26,7 @@ abstract class Controller {
 	/**
 	 * Enter description here...
 	 *
-	 * @var userMan
+	 * @var User/Client/userMan
 	 */
 	public $user;
 
@@ -33,11 +34,10 @@ abstract class Controller {
 		$this->index = $GLOBALS['i'];
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
+		$this->user = $this->index->user ?: $GLOBALS['UM'];
 		$this->title = get_class($this);
-		$this->user = $GLOBALS['UM'];
+		$this->title = $this->title ? __($this->title) : $this->title;
 	}
-
-	abstract function render();
 
 	function makeURL(array $params, $forceSimple = FALSE) {
 		if ($this->useRouter && !$forceSimple) {
@@ -61,15 +61,56 @@ abstract class Controller {
 		)+$params);
 	}
 
-	function makeLink($text, $params) {
+	function makeLink($text, array $params) {
 		$content = '<a href="'.$this->makeURL($params).'">'.$text.'</a>';
 		return $content;
 	}
 
-	function makeAjaxLink($text, $params, $div, $jsPlus = '', $aMore = '') {
+	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = '', $ahrefPlus = '') {
 		$content = '<a href="javascript: void(0);" '.$aMore.' onclick="
 			$(\'#'.$div.'\').load(\''.$this->makeURL($params).'\');
-			'.$jsPlus.'">'.$text.'</a>';
+			'.$jsPlus.'" '.$ahrefPlus.'>'.$text.'</a>';
+		return $content;
+	}
+	
+	function slideLoad($text, array $params, $div) {
+		$content = '<a href="javascript: void(0);" onclick="
+			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, '').'\');
+		">'.$text.'</a>';
+		return $content;
+	}
+		
+	function begins($line, $with) {
+		return (substr($line, 0, strlen($with)) == $with);
+	}
+
+	function getAssocTable(array $data) {
+		$table = array();
+		foreach ($data as $key => $val) {
+			$table[] = array('key' => $key, 'val' => $val);
+		}
+		return $table;
+	}
+
+	function getInstance() {
+		return new self;
+	}
+
+	function redirect($url) {
+		if (DEVELOPMENT) {
+			return '<script>
+				setTimeout(function() {
+					document.location.replace("'.str_replace('"', '&quot;', $url).'");
+				}, 5000);
+			</script>';
+		} else {
+			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
+		}
+	}
+
+	function render() {
+		$view = new View(get_class($this).'.phtml', $this);
+		$content .= $view->render();
 		return $content;
 	}
 
@@ -77,8 +118,25 @@ abstract class Controller {
 		return $this->render().'';
 	}
 
+	static function friendlyURL($string){
+		$string = preg_replace("`\[.*\]`U","",$string);
+		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
+		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
+		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
+		$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
+		return strtolower(trim($string, '-'));
+	}
+
 	function encloseIn($title, $content) {
 		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
+	}
+
+	function encloseInAA($content, $caption = '') {
+		if ($caption) {
+			$content = '<h4>'.$caption.'</h4>'.$content;
+		}
+		$content = '<div class="padding">'.$content.'</div>';
+		return $content;
 	}
 
 }

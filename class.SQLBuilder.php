@@ -493,6 +493,56 @@ class SQLBuilder {
 		return $this->db->perform($query);
 	}
 
+	/**
+	 * Originates from BBMM
+	 * @param type $sword
+	 * @param array $fields
+	 * @return AsIs
+	 */
+	function getSearchWhere($sword, array $fields) {
+		$where = array();
+		$words = $this->getSplitWords($sword);
+		foreach ($words as $word) {
+			$like = array();
+			foreach ($fields as $field) {
+				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
+			}
+			$where[] = new AsIs('('.implode(' OR ', $like).')');
+		}
+		//debug($where);
+		return $where;
+	}
+
+	function getSplitWords($sword) {
+		$sword = trim($sword);
+		$words = explode(' ', $sword);
+		$words = array_map('trim', $words);
+		$words = array_filter($words);
+		$words = array_unique($words);
+		//$words = $this->combineSplitTags($words);
+		$words = array_values($words);
+		return $words;
+	}
+
+	function combineSplitTags($words) {
+		$new = array();
+		$i = 0;
+		foreach ($words as $word) {
+			$word = new String($word);
+			if ($word->contains('[')) {
+				++$i;
+				$in = true;
+			}
+			$new[$i] = $new[$i] ? $new[$i] . ' ' . $word : $word.'';
+			if (!$in || ($in && $word->contains(']'))) {
+				++$i;
+				$in = false;
+			}
+		}
+		//debug(array($words, $new));
+		return $new;
+	}
+
 	function runDeleteQuery($table, array $where) {
 		return $this->db->perform($this->getDeleteQuery($table, $where));
 	}
@@ -501,4 +551,5 @@ class SQLBuilder {
 		return call_user_func_array(array($this->db, $method), $params);
 	}
 */
+
 }

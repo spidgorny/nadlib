@@ -34,6 +34,7 @@ class TaylorProfiler {
     var $running;
     var $output_enabled;
     var $trace_enabled;
+    var $totalTime;
 
     /**
     * Initialise the timer. with the current micro time
@@ -83,7 +84,6 @@ class TaylorProfiler {
 	        $this->startTime[$name] = $this->getMicroTime();
 	        $this->cur_timer=$name;
 	        $this->description[$name] = $desc;
-
 	        if (!array_key_exists($name,$this->count)) {
 	            $this->count[$name] = 1;
 	        } else {

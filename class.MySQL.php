@@ -3,15 +3,32 @@
 class MySQL {
 	public $db;
 	public $lastQuery;
-	public $connection;
+	protected $connection;
 
-	function __construct($db = 'f', $host = 'localhost', $login = 'root', $password = '') {
+	function __construct($db = 'f', $host = '127.0.0.1', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 
+/*		if ($_SERVER['SERVER_NAME'] == 'appointment.at') {
+			$db = 'db281640078';
+			$host = 'db1857.1und1.de';
+			$login = 'dbo281640078';
+			$password = '8rHCatVY';
+		}
+*/
 		$this->db = $db;
+		ini_set('mysql.connect_timeout', 1);
 		$this->connection = mysql_pconnect($host, $login, $password);
-		mysql_selectdb($this->db);
-		mysql_set_charset('utf8');
+		if (!$this->connection) {
+			throw new Exception(mysql_error(), mysql_errno());
+		}
+		$res = mysql_select_db($this->db);
+		if (!$res) {
+			throw new Exception(mysql_error(), mysql_errno());
+		}
+		$res = mysql_set_charset('utf8');
+		if (!$res) {
+			throw new Exception(mysql_error(), mysql_errno());
+		}
 		//debug(mysql_client_encoding()); exit();
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
@@ -40,15 +57,19 @@ class MySQL {
 		)));
 		$profilerKey = __METHOD__." (".$caller.")";
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($profilerKey);
-		$res = mysql_query($query);
+		$res = @mysql_query($query);
 		$this->lastQuery = $query;
 		if (mysql_errno()) {
-			debug(array(
-				'code' => mysql_errno(),
-				'text' => mysql_error(),
-				'query' => $query,
-			));
-			exit();
+			if (DEVELOPMENT) {
+				/*debug(array(
+					'code' => mysql_errno(),
+					'text' => mysql_error(),
+					'query' => $query,
+				));*/
+			}
+			throw new Exception(mysql_errno().': '.mysql_error().
+				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
+			, mysql_errno());
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
