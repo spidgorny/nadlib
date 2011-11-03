@@ -23,4 +23,8 @@ class AsIs {
 		return $this->value.'';
 	}
 
+	function getValue() {
+		return $this->value;
+	}
+
 }

@@ -1,6 +1,7 @@
 <?php
 
 class SQLWhere {
+
 	protected $parts = array();
 
 	function __construct($where = NULL) {

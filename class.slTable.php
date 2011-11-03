@@ -329,8 +329,8 @@ class slTable {
 						$skipCols = $row[$col.'.']['colspan'] ? $row[$col.'.']['colspan'] - 1 : 0;
 					}
 					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, isset($k['more']) ? $k['more'] : NULL);
-					$iCol++;
 				}
+				$iCol++;
 			} else {
 				$t->cell('slTable ?else?');
 			}
