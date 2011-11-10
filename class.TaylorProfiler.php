@@ -294,7 +294,7 @@ class TaylorProfiler {
 	function renderFloat() {
 		$content .= '<div class="floatTime">'.$this->totalTime.'</div>';
 		return $content;
-}
+	}
 
 }
 
