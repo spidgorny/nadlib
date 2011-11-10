@@ -23,4 +23,5 @@ class Profiler {
 		$out = $this->elapsed();
 		print("Done in $out seconds.");
 	}
+
 }
