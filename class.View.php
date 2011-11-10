@@ -18,10 +18,11 @@ class View {
 		$this->file = $file;
 		if ($copyObject) {
 			$this->caller = $copyObject;
-			$vars = get_object_vars($copyObject);
+			/*$vars = get_object_vars($copyObject);
 			if ($vars) foreach ($vars as $prop => $val) {
 				$this->$prop = $val;
 			}
+			*/
 		}
 		$this->request = $GLOBALS['i']->request;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');

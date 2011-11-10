@@ -39,8 +39,8 @@ class ArrayPlus extends IteratorArrayAccess {
 		$self = new self($data);
 		return $self;
 	}
-    
-    	function column($col) {
+
+	function column($col) {
 		$return = array();
 		foreach ($this->data as $key => $row) {
 			$return[$key] = $row[$col];
@@ -77,7 +77,7 @@ class ArrayPlus extends IteratorArrayAccess {
 			$data[$row[$key]] = $row;
 		}
 		$this->data = $data;
-		return $this->data;
+		return $this;
 	}
 
 	function append($value, $key = NULL) {
