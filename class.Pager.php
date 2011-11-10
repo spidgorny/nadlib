@@ -14,8 +14,8 @@ class Pager {
 		if (($pagerData = $_REQUEST['pager'])) {
 //			printbr("Pager initialized with REQUEST");
 			$this->currentPage = (int)($pagerData['page']);
-			$GLOBALS['i']->user->setPref('Pager', array('page' => $this->currentPage));
-		} else if (($pager = $GLOBALS['i']->user->getPref('Pager'))) {
+			Config::getInstance()->user->setPref('Pager', array('page' => $this->currentPage));
+		} else if (($pager = Config::getInstance()->user->getPref('Pager'))) {
 //			printbr("Pager initialized with SESSION");
 			$this->currentPage = $pager['page'];
 		} else {

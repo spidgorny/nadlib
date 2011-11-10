@@ -313,6 +313,9 @@ class dbLayer {
 	}
 
 	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		return pg_fetch_assoc($res);
 	}
 

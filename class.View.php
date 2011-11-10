@@ -3,18 +3,14 @@
 class View {
 	protected $file;
 	protected $caller;
-	/**
-	 * Enter description here...
-	 *
-	 * @var LocalLang
-	 */
-	protected $ll;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var Request
 	 */
 	protected $request;
+
 	protected $parts = array();
 
 	function __construct($file, $copyObject = NULL) {
@@ -27,7 +23,6 @@ class View {
 				$this->$prop = $val;
 			}
 		}
-		$this->ll = $GLOBALS['i']->ll;
 		$this->request = $GLOBALS['i']->request;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}

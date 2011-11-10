@@ -42,8 +42,8 @@ class IndexBase {
 		try {
 			$class = $this->request->getControllerString();
 			$obj = new $class;
-			$content .= $obj->render();
-			$content = $this->content . $content;
+			$this->content .= $obj->render();
+			$content = new View('template.phtml', $this);
 		} catch (LoginException $e) {
 			require('template/head.phtml');
 			$content .= '<div class="headerMargin"></div>';
@@ -68,10 +68,6 @@ class IndexBase {
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
-	}
-
-	function getURL(array $params) {
-		return '?'.http_build_query($params);
 	}
 
 	function destruct() {

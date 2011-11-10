@@ -7,7 +7,7 @@ abstract class Controller {
 	 * @var Index
 	 */
 	public $index;
-	
+
 	/**
 	 *
 	 * @var Request
@@ -34,7 +34,7 @@ abstract class Controller {
 		$this->index = $GLOBALS['i'];
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
-		$this->user = $this->index->user ?: $GLOBALS['UM'];
+		$this->user = $this->index->user ? $this->index->user : $GLOBALS['UM'];
 		$this->title = get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 	}
@@ -72,14 +72,14 @@ abstract class Controller {
 			'.$jsPlus.'" '.$ahrefPlus.'>'.$text.'</a>';
 		return $content;
 	}
-	
+
 	function slideLoad($text, array $params, $div) {
 		$content = '<a href="javascript: void(0);" onclick="
 			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, '').'\');
 		">'.$text.'</a>';
 		return $content;
 	}
-		
+
 	function begins($line, $with) {
 		return (substr($line, 0, strlen($with)) == $with);
 	}
@@ -131,9 +131,9 @@ abstract class Controller {
 		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
 	}
 
-	function encloseInAA($content, $caption = '') {
+	function encloseInAA($content, $caption = '', $h = 'h4') {
 		if ($caption) {
-			$content = '<h4>'.$caption.'</h4>'.$content;
+			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
 		$content = '<div class="padding">'.$content.'</div>';
 		return $content;

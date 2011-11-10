@@ -1,18 +1,25 @@
 <?php
 
 /**
- * Base class for storing datasets or datarows or tabular data or set or array of OODBase based objects.
+ * Base class for storing datasets or datarows or tabular data or set
+ * or array of OODBase based objects.
  *
  */
-
 class Collection {
+	/**
+	 *
+	 * @var BijouDBConnector
+	 */
 	protected $db;
 	protected $table = __CLASS__;
+	var $idField = 'uid';
 	var $parentID = NULL;
 	protected $parentField = 'pid';
-	protected $idField = 'id';
 	var $data = array();
-	protected $thes = array();
+	protected $thes = array(
+		'uid' => 'ID',
+		'title' => 'Title',
+	);
 	var $titleColumn = 'title';
 	public $where = array();
 	public $join = ''; // for LEFT OUTER JOIN queries
@@ -21,16 +28,24 @@ class Collection {
 	 *
 	 * @var Pager
 	 */
-	protected $pager; // initialize if necessary with = new Pager();
+	protected $pager; // initialize if necessary with = new Pager(); in postInit()
 	public $members = array();
-	protected $orderby = 'id';
+	protected $orderBy = "ORDER BY uid";
 
-	function __construct($pid = NULL, array $where = array()) {
+	function __construct($pid = NULL, array $where = array(), $order = '') {
 		$this->db = $GLOBALS['i']->db;
+		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->parentID = $pid;
-		$this->where = $where;
+		$this->where += $where;
+		$this->orderBy = $order ? $order : $this->orderBy;
+		$this->postInit();
 		$this->retrieveDataFromDB();
 		$this->preprocessData();
+		$this->translateThes();
+	}
+
+	function postInit() {
+		//$this->paget = new Pager();
 	}
 
 	function retrieveDataFromDB() {
@@ -49,11 +64,12 @@ class Collection {
 			$where[$this->parentField] = $this->parentID;
 		}
 		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($this->table.' '.$this->join, $where, "ORDER BY ".$this->orderby, 'DISTINCT '.$this->table.'.*', TRUE);
+		$query = $qb->getSelectQuery($this->table.' '.$this->join, $where, $this->orderBy, 'DISTINCT '.$this->table.'.*', TRUE);
 		if ($this->pager) {
 			$this->pager->initByQuery($query);
 			$query .= $this->pager->getSQLLimit();
 		}
+		//debug($query);
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $query;
 	}
@@ -83,7 +99,7 @@ class Collection {
 	function getOptions() {
 		$options = array();
 		foreach ($this->data as $row) {
-			$options[$row['id']] = $row[$this->titleColumn];
+			$options[$row['uid']] = $row[$this->titleColumn];
 		}
 		return $options;
 	}
@@ -111,12 +127,31 @@ class Collection {
 		return $content;
 	}
 
-	function objectify($class) {
-		$this->members = array(); // cleaning as this could be clone copy
-		foreach ($this->data as $row) {
-			$key = $row[$this->idField];
-			$this->members[$key] = new $class($row);
+	function translateThes() {
+		// translate thes
+		foreach ($this->thes as $key => &$trans) {
+			if (is_string($trans) && $trans) {
+				$trans = __($trans);
+			}
 		}
+	}
+
+	/**
+	 * Will detect double-call and do nothing.
+	 *
+	 * @param unknown_type $class
+	 */
+	function objectify($class) {
+		if (!$this->members) {
+			foreach ($this->data as $row) {
+				$key = $row[$this->idField];
+				$this->members[$key] = new $class($row);
+			}
+		}
+	}
+
+	function __toString() {
+		return $this->render().'';
 	}
 
 }
