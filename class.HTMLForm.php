@@ -334,16 +334,8 @@ class HTMLForm {
 		println("<select name=$name id=$name style='width: auto'>");
 		foreach($colors as $color) {
 			println("<option style='background-color: $color' value='$color' " . ($color == $default ? "selected" : "") . ">Color</option>");
-		println("</select>");
-	}
-	
-	function getAttrHTML(array $attr = NULL) {
-		$part = array();
-		if ($attr) foreach ($attr as $key => $val) {
-			$part[] = $key.'="'.htmlspecialchars($val).'"';
 		}
-		$html = implode(' ', $part);
-		return $html;
+		println("</select>");
 	}
 	
 	function recaptcha(array $desc = array()) {
