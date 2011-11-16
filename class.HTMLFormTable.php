@@ -393,7 +393,7 @@ class HTMLFormTable extends HTMLForm {
 		return $desc;
 	}
 
-	static function getForm(array $desc) {
+	static function getQuickForm(array $desc) {
 		$f = new self();
 		$f->showForm($desc);
 		return $f->getBuffer();

@@ -45,7 +45,6 @@ class Collection {
 	}
 
 	function postInit() {
-		//$this->paget = new Pager();
 	}
 
 	function retrieveDataFromDB() {
@@ -74,10 +73,13 @@ class Collection {
 		return $query;
 	}
 
+	/**
+	 * Some fields stored in DB need some conversion for PHP
+	 */
 	function preprocessData() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		foreach ($this->data as &$row) {
-			$row = $this->preprocessRow($row);
+		foreach ($this->data as $i => $row) {
+			$this->data[$i] = $this->preprocessRow($row);
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
