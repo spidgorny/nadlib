@@ -88,10 +88,9 @@ class Collection {
 
 	function render() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$s = new slTable();
-		$s->data = $this->data;
+		$s = new slTable($this->data, 'class="nospacing" width="100%"');
 		$s->thes = $this->thes;
-		$content .= $s->getContent();
+		$content = $s->getContent();
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $content;
 	}
