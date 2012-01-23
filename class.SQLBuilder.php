@@ -547,9 +547,8 @@ class SQLBuilder {
 		return $this->db->perform($this->getDeleteQuery($table, $where));
 	}
 
-/*	function __call($method, array $params) {
+	function __call($method, array $params) {
 		return call_user_func_array(array($this->db, $method), $params);
 	}
-*/
 
 }
