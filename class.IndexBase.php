@@ -29,20 +29,52 @@ class IndexBase {
 	 */
 	public $content = '';
 
+	/**
+	 * @var Controller
+	 */
+	public $controller;
+
+	/**
+	 * @var Index
+	 */
+	protected static $instance;
+
 	function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = new Request();
+	}
+
+	static function getInstance() {
+		$instance = &self::$instance;
+		if (!$instance) {
+			$instance = new Index();
+			$instance->content .= $instance->initController();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $instance;
+	}
+
+	function initController() {
+		$class = $this->request->getControllerString();
+		try {
+			if (class_exists($class)) {
+				$this->controller = new $class;
+			} else {
+				$content = $this->renderException(new Exception('Class '.$class.' not found.'));
+			}
+		} catch (Exception $e) {
+			$content = $this->renderException($e);
+		}
+		return $content;
 	}
 
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$content = '';
 		try {
-			$class = $this->request->getControllerString();
-			$obj = new $class;
-			$this->content .= $obj->render();
+			$this->content .= $this->controller->render();
 			$content = new View('template.phtml', $this);
 		} catch (LoginException $e) {
 			require('template/head.phtml');
@@ -54,19 +86,25 @@ class IndexBase {
 			$loginForm = new LoginForm();
 			$content .= $loginForm->render();
 		} catch (Exception $e) {
-			if (!$_REQUEST['ajax']) {
-				require('template/head.phtml');
-				$content .= '<div class="headerMargin"></div>';
-			}
-			$content .= '
-			<div class="ui-state-error padding">
-				'.$e->getMessage();
-			if ($GLOBALS['i']->user->id < -3) {
-				$content .= '<br>'.nl2br($e->getTraceAsString());
-			}
-			$content .= '</div>';
+			$content = $this->renderException($e);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $content;
+	}
+
+	function renderException(Exception $e) {
+		$content = '';
+		if (!$_REQUEST['ajax']) {
+			require('template/head.phtml');
+			$content .= '<div class="headerMargin"></div>';
+		}
+		$content .= '
+		<div class="ui-state-error padding">
+			'.$e->getMessage();
+		if ($GLOBALS['i']->user->id < -3) {
+			$content .= '<br>'.nl2br($e->getTraceAsString());
+		}
+		$content .= '</div>';
 		return $content;
 	}
 

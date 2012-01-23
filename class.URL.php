@@ -4,6 +4,7 @@ class URL {
 	protected $url;
 	protected $components = array();
 	protected $params;
+	protected $documentRoot = '';
 
 	function __construct($url = NULL) {
 		if (!$url) {
@@ -34,12 +35,26 @@ class URL {
 		$this->components['query'] = $this->buildQuery();
 	}
 
+	function getPath() {
+		$path = $this->components['path'];
+		$path = str_replace($this->documentRoot, '', $path);
+		return $path;
+	}
+
 	function setPath($path) {
 		$this->components['path'] = $path;
 	}
 
+	/**
+	 * Defines the filename in the URL
+	 * @param $name
+	 */
 	function setBasename($name) {
 		$this->components['path'] .= $name;
+	}
+
+	function setDocumentRoot($root) {
+		$this->documentRoot = $root;
 	}
 
 	function buildQuery() {

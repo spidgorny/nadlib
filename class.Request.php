@@ -271,4 +271,21 @@ class Request {
 		return $_SERVER['REQUEST_METHOD'];
 	}
 
+	/**
+	 * @return URL
+	 */
+	function getURL() {
+		$url = new URL($_SERVER['SCRIPT_URL'] ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$url->setDocumentRoot(Config::getInstance()->documentRoot);
+		return $url;
+	}
+
+	function getURLLevel($level) {
+		$url = $this->getURL();
+		$path = $url->getPath();
+		$path = trimExplode('/', $path);
+		//debug($path);
+		return $path[$level];
+	}
+
 }
