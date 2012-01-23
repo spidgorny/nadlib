@@ -1,7 +1,7 @@
 <?php
 
 abstract class UserBase extends OODBase {
-	protected $table = 'user';
+	public $table = 'user';
 	protected $prefs = array();
 	protected static $instances = array();
 
@@ -31,7 +31,7 @@ abstract class UserBase extends OODBase {
 	 * @return unknown
 	 */
 	function checkPassword($login, $password) {
-		$qb = new SQLBuilder();
+		$qb = Config::getInstance()->qb;
 		$query = $qb->getSelectQuery($this->table, array('email' => $login));
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);

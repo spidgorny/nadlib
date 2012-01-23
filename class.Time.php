@@ -1,7 +1,13 @@
 <?php
 
+/**
+ * This is the time inclusive the date.
+ *
+ */
+
 class Time {
 	protected $time;
+	const HUMAN = 'H:i';
 	public $debug;
 	public $human;
 
@@ -80,8 +86,12 @@ class Time {
 		return $this->time > $than->time;
 	}
 
-	function laterOrEqual(Time $than) {
-		return $this->time >= $than->time;
+	function laterEqual(Time $than) {
+/*		debug(array(
+			$this->time,
+			$than->time,
+		));
+*/		return $this->time >= $than->time;
 	}
 
 	/**
@@ -90,7 +100,7 @@ class Time {
 	 * @return unknown
 	 */
 	function getISO() {
-		return gmdate('Y-m-d H:i \G\M\T', $this->time);
+		return gmdate('Ymd\THis\Z', $this->time);
 	}
 
 	/**
@@ -110,6 +120,27 @@ class Time {
 	function getHumanDate() {
 		return date('d.m.Y', $this->time);
 	}
+	
+	function getMySQL() {
+		return gmdate('Y-m-d H:i:s', $this->time);
+	}
+
+	function getDate() {
+		return date('d.m.Y', $this->time);
+	}
+	
+	/**
+	 * 12:21:15
+	 *
+	 * @return unknown
+	 */
+	function getTime($format = 'H:i:s') {
+		return date($format, $this->time);
+	}
+
+	function getDateTime() {
+		return date('d.m.Y H:i:s', $this->time);
+	}
 
 	function getHumanDateTime() {
 		return date('d.m.Y', $this->time).' '.date('H:i', $this->time);
@@ -122,8 +153,32 @@ class Time {
 	 * @return unknown
 	 */
 	function in() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-	    $periods         = array("second", "minute", "hour", "day", "week", "month", "year", "decade");
+		$periods = array(
+			"second",
+			"minute",
+			"hour",
+			"day",
+			"week",
+			"month",
+			"year",
+			"decade"
+		);
+		$pperiods = array(
+			"seconds",
+			"minutes",
+			"hours",
+			"days",
+			"weeks",
+			"months",
+			"years",
+			"decades"
+		);
+		foreach ($periods as &$period) {
+			$period = __($period);
+		}
+		foreach ($pperiods as &$period) {
+			$period = __($period);
+		}
 	    $lengths         = array("60","60","24","7","4.35","12","10");
 
 	    $now             = time();
@@ -131,31 +186,32 @@ class Time {
 
 	       // check validity of date
 	    if(empty($unix_date)) {
-	        return "Bad date";
+	        return __("Bad date");
 	    }
 
 	    // is it future date or past date
 	    if($now > $unix_date) {
 	        $difference     = $now - $unix_date;
-	        $tense         = "ago";
+	        $tense         = __("ago");
 
 	    } else {
 	        $difference     = $unix_date - $now;
-	        $tense         = "from now";
+	        $tense         = __("from now");
 	    }
 
-	    for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
+	    for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
 	        $difference /= $lengths[$j];
 	    }
 
 	    $difference = round($difference);
 
-	    if($difference != 1) {
-	        $periods[$j].= "s";
+	    if ($difference != 1) {
+	    		$period = $pperiods[$j];
+	    } else {
+	    		$period = $periods[$j];
 	    }
 
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-	    return "$difference $periods[$j] {$tense}";
+	    return "$difference $period {$tense}";
 	}
 
 	/**
@@ -164,7 +220,7 @@ class Time {
 	 * @return unknown
 	 */
 	function render() {
-		return '<span class="time">'.$this->in().'</span>';
+		return '<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>';
 	}
 
 	/**
@@ -307,15 +363,6 @@ class Time {
 		return $new;
 	}
 
-	/**
-	 * 12:21:15
-	 *
-	 * @return unknown
-	 */
-	function getTime() {
-		return date('H:i:s', $this->time);
-	}
-
 	function getAdjustedForTZ() {
 		$isoWithoutZ = date('Y-m-d H:i:s', $this->getTimestamp()).' UTC';
 		//debug($isoWithoutZ);
@@ -384,4 +431,8 @@ class Time {
 		return $content;
 	}
 
+	function getTwo() {
+		return strtolower(substr($this->format('D'), 0, 2));
+	}
+	
 }

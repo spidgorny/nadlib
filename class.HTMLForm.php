@@ -334,7 +334,6 @@ class HTMLForm {
 		println("<select name=$name id=$name style='width: auto'>");
 		foreach($colors as $color) {
 			println("<option style='background-color: $color' value='$color' " . ($color == $default ? "selected" : "") . ">Color</option>");
-
 		}
 		println("</select>");
 	}
