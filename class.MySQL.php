@@ -205,7 +205,13 @@ class MySQL {
 		$di = new DIContainer();
 		$di->db = $this;
 		$qb = new SQLBuilder($di);
-		return call_user_func_array(array($qb, $method), $params);
+		//debug_pre_print_backtrace();
+		//debug($method, $params);
+		if (method_exists($qb, $method)) {
+			return call_user_func_array(array($qb, $method), $params);
+		} else {
+			throw new Exception($method.' not found in MySQL and SQLBuilder');
+		}
 	}
 
 }
