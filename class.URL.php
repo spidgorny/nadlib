@@ -84,6 +84,14 @@ class URL {
 		return $r;
 	}
 
+	/**
+	 * @static
+	 * @return URL
+	 */
+	static function getCurrent() {
+		return new URL($_SERVER['REQUEST_URI']);
+	}
+	
 	function GET() {
 		return file_get_contents($this->buildURL());
 	}

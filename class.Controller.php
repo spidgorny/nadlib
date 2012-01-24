@@ -34,10 +34,12 @@ abstract class Controller {
 		$this->index = $GLOBALS['i'];
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
-		$this->user = $this->index->user ? $this->index->user : $GLOBALS['UM'];
 		$this->title = get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
+		$this->user = Config::getInstance()->user;
 	}
+
+	abstract function render();
 
 	function makeURL(array $params, $forceSimple = FALSE) {
 		if ($this->useRouter && !$forceSimple) {

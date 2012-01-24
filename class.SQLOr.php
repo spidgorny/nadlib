@@ -1,7 +1,5 @@
 <?php
 
-require_once('lib/dbLayer/class.SQLBuilder.php');
-
 class SQLOr {
 
 	protected $or = array();
@@ -13,14 +11,16 @@ class SQLOr {
 
 	function __construct(array $ors) {
 		$this->or = $ors;
-		$this->db = $GLOBALS['db'];
+		$this->db = Config::getInstance()->db;
 	}
 
 	function __toString() {
-		$ors = array();
+		/*$ors = array();
 		foreach ($this->or as $or) {
 			$ors[] = $this->db->getWherePart($or, false);
 		}
+		*/
+		$ors = $this->db->quoteWhere($this->or);
 		return '('.implode(' OR ', $ors).')';
 	}
 

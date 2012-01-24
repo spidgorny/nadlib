@@ -112,6 +112,10 @@ class Time {
 		return date('Y-m-d', $this->time);
 	}
 
+	function getISODateTime() {
+		return date('Y-m-d H:i:s', $this->time);
+	}
+
 	/**
 	 * Human readable 21.02.1979
 	 *

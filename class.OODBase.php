@@ -77,7 +77,10 @@ class OODBase {
 		return $res;
 	}
 
-	function delete(array $where) {
+	function delete(array $where = NULL) {
+		if (!$where) {
+			$where = array($this->idField => $this->id);
+		}
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getDeleteQuery($this->table, $where);
 		//debug($query);
