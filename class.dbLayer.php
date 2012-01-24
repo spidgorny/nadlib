@@ -46,7 +46,7 @@ class dbLayer {
 //			error("Query: ".$query);
 //			debug(array_keys($this->QUERIES));
 		}
-		if (Config::getInstance()->debugQueries) {
+		if (0 || Config::getInstance()->debugQueries) {
 			echo 'Query: '.$query.': '.$this->numRows($this->LAST_PERFORM_RESULT).'<br />';
 		}
 		$this->QUERIES[$query] += $prof->elapsed();

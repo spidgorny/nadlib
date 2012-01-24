@@ -76,8 +76,10 @@ class Collection {
 
 	function preprocessData() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		foreach ($this->data as &$row) {
-			$row = $this->preprocessRow($row);
+		//debug($this->data);
+		$this->data = $this->data->getData();
+		foreach ($this->data as $i => $row) { // Iterator by reference
+			$this->data[$i] = $this->preprocessRow($row);
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
