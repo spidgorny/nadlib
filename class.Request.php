@@ -101,9 +101,9 @@ class Request {
 	 * @param unknown_type $name
 	 * @return Time
 	 */
-	function getTime($name) {
+	function getTime($name, $rel = NULL) {
 		if ($this->is_set($name)) {
-			return new Time($this->getTrim($name));
+			return new Time($this->getTrim($name), $rel);
 		}
 	}
 
@@ -113,9 +113,9 @@ class Request {
 	 * @param unknown_type $name
 	 * @return Date
 	 */
-	function getDate($name) {
+	function getDate($name, $rel = NULL) {
 		if ($this->is_set($name)) {
-			return new Date($this->getTrim($name));
+			return new Date($this->getTrim($name), $rel);
 		}
 	}
 
@@ -269,6 +269,12 @@ class Request {
 
 	function getMethod() {
 		return $_SERVER['REQUEST_METHOD'];
+	}
+
+	function append(array $plus) {
+		foreach ($plus as $key => $val) {
+			$this->data[$key] = $val;
+		}
 	}
 
 }
