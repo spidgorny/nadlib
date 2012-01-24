@@ -25,7 +25,7 @@ abstract class Controller {
 	/**
 	 * Enter description here...
 	 *
-	 * @var userMan
+	 * @var User
 	 */
 	public $user;
 
@@ -34,7 +34,7 @@ abstract class Controller {
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
 		$this->title = get_class($this);
-		$this->user = $GLOBALS['UM'];
+		$this->user = Config::getInstance()->user;
 	}
 
 	abstract function render();

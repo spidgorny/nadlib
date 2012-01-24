@@ -7,3 +7,8 @@ class LocalLangDummy {
 	}
 
 }
+
+function __($s) {
+	return $s;
+}
+

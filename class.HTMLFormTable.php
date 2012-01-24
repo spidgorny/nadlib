@@ -165,8 +165,8 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '</label>';
 			}
 			if ($desc['error']) {
-				debug($fieldName, $desc);
-				print '<pre>'.debug_print_backtrace().'</pre>';
+				//debug($fieldName, $desc);
+				//print '<pre>'.debug_print_backtrace().'</pre>';
 				$desc['class'] .= ' error';
 			}
 

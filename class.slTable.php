@@ -210,6 +210,11 @@ class slTable {
 				$link = ($this->sortLinkPrefix ? $this->sortLinkPrefix . '&' : $_SERVER['PHP_SELF'].'?').$this->prefix.'[sortBy]='.$thk.'&'.$this->prefix.'[sortOrder]='.$newSO;
 				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
 			} else {
+				if (is_array($thv) && $thv['clickSort']) {
+					$link = URL::getCurrent();
+					$link->setParam($thv['clickSort'], $thk);
+					$thvName = '<a href="'.$link.'">'.$thvName.'</a>';
+				}
 				$thes2[$thk] = $thvName;
 			}
 		}

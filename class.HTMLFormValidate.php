@@ -21,6 +21,12 @@ class HTMLFormValidate {
 			} elseif ($d['max'] && $d['value'] > $d['max']) {
 				$d['error'] = 'Value too large. Maximum: '.$d['max'];
 				$error = TRUE;
+			} elseif ($d['value'] && $d['validate'] == 'in_array' && !in_array($d['value'], $d['validateArray'])) {
+				$d['error'] = $d['validateError'];
+				$error = TRUE;
+			} elseif ($d['value'] && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
+				$d['error'] = $d['validateError'];
+				$error = TRUE;
 			}
 		}
 		return !$error;
