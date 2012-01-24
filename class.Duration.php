@@ -41,6 +41,10 @@ class Duration extends Time {
 		die(__METHOD__.' - don\'t use.');
 	}
 
+	function getTime() {
+		return gmdate('H:i:s', $this->time);
+	}
+
 	function nice() {
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);

@@ -9,16 +9,25 @@ class Selectable {
 	public $data = array();
 	public $selected;
 
+	/**
+	 * @param $selected - id / array row
+	 */
 	function __construct($selected) {
 		$this->name = get_class($this);
-		if (in_array($selected, array_keys($this->data))) {
-			$this->selected = $selected;
+		if (is_array($selected)) {
+			$this->rows[$selected['id']] = $selected;
+			$this->data[$selected['id']] = $selected['title'];
+			$this->selected = $selected['id'];
 		} else {
-			/*throw new Exception('Invalid selected ('.$selected.') in '.get_class($this).'<br>
-				<li>'.implode('<li>', array_keys($this->data)));
-			 *
-			 */
-			$this->selected = current(array_keys($this->data));
+			if (in_array($selected, array_keys($this->data))) {
+				$this->selected = $selected;
+			} else {
+				/*throw new Exception('Invalid selected ('.$selected.') in '.get_class($this).'<br>
+					<li>'.implode('<li>', array_keys($this->data)));
+				 *
+				 */
+				$this->selected = current(array_keys($this->data));
+			}
 		}
 	}
 

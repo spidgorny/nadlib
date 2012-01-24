@@ -7,7 +7,8 @@ class Preferences {
 	 * @var User
 	 */
 	protected $user;
-	protected $prefs = array();
+
+	public $prefs = array();	// for debug
 
 	function __construct(User $user) {
 		$this->user = $user;
