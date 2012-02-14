@@ -7,7 +7,7 @@ class OODBase {
 	 * @var MySQL
 	 */
 	protected $db;
-	public $table;
+	protected $table;
 	protected $titleColumn = 'name';
 	public $idField = 'id';
 	public $id;

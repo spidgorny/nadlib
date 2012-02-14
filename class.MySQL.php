@@ -7,17 +7,9 @@ class MySQL {
 
 	function __construct($db = 'f', $host = '127.0.0.1', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
-
-/*		if ($_SERVER['SERVER_NAME'] == 'appointment.at') {
-			$db = 'db281640078';
-			$host = 'db1857.1und1.de';
-			$login = 'dbo281640078';
-			$password = '8rHCatVY';
-		}
-*/
 		$this->db = $db;
 		ini_set('mysql.connect_timeout', 1);
-		$this->connection = mysql_pconnect($host, $login, $password);
+		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}

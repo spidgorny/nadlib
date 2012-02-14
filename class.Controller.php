@@ -26,15 +26,23 @@ abstract class Controller {
 	/**
 	 * Enter description here...
 	 *
-	 * @var User/Client/userMan
+	 * @var User
 	 */
 	public $user;
+
+	/**
+	 * Enter description here...
+	 *
+	 * @var Clint
+	 */
+	public $client;
 
 	function __construct() {
 		$this->index = $GLOBALS['i'];
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
 		$this->user = $this->index->user ? $this->index->user : $GLOBALS['UM'];
+		$this->client = $this->index->client;
 		$this->title = get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 	}
@@ -110,7 +118,7 @@ abstract class Controller {
 
 	function render() {
 		$view = new View(get_class($this).'.phtml', $this);
-		$content .= $view->render();
+		$content = $view->render();
 		return $content;
 	}
 

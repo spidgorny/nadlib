@@ -66,6 +66,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 	}
 
 	function render() {
+		assert($this->step);
 		$content .= new View('HTMLFormTimeRange.phtml', $this);
 		return $content;
 	}

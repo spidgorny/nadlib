@@ -57,22 +57,22 @@ abstract class Scaffold extends Controller {
 	public function render() {
 		switch ($this->action) {
 			case 'showForm':
-				$content .= $this->showForm();
+				$content = $this->showForm();
 			break;
 			case 'showEdit':
-				$content .= $this->showForm(array(
+				$content = $this->showForm(array(
 					'action' => 'update',
 					$this->table.'.id' => $this->id,
 				));
 			break;
 			case 'add':
-				$content .= $this->showPerform($this->action);
+				$content = $this->showPerform($this->action);
 			break;
 			case 'update':
-				$content .= $this->showPerform($this->action, $this->id);
+				$content = $this->showPerform($this->action, $this->id);
 			break;
 			default:
-				$content .= $this->showTable();
+				$content = $this->showTable();
 				$content .= $this->showButtons();
 				$content .= '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
 			break;
@@ -85,11 +85,11 @@ abstract class Scaffold extends Controller {
 		$data = $this->processData($data);
 
 		if ($data) {
-			$s = new slTable($data);
+			$s = new slTable($data, 'class="nospacing spaceBelow"');
 			$s->thes($this->thes);
-			$content .= $s->getContent();
+			$content = $s->getContent();
 		} else {
-			$content .= '<div class="message">No data found.</div>';
+			$content = '<div class="message">No data found.</div>';
 		}
 		return $content;
 	}
@@ -103,7 +103,7 @@ abstract class Scaffold extends Controller {
 
 	public function getEditIcon($id) {
 		//makeAjaxLink
-		$content .= $this->makeLink($this->editIcon, array(
+		$content = $this->makeLink($this->editIcon, array(
 			'c' => get_class($this),
 			'pageType' => get_class($this),
 			'ajax' => TRUE,
@@ -114,7 +114,7 @@ abstract class Scaffold extends Controller {
 	}
 
 	protected function showButtons() {
-		$content .= $this->makeAjaxLink('<button>'.$this->addButton.'</button>', array(
+		$content = $this->makeAjaxLink('<button>'.$this->addButton.'</button>', array(
 			'c' => get_class($this),
 			'ajax' => TRUE,
 			'action' => 'showForm',
@@ -141,6 +141,7 @@ abstract class Scaffold extends Controller {
 	 * @return unknown
 	 */
 	public function showPerform($action, $id = NULL) {
+		$content = '';
 		//$userData = $this->request->getArray($this->formPrefix);
 		//debug($userData, $formPrefix);
 
@@ -150,8 +151,8 @@ abstract class Scaffold extends Controller {
 		if ($v->validate()) {
 			try {
 				switch ($action) {
-					case 'add': $content .= $this->insertRecord($this->data); break;
-					case 'update': $content .= $this->updateRecord($this->data); break;
+					case 'add': $content = $this->insertRecord($this->data); break;
+					case 'update': $content = $this->updateRecord($this->data); break;
 					default: {
 						debug(__METHOD__);
 						throw new Exception(__METHOD__);
@@ -176,7 +177,8 @@ abstract class Scaffold extends Controller {
 	}
 
 	/**
-	 * Needs to implement data into the desc internally
+	 * Needs to implement data into the desc internally!!!
+	 * Please use HTMLFormTable::fillValues()
 	 * @param array $data - the source data of the edited record, if in edit more
 	 * @return array
 	 */

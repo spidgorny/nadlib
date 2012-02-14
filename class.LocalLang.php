@@ -232,16 +232,15 @@ class LocalLang {
 	}
 
 	function readDB($lang) {
-		$db = $GLOBALS['i']->db;
-		/* @var $db MySQL */
-		if ($db) {
-			try {
-				$rows = $db->fetchSelectQuery('app_interface', array(
-					'lang' => $lang,
-				), 'ORDER BY id');
-			} catch (Exception $e) {
-				// read from DB failed, continue
-			}
+		try {
+			$db = Config::getInstance()->db;
+			$rows = $db->fetchSelectQuery('app_interface', array(
+				'lang' => $lang,
+			), 'ORDER BY id');
+		} catch (Exception $e) {
+			// read from DB failed, continue
+			//throw new Exception('Reading locallang from DB failed.');
+			// throwing exception leads to making a new instance of LocalLang and it masks DB error
 		}
 		return $rows;
 	}
@@ -263,6 +262,7 @@ class LocalLang {
 }
 
 function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	return $GLOBALS['i']->ll->T($code, $r1, $r2, $r3);
+	$ll = LocalLang::getInstance();
+	return $ll->T($code, $r1, $r2, $r3);
 }
 

@@ -1,7 +1,7 @@
 <?php
 
 abstract class UserBase extends OODBase {
-	public $table = 'user';
+	protected $table = 'user';
 	protected $prefs = array();
 	protected static $instances = array();
 
@@ -25,26 +25,7 @@ abstract class UserBase extends OODBase {
 	}
 
 	/**
-	 *
-	 * @param unknown_type $login
-	 * @param unknown_type $password - plain text password (no, it's md5'ed already)
-	 * @return unknown
-	 */
-	function checkPassword($login, $password) {
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($this->table, array('email' => $login));
-		//debug($query);
-		$row = $this->db->fetchAssoc($query);
-		//debug(array($login, $password, $row['password']));
-		$ok = $row['password'] && $row['password'] == $password;
-		if ($ok) {
-			$this->init($row);
-		}
-		return $ok;
-	}
-
-	/**
-	 * Will md5 password inside.
+	 * Will NOT md5 password inside as Client is UserBased.
 	 *
 	 * @param array $data
 	 * @return unknown
@@ -54,14 +35,14 @@ abstract class UserBase extends OODBase {
 		if ($this->id) {
 			throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
 		} else {
-			$data['password'] = md5($data['password']);
+			//$data['password'] = md5($data['password']);
 			return $this->insertNoUserCheck($data);
 		}
 	}
 
 	function insertNoUserCheck(array $data) {
 		$data['ctime'] = new AsIs('NOW()');
-		$qb = new SQLBuilder();
+		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
