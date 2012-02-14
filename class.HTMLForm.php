@@ -89,7 +89,7 @@ class HTMLForm {
 	}
 
 	/**
-	 * 
+	 *
 	 * Table row with $text and input
 	 * @param unknown_type $text
 	 * @param unknown_type $name
@@ -121,7 +121,7 @@ class HTMLForm {
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
 	}
-	
+
 	function checkLabel($name, $checked, $more = "", $label = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<label><input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." $more> $label</label>";
@@ -177,7 +177,7 @@ class HTMLForm {
 	function submit($value = NULL, $more = "", array $params = array()) {
 		//debug($more);
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=\"submit\" class=\"submit {$params['class']}\" " . ($value?"value=\"$value\"":"") . " $more/>\n";
+		$this->stdout .= "<input type=\"submit\" name=\"submit\" class=\"submit {$params['class']}\" " . ($value?"value=\"$value\"":"") . " $more/>\n";
 	}
 
 	function button($value = NULL) {
@@ -197,9 +197,9 @@ class HTMLForm {
 	}
 
 	function getFormTag() {
-		$a = "<form action=\"{$this->action}\" method=\"{$this->method}\" " . 
-			($this->enctype?" enctype=\"".$this->enctype.'"':"") . 
-			$this->formMore . 
+		$a = "<form action=\"{$this->action}\" method=\"{$this->method}\" " .
+			($this->enctype?" enctype=\"".$this->enctype.'"':"") .
+			$this->formMore .
 			($this->target ? ' target="'.$this->target.'" ' : '').
 		">\n";
 		if ($this->fieldset) {
@@ -328,7 +328,7 @@ class HTMLForm {
 		$html = implode(' ', $part);
 		return $html;
 	}
-	
+
 	function formColorSelector($name, $default) {
 		$colors = explode(",", "#FFFFFF,#CCCCCC,#999999,#990099,#993300,#009900,#000099,#FF0000,#999900,#00FF00,#0000FF,#FF00FF,#FF9933,#FFFF00,#00FFFF");
 		println("<select name=$name id=$name style='width: auto'>");
@@ -337,7 +337,7 @@ class HTMLForm {
 		}
 		println("</select>");
 	}
-	
+
 	function recaptcha(array $desc = array()) {
 		require_once('lib/recaptcha-php-1.10/recaptchalib.php');
 		$content .= recaptcha_get_html($this->publickey, $desc['error']);

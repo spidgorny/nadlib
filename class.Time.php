@@ -120,7 +120,11 @@ class Time {
 	function getHumanDate() {
 		return date('d.m.Y', $this->time);
 	}
-	
+
+	function getHumanTime() {
+		return date('H:i', $this->time);
+	}
+
 	function getMySQL() {
 		return gmdate('Y-m-d H:i:s', $this->time);
 	}
@@ -128,7 +132,7 @@ class Time {
 	function getDate() {
 		return date('d.m.Y', $this->time);
 	}
-	
+
 	/**
 	 * 12:21:15
 	 *
@@ -434,5 +438,5 @@ class Time {
 	function getTwo() {
 		return strtolower(substr($this->format('D'), 0, 2));
 	}
-	
+
 }

@@ -27,7 +27,7 @@ class ConfigBase {
 	public $defaultController = 'Overview';
 
 	protected function __construct() {
-		$this->db = new MySQL('appointment');
+		$this->db = new MySQL($this->db_database, $this->db_server, $this->db_user, $this->db_password);
 		$di = new DIContainer();
 		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);
