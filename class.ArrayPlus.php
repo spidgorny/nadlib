@@ -97,7 +97,8 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 */
 	function each($callback) {
 		foreach ($this->data as $i => &$el) {
-			$el = $callback($el, $i);
+			//$el = $callback($el, $i);
+			$el = call_user_func($callback, $el, $i);
 		} unset($el);
 		return $this;
 	}

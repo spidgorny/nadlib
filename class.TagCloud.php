@@ -7,12 +7,7 @@ class TagCloud {
 	function __construct() {
 		$words = $GLOBALS['i']->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
 		$words = $GLOBALS['i']->db->fetchAll($words);
-		$words = ArrayPlus::create($words)->each(function ($row) {
-			//debug($row);
-			$url = "Companies?sword=".urlencode($row['name']);
-			$row['url'] = $url;
-			return $row;
-		})->getData();
+		$words = ArrayPlus::create($words)->each(array($this, 'parseWords'))->getData();
 		//debug($words);
 		$this->words = $words;
 
@@ -20,8 +15,15 @@ class TagCloud {
 		$count = $ap->column('count')->getData();
 		$count = max($count);
 		//debug($count);
-		$this->count = $count;
+		$this->count = $count; 
 	}
+	
+	function parseWords(array $row) {
+		//debug($row);
+		$url = "Companies?sword=".urlencode($row['name']);
+		$row['url'] = $url;
+		return $row;
+	}		
 
 	function renderHTML() {
 		$cloud = new WordCloud();
