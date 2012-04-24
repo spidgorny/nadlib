@@ -5,7 +5,7 @@ class MySQL {
 	public $lastQuery;
 	protected $connection;
 
-	function __construct($db = 'f', $host = '127.0.0.1', $login = 'root', $password = '') {
+	function __construct($db = '', $host = '127.0.0.1', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 
 /*		if ($_SERVER['SERVER_NAME'] == 'appointment.at') {
@@ -16,6 +16,13 @@ class MySQL {
 		}
 */
 		$this->db = $db;
+		if ($this->db) {
+			$this->connect($db, $host, $login, $password);
+		}
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
+
+	function connect($db, $host, $login, $password) {
 		ini_set('mysql.connect_timeout', 1);
 		$this->connection = mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
@@ -30,7 +37,6 @@ class MySQL {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		//debug(mysql_client_encoding()); exit();
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function getCaller($stepBack = 3) {
