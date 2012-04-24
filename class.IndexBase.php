@@ -18,14 +18,14 @@ class IndexBase {
 	/**
 	 * Enter description here...
 	 *
-	 * @var User
+	 * @var LoginUser
 	 */
 	public $user;
 
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var unknown_type
+	 * @var string
 	 */
 	public $content = '';
 
@@ -39,25 +39,28 @@ class IndexBase {
 	 */
 	protected static $instance;
 
-	function __construct() {
+	protected function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = new Request();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	static function getInstance() {
+	static function getInstance($controller = NULL) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = &self::$instance;
 		if (!$instance) {
 			$instance = new Index();
-			$instance->content .= $instance->initController();
+			$instance->content .= $instance->initController($controller);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $instance;
 	}
 
-	function initController() {
-		$class = $this->request->getControllerString();
+	protected function initController($controller = NULL) {
+		$class = $controller ? $controller : $this->request->getControllerString();
 		//debug($class);
 		try {
 			if (class_exists($class)) {
@@ -79,7 +82,8 @@ class IndexBase {
 		if ($this->controller) {
 			try {
 				$this->content .= $this->controller->render();
-				$content = new View('template.phtml', $this);
+				$v = new View('template.phtml', $this);
+				$content = $v->render();
 			} catch (LoginException $e) {
 				require('template/head.phtml');
 				$content .= '<div class="headerMargin"></div>';
@@ -108,7 +112,7 @@ class IndexBase {
 		$content .= '
 		<div class="ui-state-error padding">
 			'.$e->getMessage();
-		if ($GLOBALS['i']->user->id < -3) {
+		if ($_COOKIE['debug']) {
 			$content .= '<br>'.nl2br($e->getTraceAsString());
 		}
 		$content .= '</div>';

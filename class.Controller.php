@@ -26,20 +26,19 @@ abstract class Controller {
 	/**
 	 * Enter description here...
 	 *
-	 * @var User/Client/userMan
+	 * @var User/Client/userMan/LoginUser
 	 */
 	public $user;
 
 	function __construct() {
-		$this->index = $GLOBALS['i'];
+		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		$this->index = Index::getInstance();
 		$this->request = new Request();
-		$this->db = Config::getInstance()->db;
+		$this->db = &Config::getInstance()->db;
 		$this->title = get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
-		$this->user = Config::getInstance()->user;
+		$this->user = &Index::getInstance()->user;
 	}
-
-	abstract function render();
 
 	function makeURL(array $params, $forceSimple = FALSE) {
 		if ($this->useRouter && !$forceSimple) {
@@ -112,7 +111,7 @@ abstract class Controller {
 
 	function render() {
 		$view = new View(get_class($this).'.phtml', $this);
-		$content .= $view->render();
+		$content = $view->render();
 		return $content;
 	}
 
@@ -138,6 +137,17 @@ abstract class Controller {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
 		$content = '<div class="padding">'.$content.'</div>';
+		return $content;
+	}
+
+	function performAction() {
+		$method = $this->request->getTrim('action');
+		if ($method) {
+			$method .= 'Action';		// ZendFramework style
+			if (method_exists($this, $method)) {
+				$content = $this->$method();
+			}
+		}
 		return $content;
 	}
 

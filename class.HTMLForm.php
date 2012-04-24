@@ -146,11 +146,20 @@ class HTMLForm {
 		}
 		$this->stdout .= $more . ">\n";
 		foreach($aOptions as $value => $option) {
-			$this->stdout .= "<option value=\"$value\"";
 			if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
-				$this->stdout .= " selected";
+				$selected = true;
+			} else {
+				$selected = false;
 			}
-			$this->stdout .= ">$option</option>\n";
+			if ($option instanceof HTMLTag) {
+				$this->stdout .= $option;
+			} else {
+				$this->stdout .= "<option value=\"$value\"";
+				if ($selected) {
+					$this->stdout .= " selected";
+				}
+				$this->stdout .= ">$option</option>\n";
+			}
 		}
 		$this->stdout .= "</select>\n";
 	}
