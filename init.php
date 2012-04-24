@@ -45,9 +45,6 @@ function __autoload($class) {
 
 function debug($a) {
 	print('<pre style="background-color: #EEEEEE; border: dotted 1ps silver; width: auto; '.$preMore.'">');
-	if ($name) {
-		print('<div style="background-color: #888888; color: white;">'.$name.'</div>');
-	}
 	$output = var_export(func_num_args() > 1 ? func_get_args() : $a, TRUE);
 	$output = str_replace("\n(", " (", $output);
 	$output = str_replace("\n        (", " (", $output);

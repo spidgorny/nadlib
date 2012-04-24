@@ -39,8 +39,6 @@ abstract class Controller {
 		$this->user = Config::getInstance()->user;
 	}
 
-	abstract function render();
-
 	function makeURL(array $params, $forceSimple = FALSE) {
 		if ($this->useRouter && !$forceSimple) {
 			$r = new Router();
