@@ -1,7 +1,10 @@
 <?php
 
 class Menu extends Controller {
-	
+
+	/**
+	 * @var array of Recursive
+	 */
 	protected $items = array();
 	
 	function __construct(array $items, $level = 0) {
@@ -16,7 +19,15 @@ class Menu extends Controller {
 			$content .= $this->renderLevel($this->items);
 		} else {
 			$key = $this->request->getURLLevel(0);
-			$content .= $this->renderLevel($this->items[$key], array($key));
+			$subMenu = $this->items[$key];
+			if ($subMenu) {
+				$subMenu = $this->items[$key]->getChildren();
+				if (is_array($subMenu)) {
+					$content .= $this->renderLevel($subMenu, array($key));
+				} else {
+					$content .= '<div class="error">No submenu in '.$key.'</div>';
+				}
+			}
 		}
 		return $content;
 	}

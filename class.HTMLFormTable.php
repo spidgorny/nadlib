@@ -83,6 +83,9 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "check":
 				case "checkbox":
+					if ($desc['set0']) {
+						$this->hidden($fieldName, 0);
+					}
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $desc['more']);
 				break;
 				case "time":
