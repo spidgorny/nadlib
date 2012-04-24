@@ -18,55 +18,104 @@ class IndexBase {
 	/**
 	 * Enter description here...
 	 *
-	 * @var User
+	 * @var LoginUser
 	 */
 	public $user;
 
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var unknown_type
+	 * @var string
 	 */
 	public $content = '';
 
-	function __construct() {
+	/**
+	 * @var Controller
+	 */
+	public $controller;
+
+	/**
+	 * @var Index
+	 */
+	protected static $instance;
+
+	protected function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = new Request();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function render() {
+	static function getInstance($controller = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		try {
-			$class = $this->request->getControllerString();
-			$obj = new $class;
-			$this->content .= $obj->render();
-			$content = new View('template.phtml', $this);
-		} catch (LoginException $e) {
-			require('template/head.phtml');
-			$content .= '<div class="headerMargin"></div>';
-			$content .= '
-			<div class="ui-state-error padding">
-				'.$e->getMessage();
-			$content .= '</div>';
-			$loginForm = new LoginForm();
-			$content .= $loginForm->render();
-		} catch (Exception $e) {
-			if (!$_REQUEST['ajax']) {
-				require('template/head.phtml');
-				$content .= '<div class="headerMargin"></div>';
-			}
-			$content .= '
-			<div class="ui-state-error padding">
-				'.$e->getMessage();
-			if ($GLOBALS['i']->user->id < -3) {
-				$content .= '<br>'.nl2br($e->getTraceAsString());
-			}
-			$content .= '</div>';
+		$instance = &self::$instance;
+		if (!$instance) {
+			$instance = new Index();
+			$instance->content .= $instance->initController($controller);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $instance;
+	}
+
+	protected function initController($controller = NULL) {
+		$class = $controller ? $controller : $this->request->getControllerString();
+		//debug($class);
+		try {
+			if (class_exists($class)) {
+				$this->controller = new $class;
+			} else {
+				$this->controller = NULL;
+				throw new Exception('Class '.$class.' not found.');
+			}
+		} catch (Exception $e) {
+			$this->controller = NULL;
+			$content = $this->renderException($e);
+		}
+		return $content;
+	}
+
+	function render() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$content = '';
+		if ($this->controller) {
+			try {
+				$this->content .= $this->controller->render();
+				$v = new View('template.phtml', $this);
+				$content = $v->render();
+			} catch (LoginException $e) {
+				require('template/head.phtml');
+				$content .= '<div class="headerMargin"></div>';
+				$content .= '
+				<div class="ui-state-error padding">
+					'.$e->getMessage();
+				$content .= '</div>';
+				$loginForm = new LoginForm();
+				$content .= $loginForm->render();
+			} catch (Exception $e) {
+				$content = $this->renderException($e);
+			}
+		} else {
+			$content = $this->content;
+		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $content;
+	}
+
+	function renderException(Exception $e) {
+		$content = '';
+		if (!$_REQUEST['ajax']) {
+			require('template/head.phtml');
+			$content .= '<div class="headerMargin"></div>';
+		}
+		$content .= '
+		<div class="ui-state-error padding">
+			'.$e->getMessage();
+		if ($_COOKIE['debug']) {
+			$content .= '<br>'.nl2br($e->getTraceAsString());
+		}
+		$content .= '</div>';
 		return $content;
 	}
 

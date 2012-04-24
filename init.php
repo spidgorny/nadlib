@@ -1,14 +1,11 @@
 <?php
 
 error_reporting(E_ALL ^ E_NOTICE);
-//error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 header('Cache-Control: max-age=0');
 header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
-
-if ($_COOKIE['debug']) {
-	define('DEVELOPMENT', true);
-}
+date_default_timezone_set('Europe/Berlin');
+define('DEVELOPMENT', $_COOKIE['debug']);
 
 // remove cookies from $_REQUEST
 //debug($_COOKIE);
@@ -24,27 +21,27 @@ foreach ($_COOKIE as $key => $_) {
 
 function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+	$classFile = end(explode('\\', $class));
 	$folders = array(
 		'../class',
 		'../nadlib',
 		'../model',
-		'../model/Tag',
 		'../../class',
 	);
 	foreach ($folders as $path) {
-		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$class.'.php';
+		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';
 		//debug($file, file_exists($file));
 		if (file_exists($file)) {
 			include_once($file);
 			break;
 		}
 	}
-	if (!class_exists($class)) throw new Exception('Class '.$class.' not found.');
+	if (!class_exists($class)) throw new Exception('Class '.$class.' ('.$file.') not found.');
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 }
 
 function debug($a) {
-	print('<pre style="background-color: #EEEEEE; border: dotted 1ps silver; width: auto; '.$preMore.'">');
+	print('<pre style="background-color: #EEEEEE; border: dotted 1ps silver; width: auto;">');
 	$output = var_export(func_num_args() > 1 ? func_get_args() : $a, TRUE);
 	$output = str_replace("\n(", " (", $output);
 	$output = str_replace("\n        (", " (", $output);
@@ -61,6 +58,20 @@ function nodebug() {
 
 function getDebug($a, $b = NULL, $c = '') {
 	ob_start();
-	debug($a, $b, $c);
+	debug($a);
 	return ob_get_clean();
+}
+
+function trimExplode($sep, $str) {
+	$parts = explode($sep, $str);
+	$parts = array_map('trim', $parts);
+	$parts = array_filter($parts);
+	$parts = array_values($parts);
+	return $parts;
+}
+
+function debug_pre_print_backtrace() {
+	print '<pre>';
+	debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	print '</pre>';
 }

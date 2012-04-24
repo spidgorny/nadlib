@@ -16,8 +16,10 @@ class dbLayer {
 	var $LAST_PERFORM_QUERY;
 	var $QUERIES = array();
 	var $QUERYMAL = array();
+	public $saveQueries = false;
 
 	function dbLayer($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
+		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
@@ -46,8 +48,13 @@ class dbLayer {
 //			error("Query: ".$query);
 //			debug(array_keys($this->QUERIES));
 		}
-		$this->QUERIES[$query] += $prof->elapsed();
-		$this->QUERYMAL[$query]++;
+		if (0 || Config::getInstance()->debugQueries) {
+			echo 'Query: '.$query.': '.$this->numRows($this->LAST_PERFORM_RESULT).'<br />';
+		}
+		if ($this->saveQueries) {
+			$this->QUERIES[$query] += $prof->elapsed();
+			$this->QUERYMAL[$query]++;
+		}
 		$this->COUNTQUERIES++;
 		return $this->LAST_PERFORM_RESULT;
 	}
@@ -441,6 +448,17 @@ class dbLayer {
 			}
 		}
 		return $out;
+	}
+
+	function setPGArray(array $data) {
+		foreach ($data as &$el) {
+			if (is_array($el)) {
+				$el = $this->setPGArray($el);
+			} else {
+				$el = pg_escape_string($el);
+			}
+		}
+		return '{'.implode(',', $data).'}';
 	}
 
 	function escape($str) {

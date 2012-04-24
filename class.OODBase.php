@@ -20,8 +20,9 @@ class OODBase {
 	 * as associative array
 	 */
 	function __construct($id = NULL) {
+		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->table = Config::getInstance()->prefixTable($this->table);
-		$this->db = Config::getInstance()->db;
+		$this->db = &Config::getInstance()->db;
 		$this->init($id);
 		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
@@ -84,7 +85,7 @@ class OODBase {
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getDeleteQuery($this->table, $where);
 		//debug($query);
-		$this->db->perform($query);
+		return $this->db->perform($query);
 	}
 
 	/**
@@ -103,6 +104,15 @@ class OODBase {
 		}
 		$this->init($this->data); // array, otherwise infinite loop
 		return $this->id;
+	}
+
+	static function findInstance(array $where, $static = 'Assignment') {
+		//$static = get_called_class();
+		//$static = 'Assignment'; // PHP 5.3 required
+		//debug($static);
+		$obj = new $static();
+		$obj->findInDB($where);
+		return $obj;
 	}
 
 	/**
@@ -126,6 +136,14 @@ class OODBase {
 	function __toString() {
 		//return new slTable(array(array_keys($this->data), array_values($this->data))).'';
 		return $this->getName();
+	}
+
+	function insertOrUpdate() {
+		if ($this->id) {
+			$this->update($this->data);
+		} else {
+			$this->insert($this->data);
+		}
 	}
 
 }

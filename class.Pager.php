@@ -6,6 +6,7 @@ class Pager {
 	var $startingRecord = 0;
 	var $currentPage = 0;
 	var $url;
+	var $pagesAround = 3;
 
 	function Pager($itemsPerPage = NULL) {
 		if ($itemsPerPage) {
@@ -14,8 +15,8 @@ class Pager {
 		if (($pagerData = $_REQUEST['pager'])) {
 //			printbr("Pager initialized with REQUEST");
 			$this->currentPage = (int)($pagerData['page']);
-			Config::getInstance()->user->setPref('Pager', array('page' => $this->currentPage));
-		} else if (($pager = Config::getInstance()->user->getPref('Pager'))) {
+			Index::getInstance()->user->setPref('Pager', array('page' => $this->currentPage));
+		} else if (($pager = Index::getInstance()->user->getPref('Pager'))) {
 //			printbr("Pager initialized with SESSION");
 			$this->currentPage = $pager['page'];
 		} else {
@@ -27,7 +28,7 @@ class Pager {
 
 	function initByQuery($query) {
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
-		$res = $GLOBALS['i']->db->fetchAssoc($query);
+		$res = Config::getInstance()->db->fetchAssoc($query);
 		$this->setNumberOfRecords($res['count']);
 	}
 
@@ -46,6 +47,8 @@ class Pager {
 
 	function setItemsPerPage($items) {
 		$this->itemsPerPage = $items;
+		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
+		//debug($this);
 	}
 
 	function getSQLLimit() {
@@ -76,18 +79,19 @@ class Pager {
 	}
 
 	protected function showSearchBrowser() {
+		$content = '';
 		$maxpage = $this->getMaxPage();
  		$pages = $this->getPagesAround($this->currentPage, $maxpage);
  		//debug(array($pages, $current['searchIndex'], sizeof($tmpArray)));
  		if ($this->currentPage > 0) {
 			$link = $this->url.'&pager[page]='.($this->currentPage-1);
-			$content .= '<a href="'.$link.'">&lt;</a>';
+			$content .= '<a href="'.$link.'" rel="prev">&lt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&lt;</span>';
  		}
  		foreach ($pages as $k) {
  			if ($k === 'gap1' || $k === 'gap2') {
- 				$content .= '<div class="page">  .....  </div>';
+ 				$content .= '<div class="page">  &hellip;  </div>';
  			} else {
 				$link = $this->url.'&pager[page]='.$k;
 				if ($k == $this->currentPage) {
@@ -99,7 +103,7 @@ class Pager {
 		}
  		if ($this->currentPage < (sizeof($pages)-1)) {
 			$link = $this->url.'&pager[page]='.($this->currentPage+1);
-			$content .= '<a href="'.$link.'">&gt;</a>';
+			$content .= '<a href="'.$link.'" rel="next">&gt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&gt;</span>';
  		}
@@ -108,13 +112,13 @@ class Pager {
 			<input type='submit' value='Page' class='submit'>
 		</form>";
  		//debug($term);
-		$content = '<div class="paginationControl">'.$content.'&nbsp;'.$form.'</div><div style="clear: both;"></div>';
+		$content = '<div class="paginationControl">'.$content.'&nbsp;'.$form.'</div>';
 		//$content = $this->enclose('Search Browser ('.sizeof($tmpArray).')', $content);
 		return $content;
 	}
 
 	function getPagesAround($current, $max) {
-		$size = 5;
+		$size = $this->pagesAround;
 		$_s = 3;
 		$pages = array();
 		for ($i = 0; $i < $size; $i++) {

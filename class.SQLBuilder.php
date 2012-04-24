@@ -245,7 +245,14 @@ class SQLBuilder {
 
 	function quoteKey($key) {
 		if (in_array(strtoupper($key), $this->reserved)) {
-			$key = '`'.$key.'`';
+			if ($this->db instanceof MySQL) {
+				$key = '`'.$key.'`';
+			} else if ($this->db instanceof dbLayer && !in_array($key, array(
+				'-like',
+			))) {
+				//$key = "'".$key."'";
+				$key = '"'.$key.'"';
+			}
 		}
 		return $key;
 	}
@@ -383,10 +390,7 @@ class SQLBuilder {
 		$table1 = $this->getFirstWord($table);
 		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
 		$q = "SELECT $select FROM " . $this->quoteKey($table);
-		$set = $this->quoteWhere($where);
-		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" AND ", $set);
-		}
+		$q .= $where->__toString();
 		$q .= " ".$order;
 		return $q;
 	}
