@@ -6,4 +6,14 @@
 
 class SQLWherePart {
 
+	protected $sql = '';
+
+	function __construct($sql) {
+		$this->sql = $sql;
+	}
+
+	function __toString() {
+		return $this->sql;
+	}
+
 }

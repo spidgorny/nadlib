@@ -83,6 +83,9 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "check":
 				case "checkbox":
+					if ($desc['set0']) {
+						$this->hidden($fieldName, 0);
+					}
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $desc['more']);
 				break;
 				case "time":
@@ -143,10 +146,12 @@ class HTMLFormTable extends HTMLForm {
 				break;
 			}
 		}
-		if ($desc['append'] && $desc['type'] != 'hidden') {
+/*
+ *		Is dealt with in showCell already
+ *		if ($desc['append'] && $desc['type'] != 'hidden') {
 			$this->text($desc['append']);
 		}
-		return $elementID;
+*/		return $elementID;
 	}
 
 	function showCell($fieldName, array $desc) {
