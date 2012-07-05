@@ -56,7 +56,6 @@ class HTMLFormValidate {
 				if (!$fv->validate()) {
 					$d['dependant'] = $fv->getDesc();
 				}
-			}
 			} elseif ($d['max'] && $d['value'] > $d['max']) {
 				$d['error'] = 'Value too large. Maximum: '.$d['max'];
 				$error = TRUE;

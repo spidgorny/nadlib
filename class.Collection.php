@@ -157,6 +157,7 @@ class Collection {
 				$this->members[$key] = new $class($row);
 			}
 		}
+		return $this->members;
 	}
 
 	function __toString() {
