@@ -260,7 +260,11 @@ class SQLBuilder {
 	function quoteSQL($value) {
 		if ($value instanceof AsIs) {
 			return $value->__toString();
-		} elseif ($value instanceof Time) {
+		} else if ($value instanceof AsIsOp) {
+			return $value->__toString();
+		} else if ($value instanceof SQLOr) {
+			return $value->__toString();
+		} else if ($value instanceof Time) {
 			return "'".$value->__toString()."'";
 		} else if ($value === NULL) {
 			return "NULL";
@@ -323,6 +327,8 @@ class SQLBuilder {
 					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {
 					$set[] = $val;
+				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
+					$set[] = $key." IN ('".implode("', '", $val)."')";
 				} else {
 					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
