@@ -3,18 +3,28 @@
 class View {
 	protected $file;
 	protected $caller;
-	protected $parts;
+
+	/**
+	 * Enter description here...
+	 *
+	 * @var Request
+	 */
+	protected $request;
+
+	protected $parts = array();
 
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
 		$this->file = $file;
 		if ($copyObject) {
 			$this->caller = $copyObject;
-			$vars = get_object_vars($copyObject);
+			/*$vars = get_object_vars($copyObject);
 			if ($vars) foreach ($vars as $prop => $val) {
 				$this->$prop = $val;
 			}
+			*/
 		}
+		$this->request = $GLOBALS['i']->request;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 

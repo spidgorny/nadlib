@@ -7,10 +7,10 @@ class ConfigBase {
 	 */
 	protected static $instance;
 
-	public $server = '127.0.0.1';
-	public $database = 'rechnung_plus';
-	public $user = 'root';
-	public $password = '';
+	public $db_server = '127.0.0.1';
+	public $db_database = 'rechnung_plus';
+	public $db_user = 'root';
+	public $db_password = '';
 
 	/**
 	 *
@@ -27,7 +27,7 @@ class ConfigBase {
 	public $defaultController = 'Overview';
 
 	protected function __construct() {
-		$this->db = $GLOBALS['i']->db;
+		$this->db = new MySQL('appointment');
 		$di = new DIContainer();
 		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);
@@ -38,8 +38,15 @@ class ConfigBase {
 	 * @return Config
 	 */
 	public static function getInstance() {
-		if (!self::$instance) self::$instance = new Config();
+		if (!self::$instance) {
+			self::$instance = new Config();
+			self::$instance->postInit();
+		}
 		return self::$instance;
+	}
+
+	protected function postInit() {
+		// init user here as he needs to access Config::getInstance()
 	}
 
 	public function prefixTable($a) {

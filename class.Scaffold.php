@@ -2,13 +2,14 @@
 
 abstract class Scaffold extends Controller {
 	protected $table = 'override this for sure';
+
 	/**
 	 * Name of the form fields: scaffold[asd]
-	 *
 	 */
 	protected $formPrefix = 'scaffold';
 	protected $thes = array();
 	protected $addButton = 'Add';
+	protected $updateButton = 'Save';
 	protected $action;
 	/**
 	 * OODBase based model class to modify database.
@@ -26,6 +27,7 @@ abstract class Scaffold extends Controller {
 		parent::__construct();
 		$this->translateThes();
 		$this->addButton = __($this->addButton);
+		$this->updateButton = __($this->updateButton);
 		$this->action = $this->request->getTrim('action');
 		$this->id = $this->request->getInt($this->table.'_id');
 		if (!$this->id) {
@@ -81,10 +83,7 @@ abstract class Scaffold extends Controller {
 
 	public function showTable() {
 		$data = $this->fetchData();
-
-		foreach ($data as &$row) {
-			$row['edit'] = $this->getEditIcon($row['id']);
-		}
+		$data = $this->processData($data);
 
 		if ($data) {
 			$s = new slTable($data);
@@ -94,6 +93,13 @@ abstract class Scaffold extends Controller {
 			$content = '<div class="message">No data found.</div>';
 		}
 		return $content;
+	}
+
+	function processData(array $data) {
+		foreach ($data as &$row) {
+			$row['edit'] = $this->getEditIcon($row['id']);
+		}
+		return $data;
 	}
 
 	public function getEditIcon($id) {
@@ -118,8 +124,9 @@ abstract class Scaffold extends Controller {
 	}
 
 	public function showForm(array $override = array()) {
-		$f = $this->getForm();
+		$f = $this->getForm($action = $override['action'] ? $override['action'] : 'add');
 		$f->prefix('');
+		unset($override['action']);
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
@@ -145,8 +152,8 @@ abstract class Scaffold extends Controller {
 		if ($v->validate()) {
 			try {
 				switch ($action) {
-					case 'add': /*$content .=*/ $this->insertRecord($this->data); break;
-					case 'update': /*$content .=*/ $this->updateRecord($this->data); break;
+					case 'add': $content .= $this->insertRecord($this->data); break;
+					case 'update': $content .= $this->updateRecord($this->data); break;
 					default: {
 						debug(__METHOD__);
 						throw new Exception(__METHOD__);
@@ -158,7 +165,7 @@ abstract class Scaffold extends Controller {
 			}
 		} else {
 			//$desc = $v->getDesc();
-			$content .= '<div class="ui-state-error">Validation failed. Check your form below:</div>';
+			$content .= '<div class="message ui-state-error">Validation failed. Check your form below:</div>';
 			$content .= $this->showForm();
 			//debug($desc['participants'], $userData['participants']);
 		}
@@ -172,21 +179,28 @@ abstract class Scaffold extends Controller {
 
 	/**
 	 * Needs to implement data into the desc internally
-	 * @param array $data
-	 * @return type
+	 * @param array $data - the source data of the edited record, if in edit more
+	 * @return array
 	 */
 	protected function getDesc(array $data = NULL) {
 		return array();
 	}
 
-	protected function getForm() {
+	/**
+	 * Default is add action, override to update
+	 *
+	 * @param array $desc
+	 * @param unknown_type $action
+	 * @return unknown
+	 */
+	protected function getForm($action = 'add') {
 		$f = new HTMLFormTable();
 		$f->hidden('c', get_class($this));
-		$f->hidden('action', 'add');
+		$f->hidden('action', $action);
 		$f->hidden('ajax', TRUE);
 		$f->prefix($this->formPrefix);
 		$f->showForm($this->desc);
-		$f->submit();
+		$f->submit($this->addButton);
 		return $f;
 	}
 

@@ -1,6 +1,7 @@
 <?php
 
 class SQLWhere {
+
 	protected $parts = array();
 
 	function __construct($where = NULL) {
@@ -13,6 +14,13 @@ class SQLWhere {
 
 	function add($where) {
 		$this->parts[] = $where;
+	}
+
+	function addArray(array $where) {
+		foreach ($where as $el) {
+			$this->add($el);
+		}
+		return $this;
 	}
 
 	function __toString() {
