@@ -65,6 +65,7 @@ class HTMLForm {
 	}
 */
 	function getName($name, $namePlus = '', $onlyValue = FALSE) {
+		$a = '';
 		if ($this->prefix) {
 			if (is_array($name)) {
 				$a .= "{$this->prefix}[".implode("][", $name)."]";
@@ -116,7 +117,6 @@ class HTMLForm {
 	}
 
 	function check($name, $checked, $more = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." $more>";
 	}
 
@@ -172,10 +172,8 @@ class HTMLForm {
 		$this->stdout .= "<input type=\"submit\" class=\"submit {$params['class']}\" " . ($value?'value="'.$value.'"':"") . " $more />\n";
 	}
 
-	function button($value = NULL) {
-		//debug($more);
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<button $more>$value</button>\n";
+	function button($innerHTML = NULL, $more = '') {
+		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
 	function image($value = NULL, $more = "", $desc = array()) {

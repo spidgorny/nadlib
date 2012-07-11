@@ -112,6 +112,9 @@ class HTMLFormTable extends HTMLForm {
 			case 'ajaxSingleChoice':
 				$this->ajaxSingleChoice($fieldName, $fieldValue, $desc);
 			break;
+			case 'button':
+				$this->button($desc['innerHTML'], $desc['more']);
+			break;
 			case "input":
 			default:
 				//$this->text(htmlspecialchars($desc['more']));

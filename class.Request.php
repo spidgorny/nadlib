@@ -227,7 +227,7 @@ class Request {
 	}
 
 	function isSubmit() {
-		return $this->isPOST() || $this->getBool('submit');
+		return $this->isPOST() || $this->getBool('submit') || $this->getBool('btnSubmit') ;
 	}
 
 	function getDateFromYMD($name) {
@@ -271,9 +271,25 @@ class Request {
 		return $_SERVER['REQUEST_METHOD'];
 	}
 
-	function append(array $plus) {
+	/**
+	 * Will overwrite.
+	 * @param array $plus
+	 */
+	function setArray(array $plus) {
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
+		}
+	}
+
+	/**
+	 * Will NOT overwrite.
+	 * @param array $plus
+	 */
+	function appendArray(array $plus) {
+		foreach ($plus as $key => $val) {
+			if (!isset($this->data[$key])) {
+				$this->data[$key] = $val;
+			}
 		}
 	}
 
