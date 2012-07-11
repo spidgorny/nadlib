@@ -53,4 +53,10 @@ abstract class Grid extends Controller {
 		}
 	}
 
+	function render() {
+		$content = $this->collection;
+		$content = $this->encloseInAA($content, $this->title = get_class($this), 'h1');
+		return $content;
+	}
+
 }

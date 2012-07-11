@@ -40,6 +40,7 @@ class URL {
 	function getPath() {
 		$path = $this->components['path'];
 		$path = str_replace($this->documentRoot, '', $path);
+		//debug($this->components['path'], $this->documentRoot, $path);
 		return $path;
 	}
 

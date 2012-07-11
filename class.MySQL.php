@@ -4,17 +4,10 @@ class MySQL {
 	public $db;
 	public $lastQuery;
 	protected $connection;
+	public $queryLog = array();		// set to NULL for disabling
 
 	function __construct($db = '', $host = '127.0.0.1', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
-
-/*		if ($_SERVER['SERVER_NAME'] == 'appointment.at') {
-			$db = 'db281640078';
-			$host = 'db1857.1und1.de';
-			$login = 'dbo281640078';
-			$password = '8rHCatVY';
-		}
-*/
 		$this->db = $db;
 		if ($this->db) {
 			$this->connect($db, $host, $login, $password);
@@ -63,7 +56,11 @@ class MySQL {
 		)));
 		$profilerKey = __METHOD__." (".$caller.")";
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($profilerKey);
+		$start = microtime(true);
 		$res = @mysql_query($query);
+		if (!is_null($this->queryLog)) {
+			$this->queryLog[$query] += microtime(true) - $start;
+		}
 		$this->lastQuery = $query;
 		if (mysql_errno()) {
 			if (DEVELOPMENT) {

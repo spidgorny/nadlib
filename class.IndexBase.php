@@ -106,7 +106,7 @@ class IndexBase {
 	function renderException(Exception $e) {
 		$content = '';
 		if (!$_REQUEST['ajax']) {
-			require('template/head.phtml');
+			@include('template/head.phtml');
 			$content .= '<div class="headerMargin"></div>';
 		}
 		$content .= '
