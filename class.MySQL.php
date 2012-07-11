@@ -32,7 +32,7 @@ class MySQL {
 		//debug(mysql_client_encoding()); exit();
 	}
 
-	function getCaller($stepBack = 3) {
+	function getCaller($stepBack = 2) {
 		$btl = debug_backtrace();
 		reset($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
@@ -51,8 +51,9 @@ class MySQL {
 			$c++;
 		} while (in_array($caller, array(
 			'MySQL::fetchSelectQuery',
-			'OODBase::findInDB',
-			'FlexiTable::findInDB',
+			'MySQL::runSelectQuery',
+			//'OODBase::findInDB',
+			//'FlexiTable::findInDB',
 		)));
 		$profilerKey = __METHOD__." (".$caller.")";
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($profilerKey);

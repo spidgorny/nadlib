@@ -25,13 +25,20 @@ class dbLayerMS {
 		mssql_select_db($this->database);
 	}
 
+	function close() {
+		mssql_close($this->connection);
+	}
+
 	function perform($query, array $arguments = array()) {
 		foreach ($arguments as $ar) {
 			$query = str_replace('?', $ar, $query);
 		}
 		$res = mssql_query($query, $this->connection);
-		if (mssql_get_last_message()) {
-			debug(mssql_get_last_message(), $query);
+		$msg = mssql_get_last_message();
+		if ($msg && $msg != "Changed database context to 'DEV_LOTCHECK'.") {
+			debug($msg, $query);
+			$this->close();
+			$this->connect();
 		}
 		$this->lastQuery = $query;
 		return $res;

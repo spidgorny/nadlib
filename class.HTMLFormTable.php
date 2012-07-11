@@ -117,6 +117,8 @@ class HTMLFormTable extends HTMLForm {
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
 				break;
+				case 'combo':
+					$this->combo($fieldName, $desc);
 				case 'button':
 					$this->button($desc['innerHTML'], $desc['more']);
 				break;
@@ -183,8 +185,8 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '</label>';
 			}
 			if ($desc['error']) {
-				debug($fieldName, $desc);
-				print '<pre>'.debug_print_backtrace().'</pre>';
+				//debug($fieldName, $desc);
+				//print '<pre>'.debug_print_backtrace().'</pre>';
 				$desc['class'] .= ' error';
 			}
 
@@ -281,6 +283,7 @@ class HTMLFormTable extends HTMLForm {
 			} else {
 				$path[] = $fieldName;
 			}
+			//debug($path);
 
 			if (is_array($fieldDesc) && $fieldDesc['type'] != 'hidden') {
 				if (!$fieldDesc['horisontal']) {
@@ -308,6 +311,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->stdout .= "</tr>";
 				}
 			} else {
+				//t3lib_div::debug(array($path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
 		}
@@ -360,6 +364,7 @@ class HTMLFormTable extends HTMLForm {
 	 *
 	 * @param	array	Structure of the HTMLFormTable
 	 * @param	array	Values in one of the supported formats.
+	 * @param	boolean	??? what's for?
 	 * @return	array	HTMLFormTable structure.
 	 */
 
@@ -428,9 +433,11 @@ class HTMLFormTable extends HTMLForm {
 			//debugster($desc);
 			$options = Config::getInstance()->db->getTableOptions($desc['from'],
 				$desc['title'],
-				trim($desc['where'] . ' ' . $desc['order']),
-				$desc['idField'] ? $desc['idField'] : 'id',
-				$desc['noDeleted']);
+				$desc['where'] ? $desc['where'] : array(),
+				$desc['order'],
+				$desc['idField'] ? $desc['idField'] : 'id'
+				//$desc['noDeleted']
+			);
 		} else {
 			$options = array();
 		}
@@ -441,24 +448,6 @@ class HTMLFormTable extends HTMLForm {
 			$options = array(NULL => "---") + $options;
 		}
 		return $options;
-
-// merge with
-if ($desc['from'] && $desc['title']) {
-						$options = Config::getInstance()->db->getTableOptions($desc['from'],
-						$desc['title'],
-						$desc['where'] ? $desc['where'] : array(),
-						$desc['order'],
-						$desc['idField'] ? $desc['idField'] : 'id'
-						//$desc['noDeleted']
-						);
-					} else {
-						$options = array();
-					}
-					if ($desc['options']) {
-						$options += $desc['options'];
-					}
-					if ($desc['null']) {
-						$options = array(NULL => "---") + $options;
-					}	}
+	}
 
 }
