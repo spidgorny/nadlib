@@ -36,20 +36,21 @@ class Menu extends Controller {
 		//debug($this->level, $current, $level);
 		foreach ($items as $class => $name) {
 			$act = $current == $class ? ' class="act"' : '';
+			$active = $current == $class ? ' class="active"' : '';
 			if ($class != $root[0]) {
 				$path = array_merge($root, array($class));
 			} else {
 				$path = array($class);
 			}
 			$path = implode('/', $path);
-			$content .= '<li><a href="'.$path.'"'.$act.'>'.$name.'</a></li>';
+			$content .= '<li '.$active.'><a href="'.$path.'"'.$act.'>'.$name.'</a></li>';
 
 			if ($isRecursive && $class == $current && $items[$class]->getChildren()) {
 				$root_class = array_merge($root, array($class));
 				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1);
 			}
 		}
-		$content = '<ul>'.$content.'</ul>';
+		$content = '<ul class="nav nav-list">'.$content.'</ul>';
 		return $content;
 	}
 

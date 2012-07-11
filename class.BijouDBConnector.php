@@ -170,4 +170,8 @@ class BijouDBConnector {
 		return $result;
 	}
 
+	function escape($str) {
+		return mysql_real_escape_string($str);
+	}
+
 }
