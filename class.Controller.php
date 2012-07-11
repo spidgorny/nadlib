@@ -62,6 +62,8 @@ abstract class Controller {
 		)+$params);
 	}
 
+	function makeLink($text, $params, $page = '') {
+		$content = '<a href="'.$page.$this->makeURL($params).'">'.$text.'</a>';
 	function makeLink($text, array $params) {
 		$content = '<a href="'.$this->makeURL($params).'">'.$text.'</a>';
 		return $content;

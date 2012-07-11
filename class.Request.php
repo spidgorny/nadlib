@@ -228,7 +228,7 @@ class Request {
 	}
 
 	function isSubmit() {
-		return $this->isPOST() || $this->getBool('submit');
+		return $this->isPOST() || $this->getBool('submit') || $this->getBool('btnSubmit') ;
 	}
 
 	function getDateFromYMD($name) {
@@ -273,6 +273,16 @@ class Request {
 	}
 
 	/**
+	 * Will overwrite.
+	 * @param array $plus
+	 */
+	function setArray(array $plus) {
+		foreach ($plus as $key => $val) {
+			$this->data[$key] = $val;
+		}
+	}
+	
+	/**
 	 * @return URL
 	 */
 	function getURL() {
@@ -290,7 +300,6 @@ class Request {
 	}
 
 	/**
-	 * Overwriting - no
 	 * @param array $plus
 	 */
 	function append(array $plus) {

@@ -56,6 +56,40 @@ class HTMLForm {
 		$this->class = $c;
 	}
 
+	function fieldset($name) {
+		$this->fieldset = $name;
+	}
+
+/*	function getName($name) {
+		if ($this->prefix) {
+			$a .= " name={$this->prefix}[$name] ";
+		} else {
+			$a .= " name=$name ";
+		}
+		if ($this->class) {
+			$a .= " class={$this->class} ";
+		} else {
+			$a .= "";
+		}
+		return $a;
+	}
+*/
+	function getName($name, $namePlus = '', $onlyValue = FALSE) {
+		$a = '';
+		if ($this->prefix) {
+			if (is_array($name)) {
+				$a .= "{$this->prefix}[".implode("][", $name)."]";
+			} else {
+				$a .= $this->prefix.'['.$name.']'.$namePlus;
+			}
+		} else {
+			if (is_array($name)) {
+				reset($name);
+				$a .= "".current($name);
+			} else {
+				$a .= "$name";
+			}
+		}
 	function fieldset($name, $more = array()) {
 		$this->fieldset = $name;
 		$this->fieldsetMore = $more;
@@ -117,6 +151,9 @@ class HTMLForm {
 		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." $more>";
 	}
 
+	function check($name, $checked, $more = "") {
+		$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." $more>";
+	}
 	function check($name, $value = 1, $checked = false, $more = "") {
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
@@ -189,10 +226,8 @@ class HTMLForm {
 		$this->stdout .= "<input type=\"submit\" class=\"submit {$params['class']}\" " . ($value?'value="'.$value.'"':"") . " $more />\n";
 	}
 
-	function button($value = NULL) {
-		//debug($more);
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<button $more>$value</button>\n";
+	function button($innerHTML = NULL, $more = '') {
+		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
 	function image($value = NULL, $more = "", $desc = array()) {

@@ -327,12 +327,14 @@ class slTable {
 					$out = $k['before'] . $this->getCell($col, $val, $k) . $k['after'];
 					//$more .= ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
 					if (is_array($row[$col.'.'])) {
-						$more .= $row[$col.'.']['colspan'] ? ' colspan="'.$row[$col.'.']['colspan'].'"' : '';
+						//$more .= $row[$col.'.']['colspan'] ? ' colspan="'.$row[$col.'.']['colspan'].'"' : '';
 						$skipCols = $row[$col.'.']['colspan'] ? $row[$col.'.']['colspan'] - 1 : 0;
 					}
-					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, isset($k['more']) ? $k['more'] : NULL);
+					$more = (isset($k['more']) ? $k['more'] : NULL).
+						($row[$col.'.']['colspan'] ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
+					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
+					$iCol++;
 				}
-				$iCol++;
 			} else {
 				$t->cell('slTable ?else?');
 			}

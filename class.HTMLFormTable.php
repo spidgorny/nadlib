@@ -53,22 +53,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "select":
 				case "selection":
-					if ($desc['from'] && $desc['title']) {
-						//debugster($desc);
-					$options = Config::getInstance()->db->getTableOptions($desc['from'],
-						$desc['title'],
-						$desc['where'] . $desc['order'],
-						$desc['idField'] ? $desc['idField'] : 'id',
-						$desc['noDeleted']);
-					} else {
-						$options = array();
-					}
-					if ($desc['options']) {
-						$options += $desc['options'];
-					}
-					if ($desc['null']) {
-						$options = array(NULL => "---") + $options;
-					}
+					$options = $this->getSelectionOptions($desc);
 					$this->selection($fieldName, $options,
 						$fieldValue ? $fieldValue : $desc['default'],
 						$desc['autosubmit'],
@@ -131,6 +116,9 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
+				break;
+				case 'button':
+					$this->button($desc['innerHTML'], $desc['more']);
 				break;
 				case "input":
 				default:
@@ -195,8 +183,8 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '</label>';
 			}
 			if ($desc['error']) {
-				//debug($fieldName, $desc);
-				//print '<pre>'.debug_print_backtrace().'</pre>';
+				debug($fieldName, $desc);
+				print '<pre>'.debug_print_backtrace().'</pre>';
 				$desc['class'] .= ' error';
 			}
 
@@ -434,5 +422,43 @@ class HTMLFormTable extends HTMLForm {
 			}
 		}
 	}
+
+	function getSelectionOptions(array $desc) {
+		if ($desc['from'] && $desc['title']) {
+			//debugster($desc);
+			$options = Config::getInstance()->db->getTableOptions($desc['from'],
+				$desc['title'],
+				trim($desc['where'] . ' ' . $desc['order']),
+				$desc['idField'] ? $desc['idField'] : 'id',
+				$desc['noDeleted']);
+		} else {
+			$options = array();
+		}
+		if ($desc['options']) {
+			$options += $desc['options'];
+		}
+		if ($desc['null']) {
+			$options = array(NULL => "---") + $options;
+		}
+		return $options;
+
+// merge with
+if ($desc['from'] && $desc['title']) {
+						$options = Config::getInstance()->db->getTableOptions($desc['from'],
+						$desc['title'],
+						$desc['where'] ? $desc['where'] : array(),
+						$desc['order'],
+						$desc['idField'] ? $desc['idField'] : 'id'
+						//$desc['noDeleted']
+						);
+					} else {
+						$options = array();
+					}
+					if ($desc['options']) {
+						$options += $desc['options'];
+					}
+					if ($desc['null']) {
+						$options = array(NULL => "---") + $options;
+					}	}
 
 }

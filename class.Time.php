@@ -367,10 +367,26 @@ class Time {
 		return $new;
 	}
 
+	/**
+	 * 12:21
+	 *
+	 * @return unknown
+	 */
+	function getHumanTime() {
+		return date('H:i', $this->time);
+	}
+
 	function getAdjustedForTZ() {
 		$isoWithoutZ = date('Y-m-d H:i:s', $this->getTimestamp()).' UTC';
 		//debug($isoWithoutZ);
 		return strtotime($isoWithoutZ);
+	}
+
+	function getAdjustedForUTC() {
+		$isoWithoutZ = gmdate('Y-m-d H:i:s', $this->getTimestamp());
+		$newTS = strtotime($isoWithoutZ);
+		//debug($this, $isoWithoutZ, $newTS, date('Y-m-d H:i:s', $newTS));
+		return $newTS;
 	}
 
 	function getDuration() {
@@ -430,9 +446,20 @@ class Time {
 	function getTimeIn($tz) {
 		$temp = date_default_timezone_get();
 		date_default_timezone_set($tz);
-		$content .= $this->format('H:i');
+		$content = $this->format('H:i');
 		date_default_timezone_set($temp);
 		return $content;
+	}
+
+	/**
+	 * Only to chain methods
+	 *
+	 * @static
+	 * @param $str
+	 * @return Time
+	 */
+	static function makeInstance($str, $rel = NULL) {
+		return new Time($str, $rel);
 	}
 
 	function getTwo() {
