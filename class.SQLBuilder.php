@@ -245,7 +245,14 @@ class SQLBuilder {
 
 	function quoteKey($key) {
 		if (in_array(strtoupper($key), $this->reserved)) {
-			$key = '`'.$key.'`';
+			if ($this->db instanceof MySQL) {
+				$key = '`'.$key.'`';
+			} else if ($this->db instanceof dbLayer && !in_array($key, array(
+				'-like',
+			))) {
+				//$key = "'".$key."'";
+				$key = '"'.$key.'"';
+			}
 		}
 		return $key;
 	}
@@ -253,7 +260,11 @@ class SQLBuilder {
 	function quoteSQL($value) {
 		if ($value instanceof AsIs) {
 			return $value->__toString();
-		} elseif ($value instanceof Time) {
+		} else if ($value instanceof AsIsOp) {
+			return $value->__toString();
+		} else if ($value instanceof SQLOr) {
+			return $value->__toString();
+		} else if ($value instanceof Time) {
 			return "'".$value->__toString()."'";
 		} else if ($value === NULL) {
 			return "NULL";
@@ -316,6 +327,8 @@ class SQLBuilder {
 					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {
 					$set[] = $val;
+				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
+					$set[] = $key." IN ('".implode("', '", $val)."')";
 				} else {
 					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
@@ -383,10 +396,7 @@ class SQLBuilder {
 		$table1 = $this->getFirstWord($table);
 		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
 		$q = "SELECT $select FROM " . $this->quoteKey($table);
-		$set = $this->quoteWhere($where);
-		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" AND ", $set);
-		}
+		$q .= $where->__toString();
 		$q .= " ".$order;
 		return $q;
 	}
@@ -493,12 +503,62 @@ class SQLBuilder {
 		return $this->db->perform($query);
 	}
 
+	/**
+	 * Originates from BBMM
+	 * @param type $sword
+	 * @param array $fields
+	 * @return AsIs
+	 */
+	function getSearchWhere($sword, array $fields) {
+		$where = array();
+		$words = $this->getSplitWords($sword);
+		foreach ($words as $word) {
+			$like = array();
+			foreach ($fields as $field) {
+				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
+			}
+			$where[] = new AsIs('('.implode(' OR ', $like).')');
+		}
+		//debug($where);
+		return $where;
+	}
+
+	function getSplitWords($sword) {
+		$sword = trim($sword);
+		$words = explode(' ', $sword);
+		$words = array_map('trim', $words);
+		$words = array_filter($words);
+		$words = array_unique($words);
+		//$words = $this->combineSplitTags($words);
+		$words = array_values($words);
+		return $words;
+	}
+
+	function combineSplitTags($words) {
+		$new = array();
+		$i = 0;
+		foreach ($words as $word) {
+			$word = new String($word);
+			if ($word->contains('[')) {
+				++$i;
+				$in = true;
+			}
+			$new[$i] = $new[$i] ? $new[$i] . ' ' . $word : $word.'';
+			if (!$in || ($in && $word->contains(']'))) {
+				++$i;
+				$in = false;
+			}
+		}
+		//debug(array($words, $new));
+		return $new;
+	}
+
 	function runDeleteQuery($table, array $where) {
 		return $this->db->perform($this->getDeleteQuery($table, $where));
 	}
 
-/*	function __call($method, array $params) {
+	function __call($method, array $params) {
 		return call_user_func_array(array($this->db, $method), $params);
 	}
-*/
+
 }

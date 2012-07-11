@@ -110,7 +110,7 @@ class Request {
 	/**
 	 * Will return Date object
 	 *
-	 * @param unknown_type $name
+	 * @param string $name
 	 * @return Date
 	 */
 	function getDate($name, $rel = NULL) {
@@ -184,13 +184,13 @@ class Request {
 	}
 
 	function redirect($controller) {
-		$GLOBALS['i']->user->destruct();
-		if (FALSE && DEVELOPMENT) {
+		if (headers_sent()
+//			|| DEVELOPMENT
+		) {
 			echo '<a href="'.$controller.'">'.$controller.'</a>';
 		} else {
 			header('Location: '.$controller);
 		}
-		unset($GLOBALS['i']->user);
 		exit();
 	}
 
@@ -203,6 +203,7 @@ class Request {
 		}
 		$url = Request::getRequestType().'://'.$_SERVER['HTTP_HOST'].$docRoot;
 		//$GLOBALS['i']->content .= $url;
+		//debug($url);
 		return $url;
 	}
 
@@ -280,16 +281,38 @@ class Request {
 			$this->data[$key] = $val;
 		}
 	}
+	
+	/**
+	 * @return URL
+	 */
+	function getURL() {
+		$url = new URL($_SERVER['SCRIPT_URL'] ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$url->setDocumentRoot(Config::getInstance()->documentRoot);
+		return $url;
+	}
+
+	function getURLLevel($level) {
+		$url = $this->getURL();
+		$path = $url->getPath();
+		$path = trimExplode('/', $path);
+		//debug($path);
+		return $path[$level];
+	}
 
 	/**
-	 * Will NOT overwrite.
 	 * @param array $plus
 	 */
-	function appendArray(array $plus) {
+	function append(array $plus) {
+		$this->data += $plus;
+	}
+
+	/**
+	 * Overwriting - yes
+	 * @param array $plus
+	 */
+	function overwrite(array $plus) {
 		foreach ($plus as $key => $val) {
-			if (!isset($this->data[$key])) {
-				$this->data[$key] = $val;
-			}
+			$this->data[$key] = $val;
 		}
 	}
 

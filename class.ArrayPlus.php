@@ -1,10 +1,43 @@
 <?php
 
-class ArrayPlus implements ArrayAccess {
-	var $data = array();
+/**
+ * Usage:
+ * $source = array(
+ * 		array(	// row 1
+ * 			'col1' => 'val1',
+ * 			'col2' => 'val2',
+ *		),
+ * 		'row2' => array(
+ * 			'col1' => 'val3',
+ * 			'col2' => 'val4',
+ *		),
+ * );
+ * $ap = new ArrayPlus($source);
+ * $column = $ap->column('col2');
+ *
+ * $column = array(
+ * 		'0' => 'val2',
+ * 		'row2' => 'val4',
+ * );
+ *
+ */
 
-	function __construct(array $array) {
-		$this->data = $array;
+require_once('class.IteratorArrayAccess.php');
+
+class ArrayPlus extends IteratorArrayAccess {
+
+	function __construct(array $a = array()) {
+		$this->data = $a;
+	}
+
+	/**
+	 * Static initializers can be chained in PHP
+	 * @param array $data
+	 * @return ArrayPlus
+	 */
+	static function create(array $data = array()) {
+		$self = new self($data);
+		return $self;
 	}
 
 	function column($col) {
@@ -12,7 +45,8 @@ class ArrayPlus implements ArrayAccess {
 		foreach ($this->data as $key => $row) {
 			$return[$key] = $row[$col];
 		}
-		return $return;
+		$this->data = $return;
+		return $this;
 	}
 
 	function column_coalesce($col1, $col2) {
@@ -28,7 +62,8 @@ class ArrayPlus implements ArrayAccess {
 		foreach ($this->data as $row) {
 			$data[$row[$key]] = $row[$val];
 		}
-		return $data;
+		$this->data = $data;
+		return $this;
 	}
 
 	/**
@@ -36,63 +71,83 @@ class ArrayPlus implements ArrayAccess {
 	 * @param type $key
 	 * @return type
 	 */
-	function IDalize($key) {
+	function IDalize($key = 'id') {
 		$data = array();
 		foreach ($this->data as $row) {
 			$data[$row[$key]] = $row;
 		}
 		$this->data = $data;
-		return $this->data;
-	}
-
-	/**
-	 * Static initializers can be chained in PHP
-	 * @param array $a
-	 * @return ArrayPlus
-	 */
-	static function create(array $a = array()) {
-		return new self($a);
-	}
-
-	/** ArrayAccess **/
-
-	function set($i, $val) {
-		$this->data[$i] = $val;
-	}
-
-	/**
-	 * Chainable
-	 *
-	 * @param unknown_type $i
-	 * @return unknown
-	 */
-	function un_set($i) {
-		unset($this->data[$i]);
 		return $this;
 	}
 
-	function get($i, $subkey = NULL) {
-		$element = $this->data[$i];
-		if ($subkey) {
-			$element = $element[$subkey];
+	function append($value, $key = NULL) {
+		if (!is_null($key)) {
+			$this->data[$key] = $value;
+		} else {
+			$this->data[] = $value;
 		}
-		return $element;
+		return $this;
 	}
 
-	public function offsetSet($offset, $value) {
-        $this->set($offset, $value);
+	/**
+	 * Callback = function ($value, [$index]) {}
+	 *
+	 * @param unknown_type $callback
+	 * @return unknown
+	 */
+	function each($callback) {
+		foreach ($this->data as $i => &$el) {
+			$el = $callback($el, $i);
+		} unset($el);
+		return $this;
+	}
+
+	/**
+	 * Callback = function ($value, [$index]) {}
+	 *
+	 * @param unknown_type $callback
+	 * @return unknown
+	 */
+	function eachCollect($callback) {
+		foreach ($this->data as $i => $el) {
+			$plus = $callback($el, $i);
+			$content .= $plus;
+		}
+		return $content;
+	}
+
+    function ksort() {
+    	ksort($this->data);
+    	return $this;
     }
 
-    public function offsetExists($offset) {
-        return isset($this->data[$offset]);
+    function count() {
+    	return sizeof($this->data);
     }
 
-    public function offsetUnset($offset) {
-        return $this->un_set($offset);
+    function searchColumn($key, $val) {
+    	foreach ($this->data as $row) {
+    		if ($row[$key] == $val) {
+    			return $row;
+    		}
+    	}
     }
 
-    public function offsetGet($offset) {
-        return $this->get($offset);
+    function setData(array $data) {
+    	$this->data = $data;
+    	return $this;
+    }
+
+	function getData() {
+		return $this->data;
+	}
+
+    function getAssoc($key, $val) {
+    	$ret = array();
+    	foreach ($this->data as $row) {
+    		$ret[$row[$key]] = $row[$val];
+    	}
+    	return $ret;
     }
 
 	public function trim() {
@@ -112,4 +167,29 @@ class ArrayPlus implements ArrayAccess {
 		return $this->data;
 	}
 
+}
+
+function AP(array $a = array()) {
+	return ArrayPlus::create($a);
+}
+
+class ArrayPlusReference extends ArrayPlus {
+
+	function __construct(array &$a = array()) {
+		$this->data =& $a;
+	}
+
+    static function create(array &$data = array()) {
+    	$self = new self($data);
+    	return $self;
+    }
+
+	function &getData() {
+		return $this->data;
+	}
+
+}
+
+function APR(array &$a = array()) {
+	return ArrayPlusReference::create($a);
 }

@@ -8,7 +8,6 @@ class LocalLangDummy {
 
 }
 
-function __($s) {
-	return $s;
+function __($code, $r1 = null, $r2 = null, $r3 = null) {
+	return Index::getInstance()->ll->T($code, $r1, $r2, $r3);
 }
-

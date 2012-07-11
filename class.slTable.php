@@ -3,9 +3,6 @@
 define('SLTABLE_IMG_CHECK', '<img src="img/check.png">');
 define('SLTABLE_IMG_CROSS', '<img src="img/uncheck.png">');
 
-require_once('class.HTMLTableBuf.php');
-/*require_once('class.BijouDBConnector.php');*/
-
 class slTable {
 	var $ID = NULL;
 	var $data = NULL;
@@ -259,7 +256,7 @@ class slTable {
 				$this->sort();
 			}
 
-			$t = new htmlTableBuf();
+			$t = new HTMLTableBuf();
 			$t->table(is_string($this->more) ? $this->more : $this->more['tableMore']);
 
 			$this->generateThead($t);
@@ -373,7 +370,7 @@ class slTable {
 			break;
 			case "sqldate":
 				if ($val) {
-					$val = strtotime($val);
+					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
 					$out = date($k['format'], $val);
 				} else {
 					$out = '';

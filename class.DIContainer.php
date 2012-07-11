@@ -1,6 +1,7 @@
 <?php
 
 class DIContainer {
+
   protected $values = array();
 
   function __set($id, $value)
