@@ -555,4 +555,14 @@ class SQLBuilder {
 		return call_user_func_array(array($this->db, $method), $params);
 	}
 
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid') {
+		$res = $this->runSelectQuery($table, $where, $order, 'DISTINCT '.$titleField.', '.$idField, true);
+		//debug($this->db->lastQuery);
+		$data = $this->fetchAll($res, $idField);
+		$keys = array_keys($data);
+		$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
+		$options = array_combine($keys, $values);
+		return $options;
+	}
+
 }

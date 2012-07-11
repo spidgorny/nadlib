@@ -1,6 +1,6 @@
 <?php
 
-class SessionUser extends User {
+class SessionUser extends UserBase {
 
 	function __construct($id = NULL) {
 		session_start();

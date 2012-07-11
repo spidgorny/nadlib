@@ -98,9 +98,12 @@ class Collection {
 
 	function render() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		$r = new Request();
+		$url = $r->getURLLevel(0);
+		$pages = $this->pager ? $this->pager->renderPageSelectors($url.'?') : '';
 		$s = new slTable($this->data, 'class="nospacing" width="100%"');
 		$s->thes = $this->thes;
-		$content = $s->getContent();
+		$content = $pages . $s->getContent() . $pages;
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $content;
 	}
@@ -177,6 +180,32 @@ class Collection {
 			$checked = $_SESSION[$class][$id] ? 'checked' : '';
 			$row['checked'] = '<input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' />';
 		}
+	}
+
+	function showFilter() {
+		if ($this->filter) {
+			$f = new HTMLFormTable();
+			$request = new Request();
+			$this->filter = $f->fillValues($this->filter, $request->getAll());
+			$f->showForm($this->filter);
+			$f->submit('Filter', '', array('class' => 'btn-primary'));
+			$content = $f->getContent();
+		}
+		return $content;
+	}
+
+	function getFilterWhere() {
+		$where = array();
+		if ($this->filter) {
+			$request = new Request();
+			foreach ($this->filter as $field => $desc) {
+				$value = $request->getTrim($field);
+				if ($value) {
+					$where[$field] = $value;
+				}
+			}
+		}
+		return $where;
 	}
 
 }
