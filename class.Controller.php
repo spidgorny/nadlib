@@ -85,6 +85,12 @@ abstract class Controller {
 		return (substr($line, 0, strlen($with)) == $with);
 	}
 
+	/**
+	 * @param array $data
+	 * @return array
+	 * @deprecated
+	 * @see slTable::showAssoc()
+	 */
 	function getAssocTable(array $data) {
 		$table = array();
 		foreach ($data as $key => $val) {

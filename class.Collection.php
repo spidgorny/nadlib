@@ -15,7 +15,12 @@ class Collection {
 	var $idField = 'uid';
 	var $parentID = NULL;
 	protected $parentField = 'pid';
+
+	/**
+	 * @var ArrayPlus/array
+	 */
 	var $data = array();
+
 	protected $thes = array(
 		'uid' => 'ID',
 		'title' => 'Title',

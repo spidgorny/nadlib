@@ -148,7 +148,10 @@ class MySQL {
 
 	function escape($string) {
 		return mysql_real_escape_string($string);
-		// pg_escape_string
+	}
+
+	function quoteSQL($string) {
+		return "'".mysql_real_escape_string($string)."'";
 	}
 
 	/**

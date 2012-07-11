@@ -146,4 +146,8 @@ class OODBase {
 		}
 	}
 
+	function renderAssoc() {
+		return slTable::showAssoc($this->data);
+	}
+
 }
