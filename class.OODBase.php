@@ -122,7 +122,7 @@ class OODBase {
 
 	function __toString() {
 		//return new slTable(array(array_keys($this->data), array_values($this->data))).'';
-		return $this->getName();
+		return $this->getName().'';
 	}
 
 }
