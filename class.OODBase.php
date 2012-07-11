@@ -7,9 +7,9 @@ class OODBase {
 	 * @var MySQL
 	 */
 	protected $db;
-	public $table;
+	protected $table;
 	protected $titleColumn = 'name';
-	public $idField = 'id';
+	protected $idField = 'id';
 	public $id;
 	public $data = array();
 
@@ -31,6 +31,7 @@ class OODBase {
 		if (is_array($id)) {
 			$this->data = $id;
 			$this->id = $this->data[$this->idField];
+			//debug(__METHOD__, $this->id, $this->data);
 		} else if ($id instanceof SQLWhere) {
 			$this->findInDB($id->getAsArray());
 		} else if ($id) {
@@ -50,11 +51,12 @@ class OODBase {
 	 * @return unknown
 	 */
 	function insert(array $data) {
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$this->db->perform($query);
 		$this->findInDB($data);
-		return $this;
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -63,11 +65,11 @@ class OODBase {
 	 * @param array $data
 	 */
 	function update(array $data) {
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($this->id) {
 			$qb = Config::getInstance()->qb;
 			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
 			$res = $this->db->perform($query);
-			$this->db->perform($query);
 			if ($_COOKIE['debug']) {
 				//debug($query); exit();
 			}
@@ -75,6 +77,7 @@ class OODBase {
 		} else {
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
 		}
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $res;
 	}
 
@@ -95,14 +98,16 @@ class OODBase {
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderby = '') {
-		$rows = Config::getInstance()->qb->fetchSelectQuery($this->table, $where, $orderby);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
 		//debug($rows);
 		if ($rows) {
-			$this->data = $rows[0];
+			$data = $rows[0];
 		} else {
-			$this->data = array();
+			$data = array();
 		}
-		$this->init($this->data); // array, otherwise infinite loop
+		$this->init($data); // array, otherwise infinite loop
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this->id;
 	}
 
