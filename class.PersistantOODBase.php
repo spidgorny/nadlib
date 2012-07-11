@@ -36,9 +36,14 @@ class PersistantOODBase extends OODBase {
 
 	function __destruct() {
 		//debug(get_called_class());
+		$this->save();
+	}
+
+	function save() {
 		if ($this->getStateHash() != $this->stateHash) {
 			if ($this->id) {
 				//debug(__CLASS__, $this->id, $this->getStateHash(), $this->stateHash, $this->data, $this->originalData);
+				//debug(get_class($this), $this->id, $this->originalData, $this->data);
 				$this->update($this->data);
 				static::$updated++;
 			} else {

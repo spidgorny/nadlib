@@ -184,6 +184,7 @@ class Request {
 	}
 
 	function redirect($controller) {
+		$GLOBALS['i']->user->destruct();
 		if (headers_sent()
 //			|| DEVELOPMENT
 		) {
@@ -191,6 +192,7 @@ class Request {
 		} else {
 			header('Location: '.$controller);
 		}
+		unset($GLOBALS['i']->user);
 		exit();
 	}
 
