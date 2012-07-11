@@ -51,7 +51,7 @@ class HTMLFormValidate {
 				}
 			}
 
-			if ($d['dependant']) {
+			if ($d['dependant'] && $d['value']) { // only checked should be validated
 				$fv = new HTMLFormValidate($d['dependant']);
 				if (!$fv->validate()) {
 					$d['dependant'] = $fv->getDesc();
