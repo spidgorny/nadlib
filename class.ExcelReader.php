@@ -4,6 +4,7 @@ class ExcelReader {
 	protected $excel;
 	protected $isCache = TRUE;
 	protected $filename = 'cache/';
+	protected $xml;
 	public $ll;
 
 	function __construct($excelFile) {
@@ -11,13 +12,12 @@ class ExcelReader {
 		$this->filename .= $this->excel.'.serial';
 
 		// read from excel
-		$this->ll = $this->readPersistant();
-		if (!$this->ll) {
-			$this->ll = $this->readExcel();
-			if ($this->ll) {
-				$this->savePersistant($this->ll);
-			}
+		$this->xml = $this->readPersistant();
+		if (!$this->xml) {
+			$this->readExcel();
+			$this->savePersistant($this->xml);
 		}
+		$this->ll = $this->getSheet(0);
 	}
 
 	function readPersistant() {
@@ -37,39 +37,50 @@ class ExcelReader {
 	}
 
 	function readExcel() {
-		$data = array();
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
 			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
-			$xml = simplexml_load_string($filedata);
-			$namespaces = $xml->getNamespaces(true);
+			$this->xml = simplexml_load_string($filedata);
+			$namespaces = $this->xml->getNamespaces(true);
 			//debug($namespaces);
 			foreach ($namespaces as $prefix => $ns) {
-				$xml->registerXPathNamespace($prefix, $ns);
-			}
-			$s = $xml->Worksheet[0]->Table;
-			$key = 0;
-			foreach ($s->Row as $row) {
-				foreach ($row->Cell as $cell) {
-					$cellText = $cell->Data;
-					if (!$cellText) {
-						$cellText = $cell->asXML();
-						$cellText = strip_tags($cellText);
-					}
-					$cellText = trim($cellText);
-					$attr = $cell->attributes('ss', true);
-					if (intval($attr['Index'])) {
-						$cellIndex = intval($attr['Index'])-1;
-					} else {
-						$cellIndex = sizeof($data[$key]);
-					}
-					$data[$key][$cellIndex] = $cellText;
-				}
-				$key++;
+				$this->xml->registerXPathNamespace($prefix, $ns);
 			}
 		}
-		//t3lib_div::debug($data); exit();
-		//t3lib_div::debugRows($data); exit();
+	}
+
+	function getSheets() {
+		$list = array();
+		foreach ($this->xml->Worksheet as $sheet) {
+			$attr = $sheet->attributes('ss', true);
+			$list[] = trim($attr['Name']);
+		}
+		//d($sheet->asXML());
+		return $list;
+	}
+
+	function getSheet($sheet = 0) {
+		$data = array();
+		$s = $this->xml->Worksheet[$sheet]->Table;
+		$key = 0;
+		foreach ($s->Row as $row) {
+			foreach ($row->Cell as $cell) {
+				$cellText = $cell->Data;
+				if (!$cellText) {
+					$cellText = $cell->asXML();
+					$cellText = strip_tags($cellText);
+				}
+				$cellText = trim($cellText);
+				$attr = $cell->attributes('ss', true);
+				if (intval($attr['Index'])) {
+					$cellIndex = intval($attr['Index'])-1;
+					$data[$key][$cellIndex] = $cellText;
+				} else {
+					$data[$key][] = $cellText;
+				}
+			}
+			$key++;
+		}
 		return $data;
 	}
 
