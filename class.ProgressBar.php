@@ -27,7 +27,7 @@ class ProgressBar {
 	function getContent() {
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
-		$content .= '<div id="'.$this->pbid.'" class="pb_container">
+		$content = '<div id="'.$this->pbid.'" class="pb_container">
 			<div id="'.$this->textid.'" class="'.$this->textid.'">'.$percentDone.'</div>
 			<div class="pb_bar">
 				<div id="'.$this->pbarid.'" class="pb_before"
@@ -92,7 +92,7 @@ class ProgressBar {
 			print('document.getElementById("'.$this->tbarid.'").style.width = "'.(100-$percentDone).'%";');
 		}
 		if ($text) {
-			print('document.getElementById("'.$this->textid.'").innerHTML = "'.htmlspecialchars($text).'";');
+			print('document.getElementById("'.$this->textid.'").innerHTML = "'.htmlspecialchars(str_replace("\n", '\n', $text)).'";');
 		}
 		print('}</script>'."\n");
 		$this->flush();
