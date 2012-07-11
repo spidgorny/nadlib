@@ -54,12 +54,13 @@ class HTMLFormTable extends HTMLForm {
 				case "select":
 				case "selection":
 					if ($desc['from'] && $desc['title']) {
-						//debugster($desc);
-					$options = Config::getInstance()->db->getTableOptions($desc['from'],
+						$options = Config::getInstance()->db->getTableOptions($desc['from'],
 						$desc['title'],
-						$desc['where'] . $desc['order'],
-						$desc['idField'] ? $desc['idField'] : 'id',
-						$desc['noDeleted']);
+						$desc['where'] ? $desc['where'] : array(),
+						$desc['order'],
+						$desc['idField'] ? $desc['idField'] : 'id'
+						//$desc['noDeleted']
+						);
 					} else {
 						$options = array();
 					}
