@@ -257,7 +257,15 @@ class SQLBuilder {
 		return $key;
 	}
 
-	function quoteSQL($value) {
+	/**
+	 * Used to really quote different values so that they can be attached to "field = "
+	 *
+	 * @param $value
+	 * @param $key
+	 * @return string
+	 * @throws Exception
+	 */
+	function quoteSQL($value, $key) {
 		if ($value instanceof AsIs) {
 			return $value->__toString();
 		} else if ($value instanceof AsIsOp) {
@@ -270,8 +278,6 @@ class SQLBuilder {
 			return "NULL";
 		} else if (is_numeric($value)) {
 			return $value;
-		} else if ($value instanceof AsIs) {
-			return $value.'';
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
 		} else {
@@ -290,10 +296,10 @@ class SQLBuilder {
 	 * @param unknown_type $a
 	 * @return unknown
 	 */
-	function quoteValues($a) {
+	function quoteValues(array $a) {
 		$c = array();
-		foreach($a as $b) {
-			$c[] = SQLBuilder::quoteSQL($b);
+		foreach($a as $key => $b) {
+			$c[] = SQLBuilder::quoteSQL($b, $key);
 		}
 		return $c;
 	}
@@ -313,6 +319,10 @@ class SQLBuilder {
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
 					$set[] = $key . ' ' . $val;
+				} else if ($val instanceof SQLBetween) {
+					$set[] = $val->toString($key);
+				} else if (is_object($val)) {
+					$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
 					$set[] = $key . ' ' . $val;
 				} else if ($val === NULL) {
@@ -330,7 +340,7 @@ class SQLBuilder {
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
 				} else {
-					$val = SQLBuilder::quoteSQL($val);
+					$val = SQLBuilder::quoteSQL($val, $key);
 					$set[] = "$key = $val";
 				}
 			}

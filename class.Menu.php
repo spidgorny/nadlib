@@ -6,8 +6,14 @@ class Menu extends Controller {
 	 * @var array of Recursive
 	 */
 	protected $items = array();
+
+	/**
+	 * Set to not NULL to see only specific level
+	 * @var int|null
+	 */
+	public $level = NULL;
 	
-	function __construct(array $items, $level = 0) {
+	function __construct(array $items, $level = NULL) {
 		parent::__construct();
 		$this->items = $items;
 		$this->level = $level;
@@ -15,28 +21,19 @@ class Menu extends Controller {
 	
 	function render() {
 		$content = '';
-		if (!$this->level) {
-			$content .= $this->renderLevel($this->items);
+		if (!is_null($this->level)) {
+			$content .= $this->renderLevel($this->items, array(), $this->level, false);
 		} else {
-			$key = $this->request->getURLLevel(0);
-			$subMenu = $this->items[$key];
-			if ($subMenu) {
-				$subMenu = $this->items[$key]->getChildren();
-				if (is_array($subMenu)) {
-					$content .= $this->renderLevel($subMenu, array($key));
-				} else {
-					$content .= '<div class="error">No submenu in '.$key.'</div>';
-				}
-			}
+			$content .= $this->renderLevel($this->items, array(), 0, true);
 		}
 		return $content;
 	}
 
-	function renderLevel(array $items, array $root = array()) {
+	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true) {
 		$content = '';
-		$current = $this->request->getURLLevel($this->level);
+		$current = $this->request->getURLLevel($level);
 		$current = $current ? $current : $root[0];
-		//debug($this->level, $current);
+		//debug($this->level, $current, $level);
 		foreach ($items as $class => $name) {
 			$act = $current == $class ? ' class="act"' : '';
 			if ($class != $root[0]) {
@@ -46,6 +43,11 @@ class Menu extends Controller {
 			}
 			$path = implode('/', $path);
 			$content .= '<li><a href="'.$path.'"'.$act.'>'.$name.'</a></li>';
+
+			if ($isRecursive && $class == $current && $items[$class]->getChildren()) {
+				$root_class = array_merge($root, array($class));
+				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1);
+			}
 		}
 		$content = '<ul>'.$content.'</ul>';
 		return $content;

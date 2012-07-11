@@ -228,6 +228,7 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function showRow($fieldName, array $desc2) {
+		$stdout = '';
 		//foreach ($desc as $fieldName2 => $desc2) {
 			if ($fieldName2 != 'horisontal') {
 				$stdout .= "<td {$desc['TDmore']}>";
