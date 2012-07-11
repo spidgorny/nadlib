@@ -278,14 +278,17 @@ class SQLBuilder {
 			return "NULL";
 		} else if (is_numeric($value)) {
 			return $value;
+		} else if ($value instanceof AsIs) {
+			return $value.'';
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
+			return intval($value); // MySQL specific
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
 			} else {
 				debug($value);
-				throw new Exception('Must be string. '.print_r($value));
+				throw new Exception('Must be string.');
 			}
 		}
 	}
@@ -476,6 +479,13 @@ class SQLBuilder {
 		return $inserted;
 	}
 
+	/**
+	 * Inserts only if not yet found.
+	 *
+	 * @param $table
+	 * @param $fields
+	 * @return
+	 */
 	function runInsertNew($table, array $fields) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
