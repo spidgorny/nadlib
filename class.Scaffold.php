@@ -51,6 +51,7 @@ abstract class Scaffold extends Controller {
 	abstract function setModel();
 
 	public function render() {
+        $content = '';
 		switch ($this->action) {
 			case 'showForm':
 				$content .= $this->showForm();
@@ -74,6 +75,7 @@ abstract class Scaffold extends Controller {
 	}
 
 	public function showTable() {
+        $content = '';
 		$data = $this->fetchData();
 
 		foreach ($data as &$row) {
@@ -92,7 +94,7 @@ abstract class Scaffold extends Controller {
 
 	public function getEditIcon($id) {
 		//makeAjaxLink
-		$content .= $this->makeLink($this->editIcon, array(
+		$content = $this->makeLink($this->editIcon, array(
 			'c' => get_class($this),
 			'pageType' => get_class($this),
 			'ajax' => TRUE,
@@ -103,7 +105,7 @@ abstract class Scaffold extends Controller {
 	}
 
 	protected function showButtons() {
-		$content .= $this->makeAjaxLink('<button>'.$this->addButton.'</button>', array(
+		$content = $this->makeAjaxLink('<button>'.$this->addButton.'</button>', array(
 			'c' => get_class($this),
 			'ajax' => TRUE,
 			'action' => 'showForm',
@@ -134,7 +136,7 @@ abstract class Scaffold extends Controller {
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
-		debug($override);
+		//debug($override);
 		return $f;
 	}
 
@@ -147,6 +149,7 @@ abstract class Scaffold extends Controller {
 	 * @return unknown
 	 */
 	public function showPerform($action, $id = NULL) {
+        $content = '';
 		//$userData = $this->request->getArray($this->formPrefix);
 		//debug($userData, $formPrefix);
 
