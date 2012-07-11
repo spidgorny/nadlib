@@ -156,7 +156,6 @@ class dbLayer {
 	function getTableDataEx($table, $where = "", $special = "") {
 		$query = "select ".($special?$special." as special, ":'')."* from $table";
 		if (!empty($where)) $query .= " where $where";
-		debug($query);
 		$result = $this->fetchAll($query);
 		return $result;
 	}
@@ -167,6 +166,7 @@ class dbLayer {
 		foreach ($a as $row) {
 			$b[$row[$key]] = $row["special"];
 		}
+		//debug($this->LAST_PERFORM_QUERY, $a, $b);
 		return $b;
 	}
 
