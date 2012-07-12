@@ -52,6 +52,7 @@ class OODBase {
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$this->db->perform($query);
+		//d($query);
 		$this->findInDB($data);
 		return $this;
 	}
@@ -95,9 +96,13 @@ class OODBase {
 	 */
 	function findInDB(array $where, $orderby = '') {
 		$rows = Config::getInstance()->qb->fetchSelectQuery($this->table, $where, $orderby);
-		//debug($rows);
-		if ($rows) {
-			$this->data = $rows[0];
+		//d($rows);
+		if (is_array($rows)) {
+			if (is_array(current($rows))) {
+				$this->data = current($rows);
+			} else {
+				$this->data = $rows;
+			}
 		} else {
 			$this->data = array();
 		}
