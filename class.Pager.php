@@ -6,6 +6,7 @@ class Pager {
 	var $startingRecord = 0;
 	var $currentPage = 0;
 	var $url;
+	var $pagesAround = 3;
 
 	function Pager($itemsPerPage = NULL) {
 		if ($itemsPerPage) {
@@ -87,7 +88,7 @@ class Pager {
  		}
  		foreach ($pages as $k) {
  			if ($k === 'gap1' || $k === 'gap2') {
- 				$content .= '<div class="page">  .....  </div>';
+ 				$content .= '<div class="page">  &hellip;  </div>';
  			} else {
 				$link = $this->url.'&pager[page]='.$k;
 				if ($k == $this->currentPage) {
@@ -108,13 +109,13 @@ class Pager {
 			<input type='submit' value='Page' class='submit'>
 		</form>";
  		//debug($term);
-		$content = '<div class="paginationControl">'.$content.'&nbsp;'.$form.'</div><div style="clear: both;"></div>';
+		$content = '<div class="paginationControl">'.$content.'&nbsp;'.$form.'</div>';
 		//$content = $this->enclose('Search Browser ('.sizeof($tmpArray).')', $content);
 		return $content;
 	}
 
 	function getPagesAround($current, $max) {
-		$size = 5;
+		$size = $this->pagesAround;
 		$_s = 3;
 		$pages = array();
 		for ($i = 0; $i < $size; $i++) {
