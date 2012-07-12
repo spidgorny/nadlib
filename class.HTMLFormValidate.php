@@ -9,7 +9,13 @@ class HTMLFormValidate {
 
 	function validate() {
 		foreach ($this->desc as $field => &$d) {
-			if (!$d['optional'] && !($d['value']) && !in_array($d['type'], array(
+			if ($d['mustBint']) {
+				$d['value'] = intval($d['value']);
+			}
+			$value = $d['value'];
+			if (!$d['optional'] && (
+				!($value) || (!$d['allow0'] && !isset($d['value']))
+			) && !in_array($d['type'], array(
 				'check',
 				'checkbox',
 				'captcha',
@@ -18,16 +24,22 @@ class HTMLFormValidate {
 			))) {
 				$d['error'] = 'This field is obligatory.';
 				$error = TRUE;
-			} elseif ($field == 'email' && $d['value'] && !$this->validMail($d['value'])) {
+			} elseif ($d['obligatory'] && !$d['value']) {
+				$d['error'] = 'This field is obligatory.';
+				$error = TRUE;
+			} elseif ($d['mustBset'] && !isset($d['value'])) {
+				$e['error'] = 'This field must be set';
+				$error = true;
+			} elseif ($field == 'email' && $value && !$this->validMail($value)) {
 				$d['error'] = 'Not a valid e-mail.';
 				$error = TRUE;
-			} elseif ($field == 'password' && strlen($d['value']) < 6) {
+			} elseif ($field == 'password' && strlen($value) < 6) {
 				$d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety.';
 				$error = TRUE;
-			} elseif ($d['min'] && $d['value'] < $d['min']) {
+			} elseif ($d['min'] && $value < $d['min']) {
 				$d['error'] = 'Minimum: '.$d['min'];
 				$error = TRUE;
-			} elseif ($d['max'] && $d['value'] > $d['max']) {
+			} elseif ($d['max'] && $value > $d['max']) {
 				$d['error'] = 'Maximum: '.$d['max'];
 				$error = TRUE;
 			} elseif ($d['type'] == 'recaptcha' || $d['type'] == 'recaptchaAjax') {
@@ -49,22 +61,33 @@ class HTMLFormValidate {
 					$d['error'] = __('This field is obligatory.');
 					$error = TRUE;
 				}
+			} elseif ($d['max'] && $value > $d['max']) {
+				$d['error'] = 'Value too large. Maximum: '.$d['max'];
+				$error = TRUE;
+			} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
+				$d['error'] = $d['validateError'];
+				$error = TRUE;
+			} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
+				$d['error'] = $d['validateError'];
+				$error = TRUE;
+			} elseif ($d['validate'] == 'int' && strval(intval($value)) != $value) {
+				$d['error'] = 'Must be integer';
+				$error = TRUE;
+			} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
+				$d['error'] = 'Must be date';
+				$error = TRUE;
+			} else {
+				//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
+				if ($field == 'date') {
+					//debug(strtotime($value));
+				}
 			}
 
-			if ($d['dependant'] && $d['value']) { // only checked should be validated
+			if ($d['dependant'] && $value) { // only checked should be validated
 				$fv = new HTMLFormValidate($d['dependant']);
 				if (!$fv->validate()) {
 					$d['dependant'] = $fv->getDesc();
 				}
-			} elseif ($d['max'] && $d['value'] > $d['max']) {
-				$d['error'] = 'Value too large. Maximum: '.$d['max'];
-				$error = TRUE;
-			} elseif ($d['value'] && $d['validate'] == 'in_array' && !in_array($d['value'], $d['validateArray'])) {
-				$d['error'] = $d['validateError'];
-				$error = TRUE;
-			} elseif ($d['value'] && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
-				$d['error'] = $d['validateError'];
-				$error = TRUE;
 			}
 		}
 		return !$error;

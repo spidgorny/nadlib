@@ -60,6 +60,10 @@ class URL {
 		$this->documentRoot = $root;
 	}
 
+	function setFragment($name) {
+		$this->components['fragment'] = $name;
+	}
+
 	function buildQuery() {
 		return str_replace('#', '%23', http_build_query($this->params));
 	}

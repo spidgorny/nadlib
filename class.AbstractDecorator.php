@@ -3,14 +3,14 @@
 /**
  * Simplified implementation of the Decorator Design Pattern.
  * Sub classes of AbstractDecorator may be used to decorate any objects.
- * 
+ *
  * There is no need for abstract components and abstract decorators for each
  * of them thanks to PHP's magic methods and loose typification. Just extend
  * the AbstractDecorator and define the component class with the class constant
  * COMPONENT_CLASS
- * 
+ *
  * @package Decorate Anything
- * @author Fabian Schmengler <hide@address.com>
+ * @author Fabian Schmengler <fschmengler@sgh-it.eu>
  * @copyright &copy; SGH informationstechnologie UG
  * @license BSD
  * @link http://creativecommons.org/licenses/BSD/
@@ -20,7 +20,7 @@
 
 /**
  * Abstract Decorator class
- * 
+ *
  * Usage:
  * <code>
  * class ConcreteComponent
@@ -35,7 +35,7 @@
  * 		echo "ConcreteComponent::bar($x,$y)\n";
  * 	}
  * }
- * 
+ *
  * class ConcreteDecorator extends AbstractDecorator
  * {
  * 	const COMPONENT_CLASS = 'ConcreteComponent';
@@ -45,12 +45,12 @@
  * 		echo "ConcreteDecorator::foo()\n";
  * 	}
  * }
- * 
+ *
  * $c = new ConcreteDecorator(new ConcreteComponent());
  * $c->foo();
  * $c->bar(1,2);
  * echo $c->baz;
- * 
+ *
  * // Output:
  * // -------
  * // ConcreteComponent::foo()
@@ -59,7 +59,7 @@
  * // baz
  * //
  * </code>
- * 
+ *
  * If you really have to name the common interface of decorator and compontent
  * explicitly do it this way:
  * <code>
@@ -94,9 +94,9 @@
  * 	}
  * }
  * </code>
- * 
+ *
  * @package Decorate Anything
- * @author Fabian Schmengler <hide@address.com>
+ * @author Fabian Schmengler <fschmengler@sgh-it.eu>
  * @copyright &copy; SGH informationstechnologie UG
  * @license BSD
  * @link http://creativecommons.org/licenses/BSD/
@@ -111,17 +111,17 @@ abstract class AbstractDecorator
 	 * @see AbstractDecorator::COMPONENT_CLASS
 	 */
 	private $component;
-	
+
 	/**
 	 * Component class, redefine in subclasses. If false, any object will be taken as component
 	 */
 	const COMPONENT_CLASS = false;
-	
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * Creates a new decorator around a given component
-	 * 
+	 *
 	 * Example:
 	 * <code>
 	 * 	class Component
@@ -138,7 +138,7 @@ abstract class AbstractDecorator
 	 * 	}
 	 * 	$decoratedComponent = new Decorator1(new Decorator2(new Component()));
 	 * </code>
-	 * 
+	 *
 	 * @param object $component Object of type COMPONENT_CLASS or according decorator
 	 * @see AbstractDecorator::COMPONENT_CLASS
 	 * @return void
@@ -171,7 +171,7 @@ abstract class AbstractDecorator
 	}
 	/**
 	 * Magic method, grants access to the component's properties
-	 * 
+	 *
 	 * @param string $name
 	 * @return mixed
 	 */
@@ -181,7 +181,7 @@ abstract class AbstractDecorator
 	}
 	/**
 	 * Magic method, grants access to the component's properties
-	 * 
+	 *
 	 * @param string $name
 	 * @param mixed $value
 	 * @return void
@@ -192,7 +192,7 @@ abstract class AbstractDecorator
 	}
 	/**
 	 * Magic method, grants access to the component's properties
-	 * 
+	 *
 	 * @param string $name
 	 * @return boolean
 	 */
@@ -202,7 +202,7 @@ abstract class AbstractDecorator
 	}
 	/**
 	 * Magic method, grants access to the component's properties
-	 * 
+	 *
 	 * @param string $name
 	 * @return void
 	 */
@@ -212,13 +212,17 @@ abstract class AbstractDecorator
 	}
 	/**
 	 * Magic method, simulates the component's interface
-	 * 
+	 *
 	 * @param string $name
 	 * @param array $arguments
 	 * @return mixed
 	 */
 	public function __call($name, $arguments)
 	{
-		return call_user_func_array(array($this->component, $name), $arguments);
+		if (method_exists($this->component, $name)) {
+			return call_user_func_array(array($this->component, $name), $arguments);
+		} else {
+			throw new Exception('Method '.$name.' not found.');
+		}
 	}
 }

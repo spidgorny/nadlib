@@ -7,6 +7,12 @@ class View {
 	/**
 	 * Enter description here...
 	 *
+	 * @var LocalLang
+	 */
+	protected $ll;
+	/**
+	 * Enter description here...
+	 *
 	 * @var Request
 	 */
 	protected $request;
@@ -24,6 +30,7 @@ class View {
 			}
 			*/
 		}
+		$this->ll = $GLOBALS['i']->ll;
 		$this->request = $GLOBALS['i']->request;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
