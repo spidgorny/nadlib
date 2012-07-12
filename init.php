@@ -1,7 +1,6 @@
 <?php
 
 error_reporting(E_ALL ^ E_NOTICE);
-//error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 header('Cache-Control: max-age=0');
 header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
@@ -66,4 +65,18 @@ function getDebug($a, $b = NULL, $c = '') {
 	ob_start();
 	debug($a, $b, $c);
 	return ob_get_clean();
+}
+
+function trimExplode($sep, $str) {
+	$parts = explode($sep, $str);
+	$parts = array_map('trim', $parts);
+	$parts = array_filter($parts);
+	$parts = array_values($parts);
+	return $parts;
+}
+
+function debug_pre_print_backtrace() {
+	print '<pre>';
+	debug_print_backtrace();
+	print '</pre>';
 }
