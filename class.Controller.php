@@ -16,7 +16,7 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var dbLayer
+	 * @var MySQL/dbLayer
 	 */
 	protected $db;
 
@@ -24,7 +24,6 @@ abstract class Controller {
 	protected $useRouter = false;
 
 	/**
-	 * Enter description here...
 	 *
 	 * @var User/Client/userMan/LoginUser
 	 */
@@ -34,13 +33,13 @@ abstract class Controller {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = Index::getInstance();
 		$this->request = new Request();
-		$this->db = &Config::getInstance()->db;
+		$this->db = Config::getInstance()->db;
 		$this->title = get_class($this);
+		$this->user = Config::getInstance()->user;
 		$this->title = $this->title ? __($this->title) : $this->title;
-		$this->user = &Index::getInstance()->user;
 	}
 
-	function makeURL(array $params, $forceSimple = FALSE) {
+	function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
 		if ($this->useRouter && !$forceSimple) {
 			$r = new Router();
 			$url = $r->makeURL($params);
@@ -51,7 +50,7 @@ abstract class Controller {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = '?'.http_build_query($params);
+			$url = $prefix.http_build_query($params);
 		}
 		return $url;
 	}
@@ -61,11 +60,13 @@ abstract class Controller {
 			'pageType' => get_class($this),
 		)+$params);
 	}
+	
+	function getURL(array $params, $prefix = '?') {
+		return $this->makeURL($params, $prefix);
+	}
 
-	function makeLink($text, $params, $page = '') {
+	function makeLink($text, array $params, $page = '') {
 		$content = '<a href="'.$page.$this->makeURL($params).'">'.$text.'</a>';
-	function makeLink($text, array $params) {
-		$content = '<a href="'.$this->makeURL($params).'">'.$text.'</a>';
 		return $content;
 	}
 
@@ -127,7 +128,7 @@ abstract class Controller {
 		return $this->render().'';
 	}
 
-	static function friendlyURL($string){
+	static function friendlyURL($string) {
 		$string = preg_replace("`\[.*\]`U","",$string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
@@ -146,6 +147,61 @@ abstract class Controller {
 		}
 		$content = '<div class="padding">'.$content.'</div>';
 		return $content;
+	}
+
+	function encloseInToggle($content, $title, $height = '', $isOpen = NULL) {
+		if ($content) {
+			$id = uniqid();
+
+			$content = '<div class="encloseIn">
+				<h3>
+					<a class="show_hide" href="#" rel="#'.$id.'">
+						<span>'.($isOpen ? '&#x25BC;' : '&#x25BA;').'</span>
+						'.$title.'
+					</a>
+				</h3>
+				<div id="'.$id.'"
+					class="toggleDiv"
+					style="max-height: '.$height.'; overflow: auto;
+					'.($isOpen ? '' : 'display: none;').'">'.$content.'</div>
+			</div>';
+		}
+		return $content;
+	}
+
+	function log($text, $class = NULL, $done = NULL, array $extra = array()) {
+		//debug_pre_print_backtrace();
+		Config::getInstance()->db->runInsertQuery('log', array(
+			'pid' => getmypid(),
+			'class' => strval($class),
+			'done' => floatval($done),
+			'line' => $text,
+		)+$extra);
+		echo '<tr><td>'.implode('</td><td>', array(
+			date('Y-m-d H:i:s'),
+			getmypid(),
+			$class,
+			'<img src="bar.php?rating='.round($done*100).'" /> '.number_format($done*100, 3).'%',
+			$extra['id_channel'],
+			$extra['date'],
+			$text,
+		)).'</td></tr>'."\n";
+		flush();
+	}
+
+	function randomBreak() {
+/*		$rand = rand(1, 10);
+		$this->log('Sleep '.$rand);
+		sleep($rand);
+		$this->log('.<br>');
+*/	}
+
+	function checkStop() {
+		if (file_exists('cron.stop')) {
+			$this->log('Forced stop.');
+			unlink('cron.stop');
+			exit();
+		}
 	}
 
 	function performAction() {

@@ -28,14 +28,17 @@ class Collection {
 	var $titleColumn = 'title';
 	public $where = array();
 	public $join = ''; // for LEFT OUTER JOIN queries
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var Pager
 	 */
 	public $pager; // initialize if necessary with = new Pager(); in postInit()
+
 	public $members = array();
 	protected $orderBy = "ORDER BY uid";
+	public $query;
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
@@ -51,6 +54,7 @@ class Collection {
 		$this->retrieveDataFromDB();
 		$this->preprocessData();
 		$this->translateThes();
+		$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
 	}
 
 	function postInit() {
@@ -59,9 +63,8 @@ class Collection {
 
 	function retrieveDataFromDB() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$query = $this->getQuery($this->where);
-		//debug(__METHOD__, $query);
-		$res = $this->db->perform($query);
+		$this->query = $this->getQuery($this->where);
+		$res = $this->db->perform($this->query);
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
@@ -91,8 +94,8 @@ class Collection {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		//debug($this->data);
 		$this->data = $this->data->getData();
-		foreach ($this->data as $i => $row) { // Iterator by reference
-			$this->data[$i] = $this->preprocessRow($row);
+		foreach ($this->data as $i => &$row) { // Iterator by reference
+			$row = $this->preprocessRow($row);
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
@@ -103,12 +106,16 @@ class Collection {
 
 	function render() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$r = new Request();
-		$url = $r->getURLLevel(0);
-		$pages = $this->pager ? $this->pager->renderPageSelectors($url.'?') : '';
-		$s = new slTable($this->data, 'class="nospacing" width="100%"');
-		$s->thes = $this->thes;
-		$content = $pages . $s->getContent() . $pages;
+		if ($this->data) {
+			$r = new Request();
+			$url = $r->getURLLevel(0);
+			$pages = $this->pager ? $this->pager->renderPageSelectors($url.'?') : '';
+			$s = new slTable($this->data, 'class="nospacing" width="100%" id="'.get_class($this).'"');
+			$s->thes = $this->thes;
+			$content = $pages . $s->getContent() . $pages;
+		} else {
+			$content = '<div class="message">No data</div>';
+		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $content;
 	}
@@ -146,7 +153,7 @@ class Collection {
 
 	function translateThes() {
 		// translate thes
-		foreach ($this->thes as $key => &$trans) {
+		if (is_array($this->thes)) foreach ($this->thes as $key => &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);
 			}

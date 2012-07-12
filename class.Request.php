@@ -2,9 +2,11 @@
 
 class Request {
 	protected $data = array();
+	public $defaultController;
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
+		$this->defaultController = Config::getInstance()->defaultController;
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
@@ -146,9 +148,11 @@ class Request {
 	}
 
 	function getControllerString() {
-		//debug(Config::getInstance()->defaultController); exit();
-		$c = $this->getTrim('c');
-		return $c ? $c : Config::getInstance()->defaultController;
+		return $this->getCoalesce(
+			'c', $this->getCoalesce(
+			$this->getURLLevel(0),
+			$this->defaultController
+		));
 	}
 
 	/**
@@ -184,7 +188,9 @@ class Request {
 	}
 
 	function redirect($controller) {
-		$GLOBALS['i']->user->destruct();
+		if ($GLOBALS['i']->user) {
+			$GLOBALS['i']->user->destruct();
+		}
 		if (headers_sent()
 //			|| DEVELOPMENT
 		) {
@@ -302,6 +308,7 @@ class Request {
 	}
 
 	/**
+	 * Overwriting - no
 	 * @param array $plus
 	 */
 	function append(array $plus) {

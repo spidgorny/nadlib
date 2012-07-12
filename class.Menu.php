@@ -5,8 +5,9 @@ class Menu extends Controller {
 	/**
 	 * @var array of Recursive
 	 */
-	protected $items = array();
-
+	protected $items = array(
+		'default' => 'Default Menu Item',
+	);
 	/**
 	 * Set to not NULL to see only specific level
 	 * @var int|null
@@ -17,8 +18,19 @@ class Menu extends Controller {
 		parent::__construct();
 		$this->items = $items;
 		$this->level = $level;
+		$this->request = new Request();
+		$this->tryInstance();
 	}
-	
+
+	function filterACL() {
+		$user = Config::getInstance()->user;
+		foreach ($this->items as $class => &$item) {
+			if (!$user->can($class, '__construct')) {
+				unset($items[$class]);
+			}
+		}
+	}
+
 	function render() {
 		$content = '';
 		if (!is_null($this->level)) {
@@ -31,8 +43,7 @@ class Menu extends Controller {
 
 	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true) {
 		$content = '';
-		$current = $this->request->getURLLevel($level);
-		$current = $current ? $current : $root[0];
+		$this->request->getControllerString()
 		//debug($this->level, $current, $level);
 		foreach ($items as $class => $name) {
 			$act = $current == $class ? ' class="act"' : '';
@@ -43,19 +54,29 @@ class Menu extends Controller {
 				$path = array($class);
 			}
 			$path = implode('/', $path);
-			$content .= '<li '.$active.'><a href="'.$path.'"'.$act.'>'.$name.'</a></li>';
+			$content .= '<li '.$active.'><a href="'.$path.'"'.$act.'>'.__($name).'</a></li>';
 
 			if ($isRecursive && $class == $current && $items[$class]->getChildren()) {
 				$root_class = array_merge($root, array($class));
 				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1);
 			}
 		}
-		$content = '<ul class="nav nav-list">'.$content.'</ul>';
+		$content = '<ul class="nav nav-list menu">'.$content.'</ul>';
 		return $content;
 	}
 
 	function __toString() {
 		return $this->render();
+	}
+
+	function tryInstance() {
+		foreach ($this->items as $class => $_) {
+			try {
+				$o = new $class;
+			} catch (Exception $e) {
+				unset($this->items[$class]);
+			}
+		}
 	}
 
 }

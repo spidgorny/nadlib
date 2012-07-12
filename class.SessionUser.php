@@ -1,6 +1,9 @@
 <?php
 
-class SessionUser extends UserBase {
+/**
+ * SessionUser is stored in the database and has an ID even though the login is stored in the session.
+ */
+class SessionUser extends User {
 
 	function __construct($id = NULL) {
 		session_start();
@@ -73,6 +76,14 @@ class SessionUser extends UserBase {
 		User::unsetInstance($GLOBALS['i']->user->id);
 		unset($GLOBALS['i']->user);
 		$GLOBALS['i']->user = User::getInstance(); // make new anonymous user - does it work?
+	}
+
+	function setPref($name, $value) {
+		$_SESSION[$name] = $value;
+	}
+
+	function getPref($name) {
+		return $_SESSION[$name];
 	}
 
 }

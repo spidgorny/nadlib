@@ -4,6 +4,7 @@ class MySQL {
 	public $db;
 	public $lastQuery;
 	protected $connection;
+	protected static $instance;
 	public $queryLog = array();		// set to NULL for disabling
 
 	function __construct($db = '', $host = '127.0.0.1', $login = 'root', $password = '') {
@@ -21,15 +22,25 @@ class MySQL {
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
-		$res = mysql_select_db($this->db);
+		$res = mysql_select_db($this->db, $this->connection);
 		if (!$res) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
-		$res = mysql_set_charset('utf8');
+		$res = mysql_set_charset('utf8', $this->connection);
 		if (!$res) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		//debug(mysql_client_encoding()); exit();
+	}
+
+	static function getInstance() {
+		if (!self::$instance) {
+			$config = Config::getInstance();
+			self::$instance = new self($config->mysql_db, $config->mysql_host, $config->mysql_login, $config->mysql_password);
+			$config->db = self::$instance;
+			$config->qb->db = self::$instance;
+		}
+		return self::$instance;
 	}
 
 	function getCaller($stepBack = 2) {
@@ -58,22 +69,22 @@ class MySQL {
 		$profilerKey = __METHOD__." (".$caller.")";
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($profilerKey);
 		$start = microtime(true);
-		$res = @mysql_query($query);
+		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$this->queryLog[$query] += microtime(true) - $start;
 		}
 		$this->lastQuery = $query;
-		if (mysql_errno()) {
+		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				/*debug(array(
-					'code' => mysql_errno(),
-					'text' => mysql_error(),
+				debug(array(
+					'code' => mysql_errno($this->connection),
+					'text' => mysql_error($this->connection),
 					'query' => $query,
-				));*/
+				));
 			}
-			throw new Exception(mysql_errno().': '.mysql_error().
+			throw new Exception(mysql_errno($this->connection).': '.mysql_error($this->connection).
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
-			, mysql_errno());
+			, mysql_errno($this->connection));
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
@@ -84,7 +95,13 @@ class MySQL {
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
-		$row = mysql_fetch_assoc($res);
+		if (is_resource($res)) {
+			$row = mysql_fetch_assoc($res);
+		} else {
+			error_log('is not a resource: '.$this->lastQuery);
+			debug('is not a resource', $res);
+			debug_pre_print_backtrace();
+		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $row;
 	}
@@ -114,7 +131,7 @@ class MySQL {
 
 		// temp
 		if (mysql_errno()) {
-			debug(array(mysql_errno() => mysql_error()));
+			debug(array(mysql_errno($this->connection) => mysql_error($this->connection)));
 			exit();
 		}
 
@@ -150,8 +167,12 @@ class MySQL {
 		$this->perform('COMMIT');
 	}
 
+	function rollback() {
+		$this->perform('ROLLBACK');
+	}
+
 	function escape($string) {
-		return mysql_real_escape_string($string);
+		return mysql_real_escape_string($string, $this->connection);
 	}
 
 	function quoteSQL($string) {
@@ -171,26 +192,28 @@ class MySQL {
 		return $data;
 	}
 
-	function runSelectQuery($table, array $where, $order = '', $addFields = '', $exclusive = false) {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
-		$res = $qb->runSelectQuery($table, $where, $order, $addFields, $exclusive);
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
+		$qb = Config::getInstance()->qb;
+		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus, $only);
+		$res = $this->perform($query);
+		$data = $this->fetchAssoc($res);
+		return $data;
+	}
+
+	function runSelectQuery($table, array $where, $order = '', $selectPlus = '', $only = FALSE) {
+		$qb = Config::getInstance()->qb;
+		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus, $only);
 		return $res;
 	}
 
 	function runUpdateQuery($table, array $set, array $where) {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = Config::getInstance()->qb;
 		$res = $qb->runUpdateQuery($table, $set, $where);
 		return $res;
 	}
 
 	function runInsertQuery($table, array $set) {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = Config::getInstance()->qb;
 		$res = $qb->runInsertQuery($table, $set);
 		return $res;
 	}
