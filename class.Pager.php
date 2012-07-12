@@ -15,8 +15,8 @@ class Pager {
 		if (($pagerData = $_REQUEST['pager'])) {
 //			printbr("Pager initialized with REQUEST");
 			$this->currentPage = (int)($pagerData['page']);
-			Config::getInstance()->user->setPref('Pager', array('page' => $this->currentPage));
-		} else if (($pager = Config::getInstance()->user->getPref('Pager'))) {
+			Index::getInstance()->user->setPref('Pager', array('page' => $this->currentPage));
+		} else if (($pager = Index::getInstance()->user->getPref('Pager'))) {
 //			printbr("Pager initialized with SESSION");
 			$this->currentPage = $pager['page'];
 		} else {
@@ -28,7 +28,7 @@ class Pager {
 
 	function initByQuery($query) {
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
-		$res = $GLOBALS['i']->db->fetchAssoc($query);
+		$res = Config::getInstance()->db->fetchAssoc($query);
 		$this->setNumberOfRecords($res['count']);
 	}
 
@@ -47,6 +47,8 @@ class Pager {
 
 	function setItemsPerPage($items) {
 		$this->itemsPerPage = $items;
+		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
+		//debug($this);
 	}
 
 	function getSQLLimit() {
@@ -77,12 +79,13 @@ class Pager {
 	}
 
 	protected function showSearchBrowser() {
+		$content = '';
 		$maxpage = $this->getMaxPage();
  		$pages = $this->getPagesAround($this->currentPage, $maxpage);
  		//debug(array($pages, $current['searchIndex'], sizeof($tmpArray)));
  		if ($this->currentPage > 0) {
 			$link = $this->url.'&pager[page]='.($this->currentPage-1);
-			$content .= '<a href="'.$link.'">&lt;</a>';
+			$content .= '<a href="'.$link.'" rel="prev">&lt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&lt;</span>';
  		}
@@ -100,11 +103,11 @@ class Pager {
 		}
  		if ($this->currentPage < (sizeof($pages)-1)) {
 			$link = $this->url.'&pager[page]='.($this->currentPage+1);
-			$content .= '<a href="'.$link.'">&gt;</a>';
+			$content .= '<a href="'.$link.'" rel="next">&gt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&gt;</span>';
  		}
-		$form = "<form action='".$this->url."' method='POST'>
+		$form = "<form action='".$this->url."' method='POST' class='inline'>
 			&nbsp;<input name='pager[page]' class='normal' value='".($_POST['pager']['page'])."' size='3'>
 			<input type='submit' value='Page' class='submit'>
 		</form>";

@@ -4,18 +4,18 @@ class MySQL {
 	public $db;
 	public $lastQuery;
 	protected $connection;
+	public $queryLog = array();		// set to NULL for disabling
 
-	function __construct($db = 'f', $host = '127.0.0.1', $login = 'root', $password = '') {
+	function __construct($db = '', $host = '127.0.0.1', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
-
-/*		if ($_SERVER['SERVER_NAME'] == 'appointment.at') {
-			$db = 'db281640078';
-			$host = 'db1857.1und1.de';
-			$login = 'dbo281640078';
-			$password = '8rHCatVY';
-		}
-*/
 		$this->db = $db;
+		if ($this->db) {
+			$this->connect($db, $host, $login, $password);
+		}
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
+
+	function connect($db, $host, $login, $password) {
 		ini_set('mysql.connect_timeout', 1);
 		$this->connection = mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
@@ -30,10 +30,9 @@ class MySQL {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		//debug(mysql_client_encoding()); exit();
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function getCaller($stepBack = 3) {
+	function getCaller($stepBack = 2) {
 		$btl = debug_backtrace();
 		reset($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
@@ -52,12 +51,17 @@ class MySQL {
 			$c++;
 		} while (in_array($caller, array(
 			'MySQL::fetchSelectQuery',
-			'OODBase::findInDB',
-			'FlexiTable::findInDB',
+			'MySQL::runSelectQuery',
+			//'OODBase::findInDB',
+			//'FlexiTable::findInDB',
 		)));
 		$profilerKey = __METHOD__." (".$caller.")";
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($profilerKey);
+		$start = microtime(true);
 		$res = @mysql_query($query);
+		if (!is_null($this->queryLog)) {
+			$this->queryLog[$query] += microtime(true) - $start;
+		}
 		$this->lastQuery = $query;
 		if (mysql_errno()) {
 			if (DEVELOPMENT) {
@@ -148,7 +152,10 @@ class MySQL {
 
 	function escape($string) {
 		return mysql_real_escape_string($string);
-		// pg_escape_string
+	}
+
+	function quoteSQL($string) {
+		return "'".mysql_real_escape_string($string)."'";
 	}
 
 	/**

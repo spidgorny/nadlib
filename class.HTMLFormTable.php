@@ -53,22 +53,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "select":
 				case "selection":
-					if ($desc['from'] && $desc['title']) {
-						//debugster($desc);
-					$options = Config::getInstance()->db->getTableOptions($desc['from'],
-						$desc['title'],
-						$desc['where'] . $desc['order'],
-						$desc['idField'] ? $desc['idField'] : 'id',
-						$desc['noDeleted']);
-					} else {
-						$options = array();
-					}
-					if ($desc['options']) {
-						$options += $desc['options'];
-					}
-					if ($desc['null']) {
-						$options = array(NULL => "---") + $options;
-					}
+					$options = $this->getSelectionOptions($desc);
 					$this->selection($fieldName, $options,
 						$fieldValue ? $fieldValue : $desc['default'],
 						$desc['autosubmit'],
@@ -83,6 +68,9 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "check":
 				case "checkbox":
+					if ($desc['set0']) {
+						$this->hidden($fieldName, 0);
+					}
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $desc['more']);
 				break;
 				case "time":
@@ -128,6 +116,11 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
+				break;
+				case 'combo':
+					$this->combo($fieldName, $desc);
+				case 'button':
+					$this->button($desc['innerHTML'], $desc['more']);
 				break;
 				case "input":
 				default:
@@ -225,6 +218,7 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function showRow($fieldName, array $desc2) {
+		$stdout = '';
 		//foreach ($desc as $fieldName2 => $desc2) {
 			if ($fieldName2 != 'horisontal') {
 				$stdout .= "<td {$desc['TDmore']}>";
@@ -289,6 +283,7 @@ class HTMLFormTable extends HTMLForm {
 			} else {
 				$path[] = $fieldName;
 			}
+			//debug($path);
 
 			if (is_array($fieldDesc) && $fieldDesc['type'] != 'hidden') {
 				if (!$fieldDesc['horisontal']) {
@@ -316,6 +311,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->stdout .= "</tr>";
 				}
 			} else {
+				//t3lib_div::debug(array($path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
 		}
@@ -368,6 +364,7 @@ class HTMLFormTable extends HTMLForm {
 	 *
 	 * @param	array	Structure of the HTMLFormTable
 	 * @param	array	Values in one of the supported formats.
+	 * @param	boolean	??? what's for?
 	 * @return	array	HTMLFormTable structure.
 	 */
 
@@ -429,6 +426,28 @@ class HTMLFormTable extends HTMLForm {
 				$this->hidden($key, $val);
 			}
 		}
+	}
+
+	function getSelectionOptions(array $desc) {
+		if ($desc['from'] && $desc['title']) {
+			//debugster($desc);
+			$options = Config::getInstance()->db->getTableOptions($desc['from'],
+				$desc['title'],
+				$desc['where'] ? $desc['where'] : array(),
+				$desc['order'],
+				$desc['idField'] ? $desc['idField'] : 'id'
+				//$desc['noDeleted']
+			);
+		} else {
+			$options = array();
+		}
+		if ($desc['options']) {
+			$options += $desc['options'];
+		}
+		if ($desc['null']) {
+			$options = array(NULL => "---") + $options;
+		}
+		return $options;
 	}
 
 }

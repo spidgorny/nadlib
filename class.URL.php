@@ -6,14 +6,16 @@ class URL {
 	protected $params;
 	protected $documentRoot = '';
 
-	function __construct($url = NULL) {
+	function __construct($url = NULL, array $params = array()) {
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 		}
 		$this->components = parse_url($url);
 		parse_str($this->components['query'], $this->params);
-		//debug($this);
+		if ($params) {
+			$this->setParams($params);
+		}
 	}
 
 	function setParam($param, $value) {
@@ -38,6 +40,7 @@ class URL {
 	function getPath() {
 		$path = $this->components['path'];
 		$path = str_replace($this->documentRoot, '', $path);
+		//debug($this->components['path'], $this->documentRoot, $path);
 		return $path;
 	}
 

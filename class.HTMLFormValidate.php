@@ -51,12 +51,11 @@ class HTMLFormValidate {
 				}
 			}
 
-			if ($d['dependant']) {
+			if ($d['dependant'] && $d['value']) { // only checked should be validated
 				$fv = new HTMLFormValidate($d['dependant']);
 				if (!$fv->validate()) {
 					$d['dependant'] = $fv->getDesc();
 				}
-			}
 			} elseif ($d['max'] && $d['value'] > $d['max']) {
 				$d['error'] = 'Value too large. Maximum: '.$d['max'];
 				$error = TRUE;

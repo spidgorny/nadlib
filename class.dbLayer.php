@@ -16,8 +16,10 @@ class dbLayer {
 	var $LAST_PERFORM_QUERY;
 	var $QUERIES = array();
 	var $QUERYMAL = array();
+	public $saveQueries = false;
 
 	function dbLayer($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
+		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
@@ -49,8 +51,10 @@ class dbLayer {
 		if (0 || Config::getInstance()->debugQueries) {
 			echo 'Query: '.$query.': '.$this->numRows($this->LAST_PERFORM_RESULT).'<br />';
 		}
-		$this->QUERIES[$query] += $prof->elapsed();
-		$this->QUERYMAL[$query]++;
+		if ($this->saveQueries) {
+			$this->QUERIES[$query] += $prof->elapsed();
+			$this->QUERYMAL[$query]++;
+		}
 		$this->COUNTQUERIES++;
 		return $this->LAST_PERFORM_RESULT;
 	}
@@ -152,7 +156,6 @@ class dbLayer {
 	function getTableDataEx($table, $where = "", $special = "") {
 		$query = "select ".($special?$special." as special, ":'')."* from $table";
 		if (!empty($where)) $query .= " where $where";
-		debug($query);
 		$result = $this->fetchAll($query);
 		return $result;
 	}
@@ -163,6 +166,7 @@ class dbLayer {
 		foreach ($a as $row) {
 			$b[$row[$key]] = $row["special"];
 		}
+		//debug($this->LAST_PERFORM_QUERY, $a, $b);
 		return $b;
 	}
 
@@ -422,8 +426,87 @@ class dbLayer {
 	  return $ret;
 	}
 
-	function getPGArray($pgArray) {
-		$pgArray = substr(substr(trim($pgArray), 1), 0, -1);
+	/**
+	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
+	 * @param $dbarr
+	 */
+	function getPGArray($input) {
+		if ($input{0} == '{') {	// array inside
+			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
+			return $this->getPGArray($input);
+		} else {
+			if (strpos($input, '},{') !== FALSE) {
+				$parts = explode('},{', $input);
+				foreach ($parts as &$p) {
+					$p = $this->getPGArray($p);
+				}
+			} else {
+				$parts = $this->str_getcsv($input, ',', '"');
+				$parts = array_map('stripslashes', $parts);
+			}
+			return $parts;
+		}
+	}
+
+	function str_getcsv($input, $delimiter=',', $enclosure='"', $escape='\\', $eol=null) {
+		$temp=fopen("php://memory", "rw");
+		fwrite($temp, $input);
+		fseek($temp, 0);
+		$r = array();
+		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure)) !== false) {
+			$r[] = array_map('stripslashes', $data);
+		}
+		fclose($temp);
+		return $r[0];
+	}
+
+	/**
+	 * Change a db array into a PHP array
+	 * @param $arr String representing the DB array
+	 * @return A PHP array
+	 */
+/*	function getPGArray($dbarr) {
+		// Take off the first and last characters (the braces)
+		$arr = substr($dbarr, 1, strlen($dbarr) - 2);
+
+		// Pick out array entries by carefully parsing.  This is necessary in order
+		// to cope with double quotes and commas, etc.
+		$elements = array();
+		$i = $j = 0;
+		$in_quotes = false;
+		while ($i < strlen($arr)) {
+			// If current char is a double quote and it's not escaped, then
+			// enter quoted bit
+			$char = substr($arr, $i, 1);
+			if ($char == '"' && ($i == 0 || substr($arr, $i - 1, 1) != '\\'))
+				$in_quotes = !$in_quotes;
+			elseif ($char == ',' && !$in_quotes) {
+				// Add text so far to the array
+				$elements[] = substr($arr, $j, $i - $j);
+				$j = $i + 1;
+			}
+			$i++;
+		}
+		// Add final text to the array
+		$elements[] = substr($arr, $j);
+
+		// Do one further loop over the elements array to remote double quoting
+		// and escaping of double quotes and backslashes
+		for ($i = 0; $i < sizeof($elements); $i++) {
+			$v = $elements[$i];
+			if (strpos($v, '"') === 0) {
+				$v = substr($v, 1, strlen($v) - 2);
+				$v = str_replace('\\"', '"', $v);
+				$v = str_replace('\\\\', '\\', $v);
+				$elements[$i] = $v;
+			}
+		}
+
+		return $elements;
+	}
+*/
+	function getPGArray1D($input) {
+		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
 		if ($v1 == array('')) return array();
 		$inside = false;
@@ -434,7 +517,9 @@ class dbLayer {
 				$inside = true;
 				$word = substr($word, 1);
 			}
-			if ($word{strlen($word)-1} == '"') {
+			if (in_array($word{strlen($word)-1}, array('"'))
+			&& !in_array($word{strlen($word)-2}, array('\\'))
+			) {
 				$inside = false;
 				$word = substr($word, 0, -1);
 			}
@@ -443,7 +528,50 @@ class dbLayer {
 				$o++;
 			}
 		}
+		//debug($input, $pgArray, $out);
 		return $out;
+	}
+
+/*	public function getPGArray($text) {
+		$this->pg_array_parse($text, $output);
+		return $output;
+	}
+
+	private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
+		if( false === $limit )
+		{
+			$limit = strlen( $text )-1;
+			$output = array();
+		}
+		if( '{}' != $text )
+			do
+			{
+				if( '{' != $text{$offset} )
+				{
+					preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
+					$offset += strlen( $match[0] );
+					$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
+					if( '},' == $match[3] ) return $offset;
+				}
+				else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
+			}
+			while( $limit > $offset );
+	}
+*/
+	function setPGArray(array $data) {
+		foreach ($data as &$el) {
+			if (is_array($el)) {
+				$el = $this->setPGArray($el);
+			} else {
+				$el = pg_escape_string($el);
+				$el = '"'.str_replace(array(
+					'"',
+				), array(
+					'\\"',
+				), $el).'"';
+			}
+		}
+		return '{'.implode(',', $data).'}';
 	}
 
 	function escape($str) {
