@@ -62,6 +62,7 @@ class HTMLForm {
 	}
 
 	function getName($name, $namePlus = '', $onlyValue = FALSE) {
+		$a = '';
 		$path = $this->prefix;
 		$path = array_merge($path, is_array($name) ? $name : array($name));
 		$first = array_shift($path);
@@ -121,14 +122,17 @@ class HTMLForm {
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
 	}
-	
-	function checkLabel($name, $checked, $more = "", $label = '') {
+
+	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<label><input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." $more> $label</label>";
+		$this->stdout .= "<label>';
+		$this->check($name, $value, $checked, $more);
+		$this->stdout .= ' '.$label</label>";
 	}
 
 	function radioLabel($name, $value, $checked, $label = "") {
 		$value = htmlspecialchars($value, ENT_QUOTES);
+		$id = $this->getName($name, $value, true);
 		$id = $this->prefix."_".$name."_".$value;
 		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." id='".$id."'> ";
 		$this->stdout .= "<label for=$id>$label</label>";
@@ -146,11 +150,20 @@ class HTMLForm {
 		}
 		$this->stdout .= $more . ">\n";
 		foreach($aOptions as $value => $option) {
-			$this->stdout .= "<option value=\"$value\"";
 			if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
-				$this->stdout .= " selected";
+				$selected = true;
+			} else {
+				$selected = false;
 			}
-			$this->stdout .= ">$option</option>\n";
+			if ($option instanceof HTMLTag) {
+				$this->stdout .= $option;
+			} else {
+				$this->stdout .= "<option value=\"$value\"";
+				if ($selected) {
+					$this->stdout .= " selected";
+				}
+				$this->stdout .= ">$option</option>\n";
+			}
 		}
 		$this->stdout .= "</select>\n";
 	}
@@ -180,10 +193,8 @@ class HTMLForm {
 		$this->stdout .= "<input type=\"submit\" class=\"submit {$params['class']}\" " . ($value?'value="'.$value.'"':"") . " $more />\n";
 	}
 
-	function button($value = NULL) {
-		//debug($more);
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<button $more>$value</button>\n";
+	function button($innerHTML = NULL, $more = '') {
+		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
 	function image($value = NULL, $more = "", $desc = array()) {
@@ -218,7 +229,7 @@ class HTMLForm {
 	}
 
 	function getContent() {
-		$c .= $this->getFormTag().$this->stdout.$this->getFormEnd();
+		$c = $this->getFormTag().$this->stdout.$this->getFormEnd();
 		return $c;
 	}
 
@@ -228,6 +239,17 @@ class HTMLForm {
 
 	function render() {
 		print($this->getContent());
+	}
+
+	function combo($fieldName, array $desc) {
+		if ($desc['table']) {
+			$options = $GLOBALS['db']->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
+			$options = $GLOBALS['db']->IDalize($options, 'value', 'value');
+		} else {
+			$options = $desc['options'];
+		}
+		$this->selection($fieldName, $options, -1, FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"');
+		$this->input($fieldName, $desc['value']);
 	}
 
 	/**
@@ -268,7 +290,7 @@ class HTMLForm {
 	 */
 	function radioset($name, $value, array $desc) {
 		foreach ($desc['options'] as $key => $val) {
-			$this->radioLabel($name, $key, $value == $key, $val);
+			$this->radioLabel($name, $key, $value == $key, $val, $desc['more']);
 			$this->text('<br />');
 		}
 	}
@@ -340,7 +362,7 @@ class HTMLForm {
 	
 	function recaptcha(array $desc = array()) {
 		require_once('lib/recaptcha-php-1.10/recaptchalib.php');
-		$content .= recaptcha_get_html($this->publickey, $desc['error']);
+		$content = recaptcha_get_html($this->publickey, $desc['error']);
 		$this->stdout .= $content;
 		return $content;
 	}
@@ -354,7 +376,7 @@ class HTMLForm {
 	 * @return unknown
 	 */
 	function recaptchaAjax(array $desc) {
-		$content .= '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error='.htmlspecialchars($desc['captcha-error']).'"></script>
+		$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error='.htmlspecialchars($desc['captcha-error']).'"></script>
 		<div id="recaptcha_div"></div>
  		<script>
  			Recaptcha.create("'.$this->publickey.'", "recaptcha_div");

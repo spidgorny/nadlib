@@ -10,13 +10,14 @@ class PageSize extends Controller {
 	function __construct($selected) {
 		parent::__construct();
 		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;
+		$user = Index::getInstance()->user;
 		if (!$this->selected) {
-			$this->selected = Config::getInstance()->user->getPref('pageSize');
+			$this->selected = $user->getPref('pageSize');
 		}
 		if (!$this->selected) {
 			$this->selected = $selected;
 		}
-		Config::getInstance()->user->setPref('pageSize', $this->selected);
+		$user->setPref('pageSize', $this->selected);
 	}
 
 	function setURL($url) {

@@ -31,7 +31,7 @@ abstract class HTMLFormProcessor extends Controller {
 	 */
 	function render() {
 		if ($this->validated) {
-			$content .= $this->onSuccess(HTMLFormTable::getValues($this->desc));
+			$content = $this->onSuccess(HTMLFormTable::getValues($this->desc));
 		} else {
 			$f = new HTMLFormTable();
 			if ($this->ajax) {

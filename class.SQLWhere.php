@@ -16,6 +16,13 @@ class SQLWhere {
 		$this->parts[] = $where;
 	}
 
+	function addArray(array $where) {
+		foreach ($where as $el) {
+			$this->add($el);
+		}
+		return $this;
+	}
+
 	function __toString() {
 		if ($this->parts) {
 			return "WHERE\n\t".implode("\n\tAND ", $this->parts);

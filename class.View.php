@@ -32,7 +32,7 @@ class View {
 
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$file = 'template/'.$this->file;
+		$file = dirname(__FILE__).'/../template/'.$this->file;
 		ob_start();
 		require($file);
 		if (!$content) {
@@ -96,6 +96,7 @@ class View {
 	}
 
 	function __toString() {
+		//debug_pre_print_backtrace();
 		return $this->render().'';
 	}
 

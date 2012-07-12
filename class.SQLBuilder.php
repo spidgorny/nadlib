@@ -245,15 +245,34 @@ class SQLBuilder {
 
 	function quoteKey($key) {
 		if (in_array(strtoupper($key), $this->reserved)) {
-			$key = '`'.$key.'`';
+			if ($this->db instanceof MySQL) {
+				$key = '`'.$key.'`';
+			} else if ($this->db instanceof dbLayer && !in_array($key, array(
+				'-like',
+			))) {
+				//$key = "'".$key."'";
+				$key = '"'.$key.'"';
+			}
 		}
 		return $key;
 	}
 
-	function quoteSQL($value) {
+	/**
+	 * Used to really quote different values so that they can be attached to "field = "
+	 *
+	 * @param $value
+	 * @param $key
+	 * @return string
+	 * @throws Exception
+	 */
+	function quoteSQL($value, $key) {
 		if ($value instanceof AsIs) {
 			return $value->__toString();
-		} elseif ($value instanceof Time) {
+		} else if ($value instanceof AsIsOp) {
+			return $value->__toString();
+		} else if ($value instanceof SQLOr) {
+			return $value->__toString();
+		} else if ($value instanceof Time) {
 			return "'".$value->__toString()."'";
 		} else if ($value === NULL) {
 			return "NULL";
@@ -263,6 +282,7 @@ class SQLBuilder {
 			return $value.'';
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
+			return intval($value); // MySQL specific
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -279,10 +299,10 @@ class SQLBuilder {
 	 * @param unknown_type $a
 	 * @return unknown
 	 */
-	function quoteValues($a) {
+	function quoteValues(array $a) {
 		$c = array();
-		foreach($a as $b) {
-			$c[] = SQLBuilder::quoteSQL($b);
+		foreach($a as $key => $b) {
+			$c[] = SQLBuilder::quoteSQL($b, $key);
 		}
 		return $c;
 	}
@@ -302,6 +322,10 @@ class SQLBuilder {
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
 					$set[] = $key . ' ' . $val;
+				} else if ($val instanceof SQLBetween) {
+					$set[] = $val->toString($key);
+				} else if (is_object($val)) {
+					$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
 					$set[] = $key . ' ' . $val;
 				} else if ($val === NULL) {
@@ -316,8 +340,10 @@ class SQLBuilder {
 					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {
 					$set[] = $val;
+				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
+					$set[] = $key." IN ('".implode("', '", $val)."')";
 				} else {
-					$val = SQLBuilder::quoteSQL($val);
+					$val = SQLBuilder::quoteSQL($val, $key);
 					$set[] = "$key = $val";
 				}
 			}
@@ -384,15 +410,12 @@ class SQLBuilder {
 		$table1 = $this->getFirstWord($table);
 		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
 		$q = "SELECT $select FROM " . $this->quoteKey($table);
-		$set = $this->quoteWhere($where);
-		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" AND ", $set);
-		}
+		$q .= $where->__toString();
 		$q .= " ".$order;
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array(), $order = "") {
+	function getDeleteQuery($table, $where = array()) {
 		$q = "DELETE FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
@@ -457,6 +480,13 @@ class SQLBuilder {
 		return $inserted;
 	}
 
+	/**
+	 * Inserts only if not yet found.
+	 *
+	 * @param $table
+	 * @param $fields
+	 * @return
+	 */
 	function runInsertNew($table, array $fields) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
@@ -550,6 +580,16 @@ class SQLBuilder {
 
 	function __call($method, array $params) {
 		return call_user_func_array(array($this->db, $method), $params);
+	}
+
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid') {
+		$res = $this->runSelectQuery($table, $where, $order, 'DISTINCT '.$titleField.', '.$idField, true);
+		//debug($this->db->lastQuery);
+		$data = $this->fetchAll($res, $idField);
+		$keys = array_keys($data);
+		$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
+		$options = array_combine($keys, $values);
+		return $options;
 	}
 
 }

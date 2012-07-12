@@ -1,6 +1,6 @@
 <?php
 
-class IteratorCollection extends Collection  implements Iterator {
+class IteratorCollection extends Collection implements Iterator {
 
 	function rewind() {
 		reset($this->data);

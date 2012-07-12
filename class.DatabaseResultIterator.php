@@ -9,18 +9,22 @@ class DatabaseResultIterator implements Iterator {
 	var $defaultKey;
 	var $dbResultResource;
 	var $row = array();
+	var $rows = 0;
 	var $key = 0;
 
 	function __construct($query, $defaultKey = NULL) { // 'uid'
 		$this->defaultKey = $defaultKey;
 		$this->db = Config::getInstance()->my;
 		$this->dbResultResource = $this->db->perform($query);
+		$this->rows = $this->count();
 		$this->rewind();
 	}
 
 	function rewind() {
-		$this->db->dataSeek($this->dbResultResource, 0);
-		$this->next();
+		if ($this->rows) {
+			$this->db->dataSeek($this->dbResultResource, 0);
+			$this->next();
+		}
 	}
 
     function current() {
