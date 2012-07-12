@@ -45,7 +45,7 @@ class HTMLTableBuf {
 		$this->tde();
 	}
 
-	function thes($aCaption, $thmore = array(), $trmore = '') {
+	function thes(array $aCaption, $thmore = array(), $trmore = '') {
 		$this->stdout .= '<thead>';
 		$this->tr($trmore);
 			foreach($aCaption as $i => $caption) {

@@ -1,9 +1,10 @@
 <?php
 
-class PlainSessionUser {
+class PlainSessionUser extends User {
 
 	function __construct() {
 		session_start();
+		parent::__construct();
 	}
 
 	function getPref($name) {

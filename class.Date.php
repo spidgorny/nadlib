@@ -23,4 +23,21 @@ class Date extends Time {
 		$this->human = $this->getHumanDateTime();
 	}
 
+	static function fromEurope($format) {
+		$parts = explode('.', $format);
+		$parts = array_reverse($parts);
+		$parts = implode('-', $parts);
+		return new self($parts);
+	}
+
+	/**
+	 * Doesn't modify self
+	 *
+	 * @param string $formula
+	 * @return Time
+	 */
+	function math($formula) {
+		return new self(strtotime($formula, $this->time));
+	}
+
 }

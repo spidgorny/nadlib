@@ -32,10 +32,12 @@ class slTable {
 	function slTable($id = NULL, $more="", array $thes = array()) {
 		if (is_array($id)) {
 			$this->data = $id;
-		//	return $this->getContent();
+			$this->ID = md5(time());
+		} else if ($id) {
+			$this->ID = $id;
+		} else {
+			$this->ID = md5(time());
 		}
-		if (!$id) $id = md5(time());
-		$this->ID = $id;
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
 		try {
@@ -186,7 +188,7 @@ class slTable {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		$thes2 = array();
 		$thmore = array();
-		foreach ($thes as $thk => $thv) {
+		if (is_array($thes)) foreach ($thes as $thk => $thv) {
 			if (is_array($thv)) {
 				$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
 				$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
@@ -257,7 +259,7 @@ class slTable {
 			}
 
 			$t = new HTMLTableBuf();
-			$t->table(is_string($this->more) ? $this->more : $this->more['tableMore']);
+			$t->table('id="'.$this->ID.'"'.(is_string($this->more) ? $this->more : $this->more['tableMore']));
 
 			$this->generateThead($t);
 
@@ -314,7 +316,8 @@ class slTable {
 			$k = is_array($k) ? $k : array('name' => $k);
 			if ($skipCols) {
 				$skipCols--;
-			} else if (!is_array($k) xor (is_array($k) && !(isset($k['!show']) && $k['!show']))) {
+			} else if (isset($k['!show']) && $k['!show']) {
+			} else {
 				$val = $row[$col];
 				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
 					$t->tag($val);
@@ -325,18 +328,20 @@ class slTable {
 						$val = $row[strtolower($col)];
 					}
 					$out = $k['before'] . $this->getCell($col, $val, $k, $row) . $k['after'];
-					//$more .= ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
+					$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
 					if (is_array($row[$col.'.'])) {
 						//$more .= $row[$col.'.']['colspan'] ? ' colspan="'.$row[$col.'.']['colspan'].'"' : '';
 						$skipCols = $row[$col.'.']['colspan'] ? $row[$col.'.']['colspan'] - 1 : 0;
 					}
-					$more = (isset($k['more']) ? $k['more'] : NULL).
-						($row[$col.'.']['colspan'] ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
-					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
+					if ($val instanceof HTMLTag) {
+						$t->stdout .= $val;
+					} else {
+						$more .= (isset($k['more']) ? $k['more'] : NULL).
+							($row[$col.'.']['colspan'] ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
+						$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
+					}
 					$iCol++;
 				}
-			} else {
-				$t->cell('slTable ?else?');
 			}
 		}
 	}
@@ -532,12 +537,15 @@ class slTable {
 		return (is_numeric($parts[0]) && is_numeric($parts[1]) && strlen($parts[0]) == 2 && strlen($parts[1]) == 2);
 	}
 
-	static function showAssoc(array $assoc) {
+	public static function showAssoc(array $assoc) {
 		foreach ($assoc as $key => &$val) {
-			$val = array($key.':', $val);
+			$val = array(
+				0 => $key,
+				'' => $val,
+			);
 		}
 		$s = new self($assoc);
-		$s->thes = array(0 => '', 1 => '');
+		$s->thes = array(0 => '', '' => '');
 		return $s;
 	}
 

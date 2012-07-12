@@ -9,15 +9,14 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
-		$row['ctime'] = new Time();
-		$row['cuser'] = $GLOBALS['i']->user->id;
+		//$row['ctime'] = new Time();
+		//$row['cuser'] = $GLOBALS['i']->user->id;
 		$this->checkAllFields($row);
 		$ret = parent::insert($row);
 		return $ret;
 	}
 
 	function checkAllFields(array $row) {
-		return;
 		$this->fetchColumns();
 		foreach ($row as $field => $value) {
 			$this->checkCreateField($field, $value);

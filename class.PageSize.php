@@ -6,8 +6,9 @@ class PageSize extends Controller {
 	);
 	protected $selected;
 	protected $url;
+	static public $default = 20;
 
-	function __construct($selected) {
+	function __construct($selected = NULL) {
 		parent::__construct();
 		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;
 		$user = Index::getInstance()->user;
@@ -16,6 +17,9 @@ class PageSize extends Controller {
 		}
 		if (!$this->selected) {
 			$this->selected = $selected;
+		}
+		if (!$this->selected) {
+			$this->selected = self::$default;
 		}
 		$user->setPref('pageSize', $this->selected);
 	}
