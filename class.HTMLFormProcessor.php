@@ -19,7 +19,10 @@ abstract class HTMLFormProcessor extends Controller {
 			$v = new HTMLFormValidate($this->desc);
 			$this->validated = $v->validate();
 			$this->desc = $v->getDesc();
+		} else {
+			$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 		}
+		//debug($this->desc);
 		$this->submitButton = __($this->submitButton);
 	}
 

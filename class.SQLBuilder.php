@@ -288,7 +288,7 @@ class SQLBuilder {
 				return "'".$this->db->escape($value)."'";
 			} else {
 				debug($value);
-				throw new Exception('Must be string. '.print_r($value));
+				throw new Exception('Must be string.');
 			}
 		}
 	}
