@@ -8,40 +8,57 @@ class Pager {
 	var $url;
 	var $pagesAround = 3;
 
-	function Pager($itemsPerPage = NULL) {
+	/**
+	 * @var Request
+	 */
+	protected $request;
+
+	/**
+	 * Identifies pager preferences on different pages
+	 * @var string
+	 */
+	protected $prefix;
+
+	function Pager($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage) {
 			$this->setItemsPerPage($itemsPerPage);
 		}
+		$this->prefix = $prefix;
+		$this->db = Config::getInstance()->db;
+		$this->request = new Request();
 		if (($pagerData = $_REQUEST['pager'])) {
-//			printbr("Pager initialized with REQUEST");
-			$this->currentPage = (int)($pagerData['page']);
-			Index::getInstance()->user->setPref('Pager', array('page' => $this->currentPage));
-		} else if (($pager = Index::getInstance()->user->getPref('Pager'))) {
-//			printbr("Pager initialized with SESSION");
-			$this->currentPage = $pager['page'];
+			if ($this->request->getMethod() == 'POST') {
+				$pagerData['page']--;
+			}
+			$this->setCurrentPage($pagerData['page']);
+			Config::getInstance()->user->setPref('Pager'.$this->prefix, array('page' => $this->currentPage));
+		} else if (($pager = Config::getInstance()->user->getPref('Pager'.$this->prefix))) {
+			$this->setCurrentPage($pager['page']);
 		} else {
-//			printbr("Pager initialized with default");
-			$this->currentPage = 0;
+			$this->setCurrentPage(0);
 		}
-		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 	}
 
 	function initByQuery($query) {
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
-		$res = Config::getInstance()->db->fetchAssoc($query);
+		$res = $this->db->fetchAssoc($query);
 		$this->setNumberOfRecords($res['count']);
 	}
 
 	function setNumberOfRecords($i) {
 		$this->numberOfRecords = $i;
 		if ($this->startingRecord > $this->numberOfRecords) {
-			$this->startingRecord = 0;
-			$this->currentPage = 0;
+			$this->currentPage = max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
+			//debug($this->currentPage);
+			if ($this->request->isPOST()) {
+				$_POST['pager']['page'] = $this->currentPage+1;
+			}
+			$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 		}
 	}
 
 	function setCurrentPage($page) {
-		$this->currentPage = $page;
+		$this->currentPage = max(0, $page);
 		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 	}
 
@@ -101,7 +118,7 @@ class Pager {
 				}
  			}
 		}
- 		if ($this->currentPage < (sizeof($pages)-1)) {
+ 		if ($this->currentPage < $maxpage-1) {
 			$link = $this->url.'&pager[page]='.($this->currentPage+1);
 			$content .= '<a href="'.$link.'" rel="next">&gt;</a>';
  		} else {
@@ -150,7 +167,7 @@ class Pager {
 		return $pages;
 	}
 
-	function renderPageSelectors($url) {
+	function renderPageSelectors($url = NULL) {
 //		$ret = array();
 		$this->url = $url;
 		$c = $this->showSearchBrowser();
@@ -200,4 +217,9 @@ class Pager {
 		}
 		return '<blockquote style="background-color: silver; border: solid 1px lightblue;"><pre>'.get_class($this).' ['.print_r($properties, TRUE).']</pre></blockquote>';
 	}
+
+	function getURL() {
+		return $this->url.'&pager[page]='.($this->currentPage);
+	}
+
 }

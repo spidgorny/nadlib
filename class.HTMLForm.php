@@ -143,7 +143,7 @@ class HTMLForm {
 		$this->enctype = "multipart/form-data";
 	}
 
-	function selection($name, $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false) {
+	function selection($name, $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
 		$this->stdout .= "<select ".$this->getName($name, $multiple ? '[]' : '');
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
@@ -161,6 +161,9 @@ class HTMLForm {
 				$this->stdout .= "<option value=\"$value\"";
 				if ($selected) {
 					$this->stdout .= " selected";
+				}
+				if ($desc['classAsValuePrefix']) {
+					$this->stdout .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
 				$this->stdout .= ">$option</option>\n";
 			}
@@ -208,7 +211,9 @@ class HTMLForm {
 	}
 
 	function getFormTag() {
-		$a = "<form action=\"{$this->action}\" method=\"{$this->method}\" " . 
+		$a = "<form
+			action=\"{$this->action}\"
+			method=\"{$this->method}\" " .
 			($this->enctype?" enctype=\"".$this->enctype.'"':"") . 
 			$this->formMore . 
 			($this->target ? ' target="'.$this->target.'" ' : '').
@@ -259,7 +264,7 @@ class HTMLForm {
 	 * @param array/string $value - CSV or array
 	 * @param unknown_type $desc
 	 */
-	function set($name, $value = array(), $desc) {
+	function set($name, $value = array(), array $desc) {
 		if ($value) {
 			if (!is_array($value)) {
 				$value = explode(',', $value);
@@ -270,12 +275,13 @@ class HTMLForm {
 		$newName = array_merge($name, array(''));
 		$tmp = $this->class;
 		$this->class = 'submit';
+		$between = $desc['between'] ? $desc['between'] : ', ';
 		foreach ($desc['options'] as $key => $val) {
 			$this->text('<nobr>');
 			$this->check($newName, $key, in_array($key, $value), 'id="lang_'.$key.'"');
 			$this->text('&nbsp;<label for="lang_'.$key.'">'.$val.'</label></nobr>');
 			if ($val != end($desc['options'])) {
-				$this->text(', ');
+				$this->text($between);
 			}
 		}
 		$this->class = $tmp;
@@ -290,7 +296,7 @@ class HTMLForm {
 	 */
 	function radioset($name, $value, array $desc) {
 		foreach ($desc['options'] as $key => $val) {
-			$this->radioLabel($name, $key, $value == $key, $val, $desc['more']);
+			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
 			$this->text('<br />');
 		}
 	}

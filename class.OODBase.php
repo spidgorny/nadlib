@@ -8,8 +8,8 @@ class OODBase {
 	 */
 	protected $db;
 	protected $table;
-	protected $titleColumn = 'name';
 	protected $idField = 'id';
+	protected $titleColumn = 'name';
 	public $id;
 	public $data = array();
 
@@ -20,9 +20,9 @@ class OODBase {
 	 * as associative array
 	 */
 	function __construct($id = NULL) {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-		$this->table = Config::getInstance()->prefixTable($this->table);
-		$this->db = &Config::getInstance()->db;
+		$config = Config::getInstance();
+		$this->table = $config->prefixTable($this->table);
+		$this->db = $config->db;
 		$this->init($id);
 		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
@@ -52,10 +52,11 @@ class OODBase {
 	 */
 	function insert(array $data) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//$data['ctime'] = new AsIs('NOW()');
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$this->db->perform($query);
-		//d($query);
+		unset($data['ctime']);
 		$this->findInDB($data);
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
@@ -69,14 +70,15 @@ class OODBase {
 	function update(array $data) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($this->id) {
+			//$data['mtime'] = new AsIs('NOW()');
+			//$data['muser'] = $GLOBALS['i']->user->id;					// TODO: add to DB
 			$qb = Config::getInstance()->qb;
 			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
+			//debug($query);
 			$res = $this->db->perform($query);
-			if ($_COOKIE['debug']) {
-				//debug($query); exit();
-			}
 			$this->data = array_merge($this->data, $data); // should overwrite
 		} else {
+			$this->db->rollback();
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -157,8 +159,31 @@ class OODBase {
 		}
 	}
 
+	function insertUpdate(array $fields, array $where) {
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->db->transaction();
+		$this->findInDB($where);
+		if ($this->id) { // found
+			$this->update($fields);
+			$op = 'UPD '.$this->id;
+		} else {
+			$this->insert($fields + $where);
+			$this->findInDB($where);
+			$op = 'INS';
+		}
+		$this->db->commit();
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $op;
+	}
+
 	function renderAssoc() {
-		return slTable::showAssoc($this->data);
+		$assoc = $this->data;
+		foreach ($assoc as $key => $val) {
+			if (!$val) {
+				unset($assoc[$key]);
+			}
+		}
+		return slTable::showAssoc($assoc);
 	}
 
 }

@@ -276,7 +276,7 @@ class SQLBuilder {
 			return "'".$value->__toString()."'";
 		} else if ($value === NULL) {
 			return "NULL";
-		} else if (is_numeric($value)) {
+		} else if (is_numeric($value) && !$this->isExp($value)) {
 			return $value;
 		} else if ($value instanceof AsIs) {
 			return $value.'';
@@ -291,6 +291,15 @@ class SQLBuilder {
 				throw new Exception('Must be string. '.print_r($value));
 			}
 		}
+	}
+
+	/**
+	 * http://stackoverflow.com/a/4964120
+	 * @param $number
+	 * @return bool
+	 */
+	function isExp($number) {
+		return is_numeric($number) && $number != number_format($number, 0, '', '');
 	}
 
 	/**
@@ -335,6 +344,8 @@ class SQLBuilder {
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign $val";
 				} else if ($val instanceof SQLWherePart) {
+					$val->injectQB($this);
+					$val->injectField($key);
 					$set[] = $val->__toString();
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
@@ -342,6 +353,13 @@ class SQLBuilder {
 					$set[] = $val;
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
+				} else if (is_array($val) && $where[$key.'.']['makeOR']) {
+					foreach ($val as &$row) {
+						$row = $key . " = '" . $row . "'";
+					}
+					$or = new SQLOr($val);
+					$or->injectQB($this);
+					$set[] = $or;
 				} else {
 					$val = SQLBuilder::quoteSQL($val, $key);
 					$set[] = "$key = $val";
@@ -369,7 +387,7 @@ class SQLBuilder {
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$key = $this->quoteKey($key);
-			$val = $this->quoteSQL($val);
+			$val = $this->quoteSQL($val, $key);
 			$from = array('$key', '$val');
 			$to = array($key, $val);
 			$set[] = str_replace($from, $to, $like);

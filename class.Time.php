@@ -71,7 +71,7 @@ class Time {
 	 * @return Time
 	 */
 	function math($formula) {
-		return new Time(strtotime($formula, $this->time));
+		return new self(strtotime($formula, $this->time));
 	}
 
 	function earlier(Time $than) {
@@ -86,7 +86,7 @@ class Time {
 		return $this->time > $than->time;
 	}
 
-	function laterEqual(Time $than) {
+	function laterOrEqual(Time $than) {
 /*		debug(array(
 			$this->time,
 			$than->time,
@@ -147,7 +147,7 @@ class Time {
 	}
 
 	function getHumanDateTime() {
-		return date('d.m.Y', $this->time).' '.date('H:i', $this->time);
+		return date('d.m.Y H:i', $this->time);
 	}
 
 	/**
@@ -297,6 +297,14 @@ class Time {
 	 */
 	function plus(Time $plus, $debug = FALSE) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		/*$format = '+ '.
+			($plus->format('Y')-1970).' years '.
+			($plus->format('m')-1).' months '.
+			($plus->format('d')-1).' days '.
+			$plus->format('H').' hours '.
+			$plus->format('i').' minutes '.
+			$plus->format('s').' seconds';
+		$new = strtotime($format, $this->time);*/
 		//$format = gmmktime($plus->format('H'), $plus->format('i'), $plus->format('s'), $plus->format('m'), $plus->format('d'), $plus->format('Y'));
 		$format = $plus->getTimestamp();
 		$new = $this->time + $format;
@@ -354,7 +362,7 @@ class Time {
 	 */
 	function modify($format) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$new = new Time($this->format($format));
+		$new = new Time($this->format($format), 0);
 		$this->time = $new->getTimestamp();
 		$this->updateDebug();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -374,6 +382,15 @@ class Time {
 	 */
 	function getHumanTime() {
 		return date('H:i', $this->time);
+	}
+
+	/**
+	 * 12:21:15
+	 *
+	 * @return unknown
+	 */
+	function getTime() {
+		return date('H:i:s', $this->time);
 	}
 
 	function getAdjustedForTZ() {
