@@ -5,6 +5,9 @@
  * or array of OODBase based objects.
  *
  */
+
+require_once 'class.ArrayPlus.php';
+
 class Collection {
 	/**
 	 *
@@ -33,7 +36,7 @@ class Collection {
 	protected $orderBy = "ORDER BY uid";
 
 	function __construct($pid = NULL, array $where = array(), $order = '') {
-		$this->db = $GLOBALS['i']->db;
+		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->parentID = $pid;
 		$this->where += $where;
@@ -50,10 +53,10 @@ class Collection {
 	function retrieveDataFromDB() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		$query = $this->getQuery($this->where);
-		//debug($query, TRUE);
+		//d($query);
 		$res = $this->db->perform($query);
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField);
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -93,7 +96,7 @@ class Collection {
 		$s = new slTable();
 		$s->data = $this->data;
 		$s->thes = $this->thes;
-		$content .= $s->getContent();
+		$content = $s->getContent();
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $content;
 	}
@@ -117,7 +120,7 @@ class Collection {
 	}
 
 	function renderList() {
-		$content .= '<ul>';
+		$content = '<ul>';
 		foreach ($this->data as $row) {
 			$content .= '<li>';
 			foreach ($this->thes as $key => $_) {

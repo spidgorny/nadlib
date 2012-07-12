@@ -268,7 +268,7 @@ class SQLBuilder {
 				return "'".$this->db->escape($value)."'";
 			} else {
 				debug($value);
-				throw new Exception('Must be string.');
+				throw new Exception('Must be string. '.print_r($value));
 			}
 		}
 	}
@@ -348,6 +348,7 @@ class SQLBuilder {
 			$to = array($key, $val);
 			$set[] = str_replace($from, $to, $like);
 		}
+		//d($_POST, $_REQUEST, $columns, $set, ini_get('magic_quotes_gpc'), get_magic_quotes_gpc(), get_magic_quotes_runtime());
 		return $set;
 	}
 

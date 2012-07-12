@@ -69,7 +69,7 @@ class ArrayPlus extends IteratorArrayAccess {
 	/**
 	 * Modifies itself
 	 * @param type $key
-	 * @return type
+	 * @return ArrayPlus
 	 */
 	function IDalize($key = 'id') {
 		$data = array();
