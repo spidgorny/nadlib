@@ -43,7 +43,7 @@ class IndexBase {
 			$class = $this->request->getControllerString();
 			$obj = new $class;
 			$this->content .= $obj->render();
-			$content = new View('template.phtml', $this);
+			$content = new View('template2.phtml', $this);
 		} catch (LoginException $e) {
 			require('template/head.phtml');
 			$content .= '<div class="headerMargin"></div>';
