@@ -56,19 +56,19 @@ abstract class Scaffold extends Controller {
 		$content = '';
 		switch ($this->action) {
 			case 'showForm':
-				$content .= $this->showForm();
+				$content = $this->showForm();
 			break;
 			case 'showEdit':
 				$content .= $this->showEditForm();
 			break;
 			case 'add':
-				$content .= $this->showPerform($this->action);
+				$content = $this->showPerform($this->action);
 			break;
 			case 'update':
-				$content .= $this->showPerform($this->action, $this->id);
+				$content = $this->showPerform($this->action, $this->id);
 			break;
 			default:
-				$content .= $this->showTable();
+				$content = $this->showTable();
 				$content .= $this->showButtons();
 				$content .= '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
 			break;
@@ -82,7 +82,7 @@ abstract class Scaffold extends Controller {
 		$data = $this->processData($data);
 
 		if ($data) {
-			$s = new slTable($data);
+			$s = new slTable($data, 'class="nospacing spaceBelow"');
 			$s->thes($this->thes);
 			$content = $s->getContent();
 		} else {
@@ -166,8 +166,8 @@ abstract class Scaffold extends Controller {
 		if ($v->validate()) {
 			try {
 				switch ($action) {
-					case 'add': $content .= $this->insertRecord($this->data); break;
-					case 'update': $content .= $this->updateRecord($this->data); break;
+					case 'add': $content = $this->insertRecord($this->data); break;
+					case 'update': $content = $this->updateRecord($this->data); break;
 					default: {
 						debug(__METHOD__);
 						throw new Exception(__METHOD__);
@@ -192,7 +192,8 @@ abstract class Scaffold extends Controller {
 	}
 
 	/**
-	 * Needs to implement data into the desc internally
+	 * Needs to implement data into the desc internally!!!
+	 * Please use HTMLFormTable::fillValues()
 	 * @param array $data - the source data of the edited record, if in edit more
 	 * @return array
 	 */

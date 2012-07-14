@@ -233,7 +233,7 @@ class SQLBuilder {
 	 *
 	 * @var MySQL
 	 */
-	protected $db;
+	public $db;
 
 	function __construct(DIContainer $di) {
 		if ($di->db) {

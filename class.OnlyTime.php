@@ -9,4 +9,8 @@ class OnlyTime extends Time {
 		//debug($this);
 	}
 
+	function getMySQL() {
+		return gmdate('H:i:s', $this->time);
+	}
+
 }

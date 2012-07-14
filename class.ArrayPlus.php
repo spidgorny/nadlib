@@ -24,7 +24,7 @@
 
 require_once('class.IteratorArrayAccess.php');
 
-class ArrayPlus extends IteratorArrayAccess {
+class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	function __construct(array $a = array()) {
 		$this->data = $a;
@@ -97,7 +97,8 @@ class ArrayPlus extends IteratorArrayAccess {
 	 */
 	function each($callback) {
 		foreach ($this->data as $i => &$el) {
-			$el = $callback($el, $i);
+			//$el = $callback($el, $i);
+			$el = call_user_func($callback, $el, $i);
 		} unset($el);
 		return $this;
 	}
@@ -122,6 +123,7 @@ class ArrayPlus extends IteratorArrayAccess {
     }
 
     function count() {
+	    //debug(__METHOD__, sizeof($this->data));
     	return sizeof($this->data);
     }
 
