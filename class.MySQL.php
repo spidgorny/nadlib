@@ -3,11 +3,17 @@
 class MySQL {
 	public $db;
 	public $lastQuery;
-	protected $connection;
+	public $connection;
 
-	function __construct($db = 'f', $host = '127.0.0.1', $login = 'root', $password = '') {
+	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = $db;
+		if ($this->db) {
+			$this->connect($host, $login, $password);
+		}
+	}
+
+	function connect($host, $login, $password) {
 		ini_set('mysql.connect_timeout', 1);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
@@ -194,9 +200,7 @@ class MySQL {
 	}
 
 	function __call($method, array $params) {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = Config::getInstance()->qb;
 		return call_user_func_array(array($qb, $method), $params);
 	}
 

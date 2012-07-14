@@ -15,23 +15,24 @@ class TagCloud {
 		$count = $ap->column('count')->getData();
 		$count = max($count);
 		//debug($count);
-		$this->count = $count; 
+		$this->count = $count;
 	}
-	
+
 	function parseWords(array $row) {
 		//debug($row);
 		$url = "Companies?sword=".urlencode($row['name']);
 		$row['url'] = $url;
 		return $row;
-	}		
+	}
 
 	function renderHTML() {
+		$content = '';
 		$cloud = new WordCloud();
 		foreach ($this->words as $row) {
 			$size = round($row['count'] / $this->count * 9);
 			$cloud->addWord(array(
-				'word' => $row['name'],// . ' ('.$row['count'].')', 
-				'size' => $size, 
+				'word' => $row['name'],// . ' ('.$row['count'].')',
+				'size' => $size,
 				'url' => $url,
 			));
 		}
@@ -44,6 +45,7 @@ class TagCloud {
 	}
 
 	function renderXML() {
+		$content = '';
 		foreach ($this->words as $row) {
 			$size = 8+round($row['count'] / $this->count * 10); // 8...18
 			$content .= "<a href='".$row['url']."' style='".$size."'>".htmlspecialchars($row['name'])."</a>";
@@ -51,23 +53,29 @@ class TagCloud {
 		$content = '<tags>'.$content.'</tags>';
 		return $content;
 	}
-	
+
 	function renderHTMLandFlash() {
-?>		<div id="flashcontent">
+		return '
+		<div id="flashcontent">
 			<?= $this->renderHTML(); ?>
 		</div>
 		<link rel="stylesheet" type="text/css" href="css/wordcloud.css" />
 		<script src="lib/wp-cumulus/swfobject.js"></script>
 		<script type="text/javascript">
-			var so = new SWFObject("lib/wp-cumulus/tagcloud.swf", "tagcloud", $('#flashcontent').width(), $('#flashcontent').width()*3/4, "7", "#336699");
+			var so = new SWFObject(
+				"lib/wp-cumulus/tagcloud.swf",
+				"tagcloud",
+				$("#flashcontent").width(),
+				$("#flashcontent").width()*3/4,
+				"7", "#336699");
 			so.addParam("wmode", "transparent");
 			so.addVariable("mode", "tags");
 			so.addVariable("distr", "true");
 			so.addVariable("tcolor", "0xff0000");
 			so.addVariable("hicolor", "0x000000");
-			so.addVariable("tagcloud", "<?= $this->renderXML() ?>");
+			so.addVariable("tagcloud", "'.$this->renderXML().'");
 			so.write("flashcontent");
-		</script>
-<?php	}		
+		</script>';
+	}
 
 }

@@ -33,7 +33,7 @@ class Collection {
 	protected $orderBy = "ORDER BY uid";
 
 	function __construct($pid = NULL, array $where = array(), $order = '') {
-		$this->db = $GLOBALS['i']->db;
+		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->parentID = $pid;
 		$this->where += $where;
