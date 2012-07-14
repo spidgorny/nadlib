@@ -58,7 +58,7 @@ function nodebug() {
 
 function getDebug($a, $b = NULL, $c = '') {
 	ob_start();
-	debug($a);
+	debug($a, $b, $c);
 	return ob_get_clean();
 }
 

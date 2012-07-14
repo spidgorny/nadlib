@@ -29,11 +29,21 @@ abstract class Controller {
 	 */
 	public $user;
 
+	/**
+	 * Enter description here...
+	 *
+	 * @var Clint
+	 */
+	public $client;
+
+	static protected $instance;
+
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = Index::getInstance();
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
+		$this->client = $this->index->client;
 		$this->title = get_class($this);
 		$this->user = Config::getInstance()->user;
 		$this->title = $this->title ? __($this->title) : $this->title;
@@ -60,7 +70,7 @@ abstract class Controller {
 			'pageType' => get_class($this),
 		)+$params);
 	}
-	
+
 	function getURL(array $params, $prefix = '?') {
 		return $this->makeURL($params, $prefix);
 	}
@@ -102,8 +112,8 @@ abstract class Controller {
 		return $table;
 	}
 
-	function getInstance() {
-		return new self;
+	static function getInstance() {
+		return self::$instance ?: new static;
 	}
 
 	function redirect($url) {

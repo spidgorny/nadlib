@@ -90,7 +90,7 @@ class HTMLForm {
 	}
 
 	/**
-	 * 
+	 *
 	 * Table row with $text and input
 	 * @param unknown_type $text
 	 * @param unknown_type $name
@@ -214,8 +214,8 @@ class HTMLForm {
 		$a = "<form
 			action=\"{$this->action}\"
 			method=\"{$this->method}\" " .
-			($this->enctype?" enctype=\"".$this->enctype.'"':"") . 
-			$this->formMore . 
+			($this->enctype?" enctype=\"".$this->enctype.'"':"") .
+			$this->formMore .
 			($this->target ? ' target="'.$this->target.'" ' : '').
 		">\n";
 		if ($this->fieldset) {
@@ -356,7 +356,7 @@ class HTMLForm {
 		$html = implode(' ', $part);
 		return $html;
 	}
-	
+
 	function formColorSelector($name, $default) {
 		$colors = explode(",", "#FFFFFF,#CCCCCC,#999999,#990099,#993300,#009900,#000099,#FF0000,#999900,#00FF00,#0000FF,#FF00FF,#FF9933,#FFFF00,#00FFFF");
 		println("<select name=$name id=$name style='width: auto'>");
@@ -365,7 +365,7 @@ class HTMLForm {
 		}
 		println("</select>");
 	}
-	
+
 	function recaptcha(array $desc = array()) {
 		require_once('lib/recaptcha-php-1.10/recaptchalib.php');
 		$content = recaptcha_get_html($this->publickey, $desc['error']);

@@ -3,22 +3,23 @@
 class MySQL {
 	public $db;
 	public $lastQuery;
-	protected $connection;
+	public $connection;
 	protected static $instance;
 	public $queryLog = array();		// set to NULL for disabling
 
-	function __construct($db = '', $host = '127.0.0.1', $login = 'root', $password = '') {
+	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = $db;
 		if ($this->db) {
-			$this->connect($db, $host, $login, $password);
+			$this->connect($host, $login, $password);
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function connect($db, $host, $login, $password) {
+	function connect($host, $login, $password) {
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		ini_set('mysql.connect_timeout', 1);
-		$this->connection = mysql_pconnect($host, $login, $password);
+		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
@@ -30,7 +31,7 @@ class MySQL {
 		if (!$res) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
-		//debug(mysql_client_encoding()); exit();
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	static function getInstance() {
@@ -232,9 +233,7 @@ class MySQL {
 	}
 
 	function __call($method, array $params) {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = Config::getInstance()->qb;
 		//debug_pre_print_backtrace();
 		//debug($method, $params);
 		if (method_exists($qb, $method)) {
