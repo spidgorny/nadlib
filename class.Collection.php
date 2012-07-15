@@ -66,7 +66,7 @@ class Collection {
 		$this->query = $this->getQuery($this->where);
 		$res = $this->db->perform($this->query);
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField);
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
