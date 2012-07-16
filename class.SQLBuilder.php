@@ -333,6 +333,10 @@ class SQLBuilder {
 					$set[] = $key . ' ' . $val;
 				} else if ($val instanceof SQLBetween) {
 					$set[] = $val->toString($key);
+				} else if ($val instanceof SQLWherePart) {
+					$val->injectQB($this);
+					$val->injectField($key);
+					$set[] = $val->__toString();
 				} else if (is_object($val)) {
 					$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
@@ -343,10 +347,6 @@ class SQLBuilder {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign $val";
-				} else if ($val instanceof SQLWherePart) {
-					$val->injectQB($this);
-					$val->injectField($key);
-					$set[] = $val->__toString();
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {

@@ -10,6 +10,9 @@ class SQLIn extends SQLWherePart {
 	function __toString() {
 		$qb = Config::getInstance()->qb;
 		$field = $qb->quoteKey($this->field);
+		if (!$field) {
+			debug_pre_print_backtrace();
+		}
 		return $field ." IN ('".implode("', '", $this->list)."')";
 	}
 
