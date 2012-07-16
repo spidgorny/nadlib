@@ -32,7 +32,7 @@ abstract class Controller {
 	/**
 	 * Enter description here...
 	 *
-	 * @var Clint
+	 * @var Client
 	 */
 	public $client;
 

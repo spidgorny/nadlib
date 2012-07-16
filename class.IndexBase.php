@@ -37,7 +37,7 @@ class IndexBase {
 	/**
 	 * @var Index
 	 */
-	protected static $instance;
+	public static $instance;
 
 	protected function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
