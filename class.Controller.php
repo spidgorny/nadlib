@@ -38,6 +38,13 @@ abstract class Controller {
 
 	static protected $instance;
 
+	/**
+	 * Allows selecting fullScreen layout of the template
+	 *
+	 * @var string
+	 */
+	public $layout;
+
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = Index::getInstance();

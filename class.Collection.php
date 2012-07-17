@@ -153,7 +153,6 @@ class Collection {
 
 	function translateThes() {
 		// translate thes
-		new LocalLangDummy();	// just in case
 		if (is_array($this->thes)) foreach ($this->thes as $key => &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);

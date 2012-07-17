@@ -26,6 +26,17 @@ class ConfigBase {
 
 	public $defaultController = 'Overview';
 
+	public $documentRoot = '';
+
+	public static $includeFolders = array(
+		'../class',
+		'../nadlib',
+		'../nadlib/SQL',
+		'../nadlib/HTMLForm',
+		'../model',
+		'../dci',
+	);
+
 	protected function __construct() {
 		$this->db = new MySQL($this->db_database, $this->db_server, $this->db_user, $this->db_password);
 		$di = new DIContainer();
@@ -45,7 +56,7 @@ class ConfigBase {
 		return self::$instance;
 	}
 
-	protected function postInit() {
+	public function postInit() {
 		// init user here as he needs to access Config::getInstance()
 	}
 
