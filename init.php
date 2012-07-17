@@ -1,11 +1,11 @@
 <?php
 
 error_reporting(E_ALL ^ E_NOTICE);
-ini_set('display_errors', TRUE);
 header('Cache-Control: max-age=0');
 header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
 date_default_timezone_set('Europe/Berlin');
 define('DEVELOPMENT', $_COOKIE['debug']);
+ini_set('display_errors', DEVELOPMENT);
 
 // remove cookies from $_REQUEST
 //debug($_COOKIE);
@@ -26,7 +26,7 @@ function __autoload($class) {
 		'../class',
 		'../nadlib',
 		'../model',
-		'../../class',
+		'../dci',
 	);
 	foreach ($folders as $path) {
 		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';

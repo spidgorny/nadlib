@@ -43,10 +43,10 @@ abstract class Controller {
 		$this->index = Index::getInstance();
 		$this->request = new Request();
 		$this->db = Config::getInstance()->db;
-		$this->client = $this->index->client;
 		$this->title = get_class($this);
-		$this->user = Config::getInstance()->user;
 		$this->title = $this->title ? __($this->title) : $this->title;
+		$this->user = Config::getInstance()->user;
+		$this->client = $this->index->client;
 	}
 
 	function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {

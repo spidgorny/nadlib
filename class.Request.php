@@ -148,11 +148,15 @@ class Request {
 	}
 
 	function getControllerString() {
-		return $this->getCoalesce(
-			'c', $this->getCoalesce(
-			$this->getURLLevel(0),
-			$this->defaultController
-		));
+		$last = end($this->getURLLevels());
+		$controller = $this->getCoalesce(
+			'c',
+			$last
+				? $last
+				: $this->defaultController
+		);
+		//debug($controller, $this->getTrim('c'), $last, $this->defaultController);
+		return $controller;
 	}
 
 	/**
@@ -162,10 +166,7 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getControllerString();
-		if (!$c) {
-			$ret = $GLOBALS['i']->controller; // default
-		}
-		if (!is_object($ret)) {
+		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
 			} else {
@@ -299,11 +300,16 @@ class Request {
 		return $url;
 	}
 
-	function getURLLevel($level) {
+	function getURLLevels() {
 		$url = $this->getURL();
 		$path = $url->getPath();
 		$path = trimExplode('/', $path);
 		//debug($path);
+		return $path;
+	}
+
+	function getURLLevel($level) {
+		$path = $this->getURLLevels();
 		return $path[$level];
 	}
 

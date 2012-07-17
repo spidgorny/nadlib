@@ -103,12 +103,11 @@ class OODBase {
 	function findInDB(array $where, $orderby = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
-		//d($rows);
 		if (is_array($rows)) {
 			if (is_array(current($rows))) {
-				$this->data = current($rows);
+				$data = current($rows);
 			} else {
-				$this->data = $rows;
+				$data = $rows;
 			}
 		} else {
 			$data = array();

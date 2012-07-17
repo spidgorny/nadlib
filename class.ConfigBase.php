@@ -2,7 +2,7 @@
 
 class ConfigBase {
 	/**
-	 *
+	 * del: Public to allow Request to know if there's an instance
 	 * @var Config
 	 */
 	protected static $instance;

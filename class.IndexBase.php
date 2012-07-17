@@ -48,21 +48,22 @@ class IndexBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	static function getInstance($controller = NULL) {
+	static function getInstance() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = &self::$instance;
 		if (!$instance) {
+			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$instance = new Index();
-			$instance->content .= $instance->initController($controller);
+			$instance->content .= $instance->initController();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $instance;
 	}
 
-	protected function initController($controller = NULL) {
-		$class = $controller ? $controller : $this->request->getControllerString();
-		//debug($class);
+	protected function initController() {
+		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
+			$class = $this->request->getControllerString();
 			if (class_exists($class)) {
 				$this->controller = new $class;
 			} else {
@@ -97,25 +98,27 @@ class IndexBase {
 				$content = $this->renderException($e);
 			}
 		} else {
-			$content = $this->content;
+			$content = $this->content;	// display Exception
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
 	function renderException(Exception $e) {
-		$content = '';
-		if (!$_REQUEST['ajax']) {
-			@include('template/head.phtml');
-			$content .= '<div class="headerMargin"></div>';
-		}
-		$content .= '
-		<div class="ui-state-error padding">
+		$content = '<div class="ui-state-error padding">
 			'.$e->getMessage();
-		if ($_COOKIE['debug']) {
-			$content .= '<br>'.nl2br($e->getTraceAsString());
+		if (DEVELOPMENT) {
+			$content .= '<br />'.nl2br($e->getTraceAsString());
 		}
 		$content .= '</div>';
+		$content .= '<div class="headerMargin"></div>';
+
+		if (!$this->request->isAjax()) {
+			$v = new View('template.phtml', $this);
+			$v->content = $content;
+			$content = $v;
+		}
+
 		return $content;
 	}
 

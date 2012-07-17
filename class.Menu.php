@@ -1,6 +1,9 @@
 <?php
 
-class Menu extends Controller {
+/**
+ * Doesn't extend Controller as it makes an infinite loop as a menu is made in Controller::__construct
+ */
+class Menu /*extends Controller*/ {
 
 	/**
 	 * @var array of Recursive
@@ -17,7 +20,7 @@ class Menu extends Controller {
 	protected $current;
 	
 	function __construct(array $items, $level = NULL) {
-		parent::__construct();
+		//parent::__construct();
 		$this->items = $items;
 		$this->level = $level;
 		$this->request = new Request();
@@ -36,31 +39,39 @@ class Menu extends Controller {
 	function render() {
 		$content = '';
 		if (!is_null($this->level)) {
-			$itemsOnLevel = $this->getItemsOnLevel();
-			$content .= $this->renderLevel($itemsOnLevel, array(), $this->level, false);
+			$rootpath = $this->request->getURLLevels();
+			$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for submenu of Dashboard/About
+			$itemsOnLevel = $this->getItemsOnLevel($rootpath);
+			$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level, false);
 		} else {
 			$content .= $this->renderLevel($this->items, array(), 0, true);
 		}
 		return $content;
 	}
 
-	function getItemsOnLevel() {
-		$this->current = $this->request->getURLLevel($this->level);
-		debug($this->level, $this->current);
-		if ($this->level) {
-			$sub = $this->items[$this->current];
-			$sub = $sub instanceof Recursive ? $sub->getChildren() : array();
+	function getItemsOnLevel(array $rootpath) {
+		$fullRecurive = new Recursive(NULL, $this->items);
+		$sub = $fullRecurive->findPath($rootpath);
+		if ($sub instanceof Recursive) {
+			$items = $sub->getChildren();
 		} else {
-			$sub = $this->items;
+			$items = array();
 		}
-		//debug($sub);
-		return $sub;
+		if (-1 == $this->level) debug(array(
+			'level' => $this->level,
+			'rootpath' => $rootpath,
+			'sub' => $sub,
+			'items' => $items
+		));
+		return $items;
 	}
 
 	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true) {
 		$content = '';
-		//$current = $this->request->getControllerString();
-		//debug($this->level, $current, $level);
+		//$this->current = $this->request->getControllerString();
+		$rootpath = $this->request->getURLLevels();
+		$this->current = $rootpath[$level] ?: $this->request->getControllerString();
+		//debug($rootpath, $level, $this->current);
 		foreach ($items as $class => $name) {
 			$act = $this->current == $class ? ' class="act"' : '';
 			$active = $this->current == $class ? ' class="active"' : '';
@@ -74,7 +85,7 @@ class Menu extends Controller {
 
 			if ($isRecursive && $class == $this->current && is_object($items[$class]) && $items[$class]->getChildren()) {
 				$root_class = array_merge($root, array($class));
-				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1);
+				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, $isRecursive);
 			}
 		}
 		$content = '<ul class="nav nav-list menu">'.$content.'</ul>';
@@ -82,13 +93,13 @@ class Menu extends Controller {
 	}
 
 	function __toString() {
-		return $this->render();
+		return $this->render().'';
 	}
 
 	function tryInstance() {
 		foreach ($this->items as $class => $_) {
 			try {
-				$o = new $class;
+				new $class;
 			} catch (Exception $e) {
 				unset($this->items[$class]);
 			}
