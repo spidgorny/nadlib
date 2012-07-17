@@ -21,13 +21,11 @@ foreach ($_COOKIE as $key => $_) {
 
 function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+	require_once dirname(__FILE__).'/../nadlib/class.ConfigBase.php';
+	require_once dirname(__FILE__).'/../class/class.Config.php';
+	$folders = Config::$includeFolders ? Config::$includeFolders : ConfigBase::$includeFolders;
+
 	$classFile = end(explode('\\', $class));
-	$folders = array(
-		'../class',
-		'../nadlib',
-		'../model',
-		'../dci',
-	);
 	foreach ($folders as $path) {
 		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';
 		//debug($file, file_exists($file));
