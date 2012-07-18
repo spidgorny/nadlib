@@ -34,7 +34,10 @@ function __autoload($class) {
 			break;
 		}
 	}
-	if (!class_exists($class)) throw new Exception('Class '.$class.' ('.$file.') not found.');
+	if (!class_exists($class)) {
+		debug($folders);
+		throw new Exception('Class '.$class.' ('.$file.') not found.');
+	}
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 }
 
