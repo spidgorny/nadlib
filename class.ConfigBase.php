@@ -33,8 +33,10 @@ class ConfigBase {
 		'../nadlib',
 		'../nadlib/SQL',
 		'../nadlib/HTMLForm',
+		'../nadlib/Debug',
+		'../nadlib/ORM',
+		'../nadlib/DB',
 		'../model',
-		'../dci',
 	);
 
 	protected function __construct() {
