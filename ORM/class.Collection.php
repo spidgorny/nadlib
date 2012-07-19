@@ -54,7 +54,7 @@ class Collection {
 		$this->retrieveDataFromDB();
 		$this->preprocessData();
 		$this->translateThes();
-		$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
+		//$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
 	}
 
 	function postInit() {
