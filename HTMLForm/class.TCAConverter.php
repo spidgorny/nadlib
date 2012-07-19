@@ -1,0 +1,127 @@
+<?php
+
+class TCAConverter {
+	public $table;
+	/**
+	 * Enter description here...
+	 *
+	 * @var tx_ninpbl_pi1
+	 */
+	public $pi1;
+	public $skipFields = array('hidden');
+
+	function __construct(tslib_piBase $pi1) {
+		$this->pi1 = $pi1;
+	}
+
+	function convertTCA(array $fields) {
+		$labels = $this->array_column($fields, 'label');
+		$this->pi1->loadLabels($labels);
+
+		$desc = array();
+		foreach ($fields as $field => $config) {
+			if (!in_array($field, $this->skipFields)) {
+				//t3lib_div::debug($config['config']);
+				$desc[$field] = $this->convertTCAtoDesc($config['config']);
+				$llIndex = end(explode(':', $config['label']));
+				$desc[$field]['label'] = $this->pi1->pi_getLL($llIndex, $config['label']);
+				$desc[$field]['optional'] = $config['exclude'];
+			}
+		}
+		return $desc;
+	}
+
+	function convertTCAtoDesc(array $config) {
+		$match = array(
+			'radio' => 'radioset',
+			'text' => 'textarea',
+		);
+		$desc['type'] = $match[$config['type']] ? $match[$config['type']] : $config['type'];
+		$func = 'convertTCA_'.$config['type'];
+		$desc = $this->$func($desc, $config);
+		return $desc;
+	}
+
+	function convertTCA_input(array $desc, array $config) {
+		$desc['size'] = $config['size'];
+		return $desc;
+	}
+
+	function convertTCA_select(array $desc, array $config) {
+		if ($config['foreign_table']) {
+			//t3lib_div::debug($config);
+			$name = $GLOBALS['TCA'][$config['foreign_table']]['ctrl']['label'];
+			//t3lib_div::debug($GLOBALS['TCA'][$config['foreign_table']]['ctrl']);
+			$where = '1=1 '.$this->pi1->cObj->enableFields($config['foreign_table']).' '.$config['foreign_table_where'];
+			$where = str_replace('###CURRENT_PID###', $this->pi1->tsfe->id, $where);
+			$query = $GLOBALS['TYPO3_DB']->SELECTquery('uid, '.$name, $config['foreign_table'], $where); // may contain ONLY ORDER BY!
+			//debug($query);
+			$res = $GLOBALS['TYPO3_DB']->sql_query($query);
+			$desc['options'] = $this->fetchAll($res);
+			//t3lib_div::debug($GLOBALS['TYPO3_DB']->sql_num_rows($res));
+			//t3lib_div::debug($desc['options']);
+			$desc['options'] = $this->array_column($desc['options'], $name);
+			//t3lib_div::debug($desc['options']);
+		} else {
+			$desc['options'] = $this->convertTYPO3items2options($config['items']);
+		}
+		$desc['size'] = $config['size'];
+		if ($config['maxitems'] > 1) {
+			$desc['more'] = 'multiple="multiple"';
+			$desc['multiple'] = 1;
+		}
+		return $desc;
+	}
+
+	function convertTCA_group(array $desc, array $config) {
+		return $desc;
+	}
+
+	function convertTCA_text(array $desc, array $config) {
+		$desc['rows'] = $config['rows'];
+		$desc['cols'] = $config['cols'];
+		return $desc;
+	}
+
+	function convertTCA_radio(array $desc, array $config) {
+		$desc['options'] = $this->convertTYPO3items2options($config['items']);
+		return $desc;
+	}
+
+	function convertTCA_check(array $desc, array $config) {
+		$desc['more'] = 'value="1"'; // "on" is not ok with MySQL integer fields
+		return $desc;
+	}
+
+	function convertTYPO3items2options(array $items) {
+		$labels = $this->array_column($items, '0');
+		$this->pi1->loadLabels($labels);
+
+		$options = array();
+		foreach ($items as $o) {
+			$options[$o[1]] = $this->pi1->pi_getLL(end(explode(':', $o[0])), $o[0]);
+		}
+		return $options;
+	}
+
+	/**
+	 * IDalized with 'uid'
+	 * @param <type> $res
+	 * @return array
+	 */
+	function fetchAll($res) {
+		$rows = array();
+		while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) !== FALSE) {
+			$rows[$row['uid']] = $row;
+		}
+		return $rows;
+	}
+
+	function array_column(array $table, $colName) {
+		foreach ($table as &$row) {
+			$row = $row[$colName];
+		}
+		return $table;
+	}
+
+}
