@@ -1,0 +1,22 @@
+.display-box {
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -o-box;
+    display: box;
+    box-orient: horizontal;
+    box-align: stretch;
+}
+.flex-box {
+    -webkit-flex-box: 1;
+    -moz-flex-box: 1;
+    -o-flex-box: 1;
+    box-flex: 1;
+    margin-left: 1em;
+    overflow: auto;
+}
+.flex-box:first-child {
+    margin-left: 0;
+}

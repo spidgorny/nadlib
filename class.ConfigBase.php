@@ -31,11 +31,18 @@ class ConfigBase {
 	public static $includeFolders = array(
 		'../class',
 		'../nadlib',
-		'../nadlib/SQL',
-		'../nadlib/HTMLForm',
-		'../nadlib/Debug',
-		'../nadlib/ORM',
+		'../nadlib/Cache',
+		'../nadlib/Controller',
+		'../nadlib/Data',
 		'../nadlib/DB',
+		'../nadlib/Debug',
+		'../nadlib/HTML',
+		'../nadlib/HTMLForm',
+		'../nadlib/HTTP',
+		'../nadlib/ORM',
+		'../nadlib/SQL',
+		'../nadlib/Time',
+		'../nadlib/User',
 		'../model',
 	);
 
