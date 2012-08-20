@@ -133,11 +133,12 @@ abstract class Scaffold extends Controller {
 	 * @return HTMLFormTable
 	 */
 	protected function showEditForm() {
-		$f = $this->getForm($action = $override['action'] ? $override['action'] : 'add');
 		$override = array(
 			'action' => 'update',
 			$this->table.'.id' => $this->id,
 		);
+
+		$f = $this->getForm($override['action']);
 		$f->prefix('');
 		unset($override['action']);
 		foreach ($override as $key => $val) {

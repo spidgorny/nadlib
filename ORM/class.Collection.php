@@ -66,7 +66,7 @@ class Collection {
 		$this->query = $this->getQuery($this->where);
 		$res = $this->db->perform($this->query);
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField);
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -92,9 +92,7 @@ class Collection {
 
 	function preprocessData() {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		//debug($this->data);
-		$this->data = $this->data->getData();
-		foreach ($this->data as $i => &$row) { // Iterator by reference
+		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");

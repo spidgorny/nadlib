@@ -74,7 +74,12 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	function IDalize($key = 'id') {
 		$data = array();
 		foreach ($this->data as $row) {
-			$data[$row[$key]] = $row;
+			$keyValue = $row[$key];
+			if (!$keyValue) {
+				debug($this->data, $key, $row);
+				throw new Exception(__METHOD__.'#'.__LINE__);
+			}
+			$data[$keyValue] = $row;
 		}
 		$this->data = $data;
 		return $this;

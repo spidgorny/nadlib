@@ -1,6 +1,6 @@
 <?php
 
-class IndexBase {
+class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * Enter description here...
 	 *
@@ -39,9 +39,10 @@ class IndexBase {
 	 */
 	public static $instance;
 
-	protected function __construct() {
+	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		//parent::__construct();
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = new Request();
@@ -54,7 +55,7 @@ class IndexBase {
 		if (!$instance) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$instance = new Index();
-			$instance->content .= $instance->initController();
+			//$instance->content .= $instance->initController();	// scheisse: call it in index.php
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $instance;

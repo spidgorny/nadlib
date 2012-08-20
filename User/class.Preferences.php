@@ -20,6 +20,7 @@ class Preferences {
 	}
 
 	function get($key) {
+		//debug(__METHOD__, $key);
 		return $this->prefs[$key];
 	}
 

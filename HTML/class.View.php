@@ -40,12 +40,17 @@ class View {
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$file = dirname(__FILE__).'/../../template/'.$this->file;
+		$content = '';
 		ob_start();
 		require($file);
 		if (!$content) {
 			$content = ob_get_clean();
 		} else {
 			ob_end_clean();
+		}
+		if (DEVELOPMENT) {
+			// not allowed in MRBS as some templates return OBJECT(!)
+			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;

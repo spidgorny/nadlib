@@ -41,7 +41,7 @@ class OODBase {
 	}
 
 	function getName() {
-		return $this->data[$this->titleColumn] ?: $this->id;
+		return $this->data[$this->titleColumn] ? $this->data[$this->titleColumn] : $this->id;
 	}
 
 	/**
@@ -56,19 +56,7 @@ class OODBase {
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$res = $this->db->perform($query);
-
-		//debug($query, $res, phpversion(), gettype($this->db), get_class($this->db));
-		//echo __METHOD__.'#'.__LINE__.'<br>';
-		//$this->db->lastInsertID($res);
-		//echo __METHOD__.'#'.__LINE__.'<br>';
-
-		if (TRUE) {
-			$res = $this->db->perform('SELECT LASTVAL() AS lastval');
-			$row = $this->db->fetchAssoc($res);
-			$id = $row['lastval'];
-		} else {
-			$id = $this->db->lastInsertID($res);
-		}
+		$id = $this->db->lastInsertID($res);
 		$this->init($id);
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
