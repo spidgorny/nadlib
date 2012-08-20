@@ -370,7 +370,7 @@ class dbLayer {
 		return $newID;
 	}
 
-	function getLastInsertID($res, $table) {
+	function getLastInsertID($res, $table = 'not required since 8.1') {
 		$pgv = pg_version();
 		if ($pgv['server'] >= 8.1) {
 			$res = $this->perform('SELECT LASTVAL() AS lastval');
@@ -442,7 +442,9 @@ class dbLayer {
 				}
 			} else {
 				$parts = $this->str_getcsv($input, ',', '"');
-				$parts = array_map('stripslashes', $parts);
+				$parts = (array)$parts;
+				//debug($parts);
+				//$parts = array_map('stripslashes', $parts);	// already done in str_getcsv
 			}
 			return $parts;
 		}
@@ -579,10 +581,12 @@ class dbLayer {
 	}
 
 	function __call($method, array $params) {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
-		return call_user_func_array(array($qb, $method), $params);
+		$qb = Config::getInstance()->qb;
+		if (method_exists($qb, $method)) {
+			return call_user_func_array(array($qb, $method), $params);
+		} else {
+			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
+		}
 	}
 
 }

@@ -151,6 +151,14 @@ class Collection {
 		return $content;
 	}
 
+	function renderMembers() {
+		$content = '';
+		foreach ($this->members as $obj) {
+			$content .= $obj."\n";
+		}
+		return $content;
+	}
+
 	function translateThes() {
 		// translate thes
 		if (is_array($this->thes)) foreach ($this->thes as $key => &$trans) {

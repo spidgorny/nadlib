@@ -18,6 +18,12 @@ class Menu /*extends Controller*/ {
 	 */
 	public $level = NULL;
 
+	/**
+	 * Set to call getMenuSuffix() on each object in menu
+	 * @var bool
+	 */
+	public $tryMenuSuffix = false;
+
 	protected $current;
 	
 	function __construct(array $items, $level = NULL) {
@@ -58,6 +64,16 @@ class Menu /*extends Controller*/ {
 		} else {
 			$items = array();
 		}
+
+		if ($this->tryMenuSuffix) {
+			foreach ($items as $class => &$name) {
+				$o = new $class();
+				if (method_exists($o, 'getMenuSuffix')) {
+					$name .= call_user_func(array($o, 'getMenuSuffix'));
+				}
+			}
+		}
+
 		if (-1 == $this->level) debug(array(
 			'level' => $this->level,
 			'rootpath' => $rootpath,

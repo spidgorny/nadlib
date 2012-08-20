@@ -265,7 +265,7 @@ class SQLBuilder {
 	 * @return string
 	 * @throws Exception
 	 */
-	function quoteSQL($value, $key) {
+	function quoteSQL($value) {
 		if ($value instanceof AsIs) {
 			return $value->__toString();
 		} else if ($value instanceof AsIsOp) {
@@ -311,7 +311,7 @@ class SQLBuilder {
 	function quoteValues(array $a) {
 		$c = array();
 		foreach($a as $key => $b) {
-			$c[] = SQLBuilder::quoteSQL($b, $key);
+			$c[] = SQLBuilder::quoteSQL($b);
 		}
 		return $c;
 	}
@@ -361,7 +361,7 @@ class SQLBuilder {
 					$or->injectQB($this);
 					$set[] = $or;
 				} else {
-					$val = SQLBuilder::quoteSQL($val, $key);
+					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
 				}
 			}
@@ -387,7 +387,7 @@ class SQLBuilder {
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$key = $this->quoteKey($key);
-			$val = $this->quoteSQL($val, $key);
+			$val = $this->quoteSQL($val);
 			$from = array('$key', '$val');
 			$to = array($key, $val);
 			$set[] = str_replace($from, $to, $like);

@@ -41,7 +41,7 @@ class OODBase {
 	}
 
 	function getName() {
-		return $this->data[$this->titleColumn];
+		return $this->data[$this->titleColumn] ?: $this->id;
 	}
 
 	/**
@@ -55,8 +55,21 @@ class OODBase {
 		//$data['ctime'] = new AsIs('NOW()');
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
-		$this->db->perform($query);
-		$this->init($this->db->lastInsertID());
+		$res = $this->db->perform($query);
+
+		//debug($query, $res, phpversion(), gettype($this->db), get_class($this->db));
+		//echo __METHOD__.'#'.__LINE__.'<br>';
+		//$this->db->lastInsertID($res);
+		//echo __METHOD__.'#'.__LINE__.'<br>';
+
+		if (TRUE) {
+			$res = $this->db->perform('SELECT LASTVAL() AS lastval');
+			$row = $this->db->fetchAssoc($res);
+			$id = $row['lastval'];
+		} else {
+			$id = $this->db->lastInsertID($res);
+		}
+		$this->init($id);
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
 	}
@@ -117,10 +130,14 @@ class OODBase {
 		return $this->id;
 	}
 
-	static function findInstance(array $where, $static = 'Assignment') {
-		//$static = get_called_class();
-		//$static = 'Assignment'; // PHP 5.3 required
-		//debug($static);
+	static function findInstance(array $where, $static = NULL) {
+		if (!$static) {
+			if (function_exists('get_called_class')) {
+				$static = get_called_class();
+			} else {
+				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
+			}
+		}
 		$obj = new $static();
 		$obj->findInDB($where);
 		return $obj;
@@ -181,7 +198,8 @@ class OODBase {
 				unset($assoc[$key]);
 			}
 		}
-		return slTable::showAssoc($assoc);
+		$s = slTable::showAssoc($assoc);
+		return $s;
 	}
 
 }

@@ -42,16 +42,19 @@ function __autoload($class) {
 }
 
 function debug($a) {
-	print('<pre style="background-color: #EEEEEE; border: dotted 1ps silver; width: auto;">');
-	$output = var_dump(func_num_args() > 1 ? func_get_args() : $a);
-	$output = str_replace("\n(", " (", $output);
-	$output = str_replace("\n        (", " (", $output);
-	$output = str_replace(")\n", ")", $output);
-	print htmlspecialchars($output);
-	print('<div style="background-color: #888888; color: white;">');
-		debug_print_backtrace();
-	print('</div>');
-	print('</pre>');
+	call_user_func_array('Debug::debug_args', func_get_args());
+	if (FALSE && $_COOKIE['debug']) {
+		print('<pre style="background-color: #EEEEEE; border: dotted 1ps silver; width: auto;">');
+		$output = var_dump(func_num_args() > 1 ? func_get_args() : $a);
+		$output = str_replace("\n(", " (", $output);
+		$output = str_replace("\n        (", " (", $output);
+		$output = str_replace(")\n", ")", $output);
+		print htmlspecialchars($output);
+		print('<div style="background-color: #888888; color: white;">');
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		print('</div>');
+		print('</pre>');
+	}
 }
 
 function nodebug() {
