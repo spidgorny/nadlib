@@ -44,12 +44,15 @@ class Request {
 	}
 
 	function int($name) {
-
 		return intval($this->data[$name]);
 	}
 
 	function getInt($name) {
 		return $this->int($name);
+	}
+
+	function getIntOrNULL($name) {
+		return $this->is_set($name) ? $this->int($name) : NULL;
 	}
 
 	function getFloat($name) {

@@ -234,7 +234,7 @@ abstract class Controller {
 
 	function inColumns() {
 		$elements = func_get_args();
-		return call_user_func_array(array($this, 'inColumnsHTML5'), $elements);
+		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
 		$content = '';
 		foreach ($elements as $html) {
 			$content .= '<div style="float: left;">'.$html.'</div>';
@@ -252,6 +252,10 @@ abstract class Controller {
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
 		return $content;
+	}
+
+	function getMenuSuffix() {
+
 	}
 
 }

@@ -114,9 +114,13 @@ class IndexBase {
 		$content .= '<div class="headerMargin"></div>';
 
 		if (!$this->request->isAjax()) {
-			$v = new View('template.phtml', $this);
-			$v->content = $content;
-			$content = $v;
+			try {
+				$v = new View('template.phtml', $this);
+				$v->content = $content;
+				$content = $v->render();
+			} catch (Exception $e) {
+				// second exception may happen
+			}
 		}
 
 		return $content;
