@@ -34,7 +34,9 @@ class MySQL {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	static function getInstance() {
+/*
+ * Suspicious! ConfigBase takes care of that, isn't it?
+ * 	static function getInstance() {
 		if (!self::$instance) {
 			$config = Config::getInstance();
 			self::$instance = new self($config->mysql_db, $config->mysql_host, $config->mysql_login, $config->mysql_password);
@@ -43,7 +45,7 @@ class MySQL {
 		}
 		return self::$instance;
 	}
-
+*/
 	function getCaller($stepBack = 2) {
 		$btl = debug_backtrace();
 		reset($btl);

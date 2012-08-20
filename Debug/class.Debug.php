@@ -12,12 +12,13 @@ class Debug {
 			}
 
 			$db = debug_backtrace();
-			$db = array_slice($db, 3, sizeof($db));
+			$db = array_slice($db, 2, sizeof($db));
 			foreach ($db as &$row) {
 				$row['file'] = basename($row['file']);
 				$row['object'] = is_object($row['object']) ? get_class($row['object']) : NULL;
 				$row['args'] = sizeof($row['args']);
 			}
+			require_once 'nadlib/Data/class.ArrayPlus.php';
 			if (!array_search('slTable', AP($db)->column('object')->getData())) {
 				$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
 					new slTable($db, 'class="nospacing"', array(
@@ -34,8 +35,9 @@ class Debug {
 			reset($db);
 			$first = current($db);
 			$props = array(
-				'<span style="display: inline-block; width: 5em;">Function:</span> '.$first['object'].'::'.$first['function'].'#'.$row['line'],
-				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a),
+				'<span style="display: inline-block; width: 5em;">Function:</span> '.$first['file'].'#'.$first['line'],
+				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
+					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : ''),
 			);
 			if (is_array($a)) {
 				$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
@@ -68,8 +70,8 @@ class Debug {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
-			} elseif (method_exists($a, '__toString')) {
-				$a = $a->__toString();
+			//} elseif (method_exists($a, '__toString')) {
+			//	$a = $a->__toString();
 			} else {
 				$a = get_object_vars($a);
 			}

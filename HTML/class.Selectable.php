@@ -19,6 +19,7 @@ class Selectable {
 			$this->data[$selected['id']] = $selected['title'];
 			$this->selected = $selected['id'];
 		} else {
+			// it's called AFTER subclass initialized $this->data
 			if (in_array($selected, array_keys($this->data))) {
 				$this->selected = $selected;
 			} else {

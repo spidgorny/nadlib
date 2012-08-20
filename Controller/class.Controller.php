@@ -120,7 +120,8 @@ abstract class Controller {
 	}
 
 	static function getInstance() {
-		return self::$instance ?: new static;
+		$static = get_called_class();
+		return self::$instance ? self::$instance : new $static();
 	}
 
 	function redirect($url) {

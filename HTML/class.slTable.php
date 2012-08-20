@@ -196,7 +196,7 @@ class slTable {
 				$thvName = $thv;
 			}
 			if ($this->sortable) {
-				no_debug(array(
+				nodebug(array(
 					$_REQUEST[$this->prefix]['sortBy'],
 					$this->sortBy,
 					$thk,
