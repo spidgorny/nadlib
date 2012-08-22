@@ -34,7 +34,6 @@ class TaylorProfiler {
     var $running;
     var $output_enabled;
     var $trace_enabled;
-    var $totalTime;
 
     /**
     * Initialise the timer. with the current micro time
@@ -167,13 +166,12 @@ class TaylorProfiler {
 
             // add missing
             $TimedTotal = 0;
-            foreach ($together as $key => $row) {
+            foreach ($together as $row) {
 				$TimedTotal += $row['total'];
             }
             $missed=$oaTime-$TimedTotal;
             $perc = ($missed/$oaTime)*100;
             $tot_perc+=$perc;
-            // $perc=sprintf("%3.2f", $perc );
             $together['Missed'] = array(
             	'desc' => 'Missed',
             	'time' => number_format($missed, 2, '.', ''),
@@ -184,13 +182,11 @@ class TaylorProfiler {
 
             uasort($together, array($this, 'sort'));
 
+			$i = 0;
             $table = array();
 			foreach ($together as $key => $row) {
-			    $val = $row['desc'];
-	            $t = $row['time'];
 	            $total = $row['total'];
                 $TimedTotal += $total;
-				$count = $row['count'];
 	            $perc = $row['perc'];
 	            $tot_perc+=$perc;
 	            $table[] = array(
@@ -198,7 +194,7 @@ class TaylorProfiler {
 	               	'count' => '<div align="right">'.$row['count'].'</div>',
 	               	'time, ms' => '<div align="right">'.number_format($total*1000, 2, '.', '').'</div>',
 	               	'avg/1' => '<div align="right">'.number_format($row['avg'], 2, '.', '').'</div>',
-	               	'percent' => '<div align="right">'.number_format($perc, 2, '.', '').'</div>',
+	               	'percent' => '<div align="right">'.number_format($perc, 2, '.', '').'%</div>',
 	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$key.'</span>',
 	            );
 		   }
@@ -208,6 +204,7 @@ class TaylorProfiler {
             	'nr' => 'nr',
             	'count' => array('name' => 'count', 'more' => 'align="right"'),
             	'time, ms' => array('name' => 'time, ms', 'more' => 'align="right"'),
+            	'avg/1' => array('name' => 'avg/1', 'more' => 'align="right"'),
             	'percent' => array('name' => 'percent', 'more' => 'align="right"'),
             	'routine' => 'routine',
             ));
@@ -219,8 +216,7 @@ class TaylorProfiler {
             	'percent' => number_format($tot_perc, 2, '.', '').'%',
             	'routine' => "OVERALL TIME",
             );
-            $out .= $s->getContent();
-            $this->totalTime = number_format($oaTime*1000, 2, '.', '');
+            $out = $s->getContent();
             return $out;
         }
     }
@@ -292,7 +288,9 @@ class TaylorProfiler {
     }
 
 	function renderFloat() {
-		$content .= '<div class="floatTime">'.$this->totalTime.'</div>';
+		$oaTime = $this->getMicroTime() - $this->initTime;
+		$totalTime = number_format($oaTime*1000, 2, '.', '');
+		$content = '<div class="floatTime">'.$totalTime.'</div>';
 		return $content;
 	}
 

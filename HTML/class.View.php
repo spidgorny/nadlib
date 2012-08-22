@@ -38,7 +38,8 @@ class View {
 /*	Add as many public properties as you like and use them in the PHTML file. */
 
 	function render() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$key = __METHOD__.' ('.basename($this->file).')';
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$file = dirname(__FILE__).'/../../template/'.$this->file;
 		$content = '';
 		ob_start();
@@ -52,11 +53,12 @@ class View {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;
 	}
 
 	function wikify($text) {
+		$inUL = false;
 		$lines = explode("\n", $text);
 		foreach ($lines as $line) {
 			if ($line{0} == '*') {
