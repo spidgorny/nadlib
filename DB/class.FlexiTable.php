@@ -5,16 +5,37 @@ class FlexiTable extends OODBase {
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		//$this->checkCreateTable();
+		if (Config::getInstance()->flexiTable) {
+			$this->checkCreateTable();
+		}
 	}
 
 	function insert(array $row) {
-		//$row['ctime'] = new Time();
-		//$row['cuser'] = $GLOBALS['i']->user->id;
-		$this->checkAllFields($row);
+		if (Config::getInstance()->flexiTable) {
+			$this->checkAllFields($row);
+		}
 		$ret = parent::insert($row);
 		return $ret;
 	}
+
+	function update(array $row) {
+		$row['mtime'] = new Time();
+		$row['mtime'] = $row['mtime']->format('Y-m-d H:i:s');
+		$row['muser'] = $GLOBALS['i']->user->id;
+		if (Config::getInstance()->flexiTable) {
+			$this->checkAllFields($row);
+		}
+		return parent::update($row);
+	}
+
+	function findInDB(array $where, $orderby = '') {
+		if (Config::getInstance()->flexiTable) {
+			$this->checkAllFields($where);
+		}
+		parent::findInDB($where, $orderby);
+	}
+
+/*********************/
 
 	function checkAllFields(array $row) {
 		$this->fetchColumns();
@@ -57,19 +78,6 @@ class FlexiTable extends OODBase {
 			$type = 'VARCHAR (255)';
 		}
 		return $type;
-	}
-
-	function findInDB(array $where, $orderby = '') {
-		$this->checkAllFields($where);
-		parent::findInDB($where, $orderby);
-	}
-
-	function update(array $row) {
-		$row['mtime'] = new Time();
-		$row['mtime'] = $row['mtime']->format('Y-m-d H:i:s');
-		$row['muser'] = $GLOBALS['i']->user->id;
-		$this->checkAllFields($row);
-		return parent::update($row);
 	}
 
 }

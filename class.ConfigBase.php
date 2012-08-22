@@ -46,11 +46,20 @@ class ConfigBase {
 		'../model',
 	);
 
+	/**
+	 * Enables FlexiTable check if the all the necessary tables/columns exist.
+	 * Disable for performance.
+	 *
+	 * @var bool
+	 */
+	public $flexiTable = false;
+
 	protected function __construct() {
 		$this->db = new MySQL($this->db_database, $this->db_server, $this->db_user, $this->db_password);
 		$di = new DIContainer();
 		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);
+		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 	}
 
 	/**
