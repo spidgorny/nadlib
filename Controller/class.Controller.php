@@ -49,6 +49,7 @@ abstract class Controller {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = Index::getInstance();
 		$this->request = new Request();
+		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
 		$this->title = get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
@@ -121,6 +122,7 @@ abstract class Controller {
 
 	static function getInstance() {
 		$static = get_called_class();
+		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
 		return self::$instance ? self::$instance : new $static();
 	}
 
@@ -256,7 +258,11 @@ abstract class Controller {
 	}
 
 	function getMenuSuffix() {
+		return '';
+	}
 
+	function sidebar() {
+		return '';
 	}
 
 }

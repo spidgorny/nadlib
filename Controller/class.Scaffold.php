@@ -17,6 +17,7 @@ abstract class Scaffold extends Controller {
 	 * @var OODBase
 	 */
 	protected $model;
+	protected $formMore = '';				// extra attributes for the form like onSubmit
 	protected $id; 				// edited element
 	protected $data;
 	protected $desc;
@@ -43,7 +44,12 @@ abstract class Scaffold extends Controller {
 		} else {
 			$this->data = $this->model->data;
 		}
-		//debug($this->id, $this->request->isSubmit(), $this->data, $this->model);
+		nodebug(array(
+			'id' => $this->id,
+			'isSubmit' => $this->request->isSubmit(),
+			'formPrefix' => $this->formPrefix,
+			'data' => $this->data,
+			'model' => $this->model));
 		$this->desc = $this->getDesc($this->data);
 	}
 
@@ -211,13 +217,18 @@ abstract class Scaffold extends Controller {
 	 */
 	protected function getForm($action = 'add') {
 		$f = new HTMLFormTable('.');
+		$f->method('POST');
 		$f->hidden('c', get_class($this));
 		$f->hidden('pageType', get_class($this));
 		$f->hidden('action', $action);
 		$f->hidden('ajax', TRUE);
 		$f->prefix($this->formPrefix);
+		$this->desc['submit']['label'] = '';
+		$this->desc['submit']['type'] = 'submit';
+		$this->desc['submit']['value'] = $this->addButton;
 		$f->showForm($this->desc);
-		$f->submit($this->addButton);
+		//$f->submit($this->addButton);
+		$f->formMore = $this->formMore;
 		return $f;
 	}
 
@@ -234,19 +245,19 @@ abstract class Scaffold extends Controller {
 
 	function insertRecord(array $userData) {
 		$res = $this->model->insert($userData);
-		return $this->afterInsert();
+		return $this->afterInsert($userData);
 	}
 
 	function updateRecord(array $userData) {
 		$res = $this->model->update($userData);	// update() returns nothing
-		return $this->afterUpdate();
+		return $this->afterUpdate($userData);
 	}
 
-	function afterInsert() {
+	function afterInsert(array $userData) {
 		return 'Inserted';
 	}
 
-	function afterUpdate() {
+	function afterUpdate(array $userData) {
 		return 'Updated';
 	}
 
