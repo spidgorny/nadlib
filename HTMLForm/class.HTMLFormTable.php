@@ -243,6 +243,9 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function getForm(array $formData, $prefix = array(), $mainForm = TRUE, $append = '') {
+		if (!is_array($formData)) {
+			debug_pre_print_backtrace();
+		}
 		$tmp = $this->stdout;
 		$this->stdout = '';
 

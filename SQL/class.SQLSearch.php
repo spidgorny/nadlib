@@ -31,7 +31,7 @@ class SQLSearch {
 		$where = $this->getWhere();
 		$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		if ($where) {
-			$qb = new SQLBuilder();
+			$qb = Config::getInstance()->qb;
 			$whereString = $qb->quoteWhere($where);
 			$query .= implode(' AND ', $whereString);
 		}
@@ -39,6 +39,7 @@ class SQLSearch {
 	}
 
 	function getWhere() {
+		$query = '';
 		$where = array();
 		$words = $this->words;
 		//debug($words);

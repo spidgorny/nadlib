@@ -163,7 +163,7 @@ class BijouDBConnector {
 		if ($filterFields) {
 			//$where += $this->filterFields(NULL, NULL, $this->getFirstWord($table));
 		}
-		$qb = new SQLBuilder();
+		$qb = Config::getInstance()->qb;
 		$query = $qb->getSelectQuery($table, $where, $orderBy, $what, $whatExclusive);
 		//debug($query);
 		$result = $this->perform($query);
