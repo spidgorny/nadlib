@@ -69,9 +69,13 @@ class Menu /*extends Controller*/ {
 
 		if ($this->tryMenuSuffix) {
 			foreach ($items as $class => &$name) {
-				$o = new $class();
-				if (method_exists($o, 'getMenuSuffix')) {
-					$name .= call_user_func(array($o, 'getMenuSuffix'));
+				try {
+					$o = new $class();
+					if (method_exists($o, 'getMenuSuffix')) {
+						$name .= call_user_func(array($o, 'getMenuSuffix'));
+					}
+				} catch (AccessDeniedException $e) {
+					unset($items[$class]);
 				}
 			}
 		}

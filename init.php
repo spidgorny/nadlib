@@ -32,9 +32,9 @@ if (DEVELOPMENT) {
 } else {
 	error_reporting(0);
 	ini_set('display_errors', FALSE);
+	header('Cache-Control: max-age=0');
+	header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
 }
-header('Cache-Control: max-age=0');
-header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
 date_default_timezone_set('Europe/Berlin');
 
 // remove cookies from $_REQUEST
