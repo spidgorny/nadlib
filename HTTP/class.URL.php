@@ -58,6 +58,7 @@ class URL {
 
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
+		//debug($this);
 	}
 
 	function setFragment($name) {

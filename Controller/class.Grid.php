@@ -15,6 +15,8 @@ abstract class Grid extends Controller {
 
 	function __construct() {
 		parent::__construct();
+
+		// do this in a subclass
 		//$this->model = new OODBase();
 		//$this->collection = new Collection();
 	}

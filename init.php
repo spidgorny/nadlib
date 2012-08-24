@@ -4,7 +4,9 @@ function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 	require_once dirname(__FILE__).'/../nadlib/class.ConfigBase.php';
 	require_once dirname(__FILE__).'/../class/class.Config.php';
-	$folders = Config::$includeFolders ? Config::$includeFolders : ConfigBase::$includeFolders;
+	$folders = Config::$includeFolders
+		? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
+		: ConfigBase::$includeFolders;
 
 	$classFile = end(explode('\\', $class));
 	foreach ($folders as $path) {
@@ -49,7 +51,7 @@ foreach ($_COOKIE as $key => $_) {
 
 function debug($a) {
 	$params = func_get_args();
-	call_user_func_array('Debug::debug_args', $params);
+	call_user_func_array(array('Debug', 'debug_args'), $params);
 }
 
 function nodebug() {
