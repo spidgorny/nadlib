@@ -58,7 +58,7 @@ abstract class Controller {
 	}
 
 	function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
-		if ($this->useRouter && !$forceSimple) {
+		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
 			$r = new Router();
 			$url = $r->makeURL($params);
 		} else {
@@ -68,7 +68,7 @@ abstract class Controller {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = $prefix.http_build_query($params);
+			$url = $prefix.http_build_query($params, '', '&amp;'); //, PHP_QUERY_RFC3986);
 		}
 		return $url;
 	}

@@ -6,10 +6,12 @@ class AccessRights {
 	protected $id_usergroup = 'id_department';
 	protected $id_useraccess = 'id_access';
 
+	public $groupID;
+
 	protected $arCache = array();
 
 	function __construct($idGroup) {
-		$this->init($idGroup);
+		$this->init($this->groupID = $idGroup);
 	}
 
 	function init($idGroup) {
