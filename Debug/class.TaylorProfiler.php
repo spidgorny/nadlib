@@ -208,7 +208,7 @@ class TaylorProfiler {
             	'percent' => array('name' => 'percent', 'more' => 'align="right"'),
             	'routine' => 'routine',
             ));
-            $s->more = 'class="view_array"';
+            $s->more = 'class="view_array" width="100%"';
             $s->data = $table;
             $s->footer = array(
             	'nr' => 'total',

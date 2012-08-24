@@ -31,21 +31,21 @@ class LocalLang {
 				: $this->lang;
 		}
 
-/*		// read from excel
-		$this->ll = $this->readPersistant();
-		if (!$this->ll) {
-			$this->ll = $this->readExcel(array_merge(array('code'), $this->possibleLangs));
-			if ($this->ll) {
-				$this->savePersistant($this->ll);
+		try {
+			$rows = $this->readDB($this->lang);
+			if ($rows) {
+				$this->codeID = ArrayPlus::create($rows)->column_assoc('code', 'id')->getData();
+				$this->ll = ArrayPlus::create($rows)->column_assoc('code', 'text')->getData();
 			}
-		}
-		$this->ll = $this->ll[$this->lang];
-*/
-		// read from DB
-		$rows = $this->readDB($this->lang);
-		if ($rows) {
-			$this->codeID = ArrayPlus::create($rows)->column_assoc('code', 'id')->getData();
-			$this->ll = ArrayPlus::create($rows)->column_assoc('code', 'text')->getData();
+		} catch (Exception $e) {
+			$this->ll = $this->readPersistant();
+			if (!$this->ll) {
+				$this->ll = $this->readExcel(array_merge(array('code'), $this->possibleLangs));
+				if ($this->ll) {
+					$this->savePersistant($this->ll);
+				}
+			}
+			$this->ll = $this->ll[$this->lang];
 		}
 	}
 
@@ -187,7 +187,8 @@ class LocalLang {
 			}
 		} else {
 			if ($this->indicateUntranslated) {
-				$trans = '<span class="missingMessage">['.$text.']</span>';
+				//$trans = '<span class="missingMessage">['.$text.']</span>';
+				$trans = '['.$text.']';
 			} else {
 				$trans = $text;
 			}
@@ -232,16 +233,21 @@ class LocalLang {
 	}
 
 	function readDB($lang) {
-		try {
+		//try {
 			$db = Config::getInstance()->db;
-			$rows = $db->fetchSelectQuery('app_interface', array(
-				'lang' => $lang,
-			), 'ORDER BY id');
-		} catch (Exception $e) {
+			$res = $db->getTableColumns('app_interface');
+			if ($res) {
+				$rows = $db->fetchSelectQuery('app_interface', array(
+					'lang' => $lang,
+				), 'ORDER BY id');
+			} else {
+				throw new Exception('No translation found in DB');
+			}
+		//} catch (Exception $e) {
 			// read from DB failed, continue
 			//throw new Exception('Reading locallang from DB failed.');
 			// throwing exception leads to making a new instance of LocalLang and it masks DB error
-		}
+		//}
 		return $rows;
 	}
 

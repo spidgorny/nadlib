@@ -40,7 +40,9 @@ class View {
 	function render() {
 		$key = __METHOD__.' ('.basename($this->file).')';
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
-		$file = dirname(__FILE__).'/../../template/'.$this->file;
+		$file = dirname($this->file) != '.'
+			? $this->file
+			: dirname(__FILE__).'/../../template/'.$this->file;
 		$content = '';
 		ob_start();
 		require($file);
@@ -110,18 +112,19 @@ class View {
 	}
 
 	function __toString() {
-		//debug_pre_print_backtrace();
+		debug_pre_print_backtrace();
 		return $this->render().'';
 	}
 
 	function link(array $params) {
-		return Controller::getInstance()->makeURL($params);
+		return $GLOBALS['i']->controller->makeURL($params);
 	}
 
 	function __call($func, array $args) {
 		$method = array($this->caller, $func);
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
-			$method = array($this->caller, $func);
+			//$method = array($this->caller, end(explode('::', $func)));
+			throw new Exception('View: Method ('.implode(', ', $method).') doesn\'t exists.');
 		}
 		return call_user_func_array($method, $args);
 	}

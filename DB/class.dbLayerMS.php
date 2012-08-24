@@ -127,9 +127,7 @@ AND name = '?')", array($table));
 	}
 
 	function runSelectQuery($table, array $where, $order = '') {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = Config::getInstance()->qb;
 		$res = $qb->runSelectQuery($table, $where, $order);
 		return $res;
 	}
@@ -141,9 +139,7 @@ AND name = '?')", array($table));
 	}
 
 	function runSelectQuerySW($table, SQLWhere $where, $order = '') {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = Config::getInstance()->qb;
 		$res = $qb->runSelectQuerySW($table, $where, $order);
 		return $res;
 	}
