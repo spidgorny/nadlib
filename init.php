@@ -4,7 +4,9 @@ function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 	require_once dirname(__FILE__).'/../nadlib/class.ConfigBase.php';
 	require_once dirname(__FILE__).'/../class/class.Config.php';
-	$folders = Config::$includeFolders ? Config::$includeFolders : ConfigBase::$includeFolders;
+	$folders = Config::$includeFolders
+		? array_merge(Config::$includeFolders, ConfigBase::$includeFolders)
+		: ConfigBase::$includeFolders;
 
 	$classFile = end(explode('\\', $class));
 	foreach ($folders as $path) {
@@ -16,7 +18,6 @@ function __autoload($class) {
 		}
 	}
 	if (!class_exists($class)) {
-		debug($folders);
 		throw new Exception('Class '.$class.' ('.$file.') not found.');
 	}
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);

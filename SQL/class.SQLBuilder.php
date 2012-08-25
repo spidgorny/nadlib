@@ -556,7 +556,7 @@ class SQLBuilder {
 			foreach ($fields as $field) {
 				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
 			}
-			$where[] = new AsIs('('.implode(' OR ', $like).')');
+			$where['0'] = new AsIsOp(' = 0 AND ('.implode(' OR ', $like).')');
 		}
 		//debug($where);
 		return $where;
