@@ -1,10 +1,10 @@
 <?php
 
 class URL {
-	protected $url;
-	protected $components = array();
-	protected $params;
-	protected $documentRoot = '';
+	public $url;
+	public $components = array();
+	public $params;
+	public $documentRoot = '';
 
 	function __construct($url = NULL, array $params = array()) {
 		if (!$url) {
@@ -58,6 +58,7 @@ class URL {
 
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
+		//debug($this);
 	}
 
 	function setFragment($name) {
@@ -91,18 +92,21 @@ class URL {
 	            $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
 	    }
 
-	    $uri .= isset($parsed['query']) ? '?'.$parsed['query'] : '';
+	    $uri .= /*isset*/($parsed['query']) ? '?'.$parsed['query'] : '';
 	    $uri .= isset($parsed['fragment']) ? '#'.$parsed['fragment'] : '';
 
 	    return $uri;
 	}
 
 	function __toString() {
-		return $this->buildURL();
+		$url = $this->buildURL();
+		//debug($this->components, $url);
+		return $url;
 	}
 
 	function getRequest() {
 		$r = new Request($this->params);
+		$r->url = $this;
 		return $r;
 	}
 

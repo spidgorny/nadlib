@@ -45,13 +45,15 @@ class Menu /*extends Controller*/ {
 
 	function render() {
 		$content = '';
-		if (!is_null($this->level)) {
-			$rootpath = $this->request->getURLLevels();
-			$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for submenu of Dashboard/About
-			$itemsOnLevel = $this->getItemsOnLevel($rootpath);
-			$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level, false);
-		} else {
-			$content .= $this->renderLevel($this->items, array(), 0, true);
+		if (Config::getInstance()->user->id) {
+			if (!is_null($this->level)) {
+				$rootpath = $this->request->getURLLevels();
+				$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for submenu of Dashboard/About
+				$itemsOnLevel = $this->getItemsOnLevel($rootpath);
+				$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level, false);
+			} else {
+				$content .= $this->renderLevel($this->items, array(), 0, true);
+			}
 		}
 		return $content;
 	}
@@ -67,9 +69,13 @@ class Menu /*extends Controller*/ {
 
 		if ($this->tryMenuSuffix) {
 			foreach ($items as $class => &$name) {
-				$o = new $class();
-				if (method_exists($o, 'getMenuSuffix')) {
-					$name .= call_user_func(array($o, 'getMenuSuffix'));
+				try {
+					$o = new $class();
+					if (method_exists($o, 'getMenuSuffix')) {
+						$name .= call_user_func(array($o, 'getMenuSuffix'));
+					}
+				} catch (AccessDeniedException $e) {
+					unset($items[$class]);
 				}
 			}
 		}

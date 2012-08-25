@@ -13,24 +13,7 @@ class Debug {
 
 			$db = debug_backtrace();
 			$db = array_slice($db, 2, sizeof($db));
-			foreach ($db as &$row) {
-				$row['file'] = basename($row['file']);
-				$row['object'] = is_object($row['object']) ? get_class($row['object']) : NULL;
-				$row['args'] = sizeof($row['args']);
-			}
-			require_once 'nadlib/Data/class.ArrayPlus.php';
-			if (!array_search('slTable', AP($db)->column('object')->getData())) {
-				$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
-					new slTable($db, 'class="nospacing"', array(
-						'file' => 'file',
-						'line' => 'line',
-						'class' => 'class',
-						'type' => 'type',
-						'function' => 'function',
-						'args' => 'args',
-						'object' => 'object',
-					)).'</pre>';
-			}
+			$trace = Debug::getTraceTable($db);
 
 			reset($db);
 			$first = current($db);
@@ -64,6 +47,30 @@ class Debug {
 			$content .= '</div>';
 			print($content); flush();
 		}
+	}
+
+	function getTraceTable(array $db) {
+		foreach ($db as &$row) {
+			$row['file'] = basename($row['file']);
+			$row['object'] = is_object($row['object']) ? get_class($row['object']) : NULL;
+			$row['args'] = sizeof($row['args']);
+		}
+		require_once 'nadlib/Data/class.ArrayPlus.php';
+		if (!array_search('slTable', AP($db)->column('object')->getData())) {
+			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
+				new slTable($db, 'class="nospacing"', array(
+					'file' => 'file',
+					'line' => 'line',
+					'class' => 'class',
+					'type' => 'type',
+					'function' => 'function',
+					'args' => 'args',
+					'object' => 'object',
+				)).'</pre>';
+		} else {
+			$trace = 'No self-trace in slTable';
+		}
+		return $trace;
 	}
 
 	static function view_array($a) {

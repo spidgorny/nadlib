@@ -94,7 +94,8 @@ class MySQL {
 	}
 
 	function fetchAssoc($res) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$key = __METHOD__.' ('.$this->lastQuery.')';
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -105,7 +106,7 @@ class MySQL {
 			debug('is not a resource', $res);
 			debug_pre_print_backtrace();
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
 	}
 

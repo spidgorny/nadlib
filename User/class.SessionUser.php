@@ -29,7 +29,8 @@ class SessionUser extends User {
 		$u = User::getInstance(); // not to mess-up with current object
 		$u->findInDB(array('email' => $email));
 		if ($u->id) {
-			throw new Exception(__('Your e-mail is known to the system. Please enter a password.<br><a href="?c=ForgotPassword">Forgot password?</a>'));
+			throw new Exception(__('Your e-mail is known to the system. Please enter a password.<br>
+			<a href="?c=ForgotPassword">Forgot password?</a>'));
 		} else {
 			$password = rand(1000000, 9999999);
 			if (DEVELOPMENT) {
