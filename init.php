@@ -5,7 +5,7 @@ function __autoload($class) {
 	require_once dirname(__FILE__).'/../nadlib/class.ConfigBase.php';
 	require_once dirname(__FILE__).'/../class/class.Config.php';
 	$folders = Config::$includeFolders
-		? array_merge(Config::$includeFolders, ConfigBase::$includeFolders)
+		? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
 		: ConfigBase::$includeFolders;
 
 	$classFile = end(explode('\\', $class));
@@ -31,9 +31,9 @@ if (DEVELOPMENT) {
 } else {
 	error_reporting(0);
 	ini_set('display_errors', FALSE);
+	header('Cache-Control: max-age=0');
+	header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
 }
-header('Cache-Control: max-age=0');
-header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
 date_default_timezone_set('Europe/Berlin');
 
 // remove cookies from $_REQUEST
@@ -50,19 +50,7 @@ foreach ($_COOKIE as $key => $_) {
 
 function debug($a) {
 	$params = func_get_args();
-	call_user_func_array('Debug::debug_args', $params);
-	if (FALSE && $_COOKIE['debug']) {
-		print('<pre style="background-color: #EEEEEE; border: dotted 1ps silver; width: auto;">');
-		$output = var_dump(func_num_args() > 1 ? func_get_args() : $a);
-		$output = str_replace("\n(", " (", $output);
-		$output = str_replace("\n        (", " (", $output);
-		$output = str_replace(")\n", ")", $output);
-		print htmlspecialchars($output);
-		print('<div style="background-color: #888888; color: white;">');
-			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		print('</div>');
-		print('</pre>');
-	}
+	call_user_func_array(array('Debug', 'debug_args'), $params);
 }
 
 function nodebug() {

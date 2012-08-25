@@ -4,12 +4,20 @@ class Request {
 	protected $data = array();
 	public $defaultController;
 
+	/**
+	 * @var URL
+	 */
+	public $url;
+
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
 		$this->defaultController = Config::getInstance()->defaultController;
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
+
+		$this->url = new URL($_SERVER['SCRIPT_URL'] ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$this->url->setDocumentRoot(Config::getInstance()->documentRoot);
 	}
 
 	function deQuote(array $request) {
@@ -186,9 +194,9 @@ class Request {
 	function getRefererController() {
 		$url = new URL($_SERVER['HTTP_REFERER']);
 		$rr = $url->getRequest();
-		//debug($rr);
-		$return = $rr->getTrim('c');
-		return $return ? $return : 'Overview';
+		$return = $rr->getControllerString();
+		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
+		return $return ? $return : $this->defaultController;
 	}
 
 	function redirect($controller) {
@@ -294,18 +302,8 @@ class Request {
 		}
 	}
 	
-	/**
-	 * @return URL
-	 */
-	function getURL() {
-		$url = new URL($_SERVER['SCRIPT_URL'] ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
-		$url->setDocumentRoot(Config::getInstance()->documentRoot);
-		return $url;
-	}
-
 	function getURLLevels() {
-		$url = $this->getURL();
-		$path = $url->getPath();
+		$path = $this->url->getPath();
 		$path = trimExplode('/', $path);
 		//debug($path);
 		return $path;
@@ -332,6 +330,17 @@ class Request {
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
 		}
+	}
+
+	function apacheModuleRewrite() {
+		if (function_exists('apache_get_modules')) {
+			$modules = apache_get_modules();
+			//debug($modules);
+			$mod_rewrite = in_array('mod_rewrite', $modules);
+		} else {
+			$mod_rewrite =  getenv('HTTP_MOD_REWRITE')=='On' ? true : false ;
+		}
+		return $mod_rewrite;
 	}
 
 }

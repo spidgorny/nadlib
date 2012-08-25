@@ -38,7 +38,8 @@ class View {
 /*	Add as many public properties as you like and use them in the PHTML file. */
 
 	function render() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$key = __METHOD__.' ('.basename($this->file).')';
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: dirname(__FILE__).'/../../template/'.$this->file;
@@ -54,7 +55,7 @@ class View {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;
 	}
 
@@ -113,18 +114,19 @@ class View {
 	}
 
 	function __toString() {
-		//debug_pre_print_backtrace();
+		debug_pre_print_backtrace();
 		return $this->render().'';
 	}
 
 	function link(array $params) {
-		return Controller::getInstance()->makeURL($params);
+		return $GLOBALS['i']->controller->makeURL($params);
 	}
 
 	function __call($func, array $args) {
 		$method = array($this->caller, $func);
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
-			$method = array($this->caller, $func);
+			//$method = array($this->caller, end(explode('::', $func)));
+			throw new Exception('View: Method ('.implode(', ', $method).') doesn\'t exists.');
 		}
 		return call_user_func_array($method, $args);
 	}
