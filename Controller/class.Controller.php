@@ -51,7 +51,7 @@ abstract class Controller {
 		$this->request = new Request();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
-		$this->title = get_class($this);
+		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->client = $this->index->client;
@@ -68,7 +68,7 @@ abstract class Controller {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = $prefix.http_build_query($params, '', '&amp;'); //, PHP_QUERY_RFC3986);
+			$url = $prefix.http_build_query($params, '', '&'); //, PHP_QUERY_RFC3986);
 		}
 		return $url;
 	}

@@ -59,8 +59,8 @@ class Menu /*extends Controller*/ {
 	}
 
 	function getItemsOnLevel(array $rootpath) {
-		$fullRecurive = new Recursive(NULL, $this->items);
-		$sub = $fullRecurive->findPath($rootpath);
+		$fullRecursive = new Recursive(NULL, $this->items);
+		$sub = $fullRecursive->findPath($rootpath);
 		if ($sub instanceof Recursive) {
 			$items = $sub->getChildren();
 		} else {

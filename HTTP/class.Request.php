@@ -166,7 +166,7 @@ class Request {
 				? $last
 				: $this->defaultController
 		);
-		//debug($controller, $this->getTrim('c'), $last, $this->defaultController);
+		//debug($controller, $this->getTrim('c'), $last, $this->defaultController, $this->data);
 		return $controller;
 	}
 
@@ -301,7 +301,7 @@ class Request {
 			$this->data[$key] = $val;
 		}
 	}
-	
+
 	function getURLLevels() {
 		$path = $this->url->getPath();
 		$path = trimExplode('/', $path);

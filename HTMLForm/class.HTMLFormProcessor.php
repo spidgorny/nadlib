@@ -23,6 +23,7 @@ abstract class HTMLFormProcessor extends Controller {
 			$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 		}
 		//debug($this->desc);
+		assert($this->submitButton != '');
 		$this->submitButton = __($this->submitButton);
 	}
 
