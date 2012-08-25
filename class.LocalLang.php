@@ -4,14 +4,11 @@
  * Singleton
  *
  */
-class LocalLang {
-	protected $filename = 'lib/LocalLang.object';
-	protected $excel = 'lib/translation.xml';
+abstract class LocalLang {
 	var		  $ll = array();									// actual messages
 	protected $defaultLang = 'en';
 	public	  $possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
 	public	  $lang;											// name of the selected language
-	protected $isCache = TRUE;
 	public    $indicateUntranslated = true;
 	protected $codeID = array();
 
@@ -31,108 +28,7 @@ class LocalLang {
 				: $this->lang;
 		}
 
-		try {
-			$rows = $this->readDB($this->lang);
-			if ($rows) {
-				$this->codeID = ArrayPlus::create($rows)->column_assoc('code', 'id')->getData();
-				$this->ll = ArrayPlus::create($rows)->column_assoc('code', 'text')->getData();
-			}
-		} catch (Exception $e) {
-			$this->ll = $this->readPersistant();
-			if (!$this->ll) {
-				$this->ll = $this->readExcel(array_merge(array('code'), $this->possibleLangs));
-				if ($this->ll) {
-					$this->savePersistant($this->ll);
-				}
-			}
-			$this->ll = $this->ll[$this->lang];
-		}
-	}
-
-	function readPersistant() {
-		return NULL; // temporary until this is rewritten to read data from DB
-		if (file_exists($this->filename)) {
-			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
-				$data = file_get_contents($this->filename);
-				$data = unserialize($data);
-			}
-		}
-		return $data;
-	}
-
-	function savePersistant($data) {
-		$data = serialize($data);
-		$data = file_put_contents($this->filename, $data);
-		//debug('save');
-	}
-
-	function readExcel(array $keys) {
-		//debug($keys);
-		$data = array();
-		if (file_exists($this->excel)) {
-			$filedata = file_get_contents($this->excel);
-			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
-			$xml = simplexml_load_string($filedata);
-			$namespaces = $xml->getNamespaces(true);
-			//debug($namespaces);
-			foreach ($namespaces as $prefix => $ns) {
-				$xml->registerXPathNamespace($prefix, $ns);
-			}
-			$s = $xml->Worksheet[0]->Table;
-			foreach ($s->Row as $row) {
-				//debug($row);
-				//$dataLine = array();
-				//debug(sizeof($row->Cell));
-				$i = 0;
-				foreach ($row->Cell as $cell) {
-					//debug(array($i, $cell));
-					$key = $keys[$i++];
-					if ($key) {
-						//$dataLine[$key] = utf8_decode($cell->Data);
-						$cellText = $cell->Data;
-						if (!$cellText) {
-							//$cellText = $cell->Data->children('http://www.w3.org/TR/REC-html40');
-							$cellText = $cell->asXML();
-							$cellText = strip_tags($cellText);
-							//debug($cellText);
-						}
-						//$cellText = mb_convert_encoding($cellText, 'Windows-1251', 'UTF-8');
-						$cellText = trim($cellText);
-						$cellIndex = $cell['ss:Index']+0;
-						//debug($cell->attributes()->asXML(), $i);
-						if (!$cellIndex) {
-							$cellIndex = sizeof($data[$key]);
-						}
-						if ($cellText) {
-							$data[$key][$cellIndex] = $cellText;
-						}
-					}
-				}
-				//debug($dataLine);
-			}
-		}
-		//debug($data);
-		foreach ($data as $lang => &$trans) {
-			if ($lang != 'code') {
-				//$trans = array_unique($trans);
-				//debug(sizeof($trans));
-				$trans = array_slice($trans, 0, sizeof($data['code']));
-/*				debug(array(
-					'array_combine',
-					$data['code'],
-					$trans,
-				));
-*/
-				if (sizeof($data['code']) == sizeof($trans)) {
-					$trans = array_combine($data['code'], $trans);
-				} else {
-					$diff = array_diff_key($data['code'], $trans);
-					debug($diff, 'Error in '.__METHOD__);
-				}
-			}
-		}
-		//debug($data);
-		return $data;
+		// Read language data from somewhere in a subclass
 	}
 
 	function detectLang() {
@@ -160,9 +56,10 @@ class LocalLang {
 	}
 
 	static function getInstance() {
+		debug_pre_print_backtrace();
 		static $instance = NULL;
 		if (!$instance) {
-			$instance = new LocalLang();
+			$instance = new static();
 		}
 		return $instance;
 	}
@@ -200,25 +97,7 @@ class LocalLang {
 		return $trans;
 	}
 
-	function saveMissingMessage($text) {
-		if ($GLOBALS['i']->development) {
-			$missingWords = array();
-			$fp = fopen('lib/missing.txt', 'r');
-			while (!feof($fp)) {
-				$line = fgets($fp);
-				$line = trim($line);
-				$missingWords[$line] = $line;
-			}
-			fclose($fp);
-			//debug($missingWords);
-
-			if (!isset($missingWords[$text])) {
-				$fp = fopen('lib/missing.txt', 'a');
-				fputs($fp, $text."\n");
-				fclose($fp);
-			}
-		}
-	}
+	abstract function saveMissingMessage($text);
 
 	function M($text) {
 		return $this->T($text);
@@ -232,43 +111,41 @@ class LocalLang {
 		return $this->codeID[$code];
 	}
 
-	function readDB($lang) {
-		//try {
-			$db = Config::getInstance()->db;
-			$res = $db->getTableColumns('app_interface');
-			if ($res) {
-				$rows = $db->fetchSelectQuery('app_interface', array(
-					'lang' => $lang,
-				), 'ORDER BY id');
-			} else {
-				throw new Exception('No translation found in DB');
-			}
-		//} catch (Exception $e) {
-			// read from DB failed, continue
-			//throw new Exception('Reading locallang from DB failed.');
-			// throwing exception leads to making a new instance of LocalLang and it masks DB error
-		//}
-		return $rows;
-	}
-
 	function showLangSelection() {
-		$en = $this->readDB('en');
-		$countEN = sizeof($en) ? sizeof($en) : 1;
-		foreach ($this->possibleLangs as $lang) {
-			$rows = $this->readDB($lang);
-			$u = new URL();
-			$u->setParam('setLangCookie', $lang);
-			echo '<a href="?'.$u->buildQuery().'" title="'.$lang.' ('.
-				number_format(sizeof($rows)/$countEN*100, 0).'%)">
-				<img src="img/'.$lang.'.gif" width="20" height="12">
+		$content = '';
+		$stats = $this->getLangStats();
+		foreach ($stats as $row) {
+			$u = URL::getCurrent();
+			$u->setParam('setLangCookie', $row['lang']);
+			$title = $row['lang'].' ('.$row['percent'].')';
+			$content .= '<a href="'.$u->buildURl().'" title="'.$title.'">
+				<img src="img/'.$row['lang'].'.gif" width="20" height="12">
 			</a>';
 		}
+		//debug($_SERVER['REQUEST_URI'], $u, $u->buildURL());
+		return $content;
+	}
+
+	function getLangStats() {
+		$en = $this->readDB('en');
+		$countEN = sizeof($en) ? sizeof($en) : 1;
+		$langs = $this->possibleLangs;
+		foreach ($langs as &$lang) {
+			$rows = $this->readDB($lang);
+			$lang = array(
+				'img' => '<img src="img/'.$lang.'.gif" width="20" height="12">',
+				'lang' => $lang,
+				'rows' => sizeof($rows),
+				'percent' => number_format(sizeof($rows)/$countEN*100, 0).'%',
+			);
+		}
+		return $langs;
 	}
 
 }
 
 function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	$ll = LocalLang::getInstance();
+	$ll = Index::getInstance()->ll;
 	return $ll->T($code, $r1, $r2, $r3);
 }
 
