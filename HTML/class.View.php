@@ -39,7 +39,9 @@ class View {
 
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$file = dirname(__FILE__).'/../../template/'.$this->file;
+		$file = dirname($this->file) != '.'
+			? $this->file
+			: dirname(__FILE__).'/../../template/'.$this->file;
 		$content = '';
 		ob_start();
 		require($file);
@@ -57,6 +59,7 @@ class View {
 	}
 
 	function wikify($text) {
+		$inUL = false;
 		$lines = explode("\n", $text);
 		foreach ($lines as $line) {
 			if ($line{0} == '*') {
@@ -77,7 +80,9 @@ class View {
 		$text = str_replace("\n* ", "\n<li> ", $text);
 		$text = str_replace("\n<ul>\n", "<ul>", $text);
 		$text = str_replace("</ul>\n", "</ul>", $text);
-		$text = nl2br($text);
+		$text = str_replace("\n", "</p>\n<p>", $text);
+		$text = str_replace("<p></p>", "", $text);
+		$text = str_replace("<p></p>", "", $text);
 		return $text;
 	}
 
