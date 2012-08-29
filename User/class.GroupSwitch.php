@@ -9,6 +9,7 @@ class GroupSwitch extends Controller {
 
 	protected $groups = array(
 		'1815684' => 'AppDev',
+		'83079' => 'Artwork',
 		'62' => 'EPES',
 		'13868' => 'Lotcheck',
 		'1815688' => 'Testing',
