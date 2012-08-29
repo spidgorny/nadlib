@@ -25,7 +25,7 @@ class Menu /*extends Controller*/ {
 	public $tryMenuSuffix = false;
 
 	protected $current;
-	
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = $items;
@@ -111,7 +111,7 @@ class Menu /*extends Controller*/ {
 				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, $isRecursive);
 			}
 		}
-		$content = '<ul class="nav nav-list menu">'.$content.'</ul>';
+		$content = '<ul class="nav nav-list menu csc-menu">'.$content.'</ul>';
 		return $content;
 	}
 

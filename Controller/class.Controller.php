@@ -97,7 +97,7 @@ abstract class Controller {
 
 	function slideLoad($text, array $params, $div) {
 		$content = '<a href="javascript: void(0);" onclick="
-			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, '').'\');
+			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, false, '').'\');
 		">'.$text.'</a>';
 		return $content;
 	}
