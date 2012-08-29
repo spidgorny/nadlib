@@ -8,6 +8,7 @@
     display: box;
     box-orient: horizontal;
     box-align: stretch;
+    width: 100%;
 }
 .flex-box {
     -webkit-flex-box: 1;

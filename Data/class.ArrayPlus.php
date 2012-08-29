@@ -174,6 +174,58 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $this->data;
 	}
 
+	/**
+	 * Not working as expected.
+	 * PHP 4 doesn't have seek() function
+	 * PHP 5 doesn't have prev() method
+	 * @param $key
+	 */
+	function getPrevNext($key) {
+		$row = $this->findInData(array('id' => $key));
+		$row2 = $this->data[$key];	// works, but how to get next?
+		# http://stackoverflow.com/questions/4792673/php-get-previous-array-element-knowing-current-array-key
+		# http://www.php.net/manual/en/arrayiterator.seek.php
+		$arrayobject = new ArrayObject($this->data);
+		$iterator = $arrayobject->getIterator();
+
+		if ($iterator->valid()) {
+			$iterator->seek(array_search($key, array_keys($this->data)));
+			$row3 = $iterator->current();
+			$iterator->next();
+			$next = $iterator->current();
+			$iterator->previous();
+			$iterator->previous();
+			$prev = $iterator->current();
+		}
+		debug($key, $row, $row2, $row3['id'], $next['id'], $prev['id']); //, $rc->data);//, $rc);
+	}
+
+	/**
+	 * http://stackoverflow.com/a/9944080/417153
+	 * @param $key
+	 * @return bool
+	 */
+	function getPrevKey($key) {
+		$keys = array_keys($this->data);
+		$found_index = array_search($key, $keys);
+		if ($found_index === false || $found_index === 0)
+			return false;
+		return $keys[$found_index-1];
+	}
+
+	/**
+	 * http://stackoverflow.com/a/9944080/417153
+	 * @param $key
+	 * @return bool
+	 */
+	function getNextKey($key) {
+		$keys = array_keys($this->data);
+		$found_index = array_search($key, $keys);
+		if ($found_index === false || $key == end($keys))
+			return false;
+		return $keys[$found_index+1];
+	}
+
 }
 
 function AP(array $a = array()) {

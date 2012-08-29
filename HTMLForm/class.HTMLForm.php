@@ -138,8 +138,8 @@ class HTMLForm {
 		$this->stdout .= "<label for=$id>$label</label>";
 	}
 
-	function file($name) {
-		$this->stdout .= "<input type=file ".$this->getName($name).">";
+	function file($name, array $desc) {
+		$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
 		$this->enctype = "multipart/form-data";
 	}
 
