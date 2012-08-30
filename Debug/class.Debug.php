@@ -101,7 +101,7 @@ class Debug {
 		} else if (is_resource($a)) {
 			$content = $a;
 		} else {
-			$content = htmlspecialchars($a);
+			$content = nl2br(htmlspecialchars($a));
 		}
 		return $content;
 	}
