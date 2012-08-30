@@ -55,7 +55,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$instance) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$instance = new Index();
-			//$instance->content .= $instance->initController();	// scheisse: call it in index.php
+			//$instance->initController();	// scheisse: call it in index.php
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $instance;
@@ -65,6 +65,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$class = $this->request->getControllerString();
+			debug($class);
 			if (class_exists($class)) {
 				$this->controller = new $class;
 			} else {
