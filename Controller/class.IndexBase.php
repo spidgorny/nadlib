@@ -61,7 +61,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
-	protected function initController() {
+	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$class = $this->request->getControllerString();

@@ -42,7 +42,7 @@ class Pager {
 			}
 			$this->setCurrentPage($pagerData['page']);
 			$this->saveCurrentPage();
-		} else if (($pager = $this->user->getPref('Pager'.$this->prefix))) {
+		} else if ($this->user && ($pager = $this->user->getPref('Pager'.$this->prefix))) {
 			//debug(__METHOD__, $this->prefix, $pager['page']);
 			$this->setCurrentPage($pager['page']);
 		} else {
@@ -109,6 +109,12 @@ class Pager {
 	function getMaxPage() {
 		$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
 		return $maxpage;
+	}
+
+	function renderPageSelectors(URL $url = NULL) {
+		$this->url = $url;
+		$c = $this->showSearchBrowser();
+		return $c;//'<div class="pages">'.implode(" ", $ret).'</div><br clear="left" style="font-size: 1px;"/>';
 	}
 
 	protected function showSearchBrowser() {
@@ -181,27 +187,6 @@ class Pager {
 		$pages = array_unique($pages);
 
 		return $pages;
-	}
-
-	function renderPageSelectors($url = NULL) {
-//		$ret = array();
-		$this->url = $url;
-		$c = $this->showSearchBrowser();
-//		$pages = ceil($this->numberOfRecords/$this->itemsPerPage);
-//		for ($p = 0; $p < $pages; $p++) {
-//			$startItem = $this->numberOfRecords - $this->getPageFirstItem($p);
-//			$endItem  = $startItem - $this->itemsPerPage;
-//			if ($endItem < 0) $endItem = 0;
-//			$endItem++;
-//			$text = $p+1;
-//			$title = 'title="Show another page"';
-//			if ($this->currentPage == $p) {
-//				$ret[] = ahref($text, $url . '&pager[page]='.$p, NULL, 'class="active"'.$title);
-//			} else {
-//				$ret[] = ahref($text, $url . '&pager[page]='.$p, NULL, $title);
-//			}
-//		}
-		return $c;//'<div class="pages">'.implode(" ", $ret).'</div><br clear="left" style="font-size: 1px;"/>';
 	}
 
 	/**
