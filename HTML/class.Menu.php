@@ -96,7 +96,7 @@ class Menu /*extends Controller*/ {
 		$this->current = $rootpath[$level] ?: $this->request->getControllerString();
 		//debug($rootpath, $level, $this->current);
 		foreach ($items as $class => $name) {
-			$actInA = in_array($class, $current) ? ' class="act"' : '';
+			$actInA = $this->current == $class ? ' class="act"' : '';
 			$active = $this->current == $class ? ' class="active"' : '';
 			if ($class != $root[0]) {
 				$path = array_merge($root, array($class));
