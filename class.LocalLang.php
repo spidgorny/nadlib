@@ -59,7 +59,7 @@ abstract class LocalLang {
 		debug_pre_print_backtrace();
 		static $instance = NULL;
 		if (!$instance) {
-			$instance = new static();
+			//$instance = new static(); // PHP 5.2
 		}
 		return $instance;
 	}
