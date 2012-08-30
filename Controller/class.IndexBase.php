@@ -143,4 +143,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		));
 	}
 
+	function message($text) {
+		$this->content .= '<div class="message">'.$text.'</div>';
+	}
+
 }

@@ -71,7 +71,7 @@ class HTMLFormTable extends HTMLForm {
 						$desc['multiple'], $desc);
 				break;
 				case "file":
-					$this->file($fieldName);
+					$this->file($fieldName, $desc);
 				break;
 				case "password":
 					$this->password($fieldName, $fieldValue);
