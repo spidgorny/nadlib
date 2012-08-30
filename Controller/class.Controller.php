@@ -120,12 +120,12 @@ abstract class Controller {
 		return $table;
 	}
 
-	static function getInstance() {
+/*	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
 		return self::$instance ? self::$instance : new $static();
 	}
-
+*/
 	function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
