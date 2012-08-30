@@ -230,6 +230,9 @@ abstract class Controller {
 			$method .= 'Action';		// ZendFramework style
 			if (method_exists($this, $method)) {
 				$content = $this->$method();
+			} else {
+				// other classes except main controller may result in multiple messages
+				//Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			}
 		}
 		return $content;

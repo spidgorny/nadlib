@@ -114,7 +114,6 @@ class View {
 	}
 
 	function __toString() {
-		//debug_pre_print_backtrace();
 		return $this->render().'';
 	}
 
