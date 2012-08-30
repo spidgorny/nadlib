@@ -81,7 +81,9 @@ class View {
 		$text = str_replace("\n* ", "\n<li> ", $text);
 		$text = str_replace("\n<ul>\n", "<ul>", $text);
 		$text = str_replace("</ul>\n", "</ul>", $text);
-		$text = nl2br($text);
+		$text = str_replace("\n", "</p>\n<p>", $text);
+		$text = str_replace("<p></p>", "", $text);
+		$text = str_replace("<p></p>", "", $text);
 		return $text;
 	}
 
@@ -112,7 +114,6 @@ class View {
 	}
 
 	function __toString() {
-		debug_pre_print_backtrace();
 		return $this->render().'';
 	}
 

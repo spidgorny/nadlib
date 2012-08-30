@@ -97,7 +97,7 @@ abstract class Controller {
 
 	function slideLoad($text, array $params, $div) {
 		$content = '<a href="javascript: void(0);" onclick="
-			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, '').'\');
+			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, false, '').'\');
 		">'.$text.'</a>';
 		return $content;
 	}
@@ -230,6 +230,9 @@ abstract class Controller {
 			$method .= 'Action';		// ZendFramework style
 			if (method_exists($this, $method)) {
 				$content = $this->$method();
+			} else {
+				// other classes except main controller may result in multiple messages
+				//Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			}
 		}
 		return $content;

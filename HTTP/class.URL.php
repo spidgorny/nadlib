@@ -21,6 +21,7 @@ class URL {
 	function setParam($param, $value) {
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
+		return $this;
 	}
 
 	function getParam($param) {

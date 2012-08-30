@@ -126,6 +126,10 @@ class Time {
 	}
 
 	function getMySQL() {
+		return date('Y-m-d H:i:s', $this->time);
+	}
+
+	function getMySQLUTC() {
 		return gmdate('Y-m-d H:i:s', $this->time);
 	}
 

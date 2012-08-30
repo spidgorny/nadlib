@@ -5,6 +5,10 @@ class Pager {
 	var $itemsPerPage = 20;
 	var $startingRecord = 0;
 	var $currentPage = 0;
+
+	/**
+	 * @var URL
+	 */
 	var $url;
 	var $pagesAround = 3;
 
@@ -19,6 +23,11 @@ class Pager {
 	 */
 	protected $prefix;
 
+	/**
+	 * @var LoginUser
+	 */
+	protected $user;
+
 	function Pager($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage) {
 			$this->setItemsPerPage($itemsPerPage);
@@ -26,13 +35,15 @@ class Pager {
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
 		$this->request = new Request();
+		$this->user = Config::getInstance()->user;
 		if (($pagerData = $_REQUEST['pager'])) {
 			if ($this->request->getMethod() == 'POST') {
 				$pagerData['page']--;
 			}
 			$this->setCurrentPage($pagerData['page']);
-			Config::getInstance()->user->setPref('Pager'.$this->prefix, array('page' => $this->currentPage));
-		} else if (($pager = Config::getInstance()->user->getPref('Pager'.$this->prefix))) {
+			$this->saveCurrentPage();
+		} else if (($pager = $this->user->getPref('Pager'.$this->prefix))) {
+			//debug(__METHOD__, $this->prefix, $pager['page']);
 			$this->setCurrentPage($pager['page']);
 		} else {
 			$this->setCurrentPage(0);
@@ -60,6 +71,11 @@ class Pager {
 	function setCurrentPage($page) {
 		$this->currentPage = max(0, $page);
 		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
+	}
+
+	function saveCurrentPage() {
+		//debug(__METHOD__, $this->prefix, $this->currentPage);
+		$this->user->setPref('Pager'.$this->prefix, array('page' => $this->currentPage));
 	}
 
 	function setItemsPerPage($items) {
@@ -101,7 +117,7 @@ class Pager {
  		$pages = $this->getPagesAround($this->currentPage, $maxpage);
  		//debug(array($pages, $current['searchIndex'], sizeof($tmpArray)));
  		if ($this->currentPage > 0) {
-			$link = $this->url.'&pager[page]='.($this->currentPage-1);
+			$link = $this->url->setParam('pager[page]', $this->currentPage-1);
 			$content .= '<a href="'.$link.'" rel="prev">&lt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&lt;</span>';
@@ -110,7 +126,7 @@ class Pager {
  			if ($k === 'gap1' || $k === 'gap2') {
  				$content .= '<div class="page">  &hellip;  </div>';
  			} else {
-				$link = $this->url.'&pager[page]='.$k;
+				 $link = $this->url->setParam('pager[page]', $k);
 				if ($k == $this->currentPage) {
 					$content .= '<span class="active">'.($k+1).'</span>';
 				} else {
@@ -119,7 +135,7 @@ class Pager {
  			}
 		}
  		if ($this->currentPage < $maxpage-1) {
-			$link = $this->url.'&pager[page]='.($this->currentPage+1);
+			 $link = $this->url->setParam('pager[page]', $this->currentPage+1);
 			$content .= '<a href="'.$link.'" rel="next">&gt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&gt;</span>';
