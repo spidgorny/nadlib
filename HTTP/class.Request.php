@@ -63,6 +63,15 @@ class Request {
 		return $this->is_set($name) ? $this->int($name) : NULL;
 	}
 
+	function getIntIn($name, array $assoc) {
+		$id = $this->getIntOrNULL($name);
+		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
+			debug($id, array_keys($assoc));
+			throw new Exception($name.' is not part of allowed collection.');
+		}
+		return $id;
+	}
+
 	function getFloat($name) {
 		return floatval($this->data[$name]);
 	}
@@ -200,9 +209,7 @@ class Request {
 	}
 
 	function redirect($controller) {
-		if ($GLOBALS['i']->user) {
-			$GLOBALS['i']->user->destruct();
-		}
+		Index::getInstance()->destruct();
 		if (headers_sent()
 //			|| DEVELOPMENT
 		) {

@@ -56,7 +56,7 @@ class OODBase {
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$res = $this->db->perform($query);
-		$id = $this->db->lastInsertID($res);
+		$id = $this->db->lastInsertID($res, $this->table);
 		$this->init($id);
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;

@@ -57,9 +57,9 @@ function debug($a) {
 function nodebug() {
 }
 
-function getDebug($a, $b = NULL, $c = '') {
+function getDebug($a) {
 	ob_start();
-	debug($a, $b, $c);
+	debug($a);
 	return ob_get_clean();
 }
 
@@ -130,4 +130,9 @@ if(!function_exists('get_called_class')) {
 			default: throw new Exception ("Unknown backtrace method type");
 		}
 	}
+}
+
+function first(array $list) {
+	reset($list);
+	return current($list);
 }

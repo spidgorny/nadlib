@@ -236,7 +236,7 @@ class dbLayer {
 	}
 
 	function commit() {
-		$this->perform("commit");
+		return $this->perform("commit");
 	}
 
 	function rollback() {
@@ -381,6 +381,16 @@ class dbLayer {
 			$id = $this->sqlFind('id', $table, "oid = '".$oid."'");
 		}
 		return $id;
+	}
+
+	/**
+	 * Compatibility.
+	 * @param $res
+	 * @param $table
+	 * @return null
+	 */
+	function lastInsertID($res, $table) {
+		return $this->getLastInsertID($res, $table);
 	}
 
 	function getArrayIntersect(array $options, $field = 'list_next') {

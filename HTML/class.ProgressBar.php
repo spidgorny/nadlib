@@ -24,6 +24,10 @@ class ProgressBar {
 		//$this->setProgressBarProgress(0);
 	}
 
+	function __toString() {
+		return $this->getContent();
+	}
+
 	function getContent() {
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
@@ -34,7 +38,7 @@ class ProgressBar {
 				style="width: '.$percentDone.';"></div>
 				<div id="'.$this->tbarid.'" class="pb_after"></div>
 			</div>
-			<br style="height: 1px; font-size: 1px;"/>
+			<div style="clear: both;"></div>
 		</div>
 		<style>
 			.pb_container {
