@@ -41,16 +41,26 @@ function __autoload($class) {
 }
 
 function debug($a) {
-	print('<pre style="background-color: #EEEEEE; border: dotted 1ps silver; width: auto;">');
-	$output = var_dump(func_num_args() > 1 ? func_get_args() : $a);
-	$output = str_replace("\n(", " (", $output);
-	$output = str_replace("\n        (", " (", $output);
-	$output = str_replace(")\n", ")", $output);
-	print htmlspecialchars($output);
-	print('<div style="background-color: #888888; color: white;">');
-		debug_print_backtrace();
-	print('</div>');
-	print('</pre>');
+	if (DEVELOPMENT) {
+		print('<pre style="background-color: #EEEEEE; border: dotted 1px silver; width: auto;">');
+		ob_start();
+		var_dump(func_num_args() > 1 ? func_get_args() : $a);
+		$output = ob_get_clean();
+		$output = str_replace("=>\n  ", " 〉 ", $output);
+		print htmlspecialchars($output);
+		print '<hr style="cursor: pointer;" onclick="
+			var o = this.nextSibling.style;
+			o.display = o.display == \'block\' ? \'none\' : \'block\';"><div style="display: none;">';
+		$db = debug_backtrace();
+		foreach ($db as &$row) {
+			$row['file'] = basename($row['file']);
+			$row['object'] = $row['object'] ? get_class($row['object']) : '';
+			$row['args'] = sizeof($row['args']);
+		}
+		echo new slTable($db);
+		print('</div>');
+		print('</pre>');
+	}
 }
 
 function nodebug() {

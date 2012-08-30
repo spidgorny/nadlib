@@ -4,6 +4,7 @@ class SQLLike extends SQLWherePart {
 	protected $string;
 
 	function __construct($string) {
+		parent::__construct();
 		$this->string = $string;
 	}
 

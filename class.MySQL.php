@@ -176,7 +176,7 @@ class MySQL {
 	}
 
 	function quoteSQL($string) {
-		return "'".mysql_real_escape_string($string)."'";
+		return "'".$this->escape($string)."'";
 	}
 
 	/**

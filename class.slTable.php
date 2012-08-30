@@ -40,9 +40,7 @@ class slTable {
 		}
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
-		try {
-			//$this->db = new BijouDBConnector();
-		} catch (Exception $e) {}
+		$this->db = Config::getInstance()->db;
 	}
 
 	function thes($aThes, $thesMore = NULL) {
@@ -355,13 +353,13 @@ class slTable {
 				if ($val) {
 					if (!$k['options']) {
 						$what = $k['title'] ? $k['title'] : $col;
-						$options = $this->db->fetchSelectQuery($k['from'], array("uid" => $val));
-						// TODO: idealize
+						$options = $this->db->fetchSelectQuery($k['from'], array($k['idField'] => $val));
+						$options = AP($options)->IDalize()->column($what)->getData();
 					} else {
 						$options = $k['options'];
 					}
 					//debug($options); exit();
-					$out = $options[$val];;
+					$out = $options[$val];
 				} else {
 					$out = "";
 				}

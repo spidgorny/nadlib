@@ -14,7 +14,7 @@ class SQLWherePart {
 	protected $sql = '';
 	protected $field;
 
-	function __construct($sql) {
+	function __construct($sql = '') {
 		$this->sql = $sql;
 	}
 
