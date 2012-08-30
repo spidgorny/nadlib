@@ -46,7 +46,7 @@ abstract class Controller {
 	public $layout;
 
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo(__METHOD__);
 		$this->index = Index::getInstance();
 		$this->request = new Request();
 		$this->useRouter = $this->request->apacheModuleRewrite();
@@ -55,6 +55,7 @@ abstract class Controller {
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->client = $this->index->client;
+		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
 	function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
