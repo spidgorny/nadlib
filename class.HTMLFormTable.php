@@ -12,6 +12,16 @@ class HTMLFormTable extends HTMLForm {
 	 */
 	protected $desc;
 
+	function __construct(array $desc = array(), $prefix = '') {
+		$this->desc = $desc;
+		$this->prefix($prefix);
+		if ($this->desc) {
+			$r = new Request();
+			$this->desc = $this->fillValues($this->desc, $r->getArray($this->prefix[0]));
+			//$this->showForm();	// call manually to have a chance to change method or defaultBR
+		}
+	}
+
 	function setDesc(array $desc) {
 		$this->desc = $desc;
 	}
@@ -173,7 +183,7 @@ class HTMLFormTable extends HTMLForm {
 			if (isset($desc['label'])) {
 				$this->stdout .= '<label for="'.$elementID.'">'.$desc['label'];
 				if (($desc['br'] === NULL && $this->defaultBR) || $desc['br']) {
-					$this->stdout .= '<br>';
+					$this->stdout .= '<br />';
 				} else {
 					if ($desc['label']) {
 						$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check' ? '<span class="htmlFormTableStar">*</span>' : '');

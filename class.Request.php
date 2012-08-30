@@ -148,11 +148,14 @@ class Request {
 	}
 
 	function getControllerString() {
+		$lastLevel = end($this->getURLLevels());
 		return $this->getCoalesce(
-			'c', $this->getCoalesce(
-			$this->getURLLevel(0),
-			$this->defaultController
-		));
+			'c',
+			($lastLevel
+				? $lastLevel
+				: $this->defaultController
+			)
+		);
 	}
 
 	/**
@@ -300,11 +303,16 @@ class Request {
 	}
 
 	function getURLLevel($level) {
+		$path = $this->getURLLevels();
+		return $path[$level];
+	}
+
+	function getURLLevels() {
 		$url = $this->getURL();
 		$path = $url->getPath();
 		$path = trimExplode('/', $path);
 		//debug($path);
-		return $path[$level];
+		return $path;
 	}
 
 	/**

@@ -26,7 +26,7 @@ class Menu extends Controller {
 		$user = Config::getInstance()->user;
 		foreach ($this->items as $class => &$item) {
 			if (!$user->can($class, '__construct')) {
-				unset($items[$class]);
+				unset($this->items[$class]);
 			}
 		}
 	}
@@ -43,20 +43,20 @@ class Menu extends Controller {
 
 	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true) {
 		$content = '';
-		$this->request->getControllerString()
+		$current = $this->request->getURLLevels();
 		//debug($this->level, $current, $level);
 		foreach ($items as $class => $name) {
-			$act = $current == $class ? ' class="act"' : '';
-			$active = $current == $class ? ' class="active"' : '';
+			$actInA = in_array($class, $current) ? ' class="act"' : '';
+			$active = in_array($class, $current) ? ' class="active"' : '';
 			if ($class != $root[0]) {
 				$path = array_merge($root, array($class));
 			} else {
 				$path = array($class);
 			}
 			$path = implode('/', $path);
-			$content .= '<li '.$active.'><a href="'.$path.'"'.$act.'>'.__($name).'</a></li>';
+			$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name).'</a></li>';
 
-			if ($isRecursive && $class == $current && $items[$class]->getChildren()) {
+			if ($isRecursive && $active && $items[$class]->getChildren()) {
 				$root_class = array_merge($root, array($class));
 				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1);
 			}
