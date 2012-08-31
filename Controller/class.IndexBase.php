@@ -65,9 +65,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$class = $this->request->getControllerString();
-			debug($class);
 			if (class_exists($class)) {
 				$this->controller = new $class;
+				debug($this->controller); exit();
 			} else {
 				$this->controller = NULL;
 				throw new Exception('Class '.$class.' not found.');
@@ -107,6 +107,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e) {
+		echo $e; exit();
 		$content = '<div class="ui-state-error padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {

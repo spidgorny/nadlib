@@ -28,6 +28,7 @@ if (DEVELOPMENT) {
 	$GLOBALS['profiler'] = new TaylorProfiler(TRUE);
 	/* @var $profiler TaylorProfiler */
 	error_reporting(E_ALL ^ E_NOTICE);
+	//debug(error_reporting());
 	ini_set('display_errors', TRUE);
 } else {
 	error_reporting(0);

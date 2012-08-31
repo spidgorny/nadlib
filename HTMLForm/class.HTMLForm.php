@@ -138,7 +138,7 @@ class HTMLForm {
 		$this->stdout .= "<label for=$id>$label</label>";
 	}
 
-	function file($name, array $desc) {
+	function file($name, array $desc = array()) {
 		$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
 		$this->enctype = "multipart/form-data";
 	}
