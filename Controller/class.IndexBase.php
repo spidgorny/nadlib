@@ -37,7 +37,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * @var Index
 	 */
-	public static $instance;
+	protected static $instance;
 
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -61,7 +61,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
-	protected function initController() {
+	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$class = $this->request->getControllerString();
@@ -129,7 +129,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $content;
 	}
 
-	function destruct() {
+	function __destruct() {
 		if (is_object($this->user)) {
 			$this->user->destruct();
 		}

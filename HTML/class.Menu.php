@@ -59,8 +59,8 @@ class Menu /*extends Controller*/ {
 	}
 
 	function getItemsOnLevel(array $rootpath) {
-		$fullRecurive = new Recursive(NULL, $this->items);
-		$sub = $fullRecurive->findPath($rootpath);
+		$fullRecursive = new Recursive(NULL, $this->items);
+		$sub = $fullRecursive->findPath($rootpath);
 		if ($sub instanceof Recursive) {
 			$items = $sub->getChildren();
 		} else {
@@ -93,7 +93,7 @@ class Menu /*extends Controller*/ {
 		$content = '';
 		//$this->current = $this->request->getControllerString();
 		$rootpath = $this->request->getURLLevels();
-		$this->current = $rootpath[$level] ?: $this->request->getControllerString();
+		$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
 		//debug($rootpath, $level, $this->current);
 		foreach ($items as $class => $name) {
 			$actInA = $this->current == $class ? ' class="act"' : '';
