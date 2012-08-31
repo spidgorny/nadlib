@@ -74,9 +74,9 @@ abstract class Controller {
 		return $url;
 	}
 
-	function makeRelURL(array $params) {
+	function makeRelURL(array $params = array()) {
 		return $this->makeURL(array(
-			'pageType' => get_class($this),
+			'c' => get_class($this),
 		)+$params);
 	}
 
@@ -267,6 +267,23 @@ abstract class Controller {
 
 	function sidebar() {
 		return '';
+	}
+
+	/**
+	 * @see makeRelURL
+	 * @param array $params
+	 * @return URL
+	 */
+	function adjustURL(array $params) {
+		return URL::getCurrent()->setParams(array(
+			'c' => get_class(Index::getInstance()->controller),
+		)+$params);
+	}
+
+	function makeRelLink($text, array $params) {
+		return new HTMLTag('a', array(
+			'href' => $this->makeRelURL($params)
+		), $text);
 	}
 
 }
