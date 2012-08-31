@@ -46,15 +46,16 @@ abstract class Controller {
 	public $layout;
 
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo(__METHOD__);
 		$this->index = Index::getInstance();
 		$this->request = new Request();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
-		$this->title = get_class($this);
+		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->client = $this->index->client;
+		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
 	function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
@@ -68,7 +69,7 @@ abstract class Controller {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = $prefix.http_build_query($params, '', '&amp;'); //, PHP_QUERY_RFC3986);
+			$url = $prefix.http_build_query($params, '', '&'); //, PHP_QUERY_RFC3986);
 		}
 		return $url;
 	}

@@ -175,7 +175,7 @@ class Request {
 				? $last
 				: $this->defaultController
 		);
-		//debug($controller, $this->getTrim('c'), $last, $this->defaultController);
+		//debug($controller, $this->getTrim('c'), $last, $this->defaultController, $this->data);
 		return $controller;
 	}
 

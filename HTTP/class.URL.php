@@ -116,9 +116,9 @@ class URL {
 	 * @return URL
 	 */
 	static function getCurrent() {
-		return new URL($_SERVER['REQUEST_URI']);
+		return new URL();
 	}
-	
+
 	function GET() {
 		return file_get_contents($this->buildURL());
 	}
