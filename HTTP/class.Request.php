@@ -209,7 +209,7 @@ class Request {
 	}
 
 	function redirect($controller) {
-		Index::getInstance()->destruct();
+		Index::getInstance()->__destruct();
 		if (headers_sent()
 //			|| DEVELOPMENT
 		) {
