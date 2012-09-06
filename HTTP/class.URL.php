@@ -33,6 +33,7 @@ class URL {
 	function setParams(array $params = array()) {
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
+		return $this;
 	}
 
 	function appendParams(array $params) {
