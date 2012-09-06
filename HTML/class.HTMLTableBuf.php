@@ -49,7 +49,7 @@ class HTMLTableBuf {
 		$this->stdout .= '<thead>';
 		$this->tr($trmore);
 			foreach($aCaption as $i => $caption) {
-				$this->th($thmore[$i]);
+				$this->th(isset($thmore[$i]) ? $thmore[$i] : '');
 					$this->stdout .= $caption;
 				$this->the();
 			}

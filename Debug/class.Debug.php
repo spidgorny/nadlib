@@ -52,7 +52,7 @@ class Debug {
 	function getTraceTable(array $db) {
 		foreach ($db as &$row) {
 			$row['file'] = basename($row['file']);
-			$row['object'] = is_object($row['object']) ? get_class($row['object']) : NULL;
+			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}
 		require_once 'nadlib/Data/class.ArrayPlus.php';
@@ -92,7 +92,9 @@ class Debug {
 					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$i.'</td>
 					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$type.' '.(is_array($r) ? '['.sizeof($r).']' : '').'</td>
 					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">';
+
 				$content .= Debug::view_array($r);
+				//$content = print_r($r, true);
 				$content .= '</td></tr>';
 			}
 			$content .= '</table>';

@@ -62,16 +62,16 @@ class Collection {
 	}
 
 	function retrieveDataFromDB() {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		$this->query = $this->getQuery($this->where);
 		$res = $this->db->perform($this->query);
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField);
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
 	function getQuery(/*array*/ $where) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->parentID) {
 			$where[$this->parentField] = $this->parentID;
 		}
@@ -86,16 +86,16 @@ class Collection {
 			$query .= $this->pager->getSQLLimit();
 		}
 		//debug($query);
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $query;
 	}
 
 	function preprocessData() {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
 	function preprocessRow(array $row) {
@@ -103,7 +103,7 @@ class Collection {
 	}
 
 	function render() {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$r = new Request();
 			$url = $r->getURLLevel(0);
@@ -114,7 +114,7 @@ class Collection {
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $content;
 	}
 

@@ -16,7 +16,7 @@ class Request {
 			$this->data = $this->deQuote($this->data);
 		}
 
-		$this->url = new URL($_SERVER['SCRIPT_URL'] ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$this->url = new URL(isset($_SERVER['SCRIPT_URL']) ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
 		$this->url->setDocumentRoot(Config::getInstance()->documentRoot);
 	}
 
@@ -40,11 +40,11 @@ class Request {
 	}
 
 	function string($name) {
-		return (string)$this->data[$name];
+		return $this->getString($name);
 	}
 
 	function getString($name) {
-		return strval($this->data[$name]);
+		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
 	}
 
 	function getTrim($name) {
@@ -52,7 +52,7 @@ class Request {
 	}
 
 	function int($name) {
-		return intval($this->data[$name]);
+		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
 	}
 
 	function getInt($name) {
@@ -101,7 +101,7 @@ class Request {
 	}
 
 	function getArray($name) {
-		return (array)($this->data[$name]);
+		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
 	}
 
 	/**
@@ -209,15 +209,13 @@ class Request {
 	}
 
 	function redirect($controller) {
-		Index::getInstance()->destruct();
-		if (headers_sent()
+		Index::getInstance()->__destruct();
+		if (!headers_sent()
 //			|| DEVELOPMENT
 		) {
-			echo '<a href="'.$controller.'">'.$controller.'</a>';
-		} else {
 			header('Location: '.$controller);
 		}
-		unset($GLOBALS['i']->user);
+		echo '<a href="'.$controller.'">'.$controller.'</a>';
 		exit();
 	}
 
@@ -320,7 +318,7 @@ class Request {
 
 	function getURLLevel($level) {
 		$path = $this->getURLLevels();
-		return $path[$level];
+		return isset($path[$level]) ? $path[$level] : NULL;
 	}
 
 	function getURLLevels() {
@@ -358,6 +356,23 @@ class Request {
 			$mod_rewrite =  getenv('HTTP_MOD_REWRITE')=='On' ? true : false ;
 		}
 		return $mod_rewrite;
+	}
+
+	static function removeCookiesFromRequest() {
+		if (false !== strpos(ini_get('variables_order'), 'C')) {
+			//debug($_COOKIE, ini_get('variables_order'));
+			foreach ($_COOKIE as $key => $_) {
+				if (isset($_GET[$key])) {
+					$_REQUEST[$key] = $_GET[$key];
+				} else if (isset($_POST[$key])) {
+					$_REQUEST[$key] = $_POST[$key];
+				}
+
+				if (isset($_REQUEST[$key])) {
+					unset($_REQUEST[$key]);
+				}
+			}
+		}
 	}
 
 }

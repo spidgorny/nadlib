@@ -207,7 +207,7 @@ class slTable {
 				$link = ($this->sortLinkPrefix ? $this->sortLinkPrefix . '&' : $_SERVER['PHP_SELF'].'?').$this->prefix.'[sortBy]='.$thk.'&'.$this->prefix.'[sortOrder]='.$newSO;
 				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
 			} else {
-				if (is_array($thv) && $thv['clickSort']) {
+				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
 					$link = URL::getCurrent();
 					$link->setParam($thv['clickSort'], $thk);
 					$thvName = '<a href="'.$link.'">'.$thvName.'</a>';
@@ -316,23 +316,25 @@ class slTable {
 				$skipCols--;
 			} else if (isset($k['!show']) && $k['!show']) {
 			} else {
-				$val = $row[$col];
+				$val = isset($row[$col]) ? $row[$col] : NULL;
 				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
 					$t->tag($val);
 				} else if ($val instanceof HTMLnoTag) {
 					// nothing
 				} else {
 					if (!$val) {
-						$val = $row[strtolower($col)];
+						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
-					$out = $k['before'] . $this->getCell($col, $val, $k, $row) . $k['after'];
+					$out = (isset($k['before']) ? $k['before'] : '')
+						. $this->getCell($col, $val, $k, $row) .
+						(isset($k['after']) ? $k['after'] : '');
 					$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
-					if (is_array($row[$col.'.'])) {
+					if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
 						//$more .= $row[$col.'.']['colspan'] ? ' colspan="'.$row[$col.'.']['colspan'].'"' : '';
-						$skipCols = $row[$col.'.']['colspan'] ? $row[$col.'.']['colspan'] - 1 : 0;
+						$skipCols = isset($row[$col.'.']['colspan']) ? $row[$col.'.']['colspan'] - 1 : 0;
 					}
 					$more .= (isset($k['more']) ? $k['more'] : NULL).
-						($row[$col.'.']['colspan'] ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
+						(isset($row[$col.'.']['colspan']) ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
 					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
 					$iCol++;
 				}
@@ -347,7 +349,7 @@ class slTable {
 				//t3lib_div::debug($val);
 				//t3lib_div::debug($k);
 				if ($val) {
-					if (!$k['options']) {
+					if (!isset($k['options'])) {
 						$what = $k['title'] ? $k['title'] : $col;
 						$options = $this->db->fetchSelectQuery($k['from'], array($k['idField'] => $val));
 						$options = AP($options)->IDalize()->column($what)->getData();

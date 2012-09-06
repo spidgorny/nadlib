@@ -67,7 +67,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$class = $this->request->getControllerString();
 			if (class_exists($class)) {
 				$this->controller = new $class;
-				debug($this->controller); exit();
 			} else {
 				$this->controller = NULL;
 				throw new Exception('Class '.$class.' not found.');
@@ -76,7 +75,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->controller = NULL;
 			$content = $this->renderException($e);
 		}
-		return $content;
 	}
 
 	function render() {

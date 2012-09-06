@@ -51,14 +51,14 @@ class OODBase {
 	 * @return unknown
 	 */
 	function insert(array $data) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$res = $this->db->perform($query);
 		$id = $this->db->lastInsertID($res, $this->table);
 		$this->init($id);
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
 	}
 
@@ -68,7 +68,7 @@ class OODBase {
 	 * @param array $data
 	 */
 	function update(array $data) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($this->id) {
 			//$data['mtime'] = new AsIs('NOW()');
 			//$data['muser'] = $GLOBALS['i']->user->id;					// TODO: add to DB
@@ -81,7 +81,7 @@ class OODBase {
 			$this->db->rollback();
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $res;
 	}
 
@@ -102,7 +102,7 @@ class OODBase {
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderby = '') {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
 		if (is_array($rows)) {
 			if (is_array(current($rows))) {
@@ -114,7 +114,7 @@ class OODBase {
 			$data = array();
 		}
 		$this->init($data); // array, otherwise infinite loop
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this->id;
 	}
 
@@ -163,7 +163,7 @@ class OODBase {
 	}
 
 	function insertUpdate(array $fields, array $where) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
 		if ($this->id) { // found
@@ -175,7 +175,7 @@ class OODBase {
 			$op = 'INS';
 		}
 		$this->db->commit();
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $op;
 	}
 

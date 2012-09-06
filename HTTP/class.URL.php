@@ -12,7 +12,9 @@ class URL {
 			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 		}
 		$this->components = parse_url($url);
-		parse_str($this->components['query'], $this->params);
+		if (isset($this->components['query'])) {
+			parse_str($this->components['query'], $this->params);
+		}
 		if ($params) {
 			$this->setParams($params);
 		}

@@ -78,6 +78,7 @@ class ConfigBase {
 
 	public function postInit() {
 		// init user here as he needs to access Config::getInstance()
+		$this->user = NULL;
 	}
 
 	public function prefixTable($a) {

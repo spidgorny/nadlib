@@ -162,7 +162,7 @@ class HTMLForm {
 				if ($selected) {
 					$this->stdout .= " selected";
 				}
-				if ($desc['classAsValuePrefix']) {
+				if (isset($desc['classAsValuePrefix'])) {
 					$this->stdout .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
 				$this->stdout .= ">$option</option>\n";
