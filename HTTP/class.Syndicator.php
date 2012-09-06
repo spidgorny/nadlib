@@ -19,7 +19,7 @@ class Syndicator {
 	var $cache;
 
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($url) {
 			$this->url = $url;
 			$this->isCaching = $caching;
@@ -27,11 +27,11 @@ class Syndicator {
 			$this->html = $this->retrieveFile();
 			$this->xml = $this->processFile($this->html);
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function retrieveFile() {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
@@ -45,7 +45,7 @@ class Syndicator {
 		} else {
 			$html = $this->downloadFile($this->url);
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $html;
 	}
 
@@ -95,7 +95,7 @@ class Syndicator {
 	}
 
 	function processFile($html) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//debug(substr($html, 0, 1000));
 		$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8);
 
@@ -131,12 +131,12 @@ class Syndicator {
 		//$recode = preg_replace('/<option value="0">.*?<\/option>/is', '', $recode);
 
 		$xml = $this->getXML($recode);
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $xml;
 	}
 
 	function tidy($html) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$config = array(
 			'clean'         	=> true,
         	'indent'        	=> true,
@@ -153,12 +153,12 @@ class Syndicator {
 		$tidy->parseString($html, $config);
 		$tidy->cleanRepair();
 		//return $tidy;
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return tidy_get_output($tidy);
 	}
 
 	function recode($xml) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$enc = mb_detect_encoding($xml);
 		//debug($enc);
 		//$xml = mb_convert_encoding($xml, 'UTF-8', 'Windows-1251');
@@ -174,12 +174,12 @@ class Syndicator {
 		//$xml = str_replace('//<![CDATA[', '<![CDATA[', $xml);
 		//$xml = preg_replace("/<html[^>]*>/", "<html>", $xml);
 		//$xml = $this->strip_html_tags($xml);
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $xml;
 	}
 
 	function getXML($recode) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		try {
 			$xml = @new SimpleXMLElement($recode);
 			//$xml['xmlns'] = '';
@@ -203,18 +203,18 @@ class Syndicator {
 			debug($e, 'getXML');
 			$GLOBALS['db']->perform($query);
 */		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $xml;
 	}
 
 	function getElements($xpath) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($this->xml) {
 			//debug($this->xml);
 			$this->xpath = $xpath;
 			$target = $this->xml->xpath($this->xpath);
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $target;
 	}
 
@@ -224,13 +224,13 @@ class Syndicator {
 	 * @return simple_xml_element
 	 */
 	function getElement($xpath) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->getElements($xpath);
 		if ($res) {
 			reset($res);
 			$first = current($res);
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $first;
 	}
 

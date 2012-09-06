@@ -29,8 +29,13 @@ if (DEVELOPMENT) {
 	$GLOBALS['profiler'] = new TaylorProfiler(TRUE);
 	/* @var $profiler TaylorProfiler */
 	error_reporting(E_ALL ^ E_NOTICE);
+	//error_reporting(E_ALL);
 	//debug(error_reporting());
+	ini_set('display_errors', FALSE);
+	trigger_error(str_repeat('*', 20));	// log file separator
 	ini_set('display_errors', TRUE);
+	set_time_limit(5);
+	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 } else {
 	error_reporting(0);
 	ini_set('display_errors', FALSE);
@@ -38,18 +43,7 @@ if (DEVELOPMENT) {
 	header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
 }
 date_default_timezone_set('Europe/Berlin');
-
-// remove cookies from $_REQUEST
-//debug($_COOKIE);
-foreach ($_COOKIE as $key => $_) {
-	if ($_GET[$key]) {
-		$_REQUEST[$key] = $_GET[$key];
-	} else if ($_POST[$key]) {
-		$_REQUEST[$key] = $_POST[$key];
-	} else {
-		unset($_REQUEST[$key]);
-	}
-}
+Request::removeCookiesFromRequest();
 
 function debug($a) {
 	$params = func_get_args();

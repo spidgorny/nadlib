@@ -26,18 +26,23 @@ class Menu /*extends Controller*/ {
 
 	protected $current;
 
+	/**
+	 * @var User
+	 */
+	protected $user;
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = $items;
 		$this->level = $level;
 		$this->request = new Request();
 		//$this->tryInstance();
+		$this->user = Config::getInstance()->user;
 	}
 
 	function filterACL() {
-		$user = Config::getInstance()->user;
 		foreach ($this->items as $class => &$item) {
-			if (!$user->can($class, '__construct')) {
+			if (!$this->user->can($class, '__construct')) {
 				unset($this->items[$class]);
 			}
 		}
@@ -45,7 +50,7 @@ class Menu /*extends Controller*/ {
 
 	function render() {
 		$content = '';
-		if (Config::getInstance()->user->id) {
+		//if ($this->user && $this->user->id) {
 			if (!is_null($this->level)) {
 				$rootpath = $this->request->getURLLevels();
 				$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for submenu of Dashboard/About
@@ -54,7 +59,7 @@ class Menu /*extends Controller*/ {
 			} else {
 				$content .= $this->renderLevel($this->items, array(), 0, true);
 			}
-		}
+		//}
 		return $content;
 	}
 
@@ -98,7 +103,7 @@ class Menu /*extends Controller*/ {
 		foreach ($items as $class => $name) {
 			$actInA = $this->current == $class ? ' class="act"' : '';
 			$active = $this->current == $class ? ' class="active"' : '';
-			if ($class != $root[0]) {
+			if (isset($root[0]) && ($class != $root[0])) {
 				$path = array_merge($root, array($class));
 			} else {
 				$path = array($class);

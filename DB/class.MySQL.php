@@ -8,16 +8,16 @@ class MySQL {
 	public $queryLog = array();		// set to NULL for disabling
 
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = $db;
 		if ($this->db) {
 			$this->connect($host, $login, $password);
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function connect($host, $login, $password) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		ini_set('mysql.connect_timeout', 1);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
@@ -31,7 +31,7 @@ class MySQL {
 		if (!$res) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 /*
@@ -70,10 +70,11 @@ class MySQL {
 			//'FlexiTable::findInDB',
 		)));
 		$profilerKey = __METHOD__." (".$caller.")";
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($profilerKey);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($profilerKey);
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
+			$this->queryLog[$query] = isset($this->queryLog[$query]) ? $this->queryLog[$query] : 0;
 			$this->queryLog[$query] += microtime(true) - $start;
 		}
 		$this->lastQuery = $query;
@@ -89,13 +90,13 @@ class MySQL {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer($profilerKey);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
 	function fetchAssoc($res) {
 		$key = __METHOD__.' ('.$this->lastQuery.')';
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer($key);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -106,17 +107,17 @@ class MySQL {
 			debug('is not a resource', $res);
 			debug_pre_print_backtrace();
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer($key);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
 	}
 
 	function fetchRow($res) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
 		$row = mysql_fetch_row($res);
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $row;
 	}
 
@@ -128,7 +129,7 @@ class MySQL {
 	 * @return unknown
 	 */
 	function fetchAll($res, $key = NULL) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -147,7 +148,7 @@ class MySQL {
 				$data[] = $row;
 			}
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
 
@@ -223,7 +224,7 @@ class MySQL {
 	}
 
 	function getTableColumns($table) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".$this->getCaller());
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".$this->getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
 			$query = "SHOW COLUMNS FROM ".$this->escape($table);
 			$res = $this->perform($query);
@@ -231,7 +232,7 @@ class MySQL {
 		} else {
 			$columns = array();
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".$this->getCaller());
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".$this->getCaller());
 		return $columns;
 	}
 

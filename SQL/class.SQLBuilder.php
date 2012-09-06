@@ -480,7 +480,7 @@ class SQLBuilder {
 	}
 
 	function runInsertUpdateQuery($table, array $fields, array $where) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
 		if ($this->db->numRows($res)) {
@@ -494,7 +494,7 @@ class SQLBuilder {
 		$this->found = $this->db->fetchAssoc($res);
 		$res = $this->db->perform($query);
 		$this->db->commit();
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $inserted;
 	}
 
@@ -506,14 +506,14 @@ class SQLBuilder {
 	 * @return
 	 */
 	function runInsertNew($table, array $fields) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
 			$query = $this->getInsertQuery($table, $fields);
 			//debug($query);
 			$resInsert = $this->db->perform($query);
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $resInsert;
 	}
 
