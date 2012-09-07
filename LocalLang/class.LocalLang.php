@@ -5,12 +5,13 @@
  *
  */
 abstract class LocalLang {
-	var		  $ll = array();									// actual messages
-	protected $defaultLang = 'en';
-	public	  $possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
-	public	  $lang;											// name of the selected language
-	public    $indicateUntranslated = true;
-	protected $codeID = array();
+	var		  	$ll = array();									// actual messages
+	protected 	$defaultLang = 'en';
+	public	 	$possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
+	public	  	$lang;											// name of the selected language
+	public    	$indicateUntranslated = true;
+	protected 	$codeID = array();
+	public 		$editMode = false;
 
 	function __construct($forceLang = NULL) {
 		if ($_REQUEST['setLangCookie']) {
@@ -27,6 +28,14 @@ abstract class LocalLang {
 				? $_COOKIE['lang']
 				: $this->lang;
 		}
+
+		$c = Config::getInstance();
+		if (isset($c->config[__CLASS__])) {
+			foreach ($c->config[__CLASS__] as $key => $val) {
+				$this->$key = $val;
+			}
+		}
+		//debug($c->config, $c->config[__CLASS__], $this);
 
 		// Read language data from somewhere in a subclass
 	}
@@ -75,25 +84,32 @@ abstract class LocalLang {
 		if (isset($this->ll[$text])) {
 			if ($this->ll[$text] && $this->ll[$text] != '.') {
 				$trans = $this->ll[$text];
+				$trans = $this->getEditLinkMaybe($trans, $text, '');
 			} else {
-				if ($this->indicateUntranslated) {
-					$trans = '<span class="untranslatedMessage">{'.$text.'}</span>';
-				} else {
-					$trans = $text;
-				}
+				$trans = $this->getEditLinkMaybe($text, $text);
 			}
 		} else {
-			if ($this->indicateUntranslated) {
-				//$trans = '<span class="missingMessage">['.$text.']</span>';
-				$trans = '['.$text.']';
-			} else {
-				$trans = $text;
-			}
 			$this->saveMissingMessage($text);
+			$trans = $this->getEditLinkMaybe($text);
 		}
 		$trans = str_replace('%s', $replace, $trans);
 		$trans = str_replace('%1', $replace, $trans);
 		$trans = str_replace('%2', $s2, $trans);
+		return $trans;
+	}
+
+	function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage') {
+		if ($this->editMode && $id) {
+			$trans = '<span class="'.$class.' clickTranslate" rel="'.htmlspecialchars($id).'">'.$text.'</span>';
+			$index = Index::getInstance();
+			$index->addJQuery();
+			$index->addJS('nadlib/js/clickTranslate.js');
+			$index->addCSS('nadlib/CSS/clickTranslate.css');
+		} else if ($this->indicateUntranslated) {
+			$trans = '<span class="untranslatedMessage">['.$text.']</span>';
+		} else {
+			$trans = $text;
+		}
 		return $trans;
 	}
 
@@ -145,7 +161,9 @@ abstract class LocalLang {
 }
 
 function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	$ll = Index::getInstance()->ll;
-	return $ll->T($code, $r1, $r2, $r3);
+	if (Index::getInstance()) {
+		return Index::getInstance()->ll->T($code, $r1, $r2, $r3);
+	} else {
+		return $code;
+	}
 }
-

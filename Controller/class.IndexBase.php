@@ -39,6 +39,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	protected static $instance;
 
+	public $header = array();
+
+	public $footer = array();
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
@@ -84,6 +88,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			try {
 				$this->content .= $this->controller->render();
 				$v = new View('template.phtml', $this);
+				$v->sidebar = $this->showSidebar();
 				$content = $v->render();
 			} catch (LoginException $e) {
 				require('template/head.phtml');
@@ -144,6 +149,25 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function message($text) {
 		$this->content .= '<div class="message">'.$text.'</div>';
+	}
+
+	function addJQuery() {
+		$this->footer['jquery.js'] = '<script src="nadlib/js/jquery-1.8.1.min.js"></script>';
+	}
+
+	function addJS($source) {
+		$this->footer[$source] = '<script src="'.$source.'"></script>';
+	}
+
+	function addCSS($source) {
+		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
+	}
+
+	function showSidebar() {
+		if (method_exists($this->controller, 'sidebar')) {
+			$content = $this->controller->sidebar();
+		}
+		return $content;
 	}
 
 }
