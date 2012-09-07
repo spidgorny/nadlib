@@ -9,7 +9,7 @@ class HTMLForm {
 	var $enctype = "";
 	var $class = "";
 	var $fieldset;
-	var $fieldsetMore = array();
+	protected $fieldsetMore = array();
 	var $formMore = '';
 	var $target = '';
 	public $debug = false;
@@ -21,6 +21,7 @@ class HTMLForm {
 	}
 
 	function formHideArray($name, $ar) {
+		$ret = '';
 		if (is_array($ar)) {
 			foreach($ar as $k => $a) {
 				$a = htmlspecialchars($a, ENT_QUOTES);
@@ -349,6 +350,7 @@ class HTMLForm {
 	}
 
 	function getAttrHTML(array $attr = NULL) {
+		//debug_pre_print_backtrace();
 		$part = array();
 		if ($attr) foreach ($attr as $key => $val) {
 			$part[] = $key.'="'.htmlspecialchars($val).'"';
