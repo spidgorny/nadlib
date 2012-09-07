@@ -18,6 +18,7 @@ class URL {
 		if ($params) {
 			$this->setParams($params);
 		}
+		$this->setDocumentRoot(Config::getInstance()->documentRoot);
 	}
 
 	function setParam($param, $value) {
@@ -109,7 +110,7 @@ class URL {
 	}
 
 	function getRequest() {
-		$r = new Request($this->params);
+		$r = new Request($this->params ? $this->params : array());
 		$r->url = $this;
 		return $r;
 	}

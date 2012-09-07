@@ -23,8 +23,8 @@ function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 }
 
-//define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
-define('DEVELOPMENT', true);
+define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
+//define('DEVELOPMENT', true);
 if (DEVELOPMENT) {
 	$GLOBALS['profiler'] = new TaylorProfiler(TRUE);
 	/* @var $profiler TaylorProfiler */
