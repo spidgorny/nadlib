@@ -24,7 +24,7 @@ abstract class HTMLFormProcessor extends Controller {
 		}
 		//debug($this->desc);
 		assert($this->submitButton != '');
-		$this->submitButton = __($this->submitButton);
+		$this->submitButton = strip_tags(__($this->submitButton));
 	}
 
 	abstract function getDesc();

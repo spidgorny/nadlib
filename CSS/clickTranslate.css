@@ -1,0 +1,6 @@
+.untranslatedMessage {
+    background-color: yellow;
+}
+.clickTranslate:hover {
+    background-color: green;
+}

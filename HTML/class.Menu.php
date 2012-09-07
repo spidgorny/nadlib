@@ -109,7 +109,7 @@ class Menu /*extends Controller*/ {
 				$path = array($class);
 			}
 			$path = implode('/', $path);
-			$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name).'</a></li>';
+			$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name.'').'</a></li>';
 
 			if ($isRecursive && $class == $this->current && is_object($items[$class]) && $items[$class]->getChildren()) {
 				$root_class = array_merge($root, array($class));
