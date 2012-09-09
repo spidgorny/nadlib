@@ -160,7 +160,9 @@ class HTMLFormTable extends HTMLForm {
 
 	function showCell($fieldName, array $desc) {
 		//t3lib_div::debug(array($fieldName, $desc));
-		$desc['TDmore'] = isset($desc['TDmore']) ? $desc['TDmore'] : array();
+		$desc['TDmore'] = (isset($desc['TDmore']) && is_array($desc['TDmore']))
+			? $desc['TDmore']
+			: array();
 		if ($desc['newTD']) {
 			$this->stdout .= '</tr></table></td>
 			<td '.$desc['TDmore'].'><table class="htmlFormTable"><tr>';
@@ -425,7 +427,7 @@ class HTMLFormTable extends HTMLForm {
 		$f->switchType($fieldName, $desc['value'], $desc);
 		return $f->getBuffer();
 	}
-	
+
 	function repostRequest(Request $r, array $prefixes = array()) {
 		//debug($r);
 		foreach ($r->getAll() as $key => $val) {

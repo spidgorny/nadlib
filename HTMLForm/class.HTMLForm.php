@@ -192,7 +192,7 @@ class HTMLForm {
 
 	function submit($value = NULL, $more = "", array $params = array()) {
 		//debug($more);
-		$value = htmlspecialchars($value, ENT_QUOTES);
+		$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		$this->stdout .= "<input type=\"submit\" class=\"submit {$params['class']}\" " . ($value?'value="'.$value.'"':"") . " $more />\n";
 	}
 

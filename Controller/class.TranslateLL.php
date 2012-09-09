@@ -9,12 +9,12 @@ class TranslateLL extends HTMLFormProcessor {
 		$desc = array(
 			'lang' => array(
 				'label' => __('Lang'),
-				'more' => 'disabled="1"',
+				'more' => 'readonly="1"',
 				'value' => $ll->lang,
 			),
 			'code' => array(
 				'label' => __('Code'),
-				'more' => 'disabled="1"',
+				'more' => 'readonly="1"',
 				'value' => $code,
 			),
 			'text' => array(
@@ -24,6 +24,16 @@ class TranslateLL extends HTMLFormProcessor {
 			),
 		);
 		return $desc;
+	}
+
+	function render() {
+		$content = parent::render();
+		$content .= '<iframe
+			src="http://dict.leo.org/ende?search='.
+			urlencode($this->request->getTrim('code')).'"
+			width="100%"
+			height="500"></iframe>';
+		return $content;
 	}
 
 	function onSuccess(array $data) {
