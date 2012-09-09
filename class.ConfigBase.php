@@ -39,6 +39,7 @@ class ConfigBase {
 		'../nadlib/HTML',
 		'../nadlib/HTMLForm',
 		'../nadlib/HTTP',
+		'../nadlib/LocalLang',
 		'../nadlib/ORM',
 		'../nadlib/SQL',
 		'../nadlib/Time',
@@ -54,6 +55,8 @@ class ConfigBase {
 	 */
 	public $flexiTable = false;
 
+	public $config;
+
 	protected function __construct() {
 		if ($this->db_database) {
 			$this->db = new MySQL($this->db_database, $this->db_server, $this->db_user, $this->db_password);
@@ -62,6 +65,9 @@ class ConfigBase {
 			$this->qb = new SQLBuilder($di);
 		}
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		if (file_exists('class/config.yaml')) {
+			$this->config = Spyc::YAMLLoad('class/config.yaml');
+		}
 	}
 
 	/**

@@ -36,6 +36,17 @@ class LocalLangDB extends LocalLang {
 		}
 	}
 
+	function updateMessage(array $data) {
+		$llm = new LocalLangModel($data['lang'], $data['code']);
+		if ($llm->id) {
+			$llm->update(array(
+				'text' => $data['text'],
+			));
+		} else {
+			$llm->insert($data);
+		}
+	}
+
 	function readDB($lang) {
 		//try {
 			$db = Config::getInstance()->db;

@@ -76,8 +76,10 @@ abstract class Controller {
 		return $this->makeURL($params, $prefix);
 	}
 
-	function makeLink($text, array $params, $page = '') {
-		$content = '<a href="'.$page.$this->makeURL($params).'">'.$text.'</a>';
+	function makeLink($text, array $params, $page = '', array $more = array()) {
+		$content = new HTMLTag('a', array(
+			'href' => $page.$this->makeURL($params),
+		)+$more, $text);
 		return $content;
 	}
 

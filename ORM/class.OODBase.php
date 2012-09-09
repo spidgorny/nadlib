@@ -156,10 +156,11 @@ class OODBase {
 
 	function insertOrUpdate() {
 		if ($this->id) {
-			$this->update($this->data);
+			$ret = $this->update($this->data);
 		} else {
-			$this->insert($this->data);
+			$ret = $this->insert($this->data);
 		}
+		return $ret;
 	}
 
 	function insertUpdate(array $fields, array $where) {

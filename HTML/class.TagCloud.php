@@ -1,10 +1,11 @@
 <?php
 
-class TagCloud {
+class TagCloud extends Controller {
 	protected $words = array();
 	protected $count;
 
 	function __construct() {
+		parent::__construct();
 		$words = $GLOBALS['i']->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
 		$words = $GLOBALS['i']->db->fetchAll($words);
 		$words = ArrayPlus::create($words)->each(array($this, 'parseWords'))->getData();
@@ -55,11 +56,17 @@ class TagCloud {
 	}
 
 	function renderHTMLandFlash() {
+		$this->index->addCSS('css/wordcloud.css');
+		$this->index->addJS('lib/wp-cumulus/swfobject.js');
+		$this->index->addJS('nadlib/js/tagCloud.js');
 		return '
 		<div id="flashcontent">
-			<?= $this->renderHTML(); ?>
+			'.$this->renderHTML().'
 		</div>
-		<link rel="stylesheet" type="text/css" href="css/wordcloud.css" />
+		<div id="flashxml" style="display: none;">
+			'.htmlspecialchars($this->renderXML()).'
+		</div>';
+/*		'
 		<script src="lib/wp-cumulus/swfobject.js"></script>
 		<script type="text/javascript">
 			var so = new SWFObject(
@@ -76,6 +83,6 @@ class TagCloud {
 			so.addVariable("tagcloud", "'.$this->renderXML().'");
 			so.write("flashcontent");
 		</script>';
-	}
+*/	}
 
 }
