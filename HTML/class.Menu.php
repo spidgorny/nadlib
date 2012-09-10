@@ -33,7 +33,7 @@ class Menu /*extends Controller*/ {
 
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
-		$this->items = $items;
+		$this->items = new ArrayPlus($items);
 		$this->level = $level;
 		$this->request = new Request();
 		//$this->tryInstance();
@@ -57,14 +57,14 @@ class Menu /*extends Controller*/ {
 				$itemsOnLevel = $this->getItemsOnLevel($rootpath);
 				$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level, false);
 			} else {
-				$content .= $this->renderLevel($this->items, array(), 0, true);
+				$content .= $this->renderLevel($this->items->getData(), array(), 0, true);
 			}
 		//}
 		return $content;
 	}
 
 	function getItemsOnLevel(array $rootpath) {
-		$fullRecursive = new Recursive(NULL, $this->items);
+		$fullRecursive = new Recursive(NULL, $this->items->getData());
 		$sub = $fullRecursive->findPath($rootpath);
 		if ($sub instanceof Recursive) {
 			$items = $sub->getChildren();
@@ -101,19 +101,21 @@ class Menu /*extends Controller*/ {
 		$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
 		//debug($rootpath, $level, $this->current);
 		foreach ($items as $class => $name) {
-			$actInA = $this->current == $class ? ' class="act"' : '';
-			$active = $this->current == $class ? ' class="active"' : '';
-			if (isset($root[0]) && ($class != $root[0])) {
-				$path = array_merge($root, array($class));
-			} else {
-				$path = array($class);
-			}
-			$path = implode('/', $path);
-			$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name.'').'</a></li>';
+			if ($name) {	// empty menu items indicate menu location for a controller
+				$actInA = $this->current == $class ? ' class="act"' : '';
+				$active = $this->current == $class ? ' class="active"' : '';
+				if (isset($root[0]) && ($class != $root[0])) {
+					$path = array_merge($root, array($class));
+				} else {
+					$path = array($class);
+				}
+				$path = implode('/', $path);
+				$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name.'').'</a></li>';
 
-			if ($isRecursive && $class == $this->current && is_object($items[$class]) && $items[$class]->getChildren()) {
-				$root_class = array_merge($root, array($class));
-				$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, $isRecursive);
+				if ($isRecursive && $class == $this->current && is_object($items[$class]) && $items[$class]->getChildren()) {
+					$root_class = array_merge($root, array($class));
+					$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, $isRecursive);
+				}
 			}
 		}
 		$content = '<ul class="nav nav-list menu csc-menu">'.$content.'</ul>';

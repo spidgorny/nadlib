@@ -67,9 +67,9 @@ abstract class Controller {
 	}
 
 	function makeRelURL(array $params = array()) {
-		return $this->makeURL(array(
+		return $this->makeURL($params+array(
 			'c' => get_class($this),
-		)+$params);
+		));
 	}
 
 	function getURL(array $params, $prefix = '?') {

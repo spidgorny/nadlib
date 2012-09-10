@@ -111,10 +111,11 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	/**
 	 * Callback = function ($value, [$index]) {}
 	 *
-	 * @param unknown_type $callback
-	 * @return unknown
+	 * @param callable $callback
+	 * @return string
 	 */
 	function eachCollect($callback) {
+		$content = '';
 		foreach ($this->data as $i => $el) {
 			$plus = $callback($el, $i);
 			$content .= $plus;
@@ -224,6 +225,26 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		if ($found_index === false || $key == end($keys))
 			return false;
 		return $keys[$found_index+1];
+	}
+
+	function find($needle) {
+		foreach ($this->data as $key => $val) {
+			//debug($needle, $key, $val);
+			if ($val instanceof Recursive) {
+				$sub = new ArrayPlus($val->getChildren());
+				$find = $sub->find($needle);
+				if ($find) {
+					//debug($needle, $key, $find);
+					array_unshift($find, $key);
+					//debug($find);
+				}
+			} else {
+				$find = ($key == $needle) ? array($key) : NULL;
+			}
+			if ($find) {
+				return $find;
+			}
+		}
 	}
 
 }

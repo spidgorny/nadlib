@@ -105,6 +105,7 @@ class Collection {
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
+			$this->prepareRender();
 			$r = new Request();
 			$url = $r->getURLLevel(0);
 			$pages = $this->pager ? $this->pager->renderPageSelectors($url.'?') : '';
@@ -116,6 +117,18 @@ class Collection {
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $content;
+	}
+
+	function prepareRender() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		foreach ($this->data as &$row) { // Iterator by reference
+			$row = $this->prepareRenderRow($row);
+		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+	}
+
+	function prepareRenderRow(array $row) {
+		return $row;
 	}
 
 	function getOptions() {

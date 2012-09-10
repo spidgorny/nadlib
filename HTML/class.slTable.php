@@ -422,6 +422,15 @@ class slTable {
 			case "callback":
 				$out = call_user_func($k['callback'], $val, $k, $row);
 			break;
+			case "instance":
+				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
+				$out = $obj.'';
+			break;
+			case "singleLink":
+				$out = new HTMLTag('a', array(
+					'href' => new URL($k['link'].$row[$k['idField']]),
+				), $val);
+			break;
 			default:
 				//t3lib_div::debug($k);
 				if (isset($k['hsc']) && $k['hsc']) {

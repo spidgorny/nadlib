@@ -21,6 +21,7 @@ class HTMLForm {
 	}
 
 	function formHideArray($name, $ar) {
+		$ret = '';
 		if (is_array($ar)) {
 			foreach($ar as $k => $a) {
 				$a = htmlspecialchars($a, ENT_QUOTES);
