@@ -34,7 +34,7 @@ class Pager {
 		}
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
-		$this->request = new Request();
+		$this->request = Request::getInstance();
 		$this->user = Config::getInstance()->user;
 		if (($pagerData = $_REQUEST['pager'])) {
 			if ($this->request->getMethod() == 'POST') {
