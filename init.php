@@ -18,7 +18,10 @@ function __autoload($class) {
 		}
 	}
 	if (!class_exists($class)) {
-		throw new Exception('Class '.$class.' ('.$file.') not found.');
+		$config = Config::getInstance();
+		if ($config->autoload['notFoundException']) {
+			throw new Exception('Class '.$class.' ('.$file.') not found.');
+		}
 	}
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 }

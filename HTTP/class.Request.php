@@ -168,7 +168,16 @@ class Request {
 	}
 
 	function getControllerString() {
-		$last = end($this->getURLLevels());
+		$levels = $this->getURLLevels();
+		//$last = end($levels);
+		$levels = array_reverse($levels);
+		foreach ($levels as $class) {
+			//debug($class, class_exists($class));
+			if (class_exists($class)) {
+				$last = $class;
+				break;
+			}
+		}
 		$controller = $this->getCoalesce(
 			'c',
 			$last
@@ -373,6 +382,19 @@ class Request {
 				}
 			}
 		}
+	}
+
+	function getNameless($index, $alternative) {
+		$levels = $this->getURLLevels();
+		$controller = $this->getControllerString();
+		foreach ($levels as $l => $name) {
+			unset($levels[$l]);
+			if ($name == $controller) {
+				break;
+			}
+		}
+		$levels = array_values($levels);	// reindex
+		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
 }
