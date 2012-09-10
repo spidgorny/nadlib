@@ -40,6 +40,8 @@ class Collection {
 	protected $orderBy = "ORDER BY uid";
 	public $query;
 
+	protected $request;
+
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -50,6 +52,7 @@ class Collection {
 			$this->where = $where->addArray($this->where);
 		}
 		$this->orderBy = $order ? $order : $this->orderBy;
+		$this->request = Request::getInstance();
 		$this->postInit();
 		$this->retrieveDataFromDB();
 		$this->preprocessData();
@@ -204,8 +207,7 @@ class Collection {
 	function showFilter() {
 		if ($this->filter) {
 			$f = new HTMLFormTable();
-			$request = new Request();
-			$this->filter = $f->fillValues($this->filter, $request->getAll());
+			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
 			$f->submit('Filter', '', array('class' => 'btn-primary'));
 			$content = $f->getContent();
@@ -216,9 +218,8 @@ class Collection {
 	function getFilterWhere() {
 		$where = array();
 		if ($this->filter) {
-			$request = new Request();
 			foreach ($this->filter as $field => $desc) {
-				$value = $request->getTrim($field);
+				$value = $this->request->getTrim($field);
 				if ($value) {
 					$where[$field] = $value;
 				}
