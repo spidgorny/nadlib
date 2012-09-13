@@ -216,7 +216,7 @@ abstract class Scaffold extends Controller {
 	 * @return unknown
 	 */
 	protected function getForm($action = 'add') {
-		$f = new HTMLFormTable('.');
+		$f = new HTMLFormTable();
 		$f->method('POST');
 		$f->hidden('c', get_class($this));
 		$f->hidden('pageType', get_class($this));
