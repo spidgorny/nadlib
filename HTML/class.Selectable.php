@@ -1,12 +1,15 @@
 <?php
 
 class Selectable {
+
 	public $name;
+
 	/**
 	 * Assoc
 	 * @var type
 	 */
 	public $data = array();
+
 	public $selected;
 
 	/**
