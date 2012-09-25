@@ -35,7 +35,7 @@ class Menu /*extends Controller*/ {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
 		$this->level = $level;
-		$this->request = new Request();
+		$this->request = Request::getInstance();
 		//$this->tryInstance();
 		$this->user = Config::getInstance()->user;
 	}
