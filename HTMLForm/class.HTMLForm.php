@@ -126,9 +126,9 @@ class HTMLForm {
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<label>';
+		$this->stdout .= '<label>';
 		$this->check($name, $value, $checked, $more);
-		$this->stdout .= ' '.$label</label>";
+		$this->stdout .= ' './*htmlspecialchars*/($label).'</label>';
 	}
 
 	function radioLabel($name, $value, $checked, $label = "") {
@@ -136,7 +136,7 @@ class HTMLForm {
 		$id = $this->getName($name, $value, true);
 		$id = $this->prefix."_".$name."_".$value;
 		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." id='".$id."'> ";
-		$this->stdout .= "<label for=$id>$label</label>";
+		$this->stdout .= "<label for=$id>".htmlspecialchars($label)."</label>";
 	}
 
 	function file($name, array $desc = array()) {

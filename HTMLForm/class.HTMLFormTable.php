@@ -133,6 +133,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'combo':
 					$this->combo($fieldName, $desc);
+				break;
 				case 'button':
 					$this->button($desc['innerHTML'], $desc['more']);
 				break;

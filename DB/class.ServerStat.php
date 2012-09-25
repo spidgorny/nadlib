@@ -17,7 +17,7 @@ class ServerStat {
 			'param' => '',
 			'value' => array('no_hsc' => TRUE),
 		));
-		$content .= '<fieldset><legend>PHP Info</legend>'.$s->getContent().'</fieldset>';
+		$content = '<fieldset><legend>PHP Info</legend>'.$s->getContent().'</fieldset>';
 
 		/*$s = new slTable($this->getPerformanceInfo(), 'width="100%"');
 		$s->thes(array(
