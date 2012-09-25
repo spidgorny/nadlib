@@ -10,7 +10,7 @@ class Collection {
 	 *
 	 * @var BijouDBConnector
 	 */
-	protected $db;
+	public $db;
 	protected $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
@@ -64,12 +64,17 @@ class Collection {
 		//$this->pager = new Pager();
 	}
 
+	/**
+	 * -1 will prevent data retrieval
+	 */
 	function retrieveDataFromDB() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$this->query = $this->getQuery($this->where);
-		$res = $this->db->perform($this->query);
-		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		if (!$this->parentID || $this->parentID > 0) {
+			$this->query = $this->getQuery($this->where);
+			$res = $this->db->perform($this->query);
+			$data = $this->db->fetchAll($res);
+			$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -109,11 +114,13 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			$r = new Request();
-			$url = $r->getURLLevel(0);
-			$url = new URL($url);
 			if ($this->pager) {
+				$r = Request::getInstance();
+				$url = $r->getURLLevel(0);
+				$url = new URL($url);
+
 				$pages = $this->pager->renderPageSelectors($url);
+
 				$ps = new PageSize();
 				$ps->setURL($url);
 				$pages .= $ps->render();

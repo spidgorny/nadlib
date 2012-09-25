@@ -40,7 +40,7 @@ abstract class Controller {
 
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-		$this->index = Index::getInstance();
+		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;

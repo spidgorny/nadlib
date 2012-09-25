@@ -527,7 +527,7 @@ class slTable {
 	protected function getColumnTotal($data, $col) {
 		$total = 0;
 		foreach ($data as $row) {
-			$total += strip_tags($row[$col]);
+			$total += intval(strip_tags($row[$col]));
 		}
 		return '<div align="right">'.$total.'</div>';
 	}

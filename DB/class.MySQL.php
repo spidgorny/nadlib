@@ -74,8 +74,11 @@ class MySQL {
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
-			$this->queryLog[$query] = isset($this->queryLog[$query]) ? $this->queryLog[$query] : 0;
-			$this->queryLog[$query] += microtime(true) - $start;
+			$diffTime = microtime(true) - $start;
+			$this->queryLog[$query] = is_array($this->queryLog[$query]) ? $this->queryLog[$query] : array();
+			$this->queryLog[$query]['time'] = ($this->queryLog[$query]['time'] + $diffTime) / 2;
+			$this->queryLog[$query]['sumtime'] += $diffTime;
+			$this->queryLog[$query]['times']++;
 		}
 		$this->lastQuery = $query;
 		if (mysql_errno($this->connection)) {
@@ -161,7 +164,7 @@ class MySQL {
 	}
 
 	function lastInsertID() {
-		return mysql_insert_id();
+		return mysql_insert_id($this->connection);
 	}
 
 	function transaction() {
@@ -192,7 +195,10 @@ class MySQL {
 	 * @return <type>
 	 */
 	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
-		$res = $this->runSelectQuery($table, $where, $order, $addFields, $exclusive);
+		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields, $exclusive);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields, $exclusive);
+		$res = $this->perform($query);
 		$data = $this->fetchAll($res);
 		return $data;
 	}

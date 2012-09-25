@@ -26,8 +26,7 @@ by Denis O.Philippov, webmaster@atlant.ru, http://www.atlant.ru
 
 // official ZIP file format: http://www. // pkware.com/appnote.txt
 
-class zipfile
-{
+class zipfile {
 
     var $datasec = array(); // array to store compressed data
     var $ctrl_dir = array(); // central directory
@@ -186,5 +185,3 @@ class zipfile
             "\x00\x00";                             // .zip file comment length
     }
 }
-
-?>

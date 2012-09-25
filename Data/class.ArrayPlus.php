@@ -97,7 +97,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	/**
 	 * Callback = function ($value, [$index]) {}
 	 *
-	 * @param unknown_type $callback
+	 * @param callable $callback
 	 * @return unknown
 	 */
 	function each($callback) {
@@ -247,6 +247,10 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		}
 	}
 
+	function first() {
+		reset($this->data);
+		return current($this->data);
+	}
 }
 
 function AP(array $a = array()) {
