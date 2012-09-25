@@ -72,6 +72,14 @@ class Request {
 		return $id;
 	}
 
+	function getIntRequired($name) {
+		$id = $this->getIntOrNULL($name);
+		if (!$id) {
+			throw new Exception($name.' parameter is required.');
+		}
+		return $id;
+	}
+
 	function getFloat($name) {
 		return floatval($this->data[$name]);
 	}

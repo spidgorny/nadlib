@@ -58,11 +58,12 @@ class FlexiTable extends OODBase {
 		}
 	}
 
-	function checkCreateField($field) {
+	function checkCreateField($field, $value) {
 		//debug($this->columns);
+		$qb = Config::getInstance()->qb;
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
-			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$this->db->escape($field).' '.$this->getType($value));
+			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$qb->quoteKey($field).' '.$this->getType($value));
 			$this->fetchColumns();
 		}
 	}

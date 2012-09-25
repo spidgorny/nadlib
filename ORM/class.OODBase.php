@@ -154,6 +154,10 @@ class OODBase {
 		return $this->getName().'';
 	}
 
+	/**
+	 * Depends on $this->id
+	 * @return resource|unknown
+	 */
 	function insertOrUpdate() {
 		if ($this->id) {
 			$ret = $this->update($this->data);
@@ -163,6 +167,13 @@ class OODBase {
 		return $ret;
 	}
 
+	/**
+	 * Searched for the record defined in $where and then created or updates.
+	 *
+	 * @param array $fields
+	 * @param array $where
+	 * @return string
+	 */
 	function insertUpdate(array $fields, array $where) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
