@@ -3,10 +3,9 @@
 /**
  * SessionUser is stored in the database and has an ID even though the login is stored in the session.
  */
-class SessionUser extends User {
+class SessionUser extends PlainSessionUser {
 
 	function __construct($id = NULL) {
-		session_start();
 		parent::__construct($id);
 		$this->autologin(); // the main difference of SessionUser
 	}
@@ -77,14 +76,6 @@ class SessionUser extends User {
 		User::unsetInstance($GLOBALS['i']->user->id);
 		unset($GLOBALS['i']->user);
 		$GLOBALS['i']->user = User::getInstance(); // make new anonymous user - does it work?
-	}
-
-	function setPref($name, $value) {
-		$_SESSION[$name] = $value;
-	}
-
-	function getPref($name) {
-		return $_SESSION[$name];
 	}
 
 }

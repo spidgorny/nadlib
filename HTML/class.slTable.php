@@ -319,6 +319,9 @@ class slTable {
 				$val = isset($row[$col]) ? $row[$col] : NULL;
 				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
 					$t->tag($val);
+					if ($val->attr['colspan']) {
+						$skipCols = $val->attr['colspan'] - 1;
+					}
 				} else if ($val instanceof HTMLnoTag) {
 					// nothing
 				} else {
@@ -334,7 +337,8 @@ class slTable {
 						$skipCols = isset($row[$col.'.']['colspan']) ? $row[$col.'.']['colspan'] - 1 : 0;
 					}
 					$more .= (isset($k['more']) ? $k['more'] : NULL).
-						(isset($row[$col.'.']['colspan']) ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
+						(isset($row[$col.'.']['colspan']) ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '').
+						(isset($k['align']) ? 'align="'.$k['align'].'"' : '');
 					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
 					$iCol++;
 				}
@@ -381,7 +385,7 @@ class slTable {
 				$out = str::ahref($val, $GLOBALS['uploadURL'].$val, FALSE);
 			break;
 			case "money":
-				$out = $val . "&nbsp;&euro;";
+				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
 			break;
 			case "delete":
 				$out = str::ahref("Del", "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'], FALSE);

@@ -21,7 +21,7 @@ class Collection {
 	 */
 	var $data = array();
 
-	protected $thes = array(
+	public $thes = array(
 		'uid' => 'ID',
 		'title' => 'Title',
 	);
@@ -108,7 +108,13 @@ class Collection {
 			$this->prepareRender();
 			$r = new Request();
 			$url = $r->getURLLevel(0);
-			$pages = $this->pager ? $this->pager->renderPageSelectors($url.'?') : '';
+			$url = new URL($url);
+			if ($this->pager) {
+				$pages = $this->pager->renderPageSelectors($url);
+				$ps = new PageSize();
+				$ps->setURL($url);
+				$pages .= $ps->render();
+			}
 			$s = new slTable($this->data, 'class="nospacing" width="100%" id="'.get_class($this).'"');
 			$s->thes = $this->thes;
 			$content = $pages . $s->getContent() . $pages;

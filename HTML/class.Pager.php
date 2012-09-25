@@ -147,7 +147,7 @@ class Pager {
 	 		$content .= '<span class="disabled">&gt;</span>';
  		}
 		$form = "<form action='".$this->url."' method='POST' class='inline'>
-			&nbsp;<input name='pager[page]' class='normal' value='".($_POST['pager']['page'])."' size='3'>
+			&nbsp;<input name='pager[page]' class='normal' value='".($this->currentPage+1)."' size='3'>
 			<input type='submit' value='Page' class='submit'>
 		</form>";
  		//debug($term);
