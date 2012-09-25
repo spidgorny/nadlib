@@ -9,6 +9,8 @@ class Request {
 	 */
 	public $url;
 
+	static protected $instance;
+
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
 		$this->defaultController = Config::getInstance()->defaultController;
@@ -29,6 +31,14 @@ class Request {
 			}
 		}
 		return $request;
+	}
+
+	static function getInstance() {
+		return self::$instance = self::$instance ? self::$instance : new self();
+	}
+
+	static function getExistingInstance() {
+		return self::$instance;
 	}
 
 	function set($var, $val) {
@@ -249,12 +259,6 @@ class Request {
 		return $url;
 	}
 
-	function getInstance() {
-		static $instance = NULL;
-		if (!$instance) $instance = new self();
-		return $instance;
-	}
-
 	function isAjax() {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
 		return $this->getBool('ajax') || (strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
@@ -323,7 +327,7 @@ class Request {
 			$this->data[$key] = $val;
 		}
 	}
-	
+
 	/**
 	 * @return URL
 	 */
