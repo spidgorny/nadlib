@@ -70,15 +70,17 @@ class FullGrid extends Grid {
 	}
 
 	function getTableFieldOptions($key) {
-		$options = $this->db->fetchSelectQuery($this->model->table, array(),
+		return Config::getInstance()->qb->getTableOptions($this->model->table,
+		$key, array(), 'ORDER BY '.$this->db->quoteKey($key), $key);
+
+		/*$options = $this->db->fetchSelectQuery($this->model->table, array(),
 			'GROUP BY '.$this->db->quoteKey($key),
 			'DISTINCT '.$this->db->quoteKey($key), true);
-
 		$res = array();
 		foreach ($options as $row) {
 			$res[$row[$key]] = $row[$key];
 		}
-		return $res;
+		return $res;*/
 	}
 
 	function getColumnsForm() {

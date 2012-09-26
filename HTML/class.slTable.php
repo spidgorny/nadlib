@@ -312,6 +312,12 @@ class slTable {
 		$iCol = 0;
 		foreach ($this->thes as $col => $k) {
 			$k = is_array($k) ? $k : array('name' => $k);
+
+			// whole column desc is combined with single cell desc
+			if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
+				$k += $row[$col.'.'];
+			}
+
 			if ($skipCols) {
 				$skipCols--;
 			} else if (isset($k['!show']) && $k['!show']) {
@@ -332,12 +338,11 @@ class slTable {
 						. $this->getCell($col, $val, $k, $row) .
 						(isset($k['after']) ? $k['after'] : '');
 					$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
-					if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
-						//$more .= $row[$col.'.']['colspan'] ? ' colspan="'.$row[$col.'.']['colspan'].'"' : '';
-						$skipCols = isset($row[$col.'.']['colspan']) ? $row[$col.'.']['colspan'] - 1 : 0;
+					if ($k['colspan']) {
+						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
 					$more .= (isset($k['more']) ? $k['more'] : NULL).
-						(isset($row[$col.'.']['colspan']) ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '').
+						(isset($k['colspan']) ? 'colspan="'.$k['colspan'].'"' : '').
 						(isset($k['align']) ? 'align="'.$k['align'].'"' : '');
 					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
 					$iCol++;
@@ -347,7 +352,11 @@ class slTable {
 	}
 
 	function getCell($col, $val, $k, array $row) {
-		switch (isset($k['type']) ? $k['type'] : NULL) {
+		$type = isset($k['type']) ? $k['type'] : NULL;
+		if (is_object($type)) {
+			$type = get_class($type);
+		}
+		switch ($type) {
 			case "select":
 			case "selection":
 				//t3lib_div::debug($val);
@@ -435,6 +444,10 @@ class slTable {
 					'href' => new URL($k['link'].$row[$k['idField']]),
 				), $val);
 			break;
+			case 'HTMLFormDatePicker':
+				$val = strtotime($val);
+				$out = date($k['type']->format, $val);
+			break;
 			default:
 				//t3lib_div::debug($k);
 				if (isset($k['hsc']) && $k['hsc']) {
@@ -448,7 +461,11 @@ class slTable {
 						$val = $val->getName();
 					}
 				}
-				$out = /*stripslashes*/($val);
+				if (!$k['no_hsc']) {
+					$out = htmlspecialchars($val);
+				} else {
+					$out = $val;
+				}
 			break;
 		}
 		return $out;

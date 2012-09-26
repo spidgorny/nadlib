@@ -249,12 +249,14 @@ class HTMLForm {
 
 	function combo($fieldName, array $desc) {
 		if ($desc['table']) {
+			// TODO: replace with SQLBuilder->getTableOptions()
 			$options = $GLOBALS['db']->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
 			$options = $GLOBALS['db']->IDalize($options, 'value', 'value');
 		} else {
 			$options = $desc['options'];
 		}
-		$this->selection($fieldName, $options, -1, FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"');
+		Index::getInstance()->addJQuery();
+		$this->selection($fieldName, $options, $desc['value'], FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"');
 		$this->input($fieldName, $desc['value']);
 	}
 
