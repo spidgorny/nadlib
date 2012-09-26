@@ -33,7 +33,7 @@ class Selectable {
 	}
 
 	function __toString() {
-		$request = new Request();
+		$request = Request::getInstance();
 
 		$f = new HTMLForm();
 		$f->method('GET');

@@ -34,15 +34,15 @@ class Pager {
 		}
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
-		$this->request = new Request();
+		$this->request = Request::getInstance();
 		$this->user = Config::getInstance()->user;
-		if (($pagerData = $_REQUEST['pager'])) {
+		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
 			if ($this->request->getMethod() == 'POST') {
 				$pagerData['page']--;
 			}
 			$this->setCurrentPage($pagerData['page']);
 			$this->saveCurrentPage();
-		} else if ($this->user && ($pager = $this->user->getPref('Pager'.$this->prefix))) {
+		} else if ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
 			//debug(__METHOD__, $this->prefix, $pager['page']);
 			$this->setCurrentPage($pager['page']);
 		} else {
@@ -75,7 +75,7 @@ class Pager {
 
 	function saveCurrentPage() {
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
-		$this->user->setPref('Pager'.$this->prefix, array('page' => $this->currentPage));
+		$this->user->setPref('Pager.'.$this->prefix, array('page' => $this->currentPage));
 	}
 
 	function setItemsPerPage($items) {
@@ -123,7 +123,7 @@ class Pager {
  		$pages = $this->getPagesAround($this->currentPage, $maxpage);
  		//debug(array($pages, $current['searchIndex'], sizeof($tmpArray)));
  		if ($this->currentPage > 0) {
-			$link = $this->url->setParam('pager[page]', $this->currentPage-1);
+			$link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $this->currentPage-1);
 			$content .= '<a href="'.$link.'" rel="prev">&lt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&lt;</span>';
@@ -132,7 +132,7 @@ class Pager {
  			if ($k === 'gap1' || $k === 'gap2') {
  				$content .= '<div class="page">  &hellip;  </div>';
  			} else {
-				 $link = $this->url->setParam('pager[page]', $k);
+				 $link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $k);
 				if ($k == $this->currentPage) {
 					$content .= '<span class="active">'.($k+1).'</span>';
 				} else {
@@ -141,13 +141,13 @@ class Pager {
  			}
 		}
  		if ($this->currentPage < $maxpage-1) {
-			 $link = $this->url->setParam('pager[page]', $this->currentPage+1);
+			 $link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $this->currentPage+1);
 			$content .= '<a href="'.$link.'" rel="next">&gt;</a>';
  		} else {
 	 		$content .= '<span class="disabled">&gt;</span>';
  		}
 		$form = "<form action='".$this->url."' method='POST' class='inline'>
-			&nbsp;<input name='pager[page]' class='normal' value='".($this->currentPage+1)."' size='3'>
+			&nbsp;<input name='Pager.'.$this->prefix.'[page]' class='normal' value='".($this->currentPage+1)."' size='3'>
 			<input type='submit' value='Page' class='submit'>
 		</form>";
  		//debug($term);

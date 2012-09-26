@@ -313,4 +313,3 @@ class Syndicator {
 		//debug($xml);
 		//debug($xml->body->pre[1]->a[14]);
 /**/
-?>

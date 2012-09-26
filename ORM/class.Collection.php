@@ -10,7 +10,7 @@ class Collection {
 	 *
 	 * @var BijouDBConnector
 	 */
-	protected $db;
+	public $db;
 	protected $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
@@ -40,6 +40,8 @@ class Collection {
 	protected $orderBy = "ORDER BY uid";
 	public $query;
 
+	protected $request;
+
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -50,6 +52,7 @@ class Collection {
 			$this->where = $where->addArray($this->where);
 		}
 		$this->orderBy = $order ? $order : $this->orderBy;
+		$this->request = Request::getInstance();
 		$this->postInit();
 		$this->retrieveDataFromDB();
 		$this->preprocessData();
@@ -61,12 +64,17 @@ class Collection {
 		//$this->pager = new Pager();
 	}
 
+	/**
+	 * -1 will prevent data retrieval
+	 */
 	function retrieveDataFromDB() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$this->query = $this->getQuery($this->where);
-		$res = $this->db->perform($this->query);
-		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		if (!$this->parentID || $this->parentID > 0) {
+			$this->query = $this->getQuery($this->where);
+			$res = $this->db->perform($this->query);
+			$data = $this->db->fetchAll($res);
+			$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -106,11 +114,13 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			$r = new Request();
-			$url = $r->getURLLevel(0);
-			$url = new URL($url);
 			if ($this->pager) {
+				$r = Request::getInstance();
+				$url = $r->getURLLevel(0);
+				$url = new URL($url);
+
 				$pages = $this->pager->renderPageSelectors($url);
+
 				$ps = new PageSize();
 				$ps->setURL($url);
 				$pages .= $ps->render();
@@ -223,8 +233,7 @@ class Collection {
 	function showFilter() {
 		if ($this->filter) {
 			$f = new HTMLFormTable();
-			$request = new Request();
-			$this->filter = $f->fillValues($this->filter, $request->getAll());
+			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
 			$f->submit('Filter', '', array('class' => 'btn-primary'));
 			$content = $f->getContent();
@@ -235,9 +244,8 @@ class Collection {
 	function getFilterWhere() {
 		$where = array();
 		if ($this->filter) {
-			$request = new Request();
 			foreach ($this->filter as $field => $desc) {
-				$value = $request->getTrim($field);
+				$value = $this->request->getTrim($field);
 				if ($value) {
 					$where[$field] = $value;
 				}

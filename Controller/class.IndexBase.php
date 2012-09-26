@@ -49,7 +49,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//parent::__construct();
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
-		$this->request = new Request();
+		$this->request = Request::getInstance();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
