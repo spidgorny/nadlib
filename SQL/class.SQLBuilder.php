@@ -236,7 +236,7 @@ class SQLBuilder {
 	public $db;
 
 	function __construct(DIContainer $di) {
-		if ($di->db) {
+		if ($di instanceof DIContainer && $di->db) {
 			$this->db = $di->db;
 		} else {
 			$this->db = Config::getInstance()->db;

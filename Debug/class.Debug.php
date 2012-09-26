@@ -88,6 +88,7 @@ class Debug {
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
 				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
+				$type = gettype($r) == 'string' ? gettype($r).' ['.strlen($r).']' : gettype($r);
 				$content .= '<tr>
 					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$i.'</td>
 					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$type.' '.(is_array($r) ? '['.sizeof($r).']' : '').'</td>

@@ -116,6 +116,7 @@ class WordReader {
 					$wx = $s->attributes('wx', true);
 					$width = $wx['wTab']+0;
 					$content .= '<span style="display: inline-block; width: '.($width/10).'px;"></span>';
+				break;
 				case 'ind':
 					$wx = $s->attributes('w', true);
 					$width = $wx['first-line']+0;

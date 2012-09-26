@@ -40,4 +40,3 @@ header("Pragma: public");
 header("Cache-Control: maxage=".$expires);
 header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
 drawRating($_GET['rating']);
-?>

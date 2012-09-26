@@ -35,7 +35,7 @@ class Menu /*extends Controller*/ {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
 		$this->level = $level;
-		$this->request = new Request();
+		$this->request = Request::getInstance();
 		//$this->tryInstance();
 		$this->user = Config::getInstance()->user;
 	}
@@ -109,7 +109,11 @@ class Menu /*extends Controller*/ {
 				} else {
 					$path = array($class);
 				}
-				$path = implode('/', $path);
+				if (Config::getInstance()->config['Controller']['useRouter']) {
+					$path = implode('/', $path);
+				} else {
+					$path = new URL(NULL, array('c' => end($path)));
+				}
 				$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name.'').'</a></li>';
 
 				if ($isRecursive && $class == $this->current && is_object($items[$class]) && $items[$class]->getChildren()) {
