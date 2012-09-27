@@ -241,8 +241,12 @@ class Request {
 //			|| DEVELOPMENT
 		) {
 			header('Location: '.$controller);
+		} else {
+			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
+			<script>
+				document.location = "'.$controller.'";
+			</script>';
 		}
-		echo '<a href="'.$controller.'">'.$controller.'</a>';
 		exit();
 	}
 
