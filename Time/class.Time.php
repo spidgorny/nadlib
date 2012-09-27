@@ -22,8 +22,10 @@ class Time {
 				}
 			} else if ($input instanceof Time) {
 				$this->time = $input->getTimestamp(); // clone
-			} else {
+			} else if (is_numeric($input)) {
 				$this->time = $input;
+			} else {
+				Config::getInstance()->log(__CLASS__.'#'.__LINE__, $input.' is unrecognized as a valid date.');
 			}
 		} else {
 			$this->time = time();
@@ -256,7 +258,10 @@ class Time {
 	}
 
 	function format($rules) {
-		return date($rules, $this->time);
+		if ($this->time) {
+			$content = date($rules, $this->time);
+		}
+		return $content;
 	}
 
 	/**

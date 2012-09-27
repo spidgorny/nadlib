@@ -186,6 +186,7 @@ class OODBase {
 			$this->update($fields);
 			$op = 'UPD '.$this->id;
 		} else {
+			//debug($where, $this->db->lastQuery); exit();
 			$this->insert($fields + $where);
 			$this->findInDB($where);
 			$op = 'INS';

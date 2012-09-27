@@ -289,8 +289,10 @@ class TaylorProfiler {
 
 	function renderFloat() {
 		$oaTime = $this->getMicroTime() - $this->initTime;
-		$totalTime = number_format($oaTime*1000, 2, '.', '');
-		$content = '<div class="floatTime">'.$totalTime.'</div>';
+		$totalTime = number_format($oaTime, 3, '.', '');
+		$content = '<div class="floatTimeContainer"><div class="floatTime">'.$totalTime.'s '.
+			number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
+			ini_get('memory_limit').'</div></div>';
 		return $content;
 	}
 
