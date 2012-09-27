@@ -59,7 +59,7 @@ class MySQL {
 	}
 
 	function perform($query) {
-		$c = 2;
+/*		$c = 2;
 		do {
 			$caller = $this->getCaller($c);
 			$c++;
@@ -69,7 +69,7 @@ class MySQL {
 			//'OODBase::findInDB',
 			//'FlexiTable::findInDB',
 		)));
-		$profilerKey = __METHOD__." (".$caller.")";
+*/		$profilerKey = __METHOD__." (".$caller.")";
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($profilerKey);
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
@@ -151,6 +151,7 @@ class MySQL {
 				$data[] = $row;
 			}
 		}
+		mysql_free_result($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}

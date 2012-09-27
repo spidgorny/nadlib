@@ -41,6 +41,7 @@ class HTMLFormTable extends HTMLForm {
 			$desc['id'] = $elementID;
 		}
 		if ($desc['type'] instanceof HTMLFormType) {
+			$desc['type']->setName($fieldName);
 			$desc['type']->setForm($this);
 			$desc['type']->setValue($desc['value']);
 			$this->stdout .= $desc['type']->render();

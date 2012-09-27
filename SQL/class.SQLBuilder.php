@@ -601,7 +601,8 @@ class SQLBuilder {
 	}
 
 	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid') {
-		$res = $this->runSelectQuery($table, $where, $order, 'DISTINCT '.$titleField.', '.$idField, true);
+		$res = $this->runSelectQuery($table, $where, $order,
+			'DISTINCT '.$this->quoteKey($titleField).', '.$this->quoteKey($idField), true);
 		//debug($this->db->lastQuery);
 		$data = $this->fetchAll($res, $idField);
 		$keys = array_keys($data);

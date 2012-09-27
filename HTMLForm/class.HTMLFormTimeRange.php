@@ -1,10 +1,6 @@
 <?php
 
 class HTMLFormTimeRange extends HTMLFormType {
-	protected $form;
-	public $name;
-	public $fullname;
-	public $value;
 	public $div = '1';
 	public $min = 0;
 	public $max = 1440;		// 24*60
@@ -32,11 +28,6 @@ class HTMLFormTimeRange extends HTMLFormType {
 		$this->name = $name;
 		list($this->start, $this->end) = $value;
 		$this->div = uniqid();
-	}
-
-	function setForm(HTMLFormTable $f) {
-		$this->form = $f;
-		$this->fullname = $this->form->getName($this->name, '', TRUE);
 	}
 
 	/**
@@ -67,7 +58,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 
 	function render() {
 		assert($this->step);
-		$content .= new View('HTMLFormTimeRange.phtml', $this);
+		$content = new View('nadlib/HTMLForm/HTMLFormTimeRange.phtml', $this);
 		return $content;
 	}
 
