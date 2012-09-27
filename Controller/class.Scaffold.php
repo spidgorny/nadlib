@@ -1,16 +1,22 @@
 <?php
 
 abstract class Scaffold extends Controller {
-	protected $table = 'override this for sure';
+	protected $table = 'sometable';
 
 	/**
 	 * Name of the form fields: scaffold[asd]
 	 */
 	protected $formPrefix = 'scaffold';
+
+	/**
+	 * @var array
+	 * @deprecated
+	 */
 	protected $thes = array();
 	protected $addButton = 'Add';
 	protected $updateButton = 'Save';
-	protected $action;
+	protected $action = 'showEdit';
+
 	/**
 	 * OODBase based model class to modify database.
 	 *
@@ -29,7 +35,7 @@ abstract class Scaffold extends Controller {
 		$this->translateThes();
 		$this->addButton = __($this->addButton);
 		$this->updateButton = __($this->updateButton);
-		$this->action = $this->request->getTrim('action');
+		$this->action = $this->request->getCoalesce('action', $this->action);
 		$this->id = $this->request->getInt($this->table.'_id');
 		if (!$this->id) {
 			$this->id = $this->request->getInt($this->table.'.id'); // NON AJAX POST
@@ -82,9 +88,14 @@ abstract class Scaffold extends Controller {
 		return $content;
 	}
 
+	/**
+	 * Collection is way better to display raw data
+	 *
+	 * @return string
+	 * @deprecated
+	 */
 	public function showTable() {
-		$content = '';
-		$data = $this->fetchData();
+		$data = array($this->model->data);
 		$data = $this->processData($data);
 
 		if ($data) {
@@ -140,18 +151,68 @@ abstract class Scaffold extends Controller {
 	 */
 	protected function showEditForm() {
 		$override = array(
-			'action' => 'update',
 			$this->table.'.id' => $this->id,
 		);
 
-		$f = $this->getForm($override['action']);
+		$this->desc['submit']['value'] = $this->updateButton;
+		$f = $this->getForm('update');
 		$f->prefix('');
-		unset($override['action']);
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
-		//debug($override);
 		return $f;
+	}
+
+	/**
+	 * Needs to implement data into the desc internally!!!
+	 * Please use HTMLFormTable::fillValues()
+	 * @param array $data - the source data of the edited record, if in edit more
+	 * @return array
+	 */
+	protected function getDesc(array $data = NULL) {
+		$desc = array(
+			'submit' => array(
+				'label' => '',
+				'type' => 'submit',
+				'value' => $this->addButton,
+			),
+		);
+		return $desc;
+	}
+
+	/**
+	 * Default is add action, override to update
+	 *
+	 * @param array $desc
+	 * @param unknown_type $action
+	 * @return unknown
+	 */
+	protected function getForm($action = 'add') {
+		$f = new HTMLFormTable();
+		$f->method('POST');
+		$f->hidden('c', get_class($this));
+		$f->hidden('pageType', get_class($this));
+		$f->hidden('action', $action);
+		$f->hidden('ajax', TRUE);
+		$f->prefix($this->formPrefix);
+		$f->showForm($this->desc);
+		//$f->submit($this->addButton);
+		$f->formMore = $this->formMore;
+		return $f;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	function translateThes() {
+		// translate thes
+		foreach ($this->thes as $key => &$trans) {
+			if (is_string($trans) && $trans) {
+				$trans = __($trans);
+			} else if (is_array($trans) && $trans['name']) {
+				$trans['name'] = __($trans['name']);
+			}
+		}
 	}
 
 	/**
@@ -176,8 +237,8 @@ abstract class Scaffold extends Controller {
 					case 'add': $content = $this->insertRecord($this->data); break;
 					case 'update': $content = $this->updateRecord($this->data); break;
 					default: {
-						debug(__METHOD__);
-						throw new Exception(__METHOD__);
+					debug(__METHOD__);
+					throw new Exception(__METHOD__);
 					}
 				}
 			} catch (Exception $e) {
@@ -191,56 +252,6 @@ abstract class Scaffold extends Controller {
 			//debug($desc['participants'], $userData['participants']);
 		}
 		return $content;
-	}
-
-	protected function fetchData(array $where = array()) {
-		$data = $this->db->fetchSelectQuery($this->table, $where, 'ORDER BY id');
-		return $data;
-	}
-
-	/**
-	 * Needs to implement data into the desc internally!!!
-	 * Please use HTMLFormTable::fillValues()
-	 * @param array $data - the source data of the edited record, if in edit more
-	 * @return array
-	 */
-	protected function getDesc(array $data = NULL) {
-		return array();
-	}
-
-	/**
-	 * Default is add action, override to update
-	 *
-	 * @param array $desc
-	 * @param unknown_type $action
-	 * @return unknown
-	 */
-	protected function getForm($action = 'add') {
-		$f = new HTMLFormTable('.');
-		$f->method('POST');
-		$f->hidden('c', get_class($this));
-		$f->hidden('pageType', get_class($this));
-		$f->hidden('action', $action);
-		$f->hidden('ajax', TRUE);
-		$f->prefix($this->formPrefix);
-		$this->desc['submit']['label'] = '';
-		$this->desc['submit']['type'] = 'submit';
-		$this->desc['submit']['value'] = $this->addButton;
-		$f->showForm($this->desc);
-		//$f->submit($this->addButton);
-		$f->formMore = $this->formMore;
-		return $f;
-	}
-
-	function translateThes() {
-		// translate thes
-		foreach ($this->thes as $key => &$trans) {
-			if (is_string($trans) && $trans) {
-				$trans = __($trans);
-			} else if (is_array($trans) && $trans['name']) {
-				$trans['name'] = __($trans['name']);
-			}
-		}
 	}
 
 	function insertRecord(array $userData) {
@@ -259,6 +270,27 @@ abstract class Scaffold extends Controller {
 
 	function afterUpdate(array $userData) {
 		return 'Updated';
+	}
+
+	function getDescFromThes() {
+		$desc = array();
+		foreach ($this->model->thes as $key => $k) {
+			$k = is_array($k) ? $k : array('name' => $k);
+			if (!in_array($key, array('id', 'match', 'mtime', 'muser')) && $k['showSingle'] !== false) {
+				$desc[$key] = array(
+					'label' => $k['name'],
+					'type' => $k['type'],
+					'value' => $this->model->data[$key],
+				) + $k;
+				if ($k['type'] == 'combo') {
+					$desc[$key]['options'] = Config::getInstance()->db->getTableOptions(
+						$this->model->table,
+						$key, array(),
+						'ORDER BY '.$this->db->quoteKey($key), $key);
+				}
+			}
+		}
+		return $desc;
 	}
 
 }

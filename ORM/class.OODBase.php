@@ -7,11 +7,15 @@ class OODBase {
 	 * @var MySQL
 	 */
 	protected $db;
-	protected $table;
+	public $table;
 	protected $idField = 'id';
 	protected $titleColumn = 'name';
 	public $id;
 	public $data = array();
+	public $thes = array(
+		'id' => 'ID',
+		'name' => 'Name',
+	);
 
 	/**
 	 * Enter description here...
@@ -182,6 +186,7 @@ class OODBase {
 			$this->update($fields);
 			$op = 'UPD '.$this->id;
 		} else {
+			//debug($where, $this->db->lastQuery); exit();
 			$this->insert($fields + $where);
 			$this->findInDB($where);
 			$op = 'INS';
@@ -192,13 +197,29 @@ class OODBase {
 	}
 
 	function renderAssoc() {
-		$assoc = $this->data;
-		foreach ($assoc as $key => $val) {
-			if (!$val) {
-				unset($assoc[$key]);
+		if ($this->thes) {
+			$assoc = array();
+			foreach ($this->thes as $key => $desc) {
+				$desc = is_array($desc) ? $desc : array('name' => $desc);
+				if ($desc['showSingle'] !== false) {
+					$assoc[] = array(
+						0 => $desc['name'],
+						'' => $this->data[$key],
+						'.' => $desc,
+					);
+				}
 			}
+			$s = new slTable($assoc);
+			$s->thes = array(0 => '', '' => '');
+		} else {
+			$assoc = $this->data;
+			foreach ($assoc as $key => $val) {
+				if (!$val) {
+					unset($assoc[$key]);
+				}
+			}
+			$s = slTable::showAssoc($assoc);
 		}
-		$s = slTable::showAssoc($assoc);
 		return $s;
 	}
 

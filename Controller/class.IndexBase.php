@@ -155,6 +155,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->footer['jquery.js'] = '<script src="nadlib/js/jquery-1.8.1.min.js"></script>';
 	}
 
+	function addJQueryUI() {
+		$this->addJQuery();
+		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
+	}
+
 	function addJS($source) {
 		$this->footer[$source] = '<script src="'.$source.'"></script>';
 	}

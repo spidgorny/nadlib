@@ -37,10 +37,12 @@ class Collection {
 	public $pager; // initialize if necessary with = new Pager(); in postInit()
 
 	public $members = array();
-	protected $orderBy = "ORDER BY uid";
+	protected $orderBy = "uid";
 	public $query;
 
 	protected $request;
+
+	public $useSorting = true;
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
@@ -54,6 +56,15 @@ class Collection {
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
 		$this->postInit();
+
+		// should be dealt with by the Controller
+		/*$sortBy = $this->request->getSubRequest('slTable')->getCoalesce('sortBy', $this->orderBy);
+		if ($this->thes && is_array($this->thes[$sortBy]) && $this->thes[$sortBy]['source']) {
+			$sortBy = $this->thes[$sortBy]['source'];
+		}
+		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
+		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
+
 		$this->retrieveDataFromDB();
 		$this->preprocessData();
 		$this->translateThes();
@@ -114,11 +125,10 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
+			$r = Request::getInstance();
+			//$url = $r->getURLLevel(0);
+			$url = new URL();
 			if ($this->pager) {
-				$r = Request::getInstance();
-				$url = $r->getURLLevel(0);
-				$url = new URL($url);
-
 				$pages = $this->pager->renderPageSelectors($url);
 
 				$ps = new PageSize();
@@ -127,6 +137,8 @@ class Collection {
 			}
 			$s = new slTable($this->data, 'class="nospacing" width="100%" id="'.get_class($this).'"');
 			$s->thes = $this->thes;
+			$s->sortable = $this->useSorting;
+			$s->sortLinkPrefix = new URL();
 			$content = $pages . $s->getContent() . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';
