@@ -1,24 +1,77 @@
 <?php
 
 class FullGrid extends Grid {
+	/**
+	 * @var array
+	 */
+	public $filter;
 
+	/**
+	 * @var array
+	 */
 	public $columns;
+
+	/**
+	 * @var array
+	 */
+	public $sort;
 
 	function __construct() {
 		parent::__construct();
+	}
+
+	function saveFilterColumnsSort($cn = NULL) {
+		$cn = $cn ? $cn : get_class($this->collection);
 		if ($this->request->is_set('columns')) {
-			$cn = $this->request->getTrim('collectionName');
 			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
 		}
+		$this->columns = $this->request->getArray('columns');
+		$this->columns = $this->columns
+			? $this->columns
+			: $this->user->getPref('Columns.'.$cn);
+		if (!$this->columns) {
+			$this->columns = array_keys($this->model->thes);
+		}
+
+		if ($this->request->is_set('filter')) {
+			$this->user->setPref('Filter.'.$cn, $this->request->getArray('filter'));
+		}
+		$this->filter = $this->request->getArray('filter');
+		$this->filter = $this->filter
+			? $this->filter
+			: $this->user->getPref('Filter.'.$cn);
+		$this->filter = $this->filter ? $this->filter : array();
+
+		if ($this->request->is_set('slTable')) {
+			$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+		}
+		$this->sort = $this->request->getArray('slTable');
+		$this->sort = $this->sort
+			? $this->sort
+			: $this->user->getPref('Sort.'.$cn);
+		//$_REQUEST['slTable'] = $this->sort;	// influence slTable
+	}
+
+	/**
+	 * Can't use $this->collection at this point as this function is used to initialize the collection!
+	 * @return string
+	 */
+	function getOrderBy() {
+		$sortBy = $this->sort['sortBy'];
+		if ($this->model->thes && is_array($this->model->thes[$sortBy]) && $this->model->thes[$sortBy]['source']) {
+			$sortBy = $this->model->thes[$sortBy]['source'];
+		}
+		$sortBy = $sortBy ? $sortBy : $this->model->idField;
+		$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.($this->sort['sortOrder'] ? 'DESC' : 'ASC');
+		return $ret;
 	}
 
 	function render() {
-		$this->columns = $this->collection->thes;
-		$setColumns = $this->user->getPref('Columns.'.get_class($this->collection));
-		if ($setColumns) {
+		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
-				if (!in_array($cn, $setColumns)) {
-					unset($this->collection->thes[$cn]);
+				if (!in_array($cn, $this->columns)) {
+					//unset($this->collection->thes[$cn]);
+					$this->collection->thes[$cn]['!show'] = true;
 				}
 			}
 		}
@@ -27,9 +80,8 @@ class FullGrid extends Grid {
 
 	function getFilterWhere() {
 		$where = array();
-		$filter = $this->request->getArray('filter');
 
-		foreach ($filter as $key => $val) {
+		foreach ($this->filter as $key => $val) {
 			if ($val) {
 				$where[$key] = $val;
 			}
@@ -47,16 +99,14 @@ class FullGrid extends Grid {
 	function getFilterForm(array $fields = NULL) {
 		$fields = $fields ? $fields : $this->model->data;
 
-		$filter = $this->request->getSubRequest('filter');
-
 		$desc = array();
 		foreach ($fields as $key => $val) {
 			$desc[$key] = array(
 				'label' => $key,
 				'type' => 'select',
-				'options' => $this->getTableFieldOptions($key),
+				'options' => $this->getTableFieldOptions($key, true),
 				'null' => true,
-				'value' => $filter->getTrim($key),
+				'value' => $this->filter[$key],
 			);
 		}
 
@@ -69,9 +119,20 @@ class FullGrid extends Grid {
 		return $f;
 	}
 
-	function getTableFieldOptions($key) {
-		return Config::getInstance()->qb->getTableOptions($this->model->table,
+	function getTableFieldOptions($key, $count = false) {
+		$res = Config::getInstance()->qb->getTableOptions($this->model->table,
 		$key, array(), 'ORDER BY '.$this->db->quoteKey($key), $key);
+
+		if ($count) {
+			foreach ($res as &$val) {
+				$copy = clone $this->collection;
+				$copy->where[$key] = $val;
+				$copy->retrieveDataFromDB();
+				$val .= ' ('.sizeof($copy->data).')';
+			}
+		}
+
+		return $res;
 
 		/*$options = $this->db->fetchSelectQuery($this->model->table, array(),
 			'GROUP BY '.$this->db->quoteKey($key),
@@ -84,21 +145,16 @@ class FullGrid extends Grid {
 	}
 
 	function getColumnsForm() {
-		foreach ($this->columns as &$val) {
+		foreach ($this->collection->thes as &$val) {
 			$val = is_array($val) ? $val['name'] : $val;
-		}
-
-		$checked = $this->user->getPref('Columns.'.get_class($this->collection));
-		if (!$checked) {
-			$checked = array_keys($this->columns);
 		}
 
 		$desc = array(
 			'columns' => array(
 				'label' => 'Visible',
 				'type' => 'set',
-				'options' => $this->columns,
-				'value' => $checked,
+				'options' => $this->collection->thes,
+				'value' => $this->columns,
 				'between' => '<br />',
 			),
 			'collectionName' => array(

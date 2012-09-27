@@ -13,7 +13,11 @@ class slTable {
 	var $more = 'class="nospacing"';
 	var $generation = '';
 	var $sortable = FALSE;
-	var $sortLinkPrefix = '';
+
+	/**
+	 * @var URL
+	 */
+	var $sortLinkPrefix;
 	var $dataPlus = ''; // the first row after the header - used for filters
 	var $prefix = 'slTable';
 	var $sortBy, $sortOrder;
@@ -23,6 +27,8 @@ class slTable {
 	var $thesMore;
 	var $theadPlus = '';
 	public $trmore;
+	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle">';
+	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle">';
 
 	/**
 	 * @var BijouDBConnector
@@ -41,6 +47,11 @@ class slTable {
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
 		$this->db = Config::getInstance()->db;
+		if (!file_exists('img/arrow_down.gif')) {
+			$this->arrowDesc = '&#x25bc;';
+			$this->arrowAsc = '&#x25b2;';
+		}
+		$this->sortLinkPrefix = new URL();
 	}
 
 	function thes($aThes, $thesMore = NULL) {
@@ -138,6 +149,7 @@ class slTable {
 	}
 
 	function sort() {
+		//$this->setSortBy();	// don't use - use SQL
 		//debug('$this->sortBy', $this->sortBy);
 		if ($this->sortable && $this->sortBy) {
 			//print view_table($this->data);
@@ -151,14 +163,9 @@ class slTable {
 					$th = &$this->thes[$this->sortBy];
 				}
 				if ($th) {
-					if ($this->sortOrder) {
-						$th .= '<img src="img/arrow_down.gif" align="absmiddle">';
-					} else {
-						$th .= '<img src="img/arrow_up.gif" align="absmiddle">';
-					}
+					$th .= $this->sortOrder ? $this->arrowDesc : $this->arrowAsc;
 				}
 			}
-			//debug($this->thes[$this->sortBy]);
 		}
 	}
 
@@ -184,6 +191,12 @@ class slTable {
 	function generateThead(HTMLTableBuf $t) {
 		//th
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
+		foreach ($thes as $key => $k) {
+			if (is_array($k) && isset($k['!show']) && $k['!show']) {
+				unset($thes[$key]);
+			}
+		}
+
 		$thes2 = array();
 		$thmore = array();
 		if (is_array($thes)) foreach ($thes as $thk => $thv) {
@@ -204,7 +217,10 @@ class slTable {
 				} else {
 					$newSO = $this->sortOrder;
 				}
-				$link = ($this->sortLinkPrefix ? $this->sortLinkPrefix . '&' : $_SERVER['PHP_SELF'].'?').$this->prefix.'[sortBy]='.$thk.'&'.$this->prefix.'[sortOrder]='.$newSO;
+				$link = $this->sortLinkPrefix->setParams(array($this->prefix => array(
+					'sortBy' => $thk,
+					'sortOrder' => $newSO,
+				)));
 				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
 			} else {
 				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
@@ -244,9 +260,7 @@ class slTable {
 		$t->stdout .= '<tbody>';
 	}
 
-	function generate($width = array()) {
-		global $db;
-
+	function generate() {
 		if (!$this->generation) {
 			if (!sizeof($this->thes) && sizeof($this->data) && $this->data != FALSE) {
 				$this->generateThes();
@@ -384,8 +398,11 @@ class slTable {
 			break;
 			case "sqldate":
 				if ($val) {
-					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
-					$out = date($k['format'], $val);
+					//$val = strtotime(substr($val, 0, 15)); // cut milliseconds
+					//$out = date($k['format'], $val);
+					// THIS BELOW IS NOT TESTED
+					$val = new Date($val);
+					$out = $val->format($k['format']);
 				} else {
 					$out = '';
 				}
@@ -445,8 +462,12 @@ class slTable {
 				), $val);
 			break;
 			case 'HTMLFormDatePicker':
-				$val = strtotime($val);
-				$out = date($k['type']->format, $val);
+				//$val = strtotime($val);
+				//$out = date($k['type']->format, $val);
+				if ($val) {
+					$val = new Date($val);
+					$out = $val->format($k['type']->format);
+				}
 			break;
 			default:
 				//t3lib_div::debug($k);

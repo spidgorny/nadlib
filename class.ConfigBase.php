@@ -91,4 +91,15 @@ class ConfigBase {
 		return $a;
 	}
 
+	/**
+	 * TODO: enable FirePHP
+	 * @param $class
+	 * @param $message
+	 */
+	function log($class, $message) {
+		if (DEVELOPMENT) {
+			throw new Exception($class.' '.$message);
+		}
+	}
+
 }
