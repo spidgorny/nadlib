@@ -369,7 +369,7 @@ class SQLBuilder {
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$key = $this->quoteKey($key);
-			$val = $this->quoteSQL($val);
+			$val = $this->quoteSQL($val, $key);
 			$from = array('$key', '$val');
 			$to = array($key, $val);
 			$set[] = str_replace($from, $to, $like);
