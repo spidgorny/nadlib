@@ -144,4 +144,8 @@ AND name = '?')", array($table));
 		return $res;
 	}
 
+	function numRows($res) {
+		return mssql_num_rows($res);
+	}
+
 }
