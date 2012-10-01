@@ -4,7 +4,7 @@ class Recursive {
 
 	protected $value;
 
-	protected $elements = array();
+	public $elements = array();
 
 	function __construct($value, array $elements = array()) {
 		$this->value = $value;

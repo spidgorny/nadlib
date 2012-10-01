@@ -55,9 +55,9 @@ function debug($a) {
 function nodebug() {
 }
 
-function getDebug($a) {
+function getDebug() {
 	ob_start();
-	debug($a);
+	debug(func_get_args());
 	return ob_get_clean();
 }
 

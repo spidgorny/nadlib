@@ -8,7 +8,7 @@ class SQLWhere {
 		if (is_array($where)) {
 			$this->parts = $where;
 		} else if ($where) {
-			$this->parts[] = $where;
+			$this->add($where);
 		}
 	}
 
@@ -25,13 +25,22 @@ class SQLWhere {
 
 	function __toString() {
 		if ($this->parts) {
-			return "WHERE\n\t".implode("\n\tAND ", $this->parts);
+			foreach ($this->parts as $field => $p) {
+				if ($p instanceof SQLWherePart) {
+					$p->injectField($field);
+				}
+			}
+			return " WHERE\n\t".implode("\n\tAND ", $this->parts);
 		} else {
 			return '';
 		}
 	}
 
 	function getAsArray() {
+		return $this->parts;
+	}
+
+	function debug() {
 		return $this->parts;
 	}
 
