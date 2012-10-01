@@ -247,7 +247,7 @@ class slTable {
 		if (TRUE) {
 			$t->stdout .= '<colgroup>';
 			foreach ($thes2 as $key => $dummy) {
-				$t->stdout .= '<col class="col_'.$key.'"></col>';
+				$t->stdout .= '<col class="col_'.$key.'" />';
 			}
 			$t->stdout .= '</colgroup>';
 		}
@@ -271,7 +271,7 @@ class slTable {
 			}
 
 			$t = new HTMLTableBuf();
-			$t->table('id="'.$this->ID.'"'.(is_string($this->more) ? $this->more : $this->more['tableMore']));
+			$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
 
 			$this->generateThead($t);
 
