@@ -19,7 +19,6 @@ class Request {
 		}
 
 		$this->url = new URL(isset($_SERVER['SCRIPT_URL']) ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
-		$this->url->setDocumentRoot(Config::getInstance()->documentRoot);
 	}
 
 	function deQuote(array $request) {
@@ -202,7 +201,7 @@ class Request {
 				? $last
 				: $this->defaultController
 		);
-		//debug($controller, $this->getTrim('c'), $last, $this->defaultController, $this->data);
+		//debug($controller, $this->getTrim('c'), $this->getURLLevels(), $last, $this->defaultController, $this->data);
 		return $controller;
 	}
 
@@ -327,24 +326,14 @@ class Request {
 			$this->data[$key] = $val;
 		}
 	}
-
-	/**
-	 * @return URL
-	 */
-	function getURL() {
-		$url = new URL($_SERVER['SCRIPT_URL'] ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
-		$url->setDocumentRoot(Config::getInstance()->documentRoot);
-		return $url;
-	}
-
+	
 	function getURLLevel($level) {
 		$path = $this->getURLLevels();
 		return isset($path[$level]) ? $path[$level] : NULL;
 	}
 
 	function getURLLevels() {
-		$url = $this->getURL();
-		$path = $url->getPath();
+		$path = $this->url->getPath();
 		$path = trimExplode('/', $path);
 		//debug($path);
 		return $path;
@@ -409,4 +398,7 @@ class Request {
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
+	function debug() {
+		return get_object_vars($this);
+	}
 }
