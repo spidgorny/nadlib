@@ -66,6 +66,14 @@ class Request {
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
+			$id = NULL;
+		}
+		return $id;
+	}
+
+	function getIntInException($name, array $assoc) {
+		$id = $this->getIntOrNULL($name);
+		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
 			debug($id, array_keys($assoc));
 			throw new Exception($name.' is not part of allowed collection.');
 		}

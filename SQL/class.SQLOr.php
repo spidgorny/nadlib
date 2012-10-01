@@ -26,19 +26,40 @@ class SQLOr extends SQLWherePart {
 			foreach ($this->or as $or) {
 				$ors[] = $this->db->getWherePart($or, false);
 			}
-		} else if ($this->qb->db instanceof dbLayer) {	// DCI
-			$ors = array();
-			foreach ($this->or as $or) {
-				$ors[] = implode('', $this->qb->quoteWhere(array(
-					$this->field => $or,
-				)));
+		} else if ($this->qb->db instanceof dbLayer) {	// DCI, ORS
+			// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
+			// http://ors.nintendo.de/NotifyVersion
+			if ($this->field) {
+				$ors = array();
+				foreach ($this->or as $field => $or) {
+					$tmp = $this->qb->quoteWhere(
+						array($this->field => $or)
+						//$or
+					);
+					$ors[] = implode('', $tmp);
+				}
+			} else {
+				foreach ($this->or as $field => $p) {
+					if ($p instanceof SQLWherePart) {
+						$p->injectField($field);
+					}
+				}
+				$ors = $this->qb->quoteWhere($this->or);
 			}
 		} else {										// MySQL
 			$ors = $this->qb->quoteWhere($this->or);
 		}
-		$res = '('.implode(' OR ', $ors).')';
-		//debug($this->or, $res);
+		if ($ors) {
+			$res = '('.implode(' OR ', $ors).')';
+		} else {
+			$res = '/* EMPTY OR */';
+		}
+		//debug($this, $ors, $res);
 		return $res;
+	}
+
+	function debug() {
+		return array($this->field => $this->or);
 	}
 
 }

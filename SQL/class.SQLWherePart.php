@@ -16,10 +16,18 @@ class SQLWherePart {
 
 	function __construct($sql) {
 		$this->sql = $sql;
+		$this->qb = Config::getInstance()->qb;
 	}
 
 	function __toString() {
-		return $this->sql;
+		if ($this->field && !is_numeric($this->field)) {
+			$part1 = $this->qb->quoteWhere(
+				array($this->field => $this->sql)
+			);
+			return implode('', $part1);
+		} else {
+			return $this->sql.'';
+		}
 	}
 	
 	function injectQB(SQLBuilder $qb) {
@@ -28,6 +36,10 @@ class SQLWherePart {
 
 	function injectField($field) {
 		$this->field = $field;
+	}
+
+	function debug() {
+		return $this->sql;
 	}
 
 }

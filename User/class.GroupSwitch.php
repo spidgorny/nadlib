@@ -2,7 +2,7 @@
 
 class GroupSwitch extends Controller {
 
-	protected $allowedUsers = array(
+	public $allowedUsers = array(
 		'depidsvy',
 		'deloprub',
 	);
