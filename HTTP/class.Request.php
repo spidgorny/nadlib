@@ -342,7 +342,7 @@ class Request {
 			//debug($modules);
 			$mod_rewrite = in_array('mod_rewrite', $modules);
 		} else {
-			$mod_rewrite =  getenv('HTTP_MOD_REWRITE')=='On' ? true : false ;
+			$mod_rewrite =  getenv('HTTP_MOD_REWRITE')=='On' ? true : false;
 		}
 		return $mod_rewrite;
 	}
