@@ -20,6 +20,10 @@ class AsIsOp {
 	}
 
 	function __toString() {
+		return $this->value.'';
+	}
+
+	function debug() {
 		return $this->value;
 	}
 
