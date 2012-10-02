@@ -77,7 +77,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			$keyValue = $row[$key];
 			if (!$keyValue) {
 				debug($this->data, $key, $row);
-				throw new Exception(__METHOD__.'#'.__LINE__);
+				throw new Exception(__METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.');
 			}
 			$data[$keyValue] = $row;
 		}

@@ -22,25 +22,40 @@ class MiniIndex extends Controller {
 
 	public $layout;
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->controller = $this->request->getController();
 	}
 
+	/**
+	 * Set $createAllowed to true only in index.php when making the original Index
+	 * all other situation will return NULL if it's not instantiated yet
+	 * thus avoiding infinite loops.
+	 * @param bool $createAllowed
+	 * @return MiniIndex
+	 */
 	public static function getInstance($createAllowed = true) {
 		$self = get_called_class();
-		return self::$instance ?: ($createAllowed
-			? self::$instance = new $self
-			: NULL
-		);
+		if (!self::$instance) {
+			if ($createAllowed) {
+				self::$instance = new $self(true);
+				self::$instance->init();
+			}
+		}
+		return self::$instance;
+	}
+
+	function init() {
+		$this->controller = $this->request->getController();
 	}
 
 	function render() {
 		if ($this->controller->layout == 'none' || $this->request->isAjax()) {
-			return $this->renderController();
+			$content = $this->renderController();
 		} else {
-			return new View('template.phtml', $this);
+			$v = new View('template.phtml', $this);
+			$content = $v->render();
 		}
+		return $content;
 	}
 
 	function renderController() {
@@ -51,6 +66,12 @@ class MiniIndex extends Controller {
 
 	function addJQuery() {
 		$this->footer['jquery.js'] = '<script src="nadlib/js/jquery-1.8.1.min.js"></script>';
+	}
+
+	function addJQueryUI() {
+		$this->addJQuery();
+		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 	}
 
 	function addJS($source) {

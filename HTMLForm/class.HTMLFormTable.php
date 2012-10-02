@@ -41,10 +41,15 @@ class HTMLFormTable extends HTMLForm {
 			$desc['id'] = $elementID;
 		}
 		if ($desc['type'] instanceof HTMLFormType) {
-			$desc['type']->setName($fieldName);
+			$desc['type']->setField($fieldName);
 			$desc['type']->setForm($this);
 			$desc['type']->setValue($desc['value']);
 			$this->stdout .= $desc['type']->render();
+		} else if ($desc['type'] instanceof Collection) {
+			$desc['type']->setField($fieldName);
+			$desc['type']->setForm($this);
+			$desc['type']->setValue($desc['value']);
+			$this->stdout .= $desc['type']->renderHTMLForm();
 		} else {
 			switch($desc['type']) {
 				case "text":
