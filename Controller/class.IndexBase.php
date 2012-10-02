@@ -49,7 +49,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//parent::__construct();
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
-		$this->request = new Request();
+		$this->request = Request::getInstance();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -153,6 +153,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		$this->footer['jquery.js'] = '<script src="nadlib/js/jquery-1.8.1.min.js"></script>';
+	}
+
+	function addJQueryUI() {
+		$this->addJQuery();
+		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 	}
 
 	function addJS($source) {

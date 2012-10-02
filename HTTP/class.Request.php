@@ -9,6 +9,8 @@ class Request {
 	 */
 	public $url;
 
+	static protected $instance;
+
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
 		$this->defaultController = Config::getInstance()->defaultController;
@@ -29,6 +31,14 @@ class Request {
 			}
 		}
 		return $request;
+	}
+
+	static function getInstance() {
+		return self::$instance = self::$instance ? self::$instance : new self();
+	}
+
+	static function getExistingInstance() {
+		return self::$instance;
 	}
 
 	function set($var, $val) {
@@ -68,6 +78,14 @@ class Request {
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
 			debug($id, array_keys($assoc));
 			throw new Exception($name.' is not part of allowed collection.');
+		}
+		return $id;
+	}
+
+	function getIntRequired($name) {
+		$id = $this->getIntOrNULL($name);
+		if (!$id) {
+			throw new Exception($name.' parameter is required.');
 		}
 		return $id;
 	}
@@ -239,12 +257,6 @@ class Request {
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
 		return $url;
-	}
-
-	function getInstance() {
-		static $instance = NULL;
-		if (!$instance) $instance = new self();
-		return $instance;
 	}
 
 	function isAjax() {

@@ -11,7 +11,7 @@ class PageSize extends Controller {
 	function __construct($selected = NULL) {
 		parent::__construct();
 		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;
-		$user = Index::getInstance()->user;
+		$user = Config::getInstance()->user;
 		if (!$this->selected) {
 			$this->selected = $user->getPref('pageSize');
 		}

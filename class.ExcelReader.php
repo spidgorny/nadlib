@@ -8,11 +8,11 @@ class ExcelReader {
 	public $ll;
 
 	function __construct($excelFile) {
-		$this->excel = dirname(__FILE__).'/'.$excelFile;
-		$this->filename .= $this->excel.'.serial';
+		$this->excel = $excelFile{0} == '/' ? $excelFile : dirname(__FILE__).'../'.$excelFile;
+		$this->filename .= basename($this->excel).'.serial';
 
-		// read from excel
-		$this->xml = $this->readPersistant();
+		// read from excel - SimpleXML can't be serialized
+		//$this->xml = $this->readPersistant();
 		if (!$this->xml) {
 			$this->readExcel();
 			$this->savePersistant($this->xml);
@@ -25,7 +25,9 @@ class ExcelReader {
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
 				$data = file_get_contents($this->filename);
-				$data = unserialize($data);
+				if ($data) {
+					$data = unserialize($data);
+				}
 			}
 		}
 		return $data;
@@ -33,7 +35,7 @@ class ExcelReader {
 
 	function savePersistant($data) {
 		$data = serialize($data);
-		$data = file_put_contents($this->filename, $data);
+		file_put_contents($this->filename, $data);
 	}
 
 	function readExcel() {

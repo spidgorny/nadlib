@@ -10,7 +10,7 @@ class Collection {
 	 *
 	 * @var BijouDBConnector
 	 */
-	protected $db;
+	public $db;
 	protected $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
@@ -21,7 +21,7 @@ class Collection {
 	 */
 	var $data = array();
 
-	protected $thes = array(
+	public $thes = array(
 		'uid' => 'ID',
 		'title' => 'Title',
 	);
@@ -37,8 +37,12 @@ class Collection {
 	public $pager; // initialize if necessary with = new Pager(); in postInit()
 
 	public $members = array();
-	protected $orderBy = "ORDER BY uid";
+	protected $orderBy = "uid";
 	public $query;
+
+	protected $request;
+
+	public $useSorting = true;
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
@@ -50,7 +54,17 @@ class Collection {
 			$this->where = $where->addArray($this->where);
 		}
 		$this->orderBy = $order ? $order : $this->orderBy;
+		$this->request = Request::getInstance();
 		$this->postInit();
+
+		// should be dealt with by the Controller
+		/*$sortBy = $this->request->getSubRequest('slTable')->getCoalesce('sortBy', $this->orderBy);
+		if ($this->thes && is_array($this->thes[$sortBy]) && $this->thes[$sortBy]['source']) {
+			$sortBy = $this->thes[$sortBy]['source'];
+		}
+		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
+		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
+
 		$this->retrieveDataFromDB();
 		$this->preprocessData();
 		$this->translateThes();
@@ -61,12 +75,17 @@ class Collection {
 		//$this->pager = new Pager();
 	}
 
+	/**
+	 * -1 will prevent data retrieval
+	 */
 	function retrieveDataFromDB() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$this->query = $this->getQuery($this->where);
-		$res = $this->db->perform($this->query);
-		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		if (!$this->parentID || $this->parentID > 0) {
+			$this->query = $this->getQuery($this->where);
+			$res = $this->db->perform($this->query);
+			$data = $this->db->fetchAll($res);
+			$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -106,11 +125,20 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			$r = new Request();
-			$url = $r->getURLLevel(0);
-			$pages = $this->pager ? $this->pager->renderPageSelectors($url.'?') : '';
+			$r = Request::getInstance();
+			//$url = $r->getURLLevel(0);
+			$url = new URL();
+			if ($this->pager) {
+				$pages = $this->pager->renderPageSelectors($url);
+
+				$ps = new PageSize();
+				$ps->setURL($url);
+				$pages .= $ps->render();
+			}
 			$s = new slTable($this->data, 'class="nospacing" width="100%" id="'.get_class($this).'"');
 			$s->thes = $this->thes;
+			$s->sortable = $this->useSorting;
+			$s->sortLinkPrefix = new URL();
 			$content = $pages . $s->getContent() . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';
@@ -217,8 +245,7 @@ class Collection {
 	function showFilter() {
 		if ($this->filter) {
 			$f = new HTMLFormTable();
-			$request = new Request();
-			$this->filter = $f->fillValues($this->filter, $request->getAll());
+			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
 			$f->submit('Filter', '', array('class' => 'btn-primary'));
 			$content = $f->getContent();
@@ -229,9 +256,8 @@ class Collection {
 	function getFilterWhere() {
 		$where = array();
 		if ($this->filter) {
-			$request = new Request();
 			foreach ($this->filter as $field => $desc) {
-				$value = $request->getTrim($field);
+				$value = $this->request->getTrim($field);
 				if ($value) {
 					$where[$field] = $value;
 				}

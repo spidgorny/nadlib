@@ -28,7 +28,6 @@ function __autoload($class) {
 }
 
 define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
-//define('DEVELOPMENT', true);
 if (DEVELOPMENT) {
 	$GLOBALS['profiler'] = new TaylorProfiler(TRUE);
 	/* @var $profiler TaylorProfiler */
