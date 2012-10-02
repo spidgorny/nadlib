@@ -274,6 +274,8 @@ class SQLBuilder {
 			return $value->__toString();
 		} else if ($value instanceof Time) {
 			return "'".$this->db->escape($value->__toString())."'";
+		} else if ($value instanceof SQLDate) {
+			return "'".$this->db->escape($value->__toString())."'";
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
@@ -341,8 +343,8 @@ class SQLBuilder {
 					$set[] = $val->__toString();
 				} else if ($val instanceof SimpleXMLElement) {
 					$set[] = $val->asXML();
-				} else if (is_object($val)) {
-					$set[] = $val.'';
+				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
+				//	$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
 					$set[] = $key . ' ' . $val;
 				} else if ($val === NULL) {

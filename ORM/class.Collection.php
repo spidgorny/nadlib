@@ -50,7 +50,7 @@ class Collection {
 		$this->parentID = $pid;
 		if (is_array($where)) {
 			$this->where += $where;
-		} else {
+		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
 		$this->orderBy = $order ? $order : $this->orderBy;

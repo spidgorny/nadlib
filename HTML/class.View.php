@@ -31,7 +31,7 @@ class View {
 			*/
 		}
 		$this->ll = Config::getInstance()->ll;
-		$this->request = new Request();
+		$this->request = Request::getInstance();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 
