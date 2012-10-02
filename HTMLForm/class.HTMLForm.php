@@ -126,9 +126,9 @@ class HTMLForm {
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<label>';
+		$this->stdout .= '<label>';
 		$this->check($name, $value, $checked, $more);
-		$this->stdout .= ' '.$label</label>";
+		$this->stdout .= ' './*htmlspecialchars*/($label).'</label>';
 	}
 
 	function radioLabel($name, $value, $checked, $label = "") {
@@ -136,7 +136,7 @@ class HTMLForm {
 		$id = $this->getName($name, $value, true);
 		$id = $this->prefix."_".$name."_".$value;
 		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." id='".$id."'> ";
-		$this->stdout .= "<label for=$id>$label</label>";
+		$this->stdout .= "<label for=$id>".htmlspecialchars($label)."</label>";
 	}
 
 	function file($name, array $desc = array()) {
@@ -249,12 +249,14 @@ class HTMLForm {
 
 	function combo($fieldName, array $desc) {
 		if ($desc['table']) {
+			// TODO: replace with SQLBuilder->getTableOptions()
 			$options = $GLOBALS['db']->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
 			$options = $GLOBALS['db']->IDalize($options, 'value', 'value');
 		} else {
 			$options = $desc['options'];
 		}
-		$this->selection($fieldName, $options, -1, FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"');
+		Index::getInstance()->addJQuery();
+		$this->selection($fieldName, $options, $desc['value'], FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"');
 		$this->input($fieldName, $desc['value']);
 	}
 
