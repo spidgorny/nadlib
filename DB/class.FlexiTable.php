@@ -58,7 +58,7 @@ class FlexiTable extends OODBase {
 		}
 	}
 
-	function checkCreateField($field) {
+	function checkCreateField($field, $value) {
 		//debug($this->columns);
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
@@ -74,6 +74,8 @@ class FlexiTable extends OODBase {
 			$type = 'timestamp';
 		} else if (is_numeric($value)) {
 			$type = 'float';
+		} else if ($value instanceof SimpleXMLElement) {
+			$type = 'text';
 		} else {
 			$type = 'VARCHAR (255)';
 		}

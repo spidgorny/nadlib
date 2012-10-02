@@ -9,8 +9,7 @@ class Proxy extends OODBase {
 
 	static function getRandom() {
 		if (rand(0, 100) > 75) { // 25%
-			$db = MySQL::getInstance();
-			$row = $db->fetchSelectQuery('proxy', array('fail' => new AsIs('< ').self::$maxFail),
+			$row = $this->db->fetchSelectQuery('proxy', array('fail' => new AsIs('< ').self::$maxFail),
 				'ORDER BY rand() LIMIT 1');
 			if ($row[0]) {
 				$proxy = new Proxy($row[0]);
@@ -39,8 +38,7 @@ class Proxy extends OODBase {
 
 	function getBest($limit = 100) {
 		//if (!self::$best) {
-			$db = MySQL::getInstance();
-			$rows = $db->fetchSelectQuery('proxy', array(
+			$rows = $this->db->fetchSelectQuery('proxy', array(
 				'fail' => new AsIs('< '.self::$maxFailBest),
 				//'ok' => new AsIs('> 0'),
 			), 'ORDER BY ok DESC, fail ASC LIMIT '.$limit);

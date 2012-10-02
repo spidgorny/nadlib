@@ -273,13 +273,15 @@ class SQLBuilder {
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
 		} else if ($value instanceof Time) {
-			return "'".$value->__toString()."'";
+			return "'".$this->db->escape($value->__toString())."'";
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
 			return $value;
 		} else if ($value instanceof AsIs) {
 			return $value.'';
+		} else if ($value instanceof SimpleXMLElement) {
+			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
 			return intval($value); // MySQL specific
@@ -337,6 +339,8 @@ class SQLBuilder {
 					$val->injectQB($this);
 					$val->injectField($key);
 					$set[] = $val->__toString();
+				} else if ($val instanceof SimpleXMLElement) {
+					$set[] = $val->asXML();
 				} else if (is_object($val)) {
 					$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {

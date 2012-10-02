@@ -20,7 +20,7 @@ class Debug {
 			$props = array(
 				'<span style="display: inline-block; width: 5em;">Function:</span> '.$first['file'].'#'.$first['line'],
 				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
-					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : ''),
+					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
 			);
 			if (is_array($a)) {
 				$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
@@ -88,6 +88,7 @@ class Debug {
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
 				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
+				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : gettype($r);
 				$content .= '<tr>
 					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$i.'</td>
 					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$type.' '.(is_array($r) ? '['.sizeof($r).']' : '').'</td>

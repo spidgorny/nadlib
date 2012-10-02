@@ -444,7 +444,11 @@ class slTable {
 						$val = $val->getName();
 					}
 				}
-				$out = /*stripslashes*/($val);
+				if ($k['no_hsc']) {
+					$out = $val;
+				} else {
+					$out = htmlspecialchars($val);
+				}
 			break;
 		}
 		return $out;

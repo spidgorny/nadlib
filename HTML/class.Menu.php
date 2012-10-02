@@ -109,7 +109,12 @@ class Menu /*extends Controller*/ {
 				} else {
 					$path = array($class);
 				}
-				$path = implode('/', $path);
+				if (Config::getInstance()->useRouter) {
+					$path = implode('/', $path);
+				} else {
+					$path = new URL();
+					$path->setParam('c', $class);
+				}
 				$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name.'').'</a></li>';
 
 				if ($isRecursive && $class == $this->current && is_object($items[$class]) && $items[$class]->getChildren()) {
