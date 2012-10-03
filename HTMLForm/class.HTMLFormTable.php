@@ -177,67 +177,69 @@ class HTMLFormTable extends HTMLForm {
 		$fieldValue = $desc['value'];
 
 		if ($desc['type'] != 'hidden') {
-			if ($desc['br'] || $this->defaultBR) {
-			} else {
-				$desc['TDmore']['class'] = isset($desc['TDmore']['class']) ? $desc['TDmore']['class'] : '';
-				$desc['TDmore']['class'] .= ' label';
-			}
-			$this->stdout .= '<td '.$this->getAttrHTML($desc['TDmore']).'>';
-			if ($this->withValue) {
-				$fieldName[] = 'value';
-			}
-
-
-			$tmp = $this->stdout;
-			$elementID = $this->switchType($fieldName, $fieldValue, $desc);
-			$newContent = substr($this->stdout, strlen($tmp));
-			$this->stdout = $tmp;
-
-
-			if (isset($desc['label'])) {
-				$this->stdout .= '<label for="'.$elementID.'">'.$desc['label'];
-				if (($desc['br'] === NULL && $this->defaultBR) || $desc['br']) {
-					$this->stdout .= '<br />';
+			if (!$desc['formHide']) {
+				if ($desc['br'] || $this->defaultBR) {
 				} else {
-					if ($desc['label']) {
-						$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check' ? '<span class="htmlFormTableStar">*</span>' : '');
-						$this->stdout .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
-						$this->stdout .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
-					}
-					$this->stdout .= '</td><td>';
+					$desc['TDmore']['class'] = isset($desc['TDmore']['class']) ? $desc['TDmore']['class'] : '';
+					$desc['TDmore']['class'] .= ' label';
 				}
-				$this->stdout .= '</label>';
-			}
-			if (isset($desc['error'])) {
-				//debug($fieldName, $desc);
-				//print '<pre>'.debug_print_backtrace().'</pre>';
-				$desc['class'] .= ' error';
-			}
+				$this->stdout .= '<td '.$this->getAttrHTML($desc['TDmore']).'>';
+				if ($this->withValue) {
+					$fieldName[] = 'value';
+				}
 
-			$this->stdout .= (isset($desc['prepend']) ? $desc['prepend'] : '')
-				.$newContent.
-				(isset($desc['append']) ? $desc['append'] : '');
 
-			if ($desc['cursor']) {
-				$this->stdout .= "<script>
-	<!--
-		isOpera = navigator.userAgent.indexOf('Opera') != -1;
-		var obj;
-		if (isOpera) {
-			obj = document.all.{$elementID};
-		} else {
-			obj = document.getElementById('{$elementID}');
-		}
-		obj.focus();
-	-->
-	</script>";
+				$tmp = $this->stdout;
+				$elementID = $this->switchType($fieldName, $fieldValue, $desc);
+				$newContent = substr($this->stdout, strlen($tmp));
+				$this->stdout = $tmp;
+
+
+				if (isset($desc['label'])) {
+					$this->stdout .= '<label for="'.$elementID.'">'.$desc['label'];
+					if (($desc['br'] === NULL && $this->defaultBR) || $desc['br']) {
+						$this->stdout .= '<br />';
+					} else {
+						if ($desc['label']) {
+							$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check' ? '<span class="htmlFormTableStar">*</span>' : '');
+							$this->stdout .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
+							$this->stdout .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
+						}
+						$this->stdout .= '</td><td>';
+					}
+					$this->stdout .= '</label>';
+				}
+				if (isset($desc['error'])) {
+					//debug($fieldName, $desc);
+					//print '<pre>'.debug_print_backtrace().'</pre>';
+					$desc['class'] .= ' error';
+				}
+
+				$this->stdout .= (isset($desc['prepend']) ? $desc['prepend'] : '')
+					.$newContent.
+					(isset($desc['append']) ? $desc['append'] : '');
+
+				if ($desc['cursor']) {
+					$this->stdout .= "<script>
+						<!--
+							isOpera = navigator.userAgent.indexOf('Opera') != -1;
+							var obj;
+							if (isOpera) {
+								obj = document.all.{$elementID};
+							} else {
+								obj = document.getElementById('{$elementID}');
+							}
+							obj.focus();
+						-->
+					</script>";
+				}
+				if ($desc['error']) {
+					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']" class="error">';
+					$this->stdout .= $desc['error'];
+					$this->stdout .= '</div>';
+				}
+				$this->stdout .= '</td>';
 			}
-			if ($desc['error']) {
-				$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']" class="error">';
-				$this->stdout .= $desc['error'];
-				$this->stdout .= '</div>';
-			}
-			$this->stdout .= '</td>';
 		} else {
 			$elementID = $this->switchType($fieldName, $fieldValue, $desc);
 		}
@@ -460,7 +462,7 @@ class HTMLFormTable extends HTMLForm {
 	function getSelectionOptions(array $desc) {
 		if ($desc['from'] && $desc['title']) {
 			//debugster($desc);
-			$options = Config::getInstance()->db->getTableOptions($desc['from'],
+			$options = Config::getInstance()->qb->getTableOptions($desc['from'],
 				$desc['title'],
 				isset($desc['where']) 	? $desc['where'] : array(),
 				isset($desc['order']) 	? $desc['order'] : '',

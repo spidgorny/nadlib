@@ -611,9 +611,10 @@ class SQLBuilder {
 			'DISTINCT '.$this->quoteKey($titleField).', '.$this->quoteKey($idField), true);
 		//debug($this->db->lastQuery);
 		$data = $this->fetchAll($res, $idField);
-		$keys = array_keys($data);
-		$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
-		$options = array_combine($keys, $values);
+		//$keys = array_keys($data);
+		//$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
+		//$options = array_combine($keys, $values);
+		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
 	}
 

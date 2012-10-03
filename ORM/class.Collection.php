@@ -8,7 +8,7 @@
 class Collection {
 	/**
 	 *
-	 * @var BijouDBConnector
+	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
 	protected $table = __CLASS__;
@@ -30,23 +30,52 @@ class Collection {
 	public $join = ''; // for LEFT OUTER JOIN queries
 
 	/**
-	 * Enter description here...
+	 * Initialize in postInit() to run paged SQL
 	 *
 	 * @var Pager
 	 */
 	public $pager; // initialize if necessary with = new Pager(); in postInit()
 
+	/**
+	 * objectify() stores objects generated from $this->data here
+	 * @var array
+	 */
 	public $members = array();
+
+	/**
+	 * SQL part
+	 * @var string
+	 */
 	protected $orderBy = "uid";
+
+	/**
+	 * getQuery() stores the final query here for debug
+	 * @var string
+	 */
 	public $query;
 
+	/**
+	 * Should it be here? Belongs to the controller?
+	 * @var Request
+	 */
 	protected $request;
 
+	/**
+	 * Indication to slTable
+	 * @var bool
+	 */
 	public $useSorting = true;
+
+	/**
+	 * Lists columns for the SQL query
+	 * @var string
+	 */
+	public $select;
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
+		$this->select = $this->select ?: 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
 		if (is_array($where)) {
 			$this->where += $where;
@@ -96,9 +125,9 @@ class Collection {
 		}
 		$qb = Config::getInstance()->qb;
 		if ($where instanceof SQLWhere) {
-			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, 'DISTINCT '.$this->table.'.*', TRUE);
+			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
-			$query = $qb->getSelectQuery($this->table.' '.$this->join, $where, $this->orderBy, 'DISTINCT '.$this->table.'.*', TRUE);
+			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		}
 		if ($this->pager) {
 			$this->pager->initByQuery($query);
