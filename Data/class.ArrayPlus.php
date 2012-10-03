@@ -71,11 +71,11 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 * @param type $key
 	 * @return ArrayPlus
 	 */
-	function IDalize($key = 'id') {
+	function IDalize($key = 'id', $allowMerge = false) {
 		$data = array();
 		foreach ($this->data as $row) {
 			$keyValue = $row[$key];
-			if (!$keyValue) {
+			if (!$keyValue && !$allowMerge) {
 				debug($this->data, $key, $row);
 				throw new Exception(__METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.');
 			}
@@ -251,6 +251,24 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		reset($this->data);
 		return current($this->data);
 	}
+
+	function sortBy($column) {
+		foreach ($this->data as $key => &$row) {
+			$row['__key__'] = $key;
+		}
+		$this->IDalize($column, true);	// allow merge
+		$this->ksort();
+
+		$new = array();
+		foreach ($this->data as $row) {
+			$key = $row['__key__'];
+			unset($row['__key__']);
+			$new[$key] = $row;
+		}
+		$this->data = $new;
+		return $this;
+	}
+
 }
 
 function AP(array $a = array()) {
