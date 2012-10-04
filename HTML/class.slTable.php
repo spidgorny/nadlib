@@ -489,10 +489,10 @@ class slTable {
 						$val = $val->getName();
 					}
 				}
-				if (!$k['no_hsc']) {
-					$out = htmlspecialchars($val);
-				} else {
+				if ($k['no_hsc']) {
 					$out = $val;
+				} else {
+					$out = htmlspecialchars($val);
 				}
 			break;
 		}

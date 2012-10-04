@@ -8,7 +8,8 @@ function __autoload($class) {
 		? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
 		: ConfigBase::$includeFolders;
 
-	$classFile = end(explode('\\', $class));
+	$namespaces = explode('\\', $class);
+	$classFile = end($namespaces);
 	foreach ($folders as $path) {
 		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';
 		//debug($file, file_exists($file));
@@ -34,9 +35,9 @@ if (DEVELOPMENT) {
 	//error_reporting(E_ALL);
 	//debug(error_reporting());
 	ini_set('display_errors', FALSE);
-	trigger_error(str_repeat('*', 20));	// log file separator
+	//trigger_error(str_repeat('*', 20));	// log file separator
 	ini_set('display_errors', TRUE);
-	set_time_limit(5);
+	set_time_limit(Config::getInstance()->timeLimit ?: 5);
 	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 } else {
 	error_reporting(0);

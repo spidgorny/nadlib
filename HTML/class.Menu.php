@@ -112,7 +112,8 @@ class Menu /*extends Controller*/ {
 				if (Config::getInstance()->config['Controller']['useRouter']) {
 					$path = implode('/', $path);
 				} else {
-					$path = new URL(NULL, array('c' => end($path)));
+					$path = new URL();
+					$path->setParam('c', $class);
 				}
 				$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name.'').'</a></li>';
 
