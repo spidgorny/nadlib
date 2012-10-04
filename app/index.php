@@ -2,6 +2,6 @@
 
 require_once 'nadlib/init.php';
 
-$i = new Index();
+$i = Index::getInstance();
 $i->initController();
 echo $i->render();
