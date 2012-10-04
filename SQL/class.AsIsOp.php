@@ -24,10 +24,6 @@ class AsIsOp {
 	}
 
 	function debug() {
-		return $this->value;
-	}
-
-	function debug() {
 		return array(
 			'field' => $this->field,
 			'value' => $this->value,

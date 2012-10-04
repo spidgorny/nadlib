@@ -31,6 +31,10 @@ class Menu /*extends Controller*/ {
 	 */
 	protected $user;
 
+	public $renderOnlyCurrent = true;
+
+	public $ulClass = 'nav nav-list menu csc-menu';
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
@@ -94,7 +98,7 @@ class Menu /*extends Controller*/ {
 		return $items;
 	}
 
-	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true) {
+	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true, $ulClass = NULL) {
 		$content = '';
 		//$this->current = $this->request->getControllerString();
 		$rootpath = $this->request->getURLLevels();
@@ -102,8 +106,6 @@ class Menu /*extends Controller*/ {
 		//debug($rootpath, $level, $this->current);
 		foreach ($items as $class => $name) {
 			if ($name) {	// empty menu items indicate menu location for a controller
-				$actInA = $this->current == $class ? ' class="act"' : '';
-				$active = $this->current == $class ? ' class="active"' : '';
 				if (isset($root[0]) && ($class != $root[0])) {
 					$path = array_merge($root, array($class));
 				} else {
@@ -115,15 +117,30 @@ class Menu /*extends Controller*/ {
 					$path = new URL();
 					$path->setParam('c', $class);
 				}
-				$content .= '<li '.$active.'><a href="'.$path.'"'.$actInA.'>'.__($name.'').'</a></li>';
 
-				if ($isRecursive && $class == $this->current && is_object($items[$class]) && $items[$class]->getChildren()) {
-					$root_class = array_merge($root, array($class));
-					$content .= $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, $isRecursive);
+				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? $class == $this->current : true;
+				$hasChildren = $renderOnlyCurrentSubmenu && is_object($name) && $name->getChildren();
+				$actInA = $this->current == $class ? 'act' : '';
+				$active = $this->current == $class ? 'active' : '';
+				if ($hasChildren) {
+					$active .= ' dropdown';
+					$actInA .= ' dropdown-toggle';
+					$aTag = '<a href="'.$path.'" class="'.$actInA.'" data-toggle="dropdown">'.__($name.'').' <b class="caret"></b></a>';
+				} else {
+					$aTag = '<a href="'.$path.'" class="'.$actInA.'">'.__($name.'').'</a>';
 				}
+				if ($isRecursive && $hasChildren) {
+					$root_class = array_merge($root, array($class));
+					$contentSubmenu = $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, $isRecursive, 'dropdown-menu');
+				} else {
+					$contentSubmenu = '';
+				}
+				$content .= new HTMLTag('li', array(
+					'class' => $active,
+				), $aTag.$contentSubmenu, true);
 			}
 		}
-		$content = '<ul class="nav nav-list menu csc-menu">'.$content.'</ul>';
+		$content = '<ul class="'.($ulClass ? $ulClass : $this->ulClass).'">'.$content.'</ul>';
 		return $content;
 	}
 
