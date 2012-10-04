@@ -37,7 +37,7 @@ if (DEVELOPMENT) {
 	ini_set('display_errors', FALSE);
 	//trigger_error(str_repeat('*', 20));	// log file separator
 	ini_set('display_errors', TRUE);
-	set_time_limit(Config::getInstance()->timeLimit ?: 5);
+	set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);
 	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 } else {
 	error_reporting(0);
