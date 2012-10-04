@@ -45,7 +45,7 @@ class URLGet {
 	}
 
 	public function fetchCURL() {
-		$proxy = Proxy::getRandom();
+		//$proxy = Proxy::getRandom();
 		$process = curl_init($this->url);
 		//curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
 		//curl_setopt($process, CURLOPT_HEADER, 1);

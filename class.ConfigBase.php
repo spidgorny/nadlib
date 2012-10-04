@@ -33,6 +33,7 @@ class ConfigBase {
 		'../nadlib',
 		'../nadlib/Cache',
 		'../nadlib/Controller',
+		'../nadlib/CSS',
 		'../nadlib/Data',
 		'../nadlib/DB',
 		'../nadlib/Debug',

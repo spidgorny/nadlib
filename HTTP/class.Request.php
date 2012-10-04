@@ -223,7 +223,7 @@ class Request {
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
-			} else {
+			} else if ($c) {
 				throw new Exception('Class '.$c.' can\'t be found.');
 			}
 		}
@@ -409,4 +409,11 @@ class Request {
 	function debug() {
 		return get_object_vars($this);
 	}
+	function getFilename($name) {
+		//filter_var($this->getTrim($name), ???)
+		$filename = $this->getTrim($name);
+		$filename = basename($filename);	// optionally use realpath()
+		return $filename;
+	}
+
 }

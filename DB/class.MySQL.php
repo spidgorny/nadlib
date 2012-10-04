@@ -254,4 +254,8 @@ class MySQL {
 		}
 	}
 
+	function uncompress($value) {
+		return @gzuncompress(substr($value, 4));
+	}
+
 }
