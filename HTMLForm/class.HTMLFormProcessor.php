@@ -53,7 +53,7 @@ abstract class HTMLFormProcessor extends Controller {
 		$f->prefix($this->prefix);
 		$f->showForm();
 		$f->prefix('');
-		$f->submit($this->submitButton);
+		$f->submit($this->submitButton, '', array('class' => 'btn'));
 		return $f;
 	}
 
