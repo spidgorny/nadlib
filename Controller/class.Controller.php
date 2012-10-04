@@ -20,7 +20,7 @@ abstract class Controller {
 	 */
 	protected $db;
 
-	public $title = __CLASS__;
+	public $title;
 	protected $useRouter = false;
 
 	/**
@@ -61,7 +61,9 @@ abstract class Controller {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = $prefix.http_build_query($params, '', '&'); //, PHP_QUERY_RFC3986);
+			if ($params || $prefix != '?') {
+				$url = $prefix.http_build_query($params, '', '&'); //, PHP_QUERY_RFC3986);
+			}
 		}
 		return $url;
 	}
@@ -166,6 +168,9 @@ abstract class Controller {
 
 	function encloseInToggle($content, $title, $height = '', $isOpen = NULL) {
 		if ($content) {
+			$this->index->addJQuery();
+			$this->index->addJS('nadlib/js/showHide.js');
+			$this->index->addJS('nadlib/js/encloseInToggle.js');
 			$id = uniqid();
 
 			$content = '<div class="encloseIn">
@@ -186,21 +191,25 @@ abstract class Controller {
 
 	function log($text, $class = NULL, $done = NULL, array $extra = array()) {
 		//debug_pre_print_backtrace();
-		Config::getInstance()->db->runInsertQuery('log', array(
-			'pid' => getmypid(),
-			'class' => strval($class),
-			'done' => floatval($done),
-			'line' => $text,
-		)+$extra);
-		echo '<tr><td>'.implode('</td><td>', array(
-			date('Y-m-d H:i:s'),
-			getmypid(),
-			$class,
-			'<img src="bar.php?rating='.round($done*100).'" /> '.number_format($done*100, 3).'%',
-			$extra['id_channel'],
-			$extra['date'],
-			$text,
-		)).'</td></tr>'."\n";
+		if (Config::getInstance()->config[__CLASS__]['log'] !== false) {
+			if (Config::getInstance()->db) {
+				Config::getInstance()->db->runInsertQuery('log', array(
+					'pid' => getmypid(),
+					'class' => strval($class),
+					'done' => floatval($done),
+					'line' => $text,
+				)+$extra);
+			}
+			echo '<tr><td>'.implode('</td><td>', array(
+				date('Y-m-d H:i:s'),
+				getmypid(),
+				$class,
+				'<img src="bar.php?rating='.round($done*100).'" /> '.number_format($done*100, 3).'%',
+				$extra['id_channel'],
+				$extra['date'],
+				$text,
+			)).'</td></tr>'."\n";
+		}
 		flush();
 	}
 

@@ -19,10 +19,13 @@ class URLGet {
 	public function fetch() {
 		$start = microtime(true);
 		//Controller::log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
-		//$html = $this->fetchFOpen();
 		do {
 			try {
-				$html = $this->fetchCURL();
+				if (function_exists('curl_init')) {
+					$html = $this->fetchCURL();
+				} else {
+					$html = $this->fetchFOpen();
+				}
 			} catch (Exception $e) {
 				//Controller::log($e->getMessage(), __CLASS__);
 			}

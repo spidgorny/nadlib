@@ -9,7 +9,7 @@ abstract class LocalLang {
 	protected 	$defaultLang = 'en';
 	public	 	$possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
 	public	  	$lang;											// name of the selected language
-	public    	$indicateUntranslated = true;
+	public    	$indicateUntranslated = false;
 	protected 	$codeID = array();
 	public 		$editMode = false;
 
