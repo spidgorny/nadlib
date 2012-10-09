@@ -201,7 +201,7 @@ class HTMLFormTable extends HTMLForm {
 						$this->stdout .= '<br />';
 					} else {
 						if ($desc['label']) {
-						$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check'
+							$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check'
 							? '<span class="htmlFormTableStar">*</span>'
 							: '');
 							$this->stdout .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
@@ -209,7 +209,7 @@ class HTMLFormTable extends HTMLForm {
 						}
 					}
 					$this->stdout .= '</label>';
-				$this->stdout .= '</td><td>';
+					$this->stdout .= '</td><td>';
 				}
 				if (isset($desc['error'])) {
 					//debug($fieldName, $desc);
@@ -240,11 +240,12 @@ class HTMLFormTable extends HTMLForm {
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
 				}
-			if ($desc['newTD']) {
-				$this->stdout .= '</td>';
+				if ($desc['newTD']) {
+					$this->stdout .= '</td>';
+				}
 			}
 		} else {
-			$elementID = $this->switchType($fieldName, $fieldValue, $desc);
+			$this->switchType($fieldName, $fieldValue, $desc);
 		}
 	}
 
@@ -401,7 +402,6 @@ class HTMLFormTable extends HTMLForm {
 	 * @param	boolean	??? what's for?
 	 * @return	array	HTMLFormTable structure.
 	 */
-
 	function fillValues(array $desc, array $assoc, $forceInsert = false) {
 		foreach ($assoc as $key => $val) {
 			if (is_array($desc[$key]) || $forceInsert) {
