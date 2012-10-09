@@ -273,13 +273,17 @@ class SQLBuilder {
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
 		} else if ($value instanceof Time) {
-			return "'".$value->__toString()."'";
+			return "'".$this->db->escape($value->__toString())."'";
+		} else if ($value instanceof SQLDate) {
+			return "'".$this->db->escape($value->__toString())."'";
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
 			return $value;
 		} else if ($value instanceof AsIs) {
 			return $value.'';
+		} else if ($value instanceof SimpleXMLElement) {
+			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
 			return intval($value); // MySQL specific
@@ -337,8 +341,10 @@ class SQLBuilder {
 					$val->injectQB($this);
 					$val->injectField($key);
 					$set[] = $val->__toString();
-				} else if (is_object($val)) {
-					$set[] = $val.'';
+				} else if ($val instanceof SimpleXMLElement) {
+					$set[] = $val->asXML();
+				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
+				//	$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
 					$set[] = $key . ' ' . $val;
 				} else if ($val === NULL) {
@@ -605,9 +611,10 @@ class SQLBuilder {
 			'DISTINCT '.$this->quoteKey($titleField).', '.$this->quoteKey($idField), true);
 		//debug($this->db->lastQuery);
 		$data = $this->fetchAll($res, $idField);
-		$keys = array_keys($data);
-		$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
-		$options = array_combine($keys, $values);
+		//$keys = array_keys($data);
+		//$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
+		//$options = array_combine($keys, $values);
+		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
 	}
 
