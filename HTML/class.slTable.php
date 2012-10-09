@@ -264,64 +264,71 @@ class slTable {
 		$t->stdout .= '<tbody>';
 	}
 
-	function generate() {
+	function generate($width = array()) {
+		global $db;
+
 		if (!$this->generation) {
-			if (!sizeof($this->thes) && sizeof($this->data) && $this->data != FALSE) {
-				$this->generateThes();
-			}
+			if (sizeof($this->data) && $this->data != FALSE) {
+				if (!sizeof($this->thes)) {
+					$this->generateThes();
+				}
 
-			if ($this->sortable) {
-				$this->sort();
-			}
+				if ($this->sortable) {
+					$this->sort();
+				}
 
-			$t = new HTMLTableBuf();
+				$t = new HTMLTableBuf();
 			$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
 
-			$this->generateThead($t);
+				$this->generateThead($t);
 
-			// td
-			if (!is_array($this->data)) {
-				$data = array();
-			} else {
-				$data = $this->data;
-			}
-			$i = -1;
-			foreach ($data as $key => $row) { // (almost $this->data)
-				$class = array();
-				if (isset($row['###TD_CLASS###'])) {
-					$class[] = $row['###TD_CLASS###'];
+				// td
+				if (!is_array($this->data)) {
+					$data = array();
 				} else {
-					// only when not manually defined
+					$data = $this->data;
+				}
+				$i = -1;
+				foreach ($data as $key => $row) { // (almost $this->data)
+					$class = array();
+					if (isset($row['###TD_CLASS###'])) {
+						$class[] = $row['###TD_CLASS###'];
+					} else {
+						// only when not manually defined
+						if ($this->isOddEven) {
+							$class[] = (++$i%2?'even':'odd');
+						}
+					}
+					if ($this->dataClass[$key]) {
+						$class[] = $this->dataClass[$key];
+					}
+					$tr = 'class="'.implode(' ', $class).'"';
+					//debug($tr);
+					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
+					$iCol = 0;
+					$this->genRow($t, $row);
+					$t->tre();
+				}
+				$t->stdout .= '</tbody>';
+				if ($this->footer) {
+					$t->stdout .= '<tfoot>';
+					$class = array();
 					if ($this->isOddEven) {
 						$class[] = (++$i%2?'even':'odd');
 					}
+					$class[] = 'footer';
+					$tr = 'class="'.implode(' ', $class).'"';
+					$t->tr($tr);
+					$this->genRow($t, $this->footer);
+					$t->tre();
+					$t->stdout .= '</tfoot>';
 				}
-				if ($this->dataClass[$key]) {
-					$class[] = $this->dataClass[$key];
-				}
-				$tr = 'class="'.implode(' ', $class).'"';
-				//debug($tr);
-				$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
-				$iCol = 0;
-				$this->genRow($t, $row);
-				$t->tre();
+				$t->tablee();
+				$this->generation = $t;
+			} else {
+				$this->generation = new HTMLTableBuf();
+				$this->generation->stdout = '<div class="message">No Data</div>';
 			}
-			$t->stdout .= '</tbody>';
-			if ($this->footer) {
-				$t->stdout .= '<tfoot>';
-				$class = array();
-				if ($this->isOddEven) {
-					$class[] = (++$i%2?'even':'odd');
-				}
-				$class[] = 'footer';
-				$tr = 'class="'.implode(' ', $class).'"';
-				$t->tr($tr);
-				$this->genRow($t, $this->footer);
-				$t->tre();
-				$t->stdout .= '</tfoot>';
-			}
-			$t->tablee();
-			$this->generation = $t;
 		}
 	}
 
@@ -486,10 +493,10 @@ class slTable {
 						$val = $val->getName();
 					}
 				}
-				if (!$k['no_hsc']) {
-					$out = htmlspecialchars($val);
-				} else {
+				if ($k['no_hsc']) {
 					$out = $val;
+				} else {
+					$out = htmlspecialchars($val);
 				}
 			break;
 		}

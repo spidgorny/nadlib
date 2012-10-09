@@ -448,6 +448,12 @@ class Time {
 	    return $content;
 	}
 
+	/**
+	 * Conbines date and time and creates a new Time object
+	 * @param $date
+	 * @param $time
+	 * @return Time
+	 */
 	static function combine($date, $time) {
 		if ($date instanceof Time) {
 			$date = $date->getISODate();

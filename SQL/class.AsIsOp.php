@@ -20,7 +20,14 @@ class AsIsOp {
 	}
 
 	function __toString() {
-		return $this->value;
+		return $this->value.'';
+	}
+
+	function debug() {
+		return array(
+			'field' => $this->field,
+			'value' => $this->value,
+		);
 	}
 
 }
