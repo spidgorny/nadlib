@@ -2,20 +2,16 @@
 
 class OODBase {
 	/**
-	 *
-	 *
 	 * @var MySQL
 	 */
 	protected $db;
+
 	public $table;
 	protected $idField = 'id';
 	protected $titleColumn = 'name';
 	public $id;
 	public $data = array();
-	public $thes = array(
-		'id' => 'ID',
-		'name' => 'Name',
-	);
+	public $thes = array();
 
 	/**
 	 * Enter description here...
@@ -80,7 +76,7 @@ class OODBase {
 			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
 			//debug($query);
 			$res = $this->db->perform($query);
-			$this->data = array_merge($this->data, $data); // should overwrite
+			$this->data = array_merge($this->data, $data); // If the input arrays have the same string keys, then the later value for that key will overwrite the previous one.
 		} else {
 			$this->db->rollback();
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
@@ -197,20 +193,20 @@ class OODBase {
 	}
 
 	function renderAssoc() {
+		//debug($this->thes);
 		if ($this->thes) {
 			$assoc = array();
 			foreach ($this->thes as $key => $desc) {
 				$desc = is_array($desc) ? $desc : array('name' => $desc);
 				if ($desc['showSingle'] !== false) {
-					$assoc[] = array(
+					$assoc[$key] = array(
 						0 => $desc['name'],
 						'' => $this->data[$key],
 						'.' => $desc,
 					);
 				}
 			}
-			$s = new slTable($assoc);
-			$s->thes = array(0 => '', '' => '');
+			$s = new slTable($assoc. '', array(0 => '', '' => array('no_hsc' => true)));
 		} else {
 			$assoc = $this->data;
 			foreach ($assoc as $key => $val) {

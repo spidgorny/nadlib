@@ -21,10 +21,8 @@ class Collection {
 	 */
 	var $data = array();
 
-	public $thes = array(
-		'uid' => 'ID',
-		'title' => 'Title',
-	);
+	public $thes = array();
+
 	var $titleColumn = 'title';
 	public $where = array();
 	public $join = ''; // for LEFT OUTER JOIN queries
@@ -135,8 +133,9 @@ class Collection {
 				$ps->setURL($url);
 				$pages .= $ps->render();
 			}
-			$s = new slTable($this->data, 'class="nospacing" width="100%" id="'.get_class($this).'"');
-			$s->thes = $this->thes;
+			$s = new slTable($this->data, 'class="nospacing" width="100%"');
+			$s->thes($this->thes);
+			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
 			$s->sortLinkPrefix = new URL();
 			$content = $pages . $s->getContent() . $pages;
@@ -264,6 +263,11 @@ class Collection {
 			}
 		}
 		return $where;
+	}
+
+	function mergeData(Collection $c2) {
+		//debug(array_keys($this->data), array_keys($c2->data));
+		$this->data = ($this->data + $c2->data);
 	}
 
 }

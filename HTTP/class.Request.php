@@ -236,7 +236,9 @@ class Request {
 	}
 
 	function redirect($controller) {
-		Index::getInstance()->__destruct();
+		if (class_exists('Index') && Index::getInstance() && method_exists(Index::getInstance(), '__destruct')) {
+			Index::getInstance()->__destruct();
+		}
 		if (!headers_sent()
 //			|| DEVELOPMENT
 		) {
