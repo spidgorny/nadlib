@@ -61,27 +61,35 @@ class View {
 
 	function wikify($text) {
 		$inUL = false;
-		$lines = explode("\n", $text);
+		$lines2 = array();
+		$lines = trimExplode("\n", $text);
 		foreach ($lines as $line) {
-			if ($line{0} == '*') {
+			if ($line{0} == '*' || $line{0} == '-') {
 				if (!$inUL) {
 					$lines2[] = "<ul>";
 					$inUL = TRUE;
 				}
 			}
-			$lines2[] = $line;
-			if ($line{0} != '*') {
+			$lines2[] = $inUL
+				? '<li>'.substr($line, 2).'</li>'
+				: $line;
+			if ($line{0} != '*' && $line{0} != '-') {
 				if ($inUL) {
 					$lines2[] = "</ul>";
 					$inUL = FALSE;
 				}
 			}
 		}
+		if ($inUL) {
+			$lines2[] = '</ul>';
+		}
 		$text = implode("\n", $lines2);
-		$text = str_replace("\n* ", "\n<li> ", $text);
+		//debug($lines2, $text);
+		//$text = str_replace("\n* ", "\n<li> ", $text);
+		//$text = str_replace("\n- ", "\n<li> ", $text);
 		$text = str_replace("\n<ul>\n", "<ul>", $text);
 		$text = str_replace("</ul>\n", "</ul>", $text);
-		$text = str_replace("\n", "</p>\n<p>", $text);
+		$text = str_replace("\n\n", "</p>\n<p>", $text);
 		$text = str_replace("<p></p>", "", $text);
 		$text = str_replace("<p></p>", "", $text);
 		return $text;

@@ -195,13 +195,15 @@ class HTMLFormTable extends HTMLForm {
 					$this->stdout .= '<br />';
 				} else {
 					if ($desc['label']) {
-						$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check' ? '<span class="htmlFormTableStar">*</span>' : '');
+						$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check'
+							? '<span class="htmlFormTableStar">*</span>'
+							: '');
 						$this->stdout .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
 						$this->stdout .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
 					}
-					$this->stdout .= '</td><td>';
 				}
 				$this->stdout .= '</label>';
+				$this->stdout .= '</td><td>';
 			}
 			if (isset($desc['error'])) {
 				//debug($fieldName, $desc);
@@ -232,7 +234,9 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= $desc['error'];
 				$this->stdout .= '</div>';
 			}
-			$this->stdout .= '</td>';
+			if ($desc['newTD']) {
+				$this->stdout .= '</td>';
+			}
 		} else {
 			$elementID = $this->switchType($fieldName, $fieldValue, $desc);
 		}
@@ -241,13 +245,13 @@ class HTMLFormTable extends HTMLForm {
 	function showRow($fieldName, array $desc2) {
 		$stdout = '';
 		//foreach ($desc as $fieldName2 => $desc2) {
-			if ($fieldName2 != 'horisontal') {
-				$stdout .= "<td {$desc['TDmore']}>";
+			//if ($fieldName2 != 'horisontal') {
+				$this->mainFormStart();
 				$path = $fieldName;
 				//$path[] = $fieldName2;
 				$this->showCell($path, $desc2);
-				$stdout .= "</td>";
-			}
+				$this->mainFormEnd();
+			//}
 		//}
 	}
 
