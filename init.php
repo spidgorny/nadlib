@@ -2,26 +2,32 @@
 
 function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-	require_once dirname(__FILE__).'/../nadlib/class.ConfigBase.php';
-	require_once dirname(__FILE__).'/../class/class.Config.php';
-	$folders = Config::$includeFolders
-		? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
-		: ConfigBase::$includeFolders;
+	require_once('class.ConfigBase.php');
+	if (file_exists(dirname(__FILE__).'/app/class/class.Config.php')) {
+		require_once dirname(__FILE__).'/../class/class.Config.php';
+		$folders = Config::$includeFolders
+			? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
+			: ConfigBase::$includeFolders;
+	} else {
+		$folders = ConfigBase::$includeFolders;
+	}
 
 	$namespaces = explode('\\', $class);
 	$classFile = end($namespaces);
 	foreach ($folders as $path) {
 		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';
-		//debug($file, file_exists($file));
+		echo $class.' '.$file.': '.file_exists($file).'<br />';
 		if (file_exists($file)) {
 			include_once($file);
 			break;
 		}
 	}
 	if (!class_exists($class)) {
-		$config = Config::getInstance();
-		if ($config->autoload['notFoundException']) {
-			throw new Exception('Class '.$class.' ('.$file.') not found.');
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			if ($config->autoload['notFoundException']) {
+				throw new Exception('Class '.$class.' ('.$file.') not found.');
+			}
 		}
 	}
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -37,7 +43,9 @@ if (DEVELOPMENT) {
 	ini_set('display_errors', FALSE);
 	//trigger_error(str_repeat('*', 20));	// log file separator
 	ini_set('display_errors', TRUE);
-	set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);
+	if (class_exists('Config')) {
+		set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);
+	}
 	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 } else {
 	error_reporting(0);
