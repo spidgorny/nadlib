@@ -1,6 +1,7 @@
 <?php
 
-require_once 'nadlib/init.php';
+//define('NADLIB', dirname(__FILE__).'/..');
+require_once '../init.php';
 
 $i = Index::getInstance();
 $i->initController();
