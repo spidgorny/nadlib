@@ -624,15 +624,7 @@ class SQLBuilder {
 		} else {
 			$options = array();
 		}
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid') {
-		$res = $this->runSelectQuery($table, $where, $order,
-			'DISTINCT '.$this->quoteKey($titleField).', '.$this->quoteKey($idField), true);
-		//debug($this->db->lastQuery);
-		$data = $this->fetchAll($res, $idField);
-		//$keys = array_keys($data);
-		//$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
-		//$options = array_combine($keys, $values);
-		$options = AP($data)->column_assoc($idField, $titleField)->getData();
+		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
 	}
 

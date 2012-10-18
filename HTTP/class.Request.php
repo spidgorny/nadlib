@@ -415,9 +415,11 @@ class Request {
 	function isCLI() {
 		return isset($_SERVER['argc']);
 	}
+
 	function debug() {
 		return get_object_vars($this);
 	}
+
 	function getFilename($name) {
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
