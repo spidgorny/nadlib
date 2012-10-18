@@ -243,13 +243,19 @@ class Request {
 	}
 
 	function redirect($controller) {
-		Index::getInstance()->__destruct();
+		if (class_exists('Index') && Index::getInstance() && method_exists(Index::getInstance(), '__destruct')) {
+			Index::getInstance()->__destruct();
+		}
 		if (!headers_sent()
 //			|| DEVELOPMENT
 		) {
 			header('Location: '.$controller);
+		} else {
+			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
+			<script>
+				document.location = "'.$controller.'";
+			</script>';
 		}
-		echo '<a href="'.$controller.'">'.$controller.'</a>';
 		exit();
 	}
 
@@ -406,9 +412,14 @@ class Request {
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
+	function isCLI() {
+		return isset($_SERVER['argc']);
+	}
+
 	function debug() {
 		return get_object_vars($this);
 	}
+
 	function getFilename($name) {
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);

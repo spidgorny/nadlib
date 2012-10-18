@@ -21,10 +21,8 @@ class Collection {
 	 */
 	var $data = array();
 
-	public $thes = array(
-		'uid' => 'ID',
-		'title' => 'Title',
-	);
+	public $thes = array();
+
 	var $titleColumn = 'title';
 	public $where = array();
 	public $join = ''; // for LEFT OUTER JOIN queries
@@ -95,7 +93,9 @@ class Collection {
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
 		$this->retrieveDataFromDB();
-		$this->preprocessData();
+		foreach ($this->thes as &$val) {
+			$val = is_array($val) ? $val : array('name' => $val);
+		}
 		$this->translateThes();
 		//$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
 	}
@@ -114,6 +114,7 @@ class Collection {
 			$res = $this->db->perform($this->query);
 			$data = $this->db->fetchAll($res);
 			$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+			$this->preprocessData();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
@@ -154,8 +155,6 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			$r = Request::getInstance();
-			//$url = $r->getURLLevel(0);
 			$url = new URL();
 			if ($this->pager) {
 				$pages = $this->pager->renderPageSelectors($url);
@@ -164,8 +163,9 @@ class Collection {
 				$ps->setURL($url);
 				$pages .= $ps->render();
 			}
-			$s = new slTable($this->data, 'class="nospacing" width="100%" id="'.get_class($this).'"');
-			$s->thes = $this->thes;
+			$s = new slTable($this->data, 'class="nospacing" width="100%"');
+			$s->thes($this->thes);
+			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
 			$s->sortLinkPrefix = new URL();
 			$content = $pages . $s->getContent() . $pages;
@@ -229,7 +229,7 @@ class Collection {
 
 	function translateThes() {
 		// translate thes
-		if (is_array($this->thes)) foreach ($this->thes as $key => &$trans) {
+		if (is_array($this->thes)) foreach ($this->thes as &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);
 			}
@@ -293,6 +293,11 @@ class Collection {
 			}
 		}
 		return $where;
+	}
+
+	function mergeData(Collection $c2) {
+		//debug(array_keys($this->data), array_keys($c2->data));
+		$this->data = ($this->data + $c2->data);
 	}
 
 }

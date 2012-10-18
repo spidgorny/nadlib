@@ -24,12 +24,12 @@ class HTMLFormValidate {
 			))) {
 				$d['error'] = 'This field is obligatory.';
 				$error = TRUE;
+			} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
+				$e['error'] = 'This field must be set';
+				$error = true;
 			} elseif ($d['obligatory'] && !$d['value']) {
 				$d['error'] = 'This field is obligatory.';
 				$error = TRUE;
-			} elseif ($d['mustBset'] && !isset($d['value'])) {
-				$e['error'] = 'This field must be set';
-				$error = true;
 			} elseif ($field == 'email' && $value && !$this->validMail($value)) {
 				$d['error'] = 'Not a valid e-mail.';
 				$error = TRUE;
