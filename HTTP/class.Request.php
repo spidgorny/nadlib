@@ -409,4 +409,8 @@ class Request {
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
+	function isCLI() {
+		return isset($_SERVER['argc']);
+	}
+
 }

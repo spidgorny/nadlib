@@ -28,7 +28,7 @@ function __autoload($class) {
 
 define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
 if (DEVELOPMENT) {
-	$GLOBALS['profiler'] = new TaylorProfiler(TRUE);
+	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
 	/* @var $profiler TaylorProfiler */
 	error_reporting(E_ALL ^ E_NOTICE);
 	//error_reporting(E_ALL);
@@ -61,10 +61,32 @@ function getDebug($a) {
 	return ob_get_clean();
 }
 
+/**
+ * Whether string starts with some chars
+ * @param $haystack
+ * @param $needle
+ * @return bool
+ */
 function startsWith($haystack, $needle) {
 	return strpos($haystack, $needle) === 0;
 }
 
+/**
+ * Whether string ends with some chars
+ * @param $haystack
+ * @param $needle
+ * @return bool
+ */
+function endsWith($haystack, $needle) {
+	return strpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+}
+
+/**
+ * Does string splitting with cleanup.
+ * @param $sep
+ * @param $str
+ * @return array
+ */
 function trimExplode($sep, $str) {
 	$parts = explode($sep, $str);
 	$parts = array_map('trim', $parts);
@@ -130,6 +152,11 @@ if(!function_exists('get_called_class')) {
 	}
 }
 
+/**
+ * Complements the built-in end() function
+ * @param array $list
+ * @return mixed
+ */
 function first(array $list) {
 	reset($list);
 	return current($list);

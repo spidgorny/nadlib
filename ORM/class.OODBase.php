@@ -12,10 +12,7 @@ class OODBase {
 	protected $titleColumn = 'name';
 	public $id;
 	public $data = array();
-	public $thes = array(
-		'id' => 'ID',
-		'name' => 'Name',
-	);
+	public $thes = array();
 
 	/**
 	 * Enter description here...
@@ -27,6 +24,9 @@ class OODBase {
 		$config = Config::getInstance();
 		$this->table = $config->prefixTable($this->table);
 		$this->db = $config->db;
+		foreach ($this->thes as &$val) {
+			$val = is_array($val) ? $val : array('name' => $val);
+		}
 		$this->init($id);
 		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
@@ -61,7 +61,7 @@ class OODBase {
 		$query = $qb->getInsertQuery($this->table, $data);
 		$res = $this->db->perform($query);
 		$id = $this->db->lastInsertID($res, $this->table);
-		$this->init($id);
+		$this->init($id ? $id : $this->id);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
 	}

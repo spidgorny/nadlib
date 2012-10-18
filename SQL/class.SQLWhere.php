@@ -35,4 +35,8 @@ class SQLWhere {
 		return $this->parts;
 	}
 
+	function debug() {
+		return $this->parts;
+	}
+
 }

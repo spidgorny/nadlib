@@ -5,6 +5,12 @@ class dbLayerMS {
 	public $lastQuery;
 	protected $connection;
 	protected static $instance;
+	public $debug = false;
+
+	public $ignoreMessages = array(
+		"Changed database context to 'DEV_LOTCHECK'.",
+		"Changed database context to 'PRD_LOTCHECK'.",
+	);
 
 	public static function getInstance() {
 		$c = Config::getInstance();
@@ -34,8 +40,11 @@ class dbLayerMS {
 			$query = str_replace('?', $ar, $query);
 		}
 		$res = mssql_query($query, $this->connection);
+		if ($this->debug) {
+			debug(__METHOD__, $query, $this->numRows($res));
+		}
 		$msg = mssql_get_last_message();
-		if ($msg && $msg != "Changed database context to 'DEV_LOTCHECK'.") {
+		if ($msg && !in_array($msg, $this->ignoreMessages)) {
 			debug($msg, $query);
 			$this->close();
 			$this->connect();
@@ -51,15 +60,21 @@ class dbLayerMS {
 		return mssql_fetch_assoc($res);
 	}
 
-	function fetchAll($res) {
+	function fetchAll($res, $keyKey = NULL) {
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
 		$table = array();
 		$rows = mssql_num_rows($res);
+		$i = 0;
 		do {
 			while (($row = $this->fetchAssoc($res)) != false) {
-				$table[] = $row;
+				if ($keyKey) {
+					$key = $row[$keyKey];
+					$table[$key] = $row;
+				} else {
+					$table[] = $row;
+				}
 			}
 		} while (mssql_next_result($res) && $i++ < $rows);
 		mssql_free_result($res);
@@ -120,7 +135,7 @@ AND name = '?')", array($table));
 	 * @param <type> $order
 	 * @return <type>
 	 */
-	function fetchSelectQuery($table, array $where = array(), $order = '') {
+/*	function fetchSelectQuery($table, array $where = array(), $order = '') {
 		$res = $this->runSelectQuery($table, $where, $order);
 		$data = $this->fetchAll($res);
 		return $data;
@@ -143,9 +158,34 @@ AND name = '?')", array($table));
 		$res = $qb->runSelectQuerySW($table, $where, $order);
 		return $res;
 	}
-
+*/
 	function numRows($res) {
 		return mssql_num_rows($res);
+	}
+
+	function quoteKey($key) {
+		return '['.$key.']';
+	}
+
+	function lastInsertID() {
+		$lq = $this->lastQuery;
+		$query = 'SELECT SCOPE_IDENTITY()';
+		$res = $this->perform($query);
+		$row = $this->fetchAssoc($res);
+		//debug($lq, $row);
+		$val = $row['computed'];
+		return $val;
+	}
+
+	function __call($method, array $params) {
+		$qb = Config::getInstance()->qb;
+		//debug_pre_print_backtrace();
+		//debug($method, $params);
+		if (method_exists($qb, $method)) {
+			return call_user_func_array(array($qb, $method), $params);
+		} else {
+			throw new Exception($method.' not found in MySQL and SQLBuilder');
+		}
 	}
 
 }

@@ -21,10 +21,7 @@ class Collection {
 	 */
 	var $data = array();
 
-	public $thes = array(
-		'uid' => 'ID',
-		'title' => 'Title',
-	);
+	public $thes;
 	var $titleColumn = 'title';
 	public $where = array();
 	public $join = ''; // for LEFT OUTER JOIN queries
@@ -66,7 +63,9 @@ class Collection {
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
 		$this->retrieveDataFromDB();
-		$this->preprocessData();
+		foreach ($this->thes as &$val) {
+			$val = is_array($val) ? $val : array('name' => $val);
+		}
 		$this->translateThes();
 		//$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
 	}
@@ -85,6 +84,7 @@ class Collection {
 			$res = $this->db->perform($this->query);
 			$data = $this->db->fetchAll($res);
 			$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+			$this->preprocessData();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
@@ -125,8 +125,6 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			$r = Request::getInstance();
-			//$url = $r->getURLLevel(0);
 			$url = new URL();
 			if ($this->pager) {
 				$pages = $this->pager->renderPageSelectors($url);
@@ -200,7 +198,7 @@ class Collection {
 
 	function translateThes() {
 		// translate thes
-		if (is_array($this->thes)) foreach ($this->thes as $key => &$trans) {
+		if (is_array($this->thes)) foreach ($this->thes as &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);
 			}
