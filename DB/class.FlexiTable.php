@@ -75,6 +75,8 @@ class FlexiTable extends OODBase {
 			$type = 'timestamp';
 		} else if (is_numeric($value)) {
 			$type = 'float';
+		} else if ($value instanceof SimpleXMLElement) {
+			$type = 'text';
 		} else {
 			$type = 'VARCHAR (255)';
 		}

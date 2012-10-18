@@ -12,7 +12,7 @@
  *
  * Well, it's clever enough to use "=" sign for WHERE and UPDATE queries and nothing in INSERT.
  */
-class AsIs {
+class AsIs extends SQLWherePart {
 	protected $value;
 
 	function __construct($value) {

@@ -9,7 +9,7 @@ class HTMLForm {
 	var $enctype = "";
 	var $class = "";
 	var $fieldset;
-	var $fieldsetMore = array();
+	protected $fieldsetMore = array();
 	var $formMore = '';
 	var $target = '';
 	public $debug = false;
@@ -133,9 +133,8 @@ class HTMLForm {
 
 	function radioLabel($name, $value, $checked, $label = "") {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->getName($name, $value, true);
 		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." id='".$id."'> ";
+		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."'> ";
 		$this->stdout .= "<label for=$id>".htmlspecialchars($label)."</label>";
 	}
 
@@ -299,6 +298,7 @@ class HTMLForm {
 	 */
 	function radioset($name, $value, array $desc) {
 		foreach ($desc['options'] as $key => $val) {
+			//debug($name, intval($value), intval($key));
 			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
 			$this->text('<br />');
 		}
@@ -352,6 +352,7 @@ class HTMLForm {
 	}
 
 	function getAttrHTML(array $attr = NULL) {
+		//debug_pre_print_backtrace();
 		$part = array();
 		if ($attr) foreach ($attr as $key => $val) {
 			$part[] = $key.'="'.htmlspecialchars($val).'"';

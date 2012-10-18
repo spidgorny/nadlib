@@ -9,7 +9,7 @@ abstract class LocalLang {
 	protected 	$defaultLang = 'en';
 	public	 	$possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
 	public	  	$lang;											// name of the selected language
-	public    	$indicateUntranslated = true;
+	public    	$indicateUntranslated = false;
 	protected 	$codeID = array();
 	public 		$editMode = false;
 
@@ -161,8 +161,8 @@ abstract class LocalLang {
 }
 
 function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	if (class_exists('Index') && Index::getInstance()) {
-		return Index::getInstance()->ll->T($code, $r1, $r2, $r3);
+	if (Config::getInstance() && Config::getInstance()->ll) {
+		return Config::getInstance()->ll->T($code, $r1, $r2, $r3);
 	} else {
 		return $code;
 	}
