@@ -600,14 +600,24 @@ class SQLBuilder {
 		return call_user_func_array(array($this->db, $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid') {
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL) {
 		$res = $this->runSelectQuery($table, $where, $order,
-			'DISTINCT '.$this->quoteKey($titleField).', '.$this->quoteKey($idField), true);
+			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
+			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
+			true);
 		//debug($this->db->lastQuery);
-		$data = $this->fetchAll($res, $idField);
+		if ($idField) {
+			$data = $this->fetchAll($res, 'id_field');
+		} else {
+			$data = $this->fetchAll($res, 'title');
+		}
 		$keys = array_keys($data);
-		$values = array_map(create_function('$arr', 'return $arr["'.$titleField.'"];'), $data);
-		$options = array_combine($keys, $values);
+		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
+		if ($keys && $values) {
+			$options = array_combine($keys, $values);
+		} else {
+			$options = array();
+		}
 		return $options;
 	}
 

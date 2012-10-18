@@ -26,7 +26,9 @@ class MiniProfiler {
 				'times' => $t['times'],
 			);
 		}
-		array_multisort(array_column($table, 'duration'), SORT_DESC, $table);
+		//$ac = array_column($table, 'duration');
+		$ac = ArrayPlus::create($table)->column('duration')->getData();
+		array_multisort($ac, SORT_DESC, $table);
 		return new slTable($table);
 	}
 
