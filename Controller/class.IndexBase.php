@@ -77,7 +77,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 		} catch (Exception $e) {
 			$this->controller = NULL;
-			$content = $this->renderException($e);
+			$this->content = $this->renderException($e);
 		}
 	}
 
@@ -88,6 +88,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			try {
 				$this->content .= $this->controller->render();
 				$v = new View('template.phtml', $this);
+				$v->title = $this->controller->title;
 				$v->sidebar = $this->showSidebar();
 				$content = $v->render();
 			} catch (LoginException $e) {

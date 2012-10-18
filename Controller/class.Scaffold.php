@@ -164,6 +164,55 @@ abstract class Scaffold extends Controller {
 	}
 
 	/**
+	 * Return nothing or false to indicate success.
+	 * $this->insertRecord should return nothing?!?
+	 *
+	 * @param unknown_type $action
+	 * @param unknown_type $id
+	 * @return unknown
+	 */
+	public function showPerform($action, $id = NULL) {
+		$content = '';
+		//$userData = $this->request->getArray($this->formPrefix);
+		//debug($userData, $formPrefix);
+
+		//$desc = $this->getDesc($userData);
+		//$desc = HTMLFormTable::fillValues($desc, $userData); // commented not to overwrite
+		$v = new HTMLFormValidate($this->desc);
+		if ($v->validate()) {
+			try {
+				switch ($action) {
+					case 'add': $content = $this->insertRecord($this->data); break;
+					case 'update': $content = $this->updateRecord($this->data); break;
+					default: {
+					debug(__METHOD__);
+					throw new Exception(__METHOD__);
+					}
+				}
+			} catch (Exception $e) {
+				$content .= '<p class="ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
+				$content .= $this->showForm();
+			}
+		} else {
+			//$desc = $v->getDesc();
+			$content .= '<div class="message ui-state-error">Validation failed. Check your form below:</div>';
+			$content .= $this->showForm();
+			//debug($desc['participants'], $userData['participants']);
+		}
+		return $content;
+	}
+
+	function insertRecord(array $userData) {
+		$res = $this->model->insert($userData);
+		return $this->afterInsert($userData);
+	}
+
+	function updateRecord(array $userData) {
+		$res = $this->model->update($userData);	// update() returns nothing
+		return $this->afterUpdate($userData);
+	}
+
+	/**
 	 * Needs to implement data into the desc internally!!!
 	 * Please use HTMLFormTable::fillValues()
 	 * @param array $data - the source data of the edited record, if in edit more
@@ -215,63 +264,6 @@ abstract class Scaffold extends Controller {
 		}
 	}
 
-	/**
-	 * Return nothing or false to indicate success.
-	 * $this->insertRecord should return nothing?!?
-	 *
-	 * @param unknown_type $action
-	 * @param unknown_type $id
-	 * @return unknown
-	 */
-	public function showPerform($action, $id = NULL) {
-		$content = '';
-		//$userData = $this->request->getArray($this->formPrefix);
-		//debug($userData, $formPrefix);
-
-		//$desc = $this->getDesc($userData);
-		//$desc = HTMLFormTable::fillValues($desc, $userData); // commented not to overwrite
-		$v = new HTMLFormValidate($this->desc);
-		if ($v->validate()) {
-			try {
-				switch ($action) {
-					case 'add': $content = $this->insertRecord($this->data); break;
-					case 'update': $content = $this->updateRecord($this->data); break;
-					default: {
-					debug(__METHOD__);
-					throw new Exception(__METHOD__);
-					}
-				}
-			} catch (Exception $e) {
-				$content .= '<p class="ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
-				$content .= $this->showForm();
-			}
-		} else {
-			//$desc = $v->getDesc();
-			$content .= '<div class="message ui-state-error">Validation failed. Check your form below:</div>';
-			$content .= $this->showForm();
-			//debug($desc['participants'], $userData['participants']);
-		}
-		return $content;
-	}
-
-	function insertRecord(array $userData) {
-		$res = $this->model->insert($userData);
-		return $this->afterInsert($userData);
-	}
-
-	function updateRecord(array $userData) {
-		$res = $this->model->update($userData);	// update() returns nothing
-		return $this->afterUpdate($userData);
-	}
-
-	function afterInsert(array $userData) {
-		return 'Inserted';
-	}
-
-	function afterUpdate(array $userData) {
-		return 'Updated';
-	}
-
 	function getDescFromThes() {
 		$desc = array();
 		foreach ($this->model->thes as $key => $k) {
@@ -291,6 +283,14 @@ abstract class Scaffold extends Controller {
 			}
 		}
 		return $desc;
+	}
+
+	function afterInsert(array $userData) {
+		return 'Inserted';
+	}
+
+	function afterUpdate(array $userData) {
+		return 'Updated';
 	}
 
 }

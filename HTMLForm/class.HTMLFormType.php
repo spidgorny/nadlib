@@ -12,20 +12,20 @@ abstract class HTMLFormType {
 	 */
 	protected $form;
 
-	public $name;
+	public $field;
 	public $fullname;
 	public $value;
 
 	function __construct() {
 	}
 
-	function setName($name) {
-		$this->name = $name;
+	function setField($field) {
+		$this->field = $field;
 	}
 
 	function setForm(HTMLFormTable $f) {
 		$this->form = $f;
-		$this->fullname = $this->form->getName($this->name, '', TRUE);
+		$this->fullname = $this->form->getName($this->field, '', TRUE);
 	}
 
 	/**

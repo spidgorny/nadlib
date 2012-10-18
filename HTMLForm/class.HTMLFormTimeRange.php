@@ -24,8 +24,8 @@ class HTMLFormTimeRange extends HTMLFormType {
 	 * @param unknown_type $name
 	 * @param array $value				- array of minutes
 	 */
-	function __construct($name, array $value) {
-		$this->name = $name;
+	function __construct($field, array $value) {
+		$this->field = $field;
 		list($this->start, $this->end) = $value;
 		$this->div = uniqid();
 	}

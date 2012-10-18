@@ -18,6 +18,8 @@ class Syndicator {
 	 */
 	var $cache;
 
+	public $useProxy = false;
+
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($url) {
@@ -137,24 +139,32 @@ class Syndicator {
 
 	function tidy($html) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$config = array(
-			'clean'         	=> true,
-        	'indent'        	=> true,
-        	'output-xhtml'  	=> true,
-        	//'output-html'		=> true,
-        	'wrap'         		=> 1000,
-        	'numeric-entities'	=> true,
-       	 	'char-encoding' 	=> 'raw',
-       	 	'input-encoding' 	=> 'raw',
-       	 	'output-encoding' 	=> 'raw',
+		if (function_exists('tidy')) {
+			$config = array(
+				'clean'         	=> true,
+				'indent'        	=> true,
+				'output-xhtml'  	=> true,
+				//'output-html'		=> true,
+				'wrap'         		=> 1000,
+				'numeric-entities'	=> true,
+				'char-encoding' 	=> 'raw',
+				'input-encoding' 	=> 'raw',
+				'output-encoding' 	=> 'raw',
 
-        );
-		$tidy = new tidy;
-		$tidy->parseString($html, $config);
-		$tidy->cleanRepair();
-		//return $tidy;
+			);
+			$tidy = new tidy;
+			$tidy->parseString($html, $config);
+			$tidy->cleanRepair();
+			$out = tidy_get_output($tidy);
+		} else {
+			require_once 'nadlib/HTML/htmLawed.php';
+			$out = htmLawed($html, array(
+				'valid_xhtml' => 1,
+				'tidy' => 1,
+			));
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return tidy_get_output($tidy);
+		return $out;
 	}
 
 	function recode($xml) {
@@ -180,8 +190,8 @@ class Syndicator {
 
 	function getXML($recode) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		try {
-			$xml = @new SimpleXMLElement($recode);
+//		try {
+			$xml = new SimpleXMLElement($recode);
 			//$xml['xmlns'] = '';
 			$namespaces = $xml->getNamespaces(true);
 			//debug($namespaces, 'Namespaces');
@@ -190,8 +200,8 @@ class Syndicator {
 			    $xml->registerXPathNamespace('default', $ns);
 			    break;
 			}
-		} catch (Exception $e) {
-			debug($e);
+//		} catch (Exception $e) {
+//			debug($e->getMessage());
 //			$qb = new SQLBuilder();
 /*			$query = $qb->getInsertQuery('error_log', array(
 				'type' => 'Parse XML',
@@ -202,7 +212,8 @@ class Syndicator {
 			));
 			debug($e, 'getXML');
 			$GLOBALS['db']->perform($query);
-*/		}
+*/
+//		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $xml;
 	}

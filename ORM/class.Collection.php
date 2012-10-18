@@ -8,7 +8,7 @@
 class Collection {
 	/**
 	 *
-	 * @var BijouDBConnector
+	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
 	protected $table = __CLASS__;
@@ -21,33 +21,63 @@ class Collection {
 	 */
 	var $data = array();
 
-	public $thes;
+	public $thes = array();
+
 	var $titleColumn = 'title';
 	public $where = array();
 	public $join = ''; // for LEFT OUTER JOIN queries
 
 	/**
-	 * Enter description here...
+	 * Initialize in postInit() to run paged SQL
 	 *
 	 * @var Pager
 	 */
 	public $pager; // initialize if necessary with = new Pager(); in postInit()
 
+	/**
+	 * objectify() stores objects generated from $this->data here
+	 * @var array
+	 */
 	public $members = array();
+
+	/**
+	 * SQL part
+	 * @var string
+	 */
 	protected $orderBy = "uid";
+
+	/**
+	 * getQuery() stores the final query here for debug
+	 * @var string
+	 */
 	public $query;
 
+	/**
+	 * Should it be here? Belongs to the controller?
+	 * @var Request
+	 */
 	protected $request;
 
+	/**
+	 * Indication to slTable
+	 * @var bool
+	 */
 	public $useSorting = true;
+
+	/**
+	 * Lists columns for the SQL query
+	 * @var string
+	 */
+	public $select;
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
+		$this->select = $this->select ?: 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
 		if (is_array($where)) {
 			$this->where += $where;
-		} else {
+		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
 		$this->orderBy = $order ? $order : $this->orderBy;
@@ -96,9 +126,9 @@ class Collection {
 		}
 		$qb = Config::getInstance()->qb;
 		if ($where instanceof SQLWhere) {
-			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, 'DISTINCT '.$this->table.'.*', TRUE);
+			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
-			$query = $qb->getSelectQuery($this->table.' '.$this->join, $where, $this->orderBy, 'DISTINCT '.$this->table.'.*', TRUE);
+			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		}
 		if ($this->pager) {
 			$this->pager->initByQuery($query);
@@ -133,8 +163,9 @@ class Collection {
 				$ps->setURL($url);
 				$pages .= $ps->render();
 			}
-			$s = new slTable($this->data, 'class="nospacing" width="100%" id="'.get_class($this).'"');
-			$s->thes = $this->thes;
+			$s = new slTable($this->data, 'class="nospacing" width="100%"');
+			$s->thes($this->thes);
+			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
 			$s->sortLinkPrefix = new URL();
 			$content = $pages . $s->getContent() . $pages;
@@ -262,6 +293,11 @@ class Collection {
 			}
 		}
 		return $where;
+	}
+
+	function mergeData(Collection $c2) {
+		//debug(array_keys($this->data), array_keys($c2->data));
+		$this->data = ($this->data + $c2->data);
 	}
 
 }

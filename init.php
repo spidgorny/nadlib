@@ -2,25 +2,33 @@
 
 function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-	require_once dirname(__FILE__).'/../nadlib/class.ConfigBase.php';
-	require_once dirname(__FILE__).'/../class/class.Config.php';
-	$folders = Config::$includeFolders
-		? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
-		: ConfigBase::$includeFolders;
+	require_once('class.ConfigBase.php');
+	@include_once dirname(__FILE__).'/../class/class.Config.php';
+	@include_once dirname(__FILE__).'/app/class/class.Config.php';
+	if (class_exists('Config')) {
+		$folders = Config::$includeFolders
+			? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
+			: ConfigBase::$includeFolders;
+	} else {
+		$folders = ConfigBase::$includeFolders;
+	}
 
-	$classFile = end(explode('\\', $class));
+	$namespaces = explode('\\', $class);
+	$classFile = end($namespaces);
 	foreach ($folders as $path) {
 		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';
-		//debug($file, file_exists($file));
+		//echo $class.' '.$file.': '.file_exists($file).'<br />';
 		if (file_exists($file)) {
 			include_once($file);
 			break;
 		}
 	}
 	if (!class_exists($class)) {
-		$config = Config::getInstance();
-		if ($config->autoload['notFoundException']) {
-			throw new Exception('Class '.$class.' ('.$file.') not found.');
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			if ($config->autoload['notFoundException']) {
+				throw new Exception('Class '.$class.' ('.$file.') not found.');
+			}
 		}
 	}
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -34,9 +42,11 @@ if (DEVELOPMENT) {
 	//error_reporting(E_ALL);
 	//debug(error_reporting());
 	ini_set('display_errors', FALSE);
-	trigger_error(str_repeat('*', 20));	// log file separator
+	//trigger_error(str_repeat('*', 20));	// log file separator
 	ini_set('display_errors', TRUE);
-	set_time_limit(5);
+	if (class_exists('Config')) {
+		set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);
+	}
 	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 } else {
 	error_reporting(0);
@@ -55,9 +65,9 @@ function debug($a) {
 function nodebug() {
 }
 
-function getDebug($a) {
+function getDebug() {
 	ob_start();
-	debug($a);
+	debug(func_get_args());
 	return ob_get_clean();
 }
 
