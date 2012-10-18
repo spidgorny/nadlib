@@ -41,7 +41,9 @@ class Menu /*extends Controller*/ {
 		$this->level = $level;
 		$this->request = Request::getInstance();
 		//$this->tryInstance();
-		$this->user = Config::getInstance()->user;
+		if (class_exists('Class')) {
+			$this->user = Config::getInstance()->user;
+		}
 	}
 
 	function filterACL() {
@@ -111,7 +113,7 @@ class Menu /*extends Controller*/ {
 				} else {
 					$path = array($class);
 				}
-				if (Config::getInstance()->config['Controller']['useRouter']) {
+				if (class_exists('Class') && Config::getInstance()->config['Controller']['useRouter']) {
 					$path = implode('/', $path);
 				} else {
 					$path = new URL();

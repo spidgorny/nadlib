@@ -13,7 +13,7 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = Config::getInstance()->defaultController;
+		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
