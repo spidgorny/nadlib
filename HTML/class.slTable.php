@@ -11,7 +11,11 @@ class slTable {
 	var $iCol = 0;
 	var $thes = array();
 	var $more = 'class="nospacing"';
-	var $generation = '';
+
+	/**
+	 * @var HTMLTableBuf
+	 */
+	var $generation;
 	var $sortable = FALSE;
 
 	/**
@@ -240,7 +244,7 @@ class slTable {
 		// col
 		if ($this->isAlternatingColumns) {
 			for ($i = 0; $i < sizeof($this->thes); $i++) {
-				$t->stdout .= '<col class="'.($i%2?'even':'odd').'"></col>';
+				$t->stdout .= '<col class="'.($i%2?'even':'odd').'" />';
 			}
 		}
 
@@ -274,7 +278,7 @@ class slTable {
 				}
 
 				$t = new HTMLTableBuf();
-				$t->table('id="'.$this->ID.'"'.(is_string($this->more) ? $this->more : $this->more['tableMore']));
+			$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
 
 				$this->generateThead($t);
 
@@ -598,8 +602,7 @@ class slTable {
 				'' => $val,
 			);
 		}
-		$s = new self($assoc);
-		$s->thes = array(0 => '', '' => '');
+		$s = new self($assoc, '', array(0 => '', '' => array('no_hsc' => true)));
 		return $s;
 	}
 

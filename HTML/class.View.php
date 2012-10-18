@@ -13,8 +13,14 @@ class View {
 
 	protected $parts = array();
 
+	protected $folder;
+
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
+		$this->folder = dirname(__FILE__).'/../../template/';
+		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
+			$this->folder = Config::getInstance()->config[__CLASS__]['folder'];
+		}
 		$this->file = $file;
 		if ($copyObject) {
 			$this->caller = $copyObject;
@@ -36,7 +42,7 @@ class View {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$file = dirname($this->file) != '.'
 			? $this->file
-			: dirname(__FILE__).'/../../template/'.$this->file;
+			: $this->folder.$this->file;
 		$content = '';
 		ob_start();
 		require($file);
@@ -55,27 +61,35 @@ class View {
 
 	function wikify($text) {
 		$inUL = false;
-		$lines = explode("\n", $text);
+		$lines2 = array();
+		$lines = trimExplode("\n", $text);
 		foreach ($lines as $line) {
-			if ($line{0} == '*') {
+			if ($line{0} == '*' || $line{0} == '-') {
 				if (!$inUL) {
 					$lines2[] = "<ul>";
 					$inUL = TRUE;
 				}
 			}
-			$lines2[] = $line;
-			if ($line{0} != '*') {
+			$lines2[] = $inUL
+				? '<li>'.substr($line, 2).'</li>'
+				: $line;
+			if ($line{0} != '*' && $line{0} != '-') {
 				if ($inUL) {
 					$lines2[] = "</ul>";
 					$inUL = FALSE;
 				}
 			}
 		}
+		if ($inUL) {
+			$lines2[] = '</ul>';
+		}
 		$text = implode("\n", $lines2);
-		$text = str_replace("\n* ", "\n<li> ", $text);
+		//debug($lines2, $text);
+		//$text = str_replace("\n* ", "\n<li> ", $text);
+		//$text = str_replace("\n- ", "\n<li> ", $text);
 		$text = str_replace("\n<ul>\n", "<ul>", $text);
 		$text = str_replace("</ul>\n", "</ul>", $text);
-		$text = str_replace("\n", "</p>\n<p>", $text);
+		$text = str_replace("\n\n", "</p>\n<p>", $text);
 		$text = str_replace("<p></p>", "", $text);
 		$text = str_replace("<p></p>", "", $text);
 		return $text;

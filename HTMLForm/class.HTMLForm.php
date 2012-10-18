@@ -133,9 +133,8 @@ class HTMLForm {
 
 	function radioLabel($name, $value, $checked, $label = "") {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->getName($name, $value, true);
 		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." id='".$id."'> ";
+		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."'> ";
 		$this->stdout .= "<label for=$id>".htmlspecialchars($label)."</label>";
 	}
 
@@ -279,7 +278,7 @@ class HTMLForm {
 		$tmp = $this->class;
 		$this->class = 'submit';
 		$between = $desc['between'] ? $desc['between'] : ', ';
-		foreach ($desc['options'] as $key => $val) {
+		foreach ((array)$desc['options'] as $key => $val) {
 			$this->text('<nobr>');
 			$this->check($newName, $key, in_array($key, $value), 'id="lang_'.$key.'"');
 			$this->text('&nbsp;<label for="lang_'.$key.'">'.$val.'</label></nobr>');
@@ -299,6 +298,7 @@ class HTMLForm {
 	 */
 	function radioset($name, $value, array $desc) {
 		foreach ($desc['options'] as $key => $val) {
+			//debug($name, intval($value), intval($key));
 			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
 			$this->text('<br />');
 		}

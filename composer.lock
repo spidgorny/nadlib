@@ -1,0 +1,41 @@
+{
+    "hash": "0be2437c39cec9e9d26f74e49a9e97c8",
+    "packages": [
+        {
+            "name": "sharom/twitter-bootstrap",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git://github.com/Sharom/twitter-bootstrap.git",
+                "reference": "f0e88f811907d00143b34d7439d94a9cd7dc8e1e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/Sharom/twitter-bootstrap/zipball/f0e88f811907d00143b34d7439d94a9cd7dc8e1e",
+                "reference": "f0e88f811907d00143b34d7439d94a9cd7dc8e1e",
+                "shasum": ""
+            },
+            "time": "1349164094",
+            "type": "library",
+            "installation-source": "source",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Roman Shamritskiy",
+                    "email": "roman@litgroup.ru"
+                }
+            ],
+            "description": "Original fork of the Twitter Bootstrap with composer.json"
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "sharom/twitter-bootstrap": 20
+    }
+}

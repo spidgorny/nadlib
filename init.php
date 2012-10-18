@@ -2,26 +2,35 @@
 
 function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-	require_once dirname(__FILE__).'/../nadlib/class.ConfigBase.php';
+	require_once('class.ConfigBase.php');
 	@include_once dirname(__FILE__).'/../class/class.Config.php';
-	$folders = (class_exists('Config') && Config::$includeFolders)
-		? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
-		: ConfigBase::$includeFolders;
+	if (!class_exists('Config')) {
+		include_once dirname(__FILE__).'/app/class/class.Config.php';
+	}
+	if (class_exists('Config')) {
+		$folders = Config::$includeFolders
+			? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
+			: ConfigBase::$includeFolders;
+	} else {
+		$folders = ConfigBase::$includeFolders;
+	}
 
 	$namespaces = explode('\\', $class);
 	$classFile = end($namespaces);
 	foreach ($folders as $path) {
 		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';
-		//debug($file, file_exists($file));
+		//echo $class.' '.$file.': '.file_exists($file).'<br />';
 		if (file_exists($file)) {
 			include_once($file);
 			break;
 		}
 	}
 	if (!class_exists($class)) {
-		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
-		if ($config->autoload['notFoundException']) {
-			throw new Exception('Class '.$class.' ('.$file.') not found.');
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			if ($config->autoload['notFoundException']) {
+				throw new Exception('Class '.$class.' ('.$file.') not found.');
+			}
 		}
 	}
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -29,14 +38,13 @@ function __autoload($class) {
 
 define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
 if (DEVELOPMENT) {
-	$GLOBALS['profiler'] = new TaylorProfiler(TRUE);
-	/* @var $profiler TaylorProfiler */
 	error_reporting(E_ALL ^ E_NOTICE);
-	//error_reporting(E_ALL);
-	//debug(error_reporting());
 	ini_set('display_errors', FALSE);
 	//trigger_error(str_repeat('*', 20));	// log file separator
 	ini_set('display_errors', TRUE);
+
+	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
+	/* @var $profiler TaylorProfiler */
 	if (class_exists('Config')) {
 		set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);
 	}
@@ -64,10 +72,32 @@ function getDebug() {
 	return ob_get_clean();
 }
 
+/**
+ * Whether string starts with some chars
+ * @param $haystack
+ * @param $needle
+ * @return bool
+ */
 function startsWith($haystack, $needle) {
 	return strpos($haystack, $needle) === 0;
 }
 
+/**
+ * Whether string ends with some chars
+ * @param $haystack
+ * @param $needle
+ * @return bool
+ */
+function endsWith($haystack, $needle) {
+	return strpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+}
+
+/**
+ * Does string splitting with cleanup.
+ * @param $sep
+ * @param $str
+ * @return array
+ */
 function trimExplode($sep, $str) {
 	$parts = explode($sep, $str);
 	$parts = array_map('trim', $parts);
@@ -133,6 +163,11 @@ if(!function_exists('get_called_class')) {
 	}
 }
 
+/**
+ * Complements the built-in end() function
+ * @param array $list
+ * @return mixed
+ */
 function first(array $list) {
 	reset($list);
 	return current($list);

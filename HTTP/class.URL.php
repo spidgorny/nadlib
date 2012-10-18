@@ -30,6 +30,12 @@ class URL {
 		}
 	}
 
+	static function make(array $params = array()) {
+		$url = new self();
+		$url->setParams($params);
+		return $url;
+	}
+
 	function setParam($param, $value) {
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
