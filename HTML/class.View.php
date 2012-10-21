@@ -13,8 +13,14 @@ class View {
 
 	protected $parts = array();
 
+	protected $folder;
+
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
+		$this->folder = dirname(__FILE__).'/../../template/';
+		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
+			$this->folder = Config::getInstance()->config[__CLASS__]['folder'];
+		}
 		$this->file = $file;
 		if ($copyObject) {
 			$this->caller = $copyObject;
@@ -36,7 +42,7 @@ class View {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$file = dirname($this->file) != '.'
 			? $this->file
-			: dirname(__FILE__).'/../../template/'.$this->file;
+			: $this->folder.$this->file;
 		$content = '';
 		ob_start();
 		require($file);

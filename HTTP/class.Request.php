@@ -13,7 +13,7 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = Config::getInstance()->defaultController;
+		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
@@ -412,9 +412,14 @@ class Request {
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
+	function isCLI() {
+		return isset($_SERVER['argc']);
+	}
+
 	function debug() {
 		return get_object_vars($this);
 	}
+
 	function getFilename($name) {
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
