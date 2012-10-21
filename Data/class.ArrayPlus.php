@@ -269,6 +269,26 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $this;
 	}
 
+	function transpose() {
+		$out = array();
+		foreach ($this->data as $key => $subarr) {
+			foreach ($subarr as $subkey => $subvalue) {
+				$out[$subkey][$key] = $subvalue;
+			}
+		}
+		$this->data = $out;
+		return $this;
+	}
+
+	function unshift(array $column) {
+		reset($column);
+		foreach ($this->data as &$row) {
+			$row = array(current($column)) + $row;
+			next($column);
+		}
+		return $this;
+	}
+
 }
 
 function AP(array $a = array()) {
