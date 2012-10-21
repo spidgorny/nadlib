@@ -115,6 +115,7 @@ class Menu /*extends Controller*/ {
 					$path = implode('/', $path);
 				} else {
 					$path = new URL();
+					$path->clearParams();
 					$path->setParam('c', $class);
 				}
 
