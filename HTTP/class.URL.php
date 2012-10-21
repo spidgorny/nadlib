@@ -50,6 +50,11 @@ class URL {
 		return $this;
 	}
 
+	function clearParams() {
+		$this->setParams(array());
+		return $this;
+	}
+
 	function appendParams(array $params) {
 		$this->params += $params;
 		$this->components['query'] = $this->buildQuery();
@@ -90,7 +95,7 @@ class URL {
 	/**
 	 * http://de2.php.net/manual/en/function.parse-url.php#85963
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function buildURL($parsed = NULL) {
 		if (!$parsed) {
