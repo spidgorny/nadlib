@@ -25,7 +25,9 @@ class URL {
 		if ($params) {
 			$this->setParams($params);
 		}
-		$this->setDocumentRoot(Config::getInstance()->documentRoot);
+		if (class_exists('Config')) {
+			$this->setDocumentRoot(Config::getInstance()->documentRoot);
+		}
 	}
 
 	static function make(array $params = array()) {

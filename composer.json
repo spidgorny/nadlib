@@ -1,0 +1,44 @@
+{
+    "name": "spidgorny/nadlib",
+    "require": {
+		"php": ">=5.3.8",
+        "sharom/twitter-bootstrap": "dev-master"
+    },
+    "require_bak": {
+        "twitter/bootstrap": "master"
+    },
+	"repositories": [
+        {
+            "type": "package",
+            "package": {
+                "version": "master",
+                "name": "twitter/bootstrap",
+                "source": {
+                    "url": "https://github.com/twitter/bootstrap.git",
+                    "type": "git",
+                    "reference": "master"
+                },
+                "dist": {
+                    "url": "https://github.com/twitter/bootstrap/zipball/master",
+                    "type": "zip"
+                }
+            }
+        },
+        {
+            "type":"package",
+            "package": {
+                "version":"dev-master",
+                "name":"thomas-mcdonald/bootstrap-sass",
+                "source": {
+                    "url":"https://github.com/thomas-mcdonald/bootstrap-sass.git",
+                    "type":"git",
+                    "reference":"master"
+                },
+                "dist": {
+                    "url":"https://github.com/thomas-mcdonald/bootstrap-sass/zipball/master",
+                    "type":"zip"
+                }
+            }
+        }
+    ]
+}

@@ -1,2 +1,4 @@
 Controller:
   log: false
+View:
+  folder: template/

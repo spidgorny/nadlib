@@ -97,22 +97,27 @@ class FullGrid extends Grid {
 	}
 
 	function getFilterForm(array $fields = NULL) {
-		$fields = $fields ? $fields : $this->model->data;
+		$fields = $fields ? $fields : $this->model->thes;
+		$fields = is_array($fields) ? $fields : array();
 
 		$desc = array();
-		foreach ($fields as $key => $val) {
-			$desc[$key] = array(
-				'label' => $key,
-				'type' => 'select',
-				'options' => $this->getTableFieldOptions($key, true),
-				'null' => true,
-				'value' => $this->filter[$key],
-			);
+		foreach ($fields as $key => $k) {
+			if (!$k['noFilter']) {
+				$desc[$key] = array(
+					'label' => $key,
+					'type' => 'select',
+					'options' => $this->getTableFieldOptions($key, false),
+					'null' => true,
+					'value' => $this->filter[$key],
+				);
+			}
 		}
+		//debug($fields, $desc);
 
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
+		$f->hidden('c', get_class($this));
 		$f->prefix('filter');
 		$f->showForm($desc);
 		$f->submit('Filter');
@@ -121,7 +126,7 @@ class FullGrid extends Grid {
 
 	function getTableFieldOptions($key, $count = false) {
 		$res = Config::getInstance()->qb->getTableOptions($this->model->table,
-		$key, array(), 'ORDER BY '.$this->db->quoteKey($key), $key);
+		$key, array(), 'ORDER BY title');
 
 		if ($count) {
 			foreach ($res as &$val) {
@@ -145,15 +150,11 @@ class FullGrid extends Grid {
 	}
 
 	function getColumnsForm() {
-		foreach ($this->collection->thes as &$val) {
-			$val = is_array($val) ? $val['name'] : $val;
-		}
-
 		$desc = array(
 			'columns' => array(
 				'label' => 'Visible',
 				'type' => 'set',
-				'options' => $this->collection->thes,
+				'options' => ArrayPlus::create($this->collection->thes)->column('name')->getData(),
 				'value' => $this->columns,
 				'between' => '<br />',
 			),
