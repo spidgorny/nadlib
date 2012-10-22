@@ -279,7 +279,7 @@ class SQLBuilder {
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
-			return $value;
+			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if ($value instanceof AsIs) {
 			return $value.'';
 		} else if ($value instanceof SimpleXMLElement) {
