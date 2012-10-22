@@ -25,7 +25,9 @@ class URL {
 		if ($params) {
 			$this->setParams($params);
 		}
-		$this->setDocumentRoot(Config::getInstance()->documentRoot);
+		if (class_exists('Config')) {
+			$this->setDocumentRoot(Config::getInstance()->documentRoot);
+		}
 	}
 
 	static function make(array $params = array()) {
@@ -47,6 +49,11 @@ class URL {
 	function setParams(array $params = array()) {
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
+		return $this;
+	}
+
+	function clearParams() {
+		$this->setParams(array());
 		return $this;
 	}
 
@@ -90,7 +97,7 @@ class URL {
 	/**
 	 * http://de2.php.net/manual/en/function.parse-url.php#85963
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function buildURL($parsed = NULL) {
 		if (!$parsed) {
