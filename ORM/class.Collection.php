@@ -160,7 +160,7 @@ class Collection {
 				$pages = $this->pager->renderPageSelectors($url);
 
 				$ps = new PageSize();
-				$ps->setURL($url);
+				$ps->setURL(new URL(NULL, array()));
 				$pages .= $ps->render();
 			}
 			$s = new slTable($this->data, 'class="nospacing" width="100%"');

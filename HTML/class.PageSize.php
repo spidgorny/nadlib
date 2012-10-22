@@ -5,6 +5,10 @@ class PageSize extends Controller {
 		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
 	);
 	protected $selected;
+
+	/**
+	 * @var URL
+	 */
 	protected $url;
 	static public $default = 20;
 
@@ -24,7 +28,7 @@ class PageSize extends Controller {
 		$user->setPref('pageSize', $this->selected);
 	}
 
-	function setURL($url) {
+	function setURL(URL $url) {
 		$this->url = $url;
 	}
 
@@ -37,7 +41,8 @@ class PageSize extends Controller {
 		foreach ($this->options as $o) {
 			$content .= '<option '.($this->selected == $o ? 'selected' : '').'>'.$o.'</option>';
 		}
-		$content = '<select onchange="location = \''.$this->url.'&pageSize=\'+this.options[this.selectedIndex].value;">'.$content.'</select>';
+		$this->url->setParam('pageSize', '');	// will end with pageSize=
+		$content = '<select onchange="location = \''.$this->url.'\'+this.options[this.selectedIndex].value;">'.$content.'</select>';
 		return $content;
 	}
 
