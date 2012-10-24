@@ -73,7 +73,7 @@ class Collection {
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
-		$this->select = $this->select ?: 'DISTINCT '.$this->table.'.*';
+		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
 		if (is_array($where)) {
 			$this->where += $where;

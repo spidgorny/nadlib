@@ -82,6 +82,7 @@ class OODBase {
 			$this->data = array_merge($this->data, $data); // If the input arrays have the same string keys, then the later value for that key will overwrite the previous one.
 		} else {
 			$this->db->rollback();
+			debug_pre_print_backtrace();
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
