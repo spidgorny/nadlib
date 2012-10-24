@@ -1,7 +1,7 @@
 <?php
 
 abstract class UserBase extends OODBase {
-	protected $table = 'user';
+	public $table = 'user';
 	protected $prefs = array();
 	protected static $instances = array();
 
@@ -11,7 +11,7 @@ abstract class UserBase extends OODBase {
 	 *
 	 * @param unknown_type $id
 	 */
-	public function __construct($id) {
+	public function __construct($id = NULL) {
 		parent::__construct($id);
 	}
 

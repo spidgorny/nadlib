@@ -154,7 +154,9 @@ abstract class Scaffold extends Controller {
 			$this->table.'.id' => $this->id,
 		);
 
-		$this->desc['submit']['value'] = $this->updateButton;
+		if ($this->desc['submit']) {
+			$this->desc['submit']['value'] = $this->updateButton;
+		}
 		$f = $this->getForm('update');
 		$f->prefix('');
 		foreach ($override as $key => $val) {
@@ -185,8 +187,8 @@ abstract class Scaffold extends Controller {
 					case 'add': $content = $this->insertRecord($this->data); break;
 					case 'update': $content = $this->updateRecord($this->data); break;
 					default: {
-					debug(__METHOD__);
-					throw new Exception(__METHOD__);
+						debug(__METHOD__);
+						throw new Exception(__METHOD__);
 					}
 				}
 			} catch (Exception $e) {
@@ -203,12 +205,12 @@ abstract class Scaffold extends Controller {
 	}
 
 	function insertRecord(array $userData) {
-		$res = $this->model->insert($userData);
+		$this->model->insert($userData);
 		return $this->afterInsert($userData);
 	}
 
 	function updateRecord(array $userData) {
-		$res = $this->model->update($userData);	// update() returns nothing
+		$this->model->update($userData);	// update() returns nothing
 		return $this->afterUpdate($userData);
 	}
 
@@ -244,6 +246,7 @@ abstract class Scaffold extends Controller {
 		$f->hidden('action', $action);
 		$f->hidden('ajax', TRUE);
 		$f->prefix($this->formPrefix);
+		//debug($this->desc);
 		$f->showForm($this->desc);
 		//$f->submit($this->addButton);
 		$f->formMore = $this->formMore;

@@ -193,22 +193,27 @@ class Request {
 	}
 
 	function getControllerString() {
-		$levels = $this->getURLLevels();
-		//$last = end($levels);
-		$levels = array_reverse($levels);
-		foreach ($levels as $class) {
-			//debug($class, class_exists($class));
-			if (class_exists($class)) {
-				$last = $class;
-				break;
+		if ($this->isCLI()) {
+			$controller = $_SERVER['argv'][1];
+		} else {
+			$controller = $this->getTrim('c');
+			if (!$controller) {
+				$levels = $this->getURLLevels();
+				//debug($levels);
+				$levels = array_reverse($levels);
+				foreach ($levels as $class) {
+					//debug($class, class_exists($class));
+					if (class_exists($class)) {
+						$last = $class;
+						break;
+					}
+				}
+				$controller = $last;
+				if (!$controller) {
+					$controller = $this->defaultController;
+				}
 			}
 		}
-		$controller = $this->getCoalesce(
-			'c',
-			$last
-				? $last
-				: $this->defaultController
-		);
 		//debug($controller, $this->getTrim('c'), $this->getURLLevels(), $last, $this->defaultController, $this->data);
 		return $controller;
 	}
@@ -399,9 +404,12 @@ class Request {
 		}
 	}
 
-	function getNameless($index, $alternative) {
+	function getNameless($index, $alternative = NULL) {
 		$levels = $this->getURLLevels();
-		$controller = $this->getControllerString();
+/*
+ * Commented as it leads to problems when $controller is Router
+ 		$controller = $this->getControllerString();
+		debug($levels, $controller);
 		foreach ($levels as $l => $name) {
 			unset($levels[$l]);
 			if ($name == $controller) {
@@ -409,6 +417,8 @@ class Request {
 			}
 		}
 		$levels = array_values($levels);	// reindex
+		debug($levels);
+*/
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 

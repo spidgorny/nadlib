@@ -57,6 +57,7 @@ if (DEVELOPMENT) {
 }
 date_default_timezone_set('Europe/Berlin');
 Request::removeCookiesFromRequest();
+chdir(dirname(dirname(__FILE__)));	// one level up
 
 function debug($a) {
 	$params = func_get_args();
