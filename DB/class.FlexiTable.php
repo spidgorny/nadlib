@@ -2,16 +2,19 @@
 
 class FlexiTable extends OODBase {
 	protected $columns = array();
+	protected $doCheck = true;
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		if (Config::getInstance()->flexiTable) {
+		//debug(Config::getInstance()->config[__CLASS__]);
+		$this->doCheck = Config::getInstance()->config[__CLASS__]['doCheck'];
+		if ($this->doCheck) {
 			$this->checkCreateTable();
 		}
 	}
 
 	function insert(array $row) {
-		if (Config::getInstance()->flexiTable) {
+		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
 		$ret = parent::insert($row);
@@ -22,14 +25,14 @@ class FlexiTable extends OODBase {
 		$row['mtime'] = new Time();
 		$row['mtime'] = $row['mtime']->format('Y-m-d H:i:s');
 		$row['muser'] = $GLOBALS['i']->user->id;
-		if (Config::getInstance()->flexiTable) {
+		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
 		return parent::update($row);
 	}
 
 	function findInDB(array $where, $orderby = '') {
-		if (Config::getInstance()->flexiTable) {
+		if ($this->doCheck) {
 			$this->checkAllFields($where);
 		}
 		parent::findInDB($where, $orderby);

@@ -52,6 +52,7 @@ class MiniIndex extends Controller {
 		if ($this->controller->layout == 'none' || $this->request->isAjax()) {
 			$content = $this->renderController();
 		} else {
+			$this->title = $this->controller->title;
 			$v = new View('template.phtml', $this);
 			$content = $v->render();
 		}
@@ -60,8 +61,9 @@ class MiniIndex extends Controller {
 
 	function renderController() {
 		if ($this->controller) {
-			return $this->controller->render();
+			$content = $this->controller->render();
 		}
+		return $content;
 	}
 
 	function addJQuery() {
@@ -85,6 +87,15 @@ class MiniIndex extends Controller {
 	function showSidebar() {
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
+		}
+		return $content;
+	}
+
+	function renderProfiler() {
+		$profiler = $GLOBALS['profiler']; /* @var $profiler TaylorProfiler */
+		if ($profiler) {
+			$content = $profiler->renderFloat();
+			$content .= $profiler->printTimers(true);
 		}
 		return $content;
 	}
