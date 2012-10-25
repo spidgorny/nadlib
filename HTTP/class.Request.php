@@ -197,6 +197,7 @@ class Request {
 			$controller = $_SERVER['argv'][1];
 		} else {
 			$controller = $this->getTrim('c');
+			$controller = end(explode('/', $controller)); // in case it's with subfolder
 			if (!$controller) {
 				$levels = $this->getURLLevels();
 				//debug($levels);
@@ -345,7 +346,7 @@ class Request {
 			$this->data[$key] = $val;
 		}
 	}
-	
+
 	function getURLLevel($level) {
 		$path = $this->getURLLevels();
 		return isset($path[$level]) ? $path[$level] : NULL;

@@ -176,7 +176,7 @@ class HTMLFormTable extends HTMLForm {
 		}
 		$fieldValue = $desc['value'];
 
-		if ($desc['type'] != 'hidden') {
+		if (is_object($desc['type']) || $desc['type'] != 'hidden') {
 			if (!$desc['formHide']) {
 				if ($desc['br'] || $this->defaultBR) {
 				} else {
@@ -320,7 +320,11 @@ class HTMLFormTable extends HTMLForm {
 			}
 			//debug($path);
 
-			if (is_array($fieldDesc) && $fieldDesc['type'] != 'hidden') {
+			// avoid __toString on collection
+			$sType = is_object($fieldDesc['type'])
+				? get_class($fieldDesc['type'])
+				: $fieldDesc['type'];
+			if (is_array($fieldDesc) && $sType != 'hidden') {
 				if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
 					$this->stdout .= "<tr ".$this->getAttrHTML($fieldDesc['TRmore']).">";
 				}
@@ -411,7 +415,10 @@ class HTMLFormTable extends HTMLForm {
 					$desc[$key]['value'] = $val;
 				}
 
-				switch ($desc[$key]['type']) {
+				$sType = is_object($desc[$key]['type'])
+					? get_class($desc[$key]['type'])
+					: $desc[$key]['type'];
+				switch ($sType) {
 					case 'date':
 						if (is_numeric($desc[$key]['value']) && $desc[$key]['value']) {
 							$desc[$key]['value'] = $this->formatDate($desc[$key]['value'], $desc[$key]);

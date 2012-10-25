@@ -264,9 +264,8 @@ class slTable {
 		$t->stdout .= '<tbody>';
 	}
 
-	function generate($width = array()) {
-		global $db;
-
+	function generate($caller = '') {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
 		if (!$this->generation) {
 			if (sizeof($this->data) && $this->data != FALSE) {
 				if (!sizeof($this->thes)) {
@@ -278,7 +277,7 @@ class slTable {
 				}
 
 				$t = new HTMLTableBuf();
-			$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
+				$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
 
 				$this->generateThead($t);
 
@@ -305,7 +304,6 @@ class slTable {
 					$tr = 'class="'.implode(' ', $class).'"';
 					//debug($tr);
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
-					$iCol = 0;
 					$this->genRow($t, $row);
 					$t->tre();
 				}
@@ -330,6 +328,7 @@ class slTable {
 				$this->generation->stdout = '<div class="message">No Data</div>';
 			}
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$caller})");
 	}
 
 	function genRow(HTMLTableBuf $t, $row) {
@@ -514,9 +513,9 @@ class slTable {
 		$this->show();
 	}
 
-	function getContent() {
+	function getContent($caller = '') {
 		if (!$this->generation) {
-			$this->generate();
+			$this->generate($caller);
 		}
 		return $this->generation->getContent();
 	}
