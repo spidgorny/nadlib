@@ -47,6 +47,7 @@ class Debug {
 			$content .= '</div>';
 			print($content); flush();
 		}
+		return $content;
 	}
 
 	function getTraceTable(array $db) {

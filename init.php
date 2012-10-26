@@ -58,8 +58,10 @@ function nodebug() {
 
 function getDebug() {
 	ob_start();
-	debug(func_get_args());
-	return ob_get_clean();
+	$params = func_get_args();
+	$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+	ob_end_clean();
+	return $content;
 }
 
 function startsWith($haystack, $needle) {
