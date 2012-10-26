@@ -10,7 +10,7 @@ class Pager {
 	 * @var URL
 	 */
 	var $url;
-	var $pagesAround = 3;
+	var $pagesAround = 5;
 
 	/**
 	 * @var Request
@@ -124,34 +124,34 @@ class Pager {
  		//debug(array($pages, $current['searchIndex'], sizeof($tmpArray)));
  		if ($this->currentPage > 0) {
 			$link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $this->currentPage-1);
-			$content .= '<a href="'.$link.'" rel="prev">&lt;</a>';
+			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
  		} else {
-	 		$content .= '<span class="disabled">&lt;</span>';
+	 		$content .= '<li><span class="disabled">&lt;</span></li>';
  		}
  		foreach ($pages as $k) {
  			if ($k === 'gap1' || $k === 'gap2') {
- 				$content .= '<div class="page">  &hellip;  </div>';
+ 				$content .= '<li><span class="page">  &hellip;  </span></li>';
  			} else {
 				 $link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $k);
 				if ($k == $this->currentPage) {
-					$content .= '<span class="active">'.($k+1).'</span>';
+					$content .= '<li><span class="active">'.($k+1).'</span></li>';
 				} else {
-					$content .= '<a href="'.$link.'">'.($k+1).'</a>';
+					$content .= '<li><a href="'.$link.'">'.($k+1).'</a></li>';
 				}
  			}
 		}
  		if ($this->currentPage < $maxpage-1) {
 			 $link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $this->currentPage+1);
-			$content .= '<a href="'.$link.'" rel="next">&gt;</a>';
+			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>';
  		} else {
-	 		$content .= '<span class="disabled">&gt;</span>';
+	 		$content .= '<li><span class="disabled">&gt;</span></li>';
  		}
-		$form = "<form action='".$this->url."' method='POST' class='inline'>
-			&nbsp;<input name='Pager.'.$this->prefix.'[page]' class='normal' value='".($this->currentPage+1)."' size='3'>
+		$form = "<li><form action='".$this->url."' method='POST' style='display: inline'>
+			&nbsp;<input name='Pager.'.$this->prefix.'[page]' class='normal' value='".($this->currentPage+1)."' style='width: 2em'>
 			<input type='submit' value='Page' class='submit'>
-		</form>";
+		</form></li>";
  		//debug($term);
-		$content = '<div class="paginationControl">'.$content.'&nbsp;'.$form.'</div>';
+		$content = '<div class="pagination paginationControl"><ul>'.$content.'&nbsp;'.$form.'</ul></div>';
 		//$content = $this->enclose('Search Browser ('.sizeof($tmpArray).')', $content);
 		return $content;
 	}

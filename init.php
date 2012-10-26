@@ -2,17 +2,21 @@
 
 function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-	require_once('class.ConfigBase.php');
-	@include_once dirname(__FILE__).'/../class/class.Config.php';
-	if (!class_exists('Config')) {
-		include_once dirname(__FILE__).'/app/class/class.Config.php';
-	}
-	if (class_exists('Config')) {
-		$folders = Config::$includeFolders
-			? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
-			: ConfigBase::$includeFolders;
-	} else {
-		$folders = ConfigBase::$includeFolders;
+	$folders = $_SESSION['autoloadCache'];
+	if (!$folders) {
+		require_once('class.ConfigBase.php');
+		@include_once dirname(__FILE__).'/../class/class.Config.php';
+		if (!class_exists('Config')) {
+			include_once dirname(__FILE__).'/app/class/class.Config.php';
+		}
+		if (class_exists('Config')) {
+			$folders = Config::$includeFolders
+				? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
+				: ConfigBase::$includeFolders;
+		} else {
+			$folders = ConfigBase::$includeFolders;
+		}
+		$_SESSION['autoloadCache'] = $folders;
 	}
 
 	$namespaces = explode('\\', $class);
@@ -26,6 +30,7 @@ function __autoload($class) {
 		}
 	}
 	if (!class_exists($class)) {
+		//debug($folders);
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			if ($config->autoload['notFoundException']) {
@@ -42,6 +47,7 @@ if (DEVELOPMENT) {
 	ini_set('display_errors', FALSE);
 	//trigger_error(str_repeat('*', 20));	// log file separator
 	ini_set('display_errors', TRUE);
+	ini_set('html_error', TRUE);
 
 	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
 	/* @var $profiler TaylorProfiler */
@@ -69,7 +75,8 @@ function nodebug() {
 
 function getDebug() {
 	ob_start();
-	debug(func_get_args());
+	$params = func_get_args();
+	call_user_func_array(array('Debug', 'debug_args'), $params);
 	return ob_get_clean();
 }
 

@@ -289,6 +289,10 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $this;
 	}
 
+	function sum() {
+		return array_sum($this->data);
+	}
+
 }
 
 function AP(array $a = array()) {
