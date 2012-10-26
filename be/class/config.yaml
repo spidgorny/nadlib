@@ -1,4 +1,4 @@
 Controller:
   log: false
 View:
-  folder: ../app/template/
+  folder: ../be/template/

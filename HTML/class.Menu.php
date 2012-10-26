@@ -102,10 +102,14 @@ class Menu /*extends Controller*/ {
 
 	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true, $ulClass = NULL) {
 		$content = '';
-		//$this->current = $this->request->getControllerString();
-		$rootpath = $this->request->getURLLevels();
-		$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
-		//debug($rootpath, $level, $this->current);
+		$useRouter = class_exists('Class') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		if ($useRouter) {
+			$rootpath = $this->request->getURLLevels();
+			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
+			debug($rootpath, $level, $this->current);
+		} else {
+			$this->current = $this->request->getControllerString();
+		}
 		foreach ($items as $class => $name) {
 			if ($name) {	// empty menu items indicate menu location for a controller
 				if (isset($root[0]) && ($class != $root[0])) {
@@ -113,7 +117,7 @@ class Menu /*extends Controller*/ {
 				} else {
 					$path = array($class);
 				}
-				if (class_exists('Class') && Config::getInstance()->config['Controller']['useRouter']) {
+				if ($useRouter) {
 					$path = implode('/', $path);
 				} else {
 					$path = new URL();

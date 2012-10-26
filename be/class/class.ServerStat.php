@@ -1,59 +1,47 @@
 <?php
 
-class ServerStat {
+class ServerStat extends AppController {
 	var $start_time;
 	var $LOG = array();
 	var $COUNTQUERIES = 0;
 
 	function __construct($start_time = NULL, $LOG = array(), $COUNTQUERIES = 0) {
-		$this->start_time = $start_time;
+		parent::__construct();
+		$this->start_time = $start_time ? $start_time : $_SERVER['REQUEST_TIME'];
 		$this->LOG = $LOG;
 		$this->COUNTQUERIES = $COUNTQUERIES;
 	}
 
-	function render($first = TRUE) {
-		$s = new slTable($this->getPHPInfo(), 'width="100%"');
-		$s->thes(array(
-			'param' => '',
-			'value' => array('no_hsc' => TRUE),
-		));
-		$content = '<fieldset><legend>PHP Info</legend>'.$s->getContent().'</fieldset>';
+	function render() {
+		$content = $this->performAction();
+		if (!$content) {
+			$content = '<div
+				id="div_SystemInfo"
+				class="row updateHere"
+				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->updateHereAction().'</div>';
 
-		/*$s = new slTable($this->getPerformanceInfo(), 'width="100%"');
-		$s->thes(array(
-			'param' => '',
-			'value' => array('no_hsc' => TRUE),
-		));
-		$content .= '<fieldset><legend>Performance</legend>'.$s->getContent().'</fieldset>';
-		*/
+			if (isset($GLOBALS['profiler'])) {
+				$content .= '<fieldset><legend>Profiler</legend>'.$GLOBALS['profiler']->printTimers(1).'</fieldset>';
+			}
+		}
+		return $content;
+	}
 
-		$s = new slTable($this->getServerInfo(), 'width="100%"');
-		$s->thes(array(
-			'param' => '',
-			'value' => array('no_hsc' => TRUE),
-		));
-		$content .= '<fieldset><legend>Server Info</legend><div id="div_SystemInfo">'.$s.'</div>
-		<!--input type="checkbox" onclick="reloadServerInfo(this);" id="input_reload"> <label for="input_reload">Reload</label-->
+	function updateHereAction() {
+		$content = '<div class="span5">';
+		$content .= '<fieldset><legend>PHP Info</legend>'.$this->getPHPInfo().'</fieldset>';
+		$content .= '<fieldset><legend>Performance</legend>'.$this->getPerformanceInfo().'</fieldset>';
+
+		$content .= '</div><div class="span5">';
+
+		$content .= '<fieldset><legend>Server Info</legend>
+			'.$this->getServerInfo().'
+			<label>
+				<input type="checkbox" onclick="reloadServerInfo(this);" id="input_reload"> Reload
+			</label>
 		</fieldset>';
-
-		//if ($GLOBALS['prof']) $content .= $GLOBALS['prof']->printTimers(1);
-
-/*		$s = new slTable('dumpQueries', 'width="100%"');
-		$s->thes(array(
-			'query' => array('name' => 'Query', 'no_hsc' => TRUE, 'colspan' => 7, 'new_tr' => TRUE),
-			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
-			'line' => '(l)',
-			//'results' => 'Rows',
-			'elapsed' => array('name' => '1st', 'decimals' => 3),
-			'count' => '#',
-			'total' => array('name' => $totalTime, 'decimals' => 3),
-			'percent' => '100%',
-		));
-		$s->data = $this->LOG;
-		$s->isOddEven = TRUE;
-		$s->more = 'class="nospacing"';
-//		$content .= $s->getContent();
-*/
+		$content .= '<fieldset><legend>Query Log</legend>'.$this->getQueryLog().'</fieldset>';
+		$content .= '</div>';
 		return $content;
 	}
 
@@ -62,29 +50,33 @@ class ServerStat {
 		$allMem = intval(ini_get('memory_limit'))*1024*1024;
 
 		$conf = array();
-		$conf[] = array('param' => 'Server',			'value' => $_SERVER['SERVER_NAME']);
-		$conf[] = array('param' => 'PHP',				'value' => phpversion());
-		$conf[] = array('param' => 'Server time',		'value' => date('H:i:s'));
-		$conf[] = array('param' => 'memory_limit',		'value' => number_format($allMem/1024, 3, '.', '').' Kb');
-		$conf[] = array('param' => 'Mem. used',			'value' => number_format($useMem/1024, 3, '.', '').' Kb');
-		//$conf[] = array('param' => 'Mem. used',			'value' => number_format($useMem / $allMem * 100, 3) . '%');
-		//$conf[] = array('param' => 'Mem. used',			'value' => $this->getBar($useMem / $allMem * 100));
-		$conf[] = array('param' => 'Mem. used %',			'value' => new HTMLTag('td', array(
+		$conf['Server'] = $_SERVER['SERVER_NAME'];
+		$conf['IP'] = $_SERVER['SERVER_ADDR'];
+		$conf['PHP'] = phpversion();
+		$conf['Server time'] = date('Y-m-d H:i:s');
+		$conf['memory_limit'] = number_format($allMem/1024/1024, 3, '.', '').' MB';
+		$conf['Mem. used'] = number_format($useMem/1024/1024, 3, '.', '').' MB';
+		$conf['Mem. used %'] = new HTMLTag('td', array(
 			'style' => 'width: 100px; background: no-repeat url('.$this->getBarURL($useMem / $allMem * 100).');'
-			), number_format($useMem / $allMem * 100, 3) . '%'));
-		$conf[] = array('param' => 'Mem. peak',			'value' => number_format(memory_get_usage()/1024, 3, '.', '').' Kb');
-        $sessionPath = ini_get('session.save_path');
-		$sessionPath = $sessionPath ? $sessionPath : '/tmp';
-		$sessionFile = $sessionPath.'/sess_'.session_id();
-		//$conf[] = array('param' => 'Session File',		'value' => $sessionFile);
-		$conf[] = array('param' => 'Sess. size',		'value' => @filesize($sessionFile));
-		return $conf;
+			), number_format($useMem / $allMem * 100, 3) . '%');
+		$conf['Mem. peak'] = number_format(memory_get_usage()/1024/1024, 3, '.', '').' MB';
+		if (session_id()) {
+			$sessionPath = ini_get('session.save_path');
+			$sessionPath = $sessionPath ? $sessionPath : '/tmp';
+			$sessionFile = $sessionPath.'/sess_'.session_id();
+			//$conf[] = array('param' => 'Session File',		'value' => $sessionFile);
+			$conf['Sess. size'] = @filesize($sessionFile);
+		}
+		$s = slTable::showAssoc($conf);
+		$s->more = 'class="table table-striped table-condensed"';
+		return $s;
 	}
 
 	function getPerformanceInfo() {
 		$this->LOG = is_array($this->LOG) ? $this->LOG : array();
 
 		// calculating total sql time
+		$totalTime = 0;
 		foreach ($this->LOG as $i => $row) {
 			$totalTime += $row['total'];
 		}
@@ -98,29 +90,32 @@ class ServerStat {
 		}
 		usort($this->LOG, array($this, 'sortLog'));
 
-		$allTime = array_sum(explode(' ', microtime())) - $this->start_time;
+		$allTime = microtime(true) - $this->start_time;
 		$sqlTime = $totalTime;
 		$phpTime = $allTime - $sqlTime;
 
 		$conf = array();
-		$conf[] = array('param' => '100% Time',			'value' => number_format($allTime, 3, '.', ''));
-		$conf[] = array('param' => 'PHP Time',			'value' => number_format($phpTime, 3, '.', ''));
-		$conf[] = array('param' => 'PHP Time %',		'value' => round($phpTime / $allTime * 100, 3).'%');
-		$conf[] = array('param' => 'PHP Time %',		'value' => $this->getBar($phpTime / $allTime * 100));
-		$conf[] = array('param' => 'SQL Time',			'value' => number_format($sqlTime, 3, '.', ''));
-		$conf[] = array('param' => 'SQL Time %',		'value' => round($sqlTime / $allTime * 100, 3).'%');
-		$conf[] = array('param' => 'SQL Time %',		'value' => $this->getBar($sqlTime / $allTime * 100));
-		$conf[] = array('param' => 'Unique Q',			'value' => sizeof($this->LOG).'/'.$this->COUNTQUERIES);
-		//$conf[] = array('param' => 'All queries',		'value' => $this->COUNTQUERIES);
-		$conf[] = array('param' => 'Unique Q',			'value' => $this->getBar(sizeof($this->LOG) / $this->COUNTQUERIES * 100));
-		return $conf;
+		$conf['100% Time'] = number_format($allTime, 3, '.', '');
+		$conf['PHP Time'] = number_format($phpTime, 3, '.', '');
+		$conf['PHP Time %'] = $this->getBarWith(number_format($phpTime / $allTime * 100, 3, '.', ''));
+		$conf['SQL Time'] = number_format($sqlTime, 3, '.', '');
+		$conf['SQL Time %'] = $this->getBarWith(number_format($sqlTime / $allTime * 100, 3, '.', ''));
+		if ($this->COUNTQUERIES) {
+			$conf['Unique Q'] = sizeof($this->LOG).'/'.$this->COUNTQUERIES;
+			$conf['All queries'] = $this->COUNTQUERIES;
+			$conf['Unique Q'] = $this->getBar(sizeof($this->LOG) / $this->COUNTQUERIES * 100);
+		}
+		//debug($conf);
+		$s = slTable::showAssoc($conf);
+		$s->more = 'class="table table-striped table-condensed"';
+		return $s;
 	}
 
 	function getServerInfo() {
 		$conf = array();
 		$diskpercent = (disk_total_space('/')-disk_free_space('/')) / disk_total_space('/') * 100;
-		$conf[] = array('param' => 'Disk space',		'value' => number_format(disk_total_space('/')/1024/1024, 3, '.', '').' Mb');
-		$conf[] = array('param' => 'Disk used',			'value' => number_format((disk_total_space('/')-disk_free_space('/'))/1024/1024, 3, '.', '').' Mb');
+		$conf[] = array('param' => 'Disk space',		'value' => number_format($dts = disk_total_space('/')/1024/1024/1024, 3, '.', '').' GB');
+		$conf[] = array('param' => 'Disk used',			'value' => number_format($dts-disk_free_space('/')/1024/1024/1024, 3, '.', '').' GB');
 		//$conf[] = array('param' => 'Disk used',			'value' => number_format($diskpercent, 3, '.', '').' %');
 		//$conf[] = array('param' => 'Disk used',			'value' => $this->getBar($diskpercent));
 		$conf[] = array('param' => 'Disk used %',			'value' => new HTMLTag('td', array(
@@ -143,7 +138,30 @@ class ServerStat {
 		$conf[] = array('param' => 'Uptime',			'value' => $this->format_uptime(implode('', array_slice(explode(" ", @file_get_contents('/proc/uptime')), 0, 1))));
 		$conf[] = array('param' => 'Server load',		'value' => implode('', array_slice(explode(' ', @file_get_contents('/proc/loadavg')), 0, 1)));
 
-		return $conf;
+		$s = new slTable($conf, '', array(
+			'param' => '',
+			'value' => '',
+		));
+		$s->more = 'class="table table-striped table-condensed"';
+		return $s;
+	}
+
+	function getQueryLog() {
+		$s = new slTable('dumpQueries', 'width="100%"');
+		$s->thes(array(
+			'query' => array('name' => 'Query', 'no_hsc' => TRUE, 'colspan' => 7, 'new_tr' => TRUE),
+			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
+			'line' => '(l)',
+			//'results' => 'Rows',
+			'elapsed' => array('name' => '1st', 'decimals' => 3),
+			'count' => '#',
+			'total' => array('name' => $totalTime, 'decimals' => 3),
+			'percent' => '100%',
+		));
+		$s->data = $this->LOG ? $this->LOG : Config::getInstance()->db->queryLog;
+		$s->isOddEven = TRUE;
+		$s->more = 'class="nospacing"';
+		return $s;
 	}
 
 	function format_uptime($seconds) {
@@ -152,7 +170,7 @@ class ServerStat {
         $hours = intval($seconds / 3600 % 24);
         $days = intval($seconds / 86400);
 
-        $uptimeString .= $days .  "D ";
+        $uptimeString = $days .  "D ";
         $uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
         $uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
         $uptimeString .= str_pad($secs, 2, '0', STR_PAD_LEFT);
@@ -184,13 +202,19 @@ class ServerStat {
 	}
 
 	function getBarURL($percent) {
-		$content .= 'nadlib/bar.php?rating='.$percent;
+		$content = '../bar.php?rating='.round($percent).'&!border=0&height=25';
 		return $content;
 	}
 
 	function getBar($percent) {
-		$content .= '<img src="'.$this->getBarURL($percent).'" />';
+		$content = '<img src="'.$this->getBarURL($percent).'" />';
 		return $content;
+	}
+
+	function getBarWith($value) {
+		return new HTMLTag('td', array(
+			'style' => 'width: 100px; background: no-repeat url('.$this->getBarURL($value).');'
+		), $value.' %');
 	}
 
 	function getStat($_statPath) {

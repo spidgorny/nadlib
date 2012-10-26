@@ -19,9 +19,10 @@ class View {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
 		$this->folder = dirname(__FILE__).'/../../template/';
 		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
-			$this->folder = Config::getInstance()->config[__CLASS__]['folder'];
+			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
+		//debug($this->folder, $this->file);
 		if ($copyObject) {
 			$this->caller = $copyObject;
 			/*$vars = get_object_vars($copyObject);
