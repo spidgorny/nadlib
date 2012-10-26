@@ -147,7 +147,6 @@ class TaylorProfiler {
     	$table = array();
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
-            $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
             $oaTime = $this->getMicroTime() - $this->initTime;
@@ -191,10 +190,10 @@ class TaylorProfiler {
 	            $tot_perc+=$perc;
 	            $table[] = array(
 	               	'nr' => ++$i,
-	               	'count' => '<div align="right">'.$row['count'].'</div>',
-	               	'time, ms' => '<div align="right">'.number_format($total*1000, 2, '.', '').'</div>',
-	               	'avg/1' => '<div align="right">'.number_format($row['avg'], 2, '.', '').'</div>',
-	               	'percent' => '<div align="right">'.number_format($perc, 2, '.', '').'%</div>',
+	               	'count' => $row['count'],
+	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
+	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
+	               	'percent' => number_format($perc, 2, '.', '').'%',
 	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$key.'</span>',
 	            );
 		   }
@@ -206,7 +205,7 @@ class TaylorProfiler {
             	'time, ms' => array('name' => 'time, ms', 'more' => 'align="right"'),
             	'avg/1' => array('name' => 'avg/1', 'more' => 'align="right"'),
             	'percent' => array('name' => 'percent', 'more' => 'align="right"'),
-            	'routine' => 'routine',
+            	'routine' => array('name' => 'routine', 'no_hsc' => true),
             ));
             $s->more = 'class="view_array" width="100%"';
             $s->data = $table;
@@ -290,9 +289,14 @@ class TaylorProfiler {
 	function renderFloat() {
 		$oaTime = $this->getMicroTime() - $this->initTime;
 		$totalTime = number_format($oaTime, 3, '.', '');
-		$content = '<div class="floatTimeContainer"><div class="floatTime">'.$totalTime.'s '.
-			number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
-			ini_get('memory_limit').'</div></div>';
+		$dbTime = AP(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+		$dbTime = number_format($dbTime, 3, '.', '');
+		$content = '<div class="floatTimeContainer">
+		<div class="floatTime">t:'.$totalTime.'s '.
+			'db:'.$dbTime.'s '.
+			'mem:'.number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
+			ini_get('memory_limit').'</div>
+		</div>';
 		return $content;
 	}
 

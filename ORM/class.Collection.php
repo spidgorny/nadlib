@@ -119,8 +119,11 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(/*array*/ $where) {
+	function getQuery(/*array*/ $where = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (!$where) {
+			$where = $this->where;
+		}
 		if ($this->parentID) {
 			$where[$this->parentField] = $this->parentID;
 		}
@@ -168,7 +171,7 @@ class Collection {
 			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
 			$s->sortLinkPrefix = new URL();
-			$content = $pages . $s->getContent() . $pages;
+			$content = $pages . $s->getContent('Collection '.$this->table) . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';
 		}

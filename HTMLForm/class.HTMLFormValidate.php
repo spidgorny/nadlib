@@ -24,6 +24,8 @@ class HTMLFormValidate {
 			))) {
 				$d['error'] = 'This field is obligatory.';
 				$error = TRUE;
+			} elseif ($d['type'] instanceof Collection) {
+				// all OK, avoid calling __toString on the collection
 			} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
 				$e['error'] = 'This field must be set';
 				$error = true;
