@@ -20,7 +20,7 @@
 function drawRating($rating) {
 	$width = isset($_GET['width']) ? $_GET['width'] : 100;
 	$height = isset($_GET['height']) ? $_GET['height'] : 15;
-	$ratingbar = (($rating/100)*$width)-2;
+	$ratingbar = ($rating/100)*($width-5);
 	$barDX = 2;
 	$image = imagecreate($width,$height);
 	$color = $_GET['color'] ? html2rgb($_GET['color']) : array(0x43, 0xB6, 0xDF); #43B6DF
@@ -37,7 +37,7 @@ function drawRating($rating) {
 		$ratingbar += 2;
 		$barDX = 0;
 	}
-	ImageFilledRectangle($image, $barDX, $barDX, $ratingbar,$height-$barDX,$fill);
+	ImageFilledRectangle($image, $barDX, $barDX, $barDX+$ratingbar, $height-$barDX-1, $fill);
 	imagePNG($image);
 	imagedestroy($image);
 }

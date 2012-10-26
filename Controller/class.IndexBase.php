@@ -86,11 +86,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content = '';
 		if ($this->controller) {
 			try {
-				$this->content .= $this->controller->render();
-				$v = new View('template.phtml', $this);
-				$v->title = $this->controller->title;
-				$v->sidebar = $this->showSidebar();
-				$content = $v->render();
+				$render = $this->controller->render();
+				if ($this->controller->layout instanceof Wrap) {
+					$render = $this->controller->layout->wrap($render);
+				}
+				$this->content .= $render;
+				if (!$this->request->isAjax()) {
+					$v = new View('template.phtml', $this);
+					$v->title = $this->controller->title;
+					$v->sidebar = $this->showSidebar();
+					$content = $v->render();
+				} else {
+					$content = $this->content;
+				}
 			} catch (LoginException $e) {
 				require('template/head.phtml');
 				$content .= '<div class="headerMargin"></div>';

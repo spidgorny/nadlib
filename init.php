@@ -5,10 +5,10 @@ function __autoload($class) {
 	$folders = $_SESSION['autoloadCache'];
 	if (!$folders) {
 		require_once('class.ConfigBase.php');
-		@include_once dirname(__FILE__).'/../class/class.Config.php';
-		if (!class_exists('Config')) {
-			include_once dirname(__FILE__).'/app/class/class.Config.php';
+		if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
+			include_once $configPath;
 		}
+		//echo($configPath);
 		if (class_exists('Config')) {
 			$folders = Config::$includeFolders
 				? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)

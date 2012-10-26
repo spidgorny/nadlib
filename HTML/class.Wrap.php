@@ -1,13 +1,14 @@
 <?php
 
 class Wrap {
-	protected $wrap;	// string with |
+	protected $wrap1, $wrap2;
 
 	function  __construct($strWrap, $arrWrap2 = NULL) {
 		if ($arrWrap2) {
-			$this->wrap = $strWrap.'|'.$arrWrap2;
+			$this->wrap1 = $strWrap;
+			$this->wrap2 = $arrWrap2;
 		} else {
-			$this->wrap = $strWrap;
+			list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
 		}
 	}
 
@@ -16,7 +17,7 @@ class Wrap {
 	}
 
 	function wrap($str) {
-		return str_replace('|', $str, $this->wrap);
+		return $this->wrap1.$str.$this->wrap2;
 	}
 
 }

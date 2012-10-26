@@ -29,7 +29,6 @@ class ConfigBase {
 	public $documentRoot = '';
 
 	public static $includeFolders = array(
-		'../class',
 		'',
 		'Cache',
 		'Controller',
