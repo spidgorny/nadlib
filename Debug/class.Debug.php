@@ -105,7 +105,7 @@ class Debug {
 		} else if (is_resource($a)) {
 			$content = $a;
 		} else {
-			$content = nl2br(htmlspecialchars($a));
+			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
 		}
 		return $content;
 	}

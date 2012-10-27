@@ -166,7 +166,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInToggle($content, $title, $height = '', $isOpen = NULL) {
+	function encloseInToggle($content, $title, $height = '', $isOpen = NULL, $tag = 'h3') {
 		if ($content) {
 			$this->index->addJQuery();
 			$this->index->addJS('nadlib/js/showHide.js');
@@ -174,12 +174,12 @@ abstract class Controller {
 			$id = uniqid();
 
 			$content = '<div class="encloseIn">
-				<h3>
+				<'.$tag.'>
 					<a class="show_hide" href="#" rel="#'.$id.'">
 						<span>'.($isOpen ? '&#x25BC;' : '&#x25BA;').'</span>
 						'.$title.'
 					</a>
-				</h3>
+				</'.$tag.'>
 				<div id="'.$id.'"
 					class="toggleDiv"
 					style="max-height: '.$height.'; overflow: auto;
