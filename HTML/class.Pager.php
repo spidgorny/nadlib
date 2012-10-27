@@ -10,7 +10,7 @@ class Pager {
 	 * @var URL
 	 */
 	var $url;
-	var $pagesAround = 5;
+	var $pagesAround = 3;
 
 	/**
 	 * @var Request
@@ -27,6 +27,8 @@ class Pager {
 	 * @var LoginUser
 	 */
 	protected $user;
+
+	public $showPageJump = true;
 
 	function Pager($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage) {
@@ -146,10 +148,12 @@ class Pager {
  		} else {
 	 		$content .= '<li><span class="disabled">&gt;</span></li>';
  		}
-		$form = "<li><form action='".$this->url."' method='POST' style='display: inline'>
-			&nbsp;<input name='Pager.'.$this->prefix.'[page]' class='normal' value='".($this->currentPage+1)."' style='width: 2em'>
-			<input type='submit' value='Page' class='submit'>
-		</form></li>";
+		if ($this->showPageJump) {
+			$form = "<li><form action='".$this->url."' method='POST' style='display: inline'>
+				&nbsp;<input name='Pager.'.$this->prefix.'[page]' class='normal' value='".($this->currentPage+1)."' style='width: 2em'>
+				<input type='submit' value='Page' class='submit'>
+			</form></li>";
+		}
  		//debug($term);
 		$content = '<div class="pagination paginationControl"><ul>'.$content.'&nbsp;'.$form.'</ul></div>';
 		//$content = $this->enclose('Search Browser ('.sizeof($tmpArray).')', $content);

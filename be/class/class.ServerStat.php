@@ -178,26 +178,29 @@ class ServerStat extends AppController {
     }
 
 	function getRAMInfo() {
-		$mem = file_get_contents("/proc/meminfo");
-        if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches))
-        {
-            $totalp = $matches[1];
-        }
-        unset($matches);
-        if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches))
-        {
-            $freep = $matches[1];
-        }
-        $freiq = $freep;
-        $insgesamtq = $totalp;
-        $belegtq = $insgesamtq - $freiq;
-        $prozent_belegtq = 100 * $belegtq / $insgesamtq;
-        $res = array(
-        	'total' => $totalp,
-        	'used' => $belegtq,
-        	'free' => $freiq,
-        	'percent' => $prozent_belegtq,
-        );
+		$meminfo = "/proc/meminfo";
+		if (file_exists($meminfo)) {
+			$mem = file_get_contents($meminfo);
+			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches))
+			{
+				$totalp = $matches[1];
+			}
+			unset($matches);
+			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches))
+			{
+				$freep = $matches[1];
+			}
+			$freiq = $freep;
+			$insgesamtq = $totalp;
+			$belegtq = $insgesamtq - $freiq;
+			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
+			$res = array(
+				'total' => $totalp,
+				'used' => $belegtq,
+				'free' => $freiq,
+				'percent' => $prozent_belegtq,
+			);
+		}
         return $res;
 	}
 
@@ -243,24 +246,26 @@ class ServerStat extends AppController {
     }
 
     function getCpuUsage($_statPath = '/proc/stat') {
-        $time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
-        sleep(1);
-        $time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
+		if (file_exists($_statPath)) {
+			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
+			sleep(1);
+			$time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
 
-        $delta = array();
+			$delta = array();
 
-        foreach ($time1 as $k => $v)
-        {
-            $delta[$k] = $time2[$k] - $v;
-        }
+			foreach ($time1 as $k => $v)
+			{
+				$delta[$k] = $time2[$k] - $v;
+			}
 
-        $deltaTotal = array_sum($delta);
-        $percentages = array();
+			$deltaTotal = array_sum($delta);
+			$percentages = array();
 
-        foreach ($delta as $k => $v)
-        {
-            $percentages[$k] = $v / $deltaTotal * 100;
-        }
+			foreach ($delta as $k => $v)
+			{
+				$percentages[$k] = $v / $deltaTotal * 100;
+			}
+		}
         return $percentages;
 	}
 

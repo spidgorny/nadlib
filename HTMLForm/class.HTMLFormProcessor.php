@@ -1,6 +1,6 @@
 <?php
 
-abstract class HTMLFormProcessor extends Controller {
+abstract class HTMLFormProcessor extends AppController {
 	protected $prefix = __CLASS__;
 	protected $default = array();
 	protected $desc = array();

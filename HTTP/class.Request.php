@@ -60,6 +60,20 @@ class Request {
 		return trim($this->getString($name));
 	}
 
+	/**
+	 * Checks that trimmed value isset in the supplied array
+	 * @param $name
+	 * @param array $options
+	 */
+	function getOneOf($name, array $options) {
+		$value = $this->getTrim($name);
+		if (!isset($options[$value])) {
+			debug($value, $options);
+			throw new Exception(__METHOD__.' is throwing an exception.');
+		}
+		return $value;
+	}
+
 	function int($name) {
 		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
 	}

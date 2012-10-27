@@ -10,6 +10,7 @@ class Index extends IndexBase {
 			'ServerStat' => 'Server Stat',
 			'ServerData' => 'Server Data',
 			'Session' => 'Session',
+			'ConfigView' => 'config.yaml',
 		));
 		return '<div class="well" style="padding: 8px 0;">'.$m.'</div>'.
 			parent::showSidebar();

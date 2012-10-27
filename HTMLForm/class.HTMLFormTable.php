@@ -157,12 +157,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 			}
 		}
-/*
- *		Is dealt with in showCell already
- *		if ($desc['append'] && $desc['type'] != 'hidden') {
-			$this->text($desc['append']);
-		}
-*/		return $elementID;
+		return $elementID;
 	}
 
 	function showCell($fieldName, array $desc) {
@@ -181,7 +176,7 @@ class HTMLFormTable extends HTMLForm {
 				if ($desc['br'] || $this->defaultBR) {
 				} else {
 					$desc['TDmore']['class'] = isset($desc['TDmore']['class']) ? $desc['TDmore']['class'] : '';
-					$desc['TDmore']['class'] .= ' label';
+					$desc['TDmore']['class'] .= ' tdlabel';
 				}
 				$this->stdout .= '<td '.$this->getAttrHTML($desc['TDmore']).'>';
 				if ($this->withValue) {
@@ -215,6 +210,10 @@ class HTMLFormTable extends HTMLForm {
 					//debug($fieldName, $desc);
 					//print '<pre>'.debug_print_backtrace().'</pre>';
 					$desc['class'] .= ' error';
+				}
+
+				if ($desc['wrap'] instanceof Wrap) {
+					$newContent = $desc['wrap']->wrap($newContent);
 				}
 
 				$this->stdout .= (isset($desc['prepend']) ? $desc['prepend'] : '')

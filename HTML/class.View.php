@@ -206,4 +206,8 @@ class View {
 		return $text;
 	}
 
+	function money($val) {
+		return number_format($val, 2, '.', '');
+	}
+
 }
