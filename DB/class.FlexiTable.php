@@ -86,4 +86,34 @@ class FlexiTable extends OODBase {
 		return $type;
 	}
 
+	function expand($debug = false) {
+		static $stopDebug = false;
+		$this->fetchColumns();
+		if ($debug && !$stopDebug) {
+			debug($this->columns);
+			$stopDebug = true;
+		}
+		foreach ($this->columns as $field => $info) {
+			if (in_array($info['Type'], array('blob', 'text')) && $this->data[$field]) {
+				$uncompressed = $this->db->uncompress($this->data[$field]);
+				if (!$uncompressed) {
+					/*debug($info+array(
+						'error' => $php_errormsg,
+						'value' => $this->data[$field],
+					)); exit();*/
+					// didn't unzip - then it's plain text
+					$uncompressed = $this->data[$field];
+				}
+				$this->data[$field] = $uncompressed;
+				if ($this->data[$field]{0} == '<') {
+					$this->$field = simplexml_load_string($uncompressed);
+				} else if ($this->data[$field]{0} == '{') {
+					$this->$field = json_decode($uncompressed, false);	// make it look like SimpleXML
+				}
+			}
+		}
+		unset($this->data['xml']);
+		unset($this->data['xml2']);
+	}
+
 }

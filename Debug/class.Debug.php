@@ -104,8 +104,10 @@ class Debug {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
 		} else if (is_resource($a)) {
 			$content = $a;
-		} else {
+		} else if (strstr($a, "\n")) {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
+		} else {
+			$content = htmlspecialchars($a);
 		}
 		return $content;
 	}

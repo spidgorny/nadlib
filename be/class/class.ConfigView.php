@@ -10,11 +10,15 @@ class ConfigView extends AppController {
 		'integer' => 'input',
 	);
 
+	function __construct() {
+		parent::__construct();
+		$this->file = dirname(__FILE__).'/../../../class/config.yaml';
+	}
+
 	function render() {
 		$this->performAction();
-		$file = dirname(__FILE__).'/../../../class/config.yaml';
-		$data = Spyc::YAMLLoad($file);
-		$content = getDebug($data);
+		$data = Spyc::YAMLLoad($this->file);
+		//$content = getDebug($data);
 
 		$f = new HTMLFormTable();
 		$f->prefix($this->prefix);
@@ -27,6 +31,7 @@ class ConfigView extends AppController {
 					'type' => $this->typeMap[gettype($val)],
 					'value' => $val,
 					'set0' => true,
+					'optional' => true,
 				);
 			}
 			$f->showForm($desc);
@@ -53,9 +58,10 @@ class ConfigView extends AppController {
 				}
 			}
 		}
-		debug($data);
+		//debug($data);
 		$yaml = Spyc::YAMLDump($data);
-		debug($yaml);
+		//debug($yaml);
+		file_put_contents($this->file, $yaml);
 	}
 
 }

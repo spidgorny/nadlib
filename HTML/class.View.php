@@ -127,7 +127,7 @@ class View {
 	}
 
 	function link(array $params) {
-		return $GLOBALS['i']->controller->makeURL($params);
+		return Index::getInstance()->controller->makeURL($params);
 	}
 
 	function __call($func, array $args) {
