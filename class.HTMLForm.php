@@ -124,7 +124,6 @@ class HTMLForm {
 	}
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
-		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<label>';
 		$this->check($name, $value, $checked, $more);
 		$this->stdout .= ' '.$label</label>";

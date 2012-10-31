@@ -9,14 +9,13 @@ class HTMLFormValidate {
 
 	function validate() {
 		foreach ($this->desc as $field => &$d) {
-			if (!$d['optional'] && !($d['value']) && !in_array($d['type'], array(
-				'check',
-				'checkbox',
-				'captcha',
-				'recaptcha',
-				'recaptchaAjax',
-			))) {
+			$type = $d['type'];
+			$value = $d['value'];
+			$isCheckbox = in_array($type, array('check', 'checkbox', 'captcha', 'recaptcha', 'recaptchaAjax'));
+
+			if (!$d['optional'] && !$d['value'] && !$isCheckbox) {
 				$d['error'] = 'This field is obligatory.';
+				//t3lib_div::debug(array($field, $type, $value, $isCheckbox));
 				$error = TRUE;
 			} elseif ($field == 'email' && $d['value'] && !$this->validMail($d['value'])) {
 				$d['error'] = 'Not a valid e-mail.';
@@ -51,20 +50,13 @@ class HTMLFormValidate {
 				}
 			}
 
-			if ($d['dependant'] && $d['value']) { // only checked should be validated
+			if ($d['dependant'] && $isCheckbox && $value) { // only checked should be validated
+				//t3lib_div::debug(array($field, $value, $isCheckbox));
 				$fv = new HTMLFormValidate($d['dependant']);
 				if (!$fv->validate()) {
+					$error = true;
 					$d['dependant'] = $fv->getDesc();
 				}
-			} elseif ($d['max'] && $d['value'] > $d['max']) {
-				$d['error'] = 'Value too large. Maximum: '.$d['max'];
-				$error = TRUE;
-			} elseif ($d['value'] && $d['validate'] == 'in_array' && !in_array($d['value'], $d['validateArray'])) {
-				$d['error'] = $d['validateError'];
-				$error = TRUE;
-			} elseif ($d['value'] && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
-				$d['error'] = $d['validateError'];
-				$error = TRUE;
 			}
 		}
 		return !$error;

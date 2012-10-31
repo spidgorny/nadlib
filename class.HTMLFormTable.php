@@ -20,7 +20,7 @@ class HTMLFormTable extends HTMLForm {
 		$this->desc = $this->fillValues($this->desc, $form);
 	}
 
-	function switchType($fieldName, $fieldValue, $desc) {
+	function switchType($fieldName, $fieldValue, array $desc) {
 		if ($desc['prefix']) {
 			$this->text($desc['prefix']);
 		}
@@ -71,7 +71,7 @@ class HTMLFormTable extends HTMLForm {
 					if ($desc['set0']) {
 						$this->hidden($fieldName, 0);
 					}
-					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $desc['more']);
+					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $desc['more'].' id="'.$elementID.'"');
 				break;
 				case "time":
 					$this->time($fieldName, $fieldValue, $desc['unlimited']);
@@ -185,8 +185,8 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '</label>';
 			}
 			if ($desc['error']) {
-				debug($fieldName, $desc);
-				print '<pre>'.debug_print_backtrace().'</pre>';
+				//debug($fieldName, $desc);
+				//debug_pre_print_backtrace();
 				$desc['class'] .= ' error';
 			}
 

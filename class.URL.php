@@ -11,8 +11,17 @@ class URL {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 		}
-		$this->components = parse_url($url);
-		parse_str($this->components['query'], $this->params);
+		$this->components = @parse_url($url);
+		if (!$this->components) {	//  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
+			$request = Request::getExistingInstance();
+			if ($request) {
+				//debug(substr($request->getLocation(), 0, -1).$url);
+				$this->components = parse_url(substr($request->getLocation(), 0, -1).$url);
+			}
+		}
+		if (isset($this->components['query'])) {
+			parse_str($this->components['query'], $this->params);
+		}
 		if ($params) {
 			$this->setParams($params);
 		}
@@ -21,6 +30,7 @@ class URL {
 	function setParam($param, $value) {
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
+		return $this;
 	}
 
 	function getParam($param) {
@@ -30,6 +40,7 @@ class URL {
 	function setParams(array $params = array()) {
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
+		return $this;
 	}
 
 	function appendParams(array $params) {
@@ -58,6 +69,11 @@ class URL {
 
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
+		//debug($this);
+	}
+
+	function setFragment($name) {
+		$this->components['fragment'] = $name;
 	}
 
 	function buildQuery() {
@@ -87,18 +103,21 @@ class URL {
 	            $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
 	    }
 
-	    $uri .= isset($parsed['query']) ? '?'.$parsed['query'] : '';
+	    $uri .= /*isset*/($parsed['query']) ? '?'.$parsed['query'] : '';
 	    $uri .= isset($parsed['fragment']) ? '#'.$parsed['fragment'] : '';
 
 	    return $uri;
 	}
 
 	function __toString() {
-		return $this->buildURL();
+		$url = $this->buildURL();
+		//debug($this->components, $url);
+		return $url;
 	}
 
 	function getRequest() {
 		$r = new Request($this->params);
+		$r->url = $this;
 		return $r;
 	}
 
@@ -107,9 +126,9 @@ class URL {
 	 * @return URL
 	 */
 	static function getCurrent() {
-		return new URL($_SERVER['REQUEST_URI']);
+		return new URL();
 	}
-	
+
 	function GET() {
 		return file_get_contents($this->buildURL());
 	}
