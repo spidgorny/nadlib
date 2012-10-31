@@ -64,8 +64,6 @@ abstract class Controller {
 
 	function makeLink($text, $params, $page = '') {
 		$content = '<a href="'.$page.$this->makeURL($params).'">'.$text.'</a>';
-	function makeLink($text, array $params) {
-		$content = '<a href="'.$this->makeURL($params).'">'.$text.'</a>';
 		return $content;
 	}
 
@@ -101,8 +99,8 @@ abstract class Controller {
 		return $table;
 	}
 
-	function getInstance() {
-		return new self;
+	static function getInstance() {
+		return new static;
 	}
 
 	function redirect($url) {
