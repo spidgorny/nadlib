@@ -1,0 +1,4 @@
+Controller:
+  log: false
+View:
+  folder: ../be/template/
