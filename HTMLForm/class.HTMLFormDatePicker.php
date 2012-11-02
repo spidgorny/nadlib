@@ -18,7 +18,8 @@ class HTMLFormDatePicker extends HTMLFormType {
 		Index::getInstance()->addJS('nadlib/js/HTMLFormDatePicker.js');
 		$val = strtotime($this->value);
 		$val = date($this->format, $val);
-		$content = $this->form->input($this->field, $val, 'class="datepicker" format="'.$this->jsFormat.'"');
+		$content = $this->form->input($this->field, $val, 'class="datepicker"
+			format="'.$this->jsFormat.'"');
 		return $content;
 	}
 
