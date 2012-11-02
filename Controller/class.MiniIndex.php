@@ -54,6 +54,8 @@ class MiniIndex extends Controller {
 		} else {
 			$this->title = $this->controller->title;
 			$v = new View('template.phtml', $this);
+			$v->content = $this->renderController();
+			$v->sidebar = $this->showSidebar();
 			$content = $v->render();
 		}
 		return $content;
@@ -62,6 +64,9 @@ class MiniIndex extends Controller {
 	function renderController() {
 		if ($this->controller) {
 			$content = $this->controller->render();
+			if (!$this->request->isAjax() && $this->controller->layout instanceof Wrap) {
+				$content = $this->controller->layout->wrap($content);
+			}
 		}
 		return $content;
 	}

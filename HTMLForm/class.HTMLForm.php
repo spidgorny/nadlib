@@ -1,6 +1,5 @@
 <?php
 
-define("DATE_FORMAT", "d.m.Y");
 class HTMLForm {
 	var $action = "";
 	var $method = "POST";
@@ -21,10 +20,13 @@ class HTMLForm {
 	}
 
 	function formHideArray($name, array $ar) {
+		$ret = '';
 		foreach($ar as $k => $a) {
 			$a = htmlspecialchars($a, ENT_QUOTES);
-			$this->stdout .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value=\"$a\">";
+			$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value=\"$a\">";
 		}
+		$this->stdout .= $ret;
+		return $ret;
 	}
 
 	function action($action) {
@@ -165,7 +167,7 @@ class HTMLForm {
 
 	function date($name, $value) {
 		if (!$value) {
-			$value = date(DATE_FORMAT);
+			$value = date('d.m.Y');
 		}
 		$this->input($name, $value);
 	}
@@ -179,13 +181,13 @@ class HTMLForm {
 	}
 
 	function textarea($name, $value = NULL, $more = '') {
-		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>$value</textarea>";
+		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".htmlspecialchars($value)."</textarea>";
 	}
 
 	function submit($value = NULL, $more = "", array $params = array()) {
-		//debug($more);
+		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
 		$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
-		$this->stdout .= "<input type=\"submit\" class=\"submit {$params['class']}\" " . ($value?'value="'.$value.'"':"") . " $more />\n";
+		$this->stdout .= "<input type=\"submit\" class=\"{$params['class']}\" " . ($value?'value="'.$value.'"':"") . " $more />\n";
 	}
 
 	function button($innerHTML = NULL, $more = '') {

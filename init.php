@@ -2,10 +2,12 @@
 
 function __autoload($class) {
 	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+	//unset($_SESSION['autoloadCache']);
 	$folders = $_SESSION['autoloadCache'];
 	if (!$folders) {
 		require_once('class.ConfigBase.php');
 		if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
+			//echo($configPath);
 			include_once $configPath;
 		}
 		//echo($configPath);

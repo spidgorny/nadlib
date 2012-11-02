@@ -127,7 +127,7 @@ class View {
 	}
 
 	function link(array $params) {
-		return $GLOBALS['i']->controller->makeURL($params);
+		return Index::getInstance()->controller->makeURL($params);
 	}
 
 	function __call($func, array $args) {
@@ -204,6 +204,10 @@ class View {
 	function linkBIDs($text) {
 		$text = preg_replace('/\[#(\d+)\]/', '<a href="?main2.php?bid=$1">$1</a>', $text);
 		return $text;
+	}
+
+	function money($val) {
+		return number_format($val, 2, '.', '');
 	}
 
 }
