@@ -1,6 +1,6 @@
 <?php
 
-class PageSize extends Controller {
+class PageSize extends AppController {
 	protected $options = array(
 		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
 	);
@@ -42,7 +42,9 @@ class PageSize extends Controller {
 			$content .= '<option '.($this->selected == $o ? 'selected' : '').'>'.$o.'</option>';
 		}
 		$this->url->setParam('pageSize', '');	// will end with pageSize=
-		$content = '<select onchange="location = \''.$this->url.'\'+this.options[this.selectedIndex].value;">'.$content.'</select>';
+		$content = '<select
+			onchange="location = \''.$this->url.'\'+this.options[this.selectedIndex].value;"
+			class="input-mini">'.$content.'</select>';
 		return $content;
 	}
 

@@ -599,4 +599,9 @@ class dbLayer {
 		}
 	}
 
+	function quoteKey($key) {
+		$key = '"'.$key.'"';
+		return $key;
+	}
+
 }

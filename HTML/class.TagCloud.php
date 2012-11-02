@@ -1,6 +1,6 @@
 <?php
 
-class TagCloud extends Controller {
+class TagCloud extends AppController {
 	protected $words = array();
 	protected $count;
 

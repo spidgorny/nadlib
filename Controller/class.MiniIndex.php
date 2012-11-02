@@ -96,6 +96,8 @@ class MiniIndex extends Controller {
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);
+		} else {
+			$content = TaylorProfiler::renderFloat();
 		}
 		return $content;
 	}

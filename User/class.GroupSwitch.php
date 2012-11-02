@@ -1,6 +1,6 @@
 <?php
 
-class GroupSwitch extends Controller {
+class GroupSwitch extends AppController {
 
 	public $allowedUsers = array(
 		'depidsvy',

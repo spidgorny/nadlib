@@ -195,11 +195,10 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout = $tmp;
 
 
+				$withBR = ($desc['br'] === NULL && $this->defaultBR) || $desc['br'];
 				if (isset($desc['label'])) {
 					$this->stdout .= '<label for="'.$elementID.'">'.$desc['label'];
-					if (($desc['br'] === NULL && $this->defaultBR) || $desc['br']) {
-						$this->stdout .= '<br />';
-					} else {
+					if (!$withBR) {
 						if ($desc['label']) {
 							$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check'
 							? '<span class="htmlFormTableStar">*</span>'
@@ -209,7 +208,11 @@ class HTMLFormTable extends HTMLForm {
 						}
 					}
 					$this->stdout .= '</label>';
-					$this->stdout .= '</td><td>';
+					if ($withBR) {
+						//$this->stdout .= '<br />';	// depends on CSS
+					} else {
+						$this->stdout .= '</td><td>';
+					}
 				}
 				if (isset($desc['error'])) {
 					//debug($fieldName, $desc);

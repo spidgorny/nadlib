@@ -11,6 +11,11 @@ class OODBase {
 	protected $titleColumn = 'name';
 	public $id;
 	public $data = array();
+
+	/**
+	 * @var array of visible fields which serves as a definition for a corresponding Collection
+	 * and maybe to HTMLFormTable as well
+	 */
 	public $thes = array();
 
 	/**

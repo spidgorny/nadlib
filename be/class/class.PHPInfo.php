@@ -1,6 +1,6 @@
 <?php
 
-class PHPInfo extends Controller {
+class PHPInfo extends AppController {
 
 	public $layout = 'none';
 

@@ -245,14 +245,7 @@ class SQLBuilder {
 
 	function quoteKey($key) {
 		if (in_array(strtoupper($key), $this->reserved)) {
-			if ($this->db instanceof MySQL) {
-				$key = '`'.$key.'`';
-			} else if ($this->db instanceof dbLayer && !in_array($key, array(
-				'-like',
-			))) {
-				//$key = "'".$key."'";
-				$key = '"'.$key.'"';
-			}
+			$key = $this->db->quoteKey($key);
 		}
 		return $key;
 	}
@@ -611,7 +604,7 @@ class SQLBuilder {
 			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
 			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
 			true);
-		//debug($this->db->lastQuery);
+		//d($this->db->lastQuery, $this->db->numRows($res), $idField);
 		if ($idField) {
 			$data = $this->fetchAll($res, 'id_field');
 		} else {
@@ -619,6 +612,7 @@ class SQLBuilder {
 		}
 		$keys = array_keys($data);
 		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
+		//d($keys, $values);
 		if ($keys && $values) {
 			$options = array_combine($keys, $values);
 		} else {

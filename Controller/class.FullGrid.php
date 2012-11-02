@@ -16,10 +16,6 @@ class FullGrid extends Grid {
 	 */
 	public $sort;
 
-	function __construct() {
-		parent::__construct();
-	}
-
 	function saveFilterColumnsSort($cn = NULL) {
 		$cn = $cn ? $cn : get_class($this->collection);
 		if ($this->request->is_set('columns')) {
@@ -45,11 +41,10 @@ class FullGrid extends Grid {
 		if ($this->request->is_set('slTable')) {
 			$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
 		}
-		$this->sort = $this->request->getArray('slTable');
-		$this->sort = $this->sort
-			? $this->sort
-			: $this->user->getPref('Sort.'.$cn);
-		//$_REQUEST['slTable'] = $this->sort;	// influence slTable
+		$sortRequest = $this->request->getArray('slTable');
+		$this->sort = $sortRequest
+			? $sortRequest
+			: ($this->user->getPref('Sort.'.$cn) ?: $this->sort);
 	}
 
 	/**
@@ -97,6 +92,17 @@ class FullGrid extends Grid {
 	}
 
 	function getFilterForm(array $fields = NULL) {
+		$f = new HTMLFormTable();
+		$f->method('GET');
+		$f->defaultBR = true;
+		$f->formHideArray('', $this->linkVars);
+		$f->prefix('filter');
+		$f->showForm($this->getFilterDesc($fields));
+		$f->submit('Filter');
+		return $f;
+	}
+
+	function getFilterDesc(array $fields = NULL) {
 		$fields = $fields ? $fields : $this->model->thes;
 		$fields = is_array($fields) ? $fields : array();
 
@@ -104,24 +110,17 @@ class FullGrid extends Grid {
 		foreach ($fields as $key => $k) {
 			if (!$k['noFilter']) {
 				$desc[$key] = array(
-					'label' => $key,
+					'label' => $k['name'],
 					'type' => 'select',
-					'options' => $this->getTableFieldOptions($key, false),
+					'options' => $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false),
 					'null' => true,
 					'value' => $this->filter[$key],
+					'more' => 'class="input-medium"',
 				);
 			}
 		}
 		//debug($fields, $desc);
-
-		$f = new HTMLFormTable();
-		$f->method('GET');
-		$f->defaultBR = true;
-		$f->hidden('c', get_class($this));
-		$f->prefix('filter');
-		$f->showForm($desc);
-		$f->submit('Filter');
-		return $f;
+		return $desc;
 	}
 
 	function getTableFieldOptions($key, $count = false) {
@@ -166,6 +165,7 @@ class FullGrid extends Grid {
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
+		$f->formHideArray('', $this->linkVars);
 		//$f->prefix('columns');
 		$f->showForm($desc);
 		$f->submit('Set');

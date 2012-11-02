@@ -52,6 +52,18 @@ class URL {
 		return $this;
 	}
 
+	function addParams(array $params = array()) {
+		$this->params += $params;
+		$this->components['query'] = $this->buildQuery();
+		return $this;
+	}
+
+	function forceParams(array $params = array()) {
+		$this->params = array_merge($this->params, $params);	// keep default order but overwrite
+		$this->components['query'] = $this->buildQuery();
+		return $this;
+	}
+
 	function clearParams() {
 		$this->setParams(array());
 		return $this;
@@ -84,10 +96,6 @@ class URL {
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
 		//debug($this);
-	}
-
-	function setFragment($name) {
-		$this->components['fragment'] = $name;
 	}
 
 	function setFragment($name) {

@@ -1,6 +1,6 @@
 <?php
 
-abstract class Scaffold extends Controller {
+abstract class Scaffold extends AppController {
 	protected $table = 'sometable';
 
 	/**

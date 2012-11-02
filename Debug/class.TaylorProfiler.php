@@ -248,12 +248,8 @@ class TaylorProfiler {
     * Get the current time as accuratly as possible
     *
     */
-    function getMicroTime(){
-        //Function split() is deprecated - commented and replaced split() with explode() 2011/07/12 - Soeren Klein
-        //$tmp=split(" ",microtime());
-        $tmp=explode(" ",microtime());
-        $rt=$tmp[0]+$tmp[1];
-        return $rt;
+    function getMicroTime() {
+		return microtime(true);
     }
 
     /**
@@ -287,10 +283,12 @@ class TaylorProfiler {
     }
 
 	function renderFloat() {
-		$oaTime = $this->getMicroTime() - $this->initTime;
+		$oaTime = microtime(true) - ($this->initTime ? $this->initTime : $_SERVER['REQUEST_TIME']);
 		$totalTime = number_format($oaTime, 3, '.', '');
-		$dbTime = AP(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
-		$dbTime = number_format($dbTime, 3, '.', '');
+		if (Config::getInstance()->db->queryLog) {
+			$dbTime = AP(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+			$dbTime = number_format($dbTime, 3, '.', '');
+		}
 		$content = '<div class="floatTimeContainer">
 		<div class="floatTime">t:'.$totalTime.'s '.
 			'db:'.$dbTime.'s '.
