@@ -1,6 +1,6 @@
 <?php
 
-class Flot extends Controller {
+class Flot extends AppController {
 
 	protected $colors = array(
 		'#edc240',

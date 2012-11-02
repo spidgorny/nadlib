@@ -20,15 +20,11 @@ class HTMLForm {
 		$this->action = $action;
 	}
 
-	function formHideArray($name, $ar) {
-		$ret = '';
-		if (is_array($ar)) {
-			foreach($ar as $k => $a) {
-				$a = htmlspecialchars($a, ENT_QUOTES);
-				$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value=\"$a\">";
-			}
+	function formHideArray($name, array $ar) {
+		foreach($ar as $k => $a) {
+			$a = htmlspecialchars($a, ENT_QUOTES);
+			$this->stdout .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value=\"$a\">";
 		}
-		return $ret;
 	}
 
 	function action($action) {
@@ -81,9 +77,6 @@ class HTMLForm {
 	function input($name, $value = "", $more = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=\"text\" ".$this->getName($name). " $more value=\"$value\"/>\n";
-		if ($this->debug) {
-			$this->stdout .= '['.$this->getName($name).' ('.implode(', ', $this->prefix).')]';
-		}
 	}
 
 	function label($for, $text) {

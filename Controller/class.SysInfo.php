@@ -1,6 +1,6 @@
 <?php
 
-class SysInfo extends Controller {
+class SysInfo extends AppController {
 
 	function render() {
 		$a = array();

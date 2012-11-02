@@ -1,6 +1,6 @@
 <?php
 
-abstract class Grid extends Controller {
+abstract class Grid extends AppController {
 	/**
 	 *
 	 * @var Collection
@@ -56,7 +56,7 @@ abstract class Grid extends Controller {
 	}
 
 	function render() {
-		$content = $this->collection;
+		$content = $this->collection->render();
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this));
 		return $content;
 	}

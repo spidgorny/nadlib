@@ -1,7 +1,5 @@
 <?php
 
-require_once 'class.SQLBuilder.php';
-
 class BijouDBConnector {
 	var $lastQuery;
 
@@ -14,30 +12,40 @@ class BijouDBConnector {
 		return $res;
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
-		//$query = $this->getSelectQuery($table, $where, $order);
-		$res = $this->runSelectQuery($table, $where, $order, '', FALSE, !$noDeleted);
-		//t3lib_div::debug($where);
-		//t3lib_div::debug($query);
-		//$res = $this->perform($query);
-		$data = $this->fetchAll($res);
-		$options = $this->IDalize($data, $titleField, $idField);
-		//debugster($options);
-		return $options;
-	}
-
+	/**
+	 * @see SQLBuilder
+	 * @param $res
+	 * @return mixed
+	 */
+	/*	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
+			//$query = $this->getSelectQuery($table, $where, $order);
+			$res = $this->runSelectQuery($table, $where, $order, '', FALSE, !$noDeleted);
+			//t3lib_div::debug($where);
+			//t3lib_div::debug($query);
+			//$res = $this->perform($query);
+			$data = $this->fetchAll($res);
+			$options = $this->IDalize($data, $titleField, $idField);
+			//debugster($options);
+			return $options;
+		}
+	*/
 	function fetchAssoc($res) {
-		return $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+		//d($res, $row);
+		return $row;
 	}
 
 	function fetchRow($res) {
 		return $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 	}
 
-	function fetchAll($res) {
+	function fetchAll($res, $key = 'uid') {
 		$data = array();
 		while (($row = $this->fetchAssoc($res)) !== FALSE) {
-			$data[$row['uid']] = $row;
+			$data[$row[$key]] = $row;
 		}
 		return $data;
 	}
@@ -172,6 +180,14 @@ class BijouDBConnector {
 
 	function escape($str) {
 		return mysql_real_escape_string($str);
+	}
+
+	function quoteKey($key) {
+		return MySQL::quoteKey($key);
+	}
+
+	function getTableColumns($table) {
+		return $GLOBALS['TYPO3_DB']->admin_get_fields($table);
 	}
 
 }

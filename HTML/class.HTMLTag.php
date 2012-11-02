@@ -19,12 +19,12 @@ class HTMLTag {
 
 	function __toString() {
 		$content = $this->isHTML ? $this->content : htmlspecialchars($this->content, ENT_QUOTES);
-		return '<'.$this->tag.' '.$this->renderAttr().'>'.$content.'</'.$this->tag.'>';
+		return '<'.$this->tag.' '.$this->renderAttr($this->attr).'>'.$content.'</'.$this->tag.'>';
 	}
 
-	function renderAttr() {
+	function renderAttr(array $attr) {
 		$set = array();
-		foreach ($this->attr as $key => $val) {
+		foreach ($attr as $key => $val) {
 			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
 		}
 		return implode(' ', $set);

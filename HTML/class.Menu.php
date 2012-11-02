@@ -24,7 +24,7 @@ class Menu /*extends Controller*/ {
 	 */
 	public $tryMenuSuffix = false;
 
-	protected $current;
+	public $current;
 
 	/**
 	 * @var User
@@ -43,6 +43,18 @@ class Menu /*extends Controller*/ {
 		//$this->tryInstance();
 		if (class_exists('Class')) {
 			$this->user = Config::getInstance()->user;
+		}
+		$this->setCurrent($level);
+	}
+
+	function setCurrent($level) {
+		$useRouter = class_exists('Class') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		if ($useRouter) {
+			$rootpath = $this->request->getURLLevels();
+			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
+			debug($rootpath, $level, $this->current);
+		} else {
+			$this->current = $this->request->getControllerString();
 		}
 	}
 
@@ -102,14 +114,6 @@ class Menu /*extends Controller*/ {
 
 	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true, $ulClass = NULL) {
 		$content = '';
-		$useRouter = class_exists('Class') ? Config::getInstance()->config['Controller']['useRouter'] : '';
-		if ($useRouter) {
-			$rootpath = $this->request->getURLLevels();
-			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
-			debug($rootpath, $level, $this->current);
-		} else {
-			$this->current = $this->request->getControllerString();
-		}
 		foreach ($items as $class => $name) {
 			if ($name) {	// empty menu items indicate menu location for a controller
 				if (isset($root[0]) && ($class != $root[0])) {
@@ -126,15 +130,19 @@ class Menu /*extends Controller*/ {
 				}
 
 				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? $class == $this->current : true;
-				$hasChildren = $renderOnlyCurrentSubmenu && is_object($name) && $name->getChildren();
+				$hasChildren = $renderOnlyCurrentSubmenu && $name instanceof Recursive && $name->getChildren();
 				$actInA = $this->current == $class ? 'act' : '';
 				$active = $this->current == $class ? 'active' : '';
-				if ($hasChildren) {
-					$active .= ' dropdown';
-					$actInA .= ' dropdown-toggle';
-					$aTag = '<a href="'.$path.'" class="'.$actInA.'" data-toggle="dropdown">'.__($name.'').' <b class="caret"></b></a>';
+				if ($name instanceof HTMLTag) {
+					$aTag = $name.'';
 				} else {
-					$aTag = '<a href="'.$path.'" class="'.$actInA.'">'.__($name.'').'</a>';
+					if ($hasChildren) {
+						$active .= ' dropdown';
+						$actInA .= ' dropdown-toggle';
+						$aTag = '<a href="'.$path.'" class="'.$actInA.'" data-toggle="dropdown">'.__($name.'').' <b class="caret"></b></a>';
+					} else {
+						$aTag = '<a href="'.$path.'" class="'.$actInA.'">'.__($name.'').'</a>';
+					}
 				}
 				if ($isRecursive && $hasChildren) {
 					$root_class = array_merge($root, array($class));

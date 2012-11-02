@@ -70,6 +70,11 @@ class Collection {
 	 */
 	public $select;
 
+	public $tableMore = array(
+		'class' => "nospacing",
+		'width' => "100%",
+	);
+
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -166,11 +171,13 @@ class Collection {
 				$ps->setURL(new URL(NULL, array()));
 				$pages .= $ps->render();
 			}
-			$s = new slTable($this->data, 'class="nospacing" width="100%"');
+			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
 			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
-			$s->sortLinkPrefix = new URL();
+			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars);
+			//debug($s->sortLinkPrefix);
 			$content = $pages . $s->getContent('Collection '.$this->table) . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';

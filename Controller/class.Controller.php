@@ -38,6 +38,8 @@ abstract class Controller {
 	 */
 	public $layout;
 
+	public $linkVars = array();
+
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
@@ -47,6 +49,7 @@ abstract class Controller {
 		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
+		$this->linkVars['c'] = get_class($this);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
@@ -55,27 +58,26 @@ abstract class Controller {
 			$r = new Router();
 			$url = $r->makeURL($params);
 		} else {
-			foreach ($params as &$val) {
-				$val = str_replace('#', '%23', $val);
-			} unset($val);
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
+			$url = new URL($prefix != '?' ? $prefix : NULL, $params);
+			/*foreach ($params as &$val) {
+				$val = str_replace('#', '%23', $val);
+			} unset($val);
 			if ($params || $prefix != '?') {
 				$url = $prefix.http_build_query($params, '', '&'); //, PHP_QUERY_RFC3986);
-			}
+			}*/
 		}
 		return $url;
 	}
 
 	function makeRelURL(array $params = array()) {
-		return $this->makeURL($params+array(
-			'c' => get_class($this),
-		));
+		return $this->makeURL($params+$this->linkVars);
 	}
 
 	function getURL(array $params, $prefix = '?') {
-		return $this->makeURL($params, $prefix);
+		return $this->makeURL($params+$this->linkVars, false, $prefix);
 	}
 
 	function makeLink($text, array $params, $page = '', array $more = array()) {

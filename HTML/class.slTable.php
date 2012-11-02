@@ -177,8 +177,8 @@ class slTable {
 		$thes = array();
 		foreach ($this->data as $current) {
 			$thes = array_merge($thes, array_keys($current));
+			$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
 		}
-		$thes = array_unique($thes);
 		$thes = array_combine($thes, $thes);
 		foreach ($thes as &$th) {
 			$th = array('name' => $th);
@@ -193,7 +193,6 @@ class slTable {
 	}
 
 	function generateThead(HTMLTableBuf $t) {
-		//th
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
 			if (is_array($k) && isset($k['!show']) && $k['!show']) {
@@ -216,14 +215,11 @@ class slTable {
 					$this->sortBy,
 					$thk,
 				));
-				if ($this->sortBy == $thk) {
-					$newSO = !$this->sortOrder;
-				} else {
-					$newSO = $this->sortOrder;
-				}
-				$link = $this->sortLinkPrefix->setParams(array($this->prefix => array(
-					'sortBy' => $thk,
-					'sortOrder' => $newSO,
+				$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;
+				$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
+				$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
+					'sortBy' => $sortField,
+					'sortOrder' => $sortOrder,
 				)));
 				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
 			} else {

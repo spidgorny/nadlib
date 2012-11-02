@@ -1,6 +1,6 @@
 <?php
 
-class ErrorPage extends Controller {
+class ErrorPage extends AppController {
 
 	function render() {
 		debug($_REQUEST);

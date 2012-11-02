@@ -36,14 +36,6 @@ class HTMLFormValidate {
 			} elseif ($d['obligatory'] && !$d['value']) {
 				$d['error'] = 'This field is obligatory.';
 				$error = TRUE;
-			} elseif ($d['type'] instanceof Collection) {
-				// all OK, avoid calling __toString on the collection
-			} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
-				$e['error'] = 'This field must be set';
-				$error = true;
-			} elseif ($d['obligatory'] && !$d['value']) {
-				$d['error'] = 'This field is obligatory.';
-				$error = TRUE;
 			} elseif ($field == 'email' && $value && !$this->validMail($value)) {
 				$d['error'] = 'Not a valid e-mail.';
 				$error = TRUE;
@@ -54,7 +46,7 @@ class HTMLFormValidate {
 				$d['error'] = 'Minimum: '.$d['min'];
 				$error = TRUE;
 			} elseif ($d['max'] && $value > $d['max']) {
-				$d['error'] = 'Maximum: '.$d['max'];
+				$d['error'] = 'Value too large. Maximum: '.$d['max'];
 				$error = TRUE;
 			} elseif ($d['type'] == 'recaptcha' || $d['type'] == 'recaptchaAjax') {
 				//debug($_REQUEST);
@@ -75,9 +67,6 @@ class HTMLFormValidate {
 					$d['error'] = __('This field is obligatory.');
 					$error = TRUE;
 				}
-			} elseif ($d['max'] && $value > $d['max']) {
-				$d['error'] = 'Value too large. Maximum: '.$d['max'];
-				$error = TRUE;
 			} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
 				$d['error'] = $d['validateError'];
 				$error = TRUE;
@@ -97,6 +86,7 @@ class HTMLFormValidate {
 				}
 			}
 
+			if ($d['dependant'] && $isCheckbox && $value) { // only checked should be validated
 				//t3lib_div::debug(array($field, $value, $isCheckbox));
 				$fv = new HTMLFormValidate($d['dependant']);
 				if (!$fv->validate()) {

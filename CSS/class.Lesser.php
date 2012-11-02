@@ -1,6 +1,6 @@
 <?php
 
-class Lesser extends Controller {
+class Lesser extends AppController {
 
 	public $layout = 'none';
 
