@@ -19,6 +19,11 @@ class OODBase {
 	public $thes = array();
 
 	/**
+	 * @var self
+	 */
+	static $instance = array();
+
+	/**
 	 * Enter description here...
 	 *
 	 * @param integer/array $id - can be ID in the database or the whole records
@@ -170,10 +175,12 @@ class OODBase {
 	function insertOrUpdate() {
 		if ($this->id) {
 			$ret = $this->update($this->data);
+			$action = 'UPD';
 		} else {
 			$ret = $this->insert($this->data);
+			$action = 'INS';
 		}
-		return $ret;
+		return $action;
 	}
 
 	/**
@@ -226,6 +233,18 @@ class OODBase {
 			$s = slTable::showAssoc($assoc);
 		}
 		return $s;
+	}
+
+	static function getInstance($id) {
+		if (is_scalar($id)) {
+			$inst = &self::$instance[$id];
+			if (!$inst) {
+				$inst = new Route($id);
+			}
+		} else {
+			$inst = new static($id);
+		}
+		return $inst;
 	}
 
 }

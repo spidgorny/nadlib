@@ -28,7 +28,8 @@ class Debug {
 				$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
 			}
 
-			$content = '<div class="debug" style="
+			$content = '
+			<div class="debug" style="
 				background: #EEEEEE;
 				border: solid 1px silver;
 				display: inline-block;
@@ -44,7 +45,18 @@ class Debug {
 				<div style="display: none;">'.$trace.'</div>
 			</div>';
 			$content .= Debug::view_array($a);
-			$content .= '</div>';
+			$content .= '</div>
+			<style>
+				td.view_array {
+					border: dotted 1px #555;
+					font-size: 12px;
+					vertical-align: top;
+					border-collapse: collapse;
+				}
+			</style>';
+			if (!headers_sent()) {
+				echo '<!DOCTYPE html><html>';
+			}
 			print($content); flush();
 		}
 		return $content;
@@ -85,15 +97,17 @@ class Debug {
 			}
 		}
 
-		if (is_array($a)) {	// not else if
+		if (is_array($a)) {	// not else if so it also works for objects
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
-				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
-				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : gettype($r);
+				$type = gettype($r);
+				$type = gettype($r) == 'object' ? get_class($r) : $type;
+				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
+				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
 				$content .= '<tr>
-					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$i.'</td>
-					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">'.$type.' '.(is_array($r) ? '['.sizeof($r).']' : '').'</td>
-					<td class="view_array" style="border: dotted 1px #555; font-size: 12px; vertical-align: top; border-collapse: collapse;">';
+					<td class="view_array">'.$i.'</td>
+					<td class="view_array">'.$type.'</td>
+					<td class="view_array">';
 
 				$content .= Debug::view_array($r);
 				//$content = print_r($r, true);

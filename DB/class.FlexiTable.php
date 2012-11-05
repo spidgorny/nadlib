@@ -106,7 +106,8 @@ class FlexiTable extends OODBase {
 				}
 				$this->data[$field] = $uncompressed;
 				if ($this->data[$field]{0} == '<') {
-					$this->$field = simplexml_load_string($uncompressed);
+					//$uncompressed = html_entity_decode($uncompressed, ENT_QUOTES, "utf-8");
+					$this->$field = @simplexml_load_string($uncompressed);
 				} else if ($this->data[$field]{0} == '{') {
 					$this->$field = json_decode($uncompressed, false);	// make it look like SimpleXML
 				}

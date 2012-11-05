@@ -97,7 +97,9 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		$this->retrieveDataFromDB();
+		if (!$this->parentID || $this->parentID > 0) {
+			$this->retrieveDataFromDB();
+		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
@@ -114,13 +116,11 @@ class Collection {
 	 */
 	function retrieveDataFromDB() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		if (!$this->parentID || $this->parentID > 0) {
-			$this->query = $this->getQuery($this->where);
-			$res = $this->db->perform($this->query);
-			$data = $this->db->fetchAll($res);
-			$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
-			$this->preprocessData();
-		}
+		$this->query = $this->getQuery($this->where);
+		$res = $this->db->perform($this->query);
+		$data = $this->db->fetchAll($res);
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		$this->preprocessData();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -129,7 +129,7 @@ class Collection {
 		if (!$where) {
 			$where = $this->where;
 		}
-		if ($this->parentID) {
+		if ($this->parentID > 0) {
 			$where[$this->parentField] = $this->parentID;
 		}
 		$qb = Config::getInstance()->qb;
@@ -176,6 +176,7 @@ class Collection {
 			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+			//debug(Index::getInstance()->controller);
 			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars);
 			//debug($s->sortLinkPrefix);
 			$content = $pages . $s->getContent('Collection '.$this->table) . $pages;
@@ -251,11 +252,15 @@ class Collection {
 	 *
 	 * @param unknown_type $class
 	 */
-	function objectify($class) {
+	function objectify($class, $byInstance = false) {
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
-				$this->members[$key] = new $class($row);
+				if ($byInstance) {
+					$this->members[$key] = $class::getInstance($row);
+				} else {
+					$this->members[$key] = new $class($row);
+				}
 			}
 		}
 		return $this->members;

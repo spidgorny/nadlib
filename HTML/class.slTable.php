@@ -590,14 +590,26 @@ class slTable {
 		return (is_numeric($parts[0]) && is_numeric($parts[1]) && strlen($parts[0]) == 2 && strlen($parts[1]) == 2);
 	}
 
-	public static function showAssoc(array $assoc) {
+	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true) {
 		foreach ($assoc as $key => &$val) {
+			if ($isRecursive && (is_array($val) || is_object($val))) {
+				if (is_object($val)) {
+					$val = get_object_vars($val);
+				}
+				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys).'';
+			}
+			if (!$showNumericKeys && is_numeric($key)) {
+				$key = '';
+			}
 			$val = array(
 				0 => $key,
 				'' => $val,
 			);
 		}
-		$s = new self($assoc, '', array(0 => '', '' => array('no_hsc' => true)));
+		$s = new self($assoc, '', array(
+			0 => '',
+			'' => array('no_hsc' => true),
+		));
 		return $s;
 	}
 

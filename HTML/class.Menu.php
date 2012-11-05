@@ -35,6 +35,8 @@ class Menu /*extends Controller*/ {
 
 	public $ulClass = 'nav nav-list menu csc-menu';
 
+	public $basePath;
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
@@ -45,6 +47,7 @@ class Menu /*extends Controller*/ {
 			$this->user = Config::getInstance()->user;
 		}
 		$this->setCurrent($level);
+		$this->setBasePath();
 	}
 
 	function setCurrent($level) {
@@ -56,6 +59,23 @@ class Menu /*extends Controller*/ {
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
+	}
+
+	function setBasePath() {
+		$useRouter = class_exists('Class') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		if ($useRouter) {
+			if (isset($root[0]) && ($class != $root[0])) {
+				$path = array_merge($root, array($class));
+			} else {
+				$path = array($class);
+			}
+			$path = implode('/', $path);
+		} else {
+			$path = new URL();
+			$path->clearParams();
+			$path->setParam('c', '');
+		}
+		$this->basePath = $path;
 	}
 
 	function filterACL() {
@@ -116,19 +136,7 @@ class Menu /*extends Controller*/ {
 		$content = '';
 		foreach ($items as $class => $name) {
 			if ($name) {	// empty menu items indicate menu location for a controller
-				if (isset($root[0]) && ($class != $root[0])) {
-					$path = array_merge($root, array($class));
-				} else {
-					$path = array($class);
-				}
-				if ($useRouter) {
-					$path = implode('/', $path);
-				} else {
-					$path = new URL();
-					$path->clearParams();
-					$path->setParam('c', $class);
-				}
-
+				$path = $this->basePath . $class;
 				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? $class == $this->current : true;
 				$hasChildren = $renderOnlyCurrentSubmenu && $name instanceof Recursive && $name->getChildren();
 				$actInA = $this->current == $class ? 'act' : '';

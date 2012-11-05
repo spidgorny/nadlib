@@ -46,6 +46,9 @@ class MiniIndex extends Controller {
 
 	function init() {
 		$this->controller = $this->request->getController();
+		if (method_exists($this->controller, 'postInit')) {
+			$this->controller->postInit();
+		}
 	}
 
 	function render() {
@@ -72,7 +75,10 @@ class MiniIndex extends Controller {
 	}
 
 	function addJQuery() {
-		$this->footer['jquery.js'] = '<script src="nadlib/js/jquery-1.8.1.min.js"></script>';
+		$this->footer['jquery.js'] = '
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
+		';
 	}
 
 	function addJQueryUI() {

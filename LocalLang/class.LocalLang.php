@@ -92,9 +92,15 @@ abstract class LocalLang {
 			$this->saveMissingMessage($text);
 			$trans = $this->getEditLinkMaybe($text);
 		}
-		$trans = str_replace('%s', $replace, $trans);
-		$trans = str_replace('%1', $replace, $trans);
-		$trans = str_replace('%2', $s2, $trans);
+		if (is_array($replace)) {
+			foreach ($replace as $key => $val) {
+				$trans = str_replace('{'.$key.'}', $val, $trans);
+			}
+		} else {
+			$trans = str_replace('%s', $replace, $trans);
+			$trans = str_replace('%1', $replace, $trans);
+			$trans = str_replace('%2', $s2, $trans);
+		}
 		return $trans;
 	}
 
