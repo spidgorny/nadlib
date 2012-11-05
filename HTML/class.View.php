@@ -2,7 +2,11 @@
 
 class View {
 	protected $file;
-	protected $caller;
+
+	/**
+	 * @var stdClass
+	 */
+	public $caller;
 
 	/**
 	 * Enter description here...
@@ -190,13 +194,13 @@ class View {
 	  return( array() );
 	}
 
-	function _autolink_create_html_tags( &$value, $key, $other=null ) {
-	  $target = $nofollow = null;
+	function _autolink_create_html_tags( &$value, $key, $other=NULL ) {
+	  $target = $nofollow = NULL;
 	  if( is_array($other) )
 	  {
-		$target      =  ( $other['target']   ? " target=\"$other[target]\"" : null );
+		$target      =  ( $other['target']   ? " target=\"$other[target]\"" : NULL );
 		// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
-		$nofollow    =  ( $other['nofollow'] ? ' rel="nofollow"'            : null );
+		$nofollow    =  ( $other['nofollow'] ? ' rel="nofollow"'            : NULL );
 	  }
 	  $value = "<a href=\"$key\"$target$nofollow>$key</a>";
 	}
@@ -208,6 +212,19 @@ class View {
 
 	function money($val) {
 		return number_format($val, 2, '.', '');
+	}
+
+	function euro($val, $noCent = false) {
+		$money = $this->money($val).'&nbsp;&euro;';
+		if ($noCent) {
+			$money = str_replace('.00', '.-', $money);
+		}
+		return $money;
+	}
+
+	function bar($percent) {
+		$percent = round($percent);
+		return '<img src="nadlib/bar.php?rating='.$percent.'" alt="'.$percent.'%" />';
 	}
 
 }

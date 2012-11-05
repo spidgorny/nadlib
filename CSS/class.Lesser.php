@@ -9,6 +9,7 @@ class Lesser extends AppController {
 	function render() {
 		header('Content-type: text/css');
 		$less = new lessc;
+		//$less->importDir[] = '../../';
 		$less->checkedCompile('css/'.$this->request->getFilename('css'), $this->output);
 		readfile($this->output);
 	}

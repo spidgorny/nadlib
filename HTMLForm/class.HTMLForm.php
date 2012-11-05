@@ -2,12 +2,12 @@
 
 class HTMLForm {
 	var $action = "";
-	var $method = "POST";
+	protected $method = "POST";
 	protected $prefix = array();
 	var $stdout = "";
 	var $enctype = "";
 	var $class = "";
-	var $fieldset;
+	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
 	var $target = '';
@@ -58,6 +58,10 @@ class HTMLForm {
 	function fieldset($name, $more = array()) {
 		$this->fieldset = $name;
 		$this->fieldsetMore = $more;
+	}
+
+	function getFieldset() {
+		return $this->fieldset;
 	}
 
 	function getName($name, $namePlus = '', $onlyValue = FALSE) {

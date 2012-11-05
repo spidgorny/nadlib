@@ -80,10 +80,10 @@ abstract class Controller {
 		return $this->makeURL($params+$this->linkVars, false, $prefix);
 	}
 
-	function makeLink($text, array $params, $page = '', array $more = array()) {
+	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
 		$content = new HTMLTag('a', array(
 			'href' => $page.$this->makeURL($params),
-		)+$more, $text);
+		)+$more, $text, $isHTML);
 		return $content;
 	}
 

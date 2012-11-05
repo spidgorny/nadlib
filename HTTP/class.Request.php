@@ -143,7 +143,23 @@ class Request {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
 	}
 
-	/**
+	function getSubRequestByPath(array $name) {
+		$current = $this;
+		reset($name);
+		do {
+			$next = current($name);
+			$current = $current->getSubRequest($next);
+			//debug($name, $next, $current->getAll());
+		} while (next($name));
+		return $current;
+	}
+
+	function getArrayByPath(array $name) {
+		$subRequest = $this->getSubRequestByPath($name);
+		return $subRequest->getAll();
+	}
+
+		/**
 	 * Makes sure it's an integer
 	 * @param string $name
 	 * @return int

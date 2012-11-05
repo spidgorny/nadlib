@@ -6,21 +6,30 @@ class HTMLFormTable extends HTMLForm {
 	var $trmore;
 	var $tableMore;
 	public $debug = false;
+
 	/**
 	 *
 	 * @var array
 	 */
-	protected $desc;
+	public $desc;
 
 	protected $mainForm;
 
-	function __construct(array $desc = array(), $prefix = '') {
+	/**
+	 * @var Request
+	 */
+	protected $request;
+
+	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
+		$this->request = Request::getInstance();
 		if ($this->desc) {
-			$r = new Request();
-			$this->desc = $this->fillValues($this->desc, $r->getArray($this->prefix[0]));
+			$this->importValues($this->request->getSubRequestByPath($this->prefix));
 			//$this->showForm();	// call manually to have a chance to change method or defaultBR
+		}
+		if ($fieldset) {
+			$this->fieldset($fieldset);
 		}
 	}
 
@@ -28,8 +37,29 @@ class HTMLFormTable extends HTMLForm {
 		$this->desc = $desc;
 	}
 
-	function importValues(array $form) {
-		$this->desc = $this->fillValues($this->desc, $form);
+	/**
+	 * fillValues() is looping over the existing values
+	 * This function is looping over desc
+	 * @param array $form
+	 */
+	function importValues(Request $form) {
+		//$this->desc = $this->fillValues($this->desc, $form);
+		foreach ($this->desc as $key => &$desc) {
+			if ($desc instanceof HTMLFormTable) {
+				$prefix_1 = $desc->prefix;
+				array_shift($prefix_1);
+				$subForm = $form->getSubRequestByPath($prefix_1);
+				nodebug('subimport', sizeof($form->getAll()), implode(', ', array_keys($form->getAll())),
+					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
+				$desc->importValues($subForm);
+				//debug('after', $desc->desc);
+			} else {
+				$desc['value'] = $form->getTrim($key);
+				if ($key == 'Salutation') {
+					//debug($desc, $key, $form->getTrim($key), $form->getAll());
+				}
+			}
+		}
 	}
 
 	function switchType($fieldName, $fieldValue, array $desc) {
@@ -40,18 +70,19 @@ class HTMLFormTable extends HTMLForm {
 			$elementID = uniqid('id_');
 			$desc['id'] = $elementID;
 		}
-		if ($desc['type'] instanceof HTMLFormType) {
-			$desc['type']->setField($fieldName);
-			$desc['type']->setForm($this);
-			$desc['type']->setValue($desc['value']);
-			$this->stdout .= $desc['type']->render();
-		} else if ($desc['type'] instanceof Collection) {
-			$desc['type']->setField($fieldName);
-			$desc['type']->setForm($this);
-			$desc['type']->setValue($desc['value']);
-			$this->stdout .= $desc['type']->renderHTMLForm();
+		$type = $desc['type']; /* @var $type Collection */
+		if ($type instanceof HTMLFormType) {
+			$type->setField($fieldName);
+			$type->setForm($this);
+			$type->setValue($desc['value']);
+			$this->stdout .= $type->render();
+		} else if ($type instanceof Collection) {
+			$type->setField($fieldName);
+			$type->setForm($this);
+			$type->setValue($desc['value']);
+			$this->stdout .= $type->renderHTMLForm();
 		} else {
-			switch($desc['type']) {
+			switch($type) {
 				case "text":
 				case "string":
 					$this->text($fieldValue);
@@ -143,6 +174,13 @@ class HTMLFormTable extends HTMLForm {
 				case 'button':
 					$this->button($desc['innerHTML'], $desc['more']);
 				break;
+				case 'fieldset':
+					//$this->fieldset($desc['label']);	// it only sets the global fieldset name
+					$this->stdout .= '<fieldset><legend>'.htmlspecialchars($desc['label']).'</legend>';
+				break;
+				case '/fieldset':
+					$this->stdout .= '</fieldset>';
+				break;
 				case "input":
 				default:
 					//$this->text(htmlspecialchars($desc['more']));
@@ -170,8 +208,9 @@ class HTMLFormTable extends HTMLForm {
 			<td '.$desc['TDmore'].'><table class="htmlFormTable"><tr>';
 		}
 		$fieldValue = $desc['value'];
+		$type = $desc['type'];
 
-		if (is_object($desc['type']) || $desc['type'] != 'hidden') {
+		if (is_object($type) || ($type != 'hidden' && !in_array($type, array('fieldset', '/fieldset')))) {
 			if (!$desc['formHide']) {
 				if ($desc['br'] || $this->defaultBR) {
 				} else {
@@ -195,7 +234,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->stdout .= '<label for="'.$elementID.'">'.$desc['label'];
 					if (!$withBR) {
 						if ($desc['label']) {
-							$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $desc['type'] != 'check'
+							$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $type != 'check'
 							? '<span class="htmlFormTableStar">*</span>'
 							: '');
 							$this->stdout .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
@@ -287,7 +326,8 @@ class HTMLFormTable extends HTMLForm {
 			$this->mainFormStart();
 		}
 		if ($this->fieldset) {
-			$this->stdout .= "<fieldset ".$this->getAttrHTML($this->fieldsetMore)."><legend>".$this->fieldset."</legend>";
+			$this->stdout .= "<fieldset ".$this->getAttrHTML($this->fieldsetMore).">
+				<legend>".$this->fieldset."</legend>";
 			$startedFieldset = TRUE;
 			$this->fieldset = NULL;
 		}
@@ -321,12 +361,17 @@ class HTMLFormTable extends HTMLForm {
 				$path[] = $fieldName;
 			}
 			//debug($path);
-
+			$sType = is_object($fieldDesc) ? get_class($fieldDesc) : $fieldDesc['type'];
 			// avoid __toString on collection
-			$sType = is_object($fieldDesc['type'])
-				? get_class($fieldDesc['type'])
-				: $fieldDesc['type'];
-			if (is_array($fieldDesc) && $sType != 'hidden') {
+			// it needs to run twice: one checking for the whole desc and other for desc[type]
+			$sType = is_object($sType)
+				? get_class($sType)
+				: $sType;
+			if ($sType == 'HTMLFormTable') {
+				$subForm = $fieldDesc; /** @var $subForm HTMLFormTable */
+				$subForm->showForm();
+				$this->stdout .= '<tr><td colspan="2">'.$subForm->getBuffer().'</td></tr>';
+			} else if (is_array($fieldDesc) && $sType != 'hidden') {
 				if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
 					$this->stdout .= "<tr ".$this->getAttrHTML($fieldDesc['TRmore']).">";
 				}
@@ -368,7 +413,8 @@ class HTMLFormTable extends HTMLForm {
 	 * @param string	Column name that contains values. Within this class default value is the only that makes sence.
 	 * @return array	1D array with name/values
 	 */
-	function getValues($arr, $col = 'value') {
+	function getValues(array $arr = NULL, $col = 'value') {
+		$arr = $arr ? $arr : $this->desc;
 		$res = array();
 		if (is_array($arr)) {
 			foreach ($arr as $key => $ar) {

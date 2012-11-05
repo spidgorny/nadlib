@@ -293,6 +293,55 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return array_sum($this->data);
 	}
 
+	/**
+	 * Runs get_object_vars() recursively
+	 * @param array $data
+	 * @return ArrayPlus
+	 */
+	function object2array(array $data = NULL) {
+		$this->data = $this->objectToArray($this->data);
+		return $this;
+	}
+
+	/**
+	 * http://www.if-not-true-then-false.com/2009/php-tip-convert-stdclass-object-to-multidimensional-array-and-convert-multidimensional-array-to-stdclass-object/
+	 * @param $d
+	 * @return array
+	 */
+	protected function objectToArray($d) {
+		if (is_object($d)) {
+			// Gets the properties of the given object
+			// with get_object_vars function
+			$d = get_object_vars($d);
+		}
+
+		if (is_array($d)) {
+			/*
+			* Return array converted to object
+			* Using __FUNCTION__ (Magic constant)
+			* for recursive call
+			*/
+			return array_map(array($this, __FUNCTION__), $d);
+		}
+		else {
+			// Return array
+			return $d;
+		}
+	}
+
+	function linearize(array $data = NULL) {
+		$data = $data ? $data : $this->data;
+		$linear = array();
+		foreach ($data as $key => $val) {
+			if (is_array($val) && $val) {
+				$linear = array_merge($linear, $this->linearize($val));
+			} else {
+				$linear[$key] = $val;
+			}
+		}
+		return $linear;
+	}
+
 }
 
 function AP(array $a = array()) {

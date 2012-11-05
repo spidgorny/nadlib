@@ -8,23 +8,40 @@ abstract class HTMLFormProcessor extends AppController {
 	protected $ajax = true;
 	protected $submitButton = '';
 
+	/**
+	 * @var HTMLFormTable
+	 */
+	protected $form;
+
 	function __construct(array $default = array()) {
 		parent::__construct();
 		$this->prefix = get_class($this);
 		$this->default = $default ? $default : $this->default;
+		assert($this->submitButton != '');
+		$this->submitButton = strip_tags(__($this->submitButton));
+	}
+
+	/**
+	 * The idea is to remove all slow operations outside of the constructor.
+	 */
+	function postInit() {
 		$this->desc = $this->getDesc();
-		if (Request::getInstance()->is_set($this->prefix)) {
-			$urlParams = Request::getInstance()->getArray($this->prefix);
-			$this->desc = HTMLFormTable::fillValues($this->desc, $urlParams);
+		$this->form = $this->getForm();
+		//debug($this->desc);
+		if ($this->request->is_set($this->prefix)) {
+			//$urlParams = $this->request->getArray($this->prefix);
+			//$this->desc = HTMLFormTable::fillValues($this->desc, $urlParams);
+			$subRequest = $this->request->getSubRequest($this->prefix);
+			//debug('submit detected', $this->prefix, sizeof($subRequest->getAll()), implode(', ', array_keys($subRequest->getAll())));
+			$this->form->importValues($subRequest);
+			//debug($this->form->desc);
 			$v = new HTMLFormValidate($this->desc);
 			$this->validated = $v->validate();
 			$this->desc = $v->getDesc();
 		} else {
-			$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
+			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
+			$this->form->importValues($this->default);
 		}
-		//debug($this->desc);
-		assert($this->submitButton != '');
-		$this->submitButton = strip_tags(__($this->submitButton));
 	}
 
 	abstract function getDesc();
@@ -35,9 +52,13 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	function render() {
 		if ($this->validated) {
-			$content = $this->onSuccess(HTMLFormTable::getValues($this->desc));
+			$content = $this->onSuccess($this->form->getValues());
 		} else {
-			$content = $this->getForm();
+			$this->form->prefix($this->prefix);
+			$this->form->showForm();
+			$this->form->prefix('');
+			$this->form->submit($this->submitButton, '', array('class' => 'btn'));
+			$content = $this->form;
 		}
 		return $content;
 	}
@@ -50,10 +71,6 @@ abstract class HTMLFormProcessor extends AppController {
 		$f->method('POST');
 		$f->hidden('c', $this->prefix);
 		$f->hidden('ajax', $this->ajax);
-		$f->prefix($this->prefix);
-		$f->showForm();
-		$f->prefix('');
-		$f->submit($this->submitButton, '', array('class' => 'btn'));
 		return $f;
 	}
 
