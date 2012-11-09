@@ -1,6 +1,6 @@
 <?php
 
-class ServerData extends AppController {
+class ServerData extends AppControllerBE {
 
 	function render() {
 		$s = slTable::showAssoc($_SERVER);

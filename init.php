@@ -23,12 +23,17 @@ function __autoload($class) {
 
 	$namespaces = explode('\\', $class);
 	$classFile = end($namespaces);
+	$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
+	$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
+	$subFolders = implode('/', $subFolders);	// Download
 	foreach ($folders as $path) {
-		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.'/class.'.$classFile.'.php';
-		//echo $class.' '.$file.': '.file_exists($file).'<br />';
+		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR.$subFolders.'class.'.$classFile.'.php';
 		if (file_exists($file)) {
+			//echo $class.' <span style="color: green;">'.$file.'</span><br />';
 			include_once($file);
 			break;
+		} else {
+			//echo $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
 		}
 	}
 	if (!class_exists($class)) {
@@ -54,7 +59,8 @@ if (DEVELOPMENT) {
 	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
 	/* @var $profiler TaylorProfiler */
 	if (class_exists('Config')) {
-		set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);
+		//print_r(Config::getInstance()->config['Config']);
+		set_time_limit(Config::getInstance()->config['Config']['timeLimit'] ? Config::getInstance()->config['Config']['timeLimit'] : 5);
 	}
 	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 } else {

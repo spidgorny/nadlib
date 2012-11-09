@@ -1,6 +1,6 @@
 <?php
 
-class ConfigView extends AppController {
+class ConfigView extends AppControllerBE {
 
 	protected $prefix = __CLASS__;
 
@@ -26,13 +26,20 @@ class ConfigView extends AppController {
 			$f->fieldset($class);
 			$desc = array();
 			foreach ($props as $key => $val) {
-				$desc[$class.'['.$key.']'] = array(
-					'label' => $key,
-					'type' => $this->typeMap[gettype($val)],
-					'value' => $val,
-					'set0' => true,
-					'optional' => true,
-				);
+				if (is_scalar($val)) {
+					$desc[$class.'['.$key.']'] = array(
+						'label' => $key,
+						'type' => $this->typeMap[gettype($val)],
+						'value' => $val,
+						'set0' => true,
+						'optional' => true,
+					);
+				} else {
+					$desc[$class.'['.$key.']'] = array(
+						'type' => 'html',
+						'code' => getDebug($val),
+					);
+				}
 			}
 			$f->showForm($desc);
 		}
@@ -40,7 +47,7 @@ class ConfigView extends AppController {
 		$f->prefix('');
 		$f->hidden('action', 'save');
 		$f->submit('Save');
-		$content .= $f;
+		$content = $f;
 
 		$content .= '<style>.tdlabel { width: 10em; } </style>';
 		return $content;

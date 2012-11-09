@@ -37,6 +37,8 @@ class Menu /*extends Controller*/ {
 
 	public $basePath;
 
+	public $recursive = true;
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
@@ -93,9 +95,9 @@ class Menu /*extends Controller*/ {
 				$rootpath = $this->request->getURLLevels();
 				$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for submenu of Dashboard/About
 				$itemsOnLevel = $this->getItemsOnLevel($rootpath);
-				$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level, false);
+				$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level);
 			} else {
-				$content .= $this->renderLevel($this->items->getData(), array(), 0, true);
+				$content .= $this->renderLevel($this->items->getData(), array(), 0);
 			}
 		//}
 		return $content;
@@ -132,7 +134,7 @@ class Menu /*extends Controller*/ {
 		return $items;
 	}
 
-	function renderLevel(array $items, array $root = array(), $level, $isRecursive = true, $ulClass = NULL) {
+	function renderLevel(array $items, array $root = array(), $level, $ulClass = NULL) {
 		$content = '';
 		foreach ($items as $class => $name) {
 			if ($name) {	// empty menu items indicate menu location for a controller
@@ -152,9 +154,9 @@ class Menu /*extends Controller*/ {
 						$aTag = '<a href="'.$path.'" class="'.$actInA.'">'.__($name.'').'</a>';
 					}
 				}
-				if ($isRecursive && $hasChildren) {
+				if ($this->recursive && $hasChildren) {
 					$root_class = array_merge($root, array($class));
-					$contentSubmenu = $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, $isRecursive, 'dropdown-menu');
+					$contentSubmenu = $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, 'dropdown-menu');
 				} else {
 					$contentSubmenu = '';
 				}
