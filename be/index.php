@@ -2,6 +2,6 @@
 
 require_once '../init.php';
 
-$i = Index::getInstance();
+$i = IndexBE::getInstance();
 $i->initController();
 echo $i->render();

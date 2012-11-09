@@ -227,7 +227,8 @@ class Request {
 			$controller = $_SERVER['argv'][1];
 		} else {
 			$controller = $this->getTrim('c');
-			$controller = end(explode('/', $controller)); // in case it's with subfolder
+			//$controller = end(explode('/', $controller)); // in case it's with subfolder
+			// ^ commented as subfolders need be used for BEmenu
 			if (!$controller) {
 				$levels = $this->getURLLevels();
 				//debug($levels);

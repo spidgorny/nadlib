@@ -58,7 +58,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$instance = &self::$instance;
 		if (!$instance) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-			$instance = new Index();
+			$instance = new static();
 			//$instance->initController();	// scheisse: call it in index.php
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -69,6 +69,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$class = $this->request->getControllerString();
+			__autoload($class);
+			$class = end(explode('/', $class));	// again, because __autoload need the full path
 			if (class_exists($class)) {
 				$this->controller = new $class;
 			} else {
@@ -87,7 +89,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($this->controller) {
 			try {
 				$render = $this->controller->render();
-				if ($this->controller->layout instanceof Wrap) {
+				if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 					$render = $this->controller->layout->wrap($render);
 				}
 				$this->content .= $render;

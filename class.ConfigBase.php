@@ -13,6 +13,12 @@ class ConfigBase {
 	public $db_password = '';
 
 	/**
+	 * @var int
+	 * @deprecated in favor of $this->config['Config']['timeLimit'] in init.php
+	 */
+	public $timeLimit = 10;
+
+	/**
 	 *
 	 * @var SQLBuilder
 	 */
@@ -29,7 +35,7 @@ class ConfigBase {
 	public $documentRoot = '';
 
 	public static $includeFolders = array(
-		'',
+		'.',
 		'Cache',
 		'Controller',
 		'CSS',
@@ -45,6 +51,8 @@ class ConfigBase {
 		'Time',
 		'User',
 		'../model',
+		'be/class',
+		'../class',	// to load the Config of the main project
 	);
 
 	/**
@@ -67,6 +75,10 @@ class ConfigBase {
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
+		}
+		//print_r($this->config['Config']);
+		foreach ($this->config['Config'] as $key => $val) {
+			$this->$key = $val;
 		}
 	}
 

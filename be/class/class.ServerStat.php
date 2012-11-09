@@ -1,9 +1,10 @@
 <?php
 
-class ServerStat extends AppController {
+class ServerStat extends AppControllerBE {
 	var $start_time;
 	var $LOG = array();
 	var $COUNTQUERIES = 0;
+	var $totalTime;
 
 	function __construct($start_time = NULL, $LOG = array(), $COUNTQUERIES = 0) {
 		parent::__construct();
@@ -18,7 +19,7 @@ class ServerStat extends AppController {
 			$content = '<div
 				id="div_SystemInfo"
 				class="row updateHere"
-				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->updateHereAction().'</div>';
+				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
 
 			if (isset($GLOBALS['profiler'])) {
 				$content .= '<fieldset><legend>Profiler</legend>'.$GLOBALS['profiler']->printTimers(1).'</fieldset>';
@@ -28,6 +29,12 @@ class ServerStat extends AppController {
 	}
 
 	function updateHereAction() {
+		$content = $this->renderEverything();
+		$content .= '<script>updateHere()</script>';
+		return $content;
+	}
+
+	function renderEverything() {
 		$content = '<div class="span5">';
 		$content .= '<fieldset><legend>PHP Info</legend>'.$this->getPHPInfo().'</fieldset>';
 		$content .= '<fieldset><legend>Performance</legend>'.$this->getPerformanceInfo().'</fieldset>';
@@ -36,9 +43,6 @@ class ServerStat extends AppController {
 
 		$content .= '<fieldset><legend>Server Info</legend>
 			'.$this->getServerInfo().'
-			<label>
-				<input type="checkbox" onclick="reloadServerInfo(this);" id="input_reload"> Reload
-			</label>
 		</fieldset>';
 		$content .= '<fieldset><legend>Query Log</legend>'.$this->getQueryLog().'</fieldset>';
 		$content .= '</div>';
@@ -81,6 +85,7 @@ class ServerStat extends AppController {
 			$totalTime += $row['total'];
 		}
 		$totalTime = number_format($totalTime, 3);
+		$this->totalTime = $totalTime; // @used getQueryLog
 
 		// reformatting the data for output
 		foreach ($this->LOG as $i => $row) {

@@ -262,4 +262,9 @@ class MySQL {
 		return $key = '`'.$key.'`';
 	}
 
+	function switchDB($db) {
+		$this->db = $db;
+		mysql_select_db($this->db);
+	}
+
 }

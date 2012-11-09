@@ -67,6 +67,7 @@ class MiniIndex extends Controller {
 	function renderController() {
 		if ($this->controller) {
 			$content = $this->controller->render();
+			//debug($this->request->isAjax(), $this->controller->layout);
 			if (!$this->request->isAjax() && $this->controller->layout instanceof Wrap) {
 				$content = $this->controller->layout->wrap($content);
 			}

@@ -1,6 +1,6 @@
 <?php
 
-class Home extends AppController {
+class HomeBE extends AppControllerBE {
 
 	function render() {
 		$content = '';
