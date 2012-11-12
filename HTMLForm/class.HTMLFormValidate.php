@@ -28,6 +28,7 @@ class HTMLFormValidate {
 					'captcha',
 					'recaptcha',
 					'recaptchaAjax',
+					'select',
 				));
 				$d = $this->validateField($field, $d, $type, $value, $isCheckbox);
 				$error = $error || $d['error'];
@@ -41,28 +42,21 @@ class HTMLFormValidate {
 			!($value) || (!$d['allow0'] && !isset($value)))
 			&& !$isCheckbox) {
 			$d['error'] = 'This field is obligatory.';
-			//t3lib_div::debug(array($field, $type, $value, $isCheckbox));
-			$error = TRUE;
+			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
 		} elseif ($d['mustBset'] && !isset($value)) {	// must be before 'obligatory'
 			$e['error'] = 'This field must be set';
-			$error = true;
 		} elseif ($d['obligatory'] && !$value) {
 			$d['error'] = 'This field is obligatory.';
-			$error = TRUE;
 		} elseif ($field == 'email' && $value && !$this->validMail($value)) {
 			$d['error'] = 'Not a valid e-mail.';
-			$error = TRUE;
 		} elseif ($field == 'password' && strlen($value) < 6) {
 			$d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety.';
-			$error = TRUE;
 		} elseif ($d['min'] && $value < $d['min']) {
 			$d['error'] = 'Minimum: '.$d['min'];
-			$error = TRUE;
 		} elseif ($d['max'] && $value > $d['max']) {
 			$d['error'] = 'Value too large. Maximum: '.$d['max'];
-			$error = TRUE;
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
 			//debug($_REQUEST);
 			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
@@ -76,24 +70,18 @@ class HTMLFormValidate {
 				//debug($resp);
 				if (!$resp->is_valid) {
 					$d['error'] = __($resp->error);
-					$error = TRUE;
 				}
 			} else {
 				$d['error'] = __('This field is obligatory.');
-				$error = TRUE;
 			}
 		} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
 			$d['error'] = $d['validateError'];
-			$error = TRUE;
 		} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
 			$d['error'] = $d['validateError'];
-			$error = TRUE;
 		} elseif ($d['validate'] == 'int' && strval(intval($value)) != $value) {
 			$d['error'] = 'Must be integer';
-			$error = TRUE;
 		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
 			$d['error'] = 'Must be date';
-			$error = TRUE;
 		} else {
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
 			if ($field == 'date') {
@@ -105,7 +93,6 @@ class HTMLFormValidate {
 			//t3lib_div::debug(array($field, $value, $isCheckbox));
 			$fv = new HTMLFormValidate($d['dependant']);
 			if (!$fv->validate()) {
-				$error = true;
 				$d['dependant'] = $fv->getDesc();
 				$d['error'] = 'Error';
 			}

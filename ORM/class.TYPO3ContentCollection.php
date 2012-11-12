@@ -5,5 +5,9 @@ class TYPO3ContentCollection extends Collection {
 	var $idField = 'uid';
 	var $orderBy = 'ORDER BY sorting';
 	var $parentField = 'pid';
+	var $where = array(
+		'hidden' => false,
+		'deleted' => false,
+	);
 
 }

@@ -342,6 +342,15 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $linear;
 	}
 
+	function filter() {
+		$this->data = array_filter($this->data);
+		return $this;
+	}
+
+	function implode($sep) {
+		return implode($sep, $this->data);
+	}
+
 }
 
 function AP(array $a = array()) {

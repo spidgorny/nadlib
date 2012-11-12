@@ -23,8 +23,20 @@ class TYPO3Page extends OODBase {
 		$this->content = new TYPO3ContentCollection($this->id, array(
 			'colPos' => $colPos,
 		));
-		$this->content->objectify('TYPO3Content');
+		$this->content->objectify('TYPO3Content');	/* @var TYPO3Content */
 		return $this->content->renderMembers();
+	}
+
+	function render() {
+		return $this->getContent(0);
+	}
+
+	function sidebar() {
+		return $this->getContent(1);
+	}
+
+	function getSlug() {
+		return Controller::friendlyURL($this->data['title']);
 	}
 
 }
