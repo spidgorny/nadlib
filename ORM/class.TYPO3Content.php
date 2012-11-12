@@ -6,7 +6,10 @@ class TYPO3Content extends OODBase {
 	var $titleColumn = 'header';
 
 	function __toString() {
-		return $this->id.': '.$this->data['bodytext'].'<br>';
+		return '<div id="content_'.$this->id.'">'.
+			'<h2>'.$this->data[$this->titleColumn].'</h2>'.
+			$this->data['bodytext'].
+		'</div>';
 	}
 
 }

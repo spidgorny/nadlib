@@ -227,6 +227,10 @@ class Request {
 			$controller = $_SERVER['argv'][1];
 		} else {
 			$controller = $this->getTrim('c');
+			// to simplofy URL it first searches for the corresponding controller
+			if (class_exists($controller.'Controller')) {
+				$controller = $controller.'Controller';
+			}
 			//$controller = end(explode('/', $controller)); // in case it's with subfolder
 			// ^ commented as subfolders need be used for BEmenu
 			if (!$controller) {
@@ -234,7 +238,12 @@ class Request {
 				//debug($levels);
 				$levels = array_reverse($levels);
 				foreach ($levels as $class) {
-					//debug($class, class_exists($class));
+					//debug($class, class_exists($class.'Controller'), class_exists($class));
+					// to simplofy URL it first searches for the corresponding controller
+					if (class_exists($class.'Controller')) {	// this is untested
+						$last = $class.'Controller';
+						break;
+					}
 					if (class_exists($class)) {
 						$last = $class;
 						break;

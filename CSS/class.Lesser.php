@@ -4,7 +4,7 @@ class Lesser extends AppController {
 
 	public $layout = 'none';
 
-	protected $output = 'css/merge.css';
+	protected $output = 'cache/merge.css';
 
 	function render() {
 		header('Content-type: text/css');

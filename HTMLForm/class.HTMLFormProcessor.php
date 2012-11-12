@@ -28,19 +28,23 @@ abstract class HTMLFormProcessor extends AppController {
 		$this->desc = $this->getDesc();
 		$this->form = $this->getForm();
 		//debug($this->desc);
+		//debug($this->prefix);
 		if ($this->request->is_set($this->prefix)) {
 			//$urlParams = $this->request->getArray($this->prefix);
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $urlParams);
 			$subRequest = $this->request->getSubRequest($this->prefix);
 			//debug('submit detected', $this->prefix, sizeof($subRequest->getAll()), implode(', ', array_keys($subRequest->getAll())));
 			$this->form->importValues($subRequest);
+			$this->desc = $this->form->desc;
 			//debug($this->form->desc);
 			$v = new HTMLFormValidate($this->desc);
 			$this->validated = $v->validate();
 			$this->desc = $v->getDesc();
+			$this->form->desc = $this->desc;
 		} else {
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 			$this->form->importValues($this->default);
+			$this->desc = $this->form->desc;
 		}
 	}
 
@@ -51,6 +55,10 @@ abstract class HTMLFormProcessor extends AppController {
 	 * @return HTMLFormTable
 	 */
 	function render() {
+		//debug($this->validated);
+		//$errors = AP($this->desc)->column('error')->filter()->getData();
+		//debug($errors);
+		//debug($this->desc);
 		if ($this->validated) {
 			$content = $this->onSuccess($this->form->getValues());
 		} else {

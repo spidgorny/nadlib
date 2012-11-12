@@ -46,6 +46,7 @@ class MiniIndex extends Controller {
 
 	function init() {
 		$this->controller = $this->request->getController();
+		//debug(get_class($this->controller), get_class_methods($this->controller));
 		if (method_exists($this->controller, 'postInit')) {
 			$this->controller->postInit();
 		}
@@ -59,6 +60,7 @@ class MiniIndex extends Controller {
 			$v = new View('template.phtml', $this);
 			$v->content = $this->renderController();
 			$v->sidebar = $this->showSidebar();
+			$v->baseHref = $this->request->getLocation();
 			$content = $v->render();
 		}
 		return $content;

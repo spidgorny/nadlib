@@ -53,12 +53,12 @@ class HTMLFormTable extends HTMLForm {
 					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
 				$desc->importValues($subForm);
 				//debug('after', $desc->desc);
-			} else {
+			} else if ($form->is_set($key)) {
 				$desc['value'] = $form->getTrim($key);
 				if ($key == 'Salutation') {
 					//debug($desc, $key, $form->getTrim($key), $form->getAll());
 				}
-			}
+			} // else keep default ['value']
 		}
 	}
 
