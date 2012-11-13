@@ -257,7 +257,7 @@ class Collection {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
-					$this->members[$key] = $class::getInstance($row);
+					$this->members[$key] = call_user_func($class.'::getInstance', $row);
 				} else {
 					$this->members[$key] = new $class($row);
 				}

@@ -58,7 +58,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$instance = &self::$instance;
 		if (!$instance) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-			$instance = new static();
+			$static = get_called_class();
+			$instance = new $static();
 			//$instance->initController();	// scheisse: call it in index.php
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);

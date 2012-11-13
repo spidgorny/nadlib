@@ -242,7 +242,8 @@ class OODBase {
 				$inst = new Route($id);
 			}
 		} else {
-			$inst = new static($id);
+			$static = get_called_class();
+			$inst = new $static($id);
 		}
 		return $inst;
 	}
