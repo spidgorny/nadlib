@@ -115,8 +115,14 @@ class Pager {
 
 	function renderPageSelectors(URL $url = NULL) {
 		$this->url = $url;
-		$c = $this->showSearchBrowser();
-		return $c;//'<div class="pages">'.implode(" ", $ret).'</div><br clear="left" style="font-size: 1px;"/>';
+		$content = '<div class="pagination paginationControl">';
+		$ps = new PageSize();
+		$ps->setURL(new URL(NULL, array()));
+		$content .= '<div style="float: right;">'.$ps->render().' '.__('per page').'</div>';
+
+		$content .= $this->showSearchBrowser();
+		$content .= '</div>';
+		return $content;
 	}
 
 	protected function showSearchBrowser() {
@@ -155,8 +161,7 @@ class Pager {
 			</form></li>";
 		}
  		//debug($term);
-		$content = '<div class="pagination paginationControl"><ul>'.$content.'&nbsp;'.$form.'</ul></div>';
-		//$content = $this->enclose('Search Browser ('.sizeof($tmpArray).')', $content);
+		$content = '<ul>'.$content.'&nbsp;'.$form.'</ul>';
 		return $content;
 	}
 

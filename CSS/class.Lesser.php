@@ -12,6 +12,8 @@ class Lesser extends AppController {
 		//$less->importDir[] = '../../';
 		$less->checkedCompile('css/'.$this->request->getFilename('css'), $this->output);
 		readfile($this->output);
+		$this->request->set('ajax', true);	// avoid any HTML
+		//debug($this->request->isAjax());
 	}
 
 }

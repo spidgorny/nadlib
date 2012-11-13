@@ -145,7 +145,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function __destruct() {
-		if (is_object($this->user)) {
+		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
 			$this->user->__destruct();
 		}
 	}

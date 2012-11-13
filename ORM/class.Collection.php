@@ -166,10 +166,6 @@ class Collection {
 			$url = new URL();
 			if ($this->pager) {
 				$pages = $this->pager->renderPageSelectors($url);
-
-				$ps = new PageSize();
-				$ps->setURL(new URL(NULL, array()));
-				$pages .= $ps->render();
 			}
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
