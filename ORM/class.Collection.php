@@ -35,6 +35,11 @@ class Collection {
 	public $pager; // initialize if necessary with = new Pager(); in postInit()
 
 	/**
+	 * @var PageSize
+	 */
+	public $pageSize;
+
+	/**
 	 * objectify() stores objects generated from $this->data here
 	 * @var array
 	 */
@@ -163,8 +168,8 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			$url = new URL();
 			if ($this->pager) {
+				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
 			}
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));

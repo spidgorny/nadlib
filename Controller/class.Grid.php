@@ -15,10 +15,6 @@ abstract class Grid extends AppController {
 
 	function __construct() {
 		parent::__construct();
-
-		// do this in a subclass
-		//$this->model = new OODBase();
-		//$this->collection = new Collection();
 	}
 
 	/**
@@ -36,10 +32,16 @@ abstract class Grid extends AppController {
 	}
 
 	/**
+	 * Make sure to clone $this->request before running this function if Request is shared among controllers
+	 *
 	 * Take from preferences and then append/overwrite from URL
 	 * How does it work when some params need to be cleared?
+	 *
+	 * @deprecated - use saveFilterColumnsSort() instead
+	 *
 	 */
 	function mergeRequest($subname = NULL) {
+		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
 		if ($subname) {
 			$r = $this->request->getSubRequest($subname);
 		} else {

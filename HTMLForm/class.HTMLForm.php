@@ -147,11 +147,15 @@ class HTMLForm {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
-		foreach($aOptions as $value => $option) {
-			if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
-				$selected = true;
+		foreach ($aOptions as $value => $option) {
+			if ($desc['===']) {
+				$selected = $default === $value;
 			} else {
-				$selected = false;
+				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
+					$selected = true;
+				} else {
+					$selected = false;
+				}
 			}
 			if ($option instanceof HTMLTag) {
 				$this->stdout .= $option;
