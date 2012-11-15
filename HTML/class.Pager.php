@@ -131,7 +131,7 @@ class Pager {
  		$pages = $this->getPagesAround($this->currentPage, $maxpage);
  		//debug(array($pages, $current['searchIndex'], sizeof($tmpArray)));
  		if ($this->currentPage > 0) {
-			$link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $this->currentPage-1);
+			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage-1));
 			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
  		} else {
 	 		$content .= '<li><span class="disabled">&lt;</span></li>';
@@ -140,16 +140,11 @@ class Pager {
  			if ($k === 'gap1' || $k === 'gap2') {
  				$content .= '<li><span class="page">  &hellip;  </span></li>';
  			} else {
-				 $link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $k);
-				if ($k == $this->currentPage) {
-					$content .= '<li><span class="active">'.($k+1).'</span></li>';
-				} else {
-					$content .= '<li><a href="'.$link.'">'.($k+1).'</a></li>';
-				}
+				$content .= $this->getSinglePageLink($k, $k+1);
  			}
 		}
  		if ($this->currentPage < $maxpage-1) {
-			 $link = $this->url->setParam('Pager.'.$this->prefix.'[page]', $this->currentPage+1);
+			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage+1));
 			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>';
  		} else {
 	 		$content .= '<li><span class="disabled">&gt;</span></li>';
@@ -162,6 +157,16 @@ class Pager {
 		}
  		//debug($term);
 		$content = '<ul>'.$content.'&nbsp;'.$form.'</ul>';
+		return $content;
+	}
+
+	function getSinglePageLink($k, $text) {
+		$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $k));
+		if ($k == $this->currentPage) {
+			$content = '<li><span class="active">'.$text.'</span></li>';
+		} else {
+			$content = '<li><a href="'.$link.'">'.$text.'</a></li>';
+		}
 		return $content;
 	}
 

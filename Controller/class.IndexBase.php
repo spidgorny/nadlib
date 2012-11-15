@@ -122,7 +122,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e) {
-		echo $e; exit();
 		$content = '<div class="ui-state-error padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
