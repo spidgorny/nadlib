@@ -188,7 +188,17 @@ if(!function_exists('get_called_class')) {
  * @param array $list
  * @return mixed
  */
-function first(array $list) {
+function first(array $list) { 
 	reset($list);
 	return current($list);
+}
+
+function array_combine_stringkey(array $a, array $b) {
+	$ret = array();
+	reset($b);
+	foreach ($a as $key) {
+		$ret[$key] = current($b);
+		next($b);
+	}
+	return $ret;
 }

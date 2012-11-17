@@ -119,6 +119,7 @@ class View {
 	 * @return unknown
 	 */
 	function renderPart($i) {
+		//debug($this->parts[$i]);
 		return eval('?>'.$this->parts[$i]);
 	}
 
@@ -131,7 +132,7 @@ class View {
 	}
 
 	function link(array $params) {
-		return Index::getInstance()->controller->makeURL($params);
+		return Index::getInstance()->controller->getURL($params);
 	}
 
 	function __call($func, array $args) {

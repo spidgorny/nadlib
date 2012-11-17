@@ -4,7 +4,7 @@ class SQLSearch {
 	protected $table;
 	protected $sword;
 	protected $words = array();
-	protected $searchableFields = array(
+	public $searchableFields = array(
 		'title',
 	);
 
@@ -43,7 +43,7 @@ class SQLSearch {
 		$where = array();
 		$words = $this->words;
 		//debug($words);
-		foreach ($words as $i => $word) {
+		foreach ($words as $word) {
 			//if (!$i) {
 			if (FALSE) {
 				$query .= $this->getSearchSubquery($word);
@@ -70,11 +70,13 @@ class SQLSearch {
 		$where = new SQLWhere($where);
 		$query = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
-		$query->where->add($this->getSearchWhere($word, $i ? 'score_'.$i : $table));
+
+		//$query->where->add($this->getSearchWhere($word, $i ? 'score_'.$i : $table));
+		$query->where->add($this->getSearchWhere($word)); // please put the table prefix into $this->searchableFields
 		return $query;
 	}
 
-	function getSearchWhere($word, $prefix) {
+	function getSearchWhere($word, $prefix = '') {
 		if ($word{0} == '!') {
 			$like = 'NOT LIKE';
 			$or = "\n\t\tAND";
@@ -83,8 +85,10 @@ class SQLSearch {
 			$or = "\n\t\tOR";
 		}
 
+		$prefix = $prefix ? $prefix.'.' : '';
+
 		foreach ($this->searchableFields as $field) {
-			$part[] = "$prefix.$field $like '%$1%'";
+			$part[] = "{$prefix}{$field} {$like} '%$1%'";
 		}
 		$part = implode(' ' . $or . ' ', $part);
 		$part = str_replace('$1', $word, $part);

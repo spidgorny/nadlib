@@ -231,7 +231,7 @@ class Request {
 			$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
 			$tmp = $ptr;
 			$ptr = false;
-			if (class_exists($controller.'Controller')) {
+			if ($controller && class_exists($controller.'Controller')) {
 				$controller = $controller.'Controller';
 			}
 			$ptr = $tmp;
@@ -244,7 +244,7 @@ class Request {
 				foreach ($levels as $class) {
 					//debug($class, class_exists($class.'Controller'), class_exists($class));
 					// to simplofy URL it first searches for the corresponding controller
-					if (class_exists($class.'Controller')) {	// this is untested
+					if ($class && class_exists($class.'Controller')) {	// this is untested
 						$last = $class.'Controller';
 						break;
 					}
@@ -259,7 +259,13 @@ class Request {
 				}
 			}
 		}
-		//debug($controller, $this->getTrim('c'), $this->getURLLevels(), $last, $this->defaultController, $this->data);
+		nodebug(array(
+			'result' => $controller,
+			'c' => $this->getTrim('c'),
+			'levels' => $this->getURLLevels(),
+			'last' => $last,
+			'default' => $this->defaultController,
+			'data' => $this->data));
 		return $controller;
 	}
 
@@ -451,19 +457,6 @@ class Request {
 
 	function getNameless($index, $alternative = NULL) {
 		$levels = $this->getURLLevels();
-/*
- * Commented as it leads to problems when $controller is Router
- 		$controller = $this->getControllerString();
-		debug($levels, $controller);
-		foreach ($levels as $l => $name) {
-			unset($levels[$l]);
-			if ($name == $controller) {
-				break;
-			}
-		}
-		$levels = array_values($levels);	// reindex
-		debug($levels);
-*/
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 

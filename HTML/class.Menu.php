@@ -57,7 +57,7 @@ class Menu /*extends Controller*/ {
 		if ($useRouter) {
 			$rootpath = $this->request->getURLLevels();
 			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
-			debug($rootpath, $level, $this->current);
+			//debug($rootpath, $level, $this->current);
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
@@ -78,6 +78,7 @@ class Menu /*extends Controller*/ {
 			$path->setParam('c', '');
 		}
 		$this->basePath = $path;
+		//debug($this->basePath);
 	}
 
 	function filterACL() {
@@ -95,6 +96,7 @@ class Menu /*extends Controller*/ {
 				$rootpath = $this->request->getURLLevels();
 				$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for submenu of Dashboard/About
 				$itemsOnLevel = $this->getItemsOnLevel($rootpath);
+				//debug($rootpath, $itemsOnLevel);
 				$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level);
 			} else {
 				$content .= $this->renderLevel($this->items->getData(), array(), 0);
@@ -103,7 +105,7 @@ class Menu /*extends Controller*/ {
 		return $content;
 	}
 
-	function getItemsOnLevel(array $rootpath) {
+	protected function getItemsOnLevel(array $rootpath) {
 		$fullRecursive = new Recursive(NULL, $this->items->getData());
 		$sub = $fullRecursive->findPath($rootpath);
 		if ($sub instanceof Recursive) {

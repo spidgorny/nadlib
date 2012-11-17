@@ -58,7 +58,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$instance = &self::$instance;
 		if (!$instance) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-			$instance = new static();
+			$static = get_called_class();
+			$instance = new $static();
 			//$instance->initController();	// scheisse: call it in index.php
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -121,7 +122,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e) {
-		echo $e; exit();
 		$content = '<div class="ui-state-error padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
@@ -144,7 +144,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function __destruct() {
-		if (is_object($this->user)) {
+		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
 			$this->user->__destruct();
 		}
 	}

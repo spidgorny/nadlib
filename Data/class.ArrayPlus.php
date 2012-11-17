@@ -162,6 +162,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		foreach ($this->data as &$value) {
 			$value = trim($value);
 		}
+		return $this;
 	}
 
 	public function map($callback) {

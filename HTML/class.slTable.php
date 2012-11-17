@@ -1,8 +1,5 @@
 <?php
 
-define('SLTABLE_IMG_CHECK', '<img src="img/check.png">');
-define('SLTABLE_IMG_CROSS', '<img src="img/uncheck.png">');
-
 class slTable {
 	var $ID = NULL;
 	var $data = NULL;
@@ -39,7 +36,12 @@ class slTable {
 	 */
 	protected $db;
 
-	function slTable($id = NULL, $more="", array $thes = array()) {
+	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
+	public $SLTABLE_IMG_CHECK = '☑';
+	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
+	public $SLTABLE_IMG_CROSS = '☐';
+
+	function __construct($id = NULL, $more="", array $thes = array()) {
 		if (is_array($id)) {
 			$this->data = $id;
 			$this->ID = md5(time());
@@ -357,6 +359,10 @@ class slTable {
 					$out = (isset($k['before']) ? $k['before'] : '')
 						. $this->getCell($col, $val, $k, $row) .
 						(isset($k['after']) ? $k['after'] : '');
+					if ($k['wrap']) {
+						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
+						$out = $wrap->wrap($out);
+					}
 					$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
@@ -429,10 +435,13 @@ class slTable {
 				//$out .="col ".$col." val ".$val." k ".$k;
 			break;
 			case "checkbox":
+				if ($k['tf']) {
+					$val = $val == 't';
+				}
 				if ($val) {
-					$img = SLTABLE_IMG_CHECK;
+					$img = $this->SLTABLE_IMG_CHECK;
 				} else {
-					$img = SLTABLE_IMG_CROSS;
+					$img = $this->SLTABLE_IMG_CROSS;
 				}
 				if ($row[$col.'.link']) {
 					$out = str::ahref($img, $row[$col.'.link'], FALSE);
