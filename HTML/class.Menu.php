@@ -45,7 +45,7 @@ class Menu /*extends Controller*/ {
 		$this->level = $level;
 		$this->request = Request::getInstance();
 		//$this->tryInstance();
-		if (class_exists('Class')) {
+		if (class_exists('Config')) {
 			$this->user = Config::getInstance()->user;
 		}
 		$this->setCurrent($level);
@@ -53,7 +53,7 @@ class Menu /*extends Controller*/ {
 	}
 
 	function setCurrent($level) {
-		$useRouter = class_exists('Class') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
 		if ($useRouter) {
 			$rootpath = $this->request->getURLLevels();
 			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
@@ -64,7 +64,7 @@ class Menu /*extends Controller*/ {
 	}
 
 	function setBasePath() {
-		$useRouter = class_exists('Class') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
 		if ($useRouter) {
 			if (isset($root[0]) && ($class != $root[0])) {
 				$path = array_merge($root, array($class));

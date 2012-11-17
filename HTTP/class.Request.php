@@ -228,9 +228,13 @@ class Request {
 		} else {
 			$controller = $this->getTrim('c');
 			// to simplofy URL it first searches for the corresponding controller
+			$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
+			$tmp = $ptr;
+			$ptr = false;
 			if (class_exists($controller.'Controller')) {
 				$controller = $controller.'Controller';
 			}
+			$ptr = $tmp;
 			//$controller = end(explode('/', $controller)); // in case it's with subfolder
 			// ^ commented as subfolders need be used for BEmenu
 			if (!$controller) {
