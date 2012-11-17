@@ -35,6 +35,11 @@ class Collection {
 	public $pager; // initialize if necessary with = new Pager(); in postInit()
 
 	/**
+	 * @var PageSize
+	 */
+	public $pageSize;
+
+	/**
 	 * objectify() stores objects generated from $this->data here
 	 * @var array
 	 */
@@ -163,13 +168,9 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			$url = new URL();
 			if ($this->pager) {
+				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
-
-				$ps = new PageSize();
-				$ps->setURL(new URL(NULL, array()));
-				$pages .= $ps->render();
 			}
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
@@ -257,7 +258,7 @@ class Collection {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
-					$this->members[$key] = $class::getInstance($row);
+					$this->members[$key] = call_user_func($class.'::getInstance', $row);
 				} else {
 					$this->members[$key] = new $class($row);
 				}
@@ -277,6 +278,7 @@ class Collection {
 		$this->thes = array('checked' => array(
 			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
 			'more' => 'align="right"',
+			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
 		foreach ($this->data as &$row) {
@@ -313,6 +315,133 @@ class Collection {
 	function mergeData(Collection $c2) {
 		//debug(array_keys($this->data), array_keys($c2->data));
 		$this->data = ($this->data + $c2->data);
+	}
+
+	/**
+	 * Still buggy. This has to be much more simple.
+	 * @param Grid $grid
+	 * @return string
+	 */
+	/*	function getNextPrevBrowser(OODBase $model) {
+			$content = '';
+
+			//if ($this->data[$model->id]) { // current page contains current element
+
+			$ap = AP($this->data);
+			//debug($this->pager->currentPage, implode(', ', array_keys($this->data)));
+
+			$prev = $ap->getPrevKey($model->id);
+			if ($prev) {
+				$prev = $this->getNextPrevLink($this->data[$prev], '&#x25C4;');
+			} else if ($this->pager) {
+				$copy = clone $this;
+				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
+				$copy->retrieveDataFromDB();
+				$copy->preprocessData();
+
+				$ap2 = AP($copy->data);
+				$prev2 = $ap2->getPrevKey($model->id);
+				$prev = $this->getNextPrevLink($copy->data[$prev2] ?: end($copy->data), '&#x25C4;');
+				//debug('prev', $copy->pager->currentPage, implode(', ', array_keys($copy->data)));
+			}
+
+			$next = $ap->getNextKey($model->id);
+			if ($next) {
+				$next = $this->getNextPrevLink($this->data[$next], '&#x25BA;');
+			} else if ($this->pager) {
+				$copy = clone $this;
+				$copy->pager->setCurrentPage($copy->pager->currentPage+1);
+				$copy->retrieveDataFromDB();
+				$copy->preprocessData();
+
+				$ap2 = AP($copy->data);
+				$next2 = $ap2->getNextKey($model->id);
+				$next = $this->getNextPrevLink($copy->data[$next2] ?: first($copy->data), '&#x25BA;');
+				//debug('next', $copy->pager->currentPage, implode(', ', array_keys($copy->data)));
+			}
+
+			$content = $prev.' '.$model->getName().' '.$next;
+			return $content;
+		}*/
+
+	/**
+	 * @param OODBase $model
+	 * @return string
+	 */
+	function getNextPrevBrowser(OODBase $model) {
+		if ($this->pager) {
+			if ($this->pager->currentPage > 0) {
+				$copy = clone $this;
+				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
+				$copy->retrieveDataFromDB();
+				$copy->preprocessData();
+				$prevData = $copy->data;
+			} else {
+				$prevData = array();
+			}
+
+			if ($this->pager->currentPage < $this->pager->getMaxPage()) {
+				$copy = clone $this;
+				$copy->pager->setCurrentPage($copy->pager->currentPage+1);
+				$copy->retrieveDataFromDB();
+				$copy->preprocessData();
+				$nextData = $copy->data;
+			} else {
+				$nextData = array();
+			}
+		} else {
+			$prevData = $nextData = array();
+		}
+		$data = $prevData + $this->data + $nextData; // not array_merge which will reindex
+
+		nodebug($model->id,
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($this->data))),
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
+		);
+		$ap = AP($data);
+
+		$prev = $ap->getPrevKey($model->id);
+		if ($prev) {
+			$prev = $this->getNextPrevLink($data[$prev], '&#x25C4;');
+		}
+
+		$next = $ap->getNextKey($model->id);
+		if ($next) {
+			$next = $this->getNextPrevLink($data[$next], '&#x25BA;');
+		}
+
+		$content = $prev.' '.$model->getName().' '.$next;
+
+		// switch page for the next time
+		if (isset($prevData[$model->id])) {
+			$this->pager->setCurrentPage($this->pager->currentPage-1);
+			$this->pager->saveCurrentPage();
+		}
+		if (isset($nextData[$model->id])) {
+			$this->pager->setCurrentPage($this->pager->currentPage+1);
+			$this->pager->saveCurrentPage();
+		}
+
+		return $content;
+	}
+
+	protected function getNextPrevLink($prev, $arrow) {
+		if ($prev['singleLink']) {
+			$content = new HTMLTag('a', array(
+					'href' => $prev['singleLink'],
+					'title' => $prev['name'],
+				),
+				//'&lt;',			// <
+				//'&#x21E6;',			// ⇦
+				//'&#25C0;',		// ◀
+				//'&#x25C4;',		// ◄
+				$arrow,
+				true);
+		} else {
+			$content = $arrow;
+		}
+		return $content;
 	}
 
 }

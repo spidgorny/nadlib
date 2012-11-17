@@ -58,7 +58,7 @@ abstract class Controller {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
-	function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
+	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
 		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
 			$r = new Router();
 			$url = $r->makeURL($params);
@@ -66,7 +66,8 @@ abstract class Controller {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = new URL($prefix != '?' ? $prefix : NULL, $params);
+			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
+			//debug($url);
 			$url->setPath($url->documentRoot.'/');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
@@ -79,11 +80,13 @@ abstract class Controller {
 	}
 
 	function makeRelURL(array $params = array()) {
-		return $this->makeURL($params+$this->linkVars);
+		return $this->makeURL($params + $this->linkVars);
 	}
 
 	function getURL(array $params, $prefix = '?') {
-		return $this->makeURL($params+$this->linkVars, false, $prefix);
+		$params = $params + $this->linkVars;
+		//debug($params);
+		return $this->makeURL($params, false, $prefix);
 	}
 
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {

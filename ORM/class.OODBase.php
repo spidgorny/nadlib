@@ -246,7 +246,8 @@ class OODBase {
 				$inst = new static($id);	// don't put anything else here
 			}
 		} else {
-			$inst = new static($id);
+			$static = get_called_class();
+			$inst = new $static($id);
 		}
 		return $inst;
 	}

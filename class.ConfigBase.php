@@ -77,7 +77,7 @@ class ConfigBase {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		//print_r($this->config['Config']);
-		foreach ($this->config['Config'] as $key => $val) {
+		if ($this->config['Config']) foreach ($this->config['Config'] as $key => $val) {
 			$this->$key = $val;
 		}
 	}

@@ -2,7 +2,13 @@
 	position: fixed;
 	bottom: 0;
 	right: 0;
-	color: white;
-	background: #444;
-	padding: 0.25em;
+}
+.floatTime {
+    border-top-left-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -webkit-border-top-left-radius: 5px;
+    background-color: #22221F;
+    color: #FFF4A7;
+    width: auto;
+    padding: 0.5em;
 }

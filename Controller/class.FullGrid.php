@@ -16,8 +16,26 @@ class FullGrid extends Grid {
 	 */
 	public $sort;
 
+	/**
+	 * @var PageSize
+	 */
+	public $pageSize;
+
+	function __construct($collection) {
+		parent::__construct();
+		$this->saveFilterColumnsSort(get_class($this));
+		$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+		$this->collection->pager = new Pager($this->pageSize->get());
+		$this->collection->retrieveDataFromDB();
+	}
+
+	/**
+	 * @param null $cn Supply get_class($this) to the function
+	 * 					or it should be called after $this->collection is initialized
+	 */
 	function saveFilterColumnsSort($cn = NULL) {
 		$cn = $cn ? $cn : get_class($this->collection);
+		//debug($cn);
 		if ($this->request->is_set('columns')) {
 			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
 		}
@@ -25,18 +43,20 @@ class FullGrid extends Grid {
 		$this->columns = $this->columns
 			? $this->columns
 			: $this->user->getPref('Columns.'.$cn);
-		if (!$this->columns) {
+		if (!$this->columns && $this->model->thes) {
 			$this->columns = array_keys($this->model->thes);
 		}
-
-		if ($this->request->is_set('filter')) {
-			$this->user->setPref('Filter.'.$cn, $this->request->getArray('filter'));
+		if (!$this->columns && $this->collection->thes) {
+			$this->columns = array_keys($this->collection->thes);
 		}
+
 		$this->filter = $this->request->getArray('filter');
 		$this->filter = $this->filter
 			? $this->filter
 			: $this->user->getPref('Filter.'.$cn);
 		$this->filter = $this->filter ? $this->filter : array();
+		//debug($this->filter);
+		$this->user->setPref('Filter.'.$cn, $this->filter);
 
 		if ($this->request->is_set('slTable')) {
 			$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
@@ -45,6 +65,8 @@ class FullGrid extends Grid {
 		$this->sort = $sortRequest
 			? $sortRequest
 			: ($this->user->getPref('Sort.'.$cn) ?: $this->sort);
+
+		$this->pageSize = new PageSize();
 	}
 
 	/**
@@ -57,7 +79,9 @@ class FullGrid extends Grid {
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
 		$sortBy = $sortBy ? $sortBy : $this->model->idField;
-		$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.($this->sort['sortOrder'] ? 'DESC' : 'ASC');
+		if ($sortBy) {
+			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.($this->sort['sortOrder'] ? 'DESC' : 'ASC');
+		}
 		return $ret;
 	}
 
@@ -70,6 +94,7 @@ class FullGrid extends Grid {
 				}
 			}
 		}
+		//$this->collection->pageSize = $this->pageSize;
 		return parent::render();
 	}
 
@@ -102,20 +127,35 @@ class FullGrid extends Grid {
 		return $f;
 	}
 
+	/**
+	 * Make sure you fill the 'value' fields with data from $this->filter manually.
+	 * Why manually? I don't know, it could change.
+	 *
+	 * @param array $fields
+	 * @return array
+	 */
 	function getFilterDesc(array $fields = NULL) {
 		$fields = $fields ? $fields : $this->model->thes;
+		$fields = $fields ? $fields : $this->collection->thes;
 		$fields = is_array($fields) ? $fields : array();
 
+		//debug($this->filter);
 		$desc = array();
 		foreach ($fields as $key => $k) {
 			if (!$k['noFilter']) {
+				$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
+				$options = AP($options)->trim()->getData();	// convert to string for === operation
+				debug($options);
+				$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
+				debug($options, array_keys($options), $this->filter['partitions']);
 				$desc[$key] = array(
 					'label' => $k['name'],
 					'type' => 'select',
-					'options' => $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false),
+					'options' => $options,
 					'null' => true,
 					'value' => $this->filter[$key],
 					'more' => 'class="input-medium"',
+					'===' => true,
 				);
 			}
 		}
@@ -124,7 +164,7 @@ class FullGrid extends Grid {
 	}
 
 	function getTableFieldOptions($key, $count = false) {
-		$res = Config::getInstance()->qb->getTableOptions($this->model->table,
+		$res = Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
 		$key, array(), 'ORDER BY title');
 
 		if ($count) {
@@ -137,15 +177,6 @@ class FullGrid extends Grid {
 		}
 
 		return $res;
-
-		/*$options = $this->db->fetchSelectQuery($this->model->table, array(),
-			'GROUP BY '.$this->db->quoteKey($key),
-			'DISTINCT '.$this->db->quoteKey($key), true);
-		$res = array();
-		foreach ($options as $row) {
-			$res[$row[$key]] = $row[$key];
-		}
-		return $res;*/
 	}
 
 	function getColumnsForm() {
