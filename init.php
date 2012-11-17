@@ -27,20 +27,24 @@ function __autoload($class) {
 	$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 	$subFolders = implode('/', $subFolders);	// Download
 	foreach ($folders as $path) {
-		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR.$subFolders.'class.'.$classFile.'.php';
+		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.
+				$path.DIRECTORY_SEPARATOR.
+				$subFolders.DIRECTORY_SEPARATOR.
+				'class.'.$classFile.'.php';
 		if (file_exists($file)) {
-			//echo $class.' <span style="color: green;">'.$file.'</span><br />';
+			$debug[] = $class.' <span style="color: green;">'.$file.'</span><br />';
 			include_once($file);
 			break;
 		} else {
-			//echo $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
+			$debug[] = $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
 		}
 	}
-	if (!class_exists($class)) {
+	if (!class_exists($classFile) && !interface_exists($classFile)) {
 		//debug($folders);
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
-			if ($config->autoload['notFoundException']) {
+			if ($config->config['autoload']['notFoundException']) {
+				debug($debug);
 				throw new Exception('Class '.$class.' ('.$file.') not found.');
 			}
 		}

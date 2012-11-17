@@ -4,6 +4,15 @@ class FlexiTable extends OODBase {
 	protected $columns = array();
 	protected $doCheck = true;
 
+	/**
+	 * array(
+	 * 		$table => array('id' => ...)
+	 * )
+	 *
+	 * @var array
+	 */
+	static protected $tableColumns = array();
+
 	function __construct($id = NULL) {
 		parent::__construct($id);
 		//debug(Config::getInstance()->config[__CLASS__]);
@@ -14,6 +23,7 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
+		$row['ctime'] = new AsIs('now()');
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
@@ -49,7 +59,10 @@ class FlexiTable extends OODBase {
 
 	function fetchColumns() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".$this->db->getCaller(5));
-		$this->columns = $this->db->getTableColumns($this->table);
+		if (!self::$tableColumns[$this->table]) {
+			self::$tableColumns[$this->table] = $this->db->getTableColumns($this->table);
+		}
+		$this->columns = self::$tableColumns[$this->table];
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".$this->db->getCaller(5));
 	}
 

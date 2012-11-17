@@ -211,7 +211,7 @@ class View {
 	}
 
 	function money($val) {
-		return number_format($val, 2, '.', '');
+		return number_format(floatval($val), 2, '.', '');
 	}
 
 	function euro($val, $noCent = false) {

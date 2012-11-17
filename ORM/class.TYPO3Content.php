@@ -12,4 +12,15 @@ class TYPO3Content extends OODBase {
 		'</div>';
 	}
 
+	function insert(array $data) {
+		$data['tstamp'] = time();
+		$data['crdate'] = time();
+		return parent::insert($data);
+	}
+
+	function update(array $data) {
+		$data['tstamp'] = time();
+		return parent::insert($data);
+	}
+
 }

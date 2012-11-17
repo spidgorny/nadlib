@@ -59,18 +59,22 @@ class MySQL {
 	}
 
 	function perform($query) {
-/*		$c = 2;
-		do {
-			$caller = $this->getCaller($c);
-			$c++;
-		} while (in_array($caller, array(
-			'MySQL::fetchSelectQuery',
-			'MySQL::runSelectQuery',
-			//'OODBase::findInDB',
-			//'FlexiTable::findInDB',
-		)));
-*/		$profilerKey = __METHOD__." (".$caller.")";
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($profilerKey);
+		if (isset($GLOBALS['profiler'])) {
+			$c = 2;
+			do {
+				$caller = $this->getCaller($c);
+				$c++;
+			} while (in_array($caller, array(
+				'MySQL::fetchSelectQuery',
+				'MySQL::runSelectQuery',
+				//'OODBase::findInDB',
+				'MySQL::fetchAll',
+				//'FlexiTable::findInDB',
+				'MySQL::getTableColumns',
+			)));
+			$profilerKey = __METHOD__." (".$caller.")";
+			$GLOBALS['profiler']->startTimer($profilerKey);
+		}
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {

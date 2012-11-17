@@ -20,16 +20,31 @@ class Syndicator {
 
 	public $useProxy = false;
 
+	public $input = 'HTML';
+
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($url) {
 			$this->url = $url;
 			$this->isCaching = $caching;
 			$this->recodeUTF8 = $recodeUTF8;
-			$this->html = $this->retrieveFile();
-			$this->xml = $this->processFile($this->html);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
+
+	static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8') {
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->html = $s->retrieveFile();
+		$s->xml = $s->processFile($s->html);
+		return $s;
+	}
+
+	static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8') {
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'XML';
+		$s->html = $s->retrieveFile();
+		$s->xml = $s->processFile($s->html);
+		return $s;
 	}
 
 	function retrieveFile() {
@@ -99,7 +114,9 @@ class Syndicator {
 	function processFile($html) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//debug(substr($html, 0, 1000));
-		$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8);
+		if ($this->input == 'HTML') {
+			$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8);
+		}
 
 		if ($this->recodeUTF8) {
 			$detect = mb_detect_encoding($html, $this->recodeUTF8 === TRUE ? NULL : $this->recodeUTF8);
@@ -139,12 +156,14 @@ class Syndicator {
 
 	function tidy($html) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//debug(function_exists('tidy'));
 		if (function_exists('tidy')) {
 			$config = array(
 				'clean'         	=> true,
 				'indent'        	=> true,
 				'output-xhtml'  	=> true,
 				//'output-html'		=> true,
+				//'output-xml' 		=> true,
 				'wrap'         		=> 1000,
 				'numeric-entities'	=> true,
 				'char-encoding' 	=> 'raw',
@@ -156,12 +175,14 @@ class Syndicator {
 			$tidy->parseString($html, $config);
 			$tidy->cleanRepair();
 			$out = tidy_get_output($tidy);
-		} else {
+		} else if ($this->input == 'HTML') {
 			require_once 'nadlib/HTML/htmLawed.php';
 			$out = htmLawed($html, array(
 				'valid_xhtml' => 1,
 				'tidy' => 1,
 			));
+		} else if ($this->input == 'XML') {
+			$out = $html;	// hope that XML is valid
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $out;
@@ -172,7 +193,6 @@ class Syndicator {
 		//$enc = mb_detect_encoding($xml);
 		//debug($enc);
 		//$xml = mb_convert_encoding($xml, 'UTF-8', 'Windows-1251');
-		$xml = mb_convert_encoding($xml, 'UTF-8', 'UTF-8');
 		$xml = mb_convert_encoding($xml, 'UTF-8', 'UTF-8');
 		//$NewEncoding = new ConvertCharset('Windows-1251', 'UTF-8');
 		//$xml = $NewEncoding->Convert($xml);
