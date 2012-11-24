@@ -252,4 +252,8 @@ class OODBase {
 		return $inst;
 	}
 
+	function getObjectInfo() {
+		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' #'.spl_object_hash($this).')';
+	}
+
 }

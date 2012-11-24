@@ -114,4 +114,13 @@ class ConfigBase {
 		}
 	}
 
+	function mergeConfig($obj) {
+		$class = get_class($obj);
+		if (is_array($this->config[$class])) {
+			foreach ($this->config[$class] as $key => $val) {
+				$obj->$key = $val;
+			}
+		}
+	}
+
 }
