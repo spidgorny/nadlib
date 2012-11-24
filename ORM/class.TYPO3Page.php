@@ -25,6 +25,7 @@ class TYPO3Page extends OODBase {
 	function fetchChildren() {
 		if (!$this->children) {
 			$this->children = new TYPO3PageCollection($this->id);
+			//debug($this->children->query);
 		}
 	}
 
@@ -65,6 +66,7 @@ class TYPO3Page extends OODBase {
 	function insert(array $data) {
 		$data['tstamp'] = time();
 		$data['crdate'] = time();
+		$data['doktype'] = $data['doktype'] ?: 1;
 		return parent::insert($data);
 	}
 

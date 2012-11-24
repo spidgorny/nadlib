@@ -164,6 +164,22 @@ abstract class LocalLang {
 		return $langs;
 	}
 
+	function showLangSelectionDropDown() {
+		$options = '';
+		foreach ($this->possibleLangs as $code) {
+			$selected = $this->lang == $code ? 'selected="selected"' : '';
+			$options .= '<option value="'.$code.'"'.$selected.'>'.__($code).'</option>';
+		}
+		$content = '
+		<form action="'.$_SERVER['REQUEST_URI'].'" method="POST">
+			<select class="input-small langMenu" name="setLangCookie">'.$options.'
+			</select>
+		</form>';
+		Index::getInstance()->addCSS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
+		Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
+		return $content;
+	}
+
 }
 
 function __($code, $r1 = null, $r2 = null, $r3 = null) {

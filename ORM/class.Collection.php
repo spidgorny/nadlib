@@ -209,6 +209,8 @@ class Collection {
 	}
 
 	function findInData(array $where) {
+		//debug($where);
+		//echo new slTable($this->data);
 		foreach ($this->data as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
@@ -442,6 +444,14 @@ class Collection {
 			$content = $arrow;
 		}
 		return $content;
+	}
+
+	function getObjectInfo() {
+		$list = array();
+		foreach ($this->members as $obj) {
+			$list[] = $obj->getObjectInfo();
+		}
+		return $list;
 	}
 
 }
