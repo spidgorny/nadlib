@@ -16,6 +16,14 @@ class Timeline extends AppController {
 
 	var $height;
 
+	var $fillBottomColor = '#726D62';
+
+	var $fillTopColor = '#D0D0D0';
+
+	var $rangeColor = '#42383D';
+
+	var $textColor = 'rgb(200,200,200)';
+
 	function __construct($width, $height, $start, $end) {
 		$this->width = $width;
 		$this->height = $height;
@@ -35,35 +43,35 @@ class Timeline extends AppController {
 				y="'.$height_30.'"
 				width="'.($this->width).'"
 				height="'.(30).'"
-				style="fill:#726D62;stroke-width:0;stroke:rgb(0,0,0)" />'."\n";
+				style="fill:'.$this->fillBottomColor.';stroke-width:0;stroke:rgb(0,0,0)" />'."\n";
 			for ($date = clone $this->start/* @var $date Date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 day'))) {
 				$x = $this->date2x($date);
 				$content .= '<line x1="'.$x.'" y1="'.($this->height-5).'" x2="'.$x.'" y2="'.$this->height.'"
-					style="stroke:rgb(200,200,200);stroke-width:1"/>';
+					style="stroke:'.$this->textColor.';stroke-width:1"/>';
 			}
 			for ($date = clone $this->start/* @var $date Date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 week'))) {
 				$x = $this->date2x($date);
 				$content .= '<line x1="'.$x.'" y1="'.$height_10.'" x2="'.$x.'" y2="'.$this->height.'"
-					style="stroke:rgb(200,200,200);stroke-width:1"/>';
+					style="stroke:'.$this->textColor.';stroke-width:1"/>';
 				$content .= '<text
 					x="'.($x+1).'"
 					y="'.($height_20 + 13).'"
-					fill="white">'.$date->format('W').'</text>';
+					fill="'.$this->textColor.'">'.$date->format('W').'</text>';
 			}
 			for ($date = clone $this->start/* @var $date Date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 month'))) {
 				$x = $this->date2x($date);
 				$content .= '<line x1="'.$x.'" y1="'.$height_30.'" x2="'.$x.'" y2="'.$this->height.'"
-					style="stroke:rgb(255,255,255);stroke-width:1"/>';
+					style="stroke:'.$this->textColor.';stroke-width:1"/>';
 				$content .= '<text
 					x="'.($x+1).'"
 					y="'.($height_30 + 11).'"
-					fill="white">'.$date->format('M').'</text>';
+					fill="'.$this->textColor.'">'.$date->format('M').'</text>';
 			}
 
 			$content .= '<rect
@@ -71,7 +79,7 @@ class Timeline extends AppController {
 				y="'.(0).'"
 				width="'.$this->width.'"
 				height="'.($this->height-$height_20).'"
-				style="fill:#D0D0D0; stroke-width:0; stroke:rgb(0,0,0)" />'."\n";
+				style="fill:'.$this->fillTopColor.'; stroke-width:0; stroke:rgb(0,0,0)" />'."\n";
 
 			$x = $this->date2x($from);
 			$width = $this->date2x($till) - $x;
@@ -80,7 +88,7 @@ class Timeline extends AppController {
 				y="'.(0).'"
 				width="'.$width.'"
 				height="'.($this->height-$height_20).'"
-				style="fill:#42383D; stroke-width:0; stroke:rgb(0,0,0)" />'."\n";
+				style="fill:'.$this->rangeColor.'; stroke-width:0; stroke:rgb(0,0,0)" />'."\n";
 			$content .= '</svg>';
 		}
 		return $content;
