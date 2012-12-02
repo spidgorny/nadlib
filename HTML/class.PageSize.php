@@ -16,7 +16,7 @@ class PageSize extends AppController {
 		parent::__construct();
 		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;
 		$user = Config::getInstance()->user;
-		if (!$this->selected) {
+		if (!$this->selected && $user) {
 			$this->selected = $user->getPref('pageSize');
 		}
 		if (!$this->selected) {
@@ -25,7 +25,9 @@ class PageSize extends AppController {
 		if (!$this->selected) {
 			$this->selected = self::$default;
 		}
-		$user->setPref('pageSize', $this->selected);
+		if ($user) {
+			$user->setPref('pageSize', $this->selected);
+		}
 	}
 
 	function setURL(URL $url) {

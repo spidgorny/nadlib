@@ -80,7 +80,9 @@ class Pager {
 
 	function saveCurrentPage() {
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
-		$this->user->setPref('Pager.'.$this->prefix, array('page' => $this->currentPage));
+		if ($this->user) {
+			$this->user->setPref('Pager.'.$this->prefix, array('page' => $this->currentPage));
+		}
 	}
 
 	function setItemsPerPage($items) {

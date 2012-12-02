@@ -74,6 +74,7 @@ if (DEVELOPMENT) {
 	header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
 }
 date_default_timezone_set('Europe/Berlin');
+ini_set('short_open_tag', 1);
 Request::removeCookiesFromRequest();
 chdir(dirname(dirname(__FILE__)));	// one level up
 

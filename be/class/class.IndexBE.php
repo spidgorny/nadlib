@@ -11,6 +11,7 @@ class IndexBE extends IndexBase {
 			'ServerData' => 'Server Data',
 			'Session' => 'Session',
 			'ConfigView' => 'config.yaml',
+			'Localize' => 'Localize',
 			'PHPInfo' => 'phpinfo()',
 		);
 
