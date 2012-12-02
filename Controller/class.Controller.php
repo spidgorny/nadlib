@@ -55,6 +55,7 @@ abstract class Controller {
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->linkVars['c'] = get_class($this);
+		Config::getInstance()->mergeConfig($this);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
