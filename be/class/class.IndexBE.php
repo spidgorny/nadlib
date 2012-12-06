@@ -18,7 +18,11 @@ class IndexBE extends IndexBase {
 		//debug($c['BEmenu']);
 		if ($c['BEmenu']) {
 			foreach($c['BEmenu'] as $key => $sub) {
-				$menu[$key] = new Recursive($key, $sub);
+				if (is_array($sub)) {
+					$menu[$key] = new Recursive($key, $sub);
+				} else {
+					$menu[$key] = $sub;
+				}
 			}
 		}
 

@@ -235,17 +235,25 @@ class OODBase {
 		return $s;
 	}
 
+	/**
+	 * @param $id
+	 * @return OODBase
+	 */
 	static function getInstance($id) {
 		if (is_scalar($id)) {
 			$inst = &self::$instance[$id];
 			if (!$inst) {
-				$inst = new Route($id);
+				$inst = new static($id);	// don't put anything else here
 			}
 		} else {
 			$static = get_called_class();
 			$inst = new $static($id);
 		}
 		return $inst;
+	}
+
+	function getObjectInfo() {
+		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}
 
 }

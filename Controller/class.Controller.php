@@ -20,7 +20,12 @@ abstract class Controller {
 	 */
 	protected $db;
 
+	/**
+	 * Will be taken as a <title> of the HTML tabl
+	 * @var string
+	 */
 	public $title;
+
 	protected $useRouter = false;
 
 	/**
@@ -63,6 +68,7 @@ abstract class Controller {
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
 			//debug($url);
+			$url->setPath($url->documentRoot.'/');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);

@@ -30,6 +30,8 @@ class Pager {
 
 	public $showPageJump = true;
 
+	public $showPager = true;
+
 	function Pager($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage) {
 			$this->setItemsPerPage($itemsPerPage);
@@ -50,6 +52,7 @@ class Pager {
 		} else {
 			$this->setCurrentPage(0);
 		}
+		Config::getInstance()->mergeConfig($this);
 	}
 
 	function initByQuery($query) {
@@ -116,12 +119,18 @@ class Pager {
 	function renderPageSelectors(URL $url = NULL) {
 		$this->url = $url;
 		$content = '<div class="pagination paginationControl">';
-		$ps = new PageSize();
-		$ps->setURL(new URL(NULL, array()));
-		$content .= '<div style="float: right;">'.$ps->render().' '.__('per page').'</div>';
-
+		if ($this->showPager) {
+			$content .= $this->renderPager();
+		}
 		$content .= $this->showSearchBrowser();
 		$content .= '</div>';
+		return $content;
+	}
+
+	function renderPager() {
+		$ps = new PageSize();
+		$ps->setURL(new URL(NULL, array()));
+		$content = '<div style="float: right;">'.$ps->render().' '.__('per page').'</div>';
 		return $content;
 	}
 

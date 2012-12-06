@@ -131,7 +131,8 @@ class Duration extends Time {
      * @param   int|array  $duration  Array of time segments or a number of seconds
      * @return  string
      */
-    function toString ($duration, $periods = null, $perCount = 2) {
+    function toString($duration, $periods = null, $perCount = 2) {
+		$content = '';
         if (!is_array($duration)) {
             $duration = Duration::int2array($duration, $periods);
         }
@@ -139,9 +140,9 @@ class Duration extends Time {
 
         if (is_array($duration)) {
 	        $duration = array_slice($duration, 0, 2, TRUE);
-	        $content .= Duration::array2string($duration);
+	        $content .= Duration::array2string($duration) . ' '.__('ago');
         } else {
-        	$content .= 'problem?';
+        	$content .= __('just now');
         }
 
         return $content;
@@ -154,22 +155,22 @@ class Duration extends Time {
      * @param        int $seconds Number of seconds to be parsed
      * @return       mixed An array containing named segments
      */
-    function int2array ($seconds, $periods = null) {
+    function int2array($periods = null) {
         // Define time periods
         if (!is_array($periods)) {
             $periods = array (
-                    'years'     => 31556926,
-                    'months'    => 2629743,
-                    'weeks'     => 604800,
-                    'days'      => 86400,
-                    'hours'     => 3600,
-                    'minutes'   => 60,
-                    'seconds'   => 1
-                    );
+				'years'     => 31556926,
+				'months'    => 2629743,
+				'weeks'     => 604800,
+				'days'      => 86400,
+				'hours'     => 3600,
+				'minutes'   => 60,
+				'seconds'   => 1
+			);
         }
 
         // Loop
-        $seconds = (float) $seconds;
+        $seconds = (float) $this->time;
         foreach ($periods as $period => $value) {
             $count = floor($seconds / $value);
 
@@ -197,7 +198,7 @@ class Duration extends Time {
      * @param        mixed $duration An array of named segments
      * @return       string
      */
-    function array2string ($duration) {
+    function array2string($duration) {
         if (!is_array($duration)) {
             return false;
         }
