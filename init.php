@@ -184,7 +184,7 @@ if(!function_exists('get_called_class')) {
  * @param array $list
  * @return mixed
  */
-function first(array $list) { 
+function first(array $list) {
 	reset($list);
 	return current($list);
 }
