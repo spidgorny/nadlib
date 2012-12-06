@@ -10,4 +10,8 @@ class TYPO3ContentCollection extends Collection {
 		'deleted' => false,
 	);
 
+	function objectify() {
+		parent::objectify('TYPO3Content');
+	}
+
 }

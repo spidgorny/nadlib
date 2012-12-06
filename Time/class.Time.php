@@ -225,9 +225,9 @@ class Time {
 	    $difference = round($difference);
 
 	    if ($difference != 1) {
-	    		$period = $pperiods[$j];
+    		$period = $pperiods[$j];
 	    } else {
-	    		$period = $periods[$j];
+    		$period = $periods[$j];
 	    }
 
 	    return "$difference $period {$tense}";
@@ -487,6 +487,13 @@ class Time {
 
 	function getTwo() {
 		return strtolower(substr($this->format('D'), 0, 2));
+	}
+
+	/**
+	 * @return Duration
+	 */
+	function getDurationObject() {
+		return new Duration($this->time);
 	}
 
 }

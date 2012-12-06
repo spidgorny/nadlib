@@ -56,11 +56,11 @@ class MiniIndex extends Controller {
 		if ($this->controller->layout == 'none' || $this->request->isAjax()) {
 			$content = $this->renderController();
 		} else {
-			$this->title = $this->controller->title;
 			$v = new View('template.phtml', $this);
 			$v->content = $this->renderController();
 			$v->sidebar = $this->showSidebar();
 			$v->baseHref = $this->request->getLocation();
+			$this->title = $this->controller->title;	// after $controller->render() before $view->render()
 			$content = $v->render();
 		}
 		return $content;
@@ -86,7 +86,7 @@ class MiniIndex extends Controller {
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 	}
 
