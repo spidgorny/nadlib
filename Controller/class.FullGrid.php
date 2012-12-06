@@ -21,12 +21,14 @@ class FullGrid extends Grid {
 	 */
 	public $pageSize;
 
-	function __construct($collection) {
+	function __construct($collection = NULL) {
 		parent::__construct();
 		$this->saveFilterColumnsSort(get_class($this));
-		$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
-		$this->collection->pager = new Pager($this->pageSize->get());
-		$this->collection->retrieveDataFromDB();
+		if ($collection) {
+			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+			$this->collection->pager = new Pager($this->pageSize->get());
+			$this->collection->retrieveDataFromDB();
+		}
 	}
 
 	/**
@@ -145,9 +147,9 @@ class FullGrid extends Grid {
 			if (!$k['noFilter']) {
 				$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
 				$options = AP($options)->trim()->getData();	// convert to string for === operation
-				debug($options);
+				//debug($options);
 				$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
-				debug($options, array_keys($options), $this->filter['partitions']);
+				//debug($options, array_keys($options), $this->filter['partitions']);
 				$desc[$key] = array(
 					'label' => $k['name'],
 					'type' => 'select',

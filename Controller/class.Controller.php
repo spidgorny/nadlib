@@ -67,8 +67,8 @@ abstract class Controller {
 				unset($params['c']); // don't supply empty controller
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			//debug($url);
-			$url->setPath($url->documentRoot.'/');
+			//echo $url, '<br />';
+			$url->setPath($url->documentRoot.'/'.$prefix);
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);
