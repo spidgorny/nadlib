@@ -72,11 +72,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$class = $this->request->getControllerString();
 			__autoload($class);
 			$class = end(explode('/', $class));	// again, because __autoload need the full path
+			//debug(__METHOD__, $class, class_exists($class));
 			if (class_exists($class)) {
-				$this->controller = new $class;
+				$this->controller = new $class();
 			} else {
-				$this->controller = NULL;
-				throw new Exception('Class '.$class.' not found.');
+				$exception = 'Class '.$class.' not found.';
+				throw new Exception($exception);
 			}
 		} catch (Exception $e) {
 			$this->controller = NULL;

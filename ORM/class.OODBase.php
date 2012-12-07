@@ -47,9 +47,12 @@ class OODBase {
 			//debug(__METHOD__, $this->id, $this->data);
 		} else if ($id instanceof SQLWhere) {
 			$this->findInDB($id->getAsArray());
-		} else if ($id) {
+		} else if (is_scalar($id)) {
 			$this->id = $id;
 			$this->findInDB(array($this->idField => $this->id));
+		} else if (!is_null($id)) {
+			debug($id);
+			throw new Exception(__METHOD__);
 		}
 	}
 
@@ -61,7 +64,7 @@ class OODBase {
 	 * Returns $this
 	 *
 	 * @param array $data
-	 * @return unknown
+	 * @return OODBase
 	 */
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -79,6 +82,8 @@ class OODBase {
 	 * Returns nothing!!!
 	 *
 	 * @param array $data
+	 * @throws Exception
+	 * @return resource
 	 */
 	function update(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -112,7 +117,7 @@ class OODBase {
 	/**
 	 *
 	 * @param array $where
-	 * @param <type> $orderby
+	 * @param string $orderby
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderby = '') {
@@ -147,8 +152,8 @@ class OODBase {
 
 	/**
 	 *
-	 * @param array $where
-	 * @param <type> $orderby
+	 * @param SQLWhere $where
+	 * @param string $orderby
 	 * @return boolean (id) of the found record
 	 */
 	function findInDBbySQLWhere(SQLWhere $where, $orderby = '') {
@@ -243,7 +248,9 @@ class OODBase {
 		if (is_scalar($id)) {
 			$inst = &self::$instance[$id];
 			if (!$inst) {
-				$inst = new static($id);	// don't put anything else here
+				//debug('new ', get_called_class(), $id, array_keys(self::$instance));
+				$inst = new static();	// don't put anything else here
+				$inst->init($id);		// separate call to avoid infinite loop in ORS
 			}
 		} else {
 			$static = get_called_class();

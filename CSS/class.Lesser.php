@@ -7,6 +7,7 @@ class Lesser extends AppController {
 	protected $output = 'cache/merge.css';
 
 	function render() {
+		unset($_COOKIE['debug']);
 		header('Content-type: text/css');
 		$less = new lessc;
 		//$less->importDir[] = '../../';
