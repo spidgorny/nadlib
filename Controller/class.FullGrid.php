@@ -1,10 +1,10 @@
 <?php
 
-class FullGrid extends Grid {
+abstract class FullGrid extends Grid {
 	/**
 	 * @var array
 	 */
-	public $filter;
+	public $filter = array();
 
 	/**
 	 * @var array
@@ -21,52 +21,19 @@ class FullGrid extends Grid {
 	 */
 	public $pageSize;
 
-	function __construct($collection) {
+	function __construct($collection = NULL) {
 		parent::__construct();
-		$this->saveFilterColumnsSort(get_class($this));
-		$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
-		$this->collection->pager = new Pager($this->pageSize->get());
-		$this->collection->retrieveDataFromDB();
-	}
 
-	/**
-	 * @param null $cn Supply get_class($this) to the function
-	 * 					or it should be called after $this->collection is initialized
-	 */
-	function saveFilterColumnsSort($cn = NULL) {
-		$cn = $cn ? $cn : get_class($this->collection);
-		//debug($cn);
-		if ($this->request->is_set('columns')) {
-			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
+		// menu is making an instance of each class because of tryMenuSuffix
+		//debug(get_class($this->index->controller), get_class($this));
+		if (get_class($this->index->controller) == get_class($this)) {
+			$this->saveFilterColumnsSort($collection ?: get_class($this));
 		}
-		$this->columns = $this->request->getArray('columns');
-		$this->columns = $this->columns
-			? $this->columns
-			: $this->user->getPref('Columns.'.$cn);
-		if (!$this->columns && $this->model->thes) {
-			$this->columns = array_keys($this->model->thes);
+		if ($collection) {
+			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+			$this->collection->retrieveDataFromDB();
 		}
-		if (!$this->columns && $this->collection->thes) {
-			$this->columns = array_keys($this->collection->thes);
-		}
-
-		$this->filter = $this->request->getArray('filter');
-		$this->filter = $this->filter
-			? $this->filter
-			: $this->user->getPref('Filter.'.$cn);
-		$this->filter = $this->filter ? $this->filter : array();
-		//debug($this->filter);
-		$this->user->setPref('Filter.'.$cn, $this->filter);
-
-		if ($this->request->is_set('slTable')) {
-			$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
-		}
-		$sortRequest = $this->request->getArray('slTable');
-		$this->sort = $sortRequest
-			? $sortRequest
-			: ($this->user->getPref('Sort.'.$cn) ?: $this->sort);
-
-		$this->pageSize = new PageSize();
 	}
 
 	/**
@@ -145,9 +112,9 @@ class FullGrid extends Grid {
 			if (!$k['noFilter']) {
 				$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
 				$options = AP($options)->trim()->getData();	// convert to string for === operation
-				debug($options);
+				//debug($options);
 				$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
-				debug($options, array_keys($options), $this->filter['partitions']);
+				//debug($options, array_keys($options), $this->filter['partitions']);
 				$desc[$key] = array(
 					'label' => $k['name'],
 					'type' => 'select',
