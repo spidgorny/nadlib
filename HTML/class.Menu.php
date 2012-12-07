@@ -81,6 +81,9 @@ class Menu /*extends Controller*/ {
 		//debug($this->basePath);
 	}
 
+	/**
+	 * Used by AccMailer
+	 */
 	function filterACL() {
 		foreach ($this->items as $class => &$item) {
 			if (!$this->user->can($class, '__construct')) {
