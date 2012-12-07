@@ -21,7 +21,7 @@ abstract class FullGrid extends Grid {
 	 */
 	public $pageSize;
 
-	function __construct($collection) {
+	function __construct($collection = NULL) {
 		parent::__construct();
 
 		// menu is making an instance of each class because of tryMenuSuffix
@@ -29,9 +29,11 @@ abstract class FullGrid extends Grid {
 		if (get_class($this->index->controller) == get_class($this)) {
 			$this->saveFilterColumnsSort($collection ?: get_class($this));
 		}
-		$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
-		$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
-		$this->collection->retrieveDataFromDB();
+		if ($collection) {
+			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+			$this->collection->retrieveDataFromDB();
+		}
 	}
 
 	/**
