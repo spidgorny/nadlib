@@ -4,6 +4,13 @@ class IndexBE extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
+	function __construct() {
+		parent::__construct();
+		//debug_pre_print_backtrace();
+		$this->addJQuery();
+		$this->addJs('js/vendor/bootstrap.min.js');
+	}
+
 	function showSidebar() {
 		$menu = array(
 			'HomeBE' => 'Home',

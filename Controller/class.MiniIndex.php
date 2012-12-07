@@ -1,6 +1,6 @@
 <?php
 
-class MiniIndex extends Controller {
+class MiniIndex extends AppController {
 
 	/**
 	 * @var Menu
@@ -37,7 +37,7 @@ class MiniIndex extends Controller {
 		$self = get_called_class();
 		if (!self::$instance) {
 			if ($createAllowed) {
-				self::$instance = new $self(true);
+				self::$instance = new $self(true);	/* self::$instance MiniIndex */
 				self::$instance->init();
 			}
 		}
@@ -46,7 +46,8 @@ class MiniIndex extends Controller {
 
 	function init() {
 		$this->controller = $this->request->getController();
-		//debug(get_class($this->controller), get_class_methods($this->controller));
+		//debug(get_class($this), spl_object_hash($this));
+		//debug(get_class($this->controller), spl_object_hash($this->controller));
 		if (method_exists($this->controller, 'postInit')) {
 			$this->controller->postInit();
 		}
@@ -110,7 +111,7 @@ class MiniIndex extends Controller {
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);
-		} else {
+		} else if (DEVELOPMENT) {
 			$content = TaylorProfiler::renderFloat();
 		}
 		return $content;

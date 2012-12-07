@@ -1,6 +1,6 @@
 <?php
 
-class Localize extends Controller {
+class Localize extends AppControllerBE {
 	/**
 	 * @var LocalLang
 	 */
@@ -12,6 +12,8 @@ class Localize extends Controller {
 	protected $to;
 
 	public $title = 'Localize';
+
+	public $table = 'interface';
 
 	function __construct() {
 		parent::__construct();
@@ -28,9 +30,9 @@ class Localize extends Controller {
 			$this->save($id, $this->request->getTrim('value'));
 			$this->index->request->set('ajax', true);
 		} else {
-			$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
+			/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
 				'c' => 'ImportMissing',
-			)).'</div>';
+			)).'</div>';*/
 
 			$keys = array_keys($this->from->getMessages());
 
@@ -63,8 +65,9 @@ class Localize extends Controller {
 			$content .= $s;
 			$content .= $pager->renderPageSelectors($this->url);
 			$content = $this->encloseIn(__('Localize'), $content);
-			Index::getInstance()->addJS('js/jquery.jeditable.mini.js');
-			Index::getInstance()->addJS("js/Localize.js");
+			$this->index->addJQuery();
+			$this->index->addJS('js/jquery.jeditable.mini.js');
+			$this->index->addJS("js/Localize.js");
 		}
 		return $content;
 	}
@@ -78,19 +81,19 @@ class Localize extends Controller {
 		//$save = $this->request->getTrim('save');
 		//$rel = $this->request->getInt('rel');
 		if (is_numeric($rel)) {
-			$this->db->runUpdateQuery('app_interface', array('text' => $save), array('id' => $rel));
+			$this->db->runUpdateQuery($this->table, array('text' => $save), array('id' => $rel));
 		} else {
 			//$code = $this->request->getTrim('code');
 			$code = $rel;
-			$res = $this->db->runSelectQuery('app_interface', array(
+			$res = $this->db->runSelectQuery($this->table, array(
 				'code' => $code,
 				'lang' => $this->to->lang,
 			));
 			$row = $this->db->fetchAssoc($res);
 			if (($rel = $row['id'])) {
-				$this->db->runUpdateQuery('app_interface', array('text' => $save), array('id' => $rel));
+				$this->db->runUpdateQuery($this->table, array('text' => $save), array('id' => $rel));
 			} else {
-				$this->db->runInsertQuery('app_interface', array(
+				$this->db->runInsertQuery($this->table, array(
 					'code' => $code,
 					'lang' => $this->to->lang,
 					'text' => $save,

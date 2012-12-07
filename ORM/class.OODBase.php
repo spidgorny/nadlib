@@ -24,6 +24,11 @@ class OODBase {
 	static $instance = array();
 
 	/**
+	 * @var string - saved after insertUpdate
+	 */
+	public $lastQuery;
+
+	/**
 	 * Enter description here...
 	 *
 	 * @param integer/array $id - can be ID in the database or the whole records
@@ -69,6 +74,7 @@ class OODBase {
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$res = $this->db->perform($query);
+		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
 		$this->init($id ? $id : $this->id);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -79,6 +85,8 @@ class OODBase {
 	 * Returns nothing!!!
 	 *
 	 * @param array $data
+	 * @throws Exception
+	 * @return resource
 	 */
 	function update(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -89,7 +97,11 @@ class OODBase {
 			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
 			//debug($query);
 			$res = $this->db->perform($query);
-			$this->data = array_merge($this->data, $data); // If the input arrays have the same string keys, then the later value for that key will overwrite the previous one.
+			$this->lastQuery = $this->db->lastQuery;	// save before commit
+			// If the input arrays have the same string keys,
+			// then the later value for that key will overwrite the previous one.
+			//$this->data = array_merge($this->data, $data);
+			$this->init($this->id);
 		} else {
 			$this->db->rollback();
 			debug_pre_print_backtrace();
@@ -112,7 +124,7 @@ class OODBase {
 	/**
 	 *
 	 * @param array $where
-	 * @param <type> $orderby
+	 * @param string $orderby
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderby = '') {
@@ -147,8 +159,8 @@ class OODBase {
 
 	/**
 	 *
-	 * @param array $where
-	 * @param <type> $orderby
+	 * @param SQLWhere $where
+	 * @param string $orderby
 	 * @return boolean (id) of the found record
 	 */
 	function findInDBbySQLWhere(SQLWhere $where, $orderby = '') {
@@ -169,7 +181,7 @@ class OODBase {
 	}
 
 	/**
-	 * Depends on $this->id
+	 * Depends on $this->id and $this->data will be saved into DB
 	 * @return resource|unknown
 	 */
 	function insertOrUpdate() {
@@ -184,7 +196,7 @@ class OODBase {
 	}
 
 	/**
-	 * Searched for the record defined in $where and then created or updates.
+	 * Searches for the record defined in $where and then creates or updates.
 	 *
 	 * @param array $fields
 	 * @param array $where
@@ -194,6 +206,7 @@ class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
+		//debug($this->db->lastQuery);
 		if ($this->id) { // found
 			$this->update($fields);
 			$op = 'UPD '.$this->id;
