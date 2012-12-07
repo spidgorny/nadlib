@@ -86,6 +86,13 @@ class Request {
 		return $this->is_set($name) ? $this->int($name) : NULL;
 	}
 
+	/**
+	 * Checks for keys, not values
+	 *
+	 * @param $name
+	 * @param array $assoc
+	 * @return null
+	 */
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {

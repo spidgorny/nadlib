@@ -55,6 +55,7 @@ abstract class Controller {
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->linkVars['c'] = get_class($this);
+		Config::getInstance()->mergeConfig($this);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
@@ -68,7 +69,7 @@ abstract class Controller {
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
 			//debug($url);
-			$url->setPath($url->documentRoot.'/');
+			$url->setPath($url->documentRoot.'/'.$prefix);
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);
@@ -91,7 +92,7 @@ abstract class Controller {
 
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
 		$content = new HTMLTag('a', array(
-			'href' => $page.$this->makeURL($params),
+			'href' => $this->makeURL($params, false, $page),
 		)+$more, $text, $isHTML);
 		return $content;
 	}

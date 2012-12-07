@@ -57,6 +57,46 @@ abstract class Grid extends AppController {
 		}
 	}
 
+	/**
+	 * @param null $cn Supply get_class($this) to the function
+	 * 					or it should be called after $this->collection is initialized
+	 */
+	function saveFilterColumnsSort($cn = NULL) {
+		$cn = $cn ? $cn : get_class($this->collection);
+		//debug($cn);
+		if ($this->request->is_set('columns')) {
+			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
+		}
+		$this->columns = $this->request->getArray('columns');
+		$this->columns = $this->columns
+			? $this->columns
+			: $this->user->getPref('Columns.'.$cn);
+		if (!$this->columns && $this->model->thes) {
+			$this->columns = array_keys($this->model->thes);
+		}
+		if (!$this->columns && $this->collection->thes) {
+			$this->columns = array_keys($this->collection->thes);
+		}
+
+		$this->filter = $this->request->getArray('filter');
+		$this->filter = $this->filter
+			? $this->filter
+			: $this->user->getPref('Filter.'.$cn);
+		$this->filter = $this->filter ? $this->filter : array();
+		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		$this->user->setPref('Filter.'.$cn, $this->filter);
+
+		if ($this->request->is_set('slTable')) {
+			$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+		}
+		$sortRequest = $this->request->getArray('slTable');
+		$this->sort = $sortRequest
+			? $sortRequest
+			: ($this->user->getPref('Sort.'.$cn) ?: $this->sort);
+
+		$this->pageSize = new PageSize();
+	}
+
 	function render() {
 		$content = $this->collection->render();
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this));
