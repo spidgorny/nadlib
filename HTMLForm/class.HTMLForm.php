@@ -147,6 +147,11 @@ class HTMLForm {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
+		$this->renderSelectionOptions($aOptions, $default);
+		$this->stdout .= "</select>\n";
+	}
+
+	function renderSelectionOptions(array $aOptions, $default) {
 		foreach ($aOptions as $value => $option) {
 			if ($desc['===']) {
 				$selected = $default === $value;
@@ -159,6 +164,10 @@ class HTMLForm {
 			}
 			if ($option instanceof HTMLTag) {
 				$this->stdout .= $option;
+			} else if ($option instanceof Recursive) {
+				$this->stdout .= '<optgroup label="'.$option.'">';
+				$this->renderSelectionOptions($option->getChildren(), $default);
+				$this->stdout .= '</optgroup>';
 			} else {
 				$this->stdout .= "<option value=\"$value\"";
 				if ($selected) {
@@ -170,7 +179,6 @@ class HTMLForm {
 				$this->stdout .= ">$option</option>\n";
 			}
 		}
-		$this->stdout .= "</select>\n";
 	}
 
 	function date($name, $value) {
