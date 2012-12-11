@@ -55,9 +55,9 @@ function __autoload($class) {
 define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
 if (DEVELOPMENT) {
 	error_reporting(E_ALL ^ E_NOTICE);
-	ini_set('display_errors', FALSE);
+	//ini_set('display_errors', FALSE);
 	//trigger_error(str_repeat('*', 20));	// log file separator
-	ini_set('display_errors', TRUE);
+	//ini_set('display_errors', TRUE);
 	ini_set('html_error', TRUE);
 
 	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
@@ -76,7 +76,8 @@ if (DEVELOPMENT) {
 date_default_timezone_set('Europe/Berlin');
 ini_set('short_open_tag', 1);
 Request::removeCookiesFromRequest();
-chdir(dirname(dirname(__FILE__)));	// one level up
+//chdir(dirname(dirname(__FILE__)));	// one level up
+// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
 
 function debug($a) {
 	$params = func_get_args();

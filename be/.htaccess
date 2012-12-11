@@ -333,7 +333,11 @@ FileETag None
   Options +FollowSymlinks
 # Options +SymLinksIfOwnerMatch
   RewriteEngine On
-# RewriteBase /
+  RewriteBase /kreuzfahrt-auswahl.de
+  RewriteCond  %{REQUEST_FILENAME}  !-f
+  RewriteCond  %{REQUEST_FILENAME}  !-l
+  RewriteCond  %{REQUEST_FILENAME}  !-d
+  RewriteRule ^([^/]+)/?(.*)$ ?c=$1&slug=$2 [QSA]
 </IfModule>
 
 
@@ -534,7 +538,12 @@ php_flag html_errors On
 # Don't prepend to error (doesn't accept empty string, use whitespace if you need)
 # php_value error_append_string " "
 
-php_flag short_open_tag On
+php_value output_buffering 0
+php_flag allow_url_fopen on
+php_flag short_open_tag on
+php_flag display_errors on
+php_flag html_errors on
+php_flag ignore_user_abort off
 
 # Increase cookie security
 <IfModule php5_module>

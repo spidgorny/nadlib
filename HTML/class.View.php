@@ -59,6 +59,7 @@ class View {
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
+			$content = '<!-- View template: '.$this->folder.$this->file.' -->'.$content;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;
