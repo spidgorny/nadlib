@@ -21,12 +21,16 @@ abstract class FullGrid extends Grid {
 	 */
 	public $pageSize;
 
+	/**
+	 * @param string $collection
+	 */
 	function __construct($collection = NULL) {
 		parent::__construct();
 
 		// menu is making an instance of each class because of tryMenuSuffix
-		//debug(get_class($this->index->controller), get_class($this));
-		if (get_class($this->index->controller) == get_class($this)) {
+		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
+		//if (get_class($this->index->controller) == get_class($this)) {// unreliable
+		if ($this->request->getControllerString() == get_class($this)) {
 			$this->saveFilterColumnsSort($collection ?: get_class($this));
 		}
 		if ($collection) {

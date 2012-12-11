@@ -147,6 +147,14 @@ class OODBase {
 		return $this->id;
 	}
 
+	/**
+	 * Still searches in DB with findInDB, but makes a new object for you
+	 *
+	 * @param array $where
+	 * @param null $static
+	 * @return mixed
+	 * @throws Exception
+	 */
 	static function findInstance(array $where, $static = NULL) {
 		if (!$static) {
 			if (function_exists('get_called_class')) {
