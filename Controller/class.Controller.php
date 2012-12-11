@@ -69,7 +69,7 @@ abstract class Controller {
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
 			//echo $url, '<br />';
-			$url->setPath($url->documentRoot.'/'.$prefix);
+			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);

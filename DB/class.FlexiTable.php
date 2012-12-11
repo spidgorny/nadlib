@@ -24,6 +24,7 @@ class FlexiTable extends OODBase {
 
 	function insert(array $row) {
 		$row['ctime'] = new AsIs('now()');
+		$row['cuser'] = Config::getInstance()->user->id;
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
@@ -34,7 +35,7 @@ class FlexiTable extends OODBase {
 	function update(array $row) {
 		$row['mtime'] = new Time();
 		$row['mtime'] = $row['mtime']->format('Y-m-d H:i:s');
-		$row['muser'] = $GLOBALS['i']->user->id;
+		$row['muser'] = Config::getInstance()->user->id;
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}

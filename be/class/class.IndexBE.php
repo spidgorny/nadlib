@@ -7,6 +7,8 @@ class IndexBE extends IndexBase {
 	function __construct() {
 		parent::__construct();
 		//debug_pre_print_backtrace();
+		$this->addCSS('css/bootstrap.min.css');
+		$this->addCSS('css/main.css');
 		$this->addJQuery();
 		$this->addJs('js/vendor/bootstrap.min.js');
 	}

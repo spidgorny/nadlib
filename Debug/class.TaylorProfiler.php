@@ -299,6 +299,12 @@ class TaylorProfiler {
 		return $content;
 	}
 
+	static function getMemUsage() {
+		$max = intval(ini_get('memory_limit'))*1024*1024;
+		$cur = memory_get_usage();
+		return number_format($cur/$max, 4, '.', '');
+	}
+
 }
 
 /*
