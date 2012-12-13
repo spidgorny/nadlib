@@ -40,47 +40,8 @@ class ProgressBar {
 				<div id="'.$this->tbarid.'" class="pb_after"></div>
 			</div>
 			<div style="clear: both;"></div>
-		</div>
-		<style>
-			.pb_container {
-				position: relative;
-			}
-			.pb_bar {
-				width: 100%;
-				height: 1.3em;
-				border: 1px solid silver;
-				-moz-border-radius-topleft: 5px;
-				-moz-border-radius-topright: 5px;
-				-moz-border-radius-bottomleft: 5px;
-				-moz-border-radius-bottomright: 5px;
-				-webkit-border-top-left-radius: 5px;
-				-webkit-border-top-right-radius: 5px;
-				-webkit-border-bottom-left-radius: 5px;
-				-webkit-border-bottom-right-radius: 5px;
-			}
-			.pb_before {
-				float: left;
-				height: 1.3em;
-				background-color: #43b6df;
-				-moz-border-radius-topleft: 5px;
-				-moz-border-radius-bottomleft: 5px;
-				-webkit-border-top-left-radius: 5px;
-				-webkit-border-bottom-left-radius: 5px;
-			}
-			.pb_after {
-				float: left;
-				background-color: #FEFEFE;
-				-moz-border-radius-topright: 5px;
-				-moz-border-radius-bottomright: 5px;
-				-webkit-border-top-right-radius: 5px;
-				-webkit-border-bottom-right-radius: 5px;
-			}
-			.pb_text {
-				padding-top: 0.1em;
-				position: absolute;
-				left: 48%;
-			}
-		</style>'."\r\n";
+		</div>'."\r\n";
+		Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
 		return $content;
 	}
 

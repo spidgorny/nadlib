@@ -7,12 +7,19 @@ class Lesser extends AppController {
 	protected $output = 'cache/merge.css';
 
 	function render() {
-		unset($_COOKIE['debug']);
-		header('Content-type: text/css');
-		$less = new lessc;
+		//unset($_COOKIE['debug']);
+		$less = new lessc();
 		//$less->importDir[] = '../../';
-		$less->checkedCompile('css/'.$this->request->getFilename('css'), $this->output);
-		readfile($this->output);
+		$cssFile = $this->request->getFilePathName('css');
+		$this->output = 'cache/'.str_replace('.less', '.css', $this->request->getFilename('css'));
+		//debug($cssFile, file_exists($cssFile), $this->output);
+		$regen = $less->checkedCompile($cssFile, $this->output);
+		if (file_exists($this->output)) {
+			header('Content-type: text/css');
+			readfile($this->output);
+		} else {
+			echo 'error {}';
+		}
 		$this->request->set('ajax', true);	// avoid any HTML
 		//debug($this->request->isAjax());
 	}

@@ -57,7 +57,8 @@ if (DEVELOPMENT) {
 	error_reporting(E_ALL ^ E_NOTICE);
 	//ini_set('display_errors', FALSE);
 	//trigger_error(str_repeat('*', 20));	// log file separator
-	//ini_set('display_errors', TRUE);
+
+	ini_set('display_errors', TRUE);
 	ini_set('html_error', TRUE);
 
 	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
