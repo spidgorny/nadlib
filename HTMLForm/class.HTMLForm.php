@@ -141,17 +141,34 @@ class HTMLForm {
 		$this->enctype = "multipart/form-data";
 	}
 
+	/**
+	 * @param $name
+	 * @param $aOptions
+	 * @param $default
+	 * @param bool $autoSubmit
+	 * @param string $more
+	 * @param bool $multiple
+	 * @param array $desc
+	 * @see renderSelectionOptions
+	 */
 	function selection($name, $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
 		$this->stdout .= "<select ".$this->getName($name, $multiple ? '[]' : '');
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
-		$this->renderSelectionOptions($aOptions, $default);
+		$this->renderSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
 	}
 
-	function renderSelectionOptions(array $aOptions, $default) {
+	/**
+	 * @param array $aOptions
+	 * @param $default
+	 * @param array $desc
+	 * 		boolean '===' - compare value and default strictly
+	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 */
+	function renderSelectionOptions(array $aOptions, $default, array $desc) {
 		foreach ($aOptions as $value => $option) {
 			if ($desc['===']) {
 				$selected = $default === $value;
@@ -166,7 +183,7 @@ class HTMLForm {
 				$this->stdout .= $option;
 			} else if ($option instanceof Recursive) {
 				$this->stdout .= '<optgroup label="'.$option.'">';
-				$this->renderSelectionOptions($option->getChildren(), $default);
+				$this->renderSelectionOptions($option->getChildren(), $default, $desc);
 				$this->stdout .= '</optgroup>';
 			} else {
 				$this->stdout .= "<option value=\"$value\"";

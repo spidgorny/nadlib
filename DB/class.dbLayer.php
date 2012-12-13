@@ -1,13 +1,5 @@
 <?php
 
-function my_print_backtrace($q) {
-	if (!function_exists("debug_print_backtrace")) {
-		print("<div class='error'>Error in SQL: $q<br>".pg_last_error()."</div>");
-	} else {
-		print("<pre>"); debug_print_backtrace(); print("</pre>");
-	}
-}
-
 class dbLayer {
 	var $RETURN_NULL = TRUE;
 	var $CONNECTION = NULL;
@@ -43,10 +35,10 @@ class dbLayer {
 	function perform($query) {
 		$prof = new Profiler();
 		$this->LAST_PERFORM_QUERY = $query;
-		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query) or my_print_backtrace($query);
+		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
-//			error("Query: ".$query);
-//			debug(array_keys($this->QUERIES));
+			debug_pre_print_backtrace();
+			throw new Exception(pg_errormessage($this->CONNECTION));
 		}
 		if (0 || Config::getInstance()->debugQueries) {
 			echo 'Query: '.$query.': '.$this->numRows($this->LAST_PERFORM_RESULT).'<br />';

@@ -45,6 +45,8 @@ abstract class Controller {
 
 	public $linkVars = array();
 
+	public $encloseTag = 'h4';
+
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
@@ -170,7 +172,8 @@ abstract class Controller {
 		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
 	}
 
-	function encloseInAA($content, $caption = '', $h = 'h4') {
+	function encloseInAA($content, $caption = '', $h = NULL) {
+		$h = $h ?: $this->encloseTag;
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
