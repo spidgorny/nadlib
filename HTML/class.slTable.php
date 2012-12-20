@@ -408,13 +408,18 @@ class slTable {
 					$out = '';
 				}
 			break;
+			case "sqltime":
+				if ($val) {
+					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
+					$out = date($k['format'], $val);
+				} else {
+					$out = '';
+				}
+			break;
 			case "sqldate":
 				if ($val) {
-					//$val = strtotime(substr($val, 0, 15)); // cut milliseconds
-					//$out = date($k['format'], $val);
-					// THIS BELOW IS NOT TESTED
 					$val = new Date($val);
-					$out = $val->format($k['format']);
+					$out = $val->format($k['format']);	// hours will not work
 				} else {
 					$out = '';
 				}

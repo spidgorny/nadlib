@@ -258,7 +258,7 @@ class Collection {
 	 *
 	 * @param string $class
 	 * @param bool $byInstance
-	 * @return object
+	 * @return object[]
 	 */
 	function objectify($class, $byInstance = false) {
 		if (!$this->members) {
