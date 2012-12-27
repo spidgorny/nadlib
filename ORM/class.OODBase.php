@@ -232,7 +232,13 @@ class OODBase {
 		return $op;
 	}
 
-	function renderAssoc() {
+	/**
+	 * @param array $assoc
+	 * @param bool  $recursive
+	 * @return slTable
+	 */
+	function renderAssoc(array $assoc = NULL, $recursive = false) {
+		$assoc = $assoc ?: $this->data;
 		//debug($this->thes);
 		if ($this->thes) {
 			$assoc = array();
@@ -248,10 +254,11 @@ class OODBase {
 			}
 			$s = new slTable($assoc. '', array(0 => '', '' => array('no_hsc' => true)));
 		} else {
-			$assoc = $this->data;
-			foreach ($assoc as $key => $val) {
+			foreach ($assoc as $key => &$val) {
 				if (!$val) {
 					unset($assoc[$key]);
+				} else if (is_array($val) && $recursive) {
+					$val = OODBase::renderAssoc($val, $recursive);
 				}
 			}
 			$s = slTable::showAssoc($assoc);
