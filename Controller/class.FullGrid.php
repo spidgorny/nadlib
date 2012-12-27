@@ -118,7 +118,7 @@ abstract class FullGrid extends Grid {
 				$options = AP($options)->trim()->getData();	// convert to string for === operation
 				//debug($options);
 				$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
-				//debug($options, array_keys($options), $this->filter['partitions']);
+				//debug($options);
 				$desc[$key] = array(
 					'label' => $k['name'],
 					'type' => 'select',
