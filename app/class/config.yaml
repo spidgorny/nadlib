@@ -2,3 +2,4 @@ Controller:
   log: false
 View:
   folder: ../app/template/
+BEUser:

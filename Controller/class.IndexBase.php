@@ -90,46 +90,48 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content = '';
 		if ($this->controller) {
 			try {
-				$render = $this->controller->render();
-				if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
-					$render = $this->controller->layout->wrap($render);
-				}
-				$this->content .= $render;
+				$content .= $this->renderController();
 				if (!$this->request->isAjax()) {
 					$v = new View('template.phtml', $this);
+					$v->content = $content;
 					$v->title = $this->controller->title;
 					$v->sidebar = $this->showSidebar();
-					$content = $v->render();
+					$lf = new LoginForm('inlineForm');
+					$v->loginForm = $lf->dispatchAjax();
+					$content = $v->render();	// not concatenate but replace
 				} else {
-					$content = $this->content;
+					$content .= $this->content;
 				}
-			} catch (LoginException $e) {
-				require('template/head.phtml');
-				$content .= '<div class="headerMargin"></div>';
-				$content .= '
-				<div class="ui-state-error padding">
-					'.$e->getMessage();
-				$content .= '</div>';
-				$loginForm = new LoginForm();
-				$content .= $loginForm->render();
 			} catch (Exception $e) {
 				$content = $this->renderException($e);
 			}
 		} else {
-			$content = $this->content;	// display Exception
+			$content .= $this->content;	// display Exception
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
+	function renderController() {
+		$render = $this->controller->render();
+		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
+			$render = $this->controller->layout->wrap($render);
+		}
+		return $render;
+	}
+
 	function renderException(Exception $e) {
-		$content = '<div class="ui-state-error padding">
+		$content = '<div class="ui-state-error alert alert-error padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
 		}
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
+		if ($e instanceof LoginException) {
+			$lf = new LoginForm();
+			$content .= $lf;
+		}
 
 		if (!$this->request->isAjax()) {
 			try {
@@ -168,16 +170,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
 		';
+		return $this;
 	}
 
 	function addJQueryUI() {
 		$this->addJQuery();
 		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
+		return $this;
 	}
 
 	function addJS($source) {
 		$this->footer[$source] = '<script src="'.$source.'"></script>';
+		return $this;
 	}
 
 	function addCSS($source) {
@@ -185,6 +190,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$source = 'Lesser?css='.$source;
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
+		return $this;
 	}
 
 	function showSidebar() {
