@@ -2,6 +2,8 @@
 
 class HomeBE extends AppControllerBE {
 
+	static public $public = true;
+
 	function render() {
 		$content = '';
 		$content .= new Markdown('Home.text');
