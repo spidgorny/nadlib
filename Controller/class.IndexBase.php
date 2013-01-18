@@ -35,7 +35,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public $controller;
 
 	/**
-	 * @var Index
+	 * @var Index|IndexBE
 	 */
 	protected static $instance;
 
@@ -181,6 +181,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function addCSS($source) {
+		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
+			$source = 'Lesser?css='.$source;
+		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 	}
 

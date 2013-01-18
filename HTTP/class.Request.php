@@ -487,6 +487,12 @@ class Request {
 		return get_object_vars($this);
 	}
 
+	function getFilePathName($name) {
+		$filename = $this->getTrim($name);
+		$filename = realpath($filename);
+		return $filename;
+	}
+
 	function getFilename($name) {
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);

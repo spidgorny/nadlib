@@ -5,10 +5,17 @@
  *
  */
 class LocalLangDB extends LocalLang {
-	public    $indicateUntranslated = false;
+	public $indicateUntranslated = false;
+	public $table = 'interface';
+
+	/**
+	 * @var MySQL
+	 */
+	protected $db;
 
 	function __construct($forceLang = NULL) {
 		parent::__construct($forceLang);
+		$this->db = Config::getInstance()->db;
 		$rows = $this->readDB($this->lang);
 		if ($rows) {
 			$this->codeID = ArrayPlus::create($rows)->column_assoc('code', 'id')->getData();
@@ -27,7 +34,7 @@ class LocalLangDB extends LocalLang {
 	function saveMissingMessage($text) {
 		if (DEVELOPMENT && $text) {
 			$db = Config::getInstance()->db;
-			$db->runInsertQuery('app_interface', array(
+			$db->runInsertQuery($this->table, array(
 				'code' => $text,
 				'lang' => $this->lang,
 				'text' => $text,
@@ -49,13 +56,13 @@ class LocalLangDB extends LocalLang {
 
 	function readDB($lang) {
 		//try {
-			$db = Config::getInstance()->db;
-			$res = $db->getTableColumns('app_interface');
+			$res = $this->db->getTableColumns($this->table);
 			if ($res) {
-				$rows = $db->fetchSelectQuery('app_interface', array(
+				$rows = $this->db->fetchSelectQuery($this->table, array(
 					'lang' => $lang,
 				), 'ORDER BY id');
 			} else {
+				debug($this->db->lastQuery);
 				throw new Exception('No translation found in DB');
 			}
 		//} catch (Exception $e) {

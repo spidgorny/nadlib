@@ -131,9 +131,9 @@ class MySQL {
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $res
-	 * @param unknown_type $key can be set to NULL to avoid assoc array
-	 * @return unknown
+	 * @param resource $res
+	 * @param string $key can be set to NULL to avoid assoc array
+	 * @return array
 	 */
 	function fetchAll($res, $key = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -155,6 +155,8 @@ class MySQL {
 				$data[] = $row;
 			}
 		}
+		//debug($this->lastQuery, sizeof($data));
+		//debug_pre_print_backtrace();
 		mysql_free_result($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;

@@ -21,12 +21,16 @@ abstract class FullGrid extends Grid {
 	 */
 	public $pageSize;
 
+	/**
+	 * @param string $collection
+	 */
 	function __construct($collection = NULL) {
 		parent::__construct();
 
 		// menu is making an instance of each class because of tryMenuSuffix
-		//debug(get_class($this->index->controller), get_class($this));
-		if (get_class($this->index->controller) == get_class($this)) {
+		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
+		//if (get_class($this->index->controller) == get_class($this)) {// unreliable
+		if ($this->request->getControllerString() == get_class($this)) {
 			$this->saveFilterColumnsSort($collection ?: get_class($this));
 		}
 		if ($collection) {
@@ -114,7 +118,7 @@ abstract class FullGrid extends Grid {
 				$options = AP($options)->trim()->getData();	// convert to string for === operation
 				//debug($options);
 				$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
-				//debug($options, array_keys($options), $this->filter['partitions']);
+				//debug($options);
 				$desc[$key] = array(
 					'label' => $k['name'],
 					'type' => 'select',

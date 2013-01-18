@@ -5,7 +5,7 @@
  * completely. (wrong!?)
  */
 
-class DatabaseResultIterator implements Iterator {
+class DatabaseResultIterator implements Iterator, Countable {
 	var $defaultKey;
 	var $dbResultResource;
 	var $row = array();
@@ -14,7 +14,7 @@ class DatabaseResultIterator implements Iterator {
 
 	function __construct($query, $defaultKey = NULL) { // 'uid'
 		$this->defaultKey = $defaultKey;
-		$this->db = Config::getInstance()->my;
+		$this->db = Config::getInstance()->db;
 		$this->dbResultResource = $this->db->perform($query);
 		$this->rows = $this->count();
 		$this->rewind();

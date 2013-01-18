@@ -4,6 +4,15 @@ class IndexBE extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
+	function __construct() {
+		parent::__construct();
+		//debug_pre_print_backtrace();
+		$this->addCSS('css/bootstrap.min.css');
+		$this->addCSS('css/main.css');
+		$this->addJQuery();
+		$this->addJs('js/vendor/bootstrap.min.js');
+	}
+
 	function showSidebar() {
 		$menu = array(
 			'HomeBE' => 'Home',
@@ -11,7 +20,9 @@ class IndexBE extends IndexBase {
 			'ServerData' => 'Server Data',
 			'Session' => 'Session',
 			'ConfigView' => 'config.yaml',
+			'Localize' => 'Localize',
 			'PHPInfo' => 'phpinfo()',
+			'Documentation' => 'Documentation',
 		);
 
 		$c = Spyc::YAMLLoad('class/config.yaml');

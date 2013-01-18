@@ -23,34 +23,41 @@ class ConfigView extends AppControllerBE {
 		$f = new HTMLFormTable();
 		$f->prefix($this->prefix);
 		foreach ($data as $class => $props) {
-			$f->fieldset($class);
-			$desc = array();
-			foreach ($props as $key => $val) {
-				if (is_scalar($val)) {
-					$desc[$class.'['.$key.']'] = array(
-						'label' => $key,
-						'type' => $this->typeMap[gettype($val)],
-						'value' => $val,
-						'set0' => true,
-						'optional' => true,
-					);
-				} else {
-					$desc[$class.'['.$key.']'] = array(
-						'type' => 'html',
-						'code' => getDebug($val),
-					);
-				}
-			}
-			$f->showForm($desc);
+			$this->renderFormArray($f, $class, $props);
 		}
-
 		$f->prefix('');
 		$f->hidden('action', 'save');
 		$f->submit('Save');
+		$f->debug = true;
 		$content = $f;
 
 		$content .= '<style>.tdlabel { width: 10em; } </style>';
 		return $content;
+	}
+
+	function renderFormArray(HTMLFormTable $f, $class, array $data) {
+		$f->fieldset($class);
+		$desc = array();
+		foreach ($data as $key => $val) {
+			if (is_scalar($val)) {
+				$desc[$class.'['.$key.']'] = array(
+					'label' => $key,
+					'type' => $this->typeMap[gettype($val)],
+					'value' => $val,
+					'set0' => true,
+					'optional' => true,
+				);
+			} else {
+				/*$desc[$class.'['.$key.']'] = array(
+					'type' => 'html',
+					'code' => getDebug($val),
+				);*/
+				//foreach ($val as $key => $props) {
+					$this->renderFormArray($f, $class.'['.$key.']', $val);
+				//}
+			}
+		}
+		$f->showForm($desc);
 	}
 
 	function saveAction() {

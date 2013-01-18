@@ -92,10 +92,10 @@ class HTMLForm {
 	/**
 	 *
 	 * Table row with $text and input
-	 * @param unknown_type $text
-	 * @param unknown_type $name
-	 * @param unknown_type $value
-	 * @param unknown_type $more
+	 * @param string $text
+	 * @param string $name
+	 * @param string $value
+	 * @param string $more
 	 */
 	function tinput($text, $name, $value = "", $more = '') {
 		$this->text('<tr><td>'.$text.'</td><td>');
@@ -141,15 +141,45 @@ class HTMLForm {
 		$this->enctype = "multipart/form-data";
 	}
 
+	/**
+	 * @param $name
+	 * @param $aOptions
+	 * @param $default
+	 * @param bool $autoSubmit
+	 * @param string $more
+	 * @param bool $multiple
+	 * @param array $desc
+	 * @see renderSelectionOptions
+	 */
 	function selection($name, $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
 		$this->stdout .= "<select ".$this->getName($name, $multiple ? '[]' : '');
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
-		foreach ($aOptions as $value => $option) {
+		$this->renderSelectionOptions($aOptions, $default, $desc);
+		$this->stdout .= "</select>\n";
+	}
+
+	/**
+	 * @param array $aOptions
+	 * @param $default
+	 * @param array $desc
+	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
+	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 */
+	function renderSelectionOptions(array $aOptions, $default, array $desc) {
+		//Debug::debug_args($aOptions);
+		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
+				if (sizeof($aOptions) == -3) {
+					Debug::debug_args(array(
+						'default' => $default,
+						'value' => $value,
+						'selected' => $selected,
+					));
+				}
 			} else {
 				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
 					$selected = true;
@@ -159,6 +189,10 @@ class HTMLForm {
 			}
 			if ($option instanceof HTMLTag) {
 				$this->stdout .= $option;
+			} else if ($option instanceof Recursive) {
+				$this->stdout .= '<optgroup label="'.$option.'">';
+				$this->renderSelectionOptions($option->getChildren(), $default, $desc);
+				$this->stdout .= '</optgroup>';
 			} else {
 				$this->stdout .= "<option value=\"$value\"";
 				if ($selected) {
@@ -170,7 +204,6 @@ class HTMLForm {
 				$this->stdout .= ">$option</option>\n";
 			}
 		}
-		$this->stdout .= "</select>\n";
 	}
 
 	function date($name, $value) {
@@ -264,9 +297,9 @@ class HTMLForm {
 	/**
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
-	 * @param unknown_type $name
-	 * @param array/string $value - CSV or array
-	 * @param unknown_type $desc
+	 * @param string $name
+	 * @param array $value /string $value - CSV or array
+	 * @param array $desc
 	 */
 	function set($name, $value = array(), array $desc) {
 		if ($value) {
@@ -380,12 +413,12 @@ class HTMLForm {
 	}
 
 	/**
-	 * Make sure to implemente in form onSubmit() something like
+	 * Make sure to implement in form onSubmit() something like
 	 * $(\'input[name="recaptcha_challenge_field"]\').val(Recaptcha.get_challenge());
 	 * $(\'input[name="recaptcha_response_field"]\').val(Recaptcha.get_response());
 	 *
 	 * @param array $desc
-	 * @return unknown
+	 * @return string
 	 */
 	function recaptchaAjax(array $desc) {
 		$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error='.htmlspecialchars($desc['captcha-error']).'"></script>

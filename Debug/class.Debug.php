@@ -75,8 +75,7 @@ class Debug {
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}
-		require_once 'nadlib/Data/class.ArrayPlus.php';
-		if (!array_search('slTable', AP($db)->column('object')->getData())) {
+		if (!array_search('slTable', ArrayPlus::create($db)->column('object')->getData())) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
 				new slTable($db, 'class="nospacing"', array(
 					'file' => 'file',
