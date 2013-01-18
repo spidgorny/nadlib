@@ -249,11 +249,7 @@ class TaylorProfiler {
     *
     */
     function getMicroTime(){
-        //Function split() is deprecated - commented and replaced split() with explode() 2011/07/12 - Soeren Klein
-        //$tmp=split(" ",microtime());
-        $tmp=explode(" ",microtime());
-        $rt=$tmp[0]+$tmp[1];
-        return $rt;
+		return microtime(true);
     }
 
     /**
@@ -298,6 +294,12 @@ class TaylorProfiler {
 			ini_get('memory_limit').'</div>
 		</div>';
 		return $content;
+	}
+
+	static function getMemoryUsage() {
+		$max = intval(ini_get('memory_limit'));
+		$cur = memory_get_usage(true) / 1024 / 1024;
+		return number_format($max/$cur, 3, '.', '');
 	}
 
 }
