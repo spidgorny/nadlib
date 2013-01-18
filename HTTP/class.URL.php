@@ -2,8 +2,16 @@
 
 class URL {
 	public $url;
+
+	/**
+	 * scheme, user, pass, host, port, path, query, fragment
+	 *
+	 * @var array
+	 */
 	public $components = array();
+
 	public $params;
+
 	public $documentRoot = '';
 
 	function __construct($url = NULL, array $params = array()) {
