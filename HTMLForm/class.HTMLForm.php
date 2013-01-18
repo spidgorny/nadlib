@@ -300,6 +300,7 @@ class HTMLForm {
 	 * @param string $name
 	 * @param array $value /string $value - CSV or array
 	 * @param array $desc
+	 * 		'between' - text that separates checkboxes (default ", ")
 	 */
 	function set($name, $value = array(), array $desc) {
 		if ($value) {

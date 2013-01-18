@@ -94,7 +94,7 @@ abstract class Grid extends AppController {
 			? $sortRequest
 			: ($this->user->getPref('Sort.'.$cn) ?: $this->sort);
 
-		$this->pageSize = new PageSize();
+		$this->pageSize = $this->pageSize ?: new PageSize();
 	}
 
 	function render() {

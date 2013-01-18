@@ -1,7 +1,12 @@
 <?php
 
 class PageSize extends AppController {
-	protected $options = array(
+
+	/**
+	 * Public to allow apps to adjust the amount
+	 * @var array
+	 */
+	public $options = array(
 		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
 	);
 	protected $selected;
@@ -28,14 +33,23 @@ class PageSize extends AppController {
 		if ($user) {
 			$user->setPref('pageSize', $this->selected);
 		}
+		$this->options = array_combine($this->options, $this->options);
 	}
 
 	function setURL(URL $url) {
 		$this->url = $url;
 	}
 
+	function update() {
+		$this->selected = $this->get();
+	}
+
 	function get() {
-		return $this->selected;
+		if (in_array($this->selected, $this->options)) {
+			return $this->selected;
+		} else {
+			return self::$default;
+		}
 	}
 
 	function render() {
