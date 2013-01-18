@@ -32,9 +32,18 @@ class Pager {
 
 	public $showPager = true;
 
+	/**
+	 * @var PageSize
+	 */
+	public $pageSize;
+
 	function Pager($itemsPerPage = NULL, $prefix = '') {
-		if ($itemsPerPage) {
+		if ($itemsPerPage instanceof PageSize) {
+			$this->pageSize = $itemsPerPage;
+			$this->setItemsPerPage($this->pageSize->get());
+		} else if ($itemsPerPage) {
 			$this->setItemsPerPage($itemsPerPage);
+			$this->pageSize = new PageSize();
 		}
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
@@ -131,9 +140,8 @@ class Pager {
 	}
 
 	function renderPager() {
-		$ps = new PageSize();
-		$ps->setURL(new URL(NULL, array()));
-		$content = '<div style="float: right;">'.$ps->render().' '.__('per page').'</div>';
+		$this->pageSize->setURL(new URL(NULL, array()));
+		$content = '<div style="float: right;">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
 	}
 
