@@ -166,7 +166,7 @@ class Request {
 		return $subRequest->getAll();
 	}
 
-		/**
+	/**
 	 * Makes sure it's an integer
 	 * @param string $name
 	 * @return int
@@ -464,6 +464,18 @@ class Request {
 
 	function getNameless($index, $alternative = NULL) {
 		$levels = $this->getURLLevels();
+		
+		/* From DCI */
+		$controller = $this->getControllerString();
+		foreach ($levels as $l => $name) {
+			unset($levels[$l]);
+			if ($name == $controller) {
+				break;
+			}
+		}
+		$levels = array_values($levels);	// reindex
+		/* } */
+		
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
