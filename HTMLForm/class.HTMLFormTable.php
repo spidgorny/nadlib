@@ -40,7 +40,8 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * fillValues() is looping over the existing values
 	 * This function is looping over desc
-	 * @param array $form
+	 * @param Request $form
+	 * @return void
 	 */
 	function importValues(Request $form) {
 		//$this->desc = $this->fillValues($this->desc, $form);
@@ -481,6 +482,14 @@ class HTMLFormTable extends HTMLForm {
 			}
 		}
 		return $desc;
+	}
+
+	/**
+	 * Correct function to use outside if the desc is assigned already
+	 * @param array $assoc
+	 */
+	function fillDesc(array $assoc) {
+		$this->desc = $this->fillValues($this->desc, $assoc);
 	}
 
 	static function getQuickForm(array $desc) {

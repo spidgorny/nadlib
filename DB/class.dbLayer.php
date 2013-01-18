@@ -222,13 +222,24 @@ class dbLayer {
 		}
 	}
 
+	/**
+	 * User $this->user->prefs[] instead
+	 *
+	 * @param $code
+	 * @param null $user
+	 * @return mixed
+	 */
 	function getPref($code, $user = null) {
 		if ($user != null) {
 			$a = $this->sqlFindRow("select value from prefs where code = '$code' and reluser = '$user'");
 		} else {
 			$a = $this->sqlFindRow("select value from prefs where code = '$code'");
 		}
-		return $a['value'];
+		$value = $a['value'];
+		/*if ($temp = unserialize($value)) {
+			$value = $temp;
+		}*/
+		return $value;
 	}
 
 	function transaction() {
