@@ -179,8 +179,7 @@ class Collection {
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
 			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars);
-			//debug($s->sortLinkPrefix);
-			$content = $pages . $s->getContent('Collection '.$this->table) . $pages;
+			$content = $pages . $s->getContent(get_class($this)) . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';
 		}

@@ -466,7 +466,8 @@ class Request {
 		$levels = $this->getURLLevels();
 		
 		/* From DCI */
-		$controller = $this->getControllerString();
+		// this spoils ORS menu!
+/*		$controller = $this->getControllerString();
 		foreach ($levels as $l => $name) {
 			unset($levels[$l]);
 			if ($name == $controller) {
