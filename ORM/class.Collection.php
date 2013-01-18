@@ -233,6 +233,10 @@ class Collection {
 		return $content;
 	}
 
+	/**
+	 * Calls __toString on each member
+	 * @return string
+	 */
 	function renderMembers() {
 		$content = '';
 		foreach ($this->members as $obj) {
@@ -242,7 +246,6 @@ class Collection {
 	}
 
 	function translateThes() {
-		// translate thes
 		if (is_array($this->thes)) foreach ($this->thes as &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);
@@ -253,7 +256,9 @@ class Collection {
 	/**
 	 * Will detect double-call and do nothing.
 	 *
-	 * @param unknown_type $class
+	 * @param string $class
+	 * @param bool $byInstance
+	 * @return object[]
 	 */
 	function objectify($class, $byInstance = false) {
 		if (!$this->members) {

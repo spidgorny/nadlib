@@ -42,6 +42,7 @@ class Pager {
 		$this->user = Config::getInstance()->user;
 		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
 			if ($this->request->getMethod() == 'POST') {
+				//Debug::debug_args($pagerData);
 				$pagerData['page']--;
 			}
 			$this->setCurrentPage($pagerData['page']);
@@ -80,7 +81,9 @@ class Pager {
 
 	function saveCurrentPage() {
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
-		$this->user->setPref('Pager.'.$this->prefix, array('page' => $this->currentPage));
+		if ($this->user) {
+			$this->user->setPref('Pager.'.$this->prefix, array('page' => $this->currentPage));
+		}
 	}
 
 	function setItemsPerPage($items) {
@@ -160,8 +163,13 @@ class Pager {
  		}
 		if ($this->showPageJump) {
 			$form = "<li><form action='".$this->url."' method='POST' style='display: inline'>
-				&nbsp;<input name='Pager.'.$this->prefix.'[page]' class='normal' value='".($this->currentPage+1)."' style='width: 2em'>
-				<input type='submit' value='Page' class='submit'>
+				&nbsp;<input
+					name='Pager_{$this->prefix}[page]'
+					type='text'
+					class='normal'
+					value='".($this->currentPage+1)."'
+					style='width: 2em' />
+				<input type='submit' value='Page' class='submit' />
 			</form></li>";
 		}
  		//debug($term);

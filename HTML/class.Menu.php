@@ -7,7 +7,7 @@ class Menu /*extends Controller*/ {
 
 	/**
 	 * Public for access rights
-	 * @var array of Recursive
+	 * @var Recursive[]
 	 */
 	public $items = array(
 		'default' => 'Default Menu Item',

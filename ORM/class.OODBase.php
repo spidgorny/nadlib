@@ -24,6 +24,11 @@ class OODBase {
 	static $instance = array();
 
 	/**
+	 * @var string - saved after insertUpdate
+	 */
+	public $lastQuery;
+
+	/**
 	 * Enter description here...
 	 *
 	 * @param integer/array $id - can be ID in the database or the whole records
@@ -72,6 +77,7 @@ class OODBase {
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
 		$res = $this->db->perform($query);
+		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
 		$this->init($id ? $id : $this->id);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -94,7 +100,11 @@ class OODBase {
 			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
 			//debug($query);
 			$res = $this->db->perform($query);
-			$this->data = array_merge($this->data, $data); // If the input arrays have the same string keys, then the later value for that key will overwrite the previous one.
+			$this->lastQuery = $this->db->lastQuery;	// save before commit
+			// If the input arrays have the same string keys,
+			// then the later value for that key will overwrite the previous one.
+			//$this->data = array_merge($this->data, $data);
+			$this->init($this->id);
 		} else {
 			$this->db->rollback();
 			debug_pre_print_backtrace();
@@ -137,6 +147,14 @@ class OODBase {
 		return $this->id;
 	}
 
+	/**
+	 * Still searches in DB with findInDB, but makes a new object for you
+	 *
+	 * @param array $where
+	 * @param null $static
+	 * @return mixed
+	 * @throws Exception
+	 */
 	static function findInstance(array $where, $static = NULL) {
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -174,7 +192,7 @@ class OODBase {
 	}
 
 	/**
-	 * Depends on $this->id
+	 * Depends on $this->id and $this->data will be saved into DB
 	 * @return resource|unknown
 	 */
 	function insertOrUpdate() {
@@ -189,7 +207,7 @@ class OODBase {
 	}
 
 	/**
-	 * Searched for the record defined in $where and then created or updates.
+	 * Searches for the record defined in $where and then creates or updates.
 	 *
 	 * @param array $fields
 	 * @param array $where
@@ -199,6 +217,7 @@ class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
+		//debug($this->db->lastQuery);
 		if ($this->id) { // found
 			$this->update($fields);
 			$op = 'UPD '.$this->id;
@@ -213,7 +232,13 @@ class OODBase {
 		return $op;
 	}
 
-	function renderAssoc() {
+	/**
+	 * @param array $assoc
+	 * @param bool  $recursive
+	 * @return slTable
+	 */
+	function renderAssoc(array $assoc = NULL, $recursive = false) {
+		$assoc = $assoc ?: $this->data;
 		//debug($this->thes);
 		if ($this->thes) {
 			$assoc = array();
@@ -229,10 +254,11 @@ class OODBase {
 			}
 			$s = new slTable($assoc. '', array(0 => '', '' => array('no_hsc' => true)));
 		} else {
-			$assoc = $this->data;
-			foreach ($assoc as $key => $val) {
+			foreach ($assoc as $key => &$val) {
 				if (!$val) {
 					unset($assoc[$key]);
+				} else if (is_array($val) && $recursive) {
+					$val = OODBase::renderAssoc($val, $recursive);
 				}
 			}
 			$s = slTable::showAssoc($assoc);

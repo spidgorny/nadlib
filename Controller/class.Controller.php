@@ -21,7 +21,7 @@ abstract class Controller {
 	protected $db;
 
 	/**
-	 * Will be taken as a <title> of the HTML tabl
+	 * Will be taken as a <title> of the HTML table
 	 * @var string
 	 */
 	public $title;
@@ -44,6 +44,8 @@ abstract class Controller {
 	public $layout;
 
 	public $linkVars = array();
+
+	public $encloseTag = 'h4';
 
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
@@ -69,7 +71,7 @@ abstract class Controller {
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
 			//echo $url, '<br />';
-			$url->setPath($url->documentRoot.'/'.$prefix);
+			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);
@@ -157,12 +159,19 @@ abstract class Controller {
 		return $this->render().'';
 	}
 
-	static function friendlyURL($string) {
+	/**
+	 * @param string $string		- source page name
+	 * @param bool $preserveSpaces	- leaves spaces
+	 * @return string				- converted to URL friendly name
+	 */
+	static function friendlyURL($string, $preserveSpaces) {
 		$string = preg_replace("`\[.*\]`U","",$string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
 		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
-		$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
+		if (!$preserveSpaces) {
+			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
+		}
 		return strtolower(trim($string, '-'));
 	}
 
@@ -170,7 +179,8 @@ abstract class Controller {
 		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
 	}
 
-	function encloseInAA($content, $caption = '', $h = 'h4') {
+	function encloseInAA($content, $caption = '', $h = NULL) {
+		$h = $h ?: $this->encloseTag;
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}

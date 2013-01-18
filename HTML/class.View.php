@@ -59,12 +59,13 @@ class View {
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
+			$content = '<!-- View template: '.$this->folder.$this->file.' -->'.$content;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;
 	}
 
-	function wikify($text) {
+	function wikify($text, $linkCallback = null) {
 		$inUL = false;
 		$lines2 = array();
 		$lines = trimExplode("\n", $text);
@@ -97,14 +98,18 @@ class View {
 		$text = str_replace("\n\n", "</p>\n<p>", $text);
 		$text = str_replace("<p></p>", "", $text);
 		$text = str_replace("<p></p>", "", $text);
+		if ($linkCallback) {
+			$text = preg_replace_callback('/\[\[(.*?)\]\]/', $linkCallback, $text);
+		}
+		$text = preg_replace('/====(.*?)====/', '<h2>\1</h2>', $text);
 		return $text;
 	}
 
 	/**
-	 * Will load the template file and split it by the dividor.
+	 * Will load the template file and split it by the divisor.
 	 * Use renderPart($i) to render the corresponding part.
 	 *
-	 * @param unknown_type $sep
+	 * @param string $sep
 	 */
 	function splitBy($sep) {
 		$file = 'template/'.$this->file;
@@ -115,8 +120,8 @@ class View {
 	/**
 	 * http://www.php.net/manual/en/function.eval.php#88820
 	 *
-	 * @param unknown_type $i
-	 * @return unknown
+	 * @param int $i
+	 * @return string
 	 */
 	function renderPart($i) {
 		//debug($this->parts[$i]);
@@ -225,7 +230,7 @@ class View {
 
 	function bar($percent) {
 		$percent = round($percent);
-		return '<img src="nadlib/bar.php?rating='.$percent.'" alt="'.$percent.'%" />';
+		return '<img src="nadlib/bar.php?rating='.$percent.'&color=6DC5B4" alt="'.$percent.'%" />';
 	}
 
 }
