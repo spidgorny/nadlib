@@ -76,6 +76,7 @@ class AjaxLogin extends AppController {
 		<h4>
 		<a href="javascript:void(0);" '.($this->openable ? 'onclick="return toggleLogin(this);"' : '').' style="background: none;">Mein Konto</a></h4>';
 		try {
+			debug_pre_print_backtrace();
 			if ($this->user->isAuth()) {
 				$content .= $this->menuAction();
 			} else if ($this->request->getTrim('mode') == 'activate') {

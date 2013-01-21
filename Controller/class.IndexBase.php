@@ -129,8 +129,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
 		if ($e instanceof LoginException) {
-			$lf = new LoginForm();
-			$content .= $lf;
+			// catch this exception in your app Index class, it can't know what to do with all different apps
+			//$lf = new LoginForm();
+			//$content .= $lf;
 		}
 
 		if (!$this->request->isAjax()) {
