@@ -31,7 +31,7 @@ class OODBase {
 	/**
 	 * Enter description here...
 	 *
-	 * @param integer/array $id - can be ID in the database or the whole records
+	 * @param integer|array $id - can be ID in the database or the whole records
 	 * as associative array
 	 */
 	function __construct($id = NULL) {
@@ -203,6 +203,7 @@ class OODBase {
 			$ret = $this->insert($this->data);
 			$action = 'INS';
 		}
+		//debug($action, $this->db->lastQuery); exit();
 		return $action;
 	}
 
