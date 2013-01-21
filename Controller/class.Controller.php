@@ -311,4 +311,15 @@ abstract class Controller {
 		), $text);
 	}
 
+	function getActionButton($name, $action) {
+		$f = new HTMLForm();
+		$f->hidden('c', get_class($this));
+		if ($id = $this->request->getInt('id')) {
+			$f->hidden('id', $id);
+		}
+		$f->hidden('action', $action);
+		$f->submit($name);
+		return $f;
+	}
+
 }
