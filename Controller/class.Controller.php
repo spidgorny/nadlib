@@ -16,7 +16,7 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var MySQL/dbLayer
+	 * @var MySQL|dbLayer
 	 */
 	protected $db;
 

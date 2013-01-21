@@ -5,7 +5,7 @@ class dbLayer {
 	var $CONNECTION = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
-	var $LAST_PERFORM_QUERY;
+	var $LAST_PERFORM_QUERY, $lastQuery;
 	var $QUERIES = array();
 	var $QUERYMAL = array();
 	public $saveQueries = false;
@@ -34,7 +34,7 @@ class dbLayer {
 
 	function perform($query) {
 		$prof = new Profiler();
-		$this->LAST_PERFORM_QUERY = $query;
+		$this->LAST_PERFORM_QUERY = $this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug_pre_print_backtrace();

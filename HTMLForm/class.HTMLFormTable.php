@@ -20,6 +20,8 @@ class HTMLFormTable extends HTMLForm {
 	 */
 	protected $request;
 
+	public $noStarUseBold;
+
 	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
@@ -232,17 +234,26 @@ class HTMLFormTable extends HTMLForm {
 
 				$withBR = ($desc['br'] === NULL && $this->defaultBR) || $desc['br'];
 				if (isset($desc['label'])) {
-					$this->stdout .= '<label for="'.$elementID.'">'.$desc['label'];
+					$label = $desc['label'];
 					if (!$withBR) {
 						if ($desc['label']) {
-							$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $type != 'check'
-							? '<span class="htmlFormTableStar">*</span>'
-							: '');
-							$this->stdout .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
-							$this->stdout .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
+							$label .= ':&nbsp;';
+							if (!$desc['optional'] && $type != 'check') {
+								if ($this->noStarUseBold) {
+									$label = '<b title="Obligatory">'.$label.'</b>';
+								} else {
+									$label .= '<span class="htmlFormTableStar">*</span>';
+								}
+							} else {
+								if ($this->noStarUseBold) {
+									$label = '<span title="Optional">'.$label.'</span>';
+								}
+							}
+							$label .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
+							$label .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
 						}
 					}
-					$this->stdout .= '</label>';
+					$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
 					if ($withBR) {
 						//$this->stdout .= '<br />';	// depends on CSS
 					} else {
