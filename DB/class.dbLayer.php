@@ -162,14 +162,27 @@ class dbLayer {
 		return $b;
 	}
 
-	function getTableDataSql($query, $key = NULL) {
+	/**
+	 * fetchAll() equivalent with $key and $val properties
+	 * @param $query
+	 * @param null $key
+	 * @param null $val
+	 * @return array
+	 */
+	function getTableDataSql($query, $key = NULL, $val = NULL) {
 		$result = $this->perform($query);
 		$return = array();
 		while ($row = pg_fetch_assoc($result)) {
-			if ($key) {
-				$return[$row[$key]] = $row;
+			if ($val) {
+				$value = $row[$val];
 			} else {
-				$return[] = $row;
+				$value = $row;
+			}
+
+			if ($key) {
+				$return[$row[$key]] = $value;
+			} else {
+				$return[] = $value;
 			}
 		}
 		pg_free_result($result);
