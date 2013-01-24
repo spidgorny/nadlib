@@ -144,7 +144,7 @@ class Collection {
 			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		}
 		if ($this->pager) {
-			debug($this->pager->getObjectInfo());
+			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
 			$query .= $this->pager->getSQLLimit();
 		}
