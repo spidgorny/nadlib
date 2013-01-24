@@ -22,7 +22,7 @@ class Debug {
 			} else if ($first['class']) {
 				$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
 			} else {
-				$function = $first['file'].'#'.$first['line'];
+				$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
 			}
 			$props = array(
 				'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,

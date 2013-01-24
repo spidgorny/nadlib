@@ -40,11 +40,12 @@ class Pager {
 	function Pager($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
-			$this->setItemsPerPage($this->pageSize->get());
 		} else if ($itemsPerPage) {
-			$this->setItemsPerPage($itemsPerPage);
-			$this->pageSize = new PageSize();
+			$this->pageSize = new PageSize($itemsPerPage);
+		} else {
+			$this->pageSize = new PageSize($this->itemsPerPage);
 		}
+		$this->setItemsPerPage($this->pageSize->get());
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
