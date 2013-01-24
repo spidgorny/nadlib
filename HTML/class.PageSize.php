@@ -9,14 +9,22 @@ class PageSize extends AppController {
 	public $options = array(
 		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
 	);
-	protected $selected;
+
+	public $selected;
 
 	/**
 	 * @var URL
 	 */
 	protected $url;
+
+	/**
+	 * @var int - default for all instances
+	 */
 	static public $default = 20;
 
+	/**
+	 * @param null $selected - default for this instance
+	 */
 	function __construct($selected = NULL) {
 		parent::__construct();
 		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;

@@ -94,7 +94,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				if (!$this->request->isAjax()) {
 					$v = new View('template.phtml', $this);
 					$v->content = $content;
-					$v->title = $this->controller->title;
+					$v->title = strip_tags($this->controller->title);
 					$v->sidebar = $this->showSidebar();
 					$lf = new LoginForm('inlineForm');
 					$v->loginForm = $lf->dispatchAjax();
