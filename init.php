@@ -196,6 +196,18 @@ function first(array $list) {
 	return current($list);
 }
 
+/**
+ * This is equal to return next(each($list))
+ *
+ * @param array $list
+ * @return mixed
+ */
+function eachv(array &$list) {
+	$current = current($list);
+	next($list);
+	return $current;
+}
+
 function array_combine_stringkey(array $a, array $b) {
 	$ret = array();
 	reset($b);

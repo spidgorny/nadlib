@@ -262,4 +262,8 @@ class Pager {
 		return $this->url.'&pager[page]='.($this->currentPage);
 	}
 
+	function getObjectInfo() {
+		return get_class($this).': "'.$this->itemsPerPage.'" (id:'.$this->id.' #'.spl_object_hash($this).')';
+	}
+
 }
