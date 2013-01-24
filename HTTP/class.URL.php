@@ -117,6 +117,7 @@ class URL {
 	/**
 	 * http://de2.php.net/manual/en/function.parse-url.php#85963
 	 *
+	 * @param null $parsed
 	 * @return string
 	 */
 	function buildURL($parsed = NULL) {
@@ -203,5 +204,10 @@ curl_setopt($process, CURLOPT_POST, 1);
 $return = curl_exec($process);
 curl_close($process);
 return $return; */
+
+	function exists() {
+		$AgetHeaders = @get_headers($this->buildURL());
+		return preg_match("|200|", $AgetHeaders[0]);
+	}
 
 }
