@@ -1,17 +1,36 @@
 <?php
 
 abstract class Grid extends AppController {
+
 	/**
-	 *
 	 * @var Collection
 	 */
 	protected $collection;
 
 	/**
-	 *
 	 * @var Model
 	 */
 	protected $model;
+
+	/**
+	 * @var array
+	 */
+	public $filter = array();
+
+	/**
+	 * @var array
+	 */
+	public $columns;
+
+	/**
+	 * @var array
+	 */
+	public $sort;
+
+	/**
+	 * @var PageSize
+	 */
+	public $pageSize;
 
 	function __construct() {
 		parent::__construct();
@@ -78,12 +97,17 @@ abstract class Grid extends AppController {
 			$this->columns = array_keys($this->collection->thes);
 		}
 
-		$this->filter = $this->request->getArray('filter');
-		$this->filter = $this->filter
-			? $this->filter
-			: $this->user->getPref('Filter.'.$cn);
-		$this->filter = $this->filter ? $this->filter : array();
-		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		/**
+		 * Only get filter if it's not need to be cleared
+		 */
+		if ($this->request->getTrim('action') != 'clearFilter') {
+			$this->filter = $this->request->getArray('filter');
+			$this->filter = $this->filter
+				? $this->filter
+				: $this->user->getPref('Filter.'.$cn);
+			$this->filter = $this->filter ? $this->filter : array();
+			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		}
 		$this->user->setPref('Filter.'.$cn, $this->filter);
 
 		if ($this->request->is_set('slTable')) {
@@ -102,5 +126,17 @@ abstract class Grid extends AppController {
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this), $this->encloseTag);
 		return $content;
 	}
+
+	/**
+	 * This is now handled by the saveFilterColumnsSort()
+	 */
+	/*function clearFilterAction() {
+		if ($this->request->getControllerString() == get_class($this)) {
+			$this->filter = array();
+			$cn = get_class($this->collection);
+			$this->user->setPref('Filter.'.$cn, $this->filter);
+			Index::getInstance()->message('Filter cleared');
+		}
+	}*/
 
 }
