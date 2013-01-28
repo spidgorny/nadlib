@@ -1,25 +1,6 @@
 <?php
 
 abstract class FullGrid extends Grid {
-	/**
-	 * @var array
-	 */
-	public $filter = array();
-
-	/**
-	 * @var array
-	 */
-	public $columns;
-
-	/**
-	 * @var array
-	 */
-	public $sort;
-
-	/**
-	 * @var PageSize
-	 */
-	public $pageSize;
 
 	/**
 	 * @param string $collection

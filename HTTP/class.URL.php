@@ -54,6 +54,11 @@ class URL {
 		return $this->params[$param];
 	}
 
+	/**
+	 * Replaces parameters completely (with empty array?)
+	 * @param array $params
+	 * @return $this
+	 */
 	function setParams(array $params = array()) {
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();

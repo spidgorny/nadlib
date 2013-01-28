@@ -311,6 +311,11 @@ abstract class Controller {
 		), $text);
 	}
 
+	/**
+	 * @param $name string|htmlString - if object then will be used as is
+	 * @param $action
+	 * @return HTMLForm
+	 */
 	function getActionButton($name, $action) {
 		$f = new HTMLForm();
 		$f->hidden('c', get_class($this));
@@ -318,7 +323,11 @@ abstract class Controller {
 			$f->hidden('id', $id);
 		}
 		$f->hidden('action', $action);
-		$f->submit($name);
+		if ($name instanceof htmlString) {
+			$f->button($name, 'type="submit" class="likeText"');
+		} else {
+			$f->submit($name);
+		}
 		return $f;
 	}
 
