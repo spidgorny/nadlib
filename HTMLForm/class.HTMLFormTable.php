@@ -539,6 +539,7 @@ class HTMLFormTable extends HTMLForm {
 		}
 		if (isset($desc['null'])) {
 			$options = array(NULL => "---") + $options;
+			//Debug::debug_args($options, $desc['options']);
 		}
 		return $options;
 	}

@@ -11,6 +11,18 @@ class IndexBE extends IndexBase {
 		$this->addCSS('css/main.css');
 		$this->addJQuery();
 		$this->addJs('js/vendor/bootstrap.min.js');
+		$this->user = new BEUser();
+		Config::getInstance()->user = $this->user;	// for consistency
+	}
+
+	function renderController() {
+		$c = get_class($this->controller);
+		if ($c::$public || $this->user->can('Login')) {
+			$content = parent::renderController();
+		} else {
+			throw new LoginException('Login first');
+		}
+		return $content;
 	}
 
 	function showSidebar() {
@@ -22,6 +34,7 @@ class IndexBE extends IndexBase {
 			'ConfigView' => 'config.yaml',
 			'Localize' => 'Localize',
 			'PHPInfo' => 'phpinfo()',
+			'Documentation' => 'Documentation',
 		);
 
 		$c = Spyc::YAMLLoad('../../class/config.yaml');

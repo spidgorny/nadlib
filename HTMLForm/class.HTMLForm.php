@@ -141,20 +141,45 @@ class HTMLForm {
 		$this->enctype = "multipart/form-data";
 	}
 
+	/**
+	 * @param $name
+	 * @param $aOptions
+	 * @param $default
+	 * @param bool $autoSubmit
+	 * @param string $more
+	 * @param bool $multiple
+	 * @param array $desc
+	 * @see renderSelectionOptions
+	 */
 	function selection($name, $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
 		$this->stdout .= "<select ".$this->getName($name, $multiple ? '[]' : '');
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
-		$this->renderSelectionOptions($aOptions, $default);
+		$this->renderSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
 	}
 
-	function renderSelectionOptions(array $aOptions, $default) {
-		foreach ($aOptions as $value => $option) {
+	/**
+	 * @param array $aOptions
+	 * @param $default
+	 * @param array $desc
+	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
+	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 */
+	function renderSelectionOptions(array $aOptions, $default, array $desc) {
+		//Debug::debug_args($aOptions);
+		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
+				if (sizeof($aOptions) == -3) {
+					Debug::debug_args(array(
+						'default' => $default,
+						'value' => $value,
+						'selected' => $selected,
+					));
+				}
 			} else {
 				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
 					$selected = true;
@@ -166,7 +191,7 @@ class HTMLForm {
 				$this->stdout .= $option;
 			} else if ($option instanceof Recursive) {
 				$this->stdout .= '<optgroup label="'.$option.'">';
-				$this->renderSelectionOptions($option->getChildren(), $default);
+				$this->renderSelectionOptions($option->getChildren(), $default, $desc);
 				$this->stdout .= '</optgroup>';
 			} else {
 				$this->stdout .= "<option value=\"$value\"";
@@ -273,7 +298,7 @@ class HTMLForm {
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
 	 * @param string $name
-	 * @param array $value - CSV or array
+	 * @param array/string $value - CSV or array
 	 * @param array $desc
 	 */
 	function set($name, $value = array(), array $desc) {
