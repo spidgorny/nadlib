@@ -108,6 +108,7 @@ class ConfigBase {
 	 * TODO: enable FirePHP
 	 * @param $class
 	 * @param $message
+	 * @throws Exception
 	 */
 	function log($class, $message) {
 		if (DEVELOPMENT) {

@@ -46,7 +46,7 @@ class PageSize extends AppController {
 		$this->url->setParam('pageSize', '');	// will end with pageSize=
 		$content = '<select
 			onchange="location = \''.$this->url.'\'+this.options[this.selectedIndex].value;"
-			class="input-mini">'.$content.'</select>';
+			class="input-small">'.$content.'</select>';
 		return $content;
 	}
 
