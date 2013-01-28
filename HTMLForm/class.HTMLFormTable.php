@@ -22,6 +22,11 @@ class HTMLFormTable extends HTMLForm {
 
 	public $noStarUseBold;
 
+	/**
+	 * @var HTMLFormValidate
+	 */
+	public $validator;
+
 	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
@@ -558,6 +563,11 @@ class HTMLFormTable extends HTMLForm {
 			//Debug::debug_args($options, $desc['options']);
 		}
 		return $options;
+	}
+
+	function validate() {
+		$this->validator = new HTMLFormValidate($this->desc);
+		return $this->validator->validate();
 	}
 
 }
