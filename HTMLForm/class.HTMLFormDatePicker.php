@@ -7,8 +7,8 @@ class HTMLFormDatePicker extends HTMLFormType {
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $name
-	 * @param array $value				- array of minutes
+	 * @internal param string $name
+	 * @internal param array $value - array of minutes
 	 */
 	function __construct() {
 		Index::getInstance()->addJQueryUI();
@@ -16,11 +16,14 @@ class HTMLFormDatePicker extends HTMLFormType {
 
 	function render() {
 		Index::getInstance()->addJS('nadlib/js/HTMLFormDatePicker.js');
-		$val = strtotime($this->value);
-		$val = date($this->format, $val);
-		$content = $this->form->input($this->field, $val, 'class="datepicker"
+		if ($this->value) {
+			$val = strtotime($this->value);
+			$val = date($this->format, $val);
+		} else {
+			$val = '';
+		}
+		$this->form->input($this->field, $val, 'class="datepicker"
 			format="'.$this->jsFormat.'"');
-		return $content;
 	}
 
 }

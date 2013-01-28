@@ -24,7 +24,7 @@ class IndexBE extends IndexBase {
 			'PHPInfo' => 'phpinfo()',
 		);
 
-		$c = Spyc::YAMLLoad('class/config.yaml');
+		$c = Spyc::YAMLLoad('../../class/config.yaml');
 		//debug($c['BEmenu']);
 		if ($c['BEmenu']) {
 			foreach($c['BEmenu'] as $key => $sub) {

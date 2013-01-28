@@ -9,7 +9,7 @@ class Localize extends AppControllerBE {
 	/**
 	 * @var LocalLang
 	 */
-	protected $to;
+	protected $de, $ru;
 
 	public $title = 'Localize';
 
@@ -19,8 +19,10 @@ class Localize extends AppControllerBE {
 		parent::__construct();
 		$this->from = new LocalLangDB('en');
 		$this->from->indicateUntranslated = false;
-		$this->to = new LocalLangDB('de');
-		$this->to->indicateUntranslated = false;
+		$this->de = new LocalLangDB('de');
+		$this->de->indicateUntranslated = false;
+		$this->ru = new LocalLangDB('ru');
+		$this->ru->indicateUntranslated = false;
 		$this->url = new URL('?c=Localize');
 	}
 
@@ -34,7 +36,16 @@ class Localize extends AppControllerBE {
 				'c' => 'ImportMissing',
 			)).'</div>';*/
 
-			$keys = array_keys($this->from->getMessages());
+			$all = $this->from->getMessages();
+			if (($search = strtolower($this->request->getTrim('search')))) {
+				foreach ($all as $key => $trans) {
+					if (strpos(strtolower($trans), $search) === FALSE &&
+						strpos(strtolower($key)  , $search) === FALSE) {
+						unset($all[$key]);
+					}
+				}
+			}
+			$keys = array_keys($all);
 
 			$pager = new Pager();
 			$pager->setNumberOfRecords(sizeof($keys));
@@ -43,23 +54,28 @@ class Localize extends AppControllerBE {
 
 			$table = array();
 			foreach ($keys as $key) {
-				$trans = $this->to->M($key);
-				$id = $this->to->id($key);
 				$table[$key] = array(
 					'key' => $key,
-					'from' => $this->from->M($key),
-					'to' => new HTMLTag('td', array(
-						//'rel' => $id,
-						'id' => $id ? $id : $key,
+					'from' => new HTMLTag('td', array(
+						'id' => $this->from->id($key),
+						'lang' => $this->from->lang,
 						'class' => 'inlineEdit',
-					), $trans),
+					), $this->from->M($key)),
 				);
+				foreach (array('de', 'ru') as $lang) {
+					$table[$key][$lang] = new HTMLTag('td', array(
+						'id' => $this->$lang->id($key) ?: json_encode(array($this->$lang->lang, $key)),
+						'lang' => $this->$lang->lang,
+						'class' => 'inlineEdit',
+					), $this->$lang->M($key));
+				}
 			}
 
 			$s = new slTable($table, 'id="localize" width="100%"', array(
 				'key' => 'Key',
 				'from' => $this->from->lang,
-				'to' => array('name' => $this->to->lang, 'ano_hsc' => true),
+				'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
+				'ru' => array('name' => $this->ru->lang, 'ano_hsc' => true),
 			));
 
 			$content .= $s;
@@ -84,10 +100,10 @@ class Localize extends AppControllerBE {
 			$this->db->runUpdateQuery($this->table, array('text' => $save), array('id' => $rel));
 		} else {
 			//$code = $this->request->getTrim('code');
-			$code = $rel;
+			list($lang, $code) = json_decode($rel, 1);
 			$res = $this->db->runSelectQuery($this->table, array(
 				'code' => $code,
-				'lang' => $this->to->lang,
+				'lang' => $lang,
 			));
 			$row = $this->db->fetchAssoc($res);
 			if (($rel = $row['id'])) {
@@ -95,13 +111,22 @@ class Localize extends AppControllerBE {
 			} else {
 				$this->db->runInsertQuery($this->table, array(
 					'code' => $code,
-					'lang' => $this->to->lang,
+					'lang' => $lang,
 					'text' => $save,
 				));
 			}
 		}
 		//echo $this->db->lastQuery;
 		echo htmlspecialchars($save);
+	}
+
+	function sidebar() {
+		$f = new HTMLForm();
+		$f->method('GET');
+		$f->hidden('c', get_class($this));
+		$f->input('search', $this->request->getTrim('search'), 'class="span2"');
+		$f->submit('Search');
+		return $f;
 	}
 
 }
