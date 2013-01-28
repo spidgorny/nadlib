@@ -193,7 +193,7 @@ class OODBase {
 
 	/**
 	 * Depends on $this->id and $this->data will be saved into DB
-	 * @return resource|unknown
+	 * @return string
 	 */
 	function insertOrUpdate() {
 		if ($this->id) {

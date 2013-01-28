@@ -80,9 +80,9 @@ class HTMLForm {
 		return $a;
 	}
 
-	function input($name, $value = "", $more = '') {
+	function input($name, $value = "", $more = '', $type = 'text') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=\"text\" ".$this->getName($name). " $more value=\"$value\"/>\n";
+		$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
 	}
 
 	function label($for, $text) {
@@ -92,10 +92,10 @@ class HTMLForm {
 	/**
 	 *
 	 * Table row with $text and input
-	 * @param unknown_type $text
-	 * @param unknown_type $name
-	 * @param unknown_type $value
-	 * @param unknown_type $more
+	 * @param string $text
+	 * @param string $name
+	 * @param string $value
+	 * @param string $more
 	 */
 	function tinput($text, $name, $value = "", $more = '') {
 		$this->text('<tr><td>'.$text.'</td><td>');
@@ -272,9 +272,9 @@ class HTMLForm {
 	/**
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
-	 * @param unknown_type $name
-	 * @param array/string $value - CSV or array
-	 * @param unknown_type $desc
+	 * @param string $name
+	 * @param array $value - CSV or array
+	 * @param array $desc
 	 */
 	function set($name, $value = array(), array $desc) {
 		if ($value) {
@@ -302,15 +302,16 @@ class HTMLForm {
 	/**
 	 * A set of radio.
 	 *
-	 * @param unknown_type $name
-	 * @param unknown_type $value
-	 * @param unknown_type $desc
+	 * @param string $name
+	 * @param int $value
+	 * @param array $desc
 	 */
 	function radioset($name, $value, array $desc) {
+		$between = $desc['between'] ? $desc['between'] : '<br />';
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
 			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
-			$this->text('<br />');
+			$this->text($between);
 		}
 	}
 
@@ -388,12 +389,12 @@ class HTMLForm {
 	}
 
 	/**
-	 * Make sure to implemente in form onSubmit() something like
+	 * Make sure to implement in form onSubmit() something like
 	 * $(\'input[name="recaptcha_challenge_field"]\').val(Recaptcha.get_challenge());
 	 * $(\'input[name="recaptcha_response_field"]\').val(Recaptcha.get_response());
 	 *
 	 * @param array $desc
-	 * @return unknown
+	 * @return string
 	 */
 	function recaptchaAjax(array $desc) {
 		$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error='.htmlspecialchars($desc['captcha-error']).'"></script>

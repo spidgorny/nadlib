@@ -181,16 +181,20 @@ class HTMLFormTable extends HTMLForm {
 				case '/fieldset':
 					$this->stdout .= '</fieldset>';
 				break;
+				case 'email':
+					$type = 'email';
+				//break;	// intentional
 				case "input":
 				default:
+					$type = isset($type) ? $type : 'text';
 					//$this->text(htmlspecialchars($desc['more']));
 					$this->input($fieldName, $fieldValue,
 						($desc['more'] ? $desc['more'] : '') .
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						($desc['readonly'] ? ' readonly="readonly"' : ''),
-						$desc['class']
+						($desc['readonly'] ? ' readonly="readonly"' : '').
+						$desc['class'], $type
 					);
 				break;
 			}

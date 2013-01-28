@@ -109,4 +109,14 @@ class HTMLFormValidate {
 		return preg_match("/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i", $email);
 	}
 
+	function getErrorList() {
+		$list = array();
+		foreach ($this->desc as $key => $desc) {
+			if ($desc['error']) {
+				$list[$key] = $desc['error'];
+			}
+		}
+		return $list;
+	}
+
 }
