@@ -54,9 +54,13 @@ class HTMLFormValidate {
 		} elseif ($field == 'password' && strlen($value) < 6) {
 			$d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety.';
 		} elseif ($d['min'] && $value < $d['min']) {
-			$d['error'] = 'Minimum: '.$d['min'];
+			$d['error'] = 'Value too small. Minimum: '.$d['min'];
 		} elseif ($d['max'] && $value > $d['max']) {
 			$d['error'] = 'Value too large. Maximum: '.$d['max'];
+		} elseif ($d['minlen'] && strlen($value) < $d['minlen']) {
+			$d['error'] = 'Value too short. Minimum: '.$d['minlen'].'. Actual: '.strlen($value);
+		} elseif ($d['maxlen'] && strlen($value) > $d['maxlen']) {
+			$d['error'] = 'Value too long. Maximum: '.$d['maxlen'].'. Actual: '.strlen($value);
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
 			//debug($_REQUEST);
 			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
