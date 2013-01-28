@@ -170,7 +170,11 @@ class dbLayer {
 	 * @return array
 	 */
 	function getTableDataSql($query, $key = NULL, $val = NULL) {
-		$result = $this->perform($query);
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
 		$return = array();
 		while ($row = pg_fetch_assoc($result)) {
 			if ($val) {

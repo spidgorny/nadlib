@@ -50,6 +50,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = Request::getInstance();
+		session_start();
+		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -101,6 +103,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 					$content = $v->render();	// not concatenate but replace
 				} else {
 					$content .= $this->content;
+					$this->content = '';		// clear for the next output. May affect saveMessages()
 				}
 			} catch (Exception $e) {
 				$content = $this->renderException($e);
@@ -164,6 +167,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function message($text) {
 		$this->content .= '<div class="message">'.$text.'</div>';
+	}
+
+	function error($text) {
+		$this->content .= '<div class="ui-state-error alert alert-error padding">'.$text.'</div>';
+	}
+
+	function saveMessages() {
+		$_SESSION[__CLASS__]['messages'] = $this->content;
+	}
+
+	function restoreMessages() {
+		$this->content .= $_SESSION[__CLASS__]['messages'];
+		$_SESSION[__CLASS__]['messages'] = '';
 	}
 
 	function addJQuery() {
