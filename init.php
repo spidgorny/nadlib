@@ -102,11 +102,18 @@ function getDebug() {
 /**
  * Whether string starts with some chars
  * @param $haystack
- * @param $needle
+ * @param string|string[] $needle
  * @return bool
  */
 function startsWith($haystack, $needle) {
-	return strpos($haystack, $needle) === 0;
+	if (!is_array($needle)) {
+		$needle = array($needle);
+	}
+	foreach ($needle as $need) {
+		if (strpos($haystack, $need) === 0) {
+			return true;
+		}
+	}
 }
 
 /**

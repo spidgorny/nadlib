@@ -17,6 +17,7 @@ class Collection {
 	protected $parentField = 'pid';
 
 	/**
+	 * Retrieved rows from DB
 	 * @var ArrayPlus/array
 	 */
 	var $data = array();
@@ -56,6 +57,11 @@ class Collection {
 	 * @var string
 	 */
 	public $query;
+
+	/**
+	 * @var integer Total amount of data retrieved (not limited by Pager)
+	 */
+	public $count = 0;
 
 	/**
 	 * Should it be here? Belongs to the controller?
@@ -123,6 +129,11 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		$this->query = $this->getQuery($this->where);
 		$res = $this->db->perform($this->query);
+		if ($this->pager) {
+			$this->count = $this->pager->numberOfRecords;
+		} else {
+			$this->count = $this->db->numRows($res);
+		}
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
 		$this->preprocessData();
