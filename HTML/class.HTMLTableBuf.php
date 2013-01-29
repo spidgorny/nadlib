@@ -45,6 +45,11 @@ class HTMLTableBuf {
 		$this->tde();
 	}
 
+	/**
+	 * @param array $aCaption	- array of names
+	 * @param array $thmore		- more on each column TH
+	 * @param string $trmore	- more on the whole row
+	 */
 	function thes(array $aCaption, $thmore = array(), $trmore = '') {
 		$this->stdout .= '<thead>';
 		$this->tr($trmore);

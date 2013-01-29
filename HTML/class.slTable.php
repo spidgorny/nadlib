@@ -208,6 +208,9 @@ class slTable {
 			if (is_array($thv)) {
 				$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
 				$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
+				if ($thv['align']) {
+					$thmore[$thk] .= ' align="'.$thv['align'].'"';
+				}
 			} else {
 				$thvName = $thv;
 			}

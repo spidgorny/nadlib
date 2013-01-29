@@ -80,9 +80,9 @@ class HTMLForm {
 		return $a;
 	}
 
-	function input($name, $value = "", $more = '') {
+	function input($name, $value = "", $more = '', $type = 'text') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=\"text\" ".$this->getName($name). " $more value=\"$value\"/>\n";
+		$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
 	}
 
 	function label($for, $text) {
@@ -298,7 +298,7 @@ class HTMLForm {
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
 	 * @param string $name
-	 * @param array $value /string $value - CSV or array
+	 * @param array/string $value - CSV or array
 	 * @param array $desc
 	 * 		'between' - text that separates checkboxes (default ", ")
 	 */
@@ -328,15 +328,16 @@ class HTMLForm {
 	/**
 	 * A set of radio.
 	 *
-	 * @param unknown_type $name
-	 * @param unknown_type $value
-	 * @param unknown_type $desc
+	 * @param string $name
+	 * @param int $value
+	 * @param array $desc
 	 */
 	function radioset($name, $value, array $desc) {
+		$between = $desc['between'] ? $desc['between'] : '<br />';
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
 			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
-			$this->text('<br />');
+			$this->text($between);
 		}
 	}
 
