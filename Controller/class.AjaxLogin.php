@@ -12,12 +12,22 @@ class AjaxLogin extends AppController {
 
 	public $withRegister = true;
 
-	protected $message = ''; // Activation message saved to be shown on the center div
+	/**
+	 * Activation message saved to be shown on the center div
+	 * @var string
+	 */
+	protected $message = '';
+
+	/**
+	 * @var bool - true to be able to login when you're not yet logged-in
+	 */
+	public static $public = true;
 
 	function __construct($mode = NULL) {
 		parent::__construct();
 		Config::getInstance()->mergeConfig($this);
-		$mode = $mode ?: $this->request->getTrim('mode');
+		$this->layout = new Wrap('<div class="span10">', '</div>');
+		$mode = $mode ?: $this->request->getTrim('mode');	// dont't reverse this line as it will call mode=login twice
 		if ($mode) {
 			$this->mode = $mode;
 			//debug($this->mode);
@@ -43,17 +53,7 @@ class AjaxLogin extends AppController {
 	function dispatchAjax() {
 		$content = '';
 		if ($this->mode) {
-			$allowed = array('login', 'forgotPassword', 'saveRegister', 'activate', 'inlineForm');
-			if (in_array($this->mode, $allowed) || $this->user->isAuth()) {
-				try {
-					$cb = $this->mode.'Action';
-					$content = $this->$cb();
-				} catch (Exception $e) {
-					echo '<div class="error">'.__($e->getMessage()).'</div>';
-				}
-			} else { // prevent profile editing for not logged in
-				$content .= '<div class="error">'.__('Not logged in.').'</div>';
-			}
+			$content .= $this->performAction();
 /*			if ($this->mode != 'activate') { // activate is NOT to be processed with AJAX
 				header('Content-type: text/html; charset=ISO-8859-1');
 				echo $content;
@@ -69,6 +69,22 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
+	function performAction() {
+		$content = '';
+		$allowed = array('login', 'forgotPassword', 'saveRegister', 'activate', 'inlineForm', 'logout');
+		if (in_array($this->mode, $allowed) || $this->user->isAuth()) {
+			try {
+				$cb = $this->mode.'Action';
+				$content .= $this->$cb();
+			} catch (Exception $e) {
+				$content .= '<div class="error">'.__($e->getMessage()).'</div>';
+			}
+		} else { // prevent profile editing for not logged in
+			$content .= '<div class="error">'.__('Not logged in.').'</div>';
+		}
+		return $content;
+	}
+
 	function render() {
 		$content = '';
 		$this->getScript();
@@ -76,9 +92,13 @@ class AjaxLogin extends AppController {
 		<h4>
 		<a href="javascript:void(0);" '.($this->openable ? 'onclick="return toggleLogin(this);"' : '').' style="background: none;">Mein Konto</a></h4>';
 		try {
-			if ($this->user->isAuth()) {
+			//debug_pre_print_backtrace();
+			$contentPlus = $this->performAction();
+			if ($contentPlus) {
+				$content .= $contentPlus;
+			} else if ($this->user->isAuth()) {
 				$content .= $this->menuAction();
-			} else if ($this->request->getTrim('mode') == 'activate') {
+			} else if ($this->mode == 'activate') {
 				$content .= $this->activateActionReal();
 			} else {
 				$content .= $this->formAction();
@@ -87,6 +107,9 @@ class AjaxLogin extends AppController {
 			$content = '<div id="AjaxLogin" '.($this->openable ? 'rel="toggle"' : '').'>'.$content.'</div>';
 		} catch (Exception $e) {
 			$content = '<div class="error">'.__($e->getMessage()).'</div>';
+			if (DEVELOPMENT) {
+				$content .= $e->getTraceAsString();
+			}
 		}
 		return $content;
 	}
@@ -124,12 +147,24 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
+	/**
+	 * It's called "mode" for historical reasons, but it's good so that it's not overlapping with the possible "action"
+	 * @return string
+	 */
 	function inlineFormAction() {
-		$content = '<form class="navbar-form pull-right" method="POST">
-                    <input class="span2" type="text" name="login" placeholder="Email">
-                    <input class="span2" type="password" name="password" placeholder="Password">
-                    <button type="submit" class="btn">Sign in</button>
-                </form>';
+		if ($this->user->isAuth()) {
+			$content = '<form class="navbar-form pull-right" method="POST">
+				<a href="?c=LoginForm&mode=logout" class="ajax btn">'.__('Logout').'</a>
+			</form>';
+		} else {
+			$content = '<form class="navbar-form pull-right" method="POST">
+				<input type="hidden" name="c" value="'.get_class($this).'" />
+				<input type="hidden" name="mode" value="login" />
+				<input class="span2" type="text" name="username" placeholder="Email">
+				<input class="span2" type="password" name="password" placeholder="Password">
+				<button type="submit" class="btn">Sign in</button>
+			</form>';
+		}
 		return $content;
 	}
 
@@ -141,6 +176,10 @@ class AjaxLogin extends AppController {
 		return $desc;
 	}
 
+	/**
+	 * Taken as a default from wagner-verlag login. Should most likely be overwritten in a subclass.
+	 * @return string
+	 */
 	function loginAction() {
 		$content = '';
 		$username = $this->request->getTrim('username');
@@ -288,7 +327,7 @@ class AjaxLogin extends AppController {
 	function logoutAction() {
 		$this->user->logout();
 		$content = '<div class="message">'.__('You are logged out.').'</div>';
-		$content .= '<script> document.location.reload(true); </script>';
+		//$content .= '<script> document.location.reload(true); </script>';
 		$content .= $this->formAction();
 		$content .= $this->registerAction();
 		return $content;

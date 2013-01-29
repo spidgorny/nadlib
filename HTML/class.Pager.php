@@ -32,10 +32,20 @@ class Pager {
 
 	public $showPager = true;
 
+	/**
+	 * @var PageSize
+	 */
+	public $pageSize;
+
 	function Pager($itemsPerPage = NULL, $prefix = '') {
-		if ($itemsPerPage) {
-			$this->setItemsPerPage($itemsPerPage);
+		if ($itemsPerPage instanceof PageSize) {
+			$this->pageSize = $itemsPerPage;
+		} else if ($itemsPerPage) {
+			$this->pageSize = new PageSize($itemsPerPage);
+		} else {
+			$this->pageSize = new PageSize($this->itemsPerPage);
 		}
+		$this->setItemsPerPage($this->pageSize->get());
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
@@ -131,9 +141,8 @@ class Pager {
 	}
 
 	function renderPager() {
-		$ps = new PageSize();
-		$ps->setURL(new URL(NULL, array()));
-		$content = '<div style="float: right;">'.$ps->render().' '.__('per page').'</div>';
+		$this->pageSize->setURL(new URL(NULL, array()));
+		$content = '<div style="float: right;">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
 	}
 
@@ -252,6 +261,10 @@ class Pager {
 
 	function getURL() {
 		return $this->url.'&pager[page]='.($this->currentPage);
+	}
+
+	function getObjectInfo() {
+		return get_class($this).': "'.$this->itemsPerPage.'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}
 
 }

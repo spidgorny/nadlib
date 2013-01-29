@@ -5,7 +5,7 @@ class dbLayer {
 	var $CONNECTION = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
-	var $LAST_PERFORM_QUERY;
+	var $LAST_PERFORM_QUERY, $lastQuery;
 	var $QUERIES = array();
 	var $QUERYMAL = array();
 	public $saveQueries = false;
@@ -34,7 +34,7 @@ class dbLayer {
 
 	function perform($query) {
 		$prof = new Profiler();
-		$this->LAST_PERFORM_QUERY = $query;
+		$this->LAST_PERFORM_QUERY = $this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug_pre_print_backtrace();
@@ -162,14 +162,31 @@ class dbLayer {
 		return $b;
 	}
 
-	function getTableDataSql($query, $key = NULL) {
-		$result = $this->perform($query);
+	/**
+	 * fetchAll() equivalent with $key and $val properties
+	 * @param $query
+	 * @param null $key
+	 * @param null $val
+	 * @return array
+	 */
+	function getTableDataSql($query, $key = NULL, $val = NULL) {
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
 		$return = array();
 		while ($row = pg_fetch_assoc($result)) {
-			if ($key) {
-				$return[$row[$key]] = $row;
+			if ($val) {
+				$value = $row[$val];
 			} else {
-				$return[] = $row;
+				$value = $row;
+			}
+
+			if ($key) {
+				$return[$row[$key]] = $value;
+			} else {
+				$return[] = $value;
 			}
 		}
 		pg_free_result($result);
@@ -214,13 +231,24 @@ class dbLayer {
 		}
 	}
 
+	/**
+	 * User $this->user->prefs[] instead
+	 *
+	 * @param $code
+	 * @param null $user
+	 * @return mixed
+	 */
 	function getPref($code, $user = null) {
 		if ($user != null) {
 			$a = $this->sqlFindRow("select value from prefs where code = '$code' and reluser = '$user'");
 		} else {
 			$a = $this->sqlFindRow("select value from prefs where code = '$code'");
 		}
-		return $a['value'];
+		$value = $a['value'];
+		/*if ($temp = unserialize($value)) {
+			$value = $temp;
+		}*/
+		return $value;
 	}
 
 	function transaction() {

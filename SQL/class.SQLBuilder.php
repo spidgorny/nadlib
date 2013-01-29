@@ -354,7 +354,11 @@ class SQLBuilder {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
 				} else if (is_array($val) && $where[$key.'.']['makeOR']) {
 					foreach ($val as &$row) {
-						$row = $key . " = '" . $row . "'";
+						if (is_null($row)) {
+							$row = $key .' IS NULL';
+						} else {
+							$row = $key . " = '" . $row . "'";
+						}
 					}
 					$or = new SQLOr($val);
 					$or->injectQB($this);

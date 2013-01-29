@@ -17,8 +17,15 @@ class Debug {
 
 			reset($db);
 			$first = current($db);
+			if ($first['object']) {
+				$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
+			} else if ($first['class']) {
+				$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
+			} else {
+				$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
+			}
 			$props = array(
-				'<span style="display: inline-block; width: 5em;">Function:</span> '.$first['file'].'#'.$first['line'],
+				'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
 				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
 					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
 			);
@@ -64,7 +71,7 @@ class Debug {
 
 	function getTraceTable(array $db) {
 		foreach ($db as &$row) {
-			$row['file'] = basename($row['file']);
+			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}

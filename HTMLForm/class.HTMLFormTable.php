@@ -20,6 +20,13 @@ class HTMLFormTable extends HTMLForm {
 	 */
 	protected $request;
 
+	public $noStarUseBold;
+
+	/**
+	 * @var HTMLFormValidate
+	 */
+	public $validator;
+
 	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
@@ -40,7 +47,8 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * fillValues() is looping over the existing values
 	 * This function is looping over desc
-	 * @param array $form
+	 * @param Request $form - Request instead of an array because of the trim() function only?
+	 * @return void
 	 */
 	function importValues(Request $form) {
 		//$this->desc = $this->fillValues($this->desc, $form);
@@ -235,17 +243,26 @@ class HTMLFormTable extends HTMLForm {
 
 				$withBR = ($desc['br'] === NULL && $this->defaultBR) || $desc['br'];
 				if (isset($desc['label'])) {
-					$this->stdout .= '<label for="'.$elementID.'">'.$desc['label'];
+					$label = $desc['label'];
 					if (!$withBR) {
 						if ($desc['label']) {
-							$this->stdout .= ':&nbsp;'.(!$desc['optional'] && $type != 'check'
-							? '<span class="htmlFormTableStar">*</span>'
-							: '');
-							$this->stdout .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
-							$this->stdout .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
+							$label .= ':&nbsp;';
+							if (!$desc['optional'] && $type != 'check') {
+								if ($this->noStarUseBold) {
+									$label = '<b title="Obligatory">'.$label.'</b>';
+								} else {
+									$label .= '<span class="htmlFormTableStar">*</span>';
+								}
+							} else {
+								if ($this->noStarUseBold) {
+									$label = '<span title="Optional">'.$label.'</span>';
+								}
+							}
+							$label .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
+							$label .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
 						}
 					}
-					$this->stdout .= '</label>';
+					$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
 					if ($withBR) {
 						//$this->stdout .= '<br />';	// depends on CSS
 					} else {
@@ -487,6 +504,14 @@ class HTMLFormTable extends HTMLForm {
 		return $desc;
 	}
 
+	/**
+	 * Correct function to use outside if the desc is assigned already
+	 * @param array $assoc
+	 */
+	function fillDesc(array $assoc) {
+		$this->desc = $this->fillValues($this->desc, $assoc);
+	}
+
 	static function getQuickForm(array $desc) {
 		$f = new self();
 		$f->showForm($desc);
@@ -542,6 +567,11 @@ class HTMLFormTable extends HTMLForm {
 			//Debug::debug_args($options, $desc['options']);
 		}
 		return $options;
+	}
+
+	function validate() {
+		$this->validator = new HTMLFormValidate($this->desc);
+		return $this->validator->validate();
 	}
 
 }

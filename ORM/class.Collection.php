@@ -30,10 +30,10 @@ class Collection {
 
 	/**
 	 * Initialize in postInit() to run paged SQL
-	 *
+	 * initialize if necessary with = new Pager(); in postInit()
 	 * @var Pager
 	 */
-	public $pager; // initialize if necessary with = new Pager(); in postInit()
+	public $pager;
 
 	/**
 	 * @var PageSize
@@ -155,6 +155,7 @@ class Collection {
 			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		}
 		if ($this->pager) {
+			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
 			$query .= $this->pager->getSQLLimit();
 		}
@@ -190,8 +191,7 @@ class Collection {
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
 			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars);
-			//debug($s->sortLinkPrefix);
-			$content = $pages . $s->getContent('Collection '.$this->table) . $pages;
+			$content = $pages . $s->getContent(get_class($this)) . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
@@ -464,7 +464,7 @@ class Collection {
 
 	function getObjectInfo() {
 		$list = array();
-		foreach ($this->members as $obj) {
+		foreach ($this->members as $obj) {	/** @var $obj OODBase */
 			$list[] = $obj->getObjectInfo();
 		}
 		return $list;

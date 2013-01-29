@@ -64,6 +64,8 @@ class Request {
 	 * Checks that trimmed value isset in the supplied array
 	 * @param $name
 	 * @param array $options
+	 * @throws Exception
+	 * @return string
 	 */
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
@@ -135,6 +137,7 @@ class Request {
 	 * Converts string date compatible with strtotime() into timestamp (integer)
 	 *
 	 * @param unknown_type $name
+	 * @throws Exception
 	 * @return int
 	 */
 	function getTimestampFromString($name) {
@@ -166,7 +169,7 @@ class Request {
 		return $subRequest->getAll();
 	}
 
-		/**
+	/**
 	 * Makes sure it's an integer
 	 * @param string $name
 	 * @return int
@@ -182,7 +185,8 @@ class Request {
 	/**
 	 * Will return Time object
 	 *
-	 * @param unknown_type $name
+	 * @param string $name
+	 * @param null $rel
 	 * @return Time
 	 */
 	function getTime($name, $rel = NULL) {
@@ -195,6 +199,7 @@ class Request {
 	 * Will return Date object
 	 *
 	 * @param string $name
+	 * @param null $rel
 	 * @return Date
 	 */
 	function getDate($name, $rel = NULL) {
@@ -279,6 +284,7 @@ class Request {
 	/**
 	 * Will require modifications when realurl is in place
 	 *
+	 * @throws Exception
 	 * @return object
 	 */
 	function getController() {
@@ -322,6 +328,10 @@ class Request {
 		exit();
 	}
 
+	/**
+	 * Returns the full URL to the document root of the current site
+	 * @return string
+	 */
 	function getLocation() {
 		$docRoot = dirname($_SERVER['PHP_SELF']);
 		if (strlen($docRoot) == 1) {
@@ -333,6 +343,15 @@ class Request {
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
 		return $url;
+	}
+
+	/**
+	 * Returns the current page URL as is. Similar to $_SERVER['REQUEST_URI'].
+	 *
+	 * @return URL
+	 */
+	function getURL() {
+		return $this->url;
 	}
 
 	function isAjax() {
@@ -464,6 +483,19 @@ class Request {
 
 	function getNameless($index, $alternative = NULL) {
 		$levels = $this->getURLLevels();
+		
+		/* From DCI */
+		// this spoils ORS menu!
+/*		$controller = $this->getControllerString();
+		foreach ($levels as $l => $name) {
+			unset($levels[$l]);
+			if ($name == $controller) {
+				break;
+			}
+		}
+		$levels = array_values($levels);	// reindex
+		/* } */
+		
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
