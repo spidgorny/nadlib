@@ -1,84 +1,45 @@
 <?php
 
 function __autoload($class) {
-	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-	//unset($_SESSION['autoloadCache']);
-	$folders = $_SESSION['autoloadCache'];
-	if (!$folders) {
-		require_once('class.ConfigBase.php');
-		if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
-			//echo($configPath);
-			include_once $configPath;
-		}
-		//echo($configPath);
-		if (class_exists('Config')) {
-			$folders = Config::$includeFolders
-				? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
-				: ConfigBase::$includeFolders;
-		} else {
-			$folders = ConfigBase::$includeFolders;
-		}
-		$_SESSION['autoloadCache'] = $folders;
+	require_once dirname(__FILE__).'/class.AutoLoad.php';
+	static $a;
+	if (!$a) {
+		$a = new AutoLoad();
 	}
-
-	$namespaces = explode('\\', $class);
-	$classFile = end($namespaces);
-	$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
-	$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
-	$subFolders = implode('/', $subFolders);	// Download
-	foreach ($folders as $path) {
-		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.
-				$path.DIRECTORY_SEPARATOR.
-				$subFolders.DIRECTORY_SEPARATOR.
-				'class.'.$classFile.'.php';
-		if (file_exists($file)) {
-			$debug[] = $class.' <span style="color: green;">'.$file.'</span><br />';
-			include_once($file);
-			break;
-		} else {
-			$debug[] = $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
-		}
-	}
-	if (!class_exists($classFile) && !interface_exists($classFile)) {
-		//debug($folders);
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			if ($config->config['autoload']['notFoundException']) {
-				debug($debug);
-				throw new Exception('Class '.$class.' ('.$file.') not found.');
-			}
-		}
-	}
-	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	$a->load($class);
 }
 
-define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
-if (DEVELOPMENT) {
-	error_reporting(E_ALL ^ E_NOTICE);
-	//ini_set('display_errors', FALSE);
-	//trigger_error(str_repeat('*', 20));	// log file separator
+function initNADLIB() {
+	define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
+	if (DEVELOPMENT) {
+		error_reporting(E_ALL ^ E_NOTICE);
+		//ini_set('display_errors', FALSE);
+		//trigger_error(str_repeat('*', 20));	// log file separator
 
-	ini_set('display_errors', TRUE);
-	ini_set('html_error', TRUE);
+		ini_set('display_errors', TRUE);
+		ini_set('html_error', TRUE);
 
-	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
-	/* @var $profiler TaylorProfiler */
-	if (class_exists('Config')) {
-		//print_r(Config::getInstance()->config['Config']);
-		set_time_limit(Config::getInstance()->config['Config']['timeLimit'] ? Config::getInstance()->config['Config']['timeLimit'] : 5);
+		$profiler = new TaylorProfiler(TRUE);	// GLOBALS
+		/* @var $profiler TaylorProfiler */
+		if (class_exists('Config')) {
+			//print_r(Config::getInstance()->config['Config']);
+			set_time_limit(Config::getInstance()->config['Config']['timeLimit'] ? Config::getInstance()->config['Config']['timeLimit'] : 5);
+		}
+		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
+		header('Cache-Control: no-cache, no-store, max-age=0');
+		header('Expires: -1');
+	} else {
+		error_reporting(0);
+		ini_set('display_errors', FALSE);
+		header('Cache-Control: no-cache, no-store, max-age=0');
+		header('Expires: -1');
 	}
-	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
-} else {
-	error_reporting(0);
-	ini_set('display_errors', FALSE);
-	header('Cache-Control: max-age=0');
-	header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
+	date_default_timezone_set('Europe/Berlin');
+	ini_set('short_open_tag', 1);
+	Request::removeCookiesFromRequest();
+	//chdir(dirname(dirname(__FILE__)));	// one level up
+	// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
 }
-date_default_timezone_set('Europe/Berlin');
-ini_set('short_open_tag', 1);
-Request::removeCookiesFromRequest();
-//chdir(dirname(dirname(__FILE__)));	// one level up
-// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
 
 function debug($a) {
 	$params = func_get_args();
@@ -137,13 +98,15 @@ function trimExplode($sep, $str) {
 }
 
 function debug_pre_print_backtrace() {
-	print '<pre>';
-	if (phpversion() >= '5.3') {
-		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-	} else {
-		debug_print_backtrace();
+	if ($_COOKIE['debug']) {
+		print '<pre>';
+		if (phpversion() >= '5.3') {
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		} else {
+			debug_print_backtrace();
+		}
+		print '</pre>';
 	}
-	print '</pre>';
 }
 
 /**
@@ -203,6 +166,18 @@ function first(array $list) {
 	return current($list);
 }
 
+/**
+ * This is equal to return next(each($list))
+ *
+ * @param array $list
+ * @return mixed
+ */
+function eachv(array &$list) {
+	$current = current($list);
+	next($list);
+	return $current;
+}
+
 function array_combine_stringkey(array $a, array $b) {
 	$ret = array();
 	reset($b);
@@ -212,3 +187,5 @@ function array_combine_stringkey(array $a, array $b) {
 	}
 	return $ret;
 }
+
+initNADLIB();

@@ -50,6 +50,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = Request::getInstance();
+		session_start();
+		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -75,6 +77,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//debug(__METHOD__, $class, class_exists($class));
 			if (class_exists($class)) {
 				$this->controller = new $class();
+				if (method_exists($this->controller, 'postInit')) {
+					$this->controller->postInit();
+				}
 			} else {
 				$exception = 'Class '.$class.' not found.';
 				throw new Exception($exception);
@@ -94,13 +99,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				if (!$this->request->isAjax()) {
 					$v = new View('template.phtml', $this);
 					$v->content = $content;
-					$v->title = $this->controller->title;
+					$v->title = strip_tags($this->controller->title);
 					$v->sidebar = $this->showSidebar();
 					$lf = new LoginForm('inlineForm');
 					$v->loginForm = $lf->dispatchAjax();
 					$content = $v->render();	// not concatenate but replace
 				} else {
 					$content .= $this->content;
+					$this->content = '';		// clear for the next output. May affect saveMessages()
 				}
 			} catch (Exception $e) {
 				$content = $this->renderException($e);
@@ -129,8 +135,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
 		if ($e instanceof LoginException) {
-			$lf = new LoginForm();
-			$content .= $lf;
+			// catch this exception in your app Index class, it can't know what to do with all different apps
+			//$lf = new LoginForm();
+			//$content .= $lf;
 		}
 
 		if (!$this->request->isAjax()) {
@@ -163,6 +170,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function message($text) {
 		$this->content .= '<div class="message">'.$text.'</div>';
+	}
+
+	function error($text) {
+		$this->content .= '<div class="ui-state-error alert alert-error padding">'.$text.'</div>';
+	}
+
+	function saveMessages() {
+		$_SESSION[__CLASS__]['messages'] = $this->content;
+	}
+
+	function restoreMessages() {
+		$this->content .= $_SESSION[__CLASS__]['messages'];
+		$_SESSION[__CLASS__]['messages'] = '';
 	}
 
 	function addJQuery() {

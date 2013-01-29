@@ -16,7 +16,7 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var MySQL/dbLayer
+	 * @var MySQL|dbLayer
 	 */
 	protected $db;
 
@@ -309,6 +309,26 @@ abstract class Controller {
 		return new HTMLTag('a', array(
 			'href' => $this->makeRelURL($params)
 		), $text);
+	}
+
+	/**
+	 * @param $name string|htmlString - if object then will be used as is
+	 * @param $action
+	 * @return HTMLForm
+	 */
+	function getActionButton($name, $action) {
+		$f = new HTMLForm();
+		$f->hidden('c', get_class($this));
+		if ($id = $this->request->getInt('id')) {
+			$f->hidden('id', $id);
+		}
+		$f->hidden('action', $action);
+		if ($name instanceof htmlString) {
+			$f->button($name, 'type="submit" class="likeText"');
+		} else {
+			$f->submit($name);
+		}
+		return $f;
 	}
 
 }
