@@ -77,6 +77,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//debug(__METHOD__, $class, class_exists($class));
 			if (class_exists($class)) {
 				$this->controller = new $class();
+				if (method_exists($this->controller, 'postInit')) {
+					$this->controller->postInit();
+				}
 			} else {
 				$exception = 'Class '.$class.' not found.';
 				throw new Exception($exception);
