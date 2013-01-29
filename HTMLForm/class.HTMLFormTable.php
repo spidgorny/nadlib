@@ -47,7 +47,7 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * fillValues() is looping over the existing values
 	 * This function is looping over desc
-	 * @param Request $form
+	 * @param Request $form - Request instead of an array because of the trim() function only?
 	 * @return void
 	 */
 	function importValues(Request $form) {
