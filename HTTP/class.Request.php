@@ -477,6 +477,7 @@ class Request {
 
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
+		//debug(getcwd(), $filename, realpath($filename));
 		$filename = realpath($filename);
 		return $filename;
 	}

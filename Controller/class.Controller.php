@@ -164,7 +164,7 @@ abstract class Controller {
 	 * @param bool $preserveSpaces	- leaves spaces
 	 * @return string				- converted to URL friendly name
 	 */
-	static function friendlyURL($string, $preserveSpaces) {
+	static function friendlyURL($string, $preserveSpaces = false) {
 		$string = preg_replace("`\[.*\]`U","",$string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
