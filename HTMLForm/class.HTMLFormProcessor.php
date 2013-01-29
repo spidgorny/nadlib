@@ -23,6 +23,7 @@ abstract class HTMLFormProcessor extends AppController {
 
 	/**
 	 * The idea is to remove all slow operations outside of the constructor.
+	 * Who's gonna call this function? Index?
 	 */
 	function postInit() {
 		$this->desc = $this->getDesc();
