@@ -50,6 +50,10 @@ class URL {
 		return $this;
 	}
 
+	function unsetParam($param) {
+		unset($this->params[$param]);
+	}
+
 	function getParam($param) {
 		return $this->params[$param];
 	}

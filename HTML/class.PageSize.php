@@ -65,6 +65,7 @@ class PageSize extends AppController {
 		foreach ($this->options as $o) {
 			$content .= '<option '.($this->selected == $o ? 'selected' : '').'>'.$o.'</option>';
 		}
+		$this->url->unsetParam('pageSize');
 		$this->url->setParam('pageSize', '');	// will end with pageSize=
 		$content = '<select
 			onchange="location = \''.$this->url.'\'+this.options[this.selectedIndex].value;"

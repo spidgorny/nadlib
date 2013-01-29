@@ -63,7 +63,7 @@ abstract class HTMLFormProcessor extends AppController {
 			$this->form->desc = $this->desc;
 		} else {
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
-			$this->form->importValues($this->default);
+			$this->form->importValues(new Request($this->default));
 			$this->desc = $this->form->desc;
 		}
 	}
@@ -83,13 +83,13 @@ abstract class HTMLFormProcessor extends AppController {
 		if ($this->validated) {
 			$content .= $this->onSuccess($this->form->getValues());
 		} else {
-			$content .= '<div class="error alert alert-error">'.__('The form is not complete. Please check the comments next to each field below.').'</div>';
-			$this->form->prefix($this->prefix);
-			$this->form->showForm();
-			$this->form->prefix('');
-			$this->form->submit($this->submitButton, '', array('class' => 'btn'));
-			$content .= $this->form;
+			if ($this->submitted) {
+				$content .= '<div class="error alert alert-error ui-state-error padding">'.
+					__('The form is not complete. Please check the comments next to each field below.').'</div>';
+			}
+			$content .= $this->showForm();
 		}
+		$content = $this->encloseInAA($content, $this->title = 'Options');
 		return $content;
 	}
 
@@ -102,6 +102,14 @@ abstract class HTMLFormProcessor extends AppController {
 		$f->hidden('c', $this->prefix);
 		$f->hidden('ajax', $this->ajax);
 		return $f;
+	}
+
+	function showForm() {
+		$this->form->prefix($this->prefix);
+		$this->form->showForm();
+		$this->form->prefix('');
+		$this->form->submit($this->submitButton, '', array('class' => 'btn'));
+		return $this->form;
 	}
 
 	function __toString() {
