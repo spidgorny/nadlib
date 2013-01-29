@@ -1,7 +1,7 @@
 <?php
 
 function __autoload($class) {
-	require_once 'nadlib/class.AutoLoad.php';
+	require_once dirname(__FILE__).'/class.AutoLoad.php';
 	static $a;
 	if (!$a) {
 		$a = new AutoLoad();

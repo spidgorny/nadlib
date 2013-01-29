@@ -17,7 +17,7 @@ class IndexBE extends IndexBase {
 
 	function renderController() {
 		$c = get_class($this->controller);
-		if ($c::$public || $this->user->can('Login')) {
+		if ($c::$public || $this->user->isAuth()) {
 			$content = parent::renderController();
 		} else {
 			throw new LoginException('Login first');
