@@ -331,6 +331,7 @@ class HTMLForm {
 	 * @param string $name
 	 * @param int $value
 	 * @param array $desc
+	 * 		'between' - text separating the options, default <br />
 	 */
 	function radioset($name, $value, array $desc) {
 		$between = $desc['between'] ? $desc['between'] : '<br />';

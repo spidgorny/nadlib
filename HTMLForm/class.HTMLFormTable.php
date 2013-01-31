@@ -450,9 +450,10 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Returns the $form parameter with minimal modifications only for the special data types like time in seconds.
 	 *
-	 * @param array		Structure of the form.
-	 * @param array		Values from $_REQUEST.
-	 * @return array	Processed $form.
+	 * @param $desc
+	 * @param array $form Structure of the form.
+	 * @internal param \Values $array from $_REQUEST.
+	 * @return array    Processed $form.
 	 */
 	function acquireValues($desc, $form = array()) {
 		foreach ($desc as $field => $params) {

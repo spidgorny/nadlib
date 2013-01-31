@@ -352,6 +352,20 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return implode($sep, $this->data);
 	}
 
+	function typoscript($prefix = '') {
+		$replace = array();
+		foreach ($this->data as $key => $val) {
+			$prefixKey = $prefix.'.'.$key;
+			if (is_array($val)) {
+				$plus = AP($val)->typoscript($prefixKey)->getData();
+				$replace += $plus;
+			} else {
+				$replace[$prefixKey] = $val;
+			}
+		}
+
+	}
+
 }
 
 function AP(array $a = array()) {
