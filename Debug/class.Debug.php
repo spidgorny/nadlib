@@ -3,14 +3,17 @@
 class Debug {
 
 	static function debug_args() {
-		if ($_COOKIE['debug']) {
-			$args = func_get_args();
-			if (sizeof($args) == 1) {
-				$a = $args[0];
-			} else {
-				$a = $args;
-			}
+		$args = func_get_args();
+		if (sizeof($args) == 1) {
+			$a = $args[0];
+		} else {
+			$a = $args;
+		}
 
+		if (isset($_SERVER['argc'])) {
+			print_r($a);
+			echo "\n";
+		} else if ($_COOKIE['debug']) {
 			$db = debug_backtrace();
 			$db = array_slice($db, 2, sizeof($db));
 			$trace = Debug::getTraceTable($db);

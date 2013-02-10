@@ -22,8 +22,14 @@ class MiniIndex extends AppController {
 
 	public $layout;
 
+	/**
+	 * @var Config
+	 */
+	public $config;
+
 	public function __construct() {
 		parent::__construct();
+		$this->config = Config::getInstance();
 	}
 
 	/**

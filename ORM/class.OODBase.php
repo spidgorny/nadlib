@@ -218,7 +218,7 @@ class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
-		//debug($this->db->lastQuery);
+		//debug($this->db->lastQuery, $this->data);
 		if ($this->id) { // found
 			$this->update($fields);
 			$op = 'UPD '.$this->id;
