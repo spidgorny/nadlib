@@ -33,8 +33,8 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		$row['mtime'] = new Time();
-		$row['mtime'] = $row['mtime']->format('Y-m-d H:i:s');
+		$mtime = new Time();
+		$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		$row['muser'] = Config::getInstance()->user->id;
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
@@ -58,9 +58,9 @@ class FlexiTable extends OODBase {
 		}
 	}
 
-	function fetchColumns() {
+	function fetchColumns($force = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".$this->db->getCaller(5));
-		if (!self::$tableColumns[$this->table]) {
+		if (!self::$tableColumns[$this->table] || $force) {
 			self::$tableColumns[$this->table] = $this->db->getTableColumns($this->table);
 		}
 		$this->columns = self::$tableColumns[$this->table];

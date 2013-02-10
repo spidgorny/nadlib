@@ -68,7 +68,9 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	/**
 	 * Modifies itself
-	 * @param type $key
+	 * @param string $key
+	 * @param bool $allowMerge
+	 * @throws Exception
 	 * @return ArrayPlus
 	 */
 	function IDalize($key = 'id', $allowMerge = false) {
@@ -355,15 +357,15 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	function typoscript($prefix = '') {
 		$replace = array();
 		foreach ($this->data as $key => $val) {
-			$prefixKey = $prefix.'.'.$key;
+			$prefixKey = $prefix ? $prefix.'.'.$key : $key;
 			if (is_array($val)) {
-				$plus = AP($val)->typoscript($prefixKey)->getData();
+				$plus = AP($val)->typoscript($prefixKey);
 				$replace += $plus;
 			} else {
 				$replace[$prefixKey] = $val;
 			}
 		}
-
+		return $replace;
 	}
 
 }

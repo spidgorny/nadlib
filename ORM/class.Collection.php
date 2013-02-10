@@ -50,7 +50,7 @@ class Collection {
 	 * SQL part
 	 * @var string
 	 */
-	protected $orderBy = "uid";
+	public $orderBy = "uid";
 
 	/**
 	 * getQuery() stores the final query here for debug
@@ -108,7 +108,7 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0) {
+		if (!$this->parentID || $this->parentID > 0) {	// -1 will not retrieve
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -125,7 +125,7 @@ class Collection {
 	/**
 	 * -1 will prevent data retrieval
 	 */
-	function retrieveDataFromDB() {
+	function retrieveDataFromDB($allowMerge = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		$this->query = $this->getQuery($this->where);
 		$res = $this->db->perform($this->query);
@@ -135,7 +135,7 @@ class Collection {
 			$this->count = $this->db->numRows($res);
 		}
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		$this->preprocessData();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
@@ -184,6 +184,7 @@ class Collection {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
 			}
+			//debug($this->tableMore);
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
 			$s->ID = get_class($this);

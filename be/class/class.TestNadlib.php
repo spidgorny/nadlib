@@ -2,6 +2,8 @@
 
 class TestNadlib extends uTestBase {
 
+	public static $public = true;
+
 	function test_typoscript() {
 		$a = array(
 			'a' => 'b',
@@ -12,8 +14,13 @@ class TestNadlib extends uTestBase {
 				),
 			),
 		);
-		$b = AP($a)->typoscript()->getData();
-		debug($b);
+		$b = AP($a)->typoscript();
+		//debug($b);
+		return $this->assertEqual($b, array(
+			'a' => 'b',
+			'c.d' => 'e',
+			'c.f.g' => 'h',
+		));
 	}
 
 }
