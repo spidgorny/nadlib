@@ -10,7 +10,11 @@ function __autoload($class) {
 }
 
 function initNADLIB() {
-	define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
+	//print_r($_SERVER);
+	define('DEVELOPMENT', isset($_SERVER['argc'])
+		? $_SERVER['OS'] == 'Windows_NT'	// at home
+		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+	);
 	if (DEVELOPMENT) {
 		error_reporting(E_ALL ^ E_NOTICE);
 		//ini_set('display_errors', FALSE);

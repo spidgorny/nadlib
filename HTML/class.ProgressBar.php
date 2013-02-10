@@ -49,7 +49,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo $text."\n";
+			echo ($text ?: $percentDone)."\n";
 		} else {
 			print('
 			<script type="text/javascript">

@@ -483,7 +483,7 @@ class Request {
 
 	function getNameless($index, $alternative = NULL) {
 		$levels = $this->getURLLevels();
-		
+
 		/* From DCI */
 		// this spoils ORS menu!
 /*		$controller = $this->getControllerString();
@@ -495,7 +495,7 @@ class Request {
 		}
 		$levels = array_values($levels);	// reindex
 		/* } */
-		
+
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
