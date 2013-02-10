@@ -42,7 +42,7 @@ class slTable {
 	public $SLTABLE_IMG_CROSS = '☐';
 
 	function __construct($id = NULL, $more="", array $thes = array()) {
-		if (is_array($id)) {
+		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
 			$this->ID = md5(time());
 		} else if ($id) {
@@ -176,21 +176,23 @@ class slTable {
 	}
 
 	function generateThes() {
-		$thes = array();
-		foreach ($this->data as $current) {
-			$thes = array_merge($thes, array_keys($current));
-			$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
-		}
-		$thes = array_combine($thes, $thes);
-		foreach ($thes as &$th) {
-			$th = array('name' => $th);
-		} unset($th);
-		unset($thes['###TD_CLASS###']);
-		$this->thes($thes);
-		$this->isOddEven = TRUE;
-		//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
-		if (!$this->more) {
-			$this->more = 'class="nospacing"';
+		if (!sizeof($this->thes)) {
+			$thes = array();
+			foreach ($this->data as $current) {
+				$thes = array_merge($thes, array_keys($current));
+				$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
+			}
+			$thes = array_combine($thes, $thes);
+			foreach ($thes as &$th) {
+				$th = array('name' => $th);
+			} unset($th);
+			unset($thes['###TD_CLASS###']);
+			$this->thes($thes);
+			$this->isOddEven = TRUE;
+			//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
+			if (!$this->more) {
+				$this->more = 'class="nospacing"';
+			}
 		}
 	}
 
@@ -269,9 +271,7 @@ class slTable {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
 		if (!$this->generation) {
 			if (sizeof($this->data) && $this->data != FALSE) {
-				if (!sizeof($this->thes)) {
-					$this->generateThes();
-				}
+				$this->generateThes();
 
 				if ($this->sortable) {
 					$this->sort();
@@ -282,11 +282,10 @@ class slTable {
 
 				$this->generateThead($t);
 
-				// td
-				if (!is_array($this->data)) {
-					$data = array();
-				} else {
+				if (is_array($this->data) || $this->data instanceof Traversable) {
 					$data = $this->data;
+				} else {
+					$data = array();
 				}
 				$i = -1;
 				foreach ($data as $key => $row) { // (almost $this->data)
@@ -563,8 +562,10 @@ class slTable {
 	 */
 	public function getTotals() {
 		$footer = array();
+		$this->generateThes();
 		reset($this->data);
 		$first = current($this->data);
+		//debug($this->data, $first);
 		if ($first) {
 			foreach ($this->thes as $col => $_) {
 				$first[$col] = strip_tags($first[$col]);
