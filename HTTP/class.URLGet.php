@@ -3,7 +3,7 @@
 class URLGet {
 	protected $url;
 
-	protected $timeout = 5;
+	public $timeout = 5;
 
 	protected $html = '';
 
@@ -15,6 +15,11 @@ class URLGet {
 		$this->url = $url;
 		//$this->fetch();
 	}
+
+	/**
+	 * @var CURL info
+	 */
+	public $info;
 
 	public function fetch() {
 		$start = microtime(true);
@@ -44,7 +49,7 @@ class URLGet {
 		return $html;
 	}
 
-	public function fetchCURL() {
+	public function fetchCURL(array $options = array()) {
 		//debug($this->url);
 		//$proxy = Proxy::getRandom();
 		$process = curl_init($this->url);
@@ -62,17 +67,24 @@ class URLGet {
 			curl_setopt($process, CURLOPT_PROXY, $proxy);
 		}
 		//curl_setopt($process, CURLOPT_POST, 1);
+
+		curl_setopt_array($process, $options);
+
 		$html = curl_exec($process);
-		$info = curl_getinfo($process);
-		curl_close($process);
+		$this->info = curl_getinfo($process);
 		//debug($info);
 		//debug($proxy);
+		if (curl_errno($process)){
+			debug('Curl error: ' . curl_error($process));
+		}
+		curl_close($process);
 
-		if (!$html || $info['http_code'] != 200) {
+		if (!$html || $this->info['http_code'] != 200) {
 			if ($proxy) {
 				//Controller::log('Using proxy: '.$proxy.': FAIL', __CLASS__);
 				$proxy->update(array('fail' => $proxy->data['fail']+1));
 			}
+			debug($this->info);
 			throw new Exception('failed to read URL: '.$this->url);
 		} else {
 			if ($proxy) {
