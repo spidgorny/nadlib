@@ -18,7 +18,10 @@ class Syndicator {
 	 */
 	var $cache;
 
-	public $useProxy = false;
+	/**
+	 * @var Proxy
+	 */
+	public $useProxy = NULL;
 
 	public $input = 'HTML';
 
@@ -47,28 +50,29 @@ class Syndicator {
 		return $s;
 	}
 
-	function retrieveFile() {
+	function retrieveFile($retries = 1) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$c = AppController::getInstance();
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				Controller::log($this->cache->map($this->url).' Size: '.strlen($html), __CLASS__);
+				$c->log($this->cache->map($this->url).' Size: '.strlen($html), __CLASS__);
 			} else {
-				$html = $this->downloadFile($this->url);
+				$html = $this->downloadFile($this->url, $retries);
 				$this->cache->set($this->url, $html);
 				//debug($cache->map($this->url).' Size: '.strlen($html), 'Set cache');
 			}
 		} else {
-			$html = $this->downloadFile($this->url);
+			$html = $this->downloadFile($this->url, $retries);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $html;
 	}
 
-	function downloadFile($href) {
+	function downloadFile($href, $retries) {
 		$ug = new URLGet($href);
-		$ug->fetch();
+		$ug->fetch($this->useProxy, $retries);
 		return $ug.'';
 	}
 
@@ -156,8 +160,8 @@ class Syndicator {
 
 	function tidy($html) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		//debug(function_exists('tidy'));
-		if (function_exists('tidy')) {
+		//debug(extension_loaded('tidy'));
+		if (extension_loaded('tidy')) {
 			$config = array(
 				'clean'         	=> true,
 				'indent'        	=> true,
@@ -174,7 +178,8 @@ class Syndicator {
 			$tidy = new tidy;
 			$tidy->parseString($html, $config);
 			$tidy->cleanRepair();
-			$out = tidy_get_output($tidy);
+			//$out = tidy_get_output($tidy);
+			$out = $tidy->value;
 		} else if ($this->input == 'HTML') {
 			require_once 'nadlib/HTML/htmLawed.php';
 			$out = htmLawed($html, array(
@@ -210,7 +215,7 @@ class Syndicator {
 
 	function getXML($recode) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-//		try {
+		try {
 			$xml = new SimpleXMLElement($recode);
 			//$xml['xmlns'] = '';
 			$namespaces = $xml->getNamespaces(true);
@@ -220,8 +225,8 @@ class Syndicator {
 			    $xml->registerXPathNamespace('default', $ns);
 			    break;
 			}
-//		} catch (Exception $e) {
-//			debug($e->getMessage());
+		} catch (Exception $e) {
+			//debug($recode);
 //			$qb = new SQLBuilder();
 /*			$query = $qb->getInsertQuery('error_log', array(
 				'type' => 'Parse XML',
@@ -233,7 +238,7 @@ class Syndicator {
 			debug($e, 'getXML');
 			$GLOBALS['db']->perform($query);
 */
-//		}
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $xml;
 	}

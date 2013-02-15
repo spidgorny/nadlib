@@ -77,10 +77,6 @@ class ConfigBase {
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
-		//print_r($this->config['Config']);
-		/*if ($this->config['Config']) foreach ($this->config['Config'] as $key => $val) {
-			$this->$key = $val;
-		}*/
 		$this->mergeConfig($this);
 	}
 
