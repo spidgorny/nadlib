@@ -149,6 +149,8 @@ class HTMLFormTable extends HTMLForm {
 					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc);
 				break;
 				case 'submit':
+					$desc['name'] = $desc['name'] ? $desc['name'] : $this->getName($fieldName, '', true);
+					//debug($desc);
 					$this->submit($desc['value'], $desc['more'], $desc);
 				break;
 				case 'ajaxTreeInput':
@@ -286,14 +288,8 @@ class HTMLFormTable extends HTMLForm {
 				if ($desc['cursor']) {
 					$this->stdout .= "<script>
 						<!--
-							isOpera = navigator.userAgent.indexOf('Opera') != -1;
-							var obj;
-							if (isOpera) {
-								obj = document.all.{$elementID};
-							} else {
-								obj = document.getElementById('{$elementID}');
-							}
-							obj.focus();
+							var obj = document.getElementById('{$elementID}');
+							if (obj) obj.focus();
 						-->
 					</script>";
 				}
