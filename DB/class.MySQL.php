@@ -196,10 +196,12 @@ class MySQL {
 
 	/**
 	 * Return ALL rows
-	 * @param <type> $table
-	 * @param <type> $where
 	 * @param <type> $order
-	 * @return <type>
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addFields
+	 * @param bool $exclusive
+	 * @return array <type>
 	 */
 	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
@@ -271,6 +273,20 @@ class MySQL {
 	function switchDB($db) {
 		$this->db = $db;
 		mysql_select_db($this->db);
+	}
+
+	function fetchOptions($query) {
+		$data = array();
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		while (($row = mysql_fetch_row($result)) != FALSE) {
+			list($key, $val) = $row;
+			$data[$key] = $val;
+		}
+		return $data;
 	}
 
 }

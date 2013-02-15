@@ -151,7 +151,7 @@ class HTMLForm {
 	 * @param array $desc
 	 * @see renderSelectionOptions
 	 */
-	function selection($name, $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
+	function selection($name, array $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
 		$this->stdout .= "<select ".$this->getName($name, $multiple ? '[]' : '');
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
@@ -228,7 +228,7 @@ class HTMLForm {
 	function submit($value = NULL, $more = "", array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
 		$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
-		$this->stdout .= "<input type=\"submit\" class=\"{$params['class']}\" " . ($value?'value="'.$value.'"':"") . " $more />\n";
+		$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 	}
 
 	function button($innerHTML = NULL, $more = '') {
@@ -356,15 +356,23 @@ class HTMLForm {
 		$this->stdout .= "bis: <input type=text ".$this->getName($name2). " $more value=\"".$value2."\" size='10'>\n";
 	}
 
-	function checkarray($name, $options, $selected) {
+	/**
+	 * @param $name
+	 * @param array $options
+	 * @param array $selected - only keys are used
+	 * @param string $more
+	 * @param int $height
+	 */
+	function checkarray($name, array $options, array $selected, $more = '', $height = 700) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: 350px; height: 700px; overflow: auto; border: solid 1px silver;">';
+		$this->stdout .= '<div style="width: 350px; height: '.$height.'px; overflow: auto; border: solid 1px silver;">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<div class="checkline_'.($checked ? 'active' : 'normal').'">';
-			$this->checkbox($name, $checked, '<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>', $value, '[]');
+			$this->check($name.'][', $value, $checked, $more);
+			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
@@ -389,11 +397,24 @@ class HTMLForm {
 		return $this->getContent();
 	}
 
+	/**
+	 * Converts an assoc array into valid HTML name="value" string
+	 * @param array $attr
+	 * @return string
+	 */
 	function getAttrHTML(array $attr = NULL) {
 		//debug_pre_print_backtrace();
 		$part = array();
 		if ($attr) foreach ($attr as $key => $val) {
-			$part[] = $key.'="'.htmlspecialchars($val).'"';
+			if (is_array($val)) {
+				$val = implode(' ', $val);
+			}
+			if (is_scalar($val)) {
+				$part[] = $key.'="'.htmlspecialchars($val).'"';
+			} else {
+				//debug($attr);
+				//throw new Exception(__METHOD__);
+			}
 		}
 		$html = implode(' ', $part);
 		return $html;
@@ -434,6 +455,60 @@ class HTMLForm {
  		<!--input type="hidden" name="recaptcha_response_field"-->';
 		$this->stdout .= $content;
 		return $content;
+	}
+
+	/**
+	 * $desc['selectID'] - <select name="projects" id="projects">
+	 * $desc['treeDivID'] - <div id="treeDivID" style="display: none"></div>
+	 * $desc['tableName'] - SELECT * FROM tableName ...
+	 * $desc['tableRoot'] - ... WHERE pid = tableRoot
+	 * $desc['tableTitle'] - SELECT id, tableTitle FROM ...
+	 * $desc['paddedID'] - paddedID.innterHTML = tree.toString()
+	 */
+	function ajaxTree($desc) {
+		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
+		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
+		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
+		$this->stdout .= grModule::ahref('<img src="img/tb_folder.gif" title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
+			\''.$desc['selectID'].'\',
+			\''.$desc['treeDivID'].'\',
+			\''.$desc['tableName'].'\',
+			\''.$desc['tableRoot'].'\',
+			\''.$desc['tableTitle'].'\',
+			\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
+			\''.$desc['categoryID'].'\',
+			\''.$desc['onlyLeaves'].'\');
+			'.$desc['onclickMore'].'
+			return false;
+		"');
+		$style = 'display: none; position: absolute; left: 0; top: 0; width: 404px; height: auto; border: solid 3px #8FBC8F; margin: 3px; background-color: white; az-index: 98;';
+		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
+		$this->stdout .= grModule::enclose('Tree-Element Selector', '',
+			array(
+				'outerStyle' => $style,
+				'foldable' => FALSE,
+				'outerID' => $desc['treeDivID'],
+				'paddedID' => (isset($desc['paddedID'])?$desc['paddedID']:''),
+				'closable' => TRUE,
+				'absolute' => TRUE,
+				'paddedStyle' => 'height: 350px; overflow: auto;',
+				'titleMore' => 'onmousedown="dragStart(event, \''.$desc['treeDivID'].'\')" style="cursor: move;"',
+			));
+	}
+
+	function ajaxTreeInput($fieldName, $fieldValue, $desc) {
+		$desc['more'] = isset($desc['more']) ? $desc['more'] : NULL;
+		$desc['size'] = isset($desc['size']) ? $desc['size'] : NULL;
+		$desc['cursor'] = isset($desc['cursor']) ? $desc['cursor'] : NULL;
+		$desc['readonly'] = isset($desc['readonly']) ? $desc['readonly'] : NULL;
+		$this->text('<nobr>');
+		$this->hidden($fieldName, $fieldValue, 'id="'.$desc['selectID'].'"');
+		$fieldName[sizeof($fieldName)-1] = end($fieldName).'_name';
+		$this->input($fieldName, $desc['valueName'],
+			'style="width: '.$desc['size'].'" readonly id="'.$desc['selectID'].'_name" '.$desc['more']);
+		$this->text('&nbsp;');
+		$this->ajaxTree($desc);
+		$this->text('</nobr>');
 	}
 
 }
