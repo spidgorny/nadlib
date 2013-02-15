@@ -286,6 +286,11 @@ class OODBase {
 		return $inst;
 	}
 
+	function clearInstances() {
+		self::$instance = array();
+		gc_collect_cycles();
+	}
+
 	function getObjectInfo() {
 		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}
