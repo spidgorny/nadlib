@@ -190,7 +190,7 @@ abstract class Controller {
 	}
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
-		$h = $h ?: $this->encloseTag;
+		$h = $h ? $h : $this->encloseTag;
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
