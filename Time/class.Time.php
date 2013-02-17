@@ -52,7 +52,7 @@ class Time {
 	/**
 	 * DON'T USE getTimestamp() to get amount of seconds as it depends on the TZ
 	 *
-	 * @return unknown
+	 * @return int
 	 */
 	function getTimestamp() {
 		return $this->time;
@@ -60,7 +60,7 @@ class Time {
 
 	/**
 	 *
-	 * @return unknown
+	 * @return int
 	 */
 	function getGMTTimestamp() {
 		return strtotime($this->getISODate().' '.$this->getTime().' GMT');
