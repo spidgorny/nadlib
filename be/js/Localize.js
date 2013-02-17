@@ -3,6 +3,7 @@ $(document).ready(function () {
 		indicator : 'Saving...',
 		tooltip   : 'Click to edit...',
 		cancel    : 'Cancel',
-		submit    : 'OK'
+		submit    : 'OK',
+		onblur    : 'ignore'
 	});
 });
