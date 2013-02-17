@@ -15,7 +15,7 @@ class URLGet {
 	 */
 	public function __construct($url) {
 		$this->url = $url;
-		$this->logger = AppController::getInstance();
+		$this->logger = Index::getInstance()->controller;
 		//$this->fetch();
 	}
 
@@ -111,8 +111,18 @@ class URLGet {
 		return $html;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString() {
-		return $this->html;
+		return strval($this->html).'';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContent() {
+		return strval($this->html).'';
 	}
 
 }
