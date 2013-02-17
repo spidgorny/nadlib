@@ -103,12 +103,9 @@ class FlexiTable extends OODBase {
 	function expand($debug = false) {
 		static $stopDebug = false;
 		$this->fetchColumns();
-		if ($debug && !$stopDebug) {
-			debug($this->columns);
-			$stopDebug = true;
-		}
-		foreach ($this->columns as $field => $info) {
+		foreach ($this->columns as $field => &$info) {
 			if (in_array($info['Type'], array('blob', 'text')) && $this->data[$field]) {
+				$info['uncompress'] = 'try';
 				$uncompressed = $this->db->uncompress($this->data[$field]);
 				if (!$uncompressed) {
 					/*debug($info+array(
@@ -117,15 +114,23 @@ class FlexiTable extends OODBase {
 					)); exit();*/
 					// didn't unzip - then it's plain text
 					$uncompressed = $this->data[$field];
+					$info['uncompress'] = 'Not necessary';
 				}
 				$this->data[$field] = $uncompressed;
+				$info['first'] = $this->data[$field]{0};
 				if ($this->data[$field]{0} == '<') {
 					//$uncompressed = html_entity_decode($uncompressed, ENT_QUOTES, "utf-8");
 					$this->$field = @simplexml_load_string($uncompressed);
+					$info['unxml'] = 'true';
 				} else if ($this->data[$field]{0} == '{') {
 					$this->$field = json_decode($uncompressed, false);	// make it look like SimpleXML
+					$info['unjson'] = 'true';
 				}
 			}
+		}
+		if ($debug && !$stopDebug) {
+			debug($this->table, $this->columns);
+			$stopDebug = true;
 		}
 		unset($this->data['xml']);
 		unset($this->data['xml2']);
