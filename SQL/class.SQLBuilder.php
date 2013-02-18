@@ -254,9 +254,9 @@ class SQLBuilder {
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
 	 * @param $value
-	 * @param $key
-	 * @return string
 	 * @throws Exception
+	 * @internal param $key
+	 * @return string
 	 */
 	function quoteSQL($value) {
 		if ($value instanceof AsIs) {
@@ -302,7 +302,7 @@ class SQLBuilder {
 	/**
 	 * Quotes the complete array if neccessary.
 	 *
-	 * @param unknown_type $a
+	 * @param array $a
 	 * @return unknown
 	 */
 	function quoteValues(array $a) {
@@ -318,6 +318,7 @@ class SQLBuilder {
 	 * In other words, it takes care of col = 'NULL' situation and makes it col IS NULL
 	 *
 	 * @param array $where
+	 * @return array
 	 */
 	function quoteWhere(array $where) {
 		$set = array();
@@ -339,7 +340,7 @@ class SQLBuilder {
 				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 				//	$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
-					$set[] = $key . ' ' . $val;
+					$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
 				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working

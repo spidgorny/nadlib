@@ -133,7 +133,15 @@ class HTMLForm {
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$id = $this->prefix."_".$name."_".$value;
 		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."'> ";
-		$this->stdout .= "<label for=$id>".htmlspecialchars($label)."</label>";
+		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+	}
+
+	function hsc($label) {
+		if ($label instanceof htmlString) {
+			return $label;
+		} else {
+			return htmlspecialchars($label, ENT_QUOTES);
+		}
 	}
 
 	function file($name, array $desc = array()) {
@@ -379,14 +387,21 @@ class HTMLForm {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
-	function radioArray($name, $options, $selected) {
+	/**
+	 * This one makes a span with a title and is showing data in a specific width
+	 * @param $name
+	 * @param array $options
+	 * @param $selected
+	 * @see $this->radioset()
+	 */
+	function radioArray($name, array $options, $selected) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<div class="checkline_'.($checked ? 'active' : 'normal').'">';
-			$this->radioLabel($name, $value, $checked, '<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
+			$this->radioLabel($name, $value, $checked, new htmlString('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>'));
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
@@ -496,7 +511,7 @@ class HTMLForm {
 			));
 	}
 
-	function ajaxTreeInput($fieldName, $fieldValue, $desc) {
+	function ajaxTreeInput($fieldName, $fieldValue, array $desc) {
 		$desc['more'] = isset($desc['more']) ? $desc['more'] : NULL;
 		$desc['size'] = isset($desc['size']) ? $desc['size'] : NULL;
 		$desc['cursor'] = isset($desc['cursor']) ? $desc['cursor'] : NULL;

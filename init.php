@@ -27,7 +27,7 @@ function initNADLIB() {
 		/* @var $profiler TaylorProfiler */
 		if (class_exists('Config')) {
 			//print_r(Config::getInstance()->config['Config']);
-			set_time_limit(Config::getInstance()->timeLimit ?: 5);	// small enough to notice if the site is having perf. problems
+			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
 		}
 		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 		header('Cache-Control: no-cache, no-store, max-age=0');

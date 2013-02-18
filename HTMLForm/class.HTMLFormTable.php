@@ -155,7 +155,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'ajaxTreeInput':
 					//debug($this->getName($fieldName, '', TRUE));
-					$this->ajaxTreeInput($fieldName, $desc['tree']);
+					$this->ajaxTreeInput($fieldName, $desc['tree'], $desc);
 				break;
 				case 'captcha':
 					$this->captcha($fieldName, $fieldValue, $desc);
@@ -177,6 +177,9 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
+				break;
+				case 'radiolist':
+					$this->radioArray($fieldName, $desc['options'], $fieldValue, $desc);
 				break;
 				case 'combo':
 					$this->combo($fieldName, $desc);
@@ -413,8 +416,8 @@ class HTMLFormTable extends HTMLForm {
 				if (!$fieldDesc['horisontal']) {
 					$this->stdout .= "</tr>";
 				}
-			} else {
-				//t3lib_div::debug(array($path, $fieldDesc));
+			} else {	// hidden
+				//debug(array($path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
 		}
