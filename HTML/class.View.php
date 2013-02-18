@@ -228,7 +228,7 @@ class View {
 		return $money;
 	}
 
-	function bar($percent) {
+	static function bar($percent) {
 		$percent = round($percent);
 		return '<img src="nadlib/bar.php?rating='.$percent.'&color=6DC5B4" alt="'.$percent.'%" />';
 	}

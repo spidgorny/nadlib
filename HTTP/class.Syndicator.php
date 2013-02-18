@@ -52,7 +52,7 @@ class Syndicator {
 
 	function retrieveFile($retries = 1) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$c = AppController::getInstance();
+		$c = Index::getInstance()->controller;
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
@@ -73,7 +73,7 @@ class Syndicator {
 	function downloadFile($href, $retries) {
 		$ug = new URLGet($href);
 		$ug->fetch($this->useProxy, $retries);
-		return $ug.'';
+		return $ug->getContent();
 	}
 
 	function detect_cyr_charset($str) {
