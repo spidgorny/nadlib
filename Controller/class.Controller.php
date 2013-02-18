@@ -34,7 +34,11 @@ abstract class Controller {
 	 */
 	public $user;
 
-	static protected $instance;
+	/**
+	 * Instance per class
+	 * @var Controller[]
+	 */
+	static protected $instance = array();
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -58,7 +62,7 @@ abstract class Controller {
 		$this->user = Config::getInstance()->user;
 		$this->linkVars['c'] = get_class($this);
 		Config::getInstance()->mergeConfig($this);
-		self::$instance = $this;
+		self::$instance[get_class($this)] = $this;
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
