@@ -64,6 +64,12 @@ function getDebug() {
 	return ob_get_clean();
 }
 
+function pre_print_r($a) {
+	echo '<pre style="white-space: pre-wrap;">';
+	print_r($a);
+	echo '</pre>';
+}
+
 /**
  * Whether string starts with some chars
  * @param $haystack

@@ -370,11 +370,12 @@ class HTMLForm {
 	 * @param array $selected - only keys are used
 	 * @param string $more
 	 * @param int $height
+	 * @param int $width
 	 */
-	function checkarray($name, array $options, array $selected, $more = '', $height = 700) {
+	function checkarray($name, array $options, array $selected, $more = '', $height = 700, $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: 350px; height: '.$height.'px; overflow: auto; border: solid 1px silver;">';
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
@@ -484,7 +485,7 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$this->stdout .= grModule::ahref('<img src="img/tb_folder.gif" title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
+		$this->stdout .= AppController::ahref('<img src="img/tb_folder.gif" title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
 			\''.$desc['selectID'].'\',
 			\''.$desc['treeDivID'].'\',
 			\''.$desc['tableName'].'\',
@@ -498,7 +499,7 @@ class HTMLForm {
 		"');
 		$style = 'display: none; position: absolute; left: 0; top: 0; width: 404px; height: auto; border: solid 3px #8FBC8F; margin: 3px; background-color: white; az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
-		$this->stdout .= grModule::enclose('Tree-Element Selector', '',
+		$this->stdout .= AppController::enclose('Tree-Element Selector', '',
 			array(
 				'outerStyle' => $style,
 				'foldable' => FALSE,
