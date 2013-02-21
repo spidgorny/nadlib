@@ -36,6 +36,7 @@ class Debug {
 			} else if (!is_object($a) && !is_resource($a)) {
 				$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
 			}
+			$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span>'.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
 
 			$content = '
 			<div class="debug" style="
