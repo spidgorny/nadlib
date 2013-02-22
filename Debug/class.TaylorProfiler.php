@@ -305,6 +305,31 @@ class TaylorProfiler {
 		return number_format($cur/$max, 4, '.', '');
 	}
 
+	static function enableTick($ticker = 100) {
+		register_tick_function(array(__CLASS__, 'tick'));
+		declare(ticks=1000);
+	}
+
+	static function tick() {
+		static $prev = 0;
+		$bt = debug_backtrace();
+		$list = array();
+		foreach ($bt as $row) {
+			$list[] = ($row['object'] ? get_class($row['object']) : $row['class']).'::'.$row['function'];
+		}
+		$list = array_reverse($list);
+		$list = array_slice($list, 3);
+		$mem = self::getMemUsage();
+		$diff = number_format(100*($mem - $prev), 2);
+		$diff = $diff > 0 ? '<font color="green">'.$diff.'</font>' : '<font color="red">'.$diff.'</font>';
+		echo '<pre>'.$diff.' '.number_format($mem*100, 2).'% '.implode(' // ', $list).'</pre>'."\n";
+		$prev = $mem;
+	}
+
+	static function disableTick() {
+		unregister_tick_function(array(__CLASS__, 'tick'));
+	}
+
 }
 
 /*

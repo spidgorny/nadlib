@@ -149,11 +149,13 @@ class HTMLFormTable extends HTMLForm {
 					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc);
 				break;
 				case 'submit':
+					$desc['name'] = $desc['name'] ? $desc['name'] : $this->getName($fieldName, '', true);
+					//debug($desc);
 					$this->submit($desc['value'], $desc['more'], $desc);
 				break;
 				case 'ajaxTreeInput':
 					//debug($this->getName($fieldName, '', TRUE));
-					$this->ajaxTreeInput($fieldName, $desc['tree']);
+					$this->ajaxTreeInput($fieldName, $desc['tree'], $desc);
 				break;
 				case 'captcha':
 					$this->captcha($fieldName, $fieldValue, $desc);
@@ -175,6 +177,9 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
+				break;
+				case 'radiolist':
+					$this->radioArray($fieldName, $desc['options'], $fieldValue, $desc);
 				break;
 				case 'combo':
 					$this->combo($fieldName, $desc);
@@ -286,14 +291,8 @@ class HTMLFormTable extends HTMLForm {
 				if ($desc['cursor']) {
 					$this->stdout .= "<script>
 						<!--
-							isOpera = navigator.userAgent.indexOf('Opera') != -1;
-							var obj;
-							if (isOpera) {
-								obj = document.all.{$elementID};
-							} else {
-								obj = document.getElementById('{$elementID}');
-							}
-							obj.focus();
+							var obj = document.getElementById('{$elementID}');
+							if (obj) obj.focus();
 						-->
 					</script>";
 				}
@@ -417,8 +416,8 @@ class HTMLFormTable extends HTMLForm {
 				if (!$fieldDesc['horisontal']) {
 					$this->stdout .= "</tr>";
 				}
-			} else {
-				//t3lib_div::debug(array($path, $fieldDesc));
+			} else {	// hidden
+				//debug(array($path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
 		}
