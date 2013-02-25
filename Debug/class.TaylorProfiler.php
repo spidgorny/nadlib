@@ -66,12 +66,13 @@ class TaylorProfiler {
 		return $name;
 	}
 
-    /**
-    *   Start an individual timer
-    *   This will pause the running timer and place it on a stack.
-    *   @param string $name name of the timer
-    *   @param string optional $desc description of the timer
-    */
+	/**
+	 *   Start an individual timer
+	 *   This will pause the running timer and place it on a stack.
+	 * @param string $name name of the timer
+	 * @param string $desc
+	 * @internal param \optional $string $desc description of the timer
+	 */
     function startTimer($name = NULL, $desc="" ){
 		$name = $name ? $name : $this->getName();
     	if ($this->trace_enabled) {
