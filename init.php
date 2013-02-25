@@ -70,6 +70,20 @@ function pre_print_r($a) {
 	echo '</pre>';
 }
 
+function debug_once() {
+	static $used = array();
+	$trace = debug_backtrace();
+	array_shift($trace);	// debug_once itself
+	$first = array_shift($trace);
+	$key = $first['file'].'.'.$first['line'];
+	if (!$used[$key]) {
+		$v = func_get_args();
+		//$v[] = $key;
+		call_user_func_array('debug', $v);
+		$used[$key] = true;
+	}
+}
+
 /**
  * Whether string starts with some chars
  * @param $haystack

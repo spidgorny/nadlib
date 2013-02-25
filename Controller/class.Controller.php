@@ -57,11 +57,11 @@ abstract class Controller {
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
-		$this->title = $this->title ? $this->title : get_class($this);
-		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->linkVars['c'] = get_class($this);
 		Config::getInstance()->mergeConfig($this);
+		$this->title = $this->title ? $this->title : get_class($this);
+		$this->title = $this->title ? __($this->title) : $this->title;
 		self::$instance[get_class($this)] = $this;
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}

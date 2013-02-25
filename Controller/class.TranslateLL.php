@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class TranslateLL
+ * TODO: Combine with Localize
+ */
+
 class TranslateLL extends HTMLFormProcessor {
 	protected $submitButton = 'Update';
 
