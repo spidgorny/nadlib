@@ -78,7 +78,6 @@ class Menu /*extends Controller*/ {
 			$path->setParam('c', '');
 		}
 		$this->basePath = $path;
-		//debug($this->basePath);
 	}
 
 	/**
