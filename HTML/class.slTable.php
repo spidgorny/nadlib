@@ -533,8 +533,9 @@ class slTable {
 	}
 
 	function getData($table) {
-		$cols = $GLOBALS['db']->getTableColumns($table);
-		$data = $GLOBALS['db']->getTableDataEx($table, "deleted = 0");
+		$db = Config::getInstance()->db;
+		$cols = $db->getTableColumns($table);
+		$data = $db->getTableDataEx($table, "deleted = 0");
 		for ($i = 0; $i < sizeof($data); $i++) {
 			$this->addRow();
 			$iCol = 0;
