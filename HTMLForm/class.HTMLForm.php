@@ -19,14 +19,17 @@ class HTMLForm {
 		$this->action = $action;
 	}
 
-	function formHideArray($name, array $ar) {
-		$ret = '';
+	function formHideArray(array $ar) {
 		foreach($ar as $k => $a) {
-			$a = htmlspecialchars($a, ENT_QUOTES);
-			$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value=\"$a\">";
+			if (is_array($a)) {
+				$this->prefix[] = $k;
+				$this->formHideArray($a);
+				array_pop($this->prefix);
+			} else {
+				//$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value='$a'>";
+				$this->hidden($k, $a);
+			}
 		}
-		$this->stdout .= $ret;
-		return $ret;
 	}
 
 	function action($action) {
@@ -80,9 +83,25 @@ class HTMLForm {
 		return $a;
 	}
 
+	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
+		$a = '';
+		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
+		$a .= $this->getName($name, $namePlus);
+		if ($value || $value === 0) {
+			$value = htmlspecialchars($value, ENT_QUOTES);
+			$a .= ' value="'.$value.'"';
+		}
+		if ($more) {
+			$a .= " " . $more;
+		}
+		$a .= ">";
+		return $a;
+	}
+
 	function input($name, $value = "", $more = '', $type = 'text') {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
+		$this->stdout .= $this->getInput($type, $name, $value, $more);
 	}
 
 	function label($for, $text) {
@@ -104,23 +123,36 @@ class HTMLForm {
 	}
 
 	function password($name, $value = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
+		$this->stdout .= $this->getInput("password", $name, $value, $more);
 	}
 
 	function hidden($name, $value, $more = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
+		$this->stdout .= $this->getInput("hidden", $name, $value, $more);
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $value
+	 * @param strting $checked		- must be value
+	 * @param string $more
+	 */
 	function radio($name, $value, $checked, $more = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." $more>";
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." $more>";
+		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "").' '.$more);
 	}
 
 	function check($name, $value = 1, $checked = false, $more = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
+		$this->stdout .= $this->getInput("checkbox", $name, $value,
+			($checked?'checked="checked"':"").' '.
+			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
+			$more);
 	}
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
@@ -145,7 +177,9 @@ class HTMLForm {
 	}
 
 	function file($name, array $desc = array()) {
-		$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
+		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
+		$this->stdout .= $this->getInput("file", $name, '', $desc['more']);
+		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
 
@@ -235,8 +269,10 @@ class HTMLForm {
 
 	function submit($value = NULL, $more = "", array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
-		$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
-		$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
+		$params['name'] = $params['name'] ? $params['name'] : 'submit';
+		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
+		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
+		$this->stdout .= $this->getInput("submit", $params['name'], $value, $more.$this->getAttrHTML($params));
 	}
 
 	function button($innerHTML = NULL, $more = '') {
@@ -292,8 +328,9 @@ class HTMLForm {
 	function combo($fieldName, array $desc) {
 		if ($desc['table']) {
 			// TODO: replace with SQLBuilder->getTableOptions()
-			$options = $GLOBALS['db']->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
-			$options = $GLOBALS['db']->IDalize($options, 'value', 'value');
+			$db = Config::getInstance()->db;
+			$options = $db->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
+			$options = $db->IDalize($options, 'value', 'value');
 		} else {
 			$options = $desc['options'];
 		}

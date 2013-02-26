@@ -155,7 +155,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'ajaxTreeInput':
 					//debug($this->getName($fieldName, '', TRUE));
-					$this->ajaxTreeInput($fieldName, $desc['tree'], $desc);
+					$this->ajaxTreeInput($fieldName, $desc['value'], $desc);
 				break;
 				case 'captcha':
 					$this->captcha($fieldName, $fieldValue, $desc);
@@ -417,7 +417,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->stdout .= "</tr>";
 				}
 			} else {	// hidden
-				//debug(array($path, $fieldDesc));
+				debug(array($formData, $path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
 		}
