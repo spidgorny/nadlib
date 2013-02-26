@@ -25,8 +25,18 @@ class Collection {
 	public $thes = array();
 
 	var $titleColumn = 'title';
+
+	/**
+	 * Basic where SQL params to be included in every SQL by default
+	 * @var $this|array
+	 */
 	public $where = array();
-	public $join = ''; // for LEFT OUTER JOIN queries
+
+	/**
+	 * for LEFT OUTER JOIN queries
+	 * @var string
+	 */
+	public $join = '';
 
 	/**
 	 * Initialize in postInit() to run paged SQL
@@ -96,6 +106,7 @@ class Collection {
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
+		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
 		$this->postInit();
@@ -127,6 +138,7 @@ class Collection {
 	 */
 	function retrieveDataFromDB($allowMerge = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
