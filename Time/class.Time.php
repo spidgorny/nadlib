@@ -284,6 +284,7 @@ class Time {
 	 * Modifies self!
 	 *
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return unknown
 	 */
 	function add(Time $plus, $debug = FALSE) {
@@ -298,6 +299,7 @@ class Time {
 	 * Modifies self!
 	 *
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return unknown
 	 */
 	function substract(Time $plus, $debug = FALSE) {
@@ -309,8 +311,9 @@ class Time {
 	}
 
 	/**
-	 *
+	 * Does not modify itself
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return Time
 	 */
 	function plus(Time $plus, $debug = FALSE) {
@@ -336,8 +339,9 @@ class Time {
 	}
 
 	/**
-	 *
+	 * Does not modify itself
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return Time
 	 */
 	function minus(Time $plus, $debug = FALSE) {
@@ -358,8 +362,9 @@ class Time {
 	}
 
 	/**
-	 *
+	 * Does not modify itself
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return Time
 	 */
 	function minus2(Time $plus, $debug = FALSE) {
@@ -367,16 +372,16 @@ class Time {
 		//$format = gmmktime($plus->format('H'), $plus->format('i'), $plus->format('s'), $plus->format('m'), $plus->format('d'), $plus->format('Y'));
 		$format = $plus->getTimestamp();
 		$new = $this->time - $format;
-		if ($debug) echo $this . ' '. $format.' = '.$new.'<br>';
+		if ($debug) echo $this . ' - '. $format.' = '.$new.'<br>';
 		$new = new Time($new);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $new;
 	}
 
 	/**
-	 * Modifies itself according to the format. Truncate by hour: Y-m-d H:00:00
-	 *
-	 * @param unknown_type $format
+	 * Modifies itself according to the format.
+	 * Truncate by hour: Y-m-d H:00:00
+	 * @param string $format
 	 */
 	function modify($format) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -386,6 +391,11 @@ class Time {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * Creates a new Time by formatting itself to a string first
+	 * @param $format
+	 * @return Time
+	 */
 	function getModify($format) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$new = new Time($this->format($format));
