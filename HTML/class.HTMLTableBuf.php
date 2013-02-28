@@ -35,12 +35,8 @@ class HTMLTableBuf {
 		$this->stdout .= "</td>\n";
 	}
 
-	function cell($a, $width = NULL, $more = '') {
-		if ($width) {
-			$this->td('width="'.$width.'" '.$more);
-		} else {
-			$this->td($more);
-		}
+	function cell($a, array $more = array()) {
+		$this->td(HTMLTag::renderAttr($more));
 		$this->stdout .= $a;
 		$this->tde();
 	}

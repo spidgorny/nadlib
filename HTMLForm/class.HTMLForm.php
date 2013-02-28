@@ -80,6 +80,7 @@ class HTMLForm {
 		if (!$onlyValue) {
 			$a = ' name="'.$a.'"';
 		}
+		//debug($this->prefix, $name, $a);
 		return $a;
 	}
 
@@ -199,7 +200,7 @@ class HTMLForm {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
-		$this->renderSelectionOptions($aOptions, $default, $desc);
+		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
 	}
 
@@ -209,9 +210,11 @@ class HTMLForm {
 	 * @param array $desc
 	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
 	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 * @return string
 	 */
-	function renderSelectionOptions(array $aOptions, $default, array $desc) {
+	function getSelectionOptions(array $aOptions, $default, array $desc = array()) {
 		//Debug::debug_args($aOptions);
+		$content = '';
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
@@ -230,22 +233,23 @@ class HTMLForm {
 				}
 			}
 			if ($option instanceof HTMLTag) {
-				$this->stdout .= $option;
+				$content .= $option;
 			} else if ($option instanceof Recursive) {
-				$this->stdout .= '<optgroup label="'.$option.'">';
-				$this->renderSelectionOptions($option->getChildren(), $default, $desc);
-				$this->stdout .= '</optgroup>';
+				$content .= '<optgroup label="'.$option.'">';
+				$content .= $this->getSelectionOptions($option->getChildren(), $default, $desc);
+				$content .= '</optgroup>';
 			} else {
-				$this->stdout .= "<option value=\"$value\"";
+				$content .= "<option value=\"$value\"";
 				if ($selected) {
-					$this->stdout .= " selected";
+					$content .= " selected";
 				}
 				if (isset($desc['classAsValuePrefix'])) {
-					$this->stdout .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
+					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
-				$this->stdout .= ">$option</option>\n";
+				$content .= ">$option</option>\n";
 			}
 		}
+		return $content;
 	}
 
 	function date($name, $value) {

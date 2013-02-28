@@ -422,7 +422,7 @@ class SQLBuilder {
 		$q = "SELECT $select FROM " . $this->quoteKey($table);
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" AND ", $set);
+			$q .= "\nWHERE " . implode(" AND ", $set);
 		}
 		$q .= " ".$order;
 		return $q;

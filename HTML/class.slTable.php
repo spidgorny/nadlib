@@ -211,7 +211,7 @@ class slTable {
 				$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
 				$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
 				if ($thv['align']) {
-					$thmore[$thk] .= ' align="'.$thv['align'].'"';
+					$thmore[$thk]['align'] = $thv['align'];
 				}
 			} else {
 				$thvName = $thv;
@@ -365,14 +365,35 @@ class slTable {
 						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 						$out = $wrap->wrap($out);
 					}
-					$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
+					$more = array();
+					if ($this->isAlternatingColumns) {
+						$more['class'][] = ($iCol%2?'even':'odd');
+					}
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
-					$more .= (isset($k['more']) ? $k['more'] : NULL).
-						(isset($k['colspan']) ? 'colspan="'.$k['colspan'].'"' : '').
-						(isset($k['align']) ? 'align="'.$k['align'].'"' : '');
-					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
+
+					if (isset($k['more'])) {
+						if (is_array($k['more'])) {
+							$more += $k['more'];
+						} else {
+							debug(__METHOD__, $col, $k, $row);
+							die(' Consider making your "more" an array');
+							$more .= $k['more'];
+						}
+					}
+
+					if (isset($k['colspan'])) {
+						$more['colspan'] = $k['colspan'];
+					}
+					if (isset($k['align'])) {
+						$more['align'] = $k['align'];
+					}
+					if (isset($width[$iCol])) {
+						$more['width'] = $width[$iCol];
+					}
+
+					$t->cell($out, $more);
 					$iCol++;
 				}
 			}

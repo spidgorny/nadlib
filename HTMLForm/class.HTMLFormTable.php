@@ -110,7 +110,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "select":
 				case "selection":
-					$options = $this->getSelectionOptions($desc);
+					$options = $this->fetchSelectionOptions($desc);
 					$this->selection($fieldName, $options,
 						isset($fieldValue) ? $fieldValue : $desc['default'],
 						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
@@ -149,7 +149,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc);
 				break;
 				case 'submit':
-					$desc['name'] = $desc['name'] ? $desc['name'] : $this->getName($fieldName, '', true);
+					$desc['name'] = $desc['name'] ? $desc['name'] : $fieldName;
 					//debug($desc);
 					$this->submit($desc['value'], $desc['more'], $desc);
 				break;
@@ -416,8 +416,8 @@ class HTMLFormTable extends HTMLForm {
 				if (!$fieldDesc['horisontal']) {
 					$this->stdout .= "</tr>";
 				}
-			} else {	// hidden
-				debug(array($formData, $path, $fieldDesc));
+			} else if ($sType == 'hidden') { // hidden
+				//debug(array($formData, $path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
 		}
@@ -546,7 +546,7 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function getSelectionOptions(array $desc) {
+	function fetchSelectionOptions(array $desc) {
 		if ($desc['from'] && $desc['title']) {
 			//debugster($desc);
 			$options = Config::getInstance()->qb->getTableOptions($desc['from'],
