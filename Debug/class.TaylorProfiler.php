@@ -202,10 +202,10 @@ class TaylorProfiler {
             $s = new slTable();
             $s->thes(array(
             	'nr' => 'nr',
-            	'count' => array('name' => 'count', 'more' => 'align="right"'),
-            	'time, ms' => array('name' => 'time, ms', 'more' => 'align="right"'),
-            	'avg/1' => array('name' => 'avg/1', 'more' => 'align="right"'),
-            	'percent' => array('name' => 'percent', 'more' => 'align="right"'),
+            	'count' => array('name' => 'count', 'align' => 'right'),
+            	'time, ms' => array('name' => 'time, ms', 'align' => 'right'),
+            	'avg/1' => array('name' => 'avg/1', 'align' => 'right'),
+            	'percent' => array('name' => 'percent', 'align' => 'right'),
             	'routine' => array('name' => 'routine', 'no_hsc' => true),
             ));
             $s->more = 'class="view_array" width="100%"';
