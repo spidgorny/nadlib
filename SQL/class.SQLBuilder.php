@@ -300,10 +300,10 @@ class SQLBuilder {
 	}
 
 	/**
-	 * Quotes the complete array if neccessary.
+	 * Quotes the complete array if necessary.
 	 *
 	 * @param array $a
-	 * @return unknown
+	 * @return array
 	 */
 	function quoteValues(array $a) {
 		$c = array();
@@ -405,7 +405,7 @@ class SQLBuilder {
 		$q = "update $table set ";
 		$set = $this->quoteLike($columns, '$key = $val');
 		$q .= implode(", ", $set);
-		$q .= " where ";
+		$q .= "\nWHERE\n";
 		$q .= implode(" and ", $this->quoteWhere($where));
 		return $q;
 	}
@@ -419,21 +419,21 @@ class SQLBuilder {
 	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
 		$table1 = $this->getFirstWord($table);
 		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
-		$q = "SELECT $select FROM " . $this->quoteKey($table);
+		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
-			$q .= "\nWHERE " . implode(" AND ", $set);
+			$q .= "\nWHERE\n" . implode("\nAND ", $set);
 		}
-		$q .= " ".$order;
+		$q .= "\n".$order;
 		return $q;
 	}
 
 	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
 		$table1 = $this->getFirstWord($table);
 		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
-		$q = "SELECT $select FROM " . $this->quoteKey($table);
+		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$q .= $where->__toString();
-		$q .= " ".$order;
+		$q .= "\n".$order;
 		return $q;
 	}
 
@@ -441,9 +441,9 @@ class SQLBuilder {
 		$q = "DELETE FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" AND ", $set);
+			$q .= "\nWHERE " . implode(" AND ", $set);
 		} else {
-			$q .= ' WHERE 1 = 0'; // avoid truncate()
+			$q .= "\nWHERE 1 = 0"; // avoid truncate()
 		}
 		return $q;
 	}
