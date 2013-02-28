@@ -340,7 +340,7 @@ class SQLBuilder {
 				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 				//	$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
-					$set[] = $key . ' ' . $val;
+					$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
 				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working

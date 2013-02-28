@@ -133,7 +133,15 @@ class HTMLForm {
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$id = $this->prefix."_".$name."_".$value;
 		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."'> ";
-		$this->stdout .= "<label for=$id>".htmlspecialchars($label)."</label>";
+		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+	}
+
+	function hsc($label) {
+		if ($label instanceof htmlString) {
+			return $label;
+		} else {
+			return htmlspecialchars($label, ENT_QUOTES);
+		}
 	}
 
 	function file($name, array $desc = array()) {
@@ -362,11 +370,12 @@ class HTMLForm {
 	 * @param array $selected - only keys are used
 	 * @param string $more
 	 * @param int $height
+	 * @param int $width
 	 */
-	function checkarray($name, array $options, array $selected, $more = '', $height = 700) {
+	function checkarray($name, array $options, array $selected, $more = '', $height = 700, $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: 350px; height: '.$height.'px; overflow: auto; border: solid 1px silver;">';
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
@@ -379,14 +388,21 @@ class HTMLForm {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
-	function radioArray($name, $options, $selected) {
+	/**
+	 * This one makes a span with a title and is showing data in a specific width
+	 * @param $name
+	 * @param array $options
+	 * @param $selected
+	 * @see $this->radioset()
+	 */
+	function radioArray($name, array $options, $selected) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<div class="checkline_'.($checked ? 'active' : 'normal').'">';
-			$this->radioLabel($name, $value, $checked, '<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
+			$this->radioLabel($name, $value, $checked, new htmlString('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>'));
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
@@ -469,7 +485,7 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$this->stdout .= grModule::ahref('<img src="img/tb_folder.gif" title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
+		$this->stdout .= AppController::ahref('<img src="img/tb_folder.gif" title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
 			\''.$desc['selectID'].'\',
 			\''.$desc['treeDivID'].'\',
 			\''.$desc['tableName'].'\',
@@ -483,7 +499,7 @@ class HTMLForm {
 		"');
 		$style = 'display: none; position: absolute; left: 0; top: 0; width: 404px; height: auto; border: solid 3px #8FBC8F; margin: 3px; background-color: white; az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
-		$this->stdout .= grModule::enclose('Tree-Element Selector', '',
+		$this->stdout .= AppController::enclose('Tree-Element Selector', '',
 			array(
 				'outerStyle' => $style,
 				'foldable' => FALSE,
@@ -496,7 +512,7 @@ class HTMLForm {
 			));
 	}
 
-	function ajaxTreeInput($fieldName, $fieldValue, $desc) {
+	function ajaxTreeInput($fieldName, $fieldValue, array $desc) {
 		$desc['more'] = isset($desc['more']) ? $desc['more'] : NULL;
 		$desc['size'] = isset($desc['size']) ? $desc['size'] : NULL;
 		$desc['cursor'] = isset($desc['cursor']) ? $desc['cursor'] : NULL;
