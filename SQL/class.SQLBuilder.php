@@ -269,14 +269,16 @@ class SQLBuilder {
 			return "'".$this->db->escape($value->__toString())."'";
 		} else if ($value instanceof SQLDate) {
 			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value === NULL) {
-			return "NULL";
-		} else if (is_numeric($value) && !$this->isExp($value)) {
-			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if ($value instanceof AsIs) {
 			return $value.'';
 		} else if ($value instanceof SimpleXMLElement) {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
+		} else if (is_object($value)) {
+			return "'".$this->db->escape($value)."'";
+		} else if ($value === NULL) {
+			return "NULL";
+		} else if (is_numeric($value) && !$this->isExp($value)) {
+			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
 			return intval($value); // MySQL specific
