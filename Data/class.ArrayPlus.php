@@ -40,6 +40,11 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $self;
 	}
 
+	/**
+	 * Returns an array of the elements in a specific column
+	 * @param $col
+	 * @return $this
+	 */
 	function column($col) {
 		$return = array();
 		foreach ($this->data as $key => $row) {

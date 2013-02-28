@@ -239,7 +239,7 @@ class OODBase {
 	 * @return slTable
 	 */
 	function renderAssoc(array $assoc = NULL, $recursive = false) {
-		$assoc = $assoc ?: $this->data;
+		$assoc = $assoc ? $assoc : $this->data;
 		//debug($this->thes);
 		if ($this->thes) {
 			$assoc = array();
@@ -276,7 +276,8 @@ class OODBase {
 			$inst = &self::$instance[$id];
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instance));
-				$inst = new static();	// don't put anything else here
+				$static = get_called_class();
+				$inst = new $static();	// don't put anything else here
 				$inst->init($id);		// separate call to avoid infinite loop in ORS
 			}
 		} else {
