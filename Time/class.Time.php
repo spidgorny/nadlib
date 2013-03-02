@@ -489,6 +489,7 @@ class Time {
 	 *
 	 * @static
 	 * @param $str
+	 * @param null $rel
 	 * @return Time
 	 */
 	static function makeInstance($str, $rel = NULL) {
@@ -504,6 +505,13 @@ class Time {
 	 */
 	function getDurationObject() {
 		return new Duration($this->time);
+	}
+
+	function older($sDuration) {
+		$duration = new Duration($sDuration);
+		$difference = Time::makeInstance('now')->minus($this);
+		$older = $difference->later($duration);
+		return $older;
 	}
 
 }
