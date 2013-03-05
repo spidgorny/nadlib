@@ -280,11 +280,11 @@ class Collection {
 	/**
 	 * Will detect double-call and do nothing.
 	 *
-	 * @param string $class
+	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class, $byInstance = false) {
+	function objectify($class = '', $byInstance = false) {
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
