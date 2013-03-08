@@ -254,9 +254,9 @@ class SQLBuilder {
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
 	 * @param $value
-	 * @param $key
-	 * @return string
 	 * @throws Exception
+	 * @internal param $key
+	 * @return string
 	 */
 	function quoteSQL($value) {
 		if ($value instanceof AsIs) {
