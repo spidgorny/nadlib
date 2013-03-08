@@ -21,6 +21,9 @@ class ProgressBar {
 	function render() {
 		if (!$this->cli) {
 			print($this->getContent());
+			$l = new lessc();
+			$css = $l->compileFile('nadlib/CSS/ProgressBar.less');
+			print '<style>'.$css.'</style>';
 			$this->flush();
 		}
 	}
@@ -49,14 +52,14 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo $text."\n";
+			echo ($text ? $text : $percentDone)."\n";
 		} else {
 			print('
 			<script type="text/javascript">
 			if (document.getElementById("'.$this->pbarid.'")) {
 				document.getElementById("'.$this->pbarid.'").style.width = "'.$percentDone.'%";');
 			if ($percentDone == 100) {
-				print('document.getElementById("'.$this->pbid.'").style.display = "none";');
+				print('document.getElementById("'.$this->tbarid.'").style.display = "none";');
 			} else {
 				print('document.getElementById("'.$this->tbarid.'").style.width = "'.(100-$percentDone).'%";');
 			}
@@ -72,6 +75,10 @@ class ProgressBar {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
 		//ob_end_flush();
 		flush();
+	}
+
+	function __destruct() {
+		$this->setProgressBarProgress(100);
 	}
 
 }

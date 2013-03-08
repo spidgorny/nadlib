@@ -10,7 +10,11 @@ function __autoload($class) {
 }
 
 function initNADLIB() {
-	define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
+	//print_r($_SERVER);
+	define('DEVELOPMENT', isset($_SERVER['argc'])
+		? (($_SERVER['OS'] == 'Windows_NT') || true)// at home
+		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+	);
 	if (DEVELOPMENT) {
 		error_reporting(E_ALL ^ E_NOTICE);
 		//ini_set('display_errors', FALSE);
@@ -19,11 +23,11 @@ function initNADLIB() {
 		ini_set('display_errors', TRUE);
 		ini_set('html_error', TRUE);
 
-		$profiler = new TaylorProfiler(TRUE);	// GLOBALS
+		$GLOBALS['profiler'] = new TaylorProfiler(TRUE);	// GLOBALS
 		/* @var $profiler TaylorProfiler */
 		if (class_exists('Config')) {
 			//print_r(Config::getInstance()->config['Config']);
-			set_time_limit(Config::getInstance()->config['Config']['timeLimit'] ? Config::getInstance()->config['Config']['timeLimit'] : 5);
+			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
 		}
 		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 		header('Cache-Control: no-cache, no-store, max-age=0');
@@ -43,7 +47,11 @@ function initNADLIB() {
 
 function debug($a) {
 	$params = func_get_args();
-	call_user_func_array(array('Debug', 'debug_args'), $params);
+	if (method_exists('Debug', 'debug_args')) {
+		call_user_func_array(array('Debug', 'debug_args'), $params);
+	} else {
+		echo '<pre>'.htmlspecialchars(print_r($params, true)).'</pre>';
+	}
 }
 
 function nodebug() {
@@ -54,6 +62,26 @@ function getDebug() {
 	$params = func_get_args();
 	call_user_func_array(array('Debug', 'debug_args'), $params);
 	return ob_get_clean();
+}
+
+function pre_print_r($a) {
+	echo '<pre style="white-space: pre-wrap;">';
+	print_r($a);
+	echo '</pre>';
+}
+
+function debug_once() {
+	static $used = array();
+	$trace = debug_backtrace();
+	array_shift($trace);	// debug_once itself
+	$first = array_shift($trace);
+	$key = $first['file'].'.'.$first['line'];
+	if (!$used[$key]) {
+		$v = func_get_args();
+		//$v[] = $key;
+		call_user_func_array('debug', $v);
+		$used[$key] = true;
+	}
 }
 
 /**
@@ -98,7 +126,7 @@ function trimExplode($sep, $str) {
 }
 
 function debug_pre_print_backtrace() {
-	if ($_COOKIE['debug']) {
+	if (DEVELOPMENT) {
 		print '<pre>';
 		if (phpversion() >= '5.3') {
 			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);

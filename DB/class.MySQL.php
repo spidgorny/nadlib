@@ -3,7 +3,7 @@
 class MySQL {
 	public $db;
 	public $lastQuery;
-	public $connection;
+	protected $connection;
 	protected static $instance;
 	public $queryLog = array();		// set to NULL for disabling
 
@@ -18,6 +18,7 @@ class MySQL {
 
 	function connect($host, $login, $password) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//echo __METHOD__.'<br />';
 		ini_set('mysql.connect_timeout', 1);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
@@ -110,9 +111,9 @@ class MySQL {
 		if (is_resource($res)) {
 			$row = mysql_fetch_assoc($res);
 		} else {
-			error_log('is not a resource: '.$this->lastQuery);
-			debug('is not a resource', $res);
+			debug('is not a resource', $this->lastQuery, $res);
 			debug_pre_print_backtrace();
+			exit();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
@@ -196,10 +197,12 @@ class MySQL {
 
 	/**
 	 * Return ALL rows
-	 * @param <type> $table
-	 * @param <type> $where
 	 * @param <type> $order
-	 * @return <type>
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addFields
+	 * @param bool $exclusive
+	 * @return array <type>
 	 */
 	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
@@ -271,6 +274,20 @@ class MySQL {
 	function switchDB($db) {
 		$this->db = $db;
 		mysql_select_db($this->db);
+	}
+
+	function fetchOptions($query) {
+		$data = array();
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		while (($row = mysql_fetch_row($result)) != FALSE) {
+			list($key, $val) = $row;
+			$data[$key] = $val;
+		}
+		return $data;
 	}
 
 }

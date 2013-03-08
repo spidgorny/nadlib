@@ -42,7 +42,7 @@ class slTable {
 	public $SLTABLE_IMG_CROSS = '☐';
 
 	function __construct($id = NULL, $more="", array $thes = array()) {
-		if (is_array($id)) {
+		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
 			$this->ID = md5(time());
 		} else if ($id) {
@@ -52,7 +52,7 @@ class slTable {
 		}
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
-		$this->db = Config::getInstance()->db;
+		$this->db = class_exists('Config') ? Config::getInstance()->db : NULL;
 		if (!file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
 			$this->arrowAsc = '&#x25b2;';
@@ -176,21 +176,23 @@ class slTable {
 	}
 
 	function generateThes() {
-		$thes = array();
-		foreach ($this->data as $current) {
-			$thes = array_merge($thes, array_keys($current));
-			$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
-		}
-		$thes = array_combine($thes, $thes);
-		foreach ($thes as &$th) {
-			$th = array('name' => $th);
-		} unset($th);
-		unset($thes['###TD_CLASS###']);
-		$this->thes($thes);
-		$this->isOddEven = TRUE;
-		//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
-		if (!$this->more) {
-			$this->more = 'class="nospacing"';
+		if (!sizeof($this->thes)) {
+			$thes = array();
+			foreach ($this->data as $current) {
+				$thes = array_merge($thes, array_keys($current));
+				$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
+			}
+			$thes = array_combine($thes, $thes);
+			foreach ($thes as &$th) {
+				$th = array('name' => $th);
+			} unset($th);
+			unset($thes['###TD_CLASS###']);
+			$this->thes($thes);
+			$this->isOddEven = TRUE;
+			//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
+			if (!$this->more) {
+				$this->more = 'class="nospacing"';
+			}
 		}
 	}
 
@@ -209,7 +211,7 @@ class slTable {
 				$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
 				$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
 				if ($thv['align']) {
-					$thmore[$thk] .= ' align="'.$thv['align'].'"';
+					$thmore[$thk]['align'] = $thv['align'];
 				}
 			} else {
 				$thvName = $thv;
@@ -269,9 +271,7 @@ class slTable {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
 		if (!$this->generation) {
 			if (sizeof($this->data) && $this->data != FALSE) {
-				if (!sizeof($this->thes)) {
-					$this->generateThes();
-				}
+				$this->generateThes();
 
 				if ($this->sortable) {
 					$this->sort();
@@ -282,11 +282,10 @@ class slTable {
 
 				$this->generateThead($t);
 
-				// td
-				if (!is_array($this->data)) {
-					$data = array();
-				} else {
+				if (is_array($this->data) || $this->data instanceof Traversable) {
 					$data = $this->data;
+				} else {
+					$data = array();
 				}
 				$i = -1;
 				foreach ($data as $key => $row) { // (almost $this->data)
@@ -366,14 +365,35 @@ class slTable {
 						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 						$out = $wrap->wrap($out);
 					}
-					$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
+					$more = array();
+					if ($this->isAlternatingColumns) {
+						$more['class'][] = ($iCol%2?'even':'odd');
+					}
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
-					$more .= (isset($k['more']) ? $k['more'] : NULL).
-						(isset($k['colspan']) ? 'colspan="'.$k['colspan'].'"' : '').
-						(isset($k['align']) ? 'align="'.$k['align'].'"' : '');
-					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
+
+					if (isset($k['more'])) {
+						if (is_array($k['more'])) {
+							$more += $k['more'];
+						} else {
+							debug(__METHOD__, $col, $k, $row);
+							die(' Consider making your "more" an array');
+							$more .= $k['more'];
+						}
+					}
+
+					if (isset($k['colspan'])) {
+						$more['colspan'] = $k['colspan'];
+					}
+					if (isset($k['align'])) {
+						$more['align'] = $k['align'];
+					}
+					if (isset($width[$iCol])) {
+						$more['width'] = $width[$iCol];
+					}
+
+					$t->cell($out, $more);
 					$iCol++;
 				}
 			}
@@ -534,8 +554,9 @@ class slTable {
 	}
 
 	function getData($table) {
-		$cols = $GLOBALS['db']->getTableColumns($table);
-		$data = $GLOBALS['db']->getTableDataEx($table, "deleted = 0");
+		$db = Config::getInstance()->db;
+		$cols = $db->getTableColumns($table);
+		$data = $db->getTableDataEx($table, "deleted = 0");
 		for ($i = 0; $i < sizeof($data); $i++) {
 			$this->addRow();
 			$iCol = 0;
@@ -563,8 +584,10 @@ class slTable {
 	 */
 	public function getTotals() {
 		$footer = array();
+		$this->generateThes();
 		reset($this->data);
 		$first = current($this->data);
+		//debug($this->data, $first);
 		if ($first) {
 			foreach ($this->thes as $col => $_) {
 				$first[$col] = strip_tags($first[$col]);

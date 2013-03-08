@@ -72,7 +72,7 @@ abstract class FullGrid extends Grid {
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
-		$f->formHideArray('', $this->linkVars);
+		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
 		$f->showForm($this->getFilterDesc($fields));
 		$f->submit('Filter');
@@ -148,7 +148,7 @@ abstract class FullGrid extends Grid {
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
-		$f->formHideArray('', $this->linkVars);
+		$f->formHideArray($this->linkVars);
 		//$f->prefix('columns');
 		$f->showForm($desc);
 		$f->submit('Set');

@@ -40,6 +40,11 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $self;
 	}
 
+	/**
+	 * Returns an array of the elements in a specific column
+	 * @param $col
+	 * @return $this
+	 */
 	function column($col) {
 		$return = array();
 		foreach ($this->data as $key => $row) {
@@ -68,7 +73,9 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	/**
 	 * Modifies itself
-	 * @param type $key
+	 * @param string $key
+	 * @param bool $allowMerge
+	 * @throws Exception
 	 * @return ArrayPlus
 	 */
 	function IDalize($key = 'id', $allowMerge = false) {
@@ -350,6 +357,20 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	function implode($sep) {
 		return implode($sep, $this->data);
+	}
+
+	function typoscript($prefix = '') {
+		$replace = array();
+		foreach ($this->data as $key => $val) {
+			$prefixKey = $prefix ? $prefix.'.'.$key : $key;
+			if (is_array($val)) {
+				$plus = AP($val)->typoscript($prefixKey);
+				$replace += $plus;
+			} else {
+				$replace[$prefixKey] = $val;
+			}
+		}
+		return $replace;
 	}
 
 }

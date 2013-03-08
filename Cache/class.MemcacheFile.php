@@ -7,12 +7,13 @@ class MemcacheFile {
 		// fix for relative path on eval and buglog
 		$pathprefix = dirname(__FILE__);
 		$full = strlen($pathprefix);
-		$neg = strlen('nadlib');
+		$neg = strlen('nadlib/Cache');
 		$end = $full - $neg;
 		$sub = substr($pathprefix, 0, $end);
 
 		if (!file_exists($sub.'/'.$this->folder)) {
-			die(__METHOD__);
+			debug(__METHOD__, $sub.'/'.$this->folder);
+			die();
 		} else {
 			$this->folder = getcwd() . DIRECTORY_SEPARATOR . $this->folder;
 		}

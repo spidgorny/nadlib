@@ -34,7 +34,11 @@ abstract class Controller {
 	 */
 	public $user;
 
-	static protected $instance;
+	/**
+	 * Instance per class
+	 * @var Controller[]
+	 */
+	static protected $instance = array();
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -53,11 +57,12 @@ abstract class Controller {
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
-		$this->title = $this->title ? $this->title : get_class($this);
-		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->linkVars['c'] = get_class($this);
 		Config::getInstance()->mergeConfig($this);
+		$this->title = $this->title ? $this->title : get_class($this);
+		$this->title = $this->title ? __($this->title) : $this->title;
+		self::$instance[get_class($this)] = $this;
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
@@ -131,12 +136,12 @@ abstract class Controller {
 		return $table;
 	}
 
-/*	static function getInstance() {
+	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance ? self::$instance : new $static();
+		return self::$instance[$static];
 	}
-*/
+
 	function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
@@ -164,7 +169,7 @@ abstract class Controller {
 	 * @param bool $preserveSpaces	- leaves spaces
 	 * @return string				- converted to URL friendly name
 	 */
-	static function friendlyURL($string, $preserveSpaces) {
+	static function friendlyURL($string, $preserveSpaces = false) {
 		$string = preg_replace("`\[.*\]`U","",$string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
@@ -180,7 +185,7 @@ abstract class Controller {
 	}
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
-		$h = $h ?: $this->encloseTag;
+		$h = $h ? $h : $this->encloseTag;
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
@@ -209,45 +214,6 @@ abstract class Controller {
 			</div>';
 		}
 		return $content;
-	}
-
-	function log($text, $class = NULL, $done = NULL, array $extra = array()) {
-		//debug_pre_print_backtrace();
-		if (Config::getInstance()->config[__CLASS__]['log'] !== false) {
-			if (Config::getInstance()->db) {
-				Config::getInstance()->db->runInsertQuery('log', array(
-					'pid' => getmypid(),
-					'class' => strval($class),
-					'done' => floatval($done),
-					'line' => $text,
-				)+$extra);
-			}
-			echo '<tr><td>'.implode('</td><td>', array(
-				date('Y-m-d H:i:s'),
-				getmypid(),
-				$class,
-				'<img src="bar.php?rating='.round($done*100).'" /> '.number_format($done*100, 3).'%',
-				$extra['id_channel'],
-				$extra['date'],
-				$text,
-			)).'</td></tr>'."\n";
-		}
-		flush();
-	}
-
-	function randomBreak() {
-/*		$rand = rand(1, 10);
-		$this->log('Sleep '.$rand);
-		sleep($rand);
-		$this->log('.<br>');
-*/	}
-
-	function checkStop() {
-		if (file_exists('cron.stop')) {
-			$this->log('Forced stop.');
-			unlink('cron.stop');
-			exit();
-		}
 	}
 
 	function performAction() {

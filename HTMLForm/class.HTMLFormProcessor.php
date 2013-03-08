@@ -63,7 +63,8 @@ abstract class HTMLFormProcessor extends AppController {
 			$this->form->desc = $this->desc;
 		} else {
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
-			$this->form->importValues(new Request($this->default));
+			//debug($this->default);
+			$this->form->importValues($this->default instanceof Request ? $this->default : new Request($this->default));
 			$this->desc = $this->form->desc;
 		}
 	}
@@ -81,7 +82,9 @@ abstract class HTMLFormProcessor extends AppController {
 		//debug($errors);
 		//debug($this->desc);
 		if ($this->validated) {
-			$content .= $this->onSuccess($this->form->getValues());
+			//$data = $this->form->getValues();	// doesn't work with multidimentional
+			$data = $this->request->getArray($this->prefix);
+			$content .= $this->onSuccess($data);
 		} else {
 			if ($this->submitted) {
 				$content .= '<div class="error alert alert-error ui-state-error padding">'.
@@ -89,7 +92,7 @@ abstract class HTMLFormProcessor extends AppController {
 			}
 			$content .= $this->showForm();
 		}
-		$content = $this->encloseInAA($content, $this->title = 'Options');
+		$content = $this->encloseInAA($content, $this->title);
 		return $content;
 	}
 

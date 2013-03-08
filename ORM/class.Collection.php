@@ -60,7 +60,7 @@ class Collection {
 	 * SQL part
 	 * @var string
 	 */
-	protected $orderBy = "uid";
+	public $orderBy = "uid";
 
 	/**
 	 * getQuery() stores the final query here for debug
@@ -119,7 +119,7 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0) {
+		if (!$this->parentID || $this->parentID > 0) {	// -1 will not retrieve
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -136,7 +136,7 @@ class Collection {
 	/**
 	 * -1 will prevent data retrieval
 	 */
-	function retrieveDataFromDB() {
+	function retrieveDataFromDB($allowMerge = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
@@ -147,7 +147,7 @@ class Collection {
 			$this->count = $this->db->numRows($res);
 		}
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField)->getData();
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		$this->preprocessData();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
@@ -196,13 +196,14 @@ class Collection {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
 			}
+			//debug($this->tableMore);
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
 			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars);
+			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ?: array());
 			$content = $pages . $s->getContent(get_class($this)) . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';
@@ -279,11 +280,11 @@ class Collection {
 	/**
 	 * Will detect double-call and do nothing.
 	 *
-	 * @param string $class
+	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class, $byInstance = false) {
+	function objectify($class = '', $byInstance = false) {
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
