@@ -2,7 +2,7 @@
 
 class OODBase {
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayer
 	 */
 	protected $db;
 
