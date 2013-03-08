@@ -35,7 +35,7 @@ class View {
 			}
 			*/
 		}
-		$this->ll = Config::getInstance()->ll;
+		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
 		$this->request = Request::getInstance();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
@@ -228,7 +228,7 @@ class View {
 		return $money;
 	}
 
-	function bar($percent) {
+	static function bar($percent) {
 		$percent = round($percent);
 		return '<img src="nadlib/bar.php?rating='.$percent.'&color=6DC5B4" alt="'.$percent.'%" />';
 	}

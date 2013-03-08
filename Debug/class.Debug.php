@@ -3,27 +3,29 @@
 class Debug {
 
 	static function debug_args() {
-		if ($_COOKIE['debug']) {
-			$args = func_get_args();
-			if (sizeof($args) == 1) {
-				$a = $args[0];
-			} else {
-				$a = $args;
-			}
+		$args = func_get_args();
+		if (sizeof($args) == 1) {
+			$a = $args[0];
+		} else {
+			$a = $args;
+		}
 
-			$db = debug_backtrace();
-			$db = array_slice($db, 2, sizeof($db));
+		$db = debug_backtrace();
+		$db = array_slice($db, 2, sizeof($db));
+
+		if (isset($_SERVER['argc'])) {
+			foreach ($db as $row) {
+				$trace[] = self::getMethod($row);
+			}
+			echo '---'.implode(' // ', $trace)."\n";
+			print_r($a);
+			echo "\n";
+		} else if ($_COOKIE['debug']) {
 			$trace = Debug::getTraceTable($db);
 
 			reset($db);
 			$first = current($db);
-			if ($first['object']) {
-				$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
-			} else if ($first['class']) {
-				$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
-			} else {
-				$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
-			}
+			$function = self::getMethod($first);
 			$props = array(
 				'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
 				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
@@ -34,6 +36,7 @@ class Debug {
 			} else if (!is_object($a) && !is_resource($a)) {
 				$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
 			}
+			$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
 
 			$content = '
 			<div class="debug" style="
@@ -130,6 +133,17 @@ class Debug {
 			$content = htmlspecialchars($a);
 		}
 		return $content;
+	}
+
+	function getMethod(array $first) {
+		if ($first['object']) {
+			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
+		} else if ($first['class']) {
+			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
+		} else {
+			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
+		}
+		return $function;
 	}
 
 }

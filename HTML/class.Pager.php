@@ -124,8 +124,13 @@ class Pager {
 		return $i >= $this->getPageFirstItem($this->currentPage) && $i < ($this->getPageFirstItem($this->currentPage)+$this->itemsPerPage);
 	}
 
+	/**
+	 * 0 - page 10
+	 * @return float
+	 */
 	function getMaxPage() {
-		$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
+		//$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
+		$maxpage = floor($this->numberOfRecords/$this->itemsPerPage);	// because a single page is 0
 		return $maxpage;
 	}
 

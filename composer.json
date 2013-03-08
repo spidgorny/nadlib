@@ -2,11 +2,19 @@
     "name": "spidgorny/nadlib",
     "require": {
 		"php": ">=5.3.8",
-        "sharom/twitter-bootstrap": "dev-master"
+        "sharom/twitter-bootstrap": "dev-master",
+		"pdepend/pdepend": "1.1.0"
     },
     "require_bak": {
+		"michelf/php-markdown": "*",
         "twitter/bootstrap": "master"
     },
+	"repositories_bak": [
+		{
+		"type": "vcs",
+		"url": "https://github.com/michelf/php-markdown/"
+		}
+	],
 	"repositories": [
         {
             "type": "package",

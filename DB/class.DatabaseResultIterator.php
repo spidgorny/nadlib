@@ -12,9 +12,13 @@ class DatabaseResultIterator implements Iterator, Countable {
 	var $rows = 0;
 	var $key = 0;
 
-	function __construct($query, $defaultKey = NULL) { // 'uid'
+	function __construct(DIContainer $di, $defaultKey = NULL) { // 'uid'
 		$this->defaultKey = $defaultKey;
-		$this->db = Config::getInstance()->db;
+		//$this->db = Config::getInstance()->db;
+		$this->db = $di->db;
+	}
+
+	function perform($query) {
 		$this->dbResultResource = $this->db->perform($query);
 		$this->rows = $this->count();
 		$this->rewind();
@@ -57,5 +61,13 @@ class DatabaseResultIterator implements Iterator, Countable {
     function count() {
     	return $this->db->numRows($this->dbResultResource);
     }
+
+	function fetchAll() {
+		$data = array();
+		foreach ($this as $row) {
+			$data[] = $row;
+		}
+		return $data;
+	}
 
 }

@@ -8,7 +8,7 @@ class MiniIndex extends AppController {
 	public $menu;
 
 	/**
-	 * @var Controller
+	 * @var AppController
 	 */
 	public $controller;
 
@@ -22,8 +22,14 @@ class MiniIndex extends AppController {
 
 	public $layout;
 
+	/**
+	 * @var Config
+	 */
+	public $config;
+
 	public function __construct() {
 		parent::__construct();
+		$this->config = Config::getInstance();
 	}
 
 	/**
@@ -69,13 +75,25 @@ class MiniIndex extends AppController {
 
 	function renderController() {
 		if ($this->controller) {
-			$content = $this->controller->render();
+			try {
+				$content = $this->controller->render();
+			} catch (Exception $e) {
+				$content = $this->error($e->getMessage());
+			}
 			//debug($this->request->isAjax(), $this->controller->layout);
 			if (!$this->request->isAjax() && $this->controller->layout instanceof Wrap) {
 				$content = $this->controller->layout->wrap($content);
 			}
 		}
 		return $content;
+	}
+
+	function message($text) {
+		return '<div class="message">'.$text.'</div>';
+	}
+
+	function error($text) {
+		return '<div class="ui-state-error alert alert-error padding">'.$text.'</div>';
 	}
 
 	function addJQuery() {
