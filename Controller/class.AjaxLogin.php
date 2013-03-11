@@ -152,7 +152,7 @@ class AjaxLogin extends AppController {
 	 * @return string
 	 */
 	function inlineFormAction() {
-		if ($this->user->isAuth()) {
+		if ($this->user && $this->user->isAuth()) {
 			$content = '<form class="navbar-form pull-right" method="POST">
 				<a href="?c=LoginForm&mode=logout" class="ajax btn">'.__('Logout').'</a>
 			</form>';

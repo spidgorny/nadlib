@@ -1,6 +1,11 @@
 <?php
 
-class IteratorMemberCollection extends Collection implements Iterator {
+abstract class IteratorMemberCollection extends Collection implements Iterator, Countable {
+
+	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
+		parent::__construct($pid, $where, $order);
+		$this->objectify();
+	}
 
 	function rewind() {
 		$this->objectify();
@@ -22,5 +27,10 @@ class IteratorMemberCollection extends Collection implements Iterator {
 	function valid() {
         return $this->key() !== NULL;
     }
+
+	function count() {
+		$this->objectify();
+		return sizeof($this->members);
+	}
 
 }

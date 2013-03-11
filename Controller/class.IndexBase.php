@@ -30,7 +30,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public $content = '';
 
 	/**
-	 * @var Controller
+	 * @var AppController
 	 */
 	public $controller;
 
