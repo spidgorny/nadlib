@@ -27,7 +27,7 @@ class AjaxLogin extends AppController {
 		parent::__construct();
 		Config::getInstance()->mergeConfig($this);
 		$this->layout = new Wrap('<div class="span10">', '</div>');
-		$mode = $mode ?: $this->request->getTrim('mode');	// dont't reverse this line as it will call mode=login twice
+		$mode = $mode ? $mode : $this->request->getTrim('mode');	// dont't reverse this line as it will call mode=login twice
 		if ($mode) {
 			$this->mode = $mode;
 			//debug($this->mode);
@@ -152,7 +152,7 @@ class AjaxLogin extends AppController {
 	 * @return string
 	 */
 	function inlineFormAction() {
-		if ($this->user->isAuth()) {
+		if ($this->user && $this->user->isAuth()) {
 			$content = '<form class="navbar-form pull-right" method="POST">
 				<a href="?c=LoginForm&mode=logout" class="ajax btn">'.__('Logout').'</a>
 			</form>';

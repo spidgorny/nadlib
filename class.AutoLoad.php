@@ -55,7 +55,8 @@ class AutoLoad {
 			}
 		}
 		if (!class_exists($classFile) && !interface_exists($classFile)) {
-			//debug($folders);
+			unset($_SESSION['autoloadCache']);	// just in case
+			//debug($this->folders);
 			if (class_exists('Config')) {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
