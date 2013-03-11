@@ -95,7 +95,7 @@ class HTMLForm {
 		if ($more) {
 			$a .= " " . $more;
 		}
-		$a .= ">";
+		$a .= ">\n";
 		return $a;
 	}
 
@@ -123,7 +123,7 @@ class HTMLForm {
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "") {
+	function password($name, $value = "", $more = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
 		$this->stdout .= $this->getInput("password", $name, $value, $more);
@@ -147,13 +147,14 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "").' '.$more);
 	}
 
-	function check($name, $value = 1, $checked = false, $more = "") {
+	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
 		$this->stdout .= $this->getInput("checkbox", $name, $value,
 			($checked?'checked="checked"':"").' '.
 			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
-			$more);
+			(is_array($more) ? $this->getAttrHTML($more) : $more)
+		);
 	}
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
@@ -406,24 +407,28 @@ class HTMLForm {
 	}
 
 	/**
+	 * A set of checkboxes in a div.checkarray. Values are provided as an array
 	 * @param $name
 	 * @param array $options
 	 * @param array $selected - only keys are used
 	 * @param string $more
 	 * @param int $height
 	 * @param int $width
+	 * @see set()
 	 */
 	function checkarray($name, array $options, array $selected, $more = '', $height = 700, $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray">';
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray '.$name.'">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
-			$this->stdout .= '<div class="checkline_'.($checked ? 'active' : 'normal').'">';
-			$this->check($name.'][', $value, $checked, $more);
+			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'">';
+			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
+			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
+			$this->check($name.'][', $value, $checked, $moreStr);
 			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
-			$this->stdout .= '</div>';
+			$this->stdout .= '</label>';
 		}
 		$this->stdout .= '</div>';
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);

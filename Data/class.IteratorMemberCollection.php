@@ -3,6 +3,7 @@
 class IteratorMemberCollection extends Collection implements Iterator {
 
 	function rewind() {
+		$this->objectify();
 		reset($this->members);
     }
 
