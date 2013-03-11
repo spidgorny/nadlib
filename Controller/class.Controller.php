@@ -69,14 +69,14 @@ abstract class Controller {
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
 		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
 			$r = new Router();
-			$url = $r->makeURL($params);
+			$url = $r->makeURL($params, $prefix);
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			//echo $url, '<br />';
 			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+			//debug($url->documentRoot, $prefix, $url.'');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);
@@ -91,13 +91,29 @@ abstract class Controller {
 		return $this->makeURL($params + $this->linkVars);
 	}
 
+	/**
+	 * Combines params with $this->linkVars
+	 * @param array $params
+	 * @param string $prefix
+	 * @return URL
+	 */
 	function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
 		//debug($params);
 		return $this->makeURL($params, false, $prefix);
 	}
 
+	/**
+	 * Returns '<a href="$page?$params" $more">$text</a>
+	 * @param $text
+	 * @param array $params
+	 * @param string $page
+	 * @param array $more
+	 * @param bool $isHTML
+	 * @return HTMLTag
+	 */
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
+		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
 			'href' => $this->makeURL($params, false, $page),
 		)+$more, $text, $isHTML);
@@ -220,6 +236,7 @@ abstract class Controller {
 		$method = $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
+			//debug($method, method_exists($this, $method));
 			if (method_exists($this, $method)) {
 				$content = $this->$method();
 			} else {

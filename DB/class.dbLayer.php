@@ -458,7 +458,9 @@ class dbLayer {
 
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
-	 * @param $dbarr
+	 * @param $input
+	 * @internal param string $dbarr
+	 * @return array
 	 */
 	function getPGArray($input) {
 		if ($input{0} == '{') {	// array inside
@@ -480,12 +482,12 @@ class dbLayer {
 		}
 	}
 
-	function str_getcsv($input, $delimiter=',', $enclosure='"', $escape='\\', $eol=null) {
+	static function str_getcsv($input, $delimiter=',', $enclosure='"', $escape='\\', $eol=null) {
 		$temp=fopen("php://memory", "rw");
 		fwrite($temp, $input);
 		fseek($temp, 0);
 		$r = array();
-		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure)) !== false) {
+		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
 			$r[] = array_map('stripslashes', $data);
 		}
 		fclose($temp);
@@ -494,7 +496,8 @@ class dbLayer {
 
 	/**
 	 * Change a db array into a PHP array
-	 * @param $arr String representing the DB array
+	 * @param $input
+	 * @internal param String $arr representing the DB array
 	 * @return A PHP array
 	 */
 /*	function getPGArray($dbarr) {

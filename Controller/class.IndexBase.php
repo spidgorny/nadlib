@@ -74,12 +74,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
-			$class = $this->request->getControllerString();
-			__autoload($class);
-			$class = end(explode('/', $class));	// again, because __autoload need the full path
-			//debug(__METHOD__, $class, class_exists($class));
+			$slug = $this->request->getControllerString();
+			__autoload($slug);
+			$class = end(explode('/', $slug));	// again, because __autoload need the full path
+			//debug(__METHOD__, $slug, $class, class_exists($class));
 			if (class_exists($class)) {
 				$this->controller = new $class();
+				//debug(get_class($this->controller));
 				if (method_exists($this->controller, 'postInit')) {
 					$this->controller->postInit();
 				}

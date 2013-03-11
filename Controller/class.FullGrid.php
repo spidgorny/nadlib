@@ -12,10 +12,11 @@ abstract class FullGrid extends Grid {
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		//if (get_class($this->index->controller) == get_class($this)) {// unreliable
 		if ($this->request->getControllerString() == get_class($this)) {
-			$this->saveFilterColumnsSort($collection ?: get_class($this));
+			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
 		if ($collection) {
 			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
 			$this->collection->retrieveDataFromDB();
 		}

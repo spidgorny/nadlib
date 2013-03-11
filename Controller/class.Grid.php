@@ -125,9 +125,12 @@ abstract class Grid extends AppController {
 		$sortRequest = $this->request->getArray('slTable');
 		$this->sort = $sortRequest
 			? $sortRequest
-			: ($this->user->getPref('Sort.'.$cn) ?: $this->sort);
+			: ($this->user->getPref('Sort.'.$cn)
+				? $this->user->getPref('Sort.'.$cn)
+				: $this->sort
+			);
 
-		$this->pageSize = $this->pageSize ?: new PageSize();
+		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
 	}
 
 	function render() {
