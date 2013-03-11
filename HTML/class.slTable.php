@@ -183,8 +183,12 @@ class slTable {
 				$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
 			}
 			$thes = array_combine($thes, $thes);
-			foreach ($thes as &$th) {
-				$th = array('name' => $th);
+			foreach ($thes as $i => &$th) {
+				if ($i{strlen($i)-1} != '.') {
+					$th = array('name' => $th);
+				} else {
+					unset($thes[$i]);
+				}
 			} unset($th);
 			unset($thes['###TD_CLASS###']);
 			$this->thes($thes);

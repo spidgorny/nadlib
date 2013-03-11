@@ -71,7 +71,7 @@ class FlexiTable extends OODBase {
 		$this->fetchColumns();
 		if (!$this->columns) {
 			$this->db->perform('CREATE TABLE '.$this->db->escape($this->table).' (id integer auto_increment, PRIMARY KEY (id))');
-			$this->fetchColumns();
+			$this->fetchColumns(true);
 		}
 	}
 
@@ -81,7 +81,7 @@ class FlexiTable extends OODBase {
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
 			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$qb->quoteKey($field).' '.$this->getType($value));
-			$this->fetchColumns();
+			$this->fetchColumns(true);
 		}
 	}
 

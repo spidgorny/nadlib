@@ -96,6 +96,19 @@ class Collection {
 		'width' => "100%",
 	);
 
+	/**
+	 * @var Controller
+	 */
+	protected $controller;
+
+	/**
+	 * @param integer/-1 $pid
+	 * 		if -1 - will not retrieve data from DB
+	 * 		if 00 - will retrieve all data
+	 * 		if >0 - will retrieve data where PID = $pid
+	 * @param array|SQLWhere $where
+	 * @param string $order	- appended to the SQL
+	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -109,7 +122,6 @@ class Collection {
 		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
-		$this->postInit();
 
 		// should be dealt with by the Controller
 		/*$sortBy = $this->request->getSubRequest('slTable')->getCoalesce('sortBy', $this->orderBy);
@@ -131,6 +143,9 @@ class Collection {
 
 	function postInit() {
 		//$this->pager = new Pager();
+		$index = Index::getInstance();
+		$this->controller = &$index->controller;
+		//debug(get_class($this->controller));
 	}
 
 	/**
@@ -203,7 +218,7 @@ class Collection {
 			$s->sortable = $this->useSorting;
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ?: array());
+			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
 			$content = $pages . $s->getContent(get_class($this)) . $pages;
 		} else {
 			$content = '<div class="message">No data</div>';
@@ -280,11 +295,11 @@ class Collection {
 	/**
 	 * Will detect double-call and do nothing.
 	 *
-	 * @param string $class
+	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class, $byInstance = false) {
+	function objectify($class = '', $byInstance = false) {
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];

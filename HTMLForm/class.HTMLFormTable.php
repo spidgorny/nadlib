@@ -546,7 +546,12 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function fetchSelectionOptions(array $desc) {
+	/**
+	 * Retrieves data from DB
+	 * @param array $desc
+	 * @return array
+	 */
+	static function fetchSelectionOptions(array $desc) {
 		if ($desc['from'] && $desc['title']) {
 			//debugster($desc);
 			$options = Config::getInstance()->qb->getTableOptions($desc['from'],

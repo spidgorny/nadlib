@@ -241,6 +241,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			if ($val instanceof Recursive) {
 				$sub = new ArrayPlus($val->getChildren());
 				$find = $sub->find($needle);
+				//$find = $val->findPath($)
 				if ($find) {
 					//debug($needle, $key, $find);
 					array_unshift($find, $key);

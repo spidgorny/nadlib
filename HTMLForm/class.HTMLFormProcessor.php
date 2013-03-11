@@ -97,7 +97,7 @@ abstract class HTMLFormProcessor extends AppController {
 	}
 
 	function getForm(HTMLFormTable $preForm = NULL) {
-		$f = $preForm ?: new HTMLFormTable($this->desc);
+		$f = $preForm ? $preForm : new HTMLFormTable($this->desc);
 		if ($this->ajax) {
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
 		}
