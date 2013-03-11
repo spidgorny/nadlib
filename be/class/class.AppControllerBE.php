@@ -13,4 +13,9 @@ class AppControllerBE extends Controller {
 		$this->layout = new Wrap('<div class="span10">', '</div>');
 		$this->index = IndexBE::getInstance();
 	}
+
+	function log($a) {
+		echo $a.'<br />'."\n";
+	}
+
 }

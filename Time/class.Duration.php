@@ -62,7 +62,7 @@ class Duration extends Time {
 
 	/**
 	 * Parses the human string like '24h 10m'
-	 * @param type $string
+	 * @param string $string
 	 * @return \Duration
 	 */
 	static function fromHuman($string) {
@@ -240,6 +240,14 @@ class Duration extends Time {
 		}
 		$items = array_filter($items);
 		return $items;
+	}
+
+	function less($sDuration) {
+		return $this->time < strtotime($sDuration, 0);
+	}
+
+	function more($sDuration) {
+		return $this->time > strtotime($sDuration, 0);
 	}
 
 }
