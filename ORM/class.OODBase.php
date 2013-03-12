@@ -287,7 +287,7 @@ class OODBase {
 	}
 
 	function clearInstances() {
-		self::$instance = array();
+		self::$instances = array();
 		gc_collect_cycles();
 	}
 
@@ -301,7 +301,6 @@ class OODBase {
 	 */
 	function getInstanceByName($name) {
 		$self = get_called_class();
-		debug($self);
 		$c = new $self;
 		$c->findInDB(array(
 			$this->titleColumn => $name,
