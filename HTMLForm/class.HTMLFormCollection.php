@@ -5,6 +5,13 @@
  */
 interface HTMLFormCollection {
 
+	//var $field;
+	/**
+	 * @var HTMLForm
+	 */
+	//var $form;
+	//var $value;
+
 	function setField($field);
 
 	function setForm(HTMLFormTable $form);
