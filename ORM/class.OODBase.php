@@ -297,14 +297,14 @@ class OODBase {
 
 	/**
 	 * @param string $name
-	 * @return OODBase
+	 * @return self
 	 */
-	function getInstanceByName($name) {
+	static function getInstanceByName($name) {
 		$self = get_called_class();
-		debug($self);
+		//debug($self);
 		$c = new $self;
 		$c->findInDB(array(
-			$this->titleColumn => $name,
+			$c->titleColumn => $name,
 		));
 		return $c;
 	}

@@ -30,7 +30,7 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var User/Client/userMan/LoginUser
+	 * @var User|Client|userMan|LoginUser
 	 */
 	public $user;
 
@@ -50,6 +50,12 @@ abstract class Controller {
 	public $linkVars = array();
 
 	public $encloseTag = 'h4';
+
+	/**
+	 * accessible without login
+	 * @var bool
+	 */
+	static public $public = false;
 
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
