@@ -287,7 +287,7 @@ class OODBase {
 	}
 
 	function clearInstances() {
-		self::$instance = array();
+		self::$instances = array();
 		gc_collect_cycles();
 	}
 
