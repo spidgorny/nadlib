@@ -19,7 +19,7 @@ class ContentEditable {
 
 	function __construct($file) {
 		$this->file = $file;
-		$this->filename = 'FAQ/'.$this->file.'.txt';
+		$this->filename = 'pages/'.$this->file.'.txt';
 		$this->content = @file_get_contents($this->filename);
 		if (!$this->content) {
 			$this->content = '&nbsp;';
@@ -29,11 +29,12 @@ class ContentEditable {
 
 	function getHeader() {
 		$content = '';
-		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/jquery-1.7.1.min.js"></script>';
-		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/jquery-ui-1.8.18.custom.min.js"></script>';
+		Index::getInstance()->addJQuery();
+		Index::getInstance()->addJQueryUI();
 		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/rangy-core-1.2.3.js"></script>';
 		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/hallo.js"></script>';
-		$content .= '<script src="js/contentEditable.js"></script>';
+		$content .= '<script src="nadlib/js/contentEditable.js"></script>';
+		Index::getInstance()->footer[__CLASS__] = $content;
 		return $content;
 	}
 
