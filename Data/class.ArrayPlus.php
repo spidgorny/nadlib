@@ -25,7 +25,7 @@
 require_once('class.IteratorArrayAccess.php');
 
 $tmp = error_reporting();
-error_reporting(error_reporting() ^ E_STRICT);	// Strict Standards</b>:  Declaration of ArrayPlusReference::create() should be compatible with ArrayPlus::create(array $data = Array)
+error_reporting(error_reporting() & ~E_STRICT);	// Strict Standards</b>:  Declaration of ArrayPlusReference::create() should be compatible with ArrayPlus::create(array $data = Array)
 
 class ArrayPlus extends IteratorArrayAccess implements Countable {
 

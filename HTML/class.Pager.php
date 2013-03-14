@@ -37,7 +37,7 @@ class Pager {
 	 */
 	public $pageSize;
 
-	function Pager($itemsPerPage = NULL, $prefix = '') {
+	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
 		} else if ($itemsPerPage) {
@@ -251,10 +251,10 @@ class Pager {
 		$properties = get_object_vars($this);
 		unset($properties['graphics']);
 		foreach ($properties as $key => &$val) {
-			if (is_object($val)) {
+			if (is_object($val) && method_exists($val, '__toString')) {
 				$val = $val->__toString();
 			} else if (is_array($val)) {
-				foreach ($val as $k => &$v) {
+				foreach ($val as &$v) {
 					if (is_array($v)) {
 						$v = $v->__toString();
 					}
