@@ -19,9 +19,9 @@ class OODBase {
 	public $thes = array();
 
 	/**
-	 * @var self
+	 * @var self[get_called_class()][$id]
 	 */
-	static $instance = array();
+	static $instances = array();
 
 	/**
 	 * @var string - saved after insertUpdate
@@ -272,28 +272,41 @@ class OODBase {
 	 * @return OODBase
 	 */
 	static function getInstance($id) {
+		$static = get_called_class();
 		if (is_scalar($id)) {
-			$inst = &self::$instance[$id];
+			$inst = &self::$instances[$static][$id];
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instance));
-				$static = get_called_class();
 				$inst = new $static();	// don't put anything else here
 				$inst->init($id);		// separate call to avoid infinite loop in ORS
 			}
 		} else {
-			$static = get_called_class();
 			$inst = new $static($id);
 		}
 		return $inst;
 	}
 
 	function clearInstances() {
-		self::$instance = array();
+		self::$instances = array();
 		gc_collect_cycles();
 	}
 
 	function getObjectInfo() {
 		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' #'.spl_object_hash($this).')';
+	}
+
+	/**
+	 * @param string $name
+	 * @return self
+	 */
+	static function getInstanceByName($name) {
+		$self = get_called_class();
+		//debug($self);
+		$c = new $self;
+		$c->findInDB(array(
+			$c->titleColumn => $name,
+		));
+		return $c;
 	}
 
 }

@@ -117,7 +117,9 @@ class ConfigBase {
 		$class = get_class($obj);
 		if (is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
-				$obj->$key = $val;
+				if ($key != 'includeFolders') {	// Strict Standards: Accessing static property Config::$includeFolders as non static
+					$obj->$key = $val;
+				}
 			}
 		}
 	}
