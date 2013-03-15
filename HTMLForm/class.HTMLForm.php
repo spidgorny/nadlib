@@ -99,10 +99,10 @@ class HTMLForm {
 		return $a;
 	}
 
-	function input($name, $value = "", $more = '', $type = 'text') {
+	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
-		$this->stdout .= $this->getInput($type, $name, $value, $more);
+		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
 	}
 
 	function label($for, $text) {

@@ -87,6 +87,12 @@ abstract class Controller {
 		return $url;
 	}
 
+	/**
+	 * Only appends $this->linkVars to the URL.
+	 * Use this one if your linkVars is defined.
+	 * @param array $params
+	 * @return URL
+	 */
 	function makeRelURL(array $params = array()) {
 		return $this->makeURL($params + $this->linkVars);
 	}
@@ -271,6 +277,12 @@ abstract class Controller {
 		)+$params);
 	}
 
+	/**
+	 * Just appends $this->linkVars
+	 * @param $text
+	 * @param array $params
+	 * @return HTMLTag
+	 */
 	function makeRelLink($text, array $params) {
 		return new HTMLTag('a', array(
 			'href' => $this->makeRelURL($params)
