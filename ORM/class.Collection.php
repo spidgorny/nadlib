@@ -203,14 +203,13 @@ class Collection {
 		return $row;
 	}
 
+	/**
+	 * @return slTable|string - returns the slTable if not using Pager
+	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			if ($this->pager) {
-				$url = new URL();
-				$pages = $this->pager->renderPageSelectors($url);
-			}
 			//debug($this->tableMore);
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
@@ -219,7 +218,13 @@ class Collection {
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
 			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
-			$content = $pages . $s->getContent(get_class($this)) . $pages;
+			if ($this->pager) {
+				$url = new URL();
+				$pages = $this->pager->renderPageSelectors($url);
+				$content = $pages . $s->getContent(get_class($this)) . $pages;
+			} else {
+				$content = $s;
+			}
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
