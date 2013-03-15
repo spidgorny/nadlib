@@ -80,6 +80,7 @@ abstract class FullGrid extends Grid {
 		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
 		$f->showForm($this->getFilterDesc($fields));
+		$f->prefix(NULL);
 		$f->submit('Filter');
 		return $f;
 	}

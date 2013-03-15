@@ -107,6 +107,7 @@ abstract class Grid extends AppController {
 		if ($this->request->getTrim('action') == 'clearFilter' && $allowEdit) {
 		} else {
 			$this->filter = $allowEdit ? $this->request->getArray('filter') : array();
+			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
 			$this->filter = $this->filter
 				? $this->filter
 				: $this->user->getPref('Filter.'.$cn);
