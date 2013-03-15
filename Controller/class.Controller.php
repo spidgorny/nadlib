@@ -30,7 +30,7 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var User/Client/userMan/LoginUser
+	 * @var User|Client|userMan|LoginUser
 	 */
 	public $user;
 
@@ -51,6 +51,12 @@ abstract class Controller {
 
 	public $encloseTag = 'h4';
 
+	/**
+	 * accessible without login
+	 * @var bool
+	 */
+	static public $public = false;
+
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
@@ -69,14 +75,14 @@ abstract class Controller {
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
 		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
 			$r = new Router();
-			$url = $r->makeURL($params);
+			$url = $r->makeURL($params, $prefix);
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			//echo $url, '<br />';
 			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+			//debug($url->documentRoot, $prefix, $url.'');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);
@@ -97,13 +103,29 @@ abstract class Controller {
 		return $this->makeURL($params + $this->linkVars);
 	}
 
+	/**
+	 * Combines params with $this->linkVars
+	 * @param array $params
+	 * @param string $prefix
+	 * @return URL
+	 */
 	function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
 		//debug($params);
 		return $this->makeURL($params, false, $prefix);
 	}
 
+	/**
+	 * Returns '<a href="$page?$params" $more">$text</a>
+	 * @param $text
+	 * @param array $params
+	 * @param string $page
+	 * @param array $more
+	 * @param bool $isHTML
+	 * @return HTMLTag
+	 */
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
+		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
 			'href' => $this->makeURL($params, false, $page),
 		)+$more, $text, $isHTML);
@@ -222,10 +244,11 @@ abstract class Controller {
 		return $content;
 	}
 
-	function performAction() {
-		$method = $this->request->getTrim('action');
+	function performAction($action = NULL) {
+		$method = $action ?: $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
+			//debug($method, method_exists($this, $method));
 			if (method_exists($this, $method)) {
 				$content = $this->$method();
 			} else {
@@ -292,11 +315,13 @@ abstract class Controller {
 	/**
 	 * @param $name string|htmlString - if object then will be used as is
 	 * @param $action
+	 * @param array $params
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action) {
+	function getActionButton($name, $action, array $params = array()) {
 		$f = new HTMLForm();
 		$f->hidden('c', get_class($this));
+		$f->formHideArray($params);
 		if ($id = $this->request->getInt('id')) {
 			$f->hidden('id', $id);
 		}

@@ -182,16 +182,22 @@ class slTable {
 				$thes = array_merge($thes, array_keys($current));
 				$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
 			}
-			$thes = array_combine($thes, $thes);
-			foreach ($thes as &$th) {
-				$th = array('name' => $th);
-			} unset($th);
-			unset($thes['###TD_CLASS###']);
-			$this->thes($thes);
-			$this->isOddEven = TRUE;
-			//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
-			if (!$this->more) {
-				$this->more = 'class="nospacing"';
+			if ($thes) {
+				$thes = array_combine($thes, $thes);
+				foreach ($thes as $i => &$th) {
+					if ($i{strlen($i)-1} != '.') {
+						$th = array('name' => $th);
+					} else {
+						unset($thes[$i]);
+					}
+				} unset($th);
+				unset($thes['###TD_CLASS###']);
+				$this->thes($thes);
+				$this->isOddEven = TRUE;
+				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
+				if (!$this->more) {
+					$this->more = 'class="nospacing"';
+				}
 			}
 		}
 	}
@@ -325,13 +331,13 @@ class slTable {
 				$this->generation = $t;
 			} else {
 				$this->generation = new HTMLTableBuf();
-				$this->generation->stdout = '<div class="message">No Data</div>';
+				$this->generation->stdout = '<div class="message">'.__('No Data').'</div>';
 			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$caller})");
 	}
 
-	function genRow(HTMLTableBuf $t, $row) {
+	function genRow(HTMLTableBuf $t, array $row) {
 		$skipCols = 0;
 		$iCol = 0;
 		foreach ($this->thes as $col => $k) {
@@ -340,6 +346,9 @@ class slTable {
 			// whole column desc is combined with single cell desc
 			if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
 				$k += $row[$col.'.'];
+			}
+			if ($row[$col] instanceof slTableValue) {
+				$k += $row[$col]->desc;
 			}
 
 			if ($skipCols) {
@@ -358,8 +367,10 @@ class slTable {
 					if (!$val) {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
+					$val = new slTableValue($val, $k);
+
 					$out = (isset($k['before']) ? $k['before'] : '')
-						. $this->getCell($col, $val, $k, $row) .
+						. $val->render($col, $row) .
 						(isset($k['after']) ? $k['after'] : '');
 					if ($k['wrap']) {
 						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
@@ -398,141 +409,6 @@ class slTable {
 				}
 			}
 		}
-	}
-
-	function getCell($col, $val, $k, array $row) {
-		$type = isset($k['type']) ? $k['type'] : NULL;
-		if (is_object($type)) {
-			$type = get_class($type);
-		}
-		switch ($type) {
-			case "select":
-			case "selection":
-				//t3lib_div::debug($val);
-				//t3lib_div::debug($k);
-				if ($val) {
-					if (!isset($k['options'])) {
-						$what = $k['title'] ? $k['title'] : $col;
-						$options = $this->db->fetchSelectQuery($k['from'], array($k['idField'] => $val));
-						$options = AP($options)->IDalize()->column($what)->getData();
-					} else {
-						$options = $k['options'];
-					}
-					//debug($options); exit();
-					$out = $options[$val];
-				} else {
-					$out = "";
-				}
-			break;
-			case "date":
-				if ($val) {
-					$out = date($k['format'] ? $k['format'] : 'Y-m-d H:i:s', $val);
-				} else {
-					$out = '';
-				}
-			break;
-			case "sqltime":
-				if ($val) {
-					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
-					$out = date($k['format'], $val);
-				} else {
-					$out = '';
-				}
-			break;
-			case "sqldate":
-				if ($val) {
-					$val = new Date($val);
-					$out = $val->format($k['format']);	// hours will not work
-				} else {
-					$out = '';
-				}
-			break;
-			case "file":
-				$out = str::ahref($val, $GLOBALS['uploadURL'].$val, FALSE);
-			break;
-			case "money":
-				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
-			break;
-			case "delete":
-				$out = str::ahref("Del", "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'], FALSE);
-			break;
-			case "datatable":
-				//$f = new HTMLForm();
-				//$f->prefix($this->prefixId);
-				//$out = $f->datatable($col, $val, $k);
-				//$out .="col ".$col." val ".$val." k ".$k;
-			break;
-			case "checkbox":
-				if ($k['tf']) {
-					$val = $val == 't';
-				}
-				if ($val) {
-					$img = $this->SLTABLE_IMG_CHECK;
-				} else {
-					$img = $this->SLTABLE_IMG_CROSS;
-				}
-				if ($row[$col.'.link']) {
-					$out = str::ahref($img, $row[$col.'.link'], FALSE);
-				} else {
-					$out = $img;
-				}
-			break;
-			case "bool":
-				if (intval($val)) {
-					$out = $k['true'];
-				} else {
-					$out = $k['false'];
-				}
-				//$out .= t3lib_div::view_array(array('val' => $val, 'k' => $k, 'out' => $out));
-			break;
-			case "excel":
-				$out = str_replace(',', '.', $val); // from excel?
-				$out = number_format($out, 2, ',', '.');
-			break;
-			case "percent":
-				$out = number_format($val * 100, 2, ',', '') . '%';// . ' ('.$val.')';
-			break;
-			case "callback":
-				$out = call_user_func($k['callback'], $val, $k, $row);
-			break;
-			case "instance":
-				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
-				$out = $obj.'';
-			break;
-			case "singleLink":
-				$out = new HTMLTag('a', array(
-					'href' => new URL($k['link'].$row[$k['idField']]),
-				), $val);
-			break;
-			case 'HTMLFormDatePicker':
-				//$val = strtotime($val);
-				//$out = date($k['type']->format, $val);
-				if ($val) {
-					$val = new Date($val);
-					$out = $val->format($k['type']->format);
-				}
-			break;
-			default:
-				//t3lib_div::debug($k);
-				if (isset($k['hsc']) && $k['hsc']) {
-					$val = htmlspecialchars($val);
-				}
-				if (isset($k['nl2br']) && $k['nl2br']) {
-					$val = nl2br($val);
-				}
-				if (is_object($val)) {
-					if (method_exists($val, 'getName')) {
-						$val = $val->getName();
-					}
-				}
-				if ($k['no_hsc']) {
-					$out = $val;
-				} else {
-					$out = htmlspecialchars($val);
-				}
-			break;
-		}
-		return $out;
 	}
 
 	function show() {
@@ -591,29 +467,22 @@ class slTable {
 		if ($first) {
 			foreach ($this->thes as $col => $_) {
 				$first[$col] = strip_tags($first[$col]);
-				if (is_numeric($first[$col])) {
-					$footer[$col] = $this->getColumnTotal($this->data, $col);
-				} else if ($this->is_time($first[$col])) {
+				if ($this->is_time($first[$col])) {
 					$footer[$col] = $this->getColumnTotalTime($this->data, $col);
-				} else if (floatval($first[$col])) {
+				} else {//if (floatval($first[$col])) {
 					$footer[$col] = 0;
 					foreach ($this->data as $row) {
-						$footer[$col] += floatval($row[$col]);
+						$footer[$col] += floatval(strip_tags($row[$col]));
 					}
-				} else {
-					$footer[$col] = '&nbsp;';
+				//} else {
+				//	$footer[$col] = '&nbsp;';
 				}
+				$footer[$col] = $footer[$col] ? new slTableValue($footer[$col], array(
+					'align' => 'right',
+				)) : '';
 			}
 		}
 		return $footer;
-	}
-
-	protected function getColumnTotal($data, $col) {
-		$total = 0;
-		foreach ($data as $row) {
-			$total += intval(strip_tags($row[$col]));
-		}
-		return '<div align="right">'.$total.'</div>';
 	}
 
 	protected function getColumnTotalTime($data, $col) {
@@ -651,6 +520,15 @@ class slTable {
 			'' => array('no_hsc' => true),
 		));
 		return $s;
+	}
+
+	function download($filename) {
+		$content = $this->getContent();
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-disposition: attachment; filename="'.$filename.'.xls"');
+		header('Content-length: '.strlen($content));
+		echo $content;
+		exit();
 	}
 
 }

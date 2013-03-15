@@ -12,10 +12,11 @@ abstract class FullGrid extends Grid {
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		//if (get_class($this->index->controller) == get_class($this)) {// unreliable
 		if ($this->request->getControllerString() == get_class($this)) {
-			$this->saveFilterColumnsSort($collection ?: get_class($this));
+			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
 		if ($collection) {
 			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
 			$this->collection->retrieveDataFromDB();
 		}
@@ -50,6 +51,10 @@ abstract class FullGrid extends Grid {
 		return parent::render();
 	}
 
+	/**
+	 * Converts $this->filter data from URL into SQL where parameters
+	 * @return array
+	 */
 	function getFilterWhere() {
 		$where = array();
 
@@ -75,6 +80,7 @@ abstract class FullGrid extends Grid {
 		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
 		$f->showForm($this->getFilterDesc($fields));
+		$f->prefix(NULL);
 		$f->submit('Filter');
 		return $f;
 	}
@@ -95,14 +101,22 @@ abstract class FullGrid extends Grid {
 		$desc = array();
 		foreach ($fields as $key => $k) {
 			if (!$k['noFilter']) {
-				$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
-				$options = AP($options)->trim()->getData();	// convert to string for === operation
-				//debug($options);
-				$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
-				//debug($options);
+				$autoClass = ucfirst(str_replace('id_', '', $key)).'Collection';
+				if (class_exists($autoClass) &&
+					in_array('HTMLFormCollection', class_implements($autoClass))) {
+					$type = new $autoClass();
+					$options = NULL;
+				} else {
+					$type = 'select';
+					$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
+					$options = AP($options)->trim()->getData();	// convert to string for === operation
+					//debug($options);
+					$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
+					//debug($options);
+				}
 				$desc[$key] = array(
 					'label' => $k['name'],
-					'type' => 'select',
+					'type' => $type,
 					'options' => $options,
 					'null' => true,
 					'value' => $this->filter[$key],
@@ -134,7 +148,7 @@ abstract class FullGrid extends Grid {
 	function getColumnsForm() {
 		$desc = array(
 			'columns' => array(
-				'label' => 'Visible',
+				'label' => 'Visible<br />',
 				'type' => 'set',
 				'options' => ArrayPlus::create($this->collection->thes)->column('name')->getData(),
 				'value' => $this->columns,

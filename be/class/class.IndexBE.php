@@ -16,12 +16,23 @@ class IndexBE extends IndexBase {
 	}
 
 	function renderController() {
-		$c = get_class($this->controller);
+		$c = get_class($this->controller);	/** @var $c Controller */
 		if ($c::$public || $this->user->isAuth()) {
 			$content = parent::renderController();
 		} else {
 			throw new LoginException('Login first');
 		}
+		return $content;
+	}
+
+	function renderTemplate($content) {
+		$v = new View('template.phtml', $this);
+		$v->content = $content;
+		$v->title = strip_tags($this->controller->title);
+		$v->sidebar = $this->showSidebar();
+		$lf = new LoginForm('inlineForm');	// too specific - in subclass
+		$v->loginForm = $lf->dispatchAjax();
+		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
 

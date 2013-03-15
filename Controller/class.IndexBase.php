@@ -74,12 +74,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
-			$class = $this->request->getControllerString();
-			__autoload($class);
-			$class = end(explode('/', $class));	// again, because __autoload need the full path
-			//debug(__METHOD__, $class, class_exists($class));
+			$slug = $this->request->getControllerString();
+			__autoload($slug);
+			$slugParts = explode('/', $slug);
+			$class = end($slugParts);	// again, because __autoload need the full path
+			//debug(__METHOD__, $slug, $class, class_exists($class));
 			if (class_exists($class)) {
 				$this->controller = new $class();
+				//debug(get_class($this->controller));
 				if (method_exists($this->controller, 'postInit')) {
 					$this->controller->postInit();
 				}
@@ -100,13 +102,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			try {
 				$content .= $this->renderController();
 				if (!$this->request->isAjax()) {
-					$v = new View('template.phtml', $this);
-					$v->content = $content;
-					$v->title = strip_tags($this->controller->title);
-					$v->sidebar = $this->showSidebar();
-					$lf = new LoginForm('inlineForm');
-					$v->loginForm = $lf->dispatchAjax();
-					$content = $v->render();	// not concatenate but replace
+					$content = $this->renderTemplate($content);
 				} else {
 					$content .= $this->content;
 					$this->content = '';		// clear for the next output. May affect saveMessages()
@@ -118,6 +114,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content .= $this->content;	// display Exception
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $content;
+	}
+
+	function renderTemplate($content) {
+		$v = new View('template.phtml', $this);
+		$v->content = $content;
+		$v->title = strip_tags($this->controller->title);
+		$v->sidebar = $this->showSidebar();
+		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
+		//$v->loginForm = $lf->dispatchAjax();
+		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
 

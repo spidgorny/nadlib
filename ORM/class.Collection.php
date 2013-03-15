@@ -99,6 +99,19 @@ class Collection {
 	public $prevText = '&#x25C4;';
 	public $nextText = '&#x25BA;';
 
+	/**
+	 * @var Controller
+	 */
+	protected $controller;
+
+	/**
+	 * @param integer/-1 $pid
+	 * 		if -1 - will not retrieve data from DB
+	 * 		if 00 - will retrieve all data
+	 * 		if >0 - will retrieve data where PID = $pid
+	 * @param array|SQLWhere $where
+	 * @param string $order	- appended to the SQL
+	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -134,6 +147,9 @@ class Collection {
 
 	function postInit() {
 		//$this->pager = new Pager();
+		$index = Index::getInstance();
+		$this->controller = &$index->controller;
+		//debug(get_class($this->controller));
 	}
 
 	/**
@@ -191,14 +207,13 @@ class Collection {
 		return $row;
 	}
 
+	/**
+	 * @return slTable|string - returns the slTable if not using Pager
+	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			if ($this->pager) {
-				$url = new URL();
-				$pages = $this->pager->renderPageSelectors($url);
-			}
 			//debug($this->tableMore);
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
@@ -206,8 +221,14 @@ class Collection {
 			$s->sortable = $this->useSorting;
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ?: array());
-			$content = $pages . $s->getContent(get_class($this)) . $pages;
+			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			if ($this->pager) {
+				$url = new URL();
+				$pages = $this->pager->renderPageSelectors($url);
+				$content = $pages . $s->getContent(get_class($this)) . $pages;
+			} else {
+				$content = $s;
+			}
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
@@ -313,7 +334,7 @@ class Collection {
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
 			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
-			'more' => 'align="right"',
+			'align' => "right",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);

@@ -3,7 +3,7 @@
 abstract class UserBase extends OODBase {
 	public $table = 'user';
 	protected $prefs = array();
-	protected static $instances = array();
+	public static $instances = array();
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
