@@ -38,6 +38,7 @@ class LocalLangDB extends LocalLang {
 				'code' => $text,
 				'lang' => $this->lang,
 				'text' => $text,
+				'page' => Request::getInstance()->getURL(),
 			));
 			$this->ll[$text] = $text;
 		}
