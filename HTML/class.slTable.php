@@ -182,20 +182,22 @@ class slTable {
 				$thes = array_merge($thes, array_keys($current));
 				$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
 			}
-			$thes = array_combine($thes, $thes);
-			foreach ($thes as $i => &$th) {
-				if ($i{strlen($i)-1} != '.') {
-					$th = array('name' => $th);
-				} else {
-					unset($thes[$i]);
+			if ($thes) {
+				$thes = array_combine($thes, $thes);
+				foreach ($thes as $i => &$th) {
+					if ($i{strlen($i)-1} != '.') {
+						$th = array('name' => $th);
+					} else {
+						unset($thes[$i]);
+					}
+				} unset($th);
+				unset($thes['###TD_CLASS###']);
+				$this->thes($thes);
+				$this->isOddEven = TRUE;
+				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
+				if (!$this->more) {
+					$this->more = 'class="nospacing"';
 				}
-			} unset($th);
-			unset($thes['###TD_CLASS###']);
-			$this->thes($thes);
-			$this->isOddEven = TRUE;
-			//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
-			if (!$this->more) {
-				$this->more = 'class="nospacing"';
 			}
 		}
 	}
@@ -329,7 +331,7 @@ class slTable {
 				$this->generation = $t;
 			} else {
 				$this->generation = new HTMLTableBuf();
-				$this->generation->stdout = '<div class="message">No Data</div>';
+				$this->generation->stdout = '<div class="message">'.__('No Data').'</div>';
 			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$caller})");
@@ -465,29 +467,22 @@ class slTable {
 		if ($first) {
 			foreach ($this->thes as $col => $_) {
 				$first[$col] = strip_tags($first[$col]);
-				if (is_numeric($first[$col])) {
-					$footer[$col] = $this->getColumnTotal($this->data, $col);
-				} else if ($this->is_time($first[$col])) {
+				if ($this->is_time($first[$col])) {
 					$footer[$col] = $this->getColumnTotalTime($this->data, $col);
-				} else if (floatval($first[$col])) {
+				} else {//if (floatval($first[$col])) {
 					$footer[$col] = 0;
 					foreach ($this->data as $row) {
-						$footer[$col] += floatval($row[$col]);
+						$footer[$col] += floatval(strip_tags($row[$col]));
 					}
-				} else {
-					$footer[$col] = '&nbsp;';
+				//} else {
+				//	$footer[$col] = '&nbsp;';
 				}
+				$footer[$col] = $footer[$col] ? new slTableValue($footer[$col], array(
+					'align' => 'right',
+				)) : '';
 			}
 		}
 		return $footer;
-	}
-
-	protected function getColumnTotal($data, $col) {
-		$total = 0;
-		foreach ($data as $row) {
-			$total += intval(strip_tags($row[$col]));
-		}
-		return '<div align="right">'.$total.'</div>';
 	}
 
 	protected function getColumnTotalTime($data, $col) {
@@ -525,6 +520,15 @@ class slTable {
 			'' => array('no_hsc' => true),
 		));
 		return $s;
+	}
+
+	function download($filename) {
+		$content = $this->getContent();
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-disposition: attachment; filename="'.$filename.'.xls"');
+		header('Content-length: '.strlen($content));
+		echo $content;
+		exit();
 	}
 
 }
