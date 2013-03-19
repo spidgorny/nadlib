@@ -206,8 +206,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						($desc['readonly'] ? ' readonly="readonly"' : '').
-						$desc['class'], $type
+						($desc['readonly'] ? ' readonly="readonly"' : '')
+						, $type, $desc['class']
 					);
 				break;
 			}
