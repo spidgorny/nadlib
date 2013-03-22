@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class Flot - is drawing a flot chart.
+ */
 class Flot extends AppController {
 
 	protected $colors = array(
@@ -14,33 +17,65 @@ class Flot extends AppController {
 		'#4da74d',
 	);
 
-	protected $data, $cumulative;
+	protected $data;
 
 	protected $keyKey, $timeKey, $amountKey;
 
+	/**
+	 * A source table pivoted (grouped by) $keyKey
+	 * @var array
+	 */
+	public $chart;
+
+	/**
+	 * @var array - these are line charts
+	 */
+	public $cumulative;
+
+	/**
+	 * @var int - max value for cumulative (max of max possible)
+	 */
+	public $max;
+
+	/**
+	 * @param array $data	- source data
+	 * @param $keyKey		- group by field (distinct charts, lines)
+	 * @param $timeKey		- time field
+	 * @param $amountKey	- value (numeric) field
+	 */
 	function __construct(array $data, $keyKey, $timeKey, $amountKey) {
 		$this->data = $data;
 		$this->keyKey = $keyKey;
 		$this->timeKey = $timeKey;
 		$this->amountKey = $amountKey;
+		$this->chart = $this->getChartTable($this->data);
+		$this->cumulative = $this->getChartCumulative($this->chart);
+		$this->max = $this->getChartMax($this->cumulative);
 	}
 
 	function render() {
 		$content = '';
-		$chart = $this->getChartTable($this->data);
-		$this->cumulative = $this->getChartCumulative($chart);
-		$max = $this->getChartMax($this->cumulative);
-		$content .= $this->showChart('chart1', $chart, $this->cumulative, $max);
+		$content .= $this->showChart('chart1', $this->chart, $this->cumulative, $this->max);
 		return $content;
 	}
 
+	/**
+	 * @param array $data
+	 * @return array
+	 * array[19]
+	1309471200 	array[2]
+	0 	integer 	1309471200000
+	1 	integer 	0
+	1314828000 	array[2]
+	0 	integer 	1314828000000
+	1 	integer 	39
+	 */
 	function appendCumulative(array $data) {
-		$cumulative = $this->cumulative;
-		foreach ($cumulative as $i => $series) {
-			$cumulative = array_merge($cumulative, $series);
-			unset($cumulative[$i]);
+		$cumulative2 = array();
+		foreach ($this->cumulative as $series) {
+			$cumulative2 = array_merge($cumulative2, $series);
 		}
-		$cumulative = array_values($cumulative);
+		$cumulative = array_values($cumulative2);
 		$dataClass = array();
 		foreach ($data as $i => &$row) {
 			$color = $this->colors[$row[$this->keyKey]-1];
@@ -57,9 +92,9 @@ class Flot extends AppController {
 	 * Each row is an assoc array with $timeKey keys and $amountKey values.
 	 *
 	 * @param array $rows
-	 * @param string $keyKey
-	 * @param string $timeKey
-	 * @param string $amountKey
+	 * @internal param string $keyKey
+	 * @internal param string $timeKey
+	 * @internal param string $amountKey
 	 * @return array
 	 */
 	function getChartTable(array $rows) {
@@ -84,6 +119,7 @@ class Flot extends AppController {
 				$sum += $val[1];
 				$val[1] = $sum;
 			}
+			unset($val);
 		}
 		return $chart;
 	}
@@ -103,15 +139,17 @@ class Flot extends AppController {
 		Index::getInstance()->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
     	<script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.stack.js"></script>
     	<script language="javascript" type="text/javascript" src="flot/jquery.flot.time.js"></script>';
 
-		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: solid 1px silver;"></div>';
+		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: none 0px silver;"></div>';
 
 		foreach ($charts as $key => &$rows) {
 			$array = $rows ? array_values($rows) : array();
 			$rows = 'var d'.$key.' = {
 				label: "'.$key.'",
 				data: '.json_encode($array).',
+				stack: true,
 				bars: {
 					show: true,
 					barWidth: 24*60*60*1000*25,
@@ -131,7 +169,7 @@ class Flot extends AppController {
 				yaxis: 2
 			};';
 		}
-		$max *= 2;
+		//$max *= 2;
 
 		Index::getInstance()->footer[$divID] = '
     	<script type="text/javascript">
@@ -140,7 +178,7 @@ $(function () {
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [
     	d'.implode(", d", array_keys($charts)).',
-    	c'.implode(", c", array_keys($charts)).'
+    	c'.implode(", c", array_keys($cumulative)).'
     ], {
     	xaxis: {
     		mode: "time"
