@@ -303,11 +303,13 @@ abstract class Controller {
 	/**
 	 * @param $name string|htmlString - if object then will be used as is
 	 * @param $action
+	 * @param array $params
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action) {
+	function getActionButton($name, $action, array $params = array()) {
 		$f = new HTMLForm();
 		$f->hidden('c', get_class($this));
+		$f->formHideArray($params);
 		if ($id = $this->request->getInt('id')) {
 			$f->hidden('id', $id);
 		}

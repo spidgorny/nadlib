@@ -6,6 +6,11 @@ class slTableValue {
 //		'hsc' => TRUE,
 	);
 
+	/**
+	 * @var MySQL|dbLayer
+	 */
+	var $db;
+
 	function __construct($value, $desc = array()) {
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
@@ -14,6 +19,7 @@ class slTableValue {
 		}
 		$this->value = $value;
 		$this->desc += (array)$desc;
+		$this->db = Config::getInstance()->db;
 	}
 
 /*	function render() {
