@@ -41,7 +41,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 		}
 	}
 
-	function parseRange($value) {
+	static function parseRange($value) {
 		if (strlen($value) == 11) {
 			$parts = explode('-', $value);
 			if (sizeof($parts) == 2) {

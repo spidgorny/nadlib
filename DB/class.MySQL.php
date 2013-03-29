@@ -35,35 +35,11 @@ class MySQL {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-/*
- * Suspicious! ConfigBase takes care of that, isn't it?
- * 	static function getInstance() {
-		if (!self::$instance) {
-			$config = Config::getInstance();
-			self::$instance = new self($config->mysql_db, $config->mysql_host, $config->mysql_login, $config->mysql_password);
-			$config->db = self::$instance;
-			$config->qb->db = self::$instance;
-		}
-		return self::$instance;
-	}
-*/
-	function getCaller($stepBack = 2) {
-		$btl = debug_backtrace();
-		reset($btl);
-		for ($i = 0; $i < $stepBack; $i++) {
-			$bt = next($btl);
-		}
-		if ($bt['function'] == 'runSelectQuery') {
-			$bt = next($btl);
-		}
-		return "{$bt['class']}::{$bt['function']}";
-	}
-
 	function perform($query) {
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
-				$caller = $this->getCaller($c);
+				$caller = Debug::getCaller($c);
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
@@ -240,7 +216,7 @@ class MySQL {
 	}
 
 	function getTableColumns($table) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".$this->getCaller());
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
 			$query = "SHOW COLUMNS FROM ".$this->escape($table);
 			$res = $this->perform($query);
@@ -248,7 +224,7 @@ class MySQL {
 		} else {
 			$columns = array();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".$this->getCaller());
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".Debug::getCaller());
 		return $columns;
 	}
 
