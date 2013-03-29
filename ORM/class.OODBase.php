@@ -51,10 +51,10 @@ class OODBase {
 			$this->id = $this->data[$this->idField];
 			//debug(__METHOD__, $this->id, $this->data);
 		} else if ($id instanceof SQLWhere) {
-			$this->findInDB($id->getAsArray());
+			$this->data = $this->fetchFromDB($id->getAsArray());
 		} else if (is_scalar($id)) {
 			$this->id = $id;
-			$this->findInDB(array($this->idField => $this->id));
+			$this->data = $this->fetchFromDB(array($this->idField => $this->id));
 		} else if (!is_null($id)) {
 			debug($id);
 			throw new Exception(__METHOD__);
@@ -130,7 +130,7 @@ class OODBase {
 	 * @param string $orderby
 	 * @return boolean (id) of the found record
 	 */
-	function findInDB(array $where, $orderby = '') {
+	function fetchFromDB(array $where, $orderby = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
 		if (is_array($rows)) {
@@ -142,9 +142,13 @@ class OODBase {
 		} else {
 			$data = array();
 		}
-		$this->init($data); // array, otherwise infinite loop
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $this->id;
+		return $data;
+	}
+
+	function findInDB(array $where, $orderby = '') {
+		$data = $this->fetchFromDB($where, $orderby);
+		$this->init($data);
 	}
 
 	/**
@@ -307,6 +311,11 @@ class OODBase {
 			$c->titleColumn => $name,
 		));
 		return $c;
+	}
+
+	function getURL(array $params) {
+		$c = Index::getInstance()->controller;
+		return $c->getURL($params);
 	}
 
 }

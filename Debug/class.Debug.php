@@ -146,4 +146,16 @@ class Debug {
 		return $function;
 	}
 
+	static function getCaller($stepBack = 2) {
+		$btl = debug_backtrace();
+		reset($btl);
+		for ($i = 0; $i < $stepBack; $i++) {
+			$bt = next($btl);
+		}
+		if ($bt['function'] == 'runSelectQuery') {
+			$bt = next($btl);
+		}
+		return "{$bt['class']}::{$bt['function']}";
+	}
+
 }

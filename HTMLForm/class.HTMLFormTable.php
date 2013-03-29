@@ -468,7 +468,9 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Fills the $desc array with values from $assoc.
-	 * Understands $assoc in both single-array way $assoc['key'] = $value and as $assoc['key']['value'] = $value.
+	 * Understands $assoc in both single-array way $assoc['key'] = $value
+	 * and as $assoc['key']['value'] = $value.
+	 * Non-static due to $this->withValue and $this->formatDate
 	 *
 	 * @param	array	Structure of the HTMLFormTable
 	 * @param	array	Values in one of the supported formats.
@@ -496,7 +498,7 @@ class HTMLFormTable extends HTMLForm {
 				}
 
 				if ($desc[$key]['dependant']) {
-					$desc[$key]['dependant'] = HTMLFormTable::fillValues($desc[$key]['dependant'], $assoc);
+					$desc[$key]['dependant'] = $this->fillValues($desc[$key]['dependant'], $assoc);
 					//t3lib_div::debug($desc[$key]['dependant']);
 				}
 			}
