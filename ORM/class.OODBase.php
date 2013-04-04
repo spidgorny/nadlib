@@ -275,7 +275,7 @@ class OODBase {
 	 * @param $id
 	 * @return OODBase
 	 */
-	static function getInstance($id) {
+	public static function getInstance($id) {
 		$static = get_called_class();
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
