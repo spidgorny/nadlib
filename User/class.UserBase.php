@@ -19,7 +19,7 @@ abstract class UserBase extends OODBase {
 	 * @param null $id
 	 * @return User
 	 */
-	public static function getInstance($id = NULL) {
+	public static function getInstance($id) {
 		if (!($obj = self::$instances[$id])) {
 			$static = 'User'; //get_class($this);
 			$obj = new $static($id);

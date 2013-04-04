@@ -21,7 +21,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $name
+	 * @param string $field
 	 * @param array $value				- array of minutes
 	 */
 	function __construct($field, array $value) {
@@ -33,7 +33,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 	/**
 	 * It's a string value which needs to be parsed into the minutes!!!
 	 *
-	 * @param unknown_type $value - 10:00-13:30
+	 * @param string $value - 10:00-13:30
 	 */
 	function setValue($value) {
 		if ($value) {
@@ -59,6 +59,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 	function render() {
 		assert($this->step);
 		$content = new View('nadlib/HTMLForm/HTMLFormTimeRange.phtml', $this);
+		Index::getInstance()->addJS('nadlib/HTMLForm/HTMLFormTimeRange.js');
 		return $content;
 	}
 

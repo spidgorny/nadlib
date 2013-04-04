@@ -39,7 +39,7 @@ abstract class Scaffold extends AppController {
 	 */
 	protected $id;
 
-	protected $data;
+	public $data;
 
 	protected $desc;
 
