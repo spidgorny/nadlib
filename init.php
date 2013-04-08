@@ -99,6 +99,7 @@ function startsWith($haystack, $needle) {
 			return true;
 		}
 	}
+	return false;
 }
 
 /**
