@@ -266,11 +266,11 @@ class Request {
 					}
 				}
 				$controller = $last;
-				if (!$controller) {
-					$controller = $this->defaultController;
-				}
 			}
-		}
+		}   // cli
+        if (!$controller) {
+            $controller = $this->defaultController;
+        }
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),

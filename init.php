@@ -11,8 +11,9 @@ function __autoload($class) {
 
 function initNADLIB() {
 	//print_r($_SERVER);
+    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 	define('DEVELOPMENT', isset($_SERVER['argc'])
-		? (($_SERVER['OS'] == 'Windows_NT') || true)// at home
+		? (($os == 'Windows_NT') || true)// at home
 		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 	);
 	if (DEVELOPMENT) {
@@ -23,7 +24,7 @@ function initNADLIB() {
 		ini_set('display_errors', TRUE);
 		ini_set('html_error', TRUE);
 
-		$GLOBALS['profiler'] = new TaylorProfiler(TRUE);	// GLOBALS
+		$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 		/* @var $profiler TaylorProfiler */
 		if (class_exists('Config')) {
 			//print_r(Config::getInstance()->config['Config']);
