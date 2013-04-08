@@ -206,8 +206,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						($desc['readonly'] ? ' readonly="readonly"' : '').
-						$desc['class'], $type
+						($desc['readonly'] ? ' readonly="readonly"' : '')
+						, $type, $desc['class']
 					);
 				break;
 			}
@@ -468,7 +468,9 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Fills the $desc array with values from $assoc.
-	 * Understands $assoc in both single-array way $assoc['key'] = $value and as $assoc['key']['value'] = $value.
+	 * Understands $assoc in both single-array way $assoc['key'] = $value
+	 * and as $assoc['key']['value'] = $value.
+	 * Non-static due to $this->withValue and $this->formatDate
 	 *
 	 * @param	array	Structure of the HTMLFormTable
 	 * @param	array	Values in one of the supported formats.
@@ -496,7 +498,7 @@ class HTMLFormTable extends HTMLForm {
 				}
 
 				if ($desc[$key]['dependant']) {
-					$desc[$key]['dependant'] = HTMLFormTable::fillValues($desc[$key]['dependant'], $assoc);
+					$desc[$key]['dependant'] = $this->fillValues($desc[$key]['dependant'], $assoc);
 					//t3lib_div::debug($desc[$key]['dependant']);
 				}
 			}
@@ -546,7 +548,12 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function fetchSelectionOptions(array $desc) {
+	/**
+	 * Retrieves data from DB
+	 * @param array $desc
+	 * @return array
+	 */
+	static function fetchSelectionOptions(array $desc) {
 		if ($desc['from'] && $desc['title']) {
 			//debugster($desc);
 			$options = Config::getInstance()->qb->getTableOptions($desc['from'],

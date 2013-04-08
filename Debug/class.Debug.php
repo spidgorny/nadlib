@@ -72,7 +72,7 @@ class Debug {
 		return $content;
 	}
 
-	function getTraceTable(array $db) {
+	static function getTraceTable(array $db) {
 		foreach ($db as &$row) {
 			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
@@ -135,7 +135,7 @@ class Debug {
 		return $content;
 	}
 
-	function getMethod(array $first) {
+	static function getMethod(array $first) {
 		if ($first['object']) {
 			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
 		} else if ($first['class']) {
@@ -144,6 +144,18 @@ class Debug {
 			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
 		}
 		return $function;
+	}
+
+	static function getCaller($stepBack = 2) {
+		$btl = debug_backtrace();
+		reset($btl);
+		for ($i = 0; $i < $stepBack; $i++) {
+			$bt = next($btl);
+		}
+		if ($bt['function'] == 'runSelectQuery') {
+			$bt = next($btl);
+		}
+		return "{$bt['class']}::{$bt['function']}";
 	}
 
 }

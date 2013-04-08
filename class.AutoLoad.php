@@ -55,7 +55,8 @@ class AutoLoad {
 			}
 		}
 		if (!class_exists($classFile) && !interface_exists($classFile)) {
-			//debug($folders);
+			unset($_SESSION['autoloadCache']);	// just in case
+			//debug($this->folders);
 			if (class_exists('Config')) {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
@@ -65,6 +66,12 @@ class AutoLoad {
 			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
+
+	static function register() {
+		static $instance;
+		if (!$instance) $instance = new self();
+		spl_autoload_register(array($instance, 'load'));
 	}
 
 }

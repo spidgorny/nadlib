@@ -89,6 +89,8 @@ abstract class LocalLang {
 				$trans = $this->getEditLinkMaybe($text, $text);
 			}
 		} else {
+			//debug($this->ll);
+			//debug($text, $this->ll[$text], $this->ll['E-Mail']);
 			$this->saveMissingMessage($text);
 			$trans = $this->getEditLinkMaybe($text);
 		}

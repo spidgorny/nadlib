@@ -107,6 +107,7 @@ abstract class Grid extends AppController {
 		if ($this->request->getTrim('action') == 'clearFilter' && $allowEdit) {
 		} else {
 			$this->filter = $allowEdit ? $this->request->getArray('filter') : array();
+			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
 			$this->filter = $this->filter
 				? $this->filter
 				: $this->user->getPref('Filter.'.$cn);
@@ -125,9 +126,12 @@ abstract class Grid extends AppController {
 		$sortRequest = $this->request->getArray('slTable');
 		$this->sort = $sortRequest
 			? $sortRequest
-			: ($this->user->getPref('Sort.'.$cn) ?: $this->sort);
+			: ($this->user->getPref('Sort.'.$cn)
+				? $this->user->getPref('Sort.'.$cn)
+				: $this->sort
+			);
 
-		$this->pageSize = $this->pageSize ?: new PageSize();
+		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
 	}
 
 	function render() {
