@@ -29,12 +29,13 @@ class ContentEditable {
 
 	function getHeader() {
 		$content = '';
-		Index::getInstance()->addJQuery();
-		Index::getInstance()->addJQueryUI();
+		$index = Index::getInstance();
+		$index->addJQuery();
+		$index->addJQueryUI();
 		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/rangy-core-1.2.3.js"></script>';
 		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/hallo.js"></script>';
 		$content .= '<script src="nadlib/js/contentEditable.js"></script>';
-		Index::getInstance()->footer[__CLASS__] = $content;
+		$index->footer[__CLASS__] = $content;
 		return $content;
 	}
 

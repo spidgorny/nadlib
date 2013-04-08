@@ -69,7 +69,7 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
-	function performAction() {
+	function performAction($action = NULL) {
 		$content = '';
 		$allowed = array('login', 'forgotPassword', 'saveRegister', 'activate', 'inlineForm', 'logout');
 		if (in_array($this->mode, $allowed) || $this->user->isAuth()) {
