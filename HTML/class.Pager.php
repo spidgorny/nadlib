@@ -137,17 +137,17 @@ class Pager {
 	function renderPageSelectors(URL $url = NULL) {
 		$this->url = $url;
 		$content = '<div class="pagination paginationControl">';
+		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
 			$content .= $this->renderPager();
 		}
-		$content .= $this->showSearchBrowser();
 		$content .= '</div>';
 		return $content;
 	}
 
 	function renderPager() {
 		$this->pageSize->setURL(new URL(NULL, array()));
-		$content = '<div style="float: right;">'.$this->pageSize->render().' '.__('per page').'</div>';
+		$content = '<div class="pageSize">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
 	}
 
@@ -176,7 +176,7 @@ class Pager {
 	 		$content .= '<li><span class="disabled">&gt;</span></li>';
  		}
 		if ($this->showPageJump) {
-			$form = "<li><form action='".$this->url."' method='POST' style='display: inline'>
+			$form = "<form action='".$this->url."' method='POST' style='display: inline'>
 				&nbsp;<input
 					name='Pager_{$this->prefix}[page]'
 					type='text'
@@ -184,10 +184,10 @@ class Pager {
 					value='".($this->currentPage+1)."'
 					style='width: 2em' />
 				<input type='submit' value='Page' class='submit' />
-			</form></li>";
+			</form>";
 		}
  		//debug($term);
-		$content = '<ul>'.$content.'&nbsp;'.$form.'</ul>';
+		$content = '<ul>'.$content.'&nbsp;'.'</ul>'.$form;
 		return $content;
 	}
 
