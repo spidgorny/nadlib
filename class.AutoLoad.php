@@ -68,4 +68,10 @@ class AutoLoad {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	static function register() {
+		static $instance;
+		if (!$instance) $instance = new self();
+		spl_autoload_register(array($instance, 'load'));
+	}
+
 }

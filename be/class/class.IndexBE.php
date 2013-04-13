@@ -47,6 +47,7 @@ class IndexBE extends IndexBase {
 			'PHPInfo' => 'phpinfo()',
 			'Documentation' => 'Documentation',
 			'TestNadlib' => 'TestNadlib',
+			'JumpFrontend' => '<- Frontend',
 		);
 
 		$c = Spyc::YAMLLoad('../../class/config.yaml');

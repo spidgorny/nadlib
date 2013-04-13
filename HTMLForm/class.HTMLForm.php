@@ -304,7 +304,7 @@ class HTMLForm {
 		">\n";
 		if ($this->fieldset) {
 			$a .= "<fieldset ".$this->getAttrHTML($this->fieldsetMore)."><legend>".$this->fieldset."</legend>";
-			$a .= ($this->fieldsetMore);
+			$a .= is_array($this->fieldsetMore) ? implode(' ', $this->fieldsetMore) : $this->fieldsetMore;
 		}
 		return $a;
 	}
