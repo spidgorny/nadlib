@@ -41,7 +41,6 @@ class MySQL {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-		return '';
 	function perform($query) {
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
