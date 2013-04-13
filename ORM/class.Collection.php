@@ -171,7 +171,7 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(/*array*/ $where = NULL) {
+	function getQuery(array $where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;

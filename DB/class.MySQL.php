@@ -7,6 +7,12 @@ class MySQL {
 	protected static $instance;
 	public $queryLog = array();		// set to NULL for disabling
 
+	/**
+	 * @var bool Allows logging every query to the error.log.
+	 * Helps to detect the reason for white screen problems.
+	 */
+	public $logToLog = false;
+
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = $db;
@@ -48,6 +54,7 @@ class MySQL {
 	}
 */
 	function getCaller($stepBack = 2) {
+		return '';
 		$btl = debug_backtrace();
 		reset($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
@@ -75,6 +82,10 @@ class MySQL {
 			)));
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
+		}
+		if ($this->logToLog) {
+			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime.' '.$query);
 		}
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);

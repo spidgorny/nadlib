@@ -1,6 +1,6 @@
 <?php
 
-class Timeline extends AppController {
+class Timeline /*extends AppController */{
 
 	/**
 	 * @var Date
