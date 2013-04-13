@@ -12,7 +12,7 @@ class Time {
 	public $human;
 
 	function __construct($input = NULL, $relativeTo = NULL) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.MySQL::getCaller().')');
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.Debug::getCaller().')');
 		if (!is_null($input)) { // 0 is 1970-01-01 00:00:00
 			if (is_string($input)) {
 				if (is_null($relativeTo)) {
@@ -31,7 +31,7 @@ class Time {
 			$this->time = time();
 		}
 		$this->updateDebug();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.MySQL::getCaller().')');
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.Debug::getCaller().')');
 	}
 
 	function updateDebug() {

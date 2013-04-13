@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Class Localize
+ *
+ * Hint: merge two localization tables together:
+ * insert into app_interface (code, lang, text)
+select app_interface_import.code, app_interface_import.lang, app_interface_import.text
+from app_interface_import
+left outer join app_interface
+on (app_interface.code = app_interface_import.code
+AND app_interface.lang = app_interface.lang)
+WHERE app_interface.text IS NULL
+ */
+
 class Localize extends AppControllerBE {
 	/**
 	 * @var LocalLang
