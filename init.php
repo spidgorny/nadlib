@@ -117,10 +117,11 @@ function endsWith($haystack, $needle) {
  * Does string splitting with cleanup.
  * @param $sep
  * @param $str
+ * @param null $max
  * @return array
  */
-function trimExplode($sep, $str) {
-	$parts = explode($sep, $str);
+function trimExplode($sep, $str, $max = NULL) {
+	$parts = explode($sep, $str, $max);
 	$parts = array_map('trim', $parts);
 	$parts = array_filter($parts);
 	$parts = array_values($parts);

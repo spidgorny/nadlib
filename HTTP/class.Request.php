@@ -270,6 +270,7 @@ class Request {
 		}   // cli
         if (!$controller) {
             $controller = $this->defaultController;
+			//debug('Using default controller', $controller);
         }
 		nodebug(array(
 			'result' => $controller,
@@ -428,10 +429,17 @@ class Request {
 		return isset($path[$level]) ? $path[$level] : NULL;
 	}
 
+	/**
+	 * @return array
+	 */
 	function getURLLevels() {
 		$path = $this->url->getPath();
-		$path = trimExplode('/', $path);
-		//debug($path);
+		if (strlen($path) > 1) {	// "/"
+			$path = trimExplode('/', $path);
+			//debug($this->url->getPath(), $path);
+		} else {
+			$path = array();
+		}
 		return $path;
 	}
 

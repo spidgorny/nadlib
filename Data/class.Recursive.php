@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Class Recursive - a general class to store hierarhical information.
+ * Can be a replacement for TypoScript style of structure (same key with "." in the end contains sub-nodes).
+ * Used by {@link Menu} to display the menu item itself as well as contain sub-menus.
+ */
+
 class Recursive {
 
 	protected $value;
