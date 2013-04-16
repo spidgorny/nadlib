@@ -42,7 +42,7 @@ class View {
 		}
 		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
 		$this->request = Request::getInstance();
-		$this->index = Index::getInstance();
+		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 

@@ -14,7 +14,7 @@ class TestNadlib extends uTestBase {
 				),
 			),
 		);
-		$b = AP($a)->typoscript();
+		$b = ArrayPlus::create($a)->typoscript();
 		//debug($b);
 		return $this->assertEqual($b, array(
 			'a' => 'b',
