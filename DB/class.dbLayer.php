@@ -193,6 +193,10 @@ class dbLayer {
 		return $return;
 	}
 
+	/**
+	 * Returns a list of tables in the current database
+	 * @return string[]
+	 */
 	function getTables() {
 		$query = "select relname from pg_class where not relname ~ 'pg_.*' and not relname ~ 'sql_.*' and relkind = 'r'";
 		$result = $this->perform($query);

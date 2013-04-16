@@ -225,10 +225,35 @@ class MySQL {
 		return $res;
 	}
 
+	function getDatabaseCharacterSet() {
+		return current($this->fetchAssoc('show variables like "character_set_database"'));
+	}
+
+	/**
+	 * @return string[]
+	 */
+	function getTables() {
+		$list = $this->fetchAll('SHOW TABLES');
+		foreach ($list as &$row) {
+			$row = current($row);
+		}
+		return $list;
+	}
+
+	function getTableCharset($table) {
+		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
+       information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+WHERE CCSA.collation_name = T.table_collation
+  /*AND T.table_schema = 'schemaname'*/
+  AND T.table_name = '".$table."'";
+		$row = $this->fetchAssoc($query);
+		return $row;
+	}
+
 	function getTableColumns($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW COLUMNS FROM ".$this->escape($table);
+			$query = "SHOW FULL COLUMNS FROM ".$this->escape($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {

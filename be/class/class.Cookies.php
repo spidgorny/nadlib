@@ -41,7 +41,8 @@ class Cookies extends AppControllerBE {
 	function addAction() {
 		$key = $this->request->getTrim('key');
 		$val = $this->request->getTrim('val');
-
+		setcookie($key, $val, time()+365*24*60*60, '/');
+		$_COOKIE[$key] = $val;
 	}
 
 }
