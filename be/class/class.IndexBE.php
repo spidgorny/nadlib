@@ -48,7 +48,8 @@ class IndexBE extends IndexBase {
 			'PHPInfo' => 'phpinfo()',
 			'Documentation' => 'Documentation',
 			'TestNadlib' => 'TestNadlib',
-			'AlterDB' => 'Compare DB Struct',
+			'AlterDB' => 'Alter DB',
+			'AlterCharset' => 'Alter Charset',
 			'JumpFrontend' => '<- Frontend',
 		);
 
