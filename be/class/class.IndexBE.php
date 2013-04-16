@@ -42,6 +42,7 @@ class IndexBE extends IndexBase {
 			'ServerStat' => 'Server Stat',
 			'ServerData' => 'Server Data',
 			'Session' => 'Session',
+			'Cookies' => 'Cookies',
 			'ConfigView' => 'config.yaml',
 			'Localize' => 'Localize',
 			'PHPInfo' => 'phpinfo()',

@@ -32,6 +32,7 @@ class AlterDB extends AppControllerBE {
 			// access controlled by AlterDB::$public which is false
 		}
 		$this->file = $this->request->getTrim('file');
+		$this->linkVars['file'] = $this->file;
 	}
 
 	function wrongApproach() {
@@ -184,6 +185,7 @@ class AlterDB extends AppControllerBE {
 					'sql' => $sql = $this->findStringWith($update_statements['change'], array($table, $field)),
 					'do' => $this->makeRelLink('DO', array(
 						'action' => 'do',
+						'file' => $this->file,
 						'key' => 'change',
 						'query' => md5($sql),
 					)),
@@ -200,6 +202,7 @@ class AlterDB extends AppControllerBE {
 					'sql' => $sql = $this->findStringWith($update_statements['add'], array($table, $field)),
 					'do' => $this->makeRelLink('DO', array(
 						'action' => 'do',
+						'file' => $this->file,
 						'key' => 'add',
 						'query' => md5($sql),
 					)),
@@ -207,6 +210,7 @@ class AlterDB extends AppControllerBE {
 			}
 			$content .= $this->showTable($list, $table);
 		}
+		debug($update_statements['add']);
 		return $content;
 	}
 
@@ -233,11 +237,11 @@ class AlterDB extends AppControllerBE {
 			foreach ($with as $search) {
 				if (strpos($el, $search) === FALSE) {
 					$false = true;
-					break;
+					continue;
 				}
-				if (!$false) {
-					return $el;
-				}
+			}
+			if (!$false) {
+				return $el;
 			}
 		}
 	}
