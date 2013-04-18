@@ -147,8 +147,10 @@ class Collection {
 
 	function postInit() {
 		//$this->pager = new Pager();
-		$index = Index::getInstance();
-		$this->controller = &$index->controller;
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$this->controller = &$index->controller;
+		}
 		//debug(get_class($this->controller));
 	}
 
