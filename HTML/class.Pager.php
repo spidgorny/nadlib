@@ -120,6 +120,10 @@ class Pager {
 		return $page*$this->itemsPerPage;
 	}
 
+	function getPageLastItem($page) {
+		return min($this->numberOfRecords, $page*$this->itemsPerPage + $this->itemsPerPage);
+	}
+
 	function isInPage($i) {
 		return $i >= $this->getPageFirstItem($this->currentPage) && $i < ($this->getPageFirstItem($this->currentPage)+$this->itemsPerPage);
 	}
@@ -194,7 +198,7 @@ class Pager {
 	function getSinglePageLink($k, $text) {
 		$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $k));
 		if ($k == $this->currentPage) {
-			$content = '<li><span class="active">'.$text.'</span></li>';
+			$content = '<li class="active"><span class="active">'.$text.'</span></li>';
 		} else {
 			$content = '<li><a href="'.$link.'">'.$text.'</a></li>';
 		}

@@ -1,7 +1,9 @@
 <?php
 
 class ArrayIteratorPlus implements Iterator {
+
 	protected $data = array();
+
 	private $position = 0;
 
     function current() {

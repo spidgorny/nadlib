@@ -56,12 +56,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * @param bool $createNew
 	 * @return Index|IndexBE
 	 */
-	static function getInstance() {
+	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = &self::$instance;
-		if (!$instance) {
+		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();

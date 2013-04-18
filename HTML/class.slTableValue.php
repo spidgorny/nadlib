@@ -56,18 +56,20 @@ class slTableValue {
 				//debug($k + array('val' => $val));
 				if ($val) {
 					$what = $k['title'] ? $k['title'] : $col;
+					$id = $k['idField'] ? $k['idField'] : 'id';
 					if (!isset($k['options'])) {
-						$options = $this->db->fetchSelectQuery($k['from'], array($k['idField'] => $val));
-						$options = AP($options)->IDalize()->column($what)->getData();
-						$out = $options[$val];
-					} else if ($k['set']) {
-						//debug($val);
-						$list = explode(',', $val);
-						$out = array();
-						foreach ($list as $val) {
-							$out[] = $GLOBALS['dbLayer']->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
+						if ($k['set']) {
+							$list = trimExplode(',', $val);
+							$out = array();
+							foreach ($list as $val) {
+								$out[] = $this->db->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
+							}
+							$out = implode(', ', $out);
+						} else {
+							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val));
+							$options = ArrayPlus::create($options)->IDalize($id)->column($what)->getData();
+							$out = $options[$val];
 						}
-						$out = implode(', ', $out);
 					} else {
 						$options = $k['options'];
 						$out = $options[$val];

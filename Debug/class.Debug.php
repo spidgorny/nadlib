@@ -146,6 +146,11 @@ class Debug {
 		return $function;
 	}
 
+	/**
+	 * Returns a single method several steps back in trace
+	 * @param int $stepBack
+	 * @return string
+	 */
 	static function getCaller($stepBack = 2) {
 		$btl = debug_backtrace();
 		reset($btl);
@@ -156,6 +161,22 @@ class Debug {
 			$bt = next($btl);
 		}
 		return "{$bt['class']}::{$bt['function']}";
+	}
+
+	/**
+	 * Returns a string with multiple methods chain
+	 * @param int $limit
+	 * @return string
+	 */
+	function getBackLog($limit = 5) {
+		$debug = debug_backtrace();
+		array_shift($debug);
+		$content = array();
+		foreach ($debug as $debugLine) {
+			$content[] = $debugLine['class'].'::'.$debugLine['function'];
+		}
+		$content = implode(' // ', $content);
+		return $content;
 	}
 
 }
