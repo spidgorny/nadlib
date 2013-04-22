@@ -175,6 +175,9 @@ class HTMLFormTable extends HTMLForm {
 				case 'set':
 					$this->set($fieldName, $fieldValue, $desc);
 				break;
+				case 'checkarray':
+					$this->checkarray($fieldName, $desc['set'], $fieldValue, $desc);
+				break;
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
 				break;
@@ -550,6 +553,8 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Retrieves data from DB
+	 * Provide either 'options' assoc array
+	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
 	 * @param array $desc
 	 * @return array
 	 */
@@ -571,8 +576,8 @@ class HTMLFormTable extends HTMLForm {
 		}
 		if (isset($desc['null'])) {
 			$options = array(NULL => "---") + $options;
-			//Debug::debug_args($options, $desc['options']);
 		}
+		//Debug::debug_args($options, $desc['options']);
 		return $options;
 	}
 

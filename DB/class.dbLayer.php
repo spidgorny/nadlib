@@ -307,11 +307,14 @@ class dbLayer {
 		return $c;
 	}
 
-	function fetchAll($result) {
+	function fetchAll($result, $key = NULL) {
 		if (is_string($result)) {
 			$result = $this->perform($result);
 		}
 		$res = pg_fetch_all($result);
+		if ($res && $key) {
+			$res = ArrayPlus::create($res)->IDalize($key)->getData();
+		}
 		if (!$res) {
 			$res = array();
 		}
