@@ -412,21 +412,22 @@ class HTMLForm {
 	 * @param array $options
 	 * @param array $selected - only keys are used
 	 * @param string $more
-	 * @param int $height
+	 * @param string $height
 	 * @param int $width
 	 * @see set()
 	 */
-	function checkarray($name, array $options, array $selected, $more = '', $height = 700, $width = 350) {
+	function checkarray($name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray '.$name.'">';
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
+		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'">';
 			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
 			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
-			$this->check($name.'][', $value, $checked, $moreStr);
+			$this->check($newName, $value, $checked, $moreStr);
 			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
 			$this->stdout .= '</label>';
 		}

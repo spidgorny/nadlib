@@ -11,6 +11,13 @@ class View {
 	/**
 	 * Enter description here...
 	 *
+	 * @var LocalLang
+	 */
+	protected $ll;
+	
+	/**
+	 * Enter description here...
+	 *
 	 * @var Request
 	 */
 	protected $request;
