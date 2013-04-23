@@ -30,11 +30,15 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var User/Client/userMan/LoginUser
+	 * @var User|Client|userMan|LoginUser
 	 */
 	public $user;
 
-	static protected $instance;
+	/**
+	 * Instance per class
+	 * @var Controller[]
+	 */
+	static protected $instance = array();
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -47,31 +51,39 @@ abstract class Controller {
 
 	public $encloseTag = 'h4';
 
+	/**
+	 * accessible without login
+	 * @var bool
+	 */
+	static public $public = false;
+
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
+		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
-		$this->title = $this->title ? $this->title : get_class($this);
-		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->user = Config::getInstance()->user;
 		$this->linkVars['c'] = get_class($this);
 		Config::getInstance()->mergeConfig($this);
+		$this->title = $this->title ? $this->title : get_class($this);
+		$this->title = $this->title ? __($this->title) : $this->title;
+		self::$instance[get_class($this)] = $this;
 		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
 		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
 			$r = new Router();
-			$url = $r->makeURL($params);
+			$url = $r->makeURL($params, $prefix);
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			//echo $url, '<br />';
 			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+			//debug($url->documentRoot, $prefix, $url.'');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);
@@ -82,17 +94,39 @@ abstract class Controller {
 		return $url;
 	}
 
+	/**
+	 * Only appends $this->linkVars to the URL.
+	 * Use this one if your linkVars is defined.
+	 * @param array $params
+	 * @return URL
+	 */
 	function makeRelURL(array $params = array()) {
 		return $this->makeURL($params + $this->linkVars);
 	}
 
+	/**
+	 * Combines params with $this->linkVars
+	 * @param array $params
+	 * @param string $prefix
+	 * @return URL
+	 */
 	function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
 		//debug($params);
 		return $this->makeURL($params, false, $prefix);
 	}
 
+	/**
+	 * Returns '<a href="$page?$params" $more">$text</a>
+	 * @param $text
+	 * @param array $params
+	 * @param string $page
+	 * @param array $more
+	 * @param bool $isHTML
+	 * @return HTMLTag
+	 */
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
+		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
 			'href' => $this->makeURL($params, false, $page),
 		)+$more, $text, $isHTML);
@@ -131,12 +165,12 @@ abstract class Controller {
 		return $table;
 	}
 
-/*	static function getInstance() {
+	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance ? self::$instance : new $static();
+		return self::$instance[$static];
 	}
-*/
+
 	function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
@@ -164,7 +198,7 @@ abstract class Controller {
 	 * @param bool $preserveSpaces	- leaves spaces
 	 * @return string				- converted to URL friendly name
 	 */
-	static function friendlyURL($string, $preserveSpaces) {
+	static function friendlyURL($string, $preserveSpaces = false) {
 		$string = preg_replace("`\[.*\]`U","",$string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
@@ -180,7 +214,7 @@ abstract class Controller {
 	}
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
-		$h = $h ?: $this->encloseTag;
+		$h = $h ? $h : $this->encloseTag;
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
@@ -211,49 +245,11 @@ abstract class Controller {
 		return $content;
 	}
 
-	function log($text, $class = NULL, $done = NULL, array $extra = array()) {
-		//debug_pre_print_backtrace();
-		if (Config::getInstance()->config[__CLASS__]['log'] !== false) {
-			if (Config::getInstance()->db) {
-				Config::getInstance()->db->runInsertQuery('log', array(
-					'pid' => getmypid(),
-					'class' => strval($class),
-					'done' => floatval($done),
-					'line' => $text,
-				)+$extra);
-			}
-			echo '<tr><td>'.implode('</td><td>', array(
-				date('Y-m-d H:i:s'),
-				getmypid(),
-				$class,
-				'<img src="bar.php?rating='.round($done*100).'" /> '.number_format($done*100, 3).'%',
-				$extra['id_channel'],
-				$extra['date'],
-				$text,
-			)).'</td></tr>'."\n";
-		}
-		flush();
-	}
-
-	function randomBreak() {
-/*		$rand = rand(1, 10);
-		$this->log('Sleep '.$rand);
-		sleep($rand);
-		$this->log('.<br>');
-*/	}
-
-	function checkStop() {
-		if (file_exists('cron.stop')) {
-			$this->log('Forced stop.');
-			unlink('cron.stop');
-			exit();
-		}
-	}
-
-	function performAction() {
-		$method = $this->request->getTrim('action');
+	function performAction($action = NULL) {
+		$method = $action ? $action : $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
+			//debug($method, method_exists($this, $method));
 			if (method_exists($this, $method)) {
 				$content = $this->$method();
 			} else {
@@ -305,6 +301,12 @@ abstract class Controller {
 		)+$params);
 	}
 
+	/**
+	 * Just appends $this->linkVars
+	 * @param $text
+	 * @param array $params
+	 * @return HTMLTag
+	 */
 	function makeRelLink($text, array $params) {
 		return new HTMLTag('a', array(
 			'href' => $this->makeRelURL($params)
@@ -314,11 +316,13 @@ abstract class Controller {
 	/**
 	 * @param $name string|htmlString - if object then will be used as is
 	 * @param $action
+	 * @param array $params
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action) {
+	function getActionButton($name, $action, array $params = array()) {
 		$f = new HTMLForm();
 		$f->hidden('c', get_class($this));
+		$f->formHideArray($params);
 		if ($id = $this->request->getInt('id')) {
 			$f->hidden('id', $id);
 		}

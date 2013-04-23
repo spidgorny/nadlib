@@ -149,10 +149,12 @@ class BijouDBConnector {
 	/**
 	 * Returns THE ONE FIRST result.
 	 *
-	 * @param unknown_type $table
-	 * @param unknown_type $where
-	 * @param unknown_type $orderBy
-	 * @return unknown
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @param string $what
+	 * @param bool $whatExclusive
+	 * @return array
 	 */
 	function fetchSelectQuery($table, $where = array(), $orderBy = '', $what = '', $whatExclusive = false) {
 		$result = $this->runSelectQuery($table, $where, $orderBy, $what, $whatExclusive);

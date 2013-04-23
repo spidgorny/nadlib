@@ -3,6 +3,10 @@
 class HTMLTableBuf {
 	var $stdout = "";
 
+	function text($text) {
+		$this->stdout .= $text;
+	}
+
 	function table($more = "") {
 		$this->stdout .= "<table $more>\n";
 	}
@@ -35,12 +39,8 @@ class HTMLTableBuf {
 		$this->stdout .= "</td>\n";
 	}
 
-	function cell($a, $width = NULL, $more = '') {
-		if ($width) {
-			$this->td('width="'.$width.'" '.$more);
-		} else {
-			$this->td($more);
-		}
+	function cell($a, array $more = array()) {
+		$this->td(HTMLTag::renderAttr($more));
 		$this->stdout .= $a;
 		$this->tde();
 	}
@@ -54,7 +54,11 @@ class HTMLTableBuf {
 		$this->stdout .= '<thead>';
 		$this->tr($trmore);
 			foreach($aCaption as $i => $caption) {
-				$this->th(isset($thmore[$i]) ? $thmore[$i] : '');
+				$more = isset($thmore[$i]) ? $thmore[$i] : '';
+				if (is_array($more)) {
+					$more = HTMLTag::renderAttr($more);
+				}
+				$this->th($more);
 					$this->stdout .= $caption;
 				$this->the();
 			}

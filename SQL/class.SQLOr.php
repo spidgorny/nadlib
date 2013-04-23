@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class SQLOr - the parameters inside SHOULD contain key => value pairs.
+ * This may not be used as an alternative to 'makeOR'. Use SQLIn instead.
+ */
+
 class SQLOr extends SQLWherePart {
 
 	protected $or = array();
