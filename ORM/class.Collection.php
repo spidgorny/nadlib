@@ -96,6 +96,9 @@ class Collection {
 		'width' => "100%",
 	);
 
+	public $prevText = '&#x25C4;';
+	public $nextText = '&#x25BA;';
+
 	/**
 	 * @var Controller
 	 */
@@ -122,6 +125,7 @@ class Collection {
 		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
+		$this->postInit();
 
 		// should be dealt with by the Controller
 		/*$sortBy = $this->request->getSubRequest('slTable')->getCoalesce('sortBy', $this->orderBy);
@@ -143,8 +147,10 @@ class Collection {
 
 	function postInit() {
 		//$this->pager = new Pager();
-		$index = Index::getInstance();
-		$this->controller = &$index->controller;
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$this->controller = &$index->controller;
+		}
 		//debug(get_class($this->controller));
 	}
 
@@ -167,7 +173,7 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(/*array*/ $where = NULL) {
+	function getQuery(array $where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;
@@ -295,6 +301,8 @@ class Collection {
 				$trans = __($trans);
 			}
 		}
+		$this->prevText = __($this->prevText);
+		$this->nextText = __($this->nextText);
 	}
 
 	/**
@@ -416,6 +424,7 @@ class Collection {
 		}*/
 
 	/**
+	 * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
 	 * @param OODBase $model
 	 * @return string
 	 */
@@ -451,18 +460,23 @@ class Collection {
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
 		$ap = AP($data);
+		//debug($data);
 
 		$prev = $ap->getPrevKey($model->id);
 		if ($prev) {
-			$prev = $this->getNextPrevLink($data[$prev], '&#x25C4;');
+			$prev = $this->getNextPrevLink($data[$prev], $this->prevText);
+		} else {
+			$prev = '<span class="muted">'.$this->prevText.'</span>';
 		}
 
 		$next = $ap->getNextKey($model->id);
 		if ($next) {
-			$next = $this->getNextPrevLink($data[$next], '&#x25BA;');
+			$next = $this->getNextPrevLink($data[$next], $this->nextText);
+		} else {
+			$next = '<span class="muted">'.$this->nextText.'</span>';
 		}
 
-		$content = $prev.' '.$model->getName().' '.$next;
+		$content = $this->renderPrevNext($prev, $model, $next);
 
 		// switch page for the next time
 		if (isset($prevData[$model->id])) {
@@ -477,6 +491,12 @@ class Collection {
 		return $content;
 	}
 
+	/**
+	 * Override to make links from different type of objects
+	 * @param $prev
+	 * @param $arrow
+	 * @return HTMLTag
+	 */
 	protected function getNextPrevLink($prev, $arrow) {
 		if ($prev['singleLink']) {
 			$content = new HTMLTag('a', array(
@@ -493,6 +513,10 @@ class Collection {
 			$content = $arrow;
 		}
 		return $content;
+	}
+
+	protected function renderPrevNext($prev, $model, $next) {
+		return $prev.' '.$model->getName().' '.$next;
 	}
 
 	function getObjectInfo() {

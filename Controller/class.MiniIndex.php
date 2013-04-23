@@ -74,13 +74,13 @@ class MiniIndex extends AppController {
 	}
 
 	function renderController() {
+		$content = '';
 		if ($this->controller) {
 			try {
 				$content = $this->controller->render();
 			} catch (Exception $e) {
 				$content = $this->error($e->getMessage());
 			}
-			//debug($this->request->isAjax(), $this->controller->layout);
 			if (!$this->request->isAjax() && $this->controller->layout instanceof Wrap) {
 				$content = $this->controller->layout->wrap($content);
 			}

@@ -581,4 +581,9 @@ class HTMLFormTable extends HTMLForm {
 		return $this->validator->validate();
 	}
 
+	function __toString() {
+		$this->showForm();
+		return parent::__toString();
+	}
+
 }
