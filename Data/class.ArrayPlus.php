@@ -68,7 +68,9 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	/**
 	 * Modifies itself
-	 * @param type $key
+	 * @param string|\type $key
+	 * @param bool $allowMerge
+	 * @throws Exception
 	 * @return ArrayPlus
 	 */
 	function IDalize($key = 'id', $allowMerge = false) {
