@@ -31,6 +31,10 @@ class Menu /*extends Controller*/ {
 	 */
 	protected $user;
 
+	/**
+	 * Will display only the first level of the menu
+	 * @var bool
+	 */
 	public $renderOnlyCurrent = true;
 
 	public $ulClass = 'nav nav-list menu csc-menu';
