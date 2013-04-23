@@ -211,6 +211,7 @@ abstract class Controller {
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
+		//debug_pre_print_backtrace();
 		$content = '<div class="padding">'.$content.'</div>';
 		return $content;
 	}

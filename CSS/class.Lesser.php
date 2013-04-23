@@ -6,13 +6,19 @@ class Lesser extends AppController {
 
 	protected $output = 'cache/merge.css';
 
+	function __construct() {
+		unset($_COOKIE['debug']);
+		parent::__construct();
+	}
+
 	function render() {
-		//unset($_COOKIE['debug']);
 		$less = new lessc();
 		//$less->importDir[] = '../../';
 		$cssFile = $this->request->getFilePathName('css');
 		if ($cssFile) {
-			$this->output = 'cache/'.str_replace('.less', '.css', $this->request->getFilename('css'));
+			$cssFileName = $this->request->getFilename('css');
+			//debug($cssFile, $cssFileName);
+			$this->output = 'cache/'.str_replace('.less', '.css', $cssFileName);
 			//debug($cssFile, file_exists($cssFile), $this->output);
 			$regen = $less->checkedCompile($cssFile, $this->output);
 			if (file_exists($this->output)) {
