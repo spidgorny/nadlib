@@ -266,11 +266,12 @@ class Request {
 					}
 				}
 				$controller = $last;
-				if (!$controller) {
-					$controller = $this->defaultController;
-				}
 			}
-		}
+		}   // cli
+        if (!$controller) {
+            $controller = $this->defaultController;
+			//debug('Using default controller', $controller);
+        }
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
@@ -390,14 +391,15 @@ class Request {
 	 * http://www.zen-cart.com/forum/showthread.php?t=164174
 	 */
 	static function getRequestType() {
-		$request_type = (((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1'))) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_BY']) && strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']), 'SSL') !== false) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && (strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), 'SSL') !== false || strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), str_replace('https://', '', HTTPS_SERVER)) !== false)) ||
-						 (isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && ($_SERVER['HTTP_X_FORWARDED_SSL'] == '1' || strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) == 'on')) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'ssl' || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https')) ||
-						 (isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-						 (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) ? 'https' : 'http';
+		$request_type =
+			(((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1'))) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_BY']) && strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']), 'SSL') !== false) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_HOST']) && (strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), 'SSL') !== false || strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), str_replace('https://', '', HTTPS_SERVER)) !== false)) ||
+			(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
+			(isset($_SERVER['HTTP_X_FORWARDED_SSL']) && ($_SERVER['HTTP_X_FORWARDED_SSL'] == '1' || strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) == 'on')) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'ssl' || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https')) ||
+			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
+			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) ? 'https' : 'http';
 		return $request_type;
 	}
 
@@ -428,10 +430,17 @@ class Request {
 		return isset($path[$level]) ? $path[$level] : NULL;
 	}
 
+	/**
+	 * @return array
+	 */
 	function getURLLevels() {
 		$path = $this->url->getPath();
-		$path = trimExplode('/', $path);
-		//debug($path);
+		if (strlen($path) > 1) {	// "/"
+			$path = trimExplode('/', $path);
+			//debug($this->url->getPath(), $path);
+		} else {
+			$path = array();
+		}
 		return $path;
 	}
 
@@ -483,7 +492,7 @@ class Request {
 
 	function getNameless($index, $alternative = NULL) {
 		$levels = $this->getURLLevels();
-		
+
 		/* From DCI */
 		// this spoils ORS menu!
 /*		$controller = $this->getControllerString();
@@ -495,12 +504,20 @@ class Request {
 		}
 		$levels = array_values($levels);	// reindex
 		/* } */
-		
+
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
-	function isCLI() {
+	static function isCLI() {
 		return isset($_SERVER['argc']);
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
+	 * @return bool
+	 */
+	function isCron() {
+		return !isset($_SERVER['TERM']);
 	}
 
 	function debug() {
@@ -509,6 +526,7 @@ class Request {
 
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
+		//debug(getcwd(), $filename, realpath($filename));
 		$filename = realpath($filename);
 		return $filename;
 	}

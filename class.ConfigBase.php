@@ -10,7 +10,7 @@ class ConfigBase {
 	public $db_server = '127.0.0.1';
 	public $db_database = '';
 	public $db_user = 'root';
-	public $db_password = '';
+	public $db_password = 'root';
 
 	/**
 	 * @var int
@@ -66,21 +66,28 @@ class ConfigBase {
 	public $config;
 
 	protected function __construct() {
-		if ($this->db_database) {
-			$this->db = new MySQL($this->db_database, $this->db_server, $this->db_user, $this->db_password);
-			$di = new DIContainer();
-			$di->db = $this->db;
-			$this->qb = new SQLBuilder($di);
+		try {
+			$this->db = new MySQL(
+				$this->db_database, 
+				$this->db_server, 
+				$this->db_user, 
+				$this->db_password);
+		} catch (Exception $e) {
+			$this->db = new MySQL(
+				$this->db_database, 
+				$this->db_server, 
+				$this->db_user, 
+				'');
 		}
+		$di = new DIContainer();
+		$di->db = $this->db;
+		$this->qb = new SQLBuilder($di);
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
-		//print_r($this->config['Config']);
-		if ($this->config['Config']) foreach ($this->config['Config'] as $key => $val) {
-			$this->$key = $val;
-		}
+		$this->mergeConfig($this);
 	}
 
 	/**
@@ -120,7 +127,9 @@ class ConfigBase {
 		$class = get_class($obj);
 		if (is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
-				$obj->$key = $val;
+				if ($key != 'includeFolders') {	// Strict Standards: Accessing static property Config::$includeFolders as non static
+					$obj->$key = $val;
+				}
 			}
 		}
 	}

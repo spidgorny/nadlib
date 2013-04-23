@@ -1,16 +1,14 @@
 <?php
 
-function __autoload($class) {
-	require_once 'nadlib/class.AutoLoad.php';
-	static $a;
-	if (!$a) {
-		$a = new AutoLoad();
-	}
-	$a->load($class);
-}
-
 function initNADLIB() {
-	define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
+	//print_r($_SERVER);
+    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+	define('DEVELOPMENT', isset($_SERVER['argc'])
+		? (($os == 'Windows_NT') || true)// at home
+		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+	);
+	require_once dirname(__FILE__).'/class.AutoLoad.php';
+	AutoLoad::register();
 	if (DEVELOPMENT) {
 		error_reporting(E_ALL ^ E_NOTICE);
 		//ini_set('display_errors', FALSE);
@@ -19,11 +17,11 @@ function initNADLIB() {
 		ini_set('display_errors', TRUE);
 		ini_set('html_error', TRUE);
 
-		$profiler = new TaylorProfiler(TRUE);	// GLOBALS
+		$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 		/* @var $profiler TaylorProfiler */
 		if (class_exists('Config')) {
 			//print_r(Config::getInstance()->config['Config']);
-			set_time_limit(Config::getInstance()->config['Config']['timeLimit'] ? Config::getInstance()->config['Config']['timeLimit'] : 5);
+			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
 		}
 		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 		header('Cache-Control: no-cache, no-store, max-age=0');
@@ -37,13 +35,15 @@ function initNADLIB() {
 	date_default_timezone_set('Europe/Berlin');
 	ini_set('short_open_tag', 1);
 	Request::removeCookiesFromRequest();
-	//chdir(dirname(dirname(__FILE__)));	// one level up
-	// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
 }
 
 function debug($a) {
 	$params = func_get_args();
-	call_user_func_array(array('Debug', 'debug_args'), $params);
+	if (method_exists('Debug', 'debug_args')) {
+		call_user_func_array(array('Debug', 'debug_args'), $params);
+	} else {
+		echo '<pre>'.htmlspecialchars(print_r($params, true)).'</pre>';
+	}
 }
 
 function nodebug() {
@@ -54,6 +54,26 @@ function getDebug() {
 	$params = func_get_args();
 	call_user_func_array(array('Debug', 'debug_args'), $params);
 	return ob_get_clean();
+}
+
+function pre_print_r($a) {
+	echo '<pre style="white-space: pre-wrap;">';
+	print_r($a);
+	echo '</pre>';
+}
+
+function debug_once() {
+	static $used = array();
+	$trace = debug_backtrace();
+	array_shift($trace);	// debug_once itself
+	$first = array_shift($trace);
+	$key = $first['file'].'.'.$first['line'];
+	if (!$used[$key]) {
+		$v = func_get_args();
+		//$v[] = $key;
+		call_user_func_array('debug', $v);
+		$used[$key] = true;
+	}
 }
 
 /**
@@ -71,6 +91,7 @@ function startsWith($haystack, $needle) {
 			return true;
 		}
 	}
+	return false;
 }
 
 /**
@@ -87,10 +108,15 @@ function endsWith($haystack, $needle) {
  * Does string splitting with cleanup.
  * @param $sep
  * @param $str
+ * @param null $max
  * @return array
  */
-function trimExplode($sep, $str) {
-	$parts = explode($sep, $str);
+function trimExplode($sep, $str, $max = NULL) {
+	if ($max) {
+		$parts = explode($sep, $str, $max);		// checked by isset so NULL makes it 0
+	} else {
+		$parts = explode($sep, $str);
+	}
 	$parts = array_map('trim', $parts);
 	$parts = array_filter($parts);
 	$parts = array_values($parts);
@@ -98,7 +124,7 @@ function trimExplode($sep, $str) {
 }
 
 function debug_pre_print_backtrace() {
-	if ($_COOKIE['debug']) {
+	if (DEVELOPMENT) {
 		print '<pre>';
 		if (phpversion() >= '5.3') {
 			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);

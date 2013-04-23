@@ -110,7 +110,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "select":
 				case "selection":
-					$options = $this->getSelectionOptions($desc);
+					$options = $this->fetchSelectionOptions($desc);
 					$this->selection($fieldName, $options,
 						isset($fieldValue) ? $fieldValue : $desc['default'],
 						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
@@ -149,11 +149,13 @@ class HTMLFormTable extends HTMLForm {
 					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc);
 				break;
 				case 'submit':
+					$desc['name'] = $desc['name'] ? $desc['name'] : $fieldName;
+					//debug($desc);
 					$this->submit($desc['value'], $desc['more'], $desc);
 				break;
 				case 'ajaxTreeInput':
 					//debug($this->getName($fieldName, '', TRUE));
-					$this->ajaxTreeInput($fieldName, $desc['tree']);
+					$this->ajaxTreeInput($fieldName, $desc['value'], $desc);
 				break;
 				case 'captcha':
 					$this->captcha($fieldName, $fieldValue, $desc);
@@ -173,8 +175,14 @@ class HTMLFormTable extends HTMLForm {
 				case 'set':
 					$this->set($fieldName, $fieldValue, $desc);
 				break;
+				case 'checkarray':
+					$this->checkarray($fieldName, $desc['set'], $fieldValue, $desc);
+				break;
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
+				break;
+				case 'radiolist':
+					$this->radioArray($fieldName, $desc['options'], $fieldValue, $desc);
 				break;
 				case 'combo':
 					$this->combo($fieldName, $desc);
@@ -201,8 +209,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						($desc['readonly'] ? ' readonly="readonly"' : '').
-						$desc['class'], $type
+						($desc['readonly'] ? ' readonly="readonly"' : '')
+						, $type, $desc['class']
 					);
 				break;
 			}
@@ -286,14 +294,8 @@ class HTMLFormTable extends HTMLForm {
 				if ($desc['cursor']) {
 					$this->stdout .= "<script>
 						<!--
-							isOpera = navigator.userAgent.indexOf('Opera') != -1;
-							var obj;
-							if (isOpera) {
-								obj = document.all.{$elementID};
-							} else {
-								obj = document.getElementById('{$elementID}');
-							}
-							obj.focus();
+							var obj = document.getElementById('{$elementID}');
+							if (obj) obj.focus();
 						-->
 					</script>";
 				}
@@ -417,8 +419,8 @@ class HTMLFormTable extends HTMLForm {
 				if (!$fieldDesc['horisontal']) {
 					$this->stdout .= "</tr>";
 				}
-			} else {
-				//t3lib_div::debug(array($path, $fieldDesc));
+			} else if ($sType == 'hidden') { // hidden
+				//debug(array($formData, $path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
 		}
@@ -450,9 +452,10 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Returns the $form parameter with minimal modifications only for the special data types like time in seconds.
 	 *
-	 * @param array		Structure of the form.
-	 * @param array		Values from $_REQUEST.
-	 * @return array	Processed $form.
+	 * @param $desc
+	 * @param array $form Structure of the form.
+	 * @internal param \Values $array from $_REQUEST.
+	 * @return array    Processed $form.
 	 */
 	function acquireValues($desc, $form = array()) {
 		foreach ($desc as $field => $params) {
@@ -468,7 +471,9 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Fills the $desc array with values from $assoc.
-	 * Understands $assoc in both single-array way $assoc['key'] = $value and as $assoc['key']['value'] = $value.
+	 * Understands $assoc in both single-array way $assoc['key'] = $value
+	 * and as $assoc['key']['value'] = $value.
+	 * Non-static due to $this->withValue and $this->formatDate
 	 *
 	 * @param	array	Structure of the HTMLFormTable
 	 * @param	array	Values in one of the supported formats.
@@ -496,7 +501,7 @@ class HTMLFormTable extends HTMLForm {
 				}
 
 				if ($desc[$key]['dependant']) {
-					$desc[$key]['dependant'] = HTMLFormTable::fillValues($desc[$key]['dependant'], $assoc);
+					$desc[$key]['dependant'] = $this->fillValues($desc[$key]['dependant'], $assoc);
 					//t3lib_div::debug($desc[$key]['dependant']);
 				}
 			}
@@ -546,7 +551,14 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function getSelectionOptions(array $desc) {
+	/**
+	 * Retrieves data from DB
+	 * Provide either 'options' assoc array
+	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
+	 * @param array $desc
+	 * @return array
+	 */
+	static function fetchSelectionOptions(array $desc) {
 		if ($desc['from'] && $desc['title']) {
 			//debugster($desc);
 			$options = Config::getInstance()->qb->getTableOptions($desc['from'],
@@ -564,14 +576,19 @@ class HTMLFormTable extends HTMLForm {
 		}
 		if (isset($desc['null'])) {
 			$options = array(NULL => "---") + $options;
-			//Debug::debug_args($options, $desc['options']);
 		}
+		//Debug::debug_args($options, $desc['options']);
 		return $options;
 	}
 
 	function validate() {
 		$this->validator = new HTMLFormValidate($this->desc);
 		return $this->validator->validate();
+	}
+
+	function __toString() {
+		$this->showForm();
+		return parent::__toString();
 	}
 
 }

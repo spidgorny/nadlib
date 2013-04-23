@@ -63,7 +63,8 @@ abstract class HTMLFormProcessor extends AppController {
 			$this->form->desc = $this->desc;
 		} else {
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
-			$this->form->importValues(new Request($this->default));
+			//debug($this->default);
+			$this->form->importValues($this->default instanceof Request ? $this->default : new Request($this->default));
 			$this->desc = $this->form->desc;
 		}
 	}
@@ -76,12 +77,17 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	function render() {
 		$content = '';
+		if (!$this->form) {
+			$this->postInit();
+		}
 		//debug($this->validated);
 		//$errors = AP($this->desc)->column('error')->filter()->getData();
 		//debug($errors);
 		//debug($this->desc);
 		if ($this->validated) {
-			$content .= $this->onSuccess($this->form->getValues());
+			//$data = $this->form->getValues();	// doesn't work with multidimentional
+			$data = $this->request->getArray($this->prefix);
+			$content .= $this->onSuccess($data);
 		} else {
 			if ($this->submitted) {
 				$content .= '<div class="error alert alert-error ui-state-error padding">'.
@@ -89,12 +95,12 @@ abstract class HTMLFormProcessor extends AppController {
 			}
 			$content .= $this->showForm();
 		}
-		$content = $this->encloseInAA($content, $this->title = 'Options');
+		$content = $this->encloseInAA($content, $this->title);
 		return $content;
 	}
 
 	function getForm(HTMLFormTable $preForm = NULL) {
-		$f = $preForm ?: new HTMLFormTable($this->desc);
+		$f = $preForm ? $preForm : new HTMLFormTable($this->desc);
 		if ($this->ajax) {
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
 		}
@@ -105,6 +111,9 @@ abstract class HTMLFormProcessor extends AppController {
 	}
 
 	function showForm() {
+		if (!$this->form) {
+			throw new Exception(__METHOD__.': initialize form with getForm()');
+		}
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');

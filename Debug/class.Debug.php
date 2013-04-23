@@ -3,27 +3,29 @@
 class Debug {
 
 	static function debug_args() {
-		if ($_COOKIE['debug']) {
-			$args = func_get_args();
-			if (sizeof($args) == 1) {
-				$a = $args[0];
-			} else {
-				$a = $args;
-			}
+		$args = func_get_args();
+		if (sizeof($args) == 1) {
+			$a = $args[0];
+		} else {
+			$a = $args;
+		}
 
-			$db = debug_backtrace();
-			$db = array_slice($db, 2, sizeof($db));
+		$db = debug_backtrace();
+		$db = array_slice($db, 2, sizeof($db));
+
+		if (isset($_SERVER['argc'])) {
+			foreach ($db as $row) {
+				$trace[] = self::getMethod($row);
+			}
+			echo '---'.implode(' // ', $trace)."\n";
+			print_r($a);
+			echo "\n";
+		} else if ($_COOKIE['debug']) {
 			$trace = Debug::getTraceTable($db);
 
 			reset($db);
 			$first = current($db);
-			if ($first['object']) {
-				$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
-			} else if ($first['class']) {
-				$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
-			} else {
-				$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
-			}
+			$function = self::getMethod($first);
 			$props = array(
 				'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
 				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
@@ -34,6 +36,7 @@ class Debug {
 			} else if (!is_object($a) && !is_resource($a)) {
 				$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
 			}
+			$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
 
 			$content = '
 			<div class="debug" style="
@@ -69,7 +72,7 @@ class Debug {
 		return $content;
 	}
 
-	function getTraceTable(array $db) {
+	static function getTraceTable(array $db) {
 		foreach ($db as &$row) {
 			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
@@ -129,6 +132,50 @@ class Debug {
 		} else {
 			$content = htmlspecialchars($a);
 		}
+		return $content;
+	}
+
+	static function getMethod(array $first) {
+		if ($first['object']) {
+			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
+		} else if ($first['class']) {
+			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
+		} else {
+			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
+		}
+		return $function;
+	}
+
+	/**
+	 * Returns a single method several steps back in trace
+	 * @param int $stepBack
+	 * @return string
+	 */
+	static function getCaller($stepBack = 2) {
+		$btl = debug_backtrace();
+		reset($btl);
+		for ($i = 0; $i < $stepBack; $i++) {
+			$bt = next($btl);
+		}
+		if ($bt['function'] == 'runSelectQuery') {
+			$bt = next($btl);
+		}
+		return "{$bt['class']}::{$bt['function']}";
+	}
+
+	/**
+	 * Returns a string with multiple methods chain
+	 * @param int $limit
+	 * @return string
+	 */
+	function getBackLog($limit = 5) {
+		$debug = debug_backtrace();
+		array_shift($debug);
+		$content = array();
+		foreach ($debug as $debugLine) {
+			$content[] = $debugLine['class'].'::'.$debugLine['function'];
+		}
+		$content = implode(' // ', $content);
 		return $content;
 	}
 

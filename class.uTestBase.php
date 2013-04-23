@@ -1,6 +1,6 @@
 <?php
 
-class uTestBase extends Controller {
+class uTestBase extends AppControllerBE {
 	protected $start;
 	protected $stat = array();			// true/false counter
 

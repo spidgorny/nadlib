@@ -3,9 +3,11 @@
 class URLGet {
 	protected $url;
 
-	protected $timeout = 5;
+	public $timeout = 5;
 
 	protected $html = '';
+
+	protected $logger;
 
 	/**
 	 *
@@ -13,24 +15,48 @@ class URLGet {
 	 */
 	public function __construct($url) {
 		$this->url = $url;
+		$this->logger = Index::getInstance()->controller;
 		//$this->fetch();
 	}
 
-	public function fetch() {
+	/**
+	 * @var CURL info
+	 */
+	public $info;
+
+	/**
+	 * @var Proxy
+	 */
+	protected $proxy;
+
+	/**
+	 * @param bool $proxy - it was a proxy object, but now it's boolean
+	 * as a new proxy will get generation
+	 * @param int $retries
+	 */
+	public function fetch($proxy = false, $retries = 1) {
 		$start = microtime(true);
-		//Controller::log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
-		do {
+		//$this->logger->log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
+		for ($i = 0; $i < $retries; $i++) {
 			try {
 				if (function_exists('curl_init')) {
-					$html = $this->fetchCURL();
+					$curlParams = array();
+					if ($proxy) {
+						$this->proxy = Proxy::getRandom();
+						$curlParams[CURLOPT_PROXY] = $this->proxy;
+					}
+					$html = $this->fetchCURL($curlParams);
 				} else {
 					$html = $this->fetchFOpen();
 				}
 			} catch (Exception $e) {
-				//Controller::log($e->getMessage(), __CLASS__);
+				$this->logger->log($e->getMessage(), __CLASS__);
 			}
-		} while (!$html);
-		Controller::log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').')', __CLASS__);
+			if ($html) {
+				break;
+			}
+		}
+		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').')', __CLASS__);
 		$this->html = $html;
 	}
 
@@ -44,9 +70,8 @@ class URLGet {
 		return $html;
 	}
 
-	public function fetchCURL() {
-		//debug($this->url);
-		//$proxy = Proxy::getRandom();
+	public function fetchCURL(array $options = array()) {
+		$this->logger->log(__METHOD__.'('.$this->url.')', __METHOD__);
 		$process = curl_init($this->url);
 		//curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
 		//curl_setopt($process, CURLOPT_HEADER, 1);
@@ -58,33 +83,46 @@ class URLGet {
 		//curl_setopt($process, CURLOPT_POSTFIELDS, $data);
 		curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);
-		if ($proxy) {
-			curl_setopt($process, CURLOPT_PROXY, $proxy);
-		}
 		//curl_setopt($process, CURLOPT_POST, 1);
-		$html = curl_exec($process);
-		$info = curl_getinfo($process);
-		curl_close($process);
-		//debug($info);
-		//debug($proxy);
 
-		if (!$html || $info['http_code'] != 200) {
-			if ($proxy) {
+		curl_setopt_array($process, $options);
+
+		$html = curl_exec($process);
+		$this->info = curl_getinfo($process);
+		//debug($this->info);
+		if (curl_errno($process)){
+			//debug('Curl error: ' . curl_error($process));
+		}
+		curl_close($process);
+
+		if (!$html || $this->info['http_code'] != 200) {
+			if ($this->proxy) {
 				//Controller::log('Using proxy: '.$proxy.': FAIL', __CLASS__);
-				$proxy->update(array('fail' => $proxy->data['fail']+1));
+				$this->proxy->fail();
 			}
+			//debug($this->info);
 			throw new Exception('failed to read URL: '.$this->url);
 		} else {
-			if ($proxy) {
+			if ($this->proxy) {
 				//Controller::log('Using proxy: '.$proxy.': OK', __CLASS__);
-				$proxy->update(array('ok' => $proxy->data['ok']+1));
+				$this->proxy->ok();
 			}
 		}
 		return $html;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString() {
-		return $this->html;
+		return strval($this->html).'';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContent() {
+		return strval($this->html).'';
 	}
 
 }

@@ -37,7 +37,10 @@ class ServerStat extends AppControllerBE {
 	function renderEverything() {
 		$content = '<div class="span5">';
 		$content .= '<fieldset><legend>PHP Info</legend>'.$this->getPHPInfo().'</fieldset>';
-		$content .= '<fieldset><legend>Performance</legend>'.$this->getPerformanceInfo().'</fieldset>';
+
+		$s = slTable::showAssoc($this->getPerformanceInfo());
+		$s->more = 'class="table table-striped table-condensed"';
+		$content .= '<fieldset><legend>Performance</legend>'.$s.'</fieldset>';
 
 		$content .= '</div><div class="span5">';
 
@@ -111,9 +114,7 @@ class ServerStat extends AppControllerBE {
 			$conf['Unique Q'] = $this->getBar(sizeof($this->LOG) / $this->COUNTQUERIES * 100);
 		}
 		//debug($conf);
-		$s = slTable::showAssoc($conf);
-		$s->more = 'class="table table-striped table-condensed"';
-		return $s;
+		return $conf;
 	}
 
 	function getServerInfo() {
@@ -186,13 +187,11 @@ class ServerStat extends AppControllerBE {
 		$meminfo = "/proc/meminfo";
 		if (file_exists($meminfo)) {
 			$mem = file_get_contents($meminfo);
-			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches))
-			{
+			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
 				$totalp = $matches[1];
 			}
 			unset($matches);
-			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches))
-			{
+			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
 				$freep = $matches[1];
 			}
 			$freiq = $freep;
@@ -225,20 +224,12 @@ class ServerStat extends AppControllerBE {
 		), $value.' %');
 	}
 
-	function getStat($_statPath) {
-        if (trim($_statPath) == '')
-        {
-            $_statPath = '/proc/stat';
-        }
-
+	protected function getStat($_statPath = '/proc/stat') {
         $stat = @file_get_contents($_statPath);
 
-        if (substr($stat, 0, 3) == 'cpu')
-        {
+        if (substr($stat, 0, 3) == 'cpu') {
             $parts = explode(" ", preg_replace("!cpu +!", "", $stat));
-        }
-        else
-        {
+        } else {
             return false;
         }
 
@@ -251,26 +242,27 @@ class ServerStat extends AppControllerBE {
     }
 
     function getCpuUsage($_statPath = '/proc/stat') {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (file_exists($_statPath)) {
 			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
 			sleep(1);
 			$time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
+			debug($time1, $time2);
 
 			$delta = array();
 
-			foreach ($time1 as $k => $v)
-			{
+			foreach ($time1 as $k => $v) {
 				$delta[$k] = $time2[$k] - $v;
 			}
 
 			$deltaTotal = array_sum($delta);
 			$percentages = array();
 
-			foreach ($delta as $k => $v)
-			{
+			foreach ($delta as $k => $v) {
 				$percentages[$k] = $v / $deltaTotal * 100;
 			}
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
         return $percentages;
 	}
 

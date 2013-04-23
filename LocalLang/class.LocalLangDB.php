@@ -15,7 +15,9 @@ class LocalLangDB extends LocalLang {
 
 	function __construct($forceLang = NULL) {
 		parent::__construct($forceLang);
-		$this->db = Config::getInstance()->db;
+        $config = Config::getInstance();
+		$this->db = $config->db;
+        $this->table = $config->prefixTable($this->table);
 		$rows = $this->readDB($this->lang);
 		if ($rows) {
 			$this->codeID = ArrayPlus::create($rows)->column_assoc('code', 'id')->getData();
@@ -38,6 +40,7 @@ class LocalLangDB extends LocalLang {
 				'code' => $text,
 				'lang' => $this->lang,
 				'text' => $text,
+				'page' => Request::getInstance()->getURL(),
 			));
 			$this->ll[$text] = $text;
 		}

@@ -3,9 +3,15 @@
 class MySQL {
 	public $db;
 	public $lastQuery;
-	public $connection;
+	protected $connection;
 	protected static $instance;
 	public $queryLog = array();		// set to NULL for disabling
+
+	/**
+	 * @var bool Allows logging every query to the error.log.
+	 * Helps to detect the reason for white screen problems.
+	 */
+	public $logToLog = false;
 
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -18,6 +24,7 @@ class MySQL {
 
 	function connect($host, $login, $password) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//echo __METHOD__.'<br />';
 		ini_set('mysql.connect_timeout', 1);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
@@ -34,35 +41,11 @@ class MySQL {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-/*
- * Suspicious! ConfigBase takes care of that, isn't it?
- * 	static function getInstance() {
-		if (!self::$instance) {
-			$config = Config::getInstance();
-			self::$instance = new self($config->mysql_db, $config->mysql_host, $config->mysql_login, $config->mysql_password);
-			$config->db = self::$instance;
-			$config->qb->db = self::$instance;
-		}
-		return self::$instance;
-	}
-*/
-	function getCaller($stepBack = 2) {
-		$btl = debug_backtrace();
-		reset($btl);
-		for ($i = 0; $i < $stepBack; $i++) {
-			$bt = next($btl);
-		}
-		if ($bt['function'] == 'runSelectQuery') {
-			$bt = next($btl);
-		}
-		return "{$bt['class']}::{$bt['function']}";
-	}
-
 	function perform($query) {
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
-				$caller = $this->getCaller($c);
+				$caller = Debug::getCaller($c);
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
@@ -74,6 +57,10 @@ class MySQL {
 			)));
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
+		}
+		if ($this->logToLog) {
+			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime.' '.$query);
 		}
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
@@ -110,9 +97,9 @@ class MySQL {
 		if (is_resource($res)) {
 			$row = mysql_fetch_assoc($res);
 		} else {
-			error_log('is not a resource: '.$this->lastQuery);
-			debug('is not a resource', $res);
+			debug('is not a resource', $this->lastQuery, $res);
 			debug_pre_print_backtrace();
+			exit();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
@@ -196,10 +183,12 @@ class MySQL {
 
 	/**
 	 * Return ALL rows
-	 * @param <type> $table
-	 * @param <type> $where
 	 * @param <type> $order
-	 * @return <type>
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addFields
+	 * @param bool $exclusive
+	 * @return array <type>
 	 */
 	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
@@ -236,16 +225,41 @@ class MySQL {
 		return $res;
 	}
 
+	function getDatabaseCharacterSet() {
+		return current($this->fetchAssoc('show variables like "character_set_database"'));
+	}
+
+	/**
+	 * @return string[]
+	 */
+	function getTables() {
+		$list = $this->fetchAll('SHOW TABLES');
+		foreach ($list as &$row) {
+			$row = current($row);
+		}
+		return $list;
+	}
+
+	function getTableCharset($table) {
+		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
+       information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+WHERE CCSA.collation_name = T.table_collation
+  /*AND T.table_schema = 'schemaname'*/
+  AND T.table_name = '".$table."'";
+		$row = $this->fetchAssoc($query);
+		return $row;
+	}
+
 	function getTableColumns($table) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".$this->getCaller());
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW COLUMNS FROM ".$this->escape($table);
+			$query = "SHOW FULL COLUMNS FROM ".$this->escape($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
 			$columns = array();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".$this->getCaller());
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".Debug::getCaller());
 		return $columns;
 	}
 
@@ -271,6 +285,20 @@ class MySQL {
 	function switchDB($db) {
 		$this->db = $db;
 		mysql_select_db($this->db);
+	}
+
+	function fetchOptions($query) {
+		$data = array();
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		while (($row = mysql_fetch_row($result)) != FALSE) {
+			list($key, $val) = $row;
+			$data[$key] = $val;
+		}
+		return $data;
 	}
 
 }
