@@ -1,7 +1,7 @@
 <?php
 
 class HTMLForm {
-	var $action = "";
+	protected $action = "";
 	protected $method = "POST";
 	protected $prefix = array();
 	var $stdout = "";

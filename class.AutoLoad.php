@@ -36,6 +36,9 @@ class AutoLoad {
 
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if ($class == 'IndexBE') {
+			//debug_pre_print_backtrace();
+		}
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);
 		$subFolders = explode('/', $classFile);		// Download/GetAllRoutes

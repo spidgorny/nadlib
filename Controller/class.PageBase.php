@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class PageBase - Renders a TYPO3 page
+ */
+
 class PageBase extends AppController {
 
 	/**
@@ -37,6 +41,7 @@ class PageBase extends AppController {
 				htmlspecialchars($this->page->data['keywords']).'" />';
 		}
 		$content = $this->page->render();
+		$this->layout = $this->page->layout;	// for Search in Page_Cruises
 		return $content;
 	}
 

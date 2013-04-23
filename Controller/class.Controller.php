@@ -60,6 +60,7 @@ abstract class Controller {
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
+		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
@@ -93,6 +94,12 @@ abstract class Controller {
 		return $url;
 	}
 
+	/**
+	 * Only appends $this->linkVars to the URL.
+	 * Use this one if your linkVars is defined.
+	 * @param array $params
+	 * @return URL
+	 */
 	function makeRelURL(array $params = array()) {
 		return $this->makeURL($params + $this->linkVars);
 	}
@@ -240,7 +247,7 @@ abstract class Controller {
 	}
 
 	function performAction($action = NULL) {
-		$method = $action ?: $this->request->getTrim('action');
+		$method = $action ? $action : $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
@@ -295,6 +302,12 @@ abstract class Controller {
 		)+$params);
 	}
 
+	/**
+	 * Just appends $this->linkVars
+	 * @param $text
+	 * @param array $params
+	 * @return HTMLTag
+	 */
 	function makeRelLink($text, array $params) {
 		return new HTMLTag('a', array(
 			'href' => $this->makeRelURL($params)

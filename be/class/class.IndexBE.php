@@ -17,7 +17,10 @@ class IndexBE extends IndexBase {
 
 	function renderController() {
 		$c = get_class($this->controller);	/** @var $c Controller */
-		if ($c::$public || $this->user->isAuth()) {
+		//$public = $c::$public;	// Parse error:  syntax error, unexpected T_PAAMAYIM_NEKUDOTAYIM
+		$vars = get_class_vars($c);
+		$public = $vars['public'];
+		if ($public || $this->user->isAuth()) {
 			$content = parent::renderController();
 		} else {
 			throw new LoginException('Login first');
@@ -42,11 +45,14 @@ class IndexBE extends IndexBase {
 			'ServerStat' => 'Server Stat',
 			'ServerData' => 'Server Data',
 			'Session' => 'Session',
+			'Cookies' => 'Cookies',
 			'ConfigView' => 'config.yaml',
 			'Localize' => 'Localize',
 			'PHPInfo' => 'phpinfo()',
 			'Documentation' => 'Documentation',
 			'TestNadlib' => 'TestNadlib',
+			'AlterDB' => 'Alter DB',
+			'AlterCharset' => 'Alter Charset',
 			'JumpFrontend' => '<- Frontend',
 		);
 
