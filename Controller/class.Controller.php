@@ -110,7 +110,7 @@ abstract class Controller {
 	 * @param string $prefix
 	 * @return URL
 	 */
-	function getURL(array $params, $prefix = '?') {
+	public function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
 		//debug($params);
 		return $this->makeURL($params, false, $prefix);
