@@ -10,7 +10,7 @@ jQuery(document).ready(function() {
 			//console.log($this.data("save-url"));
 			$this.effect("highlight", {"color": "#ff0"}, 1000);
 			$this.load($this.data("save-url"), { body: data }, function(json) {
-				$this.effect("highlight", {"color": "#0f0"}, 1000);
+				$this.effect("highlight", {"color": "#0f0"}, 100);
 			})
 		});
 });

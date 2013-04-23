@@ -49,7 +49,7 @@ class ContentEditable {
 	}
 
 	function __toString() {
-		return nl2br($this->content);
+		return ($this->content);	// don't add nl2br()
 	}
 
 	/**
@@ -58,7 +58,7 @@ class ContentEditable {
 	 * @return string
 	 */
 	function render($saveURL) {
-		$content = '<div class="editable" data-save-url="'.$saveURL.$this->file.'">
+		$content = '<div class="editable" data-save-url="'.$saveURL.urlencode($this->file).'">
 			'.$this->__toString().'
 		</div>';
 		return $content;
