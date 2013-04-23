@@ -6,11 +6,11 @@ class HTMLForm {
 	protected $prefix = array();
 	var $stdout = "";
 	var $enctype = "";
+	var $target = "";
 	var $class = "";
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
-	var $target = '';
 	public $debug = false;
 	var $publickey = "6LeuPQwAAAAAADaepRj6kI13tqxU0rPaLUBtQplC";
 	var $privatekey = "6LeuPQwAAAAAAAuAnYFIF-ZM9yXnkbssaF0rRtkj";
@@ -38,6 +38,10 @@ class HTMLForm {
 
 	function method($method) {
 		$this->method = $method;
+	}
+
+	function target($target) {
+		$this->target = $target;
 	}
 
 	function text($a) {
