@@ -21,24 +21,44 @@ class Debug {
 			print_r($a);
 			echo "\n";
 		} else if ($_COOKIE['debug']) {
-			$trace = Debug::getTraceTable($db);
-
-			reset($db);
-			$first = current($db);
-			$function = self::getMethod($first);
-			$props = array(
-				'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
-				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
-					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
-			);
-			if (is_array($a)) {
-				$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
-			} else if (!is_object($a) && !is_resource($a)) {
-				$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
+			$content = self::renderHTMLView($db, $a);
+			$content .= Debug::view_array($a);
+			$content .= '
+			<style>
+				td.view_array {
+					border: dotted 1px #555;
+					font-size: 12px;
+					vertical-align: top;
+					border-collapse: collapse;
+				}
+			</style>';
+			if (!headers_sent()) {
+				echo '<!DOCTYPE html><html>';
 			}
-			$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
+			print($content); flush();
+		}
+		return $content;
+	}
 
-			$content = '
+	static function renderHTMLView($db, $a) {
+		$trace = Debug::getTraceTable($db);
+
+		reset($db);
+		$first = current($db);
+		$function = self::getMethod($first);
+		$props = array(
+			'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
+			'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
+				(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
+		);
+		if (is_array($a)) {
+			$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
+		} else if (!is_object($a) && !is_resource($a)) {
+			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
+		}
+		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
+
+		$content = '
 			<div class="debug" style="
 				background: #EEEEEE;
 				border: solid 1px silver;
@@ -54,21 +74,6 @@ class Debug {
 				">Trace: </a>
 				<div style="display: none;">'.$trace.'</div>
 			</div>';
-			$content .= Debug::view_array($a);
-			$content .= '</div>
-			<style>
-				td.view_array {
-					border: dotted 1px #555;
-					font-size: 12px;
-					vertical-align: top;
-					border-collapse: collapse;
-				}
-			</style>';
-			if (!headers_sent()) {
-				echo '<!DOCTYPE html><html>';
-			}
-			print($content); flush();
-		}
 		return $content;
 	}
 
