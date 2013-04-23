@@ -1,15 +1,28 @@
 <?php
 
-class OODBase {
+/**
+ * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
+ * It contain all the information from the database related to the project as well as methods to manipulate it.
+ *
+ */
+
+abstract class OODBase {
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayer|dbLayerDB
 	 */
 	protected $db;
 
-	public $table;
+	/**
+	 * Help to identify missing table value
+	 */
+	public $table = 'OODBase_undefined_table';
+
 	protected $idField = 'id';
+
 	protected $titleColumn = 'name';
+
 	public $id;
+
 	public $data = array();
 
 	/**
@@ -45,7 +58,12 @@ class OODBase {
 		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
 
-	function init($id) {
+	/**
+	 * Retrieves data from DB.
+	 *
+	 * @param unknown_type $id
+	 */
+	public function init($id) {
 		if (is_array($id)) {
 			$this->data = $id;
 			$this->id = $this->data[$this->idField];
