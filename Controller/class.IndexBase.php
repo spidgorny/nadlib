@@ -72,27 +72,36 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
+	/**
+	 * Called by index.php explicitly,
+	 * therefore processes exceptions
+	 * @throws Exception
+	 */
 	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$slug = $this->request->getControllerString();
-			__autoload($slug);
-			$slugParts = explode('/', $slug);
-			$class = end($slugParts);	// again, because __autoload need the full path
-			//debug(__METHOD__, $slug, $class, class_exists($class));
-			if (class_exists($class)) {
-				$this->controller = new $class();
-				//debug(get_class($this->controller));
-				if (method_exists($this->controller, 'postInit')) {
-					$this->controller->postInit();
-				}
-			} else {
-				$exception = 'Class '.$class.' not found.';
-				throw new Exception($exception);
-			}
+			$this->loadController($slug);
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
+		}
+	}
+
+	protected function loadController($slug) {
+		__autoload($slug);
+		$slugParts = explode('/', $slug);
+		$class = end($slugParts);	// again, because __autoload need the full path
+		//debug(__METHOD__, $slug, $class, class_exists($class));
+		if (class_exists($class)) {
+			$this->controller = new $class();
+			//debug(get_class($this->controller));
+			if (method_exists($this->controller, 'postInit')) {
+				$this->controller->postInit();
+			}
+		} else {
+			$exception = 'Class '.$class.' not found.';
+			throw new Exception($exception);
 		}
 	}
 
@@ -113,6 +122,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 		} else {
 			$content .= $this->content;	// display Exception
+		}
+		if (DEVELOPMENT && isset($GLOBALS['profiler']) && !$this->request->isAjax()) {
+			$profiler = $GLOBALS['profiler'];
+			/* @var $profiler TaylorProfiler */
+			$content .= $profiler->printTimers(true);
+			$content .= $profiler->renderFloat();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
