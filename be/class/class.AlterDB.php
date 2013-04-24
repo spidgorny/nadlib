@@ -155,6 +155,8 @@ class AlterDB extends AppControllerBE {
 			foreach ($desc['fields'] as $field => &$type) {
 				$type = str_replace('AUTO_INCREMENT', 'auto_increment', $type);
 				$type = str_replace('default NULL', '', $type);
+				$type = str_replace('NOT NULL', '', $type);
+				$type = str_replace('  ', ' ', $type);
 				$type = trim($type);
 			}
 		}
@@ -163,9 +165,17 @@ class AlterDB extends AppControllerBE {
 
 	function filterDifferencesDB(array $FDdb) {
 		foreach ($FDdb as $table => &$desc) {
+			$info = $this->db->getTableColumns($table);
 			foreach ($desc['fields'] as $field => &$type) {
+
+				// it doesn't include info about NULL/NOT NULL
+				$infoField = $info[$field];
+				//$type .= $infoField['Null'] == 'NO' ? ' NOT NULL' : ' NULL';
+
 				$type = str_replace('default NULL', '', $type);
 				$type = str_replace("'CURRENT_TIMESTAMP'", 'CURRENT_TIMESTAMP', $type);
+				$type = str_replace("on update", 'ON UPDATE', $type);
+				$type = str_replace('  ', ' ', $type);
 				$type = trim($type);
 			}
 		}
@@ -178,18 +188,22 @@ class AlterDB extends AppControllerBE {
 		foreach ($diff['diff'] as $table => $desc) {
 			$list = array();
 			foreach ($desc['fields'] as $field => $type) {
-				$list[] = array(
+				$current = $diff['diff_currentValues'][$table]['fields'][$field];
+				if ($type != $current) {
+					//debug($type, $current); exit();
+					$list[] = array(
 					'field' => $field,
 					'file' => $type,
-					'current' => $diff['diff_currentValues'][$table]['fields'][$field],
+					'current' => $current,
 					'sql' => $sql = $this->findStringWith($update_statements['change'], array($table, $field)),
-					'do' => $this->makeRelLink('DO', array(
+					'do' => $this->makeRelLink('CHANGE', array(
 						'action' => 'do',
 						'file' => $this->file,
 						'key' => 'change',
 						'query' => md5($sql),
 					)),
-				);
+					);
+				}
 			}
 			$content .= $this->showTable($list, $table);
 		}
@@ -200,7 +214,7 @@ class AlterDB extends AppControllerBE {
 					'field' => $field,
 					'file' => $type,
 					'sql' => $sql = $this->findStringWith($update_statements['add'], array($table, $field)),
-					'do' => $this->makeRelLink('DO', array(
+					'do' => $this->makeRelLink('ADD', array(
 						'action' => 'do',
 						'file' => $this->file,
 						'key' => 'add',
@@ -210,13 +224,13 @@ class AlterDB extends AppControllerBE {
 			}
 			$content .= $this->showTable($list, $table);
 		}
-		debug($update_statements['add']);
+		//debug($update_statements['add']);
 		return $content;
 	}
 
 	function showTable(array $list, $table) {
 		if ($list) {
-			$s = new slTable($list, '', array(
+			$s = new slTable($list, 'class="table"', array(
 				'field' => 'field',
 				'file' => 'file',
 				'current' => 'current',

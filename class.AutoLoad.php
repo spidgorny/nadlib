@@ -13,8 +13,9 @@ class AutoLoad {
 	}
 
 	function getFolders() {
-		unset($_SESSION['autoloadCache']);
-		$folders = $_SESSION['autoloadCache'];
+		session_start();
+		//unset($_SESSION['autoloadCache']);
+		$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
 		if (!$folders) {
 			require_once 'class.ConfigBase.php';
 			if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
