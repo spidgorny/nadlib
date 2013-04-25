@@ -88,6 +88,10 @@ class BijouDBConnector {
 		return $GLOBALS['TYPO3_DB']->sql_insert_id($res);
 	}
 
+	function lastInsertID($res = NULL) {
+		return $this->getLastInsertID($res);
+	}
+
 	function quoteSQL($value, $desc) {
 		//var_dump($value); print(gettype($value) . "<br>");
 		if ($value === NULL) {
