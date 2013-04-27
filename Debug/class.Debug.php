@@ -22,7 +22,6 @@ class Debug {
 			echo "\n";
 		} else if ($_COOKIE['debug']) {
 			$content = self::renderHTMLView($db, $a);
-			$content .= Debug::view_array($a);
 			$content .= '
 			<style>
 				td.view_array {
@@ -67,12 +66,14 @@ class Debug {
 				font-family: verdana;
 				vertical-align: top;">
 				<div class="caption" style="background-color: #EEEEEE">
-				'.implode('<br />', $props).'
-				<a href="javascript: void(0);" onclick="
-					var a = this.nextSibling.nextSibling;
-					a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
-				">Trace: </a>
-				<div style="display: none;">'.$trace.'</div>
+					'.implode('<br />', $props).'
+					<a href="javascript: void(0);" onclick="
+						var a = this.nextSibling.nextSibling;
+						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
+					">Trace: </a>
+					<div style="display: none;">'.$trace.'</div>
+				</div>
+				'.Debug::view_array($a).'
 			</div>';
 		return $content;
 	}

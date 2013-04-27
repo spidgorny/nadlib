@@ -89,7 +89,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	protected function loadController($slug) {
-		__autoload($slug);
 		$slugParts = explode('/', $slug);
 		$class = end($slugParts);	// again, because __autoload need the full path
 		//debug(__METHOD__, $slug, $class, class_exists($class));
