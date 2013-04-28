@@ -122,12 +122,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			$content .= $this->content;	// display Exception
 		}
-		if (DEVELOPMENT && isset($GLOBALS['profiler']) && !$this->request->isAjax()) {
-			$profiler = $GLOBALS['profiler'];
-			/* @var $profiler TaylorProfiler */
-			$content .= $profiler->printTimers(true);
-			$content .= $profiler->renderFloat();
-		}
+		$content .= $this->renderProfiler();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
@@ -242,6 +237,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function showSidebar() {
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
+		}
+		return $content;
+	}
+
+	function renderProfiler() {
+		if (DEVELOPMENT && isset($GLOBALS['profiler']) && !$this->request->isAjax()) {
+			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
+			if ($profiler) {
+				$content = $profiler->renderFloat();
+				$content .= $profiler->printTimers(true);
+			} else if (DEVELOPMENT) {
+				$content = TaylorProfiler::renderFloat();
+			}
 		}
 		return $content;
 	}
