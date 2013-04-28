@@ -83,15 +83,27 @@ class AlterDB extends AppControllerBE {
 		$content .= $this->getFileChoice();
 
 		if ($this->file) {
-			$query = $this->getQueryFrom($this->file);
-			$diff = $this->getDiff($query);
-			$update_statements = $this->installerSQL->getUpdateSuggestions($diff);
-			//$content .= getDebug($update_statements);
+			$this->initInstallerSQL();
 
-			$this->update_statements = $update_statements;
+			$cache = new MemcacheArray(__CLASS__);
+			if (!$cache->exists($this->file) || $this->request->getBool('reload')) {
+			//if (true) {
+				$query = $this->getQueryFrom($this->file);
+				$diff = $this->getDiff($query);
+				$cache->set($this->file, $diff);
+			} else {
+				$content .= $this->makeRelLink('Reload', array(
+					'reload' => true,
+				));
+				$diff = $cache->get($this->file);
+			}
+
+			$this->update_statements = $this->installerSQL->getUpdateSuggestions($diff);
+			//debug($diff, $this->update_statements);
+
 			$this->performAction();
 
-			$content .= $this->showDifferences($diff, $update_statements);
+			$content .= $this->showDifferences($diff);
 			//$content .= getDebug($diff);
 
 			//$this->installerSql->performUpdateQueries($update_statements['add'],
@@ -129,7 +141,8 @@ class AlterDB extends AppControllerBE {
 		return $query;
 	}
 
-	function getDiff($query) {
+	function initInstallerSQL() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$config = Config::getInstance();
 
 		$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
@@ -138,7 +151,11 @@ class AlterDB extends AppControllerBE {
 		define('TYPO3_db', $config->db_database);
 
 		$this->installerSQL = new t3lib_install_Sql();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
 
+	function getDiff($query) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$FDfile = $this->installerSQL->getFieldDefinitions_fileContent($query);
 		$FDfile = $this->filterDifferencesFile($FDfile);
 		//$content .= getDebug($FDfile);
@@ -147,6 +164,7 @@ class AlterDB extends AppControllerBE {
 		$FDdb = $this->filterDifferencesDB($FDdb);
 
 		$diff = $this->installerSQL->getDatabaseExtra($FDfile, $FDdb);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $diff;
 	}
 
@@ -182,10 +200,35 @@ class AlterDB extends AppControllerBE {
 		return $FDdb;
 	}
 
-	function showDifferences(array $diff, array $update_statements) {
+	function showDifferences(array $diff) {
 		$content = '';
+		$content .= $this->showCreate();
+		$content .= $this->showChanges($diff);
+		$content .= $this->showExtras($diff);
+		return $content;
+	}
+
+	function showCreate() {
+		$content = '';
+		$update_statements = $this->update_statements;
+		if ($update_statements['create_table']) foreach ($update_statements['create_table'] as $md5 => $query) {
+			$content .= '<pre>'.($query);
+			$content .= ' '.$this->makeRelLink('CREATE', array(
+				'action' => 'do',
+				'file' => $this->file,
+				'key' => 'create_table',
+				'query' => $md5,
+			));
+			$content .= '</pre>';
+		}
+		return $content;
+	}
+
+	function showChanges(array $diff) {
+		$content = '';
+		$update_statements = $this->update_statements;
 		//debug($diff['extra'], $update_statements['add']);
-		foreach ($diff['diff'] as $table => $desc) {
+		if ($diff['diff']) foreach ($diff['diff'] as $table => $desc) {
 			$list = array();
 			foreach ($desc['fields'] as $field => $type) {
 				$current = $diff['diff_currentValues'][$table]['fields'][$field];
@@ -207,7 +250,13 @@ class AlterDB extends AppControllerBE {
 			}
 			$content .= $this->showTable($list, $table);
 		}
-		foreach ($diff['extra'] as $table => $desc) {
+		return $content;
+	}
+
+	function showExtras(array $diff) {
+		$content = '';
+		$update_statements = $this->update_statements;
+		if ($diff['extra']) foreach ($diff['extra'] as $table => $desc) {
 			$list = array();
 			if (is_array($desc['fields'])) foreach ($desc['fields'] as $field => $type) {
 				$list[] = array(
@@ -224,7 +273,8 @@ class AlterDB extends AppControllerBE {
 			}
 			$content .= $this->showTable($list, $table);
 		}
-		//debug($update_statements['add']);
+		//debug($update_statements, Debug::LEVELS, 1);
+		//debug($update_statements['create_table']);
 		return $content;
 	}
 
@@ -267,6 +317,8 @@ class AlterDB extends AppControllerBE {
 		//debug($md5, $query);
 		if ($query) {
 			$this->db->perform($query);
+			$cache = new MemcacheArray(__CLASS__);
+			$cache->clearCache();
 			$this->request->redirect($this->makeRelURL());
 		}
 	}

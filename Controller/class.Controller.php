@@ -58,7 +58,7 @@ abstract class Controller {
 	static public $public = false;
 
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		//debug(get_class($this->index));
 		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
@@ -72,7 +72,6 @@ abstract class Controller {
 		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 		self::$instance[get_class($this)] = $this;
-		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
