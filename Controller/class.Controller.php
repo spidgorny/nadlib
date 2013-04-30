@@ -15,6 +15,13 @@ abstract class Controller {
 	public $request;
 
 	/**
+	 * @var boolean
+	 * @use $this->preventDefault() to set
+	 * chack manually in render()
+	 */
+	public $noRender = false;
+
+	/**
 	 *
 	 * @var MySQL|dbLayer
 	 */
@@ -169,7 +176,8 @@ abstract class Controller {
 	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance[$static];
+		return self::$instance[$static] ?:
+			(self::$instance[$static] = new $static());
 	}
 
 	function redirect($url) {
@@ -260,6 +268,10 @@ abstract class Controller {
 			}
 		}
 		return $content;
+	}
+
+	function preventDefault() {
+		$this->noRender = true;
 	}
 
 	function inColumns() {
