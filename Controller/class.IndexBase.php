@@ -110,7 +110,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($this->controller) {
 			try {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax()) {
+				if (!$this->request->isAjax() && !$this->request->isCLI()) {
 					$content = $this->renderTemplate($content);
 				} else {
 					$content .= $this->content;
@@ -207,8 +207,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		$this->footer['jquery.js'] = '
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-1.9.1.min.js"><\/script>\')</script>
 		';
 		return $this;
 	}
@@ -216,7 +216,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQueryUI() {
 		$this->addJQuery();
 		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
-		<script>window.jQueryUI || document.write(\'<script src="js/vendor/jquery-ui/js/jquery-ui-1.8.23.custom.min.js"><\/script>\')</script>';
+		<script>window.jQueryUI || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.min.js"><\/script>\')</script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 		return $this;
 	}
@@ -242,7 +242,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderProfiler() {
-		if (DEVELOPMENT && isset($GLOBALS['profiler']) && !$this->request->isAjax()) {
+		if (DEVELOPMENT &&
+			isset($GLOBALS['profiler']) &&
+			!$this->request->isAjax() &&
+			!$this->request->isCLI()) {
 			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				$content = $profiler->renderFloat();

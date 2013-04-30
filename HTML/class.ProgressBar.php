@@ -8,6 +8,7 @@ class ProgressBar {
 	var $textid;
 	var $decimals = 1;
 	var $cli = false;
+	var $destruct100 = true;
 
 	function __construct($percentDone = 0) {
 		$this->pbid = 'pb-'.uniqid();
@@ -80,11 +81,16 @@ class ProgressBar {
 	}
 
 	function __destruct() {
-		$this->setProgressBarProgress(100);
+		if ($this->destruct100) {
+			$this->setProgressBarProgress(100);
+		}
 	}
 
 	function getImage($p) {
-		return '<div style="display: inline-block; width: 100%; text-align: center; wrap: nowrap;">'.number_format($p, $this->decimals).'&nbsp;%&nbsp;<img src="nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" /></div>';
+		return '<div style="display: inline-block; width: 100%; text-align: center; wrap: nowrap;">'.
+			number_format($p, $this->decimals).'&nbsp;%&nbsp;
+			<img src="nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+		</div>';
 	}
 
 	function getBackground($p, $width = '100px') {
