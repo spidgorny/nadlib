@@ -25,7 +25,7 @@ class MySQL {
 	function connect($host, $login, $password) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//echo __METHOD__.'<br />';
-		ini_set('mysql.connect_timeout', 1);
+		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
