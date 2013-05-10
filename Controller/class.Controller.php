@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Class Controller - a base class for all front-facing pages.
+ * Extend and implement your own render() function.
+ * It should collect output into a string and return it.
+ * Additional actions can be processed by calling
+ * $this->performAction() from within render().
+ * It checks for the &action= parameter and appends an 'Action' suffix to get the function name.
+ *
+ * Can be called from CLI with parameters e.g.
+ * > php index.php SomeController -action cronjob
+ * will call cronjobAction instead of default render()
+ */
+
 abstract class Controller {
 	/**
 	 * Enter description here...

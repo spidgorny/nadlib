@@ -240,11 +240,13 @@ abstract class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
-		//debug($this->db->lastQuery, $this->data);
+		//debug($this->db->lastQuery);//, $this->data);
 		if ($this->id) { // found
+			//debug('Found');
 			$this->update($fields);
 			$op = 'UPD '.$this->id;
 		} else {
+			//debug('NOT Found');
 			//debug($where, $this->db->lastQuery); exit();
 			$this->insert($fields + $where);
 			$this->findInDB($where);

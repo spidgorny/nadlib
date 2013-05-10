@@ -23,7 +23,7 @@ class ProgressBar {
 		if (!$this->cli) {
 			print($this->getContent());
 			$l = new lessc();
-			$css = $l->compileFile('nadlib/CSS/ProgressBar.less');
+			$css = $l->compileFile(dirname(__FILE__).'/../CSS/ProgressBar.less');
 			print '<style>'.$css.'</style>';
 			$this->flush();
 		}
