@@ -266,11 +266,12 @@ class Request {
 					}
 				}
 				$controller = $last;
-				if (!$controller) {
-					$controller = $this->defaultController;
-				}
 			}
-		}
+		}   // cli
+        if (!$controller) {
+            $controller = $this->defaultController;
+			//debug('Using default controller', $controller);
+        }
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
@@ -390,14 +391,15 @@ class Request {
 	 * http://www.zen-cart.com/forum/showthread.php?t=164174
 	 */
 	static function getRequestType() {
-		$request_type = (((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1'))) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_BY']) && strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']), 'SSL') !== false) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && (strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), 'SSL') !== false || strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), str_replace('https://', '', HTTPS_SERVER)) !== false)) ||
-						 (isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && ($_SERVER['HTTP_X_FORWARDED_SSL'] == '1' || strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) == 'on')) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'ssl' || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https')) ||
-						 (isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-						 (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) ? 'https' : 'http';
+		$request_type =
+			(((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1'))) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_BY']) && strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']), 'SSL') !== false) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_HOST']) && (strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), 'SSL') !== false || strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), str_replace('https://', '', HTTPS_SERVER)) !== false)) ||
+			(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
+			(isset($_SERVER['HTTP_X_FORWARDED_SSL']) && ($_SERVER['HTTP_X_FORWARDED_SSL'] == '1' || strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) == 'on')) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'ssl' || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https')) ||
+			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
+			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) ? 'https' : 'http';
 		return $request_type;
 	}
 
@@ -428,10 +430,17 @@ class Request {
 		return isset($path[$level]) ? $path[$level] : NULL;
 	}
 
+	/**
+	 * @return array
+	 */
 	function getURLLevels() {
 		$path = $this->url->getPath();
-		$path = trimExplode('/', $path);
-		//debug($path);
+		if (strlen($path) > 1) {	// "/"
+			$path = trimExplode('/', $path);
+			//debug($this->url->getPath(), $path);
+		} else {
+			$path = array();
+		}
 		return $path;
 	}
 
@@ -499,7 +508,7 @@ class Request {
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
-	function isCLI() {
+	static function isCLI() {
 		return isset($_SERVER['argc']);
 	}
 
@@ -527,6 +536,15 @@ class Request {
 		$filename = $this->getTrim($name);
 		$filename = basename($filename);	// optionally use realpath()
 		return $filename;
+	}
+
+	/**
+	 * http://stackoverflow.com/a/6127748/417153
+	 * @return bool
+	 */
+	function isRefresh() {
+		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
+			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
 }

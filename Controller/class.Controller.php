@@ -60,6 +60,9 @@ abstract class Controller {
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
+		//debug(get_class($this->index));
+		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
+		//debug(get_class($this->index));
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->db = Config::getInstance()->db;
@@ -109,7 +112,7 @@ abstract class Controller {
 	 * @param string $prefix
 	 * @return URL
 	 */
-	function getURL(array $params, $prefix = '?') {
+	public function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
 		//debug($params);
 		return $this->makeURL($params, false, $prefix);
@@ -217,7 +220,8 @@ abstract class Controller {
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
-		$content = '<div class="padding">'.$content.'</div>';
+		//debug_pre_print_backtrace();
+		$content = '<div class="padding clearfix">'.$content.'</div>';
 		return $content;
 	}
 
@@ -245,7 +249,7 @@ abstract class Controller {
 	}
 
 	function performAction($action = NULL) {
-		$method = $action ?: $this->request->getTrim('action');
+		$method = $action ? $action : $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));

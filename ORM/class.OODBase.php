@@ -1,15 +1,28 @@
 <?php
 
-class OODBase {
+/**
+ * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
+ * It contain all the information from the database related to the project as well as methods to manipulate it.
+ *
+ */
+
+abstract class OODBase {
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayer|dbLayerDB
 	 */
 	protected $db;
 
-	public $table;
+	/**
+	 * Help to identify missing table value
+	 */
+	public $table = 'OODBase_undefined_table';
+
 	protected $idField = 'id';
+
 	protected $titleColumn = 'name';
+
 	public $id;
+
 	public $data = array();
 
 	/**
@@ -45,16 +58,21 @@ class OODBase {
 		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
 
-	function init($id) {
+	/**
+	 * Retrieves data from DB.
+	 *
+	 * @param unknown_type $id
+	 */
+	public function init($id) {
 		if (is_array($id)) {
 			$this->data = $id;
 			$this->id = $this->data[$this->idField];
 			//debug(__METHOD__, $this->id, $this->data);
 		} else if ($id instanceof SQLWhere) {
-			$this->findInDB($id->getAsArray());
+			$this->data = $this->fetchFromDB($id->getAsArray());
 		} else if (is_scalar($id)) {
 			$this->id = $id;
-			$this->findInDB(array($this->idField => $this->id));
+			$this->data = $this->fetchFromDB(array($this->idField => $this->id));
 		} else if (!is_null($id)) {
 			debug($id);
 			throw new Exception(__METHOD__);
@@ -130,7 +148,7 @@ class OODBase {
 	 * @param string $orderby
 	 * @return boolean (id) of the found record
 	 */
-	function findInDB(array $where, $orderby = '') {
+	function fetchFromDB(array $where, $orderby = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
 		if (is_array($rows)) {
@@ -142,9 +160,13 @@ class OODBase {
 		} else {
 			$data = array();
 		}
-		$this->init($data); // array, otherwise infinite loop
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $this->id;
+		return $data;
+	}
+
+	function findInDB(array $where, $orderby = '') {
+		$data = $this->fetchFromDB($where, $orderby);
+		$this->init($data);
 	}
 
 	/**
@@ -271,7 +293,7 @@ class OODBase {
 	 * @param $id
 	 * @return OODBase
 	 */
-	static function getInstance($id) {
+	public static function getInstance($id) {
 		$static = get_called_class();
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
@@ -307,6 +329,11 @@ class OODBase {
 			$c->titleColumn => $name,
 		));
 		return $c;
+	}
+
+	function getURL(array $params) {
+		$c = Index::getInstance()->controller;
+		return $c->getURL($params);
 	}
 
 }
