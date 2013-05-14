@@ -538,4 +538,13 @@ class Request {
 		return $filename;
 	}
 
+	/**
+	 * http://stackoverflow.com/a/6127748/417153
+	 * @return bool
+	 */
+	function isRefresh() {
+		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
+			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
+	}
+
 }
