@@ -123,6 +123,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content .= $this->content;	// display Exception
 		}
 		$content .= $this->renderProfiler();
+			$profiler = $GLOBALS['profiler'];
+			/* @var $profiler TaylorProfiler */
+			$content .= $profiler->printTimers(true);
+			$content .= $profiler->renderFloat();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
