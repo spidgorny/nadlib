@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Class Controller - a base class for all front-facing pages.
+ * Extend and implement your own render() function.
+ * It should collect output into a string and return it.
+ * Additional actions can be processed by calling
+ * $this->performAction() from within render().
+ * It checks for the &action= parameter and appends an 'Action' suffix to get the function name.
+ *
+ * Can be called from CLI with parameters e.g.
+ * > php index.php SomeController -action cronjob
+ * will call cronjobAction instead of default render()
+ */
+
 abstract class Controller {
 	/**
 	 * Enter description here...
@@ -13,6 +26,13 @@ abstract class Controller {
 	 * @var Request
 	 */
 	public $request;
+
+	/**
+	 * @var boolean
+	 * @use $this->preventDefault() to set
+	 * chack manually in render()
+	 */
+	public $noRender = false;
 
 	/**
 	 *
@@ -58,7 +78,7 @@ abstract class Controller {
 	static public $public = false;
 
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		//debug(get_class($this->index));
 		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
@@ -72,7 +92,6 @@ abstract class Controller {
 		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 		self::$instance[get_class($this)] = $this;
-		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
 	}
 
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
@@ -170,7 +189,8 @@ abstract class Controller {
 	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance[$static];
+		return self::$instance[$static] ?:
+			(self::$instance[$static] = new $static());
 	}
 
 	function redirect($url) {
@@ -261,6 +281,10 @@ abstract class Controller {
 			}
 		}
 		return $content;
+	}
+
+	function preventDefault() {
+		$this->noRender = true;
 	}
 
 	function inColumns() {

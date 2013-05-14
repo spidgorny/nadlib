@@ -2,7 +2,7 @@
 
 class FlexiTable extends OODBase {
 	protected $columns = array();
-	protected $doCheck = true;
+	protected $doCheck = false;
 
 	/**
 	 * array(

@@ -151,6 +151,7 @@ class Time {
 	/**
 	 * 12:21:15
 	 *
+	 * @param string $format
 	 * @return unknown
 	 */
 	function getTime($format = 'H:i:s') {
@@ -169,7 +170,7 @@ class Time {
 	 * (C) yasmary at gmail dot com
 	 * Link: http://de.php.net/time
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function in() {
 		$periods = array(

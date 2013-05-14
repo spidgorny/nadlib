@@ -287,8 +287,7 @@ class TaylorProfiler {
 		$oaTime = microtime(true) - ($this->initTime ? $this->initTime : $_SERVER['REQUEST_TIME']);
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
-			require_once 'nadlib/Data/class.ArrayPlus.php';
-			$dbTime = AP(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
