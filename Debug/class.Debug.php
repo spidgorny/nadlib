@@ -21,41 +21,8 @@ class Debug {
 			print_r($a);
 			echo "\n";
 		} else if ($_COOKIE['debug']) {
-			$trace = Debug::getTraceTable($db);
-
-			reset($db);
-			$first = current($db);
-			$function = self::getMethod($first);
-			$props = array(
-				'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
-				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
-					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
-			);
-			if (is_array($a)) {
-				$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
-			} else if (!is_object($a) && !is_resource($a)) {
-				$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
-			}
-			$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
-
-			$content = '
-			<div class="debug" style="
-				background: #EEEEEE;
-				border: solid 1px silver;
-				display: inline-block;
-				font-size: 12px;
-				font-family: verdana;
-				vertical-align: top;">
-				<div class="caption" style="background-color: #EEEEEE">
-				'.implode('<br />', $props).'
-				<a href="javascript: void(0);" onclick="
-					var a = this.nextSibling.nextSibling;
-					a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
-				">Trace: </a>
-				<div style="display: none;">'.$trace.'</div>
-			</div>';
-			$content .= Debug::view_array($a);
-			$content .= '</div>
+			$content = self::renderHTMLView($db, $a);
+			$content .= '
 			<style>
 				td.view_array {
 					border: dotted 1px #555;
@@ -69,6 +36,45 @@ class Debug {
 			}
 			print($content); flush();
 		}
+		return $content;
+	}
+
+	static function renderHTMLView($db, $a) {
+		$trace = Debug::getTraceTable($db);
+
+		reset($db);
+		$first = current($db);
+		$function = self::getMethod($first);
+		$props = array(
+			'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
+			'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
+				(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
+		);
+		if (is_array($a)) {
+			$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
+		} else if (!is_object($a) && !is_resource($a)) {
+			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
+		}
+		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
+
+		$content = '
+			<div class="debug" style="
+				background: #EEEEEE;
+				border: solid 1px silver;
+				display: inline-block;
+				font-size: 12px;
+				font-family: verdana;
+				vertical-align: top;">
+				<div class="caption" style="background-color: #EEEEEE">
+					'.implode('<br />', $props).'
+					<a href="javascript: void(0);" onclick="
+						var a = this.nextSibling.nextSibling;
+						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
+					">Trace: </a>
+					<div style="display: none;">'.$trace.'</div>
+				</div>
+				'.Debug::view_array($a).'
+			</div>';
 		return $content;
 	}
 
@@ -144,6 +150,39 @@ class Debug {
 			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
 		}
 		return $function;
+	}
+
+	/**
+	 * Returns a single method several steps back in trace
+	 * @param int $stepBack
+	 * @return string
+	 */
+	static function getCaller($stepBack = 2) {
+		$btl = debug_backtrace();
+		reset($btl);
+		for ($i = 0; $i < $stepBack; $i++) {
+			$bt = next($btl);
+		}
+		if ($bt['function'] == 'runSelectQuery') {
+			$bt = next($btl);
+		}
+		return "{$bt['class']}::{$bt['function']}";
+	}
+
+	/**
+	 * Returns a string with multiple methods chain
+	 * @param int $limit
+	 * @return string
+	 */
+	function getBackLog($limit = 5) {
+		$debug = debug_backtrace();
+		array_shift($debug);
+		$content = array();
+		foreach ($debug as $debugLine) {
+			$content[] = $debugLine['class'].'::'.$debugLine['function'];
+		}
+		$content = implode(' // ', $content);
+		return $content;
 	}
 
 }

@@ -77,6 +77,9 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	function render() {
 		$content = '';
+		if (!$this->form) {
+			$this->postInit();
+		}
 		//debug($this->validated);
 		//$errors = AP($this->desc)->column('error')->filter()->getData();
 		//debug($errors);
@@ -108,6 +111,9 @@ abstract class HTMLFormProcessor extends AppController {
 	}
 
 	function showForm() {
+		if (!$this->form) {
+			throw new Exception(__METHOD__.': initialize form with getForm()');
+		}
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');

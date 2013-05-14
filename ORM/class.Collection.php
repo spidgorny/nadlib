@@ -147,8 +147,10 @@ class Collection {
 
 	function postInit() {
 		//$this->pager = new Pager();
-		$index = Index::getInstance();
-		$this->controller = &$index->controller;
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$this->controller = &$index->controller;
+		}
 		//debug(get_class($this->controller));
 	}
 
@@ -171,7 +173,7 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(/*array*/ $where = NULL) {
+	function getQuery(array $where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;

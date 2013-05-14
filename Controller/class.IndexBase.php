@@ -56,12 +56,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * @param bool $createNew
 	 * @return Index|IndexBE
 	 */
-	static function getInstance() {
+	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = &self::$instance;
-		if (!$instance) {
+		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
@@ -71,27 +72,35 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
+	/**
+	 * Called by index.php explicitly,
+	 * therefore processes exceptions
+	 * @throws Exception
+	 */
 	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$slug = $this->request->getControllerString();
-			__autoload($slug);
-			$slugParts = explode('/', $slug);
-			$class = end($slugParts);	// again, because __autoload need the full path
-			//debug(__METHOD__, $slug, $class, class_exists($class));
-			if (class_exists($class)) {
-				$this->controller = new $class();
-				//debug(get_class($this->controller));
-				if (method_exists($this->controller, 'postInit')) {
-					$this->controller->postInit();
-				}
-			} else {
-				$exception = 'Class '.$class.' not found.';
-				throw new Exception($exception);
-			}
+			$this->loadController($slug);
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
+		}
+	}
+
+	protected function loadController($slug) {
+		$slugParts = explode('/', $slug);
+		$class = end($slugParts);	// again, because __autoload need the full path
+		//debug(__METHOD__, $slug, $class, class_exists($class));
+		if (class_exists($class)) {
+			$this->controller = new $class();
+			//debug(get_class($this->controller));
+			if (method_exists($this->controller, 'postInit')) {
+				$this->controller->postInit();
+			}
+		} else {
+			$exception = 'Class '.$class.' not found.';
+			throw new Exception($exception);
 		}
 	}
 
@@ -112,6 +121,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 		} else {
 			$content .= $this->content;	// display Exception
+		}
+		if (DEVELOPMENT && isset($GLOBALS['profiler']) && !$this->request->isAjax()) {
+			$profiler = $GLOBALS['profiler'];
+			/* @var $profiler TaylorProfiler */
+			$content .= $profiler->printTimers(true);
+			$content .= $profiler->renderFloat();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
@@ -205,7 +220,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+		<script>window.jQueryUI || document.write(\'<script src="js/vendor/jquery-ui/js/jquery-ui-1.8.23.custom.min.js"><\/script>\')</script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 		return $this;
 	}

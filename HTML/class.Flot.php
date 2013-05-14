@@ -9,15 +9,19 @@ class Flot extends AppController {
 		'#edc240',
 		'#afd8f8',
 		'#cb4b4b',
-		'#edc240',
-		'#afd8f8',
-		'#cb4b4b',
+		//'#edc240',
+		//'#afd8f8',
+		//'#cb4b4b',
 		"#9440ed",
 		"#40ed94",
 		'#4da74d',
 	);
 
-	protected $data;
+	/**
+	 * Raw data single table
+	 * @var array
+	 */
+	public $data;
 
 	protected $keyKey, $timeKey, $amountKey;
 
@@ -28,7 +32,7 @@ class Flot extends AppController {
 	public $chart;
 
 	/**
-	 * @var array - these are line charts
+	 * @var array - these are line charts, multiple series as well
 	 */
 	public $cumulative;
 
@@ -60,6 +64,8 @@ class Flot extends AppController {
 	}
 
 	/**
+	 * Fixed for Posa Cards
+	 *
 	 * @param array $data
 	 * @return array
 	 * array[19]
@@ -71,6 +77,7 @@ class Flot extends AppController {
 	1 	integer 	39
 	 */
 	function appendCumulative(array $data) {
+		//debug($this->cumulative, $data);
 		$cumulative2 = array();
 		foreach ($this->cumulative as $series) {
 			$cumulative2 = array_merge($cumulative2, $series);
@@ -80,9 +87,11 @@ class Flot extends AppController {
 		foreach ($data as $i => &$row) {
 			$color = $this->colors[$row[$this->keyKey]-1];
 			$dataClass[$i] = '" style="background: white; color: '.$color;
-			$row['###TD_CLASS###'] = '" style="background: white; color: '.$color;
+			//$row['###TD_CLASS###'] = '" style="background: white; color: '.$color;
 
-			$row['cumulative'] = $cumulative[$i][1];
+			//$row['cumulative'] = $cumulative[$i][1];
+			$jsTime = strtotime($i)*1000;
+			$row['cumulative'] = $this->cumulative['Total'][$jsTime][1];
 		}
 		return $data;
 	}
@@ -138,15 +147,19 @@ class Flot extends AppController {
 		Index::getInstance()->addJQuery();
 		Index::getInstance()->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.time.js"></script>';
+    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.stack.js"></script>
+    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.time.js"></script>';
 
 		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: none 0px silver;"></div>';
 
+		$dKeys = array();
 		foreach ($charts as $key => &$rows) {
+			$jsKey = 'd_'.Controller::friendlyURL($key);
+			$jsKey = str_replace('-', '_', $jsKey);
+			$dKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
-			$rows = 'var d'.$key.' = {
+			$rows = 'var '.$jsKey.' = {
 				label: "'.$key.'",
 				data: '.json_encode($array).',
 				stack: true,
@@ -158,9 +171,13 @@ class Flot extends AppController {
 			};';
 		}
 
+		$cKeys = array();
 		foreach ($cumulative as $key => &$rows) {
+			$jsKey = 'c_'.Controller::friendlyURL($key);
+			$jsKey = str_replace('-', '_', $jsKey);
+			$cKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
-			$rows = 'var c'.$key.' = {
+			$rows = 'var '.$jsKey.' = {
 				data: '.json_encode($array).',
 				lines: {
 					show: true,
@@ -177,8 +194,8 @@ $(function () {
 	'.implode("\n", $charts).'
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [
-    	d'.implode(", d", array_keys($charts)).',
-    	c'.implode(", c", array_keys($cumulative)).'
+    	'.implode(", ", $dKeys).',
+    	'.implode(", ", $cKeys).'
     ], {
     	xaxis: {
     		mode: "time"

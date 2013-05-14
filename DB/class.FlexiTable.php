@@ -59,12 +59,12 @@ class FlexiTable extends OODBase {
 	}
 
 	function fetchColumns($force = false) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".$this->db->getCaller(5));
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		if (!self::$tableColumns[$this->table] || $force) {
 			self::$tableColumns[$this->table] = $this->db->getTableColumns($this->table);
 		}
 		$this->columns = self::$tableColumns[$this->table];
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".$this->db->getCaller(5));
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
 	function checkCreateTable() {
