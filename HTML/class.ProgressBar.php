@@ -109,4 +109,24 @@ class ProgressBar {
 		</script>';
 	}
 
+	function getImage($p) {
+		return '<div style="display: inline-block; width: 100%; text-align: center; wrap: nowrap;">'.number_format($p, $this->decimals).'&nbsp;%&nbsp;<img src="nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" /></div>';
+	}
+
+	function getBackground($p, $width = '100px') {
+		return '<div style="
+			display: inline-block;
+			width: '.$width.';
+			text-align: center;
+			wrap: nowrap;
+			background: url(nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
+	}
+
+	public function setTitle() {
+		print '
+		<script>
+			document.title = "'.number_format($this->percentDone, 3, '.', '').'%";
+		</script>';
+	}
+
 }
