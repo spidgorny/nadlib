@@ -2,12 +2,19 @@
 
 class Debug {
 
+	const LEVELS = 'LEVELS';
+
 	static function debug_args() {
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
 			$a = $args[0];
+			$levels = NULL;
 		} else {
 			$a = $args;
+			if ($a[1] == self::LEVELS) {
+				$levels = $a[2];
+				$a = $a[0];
+			}
 		}
 
 		$db = debug_backtrace();
@@ -21,7 +28,7 @@ class Debug {
 			print_r($a);
 			echo "\n";
 		} else if ($_COOKIE['debug']) {
-			$content = self::renderHTMLView($db, $a);
+			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= '
 			<style>
 				td.view_array {
@@ -39,7 +46,7 @@ class Debug {
 		return $content;
 	}
 
-	static function renderHTMLView($db, $a) {
+	static function renderHTMLView($db, $a, $levels) {
 		$trace = Debug::getTraceTable($db);
 
 		reset($db);
@@ -73,7 +80,7 @@ class Debug {
 					">Trace: </a>
 					<div style="display: none;">'.$trace.'</div>
 				</div>
-				'.Debug::view_array($a).'
+				'.Debug::view_array($a, $levels).'
 			</div>';
 		return $content;
 	}
@@ -101,7 +108,7 @@ class Debug {
 		return $trace;
 	}
 
-	static function view_array($a) {
+	static function view_array($a, $levels) {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
@@ -124,7 +131,10 @@ class Debug {
 					<td class="view_array">'.$type.'</td>
 					<td class="view_array">';
 
-				$content .= Debug::view_array($r);
+				//var_dump($levels); echo '<br/>'."\n";
+				if (is_null($levels) || $levels > 0) {
+					$content .= Debug::view_array($r, $levels-1);
+				}
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';
 			}

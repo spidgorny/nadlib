@@ -157,7 +157,7 @@ class Collection {
 	/**
 	 * -1 will prevent data retrieval
 	 */
-	function retrieveDataFromDB($allowMerge = false) {
+	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
@@ -169,7 +169,9 @@ class Collection {
 		}
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
-		$this->preprocessData();
+		if ($preprocess) {
+			$this->preprocessData();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
