@@ -305,6 +305,15 @@ class TaylorProfiler {
 		return number_format($cur/$max, 4, '.', '');
 	}
 
+	static function getMemDiff() {
+		static $prev = 0;
+		//$max = intval(ini_get('memory_limit'))*1024*1024;
+		$cur = memory_get_usage();
+		$return = number_format(($cur-$prev)/1024/1024, 3, '.', '').'M';
+		$prev = $cur;
+		return $return;
+	}
+
 	static function enableTick($ticker = 100) {
 		register_tick_function(array(__CLASS__, 'tick'));
 		declare(ticks=1000);

@@ -123,11 +123,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content .= $this->content;	// display Exception
 		}
 		$content .= $this->renderProfiler();
-			$profiler = $GLOBALS['profiler'];
-			/* @var $profiler TaylorProfiler */
-			$content .= $profiler->printTimers(true);
-			$content .= $profiler->renderFloat();
-		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
@@ -250,7 +245,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (DEVELOPMENT &&
 			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
-			!$this->request->isCLI()) {
+			!$this->request->isCLI() &&
+			!in_array(get_class($this->controller), array('Lesser')))
+		{
 			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				$content = $profiler->renderFloat();
