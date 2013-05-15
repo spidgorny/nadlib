@@ -76,6 +76,22 @@ function debug_once() {
 	}
 }
 
+function debug_size($a) {
+	if (is_object($a)) {
+		$vals = get_object_vars($a);
+		$keys = array_keys($vals);
+	} else {
+		$vals = $a;
+		$keys = array_keys($a);
+	}
+	$assoc = array();
+	foreach ($keys as $key) {
+		$len = strlen(serialize($vals[$key]));
+		$assoc[$key] = $len;
+	}
+	debug($assoc);
+}
+
 /**
  * Whether string starts with some chars
  * @param $haystack

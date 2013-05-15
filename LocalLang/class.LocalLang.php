@@ -169,7 +169,7 @@ abstract class LocalLang {
 	function showLangSelectionDropDown() {
 		$options = '';
 		foreach ($this->possibleLangs as $code) {
-			$selected = $this->lang == $code ? 'selected="selected"' : '';
+			$selected = $this->lang == $code ? ' selected="selected"' : '';
 			$options .= '<option value="'.$code.'"'.$selected.'>'.__($code).'</option>';
 		}
 		$content = '
