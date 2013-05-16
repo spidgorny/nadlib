@@ -42,6 +42,7 @@ class PageSize extends AppController {
 			$user->setPref('pageSize', $this->selected);
 		}
 		$this->options = array_combine($this->options, $this->options);
+		$this->url = new URL(); 	// some default to avoid fatal error
 	}
 
 	function setURL(URL $url) {

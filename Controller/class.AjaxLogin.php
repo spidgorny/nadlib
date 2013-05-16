@@ -27,7 +27,7 @@ class AjaxLogin extends AppController {
 		parent::__construct();
 		Config::getInstance()->mergeConfig($this);
 		$this->layout = new Wrap('<div class="span10">', '</div>');
-		$mode = $mode ?: $this->request->getTrim('mode');	// dont't reverse this line as it will call mode=login twice
+		$mode = $mode ? $mode : $this->request->getTrim('mode');	// dont't reverse this line as it will call mode=login twice
 		if ($mode) {
 			$this->mode = $mode;
 			//debug($this->mode);
@@ -69,7 +69,7 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
-	function performAction() {
+	function performAction($action = NULL) {
 		$content = '';
 		$allowed = array('login', 'forgotPassword', 'saveRegister', 'activate', 'inlineForm', 'logout');
 		if (in_array($this->mode, $allowed) || $this->user->isAuth()) {
@@ -128,7 +128,7 @@ class AjaxLogin extends AppController {
 		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
 			//function (res) { jQuery(\'#AjaxLogin\').html(res); }
 			target: \'#AjaxLogin\',
-			url: \'buch.php\'
+			//url: \'buch.php\'
 			}); return false;"';
 		$f->defaultBR = true;
 		if (!$desc) {
@@ -235,7 +235,7 @@ class AjaxLogin extends AppController {
 		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
 			//function (res) { jQuery(\'#profileForm\').html(res); }
 			target: \'#profileForm\',
-			url: \'buch.php\'
+			//url: \'buch.php\'
 			}); return false;"';
 		$f->defaultBR = true;
 		if (!$desc) {
@@ -283,7 +283,7 @@ class AjaxLogin extends AppController {
 		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
 			//function (res) { jQuery(\'#passwordForm\').html(res); }
 			target: \'#passwordForm\',
-			url: \'buch.php\'
+			//url: \'buch.php\'
 			}); return false;"';
 		$f->defaultBR = true;
 		if (!$desc) {
@@ -367,7 +367,7 @@ class AjaxLogin extends AppController {
 		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
 			//function (res) { jQuery(\'#registerForm\').html(res); }
 			target: \'#registerForm\',
-			url: \'buch.php\'
+			//url: \'buch.php\'
 			}); return false;"';
 		$f->defaultBR = true;
 		if (!$desc) {
@@ -454,7 +454,7 @@ class AjaxLogin extends AppController {
 		);
 		$u = new URL();
 		$u->appendParams($params);
-		$u->setComponent('path', 'buch.php');
+		//$u->setComponent('path', 'buch.php');
 		$activateURL = $u.'';
 		$activateURL = str_replace('&form=1', '', $activateURL); // for anmeldung on warenkorb.php
 		return $activateURL;

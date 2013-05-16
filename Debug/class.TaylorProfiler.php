@@ -208,7 +208,7 @@ class TaylorProfiler {
             	'percent' => array('name' => 'percent', 'align' => 'right'),
             	'routine' => array('name' => 'routine', 'no_hsc' => true),
             ));
-            $s->more = 'class="view_array" width="100%"';
+            $s->more = 'class="view_array" awidth="100%"';
             $s->data = $table;
             $s->footer = array(
             	'nr' => 'total',
@@ -287,8 +287,7 @@ class TaylorProfiler {
 		$oaTime = microtime(true) - ($this->initTime ? $this->initTime : $_SERVER['REQUEST_TIME']);
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
-			require_once 'nadlib/Data/class.ArrayPlus.php';
-			$dbTime = AP(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
@@ -304,6 +303,15 @@ class TaylorProfiler {
 		$max = intval(ini_get('memory_limit'))*1024*1024;
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 4, '.', '');
+	}
+
+	static function getMemDiff() {
+		static $prev = 0;
+		//$max = intval(ini_get('memory_limit'))*1024*1024;
+		$cur = memory_get_usage();
+		$return = number_format(($cur-$prev)/1024/1024, 3, '.', '').'M';
+		$prev = $cur;
+		return $return;
 	}
 
 	static function enableTick($ticker = 100) {
