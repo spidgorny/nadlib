@@ -41,26 +41,26 @@ class HTMLFormValidate {
 		if (!$d['optional'] && (
 			!($value) || (!$d['allow0'] && !isset($value)))
 			&& !$isCheckbox) {
-			$d['error'] = 'This field is obligatory.';
+			$d['error'] = 'Field "'.($d['label'] ?: $field).'" is obligatory.';
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
 		} elseif ($d['mustBset'] && !isset($value)) {	// must be before 'obligatory'
-			$e['error'] = 'This field must be set';
+			$e['error'] = 'Field "'.($d['label'] ?: $field).'" must be set';
 		} elseif ($d['obligatory'] && !$value) {
-			$d['error'] = 'This field is obligatory.';
+			$d['error'] = 'Field "'.($d['label'] ?: $field).'" is obligatory';
 		} elseif ($field == 'email' && $value && !$this->validMail($value)) {
-			$d['error'] = 'Not a valid e-mail.';
+			$d['error'] = 'Not a valid e-mail in field "'.($d['label'] ?: $field).'"';
 		} elseif ($field == 'password' && strlen($value) < 6) {
-			$d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety.';
+			$d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety';
 		} elseif ($d['min'] && $value < $d['min']) {
-			$d['error'] = 'Value too small. Minimum: '.$d['min'];
+			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too small. Minimum: '.$d['min'];
 		} elseif ($d['max'] && $value > $d['max']) {
-			$d['error'] = 'Value too large. Maximum: '.$d['max'];
+			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too large. Maximum: '.$d['max'];
 		} elseif ($d['minlen'] && strlen($value) < $d['minlen']) {
-			$d['error'] = 'Value too short. Minimum: '.$d['minlen'].'. Actual: '.strlen($value);
+			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too short. Minimum: '.$d['minlen'].'. Actual: '.strlen($value);
 		} elseif ($d['maxlen'] && strlen($value) > $d['maxlen']) {
-			$d['error'] = 'Value too long. Maximum: '.$d['maxlen'].'. Actual: '.strlen($value);
+			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too long. Maximum: '.$d['maxlen'].'. Actual: '.strlen($value);
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
 			//debug($_REQUEST);
 			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
@@ -76,16 +76,16 @@ class HTMLFormValidate {
 					$d['error'] = __($resp->error);
 				}
 			} else {
-				$d['error'] = __('This field is obligatory.');
+				$d['error'] = __('Field "'.($d['label'] ?: $field).'" is obligatory.');
 			}
 		} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
 			$d['error'] = $d['validateError'];
 		} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
 			$d['error'] = $d['validateError'];
 		} elseif ($d['validate'] == 'int' && strval(intval($value)) != $value) {
-			$d['error'] = 'Must be integer';
+			$d['error'] = 'Value "'.($d['label'] ?: $field).'" must be integer';
 		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
-			$d['error'] = 'Must be date';
+			$d['error'] = 'Value "'.($d['label'] ?: $field).'" must be date';
 		} else {
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
 			if ($field == 'date') {
@@ -98,7 +98,7 @@ class HTMLFormValidate {
 			$fv = new HTMLFormValidate($d['dependant']);
 			if (!$fv->validate()) {
 				$d['dependant'] = $fv->getDesc();
-				$d['error'] = 'Error';
+				$d['error'] = implode("<br />\n", $fv->getErrorList());
 			}
 		}
 		return $d;

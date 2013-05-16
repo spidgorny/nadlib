@@ -32,4 +32,21 @@ class MemcacheArray {
 		}
 	}
 
+	function exists($key) {
+		return isset($this->data[$key]);
+	}
+
+	function get($key) {
+		return $this->data[$key];
+	}
+
+	/**
+	 * __destruct should save
+	 * @param $key
+	 * @param $value
+	 */
+	function set($key, $value) {
+		$this->data[$key] = $value;
+	}
+
 }

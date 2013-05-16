@@ -1,20 +1,16 @@
 <?php
 
-function __autoload($class) {
-	require_once dirname(__FILE__).'/class.AutoLoad.php';
-	static $a;
-	if (!$a) {
-		$a = new AutoLoad();
-	}
-	$a->load($class);
-}
-
 function initNADLIB() {
 	//print_r($_SERVER);
-	define('DEVELOPMENT', isset($_SERVER['argc'])
-		? (($_SERVER['OS'] == 'Windows_NT') || true)// at home
+	require_once dirname(__FILE__).'/class.AutoLoad.php';
+	AutoLoad::register();
+
+    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+	define('DEVELOPMENT', Request::isCLI()
+		? (($os == 'Windows_NT') || true) // at home
 		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 	);
+
 	if (DEVELOPMENT) {
 		error_reporting(E_ALL ^ E_NOTICE);
 		//ini_set('display_errors', FALSE);
@@ -23,7 +19,7 @@ function initNADLIB() {
 		ini_set('display_errors', TRUE);
 		ini_set('html_error', TRUE);
 
-		$GLOBALS['profiler'] = new TaylorProfiler(TRUE);	// GLOBALS
+		$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 		/* @var $profiler TaylorProfiler */
 		if (class_exists('Config')) {
 			//print_r(Config::getInstance()->config['Config']);
@@ -41,8 +37,6 @@ function initNADLIB() {
 	date_default_timezone_set('Europe/Berlin');
 	ini_set('short_open_tag', 1);
 	Request::removeCookiesFromRequest();
-	//chdir(dirname(dirname(__FILE__)));	// one level up
-	// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
 }
 
 function debug($a) {
@@ -84,6 +78,22 @@ function debug_once() {
 	}
 }
 
+function debug_size($a) {
+	if (is_object($a)) {
+		$vals = get_object_vars($a);
+		$keys = array_keys($vals);
+	} else {
+		$vals = $a;
+		$keys = array_keys($a);
+	}
+	$assoc = array();
+	foreach ($keys as $key) {
+		$len = strlen(serialize($vals[$key]));
+		$assoc[$key] = $len;
+	}
+	debug($assoc);
+}
+
 /**
  * Whether string starts with some chars
  * @param $haystack
@@ -99,6 +109,7 @@ function startsWith($haystack, $needle) {
 			return true;
 		}
 	}
+	return false;
 }
 
 /**
@@ -115,10 +126,15 @@ function endsWith($haystack, $needle) {
  * Does string splitting with cleanup.
  * @param $sep
  * @param $str
+ * @param null $max
  * @return array
  */
-function trimExplode($sep, $str) {
-	$parts = explode($sep, $str);
+function trimExplode($sep, $str, $max = NULL) {
+	if ($max) {
+		$parts = explode($sep, $str, $max);		// checked by isset so NULL makes it 0
+	} else {
+		$parts = explode($sep, $str);
+	}
 	$parts = array_map('trim', $parts);
 	$parts = array_filter($parts);
 	$parts = array_values($parts);

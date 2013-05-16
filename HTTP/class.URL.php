@@ -156,7 +156,7 @@ class URL {
 	function __toString() {
 		$url = $this->buildURL();
 		//debug($this->components, $url);
-		return $url;
+		return $url.'';
 	}
 
 	function getRequest() {

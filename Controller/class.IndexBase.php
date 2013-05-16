@@ -56,12 +56,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * @param bool $createNew
 	 * @return Index|IndexBE
 	 */
-	static function getInstance() {
+	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = &self::$instance;
-		if (!$instance) {
+		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
@@ -71,25 +72,35 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
+	/**
+	 * Called by index.php explicitly,
+	 * therefore processes exceptions
+	 * @throws Exception
+	 */
 	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
-			$class = $this->request->getControllerString();
-			__autoload($class);
-			$class = end(explode('/', $class));	// again, because __autoload need the full path
-			//debug(__METHOD__, $class, class_exists($class));
-			if (class_exists($class)) {
-				$this->controller = new $class();
-				if (method_exists($this->controller, 'postInit')) {
-					$this->controller->postInit();
-				}
-			} else {
-				$exception = 'Class '.$class.' not found.';
-				throw new Exception($exception);
-			}
+			$slug = $this->request->getControllerString();
+			$this->loadController($slug);
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
+		}
+	}
+
+	protected function loadController($slug) {
+		$slugParts = explode('/', $slug);
+		$class = end($slugParts);	// again, because __autoload need the full path
+		//debug(__METHOD__, $slug, $class, class_exists($class));
+		if (class_exists($class)) {
+			$this->controller = new $class();
+			//debug(get_class($this->controller));
+			if (method_exists($this->controller, 'postInit')) {
+				$this->controller->postInit();
+			}
+		} else {
+			$exception = 'Class '.$class.' not found.';
+			throw new Exception($exception);
 		}
 	}
 
@@ -99,14 +110,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($this->controller) {
 			try {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax()) {
-					$v = new View('template.phtml', $this);
-					$v->content = $content;
-					$v->title = strip_tags($this->controller->title);
-					$v->sidebar = $this->showSidebar();
-					$lf = new LoginForm('inlineForm');
-					$v->loginForm = $lf->dispatchAjax();
-					$content = $v->render();	// not concatenate but replace
+				if (!$this->request->isAjax() && !$this->request->isCLI()) {
+					$content = $this->renderTemplate($content);
 				} else {
 					$content .= $this->content;
 					$this->content = '';		// clear for the next output. May affect saveMessages()
@@ -117,7 +122,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			$content .= $this->content;	// display Exception
 		}
+		$content .= $this->renderProfiler();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $content;
+	}
+
+	function renderTemplate($content) {
+		$v = new View('template.phtml', $this);
+		$v->content = $content;
+		$v->title = strip_tags($this->controller->title);
+		$v->sidebar = $this->showSidebar();
+		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
+		//$v->loginForm = $lf->dispatchAjax();
+		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
 
@@ -190,15 +207,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		$this->footer['jquery.js'] = '
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-1.9.1.min.js"><\/script>\')</script>
 		';
 		return $this;
 	}
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+		<script>window.jQueryUI || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.min.js"><\/script>\')</script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 		return $this;
 	}
@@ -219,6 +237,24 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function showSidebar() {
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
+		}
+		return $content;
+	}
+
+	function renderProfiler() {
+		if (DEVELOPMENT &&
+			isset($GLOBALS['profiler']) &&
+			!$this->request->isAjax() &&
+			!$this->request->isCLI() &&
+			!in_array(get_class($this->controller), array('Lesser')))
+		{
+			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
+			if ($profiler) {
+				$content = $profiler->renderFloat();
+				$content .= $profiler->printTimers(true);
+			} else if (DEVELOPMENT) {
+				$content = TaylorProfiler::renderFloat();
+			}
 		}
 		return $content;
 	}
