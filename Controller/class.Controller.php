@@ -189,8 +189,9 @@ abstract class Controller {
 	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance[$static] ?:
-			(self::$instance[$static] = new $static());
+		return self::$instance[$static]
+			? self::$instance[$static]
+			: (self::$instance[$static] = new $static());
 	}
 
 	function redirect($url) {
