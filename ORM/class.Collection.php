@@ -308,7 +308,7 @@ class Collection {
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
 			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
-			'more' => 'align="right"',
+			'align' => "right",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
