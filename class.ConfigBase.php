@@ -83,6 +83,7 @@ class ConfigBase {
 		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');

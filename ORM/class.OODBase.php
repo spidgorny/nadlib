@@ -61,7 +61,8 @@ abstract class OODBase {
 	/**
 	 * Retrieves data from DB.
 	 *
-	 * @param unknown_type $id
+	 * @param int|array|SQLWhere $id
+	 * @throws Exception
 	 */
 	public function init($id) {
 		if (is_array($id)) {
