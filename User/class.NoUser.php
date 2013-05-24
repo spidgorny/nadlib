@@ -26,4 +26,8 @@ class NoUser extends Person {
 		return NULL;
 	}
 
+	function getUnreadMessages() {
+		return 0;
+	}
+
 }

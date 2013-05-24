@@ -73,8 +73,13 @@ class Recursive {
 			if ($el instanceof Recursive) {
 				$val = $el->eachRecursiveKey($callback, $level+1);
 			}
-			list($val, $key) = call_user_func($callback, $val, $i);
-			$new[$key] = $val;
+			$res = call_user_func($callback, $val, $i);
+			if (!is_null($res)) {
+				list($val, $key) = $res;
+				$new[$key] = $val;
+			} else {
+				// unset
+			}
 		} unset($el);
 		//debug(__METHOD__, $level, $this->elements, $new);
 		$this->elements = $new;

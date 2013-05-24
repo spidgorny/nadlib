@@ -109,7 +109,7 @@ abstract class FullGrid extends Grid {
 				} else {
 					$type = 'select';
 					$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
-					$options = AP($options)->trim()->getData();	// convert to string for === operation
+					$options = ArrayPlus::create($options)->trim()->getData();	// convert to string for === operation
 					//debug($options);
 					$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
 					//debug($options);
@@ -131,7 +131,7 @@ abstract class FullGrid extends Grid {
 
 	function getTableFieldOptions($key, $count = false) {
 		$res = Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
-		$key, array(), 'ORDER BY title');
+		$key, array(), 'ORDER BY title', $this->model->idField);
 
 		if ($count) {
 			foreach ($res as &$val) {

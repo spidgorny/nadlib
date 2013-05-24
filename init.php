@@ -2,13 +2,15 @@
 
 function initNADLIB() {
 	//print_r($_SERVER);
-    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
-	define('DEVELOPMENT', isset($_SERVER['argc'])
-		? (($os == 'Windows_NT') || true)// at home
-		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
-	);
 	require_once dirname(__FILE__).'/class.AutoLoad.php';
 	AutoLoad::register();
+
+    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+	define('DEVELOPMENT', Request::isCLI()
+		? (($os == 'Windows_NT') || true) // at home
+		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+	);
+
 	if (DEVELOPMENT) {
 		error_reporting(E_ALL ^ E_NOTICE);
 		//ini_set('display_errors', FALSE);
@@ -74,6 +76,22 @@ function debug_once() {
 		call_user_func_array('debug', $v);
 		$used[$key] = true;
 	}
+}
+
+function debug_size($a) {
+	if (is_object($a)) {
+		$vals = get_object_vars($a);
+		$keys = array_keys($vals);
+	} else {
+		$vals = $a;
+		$keys = array_keys($a);
+	}
+	$assoc = array();
+	foreach ($keys as $key) {
+		$len = strlen(serialize($vals[$key]));
+		$assoc[$key] = $len;
+	}
+	debug($assoc);
 }
 
 /**

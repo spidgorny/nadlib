@@ -245,7 +245,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (DEVELOPMENT &&
 			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
-			!$this->request->isCLI()) {
+			!$this->request->isCLI() &&
+			!in_array(get_class($this->controller), array('Lesser')))
+		{
 			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				$content = $profiler->renderFloat();
