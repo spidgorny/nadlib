@@ -9,10 +9,14 @@ define('TAB', "\t");
 define('CR', "\r");
 define('LF', "\n");
 require_once('../vendor/typo3/class.t3lib_div.php');
-require_once('../vendor/typo3/class.t3lib_sqlparser.php');
-require_once('../vendor/typo3/class.t3lib_install_sql.php');
-require_once('../vendor/typo3/class.t3lib_db.php');
-require_once('../vendor/typo3/class.t3lib_utility_math.php');
+//require_once('../vendor/typo3/class.t3lib_sqlparser.php');
+require_once('../vendor/typo3/sysext/core/Classes/Database/SqlParser.php');
+//require_once('../vendor/typo3/class.t3lib_install_sql.php');
+require_once('../vendor/typo3/sysext/install/Classes/Sql/SchemaMigrator.php');
+//require_once('../vendor/typo3/class.t3lib_db.php');
+require_once('../vendor/typo3/sysext/core/Classes/Database/DatabaseConnection.php');
+//require_once('../vendor/typo3/class.t3lib_utility_math.php');
+require_once('../vendor/typo3/sysext/core/Classes/Utility/MathUtility.php');
 
 class AlterDB extends AppControllerBE {
 
@@ -145,7 +149,8 @@ class AlterDB extends AppControllerBE {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$config = Config::getInstance();
 
-		$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
+		//$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
+		$GLOBALS['TYPO3_DB'] = $t3db = new TYPO3\CMS\Core\Database\DatabaseConnection();
 		$t3db->connectDB($config->db_server, $config->db_user, $config->db_password, $config->db_database);
 		//debug($t3db);
 		define('TYPO3_db', $config->db_database);

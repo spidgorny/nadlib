@@ -100,6 +100,14 @@ class FlexiTable extends OODBase {
 		return $type;
 	}
 
+	/**
+	 * Can't store large amount of data in MySQL column
+	 * Data may be either compressed - then we try to uncompress it
+	 * Or it may be XML, then we convert it to the SimpleXML object
+	 * Both operations take $this->data['field'] as a source
+	 * and save the result into $this->$field
+	 * @param bool $debug
+	 */
 	function expand($debug = false) {
 		static $stopDebug = false;
 		$this->fetchColumns();
@@ -121,9 +129,11 @@ class FlexiTable extends OODBase {
 				if ($this->data[$field]{0} == '<') {
 					//$uncompressed = html_entity_decode($uncompressed, ENT_QUOTES, "utf-8");
 					$this->$field = @simplexml_load_string($uncompressed);
+					unset($this->data[$field]);
 					$info['unxml'] = 'true';
 				} else if ($this->data[$field]{0} == '{') {
 					$this->$field = json_decode($uncompressed, false);	// make it look like SimpleXML
+					unset($this->data[$field]);
 					$info['unjson'] = 'true';
 				}
 			}

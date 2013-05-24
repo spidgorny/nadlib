@@ -20,7 +20,13 @@ class Lesser extends AppController {
 			//debug($cssFile, $cssFileName);
 			$this->output = 'cache/'.str_replace('.less', '.css', $cssFileName);
 			//debug($cssFile, file_exists($cssFile), $this->output);
-			$regen = $less->checkedCompile($cssFile, $this->output);
+
+			if ($this->request->isRefresh()) {
+				$less->compileFile($cssFile, $this->output);
+			} else {
+				$less->checkedCompile($cssFile, $this->output);
+			}
+
 			if (file_exists($this->output)) {
 				header('Content-type: text/css');
 				readfile($this->output);
