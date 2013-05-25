@@ -122,8 +122,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			$content .= $this->content;	// display Exception
 		}
-		$content .= $this->renderProfiler();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		$content .= $this->renderProfiler();
 		return $content;
 	}
 
@@ -139,10 +139,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderController() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $render;
 	}
 
@@ -251,7 +253,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				$content = $profiler->renderFloat();
-				$content .= $profiler->printTimers(true);
+				$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+				if ($this->db->queryLog) {
+					$content .= '<div class="profiler">'.new slTable($this->db->queryLog).'</div>';
+				}
 			} else if (DEVELOPMENT) {
 				$content = TaylorProfiler::renderFloat();
 			}

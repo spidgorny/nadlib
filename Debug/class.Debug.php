@@ -11,7 +11,7 @@ class Debug {
 			$levels = NULL;
 		} else {
 			$a = $args;
-			if ($a[1] == self::LEVELS) {
+			if ($a[1] === self::LEVELS) {
 				$levels = $a[2];
 				$a = $a[0];
 			}
