@@ -2,13 +2,15 @@
 
 function initNADLIB() {
 	//print_r($_SERVER);
-    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
-	define('DEVELOPMENT', isset($_SERVER['argc'])
-		? (($os == 'Windows_NT') || true)// at home
-		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
-	);
 	require_once dirname(__FILE__).'/class.AutoLoad.php';
 	AutoLoad::register();
+
+    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+	define('DEVELOPMENT', Request::isCLI()
+		? (($os == 'Windows_NT') || true) // at home
+		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+	);
+
 	if (DEVELOPMENT) {
 		error_reporting(E_ALL ^ E_NOTICE);
 		//ini_set('display_errors', FALSE);
@@ -37,7 +39,7 @@ function initNADLIB() {
 	Request::removeCookiesFromRequest();
 }
 
-function debug($a) {
+function debug() {
 	$params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);

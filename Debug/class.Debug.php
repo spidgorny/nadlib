@@ -109,6 +109,11 @@ class Debug {
 		return $trace;
 	}
 
+	/**
+	 * @param $a
+	 * @param $levels
+	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
+	 */
 	static function view_array($a, $levels) {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
@@ -134,7 +139,7 @@ class Debug {
 
 				//var_dump($levels); echo '<br/>'."\n";
 				if (is_null($levels) || $levels > 0) {
-					$content .= Debug::view_array($r, $levels-1);
+					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
 				}
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';
