@@ -292,10 +292,10 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		$i = 0;
-		debug(sizeof($this->members));
+		//debug(sizeof($this->members));
 		foreach ($this->members as $obj) {
-			debug($i++, (strlen($content)/1024/1024).'M');
-			$content .= $obj."\n";
+			//debug($i++, (strlen($content)/1024/1024).'M');
+			$content .= $obj->render()."\n";
 		}
 		return $content;
 	}
