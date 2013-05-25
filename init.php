@@ -86,7 +86,12 @@ function debug_size($a) {
 	}
 	$assoc = array();
 	foreach ($keys as $key) {
-		$len = strlen(serialize($vals[$key]));
+		if ($vals[$key] instanceof SimpleXMLElement) {
+			$vals[$key] = $vals[$key]->asXML();
+		}
+		//$len = strlen(serialize($vals[$key]));
+		$len = strlen(json_encode($vals[$key]));
+		//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
 		$assoc[$key] = $len;
 	}
 	debug($assoc);
