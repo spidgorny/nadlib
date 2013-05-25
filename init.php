@@ -39,7 +39,7 @@ function initNADLIB() {
 	Request::removeCookiesFromRequest();
 }
 
-function debug($a) {
+function debug() {
 	$params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
