@@ -66,10 +66,12 @@ class MySQL {
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
-			$this->queryLog[$query] = is_array($this->queryLog[$query]) ? $this->queryLog[$query] : array();
-			$this->queryLog[$query]['time'] = ($this->queryLog[$query]['time'] + $diffTime) / 2;
-			$this->queryLog[$query]['sumtime'] += $diffTime;
-			$this->queryLog[$query]['times']++;
+			$key = md5($query);
+			$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
+			$this->queryLog[$key]['query'] = $query;
+			$this->queryLog[$key]['time'] = ($this->queryLog[$key]['time'] + $diffTime) / 2;
+			$this->queryLog[$key]['sumtime'] += $diffTime;
+			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
 		if (mysql_errno($this->connection)) {

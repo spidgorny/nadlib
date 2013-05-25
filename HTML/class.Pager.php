@@ -276,4 +276,18 @@ class Pager {
 		return get_class($this).': "'.$this->itemsPerPage.'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}
 
+	public function debug() {
+		$set = array(
+			'numberOfRecords' => $this->numberOfRecords,
+			'itemsPerPage' => $this->itemsPerPage,
+			'startingRecord' => $this->startingRecord,
+			'currentPage' => $this->currentPage,
+			'url' => $this->url,
+			'pagesAround' => $this->pagesAround,
+			'showPageJump' => $this->showPageJump,
+			'showPager' => $this->showPager,
+		);
+		debug($set);
+	}
+
 }
