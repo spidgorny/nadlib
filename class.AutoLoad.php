@@ -13,9 +13,15 @@ class AutoLoad {
 	}
 
 	function getFolders() {
-		session_start();
-		//unset($_SESSION['autoloadCache']);
-		$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
+		require_once 'HTTP/class.Request.php';
+		if (!Request::isCLI()) {
+			session_start();
+			//unset($_SESSION['autoloadCache']);
+			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
+		} else {
+			$folders = array();
+		}
+
 		if (!$folders) {
 			require_once 'class.ConfigBase.php';
 			if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {

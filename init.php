@@ -26,13 +26,17 @@ function initNADLIB() {
 			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
 		}
 		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
-		header('Cache-Control: no-cache, no-store, max-age=0');
-		header('Expires: -1');
+		if (!Request::isCLI()) {
+			header('Cache-Control: no-cache, no-store, max-age=0');
+			header('Expires: -1');
+		}
 	} else {
 		error_reporting(0);
 		ini_set('display_errors', FALSE);
-		header('Cache-Control: no-cache, no-store, max-age=0');
-		header('Expires: -1');
+		if (!Request::isCLI()) {
+			header('Cache-Control: no-cache, no-store, max-age=0');
+			header('Expires: -1');
+		}
 	}
 	date_default_timezone_set('Europe/Berlin');
 	ini_set('short_open_tag', 1);
