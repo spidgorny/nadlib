@@ -276,12 +276,17 @@ class HTMLForm {
 		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".htmlspecialchars($value)."</textarea>";
 	}
 
-	function submit($value = NULL, $more = "", array $params = array()) {
+	/**
+	 * Changelog: second $more parameter was removed, please user $params instead
+	 * @param null $value
+	 * @param array $params
+	 */
+	function submit($value = NULL, array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
 		$params['name'] = $params['name'] ? $params['name'] : 'submit';
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
-		$this->stdout .= $this->getInput("submit", $params['name'], $value, $more.$this->getAttrHTML($params));
+		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 	}
 
 	function button($innerHTML = NULL, $more = '') {

@@ -12,7 +12,8 @@ class GroupSwitch extends AppController {
 		'83079' => 'Artwork',
 		'62' => 'EPES',
 		'13868' => 'Lotcheck',
-		'1815688' => 'Testing',
+		'1815688' => 'Testers',
+		'1895312' => 'Coords',
 	);
 
 	function render() {
