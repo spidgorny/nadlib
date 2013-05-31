@@ -17,7 +17,7 @@ abstract class OODBase {
 	 */
 	public $table = 'OODBase_undefined_table';
 
-	protected $idField = 'id';
+	public $idField = 'id';
 
 	protected $titleColumn = 'name';
 

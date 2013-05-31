@@ -117,7 +117,7 @@ abstract class HTMLFormProcessor extends AppController {
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
-		$this->form->submit($this->submitButton, '', array('class' => 'btn'));
+		$this->form->submit($this->submitButton, array('class' => 'btn'));
 		return $this->form;
 	}
 
