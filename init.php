@@ -2,7 +2,7 @@
 
 function initNADLIB() {
 	//print_r($_SERVER);
-	require_once dirname(__FILE__).'/class.AutoLoad.php';
+	require_once dirname(__FILE__) . '/class.AutoLoad.php';
 	AutoLoad::register();
 
     $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
