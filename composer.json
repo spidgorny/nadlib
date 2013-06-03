@@ -1,11 +1,11 @@
 {
     "name": "spidgorny/nadlib",
     "require": {
-		"php": ">=5.3.8",
-        "sharom/twitter-bootstrap": "dev-master",
-		"pdepend/pdepend": "1.1.0"
+		"php": ">=5.3.8"
     },
     "require_bak": {
+		"pdepend/pdepend": "1.1.0"
+		"sharom/twitter-bootstrap": "dev-master",
 		"michelf/php-markdown": "*",
         "twitter/bootstrap": "master"
     },
