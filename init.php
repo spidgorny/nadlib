@@ -1,5 +1,9 @@
 <?php
 
+use spidgorny\nadlib\AutoLoad;
+use spidgorny\nadlib\HTTP\Request;
+use spidgorny\nadlib\Debug\TaylorProfiler;
+
 function initNADLIB() {
 	//print_r($_SERVER);
 	require_once dirname(__FILE__) . '/class.AutoLoad.php';
@@ -24,7 +28,7 @@ function initNADLIB() {
 		/* @var $profiler TaylorProfiler */
 		if (class_exists('Config')) {
 			//print_r(Config::getInstance()->config['Config']);
-			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+			set_time_limit(\Config::getInstance()->timeLimit ? \Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
 		}
 		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 		header('Cache-Control: no-cache, no-store, max-age=0');
@@ -231,6 +235,14 @@ function array_combine_stringkey(array $a, array $b) {
 		next($b);
 	}
 	return $ret;
+}
+
+function __($code, $r1 = null, $r2 = null, $r3 = null) {
+	if (\Config::getInstance() && \Config::getInstance()->ll) {
+		return \Config::getInstance()->ll->T($code, $r1, $r2, $r3);
+	} else {
+		return $code;
+	}
 }
 
 initNADLIB();

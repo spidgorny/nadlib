@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 abstract class IteratorMemberCollection extends Collection implements Iterator, Countable {
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {

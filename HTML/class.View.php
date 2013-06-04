@@ -1,5 +1,8 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+use spidgorny\nadlib\HTTP\Request;
+
 class View {
 	protected $file;
 
@@ -33,9 +36,9 @@ class View {
 
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
-		$this->folder = Config::getInstance()->appRoot.'/template/';
-		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
-			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
+		$this->folder = \Config::getInstance()->appRoot.'/template/';
+		if (class_exists('Config') && \Config::getInstance()->config[__CLASS__]['folder']) {
+			$this->folder = dirname(__FILE__).'/'.\Config::getInstance()->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
 		//debug($this->folder, $this->file);
@@ -47,9 +50,9 @@ class View {
 			}
 			*/
 		}
-		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
+		$this->ll = class_exists('Config') ? \Config::getInstance()->ll : NULL;
 		$this->request = Request::getInstance();
-		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
+		$this->index = class_exists('Index') ? \Index::getInstance() : NULL;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 

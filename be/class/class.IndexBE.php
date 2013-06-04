@@ -1,5 +1,8 @@
 <?php
 
+namespace spidgorny\nadlib\be;
+use spidgorny\nadlib\IndexBase;
+
 class IndexBE extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
@@ -12,7 +15,7 @@ class IndexBE extends IndexBase {
 		$this->addJQuery();
 		$this->addJs('js/vendor/bootstrap.min.js');
 		$this->user = new BEUser();
-		Config::getInstance()->user = $this->user;	// for consistency
+		\Config::getInstance()->user = $this->user;	// for consistency
 	}
 
 	function renderController() {

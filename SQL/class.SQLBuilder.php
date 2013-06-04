@@ -1,7 +1,12 @@
 <?php
 
+namespace spidgorny\nadlib\SQL;
+use spidgorny\nadlib\DIContainer;
+
 class SQLBuilder {
+
 	public $found;
+
 	protected $reserved = array (
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',

@@ -4,6 +4,8 @@
 //
 // extended by Valiton GmbH, SEP/2012
 
+namespace spidgorny\nadlib\Data;
+
 abstract class ThornbladXmlStreamer {
 	private $handle;
 	private $totalBytes;
@@ -17,11 +19,13 @@ abstract class ThornbladXmlStreamer {
 	private $customRootNode;
 
 	/**
-	* @param $mixed				Path to XML file OR file handle
-	* @param $chunkSize			Bytes to read per cycle (Optional, default is 16 KiB)
-	* @param $customRootNode	Specific root node to use (Optional)
-	* @param $totalBytes		Xml file size - Required if supplied file handle
-	*/
+	 * @param $mixed                Path to XML file OR file handle
+	 * @param int|\spidgorny\nadlib\Data\Bytes $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
+	 * @param $customRootNode    Specific root node to use (Optional)
+	 * @param $totalBytes        Xml file size - Required if supplied file handle
+	 * @param null $customChildNode
+	 * @throws Exception
+	 */
 	public function __construct($mixed, $chunkSize = 16384, $customRootNode = null, $totalBytes = null, $customChildNode = null) {
 		if (is_string($mixed)) {
 			$this->handle = fopen($mixed, "r");

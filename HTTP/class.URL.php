@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
 class URL {
 	public $url;
 
@@ -34,7 +36,7 @@ class URL {
 			$this->setParams($params);
 		}
 		if (class_exists('Config')) {
-			$this->setDocumentRoot(Config::getInstance()->documentRoot);
+			$this->setDocumentRoot(\Config::getInstance()->documentRoot);
 		}
 	}
 

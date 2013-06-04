@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
 class Proxy extends OODBase {
 	public $table = 'proxy';
 	protected $titleColumn = 'proxy';

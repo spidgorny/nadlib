@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
 define('LOWERCASE',3);
 define('UPPERCASE',1);
 

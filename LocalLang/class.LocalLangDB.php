@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\LocalLang;
+
 /**
  * Singleton
  *

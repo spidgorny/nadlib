@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
 class LanguageDetect {
 	public $languages = array();
 

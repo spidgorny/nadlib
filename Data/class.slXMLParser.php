@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 /**
  * Class slXMLParser
  * BugLog XML parser. Made before SimpleXML existed.

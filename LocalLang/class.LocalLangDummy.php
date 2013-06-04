@@ -1,6 +1,7 @@
 <?php
 
-//debug('trace me');
+namespace spidgorny\nadlib\LocalLang;
+
 class LocalLangDummy extends LocalLang {
 
 	function saveMissingMessage($text) {

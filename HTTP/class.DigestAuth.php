@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
 class DigestAuth {
 	protected $realm;
 	public $userAssoc = array();

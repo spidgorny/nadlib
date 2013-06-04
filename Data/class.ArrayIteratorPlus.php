@@ -1,10 +1,12 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 /**
  * Class ArrayIteratorPlus - convenient base class for implementing an iterator class which can be used in foreach()
  * Just put your data into $this->data in the constructor. The rest (iteration) will be taken care of.
  */
-class ArrayIteratorPlus implements Iterator {
+class ArrayIteratorPlus implements \Iterator {
 
 	/**
 	 * @var array - the actual data for iteration

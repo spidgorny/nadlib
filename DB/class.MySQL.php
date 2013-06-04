@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\DB;
+
 class MySQL {
 	public $db;
 	public $lastQuery;

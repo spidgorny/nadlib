@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib;
+
 class DIContainer {
 
   protected $values = array();

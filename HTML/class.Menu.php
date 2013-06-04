@@ -1,5 +1,10 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+use spidgorny\nadlib\Data\ArrayPlus;
+use spidgorny\nadlib\HTTP\Request;
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Doesn't extend Controller as it makes an infinite loop as a menu is made in Controller::__construct
  */
@@ -52,7 +57,7 @@ class Menu /*extends Controller*/ {
 		$this->request = Request::getInstance();
 		//$this->tryInstance();
 		if (class_exists('Config')) {
-			$this->user = Config::getInstance()->user;
+			$this->user = \Config::getInstance()->user;
 		}
 		$this->setCurrent($level);
 		$this->setBasePath();
@@ -63,7 +68,7 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config') ? \Config::getInstance()->config['Controller']['useRouter'] : '';
 		if ($useRouter) {
 			$rootpath = $this->request->getURLLevels();
 			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
@@ -77,7 +82,7 @@ class Menu /*extends Controller*/ {
 	 * Called by the constructor
 	 */
 	function setBasePath() {
-		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config') ? \Config::getInstance()->config['Controller']['useRouter'] : '';
 		if ($useRouter) {
 			//$path = $this->request->getURLLevels();
 			//$path = implode('/', $path);

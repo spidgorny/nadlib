@@ -1,6 +1,8 @@
 <?php
 
-/**
+namespace spidgorny\nadlib\Data;
+
+	/**
  * Simple excel generating from PHP5
  *
  * This is one of my utility-classes.

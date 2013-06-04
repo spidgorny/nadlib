@@ -1,5 +1,8 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+use spidgorny\nadlib;
+
 class Request {
 	protected $data = array();
 	public $defaultController;
@@ -13,7 +16,7 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
+		$this->defaultController = class_exists('Config') ? \Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
@@ -242,7 +245,7 @@ class Request {
 		} else {
 			$controller = $this->getTrim('c');
 			// to simplofy URL it first searches for the corresponding controller
-			$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
+			$ptr = &\Config::getInstance()->config['autoload']['notFoundException'];
 			$tmp = $ptr;
 			$ptr = false;
 			if ($controller && class_exists($controller.'Controller')) {

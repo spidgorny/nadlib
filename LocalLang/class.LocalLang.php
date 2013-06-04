@@ -1,5 +1,8 @@
 <?php
 
+namespace spidgorny\nadlib\LocalLang;
+use spidgorny\nadlib\HTTP\LanguageDetect;
+
 /**
  * Singleton
  *
@@ -29,7 +32,7 @@ abstract class LocalLang {
 				: $this->lang;
 		}
 
-		$c = Config::getInstance();
+		$c = \Config::getInstance();
 		if (isset($c->config[__CLASS__])) {
 			foreach ($c->config[__CLASS__] as $key => $val) {
 				$this->$key = $val;
@@ -182,12 +185,4 @@ abstract class LocalLang {
 		return $content;
 	}
 
-}
-
-function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	if (Config::getInstance() && Config::getInstance()->ll) {
-		return Config::getInstance()->ll->T($code, $r1, $r2, $r3);
-	} else {
-		return $code;
-	}
 }

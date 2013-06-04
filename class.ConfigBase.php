@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib;
+
 class ConfigBase {
 	/**
 	 * del: Public to allow Request to know if there's an instance
@@ -73,13 +75,13 @@ class ConfigBase {
 
 	protected function __construct() {
 		try {
-			$this->db = new MySQL(
+			$this->db = new DB\MySQL(
 				$this->db_database, 
 				$this->db_server, 
 				$this->db_user, 
 				$this->db_password);
 		} catch (Exception $e) {
-			$this->db = new MySQL(
+			$this->db = new DB\MySQL(
 				$this->db_database, 
 				$this->db_server, 
 				$this->db_user, 
@@ -87,7 +89,7 @@ class ConfigBase {
 		}
 		$di = new DIContainer();
 		$di->db = $this->db;
-		$this->qb = new SQLBuilder($di);
+		$this->qb = new SQL\SQLBuilder($di);
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		$this->appRoot = dirname(__FILE__).'/..';
 
@@ -104,7 +106,7 @@ class ConfigBase {
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {
-			self::$instance = new Config();
+			self::$instance = new \Config();
 			self::$instance->postInit();
 		}
 		return self::$instance;

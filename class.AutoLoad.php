@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib;
+
 class AutoLoad {
 
 	/**
@@ -34,8 +36,8 @@ class AutoLoad {
 			}
 			//echo($configPath);
 			if (class_exists('Config')) {
-				$folders = Config::$includeFolders
-					? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
+				$folders = \Config::$includeFolders
+					? array_merge(ConfigBase::$includeFolders, \Config::$includeFolders)
 					: ConfigBase::$includeFolders;
 			} else {
 				$folders = ConfigBase::$includeFolders;
@@ -83,7 +85,7 @@ class AutoLoad {
 			unset($_SESSION['autoloadCache']);	// just in case
 			//debug($this->folders);
 			if (class_exists('Config')) {
-				$config = Config::getInstance();
+				$config = \Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
 					debug($debug);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');

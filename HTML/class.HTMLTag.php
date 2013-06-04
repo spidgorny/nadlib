@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 /**
  * General HTML Tag representation.
  */

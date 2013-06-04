@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 class IteratorImplementation {
 	var $data = array();
 	private $position = 0;

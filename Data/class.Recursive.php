@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 /**
  * Class Recursive - a general class to store hierarhical information.
  * Can be a replacement for TypoScript style of structure (same key with "." in the end contains sub-nodes).

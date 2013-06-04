@@ -1,5 +1,8 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+use spidgorny\nadlib\HTTP\URL;
+
 class slTable {
 	var $ID = NULL;
 	var $data = NULL;
@@ -47,7 +50,7 @@ class slTable {
 		}
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
-		$this->db = class_exists('Config') ? Config::getInstance()->db : NULL;
+		$this->db = class_exists('Config') ? \Config::getInstance()->db : NULL;
 		if (!file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
 			$this->arrowAsc = '&#x25b2;';
@@ -427,7 +430,7 @@ class slTable {
 	}
 
 	function getData($table) {
-		$db = Config::getInstance()->db;
+		$db = \Config::getInstance()->db;
 		$cols = $db->getTableColumns($table);
 		$data = $db->getTableDataEx($table, "deleted = 0");
 		for ($i = 0; $i < sizeof($data); $i++) {

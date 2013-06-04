@@ -1,6 +1,8 @@
 <?php
 
-class IteratorArrayAccess extends ArrayIteratorPlus implements ArrayAccess {
+namespace spidgorny\nadlib\Data;
+
+class IteratorArrayAccess extends ArrayIteratorPlus implements \ArrayAccess {
 
 	/** ArrayAccess **/
 

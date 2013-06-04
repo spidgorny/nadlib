@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 class ListFilesIn extends ArrayObject {
 
 	function __construct($folder) {

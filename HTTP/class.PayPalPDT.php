@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
 class PayPalPDT {
 	// read the post from PayPal system and add 'cmd'
 	protected $req = 'cmd=_notify-synch';

@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 /**
  * TODO: move to nadlib and find IteratorMembersCollection
  */

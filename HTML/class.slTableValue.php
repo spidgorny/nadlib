@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 class slTableValue {
 	var $value = NULL;
 	var $desc = array(
@@ -24,7 +26,7 @@ class slTableValue {
 		}
 		$this->value = $value;
 		$this->desc += (array)$desc;
-		$this->db = Config::getInstance()->db;
+		$this->db = \Config::getInstance()->db;
 	}
 
 /*	function render() {

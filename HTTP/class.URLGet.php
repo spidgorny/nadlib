@@ -1,6 +1,9 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
 class URLGet {
+
 	protected $url;
 
 	public $timeout = 5;

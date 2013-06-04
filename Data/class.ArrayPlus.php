@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Data;
+
 /**
  * Usage:
  * $source = array(
@@ -25,7 +27,7 @@
 $tmp = error_reporting();
 error_reporting(error_reporting() & ~E_STRICT);	// Strict Standards</b>:  Declaration of ArrayPlusReference::create() should be compatible with ArrayPlus::create(array $data = Array)
 
-class ArrayPlus extends IteratorArrayAccess implements Countable {
+class ArrayPlus extends IteratorArrayAccess implements \Countable {
 
 	function __construct(array $array = array()) {
 		$this->data = $array;
