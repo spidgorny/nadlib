@@ -9,6 +9,10 @@
 		"michelf/php-markdown": "*",
         "twitter/bootstrap": "master"
     },
+	"autoload": {
+		"classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
+		"files": ["init.php"]
+	},
 	"repositories_bak": [
 		{
 		"type": "vcs",
