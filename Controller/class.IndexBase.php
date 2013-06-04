@@ -88,6 +88,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 	}
 
+	/**
+	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
+	 * Will call postInit() of the controller if available.
+	 * @param $slug
+	 * @throws Exception
+	 */
 	protected function loadController($slug) {
 		$slugParts = explode('/', $slug);
 		$class = end($slugParts);	// again, because __autoload need the full path
@@ -206,10 +212,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function addJQuery() {
-		$this->footer['jquery.js'] = '
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-1.9.1.min.js"><\/script>\')</script>
-		';
+		if (DEVELOPMENT) {
+			$this->addJS('js/vendor/jquery-1.9.1.min.js');
+		} else {
+			$this->footer['jquery.js'] = '
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+			<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-1.9.1.min.js"><\/script>\')</script>
+			';
+		}
 		return $this;
 	}
 
@@ -257,6 +267,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 		}
 		return $content;
+	}
+
+	function implodeCSS() {
+		return implode("\n", $this->header);
+	}
+
+	function implodeJS() {
+		return implode("\n", $this->footer);
 	}
 
 }

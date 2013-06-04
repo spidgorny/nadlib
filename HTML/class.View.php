@@ -33,7 +33,7 @@ class View {
 
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
-		$this->folder = dirname(__FILE__).'/../../template/';
+		$this->folder = Config::getInstance()->appRoot.'/template/';
 		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
 			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
 		}

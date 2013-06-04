@@ -3,7 +3,8 @@
 function initNADLIB() {
 	//print_r($_SERVER);
 	require_once dirname(__FILE__) . '/class.AutoLoad.php';
-	AutoLoad::register();
+	$al = AutoLoad::register();
+	//$al->debug = true;
 
     $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 	define('DEVELOPMENT', Request::isCLI()
