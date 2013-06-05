@@ -149,6 +149,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderController() {
 		$render = $this->controller->render();
+		//debug($this->controller->layout, $this->request->isAjax());
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}

@@ -1,6 +1,10 @@
 <?php
 
+/**
+ * Class Wrap - represents a two strings to prepend and append to any other string
+ */
 class Wrap {
+
 	protected $wrap1, $wrap2;
 
 	function  __construct($strWrap, $arrWrap2 = NULL) {
