@@ -254,18 +254,20 @@ class Request {
 			$ptr = $tmp;
 			//$controller = end(explode('/', $controller)); // in case it's with subfolder
 			// ^ commented as subfolders need be used for BEmenu
+
+			debug($controller);
 			if (!$controller) {
 				$levels = $this->getURLLevels();
-				//debug($levels);
-				$levels = array_reverse($levels);
+				debug($levels);
+				$levels = array_reverse($levels); // from the end to the beginning of the URL
 				foreach ($levels as $class) {
-					//debug($class, class_exists($class.'Controller'), class_exists($class));
+					debug($class, class_exists($class.'Controller'), class_exists($class));
 					// to simplofy URL it first searches for the corresponding controller
 					if ($class && class_exists($class.'Controller')) {	// this is untested
 						$last = $class.'Controller';
 						break;
 					}
-					if (class_exists($class)) {
+					if (class_exists($class) && $class instanceof nadlib\Controller\Controller) {
 						$last = $class;
 						break;
 					}
@@ -441,12 +443,13 @@ class Request {
 	function getURLLevels() {
 		$path = $this->url->getPath();
 		if (strlen($path) > 1) {	// "/"
-			$path = trimExplode('/', $path);
+			$aPath = trimExplode('/', $path);
 			//debug($this->url->getPath(), $path);
 		} else {
-			$path = array();
+			$aPath = array();
 		}
-		return $path;
+		debug($path, $aPath);
+		return $aPath;
 	}
 
 	/**
