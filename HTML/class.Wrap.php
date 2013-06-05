@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 /**
  * Class Wrap - represents a two strings to prepend and append to any other string
  */

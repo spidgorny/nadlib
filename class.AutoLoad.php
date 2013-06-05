@@ -86,7 +86,7 @@ class AutoLoad {
 			//debug($this->folders);
 			if (class_exists('Config')) {
 				$config = \Config::getInstance();
-				if ($config->config['autoload']['notFoundException']) {
+				if (isset($config->config['AutoLoad']) && $config->config['AutoLoad']['notFoundException']) {
 					debug($debug);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}

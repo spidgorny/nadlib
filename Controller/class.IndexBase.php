@@ -2,6 +2,7 @@
 
 namespace spidgorny\nadlib;
 use spidgorny\nadlib\HTML\View;
+use spidgorny\nadlib\HTML\Wrap;
 
 class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
@@ -149,7 +150,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderController() {
 		$render = $this->controller->render();
-		//debug($this->controller->layout, $this->request->isAjax());
+		//debug($this->controller->layout instanceof Wrap, $this->request->isAjax());
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}

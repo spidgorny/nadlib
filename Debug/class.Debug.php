@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\Debug;
+
 class Debug {
 
 	const LEVELS = 'LEVELS';
