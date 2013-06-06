@@ -84,7 +84,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
-			$slug = $this->request->getControllerString();
+			$slug = $this->request->getBestControllerString();	// can be multiple /-separated elements
 			$this->loadController($slug);
 		} catch (Exception $e) {
 			$this->controller = NULL;

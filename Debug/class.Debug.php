@@ -1,6 +1,8 @@
 <?php
 
 namespace spidgorny\nadlib\Debug;
+use spidgorny\nadlib\Data\ArrayPlus;
+use spidgorny\nadlib\HTML\slTable;
 
 class Debug {
 
@@ -20,7 +22,7 @@ class Debug {
 		}
 
 		$db = debug_backtrace();
-		$db = array_slice($db, 2, sizeof($db));
+		$db = array_slice($db, 1, sizeof($db));
 
 		if (isset($_SERVER['argc'])) {
 			foreach ($db as $row) {

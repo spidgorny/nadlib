@@ -1,7 +1,7 @@
 <?php
 
 namespace spidgorny\nadlib\HTTP;
-use spidgorny\nadlib;
+//use spidgorny\nadlib\Controller\Controller;
 
 class Request {
 	protected $data = array();
@@ -255,24 +255,9 @@ class Request {
 			//$controller = end(explode('/', $controller)); // in case it's with subfolder
 			// ^ commented as subfolders need be used for BEmenu
 
-			debug($controller);
-			if (!$controller) {
-				$levels = $this->getURLLevels();
-				debug($levels);
-				$levels = array_reverse($levels); // from the end to the beginning of the URL
-				foreach ($levels as $class) {
-					debug($class, class_exists($class.'Controller'), class_exists($class));
-					// to simplofy URL it first searches for the corresponding controller
-					if ($class && class_exists($class.'Controller')) {	// this is untested
-						$last = $class.'Controller';
-						break;
-					}
-					if (class_exists($class) && $class instanceof nadlib\Controller\Controller) {
-						$last = $class;
-						break;
-					}
-				}
-				$controller = $last;
+			//debug($controller);
+			if (!$controller || !class_exists($controller)) {
+				$controller = $this->getBestControllerString();
 			}
 		}   // cli
         if (!$controller) {
@@ -283,9 +268,51 @@ class Request {
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
-			'last' => $last,
 			'default' => $this->defaultController,
 			'data' => $this->data));
+		return $controller;
+	}
+
+	/**
+	 * Will try different path parts from end till beginning until existing controller is found
+	 */
+	function getBestControllerString() {
+		$levels = $this->getURLLevels();
+		$levels = array_reverse($levels); // from the end to the beginning of the URL
+		foreach ($levels as $class) {
+			nodebug(
+				$class,
+				class_exists($class.'Controller'),
+				class_exists($class),
+				$class instanceof spidgorny\nadlib\Controller\Controller,
+				$class instanceof spidgorny\nadlib\Controller,
+				$class instanceof spidgorny\nadlib,
+				$class instanceof spidgorny,
+				$class instanceof nadlib,
+				$class instanceof nadlib\Controller,
+				$class instanceof nadlib\Controller\Controller,
+				$class instanceof AppController,
+				$class instanceof Controller,
+				is_readable('class/class.'.$class.'.php')
+			);
+			// to simplify URL it first searches for the corresponding controller
+			if ($class && class_exists($class.'Controller') ) {	// this is untested
+				$last = $class.'Controller';
+				break;
+			}
+			if (class_exists($class) &&
+				//$class instanceof spidgorny\nadlib\Controller\Controller
+				is_readable('class/class.'.$class.'.php')	// workaround as the commented line above is not working
+			) {
+				$last = $class;
+				break;
+			}
+		}
+		$controller = $last;
+		if (!$controller) {
+			$controller = $this->defaultController;
+			//debug('Using default controller', $controller);
+		}
 		return $controller;
 	}
 
@@ -448,7 +475,7 @@ class Request {
 		} else {
 			$aPath = array();
 		}
-		debug($path, $aPath);
+		//debug($path, $aPath);
 		return $aPath;
 	}
 

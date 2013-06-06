@@ -3,6 +3,7 @@
 use spidgorny\nadlib\AutoLoad;
 use spidgorny\nadlib\HTTP\Request;
 use spidgorny\nadlib\Debug\TaylorProfiler;
+use spidgorny\nadlib\Debug\Debug;
 
 function initNADLIB() {
 	//print_r($_SERVER);
@@ -45,9 +46,13 @@ function initNADLIB() {
 }
 
 function debug($a) {
+	static $debug;
+	if (!$debug && class_exists('spidgorny\nadlib\Debug\Debug')) {
+		$debug = new Debug();
+	}
 	$params = func_get_args();
-	if (method_exists('Debug', 'debug_args')) {
-		call_user_func_array(array('Debug', 'debug_args'), $params);
+	if ($debug) {
+		$debug->debug_args(func_num_args() == 1 ? $a : $params);
 	} else {
 		echo '<pre>'.htmlspecialchars(print_r($params, true)).'</pre>';
 	}

@@ -2,7 +2,7 @@
 
 namespace spidgorny\nadlib\Controller;
 use spidgorny\nadlib\HTTP\Request;
-use spidgorny\nadlib;
+//use spidgorny\nadlib;
 
 /**
  * Class Controller - a base class for all front-facing pages.
