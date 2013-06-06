@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 class HTMLFormTimeRange extends HTMLFormType {
 	public $div = '1';
 	public $min = 0;

@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 /**
  * Just a base class to be used in checking instanceof.
  *

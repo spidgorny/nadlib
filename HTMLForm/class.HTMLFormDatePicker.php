@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 class HTMLFormDatePicker extends HTMLFormType {
 	public $format = 'Y-m-d';
 	public $jsFormat = 'yy-mm-dd';

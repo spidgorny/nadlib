@@ -42,6 +42,12 @@ abstract class OODBase {
 	public $lastQuery;
 
 	/**
+	 * CREATE TABLE definition for auto-installation
+	 * @var array
+	 */
+	protected $create = array();
+
+	/**
 	 * Enter description here...
 	 *
 	 * @param integer|array $id - can be ID in the database or the whole records
@@ -231,6 +237,16 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Shortcut for saving data to the current model, whether it exists or not
+	 * @param array $update
+	 * @return string
+	 */
+	function save(array $update) {
+		$this->data = array_merge($this->data, $update);
+		return $this->insertOrUpdate();
+	}
+
+	/**
 	 * Searches for the record defined in $where and then creates or updates.
 	 *
 	 * @param array $fields
@@ -337,6 +353,10 @@ abstract class OODBase {
 	function getURL(array $params) {
 		$c = Index::getInstance()->controller;
 		return $c->getURL($params);
+	}
+
+	function create() {
+		debug($this->create);
 	}
 
 }

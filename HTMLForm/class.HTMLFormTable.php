@@ -1,5 +1,8 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+use spidgorny\nadlib\HTTP\Request;
+
 class HTMLFormTable extends HTMLForm {
 	var $withValue = FALSE;
 	var $defaultBR = FALSE;

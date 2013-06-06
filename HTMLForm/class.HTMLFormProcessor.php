@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 abstract class HTMLFormProcessor extends AppController {
 	protected $prefix = __CLASS__;
 	protected $default = array();

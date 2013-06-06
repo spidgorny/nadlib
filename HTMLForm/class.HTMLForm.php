@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 class HTMLForm {
 	protected $action = "";
 	protected $method = "POST";

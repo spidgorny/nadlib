@@ -97,10 +97,14 @@ class MiniIndex extends AppController {
 	}
 
 	function addJQuery() {
-		$this->footer['jquery.js'] = '
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
-		';
+		if (DEVELOPMENT) {
+			$this->addJS('js/vendor/jquery-1.9.1.min.js');
+		} else {
+			$this->footer['jquery.js'] = '
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+			<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
+			';
+		}
 	}
 
 	function addJQueryUI() {

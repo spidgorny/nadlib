@@ -130,7 +130,7 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getTableFieldOptions($key, $count = false) {
-		$res = Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
+		$res = \Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
 		$key, array(), 'ORDER BY title', $this->model->idField);
 
 		if ($count) {

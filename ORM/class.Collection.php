@@ -5,13 +5,13 @@
  * or array of OODBase based objects.
  *
  */
-class Collection {
+abstract class Collection {
 	/**
 	 *
 	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
-	protected $table = __CLASS__;
+	public $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
 	protected $parentField = 'pid';

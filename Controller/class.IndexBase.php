@@ -47,7 +47,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $footer = array();
 
-	public function __construct() {
+	/**
+	 * Don't use new Index()
+	 */
+	protected function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		//parent::__construct();
@@ -60,6 +63,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * Make sure you make a new instance of Index with getInstance()
 	 * @param bool $createNew
 	 * @return Index|IndexBE
 	 */
@@ -72,6 +76,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$instance = new $static();
 			//$instance->initController();	// scheisse: call it in index.php
 		}
+		//debug(__METHOD__, $createNew, $static, get_class($instance));
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $instance;
 	}
@@ -119,11 +124,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content = '';
 		if ($this->controller) {
 			try {
-				$content .= $this->renderController();
 				if (!$this->request->isAjax() && !$this->request->isCLI()) {
+					$temp = $this->renderController();
+					$content .= $this->content;
+					$content .= $temp;
+
 					$content = $this->renderTemplate($content);
 				} else {
-					$content .= $this->content;
+					$content .= $this->renderController();
 					$this->content = '';		// clear for the next output. May affect saveMessages()
 				}
 			} catch (Exception $e) {

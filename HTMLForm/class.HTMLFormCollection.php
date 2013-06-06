@@ -1,5 +1,7 @@
 <?php
 
+namespace spidgorny\nadlib\HTML;
+
 /**
  * Combines a Collection of elements from a database with an HTMLFormTable
  */

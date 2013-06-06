@@ -2,7 +2,7 @@
 
 namespace spidgorny\nadlib\Controller;
 use spidgorny\nadlib\HTTP\Request;
-//use spidgorny\nadlib;
+use spidgorny\nadlib\IndexBase;
 
 /**
  * Class Controller - a base class for all front-facing pages.
@@ -18,10 +18,10 @@ use spidgorny\nadlib\HTTP\Request;
  */
 
 abstract class Controller {
+
 	/**
-	 * Enter description here...
-	 *
-	 * @var Index
+	 * Mainly used with error() and message() functions
+	 * @var IndexBase
 	 */
 	public $index;
 
@@ -84,7 +84,7 @@ abstract class Controller {
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? \Index::getInstance(false) : NULL;
-		//debug(get_class($this->index));
+		//debug(class_exists('Index'), get_class($this->index));
 		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
 		//debug(get_class($this->index));
 		$this->request = Request::getInstance();
