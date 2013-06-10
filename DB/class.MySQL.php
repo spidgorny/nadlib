@@ -303,4 +303,8 @@ WHERE CCSA.collation_name = T.table_collation
 		return $data;
 	}
 
+	function affectedRows() {
+		return mysql_affected_rows();
+	}
+
 }

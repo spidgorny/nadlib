@@ -136,7 +136,7 @@ class Request {
 	 * Will return timestamp
 	 * Converts string date compatible with strtotime() into timestamp (integer)
 	 *
-	 * @param unknown_type $name
+	 * @param string $name
 	 * @throws Exception
 	 * @return int
 	 */
