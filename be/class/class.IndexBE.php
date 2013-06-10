@@ -23,6 +23,7 @@ class IndexBE extends IndexBase {
 		if ($public || $this->user->isAuth()) {
 			$content = parent::renderController();
 		} else {
+			//$this->message(new LoginForm());
 			throw new LoginException('Login first');
 		}
 		return $content;

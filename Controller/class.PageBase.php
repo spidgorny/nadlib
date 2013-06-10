@@ -7,7 +7,7 @@
 class PageBase extends AppController {
 
 	/**
-	 * @var TYPO3Page
+	 * @var TYPO3Page|PageBase
 	 */
 	var $page;
 
@@ -42,6 +42,7 @@ class PageBase extends AppController {
 		}
 		$content = $this->page->render();
 		$this->layout = $this->page->layout;	// for Search in Page_Cruises
+		$this->title = $this->page->title;
 		return $content;
 	}
 

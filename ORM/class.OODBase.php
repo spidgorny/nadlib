@@ -312,7 +312,7 @@ abstract class OODBase {
 	}
 
 	function clearInstances() {
-		self::$instances = array();
+		self::$instances[get_class($this)] = array();
 		gc_collect_cycles();
 	}
 
