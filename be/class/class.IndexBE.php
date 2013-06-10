@@ -31,7 +31,7 @@ class IndexBE extends IndexBase {
 
 	function renderTemplate($content) {
 		$v = new View('template.phtml', $this);
-		$v->content = $content;
+		$v->content = $this->content . $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass
