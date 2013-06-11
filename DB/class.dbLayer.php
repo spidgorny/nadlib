@@ -353,8 +353,8 @@ class dbLayer {
 		return $value;
 	}
 
-	function runSelectQuery($table, $where = array(), $order = '', $addSelect = '') {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
+	function runSelectQuery($table, $where = array(), $order = '', $addSelect = '', $doReplace = false) {
+		$query = $this->getSelectQuery($table, $where, $order, $addSelect, $doReplace);
 		$res = $this->perform($query);
 		return $res;
 	}
