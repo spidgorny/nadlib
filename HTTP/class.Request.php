@@ -336,7 +336,12 @@ class Request {
 	 * @return string
 	 */
 	function getLocation() {
-		$docRoot = dirname($_SERVER['PHP_SELF']);
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			$docRoot = $c->documentRoot;
+		} else {
+			$docRoot = dirname($_SERVER['PHP_SELF']);
+		}
 		if (strlen($docRoot) == 1) {
 			$docRoot = '/';
 		} else {

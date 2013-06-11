@@ -7,12 +7,15 @@ class IndexBE extends IndexBase {
 	function __construct() {
 		parent::__construct();
 		//debug_pre_print_backtrace();
-		$this->addCSS('css/bootstrap.min.css');
-		$this->addCSS('css/main.css');
+		$c = Config::getInstance();
+		$c->documentRoot = str_replace('/nadlib/be', '', $c->documentRoot);
+
+		$this->addCSS('nadlib/be/css/bootstrap.min.css');
+		$this->addCSS('nadlib/be/css/main.css');
 		$this->addJQuery();
 		$this->addJs('js/vendor/bootstrap.min.js');
 		$this->user = new BEUser();
-		Config::getInstance()->user = $this->user;	// for consistency
+		$c->user = $this->user;	// for consistency
 	}
 
 	function renderController() {
@@ -36,6 +39,7 @@ class IndexBE extends IndexBase {
 		$v->sidebar = $this->showSidebar();
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
+		$v->baseHref = $this->request->getLocation();
 		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
@@ -54,6 +58,7 @@ class IndexBE extends IndexBase {
 			'TestNadlib' => 'TestNadlib',
 			'AlterDB' => 'Alter DB',
 			'AlterCharset' => 'Alter Charset',
+			'AlterIndex' => 'Alter Indexes',
 			'JumpFrontend' => '<- Frontend',
 		);
 

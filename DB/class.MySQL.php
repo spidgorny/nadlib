@@ -1,10 +1,30 @@
 <?php
 
 class MySQL {
+
+	/**
+	 * @var string
+	 */
 	public $db;
+
+	/**
+	 * @var string
+	 */
 	public $lastQuery;
+
+	/**
+	 * @var resource
+	 */
 	protected $connection;
+
+	/**
+	 * @var self
+	 */
 	protected static $instance;
+
+	/**
+	 * @var array
+	 */
 	public $queryLog = array();		// set to NULL for disabling
 
 	/**
@@ -244,10 +264,10 @@ class MySQL {
 
 	function getTableCharset($table) {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
-       information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
-WHERE CCSA.collation_name = T.table_collation
-  /*AND T.table_schema = 'schemaname'*/
-  AND T.table_name = '".$table."'";
+    	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+		WHERE CCSA.collation_name = T.table_collation
+  		/*AND T.table_schema = 'schemaname'*/
+  		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
@@ -305,6 +325,10 @@ WHERE CCSA.collation_name = T.table_collation
 
 	function affectedRows() {
 		return mysql_affected_rows();
+	}
+
+	function getIndexesFrom($table) {
+		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
 }
