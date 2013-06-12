@@ -30,7 +30,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public $content = '';
 
 	/**
-	 * @var Controller
+	 * @var AppController
 	 */
 	public $controller;
 
@@ -57,12 +57,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * @param bool $createNew
 	 * @return Index|IndexBE
 	 */
-	static function getInstance() {
+	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = &self::$instance;
-		if (!$instance) {
+		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
@@ -72,25 +73,42 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
+	/**
+	 * Called by index.php explicitly,
+	 * therefore processes exceptions
+	 * @throws Exception
+	 */
 	public function initController() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
-			$class = $this->request->getControllerString();
-			__autoload($class);
-			$class = end(explode('/', $class));	// again, because __autoload need the full path
-			//debug(__METHOD__, $class, class_exists($class));
-			if (class_exists($class)) {
-				$this->controller = new $class();
-				if (method_exists($this->controller, 'postInit')) {
-					$this->controller->postInit();
-				}
-			} else {
-				$exception = 'Class '.$class.' not found.';
-				throw new Exception($exception);
-			}
+			$slug = $this->request->getControllerString();
+			$this->loadController($slug);
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
+		}
+	}
+
+	/**
+	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
+	 * Will call postInit() of the controller if available.
+	 * @param $slug
+	 * @throws Exception
+	 */
+	protected function loadController($slug) {
+		$slugParts = explode('/', $slug);
+		$class = end($slugParts);	// again, because __autoload need the full path
+		//debug(__METHOD__, $slug, $class, class_exists($class));
+		if (class_exists($class)) {
+			$this->controller = new $class();
+			//debug(get_class($this->controller));
+			if (method_exists($this->controller, 'postInit')) {
+				$this->controller->postInit();
+			}
+		} else {
+			//debug($_SESSION['autoloadCache']);
+			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
+			throw new Exception($exception);
 		}
 	}
 
@@ -100,14 +118,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($this->controller) {
 			try {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax()) {
-					$v = new View('template.phtml', $this);
-					$v->content = $content;
-					$v->title = strip_tags($this->controller->title);
-					$v->sidebar = $this->showSidebar();
-					$lf = new LoginForm('inlineForm');
-					$v->loginForm = $lf->dispatchAjax();
-					$content = $v->render();	// not concatenate but replace
+				if (!$this->request->isAjax() && !$this->request->isCLI()) {
+					$content = $this->renderTemplate($content);
 				} else {
 					$content .= $this->content;
 					$this->content = '';		// clear for the next output. May affect saveMessages()
@@ -119,14 +131,28 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content .= $this->content;	// display Exception
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		$content .= $this->renderProfiler();
+		return $content;
+	}
+
+	function renderTemplate($content) {
+		$v = new View('template.phtml', $this);
+		$v->content = $content;
+		$v->title = strip_tags($this->controller->title);
+		$v->sidebar = $this->showSidebar();
+		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
+		//$v->loginForm = $lf->dispatchAjax();
+		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
 
 	function renderController() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $render;
 	}
 
@@ -190,17 +216,27 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function addJQuery() {
-		$this->footer['jquery.js'] = '
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
-		';
+		if (DEVELOPMENT) {
+			$this->addJS('components/jquery/jquery.min.js');
+		} else {
+			$this->footer['jquery.js'] = '
+				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+				<script>window.jQuery || document.write(\'<script src="components/jquery/jquery.min.js"><\/script>\')</script>
+			';
+		}
 		return $this;
 	}
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
-		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
+		if (DEVELOPMENT) {
+			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
+			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+		} else {
+			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
+			$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
+		}
 		return $this;
 	}
 
@@ -222,6 +258,37 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content = $this->controller->sidebar();
 		}
 		return $content;
+	}
+
+	function renderProfiler() {
+		if (DEVELOPMENT &&
+			isset($GLOBALS['profiler']) &&
+			!$this->request->isAjax() &&
+			//!$this->request->isCLI() &&
+			!in_array(get_class($this->controller), array('Lesser')))
+		{
+			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
+			if ($profiler) {
+				$content = $profiler->renderFloat();
+				if (!$this->request->isCLI()) {
+					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					if ($this->db->queryLog) {
+						$content .= '<div class="profiler">'.new slTable($this->db->queryLog).'</div>';
+					}
+				}
+			} else if (DEVELOPMENT) {
+				$content = TaylorProfiler::renderFloat();
+			}
+		}
+		return $content;
+	}
+
+	function implodeCSS() {
+		return implode("\n", $this->header);
+	}
+
+	function implodeJS() {
+		return implode("\n", $this->footer);
 	}
 
 }

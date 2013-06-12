@@ -1,16 +1,16 @@
 <?php
 
 class HTMLForm {
-	var $action = "";
+	protected $action = "";
 	protected $method = "POST";
 	protected $prefix = array();
 	var $stdout = "";
 	var $enctype = "";
+	var $target = "";
 	var $class = "";
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
-	var $target = '';
 	public $debug = false;
 	var $publickey = "6LeuPQwAAAAAADaepRj6kI13tqxU0rPaLUBtQplC";
 	var $privatekey = "6LeuPQwAAAAAAAuAnYFIF-ZM9yXnkbssaF0rRtkj";
@@ -38,6 +38,10 @@ class HTMLForm {
 
 	function method($method) {
 		$this->method = $method;
+	}
+
+	function target($target) {
+		$this->target = $target;
 	}
 
 	function text($a) {
@@ -95,14 +99,14 @@ class HTMLForm {
 		if ($more) {
 			$a .= " " . $more;
 		}
-		$a .= ">";
+		$a .= ">\n";
 		return $a;
 	}
 
-	function input($name, $value = "", $more = '', $type = 'text') {
+	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
-		$this->stdout .= $this->getInput($type, $name, $value, $more);
+		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
 	}
 
 	function label($for, $text) {
@@ -123,7 +127,7 @@ class HTMLForm {
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "") {
+	function password($name, $value = "", $more = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
 		$this->stdout .= $this->getInput("password", $name, $value, $more);
@@ -147,13 +151,14 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "").' '.$more);
 	}
 
-	function check($name, $value = 1, $checked = false, $more = "") {
+	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
 		$this->stdout .= $this->getInput("checkbox", $name, $value,
 			($checked?'checked="checked"':"").' '.
 			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
-			$more);
+			(is_array($more) ? $this->getAttrHTML($more) : $more)
+		);
 	}
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
@@ -271,12 +276,17 @@ class HTMLForm {
 		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".htmlspecialchars($value)."</textarea>";
 	}
 
-	function submit($value = NULL, $more = "", array $params = array()) {
+	/**
+	 * Changelog: second $more parameter was removed, please user $params instead
+	 * @param null $value
+	 * @param array $params
+	 */
+	function submit($value = NULL, array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
 		$params['name'] = $params['name'] ? $params['name'] : 'submit';
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
-		$this->stdout .= $this->getInput("submit", $params['name'], $value, $more.$this->getAttrHTML($params));
+		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 	}
 
 	function button($innerHTML = NULL, $more = '') {
@@ -303,7 +313,7 @@ class HTMLForm {
 		">\n";
 		if ($this->fieldset) {
 			$a .= "<fieldset ".$this->getAttrHTML($this->fieldsetMore)."><legend>".$this->fieldset."</legend>";
-			$a .= ($this->fieldsetMore);
+			$a .= is_array($this->fieldsetMore) ? implode(' ', $this->fieldsetMore) : $this->fieldsetMore;
 		}
 		return $a;
 	}
@@ -406,24 +416,29 @@ class HTMLForm {
 	}
 
 	/**
+	 * A set of checkboxes in a div.checkarray. Values are provided as an array
 	 * @param $name
 	 * @param array $options
 	 * @param array $selected - only keys are used
 	 * @param string $more
-	 * @param int $height
+	 * @param string $height
 	 * @param int $width
+	 * @see set()
 	 */
-	function checkarray($name, array $options, array $selected, $more = '', $height = 700, $width = 350) {
+	function checkarray($name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray">';
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
+		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
-			$this->stdout .= '<div class="checkline_'.($checked ? 'active' : 'normal').'">';
-			$this->check($name.'][', $value, $checked, $more);
+			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'">';
+			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
+			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
+			$this->check($newName, $value, $checked, $moreStr);
 			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
-			$this->stdout .= '</div>';
+			$this->stdout .= '</label>';
 		}
 		$this->stdout .= '</div>';
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);

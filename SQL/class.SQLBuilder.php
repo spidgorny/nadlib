@@ -310,7 +310,7 @@ class SQLBuilder {
 	function quoteValues(array $a) {
 		$c = array();
 		foreach($a as $key => $b) {
-			$c[] = SQLBuilder::quoteSQL($b);
+			$c[] = SQLBuilder::quoteSQL($b, $key);
 		}
 		return $c;
 	}
@@ -385,7 +385,7 @@ class SQLBuilder {
 		$values = $this->quoteValues($values);
 		$values = implode(", ", $values);
 
-		$q = "insert into ".$this->quoteKey($table)." ($set) values ($values)";
+		$q = "INSERT INTO ".$this->quoteKey($table)."\n($set)\nVALUES ($values)";
 		return $q;
 	}
 
@@ -404,11 +404,11 @@ class SQLBuilder {
 
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
-		$q = "update $table set ";
+		$q = "UPDATE $table\nSET ";
 		$set = $this->quoteLike($columns, '$key = $val');
-		$q .= implode(", ", $set);
+		$q .= implode(",\n", $set);
 		$q .= "\nWHERE\n";
-		$q .= implode(" and ", $this->quoteWhere($where));
+		$q .= implode("\nAND ", $this->quoteWhere($where));
 		return $q;
 	}
 
@@ -454,7 +454,8 @@ class SQLBuilder {
 		return array();
 	}
 
-	function array_intersect($array, $field) {
+	//2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
 
@@ -462,9 +463,14 @@ class SQLBuilder {
 		if (sizeof($array)) {
 			$or = array();
 			foreach ($array as $langID) {
-				$or[] = "'" . $langID . "' = ANY(string_to_array(".$field.", ','))";
+				//2010/09/12: modified according to mantis request 0001812	- if/else condition for 4th argument added
+				if ($conditioner == 'ANY') {
+					$or[] = "'" . $langID . "' = ANY(string_to_array(".$field.", ','))"; // this line is the original one
+				} else {
+					$or[] = "'" . $langID . "' = ".$field." ";
+				}
 			}
-			$content = '('.implode(' OR ', $or).')';
+			$content = '('.implode(' '.$joiner.' ', $or).')';
 		} else {
 			$content = ' 1 = 1 ';
 		}
@@ -611,7 +617,7 @@ class SQLBuilder {
 			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
 			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
 			true);
-		//d($this->db->lastQuery, $this->db->numRows($res), $idField);
+		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
 		if ($idField) {
 			$data = $this->fetchAll($res, 'id_field');
 		} else {

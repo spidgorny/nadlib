@@ -10,7 +10,7 @@ class URL {
 	 */
 	public $components = array();
 
-	public $params;
+	public $params = array();
 
 	public $documentRoot = '';
 
@@ -156,7 +156,7 @@ class URL {
 	function __toString() {
 		$url = $this->buildURL();
 		//debug($this->components, $url);
-		return $url;
+		return $url.'';
 	}
 
 	function getRequest() {

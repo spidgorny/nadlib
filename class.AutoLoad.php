@@ -7,14 +7,31 @@ class AutoLoad {
 	 */
 	var $folders;
 
+	/**
+	 * @var boolean
+	 */
+	public $debug;
+
+	/**
+	 * @var AutoLoad
+	 */
+	private static $instance;
+
 	function __construct() {
 		$this->folders = $this->getFolders();
 		//debug($this->folders);
 	}
 
 	function getFolders() {
-		unset($_SESSION['autoloadCache']);
-		$folders = $_SESSION['autoloadCache'];
+		require_once 'HTTP/class.Request.php';
+		if (!Request::isCLI()) {
+			session_start();
+			//unset($_SESSION['autoloadCache']);
+			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
+		} else {
+			$folders = array();
+		}
+
 		if (!$folders) {
 			require_once 'class.ConfigBase.php';
 			if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
@@ -34,8 +51,15 @@ class AutoLoad {
 		return $folders;
 	}
 
+	public static function getInstance() {
+		return self::$instance;
+	}
+
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if ($class == 'IndexBE') {
+			//debug_pre_print_backtrace();
+		}
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);
 		$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
@@ -44,18 +68,26 @@ class AutoLoad {
 		foreach ($this->folders as $path) {
 			$file = dirname(__FILE__).DIRECTORY_SEPARATOR.
 				$path.DIRECTORY_SEPARATOR.
-				$subFolders.DIRECTORY_SEPARATOR.
+				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';
 			if (file_exists($file)) {
-				$debug[] = $class.' <span style="color: green;">'.$file.'</span><br />';
+				$debugLine = $class.' <span style="color: green;">'.$file.'</span><br />';
 				include_once($file);
-				break;
 			} else {
-				$debug[] = $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
+				$debugLine = $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
+			}
+
+			$debug[] = $debugLine;
+			if ($this->debug) {
+				echo $debugLine;
+			}
+			if (file_exists($file)) {
+				break;
 			}
 		}
 		if (!class_exists($classFile) && !interface_exists($classFile)) {
-			//debug($folders);
+			unset($_SESSION['autoloadCache']);	// just in case
+			//debug($this->folders);
 			if (class_exists('Config')) {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
@@ -65,6 +97,12 @@ class AutoLoad {
 			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
+
+	static function register() {
+		if (!self::$instance) self::$instance = new self();
+		spl_autoload_register(array(self::$instance, 'load'));
+		return self::$instance;
 	}
 
 }
