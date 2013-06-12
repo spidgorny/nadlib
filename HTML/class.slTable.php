@@ -222,18 +222,17 @@ class slTable {
 				$thmore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
-				nodebug(array(
-					$_REQUEST[$this->prefix]['sortBy'],
-					$this->sortBy,
-					$thk,
-				));
-				$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;
-				$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
-				$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
-					'sortBy' => $sortField,
-					'sortOrder' => $sortOrder,
-				)));
-				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
+					$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;	// set to null - don't sort
+					$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
+					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
+						'sortBy' => $sortField,
+						'sortOrder' => $sortOrder,
+					)));
+					$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				} else {
+					$thes2[$thk] = $thvName;
+				}
 			} else {
 				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
 					$link = URL::getCurrent();

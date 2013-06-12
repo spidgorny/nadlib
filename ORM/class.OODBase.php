@@ -74,6 +74,9 @@ abstract class OODBase {
 		} else if (is_scalar($id)) {
 			$this->id = $id;
 			$this->data = $this->fetchFromDB(array($this->idField => $this->id));
+			if (!$this->data) {
+				$this->id = NULL;
+			}
 		} else if (!is_null($id)) {
 			debug($id);
 			throw new Exception(__METHOD__);
@@ -294,7 +297,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return OODBase
+	 * @return self
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
