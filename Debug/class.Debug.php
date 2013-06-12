@@ -139,6 +139,7 @@ class Debug {
 					<td class="view_array">';
 
 				//var_dump($levels); echo '<br/>'."\n";
+				//echo $levels, ': null: '.is_null($levels)."<br />\n";
 				if (is_null($levels) || $levels > 0) {
 					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
 				}

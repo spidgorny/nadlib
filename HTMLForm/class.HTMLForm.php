@@ -425,7 +425,7 @@ class HTMLForm {
 	 * @param int $width
 	 * @see set()
 	 */
-	function checkarray($name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
+	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
 		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
