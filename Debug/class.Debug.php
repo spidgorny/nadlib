@@ -63,7 +63,8 @@ class Debug {
 			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
 		}
 		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff().'<br />';
+		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
+		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
 
 		$content = '
 			<div class="debug" style="

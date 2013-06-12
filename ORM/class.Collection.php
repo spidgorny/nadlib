@@ -11,7 +11,7 @@ class Collection {
 	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
-	protected $table = __CLASS__;
+	public $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
 	protected $parentField = 'pid';
@@ -161,6 +161,7 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
+		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;

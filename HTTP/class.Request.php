@@ -153,6 +153,12 @@ class Request {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
 	}
 
+	function getTrimArray($name) {
+		$list = $this->getArray($name);
+		$list = array_map('trim', $list);
+		return $list;
+	}
+
 	function getSubRequestByPath(array $name) {
 		$current = $this;
 		reset($name);
