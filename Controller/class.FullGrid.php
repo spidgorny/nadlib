@@ -106,6 +106,14 @@ abstract class FullGrid extends Grid {
 					in_array('HTMLFormCollection', class_implements($autoClass))) {
 					$type = new $autoClass();
 					$options = NULL;
+				} elseif ($k['tf']) {	// boolean
+					$type = 'select';
+					$stv = new slTableValue('', array());
+					$options = array(
+						't' => $stv->SLTABLE_IMG_CHECK,
+						'f' => $stv->SLTABLE_IMG_CROSS,
+					);
+					//debug($key, $this->filter[$key]);
 				} else {
 					$type = 'select';
 					$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
