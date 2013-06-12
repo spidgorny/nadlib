@@ -3,6 +3,7 @@
 class PlainSessionUser extends User {
 
 	function __construct() {
+		debug('session_start');
 		session_start();
 		parent::__construct();
 	}

@@ -45,7 +45,11 @@ class ProgressBar {
 			</div>
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
-		Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+		if (class_exists('Index')) {
+			Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+		} else {
+			$content .= '<link rel="stylesheet" href="nadlib/CSS/ProgressBar.less" />';
+		}
 		return $content;
 	}
 

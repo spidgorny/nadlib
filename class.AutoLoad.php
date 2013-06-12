@@ -7,13 +7,26 @@ class AutoLoad {
 	 */
 	var $folders;
 
-	function __construct() {
-		$this->folders = $this->getFolders();
+	/**
+	 * @var bool
+	 */
+	var $useCookies = true;
+
+	/**
+	 * @var AutoLoad
+	 */
+	static $instance;
+
+	protected function __construct() {
+		//$this->folders = $this->getFolders();
 		//debug($this->folders);
 	}
 
 	function getFolders() {
-		session_start();
+		if ($this->useCookies) {
+			debug('session_start');
+			session_start();
+		}
 		//unset($_SESSION['autoloadCache']);
 		$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
 		if (!$folders) {
@@ -72,9 +85,19 @@ class AutoLoad {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * @return AutoLoad
+	 */
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
 	static function register() {
-		static $instance;
-		if (!$instance) $instance = new self();
+		$instance = self::getInstance();
+		self::$instance->folders = self::$instance->getFolders();
 		spl_autoload_register(array($instance, 'load'));
 	}
 

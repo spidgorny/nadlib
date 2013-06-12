@@ -20,6 +20,7 @@ class BEUser extends UserBase {
 	}
 
 	function try2login() {
+		debug('session_start');
 		session_start();
 	}
 
