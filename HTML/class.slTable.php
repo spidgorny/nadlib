@@ -62,6 +62,9 @@ class slTable {
 		}
 	}
 
+	/**
+	 * @deprecated - use addRowData
+	 */
 	function addRow() {
 		$this->iRow++;
 		$this->iCol = 0;

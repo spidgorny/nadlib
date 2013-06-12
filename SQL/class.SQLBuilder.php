@@ -617,7 +617,7 @@ class SQLBuilder {
 			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
 			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
 			true);
-		//d($this->db->lastQuery, $this->db->numRows($res), $idField);
+		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
 		if ($idField) {
 			$data = $this->fetchAll($res, 'id_field');
 		} else {

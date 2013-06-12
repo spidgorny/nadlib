@@ -131,7 +131,7 @@ class FlexiTable extends OODBase {
 					$this->$field = @simplexml_load_string($uncompressed);
 					unset($this->data[$field]);
 					$info['unxml'] = 'true';
-				} else if ($this->data[$field]{0} == '{') {
+				} elseif ($this->data[$field]{0} == '{') {
 					$this->$field = json_decode($uncompressed, false);	// make it look like SimpleXML
 					unset($this->data[$field]);
 					$info['unjson'] = 'true';

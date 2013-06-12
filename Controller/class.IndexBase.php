@@ -88,6 +88,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 	}
 
+	/**
+	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
+	 * Will call postInit() of the controller if available.
+	 * @param $slug
+	 * @throws Exception
+	 */
 	protected function loadController($slug) {
 		$slugParts = explode('/', $slug);
 		$class = end($slugParts);	// again, because __autoload need the full path
@@ -99,7 +105,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$this->controller->postInit();
 			}
 		} else {
-			$exception = 'Class '.$class.' not found.';
+			//debug($_SESSION['autoloadCache']);
+			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
 			throw new Exception($exception);
 		}
 	}
@@ -122,8 +129,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			$content .= $this->content;	// display Exception
 		}
-		$content .= $this->renderProfiler();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		$content .= $this->renderProfiler();
 		return $content;
 	}
 
@@ -139,10 +146,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderController() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $render;
 	}
 
@@ -206,18 +215,27 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function addJQuery() {
-		$this->footer['jquery.js'] = '
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-1.9.1.min.js"><\/script>\')</script>
-		';
+		if (DEVELOPMENT) {
+			$this->addJS('components/jquery/jquery.min.js');
+		} else {
+			$this->footer['jquery.js'] = '
+				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+				<script>window.jQuery || document.write(\'<script src="components/jquery/jquery.min.js"><\/script>\')</script>
+			';
+		}
 		return $this;
 	}
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		$this->footer['jqueryui.js'] = ' <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
-		<script>window.jQueryUI || document.write(\'<script src="js/vendor/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.min.js"><\/script>\')</script>';
-		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
+		if (DEVELOPMENT) {
+			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
+			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+		} else {
+			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
+			$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
+		}
 		return $this;
 	}
 
@@ -245,18 +263,31 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (DEVELOPMENT &&
 			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
-			!$this->request->isCLI() &&
+			//!$this->request->isCLI() &&
 			!in_array(get_class($this->controller), array('Lesser')))
 		{
 			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				$content = $profiler->renderFloat();
-				$content .= $profiler->printTimers(true);
+				if (!$this->request->isCLI()) {
+					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					if ($this->db->queryLog) {
+						$content .= '<div class="profiler">'.new slTable($this->db->queryLog).'</div>';
+					}
+				}
 			} else if (DEVELOPMENT) {
 				$content = TaylorProfiler::renderFloat();
 			}
 		}
 		return $content;
+	}
+
+	function implodeCSS() {
+		return implode("\n", $this->header);
+	}
+
+	function implodeJS() {
+		return implode("\n", $this->footer);
 	}
 
 }
