@@ -24,7 +24,9 @@ class slTableValue {
 		}
 		$this->value = $value;
 		$this->desc += (array)$desc;
-		$this->db = Config::getInstance()->db;
+		if (class_exists('Config')) {
+			$this->db = Config::getInstance()->db;
+		}
 	}
 
 /*	function render() {
