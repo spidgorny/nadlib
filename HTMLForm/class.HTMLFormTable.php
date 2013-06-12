@@ -139,6 +139,10 @@ class HTMLFormTable extends HTMLForm {
 				case "hide":
 					$this->hidden($fieldName, $fieldValue, ($desc['id'] ? ' id="'.$desc['id'].'"' : ''));
 				break;
+				case 'hiddenArray':
+					$name = is_array($fieldName) ? end($fieldName) : $fieldName;
+					$this->formHideArray(array($name => $fieldValue));
+				break;
 				case 'html':
 					$this->text($desc['code']);
 				break;
@@ -151,7 +155,7 @@ class HTMLFormTable extends HTMLForm {
 				case 'submit':
 					$desc['name'] = $desc['name'] ? $desc['name'] : $fieldName;
 					//debug($desc);
-					$this->submit($desc['value'], $desc['more'], $desc);
+					$this->submit($desc['value'], $desc);
 				break;
 				case 'ajaxTreeInput':
 					//debug($this->getName($fieldName, '', TRUE));
@@ -174,6 +178,9 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case 'set':
 					$this->set($fieldName, $fieldValue, $desc);
+				break;
+				case 'checkarray':
+					$this->checkarray($fieldName, $desc['set'], $fieldValue, $desc);
 				break;
 				case 'radioset':
 					$this->radioset($fieldName, $fieldValue, $desc);
@@ -206,8 +213,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						($desc['readonly'] ? ' readonly="readonly"' : '').
-						$desc['class'], $type
+						($desc['readonly'] ? ' readonly="readonly"' : '')
+						, $type, $desc['class']
 					);
 				break;
 			}
@@ -391,7 +398,7 @@ class HTMLFormTable extends HTMLForm {
 				$subForm = $fieldDesc; /** @var $subForm HTMLFormTable */
 				$subForm->showForm();
 				$this->stdout .= '<tr><td colspan="2">'.$subForm->getBuffer().'</td></tr>';
-			} else if (is_array($fieldDesc) && $sType != 'hidden') {
+			} else if (is_array($fieldDesc) && !in_array($sType, array('hidden', 'hiddenArray'))) {
 				if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
 					$this->stdout .= "<tr ".$this->getAttrHTML($fieldDesc['TRmore']).">";
 				}
@@ -416,7 +423,7 @@ class HTMLFormTable extends HTMLForm {
 				if (!$fieldDesc['horisontal']) {
 					$this->stdout .= "</tr>";
 				}
-			} else if ($sType == 'hidden') { // hidden
+			} else if (in_array($sType, array('hidden', 'hiddenArray'))) { // hidden
 				//debug(array($formData, $path, $fieldDesc));
 				$this->showCell($path, $fieldDesc);
 			}
@@ -468,7 +475,9 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Fills the $desc array with values from $assoc.
-	 * Understands $assoc in both single-array way $assoc['key'] = $value and as $assoc['key']['value'] = $value.
+	 * Understands $assoc in both single-array way $assoc['key'] = $value
+	 * and as $assoc['key']['value'] = $value.
+	 * Non-static due to $this->withValue and $this->formatDate
 	 *
 	 * @param	array	Structure of the HTMLFormTable
 	 * @param	array	Values in one of the supported formats.
@@ -496,7 +505,7 @@ class HTMLFormTable extends HTMLForm {
 				}
 
 				if ($desc[$key]['dependant']) {
-					$desc[$key]['dependant'] = HTMLFormTable::fillValues($desc[$key]['dependant'], $assoc);
+					$desc[$key]['dependant'] = $this->fillValues($desc[$key]['dependant'], $assoc);
 					//t3lib_div::debug($desc[$key]['dependant']);
 				}
 			}
@@ -546,7 +555,14 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function fetchSelectionOptions(array $desc) {
+	/**
+	 * Retrieves data from DB
+	 * Provide either 'options' assoc array
+	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
+	 * @param array $desc
+	 * @return array
+	 */
+	static function fetchSelectionOptions(array $desc) {
 		if ($desc['from'] && $desc['title']) {
 			//debugster($desc);
 			$options = Config::getInstance()->qb->getTableOptions($desc['from'],
@@ -564,14 +580,23 @@ class HTMLFormTable extends HTMLForm {
 		}
 		if (isset($desc['null'])) {
 			$options = array(NULL => "---") + $options;
-			//Debug::debug_args($options, $desc['options']);
 		}
+		//Debug::debug_args($options, $desc['options']);
 		return $options;
 	}
 
 	function validate() {
 		$this->validator = new HTMLFormValidate($this->desc);
 		return $this->validator->validate();
+	}
+
+	/**
+	 * Commented as it makes double output
+	 * @return string
+	 */
+	function __toString() {
+		//$this->showForm();
+		return parent::__toString();
 	}
 
 }

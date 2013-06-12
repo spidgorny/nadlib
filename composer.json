@@ -1,12 +1,24 @@
 {
     "name": "spidgorny/nadlib",
     "require": {
-		"php": ">=5.3.8",
-        "sharom/twitter-bootstrap": "dev-master"
+		"php": ">=5.3.8"
     },
     "require_bak": {
+		"pdepend/pdepend": "1.1.0",
+		"sharom/twitter-bootstrap": "dev-master",
+		"michelf/php-markdown": "*",
         "twitter/bootstrap": "master"
     },
+	"autoload": {
+		"classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
+		"files": ["init.php"]
+	},
+	"repositories_bak": [
+		{
+		"type": "vcs",
+		"url": "https://github.com/michelf/php-markdown/"
+		}
+	],
 	"repositories": [
         {
             "type": "package",

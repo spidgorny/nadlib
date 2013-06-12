@@ -13,8 +13,8 @@ class HomeBE extends AppControllerBE {
 		//debug($auth_methods);
 
 		$cmd = 'hg log -l1';
-		$res = exec($cmd);
-		debug($res);
+		exec($cmd, $output);
+		$content .= implode('<br />', $output);
 
 		return $content;
 	}

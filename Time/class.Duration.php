@@ -37,12 +37,12 @@ class Duration extends Time {
 		}
 	}
 
-	function format() {
+	function format($rules) {
 		die(__METHOD__.' - don\'t use.');
 	}
 
-	function getTime() {
-		return gmdate('H:i:s', $this->time);
+	function getTime($format = 'H:i:s') {
+		return gmdate($format, $this->time);
 	}
 
 	function nice() {
@@ -62,12 +62,12 @@ class Duration extends Time {
 
 	/**
 	 * Parses the human string like '24h 10m'
-	 * @param type $string
+	 * @param string $string
 	 * @return \Duration
 	 */
 	static function fromHuman($string) {
 		$total = 0;
-		$parts = self::trimExplode($string, ' ');
+		$parts = trimExplode(' ', $string);
 		foreach ($parts as $p) {
 			$value = intval($p);
 			$uom = str_replace($value, '', $p);
@@ -233,13 +233,24 @@ class Duration extends Time {
         return $str;
     }
 
-	function trimExplode($str, $exp = ',') {
-		$items = explode($exp, $str);
-		foreach ($items as &$item) {
-			$item = trim($item);
+	function less($sDuration) {
+		if (is_string($sDuration)) {
+			return $this->time < strtotime($sDuration, 0);
+		} else if ($sDuration instanceof Time) {
+			return $this->earlier($sDuration);
+		} else {
+			throw new Exception(__METHOD__.'#'.__LINE__);
 		}
-		$items = array_filter($items);
-		return $items;
+	}
+
+	function more($sDuration) {
+		if (is_string($sDuration)) {
+			return $this->time > strtotime($sDuration, 0);
+		} else if ($sDuration instanceof Time) {
+			return $this->later($sDuration);
+		} else {
+			throw new Exception(__METHOD__.'#'.__LINE__);
+		}
 	}
 
 }

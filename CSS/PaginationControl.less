@@ -1,10 +1,19 @@
 .paginationControl {
-	margin-bottom:1em;
-	margin-top:1em;
-
-	li {
-		display: inline;
+	margin-bottom: 1em;
+	margin-top: 1em;
+	display: inline-block;
+	ul {
 		margin: 0;
+		white-space: nowrap;
+		display: inline-block;
+		vertical-align: top;
+		li {
+			display: inline;
+			margin: 0;
+		}
+	}
+	.pageSize {
+		display: inline-block;
 	}
 }
 .paginationControl a, .paginationControl span.disabled, .paginationControl span.active {
@@ -36,10 +45,15 @@
 	background: #DDDDDD;
 	text-decoration:none;
 }
-.paginationControl form {
-	display: inline-block;
-	margin: 0;
-	padding: 0;
+.paginationControl {
+	form {
+		display: inline-block;
+		margin: 0;
+		padding: 0;
+		input[type="text"] {
+			min-width: 3em;
+		}
+	}
 }
 .paginationControl div.page {
 	display: inline-block;

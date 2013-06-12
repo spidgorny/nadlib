@@ -11,7 +11,7 @@ class TYPO3PageCollection extends Collection {
 		'doktype' => 1,
 	);
 
-	function objectify() {
+	function objectify($class = '', $byInstance = false) {
 		parent::objectify('TYPO3Page', true);
 	}
 

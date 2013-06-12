@@ -1,7 +1,10 @@
 <?php
 
 abstract class Scaffold extends AppController {
-	protected $table = 'sometable';
+	protected $table = 'sometable in Scaffold';
+
+	/** @var HTMLFormTable */
+	protected $form;
 
 	/**
 	 * Name of the form fields: scaffold[asd]
@@ -10,7 +13,7 @@ abstract class Scaffold extends AppController {
 
 	/**
 	 * @var array
-	 * @deprecated
+	 * @deprecated	- why? Use Collection instead?
 	 */
 	protected $thes = array();
 	protected $addButton = 'Add';
@@ -23,9 +26,21 @@ abstract class Scaffold extends AppController {
 	 * @var OODBase
 	 */
 	protected $model;
-	protected $formMore = '';				// extra attributes for the form like onSubmit
-	protected $id; 				// edited element
-	protected $data;
+
+	/**
+	 * extra attributes for the form like onSubmit
+	 * @var string
+	 */
+	protected $formMore = '';
+
+	/**
+	 * edited element
+	 * @var int
+	 */
+	protected $id;
+
+	public $data;
+
 	protected $desc;
 
 	protected $editIcon = '<img src="img/stock-edit-16.png"/>';
@@ -45,6 +60,7 @@ abstract class Scaffold extends AppController {
 		}
 		$this->setModel();	// uses $this->id
 
+		$this->form = new HTMLFormTable();
 		if ($this->request->isSubmit()) {
 			$this->data = $this->request->getArray($this->formPrefix);
 		} else {
@@ -169,9 +185,10 @@ abstract class Scaffold extends AppController {
 	 * Return nothing or false to indicate success.
 	 * $this->insertRecord should return nothing?!?
 	 *
-	 * @param unknown_type $action
-	 * @param unknown_type $id
-	 * @return unknown
+	 * @param string $action
+	 * @param integer $id
+	 * @throws Exception
+	 * @return string
 	 */
 	public function showPerform($action, $id = NULL) {
 		$content = '';
@@ -234,23 +251,22 @@ abstract class Scaffold extends AppController {
 	/**
 	 * Default is add action, override to update
 	 *
-	 * @param array $desc
-	 * @param unknown_type $action
-	 * @return unknown
+	 * @param string $action
+	 * @internal param array $desc
+	 * @return HTMLFormTable
 	 */
 	protected function getForm($action = 'add') {
-		$f = new HTMLFormTable();
-		$f->method('POST');
-		$f->hidden('c', get_class($this));
-		$f->hidden('pageType', get_class($this));
-		$f->hidden('action', $action);
-		$f->hidden('ajax', TRUE);
-		$f->prefix($this->formPrefix);
+		$this->form->method('POST');
+		$this->form->hidden('c', get_class($this));
+		$this->form->hidden('pageType', get_class($this));
+		$this->form->hidden('action', $action);
+		$this->form->hidden('ajax', TRUE);
+		$this->form->prefix($this->formPrefix);
 		//debug($this->desc);
-		$f->showForm($this->desc);
-		//$f->submit($this->addButton);
-		$f->formMore = $this->formMore;
-		return $f;
+		$this->form->showForm($this->desc);
+		//$this->form->submit($this->addButton);
+		$this->form->formMore = $this->formMore;
+		return $this->form;
 	}
 
 	/**
