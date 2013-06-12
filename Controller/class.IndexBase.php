@@ -50,6 +50,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = Request::getInstance();
+		session_name(basename(dirname(dirname(dirname(__FILE__)))));
 		session_start();
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
