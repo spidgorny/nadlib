@@ -34,7 +34,6 @@ class AutoLoad {
 				debug('session_start');
 				session_start();
 			}
-		}
 			//unset($_SESSION['autoloadCache']);
 			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
 		} else {
@@ -58,10 +57,6 @@ class AutoLoad {
 			$_SESSION['autoloadCache'] = $folders;
 		}
 		return $folders;
-	}
-
-	public static function getInstance() {
-		return self::$instance;
 	}
 
 	function load($class) {
