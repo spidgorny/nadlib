@@ -194,7 +194,7 @@ abstract class Controller {
 			: (self::$instance[$static] = new $static());
 	}
 
-	function redirect($url) {
+	/*function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
 				setTimeout(function() {
@@ -204,7 +204,7 @@ abstract class Controller {
 		} else {
 			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
 		}
-	}
+	}*/
 
 	function render() {
 		$view = new View(get_class($this).'.phtml', $this);

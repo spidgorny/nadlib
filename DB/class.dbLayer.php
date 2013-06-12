@@ -312,6 +312,9 @@ class dbLayer {
 			$result = $this->perform($result);
 		}
 		$res = pg_fetch_all($result);
+		if ($_REQUEST['d'] == 'q') {
+			debug($this->lastQuery, sizeof($res));
+		}
 		if ($res && $key) {
 			$res = ArrayPlus::create($res)->IDalize($key)->getData();
 		}
@@ -639,5 +642,19 @@ class dbLayer {
 		return $debug;
 	}
 
-}
+	/**
+	 *
+	 * @param type $table
+	 * @param array $where
+	 * @param string $order
+	 * @param string $selectPlus
+	 * @param $key
+	 * @return table
+	 */
+	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key) {
+		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
+		$rows = $this->fetchAll($res, $key);
+		return $rows;
+	}
 
+}
