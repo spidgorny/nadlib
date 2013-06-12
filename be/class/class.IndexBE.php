@@ -16,12 +16,26 @@ class IndexBE extends IndexBase {
 	}
 
 	function renderController() {
-		$c = get_class($this->controller);
-		if ($c::$public || $this->user->isAuth()) {
+		$c = get_class($this->controller);	/** @var $c Controller */
+		//$public = $c::$public;	// Parse error:  syntax error, unexpected T_PAAMAYIM_NEKUDOTAYIM
+		$vars = get_class_vars($c);
+		$public = $vars['public'];
+		if ($public || $this->user->isAuth()) {
 			$content = parent::renderController();
 		} else {
 			throw new LoginException('Login first');
 		}
+		return $content;
+	}
+
+	function renderTemplate($content) {
+		$v = new View('template.phtml', $this);
+		$v->content = $content;
+		$v->title = strip_tags($this->controller->title);
+		$v->sidebar = $this->showSidebar();
+		$lf = new LoginForm('inlineForm');	// too specific - in subclass
+		$v->loginForm = $lf->dispatchAjax();
+		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
 
@@ -31,11 +45,15 @@ class IndexBE extends IndexBase {
 			'ServerStat' => 'Server Stat',
 			'ServerData' => 'Server Data',
 			'Session' => 'Session',
+			'Cookies' => 'Cookies',
 			'ConfigView' => 'config.yaml',
 			'Localize' => 'Localize',
 			'PHPInfo' => 'phpinfo()',
 			'Documentation' => 'Documentation',
 			'TestNadlib' => 'TestNadlib',
+			'AlterDB' => 'Alter DB',
+			'AlterCharset' => 'Alter Charset',
+			'JumpFrontend' => '<- Frontend',
 		);
 
 		$c = Spyc::YAMLLoad('../../class/config.yaml');

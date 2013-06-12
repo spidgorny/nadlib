@@ -8,12 +8,13 @@ class ProgressBar {
 	var $textid;
 	var $decimals = 1;
 	var $cli = false;
+	var $destruct100 = true;
 
 	function __construct($percentDone = 0) {
-		$this->pbid = 'pb';
-		$this->pbarid = 'progress-bar';
-		$this->tbarid = 'transparent-bar';
-		$this->textid = 'pb_text';
+		$this->pbid = 'pb-'.uniqid();
+		$this->pbarid = 'progress-bar-'.$this->pbid;
+		$this->tbarid = 'transparent-bar-'.$this->pbid;
+		$this->textid = 'pb_text-'.$this->pbid;
 		$this->percentDone = $percentDone;
 		$this->cli = Request::isCLI();
 	}
@@ -28,7 +29,7 @@ class ProgressBar {
 
 	function getCSS() {
 		$l = new lessc();
-		$css = $l->compileFile('nadlib/CSS/ProgressBar.less');
+		$css = $l->compileFile(dirname(__FILE__).'/../CSS/ProgressBar.less');
 		return '<style>'.$css.'</style>';
 	}
 
@@ -77,14 +78,41 @@ class ProgressBar {
 		}
 	}
 
-	function flush() {
+	function flush($ob_flush = false) {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
-		//ob_end_flush();
+		if ($ob_flush) {
+			ob_end_flush();
+		}
 		flush();
 	}
 
 	function __destruct() {
-		$this->setProgressBarProgress(100);
+		if ($this->destruct100) {
+			$this->setProgressBarProgress(100);
+		}
+	}
+
+	function getImage($p) {
+		return '<div style="display: inline-block; width: 100%; text-align: center; wrap: nowrap;">'.
+			number_format($p, $this->decimals).'&nbsp;%&nbsp;
+			<img src="nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+		</div>';
+	}
+
+	function getBackground($p, $width = '100px') {
+		return '<div style="
+			display: inline-block;
+			width: '.$width.';
+			text-align: center;
+			wrap: nowrap;
+			background: url(nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
+	}
+
+	public function setTitle() {
+		print '
+		<script>
+			document.title = "'.number_format($this->percentDone, 3, '.', '').'%";
+		</script>';
 	}
 
 }

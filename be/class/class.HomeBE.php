@@ -12,6 +12,10 @@ class HomeBE extends AppControllerBE {
 		//$auth_methods = ssh2_auth_none($connection, 'ec2-user');
 		//debug($auth_methods);
 
+		$cmd = 'hg log -l1';
+		exec($cmd, $output);
+		$content .= implode('<br />', $output);
+
 		return $content;
 	}
 
