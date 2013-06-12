@@ -21,11 +21,15 @@ class ProgressBar {
 	function render() {
 		if (!$this->cli) {
 			print($this->getContent());
-			$l = new lessc();
-			$css = $l->compileFile('nadlib/CSS/ProgressBar.less');
-			print '<style>'.$css.'</style>';
+			print $this->getCSS();
 			$this->flush();
 		}
+	}
+
+	function getCSS() {
+		$l = new lessc();
+		$css = $l->compileFile('nadlib/CSS/ProgressBar.less');
+		return '<style>'.$css.'</style>';
 	}
 
 	function __toString() {
@@ -44,7 +48,9 @@ class ProgressBar {
 			</div>
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
-		Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+		if (class_exists('Index')) {
+			Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+		}
 		return $content;
 	}
 
