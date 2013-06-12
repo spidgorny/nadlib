@@ -115,4 +115,11 @@ class ProgressBar {
 		</script>';
 	}
 
+	public function hide() {
+		echo '<script>
+			var el = document.getElementById("'.$this->pbid.'");
+			el.parentNode.removeChild(el);
+		</script>';
+	}
+
 }

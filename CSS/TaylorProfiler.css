@@ -13,3 +13,10 @@
     width: auto;
     padding: 0.5em;
 }
+.profiler {
+	opacity: 0.75;
+	background-color: #22221F;
+	margin: 1em;
+	padding: 1em;
+	color: white;
+}
