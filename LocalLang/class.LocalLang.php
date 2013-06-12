@@ -89,6 +89,8 @@ abstract class LocalLang {
 				$trans = $this->getEditLinkMaybe($text, $text);
 			}
 		} else {
+			//debug($this->ll);
+			//debug($text, $this->ll[$text], $this->ll['E-Mail']);
 			$this->saveMissingMessage($text);
 			$trans = $this->getEditLinkMaybe($text);
 		}
@@ -167,7 +169,7 @@ abstract class LocalLang {
 	function showLangSelectionDropDown() {
 		$options = '';
 		foreach ($this->possibleLangs as $code) {
-			$selected = $this->lang == $code ? 'selected="selected"' : '';
+			$selected = $this->lang == $code ? ' selected="selected"' : '';
 			$options .= '<option value="'.$code.'"'.$selected.'>'.__($code).'</option>';
 		}
 		$content = '

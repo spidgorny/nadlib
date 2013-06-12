@@ -85,7 +85,8 @@ class HTMLFormSlicer {
 		$content = '';
 		foreach ($descList as $key => $desc) {
 			if ($desc['error']) {
-				$content .= '<li>'.($desc['label'] ? $desc['label'] : $key) . ': '. $desc['error'].'</li>';
+				//$content .= '<li>'.($desc['label'] ? $desc['label'] : $key) . ': '. $desc['error'].'</li>';
+				$content .= '<li>'. $desc['error'].'</li>';
 			}
 			if ($desc['dependant']) {
 				$content .= $this->getErrorItemsFromDesc($desc['dependant']);

@@ -22,12 +22,13 @@
  *
  */
 
-require_once('class.IteratorArrayAccess.php');
+$tmp = error_reporting();
+error_reporting(error_reporting() & ~E_STRICT);	// Strict Standards</b>:  Declaration of ArrayPlusReference::create() should be compatible with ArrayPlus::create(array $data = Array)
 
 class ArrayPlus extends IteratorArrayAccess implements Countable {
 
-	function __construct(array $a = array()) {
-		$this->data = $a;
+	function __construct(array $array = array()) {
+		$this->data = $array;
 	}
 
 	/**
@@ -148,6 +149,12 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
     	}
     }
 
+    /**
+     * Chainable
+     *
+     * @param array $data
+     * @return unknown
+     */
     function setData(array $data) {
     	$this->data = $data;
     	return $this;
@@ -157,13 +164,13 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $this->data;
 	}
 
-    function getAssoc($key, $val) {
-    	$ret = array();
-    	foreach ($this->data as $row) {
-    		$ret[$row[$key]] = $row[$val];
-    	}
-    	return $ret;
-    }
+	function getAssoc($key, $val) {
+		$ret = array();
+		foreach ($this->data as $row) {
+			$ret[$row[$key]] = $row[$val];
+		}
+		return $ret;
+	}
 
 	public function trim() {
 		foreach ($this->data as &$value) {
@@ -241,6 +248,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			if ($val instanceof Recursive) {
 				$sub = new ArrayPlus($val->getChildren());
 				$find = $sub->find($needle);
+				//$find = $val->findPath($)
 				if ($find) {
 					//debug($needle, $key, $find);
 					array_unshift($find, $key);
@@ -399,3 +407,5 @@ class ArrayPlusReference extends ArrayPlus {
 function APR(array &$a = array()) {
 	return ArrayPlusReference::create($a);
 }
+
+error_reporting($tmp);

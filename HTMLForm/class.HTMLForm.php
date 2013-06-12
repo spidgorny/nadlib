@@ -1,16 +1,16 @@
 <?php
 
 class HTMLForm {
-	var $action = "";
+	protected $action = "";
 	protected $method = "POST";
 	protected $prefix = array();
 	var $stdout = "";
 	var $enctype = "";
+	var $target = "";
 	var $class = "";
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
-	var $target = '';
 	public $debug = false;
 	var $publickey = "6LeuPQwAAAAAADaepRj6kI13tqxU0rPaLUBtQplC";
 	var $privatekey = "6LeuPQwAAAAAAAuAnYFIF-ZM9yXnkbssaF0rRtkj";
@@ -19,14 +19,17 @@ class HTMLForm {
 		$this->action = $action;
 	}
 
-	function formHideArray($name, array $ar) {
-		$ret = '';
+	function formHideArray(array $ar) {
 		foreach($ar as $k => $a) {
-			$a = htmlspecialchars($a, ENT_QUOTES);
-			$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value=\"$a\">";
+			if (is_array($a)) {
+				$this->prefix[] = $k;
+				$this->formHideArray($a);
+				array_pop($this->prefix);
+			} else {
+				//$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value='$a'>";
+				$this->hidden($k, $a);
+			}
 		}
-		$this->stdout .= $ret;
-		return $ret;
 	}
 
 	function action($action) {
@@ -35,6 +38,10 @@ class HTMLForm {
 
 	function method($method) {
 		$this->method = $method;
+	}
+
+	function target($target) {
+		$this->target = $target;
 	}
 
 	function text($a) {
@@ -77,12 +84,29 @@ class HTMLForm {
 		if (!$onlyValue) {
 			$a = ' name="'.$a.'"';
 		}
+		//debug($this->prefix, $name, $a);
 		return $a;
 	}
 
-	function input($name, $value = "", $more = '', $type = 'text') {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
+	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
+		$a = '';
+		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
+		$a .= $this->getName($name, $namePlus);
+		if ($value || $value === 0) {
+			$value = htmlspecialchars($value, ENT_QUOTES);
+			$a .= ' value="'.$value.'"';
+		}
+		if ($more) {
+			$a .= " " . $more;
+		}
+		$a .= ">\n";
+		return $a;
+	}
+
+	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
+		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
 	}
 
 	function label($for, $text) {
@@ -103,24 +127,38 @@ class HTMLForm {
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
+	function password($name, $value = "", $more = '') {
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
+		$this->stdout .= $this->getInput("password", $name, $value, $more);
 	}
 
 	function hidden($name, $value, $more = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
+		$this->stdout .= $this->getInput("hidden", $name, $value, $more);
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $value
+	 * @param strting $checked		- must be value
+	 * @param string $more
+	 */
 	function radio($name, $value, $checked, $more = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." $more>";
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." $more>";
+		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "").' '.$more);
 	}
 
-	function check($name, $value = 1, $checked = false, $more = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
+	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
+		$this->stdout .= $this->getInput("checkbox", $name, $value,
+			($checked?'checked="checked"':"").' '.
+			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
+			(is_array($more) ? $this->getAttrHTML($more) : $more)
+		);
 	}
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
@@ -145,7 +183,9 @@ class HTMLForm {
 	}
 
 	function file($name, array $desc = array()) {
-		$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
+		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
+		$this->stdout .= $this->getInput("file", $name, '', $desc['more']);
+		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
 
@@ -165,7 +205,7 @@ class HTMLForm {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
-		$this->renderSelectionOptions($aOptions, $default, $desc);
+		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
 	}
 
@@ -175,9 +215,11 @@ class HTMLForm {
 	 * @param array $desc
 	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
 	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 * @return string
 	 */
-	function renderSelectionOptions(array $aOptions, $default, array $desc) {
+	function getSelectionOptions(array $aOptions, $default, array $desc = array()) {
 		//Debug::debug_args($aOptions);
+		$content = '';
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
@@ -196,22 +238,23 @@ class HTMLForm {
 				}
 			}
 			if ($option instanceof HTMLTag) {
-				$this->stdout .= $option;
+				$content .= $option;
 			} else if ($option instanceof Recursive) {
-				$this->stdout .= '<optgroup label="'.$option.'">';
-				$this->renderSelectionOptions($option->getChildren(), $default, $desc);
-				$this->stdout .= '</optgroup>';
+				$content .= '<optgroup label="'.$option.'">';
+				$content .= $this->getSelectionOptions($option->getChildren(), $default, $desc);
+				$content .= '</optgroup>';
 			} else {
-				$this->stdout .= "<option value=\"$value\"";
+				$content .= "<option value=\"$value\"";
 				if ($selected) {
-					$this->stdout .= " selected";
+					$content .= " selected";
 				}
 				if (isset($desc['classAsValuePrefix'])) {
-					$this->stdout .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
+					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
-				$this->stdout .= ">$option</option>\n";
+				$content .= ">$option</option>\n";
 			}
 		}
+		return $content;
 	}
 
 	function date($name, $value) {
@@ -233,10 +276,17 @@ class HTMLForm {
 		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".htmlspecialchars($value)."</textarea>";
 	}
 
-	function submit($value = NULL, $more = "", array $params = array()) {
+	/**
+	 * Changelog: second $more parameter was removed, please user $params instead
+	 * @param null $value
+	 * @param array $params
+	 */
+	function submit($value = NULL, array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
-		$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
-		$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
+		$params['name'] = $params['name'] ? $params['name'] : 'submit';
+		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
+		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
+		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 	}
 
 	function button($innerHTML = NULL, $more = '') {
@@ -263,7 +313,7 @@ class HTMLForm {
 		">\n";
 		if ($this->fieldset) {
 			$a .= "<fieldset ".$this->getAttrHTML($this->fieldsetMore)."><legend>".$this->fieldset."</legend>";
-			$a .= ($this->fieldsetMore);
+			$a .= is_array($this->fieldsetMore) ? implode(' ', $this->fieldsetMore) : $this->fieldsetMore;
 		}
 		return $a;
 	}
@@ -292,8 +342,9 @@ class HTMLForm {
 	function combo($fieldName, array $desc) {
 		if ($desc['table']) {
 			// TODO: replace with SQLBuilder->getTableOptions()
-			$options = $GLOBALS['db']->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
-			$options = $GLOBALS['db']->IDalize($options, 'value', 'value');
+			$db = Config::getInstance()->db;
+			$options = $db->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
+			$options = $db->IDalize($options, 'value', 'value');
 		} else {
 			$options = $desc['options'];
 		}
@@ -365,24 +416,29 @@ class HTMLForm {
 	}
 
 	/**
+	 * A set of checkboxes in a div.checkarray. Values are provided as an array
 	 * @param $name
 	 * @param array $options
 	 * @param array $selected - only keys are used
 	 * @param string $more
-	 * @param int $height
+	 * @param string $height
 	 * @param int $width
+	 * @see set()
 	 */
-	function checkarray($name, array $options, array $selected, $more = '', $height = 700, $width = 350) {
+	function checkarray($name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray">';
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
+		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
-			$this->stdout .= '<div class="checkline_'.($checked ? 'active' : 'normal').'">';
-			$this->check($name.'][', $value, $checked, $more);
+			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'">';
+			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
+			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
+			$this->check($newName, $value, $checked, $moreStr);
 			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
-			$this->stdout .= '</div>';
+			$this->stdout .= '</label>';
 		}
 		$this->stdout .= '</div>';
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);

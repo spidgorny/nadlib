@@ -37,7 +37,7 @@ class Pager {
 	 */
 	public $pageSize;
 
-	function Pager($itemsPerPage = NULL, $prefix = '') {
+	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
 		} else if ($itemsPerPage) {
@@ -120,6 +120,10 @@ class Pager {
 		return $page*$this->itemsPerPage;
 	}
 
+	function getPageLastItem($page) {
+		return min($this->numberOfRecords, $page*$this->itemsPerPage + $this->itemsPerPage);
+	}
+
 	function isInPage($i) {
 		return $i >= $this->getPageFirstItem($this->currentPage) && $i < ($this->getPageFirstItem($this->currentPage)+$this->itemsPerPage);
 	}
@@ -137,17 +141,17 @@ class Pager {
 	function renderPageSelectors(URL $url = NULL) {
 		$this->url = $url;
 		$content = '<div class="pagination paginationControl">';
+		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
 			$content .= $this->renderPager();
 		}
-		$content .= $this->showSearchBrowser();
 		$content .= '</div>';
 		return $content;
 	}
 
 	function renderPager() {
 		$this->pageSize->setURL(new URL(NULL, array()));
-		$content = '<div style="float: right;">'.$this->pageSize->render().' '.__('per page').'</div>';
+		$content = '<div class="pageSize">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
 	}
 
@@ -176,7 +180,7 @@ class Pager {
 	 		$content .= '<li><span class="disabled">&gt;</span></li>';
  		}
 		if ($this->showPageJump) {
-			$form = "<li><form action='".$this->url."' method='POST' style='display: inline'>
+			$form = "<form action='".$this->url."' method='POST' style='display: inline'>
 				&nbsp;<input
 					name='Pager_{$this->prefix}[page]'
 					type='text'
@@ -184,17 +188,17 @@ class Pager {
 					value='".($this->currentPage+1)."'
 					style='width: 2em' />
 				<input type='submit' value='Page' class='submit' />
-			</form></li>";
+			</form>";
 		}
  		//debug($term);
-		$content = '<ul>'.$content.'&nbsp;'.$form.'</ul>';
+		$content = '<ul>'.$content.'&nbsp;'.'</ul>'.$form;
 		return $content;
 	}
 
 	function getSinglePageLink($k, $text) {
 		$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $k));
 		if ($k == $this->currentPage) {
-			$content = '<li><span class="active">'.$text.'</span></li>';
+			$content = '<li class="active"><span class="active">'.$text.'</span></li>';
 		} else {
 			$content = '<li><a href="'.$link.'">'.$text.'</a></li>';
 		}
@@ -251,10 +255,10 @@ class Pager {
 		$properties = get_object_vars($this);
 		unset($properties['graphics']);
 		foreach ($properties as $key => &$val) {
-			if (is_object($val)) {
+			if (is_object($val) && method_exists($val, '__toString')) {
 				$val = $val->__toString();
 			} else if (is_array($val)) {
-				foreach ($val as $k => &$v) {
+				foreach ($val as &$v) {
 					if (is_array($v)) {
 						$v = $v->__toString();
 					}

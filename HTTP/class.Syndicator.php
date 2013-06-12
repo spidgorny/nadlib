@@ -236,7 +236,7 @@ class Syndicator {
 				//'trace' => substr(print_r(debug_backtrace(), TRUE), 0, 1024*8),
 			));
 			debug($e, 'getXML');
-			$GLOBALS['db']->perform($query);
+			$db->perform($query);
 */
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);

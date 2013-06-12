@@ -13,8 +13,9 @@ class AutoLoad {
 	}
 
 	function getFolders() {
-		unset($_SESSION['autoloadCache']);
-		$folders = $_SESSION['autoloadCache'];
+		session_start();
+		//unset($_SESSION['autoloadCache']);
+		$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
 		if (!$folders) {
 			require_once 'class.ConfigBase.php';
 			if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
@@ -36,6 +37,9 @@ class AutoLoad {
 
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if ($class == 'IndexBE') {
+			//debug_pre_print_backtrace();
+		}
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);
 		$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
@@ -55,7 +59,8 @@ class AutoLoad {
 			}
 		}
 		if (!class_exists($classFile) && !interface_exists($classFile)) {
-			//debug($folders);
+			unset($_SESSION['autoloadCache']);	// just in case
+			//debug($this->folders);
 			if (class_exists('Config')) {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
@@ -65,6 +70,12 @@ class AutoLoad {
 			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
+
+	static function register() {
+		static $instance;
+		if (!$instance) $instance = new self();
+		spl_autoload_register(array($instance, 'load'));
 	}
 
 }

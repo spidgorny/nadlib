@@ -66,12 +66,13 @@ class TaylorProfiler {
 		return $name;
 	}
 
-    /**
-    *   Start an individual timer
-    *   This will pause the running timer and place it on a stack.
-    *   @param string $name name of the timer
-    *   @param string optional $desc description of the timer
-    */
+	/**
+	 *   Start an individual timer
+	 *   This will pause the running timer and place it on a stack.
+	 * @param string $name name of the timer
+	 * @param string $desc
+	 * @internal param \optional $string $desc description of the timer
+	 */
     function startTimer($name = NULL, $desc="" ){
 		$name = $name ? $name : $this->getName();
     	if ($this->trace_enabled) {
@@ -201,13 +202,13 @@ class TaylorProfiler {
             $s = new slTable();
             $s->thes(array(
             	'nr' => 'nr',
-            	'count' => array('name' => 'count', 'more' => 'align="right"'),
-            	'time, ms' => array('name' => 'time, ms', 'more' => 'align="right"'),
-            	'avg/1' => array('name' => 'avg/1', 'more' => 'align="right"'),
-            	'percent' => array('name' => 'percent', 'more' => 'align="right"'),
+            	'count' => array('name' => 'count', 'align' => 'right'),
+            	'time, ms' => array('name' => 'time, ms', 'align' => 'right'),
+            	'avg/1' => array('name' => 'avg/1', 'align' => 'right'),
+            	'percent' => array('name' => 'percent', 'align' => 'right'),
             	'routine' => array('name' => 'routine', 'no_hsc' => true),
             ));
-            $s->more = 'class="view_array" width="100%"';
+            $s->more = 'class="view_array" awidth="100%"';
             $s->data = $table;
             $s->footer = array(
             	'nr' => 'total',
@@ -286,8 +287,7 @@ class TaylorProfiler {
 		$oaTime = microtime(true) - ($this->initTime ? $this->initTime : $_SERVER['REQUEST_TIME']);
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
-			require_once 'nadlib/Data/class.ArrayPlus.php';
-			$dbTime = AP(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
@@ -303,6 +303,15 @@ class TaylorProfiler {
 		$max = intval(ini_get('memory_limit'))*1024*1024;
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 4, '.', '');
+	}
+
+	static function getMemDiff() {
+		static $prev = 0;
+		//$max = intval(ini_get('memory_limit'))*1024*1024;
+		$cur = memory_get_usage();
+		$return = number_format(($cur-$prev)/1024/1024, 3, '.', '').'M';
+		$prev = $cur;
+		return $return;
 	}
 
 	static function enableTick($ticker = 100) {

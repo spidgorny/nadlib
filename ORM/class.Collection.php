@@ -11,7 +11,7 @@ class Collection {
 	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
-	protected $table = __CLASS__;
+	public $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
 	protected $parentField = 'pid';
@@ -25,8 +25,18 @@ class Collection {
 	public $thes = array();
 
 	var $titleColumn = 'title';
+
+	/**
+	 * Basic where SQL params to be included in every SQL by default
+	 * @var $this|array
+	 */
 	public $where = array();
-	public $join = ''; // for LEFT OUTER JOIN queries
+
+	/**
+	 * for LEFT OUTER JOIN queries
+	 * @var string
+	 */
+	public $join = '';
 
 	/**
 	 * Initialize in postInit() to run paged SQL
@@ -86,6 +96,22 @@ class Collection {
 		'width' => "100%",
 	);
 
+	public $prevText = '&#x25C4;';
+	public $nextText = '&#x25BA;';
+
+	/**
+	 * @var Controller
+	 */
+	protected $controller;
+
+	/**
+	 * @param integer/-1 $pid
+	 * 		if -1 - will not retrieve data from DB
+	 * 		if 00 - will retrieve all data
+	 * 		if >0 - will retrieve data where PID = $pid
+	 * @param array|SQLWhere $where
+	 * @param string $order	- appended to the SQL
+	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -96,6 +122,7 @@ class Collection {
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
+		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
 		$this->postInit();
@@ -120,14 +147,21 @@ class Collection {
 
 	function postInit() {
 		//$this->pager = new Pager();
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$this->controller = &$index->controller;
+		}
+		//debug(get_class($this->controller));
 	}
 
 	/**
 	 * -1 will prevent data retrieval
 	 */
-	function retrieveDataFromDB($allowMerge = false) {
+	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
+		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
@@ -136,11 +170,13 @@ class Collection {
 		}
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
-		$this->preprocessData();
+		if ($preprocess) {
+			$this->preprocessData();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(/*array*/ $where = NULL) {
+	function getQuery(array $where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;
@@ -176,14 +212,13 @@ class Collection {
 		return $row;
 	}
 
+	/**
+	 * @return slTable|string - returns the slTable if not using Pager
+	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			if ($this->pager) {
-				$url = new URL();
-				$pages = $this->pager->renderPageSelectors($url);
-			}
 			//debug($this->tableMore);
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
@@ -191,8 +226,14 @@ class Collection {
 			$s->sortable = $this->useSorting;
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ?: array());
-			$content = $pages . $s->getContent(get_class($this)) . $pages;
+			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			if ($this->pager) {
+				$url = new URL();
+				$pages = $this->pager->renderPageSelectors($url);
+				$content = $pages . $s->getContent(get_class($this)) . $pages;
+			} else {
+				$content = $s;
+			}
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
@@ -251,7 +292,10 @@ class Collection {
 	 */
 	function renderMembers() {
 		$content = '';
+		$i = 0;
+		//debug(sizeof($this->members));
 		foreach ($this->members as $obj) {
+			//debug($i++, (strlen($content)/1024/1024).'M');
 			$content .= $obj."\n";
 		}
 		return $content;
@@ -263,16 +307,18 @@ class Collection {
 				$trans = __($trans);
 			}
 		}
+		$this->prevText = __($this->prevText);
+		$this->nextText = __($this->nextText);
 	}
 
 	/**
 	 * Will detect double-call and do nothing.
 	 *
-	 * @param string $class
+	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class, $byInstance = false) {
+	function objectify($class = '', $byInstance = false) {
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
@@ -296,7 +342,7 @@ class Collection {
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
 			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
-			'more' => 'align="right"',
+			'align' => "right",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
@@ -384,6 +430,7 @@ class Collection {
 		}*/
 
 	/**
+	 * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
 	 * @param OODBase $model
 	 * @return string
 	 */
@@ -419,18 +466,23 @@ class Collection {
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
 		$ap = AP($data);
+		//debug($data);
 
 		$prev = $ap->getPrevKey($model->id);
 		if ($prev) {
-			$prev = $this->getNextPrevLink($data[$prev], '&#x25C4;');
+			$prev = $this->getNextPrevLink($data[$prev], $this->prevText);
+		} else {
+			$prev = '<span class="muted">'.$this->prevText.'</span>';
 		}
 
 		$next = $ap->getNextKey($model->id);
 		if ($next) {
-			$next = $this->getNextPrevLink($data[$next], '&#x25BA;');
+			$next = $this->getNextPrevLink($data[$next], $this->nextText);
+		} else {
+			$next = '<span class="muted">'.$this->nextText.'</span>';
 		}
 
-		$content = $prev.' '.$model->getName().' '.$next;
+		$content = $this->renderPrevNext($prev, $model, $next);
 
 		// switch page for the next time
 		if (isset($prevData[$model->id])) {
@@ -445,6 +497,12 @@ class Collection {
 		return $content;
 	}
 
+	/**
+	 * Override to make links from different type of objects
+	 * @param $prev
+	 * @param $arrow
+	 * @return HTMLTag
+	 */
 	protected function getNextPrevLink($prev, $arrow) {
 		if ($prev['singleLink']) {
 			$content = new HTMLTag('a', array(
@@ -461,6 +519,10 @@ class Collection {
 			$content = $arrow;
 		}
 		return $content;
+	}
+
+	protected function renderPrevNext($prev, $model, $next) {
+		return $prev.' '.$model->getName().' '.$next;
 	}
 
 	function getObjectInfo() {

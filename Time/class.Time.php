@@ -12,7 +12,7 @@ class Time {
 	public $human;
 
 	function __construct($input = NULL, $relativeTo = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.MySQL::getCaller().')');
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.MySQL::getCaller().')');
 		if (!is_null($input)) { // 0 is 1970-01-01 00:00:00
 			if (is_string($input)) {
 				if (is_null($relativeTo)) {
@@ -31,7 +31,8 @@ class Time {
 			$this->time = time();
 		}
 		$this->updateDebug();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.MySQL::getCaller().')');
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.Debug::getCaller().')');
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.MySQL::getCaller().')');
 	}
 
 	function updateDebug() {
@@ -151,6 +152,7 @@ class Time {
 	/**
 	 * 12:21:15
 	 *
+	 * @param string $format
 	 * @return unknown
 	 */
 	function getTime($format = 'H:i:s') {
@@ -169,7 +171,7 @@ class Time {
 	 * (C) yasmary at gmail dot com
 	 * Link: http://de.php.net/time
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function in() {
 		$periods = array(
@@ -284,6 +286,7 @@ class Time {
 	 * Modifies self!
 	 *
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return unknown
 	 */
 	function add(Time $plus, $debug = FALSE) {
@@ -298,6 +301,7 @@ class Time {
 	 * Modifies self!
 	 *
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return unknown
 	 */
 	function substract(Time $plus, $debug = FALSE) {
@@ -309,8 +313,9 @@ class Time {
 	}
 
 	/**
-	 *
+	 * Does not modify itself
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return Time
 	 */
 	function plus(Time $plus, $debug = FALSE) {
@@ -336,8 +341,9 @@ class Time {
 	}
 
 	/**
-	 *
+	 * Does not modify itself
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return Time
 	 */
 	function minus(Time $plus, $debug = FALSE) {
@@ -358,8 +364,9 @@ class Time {
 	}
 
 	/**
-	 *
+	 * Does not modify itself
 	 * @param Time $plus
+	 * @param bool $debug
 	 * @return Time
 	 */
 	function minus2(Time $plus, $debug = FALSE) {
@@ -367,16 +374,16 @@ class Time {
 		//$format = gmmktime($plus->format('H'), $plus->format('i'), $plus->format('s'), $plus->format('m'), $plus->format('d'), $plus->format('Y'));
 		$format = $plus->getTimestamp();
 		$new = $this->time - $format;
-		if ($debug) echo $this . ' '. $format.' = '.$new.'<br>';
+		if ($debug) echo $this . ' - '. $format.' = '.$new.'<br>';
 		$new = new Time($new);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $new;
 	}
 
 	/**
-	 * Modifies itself according to the format. Truncate by hour: Y-m-d H:00:00
-	 *
-	 * @param unknown_type $format
+	 * Modifies itself according to the format.
+	 * Truncate by hour: Y-m-d H:00:00
+	 * @param string $format
 	 */
 	function modify($format) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -386,6 +393,11 @@ class Time {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * Creates a new Time by formatting itself to a string first
+	 * @param $format
+	 * @return Time
+	 */
 	function getModify($format) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$new = new Time($this->format($format));
@@ -479,6 +491,7 @@ class Time {
 	 *
 	 * @static
 	 * @param $str
+	 * @param null $rel
 	 * @return Time
 	 */
 	static function makeInstance($str, $rel = NULL) {
@@ -494,6 +507,13 @@ class Time {
 	 */
 	function getDurationObject() {
 		return new Duration($this->time);
+	}
+
+	function older($sDuration) {
+		$duration = new Duration($sDuration);
+		$difference = Time::makeInstance('now')->minus($this);
+		$older = $difference->later($duration);
+		return $older;
 	}
 
 }
