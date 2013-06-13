@@ -106,10 +106,18 @@ abstract class FullGrid extends Grid {
 					in_array('HTMLFormCollection', class_implements($autoClass))) {
 					$type = new $autoClass();
 					$options = NULL;
+				} elseif ($k['tf']) {	// boolean
+					$type = 'select';
+					$stv = new slTableValue('', array());
+					$options = array(
+						't' => $stv->SLTABLE_IMG_CHECK,
+						'f' => $stv->SLTABLE_IMG_CROSS,
+					);
+					//debug($key, $this->filter[$key]);
 				} else {
 					$type = 'select';
 					$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
-					$options = AP($options)->trim()->getData();	// convert to string for === operation
+					$options = ArrayPlus::create($options)->trim()->getData();	// convert to string for === operation
 					//debug($options);
 					$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
 					//debug($options);
@@ -131,7 +139,7 @@ abstract class FullGrid extends Grid {
 
 	function getTableFieldOptions($key, $count = false) {
 		$res = Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
-		$key, array(), 'ORDER BY title');
+		$key, array(), 'ORDER BY title', $this->model->idField);
 
 		if ($count) {
 			foreach ($res as &$val) {

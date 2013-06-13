@@ -194,7 +194,7 @@ abstract class Controller {
 			: (self::$instance[$static] = new $static());
 	}
 
-	function redirect($url) {
+	/*function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
 				setTimeout(function() {
@@ -204,7 +204,7 @@ abstract class Controller {
 		} else {
 			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
 		}
-	}
+	}*/
 
 	function render() {
 		$view = new View(get_class($this).'.phtml', $this);
@@ -300,7 +300,7 @@ abstract class Controller {
 	}
 
 	function inColumnsHTML5() {
-		$GLOBALS['HTMLFOOTER']['display-box.css'] = '<link rel="stylesheet" type="text/css" href="/nadlib/CSS/display-box.css" />';
+		$GLOBALS['HTMLFOOTER']['display-box.css'] = '<link rel="stylesheet" type="text/css" href="/vendor/spidgorny/nadlib/CSS/display-box.css" />';
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -343,14 +343,20 @@ abstract class Controller {
 
 	/**
 	 * @param $name string|htmlString - if object then will be used as is
-	 * @param $action
-	 * @param array $params
+	 * @param $formAction
+	 * @param string|null $action
+	 * @param array $hidden
+	 * @internal param null $class
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, array $params = array()) {
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array()) {
 		$f = new HTMLForm();
-		$f->hidden('c', get_class($this));
-		$f->formHideArray($params);
+		if ($formAction) {
+			$f->action($formAction);
+		} else {
+			$f->hidden('c', get_class($this));
+		}
+		$f->formHideArray($hidden);
 		if ($id = $this->request->getInt('id')) {
 			$f->hidden('id', $id);
 		}

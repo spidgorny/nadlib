@@ -36,11 +36,6 @@ class slTable {
 	 */
 	protected $db;
 
-	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
-	public $SLTABLE_IMG_CHECK = '☑';
-	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
-	public $SLTABLE_IMG_CROSS = '☐';
-
 	function __construct($id = NULL, $more="", array $thes = array()) {
 		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
@@ -67,6 +62,9 @@ class slTable {
 		}
 	}
 
+	/**
+	 * @deprecated - use addRowData
+	 */
 	function addRow() {
 		$this->iRow++;
 		$this->iCol = 0;
@@ -91,7 +89,7 @@ class slTable {
 	/**
 	 * To sort, $this->thes with all datatypes should be known
 	 */
-	function tabSortByUrl($a, $b) {
+	protected function tabSortByUrl($a, $b) {
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
 		$aa = $a[$by];
@@ -129,7 +127,9 @@ class slTable {
 	}
 
 	/**
-	 * Enter description here...
+	 * Call this manually to allow sorting. Otherwise it's assumed that you sort manually (SQL) in advance.
+	 * Useful only when the complete resultset is visible on a single page.
+	 * Otherwise you're sorting just a portion of the data.
 	 *
 	 * @param unknown_type $by - can be array (for easy explode(' ', 'field DESC') processing
 	 * @param unknown_type $or
@@ -213,31 +213,29 @@ class slTable {
 		$thes2 = array();
 		$thmore = array();
 		if (is_array($thes)) foreach ($thes as $thk => $thv) {
-			if (is_array($thv)) {
-				$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
-				$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
-				if (!is_array($thmore)) {
-					$thmore = array('' => $thmore);
-				}
-				if ($thv['align']) {
-					$thmore[$thk]['align'] = $thv['align'];
-				}
-			} else {
-				$thvName = $thv;
+			if (!is_array($thv)) {
+				$thv = array('name' => $thv);
+			}
+			$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
+			$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
+			if (!is_array($thmore)) {
+				$thmore = array('' => $thmore);
+			}
+			if ($thv['align']) {
+				$thmore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
-				nodebug(array(
-					$_REQUEST[$this->prefix]['sortBy'],
-					$this->sortBy,
-					$thk,
-				));
-				$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;
-				$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
-				$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
-					'sortBy' => $sortField,
-					'sortOrder' => $sortOrder,
-				)));
-				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
+					$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;	// set to null - don't sort
+					$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
+					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
+						'sortBy' => $sortField,
+						'sortOrder' => $sortOrder,
+					)));
+					$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				} else {
+					$thes2[$thk] = $thvName;
+				}
 			} else {
 				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
 					$link = URL::getCurrent();
@@ -282,9 +280,7 @@ class slTable {
 			if (sizeof($this->data) && $this->data != FALSE) {
 				$this->generateThes();
 
-				if ($this->sortable) {
-					$this->sort();
-				}
+				$this->sort();
 
 				$t = new HTMLTableBuf();
 				$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));

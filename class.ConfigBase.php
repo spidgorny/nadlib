@@ -65,6 +65,12 @@ class ConfigBase {
 
 	public $config;
 
+	/**
+	 * Default is that nadlib/ is in the root folder
+	 * @var string
+	 */
+	public $appRoot;
+
 	protected function __construct() {
 		try {
 			$this->db = new MySQL(
@@ -83,6 +89,8 @@ class ConfigBase {
 		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		$this->appRoot = dirname(__FILE__).'/..';
+
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');

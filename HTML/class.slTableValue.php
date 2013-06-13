@@ -11,6 +11,11 @@ class slTableValue {
 	 */
 	var $db;
 
+	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
+	public $SLTABLE_IMG_CHECK = '☑';
+	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
+	public $SLTABLE_IMG_CROSS = '☐';
+
 	function __construct($value, $desc = array()) {
 		if ($value instanceof slTableValue) {
 			$value = $value->value;

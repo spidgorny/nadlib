@@ -234,11 +234,23 @@ class Duration extends Time {
     }
 
 	function less($sDuration) {
-		return $this->time < strtotime($sDuration, 0);
+		if (is_string($sDuration)) {
+			return $this->time < strtotime($sDuration, 0);
+		} else if ($sDuration instanceof Time) {
+			return $this->earlier($sDuration);
+		} else {
+			throw new Exception(__METHOD__.'#'.__LINE__);
+		}
 	}
 
 	function more($sDuration) {
-		return $this->time > strtotime($sDuration, 0);
+		if (is_string($sDuration)) {
+			return $this->time > strtotime($sDuration, 0);
+		} else if ($sDuration instanceof Time) {
+			return $this->later($sDuration);
+		} else {
+			throw new Exception(__METHOD__.'#'.__LINE__);
+		}
 	}
 
 }
