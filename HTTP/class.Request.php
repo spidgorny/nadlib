@@ -604,4 +604,10 @@ class Request {
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
+	public function getIntArray($name) {
+		$array = $this->getArray($name);
+		$array = array_map('intval', $array);
+		return $array;
+	}
+
 }
