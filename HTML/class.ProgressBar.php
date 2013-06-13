@@ -22,11 +22,15 @@ class ProgressBar {
 	function render() {
 		if (!$this->cli) {
 			print($this->getContent());
-			$l = new lessc();
-			$css = $l->compileFile(dirname(__FILE__).'/../CSS/ProgressBar.less');
-			print '<style>'.$css.'</style>';
+			print $this->getCSS();
 			$this->flush();
 		}
+	}
+
+	function getCSS() {
+		$l = new lessc();
+		$css = $l->compileFile(dirname(__FILE__).'/../CSS/ProgressBar.less');
+		return '<style>'.$css.'</style>';
 	}
 
 	function __toString() {
@@ -110,6 +114,13 @@ class ProgressBar {
 		print '
 		<script>
 			document.title = "'.number_format($this->percentDone, 3, '.', '').'%";
+		</script>';
+	}
+
+	public function hide() {
+		echo '<script>
+			var el = document.getElementById("'.$this->pbid.'");
+			el.parentNode.removeChild(el);
 		</script>';
 	}
 

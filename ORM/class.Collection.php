@@ -161,6 +161,7 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
+		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
@@ -292,10 +293,10 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		$i = 0;
-		debug(sizeof($this->members));
+		//debug(sizeof($this->members));
 		foreach ($this->members as $obj) {
-			debug($i++, (strlen($content)/1024/1024).'M');
-			$content .= $obj."\n";
+			//debug($i++, (strlen($content)/1024/1024).'M');
+			$content .= $obj->render()."\n";
 		}
 		return $content;
 	}
@@ -430,11 +431,16 @@ class Collection {
 
 	/**
 	 * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
+	 *
+	 * If pager is used then it tries to retrieve page before and after to make sure that first and last
+	 * elements on the page still have prev and next elements. But it's SLOW!
+	 *
 	 * @param OODBase $model
 	 * @return string
 	 */
 	function getNextPrevBrowser(OODBase $model) {
 		if ($this->pager) {
+			//$this->pager->debug();
 			if ($this->pager->currentPage > 0) {
 				$copy = clone $this;
 				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
@@ -445,7 +451,10 @@ class Collection {
 				$prevData = array();
 			}
 
-			if ($this->pager->currentPage < $this->pager->getMaxPage()) {
+			$pageKeys = array_keys($this->data);
+			if ($this->pager->currentPage < $this->pager->getMaxPage() &&
+				end($pageKeys) == $model->id	// last element on the page
+			) {
 				$copy = clone $this;
 				$copy->pager->setCurrentPage($copy->pager->currentPage+1);
 				$copy->retrieveDataFromDB();
@@ -530,6 +539,26 @@ class Collection {
 			$list[] = $obj->getObjectInfo();
 		}
 		return $list;
+	}
+
+	function getLazyIterator() {
+		$query = $this->getQuery();
+
+		$di = new DIContainer();
+		$di->db = $this->db;
+
+		$lazy = new DatabaseResultIteratorAssoc($di, $this->idField);
+		$lazy->perform($query);
+
+		return $lazy;
+	}
+
+	function getLazyMemberIterator($class) {
+		$arrayIterator = $this->getLazyIterator();
+
+		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
+
+		return $memberIterator;
 	}
 
 }

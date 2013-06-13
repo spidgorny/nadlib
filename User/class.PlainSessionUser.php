@@ -3,8 +3,11 @@
 class PlainSessionUser extends User {
 
 	function __construct() {
-		debug('session_start');
-		session_start();
+		if (!Request::isCLI()) {
+			session_start();
+		} else {
+			$_SESSION = array();
+		}
 		parent::__construct();
 	}
 
@@ -18,7 +21,7 @@ class PlainSessionUser extends User {
 
 	function isAuth() {
 		return true;
-		return session_status() == PHP_SESSION_ACTIVE;
+		return session_status() == PHP_SESSION_ACTIVE;	// PHP 5.4
 	}
 
 }

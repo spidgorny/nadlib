@@ -136,7 +136,7 @@ class Request {
 	 * Will return timestamp
 	 * Converts string date compatible with strtotime() into timestamp (integer)
 	 *
-	 * @param unknown_type $name
+	 * @param string $name
 	 * @throws Exception
 	 * @return int
 	 */
@@ -151,6 +151,12 @@ class Request {
 
 	function getArray($name) {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
+	}
+
+	function getTrimArray($name) {
+		$list = $this->getArray($name);
+		$list = array_map('trim', $list);
+		return $list;
 	}
 
 	function getSubRequestByPath(array $name) {
@@ -336,7 +342,12 @@ class Request {
 	 * @return string
 	 */
 	function getLocation() {
-		$docRoot = dirname($_SERVER['PHP_SELF']);
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			$docRoot = $c->documentRoot;
+		} else {
+			$docRoot = dirname($_SERVER['PHP_SELF']);
+		}
 		if (strlen($docRoot) == 1) {
 			$docRoot = '/';
 		} else {

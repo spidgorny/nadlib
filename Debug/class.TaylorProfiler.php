@@ -299,6 +299,9 @@ class TaylorProfiler {
 		return $content;
 	}
 
+	/**
+	 * @return float
+	 */
 	static function getMemUsage() {
 		$max = intval(ini_get('memory_limit'))*1024*1024;
 		$cur = memory_get_usage();
