@@ -141,11 +141,9 @@ class TaylorProfiler {
     }//end start_time
 
     /**
-    *   print out a log of all the timers that were registered
-    *
+    * Print out a log of all the timers that were registered
     */
     function printTimers($enabled=false) {
-    	$table = array();
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
             $tot_perc = 0;
@@ -195,18 +193,33 @@ class TaylorProfiler {
 	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
 	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
 	               	'percent' => number_format($perc, 2, '.', '').'%',
-	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$key.'</span>',
+	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.htmlspecialchars($key).'</span>',
 	            );
 		   }
 
             $s = new slTable();
             $s->thes(array(
             	'nr' => 'nr',
-            	'count' => array('name' => 'count', 'align' => 'right'),
-            	'time, ms' => array('name' => 'time, ms', 'align' => 'right'),
-            	'avg/1' => array('name' => 'avg/1', 'align' => 'right'),
-            	'percent' => array('name' => 'percent', 'align' => 'right'),
-            	'routine' => array('name' => 'routine', 'no_hsc' => true),
+            	'count' => array(
+					'name' => 'count',
+					'align' => 'right'
+				),
+            	'time, ms' => array(
+					'name' => 'time, ms',
+					'align' => 'right'
+				),
+            	'avg/1' => array(
+					'name' => 'avg/1',
+					'align' => 'right'
+				),
+            	'percent' => array(
+					'name' => 'percent',
+					'align' => 'right'
+				),
+            	'routine' => array(
+					'name' => 'routine',
+					'no_hsc' => true
+				),
             ));
             $s->more = 'class="view_array" awidth="100%"';
             $s->data = $table;
