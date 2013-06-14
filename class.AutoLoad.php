@@ -23,7 +23,7 @@ class AutoLoad {
 	private static $instance;
 
 	protected function __construct() {
-		$this->folders = $this->getFolders();
+		//$this->folders = $this->getFolders();
 		//debug($this->folders);
 	}
 
@@ -31,9 +31,9 @@ class AutoLoad {
 		require_once 'HTTP/class.Request.php';
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
-			debug('session_start');
-			session_start();
-		}
+				debug('session_start');
+				session_start();
+			}
 			//unset($_SESSION['autoloadCache']);
 			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
 		} else {
@@ -57,10 +57,6 @@ class AutoLoad {
 			$_SESSION['autoloadCache'] = $folders;
 		}
 		return $folders;
-	}
-
-	public static function getInstance() {
-		return self::$instance;
 	}
 
 	function load($class) {

@@ -4,6 +4,7 @@ class PlainSessionUser extends User {
 
 	function __construct() {
 		if (!Request::isCLI()) {
+			debug('session_start');
 			session_start();
 		} else {
 			$_SESSION = array();
