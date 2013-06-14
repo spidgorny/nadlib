@@ -196,4 +196,9 @@ $return = curl_exec($process);
 curl_close($process);
 return $return; */
 
+	function exists() {
+		$AgetHeaders = @get_headers($this->buildURL());
+		return preg_match("|200|", $AgetHeaders[0]);
+	}
+
 }
