@@ -392,6 +392,73 @@ class HTMLForm {
 		}
 	}
 
+	function jsCal2($fieldName, $fieldValue) {
+		if (is_string($fieldValue)) {
+			$fieldValue = strtotime($fieldValue);
+		}
+		//$GLOBALS['HTMLHEADER']['JSCal2'] = '
+		$content = '
+		<link rel="stylesheet" type="text/css" href="JSCal2/css/jscal2.css" />
+    <link rel="stylesheet" type="text/css" href="JSCal2/css/border-radius.css" />
+    <link rel="stylesheet" type="text/css" href="JSCal2/css/gold/gold.css" />
+    <script type="text/javascript" src="JSCal2/js/jscal2.js"></script>
+    <script type="text/javascript" src="JSCal2/js/lang/en.js"></script>';
+		$content .= '<input id="calendar-'.$fieldName.'" name="'.$this->getName($fieldName).'" value="'.
+			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
+		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>
+<script>
+    Calendar.setup({
+        trigger    	: "calendar-trigger-'.$fieldName.'",
+        inputField 	: "calendar-'.$fieldName.'",
+        min			: '.date('Ymd').',
+/*      selection	: Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
+        date        : Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
+*/      selection   : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
+        date        : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
+        onSelect   	: function() { this.hide() }
+    });
+</script>
+';
+		return $content;
+	}
+
+	function dropSelect($fieldName, array $options) {
+		$content = '
+			<input type="hidden" name="'.$fieldName.'" id="'.$fieldName.'">
+			<input type="text" name="'.$fieldName.'_name" id="'.$fieldName.'_name" onchange="setDropSelectValue(this.value, this.value);">
+			<img src="design/bb8120_options_icon.gif" id="'.$fieldName.'_selector">
+			<link rel="stylesheet" href="js/proto.menu.0.6.css" type="text/css" media="screen" />
+			<script src="js/proto.menu.0.6.js" defer="true"></script>
+			<script>
+				//document.observe("dom:loaded", function() {
+				window.onload = function () {
+					var myMenuItems = [';
+		$optArr = array();
+		foreach ($options as $id => $name) {
+			$optArr[] = '{
+						    name: "'.$name.'",
+						    className: "swr",
+						    callback: function() {
+								setDropSelectValue("'.$id.'", "'.$name.'");
+						    }
+					    }';
+		}
+		$content .= implode(',', $optArr).'
+					];
+					new Proto.Menu({
+					  selector: "#'.$fieldName.'_selector",
+					  className: "menu desktop",
+					  menuItems: myMenuItems
+					});
+				};
+				function setDropSelectValue(id, name) {
+					$("'.$fieldName.'").value = id;
+					$("'.$fieldName.'_name").value = name;
+				}
+			</script>';
+		return $content;
+	}
+
 	/**
 	 * Makes TWO input fields. Keys: from, till. Value must be assiciative array too.
 	 */
