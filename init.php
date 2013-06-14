@@ -1,15 +1,9 @@
 <?php
 
-function __autoload($class) {
-	require_once dirname(__FILE__).'/class.AutoLoad.php';
-	static $a;
-	if (!$a) {
-		$a = new AutoLoad();
-	}
-	$a->load($class);
-}
-
 function initNADLIB() {
+	require_once dirname(__FILE__).'/class.AutoLoad.php';
+	AutoLoad::register();
+
 	//print_r($_SERVER);
     $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 	define('DEVELOPMENT', isset($_SERVER['argc'])
@@ -26,7 +20,8 @@ function initNADLIB() {
 
 		$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 		/* @var $profiler TaylorProfiler */
-		if (class_exists('Config')) {
+
+		if (false && class_exists('Config')) {
 			//print_r(Config::getInstance()->config['Config']);
 			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
 		}

@@ -478,6 +478,9 @@ class HTMLFormTable extends HTMLForm {
 	 * @return	array	HTMLFormTable structure.
 	 */
 	function fillValues(array $desc, array $assoc, $forceInsert = false) {
+		if (!$desc) {
+			$desc = $this->desc;
+		}
 		foreach ($assoc as $key => $val) {
 			if (is_array($desc[$key]) || $forceInsert) {
 				if (is_array($val) && $this->withValue) {
