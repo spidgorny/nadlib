@@ -28,7 +28,7 @@ class ConfigView extends AppControllerBE {
 		$f->prefix('');
 		$f->hidden('action', 'save');
 		$f->submit('Save');
-		$f->debug = true;
+		$f->debug = $_COOKIE['debug'];
 		$content = $f;
 
 		$content .= '<style>.tdlabel { width: 10em; } </style>';
