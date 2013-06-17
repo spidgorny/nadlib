@@ -23,7 +23,8 @@ class TCAConverter {
 			if (!in_array($field, $this->skipFields)) {
 				//t3lib_div::debug($config['config']);
 				$desc[$field] = $this->convertTCAtoDesc($config['config']);
-				$llIndex = end(explode(':', $config['label']));
+				$pair = explode(':', $config['label']);
+				$llIndex = end($pair);
 				$desc[$field]['label'] = $this->pi1->pi_getLL($llIndex, $config['label']);
 				$desc[$field]['optional'] = $config['exclude'];
 			}
@@ -99,7 +100,8 @@ class TCAConverter {
 
 		$options = array();
 		foreach ($items as $o) {
-			$options[$o[1]] = $this->pi1->pi_getLL(end(explode(':', $o[0])), $o[0]);
+			$pair = explode(':', $o[0]);
+			$options[$o[1]] = $this->pi1->pi_getLL(end($pair), $o[0]);
 		}
 		return $options;
 	}
