@@ -240,7 +240,7 @@ class AjaxLogin extends AppController {
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getProfileDesc();
-			$desc = HTMLFormTable::fillValues($desc, $this->user->data);
+			$desc = $f->fillValues($desc, $this->user->data);
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->prefix('profile');
@@ -265,7 +265,8 @@ class AjaxLogin extends AppController {
 		$content = '';
 		$data = $this->request->getArray('profile');
 		$desc = $this->getProfileDesc();
-		$desc = HTMLFormTable::fillValues($desc, $data);
+		$f = new HTMLFormTable();
+		$desc = $f->fillValues($desc, $data);
 		$val = new HTMLFormValidate($desc);
 		$check = $val->validate();
 		if ($check) {
@@ -408,7 +409,8 @@ class AjaxLogin extends AppController {
 		$content = '';
 		$data = $this->request->getArray('profile');
 		$desc = $this->getRegisterDesc();
-		$desc = HTMLFormTable::fillValues($desc, $data);
+		$f = new HTMLFormTable();
+		$desc = $f->fillValues($desc, $data);
 		$val = new HTMLFormValidate($desc);
 		$check = $val->validate();
 		if ($check) {
