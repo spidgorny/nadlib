@@ -47,18 +47,48 @@ class AlterIndex extends AppControllerBE {
 		$local = $this->getDBStruct();
 
 		foreach ($struct as $table => $desc) {
-			$content .= '<h2>Table: '.$table.'</h2>';
+			$content .= '<h4>Table: '.$table.'</h4>';
 
+			$indexCompare = array();
 			foreach ($desc['indexes'] as $i => $index) {
 				$localIndex = $local[$table]['indexes'][$i];
 				//unset($index['Cardinality'], $localIndex['Cardinality']);
 				if ($index != $localIndex) {
 					//$content .= getDebug($index, $localIndex);
-					$content .= new slTable(array($index, $localIndex), 'class="table"');
+					if (is_array($index)) {
+						$indexCompare[] = $index;
+					}
+					if (is_array($localIndex)) {
+						$indexCompare[] = $localIndex;
+					} else {
+						$indexCompare[] = array(
+							'Table' => new HTMLTag('td', array(
+								'colspan' => 10,
+							), 'CREATE '.($index['Non_unique'] ? '' : 'UNIQUE' ).
+								' INDEX '.$index['Key_name'].
+								' ON '.$index['Table'].' ('.$index['Key_name'].')'
+							),
+						);
+					}
 				} else {
 					$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
 				}
 			}
+			$content .= new slTable($indexCompare, 'class="table"', array(
+				'Table' => 'Table',
+				'Non_unique' => 'Non_unique',
+				'Key_name' => 'Key_name',
+				'Seq_in_index' => 'Seq_in_index',
+				'Column_name' => 'Column_name',
+				'Collation' => 'Collation',
+				'Cardinality' => 'Cardinality',
+				//'Sub_part' => 'Sub_part',
+				//'Packed' => 'Packed',
+				'Null' => 'Null',
+				'Index_type' => 'Index_type',
+				//'Comment' => 'Comment',
+				//'Index_comment' => 'Index_comment',
+			));
 		}
 		return $content;
 	}
