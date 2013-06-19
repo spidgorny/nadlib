@@ -72,7 +72,7 @@ class slTableValue {
 								$out[] = $this->db->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
 							}
 							$out = implode(', ', $out);
-						} else {
+						} else if ($k['from']) {
 							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val));
 							$options = ArrayPlus::create($options)->IDalize($id)->column($what)->getData();
 							$out = $options[$val];
