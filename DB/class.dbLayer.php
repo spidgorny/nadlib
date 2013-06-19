@@ -18,8 +18,6 @@ class dbLayer {
 
 	var $AFFECTED_ROWS = NULL;
 
-	const NO_QUOTE = 'NO_QUOTE';
-
 	/**
 	 * @var MemcacheArray
 	 */
@@ -36,8 +34,11 @@ class dbLayer {
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	function isConnected() {
-		return $this->CONNECTION;
+		return !!$this->CONNECTION;
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
@@ -46,9 +47,8 @@ class dbLayer {
 		#debug_print_backtrace();
 		$this->CONNECTION = pg_connect($string);
 		if (!$this->CONNECTION) {
-			printbr("No postgre connection.");
-			printbr('Error: '.pg_errormessage());
-			exit();
+			throw new Exception("No postgre connection.");
+			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 			return false;
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -64,6 +64,7 @@ class dbLayer {
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug_pre_print_backtrace();
+			debug($query);
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
@@ -186,8 +187,8 @@ class dbLayer {
 		}
 	}
 
-	function getTableDataEx($table, $where = "", $special = "") {
-		$query = "select ".($special?$special." as special, ":'')."* from $table";
+	function getTableDataEx($table, $where = "", $what = "*") {
+		$query = "select ".$what." from $table";
 		if (!empty($where)) $query .= " where $where";
 		$result = $this->fetchAll($query);
 		return $result;
@@ -332,32 +333,6 @@ class dbLayer {
 			$set[] = "$key = $val";
 		}
 		$q .= implode(" and ", $set);
-		return $q;
-	}
-
-	function getSelectQuery($table, $where = array(), $order = "", $selectPlus = '') {
-		$table1 = $this->getFirstWord($table);
-		if ($selectPlus instanceof Wrap) {
-			$what = $selectPlus->wrap($table1.'*');
-		} else {
-			$what = "$table1.* $selectPlus";
-		}
-		$q = "select ".$what." from $table ";
-		$set = array();
-		foreach ($where as $key => $val) {
-			if ($val === NULL) {
-				$set[] = "$key IS NULL";
-			} else if ($val === dbLayer1::NO_QUOTE) {
-				$set[] = $key;
-			} else {
-				$val = $this->quoteSQL($val);
-				$set[] = "$key = $val";
-			}
-		}
-		if (sizeof($set)) {
-			$q .= " where " . implode(" and ", $set);
-		}
-		$q .= " ".$order;
 		return $q;
 	}
 
@@ -534,6 +509,7 @@ order by a.attnum';
 	}
 
 	function escape($str) {
+		debug_pre_print_backtrace();
 		return pg_escape_string($str);
 	}
 
