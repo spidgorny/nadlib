@@ -31,7 +31,7 @@ class AutoLoad {
 		require_once 'HTTP/class.Request.php';
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
-				debug('session_start');
+				//debug('session_start');
 				session_start();
 			}
 			//unset($_SESSION['autoloadCache']);
@@ -42,7 +42,8 @@ class AutoLoad {
 
 		if (!$folders) {
 			require_once 'class.ConfigBase.php';
-			if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
+			$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
+			if (file_exists($configPath)) {
 				//echo($configPath);
 				include_once $configPath;
 			}
@@ -70,7 +71,9 @@ class AutoLoad {
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 		foreach ($this->folders as $path) {
-			$file = dirname(__FILE__).DIRECTORY_SEPARATOR.
+			$file =
+				//dirname(__FILE__).DIRECTORY_SEPARATOR.
+				dirname($_SERVER['SCRIPT_FILENAME']).DIRECTORY_SEPARATOR.
 				$path.DIRECTORY_SEPARATOR.
 				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';
