@@ -35,24 +35,24 @@ class ConfigBase {
 	public $documentRoot = '';
 
 	public static $includeFolders = array(
-		'.',
-		'Cache',
-		'Controller',
-		'CSS',
-		'Data',
-		'DB',
-		'Debug',
-		'HTML',
-		'HTMLForm',
-		'HTTP',
-		'LocalLang',
-		'ORM',
-		'SQL',
-		'Time',
-		'User',
-		'../model',
-		'be/class',
-		'../class',	// to load the Config of the main project
+		'vendor/spidgorny/nadlib',
+		'vendor/spidgorny/nadlib/Cache',
+		'vendor/spidgorny/nadlib/Controller',
+		'vendor/spidgorny/nadlib/CSS',
+		'vendor/spidgorny/nadlib/Data',
+		'vendor/spidgorny/nadlib/DB',
+		'vendor/spidgorny/nadlib/Debug',
+		'vendor/spidgorny/nadlib/HTML',
+		'vendor/spidgorny/nadlib/HTMLForm',
+		'vendor/spidgorny/nadlib/HTTP',
+		'vendor/spidgorny/nadlib/LocalLang',
+		'vendor/spidgorny/nadlib/ORM',
+		'vendor/spidgorny/nadlib/SQL',
+		'vendor/spidgorny/nadlib/Time',
+		'vendor/spidgorny/nadlib/User',
+		'class',	// to load the Config of the main project
+		'model',
+		'vendor/spidgorny/nadlib/be/class',
 	);
 
 	/**
@@ -64,6 +64,12 @@ class ConfigBase {
 	public $flexiTable = false;
 
 	public $config;
+
+	/**
+	 * Default is that nadlib/ is in the root folder
+	 * @var string
+	 */
+	public $appRoot;
 
 	protected function __construct() {
 		try {
@@ -83,6 +89,10 @@ class ConfigBase {
 		$di->db = $this->db;
 		$this->qb = new SQLBuilder($di);
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		//$this->appRoot = dirname(__FILE__).'/..';
+		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		//debug(__FILE__, $this->appRoot);
+
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');

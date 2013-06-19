@@ -7,18 +7,43 @@ class AutoLoad {
 	 */
 	var $folders;
 
-	function __construct() {
-		$this->folders = $this->getFolders();
+	/**
+	 * @var bool
+	 */
+	var $useCookies = true;
+
+	/**
+	 * @var boolean
+	 */
+	public $debug;
+
+	/**
+	 * @var AutoLoad
+	 */
+	private static $instance;
+
+	protected function __construct() {
+		//$this->folders = $this->getFolders();
 		//debug($this->folders);
 	}
 
 	function getFolders() {
-		session_start();
-		unset($_SESSION['autoloadCache']);
-		$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : array();
+		require_once 'HTTP/class.Request.php';
+		if (!Request::isCLI()) {
+			if ($this->useCookies) {
+				//debug('session_start');
+				session_start();
+			}
+			//unset($_SESSION['autoloadCache']);
+			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : array();
+		} else {
+			$folders = array();
+		}
+
 		if (!$folders) {
 			require_once 'class.ConfigBase.php';
-			if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
+			$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
+			if (file_exists($configPath)) {
 				//echo($configPath);
 				include_once $configPath;
 			}
@@ -37,22 +62,34 @@ class AutoLoad {
 
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if ($class == 'IndexBE') {
+			//debug_pre_print_backtrace();
+		}
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);
 		$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 		foreach ($this->folders as $path) {
-			$file = dirname(__FILE__).DIRECTORY_SEPARATOR.
+			$file =
+				//dirname(__FILE__).DIRECTORY_SEPARATOR.
+				dirname($_SERVER['SCRIPT_FILENAME']).DIRECTORY_SEPARATOR.
 				$path.DIRECTORY_SEPARATOR.
-				$subFolders.DIRECTORY_SEPARATOR.
+				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';
 			if (file_exists($file)) {
-				$debug[] = $class.' <span style="color: green;">'.$file.'</span><br />';
+				$debugLine = $class.' <span style="color: green;">'.$file.'</span><br />';
 				include_once($file);
-				break;
 			} else {
-				$debug[] = $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
+				$debugLine = $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
+			}
+
+			$debug[] = $debugLine;
+			if ($this->debug) {
+				echo $debugLine;
+			}
+			if (file_exists($file)) {
+				break;
 			}
 		}
 		if (!class_exists($classFile) && !interface_exists($classFile)) {
@@ -69,9 +106,19 @@ class AutoLoad {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * @return AutoLoad
+	 */
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
 	static function register() {
-		static $instance;
-		if (!$instance) $instance = new self();
+		$instance = self::getInstance();
+		self::$instance->folders = self::$instance->getFolders();
 		spl_autoload_register(array($instance, 'load'));
 	}
 

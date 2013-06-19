@@ -1,15 +1,28 @@
 <?php
 
-class OODBase {
+/**
+ * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
+ * It contain all the information from the database related to the project as well as methods to manipulate it.
+ *
+ */
+
+abstract class OODBase {
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayer|dbLayerDB
 	 */
 	protected $db;
 
-	public $table;
-	protected $idField = 'id';
+	/**
+	 * Help to identify missing table value
+	 */
+	public $table = 'OODBase_undefined_table';
+
+	public $idField = 'id';
+
 	protected $titleColumn = 'name';
+
 	public $id;
+
 	public $data = array();
 
 	/**
@@ -35,9 +48,11 @@ class OODBase {
 	 * as associative array
 	 */
 	function __construct($id = NULL) {
-		$config = Config::getInstance();
-		$this->table = $config->prefixTable($this->table);
-		$this->db = $config->db;
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			$this->table = $config->prefixTable($this->table);
+			$this->db = $config->db;
+		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
@@ -45,7 +60,13 @@ class OODBase {
 		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
 
-	function init($id) {
+	/**
+	 * Retrieves data from DB.
+	 *
+	 * @param int|array|SQLWhere $id
+	 * @throws Exception
+	 */
+	public function init($id) {
 		if (is_array($id)) {
 			$this->data = $id;
 			$this->id = $this->data[$this->idField];
@@ -55,6 +76,9 @@ class OODBase {
 		} else if (is_scalar($id)) {
 			$this->id = $id;
 			$this->data = $this->fetchFromDB(array($this->idField => $this->id));
+			if (!$this->data) {
+				$this->id = NULL;
+			}
 		} else if (!is_null($id)) {
 			debug($id);
 			throw new Exception(__METHOD__);
@@ -222,11 +246,13 @@ class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
-		//debug($this->db->lastQuery, $this->data);
+		//debug($this->db->lastQuery);//, $this->data);
 		if ($this->id) { // found
+			//debug('Found');
 			$this->update($fields);
 			$op = 'UPD '.$this->id;
 		} else {
+			//debug('NOT Found');
 			//debug($where, $this->db->lastQuery); exit();
 			$this->insert($fields + $where);
 			$this->findInDB($where);
@@ -273,7 +299,7 @@ class OODBase {
 
 	/**
 	 * @param $id
-	 * @return OODBase
+	 * @return self
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
@@ -291,7 +317,7 @@ class OODBase {
 	}
 
 	function clearInstances() {
-		self::$instances = array();
+		self::$instances[get_class($this)] = array();
 		gc_collect_cycles();
 	}
 

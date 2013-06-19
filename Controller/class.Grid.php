@@ -8,7 +8,7 @@ abstract class Grid extends AppController {
 	protected $collection;
 
 	/**
-	 * @var Model
+	 * @var OODBase
 	 */
 	protected $model;
 

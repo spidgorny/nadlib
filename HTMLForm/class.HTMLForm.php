@@ -1,16 +1,16 @@
 <?php
 
 class HTMLForm {
-	var $action = "";
+	protected $action = "";
 	protected $method = "POST";
 	protected $prefix = array();
 	var $stdout = "";
 	var $enctype = "";
+	var $target = "";
 	var $class = "";
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
-	var $target = '';
 	public $debug = false;
 	var $publickey = "6LeuPQwAAAAAADaepRj6kI13tqxU0rPaLUBtQplC";
 	var $privatekey = "6LeuPQwAAAAAAAuAnYFIF-ZM9yXnkbssaF0rRtkj";
@@ -38,6 +38,10 @@ class HTMLForm {
 
 	function method($method) {
 		$this->method = $method;
+	}
+
+	function target($target) {
+		$this->target = $target;
 	}
 
 	function text($a) {
@@ -272,12 +276,17 @@ class HTMLForm {
 		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".htmlspecialchars($value)."</textarea>";
 	}
 
-	function submit($value = NULL, $more = "", array $params = array()) {
+	/**
+	 * Changelog: second $more parameter was removed, please user $params instead
+	 * @param null $value
+	 * @param array $params
+	 */
+	function submit($value = NULL, array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
 		$params['name'] = $params['name'] ? $params['name'] : 'submit';
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
-		$this->stdout .= $this->getInput("submit", $params['name'], $value, $more.$this->getAttrHTML($params));
+		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 	}
 
 	function button($innerHTML = NULL, $more = '') {
@@ -479,21 +488,22 @@ class HTMLForm {
 	 * @param array $options
 	 * @param array $selected - only keys are used
 	 * @param string $more
-	 * @param int $height
+	 * @param string $height
 	 * @param int $width
 	 * @see set()
 	 */
-	function checkarray($name, array $options, array $selected, $more = '', $height = 700, $width = 350) {
+	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'px; overflow: auto;" class="checkarray '.$name.'">';
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
+		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'">';
 			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
 			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
-			$this->check($name.'][', $value, $checked, $moreStr);
+			$this->check($newName, $value, $checked, $moreStr);
 			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
 			$this->stdout .= '</label>';
 		}
