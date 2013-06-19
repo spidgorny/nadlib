@@ -3,6 +3,15 @@
 class PGArray {
 
 	/**
+	 * @var dbLayer
+	 */
+	var $db;
+
+	function __construct(dbLayer $db) {
+		$this->db = $db;
+	}
+
+	/**
 	 * http://www.php.net/manual/en/ref.pgsql.php#57709
 	 *
 	 * @param unknown_type $pgArray
