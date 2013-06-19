@@ -24,7 +24,7 @@ class Timeline /*extends AppController */{
 
 	var $textColor = 'rgb(200,200,200)';
 
-	function __construct($width, $height, $start, $end) {
+	function __construct($width, $height, Time $start, Time $end) {
 		$this->width = $width;
 		$this->height = $height;
 		$this->start = $start;
