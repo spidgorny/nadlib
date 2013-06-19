@@ -18,8 +18,6 @@ class dbLayer {
 
 	var $AFFECTED_ROWS = NULL;
 
-	const NO_QUOTE = 'NO_QUOTE';
-
 	/**
 	 * @var MemcacheArray
 	 */
@@ -66,6 +64,7 @@ class dbLayer {
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug_pre_print_backtrace();
+			debug($query);
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
@@ -337,32 +336,6 @@ class dbLayer {
 		return $q;
 	}
 
-	function getSelectQuery($table, $where = array(), $order = "", $selectPlus = '') {
-		$table1 = $this->getFirstWord($table);
-		if ($selectPlus instanceof Wrap) {
-			$what = $selectPlus->wrap($table1.'*');
-		} else {
-			$what = "$table1.* $selectPlus";
-		}
-		$q = "select ".$what." from $table ";
-		$set = array();
-		foreach ($where as $key => $val) {
-			if ($val === NULL) {
-				$set[] = "$key IS NULL";
-			} else if ($val === dbLayer::NO_QUOTE) {
-				$set[] = $key;
-			} else {
-				$val = $this->quoteSQL($val);
-				$set[] = "$key = $val";
-			}
-		}
-		if (sizeof($set)) {
-			$q .= " where " . implode(" and ", $set);
-		}
-		$q .= " ".$order;
-		return $q;
-	}
-
 	function getFirstWord($table) {
 		$table1 = explode(' ', $table);
 		$table1 = $table1[0];
@@ -536,6 +509,7 @@ order by a.attnum';
 	}
 
 	function escape($str) {
+		debug_pre_print_backtrace();
 		return pg_escape_string($str);
 	}
 
