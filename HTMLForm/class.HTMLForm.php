@@ -157,9 +157,9 @@ class HTMLForm {
 		);
 	}
 
-	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
+	function checkLabel($name, $value = 1, $checked = false, $more = "", $autoSubmit = false, $label = '') {
 		$this->stdout .= '<label>';
-		$this->check($name, $value, $checked, $more);
+		$this->check($name, $value, $checked, $more, $autoSubmit);
 		$this->stdout .= ' './*htmlspecialchars*/($label).'</label>';
 	}
 

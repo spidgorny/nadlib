@@ -5,13 +5,18 @@ class dbLayer {
 	var $CONNECTION = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
-	var $LAST_PERFORM_QUERY, $lastQuery;
+	var $LAST_PERFORM_QUERY;
 	var $QUERIES = array();
 	var $QUERYMAL = array();
-	public $saveQueries = false;
+	var $AFFECTED_ROWS = NULL;
+	const NO_QUOTE = 'NO_QUOTE';
+
+	/**
+	 * @var string
+	 */
+	var $lastQuery;
 
 	function dbLayer($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
@@ -22,9 +27,13 @@ class dbLayer {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
-		$this->CONNECTION = pg_connect("host=$host dbname=$dbse user=$user password=$pass");
-		if (!$this->CONNECTION ) {
-			printbr("No postgre connection");
+		$string = "host=$host dbname=$dbse user=$user password=$pass";
+		#debug($string);
+		#debug_print_backtrace();
+		$this->CONNECTION = pg_connect($string);
+		if (!$this->CONNECTION) {
+			printbr("No postgre connection.");
+			printbr('Error: '.pg_errormessage());
 			exit();
 			return false;
 		}
@@ -34,18 +43,18 @@ class dbLayer {
 
 	function perform($query) {
 		$prof = new Profiler();
-		$this->LAST_PERFORM_QUERY = $this->lastQuery = $query;
+		$this->LAST_PERFORM_QUERY = $query;
+		$this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug_pre_print_backtrace();
 			throw new Exception(pg_errormessage($this->CONNECTION));
-		}
-		if (0 || Config::getInstance()->debugQueries) {
-			echo 'Query: '.$query.': '.$this->numRows($this->LAST_PERFORM_RESULT).'<br />';
-		}
-		if ($this->saveQueries) {
-			$this->QUERIES[$query] += $prof->elapsed();
-			$this->QUERYMAL[$query]++;
+		} else {
+			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+			if ($this->saveQueries) {
+				@$this->QUERIES[$query] += $prof->elapsed();
+				@$this->QUERYMAL[$query]++;
+			}
 		}
 		$this->COUNTQUERIES++;
 		return $this->LAST_PERFORM_RESULT;
@@ -53,8 +62,6 @@ class dbLayer {
 
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		$query = "select ($what) as res from $from where $where";
-		//print $where."<br>";
-		//print $query."<br>";
 		if ($from == 'buglog' && 1) {
 			//printbr("<b>$query: $row[0]</b>");
 		}
@@ -70,7 +77,6 @@ class dbLayer {
 				return NULL;
 			} else {
 				printbr("<b>$query: $rows</b>");
-				print_r(pg_fetch_all($result));
 				printbr("ERROR: No result or more than one result of sqlFind()");
 				my_print_backtrace($query);
 				exit();
@@ -222,6 +228,9 @@ class dbLayer {
 			}
 			$this->perform($query);
 		} else { 							// different value in DB
+			if (is_array($value)) {
+				$value = serialize($value);
+			}
 			if ($user != null) {
 				$query = "update prefs set value = '$value' where code = '$code' and reluser = '$user'";
 			} else {
@@ -245,9 +254,10 @@ class dbLayer {
 			$a = $this->sqlFindRow("select value from prefs where code = '$code'");
 		}
 		$value = $a['value'];
-		/*if ($temp = unserialize($value)) {
-			$value = $temp;
-		}*/
+		$vs = unserialize($value);
+		if ($vs !== FALSE || $value == serialize(FALSE)) {
+			$value = $vs;
+		}
 		return $value;
 	}
 
@@ -266,9 +276,15 @@ class dbLayer {
 	function quoteSQL($value) {
 		if ($value === NULL) {
 			return "NULL";
+		} else if ($value === FALSE) {
+			return "'f'";
+		} else if ($value === TRUE) {
+			return "'t'";
+		} else if (is_numeric($value)) {
+			return $value;
 		} else if (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
-		} else if (is_numeric($value)) {
+		} else if ($value instanceof SQLParam) {
 			return $value;
 		} else {
 			return "'".$this->escape($value)."'";
@@ -281,6 +297,15 @@ class dbLayer {
 			$c[] = $this->quoteSQL($b);
 		}
 		return $c;
+	}
+
+	function getInsertQuery($table, $columns) {
+		$q = "insert into $table (";
+		$q .= implode(", ", array_keys($columns));
+		$q .= ") values (";
+		$q .= implode(", ", $this->quoteValues(array_values($columns)));
+		$q .= ")";
+		return $q;
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
@@ -301,12 +326,24 @@ class dbLayer {
 		return $q;
 	}
 
-	function getSelectQuery($table, $where = array(), $order = "", $select = '*') {
-		$q = "select $select from $table ";
+	function getSelectQuery($table, $where = array(), $order = "", $selectPlus = '') {
+		$table1 = $this->getFirstWord($table);
+		if ($selectPlus instanceof Wrap) {
+			$what = $selectPlus->wrap($table1.'*');
+		} else {
+			$what = "$table1.* $selectPlus";
+		}
+		$q = "select ".$what." from $table ";
 		$set = array();
-		foreach($where as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
+		foreach ($where as $key => $val) {
+			if ($val === NULL) {
+				$set[] = "$key IS NULL";
+			} else if ($val === dbLayer1::NO_QUOTE) {
+				$set[] = $key;
+			} else {
+				$val = $this->quoteSQL($val);
+				$set[] = "$key = $val";
+			}
 		}
 		if (sizeof($set)) {
 			$q .= " where " . implode(" and ", $set);
@@ -315,7 +352,13 @@ class dbLayer {
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array(), $order = "") {
+	function getFirstWord($table) {
+		$table1 = explode(' ', $table);
+		$table1 = $table1[0];
+		return $table1;
+	}
+
+	function getDeleteQuery($table, array $where) {
 		$q = "delete from $table ";
 		$set = array();
 		foreach($where as $key => $val) {
@@ -339,13 +382,6 @@ class dbLayer {
 		return $rows;
 	}
 
-	function fetchAssoc($res) {
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		return pg_fetch_assoc($res);
-	}
-
 	function getAllRows($query) {
 		$result = $this->perform($query);
 		$data = $this->fetchAll($result);
@@ -355,6 +391,14 @@ class dbLayer {
 	function getFirstRow($query) {
 		$result = $this->perform($query);
 		$row = pg_fetch_assoc($result);
+		return $row;
+	}
+
+	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		$row = pg_fetch_assoc($res);
 		return $row;
 	}
 
@@ -378,7 +422,7 @@ class dbLayer {
 		return pg_num_rows($query);
 	}
 
-	function runUpdateQuery($table, $set, $where) {
+	function runUpdateQuery($table, array $set, array $where) {
 		$query = $this->getUpdateQuery($table, $set, $where);
 		return $this->perform($query);
 	}
@@ -393,9 +437,7 @@ class dbLayer {
 	function getLastInsertID($res, $table = 'not required since 8.1') {
 		$pgv = pg_version();
 		if ($pgv['server'] >= 8.1) {
-			$res = $this->perform('SELECT LASTVAL() AS lastval');
-			$row = $this->fetchAssoc($res);
-			$id = $row['lastval'];
+			$id = $this->lastval();
 		} else {
 			$oid = pg_last_oid($res);
 			$id = $this->sqlFind('id', $table, "oid = '".$oid."'");
@@ -413,6 +455,77 @@ class dbLayer {
 		return $this->getLastInsertID($res, $table);
 	}
 
+ 	protected function lastval() {
+		$res = $this->perform('SELECT LASTVAL() AS lastval');
+		$row = $this->fetchAssoc($res);
+		$lv = $row['lastval'];
+		return $lv;
+	}
+
+	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '') {
+		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
+		$row = $this->fetchAssoc($res);
+		return $row;
+	}
+
+	/**
+	 *
+	 * @param type $table
+	 * @param type $where
+	 * @param string $order
+	 * @param string $selectPlus
+	 * @return table
+	 */
+	function fetchAllSelectQuery($table, $where, $order = '', $selectPlus = '') {
+		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
+		$rows = $this->fetchAll($res);
+		return $rows;
+	}
+
+	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->transaction();
+		$res = $this->runSelectQuery($table, $where);
+		$this->found = $this->fetchAssoc($res);
+		if ($this->found) {
+			$query = $this->getUpdateQuery($table, $fields, $where);
+			$res = $this->perform($query);
+			$inserted = $this->found['id'];
+		} else {
+			$query = $this->getInsertQuery($table, $fields + $createPlus);
+			$res = $this->perform($query);
+			$inserted = $this->getLastInsertID($res, $table);
+			//$inserted = $this->lastval(); should not be used directly
+		}
+		$this->commit();
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $inserted;
+	}
+
+	function runDeleteQuery($table, $where) {
+		$this->perform($this->getDeleteQuery($table, $where));
+	}
+
+	function getComment($table, $column) {
+		$query = 'select
+     a.attname  as "colname"
+    ,a.attrelid as "tableoid"
+    ,a.attnum   as "columnoid"
+	,col_description(a.attrelid, a.attnum) as "comment"
+from
+    pg_catalog.pg_attribute a
+    inner join pg_catalog.pg_class c on a.attrelid = c.oid
+where
+        c.relname = '.$this->quoteSQL($table).'
+    and a.attnum > 0
+    and a.attisdropped is false
+    and pg_catalog.pg_table_is_visible(c.oid)
+order by a.attnum';
+		$rows = $this->fetchAll($query);
+		$rows = slArray::column_assoc($rows, 'comment', 'colname');
+		return $rows[$column];
+	}
+
 	function getArrayIntersect(array $options, $field = 'list_next') {
 		$bigOR = array();
 		foreach ($options as $n) {
@@ -420,193 +533,6 @@ class dbLayer {
 		}
 		$bigOR = "(" . implode(' OR ', $bigOR) . ")";
 		return $bigOR;
-	}
-
-	/**
-	 * http://www.php.net/manual/en/ref.pgsql.php#57709
-	 *
-	 * @param unknown_type $pgArray
-	 * @return unknown
-	 */
-	function PGArrayToPHPArray($pgArray) {
-	  $ret = array();
-	  $stack = array(&$ret);
-	  $pgArray = substr($pgArray, 1, -1);
-	  $pgElements = explode(",", $pgArray);
-
-	  //ArrayDump($pgElements);
-
-	  foreach($pgElements as $elem)
-	    {
-	      if(substr($elem,-1) == "}")
-	        {
-	          $elem = substr($elem,0,-1);
-	          $newSub = array();
-	          while(substr($elem,0,1) != "{")
-	            {
-	              $newSub[] = $elem;
-	              $elem = array_pop($ret);
-	            }
-	          $newSub[] = substr($elem,1);
-	          $ret[] = array_reverse($newSub);
-	        }
-	      else
-	        $ret[] = $elem;
-	    }
-	  return $ret;
-	}
-
-	/**
-	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
-	 * @param $input
-	 * @internal param string $dbarr
-	 * @return array
-	 */
-	function getPGArray($input) {
-		if ($input{0} == '{') {	// array inside
-			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
-			return $this->getPGArray($input);
-		} else {
-			if (strpos($input, '},{') !== FALSE) {
-				$parts = explode('},{', $input);
-				foreach ($parts as &$p) {
-					$p = $this->getPGArray($p);
-				}
-			} else {
-				$parts = $this->str_getcsv($input, ',', '"');
-				$parts = (array)$parts;
-				//debug($parts);
-				//$parts = array_map('stripslashes', $parts);	// already done in str_getcsv
-			}
-			return $parts;
-		}
-	}
-
-	static function str_getcsv($input, $delimiter=',', $enclosure='"', $escape='\\', $eol=null) {
-		$temp=fopen("php://memory", "rw");
-		fwrite($temp, $input);
-		fseek($temp, 0);
-		$r = array();
-		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
-			$r[] = array_map('stripslashes', $data);
-		}
-		fclose($temp);
-		return $r[0];
-	}
-
-	/**
-	 * Change a db array into a PHP array
-	 * @param $input
-	 * @internal param String $arr representing the DB array
-	 * @return A PHP array
-	 */
-/*	function getPGArray($dbarr) {
-		// Take off the first and last characters (the braces)
-		$arr = substr($dbarr, 1, strlen($dbarr) - 2);
-
-		// Pick out array entries by carefully parsing.  This is necessary in order
-		// to cope with double quotes and commas, etc.
-		$elements = array();
-		$i = $j = 0;
-		$in_quotes = false;
-		while ($i < strlen($arr)) {
-			// If current char is a double quote and it's not escaped, then
-			// enter quoted bit
-			$char = substr($arr, $i, 1);
-			if ($char == '"' && ($i == 0 || substr($arr, $i - 1, 1) != '\\'))
-				$in_quotes = !$in_quotes;
-			elseif ($char == ',' && !$in_quotes) {
-				// Add text so far to the array
-				$elements[] = substr($arr, $j, $i - $j);
-				$j = $i + 1;
-			}
-			$i++;
-		}
-		// Add final text to the array
-		$elements[] = substr($arr, $j);
-
-		// Do one further loop over the elements array to remote double quoting
-		// and escaping of double quotes and backslashes
-		for ($i = 0; $i < sizeof($elements); $i++) {
-			$v = $elements[$i];
-			if (strpos($v, '"') === 0) {
-				$v = substr($v, 1, strlen($v) - 2);
-				$v = str_replace('\\"', '"', $v);
-				$v = str_replace('\\\\', '\\', $v);
-				$elements[$i] = $v;
-			}
-		}
-
-		return $elements;
-	}
-*/
-	function getPGArray1D($input) {
-		$pgArray = substr(substr(trim($input), 1), 0, -1);
-		$v1 = explode(',', $pgArray);
-		if ($v1 == array('')) return array();
-		$inside = false;
-		$out = array();
-		$o = 0;
-		foreach ($v1 as $word) {
-			if ($word{0} == '"') {
-				$inside = true;
-				$word = substr($word, 1);
-			}
-			if (in_array($word{strlen($word)-1}, array('"'))
-			&& !in_array($word{strlen($word)-2}, array('\\'))
-			) {
-				$inside = false;
-				$word = substr($word, 0, -1);
-			}
-			$out[$o] .= stripslashes($word); // strange but required
-			if (!$inside) {
-				$o++;
-			}
-		}
-		//debug($input, $pgArray, $out);
-		return $out;
-	}
-
-/*	public function getPGArray($text) {
-		$this->pg_array_parse($text, $output);
-		return $output;
-	}
-
-	private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
-		if( false === $limit )
-		{
-			$limit = strlen( $text )-1;
-			$output = array();
-		}
-		if( '{}' != $text )
-			do
-			{
-				if( '{' != $text{$offset} )
-				{
-					preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
-					$offset += strlen( $match[0] );
-					$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
-					if( '},' == $match[3] ) return $offset;
-				}
-				else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
-			}
-			while( $limit > $offset );
-	}
-*/
-	function setPGArray(array $data) {
-		foreach ($data as &$el) {
-			if (is_array($el)) {
-				$el = $this->setPGArray($el);
-			} else {
-				$el = pg_escape_string($el);
-				$el = '"'.str_replace(array(
-					'"',
-				), array(
-					'\\"',
-				), $el).'"';
-			}
-		}
-		return '{'.implode(',', $data).'}';
 	}
 
 	function escape($str) {

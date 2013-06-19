@@ -476,11 +476,9 @@ class HTMLFormTable extends HTMLForm {
 	 * @param	array	Values in one of the supported formats.
 	 * @param	boolean	??? what's for?
 	 * @return	array	HTMLFormTable structure.
+	 * @deprecated in favor of fill()
 	 */
-	function fillValues(array $desc, array $assoc, $forceInsert = false) {
-		if (!$desc) {
-			$desc = $this->desc;
-		}
+	function fillValues(array $desc, array $assoc = NULL, $forceInsert = false) {
 		foreach ($assoc as $key => $val) {
 			if (is_array($desc[$key]) || $forceInsert) {
 				if (is_array($val) && $this->withValue) {
@@ -507,6 +505,14 @@ class HTMLFormTable extends HTMLForm {
 			}
 		}
 		return $desc;
+	}
+
+	/**
+	 * @param array $assoc
+	 * @param bool $forceInsert
+	 */
+	function fill(array $assoc, $forceInsert = false) {
+		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
 	}
 
 	/**
