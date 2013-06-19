@@ -509,7 +509,6 @@ order by a.attnum';
 	}
 
 	function escape($str) {
-		debug_pre_print_backtrace();
 		return pg_escape_string($str);
 	}
 
