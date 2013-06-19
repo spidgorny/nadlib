@@ -275,8 +275,8 @@ class slTable {
 
 	function generate($caller = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
-		if (!$this->generation) {
-			if (sizeof($this->data) && $this->data != FALSE) {
+		if (!$this->generation) {	// cache
+			if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
 				$this->generateThes();
 
 				if ($this->sortable) {

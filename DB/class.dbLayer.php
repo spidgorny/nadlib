@@ -280,7 +280,7 @@ class dbLayer {
 			return "'f'";
 		} else if ($value === TRUE) {
 			return "'t'";
-		} else if (is_numeric($value)) {
+		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
 		} else if (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
