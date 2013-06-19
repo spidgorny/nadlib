@@ -300,7 +300,7 @@ abstract class Controller {
 	}
 
 	function inColumnsHTML5() {
-		$GLOBALS['HTMLFOOTER']['display-box.css'] = '<link rel="stylesheet" type="text/css" href="/vendor/spidgorny/nadlib/CSS/display-box.css" />';
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
