@@ -10,7 +10,7 @@ class URL {
 	 */
 	public $components = array();
 
-	public $params;
+	public $params = array();
 
 	public $documentRoot = '';
 
