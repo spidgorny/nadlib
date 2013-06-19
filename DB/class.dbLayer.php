@@ -36,8 +36,11 @@ class dbLayer {
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	function isConnected() {
-		return $this->CONNECTION;
+		return !!$this->CONNECTION;
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
@@ -46,9 +49,8 @@ class dbLayer {
 		#debug_print_backtrace();
 		$this->CONNECTION = pg_connect($string);
 		if (!$this->CONNECTION) {
-			printbr("No postgre connection.");
-			printbr('Error: '.pg_errormessage());
-			exit();
+			throw new Exception("No postgre connection.");
+			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 			return false;
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -186,8 +188,8 @@ class dbLayer {
 		}
 	}
 
-	function getTableDataEx($table, $where = "", $special = "") {
-		$query = "select ".($special?$special." as special, ":'')."* from $table";
+	function getTableDataEx($table, $where = "", $what = "*") {
+		$query = "select ".$what." from $table";
 		if (!empty($where)) $query .= " where $where";
 		$result = $this->fetchAll($query);
 		return $result;
@@ -347,7 +349,7 @@ class dbLayer {
 		foreach ($where as $key => $val) {
 			if ($val === NULL) {
 				$set[] = "$key IS NULL";
-			} else if ($val === dbLayer1::NO_QUOTE) {
+			} else if ($val === dbLayer::NO_QUOTE) {
 				$set[] = $key;
 			} else {
 				$val = $this->quoteSQL($val);
