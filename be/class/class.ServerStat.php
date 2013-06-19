@@ -247,7 +247,7 @@ class ServerStat extends AppControllerBE {
 			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
 			sleep(1);
 			$time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
-			debug($time1, $time2);
+			//debug($time1, $time2);
 
 			$delta = array();
 

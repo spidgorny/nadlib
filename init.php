@@ -1,44 +1,54 @@
 <?php
 
-function initNADLIB() {
-	require_once dirname(__FILE__).'/class.AutoLoad.php';
-	AutoLoad::register();
+class InitNADLIB {
 
-	//print_r($_SERVER);
-    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
-	define('DEVELOPMENT', isset($_SERVER['argc'])
-		? (($os == 'Windows_NT') || true)// at home
-		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
-	);
-	if (DEVELOPMENT) {
-		error_reporting(E_ALL ^ E_NOTICE);
-		//ini_set('display_errors', FALSE);
-		//trigger_error(str_repeat('*', 20));	// log file separator
+	var $useCookies = true;
 
-		ini_set('display_errors', TRUE);
-		ini_set('html_error', TRUE);
+	function init() {
+		//print_r($_SERVER);
+		require_once dirname(__FILE__).'/class.AutoLoad.php';
+		$al = AutoLoad::getInstance();
+		$al->useCookies = $this->useCookies;
+		$al->register();
 
-		$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
-		/* @var $profiler TaylorProfiler */
+		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		define('DEVELOPMENT', Request::isCLI()
+			? (($os == 'Windows_NT') || true) // at home
+			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+		);
 
-		if (false && class_exists('Config')) {
-			//print_r(Config::getInstance()->config['Config']);
-			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+		if (DEVELOPMENT) {
+			error_reporting(E_ALL ^ E_NOTICE);
+			//ini_set('display_errors', FALSE);
+			//trigger_error(str_repeat('*', 20));	// log file separator
+
+			ini_set('display_errors', TRUE);
+			ini_set('html_error', TRUE);
+
+			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
+			/* @var $profiler TaylorProfiler */
+			if (class_exists('Config')) {
+				//print_r(Config::getInstance()->config['Config']);
+				set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+			}
+			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
+			}
+		} else {
+			error_reporting(0);
+			ini_set('display_errors', FALSE);
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
+			}
 		}
-		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
-		header('Cache-Control: no-cache, no-store, max-age=0');
-		header('Expires: -1');
-	} else {
-		error_reporting(0);
-		ini_set('display_errors', FALSE);
-		header('Cache-Control: no-cache, no-store, max-age=0');
-		header('Expires: -1');
+		date_default_timezone_set('Europe/Berlin');
+		ini_set('short_open_tag', 1);
+		Request::removeCookiesFromRequest();
 	}
-	date_default_timezone_set('Europe/Berlin');
-	ini_set('short_open_tag', 1);
-	Request::removeCookiesFromRequest();
-	//chdir(dirname(dirname(__FILE__)));	// one level up
-	// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
+
 }
 
 function debug($a) {
@@ -46,7 +56,7 @@ function debug($a) {
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
-		echo '<pre>'.htmlspecialchars(print_r($params, true)).'</pre>';
+		echo '<pre>'.htmlspecialchars(print_r(func_num_args() == 1 ? $a : $params, true)).'</pre>';
 	}
 }
 
@@ -78,6 +88,27 @@ function debug_once() {
 		call_user_func_array('debug', $v);
 		$used[$key] = true;
 	}
+}
+
+function debug_size($a) {
+	if (is_object($a)) {
+		$vals = get_object_vars($a);
+		$keys = array_keys($vals);
+	} else {
+		$vals = $a;
+		$keys = array_keys($a);
+	}
+	$assoc = array();
+	foreach ($keys as $key) {
+		if ($vals[$key] instanceof SimpleXMLElement) {
+			$vals[$key] = $vals[$key]->asXML();
+		}
+		//$len = strlen(serialize($vals[$key]));
+		$len = strlen(json_encode($vals[$key]));
+		//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
+		$assoc[$key] = $len;
+	}
+	debug($assoc);
 }
 
 /**
@@ -112,10 +143,15 @@ function endsWith($haystack, $needle) {
  * Does string splitting with cleanup.
  * @param $sep
  * @param $str
+ * @param null $max
  * @return array
  */
-function trimExplode($sep, $str) {
-	$parts = explode($sep, $str);
+function trimExplode($sep, $str, $max = NULL) {
+	if ($max) {
+		$parts = explode($sep, $str, $max);		// checked by isset so NULL makes it 0
+	} else {
+		$parts = explode($sep, $str);
+	}
 	$parts = array_map('trim', $parts);
 	$parts = array_filter($parts);
 	$parts = array_values($parts);
@@ -212,5 +248,3 @@ function array_combine_stringkey(array $a, array $b) {
 	}
 	return $ret;
 }
-
-initNADLIB();

@@ -1,11 +1,37 @@
 <?php
 
 class MySQL {
+
+	/**
+	 * @var string
+	 */
 	public $db;
+
+	/**
+	 * @var string
+	 */
 	public $lastQuery;
+
+	/**
+	 * @var resource
+	 */
 	protected $connection;
+
+	/**
+	 * @var self
+	 */
 	protected static $instance;
+
+	/**
+	 * @var array
+	 */
 	public $queryLog = array();		// set to NULL for disabling
+
+	/**
+	 * @var bool Allows logging every query to the error.log.
+	 * Helps to detect the reason for white screen problems.
+	 */
+	public $logToLog = false;
 
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -19,7 +45,7 @@ class MySQL {
 	function connect($host, $login, $password) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//echo __METHOD__.'<br />';
-		ini_set('mysql.connect_timeout', 1);
+		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
@@ -52,14 +78,20 @@ class MySQL {
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
 		}
+		if ($this->logToLog) {
+			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime.' '.$query);
+		}
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
-			$this->queryLog[$query] = is_array($this->queryLog[$query]) ? $this->queryLog[$query] : array();
-			$this->queryLog[$query]['time'] = ($this->queryLog[$query]['time'] + $diffTime) / 2;
-			$this->queryLog[$query]['sumtime'] += $diffTime;
-			$this->queryLog[$query]['times']++;
+			$key = md5($query);
+			$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
+			$this->queryLog[$key]['query'] = $query;
+			$this->queryLog[$key]['time'] = ($this->queryLog[$key]['time'] + $diffTime) / 2;
+			$this->queryLog[$key]['sumtime'] += $diffTime;
+			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
 		if (mysql_errno($this->connection)) {
@@ -215,10 +247,35 @@ class MySQL {
 		return $res;
 	}
 
+	function getDatabaseCharacterSet() {
+		return current($this->fetchAssoc('show variables like "character_set_database"'));
+	}
+
+	/**
+	 * @return string[]
+	 */
+	function getTables() {
+		$list = $this->fetchAll('SHOW TABLES');
+		foreach ($list as &$row) {
+			$row = current($row);
+		}
+		return $list;
+	}
+
+	function getTableCharset($table) {
+		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
+    	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+		WHERE CCSA.collation_name = T.table_collation
+  		/*AND T.table_schema = 'schemaname'*/
+  		AND T.table_name = '".$table."'";
+		$row = $this->fetchAssoc($query);
+		return $row;
+	}
+
 	function getTableColumns($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW COLUMNS FROM ".$this->escape($table);
+			$query = "SHOW FULL COLUMNS FROM ".$this->escape($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
@@ -264,6 +321,14 @@ class MySQL {
 			$data[$key] = $val;
 		}
 		return $data;
+	}
+
+	function affectedRows() {
+		return mysql_affected_rows();
+	}
+
+	function getIndexesFrom($table) {
+		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
 }

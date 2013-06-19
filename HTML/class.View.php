@@ -11,6 +11,13 @@ class View {
 	/**
 	 * Enter description here...
 	 *
+	 * @var LocalLang
+	 */
+	protected $ll;
+	
+	/**
+	 * Enter description here...
+	 *
 	 * @var Request
 	 */
 	protected $request;
@@ -26,7 +33,7 @@ class View {
 
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
-		$this->folder = dirname(__FILE__).'/../../template/';
+		$this->folder = Config::getInstance()->appRoot.'/template/';
 		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
 			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
 		}
@@ -42,7 +49,7 @@ class View {
 		}
 		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
 		$this->request = Request::getInstance();
-		$this->index = Index::getInstance();
+		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 

@@ -12,6 +12,11 @@ class DatabaseResultIterator implements Iterator, Countable {
 	var $rows = 0;
 	var $key = 0;
 
+	/**
+	 * @var MySQL|dbLayer
+	 */
+	var $db;
+
 	function __construct(DIContainer $di, $defaultKey = NULL) { // 'uid'
 		$this->defaultKey = $defaultKey;
 		//$this->db = Config::getInstance()->db;

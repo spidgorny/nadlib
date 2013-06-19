@@ -11,6 +11,11 @@ class slTableValue {
 	 */
 	var $db;
 
+	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
+	public $SLTABLE_IMG_CHECK = '☑';
+	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
+	public $SLTABLE_IMG_CROSS = '☐';
+
 	function __construct($value, $desc = array()) {
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
@@ -19,7 +24,9 @@ class slTableValue {
 		}
 		$this->value = $value;
 		$this->desc += (array)$desc;
-		$this->db = Config::getInstance()->db;
+		if (class_exists('Config')) {
+			$this->db = Config::getInstance()->db;
+		}
 	}
 
 /*	function render() {
@@ -56,18 +63,20 @@ class slTableValue {
 				//debug($k + array('val' => $val));
 				if ($val) {
 					$what = $k['title'] ? $k['title'] : $col;
+					$id = $k['idField'] ? $k['idField'] : 'id';
 					if (!isset($k['options'])) {
-						$options = $this->db->fetchSelectQuery($k['from'], array($k['idField'] => $val));
-						$options = AP($options)->IDalize()->column($what)->getData();
-						$out = $options[$val];
-					} else if ($k['set']) {
-						//debug($val);
-						$list = explode(',', $val);
-						$out = array();
-						foreach ($list as $val) {
-							$out[] = $GLOBALS['dbLayer']->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
+						if ($k['set']) {
+							$list = trimExplode(',', $val);
+							$out = array();
+							foreach ($list as $val) {
+								$out[] = $this->db->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
+							}
+							$out = implode(', ', $out);
+						} else if ($k['from']) {
+							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val));
+							$options = ArrayPlus::create($options)->IDalize($id)->column($what)->getData();
+							$out = $options[$val];
 						}
-						$out = implode(', ', $out);
 					} else {
 						$options = $k['options'];
 						$out = $options[$val];

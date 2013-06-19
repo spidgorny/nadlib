@@ -136,7 +136,7 @@ class Request {
 	 * Will return timestamp
 	 * Converts string date compatible with strtotime() into timestamp (integer)
 	 *
-	 * @param unknown_type $name
+	 * @param string $name
 	 * @throws Exception
 	 * @return int
 	 */
@@ -151,6 +151,12 @@ class Request {
 
 	function getArray($name) {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
+	}
+
+	function getTrimArray($name) {
+		$list = $this->getArray($name);
+		$list = array_map('trim', $list);
+		return $list;
 	}
 
 	function getSubRequestByPath(array $name) {
@@ -237,6 +243,8 @@ class Request {
 	function getControllerString() {
 		if ($this->isCLI()) {
 			$controller = $_SERVER['argv'][1];
+			$this->data += $this->parseParameters();
+			//debug($this->data);
 		} else {
 			$controller = $this->getTrim('c');
 			// to simplofy URL it first searches for the corresponding controller
@@ -270,6 +278,7 @@ class Request {
 		}   // cli
         if (!$controller) {
             $controller = $this->defaultController;
+			//debug('Using default controller', $controller);
         }
 		nodebug(array(
 			'result' => $controller,
@@ -333,7 +342,12 @@ class Request {
 	 * @return string
 	 */
 	function getLocation() {
-		$docRoot = dirname($_SERVER['PHP_SELF']);
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			$docRoot = $c->documentRoot;
+		} else {
+			$docRoot = dirname($_SERVER['PHP_SELF']);
+		}
 		if (strlen($docRoot) == 1) {
 			$docRoot = '/';
 		} else {
@@ -390,14 +404,15 @@ class Request {
 	 * http://www.zen-cart.com/forum/showthread.php?t=164174
 	 */
 	static function getRequestType() {
-		$request_type = (((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1'))) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_BY']) && strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']), 'SSL') !== false) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_HOST']) && (strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), 'SSL') !== false || strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), str_replace('https://', '', HTTPS_SERVER)) !== false)) ||
-						 (isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && ($_SERVER['HTTP_X_FORWARDED_SSL'] == '1' || strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) == 'on')) ||
-						 (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'ssl' || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https')) ||
-						 (isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-						 (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) ? 'https' : 'http';
+		$request_type =
+			(((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1'))) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_BY']) && strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']), 'SSL') !== false) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_HOST']) && (strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), 'SSL') !== false || strpos(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']), str_replace('https://', '', HTTPS_SERVER)) !== false)) ||
+			(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
+			(isset($_SERVER['HTTP_X_FORWARDED_SSL']) && ($_SERVER['HTTP_X_FORWARDED_SSL'] == '1' || strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) == 'on')) ||
+			(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'ssl' || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https')) ||
+			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
+			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) ? 'https' : 'http';
 		return $request_type;
 	}
 
@@ -428,10 +443,17 @@ class Request {
 		return isset($path[$level]) ? $path[$level] : NULL;
 	}
 
+	/**
+	 * @return array
+	 */
 	function getURLLevels() {
 		$path = $this->url->getPath();
-		$path = trimExplode('/', $path);
-		//debug($path);
+		if (strlen($path) > 1) {	// "/"
+			$path = trimExplode('/', $path);
+			//debug($this->url->getPath(), $path);
+		} else {
+			$path = array();
+		}
 		return $path;
 	}
 
@@ -499,7 +521,7 @@ class Request {
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
-	function isCLI() {
+	static function isCLI() {
 		return isset($_SERVER['argc']);
 	}
 
@@ -527,6 +549,59 @@ class Request {
 		$filename = $this->getTrim($name);
 		$filename = basename($filename);	// optionally use realpath()
 		return $filename;
+	}
+
+	/**
+	 * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
+	 * @see http://www.php.net/manual/en/function.getopt.php#83414
+	 *
+	 * Supports:
+	 * -e
+	 * -e <value>
+	 * --long-param
+	 * --long-param=<value>
+	 * --long-param <value>
+	 * <value>
+	 *
+	 * @param array $noopt List of parameters without values
+	 * @return array
+	 */
+	function parseParameters($noopt = array()) {
+		$result = array();
+		$params = $GLOBALS['argv'];
+		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
+		reset($params);
+		while (list($tmp, $p) = each($params)) {
+			if ($p{0} == '-') {
+				$pname = substr($p, 1);
+				$value = true;
+				if ($pname{0} == '-') {
+					// long-opt (--<param>)
+					$pname = substr($pname, 1);
+					if (strpos($p, '=') !== false) {
+						// value specified inline (--<param>=<value>)
+						list($pname, $value) = explode('=', substr($p, 2), 2);
+					}
+				}
+				// check if next parameter is a descriptor or a value
+				$nextparm = current($params);
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
+				$result[$pname] = $value;
+			} else {
+				// param doesn't belong to any option
+				$result[] = $p;
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * http://stackoverflow.com/a/6127748/417153
+	 * @return bool
+	 */
+	function isRefresh() {
+		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
+			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
 }
