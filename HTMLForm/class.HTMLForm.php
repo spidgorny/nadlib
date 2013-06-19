@@ -293,9 +293,9 @@ class HTMLForm {
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
-	function image($value = NULL, $more = "", $desc = array()) {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=image ".$this->getName('submit')." src=".$desc['src']." class='submitbutton' " . ($value?"value=\"$value\"":"") . " $more>\n";
+	function image($src, $more = array()) {
+		$this->stdout .= "<input type=image ".$this->getName('submit')."
+			src=".$src." class='submitbutton' " . $this->getAttrHTML($more) . ">\n";
 	}
 
 	function reset($value = NULL, $more = "") {

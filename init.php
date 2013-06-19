@@ -6,7 +6,7 @@ class InitNADLIB {
 
 	function init() {
 		//print_r($_SERVER);
-		require_once dirname(__FILE__).'/class.AutoLoad.php';
+		require_once dirname(__FILE__) . '/class.AutoLoad.php';
 		$al = AutoLoad::getInstance();
 		$al->useCookies = $this->useCookies;
 		$al->register();
