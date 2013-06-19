@@ -35,7 +35,7 @@ class AutoLoad {
 				session_start();
 			}
 			//unset($_SESSION['autoloadCache']);
-			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
+			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : array();
 		} else {
 			$folders = array();
 		}

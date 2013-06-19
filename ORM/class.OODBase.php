@@ -48,9 +48,11 @@ abstract class OODBase {
 	 * as associative array
 	 */
 	function __construct($id = NULL) {
-		$config = Config::getInstance();
-		$this->table = $config->prefixTable($this->table);
-		$this->db = $config->db;
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			$this->table = $config->prefixTable($this->table);
+			$this->db = $config->db;
+		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
