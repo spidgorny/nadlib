@@ -21,6 +21,11 @@ class Lesser extends AppController {
 			$this->output = 'cache/'.str_replace('.less', '.css', $cssFileName);
 			//debug($cssFile, file_exists($cssFile), $this->output);
 
+			header("Date: ".gmdate("D, d M Y H:i:s", time())." GMT");
+			header("Last-Modified: ".gmdate("D, d M Y H:i:s", time())." GMT");;
+			header("Expires: ".gmdate("D, d M Y H:i:s", time() + 60*60*24)." GMT");
+			header('Pragma: cache');
+			header_remove('Cache-control');
 			if ($this->request->isRefresh()) {
 				$less->compileFile($cssFile, $this->output);
 			} else {
