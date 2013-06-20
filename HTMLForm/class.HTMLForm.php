@@ -283,7 +283,7 @@ class HTMLForm {
 	 */
 	function submit($value = NULL, array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
-		$params['name'] = $params['name'] ? $params['name'] : 'submit';
+		//$params['name'] = $params['name'] ? $params['name'] : 'submit';	// obtrusive
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
