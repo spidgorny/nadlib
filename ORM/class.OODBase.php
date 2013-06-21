@@ -240,21 +240,25 @@ abstract class OODBase {
 	 *
 	 * @param array $fields
 	 * @param array $where
+	 * @param array $insert
 	 * @return string
 	 */
-	function insertUpdate(array $fields, array $where) {
+	function insertUpdate(array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
 		//debug($this->db->lastQuery);//, $this->data);
 		if ($this->id) { // found
-			//debug('Found');
-			$this->update($fields);
-			$op = 'UPD '.$this->id;
+			$left = array_intersect_key($this->data, $fields);
+			$right = array_intersect_key($fields, $this->data);
+			if ($left != $right) {
+				$this->update($fields);
+				$op = 'UPD '.$this->id;
+			} else {
+				$op = 'SKIP';
+			}
 		} else {
-			//debug('NOT Found');
-			//debug($where, $this->db->lastQuery); exit();
-			$this->insert($fields + $where);
+			$this->insert($fields + $where + $insert);
 			$this->findInDB($where);
 			$op = 'INS';
 		}

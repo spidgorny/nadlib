@@ -248,3 +248,34 @@ function array_combine_stringkey(array $a, array $b) {
 	}
 	return $ret;
 }
+
+/**
+ * http://www.php.net/manual/en/function.get-class-methods.php
+ * @param $class
+ * @return array|null
+ */
+function get_overriden_methods($class) {
+	$rClass = new ReflectionClass($class);
+	$array = NULL;
+
+	foreach ($rClass->getMethods() as $rMethod)
+	{
+		try
+		{
+			// attempt to find method in parent class
+			new ReflectionMethod($rClass->getParentClass()->getName(),
+				$rMethod->getName());
+			// check whether method is explicitly defined in this class
+			if ($rMethod->getDeclaringClass()->getName()
+				== $rClass->getName())
+			{
+				// if so, then it is overriden, so add to array
+				$array[] .=  $rMethod->getName();
+			}
+		}
+		catch (exception $e)
+		{    /* was not in parent class! */    }
+	}
+
+	return $array;
+}
