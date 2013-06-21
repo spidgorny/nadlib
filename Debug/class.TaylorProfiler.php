@@ -284,7 +284,10 @@ class TaylorProfiler {
     }
 
 	function renderFloat() {
-		$oaTime = microtime(true) - ($this->initTime ? $this->initTime : $_SERVER['REQUEST_TIME']);
+		$oaTime = microtime(true) - ($this->initTime
+				? $this->initTime
+				: ($_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'])
+		);
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
 			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
