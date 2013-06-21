@@ -158,8 +158,8 @@ abstract class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
 		if (is_array($rows)) {
-			if (is_array(current($rows))) {
-				$data = current($rows);
+			if (is_array(first($rows))) {
+				$data = first($rows);
 			} else {
 				$data = $rows;
 			}
