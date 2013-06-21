@@ -353,7 +353,9 @@ class Request {
 		} else {
 			$docRoot .= '/';
 		}
-		$url = Request::getRequestType().'://'.$_SERVER['HTTP_HOST'].$docRoot;
+		$url = Request::getRequestType().'://'.(
+			$_SERVER['HTTP_X_FORWARDED_HOST'] ?: $_SERVER['HTTP_HOST']
+		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
 		return $url;
