@@ -530,4 +530,25 @@ class slTable {
 		exit();
 	}
 
+	function prepare4XLS() {
+		$this->generateThes();
+		//debug($this->thes);
+
+		$xls = array();
+		foreach ($this->thes as $th) {
+			$row[] = is_array($th) ? $th['name'] : $th;
+		}
+		$xls[] = $row;
+
+		foreach ($this->data as $row) {
+			$line = array();
+			foreach ($this->thes as $col => $_) {
+				$val = $row[$col];
+				$line[] = strip_tags($val);
+			}
+			$xls[] = $line;
+		}
+		return $xls;
+	}
+
 }
