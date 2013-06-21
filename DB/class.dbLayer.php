@@ -84,13 +84,11 @@ class dbLayer {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
-		if ($from == 'buglog' && 1) {
-			//printbr("<b>$query: $row[0]</b>");
-		}
 		$result = $this->perform($query);
 		$rows = pg_num_rows($result);
 		if ($rows == 1) {
 			$row = pg_fetch_row($result, 0);
+			pg_free_result($result);
 //			printbr("<b>$query: $row[0]</b>");
 			$return = $row[0];
 		} else {
@@ -165,10 +163,6 @@ class dbLayer {
 				}
 			}
 		}
-
-		//debug($return); exit;
-		//print "<pre>";
-		//print_r($return);
 		return $return;
 	}
 
@@ -194,12 +188,11 @@ class dbLayer {
 	}
 
 	function getTableOptions($table, $column, $where = "", $key = 'id') {
-		$a = $this->getTableDataEx($table, $where, $column);
+		$a = $this->getTableDataEx($table, $where, $table.'.*, '.$column);
 		$b = array();
 		foreach ($a as $row) {
-			$b[$row[$key]] = $row["special"];
+			$b[$row[$key]] = $row[$column];
 		}
-		//debug($this->LAST_PERFORM_QUERY, $a, $b);
 		return $b;
 	}
 
@@ -291,9 +284,9 @@ class dbLayer {
 	}
 
 	function getInsertQuery($table, $columns) {
-		$q = "insert into $table (";
+		$q = "INSERT INTO $table (";
 		$q .= implode(", ", array_keys($columns));
-		$q .= ") values (";
+		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
 		$q .= ")";
 		return $q;
@@ -318,16 +311,16 @@ class dbLayer {
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
-		$q = "update $table set ";
+		$q = "UPDATE $table SET ";
 		$set = array();
-		foreach($columns as $key => $val) {
+		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		$q .= implode(", ", $set);
 		$q .= " where ";
 		$set = array();
-		foreach($where as $key => $val) {
+		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
@@ -387,8 +380,8 @@ class dbLayer {
 		return $value;
 	}
 
-	function runSelectQuery($table, $where = array(), $order = '', $addSelect = '', $doReplace = false) {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect, $doReplace);
+	function runSelectQuery($table, $where = array(), $order = '', $select = '*') {
+		$query = $this->getSelectQuery($table, $where, $order, $select);
 		$res = $this->perform($query);
 		return $res;
 	}
