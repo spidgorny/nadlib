@@ -307,7 +307,7 @@ class slTable {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					//debug($tr);
+					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
 					$this->genRow($t, $row);
 					$t->tre();
@@ -528,6 +528,27 @@ class slTable {
 		header('Content-length: '.strlen($content));
 		echo $content;
 		exit();
+	}
+
+	function prepare4XLS() {
+		$this->generateThes();
+		//debug($this->thes);
+
+		$xls = array();
+		foreach ($this->thes as $th) {
+			$row[] = is_array($th) ? $th['name'] : $th;
+		}
+		$xls[] = $row;
+
+		foreach ($this->data as $row) {
+			$line = array();
+			foreach ($this->thes as $col => $_) {
+				$val = $row[$col];
+				$line[] = strip_tags($val);
+			}
+			$xls[] = $line;
+		}
+		return $xls;
 	}
 
 }
