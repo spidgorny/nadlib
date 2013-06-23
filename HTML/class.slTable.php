@@ -510,12 +510,23 @@ class slTable {
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
 			}
+
+			if ($val instanceof htmlString) {
+				//$val = $val;
+			} else {
+				if (mb_strpos($val, "\n") !== FALSE) {
+					$val = '<pre>'.htmlspecialchars($val).'</pre>';
+				} else {
+					$val = htmlspecialchars($val);
+				}
+			}
+
 			$val = array(
-				0 => $key,
+				0 => htmlspecialchars($key),
 				'' => $val,
 			);
 		}
-		$s = new self($assoc, '', array(
+		$s = new self($assoc, 'class="visual nospacing table"', array(
 			0 => '',
 			'' => array('no_hsc' => true),
 		));

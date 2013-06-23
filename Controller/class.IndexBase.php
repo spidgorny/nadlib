@@ -173,9 +173,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			try {
 				$v = new View('template.phtml', $this);
 				$v->content = $content;
+				$v->baseHref = $this->request->getLocation();
 				$content = $v->render();
 			} catch (Exception $e) {
-				// second exception may happen
+				echo $e;
 			}
 		}
 
