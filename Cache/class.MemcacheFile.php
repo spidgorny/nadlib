@@ -15,7 +15,7 @@ class MemcacheFile {
 			debug(__METHOD__, $sub.'/'.$this->folder);
 			die();
 		} else {
-			$this->folder = getcwd() . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = Config::getInstance()->appRoot . DIRECTORY_SEPARATOR . $this->folder;
 		}
 	}
 

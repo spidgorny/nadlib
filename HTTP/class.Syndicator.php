@@ -161,32 +161,34 @@ class Syndicator {
 	function tidy($html) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//debug(extension_loaded('tidy'));
-		if (extension_loaded('tidy')) {
-			$config = array(
-				'clean'         	=> true,
-				'indent'        	=> true,
-				'output-xhtml'  	=> true,
-				//'output-html'		=> true,
-				//'output-xml' 		=> true,
-				'wrap'         		=> 1000,
-				'numeric-entities'	=> true,
-				'char-encoding' 	=> 'raw',
-				'input-encoding' 	=> 'raw',
-				'output-encoding' 	=> 'raw',
+		if ($this->input == 'HTML') {
+			if (extension_loaded('tidy')) {
+				$config = array(
+					'clean'         	=> true,
+					'indent'        	=> true,
+					'output-xhtml'  	=> true,
+					//'output-html'		=> true,
+					//'output-xml' 		=> true,
+					'wrap'         		=> 1000,
+					'numeric-entities'	=> true,
+					'char-encoding' 	=> 'raw',
+					'input-encoding' 	=> 'raw',
+					'output-encoding' 	=> 'raw',
 
-			);
-			$tidy = new tidy;
-			$tidy->parseString($html, $config);
-			$tidy->cleanRepair();
-			//$out = tidy_get_output($tidy);
-			$out = $tidy->value;
-		} else if ($this->input == 'HTML') {
-			require_once 'nadlib/HTML/htmLawed.php';
-			$out = htmLawed($html, array(
-				'valid_xhtml' => 1,
-				'tidy' => 1,
-			));
-		} else if ($this->input == 'XML') {
+				);
+				$tidy = new tidy;
+				$tidy->parseString($html, $config);
+				$tidy->cleanRepair();
+				//$out = tidy_get_output($tidy);
+				$out = $tidy->value;
+			} else {
+				require_once 'nadlib/HTML/htmLawed.php';
+				$out = htmLawed($html, array(
+					'valid_xhtml' => 1,
+					'tidy' => 1,
+				));
+			}
+		} elseif ($this->input == 'XML') {
 			$out = $html;	// hope that XML is valid
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);

@@ -103,7 +103,8 @@ abstract class Controller {
 				unset($params['c']); // don't supply empty controller
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+
 			//debug($url->documentRoot, $prefix, $url.'');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
@@ -119,10 +120,11 @@ abstract class Controller {
 	 * Only appends $this->linkVars to the URL.
 	 * Use this one if your linkVars is defined.
 	 * @param array $params
+	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array()) {
-		return $this->makeURL($params + $this->linkVars);
+	function makeRelURL(array $params = array(), $page = '?') {
+		return $this->makeURL($params + $this->linkVars, $page);
 	}
 
 	/**
@@ -333,11 +335,12 @@ abstract class Controller {
 	 * Just appends $this->linkVars
 	 * @param $text
 	 * @param array $params
+	 * @param string $page
 	 * @return HTMLTag
 	 */
-	function makeRelLink($text, array $params) {
+	function makeRelLink($text, array $params, $page = '?') {
 		return new HTMLTag('a', array(
-			'href' => $this->makeRelURL($params)
+			'href' => $this->makeRelURL($params, $page)
 		), $text);
 	}
 

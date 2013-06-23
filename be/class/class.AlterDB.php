@@ -85,6 +85,7 @@ class AlterDB extends AppControllerBE {
 	function render() {
 		$content = '';
 		$content .= $this->getFileChoice();
+		$content .= '<h1>'.$this->file.'</h1>';
 
 		if ($this->file) {
 			$this->initInstallerSQL();
@@ -96,7 +97,9 @@ class AlterDB extends AppControllerBE {
 				$diff = $this->getDiff($query);
 				$cache->set($this->file, $diff);
 			} else {
-				$content .= $this->makeRelLink('Reload', array(
+				$content .= $this->makeLink('Reload', array(
+					'c' => __CLASS__,
+					'file' => $this->file,
 					'reload' => true,
 				));
 				$diff = $cache->get($this->file);
@@ -105,7 +108,7 @@ class AlterDB extends AppControllerBE {
 			$this->update_statements = $this->installerSQL->getUpdateSuggestions($diff);
 			//debug($diff, $this->update_statements);
 
-			$this->performAction();
+			$this->performAction();	// only after $this->update_statements are set
 
 			$content .= $this->showDifferences($diff);
 			//$content .= getDebug($diff);
@@ -155,7 +158,8 @@ class AlterDB extends AppControllerBE {
 		//debug($t3db);
 		define('TYPO3_db', $config->db_database);
 
-		$this->installerSQL = new t3lib_install_Sql();
+		//$this->installerSQL = new t3lib_install_Sql();
+		$this->installerSQL = new TYPO3\CMS\Install\Sql\SchemaMigrator();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -195,7 +199,7 @@ class AlterDB extends AppControllerBE {
 				$infoField = $info[$field];
 				//$type .= $infoField['Null'] == 'NO' ? ' NOT NULL' : ' NULL';
 
-				$type = str_replace('default NULL', '', $type);
+				//$type = str_replace('default NULL', '', $type);
 				$type = str_replace("'CURRENT_TIMESTAMP'", 'CURRENT_TIMESTAMP', $type);
 				$type = str_replace("on update", 'ON UPDATE', $type);
 				$type = str_replace('  ', ' ', $type);
@@ -319,7 +323,8 @@ class AlterDB extends AppControllerBE {
 		$md5 = $this->request->getTrim('query');
 		$key = $this->request->getTrim('key');
 		$query = $this->update_statements[$key][$md5];
-		//debug($md5, $query);
+		//debug($this->update_statements);
+		//debug($md5, $query); exit();
 		if ($query) {
 			$this->db->perform($query);
 			$cache = new MemcacheArray(__CLASS__);
