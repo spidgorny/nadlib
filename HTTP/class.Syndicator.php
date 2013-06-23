@@ -256,7 +256,7 @@ class Syndicator {
 
 	/**
 	 *
-	 * @param type $xpath
+	 * @param string $xpath
 	 * @return simple_xml_element
 	 */
 	function getElement($xpath) {

@@ -7,6 +7,8 @@ class MySQL {
 	protected static $instance;
 	public $queryLog = array();		// set to NULL for disabling
 
+	protected $times = 0;
+
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = $db;
@@ -76,6 +78,11 @@ class MySQL {
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
 		}
+
+		if (++$this->times > 200) {
+			//throw new Exception('Debug MySQL connection dropped');
+		}
+
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
@@ -104,7 +111,7 @@ class MySQL {
 
 	function fetchAssoc($res) {
 		$key = __METHOD__.' ('.$this->lastQuery.')';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -115,7 +122,7 @@ class MySQL {
 			debug_pre_print_backtrace();
 			exit();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
 	}
 
