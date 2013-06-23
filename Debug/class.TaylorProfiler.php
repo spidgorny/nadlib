@@ -145,7 +145,6 @@ class TaylorProfiler {
     *
     */
     function printTimers($enabled=false) {
-    	$table = array();
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
             $tot_perc = 0;
@@ -287,8 +286,7 @@ class TaylorProfiler {
 		$oaTime = microtime(true) - ($this->initTime ? $this->initTime : $_SERVER['REQUEST_TIME']);
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
-			require_once 'nadlib/Data/class.ArrayPlus.php';
-			$dbTime = AP(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
@@ -329,6 +327,13 @@ class TaylorProfiler {
 
 	static function disableTick() {
 		unregister_tick_function(array(__CLASS__, 'tick'));
+	}
+
+	/**
+	 * @return null|TaylorProfiler
+	 */
+	public static function getInstance() {
+		return $GLOBALS['profiler'] instanceof self ? $GLOBALS['profiler'] : NULL;
 	}
 
 }
