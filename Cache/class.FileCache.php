@@ -8,6 +8,9 @@ class FileCache {
 		if ($age) {
 			$this->age = $age;
 		}
+		if (!is_writable($this->folder)) {
+			throw new Exception('Folder '.$this->folder.' is not writable');
+		}
 	}
 
 	function map($key) {
