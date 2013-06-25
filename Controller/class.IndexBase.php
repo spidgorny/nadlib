@@ -230,4 +230,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $content;
 	}
 
+	function renderProfiler() {
+		$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
+		if ($profiler) {
+			$content = $profiler->renderFloat();
+			$content .= $profiler->printTimers(true);
+		} else if (DEVELOPMENT) {
+			$content = TaylorProfiler::renderFloat();
+		}
+		return $content;
+	}
+
 }
