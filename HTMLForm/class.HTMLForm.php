@@ -264,6 +264,38 @@ class HTMLForm {
 		$this->input($name, $value);
 	}
 
+	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
+		$id = $id ? $id : uniqid('datepopup');
+		$fullname = $this->getName($name, '', TRUE);
+		$GLOBALS['HTMLHEADER']['datepopup'] = '
+	<script type="text/javascript" src="lib/jscalendar-1.0/calendar.js"></script>
+	<script type="text/javascript" src="lib/jscalendar-1.0/lang/calendar-en.js"></script>
+	<script type="text/javascript" src="lib/jscalendar-1.0/calendar-setup.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="lib/jscalendar-1.0/skins/aqua/theme.css" />';
+		$this->stdout .= '
+	<input type="'.$type.'" name="'.$fullname.'" id="id_field_'.$id.'" value="'.($value?date('Y-m-d', $value):'').'" />
+	'.($activator ? $activator : '<button type="button" id="id_button_'.$id.'" style="width: auto">...</button>').'
+	<script type="text/javascript">
+		var setobj = {
+	        inputField     :    "id_field_'.$id.'",     // id of the input field
+	        ifFormat       :    "%Y-%m-%d",       		// format of the input field
+	        showsTime      :    false,            		// will display a time selector
+	        button         :    "id_button_'.$id.'",   	// trigger for the calendar (button ID)
+	        singleClick    :    false,           		// double-click mode
+	    ';
+		if ($params) {
+			foreach ($params as $key => $val) {
+				$this->stdout .= $key.':'.$val.',';
+			}
+		}
+		$this->stdout .= '
+	        step           :    1                		// show all years in drop-down boxes (instead of every other year as default)
+	    };
+	    var cal_'.$id.' = Calendar.setup(setobj);
+	</script>
+';
+	}
+
 	function money($name, $value) {
 		if (!$value) {
 			$value = "0.00";

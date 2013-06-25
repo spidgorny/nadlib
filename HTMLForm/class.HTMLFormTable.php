@@ -387,8 +387,10 @@ class HTMLFormTable extends HTMLForm {
 			} else {
 				$path[] = $fieldName;
 			}
-			//debug($path);
-			$sType = is_object($fieldDesc) ? get_class($fieldDesc) : $fieldDesc['type'];
+			//debug($fieldName, $fieldDesc);
+			$sType = is_object($fieldDesc)
+				? get_class($fieldDesc)
+				: (isset($fieldDesc['type']) ? $fieldDesc['type'] : '');
 			// avoid __toString on collection
 			// it needs to run twice: one checking for the whole desc and other for desc[type]
 			$sType = is_object($sType)

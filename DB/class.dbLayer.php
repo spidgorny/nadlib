@@ -195,12 +195,18 @@ class dbLayer {
 	}
 
 	function getTableOptions($table, $column, $where = "", $key = 'id') {
-		$a = $this->getTableDataEx($table, $where, $column);
+		$a = $this->getTableDataEx($table, $where, $table.'.*, '.$column);
+
+		// select login.*, coalesce(name, '') || ' ' || coalesce(surname, '') AS combined from login where relcompany = '47493'
+		$as = trimExplode(' AS ', $column);
+		if ($as[1]) {
+			$column = $as[1];
+		}
+
 		$b = array();
 		foreach ($a as $row) {
-			$b[$row[$key]] = $row["special"];
+			$b[$row[$key]] = $row[$column];
 		}
-		//debug($this->LAST_PERFORM_QUERY, $a, $b);
 		return $b;
 	}
 
