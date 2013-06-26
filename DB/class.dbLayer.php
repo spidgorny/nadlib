@@ -243,9 +243,11 @@ class dbLayer {
 		return $this->sqlFind("count(*)", $table, $where);
 	}
 
-	function transaction() {
+	function transaction($serializable = false) {
 		//$this->perform("set autocommit = off");
-		$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+		if ($serializable) {
+			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+		}
 		return $this->perform("BEGIN");
 	}
 
