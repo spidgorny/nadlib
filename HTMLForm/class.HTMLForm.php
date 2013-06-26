@@ -151,6 +151,20 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "").' '.$more);
 	}
 
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param boolean $checked
+	 * @param string $label
+	 * @param string $more
+	 */
+	function radioLabel($name, $value, $checked, $label = "", $more = '') {
+		$value = htmlspecialchars($value, ENT_QUOTES);
+		$id = $this->prefix."_".$name."_".$value;
+		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."' {$more}> ";
+		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+	}
+
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
@@ -165,13 +179,6 @@ class HTMLForm {
 		$this->stdout .= '<label>';
 		$this->check($name, $value, $checked, $more, $autoSubmit);
 		$this->stdout .= ' './*htmlspecialchars*/($label).'</label>';
-	}
-
-	function radioLabel($name, $value, $checked, $label = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."'> ";
-		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
 	}
 
 	function hsc($label) {
@@ -527,7 +534,8 @@ class HTMLForm {
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
+		$sName = $this->getName($name, '', true);
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
 		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
