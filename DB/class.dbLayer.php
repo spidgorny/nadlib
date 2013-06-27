@@ -442,7 +442,7 @@ class dbLayer {
 
 	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '') {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAssoc($res);
+		$row = $this->fetchAll($res);
 		return $row;
 	}
 
@@ -455,9 +455,9 @@ class dbLayer {
 	 * @param $key
 	 * @return table
 	 */
-	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key) {
+	function fetchOneSelectQuery($table, array $where, $order = '', $selectPlus = '', $key) {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->fetchAll($res, $key);
+		$rows = $this->fetchAssoc($res, $key);
 		return $rows;
 	}
 
