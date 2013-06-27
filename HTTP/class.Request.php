@@ -260,26 +260,26 @@ class Request {
 			if (!$controller) {
 				$levels = $this->getURLLevels();
 				//debug($levels);
-				$levels = array_reverse($levels);
-				foreach ($levels as $class) {
-					//debug($class, class_exists($class.'Controller'), class_exists($class));
-					// to simplofy URL it first searches for the corresponding controller
-					if ($class && class_exists($class.'Controller')) {	// this is untested
-						$last = $class.'Controller';
-						break;
+				if ($levels) {
+					$levels = array_reverse($levels);
+					foreach ($levels as $class) {
+						//debug($class, class_exists($class.'Controller'), class_exists($class));
+						// to simplify URL it first searches for the corresponding controller
+						if ($class && class_exists($class.'Controller')) {	// this is untested
+							$last = $class.'Controller';
+							break;
+						}
+						if (class_exists($class)) {
+							$last = $class;
+							break;
+						}
 					}
-					if (class_exists($class)) {
-						$last = $class;
-						break;
-					}
+					$controller = $last;
+				} else {
+					$controller = $this->defaultController;	// not good as we never get 404
 				}
-				$controller = $last;
 			}
 		}   // cli
-        if (!$controller) {
-        	//$controller = $this->defaultController;	// not good as we never get 404
-			//debug('Using default controller', $controller);
-        }
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
