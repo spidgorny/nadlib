@@ -82,7 +82,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$slug = $this->request->getControllerString();
-			$this->loadController($slug);
+			if ($slug) {
+				$this->loadController($slug);
+			} else {
+				throw new Exception404();
+			}
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
@@ -168,6 +172,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			// catch this exception in your app Index class, it can't know what to do with all different apps
 			//$lf = new LoginForm();
 			//$content .= $lf;
+		} elseif ($e instanceof Exception404) {
+			$e->sendHeader();
 		}
 
 		if (!$this->request->isAjax()) {
@@ -217,6 +223,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		if (DEVELOPMENT) {
+			//$this->addJS('js/jquery-1.7.1.min.js');
 			$this->addJS('components/jquery/jquery.min.js');
 		} else {
 			$this->footer['jquery.js'] = '
