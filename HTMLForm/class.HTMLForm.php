@@ -151,6 +151,20 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "").' '.$more);
 	}
 
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param boolean $checked
+	 * @param string $label
+	 * @param string $more
+	 */
+	function radioLabel($name, $value, $checked, $label = "", $more = '') {
+		$value = htmlspecialchars($value, ENT_QUOTES);
+		$id = $this->prefix."_".$name."_".$value;
+		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."' {$more}> ";
+		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+	}
+
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
@@ -165,13 +179,6 @@ class HTMLForm {
 		$this->stdout .= '<label>';
 		$this->check($name, $value, $checked, $more, $autoSubmit);
 		$this->stdout .= ' './*htmlspecialchars*/($label).'</label>';
-	}
-
-	function radioLabel($name, $value, $checked, $label = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."'> ";
-		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
 	}
 
 	function hsc($label) {
@@ -262,6 +269,38 @@ class HTMLForm {
 			$value = date('d.m.Y');
 		}
 		$this->input($name, $value);
+	}
+
+	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
+		$id = $id ? $id : uniqid('datepopup');
+		$fullname = $this->getName($name, '', TRUE);
+		$GLOBALS['HTMLHEADER']['datepopup'] = '
+	<script type="text/javascript" src="lib/jscalendar-1.0/calendar.js"></script>
+	<script type="text/javascript" src="lib/jscalendar-1.0/lang/calendar-en.js"></script>
+	<script type="text/javascript" src="lib/jscalendar-1.0/calendar-setup.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="lib/jscalendar-1.0/skins/aqua/theme.css" />';
+		$this->stdout .= '
+	<input type="'.$type.'" name="'.$fullname.'" id="id_field_'.$id.'" value="'.($value?date('Y-m-d', $value):'').'" />
+	'.($activator ? $activator : '<button type="button" id="id_button_'.$id.'" style="width: auto">...</button>').'
+	<script type="text/javascript">
+		var setobj = {
+	        inputField     :    "id_field_'.$id.'",     // id of the input field
+	        ifFormat       :    "%Y-%m-%d",       		// format of the input field
+	        showsTime      :    false,            		// will display a time selector
+	        button         :    "id_button_'.$id.'",   	// trigger for the calendar (button ID)
+	        singleClick    :    false,           		// double-click mode
+	    ';
+		if ($params) {
+			foreach ($params as $key => $val) {
+				$this->stdout .= $key.':'.$val.',';
+			}
+		}
+		$this->stdout .= '
+	        step           :    1                		// show all years in drop-down boxes (instead of every other year as default)
+	    };
+	    var cal_'.$id.' = Calendar.setup(setobj);
+	</script>
+';
 	}
 
 	function money($name, $value) {
@@ -495,7 +534,8 @@ class HTMLForm {
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
+		$sName = $this->getName($name, '', true);
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
 		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
