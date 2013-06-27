@@ -413,9 +413,9 @@ class HTMLForm {
 		$this->class = 'submit';
 		$between = $desc['between'] ? $desc['between'] : ', ';
 		foreach ((array)$desc['options'] as $key => $val) {
-			$this->text('<nobr>');
-			$this->check($newName, $key, in_array($key, $value), 'id="lang_'.$key.'"');
-			$this->text('&nbsp;<label for="lang_'.$key.'">'.$val.'</label></nobr>');
+			$this->text('<nobr><label>');
+			$this->check($newName, $key, in_array($key, $value));
+			$this->text(' '.$val.'</label></nobr>');
 			if ($val != end($desc['options'])) {
 				$this->text($between);
 			}
