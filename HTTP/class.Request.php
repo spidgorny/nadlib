@@ -277,7 +277,7 @@ class Request {
 			}
 		}   // cli
         if (!$controller) {
-            $controller = $this->defaultController;
+        	//$controller = $this->defaultController;	// not good as we never get 404
 			//debug('Using default controller', $controller);
         }
 		nodebug(array(
