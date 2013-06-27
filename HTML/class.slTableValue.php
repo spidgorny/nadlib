@@ -199,6 +199,7 @@ class slTableValue {
 					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
 						$val = nl2br($val);
+						$k['no_hsc'] = true; 	// for below
 					}
 					if (is_object($val)) {
 						if (method_exists($val, 'getName')) {

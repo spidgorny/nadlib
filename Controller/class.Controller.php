@@ -312,9 +312,13 @@ abstract class Controller {
 		return $content;
 	}
 
-	function getMenuSuffix() {
-		return '';
-	}
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
 
 	function sidebar() {
 		return '';
