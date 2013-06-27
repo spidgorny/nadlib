@@ -300,7 +300,7 @@ class MySQL {
 		return @gzuncompress(substr($value, 4));
 	}
 
-	function quoteKey($key) {
+	static function quoteKey($key) {
 		return $key = '`'.$key.'`';
 	}
 
