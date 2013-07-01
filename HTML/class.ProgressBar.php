@@ -38,6 +38,7 @@ class ProgressBar {
 	}
 
 	function getContent() {
+		Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
@@ -50,7 +51,7 @@ class ProgressBar {
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
 		if (class_exists('Index')) {
-			Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
 		} else {
 			$content .= '<link rel="stylesheet" href="nadlib/CSS/ProgressBar.less" />';
 		}
