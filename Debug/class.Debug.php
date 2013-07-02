@@ -192,7 +192,7 @@ class Debug {
 	 * @param int $limit
 	 * @return string
 	 */
-	function getBackLog($limit = 5) {
+	static function getBackLog($limit = 5) {
 		$debug = debug_backtrace();
 		array_shift($debug);
 		$content = array();
