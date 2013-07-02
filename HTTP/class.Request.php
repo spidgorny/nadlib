@@ -231,7 +231,7 @@ class Request {
 		return $url;
 	}
 
-	function getInstance() {
+	public static function getInstance() {
 		static $instance = NULL;
 		if (!$instance) $instance = new self();
 		return $instance;
