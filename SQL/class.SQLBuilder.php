@@ -454,8 +454,10 @@ class SQLBuilder {
 		return array();
 	}
 
-	//2010/09/12: modified according to mantis request 0001812	- 4th argument added
-	function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
+	/**
+	 * 2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	 */
+	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
 
