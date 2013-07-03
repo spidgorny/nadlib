@@ -67,6 +67,10 @@ class DatabaseResultIterator implements Iterator, Countable {
     	return $this->db->numRows($this->dbResultResource);
     }
 
+	/**
+	 * Should not be used - against the purpose, but nice for debugging
+	 * @return array
+	 */
 	function fetchAll() {
 		$data = array();
 		foreach ($this as $row) {
