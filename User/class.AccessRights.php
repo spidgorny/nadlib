@@ -39,4 +39,8 @@ class AccessRights {
 		return isset($this->arCache[$what]) ? $this->arCache[$what] : NULL;
 	}
 
+	function getList() {
+		return $this->arCache;
+	}
+
 }
