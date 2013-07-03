@@ -257,6 +257,10 @@ class dbLayer {
 		return $this->sqlFind("count(*)", $table, $where);
 	}
 
+	function dataSeek($res, $number) {
+		return pg_result_seek($res, $number);
+	}
+
 	function transaction() {
 		//$this->perform("set autocommit = off");
 		$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');

@@ -109,7 +109,7 @@ class HTMLFormValidate {
 		return $this->desc;
 	}
 
-	function validMail($email) {
+	static function validMail($email) {
 		return preg_match("/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i", $email);
 	}
 
