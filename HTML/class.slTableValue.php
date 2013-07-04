@@ -208,6 +208,12 @@ class slTableValue {
 					}
 					if ($k['no_hsc']) {
 						$out = $val;
+					} else if ($val instanceof htmlString) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLTag) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLDate) {
+						$out = $val.'';
 					} else {
 						$out = htmlspecialchars($val);
 					}

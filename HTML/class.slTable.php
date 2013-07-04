@@ -498,7 +498,7 @@ class slTable {
 		return (is_numeric($parts[0]) && is_numeric($parts[1]) && strlen($parts[0]) == 2 && strlen($parts[1]) == 2);
 	}
 
-	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true) {
+	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false) {
 		foreach ($assoc as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
@@ -516,7 +516,7 @@ class slTable {
 		}
 		$s = new self($assoc, '', array(
 			0 => '',
-			'' => array('no_hsc' => true),
+			'' => array('no_hsc' => $no_hsc),
 		));
 		return $s;
 	}
