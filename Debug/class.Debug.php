@@ -115,7 +115,7 @@ class Debug {
 	 * @param $levels
 	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
 	 */
-	static function view_array($a, $levels) {
+	static function view_array($a, $levels = NULL) {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
