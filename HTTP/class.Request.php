@@ -539,6 +539,11 @@ class Request {
 		return get_object_vars($this);
 	}
 
+	/**
+	 * Uses realpath() to make sure file exists
+	 * @param $name
+	 * @return string
+	 */
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
 		//debug(getcwd(), $filename, realpath($filename));
@@ -546,10 +551,15 @@ class Request {
 		return $filename;
 	}
 
+	/**
+	 * Just cuts the folders with basename()
+	 * @param $name
+	 * @return string
+	 */
 	function getFilename($name) {
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
-		$filename = basename($filename);	// optionally use realpath()
+		$filename = basename($filename);
 		return $filename;
 	}
 
