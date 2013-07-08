@@ -17,6 +17,10 @@ class Recursive {
 		$this->elements = $elements;
 	}
 
+	function setValue($value) {
+		$this->value = $value;
+	}
+
 	function __toString() {
 		return $this->value;
 	}
