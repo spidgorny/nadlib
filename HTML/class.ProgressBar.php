@@ -95,11 +95,11 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p) {
-		return '<div style="display: inline-block; width: 100%; text-align: center; wrap: nowrap;">'.
+	function getImage($p, $display = 'inline-block') {
+		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; wrap: nowrap;">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
-		</div>';
+			<img src="vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+		</div>');
 	}
 
 	function getBackground($p, $width = '100px') {
