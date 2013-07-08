@@ -39,10 +39,10 @@ class Mailer {
 			$this->headers['Content-Type'] = 'Content-Type: text/plain; charset=utf-8';
 		}
 		$this->headers['Content-Transfer-Encoding'] = 'Content-Transfer-Encoding: 8bit';
-		if ($mailFrom = Index::getInstance()->mailFrom) {
+		/*if ($mailFrom = Index::getInstance()->mailFrom) {
 			$this->headers['From'] = 'From: '.$mailFrom;
 			$this->params['-f'] = '-f'.$mailFrom;
-		}
+		}*/
 	}
 
 	function send() {
