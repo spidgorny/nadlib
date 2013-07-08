@@ -238,16 +238,16 @@ class Time {
 	/**
 	 * <span class="time">in 10 hours</span>
 	 *
-	 * @return unknown
+	 * @return htmlString
 	 */
 	function render() {
-		return '<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>';
+		return new htmlString('<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>');
 	}
 
 	/**
 	 * Displays start of an hour with larger font
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function renderCaps() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
