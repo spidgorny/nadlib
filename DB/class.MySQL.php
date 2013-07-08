@@ -212,26 +212,26 @@ class MySQL {
 	 * @param bool $exclusive
 	 * @return array <type>
 	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
-		//$res = $this->runSelectQuery($table, $where, $order, $addFields, $exclusive);
-		$query = $this->getSelectQuery($table, $where, $order, $addFields, $exclusive);
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields);
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res);
 		return $data;
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus, $only);
+		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus);
 		$res = $this->perform($query);
 		$data = $this->fetchAssoc($res);
 		return $data;
 	}
 
-	function runSelectQuery($table, array $where, $order = '', $selectPlus = '', $only = FALSE) {
+	function runSelectQuery($table, array $where, $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus, $only);
+		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus);
 		return $res;
 	}
 

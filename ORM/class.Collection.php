@@ -231,7 +231,7 @@ class Collection {
 			$s->sortable = $this->useSorting;
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
 			if ($this->pager) {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
