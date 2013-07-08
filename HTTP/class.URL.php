@@ -14,6 +14,10 @@ class URL {
 
 	public $documentRoot = '';
 
+	/**
+	 * @param null $url - if not specified then the current page URL is reconstructed
+	 * @param array $params
+	 */
 	function __construct($url = NULL, array $params = array()) {
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -31,7 +35,7 @@ class URL {
 			parse_str($this->components['query'], $this->params);
 		}
 		if ($params) {
-			$this->setParams($params);
+			$this->addParams($params);	// setParams was deleting all filters from the URL
 		}
 		if (class_exists('Config')) {
 			$this->setDocumentRoot(Config::getInstance()->documentRoot);

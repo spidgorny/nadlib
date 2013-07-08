@@ -444,9 +444,9 @@ class dbLayer {
 		return $lv;
 	}
 
-	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '') {
+	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '', $idField = NULL) {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAll($res);
+		$row = $this->fetchAll($res, $idField);
 		return $row;
 	}
 
