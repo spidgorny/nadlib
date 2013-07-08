@@ -39,20 +39,41 @@ class Mailer {
 			$this->headers['Content-Type'] = 'Content-Type: text/plain; charset=utf-8';
 		}
 		$this->headers['Content-Transfer-Encoding'] = 'Content-Transfer-Encoding: 8bit';
-		/*if ($mailFrom = Index::getInstance()->mailFrom) {
+		if ($mailFrom = Index::getInstance()->mailFrom) {
 			$this->headers['From'] = 'From: '.$mailFrom;
-			$this->params['-f'] = '-f'.$mailFrom;
-		}*/
+			$mailFromOnly =	(strpos($this->bodytext, '<') !== FALSE)
+				? substr(next(explode('<', $mailFrom)), 0, -1)
+				: $mailFrom;
+			$this->params['-f'] = '-f'.$mailFromOnly;
+		}
 	}
 
 	function send() {
 		if (HTMLFormValidate::validMail($this->to)) {
-			$subject = '=?utf-8?B?'.base64_encode($this->subject).'?=';
-			$bodytext = str_replace("\n.", "\n..", $this->bodytext);
-			mail($this->to, $subject, $bodytext, implode("\n", $this->headers)."\n", implode(' ', $this->params));
+			mail($this->to, $this->getSubject(), $this->getBodyText(), implode("\n", $this->headers)."\n", implode(' ', $this->params));
 		} else {
 			throw new Exception('Invalid email address');
 		}
+	}
+
+	function getSubject() {
+		$subject = '=?utf-8?B?'.base64_encode($this->subject).'?=';
+		return $subject;
+	}
+
+	function getBodyText() {
+		$bodytext = str_replace("\n.", "\n..", $this->bodytext);
+		return $bodytext;
+	}
+
+	function debug() {
+		$assoc = array();
+		$assoc['to'] = $this->to;
+		$assoc['subject'] = $this->getSubject();
+		$assoc['bodytext'] = $this->getBodyText();
+		$assoc['headers'] = new htmlString(implode("<br />", $this->headers));
+		$assoc['params'] = implode(' ', $this->params);
+		return slTable::showAssoc($assoc);
 	}
 
 }
