@@ -81,7 +81,7 @@ class Syndicator {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$c->log($this->cache->map($this->url).' Size: '.strlen($html), __CLASS__);
+				$c->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
 				$html = $this->downloadFile($this->url, $retries);
 				$this->cache->set($this->url, $html);
