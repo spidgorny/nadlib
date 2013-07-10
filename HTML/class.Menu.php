@@ -187,17 +187,21 @@ class Menu /*extends Controller*/ {
 	 * @return string
 	 */
 	function getClassPath($class, array $root) {
-		if ($this->useRecursiveURL) {
-			//$path = $this->items->find($class);
-			//debug($class, $path);
-			$path = array_merge($root, array($class));
-			if ($path) {
-				$path = $this->basePath . implode('/', $path);
+		if (startsWith($class, 'http')) {
+			return $class;
+		} else {
+			if ($this->useRecursiveURL) {
+				//$path = $this->items->find($class);
+				//debug($class, $path);
+				$path = array_merge($root, array($class));
+				if ($path) {
+					$path = $this->basePath . implode('/', $path);
+				} else {
+					$path = $this->basePath . $class;
+				}
 			} else {
 				$path = $this->basePath . $class;
 			}
-		} else {
-			$path = $this->basePath . $class;
 		}
 		return $path;
 	}
