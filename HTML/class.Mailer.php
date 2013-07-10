@@ -39,13 +39,16 @@ class Mailer {
 			$this->headers['Content-Type'] = 'Content-Type: text/plain; charset=utf-8';
 		}
 		$this->headers['Content-Transfer-Encoding'] = 'Content-Transfer-Encoding: 8bit';
-		/*if ($mailFrom = Index::getInstance()->mailFrom) {
+		if ($mailFrom = Index::getInstance()->mailFrom) {
 			$this->headers['From'] = 'From: '.$mailFrom;
+			// get only the pure email from "Somebody <sb@somecompany.de>"
 			$mailFromOnly =	(strpos($this->bodytext, '<') !== FALSE)
 				? substr(next(explode('<', $mailFrom)), 0, -1)
-				: $mailFrom;
-			$this->params['-f'] = '-f'.$mailFromOnly;
-		}*/
+				: ''; //$mailFrom;
+			if ($mailFromOnly) {
+				$this->params['-f'] = '-f'.$mailFromOnly;	// no space
+			}
+		}
 	}
 
 	function send() {

@@ -71,8 +71,8 @@ class dbLayer {
 			if ($this->saveQueries) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
-				$this->QUERYFUNC[$query] = $this->QUERYFUNC[$query]['class'].'::'.$this->QUERYFUNC[$query]['function'];
+				$func = $this->getCallerFunction();
+				$this->QUERYFUNC[$query] = $func['class'].'::'.$func['function'].'#'.$func['line'];
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -445,6 +445,7 @@ class dbLayer {
 	 * @param $where
 	 * @param string $order
 	 * @param string $selectPlus
+	 * @param null $idField
 	 * @return array
 	 */
 	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '', $idField = NULL) {
@@ -565,6 +566,12 @@ order by a.attnum';
 			'sqlFind',
 			'getAllRows',
 			'perform',
+			'fetchFromDB',
+			'findInDB',
+			'retrieveDataFromDB',
+			'init',
+			'__construct',
+			'getInstance',
 		);
 		$debug = debug_backtrace();
 		array_shift($debug);
