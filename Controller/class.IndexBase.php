@@ -275,13 +275,38 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//!$this->request->isCLI() &&
 			!in_array(get_class($this->controller), array('Lesser')))
 		{
-			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
+			$profiler = $GLOBALS['profiler'];
+			/** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				$content = $profiler->renderFloat();
 				if (!$this->request->isCLI()) {
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.new slTable($this->db->queryLog).'</div>';
+						$content .= TaylorProfiler::dumpQueries();	// same or different?
+					}
+					if ($this->db->QUERIES) {	// dbLayer
+						$q = $this->db->QUERIES;
+						arsort($q);
+						foreach ($q as $query => &$time) {
+							$time = array(
+								'times' => $this->db->QUERYMAL[$query],
+								'query' => $query,
+								'time' => number_format($time, 3),
+								'func' => $this->db->QUERYFUNC[$query],
+							);
+						}
+						$q = new slTable($q, 'class="view_array', array(
+							'times' => 'Times',
+							'query' => 'Query',
+							'time' => array(
+								'name' => 'Time',
+								'align' => 'right',
+							),
+							'func' => 'Caller',
+						));
+						$q->isOddEven = false;
+						$content .= '<div class="profiler">'.$q.'</div>';
 					}
 				}
 			} else if (DEVELOPMENT) {

@@ -145,7 +145,6 @@ class TaylorProfiler {
     *
     */
     function printTimers($enabled=false) {
-    	$table = array();
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
             $tot_perc = 0;
