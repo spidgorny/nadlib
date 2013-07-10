@@ -18,6 +18,11 @@ abstract class FullGrid extends Grid {
 			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
 			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+		}
+	}
+
+	function postInit() {
+		if ($this->collection) {
 			$this->collection->retrieveDataFromDB();
 		}
 	}

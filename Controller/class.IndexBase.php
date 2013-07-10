@@ -43,6 +43,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $footer = array();
 
+	public $loadJSfromGoogle = true;
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
@@ -222,8 +224,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function addJQuery() {
-		if (DEVELOPMENT) {
-			//$this->addJS('js/jquery-1.7.1.min.js');
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$this->addJS('components/jquery/jquery.min.js');
 		} else {
 			$this->footer['jquery.js'] = '
@@ -236,7 +237,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		if (DEVELOPMENT) {
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
 			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
 		} else {
