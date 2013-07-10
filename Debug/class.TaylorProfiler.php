@@ -293,6 +293,10 @@ class TaylorProfiler {
 			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
+		if (Config::getInstance()->db->saveQueries) {
+			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
+			$dbTime = number_format($dbTime, 3, '.', '');
+		}
 		$content = '<div class="floatTimeContainer">
 		<div class="floatTime">t:'.$totalTime.'s '.
 			'db:'.$dbTime.'s '.
