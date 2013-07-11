@@ -10,7 +10,7 @@ class ForgotPassword extends AppController {
 		if (!$step2) {
 			$content .= new View('ForgotPassword.phtml', $this);
 		} else { // step2
-			$user = new User();
+			$user = new UserManager();
 			$user->findInDB(array('email' => $this->login));
 			if ($user->id) {
 				$newPassword = $this->getRandomPassword();
