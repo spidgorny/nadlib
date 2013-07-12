@@ -338,7 +338,7 @@ abstract class OODBase {
 		//debug($self, $name, count(self::$instances[$self]));
 
 		// first search instances
-		foreach (self::$instances[$self] as $inst) {
+		if (is_array(self::$instances[$self])) foreach (self::$instances[$self] as $inst) {
 			if ($name == 'deloprub') {
 				//debug($self, $name, count(self::$instances[$self]), $inst->titleColumn, $inst->data[$inst->titleColumn], $name);
 			}
