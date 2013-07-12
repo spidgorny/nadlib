@@ -260,6 +260,7 @@ class Collection {
 
 	function getOptions() {
 		$options = array();
+		//debug(get_class($this), $this->titleColumn);
 		foreach ($this->data as $row) {
 			$options[$row[$this->idField]] = $row[$this->titleColumn];
 		}
