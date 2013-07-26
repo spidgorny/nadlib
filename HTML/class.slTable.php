@@ -88,8 +88,9 @@ class slTable {
 
 	/**
 	 * To sort, $this->thes with all datatypes should be known
+	 * @public to be callable
 	 */
-	protected function tabSortByUrl($a, $b) {
+	public function tabSortByUrl($a, $b) {
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
 		$aa = $a[$by];
