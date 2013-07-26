@@ -7,7 +7,15 @@ class HTMLForm {
 	var $stdout = "";
 	var $enctype = "";
 	var $target = "";
+
+	/**
+	 * Deprecated use for maybe XSS class in some form fields.
+	 * Now it's the class name (or just a unique identifier of the form) to be used
+	 * with XSRF protection.
+	 * @var string
+	 */
 	var $class = "";
+
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
@@ -56,10 +64,6 @@ class HTMLForm {
 		} else {
 			$this->prefix = array();
 		}
-	}
-
-	function cssClass($c) {
-		$this->class = $c;
 	}
 
 	function fieldset($name, $more = array()) {

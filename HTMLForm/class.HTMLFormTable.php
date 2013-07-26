@@ -96,7 +96,11 @@ class HTMLFormTable extends HTMLForm {
 					$this->text($fieldValue);
 				break;
 				case "textarea":
-					$this->textarea($fieldName, $fieldValue, $desc['more'].($desc['id'] ? ' id="'.$desc['id'].'"' : ''));
+					$this->textarea($fieldName, $fieldValue,
+						$desc['more'].
+						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
+						($desc['disabled'] ? ' disabled="1"' : '')
+					);
 				break;
 				case "date":
 					//t3lib_div::debug(array($fieldName, $fieldValue));
@@ -213,7 +217,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						($desc['readonly'] ? ' readonly="readonly"' : '')
+						($desc['readonly'] ? ' readonly="readonly"' : '').
+						($desc['disabled'] ? ' disabled="1"' : '')
 						, $type, $desc['class']
 					);
 				break;
@@ -447,11 +452,12 @@ class HTMLFormTable extends HTMLForm {
 		$res = array();
 		if (is_array($arr)) {
 			foreach ($arr as $key => $ar) {
-				if (is_array($ar)) {
+				if (is_array($ar) && !$ar['disabled']) {
 					$res[$key] = $ar[$col];
 				}
 			}
 		}
+		unset($res['xsrf']);
 		return $res;
 	}
 
@@ -597,7 +603,7 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function validate() {
-		$this->validator = new HTMLFormValidate($this->desc);
+		$this->validator = new HTMLFormValidate($this);
 		return $this->validator->validate();
 	}
 
@@ -608,6 +614,32 @@ class HTMLFormTable extends HTMLForm {
 	function __toString() {
 		//$this->showForm();
 		return parent::__toString();
+	}
+
+	/**
+	 * Use validate() to validate.
+	 * @param $class	- unique identifier of the form on the site
+	 * which allows several forms to be submitted in a different order
+	 * @param bool $check
+	 */
+	public function xsrf($class, $check = false) {
+		$this->class = $class;
+		if (!$check) {
+			if (function_exists('openssl_random_pseudo_bytes')) {
+				$token = bin2hex(openssl_random_pseudo_bytes(16));
+			} else {
+				$token = uniqid(php_uname('n'), true);
+			}
+			$this->desc['xsrf'] = array(
+				'type' => 'hidden',
+				'value' => $token,
+			);
+			$_SESSION[__CLASS__]['xsrf'][$class] = $token;
+		} else {	// Check
+			$this->desc['xsrf'] = array(
+				'value' => '',	// use fill($this->request->getAll()) to fill in and validate()
+			);
+		}
 	}
 
 }
