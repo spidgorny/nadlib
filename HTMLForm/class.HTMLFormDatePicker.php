@@ -5,17 +5,15 @@ class HTMLFormDatePicker extends HTMLFormType {
 	public $jsFormat = 'yy-mm-dd';
 
 	/**
-	 * Enter description here...
-	 *
 	 * @internal param string $name
 	 * @internal param array $value - array of minutes
 	 */
 	function __construct() {
-		Index::getInstance()->addJQueryUI();
+		Index::getInstance()->addJQueryUI();	// for the picker
+		Index::getInstance()->addJS('nadlib/js/HTMLFormDatePicker.js');
 	}
 
 	function render() {
-		Index::getInstance()->addJS('nadlib/js/HTMLFormDatePicker.js');
 		if ($this->value) {
 			$val = strtotime($this->value);
 			$val = date($this->format, $val);
