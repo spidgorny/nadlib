@@ -250,6 +250,7 @@ abstract class Controller {
 
 	function encloseInToggle($content, $title, $height = '', $isOpen = NULL, $tag = 'h3') {
 		if ($content) {
+			// buggy: prevents all clicks on the page in KA.de
 			$this->index->addJQuery();
 			$this->index->addJS('nadlib/js/showHide.js');
 			$this->index->addJS('nadlib/js/encloseInToggle.js');
