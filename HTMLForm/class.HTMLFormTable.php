@@ -180,6 +180,9 @@ class HTMLFormTable extends HTMLForm {
 					$this->set($fieldName, $fieldValue, $desc);
 				break;
 				case 'checkarray':
+					if (!is_array($fieldValue)) {
+						debug($fieldName, $fieldValue, $desc);
+					}
 					$this->checkarray($fieldName, $desc['set'], $fieldValue, $desc);
 				break;
 				case 'radioset':
