@@ -94,7 +94,7 @@ class slTableValue {
 			break;
 			case "sqltime":
 				if ($val) {
-					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
+					$val = strtotime(substr($val, 0, 16)); // cut milliseconds
 					$out = date($k['format'], $val);
 				} else {
 					$out = '';
