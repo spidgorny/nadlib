@@ -56,7 +56,11 @@ function debug($a) {
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
-		echo '<pre>'.htmlspecialchars(print_r(func_num_args() == 1 ? $a : $params, true)).'</pre>';
+		echo '<pre>'.htmlspecialchars(
+			var_dump(
+				func_num_args() == 1 ? $a : $params
+			, true)
+		).'</pre>';
 	}
 }
 

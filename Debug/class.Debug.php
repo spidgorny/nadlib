@@ -20,7 +20,9 @@ class Debug {
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 
-		if (isset($_SERVER['argc'])) {
+		//print_r(array($_SERVER['argc'], $_SERVER['argv']));
+		//if (isset($_SERVER['argc'])) {
+		if (php_sapi_name() == 'cli') {
 			foreach ($db as $row) {
 				$trace[] = self::getMethod($row);
 			}
