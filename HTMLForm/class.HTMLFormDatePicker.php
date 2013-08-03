@@ -4,6 +4,8 @@ class HTMLFormDatePicker extends HTMLFormType {
 	public $format = 'Y-m-d';
 	public $jsFormat = 'yy-mm-dd';
 
+	public $jsParams = array();
+
 	/**
 	 * @internal param string $name
 	 * @internal param array $value - array of minutes
@@ -20,7 +22,10 @@ class HTMLFormDatePicker extends HTMLFormType {
 		} else {
 			$val = '';
 		}
-		$this->form->input($this->field, $val, 'format="'.$this->jsFormat.'"', 'date', 'datepicker');
+		$this->form->input($this->field, $val, array(
+			'format' => $this->jsFormat
+		) + $this->jsParams,
+		'date', 'datepicker');
 	}
 
 }
