@@ -12,6 +12,9 @@ $(document).ready(function () {
 		var self = $('input.datepicker');
 		self.datepicker({
 			dateFormat: self.attr('format'),
+			minDate: self.attr('minDate'),
+			maxDate: self.attr('maxDate'),
+			firstDay: self.attr('firstDay'),
 			changeMonth: true,
 			changeYear: true
 		});

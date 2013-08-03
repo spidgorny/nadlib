@@ -83,6 +83,7 @@ class HTMLFormTable extends HTMLForm {
 			$type->setField($fieldName);
 			$type->setForm($this);
 			$type->setValue($desc['value']);
+			$type->jsParams = $desc['jsParams'] ?: array();
 			$this->stdout .= $type->render();
 		} else if ($type instanceof Collection) {
 			$type->setField($fieldName);

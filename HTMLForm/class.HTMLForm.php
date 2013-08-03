@@ -88,6 +88,15 @@ class HTMLForm {
 		return $a;
 	}
 
+	/**
+	 * @param $type
+	 * @param $name
+	 * @param null $value
+	 * @param string/array $more - may be array
+	 * @param string $extraClass
+	 * @param string $namePlus
+	 * @return string
+	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
 		$a = '';
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
@@ -97,12 +106,19 @@ class HTMLForm {
 			$a .= ' value="'.$value.'"';
 		}
 		if ($more) {
-			$a .= " " . $more;
+			$a .= " " . (is_array($more) ? $this->getAttrHTML($more) : $more);
 		}
 		$a .= ">\n";
 		return $a;
 	}
 
+	/**
+	 * @param $name
+	 * @param string $value
+	 * @param string/array $more - may be array
+	 * @param string $type
+	 * @param string $extraClass
+	 */
 	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
