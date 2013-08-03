@@ -39,7 +39,10 @@ class FlexiTable extends OODBase {
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
-		return parent::update($row);
+		$tempMtime = $this->data['mtime'];
+		$res = parent::update($row);	// calls $this->init($id) to update data
+		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
+		return $res;
 	}
 
 	function findInDB(array $where, $orderby = '') {
