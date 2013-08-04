@@ -25,7 +25,7 @@ class FileCache {
 
 	function set($key, $val) {
 		$con = Index::getInstance()->controller;
-		$con->log('Writing cache to '.$this->map($key).', size: '.strlen($val), __CLASS__);
+		$con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.strlen($val), __CLASS__);
 		file_put_contents($this->map($key), $val);
 	}
 
