@@ -72,22 +72,25 @@ class ConfigBase {
 	public $appRoot;
 
 	protected function __construct() {
-		try {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				$this->db_password);
-		} catch (Exception $e) {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				'');
+		if ($this->db_database) {
+			try {
+				$this->db = new MySQL(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					$this->db_password);
+			} catch (Exception $e) {
+				$this->db = new MySQL(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					'');
+			}
+			$di = new DIContainer();
+			$di->db = $this->db;
+			$this->qb = new SQLBuilder($di);
 		}
-		$di = new DIContainer();
-		$di->db = $this->db;
-		$this->qb = new SQLBuilder($di);
+
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		//$this->appRoot = dirname(__FILE__).'/..';
 		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
