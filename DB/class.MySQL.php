@@ -97,7 +97,7 @@ class MySQL {
 		$this->lastQuery = $query;
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				nodebug(array(
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,

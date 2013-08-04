@@ -60,7 +60,7 @@ class Collection {
 	 * SQL part
 	 * @var string
 	 */
-	public $orderBy = "uid";
+	public $orderBy = "ORDER BY id";
 
 	/**
 	 * getQuery() stores the final query here for debug
