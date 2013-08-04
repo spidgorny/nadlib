@@ -155,7 +155,9 @@ class Request {
 
 	function getTrimArray($name) {
 		$list = $this->getArray($name);
-		$list = array_map('trim', $list);
+		if ($list) {
+			$list = array_map('trim', $list);
+		}
 		return $list;
 	}
 
