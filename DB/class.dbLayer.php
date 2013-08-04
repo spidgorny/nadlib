@@ -71,8 +71,8 @@ class dbLayer {
 			if ($this->saveQueries) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
-				$this->QUERYFUNC[$query] = $this->QUERYFUNC[$query]['class'].'::'.$this->QUERYFUNC[$query]['function'];
+				$func = $this->getCallerFunction();
+				$this->QUERYFUNC[$query] = $func['class'].'::'.$func['function'].'#'.$func['line'];
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -80,18 +80,15 @@ class dbLayer {
 	}
 
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
-		$debug = $this->getCallerFunction();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$debug['class'].'::'.$debug['function']);
+		$trace = $this->getCallerFunction();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
-		//print $where."<br>";
-		//print $query."<br>";
-		if ($from == 'buglog' && 1) {
-			//printbr("<b>$query: $row[0]</b>");
-		}
+		if ($debug) printbr("<b>$query</b>");
 		$result = $this->perform($query);
 		$rows = pg_num_rows($result);
 		if ($rows == 1) {
 			$row = pg_fetch_row($result, 0);
+			pg_free_result($result);
 //			printbr("<b>$query: $row[0]</b>");
 			$return = $row[0];
 		} else {
@@ -101,11 +98,11 @@ class dbLayer {
 			} else {
 				printbr("<b>$query: $rows</b>");
 				printbr("ERROR: No result or more than one result of sqlFind()");
-				my_print_backtrace($query);
+				debug_pre_print_backtrace();
 				exit();
 			}
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$debug['class'].'::'.$debug['function']);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		return $return;
 	}
 
@@ -166,10 +163,6 @@ class dbLayer {
 				}
 			}
 		}
-
-		//debug($return); exit;
-		//print "<pre>";
-		//print_r($return);
 		return $return;
 	}
 
@@ -261,9 +254,11 @@ class dbLayer {
 		return pg_result_seek($res, $number);
 	}
 
-	function transaction() {
+	function transaction($serializable = false) {
 		//$this->perform("set autocommit = off");
-		$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+		if ($serializable) {
+			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+		}
 		return $this->perform("BEGIN");
 	}
 
@@ -282,7 +277,7 @@ class dbLayer {
 			return "'f'";
 		} else if ($value === TRUE) {
 			return "'t'";
-		} else if (is_numeric($value)) {
+		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
 		} else if (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
@@ -302,9 +297,9 @@ class dbLayer {
 	}
 
 	function getInsertQuery($table, $columns) {
-		$q = "insert into $table (";
+		$q = "INSERT INTO $table (";
 		$q .= implode(", ", array_keys($columns));
-		$q .= ") values (";
+		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
 		$q .= ")";
 		return $q;
@@ -329,16 +324,16 @@ class dbLayer {
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
-		$q = "update $table set ";
+		$q = "UPDATE $table SET ";
 		$set = array();
-		foreach($columns as $key => $val) {
+		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		$q .= implode(", ", $set);
 		$q .= " where ";
 		$set = array();
-		foreach($where as $key => $val) {
+		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
@@ -398,8 +393,8 @@ class dbLayer {
 		return $value;
 	}
 
-	function runSelectQuery($table, $where = array(), $order = '', $addSelect = '', $doReplace = false) {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect, $doReplace);
+	function runSelectQuery($table, $where = array(), $order = '', $select = '*') {
+		$query = $this->getSelectQuery($table, $where, $order, $select);
 		$res = $this->perform($query);
 		return $res;
 	}
@@ -444,9 +439,24 @@ class dbLayer {
 		return $lv;
 	}
 
+	/**
+	 * This used to retrieve a single row !!!
+	 * @param $table
+	 * @param $where
+	 * @param string $order
+	 * @param string $selectPlus
+	 * @param null $idField
+	 * @return array
+	 */
 	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '', $idField = NULL) {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
 		$row = $this->fetchAll($res, $idField);
+		return $row;
+	}
+
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
+		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
+		$row = $this->fetchAssoc($res);
 		return $row;
 	}
 
@@ -459,9 +469,9 @@ class dbLayer {
 	 * @param $key
 	 * @return table
 	 */
-	function fetchOneSelectQuery($table, array $where, $order = '', $selectPlus = '', $key) {
+	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key) {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->fetchAssoc($res, $key);
+		$rows = $this->fetchAll($res, $key);
 		return $rows;
 	}
 
@@ -556,6 +566,12 @@ order by a.attnum';
 			'sqlFind',
 			'getAllRows',
 			'perform',
+			'fetchFromDB',
+			'findInDB',
+			'retrieveDataFromDB',
+			'init',
+			'__construct',
+			'getInstance',
 		);
 		$debug = debug_backtrace();
 		array_shift($debug);

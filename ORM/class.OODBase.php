@@ -335,11 +335,30 @@ abstract class OODBase {
 	 */
 	static function getInstanceByName($name) {
 		$self = get_called_class();
-		//debug($self);
-		$c = new $self;
-		$c->findInDB(array(
-			$c->titleColumn => $name,
-		));
+		//debug($self, $name, count(self::$instances[$self]));
+
+		// first search instances
+		foreach (self::$instances[$self] as $inst) {
+			if ($name == 'deloprub') {
+				//debug($self, $name, count(self::$instances[$self]), $inst->titleColumn, $inst->data[$inst->titleColumn], $name);
+			}
+			if ($inst->data[$inst->titleColumn] == $name) {
+				$c = $inst;
+				break;
+			}
+		}
+
+		if (!$c) {
+			$c = new $self;
+			$c->findInDB(array(
+				$c->titleColumn => $name,
+			));
+
+			// store back so it can be found
+			if ($c) {
+				self::$instances[$self][$c->id] = $c;
+			}
+		}
 		return $c;
 	}
 

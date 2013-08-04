@@ -145,7 +145,6 @@ class TaylorProfiler {
     *
     */
     function printTimers($enabled=false) {
-    	$table = array();
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
             $tot_perc = 0;
@@ -291,6 +290,10 @@ class TaylorProfiler {
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
 			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+			$dbTime = number_format($dbTime, 3, '.', '');
+		}
+		if (Config::getInstance()->db->saveQueries) {
+			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
