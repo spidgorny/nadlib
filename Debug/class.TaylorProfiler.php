@@ -348,6 +348,13 @@ class TaylorProfiler {
 		unregister_tick_function(array(__CLASS__, 'tick'));
 	}
 
+	/**
+	 * @return null|TaylorProfiler
+	 */
+	public static function getInstance() {
+		return $GLOBALS['profiler'] instanceof self ? $GLOBALS['profiler'] : NULL;
+	}
+	
 	static function dumpQueries() {
 		if (DEVELOPMENT) {
 			$queryLog = Config::getInstance()->db->queryLog;

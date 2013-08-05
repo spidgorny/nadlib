@@ -54,6 +54,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->request = Request::getInstance();
 		//debug('session_start');
 		session_start();
+		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
@@ -146,10 +147,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$v->content = $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
+		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
-		$content = $v->render();	// not concatenate but replace
-		return $content;
+		return $v;
 	}
 
 	function renderController() {

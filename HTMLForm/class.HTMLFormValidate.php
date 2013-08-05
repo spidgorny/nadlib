@@ -1,10 +1,22 @@
 <?php
 
 class HTMLFormValidate {
+
+	/**
+	 * Reference to the form object which contains the $desc as well as other vars
+	 * @var HTMLFormTable
+	 */
+	protected $form;
+
+	/**
+	 * Reference to the $desc in the form
+	 * @var array
+	 */
 	protected $desc;
 
-	function __construct(array &$desc) {
-		$this->desc = &$desc;
+	function __construct(HTMLFormTable $form) {
+		$this->form = $form;
+		$this->desc = &$this->form->desc;
 	}
 
 	function validate() {
@@ -88,8 +100,11 @@ class HTMLFormValidate {
 			$d['error'] = 'Value "'.($d['label'] ?: $field).'" must be date';
 		} else {
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
-			if ($field == 'date') {
-				//debug(strtotime($value));
+			if ($field == 'xsrf') {
+				//debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);
+				if ($value != $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]) {
+					$d['error'] = 'XSRF token validation failed.';
+				}
 			}
 		}
 
