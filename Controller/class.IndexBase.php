@@ -211,7 +211,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function error($text) {
-		$this->content .= '<div class="ui-state-error alert alert-error padding">'.$text.'</div>';
+		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
 	}
 
 	function saveMessages() {
