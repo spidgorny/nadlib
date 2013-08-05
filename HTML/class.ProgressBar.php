@@ -21,6 +21,9 @@ class ProgressBar {
 
 	function render() {
 		if (!$this->cli) {
+			if (!headers_sent()) {
+				header('Content-type: text/html; charset=utf-8');
+			}
 			print($this->getContent());
 			print $this->getCSS();
 			$this->flush();
