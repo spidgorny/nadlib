@@ -10,10 +10,10 @@ class IndexBE extends IndexBase {
 		$c = Config::getInstance();
 		$c->documentRoot = str_replace('/nadlib/be', '', $c->documentRoot);
 
-		$this->addCSS('nadlib/be/css/bootstrap.min.css');
+		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS('nadlib/be/css/main.css');
 		$this->addJQuery();
-		$this->addJs('js/vendor/bootstrap.min.js');
+		$this->addJS('components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$c->user = $this->user;	// for consistency
 	}

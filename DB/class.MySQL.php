@@ -82,6 +82,7 @@ class MySQL {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
 			error_log($runTime.' '.$query);
 		}
+
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
@@ -96,7 +97,7 @@ class MySQL {
 		$this->lastQuery = $query;
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				nodebug(array(
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
@@ -112,7 +113,7 @@ class MySQL {
 
 	function fetchAssoc($res) {
 		$key = __METHOD__.' ('.$this->lastQuery.')';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -123,7 +124,7 @@ class MySQL {
 			debug_pre_print_backtrace();
 			exit();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
 	}
 

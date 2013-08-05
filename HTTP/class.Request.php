@@ -56,8 +56,16 @@ class Request {
 		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
 	}
 
+	/**
+	 * General filtering function
+	 * @param $name
+	 * @return string
+	 */
 	function getTrim($name) {
-		return trim($this->getString($name));
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		return $value;
 	}
 
 	/**
