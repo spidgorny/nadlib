@@ -302,6 +302,7 @@ abstract class OODBase {
 	}
 
 	/**
+	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id
 	 * @return self
 	 */
@@ -310,9 +311,14 @@ abstract class OODBase {
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
 			if (!$inst) {
-				//debug('new ', get_called_class(), $id, array_keys(self::$instance));
-				$inst = new $static();	// don't put anything else here
-				$inst->init($id);		// separate call to avoid infinite loop in ORS
+				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
+				if (false) {
+					$inst = new $static($id);	// VersionInfo needs it like this
+				} else {
+												// NewRequest needs it like this
+					$inst = new $static();		// don't put anything else here
+					$inst->init($id);			// separate call to avoid infinite loop in ORS
+				}
 			}
 		} else {
 			$inst = new $static($id);
