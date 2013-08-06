@@ -149,7 +149,28 @@ class Pager {
 		return $content;
 	}
 
+	public function debug() {
+		debug(array(
+			'numberOfRecords' => $this->numberOfRecords,
+			'itemsPerPage' => $this->itemsPerPage,
+			'pageSize->selected' => $this->pageSize->selected,
+			'currentPage' => $this->currentPage,
+			'floatPages' => $this->numberOfRecords/$this->itemsPerPage,
+			'getMaxPage' => $this->getMaxPage(),
+			'startingRecord' => $this->startingRecord,
+			'getSQLLimit' => $this->getSQLLimit(),
+			'getPageFirstItem' => $this->getPageFirstItem($this->currentPage),
+			'getPageLastItem' => $this->getPageLastItem($this->currentPage),
+			'url' => $this->url,
+			'pagesAround' => $this->pagesAround,
+			'showPageJump' => $this->showPageJump,
+			'showPager' => $this->showPager,
+			'prefix' => $this->prefix,
+		));
+	}
+
 	function renderPager() {
+		$this->debug();
 		$this->pageSize->setURL(new URL(NULL, array()));
 		$content = '<div class="pageSize">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
@@ -273,20 +294,6 @@ class Pager {
 
 	function getObjectInfo() {
 		return get_class($this).': "'.$this->itemsPerPage.'" (id:'.$this->id.' #'.spl_object_hash($this).')';
-	}
-
-	public function debug() {
-		$set = array(
-			'numberOfRecords' => $this->numberOfRecords,
-			'itemsPerPage' => $this->itemsPerPage,
-			'startingRecord' => $this->startingRecord,
-			'currentPage' => $this->currentPage,
-			'url' => $this->url,
-			'pagesAround' => $this->pagesAround,
-			'showPageJump' => $this->showPageJump,
-			'showPager' => $this->showPager,
-		);
-		debug($set);
 	}
 
 }
