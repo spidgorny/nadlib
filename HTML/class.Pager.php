@@ -50,6 +50,13 @@ class Pager {
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
 		$this->user = Config::getInstance()->user;
+		Config::getInstance()->mergeConfig($this);
+	}
+
+	/**
+	 * To be called only after setNumberOfRecords()
+	 */
+	function detectCurrentPage() {
 		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
 			if ($this->request->getMethod() == 'POST') {
 				$pagerData['page']--;
@@ -62,28 +69,28 @@ class Pager {
 		} else {
 			$this->setCurrentPage(0);
 		}
-		Config::getInstance()->mergeConfig($this);
 	}
 
 	function initByQuery($query) {
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($query);
 		$this->setNumberOfRecords($res['count']);
+		$this->detectCurrentPage();
 	}
 
 	function setNumberOfRecords($i) {
 		$this->numberOfRecords = $i;
-		if ($this->startingRecord > $this->numberOfRecords) {
-			$this->currentPage = max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
-			//debug($this->currentPage);
+		if ($this->startingRecord > $this->numberOfRecords) {	// required
+			$this->setCurrentPage($this->currentPage);
 			if ($this->request->isPOST()) {
 				$_POST['pager']['page'] = $this->currentPage+1;
 			}
-			$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 		}
 	}
 
 	function setCurrentPage($page) {
+		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
+		$page = min($page, $this->getMaxPage());
 		$this->currentPage = max(0, $page);
 		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 	}
@@ -106,7 +113,6 @@ class Pager {
 
 	function getSQLLimit() {
 		$limit = " LIMIT {$this->itemsPerPage} offset " . $this->startingRecord;
-		//printbr($limit);
 		return $limit;
 	}
 
@@ -133,11 +139,23 @@ class Pager {
 
 	/**
 	 * 0 - page 10
+	 * Alternative maybe ceil($div)-1 ?
 	 * @return float
 	 */
 	function getMaxPage() {
-		//$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
-		$maxpage = floor($this->numberOfRecords/$this->itemsPerPage);	// because a single page is 0
+		$div = $this->numberOfRecords/$this->itemsPerPage;
+
+		// zero based, this is wrong
+		//$maxpage = ceil($div);
+
+		// because a single page is 0
+		$maxpage = floor($div);
+
+		// 39/20 = 1.95 - correct
+		// 40/20 = 2.00, but will fit in two pages
+		// 41/20 = 2.05 - floor will make 2 (= 3 pages)
+		$maxpage += (!($div % 1)) ? -1 : 0;	// will fit completes in maxpage-1 pages
+		$maxpage = max(0, $maxpage);	// not -1
 		return $maxpage;
 	}
 
@@ -157,13 +175,14 @@ class Pager {
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
 			'pageSize->selected' => $this->pageSize->selected,
-			'currentPage' => $this->currentPage,
+			'currentPage [0..]' => $this->currentPage,
 			'floatPages' => $this->numberOfRecords/$this->itemsPerPage,
-			'getMaxPage' => $this->getMaxPage(),
+			'getMaxPage()' => $this->getMaxPage(),
 			'startingRecord' => $this->startingRecord,
-			'getSQLLimit' => $this->getSQLLimit(),
-			'getPageFirstItem' => $this->getPageFirstItem($this->currentPage),
-			'getPageLastItem' => $this->getPageLastItem($this->currentPage),
+			'getSQLLimit()' => $this->getSQLLimit(),
+			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
+			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
+			'getPagesAround()' => $pages = $this->getPagesAround($this->currentPage, $this->getMaxPage()),
 			'url' => $this->url,
 			'pagesAround' => $this->pagesAround,
 			'showPageJump' => $this->showPageJump,
@@ -172,9 +191,6 @@ class Pager {
 		));
 	}
 
-	function renderPager() {
-		$this->debug();
-		$this->pageSize->setURL(new URL(NULL, array()));
 	function renderPager() {
 		$this->pageSize->setURL(new URL(NULL, array()));
 		$this->pageSize->selected = $this->itemsPerPage;
