@@ -43,6 +43,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $footer = array();
 
+	public $loadJSfromGoogle = true;
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
@@ -50,7 +52,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->db = Config::getInstance()->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = Request::getInstance();
+		//debug('session_start');
 		session_start();
+		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
@@ -81,7 +85,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$slug = $this->request->getControllerString();
-			$this->loadController($slug);
+			if ($slug) {
+				$this->loadController($slug);
+			} else {
+				throw new Exception404();
+			}
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
@@ -139,10 +147,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$v->content = $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
+		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
-		$content = $v->render();	// not concatenate but replace
-		return $content;
+		return $v;
 	}
 
 	function renderController() {
@@ -167,6 +175,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			// catch this exception in your app Index class, it can't know what to do with all different apps
 			//$lf = new LoginForm();
 			//$content .= $lf;
+		} elseif ($e instanceof Exception404) {
+			$e->sendHeader();
 		}
 
 		if (!$this->request->isAjax()) {
@@ -216,7 +226,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function addJQuery() {
-		if (DEVELOPMENT) {
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$this->addJS('components/jquery/jquery.min.js');
 		} else {
 			$this->footer['jquery.js'] = '
@@ -229,7 +239,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		if (DEVELOPMENT) {
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
 			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
 		} else {
@@ -267,13 +277,38 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//!$this->request->isCLI() &&
 			!in_array(get_class($this->controller), array('Lesser')))
 		{
-			$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
+			$profiler = $GLOBALS['profiler'];
+			/** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				$content = $profiler->renderFloat();
 				if (!$this->request->isCLI()) {
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.new slTable($this->db->queryLog).'</div>';
+						$content .= TaylorProfiler::dumpQueries();	// same or different?
+					}
+					if ($this->db->QUERIES) {	// dbLayer
+						$q = $this->db->QUERIES;
+						arsort($q);
+						foreach ($q as $query => &$time) {
+							$time = array(
+								'times' => $this->db->QUERYMAL[$query],
+								'query' => $query,
+								'time' => number_format($time, 3),
+								'func' => $this->db->QUERYFUNC[$query],
+							);
+						}
+						$q = new slTable($q, 'class="view_array', array(
+							'times' => 'Times',
+							'query' => 'Query',
+							'time' => array(
+								'name' => 'Time',
+								'align' => 'right',
+							),
+							'func' => 'Caller',
+						));
+						$q->isOddEven = false;
+						$content .= '<div class="profiler">'.$q.'</div>';
 					}
 				}
 			} else if (DEVELOPMENT) {

@@ -8,6 +8,11 @@ class AutoLoad {
 	var $folders;
 
 	/**
+	 * @var bool
+	 */
+	var $useCookies = true;
+
+	/**
 	 * @var boolean
 	 */
 	public $debug;
@@ -17,24 +22,28 @@ class AutoLoad {
 	 */
 	private static $instance;
 
-	function __construct() {
-		$this->folders = $this->getFolders();
+	protected function __construct() {
+		//$this->folders = $this->getFolders();
 		//debug($this->folders);
 	}
 
 	function getFolders() {
 		require_once 'HTTP/class.Request.php';
 		if (!Request::isCLI()) {
-			session_start();
+			if ($this->useCookies) {
+				//debug('session_start');
+				session_start();
+			}
 			//unset($_SESSION['autoloadCache']);
-			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : NULL;
+			$folders = isset($_SESSION['autoloadCache']) ? $_SESSION['autoloadCache'] : array();
 		} else {
 			$folders = array();
 		}
 
 		if (!$folders) {
 			require_once 'class.ConfigBase.php';
-			if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
+			$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
+			if (file_exists($configPath)) {
 				//echo($configPath);
 				include_once $configPath;
 			}
@@ -51,10 +60,6 @@ class AutoLoad {
 		return $folders;
 	}
 
-	public static function getInstance() {
-		return self::$instance;
-	}
-
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($class == 'IndexBE') {
@@ -66,7 +71,9 @@ class AutoLoad {
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 		foreach ($this->folders as $path) {
-			$file = dirname(__FILE__).DIRECTORY_SEPARATOR.
+			$file =
+				//dirname(__FILE__).DIRECTORY_SEPARATOR.
+				dirname($_SERVER['SCRIPT_FILENAME']).DIRECTORY_SEPARATOR.
 				$path.DIRECTORY_SEPARATOR.
 				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';
@@ -99,10 +106,20 @@ class AutoLoad {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	static function register() {
-		if (!self::$instance) self::$instance = new self();
-		spl_autoload_register(array(self::$instance, 'load'));
+	/**
+	 * @return AutoLoad
+	 */
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self();
+		}
 		return self::$instance;
+	}
+
+	static function register() {
+		$instance = self::getInstance();
+		self::$instance->folders = self::$instance->getFolders();
+		spl_autoload_register(array($instance, 'load'));
 	}
 
 }

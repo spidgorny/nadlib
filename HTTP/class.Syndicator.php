@@ -6,10 +6,26 @@ define('UPPERCASE',1);
 class Syndicator {
 	var $url;
 	var $isCaching = FALSE;
+
+	/**
+	 * @var string
+	 */
 	var $html;
+
 	var $tidy;
+
+	/**
+	 * @var SimpleXMLElement
+	 */
 	var $xml;
+
+	/**
+	 * @var array
+	 */
+	public $json;
+
 	var $xpath;	// last used, for what?
+
 	var $recodeUTF8;
 
 	/**
@@ -50,6 +66,14 @@ class Syndicator {
 		return $s;
 	}
 
+	static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8') {
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'JSON';
+		$s->html = $s->retrieveFile();
+		$s->json = json_decode($s->html);
+		return $s;
+	}
+
 	function retrieveFile($retries = 1) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$c = Index::getInstance()->controller;
@@ -57,7 +81,7 @@ class Syndicator {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$c->log($this->cache->map($this->url).' Size: '.strlen($html), __CLASS__);
+				$c->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
 				$html = $this->downloadFile($this->url, $retries);
 				$this->cache->set($this->url, $html);

@@ -24,7 +24,9 @@ class slTableValue {
 		}
 		$this->value = $value;
 		$this->desc += (array)$desc;
-		$this->db = Config::getInstance()->db;
+		if (class_exists('Config')) {
+			$this->db = Config::getInstance()->db;
+		}
 	}
 
 /*	function render() {
@@ -70,7 +72,7 @@ class slTableValue {
 								$out[] = $this->db->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
 							}
 							$out = implode(', ', $out);
-						} else {
+						} else if ($k['from']) {
 							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val));
 							$options = ArrayPlus::create($options)->IDalize($id)->column($what)->getData();
 							$out = $options[$val];
@@ -197,6 +199,7 @@ class slTableValue {
 					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
 						$val = nl2br($val);
+						$k['no_hsc'] = true; 	// for below
 					}
 					if (is_object($val)) {
 						if (method_exists($val, 'getName')) {
@@ -205,6 +208,12 @@ class slTableValue {
 					}
 					if ($k['no_hsc']) {
 						$out = $val;
+					} else if ($val instanceof htmlString) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLTag) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLDate) {
+						$out = $val.'';
 					} else {
 						$out = htmlspecialchars($val);
 					}
