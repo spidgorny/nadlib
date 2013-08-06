@@ -52,7 +52,6 @@ class Pager {
 		$this->user = Config::getInstance()->user;
 		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
 			if ($this->request->getMethod() == 'POST') {
-				//Debug::debug_args($pagerData);
 				$pagerData['page']--;
 			}
 			$this->setCurrentPage($pagerData['page']);
@@ -97,6 +96,9 @@ class Pager {
 	}
 
 	function setItemsPerPage($items) {
+		if (!$items) {
+			$items = $this->pageSize->selected;
+		}
 		$this->itemsPerPage = $items;
 		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 		//debug($this);
@@ -125,7 +127,8 @@ class Pager {
 	}
 
 	function isInPage($i) {
-		return $i >= $this->getPageFirstItem($this->currentPage) && $i < ($this->getPageFirstItem($this->currentPage)+$this->itemsPerPage);
+		return $i >= $this->getPageFirstItem($this->currentPage) &&
+			   $i < ($this->getPageFirstItem($this->currentPage)+$this->itemsPerPage);
 	}
 
 	/**
@@ -172,6 +175,9 @@ class Pager {
 	function renderPager() {
 		$this->debug();
 		$this->pageSize->setURL(new URL(NULL, array()));
+	function renderPager() {
+		$this->pageSize->setURL(new URL(NULL, array()));
+		$this->pageSize->selected = $this->itemsPerPage;
 		$content = '<div class="pageSize">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
 	}
@@ -183,6 +189,7 @@ class Pager {
  		//debug($pages, $maxpage);
  		if ($this->currentPage > 0) {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage-1));
+			$link = $this->url->setParam('pageSize', $this->pageSize->selected);
 			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
  		} else {
 	 		$content .= '<li><span class="disabled">&lt;</span></li>';
@@ -194,7 +201,7 @@ class Pager {
 				$content .= $this->getSinglePageLink($k, $k+1);
  			}
 		}
- 		if ($this->currentPage < $maxpage-1) {
+ 		if ($this->currentPage < $maxpage) {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage+1));
 			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>';
  		} else {
@@ -231,7 +238,7 @@ class Pager {
 		$pages = array();
 		for ($i = 0; $i < $size; $i++) {
 			$k = $i;
-			if ($k >= 0 && $k <= $max) {		// added <= years after it's been in use
+			if ($k >= 0 && $k < $max) {
 				$pages[] = $k;
 			}
 		}
@@ -240,16 +247,16 @@ class Pager {
 		}
 		for ($i = -$size; $i <= $size; $i++) {
 			$k = $current+$i;
-			if ($k >= 0 && $k < $max) {
+			if ($k >= 0 && $k <= $max) {
 				$pages[] = $k;
 			}
 		}
 		if ($max - $size > $k+1) {
 			$pages[] = 'gap2';
 		}
-		for ($i = $max-$size; $i < $max; $i++) {
+		for ($i = $max-$size; $i <= $max; $i++) {
 			$k = $i;
-			if ($k >= 0 && $k < $max) {
+			if ($k >= 0 && $k <= $max) {
 				$pages[] = $k;
 			}
 		}
