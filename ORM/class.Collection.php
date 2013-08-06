@@ -267,6 +267,10 @@ class Collection {
 		return $options;
 	}
 
+	/**
+	 * @param array $where
+	 * @return mixed - single row
+	 */
 	function findInData(array $where) {
 		//debug($where);
 		//echo new slTable($this->data);
@@ -277,6 +281,22 @@ class Collection {
 				return $row;
 			}
 		}
+	}
+
+	/**
+	 * @param array $where
+	 * @return array - of matching rows
+	 */
+	function findAllInData(array $where) {
+		$result = array();
+		foreach ($this->data as $row) {
+			$intersect1 = array_intersect_key($row, $where);
+			$intersect2 = array_intersect_key($where, $row);
+			if ($intersect1 == $intersect2) {
+				$result[] = $row;
+			}
+		}
+		return $result;
 	}
 
 	function renderList() {
@@ -298,11 +318,14 @@ class Collection {
 	 */
 	function renderMembers() {
 		$content = '';
-		$i = 0;
 		//debug(sizeof($this->members));
-		foreach ($this->members as $obj) {
+		foreach ($this->members as $key => $obj) {
 			//debug($i++, (strlen($content)/1024/1024).'M');
-			$content .= $obj->render()."\n";
+			if (is_object($obj)) {
+				$content .= $obj->render()."\n";
+			} else {
+				$content .= getDebug($key, $obj);
+			}
 		}
 		return $content;
 	}

@@ -101,7 +101,7 @@ class HTMLForm {
 			$a .= ' value="'.$value.'"';
 		}
 		if ($more) {
-			$a .= " " . $more;
+			$a .= " " . (is_array($more) ? $this->getAttrHTML($more) : $more);
 		}
 		$a .= ">\n";
 		return $a;
