@@ -154,7 +154,8 @@ class Pager {
 		// 39/20 = 1.95 - correct
 		// 40/20 = 2.00, but will fit in two pages
 		// 41/20 = 2.05 - floor will make 2 (= 3 pages)
-		$maxpage += (!($div % 1)) ? -1 : 0;	// will fit completes in maxpage-1 pages
+		//$maxpage += (!($div % 1)) ? -1 : 0;	// will fit completes in maxpage-1 pages
+		$maxpage += ($div == floor($div)) ? -1 : 0;	// will fit completes in maxpage-1 pages
 		$maxpage = max(0, $maxpage);	// not -1
 		return $maxpage;
 	}
