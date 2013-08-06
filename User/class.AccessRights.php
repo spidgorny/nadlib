@@ -21,7 +21,7 @@ class AccessRights {
 				'.$this->accessTable.'.id = '.$this->groupAccessTable.'.'.$this->id_useraccess.'
 				AND '.$this->id_usergroup.' = '.$idGroup.')',
 			array(), 'ORDER BY '.$this->accessTable.'.name',
-			', '.$this->groupAccessTable.'.id as affirmative');
+			$this->accessTable.'.*, '.$this->groupAccessTable.'.id as affirmative');
 		$data = Config::getInstance()->db->fetchAll($res);
 		//debug($GLOBALS['i']->db->lastQuery);
 		//debug($data);
@@ -37,6 +37,10 @@ class AccessRights {
 	function can($what) {
 		//debug($what, $this->arCache);
 		return isset($this->arCache[$what]) ? $this->arCache[$what] : NULL;
+	}
+
+	function getList() {
+		return $this->arCache;
 	}
 
 }

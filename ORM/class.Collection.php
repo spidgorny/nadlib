@@ -11,7 +11,7 @@ class Collection {
 	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
-	protected $table = __CLASS__;
+	public $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
 	protected $parentField = 'pid';
@@ -60,7 +60,7 @@ class Collection {
 	 * SQL part
 	 * @var string
 	 */
-	public $orderBy = "uid";
+	public $orderBy = "ORDER BY id";
 
 	/**
 	 * getQuery() stores the final query here for debug
@@ -160,7 +160,9 @@ class Collection {
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		//debug($this->where);
+		//debug_pre_print_backtrace();
 		$this->query = $this->getQuery($this->where);
+		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
@@ -175,7 +177,11 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(array $where = array()) {
+	/**
+	 * @param array/SQLWhere $where
+	 * @return string
+	 */
+	function getQuery($where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;
@@ -225,7 +231,7 @@ class Collection {
 			$s->sortable = $this->useSorting;
 			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
 			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
 			if ($this->pager) {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
@@ -357,7 +363,7 @@ class Collection {
 			$f = new HTMLFormTable();
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', '', array('class' => 'btn-primary'));
+			$f->submit('Filter', array('class' => 'btn-primary'));
 			$content = $f->getContent();
 		}
 		return $content;
@@ -554,9 +560,7 @@ class Collection {
 
 	function getLazyMemberIterator($class) {
 		$arrayIterator = $this->getLazyIterator();
-
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
-
 		return $memberIterator;
 	}
 

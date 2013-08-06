@@ -84,8 +84,14 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		foreach ($this->data as $row) {
 			$keyValue = $row[$key];
 			if (!$keyValue && !$allowMerge) {
-				debug($this->data, $key, $row);
-				throw new Exception(__METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.');
+				$error = __METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.';
+				debug(array(
+					'error' => $error,
+					'key' => $key,
+					'row' => $row,
+					'data' => $this->data,
+				));
+				throw new Exception($error);
 			}
 			$data[$keyValue] = $row;
 		}

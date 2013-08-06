@@ -159,7 +159,7 @@ class Pager {
 		$content = '';
 		$maxpage = $this->getMaxPage();
  		$pages = $this->getPagesAround($this->currentPage, $maxpage);
- 		//debug(array($pages, $current['searchIndex'], sizeof($tmpArray)));
+ 		//debug($pages, $maxpage);
  		if ($this->currentPage > 0) {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage-1));
 			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
@@ -207,11 +207,10 @@ class Pager {
 
 	function getPagesAround($current, $max) {
 		$size = $this->pagesAround;
-		$_s = 3;
 		$pages = array();
 		for ($i = 0; $i < $size; $i++) {
 			$k = $i;
-			if ($k >= 0 && $k < $max) {
+			if ($k >= 0 && $k <= $max) {		// added <= years after it's been in use
 				$pages[] = $k;
 			}
 		}

@@ -20,6 +20,7 @@ class BEUser extends UserBase {
 	}
 
 	function try2login() {
+		debug('session_start');
 		session_start();
 	}
 
@@ -27,12 +28,12 @@ class BEUser extends UserBase {
 		return $this->acl[$something];
 	}
 
-	function saveLogin($username, $passwordHash) {
-		$_SESSION[__CLASS__]['login'] = $username;
+	function saveLogin() {
+		$_SESSION[__CLASS__]['login'] = $this->id;
 	}
 
 	function isAuth() {
-		return !!$_SESSION[__CLASS__]['login'];
+		return $_SESSION[__CLASS__]['login'] && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
 	function logout() {

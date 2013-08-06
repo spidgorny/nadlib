@@ -225,18 +225,17 @@ class slTable {
 				$thmore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
-				nodebug(array(
-					$_REQUEST[$this->prefix]['sortBy'],
-					$this->sortBy,
-					$thk,
-				));
-				$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;
-				$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
-				$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
-					'sortBy' => $sortField,
-					'sortOrder' => $sortOrder,
-				)));
-				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
+					$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;	// set to null - don't sort
+					$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
+					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
+						'sortBy' => $sortField,
+						'sortOrder' => $sortOrder,
+					)));
+					$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				} else {
+					$thes2[$thk] = $thvName;
+				}
 			} else {
 				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
 					$link = URL::getCurrent();
@@ -277,8 +276,8 @@ class slTable {
 
 	function generate($caller = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
-		if (!$this->generation) {
-			if (sizeof($this->data) && $this->data != FALSE) {
+		if (!$this->generation) {	// cache
+			if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
 				$this->generateThes();
 
 				$this->sort();
@@ -308,7 +307,7 @@ class slTable {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					//debug($tr);
+					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
 					$this->genRow($t, $row);
 					$t->tre();
@@ -499,7 +498,7 @@ class slTable {
 		return (is_numeric($parts[0]) && is_numeric($parts[1]) && strlen($parts[0]) == 2 && strlen($parts[1]) == 2);
 	}
 
-	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true) {
+	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false) {
 		foreach ($assoc as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
@@ -528,7 +527,7 @@ class slTable {
 		}
 		$s = new self($assoc, 'class="visual nospacing table"', array(
 			0 => '',
-			'' => array('no_hsc' => true),
+			'' => array('no_hsc' => $no_hsc),
 		));
 		return $s;
 	}
@@ -540,6 +539,27 @@ class slTable {
 		header('Content-length: '.strlen($content));
 		echo $content;
 		exit();
+	}
+
+	function prepare4XLS() {
+		$this->generateThes();
+		//debug($this->thes);
+
+		$xls = array();
+		foreach ($this->thes as $th) {
+			$row[] = is_array($th) ? $th['name'] : $th;
+		}
+		$xls[] = $row;
+
+		foreach ($this->data as $row) {
+			$line = array();
+			foreach ($this->thes as $col => $_) {
+				$val = $row[$col];
+				$line[] = strip_tags($val);
+			}
+			$xls[] = $line;
+		}
+		return $xls;
 	}
 
 }

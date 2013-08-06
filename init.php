@@ -1,55 +1,62 @@
 <?php
 
-function initNADLIB() {
-	//print_r($_SERVER);
-	require_once dirname(__FILE__) . '/class.AutoLoad.php';
-	$al = AutoLoad::register();
-	//$al->debug = true;
+class InitNADLIB {
 
-    $os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
-	define('DEVELOPMENT', Request::isCLI()
-		? (($os == 'Windows_NT') || true) // at home
-		: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
-	);
+	var $useCookies = true;
 
-	if (DEVELOPMENT) {
-		error_reporting(E_ALL ^ E_NOTICE);
-		//ini_set('display_errors', FALSE);
-		//trigger_error(str_repeat('*', 20));	// log file separator
+	function init() {
+		//print_r($_SERVER);
+		require_once dirname(__FILE__) . '/class.AutoLoad.php';
+		$al = AutoLoad::getInstance();
+		$al->useCookies = $this->useCookies;
+		$al->register();
 
-		ini_set('display_errors', TRUE);
-		ini_set('html_error', TRUE);
+		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		define('DEVELOPMENT', Request::isCLI()
+			? (($os == 'Windows_NT') || true) // at home
+			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+		);
 
-		$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
-		/* @var $profiler TaylorProfiler */
-		if (class_exists('Config')) {
-			//print_r(Config::getInstance()->config['Config']);
-			set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+		if (DEVELOPMENT) {
+			error_reporting(E_ALL ^ E_NOTICE);
+			//ini_set('display_errors', FALSE);
+			//trigger_error(str_repeat('*', 20));	// log file separator
+
+			ini_set('display_errors', TRUE);
+			ini_set('html_error', TRUE);
+
+			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
+			/* @var $profiler TaylorProfiler */
+			if (class_exists('Config')) {
+				//print_r(Config::getInstance()->config['Config']);
+				set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+			}
+			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
+			}
+		} else {
+			error_reporting(0);
+			ini_set('display_errors', FALSE);
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
+			}
 		}
-		$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
-		if (!Request::isCLI()) {
-			header('Cache-Control: no-cache, no-store, max-age=0');
-			header('Expires: -1');
-		}
-	} else {
-		error_reporting(0);
-		ini_set('display_errors', FALSE);
-		if (!Request::isCLI()) {
-			header('Cache-Control: no-cache, no-store, max-age=0');
-			header('Expires: -1');
-		}
+		date_default_timezone_set('Europe/Berlin');
+		ini_set('short_open_tag', 1);
+		Request::removeCookiesFromRequest();
 	}
-	date_default_timezone_set('Europe/Berlin');
-	ini_set('short_open_tag', 1);
-	Request::removeCookiesFromRequest();
+
 }
 
-function debug() {
+function debug($a) {
 	$params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
-		echo '<pre>'.htmlspecialchars(print_r($params, true)).'</pre>';
+		echo '<pre>'.htmlspecialchars(print_r(func_num_args() == 1 ? $a : $params, true)).'</pre>';
 	}
 }
 
@@ -242,4 +249,33 @@ function array_combine_stringkey(array $a, array $b) {
 	return $ret;
 }
 
-initNADLIB();
+/**
+ * http://www.php.net/manual/en/function.get-class-methods.php
+ * @param $class
+ * @return array|null
+ */
+function get_overriden_methods($class) {
+	$rClass = new ReflectionClass($class);
+	$array = NULL;
+
+	foreach ($rClass->getMethods() as $rMethod)
+	{
+		try
+		{
+			// attempt to find method in parent class
+			new ReflectionMethod($rClass->getParentClass()->getName(),
+				$rMethod->getName());
+			// check whether method is explicitly defined in this class
+			if ($rMethod->getDeclaringClass()->getName()
+				== $rClass->getName())
+			{
+				// if so, then it is overriden, so add to array
+				$array[] .=  $rMethod->getName();
+			}
+		}
+		catch (exception $e)
+		{    /* was not in parent class! */    }
+	}
+
+	return $array;
+}

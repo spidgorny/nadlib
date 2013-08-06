@@ -56,8 +56,16 @@ class Request {
 		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
 	}
 
+	/**
+	 * General filtering function
+	 * @param $name
+	 * @return string
+	 */
 	function getTrim($name) {
-		return trim($this->getString($name));
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		return $value;
 	}
 
 	/**
@@ -151,6 +159,14 @@ class Request {
 
 	function getArray($name) {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
+	}
+
+	function getTrimArray($name) {
+		$list = $this->getArray($name);
+		if ($list) {
+			$list = array_map('trim', $list);
+		}
+		return $list;
 	}
 
 	function getSubRequestByPath(array $name) {
@@ -254,26 +270,26 @@ class Request {
 			if (!$controller) {
 				$levels = $this->getURLLevels();
 				//debug($levels);
-				$levels = array_reverse($levels);
-				foreach ($levels as $class) {
-					//debug($class, class_exists($class.'Controller'), class_exists($class));
-					// to simplofy URL it first searches for the corresponding controller
-					if ($class && class_exists($class.'Controller')) {	// this is untested
-						$last = $class.'Controller';
-						break;
+				if ($levels) {
+					$levels = array_reverse($levels);
+					foreach ($levels as $class) {
+						//debug($class, class_exists($class.'Controller'), class_exists($class));
+						// to simplify URL it first searches for the corresponding controller
+						if ($class && class_exists($class.'Controller')) {	// this is untested
+							$last = $class.'Controller';
+							break;
+						}
+						if (class_exists($class)) {
+							$last = $class;
+							break;
+						}
 					}
-					if (class_exists($class)) {
-						$last = $class;
-						break;
-					}
+					$controller = $last;
+				} else {
+					$controller = $this->defaultController;	// not good as we never get 404
 				}
-				$controller = $last;
 			}
 		}   // cli
-        if (!$controller) {
-            $controller = $this->defaultController;
-			//debug('Using default controller', $controller);
-        }
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
@@ -347,7 +363,9 @@ class Request {
 		} else {
 			$docRoot .= '/';
 		}
-		$url = Request::getRequestType().'://'.$_SERVER['HTTP_HOST'].$docRoot;
+		$url = Request::getRequestType().'://'.(
+			$_SERVER['HTTP_X_FORWARDED_HOST'] ?: $_SERVER['HTTP_HOST']
+		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
 		return $url;
@@ -531,6 +549,11 @@ class Request {
 		return get_object_vars($this);
 	}
 
+	/**
+	 * Uses realpath() to make sure file exists
+	 * @param $name
+	 * @return string
+	 */
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
 		//debug(getcwd(), $filename, realpath($filename));
@@ -538,10 +561,15 @@ class Request {
 		return $filename;
 	}
 
+	/**
+	 * Just cuts the folders with basename()
+	 * @param $name
+	 * @return string
+	 */
 	function getFilename($name) {
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
-		$filename = basename($filename);	// optionally use realpath()
+		$filename = basename($filename);
 		return $filename;
 	}
 

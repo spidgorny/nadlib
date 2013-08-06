@@ -136,6 +136,7 @@ abstract class Grid extends AppController {
 
 	function render() {
 		$content = $this->collection->render();
+		$content .= '<hr />';
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this), $this->encloseTag);
 		return $content;
 	}

@@ -145,7 +145,6 @@ class TaylorProfiler {
     *
     */
     function printTimers($enabled=false) {
-    	$table = array();
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
             $tot_perc = 0;
@@ -284,10 +283,17 @@ class TaylorProfiler {
     }
 
 	function renderFloat() {
-		$oaTime = microtime(true) - ($this->initTime ? $this->initTime : $_SERVER['REQUEST_TIME']);
+		$oaTime = microtime(true) - ($this->initTime
+				? $this->initTime
+				: ($_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'])
+		);
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
 			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+			$dbTime = number_format($dbTime, 3, '.', '');
+		}
+		if (Config::getInstance()->db->saveQueries) {
+			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
@@ -340,6 +346,35 @@ class TaylorProfiler {
 
 	static function disableTick() {
 		unregister_tick_function(array(__CLASS__, 'tick'));
+	}
+
+	/**
+	 * @return null|TaylorProfiler
+	 */
+	public static function getInstance() {
+		return $GLOBALS['profiler'] instanceof self ? $GLOBALS['profiler'] : NULL;
+	}
+	
+	static function dumpQueries() {
+		if (DEVELOPMENT) {
+			$queryLog = Config::getInstance()->db->queryLog;
+			//debug($queryLog);
+			arsort($queryLog);
+			$log = array();
+			$pb = new ProgressBar();
+			$sumTime = ArrayPlus::create($queryLog)->column('time')->sum();
+			foreach ($queryLog as $key => $set) {
+				$query = $set['query'];
+				$time = $set['time'];
+				$log[] = array(
+					'query' => $query,
+					'time' => number_format($time, 3, '.', '').'s',
+					'%' => $pb->getImage($time/$sumTime*100),
+				);
+			}
+			$s = new slTable($log);
+			return $s;
+		}
 	}
 
 }
