@@ -8,6 +8,9 @@
 
 class Recursive {
 
+	/**
+	 * @var string
+	 */
 	protected $value;
 
 	public $elements = array();
@@ -17,8 +20,12 @@ class Recursive {
 		$this->elements = $elements;
 	}
 
+	function setValue($value) {
+		$this->value = $value;
+	}
+
 	function __toString() {
-		return $this->value;
+		return strval(strip_tags($this->value));
 	}
 
 	function getChildren() {

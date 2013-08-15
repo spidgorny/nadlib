@@ -8,8 +8,8 @@ class LoginForm extends AjaxLogin {
 
 	protected $secret = 'nadlibSecretPasswordHash';
 
-	function __construct($mode = NULL) {
-		parent::__construct($mode);
+	function __construct($action = NULL) {
+		parent::__construct($action);
 		$this->secret = md5(json_encode($_ENV));
 	}
 

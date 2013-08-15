@@ -14,7 +14,7 @@ class View {
 	 * @var LocalLang
 	 */
 	protected $ll;
-	
+
 	/**
 	 * Enter description here...
 	 *
