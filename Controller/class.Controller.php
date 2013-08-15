@@ -85,10 +85,12 @@ abstract class Controller {
 		//debug(get_class($this->index));
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
-		$this->db = Config::getInstance()->db;
-		$this->user = Config::getInstance()->user;
+		if (class_exists('Config')) {
+			$this->db = Config::getInstance()->db;
+			$this->user = Config::getInstance()->user;
+			Config::getInstance()->mergeConfig($this);
+		}
 		$this->linkVars['c'] = get_class($this);
-		Config::getInstance()->mergeConfig($this);
 		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 		self::$instance[get_class($this)] = $this;
@@ -300,7 +302,7 @@ abstract class Controller {
 	}
 
 	function inColumnsHTML5() {
-		$GLOBALS['HTMLFOOTER']['display-box.css'] = '<link rel="stylesheet" type="text/css" href="/vendor/spidgorny/nadlib/CSS/display-box.css" />';
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -310,9 +312,13 @@ abstract class Controller {
 		return $content;
 	}
 
-	function getMenuSuffix() {
-		return '';
-	}
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
 
 	function sidebar() {
 		return '';

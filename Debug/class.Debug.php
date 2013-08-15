@@ -64,7 +64,9 @@ class Debug {
 		} else if (!is_object($a) && !is_resource($a)) {
 			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
 		}
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.number_format(TaylorProfiler::getMemUsage()*100, 3).'%';
+		$memPercent = TaylorProfiler::getMemUsage()*100;
+		$pb = new ProgressBar();
+		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'inline');
 		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
 		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
 
@@ -117,7 +119,7 @@ class Debug {
 	 * @param $levels
 	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
 	 */
-	static function view_array($a, $levels) {
+	static function view_array($a, $levels = NULL) {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();

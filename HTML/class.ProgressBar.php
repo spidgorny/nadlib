@@ -21,6 +21,9 @@ class ProgressBar {
 
 	function render() {
 		if (!$this->cli) {
+			if (!headers_sent()) {
+				header('Content-type: text/html; charset=utf-8');
+			}
 			print($this->getContent());
 			print $this->getCSS();
 			$this->flush();
@@ -38,6 +41,7 @@ class ProgressBar {
 	}
 
 	function getContent() {
+		Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
@@ -50,7 +54,7 @@ class ProgressBar {
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
 		if (class_exists('Index')) {
-			Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
 		} else {
 			$content .= '<link rel="stylesheet" href="nadlib/CSS/ProgressBar.less" />';
 		}
@@ -94,11 +98,11 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p) {
-		return '<div style="display: inline-block; width: 100%; text-align: center; wrap: nowrap;">'.
+	function getImage($p, $display = 'inline-block') {
+		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; wrap: nowrap;">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
-		</div>';
+			<img src="vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+		</div>');
 	}
 
 	function getBackground($p, $width = '100px') {
