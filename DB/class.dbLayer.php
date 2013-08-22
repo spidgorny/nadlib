@@ -80,7 +80,7 @@ class dbLayer {
 
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		$trace = $this->getCallerFunction();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
 		$result = $this->perform($query);
@@ -101,7 +101,7 @@ class dbLayer {
 				exit();
 			}
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		return $return;
 	}
 
@@ -187,7 +187,8 @@ class dbLayer {
 	}
 
 	function getTableOptions($table, $column, $where = "", $key = 'id') {
-		$a = $this->getTableDataEx($table, $where, $table.'.*, '.$column);
+		$tableName = $this->getFirstWord($table);
+		$a = $this->getTableDataEx($table, $where, $tableName.'.*, '.$column);
 
 		// select login.*, coalesce(name, '') || ' ' || coalesce(surname, '') AS combined from login where relcompany = '47493'
 		$as = trimExplode(' AS ', $column);
@@ -537,6 +538,7 @@ order by a.attnum';
 			//debug_pre_print_backtrace();
 			return call_user_func_array(array($qb, $method), $params);
 		} else {
+			debug($qb);
 			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
 		}
 	}

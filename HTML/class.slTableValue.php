@@ -214,6 +214,9 @@ class slTableValue {
 						$out = $val.'';
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
+					} elseif (is_array($val)) {
+						debug($val);
+						$out = 'Array';
 					} else {
 						$out = htmlspecialchars($val);
 					}
