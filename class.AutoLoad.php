@@ -15,16 +15,29 @@ class AutoLoad {
 	/**
 	 * @var boolean
 	 */
-	public $debug;
+	public $debug = true;
 
 	/**
 	 * @var AutoLoad
 	 */
 	private static $instance;
 
+	/**
+	 * @var Config
+	 */
+	public $config;
+
 	protected function __construct() {
 		//$this->folders = $this->getFolders();
 		//debug($this->folders);
+		require_once 'class.ConfigBase.php';
+		$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
+		if (file_exists($configPath)) {
+			//echo($configPath);
+			include_once $configPath;
+			$this->config = Config::getInstance();
+		}
+		//echo($configPath);
 	}
 
 	function getFolders() {
@@ -41,13 +54,6 @@ class AutoLoad {
 		}
 
 		if (!$folders) {
-			require_once 'class.ConfigBase.php';
-			$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
-			if (file_exists($configPath)) {
-				//echo($configPath);
-				include_once $configPath;
-			}
-			//echo($configPath);
 			if (class_exists('Config')) {
 				$folders = Config::$includeFolders
 					? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
@@ -70,10 +76,12 @@ class AutoLoad {
 		$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
+
+		$appRoot = $this->config ? $this->config->appRoot : dirname($_SERVER['SCRIPT_FILENAME']);
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
-				dirname($_SERVER['SCRIPT_FILENAME']).DIRECTORY_SEPARATOR.
+				$appRoot.DIRECTORY_SEPARATOR.
 				$path.DIRECTORY_SEPARATOR.
 				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';
