@@ -213,7 +213,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function error($text) {
-		$this->content .= '<div class="ui-state-error alert alert-error padding">'.$text.'</div>';
+		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
 	}
 
 	function saveMessages() {
@@ -288,27 +288,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 						$content .= TaylorProfiler::dumpQueries();	// same or different?
 					}
 					if ($this->db->QUERIES) {	// dbLayer
-						$q = $this->db->QUERIES;
-						arsort($q);
-						foreach ($q as $query => &$time) {
-							$time = array(
-								'times' => $this->db->QUERYMAL[$query],
-								'query' => $query,
-								'time' => number_format($time, 3),
-								'func' => $this->db->QUERYFUNC[$query],
-							);
-						}
-						$q = new slTable($q, 'class="view_array', array(
-							'times' => 'Times',
-							'query' => 'Query',
-							'time' => array(
-								'name' => 'Time',
-								'align' => 'right',
-							),
-							'func' => 'Caller',
-						));
-						$q->isOddEven = false;
-						$content .= '<div class="profiler">'.$q.'</div>';
+						$content .= $this->db->dumpQueries();
 					}
 				}
 			} else if (DEVELOPMENT) {

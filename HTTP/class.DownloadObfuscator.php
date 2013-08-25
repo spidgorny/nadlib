@@ -43,6 +43,8 @@ class DownloadObfuscator {
 	 */
 	protected $swordfish = 's0meS$cretC0de';
 
+	public $linkPrefix = '?';
+
 	/**
 	 * Supply the filename and folder
 	 *
@@ -52,12 +54,13 @@ class DownloadObfuscator {
 	function __construct($file = '', $fileSuffix = '') {
 		$this->file = $file ?: $_REQUEST['file'];
 		$this->fileSuffix = $fileSuffix;
+		$this->swordfish .= date('Y-m-d-H');
 	}
 
 	function getDownloadLink() {
 		//$link = '?id='.DownloadObfuscator::page.'&type='.DownloadObfuscator::type.'&file='.urlencode($this->filename).'&check='.$this->getHash();
 		//$link = '?id='.DownloadObfuscator::page.'&type='.DownloadObfuscator::type.'&subid='.$this->sub->submission['uid'].'&fileSuffix='.$this->fileSuffix.'&check='.$this->getHash();
-		$link = '?'.http_build_query(array(
+		$link = $this->linkPrefix.http_build_query(array(
 			'c' => 'DownloadObfuscator',
 			//'id' => DownloadObfuscator::page,
 			//'type' => DownloadObfuscator::type,
