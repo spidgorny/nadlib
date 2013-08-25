@@ -210,7 +210,6 @@ class MySQL {
 	 * @param array $where
 	 * @param string $order
 	 * @param string $addFields
-	 * @param bool $exclusive
 	 * @return array <type>
 	 */
 	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
