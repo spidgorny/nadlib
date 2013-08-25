@@ -45,7 +45,9 @@ class AutoLoad {
 				//debug($_SESSION[__CLASS__]);
 
 				$folders = isset($_SESSION[__CLASS__]['folders']) ? $_SESSION[__CLASS__]['folders'] : array();
-				$this->classFileMap = $_SESSION[__CLASS__]['classFileMap'] ?: array();
+				$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
+					? $_SESSION[__CLASS__]['classFileMap']
+					: array();
 			}
 		} else {
 			$folders = array();

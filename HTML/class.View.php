@@ -245,9 +245,12 @@ class View {
 		return $money;
 	}
 
-	static function bar($percent) {
+	static function bar($percent, array $params = array()) {
 		$percent = round($percent);
-		return '<img src="nadlib/bar.php?rating='.$percent.'&color=6DC5B4" alt="'.$percent.'%" />';
+		return '<img src="vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
+			'rating' => $percent,
+			'color' => '6DC5B4',
+		)).'" alt="'.$percent.'%" />';
 	}
 
 }

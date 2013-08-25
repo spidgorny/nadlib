@@ -56,7 +56,7 @@ class ProgressBar {
 		if (class_exists('Index')) {
 			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
 		} else {
-			$content .= '<link rel="stylesheet" href="nadlib/CSS/ProgressBar.less" />';
+			$content .= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
 		}
 		return $content;
 	}
@@ -111,7 +111,7 @@ class ProgressBar {
 			width: '.$width.';
 			text-align: center;
 			wrap: nowrap;
-			background: url(nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
+			background: url(vendor/spidgorny/nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
 	}
 
 	public function setTitle() {
