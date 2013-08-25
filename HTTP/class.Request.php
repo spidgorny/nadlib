@@ -68,6 +68,16 @@ class Request {
 		return $value;
 	}
 
+	function getTrimRequired($name) {
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		if (!$value) {
+			throw new Exception('Parameter '.$name.' is required.');
+		}
+		return $value;
+	}
+
 	/**
 	 * Checks that trimmed value isset in the supplied array
 	 * @param $name
