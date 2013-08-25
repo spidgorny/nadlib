@@ -12,7 +12,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 	 */
 	function __construct() {
 		Index::getInstance()->addJQueryUI();	// for the picker
-		Index::getInstance()->addJS('nadlib/js/HTMLFormDatePicker.js');
+		Index::getInstance()->addJS('vendor/spidgorny/nadlib/js/HTMLFormDatePicker.js');
 	}
 
 	function render() {

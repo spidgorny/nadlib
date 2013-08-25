@@ -141,8 +141,8 @@ class AjaxLogin extends AppController {
 			$desc = $this->getLoginDesc();
 		}
 		$f->showForm($desc);
-		$f->hidden('mode', 'login');
-		$f->text('<div style="float: right"><a href="'.$_SERVER['PHP_SELF'].'?mode=forgotPassword" rel="forgotPassword">'.__('Forgot Password').'</a></div>');
+		$f->hidden('action', 'login');
+		$f->text('<div style="float: right"><a href="'.$_SERVER['PHP_SELF'].'?action=forgotPassword" rel="forgotPassword">'.__('Forgot Password').'</a></div>');
 		$f->submit(__('Login'));
 		$content = $f;
 		//if (!$this->request->is_set('username')) {
@@ -160,12 +160,12 @@ class AjaxLogin extends AppController {
 	function inlineFormAction() {
 		if ($this->user && $this->user->isAuth()) {
 			$content = '<form class="navbar-form pull-right" method="POST">
-				'.$this->user->getName().' <a href="?c=Login&mode=logout" class="ajax btn">'.__('Logout').'</a>
+				'.$this->user->getName().' <a href="?c=Login&action=logout" class="ajax btn">'.__('Logout').'</a>
 			</form>';
 		} else {
 			$content = '<form class="navbar-form pull-right" method="POST">
 				<input type="hidden" name="c" value="'.get_class($this).'" />
-				<input type="hidden" name="mode" value="login" />
+				<input type="hidden" name="action" value="login" />
 				<input class="span2" type="text" name="username" placeholder="Email">
 				<input class="span2" type="password" name="password" placeholder="Password">
 				<button type="submit" class="btn">Sign in</button>
@@ -227,10 +227,10 @@ class AjaxLogin extends AppController {
 			$this->user->getName().'
 			<br clear="all">
 			<ul>
-				<li><a href="'.$_SERVER['PHP_SELF'].'?mode=profile" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
+				<li><a href="'.$_SERVER['PHP_SELF'].'?action=profile" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
 				<li><a href="http://de.gravatar.com/" target="gravatar">'.__('Change Gravatar').'</a></li>
-				<li><a href="'.$_SERVER['PHP_SELF'].'?mode=password" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
-				<li><a href="'.$_SERVER['PHP_SELF'].'?mode=logout" class="ajax">'.__('Logout').'</a></li>
+				<li><a href="'.$_SERVER['PHP_SELF'].'?action=password" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
+				<li><a href="'.$_SERVER['PHP_SELF'].'?action=logout" class="ajax">'.__('Logout').'</a></li>
 			</ul>
 		</div>';
 		return $content;
@@ -252,7 +252,7 @@ class AjaxLogin extends AppController {
 		$f->prefix('profile');
 		$f->showForm($desc);
 		$f->prefix('');
-		$f->hidden('mode', 'saveProfile');
+		$f->hidden('action', 'saveProfile');
 		$f->submit(__('Save'));
 		$content = $f;
 		return $content;
@@ -298,7 +298,7 @@ class AjaxLogin extends AppController {
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->showForm($desc);
-		$f->hidden('mode', 'savePassword');
+		$f->hidden('action', 'savePassword');
 		$f->submit(__('Change'));
 		$content = $f;
 		return $content;
@@ -384,7 +384,7 @@ class AjaxLogin extends AppController {
 		$f->prefix('profile');
 		$f->showForm($desc);
 		$f->prefix('');
-		$f->hidden('mode', 'saveRegister');
+		$f->hidden('action', 'saveRegister');
 		$f->submit(__('Register'));
 		$content = $f;
 		if (!$this->request->getTrim('profile')) {
@@ -456,7 +456,7 @@ class AjaxLogin extends AppController {
 	function getActivateURL() {
 		//$activateURL = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&'.http_build_query($params);
 		$params = array(
-			'mode' => 'activate',
+			'action' => 'activate',
 			'id' => $this->user->id,
 			'confirm' => md5($this->secret.serialize($this->user->id)),
 		);

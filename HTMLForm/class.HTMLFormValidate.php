@@ -23,7 +23,7 @@ class HTMLFormValidate {
 		$error = false;
 		foreach ($this->desc as $field => &$d) {
 			if ($d instanceof HTMLFormTable) {
-				$v2 = new HTMLFormValidate($d->desc);
+				$v2 = new HTMLFormValidate($d);
 				$validateResult = $v2->validate();
 				$error = $error || !$validateResult;
 				//$d->desc = $v2->getDesc();
