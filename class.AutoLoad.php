@@ -15,7 +15,7 @@ class AutoLoad {
 	/**
 	 * @var boolean
 	 */
-	public $debug;
+	public $debug = false;
 
 	/**
 	 * @var AutoLoad
