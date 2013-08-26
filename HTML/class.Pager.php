@@ -134,7 +134,11 @@ class Pager {
 	 */
 	function getMaxPage() {
 		//$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
-		$maxpage = floor($this->numberOfRecords/$this->itemsPerPage);	// because a single page is 0
+		if ($this->itemsPerPage) {
+			$maxpage = floor($this->numberOfRecords/$this->itemsPerPage);	// because a single page is 0
+		} else {
+			$maxpage = 0;
+		}
 		return $maxpage;
 	}
 

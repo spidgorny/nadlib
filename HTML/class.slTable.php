@@ -261,6 +261,7 @@ class slTable {
 		if (TRUE) {
 			$t->stdout .= '<colgroup>';
 			foreach ($thes2 as $key => $dummy) {
+				$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 				$t->stdout .= '<col class="col_'.$key.'" />';
 			}
 			$t->stdout .= '</colgroup>';
