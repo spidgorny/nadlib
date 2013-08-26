@@ -189,6 +189,13 @@ class dbLayer {
 
 	function getTableOptions($table, $column, $where = "", $key = 'id') {
 		$a = $this->getTableDataEx($table, $where, $table.'.*, '.$column);
+
+		// select login.*, coalesce(name, '') || ' ' || coalesce(surname, '') AS combined from login where relcompany = '47493'
+		$as = trimExplode(' AS ', $column);
+		if ($as[1]) {
+			$column = $as[1];
+		}
+
 		$b = array();
 		foreach ($a as $row) {
 			$b[$row[$key]] = $row[$column];
@@ -241,6 +248,10 @@ class dbLayer {
 
 	function amountOf($table, $where = "1 = 1") {
 		return $this->sqlFind("count(*)", $table, $where);
+	}
+
+	function dataSeek($res, $number) {
+		return pg_result_seek($res, $number);
 	}
 
 	function transaction($serializable = false) {
@@ -436,9 +447,9 @@ class dbLayer {
 	 * @param string $selectPlus
 	 * @return array
 	 */
-	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '') {
+	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '', $idField = NULL) {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAll($res);
+		$row = $this->fetchAll($res, $idField);
 		return $row;
 	}
 
