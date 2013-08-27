@@ -32,11 +32,14 @@ class Localize extends AppControllerBE {
 		parent::__construct();
 		$this->from = new LocalLangDB('en');
 		$this->from->indicateUntranslated = false;
+		$this->from->init();
 		$this->de = new LocalLangDB('de');
 		$this->de->indicateUntranslated = false;
+		$this->de->init();
 		$this->ru = new LocalLangDB('ru');
 		$this->ru->indicateUntranslated = false;
-		$this->url = new URL('?c=Localize');
+		$this->ru->init();
+		$this->url = new URL('vendor/spidgorny/nadlib/be/?c=Localize');
 	}
 
 	function render() {

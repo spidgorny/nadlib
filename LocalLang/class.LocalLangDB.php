@@ -20,6 +20,9 @@ class LocalLangDB extends LocalLang {
         $this->table = $config->prefixTable($this->table);
 	}
 
+	/**
+	 * Why is it not called from the constructor?
+	 */
 	function init() {
 		$rows = $this->readDB($this->lang);
 		if ($rows) {
