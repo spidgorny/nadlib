@@ -259,6 +259,10 @@ class Time {
 		return $noe;
 	}
 
+	/**
+	 * @param $rules
+	 * @return string
+	 */
 	function format($rules) {
 		if ($this->time) {
 			$content = date($rules, $this->time);
