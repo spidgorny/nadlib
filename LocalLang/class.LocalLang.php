@@ -13,6 +13,10 @@ abstract class LocalLang {
 	protected 	$codeID = array();
 	public 		$editMode = false;
 
+	/**
+	 * Will detect the language by the cookie or browser sniffing
+	 * @param null $forceLang
+	 */
 	function __construct($forceLang = NULL) {
 		if ($_REQUEST['setLangCookie']) {
 			$_COOKIE['lang'] = $_REQUEST['setLangCookie'];
