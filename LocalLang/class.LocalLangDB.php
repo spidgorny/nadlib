@@ -52,7 +52,13 @@ class LocalLangDB extends LocalLang {
 		}
 	}
 
+	/**
+	 * Dangerous - may overwrite
+	 * @param array $data
+	 */
 	function updateMessage(array $data) {
+		debug_pre_print_backtrace();
+		exit();
 		$llm = new LocalLangModel($data['lang'], $data['code']);
 		if ($llm->id) {
 			$llm->update(array(
