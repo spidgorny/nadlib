@@ -52,7 +52,9 @@ class HTMLFormValidate {
 		} elseif ($field == 'email' && $value && !$this->validMail($value)) {
 			$d['error'] = 'Not a valid e-mail in field "'.($d['label'] ?: $field).'"';
 		} elseif ($field == 'password' && strlen($value) < 6) {
-			$d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety';
+            $d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety';
+        } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
+            $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && $value < $d['min']) {
 			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too small. Minimum: '.$d['min'];
 		} elseif ($d['max'] && $value > $d['max']) {
@@ -104,6 +106,17 @@ class HTMLFormValidate {
 		return $d;
 	}
 
+    function securePassword($value) {
+        /*
+        * REGEX used for password strength check
+        *  (?=.*\\d.*)      : at least one Digit
+        *  (?=.*[a-zA-Z].*) : any Letters
+        *  (?=.*[A-Z])      : at least one Uppercase
+        *  {8,}             : 8 Length
+        */
+        $passwordRegex = '/(?=.*\\d.*)(?=.*[a-zA-Z].*)(?=.*[A-Z]).{8,}/';
+        return(preg_match($passwordRegex, $value));
+    }
 
 	function getDesc() {
 		return $this->desc;
