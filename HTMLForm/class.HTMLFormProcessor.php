@@ -32,6 +32,7 @@ abstract class HTMLFormProcessor extends AppController {
 	protected $submitted = false;
 
 	function __construct(array $default = array()) {
+		debug(__METHOD__);
 		parent::__construct();
 		$this->prefix = get_class($this);
 		$this->default = $default ? $default : $this->default;
