@@ -324,7 +324,7 @@ class Collection {
 			if (is_object($obj)) {
 				$content .= $obj->render()."\n";
 			} else {
-				$content .= getDebug($key, $obj);
+				$content .= getDebug(__METHOD__, $key, $obj);
 			}
 		}
 		return $content;

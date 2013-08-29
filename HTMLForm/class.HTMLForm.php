@@ -231,6 +231,9 @@ class HTMLForm {
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
+		if ($multiple) {
+			$this->stdout .= ' multiple="1"';
+		}
 		$this->stdout .= $more . ">\n";
 		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
@@ -250,15 +253,17 @@ class HTMLForm {
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
-				if (sizeof($aOptions) == -3) {
-					Debug::debug_args(array(
+				if (sizeof($aOptions) == 14) {
+					debug(array(
 						'default' => $default,
 						'value' => $value,
 						'selected' => $selected,
 					));
 				}
 			} else {
-				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
+				//debug($default, $value);
+				if ((is_array($default) && in_array($value, $default))
+				|| (!is_array($default) && $default == $value)) {
 					$selected = true;
 				} else {
 					$selected = false;
