@@ -34,7 +34,7 @@ class Flot extends AppController {
 	/**
 	 * @var array - these are line charts, multiple series as well
 	 */
-	public $cumulative;
+	public $cumulative = array();
 
 	/**
 	 * @var int - max value for cumulative (max of max possible)
@@ -44,6 +44,8 @@ class Flot extends AppController {
 	public $width = '950px';
 
 	public $height = '600px';
+
+	public $barWidth = '24*60*60*1000*25';
 
 	/**
 	 * @param array $data	- source data
@@ -58,13 +60,16 @@ class Flot extends AppController {
 		$this->timeKey = $timeKey;
 		$this->amountKey = $amountKey;
 		$this->chart = $this->getChartTable($this->data);
-		$this->cumulative = $this->getChartCumulative($this->chart);
-		$this->max = $this->getChartMax($this->cumulative);
+		$this->max = $this->getChartMax($this->chart);
+
+		// add this manually before rendering if needed
+		//$this->cumulative = $this->getChartCumulative($this->chart);
+		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function render() {
+	function render($divID = 'chart1') {
 		$content = '';
-		$content .= $this->showChart('chart1', $this->chart, $this->cumulative, $this->max);
+		$content .= $this->showChart($divID, $this->chart, $this->cumulative, $this->max);
 		return $content;
 	}
 
@@ -104,6 +109,7 @@ class Flot extends AppController {
 	/**
 	 * Return a multitude of rows which are extracted by the $keyKey.
 	 * Each row is an assoc array with $timeKey keys and $amountKey values.
+	 * Uses strtotime() so the $timeKey values should be PHP parsable
 	 *
 	 * @param array $rows
 	 * @internal param string $keyKey
@@ -174,7 +180,7 @@ class Flot extends AppController {
 				stack: true,
 				bars: {
 					show: true,
-					barWidth: 24*60*60*1000*25,
+					barWidth: '.$this->barWidth.',
 					align: "center"
 				}
 			};';
