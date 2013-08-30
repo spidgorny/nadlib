@@ -129,8 +129,12 @@ class Menu /*extends Controller*/ {
 		if ($this->tryMenuSuffix) {
 			foreach ($items as $class => &$name) {
 				try {
-					$o = new $class();
-					if (method_exists($o, 'getMenuSuffix')) {
+					//$o = new $class();							// BAD instantiating
+					//if (method_exists($o, 'getMenuSuffix')) {
+					$methods = get_class_methods($class);
+					//if ($class == 'AssignHardware') debug($class, $methods, in_array('getMenuSuffix', $methods));
+					if (in_array('getMenuSuffix', $methods)) {
+						$o = new $class();
 						$name .= call_user_func(array($o, 'getMenuSuffix'));
 					}
 				} catch (AccessDeniedException $e) {
@@ -230,6 +234,9 @@ class Menu /*extends Controller*/ {
 		return $this->render().'';
 	}
 
+	/**
+	 * ACL. Constructs each menu object and reacts on access denied exception
+	 */
 	function tryInstance() {
 		foreach ($this->items as $class => $_) {
 			try {

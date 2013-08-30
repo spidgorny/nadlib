@@ -322,7 +322,7 @@ class HTMLForm {
 	 */
 	function submit($value = NULL, array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
-		$params['name'] = $params['name'] ? $params['name'] : 'submit';
+		//$params['name'] = $params['name'] ? $params['name'] : 'submit';	// obtrusive
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
@@ -332,9 +332,9 @@ class HTMLForm {
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
-	function image($value = NULL, $more = "", $desc = array()) {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=image ".$this->getName('submit')." src=".$desc['src']." class='submitbutton' " . ($value?"value=\"$value\"":"") . " $more>\n";
+	function image($src, $more = array()) {
+		$this->stdout .= "<input type=image ".$this->getName('submit')."
+			src=".$src." class='submitbutton' " . $this->getAttrHTML($more) . ">\n";
 	}
 
 	function reset($value = NULL, $more = "") {
