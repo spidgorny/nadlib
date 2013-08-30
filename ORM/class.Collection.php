@@ -585,6 +585,7 @@ class Collection {
 	function getLazyMemberIterator($class) {
 		$arrayIterator = $this->getLazyIterator();
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
+		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
 	}
 
