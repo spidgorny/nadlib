@@ -8,6 +8,12 @@ class LazyMemberIterator extends IteratorIterator {
 	var $class;
 
 	/**
+	 * Is set by getLazyMemberIterator()
+	 * @var
+	 */
+	var $count;
+
+	/**
 	 * @param array $array
 	 * @param int $flags
 	 * @param string $class
@@ -50,6 +56,10 @@ class LazyMemberIterator extends IteratorIterator {
 
 	public function valid() {
 		return !!$this->current();
+	}
+
+	function count() {
+		return $this->count;
 	}
 
 }
