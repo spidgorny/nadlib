@@ -41,6 +41,10 @@ class Flot extends AppController {
 	 */
 	public $max;
 
+	public $width = '950px';
+
+	public $height = '600px';
+
 	/**
 	 * @param array $data	- source data
 	 * @param $keyKey		- group by field (distinct charts, lines)
@@ -48,6 +52,7 @@ class Flot extends AppController {
 	 * @param $amountKey	- value (numeric) field
 	 */
 	function __construct(array $data, $keyKey, $timeKey, $amountKey) {
+		parent::__construct();
 		$this->data = $data;
 		$this->keyKey = $keyKey;
 		$this->timeKey = $timeKey;
@@ -144,14 +149,18 @@ class Flot extends AppController {
 	}
 
 	function showChart($divID, array $charts, array $cumulative, $max) {
-		Index::getInstance()->addJQuery();
-		Index::getInstance()->footer['flot'] = '
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.time.js"></script>';
+		$this->index->addJQuery();
+		$path = 'components/flot/flot/';
+		$this->index->footer['flot'] = '
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$path.'excanvas.min.js"></script><![endif]-->
+    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.stack.js"></script>
+    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.time.js"></script>';
 
-		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: none 0px silver;"></div>';
+		$content = '<div id="'.$divID.'" style="
+			width: '.$this->width.';
+			height: '.$this->height.';
+			border: none 0px silver;"></div>';
 
 		$dKeys = array();
 		foreach ($charts as $key => &$rows) {
@@ -188,9 +197,9 @@ class Flot extends AppController {
 		}
 		//$max *= 2;
 
-		Index::getInstance()->footer[$divID] = '
+		$this->index->footer[$divID] = '
     	<script type="text/javascript">
-$(function () {
+jQuery(function ($) {
 	'.implode("\n", $charts).'
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [
