@@ -358,7 +358,7 @@ class Collection {
 			$f = new HTMLFormTable();
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', '', array('class' => 'btn-primary'));
+			$f->submit('Filter', array('class' => 'btn-primary'));
 			$content = $f->getContent();
 		}
 		return $content;
