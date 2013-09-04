@@ -38,7 +38,7 @@ class Timeline2 /*extends AppController */{
 			$height_10 = $this->height / 3;
 			$height_20 = $this->height / 3 * 2;
 			$height_30 = $this->height;
-			$fontSize = $this->height / 3;
+			$fontSize = $this->height / 4;
 
 			$nextDay = clone $this->start;
 			$nextDay = $nextDay->math('+1 day');
@@ -92,7 +92,7 @@ class Timeline2 /*extends AppController */{
 					style="stroke:'.$this->textColor.';stroke-width:1"/>';
 				$content .= '<text
 					x="'.($x+1).'"
-					y="'.($height_20 + $fontSize*0.8).'"
+					y="'.($height_20 + $fontSize*0.9).'"
 					fill="'.$this->textColor.'"
 					font-size="'.$fontSize.'"
 					>'.$date->format('M').'</text>';
