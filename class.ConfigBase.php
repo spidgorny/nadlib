@@ -91,7 +91,7 @@ class ConfigBase {
 			$this->qb = new SQLBuilder($di);
 		}
 
-		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		$this->documentRoot = Request::getDocumentRoot();
 		//$this->appRoot = dirname(__FILE__).'/..';
 		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
 		//debug(__FILE__, $this->appRoot);
