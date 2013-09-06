@@ -57,7 +57,7 @@ abstract class HTMLFormProcessor extends AppController {
 			$this->form->importValues($subRequest);
 			$this->desc = $this->form->desc;
 			//debug($this->form->desc);
-			$this->validator = new HTMLFormValidate($this->desc);
+			$this->validator = new HTMLFormValidate($this->form);
 			$this->validated = $this->validator->validate();
 			$this->desc = $this->validator->getDesc();
 			$this->form->desc = $this->desc;

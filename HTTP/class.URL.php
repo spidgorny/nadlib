@@ -73,8 +73,13 @@ class URL {
 		return $this;
 	}
 
+	/**
+	 * New params have priority
+	 * @param array $params
+	 * @return $this
+	 */
 	function addParams(array $params = array()) {
-		$this->params += $params;
+		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
