@@ -229,9 +229,11 @@ class Collection {
 			$s->thes($this->thes);
 			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
-			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
-			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			if (class_exists('Index')) {
+				$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+				//debug(Index::getInstance()->controller);
+				$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			}
 			if ($this->pager) {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
