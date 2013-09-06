@@ -15,12 +15,17 @@ class AutoLoad {
 	/**
 	 * @var boolean
 	 */
-	public $debug = true;
+	public $debug = false;
 
 	/**
 	 * @var AutoLoad
 	 */
 	private static $instance;
+
+	/**
+	 * @var string
+	 */
+	public $appRoot;
 
 	/**
 	 * @var Config
@@ -31,11 +36,15 @@ class AutoLoad {
 		//$this->folders = $this->getFolders();
 		//debug($this->folders);
 		require_once 'class.ConfigBase.php';
-		$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
+
+		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		$this->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->appRoot);
+
+		$configPath = $this->appRoot.'/class/class.Config.php';	// config from the main project
 		if (file_exists($configPath)) {
 			//echo($configPath);
 			include_once $configPath;
-			$this->config = Config::getInstance();
+			//$this->config = Config::getInstance();	// autoload!
 		}
 		//echo($configPath);
 	}
@@ -77,11 +86,10 @@ class AutoLoad {
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 
-		$appRoot = $this->config ? $this->config->appRoot : dirname($_SERVER['SCRIPT_FILENAME']);
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
-				$appRoot.DIRECTORY_SEPARATOR.
+				$this->appRoot.DIRECTORY_SEPARATOR.
 				$path.DIRECTORY_SEPARATOR.
 				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';

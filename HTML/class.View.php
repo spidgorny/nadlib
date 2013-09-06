@@ -16,8 +16,6 @@ class View {
 	protected $ll;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var Request
 	 */
 	protected $request;
@@ -61,6 +59,7 @@ class View {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
+		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
 		require($file);
