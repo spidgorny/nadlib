@@ -636,4 +636,8 @@ class Request {
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
+	function clear() {
+		$this->data = array();
+	}
+
 }
