@@ -313,12 +313,12 @@ class dbLayer {
 		if ($_REQUEST['d'] == 'q') {
 			debug($this->lastQuery, sizeof($res));
 		}
-		if ($res && $key) {
-			$res = ArrayPlus::create($res)->IDalize($key)->getData();
-		}
 		if (!$res) {
 			$res = array();
+		} else if ($key) {
+			$res = ArrayPlus::create($res)->IDalize($key)->getData();
 		}
+
 		pg_free_result($result);
 		return $res;
 	}
