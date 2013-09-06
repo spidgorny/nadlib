@@ -78,6 +78,9 @@ class Pager {
 		$this->detectCurrentPage();
 	}
 
+	/**
+	 * @param $i
+	 */
 	function setNumberOfRecords($i) {
 		$this->numberOfRecords = $i;
 		if ($this->startingRecord > $this->numberOfRecords) {	// required
@@ -162,8 +165,8 @@ class Pager {
 			//$maxpage += (!($div % 1)) ? -1 : 0;	// will fit completes in maxpage-1 pages
 			$maxpage += ($div == floor($div)) ? -1 : 0;	// will fit completes in maxpage-1 pages
 			$maxpage = max(0, $maxpage);	// not -1
-			
-			
+
+
 		} else {
 			$maxpage = 0;
 		}

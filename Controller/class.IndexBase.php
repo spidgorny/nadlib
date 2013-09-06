@@ -50,7 +50,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		//parent::__construct();
 		$this->db = Config::getInstance()->db;
-		$this->ll = new LocalLangDummy();
+
+		$this->ll = new LocalLangDummy();	// the real one is in Config!
+
 		$this->request = Request::getInstance();
 		//debug('session_start');
 		session_start();
