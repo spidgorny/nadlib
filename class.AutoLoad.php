@@ -68,11 +68,13 @@ class AutoLoad {
 	}
 
 	function loadConfig() {
-		require_once 'class.ConfigBase.php';
-		$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
-		if (file_exists($configPath)) {
-			//echo($configPath);
-			include_once $configPath;
+		if (!class_exists('ConfigBase')) {
+			require_once 'class.ConfigBase.php';
+			$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
+			if (file_exists($configPath)) {
+				//echo($configPath);
+				include_once $configPath;
+			}
 		}
 	}
 
