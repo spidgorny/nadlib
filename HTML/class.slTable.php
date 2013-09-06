@@ -309,6 +309,7 @@ class slTable {
 					$tr = 'class="'.implode(' ', $class).'"';
 					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
+					//debug_pre_print_backtrace();
 					$this->genRow($t, $row);
 					$t->tre();
 				}
