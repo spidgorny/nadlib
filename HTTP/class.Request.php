@@ -638,6 +638,8 @@ class Request {
 
 	function clear() {
 		$this->data = array();
+	static function getDocumentRoot() {
+		return str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 	}
 
 }
