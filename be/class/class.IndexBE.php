@@ -4,18 +4,21 @@ class IndexBE extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
+	public $template = './../be/template/template.phtml';
+
 	function __construct() {
 		parent::__construct();
 		//debug_pre_print_backtrace();
-		$c = Config::getInstance();
-		$c->documentRoot = str_replace('/nadlib/be', '', $c->documentRoot);
+		$config = Config::getInstance();
+		$config->defaultController = 'HomeBE';
+		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
 
 		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
-		$this->addCSS('nadlib/be/css/main.css');
+		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
 		$this->addJQuery();
 		$this->addJS('components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
-		$c->user = $this->user;	// for consistency
+		$config->user = $this->user;	// for consistency
 	}
 
 	function renderController() {
@@ -33,7 +36,7 @@ class IndexBE extends IndexBase {
 	}
 
 	function renderTemplate($content) {
-		$v = new View('template.phtml', $this);
+		$v = new View($this->template, $this);
 		$v->content = $this->content . $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();

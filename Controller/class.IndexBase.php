@@ -45,11 +45,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $loadJSfromGoogle = true;
 
+	public $template = 'template.phtml';
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		//parent::__construct();
-		$this->db = Config::getInstance()->db;
+		$config = Config::getInstance();
+		$this->db = $config->db;
 		$this->ll = new LocalLangDummy();
 		$this->request = Request::getInstance();
 		//debug('session_start');
@@ -88,7 +91,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($slug) {
 				$this->loadController($slug);
 			} else {
-				throw new Exception404();
+				throw new Exception404($slug);
 			}
 		} catch (Exception $e) {
 			$this->controller = NULL;
@@ -143,7 +146,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderTemplate($content) {
-		$v = new View('template.phtml', $this);
+		$v = new View($this->template, $this);
 		$v->content = $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
@@ -181,7 +184,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		if (!$this->request->isAjax()) {
 			try {
-				$v = new View('template.phtml', $this);
+				$v = new View($this->template, $this);
 				$v->content = $content;
 				$content = $v->render();
 			} catch (Exception $e) {

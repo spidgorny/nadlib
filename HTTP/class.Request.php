@@ -267,19 +267,19 @@ class Request {
 			//debug($this->data);
 		} else {
 			$controller = $this->getTrim('c');
-			// to simplofy URL it first searches for the corresponding controller
-			$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
-			$tmp = $ptr;
-			$ptr = false;
-			if ($controller && class_exists($controller.'Controller')) {
-				$controller = $controller.'Controller';
-			}
-			$ptr = $tmp;
-			//$controller = end(explode('/', $controller)); // in case it's with subfolder
-			// ^ commented as subfolders need be used for BEmenu
-			if (!$controller) {
+			if ($controller) {
+				// to simplofy URL it first searches for the corresponding controller
+				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
+				$tmp = $ptr;
+				$ptr = false;
+				if ($controller && class_exists($controller.'Controller')) {
+					$controller = $controller.'Controller';
+				}
+				$ptr = $tmp;
+				//$controller = end(explode('/', $controller)); // in case it's with subfolder
+				// ^ commented as subfolders need be used for BEmenu
+			} else {
 				$levels = $this->getURLLevels();
-				//debug($levels);
 				if ($levels) {
 					$levels = array_reverse($levels);
 					foreach ($levels as $class) {
@@ -544,7 +544,8 @@ class Request {
 	}
 
 	static function isCLI() {
-		return isset($_SERVER['argc']);
+		//return isset($_SERVER['argc']);
+		return php_sapi_name() == 'cli';
 	}
 
 	/**
@@ -600,7 +601,7 @@ class Request {
 	 */
 	function parseParameters($noopt = array()) {
 		$result = array();
-		$params = $GLOBALS['argv'];
+		$params = $GLOBALS['argv'] ?: array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
 		reset($params);
 		while (list($tmp, $p) = each($params)) {

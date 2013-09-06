@@ -22,7 +22,7 @@ class Debug {
 
 		//print_r(array($_SERVER['argc'], $_SERVER['argv']));
 		//if (isset($_SERVER['argc'])) {
-		if (php_sapi_name() == 'cli') {
+		if (Request::isCLI()) {
 			foreach ($db as $row) {
 				$trace[] = self::getMethod($row);
 			}
@@ -66,6 +66,7 @@ class Debug {
 		}
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		$pb = new ProgressBar();
+		$pb->destruct100 = false;
 		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'inline');
 		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
 		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
