@@ -309,7 +309,7 @@ abstract class Controller {
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
-			$content .= '<div class="flex-box">'.$html.'</div>';
+			$content .= '<div class="flex-box" style="flex: 1">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
 		return $content;
