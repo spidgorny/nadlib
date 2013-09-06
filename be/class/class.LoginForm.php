@@ -8,6 +8,11 @@ class LoginForm extends AjaxLogin {
 
 	protected $secret = 'nadlibSecretPasswordHash';
 
+	/**
+	 * @var BEUser
+	 */
+	public $user;
+
 	function __construct($action = NULL) {
 		parent::__construct($action);
 		$this->secret = md5(json_encode($_ENV));
@@ -28,6 +33,7 @@ class LoginForm extends AjaxLogin {
 			$this->user->saveLogin($username, $passwordHash);
 			$content .= '<div class="message">'.__('You are logged in.').'</div>';
 			$content .= $this->menuAction();
+			debug($_SESSION);
 		} else {
 			$content .= '<div class="error">'.__('Wrong login or password.').'</div>';
 			$desc = $this->getLoginDesc();

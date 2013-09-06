@@ -351,6 +351,14 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		}
 	}
 
+	/**
+	 *	$tree = AP(array('a' => array('b' => array('c' => 'd'))));
+		$linear = $tree->linearize();
+		return slTable::showAssoc($linear, true, true);
+		== "c": "d"
+	 * @param array $data
+	 * @return array
+	 */
 	function linearize(array $data = NULL) {
 		$data = $data ? $data : $this->data;
 		$linear = array();

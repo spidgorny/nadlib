@@ -324,7 +324,7 @@ class Collection {
 			if (is_object($obj)) {
 				$content .= $obj->render()."\n";
 			} else {
-				$content .= getDebug($key, $obj);
+				$content .= getDebug(__METHOD__, $key, $obj);
 			}
 		}
 		return $content;
@@ -585,6 +585,7 @@ class Collection {
 	function getLazyMemberIterator($class) {
 		$arrayIterator = $this->getLazyIterator();
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
+		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
 	}
 

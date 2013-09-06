@@ -354,25 +354,40 @@ class TaylorProfiler {
 	public static function getInstance() {
 		return $GLOBALS['profiler'] instanceof self ? $GLOBALS['profiler'] : NULL;
 	}
-	
+
 	static function dumpQueries() {
 		if (DEVELOPMENT) {
 			$queryLog = Config::getInstance()->db->queryLog;
 			//debug($queryLog);
-			arsort($queryLog);
+			array_multisort(ArrayPlus::create($queryLog)->column('sumtime')->getData(), SORT_DESC, $queryLog);
 			$log = array();
 			$pb = new ProgressBar();
-			$sumTime = ArrayPlus::create($queryLog)->column('time')->sum();
-			foreach ($queryLog as $key => $set) {
+			$pb->destruct100 = false;
+			$sumTime = ArrayPlus::create($queryLog)->column('sumtime')->sum();
+			foreach ($queryLog as $set) {
 				$query = $set['query'];
 				$time = $set['time'];
 				$log[] = array(
+					'times' => $set['times'],
 					'query' => $query,
+					'sumtime' => number_format($set['sumtime'], 3, '.', '').'s',
 					'time' => number_format($time, 3, '.', '').'s',
 					'%' => $pb->getImage($time/$sumTime*100),
 				);
 			}
-			$s = new slTable($log);
+			$s = new slTable($log, '', array(
+				'times' => 'times',
+				'query' => 'query',
+				'sumtime' => 'sumtime',
+				'time' => array(
+					'name' => 'time',
+					'align' => 'right',
+				),
+				'%' => array(
+					'name' => '%',
+					'align' => 'right',
+				),
+			));
 			return $s;
 		}
 	}
