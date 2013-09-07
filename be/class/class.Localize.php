@@ -39,7 +39,7 @@ class Localize extends AppControllerBE {
 		$this->ru = new LocalLangDB('ru');
 		$this->ru->indicateUntranslated = false;
 		$this->ru->init();
-		$this->url = new URL('vendor/spidgorny/nadlib/be/?c=Localize');
+		$this->url = new URL('?c=Localize');
 	}
 
 	function render() {
@@ -123,9 +123,9 @@ class Localize extends AppControllerBE {
 			$content .= $s;
 			$content .= $pager->renderPageSelectors($this->url);
 			$content = $this->encloseIn(__('Localize'), $content);
-			$this->index->addJQuery();
-			$this->index->addJS('vendor/spidgorny/nadlib/js/jquery.jeditable.mini.js');
-			$this->index->addJS("vendor/spidgorny/nadlib/be/js/Localize.js");
+			//$this->index->addJQuery();
+			$this->index->addJS('../js/jquery.jeditable.mini.js');
+			$this->index->addJS("js/Localize.js");
 		}
 		return $content;
 	}
