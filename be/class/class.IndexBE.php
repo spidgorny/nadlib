@@ -11,13 +11,16 @@ class IndexBE extends IndexBase {
 		// it's not reading the config.yaml from /be/, but from the project root
 		$c->config['View']['folder'] = '../be/template/';
 
-		$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
+		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
+		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
+		//base href will be fixed manually below
+
 		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
 
-		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
-		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
-		$this->addJQuery();
-		$this->addJS('components/bootstrap/js/bootstrap.min.js');
+		$this->addCSS('../../../../components/bootstrap/css/bootstrap.min.css');
+		$this->addCSS('css/main.css');
+		$this->addJS('../../../../components/jquery/jquery.min.js');
+		$this->addJS('../../../../components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
@@ -46,6 +49,7 @@ class IndexBE extends IndexBase {
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
 		$v->baseHref = $this->request->getLocation();
+		//$v->baseHref = str_replace('/vendor/spidgorny/nadlib/be', '', $v->baseHref);	// for CSS
 		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
