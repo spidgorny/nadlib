@@ -425,10 +425,10 @@ class dbLayer {
 	/**
 	 * Compatibility.
 	 * @param $res
-	 * @param $table
+	 * @param $table	- optional
 	 * @return null
 	 */
-	function lastInsertID($res, $table) {
+	function lastInsertID($res, $table = NULL) {
 		return $this->getLastInsertID($res, $table);
 	}
 

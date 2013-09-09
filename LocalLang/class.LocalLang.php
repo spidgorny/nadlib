@@ -193,10 +193,12 @@ abstract class LocalLang {
 
 }
 
-function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	if (Config::getInstance() && Config::getInstance()->ll) {
-		return Config::getInstance()->ll->T($code, $r1, $r2, $r3);
-	} else {
-		return $code;
+if (!function_exists('__')) {	// conflict with cake
+	function __($code, $r1 = null, $r2 = null, $r3 = null) {
+		if (Config::getInstance() && Config::getInstance()->ll) {
+			return Config::getInstance()->ll->T($code, $r1, $r2, $r3);
+		} else {
+			return $code;
+		}
 	}
 }
