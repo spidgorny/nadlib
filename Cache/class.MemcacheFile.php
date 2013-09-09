@@ -4,19 +4,7 @@ class MemcacheFile {
 	protected $folder = 'cache/';
 
 	function __construct() {
-		// fix for relative path on eval and buglog
-		$pathprefix = dirname(__FILE__);
-		$full = strlen($pathprefix);
-		$neg = strlen('nadlib/Cache');
-		$end = $full - $neg;
-		$sub = substr($pathprefix, 0, $end);
-
-		if (!file_exists($sub.'/'.$this->folder)) {
-			debug(__METHOD__, $sub.'/'.$this->folder);
-			die();
-		} else {
-			$this->folder = Config::getInstance()->appRoot . DIRECTORY_SEPARATOR . $this->folder;
-		}
+		$this->folder = Config::getInstance()->appRoot . DIRECTORY_SEPARATOR . $this->folder;
 	}
 
 	function map($key) {

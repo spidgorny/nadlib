@@ -400,8 +400,8 @@ class Request {
 		return $headers[$name];
 	}
 
-	function getJson($name) {
-		return json_decode($this->getTrim($name), true);
+	function getJson($name, $array = true) {
+		return json_decode($this->getTrim($name), $array);
 	}
 
 	function isSubmit() {
