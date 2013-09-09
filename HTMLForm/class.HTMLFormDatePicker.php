@@ -1,7 +1,16 @@
 <?php
 
 class HTMLFormDatePicker extends HTMLFormType {
+	/**
+	 * PHP Format
+	 * @var string
+	 */
 	public $format = 'Y-m-d';
+
+	/**
+	 * JS format
+	 * @var string
+	 */
 	public $jsFormat = 'yy-mm-dd';
 
 	public $jsParams = array();
@@ -17,8 +26,12 @@ class HTMLFormDatePicker extends HTMLFormType {
 
 	function render() {
 		if ($this->value) {
-			$val = strtotime($this->value);
-			$val = date($this->format, $val);
+			if (is_integer($this->value) || is_numeric($this->value)) {
+				$val = date($this->format, $this->value);
+			} else {
+				$val = strtotime($this->value);	// hope for Y-m-d
+				$val = date($this->format, $val);
+			}
 		} else {
 			$val = '';
 		}
@@ -26,6 +39,29 @@ class HTMLFormDatePicker extends HTMLFormType {
 			'format' => $this->jsFormat
 		) + $this->jsParams,
 		'date', 'datepicker');
+	}
+
+	/**
+	 * Convert to timestamp using the supplied format
+	 * @param $value
+	 * @return int
+	 */
+	function getISODate($value) {
+		if ($value && is_integer($value) || is_numeric($value)) {
+			$val = $value;
+		} else if ($this->jsFormat == 'dd.mm.yy') {
+			$val = explode('.', $value);
+			$val = array_reverse($val);
+			$val = implode('-', $val);
+			$val = strtotime($val);
+		} else if ($value) {
+			$val = $value;
+			$val = strtotime($val);
+		} else {
+			$val = time();
+		}
+		//debug($this->jsFormat, $value, $val);
+		return $val;
 	}
 
 }
