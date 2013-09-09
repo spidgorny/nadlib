@@ -26,6 +26,12 @@ class AutoLoad {
 	 * @var string
 	 */
 	public $appRoot;
+
+	/**
+	 * Session stored map of each class to a file.
+	 * This prevents searching for each file.
+	 * @var array
+	 */
 	protected $classFileMap = array();
 
 	/**
@@ -33,6 +39,7 @@ class AutoLoad {
 	 */
 	public $config;
 
+	/**
 	 * getFolders() is called from outside
 	 * to be able to modify $useCookies
 	 * #see register()
