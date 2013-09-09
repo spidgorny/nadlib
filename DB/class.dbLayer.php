@@ -519,6 +519,14 @@ order by a.attnum';
 		return $rows[$column];
 	}
 
+	/**
+	 * Uses find_in_set function which is not built-in
+	 * @see SQLBuilder::array_intersect()
+	 *
+	 * @param array $options
+	 * @param string $field
+	 * @return string
+	 */
 	function getArrayIntersect(array $options, $field = 'list_next') {
 		$bigOR = array();
 		foreach ($options as $n) {
