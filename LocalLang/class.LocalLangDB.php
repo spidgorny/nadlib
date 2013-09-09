@@ -18,6 +18,12 @@ class LocalLangDB extends LocalLang {
         $config = Config::getInstance();
 		$this->db = $config->db;
         $this->table = $config->prefixTable($this->table);
+	}
+
+	/**
+	 * Why is it not called from the constructor?
+	 */
+	function init() {
 		$rows = $this->readDB($this->lang);
 		if ($rows) {
 			$this->codeID = ArrayPlus::create($rows)->column_assoc('code', 'id')->getData();
@@ -46,7 +52,13 @@ class LocalLangDB extends LocalLang {
 		}
 	}
 
+	/**
+	 * Dangerous - may overwrite
+	 * @param array $data
+	 */
 	function updateMessage(array $data) {
+		debug_pre_print_backtrace();
+		exit();
 		$llm = new LocalLangModel($data['lang'], $data['code']);
 		if ($llm->id) {
 			$llm->update(array(

@@ -12,12 +12,20 @@ class IndexBE extends IndexBase {
 		$config = Config::getInstance();
 		$config->defaultController = 'HomeBE';
 		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
+		$c = Config::getInstance();
+		// it's not reading the config.yaml from /be/, but from the project root
+		$c->config['View']['folder'] = '../be/template/';
+
+		$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
+		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
 
 		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
 		$this->addJQuery();
 		$this->addJS('components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
+		$this->user->id = 'nadlib';
+		$this->user->try2login();
 		$config->user = $this->user;	// for consistency
 	}
 
@@ -65,7 +73,7 @@ class IndexBE extends IndexBase {
 			'JumpFrontend' => '<- Frontend',
 		);
 
-		$c = Spyc::YAMLLoad('../../class/config.yaml');
+		$c = Spyc::YAMLLoad('../../../../class/config.yaml');
 		//debug($c['BEmenu']);
 		if ($c['BEmenu']) {
 			foreach($c['BEmenu'] as $key => $sub) {

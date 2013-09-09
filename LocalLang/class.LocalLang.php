@@ -13,6 +13,10 @@ abstract class LocalLang {
 	protected 	$codeID = array();
 	public 		$editMode = false;
 
+	/**
+	 * Will detect the language by the cookie or browser sniffing
+	 * @param null $forceLang
+	 */
 	function __construct($forceLang = NULL) {
 		if ($_REQUEST['setLangCookie']) {
 			$_COOKIE['lang'] = $_REQUEST['setLangCookie'];
@@ -166,6 +170,10 @@ abstract class LocalLang {
 		return $langs;
 	}
 
+	/**
+	 * This doesn't work in Chrome somehow
+	 * @return string
+	 */
 	function showLangSelectionDropDown() {
 		$options = '';
 		foreach ($this->possibleLangs as $code) {
@@ -179,6 +187,7 @@ abstract class LocalLang {
 		</form>';
 		Index::getInstance()->addCSS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
 		Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
+		//Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
 		return $content;
 	}
 

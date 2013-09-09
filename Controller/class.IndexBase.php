@@ -53,7 +53,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//parent::__construct();
 		$config = Config::getInstance();
 		$this->db = $config->db;
-		$this->ll = new LocalLangDummy();
+		$this->ll = new LocalLangDummy();	// the real one is in Config!
+
 		$this->request = Request::getInstance();
 		//debug('session_start');
 		session_start();
@@ -186,9 +187,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			try {
 				$v = new View($this->template, $this);
 				$v->content = $content;
+				$v->baseHref = $this->request->getLocation();
 				$content = $v->render();
 			} catch (Exception $e) {
 				// second exception may happen
+				echo $e;
 			}
 		}
 
@@ -286,8 +289,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				if (!$this->request->isCLI()) {
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
 					if ($this->db->queryLog) {
-						$content .= '<div class="profiler">'.new slTable($this->db->queryLog).'</div>';
-						$content .= TaylorProfiler::dumpQueries();	// same or different?
+						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
 					if ($this->db->QUERIES) {	// dbLayer
 						$content .= $this->db->dumpQueries();

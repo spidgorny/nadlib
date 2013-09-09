@@ -261,6 +261,7 @@ class slTable {
 		if (TRUE) {
 			$t->stdout .= '<colgroup>';
 			foreach ($thes2 as $key => $dummy) {
+				$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 				$t->stdout .= '<col class="col_'.$key.'" />';
 			}
 			$t->stdout .= '</colgroup>';
@@ -510,12 +511,23 @@ class slTable {
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
 			}
+
+			if ($val instanceof htmlString) {
+				//$val = $val;
+			} else {
+				if (mb_strpos($val, "\n") !== FALSE) {
+					$val = '<pre>'.htmlspecialchars($val).'</pre>';
+				} else {
+					$val = htmlspecialchars($val);
+				}
+			}
+
 			$val = array(
-				0 => $key,
+				0 => htmlspecialchars($key),
 				'' => $val,
 			);
 		}
-		$s = new self($assoc, '', array(
+		$s = new self($assoc, 'class="visual nospacing table"', array(
 			0 => '',
 			'' => array('no_hsc' => $no_hsc),
 		));
