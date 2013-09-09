@@ -28,7 +28,9 @@ function drawRating($rating) {
 	//if ($rating > 49) { $fill = ImageColorAllocate($image,255,255,0); }
 	//if ($rating > 74) { $fill = ImageColorAllocate($image,255,128,0); }
 	//if ($rating > 89) { $fill = ImageColorAllocate($image,255,0,0); }
-	$back = ImageColorAllocate($image,255,255,255);
+
+	$backColor = $_GET['bg'] ? html2rgb($_GET['bg']) : array(0xFF, 0xFF, 0xFF);
+	$back = ImageColorAllocate($image, $backColor[0], $backColor[1], $backColor[2]);
 	$border = ImageColorAllocate($image,127,127,127);
 	ImageFilledRectangle($image,0,0,$width-1,$height-1,$back);
 	if (!$_GET['!border']) {

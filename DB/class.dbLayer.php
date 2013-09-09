@@ -63,8 +63,8 @@ class dbLayer {
 		$this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
-			debug_pre_print_backtrace();
 			debug($query);
+			debug_pre_print_backtrace();
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);

@@ -268,6 +268,8 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Uses $this->thes if available
+	 * Hides fields without values
 	 * @param array $assoc
 	 * @param bool  $recursive
 	 * @return slTable
@@ -287,7 +289,10 @@ abstract class OODBase {
 					);
 				}
 			}
-			$s = new slTable($assoc. '', array(0 => '', '' => array('no_hsc' => true)));
+			$s = new slTable($assoc. '', array(
+				0 => '',
+				'' => array('no_hsc' => true)
+			));
 		} else {
 			foreach ($assoc as $key => &$val) {
 				if (!$val) {

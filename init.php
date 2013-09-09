@@ -140,7 +140,7 @@ function startsWith($haystack, $needle) {
  * @return bool
  */
 function endsWith($haystack, $needle) {
-	return strpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+	return strrpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
 }
 
 /**

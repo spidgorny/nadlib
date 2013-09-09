@@ -92,6 +92,15 @@ class HTMLForm {
 		return $a;
 	}
 
+	/**
+	 * @param $type
+	 * @param $name
+	 * @param null $value
+	 * @param string/array $more - may be array
+	 * @param string $extraClass
+	 * @param string $namePlus
+	 * @return string
+	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
 		$a = '';
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
@@ -107,6 +116,13 @@ class HTMLForm {
 		return $a;
 	}
 
+	/**
+	 * @param $name
+	 * @param string $value
+	 * @param string/array $more - may be array
+	 * @param string $type
+	 * @param string $extraClass
+	 */
 	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
@@ -215,6 +231,9 @@ class HTMLForm {
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
+		if ($multiple) {
+			$this->stdout .= ' multiple="1"';
+		}
 		$this->stdout .= $more . ">\n";
 		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
@@ -234,15 +253,17 @@ class HTMLForm {
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
-				if (sizeof($aOptions) == -3) {
-					Debug::debug_args(array(
+				if (sizeof($aOptions) == 14) {
+					debug(array(
 						'default' => $default,
 						'value' => $value,
 						'selected' => $selected,
 					));
 				}
 			} else {
-				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
+				//debug($default, $value);
+				if ((is_array($default) && in_array($value, $default))
+				|| (!is_array($default) && $default == $value)) {
 					$selected = true;
 				} else {
 					$selected = false;

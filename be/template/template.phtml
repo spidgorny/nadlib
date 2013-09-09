@@ -11,7 +11,7 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <script src="vendor/spidgorny/nadlib/be/js/vendor/modernizr-2.6.1.min.js"></script>
-	<?= implode("\n", $this->header) ?>
+	<?= $this->implodeCSS() ?>
 </head>
 <body>
 <!--[if lt IE 7]>
@@ -54,7 +54,7 @@
 
 </div> <!-- /container -->
 
-<?= implode("\n", $this->footer) ?>
+<?= $this->implodeJS() ?>
 
 </body>
 </html>
