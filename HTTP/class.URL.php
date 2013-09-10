@@ -119,6 +119,10 @@ class URL {
 		$this->components['path'] .= $name;
 	}
 
+	function getBasename() {
+		return basename($this->getPath());
+	}
+
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
 		//debug($this);
