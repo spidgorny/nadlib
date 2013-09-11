@@ -48,6 +48,7 @@ class LocalLangDB extends LocalLang {
 	}
 
 	function saveMissingMessage($text) {
+		//debug(__METHOD__, $text);
 		if (DEVELOPMENT && $text) {
 			$db = Config::getInstance()->db;
 			$db->runInsertQuery($this->table, array(
