@@ -544,7 +544,8 @@ class Request {
 	}
 
 	static function isCLI() {
-		return isset($_SERVER['argc']);
+		//return isset($_SERVER['argc']);
+		return php_sapi_name() == "cli";
 	}
 
 	/**
