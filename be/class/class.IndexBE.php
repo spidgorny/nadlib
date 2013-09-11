@@ -24,6 +24,7 @@ class IndexBE extends IndexBase {
 		$vars = get_class_vars($c);
 		$public = $vars['public'];
 		if ($public || $this->user->isAuth()) {
+			$this->controller->user = $this->user;	// BEUser instead of grUser
 			$content = parent::renderController();
 		} else {
 			//$this->message(new LoginForm());

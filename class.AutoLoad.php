@@ -31,7 +31,7 @@ class AutoLoad {
 		require_once 'HTTP/class.Request.php';
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
-				debug('session_start');
+				//debug('session_start');
 				session_start();
 			}
 			//unset($_SESSION['autoloadCache']);

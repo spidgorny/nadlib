@@ -19,7 +19,11 @@ class AlterIndex extends AppControllerBE {
 
 	function saveStructAction() {
 		$struct = $this->getDBStruct();
-		$json = json_encode($struct, JSON_PRETTY_PRINT);
+		if (phpversion() > '5.3') {
+			$json = json_encode($struct, JSON_PRETTY_PRINT);
+		} else {
+			$json = json_encode($struct);
+		}
 
 		file_put_contents($this->jsonFile, $json);
 		return 'Saved: '.strlen($json).'<br />';
@@ -41,22 +45,24 @@ class AlterIndex extends AppControllerBE {
 
 	function render() {
 		$content = $this->performAction();
-		$struct = file_get_contents($this->jsonFile);
-		$struct = json_decode($struct, true);
+		if (is_readable($this->jsonFile)) {
+			$struct = file_get_contents($this->jsonFile);
+			$struct = json_decode($struct, true);
 
-		$local = $this->getDBStruct();
+			$local = $this->getDBStruct();
 
-		foreach ($struct as $table => $desc) {
-			$content .= '<h2>Table: '.$table.'</h2>';
+			foreach ($struct as $table => $desc) {
+				$content .= '<h2>Table: '.$table.'</h2>';
 
-			foreach ($desc['indexes'] as $i => $index) {
-				$localIndex = $local[$table]['indexes'][$i];
-				//unset($index['Cardinality'], $localIndex['Cardinality']);
-				if ($index != $localIndex) {
-					//$content .= getDebug($index, $localIndex);
-					$content .= new slTable(array($index, $localIndex), 'class="table"');
-				} else {
-					$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
+				foreach ($desc['indexes'] as $i => $index) {
+					$localIndex = $local[$table]['indexes'][$i];
+					unset($index['Cardinality'], $localIndex['Cardinality']);
+					if ($index != $localIndex) {
+						//$content .= getDebug($index, $localIndex);
+						$content .= new slTable(array($index, $localIndex), 'class="table"');
+					} else {
+						$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
+					}
 				}
 			}
 		}
