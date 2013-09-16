@@ -282,11 +282,14 @@ class TaylorProfiler {
     	return $ret;
     }
 
-	function renderFloat() {
-		$oaTime = microtime(true) - ($this->initTime
-				? $this->initTime
-				: ($_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'])
-		);
+	static function renderFloat() {
+		$profiler = $GLOBALS['profiler'];
+		if ($profiler) {
+			$since = $profiler->initTime;
+		} else {
+			$since = $_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'];
+		}
+		$oaTime = microtime(true) - $since;
 		$totalTime = number_format($oaTime, 3, '.', '');
 		if (Config::getInstance()->db->queryLog) {
 			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();

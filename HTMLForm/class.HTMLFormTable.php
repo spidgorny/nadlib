@@ -61,11 +61,12 @@ class HTMLFormTable extends HTMLForm {
 					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
 				$desc->importValues($subForm);
 				//debug('after', $desc->desc);
+			} else if ($desc['type'] instanceof HTMLFormDatePicker) {
+				$val = $form->getTrim($key);
+				$desc['value'] = $desc['type']->getISODate($val);
+				//debug(__METHOD__, $val, $desc['value']);
 			} else if ($form->is_set($key)) {
 				$desc['value'] = $form->getTrim($key);
-				if ($key == 'Salutation') {
-					//debug($desc, $key, $form->getTrim($key), $form->getAll());
-				}
 			} // else keep default ['value']
 		}
 	}
@@ -457,11 +458,15 @@ class HTMLFormTable extends HTMLForm {
 		if (is_array($arr)) {
 			foreach ($arr as $key => $ar) {
 				if (is_array($ar) && !$ar['disabled']) {
-					$res[$key] = $ar[$col];
+					if ($ar['type'] instanceof HTMLFormDatePicker) {
+						$res[$key] = $ar['type']->getISODate($ar[$col]);
+					} else {
+						$res[$key] = $ar[$col];
+					}
 				}
 			}
 		}
-		unset($res['xsrf']);
+		unset($res['xsrf']);	// is not a form value
 		return $res;
 	}
 

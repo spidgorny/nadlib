@@ -1,34 +1,94 @@
 <?php
 
 class slTable {
+
+	/**
+	 * <table id=""> will be generated
+	 * @var string
+	 */
 	var $ID = NULL;
-	var $data = NULL;
-	var $dataClass = NULL;
+
+	/**
+	 * 2D array of rows and columns
+	 * @var array
+	 */
+	var $data = array();
+
+	/**
+	 * Class for each ROW(!)
+	 * @var array
+	 */
+	var $dataClass = array();
+
 	var $iRow = -1;
+
 	var $iCol = 0;
+
+	/**
+	 * Columns definition. Will be generated if missing.
+	 * @var array
+	 */
 	var $thes = array();
+
+	/**
+	 * Appended to <table> tag
+	 * @var string
+	 */
 	var $more = 'class="nospacing"';
 
 	/**
 	 * @var HTMLTableBuf
 	 */
 	var $generation;
+
 	var $sortable = FALSE;
 
 	/**
 	 * @var URL
 	 */
 	var $sortLinkPrefix;
-	var $dataPlus = ''; // the first row after the header - used for filters
+
+	/**
+	 * the first row after the header - used for filters
+	 * @var string
+	 */
+	var $dataPlus = '';
+
+	/**
+	 * $_REQUEST[$this->prefix]
+	 * @var string
+	 */
 	var $prefix = 'slTable';
+
 	var $sortBy, $sortOrder;
-	var $footer;		// last line
+
+	/**
+	 * last line
+	 * @var array
+	 */
+	var $footer = array();
+
 	var $isAlternatingColumns = FALSE;
+
 	var $isOddEven = TRUE;
+
+	/**
+	 * @var <tr $thesMore>
+	 */
 	var $thesMore;
+
+	/**
+	 * @var string before <tbody>
+	 */
 	var $theadPlus = '';
+
+	/**
+	 * @var
+	 */
 	public $trmore;
+
 	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle">';
+
 	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle">';
 
 	/**

@@ -39,4 +39,7 @@ class BEUser extends UserBase {
 		unset($_SESSION[__CLASS__]['login']);
 	}
 
+	function __destruct() {
+		// do nothing
+	}
 }

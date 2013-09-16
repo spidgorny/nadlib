@@ -126,6 +126,8 @@ class FlexiTable extends OODBase {
 					// didn't unzip - then it's plain text
 					$uncompressed = $this->data[$field];
 					$info['uncompress'] = 'Not necessary';
+				} else {
+					$info['uncompress'] = 'Uncompressed';
 				}
 				$this->data[$field] = $uncompressed;
 				$info['first'] = $this->data[$field]{0};

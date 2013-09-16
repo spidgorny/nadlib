@@ -542,7 +542,7 @@ class Collection {
 	 * @param $arrow
 	 * @return HTMLTag
 	 */
-	protected function getNextPrevLink($prev, $arrow) {
+	protected function getNextPrevLink(array $prev, $arrow) {
 		if ($prev['singleLink']) {
 			$content = new HTMLTag('a', array(
 					'href' => $prev['singleLink'],

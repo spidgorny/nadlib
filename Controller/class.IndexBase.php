@@ -167,8 +167,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
-	function renderException(Exception $e) {
-		$content = '<div class="ui-state-error alert alert-error padding">
+	function renderException(Exception $e, $wrapClass = '') {
+		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
@@ -285,8 +285,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$profiler = $GLOBALS['profiler'];
 			/** @var $profiler TaylorProfiler */
 			if ($profiler) {
-				$content = $profiler->renderFloat();
 				if (!$this->request->isCLI()) {
+					$content = $profiler->renderFloat();
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
@@ -295,7 +295,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 						$content .= $this->db->dumpQueries();
 					}
 				}
-			} else if (DEVELOPMENT) {
+			} else if (DEVELOPMENT && !$this->request->isCLI()) {
 				$content = TaylorProfiler::renderFloat();
 			}
 		}
