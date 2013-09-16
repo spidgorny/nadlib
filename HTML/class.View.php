@@ -244,12 +244,17 @@ class View {
 		return $money;
 	}
 
-	static function bar($percent, array $params = array()) {
+	static function bar($percent, array $params = array(), $attr = array()) {
 		$percent = round($percent);
-		return '<img src="vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
+		$src = 'vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
 			'rating' => $percent,
 			'color' => '6DC5B4',
-		)).'" alt="'.$percent.'%" />';
+		));
+		$attr += array(
+			'src' => $src,
+			'alt' => $percent.'%',
+		);
+		return new HTMLTag('img', $attr, NULL);
 	}
 
 }

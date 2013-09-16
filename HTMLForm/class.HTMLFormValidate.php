@@ -53,26 +53,26 @@ class HTMLFormValidate {
 		if (!$d['optional'] && (
 			!($value) || (!$d['allow0'] && !isset($value)))
 			&& !$isCheckbox) {
-			$d['error'] = 'Field "'.($d['label'] ?: $field).'" is obligatory.';
+			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
 		} elseif ($d['mustBset'] && !isset($value)) {	// must be before 'obligatory'
-			$e['error'] = 'Field "'.($d['label'] ?: $field).'" must be set';
+			$e['error'] = __('Field "%1" must be set', $d['label'] ?: $field);
 		} elseif ($d['obligatory'] && !$value) {
-			$d['error'] = 'Field "'.($d['label'] ?: $field).'" is obligatory';
+			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
 		} elseif ($field == 'email' && $value && !$this->validMail($value)) {
-			$d['error'] = 'Not a valid e-mail in field "'.($d['label'] ?: $field).'"';
+			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
 		} elseif ($field == 'password' && strlen($value) < 6) {
-			$d['error'] = 'Password is too short. Min 6 characters, please. It\'s for your own safety';
+			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
 		} elseif ($d['min'] && $value < $d['min']) {
-			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too small. Minimum: '.$d['min'];
+			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
 		} elseif ($d['max'] && $value > $d['max']) {
-			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too large. Maximum: '.$d['max'];
+			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $d['label'] ?: $field, $d['max']);
 		} elseif ($d['minlen'] && strlen($value) < $d['minlen']) {
-			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too short. Minimum: '.$d['minlen'].'. Actual: '.strlen($value);
+			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $d['label'] ?: $field, $d['minlen'], strlen($value));
 		} elseif ($d['maxlen'] && strlen($value) > $d['maxlen']) {
-			$d['error'] = 'Value in field "'.($d['label'] ?: $field).'" is too long. Maximum: '.$d['maxlen'].'. Actual: '.strlen($value);
+			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $d['label'] ?: $field, $d['maxlen'], strlen($value));
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
 			//debug($_REQUEST);
 			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
@@ -88,22 +88,22 @@ class HTMLFormValidate {
 					$d['error'] = __($resp->error);
 				}
 			} else {
-				$d['error'] = __('Field "'.($d['label'] ?: $field).'" is obligatory.');
+				$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
 			}
 		} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
 			$d['error'] = $d['validateError'];
 		} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
 			$d['error'] = $d['validateError'];
 		} elseif ($d['validate'] == 'int' && strval(intval($value)) != $value) {
-			$d['error'] = 'Value "'.($d['label'] ?: $field).'" must be integer';
+			$d['error'] = __('Value "%1" must be integer', $d['label'] ?: $field);
 		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
-			$d['error'] = 'Value "'.($d['label'] ?: $field).'" must be date';
+			$d['error'] = __('Value "%1" must be date', $d['label'] ?: $field);
 		} else {
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
 			if ($field == 'xsrf') {
 				//debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);
 				if ($value != $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]) {
-					$d['error'] = 'XSRF token validation failed.';
+					$d['error'] = __('XSRF token validation failed.');
 				}
 			}
 		}

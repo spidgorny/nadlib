@@ -274,13 +274,32 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return current($this->data);
 	}
 
+	/**
+	 * Bug. Only one element per sorted field is allowed.
+	 * @param $column
+	 * @return $this
+	 */
 	function sortBy($column) {
+		$this->insertKeyAsColumn();
+		// buggy
+		//$this->IDalize($column, true);	// allow merge
+		//$this->ksort();
+
+		// correct
+		$copy = clone $this;
+		$sortCol = $copy->column($column)->getData();
+		array_multisort($sortCol, $this->data);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		$this->extractKeyFromColumn();
+		return $this;
+	}
+
+	function insertKeyAsColumn() {
 		foreach ($this->data as $key => &$row) {
 			$row['__key__'] = $key;
 		}
-		$this->IDalize($column, true);	// allow merge
-		$this->ksort();
+	}
 
+	function extractKeyFromColumn() {
 		$new = array();
 		foreach ($this->data as $row) {
 			$key = $row['__key__'];
@@ -288,7 +307,6 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			$new[$key] = $row;
 		}
 		$this->data = $new;
-		return $this;
 	}
 
 	function transpose() {

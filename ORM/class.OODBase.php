@@ -251,6 +251,7 @@ abstract class OODBase {
 		if ($this->id) { // found
 			$left = array_intersect_key($this->data, $fields);
 			$right = array_intersect_key($fields, $this->data);
+			//debug($left, $right);
 			if ($left != $right) {
 				$this->update($fields);
 				$op = 'UPD '.$this->id;

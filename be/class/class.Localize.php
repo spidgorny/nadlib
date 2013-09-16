@@ -39,7 +39,7 @@ class Localize extends AppControllerBE {
 		$this->ru = new LocalLangDB('ru');
 		$this->ru->indicateUntranslated = false;
 		$this->ru->init();
-		$this->url = new URL('vendor/spidgorny/nadlib/be/?c=Localize');
+		$this->url = new URL('?c=Localize');
 	}
 
 	function render() {
@@ -73,36 +73,59 @@ class Localize extends AppControllerBE {
 			foreach ($keys as $key) {
 				$table[$key] = array(
 					'key' => $key,
-					'from' => new HTMLTag('td', array(
+/*					'from' => new HTMLTag('td', array(
 						'id' => $this->from->id($key),
 						'lang' => $this->from->lang,
 						'class' => 'inlineEdit',
 					), $this->from->M($key)),
-				);
-				foreach (array('de', 'ru') as $lang) {
+*/				);
+				foreach (array('from', 'de', 'ru') as $lang) {
 					$lobj = $this->$lang;
 					/** @var $lobj LocalLangDB */
+					$dbID = $lobj->id($key);
+
+					$colorCode = $this->from->M($key) == $lobj->M($key)
+						? 'red'
+						: 'green';
+
 					$table[$key][$lang] = new HTMLTag('td', array(
-						'id' => $lobj->id($key) ?: json_encode(array($lobj->lang, $key)),
+						'id' => $dbID ?: json_encode(array($lobj->lang, $key)),
 						'lang' => $lobj->lang,
-						'class' => 'inlineEdit',
+						'class' => 'inlineEdit '.$colorCode,
 					), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
+
+					// Page
+					$row = $lobj->getRow($dbID);
+					if ($row['page']) {
+						$url = new URL($row['page']);
+						$colorPage = strpos($url->getPath(), 'nadlib/be') !== false
+							? 'be'
+							: 'fe';
+						$table[$key]['page'] .= new HTMLTag('a', array(
+							'href' => $row['page'],
+							'class' => $colorPage,
+						), $url->getParam('c') ?: basename($url->getPath())).' ';
+					}
 				}
 			}
 
-			$s = new slTable($table, 'id="localize" width="100%"', array(
+			$s = new slTable($table, 'id="localize" width="100%" class="table table-striped"', array(
 				'key' => 'Key',
 				'from' => $this->from->lang,
 				'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
 				'ru' => array('name' => $this->ru->lang, 'ano_hsc' => true),
+				'page' => array(
+					'name' => 'Page',
+					'no_hsc' => true,
+				),
 			));
 
 			$content .= $s;
 			$content .= $pager->renderPageSelectors($this->url);
 			$content = $this->encloseIn(__('Localize'), $content);
-			$this->index->addJQuery();
-			$this->index->addJS('vendor/spidgorny/nadlib/js/jquery.jeditable.mini.js');
-			$this->index->addJS("vendor/spidgorny/nadlib/be/js/Localize.js");
+			//$this->index->addJQuery();
+			$this->index->addJS('../js/jquery.jeditable.mini.js');
+			$this->index->addJS("js/Localize.js");
 		}
 		return $content;
 	}

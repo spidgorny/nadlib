@@ -51,6 +51,12 @@ class Syndicator {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
 	static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->html = $s->retrieveFile();
@@ -58,6 +64,12 @@ class Syndicator {
 		return $s;
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
 	static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'XML';
@@ -66,6 +78,12 @@ class Syndicator {
 		return $s;
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
 	static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'JSON';

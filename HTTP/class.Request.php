@@ -637,6 +637,10 @@ class Request {
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
+	function clear() {
+		$this->data = array();
+	}
+
 	static function getDocumentRoot() {
 		return str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 	}
