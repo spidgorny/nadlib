@@ -269,7 +269,8 @@ class HTMLFormTable extends HTMLForm {
 					if (!$withBR) {
 						if ($desc['label']) {
 							$label .= ':&nbsp;';
-							if (!$desc['optional'] && $type != 'check') {
+							if (!$desc['optional'] &&
+								!in_array($type, array('check', 'checkbox'))) {
 								if ($this->noStarUseBold) {
 									$label = '<b title="Obligatory">'.$label.'</b>';
 								} else {
