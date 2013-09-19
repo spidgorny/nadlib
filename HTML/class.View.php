@@ -103,6 +103,11 @@ class View {
 		return eval('?>'.$this->parts[$i]);
 	}
 
+	/**
+	 * Uses htmlspecialchars()
+	 * @param $str
+	 * @return string
+	 */
 	function escape($str) {
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
