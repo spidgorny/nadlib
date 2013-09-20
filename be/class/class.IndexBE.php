@@ -19,6 +19,7 @@ class IndexBE extends IndexBase {
 
 		$this->addCSS('../../../../components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS('css/main.css');
+		$this->addCSS('../CSS/TaylorProfiler.css');
 		$this->addJS('../../../../components/jquery/jquery.min.js');
 		$this->addJS('../../../../components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
@@ -69,6 +70,7 @@ class IndexBE extends IndexBase {
 			'AlterDB' => 'Alter DB',
 			'AlterCharset' => 'Alter Charset',
 			'AlterIndex' => 'Alter Indexes',
+			'ValidatorCheck' => 'Validator Check',
 			'JumpFrontend' => '<- Frontend',
 		);
 

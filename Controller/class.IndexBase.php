@@ -288,8 +288,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
-					if ($this->db->QUERIES) {	// dbLayer
-						$content .= $this->db->dumpQueries();
+					if ($this->db->QUERIES) {
+						$dbLayer = $this->db;
+						/** @var $dbLayer dbLayer */
+						$content .= $dbLayer->dumpQueries();
 					}
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {

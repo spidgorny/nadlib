@@ -238,7 +238,7 @@ class Pager {
 	 		$content .= '<li><span class="disabled">&gt;</span></li>';
  		}
 		if ($this->showPageJump) {
-			$form = "<form action='".$this->url."' method='POST' style='display: inline'>
+			$form = "<form action='".$this->url."' method='POST' class='anyPageForm'>
 				&nbsp;<input
 					name='Pager_{$this->prefix}[page]'
 					type='text'
