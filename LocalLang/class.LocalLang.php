@@ -199,8 +199,9 @@ abstract class LocalLang {
 }
 
 function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	if (Config::getInstance() && Config::getInstance()->ll) {
-		$text = Config::getInstance()->ll->T($code, $r1, $r2, $r3);
+	$index = Index::getInstance();
+	if ($index && $index->ll) {
+		$text = $index->ll->T($code, $r1, $r2, $r3);
 		//echo $code, '-', $text, '<br />', "\n";
 		return $text;
 	} else {

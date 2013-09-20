@@ -166,7 +166,7 @@ class Localize extends AppControllerBE {
 		$f = new HTMLForm();
 		$f->method('GET');
 		$f->hidden('c', get_class($this));
-		$f->input('search', $this->request->getTrim('search'), 'class="span2"');
+		$f->input('search', $this->request->getTrim('search'), '', 'text', "span2");
 		$f->submit('Search');
 		return $f;
 	}
