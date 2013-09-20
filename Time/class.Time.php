@@ -11,6 +11,11 @@ class Time {
 	public $debug;
 	public $human;
 
+	/**
+	 * Append GMT for Greenwich
+	 * @param null $input
+	 * @param null $relativeTo
+	 */
 	function __construct($input = NULL, $relativeTo = NULL) {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.MySQL::getCaller().')');
 		if (!is_null($input)) { // 0 is 1970-01-01 00:00:00
@@ -100,7 +105,7 @@ class Time {
 	/**
 	 * YMDTHISZ
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getISO() {
 		return gmdate('Ymd\THis\Z', $this->time);
@@ -109,7 +114,7 @@ class Time {
 	/**
 	 * System readable 2009-12-21
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getISODate() {
 		return date('Y-m-d', $this->time);
@@ -122,7 +127,7 @@ class Time {
 	/**
 	 * Human readable 21.02.1979
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getHumanDate() {
 		return date('d.m.Y', $this->time);
@@ -260,6 +265,7 @@ class Time {
 	}
 
 	/**
+	 * Calls the date function
 	 * @param $rules
 	 * @return string
 	 */
@@ -280,7 +286,7 @@ class Time {
 	/**
 	 * Almost like getISO() but without timezone: 'Y-m-d H:i:s'
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getSystem() {
 		return date('Y-m-d H:i:s', $this->time);
@@ -291,7 +297,7 @@ class Time {
 	 *
 	 * @param Time $plus
 	 * @param bool $debug
-	 * @return unknown
+	 * @return Time
 	 */
 	function add(Time $plus, $debug = FALSE) {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -306,7 +312,7 @@ class Time {
 	 *
 	 * @param Time $plus
 	 * @param bool $debug
-	 * @return unknown
+	 * @return Time
 	 */
 	function substract(Time $plus, $debug = FALSE) {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
