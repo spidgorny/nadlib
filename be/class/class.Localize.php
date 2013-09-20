@@ -53,6 +53,8 @@ class Localize extends AppControllerBE {
 			)).'</div>';*/
 
 			$all = $this->from->getMessages();
+			$all += $this->de->getMessages();
+			$all += $this->ru->getMessages();
 			if (($search = strtolower($this->request->getTrim('search')))) {
 				foreach ($all as $key => $trans) {
 					if (strpos(strtolower($trans), $search) === FALSE &&

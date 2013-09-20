@@ -51,7 +51,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//parent::__construct();
 		$this->db = Config::getInstance()->db;
 
-		$this->ll = new LocalLangDummy();	// the real one is in Config!
+		$this->ll = new LocalLangDummy();	// the real one is in Config. move it here now
 
 		$this->request = Request::getInstance();
 		//debug('session_start');
@@ -67,7 +67,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$instance = &self::$instance;
+		$instance = &self::$instance ?: $GLOBALS['i'];	// to read IndexBE instance
 		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
