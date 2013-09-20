@@ -26,6 +26,9 @@ class IndexBE extends IndexBase {
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
 		$c->user = $this->user;	// for consistency
+
+		$this->ll = new LocalLangDB();
+		//debug($this->ll);
 	}
 
 	function renderController() {
