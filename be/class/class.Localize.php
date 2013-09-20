@@ -44,53 +44,56 @@ class Localize extends AppControllerBE {
 
 	function render() {
 		$content = $this->performAction();
-		if (($id = $this->request->getTrim('id'))) {
-			$this->save($id, $this->request->getTrim('value'));
-			$this->index->request->set('ajax', true);
-		} else {
-			/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
-				'c' => 'ImportMissing',
-			)).'</div>';*/
+		/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
+			'c' => 'ImportMissing',
+		)).'</div>';*/
 
-			$all = $this->from->getMessages();
-			$all += $this->de->getMessages();
-			$all += $this->ru->getMessages();
-			if (($search = strtolower($this->request->getTrim('search')))) {
-				foreach ($all as $key => $trans) {
-					if (strpos(strtolower($trans), $search) === FALSE &&
-						strpos(strtolower($key)  , $search) === FALSE) {
-						unset($all[$key]);
-					}
+		$keys = $this->getAllKeys();
+
+		$pager = new Pager();
+		$pager->setNumberOfRecords(sizeof($keys));
+		$pager->detectCurrentPage();
+		$keys = array_slice($keys, $pager->startingRecord, $pager->itemsPerPage, true);
+		$content .= $pager->renderPageSelectors($this->url);
+
+		$table = $this->getTranslationTable($keys);
+		$s = new slTable($table, 'id="localize" width="100%" class="table table-striped"', array(
+			'key' => 'Key',
+			'from' => $this->from->lang,
+			'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
+			'ru' => array('name' => $this->ru->lang, 'ano_hsc' => true),
+			'page' => array(
+				'name' => 'Page',
+				'no_hsc' => true,
+			),
+			'del' => array(
+				'no_hsc' => true,
+			)
+		));
+
+		$content .= $s;
+		$content .= $pager->renderPageSelectors($this->url);
+		$content = $this->encloseIn(__('Localize'), $content);
+		//$this->index->addJQuery();
+		$this->index->addJS('../js/jquery.jeditable.mini.js');
+		$this->index->addJS("js/Localize.js");
+		return $content;
+	}
+
+	function getAllKeys() {
+		$all = $this->from->getMessages();
+		$all += $this->de->getMessages();
+		$all += $this->ru->getMessages();
+		if (($search = strtolower($this->request->getTrim('search')))) {
+			foreach ($all as $key => $trans) {
+				if (strpos(strtolower($trans), $search) === FALSE &&
+					strpos(strtolower($key)  , $search) === FALSE) {
+					unset($all[$key]);
 				}
 			}
-			$keys = array_keys($all);
-
-			$pager = new Pager();
-			$pager->setNumberOfRecords(sizeof($keys));
-			$pager->detectCurrentPage();
-			$keys = array_slice($keys, $pager->startingRecord, $pager->itemsPerPage, true);
-			$content .= $pager->renderPageSelectors($this->url);
-
-			$table = $this->getTranslationTable($keys);
-			$s = new slTable($table, 'id="localize" width="100%" class="table table-striped"', array(
-				'key' => 'Key',
-				'from' => $this->from->lang,
-				'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
-				'ru' => array('name' => $this->ru->lang, 'ano_hsc' => true),
-				'page' => array(
-					'name' => 'Page',
-					'no_hsc' => true,
-				),
-			));
-
-			$content .= $s;
-			$content .= $pager->renderPageSelectors($this->url);
-			$content = $this->encloseIn(__('Localize'), $content);
-			//$this->index->addJQuery();
-			$this->index->addJS('../js/jquery.jeditable.mini.js');
-			$this->index->addJS("js/Localize.js");
 		}
-		return $content;
+		$keys = array_keys($all);
+		return $keys;
 	}
 
 	function getTranslationTable(array $keys) {
@@ -109,9 +112,14 @@ class Localize extends AppControllerBE {
 				/** @var $lobj LocalLangDB */
 				$dbID = $lobj->id($key);
 
-				$colorCode = $this->from->M($key) == $lobj->M($key)
-					? 'red'
-					: 'green';
+				$row = $this->db->fetchOneSelectQuery('interface', array('id' => $dbID));
+				if ($row['deleted']) {
+					$colorCode = 'muted';
+				} else {
+					$colorCode = $this->from->M($key) == $lobj->M($key)
+						? 'red'
+						: 'green';
+				}
 
 				$table[$key][$lang] = new HTMLTag('td', array(
 					'id' => $dbID ?: json_encode(array($lobj->lang, $key)),
@@ -131,9 +139,27 @@ class Localize extends AppControllerBE {
 							'class' => $colorPage,
 						), $url->getParam('c') ?: basename($url->getPath())).' ';
 				}
+
 			}
+			// Del
+			$table[$key]['del'] .= new HTMLTag('a', array(
+				'href' => new URL('', array(
+					'c' => 'Localize',
+					'action' => 'deleteRow',
+					'code' => $key,
+				))
+			), '&times;', true);
 		}
 		return $table;
+	}
+
+	function saveAction() {
+		$id = $this->request->getTrim('id');
+		if ($id) {
+			$this->save($id, $this->request->getTrim('value'));
+			$this->index->request->set('ajax', true);
+		}
+		exit();
 	}
 
 	/**
@@ -195,7 +221,15 @@ class Localize extends AppControllerBE {
 			}
 			$prevCode = $row['code'];
 		}
-		exit();
+	}
+
+	function deleteRowAction() {
+		//debug($_REQUEST);
+		$this->db->runUpdateQuery('interface', array(
+			'deleted' => true,
+		), array(
+			'code' => $this->request->getTrimRequired('code'),
+		));
 	}
 
 }
