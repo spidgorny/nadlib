@@ -43,7 +43,7 @@ class Localize extends AppControllerBE {
 	}
 
 	function render() {
-		$content = '';
+		$content = $this->performAction();
 		if (($id = $this->request->getTrim('id'))) {
 			$this->save($id, $this->request->getTrim('value'));
 			$this->index->request->set('ajax', true);
@@ -69,46 +69,7 @@ class Localize extends AppControllerBE {
 			$keys = array_slice($keys, $pager->startingRecord, $pager->itemsPerPage, true);
 			$content .= $pager->renderPageSelectors($this->url);
 
-			$table = array();
-			foreach ($keys as $key) {
-				$table[$key] = array(
-					'key' => $key,
-/*					'from' => new HTMLTag('td', array(
-						'id' => $this->from->id($key),
-						'lang' => $this->from->lang,
-						'class' => 'inlineEdit',
-					), $this->from->M($key)),
-*/				);
-				foreach (array('from', 'de', 'ru') as $lang) {
-					$lobj = $this->$lang;
-					/** @var $lobj LocalLangDB */
-					$dbID = $lobj->id($key);
-
-					$colorCode = $this->from->M($key) == $lobj->M($key)
-						? 'red'
-						: 'green';
-
-					$table[$key][$lang] = new HTMLTag('td', array(
-						'id' => $dbID ?: json_encode(array($lobj->lang, $key)),
-						'lang' => $lobj->lang,
-						'class' => 'inlineEdit '.$colorCode,
-					), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
-
-					// Page
-					$row = $lobj->getRow($dbID);
-					if ($row['page']) {
-						$url = new URL($row['page']);
-						$colorPage = strpos($url->getPath(), 'nadlib/be') !== false
-							? 'be'
-							: 'fe';
-						$table[$key]['page'] .= new HTMLTag('a', array(
-							'href' => $row['page'],
-							'class' => $colorPage,
-						), $url->getParam('c') ?: basename($url->getPath())).' ';
-					}
-				}
-			}
-
+			$table = $this->getTranslationTable($keys);
 			$s = new slTable($table, 'id="localize" width="100%" class="table table-striped"', array(
 				'key' => 'Key',
 				'from' => $this->from->lang,
@@ -128,6 +89,49 @@ class Localize extends AppControllerBE {
 			$this->index->addJS("js/Localize.js");
 		}
 		return $content;
+	}
+
+	function getTranslationTable(array $keys) {
+		$table = array();
+		foreach ($keys as $key) {
+			$table[$key] = array(
+				'key' => $key,
+				/*					'from' => new HTMLTag('td', array(
+										'id' => $this->from->id($key),
+										'lang' => $this->from->lang,
+										'class' => 'inlineEdit',
+									), $this->from->M($key)),
+				*/				);
+			foreach (array('from', 'de', 'ru') as $lang) {
+				$lobj = $this->$lang;
+				/** @var $lobj LocalLangDB */
+				$dbID = $lobj->id($key);
+
+				$colorCode = $this->from->M($key) == $lobj->M($key)
+					? 'red'
+					: 'green';
+
+				$table[$key][$lang] = new HTMLTag('td', array(
+					'id' => $dbID ?: json_encode(array($lobj->lang, $key)),
+					'lang' => $lobj->lang,
+					'class' => 'inlineEdit '.$colorCode,
+				), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
+
+				// Page
+				$row = $lobj->getRow($dbID);
+				if ($row['page']) {
+					$url = new URL($row['page']);
+					$colorPage = strpos($url->getPath(), 'nadlib/be') !== false
+						? 'be'
+						: 'fe';
+					$table[$key]['page'] .= new HTMLTag('a', array(
+							'href' => $row['page'],
+							'class' => $colorPage,
+						), $url->getParam('c') ?: basename($url->getPath())).' ';
+				}
+			}
+		}
+		return $table;
 	}
 
 	/**
@@ -168,7 +172,28 @@ class Localize extends AppControllerBE {
 		$f->hidden('c', get_class($this));
 		$f->input('search', $this->request->getTrim('search'), '', 'text', "span2");
 		$f->submit('Search');
-		return $f;
+		$content = $f;
+
+		$content .= $this->getActionButton('Delete Duplicates', 'deleteDuplicates');
+
+		return $content;
+	}
+
+	function deleteDuplicatesAction() {
+		$rows = $this->db->fetchSelectQuery('interface', array(
+			'lang' => 'en',
+		), 'ORDER BY code, id');
+		$prevCode = NULL;
+		foreach ($rows as $row) {
+			if ($prevCode == $row['code']) {
+				echo 'Del: ', $row['code'], ' (id: ', $row['id'], ')<br />', "\n";
+				$this->db->runDeleteQuery('interface', array(
+					'id' => $row['id'],
+				));
+			}
+			$prevCode = $row['code'];
+		}
+		exit();
 	}
 
 }
