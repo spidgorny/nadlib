@@ -74,6 +74,8 @@ class IndexBE extends IndexBase {
 			'AlterCharset' => 'Alter Charset',
 			'AlterIndex' => 'Alter Indexes',
 			'ValidatorCheck' => 'Validator Check',
+			'ClearCache' => 'Clear Cache',
+			'OptimizeDB' => 'Optimize DB',
 			'JumpFrontend' => '<- Frontend',
 		);
 
