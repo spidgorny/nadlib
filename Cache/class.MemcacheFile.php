@@ -1,13 +1,18 @@
 <?php
 
 class MemcacheFile {
-	protected $folder = 'cache/';
+
+	/**
+	 * @used in ClearCache
+	 * @var string
+	 */
+	public $folder = 'cache/';
 
 	function __construct() {
 		// fix for relative path on eval and buglog
 		$pathprefix = dirname(__FILE__);
 		$full = strlen($pathprefix);
-		$neg = strlen('nadlib/Cache');
+		$neg = strlen('vendor/spidgorny/nadlib/Cache');
 		$end = $full - $neg;
 		$sub = substr($pathprefix, 0, $end);
 
@@ -23,6 +28,9 @@ class MemcacheFile {
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
 		$key = str_replace('::', '-', $key);
+		if (strpos($key, ' ') !== false || strpos($key, '/') !== false) {
+			$key = md5($key);
+		}
 		$file = $this->folder . $key . '.cache'; // str_replace('(', '-', str_replace(')', '-', $key))
 		return $file;
 	}

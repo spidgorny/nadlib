@@ -156,6 +156,8 @@ class Collection {
 
 	/**
 	 * -1 will prevent data retrieval
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
@@ -175,6 +177,21 @@ class Collection {
 			$this->preprocessData();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+	}
+
+	function retrieveDataFromCache() {
+		$this->query = $this->getQuery($this->where);
+		$fc = new MemcacheFile();
+		$this->data = $fc->get($this->query);
+		if (!$this->data) {
+			$this->retrieveDataFromDB();
+			$fc->set($this->query, $this->data);
+			//debug(__METHOD__, 'no cache', sizeof($this->data));
+		} else{
+			$cacheFile = $fc->map($this->query);
+			debug(__METHOD__, 'yes cache', sizeof($this->data), $cacheFile, filesize($cacheFile));
+		}
+		return $this->data;
 	}
 
 	/**
