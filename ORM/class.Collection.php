@@ -161,16 +161,16 @@ class Collection {
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		//debug($this->where);
-		//debug_pre_print_backtrace();
 		$this->query = $this->getQuery($this->where);
-		//debug($this->query);
+		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$this->count = $this->db->numRows($res);
 		}
+		//debug($this->table, $this->query, $this->count, $prof->elapsed());
+
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		if ($preprocess) {
