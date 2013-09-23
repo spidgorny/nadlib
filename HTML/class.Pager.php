@@ -105,12 +105,15 @@ class Pager {
 		}
 	}
 
+	/**
+	 * @param int $items
+	 */
 	function setItemsPerPage($items) {
 		if (!$items) {
 			$items = $this->pageSize->selected;
 		}
-		$this->itemsPerPage = $items;
-		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
+			$this->itemsPerPage = $items;
+			$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 		//debug($this);
 	}
 
