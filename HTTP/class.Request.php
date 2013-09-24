@@ -18,7 +18,9 @@ class Request {
 			$this->data = $this->deQuote($this->data);
 		}
 
-		$this->url = new URL(isset($_SERVER['SCRIPT_URL']) ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
+			? $_SERVER['SCRIPT_URL']
+			: $_SERVER['REQUEST_URI']);
 	}
 
 	function deQuote(array $request) {
