@@ -189,7 +189,7 @@ class Collection {
 			//debug(__METHOD__, 'no cache', sizeof($this->data));
 		} else{
 			$cacheFile = $fc->map($this->query);
-			debug(__METHOD__, 'yes cache', sizeof($this->data), $cacheFile, filesize($cacheFile));
+			//debug(__METHOD__, 'yes cache', sizeof($this->data), $cacheFile, filesize($cacheFile));
 		}
 		return $this->data;
 	}
