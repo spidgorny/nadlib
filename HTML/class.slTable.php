@@ -515,7 +515,7 @@ class slTable {
 				//$val = $val;
 			} else {
 				if (mb_strpos($val, "\n") !== FALSE) {
-					$val = '<pre>'.htmlspecialchars($val).'</pre>';
+					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
 				} else {
 					$val = htmlspecialchars($val);
 				}

@@ -1,18 +1,46 @@
 <?php
 
 class HTMLFormTable extends HTMLForm {
+	/**
+	 * If set then each field gets ['value'] appended to it's name
+	 * The idea was to merge $desc with $_REQUEST easily, but it makes ugly URL
+	 * @var bool
+	 */
 	var $withValue = FALSE;
+
+	/**
+	 * Will render labels above the fields, otherwise on the left
+	 * @var bool
+	 */
 	var $defaultBR = FALSE;
+
+	/**
+	 * Additional parameters for <tr>
+	 * @var
+	 */
 	var $trmore;
+
+	/**
+	 * Additional parameters for <table>
+	 * @var
+	 */
 	var $tableMore;
+
+	/**
+	 * Shows field names near fields
+	 * @var bool
+	 */
 	public $debug = false;
 
 	/**
-	 *
+	 * The form description table
 	 * @var array
 	 */
 	public $desc;
 
+	/**
+	 * @var
+	 */
 	protected $mainForm;
 
 	/**
