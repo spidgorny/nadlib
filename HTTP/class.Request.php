@@ -216,7 +216,7 @@ class Request {
 	 * @return Time
 	 */
 	function getTime($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
 		}
 	}
@@ -229,7 +229,7 @@ class Request {
 	 * @return Date
 	 */
 	function getDate($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
 	}
