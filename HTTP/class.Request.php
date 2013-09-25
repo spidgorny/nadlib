@@ -251,8 +251,26 @@ class Request {
 		return $files;
 	}
 
+	/**
+	 * Similar to getArray() but the result is an object of a Request
+	 * @param $name
+	 * @return Request
+	 */
 	function getSubRequest($name) {
 		return new Request($this->getArray($name));
+	}
+
+	/**
+	 * Opposite of getSubRequest. It's a way to reimplement a subrequest
+	 * @param $name
+	 * @param Request $subrequest
+	 * @return $this
+	 */
+	function import($name, Request $subrequest) {
+		foreach ($subrequest->data as $key => $val) {
+			$this->data[$name][$key] = $val;
+		}
+		return $this;
 	}
 
 	function getCoalesce($a, $b) {
@@ -482,19 +500,23 @@ class Request {
 	/**
 	 * Overwriting - no
 	 * @param array $plus
+	 * @return Request
 	 */
 	function append(array $plus) {
 		$this->data += $plus;
+		return $this;
 	}
 
 	/**
 	 * Overwriting - yes
 	 * @param array $plus
+	 * @return Request
 	 */
 	function overwrite(array $plus) {
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
 		}
+		return $this;
 	}
 
 	function apacheModuleRewrite() {
