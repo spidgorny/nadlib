@@ -337,11 +337,11 @@ class HTMLForm {
 ';
 	}
 
-	function money($name, $value) {
+	function money($name, $value, array $desc) {
 		if (!$value) {
 			$value = "0.00";
 		}
-		$this->input($name, $value);
+		$this->input($name, $value, $desc['more']);
 		$this->text("&euro;");
 	}
 

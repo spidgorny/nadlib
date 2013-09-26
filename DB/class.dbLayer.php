@@ -620,4 +620,16 @@ order by a.attnum';
 		return $content;
 	}
 
+	/**
+	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
+	 * @param string $source
+	 * @return float
+	 */
+	function getMoney($source = '$1,234.56') {
+		$source = str_replace('$', '', $source);
+		$source = str_replace(',', '', $source);
+		$source = floatval($source);
+		return $source;
+	}
+
 }

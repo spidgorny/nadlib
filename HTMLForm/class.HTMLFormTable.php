@@ -139,7 +139,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->datepopup($fieldName, $fieldValue);
 				break;
 				case "money":
-					$this->money($fieldName, $fieldValue);
+					$this->money($fieldName, $fieldValue, $desc);
 				break;
 				case "select":
 				case "selection":
