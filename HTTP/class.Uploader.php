@@ -43,6 +43,7 @@ class Uploader {
 	function getUploadForm() {
 		$f = new HTMLForm();
 		$f->file('file');
+		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$content = $f;
 		$content .= '<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>';
@@ -50,6 +51,11 @@ class Uploader {
 		return $content;
 	}
 
+	/**
+	 * @param string $from - usually 'file' - the same name as in getUploadForm()
+	 * @param string $to - directory
+	 * @throws Exception
+	 */
 	function moveUpload($from, $to) {
 		if ($uf = $_FILES[$from]) {
 			if (!$this->checkError($uf)) {
@@ -148,6 +154,21 @@ class Uploader {
 			$output = $output[0];
 		}
 		return $output;
+	}
+
+	/**
+	 * Will incrementally create subfolders which don't exist.
+	 * @param $folder
+	 */
+	public function createUploadFolder($folder) {
+		$parts = trimExplode('/', $folder);
+		$current = '/';
+		foreach ($parts as $plus) {
+			$current .= $plus.'/';
+			if (!file_exists($current)) {
+				mkdir($current);
+			}
+		}
 	}
 
 }
