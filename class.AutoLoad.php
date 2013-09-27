@@ -89,19 +89,21 @@ class AutoLoad {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 
 		$namespaces = explode('\\', $class);
-		$classFile = end($namespaces);
+		$classFile = end($namespaces);				// why?
+
 		$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 
-		$file = $this->classFileMap[$classFile];
+		$file = $this->classFileMap[$class];
 		if ($file && file_exists($file)) {
 			include_once $file;
 		} else {
-			$debug = $this->findInFolders($class, $subFolders);
+			$debug = $this->findInFolders($classFile, $subFolders);
+			$this->classFileMap[$class] = $file;
 		}
 
-		if (!class_exists($classFile) && !interface_exists($classFile)) {
+		if (!class_exists($class) && !interface_exists($class)) {
 			unset($_SESSION[__CLASS__]['folders']);	// just in case
 			//debug($this->folders);
 			if (class_exists('Config')) {
@@ -111,6 +113,9 @@ class AutoLoad {
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
 			}
+			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
+		} else {
+			//echo $classFile.' ';
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
@@ -127,10 +132,18 @@ class AutoLoad {
 				$path.DIRECTORY_SEPARATOR.
 				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';
+
+			// pre-check for file without "class." prefix
+			if (!file_exists($file)) {
+				$file2 = str_replace('/class.', '/', $file);
+				if (file_exists($file2)) {
+					$file = $file2;
+				}
+			}
+
 			if (file_exists($file)) {
 				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />';
 				include_once($file);
-				$this->classFileMap[$classFile] = $file;
 			} else {
 				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span><br />';
 			}

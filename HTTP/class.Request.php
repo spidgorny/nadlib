@@ -40,6 +40,11 @@ class Request {
 		return self::$instance;
 	}
 
+	/**
+	 * Will overwrite
+	 * @param $var
+	 * @param $val
+	 */
 	function set($var, $val) {
 		$this->data[$var] = $val;
 	}
