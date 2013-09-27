@@ -576,8 +576,8 @@ class slTable {
 				//$val = $val;
 			} else {
 				if (mb_strpos($val, "\n") !== FALSE) {
-					$val = '<pre>'.htmlspecialchars($val).'</pre>';
-				} else {
+					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
+				} else if (!$no_hsc) {
 					$val = htmlspecialchars($val);
 				}
 			}

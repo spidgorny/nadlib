@@ -4,12 +4,20 @@ class InitNADLIB {
 
 	var $useCookies = true;
 
+	/**
+	 * @var AutoLoad
+	 */
+	var $al;
+
+	function __construct() {
+		require_once dirname(__FILE__) . '/class.AutoLoad.php';
+		$this->al = AutoLoad::getInstance();
+	}
+
 	function init() {
 		//print_r($_SERVER);
-		require_once dirname(__FILE__) . '/class.AutoLoad.php';
-		$al = AutoLoad::getInstance();
-		$al->useCookies = $this->useCookies;
-		$al->register();
+		$this->al->useCookies = $this->useCookies;
+		$this->al->register();
 
 		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		define('DEVELOPMENT', Request::isCLI()
