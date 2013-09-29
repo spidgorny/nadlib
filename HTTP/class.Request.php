@@ -261,6 +261,19 @@ class Request {
 		return new Request($this->getArray($name));
 	}
 
+	/**
+	 * Opposite of getSubRequest. It's a way to reimplement a subrequest
+	 * @param $name
+	 * @param Request $subrequest
+	 * @return $this
+	 */
+	function import($name, Request $subrequest) {
+		foreach ($subrequest->data as $key => $val) {
+			$this->data[$name][$key] = $val;
+		}
+		return $this;
+	}
+
 	function getCoalesce($a, $b) {
 		$a = $this->getTrim($a);
 		return $a ? $a : $b;

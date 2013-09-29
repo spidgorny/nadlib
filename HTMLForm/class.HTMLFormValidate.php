@@ -66,6 +66,7 @@ class HTMLFormValidate {
 		} elseif ($field == 'password' && strlen($value) < 6) {
 			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
 		} elseif ($d['min'] && $value < $d['min']) {
+			debug($value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
 		} elseif ($d['max'] && $value > $d['max']) {
 			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $d['label'] ?: $field, $d['max']);
