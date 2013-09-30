@@ -288,6 +288,10 @@ abstract class Controller {
 		$this->noRender = true;
 	}
 
+	/**
+	 * Uses float: left;
+	 * @return mixed|string
+	 */
 	function inColumns() {
 		$elements = func_get_args();
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);

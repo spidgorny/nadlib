@@ -45,6 +45,7 @@ class ConfigBase {
 		'HTML',
 		'HTMLForm',
 		'HTTP',
+		'js',
 		'LocalLang',
 		'ORM',
 		'SQL',
