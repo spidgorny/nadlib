@@ -180,9 +180,16 @@ class HTMLForm {
 	 */
 	function radioLabel($name, $value, $checked, $label = "", $more = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."' {$more}> ";
-		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+		$id = implode('_', $this->prefix)."_".implode('_', $name)."_".$value;
+		$this->stdout .= '<label class="radio" for="'.$id.'">
+		<input
+			type="radio"
+			'.$this->getName($name).'
+			value="'.htmlspecialchars($value, ENT_QUOTES).'" '.
+			($checked ? "checked" : "").'
+			id="'.$id.'"
+			'.$more.'> ';
+		$this->stdout .= $this->hsc($label)."</label>";
 	}
 
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
