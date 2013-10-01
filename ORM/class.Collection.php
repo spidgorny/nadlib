@@ -195,6 +195,13 @@ class Collection {
 		} else {
 			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		}
+
+		// by MJ: to be able to add custom where clause anywhere in the query
+		$set = $qb->quoteWhere($where);
+		if (sizeof($set)) {
+			$query =  str_replace('###WHERE###', "\nWHERE\n" .implode("\nAND ", $set), $query);
+		}
+
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
