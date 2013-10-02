@@ -10,3 +10,17 @@ body {
 .bold {
 	font-weight: bold;
 }
+
+.red {
+	background: lightpink !important;
+}
+.green {
+	background: lightgreen !important;
+}
+
+.be {
+	background: lightgrey !important;
+}
+.fe {
+	background: lightblue !important;
+}

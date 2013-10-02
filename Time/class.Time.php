@@ -25,7 +25,7 @@ class Time {
 			} else if (is_numeric($input)) {
 				$this->time = $input;
 			} else {
-				Config::getInstance()->log(__CLASS__.'#'.__LINE__, $input.' is unrecognized as a valid date.');
+				Config::getInstance()->log(__CLASS__.'#'.__LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		} else {
 			$this->time = time();
@@ -238,16 +238,16 @@ class Time {
 	/**
 	 * <span class="time">in 10 hours</span>
 	 *
-	 * @return unknown
+	 * @return htmlString
 	 */
 	function render() {
-		return '<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>';
+		return new htmlString('<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>');
 	}
 
 	/**
 	 * Displays start of an hour with larger font
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function renderCaps() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -259,6 +259,10 @@ class Time {
 		return $noe;
 	}
 
+	/**
+	 * @param $rules
+	 * @return string
+	 */
 	function format($rules) {
 		if ($this->time) {
 			$content = date($rules, $this->time);

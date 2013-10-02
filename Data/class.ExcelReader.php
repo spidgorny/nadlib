@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ExcelReader - only reads the XML file Excel
+ * @see class SimpleXLSX
+ */
 class ExcelReader {
 	protected $excel;
 	protected $isCache = TRUE;

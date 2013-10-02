@@ -342,7 +342,12 @@ class SQLBuilder {
 				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 				//	$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
-					$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
+					if (strpos($val, '###FIELD###') !== FALSE) {
+						$val = str_replace('###FIELD###', $key, $val);
+						$set[] = $val;
+					} else {
+						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
+					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
 				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working
@@ -414,13 +419,14 @@ class SQLBuilder {
 
 	function getFirstWord($table) {
 		$table1 = explode(' ', $table);
-		$table1 = $table1[0];
-		return $table1;
+		$table0 = $table1[0];
+		//debug($table, $table1, $table0);
+		return $table0;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
+	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
-		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
 		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
@@ -430,9 +436,9 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
+	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
-		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
 		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$q .= $where->__toString();
 		$q .= "\n".$order;
@@ -454,8 +460,10 @@ class SQLBuilder {
 		return array();
 	}
 
-	//2010/09/12: modified according to mantis request 0001812	- 4th argument added
-	function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
+	/**
+	 * 2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	 */
+	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
 
@@ -477,15 +485,15 @@ class SQLBuilder {
 		return $content;
 	}
 
-	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '', $exclusiveAdd = FALSE) {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect, $exclusiveAdd);
+	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '') {
+		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
 		return $res;
 	}
 
-	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '', $exclusiveAdd = FALSE) {
-		$query = $this->getSelectQuerySW($table, $where, $order, $addSelect, $exclusiveAdd);
+	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '') {
+		$query = $this->getSelectQuerySW($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
 		return $res;
@@ -514,8 +522,8 @@ class SQLBuilder {
 	 * Inserts only if not yet found.
 	 *
 	 * @param $table
-	 * @param $fields
-	 * @return
+	 * @param array $fields
+	 * @return resource
 	 */
 	function runInsertNew($table, array $fields) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -543,8 +551,8 @@ class SQLBuilder {
 		return $authorID;
 	}
 
-	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect, $exclusiveAdd);
+	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '') {
+		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		$data = $this->db->fetchAll($this->db->perform($query));
 		return $data;
 	}

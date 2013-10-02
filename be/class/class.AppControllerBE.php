@@ -16,7 +16,7 @@ class AppControllerBE extends Controller {
 
 	function __construct() {
 		parent::__construct();
-		$this->layout = new Wrap('<div class="span10">', '</div>');
+		$this->layout = new Wrap('<div class="span10">', '</div>'."\n");
 		$this->index = IndexBE::getInstance();
 		//debug($this->request->getAll());
 		if ($this->request->getBool('forceDL')) {

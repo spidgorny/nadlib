@@ -7,7 +7,15 @@ class HTMLForm {
 	var $stdout = "";
 	var $enctype = "";
 	var $target = "";
+
+	/**
+	 * Deprecated use for maybe XSS class in some form fields.
+	 * Now it's the class name (or just a unique identifier of the form) to be used
+	 * with XSRF protection.
+	 * @var string
+	 */
 	var $class = "";
+
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
@@ -58,10 +66,6 @@ class HTMLForm {
 		}
 	}
 
-	function cssClass($c) {
-		$this->class = $c;
-	}
-
 	function fieldset($name, $more = array()) {
 		$this->fieldset = $name;
 		$this->fieldsetMore = $more;
@@ -88,6 +92,15 @@ class HTMLForm {
 		return $a;
 	}
 
+	/**
+	 * @param $type
+	 * @param $name
+	 * @param null $value
+	 * @param string/array $more - may be array
+	 * @param string $extraClass
+	 * @param string $namePlus
+	 * @return string
+	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
 		$a = '';
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
@@ -97,12 +110,19 @@ class HTMLForm {
 			$a .= ' value="'.$value.'"';
 		}
 		if ($more) {
-			$a .= " " . $more;
+			$a .= " " . (is_array($more) ? $this->getAttrHTML($more) : $more);
 		}
 		$a .= ">\n";
 		return $a;
 	}
 
+	/**
+	 * @param $name
+	 * @param string $value
+	 * @param string/array $more - may be array
+	 * @param string $type
+	 * @param string $extraClass
+	 */
 	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
@@ -151,6 +171,20 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "").' '.$more);
 	}
 
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param boolean $checked
+	 * @param string $label
+	 * @param string $more
+	 */
+	function radioLabel($name, $value, $checked, $label = "", $more = '') {
+		$value = htmlspecialchars($value, ENT_QUOTES);
+		$id = $this->prefix."_".$name."_".$value;
+		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."' {$more}> ";
+		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+	}
+
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
@@ -161,17 +195,10 @@ class HTMLForm {
 		);
 	}
 
-	function checkLabel($name, $value = 1, $checked = false, $more = "", $label = '') {
+	function checkLabel($name, $value = 1, $checked = false, $more = "", $autoSubmit = false, $label = '') {
 		$this->stdout .= '<label>';
-		$this->check($name, $value, $checked, $more);
+		$this->check($name, $value, $checked, $more, $autoSubmit);
 		$this->stdout .= ' './*htmlspecialchars*/($label).'</label>';
-	}
-
-	function radioLabel($name, $value, $checked, $label = "") {
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."'> ";
-		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
 	}
 
 	function hsc($label) {
@@ -204,6 +231,9 @@ class HTMLForm {
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
+		if ($multiple) {
+			$this->stdout .= ' multiple="1"';
+		}
 		$this->stdout .= $more . ">\n";
 		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
@@ -223,15 +253,17 @@ class HTMLForm {
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
-				if (sizeof($aOptions) == -3) {
-					Debug::debug_args(array(
+				if (sizeof($aOptions) == 14) {
+					debug(array(
 						'default' => $default,
 						'value' => $value,
 						'selected' => $selected,
 					));
 				}
 			} else {
-				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
+				//debug($default, $value);
+				if ((is_array($default) && in_array($value, $default))
+				|| (!is_array($default) && $default == $value)) {
 					$selected = true;
 				} else {
 					$selected = false;
@@ -257,18 +289,59 @@ class HTMLForm {
 		return $content;
 	}
 
-	function date($name, $value) {
-		if (!$value) {
-			$value = date('d.m.Y');
+	/**
+	 * Default value is no longer "today"
+	 * @param $name
+	 * @param $value
+	 * @param array $desc
+	 */
+	function date($name, $value, array $desc = array()) {
+		$format = $desc['format'] ?: 'd.m.Y';
+		if (is_numeric($value)) {
+			$value = date($format, $value);
+		} elseif (!$value) {
+			//$value = date('d.m.Y');
 		}
 		$this->input($name, $value);
 	}
 
-	function money($name, $value) {
+	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
+		$id = $id ? $id : uniqid('datepopup');
+		$fullname = $this->getName($name, '', TRUE);
+		$GLOBALS['HTMLHEADER']['datepopup'] = '
+	<script type="text/javascript" src="lib/jscalendar-1.0/calendar.js"></script>
+	<script type="text/javascript" src="lib/jscalendar-1.0/lang/calendar-en.js"></script>
+	<script type="text/javascript" src="lib/jscalendar-1.0/calendar-setup.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="lib/jscalendar-1.0/skins/aqua/theme.css" />';
+		$this->stdout .= '
+	<input type="'.$type.'" name="'.$fullname.'" id="id_field_'.$id.'" value="'.($value?date('Y-m-d', $value):'').'" />
+	'.($activator ? $activator : '<button type="button" id="id_button_'.$id.'" style="width: auto">...</button>').'
+	<script type="text/javascript">
+		var setobj = {
+	        inputField     :    "id_field_'.$id.'",     // id of the input field
+	        ifFormat       :    "%Y-%m-%d",       		// format of the input field
+	        showsTime      :    false,            		// will display a time selector
+	        button         :    "id_button_'.$id.'",   	// trigger for the calendar (button ID)
+	        singleClick    :    false,           		// double-click mode
+	    ';
+		if ($params) {
+			foreach ($params as $key => $val) {
+				$this->stdout .= $key.':'.$val.',';
+			}
+		}
+		$this->stdout .= '
+	        step           :    1                		// show all years in drop-down boxes (instead of every other year as default)
+	    };
+	    var cal_'.$id.' = Calendar.setup(setobj);
+	</script>
+';
+	}
+
+	function money($name, $value, array $desc) {
 		if (!$value) {
 			$value = "0.00";
 		}
-		$this->input($name, $value);
+		$this->input($name, $value, $desc['more']);
 		$this->text("&euro;");
 	}
 
@@ -374,9 +447,9 @@ class HTMLForm {
 		$this->class = 'submit';
 		$between = $desc['between'] ? $desc['between'] : ', ';
 		foreach ((array)$desc['options'] as $key => $val) {
-			$this->text('<nobr>');
-			$this->check($newName, $key, in_array($key, $value), 'id="lang_'.$key.'"');
-			$this->text('&nbsp;<label for="lang_'.$key.'">'.$val.'</label></nobr>');
+			$this->text('<nobr><label>');
+			$this->check($newName, $key, in_array($key, $value));
+			$this->text(' '.$val.'</label></nobr>');
 			if ($val != end($desc['options'])) {
 				$this->text($between);
 			}
@@ -399,6 +472,73 @@ class HTMLForm {
 			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
 			$this->text($between);
 		}
+	}
+
+	function jsCal2($fieldName, $fieldValue) {
+		if (is_string($fieldValue)) {
+			$fieldValue = strtotime($fieldValue);
+		}
+		//$GLOBALS['HTMLHEADER']['JSCal2'] = '
+		$content = '
+		<link rel="stylesheet" type="text/css" href="JSCal2/css/jscal2.css" />
+    <link rel="stylesheet" type="text/css" href="JSCal2/css/border-radius.css" />
+    <link rel="stylesheet" type="text/css" href="JSCal2/css/gold/gold.css" />
+    <script type="text/javascript" src="JSCal2/js/jscal2.js"></script>
+    <script type="text/javascript" src="JSCal2/js/lang/en.js"></script>';
+		$content .= '<input id="calendar-'.$fieldName.'" name="'.$this->getName($fieldName).'" value="'.
+			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
+		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>
+<script>
+    Calendar.setup({
+        trigger    	: "calendar-trigger-'.$fieldName.'",
+        inputField 	: "calendar-'.$fieldName.'",
+        min			: '.date('Ymd').',
+/*      selection	: Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
+        date        : Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
+*/      selection   : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
+        date        : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
+        onSelect   	: function() { this.hide() }
+    });
+</script>
+';
+		return $content;
+	}
+
+	function dropSelect($fieldName, array $options) {
+		$content = '
+			<input type="hidden" name="'.$fieldName.'" id="'.$fieldName.'">
+			<input type="text" name="'.$fieldName.'_name" id="'.$fieldName.'_name" onchange="setDropSelectValue(this.value, this.value);">
+			<img src="design/bb8120_options_icon.gif" id="'.$fieldName.'_selector">
+			<link rel="stylesheet" href="js/proto.menu.0.6.css" type="text/css" media="screen" />
+			<script src="js/proto.menu.0.6.js" defer="true"></script>
+			<script>
+				//document.observe("dom:loaded", function() {
+				window.onload = function () {
+					var myMenuItems = [';
+		$optArr = array();
+		foreach ($options as $id => $name) {
+			$optArr[] = '{
+						    name: "'.$name.'",
+						    className: "swr",
+						    callback: function() {
+								setDropSelectValue("'.$id.'", "'.$name.'");
+						    }
+					    }';
+		}
+		$content .= implode(',', $optArr).'
+					];
+					new Proto.Menu({
+					  selector: "#'.$fieldName.'_selector",
+					  className: "menu desktop",
+					  menuItems: myMenuItems
+					});
+				};
+				function setDropSelectValue(id, name) {
+					$("'.$fieldName.'").value = id;
+					$("'.$fieldName.'_name").value = name;
+				}
+			</script>';
+		return $content;
 	}
 
 	/**
@@ -428,7 +568,8 @@ class HTMLForm {
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$name.'">';
+		$sName = $this->getName($name, '', true);
+		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
 		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
@@ -453,7 +594,7 @@ class HTMLForm {
 	 */
 	function radioArray($name, array $options, $selected) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
-		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
+		$this->stdout .= '<div class="radioArray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
