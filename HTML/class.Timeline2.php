@@ -1,6 +1,6 @@
 <?php
 
-class Timeline /*extends AppController */{
+class Timeline2 /*extends AppController */{
 
 	/**
 	 * @var Date
@@ -16,15 +16,15 @@ class Timeline /*extends AppController */{
 
 	var $height;
 
-	var $fillBottomColor = '#726D62';
+	var $fillBottomColor = '#EAEAEA';
 
-	var $fillTopColor = '#D0D0D0';
+	var $fillTopColor = '#DADADA';
 
-	var $rangeColor = '#42383D';
+	var $rangeColor = '#0088CC';
 
-	var $textColor = 'rgb(200,200,200)';
+	var $textColor = 'rgb(100,100,100)';
 
-	function __construct($width, $height, Time $start, Time $end) {
+	function __construct($width, $height, Date $start, Date $end) {
 		$this->width = $width;
 		$this->height = $height;
 		$this->start = $start;
@@ -35,51 +35,76 @@ class Timeline /*extends AppController */{
 	function render(Date $from, Date $till) {
 		if ($this->duration->getTimestamp()) {
 			$content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="'.$this->width.'" height="'.$this->height.'">'."\n";
-			$height_10 = $this->height - 15;
-			$height_20 = $this->height - 20;
-			$height_30 = $this->height - 30;
+			$height_10 = $this->height / 3;
+			$height_20 = $this->height / 3 * 2;
+			$height_30 = $this->height;
+			$fontSize = $this->height / 4;
+
+			$nextDay = clone $this->start;
+			$nextDay = $nextDay->math('+1 day');
+			$dayWidth = $this->date2x($nextDay);
+
+			// fill 100%
 			$content .= '<rect
 				x="'.(0).'"
-				y="'.$height_30.'"
-				width="'.($this->width).'"
-				height="'.(30).'"
-				style="fill:'.$this->fillBottomColor.';stroke-width:0;stroke:rgb(0,0,0)" />'."\n";
+				y="'.(0).'"
+				width="'.$this->width.'"
+				height="'.$height_30.'"
+				style="fill:'.$this->fillBottomColor.';stroke-width:0" />'."\n";
+
+			// date ticks
 			for ($date = clone $this->start/* @var $date Date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 day'))) {
 				$x = $this->date2x($date);
-				$content .= '<line x1="'.$x.'" y1="'.($this->height-5).'" x2="'.$x.'" y2="'.$this->height.'"
+				$content .= '<line x1="'.$x.'" y1="'.($height_10).'" x2="'.$x.'" y2="'.($height_10+$height_10/2).'"
 					style="stroke:'.$this->textColor.';stroke-width:1"/>';
+				// if enough space for dates
+				if ($dayWidth > ($fontSize*1.5)) {
+					$content .= '<text
+					x="'.($x+1).'"
+					y="'.($height_10 + $fontSize*0.8).'"
+					fill="'.$this->textColor.'"
+					font-size="'.$fontSize.'"
+					>'.$date->format('d').'</text>';
+				}
 			}
+
+			// week ticks
 			for ($date = clone $this->start/* @var $date Date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 week'))) {
 				$x = $this->date2x($date);
-				$content .= '<line x1="'.$x.'" y1="'.$height_10.'" x2="'.$x.'" y2="'.$this->height.'"
+				$content .= '<line x1="'.$x.'" y1="'.$height_10.'" x2="'.$x.'" y2="'.($height_20).'"
 					style="stroke:'.$this->textColor.';stroke-width:1"/>';
-				$content .= '<text
+				/*$content .= '<text
 					x="'.($x+1).'"
 					y="'.($height_20 + 13).'"
-					fill="'.$this->textColor.'">'.$date->format('W').'</text>';
+					fill="'.$this->textColor.'">'.$date->format('W').'</text>';*/
 			}
+
+			// month ticks and labels
 			for ($date = clone $this->start/* @var $date Date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 month'))) {
 				$x = $this->date2x($date);
-				$content .= '<line x1="'.$x.'" y1="'.$height_30.'" x2="'.$x.'" y2="'.$this->height.'"
+				$content .= '<line x1="'.($x+0).'" y1="'.$height_10.'" x2="'.($x+0).'" y2="'.($height_30).'"
 					style="stroke:'.$this->textColor.';stroke-width:1"/>';
 				$content .= '<text
 					x="'.($x+1).'"
-					y="'.($height_30 + 11).'"
-					fill="'.$this->textColor.'">'.$date->format('M').'</text>';
+					y="'.($height_20 + $fontSize*0.9).'"
+					fill="'.$this->textColor.'"
+					font-size="'.$fontSize.'"
+					>'.$date->format('M').'</text>';
 			}
 
+			// fill top background
 			$content .= '<rect
 				x="'.(0).'"
 				y="'.(0).'"
 				width="'.$this->width.'"
 				height="'.($this->height-$height_20).'"
-				style="fill:'.$this->fillTopColor.'; stroke-width:0; stroke:rgb(0,0,0)" />'."\n";
+				style="fill:'.$this->fillTopColor.'" />'."\n";
 
 			$x = $this->date2x($from);
 			$width = $this->date2x($till) - $x;

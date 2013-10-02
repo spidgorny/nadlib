@@ -4,13 +4,20 @@ class InitNADLIB {
 
 	var $useCookies = true;
 
+	/**
+	 * @var AutoLoad
+	 */
+	var $al;
+
+	function __construct() {
+		require_once dirname(__FILE__) . '/class.AutoLoad.php';
+		$this->al = AutoLoad::getInstance();
+	}
+
 	function init() {
 		//print_r($_SERVER);
-		require_once dirname(__FILE__).'/class.AutoLoad.php';
-		$al = AutoLoad::getInstance();
-		$al->debug = true;
-		$al->useCookies = $this->useCookies;
-		$al->register();
+		$this->al->useCookies = $this->useCookies;
+		$this->al->register();
 
 		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		define('DEVELOPMENT', Request::isCLI()
@@ -33,17 +40,17 @@ class InitNADLIB {
 				set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
 			}
 			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
-		if (!Request::isCLI()) {
-			header('Cache-Control: no-cache, no-store, max-age=0');
-			header('Expires: -1');
-		}
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
+			}
 		} else {
 			error_reporting(0);
 			ini_set('display_errors', FALSE);
-		if (!Request::isCLI()) {
-			header('Cache-Control: no-cache, no-store, max-age=0');
-			header('Expires: -1');
-		}
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
+			}
 		}
 		date_default_timezone_set('Europe/Berlin');
 		ini_set('short_open_tag', 1);
@@ -57,7 +64,11 @@ function debug($a) {
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
-		echo '<pre>'.htmlspecialchars(print_r(func_num_args() == 1 ? $a : $params, true)).'</pre>';
+		echo '<pre>'.htmlspecialchars(
+			var_dump(
+				func_num_args() == 1 ? $a : $params
+			, true)
+		).'</pre>';
 	}
 }
 
@@ -137,7 +148,7 @@ function startsWith($haystack, $needle) {
  * @return bool
  */
 function endsWith($haystack, $needle) {
-	return strpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+	return strrpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
 }
 
 /**
@@ -248,4 +259,35 @@ function array_combine_stringkey(array $a, array $b) {
 		next($b);
 	}
 	return $ret;
+}
+
+/**
+ * http://www.php.net/manual/en/function.get-class-methods.php
+ * @param $class
+ * @return array|null
+ */
+function get_overriden_methods($class) {
+	$rClass = new ReflectionClass($class);
+	$array = NULL;
+
+	foreach ($rClass->getMethods() as $rMethod)
+	{
+		try
+		{
+			// attempt to find method in parent class
+			new ReflectionMethod($rClass->getParentClass()->getName(),
+				$rMethod->getName());
+			// check whether method is explicitly defined in this class
+			if ($rMethod->getDeclaringClass()->getName()
+				== $rClass->getName())
+			{
+				// if so, then it is overriden, so add to array
+				$array[] .=  $rMethod->getName();
+			}
+		}
+		catch (exception $e)
+		{    /* was not in parent class! */    }
+	}
+
+	return $array;
 }

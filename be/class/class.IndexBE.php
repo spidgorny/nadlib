@@ -4,18 +4,32 @@ class IndexBE extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
+	public $template = './../be/template/template.phtml';
+
 	function __construct() {
 		parent::__construct();
 		//debug_pre_print_backtrace();
+		$config = Config::getInstance();
+		$config->defaultController = 'HomeBE';
+		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
 		$c = Config::getInstance();
-		$c->documentRoot = str_replace('/nadlib/be', '', $c->documentRoot);
+		// it's not reading the config.yaml from /be/, but from the project root
+		$c->config['View']['folder'] = '../be/template/';
 
-		$this->addCSS('nadlib/be/css/bootstrap.min.css');
-		$this->addCSS('nadlib/be/css/main.css');
-		$this->addJQuery();
-		$this->addJs('js/vendor/bootstrap.min.js');
+		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
+		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
+		//base href will be fixed manually below
+
+		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
+
+		$this->addCSS('../../../../components/bootstrap/css/bootstrap.min.css');
+		$this->addCSS('css/main.css');
+		$this->addJS('../../../../components/jquery/jquery.min.js');
+		$this->addJS('../../../../components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
-		$c->user = $this->user;	// for consistency
+		$this->user->id = 'nadlib';
+		$this->user->try2login();
+		$config->user = $this->user;	// for consistency
 	}
 
 	function renderController() {
@@ -34,13 +48,14 @@ class IndexBE extends IndexBase {
 	}
 
 	function renderTemplate($content) {
-		$v = new View('template.phtml', $this);
+		$v = new View($this->template, $this);
 		$v->content = $this->content . $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
 		$v->baseHref = $this->request->getLocation();
+		//$v->baseHref = str_replace('/vendor/spidgorny/nadlib/be', '', $v->baseHref);	// for CSS
 		$content = $v->render();	// not concatenate but replace
 		return $content;
 	}
@@ -63,7 +78,7 @@ class IndexBE extends IndexBase {
 			'JumpFrontend' => '<- Frontend',
 		);
 
-		$c = Spyc::YAMLLoad('../../class/config.yaml');
+		$c = Spyc::YAMLLoad('../../../../class/config.yaml');
 		//debug($c['BEmenu']);
 		if ($c['BEmenu']) {
 			foreach($c['BEmenu'] as $key => $sub) {

@@ -14,6 +14,10 @@ class AlterCharset extends AppControllerBE {
 	function render() {
 		$this->index->addJS('../js/keepScrollPosition.js');
 		$content = $this->performAction();
+		if (!is_object($this->db)) {
+			debug($this->db);
+			return 'No db object';
+		}
 		$tables = $this->db->getTables();
 		foreach ($tables as $table) {
 			$charset = current($this->db->getTableCharset($table));

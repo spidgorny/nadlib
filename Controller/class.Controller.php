@@ -85,10 +85,12 @@ abstract class Controller {
 		//debug(get_class($this->index));
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
-		$this->db = Config::getInstance()->db;
-		$this->user = Config::getInstance()->user;
+		if (class_exists('Config')) {
+			$this->db = Config::getInstance()->db;
+			$this->user = Config::getInstance()->user;
+			Config::getInstance()->mergeConfig($this);
+		}
 		$this->linkVars['c'] = get_class($this);
-		Config::getInstance()->mergeConfig($this);
 		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
 		self::$instance[get_class($this)] = $this;
@@ -103,7 +105,8 @@ abstract class Controller {
 				unset($params['c']); // don't supply empty controller
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+
 			//debug($url->documentRoot, $prefix, $url.'');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
@@ -119,10 +122,11 @@ abstract class Controller {
 	 * Only appends $this->linkVars to the URL.
 	 * Use this one if your linkVars is defined.
 	 * @param array $params
+	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array()) {
-		return $this->makeURL($params + $this->linkVars);
+	function makeRelURL(array $params = array(), $page = '?') {
+		return $this->makeURL($params + $this->linkVars, $page);
 	}
 
 	/**
@@ -248,6 +252,7 @@ abstract class Controller {
 
 	function encloseInToggle($content, $title, $height = '', $isOpen = NULL, $tag = 'h3') {
 		if ($content) {
+			// buggy: prevents all clicks on the page in KA.de
 			$this->index->addJQuery();
 			$this->index->addJS('nadlib/js/showHide.js');
 			$this->index->addJS('nadlib/js/encloseInToggle.js');
@@ -304,19 +309,23 @@ abstract class Controller {
 	}
 
 	function inColumnsHTML5() {
-		$GLOBALS['HTMLFOOTER']['display-box.css'] = '<link rel="stylesheet" type="text/css" href="/vendor/spidgorny/nadlib/CSS/display-box.css" />';
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
-			$content .= '<div class="flex-box">'.$html.'</div>';
+			$content .= '<div class="flex-box" style="flex: 1">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
 		return $content;
 	}
 
-	function getMenuSuffix() {
-		return '';
-	}
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
 
 	function sidebar() {
 		return '';
@@ -337,11 +346,12 @@ abstract class Controller {
 	 * Just appends $this->linkVars
 	 * @param $text
 	 * @param array $params
+	 * @param string $page
 	 * @return HTMLTag
 	 */
-	function makeRelLink($text, array $params) {
+	function makeRelLink($text, array $params, $page = '?') {
 		return new HTMLTag('a', array(
-			'href' => $this->makeRelURL($params)
+			'href' => $this->makeRelURL($params, $page)
 		), $text);
 	}
 

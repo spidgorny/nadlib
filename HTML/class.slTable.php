@@ -1,34 +1,94 @@
 <?php
 
 class slTable {
+
+	/**
+	 * <table id=""> will be generated
+	 * @var string
+	 */
 	var $ID = NULL;
-	var $data = NULL;
-	var $dataClass = NULL;
+
+	/**
+	 * 2D array of rows and columns
+	 * @var array
+	 */
+	var $data = array();
+
+	/**
+	 * Class for each ROW(!)
+	 * @var array
+	 */
+	var $dataClass = array();
+
 	var $iRow = -1;
+
 	var $iCol = 0;
+
+	/**
+	 * Columns definition. Will be generated if missing.
+	 * @var array
+	 */
 	var $thes = array();
+
+	/**
+	 * Appended to <table> tag
+	 * @var string
+	 */
 	var $more = 'class="nospacing"';
 
 	/**
 	 * @var HTMLTableBuf
 	 */
 	var $generation;
+
 	var $sortable = FALSE;
 
 	/**
 	 * @var URL
 	 */
 	var $sortLinkPrefix;
-	var $dataPlus = ''; // the first row after the header - used for filters
+
+	/**
+	 * the first row after the header - used for filters
+	 * @var string
+	 */
+	var $dataPlus = '';
+
+	/**
+	 * $_REQUEST[$this->prefix]
+	 * @var string
+	 */
 	var $prefix = 'slTable';
+
 	var $sortBy, $sortOrder;
-	var $footer;		// last line
+
+	/**
+	 * last line
+	 * @var array
+	 */
+	var $footer = array();
+
 	var $isAlternatingColumns = FALSE;
+
 	var $isOddEven = TRUE;
+
+	/**
+	 * @var <tr $thesMore>
+	 */
 	var $thesMore;
+
+	/**
+	 * @var string before <tbody>
+	 */
 	var $theadPlus = '';
+
+	/**
+	 * @var
+	 */
 	public $trmore;
+
 	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle">';
+
 	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle">';
 
 	/**
@@ -262,6 +322,7 @@ class slTable {
 		if (TRUE) {
 			$t->stdout .= '<colgroup>';
 			foreach ($thes2 as $key => $dummy) {
+				$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 				$t->stdout .= '<col class="col_'.$key.'" />';
 			}
 			$t->stdout .= '</colgroup>';
@@ -277,8 +338,8 @@ class slTable {
 
 	function generate($caller = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
-		if (!$this->generation) {
-			if (sizeof($this->data) && $this->data != FALSE) {
+		if (!$this->generation) {	// cache
+			if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
 				$this->generateThes();
 
 				$this->sort();
@@ -308,8 +369,9 @@ class slTable {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					//debug($tr);
+					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
+					//debug_pre_print_backtrace();
 					$this->genRow($t, $row);
 					$t->tre();
 				}
@@ -499,7 +561,7 @@ class slTable {
 		return (is_numeric($parts[0]) && is_numeric($parts[1]) && strlen($parts[0]) == 2 && strlen($parts[1]) == 2);
 	}
 
-	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true) {
+	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false) {
 		foreach ($assoc as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
@@ -510,14 +572,25 @@ class slTable {
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
 			}
+
+			if ($val instanceof htmlString) {
+				//$val = $val;
+			} else {
+				if (mb_strpos($val, "\n") !== FALSE) {
+					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
+				} else if (!$no_hsc) {
+					$val = htmlspecialchars($val);
+				}
+			}
+
 			$val = array(
-				0 => $key,
+				0 => htmlspecialchars($key),
 				'' => $val,
 			);
 		}
-		$s = new self($assoc, '', array(
+		$s = new self($assoc, 'class="visual nospacing table"', array(
 			0 => '',
-			'' => array('no_hsc' => true),
+			'' => array('no_hsc' => $no_hsc),
 		));
 		return $s;
 	}
@@ -529,6 +602,27 @@ class slTable {
 		header('Content-length: '.strlen($content));
 		echo $content;
 		exit();
+	}
+
+	function prepare4XLS() {
+		$this->generateThes();
+		//debug($this->thes);
+
+		$xls = array();
+		foreach ($this->thes as $th) {
+			$row[] = is_array($th) ? $th['name'] : $th;
+		}
+		$xls[] = $row;
+
+		foreach ($this->data as $row) {
+			$line = array();
+			foreach ($this->thes as $col => $_) {
+				$val = $row[$col];
+				$line[] = strip_tags($val);
+			}
+			$xls[] = $line;
+		}
+		return $xls;
 	}
 
 }
