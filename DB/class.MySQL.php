@@ -184,15 +184,15 @@ class MySQL {
 	}
 
 	function transaction() {
-		$this->perform('BEGIN');
+		return $this->perform('BEGIN');
 	}
 
 	function commit() {
-		$this->perform('COMMIT');
+		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
-		$this->perform('ROLLBACK');
+		return $this->perform('ROLLBACK');
 	}
 
 	function escape($string) {
