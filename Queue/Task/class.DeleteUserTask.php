@@ -2,16 +2,12 @@
 /**
  * Class DeleteUserTask
  */
-class DeleteUserTask extends TaskAbstract {
+class DeleteUserTask implements TaskInterface {
 	public function process(array $data) {
-		// Set the status to "IN PROGRESS"
-		$this->markInProgress();
-
 		// do something ....
-		sleep(10);
+		sleep(5);
 
-		// mark as "DONE"
-		$this->markDone();
+		throw new Exception('Task not completed!');
 
 		return 'I am processing ...';
 	}

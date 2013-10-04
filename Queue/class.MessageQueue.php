@@ -14,6 +14,7 @@ class MessageQueue extends OODBase {
 	const STATUS_NEW = 'NEW';
 	const STATUS_IN_PROGRESS = 'IN PROGRESS';
 	const STATUS_DONE = 'DONE';
+	const STATUS_FAILED = 'FAILED';
 
 	var $table = 'message_queue';
 	var $idField = 'id';
@@ -30,30 +31,33 @@ class MessageQueue extends OODBase {
 	 */
 	private $taskData = array();
 
-	/**
-	 * @param string $type
-	 * @return object
-	 * @throws Exception
-	 */
-	public function getTaskObject($type) {
+
+	public function __construct($type) {
+		parent::__construct();
+
 		if (empty($type)) {
 			throw new Exception('Type not set!');
 		}
 
 		$this->type = $type;
+	}
 
+	/**
+	 * @return object
+	 * @throws Exception
+	 */
+	public function getTaskObject() {
 		// get next task available
-		$this->fetchNextTask($this->type);
+		if($this->fetchNextTask($this->type)) {
+			// set task data retrieved from DB
+			$this->setTaskData($this->data['data']);
 
-		if(!$this->data) {
-			return false;
-		}
+			$className = $this->getClassName($this->type);
+			return new $className($this);
+		};
 
-		// set task data retrieved from DB
-		$this->setTaskData($this->data['data']);
-
-		$className = $this->getClassName($this->type);
-		return new $className($this);
+		// if there is no next task return false
+		return false;
 	}
 
 	/**
@@ -81,6 +85,15 @@ class MessageQueue extends OODBase {
 		$orderBy = 'ORDER BY id ASC';
 
 		$this->findInDB($where, $orderBy);
+
+		if(!empty($this->data['id'])) {
+			// Set the status to "IN PROGRESS"
+			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -105,36 +118,29 @@ class MessageQueue extends OODBase {
 	 * Sets status of current task
 	 *
 	 * @param string $status MessageQueue::STATUS_*
-	 * @return bool
+	 * @return void
 	 */
 	public function setStatus($status) {
 		$data = array(
 			'status'	=> $status
 		);
-		return $this->update($data) ?: false;
+		$this->update($data);
 	}
 
 	/**
-	 * @param string $type
 	 * @param string $taskData
 	 * @param int|null $userId If not provided current user is used
-	 * @internal param int $userID
-	 * @internal param array $data
 	 * @return OODBase
 	 */
-	public function createTask($type, $taskData, $userId = null) {
+	public function createTask($taskData, $userId = null) {
 		$data = array(
 			'ctime' 	=> 'NOW()',
 			'cuser'		=> $userId ? $userId : Index::getInstance()->user->id,
-			'type'		=> $type,
+			'type'		=> $this->type,
 			'status' 	=> self::STATUS_NEW,
 			'data'		=> $taskData
 		);
-
-		$msgQ = new MessageQueue();
-		return $msgQ->insert($data);
+		return $this->insert($data);
 	}
-
-
 }
 

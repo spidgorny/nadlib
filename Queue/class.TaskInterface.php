@@ -9,8 +9,4 @@
 
 interface TaskInterface {
 	public function process(array $data);
-
-	public function markInProgress();
-
-	public function markDone();
 }
