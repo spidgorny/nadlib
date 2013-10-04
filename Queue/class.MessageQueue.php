@@ -75,6 +75,7 @@ class MessageQueue extends OODBase {
 	 * and puts it's data into $this->data
 	 *
 	 * @param $type
+	 * @return bool
 	 */
 	private function fetchNextTask($type) {
 		$where = array(
@@ -130,18 +131,21 @@ class MessageQueue extends OODBase {
 	/**
 	 * Push a message into queue
 	 *
-	 * @param string $taskData
+	 * @param array $taskData
 	 * @param int|null $userId If not provided current user is used
 	 * @return OODBase
 	 */
 	public function push($taskData, $userId = null) {
 		$data = array(
 			'ctime' 	=> 'NOW()',
-			'cuser'		=> $userId ? $userId : Index::getInstance()->user->id,
 			'type'		=> $this->type,
 			'status' 	=> self::STATUS_NEW,
-			'data'		=> $taskData
+			'data'		=> json_encode($taskData)
 		);
+
+		if(!empty($userId)) {
+			$data['cuser'] = $userId;
+		}
 		return $this->insert($data);
 	}
 }
