@@ -2,16 +2,10 @@
 /**
  * Class NotifyUserTask
  */
-class NotifyUserTask extends TaskAbstract {
+class NotifyUserTask implements TaskInterface {
 	public function process(array $data) {
-		// Set the status to "IN PROGRESS"
-		$this->markInProgress();
-
 		// do something ....
-		sleep(10);
-
-		// mark as "DONE"
-		$this->markDone();
+		sleep(5);
 
 		return 'I am processing ...';
 	}
