@@ -128,11 +128,13 @@ class MessageQueue extends OODBase {
 	}
 
 	/**
+	 * Push a message into queue
+	 *
 	 * @param string $taskData
 	 * @param int|null $userId If not provided current user is used
 	 * @return OODBase
 	 */
-	public function createTask($taskData, $userId = null) {
+	public function push($taskData, $userId = null) {
 		$data = array(
 			'ctime' 	=> 'NOW()',
 			'cuser'		=> $userId ? $userId : Index::getInstance()->user->id,
