@@ -179,12 +179,12 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function retrieveDataFromCache() {
+	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
 		$this->query = $this->getQuery($this->where);
 		$fc = new MemcacheFile();
 		$this->data = $fc->get($this->query);
 		if (!$this->data) {
-			$this->retrieveDataFromDB();
+			$this->retrieveDataFromDB($allowMerge, $preprocess);
 			$fc->set($this->query, $this->data);
 			//debug(__METHOD__, 'no cache', sizeof($this->data));
 		} else{
