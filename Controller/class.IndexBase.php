@@ -293,6 +293,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				if (!$this->request->isCLI()) {
 					$content = $profiler->renderFloat();
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}

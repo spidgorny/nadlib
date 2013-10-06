@@ -100,7 +100,7 @@ class TaylorProfiler {
     function stopTimer($name = NULL) {
 		$name = $name ? $name : $this->getName();
     	if ($this->trace_enabled) {
-	        $this->trace[] = array('time' => time(), 'function' => "} $name", 'memory' => memory_get_usage());
+	        $this->trace[] = array('time' => time(), 'function' => "$name }", 'memory' => memory_get_usage());
     	}
     	if ($this->output_enabled) {
 	        $this->endTime[$name] = $this->getMicroTime();
@@ -238,9 +238,18 @@ class TaylorProfiler {
         		$this->trace[$i]['memory'] = number_format(($trace['memory'])/1024, 1, '.', ' '). ' KB';
         		$prev = $trace['memory'];
         	}
-			print view_table($this->trace);
+			return new slTable($this->trace);
         }
     }
+
+	function analyzeTraceForLeak() {
+		$func = array();
+		foreach ($this->trace as $i => $trace) {
+			$func[$trace['function']]++;
+		}
+		ksort($func);
+		return slTable::showAssoc($func);
+	}
 
     /// Internal Use Only Functions
 
@@ -257,7 +266,7 @@ class TaylorProfiler {
     *
     */
     function __resumeTimer($name){
-        $this->trace[] = array('time' => time(), 'function' => "... $name", 'memory' => memory_get_usage());
+        $this->trace[] = array('time' => time(), 'function' => "$name {...", 'memory' => memory_get_usage());
         $this->startTime[$name] = $this->getMicroTime();
     }
 
@@ -266,7 +275,7 @@ class TaylorProfiler {
     *
     */
     function __suspendTimer($name){
-        $this->trace[] = array('time' => time(), 'function' => "$name ...", 'memory' => memory_get_usage());
+        $this->trace[] = array('time' => time(), 'function' => "$name }...", 'memory' => memory_get_usage());
         $this->endTime[$name] = $this->getMicroTime();
         if (!array_key_exists($name, $this->running))
             $this->running[$name] = $this->elapsedTime($name);
