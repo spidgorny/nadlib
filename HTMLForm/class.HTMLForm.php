@@ -564,7 +564,7 @@ class HTMLForm {
 	 * @see set()
 	 */
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
 		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
@@ -580,7 +580,7 @@ class HTMLForm {
 			$this->stdout .= '</label>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -591,7 +591,7 @@ class HTMLForm {
 	 * @see $this->radioset()
 	 */
 	function radioArray($name, array $options, $selected) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
@@ -601,7 +601,7 @@ class HTMLForm {
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function __toString() {
