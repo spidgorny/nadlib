@@ -1,6 +1,6 @@
 <?php
 
-class Queue extends AppController {
+class TestQueue extends AppController {
 	public function render() {
 		$content = $this->performAction();
 		return $content;
