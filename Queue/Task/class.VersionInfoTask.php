@@ -8,18 +8,18 @@ class VersionInfoTask implements TaskInterface {
 		$subscribers = $sw->getSubscribers();
 
 		if(!empty($subscribers)) {
-			$view 	= new View('VersionInfo.phtml', $sw);
+			$view 	= new View('VersionInfoEmail.phtml', $sw);
 			$view->fileData = $data;
 
 			$msg = new Message();
 
 			foreach ($subscribers as $user) {
 				if (!$this->debug) {
-					$msg->post(new Person(1879959), $view, 'Notification from ORS about "'.$sw->getName().'"', __METHOD__);
+					$msg->post($user, $view, 'Notification from ORS about "'.$sw->getName().'"', __METHOD__);
 				}
 			}
 		}
-		return print_r($subscribers, true);
+		return true;
 	}
 
 }
