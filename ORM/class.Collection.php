@@ -179,19 +179,26 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
+	/**
+	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
+	 */
 	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
 		$this->query = $this->getQuery($this->where);
 		$fc = new MemcacheFile();
-		$this->data = $fc->get($this->query);
-		if (!$this->data) {
-			$this->retrieveDataFromDB($allowMerge, $preprocess);
-			$fc->set($this->query, $this->data);
-			//debug(__METHOD__, 'no cache', sizeof($this->data));
+		$cached = $fc->get($this->query, 60*60);	// 1h
+		if ($cached && sizeof($cached) == 2) {
+			list($this->count, $this->data) = $cached;
+			$action = 'found in cache, age: '.$fc->getAge($this->query);
 		} else{
-			$cacheFile = $fc->map($this->query);
-			//debug(__METHOD__, 'yes cache', sizeof($this->data), $cacheFile, filesize($cacheFile));
+			$this->retrieveDataFromDB($allowMerge, $preprocess);
+			$fc->set($this->query, array($this->count, $this->data));
+			$action = 'no cache, retrieve, store';
 		}
-		return $this->data;
+		if ($_REQUEST['d']) {
+			debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
+		}
 	}
 
 	/**

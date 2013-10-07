@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Initialized with a file parameter and represents a file which stores an array of values.
+ * Each get/set will work with one value from this array
+ * Class MemcacheArray
+ */
 class MemcacheArray {
 	public $file;
 	protected $expire;
