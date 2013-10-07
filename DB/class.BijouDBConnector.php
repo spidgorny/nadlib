@@ -192,4 +192,8 @@ class BijouDBConnector {
 		return $GLOBALS['TYPO3_DB']->admin_get_fields($table);
 	}
 
+	function dataSeek($res, $i) {
+		return $GLOBALS['TYPO3_DB']->sql_data_seek($res, $i);
+	}
+
 }
