@@ -216,7 +216,7 @@ class TaylorProfiler {
             	'routine' => "OVERALL TIME",
             );
             $out = Request::isCLI()
-				? $s->getCLITable()
+				? $s->getCLITable(true)
 				: $s->getContent();
             return $out;
         }

@@ -39,9 +39,10 @@ class dbLayerMS {
 		foreach ($arguments as $ar) {
 			$query = str_replace('?', $ar, $query);
 		}
+		$profiler = new Profiler();
 		$res = mssql_query($query, $this->connection);
 		if ($this->debug) {
-			debug(__METHOD__, $query, $this->numRows($res));
+			debug(__METHOD__, $query, $this->numRows($res), $profiler->elapsed());
 		}
 		$msg = mssql_get_last_message();
 		if ($msg && !in_array($msg, $this->ignoreMessages)) {
