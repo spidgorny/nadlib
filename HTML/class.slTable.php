@@ -578,6 +578,9 @@ class slTable {
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];
 				$value = strip_tags($value);
+				if ($cutTooLong) {
+					$value = substr($value, 0, $widthMax[$field]);
+				}
 				$value = str_pad($value, $widthMax[$field], ' ', STR_PAD_RIGHT);
 				$padRow[] = $value;
 			}
