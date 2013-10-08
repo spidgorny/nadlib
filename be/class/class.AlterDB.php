@@ -120,7 +120,11 @@ class AlterDB extends AppControllerBE {
 
 	function getFileChoice() {
 		$menu = array();
-		foreach (new RecursiveDirectoryIterator('../../sql/') as $file) { /** @var $file SplFileInfo */
+		$sqlFolder = '../../sql/';
+		if (!is_dir($sqlFolder)) {
+			return '<div class="error">No '.$sqlFolder.'</div>';
+		}
+		foreach (new RecursiveDirectoryIterator($sqlFolder) as $file) { /** @var $file SplFileInfo */
 			//debug($file);
 			if ($file->getFilename() != '.' && $file->getFilename() != '..') {
 				$menu[$file->getPathname()] = $file->getFilename();

@@ -289,9 +289,18 @@ class HTMLForm {
 		return $content;
 	}
 
-	function date($name, $value) {
-		if (!$value) {
-			$value = date('d.m.Y');
+	/**
+	 * Default value is no longer "today"
+	 * @param $name
+	 * @param $value
+	 * @param array $desc
+	 */
+	function date($name, $value, array $desc = array()) {
+		$format = $desc['format'] ?: 'd.m.Y';
+		if (is_numeric($value)) {
+			$value = date($format, $value);
+		} elseif (!$value) {
+			//$value = date('d.m.Y');
 		}
 		$this->input($name, $value);
 	}
@@ -328,11 +337,11 @@ class HTMLForm {
 ';
 	}
 
-	function money($name, $value) {
+	function money($name, $value, array $desc) {
 		if (!$value) {
 			$value = "0.00";
 		}
-		$this->input($name, $value);
+		$this->input($name, $value, $desc['more']);
 		$this->text("&euro;");
 	}
 
@@ -585,7 +594,7 @@ class HTMLForm {
 	 */
 	function radioArray($name, array $options, $selected) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
-		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
+		$this->stdout .= '<div class="radioArray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
