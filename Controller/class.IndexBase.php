@@ -111,7 +111,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($this->controller) {
 			try {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax()) {
+				if (!$this->request->isAjax() && !$this->request->isCLI()) {
 					$content = $this->renderTemplate($content);
 				} else {
 					$content .= $this->content;
