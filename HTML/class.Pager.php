@@ -78,6 +78,9 @@ class Pager {
 		$this->detectCurrentPage();
 	}
 
+	/**
+	 * @param $i
+	 */
 	function setNumberOfRecords($i) {
 		$this->numberOfRecords = $i;
 		if ($this->startingRecord > $this->numberOfRecords) {	// required
@@ -102,12 +105,15 @@ class Pager {
 		}
 	}
 
+	/**
+	 * @param int $items
+	 */
 	function setItemsPerPage($items) {
 		if (!$items) {
 			$items = $this->pageSize->selected;
 		}
-		$this->itemsPerPage = $items;
-		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
+			$this->itemsPerPage = $items;
+			$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 		//debug($this);
 	}
 
@@ -143,20 +149,30 @@ class Pager {
 	 * @return float
 	 */
 	function getMaxPage() {
-		$div = $this->numberOfRecords/$this->itemsPerPage;
+		//$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
+		if ($this->itemsPerPage) {
+			//$maxpage = floor($this->numberOfRecords/$this->itemsPerPage);	// because a single page is 0
 
-		// zero based, this is wrong
-		//$maxpage = ceil($div);
+			// new:
+			$div = $this->numberOfRecords/$this->itemsPerPage;
 
-		// because a single page is 0
-		$maxpage = floor($div);
+			// zero based, this is wrong
+			//$maxpage = ceil($div);
 
-		// 39/20 = 1.95 - correct
-		// 40/20 = 2.00, but will fit in two pages
-		// 41/20 = 2.05 - floor will make 2 (= 3 pages)
-		//$maxpage += (!($div % 1)) ? -1 : 0;	// will fit completes in maxpage-1 pages
-		$maxpage += ($div == floor($div)) ? -1 : 0;	// will fit completes in maxpage-1 pages
-		$maxpage = max(0, $maxpage);	// not -1
+			// because a single page is 0
+			$maxpage = floor($div);
+
+			// 39/20 = 1.95 - correct
+			// 40/20 = 2.00, but will fit in two pages
+			// 41/20 = 2.05 - floor will make 2 (= 3 pages)
+			//$maxpage += (!($div % 1)) ? -1 : 0;	// will fit completes in maxpage-1 pages
+			$maxpage += ($div == floor($div)) ? -1 : 0;	// will fit completes in maxpage-1 pages
+			$maxpage = max(0, $maxpage);	// not -1
+
+
+		} else {
+			$maxpage = 0;
+		}
 		return $maxpage;
 	}
 

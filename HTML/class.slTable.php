@@ -262,6 +262,7 @@ class slTable {
 		if (TRUE) {
 			$t->stdout .= '<colgroup>';
 			foreach ($thes2 as $key => $dummy) {
+				$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 				$t->stdout .= '<col class="col_'.$key.'" />';
 			}
 			$t->stdout .= '</colgroup>';
@@ -515,8 +516,8 @@ class slTable {
 				//$val = $val;
 			} else {
 				if (mb_strpos($val, "\n") !== FALSE) {
-					$val = '<pre>'.htmlspecialchars($val).'</pre>';
-				} else {
+					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
+				} else if (!$no_hsc) {
 					$val = htmlspecialchars($val);
 				}
 			}
