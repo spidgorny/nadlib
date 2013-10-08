@@ -13,7 +13,7 @@ class dbLayerMS {
 	);
 
 	public static function getInstance() {
-		$c = Config::getInstance();
+		//$c = Config::getInstance();
 		//if (!self::$instance) self::$instance = ;
 		return self::$instance;
 	}
