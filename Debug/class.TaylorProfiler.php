@@ -287,7 +287,9 @@ class TaylorProfiler {
 		if ($profiler) {
 			$since = $profiler->initTime;
 		} else {
-			$since = $_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'];
+			$since = $_SERVER['REQUEST_TIME_FLOAT']
+				? $_SERVER['REQUEST_TIME_FLOAT']
+				: $_SERVER['REQUEST_TIME'];
 		}
 		$oaTime = microtime(true) - $since;
 		$totalTime = number_format($oaTime, 3, '.', '');
