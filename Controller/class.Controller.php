@@ -313,9 +313,20 @@ abstract class Controller {
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
-			$content .= '<div class="flex-box" style="flex: 1">'.$html.'</div>';
+			$content .= '<div class="flex-box">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
+		return $content;
+	}
+
+	function inEqualColumnsHTML5() {
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
+		$elements = func_get_args();
+		$content = '';
+		foreach ($elements as $html) {
+			$content .= '<div class="flex-box flex-equal">'.$html.'</div>';
+		}
+		$content = '<div class="display-box equal">'.$content.'</div>';
 		return $content;
 	}
 
