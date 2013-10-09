@@ -1,7 +1,17 @@
 <?php
 
 class Request {
+
+	/**
+	 * Assoc array of URL parameters
+	 * @var array
+	 */
 	protected $data = array();
+
+	/**
+	 * The default controller retrieved from Config.
+	 * @var string
+	 */
 	public $defaultController;
 
 	/**
@@ -9,6 +19,10 @@ class Request {
 	 */
 	public $url;
 
+	/**
+	 * Singleton
+	 * @var Request
+	 */
 	static protected $instance;
 
 	function __construct(array $array = NULL) {
@@ -18,7 +32,9 @@ class Request {
 			$this->data = $this->deQuote($this->data);
 		}
 
-		$this->url = new URL(isset($_SERVER['SCRIPT_URL']) ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
+			? $_SERVER['SCRIPT_URL']
+			: $_SERVER['REQUEST_URI']);
 	}
 
 	function deQuote(array $request) {
@@ -73,6 +89,12 @@ class Request {
 		return $value;
 	}
 
+	/**
+	 * Will strip tags
+	 * @param $name
+	 * @return string
+	 * @throws Exception
+	 */
 	function getTrimRequired($name) {
 		$value = $this->getString($name);
 		$value = strip_tags($value);
@@ -397,7 +419,9 @@ class Request {
 			$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST'] ?: $_SERVER['HTTP_HOST']
+			$_SERVER['HTTP_X_FORWARDED_HOST']
+				? $_SERVER['HTTP_X_FORWARDED_HOST']
+				: $_SERVER['HTTP_HOST']
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
@@ -628,7 +652,7 @@ class Request {
 	 */
 	function parseParameters($noopt = array()) {
 		$result = array();
-		$params = $GLOBALS['argv'] ?: array();
+		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
@@ -675,7 +699,15 @@ class Request {
 	}
 
 	static function getDocumentRoot() {
-		return str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		if (strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		} else {	//~depidsvy/something
+			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
+			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+		}
+		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $docRoot);
+		return $docRoot;
 	}
 
 	function setCacheable($age = 60) {

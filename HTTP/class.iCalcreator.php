@@ -1639,7 +1639,7 @@ class vcalendar {
       header( 'Content-Length: '.$filesize );
       header( 'Content-Disposition: attachment; filename="'.$filename.'"' );
       header( 'Cache-Control: max-age=10' );
-      $fp = @$fopen( $dirfile, 'r' );
+      $fp = @fopen( $dirfile, 'r' );
       if( $fp ) {
         fpassthru( $fp );
         fclose( $fp );
@@ -4245,15 +4245,16 @@ class calendarComponent {
     $output = mktime( $datetime['hour'], $datetime['min'], ($datetime['sec'] + $offset), $datetime['month'], $datetime['day'], $datetime['year'] );
     return $output;
   }
-/**
- * ensures internal date-time/date format for input date-time/date in array format
- *
- * @author Kjell-Inge Gustafsson <ical@kigkonsult.se>
- * @since 0.3.0 - 2006-08-15
- * @param array $datetime
- * @param int $parno optional, default FALSE
- * @return array
- */
+
+	/**
+	 * Ensures internal date-time/date format for input date-time/date in array format
+	 *
+	 * @author Kjell-Inge Gustafsson <ical@kigkonsult.se>
+	 * @since 0.3.0 - 2006-08-15
+	 * @param array $datetime
+	 * @param bool|int $parno optional, default FALSE
+	 * @return array
+	 */
   function _date_time_array( $datetime, $parno=FALSE ) {
     $output = array();
     foreach( $datetime as $dateKey => $datePart ) {

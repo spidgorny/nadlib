@@ -112,7 +112,7 @@ class HTMLFormTable extends HTMLForm {
 			$type->setField($fieldName);
 			$type->setForm($this);
 			$type->setValue($desc['value']);
-			$type->jsParams = $desc['jsParams'] ?: array();
+			$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
 			$this->stdout .= $type->render();
 		} else if ($type instanceof Collection) {
 			$type->setField($fieldName);
@@ -343,7 +343,8 @@ class HTMLFormTable extends HTMLForm {
 					</script>";
 				}
 				if ($desc['error']) {
-					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']" class="error">';
+					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']"
+					class="error ui-state-error alert-error">';
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
 				}

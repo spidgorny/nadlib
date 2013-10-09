@@ -48,6 +48,8 @@ class Menu /*extends Controller*/ {
 
 	public $useRecursiveURL = true;
 
+	public $useControllerSlug = true;
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
@@ -89,7 +91,8 @@ class Menu /*extends Controller*/ {
 		} else {
 			$path = new URL();
 			$path->clearParams();
-			$path->setParam('c', '');
+			//$path->setParam('c', '');	// forces a link with "?c="
+			// add that outside if desired
 		}
 		$this->basePath = $path;
 		//debug($this->current, $this->basePath);
@@ -228,15 +231,17 @@ class Menu /*extends Controller*/ {
 			//$path = $this->items->find($class);
 			//debug($class, $path);
 			$path = array_merge($root, array($class));
-			if ($path) {
-				$path = $this->basePath . implode('/', $path);
+			//if ($path) {
+			if ($path && $this->useControllerSlug) {
+				$link = $this->basePath . implode('/', $path);
 			} else {
-				$path = $this->basePath . $class;
+				$link = $this->basePath . $class;
 			}
 		} else {
-			$path = $this->basePath . $class;
+			$link = $this->basePath . $class;
 		}
-		return $path;
+		//debug($class, $root, $path, $this->useControllerSlug, $this->basePath, $link);
+		return $link;
 	}
 
 	function __toString() {

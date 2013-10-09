@@ -229,7 +229,9 @@ class TaylorProfiler {
             	'percent' => number_format($tot_perc, 2, '.', '').'%',
             	'routine' => "OVERALL TIME",
             );
-            $out = $s->getContent();
+            $out = Request::isCLI()
+				? $s->getCLITable(true)
+				: $s->getContent();
             return $out;
         }
     }
@@ -301,7 +303,9 @@ class TaylorProfiler {
 		if ($profiler) {
 			$since = $profiler->initTime;
 		} else {
-			$since = $_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'];
+			$since = $_SERVER['REQUEST_TIME_FLOAT']
+				? $_SERVER['REQUEST_TIME_FLOAT']
+				: $_SERVER['REQUEST_TIME'];
 		}
 		$oaTime = microtime(true) - $since;
 		$totalTime = number_format($oaTime, 3, '.', '');
