@@ -54,8 +54,8 @@ class PersistantOODBase extends OODBase {
 	}
 
 	function save() {
-		//debug($this->getStateHash(), $this->stateHash);
 		if ($this->getStateHash() != $this->stateHash) {
+			//debug($this->getStateHash(), $this->stateHash, $this->data, $this->originalData, $this->id);
 			if ($this->id) {
 				//debug(__CLASS__, $this->id, $this->getStateHash(), $this->stateHash, $this->data, $this->originalData);
 				//debug(get_class($this), $this->id, $this->originalData, $this->data);
@@ -67,6 +67,8 @@ class PersistantOODBase extends OODBase {
 				$action = 'INSERT';
 				static::$inserted++;
 			}
+			$this->originalData = $this->data;
+			$this->stateHash = $this->getStateHash();
 		} else {
 			$action = 'SKIP';
 			static::$skipped++;

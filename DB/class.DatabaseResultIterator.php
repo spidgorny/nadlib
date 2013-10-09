@@ -8,8 +8,19 @@
 class DatabaseResultIterator implements Iterator, Countable {
 	var $defaultKey;
 	var $dbResultResource;
-	var $row = array();
+
+	/**
+	 * Must be false to indicate no results
+	 * @var array
+	 */
+	var $row = FALSE;
+
+	/**
+	 * Amount
+	 * @var int
+	 */
 	var $rows = 0;
+
 	var $key = 0;
 
 	/**

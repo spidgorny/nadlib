@@ -215,7 +215,9 @@ class TaylorProfiler {
             	'percent' => number_format($tot_perc, 2, '.', '').'%',
             	'routine' => "OVERALL TIME",
             );
-            $out = $s->getContent();
+            $out = Request::isCLI()
+				? $s->getCLITable(true)
+				: $s->getContent();
             return $out;
         }
     }
