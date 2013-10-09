@@ -95,6 +95,7 @@ class MySQL {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				nodebug(array(
@@ -107,7 +108,6 @@ class MySQL {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
