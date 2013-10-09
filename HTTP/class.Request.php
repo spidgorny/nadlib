@@ -666,8 +666,4 @@ class Request {
 	static function getDocumentRoot() {
 		return str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 	}
-
-    static function getDocumentRoot() {
-        return str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
-    }
 }
