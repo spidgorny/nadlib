@@ -572,7 +572,7 @@ class slTable {
 				$key = '';
 			}
 
-			if ($val instanceof htmlString) {
+			if ($val instanceof htmlString || $val instanceof HTMLTag) {
 				//$val = $val;
 			} else {
 				if (mb_strpos($val, "\n") !== FALSE) {

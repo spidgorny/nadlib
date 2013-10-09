@@ -92,10 +92,9 @@ class ConfigBase {
 		}
 
 		$this->documentRoot = Request::getDocumentRoot();
-		//$this->appRoot = dirname(__FILE__).'/..';
 		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
 		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
-		//debug(__FILE__, $this->appRoot);
+		//debug(__FILE__, $this->documentRoot, $this->appRoot);
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {

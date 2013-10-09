@@ -24,12 +24,16 @@ class IndexBE extends IndexBase {
 
 		$this->addCSS('../../../../components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS('css/main.css');
+		$this->addCSS('../CSS/TaylorProfiler.css');
 		$this->addJS('../../../../components/jquery/jquery.min.js');
 		$this->addJS('../../../../components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
-		$config->user = $this->user;	// for consistency
+		$c->user = $this->user;	// for consistency
+
+		$this->ll = new LocalLangDB();
+		//debug($this->ll);
 	}
 
 	function renderController() {
@@ -74,6 +78,9 @@ class IndexBE extends IndexBase {
 			'AlterDB' => 'Alter DB',
 			'AlterCharset' => 'Alter Charset',
 			'AlterIndex' => 'Alter Indexes',
+			'ValidatorCheck' => 'Validator Check',
+			'ClearCache' => 'Clear Cache',
+			'OptimizeDB' => 'Optimize DB',
 			'JumpFrontend' => '<- Frontend',
 		);
 
