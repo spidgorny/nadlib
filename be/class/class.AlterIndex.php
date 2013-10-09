@@ -41,11 +41,18 @@ class AlterIndex extends AppControllerBE {
 
 	function render() {
 		$content = $this->performAction();
-		$struct = file_get_contents($this->jsonFile);
-		$struct = json_decode($struct, true);
+		if ($this->jsonFile && is_readable($this->jsonFile)) {
+			$struct = file_get_contents($this->jsonFile);
+			$struct = json_decode($struct, true);
 
-		$local = $this->getDBStruct();
+			$local = $this->getDBStruct();
 
+			$content = $this->renderTableStruct($struct, $local);
+		}
+		return $content;
+	}
+
+	function renderTableStruct(array $struct, array $local) {
 		foreach ($struct as $table => $desc) {
 			$content .= '<h4>Table: '.$table.'</h4>';
 
@@ -63,8 +70,8 @@ class AlterIndex extends AppControllerBE {
 					} else {
 						$indexCompare[] = array(
 							'Table' => new HTMLTag('td', array(
-								'colspan' => 10,
-							), 'CREATE '.($index['Non_unique'] ? '' : 'UNIQUE' ).
+									'colspan' => 10,
+								), 'CREATE '.($index['Non_unique'] ? '' : 'UNIQUE' ).
 								' INDEX '.$index['Key_name'].
 								' ON '.$index['Table'].' ('.$index['Key_name'].')'
 							),

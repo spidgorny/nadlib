@@ -32,11 +32,14 @@ class Localize extends AppControllerBE {
 		parent::__construct();
 		$this->from = new LocalLangDB('en');
 		$this->from->indicateUntranslated = false;
+		$this->from->init();
 		$this->de = new LocalLangDB('de');
 		$this->de->indicateUntranslated = false;
+		$this->de->init();
 		$this->ru = new LocalLangDB('ru');
 		$this->ru->indicateUntranslated = false;
-		$this->url = new URL('?c=Localize');
+		$this->ru->init();
+		$this->url = new URL('vendor/spidgorny/nadlib/be/?c=Localize');
 	}
 
 	function render() {
@@ -62,6 +65,7 @@ class Localize extends AppControllerBE {
 
 			$pager = new Pager();
 			$pager->setNumberOfRecords(sizeof($keys));
+			$pager->detectCurrentPage();
 			$keys = array_slice($keys, $pager->startingRecord, $pager->itemsPerPage, true);
 			$content .= $pager->renderPageSelectors($this->url);
 
@@ -76,11 +80,13 @@ class Localize extends AppControllerBE {
 					), $this->from->M($key)),
 				);
 				foreach (array('de', 'ru') as $lang) {
+					$lobj = $this->$lang;
+					/** @var $lobj LocalLangDB */
 					$table[$key][$lang] = new HTMLTag('td', array(
-						'id' => $this->$lang->id($key) ?: json_encode(array($this->$lang->lang, $key)),
-						'lang' => $this->$lang->lang,
+						'id' => $lobj->id($key) ?: json_encode(array($lobj->lang, $key)),
+						'lang' => $lobj->lang,
 						'class' => 'inlineEdit',
-					), $this->$lang->M($key));
+					), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
 				}
 			}
 
@@ -95,8 +101,8 @@ class Localize extends AppControllerBE {
 			$content .= $pager->renderPageSelectors($this->url);
 			$content = $this->encloseIn(__('Localize'), $content);
 			$this->index->addJQuery();
-			$this->index->addJS('js/jquery.jeditable.mini.js');
-			$this->index->addJS("js/Localize.js");
+			$this->index->addJS('vendor/spidgorny/nadlib/js/jquery.jeditable.mini.js');
+			$this->index->addJS("vendor/spidgorny/nadlib/be/js/Localize.js");
 		}
 		return $content;
 	}
