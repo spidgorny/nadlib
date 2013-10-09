@@ -53,7 +53,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->ll = new LocalLangDummy();
 		$this->request = Request::getInstance();
 		//debug('session_start');
-		session_start();
+
+		// only use session if not run from command line
+		if(!Request::isCLI()) {
+			session_start();
+		}
+
 		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
