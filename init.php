@@ -186,7 +186,7 @@ function debug_pre_print_backtrace() {
  * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
  */
 if(!function_exists('get_called_class')) {
-	function get_called_class($bt = false,$l = 1) {
+	function get_called_class($bt = false, $l = 1) {
 		if (!$bt) $bt = debug_backtrace();
 		if (!isset($bt[$l])) throw new Exception("Cannot find called class -> stack level too deep.");
 		if (!isset($bt[$l]['type'])) {
@@ -200,7 +200,9 @@ if(!function_exists('get_called_class')) {
 				do {
 					$i++;
 					$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
-				} while (stripos($callerLine,$bt[$l]['function']) === false);
+					$findLine = stripos($callerLine, $bt[$l]['function']);
+				} while ($callerLine && $findLine === false);
+				$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
 				preg_match('/([a-zA-Z0-9\_]+)::'.$bt[$l]['function'].'/',
 					$callerLine,
 					$matches);

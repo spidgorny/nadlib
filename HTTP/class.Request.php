@@ -1,7 +1,17 @@
 <?php
 
 class Request {
+
+	/**
+	 * Assoc array of URL parameters
+	 * @var array
+	 */
 	protected $data = array();
+
+	/**
+	 * The default controller retrieved from Config.
+	 * @var string
+	 */
 	public $defaultController;
 
 	/**
@@ -9,6 +19,10 @@ class Request {
 	 */
 	public $url;
 
+	/**
+	 * Singleton
+	 * @var Request
+	 */
 	static protected $instance;
 
 	function __construct(array $array = NULL) {
@@ -397,7 +411,9 @@ class Request {
 			$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST'] ?: $_SERVER['HTTP_HOST']
+			$_SERVER['HTTP_X_FORWARDED_HOST']
+				? $_SERVER['HTTP_X_FORWARDED_HOST']
+				: $_SERVER['HTTP_HOST']
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
@@ -628,7 +644,7 @@ class Request {
 	 */
 	function parseParameters($noopt = array()) {
 		$result = array();
-		$params = $GLOBALS['argv'] ?: array();
+		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
