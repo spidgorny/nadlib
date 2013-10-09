@@ -40,9 +40,9 @@ class Uploader {
 		return !!$_FILES;
 	}
 
-	function getUploadForm() {
+	public function getUploadForm($fieldName = 'file') {
 		$f = new HTMLForm();
-		$f->file('file');
+		$f->file($fieldName);
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$content = $f;
@@ -56,7 +56,7 @@ class Uploader {
 	 * @param string $to - directory
 	 * @throws Exception
 	 */
-	function moveUpload($from, $to) {
+	public function moveUpload($from, $to) {
 		if ($uf = $_FILES[$from]) {
 			if (!$this->checkError($uf)) {
 				throw new Exception($this->errors[$uf['error']]);
