@@ -141,9 +141,12 @@ class AutoLoad {
 				} 
 			}
 
+
+
 			if (file_exists($file)) {
 				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />';
 				include_once($file);
+				$this->classFileMap[$classFile] = $file;
 			} else {
 				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span><br />';
 			}

@@ -40,4 +40,12 @@ class Date extends Time {
 		return new self(strtotime($formula, $this->time));
 	}
 
+	/**
+	 * @param string $format d.m.Y
+	 * @return htmlString
+	 */
+	function html($format = 'd.m.Y') {
+		return new htmlString('<time datetime="'.$this->getISO().'">'.$this->format($format).'</time>');
+	}
+
 }

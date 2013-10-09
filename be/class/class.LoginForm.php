@@ -33,7 +33,6 @@ class LoginForm extends AjaxLogin {
 			$this->user->saveLogin($username, $passwordHash);
 			$content .= '<div class="message">'.__('You are logged in.').'</div>';
 			$content .= $this->menuAction();
-			debug($_SESSION);
 		} else {
 			$content .= '<div class="error">'.__('Wrong login or password.').'</div>';
 			$desc = $this->getLoginDesc();
