@@ -18,11 +18,6 @@ class AutoLoad {
 	public $debug = false;
 
 	/**
-	 * @var bool
-	 */
-	var $useCookies = true;
-
-	/**
 	 * @var AutoLoad
 	 */
 	private static $instance;
@@ -187,16 +182,6 @@ class AutoLoad {
 			}
 		}
 		return $debug;
-	}
-
-	/**
-	 * @return AutoLoad
-	 */
-	static function getInstance() {
-		if (!self::$instance) {
-			self::$instance = new self();
-		}
-		return self::$instance;
 	}
 
 	/**
