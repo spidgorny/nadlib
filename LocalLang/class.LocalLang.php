@@ -200,11 +200,11 @@ abstract class LocalLang {
 
 if (!function_exists('__')) {	// conflict with cake
 	function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	$index = Index::getInstance();
-	if ($index && $index->ll) {
-		$text = $index->ll->T($code, $r1, $r2, $r3);
-		//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
-		return $text;
+		$index = Index::getInstance();
+		if ($index && $index->ll) {
+			$text = $index->ll->T($code, $r1, $r2, $r3);
+			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
+			return $text;
 		} else {
 			return $code;
 		}
