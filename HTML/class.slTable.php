@@ -645,6 +645,8 @@ class slTable {
 			$xls[] = $line;
 		}
 		return $xls;
+	}
+
 	function getCLITable($cutTooLong = false) {
 		$this->generateThes();
 		$widthMax = array();

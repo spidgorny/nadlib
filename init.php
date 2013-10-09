@@ -234,7 +234,7 @@ if(!function_exists('get_called_class')) {
 /**
  * Complements the built-in end() function
  * @param array $list
- * @return mixed
+ * @return array|mixed
  */
 function first(array $list) {
 	reset($list);
