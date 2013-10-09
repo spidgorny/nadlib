@@ -99,9 +99,13 @@ class ProgressBar {
 	}
 
 	function getImage($p, $display = 'inline-block') {
+		$prefix = '';
+		if (Index::getInstance() instanceof IndexBE) {
+			$prefix = '../../../../';
+		}
 		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; white-space: nowrap;">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+			<img src="'.$prefix.'vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
 		</div>');
 	}
 

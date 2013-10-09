@@ -343,7 +343,8 @@ class HTMLFormTable extends HTMLForm {
 					</script>";
 				}
 				if ($desc['error']) {
-					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']" class="error">';
+					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']"
+					class="error ui-state-error alert-error">';
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
 				}

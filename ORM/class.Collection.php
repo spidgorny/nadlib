@@ -156,25 +156,42 @@ class Collection {
 
 	/**
 	 * -1 will prevent data retrieval
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		//debug($this->where);
-		//debug_pre_print_backtrace();
 		$this->query = $this->getQuery($this->where);
-		//debug($this->query);
+		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$this->count = $this->db->numRows($res);
 		}
+		//debug($this->table, $this->query, $this->count, $prof->elapsed());
+
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		if ($preprocess) {
 			$this->preprocessData();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+	}
+
+	function retrieveDataFromCache() {
+		$this->query = $this->getQuery($this->where);
+		$fc = new MemcacheFile();
+		$this->data = $fc->get($this->query);
+		if (!$this->data) {
+			$this->retrieveDataFromDB();
+			$fc->set($this->query, $this->data);
+			//debug(__METHOD__, 'no cache', sizeof($this->data));
+		} else{
+			$cacheFile = $fc->map($this->query);
+			//debug(__METHOD__, 'yes cache', sizeof($this->data), $cacheFile, filesize($cacheFile));
+		}
+		return $this->data;
 	}
 
 	/**

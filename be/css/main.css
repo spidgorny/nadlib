@@ -24,3 +24,20 @@ body {
 .fe {
 	background: lightblue !important;
 }
+
+td.tdlabel {
+	vertical-align: top;
+}
+
+.pageSize {
+	display: inline-block;
+	float: right;
+}
+
+form.anyPageForm {
+	display: inline-block;
+	margin-bottom: 0;
+}
+form.anyPageForm input {
+	margin-bottom: 0;
+}

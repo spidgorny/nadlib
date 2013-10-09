@@ -87,6 +87,12 @@ class Request {
 		return $value;
 	}
 
+	/**
+	 * Will strip tags
+	 * @param $name
+	 * @return string
+	 * @throws Exception
+	 */
 	function getTrimRequired($name) {
 		$value = $this->getString($name);
 		$value = strip_tags($value);

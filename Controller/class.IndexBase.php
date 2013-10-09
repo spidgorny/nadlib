@@ -69,7 +69,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$instance = &self::$instance;
+		$instance = &self::$instance ?: $GLOBALS['i'];	// to read IndexBE instance
 		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
@@ -291,8 +291,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
-					if ($this->db->QUERIES) {	// dbLayer
-						$content .= $this->db->dumpQueries();
+					if ($this->db->QUERIES) {
+						$dbLayer = $this->db;
+						/** @var $dbLayer dbLayer */
+						$content .= $dbLayer->dumpQueries();
 					}
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {

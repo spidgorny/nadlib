@@ -48,16 +48,22 @@ class LocalLangDB extends LocalLang {
 	}
 
 	function saveMissingMessage($text) {
-		//debug(__METHOD__, $text);
+		//debug(__METHOD__, DEVELOPMENT, $text);
 		if (DEVELOPMENT && $text) {
 			$db = Config::getInstance()->db;
-			$db->runInsertQuery($this->table, array(
-				'code' => $text,
-				'lang' => $this->lang,
-				'text' => '',
-				'page' => Request::getInstance()->getURL(),
-			));
-			$this->ll[$text] = $text;
+			try {
+				$db->runInsertQuery($this->table, array(
+					'code' => $text,
+					'lang' => $this->defaultLang,
+					'text' => '',
+					'page' => Request::getInstance()->getURL(),
+				));
+				//debug($db->lastQuery, $db->affectedRows());
+				$this->ll[$text] = $text;
+				$this->codeID[$text] = $db->lastInsertID();
+			} catch (Exception $e) {
+				// ignore
+			}
 		}
 	}
 
