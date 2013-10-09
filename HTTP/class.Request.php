@@ -678,4 +678,11 @@ class Request {
 		return str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 	}
 
+	function setCacheable($age = 60) {
+		header('Pragma: cache');
+		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('Cache-Control: max-age='.$age);
+	}
+
 }

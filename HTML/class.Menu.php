@@ -39,6 +39,9 @@ class Menu /*extends Controller*/ {
 
 	public $ulClass = 'nav nav-list menu csc-menu';
 
+	/**
+	 * @var URL
+	 */
 	public $basePath;
 
 	public $recursive = true;
@@ -63,7 +66,9 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config')
+			? Config::getInstance()->config['Controller']['useRouter']
+			: '';
 		if ($useRouter) {
 			$rootpath = $this->request->getURLLevels();
 			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();

@@ -28,12 +28,12 @@ class LoginForm extends AjaxLogin {
 		$username = $this->request->getTrim('username');
 		$password = $this->request->getTrim('password');
 		$passwordHash = $this->secret;
-		//debug($passwordHash);
 		if ($username == 'nadlib' && $password == $passwordHash) {
 			$this->user->saveLogin($username, $passwordHash);
 			$content .= '<div class="message">'.__('You are logged in.').'</div>';
 			$content .= $this->menuAction();
 		} else {
+			//debug($password, $passwordHash);
 			$content .= '<div class="error">'.__('Wrong login or password.').'</div>';
 			$desc = $this->getLoginDesc();
 			$desc['username']['value'] = $username;

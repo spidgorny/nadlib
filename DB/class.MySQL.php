@@ -167,9 +167,15 @@ class MySQL {
 		}
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		mysql_free_result($res);
+		$this->free($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
+	}
+
+	function free($res) {
+		if (is_resource($res)) {
+			mysql_free_result($res);
+		}
 	}
 
 	function numRows($res) {
