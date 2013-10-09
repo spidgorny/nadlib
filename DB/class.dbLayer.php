@@ -6,7 +6,7 @@ class dbLayer {
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
-	
+
 	/**
 	 * logging:
 	 */
@@ -555,7 +555,7 @@ order by a.attnum';
 		$key = '"'.$key.'"';
 		return $key;
 	}
-	
+
 	function runUpdateInsert($table, $set, $where) {
 		$found = $this->runSelectQuery($table, $where);
 		if ($this->numRows($found)) {
@@ -599,6 +599,10 @@ order by a.attnum';
 		return $content;
 	}
 
+	/**
+	 * Renders the list of queries accumulated
+	 * @return string
+	 */
 	function dumpQueries() {
 		$q = $this->QUERIES;
 		arsort($q);

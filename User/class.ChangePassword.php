@@ -1,7 +1,7 @@
 <?php
 
 class ChangePassword extends HTMLFormProcessor {
-	protected $minLength = 6;
+	protected $minLength = 8;
 	protected $submitButton = 'Change';
 
 	function getDesc() {

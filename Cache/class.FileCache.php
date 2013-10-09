@@ -31,7 +31,7 @@ class FileCache {
 			$val = serialize($val);
 		}
 		$con = Index::getInstance()->controller;
-		$con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.strlen($val), __CLASS__);
+		$con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.@sizeof($val).'/'.@strlen($val), __CLASS__);
 		file_put_contents($this->map($key), $val);
 	}
 

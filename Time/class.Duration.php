@@ -103,7 +103,6 @@ class Duration extends Time {
 				case 'weeks':
 					$total += $value*60*60*24*7;
 				break;
-				case 'm':
 				case 'mon':
 				case 'month':
 				case 'months':

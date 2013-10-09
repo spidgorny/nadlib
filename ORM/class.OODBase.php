@@ -57,13 +57,12 @@ abstract class OODBase {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->init($id);
-		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
 
 	/**
 	 * Retrieves data from DB.
 	 *
-	 * @param int|array|SQLWhere $id
+	 * @param int|array|SQLWhere|string $id
 	 * @throws Exception
 	 */
 	public function init($id) {
@@ -73,6 +72,7 @@ abstract class OODBase {
 			//debug(__METHOD__, $this->id, $this->data);
 		} else if ($id instanceof SQLWhere) {
 			$this->data = $this->fetchFromDB($id->getAsArray());
+			$this->id = $this->data[$this->idField];
 		} else if (is_scalar($id)) {
 			$this->id = $id;
 			$this->data = $this->fetchFromDB(array($this->idField => $this->id));
