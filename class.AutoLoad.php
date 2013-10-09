@@ -68,6 +68,7 @@ class AutoLoad {
 
 	function getFolders() {
 		require_once 'HTTP/class.Request.php';
+		$folders = array();
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
 				//debug('session_start');
@@ -81,8 +82,6 @@ class AutoLoad {
 					? $_SESSION[__CLASS__]['classFileMap']
 					: array();
 			}
-		} else {
-			$folders = array();
 		}
 
 		if (!$folders) {

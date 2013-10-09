@@ -79,4 +79,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 		return $data;
 	}
 
+	function __destruct() {
+		$this->db->free($this->dbResultResource);
+	}
+
 }
