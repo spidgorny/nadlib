@@ -129,14 +129,14 @@ AND name = '?')", array($table));
         return $data;
     }
 
-	/**
+	/* *
 	 * Return ALL rows
 	 * @param <type> $table
 	 * @param <type> $where
 	 * @param <type> $order
 	 * @return <type>
-	 */
-/*	function fetchSelectQuery($table, array $where = array(), $order = '') {
+	 * /
+	function fetchSelectQuery($table, array $where = array(), $order = '') {
 		$res = $this->runSelectQuery($table, $where, $order);
 		$data = $this->fetchAll($res);
 		return $data;
