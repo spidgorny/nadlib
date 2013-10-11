@@ -40,9 +40,17 @@ class Uploader {
 		return !!$_FILES;
 	}
 
-	function getUploadForm() {
+	static function getUploadForm($hiddenFields = array()) {
 		$f = new HTMLForm();
 		$f->file('file');
+
+		// add custom hidden fields to upload form (e.g. Loan[id])
+		if(!empty($hiddenFields)) {
+			foreach ($hiddenFields as $name => $value) {
+				$f->hidden($name, $value);
+			}
+		}
+
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$content = $f;
