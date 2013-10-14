@@ -28,7 +28,7 @@ class dbLayer {
 	 */
 	var $lastQuery;
 
-	function dbLayer($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
+	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
 		if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
