@@ -41,3 +41,6 @@ form.anyPageForm {
 form.anyPageForm input {
 	margin-bottom: 0;
 }
+.htmlFormTable {
+	width: 100%;
+}
