@@ -40,13 +40,13 @@ class dbLayerMS {
 			$query = str_replace('?', $ar, $query);
 		}
 		$profiler = new Profiler();
-		$res = mssql_query($query, $this->connection);
+		$res = @mssql_query($query, $this->connection);
 		if ($this->debug) {
 			debug(__METHOD__, $query, $this->numRows($res), $profiler->elapsed());
 		}
 		$msg = mssql_get_last_message();
 		if ($msg && !in_array($msg, $this->ignoreMessages)) {
-			debug($msg, $query);
+			//debug($msg, $query);
 			$this->close();
 			$this->connect();
 			throw new Exception($msg);
