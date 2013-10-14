@@ -49,6 +49,7 @@ class dbLayerMS {
 			debug($msg, $query);
 			$this->close();
 			$this->connect();
+			throw new Exception($msg);
 		}
 		$this->lastQuery = $query;
 		return $res;
