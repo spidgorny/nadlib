@@ -27,16 +27,12 @@ class ServerStat extends AppControllerBE {
 				class="row updateHere"
 				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
 
-			if (isset($GLOBALS['profiler'])) {
-				$content .= '<fieldset><legend>Profiler</legend>'.$GLOBALS['profiler']->printTimers(1).'</fieldset>';
-			}
 		}
 		return $content;
 	}
 
 	function updateHereAction() {
 		$content = $this->renderEverything();
-		$content .= '<script>updateHere()</script>';
 		return $content;
 	}
 
