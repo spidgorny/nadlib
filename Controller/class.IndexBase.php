@@ -56,7 +56,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->ll = new LocalLangDummy();	// the real one is in Config!
 
 		$this->request = Request::getInstance();
-		//debug('session_start');
+		//session_name(basename(dirname(dirname(dirname(__FILE__)))));
 		session_start();
 		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();

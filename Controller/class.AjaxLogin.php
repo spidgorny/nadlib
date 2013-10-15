@@ -166,8 +166,9 @@ class AjaxLogin extends AppController {
 			$content = '<form class="navbar-form pull-right" method="POST">
 				<input type="hidden" name="c" value="'.get_class($this).'" />
 				<input type="hidden" name="action" value="login" />
-				<input class="span2" type="text" name="username" placeholder="Email">
-				<input class="span2" type="password" name="password" placeholder="Password">
+
+				<input class="span2" type="text" name="username" placeholder="E-mail" value="'.$_REQUEST['username'].'" />
+				<input class="span2" type="password" name="password" placeholder="Password" />
 				<button type="submit" class="btn">Sign in</button>
 			</form>';
 		}

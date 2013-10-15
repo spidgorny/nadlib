@@ -548,6 +548,10 @@ class Request {
 		return $this;
 	}
 
+	/**
+	 * http://christian.roy.name/blog/detecting-modrewrite-using-php
+	 * @return bool
+	 */
 	function apacheModuleRewrite() {
 		if (function_exists('apache_get_modules')) {
 			$modules = apache_get_modules();
@@ -688,6 +692,12 @@ class Request {
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
+	public function getIntArray($name) {
+		$array = $this->getArray($name);
+		$array = array_map('intval', $array);
+		return $array;
+	}
+
 	function clear() {
 		$this->data = array();
 	}
@@ -702,6 +712,13 @@ class Request {
 		}
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $docRoot);
 		return $docRoot;
+	}
+
+	function setCacheable($age = 60) {
+		header('Pragma: cache');
+		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('Cache-Control: max-age='.$age);
 	}
 
 }

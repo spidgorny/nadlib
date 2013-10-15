@@ -27,6 +27,9 @@ class FileCache {
 	}
 
 	function set($key, $val) {
+		if (is_array($val)) {
+			$val = serialize($val);
+		}
 		$con = Index::getInstance()->controller;
 		$con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.@sizeof($val).'/'.@strlen($val), __CLASS__);
 		file_put_contents($this->map($key), $val);
@@ -34,9 +37,12 @@ class FileCache {
 
 	function get($key) {
 		if ($this->hasKey($key)) {
-			return file_get_contents($this->map($key));
-		} else {
-			return NULL;
+			$string = file_get_contents($this->map($key));
+			$try = unserialize($string);
+			if ($try !== false) {
+				$string = $try;
+			}
+			return $string;
 		}
 	}
 
