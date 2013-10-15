@@ -101,7 +101,7 @@ class IndexBE extends IndexBase {
 		$m = new Menu($menu);
 		$m->recursive = true;
 		$m->renderOnlyCurrent = false;
-		return '<div class="well" style="padding: 8px 0;">'.$m.'</div>'.
+		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
 	}
 
