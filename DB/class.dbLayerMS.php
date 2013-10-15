@@ -95,6 +95,7 @@ class dbLayerMS {
 
 	/**
 	 *
+	 * @param $table
 	 * @return array ('name' => ...)
 	 */
 	function getFields($table) {
