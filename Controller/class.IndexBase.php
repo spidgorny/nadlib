@@ -56,8 +56,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->ll = new LocalLangDummy();	// the real one is in Config!
 
 		$this->request = Request::getInstance();
-		//session_name(basename(dirname(dirname(dirname(__FILE__)))));
-		session_start();
+		//debug('session_start');
+
+		// only use session if not run from command line
+		if(!Request::isCLI()) {
+			session_start();
+		}
+
 		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);

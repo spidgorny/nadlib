@@ -302,7 +302,10 @@ class HTMLForm {
 		} elseif (!$value) {
 			//$value = date('d.m.Y');
 		}
-		$this->input($name, $value);
+		$this->input($name, $value,
+			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
+			(isset($desc['more']) ? $desc['more'] : '')
+		);
 	}
 
 	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
