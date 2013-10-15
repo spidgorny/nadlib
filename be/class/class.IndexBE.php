@@ -78,6 +78,7 @@ class IndexBE extends IndexBase {
 			'TestNadlib' => 'TestNadlib',
 			'AlterDB' => 'Alter DB',
 			'AlterCharset' => 'Alter Charset',
+			'AlterTable' => 'Alter Table',
 			'AlterIndex' => 'Alter Indexes',
 			'ValidatorCheck' => 'Validator Check',
 			'ClearCache' => 'Clear Cache',
