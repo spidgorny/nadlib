@@ -179,7 +179,9 @@ class MySQL {
 	}
 
 	function numRows($res) {
-		return mysql_num_rows($res);
+		if (is_resource($res)) {
+			return mysql_num_rows($res);
+		}
 	}
 
 	function dataSeek($res, $number) {
