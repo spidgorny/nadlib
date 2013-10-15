@@ -37,14 +37,14 @@ class ServerStat extends AppControllerBE {
 	}
 
 	function renderEverything() {
-		$content = '<div class="span5">';
+		$content = '<div class="col-md-5">';
 		$content .= '<fieldset><legend>PHP Info</legend>'.$this->getPHPInfo().'</fieldset>';
 
 		$s = slTable::showAssoc($this->getPerformanceInfo());
 		$s->more = 'class="table table-striped table-condensed"';
 		$content .= '<fieldset><legend>Performance</legend>'.$s.'</fieldset>';
 
-		$content .= '</div><div class="span5">';
+		$content .= '</div><div class="col-md-5">';
 
 		$content .= '<fieldset><legend>Server Info</legend>
 			'.$this->getServerInfo().'

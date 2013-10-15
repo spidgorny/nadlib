@@ -41,3 +41,19 @@ form.anyPageForm {
 form.anyPageForm input {
 	margin-bottom: 0;
 }
+.list-group-item {
+	padding: 0;
+}
+.nav > li > a {
+	padding: 0.25em 1em;
+}
+.nav > li > a.act {
+	color: white;
+}
+.nav > li > a.act:hover,
+.nav > li > a.act:focus {
+	background-color: inherit;
+}
+.navbar-form input {
+	width: 10em;
+}
