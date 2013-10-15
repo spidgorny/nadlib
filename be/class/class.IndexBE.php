@@ -25,7 +25,7 @@ class IndexBE extends IndexBase {
 		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
 		$this->addCSS('vendor/spidgorny/nadlib/CSS/TaylorProfiler.css');
-		$this->addJS('components/jquery/jquery.min.js');
+		$this->addJQuery();
 		$this->addJS('components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
