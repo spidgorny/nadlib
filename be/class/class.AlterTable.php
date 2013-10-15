@@ -2,19 +2,6 @@
 
 class AlterTable extends AlterIndex {
 
-	function render() {
-		$content = $this->performAction();
-		if ($this->jsonFile && is_readable($this->jsonFile)) {
-			$struct = file_get_contents($this->jsonFile);
-			$struct = json_decode($struct, true);
-
-			$local = $this->getDBStruct();
-
-			$content = $this->renderTableStruct($struct, $local);
-		}
-		return $content;
-	}
-
 	function renderTableStruct(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -37,11 +24,9 @@ class AlterTable extends AlterIndex {
 						) + $localIndex;
 					} else {
 						$indexCompare[] = array(
-							'Table' => new HTMLTag('td', array(
+							'Field' => new HTMLTag('td', array(
 									'colspan' => 10,
-								), 'CREATE '.($index['Non_unique'] ? '' : 'UNIQUE' ).
-								' INDEX '.$index['Key_name'].
-								' ON '.$index['Table'].' ('.$index['Key_name'].')'
+								), $this->getAlterQuery($table, $index)
 							),
 						);
 					}
@@ -87,6 +72,17 @@ class AlterTable extends AlterIndex {
 			$content .= $s;
 		}
 		return $content;
+	}
+
+	function getAlterQuery($table, array $index) {
+		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
+		' '.$index['Type'].
+		' '.(($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL').
+		' '.($index['Collation'] ? 'COLLATE '.$index['Collation'] : '').
+		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
+		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
+		' '.$index['Extra'];
+		return $query;
 	}
 
 }

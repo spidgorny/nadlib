@@ -35,6 +35,7 @@ class AlterIndex extends AppControllerBE {
 		$tables = $this->db->getTables();
 		foreach ($tables as $t) {
 			$struct = $this->db->getTableColumns($t);
+			//unset($struct['password']);	// debug
 			$indexes = $this->db->getIndexesFrom($t);
 			$result[$t] = array(
 				'columns' => $struct,
