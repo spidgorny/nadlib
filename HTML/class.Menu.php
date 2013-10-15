@@ -59,6 +59,7 @@ class Menu /*extends Controller*/ {
 		if (class_exists('Config')) {
 			$this->user = Config::getInstance()->user;
 		}
+		$this->useControllerSlug = $this->request->apacheModuleRewrite();
 		$this->setCurrent($level);
 		$this->setBasePath();
 	}
@@ -84,15 +85,16 @@ class Menu /*extends Controller*/ {
 	 * Called by the constructor
 	 */
 	function setBasePath() {
-		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config')
+			? Config::getInstance()->config['Controller']['useRouter']
+			: ($this->request->apacheModuleRewrite());
 		if ($useRouter) {
-			//$path = $this->request->getURLLevels();
-			//$path = implode('/', $path);
+			$path = new URL();
+			$path->clearParams();
 		} else {
 			$path = new URL();
 			$path->clearParams();
-			//$path->setParam('c', '');	// forces a link with "?c="
-			// add that outside if desired
+			$path->setParam('c', '');	// forces a link with "?c="
 		}
 		$this->basePath = $path;
 		//debug($this->current, $this->basePath);
