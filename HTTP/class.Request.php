@@ -548,6 +548,10 @@ class Request {
 		return $this;
 	}
 
+	/**
+	 * http://christian.roy.name/blog/detecting-modrewrite-using-php
+	 * @return bool
+	 */
 	function apacheModuleRewrite() {
 		if (function_exists('apache_get_modules')) {
 			$modules = apache_get_modules();
