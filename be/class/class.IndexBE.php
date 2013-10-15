@@ -22,11 +22,11 @@ class IndexBE extends IndexBase {
 
 		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
 
-		$this->addCSS('../../../../components/bootstrap/css/bootstrap.min.css');
-		$this->addCSS('css/main.css');
-		$this->addCSS('../CSS/TaylorProfiler.css');
-		$this->addJS('../../../../components/jquery/jquery.min.js');
-		$this->addJS('../../../../components/bootstrap/js/bootstrap.min.js');
+		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
+		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
+		$this->addCSS('vendor/spidgorny/nadlib/CSS/TaylorProfiler.css');
+		$this->addJS('components/jquery/jquery.min.js');
+		$this->addJS('components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
@@ -42,6 +42,7 @@ class IndexBE extends IndexBase {
 		$vars = get_class_vars($c);
 		$public = $vars['public'];
 		if ($public || $this->user->isAuth()) {
+			$this->controller->user = $this->user;	// BEUser instead of grUser
 			$content = parent::renderController();
 		} else {
 			//$this->message(new LoginForm());
@@ -77,6 +78,7 @@ class IndexBE extends IndexBase {
 			'TestNadlib' => 'TestNadlib',
 			'AlterDB' => 'Alter DB',
 			'AlterCharset' => 'Alter Charset',
+			'AlterTable' => 'Alter Table',
 			'AlterIndex' => 'Alter Indexes',
 			'ValidatorCheck' => 'Validator Check',
 			'ClearCache' => 'Clear Cache',

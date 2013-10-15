@@ -43,6 +43,7 @@ class ConfigBase {
 		'vendor/spidgorny/nadlib/DB',
 		'vendor/spidgorny/nadlib/Debug',
 		'vendor/spidgorny/nadlib/HTML',
+		'js',
 		'vendor/spidgorny/nadlib/HTMLForm',
 		'vendor/spidgorny/nadlib/HTTP',
 		'vendor/spidgorny/nadlib/LocalLang',

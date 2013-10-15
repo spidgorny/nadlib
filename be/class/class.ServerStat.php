@@ -6,11 +6,17 @@ class ServerStat extends AppControllerBE {
 	var $COUNTQUERIES = 0;
 	var $totalTime;
 
+	/**
+	 * @var Config
+	 */
+	var $config;
+
 	function __construct($start_time = NULL, $LOG = array(), $COUNTQUERIES = 0) {
 		parent::__construct();
 		$this->start_time = $start_time ? $start_time : $_SERVER['REQUEST_TIME'];
 		$this->LOG = $LOG;
 		$this->COUNTQUERIES = $COUNTQUERIES;
+		$this->config = Config::getInstance();
 	}
 
 	function render() {
@@ -61,6 +67,8 @@ class ServerStat extends AppControllerBE {
 		$conf['IP'] = $_SERVER['SERVER_ADDR'];
 		$conf['PHP'] = phpversion();
 		$conf['Server time'] = date('Y-m-d H:i:s');
+		$conf['documentRoot'] = $this->config->documentRoot;
+		$conf['appRoot'] = $this->config->appRoot;
 		$conf['memory_limit'] = number_format($allMem/1024/1024, 3, '.', '').' MB';
 		$conf['Mem. used'] = number_format($useMem/1024/1024, 3, '.', '').' MB';
 		$conf['Mem. used %'] = new HTMLTag('td', array(
@@ -161,10 +169,10 @@ class ServerStat extends AppControllerBE {
 			//'results' => 'Rows',
 			'elapsed' => array('name' => '1st', 'decimals' => 3),
 			'count' => '#',
-			'total' => array('name' => $totalTime, 'decimals' => 3),
+			'total' => array('name' => $this->totalTime, 'decimals' => 3),
 			'percent' => '100%',
 		));
-		$s->data = $this->LOG ? $this->LOG : Config::getInstance()->db->queryLog;
+		$s->data = $this->LOG ? $this->LOG : $this->config->db->queryLog;
 		$s->isOddEven = TRUE;
 		$s->more = 'class="nospacing"';
 		return $s;
@@ -209,7 +217,7 @@ class ServerStat extends AppControllerBE {
 	}
 
 	function getBarURL($percent) {
-		$content = '../bar.php?rating='.round($percent).'&!border=0&height=25';
+		$content = 'vendor/spidgorny/nadlib/bar.php?rating='.round($percent).'&!border=0&height=25';
 		return $content;
 	}
 

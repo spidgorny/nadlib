@@ -73,7 +73,7 @@ class slTable {
 	var $isOddEven = TRUE;
 
 	/**
-	 * @var <tr $thesMore>
+	 * @var string <tr $thesMore>
 	 */
 	var $thesMore;
 
@@ -83,7 +83,7 @@ class slTable {
 	var $theadPlus = '';
 
 	/**
-	 * @var
+	 * @var string
 	 */
 	public $trmore;
 
@@ -115,7 +115,11 @@ class slTable {
 		$this->sortLinkPrefix = new URL();
 	}
 
-	function thes($aThes, $thesMore = NULL) {
+	/**
+	 * @param array $aThes
+	 * @param string $thesMore
+	 */
+	function thes(array $aThes, $thesMore = NULL) {
 		$this->thes = $aThes;
 		if ($thesMore !== NULL) {
 			$this->thesMore = $thesMore;
@@ -148,8 +152,9 @@ class slTable {
 
 	/**
 	 * To sort, $this->thes with all datatypes should be known
+	 * @public to be callable
 	 */
-	protected function tabSortByUrl($a, $b) {
+	public function tabSortByUrl($a, $b) {
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
 		$aa = $a[$by];
@@ -323,7 +328,7 @@ class slTable {
 
 		//debug($thes, $this->sortable);
 		if (implode('', $thes2)) { // don't display empty
-			$t->thes($thes2, $thmore, $this->thesMore . (is_array($this->more) ? $this->more['thesMore'] : '')); // $t is not $this // sorting must be done before
+			$t->thes($thes2, $thmore, $this->thesMore . (is_array($this->more) ? HTMLTag::renderAttr($this->more['thesMore']) : '')); // $t is not $this // sorting must be done before
 		}
 
 		// col
@@ -583,7 +588,8 @@ class slTable {
 				if (is_object($val)) {
 					$val = get_object_vars($val);
 				}
-				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys).'';
+				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
+				$val = new htmlString($val); 	// to prevent hsc later
 			}
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
@@ -639,6 +645,8 @@ class slTable {
 			$xls[] = $line;
 		}
 		return $xls;
+	}
+
 	function getCLITable($cutTooLong = false) {
 		$this->generateThes();
 		$widthMax = array();

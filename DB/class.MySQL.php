@@ -167,13 +167,21 @@ class MySQL {
 		}
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		mysql_free_result($res);
+		$this->free($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
 
+	function free($res) {
+		if (is_resource($res)) {
+			mysql_free_result($res);
+		}
+	}
+
 	function numRows($res) {
-		return mysql_num_rows($res);
+		if (is_resource($res)) {
+			return mysql_num_rows($res);
+		}
 	}
 
 	function dataSeek($res, $number) {
@@ -185,15 +193,15 @@ class MySQL {
 	}
 
 	function transaction() {
-		$this->perform('BEGIN');
+		return $this->perform('BEGIN');
 	}
 
 	function commit() {
-		$this->perform('COMMIT');
+		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
-		$this->perform('ROLLBACK');
+		return $this->perform('ROLLBACK');
 	}
 
 	function escape($string) {
