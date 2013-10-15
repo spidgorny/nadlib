@@ -37,7 +37,7 @@ class Menu /*extends Controller*/ {
 	 */
 	public $renderOnlyCurrent = true;
 
-	public $ulClass = 'nav nav-list menu csc-menu';
+	public $ulClass = 'nav nav-list menu csc-menu list-group';
 
 	/**
 	 * @var URL
@@ -173,8 +173,8 @@ class Menu /*extends Controller*/ {
 				//$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? $class == $this->current : true;
 				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? in_array($class, $this->request->getURLLevels()) : true;
 				$hasChildren = $renderOnlyCurrentSubmenu && $name instanceof Recursive && $name->getChildren();
-				$activeAclass = $this->isCurrent($class) ? 'act' : '';
-				$activeLIclass = $this->isCurrent($class) ? 'active' : '';
+				$activeLIclass = $this->isCurrent($class) 	? 'list-group-item active' : 'list-group-item';
+				$activeAclass = $this->isCurrent($class) 	? 'act' : '';
 				if ($name instanceof HTMLTag) {
 					$aTag = $name.'';
 				} else {
