@@ -350,10 +350,11 @@ class SQLBuilder {
 					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working
+				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
+                    || in_array(substr($key, -2), array('!=', '<=', '>='))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
-					$set[] = "$key $sign $val";
+					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {

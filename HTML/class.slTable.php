@@ -99,11 +99,11 @@ class slTable {
 	function __construct($id = NULL, $more="", array $thes = array()) {
 		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
-			$this->ID = md5(time());
+			$this->ID = md5(microtime());
 		} else if ($id) {
 			$this->ID = $id;
 		} else {
-			$this->ID = md5(time());
+			$this->ID = md5(microtime());
 		}
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
@@ -257,6 +257,7 @@ class slTable {
 					}
 				} unset($th);
 				unset($thes['###TD_CLASS###']);
+				unset($thes['###TR_MORE###']);
 				$this->thes($thes);
 				$this->isOddEven = TRUE;
 				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
