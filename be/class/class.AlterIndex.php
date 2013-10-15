@@ -11,7 +11,7 @@ class AlterIndex extends AppControllerBE {
 		parent::__construct();
 		$c = Config::getInstance();
 		$this->jsonFile = $c->appRoot.'/sql/'.$this->db->db.'.json';
-		$this->db->switchDB('glore');
+		//$this->db->switchDB('glore');
 	}
 
 	function sidebar() {
