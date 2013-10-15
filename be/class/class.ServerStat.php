@@ -27,28 +27,24 @@ class ServerStat extends AppControllerBE {
 				class="row updateHere"
 				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
 
-			if (isset($GLOBALS['profiler'])) {
-				$content .= '<fieldset><legend>Profiler</legend>'.$GLOBALS['profiler']->printTimers(1).'</fieldset>';
-			}
 		}
 		return $content;
 	}
 
 	function updateHereAction() {
 		$content = $this->renderEverything();
-		$content .= '<script>updateHere()</script>';
 		return $content;
 	}
 
 	function renderEverything() {
-		$content = '<div class="span5">';
+		$content = '<div class="col-md-5">';
 		$content .= '<fieldset><legend>PHP Info</legend>'.$this->getPHPInfo().'</fieldset>';
 
 		$s = slTable::showAssoc($this->getPerformanceInfo());
 		$s->more = 'class="table table-striped table-condensed"';
 		$content .= '<fieldset><legend>Performance</legend>'.$s.'</fieldset>';
 
-		$content .= '</div><div class="span5">';
+		$content .= '</div><div class="col-md-5">';
 
 		$content .= '<fieldset><legend>Server Info</legend>
 			'.$this->getServerInfo().'
