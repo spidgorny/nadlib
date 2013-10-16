@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class OptimizeDB
+ * Calling OPTIMIZE TABLE X; for each table
+ */
 class OptimizeDB extends AppControllerBE {
 
 	function render() {
@@ -14,11 +18,13 @@ class OptimizeDB extends AppControllerBE {
 
 	function optimizeAction() {
 		$tables = $this->db->getTables();
-		foreach ($tables as $name) {
+		$pb = new ProgressBar();
+		foreach ($tables as $i => $name) {
 			$query = "OPTIMIZE TABLE `".$name."`";
 			echo $query;
 			$this->db->perform($query);
 			echo "\n";
+			$pb->setProgressBarProgress($i*100/sizeof($tables));
 		}
 	}
 

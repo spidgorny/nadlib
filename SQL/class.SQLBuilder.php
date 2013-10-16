@@ -281,7 +281,7 @@ class SQLBuilder {
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
-			return intval($value); // MySQL specific
+			//return intval($value); // MySQL specific
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -373,6 +373,7 @@ class SQLBuilder {
 					$or->injectQB($this);
 					$set[] = $or;
 				} else {
+					//debug_pre_print_backtrace();
 					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
 				}
