@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Stores a string and retrieves a string.
+ * @see MemcacheFile if you need to store an array
+ * Class FileCache
+ */
 class FileCache {
 	protected $folder = 'cache/';
 	protected $age = 86400; //60*60*24;
@@ -14,7 +19,7 @@ class FileCache {
 	}
 
 	function map($key) {
-		return $this->folder . md5($key);
+		return $this->folder . md5($key) . '.cache';
 	}
 
 	function hasKey($key) {

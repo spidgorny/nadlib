@@ -61,4 +61,13 @@ class MemcacheFile {
 		}
 	}
 
+	/**
+	 * @param $key
+	 * @return Duration
+	 */
+	function getAge($key) {
+		$file = $this->map($key);
+		return new Duration(time() - @filemtime($file));
+	}
+
 }

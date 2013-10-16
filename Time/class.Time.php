@@ -36,7 +36,6 @@ class Time {
 			$this->time = time();
 		}
 		$this->updateDebug();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.Debug::getCaller().')');
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.MySQL::getCaller().')');
 	}
 

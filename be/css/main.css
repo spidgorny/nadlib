@@ -57,3 +57,6 @@ form.anyPageForm input {
 .navbar-form input {
 	width: 10em;
 }
+.htmlFormTable {
+	width: 100%;
+}
