@@ -15,7 +15,12 @@ class VersionInfoTask implements TaskInterface {
 
 			foreach ($subscribers as $user) {
 				if (!$this->debug) {
-					$msg->post($user, $view, 'Notification from ORS about "'.$sw->getName().'"', __METHOD__);
+					$msg->post($user,
+						$view,
+						'Notification from ORS about "'.$sw->getName().'"',
+						__METHOD__,
+						true
+					);
 				}
 			}
 		}
