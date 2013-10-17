@@ -348,10 +348,12 @@ class SQLBuilder {
 					} else {
 						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
 					}
-				} else if ($val === NULL) {
+				} else if ($val === NULL || $val == 'NULL') {
 					$set[] = "$key IS NULL";
+				} else if ($val == 'NOTNULL') {
+					$set[] = "$key IS NOT NULL";
 				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
-                    || in_array(substr($key, -2), array('!=', '<=', '>='))) {
+                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign '$val'";
