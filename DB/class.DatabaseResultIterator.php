@@ -23,6 +23,11 @@ class DatabaseResultIterator implements Iterator, Countable {
 
 	var $key = 0;
 
+	/**
+	 * @var MySQL|dbLayer
+	 */
+	var $db;
+
 	function __construct(DIContainer $di, $defaultKey = NULL) { // 'uid'
 		$this->defaultKey = $defaultKey;
 		//$this->db = Config::getInstance()->db;
@@ -42,43 +47,51 @@ class DatabaseResultIterator implements Iterator, Countable {
 		}
 	}
 
-    function current() {
-    	return $this->row;
-    }
+	function current() {
+		return $this->row;
+	}
 
-    function key() {
-    	return $this->key;
-    }
+	function key() {
+		return $this->key;
+	}
 
-    function next() {
-    	$this->row = $this->retrieveRow();
-    	if ($this->defaultKey) {
-	    	$this->key = $this->row[$this->defaultKey];
-    	} else {
-    		$this->key++;
-    	}
-    	return $this->row;
-    }
+	function next() {
+		$this->row = $this->retrieveRow();
+		if ($this->defaultKey) {
+			$this->key = $this->row[$this->defaultKey];
+		} else {
+			$this->key++;
+		}
+		return $this->row;
+	}
 
-    function retrieveRow() {
+	function retrieveRow() {
 		$row = $this->db->fetchRow($this->dbResultResource);
 		return $row;
-    }
+	}
 
-    function valid() {
-    	return $this->row !== FALSE;
-    }
+	function valid() {
+		return $this->row !== FALSE;
+	}
 
-    function count() {
-    	return $this->db->numRows($this->dbResultResource);
-    }
+	function count() {
+		return $this->db->numRows($this->dbResultResource);
+	}
 
+	/**
+	 * Should not be used - against the purpose, but nice for debugging
+	 * @return array
+	 */
 	function fetchAll() {
 		$data = array();
 		foreach ($this as $row) {
 			$data[] = $row;
 		}
 		return $data;
+	}
+
+	function __destruct() {
+		$this->db->free($this->dbResultResource);
 	}
 
 }
