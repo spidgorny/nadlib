@@ -101,7 +101,7 @@ class BijouDBConnector {
 		} else if ($desc['asis']) {
 			return /*$this->escapeString(*/$value/*)*/;
 		} else {
-			return "'".$this->escapeString($value)."'";
+			return $this->escapeString($value);
 		}
 	}
 
@@ -110,7 +110,7 @@ class BijouDBConnector {
 	}
 
 	function escapeString($value) {
-		return mysql_real_escape_string($value);
+		return $this->t3d->fullQuoteStr($value, '');
 	}
 
 	function getDefaultInsertFields() {
@@ -181,7 +181,7 @@ class BijouDBConnector {
 	}
 
 	function escape($str) {
-		return mysql_real_escape_string($str);
+		return $GLOBALS['TYPO3_DB']->quoteStr($str, '');
 	}
 
 	function quoteKey($key) {
