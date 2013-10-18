@@ -297,12 +297,13 @@ class slTable {
 				$i = -1;
 				foreach ($data as $key => $row) { // (almost $this->data)
 					$class = array();
+					++$i;
 					if (isset($row['###TD_CLASS###'])) {
 						$class[] = $row['###TD_CLASS###'];
 					} else {
 						// only when not manually defined
 						if ($this->isOddEven) {
-							$class[] = (++$i%2?'even':'odd');
+							$class[] = ($i%2?'even':'odd');
 						}
 					}
 					if ($this->dataClass[$key]) {
