@@ -48,7 +48,6 @@ abstract class HTMLFormProcessor extends AppController {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->desc = $this->getDesc();
 		$this->form = $this->getForm();
-		//debug($this->desc);
 		//debug($this->prefix);
 		if ($this->submitted) {
 			//$urlParams = $this->request->getArray($this->prefix);
@@ -57,11 +56,10 @@ abstract class HTMLFormProcessor extends AppController {
 			//debug('submit detected', $this->prefix, sizeof($subRequest->getAll()), implode(', ', array_keys($subRequest->getAll())));
 			$this->form->importValues($subRequest);
 			$this->desc = $this->form->desc;
-			//debug($this->form->desc);
+
 			$this->validator = new HTMLFormValidate($this->form);
 			$this->validated = $this->validator->validate();
-			$this->desc = $this->validator->getDesc();
-			$this->form->desc = $this->desc;
+			$this->form->desc = $this->desc = $this->validator->getDesc();
 		} else {
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 			//debug($this->default);

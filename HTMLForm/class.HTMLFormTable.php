@@ -89,12 +89,14 @@ class HTMLFormTable extends HTMLForm {
 					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
 				$desc->importValues($subForm);
 				//debug('after', $desc->desc);
-			} else if ($desc['type'] instanceof HTMLFormDatePicker) {
-				$val = $form->getTrim($key);
-				$desc['value'] = $desc['type']->getISODate($val);
-				//debug(__METHOD__, $val, $desc['value']);
 			} else if ($form->is_set($key)) {
-				$desc['value'] = $form->getTrim($key);
+				if ($desc['type'] instanceof HTMLFormDatePicker) {
+					$val = $form->getTrim($key);
+					$desc['value'] = $desc['type']->getISODate($val);
+					//debug(__METHOD__, $val, $desc['value']);
+				} else {
+					$desc['value'] = $form->getTrim($key);
+				}
 			} // else keep default ['value']
 		}
 	}
@@ -478,10 +480,11 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Deprecated. Used to retrieve name/values pairs from the array with $this->withValues = FALSE.
+	 * TODO: what to use instead?
 	 *
-	 * @param array		Form description array
-	 * @param string	Column name that contains values. Within this class default value is the only that makes sence.
-	 * @return array	1D array with name/values
+	 * @param array	$arr	Form description array
+	 * @param string $col	Column name that contains values. Within this class default value is the only that makes sence.
+	 * @return array		1D array with name/values
 	 */
 	function getValues(array $arr = NULL, $col = 'value') {
 		$arr = $arr ? $arr : $this->desc;
