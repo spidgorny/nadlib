@@ -330,7 +330,11 @@ class SQLBuilder {
 				if ($val instanceof AsIs) {
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
-					$set[] = $key . ' ' . $val;
+					if (is_numeric($key)) {
+						$set[] = $val;
+					} else {
+						$set[] = $key . ' ' . $val;
+					}
 				} else if ($val instanceof SQLBetween) {
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
@@ -356,7 +360,7 @@ class SQLBuilder {
 					$set[] = "$key $sign $val";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {
+				} else if (is_numeric($key)) {	// no quote
 					$set[] = $val;
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
