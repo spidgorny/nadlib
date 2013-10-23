@@ -304,7 +304,10 @@ class Pager {
 	function getCountedRows($dbEdit) {
 		global $dbLayer;
 		$queryCount = $dbEdit->getCountQuery();
-		list($countedRows) = pg_fetch_array($dbLayer->perform($queryCount));
+		$res = $dbLayer->perform($queryCount);
+		$row = pg_fetch_array($res);
+		//debug($row, $queryCount);
+		list($countedRows) = $row;
 		return $countedRows;
 	}
 
