@@ -89,6 +89,14 @@ class Request {
 		return $value;
 	}
 
+	function getTrimRequired($name) {
+		if ($this->is_set($name)) {
+			return $this->getTrim($name);
+		} else {
+			throw new Exception('Parameter '.$name.' is required.');
+		}
+	}
+
 	/**
 	 * Will strip tags
 	 * @param $name

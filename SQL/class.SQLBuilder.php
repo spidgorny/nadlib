@@ -447,8 +447,8 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array()) {
-		$q = "DELETE FROM $table ";
+	function getDeleteQuery($table, $where = array(), $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);

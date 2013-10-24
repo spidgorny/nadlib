@@ -411,9 +411,11 @@ class Collection {
 	function showFilter() {
 		if ($this->filter) {
 			$f = new HTMLFormTable();
+			$f->method('GET');
+			$f->defaultBR = true;
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn-primary'));
+			$f->submit('Filter', array('class' => 'btn btn-primary'));
 			$content = $f->getContent();
 		}
 		return $content;
