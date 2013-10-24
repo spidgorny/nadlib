@@ -627,6 +627,9 @@ class slTable {
 		exit();
 	}
 
+	/**
+	 * TODO: use getThesNames()
+	 */
 	function prepare4XLS() {
 		$this->generateThes();
 		//debug($this->thes);
