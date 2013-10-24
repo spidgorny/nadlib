@@ -379,6 +379,12 @@ class HTMLFormTable extends HTMLForm {
 		$this->stdout .= "</td></tr></table>";
 	}
 
+	/**
+	 * @param array $formData	@deprecated - use __construct() instead
+	 * @param array $prefix
+	 * @param bool $mainForm
+	 * @param string $append
+	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
 	}
