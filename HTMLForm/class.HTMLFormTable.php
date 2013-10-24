@@ -60,6 +60,7 @@ class HTMLFormTable extends HTMLForm {
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
 		if ($this->desc) {
+			// todo: does not get correct values OR values at all!
 			$this->importValues($this->request->getSubRequestByPath($this->prefix));
 			//$this->showForm();	// call manually to have a chance to change method or defaultBR
 		}
