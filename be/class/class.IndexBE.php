@@ -32,7 +32,7 @@ class IndexBE extends IndexBase {
 		$this->user->try2login();
 		$c->user = $this->user;	// for consistency
 
-		$this->ll = new LocalLangDB();
+		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
 	}
 
