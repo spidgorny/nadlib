@@ -52,7 +52,6 @@ class ConfigBase {
 		'vendor/spidgorny/nadlib/Time',
 		'vendor/spidgorny/nadlib/User',
 		'vendor/spidgorny/nadlib/Queue',
-		'vendor/spidgorny/nadlib/Queue/Task',
 		'class',	// to load the Config of the main project
 		'model',
 		'vendor/spidgorny/nadlib/be/class',
