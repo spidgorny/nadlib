@@ -6,10 +6,24 @@ class Date extends Time {
 	
 	function __construct($input = NULL, $relativeTo = NULL) {
 		parent::__construct($input, $relativeTo);
-		$this->modify('Y-m-d \G\M\T');
+		//$this->modify('Y-m-d \G\M\T'); // very slow!
+		$this->time = mktime(0, 0, 0, date('m', $this->time), date('d', $this->time), date('Y', $this->time));
 		$this->updateDebug();
+		if (is_null($relativeTo)) {
+			assert($this->time >= 0);
+		}
 	}
 
+	/**
+	 * Copy/paste because to 'static'
+	 * @param type $input
+	 * @param type $relativeTo
+	 * @return self
+	 */
+	static function make($input = NULL, $relativeTo = NULL) {
+		return new self($input, $relativeTo);
+	}
+	
 	function getMySQL() {
 		return gmdate('Y-m-d', $this->time);
 	}
@@ -38,6 +52,26 @@ class Date extends Time {
 	 */
 	function math($formula) {
 		return new self(strtotime($formula, $this->time));
+	}
+
+	function __toString() {
+		return $this->getHumanDate();
+	}
+
+	function days() {
+		return $this->getTimestamp() / 60 / 60 / 24;
+	}
+
+	function getSystem() {
+		return $this->format('Y-m-d');
+	}
+
+	function plusDur(Duration $plus) {
+		return new self($this->time + $plus->getTimestamp());
+	}
+
+	static public function fromHuman($str) {
+		return new Date(strtotime($str));
 	}
 
 }

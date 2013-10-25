@@ -1,8 +1,8 @@
 <?php
 
-class ArrayIteratorPlus implements Iterator {
+class ArrayIteratorPlus implements Iterator, Countable {
 	protected $data = array();
-	private $position = 0;
+	protected $position = 0;
 
     function current() {
         return $this->data[$this->position];
@@ -23,5 +23,9 @@ class ArrayIteratorPlus implements Iterator {
     function valid() {
         return isset($this->data[$this->position]);
     }
+	
+	function count() {
+		return sizeof($this->data);
+	}
 
 }

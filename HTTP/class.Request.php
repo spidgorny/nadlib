@@ -64,6 +64,8 @@ class Request {
 	 * Checks that trimmed value isset in the supplied array
 	 * @param $name
 	 * @param array $options
+	 * @throws Exception
+	 * @return string
 	 */
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
@@ -134,7 +136,8 @@ class Request {
 	 * Will return timestamp
 	 * Converts string date compatible with strtotime() into timestamp (integer)
 	 *
-	 * @param unknown_type $name
+	 * @param string $name
+	 * @throws Exception
 	 * @return int
 	 */
 	function getTimestampFromString($name) {
@@ -182,7 +185,8 @@ class Request {
 	/**
 	 * Will return Time object
 	 *
-	 * @param unknown_type $name
+	 * @param string $name
+	 * @param null $rel
 	 * @return Time
 	 */
 	function getTime($name, $rel = NULL) {
@@ -195,6 +199,7 @@ class Request {
 	 * Will return Date object
 	 *
 	 * @param string $name
+	 * @param null $rel
 	 * @return Date
 	 */
 	function getDate($name, $rel = NULL) {
@@ -283,6 +288,9 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getControllerString();
+		if (!$c) {
+			$c = $GLOBALS['i']->controller; // default
+		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
@@ -347,6 +355,10 @@ class Request {
 
 	function getJson($name) {
 		return json_decode($this->getTrim($name), true);
+	}
+
+	function getJSONObject($name) {
+		return json_decode($this->getTrim($name));
 	}
 
 	function isSubmit() {

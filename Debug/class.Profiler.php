@@ -19,9 +19,22 @@ class Profiler {
 		return number_format($out, 5, '.', '');
 	}
 
-	function Done() {
-		$out = $this->elapsed();
-		print("Done in $out seconds.");
+	function Done($isReturn = FALSE) {
+		$out = number_format($this->elapsed(), 3);
+		$content = "Done in $out seconds.";
+		if ($isReturn) {
+			return $content;
+		} else {
+			print($content);
+		}
+	}
+
+	function startTimer($method) {
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer($method);
+	}
+
+	function stopTimer($method) {
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer($method);
 	}
 
 }
