@@ -50,13 +50,18 @@ class Pager {
 		$this->request = Request::getInstance();
 		$this->user = Config::getInstance()->user;
 		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
-			if ($this->request->getMethod() == 'POST') {
-				//Debug::debug_args($pagerData);
-				$pagerData['page']--;
+			if ($pagerData['startingRecord']) {
+				$this->startingRecord = (int)($pagerData['startingRecord']);
+				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
+			} else {
+				if ($this->request->getMethod() == 'POST') {
+					//Debug::debug_args($pagerData);
+					$pagerData['page']--;
+				}
+				$this->setCurrentPage($pagerData['page']);
+				$this->saveCurrentPage();
 			}
-			$this->setCurrentPage($pagerData['page']);
-			$this->saveCurrentPage();
-		} else if ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
+		} elseif ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
 			//debug(__METHOD__, $this->prefix, $pager['page']);
 			$this->setCurrentPage($pager['page']);
 		} else {

@@ -5,6 +5,7 @@
  * or array of OODBase based objects.
  *
  */
+ /*abstract*/ // commented because of createForTable()
 class Collection {
 	/**
 	 *
@@ -24,8 +25,13 @@ class Collection {
 	public $thes = array();
 
 	var $titleColumn = 'title';
+
 	public $where = array();
-	public $join = ''; // for LEFT OUTER JOIN queries
+
+	/**
+	 * for LEFT OUTER JOIN queries
+	 */
+	public $join = ''; 
 
 	/**
 	 * Initialize in postInit() to run paged SQL
@@ -41,10 +47,17 @@ class Collection {
 
 	/**
 	 * objectify() stores objects generated from $this->data here
+	 * array of objects converted from $this->data // convert to public
 	 * @var array
 	 */
 	public $members = array();
 
+	/**
+	 * objectify() without parameters will try this class name
+	 * @var string
+	 */
+	protected $itemClassName = 'OODBase?';
+	
 	/**
 	 * SQL part
 	 * @var string
@@ -72,6 +85,7 @@ class Collection {
 	/**
 	 * Lists columns for the SQL query
 	 * @var string
+	 * @default "DISTINCT table.*"
 	 */
 	public $select;
 
@@ -102,7 +116,7 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0) {
+		if (!$this->parentID || $this->parentID > 0 || $this->where) {
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -137,11 +151,18 @@ class Collection {
 		if ($this->parentID > 0) {
 			$where[$this->parentField] = $this->parentID;
 		}
+		// bijou old style - each collection should care about hidden and deleted
+		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
 		$qb = Config::getInstance()->qb;
 		if ($where instanceof SQLWhere) {
 			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
-			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
+			$query = $qb->getSelectQuery  (
+				$this->table.' '.$this->join, 
+				$where, 
+				$this->orderBy, 
+				$this->select, 
+				TRUE);
 		}
 		if ($this->pager) {
 			$this->pager->initByQuery($query);
@@ -254,17 +275,33 @@ class Collection {
 	}
 
 	/**
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return Collection
+	 */
+	function createForTable($table, array $where = array(), $orderBy = '') {
+		$c = new self();
+		$c->table = $table;
+		$c->where = $where;
+		$c->orderBy = $orderBy;
+		return $c;
+	}
+
+	/**
 	 * Will detect double-call and do nothing.
 	 *
 	 * @param string $class
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class, $byInstance = false) {
+	function objectify($class = NULL, $byInstance = false) {
+		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
+					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
 					$this->members[$key] = call_user_func($class.'::getInstance', $row);
 				} else {
 					$this->members[$key] = new $class($row);

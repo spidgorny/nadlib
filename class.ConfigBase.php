@@ -34,6 +34,11 @@ class ConfigBase {
 
 	public $documentRoot = '';
 
+	/**
+	 * @var string
+	 */
+	public $appRoot;
+
 	public static $includeFolders = array(
 		'.',
 		'Cache',
@@ -73,6 +78,7 @@ class ConfigBase {
 			$this->qb = new SQLBuilder($di);
 		}
 		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
@@ -108,6 +114,7 @@ class ConfigBase {
 	 * TODO: enable FirePHP
 	 * @param $class
 	 * @param $message
+	 * @throws Exception
 	 */
 	function log($class, $message) {
 		if (DEVELOPMENT) {

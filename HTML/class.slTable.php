@@ -194,6 +194,21 @@ class slTable {
 		}
 	}
 
+	function getThesNames() {
+		$names = array();
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = isset($thv['name'])
+					? $thv['name']
+					: (isset($thv['label']) ? $thv['label'] : '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
+		}
+		return $names;
+	}
+
 	function generateThead(HTMLTableBuf $t) {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -239,20 +254,15 @@ class slTable {
 			$t->thes($thes2, $thmore, $this->thesMore . (is_array($this->more) ? $this->more['thesMore'] : '')); // $t is not $this // sorting must be done before
 		}
 
-		// col
-		if ($this->isAlternatingColumns) {
-			for ($i = 0; $i < sizeof($this->thes); $i++) {
-				$t->stdout .= '<col class="'.($i%2?'even':'odd').'" />';
+		$t->stdout .= '<colgroup>';
+		$i = 0;
+		foreach ($thes2 as $key => $dummy) {
+			if ($this->isAlternatingColumns) {
+				$key .= ' '.(++$i%2?'even':'odd');
 			}
+			$t->stdout .= '<col class="col_'.$key.'" />';
 		}
-
-		if (TRUE) {
-			$t->stdout .= '<colgroup>';
-			foreach ($thes2 as $key => $dummy) {
-				$t->stdout .= '<col class="col_'.$key.'" />';
-			}
-			$t->stdout .= '</colgroup>';
-		}
+		$t->stdout .= '</colgroup>';
 
 		if ($this->dataPlus) {
 			$this->data = array_merge(array($this->dataPlus), $this->data);
@@ -363,7 +373,7 @@ class slTable {
 						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 						$out = $wrap->wrap($out);
 					}
-					$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
+					//$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
@@ -502,7 +512,7 @@ class slTable {
 						$val = $val->getName();
 					}
 				}
-				if ($k['no_hsc']) {
+				if ($k['no_hsc'] || $val instanceof htmlString) {
 					$out = $val;
 				} else {
 					$out = htmlspecialchars($val);

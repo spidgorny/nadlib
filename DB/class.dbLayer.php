@@ -322,11 +322,19 @@ class dbLayer {
 		return $rows;
 	}
 
+	/**
+	 * @param $res
+	 * @return array
+	 */
 	function fetchAssoc($res) {
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
-		return pg_fetch_assoc($res);
+		$row = pg_fetch_assoc($res);
+		if (!$row) {
+			$row = array();
+		}
+		return $row;
 	}
 
 	function getAllRows($query) {

@@ -46,6 +46,7 @@ class Duration extends Time {
 	}
 
 	function nice() {
+		return $this->toString();
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = array();
@@ -63,6 +64,7 @@ class Duration extends Time {
 	/**
 	 * Parses the human string like '24h 10m'
 	 * @param type $string
+	 * @return Duration
 	 */
 	static function fromHuman($string) {
 		$total = 0;
@@ -125,22 +127,24 @@ class Duration extends Time {
 		return $this->toString($this->time);
 	}
 
-    /**
-     * All in one method
-     *
-     * @param   int|array  $duration  Array of time segments or a number of seconds
-     * @return  string
-     */
-    function toString($duration, $periods = null, $perCount = 2) {
+	/**
+	 * All in one method
+	 *
+	 * @param null $periods
+	 * @param int $perCount
+	 * @return  string
+	 */
+    function toString($periods = null, $perCount = 2) {
 		$content = '';
-        if (!is_array($duration)) {
-            $duration = Duration::int2array($duration, $periods);
-        }
+        $duration = $this->int2array($periods);
         //debug($duration);
 
         if (is_array($duration)) {
-	        $duration = array_slice($duration, 0, 2, TRUE);
-	        $content .= Duration::array2string($duration) . ' '.__('ago');
+	        $duration = array_slice($duration, 0, $perCount, TRUE);
+	        $content .= Duration::array2string($duration);
+			if ($this->time < 0) {
+				$content .= ' '.__('ago');
+			}
         } else {
         	$content .= __('just now');
         }
@@ -149,12 +153,13 @@ class Duration extends Time {
     }
 
 
-    /**
-     * Return an array of date segments.
-     *
-     * @param        int $seconds Number of seconds to be parsed
-     * @return       mixed An array containing named segments
-     */
+	/**
+	 * Return an array of date segments.
+	 *
+	 * @param null $periods
+	 * @internal param int $seconds Number of seconds to be parsed
+	 * @return       mixed An array containing named segments
+	 */
     function int2array($periods = null) {
         // Define time periods
         if (!is_array($periods)) {
@@ -170,7 +175,7 @@ class Duration extends Time {
         }
 
         // Loop
-        $seconds = (float) $this->time;
+        $seconds = (float) abs($this->time);
         foreach ($periods as $period => $value) {
             $count = floor($seconds / $value);
 
@@ -198,7 +203,7 @@ class Duration extends Time {
      * @param        mixed $duration An array of named segments
      * @return       string
      */
-    function array2string($duration) {
+    static function array2string($duration) {
         if (!is_array($duration)) {
             return false;
         }
@@ -218,6 +223,10 @@ class Duration extends Time {
         $str = implode(', ', $array);
         return $str;
     }
+
+	function getTimestamp() {
+		return $this->time;
+	}
 
 	function trimExplode($str, $exp = ',') {
 		$items = explode($exp, $str);

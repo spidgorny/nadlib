@@ -7,14 +7,16 @@ class ProgressBar {
 	var $tbarid;
 	var $textid;
 	var $decimals = 1;
+	protected $color = '#43b6df';
 	var $cli = false;
 
-	function __construct($percentDone = 0) {
+	function __construct($percentDone = 0, $color = '43b6df') {
 		$this->pbid = 'pb';
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
 		$this->percentDone = $percentDone;
+		$this->color = $color;
 		$this->cli = Request::isCLI();
 	}
 
@@ -36,7 +38,7 @@ class ProgressBar {
 			<div id="'.$this->textid.'" class="'.$this->textid.'">'.$percentDone.'</div>
 			<div class="pb_bar">
 				<div id="'.$this->pbarid.'" class="pb_before"
-				style="width: '.$percentDone.';"></div>
+				style="background-color: '.$this->color.'; width: '.$percentDone.';"></div>
 				<div id="'.$this->tbarid.'" class="pb_after"></div>
 			</div>
 			<div style="clear: both;"></div>
@@ -72,6 +74,21 @@ class ProgressBar {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
 		//ob_end_flush();
 		flush();
+	}
+
+	function __toString() {
+		return $this->getContent();
+	}
+
+	function getImage($p) {
+		return '<div style="display: inline-block; width: 15em; text-align: right; wrap: nowrap;">'.number_format($p, 2).'&nbsp;%&nbsp;<img src="skin/bar.php?rating='.round($p).'" style="vertical-align: middle;" /></div>';
+	}
+
+	public function setTitle() {
+		print '
+		<script>
+			document.title = "'.number_format($this->percentDone, 3, '.', '').'%";
+		</script>';
 	}
 
 }

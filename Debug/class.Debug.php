@@ -27,7 +27,7 @@ class Debug {
 			$props = array(
 				'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
 				'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
-					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
+					(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : ''),
 			);
 			if (is_array($a)) {
 				$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
@@ -35,8 +35,7 @@ class Debug {
 				$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
 			}
 
-			$content = '
-			<div class="debug" style="
+			$content = '<div class="debug" style="
 				background: #EEEEEE;
 				border: solid 1px silver;
 				display: inline-block;
@@ -107,7 +106,7 @@ class Debug {
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
 				$type = gettype($r);
-				$type = gettype($r) == 'object' ? get_class($r) : $type;
+				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
 				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
 				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
 				$content .= '<tr>
