@@ -60,7 +60,7 @@ class InitNADLIB {
 }
 
 function debug($a) {
-	$params = func_get_args();
+    $params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
