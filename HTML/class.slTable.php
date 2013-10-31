@@ -378,6 +378,7 @@ class slTable {
 				foreach ($data as $key => $row) { // (almost $this->data)
                     ++$i;
                     $class = array();
+					++$i;
 					if (isset($row['###TD_CLASS###'])) {
 						$class[] = $row['###TD_CLASS###'];
 					} else {
