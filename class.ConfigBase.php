@@ -34,28 +34,30 @@ class ConfigBase {
 
 	public $documentRoot = '';
 
+	/**
+	 * @var string
+	 */
+	public $appRoot;
+
 	public static $includeFolders = array(
-		'vendor/spidgorny/nadlib',
-		'vendor/spidgorny/nadlib/Cache',
-		'vendor/spidgorny/nadlib/Controller',
-		'vendor/spidgorny/nadlib/CSS',
-		'vendor/spidgorny/nadlib/Data',
-		'vendor/spidgorny/nadlib/DB',
-		'vendor/spidgorny/nadlib/Debug',
-		'vendor/spidgorny/nadlib/HTML',
-		'js',
-		'vendor/spidgorny/nadlib/HTMLForm',
-		'vendor/spidgorny/nadlib/HTTP',
-		'vendor/spidgorny/nadlib/LocalLang',
-		'vendor/spidgorny/nadlib/ORM',
-		'vendor/spidgorny/nadlib/SQL',
-		'vendor/spidgorny/nadlib/Time',
-		'vendor/spidgorny/nadlib/User',
-		'vendor/spidgorny/nadlib/Queue',
-		'vendor/spidgorny/nadlib/Queue/Task',
-		'class',	// to load the Config of the main project
-		'model',
-		'vendor/spidgorny/nadlib/be/class',
+		'.',
+		'Cache',
+		'Controller',
+		'CSS',
+		'Data',
+		'DB',
+		'Debug',
+		'HTML',
+		'HTMLForm',
+		'HTTP',
+		'LocalLang',
+		'ORM',
+		'SQL',
+		'Time',
+		'User',
+		'../model',
+		'be/class',
+		'../class',	// to load the Config of the main project
 	);
 
 	/**

@@ -362,6 +362,30 @@ class dbLayer {
 		return $q;
 	}
 
+	function fetchAll($result) {
+		if (is_string($result)) {
+			$result = $this->perform($result);
+		}
+		$rows = pg_fetch_all($result);
+		if (!$rows) $rows = array();
+		return $rows;
+	}
+
+	/**
+	 * @param $res
+	 * @return array
+	 */
+	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		$row = pg_fetch_assoc($res);
+		if (!$row) {
+			$row = array();
+		}
+		return $row;
+	}
+
 	function getAllRows($query) {
 		$result = $this->perform($query);
 		$data = $this->fetchAll($result);

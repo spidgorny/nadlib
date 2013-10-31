@@ -35,7 +35,12 @@ class TaylorProfiler {
     var $output_enabled;
     var $trace_enabled;
 
-    /**
+	/**
+	 * @var SplObjectStorage
+	 */
+	static $sos;
+
+	/**
     * Initialise the timer. with the current micro time
     */
     function TaylorProfiler( $output_enabled=false, $trace_enabled=false) {
@@ -60,9 +65,12 @@ class TaylorProfiler {
     // Public Methods
 
 	function getName() {
-		$i = 3;
-		//$name = dbLayerPG::getCaller($i, 2);
-		$name = MySQL::getCaller();
+		if (class_exists('MySQL')) {
+			$name = MySQL::getCaller();
+		} else {
+			$i = 3;
+			$name = dbLayerPG::getCaller($i, 2);
+		}
 		return $name;
 	}
 
@@ -76,9 +84,12 @@ class TaylorProfiler {
     function startTimer($name = NULL, $desc="" ){
 		$name = $name ? $name : $this->getName();
     	if ($this->trace_enabled) {
-	        $this->trace[] = array('time' => time(), 'function' => "$name {", 'memory' => memory_get_usage());
+	        $this->trace[] = array(
+				'time' => time(),
+				'function' => "$name {",
+				'memory' => memory_get_usage());
     	}
-    	if ($this->output_enabled) {
+		if ($this->output_enabled) {
 	        $n=array_push( $this->stack, $this->cur_timer );
 	        $this->__suspendTimer( $this->stack[$n-1] );
 	        $this->startTime[$name] = $this->getMicroTime();
@@ -146,6 +157,7 @@ class TaylorProfiler {
     function printTimers($enabled=false) {
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
+            $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
             $oaTime = $this->getMicroTime() - $this->initTime;
@@ -181,8 +193,9 @@ class TaylorProfiler {
             uasort($together, array($this, 'sort'));
 
 			$i = 0;
-            $table = array();
 			foreach ($together as $key => $row) {
+			    $val = $row['desc'];
+	            $t = $row['time'];
 	            $total = $row['total'];
                 $TimedTotal += $total;
 	            $perc = $row['perc'];
@@ -197,7 +210,7 @@ class TaylorProfiler {
 	            );
 		   }
 
-            $s = new slTable();
+            $s = new slTable($table, 'class="nospacing" width="100%"');
             $s->thes(array(
             	'nr' => 'nr',
             	'count' => array(
@@ -219,15 +232,15 @@ class TaylorProfiler {
             	'routine' => array(
 					'name' => 'routine',
 					'no_hsc' => true
+					'wrap' => new Wrap('<small>|</small>'),
 				),
             ));
-            $s->more = 'class="view_array" awidth="100%"';
-            $s->data = $table;
+			$s->isOddEven = true;
             $s->footer = array(
             	'nr' => 'total',
             	'time, ms' => number_format($oaTime*1000, 2, '.', ''),
             	'percent' => number_format($tot_perc, 2, '.', '').'%',
-            	'routine' => "OVERALL TIME",
+            	'routine' => "OVERALL TIME (".number_format(memory_get_peak_usage()/1024/1024, 3, '.', '')."MB)",
             );
             $out = Request::isCLI()
 				? $s->getCLITable(true)
@@ -307,6 +320,34 @@ class TaylorProfiler {
     	return $ret;
     }
 
+	static function getMemoryUsage($returnString = false) {
+		static $max;
+		$max = $max ?: intval(ini_get('memory_limit'));	// MB implied
+		$cur = memory_get_usage(true) / 1024 / 1024;
+		if ($returnString) {
+			$content = str_pad(number_format($cur, 0, '.', ''), 4, ' ', STR_PAD_LEFT).'/'.$max.'MB '.number_format($cur/$max*100, 3, '.', '').'% ';
+		} else {
+			$content = number_format($cur/$max, 3, '.', '');
+		}
+		return $content;
+	}
+
+	static function addMemoryMap($obj) {
+		self::$sos = self::$sos ?: new SplObjectStorage();
+		self::$sos->attach($obj);
+	}
+
+	static function getMemoryMap() {
+		$table = array();
+		foreach (self::$sos as $obj) {
+			$class = get_class($obj);
+			$table[$class]['count']++;
+			$table[$class]['mem1'] = strlen(serialize($obj));
+			$table[$class]['memory'] += $table[$class]['mem1'];
+		}
+		return $table;
+	}
+	
 	static function renderFloat() {
 		$profiler = $GLOBALS['profiler'];
 		if ($profiler) {
@@ -342,6 +383,13 @@ class TaylorProfiler {
 		$max = intval(ini_get('memory_limit'))*1024*1024;
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 4, '.', '');
+	}
+	
+	static function getTimeUsage() {
+		static $max;
+		$max = $max ?: intval(ini_get('max_execution_time'));
+		$cur = microtime(true) - $_SERVER['REQUEST_TIME'];
+		return number_format($cur/$max, 3, '.', '');
 	}
 
 	static function getMemDiff() {

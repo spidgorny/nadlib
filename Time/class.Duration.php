@@ -46,6 +46,7 @@ class Duration extends Time {
 	}
 
 	function nice() {
+		return $this->toString();
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = array();
@@ -132,25 +133,20 @@ class Duration extends Time {
 	/**
 	 * All in one method
 	 *
-	 * @param   int|array  $duration  Array of time segments or a number of seconds
 	 * @param null $periods
 	 * @param int $perCount
 	 * @return  string
-	 * @uses int2array
-	 * @uses array2string
 	 */
-    function toString($duration, $periods = NULL, $perCount = 2) {
+    function toString($periods = null, $perCount = 2) {
 		$content = '';
-        if (!is_array($duration)) {
-            $duration = $this->int2array($duration, $periods);
-        }
+        $duration = $this->int2array($periods);
         //debug($duration);
 
         if (is_array($duration)) {
-	        $duration = array_slice($duration, 0, 2, TRUE);
+	        $duration = array_slice($duration, 0, $perCount, TRUE);
 	        $content .= $this->array2string($duration);
 			//debug($duration);
-			if (array_sum($duration) < 0) {
+			if ($this->time < 0) {
 				$content .= ' '.__('ago');
 			}
         } else {
@@ -184,7 +180,7 @@ class Duration extends Time {
         }
 
         // Loop
-        $seconds = (float) $this->time;
+        $seconds = (float) abs($this->time);
         foreach ($periods as $period => $value) {
             $count = floor($seconds / $value);
 
@@ -212,7 +208,7 @@ class Duration extends Time {
      * @param        mixed $duration An array of named segments
      * @return       string
      */
-    protected function array2string($duration) {
+    protected static function array2string($duration) {
         if (!is_array($duration)) {
             return false;
         }
@@ -232,6 +228,10 @@ class Duration extends Time {
         $str = implode(', ', $array);
         return $str;
     }
+
+	function getTimestamp() {
+		return $this->time;
+	}
 
 	function less($sDuration) {
 		if (is_string($sDuration)) {

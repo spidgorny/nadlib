@@ -283,6 +283,21 @@ class slTable {
 		return $names;
 	}
 
+	function getThesNames() {
+		$names = array();
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = isset($thv['name'])
+					? $thv['name']
+					: (isset($thv['label']) ? $thv['label'] : '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
+		}
+		return $names;
+	}
+
 	function generateThead(HTMLTableBuf $t) {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -332,21 +347,17 @@ class slTable {
 			$t->thes($thes2, $thmore, $this->thesMore . (is_array($this->more) ? HTMLTag::renderAttr($this->more['thesMore']) : '')); // $t is not $this // sorting must be done before
 		}
 
-		// col
-		if ($this->isAlternatingColumns) {
-			for ($i = 0; $i < sizeof($this->thes); $i++) {
-				$t->stdout .= '<col class="'.($i%2?'even':'odd').'" />';
-			}
-		}
+		$t->stdout .= '<colgroup>';
+		$i = 0;
+		foreach ($thes2 as $key => $dummy) {
+						$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 
-		if (TRUE) {
-			$t->stdout .= '<colgroup>';
-			foreach ($thes2 as $key => $dummy) {
-				$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
-				$t->stdout .= '<col class="col_'.$key.'" />';
+			if ($this->isAlternatingColumns) {
+				$key .= ' '.(++$i%2?'even':'odd');
 			}
-			$t->stdout .= '</colgroup>';
+			$t->stdout .= '<col class="col_'.$key.'" />';
 		}
+		$t->stdout .= '</colgroup>';
 
 		if ($this->dataPlus) {
 			$this->data = array_merge(array($this->dataPlus), $this->data);
