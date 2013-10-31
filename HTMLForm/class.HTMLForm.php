@@ -514,7 +514,7 @@ class HTMLForm {
 		return $content;
 	}
 
-	function dropSelect($fieldName, array $options) {
+	static function dropSelect($fieldName, array $options) {
 		$content = '
 			<input type="hidden" name="'.$fieldName.'" id="'.$fieldName.'">
 			<input type="text" name="'.$fieldName.'_name" id="'.$fieldName.'_name" onchange="setDropSelectValue(this.value, this.value);">
