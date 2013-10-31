@@ -7,12 +7,17 @@ class ProgressBar {
 	var $tbarid;
 	var $textid;
 	var $decimals = 1;
+	protected $color = '#43b6df';
 	var $cli = false;
 	var $destruct100 = true;
 
-	function __construct($percentDone = 0) {
+	function __construct($percentDone = 0, $color = '43b6df') {
 		$this->setID('pb-'.uniqid());
+		$this->pbarid = 'progress-bar';
+		$this->tbarid = 'transparent-bar';
+		$this->textid = 'pb_text';
 		$this->percentDone = $percentDone;
+		$this->color = $color;
 		$this->cli = Request::isCLI();
 	}
 
@@ -56,7 +61,7 @@ class ProgressBar {
 			<div id="'.$this->textid.'" class="'.$this->textid.'">'.$percentDone.'</div>
 			<div class="pb_bar">
 				<div id="'.$this->pbarid.'" class="pb_before"
-				style="width: '.$percentDone.';"></div>
+				style="background-color: '.$this->color.'; width: '.$percentDone.';"></div>
 				<div id="'.$this->tbarid.'" class="pb_after"></div>
 			</div>
 			<div style="clear: both;"></div>
@@ -100,6 +105,10 @@ class ProgressBar {
 		flush();
 	}
 
+	function __toString() {
+		return $this->getContent();
+	}
+	
 	function __destruct() {
 		if ($this->destruct100) {
 			$this->setProgressBarProgress(100);
