@@ -82,6 +82,7 @@ class MySQL {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
 			error_log($runTime.' '.$query);
 		}
+
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
@@ -94,9 +95,10 @@ class MySQL {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				nodebug(array(
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
@@ -106,13 +108,12 @@ class MySQL {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
 	function fetchAssoc($res) {
 		$key = __METHOD__.' ('.$this->lastQuery.')';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -123,7 +124,7 @@ class MySQL {
 			debug_pre_print_backtrace();
 			exit();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
 	}
 
@@ -166,13 +167,21 @@ class MySQL {
 		}
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		mysql_free_result($res);
+		$this->free($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
 
+	function free($res) {
+		if (is_resource($res)) {
+			mysql_free_result($res);
+		}
+	}
+
 	function numRows($res) {
-		return mysql_num_rows($res);
+		if (is_resource($res)) {
+			return mysql_num_rows($res);
+		}
 	}
 
 	function dataSeek($res, $number) {
@@ -184,15 +193,15 @@ class MySQL {
 	}
 
 	function transaction() {
-		$this->perform('BEGIN');
+		return $this->perform('BEGIN');
 	}
 
 	function commit() {
-		$this->perform('COMMIT');
+		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
-		$this->perform('ROLLBACK');
+		return $this->perform('ROLLBACK');
 	}
 
 	function escape($string) {
@@ -209,29 +218,28 @@ class MySQL {
 	 * @param array $where
 	 * @param string $order
 	 * @param string $addFields
-	 * @param bool $exclusive
 	 * @return array <type>
 	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
-		//$res = $this->runSelectQuery($table, $where, $order, $addFields, $exclusive);
-		$query = $this->getSelectQuery($table, $where, $order, $addFields, $exclusive);
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields);
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res);
 		return $data;
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus, $only);
+		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus);
 		$res = $this->perform($query);
 		$data = $this->fetchAssoc($res);
 		return $data;
 	}
 
-	function runSelectQuery($table, array $where, $order = '', $selectPlus = '', $only = FALSE) {
+	function runSelectQuery($table, array $where, $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus, $only);
+		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus);
 		return $res;
 	}
 
@@ -300,7 +308,7 @@ class MySQL {
 		return @gzuncompress(substr($value, 4));
 	}
 
-	function quoteKey($key) {
+	static function quoteKey($key) {
 		return $key = '`'.$key.'`';
 	}
 

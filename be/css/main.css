@@ -10,3 +10,50 @@ body {
 .bold {
 	font-weight: bold;
 }
+
+.red {
+	background: lightpink !important;
+}
+.green {
+	background: lightgreen !important;
+}
+
+.be {
+	background: lightgrey !important;
+}
+.fe {
+	background: lightblue !important;
+}
+
+td.tdlabel {
+	vertical-align: top;
+}
+
+.pageSize {
+	display: inline-block;
+	float: right;
+}
+
+form.anyPageForm {
+	display: inline-block;
+	margin-bottom: 0;
+}
+form.anyPageForm input {
+	margin-bottom: 0;
+}
+.list-group-item {
+	padding: 0;
+}
+.nav > li > a {
+	padding: 0.25em 1em;
+}
+.nav > li > a.act {
+	color: white;
+}
+.nav > li > a.act:hover,
+.nav > li > a.act:focus {
+	background-color: inherit;
+}
+.navbar-form input {
+	width: 10em;
+}

@@ -48,20 +48,21 @@ abstract class OODBase {
 	 * as associative array
 	 */
 	function __construct($id = NULL) {
-		$config = Config::getInstance();
-		$this->table = $config->prefixTable($this->table);
-		$this->db = $config->db;
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			$this->table = $config->prefixTable($this->table);
+			$this->db = $config->db;
+		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->init($id);
-		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
 
 	/**
 	 * Retrieves data from DB.
 	 *
-	 * @param int|array|SQLWhere $id
+	 * @param int|array|SQLWhere|string $id
 	 * @throws Exception
 	 */
 	public function init($id) {
@@ -71,6 +72,7 @@ abstract class OODBase {
 			//debug(__METHOD__, $this->id, $this->data);
 		} else if ($id instanceof SQLWhere) {
 			$this->data = $this->fetchFromDB($id->getAsArray());
+			$this->id = $this->data[$this->idField];
 		} else if (is_scalar($id)) {
 			$this->id = $id;
 			$this->data = $this->fetchFromDB(array($this->idField => $this->id));
@@ -156,8 +158,8 @@ abstract class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
 		if (is_array($rows)) {
-			if (is_array(current($rows))) {
-				$data = current($rows);
+			if (is_array(first($rows))) {
+				$data = first($rows);
 			} else {
 				$data = $rows;
 			}
@@ -238,21 +240,26 @@ abstract class OODBase {
 	 *
 	 * @param array $fields
 	 * @param array $where
+	 * @param array $insert
 	 * @return string
 	 */
-	function insertUpdate(array $fields, array $where) {
+	function insertUpdate(array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$this->findInDB($where);
 		//debug($this->db->lastQuery);//, $this->data);
 		if ($this->id) { // found
-			//debug('Found');
-			$this->update($fields);
-			$op = 'UPD '.$this->id;
+			$left = array_intersect_key($this->data, $fields);
+			$right = array_intersect_key($fields, $this->data);
+			//debug($left, $right);
+			if ($left != $right) {
+				$this->update($fields);
+				$op = 'UPD '.$this->id;
+			} else {
+				$op = 'SKIP';
+			}
 		} else {
-			//debug('NOT Found');
-			//debug($where, $this->db->lastQuery); exit();
-			$this->insert($fields + $where);
+			$this->insert($fields + $where + $insert);
 			$this->findInDB($where);
 			$op = 'INS';
 		}
@@ -262,6 +269,8 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Uses $this->thes if available
+	 * Hides fields without values
 	 * @param array $assoc
 	 * @param bool  $recursive
 	 * @return slTable
@@ -281,7 +290,10 @@ abstract class OODBase {
 					);
 				}
 			}
-			$s = new slTable($assoc. '', array(0 => '', '' => array('no_hsc' => true)));
+			$s = new slTable($assoc. '', array(
+				0 => '',
+				'' => array('no_hsc' => true)
+			));
 		} else {
 			foreach ($assoc as $key => &$val) {
 				if (!$val) {
@@ -296,6 +308,7 @@ abstract class OODBase {
 	}
 
 	/**
+	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id
 	 * @return self
 	 */
@@ -304,9 +317,14 @@ abstract class OODBase {
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
 			if (!$inst) {
-				//debug('new ', get_called_class(), $id, array_keys(self::$instance));
-				$inst = new $static();	// don't put anything else here
-				$inst->init($id);		// separate call to avoid infinite loop in ORS
+				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
+				if (false) {
+					$inst = new $static($id);	// VersionInfo needs it like this
+				} else {
+												// NewRequest needs it like this
+					$inst = new $static();		// don't put anything else here
+					$inst->init($id);			// separate call to avoid infinite loop in ORS
+				}
 			}
 		} else {
 			$inst = new $static($id);
@@ -329,11 +347,30 @@ abstract class OODBase {
 	 */
 	static function getInstanceByName($name) {
 		$self = get_called_class();
-		//debug($self);
-		$c = new $self;
-		$c->findInDB(array(
-			$c->titleColumn => $name,
-		));
+		//debug($self, $name, count(self::$instances[$self]));
+
+		// first search instances
+		if (is_array(self::$instances[$self])) foreach (self::$instances[$self] as $inst) {
+			if ($name == 'deloprub') {
+				//debug($self, $name, count(self::$instances[$self]), $inst->titleColumn, $inst->data[$inst->titleColumn], $name);
+			}
+			if ($inst->data[$inst->titleColumn] == $name) {
+				$c = $inst;
+				break;
+			}
+		}
+
+		if (!$c) {
+			$c = new $self;
+			$c->findInDB(array(
+				$c->titleColumn => $name,
+			));
+
+			// store back so it can be found
+			if ($c) {
+				self::$instances[$self][$c->id] = $c;
+			}
+		}
 		return $c;
 	}
 

@@ -35,24 +35,25 @@ class ConfigBase {
 	public $documentRoot = '';
 
 	public static $includeFolders = array(
-		'.',
-		'Cache',
-		'Controller',
-		'CSS',
-		'Data',
-		'DB',
-		'Debug',
-		'HTML',
-		'HTMLForm',
-		'HTTP',
-		'LocalLang',
-		'ORM',
-		'SQL',
-		'Time',
-		'User',
-		'../model',
-		'be/class',
-		'../class',	// to load the Config of the main project
+		'vendor/spidgorny/nadlib',
+		'vendor/spidgorny/nadlib/Cache',
+		'vendor/spidgorny/nadlib/Controller',
+		'vendor/spidgorny/nadlib/CSS',
+		'vendor/spidgorny/nadlib/Data',
+		'vendor/spidgorny/nadlib/DB',
+		'vendor/spidgorny/nadlib/Debug',
+		'vendor/spidgorny/nadlib/HTML',
+		'js',
+		'vendor/spidgorny/nadlib/HTMLForm',
+		'vendor/spidgorny/nadlib/HTTP',
+		'vendor/spidgorny/nadlib/LocalLang',
+		'vendor/spidgorny/nadlib/ORM',
+		'vendor/spidgorny/nadlib/SQL',
+		'vendor/spidgorny/nadlib/Time',
+		'vendor/spidgorny/nadlib/User',
+		'class',	// to load the Config of the main project
+		'model',
+		'vendor/spidgorny/nadlib/be/class',
 	);
 
 	/**
@@ -72,24 +73,29 @@ class ConfigBase {
 	public $appRoot;
 
 	protected function __construct() {
-		try {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				$this->db_password);
-		} catch (Exception $e) {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				'');
+		if ($this->db_database) {
+			try {
+				$this->db = new MySQL(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					$this->db_password);
+			} catch (Exception $e) {
+				$this->db = new MySQL(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					'');
+			}
+			$di = new DIContainer();
+			$di->db = $this->db;
+			$this->qb = new SQLBuilder($di);
 		}
-		$di = new DIContainer();
-		$di->db = $this->db;
-		$this->qb = new SQLBuilder($di);
-		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
-		$this->appRoot = dirname(__FILE__).'/..';
+
+		$this->documentRoot = Request::getDocumentRoot();
+		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
+		//debug(__FILE__, $this->documentRoot, $this->appRoot);
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {

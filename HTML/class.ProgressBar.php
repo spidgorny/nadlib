@@ -11,16 +11,27 @@ class ProgressBar {
 	var $destruct100 = true;
 
 	function __construct($percentDone = 0) {
-		$this->pbid = 'pb-'.uniqid();
-		$this->pbarid = 'progress-bar-'.$this->pbid;
-		$this->tbarid = 'transparent-bar-'.$this->pbid;
-		$this->textid = 'pb_text-'.$this->pbid;
+		$this->setID('pb-'.uniqid());
 		$this->percentDone = $percentDone;
 		$this->cli = Request::isCLI();
 	}
 
+	/**
+	 * AJAX request need to reaccess the main page ProgressBar
+	 * @param $pbid
+	 */
+	public function setID($pbid) {
+		$this->pbid = $pbid;
+		$this->pbarid = 'progress-bar-'.$pbid;
+		$this->tbarid = 'transparent-bar-'.$pbid;
+		$this->textid = 'pb_text-'.$pbid;
+	}
+
 	function render() {
 		if (!$this->cli) {
+			if (!headers_sent()) {
+				header('Content-type: text/html; charset=utf-8');
+			}
 			print($this->getContent());
 			print $this->getCSS();
 			$this->flush();
@@ -38,6 +49,7 @@ class ProgressBar {
 	}
 
 	function getContent() {
+		Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
@@ -50,7 +62,9 @@ class ProgressBar {
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
 		if (class_exists('Index')) {
-			Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
+		} else {
+			$content .= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
 		}
 		return $content;
 	}
@@ -64,14 +78,14 @@ class ProgressBar {
 			print('
 			<script type="text/javascript">
 			if (document.getElementById("'.$this->pbarid.'")) {
-				document.getElementById("'.$this->pbarid.'").style.width = "'.$percentDone.'%";');
+				document.getElementById("'.$this->pbarid.'").style.width = "'.$percentDone.'%";'."\n");
 			if ($percentDone == 100) {
-				print('document.getElementById("'.$this->tbarid.'").style.display = "none";');
+				print('document.getElementById("'.$this->tbarid.'").style.display = "none";'."\n");
 			} else {
-				print('document.getElementById("'.$this->tbarid.'").style.width = "'.(100-$percentDone).'%";');
+				print('document.getElementById("'.$this->tbarid.'").style.width = "'.(100-$percentDone).'%";'."\n");
 			}
 			if ($text) {
-				print('document.getElementById("'.$this->textid.'").innerHTML = "'.htmlspecialchars(str_replace("\n", '\n', $text)).'";');
+				print('document.getElementById("'.$this->textid.'").innerHTML = "'.htmlspecialchars(str_replace("\n", '\n', $text)).'";'."\n");
 			}
 			print('}</script>'."\n");
 			$this->flush();
@@ -92,11 +106,16 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p) {
-		return '<div style="display: inline-block; width: 100%; text-align: center; wrap: nowrap;">'.
+	function getImage($p, $display = 'inline-block') {
+		$prefix = '';
+		if (Index::getInstance() instanceof IndexBE) {
+			//$prefix = '../../../../';
+			// just use base href instead
+		}
+		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; white-space: nowrap;">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
-		</div>';
+			<img src="'.$prefix.'vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+		</div>');
 	}
 
 	function getBackground($p, $width = '100px') {
@@ -105,7 +124,7 @@ class ProgressBar {
 			width: '.$width.';
 			text-align: center;
 			wrap: nowrap;
-			background: url(nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
+			background: url(vendor/spidgorny/nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
 	}
 
 	public function setTitle() {
