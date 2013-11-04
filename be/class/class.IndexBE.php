@@ -101,6 +101,7 @@ class IndexBE extends IndexBase {
 		$m = new Menu($menu);
 		$m->recursive = true;
 		$m->renderOnlyCurrent = false;
+		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
 	}
