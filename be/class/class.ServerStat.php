@@ -20,19 +20,25 @@ class ServerStat extends AppControllerBE {
 	}
 
 	function render() {
+		$this->index->addJS('vendor/spidgorny/nadlib/be/js/main.js');
 		$content = $this->performAction();
 		if (!$content) {
 			$content = '<div
 				id="div_SystemInfo"
 				class="row updateHere"
-				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
+				src="vendor/spidgorny/nadlib/be/?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
 
 		}
 		return $content;
 	}
 
+	/**
+	 * AJAX
+	 * @return string
+	 */
 	function updateHereAction() {
 		$content = $this->renderEverything();
+		$content .= '<script> updateHere(); </script>';
 		return $content;
 	}
 
