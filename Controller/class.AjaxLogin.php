@@ -135,6 +135,8 @@ class AjaxLogin extends AppController {
 
 	function formAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
+		//$f->action(get_class($this));
+		$f->hidden('c', get_class($this));
 		$f->formMore = $this->formMore;
 		$f->defaultBR = true;
 		if (!$desc) {
@@ -168,8 +170,11 @@ class AjaxLogin extends AppController {
 				<input type="hidden" name="c" value="'.get_class($this).'" />
 				<input type="hidden" name="action" value="login" />
 
-				<input class="form-control" type="text"
-				name="username" placeholder="E-mail" value="'.$_REQUEST['username'].'" />
+				<input class="form-control"
+					type="text"
+					name="username"
+					placeholder="E-mail"
+					value="'.$_REQUEST['username'].'" />
 				<input class="form-control" type="password"
 				name="password" placeholder="Password" />
 				<button type="submit" class="btn btn-default">Sign in</button>

@@ -46,7 +46,7 @@ class IndexBE extends IndexBase {
 			$content = parent::renderController();
 		} else {
 			//$this->message(new LoginForm());
-			throw new LoginException('Login first');
+			throw new LoginException('Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
 		}
 		return $content;
 	}
@@ -102,6 +102,7 @@ class IndexBE extends IndexBase {
 		$m = new Menu($menu);
 		$m->recursive = true;
 		$m->renderOnlyCurrent = false;
+		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
 	}
