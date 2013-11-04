@@ -46,7 +46,7 @@ class IndexBE extends IndexBase {
 			$content = parent::renderController();
 		} else {
 			//$this->message(new LoginForm());
-			throw new LoginException('Login first');
+			throw new LoginException('Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
 		}
 		return $content;
 	}
