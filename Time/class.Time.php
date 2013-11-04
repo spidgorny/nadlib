@@ -11,6 +11,11 @@ class Time {
 	public $debug;
 	public $human;
 
+	/**
+	 * Append GMT for Greenwich
+	 * @param null $input
+	 * @param null $relativeTo
+	 */
 	function __construct($input = NULL, $relativeTo = NULL) {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.MySQL::getCaller().')');
 		if (!is_null($input)) { // 0 is 1970-01-01 00:00:00
@@ -25,7 +30,7 @@ class Time {
 			} else if (is_numeric($input)) {
 				$this->time = $input;
 			} else {
-				Config::getInstance()->log(__CLASS__.'#'.__LINE__, $input.' is unrecognized as a valid date.');
+				Config::getInstance()->log(__CLASS__.'#'.__LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		} else {
 			$this->time = time();
@@ -100,7 +105,7 @@ class Time {
 	/**
 	 * YMDTHISZ
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getISO() {
 		return gmdate('Ymd\THis\Z', $this->time);
@@ -109,7 +114,7 @@ class Time {
 	/**
 	 * System readable 2009-12-21
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getISODate() {
 		return date('Y-m-d', $this->time);
@@ -122,7 +127,7 @@ class Time {
 	/**
 	 * Human readable 21.02.1979
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getHumanDate() {
 		return date('d.m.Y', $this->time);
@@ -238,16 +243,16 @@ class Time {
 	/**
 	 * <span class="time">in 10 hours</span>
 	 *
-	 * @return unknown
+	 * @return htmlString
 	 */
 	function render() {
-		return '<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>';
+		return new htmlString('<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>');
 	}
 
 	/**
 	 * Displays start of an hour with larger font
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function renderCaps() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -259,6 +264,11 @@ class Time {
 		return $noe;
 	}
 
+	/**
+	 * Calls the date function
+	 * @param $rules
+	 * @return string
+	 */
 	function format($rules) {
 		if ($this->time) {
 			$content = date($rules, $this->time);
@@ -276,7 +286,7 @@ class Time {
 	/**
 	 * Almost like getISO() but without timezone: 'Y-m-d H:i:s'
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getSystem() {
 		return date('Y-m-d H:i:s', $this->time);
@@ -287,7 +297,7 @@ class Time {
 	 *
 	 * @param Time $plus
 	 * @param bool $debug
-	 * @return unknown
+	 * @return Time
 	 */
 	function add(Time $plus, $debug = FALSE) {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -302,7 +312,7 @@ class Time {
 	 *
 	 * @param Time $plus
 	 * @param bool $debug
-	 * @return unknown
+	 * @return Time
 	 */
 	function substract(Time $plus, $debug = FALSE) {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);

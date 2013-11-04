@@ -60,7 +60,7 @@ class Collection {
 	 * SQL part
 	 * @var string
 	 */
-	public $orderBy = "uid";
+	public $orderBy = "ORDER BY id";
 
 	/**
 	 * getQuery() stores the final query here for debug
@@ -156,18 +156,21 @@ class Collection {
 
 	/**
 	 * -1 will prevent data retrieval
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
-		//debug($this->query);
+		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$this->count = $this->db->numRows($res);
 		}
+		//debug($this->table, $this->query, $this->count, $prof->elapsed());
+
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		if ($preprocess) {
@@ -176,7 +179,26 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(array $where = array()) {
+	function retrieveDataFromCache() {
+		$this->query = $this->getQuery($this->where);
+		$fc = new MemcacheFile();
+		$this->data = $fc->get($this->query);
+		if (!$this->data) {
+			$this->retrieveDataFromDB();
+			$fc->set($this->query, $this->data);
+			//debug(__METHOD__, 'no cache', sizeof($this->data));
+		} else{
+			$cacheFile = $fc->map($this->query);
+			//debug(__METHOD__, 'yes cache', sizeof($this->data), $cacheFile, filesize($cacheFile));
+		}
+		return $this->data;
+	}
+
+	/**
+	 * @param array/SQLWhere $where
+	 * @return string
+	 */
+	function getQuery($where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;
@@ -224,9 +246,11 @@ class Collection {
 			$s->thes($this->thes);
 			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
-			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
-			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			if (class_exists('Index')) {
+				$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+				//debug(Index::getInstance()->controller);
+				$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			}
 			if ($this->pager) {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
@@ -255,12 +279,17 @@ class Collection {
 
 	function getOptions() {
 		$options = array();
+		//debug(get_class($this), $this->titleColumn);
 		foreach ($this->data as $row) {
 			$options[$row[$this->idField]] = $row[$this->titleColumn];
 		}
 		return $options;
 	}
 
+	/**
+	 * @param array $where
+	 * @return mixed - single row
+	 */
 	function findInData(array $where) {
 		//debug($where);
 		//echo new slTable($this->data);
@@ -271,6 +300,22 @@ class Collection {
 				return $row;
 			}
 		}
+	}
+
+	/**
+	 * @param array $where
+	 * @return array - of matching rows
+	 */
+	function findAllInData(array $where) {
+		$result = array();
+		foreach ($this->data as $row) {
+			$intersect1 = array_intersect_key($row, $where);
+			$intersect2 = array_intersect_key($where, $row);
+			if ($intersect1 == $intersect2) {
+				$result[] = $row;
+			}
+		}
+		return $result;
 	}
 
 	function renderList() {
@@ -292,11 +337,14 @@ class Collection {
 	 */
 	function renderMembers() {
 		$content = '';
-		$i = 0;
 		//debug(sizeof($this->members));
-		foreach ($this->members as $obj) {
+		foreach ($this->members as $key => $obj) {
 			//debug($i++, (strlen($content)/1024/1024).'M');
-			$content .= $obj->render()."\n";
+			if (is_object($obj)) {
+				$content .= $obj->render()."\n";
+			} else {
+				$content .= getDebug(__METHOD__, $key, $obj);
+			}
 		}
 		return $content;
 	}
@@ -358,7 +406,7 @@ class Collection {
 			$f = new HTMLFormTable();
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', '', array('class' => 'btn-primary'));
+			$f->submit('Filter', array('class' => 'btn-primary'));
 			$content = $f->getContent();
 		}
 		return $content;
@@ -511,7 +559,7 @@ class Collection {
 	 * @param $arrow
 	 * @return HTMLTag
 	 */
-	protected function getNextPrevLink($prev, $arrow) {
+	protected function getNextPrevLink(array $prev, $arrow) {
 		if ($prev['singleLink']) {
 			$content = new HTMLTag('a', array(
 					'href' => $prev['singleLink'],
@@ -555,9 +603,8 @@ class Collection {
 
 	function getLazyMemberIterator($class) {
 		$arrayIterator = $this->getLazyIterator();
-
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
-
+		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
 	}
 

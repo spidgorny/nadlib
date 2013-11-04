@@ -39,7 +39,10 @@ class FlexiTable extends OODBase {
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
-		return parent::update($row);
+		$tempMtime = $this->data['mtime'];
+		$res = parent::update($row);	// calls $this->init($id) to update data
+		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
+		return $res;
 	}
 
 	function findInDB(array $where, $orderby = '') {
@@ -123,6 +126,8 @@ class FlexiTable extends OODBase {
 					// didn't unzip - then it's plain text
 					$uncompressed = $this->data[$field];
 					$info['uncompress'] = 'Not necessary';
+				} else {
+					$info['uncompress'] = 'Uncompressed';
 				}
 				$this->data[$field] = $uncompressed;
 				$info['first'] = $this->data[$field]{0};

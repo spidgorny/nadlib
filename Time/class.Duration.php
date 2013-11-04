@@ -103,7 +103,6 @@ class Duration extends Time {
 				case 'weeks':
 					$total += $value*60*60*24*7;
 				break;
-				case 'm':
 				case 'mon':
 				case 'month':
 				case 'months':
@@ -150,7 +149,8 @@ class Duration extends Time {
         if (is_array($duration)) {
 	        $duration = array_slice($duration, 0, 2, TRUE);
 	        $content .= $this->array2string($duration);
-			if ($duration < 0) {
+			//debug($duration);
+			if (array_sum($duration) < 0) {
 				$content .= ' '.__('ago');
 			}
         } else {
@@ -219,7 +219,7 @@ class Duration extends Time {
 
         foreach ($duration as $key => $value) {
             $segment_name = substr($key, 0, -1);
-            $segment = $value . ' ' . $segment_name;
+            $segment = abs($value) . ' ' . $segment_name;	// otherwise -1 years, -1 months ago
 
             // Plural
             if ($value != 1) {

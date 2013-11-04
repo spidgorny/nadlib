@@ -26,6 +26,8 @@ class Session extends AppControllerBE {
 	function delAction() {
 		$del = $this->request->getTrim('del');
 		unset($_SESSION[$del]);
+		$this->index->message('Deleted '.$del);
+		$this->index->saveMessages();
 		$this->request->redirect('?c='.$this->request->getRefererController());
 	}
 

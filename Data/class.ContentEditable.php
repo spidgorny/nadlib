@@ -28,16 +28,16 @@ class ContentEditable {
 	}
 
 	function getHeader() {
-		$content = '';
 		$index = Index::getInstance();
 		$index->addJQuery();
 		$index->addJQueryUI();
-		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/rangy-core-1.2.3.js"></script>';
-		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/hallo.js"></script>';
-		//$content .= '<script src="nadlib/js/contentEditable.js"></script>';	// need enable button
-		$content .= '<script src="js/nadlibCMS.js"></script>';
-		$index->footer[__CLASS__] = $content;
-		return $content;
+		$index->addJS("components/rangy/rangy-core.js");
+		if (DEVELOPMENT) {
+			$index->addJS("components/hallo/hallo.js");
+		} else {
+			$index->addJS("components/hallo/hallo.min.js");
+		}
+		$index->addJS("vendor/spidgorny/nadlib/js/contentEditable.js");
 	}
 
 	function store() {

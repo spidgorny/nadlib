@@ -13,6 +13,10 @@ class PageBase extends AppController {
 
 	function __construct() {
 		parent::__construct();
+
+		$id = $this->request->getNameless(1);
+		$this->t3page = new TYPO3Page($id);
+
 		$slug = $this->request->getNameless(2);
 		$slug = ucfirst($slug);
 		$className = 'Page_'.$slug;
@@ -22,23 +26,23 @@ class PageBase extends AppController {
 				$this->page->postInit();
 			}
 		} else {
-			$id = $this->request->getNameless(1);
-			$this->page = new TYPO3Page($id);
+			$this->page = $this->t3page;
 		}
 	}
 
 	function render() {
-		if ($this->page->data['abstract']) {
+		//debug($this->t3page->data);
+		if ($this->t3page->data['abstract']) {
 			$this->index->header['abstract'] = '<meta name="abstract" content="'.
-				htmlspecialchars($this->page->data['abstract']).'" />';
+				htmlspecialchars($this->t3page->data['abstract']).'" />';
 		}
-		if ($this->page->data['description']) {
+		if ($this->t3page->data['description']) {
 			$this->index->header['description'] = '<meta name="description" content="'.
-				htmlspecialchars($this->page->data['description']).'" />';
+				htmlspecialchars($this->t3page->data['description']).'" />';
 		}
-		if ($this->page->data['keywords']) {
+		if ($this->t3page->data['keywords']) {
 			$this->index->header['keywords'] = '<meta name="keywords" content="'.
-				htmlspecialchars($this->page->data['keywords']).'" />';
+				htmlspecialchars($this->t3page->data['keywords']).'" />';
 		}
 		$content = $this->page->render();
 		$this->layout = $this->page->layout;	// for Search in Page_Cruises
