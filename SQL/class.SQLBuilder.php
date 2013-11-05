@@ -348,7 +348,7 @@ class SQLBuilder {
 					} else {
 						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
 					}
-				} else if ($val === NULL || $val == 'NULL') {
+				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
 				} else if ($val == 'NOTNULL') {
 					$set[] = "$key IS NOT NULL";
