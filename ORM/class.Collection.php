@@ -117,11 +117,15 @@ class Collection {
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
+
 		if (is_array($where)) {
 			$this->where += $where;
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
+
+
+
 		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
