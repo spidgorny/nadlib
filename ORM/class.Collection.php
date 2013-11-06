@@ -400,15 +400,15 @@ class Collection {
 	 */
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
-			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
+			'name' => '<form method="POST"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></form>',
 			'align' => "right",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
 		foreach ($this->data as &$row) {
 			$id = $row[$this->idField];
-			$checked = $_SESSION[$class][$id] ? 'checked' : '';
-			$row['checked'] = '<input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' />';
+			$checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
+			$row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
 		}
 	}
 
