@@ -400,8 +400,8 @@ class Collection {
 	 */
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
-			'name' => '<form method="POST"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></form>',
-			'align' => "right",
+			'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
+            'align' => "center",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
