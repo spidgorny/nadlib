@@ -5,7 +5,7 @@ class AutoLoad {
 	/**
 	 * @var array
 	 */
-	var $folders;
+	var $folders = array();
 
 	/**
 	 * @var bool
@@ -39,6 +39,8 @@ class AutoLoad {
 	 */
 	public $config;
 
+	protected $nadlibRoot = 'vendor/spidgorny/nadlib/';
+
 	/**
 	 * getFolders() is called from outside
 	 * to be able to modify $useCookies
@@ -50,7 +52,7 @@ class AutoLoad {
 		require_once 'class.ConfigBase.php';
 
 		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
-		$this->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->appRoot);
+		$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 
 		$configPath = $this->appRoot.'/class/class.Config.php';	// config from the main project
 		if (file_exists($configPath)) {
@@ -59,6 +61,9 @@ class AutoLoad {
 			//$this->config = Config::getInstance();	// autoload!
 		}
 		//echo($configPath);
+
+		$this->folders = $this->getFolders();
+		//print_r($this->folders); exit;
 	}
 
 	function getFolders() {
@@ -81,12 +86,12 @@ class AutoLoad {
 
 		if (!$folders) {
 			$this->loadConfig();
-			if (class_exists('Config')) {
-				$folders = Config::$includeFolders
-					? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
-					: ConfigBase::$includeFolders;
-			} else {
-				$folders = ConfigBase::$includeFolders;
+			$folders = ConfigBase::$includeFolders;
+			foreach ($folders as &$el) {
+				$el = $this->nadlibRoot . $el;
+			}
+			if (class_exists('Config') && Config::$includeFolders) {
+				$folders = array_merge($folders, Config::$includeFolders);
 			}
 		}
 		return $folders;
@@ -148,7 +153,7 @@ class AutoLoad {
 	function findInFolders($classFile, $subFolders) {
 		$this->loadConfig();
 		$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
-		$appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $appRoot);
+		$appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $appRoot);
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
@@ -196,7 +201,6 @@ class AutoLoad {
 
 	static function register() {
 		$instance = self::getInstance();
-		self::$instance->folders = self::$instance->getFolders();
 		spl_autoload_register(array($instance, 'load'));
 	}
 
