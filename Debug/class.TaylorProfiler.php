@@ -218,7 +218,8 @@ class TaylorProfiler {
 				),
             	'routine' => array(
 					'name' => 'routine',
-					'no_hsc' => true
+					'no_hsc' => true,
+					'wrap' => new Wrap('<small>|</small>'),
 				),
             ));
             $s->more = 'class="view_array" awidth="100%"';
