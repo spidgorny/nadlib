@@ -15,7 +15,7 @@ class AutoLoad {
 	/**
 	 * @var boolean
 	 */
-	public $debug = false;
+	public $debug = true;
 
 	/**
 	 * @var AutoLoad
@@ -61,9 +61,13 @@ class AutoLoad {
 			//$this->config = Config::getInstance();	// autoload!
 		}
 		//echo($configPath);
+	}
 
+	function initFolders() {
 		$this->folders = $this->getFolders();
-		//print_r($this->folders); exit;
+		//print '<pre>';
+		//print_r($this->folders);
+		//exit;
 	}
 
 	function getFolders() {
@@ -201,6 +205,7 @@ class AutoLoad {
 
 	static function register() {
 		$instance = self::getInstance();
+		$instance->initFolders();
 		spl_autoload_register(array($instance, 'load'));
 	}
 
