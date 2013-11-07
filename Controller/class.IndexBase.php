@@ -257,7 +257,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
-			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+
+            // commented out because this should be project specific
+			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
 		} else {
 			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
