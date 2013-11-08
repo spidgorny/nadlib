@@ -91,6 +91,10 @@ class Pager {
 		}
 	}
 
+	/**
+	 * Make sure to setNumberOfRecords first(!)
+	 * @param $page
+	 */
 	function setCurrentPage($page) {
 		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
 		$page = min($page, $this->getMaxPage());
