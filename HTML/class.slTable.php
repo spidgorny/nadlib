@@ -450,46 +450,54 @@ class slTable {
 					}
 					$val = new slTableValue($val, $k);
 
-					$out = (isset($k['before']) ? $k['before'] : '')
-						. $val->render($col, $row) .
-						(isset($k['after']) ? $k['after'] : '');
-					if ($k['wrap']) {
-						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
-						$out = $wrap->wrap($out);
-					}
-					$more = array();
-					if ($this->isAlternatingColumns) {
-						$more['class'][] = ($iCol%2?'even':'odd');
-					}
+					$out = (isset($k['before']) ? $k['before'] : '').
+						   $val->render($col, $row) .
+						   (isset($k['after']) ? $k['after'] : '');
+
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
 
-					if (isset($k['more'])) {
-						if (is_array($k['more'])) {
-							$more += $k['more'];
-						} else {
-							debug(__METHOD__, $col, $k, $row);
-							die(' Consider making your "more" an array');
-							$more .= $k['more'];
-						}
-					}
-
-					if (isset($k['colspan'])) {
-						$more['colspan'] = $k['colspan'];
-					}
-					if (isset($k['align'])) {
-						$more['align'] = $k['align'];
-					}
-					if (isset($width[$iCol])) {
-						$more['width'] = $width[$iCol];
-					}
-
+					$more = $this->getCellMore($k, $iCol, $col, $row);
 					$t->cell($out, $more);
 					$iCol++;
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param array $k
+	 * @param $iCol
+	 * @param $col
+	 * @param array $row
+	 * @return array
+	 */
+	function getCellMore(array $k, $iCol, $col, array $row) {
+		$more = array();
+		if ($this->isAlternatingColumns) {
+			$more['class'][] = ($iCol%2?'even':'odd');
+		}
+
+		if (isset($k['more'])) {
+			if (is_array($k['more'])) {
+				$more += $k['more'];
+			} else {
+				debug(__METHOD__, $col, $k, $row);
+				die('Consider making your "more" an array');
+			}
+		}
+
+		if (isset($k['colspan'])) {
+			$more['colspan'] = $k['colspan'];
+		}
+		if (isset($k['align'])) {
+			$more['align'] = $k['align'];
+		}
+		if (isset($width[$iCol])) {
+			$more['width'] = $width[$iCol];
+		}
+		return $more;
 	}
 
 	function show() {

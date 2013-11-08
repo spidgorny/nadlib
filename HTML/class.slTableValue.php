@@ -16,7 +16,7 @@ class slTableValue {
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
 	public $SLTABLE_IMG_CROSS = '☐';
 
-	function __construct($value, $desc = array()) {
+	function __construct($value, array $desc = array()) {
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
 			//debugster(array($value, $value->desc, '+', $desc, '=', (array)$value->desc + $desc));
@@ -224,7 +224,8 @@ class slTableValue {
 			break;
 		}
 		if ($k['wrap']) {
-			$out = str_replace('|', $out, $k['wrap']);
+			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
+			$out = $wrap->wrap($out);
 		}
 		return $out;
 	}
