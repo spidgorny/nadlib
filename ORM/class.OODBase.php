@@ -72,7 +72,6 @@ abstract class OODBase {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->init($id);
-		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
 
 	/**
