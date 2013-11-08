@@ -56,8 +56,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->ll = new LocalLangDummy();	// the real one is in Config!
 
 		$this->request = Request::getInstance();
-		//session_name(basename(dirname(dirname(dirname(__FILE__)))));
-		session_start();
+		//debug('session_start');
+
+		// only use session if not run from command line
+		if(!Request::isCLI()) {
+			session_start();
+		}
+
 		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -86,6 +91,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	public function initController() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$slug = $this->request->getControllerString();
@@ -98,6 +104,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -107,6 +114,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	protected function loadController($slug) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$slugParts = explode('/', $slug);
 		$class = end($slugParts);	// again, because __autoload need the full path
 		//debug(__METHOD__, $slug, $class, class_exists($class));
@@ -121,6 +129,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
 			throw new Exception($exception);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function render() {
@@ -147,6 +156,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderTemplate($content) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$v = new View($this->template, $this);
 		$v->content = $content;
 		$v->title = strip_tags($this->controller->title);
@@ -154,6 +164,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $v;
 	}
 
@@ -269,9 +280,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function showSidebar() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
@@ -288,6 +301,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				if (!$this->request->isCLI()) {
 					$content = $profiler->renderFloat();
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}

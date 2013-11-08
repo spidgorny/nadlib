@@ -363,6 +363,9 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getControllerString();
+		if (!$c) {
+			$c = $GLOBALS['i']->controller; // default
+		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
@@ -449,6 +452,10 @@ class Request {
 
 	function getJson($name, $array = true) {
 		return json_decode($this->getTrim($name), $array);
+	}
+
+	function getJSONObject($name) {
+		return json_decode($this->getTrim($name));
 	}
 
 	function isSubmit() {
@@ -720,5 +727,4 @@ class Request {
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 		header('Cache-Control: max-age='.$age);
 	}
-
 }

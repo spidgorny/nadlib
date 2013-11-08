@@ -47,6 +47,11 @@ class LocalLangDB extends LocalLang {
 		return $instance;
 	}
 
+	/**
+	 * Instead of searching if the original language (en) record exists
+	 * it tries to insert and then catches the UNIQUE constraint exception.
+	 * @param $text
+	 */
 	function saveMissingMessage($text) {
 		//debug(__METHOD__, DEVELOPMENT, $text);
 		if (DEVELOPMENT && $text) {

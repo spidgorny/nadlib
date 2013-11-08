@@ -9,18 +9,13 @@ class MemcacheFile {
 	public $folder = 'cache/';
 
 	function __construct() {
-		// fix for relative path on eval and buglog
-		$pathprefix = dirname(__FILE__);
-		$full = strlen($pathprefix);
-		$neg = strlen('vendor/spidgorny/nadlib/Cache');
-		$end = $full - $neg;
-		$sub = substr($pathprefix, 0, $end);
+		$sub = Config::getInstance()->appRoot;
 
 		if (!file_exists($sub.'/'.$this->folder)) {
 			debug(__METHOD__, $sub.'/'.$this->folder);
 			die();
 		} else {
-			$this->folder = Config::getInstance()->appRoot . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
 		}
 	}
 
@@ -36,12 +31,19 @@ class MemcacheFile {
 	}
 
 	function set($key, $val) {
+		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$file = $this->map($key);
-		file_put_contents($file, serialize($val));
-		@chmod($file, 0775);
+		if (is_writable($this->folder)) {
+			file_put_contents($file, serialize($val));
+			@chmod($file, 0777);	// needed for cronjob accessing cache files
+		} else {
+			throw new Exception($file.' write access denied.');
+		}
+		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
 	function get($key, $expire = 0) {
+		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$file = $this->map($key);
 		if ($expire && @filemtime($file) < time() - $expire) {
 
@@ -51,14 +53,30 @@ class MemcacheFile {
 				$val = unserialize($val);
 			}
 		}
+		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 		return $val;
 	}
 
 	function clearCache($key) {
 		$file = $this->map($key);
 		if (file_exists($file)) {
+			//echo '<font color="green">Deleting '.$file.'</font>';
 			unlink($file);
 		}
 	}
 
+	/**
+	 * @param $key
+	 * @return Duration
+	 */
+	function getAge($key) {
+		$file = $this->map($key);
+		return new Duration(time() - @filemtime($file));
+	}
+/**
+ * unfinished
+ * static function getInstance($file, $expire) {
+		$mf = new self();
+		$get = $mf->get($file, $expire);
+	}
 }

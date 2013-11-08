@@ -40,15 +40,27 @@ class Uploader {
 		return !!$_FILES;
 	}
 
+	/**
+		Usage:
+		$uf = new Uploader();
+		$f = $uf->getUploadForm()
+		// add custom hidden fields to upload form (e.g. Loan[id])
+		if(!empty($hiddenFields)) {
+			foreach ($hiddenFields as $name => $value) {
+				$f->hidden($name, $value);
+			}
+		}
+		@param  string - input field name - usually 'file'
+		@return HTMLForm
+	*/
 	public function getUploadForm($fieldName = 'file') {
 		$f = new HTMLForm();
 		$f->file($fieldName);
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
-		$content = $f;
-		$content .= '<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>';
-		$content .= '<div class="message">Max post: '.ini_get('post_max_size').'</div>';
-		return $content;
+		$f->text('<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>');
+		$f->text('<div class="message">Max post: '.ini_get('post_max_size').'</div>');
+		return $f;
 	}
 
 	/**

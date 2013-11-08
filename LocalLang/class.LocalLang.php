@@ -48,6 +48,7 @@ abstract class LocalLang {
 		$l = new LanguageDetect();
 		//debug($this->ll);
 		//debug($l->languages);
+		$replace = false;
 		foreach ($l->languages as $lang) {
 			//debug(array($lang => isset($this->ll[$lang])));
 			if (isset($this->ll[$lang])) {

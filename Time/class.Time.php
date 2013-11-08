@@ -27,6 +27,7 @@ class Time {
 				}
 			} else if ($input instanceof Time) {
 				$this->time = $input->getTimestamp(); // clone
+				//debug('clone '.$this->getHumanDateTime());
 			} else if (is_numeric($input)) {
 				$this->time = $input;
 			} else {
@@ -36,7 +37,6 @@ class Time {
 			$this->time = time();
 		}
 		$this->updateDebug();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.Debug::getCaller().')');
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.MySQL::getCaller().')');
 	}
 
@@ -49,6 +49,10 @@ class Time {
 
 	function __toString() {
 		return date('Y-m-d H:i:s Z', $this->time).' ('.$this->time.')';
+	}
+
+	static function make($input = NULL, $relativeTo = NULL) {
+		return new self($input, $relativeTo);
 	}
 
 	function toSQL() {
@@ -133,14 +137,23 @@ class Time {
 		return date('d.m.Y', $this->time);
 	}
 
+	/**
+	 * @return string
+	 */
 	function getMySQL() {
 		return date('Y-m-d H:i:s', $this->time);
 	}
 
+	/**
+	 * @return string
+	 */
 	function getMySQLUTC() {
 		return gmdate('Y-m-d H:i:s', $this->time);
 	}
 
+	/**
+	 * @return string
+	 */
 	function getDate() {
 		return date('d.m.Y', $this->time);
 	}
@@ -148,7 +161,7 @@ class Time {
 	/**
 	 * 12:21
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getHumanTime() {
 		return date('H:i', $this->time);
@@ -158,16 +171,22 @@ class Time {
 	 * 12:21:15
 	 *
 	 * @param string $format
-	 * @return unknown
+	 * @return string
 	 */
 	function getTime($format = 'H:i:s') {
 		return date($format, $this->time);
 	}
 
+	/**
+	 * @return string
+	 */
 	function getDateTime() {
 		return date('d.m.Y H:i:s', $this->time);
 	}
 
+	/**
+	 * @return string
+	 */
 	function getHumanDateTime() {
 		return date('d.m.Y H:i', $this->time);
 	}
@@ -179,6 +198,7 @@ class Time {
 	 * @return string
 	 */
 	function in() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$periods = array(
 			"second",
 			"minute",
@@ -237,6 +257,7 @@ class Time {
     		$period = $periods[$j];
 	    }
 
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	    return "$difference $period {$tense}";
 	}
 
@@ -310,6 +331,21 @@ class Time {
 	/**
 	 * Modifies self!
 	 *
+	 * @param Duration $plus
+	 * @param bool $debug
+	 * @return $this
+	 */
+	function addDur(Duration $plus, $debug = FALSE) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->time = $this->time + $plus->getTimestamp();
+		$this->updateDebug();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $this;
+	}
+
+	/**
+	 * Modifies self!
+	 *
 	 * @param Time $plus
 	 * @param bool $debug
 	 * @return Time
@@ -345,9 +381,13 @@ class Time {
 		if ($debug) {
 			echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_long($format) ? $format : 0) . ') = [' . $new.']<br>';
 		}
-		$new = new Time($new);
+		$new = new self($new);
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $new;
+	}
+
+	function plusDur(Duration $plus) {
+		return new self($this->time + $plus->getTimestamp());
 	}
 
 	/**
@@ -367,7 +407,8 @@ class Time {
 			$plus->format('i').' minutes '.
 			$plus->format('s').' seconds ago';
 		$new = strtotime($format, $this->time);
-		$new = new Time($new);
+		$static = get_class($this);
+		$new = new $static($new);
 		if ($debug) echo $this . ' '. $format.' = '.$new.'<br>';
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $new;
@@ -385,7 +426,8 @@ class Time {
 		$format = $plus->getTimestamp();
 		$new = $this->time - $format;
 		if ($debug) echo $this . ' - '. $format.' = '.$new.'<br>';
-		$new = new Time($new);
+		$static = get_class($this);
+		$new = new $static($new);
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $new;
 	}
@@ -394,13 +436,20 @@ class Time {
 	 * Modifies itself according to the format.
 	 * Truncate by hour: Y-m-d H:00:00
 	 * @param string $format
+	 * @return $this
 	 */
 	function modify($format) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$new = new Time($this->format($format), 0);
-		$this->time = $new->getTimestamp();
+		/*$db = $GLOBALS['db'];
+		/* @var $db dbLayerPG */
+		/*$key = __METHOD__.' ('.$db->getCaller(2).', '.$db->getCaller(3).')';
+		*/
+		$key = __METHOD__;
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		$t = new Time($this->format($format));
+		$this->time = $t->getTimestamp();
 		$this->updateDebug();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		return $this;
 	}
 
 	/**
@@ -470,6 +519,16 @@ class Time {
 	    return $content;
 	}
 
+	/**
+	 * Modify using strtotime
+	 * @param $strtotime
+	 * @return Time
+	 */
+	function adjust($strtotime) {
+		$this->time = strtotime($strtotime, $this->time);
+		return $this;
+	}
+	
 	/**
 	 * Conbines date and time and creates a new Time object
 	 * @param $date

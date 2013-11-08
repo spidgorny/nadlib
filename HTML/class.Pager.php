@@ -58,12 +58,18 @@ class Pager {
 	 */
 	function detectCurrentPage() {
 		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
-			if ($this->request->getMethod() == 'POST') {
-				$pagerData['page']--;
+			if ($pagerData['startingRecord']) {
+				$this->startingRecord = (int)($pagerData['startingRecord']);
+				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
+			} else {
+				if ($this->request->getMethod() == 'POST') {
+				//Debug::debug_args($pagerData);
+					$pagerData['page']--;
+				}
+				$this->setCurrentPage($pagerData['page']);
+				$this->saveCurrentPage();
 			}
-			$this->setCurrentPage($pagerData['page']);
-			$this->saveCurrentPage();
-		} else if ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
+		} elseif ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
 			//debug(__METHOD__, $this->prefix, $pager['page']);
 			$this->setCurrentPage($pager['page']);
 		} else {
@@ -215,7 +221,7 @@ class Pager {
 	function renderPager() {
 		$this->pageSize->setURL(new URL(NULL, array()));
 		$this->pageSize->selected = $this->itemsPerPage;
-		$content = '<div class="pageSize">'.$this->pageSize->render().' '.__('per page').'</div>';
+		$content = '<div class="pageSize pull-right">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
 	}
 
@@ -229,11 +235,13 @@ class Pager {
 			$link = $this->url->setParam('pageSize', $this->pageSize->selected);
 			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
  		} else {
-	 		$content .= '<li><span class="disabled">&lt;</span></li>';
+	 		$content .= '<li class="disabled"><span class="disabled">&larr;</span></li>';
  		}
  		foreach ($pages as $k) {
  			if ($k === 'gap1' || $k === 'gap2') {
- 				$content .= '<li><span class="page">  &hellip;  </span></li>';
+ 				$content .= '<li class="disabled">
+ 					<span class="page"> &hellip; </span>
+ 				</li>';
  			} else {
 				$content .= $this->getSinglePageLink($k, $k+1);
  			}
@@ -242,7 +250,7 @@ class Pager {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage+1));
 			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>';
  		} else {
-	 		$content .= '<li><span class="disabled">&gt;</span></li>';
+	 		$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>';
  		}
 		if ($this->showPageJump) {
 			$form = "<form action='".$this->url."' method='POST' class='anyPageForm'>
@@ -251,7 +259,7 @@ class Pager {
 					type='text'
 					class='normal'
 					value='".($this->currentPage+1)."'
-					style='width: 2em' />
+					style='width: 2em; margin: 0' />
 				<input type='submit' value='Page' class='submit' />
 			</form>";
 		}
@@ -263,7 +271,7 @@ class Pager {
 	function getSinglePageLink($k, $text) {
 		$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $k));
 		if ($k == $this->currentPage) {
-			$content = '<li class="active"><span class="active">'.$text.'</span></li>';
+			$content = '<li class="active"><a href="'.$link.'" class="active">'.$text.'</a></li>';
 		} else {
 			$content = '<li><a href="'.$link.'">'.$text.'</a></li>';
 		}

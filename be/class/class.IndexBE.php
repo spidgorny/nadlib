@@ -83,6 +83,7 @@ class IndexBE extends IndexBase {
 			'ValidatorCheck' => 'Validator Check',
 			'ClearCache' => 'Clear Cache',
 			'OptimizeDB' => 'Optimize DB',
+			'ExplainQuery' => 'Explain Query',
 			'JumpFrontend' => '<- Frontend',
 		);
 

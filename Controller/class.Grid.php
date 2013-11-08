@@ -153,4 +153,9 @@ abstract class Grid extends AppController {
 		}
 	}*/
 
+	function sidebar() {
+		$content = $this->collection->showFilter();
+		return $content;
+	}
+
 }
