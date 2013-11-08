@@ -68,6 +68,7 @@ class HTMLFormValidate {
         } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
             $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && $value < $d['min']) {
+			debug($value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
 		} elseif ($d['max'] && $value > $d['max']) {
 			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $d['label'] ?: $field, $d['max']);

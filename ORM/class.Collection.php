@@ -5,6 +5,7 @@
  * or array of OODBase based objects.
  *
  */
+ /*abstract*/ // commented because of createForTable()
 class Collection {
 	/**
 	 *
@@ -52,10 +53,17 @@ class Collection {
 
 	/**
 	 * objectify() stores objects generated from $this->data here
+	 * array of objects converted from $this->data // convert to public
 	 * @var array
 	 */
 	public $members = array();
 
+	/**
+	 * objectify() without parameters will try this class name
+	 * @var string
+	 */
+	protected $itemClassName = 'OODBase?';
+	
 	/**
 	 * SQL part
 	 * @var string
@@ -88,6 +96,7 @@ class Collection {
 	/**
 	 * Lists columns for the SQL query
 	 * @var string
+	 * @default "DISTINCT table.*"
 	 */
 	public $select;
 
@@ -135,7 +144,7 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0) {	// -1 will not retrieve
+		if (!$this->parentID || $this->parentID > 0 || $this->where) {
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -179,19 +188,26 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function retrieveDataFromCache() {
+	/**
+	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
+	 */
+	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
 		$this->query = $this->getQuery($this->where);
 		$fc = new MemcacheFile();
-		$this->data = $fc->get($this->query);
-		if (!$this->data) {
-			$this->retrieveDataFromDB();
-			$fc->set($this->query, $this->data);
-			//debug(__METHOD__, 'no cache', sizeof($this->data));
+		$cached = $fc->get($this->query, 60*60);	// 1h
+		if ($cached && sizeof($cached) == 2) {
+			list($this->count, $this->data) = $cached;
+			$action = 'found in cache, age: '.$fc->getAge($this->query);
 		} else{
-			$cacheFile = $fc->map($this->query);
-			//debug(__METHOD__, 'yes cache', sizeof($this->data), $cacheFile, filesize($cacheFile));
+			$this->retrieveDataFromDB($allowMerge, $preprocess);
+			$fc->set($this->query, array($this->count, $this->data));
+			$action = 'no cache, retrieve, store';
 		}
-		return $this->data;
+		if ($_REQUEST['d']) {
+			debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
+		}
 	}
 
 	/**
@@ -206,11 +222,18 @@ class Collection {
 		if ($this->parentID > 0) {
 			$where[$this->parentField] = $this->parentID;
 		}
+		// bijou old style - each collection should care about hidden and deleted
+		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
 		$qb = Config::getInstance()->qb;
 		if ($where instanceof SQLWhere) {
 			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
-			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
+			$query = $qb->getSelectQuery  (
+				$this->table.' '.$this->join, 
+				$where, 
+				$this->orderBy, 
+				$this->select, 
+				TRUE);
 		}
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
@@ -360,17 +383,33 @@ class Collection {
 	}
 
 	/**
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return Collection
+	 */
+	function createForTable($table, array $where = array(), $orderBy = '') {
+		$c = new self();
+		$c->table = $table;
+		$c->where = $where;
+		$c->orderBy = $orderBy;
+		return $c;
+	}
+
+	/**
 	 * Will detect double-call and do nothing.
 	 *
 	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class = '', $byInstance = false) {
+	function objectify($class = NULL, $byInstance = false) {
+		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
+					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
 					$this->members[$key] = call_user_func($class.'::getInstance', $row);
 				} else {
 					$this->members[$key] = new $class($row);
@@ -404,9 +443,11 @@ class Collection {
 	function showFilter() {
 		if ($this->filter) {
 			$f = new HTMLFormTable();
+			$f->method('GET');
+			$f->defaultBR = true;
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn-primary'));
+			$f->submit('Filter', array('class' => 'btn btn-primary'));
 			$content = $f->getContent();
 		}
 		return $content;

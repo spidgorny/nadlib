@@ -66,12 +66,6 @@ class ConfigBase {
 
 	public $config;
 
-	/**
-	 * Default is that nadlib/ is in the root folder
-	 * @var string
-	 */
-	public $appRoot;
-
 	protected function __construct() {
 		if ($this->db_database) {
 			try {

@@ -5,6 +5,7 @@ class GroupSwitch extends AppController {
 	public $allowedUsers = array(
 		'depidsvy',
 		'deloprub',
+        'dejokmaj',
 	);
 
 	protected $groups = array(

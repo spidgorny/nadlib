@@ -347,19 +347,43 @@ class dbLayer {
 		return $table1;
 	}
 
-	function getDeleteQuery($table, array $where) {
-		$q = "delete from $table ";
+	function getDeleteQuery($table, array $where, $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = array();
-		foreach($where as $key => $val) {
+		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		if (sizeof($set)) {
-			$q .= " where " . implode(" and ", $set);
+			$q .= " WHERE " . implode(" and ", $set);
 		} else {
-			$q .= ' where 1 = 0';
+			$q .= ' WHERE 1 = 0';
 		}
 		return $q;
+	}
+
+	function fetchAll($result) {
+		if (is_string($result)) {
+			$result = $this->perform($result);
+		}
+		$rows = pg_fetch_all($result);
+		if (!$rows) $rows = array();
+		return $rows;
+	}
+
+	/**
+	 * @param $res
+	 * @return array
+	 */
+	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		$row = pg_fetch_assoc($res);
+		if (!$row) {
+			$row = array();
+		}
+		return $row;
 	}
 
 	function getAllRows($query) {

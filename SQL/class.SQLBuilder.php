@@ -281,7 +281,7 @@ class SQLBuilder {
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
-			return intval($value); // MySQL specific
+			//return intval($value); // MySQL specific
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -350,10 +350,11 @@ class SQLBuilder {
 					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working
+				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
+                    || in_array(substr($key, -2), array('!=', '<=', '>='))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
-					$set[] = "$key $sign $val";
+					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {
@@ -372,6 +373,7 @@ class SQLBuilder {
 					$or->injectQB($this);
 					$set[] = $or;
 				} else {
+					//debug_pre_print_backtrace();
 					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
 				}
@@ -445,8 +447,8 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array()) {
-		$q = "DELETE FROM $table ";
+	function getDeleteQuery($table, $where = array(), $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);

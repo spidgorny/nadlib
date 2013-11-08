@@ -106,6 +106,8 @@ class HTMLFormTable extends HTMLForm {
 		if (!$desc['id']) {
 			$elementID = uniqid('id_');
 			$desc['id'] = $elementID;
+		} else {
+			$elementID = $desc['id'];
 		}
 		$type = $desc['type']; /* @var $type Collection */
 		if ($type instanceof HTMLFormType) {
@@ -149,6 +151,7 @@ class HTMLFormTable extends HTMLForm {
 						isset($fieldValue) ? $fieldValue : $desc['default'],
 						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
 						(isset($desc['size']) ? 'size="'.$desc['size'].'"' : '') .
+						(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
 						(isset($desc['more']) ? $desc['more'] : ''),
 						isset($desc['multiple']) ? $desc['multiple'] : NULL,
 						$desc);
@@ -284,12 +287,10 @@ class HTMLFormTable extends HTMLForm {
 					$fieldName[] = 'value';
 				}
 
-
 				$tmp = $this->stdout;
 				$elementID = $this->switchType($fieldName, $fieldValue, $desc);
 				$newContent = substr($this->stdout, strlen($tmp));
 				$this->stdout = $tmp;
-
 
 				$withBR = ($desc['br'] === NULL && $this->defaultBR) || $desc['br'];
 				if (isset($desc['label'])) {
