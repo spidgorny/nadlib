@@ -231,7 +231,6 @@ class slTableValue {
 			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 			$out = $wrap->wrap($out);
 		}
-		debug($k);
 		if ($k['link']) {
 			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
 		}
