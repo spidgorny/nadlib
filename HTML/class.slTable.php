@@ -366,8 +366,9 @@ class slTable {
 					if (!$val) {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
+					$val = new slTableValue($val, $k);
 					$out = (isset($k['before']) ? $k['before'] : '')
-						. $this->getCell($col, $val, $k, $row) .
+						. $val->render($col, $val, $k, $row) .
 						(isset($k['after']) ? $k['after'] : '');
 					if ($k['wrap']) {
 						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);

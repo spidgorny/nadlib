@@ -2,6 +2,10 @@
 
 class slTableValue {
 	var $value = NULL;
+
+	/**
+	 * @var array
+	 */
 	var $desc = array(
 //		'hsc' => TRUE,
 	);
@@ -30,11 +34,11 @@ class slTableValue {
 */
 
 	function render() {
-		$content = $this->getCell('?getCell?', $this->value, $this->desc);
+		$content = $this->getCell('?getCell?', $this->value, $this->desc, array());
 		return $content;
 	}
 
-	function getCell($col, $val, $k) { //print_r($k);
+	function getCell($col, $val, array $k, array $row) { //print_r($k);
 		switch ($k['type']) {
 			case "select":
 			case 'ajaxSingleChoice':
