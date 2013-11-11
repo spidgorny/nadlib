@@ -49,7 +49,7 @@ class MemcacheArray implements ArrayAccess {
 
 	function save() {
 		if ($this->fc && strcmp($this->state, serialize($this->data))) {
-			debug(__METHOD__, $this->fc->map($this->file), sizeof($this->data), array_keys($this->data));
+			//debug(__METHOD__, $this->fc->map($this->file), sizeof($this->data), array_keys($this->data));
 			$this->fc->set($this->file, $this->data);
 		}
 	}

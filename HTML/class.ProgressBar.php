@@ -43,7 +43,11 @@ class ProgressBar {
 			</div>
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
-		Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+		if (class_exists('Index')) {
+			Index::getInstance()->addCSS('nadlib/CSS/ProgressBar.less');
+		} else {
+			$GLOBALS['HTMLHEADER']['nadlib/CSS/ProgressBar.less'] = '<link rel="stylesheet" href="nadlib/CSS/ProgressBar.less" />';
+		}
 		return $content;
 	}
 
@@ -74,10 +78,6 @@ class ProgressBar {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
 		//ob_end_flush();
 		flush();
-	}
-
-	function __toString() {
-		return $this->getContent();
 	}
 
 	function getImage($p) {

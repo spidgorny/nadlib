@@ -131,8 +131,8 @@ class slTable {
 	/**
 	 * Enter description here...
 	 *
-	 * @param unknown_type $by - can be array (for easy explode(' ', 'field DESC') processing
-	 * @param unknown_type $or
+	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
+	 * @param boolean $or
 	 */
 	function setSortBy($by = NULL, $or = NULL) {
 		if ($by === NULL && $or === NULL) {
@@ -377,7 +377,7 @@ class slTable {
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
-					$more .= (isset($k['more']) ? $k['more'] : NULL).
+					$more = (isset($k['more']) ? $k['more'] : NULL).
 						(isset($k['colspan']) ? 'colspan="'.$k['colspan'].'"' : '').
 						(isset($k['align']) ? 'align="'.$k['align'].'"' : '');
 					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
