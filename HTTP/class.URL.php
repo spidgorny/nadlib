@@ -11,10 +11,14 @@ class URL {
 	 */
 	public $components = array();
 
-	public $params;
+	public $params = array();
 
 	public $documentRoot = '';
 
+	/**
+	 * @param null $url - if not specified then the current page URL is reconstructed
+	 * @param array $params
+	 */
 	function __construct($url = NULL, array $params = array()) {
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -32,7 +36,7 @@ class URL {
 			parse_str($this->components['query'], $this->params);
 		}
 		if ($params) {
-			$this->setParams($params);
+			$this->addParams($params);	// setParams was deleting all filters from the URL
 		}
 		if (class_exists('Config')) {
 			$this->setDocumentRoot(Config::getInstance()->documentRoot);
@@ -51,18 +55,32 @@ class URL {
 		return $this;
 	}
 
+	function unsetParam($param) {
+		unset($this->params[$param]);
+	}
+
 	function getParam($param) {
 		return $this->params[$param];
 	}
 
+	/**
+	 * Replaces parameters completely (with empty array?)
+	 * @param array $params
+	 * @return $this
+	 */
 	function setParams(array $params = array()) {
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
+	/**
+	 * New params have priority
+	 * @param array $params
+	 * @return $this
+	 */
 	function addParams(array $params = array()) {
-		$this->params += $params;
+		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
@@ -102,6 +120,10 @@ class URL {
 		$this->components['path'] .= $name;
 	}
 
+	function getBasename() {
+		return basename($this->getPath());
+	}
+
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
 		//debug($this);
@@ -118,6 +140,7 @@ class URL {
 	/**
 	 * http://de2.php.net/manual/en/function.parse-url.php#85963
 	 *
+	 * @param null $parsed
 	 * @return string
 	 */
 	function buildURL($parsed = NULL) {
@@ -148,7 +171,7 @@ class URL {
 	public function __toString() {
 		$url = $this->buildURL();
 		//debug($this->components, $url);
-		return $url;
+		return $url.'';
 	}
 
 	public function getRequest() {
@@ -205,5 +228,10 @@ curl_setopt($process, CURLOPT_POST, 1);
 $return = curl_exec($process);
 curl_close($process);
 return $return; */
+
+	function exists() {
+		$AgetHeaders = @get_headers($this->buildURL());
+		return preg_match("|200|", $AgetHeaders[0]);
+	}
 
 }

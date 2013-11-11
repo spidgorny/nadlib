@@ -1,16 +1,21 @@
 <?php
 
 class MemcacheFile {
-	protected $folder = 'cache/';
+
+	/**
+	 * @used in ClearCache
+	 * @var string
+	 */
+	public $folder = 'cache/';
 
 	function __construct() {
 		$sub = Config::getInstance()->appRoot;
 
 		if (!file_exists($sub.'/'.$this->folder)) {
-			die(__METHOD__);
+			debug(__METHOD__, $sub.'/'.$this->folder);
+			die();
 		} else {
-			$this->folder = getcwd() . DIRECTORY_SEPARATOR . $this->folder;
-			//debug($this->folder);
+			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
 		}
 	}
 
@@ -18,6 +23,9 @@ class MemcacheFile {
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
 		$key = str_replace('::', '-', $key);
+		if (strpos($key, ' ') !== false || strpos($key, '/') !== false) {
+			$key = md5($key);
+		}
 		$file = $this->folder . $key . '.cache'; // str_replace('(', '-', str_replace(')', '-', $key))
 		return $file;
 	}
@@ -57,11 +65,18 @@ class MemcacheFile {
 		}
 	}
 
+	/**
+	 * @param $key
+	 * @return Duration
+	 */
+	function getAge($key) {
+		$file = $this->map($key);
+		return new Duration(time() - @filemtime($file));
+	}
 /**
  * unfinished
  * static function getInstance($file, $expire) {
 		$mf = new self();
 		$get = $mf->get($file, $expire);
 	}
-	*/
 }

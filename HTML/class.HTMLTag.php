@@ -22,9 +22,12 @@ class HTMLTag {
 		return '<'.$this->tag.' '.$this->renderAttr($this->attr).'>'.$content.'</'.$this->tag.'>';
 	}
 
-	function renderAttr(array $attr) {
+	static function renderAttr(array $attr) {
 		$set = array();
 		foreach ($attr as $key => $val) {
+			if (is_array($val)) {
+				$val = implode(' ', $val);	// for class="a b c"
+			}
 			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
 		}
 		return implode(' ', $set);

@@ -5,6 +5,7 @@ class GroupSwitch extends AppController {
 	public $allowedUsers = array(
 		'depidsvy',
 		'deloprub',
+        'dejokmaj',
 	);
 
 	protected $groups = array(
@@ -12,7 +13,8 @@ class GroupSwitch extends AppController {
 		'83079' => 'Artwork',
 		'62' => 'EPES',
 		'13868' => 'Lotcheck',
-		'1815688' => 'Testing',
+		'1815688' => 'Testers',
+		'1895312' => 'Coords',
 	);
 
 	function render() {
@@ -43,7 +45,7 @@ class GroupSwitch extends AppController {
 	function setGroupAction() {
 		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
 		$referer = new URL($_SERVER['HTTP_REFERER']);
-		$referer->setParams();
+		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
 		$this->request->redirect($referer);
 	}
 

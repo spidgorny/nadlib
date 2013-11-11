@@ -1,7 +1,5 @@
 <?php
 
-require_once('class.ArrayIteratorPlus.php');
-
 class IteratorArrayAccess extends ArrayIteratorPlus implements ArrayAccess {
 
 	/** ArrayAccess **/

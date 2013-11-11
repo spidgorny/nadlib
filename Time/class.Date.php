@@ -57,6 +57,13 @@ class Date extends Time {
 	function __toString() {
 		return $this->getHumanDate();
 	}
+	/**
+	 * @param string $format d.m.Y
+	 * @return htmlString
+	 */
+	function html($format = 'd.m.Y') {
+		return new htmlString('<time datetime="'.$this->getISO().'">'.$this->format($format).'</time>');
+	}
 
 	function days() {
 		return $this->getTimestamp() / 60 / 60 / 24;

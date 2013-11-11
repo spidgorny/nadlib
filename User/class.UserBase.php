@@ -1,15 +1,20 @@
 <?php
 
 abstract class UserBase extends OODBase {
+
 	public $table = 'user';
+
+	var $idField = 'id';
+
 	protected $prefs = array();
-	protected static $instances = array();
+
+	public static $instances = array();
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
 	 * protected will not work because OODBase::__construct is public
 	 *
-	 * @param unknown_type $id
+	 * @param int $id
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);
@@ -19,7 +24,7 @@ abstract class UserBase extends OODBase {
 	 * @param null $id
 	 * @return User
 	 */
-	public static function getInstance($id = NULL) {
+	public static function getInstance($id) {
 		if (!($obj = self::$instances[$id])) {
 			$static = 'User'; //get_class($this);
 			$obj = new $static($id);
@@ -74,18 +79,26 @@ abstract class UserBase extends OODBase {
 
 	/**
 	 * Will md5 password inside.
+	 * Will NOT md5 password inside as Client is UserBased.
 	 *
 	 * @param array $data
+	 * @throws Exception
 	 * @return unknown
 	 */
 	function insert(array $data) {
-		$this->findInDB(array('email' => $data['email']));
-		if ($this->id) {
-			throw new Exception("Such e-mail is already used. <a href=\"?c=ForgotPassword\">Forgot password?</a>");
-		} else {
-			//$data['password'] = md5($data['password']);
-			return $this->insertNoUserCheck($data);
-		}
+        //debug($data);
+        if ($data['email']) {
+            $this->findInDB(array('email' => $data['email']));
+            if ($this->id) {
+                throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
+            } else {
+                //$data['password'] = md5($data['password']);
+                return $this->insertNoUserCheck($data);
+            }
+        } else {
+            //$index = Index::getInstance();
+            //$index->notice('No email provided.');
+        }
 	}
 
 	function insertNoUserCheck(array $data) {

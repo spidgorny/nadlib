@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class TranslateLL
+ * TODO: Combine with Localize
+ */
+
 class TranslateLL extends HTMLFormProcessor {
 	protected $submitButton = 'Update';
 
@@ -9,12 +14,16 @@ class TranslateLL extends HTMLFormProcessor {
 		$desc = array(
 			'lang' => array(
 				'label' => __('Lang'),
-				'more' => 'readonly="1"',
+				'more' => array(
+					'readonly' => "1",
+				),
 				'value' => $ll->lang,
 			),
 			'code' => array(
 				'label' => __('Code'),
-				'more' => 'readonly="1"',
+				'more' => array(
+					'readonly' => "1",
+				),
 				'value' => $code,
 			),
 			'text' => array(

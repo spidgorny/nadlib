@@ -4,7 +4,7 @@
  * TODO: move to nadlib and find IteratorMembersCollection
  */
 
-class IteratorCollection extends Collection implements Iterator {
+class IteratorCollection extends Collection implements Iterator, Countable {
 
 	function rewind() {
 		reset($this->data);
@@ -24,6 +24,10 @@ class IteratorCollection extends Collection implements Iterator {
 
 	function valid() {
 		return $this->key() !== NULL;
+	}
+
+	function count() {
+		return sizeof($this->data);
 	}
 
 }

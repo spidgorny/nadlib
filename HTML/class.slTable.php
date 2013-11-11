@@ -1,34 +1,94 @@
 <?php
 
 class slTable {
+
+	/**
+	 * <table id=""> will be generated
+	 * @var string
+	 */
 	var $ID = NULL;
-	var $data = NULL;
-	var $dataClass = NULL;
+
+	/**
+	 * 2D array of rows and columns
+	 * @var array
+	 */
+	var $data = array();
+
+	/**
+	 * Class for each ROW(!)
+	 * @var array
+	 */
+	var $dataClass = array();
+
 	var $iRow = -1;
+
 	var $iCol = 0;
+
+	/**
+	 * Columns definition. Will be generated if missing.
+	 * @var array
+	 */
 	var $thes = array();
+
+	/**
+	 * Appended to <table> tag
+	 * @var string
+	 */
 	var $more = 'class="nospacing"';
 
 	/**
 	 * @var HTMLTableBuf
 	 */
 	var $generation;
+
 	var $sortable = FALSE;
 
 	/**
 	 * @var URL
 	 */
 	var $sortLinkPrefix;
-	var $dataPlus = ''; // the first row after the header - used for filters
+
+	/**
+	 * the first row after the header - used for filters
+	 * @var string
+	 */
+	var $dataPlus = '';
+
+	/**
+	 * $_REQUEST[$this->prefix]
+	 * @var string
+	 */
 	var $prefix = 'slTable';
+
 	var $sortBy, $sortOrder;
-	var $footer;		// last line
+
+	/**
+	 * last line
+	 * @var array
+	 */
+	var $footer = array();
+
 	var $isAlternatingColumns = FALSE;
+
 	var $isOddEven = TRUE;
+
+	/**
+	 * @var string <tr $thesMore>
+	 */
 	var $thesMore;
+
+	/**
+	 * @var string before <tbody>
+	 */
 	var $theadPlus = '';
+
+	/**
+	 * @var string
+	 */
 	public $trmore;
+
 	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle">';
+
 	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle">';
 
 	/**
@@ -36,23 +96,18 @@ class slTable {
 	 */
 	protected $db;
 
-	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
-	public $SLTABLE_IMG_CHECK = '☑';
-	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
-	public $SLTABLE_IMG_CROSS = '☐';
-
 	function __construct($id = NULL, $more="", array $thes = array()) {
-		if (is_array($id)) {
+		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
-			$this->ID = md5(time());
+			$this->ID = md5(microtime());
 		} else if ($id) {
 			$this->ID = $id;
 		} else {
-			$this->ID = md5(time());
+			$this->ID = md5(microtime());
 		}
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
-		$this->db = Config::getInstance()->db;
+		$this->db = class_exists('Config') ? Config::getInstance()->db : NULL;
 		if (!file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
 			$this->arrowAsc = '&#x25b2;';
@@ -60,13 +115,20 @@ class slTable {
 		$this->sortLinkPrefix = new URL();
 	}
 
-	function thes($aThes, $thesMore = NULL) {
+	/**
+	 * @param array $aThes
+	 * @param string $thesMore
+	 */
+	function thes(array $aThes, $thesMore = NULL) {
 		$this->thes = $aThes;
 		if ($thesMore !== NULL) {
 			$this->thesMore = $thesMore;
 		}
 	}
 
+	/**
+	 * @deprecated - use addRowData
+	 */
 	function addRow() {
 		$this->iRow++;
 		$this->iCol = 0;
@@ -90,8 +152,9 @@ class slTable {
 
 	/**
 	 * To sort, $this->thes with all datatypes should be known
+	 * @public to be callable
 	 */
-	function tabSortByUrl($a, $b) {
+	public function tabSortByUrl($a, $b) {
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
 		$aa = $a[$by];
@@ -129,7 +192,9 @@ class slTable {
 	}
 
 	/**
-	 * Enter description here...
+	 * Call this manually to allow sorting. Otherwise it's assumed that you sort manually (SQL) in advance.
+	 * Useful only when the complete resultset is visible on a single page.
+	 * Otherwise you're sorting just a portion of the data.
 	 *
 	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
 	 * @param boolean $or
@@ -176,22 +241,46 @@ class slTable {
 	}
 
 	function generateThes() {
-		$thes = array();
-		foreach ($this->data as $current) {
-			$thes = array_merge($thes, array_keys($current));
-			$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
+		if (!sizeof($this->thes)) {
+			$thes = array();
+			foreach ($this->data as $current) {
+				$thes = array_merge($thes, array_keys($current));
+				$thes = array_unique($thes);	// if put outside the loop may lead to out of memory error
+			}
+			if ($thes) {
+				$thes = array_combine($thes, $thes);
+				foreach ($thes as $i => &$th) {
+					if ($i{strlen($i)-1} != '.') {
+						$th = array('name' => $th);
+					} else {
+						unset($thes[$i]);
+					}
+				} unset($th);
+				unset($thes['###TD_CLASS###']);
+				unset($thes['###TR_MORE###']);
+				$this->thes($thes);
+				$this->isOddEven = TRUE;
+				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
+				if (!$this->more) {
+					$this->more = 'class="nospacing"';
+				}
+			}
 		}
-		$thes = array_combine($thes, $thes);
-		foreach ($thes as &$th) {
-			$th = array('name' => $th);
-		} unset($th);
-		unset($thes['###TD_CLASS###']);
-		$this->thes($thes);
-		$this->isOddEven = TRUE;
-		//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
-		if (!$this->more) {
-			$this->more = 'class="nospacing"';
+	}
+
+	function getThesNames() {
+		$names = array();
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = isset($thv['name'])
+					? $thv['name']
+					: (isset($thv['label']) ? $thv['label'] : '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
 		}
+		return $names;
 	}
 
 	function getThesNames() {
@@ -220,25 +309,29 @@ class slTable {
 		$thes2 = array();
 		$thmore = array();
 		if (is_array($thes)) foreach ($thes as $thk => $thv) {
-			if (is_array($thv)) {
-				$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
-				$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
-			} else {
-				$thvName = $thv;
+			if (!is_array($thv)) {
+				$thv = array('name' => $thv);
+			}
+			$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
+			$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
+			if (!is_array($thmore)) {
+				$thmore = array('' => $thmore);
+			}
+			if ($thv['align']) {
+				$thmore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
-				nodebug(array(
-					$_REQUEST[$this->prefix]['sortBy'],
-					$this->sortBy,
-					$thk,
-				));
-				$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;
-				$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
-				$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
-					'sortBy' => $sortField,
-					'sortOrder' => $sortOrder,
-				)));
-				$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
+					$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;	// set to null - don't sort
+					$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
+					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
+						'sortBy' => $sortField,
+						'sortOrder' => $sortOrder,
+					)));
+					$thes2[$thk] = '<a href="'.$link.'">'.$thvName.'</a>';
+				} else {
+					$thes2[$thk] = $thvName;
+				}
 			} else {
 				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
 					$link = URL::getCurrent();
@@ -251,12 +344,14 @@ class slTable {
 
 		//debug($thes, $this->sortable);
 		if (implode('', $thes2)) { // don't display empty
-			$t->thes($thes2, $thmore, $this->thesMore . (is_array($this->more) ? $this->more['thesMore'] : '')); // $t is not $this // sorting must be done before
+			$t->thes($thes2, $thmore, $this->thesMore . (is_array($this->more) ? HTMLTag::renderAttr($this->more['thesMore']) : '')); // $t is not $this // sorting must be done before
 		}
 
 		$t->stdout .= '<colgroup>';
 		$i = 0;
 		foreach ($thes2 as $key => $dummy) {
+						$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
+
 			if ($this->isAlternatingColumns) {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
@@ -274,26 +369,21 @@ class slTable {
 
 	function generate($caller = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
-		if (!$this->generation) {
-			if (sizeof($this->data) && $this->data != FALSE) {
-				if (!sizeof($this->thes)) {
-					$this->generateThes();
-				}
+		if (!$this->generation) {	// cache
+			if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
+				$this->generateThes();
 
-				if ($this->sortable) {
-					$this->sort();
-				}
+				$this->sort();
 
 				$t = new HTMLTableBuf();
 				$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
 
 				$this->generateThead($t);
 
-				// td
-				if (!is_array($this->data)) {
-					$data = array();
-				} else {
+				if (is_array($this->data) || $this->data instanceof Traversable) {
 					$data = $this->data;
+				} else {
+					$data = array();
 				}
 				$i = -1;
 				foreach ($data as $key => $row) { // (almost $this->data)
@@ -310,8 +400,9 @@ class slTable {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					//debug($tr);
+					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
+					//debug_pre_print_backtrace();
 					$this->genRow($t, $row);
 					$t->tre();
 				}
@@ -333,13 +424,13 @@ class slTable {
 				$this->generation = $t;
 			} else {
 				$this->generation = new HTMLTableBuf();
-				$this->generation->stdout = '<div class="message">No Data</div>';
+				$this->generation->stdout = '<div class="message">'.__('No Data').'</div>';
 			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$caller})");
 	}
 
-	function genRow(HTMLTableBuf $t, $row) {
+	function genRow(HTMLTableBuf $t, array $row) {
 		$skipCols = 0;
 		$iCol = 0;
 		foreach ($this->thes as $col => $k) {
@@ -348,6 +439,9 @@ class slTable {
 			// whole column desc is combined with single cell desc
 			if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
 				$k += $row[$col.'.'];
+			}
+			if ($row[$col] instanceof slTableValue) {
+				$k += $row[$col]->desc;
 			}
 
 			if ($skipCols) {
@@ -367,160 +461,55 @@ class slTable {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
 					$val = new slTableValue($val, $k);
-					$out = (isset($k['before']) ? $k['before'] : '')
-						. $val->render($col, $val, $k, $row) .
-						(isset($k['after']) ? $k['after'] : '');
-					if ($k['wrap']) {
-						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
-						$out = $wrap->wrap($out);
-					}
-					//$more = ($this->isAlternatingColumns ? 'class="'.($iCol%2?'even':'odd').'"' : '');
+
+					$out = (isset($k['before']) ? $k['before'] : '').
+						   $val->render($col, $row) .
+						   (isset($k['after']) ? $k['after'] : '');
+
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
-					$more = (isset($k['more']) ? $k['more'] : NULL).
-						(isset($k['colspan']) ? 'colspan="'.$k['colspan'].'"' : '').
-						(isset($k['align']) ? 'align="'.$k['align'].'"' : '');
-					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
+
+					$more = $this->getCellMore($k, $iCol, $col, $row);
+					$t->cell($out, $more);
 					$iCol++;
 				}
 			}
 		}
 	}
 
-	function getCell($col, $val, $k, array $row) {
-		$type = isset($k['type']) ? $k['type'] : NULL;
-		if (is_object($type)) {
-			$type = get_class($type);
+	/**
+	 * @param array $k
+	 * @param $iCol
+	 * @param $col
+	 * @param array $row
+	 * @return array
+	 */
+	function getCellMore(array $k, $iCol, $col, array $row) {
+		$more = array();
+		if ($this->isAlternatingColumns) {
+			$more['class'][] = ($iCol%2?'even':'odd');
 		}
-		switch ($type) {
-			case "select":
-			case "selection":
-				//t3lib_div::debug($val);
-				//t3lib_div::debug($k);
-				if ($val) {
-					if (!isset($k['options'])) {
-						$what = $k['title'] ? $k['title'] : $col;
-						$options = $this->db->fetchSelectQuery($k['from'], array($k['idField'] => $val));
-						$options = AP($options)->IDalize()->column($what)->getData();
-					} else {
-						$options = $k['options'];
-					}
-					//debug($options); exit();
-					$out = $options[$val];
-				} else {
-					$out = "";
-				}
-			break;
-			case "date":
-				if ($val) {
-					$out = date($k['format'] ? $k['format'] : 'Y-m-d H:i:s', $val);
-				} else {
-					$out = '';
-				}
-			break;
-			case "sqltime":
-				if ($val) {
-					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
-					$out = date($k['format'], $val);
-				} else {
-					$out = '';
-				}
-			break;
-			case "sqldate":
-				if ($val) {
-					$val = new Date($val);
-					$out = $val->format($k['format']);	// hours will not work
-				} else {
-					$out = '';
-				}
-			break;
-			case "file":
-				$out = str::ahref($val, $GLOBALS['uploadURL'].$val, FALSE);
-			break;
-			case "money":
-				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
-			break;
-			case "delete":
-				$out = str::ahref("Del", "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'], FALSE);
-			break;
-			case "datatable":
-				//$f = new HTMLForm();
-				//$f->prefix($this->prefixId);
-				//$out = $f->datatable($col, $val, $k);
-				//$out .="col ".$col." val ".$val." k ".$k;
-			break;
-			case "checkbox":
-				if ($k['tf']) {
-					$val = $val == 't';
-				}
-				if ($val) {
-					$img = $this->SLTABLE_IMG_CHECK;
-				} else {
-					$img = $this->SLTABLE_IMG_CROSS;
-				}
-				if ($row[$col.'.link']) {
-					$out = str::ahref($img, $row[$col.'.link'], FALSE);
-				} else {
-					$out = $img;
-				}
-			break;
-			case "bool":
-				if (intval($val)) {
-					$out = $k['true'];
-				} else {
-					$out = $k['false'];
-				}
-				//$out .= t3lib_div::view_array(array('val' => $val, 'k' => $k, 'out' => $out));
-			break;
-			case "excel":
-				$out = str_replace(',', '.', $val); // from excel?
-				$out = number_format($out, 2, ',', '.');
-			break;
-			case "percent":
-				$out = number_format($val * 100, 2, ',', '') . '%';// . ' ('.$val.')';
-			break;
-			case "callback":
-				$out = call_user_func($k['callback'], $val, $k, $row);
-			break;
-			case "instance":
-				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
-				$out = $obj.'';
-			break;
-			case "singleLink":
-				$out = new HTMLTag('a', array(
-					'href' => new URL($k['link'].$row[$k['idField']]),
-				), $val);
-			break;
-			case 'HTMLFormDatePicker':
-				//$val = strtotime($val);
-				//$out = date($k['type']->format, $val);
-				if ($val) {
-					$val = new Date($val);
-					$out = $val->format($k['type']->format);
-				}
-			break;
-			default:
-				//t3lib_div::debug($k);
-				if (isset($k['hsc']) && $k['hsc']) {
-					$val = htmlspecialchars($val);
-				}
-				if (isset($k['nl2br']) && $k['nl2br']) {
-					$val = nl2br($val);
-				}
-				if (is_object($val)) {
-					if (method_exists($val, 'getName')) {
-						$val = $val->getName();
-					}
-				}
-				if ($k['no_hsc'] || $val instanceof htmlString) {
-					$out = $val;
-				} else {
-					$out = htmlspecialchars($val);
-				}
-			break;
+
+		if (isset($k['more'])) {
+			if (is_array($k['more'])) {
+				$more += $k['more'];
+			} else {
+				debug(__METHOD__, $col, $k, $row);
+				die('Consider making your "more" an array');
+			}
 		}
-		return $out;
+
+		if (isset($k['colspan'])) {
+			$more['colspan'] = $k['colspan'];
+		}
+		if (isset($k['align'])) {
+			$more['align'] = $k['align'];
+		}
+		if (isset($width[$iCol])) {
+			$more['width'] = $width[$iCol];
+		}
+		return $more;
 	}
 
 	function show() {
@@ -542,8 +531,9 @@ class slTable {
 	}
 
 	function getData($table) {
-		$cols = $GLOBALS['db']->getTableColumns($table);
-		$data = $GLOBALS['db']->getTableDataEx($table, "deleted = 0");
+		$db = Config::getInstance()->db;
+		$cols = $db->getTableColumns($table);
+		$data = $db->getTableDataEx($table, "deleted = 0");
 		for ($i = 0; $i < sizeof($data); $i++) {
 			$this->addRow();
 			$iCol = 0;
@@ -561,7 +551,9 @@ class slTable {
 	}
 
 	function __toString() {
-		return $this->getContent();
+		return Request::isCLI()
+			? $this->getCLITable()
+			: $this->getContent();
 	}
 
 	/**
@@ -571,34 +563,29 @@ class slTable {
 	 */
 	public function getTotals() {
 		$footer = array();
+		$this->generateThes();
 		reset($this->data);
 		$first = current($this->data);
+		//debug($this->data, $first);
 		if ($first) {
 			foreach ($this->thes as $col => $_) {
 				$first[$col] = strip_tags($first[$col]);
-				if (is_numeric($first[$col])) {
-					$footer[$col] = $this->getColumnTotal($this->data, $col);
-				} else if ($this->is_time($first[$col])) {
+				if ($this->is_time($first[$col])) {
 					$footer[$col] = $this->getColumnTotalTime($this->data, $col);
-				} else if (floatval($first[$col])) {
+				} else {//if (floatval($first[$col])) {
 					$footer[$col] = 0;
 					foreach ($this->data as $row) {
-						$footer[$col] += floatval($row[$col]);
+						$footer[$col] += floatval(strip_tags($row[$col]));
 					}
-				} else {
-					$footer[$col] = '&nbsp;';
+				//} else {
+				//	$footer[$col] = '&nbsp;';
 				}
+				$footer[$col] = $footer[$col] ? new slTableValue($footer[$col], array(
+					'align' => 'right',
+				)) : '';
 			}
 		}
 		return $footer;
-	}
-
-	protected function getColumnTotal($data, $col) {
-		$total = 0;
-		foreach ($data as $row) {
-			$total += intval(strip_tags($row[$col]));
-		}
-		return '<div align="right">'.$total.'</div>';
 	}
 
 	protected function getColumnTotalTime($data, $col) {
@@ -615,27 +602,110 @@ class slTable {
 		return (is_numeric($parts[0]) && is_numeric($parts[1]) && strlen($parts[0]) == 2 && strlen($parts[1]) == 2);
 	}
 
-	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true) {
+	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false) {
 		foreach ($assoc as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
 					$val = get_object_vars($val);
 				}
-				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys).'';
+				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
+				$val = new htmlString($val); 	// to prevent hsc later
 			}
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
 			}
+
+			if ($val instanceof htmlString || $val instanceof HTMLTag) {
+				//$val = $val;
+			} else {
+				if (mb_strpos($val, "\n") !== FALSE) {
+					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
+				} else if (!$no_hsc) {
+					$val = htmlspecialchars($val);
+				}
+			}
+
 			$val = array(
-				0 => $key,
+				0 => htmlspecialchars($key),
 				'' => $val,
 			);
 		}
-		$s = new self($assoc, '', array(
+		$s = new self($assoc, 'class="visual nospacing table"', array(
 			0 => '',
-			'' => array('no_hsc' => true),
+			'' => array('no_hsc' => $no_hsc),
 		));
 		return $s;
+	}
+
+	function download($filename) {
+		$content = $this->getContent();
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-disposition: attachment; filename="'.$filename.'.xls"');
+		header('Content-length: '.strlen($content));
+		echo $content;
+		exit();
+	}
+
+	/**
+	 * TODO: use getThesNames()
+	 */
+	function prepare4XLS() {
+		$this->generateThes();
+		//debug($this->thes);
+
+		$xls = array();
+		foreach ($this->thes as $th) {
+			$row[] = is_array($th) ? $th['name'] : $th;
+		}
+		$xls[] = $row;
+
+		foreach ($this->data as $row) {
+			$line = array();
+			foreach ($this->thes as $col => $_) {
+				$val = $row[$col];
+				$line[] = strip_tags($val);
+			}
+			$xls[] = $line;
+		}
+		return $xls;
+	}
+
+	function getCLITable($cutTooLong = false) {
+		$this->generateThes();
+		$widthMax = array();
+		$widthAvg = array();
+		foreach ($this->data as $i => $row) {
+			foreach ($this->thes as $field => $name) {
+				$value = $row[$field];
+				$value = strip_tags($value);
+				$widthMax[$field] = max($widthMax[$field], strlen($value));
+				$widthAvg[$field] += strlen($value);
+			}
+		}
+		foreach ($this->thes as $field => $name) {
+			$widthAvg[$field] /= sizeof($this->data);
+			//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
+			$avgLen = $widthAvg[$field];
+			$widthMax[$field] = max(8, 1+$avgLen);
+		}
+
+		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
+
+		$content = "\n";
+		foreach ($dataWithHeader as $i => $row) {
+			$padRow = array();
+			foreach ($this->thes as $field => $name) {
+				$value = $row[$field];
+				$value = strip_tags($value);
+				if ($cutTooLong) {
+					$value = substr($value, 0, $widthMax[$field]);
+				}
+				$value = str_pad($value, $widthMax[$field], ' ', STR_PAD_RIGHT);
+				$padRow[] = $value;
+			}
+			$content .= implode(" ", $padRow)."\n";
+		}
+		return $content;
 	}
 
 }
