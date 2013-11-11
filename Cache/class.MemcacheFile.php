@@ -73,10 +73,12 @@ class MemcacheFile {
 		$file = $this->map($key);
 		return new Duration(time() - @filemtime($file));
 	}
+
 /**
  * unfinished
  * static function getInstance($file, $expire) {
 		$mf = new self();
 		$get = $mf->get($file, $expire);
 	}
+ */
 }

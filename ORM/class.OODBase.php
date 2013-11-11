@@ -191,13 +191,9 @@ abstract class OODBase {
 		} else {
 			$data = array();
 		}
+		$this->init($data);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
-	}
-
-	function findInDB(array $where, $orderby = '') {
-		$data = $this->fetchFromDB($where, $orderby);
-		$this->init($data);
 	}
 
 	/**
@@ -354,6 +350,7 @@ abstract class OODBase {
 	 * @return self
 	 */
 	public static function getInstance($id) {
+		$static = get_called_class();
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
 			if (!$inst) {
@@ -367,7 +364,6 @@ abstract class OODBase {
 				}
 			}
 		} else {
-			$static = get_called_class();
 			$inst = new $static($id);
 		}
 		return $inst;

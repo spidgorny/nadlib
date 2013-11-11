@@ -65,7 +65,7 @@ class TaylorProfiler {
     // Public Methods
 
 	function getName() {
-		if (class_exists('MySQL')) {
+		if (class_exists('MySQL') && method_exists('MySQL', 'getCaller')) {
 			$name = MySQL::getCaller();
 		} else {
 			$i = 3;
