@@ -84,7 +84,7 @@ class slTableValue {
 			break;
 			case "datatable":
 				//$out .= t3lib_div::view_array(array('col' => $col, 'val' => $val, 'desc' => $k));
-				$out .= $k['prefix'];
+				$out = $k['prefix'];
 				$f = $this->caller->makeInstance('HTMLForm');
 				$f->prefix($this->prefixId);
 				$out .= $f->datatable($col, $val, $k, $details = TRUE, $doDiv = TRUE, 'sltable', $data = 'test');
@@ -128,14 +128,19 @@ class slTableValue {
 					$out = $val;
 					if (!$k['no_hsc']) {
 						$out = htmlspecialchars($out);
-					} else if($k['name'] == "Check") {
-						//$out = htmlspecialchars($out);
 					}
 				}
 			break;
 		}
 		if ($k['wrap']) {
 			$out = str_replace('|', $out, $k['wrap']);
+		}
+		debug($k);
+		if ($k['link']) {
+			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+		}
+		if (isset($k['round']) && $out) {
+			$out = number_format($out, $k['round'], '.', '');
 		}
 		return $out;
 	}
