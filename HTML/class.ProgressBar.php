@@ -108,10 +108,6 @@ class ProgressBar {
 		flush();
 	}
 
-	function __toString() {
-		return $this->getContent();
-	}
-	
 	function __destruct() {
 		if ($this->destruct100) {
 			$this->setProgressBarProgress(100);

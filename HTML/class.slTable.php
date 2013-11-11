@@ -283,21 +283,6 @@ class slTable {
 		return $names;
 	}
 
-	function getThesNames() {
-		$names = array();
-		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
-		}
-		return $names;
-	}
-
 	function generateThead(HTMLTableBuf $t) {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
