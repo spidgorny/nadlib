@@ -116,7 +116,8 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0 || $this->where) {
+		//debug($this->parentID, $this->where);
+		if ($this->parentID > 0 || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -280,8 +281,8 @@ class Collection {
 	 * @param string $orderBy
 	 * @return Collection
 	 */
-	function createForTable($table, array $where = array(), $orderBy = '') {
-		$c = new self();
+	static function createForTable($table, array $where = array(), $orderBy = '') {
+		$c = new self(-1);
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
