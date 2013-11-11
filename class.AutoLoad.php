@@ -186,7 +186,7 @@ class AutoLoad {
 			}
 
 			$debug[] = $debugLine;
-			if ($this->debug) {
+			if ($this->debug && $_COOKIE['debug']) {
 				echo $debugLine;
 			}
 			if (file_exists($file)) {

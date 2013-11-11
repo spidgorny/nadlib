@@ -54,7 +54,7 @@ class ProgressBar {
 	}
 
 	function getContent() {
-		Index::getInstance()->header['ProgressBar'] = $this->getCSS();
+		IndexBase::getInstance()->header['ProgressBar'] = $this->getCSS();
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
@@ -116,7 +116,7 @@ class ProgressBar {
 
 	function getImage($p, $display = 'inline-block') {
 		$prefix = '';
-		if (Index::getInstance() instanceof IndexBE) {
+		if (IndexBase::getInstance() instanceof IndexBE) {
 			//$prefix = '../../../../';
 			// just use base href instead
 		}
