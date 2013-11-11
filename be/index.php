@@ -2,6 +2,9 @@
 
 require_once '../init.php';
 
-$i = IndexBE::getInstance();
+$n = new InitNADLIB();
+$n->init();
+
+$i = IndexBE::getInstance(true);
 $i->initController();
 echo $i->render();

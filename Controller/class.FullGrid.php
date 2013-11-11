@@ -1,25 +1,6 @@
 <?php
 
 abstract class FullGrid extends Grid {
-	/**
-	 * @var array
-	 */
-	public $filter = array();
-
-	/**
-	 * @var array
-	 */
-	public $columns;
-
-	/**
-	 * @var array
-	 */
-	public $sort;
-
-	/**
-	 * @var PageSize
-	 */
-	public $pageSize;
 
 	/**
 	 * @param string $collection
@@ -31,11 +12,17 @@ abstract class FullGrid extends Grid {
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		//if (get_class($this->index->controller) == get_class($this)) {// unreliable
 		if ($this->request->getControllerString() == get_class($this)) {
-			$this->saveFilterColumnsSort($collection ?: get_class($this));
+			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
 		if ($collection) {
 			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+		}
+	}
+
+	function postInit() {
+		if ($this->collection) {
 			$this->collection->retrieveDataFromDB();
 		}
 	}
@@ -69,6 +56,10 @@ abstract class FullGrid extends Grid {
 		return parent::render();
 	}
 
+	/**
+	 * Converts $this->filter data from URL into SQL where parameters
+	 * @return array
+	 */
 	function getFilterWhere() {
 		$where = array();
 
@@ -91,9 +82,10 @@ abstract class FullGrid extends Grid {
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
-		$f->formHideArray('', $this->linkVars);
+		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
 		$f->showForm($this->getFilterDesc($fields));
+		$f->prefix(NULL);
 		$f->submit('Filter');
 		return $f;
 	}
@@ -114,14 +106,30 @@ abstract class FullGrid extends Grid {
 		$desc = array();
 		foreach ($fields as $key => $k) {
 			if (!$k['noFilter']) {
-				$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
-				$options = AP($options)->trim()->getData();	// convert to string for === operation
-				//debug($options);
-				$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
-				//debug($options);
+				$autoClass = ucfirst(str_replace('id_', '', $key)).'Collection';
+				if (class_exists($autoClass) &&
+					in_array('HTMLFormCollection', class_implements($autoClass))) {
+					$type = new $autoClass();
+					$options = NULL;
+				} elseif ($k['tf']) {	// boolean
+					$type = 'select';
+					$stv = new slTableValue('', array());
+					$options = array(
+						't' => $stv->SLTABLE_IMG_CHECK,
+						'f' => $stv->SLTABLE_IMG_CROSS,
+					);
+					//debug($key, $this->filter[$key]);
+				} else {
+					$type = 'select';
+					$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
+					$options = ArrayPlus::create($options)->trim()->getData();	// convert to string for === operation
+					//debug($options);
+					$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
+					//debug($options);
+				}
 				$desc[$key] = array(
 					'label' => $k['name'],
-					'type' => 'select',
+					'type' => $type,
 					'options' => $options,
 					'null' => true,
 					'value' => $this->filter[$key],
@@ -136,7 +144,7 @@ abstract class FullGrid extends Grid {
 
 	function getTableFieldOptions($key, $count = false) {
 		$res = Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
-		$key, array(), 'ORDER BY title');
+		$key, array(), 'ORDER BY title', $this->model->idField);
 
 		if ($count) {
 			foreach ($res as &$val) {
@@ -153,7 +161,7 @@ abstract class FullGrid extends Grid {
 	function getColumnsForm() {
 		$desc = array(
 			'columns' => array(
-				'label' => 'Visible',
+				'label' => 'Visible<br />',
 				'type' => 'set',
 				'options' => ArrayPlus::create($this->collection->thes)->column('name')->getData(),
 				'value' => $this->columns,
@@ -167,7 +175,7 @@ abstract class FullGrid extends Grid {
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
-		$f->formHideArray('', $this->linkVars);
+		$f->formHideArray($this->linkVars);
 		//$f->prefix('columns');
 		$f->showForm($desc);
 		$f->submit('Set');

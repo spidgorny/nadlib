@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Initialized with a file parameter and represents a file which stores an array of values.
+ * Each get/set will work with one value from this array
+ * Class MemcacheArray
+ */
 class MemcacheArray implements ArrayAccess {
 	public $file;
 	protected $expire;
@@ -68,6 +73,22 @@ class MemcacheArray implements ArrayAccess {
         $this->data[$offset] = $value;
     }
 
+	function exists($key) {
+		return isset($this->data[$key]);
+	}
+
+	function get($key) {
+		return $this->data[$key];
+	}
+
+	/**
+	 * __destruct should save
+	 * @param $key
+	 * @param $value
+	 */
+	function set($key, $value) {
+		$this->data[$key] = $value;
+	}
     public function offsetExists($offset) {
         return isset($this->data[$offset]);
     }

@@ -11,6 +11,11 @@ class View {
 	/**
 	 * Enter description here...
 	 *
+	 * @var LocalLang
+	 */
+	protected $ll;
+
+	/**
 	 * @var Request
 	 */
 	protected $request;
@@ -19,9 +24,14 @@ class View {
 
 	protected $folder;
 
+	/**
+	 * @var Index
+	 */
+	protected $index;
+
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
-		$this->folder = dirname(__FILE__).'/../../template/';
+		$this->folder = Config::getInstance()->appRoot.'/template/';
 		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
 			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
 		}
@@ -35,8 +45,9 @@ class View {
 			}
 			*/
 		}
-		$this->ll = Config::getInstance()->ll;
+		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
 		$this->request = Request::getInstance();
+		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 
@@ -48,6 +59,7 @@ class View {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
+		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
 		require($file);
@@ -128,14 +140,25 @@ class View {
 		return eval('?>'.$this->parts[$i]);
 	}
 
+	/**
+	 * Uses htmlspecialchars()
+	 * @param $str
+	 * @return string
+	 */
 	function escape($str) {
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
 
 	function __toString() {
+		//debug_pre_print_backtrace();
 		return $this->render().'';
 	}
 
+	/**
+	 * Use this helper to make URL (makeURL, getURL)
+	 * @param array $params
+	 * @return URL
+	 */
 	function link(array $params) {
 		return Index::getInstance()->controller->getURL($params);
 	}
@@ -169,46 +192,44 @@ class View {
 	   ======================================*/
 
 	function autolink( &$text, $target='_blank', $nofollow=true ) {
-	  // grab anything that looks like a URL...
-	  $urls  =  $this->_autolink_find_URLS( $text );
-	  if( !empty($urls) ) // i.e. there were some URLS found in the text
-	  {
-		array_walk( $urls, array($this, '_autolink_create_html_tags'), array('target'=>$target, 'nofollow'=>$nofollow) );
-		$text  =  str_replace( array_keys($urls), array_values($urls), $text );
-	  }
-	  return $text;
+		// grab anything that looks like a URL...
+		$urls = $this->_autolink_find_URLS($text);
+		if (!empty($urls)) // i.e. there were some URLS found in the text
+		{
+			array_walk($urls, array($this, '_autolink_create_html_tags'), array('target' => $target, 'nofollow' => $nofollow));
+			$text = str_replace(array_keys($urls), array_values($urls), $text);
+		}
+		return $text;
 	}
 
 	function _autolink_find_URLS( $text ) {
-	  // build the patterns
-	  $scheme         =       '(http:\/\/|https:\/\/)';
-	  $www            =       'www\.';
-	  $ip             =       '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
-	  $subdomain      =       '[-a-z0-9_]+\.';
-	  $name           =       '[a-z][-a-z0-9]+\.';
-	  $tld            =       '[a-z]+(\.[a-z]{2,2})?';
-	  $the_rest       =       '\/?[a-z0-9._\/~#&=;%+?-]+[a-z0-9\/#=?]{1,1}';
-	  $pattern        =       "$scheme?(?(1)($ip|($subdomain)?$name$tld)|($www$name$tld))$the_rest";
+		// build the patterns
+		$scheme = '(http:\/\/|https:\/\/)';
+		$www = 'www\.';
+		$ip = '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
+		$subdomain = '[-a-z0-9_]+\.';
+		$name = '[a-z][-a-z0-9]+\.';
+		$tld = '[a-z]+(\.[a-z]{2,2})?';
+		$the_rest = '\/?[a-z0-9._\/~#&=;%+?-]+[a-z0-9\/#=?]{1,1}';
+		$pattern = "$scheme?(?(1)($ip|($subdomain)?$name$tld)|($www$name$tld))$the_rest";
 
-	  $pattern        =       '/'.$pattern.'/is';
-	  $c              =       preg_match_all( $pattern, $text, $m );
-	  unset( $text, $scheme, $www, $ip, $subdomain, $name, $tld, $the_rest, $pattern );
-	  if( $c )
-	  {
-		return( array_flip($m[0]) );
-	  }
-	  return( array() );
+		$pattern = '/' . $pattern . '/is';
+		$c = preg_match_all($pattern, $text, $m);
+		unset($text, $scheme, $www, $ip, $subdomain, $name, $tld, $the_rest, $pattern);
+		if ($c) {
+			return (array_flip($m[0]));
+		}
+		return (array());
 	}
 
-	function _autolink_create_html_tags( &$value, $key, $other=NULL ) {
-	  $target = $nofollow = NULL;
-	  if( is_array($other) )
-	  {
-		$target      =  ( $other['target']   ? " target=\"$other[target]\"" : NULL );
-		// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
-		$nofollow    =  ( $other['nofollow'] ? ' rel="nofollow"'            : NULL );
-	  }
-	  $value = "<a href=\"$key\"$target$nofollow>$key</a>";
+	function _autolink_create_html_tags(&$value, $key, $other = NULL) {
+		$target = $nofollow = NULL;
+		if (is_array($other)) {
+			$target = ($other['target'] ? " target=\"$other[target]\"" : NULL);
+			// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
+			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : NULL);
+		}
+		$value = "<a href=\"$key\"$target$nofollow>$key</a>";
 	}
 
 	function linkBIDs($text) {
@@ -228,9 +249,17 @@ class View {
 		return $money;
 	}
 
-	function bar($percent) {
+	static function bar($percent, array $params = array(), $attr = array()) {
 		$percent = round($percent);
-		return '<img src="nadlib/bar.php?rating='.$percent.'&color=6DC5B4" alt="'.$percent.'%" />';
+		$src = 'vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
+			'rating' => $percent,
+			'color' => '6DC5B4',
+		));
+		$attr += array(
+			'src' => $src,
+			'alt' => $percent.'%',
+		);
+		return new HTMLTag('img', $attr, NULL);
 	}
 
 }

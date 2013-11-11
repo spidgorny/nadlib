@@ -7,7 +7,7 @@ class Profiler {
 		$this->startTime = $startTime ? $startTime : $this->getMilliTime();
 	}
 
-	function getMilliTime() {
+	static function getMilliTime() {
 		list($usec, $sec) = explode(" ", microtime());
 		$time = (float)$usec + (float)$sec;
 		return $time;

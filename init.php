@@ -1,88 +1,82 @@
 <?php
 
-function __autoload($class) {
-	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-	//unset($_SESSION['autoloadCache']);
-	$folders = $_SESSION['autoloadCache'];
-	if (!$folders) {
-		require_once('class.ConfigBase.php');
-		if (file_exists($configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php')) {
-			//echo($configPath);
-			include_once $configPath;
-		}
-		//echo($configPath);
-		if (class_exists('Config')) {
-			$folders = Config::$includeFolders
-				? array_merge(ConfigBase::$includeFolders, Config::$includeFolders)
-				: ConfigBase::$includeFolders;
-		} else {
-			$folders = ConfigBase::$includeFolders;
-		}
-		$_SESSION['autoloadCache'] = $folders;
+class InitNADLIB {
+
+	var $useCookies = true;
+
+	/**
+	 * @var AutoLoad
+	 */
+	var $al;
+
+	function __construct() {
+		require_once dirname(__FILE__) . '/class.AutoLoad.php';
+		$this->al = AutoLoad::getInstance();
 	}
 
-	$namespaces = explode('\\', $class);
-	$classFile = end($namespaces);
-	$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
-	$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
-	$subFolders = implode('/', $subFolders);	// Download
-	foreach ($folders as $path) {
-		$file = dirname(__FILE__).DIRECTORY_SEPARATOR.
-				$path.DIRECTORY_SEPARATOR.
-				$subFolders.DIRECTORY_SEPARATOR.
-				'class.'.$classFile.'.php';
-		if (file_exists($file)) {
-			$debug[] = $class.' <span style="color: green;">'.$file.'</span><br />';
-			include_once($file);
-			break;
+	function init() {
+		//print_r($_SERVER);
+		$this->al->useCookies = $this->useCookies;
+		$this->al->register();
+
+		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		define('DEVELOPMENT', Request::isCLI()
+			? (($os == 'Windows_NT') || true) // at home
+			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+		);
+
+		if (DEVELOPMENT) {
+			error_reporting(E_ALL ^ E_NOTICE);
+			//ini_set('display_errors', FALSE);
+			//trigger_error(str_repeat('*', 20));	// log file separator
+
+			ini_set('display_errors', TRUE);
+			ini_set('html_error', TRUE);
+
+			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
+			/* @var $profiler TaylorProfiler */
+			if (class_exists('Config')) {
+				//print_r(Config::getInstance()->config['Config']);
+				set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+			}
+			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
+			}
 		} else {
-			$debug[] = $class.' <span style="color: red;">'.$file.'</span>: '.file_exists($file).'<br />';
-		}
-	}
-	if (!class_exists($classFile) && !interface_exists($classFile)) {
-		//debug($folders);
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			if ($config->config['autoload']['notFoundException']) {
-				debug($debug);
-				throw new Exception('Class '.$class.' ('.$file.') not found.');
+			error_reporting(0);
+			ini_set('display_errors', FALSE);
+			if (!Request::isCLI()) {
+				header('Cache-Control: no-cache, no-store, max-age=0');
+				header('Expires: -1');
 			}
 		}
+		date_default_timezone_set('Europe/Berlin');
+		ini_set('short_open_tag', 1);
+		Request::removeCookiesFromRequest();
 	}
-	if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-}
 
-define('DEVELOPMENT', isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false);
-if (DEVELOPMENT) {
-	error_reporting(E_ALL ^ E_NOTICE);
-	//ini_set('display_errors', FALSE);
-	//trigger_error(str_repeat('*', 20));	// log file separator
-
-	ini_set('display_errors', TRUE);
-	ini_set('html_error', TRUE);
-
-	$profiler = new TaylorProfiler(TRUE);	// GLOBALS
-	/* @var $profiler TaylorProfiler */
-	if (class_exists('Config')) {
-		//print_r(Config::getInstance()->config['Config']);
-		set_time_limit(Config::getInstance()->config['Config']['timeLimit'] ? Config::getInstance()->config['Config']['timeLimit'] : 5);
+	function initWhoops() {
+		$run     = new Whoops\Run;
+		$handler = new Whoops\Handler\PrettyPageHandler;
+		$run->pushHandler($handler);
+		$run->register();
 	}
-	$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
-} else {
-	error_reporting(0);
-	ini_set('display_errors', FALSE);
-	header('Cache-Control: max-age=0');
-	header('Expires: Tue, 19 Oct 2010 13:24:46 GMT');
+
 }
-date_default_timezone_set('Europe/Berlin');
-ini_set('short_open_tag', 1);
-Request::removeCookiesFromRequest();
-//chdir(dirname(dirname(__FILE__)));	// one level up
-// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
 
 function debug($a) {
 	$params = func_get_args();
-	call_user_func_array(array('Debug', 'debug_args'), $params);
+	if (method_exists('Debug', 'debug_args')) {
+		call_user_func_array(array('Debug', 'debug_args'), $params);
+	} else {
+		echo '<pre>'.htmlspecialchars(
+			var_dump(
+				func_num_args() == 1 ? $a : $params
+			, true)
+		).'</pre>';
+	}
 }
 
 function nodebug() {
@@ -95,14 +89,63 @@ function getDebug() {
 	return ob_get_clean();
 }
 
+function pre_print_r($a) {
+	echo '<pre style="white-space: pre-wrap;">';
+	print_r($a);
+	echo '</pre>';
+}
+
+function debug_once() {
+	static $used = array();
+	$trace = debug_backtrace();
+	array_shift($trace);	// debug_once itself
+	$first = array_shift($trace);
+	$key = $first['file'].'.'.$first['line'];
+	if (!$used[$key]) {
+		$v = func_get_args();
+		//$v[] = $key;
+		call_user_func_array('debug', $v);
+		$used[$key] = true;
+	}
+}
+
+function debug_size($a) {
+	if (is_object($a)) {
+		$vals = get_object_vars($a);
+		$keys = array_keys($vals);
+	} else {
+		$vals = $a;
+		$keys = array_keys($a);
+	}
+	$assoc = array();
+	foreach ($keys as $key) {
+		if ($vals[$key] instanceof SimpleXMLElement) {
+			$vals[$key] = $vals[$key]->asXML();
+		}
+		//$len = strlen(serialize($vals[$key]));
+		$len = strlen(json_encode($vals[$key]));
+		//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
+		$assoc[$key] = $len;
+	}
+	debug($assoc);
+}
+
 /**
  * Whether string starts with some chars
  * @param $haystack
- * @param $needle
+ * @param string|string[] $needle
  * @return bool
  */
 function startsWith($haystack, $needle) {
-	return strpos($haystack, $needle) === 0;
+	if (!is_array($needle)) {
+		$needle = array($needle);
+	}
+	foreach ($needle as $need) {
+		if (strpos($haystack, $need) === 0) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -112,17 +155,22 @@ function startsWith($haystack, $needle) {
  * @return bool
  */
 function endsWith($haystack, $needle) {
-	return strpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+	return strrpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
 }
 
 /**
  * Does string splitting with cleanup.
  * @param $sep
  * @param $str
+ * @param null $max
  * @return array
  */
-function trimExplode($sep, $str) {
-	$parts = explode($sep, $str);
+function trimExplode($sep, $str, $max = NULL) {
+	if ($max) {
+		$parts = explode($sep, $str, $max);		// checked by isset so NULL makes it 0
+	} else {
+		$parts = explode($sep, $str);
+	}
 	$parts = array_map('trim', $parts);
 	$parts = array_filter($parts);
 	$parts = array_values($parts);
@@ -130,20 +178,22 @@ function trimExplode($sep, $str) {
 }
 
 function debug_pre_print_backtrace() {
-	print '<pre>';
-	if (phpversion() >= '5.3') {
-		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-	} else {
-		debug_print_backtrace();
+	if (DEVELOPMENT) {
+		print '<pre>';
+		if (phpversion() >= '5.3') {
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		} else {
+			debug_print_backtrace();
+		}
+		print '</pre>';
 	}
-	print '</pre>';
 }
 
 /**
  * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
  */
 if(!function_exists('get_called_class')) {
-	function get_called_class($bt = false,$l = 1) {
+	function get_called_class($bt = false, $l = 1) {
 		if (!$bt) $bt = debug_backtrace();
 		if (!isset($bt[$l])) throw new Exception("Cannot find called class -> stack level too deep.");
 		if (!isset($bt[$l]['type'])) {
@@ -157,7 +207,9 @@ if(!function_exists('get_called_class')) {
 				do {
 					$i++;
 					$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
-				} while (stripos($callerLine,$bt[$l]['function']) === false);
+					$findLine = stripos($callerLine, $bt[$l]['function']);
+				} while ($callerLine && $findLine === false);
+				$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
 				preg_match('/([a-zA-Z0-9\_]+)::'.$bt[$l]['function'].'/',
 					$callerLine,
 					$matches);
@@ -189,11 +241,23 @@ if(!function_exists('get_called_class')) {
 /**
  * Complements the built-in end() function
  * @param array $list
- * @return mixed
+ * @return array|mixed
  */
 function first(array $list) {
 	reset($list);
 	return current($list);
+}
+
+/**
+ * This is equal to return next(each($list))
+ *
+ * @param array $list
+ * @return mixed
+ */
+function eachv(array &$list) {
+	$current = current($list);
+	next($list);
+	return $current;
 }
 
 function array_combine_stringkey(array $a, array $b) {
@@ -204,4 +268,35 @@ function array_combine_stringkey(array $a, array $b) {
 		next($b);
 	}
 	return $ret;
+}
+
+/**
+ * http://www.php.net/manual/en/function.get-class-methods.php
+ * @param $class
+ * @return array|null
+ */
+function get_overriden_methods($class) {
+	$rClass = new ReflectionClass($class);
+	$array = NULL;
+
+	foreach ($rClass->getMethods() as $rMethod)
+	{
+		try
+		{
+			// attempt to find method in parent class
+			new ReflectionMethod($rClass->getParentClass()->getName(),
+				$rMethod->getName());
+			// check whether method is explicitly defined in this class
+			if ($rMethod->getDeclaringClass()->getName()
+				== $rClass->getName())
+			{
+				// if so, then it is overriden, so add to array
+				$array[] .=  $rMethod->getName();
+			}
+		}
+		catch (exception $e)
+		{    /* was not in parent class! */    }
+	}
+
+	return $array;
 }

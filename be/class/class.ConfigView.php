@@ -13,25 +13,31 @@ class ConfigView extends AppControllerBE {
 	function __construct() {
 		parent::__construct();
 		$this->file = dirname(__FILE__).'/../../../class/config.yaml';
+		$this->file = str_replace('\\', '/', $this->file);
 	}
 
 	function render() {
-		$this->performAction();
-		$data = Spyc::YAMLLoad($this->file);
-		//$content = getDebug($data);
+		if (file_exists($this->file)) {
+			$this->performAction();
+			$data = Spyc::YAMLLoad($this->file);
+			//$content = getDebug($data);
 
-		$f = new HTMLFormTable();
-		$f->prefix($this->prefix);
-		foreach ($data as $class => $props) {
-			$this->renderFormArray($f, $class, $props);
+			$f = new HTMLFormTable();
+			$f->prefix($this->prefix);
+			//$this->renderFormArray($f, '', $data);
+			//debug($data, $this->file);
+			foreach ($data as $class => $props) {
+				//debug($props);
+				$this->renderFormArray($f, $class, $props);
+			}
+			$f->prefix('');
+			$f->hidden('action', 'save');
+			$f->submit('Save');
+			$f->debug = $_COOKIE['debug'];
+			$content = $f;
+
+			$content .= '<style>.tdlabel { width: 10em; } </style>';
 		}
-		$f->prefix('');
-		$f->hidden('action', 'save');
-		$f->submit('Save');
-		$f->debug = true;
-		$content = $f;
-
-		$content .= '<style>.tdlabel { width: 10em; } </style>';
 		return $content;
 	}
 
@@ -47,12 +53,13 @@ class ConfigView extends AppControllerBE {
 					'set0' => true,
 					'optional' => true,
 				);
-			} else {
+			} else if (is_array($val)) {
 				/*$desc[$class.'['.$key.']'] = array(
 					'type' => 'html',
 					'code' => getDebug($val),
 				);*/
 				//foreach ($val as $key => $props) {
+				debug($val);
 					$this->renderFormArray($f, $class.'['.$key.']', $val);
 				//}
 			}
