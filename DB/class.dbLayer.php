@@ -243,7 +243,7 @@ class dbLayer {
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
-		return array_column($return, 'relname');
+		return ArrayPlus::create($return)->column('relname');
 	}
 
 	function amountOf($table, $where = "1 = 1") {
@@ -668,6 +668,10 @@ order by a.attnum';
 		$source = str_replace(',', '', $source);
 		$source = floatval($source);
 		return $source;
+	}
+
+	function getIndexesFrom($table) {
+		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
 	}
 
 }
