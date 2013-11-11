@@ -362,17 +362,8 @@ class dbLayer {
 		return $q;
 	}
 
-	function fetchAll($result) {
-		if (is_string($result)) {
-			$result = $this->perform($result);
-		}
-		$rows = pg_fetch_all($result);
-		if (!$rows) $rows = array();
-		return $rows;
-	}
-
 	/**
-	 * @param $res
+	 * @param result/query $result
 	 * @return array
 	 */
 	function fetchAssoc($res) {
@@ -395,18 +386,6 @@ class dbLayer {
 	function getFirstRow($query) {
 		$result = $this->perform($query);
 		$row = pg_fetch_assoc($result);
-		return $row;
-	}
-
-	/**
-	 * @param result/query $result
-	 * @return array
-	 */
-	function fetchAssoc($res) {
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		$row = pg_fetch_assoc($res);
 		return $row;
 	}
 
