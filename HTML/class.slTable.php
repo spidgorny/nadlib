@@ -660,12 +660,12 @@ class slTable {
 		$this->generateThes();
 		$widthMax = array();
 		$widthAvg = array();
-		foreach ($this->data as $i => $row) {
+		foreach ($this->data as $row) {
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];
 				$value = strip_tags($value);
-				$widthMax[$field] = max($widthMax[$field], strlen($value));
-				$widthAvg[$field] += strlen($value);
+				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
+				$widthAvg[$field] += mb_strlen($value);
 			}
 		}
 		foreach ($this->thes as $field => $name) {
@@ -678,7 +678,7 @@ class slTable {
 		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
 
 		$content = "\n";
-		foreach ($dataWithHeader as $i => $row) {
+		foreach ($dataWithHeader as $row) {
 			$padRow = array();
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];
