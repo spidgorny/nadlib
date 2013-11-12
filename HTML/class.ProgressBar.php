@@ -54,7 +54,6 @@ class ProgressBar {
 	}
 
 	function getContent() {
-		IndexBase::getInstance()->header['ProgressBar'] = $this->getCSS();
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
@@ -67,12 +66,13 @@ class ProgressBar {
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
 		if (class_exists('Index')) {
+			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
 				= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
 		} else {
-			$content .= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
+			$content .= $this->getCSS();	// pre-compiles LESS inline
 		}
 		return $content;
 	}

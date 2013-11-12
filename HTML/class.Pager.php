@@ -37,6 +37,8 @@ class Pager {
 	 */
 	public $pageSize;
 
+	static $cssOutput = false;
+
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
@@ -186,9 +188,30 @@ class Pager {
 		return $maxpage;
 	}
 
+	function getCSS() {
+		$l = new lessc();
+		$css = $l->compileFile(dirname(__FILE__).'/../CSS/PaginationControl.less');
+		return '<style>'.$css.'</style>';
+	}
+
 	function renderPageSelectors(URL $url = NULL) {
+		$content = '';
 		$this->url = $url;
-		$content = '<div class="pagination paginationControl">';
+
+		if (!self::$cssOutput) {
+			if (class_exists('Index')) {
+				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
+				Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/PaginationControl.less');
+			} elseif ($GLOBALS['HTMLHEADER']) {
+				$GLOBALS['HTMLHEADER']['PaginationControl.less']
+					= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/PaginationControl.less" />';
+			} elseif (!Request::isCLI()) {
+				$content .= $this->getCSS();	// pre-compiles LESS inline
+			}
+			self::$cssOutput = true;
+		}
+
+		$content .= '<div class="pagination paginationControl">';
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
 			$content .= $this->renderPager();
@@ -313,8 +336,8 @@ class Pager {
 	/**
 	 * Converts the dbEdit init query into count(*) query by getCountQuery() method and runs it. Old style.
 	 *
-	 * @param unknown_type $dbEdit
-	 * @return unknown
+	 * @param dbEdit $dbEdit
+	 * @return int
 	 */
 	function getCountedRows($dbEdit) {
 		global $dbLayer;
