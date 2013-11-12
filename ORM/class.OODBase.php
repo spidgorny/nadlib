@@ -262,9 +262,14 @@ abstract class OODBase {
 	 * @param array $fields
 	 * @param array $where
 	 * @param array $insert
+	 * @param array $update
 	 * @return string whether the record already existed
 	 */
-	function insertUpdate(array $fields, array $where = array(), array $insert = array()) {
+	function insertUpdate(array $fields,
+						  array $where = array(),
+						  array $insert = array(),
+						  array $update = array()
+	) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		if ($where) {
@@ -277,7 +282,7 @@ abstract class OODBase {
 			if ($left == $right) {
 				$op = 'SKIP';
 			} else {
-				$this->update($fields);
+				$this->update($fields + $update);
 				$op = 'UPDATE '.$this->id;
 			}
 		} else {
