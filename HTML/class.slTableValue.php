@@ -113,13 +113,17 @@ class slTableValue {
 				}
 			break;
 			case "file":
-				$out = str::ahref($val, $GLOBALS['uploadURL'].$val, FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => $GLOBALS['uploadURL'].$val,
+				), $val);
 			break;
 			case "money":
 				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
 			break;
 			case "delete":
-				$out = str::ahref("Del", "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'], FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'],
+				), "Del");
 			break;
 			case "datatable":
 				//$out .= t3lib_div::view_array(array('col' => $col, 'val' => $val, 'desc' => $k));
@@ -145,7 +149,9 @@ class slTableValue {
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
 				if ($row[$col.'.link']) {
-					$out = str::ahref($img, $row[$col.'.link'], FALSE);
+					$out = new HTMLTag('a', array(
+						'href' => $row[$col.'.link'],
+					), $img);
 				} else {
 					$out = $img;
 				}
