@@ -1,3 +1,3 @@
-hg pull https://bitbucket.org/spidgorny/nadlib/
+hg pull
 hg update
 pause
