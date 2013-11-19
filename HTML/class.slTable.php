@@ -87,9 +87,9 @@ class slTable {
 	 */
 	public $trmore;
 
-	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle">';
+	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
 
-	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle">';
+	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
 
 	/**
 	 * @var BijouDBConnector
@@ -238,6 +238,8 @@ class slTable {
 				}
 			}
 		}
+		//debug_pre_print_backtrace();
+		//debug($this->thes[$this->sortBy]);
 	}
 
 	function generateThes() {
@@ -266,21 +268,6 @@ class slTable {
 				}
 			}
 		}
-	}
-
-	function getThesNames() {
-		$names = array();
-		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
-		}
-		return $names;
 	}
 
 	function generateThead(HTMLTableBuf $t) {
