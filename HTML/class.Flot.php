@@ -156,7 +156,7 @@ class Flot extends AppController {
 
 	function showChart($divID, array $charts, array $cumulative, $max) {
 		$this->index->addJQuery();
-		$path = 'components/flot/flot/';
+		$path = 'components/flot/';
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$path.'excanvas.min.js"></script><![endif]-->
     	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.js"></script>
