@@ -650,4 +650,9 @@ order by a.attnum';
 		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
 	}
 
+    function free($res) {
+        if (is_resource($res)) {
+            pg_free_result($res);
+        }
+    }
 }
