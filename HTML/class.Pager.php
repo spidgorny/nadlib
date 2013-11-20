@@ -199,10 +199,10 @@ class Pager {
 		$this->url = $url;
 
 		if (!self::$cssOutput) {
-			if (class_exists('Index')) {
+			if (class_exists('Index') && $this->request->apacheModuleRewrite()) {
 				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 				Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/PaginationControl.less');
-			} elseif ($GLOBALS['HTMLHEADER']) {
+			} elseif (false && $GLOBALS['HTMLHEADER']) {
 				$GLOBALS['HTMLHEADER']['PaginationControl.less']
 					= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/PaginationControl.less" />';
 			} elseif (!Request::isCLI()) {
