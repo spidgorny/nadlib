@@ -242,10 +242,10 @@ class MySQL {
 
 	function getTableCharset($table) {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
-       information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
-WHERE CCSA.collation_name = T.table_collation
-  /*AND T.table_schema = 'schemaname'*/
-  AND T.table_name = '".$table."'";
+    	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+		WHERE CCSA.collation_name = T.table_collation
+		/*AND T.table_schema = 'schemaname'*/
+		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
@@ -299,6 +299,10 @@ WHERE CCSA.collation_name = T.table_collation
 			$data[$key] = $val;
 		}
 		return $data;
+	}
+
+	function free($res) {
+		mysql_free_result($res);
 	}
 
 }
