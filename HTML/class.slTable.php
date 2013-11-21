@@ -202,6 +202,21 @@ class slTable {
 		}
 	}
 
+	function getThesNames() {
+		$names = array();
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = isset($thv['name'])
+					? $thv['name']
+					: (isset($thv['label']) ? $thv['label'] : '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
+		}
+		return $names;
+	}
+
 	function generateThead(HTMLTableBuf $t) {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -453,7 +468,9 @@ class slTable {
 	}
 
 	function __toString() {
-		return $this->getContent();
+		return Request::isCLI()
+			? $this->getCLITable()
+			: $this->getContent();
 	}
 
 	/**
@@ -532,6 +549,44 @@ class slTable {
 		header('Content-length: '.strlen($content));
 		echo $content;
 		exit();
+	}
+
+	function getCLITable($cutTooLong = false) {
+		$this->generateThes();
+		$widthMax = array();
+		$widthAvg = array();
+		foreach ($this->data as $i => $row) {
+			foreach ($this->thes as $field => $name) {
+				$value = $row[$field];
+				$value = strip_tags($value);
+				$widthMax[$field] = max($widthMax[$field], strlen($value));
+				$widthAvg[$field] += strlen($value);
+			}
+		}
+		foreach ($this->thes as $field => $name) {
+			$widthAvg[$field] /= sizeof($this->data);
+			//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
+			$avgLen = $widthAvg[$field];
+			$widthMax[$field] = max(8, 1+$avgLen);
+		}
+
+		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
+
+		$content = "\n";
+		foreach ($dataWithHeader as $i => $row) {
+			$padRow = array();
+			foreach ($this->thes as $field => $name) {
+				$value = $row[$field];
+				$value = strip_tags($value);
+				if ($cutTooLong) {
+					$value = substr($value, 0, $widthMax[$field]);
+				}
+				$value = str_pad($value, $widthMax[$field], ' ', STR_PAD_RIGHT);
+				$padRow[] = $value;
+			}
+			$content .= implode(" ", $padRow)."\n";
+		}
+		return $content;
 	}
 
 }

@@ -64,7 +64,9 @@ abstract class HTMLFormProcessor extends AppController {
 		} else {
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 			//debug($this->default);
-			$this->form->importValues($this->default instanceof Request ? $this->default : new Request($this->default));
+			$this->form->importValues($this->default instanceof Request
+				? $this->default
+				: new Request($this->default));
 			$this->desc = $this->form->desc;
 		}
 	}
