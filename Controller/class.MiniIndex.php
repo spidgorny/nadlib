@@ -43,7 +43,7 @@ class MiniIndex extends AppController {
 		$self = get_called_class();
 		if (!self::$instance) {
 			if ($createAllowed) {
-				self::$instance = new $self(true);	/* self::$instance MiniIndex */
+				self::$instance = new $self(true);	/** @var self::$instance MiniIndex */
 				self::$instance->init();
 			}
 		}

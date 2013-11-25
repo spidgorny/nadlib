@@ -8,7 +8,7 @@ abstract class Grid extends AppController {
 	protected $collection;
 
 	/**
-	 * @var Model
+	 * @var OODBase
 	 */
 	protected $model;
 
@@ -136,6 +136,7 @@ abstract class Grid extends AppController {
 
 	function render() {
 		$content = $this->collection->render();
+		$content .= '<hr />';
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this), $this->encloseTag);
 		return $content;
 	}
@@ -151,5 +152,10 @@ abstract class Grid extends AppController {
 			Index::getInstance()->message('Filter cleared');
 		}
 	}*/
+
+	function sidebar() {
+		$content = $this->collection->showFilter();
+		return $content;
+	}
 
 }

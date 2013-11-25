@@ -9,10 +9,14 @@ define('TAB', "\t");
 define('CR', "\r");
 define('LF', "\n");
 require_once('../vendor/typo3/class.t3lib_div.php');
-require_once('../vendor/typo3/class.t3lib_sqlparser.php');
-require_once('../vendor/typo3/class.t3lib_install_sql.php');
-require_once('../vendor/typo3/class.t3lib_db.php');
-require_once('../vendor/typo3/class.t3lib_utility_math.php');
+//require_once('../vendor/typo3/class.t3lib_sqlparser.php');
+require_once('../vendor/typo3/sysext/core/Classes/Database/SqlParser.php');
+//require_once('../vendor/typo3/class.t3lib_install_sql.php');
+require_once('../vendor/typo3/sysext/install/Classes/Sql/SchemaMigrator.php');
+//require_once('../vendor/typo3/class.t3lib_db.php');
+require_once('../vendor/typo3/sysext/core/Classes/Database/DatabaseConnection.php');
+//require_once('../vendor/typo3/class.t3lib_utility_math.php');
+require_once('../vendor/typo3/sysext/core/Classes/Utility/MathUtility.php');
 
 class AlterDB extends AppControllerBE {
 
@@ -40,12 +44,12 @@ class AlterDB extends AppControllerBE {
   id int(11) NOT NULL auto_increment,
   ctime timestamp NOT NULL default CURRENT_TIMESTAMP,
   mtime timestamp NOT NULL default '2009-06-14 00:00:00',
-  id_service int(11) NOT NULL,
+  id_service integer(11) NOT NULL,
   from datetime NOT NULL,
   till datetime NOT NULL,
-  cancelled tinyint(1) NOT NULL default '0',
-  id_client int(11) default NULL,
-  id_user int(11) default NULL,
+  canceled tinyint(1) NOT NULL default '0',
+  id_client integer(11) default NULL,
+  id_user integer(11) default NULL,
   comment text NOT NULL,
   PRIMARY KEY  (id),
   KEY id_client (id_client),
@@ -81,17 +85,32 @@ class AlterDB extends AppControllerBE {
 	function render() {
 		$content = '';
 		$content .= $this->getFileChoice();
+		$content .= '<h1>'.$this->file.'</h1>';
 
 		if ($this->file) {
-			$query = $this->getQueryFrom($this->file);
-			$diff = $this->getDiff($query);
-			$update_statements = $this->installerSQL->getUpdateSuggestions($diff);
-			//$content .= getDebug($update_statements);
+			$this->initInstallerSQL();
 
-			$this->update_statements = $update_statements;
-			$this->performAction();
+			$cache = new MemcacheArray(__CLASS__);
+			if (!$cache->exists($this->file) || $this->request->getBool('reload')) {
+			//if (true) {
+				$query = $this->getQueryFrom($this->file);
+				$diff = $this->getDiff($query);
+				$cache->set($this->file, $diff);
+			} else {
+				$content .= $this->makeLink('Reload', array(
+					'c' => __CLASS__,
+					'file' => $this->file,
+					'reload' => true,
+				));
+				$diff = $cache->get($this->file);
+			}
 
-			$content .= $this->showDifferences($diff, $update_statements);
+			$this->update_statements = $this->installerSQL->getUpdateSuggestions($diff);
+			//debug($diff, $this->update_statements);
+
+			$this->performAction();	// only after $this->update_statements are set
+
+			$content .= $this->showDifferences($diff);
 			//$content .= getDebug($diff);
 
 			//$this->installerSql->performUpdateQueries($update_statements['add'],
@@ -101,7 +120,11 @@ class AlterDB extends AppControllerBE {
 
 	function getFileChoice() {
 		$menu = array();
-		foreach (new RecursiveDirectoryIterator('../../sql/') as $file) { /** @var $file SplFileInfo */
+		$sqlFolder = '../../sql/';
+		if (!is_dir($sqlFolder)) {
+			return '<div class="error">No '.$sqlFolder.'</div>';
+		}
+		foreach (new RecursiveDirectoryIterator($sqlFolder) as $file) { /** @var $file SplFileInfo */
 			//debug($file);
 			if ($file->getFilename() != '.' && $file->getFilename() != '..') {
 				$menu[$file->getPathname()] = $file->getFilename();
@@ -129,16 +152,23 @@ class AlterDB extends AppControllerBE {
 		return $query;
 	}
 
-	function getDiff($query) {
+	function initInstallerSQL() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$config = Config::getInstance();
 
-		$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
+		//$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
+		$GLOBALS['TYPO3_DB'] = $t3db = new TYPO3\CMS\Core\Database\DatabaseConnection();
 		$t3db->connectDB($config->db_server, $config->db_user, $config->db_password, $config->db_database);
 		//debug($t3db);
 		define('TYPO3_db', $config->db_database);
 
-		$this->installerSQL = new t3lib_install_Sql();
+		//$this->installerSQL = new t3lib_install_Sql();
+		$this->installerSQL = new TYPO3\CMS\Install\Sql\SchemaMigrator();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
 
+	function getDiff($query) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$FDfile = $this->installerSQL->getFieldDefinitions_fileContent($query);
 		$FDfile = $this->filterDifferencesFile($FDfile);
 		//$content .= getDebug($FDfile);
@@ -147,6 +177,7 @@ class AlterDB extends AppControllerBE {
 		$FDdb = $this->filterDifferencesDB($FDdb);
 
 		$diff = $this->installerSQL->getDatabaseExtra($FDfile, $FDdb);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $diff;
 	}
 
@@ -172,7 +203,7 @@ class AlterDB extends AppControllerBE {
 				$infoField = $info[$field];
 				//$type .= $infoField['Null'] == 'NO' ? ' NOT NULL' : ' NULL';
 
-				$type = str_replace('default NULL', '', $type);
+				//$type = str_replace('default NULL', '', $type);
 				$type = str_replace("'CURRENT_TIMESTAMP'", 'CURRENT_TIMESTAMP', $type);
 				$type = str_replace("on update", 'ON UPDATE', $type);
 				$type = str_replace('  ', ' ', $type);
@@ -182,10 +213,35 @@ class AlterDB extends AppControllerBE {
 		return $FDdb;
 	}
 
-	function showDifferences(array $diff, array $update_statements) {
+	function showDifferences(array $diff) {
 		$content = '';
+		$content .= $this->showCreate();
+		$content .= $this->showChanges($diff);
+		$content .= $this->showExtras($diff);
+		return $content;
+	}
+
+	function showCreate() {
+		$content = '';
+		$update_statements = $this->update_statements;
+		if ($update_statements['create_table']) foreach ($update_statements['create_table'] as $md5 => $query) {
+			$content .= '<pre>'.($query);
+			$content .= ' '.$this->makeRelLink('CREATE', array(
+				'action' => 'do',
+				'file' => $this->file,
+				'key' => 'create_table',
+				'query' => $md5,
+			));
+			$content .= '</pre>';
+		}
+		return $content;
+	}
+
+	function showChanges(array $diff) {
+		$content = '';
+		$update_statements = $this->update_statements;
 		//debug($diff['extra'], $update_statements['add']);
-		foreach ($diff['diff'] as $table => $desc) {
+		if ($diff['diff']) foreach ($diff['diff'] as $table => $desc) {
 			$list = array();
 			foreach ($desc['fields'] as $field => $type) {
 				$current = $diff['diff_currentValues'][$table]['fields'][$field];
@@ -207,7 +263,13 @@ class AlterDB extends AppControllerBE {
 			}
 			$content .= $this->showTable($list, $table);
 		}
-		foreach ($diff['extra'] as $table => $desc) {
+		return $content;
+	}
+
+	function showExtras(array $diff) {
+		$content = '';
+		$update_statements = $this->update_statements;
+		if ($diff['extra']) foreach ($diff['extra'] as $table => $desc) {
 			$list = array();
 			if (is_array($desc['fields'])) foreach ($desc['fields'] as $field => $type) {
 				$list[] = array(
@@ -224,7 +286,8 @@ class AlterDB extends AppControllerBE {
 			}
 			$content .= $this->showTable($list, $table);
 		}
-		//debug($update_statements['add']);
+		//debug($update_statements, Debug::LEVELS, 1);
+		//debug($update_statements['create_table']);
 		return $content;
 	}
 
@@ -264,9 +327,12 @@ class AlterDB extends AppControllerBE {
 		$md5 = $this->request->getTrim('query');
 		$key = $this->request->getTrim('key');
 		$query = $this->update_statements[$key][$md5];
-		//debug($md5, $query);
+		//debug($this->update_statements);
+		//debug($md5, $query); exit();
 		if ($query) {
 			$this->db->perform($query);
+			$cache = new MemcacheArray(__CLASS__);
+			$cache->clearCache();
 			$this->request->redirect($this->makeRelURL());
 		}
 	}

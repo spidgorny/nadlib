@@ -2,7 +2,7 @@
 
 class AjaxLogin extends AppController {
 
-	protected $mode;
+	protected $action;
 
 	protected $secret = 'fdhgfjklgfdhj';
 
@@ -23,14 +23,26 @@ class AjaxLogin extends AppController {
 	 */
 	public static $public = true;
 
-	function __construct($mode = NULL) {
+	/**
+	 * Remove to disable jQuery dependancy
+	 * @var string
+	 */
+	public $formMore = 'onsubmit="jQuery(this).ajaxSubmit({
+			//function (res) { jQuery(\'#AjaxLogin\').html(res); }
+			target: \'#AjaxLogin\',
+			//url: \'buch.php\'
+			}); return false;"';
+
+	protected $allowedActions = array('login', 'forgotPassword', 'saveRegister', 'activate', 'inlineForm', 'logout');
+
+	function __construct($action = NULL) {
 		parent::__construct();
 		Config::getInstance()->mergeConfig($this);
 		$this->layout = new Wrap('<div class="span10">', '</div>');
-		$mode = $mode ? $mode : $this->request->getTrim('mode');	// dont't reverse this line as it will call mode=login twice
-		if ($mode) {
-			$this->mode = $mode;
-			//debug($this->mode);
+		$action = $action ? $action : $this->request->getTrim('action');	// don't reverse this line as it will call mode=login twice
+		if ($action) {
+			$this->action = $action;
+			//debug($this->action);
 		}
 		//$this->createDB();
 	}
@@ -52,7 +64,7 @@ class AjaxLogin extends AppController {
 
 	function dispatchAjax() {
 		$content = '';
-		if ($this->mode) {
+		if ($this->action) {
 			$content .= $this->performAction();
 /*			if ($this->mode != 'activate') { // activate is NOT to be processed with AJAX
 				header('Content-type: text/html; charset=ISO-8859-1');
@@ -71,16 +83,17 @@ class AjaxLogin extends AppController {
 
 	function performAction($action = NULL) {
 		$content = '';
-		$allowed = array('login', 'forgotPassword', 'saveRegister', 'activate', 'inlineForm', 'logout');
-		if (in_array($this->mode, $allowed) || $this->user->isAuth()) {
-			try {
-				$cb = $this->mode.'Action';
-				$content .= $this->$cb();
-			} catch (Exception $e) {
-				$content .= '<div class="error">'.__($e->getMessage()).'</div>';
+		if ($action = $action ?: $this->action) {
+			if (in_array($action, $this->allowedActions) || $this->user->isAuth()) {
+				try {
+					$cb = $action.'Action';
+					$content .= $this->$cb();
+				} catch (Exception $e) {
+					$content .= '<div class="error">'.__($e->getMessage()).'</div>';
+				}
+			} else { // prevent profile editing for not logged in
+				$content .= '<div class="error">'.__('Not logged in.').'</div>';
 			}
-		} else { // prevent profile editing for not logged in
-			$content .= '<div class="error">'.__('Not logged in.').'</div>';
 		}
 		return $content;
 	}
@@ -88,17 +101,14 @@ class AjaxLogin extends AppController {
 	function render() {
 		$content = '';
 		$this->getScript();
-		$content .= '<a name="meinKonto"></a>
-		<h4>
-		<a href="javascript:void(0);" '.($this->openable ? 'onclick="return toggleLogin(this);"' : '').' style="background: none;">Mein Konto</a></h4>';
 		try {
-			//debug_pre_print_backtrace();
-			$contentPlus = $this->performAction();
+			$this->user->try2login();
+			$contentPlus = $this->performAction($this->action);
 			if ($contentPlus) {
 				$content .= $contentPlus;
 			} else if ($this->user->isAuth()) {
 				$content .= $this->menuAction();
-			} else if ($this->mode == 'activate') {
+			} else if ($this->action == 'activate') {
 				$content .= $this->activateActionReal();
 			} else {
 				$content .= $this->formAction();
@@ -125,18 +135,16 @@ class AjaxLogin extends AppController {
 
 	function formAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
-			//function (res) { jQuery(\'#AjaxLogin\').html(res); }
-			target: \'#AjaxLogin\',
-			//url: \'buch.php\'
-			}); return false;"';
+		//$f->action(get_class($this));
+		$f->hidden('c', get_class($this));
+		$f->formMore = $this->formMore;
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getLoginDesc();
 		}
 		$f->showForm($desc);
-		$f->hidden('mode', 'login');
-		$f->text('<div style="float: right"><a href="'.$_SERVER['PHP_SELF'].'?mode=forgotPassword" rel="forgotPassword">'.__('Forgot Password').'</a></div>');
+		$f->hidden('action', 'login');
+		$f->text('<div style="float: right"><a href="'.$_SERVER['PHP_SELF'].'?action=forgotPassword" rel="forgotPassword">'.__('Forgot Password').'</a></div>');
 		$f->submit(__('Login'));
 		$content = $f;
 		//if (!$this->request->is_set('username')) {
@@ -154,15 +162,23 @@ class AjaxLogin extends AppController {
 	function inlineFormAction() {
 		if ($this->user && $this->user->isAuth()) {
 			$content = '<form class="navbar-form pull-right" method="POST">
-				<a href="?c=LoginForm&mode=logout" class="ajax btn">'.__('Logout').'</a>
+				'.$this->user->getName().' <a href="?c=Login&action=logout" class="ajax btn">'.__('Logout').'</a>
 			</form>';
 		} else {
 			$content = '<form class="navbar-form pull-right" method="POST">
+			<div class="form-group">
 				<input type="hidden" name="c" value="'.get_class($this).'" />
-				<input type="hidden" name="mode" value="login" />
-				<input class="span2" type="text" name="username" placeholder="Email">
-				<input class="span2" type="password" name="password" placeholder="Password">
-				<button type="submit" class="btn">Sign in</button>
+				<input type="hidden" name="action" value="login" />
+
+				<input class="form-control"
+					type="text"
+					name="username"
+					placeholder="E-mail"
+					value="'.$_REQUEST['username'].'" />
+				<input class="form-control" type="password"
+				name="password" placeholder="Password" />
+				<button type="submit" class="btn btn-default">Sign in</button>
+			</div>
 			</form>';
 		}
 		return $content;
@@ -218,13 +234,13 @@ class AjaxLogin extends AppController {
 			<a href="http://de.gravatar.com/" class="gravatar">
 				<img src="'.$this->user->getGravatarURL(25).'" align="left" border="0">
 			</a>'.
-			$this->user->data['name'].' '.$this->user->data['surname'].'
+			$this->user->getName().'
 			<br clear="all">
 			<ul>
-				<li><a href="'.$_SERVER['PHP_SELF'].'?mode=profile" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
+				<li><a href="'.$_SERVER['PHP_SELF'].'?action=profile" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
 				<li><a href="http://de.gravatar.com/" target="gravatar">'.__('Change Gravatar').'</a></li>
-				<li><a href="'.$_SERVER['PHP_SELF'].'?mode=password" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
-				<li><a href="'.$_SERVER['PHP_SELF'].'?mode=logout" class="ajax">'.__('Logout').'</a></li>
+				<li><a href="'.$_SERVER['PHP_SELF'].'?action=password" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
+				<li><a href="'.$_SERVER['PHP_SELF'].'?action=logout" class="ajax">'.__('Logout').'</a></li>
 			</ul>
 		</div>';
 		return $content;
@@ -240,13 +256,13 @@ class AjaxLogin extends AppController {
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getProfileDesc();
-			$desc = HTMLFormTable::fillValues($desc, $this->user->data);
+			$desc = $f->fillValues($desc, $this->user->data);
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->prefix('profile');
 		$f->showForm($desc);
 		$f->prefix('');
-		$f->hidden('mode', 'saveProfile');
+		$f->hidden('action', 'saveProfile');
 		$f->submit(__('Save'));
 		$content = $f;
 		return $content;
@@ -265,7 +281,8 @@ class AjaxLogin extends AppController {
 		$content = '';
 		$data = $this->request->getArray('profile');
 		$desc = $this->getProfileDesc();
-		$desc = HTMLFormTable::fillValues($desc, $data);
+		$f = new HTMLFormTable();
+		$desc = $f->fillValues($desc, $data);
 		$val = new HTMLFormValidate($desc);
 		$check = $val->validate();
 		if ($check) {
@@ -291,7 +308,7 @@ class AjaxLogin extends AppController {
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->showForm($desc);
-		$f->hidden('mode', 'savePassword');
+		$f->hidden('action', 'savePassword');
 		$f->submit(__('Change'));
 		$content = $f;
 		return $content;
@@ -377,7 +394,7 @@ class AjaxLogin extends AppController {
 		$f->prefix('profile');
 		$f->showForm($desc);
 		$f->prefix('');
-		$f->hidden('mode', 'saveRegister');
+		$f->hidden('action', 'saveRegister');
 		$f->submit(__('Register'));
 		$content = $f;
 		if (!$this->request->getTrim('profile')) {
@@ -408,7 +425,8 @@ class AjaxLogin extends AppController {
 		$content = '';
 		$data = $this->request->getArray('profile');
 		$desc = $this->getRegisterDesc();
-		$desc = HTMLFormTable::fillValues($desc, $data);
+		$f = new HTMLFormTable();
+		$desc = $f->fillValues($desc, $data);
 		$val = new HTMLFormValidate($desc);
 		$check = $val->validate();
 		if ($check) {
@@ -448,7 +466,7 @@ class AjaxLogin extends AppController {
 	function getActivateURL() {
 		//$activateURL = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&'.http_build_query($params);
 		$params = array(
-			'mode' => 'activate',
+			'action' => 'activate',
 			'id' => $this->user->id,
 			'confirm' => md5($this->secret.serialize($this->user->id)),
 		);

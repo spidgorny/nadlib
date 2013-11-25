@@ -43,6 +43,7 @@ class ConfigBase {
 		'DB',
 		'Debug',
 		'HTML',
+		'js',
 		'HTMLForm',
 		'HTTP',
 		'LocalLang',
@@ -50,9 +51,9 @@ class ConfigBase {
 		'SQL',
 		'Time',
 		'User',
-		'../model',
+		'class',	// to load the Config of the main project
+		'model',
 		'be/class',
-		'../class',	// to load the Config of the main project
 	);
 
 	/**
@@ -66,23 +67,30 @@ class ConfigBase {
 	public $config;
 
 	protected function __construct() {
-		try {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				$this->db_password);
-		} catch (Exception $e) {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				'');
+		if ($this->db_database) {
+			try {
+				$this->db = new MySQL(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					$this->db_password);
+			} catch (Exception $e) {
+				$this->db = new MySQL(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					'');
+			}
+			$di = new DIContainer();
+			$di->db = $this->db;
+			$this->qb = new SQLBuilder($di);
 		}
-		$di = new DIContainer();
-		$di->db = $this->db;
-		$this->qb = new SQLBuilder($di);
-		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+
+		$this->documentRoot = Request::getDocumentRoot();
+		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
+		//debug(__FILE__, $this->documentRoot, $this->appRoot);
+
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
