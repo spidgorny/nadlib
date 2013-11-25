@@ -74,7 +74,7 @@ class URLGet {
 		$this->logger->log(__METHOD__.'('.$this->url.')', __METHOD__);
 		$process = curl_init($this->url);
 		//curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
-		//curl_setopt($process, CURLOPT_HEADER, 1);
+		curl_setopt($process, CURLOPT_HEADER, 1);
 		//curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
 		//if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
 		//if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEJAR, $this->cookie_file);
@@ -87,9 +87,18 @@ class URLGet {
 
 		curl_setopt_array($process, $options);
 
-		$html = curl_exec($process);
+		$response = curl_exec($process);
+		$header_size = curl_getinfo($process, CURLINFO_HEADER_SIZE);
+		$header = substr($response, 0, $header_size);
+		$html = substr($response, $header_size);
+
 		$this->info = curl_getinfo($process);
-		//debug($this->info);
+		if ($_REQUEST['d']) {
+			debug($this->info);
+			debug($html);
+			debug($header);
+			exit();
+		}
 		if (curl_errno($process)){
 			//debug('Curl error: ' . curl_error($process));
 		}
