@@ -100,6 +100,7 @@ abstract class OODBase {
 			}
 		} else if (!is_null($id)) {
 			debug($id);
+			if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
 			throw new Exception(__METHOD__);
 		}
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);

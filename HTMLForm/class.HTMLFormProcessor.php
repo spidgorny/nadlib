@@ -119,10 +119,10 @@ abstract class HTMLFormProcessor extends AppController {
 	}
 
 	function showForm() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (!$this->form) {
 			throw new Exception(__METHOD__.': initialize form with getForm()');
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
