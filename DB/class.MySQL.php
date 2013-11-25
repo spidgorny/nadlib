@@ -1,10 +1,30 @@
 <?php
 
 class MySQL {
+
+	/**
+	 * @var string
+	 */
 	public $db;
+
+	/**
+	 * @var string
+	 */
 	public $lastQuery;
+
+	/**
+	 * @var resource
+	 */
 	protected $connection;
+
+	/**
+	 * @var self
+	 */
 	protected static $instance;
+
+	/**
+	 * @var array
+	 */
 	public $queryLog = array();		// set to NULL for disabling
 
 	/**
@@ -25,7 +45,7 @@ class MySQL {
 	function connect($host, $login, $password) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//echo __METHOD__.'<br />';
-		ini_set('mysql.connect_timeout', 1);
+		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
@@ -62,20 +82,23 @@ class MySQL {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
 			error_log($runTime.' '.$query);
 		}
+
 		$start = microtime(true);
 		$res = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
-			$this->queryLog[$query] = is_array($this->queryLog[$query]) ? $this->queryLog[$query] : array();
-			$this->queryLog[$query]['time'] = ($this->queryLog[$query]['time'] + $diffTime) / 2;
-			$this->queryLog[$query]['sumtime'] += $diffTime;
-			$this->queryLog[$query]['times']++;
+			$key = md5($query);
+			$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
+			$this->queryLog[$key]['query'] = $query;
+			$this->queryLog[$key]['time'] = ($this->queryLog[$key]['time'] + $diffTime) / 2;
+			$this->queryLog[$key]['sumtime'] += $diffTime;
+			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				nodebug(array(
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
@@ -90,7 +113,7 @@ class MySQL {
 
 	function fetchAssoc($res) {
 		$key = __METHOD__.' ('.$this->lastQuery.')';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -101,7 +124,7 @@ class MySQL {
 			debug_pre_print_backtrace();
 			exit();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
 	}
 
@@ -144,13 +167,21 @@ class MySQL {
 		}
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		mysql_free_result($res);
+		$this->free($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
 
+	function free($res) {
+		if (is_resource($res)) {
+			mysql_free_result($res);
+		}
+	}
+
 	function numRows($res) {
-		return mysql_num_rows($res);
+		if (is_resource($res)) {
+			return mysql_num_rows($res);
+		}
 	}
 
 	function dataSeek($res, $number) {
@@ -162,15 +193,15 @@ class MySQL {
 	}
 
 	function transaction() {
-		$this->perform('BEGIN');
+		return $this->perform('BEGIN');
 	}
 
 	function commit() {
-		$this->perform('COMMIT');
+		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
-		$this->perform('ROLLBACK');
+		return $this->perform('ROLLBACK');
 	}
 
 	function escape($string) {
@@ -187,29 +218,28 @@ class MySQL {
 	 * @param array $where
 	 * @param string $order
 	 * @param string $addFields
-	 * @param bool $exclusive
 	 * @return array <type>
 	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
-		//$res = $this->runSelectQuery($table, $where, $order, $addFields, $exclusive);
-		$query = $this->getSelectQuery($table, $where, $order, $addFields, $exclusive);
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields);
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res);
 		return $data;
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus, $only);
+		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus);
 		$res = $this->perform($query);
 		$data = $this->fetchAssoc($res);
 		return $data;
 	}
 
-	function runSelectQuery($table, array $where, $order = '', $selectPlus = '', $only = FALSE) {
+	function runSelectQuery($table, array $where, $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus, $only);
+		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus);
 		return $res;
 	}
 
@@ -242,10 +272,10 @@ class MySQL {
 
 	function getTableCharset($table) {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
-       information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
-WHERE CCSA.collation_name = T.table_collation
-  /*AND T.table_schema = 'schemaname'*/
-  AND T.table_name = '".$table."'";
+    	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+		WHERE CCSA.collation_name = T.table_collation
+  		/*AND T.table_schema = 'schemaname'*/
+  		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
@@ -278,7 +308,7 @@ WHERE CCSA.collation_name = T.table_collation
 		return @gzuncompress(substr($value, 4));
 	}
 
-	function quoteKey($key) {
+	static function quoteKey($key) {
 		return $key = '`'.$key.'`';
 	}
 
@@ -299,6 +329,14 @@ WHERE CCSA.collation_name = T.table_collation
 			$data[$key] = $val;
 		}
 		return $data;
+	}
+
+	function affectedRows() {
+		return mysql_affected_rows();
+	}
+
+	function getIndexesFrom($table) {
+		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
 }

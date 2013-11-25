@@ -5,7 +5,7 @@
  */
 
 class SQLWherePart {
-
+	
 	/**
 	 * @var SQLBuilder
 	 */

@@ -13,6 +13,10 @@ abstract class LocalLang {
 	protected 	$codeID = array();
 	public 		$editMode = false;
 
+	/**
+	 * Will detect the language by the cookie or browser sniffing
+	 * @param null $forceLang
+	 */
 	function __construct($forceLang = NULL) {
 		if ($_REQUEST['setLangCookie']) {
 			$_COOKIE['lang'] = $_REQUEST['setLangCookie'];
@@ -44,6 +48,7 @@ abstract class LocalLang {
 		$l = new LanguageDetect();
 		//debug($this->ll);
 		//debug($l->languages);
+		$replace = false;
 		foreach ($l->languages as $lang) {
 			//debug(array($lang => isset($this->ll[$lang])));
 			if (isset($this->ll[$lang])) {
@@ -75,12 +80,16 @@ abstract class LocalLang {
 
 	/**
 	 *
-	 * @param <type> $text
-	 * @param <type> $replace
-	 * @param <type> $s2
+	 * @param $text
+	 * @param null $replace
+	 * @param null $s2
+	 * @param null $s3
+	 * @internal param $ <type> $text
+	 * @internal param $ <type> $replace
+	 * @internal param $ <type> $s2
 	 * @return string translated message
 	 */
-	function T($text, $replace = NULL, $s2 = NULL) {
+	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
 		if (isset($this->ll[$text])) {
 			if ($this->ll[$text] && $this->ll[$text] != '.') {
 				$trans = $this->ll[$text];
@@ -102,6 +111,7 @@ abstract class LocalLang {
 			$trans = str_replace('%s', $replace, $trans);
 			$trans = str_replace('%1', $replace, $trans);
 			$trans = str_replace('%2', $s2, $trans);
+			$trans = str_replace('%3', $s3, $trans);
 		}
 		return $trans;
 	}
@@ -166,10 +176,14 @@ abstract class LocalLang {
 		return $langs;
 	}
 
+	/**
+	 * This doesn't work in Chrome somehow
+	 * @return string
+	 */
 	function showLangSelectionDropDown() {
 		$options = '';
 		foreach ($this->possibleLangs as $code) {
-			$selected = $this->lang == $code ? 'selected="selected"' : '';
+			$selected = $this->lang == $code ? ' selected="selected"' : '';
 			$options .= '<option value="'.$code.'"'.$selected.'>'.__($code).'</option>';
 		}
 		$content = '
@@ -179,15 +193,21 @@ abstract class LocalLang {
 		</form>';
 		Index::getInstance()->addCSS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
 		Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
+		//Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
 		return $content;
 	}
 
 }
 
-function __($code, $r1 = null, $r2 = null, $r3 = null) {
-	if (Config::getInstance() && Config::getInstance()->ll) {
-		return Config::getInstance()->ll->T($code, $r1, $r2, $r3);
-	} else {
-		return $code;
+if (!function_exists('__')) {	// conflict with cake
+	function __($code, $r1 = null, $r2 = null, $r3 = null) {
+		$index = Index::getInstance();
+		if ($index && $index->ll) {
+			$text = $index->ll->T($code, $r1, $r2, $r3);
+			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
+			return $text;
+		} else {
+			return $code;
+		}
 	}
 }

@@ -6,10 +6,26 @@ define('UPPERCASE',1);
 class Syndicator {
 	var $url;
 	var $isCaching = FALSE;
+
+	/**
+	 * @var string
+	 */
 	var $html;
+
 	var $tidy;
+
+	/**
+	 * @var SimpleXMLElement
+	 */
 	var $xml;
+
+	/**
+	 * @var array
+	 */
+	public $json;
+
 	var $xpath;	// last used, for what?
+
 	var $recodeUTF8;
 
 	/**
@@ -35,6 +51,12 @@ class Syndicator {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
 	static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->html = $s->retrieveFile();
@@ -42,11 +64,31 @@ class Syndicator {
 		return $s;
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
 	static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'XML';
 		$s->html = $s->retrieveFile();
 		$s->xml = $s->processFile($s->html);
+		return $s;
+	}
+
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
+	static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8') {
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'JSON';
+		$s->html = $s->retrieveFile();
+		$s->json = json_decode($s->html);
 		return $s;
 	}
 
@@ -57,7 +99,7 @@ class Syndicator {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$c->log($this->cache->map($this->url).' Size: '.strlen($html), __CLASS__);
+				$c->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
 				$html = $this->downloadFile($this->url, $retries);
 				$this->cache->set($this->url, $html);
@@ -161,32 +203,34 @@ class Syndicator {
 	function tidy($html) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//debug(extension_loaded('tidy'));
-		if (extension_loaded('tidy')) {
-			$config = array(
-				'clean'         	=> true,
-				'indent'        	=> true,
-				'output-xhtml'  	=> true,
-				//'output-html'		=> true,
-				//'output-xml' 		=> true,
-				'wrap'         		=> 1000,
-				'numeric-entities'	=> true,
-				'char-encoding' 	=> 'raw',
-				'input-encoding' 	=> 'raw',
-				'output-encoding' 	=> 'raw',
+		if ($this->input == 'HTML') {
+			if (extension_loaded('tidy')) {
+				$config = array(
+					'clean'         	=> true,
+					'indent'        	=> true,
+					'output-xhtml'  	=> true,
+					//'output-html'		=> true,
+					//'output-xml' 		=> true,
+					'wrap'         		=> 1000,
+					'numeric-entities'	=> true,
+					'char-encoding' 	=> 'raw',
+					'input-encoding' 	=> 'raw',
+					'output-encoding' 	=> 'raw',
 
-			);
-			$tidy = new tidy;
-			$tidy->parseString($html, $config);
-			$tidy->cleanRepair();
-			//$out = tidy_get_output($tidy);
-			$out = $tidy->value;
-		} else if ($this->input == 'HTML') {
-			require_once 'nadlib/HTML/htmLawed.php';
-			$out = htmLawed($html, array(
-				'valid_xhtml' => 1,
-				'tidy' => 1,
-			));
-		} else if ($this->input == 'XML') {
+				);
+				$tidy = new tidy;
+				$tidy->parseString($html, $config);
+				$tidy->cleanRepair();
+				//$out = tidy_get_output($tidy);
+				$out = $tidy->value;
+			} else {
+				require_once 'nadlib/HTML/htmLawed.php';
+				$out = htmLawed($html, array(
+					'valid_xhtml' => 1,
+					'tidy' => 1,
+				));
+			}
+		} elseif ($this->input == 'XML') {
 			$out = $html;	// hope that XML is valid
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);

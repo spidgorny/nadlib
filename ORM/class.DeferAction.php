@@ -1,8 +1,8 @@
 <?php
 
 class DeferAction extends OODBase {
-	const table = 'defer_action';
-	const idField = 'id';
+	var $table = 'defer_action';
+	var $idField = 'id';
 
 	function __construct($queue) {
 		parent::__construct();

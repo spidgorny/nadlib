@@ -1,15 +1,20 @@
 <?php
 
 abstract class UserBase extends OODBase {
+
 	public $table = 'user';
+
+	var $idField = 'id';
+
 	protected $prefs = array();
+
 	public static $instances = array();
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
 	 * protected will not work because OODBase::__construct is public
 	 *
-	 * @param unknown_type $id
+	 * @param int $id
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);
@@ -77,6 +82,7 @@ abstract class UserBase extends OODBase {
 	 * Will NOT md5 password inside as Client is UserBased.
 	 *
 	 * @param array $data
+	 * @throws Exception
 	 * @return unknown
 	 */
 	function insert(array $data) {

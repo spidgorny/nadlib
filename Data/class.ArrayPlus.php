@@ -84,8 +84,14 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		foreach ($this->data as $row) {
 			$keyValue = $row[$key];
 			if (!$keyValue && !$allowMerge) {
-				debug($this->data, $key, $row);
-				throw new Exception(__METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.');
+				$error = __METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.';
+				debug(array(
+					'error' => $error,
+					'key' => $key,
+					'row' => $row,
+					'data' => $this->data,
+				));
+				throw new Exception($error);
 			}
 			$data[$keyValue] = $row;
 		}
@@ -141,7 +147,13 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
     	return sizeof($this->data);
     }
 
-    function searchColumn($key, $val) {
+	/**
+	 * Returns the first found row
+	 * @param $key
+	 * @param $val
+	 * @return mixed
+	 */
+	function searchColumn($key, $val) {
     	foreach ($this->data as $row) {
     		if ($row[$key] == $val) {
     			return $row;
@@ -268,13 +280,32 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return current($this->data);
 	}
 
+	/**
+	 * Bug. Only one element per sorted field is allowed.
+	 * @param $column
+	 * @return $this
+	 */
 	function sortBy($column) {
+		$this->insertKeyAsColumn();
+		// buggy
+		//$this->IDalize($column, true);	// allow merge
+		//$this->ksort();
+
+		// correct
+		$copy = clone $this;
+		$sortCol = $copy->column($column)->getData();
+		array_multisort($sortCol, $this->data);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		$this->extractKeyFromColumn();
+		return $this;
+	}
+
+	function insertKeyAsColumn() {
 		foreach ($this->data as $key => &$row) {
 			$row['__key__'] = $key;
 		}
-		$this->IDalize($column, true);	// allow merge
-		$this->ksort();
+	}
 
+	function extractKeyFromColumn() {
 		$new = array();
 		foreach ($this->data as $row) {
 			$key = $row['__key__'];
@@ -282,7 +313,6 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			$new[$key] = $row;
 		}
 		$this->data = $new;
-		return $this;
 	}
 
 	function transpose() {
@@ -345,6 +375,14 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		}
 	}
 
+	/**
+	 *	$tree = AP(array('a' => array('b' => array('c' => 'd'))));
+		$linear = $tree->linearize();
+		return slTable::showAssoc($linear, true, true);
+		== "c": "d"
+	 * @param array $data
+	 * @return array
+	 */
 	function linearize(array $data = NULL) {
 		$data = $data ? $data : $this->data;
 		$linear = array();
@@ -379,6 +417,29 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			}
 		}
 		return $replace;
+	}
+
+	function count_if($k) {
+		$count = 0;
+		foreach ($this->data as $val) {
+			if ($val[$k]) {
+				$count++;
+			}
+		}
+		return $count;
+	}
+
+	function count_if_sub($k1s, $k2) {
+		$count = 0;
+		foreach ($this->data as $val) {
+			foreach ($val as $key2 => $val2) {
+				if (in_array($key2, $k1s) && $val2[$k2]) {
+					$count++;
+					break;
+				}
+			}
+		}
+		return $count;
 	}
 
 }
