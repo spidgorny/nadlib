@@ -56,6 +56,7 @@ class SessionUser extends PlainSessionUser {
 	 *
 	 * @param unknown_type $email
 	 * @param unknown_type $password - hash
+	 * @throws Exception
 	 */
 	function saveLogin($email, $password) {
 		if (strlen($password) != 32) {

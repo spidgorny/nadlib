@@ -260,6 +260,7 @@ class SimpleXLSX {
 		return $rows;
 
 	}
+
 	// thx Gonzo
 	function _columnIndex( $cell = 'A1' ) {
 		
@@ -278,6 +279,7 @@ class SimpleXLSX {
 		} else
 			throw new Exception("Invalid cell index.");
 	}
+
 	function value( $cell ) {
 		// Determine data type
 		$dataType = (string) $cell['t'];
