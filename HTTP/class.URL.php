@@ -1,6 +1,10 @@
 <?php
 
 class URL {
+
+	/**
+	 * @var string
+	 */
 	public $url;
 
 	/**
@@ -10,8 +14,15 @@ class URL {
 	 */
 	public $components = array();
 
+	/**
+	 * $this->components['query'] docomposed into an array
+	 * @var array
+	 */
 	public $params = array();
 
+	/**
+	 * @var string
+	 */
 	public $documentRoot = '';
 
 	/**
@@ -19,6 +30,9 @@ class URL {
 	 * @param array $params
 	 */
 	function __construct($url = NULL, array $params = array()) {
+		if ($url instanceof URL) {
+			//return $url;	// doesn't work
+		}
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -133,7 +147,11 @@ class URL {
 	}
 
 	function buildQuery() {
-		return str_replace('#', '%23', http_build_query($this->params));
+		$queryString = http_build_query($this->params, '_');
+		$queryString = str_replace('#', '%23', $queryString);
+		//parse_str($queryString, $queryStringTest);
+		//debug($this->params, $queryStringTest);
+		return $queryString;
 	}
 
 	/**
@@ -150,7 +168,9 @@ class URL {
 	        return false;
 	    }
 
-	    $uri = isset($parsed['scheme']) ? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
+	    $uri = isset($parsed['scheme'])
+			? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
+			: '';
 	    $uri .= isset($parsed['user']) ? $parsed['user'].(isset($parsed['pass']) ? ':'.$parsed['pass'] : '').'@' : '';
 	    $uri .= isset($parsed['host']) ? $parsed['host'] : '';
 	    $uri .= isset($parsed['port']) ? ':'.$parsed['port'] : '';
