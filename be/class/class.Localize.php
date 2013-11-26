@@ -89,7 +89,7 @@ class Localize extends AppControllerBE {
 						: 'green';
 
 					$table[$key][$lang] = new HTMLTag('td', array(
-						'id' => $dbID ?: json_encode(array($lobj->lang, $key)),
+						'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
 						'lang' => $lobj->lang,
 						'class' => 'inlineEdit '.$colorCode,
 					), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
@@ -104,7 +104,9 @@ class Localize extends AppControllerBE {
 						$table[$key]['page'] .= new HTMLTag('a', array(
 							'href' => $row['page'],
 							'class' => $colorPage,
-						), $url->getParam('c') ?: basename($url->getPath())).' ';
+						), $url->getParam('c')
+							? $url->getParam('c')
+							: basename($url->getPath())).' ';
 					}
 				}
 			}
