@@ -108,7 +108,7 @@ class Time {
 	/**
 	 * System readable 2009-12-21
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function getISODate() {
 		return date('Y-m-d', $this->time);
