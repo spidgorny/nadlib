@@ -547,7 +547,7 @@ class Request {
 	 */
 	function parseParameters($noopt = array()) {
 		$result = array();
-		$params = $GLOBALS['argv'];
+		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
