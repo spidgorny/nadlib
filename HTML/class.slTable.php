@@ -87,9 +87,9 @@ class slTable {
 	 */
 	public $trmore;
 
-	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle">';
+	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
 
-	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle">';
+	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
 
 	/**
 	 * @var BijouDBConnector
@@ -196,8 +196,8 @@ class slTable {
 	 * Useful only when the complete resultset is visible on a single page.
 	 * Otherwise you're sorting just a portion of the data.
 	 *
-	 * @param unknown_type $by - can be array (for easy explode(' ', 'field DESC') processing
-	 * @param unknown_type $or
+	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
+	 * @param boolean $or
 	 */
 	function setSortBy($by = NULL, $or = NULL) {
 		if ($by === NULL && $or === NULL) {
@@ -238,6 +238,8 @@ class slTable {
 				}
 			}
 		}
+		//debug_pre_print_backtrace();
+		//debug($this->thes[$this->sortBy]);
 	}
 
 	function generateThes() {
@@ -266,36 +268,6 @@ class slTable {
 				}
 			}
 		}
-	}
-
-	function getThesNames() {
-		$names = array();
-		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
-		}
-		return $names;
-	}
-
-	function getThesNames() {
-		$names = array();
-		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
-		}
-		return $names;
 	}
 
 	function generateThead(HTMLTableBuf $t) {
@@ -387,13 +359,14 @@ class slTable {
 				}
 				$i = -1;
 				foreach ($data as $key => $row) { // (almost $this->data)
-					$class = array();
+                    ++$i;
+                    $class = array();
 					if (isset($row['###TD_CLASS###'])) {
 						$class[] = $row['###TD_CLASS###'];
 					} else {
 						// only when not manually defined
 						if ($this->isOddEven) {
-							$class[] = (++$i%2?'even':'odd');
+							$class[] = ($i%2?'even':'odd');
 						}
 					}
 					if ($this->dataClass[$key]) {
@@ -462,46 +435,54 @@ class slTable {
 					}
 					$val = new slTableValue($val, $k);
 
-					$out = (isset($k['before']) ? $k['before'] : '')
-						. $val->render($col, $row) .
-						(isset($k['after']) ? $k['after'] : '');
-					if ($k['wrap']) {
-						$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
-						$out = $wrap->wrap($out);
-					}
-					$more = array();
-					if ($this->isAlternatingColumns) {
-						$more['class'][] = ($iCol%2?'even':'odd');
-					}
+					$out = (isset($k['before']) ? $k['before'] : '').
+						   $val->render($col, $row) .
+						   (isset($k['after']) ? $k['after'] : '');
+
 					if ($k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
 
-					if (isset($k['more'])) {
-						if (is_array($k['more'])) {
-							$more += $k['more'];
-						} else {
-							debug(__METHOD__, $col, $k, $row);
-							die(' Consider making your "more" an array');
-							$more .= $k['more'];
-						}
-					}
-
-					if (isset($k['colspan'])) {
-						$more['colspan'] = $k['colspan'];
-					}
-					if (isset($k['align'])) {
-						$more['align'] = $k['align'];
-					}
-					if (isset($width[$iCol])) {
-						$more['width'] = $width[$iCol];
-					}
-
+					$more = $this->getCellMore($k, $iCol, $col, $row);
 					$t->cell($out, $more);
 					$iCol++;
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param array $k
+	 * @param $iCol
+	 * @param $col
+	 * @param array $row
+	 * @return array
+	 */
+	function getCellMore(array $k, $iCol, $col, array $row) {
+		$more = array();
+		if ($this->isAlternatingColumns) {
+			$more['class'][] = ($iCol%2?'even':'odd');
+		}
+
+		if (isset($k['more'])) {
+			if (is_array($k['more'])) {
+				$more += $k['more'];
+			} else {
+				debug(__METHOD__, $col, $k, $row);
+				die('Consider making your "more" an array');
+			}
+		}
+
+		if (isset($k['colspan'])) {
+			$more['colspan'] = $k['colspan'];
+		}
+		if (isset($k['align'])) {
+			$more['align'] = $k['align'];
+		}
+		if (isset($width[$iCol])) {
+			$more['width'] = $width[$iCol];
+		}
+		return $more;
 	}
 
 					} else {
@@ -668,12 +649,12 @@ class slTable {
 		$this->generateThes();
 		$widthMax = array();
 		$widthAvg = array();
-		foreach ($this->data as $i => $row) {
+		foreach ($this->data as $row) {
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];
 				$value = strip_tags($value);
-				$widthMax[$field] = max($widthMax[$field], strlen($value));
-				$widthAvg[$field] += strlen($value);
+				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
+				$widthAvg[$field] += mb_strlen($value);
 			}
 		}
 		foreach ($this->thes as $field => $name) {
@@ -686,7 +667,7 @@ class slTable {
 		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
 
 		$content = "\n";
-		foreach ($dataWithHeader as $i => $row) {
+		foreach ($dataWithHeader as $row) {
 			$padRow = array();
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];

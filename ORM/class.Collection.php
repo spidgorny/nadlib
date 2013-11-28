@@ -126,11 +126,15 @@ class Collection {
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
+
 		if (is_array($where)) {
 			$this->where += $where;
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
+
+
+
 		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
@@ -144,7 +148,8 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0 || $this->where) {
+		//debug($this->parentID, $this->where);
+		if ($this->parentID > 0 || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -388,8 +393,8 @@ class Collection {
 	 * @param string $orderBy
 	 * @return Collection
 	 */
-	function createForTable($table, array $where = array(), $orderBy = '') {
-		$c = new self();
+	static function createForTable($table, array $where = array(), $orderBy = '') {
+		$c = new self(-1);
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
@@ -428,15 +433,15 @@ class Collection {
 	 */
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
-			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
-			'align' => "right",
+			'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
+            'align' => "center",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
 		foreach ($this->data as &$row) {
 			$id = $row[$this->idField];
-			$checked = $_SESSION[$class][$id] ? 'checked' : '';
-			$row['checked'] = '<input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' />';
+			$checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
+			$row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
 		}
 	}
 

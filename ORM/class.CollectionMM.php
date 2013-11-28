@@ -61,4 +61,26 @@ class CollectionMM extends Collection {
 		$this->where[$this->field1] = $id;
 		$this->retrieveDataFromDB();
 	}
+
+    /**
+     * Will detect double-call and do nothing.
+     *
+     * @param string $class	- required, but is supplied by the subclasses
+     * @param bool $byInstance
+     * @return object[]
+     */
+    function objectify($class = '', $byInstance = false) {
+        if (!$this->members) {
+            foreach ($this->data as $row) {
+                $key = $row[$this->idField];
+                if ($byInstance) {
+                    $this->members[$key] = call_user_func($class.'::getInstance', $key);
+                } else {
+                    $this->members[$key] = new $class($key);
+                }
+            }
+        }
+        return $this->members;
+    }
+
 }

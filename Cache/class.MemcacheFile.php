@@ -60,7 +60,7 @@ class MemcacheFile {
 	function clearCache($key) {
 		$file = $this->map($key);
 		if (file_exists($file)) {
-			//echo '<font color="green">Deleting '.$file.'</font>';
+			debug('<font color="green">Deleting '.$file.'</font>');
 			unlink($file);
 		}
 	}
@@ -73,10 +73,12 @@ class MemcacheFile {
 		$file = $this->map($key);
 		return new Duration(time() - @filemtime($file));
 	}
+
 /**
  * unfinished
  * static function getInstance($file, $expire) {
 		$mf = new self();
 		$get = $mf->get($file, $expire);
 	}
+ */
 }

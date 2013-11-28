@@ -34,11 +34,6 @@ class ConfigBase {
 
 	public $documentRoot = '';
 
-	/**
-	 * @var string
-	 */
-	public $appRoot;
-
 	public static $includeFolders = array(
 		'.',
 		'Cache',
@@ -48,6 +43,7 @@ class ConfigBase {
 		'DB',
 		'Debug',
 		'HTML',
+		'js',
 		'HTMLForm',
 		'HTTP',
 		'LocalLang',
@@ -55,9 +51,9 @@ class ConfigBase {
 		'SQL',
 		'Time',
 		'User',
-		'../model',
+		'class',	// to load the Config of the main project
+		'model',
 		'be/class',
-		'../class',	// to load the Config of the main project
 	);
 
 	/**
@@ -69,12 +65,6 @@ class ConfigBase {
 	public $flexiTable = false;
 
 	public $config;
-
-	/**
-	 * Default is that nadlib/ is in the root folder
-	 * @var string
-	 */
-	public $appRoot;
 
 	protected function __construct() {
 		if ($this->db_database) {

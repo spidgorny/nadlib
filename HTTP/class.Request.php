@@ -89,14 +89,6 @@ class Request {
 		return $value;
 	}
 
-	function getTrimRequired($name) {
-		if ($this->is_set($name)) {
-			return $this->getTrim($name);
-		} else {
-			throw new Exception('Parameter '.$name.' is required.');
-		}
-	}
-
 	/**
 	 * Will strip tags
 	 * @param $name
@@ -766,8 +758,10 @@ class Request {
 	}
 
 	static function getDocumentRoot() {
-		if (strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
-			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		if ($_SERVER['DOCUMENT_ROOT'] &&
+			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '',
+				dirname($_SERVER['SCRIPT_FILENAME']));
 		} else {	//~depidsvy/something
 			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
 			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);

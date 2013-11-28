@@ -243,7 +243,7 @@ class dbLayer {
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
-		return array_column($return, 'relname');
+		return ArrayPlus::create($return)->column('relname');
 	}
 
 	function amountOf($table, $where = "1 = 1") {
@@ -362,17 +362,8 @@ class dbLayer {
 		return $q;
 	}
 
-	function fetchAll($result) {
-		if (is_string($result)) {
-			$result = $this->perform($result);
-		}
-		$rows = pg_fetch_all($result);
-		if (!$rows) $rows = array();
-		return $rows;
-	}
-
 	/**
-	 * @param $res
+	 * @param result/query $result
 	 * @return array
 	 */
 	function fetchAssoc($res) {
@@ -395,18 +386,6 @@ class dbLayer {
 	function getFirstRow($query) {
 		$result = $this->perform($query);
 		$row = pg_fetch_assoc($result);
-		return $row;
-	}
-
-	/**
-	 * @param result/query $result
-	 * @return array
-	 */
-	function fetchAssoc($res) {
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		$row = pg_fetch_assoc($res);
 		return $row;
 	}
 
@@ -668,6 +647,10 @@ order by a.attnum';
 		$source = str_replace(',', '', $source);
 		$source = floatval($source);
 		return $source;
+	}
+
+	function getIndexesFrom($table) {
+		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
 	}
 
 }
