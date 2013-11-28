@@ -503,7 +503,7 @@ class SQLBuilder {
 		return $res;
 	}
 
-	function runInsertUpdateQuery($table, array $fields, array $where) {
+	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
@@ -511,12 +511,13 @@ class SQLBuilder {
 			$query = $this->getUpdateQuery($table, $fields, $where);
 			$inserted = 2;
 		} else {
-			$query = $this->getInsertQuery($table, $fields + array('ctime' => NULL));
+			$query = $this->getInsertQuery($table, $fields + $where + $insert);
+			// array('ctime' => NULL) #TODO: make it manually now
 			$inserted = TRUE;
 		}
 		//debug($query);
 		$this->found = $this->db->fetchAssoc($res);
-		$res = $this->db->perform($query);
+		$this->db->perform($query);
 		$this->db->commit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $inserted;
