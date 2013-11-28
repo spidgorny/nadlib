@@ -6,6 +6,7 @@
  */
 class Uploader {
 
+
 	public $allowed = array(
 		'gif', 'jpg', 'png', 'jpeg',
 	);
@@ -30,7 +31,16 @@ class Uploader {
 			'A PHP extension stopped the file upload.'
 	);
 
-	function __construct() {
+	/**
+	 *
+	 * @param array|null $allowed If provided this will override allowed extensions
+	 */
+	function __construct($allowed = array()) {
+
+		if(!empty($allowed)) {
+			$this->allowed = $allowed;
+		}
+
 		if ($this->isUploaded()) {
 			//debug($_FILES);
 		}
@@ -60,6 +70,7 @@ class Uploader {
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$f->text('<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>');
 		$f->text('<div class="message">Max post: '.ini_get('post_max_size').'</div>');
+		$f->text('<div class="message">Allowed: '.implode(', ', $this->allowed).'</div>');
 		return $f;
 	}
 

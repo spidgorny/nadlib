@@ -65,7 +65,7 @@ class TaylorProfiler {
     // Public Methods
 
 	function getName() {
-		if (class_exists('MySQL')) {
+		if (class_exists('MySQL') && method_exists('MySQL', 'getCaller')) {
 			$name = MySQL::getCaller();
 		} else {
 			$i = 3;
@@ -231,7 +231,7 @@ class TaylorProfiler {
 				),
             	'routine' => array(
 					'name' => 'routine',
-					'no_hsc' => true
+					'no_hsc' => true,
 					'wrap' => new Wrap('<small>|</small>'),
 				),
             ));
@@ -403,7 +403,7 @@ class TaylorProfiler {
 
 	static function enableTick($ticker = 100) {
 		register_tick_function(array(__CLASS__, 'tick'));
-		declare(ticks=1000);
+		declare(ticks=100);
 	}
 
 	static function tick() {
@@ -418,7 +418,13 @@ class TaylorProfiler {
 		$mem = self::getMemUsage();
 		$diff = number_format(100*($mem - $prev), 2);
 		$diff = $diff > 0 ? '<font color="green">'.$diff.'</font>' : '<font color="red">'.$diff.'</font>';
-		echo '<pre>'.$diff.' '.number_format($mem*100, 2).'% '.implode(' // ', $list).'</pre>'."\n";
+		$trace = implode(' -> ', $list);
+		$trace = substr($trace, -80);
+		$output = '<pre>diff: '.$diff.' '.number_format($mem*100, 2).'% '.$trace.'</pre>';
+		if (Request::isCLI()) {
+			$output = strip_tags($output);
+		}
+		echo $output."\n";
 		$prev = $mem;
 	}
 

@@ -42,8 +42,9 @@ class Mailer {
 		if ($mailFrom = Index::getInstance()->mailFrom) {
 			$this->headers['From'] = 'From: '.$mailFrom;
 			// get only the pure email from "Somebody <sb@somecompany.de>"
-			$mailFromOnly =	(strpos($this->bodytext, '<') !== FALSE)
-				? substr(next(explode('<', $mailFrom)), 0, -1)
+            $arMailFrom = explode('<', $mailFrom);
+            $mailFromOnly =	(strpos($this->bodytext, '<') !== FALSE)
+				? substr(next($arMailFrom), 0, -1)
 				: ''; //$mailFrom;
 			if ($mailFromOnly) {
 				$this->params['-f'] = '-f'.$mailFromOnly;	// no space

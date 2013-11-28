@@ -25,10 +25,8 @@ class MemcacheArray implements ArrayAccess {
 	public $miss = 0;
 
 	/**
-	 *
-	 *
-	 * @param unknown_type $file - filename inside /cache/ folder
-	 * @param unknown_type $expire - seconds to keep the cache active
+	 * @param string $file - filename inside /cache/ folder
+	 * @param int $expire - seconds to keep the cache active
 	 */
 	function __construct($file, $expire = 0) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__.' ('.$file.')');
@@ -49,19 +47,25 @@ class MemcacheArray implements ArrayAccess {
 		if ($this->onDestruct) {
 			call_user_func($this->onDestruct, $this);
 		}
-		if ($this->fc && strcmp($this->state, serialize($this->data))) {
-			$this->fc->set($this->file, $this->data);
-		}
+		$this->save();
 		//debug(sizeof($this->data));
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
+	function save() {
+		if ($this->fc && strcmp($this->state, serialize($this->data))) {
+			//debug(__METHOD__, $this->fc->map($this->file), sizeof($this->data), array_keys($this->data));
+			$this->fc->set($this->file, $this->data);
+		}
+	}
+
 	function clearCache() {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
-		if ($this->fc) {
-			$this->fc->clearCache($this->file);
-		}
-		unset(self::$instances[$this->file]);
+		$prev = sizeof(self::$instances);
+		$prevKeys = array_keys(self::$instances);
+		self::unsetInstance($this->file);
+		$curr = sizeof(self::$instances);
+		//debug(__METHOD__, $this->file, $prev, $curr, $prevKeys, array_keys(self::$instances));
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
@@ -106,6 +110,9 @@ class MemcacheArray implements ArrayAccess {
 	static function unsetInstance($file) {
 		if (self::$instances[$file]) {
 			self::$instances[$file]->__destruct();
+		}
+		if (self::$instances[$file]->fc) {
+			self::$instances[$file]->fc->clearCache(self::$instances[$file]->file);
 		}
 		unset(self::$instances[$file]);
 	}

@@ -191,13 +191,9 @@ abstract class OODBase {
 		} else {
 			$data = array();
 		}
+		$this->init($data);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
-	}
-
-	function findInDB(array $where, $orderby = '') {
-		$data = $this->fetchFromDB($where, $orderby);
-		$this->init($data);
 	}
 
 	/**
@@ -266,9 +262,14 @@ abstract class OODBase {
 	 * @param array $fields
 	 * @param array $where
 	 * @param array $insert
+	 * @param array $update
 	 * @return string whether the record already existed
 	 */
-	function insertUpdate(array $fields, array $where = array(), array $insert = array()) {
+	function insertUpdate(array $fields,
+						  array $where = array(),
+						  array $insert = array(),
+						  array $update = array()
+	) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		if ($where) {
@@ -281,7 +282,7 @@ abstract class OODBase {
 			if ($left == $right) {
 				$op = 'SKIP';
 			} else {
-				$this->update($fields);
+				$this->update($fields + $update);
 				$op = 'UPDATE '.$this->id;
 			}
 		} else {
@@ -354,6 +355,7 @@ abstract class OODBase {
 	 * @return self
 	 */
 	public static function getInstance($id) {
+		$static = get_called_class();
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
 			if (!$inst) {
@@ -367,7 +369,6 @@ abstract class OODBase {
 				}
 			}
 		} else {
-			$static = get_called_class();
 			$inst = new $static($id);
 		}
 		return $inst;
