@@ -93,11 +93,10 @@ class URLGet {
 		$html = substr($response, $header_size);
 
 		$this->info = curl_getinfo($process);
-		if ($_REQUEST['d']) {
+		if ($_REQUEST['d'] == 'urlget') {
 			debug($this->info);
 			debug($html);
 			debug($header);
-			exit();
 		}
 		if (curl_errno($process)){
 			//debug('Curl error: ' . curl_error($process));
