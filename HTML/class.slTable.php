@@ -527,6 +527,8 @@ class slTable {
 				if (is_object($val)) {
 					if (method_exists($val, 'getName')) {
 						$val = $val->getName();
+					} else {
+						$k['no_hsc'] = true;	// no escape for objects
 					}
 				}
 				if ($k['no_hsc']) {
