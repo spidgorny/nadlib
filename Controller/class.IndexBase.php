@@ -268,11 +268,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addJS($source) {
 		$this->footer[$source] = '<script src="'.$source.'"></script>';
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addCSS($source) {
 		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
 			$source = 'Lesser?css='.$source;
