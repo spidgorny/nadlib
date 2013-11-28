@@ -229,18 +229,22 @@ class Menu /*extends Controller*/ {
 	 * @return string
 	 */
 	function getClassPath($class, array $root) {
-		if ($this->useRecursiveURL) {
-			//$path = $this->items->find($class);
-			//debug($class, $path);
-			$path = array_merge($root, array($class));
+		if (startsWith($class, 'http')) {
+			return $class;
+		} else {
+			if ($this->useRecursiveURL) {
+				//$path = $this->items->find($class);
+				//debug($class, $path);
+				$path = array_merge($root, array($class));
 			//if ($path) {
 			if ($path && $this->useControllerSlug) {
 				$link = $this->basePath . implode('/', $path);
-			} else {
+				} else {
 				$link = $this->basePath . $class;
-			}
-		} else {
+				}
+			} else {
 			$link = $this->basePath . $class;
+			}
 		}
 		//debug($class, $root, $path, $this->useControllerSlug, $this->basePath, $link);
 		return $link;
