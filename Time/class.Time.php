@@ -510,10 +510,14 @@ class Time {
 	    }
 
 	    //debug($collect);
-	    foreach ($collect as $name => &$val) {
-	    	$val = $val . ' ' . $name . ($val > 1 ? 's' : '');
-	    }
-	    $content = implode(', ', $collect);
+		if ($collect) {
+			foreach ($collect as $name => &$val) {
+				$val = $val . ' ' . $name . ($val > 1 ? 's' : '');
+			}
+			$content = implode(', ', $collect);
+		} else {
+			$content = 'no time';
+		}
 	    //exit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	    return $content;
