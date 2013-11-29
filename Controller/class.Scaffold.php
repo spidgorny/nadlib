@@ -211,8 +211,8 @@ abstract class Scaffold extends Controller {
 	/**
 	 * Default is add action, override to update
 	 *
-	 * @param array $desc
-	 * @param unknown_type $action
+	 * @param string $action
+	 * @internal param array $desc
 	 * @return unknown
 	 */
 	protected function getForm($action = 'add') {
