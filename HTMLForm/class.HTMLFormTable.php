@@ -161,7 +161,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->file($fieldName, $desc);
 				break;
 				case "password":
-					$this->password($fieldName, $fieldValue);
+					$this->password($fieldName, $fieldValue, $desc);
 				break;
 				case "check":
 				case "checkbox":

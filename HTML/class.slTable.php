@@ -485,8 +485,6 @@ class slTable {
 		return $more;
 	}
 
-					} else {
-						$k['no_hsc'] = true;	// no escape for objects
 	function show() {
 		if (!$this->generation) {
 			$this->generate();
