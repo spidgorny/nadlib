@@ -71,7 +71,7 @@ class AutoLoad {
 	}
 
 	function getFolders() {
-		require_once 'HTTP/class.Request.php';
+		require_once __DIR__.'/HTTP/class.Request.php';
 		$folders = array();
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
@@ -172,7 +172,7 @@ class AutoLoad {
 				$file2 = str_replace('/class.', '/', $file);
 				if (file_exists($file2)) {
 					$file = $file2;
-				} 
+				}
 			}
 
 
