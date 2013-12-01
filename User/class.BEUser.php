@@ -16,11 +16,10 @@ class BEUser extends UserBase {
 	function __construct($id = NULL) {
 		parent::__construct($id);
 		Config::getInstance()->mergeConfig($this);
-		$this->try2login();
 	}
 
 	function try2login() {
-		debug('session_start');
+		//debug('session_start');
 		session_start();
 	}
 
@@ -40,4 +39,7 @@ class BEUser extends UserBase {
 		unset($_SESSION[__CLASS__]['login']);
 	}
 
+	function __destruct() {
+		// do nothing
+	}
 }

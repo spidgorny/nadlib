@@ -1,7 +1,17 @@
 <?php
 
 class Request {
+
+	/**
+	 * Assoc array of URL parameters
+	 * @var array
+	 */
 	protected $data = array();
+
+	/**
+	 * The default controller retrieved from Config.
+	 * @var string
+	 */
 	public $defaultController;
 
 	/**
@@ -9,6 +19,10 @@ class Request {
 	 */
 	public $url;
 
+	/**
+	 * Singleton
+	 * @var Request
+	 */
 	static protected $instance;
 
 	function __construct(array $array = NULL) {
@@ -18,7 +32,9 @@ class Request {
 			$this->data = $this->deQuote($this->data);
 		}
 
-		$this->url = new URL(isset($_SERVER['SCRIPT_URL']) ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
+			? $_SERVER['SCRIPT_URL']
+			: $_SERVER['REQUEST_URI']);
 	}
 
 	function deQuote(array $request) {
@@ -40,6 +56,11 @@ class Request {
 		return self::$instance;
 	}
 
+	/**
+	 * Will overwrite
+	 * @param $var
+	 * @param $val
+	 */
 	function set($var, $val) {
 		$this->data[$var] = $val;
 	}
@@ -56,8 +77,32 @@ class Request {
 		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
 	}
 
+	/**
+	 * General filtering function
+	 * @param $name
+	 * @return string
+	 */
 	function getTrim($name) {
-		return trim($this->getString($name));
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		return $value;
+	}
+
+	/**
+	 * Will strip tags
+	 * @param $name
+	 * @return string
+	 * @throws Exception
+	 */
+	function getTrimRequired($name) {
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		if (!$value) {
+			throw new Exception('Parameter '.$name.' is required.');
+		}
+		return $value;
 	}
 
 	/**
@@ -198,7 +243,7 @@ class Request {
 	 * @return Time
 	 */
 	function getTime($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
 		}
 	}
@@ -211,7 +256,7 @@ class Request {
 	 * @return Date
 	 */
 	function getDate($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
 	}
@@ -233,8 +278,26 @@ class Request {
 		return $files;
 	}
 
+	/**
+	 * Similar to getArray() but the result is an object of a Request
+	 * @param $name
+	 * @return Request
+	 */
 	function getSubRequest($name) {
 		return new Request($this->getArray($name));
+	}
+
+	/**
+	 * Opposite of getSubRequest. It's a way to reimplement a subrequest
+	 * @param $name
+	 * @param Request $subrequest
+	 * @return $this
+	 */
+	function import($name, Request $subrequest) {
+		foreach ($subrequest->data as $key => $val) {
+			$this->data[$name][$key] = $val;
+		}
+		return $this;
 	}
 
 	function getCoalesce($a, $b) {
@@ -249,19 +312,19 @@ class Request {
 			//debug($this->data);
 		} else {
 			$controller = $this->getTrim('c');
-			// to simplofy URL it first searches for the corresponding controller
-			$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
-			$tmp = $ptr;
-			$ptr = false;
-			if ($controller && class_exists($controller.'Controller')) {
-				$controller = $controller.'Controller';
-			}
-			$ptr = $tmp;
-			//$controller = end(explode('/', $controller)); // in case it's with subfolder
-			// ^ commented as subfolders need be used for BEmenu
-			if (!$controller) {
+			if ($controller) {
+				// to simplofy URL it first searches for the corresponding controller
+				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
+				$tmp = $ptr;
+				$ptr = false;
+				if ($controller && class_exists($controller.'Controller')) {
+					$controller = $controller.'Controller';
+				}
+				$ptr = $tmp;
+				//$controller = end(explode('/', $controller)); // in case it's with subfolder
+				// ^ commented as subfolders need be used for BEmenu
+			} else {
 				$levels = $this->getURLLevels();
-				//debug($levels);
 				if ($levels) {
 					$levels = array_reverse($levels);
 					foreach ($levels as $class) {
@@ -300,6 +363,9 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getControllerString();
+		if (!$c) {
+			$c = $GLOBALS['i']->controller; // default
+		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
@@ -343,7 +409,7 @@ class Request {
 	 * Returns the full URL to the document root of the current site
 	 * @return string
 	 */
-	function getLocation() {
+	static function getLocation() {
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
@@ -356,7 +422,9 @@ class Request {
 			$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST'] ?: $_SERVER['HTTP_HOST']
+			$_SERVER['HTTP_X_FORWARDED_HOST']
+				? $_SERVER['HTTP_X_FORWARDED_HOST']
+				: $_SERVER['HTTP_HOST']
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
@@ -382,8 +450,12 @@ class Request {
 		return $headers[$name];
 	}
 
-	function getJson($name) {
-		return json_decode($this->getTrim($name), true);
+	function getJson($name, $array = true) {
+		return json_decode($this->getTrim($name), $array);
+	}
+
+	function getJSONObject($name) {
+		return json_decode($this->getTrim($name));
 	}
 
 	function isSubmit() {
@@ -464,21 +536,29 @@ class Request {
 	/**
 	 * Overwriting - no
 	 * @param array $plus
+	 * @return Request
 	 */
 	function append(array $plus) {
 		$this->data += $plus;
+		return $this;
 	}
 
 	/**
 	 * Overwriting - yes
 	 * @param array $plus
+	 * @return Request
 	 */
 	function overwrite(array $plus) {
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
 		}
+		return $this;
 	}
 
+	/**
+	 * http://christian.roy.name/blog/detecting-modrewrite-using-php
+	 * @return bool
+	 */
 	function apacheModuleRewrite() {
 		if (function_exists('apache_get_modules')) {
 			$modules = apache_get_modules();
@@ -526,7 +606,8 @@ class Request {
 	}
 
 	static function isCLI() {
-		return isset($_SERVER['argc']);
+		//return isset($_SERVER['argc']);
+		return php_sapi_name() == 'cli';
 	}
 
 	/**
@@ -582,7 +663,55 @@ class Request {
 	 */
 	function parseParameters($noopt = array()) {
 		$result = array();
-		$params = $GLOBALS['argv'];
+		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
+		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
+		reset($params);
+		while (list($tmp, $p) = each($params)) {
+			if ($p{0} == '-') {
+				$pname = substr($p, 1);
+				$value = true;
+				if ($pname{0} == '-') {
+					// long-opt (--<param>)
+					$pname = substr($pname, 1);
+					if (strpos($p, '=') !== false) {
+						// value specified inline (--<param>=<value>)
+						list($pname, $value) = explode('=', substr($p, 2), 2);
+					}
+				}
+				// check if next parameter is a descriptor or a value
+				$nextparm = current($params);
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
+				$result[$pname] = $value;
+			} else {
+				// param doesn't belong to any option
+				$result[] = $p;
+			}
+		}
+		return $result;
+	}
+
+	function importCLIparams($noopt = array()) {
+		$this->data += $this->parseParameters($noopt);
+	}
+
+	/**
+	 * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
+	 * @see http://www.php.net/manual/en/function.getopt.php#83414
+	 *
+	 * Supports:
+	 * -e
+	 * -e <value>
+	 * --long-param
+	 * --long-param=<value>
+	 * --long-param <value>
+	 * <value>
+	 *
+	 * @param array $noopt List of parameters without values
+	 * @return array
+	 */
+	function parseParameters($noopt = array()) {
+		$result = array();
+		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
@@ -618,4 +747,34 @@ class Request {
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
+	public function getIntArray($name) {
+		$array = $this->getArray($name);
+		$array = array_map('intval', $array);
+		return $array;
+	}
+
+	function clear() {
+		$this->data = array();
+	}
+
+	static function getDocumentRoot() {
+		if ($_SERVER['DOCUMENT_ROOT'] &&
+			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '',
+				dirname($_SERVER['SCRIPT_FILENAME']));
+		} else {	//~depidsvy/something
+			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
+			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+		}
+		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $docRoot);
+		return $docRoot;
+	}
+
+	function setCacheable($age = 60) {
+		header('Pragma: cache');
+		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('Cache-Control: max-age='.$age);
+	}
 }

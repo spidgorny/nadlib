@@ -45,15 +45,24 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $loadJSfromGoogle = true;
 
+	public $template = 'template.phtml';
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		//parent::__construct();
-		$this->db = Config::getInstance()->db;
-		$this->ll = new LocalLangDummy();
+		$config = Config::getInstance();
+		$this->db = $config->db;
+		$this->ll = new LocalLangDummy();	// the real one is in Config!
+
 		$this->request = Request::getInstance();
 		//debug('session_start');
-		session_start();
+
+		// only use session if not run from command line
+		if(!Request::isCLI()) {
+			session_start();
+		}
+
 		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -65,7 +74,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$instance = &self::$instance;
+		$instance = &self::$instance ?: $GLOBALS['i'];	// to read IndexBE instance
 		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
@@ -82,18 +91,20 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	public function initController() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$slug = $this->request->getControllerString();
 			if ($slug) {
 				$this->loadController($slug);
 			} else {
-				throw new Exception404();
+				throw new Exception404($slug);
 			}
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -103,6 +114,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	protected function loadController($slug) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$slugParts = explode('/', $slug);
 		$class = end($slugParts);	// again, because __autoload need the full path
 		//debug(__METHOD__, $slug, $class, class_exists($class));
@@ -117,6 +129,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
 			throw new Exception($exception);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function render() {
@@ -143,13 +156,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderTemplate($content) {
-		$v = new View('template.phtml', $this);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$v = new View($this->template, $this);
 		$v->content = $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $v;
 	}
 
@@ -163,8 +178,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
-	function renderException(Exception $e) {
-		$content = '<div class="ui-state-error alert alert-error padding">
+	function renderException(Exception $e, $wrapClass = '') {
+		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
@@ -181,11 +196,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		if (!$this->request->isAjax()) {
 			try {
-				$v = new View('template.phtml', $this);
+				$v = new View($this->template, $this);
 				$v->content = $content;
+				$v->baseHref = $this->request->getLocation();
 				$content = $v->render();
 			} catch (Exception $e) {
 				// second exception may happen
+				echo $e;
 			}
 		}
 
@@ -212,7 +229,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function error($text) {
-		$this->content .= '<div class="ui-state-error alert alert-error padding">'.$text.'</div>';
+		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
 	}
 
 	function saveMessages() {
@@ -240,7 +257,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
-			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+
+            // commented out because this should be project specific
+			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
 		} else {
 			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
@@ -263,9 +282,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function showSidebar() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
@@ -279,38 +300,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$profiler = $GLOBALS['profiler'];
 			/** @var $profiler TaylorProfiler */
 			if ($profiler) {
-				$content = $profiler->renderFloat();
 				if (!$this->request->isCLI()) {
+					$content = $profiler->renderFloat();
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
 					if ($this->db->queryLog) {
-						$content .= '<div class="profiler">'.new slTable($this->db->queryLog).'</div>';
-						$content .= TaylorProfiler::dumpQueries();	// same or different?
+						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
-					if ($this->db->QUERIES) {	// dbLayer
-						$q = $this->db->QUERIES;
-						arsort($q);
-						foreach ($q as $query => &$time) {
-							$time = array(
-								'times' => $this->db->QUERYMAL[$query],
-								'query' => $query,
-								'time' => number_format($time, 3),
-								'func' => $this->db->QUERYFUNC[$query],
-							);
-						}
-						$q = new slTable($q, 'class="view_array', array(
-							'times' => 'Times',
-							'query' => 'Query',
-							'time' => array(
-								'name' => 'Time',
-								'align' => 'right',
-							),
-							'func' => 'Caller',
-						));
-						$q->isOddEven = false;
-						$content .= '<div class="profiler">'.$q.'</div>';
+					if ($this->db->QUERIES) {
+						$dbLayer = $this->db;
+						/** @var $dbLayer dbLayer */
+						$content .= $dbLayer->dumpQueries();
 					}
 				}
-			} else if (DEVELOPMENT) {
+			} else if (DEVELOPMENT && !$this->request->isCLI()) {
 				$content = TaylorProfiler::renderFloat();
 			}
 		}

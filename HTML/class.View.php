@@ -16,8 +16,6 @@ class View {
 	protected $ll;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var Request
 	 */
 	protected $request;
@@ -61,6 +59,7 @@ class View {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
+		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
 		require($file);
@@ -141,6 +140,11 @@ class View {
 		return eval('?>'.$this->parts[$i]);
 	}
 
+	/**
+	 * Uses htmlspecialchars()
+	 * @param $str
+	 * @return string
+	 */
 	function escape($str) {
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
@@ -245,9 +249,17 @@ class View {
 		return $money;
 	}
 
-	static function bar($percent) {
+	static function bar($percent, array $params = array(), $attr = array()) {
 		$percent = round($percent);
-		return '<img src="nadlib/bar.php?rating='.$percent.'&color=6DC5B4" alt="'.$percent.'%" />';
+		$src = 'vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
+			'rating' => $percent,
+			'color' => '6DC5B4',
+		));
+		$attr += array(
+			'src' => $src,
+			'alt' => $percent.'%',
+		);
+		return new HTMLTag('img', $attr, NULL);
 	}
 
 }

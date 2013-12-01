@@ -4,12 +4,20 @@ class InitNADLIB {
 
 	var $useCookies = true;
 
+	/**
+	 * @var AutoLoad
+	 */
+	var $al;
+
+	function __construct() {
+		require_once dirname(__FILE__) . '/class.AutoLoad.php';
+		$this->al = AutoLoad::getInstance();
+	}
+
 	function init() {
 		//print_r($_SERVER);
-		require_once dirname(__FILE__) . '/class.AutoLoad.php';
-		$al = AutoLoad::getInstance();
-		$al->useCookies = $this->useCookies;
-		$al->register();
+		$this->al->useCookies = $this->useCookies;
+		$this->al->register();
 
 		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		define('DEVELOPMENT', Request::isCLI()
@@ -49,14 +57,25 @@ class InitNADLIB {
 		Request::removeCookiesFromRequest();
 	}
 
+	function initWhoops() {
+		$run     = new Whoops\Run;
+		$handler = new Whoops\Handler\PrettyPageHandler;
+		$run->pushHandler($handler);
+		$run->register();
+	}
+
 }
 
 function debug($a) {
-	$params = func_get_args();
+    $params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
-		echo '<pre>'.htmlspecialchars(print_r(func_num_args() == 1 ? $a : $params, true)).'</pre>';
+		echo '<pre>'.htmlspecialchars(
+			var_dump(
+				func_num_args() == 1 ? $a : $params
+			, true)
+		).'</pre>';
 	}
 }
 
@@ -136,7 +155,7 @@ function startsWith($haystack, $needle) {
  * @return bool
  */
 function endsWith($haystack, $needle) {
-	return strpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+	return strrpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
 }
 
 /**
@@ -174,7 +193,7 @@ function debug_pre_print_backtrace() {
  * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
  */
 if(!function_exists('get_called_class')) {
-	function get_called_class($bt = false,$l = 1) {
+	function get_called_class($bt = false, $l = 1) {
 		if (!$bt) $bt = debug_backtrace();
 		if (!isset($bt[$l])) throw new Exception("Cannot find called class -> stack level too deep.");
 		if (!isset($bt[$l]['type'])) {
@@ -188,7 +207,9 @@ if(!function_exists('get_called_class')) {
 				do {
 					$i++;
 					$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
-				} while (stripos($callerLine,$bt[$l]['function']) === false);
+					$findLine = stripos($callerLine, $bt[$l]['function']);
+				} while ($callerLine && $findLine === false);
+				$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
 				preg_match('/([a-zA-Z0-9\_]+)::'.$bt[$l]['function'].'/',
 					$callerLine,
 					$matches);
@@ -220,7 +241,7 @@ if(!function_exists('get_called_class')) {
 /**
  * Complements the built-in end() function
  * @param array $list
- * @return mixed
+ * @return array|mixed
  */
 function first(array $list) {
 	reset($list);
