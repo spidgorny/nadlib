@@ -7,7 +7,15 @@ class HTMLForm {
 	var $stdout = "";
 	var $enctype = "";
 	var $target = "";
+
+	/**
+	 * Deprecated use for maybe XSS class in some form fields.
+	 * Now it's the class name (or just a unique identifier of the form) to be used
+	 * with XSRF protection.
+	 * @var string
+	 */
 	var $class = "";
+
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
@@ -58,10 +66,6 @@ class HTMLForm {
 		}
 	}
 
-	function cssClass($c) {
-		$this->class = $c;
-	}
-
 	function fieldset($name, $more = array()) {
 		$this->fieldset = $name;
 		$this->fieldsetMore = $more;
@@ -88,6 +92,15 @@ class HTMLForm {
 		return $a;
 	}
 
+	/**
+	 * @param $type
+	 * @param $name
+	 * @param null $value
+	 * @param string/array $more - may be array
+	 * @param string $extraClass
+	 * @param string $namePlus
+	 * @return string
+	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
 		$a = '';
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
@@ -97,12 +110,19 @@ class HTMLForm {
 			$a .= ' value="'.$value.'"';
 		}
 		if ($more) {
-			$a .= " " . $more;
+			$a .= " " . (is_array($more) ? $this->getAttrHTML($more) : $more);
 		}
 		$a .= ">\n";
 		return $a;
 	}
 
+	/**
+	 * @param $name
+	 * @param string $value
+	 * @param string/array $more - may be array
+	 * @param string $type
+	 * @param string $extraClass
+	 */
 	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
@@ -160,9 +180,16 @@ class HTMLForm {
 	 */
 	function radioLabel($name, $value, $checked, $label = "", $more = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."' {$more}> ";
-		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+		$id = implode('_', $this->prefix)."_".implode('_', $name)."_".$value;
+		$this->stdout .= '<label class="radio" for="'.$id.'">
+		<input
+			type="radio"
+			'.$this->getName($name).'
+			value="'.htmlspecialchars($value, ENT_QUOTES).'" '.
+			($checked ? "checked" : "").'
+			id="'.$id.'"
+			'.$more.'> ';
+		$this->stdout .= $this->hsc($label)."</label>";
 	}
 
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
@@ -211,6 +238,9 @@ class HTMLForm {
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
+		if ($multiple) {
+			$this->stdout .= ' multiple="1"';
+		}
 		$this->stdout .= $more . ">\n";
 		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";
@@ -230,15 +260,17 @@ class HTMLForm {
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
-				if (sizeof($aOptions) == -3) {
-					Debug::debug_args(array(
+				if (sizeof($aOptions) == 14) {
+					debug(array(
 						'default' => $default,
 						'value' => $value,
 						'selected' => $selected,
 					));
 				}
 			} else {
-				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
+				//debug($default, $value);
+				if ((is_array($default) && in_array($value, $default))
+				|| (!is_array($default) && $default == $value)) {
 					$selected = true;
 				} else {
 					$selected = false;
@@ -264,11 +296,23 @@ class HTMLForm {
 		return $content;
 	}
 
-	function date($name, $value) {
-		if (!$value) {
-			$value = date('d.m.Y');
+	/**
+	 * Default value is no longer "today"
+	 * @param $name
+	 * @param $value
+	 * @param array $desc
+	 */
+	function date($name, $value, array $desc = array()) {
+		$format = $desc['format'] ?: 'd.m.Y';
+		if (is_numeric($value)) {
+			$value = date($format, $value);
+		} elseif (!$value) {
+			//$value = date('d.m.Y');
 		}
-		$this->input($name, $value);
+		$this->input($name, $value,
+			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
+			(isset($desc['more']) ? $desc['more'] : '')
+		);
 	}
 
 	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
@@ -303,11 +347,11 @@ class HTMLForm {
 ';
 	}
 
-	function money($name, $value) {
+	function money($name, $value, array $desc) {
 		if (!$value) {
 			$value = "0.00";
 		}
-		$this->input($name, $value);
+		$this->input($name, $value, $desc['more']);
 		$this->text("&euro;");
 	}
 
@@ -470,7 +514,7 @@ class HTMLForm {
 		return $content;
 	}
 
-	function dropSelect($fieldName, array $options) {
+	static function dropSelect($fieldName, array $options) {
 		$content = '
 			<input type="hidden" name="'.$fieldName.'" id="'.$fieldName.'">
 			<input type="text" name="'.$fieldName.'_name" id="'.$fieldName.'_name" onchange="setDropSelectValue(this.value, this.value);">
@@ -532,7 +576,7 @@ class HTMLForm {
 	 * @see set()
 	 */
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
 		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
@@ -548,7 +592,7 @@ class HTMLForm {
 			$this->stdout .= '</label>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -559,8 +603,8 @@ class HTMLForm {
 	 * @see $this->radioset()
 	 */
 	function radioArray($name, array $options, $selected) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
-		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->stdout .= '<div class="radioArray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
@@ -569,7 +613,7 @@ class HTMLForm {
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function __toString() {

@@ -1,6 +1,7 @@
 <?php
 
 class URL {
+
 	public $url;
 
 	/**
@@ -48,7 +49,7 @@ class URL {
 		return $url;
 	}
 
-	function setParam($param, $value) {
+	public function setParam($param, $value) {
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
@@ -73,8 +74,13 @@ class URL {
 		return $this;
 	}
 
+	/**
+	 * New params have priority
+	 * @param array $params
+	 * @return $this
+	 */
 	function addParams(array $params = array()) {
-		$this->params += $params;
+		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
@@ -114,6 +120,10 @@ class URL {
 		$this->components['path'] .= $name;
 	}
 
+	function getBasename() {
+		return basename($this->getPath());
+	}
+
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
 		//debug($this);
@@ -135,6 +145,7 @@ class URL {
 	 */
 	function buildURL($parsed = NULL) {
 		if (!$parsed) {
+			$this->components['query'] = $this->buildQuery(); // to make sure manual manipulations are not possible (although it's already protected?)
 			$parsed = $this->components;
 		}
 	    if (!is_array($parsed)) {
@@ -157,13 +168,13 @@ class URL {
 	    return $uri;
 	}
 
-	function __toString() {
+	public function __toString() {
 		$url = $this->buildURL();
 		//debug($this->components, $url);
 		return $url.'';
 	}
 
-	function getRequest() {
+	public function getRequest() {
 		$r = new Request($this->params ? $this->params : array());
 		$r->url = $this;
 		return $r;

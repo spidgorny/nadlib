@@ -6,7 +6,7 @@ class dbLayer {
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
-	
+
 	/**
 	 * logging:
 	 */
@@ -63,16 +63,15 @@ class dbLayer {
 		$this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
-			debug_pre_print_backtrace();
 			debug($query);
+			debug_pre_print_backtrace();
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->saveQueries) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$func = $this->getCallerFunction();
-				$this->QUERYFUNC[$query] = $func['class'].'::'.$func['function'].'#'.$func['line'];
+				$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -81,7 +80,7 @@ class dbLayer {
 
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		$trace = $this->getCallerFunction();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
 		$result = $this->perform($query);
@@ -102,7 +101,7 @@ class dbLayer {
 				exit();
 			}
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		return $return;
 	}
 
@@ -188,7 +187,8 @@ class dbLayer {
 	}
 
 	function getTableOptions($table, $column, $where = "", $key = 'id') {
-		$a = $this->getTableDataEx($table, $where, $table.'.*, '.$column);
+		$tableName = $this->getFirstWord($table);
+		$a = $this->getTableDataEx($table, $where, $tableName.'.*, '.$column);
 
 		// select login.*, coalesce(name, '') || ' ' || coalesce(surname, '') AS combined from login where relcompany = '47493'
 		$as = trimExplode(' AS ', $column);
@@ -243,7 +243,7 @@ class dbLayer {
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
-		return array_column($return, 'relname');
+		return ArrayPlus::create($return)->column('relname');
 	}
 
 	function amountOf($table, $where = "1 = 1") {
@@ -313,12 +313,12 @@ class dbLayer {
 		if ($_REQUEST['d'] == 'q') {
 			debug($this->lastQuery, sizeof($res));
 		}
-		if ($res && $key) {
-			$res = ArrayPlus::create($res)->IDalize($key)->getData();
-		}
 		if (!$res) {
 			$res = array();
+		} else if ($key) {
+			$res = ArrayPlus::create($res)->IDalize($key)->getData();
 		}
+
 		pg_free_result($result);
 		return $res;
 	}
@@ -347,31 +347,19 @@ class dbLayer {
 		return $table1;
 	}
 
-	function getDeleteQuery($table, array $where) {
-		$q = "delete from $table ";
+	function getDeleteQuery($table, array $where, $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = array();
-		foreach($where as $key => $val) {
+		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		if (sizeof($set)) {
-			$q .= " where " . implode(" and ", $set);
+			$q .= " WHERE " . implode(" and ", $set);
 		} else {
-			$q .= ' where 1 = 0';
+			$q .= ' WHERE 1 = 0';
 		}
 		return $q;
-	}
-
-	function getAllRows($query) {
-		$result = $this->perform($query);
-		$data = $this->fetchAll($result);
-		return $data;
-	}
-
-	function getFirstRow($query) {
-		$result = $this->perform($query);
-		$row = pg_fetch_assoc($result);
-		return $row;
 	}
 
 	/**
@@ -383,6 +371,21 @@ class dbLayer {
 			$res = $this->perform($res);
 		}
 		$row = pg_fetch_assoc($res);
+		if (!$row) {
+			$row = array();
+		}
+		return $row;
+	}
+
+	function getAllRows($query) {
+		$result = $this->perform($query);
+		$data = $this->fetchAll($result);
+		return $data;
+	}
+
+	function getFirstRow($query) {
+		$result = $this->perform($query);
+		$row = pg_fetch_assoc($result);
 		return $row;
 	}
 
@@ -425,10 +428,10 @@ class dbLayer {
 	/**
 	 * Compatibility.
 	 * @param $res
-	 * @param $table
+	 * @param $table	- optional
 	 * @return null
 	 */
-	function lastInsertID($res, $table) {
+	function lastInsertID($res, $table = NULL) {
 		return $this->getLastInsertID($res, $table);
 	}
 
@@ -469,7 +472,7 @@ class dbLayer {
 	 * @param $key
 	 * @return table
 	 */
-	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key) {
+	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
 		$rows = $this->fetchAll($res, $key);
 		return $rows;
@@ -519,6 +522,14 @@ order by a.attnum';
 		return $rows[$column];
 	}
 
+	/**
+	 * Uses find_in_set function which is not built-in
+	 * @see SQLBuilder::array_intersect()
+	 *
+	 * @param array $options
+	 * @param string $field
+	 * @return string
+	 */
 	function getArrayIntersect(array $options, $field = 'list_next') {
 		$bigOR = array();
 		foreach ($options as $n) {
@@ -538,6 +549,7 @@ order by a.attnum';
 			//debug_pre_print_backtrace();
 			return call_user_func_array(array($qb, $method), $params);
 		} else {
+			debug($qb);
 			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
 		}
 	}
@@ -546,7 +558,7 @@ order by a.attnum';
 		$key = '"'.$key.'"';
 		return $key;
 	}
-	
+
 	function runUpdateInsert($table, $set, $where) {
 		$found = $this->runSelectQuery($table, $where);
 		if ($this->numRows($found)) {
@@ -574,13 +586,71 @@ order by a.attnum';
 			'getInstance',
 		);
 		$debug = debug_backtrace();
-		array_shift($debug);
+		$prev = array_shift($debug);	// getCallerFunction
 		while (sizeof($debug) && in_array($debug[0]['function'], $skipFunctions)) {
-			array_shift($debug);
+			$prev = array_shift($debug);
 		}
 		reset($debug);
-		$debug = current($debug);
-		return $debug;
+		$content = array();
+		foreach (range(1, 2) as $_) {
+			$func = current($debug);
+			$func['line'] = $prev['line'];	// line is from the parent function?
+			$content[] = $func['class'].'::'.$func['function'].'#'.$func['line'];
+			next($debug);
+		}
+		$content = implode(' < ', $content);
+		return $content;
+	}
+
+	/**
+	 * Renders the list of queries accumulated
+	 * @return string
+	 */
+	function dumpQueries() {
+		$q = $this->QUERIES;
+		arsort($q);
+		foreach ($q as $query => &$time) {
+			$times = $this->QUERYMAL[$query];
+			$time = array(
+				'times' => $times,
+				'query' => $query,
+				'time' => number_format($time, 3),
+				'time/1' => number_format($time/$times, 3),
+				'func' => $this->QUERYFUNC[$query],
+			);
+		}
+		$q = new slTable($q, 'class="view_array" width="1024"', array(
+			'times' => 'Times',
+			'time' => array(
+				'name' => 'Time',
+				'align' => 'right',
+			),
+			'time/1' => array(
+				'name' => 'Time/1',
+				'align' => 'right',
+			),
+			'query' => 'Query',
+			'func' => 'Caller',
+		));
+		$q->isOddEven = false;
+		$content = '<div class="profiler">'.$q.'</div>';
+		return $content;
+	}
+
+	/**
+	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
+	 * @param string $source
+	 * @return float
+	 */
+	function getMoney($source = '$1,234.56') {
+		$source = str_replace('$', '', $source);
+		$source = str_replace(',', '', $source);
+		$source = floatval($source);
+		return $source;
+	}
+
+	function getIndexesFrom($table) {
+		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
 	}
 
 }

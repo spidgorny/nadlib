@@ -20,7 +20,9 @@ class Debug {
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 
-		if (isset($_SERVER['argc'])) {
+		//print_r(array($_SERVER['argc'], $_SERVER['argv']));
+		//if (isset($_SERVER['argc'])) {
+		if (Request::isCLI()) {
 			foreach ($db as $row) {
 				$trace[] = self::getMethod($row);
 			}
@@ -64,6 +66,7 @@ class Debug {
 		}
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		$pb = new ProgressBar();
+		$pb->destruct100 = false;
 		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'inline');
 		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
 		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
@@ -132,7 +135,7 @@ class Debug {
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
 				$type = gettype($r);
-				$type = gettype($r) == 'object' ? get_class($r) : $type;
+				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
 				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
 				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
 				$content .= '<tr>
@@ -194,7 +197,7 @@ class Debug {
 	 * @param int $limit
 	 * @return string
 	 */
-	function getBackLog($limit = 5) {
+	static function getBackLog($limit = 5) {
 		$debug = debug_backtrace();
 		array_shift($debug);
 		$content = array();

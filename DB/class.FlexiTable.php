@@ -39,7 +39,10 @@ class FlexiTable extends OODBase {
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
-		return parent::update($row);
+		$tempMtime = $this->data['mtime'];
+		$res = parent::update($row);	// calls $this->init($id) to update data
+		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
+		return $res;
 	}
 
 	function findInDB(array $where, $orderby = '') {
@@ -59,12 +62,12 @@ class FlexiTable extends OODBase {
 	}
 
 	function fetchColumns($force = false) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		if (!self::$tableColumns[$this->table] || $force) {
 			self::$tableColumns[$this->table] = $this->db->getTableColumns($this->table);
 		}
 		$this->columns = self::$tableColumns[$this->table];
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
 	function checkCreateTable() {
@@ -123,6 +126,8 @@ class FlexiTable extends OODBase {
 					// didn't unzip - then it's plain text
 					$uncompressed = $this->data[$field];
 					$info['uncompress'] = 'Not necessary';
+				} else {
+					$info['uncompress'] = 'Uncompressed';
 				}
 				$this->data[$field] = $uncompressed;
 				$info['first'] = $this->data[$field]{0};
