@@ -36,9 +36,6 @@ class MySQL {
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = $db;
-        if (!function_exists('mysql_pconnect')) {
-            throw new Exception('MySQL PHP extension not enabled');
-        }
 		if ($this->db) {
 			$this->connect($host, $login, $password);
 		}
@@ -49,7 +46,6 @@ class MySQL {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//echo __METHOD__.'<br />';
 		//ini_set('mysql.connect_timeout', 3);
-
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
