@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class MySQL
+ * @mixin SQLBuilder
+ */
 class MySQL {
 
 	/**

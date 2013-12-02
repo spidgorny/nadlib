@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class dbLayer
+ * @mixin SQLBuilder
+ */
 class dbLayer {
 	var $RETURN_NULL = TRUE;
 	var $CONNECTION = NULL;
