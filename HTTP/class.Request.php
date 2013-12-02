@@ -300,13 +300,14 @@ class Request {
 				$last = $class.'Controller';
 				break;
 			}
-			if (class_exists($class) &&
-				//$class instanceof spidgorny\nadlib\Controller\Controller
-				is_readable('class/class.'.$class.'.php')	// workaround as the commented line above is not working
+			if (class_exists($class) //&&
+				//$class instanceof spidgorny\nadlib\Controller\Controller // workaround is not working
+				//is_readable('class/class.'.$class.'.php')	// doesn't work for Lesser
 			) {
 				$last = $class;
 				break;
 			}
+			debug($class, class_exists($class));
 		}
 		$controller = $last;
 		if (!$controller) {
