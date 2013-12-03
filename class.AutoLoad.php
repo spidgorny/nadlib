@@ -39,7 +39,7 @@ class AutoLoad {
 	 */
 	public $config;
 
-	protected $nadlibRoot = 'vendor/spidgorny/nadlib/';
+	public $nadlibRoot = 'vendor/spidgorny/nadlib/';
 
 	/**
 	 * getFolders() is called from outside
@@ -178,11 +178,11 @@ class AutoLoad {
 
 
 			if (file_exists($file)) {
-				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />';
+				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />'."\n";
 				include_once($file);
 				$this->classFileMap[$classFile] = $file;
 			} else {
-				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span><br />';
+				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span><br />'."\n";
 			}
 
 			$debug[] = $debugLine;
