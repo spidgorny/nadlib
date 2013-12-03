@@ -333,7 +333,7 @@ class Request {
 	 * Returns the full URL to the document root of the current site
 	 * @return string
 	 */
-	function getLocation() {
+	static function getLocation() {
 		$docRoot = dirname($_SERVER['PHP_SELF']);
 		if (strlen($docRoot) == 1) {
 			$docRoot = '/';
