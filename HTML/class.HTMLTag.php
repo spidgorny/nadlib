@@ -18,7 +18,9 @@ class HTMLTag {
 	}
 
 	function __toString() {
-		$content = $this->isHTML ? $this->content : htmlspecialchars($this->content, ENT_QUOTES);
+		$content = ($this->isHTML || $this->content instanceof HTMLTag)
+			? $this->content
+			: htmlspecialchars($this->content, ENT_QUOTES);
 		return '<'.$this->tag.' '.$this->renderAttr($this->attr).'>'.$content.'</'.$this->tag.'>';
 	}
 
