@@ -45,6 +45,7 @@ function initNADLIB() {
 	// commented as otherwise /nadlib/be/config.yaml can't be loaded when cookie debug = 0
 }
 
+if (!function_exists('debug')) {
 function debug($a) {
 	$params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
@@ -52,6 +53,7 @@ function debug($a) {
 	} else {
 		echo '<pre>'.htmlspecialchars(print_r($params, true)).'</pre>';
 	}
+}
 }
 
 function nodebug() {
