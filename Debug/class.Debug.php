@@ -27,7 +27,7 @@ class Debug {
 				$trace[] = self::getMethod($row);
 			}
 			echo '---'.implode(' // ', $trace)."\n";
-			print_r($a);
+			var_dump($a);
 			echo "\n";
 		} else if ($_COOKIE['debug']) {
 			$content = self::renderHTMLView($db, $a, $levels);

@@ -3,7 +3,7 @@
 class BijouDBConnector {
 
 	/**
-	 * @var t3lib_DB
+	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
 	 */
 	protected $t3db;
 	
@@ -207,6 +207,10 @@ class BijouDBConnector {
 
 	function dataSeek($res, $i) {
 		return $this->t3db->sql_data_seek($res, $i);
+	}
+
+	function free($res) {
+		return $this->t3db->sql_free_result($res);
 	}
 
 }
