@@ -13,7 +13,7 @@ class SQLIn extends SQLWherePart {
 		if (!$field) {
 			debug_pre_print_backtrace();
 		}
-		return $field ." IN ('".implode("', '", $this->list)."')";
+		return $field ." IN (".implode(", ", $qb->quoteValues($this->list)).")";
 	}
 
 }

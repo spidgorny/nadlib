@@ -2,6 +2,7 @@
 	position: fixed;
 	bottom: 0;
 	right: 0;
+	opacity: 0.75;
 }
 .floatTime {
     border-top-left-radius: 5px;
@@ -11,4 +12,12 @@
     color: #FFF4A7;
     width: auto;
     padding: 0.5em;
+}
+.profiler {
+	opacity: 0.75;
+	background-color: #22221F;
+	margin: 1em;
+	padding: 1em;
+	color: white;
+	margin-top: 50px;   /* footer */
 }

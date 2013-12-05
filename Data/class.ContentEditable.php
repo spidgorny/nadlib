@@ -28,18 +28,21 @@ class ContentEditable {
 	}
 
 	function getHeader() {
-		$content = '';
-		Index::getInstance()->addJQuery();
-		Index::getInstance()->addJQueryUI();
-		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/rangy-core-1.2.3.js"></script>';
-		$content .= '<script src="vendor/bergie/create-gh-pages/js/deps/hallo.js"></script>';
-		$content .= '<script src="nadlib/js/contentEditable.js"></script>';
-		Index::getInstance()->footer[__CLASS__] = $content;
-		return $content;
+		$index = Index::getInstance();
+		$index->addJQuery();
+		$index->addJQueryUI();
+		$index->addJS("components/rangy/rangy-core.js");
+		if (DEVELOPMENT) {
+			$index->addJS("components/hallo/hallo.js");
+		} else {
+			$index->addJS("components/hallo/hallo.min.js");
+		}
+		$index->addJS("vendor/spidgorny/nadlib/js/contentEditable.js");
 	}
 
 	function store() {
-		file_put_contents($this->filename, $this->content);
+		$html = html_entity_decode($this->content);
+		file_put_contents($this->filename, $html);
 		//echo __METHOD__.': '.$this->content.'<br />'."\n";
 	}
 
@@ -48,7 +51,7 @@ class ContentEditable {
 	}
 
 	function __toString() {
-		return nl2br($this->content);
+		return ($this->content);	// don't add nl2br()
 	}
 
 	/**
@@ -57,9 +60,9 @@ class ContentEditable {
 	 * @return string
 	 */
 	function render($saveURL) {
-		$content = '<div class="editable" data-save-url="'.$saveURL.$this->file.'">
-			'.$this->__toString().'
-		</div>';
+		$content = '<div class="editable" data-save-url="'.$saveURL.urlencode($this->file).'">'.
+			$this->__toString().
+		'</div>';
 		return $content;
 	}
 

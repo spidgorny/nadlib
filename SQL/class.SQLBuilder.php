@@ -281,7 +281,7 @@ class SQLBuilder {
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
-			return intval($value); // MySQL specific
+			//return intval($value); // MySQL specific
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -310,7 +310,7 @@ class SQLBuilder {
 	function quoteValues(array $a) {
 		$c = array();
 		foreach($a as $key => $b) {
-			$c[] = SQLBuilder::quoteSQL($b);
+			$c[] = SQLBuilder::quoteSQL($b, $key);
 		}
 		return $c;
 	}
@@ -342,13 +342,21 @@ class SQLBuilder {
 				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 				//	$set[] = $val.'';
 				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
-					$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
+					if (strpos($val, '###FIELD###') !== FALSE) {
+						$val = str_replace('###FIELD###', $key, $val);
+						$set[] = $val;
+					} else {
+						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
+					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working
+				} else if ($val === 'NOTNULL') {
+					$set[] = "$key IS NOT NULL";
+				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
+                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
-					$set[] = "$key $sign $val";
+					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
 				} else if (is_numeric($key)) {
@@ -367,6 +375,7 @@ class SQLBuilder {
 					$or->injectQB($this);
 					$set[] = $or;
 				} else {
+					//debug_pre_print_backtrace();
 					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
 				}
@@ -385,7 +394,7 @@ class SQLBuilder {
 		$values = $this->quoteValues($values);
 		$values = implode(", ", $values);
 
-		$q = "insert into ".$this->quoteKey($table)." ($set) values ($values)";
+		$q = "INSERT INTO ".$this->quoteKey($table)."\n($set)\nVALUES ($values)";
 		return $q;
 	}
 
@@ -404,23 +413,24 @@ class SQLBuilder {
 
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
-		$q = "update $table set ";
+		$q = "UPDATE $table\nSET ";
 		$set = $this->quoteLike($columns, '$key = $val');
-		$q .= implode(", ", $set);
+		$q .= implode(",\n", $set);
 		$q .= "\nWHERE\n";
-		$q .= implode(" and ", $this->quoteWhere($where));
+		$q .= implode("\nAND ", $this->quoteWhere($where));
 		return $q;
 	}
 
 	function getFirstWord($table) {
 		$table1 = explode(' ', $table);
-		$table1 = $table1[0];
-		return $table1;
+		$table0 = $table1[0];
+		//debug($table, $table1, $table0);
+		return $table0;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
+	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
-		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
 		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
@@ -430,17 +440,17 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
+	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
-		$select = $exclusiveAdd ? $addSelect : $this->quoteKey($table1).".* ".$addSelect;
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
 		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$q .= $where->__toString();
 		$q .= "\n".$order;
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array()) {
-		$q = "DELETE FROM $table ";
+	function getDeleteQuery($table, $where = array(), $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);
@@ -454,7 +464,10 @@ class SQLBuilder {
 		return array();
 	}
 
-	function array_intersect($array, $field) {
+	/**
+	 * 2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	 */
+	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
 
@@ -462,24 +475,29 @@ class SQLBuilder {
 		if (sizeof($array)) {
 			$or = array();
 			foreach ($array as $langID) {
-				$or[] = "'" . $langID . "' = ANY(string_to_array(".$field.", ','))";
+				//2010/09/12: modified according to mantis request 0001812	- if/else condition for 4th argument added
+				if ($conditioner == 'ANY') {
+					$or[] = "'" . $langID . "' = ANY(string_to_array(".$field.", ','))"; // this line is the original one
+				} else {
+					$or[] = "'" . $langID . "' = ".$field." ";
+				}
 			}
-			$content = '('.implode(' OR ', $or).')';
+			$content = '('.implode(' '.$joiner.' ', $or).')';
 		} else {
 			$content = ' 1 = 1 ';
 		}
 		return $content;
 	}
 
-	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '', $exclusiveAdd = FALSE) {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect, $exclusiveAdd);
+	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '') {
+		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
 		return $res;
 	}
 
-	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '', $exclusiveAdd = FALSE) {
-		$query = $this->getSelectQuerySW($table, $where, $order, $addSelect, $exclusiveAdd);
+	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '') {
+		$query = $this->getSelectQuerySW($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
 		return $res;
@@ -508,8 +526,8 @@ class SQLBuilder {
 	 * Inserts only if not yet found.
 	 *
 	 * @param $table
-	 * @param $fields
-	 * @return
+	 * @param array $fields
+	 * @return resource
 	 */
 	function runInsertNew($table, array $fields) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -537,8 +555,8 @@ class SQLBuilder {
 		return $authorID;
 	}
 
-	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '', $exclusiveAdd = FALSE) {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect, $exclusiveAdd);
+	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '') {
+		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		$data = $this->db->fetchAll($this->db->perform($query));
 		return $data;
 	}
@@ -611,7 +629,7 @@ class SQLBuilder {
 			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
 			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
 			true);
-		//d($this->db->lastQuery, $this->db->numRows($res), $idField);
+		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
 		if ($idField) {
 			$data = $this->fetchAll($res, 'id_field');
 		} else {
