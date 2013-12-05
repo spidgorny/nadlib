@@ -2,11 +2,25 @@
 
 class slTableValue {
 	var $value = NULL;
+
+	/**
+	 * @var array
+	 */
 	var $desc = array(
 //		'hsc' => TRUE,
 	);
 
-	function __construct($value, $desc = array()) {
+	/**
+	 * @var MySQL|dbLayer
+	 */
+	var $db;
+
+	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
+	public $SLTABLE_IMG_CHECK = '☑';
+	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
+	public $SLTABLE_IMG_CROSS = '☐';
+
+	function __construct($value, array $desc = array()) {
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
 			//debugster(array($value, $value->desc, '+', $desc, '=', (array)$value->desc + $desc));
@@ -14,6 +28,9 @@ class slTableValue {
 		}
 		$this->value = $value;
 		$this->desc += (array)$desc;
+		if (class_exists('Config')) {
+			$this->db = Config::getInstance()->db;
+		}
 	}
 
 /*	function render() {
@@ -50,18 +67,20 @@ class slTableValue {
 				//debug($k + array('val' => $val));
 				if ($val) {
 					$what = $k['title'] ? $k['title'] : $col;
+					$id = $k['idField'] ? $k['idField'] : 'id';
 					if (!isset($k['options'])) {
-						$options = $this->db->fetchSelectQuery($k['from'], array($k['idField'] => $val));
-						$options = AP($options)->IDalize()->column($what)->getData();
-						$out = $options[$val];
-					} else if ($k['set']) {
-						//debug($val);
-						$list = explode(',', $val);
-						$out = array();
-						foreach ($list as $val) {
-							$out[] = $GLOBALS['dbLayer']->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
+						if ($k['set']) {
+							$list = trimExplode(',', $val);
+							$out = array();
+							foreach ($list as $val) {
+								$out[] = $this->db->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
+							}
+							$out = implode(', ', $out);
+						} else if ($k['from']) {
+							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val));
+							$options = ArrayPlus::create($options)->IDalize($id)->column($what)->getData();
+							$out = $options[$val];
 						}
-						$out = implode(', ', $out);
 					} else {
 						$options = $k['options'];
 						$out = $options[$val];
@@ -79,7 +98,7 @@ class slTableValue {
 			break;
 			case "sqltime":
 				if ($val) {
-					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
+					$val = strtotime(substr($val, 0, 16)); // cut milliseconds
 					$out = date($k['format'], $val);
 				} else {
 					$out = '';
@@ -94,13 +113,17 @@ class slTableValue {
 				}
 			break;
 			case "file":
-				$out = str::ahref($val, $GLOBALS['uploadURL'].$val, FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => $GLOBALS['uploadURL'].$val,
+				), $val);
 			break;
 			case "money":
 				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
 			break;
 			case "delete":
-				$out = str::ahref("Del", "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'], FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'],
+				), "Del");
 			break;
 			case "datatable":
 				//$out .= t3lib_div::view_array(array('col' => $col, 'val' => $val, 'desc' => $k));
@@ -126,7 +149,9 @@ class slTableValue {
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
 				if ($row[$col.'.link']) {
-					$out = str::ahref($img, $row[$col.'.link'], FALSE);
+					$out = new HTMLTag('a', array(
+						'href' => $row[$col.'.link'],
+					), $img);
 				} else {
 					$out = $img;
 				}
@@ -184,6 +209,7 @@ class slTableValue {
 					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
 						$val = nl2br($val);
+						$k['no_hsc'] = true; 	// for below
 					}
 					if (is_object($val)) {
 						if (method_exists($val, 'getName')) {
@@ -192,6 +218,15 @@ class slTableValue {
 					}
 					if ($k['no_hsc']) {
 						$out = $val;
+					} else if ($val instanceof htmlString) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLTag) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLDate) {
+						$out = $val.'';
+					} elseif (is_array($val)) {
+						debug($val);
+						$out = 'Array';
 					} else {
 						$out = htmlspecialchars($val);
 					}
@@ -199,7 +234,14 @@ class slTableValue {
 			break;
 		}
 		if ($k['wrap']) {
-			$out = str_replace('|', $out, $k['wrap']);
+			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
+			$out = $wrap->wrap($out);
+		}
+		if ($k['link']) {
+			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+		}
+		if (isset($k['round']) && $out) {
+			$out = number_format($out, $k['round'], '.', '');
 		}
 		return $out;
 	}

@@ -7,7 +7,7 @@ class Markdown extends View {
 			? $this->file
 			: $this->folder.$this->file;
 		$contents = file_get_contents($file);
-		include_once dirname(__FILE__).'/../vendor/PHP Markdown 1.0.1o/markdown.php';
+		include_once dirname(__FILE__) . '/../vendor/PHP Markdown 1.0.1o/markdown.php';
 		if (function_exists('Markdown')) {
 			$html = Markdown($contents);
 		}

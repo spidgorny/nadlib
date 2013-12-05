@@ -45,6 +45,7 @@ abstract class HTMLFormProcessor extends AppController {
 	 * Who's gonna call this function? Index?
 	 */
 	function postInit() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->desc = $this->getDesc();
 		$this->form = $this->getForm();
 		//debug($this->desc);
@@ -57,16 +58,19 @@ abstract class HTMLFormProcessor extends AppController {
 			$this->form->importValues($subRequest);
 			$this->desc = $this->form->desc;
 			//debug($this->form->desc);
-			$this->validator = new HTMLFormValidate($this->desc);
+			$this->validator = new HTMLFormValidate($this->form);
 			$this->validated = $this->validator->validate();
 			$this->desc = $this->validator->getDesc();
 			$this->form->desc = $this->desc;
 		} else {
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 			//debug($this->default);
-			$this->form->importValues($this->default instanceof Request ? $this->default : new Request($this->default));
+			$this->form->importValues($this->default instanceof Request
+				? $this->default
+				: new Request($this->default));
 			$this->desc = $this->form->desc;
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	abstract function getDesc();
@@ -76,7 +80,11 @@ abstract class HTMLFormProcessor extends AppController {
 	 * @return HTMLFormTable
 	 */
 	function render() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '';
+		if (!$this->form) {
+			$this->postInit();
+		}
 		//debug($this->validated);
 		//$errors = AP($this->desc)->column('error')->filter()->getData();
 		//debug($errors);
@@ -93,10 +101,12 @@ abstract class HTMLFormProcessor extends AppController {
 			$content .= $this->showForm();
 		}
 		$content = $this->encloseInAA($content, $this->title);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
 	function getForm(HTMLFormTable $preForm = NULL) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$f = $preForm ? $preForm : new HTMLFormTable($this->desc);
 		if ($this->ajax) {
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
@@ -104,15 +114,21 @@ abstract class HTMLFormProcessor extends AppController {
 		$f->method('POST');
 		$f->hidden('c', $this->prefix);
 		$f->hidden('ajax', $this->ajax);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $f;
 	}
 
 	function showForm() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (!$this->form) {
+			throw new Exception(__METHOD__.': initialize form with getForm()');
+		}
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
-		$this->form->submit($this->submitButton, '', array('class' => 'btn'));
-		return $this->form;
+		$this->form->submit($this->submitButton, array('class' => 'btn btn-success'));
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $this->form->getContent();
 	}
 
 	function __toString() {

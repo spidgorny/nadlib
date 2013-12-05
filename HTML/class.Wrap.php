@@ -10,17 +10,28 @@ class Wrap {
 		} else {
 			list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
 		}
+		//$db = Config::getInstance()->db;
+		//echo __METHOD__.' '.$db->getCaller(3).' '.$this->__toString().'<br />'."\n";
 	}
 
 	function __toString() {
-		return 'Wrap Object';
+		return 'Wrap Object ('.strlen($this->wrap1).', '.strlen($this->wrap2).')';
+	}
+
+	function debug() {
+		return $this->__toString();
 	}
 
 	function wrap($str) {
 		return $this->wrap1.$str.$this->wrap2;
 	}
 
-	static function make($w1, $w2) {
+	/**
+	 * @param $w1
+	 * @param $w2
+	 * @return Wrap
+	 */
+	static function make($w1, $w2 = '') {
 		return new self($w1, $w2);
 	}
 

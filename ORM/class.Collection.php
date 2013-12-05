@@ -5,6 +5,7 @@
  * or array of OODBase based objects.
  *
  */
+ /*abstract*/ // commented because of createForTable()
 class Collection {
 	/**
 	 *
@@ -52,15 +53,22 @@ class Collection {
 
 	/**
 	 * objectify() stores objects generated from $this->data here
+	 * array of objects converted from $this->data // convert to public
 	 * @var array
 	 */
 	public $members = array();
 
 	/**
+	 * objectify() without parameters will try this class name
+	 * @var string
+	 */
+	protected $itemClassName = 'OODBase?';
+
+	/**
 	 * SQL part
 	 * @var string
 	 */
-	public $orderBy = "uid";
+	public $orderBy = "ORDER BY id";
 
 	/**
 	 * getQuery() stores the final query here for debug
@@ -88,6 +96,7 @@ class Collection {
 	/**
 	 * Lists columns for the SQL query
 	 * @var string
+	 * @default "DISTINCT table.*"
 	 */
 	public $select;
 
@@ -95,6 +104,9 @@ class Collection {
 		'class' => "nospacing",
 		'width' => "100%",
 	);
+
+	public $prevText = '&#x25C4;';
+	public $nextText = '&#x25BA;';
 
 	/**
 	 * @var Controller
@@ -114,14 +126,17 @@ class Collection {
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
+
 		if (is_array($where)) {
 			$this->where += $where;
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
+
 		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
+		$this->postInit();
 
 		// should be dealt with by the Controller
 		/*$sortBy = $this->request->getSubRequest('slTable')->getCoalesce('sortBy', $this->orderBy);
@@ -131,7 +146,8 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0) {	// -1 will not retrieve
+		//debug($this->parentField, $this->parentID, $this->where);
+		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -143,31 +159,65 @@ class Collection {
 
 	function postInit() {
 		//$this->pager = new Pager();
-		$index = Index::getInstance();
-		$this->controller = &$index->controller;
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$this->controller = &$index->controller;
+		}
 		//debug(get_class($this->controller));
 	}
 
 	/**
 	 * -1 will prevent data retrieval
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
 	 */
-	function retrieveDataFromDB($allowMerge = false) {
+	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		//debug($this->where);
 		$this->query = $this->getQuery($this->where);
+		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$this->count = $this->db->numRows($res);
 		}
+		//debug($this->table, $this->query, $this->count, $prof->elapsed());
+
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
-		$this->preprocessData();
+		if ($preprocess) {
+			$this->preprocessData();
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
-	function getQuery(/*array*/ $where = NULL) {
+	/**
+	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
+	 */
+	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
+		$this->query = $this->getQuery($this->where);
+		$fc = new MemcacheFile();
+		$cached = $fc->get($this->query, 60*60);	// 1h
+		if ($cached && sizeof($cached) == 2) {
+			list($this->count, $this->data) = $cached;
+			$action = 'found in cache, age: '.$fc->getAge($this->query);
+		} else{
+			$this->retrieveDataFromDB($allowMerge, $preprocess);
+			$fc->set($this->query, array($this->count, $this->data));
+			$action = 'no cache, retrieve, store';
+		}
+		if ($_REQUEST['d']) {
+			debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
+		}
+	}
+
+	/**
+	 * @param array/SQLWhere $where
+	 * @return string
+	 */
+	function getQuery($where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;
@@ -175,11 +225,18 @@ class Collection {
 		if ($this->parentID > 0) {
 			$where[$this->parentField] = $this->parentID;
 		}
+		// bijou old style - each collection should care about hidden and deleted
+		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
 		$qb = Config::getInstance()->qb;
 		if ($where instanceof SQLWhere) {
 			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
-			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
+			$query = $qb->getSelectQuery  (
+				$this->table.' '.$this->join,
+				$where,
+				$this->orderBy,
+				$this->select,
+				TRUE);
 		}
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
@@ -203,23 +260,30 @@ class Collection {
 		return $row;
 	}
 
+	/**
+	 * @return slTable|string - returns the slTable if not using Pager
+	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
-			if ($this->pager) {
-				$url = new URL();
-				$pages = $this->pager->renderPageSelectors($url);
-			}
 			//debug($this->tableMore);
 			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
 			$s->thes($this->thes);
 			$s->ID = get_class($this);
 			$s->sortable = $this->useSorting;
-			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
-			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL('', Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
-			$content = $pages . $s->getContent(get_class($this)) . $pages;
+			if (class_exists('Index')) {
+				$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+				//debug(Index::getInstance()->controller);
+				$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			}
+			if ($this->pager) {
+				$url = new URL();
+				$pages = $this->pager->renderPageSelectors($url);
+				$content = $pages . $s->getContent(get_class($this)) . $pages;
+			} else {
+				$content = $s;
+			}
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
@@ -241,12 +305,17 @@ class Collection {
 
 	function getOptions() {
 		$options = array();
+		//debug(get_class($this), $this->titleColumn);
 		foreach ($this->data as $row) {
 			$options[$row[$this->idField]] = $row[$this->titleColumn];
 		}
 		return $options;
 	}
 
+	/**
+	 * @param array $where
+	 * @return mixed - single row
+	 */
 	function findInData(array $where) {
 		//debug($where);
 		//echo new slTable($this->data);
@@ -257,6 +326,22 @@ class Collection {
 				return $row;
 			}
 		}
+	}
+
+	/**
+	 * @param array $where
+	 * @return array - of matching rows
+	 */
+	function findAllInData(array $where) {
+		$result = array();
+		foreach ($this->data as $row) {
+			$intersect1 = array_intersect_key($row, $where);
+			$intersect2 = array_intersect_key($where, $row);
+			if ($intersect1 == $intersect2) {
+				$result[] = $row;
+			}
+		}
+		return $result;
 	}
 
 	function renderList() {
@@ -278,8 +363,14 @@ class Collection {
 	 */
 	function renderMembers() {
 		$content = '';
-		foreach ($this->members as $obj) {
-			$content .= $obj."\n";
+		//debug(sizeof($this->members));
+		foreach ($this->members as $key => $obj) {
+			//debug($i++, (strlen($content)/1024/1024).'M');
+			if (is_object($obj)) {
+				$content .= $obj->render()."\n";
+			} else {
+				$content .= getDebug(__METHOD__, $key, $obj);
+			}
 		}
 		return $content;
 	}
@@ -290,6 +381,22 @@ class Collection {
 				$trans = __($trans);
 			}
 		}
+		$this->prevText = __($this->prevText);
+		$this->nextText = __($this->nextText);
+	}
+
+	/**
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return Collection
+	 */
+	static function createForTable($table, array $where = array(), $orderBy = '') {
+		$c = new self(-1);
+		$c->table = $table;
+		$c->where = $where;
+		$c->orderBy = $orderBy;
+		return $c;
 	}
 
 	/**
@@ -299,11 +406,13 @@ class Collection {
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class = '', $byInstance = false) {
+	function objectify($class = NULL, $byInstance = false) {
+		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->data as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
+					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
 					$this->members[$key] = call_user_func($class.'::getInstance', $row);
 				} else {
 					$this->members[$key] = new $class($row);
@@ -322,24 +431,26 @@ class Collection {
 	 */
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
-			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
-			'align' => "right",
+			'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
+            'align' => "center",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
 		foreach ($this->data as &$row) {
 			$id = $row[$this->idField];
-			$checked = $_SESSION[$class][$id] ? 'checked' : '';
-			$row['checked'] = '<input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' />';
+			$checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
+			$row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
 		}
 	}
 
 	function showFilter() {
 		if ($this->filter) {
 			$f = new HTMLFormTable();
+			$f->method('GET');
+			$f->defaultBR = true;
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', '', array('class' => 'btn-primary'));
+			$f->submit('Filter', array('class' => 'btn btn-primary'));
 			$content = $f->getContent();
 		}
 		return $content;
@@ -411,11 +522,17 @@ class Collection {
 		}*/
 
 	/**
+	 * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
+	 *
+	 * If pager is used then it tries to retrieve page before and after to make sure that first and last
+	 * elements on the page still have prev and next elements. But it's SLOW!
+	 *
 	 * @param OODBase $model
 	 * @return string
 	 */
 	function getNextPrevBrowser(OODBase $model) {
 		if ($this->pager) {
+			//$this->pager->debug();
 			if ($this->pager->currentPage > 0) {
 				$copy = clone $this;
 				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
@@ -426,7 +543,10 @@ class Collection {
 				$prevData = array();
 			}
 
-			if ($this->pager->currentPage < $this->pager->getMaxPage()) {
+			$pageKeys = array_keys($this->data);
+			if ($this->pager->currentPage < $this->pager->getMaxPage() &&
+				end($pageKeys) == $model->id	// last element on the page
+			) {
 				$copy = clone $this;
 				$copy->pager->setCurrentPage($copy->pager->currentPage+1);
 				$copy->retrieveDataFromDB();
@@ -446,18 +566,23 @@ class Collection {
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
 		$ap = AP($data);
+		//debug($data);
 
 		$prev = $ap->getPrevKey($model->id);
 		if ($prev) {
-			$prev = $this->getNextPrevLink($data[$prev], '&#x25C4;');
+			$prev = $this->getNextPrevLink($data[$prev], $this->prevText);
+		} else {
+			$prev = '<span class="muted">'.$this->prevText.'</span>';
 		}
 
 		$next = $ap->getNextKey($model->id);
 		if ($next) {
-			$next = $this->getNextPrevLink($data[$next], '&#x25BA;');
+			$next = $this->getNextPrevLink($data[$next], $this->nextText);
+		} else {
+			$next = '<span class="muted">'.$this->nextText.'</span>';
 		}
 
-		$content = $prev.' '.$model->getName().' '.$next;
+		$content = $this->renderPrevNext($prev, $model, $next);
 
 		// switch page for the next time
 		if (isset($prevData[$model->id])) {
@@ -472,7 +597,13 @@ class Collection {
 		return $content;
 	}
 
-	protected function getNextPrevLink($prev, $arrow) {
+	/**
+	 * Override to make links from different type of objects
+	 * @param $prev
+	 * @param $arrow
+	 * @return HTMLTag
+	 */
+	protected function getNextPrevLink(array $prev, $arrow) {
 		if ($prev['singleLink']) {
 			$content = new HTMLTag('a', array(
 					'href' => $prev['singleLink'],
@@ -490,12 +621,35 @@ class Collection {
 		return $content;
 	}
 
+	protected function renderPrevNext($prev, $model, $next) {
+		return $prev.' '.$model->getName().' '.$next;
+	}
+
 	function getObjectInfo() {
 		$list = array();
 		foreach ($this->members as $obj) {	/** @var $obj OODBase */
 			$list[] = $obj->getObjectInfo();
 		}
 		return $list;
+	}
+
+	function getLazyIterator() {
+		$query = $this->getQuery();
+
+		$di = new DIContainer();
+		$di->db = $this->db;
+
+		$lazy = new DatabaseResultIteratorAssoc($di, $this->idField);
+		$lazy->perform($query);
+
+		return $lazy;
+	}
+
+	function getLazyMemberIterator($class) {
+		$arrayIterator = $this->getLazyIterator();
+		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
+		$memberIterator->count = $arrayIterator->count();
+		return $memberIterator;
 	}
 
 }

@@ -7,4 +7,6 @@ syntax: glob
 \.conflict\~$
 bak/
 .idea
-
+vendor/
+be/cache/
+.hg_archival.txt
