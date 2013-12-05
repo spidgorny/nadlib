@@ -12,6 +12,9 @@ class BijouDBConnector {
 	 */
 	var $lastQuery;
 
+	/**
+	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
+	 */
 	function __construct(t3lib_DB $t3lib_DB = NULL) {
 		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
 	}
@@ -211,6 +214,10 @@ class BijouDBConnector {
 
 	function free($res) {
 		return $this->t3db->sql_free_result($res);
+	}
+
+	function lastInsertID() {
+		return $this->t3db->sql_insert_id();
 	}
 
 }
