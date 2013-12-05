@@ -87,9 +87,17 @@ class ConfigBase {
 		}
 
 		$this->documentRoot = Request::getDocumentRoot();
-		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		if (Request::isCLI()) {
+			$this->appRoot = getcwd();
+		} else {
+			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		}
+
+		//$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		//$appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $appRoot);
+
 		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
-		//debug(__FILE__, $this->documentRoot, $this->appRoot);
+		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
@@ -99,7 +107,6 @@ class ConfigBase {
 	}
 
 	/**
-	 *
 	 * @return Config
 	 */
 	public static function getInstance() {

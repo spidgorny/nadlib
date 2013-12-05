@@ -66,6 +66,9 @@ class InitNADLIB {
 
 }
 
+/**
+ * May already be defined in TYPO3
+ */
 if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
@@ -262,6 +265,12 @@ function eachv(array &$list) {
 	return $current;
 }
 
+/**
+ * @used FullGrid
+ * @param array $a
+ * @param array $b
+ * @return array
+ */
 function array_combine_stringkey(array $a, array $b) {
 	$ret = array();
 	reset($b);

@@ -156,8 +156,8 @@ class AutoLoad {
 
 	function findInFolders($classFile, $subFolders) {
 		$this->loadConfig();
-		$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
-		$appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $appRoot);
+		$appRoot = Config::getInstance()->appRoot;
+		printbr($appRoot);
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
@@ -174,8 +174,6 @@ class AutoLoad {
 					$file = $file2;
 				}
 			}
-
-
 
 			if (file_exists($file)) {
 				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />'."\n";
