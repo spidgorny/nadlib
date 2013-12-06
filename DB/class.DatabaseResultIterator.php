@@ -6,7 +6,17 @@
  */
 
 class DatabaseResultIterator implements Iterator, Countable {
+
+	/**
+	 * If defined it will influence the key() method return value
+	 * @var string
+	 */
 	var $defaultKey;
+
+	/**
+	 * Query result
+	 * @var resource
+	 */
 	var $dbResultResource;
 
 	/**
@@ -21,6 +31,11 @@ class DatabaseResultIterator implements Iterator, Countable {
 	 */
 	var $rows = 0;
 
+	/**
+	 * Will return the value of the current row corresponding to $this->defaulKey
+	 * or number 0, 1, 2, 3, ... otherwise
+	 * @var int
+	 */
 	var $key = 0;
 
 	/**
