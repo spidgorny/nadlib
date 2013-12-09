@@ -95,6 +95,7 @@ class AutoLoad {
 				$el = $this->nadlibRoot . $el;
 			}
 			if (class_exists('Config') && Config::$includeFolders) {
+				//d($folders, Config::$includeFolders);
 				$folders = array_merge($folders, Config::$includeFolders);
 			}
 		}

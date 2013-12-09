@@ -67,6 +67,7 @@ class ConfigBase {
 	public $config;
 
 	protected function __construct() {
+		//d(self::$includeFolders);
 		if ($this->db_database) {
 			try {
 				$this->db = new MySQL(
