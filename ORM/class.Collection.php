@@ -652,4 +652,15 @@ class Collection {
 		return $memberIterator;
 	}
 
+	public function getCount() {
+		$this->query = $this->getQuery($this->where);
+		$res = $this->db->perform($this->query);
+		if ($this->pager) {
+			$this->count = $this->pager->numberOfRecords;
+		} else {
+			$this->count = $this->db->numRows($res);
+		}
+		return $this->count;
+	}
+
 }

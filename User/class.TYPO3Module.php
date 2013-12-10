@@ -8,9 +8,14 @@
  * SessionUser -> PlainSessionUser -> User (app) -> UserBase -> OODBase
  */
 
-class TYPO3BEUser extends UserBase {
+class TYPO3Module extends UserBase {
 
 	protected $module;
+
+	/**
+	 * @var \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
+	 */
+	public $t3user;
 
 	function __construct($module) {
 		parent::__construct();

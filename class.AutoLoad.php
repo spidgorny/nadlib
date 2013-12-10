@@ -51,6 +51,21 @@ class AutoLoad {
 		//debug($this->folders);
 		require_once 'class.ConfigBase.php';
 
+		$relToNadlib = URL::getRelativePath($_SERVER['SCRIPT_FILENAME'], dirname(__FILE__));
+		if (false) {
+			echo '<pre>';
+			print_r(array(
+				$_SERVER['SCRIPT_FILENAME'],
+				getcwd(),
+				__FILE__,
+				$relToNadlib,
+				$this->nadlibRoot,
+			));
+			print_r($_SERVER);
+			echo '</pre>';
+		}
+		$this->nadlibRoot = $relToNadlib;
+
 		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
 		$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 

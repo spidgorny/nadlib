@@ -59,6 +59,9 @@ class BijouDBConnector {
 	}
 
 	function fetchAll($res, $key = 'uid') {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		$data = array();
 		while (($row = $this->fetchAssoc($res)) !== FALSE) {
 			$data[$row[$key]] = $row;
