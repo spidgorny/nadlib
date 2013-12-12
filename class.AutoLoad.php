@@ -50,6 +50,7 @@ class AutoLoad {
 		//$this->folders = $this->getFolders();
 		//debug($this->folders);
 		require_once 'class.ConfigBase.php';
+        require_once __DIR__.'/HTTP/class.URL.php';
 
 		$relToNadlib = URL::getRelativePath($_SERVER['SCRIPT_FILENAME'], dirname(__FILE__));
 		if (false) {
@@ -173,7 +174,7 @@ class AutoLoad {
 	function findInFolders($classFile, $subFolders) {
 		$this->loadConfig();
 		$appRoot = Config::getInstance()->appRoot;
-		printbr($appRoot);
+		//printbr($appRoot);
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
