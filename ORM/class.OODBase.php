@@ -446,4 +446,18 @@ abstract class OODBase {
 		return $c->getURL($params);
 	}
 
+	function getVarType($name) {
+		$r = new ReflectionClass($this);
+		$p = $r->getProperty($name);
+		$modifiers = $p->getModifiers();
+		$aModStr = Reflection::getModifierNames($modifiers);
+		$content = '@'.implode(' @', $aModStr);
+		$content .= ' '.gettype($this->$name);
+		switch (gettype($this->$name)) {
+			case 'array':  $content .= '['.sizeof($this->$name).']'; break;
+			case 'object': $content .= ' '.get_class($this->$name); break;
+		}
+		return $content;
+	}
+
 }
