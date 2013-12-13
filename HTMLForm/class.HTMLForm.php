@@ -218,7 +218,7 @@ class HTMLForm {
 
 	function file($name, array $desc = array()) {
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout .= $this->getInput("file", $name, '', $desc['more']);
+		$this->stdout .= $this->getInput("file", $name, '', $desc['more'], $desc['class']);
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
