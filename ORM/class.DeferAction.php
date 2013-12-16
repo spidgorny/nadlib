@@ -9,6 +9,7 @@ class DeferAction extends OODBase {
 	function __construct($queue) {
 		parent::__construct();
 		$this->queue = $queue;
+		//debug($this->table);
 	}
 
 	function put(Time $time, $object, array $constructor, $action, array $params) {
