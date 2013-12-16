@@ -10,7 +10,10 @@ LocalLang:
   indicateUntranslated: false
   editMode: false
 autoload:
-  notFoundException: true
+  notFoundException: false
 Config:
   defaultController: HomeBE
   timeLimit: 999
+BEUser:
+  acl:
+    Login: false

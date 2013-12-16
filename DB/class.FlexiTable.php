@@ -2,7 +2,7 @@
 
 class FlexiTable extends OODBase {
 	protected $columns = array();
-	protected $doCheck = true;
+	protected $doCheck = false;
 
 	/**
 	 * array(
@@ -33,13 +33,16 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		$row['mtime'] = new Time();
-		$row['mtime'] = $row['mtime']->format('Y-m-d H:i:s');
+		$mtime = new Time();
+		$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		$row['muser'] = Config::getInstance()->user->id;
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
-		return parent::update($row);
+		$tempMtime = $this->data['mtime'];
+		$res = parent::update($row);	// calls $this->init($id) to update data
+		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
+		return $res;
 	}
 
 	function findInDB(array $where, $orderby = '') {
@@ -58,20 +61,20 @@ class FlexiTable extends OODBase {
 		}
 	}
 
-	function fetchColumns() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".$this->db->getCaller(5));
-		if (!self::$tableColumns[$this->table]) {
+	function fetchColumns($force = false) {
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		if (!self::$tableColumns[$this->table] || $force) {
 			self::$tableColumns[$this->table] = $this->db->getTableColumns($this->table);
 		}
 		$this->columns = self::$tableColumns[$this->table];
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".$this->db->getCaller(5));
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
 	function checkCreateTable() {
 		$this->fetchColumns();
 		if (!$this->columns) {
 			$this->db->perform('CREATE TABLE '.$this->db->escape($this->table).' (id integer auto_increment, PRIMARY KEY (id))');
-			$this->fetchColumns();
+			$this->fetchColumns(true);
 		}
 	}
 
@@ -81,7 +84,7 @@ class FlexiTable extends OODBase {
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
 			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$qb->quoteKey($field).' '.$this->getType($value));
-			$this->fetchColumns();
+			$this->fetchColumns(true);
 		}
 	}
 
@@ -100,15 +103,20 @@ class FlexiTable extends OODBase {
 		return $type;
 	}
 
+	/**
+	 * Can't store large amount of data in MySQL column
+	 * Data may be either compressed - then we try to uncompress it
+	 * Or it may be XML, then we convert it to the SimpleXML object
+	 * Both operations take $this->data['field'] as a source
+	 * and save the result into $this->$field
+	 * @param bool $debug
+	 */
 	function expand($debug = false) {
 		static $stopDebug = false;
 		$this->fetchColumns();
-		if ($debug && !$stopDebug) {
-			debug($this->columns);
-			$stopDebug = true;
-		}
-		foreach ($this->columns as $field => $info) {
+		foreach ($this->columns as $field => &$info) {
 			if (in_array($info['Type'], array('blob', 'text')) && $this->data[$field]) {
+				$info['uncompress'] = 'try';
 				$uncompressed = $this->db->uncompress($this->data[$field]);
 				if (!$uncompressed) {
 					/*debug($info+array(
@@ -117,15 +125,27 @@ class FlexiTable extends OODBase {
 					)); exit();*/
 					// didn't unzip - then it's plain text
 					$uncompressed = $this->data[$field];
+					$info['uncompress'] = 'Not necessary';
+				} else {
+					$info['uncompress'] = 'Uncompressed';
 				}
 				$this->data[$field] = $uncompressed;
+				$info['first'] = $this->data[$field]{0};
 				if ($this->data[$field]{0} == '<') {
 					//$uncompressed = html_entity_decode($uncompressed, ENT_QUOTES, "utf-8");
 					$this->$field = @simplexml_load_string($uncompressed);
-				} else if ($this->data[$field]{0} == '{') {
+					unset($this->data[$field]);
+					$info['unxml'] = 'true';
+				} elseif ($this->data[$field]{0} == '{') {
 					$this->$field = json_decode($uncompressed, false);	// make it look like SimpleXML
+					unset($this->data[$field]);
+					$info['unjson'] = 'true';
 				}
 			}
+		}
+		if ($debug && !$stopDebug) {
+			debug($this->table, $this->columns);
+			$stopDebug = true;
 		}
 		unset($this->data['xml']);
 		unset($this->data['xml2']);

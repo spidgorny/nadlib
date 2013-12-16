@@ -1,11 +1,27 @@
 <?php
 
-class uTestBase extends Controller {
+class uTestBase extends AppControllerBE {
 	protected $start;
 	protected $stat = array();			// true/false counter
 
 	function render() {
-		$content = '
+		$content = '<style>
+	body, td {
+		font-size: 9pt;
+	}
+	.contentContainer .contentLeft {
+		display: none;
+	}
+	.contentContainer .content {
+		float: none;
+		width: auto;
+	}
+	.contentContainer .widthFix {
+		width: auto;
+		overflow: visible;
+	}
+</style>';
+		$content .= '
 		<table class="nospacing">
 		<tr>
 			<!--th>File</th-->
@@ -96,21 +112,3 @@ class uTestBase extends Controller {
 	}
 
 }
-
-?>
-<style>
-	body, td {
-		font-size: 9pt;
-	}
-	.contentContainer .contentLeft {
-		display: none;
-	}
-	.contentContainer .content {
-		float: none;
-		width: auto;
-	}
-	.contentContainer .widthFix {
-		width: auto;
-		overflow: visible;
-	}
-</style>

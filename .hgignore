@@ -7,4 +7,5 @@ syntax: glob
 \.conflict\~$
 bak/
 .idea
-
+vendor/
+be/cache/

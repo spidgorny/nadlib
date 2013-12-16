@@ -6,40 +6,51 @@ class ServerStat extends AppControllerBE {
 	var $COUNTQUERIES = 0;
 	var $totalTime;
 
+	/**
+	 * @var Config
+	 */
+	var $config;
+
 	function __construct($start_time = NULL, $LOG = array(), $COUNTQUERIES = 0) {
 		parent::__construct();
 		$this->start_time = $start_time ? $start_time : $_SERVER['REQUEST_TIME'];
 		$this->LOG = $LOG;
 		$this->COUNTQUERIES = $COUNTQUERIES;
+		$this->config = Config::getInstance();
 	}
 
 	function render() {
+		$this->index->addJS('vendor/spidgorny/nadlib/be/js/main.js');
 		$content = $this->performAction();
 		if (!$content) {
 			$content = '<div
 				id="div_SystemInfo"
 				class="row updateHere"
-				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
+				src="vendor/spidgorny/nadlib/be/?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
 
-			if (isset($GLOBALS['profiler'])) {
-				$content .= '<fieldset><legend>Profiler</legend>'.$GLOBALS['profiler']->printTimers(1).'</fieldset>';
-			}
 		}
 		return $content;
 	}
 
+	/**
+	 * AJAX
+	 * @return string
+	 */
 	function updateHereAction() {
 		$content = $this->renderEverything();
-		$content .= '<script>updateHere()</script>';
+		$content .= '<script> updateHere(); </script>';
 		return $content;
 	}
 
 	function renderEverything() {
-		$content = '<div class="span5">';
+		$content = '<div class="col-md-5">';
 		$content .= '<fieldset><legend>PHP Info</legend>'.$this->getPHPInfo().'</fieldset>';
-		$content .= '<fieldset><legend>Performance</legend>'.$this->getPerformanceInfo().'</fieldset>';
 
-		$content .= '</div><div class="span5">';
+		$s = slTable::showAssoc($this->getPerformanceInfo());
+		$s->more = 'class="table table-striped table-condensed"';
+		$content .= '<fieldset><legend>Performance</legend>'.$s.'</fieldset>';
+
+		$content .= '</div><div class="col-md-5">';
 
 		$content .= '<fieldset><legend>Server Info</legend>
 			'.$this->getServerInfo().'
@@ -58,6 +69,8 @@ class ServerStat extends AppControllerBE {
 		$conf['IP'] = $_SERVER['SERVER_ADDR'];
 		$conf['PHP'] = phpversion();
 		$conf['Server time'] = date('Y-m-d H:i:s');
+		$conf['documentRoot'] = $this->config->documentRoot;
+		$conf['appRoot'] = $this->config->appRoot;
 		$conf['memory_limit'] = number_format($allMem/1024/1024, 3, '.', '').' MB';
 		$conf['Mem. used'] = number_format($useMem/1024/1024, 3, '.', '').' MB';
 		$conf['Mem. used %'] = new HTMLTag('td', array(
@@ -111,9 +124,7 @@ class ServerStat extends AppControllerBE {
 			$conf['Unique Q'] = $this->getBar(sizeof($this->LOG) / $this->COUNTQUERIES * 100);
 		}
 		//debug($conf);
-		$s = slTable::showAssoc($conf);
-		$s->more = 'class="table table-striped table-condensed"';
-		return $s;
+		return $conf;
 	}
 
 	function getServerInfo() {
@@ -160,10 +171,10 @@ class ServerStat extends AppControllerBE {
 			//'results' => 'Rows',
 			'elapsed' => array('name' => '1st', 'decimals' => 3),
 			'count' => '#',
-			'total' => array('name' => $totalTime, 'decimals' => 3),
+			'total' => array('name' => $this->totalTime, 'decimals' => 3),
 			'percent' => '100%',
 		));
-		$s->data = $this->LOG ? $this->LOG : Config::getInstance()->db->queryLog;
+		$s->data = $this->LOG ? $this->LOG : $this->config->db->queryLog;
 		$s->isOddEven = TRUE;
 		$s->more = 'class="nospacing"';
 		return $s;
@@ -186,13 +197,11 @@ class ServerStat extends AppControllerBE {
 		$meminfo = "/proc/meminfo";
 		if (file_exists($meminfo)) {
 			$mem = file_get_contents($meminfo);
-			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches))
-			{
+			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
 				$totalp = $matches[1];
 			}
 			unset($matches);
-			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches))
-			{
+			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
 				$freep = $matches[1];
 			}
 			$freiq = $freep;
@@ -210,7 +219,7 @@ class ServerStat extends AppControllerBE {
 	}
 
 	function getBarURL($percent) {
-		$content = '../bar.php?rating='.round($percent).'&!border=0&height=25';
+		$content = 'vendor/spidgorny/nadlib/bar.php?rating='.round($percent).'&!border=0&height=25';
 		return $content;
 	}
 
@@ -225,20 +234,12 @@ class ServerStat extends AppControllerBE {
 		), $value.' %');
 	}
 
-	function getStat($_statPath) {
-        if (trim($_statPath) == '')
-        {
-            $_statPath = '/proc/stat';
-        }
-
+	protected function getStat($_statPath = '/proc/stat') {
         $stat = @file_get_contents($_statPath);
 
-        if (substr($stat, 0, 3) == 'cpu')
-        {
+        if (substr($stat, 0, 3) == 'cpu') {
             $parts = explode(" ", preg_replace("!cpu +!", "", $stat));
-        }
-        else
-        {
+        } else {
             return false;
         }
 
@@ -251,26 +252,27 @@ class ServerStat extends AppControllerBE {
     }
 
     function getCpuUsage($_statPath = '/proc/stat') {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (file_exists($_statPath)) {
 			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
 			sleep(1);
 			$time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
+			//debug($time1, $time2);
 
 			$delta = array();
 
-			foreach ($time1 as $k => $v)
-			{
+			foreach ($time1 as $k => $v) {
 				$delta[$k] = $time2[$k] - $v;
 			}
 
 			$deltaTotal = array_sum($delta);
 			$percentages = array();
 
-			foreach ($delta as $k => $v)
-			{
+			foreach ($delta as $k => $v) {
 				$percentages[$k] = $v / $deltaTotal * 100;
 			}
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
         return $percentages;
 	}
 

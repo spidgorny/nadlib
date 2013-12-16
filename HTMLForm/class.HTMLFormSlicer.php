@@ -36,8 +36,9 @@ class HTMLFormSlicer {
 	 * @param array $values
 	 */
 	function fillValues(array $values) {
+		$f = new HTMLFormTable();
 		foreach ($this->slices as &$slice) {
-			$slice['desc'] = HTMLFormTable::fillValues($slice['desc'], $values);
+			$slice['desc'] = $f->fillValues($slice['desc'], $values);
 		}
 	}
 
@@ -85,7 +86,8 @@ class HTMLFormSlicer {
 		$content = '';
 		foreach ($descList as $key => $desc) {
 			if ($desc['error']) {
-				$content .= '<li>'.($desc['label'] ? $desc['label'] : $key) . ': '. $desc['error'].'</li>';
+				//$content .= '<li>'.($desc['label'] ? $desc['label'] : $key) . ': '. $desc['error'].'</li>';
+				$content .= '<li>'. $desc['error'].'</li>';
 			}
 			if ($desc['dependant']) {
 				$content .= $this->getErrorItemsFromDesc($desc['dependant']);
