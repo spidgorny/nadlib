@@ -19,7 +19,7 @@ class SQLBetween extends SQLWherePart {
 	}
 
 	function __toString() {
-		return $this->toString('');
+		return $this->toString($this->field);
 	}
 	
 }

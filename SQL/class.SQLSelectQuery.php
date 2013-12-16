@@ -109,4 +109,49 @@ $this->limit";
 		return $this->getQuery();
 	}
 
+	static function sqlSH($sql) {
+		$res = '';
+		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON');
+		$sql = str_replace("(", " ( ", $sql);
+		$sql = str_replace(")", " ) ", $sql);
+		$level = 0;
+		$open = FALSE;
+		$tok = strtok($sql, " \n\t");
+		while ($tok !== FALSE) {
+			$tok = trim($tok);
+			if ($tok == "(") {
+				$level++;
+				$res .= " (" . "<br>" . str_repeat("&nbsp;", $level*4);
+			} else if ($tok == ")") {
+				if ($level > 0) {
+					$level--;
+				}
+				$res .= "<br>" . str_repeat("&nbsp;", $level*4) . ") ";
+			} else if ($tok{0} == "'" || $tok{strlen($tok)-1} == "'" || $tok == "'") {
+				$res .= " ";
+				if ($tok{0} == "'" && !$open) {
+					$res .= '<font color="green">';
+					$open = TRUE;
+				}
+				$res .= $tok;
+				if ($tok{strlen($tok)-1} == "'" && $open) {
+					$res .= '</font>';
+					$open = FALSE;
+				}
+			} else if (is_numeric($tok)) {
+				$res .= ' <font color="red">' . $tok . '</font>';
+			} else if (in_array(strtoupper($tok), $words)) {
+				$br = strlen($res) ? '<br>' : '';
+				$strange = $tok == 'SELECT' ? '' : ' ';
+				$res .= (!in_array($tok, array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN')) ? ' ' . $br . str_repeat("&nbsp;", $level*4) : $strange) . '<font color="blue">' . strtoupper($tok) . '</font>';
+			} else {
+				$res .= " " . $tok;
+			}
+			//print('toc: '.$tok.' ');
+			$tok = strtok(" \n\t");
+		}
+		$res = trim($res);
+		return BR.$res.BR;
+	}
+
 }

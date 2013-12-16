@@ -37,15 +37,16 @@ class Duration extends Time {
 		}
 	}
 
-	function format() {
+	function format($rules) {
 		die(__METHOD__.' - don\'t use.');
 	}
 
-	function getTime() {
-		return gmdate('H:i:s', $this->time);
+	function getTime($format = 'H:i:s') {
+		return gmdate($format, $this->time);
 	}
 
 	function nice() {
+		return $this->toString();
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = array();
@@ -62,11 +63,12 @@ class Duration extends Time {
 
 	/**
 	 * Parses the human string like '24h 10m'
-	 * @param type $string
+	 * @param string $string
+	 * @return \Duration
 	 */
 	static function fromHuman($string) {
 		$total = 0;
-		$parts = self::trimExplode($string, ' ');
+		$parts = trimExplode(' ', $string);
 		foreach ($parts as $p) {
 			$value = intval($p);
 			$uom = str_replace($value, '', $p);
@@ -102,7 +104,6 @@ class Duration extends Time {
 				case 'weeks':
 					$total += $value*60*60*24*7;
 				break;
-				case 'm':
 				case 'mon':
 				case 'month':
 				case 'months':
@@ -120,27 +121,34 @@ class Duration extends Time {
 		return new Duration($total);
 	}
 
+	/**
+	 * Return human-readable time units
+	 * @return string
+	 */
 	function __toString() {
 		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
 		return $this->toString($this->time);
 	}
 
-    /**
-     * All in one method
-     *
-     * @param   int|array  $duration  Array of time segments or a number of seconds
-     * @return  string
-     */
-    function toString($duration, $periods = null, $perCount = 2) {
+	/**
+	 * All in one method
+	 *
+	 * @param null $periods
+	 * @param int $perCount
+	 * @return  string
+	 */
+    function toString($periods = null, $perCount = 2) {
 		$content = '';
-        if (!is_array($duration)) {
-            $duration = Duration::int2array($duration, $periods);
-        }
+        $duration = $this->int2array($periods);
         //debug($duration);
 
         if (is_array($duration)) {
-	        $duration = array_slice($duration, 0, 2, TRUE);
-	        $content .= Duration::array2string($duration) . ' '.__('ago');
+	        $duration = array_slice($duration, 0, $perCount, TRUE);
+	        $content .= $this->array2string($duration);
+			//debug($duration);
+			if ($this->time < 0) {
+				$content .= ' '.__('ago');
+			}
         } else {
         	$content .= __('just now');
         }
@@ -149,13 +157,15 @@ class Duration extends Time {
     }
 
 
-    /**
-     * Return an array of date segments.
-     *
-     * @param        int $seconds Number of seconds to be parsed
-     * @return       mixed An array containing named segments
-     */
-    function int2array($periods = null) {
+	/**
+	 * Return an array of date segments.
+	 * Must be public for Trip
+	 *
+	 * @param null $periods
+	 * @internal param int $seconds Number of seconds to be parsed
+	 * @return       mixed An array containing named segments
+	 */
+    public function int2array($periods = NULL) {
         // Define time periods
         if (!is_array($periods)) {
             $periods = array (
@@ -170,7 +180,7 @@ class Duration extends Time {
         }
 
         // Loop
-        $seconds = (float) $this->time;
+        $seconds = (float) abs($this->time);
         foreach ($periods as $period => $value) {
             $count = floor($seconds / $value);
 
@@ -184,7 +194,7 @@ class Duration extends Time {
 
         // Return
         if (empty($values)) {
-            $values = null;
+            $values = NULL;
         }
 
         return $values;
@@ -198,14 +208,14 @@ class Duration extends Time {
      * @param        mixed $duration An array of named segments
      * @return       string
      */
-    function array2string($duration) {
+    protected static function array2string($duration) {
         if (!is_array($duration)) {
             return false;
         }
 
         foreach ($duration as $key => $value) {
             $segment_name = substr($key, 0, -1);
-            $segment = $value . ' ' . $segment_name;
+            $segment = abs($value) . ' ' . $segment_name;	// otherwise -1 years, -1 months ago
 
             // Plural
             if ($value != 1) {
@@ -219,13 +229,28 @@ class Duration extends Time {
         return $str;
     }
 
-	function trimExplode($str, $exp = ',') {
-		$items = explode($exp, $str);
-		foreach ($items as &$item) {
-			$item = trim($item);
+	function getTimestamp() {
+		return $this->time;
+	}
+
+	function less($sDuration) {
+		if (is_string($sDuration)) {
+			return $this->time < strtotime($sDuration, 0);
+		} else if ($sDuration instanceof Time) {
+			return $this->earlier($sDuration);
+		} else {
+			throw new Exception(__METHOD__.'#'.__LINE__);
 		}
-		$items = array_filter($items);
-		return $items;
+	}
+
+	function more($sDuration) {
+		if (is_string($sDuration)) {
+			return $this->time > strtotime($sDuration, 0);
+		} else if ($sDuration instanceof Time) {
+			return $this->later($sDuration);
+		} else {
+			throw new Exception(__METHOD__.'#'.__LINE__);
+		}
 	}
 
 }

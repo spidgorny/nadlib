@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Class Controller - a base class for all front-facing pages.
+ * Extend and implement your own render() function.
+ * It should collect output into a string and return it.
+ * Additional actions can be processed by calling
+ * $this->performAction() from within render().
+ * It checks for the &action= parameter and appends an 'Action' suffix to get the function name.
+ *
+ * Can be called from CLI with parameters e.g.
+ * > php index.php SomeController -action cronjob
+ * will call cronjobAction instead of default render()
+ */
+
 abstract class Controller {
 	/**
 	 * Enter description here...
@@ -15,8 +28,15 @@ abstract class Controller {
 	public $request;
 
 	/**
+	 * @var boolean
+	 * @use $this->preventDefault() to set
+	 * chack manually in render()
+	 */
+	public $noRender = false;
+
+	/**
 	 *
-	 * @var MySQL/dbLayer
+	 * @var MySQL|dbLayer
 	 */
 	protected $db;
 
@@ -30,11 +50,15 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var User/Client/userMan/LoginUser
+	 * @var User|Client|userMan|LoginUser
 	 */
 	public $user;
 
-	static protected $instance;
+	/**
+	 * Instance per class
+	 * @var Controller[]
+	 */
+	static protected $instance = array();
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -47,31 +71,43 @@ abstract class Controller {
 
 	public $encloseTag = 'h4';
 
+	/**
+	 * accessible without login
+	 * @var bool
+	 */
+	static public $public = false;
+
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
+		//debug(get_class($this->index));
+		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
+		//debug(get_class($this->index));
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
-		$this->db = Config::getInstance()->db;
+		if (class_exists('Config')) {
+			$this->db = Config::getInstance()->db;
+			$this->user = Config::getInstance()->user;
+			Config::getInstance()->mergeConfig($this);
+		}
+		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
-		$this->user = Config::getInstance()->user;
-		$this->linkVars['c'] = get_class($this);
-		Config::getInstance()->mergeConfig($this);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__." end<br />\n";
+		self::$instance[get_class($this)] = $this;
 	}
 
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
 		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
 			$r = new Router();
-			$url = $r->makeURL($params);
+			$url = $r->makeURL($params, $prefix);
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
 			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			//echo $url, '<br />';
-			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+
+			//debug($url->documentRoot, $prefix, $url.'');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
 			} unset($val);
@@ -82,17 +118,40 @@ abstract class Controller {
 		return $url;
 	}
 
-	function makeRelURL(array $params = array()) {
-		return $this->makeURL($params + $this->linkVars);
+	/**
+	 * Only appends $this->linkVars to the URL.
+	 * Use this one if your linkVars is defined.
+	 * @param array $params
+	 * @param string $page
+	 * @return URL
+	 */
+	function makeRelURL(array $params = array(), $page = '?') {
+		return $this->makeURL($params + $this->linkVars, $page);
 	}
 
-	function getURL(array $params, $prefix = '?') {
+	/**
+	 * Combines params with $this->linkVars
+	 * @param array $params
+	 * @param string $prefix
+	 * @return URL
+	 */
+	public function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
 		//debug($params);
 		return $this->makeURL($params, false, $prefix);
 	}
 
+	/**
+	 * Returns '<a href="$page?$params" $more">$text</a>
+	 * @param $text
+	 * @param array $params
+	 * @param string $page
+	 * @param array $more
+	 * @param bool $isHTML
+	 * @return HTMLTag
+	 */
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
+		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
 			'href' => $this->makeURL($params, false, $page),
 		)+$more, $text, $isHTML);
@@ -131,13 +190,15 @@ abstract class Controller {
 		return $table;
 	}
 
-/*	static function getInstance() {
+	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance ? self::$instance : new $static();
+		return self::$instance[$static]
+			? self::$instance[$static]
+			: (self::$instance[$static] = new $static());
 	}
-*/
-	function redirect($url) {
+
+	/*function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
 				setTimeout(function() {
@@ -147,7 +208,7 @@ abstract class Controller {
 		} else {
 			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
 		}
-	}
+	}*/
 
 	function render() {
 		$view = new View(get_class($this).'.phtml', $this);
@@ -164,7 +225,7 @@ abstract class Controller {
 	 * @param bool $preserveSpaces	- leaves spaces
 	 * @return string				- converted to URL friendly name
 	 */
-	static function friendlyURL($string, $preserveSpaces) {
+	static function friendlyURL($string, $preserveSpaces = false) {
 		$string = preg_replace("`\[.*\]`U","",$string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
@@ -180,16 +241,18 @@ abstract class Controller {
 	}
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
-		$h = $h ?: $this->encloseTag;
+		$h = $h ? $h : $this->encloseTag;
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
-		$content = '<div class="padding">'.$content.'</div>';
+		//debug_pre_print_backtrace();
+		$content = '<div class="padding clearfix">'.$content.'</div>';
 		return $content;
 	}
 
 	function encloseInToggle($content, $title, $height = '', $isOpen = NULL, $tag = 'h3') {
 		if ($content) {
+			// buggy: prevents all clicks on the page in KA.de
 			$this->index->addJQuery();
 			$this->index->addJS('nadlib/js/showHide.js');
 			$this->index->addJS('nadlib/js/encloseInToggle.js');
@@ -211,49 +274,11 @@ abstract class Controller {
 		return $content;
 	}
 
-	function log($text, $class = NULL, $done = NULL, array $extra = array()) {
-		//debug_pre_print_backtrace();
-		if (Config::getInstance()->config[__CLASS__]['log'] !== false) {
-			if (Config::getInstance()->db) {
-				Config::getInstance()->db->runInsertQuery('log', array(
-					'pid' => getmypid(),
-					'class' => strval($class),
-					'done' => floatval($done),
-					'line' => $text,
-				)+$extra);
-			}
-			echo '<tr><td>'.implode('</td><td>', array(
-				date('Y-m-d H:i:s'),
-				getmypid(),
-				$class,
-				'<img src="bar.php?rating='.round($done*100).'" /> '.number_format($done*100, 3).'%',
-				$extra['id_channel'],
-				$extra['date'],
-				$text,
-			)).'</td></tr>'."\n";
-		}
-		flush();
-	}
-
-	function randomBreak() {
-/*		$rand = rand(1, 10);
-		$this->log('Sleep '.$rand);
-		sleep($rand);
-		$this->log('.<br>');
-*/	}
-
-	function checkStop() {
-		if (file_exists('cron.stop')) {
-			$this->log('Forced stop.');
-			unlink('cron.stop');
-			exit();
-		}
-	}
-
-	function performAction() {
-		$method = $this->request->getTrim('action');
+	function performAction($action = NULL) {
+		$method = $action ? $action : $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
+			//debug($method, method_exists($this, $method));
 			if (method_exists($this, $method)) {
 				$content = $this->$method();
 			} else {
@@ -264,6 +289,14 @@ abstract class Controller {
 		return $content;
 	}
 
+	function preventDefault() {
+		$this->noRender = true;
+	}
+
+	/**
+	 * Uses float: left;
+	 * @return mixed|string
+	 */
 	function inColumns() {
 		$elements = func_get_args();
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
@@ -276,7 +309,7 @@ abstract class Controller {
 	}
 
 	function inColumnsHTML5() {
-		$GLOBALS['HTMLFOOTER']['display-box.css'] = '<link rel="stylesheet" type="text/css" href="/nadlib/CSS/display-box.css" />';
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -286,9 +319,24 @@ abstract class Controller {
 		return $content;
 	}
 
-	function getMenuSuffix() {
-		return '';
+	function inEqualColumnsHTML5() {
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
+		$elements = func_get_args();
+		$content = '';
+		foreach ($elements as $html) {
+			$content .= '<div class="flex-box flex-equal">'.$html.'</div>';
+		}
+		$content = '<div class="display-box equal">'.$content.'</div>';
+		return $content;
 	}
+
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
 
 	function sidebar() {
 		return '';
@@ -305,10 +353,45 @@ abstract class Controller {
 		)+$params);
 	}
 
-	function makeRelLink($text, array $params) {
+	/**
+	 * Just appends $this->linkVars
+	 * @param $text
+	 * @param array $params
+	 * @param string $page
+	 * @return HTMLTag
+	 */
+	function makeRelLink($text, array $params, $page = '?') {
 		return new HTMLTag('a', array(
-			'href' => $this->makeRelURL($params)
+			'href' => $this->makeRelURL($params, $page)
 		), $text);
+	}
+
+	/**
+	 * @param $name string|htmlString - if object then will be used as is
+	 * @param $formAction
+	 * @param string|null $action
+	 * @param array $hidden
+	 * @internal param null $class
+	 * @return HTMLForm
+	 */
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array()) {
+		$f = new HTMLForm();
+		if ($formAction) {
+			$f->action($formAction);
+		} else {
+			$f->hidden('c', get_class($this));
+		}
+		$f->formHideArray($hidden);
+		if ($id = $this->request->getInt('id')) {
+			$f->hidden('id', $id);
+		}
+		$f->hidden('action', $action);
+		if ($name instanceof htmlString) {
+			$f->button($name, 'type="submit" class="likeText"');
+		} else {
+			$f->submit($name);
+		}
+		return $f;
 	}
 
 }

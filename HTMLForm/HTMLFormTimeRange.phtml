@@ -3,25 +3,12 @@
 	id="<?= $this->field ?>"
 	value="<?= $this->start->getTime('H:i') ?>-<?= $this->end->getTime('H:i') ?>"
 	style="width: 7em;">
-<div id="slider-range-<?= $this->div ?>" class="time-scale"></div>
-<script>
-	setTimeout(function() {
-			$("#slider-range-<?= $this->div ?>").slider({
-				range: true,
-				min: <?= $this->min ?>,
-				max: <?= $this->max ?>,
-				values: [<?= $this->start ?>, <?= $this->end ?>],
-				step: <?= $this->step ?>,
-				slide: function(event, ui) {
-					var start = ui.values[0];
-					start = new Date(start*60*1000);
-					start = new String(start.getUTCHours()).zf() + ':' + new String(start.getUTCMinutes()).zf();
-					var end = ui.values[1];
-					end = new Date(end*60*1000);
-					end = new String(end.getUTCHours()).zf() + ':' + new String(end.getUTCMinutes()).zf();
-					$("#<?= $this->field ?>").val(start + '-' + end);
-				}
-			});
-			//$("#<?= $this->field ?>").val($("#slider-range-<?= $this->div ?>").slider("values", 0) + '-' + $("#slider-range-<?= $this->div ?>").slider("values", 1));
-		}, 1);
-</script>
+<div id="slider-range-<?= $this->div ?>"
+	 class="time-scale"
+	 field="<?= $this->field ?>"
+	 min="<?= $this->min ?>"
+	 max="<?= $this->max ?>"
+	 start="<?= $this->start ?>"
+	 end="<?= $this->end ?>"
+	 step="<?= $this->step ?>"
+	></div>
