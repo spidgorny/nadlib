@@ -147,8 +147,8 @@ class Collection {
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
 		//debug($this->parentField, $this->parentID, $this->where);
-		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
-			$this->retrieveDataFromDB();
+        if (($this->parentField && $this->parentID > 0) || !$this->parentID) {
+            $this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
@@ -303,11 +303,17 @@ class Collection {
 		return $row;
 	}
 
-	function getOptions() {
+    /**
+     * @param array $blackList Contains IDs that should be filtered out from options
+     * @return array
+     */
+    function getOptions($blackList = array()) {
 		$options = array();
 		//debug(get_class($this), $this->titleColumn);
 		foreach ($this->data as $row) {
-			$options[$row[$this->idField]] = $row[$this->titleColumn];
+            if( !in_array($row[$this->idField], $blackList) ) {
+                $options[$row[$this->idField]] = $row[$this->titleColumn];
+            }
 		}
 		return $options;
 	}
