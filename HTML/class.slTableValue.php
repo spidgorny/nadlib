@@ -1,6 +1,10 @@
 <?php
 
 class slTableValue {
+
+	/**
+	 * @var mixed
+	 */
 	var $value = NULL;
 
 	/**
