@@ -396,6 +396,9 @@ class Collection {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
+		$db = $GLOBALS['db'];
+		$firstWord = $db->getFirstWord($c->table);
+		$c->select = ' '.$firstWord.'.*';
 		return $c;
 	}
 

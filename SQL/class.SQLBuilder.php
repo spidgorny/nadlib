@@ -278,6 +278,7 @@ class SQLBuilder {
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
+			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
@@ -359,7 +360,7 @@ class SQLBuilder {
 					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {
+				} else if (is_numeric($key)) {		// KEY!!!
 					$set[] = $val;
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";

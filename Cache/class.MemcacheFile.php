@@ -23,6 +23,7 @@ class MemcacheFile {
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
 		$key = str_replace('::', '-', $key);
+		$key = str_replace(',', '-', $key);
 		if (strpos($key, ' ') !== false || strpos($key, '/') !== false) {
 			$key = md5($key);
 		}
