@@ -132,7 +132,8 @@ class HTMLFormTable extends HTMLForm {
 					$this->textarea($fieldName, $fieldValue,
 						$desc['more'].
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '')
+						($desc['disabled'] ? ' disabled="1"' : '').
+						($desc['class'] ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
 					);
 				break;
 				case "date":
@@ -161,7 +162,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->file($fieldName, $desc);
 				break;
 				case "password":
-					$this->password($fieldName, $fieldValue);
+					$this->password($fieldName, $fieldValue, $desc);
 				break;
 				case "check":
 				case "checkbox":
@@ -255,7 +256,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
 						($desc['readonly'] ? ' readonly="readonly"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '')
+						($desc['disabled'] ? ' disabled="1"' : '').
+						($desc['autofocus'] ? ' autofocus' : '')
 						, $type, $desc['class']
 					);
 				break;

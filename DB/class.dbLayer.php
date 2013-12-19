@@ -82,6 +82,27 @@ class dbLayer {
 		return $this->LAST_PERFORM_RESULT;
 	}
 
+    function performWithParams($query, $params) {
+		$prof = new Profiler();
+		$this->LAST_PERFORM_QUERY = $query;
+		$this->lastQuery = $query;
+		$this->LAST_PERFORM_RESULT = pg_query_params($this->CONNECTION, $query, $params);
+		if (!$this->LAST_PERFORM_RESULT) {
+			debug($query);
+			debug_pre_print_backtrace();
+			throw new Exception(pg_errormessage($this->CONNECTION));
+		} else {
+			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+			if ($this->saveQueries) {
+				@$this->QUERIES[$query] += $prof->elapsed();
+				@$this->QUERYMAL[$query]++;
+				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+			}
+		}
+		$this->COUNTQUERIES++;
+		return $this->LAST_PERFORM_RESULT;
+	}
+
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		$trace = $this->getCallerFunction();
 		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
@@ -657,4 +678,9 @@ order by a.attnum';
 		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
 	}
 
+    function free($res) {
+        if (is_resource($res)) {
+            pg_free_result($res);
+        }
+    }
 }

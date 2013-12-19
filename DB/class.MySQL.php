@@ -287,7 +287,7 @@ class MySQL {
 	function getTableColumns($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW FULL COLUMNS FROM ".$this->escape($table);
+			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {

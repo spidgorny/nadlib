@@ -63,7 +63,7 @@ class Collection {
 	 * @var string
 	 */
 	protected $itemClassName = 'OODBase?';
-	
+
 	/**
 	 * SQL part
 	 * @var string
@@ -133,8 +133,6 @@ class Collection {
 			$this->where = $where->addArray($this->where);
 		}
 
-
-
 		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
@@ -148,8 +146,8 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		//debug($this->parentID, $this->where);
-		if ($this->parentID > 0 || (!$this->parentID && $this->where)) {
+		//debug($this->parentField, $this->parentID, $this->where);
+		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -234,10 +232,10 @@ class Collection {
 			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
 			$query = $qb->getSelectQuery  (
-				$this->table.' '.$this->join, 
-				$where, 
-				$this->orderBy, 
-				$this->select, 
+				$this->table.' '.$this->join,
+				$where,
+				$this->orderBy,
+				$this->select,
 				TRUE);
 		}
 		if ($this->pager) {
@@ -652,6 +650,17 @@ class Collection {
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
+	}
+
+	public function getCount() {
+		$this->query = $this->getQuery($this->where);
+		$res = $this->db->perform($this->query);
+		if ($this->pager) {
+			$this->count = $this->pager->numberOfRecords;
+		} else {
+			$this->count = $this->db->numRows($res);
+		}
+		return $this->count;
 	}
 
 }

@@ -299,10 +299,11 @@ abstract class OODBase {
 	 * Uses $this->thes if available
 	 * Hides fields without values
 	 * @param array $assoc
-	 * @param bool  $recursive
+	 * @param bool $recursive
+	 * @param bool $skipEmpty
 	 * @return slTable
 	 */
-	function renderAssoc(array $assoc = NULL, $recursive = false) {
+	function renderAssoc(array $assoc = NULL, $recursive = false, $skipEmpty = true) {
 		$assoc = $assoc ? $assoc : $this->data;
 		//debug($this->thes);
 		if ($this->thes) {
@@ -323,7 +324,7 @@ abstract class OODBase {
 			));
 		} else {
 			foreach ($assoc as $key => &$val) {
-				if (!$val) {
+				if (!$val && $skipEmpty) {
 					unset($assoc[$key]);
 				} else if (is_array($val) && $recursive) {
 					$val = OODBase::renderAssoc($val, $recursive);
