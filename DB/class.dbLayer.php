@@ -255,7 +255,6 @@ class dbLayer {
 	}
 
 	function transaction($serializable = false) {
-		//$this->perform("set autocommit = off");
 		if ($serializable) {
 			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
 		}
