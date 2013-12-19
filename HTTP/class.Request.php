@@ -690,6 +690,10 @@ class Request {
 		return $result;
 	}
 
+	function importCLIparams($noopt = array()) {
+		$this->data += $this->parseParameters($noopt);
+	}
+
 	/**
 	 * http://stackoverflow.com/a/6127748/417153
 	 * @return bool
