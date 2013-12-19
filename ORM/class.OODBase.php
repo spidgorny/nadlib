@@ -275,10 +275,11 @@ abstract class OODBase {
 		if ($where) {
 			$this->findInDB($where);
 		}
+		//debug($this->id, $this->data); exit();
 		if ($this->id) { // found
 			$left = array_intersect_key($this->data, $fields);		// keys need to have same capitalization
 			$right = array_intersect_key($fields, $this->data);
-			//debug($left, $right);
+			//debug($left, $right); exit();
 			if ($left == $right) {
 				$op = 'SKIP';
 			} else {
@@ -286,9 +287,11 @@ abstract class OODBase {
 				$op = 'UPDATE '.$this->id;
 			}
 		} else {
+			//debug($this->id, $this->data);
 			$this->insert($fields + $where + $insert);
-			$this->findInDB($where);
+			//debug($where, $this->id, $this->data, $fields + $where + $insert, $this->lastQuery);
 			$op = 'INSERT '.$this->id;
+			//debug($this->id, $this->data, $op, $this->db->lastQuery);
 		}
 		$this->db->commit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
