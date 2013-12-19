@@ -448,7 +448,10 @@ class slTable {
 					if (!$val) {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
-					$val = new slTableValue($val, $k);
+
+					if (!($val instanceof slTableValue)) {
+						$val = new slTableValue($val, $k);
+					}
 
 					$out = (isset($k['before']) ? $k['before'] : '').
 						   $val->render($col, $row) .
