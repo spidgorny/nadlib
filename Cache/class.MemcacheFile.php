@@ -38,6 +38,7 @@ class MemcacheFile {
 			file_put_contents($file, serialize($val));
 			@chmod($file, 0777);	// needed for cronjob accessing cache files
 		} else {
+			if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 			throw new Exception($file.' write access denied.');
 		}
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
