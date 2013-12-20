@@ -331,7 +331,11 @@ class SQLBuilder {
 				if ($val instanceof AsIs) {
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
-					$set[] = $key . ' ' . $val;
+					if (is_numeric($key)) {
+						$set[] = $val;
+					} else {
+						$set[] = $key . ' ' . $val;
+					}
 				} else if ($val instanceof SQLBetween) {
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
