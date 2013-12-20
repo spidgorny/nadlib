@@ -278,8 +278,8 @@ class MySQL {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
     	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
 		WHERE CCSA.collation_name = T.table_collation
-  		/*AND T.table_schema = 'schemaname'*/
-  		AND T.table_name = '".$table."'";
+		/*AND T.table_schema = 'schemaname'*/
+		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
@@ -333,6 +333,10 @@ class MySQL {
 			$data[$key] = $val;
 		}
 		return $data;
+	}
+
+	function free($res) {
+		mysql_free_result($res);
 	}
 
 	function affectedRows() {
