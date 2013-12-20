@@ -160,10 +160,10 @@ class Debug {
 			}
 		} else if (is_resource($a)) {
 			$content = $a;
-		} else if (strstr($a, "\n")) {
+		} else if (is_string($a) && strstr($a, "\n")) {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
 		} else {
-			$content = htmlspecialchars($a);
+			$content = htmlspecialchars($a.'');
 		}
 		return $content;
 	}
