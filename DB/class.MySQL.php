@@ -19,6 +19,11 @@ class MySQL {
 	/**
 	 * @var resource
 	 */
+	public $lastResult;
+
+	/**
+	 * @var resource
+	 */
 	protected $connection;
 
 	/**
@@ -88,7 +93,7 @@ class MySQL {
 		}
 
 		$start = microtime(true);
-		$res = @mysql_query($query, $this->connection);
+		$res = $this->lastResult = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
 			$key = md5($query);
@@ -182,9 +187,9 @@ class MySQL {
 		}
 	}
 
-	function numRows($res) {
-		if (is_resource($res)) {
-			return mysql_num_rows($res);
+	function numRows($res = NULL) {
+		if (is_resource($res ?: $this->lastResult)) {
+			return mysql_num_rows($res ?: $this->lastResult);
 		}
 	}
 
