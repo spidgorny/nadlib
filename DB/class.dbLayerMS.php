@@ -220,4 +220,8 @@ AND name = '?')", array($table));
 		}
 	}
 
+	function free($res) {
+		mssql_free_result($res);
+	}
+
 }
