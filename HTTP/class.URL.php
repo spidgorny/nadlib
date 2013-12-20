@@ -250,6 +250,7 @@ return $return; */
 		$from     = explode('/', $from);
 		$to       = explode('/', $to);
 		$relPath  = $to;
+		//debug($from, $to, $relPath);
 
 		foreach ($from as $depth => $dir) {
 			// find first non-matching dir
@@ -259,7 +260,7 @@ return $return; */
 			} else {
 				// get number of remaining dirs to $from
 				$remaining = count($from) - $depth;
-				if($remaining > 1) {
+				if ($remaining > 1) {
 					// add traversals up to first matching dir
 					$padLength = (count($relPath) + $remaining - 1) * -1;
 					$relPath = array_pad($relPath, $padLength, '..');
@@ -270,6 +271,20 @@ return $return; */
 			}
 		}
 		return implode('/', $relPath);
+	}
+
+	static function getScriptWithPath() {
+		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
+		if (Request::isCLI()) {
+			if (basename($_SERVER['SCRIPT_FILENAME']) == $_SERVER['SCRIPT_FILENAME']) {	// index.php
+				$scriptWithPath = getcwd().'/'.$_SERVER['SCRIPT_FILENAME'];
+			} else {
+				$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+			}
+		} else {
+			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+		}
+		return $scriptWithPath;
 	}
 
 }

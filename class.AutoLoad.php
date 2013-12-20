@@ -49,33 +49,37 @@ class AutoLoad {
 	protected function __construct() {
 		//$this->folders = $this->getFolders();
 		//debug($this->folders);
-		require_once 'class.ConfigBase.php';
 
-		$relToNadlib = URL::getRelativePath($_SERVER['SCRIPT_FILENAME'], dirname(__FILE__));
+		require_once __DIR__.'/HTTP/class.URL.php';
+		require_once __DIR__.'/HTTP/class.Request.php';
+		$scriptWithPath = URL::getScriptWithPath();
+
+		// for CLI
+		$relToNadlib = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
+
+		// for PHPUnit
+		$relToNadlib = URL::getRelativePath(getcwd(), dirname(__FILE__));
+		$this->nadlibRoot = $relToNadlib;
 		if (false) {
 			echo '<pre>';
 			print_r(array(
-				$_SERVER['SCRIPT_FILENAME'],
-				getcwd(),
-				__FILE__,
-				$relToNadlib,
-				$this->nadlibRoot,
+				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+				'getcwd()' => getcwd(),
+				'__FILE__' => __FILE__,
+				'$scriptWithPath' => $scriptWithPath,
+				'dirname(__FILE__)' => dirname(__FILE__),
+				'$relToNadlib' => $relToNadlib,
+				'$this->nadlibRoot' => $this->nadlibRoot,
 			));
-			print_r($_SERVER);
+			//print_r($_SERVER);
 			echo '</pre>';
 		}
-		$this->nadlibRoot = $relToNadlib;
 
-		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		$this->appRoot = dirname(URL::getScriptWithPath());
 		$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
+		//debug('$this->appRoot', $this->appRoot);
 
-		$configPath = $this->appRoot.'/class/class.Config.php';	// config from the main project
-		if (file_exists($configPath)) {
-			//echo($configPath);
-			include_once $configPath;
-			//$this->config = Config::getInstance();	// autoload!
-		}
-		//echo($configPath);
+		$this->loadConfig();
 	}
 
 	function initFolders() {
@@ -104,8 +108,7 @@ class AutoLoad {
 		}
 
 		if (!$folders) {
-			$this->loadConfig();
-			$folders = ConfigBase::$includeFolders;
+			$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 			foreach ($folders as &$el) {
 				$el = $this->nadlibRoot . $el;
 			}
@@ -114,16 +117,24 @@ class AutoLoad {
 				$folders = array_merge($folders, Config::$includeFolders);
 			}
 		}
+
 		return $folders;
 	}
 
 	function loadConfig() {
+		nodebug(array(
+			dirname($_SERVER['SCRIPT_FILENAME']),
+			getcwd(),
+		));
 		if (!class_exists('ConfigBase')) {
 			require_once 'class.ConfigBase.php';
-			$configPath = dirname($_SERVER['SCRIPT_FILENAME']).'/class/class.Config.php';
+			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
+			$configPath = getcwd().'/class/class.Config.php';
+			//debug($configPath, file_exists($configPath));
 			if (file_exists($configPath)) {
-				//echo($configPath);
 				include_once $configPath;
+			} else {
+				print('class.Config.php not found.<br />'."\n");
 			}
 		}
 	}
@@ -171,9 +182,7 @@ class AutoLoad {
 	}
 
 	function findInFolders($classFile, $subFolders) {
-		$this->loadConfig();
 		$appRoot = Config::getInstance()->appRoot;
-		printbr($appRoot);
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
@@ -192,16 +201,16 @@ class AutoLoad {
 			}
 
 			if (file_exists($file)) {
-				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />'."\n";
+				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n";
 				include_once($file);
 				$this->classFileMap[$classFile] = $file;
 			} else {
-				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span><br />'."\n";
+				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n";
 			}
 
 			$debug[] = $debugLine;
 			if ($this->debug && $_COOKIE['debug']) {
-				//echo $debugLine;
+				echo strip_tags($debugLine);
 			}
 			if (file_exists($file)) {
 				break;
