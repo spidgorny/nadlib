@@ -171,6 +171,7 @@ class AutoLoad {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
 					debug($debug);
+					if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
 			}

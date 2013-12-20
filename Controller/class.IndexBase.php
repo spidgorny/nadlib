@@ -127,6 +127,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception($exception);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);

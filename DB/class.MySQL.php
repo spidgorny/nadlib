@@ -57,14 +57,17 @@ class MySQL {
 		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_select_db($this->db, $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_set_charset('utf8', $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
