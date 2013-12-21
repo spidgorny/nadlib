@@ -54,7 +54,6 @@ class Flot extends AppController {
 	 * @param $amountKey	- value (numeric) field
 	 */
 	function __construct(array $data, $keyKey, $timeKey, $amountKey) {
-		parent::__construct();
 		$this->data = $data;
 		$this->keyKey = $keyKey;
 		$this->timeKey = $timeKey;
@@ -86,6 +85,15 @@ class Flot extends AppController {
 	0 	integer 	1314828000000
 	1 	integer 	39
 	 */
+	}
+
+	function render() {
+		$content = '';
+		$chart = $this->getChartTable($this->data);
+		$this->cumulative = $this->getChartCumulative($chart);
+		$max = $this->getChartMax($this->cumulative);
+		$content .= $this->showChart('chart1', $chart, $this->cumulative, $max);
+		return $content;
 	function appendCumulative(array $data) {
 		//debug($this->cumulative, $data);
 		$cumulative2 = array();
@@ -112,9 +120,9 @@ class Flot extends AppController {
 	 * Uses strtotime() so the $timeKey values should be PHP parsable
 	 *
 	 * @param array $rows
-	 * @internal param string $keyKey
-	 * @internal param string $timeKey
-	 * @internal param string $amountKey
+	 * @param string $keyKey
+	 * @param string $timeKey
+	 * @param string $amountKey
 	 * @return array
 	 */
 	function getChartTable(array $rows) {
@@ -175,12 +183,23 @@ class Flot extends AppController {
 			$dKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
 			$rows = 'var '.$jsKey.' = {
+		Index::getInstance()->addJQuery();
+		Index::getInstance()->footer['flot'] = '
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
+    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.time.js"></script>';
+
+		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: solid 1px silver;"></div>';
+
+		foreach ($charts as $key => &$rows) {
+			$array = $rows ? array_values($rows) : array();
+			$rows = 'var d'.$key.' = {
 				label: "'.$key.'",
 				data: '.json_encode($array).',
 				stack: true,
 				bars: {
 					show: true,
-					barWidth: '.$this->barWidth.',
+					barWidth: 24*60*60*1000*0.75,
 					align: "center"
 				}
 			};';
@@ -193,6 +212,9 @@ class Flot extends AppController {
 			$cKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
 			$rows = 'var '.$jsKey.' = {
+		foreach ($cumulative as $key => &$rows) {
+			$array = $rows ? array_values($rows) : array();
+			$rows = 'var c'.$key.' = {
 				data: '.json_encode($array).',
 				lines: {
 					show: true,
@@ -210,7 +232,7 @@ jQuery(function ($) {
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [
     	'.implode(", ", $dKeys).',
-    	'.implode(", ", $cKeys).'
+    	c'.implode(", c", array_keys($cumulative)).'
     ], {
     	xaxis: {
     		mode: "time"
