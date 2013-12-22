@@ -10,6 +10,7 @@ class Date extends Time {
 		$this->time = mktime(0, 0, 0, date('m', $this->time), date('d', $this->time), date('Y', $this->time));
 		$this->updateDebug();
 		if (is_null($relativeTo)) {
+			//debug_pre_print_backtrace();
 			assert($this->time >= 0);
 		}
 	}

@@ -396,6 +396,9 @@ class Collection {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
+		$db = $GLOBALS['db'];
+		$firstWord = $db->getFirstWord($c->table);
+		$c->select = ' '.$firstWord.'.*';
 		return $c;
 	}
 
@@ -650,6 +653,17 @@ class Collection {
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
+	}
+
+	public function getCount() {
+		$this->query = $this->getQuery($this->where);
+		$res = $this->db->perform($this->query);
+		if ($this->pager) {
+			$this->count = $this->pager->numberOfRecords;
+		} else {
+			$this->count = $this->db->numRows($res);
+		}
+		return $this->count;
 	}
 
 }

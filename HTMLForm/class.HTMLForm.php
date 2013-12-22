@@ -180,7 +180,8 @@ class HTMLForm {
 	 */
 	function radioLabel($name, $value, $checked, $label = "", $more = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = implode('_', $this->prefix)."_".implode('_', $name)."_".$value;
+		$aName = is_array($name) ? $name : array();
+		$id = implode('_', array_merge($this->prefix, $aName))."_".$value;
 		$this->stdout .= '<label class="radio" for="'.$id.'">
 		<input
 			type="radio"

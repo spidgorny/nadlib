@@ -641,4 +641,51 @@ class slTable {
 		return $xls;
 	}
 
+	/**
+	 * Separation by "\t" is too stupid. We count how many chars are there in each column
+	 * and then padd it accordingly
+	 * @param bool $cutTooLong
+	 * @param bool $useAvg
+	 * @return string
+	 */
+	function getCLITable($cutTooLong = false, $useAvg = false) {
+		$this->generateThes();
+		$widthMax = array();
+		$widthAvg = array();
+		foreach ($this->data as $row) {
+			foreach ($this->thes as $field => $name) {
+				$value = $row[$field];
+				$value = strip_tags($value);
+				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
+				$widthAvg[$field] += mb_strlen($value);
+			}
+		}
+		if ($useAvg) {
+			foreach ($this->thes as $field => $name) {
+				$widthAvg[$field] /= sizeof($this->data);
+				//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
+				$avgLen = $widthAvg[$field];
+				$widthMax[$field] = max(8, 1+$avgLen);
+			}
+		}
+
+		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
+
+		$content = "\n";
+		foreach ($dataWithHeader as $row) {
+			$padRow = array();
+			foreach ($this->thes as $field => $name) {
+				$value = $row[$field];
+				$value = strip_tags($value);
+				if ($cutTooLong) {
+					$value = substr($value, 0, $widthMax[$field]);
+				}
+				$value = str_pad($value, $widthMax[$field], ' ', STR_PAD_RIGHT);
+				$padRow[] = $value;
+			}
+			$content .= implode(" ", $padRow)."\n";
+		}
+		return $content;
+	}
+
 }

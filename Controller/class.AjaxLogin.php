@@ -85,7 +85,7 @@ class AjaxLogin extends AppController {
 
 	function performAction($action = NULL) {
 		$content = '';
-		if ($action = $action ?: $this->action) {
+		if ($action = $action ? $action : $this->action) {
 			if (in_array($action, $this->allowedActions) || $this->user->isAuth()) {
 				try {
 					$cb = $action.'Action';

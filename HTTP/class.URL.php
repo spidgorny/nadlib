@@ -2,6 +2,9 @@
 
 class URL {
 
+	/**
+	 * @var string
+	 */
 	public $url;
 
 	/**
@@ -11,8 +14,15 @@ class URL {
 	 */
 	public $components = array();
 
+	/**
+	 * $this->components['query'] docomposed into an array
+	 * @var array
+	 */
 	public $params = array();
 
+	/**
+	 * @var string
+	 */
 	public $documentRoot = '';
 
 	/**
@@ -20,6 +30,9 @@ class URL {
 	 * @param array $params
 	 */
 	function __construct($url = NULL, array $params = array()) {
+		if ($url instanceof URL) {
+			//return $url;	// doesn't work
+		}
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -134,7 +147,11 @@ class URL {
 	}
 
 	function buildQuery() {
-		return str_replace('#', '%23', http_build_query($this->params));
+		$queryString = http_build_query($this->params, '_');
+		$queryString = str_replace('#', '%23', $queryString);
+		//parse_str($queryString, $queryStringTest);
+		//debug($this->params, $queryStringTest);
+		return $queryString;
 	}
 
 	/**
@@ -152,7 +169,9 @@ class URL {
 	        return false;
 	    }
 
-	    $uri = isset($parsed['scheme']) ? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
+	    $uri = isset($parsed['scheme'])
+			? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
+			: '';
 	    $uri .= isset($parsed['user']) ? $parsed['user'].(isset($parsed['pass']) ? ':'.$parsed['pass'] : '').'@' : '';
 	    $uri .= isset($parsed['host']) ? $parsed['host'] : '';
 	    $uri .= isset($parsed['port']) ? ':'.$parsed['port'] : '';
@@ -232,6 +251,59 @@ return $return; */
 	function exists() {
 		$AgetHeaders = @get_headers($this->buildURL());
 		return preg_match("|200|", $AgetHeaders[0]);
+	}
+
+	/**
+	 * http://stackoverflow.com/a/2638272/417153
+	 * @param string $from
+	 * @param string $to
+	 * @return string
+	 */
+	static function getRelativePath($from, $to) {
+		// some compatibility fixes for Windows paths
+		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		$to   = is_dir($to)   ? rtrim($to, '\/') . '/'   : $to;
+		$from = str_replace('\\', '/', $from);
+		$to   = str_replace('\\', '/', $to);
+
+		$from     = explode('/', $from);
+		$to       = explode('/', $to);
+		$relPath  = $to;
+		//debug($from, $to, $relPath);
+
+		foreach ($from as $depth => $dir) {
+			// find first non-matching dir
+			if($dir === $to[$depth]) {
+				// ignore this directory
+				array_shift($relPath);
+			} else {
+				// get number of remaining dirs to $from
+				$remaining = count($from) - $depth;
+				if ($remaining > 1) {
+					// add traversals up to first matching dir
+					$padLength = (count($relPath) + $remaining - 1) * -1;
+					$relPath = array_pad($relPath, $padLength, '..');
+					break;
+				} else {
+					$relPath[0] = './' . $relPath[0];
+				}
+			}
+		}
+		return implode('/', $relPath);
+	}
+
+	static function getScriptWithPath() {
+		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
+		if (Request::isCLI()) {
+			if (basename($_SERVER['SCRIPT_FILENAME']) == $_SERVER['SCRIPT_FILENAME']) {	// index.php
+				$scriptWithPath = getcwd().'/'.$_SERVER['SCRIPT_FILENAME'];
+			} else {
+				$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+			}
+		} else {
+			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+		}
+		return $scriptWithPath;
 	}
 
 }
