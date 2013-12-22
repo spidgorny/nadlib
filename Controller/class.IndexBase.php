@@ -127,6 +127,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception($exception);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -268,11 +269,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addJS($source) {
 		$this->footer[$source] = '<script src="'.$source.'"></script>';
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addCSS($source) {
 		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
 			$source = 'Lesser?css='.$source;

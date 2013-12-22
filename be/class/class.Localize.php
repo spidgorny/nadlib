@@ -122,7 +122,7 @@ class Localize extends AppControllerBE {
 				}
 
 				$table[$key][$lang] = new HTMLTag('td', array(
-					'id' => $dbID ?: json_encode(array($lobj->lang, $key)),
+						'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
 					'lang' => $lobj->lang,
 					'class' => 'inlineEdit '.$colorCode,
 				), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
@@ -160,6 +160,32 @@ class Localize extends AppControllerBE {
 			$this->index->request->set('ajax', true);
 		}
 		exit();
+						), $url->getParam('c')
+							? $url->getParam('c')
+							: basename($url->getPath())).' ';
+					}
+				}
+			}
+
+			$s = new slTable($table, 'id="localize" width="100%" class="table table-striped"', array(
+				'key' => 'Key',
+				'from' => $this->from->lang,
+				'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
+				'ru' => array('name' => $this->ru->lang, 'ano_hsc' => true),
+				'page' => array(
+					'name' => 'Page',
+					'no_hsc' => true,
+				),
+			));
+
+			$content .= $s;
+			$content .= $pager->renderPageSelectors($this->url);
+			$content = $this->encloseIn(__('Localize'), $content);
+			//$this->index->addJQuery();
+			$this->index->addJS('../js/jquery.jeditable.mini.js');
+			$this->index->addJS("js/Localize.js");
+		}
+		return $content;
 	}
 
 	/**

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class MySQL
+ * @mixin SQLBuilder
+ */
 class MySQL {
 
 	/**
@@ -11,6 +15,11 @@ class MySQL {
 	 * @var string
 	 */
 	public $lastQuery;
+
+	/**
+	 * @var resource
+	 */
+	public $lastResult;
 
 	/**
 	 * @var resource
@@ -48,14 +57,17 @@ class MySQL {
 		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_select_db($this->db, $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_set_charset('utf8', $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -84,7 +96,7 @@ class MySQL {
 		}
 
 		$start = microtime(true);
-		$res = @mysql_query($query, $this->connection);
+		$res = $this->lastResult = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
 			$key = md5($query);
@@ -178,9 +190,9 @@ class MySQL {
 		}
 	}
 
-	function numRows($res) {
-		if (is_resource($res)) {
-			return mysql_num_rows($res);
+	function numRows($res = NULL) {
+		if (is_resource($res ?: $this->lastResult)) {
+			return mysql_num_rows($res ?: $this->lastResult);
 		}
 	}
 
@@ -274,8 +286,8 @@ class MySQL {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
     	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
 		WHERE CCSA.collation_name = T.table_collation
-  		/*AND T.table_schema = 'schemaname'*/
-  		AND T.table_name = '".$table."'";
+		/*AND T.table_schema = 'schemaname'*/
+		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
@@ -329,6 +341,10 @@ class MySQL {
 			$data[$key] = $val;
 		}
 		return $data;
+	}
+
+	function free($res) {
+		mysql_free_result($res);
 	}
 
 	function affectedRows() {

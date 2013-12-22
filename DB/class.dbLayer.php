@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class dbLayer
+ * @mixin SQLBuilder
+ */
 class dbLayer {
 	var $RETURN_NULL = TRUE;
 	var $CONNECTION = NULL;
@@ -28,7 +32,7 @@ class dbLayer {
 	 */
 	var $lastQuery;
 
-	function dbLayer($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
+	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
 		if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
@@ -62,6 +66,27 @@ class dbLayer {
 		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
+		if (!$this->LAST_PERFORM_RESULT) {
+			debug($query);
+			debug_pre_print_backtrace();
+			throw new Exception(pg_errormessage($this->CONNECTION));
+		} else {
+			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+			if ($this->saveQueries) {
+				@$this->QUERIES[$query] += $prof->elapsed();
+				@$this->QUERYMAL[$query]++;
+				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+			}
+		}
+		$this->COUNTQUERIES++;
+		return $this->LAST_PERFORM_RESULT;
+	}
+
+    function performWithParams($query, $params) {
+		$prof = new Profiler();
+		$this->LAST_PERFORM_QUERY = $query;
+		$this->lastQuery = $query;
+		$this->LAST_PERFORM_RESULT = pg_query_params($this->CONNECTION, $query, $params);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
 			debug_pre_print_backtrace();
@@ -255,7 +280,6 @@ class dbLayer {
 	}
 
 	function transaction($serializable = false) {
-		//$this->perform("set autocommit = off");
 		if ($serializable) {
 			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
 		}
@@ -653,4 +677,9 @@ order by a.attnum';
 		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
 	}
 
+    function free($res) {
+        if (is_resource($res)) {
+            pg_free_result($res);
+        }
+    }
 }

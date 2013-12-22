@@ -25,7 +25,12 @@ class SQLWhereEqual extends SQLWherePart {
 	}
 	
 	function __toString() {
-		return $this->field . ' = ' . $this->db->quoteSQL($this->val);
+		if (is_numeric($this->val)) {	// leading 0 leads to problems
+			$sql = "({$this->field} = ".$this->val." OR {$this->field} = '".$this->val."')";
+		} else {
+			$sql = $this->field . ' = ' . $this->db->quoteSQL($this->val);
+		}
+		return $sql;
 	}
 
 	function debug() {
