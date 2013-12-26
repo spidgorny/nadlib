@@ -55,6 +55,7 @@ abstract class HTMLFormProcessor extends AppController {
 			$subRequest = $this->request->getSubRequest($this->prefix);
 			//debug('submit detected', $this->prefix, sizeof($subRequest->getAll()), implode(', ', array_keys($subRequest->getAll())));
 			$this->form->importValues($subRequest);
+			//debug('importValues', $subRequest, $this->form->getValues(), $this->form->desc['begins']);
 			$this->desc = $this->form->desc;
 
 			$this->validator = new HTMLFormValidate($this->form);
