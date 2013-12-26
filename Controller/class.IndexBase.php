@@ -140,8 +140,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$content .= $this->renderController();
 				if (!$this->request->isAjax() && !$this->request->isCLI()) {
 					$content = $this->renderTemplate($content);
-				} else {
-					$content .= $this->content;
+					$content = $this->content . $content;
+				} else {	// AJAX
+					$content = $this->content . $content;
 					$this->content = '';		// clear for the next output. May affect saveMessages()
 				}
 			} catch (Exception $e) {
@@ -225,7 +226,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message">'.$text.'</div>';
+		$this->content .= '<div class="message ui-state-message alert alert-notice padding">'.$text.'</div>';
 	}
 
 	function error($text) {
