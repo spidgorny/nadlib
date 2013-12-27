@@ -129,7 +129,7 @@ class BijouDBConnector {
 	}
 
 	function escapeString($value) {
-		return $this->t3d->fullQuoteStr($value, '');
+		return $this->t3db->fullQuoteStr($value, '');
 	}
 
 	function getDefaultInsertFields() {
