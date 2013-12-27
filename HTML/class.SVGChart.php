@@ -18,7 +18,9 @@ class SVGChart {
 	}
 
 	function render() {
-		$content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="'.$this->width.'" height="'.$this->height.'">'."\n";
+		$content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+		width="'.$this->width.'"
+		height="'.$this->height.'">'."\n";
 		if (sizeof($this->data)) {
 			$max = max($this->data);
 			$width = max(2, round($this->width / sizeof($this->data)));
@@ -39,17 +41,25 @@ class SVGChart {
 					style="fill:#a9d1df;stroke-width:0;stroke:rgb(0,0,0)" />'."\n";
 				if (!($every++ % $often)) {
 					$content .= '<text
-						x="'.($x).'" y="'.($this->height-5).'"
+						x="'.($x).'"
+						y="'.($this->height-5).'"
 						font-size="'.($text_size-3).'">'.$labels[$i].'</text>'."\n";
 				}
 			}
+			$diff = (max($this->data) - min($this->data)) / sizeof($this->data);
 			foreach ($data as $i => $height) {
 				$x = $i * $width;
+				$y = $this->height - max(1, $height) - 7;
 				$height = round(($this->height-20) * $height / $max);
-				$content .= '<text id="thepopup"
+				$i2 = round($labels[$i+1]);
+				$text = $labels[$i] .' - '.$i2.': '.$height .' times';
+				$x = 0; $y = $text_size;
+				$content .= '<text id="thepopup'.$i.'"
 					x="'.$x.'"
-					y="'.($this->height - max(1, $height) - 7).'"
-					fill="black" visibility="hidden">'.$height.'
+					y="'.$y.'"
+					fill="black"
+					visibility="hidden"
+					text-size="'.$text_size.'">'.$text.'
 					<set attributeName="visibility" from="hidden" to="visible"
 					begin="rect_'.$this->id.'_'.$i.'.mouseover" end="rect_'.$this->id.'_'.$i.'.mouseout" />
 				</text>';
