@@ -6,6 +6,8 @@ class SVGChart {
 	protected $height;
 	protected $data = array();
 
+	public $text_size = 14;
+
 	function __construct($width = '100%', $height = '50', array $data = array()) {
 		$this->width = $width;
 		$this->height = $height;
@@ -28,14 +30,13 @@ class SVGChart {
 			$every = 0;
 			$data = array_values($this->data);
 			$often = ceil(sizeof($data) / 4);
-			$text_size = 13;
 			foreach ($data as $i => $height) {
 				$x = $i * $width;
-				$height = round(($this->height-$text_size) * $height / $max);
+				$height = round(($this->height- $this->text_size) * $height / $max);
 				$content .= '<rect
 					id="rect_'.$this->id.'_'.$i.'"
 					x="'.$x.'"
-					y="'.($this->height - max(1, $height) - $text_size).'"
+					y="'.($this->height - max(1, $height) - $this->text_size).'"
 					width="'.($width-1).'"
 					height="'.max(1, $height).'"
 					style="fill:#a9d1df;stroke-width:0;stroke:rgb(0,0,0)" />'."\n";
@@ -43,7 +44,7 @@ class SVGChart {
 					$content .= '<text
 						x="'.($x).'"
 						y="'.($this->height-5).'"
-						font-size="'.($text_size-3).'">'.$labels[$i].'</text>'."\n";
+						font-size="'.($this->text_size -3).'">'.$labels[$i].'</text>'."\n";
 				}
 			}
 			$diff = (max($this->data) - min($this->data)) / sizeof($this->data);
@@ -53,13 +54,13 @@ class SVGChart {
 				$height = round(($this->height-20) * $height / $max);
 				$i2 = round($labels[$i+1]);
 				$text = $labels[$i] .' - '.$i2.': '.$height .' times';
-				$x = 0; $y = $text_size;
+				$x = 0; $y = $this->text_size;
 				$content .= '<text id="thepopup'.$i.'"
 					x="'.$x.'"
 					y="'.$y.'"
 					fill="black"
 					visibility="hidden"
-					text-size="'.$text_size.'">'.$text.'
+					text-size="'. $this->text_size .'">'.$text.'
 					<set attributeName="visibility" from="hidden" to="visible"
 					begin="rect_'.$this->id.'_'.$i.'.mouseover" end="rect_'.$this->id.'_'.$i.'.mouseout" />
 				</text>';
