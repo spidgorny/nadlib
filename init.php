@@ -26,6 +26,7 @@ class InitNADLIB {
 		);
 
 		if (DEVELOPMENT) {
+			header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -45,6 +46,7 @@ class InitNADLIB {
 				header('Expires: -1');
 			}
 		} else {
+			header('X-nadlib: PRODUCTION');
 			error_reporting(0);
 			ini_set('display_errors', FALSE);
 			if (!Request::isCLI()) {
