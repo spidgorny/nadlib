@@ -173,7 +173,11 @@ class Collection {
 			$where = $this->where;
 		}
 		if ($this->parentID > 0) {
-			$where[$this->parentField] = $this->parentID;
+			if ($this->parentID instanceof Date) {
+				$where[$this->parentField] = $this->parentID->getMySQL();
+			} else {
+				$where[$this->parentField] = $this->parentID;
+			}
 		}
 		$qb = Config::getInstance()->qb;
 		if ($where instanceof SQLWhere) {
