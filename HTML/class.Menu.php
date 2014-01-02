@@ -171,10 +171,15 @@ class Menu /*extends Controller*/ {
 			if ($name) {	// empty menu items indicate menu location for a controller
 				$path = $this->getClassPath($class, $root);
 				//$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? $class == $this->current : true;
-				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? in_array($class, $this->request->getURLLevels()) : true;
-				$hasChildren = $renderOnlyCurrentSubmenu && $name instanceof Recursive && $name->getChildren();
-				$activeLIclass = $this->isCurrent($class) 	? 'list-group-item active' : 'list-group-item';
-				$activeAclass = $this->isCurrent($class) 	? 'act' : '';
+				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent
+					? in_array($class, $this->request->getURLLevels())
+					: true;
+				$hasChildren = $renderOnlyCurrentSubmenu
+					&& $name instanceof Recursive
+					&& $name->getChildren();
+				$cur = $this->isCurrent($class, $root);
+				$activeLIclass = $cur	? 'list-group-item active' : 'list-group-item';
+				$activeAclass  = $cur 	? 'act' : '';
 				if ($name instanceof HTMLTag) {
 					$aTag = $name.'';
 				} else {
@@ -206,19 +211,22 @@ class Menu /*extends Controller*/ {
 	 * For http://appdev.nintendo.de/~depidsvy/posaCards/ListSales/ChartSales/BreakdownTotal/?filter[id_country]=2
 	 * to work we need to split by '/' not only the path but also parameters
 	 * @param string $class
+	 * @param $subMenu
 	 * @return bool
 	 */
-	function isCurrent($class) {
+	function isCurrent($class, $subMenu) {
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);
 			if (end($parts) == $class) {
 				$ret = true;
 			}
+		} elseif ($subMenu) {
+			$ret = (implode('/', $subMenu).'/'.$class) == $this->current;
 		} else {
 			$ret = $this->current == $class;
 		}
-		//debug($this->current, $class);
+		//debug($class, $subMenu, $this->current, $ret);
 		return $ret;
 	}
 
