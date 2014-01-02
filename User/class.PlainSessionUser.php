@@ -25,4 +25,8 @@ class PlainSessionUser extends User {
 		return session_status() == PHP_SESSION_ACTIVE;	// PHP 5.4
 	}
 
+	function __toString() {
+		return session_id();
+	}
+
 }

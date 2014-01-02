@@ -1,5 +1,7 @@
 <?php
 
+define('BR', "<br />\n");
+
 class InitNADLIB {
 
 	var $useCookies = true;
@@ -26,6 +28,7 @@ class InitNADLIB {
 		);
 
 		if (DEVELOPMENT) {
+			header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
