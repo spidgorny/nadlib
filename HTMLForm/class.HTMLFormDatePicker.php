@@ -50,7 +50,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 	 */
 	function getISODate($value) {
 		//debug($value, is_integer($value), is_numeric($value), strtotime($value));
-		if ($value && is_integer($value) || is_numeric($value)) {
+		if ($value && (is_integer($value) || is_numeric($value))) {
 			$val = intval($value);
 		} else if ($this->jsFormat == 'dd.mm.yy') {
 			$val = explode('.', $value);

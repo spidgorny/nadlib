@@ -1,6 +1,6 @@
 <?php
 
-class PlainSessionUser extends User {
+class PlainSessionUser extends UserBase {
 
 	function __construct() {
 		if (!Request::isCLI()) {

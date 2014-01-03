@@ -73,8 +73,9 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	/**
-	 * fillValues() is looping over the existing values
-	 * This function is looping over desc
+	 * fillValues() is looping over the existing values ($this->desc)
+	 * This function is looping over desc.
+	 * Will overwrite!
 	 * @param Request $form - Request instead of an array because of the trim() function only?
 	 * @return void
 	 */
