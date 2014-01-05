@@ -8,8 +8,18 @@ class ProgressBar {
 	var $textid;
 	var $decimals = 1;
 	protected $color = '#43b6df';
+
+	/**
+	 * @var bool
+	 */
 	var $cli = false;
-	var $destruct100 = true;
+
+	/**
+	 * @var bool
+	 * Destructor will set the progress bar to 100%
+	 * if enabled.
+	 */
+	var $destruct100 = false;
 
 	function __construct($percentDone = 0, $color = '43b6df') {
 		$this->setID('pb-'.uniqid());
@@ -115,14 +125,16 @@ class ProgressBar {
 	}
 
 	function getImage($p, $display = 'inline-block') {
-		$prefix = '';
+		$prefix = 'vendor/spidgorny/nadlib/';
 		if (IndexBase::getInstance() instanceof IndexBE) {
 			//$prefix = '../../../../';
 			// just use base href instead
 		}
+		//d(array($prefix, AutoLoad::getInstance()->nadlibRoot));
+		$prefix = AutoLoad::getInstance()->nadlibRoot;
 		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; white-space: nowrap;">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />
 		</div>');
 	}
 

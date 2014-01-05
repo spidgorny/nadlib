@@ -1,5 +1,7 @@
 <?php
 
+define('BR', "<br />\n");
+
 class InitNADLIB {
 
 	var $useCookies = true;
@@ -26,6 +28,7 @@ class InitNADLIB {
 		);
 
 		if (DEVELOPMENT) {
+			header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -37,7 +40,9 @@ class InitNADLIB {
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config')) {
 				//print_r(Config::getInstance()->config['Config']);
-				set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+				set_time_limit(Config::getInstance()->timeLimit
+					? Config::getInstance()->timeLimit
+					: 5);	// small enough to notice if the site is having perf. problems
 			}
 			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 			if (!Request::isCLI()) {
@@ -66,6 +71,10 @@ class InitNADLIB {
 
 }
 
+/**
+ * May already be defined in TYPO3
+ */
+if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
@@ -77,6 +86,7 @@ function debug($a) {
 			, true)
 		).'</pre>';
 	}
+}
 }
 
 function nodebug() {
@@ -260,6 +270,12 @@ function eachv(array &$list) {
 	return $current;
 }
 
+/**
+ * @used FullGrid
+ * @param array $a
+ * @param array $b
+ * @return array
+ */
 function array_combine_stringkey(array $a, array $b) {
 	$ret = array();
 	reset($b);

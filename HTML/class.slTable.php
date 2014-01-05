@@ -270,6 +270,21 @@ class slTable {
 		}
 	}
 
+	function getThesNames() {
+		$names = array();
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = isset($thv['name'])
+					? $thv['name']
+					: (isset($thv['label']) ? $thv['label'] : '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
+		}
+		return $names;
+	}
+
 	function generateThead(HTMLTableBuf $t) {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -433,7 +448,10 @@ class slTable {
 					if (!$val) {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
-					$val = new slTableValue($val, $k);
+
+					if (!($val instanceof slTableValue)) {
+						$val = new slTableValue($val, $k);
+					}
 
 					$out = (isset($k['before']) ? $k['before'] : '').
 						   $val->render($col, $row) .
@@ -643,7 +661,14 @@ class slTable {
 		return $xls;
 	}
 
-	function getCLITable($cutTooLong = false) {
+	/**
+	 * Separation by "\t" is too stupid. We count how many chars are there in each column
+	 * and then padd it accordingly
+	 * @param bool $cutTooLong
+	 * @param bool $useAvg
+	 * @return string
+	 */
+	function getCLITable($cutTooLong = false, $useAvg = false) {
 		$this->generateThes();
 		$widthMax = array();
 		$widthAvg = array();
@@ -655,11 +680,13 @@ class slTable {
 				$widthAvg[$field] += mb_strlen($value);
 			}
 		}
-		foreach ($this->thes as $field => $name) {
-			$widthAvg[$field] /= sizeof($this->data);
-			//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
-			$avgLen = $widthAvg[$field];
-			$widthMax[$field] = max(8, 1+$avgLen);
+		if ($useAvg) {
+			foreach ($this->thes as $field => $name) {
+				$widthAvg[$field] /= sizeof($this->data);
+				//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
+				$avgLen = $widthAvg[$field];
+				$widthMax[$field] = max(8, 1+$avgLen);
+			}
 		}
 
 		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);

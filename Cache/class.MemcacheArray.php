@@ -6,22 +6,44 @@
  * Class MemcacheArray
  */
 class MemcacheArray implements ArrayAccess {
-	public $file;
-	protected $expire;
+
 	/**
-	 * Enter description here...
-	 *
+	 * @var string
+	 */
+	public $file;
+
+	/**
+	 * @var int
+	 */
+	protected $expire;
+
+	/**
 	 * @var MemcacheFile
 	 */
 	public $fc;
+
+	/**
+	 * @var mixed
+	 */
 	public $data;
 
 	protected $state;
 
 	public static $instances = array();
 
+	/**
+	 * @var callable
+	 */
 	public $onDestruct;			// callback
+
+	/**
+	 * @var int
+	 */
 	public $hit = 0;
+
+	/**
+	 * @var int
+	 */
 	public $miss = 0;
 
 	/**
@@ -34,6 +56,7 @@ class MemcacheArray implements ArrayAccess {
 		$this->expire = $expire instanceof Duration ? $expire->getTimestamp() : $expire;
 		$this->fc = new MemcacheFile();
 		$this->data = $this->fc->get($this->file, $this->expire);
+		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__.' ('.$file.')');
 	}
@@ -103,7 +126,7 @@ class MemcacheArray implements ArrayAccess {
 
     static function getInstance($file, $expire = 0) {
     	return self::$instances[$file]
-    		? self::$instances[$file]
+    		?  self::$instances[$file]
     		: (self::$instances[$file] = new self($file, $expire));
     }
 
