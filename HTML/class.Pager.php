@@ -52,6 +52,8 @@ class Pager {
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
 		$this->user = Config::getInstance()->user;
+		// Extend it like PagerDCI extends Pager
+        //if(!$this->user) $this->user = DCI::getInstance()->user;
 		Config::getInstance()->mergeConfig($this);
 	}
 
@@ -199,10 +201,10 @@ class Pager {
 		$this->url = $url;
 
 		if (!self::$cssOutput) {
-			if (class_exists('Index')) {
+			if (class_exists('Index') && $this->request->apacheModuleRewrite()) {
 				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 				Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/PaginationControl.less');
-			} elseif ($GLOBALS['HTMLHEADER']) {
+			} elseif (false && $GLOBALS['HTMLHEADER']) {
 				$GLOBALS['HTMLHEADER']['PaginationControl.less']
 					= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/PaginationControl.less" />';
 			} elseif (!Request::isCLI()) {
@@ -342,7 +344,10 @@ class Pager {
 	function getCountedRows($dbEdit) {
 		global $dbLayer;
 		$queryCount = $dbEdit->getCountQuery();
-		list($countedRows) = pg_fetch_array($dbLayer->perform($queryCount));
+		$res = $dbLayer->perform($queryCount);
+		$row = pg_fetch_array($res);
+		//debug($row, $queryCount);
+		list($countedRows) = $row;
 		return $countedRows;
 	}
 

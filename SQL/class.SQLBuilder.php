@@ -278,6 +278,7 @@ class SQLBuilder {
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
+			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $value ? 'true' : 'false';
@@ -330,7 +331,11 @@ class SQLBuilder {
 				if ($val instanceof AsIs) {
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
-					$set[] = $key . ' ' . $val;
+					if (is_numeric($key)) {
+						$set[] = $val;
+					} else {
+						$set[] = $key . ' ' . $val;
+					}
 				} else if ($val instanceof SQLBetween) {
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
@@ -359,7 +364,7 @@ class SQLBuilder {
 					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {
+				} else if (is_numeric($key)) {		// KEY!!!
 					$set[] = $val;
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
@@ -503,7 +508,7 @@ class SQLBuilder {
 		return $res;
 	}
 
-	function runInsertUpdateQuery($table, array $fields, array $where) {
+	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
@@ -511,12 +516,13 @@ class SQLBuilder {
 			$query = $this->getUpdateQuery($table, $fields, $where);
 			$inserted = 2;
 		} else {
-			$query = $this->getInsertQuery($table, $fields + array('ctime' => NULL));
+			$query = $this->getInsertQuery($table, $fields + $where + $insert);
+			// array('ctime' => NULL) #TODO: make it manually now
 			$inserted = TRUE;
 		}
 		//debug($query);
 		$this->found = $this->db->fetchAssoc($res);
-		$res = $this->db->perform($query);
+		$this->db->perform($query);
 		$this->db->commit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $inserted;
