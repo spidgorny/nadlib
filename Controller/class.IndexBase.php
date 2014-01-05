@@ -179,7 +179,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error padding">
+		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
@@ -225,11 +225,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message">'.$text.'</div>';
+		$this->content .= '<div class="message alert alert-info">'.$text.'</div>';
 	}
 
 	function error($text) {
-		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
+		$this->content .= '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
 	}
 
 	function saveMessages() {
