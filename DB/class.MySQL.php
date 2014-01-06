@@ -343,10 +343,6 @@ class MySQL {
 		return $data;
 	}
 
-	function free($res) {
-		mysql_free_result($res);
-	}
-
 	function affectedRows() {
 		return mysql_affected_rows();
 	}
