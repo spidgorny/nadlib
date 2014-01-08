@@ -47,8 +47,8 @@ class AutoLoad {
 	 * #see register()
 	 */
 	protected function __construct() {
-		require_once __DIR__.'/HTTP/class.URL.php';
-		require_once __DIR__.'/HTTP/class.Request.php';
+		require_once __DIR__ . '/HTTP/class.URL.php';
+		require_once __DIR__ . '/HTTP/class.Request.php';
 		$scriptWithPath = URL::getScriptWithPath();
 
 		// for CLI
@@ -108,7 +108,7 @@ class AutoLoad {
 	}
 
 	function getFolders() {
-		require_once __DIR__.'/HTTP/class.Request.php';
+		require_once __DIR__ . '/HTTP/class.Request.php';
 		$folders = array();
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
