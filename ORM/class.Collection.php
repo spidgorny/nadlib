@@ -364,7 +364,7 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		//debug(sizeof($this->members));
-		foreach ($this->members as $key => $obj) {
+		foreach ($this->objectify() as $key => $obj) {
 			//debug($i++, (strlen($content)/1024/1024).'M');
 			if (is_object($obj)) {
 				$content .= $obj->render()."\n";

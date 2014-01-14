@@ -99,7 +99,7 @@ class ConfigBase {
 	public static function getInstance() {
 		if (!self::$instance) {
 			self::$instance = new Config();
-			//self::$instance->postInit();
+			self::$instance->postInit();
 		}
 		return self::$instance;
 	}
