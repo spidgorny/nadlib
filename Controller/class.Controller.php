@@ -373,10 +373,11 @@ abstract class Controller {
 	 * @param $formAction
 	 * @param array $hidden
 	 * @param string $submitClass
+	 * @param array $submitParams
 	 * @internal param null $class
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText') {
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText', array $submitParams = array()) {
 		$f = new HTMLForm();
 		if ($formAction) {
 			$f->action($formAction);
@@ -393,7 +394,7 @@ abstract class Controller {
 		} else {
 			$f->submit($name, array(
 				'class' => $submitClass,
-			));
+			) + $submitParams);
 		}
 		return $f;
 	}
