@@ -268,6 +268,8 @@ class slTable {
 				}
 			}
 		}
+	}
+
 	function generateThead(HTMLTableBuf $t) {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
