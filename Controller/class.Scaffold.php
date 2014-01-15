@@ -198,7 +198,7 @@ abstract class Scaffold extends AppController {
 		//$desc = $this->getDesc($userData);
 		//$f = new HTMLFormTable();
 		//$desc = $f->fillValues($desc, $userData); // commented not to overwrite
-		$v = new HTMLFormValidate($this->desc);
+		$v = new HTMLFormValidate($this->form);
 		if ($v->validate()) {
 			try {
 				switch ($action) {
