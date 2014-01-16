@@ -222,11 +222,12 @@ class Menu /*extends Controller*/ {
 				$ret = true;
 			}
 		} elseif ($subMenu) {
-			$ret = (implode('/', $subMenu).'/'.$class) == $this->current;
+			$implodeMenu = implode('/', $subMenu).'/'.$class;
+			$ret = $implodeMenu == $this->current;
 		} else {
 			$ret = $this->current == $class;
 		}
-		//debug($class, $subMenu, $this->current, $ret);
+		//debug($class, $subMenu, $implodeMenu, $this->current, $ret);
 		return $ret;
 	}
 
