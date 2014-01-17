@@ -131,6 +131,7 @@ class AutoLoad {
 	}
 
 	function initFolders() {
+        unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
@@ -172,7 +173,7 @@ class AutoLoad {
 				foreach ($folders as &$el) {
 					$el = $this->appRoot . $el;
 				}
-				$allFolders = array_merge($allFolders, $folders);
+				$allFolders = array_merge($folders, $allFolders);
 			}
 			$folders = $allFolders;
 		}
