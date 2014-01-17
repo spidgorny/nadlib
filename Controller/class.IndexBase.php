@@ -1,6 +1,7 @@
 <?php
 
 class IndexBase /*extends Controller*/ {	// infinite loop
+
 	/**
 	 * Enter description here...
 	 *
@@ -33,6 +34,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @var AppController
 	 */
 	public $controller;
+
 
 	/**
 	 * @var Index|IndexBE

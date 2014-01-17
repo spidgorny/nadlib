@@ -1,6 +1,6 @@
 <?php
 
-class IndexBE extends IndexBase {
+class Index extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
@@ -45,8 +45,17 @@ class IndexBE extends IndexBase {
 			$this->controller->user = $this->user;	// BEUser instead of grUser
 			$content = parent::renderController();
 		} else {
-			//$this->message(new LoginForm());
-			throw new LoginException('Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
+			$this->error('Accessing this page requires a valid login');
+			$loginForm = new LoginForm();
+			$loginForm->withRegister = false;
+			$content = $loginForm->layout->wrap(
+				$this->content.
+				$loginForm->render()
+			);
+			$this->content = '';
+			/*throw new LoginException('
+				Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
+			*/
 		}
 		return $content;
 	}
@@ -58,6 +67,7 @@ class IndexBE extends IndexBase {
 		$v->sidebar = $this->showSidebar();
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
+		// is the root of the project
 		$v->baseHref = $this->request->getLocation();
 		//$v->baseHref = str_replace('/vendor/spidgorny/nadlib/be', '', $v->baseHref);	// for CSS
 		$content = $v->render();	// not concatenate but replace

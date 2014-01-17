@@ -17,7 +17,7 @@ class AppControllerBE extends Controller {
 	function __construct() {
 		parent::__construct();
 		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
-		$this->index = IndexBE::getInstance();
+		$this->index = Index::getInstance();
 		//debug($this->request->getAll());
 		if ($this->request->getBool('forceDL')) {
 			$this->forceCronjobDL = true;

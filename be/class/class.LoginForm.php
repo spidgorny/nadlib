@@ -16,6 +16,7 @@ class LoginForm extends AjaxLogin {
 	function __construct($action = NULL) {
 		parent::__construct($action);
 		$this->secret = md5(json_encode($_ENV));
+		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
 	}
 
 	function __render() {

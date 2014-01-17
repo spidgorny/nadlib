@@ -9,12 +9,6 @@ class Request {
 	protected $data = array();
 
 	/**
-	 * The default controller retrieved from Config.
-	 * @var string
-	 */
-	public $defaultController;
-
-	/**
 	 * @var URL
 	 */
 	public $url;
@@ -27,7 +21,6 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
@@ -341,7 +334,7 @@ class Request {
 					}
 					$controller = $last;
 				} else {
-					$controller = $this->defaultController;	// not good as we never get 404
+					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
 			}
 		}   // cli
@@ -350,7 +343,7 @@ class Request {
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
 			'last' => $last,
-			'default' => $this->defaultController,
+			'default' => Config::getInstance()->defaultController,
 			'data' => $this->data));
 		return $controller;
 	}
@@ -385,7 +378,7 @@ class Request {
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : $this->defaultController;
+		return $return ? $return : Config::getInstance()->defaultController;
 	}
 
 	function redirect($controller) {
@@ -526,6 +519,9 @@ class Request {
 		$path = $this->url->getPath();
 		if (strlen($path) > 1) {	// "/"
 			$path = trimExplode('/', $path);
+			if ($path[0] == 'index.php') {
+				array_shift($path);
+			}
 			//debug($this->url->getPath(), $path);
 		} else {
 			$path = array();
