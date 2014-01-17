@@ -10,12 +10,25 @@ class AlterIndex extends AppControllerBE {
 	function __construct() {
 		parent::__construct();
 		$c = Config::getInstance();
-		$this->jsonFile = $c->appRoot.'/sql/'.$this->db->db.'.json';
 		//$this->db->switchDB('glore');
+		$this->jsonFile = $c->appRoot.'/sql/'.$this->db->db.'.json';
+
+		if (true) {
+			require_once $c->appRoot.'/constants.php';
+			$GLOBALS['dbLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
+			$this->db = $GLOBALS['dbLayer'];
+			$c->db = $GLOBALS['dbLayer'];
+			$c->qb->db = $GLOBALS['dbLayer'];
+		}
+
+		$this->jsonFile = $c->appRoot.'/sql/buglog_dev.json';
 	}
 
 	function sidebar() {
-		return $this->getActionButton('Save DB Struct', 'saveStruct');
+		$content = '';
+		$content .= 'DB: '.$this->db->database.BR;
+		$content .= $this->getActionButton('Save DB Struct', 'saveStruct');
+		return $content;
 	}
 
 	function saveStructAction() {
@@ -34,7 +47,7 @@ class AlterIndex extends AppControllerBE {
 		$result = array();
 		$tables = $this->db->getTables();
 		foreach ($tables as $t) {
-			$struct = $this->db->getTableColumns($t);
+			$struct = $this->db->getTableColumnsEx($t);
 			//unset($struct['password']);	// debug
 			$indexes = $this->db->getIndexesFrom($t);
 			$result[$t] = array(
