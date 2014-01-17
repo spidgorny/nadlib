@@ -44,6 +44,9 @@ form.anyPageForm input {
 .list-group-item {
 	padding: 0;
 }
+.nav > li.active {
+	background: #428bca;
+}
 .nav > li > a {
 	padding: 0.25em 1em;
 }

@@ -39,7 +39,18 @@ class AutoLoad {
 	 */
 	public $config;
 
+	/**
+	 * Relative to getcwd()
+	 * Can be "../" from /nadlib/be/
+	 * @var string
+	 */
 	public $nadlibRoot = 'vendor/spidgorny/nadlib/';
+
+	/**
+	 * Relative to $this->appRoot
+	 * @var string
+	 */
+	public $nadlibFromDocRoot;
 
 	/**
 	 * getFolders() is called from outside
@@ -57,6 +68,10 @@ class AutoLoad {
 		// for PHPUnit
 		$relToNadlib = URL::getRelativePath(getcwd(), dirname(__FILE__));
 		$this->nadlibRoot = $relToNadlib;
+
+		$this->appRoot = $this->detectAppRoot();
+		$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath(getcwd().'/'.$this->nadlibRoot));
+
 		if (false) {
 			echo '<pre>';
 			print_r(array(
@@ -67,16 +82,34 @@ class AutoLoad {
 				'dirname(__FILE__)' => dirname(__FILE__),
 				'$relToNadlib' => $relToNadlib,
 				'$this->nadlibRoot' => $this->nadlibRoot,
+				'$this->appRoot' => $this->appRoot,
+				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
 			));
 			//print_r($_SERVER);
 			echo '</pre>';
 		}
 
-		$this->appRoot = dirname(URL::getScriptWithPath());
-		$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
-		//debug('$this->appRoot', $this->appRoot);
-
 		$this->loadConfig();
+	}
+
+	/**
+	 * Original idea was to remove vendor/s/nadlib/be from the CWD
+	 * but since $this->nadlibRoot is relative "../" it's impossible.
+	 * Now we go back one folder until we find "class/class.Config.php" which MUST exist
+	 */
+	function detectAppRoot() {
+		$appRoot = dirname(URL::getScriptWithPath());
+		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
+		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
+		while ($appRoot) {
+			$exists = file_exists($appRoot.'/class/class.Config.php');
+			//debug($appRoot, $exists);
+			if ($exists) {
+				break;
+			}
+			$appRoot = dirname($appRoot);
+		}
+		return $appRoot.'/';
 	}
 
 	function loadConfig() {
@@ -87,12 +120,12 @@ class AutoLoad {
 		if (!class_exists('ConfigBase')) {
 			require_once 'class.ConfigBase.php';
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath = getcwd().'/class/class.Config.php';
+			$configPath = $this->appRoot.'/class/class.Config.php';
 			//debug($configPath, file_exists($configPath));
 			if (file_exists($configPath)) {
 				include_once $configPath;
 			} else {
-				print('class.Config.php not found.<br />'."\n");
+				print('<div class="error">'.$configPath.' not found.</div>'.BR);
 			}
 		}
 	}
@@ -128,13 +161,20 @@ class AutoLoad {
 
 		if (!$folders) {
 			$folders = ConfigBase::$includeFolders;	// only ConfigBase here
+			// appden $this->nadlibRoot before each
 			foreach ($folders as &$el) {
 				$el = $this->nadlibRoot . $el;
 			}
+			$allFolders = array_merge(array(), $folders);
 			if (class_exists('Config') && Config::$includeFolders) {
-				//d($folders, Config::$includeFolders);
-				$folders = array_merge($folders, Config::$includeFolders);
+				$folders = Config::$includeFolders;
+				// append $this->appRoot before each
+				foreach ($folders as &$el) {
+					$el = $this->appRoot . $el;
+				}
+				$allFolders = array_merge($allFolders, $folders);
 			}
+			$folders = $allFolders;
 		}
 
 		return $folders;
@@ -198,7 +238,7 @@ class AutoLoad {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
 				//dirname($_SERVER['SCRIPT_FILENAME']).DIRECTORY_SEPARATOR.
-				$this->appRoot.DIRECTORY_SEPARATOR.
+				//$this->nadlibRoot.
 				$path.DIRECTORY_SEPARATOR.
 				$subFolders.//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';

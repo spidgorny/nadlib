@@ -71,6 +71,8 @@ class ServerStat extends AppControllerBE {
 		$conf['Server time'] = date('Y-m-d H:i:s');
 		$conf['documentRoot'] = $this->config->documentRoot;
 		$conf['appRoot'] = $this->config->appRoot;
+		$conf['nadlibRoot'] = AutoLoad::getInstance()->nadlibRoot;
+		$conf['nadlibFromDocRoot'] = AutoLoad::getInstance()->nadlibFromDocRoot;
 		$conf['memory_limit'] = number_format($allMem/1024/1024, 3, '.', '').' MB';
 		$conf['Mem. used'] = number_format($useMem/1024/1024, 3, '.', '').' MB';
 		$conf['Mem. used %'] = new HTMLTag('td', array(

@@ -238,7 +238,8 @@ abstract class Controller {
 	}
 
 	function encloseIn($title, $content) {
-		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
+		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
 	function encloseInAA($content, $caption = '', $h = NULL) {

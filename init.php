@@ -27,6 +27,8 @@ class InitNADLIB {
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
 
+		date_default_timezone_set('Europe/Berlin');	// before using header()
+
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);
@@ -57,7 +59,6 @@ class InitNADLIB {
 				header('Expires: -1');
 			}
 		}
-		date_default_timezone_set('Europe/Berlin');
 		ini_set('short_open_tag', 1);
 		Request::removeCookiesFromRequest();
 	}
@@ -80,11 +81,13 @@ function debug($a) {
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
-		echo '<pre>'.htmlspecialchars(
-			var_dump(
-				func_num_args() == 1 ? $a : $params
-			, true)
-		).'</pre>';
+		ob_start();
+		var_dump(
+			func_num_args() == 1 ? $a : $params
+		);
+		$dump = ob_get_clean();
+		$dump = str_replace("=>\n", ' =>', $dump);
+		echo '<pre>'.htmlspecialchars($dump).'</pre>';
 	}
 }
 }

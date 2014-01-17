@@ -40,7 +40,7 @@ class AjaxLogin extends AppController {
 	function __construct($action = NULL) {
 		parent::__construct();
 		Config::getInstance()->mergeConfig($this);
-		$this->layout = new Wrap('<div class="span10">', '</div>');
+		$this->layout = new Wrap('<div class="col-md-10">', '</div>');
 		$action = $action ? $action : $this->request->getTrim('action');	// don't reverse this line as it will call mode=login twice
 		if ($action) {
 			$this->action = $action;
@@ -114,7 +114,9 @@ class AjaxLogin extends AppController {
 				$content .= $this->activateActionReal();
 			} else {
 				$content .= $this->formAction();
-				$content .= $this->registerAction();
+				if ($this->withRegister) {
+					$content .= $this->registerAction();
+				}
 			}
 			$content = '<div id="AjaxLogin" '.($this->openable ? 'rel="toggle"' : '').'>'.$content.'</div>';
 		} catch (Exception $e) {
@@ -129,10 +131,11 @@ class AjaxLogin extends AppController {
 	function getScript() {
 		//$content = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
 		//$content = '<script src="http://code.jquery.com/jquery-1.8.1.min.js"></script>';
-		IndexBE::getInstance()->addJQuery()
-			->addJS('../../nadlib/js/jquery.form.js')
-			->addJS('../../nadlib/js/ajaxLogin.js')
-			->addCSS('../../nadlib/CSS/ajaxLogin.css');
+		$nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
+		Index::getInstance()->addJQuery()
+			->addJS($nadlibFromDocRoot.'js/jquery.form.js')
+			->addJS($nadlibFromDocRoot.'js/ajaxLogin.js')
+			->addCSS($nadlibFromDocRoot.'CSS/ajaxLogin.css');
 	}
 
 	function formAction(array $desc = NULL) {
