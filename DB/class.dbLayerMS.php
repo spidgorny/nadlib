@@ -128,8 +128,14 @@ class dbLayerMS {
 	 * @return array ('name' => ...)
 	 */
 	function getFields($table) {
-		$res = $this->perform("SELECT *
+		//mssql_meta - doesn't exist
+		$res = $this->perform("
+SELECT
+	syscolumns.name,
+	systypes.name AS stype,
+	syscolumns.*
 FROM syscolumns
+LEFT OUTER JOIN systypes ON (systypes.xtype = syscolumns.xtype)
 WHERE id = (SELECT id
 FROM sysobjects
 WHERE type = 'U'
