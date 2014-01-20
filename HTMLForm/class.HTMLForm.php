@@ -291,7 +291,7 @@ class HTMLForm {
 				if (isset($desc['classAsValuePrefix'])) {
 					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
-                if (isset($desc['useTitle'])) {
+                if (isset($desc['useTitle']) && $desc['useTitle'] == true) {
                     $content .= ' title="'.strip_tags($option).'"';
                 }
 				$content .= ">$option</option>\n";
