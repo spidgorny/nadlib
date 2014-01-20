@@ -364,6 +364,19 @@ class Request {
 		}
 	}
 
+	static function isCLI() {
+		//return isset($_SERVER['argc']);
+		return php_sapi_name() == 'cli';
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
+	 * @return bool
+	 */
+	function isCron() {
+		return !isset($_SERVER['TERM']);
+	}
+
 	function debug() {
 		return get_object_vars($this);
 	}
