@@ -202,7 +202,7 @@ class View {
 		return $text;
 	}
 
-	function _autolink_find_URLS( $text ) {
+	static function _autolink_find_URLS( $text ) {
 		// build the patterns
 		$scheme = '(http:\/\/|https:\/\/)';
 		$www = 'www\.';
