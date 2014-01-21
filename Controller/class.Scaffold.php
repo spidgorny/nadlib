@@ -72,7 +72,6 @@ abstract class Scaffold extends AppController {
 			'formPrefix' => $this->formPrefix,
 			'data' => $this->data,
 			'model' => $this->model));
-		$this->desc = $this->getDesc($this->data);
 	}
 
 	/**
@@ -263,7 +262,7 @@ abstract class Scaffold extends AppController {
 		$this->form->hidden('action', $action);
 		$this->form->hidden('ajax', TRUE);
 		$this->form->prefix($this->formPrefix);
-		//debug($this->desc);
+		$this->desc = $this->getDesc($this->data);
 		$this->form->showForm($this->desc);
 		//$this->form->submit($this->addButton);
 		$this->form->formMore = $this->formMore;

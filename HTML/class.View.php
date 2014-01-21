@@ -1,6 +1,10 @@
 <?php
 
 class View {
+
+	/**
+	 * @var string
+	 */
 	protected $file;
 
 	/**
@@ -9,8 +13,6 @@ class View {
 	public $caller;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLang
 	 */
 	protected $ll;
@@ -196,7 +198,10 @@ class View {
 		$urls = $this->_autolink_find_URLS($text);
 		if (!empty($urls)) // i.e. there were some URLS found in the text
 		{
-			array_walk($urls, array($this, '_autolink_create_html_tags'), array('target' => $target, 'nofollow' => $nofollow));
+			array_walk($urls, array($this, '_autolink_create_html_tags'), array(
+				'target' => $target,
+				'nofollow' => $nofollow,
+			));
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
 		return $text;
