@@ -292,7 +292,12 @@ class MySQL {
 		return $row;
 	}
 
-	function getTableColumns($table) {
+	/**
+	 * Return a 2D array
+	 * @param $table
+	 * @return array
+	 */
+	function getTableColumnsEx($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
 			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
