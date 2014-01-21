@@ -32,6 +32,11 @@ class dbLayer {
 	 */
 	var $lastQuery;
 
+	/**
+	 * @var string DB name
+	 */
+	var $db;
+
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
 		if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
@@ -46,6 +51,7 @@ class dbLayer {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
+		$this->db = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
@@ -147,6 +153,11 @@ class dbLayer {
 		return $a[0];
 	}
 
+	/**
+	 * Return one dimensional array
+	 * @param $table
+	 * @return array
+	 */
 	function getTableColumns($table) {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
@@ -155,6 +166,11 @@ class dbLayer {
 			error("Table not found: <b>$table</b>");
 			exit();
 		}
+	}
+
+	function getTableColumnsEx($table) {
+		$meta = pg_meta_data($this->CONNECTION, $table);
+		return $meta;
 	}
 
 	function getTableColumnsCached($table) {
@@ -194,7 +210,7 @@ class dbLayer {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
 			$return = array();
-			foreach($meta as $col => $m) {
+			foreach ($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
 			return $return;
@@ -264,7 +280,13 @@ class dbLayer {
 	 * @return string[]
 	 */
 	function getTables() {
-		$query = "select relname from pg_class where not relname ~ 'pg_.*' and not relname ~ 'sql_.*' and relkind = 'r'";
+		$query = "select relname
+		from pg_class
+		where
+		not relname ~ 'pg_.*'
+		and not relname ~ 'sql_.*'
+		and relkind = 'r'
+		ORDER BY relname";
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
@@ -674,7 +696,9 @@ order by a.attnum';
 	}
 
 	function getIndexesFrom($table) {
-		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
+		return $this->fetchAll('select *, pg_get_indexdef(indexrelid)
+		from pg_index
+		where indrelid = \''.$table.'\'::regclass');
 	}
 
     function free($res) {
