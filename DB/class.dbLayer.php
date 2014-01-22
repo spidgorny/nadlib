@@ -6,7 +6,12 @@
  */
 class dbLayer {
 	var $RETURN_NULL = TRUE;
-	var $CONNECTION = NULL;
+
+    /**
+     * @var resource
+     */
+    protected $CONNECTION = NULL;
+
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
@@ -33,7 +38,7 @@ class dbLayer {
 	var $lastQuery;
 
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
-		if ($dbse) {
+        if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
 	}
