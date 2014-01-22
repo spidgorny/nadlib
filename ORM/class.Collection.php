@@ -147,8 +147,8 @@ class Collection {
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
 		//debug($this->parentField, $this->parentID, $this->where);
-        if (($this->parentField && $this->parentID > 0) || !$this->parentID) {
-            $this->retrieveDataFromDB();
+		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
+			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
@@ -300,10 +300,18 @@ class Collection {
 
 	function prepareRender() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		$this->getData();
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->prepareRenderRow($row);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+	}
+
+	function getData() {
+		if (!$this->query) {
+			$this->retrieveDataFromDB();
+		}
+		return $this->data;
 	}
 
 	function prepareRenderRow(array $row) {
@@ -317,7 +325,7 @@ class Collection {
     function getOptions($blackList = array()) {
 		$options = array();
 		//debug(get_class($this), $this->titleColumn);
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
             if( !in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
             }
@@ -332,7 +340,7 @@ class Collection {
 	function findInData(array $where) {
 		//debug($where);
 		//echo new slTable($this->data);
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
 			if ($intersect1 == $intersect2) {
@@ -347,7 +355,7 @@ class Collection {
 	 */
 	function findAllInData(array $where) {
 		$result = array();
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
 			if ($intersect1 == $intersect2) {
@@ -359,7 +367,7 @@ class Collection {
 
 	function renderList() {
 		$content = '<ul>';
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$content .= '<li>';
 			foreach ($this->thes as $key => $_) {
 				$content .= $row[$key]. ' ';
@@ -423,9 +431,12 @@ class Collection {
 	 * @return object[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
+		if (!$this->query) {
+			$this->retrieveDataFromDB();
+		}
 		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
-			foreach ($this->data as $row) {
+			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
 					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
