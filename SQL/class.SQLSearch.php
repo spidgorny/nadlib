@@ -38,7 +38,10 @@ class SQLSearch {
 		return $query;
 	}
 
-	function getWhere() {
+	/**
+	 * @return array
+	 */
+	public function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;

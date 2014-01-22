@@ -10,3 +10,4 @@ bak/
 vendor/
 be/cache/
 .hg_archival.txt
+*.orig
