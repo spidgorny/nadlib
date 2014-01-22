@@ -43,4 +43,8 @@ class PlainSessionUser extends UserBase {
 			:  self::$instance = new self($id);
 	}
 
+	function try2login() {
+		// session_start
+	}
+
 }
