@@ -706,4 +706,9 @@ order by a.attnum';
             pg_free_result($res);
         }
     }
+
+	function escapeBool($value) {
+		return $value ? 'true' : 'false';
+	}
+
 }

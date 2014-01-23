@@ -270,6 +270,21 @@ class slTable {
 		}
 	}
 
+	function getThesNames() {
+		$names = array();
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = isset($thv['name'])
+					? $thv['name']
+					: (isset($thv['label']) ? $thv['label'] : '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
+		}
+		return $names;
+	}
+
 	function generateThead(HTMLTableBuf $t) {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -627,10 +642,7 @@ class slTable {
 		//debug($this->thes);
 
 		$xls = array();
-		foreach ($this->thes as $th) {
-			$row[] = is_array($th) ? $th['name'] : $th;
-		}
-		$xls[] = $row;
+		$xls[] = $this->getThesNames();
 
 		foreach ($this->data as $row) {
 			$line = array();

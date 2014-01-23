@@ -281,8 +281,7 @@ class SQLBuilder {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
-			return $value ? 'true' : 'false';
-			//return intval($value); // MySQL specific
+			return $this->db->escapeBool($value);
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
