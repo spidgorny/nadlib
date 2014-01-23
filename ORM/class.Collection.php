@@ -248,13 +248,6 @@ class Collection {
 		return $query;
 	}
 
-	function getData() {
-		if (!$this->data) {
-			$this->retrieveDataFromDB();
-		}
-		return $this->data;
-	}
-
 	function preprocessData() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		foreach ($this->data as &$row) { // Iterator by reference

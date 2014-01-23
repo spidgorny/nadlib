@@ -162,6 +162,8 @@ class Debug {
 			$content = $a;
 		} else if (is_string($a) && strstr($a, "\n")) {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
+		} else if ($a instanceof __PHP_Incomplete_Class) {
+			$content = '__PHP_Incomplete_Class';
 		} else {
 			$content = htmlspecialchars($a.'');
 		}

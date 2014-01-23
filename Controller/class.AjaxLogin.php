@@ -2,7 +2,7 @@
 
 class AjaxLogin extends AppController {
 
-	protected $action;
+	public $action;
 
 	protected $secret = 'fdhgfjklgfdhj';
 
@@ -241,13 +241,28 @@ class AjaxLogin extends AppController {
 			$desc['username']['value'] = $username;
 			$desc['password']['cursor'] = true;
 			$content .= $this->formAction($desc);
-			$content .= $this->registerAction();
+			if ($this->withRegister) {
+				$content .= $this->registerAction();
+			}
 		}
 		return $content;
 	}
 
 	function menuAction() {
 		$self = get_class($this);
+		$linkEdit = $this->getURL(array(
+			'c' => get_class($this),
+			'action' => 'profile',
+		));
+		$linkPass = $this->getURL(array(
+			'c' => get_class($this),
+			'action' => 'password',
+		));
+		$linkLogout = $this->getURL(array(
+			'c' => get_class($this),
+			'action' => 'logout',
+		));
+
 		$content = '<div id="loginMenu">
 			<a href="http://de.gravatar.com/" class="gravatar">
 				<img src="'.$this->user->getGravatarURL(25).'" align="left" border="0">
@@ -255,10 +270,10 @@ class AjaxLogin extends AppController {
 			$this->user->getName().'
 			<br clear="all">
 			<ul>
-				<li><a href="'.$self.'?action=profile" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
+				<li><a href="'.$linkEdit.'" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
 				<li><a href="http://de.gravatar.com/" target="gravatar">'.__('Change Gravatar').'</a></li>
-				<li><a href="'.$self.'?action=password" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
-				<li><a href="'.$self.'?action=logout" class="ajax">'.__('Logout').'</a></li>
+				<li><a href="'.$linkPass.'" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
+				<li><a href="'.$linkLogout.'" class="ajax">'.__('Logout').'</a></li>
 			</ul>
 		</div>';
 		return $content;
@@ -371,7 +386,9 @@ class AjaxLogin extends AppController {
 		$content = '<div class="message alert alert-success">'.__('You are logged out.').'</div>';
 		//$content .= '<script> document.location.reload(true); </script>';
 		$content .= $this->formAction();
-		$content .= $this->registerAction();
+		if ($this->withRegister) {
+			$content .= $this->registerAction();
+		}
 		return $content;
 	}
 
@@ -400,7 +417,9 @@ class AjaxLogin extends AppController {
 		$desc['username']['value'] = $email;
 		$desc['password']['cursor'] = true;
 		$content .= $this->formAction($desc);
-		$content .= $this->registerAction();
+		if ($this->withRegister) {
+			$content .= $this->registerAction();
+		}
 		return $content;
 	}
 
@@ -566,7 +585,9 @@ class AjaxLogin extends AppController {
 		$this->message = $content;
 		$content = '';
 		$content .= $this->formAction();
-		$content .= $this->registerAction();
+		if ($this->withRegister) {
+			$content .= $this->registerAction();
+		}
 		return $content;
 	}
 
