@@ -106,14 +106,6 @@ abstract class OODBase {
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
-    function __sleep() {
-        unset($this->db);
-    }
-
-    function __wakeup() {
-        $this->db = Config::getInstance()->db;
-    }
-
 	function getName() {
 		return $this->data[$this->titleColumn] ? $this->data[$this->titleColumn] : $this->id;
 	}
