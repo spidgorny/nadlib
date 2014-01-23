@@ -1,6 +1,6 @@
 <?php
 
-class dbLayerMS {
+class dbLayerMS implements DBInterface {
 	protected $server, $database, $user, $password;
 
 	/**
@@ -76,9 +76,10 @@ class dbLayerMS {
 		}
 		if ($msg && !in_array($msg, $this->ignoreMessages)) {
 			//debug($msg, $query);
+			$msg2 = mssql_fetch_assoc(mssql_query('SELECT @@ERROR AS ErrorCode', $this->connection))['ErrorCode'];
 			$this->close();
 			$this->connect();
-			throw new Exception($msg);
+			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
 		return $res;
@@ -228,6 +229,14 @@ AND name = '?')", array($table));
 
 	function free($res) {
 		mssql_free_result($res);
+	}
+
+	function escapeBool($value) {
+		return $value ? 1 : 0;
+	}
+
+	function affectedRows() {
+		return mssql_rows_affected($this->connection);
 	}
 
 }
