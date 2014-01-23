@@ -1,6 +1,10 @@
 <?php
 
 abstract class Scaffold extends AppController {
+
+	/**
+	 * @var string
+	 */
 	protected $table = 'sometable in Scaffold';
 
 	/** @var HTMLFormTable */
