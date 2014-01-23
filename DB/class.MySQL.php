@@ -356,4 +356,8 @@ class MySQL {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
+	function escapeBool($value) {
+		return intval(!!$value);
+	}
+
 }
