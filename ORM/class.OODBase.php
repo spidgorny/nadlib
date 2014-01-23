@@ -83,13 +83,23 @@ abstract class OODBase {
 	/**
 	 * Retrieves data from DB.
 	 *
+	 * @param int|array|SQLWhere $id
+	 * @param bool $fromFindInDB
 	 * @throws Exception
 	 */
-
-	function init($id) {
+	function init($id, $fromFindInDB = false) {
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
 		if (is_array($id)) {
-			$this->initByRow($id);
+			if (is_scalar($this->idField) || $fromFindInDB) {
+				$this->initByRow($id);
+			} else {
+				$this->id = $id;
+				//debug($id, $fromFindInDB, $this->id);
+				$this->findInDB($this->id);	// will call init()
+				if (!$this->data) {
+					$this->id = NULL;
+				}
+			}
 		} else if ($id instanceof SQLWhere) {
 			$this->findInDB($id->getAsArray());
 		} else if (is_scalar($id)) {
@@ -112,7 +122,14 @@ abstract class OODBase {
 
 	function initByRow(array $row) {
 		$this->data = $row;
-		$this->id = $this->data[$this->idField];
+		if (is_array($this->idField)) {
+			$this->id = array();
+			foreach ($this->idField as $field) {
+				$this->id[$field] = $this->data[$field];
+			}
+		} else {
+			$this->id = $this->data[$this->idField];
+		}
 	}
 	
 	/**
@@ -126,6 +143,7 @@ abstract class OODBase {
 		//$data['ctime'] = new AsIs('NOW()');
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
+		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
@@ -144,10 +162,16 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-			//$data['mtime'] = new AsIs('NOW()');
-			//$data['muser'] = $GLOBALS['i']->user->id;					// TODO: add to DB
+			$where = array();
+			if (is_array($this->idField)) {
+				foreach ($this->idField as $field) {
+					$where[$field] = $this->data[$field];
+				}
+			} else {
+				$where[$this->idField] = $this->id;
+			}
 			$qb = Config::getInstance()->qb;
-			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
+			$query = $qb->getUpdateQuery($this->table, $data, $where);
 			//debug($query);
 			$res = $this->db->perform($query);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -192,7 +216,7 @@ abstract class OODBase {
 		} else {
 			$data = array();
 		}
-		$this->init($data);
+		$this->init($data, true);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
