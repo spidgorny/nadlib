@@ -365,12 +365,14 @@ class HTMLFormTable extends HTMLForm {
 		$stdout = '';
 		//foreach ($desc as $fieldName2 => $desc2) {
 			//if ($fieldName2 != 'horisontal') {
-				$this->mainFormStart();
+				//$this->mainFormStart();
+				$this->stdout .= $desc2['beforeHorisontal'];
 				$path = $fieldName;
 				//$path[] = $fieldName2;
 				$this->showCell($path, $desc2);
-				$this->mainFormEnd();
-			//}
+				//$this->mainFormEnd();
+				$this->stdout .= $desc2['afterHorisontal'];
+		//}
 		//}
 	}
 
@@ -446,11 +448,12 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '<tr><td colspan="2">'.$subForm->getBuffer().'</td></tr>';
 			} else if (is_array($fieldDesc) && !in_array($sType, array('hidden', 'hiddenArray'))) {
 				if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
+					$fieldDesc['TRmore']['class'] .= ' '.$fieldName;
 					$this->stdout .= "<tr ".$this->getAttrHTML($fieldDesc['TRmore']).">";
 				}
 
 				if ($fieldDesc['table']) {
-					$this->stdout .= '<td>';
+					$this->stdout .= '<td class="table">';
 					$this->showForm($fieldDesc, $path, FALSE);
 					$this->stdout .= "</td>";
 				}
@@ -461,7 +464,9 @@ class HTMLFormTable extends HTMLForm {
 					.'</fieldset>';
 					$this->showCell($path, $fieldDesc);
 				} else if ($fieldDesc['horisontal']) {
+					$this->stdout .= '<!-- horisontal { -->';
 					$this->showRow($path, $fieldDesc);
+					$this->stdout .= '<!-- horisontal } -->';
 				} else {
 					$this->showCell($path, $fieldDesc);
 				}
