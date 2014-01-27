@@ -91,6 +91,9 @@ class Menu /*extends Controller*/ {
 		if ($useRouter) {
 			$path = new URL();
 			$path->clearParams();
+		} elseif ($this->useControllerSlug) {
+			$path = new URL();
+			$path->setPath($path->documentRoot.'/');
 		} else {
 			$path = new URL();
 			$path->clearParams();

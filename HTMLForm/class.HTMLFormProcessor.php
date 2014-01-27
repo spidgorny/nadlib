@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Class HTMLFormProcessor - allows quick implementation of the HTML form with validation
+ * You only need to implement
+ * - getDesc();
+ * - onSuccess();
+ * - submitButton
+ */
 abstract class HTMLFormProcessor extends AppController {
 	protected $prefix = __CLASS__;
 	protected $default = array();
@@ -46,8 +53,8 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	function postInit() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$this->desc = $this->getDesc();
 		$this->form = $this->getForm();
+		$this->desc = $this->getDesc();
 		//debug($this->desc);
 		//debug($this->prefix);
 		if ($this->submitted) {

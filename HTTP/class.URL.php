@@ -306,4 +306,8 @@ return $return; */
 		return $scriptWithPath;
 	}
 
+	function getDomain() {
+		return $this->components['host'];
+	}
+
 }
