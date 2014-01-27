@@ -377,7 +377,7 @@ class AjaxLogin extends AppController {
 	function logoutForm() {
 		return new HTMLTag('a', array(
 			'href' => get_class($this).'?action=logout',
-			'class' => 'btn btn-',
+			'class' => 'btn btn-default navbar-btn',
 		), __('Logout'));
 	}
 
