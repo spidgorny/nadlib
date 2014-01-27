@@ -160,23 +160,31 @@ class AutoLoad {
 		}
 
 		if (!$folders) {
-			$folders = ConfigBase::$includeFolders;	// only ConfigBase here
-			// appden $this->nadlibRoot before each
-			foreach ($folders as &$el) {
-				$el = $this->nadlibRoot . $el;
-			}
-			$allFolders = array_merge(array(), $folders);
-			if (class_exists('Config') && Config::$includeFolders) {
-				$folders = Config::$includeFolders;
-				// append $this->appRoot before each
-				foreach ($folders as &$el) {
-					$el = $this->appRoot . $el;
-				}
-				$allFolders = array_merge($allFolders, $folders);
-			}
-			$folders = $allFolders;
+			$folders = array();
+			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
+			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
 
+		return $folders;
+	}
+
+	function getFoldersFromConfig() {
+		if (class_exists('Config') && Config::$includeFolders) {
+			$folders = Config::$includeFolders;
+			// append $this->appRoot before each
+			foreach ($folders as &$el) {
+				$el = $this->appRoot . $el;
+			}
+		}
+		return $folders;
+	}
+
+	function getFoldersFromConfigBase() {
+		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
+		// appdend $this->nadlibRoot before each
+		foreach ($folders as &$el) {
+			$el = $this->nadlibRoot . $el;
+		}
 		return $folders;
 	}
 

@@ -166,7 +166,8 @@ class AjaxLogin extends AppController {
 	function inlineFormAction() {
 		if ($this->user && $this->user->isAuth()) {
 			$content = '<form class="navbar-form navbar-right" method="POST">
-				'.$this->user->getName().' <a href="?c=Login&action=logout" class="ajax btn">'.__('Logout').'</a>
+				<p class="navbar-text">'.$this->user->getName().'</p>
+				<a href="?c=Login&action=logout" class="ajax btn">'.__('Logout').'</a>
 			</form>';
 		} else {
 			$content = '<form class="navbar-form navbar-right" method="POST">
@@ -375,10 +376,14 @@ class AjaxLogin extends AppController {
 	}
 
 	function logoutForm() {
-		return new HTMLTag('a', array(
+		$a = new HTMLTag('a', array(
 			'href' => get_class($this).'?action=logout',
-			'class' => 'btn btn-',
+			'class' => 'btn btn-default',
 		), __('Logout'));
+		$content = '<form class="navbar-form navbar-right">
+			<div class="form-group">'.$a.'</div>
+		</form>';
+		return $content;
 	}
 
 	function logoutAction() {
