@@ -99,9 +99,12 @@ class AutoLoad {
 	 */
 	function detectAppRoot() {
 		$appRoot = dirname(URL::getScriptWithPath());
+		$appRoot = realpath($appRoot);
 		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
-		while ($appRoot) {
+		// Z:\
+		while ($appRoot && $appRoot{1} != ':') {
+			echo $appRoot;
 			$exists = file_exists($appRoot.'/class/class.Config.php');
 			//debug($appRoot, $exists);
 			if ($exists) {
@@ -125,7 +128,7 @@ class AutoLoad {
 			if (file_exists($configPath)) {
 				include_once $configPath;
 			} else {
-				print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
 			}
 		}
 	}
@@ -169,6 +172,7 @@ class AutoLoad {
 	}
 
 	function getFoldersFromConfig() {
+		$folders = array();
 		if (class_exists('Config') && Config::$includeFolders) {
 			$folders = Config::$includeFolders;
 			// append $this->appRoot before each

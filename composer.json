@@ -7,7 +7,8 @@
 		"pdepend/pdepend": "1.1.0",
 		"sharom/twitter-bootstrap": "dev-master",
 		"michelf/php-markdown": "*",
-        "twitter/bootstrap": "master"
+        "twitter/bootstrap": "master",
+		"phpunit/phpunit": "dev-master"
     },
 	"autoload": {
 		"classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
