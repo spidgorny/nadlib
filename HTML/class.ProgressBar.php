@@ -125,12 +125,6 @@ class ProgressBar {
 	}
 
 	function getImage($p, $display = 'inline-block') {
-		$prefix = 'vendor/spidgorny/nadlib/';
-		if (IndexBase::getInstance() instanceof IndexBE) {
-			//$prefix = '../../../../';
-			// just use base href instead
-		}
-		//d(array($prefix, AutoLoad::getInstance()->nadlibRoot));
 		$prefix = AutoLoad::getInstance()->nadlibRoot;
 		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; white-space: nowrap;">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
