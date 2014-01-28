@@ -9,7 +9,12 @@ class ProgressBar {
 	var $decimals = 1;
 	protected $color = '#43b6df';
 	var $cli = false;
-	var $destruct100 = true;
+
+	/**
+	 * Must be false in order to user new ProgressBar(...) inside strings.
+	 * @var bool
+	 */
+	var $destruct100 = false;
 
 	function __construct($percentDone = 0, $color = '43b6df') {
 		$this->setID('pb-'.uniqid());
