@@ -1,14 +1,16 @@
 {
     "name": "spidgorny/nadlib",
     "require": {
-		"php": ">=5.3.8"
+		"php": ">=5.3.8",
+		"michelf/php-markdown": "*",
+		"components/bootstrap": "dev-master",
+		"phpunit/php-code-coverage": "1.4.*@dev",
+		"phpunit/phpunit-mock-objects": "1.4.*@dev",
+		"phpunit/phpunit": "dev-master"
     },
     "require_bak": {
 		"pdepend/pdepend": "1.1.0",
-		"sharom/twitter-bootstrap": "dev-master",
-		"michelf/php-markdown": "*",
-        "twitter/bootstrap": "master",
-		"phpunit/phpunit": "dev-master"
+		"sharom/twitter-bootstrap": "dev-master"
     },
 	"autoload": {
 		"classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
@@ -21,13 +23,25 @@
 		}
 	],
 	"repositories": [
-        {
+		{
+			"type": "package",
+			"package": {
+				"name": "michelf/php-markdown",
+				"version": "master",
+				"source": {
+					"url": "https://github.com/michelf/php-markdown",
+					"type": "git",
+					"reference": "master"
+				}
+			}
+		},
+		{
             "type": "package",
             "package": {
-                "version": "master",
                 "name": "twitter/bootstrap",
-                "source": {
-                    "url": "https://github.com/twitter/bootstrap.git",
+				"version": "master",
+				"source": {
+                    "url": "https://github.com/twitter/bootstrap",
                     "type": "git",
                     "reference": "master"
                 },

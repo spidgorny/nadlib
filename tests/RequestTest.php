@@ -19,7 +19,14 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 
 	function test_set() {
 		$this->r->set('a', 'b');
-		$this->asser
+		$this->assertEquals('b', $this->r->getTrim('a'));
+	}
+
+	function test_unset() {
+		//debug($this->r);
+		$this->r->set('a', 'b');
+		$this->r->un_set('a');
+		$this->assertEmpty($this->r->getTrim('a'));
 	}
 
 }
