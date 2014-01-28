@@ -102,9 +102,9 @@ class AutoLoad {
 		$appRoot = realpath($appRoot);
 		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
-		// Z:\
-		while ($appRoot && $appRoot{1} != ':') {
-			echo $appRoot;
+		while ($appRoot && $appRoot != '/'
+			&& ($appRoot{1} != ':' && strlen($appRoot) == 3)	// u:\
+		) {
 			$exists = file_exists($appRoot.'/class/class.Config.php');
 			//debug($appRoot, $exists);
 			if ($exists) {
