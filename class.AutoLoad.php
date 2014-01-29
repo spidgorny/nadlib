@@ -149,7 +149,8 @@ class AutoLoad {
 		$folders = array();
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
-				//debug('session_start');
+				//debug('session_start', $this->nadlibFromDocRoot);
+				session_set_cookie_params(0, '');	// current folder
 				session_start();
 
 				if (isset($_SESSION[__CLASS__])) {
