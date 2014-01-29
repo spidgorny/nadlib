@@ -134,7 +134,7 @@ class AutoLoad {
 	}
 
 	function initFolders() {
-        unset($_SESSION[__CLASS__]);
+        //unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
