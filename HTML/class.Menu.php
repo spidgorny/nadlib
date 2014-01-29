@@ -72,13 +72,16 @@ class Menu /*extends Controller*/ {
 		$useRouter = class_exists('Config')
 			? Config::getInstance()->config['Controller']['useRouter']
 			: '';
+		$rootpath = $this->request->getURLLevels();
+
 		if ($useRouter) {
-			$rootpath = $this->request->getURLLevels();
 			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
-			//debug($rootpath, $level, $this->current);
+		} else if ($this->useControllerSlug) {
+			$this->current = implode('/', $rootpath);
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
+		//debug($useRouter, $this->useControllerSlug, $rootpath, $level, $this->current);
 	}
 
 	/**
@@ -214,10 +217,10 @@ class Menu /*extends Controller*/ {
 	 * For http://appdev.nintendo.de/~depidsvy/posaCards/ListSales/ChartSales/BreakdownTotal/?filter[id_country]=2
 	 * to work we need to split by '/' not only the path but also parameters
 	 * @param string $class
-	 * @param $subMenu
+	 * @param array $subMenu
 	 * @return bool
 	 */
-	function isCurrent($class, $subMenu) {
+	function isCurrent($class, array $subMenu = array()) {
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);
@@ -247,14 +250,14 @@ class Menu /*extends Controller*/ {
 				//$path = $this->items->find($class);
 				//debug($class, $path);
 				$path = array_merge($root, array($class));
-			//if ($path) {
-			if ($path && $this->useControllerSlug) {
-				$link = $this->basePath . implode('/', $path);
+				//if ($path) {
+				if ($path && $this->useControllerSlug) {
+					$link = $this->basePath . implode('/', $path);
 				} else {
-				$link = $this->basePath . $class;
+					$link = $this->basePath . $class;
 				}
 			} else {
-			$link = $this->basePath . $class;
+				$link = $this->basePath . $class;
 			}
 		}
 		//debug($class, $root, $path, $this->useControllerSlug, $this->basePath, $link);
