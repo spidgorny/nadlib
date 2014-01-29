@@ -2,18 +2,25 @@
 
 interface DBInterface {
 
+	function __construct();
+
+	// parameters are different
+	//function connect();
+
 	function perform($query);
 
 	function numRows($res);
 
-	function quoteKey($key);
+	function affectedRows();
+
+	function getTables();
 
 	function lastInsertID();
 
 	function free($res);
 
-	function escapeBool($value);
+	function quoteKey($key);
 
-	function affectedRows();
+	function escapeBool($value);
 
 }

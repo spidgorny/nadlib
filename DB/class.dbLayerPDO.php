@@ -7,59 +7,83 @@
 class dbLayerPDO implements DBInterface {
 
 	/**
-	 * @var resource
+	 * @var PDO
 	 */
 	public $connection;
 
 	/**
-	 * @var resource
+	 * @var PDOStatement
 	 */
 	public $result;
 
-	function __construct($user = NULL, $password = NULL, $host = NULL, $db = NULL) {
-		$this->connect($user, $password, $host, $db);
+	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL) {
+		$this->connect($user, $password, $scheme, $driver, $host, $db);
 	}
 
 	static function getAvailableDrivers() {
 		return PDO::getAvailableDrivers();
 	}
 
-	function connect($user, $password, $host, $db) {
-		//$this->connection = new PDO('odbc:DRIVER={IBM DB2 ODBC DRIVER};HOSTNAME='.$host.';PORT=50000;DATABASE='.$db.';PROTOCOL=TCPIP;', $user, $password);
-		$this->connection = new PDO('ibm:DRIVER={IBM DB2 ODBC DRIVER};DATABASE='.$db.'; HOSTNAME='.$host.';aPORT=56789;PROTOCOL=TCPIP;', $user, $password);
+	/**
+	 * @param $user
+	 * @param $password
+	 * @param $scheme
+	 * @param $driver		IBM DB2 ODBC DRIVER
+	 * @param $host
+	 * @param $db
+	 */
+	function connect($user, $password, $scheme, $driver, $host, $db) {
+		$this->connection = new PDO($scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';dbname='.$db.'; HOSTNAME='.$host.';aPORT=56789;PROTOCOL=TCPIP;', $user, $password);
 	}
 
-	function perform($query) {
-		$this->result = odbc_exec($this->connection, $query);
+	function perform($query, $flags = PDO::FETCH_ASSOC) {
+		$this->result = $this->connection->query($query, $flags);
+		if (!$this->result) {
+			throw new Exception(
+				implode(BR, $this->connection->errorInfo()),
+				$this->connection->errorCode());
+		}
+		return $this->result;
 	}
 
 	function numRows($res) {
-		// TODO: Implement numRows() method.
+		return $res->rowCount();
 	}
 
 	function affectedRows() {
-		// TODO: Implement affectedRows() method.
+		return $this->res->rowCount();
 	}
 
 	function getTables() {
-		$this->result = odbc_tables($this->connection);
-		return $this->fetchAll($this->result);
-	}
-
-	function escapeBool($value) {
-		// TODO: Implement escapeBool() method.
-	}
-
-	function free($res) {
-		// TODO: Implement free() method.
+		$this->perform('show tables');
+		return $this->result->fetchAll();
 	}
 
 	function lastInsertID() {
-		// TODO: Implement lastInsertID() method.
+		$this->connection->lastInsertId();
+	}
+
+	function free($res) {
+		$res->closeCursor();
 	}
 
 	function quoteKey($key) {
-		// TODO: Implement quoteKey() method.
+		return MySQL::quoteKey($key);
+	}
+
+	function escapeBool($value) {
+		return MySQL::escapeBool($value);
+	}
+
+	function __call($method, array $params) {
+		$qb = Config::getInstance()->qb;
+		//debug_pre_print_backtrace();
+		//debug($method, $params);
+		if (method_exists($qb, $method)) {
+			return call_user_func_array(array($qb, $method), $params);
+		} else {
+			throw new Exception($method.' not found in MySQL and SQLBuilder');
+		}
 	}
 
 }
