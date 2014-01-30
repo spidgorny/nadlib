@@ -186,9 +186,11 @@ class AutoLoad {
 
 	function getFoldersFromConfigBase() {
 		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
-		// appdend $this->nadlibRoot before each
-		foreach ($folders as &$el) {
-			$el = $this->nadlibRoot . $el;
+		// append $this->nadlibRoot before each
+		if (dirname(getcwd()) != 'be') {
+			foreach ($folders as &$el) {
+				$el = $this->nadlibRoot . $el;
+			}
 		}
 		return $folders;
 	}
