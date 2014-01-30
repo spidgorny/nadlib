@@ -66,7 +66,7 @@ class FlexiTable extends OODBase {
 		$table = str_replace('`', '', $this->table);
 		$table = str_replace("'", '', $table);
 		if (!self::$tableColumns[$table] || $force) {
-			self::$tableColumns[$table] = $this->db->getTableColumns($table);
+			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
 		}
 		$this->columns = self::$tableColumns[$table];
 		//debug($table, sizeof($this->columns), array_keys(self::$tableColumns), $this->db->lastQuery);

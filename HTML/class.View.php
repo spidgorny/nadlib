@@ -64,7 +64,10 @@ class View {
 		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
+
+		//debug(getcwd(), $file);
 		require($file);
+
 		if (!$content) {
 			$content = ob_get_clean();
 		} else {

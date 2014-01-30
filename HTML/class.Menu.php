@@ -186,9 +186,9 @@ class Menu /*extends Controller*/ {
 					if ($hasChildren) {
 						$activeLIclass .= ' dropdown';
 						$activeAclass .= ' dropdown-toggle';
-						$aTag = '<a href="'.$path.'" class="'.$activeAclass.'" data-toggle="dropdown">'.__($name.'').' <b class="caret"></b></a>';
+						$aTag = '<a href="'.$path.'" class="'.$activeAclass.'" data-toggle="dropdown">'.__($name.'').' <b class="caret"></b></a>'."\n";
 					} else {
-						$aTag = '<a href="'.$path.'" class="'.$activeAclass.'">'.__($name.'').'</a>';
+						$aTag = '<a href="'.$path.'" class="'.$activeAclass.'">'.__($name.'').'</a>'."\n";
 					}
 				}
 				if ($this->recursive && $hasChildren) {
@@ -199,7 +199,7 @@ class Menu /*extends Controller*/ {
 				}
 				$content .= new HTMLTag('li', array(
 					'class' => $activeLIclass,
-				), $aTag.$contentSubmenu, true);
+				), $aTag.$contentSubmenu, true)."\n";
 			}
 		}
 		//debug($this->current);
