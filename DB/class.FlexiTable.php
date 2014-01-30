@@ -1,7 +1,21 @@
 <?php
 
+/**
+ * Class FlexiTable extends OODBase allowing to automatically create new tables
+ * and add new DB columns based on INSERT and UPDATE queries. Useful for quick DB prototyping.
+ * Data type for new columns is not perfect.
+ */
 class FlexiTable extends OODBase {
+
+	/**
+	 * @var array
+	 */
 	protected $columns = array();
+
+	/**
+	 * Enables/disables FlexiTable functionality
+	 * @var bool
+	 */
 	protected $doCheck = false;
 
 	/**

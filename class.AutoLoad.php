@@ -99,9 +99,12 @@ class AutoLoad {
 	 */
 	function detectAppRoot() {
 		$appRoot = dirname(URL::getScriptWithPath());
+		$appRoot = realpath($appRoot);
 		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
-		while ($appRoot) {
+		while ($appRoot && $appRoot != '/'
+			&& ($appRoot{1} != ':' && strlen($appRoot) == 3)	// u:\
+		) {
 			$exists = file_exists($appRoot.'/class/class.Config.php');
 			//debug($appRoot, $exists);
 			if ($exists) {
@@ -125,12 +128,13 @@ class AutoLoad {
 			if (file_exists($configPath)) {
 				include_once $configPath;
 			} else {
-				print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
 			}
 		}
 	}
 
 	function initFolders() {
+        //unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
@@ -160,25 +164,32 @@ class AutoLoad {
 		}
 
 		if (!$folders) {
-			$folders = ConfigBase::$includeFolders;	// only ConfigBase here
-			// appden $this->nadlibRoot before each
-			if (dirname(getcwd()) != 'be') {
-				foreach ($folders as &$el) {
-					$el = $this->nadlibRoot . $el;
-				}
-			}
-			$allFolders = array_merge(array(), $folders);
-			if (class_exists('Config') && Config::$includeFolders) {
-				$folders = Config::$includeFolders;
-				// append $this->appRoot before each
-				foreach ($folders as &$el) {
-					$el = $this->appRoot . $el;
-				}
-				$allFolders = array_merge($allFolders, $folders);
-			}
-			$folders = $allFolders;
+			$folders = array();
+			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
+			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
 
+		return $folders;
+	}
+
+	function getFoldersFromConfig() {
+		$folders = array();
+		if (class_exists('Config') && Config::$includeFolders) {
+			$folders = Config::$includeFolders;
+			// append $this->appRoot before each
+			foreach ($folders as &$el) {
+				$el = $this->appRoot . $el;
+			}
+		}
+		return $folders;
+	}
+
+	function getFoldersFromConfigBase() {
+		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
+		// appdend $this->nadlibRoot before each
+		foreach ($folders as &$el) {
+			$el = $this->nadlibRoot . $el;
+		}
 		return $folders;
 	}
 

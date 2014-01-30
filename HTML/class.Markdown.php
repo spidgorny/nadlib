@@ -7,9 +7,11 @@ class Markdown extends View {
 			? $this->file
 			: $this->folder.$this->file;
 		$contents = file_get_contents($file);
-		include_once dirname(__FILE__) . '/../vendor/PHP Markdown 1.0.1o/markdown.php';
-		if (function_exists('Markdown')) {
-			$html = Markdown($contents);
+
+		// with autoloader from composer this should not be necessary
+		//include_once dirname(__FILE__) . '/../vendor/michelf/php-markdown/Michelf/Markdown.inc.php';
+		if (class_exists('Markdown')) {
+			$html = Markdown::defaultTransform($contents);
 		}
 		return $html;
 	}
