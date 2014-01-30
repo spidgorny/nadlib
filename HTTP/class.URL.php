@@ -254,6 +254,8 @@ return $return; */
 	}
 
 	/**
+	 * Works well when both paths are absolute.
+	 * Comparing server path to URL path does not work.
 	 * http://stackoverflow.com/a/2638272/417153
 	 * @param string $from
 	 * @param string $to
@@ -261,19 +263,14 @@ return $return; */
 	 */
 	static function getRelativePath($from, $to) {
 		// some compatibility fixes for Windows paths
-		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
-		$to   = is_dir($to)   ? rtrim($to, '\/') . '/'   : $to;
-		$from = str_replace('\\', '/', $from);
-		$to   = str_replace('\\', '/', $to);
-
-		$from     = explode('/', $from);
-		$to       = explode('/', $to);
+		$from = self::getPathFolders($from);
+		$to = self::getPathFolders($to);
 		$relPath  = $to;
-		//debug($from, $to, $relPath);
 
 		foreach ($from as $depth => $dir) {
 			// find first non-matching dir
-			if($dir === $to[$depth]) {
+			//debug($depth, $dir, $to[$depth]);
+			if (isset($to[$depth]) && $dir === $to[$depth]) {
 				// ignore this directory
 				array_shift($relPath);
 			} else {
@@ -289,6 +286,7 @@ return $return; */
 				}
 			}
 		}
+		//debug($from, $to, $relPath);
 		return implode('/', $relPath);
 	}
 
@@ -311,6 +309,33 @@ return $return; */
 	 */
 	function getDomain() {
 		return $this->components['host'];
+	}
+
+	/**
+	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
+	 * Takes care of Windows path and removes empty
+	 * @param $from
+	 * @return array
+	 */
+	static function getPathFolders($from) {
+		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		$from = str_replace('\\', '/', $from);
+		$from = explode('/', $from);
+		$from = array_filter($from);
+		return $from;
+	}
+
+	/**
+	 * @param string $path1
+	 * @param string $path2
+	 * @return string
+	 */
+	static function getCommonRoot($path1, $path2) {
+		$path1 = self::getPathFolders($path1);
+		$path2 = self::getPathFolders($path2);
+		$common = array_intersect($path1, $path2);
+		//debug($path1, $path2, $common);
+		return $common;
 	}
 
 }

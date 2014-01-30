@@ -48,7 +48,6 @@ form.anyPageForm input {
 	background: #428bca;
 }
 .nav > li > a {
-	padding: 0.25em 1em;
 }
 .nav > li > a.act {
 	color: white;
@@ -57,8 +56,15 @@ form.anyPageForm input {
 .nav > li > a.act:focus {
 	background-color: inherit;
 }
+.navbar-form {
+    margin: 0;
+    padding: 0;
+}
 .navbar-form input {
 	width: 10em;
+}
+.navbar-form a.btn {
+    margin: 6px 12px;
 }
 .htmlFormTable {
 	width: 100%;

@@ -42,7 +42,7 @@ class Index extends IndexBase {
 
 		$this->menu = array(
 			'HomeBE' => 'Home',
-			'Info' => new Recursive('Info', array(
+			'ServerStat' => new Recursive('Info', array(
 					'ServerStat' => 'Server Stat',
 					'ServerData' => 'Server Data',
 					'Session' => 'Session',
@@ -51,12 +51,12 @@ class Index extends IndexBase {
 					'PHPInfo' => 'phpinfo()',
 					'Documentation' => 'Documentation',
 				)),
-			'Test' => new Recursive('Test', array(
+			'TestNadlib' => new Recursive('Test', array(
 					'TestNadlib' => 'TestNadlib',
 					'ValidatorCheck' => 'Validator Check',
 					'UnitTestReport' => 'Unit Test Report',
 				)),
-			'DB' => new Recursive('DB', array(
+			'ExplainQuery' => new Recursive('DB', array(
 					'AlterDB' => 'Alter DB',
 					'AlterCharset' => 'Alter Charset',
 					'AlterTable' => 'Alter Table',
@@ -123,9 +123,13 @@ class Index extends IndexBase {
 
 		$m = new Menu($this->menu);
 		$m->recursive = false;
-		$m->level = 2;
+		$m->level = 1;
 		$m->renderOnlyCurrent = true;
+		$m->useControllerSlug = false;
+		$m->setCurrent($m->level);
+		$m->setBasePath();
 		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');
+		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
 	}

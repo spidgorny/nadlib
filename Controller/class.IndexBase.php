@@ -35,7 +35,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	public $controller;
 
-
 	/**
 	 * @var Index|IndexBE
 	 */

@@ -1,4 +1,5 @@
-php C:\Users\DEPIDSVY\NetBeansProjects\vdrive\phpunit.phar^
+rem php C:\Users\DEPIDSVY\NetBeansProjects\vdrive\phpunit.phar^
+vendor\bin\phpunit.bat^
 	-v^
 	--debug^
 	--no-configuration^

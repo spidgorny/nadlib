@@ -4,30 +4,37 @@ class IteratorArrayAccess extends ArrayIteratorPlus implements ArrayAccess {
 
 	/** ArrayAccess **/
 
+	/**
+	 * Chainable
+	 *
+	 * @param $i
+	 * @param $val
+	 * @return $this
+	 */
 	function set($i, $val) {
-		$this->data[$i] = $val;
+		$this->offsetSet($i, $val);
 		return $this;
 	}
 
 	/**
 	 * Chainable
 	 *
-	 * @param unknown_type $i
-	 * @return unknown
+	 * @param mixed $i
+	 * @return self
 	 */
 	function un_set($i) {
-		unset($this->data[$i]);
+		$this->offsetUnset($i);
 		return $this;
 	}
 
 	function get($i, $subkey = NULL) {
-		$element = $this->data[$i];
+		$element = $this->offsetGet($i);
 		if ($subkey) {
 			$element = $element[$subkey];
 		}
 		return $element;
 	}
-
+/*
 	public function offsetSet($offset, $value) {
         $this->set($offset, $value);
     }
@@ -43,5 +50,5 @@ class IteratorArrayAccess extends ArrayIteratorPlus implements ArrayAccess {
     public function offsetGet($offset) {
         return $this->get($offset);
     }
-
+*/
 }
