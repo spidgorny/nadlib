@@ -6,6 +6,11 @@ class Index extends IndexBase {
 
 	public $template = './../be/template/template.phtml';
 
+	/**
+	 * @var array
+	 */
+	public $menu;
+
 	function __construct() {
 		parent::__construct();
 		//debug_pre_print_backtrace();
@@ -34,6 +39,35 @@ class Index extends IndexBase {
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
+
+		$this->menu = array(
+			'HomeBE' => 'Home',
+			'Info' => new Recursive('Info', array(
+					'ServerStat' => 'Server Stat',
+					'ServerData' => 'Server Data',
+					'Session' => 'Session',
+					'Cookies' => 'Cookies',
+					'ConfigView' => 'config.yaml',
+					'PHPInfo' => 'phpinfo()',
+					'Documentation' => 'Documentation',
+				)),
+			'Test' => new Recursive('Test', array(
+					'TestNadlib' => 'TestNadlib',
+					'ValidatorCheck' => 'Validator Check',
+					'UnitTestReport' => 'Unit Test Report',
+				)),
+			'DB' => new Recursive('DB', array(
+					'AlterDB' => 'Alter DB',
+					'AlterCharset' => 'Alter Charset',
+					'AlterTable' => 'Alter Table',
+					'AlterIndex' => 'Alter Indexes',
+					'OptimizeDB' => 'Optimize DB',
+					'ExplainQuery' => 'Explain Query',
+					'Localize' => 'Localize',
+				)),
+			'ClearCache' => 'Clear Cache',
+			'JumpFrontend' => '<- Frontend',
+		);
 	}
 
 	function renderController() {
@@ -75,29 +109,6 @@ class Index extends IndexBase {
 	}
 
 	function showSidebar() {
-		$menu = array(
-			'HomeBE' => 'Home',
-			'ServerStat' => 'Server Stat',
-			'ServerData' => 'Server Data',
-			'Session' => 'Session',
-			'Cookies' => 'Cookies',
-			'ConfigView' => 'config.yaml',
-			'Localize' => 'Localize',
-			'PHPInfo' => 'phpinfo()',
-			'Documentation' => 'Documentation',
-			'TestNadlib' => 'TestNadlib',
-			'AlterDB' => 'Alter DB',
-			'AlterCharset' => 'Alter Charset',
-			'AlterTable' => 'Alter Table',
-			'AlterIndex' => 'Alter Indexes',
-			'ValidatorCheck' => 'Validator Check',
-			'ClearCache' => 'Clear Cache',
-			'OptimizeDB' => 'Optimize DB',
-			'ExplainQuery' => 'Explain Query',
-			'UnitTestReport' => 'Unit Test Report',
-			'JumpFrontend' => '<- Frontend',
-		);
-
 		$c = Spyc::YAMLLoad('../../../../class/config.yaml');
 		//debug($c['BEmenu']);
 		if ($c['BEmenu']) {
@@ -110,9 +121,10 @@ class Index extends IndexBase {
 			}
 		}
 
-		$m = new Menu($menu);
-		$m->recursive = true;
-		$m->renderOnlyCurrent = false;
+		$m = new Menu($this->menu);
+		$m->recursive = false;
+		$m->level = 2;
+		$m->renderOnlyCurrent = true;
 		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
