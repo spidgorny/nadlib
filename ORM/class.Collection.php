@@ -19,7 +19,7 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
-	 * @var ArrayPlus/array
+	 * @var ArrayPlus|array
 	 */
 	var $data = array();
 
@@ -489,9 +489,17 @@ class Collection {
 		return $where;
 	}
 
+	/**
+	 * Uses array_merge to prevent duplicates
+	 * @param Collection $c2
+	 */
 	function mergeData(Collection $c2) {
-		//debug(array_keys($this->data), array_keys($c2->data));
-		$this->data = ($this->data + $c2->data);
+		$before = array_keys($this->data);
+		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
+		$this->data = $this->data + $c2->data;
+		$this->members = $this->members + $c2->members;
+		$this->count = sizeof($this->data);
+		//debug($before, array_keys($c2->data), array_keys($this->data));
 	}
 
 	/**

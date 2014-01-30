@@ -108,7 +108,7 @@ class Request {
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
-			debug($value, $options);
+			//debug($value, $options);
 			throw new Exception(__METHOD__.' is throwing an exception.');
 		}
 		return $value;
@@ -130,8 +130,8 @@ class Request {
 	 * Checks for keys, not values
 	 *
 	 * @param $name
-	 * @param array $assoc
-	 * @return null
+	 * @param array $assoc	- only array keys are used in search
+	 * @return int|null
 	 */
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
