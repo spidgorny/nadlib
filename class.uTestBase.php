@@ -7,7 +7,7 @@ class uTestBase extends AppControllerBE {
 	function render() {
 		$content = '<style>
 	body, td {
-		font-size: 9pt;
+		/*font-size: 9pt;*/
 	}
 	.contentContainer .contentLeft {
 		display: none;
@@ -22,7 +22,7 @@ class uTestBase extends AppControllerBE {
 	}
 </style>';
 		$content .= '
-		<table class="nospacing">
+		<table class="nospacing table">
 		<tr>
 			<!--th>File</th-->
 			<th>Function</th>

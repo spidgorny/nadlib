@@ -39,6 +39,8 @@ class Menu /*extends Controller*/ {
 
 	public $ulClass = 'nav nav-list menu csc-menu list-group';
 
+	public $liClass = 'list-group-item';
+
 	/**
 	 * @var URL
 	 */
@@ -96,14 +98,31 @@ class Menu /*extends Controller*/ {
 			$path->clearParams();
 		} elseif ($this->useControllerSlug) {
 			$path = new URL();
-			$path->setPath($path->documentRoot.'/');
+			if (basename(AutoLoad::getInstance()->appRoot) == 'be') {
+				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
+				$appRoot = AutoLoad::getInstance()->appRoot;
+				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
+				$path->setPath($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot) . '/');
+			} else {
+				$path->setPath($path->documentRoot.'/');
+			}
+			$path->setParam('c', '');	// forces a link with "?c="
 		} else {
 			$path = new URL();
 			$path->clearParams();
 			$path->setParam('c', '');	// forces a link with "?c="
 		}
 		$this->basePath = $path;
-		//debug($this->current, $this->basePath);
+		nodebug(array(
+			'useRouter' => $useRouter,
+			'useControllerSlug' => $this->useControllerSlug,
+			'documentRoot' => $path->documentRoot,
+			'appRoot' => AutoLoad::getInstance()->appRoot,
+			'nadlibRoot' => AutoLoad::getInstance()->nadlibRoot,
+			'nadlibRootFromDocRoot' => AutoLoad::getInstance()->nadlibFromDocRoot,
+			'current' => $this->current,
+			'basePath' => $this->basePath,
+		));
 	}
 
 	/**
@@ -121,9 +140,35 @@ class Menu /*extends Controller*/ {
 		$content = '';
 		if (!is_null($this->level)) {
 			$rootpath = $this->request->getURLLevels();
-			$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for submenu of Dashboard/About
+			if (!$rootpath) {                                       // no rewrite, then find the menu with current as a key
+				$rootpath = array(
+					$this->current,
+				);
+			}
+			$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for sub-menu of Dashboard/About
+			if (sizeof($rootpath) <= $this->level) {                // URL contains only the sub-page without the path, search for it
+				foreach ($this->items as $key => $rec) {
+					/** @var $rec Recursive */
+					//$found = $rec->findPath($this->current);
+					if ($rec instanceof Recursive) {
+						$children = $rec->getChildren();
+						$found = $children[$this->current];
+						//debug($children, $found, $key, $this->current);
+						if ($found) {
+							$rootpath = array(
+								$key,
+								$this->current,
+							);
+							break;
+						}
+					}
+				}
+				debug($rootpath);
+			}
 			$itemsOnLevel = $this->getItemsOnLevel($rootpath);
-			//debug($rootpath, $itemsOnLevel);
+			if ($this->level == 1) {
+				debug($this->current, $this->level, $rootpath, $itemsOnLevel);
+			}
 			$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level);
 		} else {
 			$content .= $this->renderLevel($this->items->getData(), array(), 0);
@@ -184,7 +229,7 @@ class Menu /*extends Controller*/ {
 					&& $name instanceof Recursive
 					&& $name->getChildren();
 				$cur = $this->isCurrent($class, $root);
-				$activeLIclass = $cur	? 'list-group-item active' : 'list-group-item';
+				$activeLIclass = $this->liClass . ($cur	? ' active' : '');
 				$activeAclass  = $cur 	? 'act' : '';
 				if ($name instanceof HTMLTag) {
 					$aTag = $name.'';
