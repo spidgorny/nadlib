@@ -162,8 +162,10 @@ class AutoLoad {
 		if (!$folders) {
 			$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 			// appden $this->nadlibRoot before each
-			foreach ($folders as &$el) {
-				$el = $this->nadlibRoot . $el;
+			if (dirname(getcwd()) != 'be') {
+				foreach ($folders as &$el) {
+					$el = $this->nadlibRoot . $el;
+				}
 			}
 			$allFolders = array_merge(array(), $folders);
 			if (class_exists('Config') && Config::$includeFolders) {

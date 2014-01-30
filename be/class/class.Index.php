@@ -94,6 +94,7 @@ class Index extends IndexBase {
 			'ClearCache' => 'Clear Cache',
 			'OptimizeDB' => 'Optimize DB',
 			'ExplainQuery' => 'Explain Query',
+			'UnitTestReport' => 'Unit Test Report',
 			'JumpFrontend' => '<- Frontend',
 		);
 

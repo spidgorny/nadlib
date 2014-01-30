@@ -54,6 +54,9 @@ class ConfigBase {
 		'class',	// to load the Config of the main project
 		'model',
 		'be/class',
+		'be/class/DB',
+		'be/class/Info',
+		'be/class/Test',
         'Queue',
 	);
 
