@@ -247,7 +247,14 @@ class Menu /*extends Controller*/ {
 		return $items;
 	}
 
-	function renderLevel(array $items, array $root = array(), $level, $ulClass = NULL) {
+    /**
+     * @param array $items
+     * @param array $root
+     * @param $level
+     * @param null $ulClass
+     * @return string
+     */
+    function renderLevel(array $items, array $root = array(), $level, $ulClass = NULL) {
 		$content = '';
 		foreach ($items as $class => $name) {
 			if ($name) {	// empty menu items indicate menu location for a controller
@@ -259,7 +266,7 @@ class Menu /*extends Controller*/ {
 				$hasChildren = $renderOnlyCurrentSubmenu
 					&& $name instanceof Recursive
 					&& $name->getChildren();
-				$cur = $this->isCurrent($class, $root);
+				$cur = $this->isCurrent($class, $root, $level);
 				$activeLIclass = $this->liClass . ($cur	? ' active' : '');
 				$activeAclass  = $cur 	? 'act' : '';
 				if ($name instanceof HTMLTag) {
@@ -289,14 +296,15 @@ class Menu /*extends Controller*/ {
 		return $content;
 	}
 
-	/**
-	 * For http://appdev.nintendo.de/~depidsvy/posaCards/ListSales/ChartSales/BreakdownTotal/?filter[id_country]=2
-	 * to work we need to split by '/' not only the path but also parameters
-	 * @param string $class
+    /**
+     * For http://appdev.nintendo.de/~depidsvy/posaCards/ListSales/ChartSales/BreakdownTotal/?filter[id_country]=2
+     * to work we need to split by '/' not only the path but also parameters
+     * @param string $class
 	 * @param array $subMenu
-	 * @return bool
-	 */
-	function isCurrent($class, array $subMenu = array()) {
+     * @param $level
+     * @return bool
+     */
+	function isCurrent($class, array $subMenu = array(), $level) {
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);
@@ -307,6 +315,10 @@ class Menu /*extends Controller*/ {
 			$combined = implode('/', $subMenu).'/'.$class;
 			$ret = ($this->current == $class)
 				|| ($combined == $this->current);
+            if($level > 0 && !$ret) {
+                $ret = ($subMenu[($level -1)] == $this->current && $class == $this->current);
+            }
+
 		} else {
 			$ret = $this->current == $class;
 		}
