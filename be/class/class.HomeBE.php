@@ -16,6 +16,8 @@ class HomeBE extends AppControllerBE {
 		exec($cmd, $output);
 		$content .= implode('<br />', $output);
 
+		$content .= getDebug(AutoLoad::getInstance()->debug());
+
 		return $content;
 	}
 

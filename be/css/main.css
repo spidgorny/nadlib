@@ -48,7 +48,7 @@ form.anyPageForm input {
 	background: #428bca;
 }
 .sidebar .nav > li > a {
-    padding: 0
+	/*padding: 0*/
 }
 .nav > li > a.act {
 	color: white;
@@ -58,15 +58,24 @@ form.anyPageForm input {
 	background-color: inherit;
 }
 .navbar-form {
-    margin: 0;
-    padding: 0;
+	/*margin: 0;*/
+	padding: 0;
 }
 .navbar-form input {
 	width: 10em;
 }
 .navbar-form a.btn {
-    margin: 6px 12px;
+	/*margin: 6px 12px;*/
+}
+.navbar-form p.navbar-text {
+	margin-top: 8px;
+	margin-bottom: 0;
 }
 .htmlFormTable {
 	width: 100%;
+}
+
+/* for phpunit report */
+html body {
+	padding-top: 60px;
 }

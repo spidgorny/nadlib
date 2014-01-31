@@ -192,7 +192,7 @@ class Menu /*extends Controller*/ {
 			$rootpath = $this->getRootpath();
 			$itemsOnLevel = $this->getItemsOnLevel($rootpath);
 			if ($this->level === 1) {
-				debug(array(
+				nodebug(array(
 					'current' => $this->current,
 					'sizeof($rootpath)' => sizeof($rootpath),
 					'level' => $this->level,
@@ -323,7 +323,7 @@ class Menu /*extends Controller*/ {
 			$ret = $this->current == $class;
 		}
 		if ($this->level === 1) {
-			debug($class, $subMenu, $combined, $this->current, $ret);
+			//debug($class, $subMenu, $combined, $this->current, $ret);
 		}
 		return $ret;
 	}

@@ -14,6 +14,8 @@ class AppControllerBE extends Controller {
 	 */
 	var $forceCronjob = false;
 
+	var $nadlibFromDocRoot;
+
 	function __construct() {
 		parent::__construct();
 		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
@@ -25,6 +27,7 @@ class AppControllerBE extends Controller {
 		if ($this->request->getBool('force')) {
 			$this->forceCronjob = true;
 		}
+		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 	}
 
 	function log($a) {
@@ -32,7 +35,7 @@ class AppControllerBE extends Controller {
 	}
 
 	public function getURL(array $params, $prefix = '?') {
-		$url = parent::getURL($params, AutoLoad::getInstance()->nadlibFromDocRoot.'be/?');
+		$url = parent::getURL($params, $this->nadlibFromDocRoot.'be/?');
 		return $url;
 	}
 

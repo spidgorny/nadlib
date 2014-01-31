@@ -245,7 +245,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery/jquery.min.js');
+			$this->addJS($this->nadlibFromDocRoot.'components/jquery/jquery.min.js');
 		} else {
 			$this->footer['jquery.js'] = '
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -258,7 +258,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQueryUI() {
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
+			$this->addJS($this->nadlibFromDocRoot.'components/jquery-ui/ui/minified/jquery-ui.min.js');
 
             // commented out because this should be project specific
 			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
