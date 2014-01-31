@@ -60,36 +60,41 @@ class AutoLoad {
 	protected function __construct() {
 		require_once __DIR__ . '/HTTP/class.URL.php';
 		require_once __DIR__ . '/HTTP/class.Request.php';
-		$scriptWithPath = URL::getScriptWithPath();
 
-		// for CLI
-		$relToNadlib = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
-
-		// for PHPUnit
-		$relToNadlib = URL::getRelativePath(getcwd(), dirname(__FILE__));
-		$this->nadlibRoot = $relToNadlib;
-
+		$this->nadlibRoot = dirname(__FILE__).'/';
 		$this->appRoot = $this->detectAppRoot();
-		$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath(getcwd().'/'.$this->nadlibRoot));
+		$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
+		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot).'/';
 
 		if (false) {
 			echo '<pre>';
-			print_r(array(
-				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
-				'getcwd()' => getcwd(),
-				'__FILE__' => __FILE__,
-				'$scriptWithPath' => $scriptWithPath,
-				'dirname(__FILE__)' => dirname(__FILE__),
-				'$relToNadlib' => $relToNadlib,
-				'$this->nadlibRoot' => $this->nadlibRoot,
-				'$this->appRoot' => $this->appRoot,
-				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
-			));
-			//print_r($_SERVER);
+			print_r($this->debug());
 			echo '</pre>';
 		}
 
 		$this->loadConfig();
+	}
+
+	function debug() {
+		$scriptWithPath = URL::getScriptWithPath();
+		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
+		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
+		return array(
+			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'getcwd()' => getcwd(),
+			'__FILE__' => __FILE__,
+			'$scriptWithPath' => $scriptWithPath,
+			'dirname(__FILE__)' => dirname(__FILE__),
+			'baseHref' => Request::getLocation(),
+			'$relToNadlibCLI' => $relToNadlibCLI,
+			'$relToNadlibPU' => $relToNadlibPU,
+			'$this->nadlibRoot' => $this->nadlibRoot,
+			'Config->documentRoot' => Config::getInstance()->documentRoot,
+			'$this->appRoot' => $this->appRoot,
+			'Config->appRoot' => Config::getInstance()->appRoot,
+			'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+		);
 	}
 
 	/**
@@ -103,10 +108,10 @@ class AutoLoad {
 		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && $appRoot != '/'
-			&& ($appRoot{1} != ':' && strlen($appRoot) == 3)	// u:\
+			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
 		) {
 			$exists = file_exists($appRoot.'/class/class.Config.php');
-			//debug($appRoot, $exists);
+			//debug($appRoot, strlen($appRoot), $exists);
 			if ($exists) {
 				break;
 			}
@@ -134,7 +139,7 @@ class AutoLoad {
 	}
 
 	function initFolders() {
-        //unset($_SESSION[__CLASS__]);
+        unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
@@ -188,17 +193,17 @@ class AutoLoad {
 	function getFoldersFromConfigBase() {
 		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 		// append $this->nadlibRoot before each
-		if (basename(getcwd()) != 'be') {
+		//if (basename(getcwd()) != 'be') {
 			foreach ($folders as &$el) {
 				$el = $this->nadlibRoot . $el;
 			}
-		} else {
+		/*} else {
 			foreach ($folders as &$el) {
 				$el = '../'. $el;
 			}
 			$folders[] = '../../../../class';      // include Config from nadlib/be
-			$folders[] = '../../../../model';      // include Config from nadlib/be
-		}
+			$folders[] = '../../../../model';      // include User from nadlib/be
+		}*/
 		return $folders;
 	}
 

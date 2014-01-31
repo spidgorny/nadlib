@@ -9,3 +9,4 @@ $n->init();
 $i = Index::getInstance(true);
 $i->initController();
 echo $i->render();
+AutoLoad::getInstance()->__destruct();
