@@ -652,4 +652,32 @@ class SQLBuilder {
 		return $options;
 	}
 
+	/**
+	 * Enter description here...
+	 *
+	 * @param resource $res
+	 * @param string $key can be set to NULL to avoid assoc array
+	 * @return array
+	 */
+	function fetchAll($res, $key = NULL) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+
+		$data = array();
+		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+			if ($key) {
+				$data[$row[$key]] = $row;
+			} else {
+				$data[] = $row;
+			}
+		}
+		//debug($this->lastQuery, sizeof($data));
+		//debug_pre_print_backtrace();
+		$this->free($res);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $data;
+	}
+
 }
