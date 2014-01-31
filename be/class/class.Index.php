@@ -17,6 +17,7 @@ class Index extends IndexBase {
 		$config = Config::getInstance();
 		$config->defaultController = 'HomeBE';
 		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
+		$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
 		$c = Config::getInstance();
 		// it's not reading the config.yaml from /be/, but from the project root
 		$c->config['View']['folder'] = '../be/template/';
@@ -26,12 +27,16 @@ class Index extends IndexBase {
 		//base href will be fixed manually below
 
 		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
+		$c->appRoot = str_replace('/nadlib/be', '', $c->appRoot);
 
-		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
-		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
-		$this->addCSS('vendor/spidgorny/nadlib/CSS/TaylorProfiler.css');
+		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
+
+		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'/components/modernizr/modernizr.js"></script>';
+		$this->addCSS($this->nadlibFromDocRoot.'components/bootstrap/css/bootstrap.min.css');
+		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
+		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.css');
 		$this->addJQuery();
-		$this->addJS('components/bootstrap/js/bootstrap.min.js');
+		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
@@ -121,15 +126,12 @@ class Index extends IndexBase {
 			}
 		}
 
-		$m = new Menu($this->menu);
+		$m = new Menu($this->menu, 1);
 		$m->recursive = false;
-		$m->level = 1;
 		$m->renderOnlyCurrent = true;
 		$m->useControllerSlug = true;
-		$m->useRecursiveURL = true;
-		$m->setCurrent($m->level);
-		$m->setBasePath();
-		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');
+		$m->useRecursiveURL = false;
+		$m->basePath->setPath($m->basePath->components['path'].$this->nadlibFromDocRoot.'be/');
 		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();

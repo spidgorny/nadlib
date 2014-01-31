@@ -10,7 +10,6 @@
 	<base href="<?= $this->baseHref ?>" />
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <script src="vendor/spidgorny/nadlib/be/js/vendor/modernizr-2.6.1.min.js"></script>
 	<?= $this->implodeCSS() ?>
 </head>
 <body>
@@ -34,15 +33,13 @@
 		<div class="collapse navbar-collapse">
 
 			<?php
-			$m = new Menu($this->menu);
+			$m = new Menu($this->menu, 0);
 			$m->ulClass = 'nav navbar-nav';
 			$m->liClass = '';
 			$m->recursive = false;
-			$m->level = 0;
 			$m->renderOnlyCurrent = true;
 			$m->useControllerSlug = false;
-			$m->setCurrent(NULL);
-			$m->setBasePath();
+			$m->basePath->setPath($m->basePath->components['path'].$this->nadlibFromDocRoot.'be/');
 			echo $m;
 			?>
 
