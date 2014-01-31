@@ -47,7 +47,8 @@ form.anyPageForm input {
 .nav > li.active {
 	background: #428bca;
 }
-.nav > li > a {
+.sidebar .nav > li > a {
+    padding: 0
 }
 .nav > li > a.act {
 	color: white;

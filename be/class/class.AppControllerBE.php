@@ -9,7 +9,7 @@ class AppControllerBE extends Controller {
 	var $forceCronjobDL = false;
 
 	/**
-	 * - force in CLI will force process data even if they were processed recentrly
+	 * - force in CLI will force process data even if they were processed recently
 	 * @var bool
 	 */
 	var $forceCronjob = false;
@@ -29,6 +29,11 @@ class AppControllerBE extends Controller {
 
 	function log($a) {
 		echo $a.'<br />'."\n";
+	}
+
+	public function getURL(array $params, $prefix = '?') {
+		$url = parent::getURL($params, AutoLoad::getInstance()->nadlibFromDocRoot.'be/?');
+		return $url;
 	}
 
 }

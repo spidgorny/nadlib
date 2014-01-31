@@ -43,28 +43,28 @@ class Index extends IndexBase {
 		$this->menu = array(
 			'HomeBE' => 'Home',
 			'ServerStat' => new Recursive('Info', array(
-					'ServerStat' => 'Server Stat',
-					'ServerData' => 'Server Data',
-					'Session' => 'Session',
-					'Cookies' => 'Cookies',
-					'ConfigView' => 'config.yaml',
-					'PHPInfo' => 'phpinfo()',
-					'Documentation' => 'Documentation',
-				)),
+				'ServerStat' => 'Server Stat',
+				'ServerData' => 'Server Data',
+				'Session' => 'Session',
+				'Cookies' => 'Cookies',
+				'ConfigView' => 'config.yaml',
+				'PHPInfo' => 'phpinfo()',
+				'Documentation' => 'Documentation',
+			)),
 			'TestNadlib' => new Recursive('Test', array(
-					'TestNadlib' => 'TestNadlib',
-					'ValidatorCheck' => 'Validator Check',
-					'UnitTestReport' => 'Unit Test Report',
-				)),
+				'TestNadlib' => 'TestNadlib',
+				'ValidatorCheck' => 'Validator Check',
+				'UnitTestReport' => 'Unit Test Report',
+			)),
 			'ExplainQuery' => new Recursive('DB', array(
-					'AlterDB' => 'Alter DB',
-					'AlterCharset' => 'Alter Charset',
-					'AlterTable' => 'Alter Table',
-					'AlterIndex' => 'Alter Indexes',
-					'OptimizeDB' => 'Optimize DB',
-					'ExplainQuery' => 'Explain Query',
-					'Localize' => 'Localize',
-				)),
+				'AlterDB' => 'Alter DB',
+				'AlterCharset' => 'Alter Charset',
+				'AlterTable' => 'Alter Table',
+				'AlterIndex' => 'Alter Indexes',
+				'OptimizeDB' => 'Optimize DB',
+				'ExplainQuery' => 'Explain Query',
+				'Localize' => 'Localize',
+			)),
 			'ClearCache' => 'Clear Cache',
 			'JumpFrontend' => '<- Frontend',
 		);
@@ -125,7 +125,8 @@ class Index extends IndexBase {
 		$m->recursive = false;
 		$m->level = 1;
 		$m->renderOnlyCurrent = true;
-		$m->useControllerSlug = false;
+		$m->useControllerSlug = true;
+		$m->useRecursiveURL = true;
 		$m->setCurrent($m->level);
 		$m->setBasePath();
 		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');

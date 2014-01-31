@@ -76,7 +76,7 @@ class ConfigBase {
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
 		} else {
-			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
 		}
 		//print_r(array('$this->appRoot in ConfigBase', $this->appRoot));
 		//debug_pre_print_backtrace();
