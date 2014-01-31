@@ -22,14 +22,18 @@ class IndexBE extends IndexBase {
 
 		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
 
-		$this->addCSS('../../../../components/bootstrap/css/bootstrap.min.css');
-		$this->addCSS('css/main.css');
-		$this->addJS('../../../../components/jquery/jquery.min.js');
-		$this->addJS('../../../../components/bootstrap/js/bootstrap.min.js');
+		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
+		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
+		$this->addCSS('vendor/spidgorny/nadlib/CSS/TaylorProfiler.css');
+		$this->addJQuery();
+		$this->addJS('components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
-		$config->user = $this->user;	// for consistency
+		$c->user = $this->user;	// for consistency
+
+		$this->ll = new LocalLangDummy();
+		//debug($this->ll);
 	}
 
 	function renderController() {
@@ -38,10 +42,11 @@ class IndexBE extends IndexBase {
 		$vars = get_class_vars($c);
 		$public = $vars['public'];
 		if ($public || $this->user->isAuth()) {
+			$this->controller->user = $this->user;	// BEUser instead of grUser
 			$content = parent::renderController();
 		} else {
 			//$this->message(new LoginForm());
-			throw new LoginException('Login first');
+			throw new LoginException('Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
 		}
 		return $content;
 	}
@@ -73,7 +78,12 @@ class IndexBE extends IndexBase {
 			'TestNadlib' => 'TestNadlib',
 			'AlterDB' => 'Alter DB',
 			'AlterCharset' => 'Alter Charset',
+			'AlterTable' => 'Alter Table',
 			'AlterIndex' => 'Alter Indexes',
+			'ValidatorCheck' => 'Validator Check',
+			'ClearCache' => 'Clear Cache',
+			'OptimizeDB' => 'Optimize DB',
+			'ExplainQuery' => 'Explain Query',
 			'JumpFrontend' => '<- Frontend',
 		);
 
@@ -92,7 +102,8 @@ class IndexBE extends IndexBase {
 		$m = new Menu($menu);
 		$m->recursive = true;
 		$m->renderOnlyCurrent = false;
-		return '<div class="well" style="padding: 8px 0;">'.$m.'</div>'.
+		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');
+		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
 	}
 
