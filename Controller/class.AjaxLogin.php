@@ -24,7 +24,7 @@ class AjaxLogin extends AppController {
 	public static $public = true;
 
 	/**
-	 * Remove to disable jQuery dependancy
+	 * Remove to disable jQuery dependency
 	 * @var string
 	 */
 	public $formMore = 'onsubmit="jQuery(this).ajaxSubmit({
