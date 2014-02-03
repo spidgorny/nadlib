@@ -1,4 +1,4 @@
-$(document).ready(function () {
+jQuery(document).ready(function ($) {
 	var supportsDate = false;
 	if (window.Modernizr) {
 		supportsDate = Modernizr.inputtypes.date;

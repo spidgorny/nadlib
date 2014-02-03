@@ -9,12 +9,6 @@ class Request {
 	protected $data = array();
 
 	/**
-	 * The default controller retrieved from Config.
-	 * @var string
-	 */
-	public $defaultController;
-
-	/**
 	 * @var URL
 	 */
 	public $url;
@@ -27,12 +21,13 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
 
-		$this->url = new URL(isset($_SERVER['SCRIPT_URL']) ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
+			? $_SERVER['SCRIPT_URL']
+			: $_SERVER['REQUEST_URI']);
 	}
 
 	function deQuote(array $request) {
@@ -54,6 +49,11 @@ class Request {
 		return self::$instance;
 	}
 
+	/**
+	 * Will overwrite
+	 * @param $var
+	 * @param $val
+	 */
 	function set($var, $val) {
 		$this->data[$var] = $val;
 	}
@@ -82,6 +82,12 @@ class Request {
 		return $value;
 	}
 
+	/**
+	 * Will strip tags
+	 * @param $name
+	 * @return string
+	 * @throws Exception
+	 */
 	function getTrimRequired($name) {
 		$value = $this->getString($name);
 		$value = strip_tags($value);
@@ -102,7 +108,7 @@ class Request {
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
-			debug($value, $options);
+			//debug($value, $options);
 			throw new Exception(__METHOD__.' is throwing an exception.');
 		}
 		return $value;
@@ -124,8 +130,8 @@ class Request {
 	 * Checks for keys, not values
 	 *
 	 * @param $name
-	 * @param array $assoc
-	 * @return null
+	 * @param array $assoc	- only array keys are used in search
+	 * @return int|null
 	 */
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
@@ -230,7 +236,7 @@ class Request {
 	 * @return Time
 	 */
 	function getTime($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
 		}
 	}
@@ -243,7 +249,7 @@ class Request {
 	 * @return Date
 	 */
 	function getDate($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
 	}
@@ -265,8 +271,26 @@ class Request {
 		return $files;
 	}
 
+	/**
+	 * Similar to getArray() but the result is an object of a Request
+	 * @param $name
+	 * @return Request
+	 */
 	function getSubRequest($name) {
 		return new Request($this->getArray($name));
+	}
+
+	/**
+	 * Opposite of getSubRequest. It's a way to reimplement a subrequest
+	 * @param $name
+	 * @param Request $subrequest
+	 * @return $this
+	 */
+	function import($name, Request $subrequest) {
+		foreach ($subrequest->data as $key => $val) {
+			$this->data[$name][$key] = $val;
+		}
+		return $this;
 	}
 
 	function getCoalesce($a, $b) {
@@ -310,7 +334,7 @@ class Request {
 					}
 					$controller = $last;
 				} else {
-					$controller = $this->defaultController;	// not good as we never get 404
+					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
 			}
 		}   // cli
@@ -319,7 +343,7 @@ class Request {
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
 			'last' => $last,
-			'default' => $this->defaultController,
+			'default' => Config::getInstance()->defaultController,
 			'data' => $this->data));
 		return $controller;
 	}
@@ -332,6 +356,9 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getControllerString();
+		if (!$c) {
+			$c = $GLOBALS['i']->controller; // default
+		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
@@ -351,7 +378,7 @@ class Request {
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : $this->defaultController;
+		return $return ? $return : Config::getInstance()->defaultController;
 	}
 
 	function redirect($controller) {
@@ -418,6 +445,10 @@ class Request {
 
 	function getJson($name, $array = true) {
 		return json_decode($this->getTrim($name), $array);
+	}
+
+	function getJSONObject($name) {
+		return json_decode($this->getTrim($name));
 	}
 
 	function isSubmit() {
@@ -488,6 +519,9 @@ class Request {
 		$path = $this->url->getPath();
 		if (strlen($path) > 1) {	// "/"
 			$path = trimExplode('/', $path);
+			if ($path[0] == 'index.php') {
+				array_shift($path);
+			}
 			//debug($this->url->getPath(), $path);
 		} else {
 			$path = array();
@@ -498,21 +532,29 @@ class Request {
 	/**
 	 * Overwriting - no
 	 * @param array $plus
+	 * @return Request
 	 */
 	function append(array $plus) {
 		$this->data += $plus;
+		return $this;
 	}
 
 	/**
 	 * Overwriting - yes
 	 * @param array $plus
+	 * @return Request
 	 */
 	function overwrite(array $plus) {
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
 		}
+		return $this;
 	}
 
+	/**
+	 * http://christian.roy.name/blog/detecting-modrewrite-using-php
+	 * @return bool
+	 */
 	function apacheModuleRewrite() {
 		if (function_exists('apache_get_modules')) {
 			$modules = apache_get_modules();
@@ -644,6 +686,10 @@ class Request {
 		return $result;
 	}
 
+	function importCLIparams($noopt = array()) {
+		$this->data += $this->parseParameters($noopt);
+	}
+
 	/**
 	 * http://stackoverflow.com/a/6127748/417153
 	 * @return bool
@@ -653,12 +699,45 @@ class Request {
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
+	public function getIntArray($name) {
+		$array = $this->getArray($name);
+		$array = array_map('intval', $array);
+		return $array;
+	}
+
 	function clear() {
 		$this->data = array();
 	}
 
 	static function getDocumentRoot() {
-		return str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		if ($_SERVER['DOCUMENT_ROOT'] &&
+			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '',
+				dirname($_SERVER['SCRIPT_FILENAME']));
+		} else {	//~depidsvy/something
+			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
+			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+		}
+		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $docRoot);
+		return $docRoot;
 	}
 
+	function setCacheable($age = 60) {
+		header('Pragma: cache');
+		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('Cache-Control: max-age='.$age);
+	}
+
+	/**
+	 * getNameless(1) doesn't provide validation.
+	 * Use importNameless() to associate parameters 1, 2, 3, with their names
+	 * @param array $keys
+	 */
+	public function importNameless(array $keys) {
+		foreach ($keys as $k => $val) {
+			$this->data[$val] = $this->getNameless($k);
+		}
+	}
 }

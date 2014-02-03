@@ -278,10 +278,10 @@ class SQLBuilder {
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
+			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
-			return $value ? 'true' : 'false';
-			return intval($value); // MySQL specific
+			return $this->db->escapeBool($value);
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -354,13 +354,16 @@ class SQLBuilder {
 					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working
+				} else if ($val === 'NOTNULL') {
+					$set[] = "$key IS NOT NULL";
+				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
+                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
-					$set[] = "$key $sign $val";
+					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {	// no quote
+				} else if (is_numeric($key)) {		// KEY!!!
 					$set[] = $val;
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
@@ -376,6 +379,7 @@ class SQLBuilder {
 					$or->injectQB($this);
 					$set[] = $or;
 				} else {
+					//debug_pre_print_backtrace();
 					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
 				}
@@ -449,8 +453,8 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array()) {
-		$q = "DELETE FROM $table ";
+	function getDeleteQuery($table, $where = array(), $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);
@@ -503,7 +507,7 @@ class SQLBuilder {
 		return $res;
 	}
 
-	function runInsertUpdateQuery($table, array $fields, array $where) {
+	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
@@ -511,12 +515,13 @@ class SQLBuilder {
 			$query = $this->getUpdateQuery($table, $fields, $where);
 			$inserted = 2;
 		} else {
-			$query = $this->getInsertQuery($table, $fields + array('ctime' => NULL));
+			$query = $this->getInsertQuery($table, $fields + $where + $insert);
+			// array('ctime' => NULL) #TODO: make it manually now
 			$inserted = TRUE;
 		}
 		//debug($query);
 		$this->found = $this->db->fetchAssoc($res);
-		$res = $this->db->perform($query);
+		$this->db->perform($query);
 		$this->db->commit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $inserted;

@@ -1,6 +1,7 @@
 <?php
 
 class IndexBase /*extends Controller*/ {	// infinite loop
+
 	/**
 	 * Enter description here...
 	 *
@@ -57,7 +58,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		$this->request = Request::getInstance();
 		//debug('session_start');
-		session_start();
+
+		// only use session if not run from command line
+		if(!Request::isCLI()) {
+			session_start();
+		}
+
 		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -69,7 +75,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$instance = &self::$instance;
+		$instance = &self::$instance ?: $GLOBALS['i'];	// to read IndexBE instance
 		if (!$instance && $createNew) {
 			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
@@ -86,6 +92,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	public function initController() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		try {
 			$slug = $this->request->getControllerString();
@@ -98,6 +105,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -107,6 +115,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	protected function loadController($slug) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$slugParts = explode('/', $slug);
 		$class = end($slugParts);	// again, because __autoload need the full path
 		//debug(__METHOD__, $slug, $class, class_exists($class));
@@ -119,8 +128,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception($exception);
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function render() {
@@ -147,6 +158,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderTemplate($content) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$v = new View($this->template, $this);
 		$v->content = $content;
 		$v->title = strip_tags($this->controller->title);
@@ -154,6 +166,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $v;
 	}
 
@@ -168,7 +181,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error padding">
+		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
@@ -214,11 +227,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message">'.$text.'</div>';
+		$this->content .= '<div class="message alert alert-info">'.$text.'</div>';
 	}
 
 	function error($text) {
-		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
+		$this->content .= '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
 	}
 
 	function saveMessages() {
@@ -232,7 +245,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery/jquery.min.js');
+			$this->addJS($this->nadlibFromDocRoot.'components/jquery/jquery.min.js');
 		} else {
 			$this->footer['jquery.js'] = '
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -245,8 +258,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQueryUI() {
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
-			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+			$this->addJS($this->nadlibFromDocRoot.'components/jquery-ui/ui/minified/jquery-ui.min.js');
+
+            // commented out because this should be project specific
+			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
 		} else {
 			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
@@ -255,11 +270,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addJS($source) {
 		$this->footer[$source] = '<script src="'.$source.'"></script>';
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addCSS($source) {
 		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
 			$source = 'Lesser?css='.$source;
@@ -269,9 +292,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function showSidebar() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
 		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
@@ -288,11 +313,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				if (!$this->request->isCLI()) {
 					$content = $profiler->renderFloat();
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
+					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
 					if ($this->db->queryLog) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
-					if ($this->db->QUERIES) {	// dbLayer
-						$content .= $this->db->dumpQueries();
+					if ($this->db->QUERIES) {
+						$dbLayer = $this->db;
+						/** @var $dbLayer dbLayer */
+						$content .= $dbLayer->dumpQueries();
 					}
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {

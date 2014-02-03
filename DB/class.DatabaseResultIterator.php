@@ -6,10 +6,36 @@
  */
 
 class DatabaseResultIterator implements Iterator, Countable {
+
+	/**
+	 * If defined it will influence the key() method return value
+	 * @var string
+	 */
 	var $defaultKey;
+
+	/**
+	 * Query result
+	 * @var resource
+	 */
 	var $dbResultResource;
-	var $row = array();
+
+	/**
+	 * Must be false to indicate no results
+	 * @var array
+	 */
+	var $row = FALSE;
+
+	/**
+	 * Amount
+	 * @var int
+	 */
 	var $rows = 0;
+
+	/**
+	 * Will return the value of the current row corresponding to $this->defaulKey
+	 * or number 0, 1, 2, 3, ... otherwise
+	 * @var int
+	 */
 	var $key = 0;
 
 	/**
@@ -77,6 +103,10 @@ class DatabaseResultIterator implements Iterator, Countable {
 			$data[] = $row;
 		}
 		return $data;
+	}
+
+	function __destruct() {
+		$this->db->free($this->dbResultResource);
 	}
 
 }

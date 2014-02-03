@@ -54,7 +54,7 @@ class HTMLTableBuf {
 		$this->stdout .= '<thead>';
 		$this->tr($trmore);
 			foreach($aCaption as $i => $caption) {
-				$more = isset($thmore[$i]) ? $thmore[$i] : '';
+				$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
 				if (is_array($more)) {
 					$more = HTMLTag::renderAttr($more);
 				}

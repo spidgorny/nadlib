@@ -8,7 +8,7 @@ class UL {
 
 	var $after = '</ul>';
 
-	var $wrap = '<li>|</li>';
+	var $wrap = '<li class="###ACTIVE###">|</li>';
 
 	var $activeClass = '';
 
@@ -18,6 +18,7 @@ class UL {
 
 	function __construct(array $items) {
 		$this->items = $items;
+		$this->activeClass = each($this->items);
 	}
 
 	function render() {

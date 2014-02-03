@@ -9,9 +9,14 @@
 abstract class OODBase {
 	/**
 	 * @var MySQL|dbLayer|dbLayerDB
+	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
 
+	/**
+	 * database table name for referencing everywhere. MUST BE OVERRIDEN IN SUBCLASS!
+	 * @var string
+	 */
 	/**
 	 * Help to identify missing table value
 	 */
@@ -21,8 +26,14 @@ abstract class OODBase {
 
 	protected $titleColumn = 'name';
 
-	public $id;
+	/**
+	 * @var int database ID
+	 */
+	public $id = NULL;			
 
+	/**
+	 * @var array data from DB
+	 */
 	public $data = array();
 
 	/**
@@ -30,6 +41,12 @@ abstract class OODBase {
 	 * and maybe to HTMLFormTable as well
 	 */
 	public $thes = array();
+
+	/**
+	 * to allow extra filtering
+	 * @var array 
+	 */
+	protected $where = array();	
 
 	/**
 	 * @var self[get_called_class()][$id]
@@ -42,53 +59,79 @@ abstract class OODBase {
 	public $lastQuery;
 
 	/**
-	 * Enter description here...
+	 * Constructor should be given the ID of the existing record in DB.
+	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
 	 * @param integer|array $id - can be ID in the database or the whole records
 	 * as associative array
+	 * @return OODBase
 	 */
 	function __construct($id = NULL) {
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
 			$this->db = $config->db;
+		} else {
+			$this->db = $GLOBALS['db'];
 		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->init($id);
-		new AsIs('whatever'); // autoload will work from a different path when in destruct()
 	}
 
 	/**
 	 * Retrieves data from DB.
 	 *
 	 * @param int|array|SQLWhere $id
+	 * @param bool $fromFindInDB
 	 * @throws Exception
 	 */
-	public function init($id) {
+	function init($id, $fromFindInDB = false) {
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
 		if (is_array($id)) {
-			$this->data = $id;
-			$this->id = $this->data[$this->idField];
-			//debug(__METHOD__, $this->id, $this->data);
+			if (is_scalar($this->idField) || $fromFindInDB) {
+				$this->initByRow($id);
+			} else {
+				$this->id = $id;
+				//debug($id, $fromFindInDB, $this->id);
+				$this->findInDB($this->id);	// will call init()
+				if (!$this->data) {
+					$this->id = NULL;
+				}
+			}
 		} else if ($id instanceof SQLWhere) {
-			$this->data = $this->fetchFromDB($id->getAsArray());
+			$this->findInDB($id->getAsArray());
 		} else if (is_scalar($id)) {
 			$this->id = $id;
-			$this->data = $this->fetchFromDB(array($this->idField => $this->id));
+			$this->findInDB(array($this->idField => $this->id));
 			if (!$this->data) {
 				$this->id = NULL;
 			}
 		} else if (!is_null($id)) {
 			debug($id);
+			if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
 			throw new Exception(__METHOD__);
 		}
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
 	function getName() {
 		return $this->data[$this->titleColumn] ? $this->data[$this->titleColumn] : $this->id;
 	}
 
+	function initByRow(array $row) {
+		$this->data = $row;
+		if (is_array($this->idField)) {
+			$this->id = array();
+			foreach ($this->idField as $field) {
+				$this->id[$field] = $this->data[$field];
+			}
+		} else {
+			$this->id = $this->data[$this->idField];
+		}
+	}
+	
 	/**
 	 * Returns $this
 	 *
@@ -100,6 +143,7 @@ abstract class OODBase {
 		//$data['ctime'] = new AsIs('NOW()');
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
+		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
@@ -109,19 +153,25 @@ abstract class OODBase {
 	}
 
 	/**
-	 * Returns nothing!!!
+	 * Updates current record ($this->id)
 	 *
 	 * @param array $data
 	 * @throws Exception
-	 * @return resource
+	 * @return resource result from the runUpdateQuery
 	 */
 	function update(array $data) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($this->id) {
-			//$data['mtime'] = new AsIs('NOW()');
-			//$data['muser'] = $GLOBALS['i']->user->id;					// TODO: add to DB
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+			$where = array();
+			if (is_array($this->idField)) {
+				foreach ($this->idField as $field) {
+					$where[$field] = $this->data[$field];
+				}
+			} else {
+				$where[$this->idField] = $this->id;
+			}
 			$qb = Config::getInstance()->qb;
-			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
+			$query = $qb->getUpdateQuery($this->table, $data, $where);
 			//debug($query);
 			$res = $this->db->perform($query);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -129,12 +179,12 @@ abstract class OODBase {
 			// then the later value for that key will overwrite the previous one.
 			//$this->data = array_merge($this->data, $data);
 			$this->init($this->id);
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		} else {
-			$this->db->rollback();
+			//$this->db->rollback();
 			debug_pre_print_backtrace();
 			throw new Exception(__('Updating is not possible as there is no ID defined.'));
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $res;
 	}
 
@@ -149,14 +199,14 @@ abstract class OODBase {
 	}
 
 	/**
-	 *
+	 * Retrieves a record from the DB and calls $this->init()
 	 * @param array $where
-	 * @param string $orderby
+	 * @param string $orderByLimit
 	 * @return boolean (id) of the found record
 	 */
-	function fetchFromDB(array $where, $orderby = '') {
+	function findInDB(array $where, $orderByLimit = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
+		$rows = $this->db->fetchSelectQuery($this->table, $this->where + $where, $orderByLimit);
 		if (is_array($rows)) {
 			if (is_array(first($rows))) {
 				$data = first($rows);
@@ -166,13 +216,9 @@ abstract class OODBase {
 		} else {
 			$data = array();
 		}
+		$this->init($data, true);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
-	}
-
-	function findInDB(array $where, $orderby = '') {
-		$data = $this->fetchFromDB($where, $orderby);
-		$this->init($data);
 	}
 
 	/**
@@ -241,27 +287,36 @@ abstract class OODBase {
 	 * @param array $fields
 	 * @param array $where
 	 * @param array $insert
-	 * @return string
+	 * @param array $update
+	 * @return string whether the record already existed
 	 */
-	function insertUpdate(array $fields, array $where, array $insert = array()) {
+	function insertUpdate(array $fields,
+						  array $where = array(),
+						  array $insert = array(),
+						  array $update = array()
+	) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
-		$this->findInDB($where);
-		//debug($this->db->lastQuery);//, $this->data);
+		if ($where) {
+			$this->findInDB($where);
+		}
+		//debug($this->id, $this->data); exit();
 		if ($this->id) { // found
-			$left = array_intersect_key($this->data, $fields);
+			$left = array_intersect_key($this->data, $fields);		// keys need to have same capitalization
 			$right = array_intersect_key($fields, $this->data);
-			//debug($left, $right);
-			if ($left != $right) {
-				$this->update($fields);
-				$op = 'UPD '.$this->id;
-			} else {
+			//debug($left, $right); exit();
+			if ($left == $right) {
 				$op = 'SKIP';
+			} else {
+				$this->update($fields + $update);
+				$op = 'UPDATE '.$this->id;
 			}
 		} else {
+			//debug($this->id, $this->data);
 			$this->insert($fields + $where + $insert);
-			$this->findInDB($where);
-			$op = 'INS';
+			//debug($where, $this->id, $this->data, $fields + $where + $insert, $this->lastQuery);
+			$op = 'INSERT '.$this->id;
+			//debug($this->id, $this->data, $op, $this->db->lastQuery);
 		}
 		$this->db->commit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -272,10 +327,11 @@ abstract class OODBase {
 	 * Uses $this->thes if available
 	 * Hides fields without values
 	 * @param array $assoc
-	 * @param bool  $recursive
+	 * @param bool $recursive
+	 * @param bool $skipEmpty
 	 * @return slTable
 	 */
-	function renderAssoc(array $assoc = NULL, $recursive = false) {
+	function renderAssoc(array $assoc = NULL, $recursive = false, $skipEmpty = true) {
 		$assoc = $assoc ? $assoc : $this->data;
 		//debug($this->thes);
 		if ($this->thes) {
@@ -296,7 +352,7 @@ abstract class OODBase {
 			));
 		} else {
 			foreach ($assoc as $key => &$val) {
-				if (!$val) {
+				if (!$val && $skipEmpty) {
 					unset($assoc[$key]);
 				} else if (is_array($val) && $recursive) {
 					$val = OODBase::renderAssoc($val, $recursive);
@@ -307,13 +363,29 @@ abstract class OODBase {
 		return $s;
 	}
 
+	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name')) {
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		$content = '<div class="showAssoc">
+		<h3>'.get_class($this).':</h3>';
+			foreach ($thes as $key => $name) {
+				$name = is_array($name) ? $name['name'] : $name;
+				$val = $this->data[$key];
+				$content .= '<div class="prefix10">'.$name.':</div>';
+				$content .= $val.'<br clear="all" />';
+			}
+		$content .= '</div>';
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		return $content;
+	}
+
 	/**
 	 * // TODO: initialization by array should search in $instances as well
-	 * @param $id
+	 * @param $id int
 	 * @return self
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
+		//debug($static, sizeof(self::$instances[$static]));
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
 			if (!$inst) {
@@ -323,7 +395,9 @@ abstract class OODBase {
 				} else {
 												// NewRequest needs it like this
 					$inst = new $static();		// don't put anything else here
+					//die(__METHOD__.'#'.__LINE__);
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
+					//die(__METHOD__.'#'.__LINE__);
 				}
 			}
 		} else {
@@ -374,9 +448,48 @@ abstract class OODBase {
 		return $c;
 	}
 
+	//abstract function createRecord($data);
+	static function createRecord($insert, $class) {
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
+		//debug($insert);
+
+		$query = $GLOBALS['db']->getInsertQuery(constant($class.'::table'), $insert);
+		//t3lib_div::debug($query);
+		$res = $GLOBALS['db']->perform($query);
+		if ($res) {
+			$id = $GLOBALS['db']->getLastInsertID($res, constant($class.'::table'));
+			//t3lib_div::debug($id);
+
+			if ($class) {
+				$object = new $class($id);
+			} else {
+				$object = $id;
+			}
+		} else {
+			$object = NULL;
+		}
+		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		return $object;
+	}
+
 	function getURL(array $params) {
 		$c = Index::getInstance()->controller;
 		return $c->getURL($params);
+	}
+
+	function getVarType($name) {
+		$r = new ReflectionClass($this);
+		$p = $r->getProperty($name);
+		$modifiers = $p->getModifiers();
+		$aModStr = Reflection::getModifierNames($modifiers);
+		$content = '@'.implode(' @', $aModStr);
+		$content .= ' '.gettype($this->$name);
+		switch (gettype($this->$name)) {
+			case 'array':  $content .= '['.sizeof($this->$name).']'; break;
+			case 'object': $content .= ' '.get_class($this->$name); break;
+		}
+		return $content;
 	}
 
 }

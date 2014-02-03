@@ -3,8 +3,10 @@
 require_once '../init.php';
 
 $n = new InitNADLIB();
+$n->al->debug = false;
 $n->init();
 
-$i = IndexBE::getInstance(true);
+$i = Index::getInstance(true);
 $i->initController();
 echo $i->render();
+AutoLoad::getInstance()->__destruct();

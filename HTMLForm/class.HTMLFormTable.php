@@ -1,18 +1,46 @@
 <?php
 
 class HTMLFormTable extends HTMLForm {
+	/**
+	 * If set then each field gets ['value'] appended to it's name
+	 * The idea was to merge $desc with $_REQUEST easily, but it makes ugly URL
+	 * @var bool
+	 */
 	var $withValue = FALSE;
+
+	/**
+	 * Will render labels above the fields, otherwise on the left
+	 * @var bool
+	 */
 	var $defaultBR = FALSE;
+
+	/**
+	 * Additional parameters for <tr>
+	 * @var
+	 */
 	var $trmore;
+
+	/**
+	 * Additional parameters for <table>
+	 * @var
+	 */
 	var $tableMore;
+
+	/**
+	 * Shows field names near fields
+	 * @var bool
+	 */
 	public $debug = false;
 
 	/**
-	 *
+	 * The form description table
 	 * @var array
 	 */
 	public $desc;
 
+	/**
+	 * @var
+	 */
 	protected $mainForm;
 
 	/**
@@ -32,6 +60,7 @@ class HTMLFormTable extends HTMLForm {
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
 		if ($this->desc) {
+			// todo: does not get correct values OR values at all!
 			$this->importValues($this->request->getSubRequestByPath($this->prefix));
 			//$this->showForm();	// call manually to have a chance to change method or defaultBR
 		}
@@ -78,6 +107,8 @@ class HTMLFormTable extends HTMLForm {
 		if (!$desc['id']) {
 			$elementID = uniqid('id_');
 			$desc['id'] = $elementID;
+		} else {
+			$elementID = $desc['id'];
 		}
 		$type = $desc['type']; /* @var $type Collection */
 		if ($type instanceof HTMLFormType) {
@@ -101,7 +132,8 @@ class HTMLFormTable extends HTMLForm {
 					$this->textarea($fieldName, $fieldValue,
 						$desc['more'].
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '')
+						($desc['disabled'] ? ' disabled="1"' : '').
+						($desc['class'] ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
 					);
 				break;
 				case "date":
@@ -112,7 +144,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->datepopup($fieldName, $fieldValue);
 				break;
 				case "money":
-					$this->money($fieldName, $fieldValue);
+					$this->money($fieldName, $fieldValue, $desc);
 				break;
 				case "select":
 				case "selection":
@@ -121,6 +153,7 @@ class HTMLFormTable extends HTMLForm {
 						isset($fieldValue) ? $fieldValue : $desc['default'],
 						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
 						(isset($desc['size']) ? 'size="'.$desc['size'].'"' : '') .
+						(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
 						(isset($desc['more']) ? $desc['more'] : ''),
 						isset($desc['multiple']) ? $desc['multiple'] : NULL,
 						$desc);
@@ -129,7 +162,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->file($fieldName, $desc);
 				break;
 				case "password":
-					$this->password($fieldName, $fieldValue);
+					$this->password($fieldName, $fieldValue, $desc);
 				break;
 				case "check":
 				case "checkbox":
@@ -223,7 +256,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
 						($desc['readonly'] ? ' readonly="readonly"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '')
+						($desc['disabled'] ? ' disabled="1"' : '').
+						($desc['autofocus'] ? ' autofocus' : '')
 						, $type, $desc['class']
 					);
 				break;
@@ -256,12 +290,10 @@ class HTMLFormTable extends HTMLForm {
 					$fieldName[] = 'value';
 				}
 
-
 				$tmp = $this->stdout;
 				$elementID = $this->switchType($fieldName, $fieldValue, $desc);
 				$newContent = substr($this->stdout, strlen($tmp));
 				$this->stdout = $tmp;
-
 
 				$withBR = ($desc['br'] === NULL && $this->defaultBR) || $desc['br'];
 				if (isset($desc['label'])) {
@@ -315,7 +347,8 @@ class HTMLFormTable extends HTMLForm {
 					</script>";
 				}
 				if ($desc['error']) {
-					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']" class="error">';
+					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']"
+					class="error ui-state-error alert-error alert-danger">';
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
 				}
@@ -349,6 +382,12 @@ class HTMLFormTable extends HTMLForm {
 		$this->stdout .= "</td></tr></table>";
 	}
 
+	/**
+	 * @param array $formData	@deprecated - use __construct() instead
+	 * @param array $prefix
+	 * @param bool $mainForm
+	 * @param string $append
+	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
 	}
@@ -474,12 +513,12 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Returns the $form parameter with minimal modifications only for the special data types like time in seconds.
 	 *
-	 * @param $desc
+	 * @param array $desc
 	 * @param array $form Structure of the form.
 	 * @internal param \Values $array from $_REQUEST.
 	 * @return array    Processed $form.
 	 */
-	function acquireValues($desc, $form = array()) {
+	function acquireValues(array $desc, $form = array()) {
 		foreach ($desc as $field => $params) {
 			if ($params['type'] == 'datepopup')	{
 				$date = strtotime($form[$field]);

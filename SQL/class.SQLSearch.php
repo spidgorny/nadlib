@@ -8,12 +8,18 @@ class SQLSearch {
 		'title',
 	);
 
+	/**
+	 * @var DBInterface
+	 */
+	protected $db;
+
 	function __construct($table, $sword) {
 		//debug(array($table, $sword));
 		$this->table = $table;
 		$this->sword = $sword;
 		$this->words = $this->getSplitWords($this->sword);
 		//debug($this->words);
+		$this->db = Config::getInstance()->db;
 	}
 
 	function getSplitWords($sword) {
@@ -29,7 +35,8 @@ class SQLSearch {
 
 	function __toString() {
 		$where = $this->getWhere();
-		$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
+		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
+		$query = '';
 		if ($where) {
 			$qb = Config::getInstance()->qb;
 			$whereString = $qb->quoteWhere($where);
@@ -38,7 +45,10 @@ class SQLSearch {
 		return $query;
 	}
 
-	function getWhere() {
+	/**
+	 * @return array
+	 */
+	public function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;
@@ -91,7 +101,7 @@ class SQLSearch {
 			$part[] = "{$prefix}{$field} {$like} '%$1%'";
 		}
 		$part = implode(' ' . $or . ' ', $part);
-		$part = str_replace('$1', $word, $part);
+		$part = str_replace('$1', $this->db->escape($word), $part);
 		$part = str_replace("\r\n", "\n", $part);
 
 		// test if it's a date
