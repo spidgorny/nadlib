@@ -13,10 +13,10 @@ class dbLayerORA extends dbLayer {
 	var $debugOnce = FALSE;
 
 	function dbLayerORA($tns, $pass) {
-		$this->connect($tns, $pass);
+		$this->connect($tns, '', $pass);
 	}
 
-	function connect($tns, $pass) {
+	function connect($tns, $user, $pass, $host = 'localhost') {
 		$this->CONNECTION = ora_logon($tns, $pass);
 		ora_commiton($this->CONNECTION);
 		return $this->CONNECTION;
@@ -94,7 +94,7 @@ class dbLayerORA extends dbLayer {
 		ora_close($result);
 	}
 
-	function transaction() {
+	function transaction($serializable = false) {
 		// everything is a transaction in oracle
 		ora_commitoff($this->CONNECTION);
 	}
@@ -122,14 +122,6 @@ class dbLayerORA extends dbLayer {
 		} else {
 			return "'".pg_escape_string($value)."'";
 		}
-	}
-
-	function fetchAll($result) {
-		$ret = array();
-		while (($row == $this->fetchAssoc($result)) !== FALSE) {
-			$ret[] = $row;
-		}
-		return $ret;
 	}
 
 	function fetchAssoc($result) {
