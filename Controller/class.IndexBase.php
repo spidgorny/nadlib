@@ -228,8 +228,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function log($action, $bookingID) {
-		$qb = Config::getInstance()->qb;
-		$qb->runInsertQuery('log', array(
+		$this->db->qb->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
