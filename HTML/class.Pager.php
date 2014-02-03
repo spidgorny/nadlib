@@ -37,6 +37,8 @@ class Pager {
 	 */
 	public $pageSize;
 
+	static $cssOutput = false;
+
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
@@ -49,7 +51,8 @@ class Pager {
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
-		$this->user = Config::getInstance()->user;
+		$this->setUser(Config::getInstance()->user);
+
 		Config::getInstance()->mergeConfig($this);
 	}
 
@@ -58,12 +61,18 @@ class Pager {
 	 */
 	function detectCurrentPage() {
 		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
-			if ($this->request->getMethod() == 'POST') {
-				$pagerData['page']--;
+			if ($pagerData['startingRecord']) {
+				$this->startingRecord = (int)($pagerData['startingRecord']);
+				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
+			} else {
+				if ($this->request->getMethod() == 'POST') {
+				//Debug::debug_args($pagerData);
+					$pagerData['page']--;
+				}
+				$this->setCurrentPage($pagerData['page']);
+				$this->saveCurrentPage();
 			}
-			$this->setCurrentPage($pagerData['page']);
-			$this->saveCurrentPage();
-		} else if ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
+		} elseif ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
 			//debug(__METHOD__, $this->prefix, $pager['page']);
 			$this->setCurrentPage($pager['page']);
 		} else {
@@ -91,6 +100,10 @@ class Pager {
 		}
 	}
 
+	/**
+	 * Make sure to setNumberOfRecords first(!)
+	 * @param $page
+	 */
 	function setCurrentPage($page) {
 		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
 		$page = min($page, $this->getMaxPage());
@@ -105,12 +118,15 @@ class Pager {
 		}
 	}
 
+	/**
+	 * @param int $items
+	 */
 	function setItemsPerPage($items) {
 		if (!$items) {
 			$items = $this->pageSize->selected;
 		}
-		$this->itemsPerPage = $items;
-		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
+			$this->itemsPerPage = $items;
+			$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 		//debug($this);
 	}
 
@@ -173,9 +189,30 @@ class Pager {
 		return $maxpage;
 	}
 
+	function getCSS() {
+		$l = new lessc();
+		$css = $l->compileFile(dirname(__FILE__).'/../CSS/PaginationControl.less');
+		return '<style>'.$css.'</style>';
+	}
+
 	function renderPageSelectors(URL $url = NULL) {
+		$content = '';
 		$this->url = $url;
-		$content = '<div class="pagination paginationControl">';
+
+		if (!self::$cssOutput) {
+			if (class_exists('Index') && $this->request->apacheModuleRewrite()) {
+				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
+				Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/PaginationControl.less');
+			} elseif (false && $GLOBALS['HTMLHEADER']) {
+				$GLOBALS['HTMLHEADER']['PaginationControl.less']
+					= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/PaginationControl.less" />';
+			} elseif (!Request::isCLI()) {
+				$content .= $this->getCSS();	// pre-compiles LESS inline
+			}
+			self::$cssOutput = true;
+		}
+
+		$content .= '<div class="pagination paginationControl">';
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
 			$content .= $this->renderPager();
@@ -208,7 +245,7 @@ class Pager {
 	function renderPager() {
 		$this->pageSize->setURL(new URL(NULL, array()));
 		$this->pageSize->selected = $this->itemsPerPage;
-		$content = '<div class="pageSize">'.$this->pageSize->render().' '.__('per page').'</div>';
+		$content = '<div class="pageSize pull-right">'.$this->pageSize->render().' '.__('per page').'</div>';
 		return $content;
 	}
 
@@ -222,11 +259,13 @@ class Pager {
 			$link = $this->url->setParam('pageSize', $this->pageSize->selected);
 			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
  		} else {
-	 		$content .= '<li><span class="disabled">&lt;</span></li>';
+	 		$content .= '<li class="disabled"><span class="disabled">&larr;</span></li>';
  		}
  		foreach ($pages as $k) {
  			if ($k === 'gap1' || $k === 'gap2') {
- 				$content .= '<li><span class="page">  &hellip;  </span></li>';
+ 				$content .= '<li class="disabled">
+ 					<span class="page"> &hellip; </span>
+ 				</li>';
  			} else {
 				$content .= $this->getSinglePageLink($k, $k+1);
  			}
@@ -235,16 +274,16 @@ class Pager {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage+1));
 			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>';
  		} else {
-	 		$content .= '<li><span class="disabled">&gt;</span></li>';
+	 		$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>';
  		}
 		if ($this->showPageJump) {
-			$form = "<form action='".$this->url."' method='POST' style='display: inline'>
+			$form = "<form action='".$this->url."' method='POST' class='anyPageForm'>
 				&nbsp;<input
 					name='Pager_{$this->prefix}[page]'
 					type='text'
 					class='normal'
 					value='".($this->currentPage+1)."'
-					style='width: 2em' />
+					style='width: 2em; margin: 0' />
 				<input type='submit' value='Page' class='submit' />
 			</form>";
 		}
@@ -256,7 +295,7 @@ class Pager {
 	function getSinglePageLink($k, $text) {
 		$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $k));
 		if ($k == $this->currentPage) {
-			$content = '<li class="active"><span class="active">'.$text.'</span></li>';
+			$content = '<li class="active"><a href="'.$link.'" class="active">'.$text.'</a></li>';
 		} else {
 			$content = '<li><a href="'.$link.'">'.$text.'</a></li>';
 		}
@@ -298,8 +337,8 @@ class Pager {
 	/**
 	 * Converts the dbEdit init query into count(*) query by getCountQuery() method and runs it. Old style.
 	 *
-	 * @param unknown_type $dbEdit
-	 * @return unknown
+	 * @param dbEdit $dbEdit
+	 * @return int
 	 */
 	function getCountedRows($dbEdit) {
 		global $dbLayer;
@@ -336,4 +375,19 @@ class Pager {
 		return get_class($this).': "'.$this->itemsPerPage.'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}
 
+    /**
+     * @param \LoginUser $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return \LoginUser
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
 }

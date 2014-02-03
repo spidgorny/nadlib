@@ -1,6 +1,10 @@
 <?php
 
 class View {
+
+	/**
+	 * @var string
+	 */
 	protected $file;
 
 	/**
@@ -9,8 +13,6 @@ class View {
 	public $caller;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLang
 	 */
 	protected $ll;
@@ -62,7 +64,10 @@ class View {
 		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
+
+		//debug(getcwd(), $file);
 		require($file);
+
 		if (!$content) {
 			$content = ob_get_clean();
 		} else {
@@ -71,7 +76,8 @@ class View {
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-			$content = '<!-- View template: '.$this->folder.$this->file.' -->'.$content;
+			$content = '<!-- View template: '.$this->folder.$this->file.' -->'."\n".
+				$content;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;
@@ -140,6 +146,11 @@ class View {
 		return eval('?>'.$this->parts[$i]);
 	}
 
+	/**
+	 * Uses htmlspecialchars()
+	 * @param $str
+	 * @return string
+	 */
 	function escape($str) {
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
@@ -191,13 +202,16 @@ class View {
 		$urls = $this->_autolink_find_URLS($text);
 		if (!empty($urls)) // i.e. there were some URLS found in the text
 		{
-			array_walk($urls, array($this, '_autolink_create_html_tags'), array('target' => $target, 'nofollow' => $nofollow));
+			array_walk($urls, array($this, '_autolink_create_html_tags'), array(
+				'target' => $target,
+				'nofollow' => $nofollow,
+			));
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
 		return $text;
 	}
 
-	function _autolink_find_URLS( $text ) {
+	static function _autolink_find_URLS( $text ) {
 		// build the patterns
 		$scheme = '(http:\/\/|https:\/\/)';
 		$www = 'www\.';

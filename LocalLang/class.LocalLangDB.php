@@ -47,17 +47,28 @@ class LocalLangDB extends LocalLang {
 		return $instance;
 	}
 
+	/**
+	 * Instead of searching if the original language (en) record exists
+	 * it tries to insert and then catches the UNIQUE constraint exception.
+	 * @param $text
+	 */
 	function saveMissingMessage($text) {
-		//debug(__METHOD__, $text);
+		//debug(__METHOD__, DEVELOPMENT, $text);
 		if (DEVELOPMENT && $text) {
 			$db = Config::getInstance()->db;
-			$db->runInsertQuery($this->table, array(
-				'code' => $text,
-				'lang' => $this->lang,
-				'text' => '',
-				'page' => Request::getInstance()->getURL(),
-			));
-			$this->ll[$text] = $text;
+			try {
+				$db->runInsertQuery($this->table, array(
+					'code' => $text,
+					'lang' => $this->defaultLang,
+					'text' => '',
+					'page' => Request::getInstance()->getURL(),
+				));
+				//debug($db->lastQuery, $db->affectedRows());
+				$this->ll[$text] = $text;
+				$this->codeID[$text] = $db->lastInsertID();
+			} catch (Exception $e) {
+				// ignore
+			}
 		}
 	}
 

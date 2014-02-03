@@ -6,6 +6,7 @@
  */
 class Uploader {
 
+
 	public $allowed = array(
 		'gif', 'jpg', 'png', 'jpeg',
 	);
@@ -30,7 +31,16 @@ class Uploader {
 			'A PHP extension stopped the file upload.'
 	);
 
-	function __construct() {
+	/**
+	 *
+	 * @param array|null $allowed If provided this will override allowed extensions
+	 */
+	function __construct($allowed = array()) {
+
+		if(!empty($allowed)) {
+			$this->allowed = $allowed;
+		}
+
 		if ($this->isUploaded()) {
 			//debug($_FILES);
 		}
@@ -40,17 +50,36 @@ class Uploader {
 		return !!$_FILES;
 	}
 
-	function getUploadForm() {
+	/**
+		Usage:
+		$uf = new Uploader();
+		$f = $uf->getUploadForm()
+		// add custom hidden fields to upload form (e.g. Loan[id])
+		if (!empty($hiddenFields)) {
+			foreach ($hiddenFields as $name => $value) {
+				$f->hidden($name, $value);
+			}
+		}
+		@param  string - input field name - usually 'file'
+		@return HTMLForm
+	*/
+	public function getUploadForm($fieldName = 'file') {
 		$f = new HTMLForm();
-		$f->file('file');
+		$f->file($fieldName);
+		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
-		$content = $f;
-		$content .= '<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>';
-		$content .= '<div class="message">Max post: '.ini_get('post_max_size').'</div>';
-		return $content;
+		$f->text('<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>');
+		$f->text('<div class="message">Max post: '.ini_get('post_max_size').'</div>');
+		$f->text('<div class="message">Allowed: '.implode(', ', $this->allowed).'</div>');
+		return $f;
 	}
 
-	function moveUpload($from, $to) {
+	/**
+	 * @param string $from - usually 'file' - the same name as in getUploadForm()
+	 * @param string $to - directory
+	 * @throws Exception
+	 */
+	public function moveUpload($from, $to) {
 		if ($uf = $_FILES[$from]) {
 			if (!$this->checkError($uf)) {
 				throw new Exception($this->errors[$uf['error']]);
@@ -148,6 +177,59 @@ class Uploader {
 			$output = $output[0];
 		}
 		return $output;
+	}
+
+	/**
+	 * Will incrementally create subfolders which don't exist.
+	 * @param $folder
+	 */
+	public function createUploadFolder($folder) {
+		$parts = trimExplode('/', $folder);
+		$current = '/';
+		foreach ($parts as $plus) {
+			$current .= $plus.'/';
+			if (!file_exists($current)) {
+				mkdir($current);
+			}
+		}
+	}
+
+	function getContent($from) {
+		if ($uf = $_FILES[$from]) {
+			return file_get_contents($uf['tmp_name']);
+		}
+	}
+
+	public function getTempFile($fieldName = 'file') {
+		if ($this->isUploaded()) {
+			return $_FILES[$fieldName]['tmp_name'];
+		}
+	}
+
+	/**
+	 * Handles the file upload from https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin
+	 * If no error it will call a callback to retrieve a redirect URL
+	 * @param $callback
+	 */
+	function handleBlueImpUpload($callback) {
+		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
+		$uh = new UploadHandler(array(
+			'upload_dir' => 'storage/',
+			'param_name' => 'file',
+		), false);
+		//$uh->post(true); exit();
+		ob_start();
+		$uh->post(true);
+		$done = ob_get_clean();
+		$json = json_decode($done);
+		//print_r(array($uh, $done, $json));
+		$data = get_object_vars($json->file[0]);
+		if (!$data['error']) {
+			$redirect = $callback($data);
+			$json->file[0]->redirect = $redirect;
+		}
+		echo json_encode($json);
+		exit();
 	}
 
 }

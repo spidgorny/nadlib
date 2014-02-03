@@ -27,7 +27,7 @@ class Debug {
 				$trace[] = self::getMethod($row);
 			}
 			echo '---'.implode(' // ', $trace)."\n";
-			print_r($a);
+			var_dump($a);
 			echo "\n";
 		} else if ($_COOKIE['debug']) {
 			$content = self::renderHTMLView($db, $a, $levels);
@@ -126,6 +126,8 @@ class Debug {
 				$a = $a->debug();
 			//} elseif (method_exists($a, '__toString')) {
 			//	$a = $a->__toString();
+			} elseif ($a instanceof htmlString) {
+				$a = $a; // will take care below
 			} else {
 				$a = get_object_vars($a);
 			}
@@ -134,8 +136,7 @@ class Debug {
 		if (is_array($a)) {	// not else if so it also works for objects
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
-				$type = gettype($r);
-				$type = gettype($r) == 'object' ? get_class($r) : $type;
+				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
 				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
 				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
 				$content .= '<tr>
@@ -154,12 +155,17 @@ class Debug {
 			$content .= '</table>';
 		} else if (is_object($a)) {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
+			if ($a instanceof htmlString) {
+				$content .= $a.'';
+			}
 		} else if (is_resource($a)) {
 			$content = $a;
-		} else if (strstr($a, "\n")) {
+		} else if (is_string($a) && strstr($a, "\n")) {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
+		} else if ($a instanceof __PHP_Incomplete_Class) {
+			$content = '__PHP_Incomplete_Class';
 		} else {
-			$content = htmlspecialchars($a);
+			$content = htmlspecialchars($a.'');
 		}
 		return $content;
 	}

@@ -5,6 +5,7 @@
  * or array of OODBase based objects.
  *
  */
+ /*abstract*/ // commented because of createForTable()
 class Collection {
 	/**
 	 *
@@ -18,7 +19,7 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
-	 * @var ArrayPlus/array
+	 * @var ArrayPlus|array
 	 */
 	var $data = array();
 
@@ -52,9 +53,16 @@ class Collection {
 
 	/**
 	 * objectify() stores objects generated from $this->data here
+	 * array of objects converted from $this->data // convert to public
 	 * @var array
 	 */
 	public $members = array();
+
+	/**
+	 * objectify() without parameters will try this class name
+	 * @var string
+	 */
+	protected $itemClassName = 'OODBase?';
 
 	/**
 	 * SQL part
@@ -88,6 +96,7 @@ class Collection {
 	/**
 	 * Lists columns for the SQL query
 	 * @var string
+	 * @default "DISTINCT table.*"
 	 */
 	public $select;
 
@@ -117,11 +126,13 @@ class Collection {
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
+
 		if (is_array($where)) {
 			$this->where += $where;
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
+
 		//debug($this->where);
 		$this->orderBy = $order ? $order : $this->orderBy;
 		$this->request = Request::getInstance();
@@ -135,7 +146,8 @@ class Collection {
 		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
-		if (!$this->parentID || $this->parentID > 0) {	// -1 will not retrieve
+		//debug($this->parentField, $this->parentID, $this->where);
+		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
 		foreach ($this->thes as &$val) {
@@ -156,25 +168,49 @@ class Collection {
 
 	/**
 	 * -1 will prevent data retrieval
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		//debug($this->where);
-		//debug_pre_print_backtrace();
 		$this->query = $this->getQuery($this->where);
-		//debug($this->query);
+		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$this->count = $this->db->numRows($res);
 		}
+		//debug($this->table, $this->query, $this->count, $prof->elapsed());
+
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		if ($preprocess) {
 			$this->preprocessData();
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+	}
+
+	/**
+	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
+	 */
+	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
+		$this->query = $this->getQuery($this->where);
+		$fc = new MemcacheFile();
+		$cached = $fc->get($this->query, 60*60);	// 1h
+		if ($cached && sizeof($cached) == 2) {
+			list($this->count, $this->data) = $cached;
+			$action = 'found in cache, age: '.$fc->getAge($this->query);
+		} else{
+			$this->retrieveDataFromDB($allowMerge, $preprocess);
+			$fc->set($this->query, array($this->count, $this->data));
+			$action = 'no cache, retrieve, store';
+		}
+		if ($_REQUEST['d']) {
+			debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
+		}
 	}
 
 	/**
@@ -189,11 +225,18 @@ class Collection {
 		if ($this->parentID > 0) {
 			$where[$this->parentField] = $this->parentID;
 		}
+		// bijou old style - each collection should care about hidden and deleted
+		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
 		$qb = Config::getInstance()->qb;
 		if ($where instanceof SQLWhere) {
 			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
-			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
+			$query = $qb->getSelectQuery  (
+				$this->table.' '.$this->join,
+				$where,
+				$this->orderBy,
+				$this->select,
+				TRUE);
 		}
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
@@ -250,21 +293,35 @@ class Collection {
 
 	function prepareRender() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		$this->getData();
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->prepareRenderRow($row);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
+	function getData() {
+		if (!$this->query) {
+			$this->retrieveDataFromDB();
+		}
+		return $this->data;
+	}
+
 	function prepareRenderRow(array $row) {
 		return $row;
 	}
 
-	function getOptions() {
+    /**
+     * @param array $blackList Contains IDs that should be filtered out from options
+     * @return array
+     */
+    function getOptions($blackList = array()) {
 		$options = array();
 		//debug(get_class($this), $this->titleColumn);
-		foreach ($this->data as $row) {
-			$options[$row[$this->idField]] = $row[$this->titleColumn];
+		foreach ($this->getData() as $row) {
+            if( !in_array($row[$this->idField], $blackList) ) {
+                $options[$row[$this->idField]] = $row[$this->titleColumn];
+            }
 		}
 		return $options;
 	}
@@ -276,7 +333,7 @@ class Collection {
 	function findInData(array $where) {
 		//debug($where);
 		//echo new slTable($this->data);
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
 			if ($intersect1 == $intersect2) {
@@ -291,7 +348,7 @@ class Collection {
 	 */
 	function findAllInData(array $where) {
 		$result = array();
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
 			if ($intersect1 == $intersect2) {
@@ -303,7 +360,7 @@ class Collection {
 
 	function renderList() {
 		$content = '<ul>';
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$content .= '<li>';
 			foreach ($this->thes as $key => $_) {
 				$content .= $row[$key]. ' ';
@@ -321,7 +378,7 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		//debug(sizeof($this->members));
-		foreach ($this->members as $key => $obj) {
+		foreach ($this->objectify() as $key => $obj) {
 			//debug($i++, (strlen($content)/1024/1024).'M');
 			if (is_object($obj)) {
 				$content .= $obj->render()."\n";
@@ -343,17 +400,39 @@ class Collection {
 	}
 
 	/**
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return Collection
+	 */
+	static function createForTable($table, array $where = array(), $orderBy = '') {
+		$c = new self(-1);
+		$c->table = $table;
+		$c->where = $where;
+		$c->orderBy = $orderBy;
+		$db = $GLOBALS['db'];
+		$firstWord = $db->getFirstWord($c->table);
+		$c->select = ' '.$firstWord.'.*';
+		return $c;
+	}
+
+	/**
 	 * Will detect double-call and do nothing.
 	 *
 	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class = '', $byInstance = false) {
+	function objectify($class = NULL, $byInstance = false) {
+		if (!$this->query) {
+			$this->retrieveDataFromDB();
+		}
+		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
-			foreach ($this->data as $row) {
+			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
+					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
 					$this->members[$key] = call_user_func($class.'::getInstance', $row);
 				} else {
 					$this->members[$key] = new $class($row);
@@ -372,24 +451,26 @@ class Collection {
 	 */
 	function addCheckboxes() {
 		$this->thes = array('checked' => array(
-			'name' => '<a href="javascript:void(0);" onclick="checkAll(this)">All</a><form method="POST">',
-			'align' => "right",
+			'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
+            'align' => "center",
 			'no_hsc' => true,
 		)) + $this->thes;
 		$class = get_class($this);
 		foreach ($this->data as &$row) {
 			$id = $row[$this->idField];
-			$checked = $_SESSION[$class][$id] ? 'checked' : '';
-			$row['checked'] = '<input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' />';
+			$checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
+			$row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
 		}
 	}
 
 	function showFilter() {
 		if ($this->filter) {
 			$f = new HTMLFormTable();
+			$f->method('GET');
+			$f->defaultBR = true;
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn-primary'));
+			$f->submit('Filter', array('class' => 'btn btn-primary'));
 			$content = $f->getContent();
 		}
 		return $content;
@@ -408,9 +489,17 @@ class Collection {
 		return $where;
 	}
 
+	/**
+	 * Uses array_merge to prevent duplicates
+	 * @param Collection $c2
+	 */
 	function mergeData(Collection $c2) {
-		//debug(array_keys($this->data), array_keys($c2->data));
-		$this->data = ($this->data + $c2->data);
+		$before = array_keys($this->data);
+		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
+		$this->data = $this->data + $c2->data;
+		$this->members = $this->members + $c2->members;
+		$this->count = sizeof($this->data);
+		//debug($before, array_keys($c2->data), array_keys($this->data));
 	}
 
 	/**
@@ -589,6 +678,17 @@ class Collection {
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
+	}
+
+	public function getCount() {
+		$this->query = $this->getQuery($this->where);
+		$res = $this->db->perform($this->query);
+		if ($this->pager) {
+			$this->count = $this->pager->numberOfRecords;
+		} else {
+			$this->count = $this->db->numRows($res);
+		}
+		return $this->count;
 	}
 
 }

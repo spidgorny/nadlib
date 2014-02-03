@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class MySQL
+ * @mixin SQLBuilder
+ */
 class MySQL {
 
 	/**
@@ -11,6 +15,11 @@ class MySQL {
 	 * @var string
 	 */
 	public $lastQuery;
+
+	/**
+	 * @var resource
+	 */
+	public $lastResult;
 
 	/**
 	 * @var resource
@@ -48,14 +57,17 @@ class MySQL {
 		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_select_db($this->db, $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_set_charset('utf8', $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -84,7 +96,7 @@ class MySQL {
 		}
 
 		$start = microtime(true);
-		$res = @mysql_query($query, $this->connection);
+		$res = $this->lastResult = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
 			$key = md5($query);
@@ -95,6 +107,7 @@ class MySQL {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				nodebug(array(
@@ -107,7 +120,6 @@ class MySQL {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
@@ -167,13 +179,21 @@ class MySQL {
 		}
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		mysql_free_result($res);
+		$this->free($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
 
-	function numRows($res) {
-		return mysql_num_rows($res);
+	function free($res) {
+		if (is_resource($res)) {
+			mysql_free_result($res);
+		}
+	}
+
+	function numRows($res = NULL) {
+		if (is_resource($res ?: $this->lastResult)) {
+			return mysql_num_rows($res ?: $this->lastResult);
+		}
 	}
 
 	function dataSeek($res, $number) {
@@ -185,15 +205,15 @@ class MySQL {
 	}
 
 	function transaction() {
-		$this->perform('BEGIN');
+		return $this->perform('BEGIN');
 	}
 
 	function commit() {
-		$this->perform('COMMIT');
+		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
-		$this->perform('ROLLBACK');
+		return $this->perform('ROLLBACK');
 	}
 
 	function escape($string) {
@@ -266,16 +286,21 @@ class MySQL {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
     	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
 		WHERE CCSA.collation_name = T.table_collation
-  		/*AND T.table_schema = 'schemaname'*/
-  		AND T.table_name = '".$table."'";
+		/*AND T.table_schema = 'schemaname'*/
+		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
 
-	function getTableColumns($table) {
+	/**
+	 * Return a 2D array
+	 * @param $table
+	 * @return array
+	 */
+	function getTableColumnsEx($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW FULL COLUMNS FROM ".$this->escape($table);
+			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
@@ -329,6 +354,10 @@ class MySQL {
 
 	function getIndexesFrom($table) {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
+	}
+
+	static function escapeBool($value) {
+		return intval(!!$value);
 	}
 
 }

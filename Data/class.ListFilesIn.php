@@ -10,9 +10,10 @@ class ListFilesIn extends ArrayObject {
 		foreach ($iterator as $file) { /** @var $file SplFileInfo */
 			$filename = $file->getFilename();
 			if ($filename{0} != '.') {
-				$key = $file->getPathname();
-				//$key = str_replace($folder, '', $key);
-				$key = first(trimExplode('.', $key, 2));
+				$pathname = $file->getPathname();
+				//$key = first(trimExplode('.', $filename, 2));	// why?
+				$key = $filename;
+				//debug($filename, $pathname, $key);
 				if ($file->isDir()) {
 					$children = new self($folder.$filename);
 					$menu[$key] = new Recursive($key, $children->getArrayCopy());
