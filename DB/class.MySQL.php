@@ -150,40 +150,6 @@ class MySQL {
 		return $row;
 	}
 
-	/**
-	 * Enter description here...
-	 *
-	 * @param resource $res
-	 * @param string $key can be set to NULL to avoid assoc array
-	 * @return array
-	 */
-	function fetchAll($res, $key = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-
-		// temp
-		if (mysql_errno()) {
-			debug(array(mysql_errno($this->connection) => mysql_error($this->connection)));
-			exit();
-		}
-
-		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
-			if ($key) {
-				$data[$row[$key]] = $row;
-			} else {
-				$data[] = $row;
-			}
-		}
-		//debug($this->lastQuery, sizeof($data));
-		//debug_pre_print_backtrace();
-		$this->free($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $data;
-	}
-
 	function free($res) {
 		if (is_resource($res)) {
 			mysql_free_result($res);

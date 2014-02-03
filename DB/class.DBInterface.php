@@ -2,7 +2,7 @@
 
 interface DBInterface {
 
-	function __construct();
+	//function __construct();
 
 	// parameters are different
 	//function connect();

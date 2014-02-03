@@ -4,7 +4,7 @@
  * Class dbLayerODBC
  * @mixin SQLBuilder
  */
-class dbLayerPDO implements DBInterface {
+class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var PDO
@@ -18,6 +18,7 @@ class dbLayerPDO implements DBInterface {
 
 	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL) {
 		$this->connect($user, $password, $scheme, $driver, $host, $db);
+		$this->setQB();
 	}
 
 	static function getAvailableDrivers() {
@@ -33,15 +34,28 @@ class dbLayerPDO implements DBInterface {
 	 * @param $db
 	 */
 	function connect($user, $password, $scheme, $driver, $host, $db) {
-		$this->connection = new PDO($scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';dbname='.$db.'; HOSTNAME='.$host.';aPORT=56789;PROTOCOL=TCPIP;', $user, $password);
+		$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';aPORT=56789;PROTOCOL=TCPIP;';
+		$dsn = $scheme.':'.$this->getDSN(array(
+			'DRIVER' => '{'.$driver.'}',
+			'DATABASE' => $db,
+			'SYSTEM' => $host,
+			'dbname' => $db,
+			'HOSTNAME' => $host,
+			'aPORT' => 56789,
+			'PROTOCOL' => 'TCPIP',
+		));
+		debug($dsn);
+		$this->connection = new PDO($dsn, $user, $password);
 	}
 
 	function perform($query, $flags = PDO::FETCH_ASSOC) {
 		$this->result = $this->connection->query($query, $flags);
 		if (!$this->result) {
+			$error = implode(BR, $this->connection->errorInfo());
+			debug($query, $error);
 			throw new Exception(
-				implode(BR, $this->connection->errorInfo()),
-				$this->connection->errorCode());
+				$error,
+				$this->connection->errorCode() ?: 0);
 		}
 		return $this->result;
 	}
