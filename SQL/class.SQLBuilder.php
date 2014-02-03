@@ -653,8 +653,6 @@ class SQLBuilder {
 	}
 
 	/**
-	 * Enter description here...
-	 *
 	 * @param resource $res
 	 * @param string $key can be set to NULL to avoid assoc array
 	 * @return array

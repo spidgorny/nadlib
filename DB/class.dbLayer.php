@@ -595,12 +595,9 @@ order by a.attnum';
 	}
 
 	function __call($method, array $params) {
-		$qb = class_exists('Config') ? Config::getInstance()->qb : new stdClass();
-		if (method_exists($qb, $method)) {
-			//debug_pre_print_backtrace();
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			debug($qb);
 			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
 		}
 	}
