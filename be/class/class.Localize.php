@@ -1,7 +1,5 @@
 <?php
 
-NOT MERGED!
-
 /**
  * Class Localize
  *
