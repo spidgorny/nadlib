@@ -38,8 +38,7 @@ class SQLSearch {
 		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		$query = '';
 		if ($where) {
-			$qb = Config::getInstance()->qb;
-			$whereString = $qb->quoteWhere($where);
+			$whereString = $this->qb->quoteWhere($where);
 			$query .= implode(' AND ', $whereString);
 		}
 		return $query;
@@ -77,7 +76,7 @@ class SQLSearch {
 		$table = $this->table;
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
-		$where = new SQLWhere($where);
+		$where = new SQLWhere(array());
 		$query = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
 
