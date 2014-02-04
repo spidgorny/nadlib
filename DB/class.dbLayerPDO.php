@@ -16,6 +16,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	public $result;
 
+	/**
+	 * @var string
+	 */
+	public $dsn;
+
 	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL) {
 		$this->connect($user, $password, $scheme, $driver, $host, $db);
 		$this->setQB();
@@ -35,7 +40,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	function connect($user, $password, $scheme, $driver, $host, $db) {
 		$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';aPORT=56789;PROTOCOL=TCPIP;';
-		$dsn = $scheme.':'.$this->getDSN(array(
+		$this->dsn = $scheme.':'.$this->getDSN(array(
 			'DRIVER' => '{'.$driver.'}',
 			'DATABASE' => $db,
 			'SYSTEM' => $host,
@@ -44,8 +49,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			'aPORT' => 56789,
 			'PROTOCOL' => 'TCPIP',
 		));
-		debug($dsn);
-		$this->connection = new PDO($dsn, $user, $password);
+		//debug($this->dsn);
+		$this->connection = new PDO($this->dsn, $user, $password);
 	}
 
 	function perform($query, $flags = PDO::FETCH_ASSOC) {
@@ -69,7 +74,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function getTables() {
-		$this->perform('show tables');
+		$scheme = parse_url($this->dsn);
+		$scheme = $scheme['scheme'];
+		if ($scheme == 'mysql') {
+			$this->perform('show tables');
+		} else if ($scheme == 'odbc') {
+			$this->perform('db2 list tables for all');
+		}
 		return $this->result->fetchAll();
 	}
 
