@@ -81,8 +81,14 @@ class slTableValue {
 							}
 							$out = implode(', ', $out);
 						} else if ($k['from']) {
-							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val));
-							$options = ArrayPlus::create($options)->IDalize($id)->column($what)->getData();
+							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'].'.*, '.$what);
+							//debug($options, $k); exit();
+							$whatAs = trimExplode('AS', $what);
+							$whatAs = $whatAs[1] ?: $what;
+							$options = ArrayPlus::create($options)
+								->IDalize($id, true)
+								->column($whatAs)
+								->getData();
 							$out = $options[$val];
 						}
 					} else {

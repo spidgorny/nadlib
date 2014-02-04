@@ -10,13 +10,22 @@ class dbLayer {
     /**
      * @var resource
      */
-    protected $CONNECTION = NULL;
+    public $CONNECTION = NULL;
 
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
 
-	/**
+    /**
+     * todo: use setter & getter method
+     *
+     * contains query builder class used as mixin.
+     *
+     * @var null
+     */
+    public $qb = null;
+
+    	/**
 	 * logging:
 	 */
 	public $saveQueries = false;
@@ -348,7 +357,7 @@ class dbLayer {
 	}
 
 	function getInsertQuery($table, $columns) {
-		$q = "INSERT INTO $table (";
+		$q = 'INSERT INTO '.$table.' (';
 		$q .= implode(", ", array_keys($columns));
 		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
@@ -375,7 +384,7 @@ class dbLayer {
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
-		$q = "UPDATE $table SET ";
+		$q = 'UPDATE '.$table .'SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
@@ -595,12 +604,9 @@ order by a.attnum';
 	}
 
 	function __call($method, array $params) {
-		$qb = class_exists('Config') ? Config::getInstance()->qb : new stdClass();
-		if (method_exists($qb, $method)) {
-			//debug_pre_print_backtrace();
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->getQb(), $method)) {
+			return call_user_func_array(array($this->getQb(), $method), $params);
 		} else {
-			debug($qb);
 			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
 		}
 	}
@@ -716,4 +722,19 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
+    public function setQb($qb)
+    {
+        $this->qb = $qb;
+    }
+
+    public function getQb()
+    {
+        if(!isset($this->qb)) {
+            $di = new DIContainer();
+            $di->db = Config::getInstance()->db;
+            $this->setQb(new SQLBuilder($di));
+        }
+
+        return $this->qb;
+    }
 }

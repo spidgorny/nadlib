@@ -4,7 +4,7 @@
  * Class dbLayerODBC
  * @mixin SQLBuilder
  */
-class dbLayerODBC implements DBInterface {
+class dbLayerODBC extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var resource
@@ -16,22 +16,28 @@ class dbLayerODBC implements DBInterface {
 	 */
 	public $result;
 
-	function __construct($user, $password, $host) {
+	function __construct($user, $password, $host, $db) {
 		if ($user) {
-			$this->connect($user, $password, $host);
+			$this->connect($user, $password, $host, $db);
+			$this->setQB();
 		}
 	}
 
-	function connect($user, $password, $host) {
-		$this->connection = odbc_connect('odbc:DRIVER={IBM DB2 ODBC DRIVER};HOSTNAME='.$host.';PORT=50000;DATABASE=PCTRANSW;PROTOCOL=TCPIP', $user, $password);
+	function connect($user, $password, $host, $db) {
+		//$this->connection = odbc_connect('odbc:DRIVER={IBM DB2 ODBC DRIVER};HOSTNAME='.$host.';PORT=50000;DATABASE=PCTRANSW;PROTOCOL=TCPIP', $user, $password);
+		$this->connection = odbc_pconnect('DSN='.$host.';DATABASE='.$db, $user, $password);
 	}
 
 	function perform($query) {
-		$this->result = odbc_exec($this->connection, $query);
+		if ($this->connection) {
+			$this->result = odbc_exec($this->connection, $query);
+		} else {
+			throw new Exception(__METHOD__);
+		}
 	}
 
 	function numRows($res) {
-		// TODO: Implement numRows() method.
+		return odbc_num_rows($res);
 	}
 
 	function affectedRows() {
@@ -44,11 +50,11 @@ class dbLayerODBC implements DBInterface {
 	}
 
 	function escapeBool($value) {
-		// TODO: Implement escapeBool() method.
+		return !!$value;
 	}
 
 	function free($res) {
-		// TODO: Implement free() method.
+		odbc_free_result($res);
 	}
 
 	function lastInsertID() {
@@ -56,7 +62,23 @@ class dbLayerODBC implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		// TODO: Implement quoteKey() method.
+		return $key;
+	}
+
+	function fetchAssoc($res) {
+		if ($this->connection) {
+			return odbc_fetch_array($res);
+		} else {
+			throw new Exception(__METHOD__);
+		}
+	}
+
+	function __call($method, array $params) {
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
+		} else {
+			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
+		}
 	}
 
 }

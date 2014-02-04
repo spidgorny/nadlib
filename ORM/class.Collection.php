@@ -227,7 +227,7 @@ class Collection {
 		}
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
-		$qb = Config::getInstance()->qb;
+		$qb = $this->db->qb;
 		if ($where instanceof SQLWhere) {
 			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {

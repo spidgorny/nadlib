@@ -228,7 +228,14 @@ class Uploader {
 			$redirect = $callback($data);
 			$json->file[0]->redirect = $redirect;
 		}
-		echo json_encode($json);
+		$request = Request::getInstance();
+		if ($request->isAjax()) {
+			echo json_encode($json);
+		} else if ($redirect) {
+			$request->redirect($redirect);
+		} else {
+			echo $data['error'];
+		}
 		exit();
 	}
 

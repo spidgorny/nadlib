@@ -141,8 +141,7 @@ abstract class OODBase {
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getInsertQuery($this->table, $data);
+		$query = $this->db->qb->getInsertQuery($this->table, $data);
 		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -170,8 +169,7 @@ abstract class OODBase {
 			} else {
 				$where[$this->idField] = $this->id;
 			}
-			$qb = Config::getInstance()->qb;
-			$query = $qb->getUpdateQuery($this->table, $data, $where);
+			$query = $this->db->qb->getUpdateQuery($this->table, $data, $where);
 			//debug($query);
 			$res = $this->db->perform($query);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -192,8 +190,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getDeleteQuery($this->table, $where);
+		$query = $this->db->qb->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
 	}
@@ -346,7 +343,7 @@ abstract class OODBase {
 					);
 				}
 			}
-			$s = new slTable($assoc. '', array(
+			$s = new slTable($assoc, '', array(
 				0 => '',
 				'' => array('no_hsc' => true)
 			));
@@ -355,7 +352,7 @@ abstract class OODBase {
 				if (!$val && $skipEmpty) {
 					unset($assoc[$key]);
 				} else if (is_array($val) && $recursive) {
-					$val = OODBase::renderAssoc($val, $recursive);
+					$val = self::renderAssoc($val, $recursive);
 				}
 			}
 			$s = slTable::showAssoc($assoc);

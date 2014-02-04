@@ -18,7 +18,7 @@ class TYPO3PageOverlay extends OODBase {
 	public $colPos;
 
 	function init($id, $fromFindInDB = false) {
-		parent::init($id);
+		parent::init($id, $fromFindInDB);
 		$this->langID = $this->data['sys_language_uid'];
 	}
 
