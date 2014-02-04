@@ -10,7 +10,7 @@ class dbLayer {
     /**
      * @var resource
      */
-    protected $CONNECTION = NULL;
+    public $CONNECTION = NULL;
 
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
