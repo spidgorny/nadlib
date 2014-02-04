@@ -66,14 +66,28 @@ class Flot extends AppController {
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function render() {
+	/**
+	 * Fixed for Posa Cards
+	 *
+	 * @internal param array $data
+	 * @param string $divID
+	 * @return array
+	 * array[19]
+	 * 1309471200    array[2]
+	 * 0    integer    1309471200000
+	 * 1    integer    0
+	 * 1314828000    array[2]
+	 * 0    integer    1314828000000
+	 * 1    integer    39
+	 */
+	function render($divID = 'chart1') {
 		$content = '';
 		$chart = $this->getChartTable($this->data);
 		$this->cumulative = $this->getChartCumulative($chart);
 		$max = $this->getChartMax($this->cumulative);
-		$content .= $this->showChart('chart1', $chart, $this->cumulative, $max);
+		$content .= $this->showChart($divID, $chart, $this->cumulative, $max);
 		return $content;
-    }
+	}
 
 	function appendCumulative(array $data) {
 		//debug($this->cumulative, $data);
@@ -101,9 +115,9 @@ class Flot extends AppController {
 	 * Uses strtotime() so the $timeKey values should be PHP parsable
 	 *
 	 * @param array $rows
-	 * @param string $keyKey
-	 * @param string $timeKey
-	 * @param string $amountKey
+	 * @internal param string $keyKey
+	 * @internal param string $timeKey
+	 * @internal param string $amountKey
 	 * @return array
 	 */
 	function getChartTable(array $rows) {

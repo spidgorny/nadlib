@@ -1,6 +1,10 @@
 <?php
 
 class dbLayerMS implements DBInterface {
+
+	/**
+	 * @var string
+	 */
 	protected $server, $database, $user, $password;
 
 	/**
@@ -79,6 +83,7 @@ class dbLayerMS implements DBInterface {
 			$msg2 = mssql_fetch_assoc(mssql_query('SELECT @@ERROR AS ErrorCode', $this->connection))['ErrorCode'];
 			$this->close();
 			$this->connect();
+			debug($query);
 			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
@@ -88,6 +93,8 @@ class dbLayerMS implements DBInterface {
 	function fetchAssoc($res) {
 		if (is_string($res)) {
 			$res = $this->perform($res);
+		} if (!is_resource($res)) {
+			debug($res);
 		}
 		return mssql_fetch_assoc($res);
 	}
@@ -109,7 +116,7 @@ class dbLayerMS implements DBInterface {
 				}
 			}
 		} while (mssql_next_result($res) && $i++ < $rows);
-		mssql_free_result($res);
+		$this->free($res);
 		return $table;
 	}
 
@@ -217,13 +224,10 @@ AND name = '?')", array($table));
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in MySQL and SQLBuilder');
+			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
 		}
 	}
 

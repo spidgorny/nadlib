@@ -101,6 +101,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} else {
 				throw new Exception404($slug);
 			}
+		} catch (LoginException $e) {
+			throw $e;
 		} catch (Exception $e) {
 			$this->controller = NULL;
 			$this->content = $this->renderException($e);
@@ -137,21 +139,28 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '';
-		if ($this->controller) {
-			try {
+		try {
+			$this->initController();
+			if ($this->controller) {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax() && !$this->request->isCLI()) {
-					$content = $this->renderTemplate($content);
-				} else {
-					$content .= $this->content;
-					$this->content = '';		// clear for the next output. May affect saveMessages()
-				}
-			} catch (Exception $e) {
-				$content = $this->renderException($e);
+			} else {
+				$content .= $this->content;	// display Exception
+				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} else {
-			$content .= $this->content;	// display Exception
+		} catch (LoginException $e) {
+			$this->content .= $e;
+			throw $e;
+		} catch (Exception $e) {
+			$content = $this->renderException($e);
 		}
+
+		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+			$content = $this->renderTemplate($content);
+		} else {
+			$content .= $this->content;
+			$this->content = '';		// clear for the next output. May affect saveMessages()
+		}
+
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
@@ -185,6 +194,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
+			$content .= getDebug($e);
 		}
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
@@ -218,8 +228,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function log($action, $bookingID) {
-		$qb = Config::getInstance()->qb;
-		$qb->runInsertQuery('log', array(
+		$this->db->qb->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
@@ -332,7 +341,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeCSS() {
-		return implode("\n", $this->header);
+		//return implode("\n", $this->header);
+		$content = array();
+		foreach ($this->header as $key => $script) {
+			$content[] = '<!--'.$key.'-->'.$script;
+		}
+		return implode("\n", $content);
 	}
 
 	function implodeJS() {
