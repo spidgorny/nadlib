@@ -389,12 +389,17 @@ class Request {
 //			|| DEVELOPMENT
 		) {
 			header('Location: '.$controller);
+			exit();
 		} else {
-			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
+			$this->redirectJS($controller);
+		}
+	}
+
+	function redirectJS($controller) {
+		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
 			<script>
 				document.location = "'.$controller.'";
 			</script>';
-		}
 		exit();
 	}
 

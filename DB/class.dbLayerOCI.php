@@ -9,8 +9,8 @@ class dbLayerOCI extends dbLayer {
 	var $debugOnce = FALSE;
 	var $is_connected = FALSE;
 
-	function dbLayerOCI($user, $pass, $tns) {
-		$this->connect($user, $pass, $tns);
+	function dbLayerOCI($tns, $user, $pass) {
+		$this->connect($tns, $user, $pass);
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
@@ -18,7 +18,14 @@ class dbLayerOCI extends dbLayer {
 		return '[Object of type dbLayerOCI]';
 	}
 
-	function connect($user, $pass, $tns) {
+	/**
+	 * @param $tns
+	 * @param $user
+	 * @param $pass
+	 * @param string $host      - unused, for declaration consistency
+	 * @return bool|null|resource
+	 */
+	function connect($tns, $user, $pass, $host = 'localhost') {
 		$this->CONNECTION = oci_connect($user, $pass, $tns);
 		if (!$this->CONNECTION) {
 			print('Error in Oracle library: connection failed. Reason: '.getDebug(oci_error($this->CONNECTION)).BR);
@@ -161,14 +168,6 @@ class dbLayerOCI extends dbLayer {
 		}
 	}
 
-	function fetchAll($result) {
-		$ret = array();
-		while (($row = $this->fetchAssoc($result)) !== FALSE) {
-			$ret[] = $row;
-		}
-		return $ret;
-	}
-
 	function fetchAssoc($result) {
 		$array = oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
 		return $array;
@@ -187,7 +186,7 @@ class dbLayerOCI extends dbLayer {
 	}
 
 	function to_date($timestamp) {
-		$content .= "to_date('".date('Y-m-d H:i', $timestamp)."', 'yyyy-mm-dd hh24:mi')";
+		$content = "to_date('".date('Y-m-d H:i', $timestamp)."', 'yyyy-mm-dd hh24:mi')";
 		return $content;
 	}
 
@@ -199,6 +198,4 @@ class dbLayerOCI extends dbLayer {
 		return array();
 	}
 
-};
-
-?>
+}

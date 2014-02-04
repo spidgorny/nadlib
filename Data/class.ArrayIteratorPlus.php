@@ -3,8 +3,11 @@
 /**
  * Class ArrayIteratorPlus - convenient base class for implementing an iterator class which can be used in foreach()
  * Just put your data into $this->data in the constructor. The rest (iteration) will be taken care of.
+ *
+ * 2014-01-30 It now extends ArrayIterator instead of implementing everything manually
  */
-class ArrayIteratorPlus implements Iterator, Countable {
+//class ArrayIteratorPlus implements Iterator, Countable {
+class ArrayIteratorPlus extends ArrayIterator implements Iterator, Countable {
 
 	/**
 	 * @var array - the actual data for iteration
@@ -17,7 +20,7 @@ class ArrayIteratorPlus implements Iterator, Countable {
 	 */
 	protected $position = 0;
 
-	public $debug = false;
+/*	public $debug = true;
 
     function current() {
         return $this->data[$this->position];
@@ -38,11 +41,11 @@ class ArrayIteratorPlus implements Iterator, Countable {
     function valid() {
 		$valid = isset($this->data[$this->position]);
 		if ($this->debug) {
-			echo __METHOD__.': '.$valid."<br />\n";
+			debug($this->position, $valid, $this->data);
 		}
         return $valid;
     }
-	
+
 	function count() {
 		return sizeof($this->data);
 	}
@@ -50,5 +53,5 @@ class ArrayIteratorPlus implements Iterator, Countable {
 	function getData() {
 		return $this->data;
 	}
-
+*/
 }

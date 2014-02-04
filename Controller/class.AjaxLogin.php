@@ -24,7 +24,7 @@ class AjaxLogin extends AppController {
 	public static $public = true;
 
 	/**
-	 * Remove to disable jQuery dependancy
+	 * Remove to disable jQuery dependency
 	 * @var string
 	 */
 	public $formMore = 'onsubmit="jQuery(this).ajaxSubmit({
@@ -166,8 +166,10 @@ class AjaxLogin extends AppController {
 	function inlineFormAction() {
 		if ($this->user && $this->user->isAuth()) {
 			$content = '<form class="navbar-form navbar-right" method="POST">
-				<p class="navbar-text">'.$this->user->getName().'</p>
-				<a href="?c=Login&action=logout" class="ajax btn">'.__('Logout').'</a>
+			<div class="form-group">
+				<p class="navbar-text" style="display: inline-block;">'.$this->user->getName().'</p>
+				<a href="?c=Login&action=logout" class="ajax btn btn-default">'.__('Logout').'</a>
+			</div>
 			</form>';
 		} else {
 			$content = '<form class="navbar-form navbar-right" method="POST">

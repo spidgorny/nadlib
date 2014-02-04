@@ -30,4 +30,31 @@ class dbPlacebo implements DBInterface {
 		}
 	}
 
+	function numRows($res) {
+		// TODO: Implement numRows() method.
+	}
+
+	function affectedRows() {
+		// TODO: Implement affectedRows() method.
+	}
+
+	function getTables() {
+		// TODO: Implement getTables() method.
+	}
+
+	function lastInsertID() {
+		// TODO: Implement lastInsertID() method.
+	}
+
+	function free($res) {
+		// TODO: Implement free() method.
+	}
+
+	function quoteKey($key) {
+		// TODO: Implement quoteKey() method.
+	}
+
+	function escapeBool($value) {
+		// TODO: Implement escapeBool() method.
+	}
 }

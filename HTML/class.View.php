@@ -64,7 +64,10 @@ class View {
 		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
+
+		//debug(getcwd(), $file);
 		require($file);
+
 		if (!$content) {
 			$content = ob_get_clean();
 		} else {
@@ -73,7 +76,8 @@ class View {
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-			$content = '<!-- View template: '.$this->folder.$this->file.' -->'.$content;
+			$content = '<!-- View template: '.$this->folder.$this->file.' -->'."\n".
+				$content;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;

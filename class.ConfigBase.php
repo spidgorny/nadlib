@@ -54,6 +54,9 @@ class ConfigBase {
 		'class',	// to load the Config of the main project
 		'model',
 		'be/class',
+		'be/class/DB',
+		'be/class/Info',
+		'be/class/Test',
         'Queue',
 	);
 
@@ -73,7 +76,7 @@ class ConfigBase {
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
 		} else {
-			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
 		}
 		//print_r(array('$this->appRoot in ConfigBase', $this->appRoot));
 		//debug_pre_print_backtrace();

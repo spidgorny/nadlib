@@ -5,7 +5,8 @@ class Session extends AppControllerBE {
 	function __construct() {
 		parent::__construct();
 		ksort($_SESSION);
-		$this->index->addJS('../js/keepScrollPosition.js');
+		//debug(AutoLoad::getInstance()->debug());
+		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'js/keepScrollPosition.js');
 	}
 
 	function render() {
@@ -16,7 +17,11 @@ class Session extends AppControllerBE {
 				<a name="'.$key.'">
 					'.$key.'
 				</a>
-				<a href="?c=Session&action=del&del='.$key.'">&times;</a>
+				<a href="'.$this->getURL(array(
+					'c' => 'Session',
+					'action' => 'del',
+					'del' => $key,
+				)).'">&times;</a>
 			</h4>'.
 			getDebug($val);
 		}
