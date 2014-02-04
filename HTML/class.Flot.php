@@ -66,27 +66,6 @@ class Flot extends AppController {
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function render($divID = 'chart1') {
-		$content = '';
-		$content .= $this->showChart($divID, $this->chart, $this->cumulative, $this->max);
-		return $content;
-	}
-
-	/**
-	 * Fixed for Posa Cards
-	 *
-	 * @param array $data
-	 * @return array
-	 * array[19]
-	1309471200 	array[2]
-	0 	integer 	1309471200000
-	1 	integer 	0
-	1314828000 	array[2]
-	0 	integer 	1314828000000
-	1 	integer 	39
-	 */
-	}
-
 	function render() {
 		$content = '';
 		$chart = $this->getChartTable($this->data);
@@ -94,6 +73,8 @@ class Flot extends AppController {
 		$max = $this->getChartMax($this->cumulative);
 		$content .= $this->showChart('chart1', $chart, $this->cumulative, $max);
 		return $content;
+    }
+
 	function appendCumulative(array $data) {
 		//debug($this->cumulative, $data);
 		$cumulative2 = array();
@@ -183,17 +164,6 @@ class Flot extends AppController {
 			$dKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
 			$rows = 'var '.$jsKey.' = {
-		Index::getInstance()->addJQuery();
-		Index::getInstance()->footer['flot'] = '
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="flot/jquery.flot.time.js"></script>';
-
-		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: solid 1px silver;"></div>';
-
-		foreach ($charts as $key => &$rows) {
-			$array = $rows ? array_values($rows) : array();
-			$rows = 'var d'.$key.' = {
 				label: "'.$key.'",
 				data: '.json_encode($array).',
 				stack: true,
@@ -212,9 +182,6 @@ class Flot extends AppController {
 			$cKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
 			$rows = 'var '.$jsKey.' = {
-		foreach ($cumulative as $key => &$rows) {
-			$array = $rows ? array_values($rows) : array();
-			$rows = 'var c'.$key.' = {
 				data: '.json_encode($array).',
 				lines: {
 					show: true,
