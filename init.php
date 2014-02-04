@@ -78,7 +78,9 @@ class InitNADLIB {
 if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
-	if (method_exists('Debug', 'debug_args')) {
+    if (class_exists('FirePHP')) {
+        FirePHP::getInstance(true)->log($params);
+    } elseif (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
 		ob_start();

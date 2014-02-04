@@ -1,6 +1,6 @@
 <?php
 
-class Markdown extends View {
+class MarkdownView extends View {
 
 	function render() {
 		$file = dirname($this->file) != '.'
