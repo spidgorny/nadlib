@@ -206,18 +206,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$e->sendHeader();
 		}
 
-		if (!$this->request->isAjax()) {
-			try {
-				$v = new View($this->template, $this);
-				$v->content = $content;
-				$v->baseHref = $this->request->getLocation();
-				$content = $v->render();
-			} catch (Exception $e) {
-				// second exception may happen
-				echo $e;
-			}
-		}
-
 		return $content;
 	}
 

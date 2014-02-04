@@ -34,6 +34,7 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		} else {
 			throw new Exception(__METHOD__);
 		}
+		return $this->result;
 	}
 
 	function numRows($res) {
