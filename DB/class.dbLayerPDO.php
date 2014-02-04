@@ -101,14 +101,15 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in MySQL and SQLBuilder');
+			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
 		}
+	}
+
+	function fetchAssoc(PDOStatement $res) {
+		return $res->fetch(PDO::FETCH_ASSOC);
 	}
 
 }

@@ -139,7 +139,7 @@ class AutoLoad {
 	}
 
 	function initFolders() {
-        unset($_SESSION[__CLASS__]);
+		//unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
@@ -201,8 +201,8 @@ class AutoLoad {
 			foreach ($folders as &$el) {
 				$el = '../'. $el;
 			}
-			$folders[] = '../../../../class';      // include Config from nadlib/be
-			$folders[] = '../../../../model';      // include User from nadlib/be
+			$folders[] = '../../../../class';	  // include Config from nadlib/be
+			$folders[] = '../../../../model';	  // include User from nadlib/be
 		}*/
 		return $folders;
 	}

@@ -129,6 +129,7 @@ class ConfigBase {
 			$di = new DIContainer();
 			$di->db = $this->db;
 			$this->qb = new SQLBuilder($di);
+			$this->db->qb = $this->qb;
 		}
 
 		// init user here as he needs to access Config::getInstance()
