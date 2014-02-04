@@ -137,7 +137,7 @@ abstract class UserBase extends OODBase {
 	}
 
 	function isAuth() {
-		return $this->id ? true : false;
+		return !!$this->id;
 	}
 
 	function getHTML() {

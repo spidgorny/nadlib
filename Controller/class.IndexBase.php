@@ -3,22 +3,16 @@
 class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var MySQL
 	 */
 	public $db;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLangDummy
 	 */
 	public $ll;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LoginUser
 	 */
 	public $user;

@@ -268,15 +268,7 @@ class Collection {
 		if ($this->data) {
 			$this->prepareRender();
 			//debug($this->tableMore);
-			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
-			$s->thes($this->thes);
-			$s->ID = get_class($this);
-			$s->sortable = $this->useSorting;
-			if (class_exists('Index')) {
-				$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
-				//debug(Index::getInstance()->controller);
-				$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
-			}
+			$s = $this->getDataTable();
 			if ($this->pager) {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
@@ -289,6 +281,19 @@ class Collection {
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $content;
+	}
+
+	function getDataTable() {
+		$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
+		$s->thes($this->thes);
+		$s->ID = get_class($this);
+		$s->sortable = $this->useSorting;
+		if (class_exists('Index')) {
+			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+			//debug(Index::getInstance()->controller);
+			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+		}
+		return $s;
 	}
 
 	function prepareRender() {

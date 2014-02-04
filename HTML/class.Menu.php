@@ -261,7 +261,7 @@ class Menu /*extends Controller*/ {
 				$path = $this->getClassPath($class, $root);
 				//$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? $class == $this->current : true;
 				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent
-					? in_array($class, $this->request->getURLLevels())
+					? in_array($class, trimExplode('/', $this->current))
 					: true;
 				$hasChildren = $renderOnlyCurrentSubmenu
 					&& $name instanceof Recursive
@@ -280,6 +280,14 @@ class Menu /*extends Controller*/ {
 						$aTag = '<a href="'.$path.'" class="'.$activeAclass.'">'.__($name.'').'</a>'."\n";
 					}
 				}
+				nodebug(array(
+					'class' => $class,
+					'$this->renderOnlyCurrent' => $this->renderOnlyCurrent,
+					'getURLLevels()' => $this->request->getURLLevels(),
+					'$this->current' => $this->current,
+					'$renderOnlyCurrentSubmenu' => $renderOnlyCurrentSubmenu,
+					'$this->recursive' => $this->recursive,
+					'hasChildren' => $hasChildren));
 				if ($this->recursive && $hasChildren) {
 					$root_class = array_merge($root, array($class));
 					$contentSubmenu = $this->renderLevel($items[$class]->getChildren(), $root_class, $level+1, 'dropdown-menu');
