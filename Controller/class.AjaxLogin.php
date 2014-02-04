@@ -165,10 +165,14 @@ class AjaxLogin extends AppController {
 	 */
 	function inlineFormAction() {
 		if ($this->user && $this->user->isAuth()) {
+			$linkLogout = $this->getURL(array(
+				'c' => get_class($this),
+				'action' => 'logout',
+			));
 			$content = '<form class="navbar-form navbar-right" method="POST">
 			<div class="form-group">
 				<p class="navbar-text" style="display: inline-block;">'.$this->user->getName().'</p>
-				<a href="?c=Login&action=logout" class="ajax btn btn-default">'.__('Logout').'</a>
+				<a href="'.$linkLogout.'" class="ajax btn btn-default">'.__('Logout').'</a>
 			</div>
 			</form>';
 		} else {
@@ -252,7 +256,6 @@ class AjaxLogin extends AppController {
 	}
 
 	function menuAction() {
-		$self = get_class($this);
 		$linkEdit = $this->getURL(array(
 			'c' => get_class($this),
 			'action' => 'profile',

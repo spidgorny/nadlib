@@ -16,14 +16,11 @@
 abstract class Controller {
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var Index
 	 */
 	public $index;
 
 	/**
-	 *
 	 * @var Request
 	 */
 	public $request;
@@ -36,7 +33,6 @@ abstract class Controller {
 	public $noRender = false;
 
 	/**
-	 *
 	 * @var MySQL|dbLayer
 	 */
 	protected $db;
@@ -50,7 +46,6 @@ abstract class Controller {
 	protected $useRouter = false;
 
 	/**
-	 *
 	 * @var User|Client|userMan|LoginUser
 	 */
 	public $user;

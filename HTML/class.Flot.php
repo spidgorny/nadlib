@@ -54,6 +54,7 @@ class Flot extends AppController {
 	 * @param $amountKey	- value (numeric) field
 	 */
 	function __construct(array $data, $keyKey, $timeKey, $amountKey) {
+		parent::__construct();
 		$this->data = $data;
 		$this->keyKey = $keyKey;
 		$this->timeKey = $timeKey;
