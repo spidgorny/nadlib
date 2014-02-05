@@ -106,6 +106,10 @@ class LDAPLogin {
 		return $info;
 	}
 
+	/**
+	 * @param $query
+	 * @return LDAPUser[]
+	 */
 	public function query($query) {
 		$this->_connectLdap();
 

@@ -45,4 +45,29 @@ class LDAPUser extends UserBase {
 		unset($_SESSION['user']);
 	}
 
+	/**
+	 * Simplifies $this->data for display
+	 * @return array
+	 */
+	function getInfo() {
+		$simpleData = array();
+		foreach ($this->data as $field => $data) {
+			if (is_array($data) && $data['count'] == 1) {
+				$simpleData[$field] = $data[0];
+			} else if (is_array($data)) {
+				unset($data['count']);
+				$simpleData[$field] = $data;
+			}
+		}
+		unset($simpleData['zcmsharedsecret']);
+		unset($simpleData['zenzfdversion']);
+		unset($simpleData['dirxml-passwordsyncstatus']);
+		unset($simpleData['protocom-sso-security-prefs']);
+		unset($simpleData['protocom-sso-entries']);
+		unset($simpleData['nnmclientsettings']);
+		unset($simpleData['nnmcontactlist']);
+		unset($simpleData['sasloginsecret']);
+		return $simpleData;
+	}
+
 }
