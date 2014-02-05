@@ -82,24 +82,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * Called by index.php explicitly,
-	 * therefore processes exceptions
+	 * therefore processes exceptions.
+	 *
+	 * That's not true anymore, called in render().
 	 * @throws Exception
 	 */
 	public function initController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-		try {
-			$slug = $this->request->getControllerString();
-			if ($slug) {
-				$this->loadController($slug);
-			} else {
-				throw new Exception404($slug);
-			}
-		} catch (LoginException $e) {
-			throw $e;
-		} catch (Exception $e) {
-			$this->controller = NULL;
-			$this->content = $this->renderException($e);
+		$slug = $this->request->getControllerString();
+		if ($slug) {
+			$this->loadController($slug);
+		} else {
+			throw new Exception404($slug);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
@@ -149,7 +144,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			$content = $this->renderTemplate($content);
+			$content = $this->renderTemplate($this->content . $content);
 		} else {
 			$content .= $this->content;
 			$this->content = '';		// clear for the next output. May affect saveMessages()
@@ -236,7 +231,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS($this->nadlibFromDocRoot.'components/jquery/jquery.min.js');
+			$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'components/jquery/jquery.min.js');
 		} else {
 			$this->footer['jquery.js'] = '
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -249,7 +244,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQueryUI() {
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS($this->nadlibFromDocRoot.'components/jquery-ui/ui/minified/jquery-ui.min.js');
+			$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'components/jquery-ui/ui/minified/jquery-ui.min.js');
 
             // commented out because this should be project specific
 			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
