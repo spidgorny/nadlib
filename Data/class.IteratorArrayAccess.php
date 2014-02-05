@@ -34,21 +34,15 @@ class IteratorArrayAccess extends ArrayIteratorPlus implements ArrayAccess {
 		}
 		return $element;
 	}
-/*
-	public function offsetSet($offset, $value) {
-        $this->set($offset, $value);
-    }
 
-    public function offsetExists($offset) {
-        return isset($this->data[$offset]);
+	public function offsetSet($offset, $value) {
+        parent::offsetSet($offset, $value);
+        $this->data[$offset] = $value;
     }
 
     public function offsetUnset($offset) {
-        return $this->un_set($offset);
+        parent::offsetUnset($offset);
+        unset($this->data[$offset]);
     }
 
-    public function offsetGet($offset) {
-        return $this->get($offset);
-    }
-*/
 }

@@ -36,4 +36,12 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		), $b);
 	}
 
+    function test_unset() {
+        unset($this->ai[1]);
+        $this->assertEquals(array(
+            0 => 'a',
+            'slawa' => 'test'
+        ), $this->ai->getData());
+    }
+
 }
