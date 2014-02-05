@@ -36,7 +36,7 @@ class LDAPLogin {
 		if ($this->_ldapconn) {
 			ldap_unbind($this->_ldapconn);
 		}
-		$this->_ldapconn = ldap_connect(self::LDAP_HOST)
+		$this->_ldapconn = ldap_connect($this->LDAP_HOST)
 			or die("Couldn't connect to the LDAP server.");
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($this->_ldapconn, LDAP_OPT_REFERRALS, 0);
@@ -58,7 +58,7 @@ class LDAPLogin {
 			$filter = "(cn=" . $this->_sanitizeLdap($username) . ")";
 			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
 
-			$search = ldap_search($this->_ldapconn, self::LDAP_BASEDN, $filter/*, $attributes*/);
+			$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $filter/*, $attributes*/);
 			$info = ldap_get_entries($this->_ldapconn, $search);
 
 			if ($info['count'] == 0) {
@@ -68,11 +68,11 @@ class LDAPLogin {
 
 			for ($i = 0; $i < $info['count']; $i++) {
 				$this->reconnect();
-				$ldapbind = ldap_bind($this->_ldapconn, $info[$i]['dn'], $this->_sanitizeLdap($password));
+				// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
+				$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $this->_sanitizeLdap($password));
 
 				if ($ldapbind) {
-					$this->data = new LDAPUser($info[$i]);
-					return true;
+					return new LDAPUser($info[$i]);
 				} else {
 					$this->error = "Login failed.";
 					return false;
@@ -109,7 +109,7 @@ class LDAPLogin {
 	public function query($query) {
 		$this->_connectLdap();
 
-		$search = ldap_search($this->_ldapconn, self::LDAP_BASEDN, $query, array(), null, 50);
+		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, array(), null, 50);
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
 		foreach ($info as &$user) {

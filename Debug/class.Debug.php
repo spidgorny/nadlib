@@ -80,7 +80,7 @@ class Debug {
 				font-family: verdana;
 				vertical-align: top;">
 				<div class="caption" style="background-color: #EEEEEE">
-					'.implode('<br />', $props).'
+					'.implode(BR, $props).'
 					<a href="javascript: void(0);" onclick="
 						var a = this.nextSibling.nextSibling;
 						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';

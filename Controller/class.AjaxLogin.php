@@ -140,7 +140,7 @@ class AjaxLogin extends AppController {
 
 	function formAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		//$f->action(get_class($this));
+		$f->action('');
 		$f->hidden('c', get_class($this));
 		$f->formMore = $this->formMore;
 		$f->defaultBR = true;
