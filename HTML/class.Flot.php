@@ -48,6 +48,11 @@ class Flot extends AppController {
 	public $barWidth = '24*60*60*1000*25';
 
 	/**
+	 * @var string
+	 */
+	var $flotPath = 'components/flot/flot/';
+
+	/**
 	 * @param array $data	- source data
 	 * @param $keyKey		- group by field (distinct charts, lines)
 	 * @param $timeKey		- time field
@@ -65,6 +70,10 @@ class Flot extends AppController {
 		// add this manually before rendering if needed
 		//$this->cumulative = $this->getChartCumulative($this->chart);
 		//$this->max = $this->getChartMax($this->cumulative);
+	}
+
+	function setFlot($path) {
+		$this->flotPath = $path;
 	}
 
 	/**
@@ -160,12 +169,11 @@ class Flot extends AppController {
 
 	function showChart($divID, array $charts, array $cumulative, $max) {
 		$this->index->addJQuery();
-		$path = 'components/flot/';
 		$this->index->footer['flot'] = '
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$path.'excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.time.js"></script>';
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.stack.js"></script>
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.time.js"></script>';
 
 		$content = '<div id="'.$divID.'" style="
 			width: '.$this->width.';
@@ -209,12 +217,12 @@ class Flot extends AppController {
 
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
-jQuery(function ($) {
+jQuery("document").ready(function ($) {
 	'.implode("\n", $charts).'
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [
     	'.implode(", ", $dKeys).',
-    	c'.implode(", c", array_keys($cumulative)).'
+    	'.implode(", ", $cKeys).'
     ], {
     	xaxis: {
     		mode: "time"
