@@ -97,12 +97,22 @@ class Debug {
 		return $content;
 	}
 
-	static function getTraceTable(array $db) {
+	static function getSimpleTrace($db = NULL) {
+		$db = $db ?: debug_backtrace();
 		foreach ($db as &$row) {
 			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}
+		return $db;
+	}
+
+	/**
+	 * @param array $db
+	 * @return string
+	 */
+	static function getTraceTable(array $db) {
+		$db = self::getSimpleTrace($db);
 		if (!array_search('slTable', ArrayPlus::create($db)->column('object')->getData())) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
 				new slTable($db, 'class="nospacing"', array(
