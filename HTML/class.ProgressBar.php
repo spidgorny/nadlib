@@ -158,8 +158,9 @@ class ProgressBar {
 	}
 
 	function getCLIbar() {
-		$this->cliWidth = $this->getTerminalWidth() / 2;
-		$chars = $this->percentDone / 100 * $this->cliWidth;
+		$this->cliWidth = round($this->getTerminalWidth() / 2);
+		$chars = round($this->percentDone / 100 * $this->cliWidth);
+		$chars = min($this->cliWidth, $chars);
 		$space = max(0, $this->cliWidth - $chars);
 		$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
 		return $content;

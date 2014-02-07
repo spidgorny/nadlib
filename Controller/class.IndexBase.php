@@ -143,15 +143,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content = $this->renderException($e);
 		}
 
+		$content = $this->renderTemplateIfNotAjax($content);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		$content .= $this->renderProfiler();
+		return $content;
+	}
+
+	function renderTemplateIfNotAjax($content) {
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			$content = $this->renderTemplate($this->content . $content);
 		} else {
 			$content .= $this->content;
 			$this->content = '';		// clear for the next output. May affect saveMessages()
 		}
-
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		$content .= $this->renderProfiler();
 		return $content;
 	}
 
