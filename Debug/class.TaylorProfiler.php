@@ -347,8 +347,8 @@ class TaylorProfiler {
 		}
 		return $table;
 	}
-	
-	static function renderFloat() {
+
+	static function getElapsedTime() {
 		$profiler = $GLOBALS['profiler'];
 		if ($profiler) {
 			$since = $profiler->initTime;
@@ -359,6 +359,11 @@ class TaylorProfiler {
 		}
 		$oaTime = microtime(true) - $since;
 		$totalTime = number_format($oaTime, 3, '.', '');
+		return $totalTime;
+	}
+
+	static function renderFloat() {
+		$totalTime = self::getElapsedTime();
 		if (Config::getInstance()->db->queryLog) {
 			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
