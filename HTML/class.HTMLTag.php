@@ -21,7 +21,7 @@ class HTMLTag {
 		$content = ($this->isHTML || $this->content instanceof HTMLTag)
 			? $this->content
 			: htmlspecialchars($this->content, ENT_QUOTES);
-		return '<'.$this->tag.' '.$this->renderAttr($this->attr).'>'."\n".$content.'</'.$this->tag.'>';
+		return '<'.$this->tag.' '.$this->renderAttr($this->attr).'>'.$content.'</'.$this->tag.'>';
 	}
 
 	static function renderAttr(array $attr) {
