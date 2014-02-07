@@ -27,8 +27,13 @@ class Debug {
 				$trace[] = self::getMethod($row);
 			}
 			echo '---'.implode(' // ', $trace)."\n";
-			var_dump($a);
-			echo "\n";
+			ob_start();
+			var_dump(
+				$a
+			);
+			$dump = ob_get_clean();
+			$dump = str_replace("=>\n", ' =>', $dump);
+			echo $dump, "\n";
 		} else if ($_COOKIE['debug']) {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= '

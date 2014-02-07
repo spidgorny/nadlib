@@ -21,6 +21,8 @@ class ProgressBar {
 	 */
 	var $destruct100 = false;
 
+	var $cliWidth = 100;
+
 	function __construct($percentDone = 0, $color = '43b6df') {
 		$this->setID('pb-'.uniqid());
 		$this->pbarid = 'progress-bar';
@@ -91,7 +93,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo ($text ? $text : $percentDone)."\n";
+			echo $text  . ' '.$this->getCLIbar()."\r";
 		} else {
 			print('
 			<script type="text/javascript">
@@ -153,6 +155,50 @@ class ProgressBar {
 			var el = document.getElementById("'.$this->pbid.'");
 			el.parentNode.removeChild(el);
 		</script>';
+	}
+
+	function getCLIbar() {
+		$this->cliWidth = $this->getTerminalWidth() / 2;
+		$chars = $this->percentDone / 100 * $this->cliWidth;
+		$space = max(0, $this->cliWidth - $chars);
+		$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+		return $content;
+	}
+
+	function getTerminalWidth() {
+		if (Request::isWindows()) {
+			$both = $this->getTerminalSizeOnWindows();
+			$width = $both['width'];
+		} else {
+			$width = exec('tput cols');
+		}
+		return $width;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
+	 * @return array
+	 */
+	function getTerminalSizeOnWindows() {
+		$output = array();
+		$size = array('width'=>0,'height'=>0);
+		exec('mode',$output);
+		foreach($output as $line) {
+			$matches = array();
+			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i',$line,$matches);
+			if($w) {
+				$size['width'] = intval($matches[1]);
+			} else {
+				$h = preg_match('/^\s*lines\:?\s*(\d+)\s*$/i',$line,$matches);
+				if($h) {
+					$size['height'] = intval($matches[1]);
+				}
+			}
+			if($size['width'] AND $size['height']) {
+				break;
+			}
+		}
+		return $size;
 	}
 
 }

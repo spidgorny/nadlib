@@ -39,7 +39,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	var $key = 0;
 
 	/**
-	 * @var MySQL|dbLayer
+	 * @var MySQL|dbLayer|dbLayerODBC
 	 */
 	var $db;
 

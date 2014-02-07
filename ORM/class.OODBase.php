@@ -283,8 +283,8 @@ abstract class OODBase {
 	 *
 	 * @param array $fields
 	 * @param array $where
-	 * @param array $insert
-	 * @param array $update
+	 * @param array $insert - additional insert fields not found in $fields
+	 * @param array $update - additional update fields not found in $fields
 	 * @return string whether the record already existed
 	 */
 	function insertUpdate(array $fields,
@@ -414,27 +414,30 @@ abstract class OODBase {
 
 	/**
 	 * @param string $name
+	 * @param null $field
 	 * @return self
 	 */
-	static function getInstanceByName($name) {
+	static function getInstanceByName($name, $field = NULL) {
 		$self = get_called_class();
 		//debug($self, $name, count(self::$instances[$self]));
 
 		// first search instances
-		if (is_array(self::$instances[$self])) foreach (self::$instances[$self] as $inst) {
-			if ($name == 'deloprub') {
-				//debug($self, $name, count(self::$instances[$self]), $inst->titleColumn, $inst->data[$inst->titleColumn], $name);
-			}
-			if ($inst->data[$inst->titleColumn] == $name) {
-				$c = $inst;
-				break;
+		if (is_array(self::$instances[$self])) {
+			foreach (self::$instances[$self] as $inst) {
+				$field = $field ?: $inst->titleColumn;
+				if ($inst->data[$field] == $name) {
+					$c = $inst;
+					break;
+				}
 			}
 		}
 
 		if (!$c) {
-			$c = new $self;
+			$c = new $self();
+			/** @var $c OODBase */
+			$field = $field ?: $c->titleColumn;
 			$c->findInDB(array(
-				$c->titleColumn => $name,
+				$field => $name,
 			));
 
 			// store back so it can be found
