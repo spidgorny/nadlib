@@ -81,7 +81,11 @@ function debug($a) {
 	    if (class_exists('FirePHP') && !Request::isCLI()) {
 		    $fp = FirePHP::getInstance(true);
 		    $fp->setOption('includeLineNumbers', true);
-		    $fp->table('Trace', Debug::getSimpleTrace());
+		    $trace = Debug::getSimpleTrace();
+		    if ($trace) {
+		        //$fp->table('Trace', $trace);
+		    }
+		    //$fp->trace('Trace');
 		    $fp->log(sizeof($params) == 1 ? $a : $params);
 	    } else {
 		    call_user_func_array(array('Debug', 'debug_args'), $params);
