@@ -79,7 +79,10 @@ function debug($a) {
     $params = func_get_args();
     if (method_exists('Debug', 'debug_args')) {
 	    if (class_exists('FirePHP') && !Request::isCLI()) {
-		    FirePHP::getInstance(true)->log($params);
+		    $fp = FirePHP::getInstance(true);
+		    $fp->setOption('includeLineNumbers', true);
+		    $fp->table('Trace', Debug::getSimpleTrace());
+		    $fp->log(sizeof($params) == 1 ? $a : $params);
 	    } else {
 		    call_user_func_array(array('Debug', 'debug_args'), $params);
 	    }
