@@ -21,9 +21,8 @@ class InitNADLIB {
 		$this->al->useCookies = $this->useCookies;
 		$this->al->register();
 
-		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		define('DEVELOPMENT', Request::isCLI()
-			? (($os == 'Windows_NT') || true) // at home
+			? (Request::isWindows() || true) // at home
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
 
@@ -78,10 +77,12 @@ class InitNADLIB {
 if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
-    if (class_exists('FirePHP')) {
-        FirePHP::getInstance(true)->log($params);
-    } elseif (method_exists('Debug', 'debug_args')) {
-		call_user_func_array(array('Debug', 'debug_args'), $params);
+    if (method_exists('Debug', 'debug_args')) {
+	    if (class_exists('FirePHP') && !Request::isCLI()) {
+		    FirePHP::getInstance(true)->log($params);
+	    } else {
+		    call_user_func_array(array('Debug', 'debug_args'), $params);
+	    }
 	} else {
 		ob_start();
 		var_dump(

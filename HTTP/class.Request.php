@@ -745,4 +745,15 @@ class Request {
 			$this->data[$val] = $this->getNameless($k);
 		}
 	}
+
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	static function isWindows() {
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
 }

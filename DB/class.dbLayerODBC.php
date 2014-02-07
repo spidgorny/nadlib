@@ -16,6 +16,8 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 	 */
 	public $result;
 
+	public $cursor = NULL;
+
 	function __construct($user, $password, $host, $db) {
 		if ($user) {
 			$this->connect($user, $password, $host, $db);
@@ -55,7 +57,9 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 	}
 
 	function free($res) {
-		odbc_free_result($res);
+		if (is_resource($res)) {
+			odbc_free_result($res);
+		}
 	}
 
 	function lastInsertID() {
@@ -66,9 +70,18 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		return $key;
 	}
 
+	function dataSeek($res, $set) {
+		$this->cursor = $set;
+	}
+
 	function fetchAssoc($res) {
 		if ($this->connection) {
-			return odbc_fetch_array($res);
+			if (is_null($this->cursor)) {
+				return odbc_fetch_array($res);
+			} else {
+				// row numbering starts with 1 - @see php.net
+				return odbc_fetch_array($res, 1+$this->cursor++);
+			}
 		} else {
 			throw new Exception(__METHOD__);
 		}
