@@ -128,7 +128,7 @@ class ConfigBase {
 			}
 			$di = new DIContainer();
 			$di->db = $this->db;
-			$this->qb = new SQLBuilder($di);
+			$this->setQb(new SQLBuilder($di));
 		}
 
 		// init user here as he needs to access Config::getInstance()
@@ -162,5 +162,27 @@ class ConfigBase {
 			}
 		}
 	}
+
+    /**
+     * @return \SQLBuilder
+     */
+    public function getQb()
+    {
+        if(!isset($this->qb)) {
+            $di = new DIContainer();
+            $di->db = Config::getInstance()->db;
+            $this->setQb(new SQLBuilder($di));
+        }
+
+        return $this->qb;
+    }
+
+    /**
+     * @param \SQLBuilder $qb
+     */
+    public function setQb($qb)
+    {
+        $this->qb = $qb;
+    }
 
 }
