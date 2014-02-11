@@ -229,7 +229,12 @@ class Menu /*extends Controller*/ {
 		} else {
 			$ret = $this->current == $class;
 		}
-		//debug($class, $subMenu, $this->current, $ret);
+		nodebug(array(
+			'class' => $class,
+			'subMenu' => $subMenu,
+			'current' => $this->current,
+			'ret' => $ret,
+		));
 		return $ret;
 	}
 
@@ -244,20 +249,25 @@ class Menu /*extends Controller*/ {
 			return $class;
 		} else {
 			if ($this->useRecursiveURL) {
-				//$path = $this->items->find($class);
-				//debug($class, $path);
 				$path = array_merge($root, array($class));
-			//if ($path) {
-			if ($path && $this->useControllerSlug) {
-				$link = $this->basePath . implode('/', $path);
+				if ($path && $this->useControllerSlug) {
+					$link = $this->basePath . implode('/', $path);
 				} else {
-				$link = $this->basePath . $class;
+					$link = $this->basePath . $class;
 				}
 			} else {
-			$link = $this->basePath . $class;
+				$link = $this->basePath . $class;
 			}
 		}
-		//debug($class, $root, $path, $this->useControllerSlug, $this->basePath, $link);
+		nodebug(array(
+			'class' => $class,
+			'root' => $root,
+			'path' => $path,
+			'useRecursiveURL' => $this->useRecursiveURL,
+			'useControllerSlug' => $this->useControllerSlug,
+			'basePath' => $this->basePath,
+			'link' => $link
+		));
 		return $link;
 	}
 
