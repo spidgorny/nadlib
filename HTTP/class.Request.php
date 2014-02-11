@@ -49,6 +49,10 @@ class Request {
 		return self::$instance;
 	}
 
+	public static function isWindows() {
+		return true;
+	}
+
 	/**
 	 * Will overwrite
 	 * @param $var
