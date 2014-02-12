@@ -5,6 +5,7 @@
 		"michelf/php-markdown": "*",
 		"components/bootstrap": "dev-master",
 		"phpunit/php-code-coverage": "1.4.*@dev",
+		"sebastian/environment": "1.0.*@dev",
 		"phpunit/phpunit-mock-objects": "1.4.*@dev",
 		"phpunit/phpunit": "dev-master",
 		"components/modernizr": "dev-master"
