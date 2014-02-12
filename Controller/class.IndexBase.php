@@ -137,7 +137,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
-			$this->content .= $e;
+			//$this->content .= $e;
 			throw $e;
 		} catch (Exception $e) {
 			$content = $this->renderException($e);
@@ -187,7 +187,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
-			$content .= getDebug($e);
+			//$content .= getDebug($e);
 		}
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
