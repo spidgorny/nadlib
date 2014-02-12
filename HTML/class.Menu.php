@@ -331,12 +331,13 @@ class Menu /*extends Controller*/ {
 			$ret = $this->current == $class;
 		}
 		if ($this->level === 1) {
-		nodebug(array(
-			'class' => $class,
-			'subMenu' => $subMenu,
-			'combined' => $combined,
-			'current' => $this->current,
-			'ret' => $ret,
+			nodebug(array(
+				'class' => $class,
+				'subMenu' => $subMenu,
+				'combined' => $combined,
+				'current' => $this->current,
+				'ret' => $ret,
+			));
 		}
 		return $ret;
 	}
