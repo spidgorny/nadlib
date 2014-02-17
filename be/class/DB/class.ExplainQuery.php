@@ -26,7 +26,7 @@ class ExplainQuery extends AppControllerBE {
 			try {
 				$this->result = $this->db->fetchAll($this->query);
 			} catch (Exception $e) {
-				$this->result = '<div class="error alert alert-error">'.$e->getMessage().'</div>';
+				$this->result = '<div class="error alert alert-error alert-danger">'.$e->getMessage().'</div>';
 			}
 			$this->time = $p->elapsed();
 

@@ -448,10 +448,7 @@ class slTable {
 					if (!$val) {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
-
-					if (!($val instanceof slTableValue)) {
-						$val = new slTableValue($val, $k);
-					}
+					$val = new slTableValue($val, $k);
 
 					$out = (isset($k['before']) ? $k['before'] : '').
 						   $val->render($col, $row) .
@@ -645,10 +642,7 @@ class slTable {
 		//debug($this->thes);
 
 		$xls = array();
-		foreach ($this->thes as $th) {
-			$row[] = is_array($th) ? $th['name'] : $th;
-		}
-		$xls[] = $row;
+		$xls[] = $this->getThesNames();
 
 		foreach ($this->data as $row) {
 			$line = array();

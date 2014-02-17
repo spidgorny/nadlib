@@ -1,6 +1,6 @@
 <?php
 
-class PlainSessionUser extends User {
+class PlainSessionUser extends UserBase {
 
 	/**
 	 * @var PlainSessionUser
@@ -37,10 +37,14 @@ class PlainSessionUser extends User {
 		return session_id();
 	}
 
-	public static function getInstance() {
+	public static function getInstance($id) {
 		return self::$instance
 			?  self::$instance
-			:  self::$instance = new self();
+			:  self::$instance = new self($id);
+	}
+
+	function try2login() {
+		// session_start
 	}
 
 }

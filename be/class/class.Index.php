@@ -1,10 +1,15 @@
 <?php
 
-class IndexBE extends IndexBase {
+class Index extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
 	public $template = './../be/template/template.phtml';
+
+	/**
+	 * @var array
+	 */
+	public $menu;
 
 	function __construct() {
 		parent::__construct();
@@ -12,6 +17,7 @@ class IndexBE extends IndexBase {
 		$config = Config::getInstance();
 		$config->defaultController = 'HomeBE';
 		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
+		$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
 		$c = Config::getInstance();
 		// it's not reading the config.yaml from /be/, but from the project root
 		$c->config['View']['folder'] = '../be/template/';
@@ -21,12 +27,16 @@ class IndexBE extends IndexBase {
 		//base href will be fixed manually below
 
 		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
+		$c->appRoot = str_replace('/nadlib/be', '', $c->appRoot);
 
-		$this->addCSS('components/bootstrap/css/bootstrap.min.css');
-		$this->addCSS('vendor/spidgorny/nadlib/be/css/main.css');
-		$this->addCSS('vendor/spidgorny/nadlib/CSS/TaylorProfiler.css');
+		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
+
+		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'/components/modernizr/modernizr.js"></script>';
+		$this->addCSS($this->nadlibFromDocRoot.'components/bootstrap/css/bootstrap.min.css');
+		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
+		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.css');
 		$this->addJQuery();
-		$this->addJS('components/bootstrap/js/bootstrap.min.js');
+		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
@@ -34,6 +44,35 @@ class IndexBE extends IndexBase {
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
+
+		$this->menu = array(
+			'HomeBE' => 'Home',
+			'ServerStat' => new Recursive('Info', array(
+				'ServerStat' => 'Server Stat',
+				'ServerData' => 'Server Data',
+				'Session' => 'Session',
+				'Cookies' => 'Cookies',
+				'ConfigView' => 'config.yaml',
+				'PHPInfo' => 'phpinfo()',
+				'Documentation' => 'Documentation',
+			)),
+			'TestNadlib' => new Recursive('Test', array(
+				'TestNadlib' => 'TestNadlib',
+				'ValidatorCheck' => 'Validator Check',
+				'UnitTestReport' => 'Unit Test Report',
+			)),
+			'ExplainQuery' => new Recursive('DB', array(
+				'AlterDB' => 'Alter DB',
+				'AlterCharset' => 'Alter Charset',
+				'AlterTable' => 'Alter Table',
+				'AlterIndex' => 'Alter Indexes',
+				'OptimizeDB' => 'Optimize DB',
+				'ExplainQuery' => 'Explain Query',
+				'Localize' => 'Localize',
+			)),
+			'ClearCache' => 'Clear Cache',
+			'JumpFrontend' => '<- Frontend',
+		);
 	}
 
 	function renderController() {
@@ -45,8 +84,17 @@ class IndexBE extends IndexBase {
 			$this->controller->user = $this->user;	// BEUser instead of grUser
 			$content = parent::renderController();
 		} else {
-			//$this->message(new LoginForm());
-			throw new LoginException('Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
+			$this->error('Accessing this page requires a valid login');
+			$loginForm = new LoginForm();
+			$loginForm->withRegister = false;
+			$content = $loginForm->layout->wrap(
+				$this->content.
+				$loginForm->render()
+			);
+			$this->content = '';
+			/*throw new LoginException('
+				Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
+			*/
 		}
 		return $content;
 	}
@@ -58,6 +106,7 @@ class IndexBE extends IndexBase {
 		$v->sidebar = $this->showSidebar();
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
+		// is the root of the project
 		$v->baseHref = $this->request->getLocation();
 		//$v->baseHref = str_replace('/vendor/spidgorny/nadlib/be', '', $v->baseHref);	// for CSS
 		$content = $v->render();	// not concatenate but replace
@@ -65,28 +114,6 @@ class IndexBE extends IndexBase {
 	}
 
 	function showSidebar() {
-		$menu = array(
-			'HomeBE' => 'Home',
-			'ServerStat' => 'Server Stat',
-			'ServerData' => 'Server Data',
-			'Session' => 'Session',
-			'Cookies' => 'Cookies',
-			'ConfigView' => 'config.yaml',
-			'Localize' => 'Localize',
-			'PHPInfo' => 'phpinfo()',
-			'Documentation' => 'Documentation',
-			'TestNadlib' => 'TestNadlib',
-			'AlterDB' => 'Alter DB',
-			'AlterCharset' => 'Alter Charset',
-			'AlterTable' => 'Alter Table',
-			'AlterIndex' => 'Alter Indexes',
-			'ValidatorCheck' => 'Validator Check',
-			'ClearCache' => 'Clear Cache',
-			'OptimizeDB' => 'Optimize DB',
-			'ExplainQuery' => 'Explain Query',
-			'JumpFrontend' => '<- Frontend',
-		);
-
 		$c = Spyc::YAMLLoad('../../../../class/config.yaml');
 		//debug($c['BEmenu']);
 		if ($c['BEmenu']) {
@@ -99,10 +126,13 @@ class IndexBE extends IndexBase {
 			}
 		}
 
-		$m = new Menu($menu);
-		$m->recursive = true;
-		$m->renderOnlyCurrent = false;
-		//$m->basePath->setPath('vendor/spidgorny/nadlib/be/');
+		$m = new Menu($this->menu, 1);
+		$m->recursive = false;
+		$m->renderOnlyCurrent = true;
+		$m->useControllerSlug = true;
+		$m->useRecursiveURL = false;
+		$m->basePath->setPath($m->basePath->components['path'].$this->nadlibFromDocRoot.'be/');
+		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
 	}

@@ -150,40 +150,6 @@ class MySQL {
 		return $row;
 	}
 
-	/**
-	 * Enter description here...
-	 *
-	 * @param resource $res
-	 * @param string $key can be set to NULL to avoid assoc array
-	 * @return array
-	 */
-	function fetchAll($res, $key = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-
-		// temp
-		if (mysql_errno()) {
-			debug(array(mysql_errno($this->connection) => mysql_error($this->connection)));
-			exit();
-		}
-
-		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
-			if ($key) {
-				$data[$row[$key]] = $row;
-			} else {
-				$data[] = $row;
-			}
-		}
-		//debug($this->lastQuery, sizeof($data));
-		//debug_pre_print_backtrace();
-		$this->free($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $data;
-	}
-
 	function free($res) {
 		if (is_resource($res)) {
 			mysql_free_result($res);
@@ -292,7 +258,12 @@ class MySQL {
 		return $row;
 	}
 
-	function getTableColumns($table) {
+	/**
+	 * Return a 2D array
+	 * @param $table
+	 * @return array
+	 */
+	function getTableColumnsEx($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
 			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
@@ -306,13 +277,10 @@ class MySQL {
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in MySQL and SQLBuilder');
+			throw new Exception($method.'() not found in '.get_class($this).' and SQLBuilder');
 		}
 	}
 
@@ -343,16 +311,16 @@ class MySQL {
 		return $data;
 	}
 
-	function free($res) {
-		mysql_free_result($res);
-	}
-
 	function affectedRows() {
 		return mysql_affected_rows();
 	}
 
 	function getIndexesFrom($table) {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
+	}
+
+	static function escapeBool($value) {
+		return intval(!!$value);
 	}
 
 }

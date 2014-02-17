@@ -21,11 +21,12 @@ class InitNADLIB {
 		$this->al->useCookies = $this->useCookies;
 		$this->al->register();
 
-		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		define('DEVELOPMENT', Request::isCLI()
-			? (($os == 'Windows_NT') || true) // at home
+			? (Request::isWindows() || true) // at home
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
+
+		date_default_timezone_set('Europe/Berlin');	// before using header()
 
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
@@ -57,7 +58,6 @@ class InitNADLIB {
 				header('Expires: -1');
 			}
 		}
-		date_default_timezone_set('Europe/Berlin');
 		ini_set('short_open_tag', 1);
 		Request::removeCookiesFromRequest();
 	}
@@ -77,14 +77,27 @@ class InitNADLIB {
 if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
-	if (method_exists('Debug', 'debug_args')) {
-		call_user_func_array(array('Debug', 'debug_args'), $params);
+    if (method_exists('Debug', 'debug_args')) {
+	    if (class_exists('FirePHP') && !Request::isCLI()) {
+		    $fp = FirePHP::getInstance(true);
+		    $fp->setOption('includeLineNumbers', true);
+		    $trace = Debug::getSimpleTrace();
+		    if ($trace) {
+		        //$fp->table('Trace', $trace);
+		    }
+		    //$fp->trace('Trace');
+		    $fp->log(sizeof($params) == 1 ? $a : $params);
+	    } else {
+		    call_user_func_array(array('Debug', 'debug_args'), $params);
+	    }
 	} else {
-		echo '<pre>'.htmlspecialchars(
-			var_dump(
-				func_num_args() == 1 ? $a : $params
-			, true)
-		).'</pre>';
+		ob_start();
+		var_dump(
+			func_num_args() == 1 ? $a : $params
+		);
+		$dump = ob_get_clean();
+		$dump = str_replace("=>\n", ' =>', $dump);
+		echo '<pre>'.htmlspecialchars($dump).'</pre>';
 	}
 }
 }

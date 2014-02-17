@@ -10,8 +10,7 @@ class SQLRange extends SQLWherePart {
 	}
 
 	function __toString() {
-		$qb = Config::getInstance()->qb;
-		$field = $qb->quoteKey($this->field);
+		$field = $this->qb->quoteKey($this->field);
 		return "($field >= '$this->from' AND $field < '$this->till')";
 	}
 

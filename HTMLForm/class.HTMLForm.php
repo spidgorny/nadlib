@@ -219,7 +219,7 @@ class HTMLForm {
 
 	function file($name, array $desc = array()) {
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout .= $this->getInput("file", $name, '', $desc['more']);
+		$this->stdout .= $this->getInput("file", $name, '', $desc['more'], $desc['class']);
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
@@ -291,6 +291,9 @@ class HTMLForm {
 				if (isset($desc['classAsValuePrefix'])) {
 					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
+                if (isset($desc['useTitle']) && $desc['useTitle'] == true) {
+                    $content .= ' title="'.strip_tags($option).'"';
+                }
 				$content .= ">$option</option>\n";
 			}
 		}

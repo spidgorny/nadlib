@@ -8,12 +8,18 @@ class SQLSearch {
 		'title',
 	);
 
+	/**
+	 * @var DBInterface
+	 */
+	protected $db;
+
 	function __construct($table, $sword) {
 		//debug(array($table, $sword));
 		$this->table = $table;
 		$this->sword = $sword;
 		$this->words = $this->getSplitWords($this->sword);
 		//debug($this->words);
+		$this->db = Config::getInstance()->db;
 	}
 
 	function getSplitWords($sword) {
@@ -29,16 +35,19 @@ class SQLSearch {
 
 	function __toString() {
 		$where = $this->getWhere();
-		$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
+		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
+		$query = '';
 		if ($where) {
-			$qb = Config::getInstance()->qb;
-			$whereString = $qb->quoteWhere($where);
+			$whereString = $this->qb->quoteWhere($where);
 			$query .= implode(' AND ', $whereString);
 		}
 		return $query;
 	}
 
-	function getWhere() {
+	/**
+	 * @return array
+	 */
+	public function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;
@@ -67,7 +76,7 @@ class SQLSearch {
 		$table = $this->table;
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
-		$where = new SQLWhere($where);
+		$where = new SQLWhere(array());
 		$query = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
 
@@ -91,7 +100,7 @@ class SQLSearch {
 			$part[] = "{$prefix}{$field} {$like} '%$1%'";
 		}
 		$part = implode(' ' . $or . ' ', $part);
-		$part = str_replace('$1', $word, $part);
+		$part = str_replace('$1', $this->db->escape($word), $part);
 		$part = str_replace("\r\n", "\n", $part);
 
 		// test if it's a date

@@ -1,6 +1,10 @@
 <?php
 
 abstract class Scaffold extends AppController {
+
+	/**
+	 * @var string
+	 */
 	protected $table = 'sometable in Scaffold';
 
 	/** @var HTMLFormTable */
@@ -72,7 +76,6 @@ abstract class Scaffold extends AppController {
 			'formPrefix' => $this->formPrefix,
 			'data' => $this->data,
 			'model' => $this->model));
-		$this->desc = $this->getDesc($this->data);
 	}
 
 	/**
@@ -198,7 +201,7 @@ abstract class Scaffold extends AppController {
 		//$desc = $this->getDesc($userData);
 		//$f = new HTMLFormTable();
 		//$desc = $f->fillValues($desc, $userData); // commented not to overwrite
-		$v = new HTMLFormValidate($this->desc);
+		$v = new HTMLFormValidate($this->form);
 		if ($v->validate()) {
 			try {
 				switch ($action) {
@@ -263,7 +266,7 @@ abstract class Scaffold extends AppController {
 		$this->form->hidden('action', $action);
 		$this->form->hidden('ajax', TRUE);
 		$this->form->prefix($this->formPrefix);
-		//debug($this->desc);
+		$this->desc = $this->getDesc($this->data);
 		$this->form->showForm($this->desc);
 		//$this->form->submit($this->addButton);
 		$this->form->formMore = $this->formMore;

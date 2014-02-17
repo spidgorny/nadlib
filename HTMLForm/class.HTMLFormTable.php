@@ -348,7 +348,7 @@ class HTMLFormTable extends HTMLForm {
 				}
 				if ($desc['error']) {
 					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']"
-					class="error ui-state-error alert-error">';
+					class="error ui-state-error alert-error alert-danger">';
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
 				}
@@ -513,12 +513,12 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Returns the $form parameter with minimal modifications only for the special data types like time in seconds.
 	 *
-	 * @param $desc
+	 * @param array $desc
 	 * @param array $form Structure of the form.
 	 * @internal param \Values $array from $_REQUEST.
 	 * @return array    Processed $form.
 	 */
-	function acquireValues($desc, $form = array()) {
+	function acquireValues(array $desc, $form = array()) {
 		foreach ($desc as $field => $params) {
 			if ($params['type'] == 'datepopup')	{
 				$date = strtotime($form[$field]);

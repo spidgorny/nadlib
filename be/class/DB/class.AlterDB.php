@@ -120,7 +120,7 @@ class AlterDB extends AppControllerBE {
 
 	function getFileChoice() {
 		$menu = array();
-		$sqlFolder = '../../sql/';
+		$sqlFolder = Config::getInstance()->appRoot.'/sql/';
 		if (!is_dir($sqlFolder)) {
 			return '<div class="error">No '.$sqlFolder.'</div>';
 		}

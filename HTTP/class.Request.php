@@ -9,12 +9,6 @@ class Request {
 	protected $data = array();
 
 	/**
-	 * The default controller retrieved from Config.
-	 * @var string
-	 */
-	public $defaultController;
-
-	/**
 	 * @var URL
 	 */
 	public $url;
@@ -27,7 +21,6 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
@@ -54,6 +47,10 @@ class Request {
 
 	static function getExistingInstance() {
 		return self::$instance;
+	}
+
+	public static function isWindows() {
+		return true;
 	}
 
 	/**
@@ -115,7 +112,7 @@ class Request {
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
-			debug($value, $options);
+			//debug($value, $options);
 			throw new Exception(__METHOD__.' is throwing an exception.');
 		}
 		return $value;
@@ -137,8 +134,8 @@ class Request {
 	 * Checks for keys, not values
 	 *
 	 * @param $name
-	 * @param array $assoc
-	 * @return null
+	 * @param array $assoc	- only array keys are used in search
+	 * @return int|null
 	 */
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
@@ -341,7 +338,7 @@ class Request {
 					}
 					$controller = $last;
 				} else {
-					$controller = $this->defaultController;	// not good as we never get 404
+					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
 			}
 		}   // cli
@@ -350,7 +347,7 @@ class Request {
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
 			'last' => $last,
-			'default' => $this->defaultController,
+			'default' => Config::getInstance()->defaultController,
 			'data' => $this->data));
 		return $controller;
 	}
@@ -385,7 +382,7 @@ class Request {
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : $this->defaultController;
+		return $return ? $return : Config::getInstance()->defaultController;
 	}
 
 	function redirect($controller) {
@@ -396,12 +393,17 @@ class Request {
 //			|| DEVELOPMENT
 		) {
 			header('Location: '.$controller);
+			exit();
 		} else {
-			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
+			$this->redirectJS($controller);
+		}
+	}
+
+	function redirectJS($controller) {
+		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
 			<script>
 				document.location = "'.$controller.'";
 			</script>';
-		}
 		exit();
 	}
 
@@ -526,6 +528,9 @@ class Request {
 		$path = $this->url->getPath();
 		if (strlen($path) > 1) {	// "/"
 			$path = trimExplode('/', $path);
+			if ($path[0] == 'index.php') {
+				array_shift($path);
+			}
 			//debug($this->url->getPath(), $path);
 		} else {
 			$path = array();
@@ -733,4 +738,26 @@ class Request {
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 		header('Cache-Control: max-age='.$age);
 	}
+
+	/**
+	 * getNameless(1) doesn't provide validation.
+	 * Use importNameless() to associate parameters 1, 2, 3, with their names
+	 * @param array $keys
+	 */
+	public function importNameless(array $keys) {
+		foreach ($keys as $k => $val) {
+			$this->data[$val] = $this->getNameless($k);
+		}
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	static function isWindows() {
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
 }

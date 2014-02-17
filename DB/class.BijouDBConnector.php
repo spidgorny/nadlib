@@ -223,8 +223,4 @@ class BijouDBConnector {
 		return $this->t3db->sql_free_result($res);
 	}
 
-	function lastInsertID() {
-		return $this->t3db->sql_insert_id();
-	}
-
 }
