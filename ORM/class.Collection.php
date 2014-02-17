@@ -383,13 +383,17 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		//debug(sizeof($this->members));
-		foreach ($this->objectify() as $key => $obj) {
-			//debug($i++, (strlen($content)/1024/1024).'M');
-			if (is_object($obj)) {
-				$content .= $obj->render()."\n";
-			} else {
-				$content .= getDebug(__METHOD__, $key, $obj);
+		if ($this->objectify()) {
+			foreach ($this->objectify() as $key => $obj) {
+				//debug($i++, (strlen($content)/1024/1024).'M');
+				if (is_object($obj)) {
+					$content .= $obj->render()."\n";
+				} else {
+					$content .= getDebug(__METHOD__, $key, $obj);
+				}
 			}
+		} else {
+			$content .= '<div class="message">'.__('No data').'</div>';
 		}
 		return $content;
 	}
