@@ -28,6 +28,7 @@ error_reporting(error_reporting() & ~E_STRICT);	// Strict Standards</b>:  Declar
 class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	function __construct(array $array = array()) {
+		parent::__construct($array);
 		$this->data = $array;
 	}
 

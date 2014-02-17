@@ -19,7 +19,7 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
-	 * @var ArrayPlus/array
+	 * @var ArrayPlus|array
 	 */
 	var $data = array();
 
@@ -227,7 +227,7 @@ class Collection {
 		}
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
-		$qb = Config::getInstance()->qb;
+		$qb = $this->db->qb;
 		if ($where instanceof SQLWhere) {
 			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
@@ -268,15 +268,7 @@ class Collection {
 		if ($this->data) {
 			$this->prepareRender();
 			//debug($this->tableMore);
-			$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
-			$s->thes($this->thes);
-			$s->ID = get_class($this);
-			$s->sortable = $this->useSorting;
-			if (class_exists('Index')) {
-				$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
-				//debug(Index::getInstance()->controller);
-				$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
-			}
+			$s = $this->getDataTable();
 			if ($this->pager) {
 				$url = new URL();
 				$pages = $this->pager->renderPageSelectors($url);
@@ -291,23 +283,50 @@ class Collection {
 		return $content;
 	}
 
+	function getDataTable() {
+		$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
+		$s->thes($this->thes);
+		$s->ID = get_class($this);
+		$s->sortable = $this->useSorting;
+		if (class_exists('Index')) {
+			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+			//debug(Index::getInstance()->controller);
+			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+		}
+		return $s;
+	}
+
 	function prepareRender() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		$this->getData();
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->prepareRenderRow($row);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
+	function getData() {
+		if (!$this->query) {
+			$this->retrieveDataFromDB();
+		}
+		return $this->data;
+	}
+
 	function prepareRenderRow(array $row) {
 		return $row;
 	}
 
-	function getOptions() {
+    /**
+     * @param array $blackList Contains IDs that should be filtered out from options
+     * @return array
+     */
+    function getOptions($blackList = array()) {
 		$options = array();
 		//debug(get_class($this), $this->titleColumn);
-		foreach ($this->data as $row) {
-			$options[$row[$this->idField]] = $row[$this->titleColumn];
+		foreach ($this->getData() as $row) {
+            if( !in_array($row[$this->idField], $blackList) ) {
+                $options[$row[$this->idField]] = $row[$this->titleColumn];
+            }
 		}
 		return $options;
 	}
@@ -319,7 +338,7 @@ class Collection {
 	function findInData(array $where) {
 		//debug($where);
 		//echo new slTable($this->data);
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
 			if ($intersect1 == $intersect2) {
@@ -334,7 +353,7 @@ class Collection {
 	 */
 	function findAllInData(array $where) {
 		$result = array();
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
 			if ($intersect1 == $intersect2) {
@@ -346,7 +365,7 @@ class Collection {
 
 	function renderList() {
 		$content = '<ul>';
-		foreach ($this->data as $row) {
+		foreach ($this->getData() as $row) {
 			$content .= '<li>';
 			foreach ($this->thes as $key => $_) {
 				$content .= $row[$key]. ' ';
@@ -364,7 +383,7 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		//debug(sizeof($this->members));
-		foreach ($this->members as $key => $obj) {
+		foreach ($this->objectify() as $key => $obj) {
 			//debug($i++, (strlen($content)/1024/1024).'M');
 			if (is_object($obj)) {
 				$content .= $obj->render()."\n";
@@ -410,9 +429,12 @@ class Collection {
 	 * @return object[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
+		if (!$this->query) {
+			$this->retrieveDataFromDB();
+		}
 		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
-			foreach ($this->data as $row) {
+			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
 					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
@@ -472,9 +494,17 @@ class Collection {
 		return $where;
 	}
 
+	/**
+	 * Uses array_merge to prevent duplicates
+	 * @param Collection $c2
+	 */
 	function mergeData(Collection $c2) {
-		//debug(array_keys($this->data), array_keys($c2->data));
-		$this->data = ($this->data + $c2->data);
+		$before = array_keys($this->data);
+		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
+		$this->data = $this->data + $c2->data;
+		$this->members = $this->members + $c2->members;
+		$this->count = sizeof($this->data);
+		//debug($before, array_keys($c2->data), array_keys($this->data));
 	}
 
 	/**

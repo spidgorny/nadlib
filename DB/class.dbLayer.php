@@ -6,12 +6,26 @@
  */
 class dbLayer {
 	var $RETURN_NULL = TRUE;
-	var $CONNECTION = NULL;
+
+    /**
+     * @var resource
+     */
+    public $CONNECTION = NULL;
+
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
 
-	/**
+    /**
+     * todo: use setter & getter method
+     *
+     * contains query builder class used as mixin.
+     *
+     * @var null
+     */
+    public $qb = null;
+
+    	/**
 	 * logging:
 	 */
 	public $saveQueries = false;
@@ -32,8 +46,13 @@ class dbLayer {
 	 */
 	var $lastQuery;
 
+	/**
+	 * @var string DB name
+	 */
+	var $db;
+
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
-		if ($dbse) {
+        if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
 	}
@@ -46,6 +65,7 @@ class dbLayer {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
+		$this->db = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
@@ -147,6 +167,11 @@ class dbLayer {
 		return $a[0];
 	}
 
+	/**
+	 * Return one dimensional array
+	 * @param $table
+	 * @return array
+	 */
 	function getTableColumns($table) {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
@@ -155,6 +180,11 @@ class dbLayer {
 			error("Table not found: <b>$table</b>");
 			exit();
 		}
+	}
+
+	function getTableColumnsEx($table) {
+		$meta = pg_meta_data($this->CONNECTION, $table);
+		return $meta;
 	}
 
 	function getTableColumnsCached($table) {
@@ -194,7 +224,7 @@ class dbLayer {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
 			$return = array();
-			foreach($meta as $col => $m) {
+			foreach ($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
 			return $return;
@@ -264,7 +294,13 @@ class dbLayer {
 	 * @return string[]
 	 */
 	function getTables() {
-		$query = "select relname from pg_class where not relname ~ 'pg_.*' and not relname ~ 'sql_.*' and relkind = 'r'";
+		$query = "select relname
+		from pg_class
+		where
+		not relname ~ 'pg_.*'
+		and not relname ~ 'sql_.*'
+		and relkind = 'r'
+		ORDER BY relname";
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
@@ -321,7 +357,7 @@ class dbLayer {
 	}
 
 	function getInsertQuery($table, $columns) {
-		$q = "INSERT INTO $table (";
+		$q = 'INSERT INTO '.$table.' (';
 		$q .= implode(", ", array_keys($columns));
 		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
@@ -348,7 +384,7 @@ class dbLayer {
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
-		$q = "UPDATE $table SET ";
+		$q = 'UPDATE '.$table .'SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
@@ -568,12 +604,9 @@ order by a.attnum';
 	}
 
 	function __call($method, array $params) {
-		$qb = class_exists('Config') ? Config::getInstance()->qb : new stdClass();
-		if (method_exists($qb, $method)) {
-			//debug_pre_print_backtrace();
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->getQb(), $method)) {
+			return call_user_func_array(array($this->getQb(), $method), $params);
 		} else {
-			debug($qb);
 			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
 		}
 	}
@@ -674,12 +707,34 @@ order by a.attnum';
 	}
 
 	function getIndexesFrom($table) {
-		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
+		return $this->fetchAll('select *, pg_get_indexdef(indexrelid)
+		from pg_index
+		where indrelid = \''.$table.'\'::regclass');
 	}
 
     function free($res) {
         if (is_resource($res)) {
             pg_free_result($res);
         }
+    }
+
+	function escapeBool($value) {
+		return $value ? 'true' : 'false';
+	}
+
+    public function setQb($qb)
+    {
+        $this->qb = $qb;
+    }
+
+    public function getQb()
+    {
+        if(!isset($this->qb)) {
+            $di = new DIContainer();
+            $di->db = Config::getInstance()->db;
+            $this->setQb(new SQLBuilder($di));
+        }
+
+        return $this->qb;
     }
 }

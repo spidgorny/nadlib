@@ -1,6 +1,10 @@
 <?php
 
-class dbLayerMS {
+class dbLayerMS implements DBInterface {
+
+	/**
+	 * @var string
+	 */
 	protected $server, $database, $user, $password;
 
 	/**
@@ -76,9 +80,11 @@ class dbLayerMS {
 		}
 		if ($msg && !in_array($msg, $this->ignoreMessages)) {
 			//debug($msg, $query);
+			$msg2 = mssql_fetch_assoc(mssql_query('SELECT @@ERROR AS ErrorCode', $this->connection))['ErrorCode'];
 			$this->close();
 			$this->connect();
-			throw new Exception($msg);
+			debug($query);
+			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
 		return $res;
@@ -87,6 +93,8 @@ class dbLayerMS {
 	function fetchAssoc($res) {
 		if (is_string($res)) {
 			$res = $this->perform($res);
+		} if (!is_resource($res)) {
+			debug($res);
 		}
 		return mssql_fetch_assoc($res);
 	}
@@ -108,7 +116,7 @@ class dbLayerMS {
 				}
 			}
 		} while (mssql_next_result($res) && $i++ < $rows);
-		mssql_free_result($res);
+		$this->free($res);
 		return $table;
 	}
 
@@ -128,8 +136,14 @@ class dbLayerMS {
 	 * @return array ('name' => ...)
 	 */
 	function getFields($table) {
-		$res = $this->perform("SELECT *
+		//mssql_meta - doesn't exist
+		$res = $this->perform("
+SELECT
+	syscolumns.name,
+	systypes.name AS stype,
+	syscolumns.*
 FROM syscolumns
+LEFT OUTER JOIN systypes ON (systypes.xtype = syscolumns.xtype)
 WHERE id = (SELECT id
 FROM sysobjects
 WHERE type = 'U'
@@ -210,18 +224,23 @@ AND name = '?')", array($table));
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in MySQL and SQLBuilder');
+			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
 		}
 	}
 
 	function free($res) {
 		mssql_free_result($res);
+	}
+
+	function escapeBool($value) {
+		return $value ? 1 : 0;
+	}
+
+	function affectedRows() {
+		return mssql_rows_affected($this->connection);
 	}
 
 }

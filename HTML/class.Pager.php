@@ -51,9 +51,8 @@ class Pager {
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
-		$this->user = Config::getInstance()->user;
-		// Extend it like PagerDCI extends Pager
-        //if(!$this->user) $this->user = DCI::getInstance()->user;
+		$this->setUser(Config::getInstance()->user);
+
 		Config::getInstance()->mergeConfig($this);
 	}
 
@@ -376,4 +375,19 @@ class Pager {
 		return get_class($this).': "'.$this->itemsPerPage.'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}
 
+    /**
+     * @param \LoginUser $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return \LoginUser
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
 }

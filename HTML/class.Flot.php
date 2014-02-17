@@ -48,6 +48,11 @@ class Flot extends AppController {
 	public $barWidth = '24*60*60*1000*25';
 
 	/**
+	 * @var string
+	 */
+	var $flotPath = 'components/flot/flot/';
+
+	/**
 	 * @param array $data	- source data
 	 * @param $keyKey		- group by field (distinct charts, lines)
 	 * @param $timeKey		- time field
@@ -67,25 +72,33 @@ class Flot extends AppController {
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function render($divID = 'chart1') {
-		$content = '';
-		$content .= $this->showChart($divID, $this->chart, $this->cumulative, $this->max);
-		return $content;
+	function setFlot($path) {
+		$this->flotPath = $path;
 	}
 
 	/**
 	 * Fixed for Posa Cards
 	 *
-	 * @param array $data
+	 * @internal param array $data
+	 * @param string $divID
 	 * @return array
 	 * array[19]
-	1309471200 	array[2]
-	0 	integer 	1309471200000
-	1 	integer 	0
-	1314828000 	array[2]
-	0 	integer 	1314828000000
-	1 	integer 	39
+	 * 1309471200    array[2]
+	 * 0    integer    1309471200000
+	 * 1    integer    0
+	 * 1314828000    array[2]
+	 * 0    integer    1314828000000
+	 * 1    integer    39
 	 */
+	function render($divID = 'chart1') {
+		$content = '';
+		$chart = $this->getChartTable($this->data);
+		$this->cumulative = $this->getChartCumulative($chart);
+		$max = $this->getChartMax($this->cumulative);
+		$content .= $this->showChart($divID, $chart, $this->cumulative, $max);
+		return $content;
+	}
+
 	function appendCumulative(array $data) {
 		//debug($this->cumulative, $data);
 		$cumulative2 = array();
@@ -156,12 +169,11 @@ class Flot extends AppController {
 
 	function showChart($divID, array $charts, array $cumulative, $max) {
 		$this->index->addJQuery();
-		$path = 'components/flot/';
 		$this->index->footer['flot'] = '
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$path.'excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.time.js"></script>';
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.stack.js"></script>
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.time.js"></script>';
 
 		$content = '<div id="'.$divID.'" style="
 			width: '.$this->width.';
@@ -180,7 +192,7 @@ class Flot extends AppController {
 				stack: true,
 				bars: {
 					show: true,
-					barWidth: '.$this->barWidth.',
+					barWidth: 24*60*60*1000*0.75,
 					align: "center"
 				}
 			};';
@@ -205,7 +217,7 @@ class Flot extends AppController {
 
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
-jQuery(function ($) {
+jQuery("document").ready(function ($) {
 	'.implode("\n", $charts).'
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [

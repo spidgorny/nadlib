@@ -21,11 +21,6 @@ class SQLOr extends SQLWherePart {
 	}
 
 	function __toString() {
-		if (!$this->qb) {
-			//$di = new DIContainer();
-			//$di->db = $this->db;
-			$this->qb = Config::getInstance()->qb;
-		}
 		if ($this->qb->db instanceof dbLayerPG) {		// ???
 			$ors = array();
 			foreach ($this->or as $key => $or) {

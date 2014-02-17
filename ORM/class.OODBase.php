@@ -83,13 +83,23 @@ abstract class OODBase {
 	/**
 	 * Retrieves data from DB.
 	 *
+	 * @param int|array|SQLWhere $id
+	 * @param bool $fromFindInDB
 	 * @throws Exception
 	 */
-
-	function init($id) {
+	function init($id, $fromFindInDB = false) {
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
 		if (is_array($id)) {
-			$this->initByRow($id);
+			if (is_scalar($this->idField) || $fromFindInDB) {
+				$this->initByRow($id);
+			} else {
+				$this->id = $id;
+				//debug($id, $fromFindInDB, $this->id);
+				$this->findInDB($this->id);	// will call init()
+				if (!$this->data) {
+					$this->id = NULL;
+				}
+			}
 		} else if ($id instanceof SQLWhere) {
 			$this->findInDB($id->getAsArray());
 		} else if (is_scalar($id)) {
@@ -112,7 +122,14 @@ abstract class OODBase {
 
 	function initByRow(array $row) {
 		$this->data = $row;
-		$this->id = $this->data[$this->idField];
+		if (is_array($this->idField)) {
+			$this->id = array();
+			foreach ($this->idField as $field) {
+				$this->id[$field] = $this->data[$field];
+			}
+		} else {
+			$this->id = $this->data[$this->idField];
+		}
 	}
 	
 	/**
@@ -124,8 +141,8 @@ abstract class OODBase {
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getInsertQuery($this->table, $data);
+		$query = $this->db->qb->getInsertQuery($this->table, $data);
+		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
@@ -144,10 +161,15 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-			//$data['mtime'] = new AsIs('NOW()');
-			//$data['muser'] = $GLOBALS['i']->user->id;					// TODO: add to DB
-			$qb = Config::getInstance()->qb;
-			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
+			$where = array();
+			if (is_array($this->idField)) {
+				foreach ($this->idField as $field) {
+					$where[$field] = $this->data[$field];
+				}
+			} else {
+				$where[$this->idField] = $this->id;
+			}
+			$query = $this->db->qb->getUpdateQuery($this->table, $data, $where);
 			//debug($query);
 			$res = $this->db->perform($query);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -168,8 +190,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getDeleteQuery($this->table, $where);
+		$query = $this->db->qb->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
 	}
@@ -192,7 +213,7 @@ abstract class OODBase {
 		} else {
 			$data = array();
 		}
-		$this->init($data);
+		$this->init($data, true);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
@@ -262,8 +283,8 @@ abstract class OODBase {
 	 *
 	 * @param array $fields
 	 * @param array $where
-	 * @param array $insert
-	 * @param array $update
+	 * @param array $insert - additional insert fields not found in $fields
+	 * @param array $update - additional update fields not found in $fields
 	 * @return string whether the record already existed
 	 */
 	function insertUpdate(array $fields,
@@ -322,7 +343,7 @@ abstract class OODBase {
 					);
 				}
 			}
-			$s = new slTable($assoc. '', array(
+			$s = new slTable($assoc, '', array(
 				0 => '',
 				'' => array('no_hsc' => true)
 			));
@@ -331,7 +352,7 @@ abstract class OODBase {
 				if (!$val && $skipEmpty) {
 					unset($assoc[$key]);
 				} else if (is_array($val) && $recursive) {
-					$val = OODBase::renderAssoc($val, $recursive);
+					$val = self::renderAssoc($val, $recursive);
 				}
 			}
 			$s = slTable::showAssoc($assoc);
@@ -361,6 +382,7 @@ abstract class OODBase {
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
+		//debug($static, sizeof(self::$instances[$static]));
 		if (is_scalar($id)) {
 			$inst = &self::$instances[$static][$id];
 			if (!$inst) {
@@ -370,7 +392,9 @@ abstract class OODBase {
 				} else {
 												// NewRequest needs it like this
 					$inst = new $static();		// don't put anything else here
+					//die(__METHOD__.'#'.__LINE__);
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
+					//die(__METHOD__.'#'.__LINE__);
 				}
 			}
 		} else {
@@ -390,27 +414,30 @@ abstract class OODBase {
 
 	/**
 	 * @param string $name
+	 * @param null $field
 	 * @return self
 	 */
-	static function getInstanceByName($name) {
+	static function getInstanceByName($name, $field = NULL) {
 		$self = get_called_class();
 		//debug($self, $name, count(self::$instances[$self]));
 
 		// first search instances
-		if (is_array(self::$instances[$self])) foreach (self::$instances[$self] as $inst) {
-			if ($name == 'deloprub') {
-				//debug($self, $name, count(self::$instances[$self]), $inst->titleColumn, $inst->data[$inst->titleColumn], $name);
-			}
-			if ($inst->data[$inst->titleColumn] == $name) {
-				$c = $inst;
-				break;
+		if (is_array(self::$instances[$self])) {
+			foreach (self::$instances[$self] as $inst) {
+				$field = $field ?: $inst->titleColumn;
+				if ($inst->data[$field] == $name) {
+					$c = $inst;
+					break;
+				}
 			}
 		}
 
 		if (!$c) {
-			$c = new $self;
+			$c = new $self();
+			/** @var $c OODBase */
+			$field = $field ?: $c->titleColumn;
 			$c->findInDB(array(
-				$c->titleColumn => $name,
+				$field => $name,
 			));
 
 			// store back so it can be found

@@ -1,6 +1,10 @@
 <?php
 
 class PersistantOODBase extends OODBase {
+
+	/**
+	 * @var string
+	 */
 	protected $stateHash;
 
 	/**
@@ -18,6 +22,10 @@ class PersistantOODBase extends OODBase {
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
 		//debug($this->getStateHash(), $this->stateHash, $this->data, $this->id);
+	}
+
+	function init($id, $fromFindInDB = false) {
+		parent::init($id, $fromFindInDB);
 	}
 
 	function getStateHash() {

@@ -12,7 +12,7 @@ class AlterCharset extends AppControllerBE {
 	var $desired = 'utf8_general_ci';
 
 	function render() {
-		$this->index->addJS('../js/keepScrollPosition.js');
+		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'/js/keepScrollPosition.js');
 		$content = $this->performAction();
 		if (!is_object($this->db)) {
 			debug($this->db);

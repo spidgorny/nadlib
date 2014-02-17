@@ -2,7 +2,7 @@
 
 class AjaxLogin extends AppController {
 
-	protected $action;
+	public $action;
 
 	protected $secret = 'fdhgfjklgfdhj';
 
@@ -24,7 +24,7 @@ class AjaxLogin extends AppController {
 	public static $public = true;
 
 	/**
-	 * Remove to disable jQuery dependancy
+	 * Remove to disable jQuery dependency
 	 * @var string
 	 */
 	public $formMore = 'onsubmit="jQuery(this).ajaxSubmit({
@@ -40,7 +40,7 @@ class AjaxLogin extends AppController {
 	function __construct($action = NULL) {
 		parent::__construct();
 		Config::getInstance()->mergeConfig($this);
-		$this->layout = new Wrap('<div class="span10">', '</div>');
+		$this->layout = new Wrap('<div class="col-md-10">', '</div>');
 		$action = $action ? $action : $this->request->getTrim('action');	// don't reverse this line as it will call mode=login twice
 		if ($action) {
 			$this->action = $action;
@@ -114,7 +114,9 @@ class AjaxLogin extends AppController {
 				$content .= $this->activateActionReal();
 			} else {
 				$content .= $this->formAction();
-				$content .= $this->registerAction();
+				if ($this->withRegister) {
+					$content .= $this->registerAction();
+				}
 			}
 			$content = '<div id="AjaxLogin" '.($this->openable ? 'rel="toggle"' : '').'>'.$content.'</div>';
 		} catch (Exception $e) {
@@ -129,15 +131,16 @@ class AjaxLogin extends AppController {
 	function getScript() {
 		//$content = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
 		//$content = '<script src="http://code.jquery.com/jquery-1.8.1.min.js"></script>';
-		IndexBE::getInstance()->addJQuery()
-			->addJS('../../nadlib/js/jquery.form.js')
-			->addJS('../../nadlib/js/ajaxLogin.js')
-			->addCSS('../../nadlib/CSS/ajaxLogin.css');
+		$nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
+		Index::getInstance()->addJQuery()
+			->addJS($nadlibFromDocRoot.'js/jquery.form.js')
+			->addJS($nadlibFromDocRoot.'js/ajaxLogin.js')
+			->addCSS($nadlibFromDocRoot.'CSS/ajaxLogin.css');
 	}
 
 	function formAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		//$f->action(get_class($this));
+		$f->action('');
 		$f->hidden('c', get_class($this));
 		$f->formMore = $this->formMore;
 		$f->defaultBR = true;
@@ -162,8 +165,15 @@ class AjaxLogin extends AppController {
 	 */
 	function inlineFormAction() {
 		if ($this->user && $this->user->isAuth()) {
+			$linkLogout = $this->getURL(array(
+				'c' => get_class($this),
+				'action' => 'logout',
+			));
 			$content = '<form class="navbar-form navbar-right" method="POST">
-				'.$this->user->getName().' <a href="?c=Login&action=logout" class="ajax btn">'.__('Logout').'</a>
+			<div class="form-group">
+				<p class="navbar-text" style="display: inline-block;">'.$this->user->getName().'</p>
+				<a href="'.$linkLogout.'" class="ajax btn btn-default">'.__('Logout').'</a>
+			</div>
 			</form>';
 		} else {
 			$content = '<form class="navbar-form navbar-right" method="POST">
@@ -238,13 +248,27 @@ class AjaxLogin extends AppController {
 			$desc['username']['value'] = $username;
 			$desc['password']['cursor'] = true;
 			$content .= $this->formAction($desc);
-			$content .= $this->registerAction();
+			if ($this->withRegister) {
+				$content .= $this->registerAction();
+			}
 		}
 		return $content;
 	}
 
 	function menuAction() {
-		$self = get_class($this);
+		$linkEdit = $this->getURL(array(
+			'c' => get_class($this),
+			'action' => 'profile',
+		));
+		$linkPass = $this->getURL(array(
+			'c' => get_class($this),
+			'action' => 'password',
+		));
+		$linkLogout = $this->getURL(array(
+			'c' => get_class($this),
+			'action' => 'logout',
+		));
+
 		$content = '<div id="loginMenu">
 			<a href="http://de.gravatar.com/" class="gravatar">
 				<img src="'.$this->user->getGravatarURL(25).'" align="left" border="0">
@@ -252,10 +276,10 @@ class AjaxLogin extends AppController {
 			$this->user->getName().'
 			<br clear="all">
 			<ul>
-				<li><a href="'.$self.'?action=profile" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
+				<li><a href="'.$linkEdit.'" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
 				<li><a href="http://de.gravatar.com/" target="gravatar">'.__('Change Gravatar').'</a></li>
-				<li><a href="'.$self.'?action=password" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
-				<li><a href="'.$self.'?action=logout" class="ajax">'.__('Logout').'</a></li>
+				<li><a href="'.$linkPass.'" class="ajax">'.__('Change Password').'</a><div id="passwordForm"></div></li>
+				<li><a href="'.$linkLogout.'" class="ajax">'.__('Logout').'</a></li>
 			</ul>
 		</div>';
 		return $content;
@@ -357,10 +381,14 @@ class AjaxLogin extends AppController {
 	}
 
 	function logoutForm() {
-		return new HTMLTag('a', array(
+		$a = new HTMLTag('a', array(
 			'href' => get_class($this).'?action=logout',
-			'class' => 'btn btn-',
+			'class' => 'btn btn-default',
 		), __('Logout'));
+		$content = '<form class="navbar-form navbar-right">
+			<div class="form-group">'.$a.'</div>
+		</form>';
+		return $content;
 	}
 
 	function logoutAction() {
@@ -368,7 +396,9 @@ class AjaxLogin extends AppController {
 		$content = '<div class="message alert alert-success">'.__('You are logged out.').'</div>';
 		//$content .= '<script> document.location.reload(true); </script>';
 		$content .= $this->formAction();
-		$content .= $this->registerAction();
+		if ($this->withRegister) {
+			$content .= $this->registerAction();
+		}
 		return $content;
 	}
 
@@ -397,7 +427,9 @@ class AjaxLogin extends AppController {
 		$desc['username']['value'] = $email;
 		$desc['password']['cursor'] = true;
 		$content .= $this->formAction($desc);
-		$content .= $this->registerAction();
+		if ($this->withRegister) {
+			$content .= $this->registerAction();
+		}
 		return $content;
 	}
 
@@ -563,7 +595,9 @@ class AjaxLogin extends AppController {
 		$this->message = $content;
 		$content = '';
 		$content .= $this->formAction();
-		$content .= $this->registerAction();
+		if ($this->withRegister) {
+			$content .= $this->registerAction();
+		}
 		return $content;
 	}
 

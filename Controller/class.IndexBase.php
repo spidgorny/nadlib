@@ -1,23 +1,18 @@
 <?php
 
 class IndexBase /*extends Controller*/ {	// infinite loop
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var MySQL
 	 */
 	public $db;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLangDummy
 	 */
 	public $ll;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LoginUser
 	 */
 	public $user;
@@ -87,22 +82,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * Called by index.php explicitly,
-	 * therefore processes exceptions
+	 * therefore processes exceptions.
+	 *
+	 * That's not true anymore, called in render().
 	 * @throws Exception
 	 */
 	public function initController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-		try {
-			$slug = $this->request->getControllerString();
-			if ($slug) {
-				$this->loadController($slug);
-			} else {
-				throw new Exception404($slug);
-			}
-		} catch (Exception $e) {
-			$this->controller = NULL;
-			$this->content = $this->renderException($e);
+		$slug = $this->request->getControllerString();
+		if ($slug) {
+			$this->loadController($slug);
+		} else {
+			throw new Exception404($slug);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
@@ -136,23 +128,34 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '';
-		if ($this->controller) {
-			try {
+		try {
+			$this->initController();
+			if ($this->controller) {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax() && !$this->request->isCLI()) {
-					$content = $this->renderTemplate($content);
-				} else {
-					$content .= $this->content;
-					$this->content = '';		// clear for the next output. May affect saveMessages()
-				}
-			} catch (Exception $e) {
-				$content = $this->renderException($e);
+			} else {
+				$content .= $this->content;	// display Exception
+				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} else {
-			$content .= $this->content;	// display Exception
+		} catch (LoginException $e) {
+			//$this->content .= $e;
+			throw $e;
+		} catch (Exception $e) {
+			$content = $this->renderException($e);
 		}
+
+		$content = $this->renderTemplateIfNotAjax($content);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		$content .= $this->renderProfiler();
+		return $content;
+	}
+
+	function renderTemplateIfNotAjax($content) {
+		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+			$content = $this->renderTemplate($this->content . $content);
+		} else {
+			$content .= $this->content;
+			$this->content = '';		// clear for the next output. May affect saveMessages()
+		}
 		return $content;
 	}
 
@@ -180,10 +183,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error padding">
+		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
+			//$content .= getDebug($e);
 		}
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
@@ -193,18 +197,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//$content .= $lf;
 		} elseif ($e instanceof Exception404) {
 			$e->sendHeader();
-		}
-
-		if (!$this->request->isAjax()) {
-			try {
-				$v = new View($this->template, $this);
-				$v->content = $content;
-				$v->baseHref = $this->request->getLocation();
-				$content = $v->render();
-			} catch (Exception $e) {
-				// second exception may happen
-				echo $e;
-			}
 		}
 
 		return $content;
@@ -217,8 +209,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function log($action, $bookingID) {
-		$qb = Config::getInstance()->qb;
-		$qb->runInsertQuery('log', array(
+		$this->db->qb->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
@@ -226,11 +217,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message">'.$text.'</div>';
+		$this->content .= '<div class="message alert alert-info">'.$text.'</div>';
 	}
 
 	function error($text) {
-		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
+		$this->content .= '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
 	}
 
 	function saveMessages() {
@@ -244,7 +235,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery/jquery.min.js');
+			$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'components/jquery/jquery.min.js');
 		} else {
 			$this->footer['jquery.js'] = '
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -257,7 +248,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQueryUI() {
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
+			$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'components/jquery-ui/ui/minified/jquery-ui.min.js');
 
             // commented out because this should be project specific
 			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
@@ -331,7 +322,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeCSS() {
-		return implode("\n", $this->header);
+		//return implode("\n", $this->header);
+		$content = array();
+		foreach ($this->header as $key => $script) {
+			$content[] = '<!--'.$key.'-->'.$script;
+		}
+		return implode("\n", $content);
 	}
 
 	function implodeJS() {

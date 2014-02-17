@@ -7,7 +7,7 @@ class uTestBase extends AppControllerBE {
 	function render() {
 		$content = '<style>
 	body, td {
-		font-size: 9pt;
+		/*font-size: 9pt;*/
 	}
 	.contentContainer .contentLeft {
 		display: none;
@@ -22,7 +22,7 @@ class uTestBase extends AppControllerBE {
 	}
 </style>';
 		$content .= '
-		<table class="nospacing">
+		<table class="nospacing table">
 		<tr>
 			<!--th>File</th-->
 			<th>Function</th>
@@ -48,7 +48,7 @@ class uTestBase extends AppControllerBE {
 		}
 		$content .= '</table>';
 		//$content .= getDebug($this->stat);
-		$content = $this->encloseIn('&mu;Test', $content, true);
+		$content = $this->encloseIn(new htmlString('&mu;Test'), $content, true);
 		if ($GLOBALS['prof']) $content .= $GLOBALS['prof']->printTimers(1);
 		return $content;
 	}

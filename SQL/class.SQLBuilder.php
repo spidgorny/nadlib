@@ -281,8 +281,7 @@ class SQLBuilder {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
-			return $value ? 'true' : 'false';
-			//return intval($value); // MySQL specific
+			return $this->db->escapeBool($value);
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -651,6 +650,32 @@ class SQLBuilder {
 		}
 		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
+	}
+
+	/**
+	 * @param resource|string $res
+	 * @param string $key can be set to NULL to avoid assoc array
+	 * @return array
+	 */
+	function fetchAll($res, $key = NULL) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+
+		$data = array();
+		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+			if ($key) {
+				$data[$row[$key]] = $row;
+			} else {
+				$data[] = $row;
+			}
+		}
+		//debug($this->lastQuery, sizeof($data));
+		//debug_pre_print_backtrace();
+		$this->free($res);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $data;
 	}
 
 }

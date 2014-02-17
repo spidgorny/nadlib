@@ -16,14 +16,11 @@
 abstract class Controller {
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var Index
 	 */
 	public $index;
 
 	/**
-	 *
 	 * @var Request
 	 */
 	public $request;
@@ -36,7 +33,6 @@ abstract class Controller {
 	public $noRender = false;
 
 	/**
-	 *
 	 * @var MySQL|dbLayer
 	 */
 	protected $db;
@@ -50,7 +46,6 @@ abstract class Controller {
 	protected $useRouter = false;
 
 	/**
-	 *
 	 * @var User|Client|userMan|LoginUser
 	 */
 	public $user;
@@ -81,9 +76,6 @@ abstract class Controller {
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
-		//debug(get_class($this->index));
-		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
-		//debug(get_class($this->index));
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		if (class_exists('Config')) {
@@ -238,7 +230,8 @@ abstract class Controller {
 	}
 
 	function encloseIn($title, $content) {
-		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
+		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
@@ -373,10 +366,11 @@ abstract class Controller {
 	 * @param $formAction
 	 * @param array $hidden
 	 * @param string $submitClass
+	 * @param array $submitParams
 	 * @internal param null $class
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText') {
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText', array $submitParams = array()) {
 		$f = new HTMLForm();
 		if ($formAction) {
 			$f->action($formAction);
@@ -393,7 +387,7 @@ abstract class Controller {
 		} else {
 			$f->submit($name, array(
 				'class' => $submitClass,
-			));
+			) + $submitParams);
 		}
 		return $f;
 	}
