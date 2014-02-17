@@ -22,7 +22,7 @@ class InitNADLIB {
 		$this->al->register();
 
 		define('DEVELOPMENT', Request::isCLI()
-			? (Request::isWindows() || true) // at home
+			? (Request::isWindows() || false) // at home
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
 
