@@ -56,10 +56,12 @@ class LDAPLogin {
 
         if ($this->_ldapconn) {
 			$filter = "(cn=" . $this->_sanitizeLdap($username) . ")";
+	        //echo $filter;
 			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
 
 			$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $filter/*, $attributes*/);
 			$info = ldap_get_entries($this->_ldapconn, $search);
+	        //echo getDebug($info);
 
 			if ($info['count'] == 0) {
 				$this->error = "User not found";
@@ -74,7 +76,8 @@ class LDAPLogin {
 				if ($ldapbind) {
 					return new LDAPUser($info[$i]);
 				} else {
-					$this->error = "Login failed.";
+					$this->error = "LDAP login failed.";
+					//echo getDebug($ldapbind);
 					return false;
 				}
 			}
