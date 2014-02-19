@@ -62,7 +62,7 @@ abstract class OODBase {
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
-	 * @param integer|array $id - can be ID in the database or the whole records
+	 * @param integer|array|SQLWhere $id - can be ID in the database or the whole records
 	 * as associative array
 	 * @return OODBase
 	 */
