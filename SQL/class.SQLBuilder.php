@@ -507,6 +507,16 @@ class SQLBuilder {
 		return $res;
 	}
 
+	/**
+	 * Will search for $where and then either
+	 * - update $fields + $where or
+	 * - insert $fields + $where + $insert
+	 * @param $table
+	 * @param array $fields
+	 * @param array $where
+	 * @param array $insert
+	 * @return bool|int
+	 */
 	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
