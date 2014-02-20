@@ -15,6 +15,7 @@ class ProgressBar {
 	var $cli = false;
 
 	/**
+	 * Must be false in order to user new ProgressBar(...) inside strings.
 	 * @var bool
 	 * Destructor will set the progress bar to 100%
 	 * if enabled.

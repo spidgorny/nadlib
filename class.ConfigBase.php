@@ -78,7 +78,11 @@ class ConfigBase {
 		} else {
 			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
 		}
-		//print_r(array('$this->appRoot in ConfigBase', $this->appRoot));
+
+		nodebug(array(
+			'Config->documentRoot' => $this->documentRoot,
+			'Config->appRoot' => $this->appRoot,
+		));
 		//debug_pre_print_backtrace();
 
 		//$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);

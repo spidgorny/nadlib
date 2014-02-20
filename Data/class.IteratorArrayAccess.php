@@ -20,7 +20,7 @@ class IteratorArrayAccess extends ArrayIteratorPlus implements ArrayAccess {
 	 * Chainable
 	 *
 	 * @param mixed $i
-	 * @return self
+	 * @return static
 	 */
 	function un_set($i) {
 		$this->offsetUnset($i);
@@ -40,7 +40,7 @@ class IteratorArrayAccess extends ArrayIteratorPlus implements ArrayAccess {
         $this->data[$offset] = $value;
     }
 
-    public function offsetUnset($offset) {
+	public function offsetUnset($offset) {
         parent::offsetUnset($offset);
         unset($this->data[$offset]);
     }
