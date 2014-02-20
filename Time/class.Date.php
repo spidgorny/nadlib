@@ -3,7 +3,7 @@
 class Date extends Time {
 	const HUMAN = 'd.m.Y';
 	const SYSTEM = 'Y-m-d';
-	
+
 	function __construct($input = NULL, $relativeTo = NULL) {
 		parent::__construct($input, $relativeTo);
 		//$this->modify('Y-m-d \G\M\T'); // very slow!
@@ -19,12 +19,12 @@ class Date extends Time {
 	 * Copy/paste because to 'static'
 	 * @param type $input
 	 * @param type $relativeTo
-	 * @return self
+	 * @return static
 	 */
 	static function make($input = NULL, $relativeTo = NULL) {
 		return new self($input, $relativeTo);
 	}
-	
+
 	function getMySQL() {
 		return gmdate('Y-m-d', $this->time);
 	}
