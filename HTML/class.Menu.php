@@ -59,6 +59,10 @@ class Menu /*extends Controller*/ {
 
 	public $useControllerSlug = true;
 
+	/**
+	 * @param array|ArrayPlus $items
+	 * @param null $level
+	 */
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
@@ -330,7 +334,7 @@ class Menu /*extends Controller*/ {
 		} else {
 			$ret = $this->current == $class;
 		}
-		if ($this->level === 1) {
+		if ($this->level === NULL) {
 			nodebug(array(
 				'class' => $class,
 				'subMenu' => $subMenu,

@@ -216,7 +216,7 @@ class Uploader {
 		$uh = new UploadHandler(array(
 			'upload_dir' => 'storage/',
 			'param_name' => 'file',
-			'image_library' => 2,
+			'image_library' => Request::isWindows() ? 1 : 2,	// Linux
 			//'convert_bin' => '/usr/bin/convert',
 			'convert_bin' => '/homepages/46/d209488023/htdocs/im/bin/convert',
 			//'identify_bin' => '/usr/bin/identify',
