@@ -127,13 +127,16 @@ class AutoLoad {
 		));
 		if (!class_exists('ConfigBase')) {
 			require_once 'class.ConfigBase.php';
+		}
+		if (!class_exists('Config')) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath = $this->appRoot.'/class/class.Config.php';
+			$configPath = $this->appRoot.'class/class.Config.php';
 			//debug($configPath, file_exists($configPath));
 			if (file_exists($configPath)) {
 				include_once $configPath;
+				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
 			} else {
-				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				print('<div class="error">'.$configPath.' not found.</div>'.BR);
 			}
 		}
 	}
@@ -186,6 +189,8 @@ class AutoLoad {
 			foreach ($folders as &$el) {
 				$el = $this->appRoot . $el;
 			}
+		} else {
+			echo ('Config not found');
 		}
 		return $folders;
 	}

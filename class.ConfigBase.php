@@ -51,8 +51,6 @@ class ConfigBase {
 		'SQL',
 		'Time',
 		'User',
-		'class',	// to load the Config of the main project
-		'model',
 		'be/class',
 		'be/class/DB',
 		'be/class/Info',

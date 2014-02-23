@@ -7,7 +7,7 @@ class Index extends IndexBase {
 	public $template = './../be/template/template.phtml';
 
 	/**
-	 * @var array
+	 * @var Menu
 	 */
 	public $menu;
 
@@ -18,16 +18,15 @@ class Index extends IndexBase {
 		$config->defaultController = 'HomeBE';
 		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
 		$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
-		$c = Config::getInstance();
 		// it's not reading the config.yaml from /be/, but from the project root
-		$c->config['View']['folder'] = '../be/template/';
+		$config->config['View']['folder'] = '../be/template/';
 
 		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
 		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
 		//base href will be fixed manually below
 
-		$c->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->appRoot);
-		$c->appRoot = str_replace('/nadlib/be', '', $c->appRoot);
+		$config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->appRoot);
+		$config->appRoot = str_replace('/nadlib/be', '', $config->appRoot);
 
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 
@@ -40,12 +39,12 @@ class Index extends IndexBase {
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
-		$c->user = $this->user;	// for consistency
+		$config->user = $this->user;	// for consistency
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
 
-		$this->menu = array(
+		$menu = array(
 			'HomeBE' => 'Home',
 			'ServerStat' => new Recursive('Info', array(
 				'ServerStat' => 'Server Stat',
@@ -56,10 +55,10 @@ class Index extends IndexBase {
 				'PHPInfo' => 'phpinfo()',
 				'Documentation' => 'Documentation',
 			)),
-			'TestNadlib' => new Recursive('Test', array(
-				'TestNadlib' => 'TestNadlib',
-				'ValidatorCheck' => 'Validator Check',
+			'UnitTestReport' => new Recursive('Test', array(
 				'UnitTestReport' => 'Unit Test Report',
+				'ValidatorCheck' => 'Validator Check',
+				'TestQueue' => 'Test Queue',
 			)),
 			'ExplainQuery' => new Recursive('DB', array(
 				'AlterDB' => 'Alter DB',
@@ -70,9 +69,35 @@ class Index extends IndexBase {
 				'ExplainQuery' => 'Explain Query',
 				'Localize' => 'Localize',
 			)),
-			'ClearCache' => 'Clear Cache',
-			'JumpFrontend' => '<- Frontend',
+			'ClearCache' => new Recursive('FE', array(
+				'ClearCache' => 'Clear Cache',
+				'JumpFrontend' => '<- Frontend',
+			)),
 		);
+		$menu = $this->loadBEmenu($menu);
+		$this->menu = new Menu($menu, 0);
+		$this->menu->ulClass = 'nav navbar-nav';
+		$this->menu->liClass = '';
+		$this->menu->recursive = false;
+		$this->menu->renderOnlyCurrent = true;
+		$this->menu->useControllerSlug = false;
+		$this->menu->basePath->setPath($this->menu->basePath->components['path'].$this->nadlibFromDocRoot.'be/');
+	}
+
+	function loadBEmenu(array $menu) {
+		$c = Spyc::YAMLLoad('../../../../class/config.yaml');
+		//debug($c['BEmenu']);
+		if ($c['BEmenu']) {
+			//$c['BEmenu'] = array('FE' => $c['BEmenu']);
+			foreach($c['BEmenu'] as $key => $sub) {
+				if (is_array($sub)) {
+					$menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
+				} else {
+					$menu['ClearCache']->elements[$key] = $sub;
+				}
+			}
+		}
+		return $menu;
 	}
 
 	function renderController() {
@@ -114,19 +139,7 @@ class Index extends IndexBase {
 	}
 
 	function showSidebar() {
-		$c = Spyc::YAMLLoad('../../../../class/config.yaml');
-		//debug($c['BEmenu']);
-		if ($c['BEmenu']) {
-			foreach($c['BEmenu'] as $key => $sub) {
-				if (is_array($sub)) {
-					$menu[$key] = new Recursive($key, $sub);
-				} else {
-					$menu[$key] = $sub;
-				}
-			}
-		}
-
-		$m = new Menu($this->menu, 1);
+		$m = new Menu($this->menu->items->getData(), 1);
 		$m->recursive = false;
 		$m->renderOnlyCurrent = true;
 		$m->useControllerSlug = true;
