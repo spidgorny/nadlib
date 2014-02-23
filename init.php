@@ -18,8 +18,6 @@ class InitNADLIB {
 
 	function init() {
 		//print_r($_SERVER);
-		$this->al->useCookies = $this->useCookies;
-		$this->al->register();
 
 		define('DEVELOPMENT', Request::isCLI()
 			? (Request::isWindows() || false) // at home
@@ -36,7 +34,15 @@ class InitNADLIB {
 
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
+		} else {
+			error_reporting(0);
+			ini_set('display_errors', FALSE);
+		}
 
+		$this->al->useCookies = $this->useCookies;
+		$this->al->register();
+
+		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config')) {
@@ -51,14 +57,12 @@ class InitNADLIB {
 				header('Expires: -1');
 			}
 		} else {
-			error_reporting(0);
-			ini_set('display_errors', FALSE);
 			if (!Request::isCLI()) {
 				header('Cache-Control: no-cache, no-store, max-age=0');
 				header('Expires: -1');
 			}
 		}
-		ini_set('short_open_tag', 1);
+		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
 	}
 
