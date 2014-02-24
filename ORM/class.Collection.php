@@ -394,6 +394,11 @@ class Collection {
 		} else {
 			$content .= '<div class="message">'.__('No data').'</div>';
 		}
+		if ($this->pager) {
+			$url = new URL();
+			$pages = $this->pager->renderPageSelectors($url);
+			$content = $pages . $content . $pages;
+		}
 		return $content;
 	}
 

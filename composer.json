@@ -82,6 +82,18 @@
                     "reference":"master"
                 }
             }
+        },
+        {
+            "type":"package",
+            "package": {
+                "version":"dev-master",
+                "name":"mustangostang/spyc",
+                "source": {
+                    "url":"https://github.com/mustangostang/spyc",
+                    "type":"git",
+                    "reference":"master"
+                }
+            }
         }
     ]
 }
