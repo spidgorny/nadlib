@@ -119,15 +119,15 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p, $display = 'inline-block') {
+	function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;') {
 		$prefix = '';
 		if (IndexBase::getInstance() instanceof IndexBE) {
 			//$prefix = '../../../../';
 			// just use base href instead
 		}
-		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; white-space: nowrap;">'.
+		return new htmlString('<div style="'.$css.'">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+			<img src="'.$prefix.'lib/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
 		</div>');
 	}
 
