@@ -45,6 +45,7 @@ class URL {
 				$this->components = parse_url(substr($request->getLocation(), 0, -1).$url);
 			}
 		}
+		//debug($url, $request ? 'Request::getExistingInstance' : '');
 		if (isset($this->components['query'])) {
 			parse_str($this->components['query'], $this->params);
 		}
@@ -116,7 +117,9 @@ class URL {
 
 	function getPath() {
 		$path = $this->components['path'];
-		$path = str_replace($this->documentRoot, '', $path);
+		if ($this->documentRoot != '/') {
+			$path = str_replace($this->documentRoot, '', $path);
+		}
 		//debug($this->components['path'], $this->documentRoot, $path);
 		return $path;
 	}
@@ -300,6 +303,7 @@ return $return; */
 			}
 		} else {
 			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de
 		}
 		return $scriptWithPath;
 	}

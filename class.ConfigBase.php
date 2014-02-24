@@ -75,6 +75,7 @@ class ConfigBase {
 			$this->appRoot = getcwd();
 		} else {
 			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
+			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
 		}
 
 		nodebug(array(
@@ -91,6 +92,7 @@ class ConfigBase {
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
+			require_once 'vendor/mustangostang/spyc/Spyc.php';
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
