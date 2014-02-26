@@ -373,8 +373,12 @@ class Request {
 		$this->data['c'] = $class;
 	}
 
+	function getReferer() {
+		return new URL($_SERVER['HTTP_REFERER']);
+	}
+
 	function getRefererController() {
-		$url = new URL($_SERVER['HTTP_REFERER']);
+		$url = $this->getReferer();
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);

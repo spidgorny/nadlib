@@ -16,7 +16,7 @@ class FlexiTable extends OODBase {
 	 * Enables/disables FlexiTable functionality
 	 * @var bool
 	 */
-	protected $doCheck = false;
+	public $doCheck = false;
 
 	/**
 	 * array(
@@ -37,8 +37,12 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
-		$row['ctime'] = new AsIs('now()');
-		$row['cuser'] = Config::getInstance()->user->id;
+		if (!$row['ctime']) {
+			$row['ctime'] = new AsIs('now()');
+		}
+		if (!$row['cuser']) {
+			$row['cuser'] = Config::getInstance()->user->id;
+		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
@@ -47,9 +51,13 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		$mtime = new Time();
-		$row['mtime'] = $mtime->format('Y-m-d H:i:s');
-		$row['muser'] = Config::getInstance()->user->id;
+		if (!$row['mtime']) {
+			$mtime = new Time();
+			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
+		}
+		if (!$row['muser']) {
+			$row['muser'] = Config::getInstance()->user->id;
+		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}

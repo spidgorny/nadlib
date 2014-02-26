@@ -4,7 +4,7 @@ abstract class IteratorMemberCollection extends Collection implements Iterator, 
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		parent::__construct($pid, $where, $order);
-		$this->objectify();
+		//$this->objectify();   // may cause data retrieval without $where
 	}
 
 	function rewind() {

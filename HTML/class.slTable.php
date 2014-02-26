@@ -607,9 +607,9 @@ class slTable {
 				//$val = $val;
 			} else {
 				if (mb_strpos($val, "\n") !== FALSE) {
-					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
+					$val = new htmlString('<pre>'.htmlspecialchars($val, ENT_NOQUOTES).'</pre>');
 				} else if (!$no_hsc) {
-					$val = htmlspecialchars($val);
+					$val = htmlspecialchars($val, ENT_NOQUOTES);
 				}
 			}
 

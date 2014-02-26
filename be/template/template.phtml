@@ -32,16 +32,7 @@
 		</div>
 		<div class="collapse navbar-collapse">
 
-			<?php
-			$m = new Menu($this->menu, 0);
-			$m->ulClass = 'nav navbar-nav';
-			$m->liClass = '';
-			$m->recursive = false;
-			$m->renderOnlyCurrent = true;
-			$m->useControllerSlug = false;
-			$m->basePath->setPath($m->basePath->components['path'].$this->nadlibFromDocRoot.'be/');
-			echo $m;
-			?>
+			<?= $this->menu; ?>
 
             <?= $this->loginForm ?>
 		</div>

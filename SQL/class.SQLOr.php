@@ -38,7 +38,7 @@ class SQLOr extends SQLWherePart {
             if (is_int($this->field)) {                 // added is_int condition to solve problem with software mngmt & request (hw/sw request)  .. deklesoe 20130514
 				$ors = array();
 				foreach ($this->or as $field => $or) {
-					$tmp = $this->qb->quoteWhere(
+					$tmp = $this->db->quoteWhere(
                         array($field => $or)
 						//array($this->field => $or)    //  commented and replaced with line above due to problem
                                                         //  with query creation for software management .. deklesoe 20130514
@@ -61,10 +61,10 @@ class SQLOr extends SQLWherePart {
 						$p->injectField($field);
 					}
 				}
-				$ors = $this->qb->quoteWhere($this->or);
+				$ors = $this->db->quoteWhere($this->or);
 			}
 		} else {										// MySQL
-			$ors = $this->qb->quoteWhere($this->or);
+			$ors = $this->db->quoteWhere($this->or);
 		}
 		if ($ors) {
 			$res = '('.implode(' OR ', $ors).')';
