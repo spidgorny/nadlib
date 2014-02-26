@@ -24,6 +24,7 @@ class LDAPUser extends UserBase {
 	}
 
 	function try2login() {
+		debug($_SESSION['user']);
 		if ($_SESSION['user']) {
 			$this->id = $_SESSION['user']->id;
 			$this->data = $_SESSION['user']->data;

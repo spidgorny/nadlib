@@ -44,7 +44,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		//parent::__construct();
 		$config = Config::getInstance();
 		$this->db = $config->db;
@@ -58,8 +58,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			session_start();
 		}
 
-		$this->user = Config::getInstance()->user;
+		$this->user = $config->user;
 		$this->restoreMessages();
+		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
