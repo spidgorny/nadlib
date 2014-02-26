@@ -28,7 +28,7 @@
  * 3. Don't set $this->data = $new, use $this->setData($new)
  */
 
-class ArrayPlus extends IteratorArrayAccess implements Countable {
+class ArrayPlus extends ArrayObject implements Countable {
 
 	function __construct(array $array = array()) {
 		parent::__construct($array);
@@ -173,11 +173,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
      * @return static
      */
     function setData(array $data) {
-    	//$this->data = $data;    // doesn't update ArrayAccess
-	    $this->data = [];
-	    foreach ($data as $i => $el) {
-		    $this[$i] = $el;
-	    }
+	    $this->exchangeArray($data);
     	return $this;
     }
 
@@ -479,6 +475,37 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			}
 		}
 		return $count;
+	}
+
+	/**
+	 * Chainable
+	 *
+	 * @param $i
+	 * @param $val
+	 * @return $this
+	 */
+	function set($i, $val) {
+		$this->offsetSet($i, $val);
+		return $this;
+	}
+
+	/**
+	 * Chainable
+	 *
+	 * @param mixed $i
+	 * @return static
+	 */
+	function un_set($i) {
+		$this->offsetUnset($i);
+		return $this;
+	}
+
+	function get($i, $subkey = NULL) {
+		$element = $this->offsetGet($i);
+		if ($subkey) {
+			$element = $element[$subkey];
+		}
+		return $element;
 	}
 
 }
