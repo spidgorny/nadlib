@@ -10,8 +10,8 @@
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
-		"phpunit/php-code-coverage": "dev-master",
-		"phpunit/phpunit-mock-objects": "dev-master",
+		"phpunit/php-code-coverage": "2.1.*@dev",
+		"phpunit/phpunit-mock-objects": "2.1.*@dev",
 		"phpunit/phpunit": "dev-master"
     },
     "require_bak": {
