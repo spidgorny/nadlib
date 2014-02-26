@@ -167,10 +167,11 @@ class slTableValue {
 				}
 			break;
 			case "bool":
+			case "boolean":
 				if (intval($val)) {
-					$out = $k['true'];
+					$out = $k['true'] ?: $this->SLTABLE_IMG_CHECK;
 				} else {
-					$out = $k['false'];
+					$out = $k['false'] ?: $this->SLTABLE_IMG_CROSS;
 				}
 				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
 			break;

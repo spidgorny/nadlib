@@ -32,9 +32,10 @@ class MySQL {
 	protected static $instance;
 
 	/**
+	 * set to NULL for disabling
 	 * @var array
 	 */
-	public $queryLog = array();		// set to NULL for disabling
+	public $queryLog = array();
 
 	/**
 	 * @var bool Allows logging every query to the error.log.

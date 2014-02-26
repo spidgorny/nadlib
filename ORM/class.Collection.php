@@ -227,11 +227,10 @@ class Collection {
 		}
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
-		$qb = $this->db->qb;
 		if ($where instanceof SQLWhere) {
-			$query = $qb->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
+			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
-			$query = $qb->getSelectQuery  (
+			$query = $this->db->getSelectQuery(
 				$this->table.' '.$this->join,
 				$where,
 				$this->orderBy,
@@ -383,13 +382,22 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		//debug(sizeof($this->members));
-		foreach ($this->objectify() as $key => $obj) {
-			//debug($i++, (strlen($content)/1024/1024).'M');
-			if (is_object($obj)) {
-				$content .= $obj->render()."\n";
-			} else {
-				$content .= getDebug(__METHOD__, $key, $obj);
+		if ($this->objectify()) {
+			foreach ($this->objectify() as $key => $obj) {
+				//debug($i++, (strlen($content)/1024/1024).'M');
+				if (is_object($obj)) {
+					$content .= $obj->render()."\n";
+				} else {
+					$content .= getDebug(__METHOD__, $key, $obj);
+				}
 			}
+		} else {
+			$content .= '<div class="message">'.__('No data').'</div>';
+		}
+		if ($this->pager) {
+			$url = new URL();
+			$pages = $this->pager->renderPageSelectors($url);
+			$content = $pages . $content . $pages;
 		}
 		return $content;
 	}

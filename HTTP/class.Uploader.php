@@ -216,6 +216,11 @@ class Uploader {
 		$uh = new UploadHandler(array(
 			'upload_dir' => 'storage/',
 			'param_name' => 'file',
+			'image_library' => Request::isWindows() ? 1 : 2,	// Linux
+			//'convert_bin' => '/usr/bin/convert',
+			'convert_bin' => '/homepages/46/d209488023/htdocs/im/bin/convert',
+			//'identify_bin' => '/usr/bin/identify',
+			'identify_bin' => '/homepages/46/d209488023/htdocs/im/bin/identify',
 		), false);
 		//$uh->post(true); exit();
 		ob_start();
@@ -223,18 +228,22 @@ class Uploader {
 		$done = ob_get_clean();
 		$json = json_decode($done);
 		//print_r(array($uh, $done, $json));
-		$data = get_object_vars($json->file[0]);
-		if (!$data['error']) {
-			$redirect = $callback($data);
-			$json->file[0]->redirect = $redirect;
-		}
-		$request = Request::getInstance();
-		if ($request->isAjax()) {
-			echo json_encode($json);
-		} else if ($redirect) {
-			$request->redirect($redirect);
+		if (is_object($json)) {
+			$data = get_object_vars($json->file[0]);
+			if (!$data['error']) {
+				$redirect = $callback($data);
+				$json->file[0]->redirect = $redirect;
+				$request = Request::getInstance();
+				if ($request->isAjax()) {
+					echo json_encode($json);
+				} else if ($redirect) {
+					$request->redirect($redirect);
+				}
+			} else {
+				echo $data['error'];
+			}
 		} else {
-			echo $data['error'];
+			echo $done;
 		}
 		exit();
 	}

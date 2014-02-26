@@ -51,8 +51,6 @@ class ConfigBase {
 		'SQL',
 		'Time',
 		'User',
-		'class',	// to load the Config of the main project
-		'model',
 		'be/class',
 		'be/class/DB',
 		'be/class/Info',
@@ -77,8 +75,13 @@ class ConfigBase {
 			$this->appRoot = getcwd();
 		} else {
 			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
+			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
 		}
-		//print_r(array('$this->appRoot in ConfigBase', $this->appRoot));
+
+		nodebug(array(
+			'Config->documentRoot' => $this->documentRoot,
+			'Config->appRoot' => $this->appRoot,
+		));
 		//debug_pre_print_backtrace();
 
 		//$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -89,6 +92,7 @@ class ConfigBase {
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
+			require_once 'vendor/mustangostang/spyc/Spyc.php';
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
