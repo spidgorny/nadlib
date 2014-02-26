@@ -6,6 +6,7 @@ class GroupSwitch extends AppController {
 		'depidsvy',
 		'deloprub',
         'dejokmaj',
+        'dedomedu' // requested by deloprub on Feb. 11th 2014
 	);
 
 	protected $groups = array(

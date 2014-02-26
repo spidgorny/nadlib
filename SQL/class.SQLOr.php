@@ -18,6 +18,7 @@ class SQLOr extends SQLWherePart {
 		//parent::__construct();
 		$this->or = $ors;
 		$this->db = Config::getInstance()->db;
+        $this->qb = Config::getInstance()->getQb();
 	}
 
 	function __toString() {

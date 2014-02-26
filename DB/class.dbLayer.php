@@ -384,20 +384,20 @@ class dbLayer {
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
-		$q = 'UPDATE '.$table .'SET ';
+		$q = 'UPDATE '.$table .' SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		$q .= implode(", ", $set);
-		$q .= " where ";
+		$q .= " WHERE ";
 		$set = array();
 		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
-		$q .= implode(" and ", $set);
+		$q .= implode(" AND ", $set);
 		return $q;
 	}
 
@@ -415,7 +415,7 @@ class dbLayer {
 			$set[] = "$key = $val";
 		}
 		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" and ", $set);
+			$q .= " WHERE " . implode(" AND ", $set);
 		} else {
 			$q .= ' WHERE 1 = 0';
 		}
