@@ -95,8 +95,8 @@ abstract class UserBase extends OODBase {
                 return $this->insertNoUserCheck($data);
             }
         } else {
-            //$index = Index::getInstance();
-            //$index->notice('No email provided.');
+            $index = Index::getInstance();
+            $index->error('No email provided.');
         }
 	}
 

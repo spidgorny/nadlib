@@ -234,12 +234,12 @@ abstract class Scaffold extends AppController {
 					}
 				}
 			} catch (Exception $e) {
-				$content .= '<p class="ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
+				$content .= '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
 				$content .= $this->showForm();
 			}
 		} else {
 			//$desc = $v->getDesc();
-			$content .= '<div class="message ui-state-error">Validation failed. Check your form below:</div>';
+			$content .= '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
 			$content .= $this->showForm();
 			//debug($desc['participants'], $userData['participants']);
 		}

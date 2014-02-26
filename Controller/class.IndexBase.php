@@ -13,7 +13,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public $ll;
 
 	/**
-	 * @var LoginUser
+	 * @var User|LoginUser
 	 */
 	public $user;
 
@@ -119,6 +119,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
+			unset($_SESSION['AutoLoad']);
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception($exception);
 		}
@@ -235,7 +236,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'components/jquery/jquery.min.js');
+			$jQueryPath = 'components/jquery/jquery.min.js';
+			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
+				$this->addJS($jQueryPath);
+			} else {
+				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+			}
 		} else {
 			$this->footer['jquery.js'] = '
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -248,7 +254,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQueryUI() {
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'components/jquery-ui/ui/minified/jquery-ui.min.js');
+			$jQueryPath = 'components/jquery-ui/ui/minified/jquery-ui.min.js';
+			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
+				$this->addJS($jQueryPath);
+			} else {
+				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+			}
 
             // commented out because this should be project specific
 			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');

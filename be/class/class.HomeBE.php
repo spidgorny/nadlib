@@ -6,7 +6,7 @@ class HomeBE extends AppControllerBE {
 
 	function render() {
 		$content = '';
-		$content .= new MarkdownView('Home.text');
+		$content .= new MarkdownView('Home.md');
 
 		//$connection = ssh2_connect('kreuzfahrt-auswahl.de', 22);
 		//$auth_methods = ssh2_auth_none($connection, 'ec2-user');
