@@ -4,11 +4,13 @@
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "*",
 		"components/bootstrap": "dev-master",
+		"components/modernizr": "dev-master"
+	},
+	"require-dev": {
 		"phpunit/php-code-coverage": "1.4.*@dev",
 		"sebastian/environment": "1.0.*@dev",
 		"phpunit/phpunit-mock-objects": "1.4.*@dev",
-		"phpunit/phpunit": "dev-master",
-		"components/modernizr": "dev-master"
+		"phpunit/phpunit": "dev-master"
     },
     "require_bak": {
 		"pdepend/pdepend": "1.1.0",
