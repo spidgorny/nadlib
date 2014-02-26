@@ -4,12 +4,14 @@
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "*",
 		"components/bootstrap": "dev-master",
-		"components/modernizr": "dev-master"
+		"components/modernizr": "dev-master",
+		"mustangostang/spyc": "dev-master",
+		"flot/flot": "dev-master"
 	},
 	"require-dev": {
-		"phpunit/php-code-coverage": "1.4.*@dev",
 		"sebastian/environment": "1.0.*@dev",
-		"phpunit/phpunit-mock-objects": "1.4.*@dev",
+		"phpunit/php-code-coverage": "dev-master",
+		"phpunit/phpunit-mock-objects": "dev-master",
 		"phpunit/phpunit": "dev-master"
     },
     "require_bak": {
@@ -68,6 +70,30 @@
                 "dist": {
                     "url":"https://github.com/thomas-mcdonald/bootstrap-sass/zipball/master",
                     "type":"zip"
+                }
+            }
+        },
+        {
+            "type":"package",
+            "package": {
+                "version":"dev-master",
+                "name":"flot/flot",
+                "source": {
+                    "url":"https://github.com/flot/flot",
+                    "type":"git",
+                    "reference":"master"
+                }
+            }
+        },
+        {
+            "type":"package",
+            "package": {
+                "version":"dev-master",
+                "name":"mustangostang/spyc",
+                "source": {
+                    "url":"https://github.com/mustangostang/spyc",
+                    "type":"git",
+                    "reference":"master"
                 }
             }
         }

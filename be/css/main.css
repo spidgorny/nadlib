@@ -60,9 +60,10 @@ form.anyPageForm input {
 .navbar-form {
 	/*margin: 0;*/
 	padding: 0;
+	width: 400px;
 }
-.navbar-form input {
-	width: 10em;
+.navbar-form .form-control {
+	width: 100%;
 }
 .navbar-form a.btn {
 	/*margin: 6px 12px;*/

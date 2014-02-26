@@ -27,6 +27,11 @@ class Debug {
 				$trace[] = self::getMethod($row);
 			}
 			echo '---'.implode(' // ', $trace)."\n";
+
+			if (is_object($a)) {
+				$a = get_object_vars($a);   // prevent private vars
+			}
+
 			ob_start();
 			var_dump(
 				$a

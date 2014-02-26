@@ -176,21 +176,21 @@ class AjaxLogin extends AppController {
 			</div>
 			</form>';
 		} else {
-			$content = '<form class="navbar-form navbar-right" method="POST">
+			$content = '<form class="navbar-form navbar-right row" method="POST">
 				<input type="hidden" name="c" value="'.get_class($this).'" />
 				<input type="hidden" name="action" value="login" />
-				<div class="form-group">
+				<div class="form-group col-md-4">
 					<input class="form-control"
 						type="text"
 						name="username"
 						placeholder="E-mail"
 						value="'.$_REQUEST['username'].'" />
 				</div>
-				<div class="form-group">
+				<div class="form-group col-md-4">
 					<input class="form-control" type="password"
 						name="password" placeholder="Password" />
 				</div>
-				<button type="submit" class="btn btn-success">Sign in</button>
+				<button type="submit" class="btn btn-success col-md-4">Sign in</button>
 			</div>
 			</form>';
 		}

@@ -29,7 +29,7 @@ abstract class OODBase {
 	/**
 	 * @var int database ID
 	 */
-	public $id = NULL;			
+	public $id = NULL;
 
 	/**
 	 * @var array data from DB
@@ -44,9 +44,9 @@ abstract class OODBase {
 
 	/**
 	 * to allow extra filtering
-	 * @var array 
+	 * @var array
 	 */
-	protected $where = array();	
+	protected $where = array();
 
 	/**
 	 * @var self[get_called_class()][$id]
@@ -62,7 +62,7 @@ abstract class OODBase {
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
-	 * @param integer|array $id - can be ID in the database or the whole records
+	 * @param integer|array|SQLWhere $id - can be ID in the database or the whole records
 	 * as associative array
 	 * @return OODBase
 	 */
@@ -131,7 +131,7 @@ abstract class OODBase {
 			$this->id = $this->data[$this->idField];
 		}
 	}
-	
+
 	/**
 	 * Returns $this
 	 *
@@ -378,7 +378,7 @@ abstract class OODBase {
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id int
-	 * @return self
+	 * @return static
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
@@ -415,7 +415,7 @@ abstract class OODBase {
 	/**
 	 * @param string $name
 	 * @param null $field
-	 * @return self
+	 * @return static
 	 */
 	static function getInstanceByName($name, $field = NULL) {
 		$self = get_called_class();

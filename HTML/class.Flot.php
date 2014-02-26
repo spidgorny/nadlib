@@ -136,7 +136,7 @@ class Flot extends AppController {
 			$key = $row[$this->keyKey];
 			$time = $row[$this->timeKey];
 			if ($time) {
-				$time = strtotime($time);
+				$time = is_string($time) ? strtotime($time) : $time;
 				$chart[$key][$time] = array($time*1000, $row[$this->amountKey]);
 			} else {
 				unset($rows[$i]);
@@ -147,6 +147,7 @@ class Flot extends AppController {
 
 	function getChartCumulative(array $chart) {
 		foreach ($chart as &$sub) {
+			ksort($sub);
 			$sum = 0;
 			foreach ($sub as &$val) {
 				$sum += $val[1];
@@ -170,10 +171,14 @@ class Flot extends AppController {
 	function showChart($divID, array $charts, array $cumulative, $max) {
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.time.js"></script>';
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
+			src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.stack.js"></script>
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.time.js"></script>';
 
 		$content = '<div id="'.$divID.'" style="
 			width: '.$this->width.';

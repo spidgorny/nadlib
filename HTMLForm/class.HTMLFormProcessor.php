@@ -53,8 +53,9 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	function postInit() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->form = new HTMLFormTable();	// needed sometime in getDesc
 		$this->desc = $this->getDesc();
-		$this->form = $this->getForm();	// $this->desc will be used inside
+		$this->form = $this->getForm();		// $this->desc will be used inside
 		//debug($this->desc);
 		//debug($this->prefix);
 		if ($this->submitted) {
@@ -114,7 +115,8 @@ abstract class HTMLFormProcessor extends AppController {
 
 	function getForm(HTMLFormTable $preForm = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$f = $preForm ? $preForm : new HTMLFormTable($this->desc);
+		$f = $preForm ? $preForm : $this->form;
+		$f->setDesc($this->desc);
 		if ($this->ajax) {
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
 		}
