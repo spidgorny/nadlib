@@ -574,9 +574,10 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * @param array $assoc
 	 * @param bool $forceInsert
+	 * @return array
 	 */
 	function fill(array $assoc, $forceInsert = false) {
-		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
+		return $this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
 	}
 
 	/**

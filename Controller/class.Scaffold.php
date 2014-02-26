@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class Scaffold
+ * @deprecated - use HTMLFormProcessor if you only need the edit form
+ */
 abstract class Scaffold extends AppController {
 
 	/**
@@ -20,8 +24,27 @@ abstract class Scaffold extends AppController {
 	 * @deprecated	- why? Use Collection instead?
 	 */
 	protected $thes = array();
+
+	/**
+	 * Button label
+	 * @var string
+	 */
 	protected $addButton = 'Add';
+
+	/**
+	 * Button label
+	 * @var string
+	 */
 	protected $updateButton = 'Save';
+
+	/**
+	 * Default function to display.
+	 * showForm
+	 * showEdit
+	 * add
+	 * edit
+	 * @var string
+	 */
 	protected $action = 'showEdit';
 
 	/**
@@ -47,7 +70,7 @@ abstract class Scaffold extends AppController {
 
 	protected $desc;
 
-	protected $editIcon = '<img src="img/stock-edit-16.png"/>';
+	protected $editIcon = '<img src="img/stock-edit-16.png" />';
 
 	function __construct() {
 		parent::__construct();
@@ -93,12 +116,10 @@ abstract class Scaffold extends AppController {
 				$content .= $this->showEditForm();
 			break;
 			case 'add':
-				$content = $this->showPerform($this->action);
-			break;
 			case 'update':
-				$content = $this->showPerform($this->action, $this->id);
+				$content = $this->showPerform();
 			break;
-			default:
+			default:    // view table
 				$content = $this->showTable();
 				$content .= $this->showButtons();
 				$content .= '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
@@ -160,6 +181,7 @@ abstract class Scaffold extends AppController {
 			$f = $this->showEditForm();
 		} else {
 			$f = $this->getForm();
+			$f->submit($this->addButton);
 		}
 		return $f;
 	}
@@ -173,14 +195,15 @@ abstract class Scaffold extends AppController {
 			$this->table.'.id' => $this->id,
 		);
 
-		if ($this->desc['submit']) {
+/*		if ($this->desc['submit']) {
 			$this->desc['submit']['value'] = $this->updateButton;
 		}
-		$f = $this->getForm('update');
+*/		$f = $this->getForm('update');
 		$f->prefix('');
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
+		$f->submit($this->updateButton);
 		return $f;
 	}
 
@@ -188,12 +211,10 @@ abstract class Scaffold extends AppController {
 	 * Return nothing or false to indicate success.
 	 * $this->insertRecord should return nothing?!?
 	 *
-	 * @param string $action
-	 * @param integer $id
 	 * @throws Exception
 	 * @return string
 	 */
-	public function showPerform($action, $id = NULL) {
+	public function showPerform() {
 		$content = '';
 		//$userData = $this->request->getArray($this->formPrefix);
 		//debug($userData, $formPrefix);
@@ -204,7 +225,7 @@ abstract class Scaffold extends AppController {
 		$v = new HTMLFormValidate($this->form);
 		if ($v->validate()) {
 			try {
-				switch ($action) {
+				switch ($this->action) {
 					case 'add': $content = $this->insertRecord($this->data); break;
 					case 'update': $content = $this->updateRecord($this->data); break;
 					default: {
@@ -231,7 +252,9 @@ abstract class Scaffold extends AppController {
 	}
 
 	function updateRecord(array $userData) {
+		//debug($this->model->data, $userData);
 		$this->model->update($userData);	// update() returns nothing
+		//debug($this->model->data, $this->model->lastQuery);
 		return $this->afterUpdate($userData);
 	}
 
@@ -243,13 +266,13 @@ abstract class Scaffold extends AppController {
 	 */
 	protected function getDesc(array $data = NULL) {
 		$desc = array(
-			'submit' => array(
-				'label' => '',
-				'type' => 'submit',
-				'value' => $this->addButton,
+			'name' => array(
+				'label' => 'Name',
 			),
 		);
-		return $desc;
+		$this->form->desc = $desc;
+		$this->form->fill($data);
+		return $this->form->desc;
 	}
 
 	/**
@@ -264,11 +287,11 @@ abstract class Scaffold extends AppController {
 		$this->form->hidden('c', get_class($this));
 		$this->form->hidden('pageType', get_class($this));
 		$this->form->hidden('action', $action);
-		$this->form->hidden('ajax', TRUE);
+		//$this->form->hidden('ajax', TRUE);        // add this to getDesc()
 		$this->form->prefix($this->formPrefix);
 		$this->desc = $this->getDesc($this->data);
 		$this->form->showForm($this->desc);
-		//$this->form->submit($this->addButton);
+		//$this->form->submit($this->addButton);    // because it's used for edit
 		$this->form->formMore = $this->formMore;
 		return $this->form;
 	}
