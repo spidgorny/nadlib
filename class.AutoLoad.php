@@ -288,7 +288,7 @@ class AutoLoad {
 				$this->classFileMap[$classFile] = $file;
 				return $file;
 			} else {
-				//$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
+				$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
 			}
 		}
 	}
