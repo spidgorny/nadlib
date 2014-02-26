@@ -384,7 +384,7 @@ class dbLayer {
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
-		$q = 'UPDATE '.$table .'SET ';
+		$q = 'UPDATE '.$table .' SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
