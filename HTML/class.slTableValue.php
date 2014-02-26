@@ -189,10 +189,11 @@ class slTableValue {
 			break;
 			case "bar":
 				if (!is_null($val)) {
-					if ($k['css']) {
-						$out = ProgressBar::getImage($val, $k['css']);
+					$pb = new ProgressBar();
+					if (isset($k['css'])) {
+						$out = $pb->getImage($val*100, $k['css']);
 					} else {
-						$out = ProgressBar::getImage($val);
+						$out = $pb->getImage($val*100);
 					}
 				}
 			break;
