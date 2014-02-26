@@ -187,6 +187,15 @@ class slTableValue {
 			case "percent":
 				$out = number_format($val*100, 2, '.', '').'&nbsp;%';
 			break;
+			case "bar":
+				if (!is_null($val)) {
+					if ($k['css']) {
+						$out = ProgressBar::getImage($val, $k['css']);
+					} else {
+						$out = ProgressBar::getImage($val);
+					}
+				}
+			break;
 			case "callback":
 				$out = call_user_func($k['callback'], $val, $k, $row);
 			break;
