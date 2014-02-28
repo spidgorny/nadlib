@@ -246,8 +246,12 @@ class slTableValue {
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
 					} elseif (is_array($val)) {
-						debug($val);
-						$out = 'Array';
+						if (is_assoc($val)) {
+							$out = json_encode($val, JSON_PRETTY_PRINT);
+						} else {
+							$out = '['.implode(', ', $val).']';
+						}
+						$out = htmlspecialchars($out);
 					} else {
 						$out = htmlspecialchars($val);
 					}

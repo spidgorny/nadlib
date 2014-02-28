@@ -6,7 +6,8 @@
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"flot/flot": "dev-master"
+		"flot/flot": "dev-master",
+		"fabpot/twittee": "dev-master"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",

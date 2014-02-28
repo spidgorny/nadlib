@@ -669,7 +669,9 @@ class slTable {
 		foreach ($this->data as $row) {
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];
-				$value = strip_tags($value);
+				$value = is_array($value)
+					? json_encode($value, JSON_PRETTY_PRINT)
+					: strip_tags($value);
 				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
 				$widthAvg[$field] += mb_strlen($value);
 			}
@@ -690,7 +692,9 @@ class slTable {
 			$padRow = array();
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];
-				$value = strip_tags($value);
+				$value = is_array($value)
+					? json_encode($value, JSON_PRETTY_PRINT)
+					: strip_tags($value);
 				if ($cutTooLong) {
 					$value = substr($value, 0, $widthMax[$field]);
 				}

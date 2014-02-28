@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class DIContainer
+ * http://fabien.potencier.org/article/17/on-php-5-3-lambda-functions-and-closures
+ */
 class DIContainer {
 
   protected $values = array();
@@ -16,8 +20,9 @@ class DIContainer {
       throw new InvalidArgumentException(sprintf('Value "%s" is not defined.', $id));
     }
 
-	//debug(is_callable($this->values[$id]), is_object($this->values[$id]));
-    return is_callable($this->values[$id]) && !is_object($this->values[$id]) ? $this->values[$id]($this) : $this->values[$id];
+    return is_callable($this->values[$id]) && is_object($this->values[$id])
+	    ? $this->values[$id]($this)
+	    : $this->values[$id];
   }
 
 /*function asShared($callable)
