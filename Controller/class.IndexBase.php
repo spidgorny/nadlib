@@ -20,9 +20,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string
+	 * @var string|array
 	 */
-	public $content = '';
+	public $content;
 
 	/**
 	 * @var AppController
@@ -135,7 +135,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($this->controller) {
 				$content .= $this->renderController();
 			} else {
-				$content .= $this->content;	// display Exception
+				$content .= is_array($this->content)
+					? implode("\n", $this->content)
+					: $this->content;	// display Exception
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
@@ -153,12 +155,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderTemplateIfNotAjax($content) {
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			$content = $this->renderTemplate($this->content . $content);
+			$contentOut = is_array($this->content)
+				? implode("\n", $this->content)
+				: $this->content;	// display Exception
+			$contentOut .= $content;
+			$contentOut = $this->renderTemplate($contentOut);
 		} else {
-			$content .= $this->content;
+			$contentOut = $content . $this->content;
 			$this->content = '';		// clear for the next output. May affect saveMessages()
 		}
-		return $content;
+		return $contentOut;
 	}
 
 	function renderTemplate($content) {
@@ -177,6 +183,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
+		if (is_array($render)) {
+			//$render = implode("\n", $render); // not recursive
+			$combined = '';
+			array_walk_recursive($render, function ($value, $key) use (&$combined) {
+				$combined .= $value."\n";
+			});
+			$render = $combined;
+		}
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
@@ -219,11 +233,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message alert alert-info">'.$text.'</div>';
+		$msg = '<div class="message alert alert-info">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function error($text) {
-		$this->content .= '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		$msg = '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function saveMessages() {
@@ -286,8 +310,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addCSS($source) {
-		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
-			$source = 'Lesser?css='.$source;
+		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
+			$source = '?c=Lesser&css='.$source;
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;

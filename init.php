@@ -85,12 +85,14 @@ function debug($a) {
 	    if (class_exists('FirePHP') && !Request::isCLI()) {
 		    $fp = FirePHP::getInstance(true);
 		    $fp->setOption('includeLineNumbers', true);
+		    $fp->setOption('maxArrayDepth', 10);
+		    $fp->setOption('maxDepth', 20);
 		    $trace = Debug::getSimpleTrace();
+		    array_shift($trace);
 		    if ($trace) {
-		        //$fp->table('Trace', $trace);
+		        $fp->table(implode(' ', first($trace)), $trace);
 		    }
-		    //$fp->trace('Trace');
-		    $fp->log(sizeof($params) == 1 ? $a : $params);
+		    $fp->log(1 == sizeof($params) ? $a : $params);
 	    } else {
 		    call_user_func_array(array('Debug', 'debug_args'), $params);
 	    }
@@ -332,4 +334,13 @@ function get_overriden_methods($class) {
 	}
 
 	return $array;
+}
+
+/**
+ * http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential
+ * @param $arr
+ * @return bool
+ */
+function is_assoc($arr) {
+	return array_keys($arr) !== range(0, count($arr) - 1);
 }

@@ -1,9 +1,17 @@
 <?php
 
 class SQLRange extends SQLWherePart {
-	public $field, $from, $till;
+	/**
+	 * @var mixed
+	 */
+	public $from;
 
-	function __construct($field, $from, $till) {
+	/**
+	 * @var mixed|null
+	 */
+	public $till;
+
+	function __construct($field, $from, $till = NULL) {
 		$this->field = $field;
 		$this->from = $from;
 		$this->till = $till;
@@ -11,7 +19,12 @@ class SQLRange extends SQLWherePart {
 
 	function __toString() {
 		$field = $this->qb->quoteKey($this->field);
-		return "($field >= '$this->from' AND $field < '$this->till')";
+		$sql = "($field >= '$this->from'";
+		if ($this->till) {
+			$sql .= " AND $field < '$this->till'";
+		}
+		$sql .= ")";
+		return $sql;
 	}
 
 }
