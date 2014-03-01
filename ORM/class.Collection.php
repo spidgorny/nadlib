@@ -11,6 +11,10 @@ class Collection {
 	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
+
+	/**
+	 * @var string
+	 */
 	public $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
@@ -104,6 +108,13 @@ class Collection {
 	 */
 	protected $controller;
 
+	public $doCache = true;
+
+	/**
+	 * @var array
+	 */
+	public $log = array();
+
 	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
@@ -161,7 +172,7 @@ class Collection {
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$this->query = $this->getQuery($this->where);
+		$this->query = $this->getQueryWithLimit($this->where);
 		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -185,20 +196,31 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
-		$this->query = $this->getQuery($this->where);
-		$fc = new MemcacheFile();
-		$cached = $fc->get($this->query, 60*60);	// 1h
-		if ($cached && sizeof($cached) == 2) {
-			list($this->count, $this->data) = $cached;
-			$action = 'found in cache, age: '.$fc->getAge($this->query);
-		} else{
-			$this->retrieveDataFromDB($allowMerge, $preprocess);
-			$fc->set($this->query, array($this->count, $this->data));
-			$action = 'no cache, retrieve, store';
+		if (!$this->data) {													// memory cache
+			if ($this->doCache) {
+				// this query is intentionally without
+				$fc = new MemcacheOne($this->getQuery().'.'.$this->pager->currentPage, 60*60);			// 1h
+				$this->log('key: '.substr(basename($fc->map()), 0, 7));
+				$cached = $fc->getValue();									// with limit as usual
+				if ($cached && sizeof($cached) == 2) {
+					list($this->count, $this->data) = $cached;
+					$this->log('found in cache, age: '.$fc->getAge());
+				} else{
+					$this->retrieveDataFromDB($allowMerge, $preprocess);	// getQueryWithLimit() inside
+					$fc->set(array($this->count, $this->data));
+					$this->log('no cache, retrieve, store');
+				}
+			} else {
+				$this->retrieveDataFromDB($allowMerge, $preprocess);
+			}
+			if ($_REQUEST['d']) {
+				//debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
+			}
 		}
-		if ($_REQUEST['d']) {
-			debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
-		}
+	}
+
+	function log($msg) {
+		$this->log[(string)microtime(true)] = $msg;
 	}
 
 	/**
@@ -219,13 +241,18 @@ class Collection {
 		} else {
 			$query = $qb->getSelectQuery  ($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		}
+		//debug($query);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		return $query;
+	}
+
+	function getQueryWithLimit() {
+		$query = $this->getQuery();
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
 			$query .= $this->pager->getSQLLimit();
 		}
-		//debug($query);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $query;
 	}
 
@@ -499,7 +526,7 @@ class Collection {
 			if ($this->pager->currentPage > 0) {
 				$copy = clone $this;
 				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
-				$copy->retrieveDataFromDB();
+				$copy->retrieveDataFromCache();
 				$copy->preprocessData();
 				$prevData = $copy->data;
 			} else {
@@ -597,7 +624,7 @@ class Collection {
 	}
 
 	function getLazyIterator() {
-		$query = $this->getQuery();
+		$query = $this->getQueryWithLimit();
 
 		$di = new DIContainer();
 		$di->db = $this->db;
