@@ -87,6 +87,7 @@ class ConfigBase {
 					$this->db_server,
 					$this->db_database
 				);
+				$this->db->perform('set names utf8');
 			} else {
 				$di->db_class = 'MySQL';
 				$this->db = new $di->db_class(
