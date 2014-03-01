@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class MySQL
+ * @mixin SQLBuilder
+ */
 class MySQL implements DBInterface {
 
 	/**
@@ -15,6 +19,11 @@ class MySQL implements DBInterface {
 	/**
 	 * @var resource
 	 */
+	public $lastResult;
+
+	/**
+	 * @var resource
+	 */
 	protected $connection;
 
 	/**
@@ -23,9 +32,10 @@ class MySQL implements DBInterface {
 	protected static $instance;
 
 	/**
+	 * set to NULL for disabling
 	 * @var array
 	 */
-	public $queryLog = array();		// set to NULL for disabling
+	public $queryLog = array();
 
 	/**
 	 * @var bool Allows logging every query to the error.log.
@@ -48,14 +58,17 @@ class MySQL implements DBInterface {
 		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_select_db($this->db, $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_set_charset('utf8', $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -88,7 +101,7 @@ class MySQL implements DBInterface {
 		}
 
 		$start = microtime(true);
-		$res = @mysql_query($query, $this->connection);
+		$res = $this->lastResult = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
 			$key = md5($query);
@@ -180,9 +193,9 @@ class MySQL implements DBInterface {
 		}
 	}
 
-	function numRows($res) {
-		if (is_resource($res)) {
-			return mysql_num_rows($res);
+	function numRows($res = NULL) {
+		if (is_resource($res ?: $this->lastResult)) {
+			return mysql_num_rows($res ?: $this->lastResult);
 		}
 	}
 
@@ -282,10 +295,15 @@ class MySQL implements DBInterface {
 		return $row;
 	}
 
-	function getTableColumns($table) {
+	/**
+	 * Return a 2D array
+	 * @param $table
+	 * @return array
+	 */
+	function getTableColumnsEx($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW FULL COLUMNS FROM ".$this->escape($table);
+			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
@@ -296,14 +314,15 @@ class MySQL implements DBInterface {
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in MySQL and SQLBuilder');
+			throw new Exception($method.'() not found in '.get_class($this).' and SQLBuilder');
 		}
+	}
+
+	function uncompress($value) {
+		return @gzuncompress(substr($value, 4));
 	}
 
 	static function quoteKey($key) {
@@ -337,7 +356,7 @@ class MySQL implements DBInterface {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
-	function escapeBool($value) {
-		return !!$value;
+	static function escapeBool($value) {
+		return intval(!!$value);
 	}
 }

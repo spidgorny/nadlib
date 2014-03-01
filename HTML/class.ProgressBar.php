@@ -7,12 +7,30 @@ class ProgressBar {
 	var $tbarid;
 	var $textid;
 	var $decimals = 1;
-	var $cli = false;
-	var $destruct100 = true;
+	protected $color = '#43b6df';
 
-	function __construct($percentDone = 0) {
+	/**
+	 * @var bool
+	 */
+	var $cli = false;
+
+	/**
+	 * Must be false in order to user new ProgressBar(...) inside strings.
+	 * @var bool
+	 * Destructor will set the progress bar to 100%
+	 * if enabled.
+	 */
+	var $destruct100 = false;
+
+	var $cliWidth = 100;
+
+	function __construct($percentDone = 0, $color = '43b6df') {
 		$this->setID('pb-'.uniqid());
+		$this->pbarid = 'progress-bar';
+		$this->tbarid = 'transparent-bar';
+		$this->textid = 'pb_text';
 		$this->percentDone = $percentDone;
+		$this->color = $color;
 		$this->cli = Request::isCLI();
 	}
 
@@ -49,22 +67,25 @@ class ProgressBar {
 	}
 
 	function getContent() {
-		Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
 			<div id="'.$this->textid.'" class="'.$this->textid.'">'.$percentDone.'</div>
 			<div class="pb_bar">
 				<div id="'.$this->pbarid.'" class="pb_before"
-				style="width: '.$percentDone.';"></div>
+				style="background-color: '.$this->color.'; width: '.$percentDone.';"></div>
 				<div id="'.$this->tbarid.'" class="pb_after"></div>
 			</div>
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
 		if (class_exists('Index')) {
+			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
+		} elseif ($GLOBALS['HTMLHEADER']) {
+			$GLOBALS['HTMLHEADER']['ProgressBar.less']
+				= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
 		} else {
-			$content .= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
+			$content .= $this->getCSS();	// pre-compiles LESS inline
 		}
 		return $content;
 	}
@@ -73,7 +94,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo ($text ? $text : $percentDone)."\n";
+			echo $text  . ' '.$this->getCLIbar()."\r";
 		} else {
 			print('
 			<script type="text/javascript">
@@ -106,15 +127,11 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p, $display = 'inline-block') {
-		$prefix = '';
-		if (Index::getInstance() instanceof IndexBE) {
-			//$prefix = '../../../../';
-			// just use base href instead
-		}
-		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; white-space: nowrap;">'.
+	function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;') {
+		$prefix = AutoLoad::getInstance()->nadlibRoot;
+		return new htmlString('<div style="'.$css.'">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'vendor/spidgorny/nadlib/bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />
 		</div>');
 	}
 
@@ -139,6 +156,51 @@ class ProgressBar {
 			var el = document.getElementById("'.$this->pbid.'");
 			el.parentNode.removeChild(el);
 		</script>';
+	}
+
+	function getCLIbar() {
+		$this->cliWidth = round($this->getTerminalWidth() / 2);
+		$chars = round($this->percentDone / 100 * $this->cliWidth);
+		$chars = min($this->cliWidth, $chars);
+		$space = max(0, $this->cliWidth - $chars);
+		$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+		return $content;
+	}
+
+	function getTerminalWidth() {
+		if (Request::isWindows()) {
+			$both = $this->getTerminalSizeOnWindows();
+			$width = $both['width'];
+		} else {
+			$width = exec('tput cols');
+		}
+		return $width;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
+	 * @return array
+	 */
+	function getTerminalSizeOnWindows() {
+		$output = array();
+		$size = array('width'=>0,'height'=>0);
+		exec('mode',$output);
+		foreach($output as $line) {
+			$matches = array();
+			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i',$line,$matches);
+			if($w) {
+				$size['width'] = intval($matches[1]);
+			} else {
+				$h = preg_match('/^\s*lines\:?\s*(\d+)\s*$/i',$line,$matches);
+				if($h) {
+					$size['height'] = intval($matches[1]);
+				}
+			}
+			if($size['width'] AND $size['height']) {
+				break;
+			}
+		}
+		return $size;
 	}
 
 }

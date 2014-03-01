@@ -60,6 +60,7 @@ class HTMLFormTable extends HTMLForm {
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
 		if ($this->desc) {
+			// todo: does not get correct values OR values at all!
 			$this->importValues($this->request->getSubRequestByPath($this->prefix));
 			//$this->showForm();	// call manually to have a chance to change method or defaultBR
 		}
@@ -134,7 +135,8 @@ class HTMLFormTable extends HTMLForm {
 					$this->textarea($fieldName, $fieldValue,
 						$desc['more'].
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '')
+						($desc['disabled'] ? ' disabled="1"' : '').
+						($desc['class'] ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
 					);
 				break;
 				case "date":
@@ -163,7 +165,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->file($fieldName, $desc);
 				break;
 				case "password":
-					$this->password($fieldName, $fieldValue);
+					$this->password($fieldName, $fieldValue, $desc);
 				break;
 				case "check":
 				case "checkbox":
@@ -257,7 +259,8 @@ class HTMLFormTable extends HTMLForm {
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
 						($desc['readonly'] ? ' readonly="readonly"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '')
+						($desc['disabled'] ? ' disabled="1"' : '').
+						($desc['autofocus'] ? ' autofocus' : '')
 						, $type, $desc['class']
 					);
 				break;
@@ -348,7 +351,7 @@ class HTMLFormTable extends HTMLForm {
 				}
 				if ($desc['error']) {
 					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']"
-					class="error ui-state-error alert-error">';
+					class="error ui-state-error alert-error alert-danger">';
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
 				}
@@ -384,6 +387,12 @@ class HTMLFormTable extends HTMLForm {
 		$this->stdout .= "</td></tr></table>";
 	}
 
+	/**
+	 * @param array $formData	@deprecated - use __construct() instead
+	 * @param array $prefix
+	 * @param bool $mainForm
+	 * @param string $append
+	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
 	}
@@ -513,12 +522,12 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Returns the $form parameter with minimal modifications only for the special data types like time in seconds.
 	 *
-	 * @param $desc
+	 * @param array $desc
 	 * @param array $form Structure of the form.
 	 * @internal param \Values $array from $_REQUEST.
 	 * @return array    Processed $form.
 	 */
-	function acquireValues($desc, $form = array()) {
+	function acquireValues(array $desc, $form = array()) {
 		foreach ($desc as $field => $params) {
 			if ($params['type'] == 'datepopup')	{
 				$date = strtotime($form[$field]);
@@ -574,9 +583,10 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * @param array $assoc
 	 * @param bool $forceInsert
+	 * @return array
 	 */
 	function fill(array $assoc, $forceInsert = false) {
-		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
+		return $this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
 	}
 
 	/**

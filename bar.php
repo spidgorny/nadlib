@@ -67,10 +67,18 @@ if (0 || !function_exists('imagecreate')) {
 	ini_set('display_errors', true);
 } else {
 	error_reporting(0);
+	ini_set('display_errors', false);
 	header("Content-type: image/png");
 }
-$expires = 60*60*24*365;
+	$expires = 60*60*24*365; // days
 header("Pragma: public");
 header("Cache-Control: maxage=".$expires);
 header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
 drawRating(min(100, intval($_GET['rating'])));
+} else {
+	error_reporting(E_ALL);
+	ini_set('display_errors', true);
+	echo 'PHP: '.phpversion().'<br />';
+	echo 'GD not installed';
+	imagecreate(10, 10);
+}

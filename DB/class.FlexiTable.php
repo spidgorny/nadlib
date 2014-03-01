@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class FlexiTable extends OODBase allowing to automatically create new tables
+ * and add new DB columns based on INSERT and UPDATE queries. Useful for quick DB prototyping.
+ * Data type for new columns is not perfect.
+ */
 class FlexiTable extends OODBase {
 
 	/**
@@ -8,6 +13,7 @@ class FlexiTable extends OODBase {
 	protected $columns = array();
 
 	/**
+	 * Enables/disables FlexiTable functionality
 	 * @var bool
 	 */
 	protected $doCheck = false;
@@ -31,8 +37,12 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
-		$row['ctime'] = new AsIs('now()');
-		$row['cuser'] = Config::getInstance()->user->id;
+		if (!$row['ctime']) {
+			$row['ctime'] = new AsIs('now()');
+		}
+		if (!$row['cuser']) {
+			$row['cuser'] = Config::getInstance()->user->id;
+		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
@@ -41,9 +51,13 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		$mtime = new Time();
-		$row['mtime'] = $mtime->format('Y-m-d H:i:s');
-		$row['muser'] = Config::getInstance()->user->id;
+		if (!$row['mtime']) {
+			$mtime = new Time();
+			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
+		}
+		if (!$row['muser']) {
+			$row['muser'] = Config::getInstance()->user->id;
+		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
@@ -71,10 +85,13 @@ class FlexiTable extends OODBase {
 
 	function fetchColumns($force = false) {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
-		if (!self::$tableColumns[$this->table] || $force) {
-			self::$tableColumns[$this->table] = $this->db->getTableColumns($this->table);
+		$table = str_replace('`', '', $this->table);
+		$table = str_replace("'", '', $table);
+		if (!self::$tableColumns[$table] || $force) {
+			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
 		}
-		$this->columns = self::$tableColumns[$this->table];
+		$this->columns = self::$tableColumns[$table];
+		//debug($table, sizeof($this->columns), array_keys(self::$tableColumns), $this->db->lastQuery);
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 

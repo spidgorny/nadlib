@@ -1,33 +1,28 @@
 <?php
 
 class IndexBase /*extends Controller*/ {	// infinite loop
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var MySQL
 	 */
 	public $db;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLangDummy
 	 */
 	public $ll;
 
 	/**
-	 * Enter description here...
-	 *
-	 * @var LoginUser
+	 * @var User|LoginUser
 	 */
 	public $user;
 
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string
+	 * @var string|array
 	 */
-	public $content = '';
+	public $content;
 
 	/**
 	 * @var AppController
@@ -49,7 +44,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		//parent::__construct();
 		$config = Config::getInstance();
 		$this->db = $config->db;
@@ -59,12 +54,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if(!Request::isCLI()) {
+		if(!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/) {
 			session_start();
 		}
 
-		$this->user = Config::getInstance()->user;
+		$this->user = $config->user;
 		$this->restoreMessages();
+		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -87,22 +83,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * Called by index.php explicitly,
-	 * therefore processes exceptions
+	 * therefore processes exceptions.
+	 *
+	 * That's not true anymore, called in render().
 	 * @throws Exception
 	 */
 	public function initController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-		try {
-			$slug = $this->request->getControllerString();
-			if ($slug) {
-				$this->loadController($slug);
-			} else {
-				throw new Exception404($slug);
-			}
-		} catch (Exception $e) {
-			$this->controller = NULL;
-			$this->content = $this->renderException($e);
+		$slug = $this->request->getControllerString();
+		if ($slug) {
+			$this->loadController($slug);
+		} else {
+			throw new Exception404($slug);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
@@ -128,6 +121,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
 			unset($_SESSION['AutoLoad']);
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception($exception);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -136,25 +130,41 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '';
-		if ($this->controller) {
-			try {
+		try {
+			$this->initController();
+			if ($this->controller) {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax() && !$this->request->isCLI()) {
-					$content = $this->renderTemplate($content);
-					$content = $this->content . $content;
-				} else {	// AJAX
-					$content = $this->content . $content;
-					$this->content = '';		// clear for the next output. May affect saveMessages()
-				}
-			} catch (Exception $e) {
-				$content = $this->renderException($e);
+			} else {
+				$content .= is_array($this->content)
+					? implode("\n", $this->content)
+					: $this->content;	// display Exception
+				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} else {
-			$content .= $this->content;	// display Exception
+		} catch (LoginException $e) {
+			//$this->content .= $e;
+			throw $e;
+		} catch (Exception $e) {
+			$content = $this->renderException($e);
 		}
+
+		$content = $this->renderTemplateIfNotAjax($content);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
+	}
+
+	function renderTemplateIfNotAjax($content) {
+		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+			$contentOut = is_array($this->content)
+				? implode("\n", $this->content)
+				: $this->content;	// display Exception
+			$contentOut .= $content;
+			$contentOut = $this->renderTemplate($contentOut);
+		} else {
+			$contentOut = $content . $this->content;
+			$this->content = '';		// clear for the next output. May affect saveMessages()
+		}
+		return $contentOut;
 	}
 
 	function renderTemplate($content) {
@@ -173,6 +183,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
+		if (is_array($render)) {
+			//$render = implode("\n", $render); // not recursive
+			$combined = '';
+			array_walk_recursive($render, function ($value, $key) use (&$combined) {
+				$combined .= $value."\n";
+			});
+			$render = $combined;
+		}
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
@@ -181,10 +199,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error padding">
+		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
+			//$content .= getDebug($e);
 		}
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
@@ -194,18 +213,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//$content .= $lf;
 		} elseif ($e instanceof Exception404) {
 			$e->sendHeader();
-		}
-
-		if (!$this->request->isAjax()) {
-			try {
-				$v = new View($this->template, $this);
-				$v->content = $content;
-				$v->baseHref = $this->request->getLocation();
-				$content = $v->render();
-			} catch (Exception $e) {
-				// second exception may happen
-				echo $e;
-			}
 		}
 
 		return $content;
@@ -218,8 +225,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function log($action, $bookingID) {
-		$qb = Config::getInstance()->qb;
-		$qb->runInsertQuery('log', array(
+		$this->db->qb->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
@@ -227,11 +233,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message ui-state-message alert alert-notice padding">'.$text.'</div>';
+		$msg = '<div class="message ui-state-message message alert alert-info alert-notice padding">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function error($text) {
-		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
+		$msg = '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function saveMessages() {
@@ -245,7 +261,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery/jquery.min.js');
+			$jQueryPath = 'components/jquery/jquery.min.js';
+			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
+				$this->addJS($jQueryPath);
+			} else {
+				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+			}
 		} else {
 			$this->footer['jquery.js'] = '
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
@@ -258,8 +279,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQueryUI() {
 		$this->addJQuery();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
-			$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+			$jQueryPath = 'components/jquery-ui/ui/minified/jquery-ui.min.js';
+			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
+				$this->addJS($jQueryPath);
+			} else {
+				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+			}
+
+            // commented out because this should be project specific
+			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
 		} else {
 			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
@@ -268,14 +296,22 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addJS($source) {
 		$this->footer[$source] = '<script src="'.$source.'"></script>';
 		return $this;
 	}
 
+	/**
+	 * @param $source
+	 * @return Index
+	 */
 	function addCSS($source) {
-		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
-			$source = 'Lesser?css='.$source;
+		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
+			$source = '?c=Lesser&css='.$source;
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;
@@ -322,7 +358,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeCSS() {
-		return implode("\n", $this->header);
+		//return implode("\n", $this->header);
+		$content = array();
+		foreach ($this->header as $key => $script) {
+			$content[] = '<!--'.$key.'-->'.$script;
+		}
+		return implode("\n", $content);
 	}
 
 	function implodeJS() {

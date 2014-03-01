@@ -27,8 +27,18 @@ class Debug {
 				$trace[] = self::getMethod($row);
 			}
 			echo '---'.implode(' // ', $trace)."\n";
-			print_r($a);
-			echo "\n";
+
+			if (is_object($a)) {
+				$a = get_object_vars($a);   // prevent private vars
+			}
+
+			ob_start();
+			var_dump(
+				$a
+			);
+			$dump = ob_get_clean();
+			$dump = str_replace("=>\n", ' =>', $dump);
+			echo $dump, "\n";
 		} else if ($_COOKIE['debug']) {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= '
@@ -80,7 +90,7 @@ class Debug {
 				font-family: verdana;
 				vertical-align: top;">
 				<div class="caption" style="background-color: #EEEEEE">
-					'.implode('<br />', $props).'
+					'.implode(BR, $props).'
 					<a href="javascript: void(0);" onclick="
 						var a = this.nextSibling.nextSibling;
 						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
@@ -92,12 +102,22 @@ class Debug {
 		return $content;
 	}
 
-	static function getTraceTable(array $db) {
+	static function getSimpleTrace($db = NULL) {
+		$db = $db ?: debug_backtrace();
 		foreach ($db as &$row) {
 			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}
+		return $db;
+	}
+
+	/**
+	 * @param array $db
+	 * @return string
+	 */
+	static function getTraceTable(array $db) {
+		$db = self::getSimpleTrace($db);
 		if (!array_search('slTable', ArrayPlus::create($db)->column('object')->getData())) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
 				new slTable($db, 'class="nospacing"', array(
@@ -126,6 +146,8 @@ class Debug {
 				$a = $a->debug();
 			//} elseif (method_exists($a, '__toString')) {
 			//	$a = $a->__toString();
+			} elseif ($a instanceof htmlString) {
+				$a = $a; // will take care below
 			} else {
 				$a = get_object_vars($a);
 			}
@@ -134,8 +156,7 @@ class Debug {
 		if (is_array($a)) {	// not else if so it also works for objects
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
-				$type = gettype($r);
-				$type = gettype($r) == 'object' ? get_class($r) : $type;
+				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
 				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
 				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
 				$content .= '<tr>
@@ -154,12 +175,17 @@ class Debug {
 			$content .= '</table>';
 		} else if (is_object($a)) {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
+			if ($a instanceof htmlString) {
+				$content .= $a.'';
+			}
 		} else if (is_resource($a)) {
 			$content = $a;
-		} else if (strstr($a, "\n")) {
+		} else if (is_string($a) && strstr($a, "\n")) {
 			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
+		} else if ($a instanceof __PHP_Incomplete_Class) {
+			$content = '__PHP_Incomplete_Class';
 		} else {
-			$content = htmlspecialchars($a);
+			$content = htmlspecialchars($a.'');
 		}
 		return $content;
 	}

@@ -122,7 +122,7 @@ class Localize extends AppControllerBE {
 				}
 
 				$table[$key][$lang] = new HTMLTag('td', array(
-					'id' => $dbID ?: json_encode(array($lobj->lang, $key)),
+						'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
 					'lang' => $lobj->lang,
 					'class' => 'inlineEdit '.$colorCode,
 				), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
