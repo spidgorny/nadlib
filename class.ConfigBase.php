@@ -78,22 +78,22 @@ class ConfigBase {
 		if ($this->db_database) {
 			$di = new DIContainer();
 			if (extension_loaded('mysqlnd')) {
-				$di->db_class = 'MySQLnd';
+				$di->db_class = 'dbLayerPDO';
+				$this->db = new $di->db_class(
+					$this->db_user,
+					$this->db_password,
+					'mysql',
+					'',
+					$this->db_server,
+					$this->db_database
+				);
 			} else {
 				$di->db_class = 'MySQL';
-			}
-			try {
 				$this->db = new $di->db_class(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
-			} catch (Exception $e) {
-				$this->db = new $di->db_class(
-					$this->db_database,
-					$this->db_server,
-					$this->db_user,
-					'');
 			}
 			$di->db = $this->db;
 			$this->qb = new SQLBuilder($di);
