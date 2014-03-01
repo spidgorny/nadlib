@@ -1,6 +1,10 @@
 <?php
 
 class View {
+
+	/**
+	 * @var string
+	 */
 	protected $file;
 
 	/**
@@ -9,8 +13,6 @@ class View {
 	public $caller;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLang
 	 */
 	protected $ll;

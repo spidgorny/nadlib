@@ -1,6 +1,6 @@
 <?php
 
-class MySQL {
+class MySQL implements DBInterface {
 
 	/**
 	 * @var string
@@ -306,10 +306,6 @@ class MySQL {
 		}
 	}
 
-	function uncompress($value) {
-		return @gzuncompress(substr($value, 4));
-	}
-
 	static function quoteKey($key) {
 		return $key = '`'.$key.'`';
 	}
@@ -341,4 +337,7 @@ class MySQL {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
+	function escapeBool($value) {
+		return !!$value;
+	}
 }

@@ -72,10 +72,13 @@ class Pager {
 	}
 
 	function initByQuery($query) {
+		$key = __METHOD__.' ('.substr($query, 0, 300).')';
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
-		$res = $this->db->fetchAssoc($query);
+		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 	}
 
 	/**

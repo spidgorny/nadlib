@@ -124,7 +124,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		if ($scheme == 'mysql') {
 			$this->perform('show columns from '.$table);
 		}
-		return $this->result->fetchAll();
+		return $this->fetchAll($this->result, 'Field');
 	}
 
 	/**
@@ -154,6 +154,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			}
 		}
 		return $data;
+	}
+
+	function uncompress($value) {
+		return @gzuncompress(substr($value, 4));
 	}
 
 }

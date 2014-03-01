@@ -62,8 +62,13 @@ function html2rgb($color) {
 	return array($r, $g, $b);
 }
 
-error_reporting(0);
-Header("Content-type: image/png");
+if (0 || !function_exists('imagecreate')) {
+	error_reporting(E_ALL);
+	ini_set('display_errors', true);
+} else {
+	error_reporting(0);
+	header("Content-type: image/png");
+}
 $expires = 60*60*24*365;
 header("Pragma: public");
 header("Cache-Control: maxage=".$expires);
