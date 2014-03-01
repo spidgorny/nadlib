@@ -8,7 +8,7 @@
 class Collection {
 	/**
 	 *
-	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
+	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO
 	 */
 	public $db;
 
@@ -171,18 +171,62 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
+		if ($this->db instanceof MySql || ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
+			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
+			return;
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		$this->query = $this->getQueryWithLimit($this->where);
-		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$this->count = $this->db->numRows($res);
 		}
-		//debug($this->table, $this->query, $this->count, $prof->elapsed());
 
 		$data = $this->db->fetchAll($res);
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
+		if ($preprocess) {
+			$this->preprocessData();
+		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+	}
+
+	/**
+	 * https://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_found-rows
+	 * @param bool $allowMerge
+	 * @param bool $preprocess
+	 */
+	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		$query = $this->getQuery();
+		$sql = new SQLQuery($query);
+		array_unshift($sql->parsed['SELECT'], array(
+			'expr_type' => 'reserved',
+			'base_expr' => 'SQL_CALC_FOUND_ROWS',
+			'delim' => ' ',
+		));
+		//debug($sql->parsed);
+		$query = $sql->__toString();
+		$res = $this->db->perform($query);
+
+		$start = $this->pager ? $this->pager->getStart() : 0;
+		$limit = $this->pager ? $this->pager->getLimit() : PHP_INT_MAX;
+
+		$data = array();
+		for ($i = $start; $i < $limit; $i++) {
+			$this->db->dataSeek($i);
+			$row = $this->db->fetchAssocSeek($res);
+			if ($row !== false) {
+				$data[] = $row;
+			} else {
+				break;
+			}
+		}
+		$this->db->free($res);
+		$countRow = $this->db->fetchAssoc($this->db->perform('SELECT FOUND_ROWS() AS count'));
+		$this->count = $countRow['count'];
+
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		if ($preprocess) {
 			$this->preprocessData();
