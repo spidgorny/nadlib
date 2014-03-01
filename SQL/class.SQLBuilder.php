@@ -278,10 +278,10 @@ class SQLBuilder {
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
+			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
-			return $value ? 'true' : 'false';
-			//return intval($value); // MySQL specific
+			return $this->db->escapeBool($value);
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -330,7 +330,11 @@ class SQLBuilder {
 				if ($val instanceof AsIs) {
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
-					$set[] = $key . ' ' . $val;
+					if (is_numeric($key)) {
+						$set[] = $val;
+					} else {
+						$set[] = $key . ' ' . $val;
+					}
 				} else if ($val instanceof SQLBetween) {
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
@@ -350,14 +354,16 @@ class SQLBuilder {
 					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
+				} else if ($val === 'NOTNULL') {
+					$set[] = "$key IS NOT NULL";
 				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
-                    || in_array(substr($key, -2), array('!=', '<=', '>='))) {
+                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {
+				} else if (is_numeric($key)) {		// KEY!!!
 					$set[] = $val;
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
@@ -447,8 +453,8 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array()) {
-		$q = "DELETE FROM $table ";
+	function getDeleteQuery($table, $where = array(), $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);
@@ -501,7 +507,17 @@ class SQLBuilder {
 		return $res;
 	}
 
-	function runInsertUpdateQuery($table, array $fields, array $where) {
+	/**
+	 * Will search for $where and then either
+	 * - update $fields + $where or
+	 * - insert $fields + $where + $insert
+	 * @param $table
+	 * @param array $fields
+	 * @param array $where
+	 * @param array $insert
+	 * @return bool|int
+	 */
+	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
@@ -509,12 +525,13 @@ class SQLBuilder {
 			$query = $this->getUpdateQuery($table, $fields, $where);
 			$inserted = 2;
 		} else {
-			$query = $this->getInsertQuery($table, $fields + array('ctime' => NULL));
+			$query = $this->getInsertQuery($table, $fields + $where + $insert);
+			// array('ctime' => NULL) #TODO: make it manually now
 			$inserted = TRUE;
 		}
 		//debug($query);
 		$this->found = $this->db->fetchAssoc($res);
-		$res = $this->db->perform($query);
+		$this->db->perform($query);
 		$this->db->commit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $inserted;
@@ -643,6 +660,32 @@ class SQLBuilder {
 		}
 		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
+	}
+
+	/**
+	 * @param resource|string $res
+	 * @param string $key can be set to NULL to avoid assoc array
+	 * @return array
+	 */
+	function fetchAll($res, $key = NULL) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+
+		$data = array();
+		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+			if ($key) {
+				$data[$row[$key]] = $row;
+			} else {
+				$data[] = $row;
+			}
+		}
+		//debug($this->lastQuery, sizeof($data));
+		//debug_pre_print_backtrace();
+		$this->free($res);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $data;
 	}
 
 }

@@ -1,6 +1,14 @@
 <?php
 
+/**
+ * Class Scaffold
+ * @deprecated - use HTMLFormProcessor if you only need the edit form
+ */
 abstract class Scaffold extends AppController {
+
+	/**
+	 * @var string
+	 */
 	protected $table = 'sometable in Scaffold';
 
 	/** @var HTMLFormTable */
@@ -16,8 +24,27 @@ abstract class Scaffold extends AppController {
 	 * @deprecated	- why? Use Collection instead?
 	 */
 	protected $thes = array();
+
+	/**
+	 * Button label
+	 * @var string
+	 */
 	protected $addButton = 'Add';
+
+	/**
+	 * Button label
+	 * @var string
+	 */
 	protected $updateButton = 'Save';
+
+	/**
+	 * Default function to display.
+	 * showForm
+	 * showEdit
+	 * add
+	 * edit
+	 * @var string
+	 */
 	protected $action = 'showEdit';
 
 	/**
@@ -43,7 +70,7 @@ abstract class Scaffold extends AppController {
 
 	protected $desc;
 
-	protected $editIcon = '<img src="img/stock-edit-16.png"/>';
+	protected $editIcon = '<img src="img/stock-edit-16.png" />';
 
 	function __construct() {
 		parent::__construct();
@@ -72,7 +99,6 @@ abstract class Scaffold extends AppController {
 			'formPrefix' => $this->formPrefix,
 			'data' => $this->data,
 			'model' => $this->model));
-		$this->desc = $this->getDesc($this->data);
 	}
 
 	/**
@@ -90,12 +116,10 @@ abstract class Scaffold extends AppController {
 				$content .= $this->showEditForm();
 			break;
 			case 'add':
-				$content = $this->showPerform($this->action);
-			break;
 			case 'update':
-				$content = $this->showPerform($this->action, $this->id);
+				$content = $this->showPerform();
 			break;
-			default:
+			default:    // view table
 				$content = $this->showTable();
 				$content .= $this->showButtons();
 				$content .= '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
@@ -157,6 +181,7 @@ abstract class Scaffold extends AppController {
 			$f = $this->showEditForm();
 		} else {
 			$f = $this->getForm();
+			$f->submit($this->addButton);
 		}
 		return $f;
 	}
@@ -170,14 +195,15 @@ abstract class Scaffold extends AppController {
 			$this->table.'.id' => $this->id,
 		);
 
-		if ($this->desc['submit']) {
+/*		if ($this->desc['submit']) {
 			$this->desc['submit']['value'] = $this->updateButton;
 		}
-		$f = $this->getForm('update');
+*/		$f = $this->getForm('update');
 		$f->prefix('');
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
+		$f->submit($this->updateButton);
 		return $f;
 	}
 
@@ -185,12 +211,10 @@ abstract class Scaffold extends AppController {
 	 * Return nothing or false to indicate success.
 	 * $this->insertRecord should return nothing?!?
 	 *
-	 * @param string $action
-	 * @param integer $id
 	 * @throws Exception
 	 * @return string
 	 */
-	public function showPerform($action, $id = NULL) {
+	public function showPerform() {
 		$content = '';
 		//$userData = $this->request->getArray($this->formPrefix);
 		//debug($userData, $formPrefix);
@@ -198,10 +222,10 @@ abstract class Scaffold extends AppController {
 		//$desc = $this->getDesc($userData);
 		//$f = new HTMLFormTable();
 		//$desc = $f->fillValues($desc, $userData); // commented not to overwrite
-		$v = new HTMLFormValidate($this->desc);
+		$v = new HTMLFormValidate($this->form);
 		if ($v->validate()) {
 			try {
-				switch ($action) {
+				switch ($this->action) {
 					case 'add': $content = $this->insertRecord($this->data); break;
 					case 'update': $content = $this->updateRecord($this->data); break;
 					default: {
@@ -210,12 +234,12 @@ abstract class Scaffold extends AppController {
 					}
 				}
 			} catch (Exception $e) {
-				$content .= '<p class="ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
+				$content .= '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
 				$content .= $this->showForm();
 			}
 		} else {
 			//$desc = $v->getDesc();
-			$content .= '<div class="message ui-state-error">Validation failed. Check your form below:</div>';
+			$content .= '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
 			$content .= $this->showForm();
 			//debug($desc['participants'], $userData['participants']);
 		}
@@ -228,7 +252,9 @@ abstract class Scaffold extends AppController {
 	}
 
 	function updateRecord(array $userData) {
+		//debug($this->model->data, $userData);
 		$this->model->update($userData);	// update() returns nothing
+		//debug($this->model->data, $this->model->lastQuery);
 		return $this->afterUpdate($userData);
 	}
 
@@ -240,13 +266,13 @@ abstract class Scaffold extends AppController {
 	 */
 	protected function getDesc(array $data = NULL) {
 		$desc = array(
-			'submit' => array(
-				'label' => '',
-				'type' => 'submit',
-				'value' => $this->addButton,
+			'name' => array(
+				'label' => 'Name',
 			),
 		);
-		return $desc;
+		$this->form->desc = $desc;
+		$this->form->fill($data);
+		return $this->form->desc;
 	}
 
 	/**
@@ -261,11 +287,11 @@ abstract class Scaffold extends AppController {
 		$this->form->hidden('c', get_class($this));
 		$this->form->hidden('pageType', get_class($this));
 		$this->form->hidden('action', $action);
-		$this->form->hidden('ajax', TRUE);
+		//$this->form->hidden('ajax', TRUE);        // add this to getDesc()
 		$this->form->prefix($this->formPrefix);
-		//debug($this->desc);
+		$this->desc = $this->getDesc($this->data);
 		$this->form->showForm($this->desc);
-		//$this->form->submit($this->addButton);
+		//$this->form->submit($this->addButton);    // because it's used for edit
 		$this->form->formMore = $this->formMore;
 		return $this->form;
 	}

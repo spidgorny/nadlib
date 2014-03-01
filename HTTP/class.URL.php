@@ -1,6 +1,10 @@
 <?php
 
 class URL {
+
+	/**
+	 * @var string
+	 */
 	public $url;
 
 	/**
@@ -10,8 +14,15 @@ class URL {
 	 */
 	public $components = array();
 
+	/**
+	 * $this->components['query'] docomposed into an array
+	 * @var array
+	 */
 	public $params = array();
 
+	/**
+	 * @var string
+	 */
 	public $documentRoot = '';
 
 	/**
@@ -19,6 +30,9 @@ class URL {
 	 * @param array $params
 	 */
 	function __construct($url = NULL, array $params = array()) {
+		if ($url instanceof URL) {
+			//return $url;	// doesn't work
+		}
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -31,6 +45,7 @@ class URL {
 				$this->components = parse_url(substr($request->getLocation(), 0, -1).$url);
 			}
 		}
+		//debug($url, $request ? 'Request::getExistingInstance' : '');
 		if (isset($this->components['query'])) {
 			parse_str($this->components['query'], $this->params);
 		}
@@ -48,7 +63,7 @@ class URL {
 		return $url;
 	}
 
-	function setParam($param, $value) {
+	public function setParam($param, $value) {
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
@@ -102,7 +117,9 @@ class URL {
 
 	function getPath() {
 		$path = $this->components['path'];
-		$path = str_replace($this->documentRoot, '', $path);
+		if ($this->documentRoot != '/') {
+			$path = str_replace($this->documentRoot, '', $path);
+		}
 		//debug($this->components['path'], $this->documentRoot, $path);
 		return $path;
 	}
@@ -133,7 +150,11 @@ class URL {
 	}
 
 	function buildQuery() {
-		return str_replace('#', '%23', http_build_query($this->params));
+		$queryString = http_build_query($this->params, '_');
+		$queryString = str_replace('#', '%23', $queryString);
+		//parse_str($queryString, $queryStringTest);
+		//debug($this->params, $queryStringTest);
+		return $queryString;
 	}
 
 	/**
@@ -144,13 +165,16 @@ class URL {
 	 */
 	function buildURL($parsed = NULL) {
 		if (!$parsed) {
+			$this->components['query'] = $this->buildQuery(); // to make sure manual manipulations are not possible (although it's already protected?)
 			$parsed = $this->components;
 		}
 	    if (!is_array($parsed)) {
 	        return false;
 	    }
 
-	    $uri = isset($parsed['scheme']) ? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
+	    $uri = isset($parsed['scheme'])
+			? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
+			: '';
 	    $uri .= isset($parsed['user']) ? $parsed['user'].(isset($parsed['pass']) ? ':'.$parsed['pass'] : '').'@' : '';
 	    $uri .= isset($parsed['host']) ? $parsed['host'] : '';
 	    $uri .= isset($parsed['port']) ? ':'.$parsed['port'] : '';
@@ -166,13 +190,13 @@ class URL {
 	    return $uri;
 	}
 
-	function __toString() {
+	public function __toString() {
 		$url = $this->buildURL();
 		//debug($this->components, $url);
 		return $url.'';
 	}
 
-	function getRequest() {
+	public function getRequest() {
 		$r = new Request($this->params ? $this->params : array());
 		$r->url = $this;
 		return $r;
@@ -230,6 +254,92 @@ return $return; */
 	function exists() {
 		$AgetHeaders = @get_headers($this->buildURL());
 		return preg_match("|200|", $AgetHeaders[0]);
+	}
+
+	/**
+	 * Works well when both paths are absolute.
+	 * Comparing server path to URL path does not work.
+	 * http://stackoverflow.com/a/2638272/417153
+	 * @param string $from
+	 * @param string $to
+	 * @return string
+	 */
+	static function getRelativePath($from, $to) {
+		// some compatibility fixes for Windows paths
+		$from = self::getPathFolders($from);
+		$to = self::getPathFolders($to);
+		$relPath  = $to;
+
+		foreach ($from as $depth => $dir) {
+			// find first non-matching dir
+			//debug($depth, $dir, $to[$depth]);
+			if (isset($to[$depth]) && $dir === $to[$depth]) {
+				// ignore this directory
+				array_shift($relPath);
+			} else {
+				// get number of remaining dirs to $from
+				$remaining = count($from) - $depth;
+				if ($remaining > 1) {
+					// add traversals up to first matching dir
+					$padLength = (count($relPath) + $remaining - 1) * -1;
+					$relPath = array_pad($relPath, $padLength, '..');
+					break;
+				} else {
+					$relPath[0] = './' . $relPath[0];
+				}
+			}
+		}
+		//debug($from, $to, $relPath);
+		return implode('/', $relPath);
+	}
+
+	static function getScriptWithPath() {
+		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
+		if (Request::isCLI()) {
+			if (basename($_SERVER['SCRIPT_FILENAME']) == $_SERVER['SCRIPT_FILENAME']) {	// index.php
+				$scriptWithPath = getcwd().'/'.$_SERVER['SCRIPT_FILENAME'];
+			} else {
+				$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+			}
+		} else {
+			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de
+		}
+		return $scriptWithPath;
+	}
+
+	/**
+	 * @return string
+	 */
+	function getDomain() {
+		return $this->components['host'];
+	}
+
+	/**
+	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
+	 * Takes care of Windows path and removes empty
+	 * @param $from
+	 * @return array
+	 */
+	static function getPathFolders($from) {
+		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		$from = str_replace('\\', '/', $from);
+		$from = explode('/', $from);
+		$from = array_filter($from);
+		return $from;
+	}
+
+	/**
+	 * @param string $path1
+	 * @param string $path2
+	 * @return string
+	 */
+	static function getCommonRoot($path1, $path2) {
+		$path1 = self::getPathFolders($path1);
+		$path2 = self::getPathFolders($path2);
+		$common = array_intersect($path1, $path2);
+		//debug($path1, $path2, $common);
+		return $common;
 	}
 
 }

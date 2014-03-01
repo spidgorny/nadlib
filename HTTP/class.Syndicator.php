@@ -101,7 +101,9 @@ class Syndicator {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'JSON';
 		$s->html = $s->retrieveFile();
+		Index::getInstance()->controller->log('Downloaded', __METHOD__);
 		$s->json = json_decode($s->html);
+		Index::getInstance()->controller->log('JSON decoded', __METHOD__);
 		return $s;
 	}
 

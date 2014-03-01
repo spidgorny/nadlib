@@ -23,4 +23,5 @@
 }
 .profiler th, .profiler td {
 	color: white;
+	margin-top: 50px;   /* footer */
 }

@@ -147,10 +147,10 @@ class HTMLForm {
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "", $more = '') {
+	function password($name, $value = "", array $desc = array()) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
-		$this->stdout .= $this->getInput("password", $name, $value, $more);
+		$this->stdout .= $this->getInput("password", $name, $value, '', $desc['class']);
 	}
 
 	function hidden($name, $value, $more = "") {
@@ -180,7 +180,8 @@ class HTMLForm {
 	 */
 	function radioLabel($name, $value, $checked, $label = "", $more = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = implode('_', $this->prefix)."_".implode('_', $name)."_".$value;
+		$aName = is_array($name) ? $name : array();
+		$id = implode('_', array_merge($this->prefix, $aName))."_".$value;
 		$this->stdout .= '<label class="radio" for="'.$id.'">
 		<input
 			type="radio"
@@ -218,7 +219,7 @@ class HTMLForm {
 
 	function file($name, array $desc = array()) {
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout .= $this->getInput("file", $name, '', $desc['more']);
+		$this->stdout .= $this->getInput("file", $name, '', $desc['more'], $desc['class']);
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
@@ -290,6 +291,9 @@ class HTMLForm {
 				if (isset($desc['classAsValuePrefix'])) {
 					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
+                if (isset($desc['useTitle']) && $desc['useTitle'] == true) {
+                    $content .= ' title="'.strip_tags($option).'"';
+                }
 				$content .= ">$option</option>\n";
 			}
 		}
@@ -514,7 +518,7 @@ class HTMLForm {
 		return $content;
 	}
 
-	function dropSelect($fieldName, array $options) {
+	static function dropSelect($fieldName, array $options) {
 		$content = '
 			<input type="hidden" name="'.$fieldName.'" id="'.$fieldName.'">
 			<input type="text" name="'.$fieldName.'_name" id="'.$fieldName.'_name" onchange="setDropSelectValue(this.value, this.value);">

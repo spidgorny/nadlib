@@ -6,6 +6,7 @@
  */
 class Uploader {
 
+
 	public $allowed = array(
 		'gif', 'jpg', 'png', 'jpeg',
 	);
@@ -30,7 +31,16 @@ class Uploader {
 			'A PHP extension stopped the file upload.'
 	);
 
-	function __construct() {
+	/**
+	 *
+	 * @param array|null $allowed If provided this will override allowed extensions
+	 */
+	function __construct($allowed = array()) {
+
+		if(!empty($allowed)) {
+			$this->allowed = $allowed;
+		}
+
 		if ($this->isUploaded()) {
 			//debug($_FILES);
 		}
@@ -45,7 +55,7 @@ class Uploader {
 		$uf = new Uploader();
 		$f = $uf->getUploadForm()
 		// add custom hidden fields to upload form (e.g. Loan[id])
-		if(!empty($hiddenFields)) {
+		if (!empty($hiddenFields)) {
 			foreach ($hiddenFields as $name => $value) {
 				$f->hidden($name, $value);
 			}
@@ -60,6 +70,7 @@ class Uploader {
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$f->text('<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>');
 		$f->text('<div class="message">Max post: '.ini_get('post_max_size').'</div>');
+		$f->text('<div class="message">Allowed: '.implode(', ', $this->allowed).'</div>');
 		return $f;
 	}
 
@@ -187,6 +198,54 @@ class Uploader {
 		if ($uf = $_FILES[$from]) {
 			return file_get_contents($uf['tmp_name']);
 		}
+	}
+
+	public function getTempFile($fieldName = 'file') {
+		if ($this->isUploaded()) {
+			return $_FILES[$fieldName]['tmp_name'];
+		}
+	}
+
+	/**
+	 * Handles the file upload from https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin
+	 * If no error it will call a callback to retrieve a redirect URL
+	 * @param $callback
+	 */
+	function handleBlueImpUpload($callback) {
+		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
+		$uh = new UploadHandler(array(
+			'upload_dir' => 'storage/',
+			'param_name' => 'file',
+			'image_library' => Request::isWindows() ? 1 : 2,	// Linux
+			//'convert_bin' => '/usr/bin/convert',
+			'convert_bin' => '/homepages/46/d209488023/htdocs/im/bin/convert',
+			//'identify_bin' => '/usr/bin/identify',
+			'identify_bin' => '/homepages/46/d209488023/htdocs/im/bin/identify',
+		), false);
+		//$uh->post(true); exit();
+		ob_start();
+		$uh->post(true);
+		$done = ob_get_clean();
+		$json = json_decode($done);
+		//print_r(array($uh, $done, $json));
+		if (is_object($json)) {
+			$data = get_object_vars($json->file[0]);
+			if (!$data['error']) {
+				$redirect = $callback($data);
+				$json->file[0]->redirect = $redirect;
+				$request = Request::getInstance();
+				if ($request->isAjax()) {
+					echo json_encode($json);
+				} else if ($redirect) {
+					$request->redirect($redirect);
+				}
+			} else {
+				echo $data['error'];
+			}
+		} else {
+			echo $done;
+		}
+		exit();
 	}
 
 }

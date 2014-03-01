@@ -9,18 +9,13 @@ class MemcacheFile {
 	public $folder = 'cache/';
 
 	function __construct() {
-		// fix for relative path on eval and buglog
-		$pathprefix = dirname(__FILE__);
-		$full = strlen($pathprefix);
-		$neg = strlen('vendor/spidgorny/nadlib/Cache');
-		$end = $full - $neg;
-		$sub = substr($pathprefix, 0, $end);
+		$sub = Config::getInstance()->appRoot;
 
 		if (!file_exists($sub.'/'.$this->folder)) {
 			debug(__METHOD__, $sub.'/'.$this->folder);
 			die();
 		} else {
-			$this->folder = Config::getInstance()->appRoot . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
 		}
 	}
 
@@ -28,6 +23,7 @@ class MemcacheFile {
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
 		$key = str_replace('::', '-', $key);
+		$key = str_replace(',', '-', $key);
 		if (strpos($key, ' ') !== false || strpos($key, '/') !== false) {
 			$key = md5($key);
 		}
@@ -36,9 +32,16 @@ class MemcacheFile {
 	}
 
 	function set($key, $val) {
+		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$file = $this->map($key);
-		file_put_contents($file, serialize($val));
-		@chmod($file, 0775);
+		if (is_writable($this->folder)) {
+			file_put_contents($file, serialize($val));
+			@chmod($file, 0777);	// needed for cronjob accessing cache files
+		} else {
+			if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+			throw new Exception($file.' write access denied.');
+		}
+		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
 	function isValid($key, $expire = 0) {
@@ -47,6 +50,7 @@ class MemcacheFile {
 	}
 
 	function get($key, $expire = 0) {
+		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$file = $this->map($key);
 		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
@@ -54,12 +58,14 @@ class MemcacheFile {
 				$val = unserialize($val);
 			}
 		}
+		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 		return $val;
 	}
 
 	function clearCache($key) {
 		$file = $this->map($key);
 		if (file_exists($file)) {
+			debug('<font color="green">Deleting '.$file.'</font>');
 			unlink($file);
 		}
 	}
@@ -73,4 +79,11 @@ class MemcacheFile {
 		return new Duration(time() - @filemtime($file));
 	}
 
+/**
+ * unfinished
+ * static function getInstance($file, $expire) {
+		$mf = new self();
+		$get = $mf->get($file, $expire);
+	}
+ */
 }

@@ -97,7 +97,11 @@ class URLGet {
 
 		curl_setopt_array($process, $options);
 
-		$html = curl_exec($process);
+		$response = curl_exec($process);
+		$header_size = curl_getinfo($process, CURLINFO_HEADER_SIZE);
+		$header = substr($response, 0, $header_size);
+		$html = substr($response, $header_size);
+
 		$this->info = curl_getinfo($process);
 		$this->logger->log('Info: '.json_encode($this->info));
 		$this->logger->log('Errno: '.curl_errno($process));

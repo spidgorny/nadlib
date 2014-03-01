@@ -1,13 +1,31 @@
 <?php
 
+/**
+ * Class dbLayer
+ * @mixin SQLBuilder
+ */
 class dbLayer {
 	var $RETURN_NULL = TRUE;
-	var $CONNECTION = NULL;
+
+    /**
+     * @var resource
+     */
+    public $CONNECTION = NULL;
+
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
 
-	/**
+    /**
+     * todo: use setter & getter method
+     *
+     * contains query builder class used as mixin.
+     *
+     * @var null
+     */
+    public $qb = null;
+
+    	/**
 	 * logging:
 	 */
 	public $saveQueries = false;
@@ -28,8 +46,13 @@ class dbLayer {
 	 */
 	var $lastQuery;
 
-	function dbLayer($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
-		if ($dbse) {
+	/**
+	 * @var string DB name
+	 */
+	var $db;
+
+	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
+        if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 		}
 	}
@@ -42,6 +65,7 @@ class dbLayer {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
+		$this->db = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
@@ -62,6 +86,27 @@ class dbLayer {
 		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
+		if (!$this->LAST_PERFORM_RESULT) {
+			debug($query);
+			debug_pre_print_backtrace();
+			throw new Exception(pg_errormessage($this->CONNECTION));
+		} else {
+			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+			if ($this->saveQueries) {
+				@$this->QUERIES[$query] += $prof->elapsed();
+				@$this->QUERYMAL[$query]++;
+				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+			}
+		}
+		$this->COUNTQUERIES++;
+		return $this->LAST_PERFORM_RESULT;
+	}
+
+    function performWithParams($query, $params) {
+		$prof = new Profiler();
+		$this->LAST_PERFORM_QUERY = $query;
+		$this->lastQuery = $query;
+		$this->LAST_PERFORM_RESULT = pg_query_params($this->CONNECTION, $query, $params);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
 			debug_pre_print_backtrace();
@@ -122,6 +167,11 @@ class dbLayer {
 		return $a[0];
 	}
 
+	/**
+	 * Return one dimensional array
+	 * @param $table
+	 * @return array
+	 */
 	function getTableColumns($table) {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
@@ -130,6 +180,11 @@ class dbLayer {
 			error("Table not found: <b>$table</b>");
 			exit();
 		}
+	}
+
+	function getTableColumnsEx($table) {
+		$meta = pg_meta_data($this->CONNECTION, $table);
+		return $meta;
 	}
 
 	function getTableColumnsCached($table) {
@@ -169,7 +224,7 @@ class dbLayer {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
 			$return = array();
-			foreach($meta as $col => $m) {
+			foreach ($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
 			return $return;
@@ -239,11 +294,17 @@ class dbLayer {
 	 * @return string[]
 	 */
 	function getTables() {
-		$query = "select relname from pg_class where not relname ~ 'pg_.*' and not relname ~ 'sql_.*' and relkind = 'r'";
+		$query = "select relname
+		from pg_class
+		where
+		not relname ~ 'pg_.*'
+		and not relname ~ 'sql_.*'
+		and relkind = 'r'
+		ORDER BY relname";
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
-		return array_column($return, 'relname');
+		return ArrayPlus::create($return)->column('relname');
 	}
 
 	function amountOf($table, $where = "1 = 1") {
@@ -255,7 +316,6 @@ class dbLayer {
 	}
 
 	function transaction($serializable = false) {
-		//$this->perform("set autocommit = off");
 		if ($serializable) {
 			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
 		}
@@ -297,7 +357,7 @@ class dbLayer {
 	}
 
 	function getInsertQuery($table, $columns) {
-		$q = "INSERT INTO $table (";
+		$q = 'INSERT INTO '.$table.' (';
 		$q .= implode(", ", array_keys($columns));
 		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
@@ -324,20 +384,20 @@ class dbLayer {
 	}
 
 	function getUpdateQuery($table, $columns, $where) {
-		$q = "UPDATE $table SET ";
+		$q = 'UPDATE '.$table .' SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		$q .= implode(", ", $set);
-		$q .= " where ";
+		$q .= " WHERE ";
 		$set = array();
 		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
-		$q .= implode(" and ", $set);
+		$q .= implode(" AND ", $set);
 		return $q;
 	}
 
@@ -347,31 +407,19 @@ class dbLayer {
 		return $table1;
 	}
 
-	function getDeleteQuery($table, array $where) {
-		$q = "delete from $table ";
+	function getDeleteQuery($table, array $where, $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = array();
-		foreach($where as $key => $val) {
+		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		if (sizeof($set)) {
-			$q .= " where " . implode(" and ", $set);
+			$q .= " WHERE " . implode(" AND ", $set);
 		} else {
-			$q .= ' where 1 = 0';
+			$q .= ' WHERE 1 = 0';
 		}
 		return $q;
-	}
-
-	function getAllRows($query) {
-		$result = $this->perform($query);
-		$data = $this->fetchAll($result);
-		return $data;
-	}
-
-	function getFirstRow($query) {
-		$result = $this->perform($query);
-		$row = pg_fetch_assoc($result);
-		return $row;
 	}
 
 	/**
@@ -383,6 +431,21 @@ class dbLayer {
 			$res = $this->perform($res);
 		}
 		$row = pg_fetch_assoc($res);
+		if (!$row) {
+			$row = array();
+		}
+		return $row;
+	}
+
+	function getAllRows($query) {
+		$result = $this->perform($query);
+		$data = $this->fetchAll($result);
+		return $data;
+	}
+
+	function getFirstRow($query) {
+		$result = $this->perform($query);
+		$row = pg_fetch_assoc($result);
 		return $row;
 	}
 
@@ -541,12 +604,9 @@ order by a.attnum';
 	}
 
 	function __call($method, array $params) {
-		$qb = class_exists('Config') ? Config::getInstance()->qb : new stdClass();
-		if (method_exists($qb, $method)) {
-			//debug_pre_print_backtrace();
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->getQb(), $method)) {
+			return call_user_func_array(array($this->getQb(), $method), $params);
 		} else {
-			debug($qb);
 			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
 		}
 	}
@@ -646,4 +706,35 @@ order by a.attnum';
 		return $source;
 	}
 
+	function getIndexesFrom($table) {
+		return $this->fetchAll('select *, pg_get_indexdef(indexrelid)
+		from pg_index
+		where indrelid = \''.$table.'\'::regclass');
+	}
+
+    function free($res) {
+        if (is_resource($res)) {
+            pg_free_result($res);
+        }
+    }
+
+	function escapeBool($value) {
+		return $value ? 'true' : 'false';
+	}
+
+    public function setQb($qb)
+    {
+        $this->qb = $qb;
+    }
+
+    public function getQb()
+    {
+        if(!isset($this->qb)) {
+            $di = new DIContainer();
+            $di->db = Config::getInstance()->db;
+            $this->setQb(new SQLBuilder($di));
+        }
+
+        return $this->qb;
+    }
 }

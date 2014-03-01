@@ -1,6 +1,10 @@
 <?php
 
 class PersistantOODBase extends OODBase {
+
+	/**
+	 * @var string
+	 */
 	protected $stateHash;
 
 	/**
@@ -18,6 +22,10 @@ class PersistantOODBase extends OODBase {
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
 		//debug($this->getStateHash(), $this->stateHash, $this->data, $this->id);
+	}
+
+	function init($id, $fromFindInDB = false) {
+		parent::init($id, $fromFindInDB);
 	}
 
 	function getStateHash() {
@@ -43,10 +51,24 @@ class PersistantOODBase extends OODBase {
 	 * Insert updates state hash so that destruct will not try to insert again
 	 *
 	 * @param array $data
-	 * @return unknown|void
+	 * @return resource
 	 */
 	function insert(array $data) {
 		$ret = parent::insert($data);
+		//debug($this->db->lastQuery);
+		$this->originalData = $this->data;
+		$this->stateHash = $this->getStateHash();
+		return $ret;
+	}
+
+	/**
+	 * Update updates state hash so that destruct will not try to update again
+	 *
+	 * @param array $data
+	 * @return resource
+	 */
+	function update(array $data) {
+		$ret = parent::update($data);
 		//debug($this->db->lastQuery);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
@@ -67,12 +89,11 @@ class PersistantOODBase extends OODBase {
 				$action = 'INSERT';
 				static::$inserted++;
 			}
-			$this->originalData = $this->data;
-			$this->stateHash = $this->getStateHash();
 		} else {
 			$action = 'SKIP';
 			static::$skipped++;
 		}
+		//debug('table: '.$this->table.' action: '.$action.' id: '.$this->id);
 		return $action;
 	}
 

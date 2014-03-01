@@ -115,7 +115,7 @@ class Request {
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
-			debug($value, $options);
+			//debug($value, $options);
 			throw new Exception(__METHOD__.' is throwing an exception.');
 		}
 		return $value;
@@ -137,8 +137,8 @@ class Request {
 	 * Checks for keys, not values
 	 *
 	 * @param $name
-	 * @param array $assoc
-	 * @return null
+	 * @param array $assoc	- only array keys are used in search
+	 * @return int|null
 	 */
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
@@ -350,7 +350,7 @@ class Request {
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
 			'last' => $last,
-			'default' => $this->defaultController,
+			'default' => Config::getInstance()->defaultController,
 			'data' => $this->data));
 		return $controller;
 	}
@@ -363,6 +363,9 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getControllerString();
+		if (!$c) {
+			$c = $GLOBALS['i']->controller; // default
+		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
@@ -377,12 +380,16 @@ class Request {
 		$this->data['c'] = $class;
 	}
 
+	function getReferer() {
+		return new URL($_SERVER['HTTP_REFERER']);
+	}
+
 	function getRefererController() {
-		$url = new URL($_SERVER['HTTP_REFERER']);
+		$url = $this->getReferer();
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : $this->defaultController;
+		return $return ? $return : Config::getInstance()->defaultController;
 	}
 
 	function redirect($controller) {
@@ -393,12 +400,17 @@ class Request {
 //			|| DEVELOPMENT
 		) {
 			header('Location: '.$controller);
+			exit();
 		} else {
-			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
+			$this->redirectJS($controller);
+		}
+	}
+
+	function redirectJS($controller) {
+		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
 			<script>
 				document.location = "'.$controller.'";
 			</script>';
-		}
 		exit();
 	}
 
@@ -449,6 +461,10 @@ class Request {
 
 	function getJson($name, $array = true) {
 		return json_decode($this->getTrim($name), $array);
+	}
+
+	function getJSONObject($name) {
+		return json_decode($this->getTrim($name));
 	}
 
 	function isSubmit() {
@@ -519,6 +535,9 @@ class Request {
 		$path = $this->url->getPath();
 		if (strlen($path) > 1) {	// "/"
 			$path = trimExplode('/', $path);
+			if ($path[0] == 'index.php') {
+				array_shift($path);
+			}
 			//debug($this->url->getPath(), $path);
 		} else {
 			$path = array();
@@ -683,6 +702,10 @@ class Request {
 		return $result;
 	}
 
+	function importCLIparams($noopt = array()) {
+		$this->data += $this->parseParameters($noopt);
+	}
+
 	/**
 	 * http://stackoverflow.com/a/6127748/417153
 	 * @return bool
@@ -704,8 +727,10 @@ class Request {
 
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
-		if ($_SERVER['DOCUMENT_ROOT'] && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
-			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		if ($_SERVER['DOCUMENT_ROOT'] &&
+			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '',
+				dirname($_SERVER['SCRIPT_FILENAME']));
 		} else {	//~depidsvy/something
 			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
 			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
@@ -721,4 +746,26 @@ class Request {
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 		header('Cache-Control: max-age='.$age);
 	}
+
+	/**
+	 * getNameless(1) doesn't provide validation.
+	 * Use importNameless() to associate parameters 1, 2, 3, with their names
+	 * @param array $keys
+	 */
+	public function importNameless(array $keys) {
+		foreach ($keys as $k => $val) {
+			$this->data[$val] = $this->getNameless($k);
+		}
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	static function isWindows() {
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
 }
