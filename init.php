@@ -1,5 +1,7 @@
 <?php
 
+define('BR', "<br />\n");
+
 class InitNADLIB {
 
 	var $useCookies = true;
@@ -24,6 +26,8 @@ class InitNADLIB {
 			? (($os == 'Windows_NT') || true) // at home
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
+
+		Config::getInstance();
 
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
