@@ -76,20 +76,25 @@ class ConfigBase {
 
 	protected function __construct() {
 		if ($this->db_database) {
+			$di = new DIContainer();
+			if (extension_loaded('mysqlnd')) {
+				$di->db_class = 'MySQLnd';
+			} else {
+				$di->db_class = 'MySQL';
+			}
 			try {
-				$this->db = new MySQL(
+				$this->db = new $di->db_class(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
 			} catch (Exception $e) {
-				$this->db = new MySQL(
+				$this->db = new $di->db_class(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					'');
 			}
-			$di = new DIContainer();
 			$di->db = $this->db;
 			$this->qb = new SQLBuilder($di);
 		}
