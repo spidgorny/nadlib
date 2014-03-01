@@ -40,6 +40,11 @@ class AutoLoad {
 	public $config;
 
 	/**
+	 * @var int
+	 */
+	public $count = 0;
+
+	/**
 	 * getFolders() is called from outside
 	 * to be able to modify $useCookies
 	 * #see register()
@@ -112,6 +117,7 @@ class AutoLoad {
 
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->count++;
 
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);				// why?
@@ -163,7 +169,7 @@ class AutoLoad {
 				$file2 = str_replace('/class.', '/', $file);
 				if (file_exists($file2)) {
 					$file = $file2;
-				} 
+				}
 			}
 
 
