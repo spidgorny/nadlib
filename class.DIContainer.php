@@ -17,7 +17,7 @@ class DIContainer {
     }
 
 	//debug(is_callable($this->values[$id]), is_object($this->values[$id]));
-    return is_callable($this->values[$id]) && !is_object($this->values[$id]) ? $this->values[$id]($this) : $this->values[$id];
+    return is_callable($this->values[$id]) && is_object($this->values[$id]) ? $this->values[$id]($this) : $this->values[$id];
   }
 
 /*function asShared($callable)
