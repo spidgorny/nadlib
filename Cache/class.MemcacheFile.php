@@ -41,11 +41,14 @@ class MemcacheFile {
 		@chmod($file, 0775);
 	}
 
+	function isValid($key, $expire = 0) {
+		$file = $this->map($key);
+		return !$expire || (@filemtime($file) > (time() - $expire));
+	}
+
 	function get($key, $expire = 0) {
 		$file = $this->map($key);
-		if ($expire && @filemtime($file) < time() - $expire) {
-
-		} else {
+		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
 			if ($val) {
 				$val = unserialize($val);

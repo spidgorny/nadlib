@@ -26,6 +26,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	public $lastQuery;
 
+	/**
+	 * @var null|int
+	 */
+	protected $dataSeek = NULL;
+
 	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL) {
 		$this->connect($user, $password, $scheme, $driver, $host, $db);
 		$this->setQB();
@@ -79,9 +84,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $this->res->rowCount();
 	}
 
-	function getTables() {
+	function getScheme() {
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
+		return $scheme;
+	}
+
+	function getTables() {
+		$scheme = $this->getScheme();
 		if ($scheme == 'mysql') {
 			$this->perform('show tables');
 		} else if ($scheme == 'odbc') {
@@ -116,6 +126,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function fetchAssoc(PDOStatement $res) {
 		return $res->fetch(PDO::FETCH_ASSOC);
+	}
+
+	function dataSeek($int) {
+		$this->dataSeek = $int;
+	}
+
+	function fetchAssocSeek(PDOStatement $res) {
+		return $res->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_ABS, $this->dataSeek);
 	}
 
 	function getTableColumns($table) {
