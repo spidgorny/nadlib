@@ -1,7 +1,15 @@
 <?php
 
 class FlexiTable extends OODBase {
+
+	/**
+	 * @var array
+	 */
 	protected $columns = array();
+
+	/**
+	 * @var bool
+	 */
 	protected $doCheck = false;
 
 	/**
