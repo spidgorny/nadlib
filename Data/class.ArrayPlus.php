@@ -250,7 +250,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @return bool
 	 */
 	function getPrevKey($key) {
-		$keys = array_keys($this);
+		$keys = array_keys($this->getData());
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $found_index === 0)
 			return false;
@@ -263,7 +263,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @return bool
 	 */
 	function getNextKey($key) {
-		$keys = array_keys($this);
+		$keys = array_keys($this->getData());
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $key == end($keys))
 			return false;
@@ -310,7 +310,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		// correct
 		$copy = clone $this;
 		$sortCol = $copy->column($column)->getData();
-		array_multisort($sortCol, $this);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		array_multisort($sortCol, $this->getData());		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
 		$this->extractKeyFromColumn();
 		return $this;
 	}

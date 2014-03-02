@@ -239,7 +239,7 @@ class AutoLoad {
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 
-		$file = $this->classFileMap[$class];
+		$file = isset($this->classFileMap[$class]) ? $this->classFileMap[$class] : NULL;
 
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
