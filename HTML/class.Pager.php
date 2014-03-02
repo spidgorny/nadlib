@@ -227,6 +227,7 @@ class Pager {
 
 	public function debug() {
 		debug(array(
+			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
 			'pageSize->selected' => $this->pageSize->selected,
