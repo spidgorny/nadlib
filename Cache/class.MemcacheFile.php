@@ -11,8 +11,8 @@ class MemcacheFile {
 	function __construct() {
 		$sub = Config::getInstance()->appRoot;
 
-		if (!file_exists($sub.'/'.$this->folder)) {
-			debug(__METHOD__, $sub.'/'.$this->folder);
+		if (!file_exists($sub.$this->folder)) {
+			debug(__METHOD__, $sub.$this->folder);
 			die();
 		} else {
 			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
