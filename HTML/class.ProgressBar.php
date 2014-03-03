@@ -128,7 +128,7 @@ class ProgressBar {
 	}
 
 	function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;') {
-		$prefix = AutoLoad::getInstance()->nadlibRoot;
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return new htmlString('<div style="'.$css.'">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
 			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />

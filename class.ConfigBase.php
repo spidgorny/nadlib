@@ -69,7 +69,7 @@ class ConfigBase {
 	public $config;
 
 	protected function __construct() {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
@@ -96,7 +96,7 @@ class ConfigBase {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 	}
 
 	/**
@@ -117,7 +117,7 @@ class ConfigBase {
 	 * @return $this
 	 */
 	public function postInit() {
-		if ($_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		if ($this->db_database) {
 			$di = new DIContainer();
 			if (extension_loaded('mysqlnd')) {
@@ -146,7 +146,7 @@ class ConfigBase {
 
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
-		if ($_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		return $this;
 	}
 

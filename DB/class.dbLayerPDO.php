@@ -63,9 +63,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->connection = new PDO($this->dsn, $user, $password);
 	}
 
-	function perform($query, $flags = PDO::FETCH_ASSOC) {
+	function perform($query, array $params = array()) {
 		$this->lastQuery = $query;
-		$this->result = $this->connection->query($query, $flags);
+		$this->result = $this->connection->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
+		$this->result->execute($params);
 		if (!$this->result) {
 			$error = implode(BR, $this->connection->errorInfo());
 			//debug($query, $error);
@@ -135,7 +136,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $res->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_ABS, $this->dataSeek);
 	}
 
-	function getTableColumns($table) {
+	function getTableColumnsEx($table) {
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
 		if ($scheme == 'mysql') {
@@ -170,6 +171,49 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 				$data[$row[$key]] = $row;
 			}
 		}
+		return $data;
+	}
+
+	function fetchPartition($res, $start, $limit) {
+		if ($this->getScheme() == 'mysql') {
+			return $this->fetchPartitionMySQL($res, $start, $limit);
+		}
+		$data = array();
+		for ($i = $start; $i < $start + $limit; $i++) {
+			$this->dataSeek($i);
+			$row = $this->fetchAssocSeek($res);
+			if ($row !== false) {
+				$data[] = $row;
+			} else {
+				break;
+			}
+		}
+		$this->free($res);
+		return $data;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/15637291/how-use-mysql-data-seek-with-pdo
+	 * Will start with 0 and skip rows until $start.
+	 * Will end with $start+$limit.
+	 * @param $res
+	 * @param $start
+	 * @param $limit
+	 * @return array
+	 */
+	function fetchPartitionMySQL($res, $start, $limit) {
+		$data = array();
+		for ($i = 0; $i < $start + $limit; $i++) {
+			$row = $this->fetchAssoc($res);
+			if ($row !== false) {
+				if ($i >= $start) {
+					$data[] = $row;
+				}
+			} else {
+				break;
+			}
+		}
+		$this->free($res);
 		return $data;
 	}
 
