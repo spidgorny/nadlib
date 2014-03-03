@@ -74,9 +74,8 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	/**
-	 * fillValues() is looping over the existing values ($this->desc)
-	 * This function is looping over desc.
-	 * Will overwrite!
+	 * fillValues() is looping over the existing values
+	 * This function is looping over desc
 	 * @param Request $form - Request instead of an array because of the trim() function only?
 	 * @return void
 	 */
@@ -91,14 +90,12 @@ class HTMLFormTable extends HTMLForm {
 					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
 				$desc->importValues($subForm);
 				//debug('after', $desc->desc);
+			} else if ($desc['type'] instanceof HTMLFormDatePicker) {
+				$val = $form->getTrim($key);
+				$desc['value'] = $desc['type']->getISODate($val);
+				//debug(__METHOD__, $val, $desc['value']);
 			} else if ($form->is_set($key)) {
-				if ($desc['type'] instanceof HTMLFormDatePicker) {
-					$val = $form->getTrim($key);
-					$desc['value'] = $desc['type']->getISODate($val);
-					//debug(__METHOD__, $val, $desc['value']);
-				} else {
-					$desc['value'] = $form->getTrim($key);
-				}
+				$desc['value'] = $form->getTrim($key);
 			} // else keep default ['value']
 		}
 	}
@@ -368,14 +365,12 @@ class HTMLFormTable extends HTMLForm {
 		$stdout = '';
 		//foreach ($desc as $fieldName2 => $desc2) {
 			//if ($fieldName2 != 'horisontal') {
-				//$this->mainFormStart();
-				$this->stdout .= $desc2['beforeHorisontal'];
+				$this->mainFormStart();
 				$path = $fieldName;
 				//$path[] = $fieldName2;
 				$this->showCell($path, $desc2);
-				//$this->mainFormEnd();
-				$this->stdout .= $desc2['afterHorisontal'];
-		//}
+				$this->mainFormEnd();
+			//}
 		//}
 	}
 
@@ -457,12 +452,11 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '<tr><td colspan="2">'.$subForm->getBuffer().'</td></tr>';
 			} else if (is_array($fieldDesc) && !in_array($sType, array('hidden', 'hiddenArray'))) {
 				if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
-					$fieldDesc['TRmore']['class'] .= ' '.$fieldName;
 					$this->stdout .= "<tr ".$this->getAttrHTML($fieldDesc['TRmore']).">";
 				}
 
 				if ($fieldDesc['table']) {
-					$this->stdout .= '<td class="table">';
+					$this->stdout .= '<td>';
 					$this->showForm($fieldDesc, $path, FALSE);
 					$this->stdout .= "</td>";
 				}
@@ -473,9 +467,7 @@ class HTMLFormTable extends HTMLForm {
 					.'</fieldset>';
 					$this->showCell($path, $fieldDesc);
 				} else if ($fieldDesc['horisontal']) {
-					$this->stdout .= '<!-- horisontal { -->';
 					$this->showRow($path, $fieldDesc);
-					$this->stdout .= '<!-- horisontal } -->';
 				} else {
 					$this->showCell($path, $fieldDesc);
 				}
@@ -495,11 +487,10 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Deprecated. Used to retrieve name/values pairs from the array with $this->withValues = FALSE.
-	 * TODO: what to use instead?
 	 *
-	 * @param array	$arr	Form description array
-	 * @param string $col	Column name that contains values. Within this class default value is the only that makes sence.
-	 * @return array		1D array with name/values
+	 * @param array		Form description array
+	 * @param string	Column name that contains values. Within this class default value is the only that makes sence.
+	 * @return array	1D array with name/values
 	 */
 	function getValues(array $arr = NULL, $col = 'value') {
 		$arr = $arr ? $arr : $this->desc;

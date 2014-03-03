@@ -4,7 +4,7 @@
  * Class MySQL
  * @mixin SQLBuilder
  */
-class MySQL implements DBInterface {
+class MySQL {
 
 	/**
 	 * @var string
@@ -77,20 +77,16 @@ class MySQL implements DBInterface {
 	function perform($query) {
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
-			$btl = debug_backtrace();
 			do {
-				$bt = $btl[$c];
-				$caller = "{$bt['class']}::{$bt['function']}";
+				$caller = Debug::getCaller($c);
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
 				'MySQL::runSelectQuery',
-				'OODBase::findInDB',
+				//'OODBase::findInDB',
 				'MySQL::fetchAll',
-				'FlexiTable::findInDB',
+				//'FlexiTable::findInDB',
 				'MySQL::getTableColumns',
-				'MySQL::perform',
-				'OODBase::fetchFromDB',
 			)));
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
@@ -153,38 +149,6 @@ class MySQL implements DBInterface {
 		$row = mysql_fetch_row($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $row;
-	}
-
-	/**
-	 * @param resource $res
-	 * @param string $key can be set to NULL to avoid assoc array
-	 * @return array
-	 */
-	function fetchAll($res, $key = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-
-		// temp
-		if (mysql_errno()) {
-			debug(array(mysql_errno($this->connection) => mysql_error($this->connection)));
-			exit();
-		}
-
-		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
-			if ($key) {
-				$data[$row[$key]] = $row;
-			} else {
-				$data[] = $row;
-			}
-		}
-		//debug($this->lastQuery, sizeof($data));
-		//debug_pre_print_backtrace();
-		$this->free($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $data;
 	}
 
 	function free($res) {
@@ -289,8 +253,8 @@ class MySQL implements DBInterface {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
     	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
 		WHERE CCSA.collation_name = T.table_collation
-  		/*AND T.table_schema = 'schemaname'*/
-  		AND T.table_name = '".$table."'";
+		/*AND T.table_schema = 'schemaname'*/
+		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
@@ -359,4 +323,5 @@ class MySQL implements DBInterface {
 	static function escapeBool($value) {
 		return intval(!!$value);
 	}
+
 }

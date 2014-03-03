@@ -51,7 +51,7 @@ class HTMLFormValidate {
 	function validateField($field, array $d, $type, $isCheckbox) {
 		$value = $d['value'];
 		if (!$d['optional'] && (
-			!($value) || (!$d['allow0'] && !isset($d['value'])))
+			!($value) || (!$d['allow0'] && !isset($value)))
 			&& !$isCheckbox) {
 			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
 			//debug(array($field, $type, $value, $isCheckbox));
@@ -67,10 +67,10 @@ class HTMLFormValidate {
 			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
         } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
             $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
-		} elseif ($d['min'] && ($value < $d['min'])) {
-			//debug(__METHOD__, $value, $d['min']);
+		} elseif ($d['min'] && $value < $d['min']) {
+			debug($value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
-		} elseif ($d['max'] && ($value > $d['max'])) {
+		} elseif ($d['max'] && $value > $d['max']) {
 			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $d['label'] ?: $field, $d['max']);
 		} elseif ($d['minlen'] && strlen($value) < $d['minlen']) {
 			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $d['label'] ?: $field, $d['minlen'], strlen($value));
@@ -102,7 +102,6 @@ class HTMLFormValidate {
 		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
 			$d['error'] = __('Value "%1" must be date', $d['label'] ?: $field);
 		} else {
-			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
 			if ($field == 'xsrf') {
 				//debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);

@@ -1,14 +1,16 @@
 <?php
 
-class PlainSessionUser extends User {
+class PlainSessionUser extends UserBase {
+
 	/**
 	 * @var PlainSessionUser
 	 */
 	static protected $instance;
+
 	function __construct() {
 		if (!Request::isCLI()) {
 			//debug('session_start');
-			@session_start();
+			session_start();
 		} else {
 			$_SESSION = array();
 		}

@@ -30,7 +30,7 @@ class Duration extends Time {
 			$temp = self::fromHuman($input);
 			$this->time = $temp->getTimestamp();
 			if (!$this->time) { // parsing failed
-				parent::__construct($input.' ', 0);	// GMT removed as it gives from '3 days' a value of '3d 1h'
+				parent::__construct($input.' GMT', 0);
 			}
 		} else {
 			$this->time = $input;
@@ -63,7 +63,6 @@ class Duration extends Time {
 
 	/**
 	 * Parses the human string like '24h 10m'
-	 * No spaces allowed between the number and value
 	 * @param string $string
 	 * @return \Duration
 	 */

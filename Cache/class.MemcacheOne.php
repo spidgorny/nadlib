@@ -42,12 +42,4 @@ class MemcacheOne {
 		$this->value = $newValue;
 	}
 
-	function getAge() {
-		return $this->mf->getAge($this->key);
-	}
-
-	function map() {
-		return $this->mf->map($this->key);
-	}
-
 }

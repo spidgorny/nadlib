@@ -18,16 +18,13 @@ class InitNADLIB {
 
 	function init() {
 		//print_r($_SERVER);
-		$this->al->useCookies = $this->useCookies;
-		$this->al->register();
 
-		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		define('DEVELOPMENT', Request::isCLI()
-			? (($os == 'Windows_NT') || true) // at home
+			? (Request::isWindows() || false) // at home
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
 
-		Config::getInstance();
+		date_default_timezone_set('Europe/Berlin');	// before using header()
 
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
@@ -37,12 +34,22 @@ class InitNADLIB {
 
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
+		} else {
+			error_reporting(0);
+			ini_set('display_errors', FALSE);
+		}
 
+		$this->al->useCookies = $this->useCookies;
+		$this->al->register();
+
+		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config')) {
 				//print_r(Config::getInstance()->config['Config']);
-				set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+				set_time_limit(Config::getInstance()->timeLimit
+					? Config::getInstance()->timeLimit
+					: 5);	// small enough to notice if the site is having perf. problems
 			}
 			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 			if (!Request::isCLI()) {
@@ -50,32 +57,55 @@ class InitNADLIB {
 				header('Expires: -1');
 			}
 		} else {
-			header('X-nadlib: PRODUCTION');
-			error_reporting(0);
-			ini_set('display_errors', FALSE);
 			if (!Request::isCLI()) {
 				header('Cache-Control: no-cache, no-store, max-age=0');
 				header('Expires: -1');
 			}
 		}
-		date_default_timezone_set('Europe/Berlin');
-		ini_set('short_open_tag', 1);
+		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
+	}
+
+	function initWhoops() {
+		$run     = new Whoops\Run;
+		$handler = new Whoops\Handler\PrettyPageHandler;
+		$run->pushHandler($handler);
+		$run->register();
 	}
 
 }
 
+/**
+ * May already be defined in TYPO3
+ */
+if (!function_exists('debug')) {
 function debug($a) {
-	$params = func_get_args();
-	if (method_exists('Debug', 'debug_args')) {
-		call_user_func_array(array('Debug', 'debug_args'), $params);
+    $params = func_get_args();
+    if (method_exists('Debug', 'debug_args')) {
+	    if (class_exists('FirePHP') && !Request::isCLI()) {
+		    $fp = FirePHP::getInstance(true);
+		    $fp->setOption('includeLineNumbers', true);
+		    $fp->setOption('maxArrayDepth', 10);
+		    $fp->setOption('maxDepth', 20);
+		    $trace = Debug::getSimpleTrace();
+		    array_shift($trace);
+		    if ($trace) {
+		        $fp->table(implode(' ', first($trace)), $trace);
+		    }
+		    $fp->log(1 == sizeof($params) ? $a : $params);
+	    } else {
+		    call_user_func_array(array('Debug', 'debug_args'), $params);
+	    }
 	} else {
-		echo '<pre>'.htmlspecialchars(
-			var_dump(
-				func_num_args() == 1 ? $a : $params
-			, true)
-		).'</pre>';
+		ob_start();
+		var_dump(
+			func_num_args() == 1 ? $a : $params
+		);
+		$dump = ob_get_clean();
+		$dump = str_replace("=>\n", ' =>', $dump);
+		echo '<pre>'.htmlspecialchars($dump).'</pre>';
 	}
+}
 }
 
 function nodebug() {
@@ -259,6 +289,12 @@ function eachv(array &$list) {
 	return $current;
 }
 
+/**
+ * @used FullGrid
+ * @param array $a
+ * @param array $b
+ * @return array
+ */
 function array_combine_stringkey(array $a, array $b) {
 	$ret = array();
 	reset($b);
@@ -298,4 +334,13 @@ function get_overriden_methods($class) {
 	}
 
 	return $array;
+}
+
+/**
+ * http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential
+ * @param $arr
+ * @return bool
+ */
+function is_assoc($arr) {
+	return array_keys($arr) !== range(0, count($arr) - 1);
 }

@@ -233,7 +233,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$msg = '<div class="message ui-state-message message alert alert-info alert-notice padding">'.$text.'</div>';
+		$msg = '<div class="message alert alert-info">'.$text.'</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
 		} else {
