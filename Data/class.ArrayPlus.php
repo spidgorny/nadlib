@@ -233,7 +233,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		$iterator = $arrayobject->getIterator();
 
 		if ($iterator->valid()) {
-			$iterator->seek(array_search($key, array_keys($this)));
+			$iterator->seek(array_search($key, array_keys((array) $this)));
 			$row3 = $iterator->current();
 			$iterator->next();
 			$next = $iterator->current();
@@ -250,7 +250,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @return bool
 	 */
 	function getPrevKey($key) {
-		$keys = array_keys($this);
+		$keys = array_keys((array) $this);
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $found_index === 0)
 			return false;
@@ -263,7 +263,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @return bool
 	 */
 	function getNextKey($key) {
-		$keys = array_keys($this);
+        $keys = array_keys((array) $this);
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $key == end($keys))
 			return false;
@@ -432,7 +432,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function filter() {
-		$this->setData(array_filter($this));
+		$this->setData(array_filter((array) $this));
 		return $this;
 	}
 
