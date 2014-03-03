@@ -7,7 +7,7 @@ class URLGet {
 	 */
 	protected $url;
 
-	public $timeout = 5;
+	public $timeout = 10;
 
 	protected $html = '';
 
@@ -103,9 +103,10 @@ class URLGet {
 		$html = substr($response, $header_size);
 
 		$this->info = curl_getinfo($process);
-		$this->logger->log('Info: '.json_encode($this->info));
-		$this->logger->log('Errno: '.curl_errno($process));
-		$this->logger->log('HTTP code: '.$this->info['http_code']);
+		$this->logger->log('URLGet Info: '.json_encode($this->info, JSON_PRETTY_PRINT));
+		$this->logger->log('URLGet Errno: '.curl_errno($process));
+		$this->logger->log('URLGet HTTP code: '.$this->info['http_code']);
+		$this->logger->log('URLGet Header: '.$header);
 		//debug($this->info);
 		if (curl_errno($process)){
 			//debug('Curl error: ' . curl_error($process));

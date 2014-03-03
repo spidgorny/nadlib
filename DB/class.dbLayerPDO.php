@@ -104,6 +104,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->connection->lastInsertId();
 	}
 
+	/**
+	 * @param PDOStatement $res
+	 */
 	function free($res) {
 		$res->closeCursor();
 	}
@@ -219,6 +222,18 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function uncompress($value) {
 		return @gzuncompress(substr($value, 4));
+	}
+
+	function transaction() {
+		$this->perform('BEGIN');
+	}
+
+	function commit() {
+		return $this->perform('COMMIT');
+	}
+
+	function rollback() {
+		return $this->perform('ROLLBACK');
 	}
 
 }

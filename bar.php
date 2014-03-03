@@ -72,7 +72,7 @@ if (0 || !function_exists('imagecreate')) {
 	ini_set('display_errors', false);
 	header("Content-type: image/png");
 }
-$expires = 60*60*24*365;
+$expires = 60*60*24*365;        // days
 header("Pragma: public");
 header("Cache-Control: maxage=".$expires);
 header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
