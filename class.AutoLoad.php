@@ -40,10 +40,6 @@ class AutoLoad {
 	public $config;
 
 	/**
-	 * @var int
-	 */
-	public $count = 0;
-	/**
 	 * Relative to getcwd()
 	 * Can be "../" from /nadlib/be/
 	 * @var string
@@ -230,7 +226,6 @@ class AutoLoad {
 	 */
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$this->count++;
 
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);				// why?

@@ -90,15 +90,9 @@ abstract class Controller {
 	}
 
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
-		if ($this->useRouter && !$forceSimple) {
-			if (file_exists('class/class.Router.php')) {
-				$r = new Router();
-				$url = $r->makeURL($params, $prefix);
-			} else {
-				$class = $params['c'];
-				unset($params['c']);
-				$url = new URL($this->request->getLocation().$class, $params);
-			}
+		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
+			$r = new Router();
+			$url = $r->makeURL($params, $prefix);
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller

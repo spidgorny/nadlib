@@ -119,26 +119,20 @@ class ConfigBase {
 	public function postInit() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		if ($this->db_database) {
-			$di = new DIContainer();
-			if (extension_loaded('mysqlnd')) {
-				$di->db_class = 'dbLayerPDO';
-				$this->db = new $di->db_class(
-					$this->db_user,
-					$this->db_password,
-					'mysql',
-					'',
-					$this->db_server,
-					$this->db_database
-				);
-				$this->db->perform('set names utf8');
-			} else {
-				$di->db_class = 'MySQL';
-				$this->db = new $di->db_class(
+			try {
+				$this->db = new MySQL(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
+			} catch (Exception $e) {
+				$this->db = new MySQL(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					'');
 			}
+			$di = new DIContainer();
 			$di->db = $this->db;
 			$this->setQb(new SQLBuilder($di));
 			$this->db->qb = $this->qb;

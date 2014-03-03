@@ -9,13 +9,9 @@
 class Collection {
 	/**
 	 *
-	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO
+	 * @var dbLayer/MySQL/BijouDBConnector/dbLayerMS
 	 */
 	public $db;
-
-	/**
-	 * @var string
-	 */
 	public $table = __CLASS__;
 	var $idField = 'uid';
 	var $parentID = NULL;
@@ -117,13 +113,6 @@ class Collection {
 	 */
 	protected $controller;
 
-	public $doCache = true;
-
-	/**
-	 * @var array
-	 */
-	public $log = array();
-
 	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
@@ -133,7 +122,6 @@ class Collection {
 	 * @param string $order	- appended to the SQL
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
 		$this->db = Config::getInstance()->db;
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
@@ -167,7 +155,6 @@ class Collection {
 		}
 		$this->translateThes();
 		//$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
 	function postInit() {
@@ -185,65 +172,18 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
-		if ($this->db instanceof MySQL || ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
-			$this->log('retrieveDataFromMySQL');
-			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
-			return;
-		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$this->query = $this->getQueryWithLimit($this->where);
+		$this->query = $this->getQuery($this->where);
+		$prof = new Profiler();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$this->count = $this->db->numRows($res);
 		}
+		//debug($this->table, $this->query, $this->count, $prof->elapsed());
 
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
-		if ($preprocess) {
-			$this->preprocessData();
-		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
-	}
-
-	/**
-	 * https://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_found-rows
-	 * @param bool $allowMerge
-	 * @param bool $preprocess
-	 */
-	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$query = $this->getQuery();
-		$sql = new SQLQuery($query);
-		array_unshift($sql->parsed['SELECT'], array(
-			'expr_type' => 'reserved',
-			'base_expr' => 'SQL_CALC_FOUND_ROWS',
-			'delim' => ' ',
-		));
-		//debug($sql->parsed);
-		$query = $sql->__toString();
-		$res = $this->db->perform($query);
-
-		if ($this->pager) {
-			$this->pager->setNumberOfRecords(PHP_INT_MAX);
-			$this->pager->detectCurrentPage();
-			//$this->pager->debug();
-		}
-		$start = $this->pager ? $this->pager->getStart() : 0;
-		$limit = $this->pager ? $this->pager->getLimit() : PHP_INT_MAX;
-
-		$data = $this->db->fetchPartition($res, $start, $limit);
-
-		$countRow = $this->db->fetchAssoc($this->db->perform('SELECT FOUND_ROWS() AS count'));
-		$this->count = $countRow['count'];
-
-		if ($this->pager) {
-			$this->pager->setNumberOfRecords($this->count);
-			$this->pager->detectCurrentPage();
-			//$this->pager->debug();
-		}
-
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		if ($preprocess) {
 			$this->preprocessData();
@@ -257,41 +197,20 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
-		if (!$this->data) {													// memory cache
-			$this->query = $this->getQuery();
-			if ($this->doCache) {
-				// this query is intentionally without
-				if ($this->pager) {
-					$this->pager->setNumberOfRecords(PHP_INT_MAX);
-					$this->pager->detectCurrentPage();
-					//$this->pager->debug();
-				}
-				$fc = new MemcacheOne($this->query.'.'.$this->pager->currentPage, 60*60);			// 1h
-				$this->log('key: '.substr(basename($fc->map()), 0, 7));
-				$cached = $fc->getValue();									// with limit as usual
-				if ($cached && sizeof($cached) == 2) {
-					list($this->count, $this->data) = $cached;
-					if ($this->pager) {
-						$this->pager->setNumberOfRecords($this->count);
-						$this->pager->detectCurrentPage();
-					}
-					$this->log('found in cache, age: '.$fc->getAge());
-				} else{
-					$this->retrieveDataFromDB($allowMerge, $preprocess);	// getQueryWithLimit() inside
-					$fc->set(array($this->count, $this->data));
-					$this->log('no cache, retrieve, store');
-				}
-			} else {
-				$this->retrieveDataFromDB($allowMerge, $preprocess);
-			}
-			if ($_REQUEST['d']) {
-				//debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
-			}
+		$this->query = $this->getQuery($this->where);
+		$fc = new MemcacheFile();
+		$cached = $fc->get($this->query, 60*60);	// 1h
+		if ($cached && sizeof($cached) == 2) {
+			list($this->count, $this->data) = $cached;
+			$action = 'found in cache, age: '.$fc->getAge($this->query);
+		} else{
+			$this->retrieveDataFromDB($allowMerge, $preprocess);
+			$fc->set($this->query, array($this->count, $this->data));
+			$action = 'no cache, retrieve, store';
 		}
-	}
-
-	function log($msg) {
-		$this->log[(string)microtime(true)] = $msg;
+		if ($_REQUEST['d']) {
+			debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
+		}
 	}
 
 	/**
@@ -318,18 +237,13 @@ class Collection {
 				$this->select,
 				TRUE);
 		}
-		//debug($query);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
-		return $query;
-	}
-
-	function getQueryWithLimit() {
-		$query = $this->getQuery();
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
 			$query .= $this->pager->getSQLLimit();
 		}
+		//debug($query);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 		return $query;
 	}
 
@@ -481,7 +395,6 @@ class Collection {
 			$content .= '<div class="message">'.__('No data').'</div>';
 		}
 		if ($this->pager) {
-			//$this->pager->debug();
 			$url = new URL();
 			$pages = $this->pager->renderPageSelectors($url);
 			$content = $pages . $content . $pages;
@@ -664,7 +577,7 @@ class Collection {
 			if ($this->pager->currentPage > 0) {
 				$copy = clone $this;
 				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
-				$copy->retrieveDataFromCache();
+				$copy->retrieveDataFromDB();
 				$copy->preprocessData();
 				$prevData = $copy->data;
 			} else {
@@ -762,7 +675,7 @@ class Collection {
 	}
 
 	function getLazyIterator() {
-		$query = $this->getQueryWithLimit();
+		$query = $this->getQuery();
 
 		$di = new DIContainer();
 		$di->db = $this->db;

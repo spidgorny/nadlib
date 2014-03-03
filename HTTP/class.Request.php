@@ -9,12 +9,6 @@ class Request {
 	protected $data = array();
 
 	/**
-	 * The default controller retrieved from Config.
-	 * @var string
-	 */
-	public $defaultController;
-
-	/**
 	 * @var URL
 	 */
 	public $url;
@@ -27,7 +21,6 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
@@ -341,7 +334,7 @@ class Request {
 					}
 					$controller = $last;
 				} else {
-					$controller = $this->defaultController;	// not good as we never get 404
+					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
 			}
 		}   // cli
@@ -726,7 +719,6 @@ class Request {
 	}
 
 	static function getDocumentRoot() {
-		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 		if ($_SERVER['DOCUMENT_ROOT'] &&
 			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
 			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '',

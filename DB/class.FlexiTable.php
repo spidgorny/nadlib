@@ -16,7 +16,7 @@ class FlexiTable extends OODBase {
 	 * Enables/disables FlexiTable functionality
 	 * @var bool
 	 */
-	protected $doCheck = false;
+	public $doCheck = false;
 
 	/**
 	 * array(

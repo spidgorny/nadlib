@@ -4,15 +4,7 @@ define('LOWERCASE',3);
 define('UPPERCASE',1);
 
 class Syndicator {
-
-	/**
-	 * @var string
-	 */
 	var $url;
-
-	/**
-	 * @var bool
-	 */
 	var $isCaching = FALSE;
 
 	/**
@@ -43,16 +35,11 @@ class Syndicator {
 	var $cache;
 
 	/**
-	 * @var Proxy|bool
+	 * @var Proxy
 	 */
 	public $useProxy = NULL;
 
 	public $input = 'HTML';
-
-	/**
-	 * @var array
-	 */
-	public $log = array();
 
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -109,13 +96,13 @@ class Syndicator {
 
 	function retrieveFile($retries = 1) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$c = Index::getInstance()->controller;
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$this->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
+				$c->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
-				$this->log('No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
 				$this->cache->set($this->url, $html);
 				//debug($cache->map($this->url).' Size: '.strlen($html), 'Set cache');
@@ -127,24 +114,12 @@ class Syndicator {
 		return $html;
 	}
 
-	function log($msg) {
-		$this->log[] = $msg;
-		$c = Index::getInstance()->controller;
-		$c->log($msg);
-	}
-
-	function downloadFile($href, $retries = 1) {
+	function downloadFile($href, $retries) {
 		$ug = new URLGet($href);
-		$ug->timeout = 10;
 		$ug->fetch($this->useProxy, $retries);
 		return $ug->getContent();
 	}
 
-	/**
-	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
-	 * @param $str
-	 * @return mixed
-	 */
 	function detect_cyr_charset($str) {
 	    $charsets = Array(
 	                      'koi8-r' => 0,
