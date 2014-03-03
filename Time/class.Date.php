@@ -11,7 +11,7 @@ class Date extends Time {
 		$this->updateDebug();
 		if (is_null($relativeTo)) {
 			//debug_pre_print_backtrace();
-			assert($this->time >= 0);
+			//assert($this->time >= 0);
 		}
 	}
 

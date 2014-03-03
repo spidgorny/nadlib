@@ -310,7 +310,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		// correct
 		$copy = clone $this;
 		$sortCol = $copy->column($column)->getData();
-		array_multisort($sortCol, $this);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		array_multisort($sortCol, $this->getData());		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
 		$this->extractKeyFromColumn();
 		return $this;
 	}

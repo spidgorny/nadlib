@@ -185,7 +185,8 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
-		if ($this->db instanceof MySql || ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
+		if ($this->db instanceof MySQL || ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
+			$this->log('retrieveDataFromMySQL');
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
 		}
@@ -224,22 +225,24 @@ class Collection {
 		$query = $sql->__toString();
 		$res = $this->db->perform($query);
 
+		if ($this->pager) {
+			$this->pager->setNumberOfRecords(PHP_INT_MAX);
+			$this->pager->detectCurrentPage();
+			//$this->pager->debug();
+		}
 		$start = $this->pager ? $this->pager->getStart() : 0;
 		$limit = $this->pager ? $this->pager->getLimit() : PHP_INT_MAX;
 
-		$data = array();
-		for ($i = $start; $i < $limit; $i++) {
-			$this->db->dataSeek($i);
-			$row = $this->db->fetchAssocSeek($res);
-			if ($row !== false) {
-				$data[] = $row;
-			} else {
-				break;
-			}
-		}
-		$this->db->free($res);
+		$data = $this->db->fetchPartition($res, $start, $limit);
+
 		$countRow = $this->db->fetchAssoc($this->db->perform('SELECT FOUND_ROWS() AS count'));
 		$this->count = $countRow['count'];
+
+		if ($this->pager) {
+			$this->pager->setNumberOfRecords($this->count);
+			$this->pager->detectCurrentPage();
+			//$this->pager->debug();
+		}
 
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
 		if ($preprocess) {
@@ -257,11 +260,20 @@ class Collection {
 		if (!$this->data) {													// memory cache
 			if ($this->doCache) {
 				// this query is intentionally without
+				if ($this->pager) {
+					$this->pager->setNumberOfRecords(PHP_INT_MAX);
+					$this->pager->detectCurrentPage();
+					//$this->pager->debug();
+				}
 				$fc = new MemcacheOne($this->getQuery().'.'.$this->pager->currentPage, 60*60);			// 1h
 				$this->log('key: '.substr(basename($fc->map()), 0, 7));
 				$cached = $fc->getValue();									// with limit as usual
 				if ($cached && sizeof($cached) == 2) {
 					list($this->count, $this->data) = $cached;
+					if ($this->pager) {
+						$this->pager->setNumberOfRecords($this->count);
+						$this->pager->detectCurrentPage();
+					}
 					$this->log('found in cache, age: '.$fc->getAge());
 				} else{
 					$this->retrieveDataFromDB($allowMerge, $preprocess);	// getQueryWithLimit() inside
@@ -468,6 +480,7 @@ class Collection {
 			$content .= '<div class="message">'.__('No data').'</div>';
 		}
 		if ($this->pager) {
+			//$this->pager->debug();
 			$url = new URL();
 			$pages = $this->pager->renderPageSelectors($url);
 			$content = $pages . $content . $pages;

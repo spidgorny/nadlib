@@ -287,14 +287,18 @@ class Syndicator {
 	function getXML($recode) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		try {
-			$xml = new SimpleXMLElement($recode);
-			//$xml['xmlns'] = '';
-			$namespaces = $xml->getNamespaces(true);
-			//debug($namespaces, 'Namespaces');
-			//Register them with their prefixes
-			foreach ($namespaces as $prefix => $ns) {
-			    $xml->registerXPathNamespace('default', $ns);
-			    break;
+			if ($recode{0} == '<') {
+				$xml = new SimpleXMLElement($recode);
+				//$xml['xmlns'] = '';
+				$namespaces = $xml->getNamespaces(true);
+				//debug($namespaces, 'Namespaces');
+				//Register them with their prefixes
+				foreach ($namespaces as $prefix => $ns) {
+					$xml->registerXPathNamespace('default', $ns);
+					break;
+				}
+			} else {
+				$xml = new SimpleXMLElement('');
 			}
 		} catch (Exception $e) {
 			//debug($recode);

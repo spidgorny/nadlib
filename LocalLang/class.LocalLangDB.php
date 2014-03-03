@@ -92,7 +92,7 @@ class LocalLangDB extends LocalLang {
 
 	function readDB($lang) {
 		//try {
-			$res = $this->db->getTableColumns($this->table);
+			$res = $this->db->getTableColumnsEx($this->table);
 			if ($res) {
 				$rows = $this->db->fetchSelectQuery($this->table, array(
 					'lang' => $lang,
