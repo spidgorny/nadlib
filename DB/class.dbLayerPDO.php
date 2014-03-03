@@ -21,6 +21,16 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	public $dsn;
 
+	/**
+	 * @var string
+	 */
+	public $lastQuery;
+
+	/**
+	 * @var null|int
+	 */
+	protected $dataSeek = NULL;
+
 	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL) {
 		$this->connect($user, $password, $scheme, $driver, $host, $db);
 		$this->setQB();
@@ -54,12 +64,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query, $flags = PDO::FETCH_ASSOC) {
+		$this->lastQuery = $query;
 		$this->result = $this->connection->query($query, $flags);
 		if (!$this->result) {
 			$error = implode(BR, $this->connection->errorInfo());
-			debug($query, $error);
+			//debug($query, $error);
 			throw new Exception(
-				$error,
+				$error.BR.$query,
 				$this->connection->errorCode() ?: 0);
 		}
 		return $this->result;
@@ -73,9 +84,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $this->res->rowCount();
 	}
 
-	function getTables() {
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
+		return $scheme;
+	}
+
+	function getTables() {
+		$scheme = $this->getScheme();
 		if ($scheme == 'mysql') {
 			$this->perform('show tables');
 		} else if ($scheme == 'odbc') {
@@ -110,6 +125,56 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function fetchAssoc(PDOStatement $res) {
 		return $res->fetch(PDO::FETCH_ASSOC);
+	}
+
+	function dataSeek($int) {
+		$this->dataSeek = $int;
+	}
+
+	function fetchAssocSeek(PDOStatement $res) {
+		return $res->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_ABS, $this->dataSeek);
+	}
+
+	function getTableColumns($table) {
+		$scheme = parse_url($this->dsn);
+		$scheme = $scheme['scheme'];
+		if ($scheme == 'mysql') {
+			$this->perform('show columns from '.$table);
+		}
+		return $this->fetchAll($this->result, 'Field');
+	}
+
+	/**
+	 * Avoid this as hell, just for compatibility
+	 * @param $str
+	 * @return string
+	 */
+	function escape($str) {
+		$quoted = $this->connection->quote($str);
+		if ($quoted{0} == "'") {
+			$quoted = substr($quoted, 1, -1);
+		}
+		return $quoted;
+	}
+
+	function fetchAll($stringOrRes, $key = NULL) {
+		if (is_string($stringOrRes)) {
+			$this->perform($stringOrRes);
+		}
+		$data = $this->result->fetchAll();
+
+		if ($key) {
+			$copy = $data;
+			$data = [];
+			foreach ($copy as $row) {
+				$data[$row[$key]] = $row;
+			}
+		}
+		return $data;
+	}
+
+	function uncompress($value) {
+		return @gzuncompress(substr($value, 4));
 	}
 
 }

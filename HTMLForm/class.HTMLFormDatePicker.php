@@ -15,6 +15,8 @@ class HTMLFormDatePicker extends HTMLFormType {
 
 	public $jsParams = array();
 
+	public $inputType = 'date';
+
 	/**
 	 * @internal param string $name
 	 * @internal param array $value - array of minutes
@@ -38,7 +40,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 		$this->form->input($this->field, $val, array(
 			'format' => $this->jsFormat
 		) + $this->jsParams,
-		'date', 'datepicker');
+		$this->inputType, 'datepicker');
 	}
 
 	/**
@@ -47,8 +49,9 @@ class HTMLFormDatePicker extends HTMLFormType {
 	 * @return int
 	 */
 	function getISODate($value) {
-		if ($value && is_integer($value) || is_numeric($value)) {
-			$val = $value;
+		//debug($value, is_integer($value), is_numeric($value), strtotime($value));
+		if ($value && (is_integer($value) || is_numeric($value))) {
+			$val = intval($value);
 		} else if ($this->jsFormat == 'dd.mm.yy') {
 			$val = explode('.', $value);
 			$val = array_reverse($val);

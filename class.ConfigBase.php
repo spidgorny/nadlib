@@ -119,24 +119,30 @@ class ConfigBase {
 	public function postInit() {
 		if ($_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		if ($this->db_database) {
-			try {
-				$this->db = new MySQL(
+			$di = new DIContainer();
+			if (extension_loaded('mysqlnd')) {
+				$di->db_class = 'dbLayerPDO';
+				$this->db = new $di->db_class(
+					$this->db_user,
+					$this->db_password,
+					'mysql',
+					'',
+					$this->db_server,
+					$this->db_database
+				);
+				$this->db->perform('set names utf8');
+			} else {
+				$di->db_class = 'MySQL';
+				$this->db = new $di->db_class(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
-			} catch (Exception $e) {
-				$this->db = new MySQL(
-					$this->db_database,
-					$this->db_server,
-					$this->db_user,
-					'');
 			}
-			$di = new DIContainer();
 			$di->db = $this->db;
-			$this->setQb(new SQLBuilder($di));
-			$this->db->qb = $this->qb;
+			$this->qb = new SQLBuilder($di);
 		}
+
 
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;

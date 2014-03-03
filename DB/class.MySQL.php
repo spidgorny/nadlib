@@ -4,7 +4,7 @@
  * Class MySQL
  * @mixin SQLBuilder
  */
-class MySQL {
+class MySQL implements DBInterface {
 
 	/**
 	 * @var string
@@ -77,16 +77,20 @@ class MySQL {
 	function perform($query) {
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
+			$btl = debug_backtrace();
 			do {
-				$caller = Debug::getCaller($c);
+				$bt = $btl[$c];
+				$caller = "{$bt['class']}::{$bt['function']}";
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
 				'MySQL::runSelectQuery',
-				//'OODBase::findInDB',
+				'OODBase::findInDB',
 				'MySQL::fetchAll',
-				//'FlexiTable::findInDB',
+				'FlexiTable::findInDB',
 				'MySQL::getTableColumns',
+				'MySQL::perform',
+				'OODBase::fetchFromDB',
 			)));
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
@@ -283,10 +287,6 @@ class MySQL {
 		} else {
 			throw new Exception($method.'() not found in '.get_class($this).' and SQLBuilder');
 		}
-	}
-
-	function uncompress($value) {
-		return @gzuncompress(substr($value, 4));
 	}
 
 	static function quoteKey($key) {
