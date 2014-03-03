@@ -28,6 +28,7 @@ class LocalLangDB extends LocalLang {
 
 	/**
 	 * Why is it not called from the constructor?
+	 * Because we need to specify the desired language $this->lang
 	 */
 	function init() {
 		$this->rows = $this->readDB($this->lang);
@@ -59,7 +60,7 @@ class LocalLangDB extends LocalLang {
 			try {
 				$db->runInsertQuery($this->table, array(
 					'code' => $text,
-					'lang' => $this->defaultLang,
+					'lang' => $this->defaultLang,	// is maybe wrong to save to the defaultLang?
 					'text' => '',
 					'page' => Request::getInstance()->getURL(),
 				));
