@@ -258,6 +258,7 @@ class Collection {
 	 */
 	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
 		if (!$this->data) {													// memory cache
+			$this->query = $this->getQuery();
 			if ($this->doCache) {
 				// this query is intentionally without
 				if ($this->pager) {
@@ -265,7 +266,7 @@ class Collection {
 					$this->pager->detectCurrentPage();
 					//$this->pager->debug();
 				}
-				$fc = new MemcacheOne($this->getQuery().'.'.$this->pager->currentPage, 60*60);			// 1h
+				$fc = new MemcacheOne($this->query.'.'.$this->pager->currentPage, 60*60);			// 1h
 				$this->log('key: '.substr(basename($fc->map()), 0, 7));
 				$cached = $fc->getValue();									// with limit as usual
 				if ($cached && sizeof($cached) == 2) {

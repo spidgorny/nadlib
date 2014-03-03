@@ -52,7 +52,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 */
 	function column($col) {
 		$return = array();
-		foreach ($this as $key => $row) {
+		foreach ((array)$this as $key => $row) {
 			$return[$key] = $row[$col];
 		}
 		$this->setData($return);
@@ -61,7 +61,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function column_coalesce($col1, $col2) {
 		$return = array();
-		foreach ($this as $key => $row) {
+		foreach ((array)$this as $key => $row) {
 			$return[$key] = $row[$col1] ? $row[$col1] : $row[$col2];
 		}
 		return $return;
@@ -69,7 +69,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function column_assoc($key, $val) {
 		$data = array();
-		foreach ($this as $row) {
+		foreach ((array)$this as $row) {
 			$data[$row[$key]] = $row[$val];
 		}
 		$this->setData($data);
@@ -145,11 +145,6 @@ class ArrayPlus extends ArrayObject implements Countable {
     function ksort() {
     	ksort($this);
     	return $this;
-    }
-
-    function count() {
-	    //debug(__METHOD__, sizeof($this));
-    	return sizeof($this);
     }
 
 	/**
@@ -310,7 +305,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 		// correct
 		$copy = clone $this;
 		$sortCol = $copy->column($column)->getData();
-		array_multisort($sortCol, $this->getData());		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		$aCopy = $this->getData();
+		array_multisort($sortCol, $aCopy);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		$this->exchangeArray($aCopy);
 		$this->extractKeyFromColumn();
 		return $this;
 	}
