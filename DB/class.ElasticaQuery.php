@@ -7,8 +7,14 @@ class ElasticaQuery {
 	 */
 	var $client;
 
+	/**
+	 * @var string
+	 */
+	var $indexName;
+
 	function __construct(DIContainer $di) {
 		$this->client = $di->client;
+		$this->indexName = $di->indexName;
 	}
 
 	function fetchSelectQuery($type, array $where) {
@@ -55,7 +61,7 @@ class ElasticaQuery {
 		//$elasticaQuery->setFilter($elasticaFilterAnd);
 		$elasticaQuery->setQuery($filteredQuery);
 
-		$elasticaIndex = $this->client->getIndex('world');//->getType($type);
+		$elasticaIndex = $this->client->getIndex($this->indexName);//->getType($type);
 		$resultSet    = $elasticaIndex->search($elasticaQuery);
 		//debug('getLastRequest', $this->client->getLastRequest());
 		//debug('getLastResponse', $this->client->getLastResponse());
