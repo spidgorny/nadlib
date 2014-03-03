@@ -25,6 +25,7 @@ class InitNADLIB {
 		);
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
+		Config::getInstance();
 
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
