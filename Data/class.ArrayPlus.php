@@ -145,8 +145,6 @@ class ArrayPlus extends ArrayObject implements Countable {
     function ksort() {
     	ksort($this);
     	return $this;
-    }
-
 	/**
 	 * Returns the first found row
 	 * @param $key
@@ -228,7 +226,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		$iterator = $arrayobject->getIterator();
 
 		if ($iterator->valid()) {
-			$iterator->seek(array_search($key, array_keys($this)));
+			$iterator->seek(array_search($key, array_keys((array) $this)));
 			$row3 = $iterator->current();
 			$iterator->next();
 			$next = $iterator->current();
@@ -429,7 +427,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function filter() {
-		$this->setData(array_filter($this));
+		$this->setData(array_filter((array) $this));
 		return $this;
 	}
 

@@ -1,6 +1,10 @@
 <?php
 
 class URLGet {
+
+	/**
+	 * @var string
+	 */
 	protected $url;
 
 	public $timeout = 10;
@@ -36,23 +40,29 @@ class URLGet {
 	 */
 	public function fetch($proxy = false, $retries = 1) {
 		$start = microtime(true);
-		//$this->logger->log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
+		$this->logger->log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
 		for ($i = 0; $i < $retries; $i++) {
 			try {
 				if (function_exists('curl_init')) {
+					$this->logger->log('CURL is enabled');
 					$curlParams = array();
 					if ($proxy) {
+						$this->logger->log('Proxy is defined');
 						$this->proxy = Proxy::getRandom();
 						$curlParams[CURLOPT_PROXY] = $this->proxy;
+					} else {
+						$this->logger->log('No Proxy');
 					}
 					$html = $this->fetchCURL($curlParams);
 				} else {
+					$this->logger->log('CURL is disabled');
 					$html = $this->fetchFOpen();
 				}
 			} catch (Exception $e) {
 				$this->logger->log($e->getMessage(), __CLASS__);
 			}
 			if ($html) {
+				$this->logger->log('Download successful. Data size: '.strlen($html).' bytes');
 				break;
 			}
 		}
@@ -93,11 +103,11 @@ class URLGet {
 		$html = substr($response, $header_size);
 
 		$this->info = curl_getinfo($process);
-		if ($_REQUEST['d'] == 'urlget') {
-			debug($this->info);
-			debug($html);
-			debug($header);
-		}
+		$this->logger->log('URLGet Info: '.json_encode($this->info, JSON_PRETTY_PRINT));
+		$this->logger->log('URLGet Errno: '.curl_errno($process));
+		$this->logger->log('URLGet HTTP code: '.$this->info['http_code']);
+		$this->logger->log('URLGet Header: '.$header);
+		//debug($this->info);
 		if (curl_errno($process)){
 			//debug('Curl error: ' . curl_error($process));
 		}

@@ -55,6 +55,14 @@ class HTMLFormTable extends HTMLForm {
 	 */
 	public $validator;
 
+    /**
+     * Is needed in case validation is made before checking if it's valid.
+     * It's set in HTMLFormTable::validate();
+     *
+     * @var bool
+     */
+    public $isValid = false;
+
 	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
@@ -654,7 +662,8 @@ class HTMLFormTable extends HTMLForm {
 
 	function validate() {
 		$this->validator = new HTMLFormValidate($this);
-		return $this->validator->validate();
+        $this->isValid = $this->validator->validate();
+		return $this->isValid;
 	}
 
 	/**
