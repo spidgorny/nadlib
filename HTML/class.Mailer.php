@@ -104,19 +104,8 @@ class Mailer {
         $message = Swift_Message::newInstance()
             ->setSubject($subject)
             ->setBody($message)
+            ->setFrom(Index::getInstance()->mailFromSwiftMailer)
         ;
-
-        if (!empty(Index::getInstance()->mailFromSwiftMailer)) {
-            $message->setFrom(
-                array_filter(Index::getInstance()->mailFromSwiftMailer, function($v, $k) {
-                    if (!empty($v)) return $v;
-                })
-            );
-
-            foreach (Index::getInstance()->mailFromSwiftMailer as $address) {
-                empty($address) ?: $message->setFrom($address);
-            }
-        }
 
         if (!empty($to)) {
             foreach ($to as $address) {
