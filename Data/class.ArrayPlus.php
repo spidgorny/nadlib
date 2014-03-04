@@ -145,6 +145,8 @@ class ArrayPlus extends ArrayObject implements Countable {
     function ksort() {
     	ksort($this);
     	return $this;
+    }
+
 	/**
 	 * Returns the first found row
 	 * @param $key
