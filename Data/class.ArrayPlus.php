@@ -52,7 +52,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 */
 	function column($col) {
 		$return = array();
-		foreach ((array)$this as $key => $row) {
+		foreach ($this as $key => $row) {
 			$return[$key] = $row[$col];
 		}
 		$this->setData($return);
@@ -61,7 +61,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function column_coalesce($col1, $col2) {
 		$return = array();
-		foreach ((array)$this as $key => $row) {
+		foreach ($this as $key => $row) {
 			$return[$key] = $row[$col1] ? $row[$col1] : $row[$col2];
 		}
 		return $return;
@@ -69,7 +69,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function column_assoc($key, $val) {
 		$data = array();
-		foreach ((array)$this as $row) {
+		foreach ($this as $row) {
 			$data[$row[$key]] = $row[$val];
 		}
 		$this->setData($data);
@@ -145,6 +145,13 @@ class ArrayPlus extends ArrayObject implements Countable {
     function ksort() {
     	ksort($this);
     	return $this;
+    }
+
+    function count() {
+	    //debug(__METHOD__, sizeof($this));
+    	return sizeof($this);
+    }
+
 	/**
 	 * Returns the first found row
 	 * @param $key
@@ -243,7 +250,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @return bool
 	 */
 	function getPrevKey($key) {
-		$keys = array_keys($this->getData());
+		$keys = array_keys((array) $this);
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $found_index === 0)
 			return false;
@@ -256,7 +263,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @return bool
 	 */
 	function getNextKey($key) {
-		$keys = array_keys($this->getData());
+        $keys = array_keys((array) $this);
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $key == end($keys))
 			return false;
@@ -303,9 +310,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		// correct
 		$copy = clone $this;
 		$sortCol = $copy->column($column)->getData();
-		$aCopy = $this->getData();
-		array_multisort($sortCol, $aCopy);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
-		$this->exchangeArray($aCopy);
+		array_multisort($sortCol, $this);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
 		$this->extractKeyFromColumn();
 		return $this;
 	}
