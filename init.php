@@ -25,7 +25,6 @@ class InitNADLIB {
 		);
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
-		Config::getInstance();
 
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
@@ -42,6 +41,7 @@ class InitNADLIB {
 
 		$this->al->useCookies = $this->useCookies;
 		$this->al->register();
+        Config::getInstance();
 
 		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
