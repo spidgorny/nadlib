@@ -241,11 +241,14 @@ class AutoLoad {
 		$subFolders = implode('/', $subFolders);	// Download
 
 		$file = isset($this->classFileMap[$class]) ? $this->classFileMap[$class] : NULL;
+		$file2 = str_replace('class.', '', $file);
 
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
 		if ($file && file_exists($file)) {
 			include_once $file;
+		} elseif ($file2 && file_exists($file2)) {
+			include_once $file2;
 		} else {
 			$file = $this->findInFolders($classFile, $subFolders);
 			if ($file) {
@@ -283,7 +286,7 @@ class AutoLoad {
 
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
-				$file2 = str_replace('/class.', '/', $file);
+				$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
 				if (file_exists($file2)) {
 					$file = $file2;
 				}

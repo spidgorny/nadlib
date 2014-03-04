@@ -31,8 +31,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	protected $dataSeek = NULL;
 
-	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL) {
-		$this->connect($user, $password, $scheme, $driver, $host, $db);
+	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL, $port = 3306) {
+		$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
 		$this->setQB();
 	}
 
@@ -44,19 +44,21 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @param $user
 	 * @param $password
 	 * @param $scheme
-	 * @param $driver		IBM DB2 ODBC DRIVER
+	 * @param $driver        IBM DB2 ODBC DRIVER
 	 * @param $host
 	 * @param $db
+	 * @param int $port
 	 */
-	function connect($user, $password, $scheme, $driver, $host, $db) {
-		$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';aPORT=56789;PROTOCOL=TCPIP;';
+	function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306) {
+		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
 		$this->dsn = $scheme.':'.$this->getDSN(array(
 			'DRIVER' => '{'.$driver.'}',
 			'DATABASE' => $db,
+			'host' => $host,
 			'SYSTEM' => $host,
 			'dbname' => $db,
 			'HOSTNAME' => $host,
-			'aPORT' => 56789,
+			'PORT' => $port,
 			'PROTOCOL' => 'TCPIP',
 		));
 		//debug($this->dsn);
@@ -87,6 +89,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $this->res->rowCount();
 	}
 
+	function getScheme() {
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
 		return $scheme;
