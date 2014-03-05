@@ -42,12 +42,10 @@ class Pager {
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
-		} else if ($itemsPerPage) {
-			$this->pageSize = new PageSize($itemsPerPage);
 		} else {
-			$this->pageSize = new PageSize($this->itemsPerPage);
+			$this->pageSize = new PageSize($itemsPerPage ?: $this->itemsPerPage);
 		}
-		$this->setItemsPerPage($this->pageSize->get());
+		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
@@ -226,7 +224,7 @@ class Pager {
 	}
 
 	public function debug() {
-		debug(array(
+		return array(
 			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
@@ -244,7 +242,7 @@ class Pager {
 			'showPageJump' => $this->showPageJump,
 			'showPager' => $this->showPager,
 			'prefix' => $this->prefix,
-		));
+		);
 	}
 
 	function renderPager() {

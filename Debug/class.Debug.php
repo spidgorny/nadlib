@@ -181,9 +181,10 @@ class Debug {
 			}
 			$content .= '</table>';
 		} else if (is_object($a)) {
-			$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
 			if ($a instanceof htmlString) {
-				$content .= $a.'';
+				$content = $a.'';
+			} else {
+				$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
 			}
 		} else if (is_resource($a)) {
 			$content = $a;
