@@ -17,7 +17,7 @@ class ElasticaQuery {
 		$this->indexName = $di->indexName;
 	}
 
-	function fetchSelectQuery($type, array $where) {
+	function fetchSelectQuery($type, array $where, $orderBy = NULL, Pager $pager = NULL) {
 		//$elasticaQueryString  = new \Elastica\Query\QueryString();
 		//$elasticaQueryString->setDefaultOperator('AND');
 		//$elasticaQueryString->setQuery('Kyiv');
@@ -60,9 +60,24 @@ class ElasticaQuery {
 		//$elasticaQuery->setQuery($elasticaQueryString);
 		//$elasticaQuery->setFilter($elasticaFilterAnd);
 		$elasticaQuery->setQuery($filteredQuery);
+		foreach ($orderBy as $by => $ascDesc) {
+			$elasticaQuery->setSort(array(
+				$by => array('order' => $ascDesc),
+			));
+		}
+
+		if ($pager) {
+			$pager->setNumberOfRecords(PHP_INT_MAX);
+			$pager->detectCurrentPage();
+			$elasticaQuery->setFrom($pager->getStart());
+			$elasticaQuery->setSize($pager->getLimit());
+		}
 
 		$elasticaIndex = $this->client->getIndex($this->indexName);//->getType($type);
 		$resultSet    = $elasticaIndex->search($elasticaQuery);
+		if ($pager) {
+			$pager->setNumberOfRecords($resultSet->getTotalHits());
+		}
 		//debug('getLastRequest', $this->client->getLastRequest());
 		//debug('getLastResponse', $this->client->getLastResponse());
 		//debug('query', $this->client->getLastRequest()->getData());
@@ -89,9 +104,19 @@ class ElasticaQuery {
 				$res->setTerm($field, mb_strtolower($condition));
 				break;
 			case 'SQLRange':
+				$from = $this->getString($condition->from);
+				$till = $this->getString($condition->till);
 				$res = new Elastica\Filter\Range($field, array(
-					'from' => $condition->from,
-					'to' => $condition->till,
+					'from' => $from,
+					'to' => $till,
+				));
+				break;
+			case 'SQLBetween':
+				$start = $this->getString($condition->start);
+				$end = $this->getString($condition->end);
+				$res = new Elastica\Filter\Range($field, array(
+					'from' => $start,
+					'to' => $end,
 				));
 				break;
 			case 'SQLLike':
@@ -101,6 +126,18 @@ class ElasticaQuery {
 				break;
 		}
 		return $res;
+	}
+
+	function getString($obj) {
+		if (is_object($obj)) {
+			//$obj->injectQB($this);
+			$obj = $obj.'';
+		}
+		return $obj;
+	}
+
+	function quoteKey($a) {
+		return $a;
 	}
 
 }

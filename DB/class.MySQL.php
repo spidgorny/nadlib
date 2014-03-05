@@ -289,7 +289,7 @@ class MySQL implements DBInterface {
 		}
 	}
 
-	static function quoteKey($key) {
+	function quoteKey($key) {
 		return $key = '`'.$key.'`';
 	}
 
@@ -320,7 +320,7 @@ class MySQL implements DBInterface {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
-	static function escapeBool($value) {
+	function escapeBool($value) {
 		return intval(!!$value);
 	}
 

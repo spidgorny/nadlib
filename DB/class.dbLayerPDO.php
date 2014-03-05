@@ -34,6 +34,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL, $port = 3306) {
 		$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
 		$this->setQB();
+		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 	}
 
 	static function getAvailableDrivers() {
@@ -117,11 +118,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return MySQL::quoteKey($key);
+		return $key = '`'.$key.'`';
 	}
 
 	function escapeBool($value) {
-		return MySQL::escapeBool($value);
+		return intval(!!$value);
 	}
 
 	function __call($method, array $params) {
