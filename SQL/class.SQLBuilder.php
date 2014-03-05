@@ -1,7 +1,17 @@
 <?php
 
 class SQLBuilder {
+
+	/**
+	 * Update/Insert is storing the found row for debugging
+	 * @var mixed
+	 */
 	public $found;
+
+	/**
+	 * Reserved MySQL words
+	 * @var array
+	 */
 	protected $reserved = array (
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
@@ -336,6 +346,8 @@ class SQLBuilder {
 						$set[] = $key . ' ' . $val;
 					}
 				} else if ($val instanceof SQLBetween) {
+					$val->injectQB($this);
+					$val->injectField($key);
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
 					$val->injectQB($this);

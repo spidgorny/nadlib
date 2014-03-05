@@ -313,8 +313,8 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function insertKeyAsColumn() {
-		foreach ($this as $key => &$row) {
-			$row['__key__'] = $key;
+		foreach ($this->getData() as $key => $_) {
+			$this[$key]['__key__'] = $key;
 		}
 	}
 

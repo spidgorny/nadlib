@@ -43,11 +43,18 @@ class Debug {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= '
 			<style>
+				div.debug {
+					color: black;
+				}
+				div.debug a {
+					color: black;
+				}
 				td.view_array {
 					border: dotted 1px #555;
 					font-size: 12px;
 					vertical-align: top;
 					border-collapse: collapse;
+					color: black;
 				}
 			</style>';
 			if (!headers_sent()) {

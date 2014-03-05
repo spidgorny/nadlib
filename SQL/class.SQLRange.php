@@ -1,6 +1,7 @@
 <?php
 
 class SQLRange extends SQLWherePart {
+
 	/**
 	 * @var mixed
 	 */
@@ -11,10 +12,20 @@ class SQLRange extends SQLWherePart {
 	 */
 	public $till;
 
-	function __construct($field, $from, $till = NULL) {
-		$this->field = $field;
+	/**
+	 * @var SQLBuilder
+	 */
+	protected $qb;
+
+	/**
+	 * @ param string $field @ deprecated
+	 * @param string $from
+	 * @param null $till
+	 */
+	function __construct($from, $till = NULL) {
 		$this->from = $from;
 		$this->till = $till;
+		$this->qb = Config::getInstance()->getQb();
 	}
 
 	function __toString() {
@@ -25,6 +36,10 @@ class SQLRange extends SQLWherePart {
 		}
 		$sql .= ")";
 		return $sql;
+	}
+
+	function debug() {
+		return $this->__toString();
 	}
 
 }
