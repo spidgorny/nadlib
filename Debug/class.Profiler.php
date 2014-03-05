@@ -53,4 +53,8 @@ class Profiler {
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer($method);
 	}
 
+	function __toString() {
+		return $this->elapsed();
+	}
+
 }
