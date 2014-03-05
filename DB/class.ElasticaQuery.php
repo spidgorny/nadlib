@@ -67,14 +67,15 @@ class ElasticaQuery {
 		}
 
 		if ($pager) {
-			$pager->setNumberOfRecords(PHP_INT_MAX);
-			$pager->detectCurrentPage();
 			$elasticaQuery->setFrom($pager->getStart());
 			$elasticaQuery->setSize($pager->getLimit());
 		}
 
-		$elasticaIndex = $this->client->getIndex($this->indexName);//->getType($type);
-		$resultSet    = $elasticaIndex->search($elasticaQuery);
+		//$elasticaIndex = $this->client->getIndex($this->indexName);//->getType($type);
+		$search = new Elastica\Search($this->client);
+		$search->addIndex($this->indexName);
+		$search->addType($type);
+		$resultSet    = $search->search($elasticaQuery);
 		if ($pager) {
 			$pager->setNumberOfRecords($resultSet->getTotalHits());
 		}
@@ -138,6 +139,26 @@ class ElasticaQuery {
 
 	function quoteKey($a) {
 		return $a;
+	}
+
+	function getByID($type, $id) {
+		//$elasticaTerm  = new \Elastica\Filter\Term();
+		//$elasticaTerm->setTerm('_id', $id);
+		$elasticaQuery = new \Elastica\Query\Term();
+		$elasticaQuery->setTerm('_id', $id);
+		$search = new Elastica\Search($this->client);
+		$search->addIndex($this->indexName);
+		$search->addType($type);
+		$resultSet = $search->search($elasticaQuery);
+		$aResults = $resultSet->getResults();
+		//debug($search->getClient()->getLastRequest()->getData());
+		//debug($search->getClient()->getLastResponse()->getData());
+		if ($aResults) {
+			$first = first($aResults);
+			$row = $first->getData();
+		}
+		//debug($row); exit();
+		return $row;
 	}
 
 }

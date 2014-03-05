@@ -85,7 +85,7 @@ if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
     if (method_exists('Debug', 'debug_args')) {
-	    if (class_exists('FirePHP') && !Request::isCLI()) {
+	    if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
 		    $fp = FirePHP::getInstance(true);
 		    $fp->setOption('includeLineNumbers', true);
 		    $fp->setOption('maxArrayDepth', 10);
