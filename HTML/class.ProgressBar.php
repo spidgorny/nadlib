@@ -24,13 +24,24 @@ class ProgressBar {
 
 	var $cliWidth = 100;
 
-	function __construct($percentDone = 0, $color = '43b6df') {
+	/**
+	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
+	 * @var int
+	 */
+	var $count = 0;
+
+	/**
+	 * @ param #2 $color = '#43b6df'
+	 * @param int $percentDone
+	 * @param int $count
+	 */
+	function __construct($percentDone = 0, $count = 0) {
 		$this->setID('pb-'.uniqid());
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
 		$this->percentDone = $percentDone;
-		$this->color = $color;
+		$this->count = $count;
 		$this->cli = Request::isCLI();
 	}
 
@@ -111,6 +122,10 @@ class ProgressBar {
 			print('}</script>'."\n");
 			$this->flush();
 		}
+	}
+
+	function setIndex($i) {
+		$this->setProgressBarProgress($i/$this->count*100);
 	}
 
 	function flush($ob_flush = false) {
