@@ -22,7 +22,12 @@ class ProgressBar {
 	 */
 	var $destruct100 = false;
 
-	var $cliWidth = 100;
+	/**
+	 * Should be undefined so that it can be detected once and then stored.
+	 * Don't put default value here.
+	 * @var int
+	 */
+	var $cliWidth = NULL;
 
 	/**
 	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
@@ -174,11 +179,15 @@ class ProgressBar {
 	}
 
 	function getCLIbar() {
-		$this->cliWidth = round($this->getTerminalWidth() / 2);
-		$chars = round($this->percentDone / 100 * $this->cliWidth);
-		$chars = min($this->cliWidth, $chars);
-		$space = max(0, $this->cliWidth - $chars);
-		$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+		if (!$this->cliWidth) {
+			$this->cliWidth = round($this->getTerminalWidth() / 2);
+			if ($this->cliWidth > 0) {  // otherwise cronjob
+				$chars = round($this->percentDone / 100 * $this->cliWidth);
+				$chars = min($this->cliWidth, $chars);
+				$space = max(0, $this->cliWidth - $chars);
+				$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+			}
+		}
 		return $content;
 	}
 
@@ -186,8 +195,11 @@ class ProgressBar {
 		if (Request::isWindows()) {
 			$both = $this->getTerminalSizeOnWindows();
 			$width = $both['width'];
+		} else if (!Request::isCron()) {
+			$both = $this->getTerminalSizeOnLinux();
+			$width = $both['width'];
 		} else {
-			$width = exec('tput cols');
+			$width = -1;        // cronjob
 		}
 		return $width;
 	}
@@ -200,7 +212,7 @@ class ProgressBar {
 		$output = array();
 		$size = array('width'=>0,'height'=>0);
 		exec('mode',$output);
-		foreach($output as $line) {
+		foreach ($output as $line) {
 			$matches = array();
 			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i',$line,$matches);
 			if($w) {
@@ -216,6 +228,13 @@ class ProgressBar {
 			}
 		}
 		return $size;
+	}
+
+	function getTerminalSizeOnLinux() {
+		return array_combine(
+			array('width', 'height'),
+			array(exec('tput cols'), exec('tput lines'))
+		);
 	}
 
 }
