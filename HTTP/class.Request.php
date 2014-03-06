@@ -619,7 +619,7 @@ class Request {
 	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
 	 * @return bool
 	 */
-	function isCron() {
+	static function isCron() {
 		return !isset($_SERVER['TERM']);
 	}
 
