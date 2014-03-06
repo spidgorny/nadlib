@@ -183,6 +183,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
+		$render = $this->mergeStringArrayRecursive($render);
+		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
+			$render = $this->controller->layout->wrap($render);
+		}
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $render;
+	}
+
+	function mergeStringArrayRecursive($render) {
 		if (is_array($render)) {
 			//$render = implode("\n", $render); // not recursive
 			$combined = '';
@@ -191,16 +200,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			});
 			$render = $combined;
 		}
-		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
-			$render = $this->controller->layout->wrap($render);
-		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $render;
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
-			'.$e->getMessage();
+			'.get_class($e).BR.
+			$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
 			//$content .= getDebug($e);
@@ -321,6 +327,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
+			$content = $this->mergeStringArrayRecursive($content);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
