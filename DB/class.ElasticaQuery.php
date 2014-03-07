@@ -12,72 +12,96 @@ class ElasticaQuery {
 	 */
 	var $indexName;
 
+	/**
+	 * @var Elastica\Query\MatchAll
+	 */
+	var $queryString;
+
+	/**
+	 * @var Elastica\Filter\BoolAnd
+	 */
+	var $elasticaFilterAnd;
+
+	/**
+	 * @var Elastica\Query\Filtered
+	 */
+	var $filteredQuery;
+
+	/**
+	 * @var Elastica\Query
+	 */
+	var $elasticaQuery;
+
+	/**
+	 * @var Pager
+	 */
+	var $pager;
+
+	/**
+	 * @var Elastica\Facet\Terms
+	 */
+	var $facets;
+
 	function __construct(DIContainer $di) {
 		$this->client = $di->client;
 		$this->indexName = $di->indexName;
+
+		$this->queryString = new \Elastica\Query\MatchAll();
+
+		$this->elasticaFilterAnd = new \Elastica\Filter\BoolAnd();
+
+		$this->filteredQuery = new Elastica\Query\Filtered(
+			$this->queryString,
+			$this->elasticaFilterAnd
+		);
+
+		$this->elasticaQuery = new \Elastica\Query();
 	}
 
-	function fetchSelectQuery($type, array $where, $orderBy = NULL, Pager $pager = NULL) {
-		//$elasticaQueryString  = new \Elastica\Query\QueryString();
-		//$elasticaQueryString->setDefaultOperator('AND');
-		//$elasticaQueryString->setQuery('Kyiv');
-		$elasticaQueryString = new \Elastica\Query\MatchAll();
+	function setOrderBy($orderBy) {
+		foreach ($orderBy as $by => $ascDesc) {
+			$this->elasticaQuery->setSort(array(
+				$by => array('order' => $ascDesc),
+			));
+		}
+	}
 
-		/*$term1 = new Elastica\Filter\Term();
-		$term1->setTerm('City.Name', 'kyiv');
+	function setPager(Pager $pager) {
+		$this->pager = $pager;
+		$this->elasticaQuery->setFrom($pager->getStart());
+		$this->elasticaQuery->setSize($pager->getLimit());
+	}
 
-		$term2 = new Elastica\Filter\Term();
-		$term2->setTerm('CountryLanguage.IsOfficial', 't');
-
-		$range = new Elastica\Filter\Range('Population', array(
-			'from' => '4',
-			'to' => '8000000000',
-		));
-		*/
-		$elasticaFilterAnd    = new \Elastica\Filter\BoolAnd();
-		//$elasticaFilterAnd->addFilter($range);
-		//$elasticaFilterAnd->addFilter($term1);
-		//$elasticaFilterAnd->addFilter($term2);
+	function setWhere(array $where) {
 		foreach ($where as $field => $condition) {
 			$elasticaCondition = $this->switchCondition($field, $condition);
 			if ($elasticaCondition) {
 				if ($elasticaCondition instanceof \Elastica\Query\AbstractQuery) {
 					$elasticaQueryString = $elasticaCondition;
 				} else {
-					$elasticaFilterAnd->addFilter($elasticaCondition);
+					$this->elasticaFilterAnd->addFilter($elasticaCondition);
 				}
 			} else {
 				// throw up
 			}
 		}
+	}
 
-		$filteredQuery = new Elastica\Query\Filtered(
-			$elasticaQueryString,
-			$elasticaFilterAnd
-		);
-
-		$elasticaQuery        = new \Elastica\Query();
-		//$elasticaQuery->setQuery($elasticaQueryString);
-		//$elasticaQuery->setFilter($elasticaFilterAnd);
-		$elasticaQuery->setQuery($filteredQuery);
-		foreach ($orderBy as $by => $ascDesc) {
-			$elasticaQuery->setSort(array(
-				$by => array('order' => $ascDesc),
-			));
+	function fetchSelectQuery($type) {
+		/** @var Elastica\Query\Filtered $fq */
+		$this->filteredQuery->setQuery($this->queryString);
+		$this->filteredQuery->setFilter($this->elasticaFilterAnd);
+		$this->elasticaQuery->setQuery($this->filteredQuery);
+		if ($this->facets) {
+			$this->elasticaQuery->addFacet($this->facets);
 		}
 
-		if ($pager) {
-			$elasticaQuery->setFrom($pager->getStart());
-			$elasticaQuery->setSize($pager->getLimit());
-		}
-
-		//$elasticaIndex = $this->client->getIndex($this->indexName);//->getType($type);
 		$search = new Elastica\Search($this->client);
 		$search->addIndex($this->indexName);
 		$search->addType($type);
-		$resultSet    = $search->search($elasticaQuery);
-		if ($pager) {
-			$pager->setNumberOfRecords($resultSet->getTotalHits());
+		$resultSet = $search->search($this->elasticaQuery);
+		if ($this->pager) {
+			$this->pager->setNumberOfRecords($resultSet->getTotalHits());
 		}
 		//debug('getLastRequest', $this->client->getLastRequest());
 		//debug('getLastResponse', $this->client->getLastResponse());
