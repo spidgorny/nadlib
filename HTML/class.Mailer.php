@@ -80,4 +80,60 @@ class Mailer {
 		return slTable::showAssoc($assoc);
 	}
 
+    /**
+     * Method to send emails via SwiftMailer.
+     * Throws an Exception if SwiftMailer is not installed.
+     *
+     * Uses sendmail to deliver messages.
+     *
+     * @param string $subject
+     * @param string $message
+     * @param mixed $to
+     * @param mixed $cc
+     * @param mixed $bcc
+     * @param array $attachments
+     * @throws Exception
+     * @return int Number of recipients who were accepted for delivery.
+     */
+    public static function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array())
+    {
+        if (!class_exists('Swift_Mailer')) {
+            throw new Exception('SwiftMailer not installed!');
+        }
+
+        $message = Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setBody($message)
+            ->setFrom(Index::getInstance()->mailFromSwiftMailer)
+        ;
+
+        if (!empty($to)) {
+            foreach ($to as $address) {
+                empty($address) ?: $message->setTo($address);
+            }
+        }
+
+        if (!empty($cc)) {
+            foreach ($cc as $address) {
+                empty($address) ?: $message->setCc($address);
+            }
+        }
+
+        if (!empty($bcc)) {
+            foreach ($bcc as $address) {
+                empty($address) ?: $message->setBcc($address);
+            }
+        }
+
+        if (!empty($attachments)) {
+            foreach ($attachments as $attachment) {
+                empty($attachment) ?: $message->attach(Swift_Attachment::fromPath($attachment));
+            }
+        }
+
+        $transport = Swift_SendmailTransport::newInstance();
+        $mailer = Swift_Mailer::newInstance($transport);
+        return $mailer->send($message);
+    }
+
 }
