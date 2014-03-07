@@ -65,7 +65,7 @@ abstract class UserBase extends OODBase {
 	 * @return unknown
 	 */
 	function checkPassword($login, $password) {
-		$query = $this->db->qb->getSelectQuery($this->table, array('email' => $login));
+		$query = $this->db->getQb()->getSelectQuery($this->table, array('email' => $login));
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
 		//debug(array($login, $password, $row['password']));
@@ -102,7 +102,7 @@ abstract class UserBase extends OODBase {
 
 	function insertNoUserCheck(array $data) {
 		$data['ctime'] = new AsIs('NOW()');
-		$query = $this->db->qb->getInsertQuery($this->table, $data);
+		$query = $this->db->getQb()->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
 		unset($data['ctime']);
