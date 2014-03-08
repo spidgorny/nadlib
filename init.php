@@ -87,15 +87,19 @@ function debug($a) {
     if (method_exists('Debug', 'debug_args')) {
 	    if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
 		    $fp = FirePHP::getInstance(true);
-		    $fp->setOption('includeLineNumbers', true);
-		    $fp->setOption('maxArrayDepth', 10);
-		    $fp->setOption('maxDepth', 20);
-		    $trace = Debug::getSimpleTrace();
-		    array_shift($trace);
-		    if ($trace) {
-		        $fp->table(implode(' ', first($trace)), $trace);
-		    }
-		    $fp->log(1 == sizeof($params) ? $a : $params);
+			if ($fp->detectClientExtension()) {
+				$fp->setOption('includeLineNumbers', true);
+				$fp->setOption('maxArrayDepth', 10);
+				$fp->setOption('maxDepth', 20);
+				$trace = Debug::getSimpleTrace();
+				array_shift($trace);
+				if ($trace) {
+					$fp->table(implode(' ', first($trace)), $trace);
+				}
+				$fp->log(1 == sizeof($params) ? $a : $params);
+			} else {
+				call_user_func_array(array('Debug', 'debug_args'), $params);
+			}
 	    } else {
 		    call_user_func_array(array('Debug', 'debug_args'), $params);
 	    }
