@@ -499,6 +499,7 @@ class HTMLFormTable extends HTMLForm {
 	 * @param array		Form description array
 	 * @param string	Column name that contains values. Within this class default value is the only that makes sence.
 	 * @return array	1D array with name/values
+	 * @deprecated
 	 */
 	function getValues(array $arr = NULL, $col = 'value') {
 		$arr = $arr ? $arr : $this->desc;
@@ -530,6 +531,7 @@ class HTMLFormTable extends HTMLForm {
 		foreach ($desc as $field => $params) {
 			if ($params['type'] == 'datepopup')	{
 				$date = strtotime($form[$field]);
+				debug(__METHOD__, $field, $form[$field], $date);
 				if ($date) {
 					$form[$field] = $date;
 				}
