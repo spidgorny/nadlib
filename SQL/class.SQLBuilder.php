@@ -554,13 +554,14 @@ class SQLBuilder {
 	 *
 	 * @param $table
 	 * @param array $fields
+	 * @param array $insert
 	 * @return resource
 	 */
-	function runInsertNew($table, array $fields) {
+	function runInsertNew($table, array $fields, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
-			$query = $this->getInsertQuery($table, $fields);
+			$query = $this->getInsertQuery($table, $fields + $insert);
 			//debug($query);
 			$resInsert = $this->db->perform($query);
 		}

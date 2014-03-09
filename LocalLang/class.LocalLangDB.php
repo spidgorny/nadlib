@@ -54,12 +54,13 @@ class LocalLangDB extends LocalLang {
 	 * @param $code
 	 */
 	function saveMissingMessage($code) {
-		debug(__METHOD__, DEVELOPMENT, $code, $this->ll[$code]);
+		//debug(__METHOD__, DEVELOPMENT, $code, $this->ll[$code]);
 		if (DEVELOPMENT && $code) {
 			try {
-				$this->db->runInsertQuery($this->table, array(
+				$this->db->runInsertNew($this->table, array(
 					'code' => $code,
 					'lang' => $this->defaultLang,		// is maybe wrong to save to the defaultLang?
+				), array(
 					'text' => '',
 					'page' => Request::getInstance()->getURL(),
 				));
@@ -93,21 +94,27 @@ class LocalLangDB extends LocalLang {
 		//try {
 			$res = $this->db->getTableColumnsEx($this->table);
 			if ($res) {
-				$rows = $this->db->fetchSelectQuery($this->table.
+				// wrong query
+				/*$rows = $this->db->fetchSelectQuery($this->table.
 					" AS a RIGHT OUTER JOIN ".$this->table." AS en
 					ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", array(
-					'a.lang' => new SQLOr(array(
-							'a.lang' => new SQLWhereEqual('a.lang', $lang),
-							'en.lang ' => new SQLWhereEqual('en.lang', 'en')
-							)
+					'a.lang' => new SQLAnd(array(
+						'a.lang' => new SQLWhereEqual('a.lang', $lang),
+						'a.lang ' => new SQLWhereEqual('a.lang', NULL),
 						)
+					),
+					'a.lang' => $lang,
+					'en.lang' => 'en',
 				), 'ORDER BY id',
 					'coalesce(a.id, en.id) AS id,
 					coalesce(a.code, en.code) AS code,
 					coalesce(a.lang, en.lang) AS lang,
 					coalesce(a.text, en.text) AS text,
 					a.page');
-				//debug($this->db->lastQuery, sizeof($rows), first($rows));
+				debug($this->db->lastQuery, sizeof($rows), first($rows));*/
+				$rows = $this->db->fetchSelectQuery($this->table, array(
+					'lang' => $lang,
+				), 'ORDER BY id');
 				$rows = ArrayPlus::create($rows)->IDalize('id')->getData();
 			} else {
 				debug($this->db->lastQuery);
