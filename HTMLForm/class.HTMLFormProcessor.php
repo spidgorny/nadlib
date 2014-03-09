@@ -42,7 +42,7 @@ abstract class HTMLFormProcessor extends AppController {
 	 * For debugging
 	 * @var array
 	 */
-	protected $method = array();
+	public $method = array();
 
 	function __construct(array $default = array()) {
 		parent::__construct();
@@ -51,6 +51,7 @@ abstract class HTMLFormProcessor extends AppController {
 		assert($this->submitButton != '');
 		$this->submitButton = strip_tags(__($this->submitButton));
 		$this->submitted = $this->request->is_set($this->prefix);
+		//debug($this->prefix, $this->request->is_set($this->prefix));
 	}
 
 	/**
