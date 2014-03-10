@@ -17,8 +17,8 @@ class Date extends Time {
 
 	/**
 	 * Copy/paste because to 'static'
-	 * @param type $input
-	 * @param type $relativeTo
+	 * @param int $input
+	 * @param int $relativeTo
 	 * @return self
 	 */
 	static function make($input = NULL, $relativeTo = NULL) {
