@@ -101,6 +101,7 @@ class Mailer {
             throw new Exception('SwiftMailer not installed!');
         }
 
+        /** @var Swift_Message $message */
         $message = Swift_Message::newInstance()
             ->setSubject($subject)
             ->setBody($message)
@@ -109,19 +110,19 @@ class Mailer {
 
         if (!empty($to)) {
             foreach ($to as $address) {
-                empty($address) ?: $message->setTo($address);
+                empty($address) ?: $message->addTo($address);
             }
         }
 
         if (!empty($cc)) {
             foreach ($cc as $address) {
-                empty($address) ?: $message->setCc($address);
+                empty($address) ?: $message->addCc($address);
             }
         }
 
         if (!empty($bcc)) {
             foreach ($bcc as $address) {
-                empty($address) ?: $message->setBcc($address);
+                empty($address) ?: $message->addBcc($address);
             }
         }
 
