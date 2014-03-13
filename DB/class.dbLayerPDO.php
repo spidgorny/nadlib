@@ -87,7 +87,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function affectedRows() {
-		return $this->res->rowCount();
+		return $this->result->rowCount();
 	}
 
 	function getScheme() {
@@ -134,7 +134,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function fetchAssoc(PDOStatement $res) {
-		return $res->fetch(PDO::FETCH_ASSOC);
+		$row = $res->fetch(PDO::FETCH_ASSOC);
+		if (isset($row[0])) {
+			debug($row);
+		}
+		return $row;
 	}
 
 	function dataSeek($int) {
