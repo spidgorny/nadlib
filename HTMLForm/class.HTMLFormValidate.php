@@ -101,6 +101,8 @@ class HTMLFormValidate {
 			$d['error'] = __('Value "%1" must be integer', $d['label'] ?: $field);
 		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
 			$d['error'] = __('Value "%1" must be date', $d['label'] ?: $field);
+		} elseif ($d['validate'] == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
+			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $d['label'] ?: $field, implode(', ', $inValid));
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
@@ -153,4 +155,26 @@ class HTMLFormValidate {
 		return $list;
 	}
 
+    /**
+     * If Swift_Mail is installed, Swift_Validate will be used
+     *
+     * @param $value should contain multiple email addresses (comma separated)
+     * @param array $invalid contains invalid entries (pass by reference)
+     * @return bool
+     */
+    public static function validateEmailAddresses($value, &$invalid = array()) {
+        $value = trim($value);
+        if (empty($value)) {
+            return true;
+        }
+
+        $emailAddresses = preg_split('/\s*,\s*/', $value);
+        foreach ($emailAddresses as &$emailAddress) {
+            if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
+                !self::validMail($value)) {
+                $invalid[] = $emailAddress;
+            }
+        }
+        return empty($invalid);
+    }
 }
