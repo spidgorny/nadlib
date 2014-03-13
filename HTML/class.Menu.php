@@ -357,10 +357,10 @@ class Menu /*extends Controller*/ {
 				if ($path && $this->useControllerSlug) {
 					$link = $this->basePath . implode('/', $path);
 				} else {
-					$link = $this->basePath . $class;
+					$link = $this->basePath->setParam('c', $class);
 				}
 			} else {
-				$link = $this->basePath . $class;
+				$link = $this->basePath->setParam('c', $class);
 			}
 		}
 		nodebug(array(

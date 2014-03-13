@@ -8,7 +8,7 @@
 
 abstract class OODBase {
 	/**
-	 * @var MySQL|dbLayer|dbLayerDB
+	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -170,8 +170,8 @@ abstract class OODBase {
 				$where[$this->idField] = $this->id;
 			}
 			$query = $this->db->qb->getUpdateQuery($this->table, $data, $where);
-			//debug($query);
 			$res = $this->db->perform($query);
+			//debug($query, $res, $this->db->lastQuery, $this->id);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
 			// If the input arrays have the same string keys,
 			// then the later value for that key will overwrite the previous one.
