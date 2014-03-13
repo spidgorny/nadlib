@@ -63,6 +63,11 @@ class URL {
 		return $url;
 	}
 
+	/**
+	 * @param $param
+	 * @param $value
+	 * @return static
+	 */
 	public function setParam($param, $value) {
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
