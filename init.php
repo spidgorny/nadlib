@@ -42,6 +42,7 @@ class InitNADLIB {
 
 		$this->al->useCookies = $this->useCookies;
 		$this->al->register();
+        Config::getInstance();
 
 		Config::getInstance();
 

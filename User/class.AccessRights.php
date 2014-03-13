@@ -21,7 +21,7 @@ class AccessRights {
 	}
 
 	function init($idGroup) {
-		$res = $this->db->qb->runSelectQuery($this->accessTable.' /**/
+		$res = $this->db->getQb()->runSelectQuery($this->accessTable.' /**/
 			LEFT OUTER JOIN '.$this->groupAccessTable.' ON (
 				'.$this->accessTable.'.id = '.$this->groupAccessTable.'.'.$this->id_useraccess.'
 				AND '.$this->id_usergroup.' = '.$idGroup.')',

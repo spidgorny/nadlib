@@ -356,7 +356,12 @@ class dbLayer {
 		return $c;
 	}
 
-	function getInsertQuery($table, $columns) {
+    /**
+     * @param string $table Table name
+     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+     * @return string
+     */
+    function getInsertQuery($table, $columns) {
 		$q = 'INSERT INTO '.$table.' (';
 		$q .= implode(", ", array_keys($columns));
 		$q .= ") VALUES (";
