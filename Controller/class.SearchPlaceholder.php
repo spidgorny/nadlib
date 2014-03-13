@@ -3,16 +3,16 @@
 class SearchPlaceholder extends AppController {
 
 	var $ajaxLinks = array(
-		'?class=SearchPlaceholder&action=sleep&time=1',
-		'?class=SearchPlaceholder&action=sleep&time=2',
-		'?class=SearchPlaceholder&action=sleep&time=3',
-		'?class=SearchPlaceholder&action=sleep&time=4',
-		'?class=SearchPlaceholder&action=sleep&time=5',
-		'?class=SearchPlaceholder&action=sleep&time=6',
-		'?class=SearchPlaceholder&action=sleep&time=7',
-		'?class=SearchPlaceholder&action=sleep&time=8',
-		'?class=SearchPlaceholder&action=sleep&time=9',
-		'?class=SearchPlaceholder&action=sleep&time=10',
+		'?c=SearchPlaceholder&action=sleep&time=1',
+		'?c=SearchPlaceholder&action=sleep&time=2',
+		'?c=SearchPlaceholder&action=sleep&time=3',
+		'?c=SearchPlaceholder&action=sleep&time=4',
+		'?c=SearchPlaceholder&action=sleep&time=5',
+		'?c=SearchPlaceholder&action=sleep&time=6',
+		'?c=SearchPlaceholder&action=sleep&time=7',
+		'?c=SearchPlaceholder&action=sleep&time=8',
+		'?c=SearchPlaceholder&action=sleep&time=9',
+		'?c=SearchPlaceholder&action=sleep&time=10',
 	);
 
 	function render() {
@@ -24,7 +24,7 @@ class SearchPlaceholder extends AppController {
 	}
 
 	function renderProgressBar() {
-		$pb = new ProgressBar();
+		$pb = new ProgressBar(1);
 		$pb->destruct100 = false;
 		$content = $pb->getContent();
 
@@ -35,16 +35,16 @@ class SearchPlaceholder extends AppController {
 		$content .= '<script> var ajaxLinks = '.json_encode($this->ajaxLinks).'; </script>';
 		$content .= '<div id="SearchPlaceholder"></div>';
 		$this->index->addJQuery();
-		$this->index->footer[] = '<script> jQuery.noConflict(); </script>';
+		//$this->index->footer[] = '<script> jQuery.noConflict(); </script>';
 		$this->index->addJS('vendor/spidgorny/nadlib/js/SearchPlaceholder.js');
 		return $content;
 	}
 
 	function sleepAction() {
-		$content = 'asd';
 		sleep(1);
-
 		$time = $this->request->getInt('time');
+		$content = 'asd '.$time;
+
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
 		$pbid = $this->request->getTrim('pbid');
