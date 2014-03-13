@@ -505,6 +505,21 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $element;
 	}
 
+    /**
+     * @param $oldKey
+     * @param $newKey
+     * @return array
+     * @throws Exception
+     */
+    function replace_key($oldKey, $newKey) {
+        $keys = array_keys((array) $this);
+        if (false === $index = array_search($oldKey, $keys)) {
+            throw new Exception(sprintf('Key "%s" does not exit', $oldKey));
+        }
+        $keys[$index] = $newKey;
+        return array_combine($keys, array_values((array) $this));
+    }
+
 }
 
 function AP(array $a = array()) {
