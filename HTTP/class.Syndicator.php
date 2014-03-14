@@ -251,7 +251,6 @@ class Syndicator {
 				//$out = tidy_get_output($tidy);
 				$out = $tidy->value;
 			} else {
-				require_once 'nadlib/HTML/htmLawed.php';
 				$out = htmLawed($html, array(
 					'valid_xhtml' => 1,
 					'tidy' => 1,

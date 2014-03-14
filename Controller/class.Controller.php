@@ -97,13 +97,19 @@ abstract class Controller {
 			} else {
 				$class = $params['c'];
 				unset($params['c']);
-				$url = new URL($this->request->getLocation().$class, $params);
+				$url = new URL($prefix != '?'
+					? $prefix
+					: $this->request->getLocation(), $params);
+				$url->components['path'] .= $class;
 			}
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
+			$url = new URL($prefix != '?'
+				? $prefix
+				: $this->request->getLocation(), $params);
+			debug($prefix, $url);
 			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
 
 			//debug($url->documentRoot, $prefix, $url.'');
