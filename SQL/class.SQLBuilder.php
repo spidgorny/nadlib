@@ -585,7 +585,8 @@ class SQLBuilder {
 
 	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '') {
 		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
-		$data = $this->db->fetchAll($this->db->perform($query));
+		$res = $this->db->perform($query);
+		$data = $this->db->fetchAll($res);
 		return $data;
 	}
 
