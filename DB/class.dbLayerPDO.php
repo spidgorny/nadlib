@@ -82,6 +82,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $this->result;
 	}
 
+	/**
+	 * @param $res PDOStatement
+	 * @return mixed
+	 */
 	function numRows($res) {
 		return $res->rowCount();
 	}
@@ -135,9 +139,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function fetchAssoc(PDOStatement $res) {
 		$row = $res->fetch(PDO::FETCH_ASSOC);
-		if (isset($row[0])) {
-			debug($row);
-		}
 		return $row;
 	}
 
@@ -175,7 +176,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		if (is_string($stringOrRes)) {
 			$this->perform($stringOrRes);
 		}
-		$data = $this->result->fetchAll();
+		$data = $this->result->fetchAll(PDO::FETCH_ASSOC);
 
 		if ($key) {
 			$copy = $data;
