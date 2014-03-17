@@ -92,10 +92,11 @@ class Mailer {
      * @param mixed $cc
      * @param mixed $bcc
      * @param array $attachments
+     * @param array $additionalSenders This will be added to
      * @throws Exception
      * @return int Number of recipients who were accepted for delivery.
      */
-    public static function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array())
+    public static function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
     {
         if (!class_exists('Swift_Mailer')) {
             throw new Exception('SwiftMailer not installed!');
@@ -105,8 +106,14 @@ class Mailer {
         $message = Swift_Message::newInstance()
             ->setSubject($subject)
             ->setBody($message)
-            ->setFrom(Index::getInstance()->mailFromSwiftMailer)
         ;
+
+        $senders = $senders = array_merge(Index::getInstance()->mailFromSwiftMailer, $additionalSenders);
+        if (!empty($senders)) {
+            foreach ($senders as $address) {
+                empty($address) ?: $message->addFrom($address);
+            }
+        }
 
         if (!empty($to)) {
             foreach ($to as $address) {
