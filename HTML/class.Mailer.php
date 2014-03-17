@@ -108,9 +108,9 @@ class Mailer {
             ->setBody($message)
         ;
 
-        $senders = $senders = array_merge(Index::getInstance()->mailFromSwiftMailer, $additionalSenders);
-        if (!empty($senders)) {
-            foreach ($senders as $address) {
+        $message->setFrom(Index::getInstance()->mailFromSwiftMailer);
+        if (!empty($additionalSenders)) {
+            foreach ($additionalSenders as $address) {
                 empty($address) ?: $message->addFrom($address);
             }
         }
