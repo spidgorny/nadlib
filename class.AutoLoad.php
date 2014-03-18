@@ -99,6 +99,8 @@ class AutoLoad {
 			'$this->appRoot' => $this->appRoot,
 			'Config->appRoot' => Config::getInstance()->appRoot,
 			'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+			'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
+			'request->getLocation()' => Request::getInstance()->getLocation(),
 		);
 	}
 
@@ -136,7 +138,7 @@ class AutoLoad {
 		if (!class_exists('Config')) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
 			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
-			//debug($configPath, file_exists($configPath));
+			//var_dump($configPath, file_exists($configPath)); exit();
 			if (file_exists($configPath)) {
 				include_once $configPath;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
@@ -182,6 +184,7 @@ class AutoLoad {
 			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
 			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
+		//debug($folders);
 
 		return $folders;
 	}

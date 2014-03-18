@@ -55,7 +55,7 @@ class FlexiTable extends OODBase {
 			$mtime = new Time();
 			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		}
-		if (!$row['muser']) {
+		if (!$row['muser'] && Config::getInstance()->user->id) {
 			$row['muser'] = Config::getInstance()->user->id;
 		}
 		if ($this->doCheck) {

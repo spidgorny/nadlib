@@ -42,7 +42,7 @@ abstract class HTMLFormProcessor extends AppController {
 	 * For debugging
 	 * @var array
 	 */
-	protected $method = array();
+	public $method = array();
 
 	function __construct(array $default = array()) {
 		parent::__construct();
@@ -51,6 +51,7 @@ abstract class HTMLFormProcessor extends AppController {
 		assert($this->submitButton != '');
 		$this->submitButton = strip_tags(__($this->submitButton));
 		$this->submitted = $this->request->is_set($this->prefix);
+		//debug($this->prefix, $this->request->is_set($this->prefix));
 	}
 
 	/**
@@ -83,11 +84,15 @@ abstract class HTMLFormProcessor extends AppController {
 			$this->method[] = '$this->submitted = false';
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 			//debug($this->default);
-			$this->form->importValues($this->default instanceof Request
-				? $this->default
-				: new Request($this->default));
-			$this->desc = $this->form->desc;
-			$this->method[] = '$this->desc = $this->form->importValues($this->default)';
+			if ($this->default) {
+				$this->form->importValues($this->default instanceof Request
+					? $this->default
+					: new Request($this->default));
+				$this->desc = $this->form->desc;
+				$this->method[] = '$this->desc = $this->form->importValues($this->default)';
+			} else {
+				$this->method[] = '! import $this->default';
+			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
