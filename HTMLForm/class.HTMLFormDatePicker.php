@@ -52,7 +52,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 		//debug($value, is_integer($value), is_numeric($value), strtotime($value));
 		if ($value && (is_integer($value) || is_numeric($value))) {
 			$val = intval($value);
-		} else if ($this->jsFormat == 'dd.mm.yy') {
+		} else if ($value && is_string($value) && $this->jsFormat == 'dd.mm.yy') {
 			$val = explode('.', $value);
 			$val = array_reverse($val);
 			$val = implode('-', $val);

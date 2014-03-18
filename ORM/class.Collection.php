@@ -66,7 +66,7 @@ class Collection {
 	 * objectify() without parameters will try this class name
 	 * @var string
 	 */
-	protected $itemClassName = 'OODBase?';
+	public $itemClassName = 'OODBase?';
 
 	/**
 	 * SQL part

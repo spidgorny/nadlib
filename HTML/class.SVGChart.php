@@ -48,12 +48,16 @@ class SVGChart {
 				}
 			}
 			$diff = (max($this->data) - min($this->data)) / sizeof($this->data);
-			foreach ($data as $i => $height) {
+			foreach ($data as $i => $times) {
 				$x = $i * $width;
 				$y = $this->height - max(1, $height) - 7;
-				$height = round(($this->height-20) * $height / $max);
+				$height = round(($this->height-20) * $times / $max);
 				$i2 = round($labels[$i+1]);
-				$text = $labels[$i] .' - '.$i2.': '.$height .' times';
+				$text = $labels[$i];
+				if ($i2) {
+					$text .= ' - '.$i2;
+				}
+				$text .= ': '.$times .' times';
 				$x = 0; $y = $this->text_size;
 				$content .= '<text id="thepopup'.$i.'"
 					x="'.$x.'"
