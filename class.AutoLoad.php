@@ -99,6 +99,8 @@ class AutoLoad {
 			'$this->appRoot' => $this->appRoot,
 			'Config->appRoot' => Config::getInstance()->appRoot,
 			'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+			'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
+			'request->getLocation()' => Request::getInstance()->getLocation(),
 		);
 	}
 
