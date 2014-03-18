@@ -110,7 +110,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo $text  . ' '.$this->getCLIbar()."\r";
+			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserver errors
 		} else {
 			print('
 			<script type="text/javascript">
@@ -183,14 +183,15 @@ class ProgressBar {
 	}
 
 	function getCLIbar() {
+		$content = '';
 		if (!$this->cliWidth) {
-			$this->cliWidth = round($this->getTerminalWidth() / 2);
-			if ($this->cliWidth > 0) {  // otherwise cronjob
-				$chars = round($this->percentDone / 100 * $this->cliWidth);
-				$chars = min($this->cliWidth, $chars);
-				$space = max(0, $this->cliWidth - $chars);
-				$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
-			}
+			$this->cliWidth = intval(round($this->getTerminalWidth() / 2));
+		}
+		if ($this->cliWidth > 0) {  // otherwise cronjob
+			$chars = round($this->percentDone / 100 * $this->cliWidth);
+			$chars = min($this->cliWidth, $chars);
+			$space = max(0, $this->cliWidth - $chars);
+			$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
 		}
 		return $content;
 	}
@@ -235,10 +236,11 @@ class ProgressBar {
 	}
 
 	function getTerminalSizeOnLinux() {
-		return array_combine(
+		$size = array_combine(
 			array('width', 'height'),
 			array(exec('tput cols'), exec('tput lines'))
 		);
+		return $size;
 	}
 
 }
