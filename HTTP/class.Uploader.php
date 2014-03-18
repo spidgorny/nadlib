@@ -74,12 +74,13 @@ class Uploader {
 		return $f;
 	}
 
-	/**
-	 * @param string $from - usually 'file' - the same name as in getUploadForm()
-	 * @param string $to - directory
-	 * @throws Exception
-	 */
-	public function moveUpload($from, $to) {
+    /**
+     * @param string $from - usually 'file' - the same name as in getUploadForm()
+     * @param string $to - directory
+     * @param bool $overwriteExistingFile
+     * @throws Exception
+     */
+	public function moveUpload($from, $to, $overwriteExistingFile = true) {
 		if ($uf = $_FILES[$from]) {
 			if (!$this->checkError($uf)) {
 				throw new Exception($this->errors[$uf['error']]);
@@ -90,7 +91,26 @@ class Uploader {
 			if (!$this->checkMime($uf)) {
 				throw new Exception('File uploaded is not allowed ('.$uf['mime'].')');
 			}
-			$ok = @move_uploaded_file($uf['tmp_name'], $to.$uf['name']);
+
+            // if you don't want existing files to be overwritten,
+            // new file will be renamed to *_n,
+            // where n is the number of existing files
+            $fileName = $to.$uf['name'];
+            if (!$overwriteExistingFile && file_exists($fileName)) {
+                $actualName = pathinfo($fileName, PATHINFO_FILENAME);
+                $originalName = $actualName;
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+                $i = 1;
+                while(file_exists($to.$actualName.".".$extension))
+                {
+                    $actualName = (string) $originalName.'_'.$i;
+                    $fileName = $actualName.".".$extension;
+                    $i++;
+                }
+            }
+
+			$ok = @move_uploaded_file($uf['tmp_name'], $to.$fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
