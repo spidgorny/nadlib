@@ -105,12 +105,12 @@ class Uploader {
                 while(file_exists($to.$actualName.".".$extension))
                 {
                     $actualName = (string) $originalName.'_'.$i;
-                    $fileName = $actualName.".".$extension;
+                    $fileName = $to.$actualName.".".$extension;
                     $i++;
                 }
             }
 
-			$ok = @move_uploaded_file($uf['tmp_name'], $to.$fileName);
+			$ok = @move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
