@@ -413,6 +413,7 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Is cached in instances
 	 * @param string $name
 	 * @param null $field
 	 * @return static
