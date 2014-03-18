@@ -200,7 +200,7 @@ class Collection {
 		}
 
 		$data = $this->db->fetchAll($res);
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
 		if ($preprocess) {
 			$this->preprocessData();
 		}
@@ -244,7 +244,7 @@ class Collection {
 			//$this->pager->debug();
 		}
 
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge)->getData();
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
 		if ($preprocess) {
 			$this->preprocessData();
 		}
@@ -390,6 +390,9 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
+	/**
+	 * @return array|ArrayPlus
+	 */
 	function getData() {
 		if (!$this->query) {
 			$this->retrieveDataFromDB();
