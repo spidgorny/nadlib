@@ -25,6 +25,8 @@ class InitNADLIB {
 		);
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
+		Mb_Internal_Encoding ( 'UTF-8' );
+		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
