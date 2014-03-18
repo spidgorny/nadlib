@@ -19,6 +19,8 @@ class HomeBE extends AppControllerBE {
 		$content .= getDebug(AutoLoad::getInstance()->debug());
 		$content .= SysInfo::getInstance()->render();
 
+		$content .= getDebug($_ENV);
+
 		return $content;
 	}
 
