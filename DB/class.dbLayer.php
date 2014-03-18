@@ -388,7 +388,13 @@ class dbLayer {
 		return $res;
 	}
 
-	function getUpdateQuery($table, $columns, $where) {
+    /**
+     * @param string $table
+     * @param array $columns
+     * @param array $where
+     * @return string
+     */
+    function getUpdateQuery($table, $columns, $where) {
 		$q = 'UPDATE '.$table .' SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {
