@@ -34,7 +34,7 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		if ($this->connection) {
 			$this->result = odbc_exec($this->connection, $query);
 		} else {
-			throw new Exception(__METHOD__);
+			throw new Exception($this->lastError());
 		}
 		return $this->result;
 	}
@@ -93,6 +93,10 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		} else {
 			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
 		}
+	}
+
+	function lastError() {
+		return odbc_error().': '.odbc_errormsg();
 	}
 
 }
