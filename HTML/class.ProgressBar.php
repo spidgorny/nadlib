@@ -188,7 +188,7 @@ class ProgressBar {
 			$this->cliWidth = intval(round($this->getTerminalWidth() / 2));
 		}
 		if ($this->cliWidth > 0) {  // otherwise cronjob
-			$chars = round($this->percentDone / 100 * $this->cliWidth);
+			$chars = round(abs($this->percentDone) / 100 * $this->cliWidth);
 			$chars = min($this->cliWidth, $chars);
 			$space = max(0, $this->cliWidth - $chars);
 			$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
