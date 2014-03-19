@@ -229,6 +229,18 @@ function debug_pre_print_backtrace() {
 }
 
 /**
+ * Replaces "\t" tabs in non breaking spaces so they can be displayed in html
+ *
+ * @param $text
+ * @param int $tabDepth
+ * @return mixed
+ */
+function tab2nbsp ($text, $tabDepth = 4) {
+    $tabSpaces = str_repeat('&nbsp;', $tabDepth);
+    return str_replace("\t", $tabSpaces, $text);
+}
+
+/**
  * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
  */
 if(!function_exists('get_called_class')) {
