@@ -33,6 +33,9 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 	function perform($query) {
 		if ($this->connection) {
 			$this->result = odbc_exec($this->connection, $query);
+			if (!$this->result) {
+				throw new Exception($this->lastError());
+			}
 		} else {
 			throw new Exception($this->lastError());
 		}

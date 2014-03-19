@@ -222,8 +222,8 @@ class Collection {
 			'delim' => ' ',
 		));
 		//debug($sql->parsed);
-		$query = $sql->__toString();
-		$res = $this->db->perform($query);
+		$this->query = $sql->__toString();
+		$res = $this->db->perform($this->query);
 
 		if ($this->pager) {
 			$this->pager->setNumberOfRecords(PHP_INT_MAX);

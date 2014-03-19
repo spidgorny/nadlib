@@ -69,6 +69,8 @@ class InitNADLIB {
 		}
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
+
+		require_once 'vendor/autoload.php';
 	}
 
 	function initWhoops() {

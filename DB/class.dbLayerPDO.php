@@ -83,7 +83,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function numRows($res) {
-		return $res->rowCount();
+		$count = $res->rowCount();
+		if ($count == -1) {
+			$countQuery = 'SELECT count(*) FROM ('.$res->queryString.') AS sub1';
+			$rows = $this->fetchAll($countQuery);
+			//debug($countQuery, $rows);
+			$count = first(first($rows));
+		}
+		return $count;
 	}
 
 	function affectedRows() {
@@ -135,9 +142,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function fetchAssoc(PDOStatement $res) {
 		$row = $res->fetch(PDO::FETCH_ASSOC);
-		if (isset($row[0])) {
-			debug($row);
-		}
 		return $row;
 	}
 
@@ -175,7 +179,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		if (is_string($stringOrRes)) {
 			$this->perform($stringOrRes);
 		}
-		$data = $this->result->fetchAll();
+		$data = $this->result->fetchAll(PDO::FETCH_ASSOC);
 
 		if ($key) {
 			$copy = $data;

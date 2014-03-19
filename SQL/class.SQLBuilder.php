@@ -701,4 +701,21 @@ class SQLBuilder {
 		return $data;
 	}
 
+	/**
+	 * @var string $query
+	 * @return resource
+	 */
+	function getIterator($query) {
+		if ($this->db instanceof dbLayerPDO) {
+			$res = $this->db->perform($query);
+			return $res;
+		} else {
+			$di = new DIContainer();
+			$di->db = $this->db;
+			$f = new DatabaseResultIteratorAssoc($di);
+			$f->perform($query);
+			return $f;
+		}
+	}
+
 }

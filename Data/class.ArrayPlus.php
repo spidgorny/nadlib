@@ -505,6 +505,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $element;
 	}
 
+	function debug() {
+		return array(
+			'count' => $this->count(),
+		);
+	}
+
 }
 
 function AP(array $a = array()) {
