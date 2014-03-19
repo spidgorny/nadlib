@@ -92,14 +92,6 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function __call($method, array $params) {
-		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
-		} else {
-			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
-		}
-	}
-
 	function lastError() {
 		return 'ODBC error #'.odbc_error().': '.odbc_errormsg();
 	}

@@ -32,9 +32,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	protected $dataSeek = NULL;
 
 	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL, $port = 3306) {
-		$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
+		if ($user) {
+			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
+			$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+		}
 		$this->setQB();
-		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 	}
 
 	static function getAvailableDrivers() {
@@ -63,6 +65,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			'PROTOCOL' => 'TCPIP',
 		));
 		//debug($this->dsn);
+		$this->connectDSN($this->dsn, $user, $password);
+	}
+
+	function connectDSN($dsn, $user = NULL, $password = NULL) {
+		$this->dsn = $dsn;
 		$this->connection = new PDO($this->dsn, $user, $password);
 	}
 
