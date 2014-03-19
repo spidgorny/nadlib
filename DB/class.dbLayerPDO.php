@@ -164,7 +164,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
 		if ($scheme == 'mysql') {
-			$this->perform('show columns from '.$table);
+			$this->perform('show columns from '.$this->quoteKey($table));
 		}
 		return $this->fetchAll($this->result, 'Field');
 	}

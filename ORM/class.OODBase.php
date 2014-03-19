@@ -202,7 +202,7 @@ abstract class OODBase {
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
 		$rows = $this->db->fetchSelectQuery($this->table, $this->where + $where, $orderByLimit);
 		if (is_array($rows)) {
 			if (is_array(first($rows))) {
@@ -214,7 +214,7 @@ abstract class OODBase {
 			$data = array();
 		}
 		$this->init($data, true);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$this->table.')');
 		return $data;
 	}
 
