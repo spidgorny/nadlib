@@ -109,7 +109,7 @@ abstract class Controller {
 			$url = new URL($prefix != '?'
 				? $prefix
 				: $this->request->getLocation(), $params);
-			debug($prefix, $url);
+			//debug($prefix, $url);
 			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
 
 			//debug($url->documentRoot, $prefix, $url.'');
