@@ -7,6 +7,7 @@
  */
 
 abstract class OODBase {
+
 	/**
 	 * @var MySQL|dbLayer|dbLayerDB
 	 * public to allow unset($o->db); before debugging
@@ -190,7 +191,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		$query = $this->db->qb->getDeleteQuery($this->table, $where);
+		$query = $this->db->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
 	}
