@@ -34,7 +34,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL, $port = 3306) {
 		if ($user) {
 			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
-			$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 		}
 		$this->setQB();
 	}
@@ -71,19 +70,41 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
 		$this->dsn = $dsn;
 		$this->connection = new PDO($this->dsn, $user, $password);
+		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
 	}
 
 	function perform($query, array $params = array()) {
 		$this->lastQuery = $query;
-		$this->result = $this->connection->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
-		$ok = $this->result->execute($params);
-		if (!$ok) {
-			throw new Exception(print_r(array(
-				'class' => get_class($this),
-				'code' => $this->connection->errorCode(),
-				'errorInfo' => $this->connection->errorInfo(),
-				'query' => $query,
-				), true),
+		$params = array();
+		if ($this->getScheme() == 'mysql') {
+			$params = array(
+				PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
+			);
+		}
+		$this->result = $this->connection->prepare($query, $params);
+		if ($this->result) {
+			$ok = $this->result->execute($params);
+			if (!$ok) {
+				throw new Exception(getDebug(array(
+						'class' => get_class($this),
+						'code' => $this->connection->errorCode(),
+						'errorInfo' => $this->connection->errorInfo(),
+						'query' => $query,
+						'connection' => $this->connection,
+						'result' => $this->result,
+					)),
+					$this->connection->errorCode() ?: 0);
+			}
+		} else {
+			throw new Exception(getDebug(array(
+					'class' => get_class($this),
+					'code' => $this->connection->errorCode(),
+					'errorInfo' => $this->connection->errorInfo(),
+					'query' => $query,
+					'connection' => $this->connection,
+					'result' => $this->result,
+				)),
 				$this->connection->errorCode() ?: 0);
 		}
 		return $this->result;
@@ -139,14 +160,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return intval(!!$value);
 	}
 
-	function __call($method, array $params) {
-		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
-		} else {
-			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
-		}
-	}
-
 	function fetchAssoc(PDOStatement $res) {
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		return $row;
@@ -161,9 +174,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function getTableColumnsEx($table) {
-		$scheme = parse_url($this->dsn);
-		$scheme = $scheme['scheme'];
-		if ($scheme == 'mysql') {
+		if ($this->getScheme() == 'mysql') {
 			$this->perform('show columns from '.$this->quoteKey($table));
 		}
 		return $this->fetchAll($this->result, 'Field');
