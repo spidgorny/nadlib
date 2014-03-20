@@ -434,7 +434,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function implode($sep) {
-		return implode($sep, $this);
+		return implode($sep, (array) $this);
 	}
 
 	function typoscript($prefix = '') {
@@ -510,6 +510,21 @@ class ArrayPlus extends ArrayObject implements Countable {
 			'count' => $this->count(),
 		);
 	}
+	
+    /**
+     * @param $oldKey
+     * @param $newKey
+     * @return array
+     * @throws Exception
+     */
+    function replace_key($oldKey, $newKey) {
+        $keys = array_keys((array) $this);
+        if (false === $index = array_search($oldKey, $keys)) {
+            throw new Exception(sprintf('Key "%s" does not exit', $oldKey));
+        }
+        $keys[$index] = $newKey;
+        return array_combine($keys, array_values((array) $this));
+    }
 
 }
 

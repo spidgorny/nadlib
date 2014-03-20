@@ -356,7 +356,12 @@ class dbLayer {
 		return $c;
 	}
 
-	function getInsertQuery($table, $columns) {
+    /**
+     * @param string $table Table name
+     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+     * @return string
+     */
+    function getInsertQuery($table, $columns) {
 		$q = 'INSERT INTO '.$table.' (';
 		$q .= implode(", ", array_keys($columns));
 		$q .= ") VALUES (";
@@ -383,7 +388,13 @@ class dbLayer {
 		return $res;
 	}
 
-	function getUpdateQuery($table, $columns, $where) {
+    /**
+     * @param string $table
+     * @param array $columns
+     * @param array $where
+     * @return string
+     */
+    function getUpdateQuery($table, $columns, $where) {
 		$q = 'UPDATE '.$table .' SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {

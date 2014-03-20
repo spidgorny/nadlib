@@ -85,18 +85,22 @@ class Index extends IndexBase {
 	}
 
 	function loadBEmenu(array $menu) {
-		$c = Spyc::YAMLLoad('../../../../class/config.yaml');
-		//debug($c['BEmenu']);
-		if ($c['BEmenu']) {
-			//$c['BEmenu'] = array('FE' => $c['BEmenu']);
-			foreach($c['BEmenu'] as $key => $sub) {
-				if (is_array($sub)) {
-					$menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
-				} else {
-					$menu['ClearCache']->elements[$key] = $sub;
-				}
-			}
-		}
+        if (file_exists('class/config.yaml')) {
+            $c = Spyc::YAMLLoad('../../../../class/config.yaml');
+            //debug($c['BEmenu']);
+            if ($c['BEmenu']) {
+                //$c['BEmenu'] = array('FE' => $c['BEmenu']);
+                foreach($c['BEmenu'] as $key => $sub) {
+                    if (is_array($sub)) {
+                        $menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
+                    } else {
+                        $menu['ClearCache']->elements[$key] = $sub;
+                    }
+                }
+            }
+        }
+
+
 		return $menu;
 	}
 

@@ -300,11 +300,13 @@ return $return; */
 
 	static function getScriptWithPath() {
 		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
-		if (Request::isCLI()) {
-			if (basename($_SERVER['SCRIPT_FILENAME']) == $_SERVER['SCRIPT_FILENAME']) {	// index.php
-				$scriptWithPath = getcwd().'/'.$_SERVER['SCRIPT_FILENAME'];
+		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
+        // C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
+        if (Request::isCLI()) {
+			if (basename(__FILE__) == __FILE__) {	// index.php
+				$scriptWithPath = getcwd().'/'.__FILE__;
 			} else {
-				$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+				$scriptWithPath = __FILE__;
 			}
 		} else {
 			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
