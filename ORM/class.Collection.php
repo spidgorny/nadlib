@@ -689,11 +689,11 @@ class Collection {
 		} else {
 			$prevData = $nextData = array();
 		}
-		$data = $prevData + $this->data + $nextData; // not array_merge which will reindex
+		$data = $prevData + $this->data->getData() + $nextData; // not array_merge which will reindex
 
 		nodebug($model->id,
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
-			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($this->data))),
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$this->data))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
 		$ap = AP($data);
