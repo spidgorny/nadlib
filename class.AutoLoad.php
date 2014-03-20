@@ -117,14 +117,14 @@ class AutoLoad {
 		while ($appRoot && $appRoot != '/'
 			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
 		) {
-			$exists = file_exists($appRoot.'/class/class.Config.php');
+			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'class.Config.php');
 			//debug($appRoot, strlen($appRoot), $exists);
 			if ($exists) {
 				break;
 			}
 			$appRoot = dirname($appRoot);
 		}
-		return $appRoot.'/';
+		return $appRoot.DIRECTORY_SEPARATOR;
 	}
 
 	function loadConfig() {
@@ -137,7 +137,7 @@ class AutoLoad {
 		}
 		if (!class_exists('Config')) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath = $this->appRoot.'class/class.Config.php';
+			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
 			//var_dump($configPath, file_exists($configPath)); exit();
 			if (file_exists($configPath)) {
 				include_once $configPath;
