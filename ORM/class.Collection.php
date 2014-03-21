@@ -758,14 +758,15 @@ class Collection {
 
 	function getObjectInfo() {
 		$list = array();
-		foreach ($this->members as $obj) {	/** @var $obj OODBase */
+		foreach ($this->members as $obj) {
+			/** @var $obj OODBase */
 			$list[] = $obj->getObjectInfo();
 		}
 		return $list;
 	}
 
 	function getLazyIterator() {
-		$query = $this->getQueryWithLimit();
+		$query = $this->getQuery();
 
 		$di = new DIContainer();
 		$di->db = $this->db;
