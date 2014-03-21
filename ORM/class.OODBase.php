@@ -169,7 +169,7 @@ abstract class OODBase {
 			} else {
 				$where[$this->idField] = $this->id;
 			}
-			$query = $this->db->getQb()->getUpdateQuery($this->table, $data, $where);
+			$query = $this->db->getUpdateQuery($this->table, $data, $where);
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
