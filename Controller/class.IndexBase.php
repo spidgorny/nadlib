@@ -231,7 +231,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function log($action, $bookingID) {
-		$this->db->getQb()->runInsertQuery('log', array(
+		$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,

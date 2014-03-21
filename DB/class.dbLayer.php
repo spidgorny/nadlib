@@ -733,13 +733,11 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb($qb)
-    {
+    public function setQb($qb) {
         $this->qb = $qb;
     }
 
-    public function getQb()
-    {
+    public function getQb() {
         if(!isset($this->qb)) {
             $di = new DIContainer();
             $di->db = Config::getInstance()->db;

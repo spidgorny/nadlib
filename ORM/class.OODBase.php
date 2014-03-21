@@ -136,17 +136,22 @@ abstract class OODBase {
 	 * Returns $this
 	 *
 	 * @param array $data
+	 * @throws Exception
 	 * @return OODBase
 	 */
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
-		$query = $this->db->getQb()->getInsertQuery($this->table, $data);
+		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
-		$this->init($id ? $id : $this->id);
+		if ($id) {
+			$this->init($id ? $id : $this->id);
+		} else {
+			throw new Exception('OODBase for '.$this->table.' no insert id after insert');
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
 	}
@@ -181,7 +186,7 @@ abstract class OODBase {
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
-			throw new Exception(__('Updating is not possible as there is no ID defined.'));
+			throw new Exception(__('Updating '.$this->table.' is not possible as there is no ID defined.'));
 		}
 		return $res;
 	}
@@ -190,7 +195,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		$query = $this->db->getQb()->getDeleteQuery($this->table, $where);
+		$query = $this->db->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
 	}
