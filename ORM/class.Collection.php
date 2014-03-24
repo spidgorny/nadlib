@@ -691,7 +691,9 @@ class Collection {
 		} else {
 			$prevData = $nextData = array();
 		}
-		$data = $prevData + $this->data->getData() + $nextData; // not array_merge which will reindex
+		$data = $prevData + (
+            ($this->data instanceof ArrayPlus) ? $this->data->getData() : $this->data
+            ) + $nextData; // not array_merge which will reindex
 
 		nodebug($model->id,
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
