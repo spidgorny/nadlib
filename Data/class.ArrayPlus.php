@@ -523,7 +523,7 @@ class ArrayPlus extends ArrayObject implements Countable {
             throw new Exception(sprintf('Key "%s" does not exit', $oldKey));
         }
         $keys[$index] = $newKey;
-        return array_combine($keys, array_values((array) $this));
+        $this->exchangeArray(array_combine($keys, array_values((array) $this)));
     }
 
 }
