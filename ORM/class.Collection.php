@@ -140,7 +140,7 @@ class Collection {
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
-			$this->where += $where;
+			$this->where += $where; // use array_merge instead!?
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
