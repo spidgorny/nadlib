@@ -289,6 +289,7 @@ abstract class Controller {
 
 	/**
 	 * Uses float: left;
+	 * @params array[string]
 	 * @return mixed|string
 	 */
 	function inColumns() {
