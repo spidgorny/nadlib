@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Class SQLBuilder - contains database unspecific (general) SQL functions.
+ * It has $this->db a database specific (PostgreSQL, MySQL, SQLite, Oracle, PDO) class
+ * which is performing the actual queries.
+ * This $db class has a back reference to this as $this->db->qb == $this.
+ * Usage in controllers/models:
+ * $this->db = new MySQL();
+ * $this->db->qb = new SQLBuilder();
+ * $this->db->qb->db = $this->db;
+ * $this->db->fetchSelectQuery(...);
+ *
+ * Note that the creation of objects above is handled by DIContainer
+ * but it's not shown above for comprehensibility.
+ */
 class SQLBuilder {
 
 	/**
