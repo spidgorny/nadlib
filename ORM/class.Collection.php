@@ -140,7 +140,9 @@ class Collection {
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
-			$this->where += $where; // use array_merge instead!?
+            // array_merge should be use instead of array union,
+            // in order to prevent existing entries with numeric keys being ignored in $where
+			$this->where = array_merge($this->where, $where);
 		} else if ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
