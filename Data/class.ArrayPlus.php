@@ -525,6 +525,23 @@ class ArrayPlus extends ArrayObject implements Countable {
         $keys[$index] = $newKey;
         $this->exchangeArray(array_combine($keys, array_values((array) $this)));
     }
+	
+	/**
+	 * @param $ar2
+	 * @return static
+	 */
+	function merge_recursive_overwrite($ar2) {
+		foreach ($ar2 as $key2 => $val2) {
+			if (isset($this->data[$key2])) {
+				$tmp = AP($this->data[$key2]);
+				$tmp->merge_recursive_overwrite($subindex, $val2);
+				$this->data[$key2] = $tmp->getData();
+			} else {
+				$this->data[$key2] = $val2;
+			}
+		}
+		return $this;
+	}
 
 }
 
