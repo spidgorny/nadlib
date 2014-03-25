@@ -136,6 +136,7 @@ abstract class OODBase {
 	 * Returns $this
 	 *
 	 * @param array $data
+	 * @throws Exception
 	 * @return OODBase
 	 */
 	function insert(array $data) {
@@ -146,7 +147,11 @@ abstract class OODBase {
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
-		$this->init($id ? $id : $this->id);
+		if ($id) {
+			$this->init($id ? $id : $this->id);
+		} else {
+			throw new Exception('OODBase for '.$this->table.' no insert id after insert');
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
 	}
@@ -181,7 +186,7 @@ abstract class OODBase {
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
-			throw new Exception(__('Updating is not possible as there is no ID defined.'));
+			throw new Exception(__('Updating '.$this->table.' is not possible as there is no ID defined.'));
 		}
 		return $res;
 	}
