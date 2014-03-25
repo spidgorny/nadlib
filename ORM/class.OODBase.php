@@ -141,7 +141,7 @@ abstract class OODBase {
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
-		$query = $this->db->getQb()->getInsertQuery($this->table, $data);
+		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -169,7 +169,7 @@ abstract class OODBase {
 			} else {
 				$where[$this->idField] = $this->id;
 			}
-			$query = $this->db->getQb()->getUpdateQuery($this->table, $data, $where);
+			$query = $this->db->getUpdateQuery($this->table, $data, $where);
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -190,7 +190,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		$query = $this->db->getQb()->getDeleteQuery($this->table, $where);
+		$query = $this->db->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
 	}
