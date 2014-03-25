@@ -138,7 +138,10 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "textarea":
 					$this->textarea($fieldName, $fieldValue,
-						$desc['more'].
+						(is_array($desc['more'])
+							? HTMLForm::getAttrHTML($desc['more'])
+							: $desc['more']
+						).
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
 						($desc['disabled'] ? ' disabled="1"' : '').
 						($desc['class'] ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
@@ -259,7 +262,12 @@ class HTMLFormTable extends HTMLForm {
 					$type = isset($type) ? $type : 'text';
 					//$this->text(htmlspecialchars($desc['more']));
 					$this->input($fieldName, $fieldValue,
-						($desc['more'] ? $desc['more'] : '') .
+						(is_array($desc['more'])
+							? HTMLForm::getAttrHTML($desc['more'])
+							: '') .
+						(($desc['more'] && !is_array($desc['more']))
+							? $desc['more']
+							: '') .
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
