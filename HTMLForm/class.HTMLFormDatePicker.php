@@ -27,7 +27,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 	}
 
 	function render() {
-		if ($this->value) {
+		if ($this->value && $this->value != '0000-00-00') {
 			if (is_integer($this->value) || is_numeric($this->value)) {
 				$val = date($this->format, $this->value);
 			} else {
