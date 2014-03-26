@@ -5,7 +5,6 @@ class Debug {
 	const LEVELS = 'LEVELS';
 
 	static function debug_args() {
-		debug_pre_print_backtrace();
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
 			$a = $args[0];
