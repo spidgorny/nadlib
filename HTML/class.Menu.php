@@ -59,6 +59,8 @@ class Menu /*extends Controller*/ {
 
 	public $useControllerSlug = true;
 
+	public $controllerVarName = 'c';
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
@@ -117,11 +119,11 @@ class Menu /*extends Controller*/ {
 			} else {
 				$path->setPath($path->documentRoot.'/');
 			}
-			$path->setParam('c', '');	// forces a link with "?c="
+			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
 		} else {
 			$path = new URL();
 			$path->clearParams();
-			$path->setParam('c', '');	// forces a link with "?c="
+			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
 		}
 		$this->basePath = $path;
 		nodebug(array(
@@ -357,10 +359,10 @@ class Menu /*extends Controller*/ {
 				if ($path && $this->useControllerSlug) {
 					$link = $this->basePath . implode('/', $path);
 				} else {
-					$link = $this->basePath->setParam('c', $class);
+					$link = $this->basePath->setParam($this->controllerVarName, $class);
 				}
 			} else {
-				$link = $this->basePath->setParam('c', $class);
+				$link = $this->basePath->setParam($this->controllerVarName, $class);
 			}
 		}
 		nodebug(array(
