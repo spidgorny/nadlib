@@ -4,7 +4,7 @@
  * Class MySQL
  * @mixin SQLBuilder
  */
-class MySQL implements DBInterface {
+class MySQL extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -143,6 +143,10 @@ class MySQL implements DBInterface {
 		}
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
+	}
+
+	function fetchAssocSeek($res) {
+		return $this->fetchAssoc($res);
 	}
 
 	function fetchRow($res) {
@@ -322,6 +326,10 @@ class MySQL implements DBInterface {
 
 	function escapeBool($value) {
 		return intval(!!$value);
+	}
+
+	function getScheme() {
+		return get_class($this);
 	}
 
 }
