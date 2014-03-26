@@ -170,7 +170,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $row;
 	}
 
-	function dataSeek($int) {
+	function dataSeek($res, $int) {
 		$this->dataSeek = $int;
 	}
 
@@ -211,24 +211,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 				$data[$row[$key]] = $row;
 			}
 		}
-		return $data;
-	}
-
-	function fetchPartition($res, $start, $limit) {
-		if ($this->getScheme() == 'mysql') {
-			return $this->fetchPartitionMySQL($res, $start, $limit);
-		}
-		$data = array();
-		for ($i = $start; $i < $start + $limit; $i++) {
-			$this->dataSeek($i);
-			$row = $this->fetchAssocSeek($res);
-			if ($row !== false) {
-				$data[] = $row;
-			} else {
-				break;
-			}
-		}
-		$this->free($res);
 		return $data;
 	}
 

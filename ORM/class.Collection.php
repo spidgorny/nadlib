@@ -235,6 +235,7 @@ class Collection {
 		$start = $this->pager ? $this->pager->getStart() : 0;
 		$limit = $this->pager ? $this->pager->getLimit() : PHP_INT_MAX;
 
+		//debug($sql.'', $start, $limit);
 		$data = $this->db->fetchPartition($res, $start, $limit);
 
 		$countRow = $this->db->fetchAssoc($this->db->perform('SELECT FOUND_ROWS() AS count'));
@@ -529,9 +530,6 @@ class Collection {
 	 * @return object[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
-		if (!$this->query) {
-			$this->retrieveDataFromDB();
-		}
 		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->getData() as $row) {

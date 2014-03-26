@@ -33,4 +33,24 @@ class dbLayerBase {
 		}
 	}
 
+	function fetchPartition($res, $start, $limit) {
+		if ($this->getScheme() == 'mysql') {
+			return $this->fetchPartitionMySQL($res, $start, $limit);
+		}
+		$max = $start + $limit;
+		$max = min($max, $this->numRows($res));
+		$data = array();
+		for ($i = $start; $i < $max; $i++) {
+			$this->dataSeek($res, $i);
+			$row = $this->fetchAssocSeek($res);
+			if ($row !== false) {
+				$data[] = $row;
+			} else {
+				break;
+			}
+		}
+		$this->free($res);
+		return $data;
+	}
+
 }
