@@ -147,7 +147,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function lastInsertID() {
-		$this->connection->lastInsertId();
+		return $this->connection->lastInsertId();
 	}
 
 	/**
