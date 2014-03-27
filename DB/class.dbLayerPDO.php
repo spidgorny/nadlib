@@ -84,8 +84,20 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		}
 		$this->result = $this->connection->prepare($query, $params);
 		if ($this->result) {
-			$ok = $this->result->execute($params);
+			try {
+				$ok = $this->result->execute($params);
+			} catch (Exception $e) {
+				$ok = false;
+			}
 			if (!$ok) {
+				debug(array(
+					'class' => get_class($this),
+					'code' => $this->connection->errorCode(),
+					'errorInfo' => $this->connection->errorInfo(),
+					'query' => $query,
+					'connection' => $this->connection,
+					'result' => $this->result,
+				));
 				throw new Exception(getDebug(array(
 						'class' => get_class($this),
 						'code' => $this->connection->errorCode(),
