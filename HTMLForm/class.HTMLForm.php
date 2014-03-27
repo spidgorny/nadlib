@@ -745,7 +745,10 @@ class HTMLForm {
 		$this->hidden($fieldName, $fieldValue, 'id="'.$desc['selectID'].'"');
 		$fieldName[sizeof($fieldName)-1] = end($fieldName).'_name';
 		$this->input($fieldName, $desc['valueName'],
-			'style="width: '.$desc['size'].'" readonly id="'.$desc['selectID'].'_name" '.$desc['more']);
+			'style="width: '.$desc['size'].'"
+			readonly
+			id="'.$desc['selectID'].'_name" '.
+			$desc['more']);
 		$this->text('</td><td>');
 		$this->ajaxTree($desc);
 		$this->text('</nobr>');
