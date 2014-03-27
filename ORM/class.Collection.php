@@ -159,9 +159,15 @@ class Collection {
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
 		//debug($this->parentField, $this->parentID, $this->where);
-		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
+
+		// never retrieve data in advance
+		// use lazy retrieval
+		// don't access $this->data - use $this->getData()
+		// don't access $this->members - use $this->objectify()
+		/*if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
+		*/
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
@@ -190,7 +196,7 @@ class Collection {
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$this->query = $this->getQueryWithLimit($this->where);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -204,7 +210,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 	}
 
 	/**
@@ -213,7 +219,7 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$query = $this->getQuery();
 		$sql = new SQLQuery($query);
 		array_unshift($sql->parsed['SELECT'], array(
@@ -248,7 +254,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 	}
 
 	/**
