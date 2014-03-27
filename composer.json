@@ -27,7 +27,8 @@
 			"init.php"
 		],
 		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php"
+			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
+			"vendor/php-sql-parser/src/PHPSQLParser.php"
 		],
 		"psr-0": {
 			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
