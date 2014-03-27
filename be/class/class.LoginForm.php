@@ -18,6 +18,11 @@ class LoginForm extends AjaxLogin {
 		$env = $_ENV;
 		unset($env['REDIRECT_UNIQUE_ID']);
 		unset($env['UNIQUE_ID']);
+		unset($env['DBENTRY']);
+		unset($env['HTTP_COOKIE']);
+		unset($env['REMOTE_PORT']);
+		unset($env['CONTENT_LENGTH  ']);
+		debug($env);
 		$this->secret = md5(json_encode($env));
 		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
 	}
@@ -37,8 +42,7 @@ class LoginForm extends AjaxLogin {
 			$content .= '<div class="message">'.__('You are logged in.').'</div>';
 			$content .= $this->menuAction();
 		} else {
-			debug($password, $passwordHash);
-			debug($_ENV);
+			$content .= getDebug($password, $passwordHash);
 			$content .= '<div class="error">'.__('Wrong login or password.').'</div>';
 			$desc = $this->getLoginDesc();
 			$desc['username']['value'] = $username;
