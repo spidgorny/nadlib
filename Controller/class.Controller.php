@@ -248,6 +248,7 @@ abstract class Controller {
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
 		$h = $h ? $h : $this->encloseTag;
+		$content = IndexBase::mergeStringArrayRecursive($content);
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
@@ -402,6 +403,18 @@ abstract class Controller {
 			) + $submitParams);
 		}
 		return $f;
+	}
+
+	function inTable(array $parts) {
+		$size = sizeof($parts);
+		$x = round(12 / $size);
+		$content = '<div class="row">';
+		foreach ($parts as $c) {
+			$c = IndexBase::mergeStringArrayRecursive($c);
+			$content .= '<div class="col-md-'.$x.'">'.$c.'</div>';
+		}
+		$content .= '</div>';
+		return $content;
 	}
 
 }
