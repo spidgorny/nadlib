@@ -9,3 +9,8 @@ bak/
 .idea
 vendor/
 be/cache/
+components/bootstrap/
+components/jquery/
+components/modernizr/
+components/
+*.orig
