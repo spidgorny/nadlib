@@ -143,7 +143,6 @@ class ConfigBase {
 			$this->qb = new SQLBuilder($di);
 		}
 
-
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
