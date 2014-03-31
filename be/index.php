@@ -7,6 +7,7 @@ require_once '../vendor/autoload.php';
 require_once '../init.php';
 
 require_once dirname(__FILE__) . '/../class.AutoLoad.php';
+
 class AutoLoadBE extends AutoLoad {
 
 	/**
@@ -57,7 +58,7 @@ class AutoLoadBE extends AutoLoad {
 }
 
 require_once '../Controller/class.IndexBase.php';	// force this Index class
-require_once 'class/class.Index.php';	// force this Index class
+require_once 'class/class.IndexBE.php';	            // force this Index class
 $n = new InitNADLIB();
 $n->al = AutoLoadBE::getInstance();
 $n->al->debug = true;
