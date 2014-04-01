@@ -33,7 +33,13 @@ class AjaxLogin extends AppController {
 			//url: \'buch.php\'
 			}); return false;"';
 
-	protected $allowedActions = array('login', 'forgotPassword', 'saveRegister', 'activate', 'inlineForm', 'logout');
+	protected $allowedActions = array(
+		'login',
+		'forgotPassword',
+		'saveRegister',
+		'activate',
+		'inlineForm',
+		'logout');
 
 	var $encloseTag = 'h3';
 
@@ -139,8 +145,14 @@ class AjaxLogin extends AppController {
 	}
 
 	function formAction(array $desc = NULL) {
+		$f = $this->getLoginForm($desc);
+		$content = $this->encloseInAA($f, __('Login'));
+		return $content;
+	}
+
+	function getLoginForm(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->action('');
+		$f->action('');     // specify action otherwise will logout
 		$f->hidden('c', get_class($this));
 		$f->formMore = $this->formMore;
 		$f->defaultBR = true;
@@ -155,8 +167,7 @@ class AjaxLogin extends AppController {
 		$f->submit(__('Login'), array(
 			'class' => 'btn btn-primary',
 		));
-		$content = $this->encloseInAA($f, __('Login'));
-		return $content;
+		return $f;
 	}
 
 	/**
@@ -169,7 +180,7 @@ class AjaxLogin extends AppController {
 				'c' => get_class($this),
 				'action' => 'logout',
 			));
-			$content = '<form class="navbar-form navbar-right" method="POST">
+			$content = '<form class="navbar-form navbar-right pull-right" method="POST">
 			<div class="form-group">
 				<p class="navbar-text" style="display: inline-block;">'.$this->user->getName().'</p>
 				<a href="'.$linkLogout.'" class="ajax btn btn-default">'.__('Logout').'</a>

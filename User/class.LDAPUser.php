@@ -11,6 +11,10 @@ class LDAPUser extends UserBase {
 	public $data;
 
 	function __construct(array $ldapInfo = array()) {
+		$this->initLDAP($ldapInfo);
+	}
+
+	function initLDAP(array $ldapInfo = array()) {
 		$goodKeys = array_filter(array_keys($ldapInfo), 'is_string');
 		$ldapInfo = array_intersect_key($ldapInfo, array_flip($goodKeys));
 		$this->data = $ldapInfo;
