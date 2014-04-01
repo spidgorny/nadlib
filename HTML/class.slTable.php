@@ -433,6 +433,8 @@ class slTable {
 				if (is_object($val)) {
 					if (method_exists($val, 'getName')) {
 						$val = $val->getName();
+					} else {
+						$val = '['.get_class($val).']';
 					}
 				}
 				$out = /*stripslashes*/($val);

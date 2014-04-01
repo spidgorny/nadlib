@@ -11,14 +11,25 @@ abstract class Scaffold extends Controller {
 	protected $addButton = 'Add';
 	protected $updateButton = 'Save';
 	protected $action;
+
 	/**
 	 * OODBase based model class to modify database.
 	 *
 	 * @var OODBase
 	 */
 	protected $model;
-	protected $formMore = '';				// extra attributes for the form like onSubmit
-	protected $id; 				// edited element
+
+	/**
+	 * extra attributes for the form like onSubmit
+	 * @var string
+	 */
+	protected $formMore = '';
+
+	/**
+	 * edited element
+	 * @var int
+	 */
+	protected $id;
 	protected $data;
 	protected $desc;
 
