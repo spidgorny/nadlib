@@ -106,7 +106,7 @@ class Menu /*extends Controller*/ {
 		$useRouter = class_exists('Config')
 			? Config::getInstance()->config['Controller']['useRouter']
 			: ($this->request->apacheModuleRewrite());
-		if ($useRouter) {
+		if ($useRouter) {   // not finished
 			$path = new URL();
 			$path->clearParams();
 		} elseif ($this->useControllerSlug) {
@@ -119,7 +119,8 @@ class Menu /*extends Controller*/ {
 			} else {
 				$path->setPath($path->documentRoot.'/');
 			}
-			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
+			// commented when using the slug
+			//$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
 		} else {
 			$path = new URL();
 			$path->clearParams();
@@ -127,6 +128,8 @@ class Menu /*extends Controller*/ {
 		}
 		$this->basePath = $path;
 		nodebug(array(
+			'class_exists(Config)' => class_exists('Config'),
+			'Config::getInstance()->config[Controller]' => Config::getInstance()->config['Controller'],
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,

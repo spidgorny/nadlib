@@ -328,7 +328,7 @@ class AutoLoad {
 	static function register() {
 		$instance = self::getInstance();
 		$instance->initFolders();
-		spl_autoload_register(array($instance, 'load'));
+		spl_autoload_register(array($instance, 'load'), true, true);    // before composer
 	}
 
 }

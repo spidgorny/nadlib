@@ -77,7 +77,7 @@ abstract class Controller {
 		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
-		$this->useRouter = $this->request->apacheModuleRewrite();
+		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed
 		if (class_exists('Config')) {
 			$this->db = Config::getInstance()->db;
 			$this->user = Config::getInstance()->user;
