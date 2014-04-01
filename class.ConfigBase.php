@@ -8,9 +8,9 @@ class ConfigBase {
 	protected static $instance;
 
 	public $db_server = '127.0.0.1';
-	public $db_database = '';
 	public $db_user = 'root';
-	public $db_password = 'root';
+	protected $db_password = 'root';
+	public $db_database = '';
 
 	/**
 	 * @var int
