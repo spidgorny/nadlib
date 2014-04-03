@@ -365,7 +365,8 @@ class Collection {
 	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		if ($this->data) {
+        $this->getData();
+		if ($this->count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
@@ -384,7 +385,7 @@ class Collection {
 	}
 
 	function getDataTable() {
-		$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
+		$s = new slTable($this->getData(), HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->thes);
 		$s->ID = get_class($this);
 		$s->sortable = $this->useSorting;
