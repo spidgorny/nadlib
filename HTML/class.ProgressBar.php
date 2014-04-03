@@ -48,10 +48,23 @@ class ProgressBar {
 		}
 	}
 
+	/**
+	 * pre-compiles LESS inline
+	 * @return string
+	 */
 	function getCSS() {
-		$l = new lessc();
-		$css = $l->compileFile(dirname(__FILE__).'/../CSS/ProgressBar.less');
-		return '<style>'.$css.'</style>';
+		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/ProgressBar.less';
+		if (class_exists('Index')) {
+			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
+			Index::getInstance()->addCSS($less);
+		} elseif ($GLOBALS['HTMLHEADER']) {
+			$GLOBALS['HTMLHEADER']['ProgressBar.less']
+				= '<link rel="stylesheet" href="'.$less.'" />';
+		} else {
+			$l = new lessc();
+			$css = $l->compileFile($less);
+			return '<style>' . $css . '</style>';
+		}
 	}
 
 	function __toString() {
@@ -70,15 +83,7 @@ class ProgressBar {
 			</div>
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
-		if (class_exists('Index')) {
-			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
-		} elseif ($GLOBALS['HTMLHEADER']) {
-			$GLOBALS['HTMLHEADER']['ProgressBar.less']
-				= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
-		} else {
-			$content .= $this->getCSS();	// pre-compiles LESS inline
-		}
+		$content .= $this->getCSS();
 		return $content;
 	}
 

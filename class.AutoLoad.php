@@ -39,7 +39,18 @@ class AutoLoad {
 	 */
 	public $config;
 
-	protected $nadlibRoot = 'vendor/spidgorny/nadlib/';
+	/**
+	 * Relative to getcwd()
+	 * Can be "../" from /nadlib/be/
+	 * @var string
+	 */
+	public $nadlibRoot = 'vendor/spidgorny/nadlib/';
+
+	/**
+	 * Relative to $this->appRoot
+	 * @var string
+	 */
+	public $nadlibFromDocRoot;
 
 	/**
 	 * getFolders() is called from outside
@@ -51,8 +62,17 @@ class AutoLoad {
 		//debug($this->folders);
 		require_once 'class.ConfigBase.php';
 
-		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		$this->nadlibRoot = dirname(realpath(__FILE__)).'/';
+		$this->appRoot = dirname(realpath($_SERVER['SCRIPT_FILENAME'])).'/';
 		$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
+		if (method_exists('URL', 'getRelativePath')) {
+			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
+		} else {
+			$this->nadlibFromDocRoot = $this->nadlibRoot;
+		}
+		$this->nadlibFromDocRoot = str_replace($this->appRoot, '', $this->nadlibFromDocRoot).'/';
+		$this->nadlibFromDocRoot = str_replace('//', '/', $this->nadlibFromDocRoot);
+
 
 		$configPath = $this->appRoot.'/class/class.Config.php';	// config from the main project
 		if (file_exists($configPath)) {
