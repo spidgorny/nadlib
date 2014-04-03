@@ -84,8 +84,11 @@ function nodebug() {
 
 function getDebug() {
 	ob_start();
+	$tmp = $_COOKIE['debug'];
+	$_COOKIE['debug'] = 1;
 	$params = func_get_args();
 	call_user_func_array(array('Debug', 'debug_args'), $params);
+	$_COOKIE['debug'] = $tmp;
 	return ob_get_clean();
 }
 
