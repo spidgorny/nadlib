@@ -374,6 +374,10 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $replace;
 	}
 
+	function concat() {
+		return implode('', $this->data);
+	}
+
 }
 
 function AP(array $a = array()) {
