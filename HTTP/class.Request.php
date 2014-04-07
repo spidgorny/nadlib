@@ -619,7 +619,7 @@ class Request {
 	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
 	 * @return bool
 	 */
-	function isCron() {
+	static function isCron() {
 		return !isset($_SERVER['TERM']);
 	}
 
@@ -719,16 +719,18 @@ class Request {
 	}
 
 	static function getDocumentRoot() {
+		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 		if ($_SERVER['DOCUMENT_ROOT'] &&
 			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
-			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '',
-				dirname($_SERVER['SCRIPT_FILENAME']));
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		} else {	//~depidsvy/something
 			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
 			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
 			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
 		}
-		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $docRoot);
+		$before = $docRoot;
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
 		return $docRoot;
 	}
 

@@ -42,12 +42,10 @@ class Pager {
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
-		} else if ($itemsPerPage) {
-			$this->pageSize = new PageSize($itemsPerPage);
 		} else {
-			$this->pageSize = new PageSize($this->itemsPerPage);
+			$this->pageSize = new PageSize($itemsPerPage ?: $this->itemsPerPage);
 		}
-		$this->setItemsPerPage($this->pageSize->get());
+		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
@@ -81,10 +79,14 @@ class Pager {
 	}
 
 	function initByQuery($query) {
+		//debug_pre_print_backtrace();
+		$key = __METHOD__.' ('.substr($query, 0, 300).')';
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
-		$res = $this->db->fetchAssoc($query);
+		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 	}
 
 	/**
@@ -222,7 +224,8 @@ class Pager {
 	}
 
 	public function debug() {
-		debug(array(
+		return array(
+			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
 			'pageSize->selected' => $this->pageSize->selected,
@@ -239,7 +242,7 @@ class Pager {
 			'showPageJump' => $this->showPageJump,
 			'showPager' => $this->showPager,
 			'prefix' => $this->prefix,
-		));
+		);
 	}
 
 	function renderPager() {

@@ -187,6 +187,16 @@ class slTableValue {
 			case "percent":
 				$out = number_format($val*100, 2, '.', '').'&nbsp;%';
 			break;
+			case "bar":
+				if (!is_null($val)) {
+					$pb = new ProgressBar();
+					if (isset($k['css'])) {
+						$out = $pb->getImage($val*100, $k['css']);
+					} else {
+						$out = $pb->getImage($val*100);
+					}
+				}
+			break;
 			case "callback":
 				$out = call_user_func($k['callback'], $val, $k, $row);
 			break;
@@ -236,8 +246,12 @@ class slTableValue {
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
 					} elseif (is_array($val)) {
-						debug($val);
-						$out = 'Array';
+						if (is_assoc($val)) {
+							$out = json_encode($val, JSON_PRETTY_PRINT);
+						} else {
+							$out = '['.implode(', ', $val).']';
+						}
+						$out = htmlspecialchars($out);
 					} else {
 						$out = htmlspecialchars($val);
 					}

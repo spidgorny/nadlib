@@ -356,7 +356,12 @@ class dbLayer {
 		return $c;
 	}
 
-	function getInsertQuery($table, $columns) {
+    /**
+     * @param string $table Table name
+     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+     * @return string
+     */
+    function getInsertQuery($table, $columns) {
 		$q = 'INSERT INTO '.$table.' (';
 		$q .= implode(", ", array_keys($columns));
 		$q .= ") VALUES (";
@@ -383,21 +388,27 @@ class dbLayer {
 		return $res;
 	}
 
-	function getUpdateQuery($table, $columns, $where) {
-		$q = 'UPDATE '.$table .'SET ';
+    /**
+     * @param string $table
+     * @param array $columns
+     * @param array $where
+     * @return string
+     */
+    function getUpdateQuery($table, $columns, $where) {
+		$q = 'UPDATE '.$table .' SET ';
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
 		$q .= implode(", ", $set);
-		$q .= " where ";
+		$q .= " WHERE ";
 		$set = array();
 		foreach ($where as $key => $val) {
 			$val = $this->quoteSQL($val);
 			$set[] = "$key = $val";
 		}
-		$q .= implode(" and ", $set);
+		$q .= implode(" AND ", $set);
 		return $q;
 	}
 
@@ -415,7 +426,7 @@ class dbLayer {
 			$set[] = "$key = $val";
 		}
 		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" and ", $set);
+			$q .= " WHERE " . implode(" AND ", $set);
 		} else {
 			$q .= ' WHERE 1 = 0';
 		}
@@ -722,13 +733,11 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb($qb)
-    {
+    public function setQb($qb) {
         $this->qb = $qb;
     }
 
-    public function getQb()
-    {
+    public function getQb() {
         if(!isset($this->qb)) {
             $di = new DIContainer();
             $di->db = Config::getInstance()->db;

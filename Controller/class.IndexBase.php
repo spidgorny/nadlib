@@ -20,9 +20,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string
+	 * @var string|array
 	 */
-	public $content = '';
+	public $content;
 
 	/**
 	 * @var AppController
@@ -44,7 +44,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		//parent::__construct();
 		$config = Config::getInstance();
 		$this->db = $config->db;
@@ -54,12 +54,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if(!Request::isCLI()) {
+		if(!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/) {
 			session_start();
 		}
 
-		$this->user = Config::getInstance()->user;
+		$this->user = $config->user;
 		$this->restoreMessages();
+		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -134,7 +135,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($this->controller) {
 				$content .= $this->renderController();
 			} else {
-				$content .= $this->content;	// display Exception
+				$content .= is_array($this->content)
+					? implode("\n", $this->content)
+					: $this->content;	// display Exception
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
@@ -152,12 +155,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderTemplateIfNotAjax($content) {
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			$content = $this->renderTemplate($this->content . $content);
+			$contentOut = is_array($this->content)
+				? implode("\n", $this->content)
+				: $this->content;	// display Exception
+			$contentOut .= $content;
+			$contentOut = $this->renderTemplate($contentOut);
 		} else {
-			$content .= $this->content;
+			$contentOut = $content . $this->content;
 			$this->content = '';		// clear for the next output. May affect saveMessages()
 		}
-		return $content;
+		return $contentOut;
 	}
 
 	function renderTemplate($content) {
@@ -176,6 +183,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
+		$render = $this->mergeStringArrayRecursive($render);
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
@@ -183,9 +191,22 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
+	static function mergeStringArrayRecursive($render) {
+		if (is_array($render)) {
+			//$render = implode("\n", $render); // not recursive
+			$combined = '';
+			array_walk_recursive($render, function ($value, $key) use (&$combined) {
+				$combined .= $value."\n";
+			});
+			$render = $combined;
+		}
+		return $render;
+	}
+
 	function renderException(Exception $e, $wrapClass = '') {
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
-			'.$e->getMessage();
+			'.get_class($e).BR.
+			$e->getMessage();
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
 			//$content .= getDebug($e);
@@ -210,7 +231,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function log($action, $bookingID) {
-		$this->db->qb->runInsertQuery('log', array(
+		$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
@@ -218,11 +239,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message alert alert-info">'.$text.'</div>';
+		$msg = '<div class="message alert alert-info ui-state-message alert alert-notice padding">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function error($text) {
-		$this->content .= '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		$msg = '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function saveMessages() {
@@ -285,8 +316,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addCSS($source) {
-		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
-			$source = 'Lesser?css='.$source;
+		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
+			$source = '?c=Lesser&css='.$source;
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;
@@ -296,6 +327,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
+			$content = $this->mergeStringArrayRecursive($content);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;

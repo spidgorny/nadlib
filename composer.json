@@ -4,21 +4,34 @@
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "*",
 		"components/bootstrap": "dev-master",
-		"sebastian/environment": "1.0.*@dev",
-	    "phpunit/php-code-coverage": "dev-master",
-		"phpunit/phpunit-mock-objects": "dev-master",
-		"phpunit/phpunit": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"flot/flot": "dev-master"
+		"flot/flot": "dev-master",
+		"php-sql-parser": "dev-master",
+		"GerHobbelt/HTMLawed": "dev-master"
+	},
+	"require-dev": {
+		"sebastian/environment": "1.0.*@dev",
+		"phpunit/php-code-coverage": "2.1.*@dev",
+		"phpunit/phpunit-mock-objects": "2.1.*@dev",
+		"phpunit/phpunit": "dev-master"
     },
     "require_bak": {
 		"pdepend/pdepend": "1.1.0",
+		"fabpot/twittee": "dev-master",
 		"sharom/twitter-bootstrap": "dev-master"
     },
 	"autoload": {
-		"classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
-		"files": ["init.php"]
+		"_classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
+		"_files": [
+			"init.php"
+		],
+		"files": [
+			"vendor/GerHobbelt/HTMLawed/htmLawed.php"
+		],
+		"psr-0": {
+			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
+		}
 	},
 	"repositories_bak": [
 		{
@@ -90,6 +103,30 @@
                 "name":"mustangostang/spyc",
                 "source": {
                     "url":"https://github.com/mustangostang/spyc",
+                    "type":"git",
+                    "reference":"master"
+                }
+            }
+        },
+        {
+            "type":"package",
+            "package": {
+                "version":"dev-master",
+                "name":"php-sql-parser",
+                "source": {
+                    "url":"http://php-sql-parser.googlecode.com/svn/",
+                    "type":"svn",
+                    "reference":"trunk"
+                }
+            }
+        },
+        {
+            "type":"package",
+            "package": {
+                "version":"dev-master",
+                "name":"GerHobbelt/HTMLawed",
+                "source": {
+                    "url":"https://github.com/GerHobbelt/HTMLawed",
                     "type":"git",
                     "reference":"master"
                 }

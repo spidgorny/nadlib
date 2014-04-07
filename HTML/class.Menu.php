@@ -59,10 +59,8 @@ class Menu /*extends Controller*/ {
 
 	public $useControllerSlug = true;
 
-	/**
-	 * @param array|ArrayPlus $items
-	 * @param null $level
-	 */
+	public $controllerVarName = 'c';
+
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
@@ -121,11 +119,11 @@ class Menu /*extends Controller*/ {
 			} else {
 				$path->setPath($path->documentRoot.'/');
 			}
-			$path->setParam('c', '');	// forces a link with "?c="
+			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
 		} else {
 			$path = new URL();
 			$path->clearParams();
-			$path->setParam('c', '');	// forces a link with "?c="
+			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
 		}
 		$this->basePath = $path;
 		nodebug(array(
@@ -334,7 +332,7 @@ class Menu /*extends Controller*/ {
 		} else {
 			$ret = $this->current == $class;
 		}
-		if ($this->level === NULL) {
+		if ($this->level === 1) {
 			nodebug(array(
 				'class' => $class,
 				'subMenu' => $subMenu,
@@ -361,10 +359,10 @@ class Menu /*extends Controller*/ {
 				if ($path && $this->useControllerSlug) {
 					$link = $this->basePath . implode('/', $path);
 				} else {
-					$link = $this->basePath . $class;
+					$link = $this->basePath->setParam($this->controllerVarName, $class);
 				}
 			} else {
-				$link = $this->basePath . $class;
+				$link = $this->basePath->setParam($this->controllerVarName, $class);
 			}
 		}
 		nodebug(array(

@@ -28,6 +28,7 @@ class LocalLangDB extends LocalLang {
 
 	/**
 	 * Why is it not called from the constructor?
+	 * Because we need to specify the desired language $this->lang
 	 */
 	function init() {
 		$this->rows = $this->readDB($this->lang);
@@ -50,22 +51,22 @@ class LocalLangDB extends LocalLang {
 	/**
 	 * Instead of searching if the original language (en) record exists
 	 * it tries to insert and then catches the UNIQUE constraint exception.
-	 * @param $text
+	 * @param $code
 	 */
-	function saveMissingMessage($text) {
-		//debug(__METHOD__, DEVELOPMENT, $text);
-		if (DEVELOPMENT && $text) {
-			$db = Config::getInstance()->db;
+	function saveMissingMessage($code) {
+		//debug(__METHOD__, DEVELOPMENT, $code, $this->ll[$code]);
+		if (DEVELOPMENT && $code) {
 			try {
-				$db->runInsertQuery($this->table, array(
-					'code' => $text,
-					'lang' => $this->defaultLang,
+				$this->db->runInsertNew($this->table, array(
+					'code' => $code,
+					'lang' => $this->defaultLang,		// is maybe wrong to save to the defaultLang?
+				), array(
 					'text' => '',
 					'page' => Request::getInstance()->getURL(),
 				));
 				//debug($db->lastQuery, $db->affectedRows());
-				$this->ll[$text] = $text;
-				$this->codeID[$text] = $db->lastInsertID();
+				$this->ll[$code] = $code;
+				$this->codeID[$code] = $this->db->lastInsertID();
 			} catch (Exception $e) {
 				// ignore
 			}
@@ -91,8 +92,26 @@ class LocalLangDB extends LocalLang {
 
 	function readDB($lang) {
 		//try {
-			$res = $this->db->getTableColumns($this->table);
+			$res = $this->db->getTableColumnsEx($this->table);
 			if ($res) {
+				// wrong query
+				/*$rows = $this->db->fetchSelectQuery($this->table.
+					" AS a RIGHT OUTER JOIN ".$this->table." AS en
+					ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", array(
+					'a.lang' => new SQLAnd(array(
+						'a.lang' => new SQLWhereEqual('a.lang', $lang),
+						'a.lang ' => new SQLWhereEqual('a.lang', NULL),
+						)
+					),
+					'a.lang' => $lang,
+					'en.lang' => 'en',
+				), 'ORDER BY id',
+					'coalesce(a.id, en.id) AS id,
+					coalesce(a.code, en.code) AS code,
+					coalesce(a.lang, en.lang) AS lang,
+					coalesce(a.text, en.text) AS text,
+					a.page');
+				debug($this->db->lastQuery, sizeof($rows), first($rows));*/
 				$rows = $this->db->fetchSelectQuery($this->table, array(
 					'lang' => $lang,
 				), 'ORDER BY id');

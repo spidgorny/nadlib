@@ -33,7 +33,7 @@ abstract class Controller {
 	public $noRender = false;
 
 	/**
-	 * @var MySQL|dbLayer
+	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO
 	 */
 	protected $db;
 
@@ -90,14 +90,26 @@ abstract class Controller {
 	}
 
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
-		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
-			$r = new Router();
-			$url = $r->makeURL($params, $prefix);
+		if ($this->useRouter && !$forceSimple) {
+			if (file_exists('class/class.Router.php')) {
+				$r = new Router();
+				$url = $r->makeURL($params, $prefix);
+			} else {
+				$class = $params['c'];
+				unset($params['c']);
+				$url = new URL($prefix != '?'
+					? $prefix
+					: $this->request->getLocation(), $params);
+				$url->components['path'] .= $class;
+			}
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
+			$url = new URL($prefix != '?'
+				? $prefix
+				: $this->request->getLocation(), $params);
+			//debug($prefix, $url);
 			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
 
 			//debug($url->documentRoot, $prefix, $url.'');
@@ -289,6 +301,7 @@ abstract class Controller {
 
 	/**
 	 * Uses float: left;
+	 * @params array[string]
 	 * @return mixed|string
 	 */
 	function inColumns() {

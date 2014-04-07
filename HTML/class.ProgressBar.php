@@ -22,15 +22,31 @@ class ProgressBar {
 	 */
 	var $destruct100 = false;
 
-	var $cliWidth = 100;
+	/**
+	 * Should be undefined so that it can be detected once and then stored.
+	 * Don't put default value here.
+	 * @var int
+	 */
+	var $cliWidth = NULL;
 
-	function __construct($percentDone = 0, $color = '43b6df') {
+	/**
+	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
+	 * @var int
+	 */
+	var $count = 0;
+
+	/**
+	 * @ param #2 $color = '#43b6df'
+	 * @param int $percentDone
+	 * @param int $count
+	 */
+	function __construct($percentDone = 0, $count = 0) {
 		$this->setID('pb-'.uniqid());
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
 		$this->percentDone = $percentDone;
-		$this->color = $color;
+		$this->count = $count;
 		$this->cli = Request::isCLI();
 	}
 
@@ -94,7 +110,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo $text  . ' '.$this->getCLIbar()."\r";
+			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserver errors
 		} else {
 			print('
 			<script type="text/javascript">
@@ -113,6 +129,14 @@ class ProgressBar {
 		}
 	}
 
+	function setIndex($i) {
+		$percent = $i/$this->count*100;
+		$every = $this->count / 1000;   // 100% * 10 for each 0.1
+		if (!($i % $every)) {
+			$this->setProgressBarProgress($percent);
+		}
+	}
+
 	function flush($ob_flush = false) {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
 		if ($ob_flush) {
@@ -128,7 +152,7 @@ class ProgressBar {
 	}
 
 	function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;') {
-		$prefix = AutoLoad::getInstance()->nadlibRoot;
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return new htmlString('<div style="'.$css.'">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
 			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />
@@ -159,11 +183,16 @@ class ProgressBar {
 	}
 
 	function getCLIbar() {
-		$this->cliWidth = round($this->getTerminalWidth() / 2);
-		$chars = round($this->percentDone / 100 * $this->cliWidth);
-		$chars = min($this->cliWidth, $chars);
-		$space = max(0, $this->cliWidth - $chars);
-		$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+		$content = '';
+		if (!$this->cliWidth) {
+			$this->cliWidth = intval(round($this->getTerminalWidth() / 2));
+		}
+		if ($this->cliWidth > 0) {  // otherwise cronjob
+			$chars = round(abs($this->percentDone) / 100 * $this->cliWidth);
+			$chars = min($this->cliWidth, $chars);
+			$space = max(0, $this->cliWidth - $chars);
+			$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+		}
 		return $content;
 	}
 
@@ -171,8 +200,11 @@ class ProgressBar {
 		if (Request::isWindows()) {
 			$both = $this->getTerminalSizeOnWindows();
 			$width = $both['width'];
+		} else if (!Request::isCron()) {
+			$both = $this->getTerminalSizeOnLinux();
+			$width = $both['width'];
 		} else {
-			$width = exec('tput cols');
+			$width = -1;        // cronjob
 		}
 		return $width;
 	}
@@ -185,7 +217,7 @@ class ProgressBar {
 		$output = array();
 		$size = array('width'=>0,'height'=>0);
 		exec('mode',$output);
-		foreach($output as $line) {
+		foreach ($output as $line) {
 			$matches = array();
 			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i',$line,$matches);
 			if($w) {
@@ -200,6 +232,14 @@ class ProgressBar {
 				break;
 			}
 		}
+		return $size;
+	}
+
+	function getTerminalSizeOnLinux() {
+		$size = array_combine(
+			array('width', 'height'),
+			array(exec('tput cols'), exec('tput lines'))
+		);
 		return $size;
 	}
 

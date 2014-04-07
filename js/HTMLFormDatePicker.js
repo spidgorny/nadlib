@@ -8,7 +8,8 @@ jQuery(document).ready(function ($) {
 		i.setAttribute("type", "date");
 		supportsDate = i.type !== "text";
 	}
-	if (!supportsDate) {
+	//if (!supportsDate) {  // value dd.mm.yyyy is not recognized by Chrome
+	if (true) {
 		var self = $('input.datepicker');
 		var options = {
 			dateFormat: self.attr('format'),

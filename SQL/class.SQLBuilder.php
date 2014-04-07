@@ -1,7 +1,31 @@
 <?php
 
+/**
+ * Class SQLBuilder - contains database unspecific (general) SQL functions.
+ * It has $this->db a database specific (PostgreSQL, MySQL, SQLite, Oracle, PDO) class
+ * which is performing the actual queries.
+ * This $db class has a back reference to this as $this->db->qb == $this.
+ * Usage in controllers/models:
+ * $this->db = new MySQL();
+ * $this->db->qb = new SQLBuilder();
+ * $this->db->qb->db = $this->db;
+ * $this->db->fetchSelectQuery(...);
+ *
+ * Note that the creation of objects above is handled by DIContainer
+ * but it's not shown above for comprehensibility.
+ */
 class SQLBuilder {
+
+	/**
+	 * Update/Insert is storing the found row for debugging
+	 * @var mixed
+	 */
 	public $found;
+
+	/**
+	 * Reserved MySQL words
+	 * @var array
+	 */
 	protected $reserved = array (
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
@@ -336,6 +360,8 @@ class SQLBuilder {
 						$set[] = $key . ' ' . $val;
 					}
 				} else if ($val instanceof SQLBetween) {
+					$val->injectQB($this);
+					$val->injectField($key);
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
 					$val->injectQB($this);
@@ -542,13 +568,14 @@ class SQLBuilder {
 	 *
 	 * @param $table
 	 * @param array $fields
+	 * @param array $insert
 	 * @return resource
 	 */
-	function runInsertNew($table, array $fields) {
+	function runInsertNew($table, array $fields, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
-			$query = $this->getInsertQuery($table, $fields);
+			$query = $this->getInsertQuery($table, $fields + $insert);
 			//debug($query);
 			$resInsert = $this->db->perform($query);
 		}
@@ -686,6 +713,23 @@ class SQLBuilder {
 		$this->free($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
+	}
+
+	/**
+	 * @var string $query
+	 * @return resource
+	 */
+	function getIterator($query) {
+		if ($this->db instanceof dbLayerPDO) {
+			$res = $this->db->perform($query);
+			return $res;
+		} else {
+			$di = new DIContainer();
+			$di->db = $this->db;
+			$f = new DatabaseResultIteratorAssoc($di);
+			$f->perform($query);
+			return $f;
+		}
 	}
 
 }

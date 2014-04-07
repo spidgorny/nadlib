@@ -1,21 +1,37 @@
 <?php
 
+/**
+ * Class Profiler
+ * Usage:
+ * $p1 = new Profiler();
+ * sleep(1);
+ * echo $p1->elapsed();
+ *
+ * $p2 = new Profiler();
+ * sleep(1);
+ * $p2->stop();
+ * sleep(1);
+ * echo $p2->elapsed();
+ */
 class Profiler {
+
 	var $startTime;
 
+	var $endTime;
+
 	function Profiler($startTime = NULL) {
-		$this->startTime = $startTime ? $startTime : $this->getMilliTime();
+		$this->startTime = $startTime ? $startTime : microtime(true);
 	}
 
-	static function getMilliTime() {
-		list($usec, $sec) = explode(" ", microtime());
-		$time = (float)$usec + (float)$sec;
-		return $time;
+	function stop() {
+		$this->endTime = microtime(true);
 	}
 
 	function elapsed() {
-		$endTime = $this->getMilliTime();
-		$out = $endTime-$this->startTime;
+		if (!$this->endTime) {
+			$this->stop();
+		}
+		$out = $this->endTime-$this->startTime;
 		return number_format($out, 5, '.', '');
 	}
 
@@ -35,6 +51,10 @@ class Profiler {
 
 	function stopTimer($method) {
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer($method);
+	}
+
+	function __toString() {
+		return $this->elapsed();
 	}
 
 }

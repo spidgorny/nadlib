@@ -40,6 +40,11 @@ class AutoLoad {
 	public $config;
 
 	/**
+	 * @var int
+	 */
+	public $count = 0;
+	
+	/**
 	 * Relative to getcwd()
 	 * Can be "../" from /nadlib/be/
 	 * @var string
@@ -94,6 +99,8 @@ class AutoLoad {
 			'$this->appRoot' => $this->appRoot,
 			'Config->appRoot' => Config::getInstance()->appRoot,
 			'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+			'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
+			'request->getLocation()' => Request::getInstance()->getLocation(),
 		);
 	}
 
@@ -110,14 +117,14 @@ class AutoLoad {
 		while ($appRoot && $appRoot != '/'
 			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
 		) {
-			$exists = file_exists($appRoot.'/class/class.Config.php');
+			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'class.Config.php');
 			//debug($appRoot, strlen($appRoot), $exists);
 			if ($exists) {
 				break;
 			}
 			$appRoot = dirname($appRoot);
 		}
-		return $appRoot.'/';
+		return $appRoot.DIRECTORY_SEPARATOR;
 	}
 
 	function loadConfig() {
@@ -130,8 +137,8 @@ class AutoLoad {
 		}
 		if (!class_exists('Config')) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath = $this->appRoot.'class/class.Config.php';
-			//debug($configPath, file_exists($configPath));
+			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
+			//var_dump($configPath, file_exists($configPath)); exit();
 			if (file_exists($configPath)) {
 				include_once $configPath;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
@@ -177,6 +184,7 @@ class AutoLoad {
 			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
 			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
+		//debug($folders);
 
 		return $folders;
 	}
@@ -226,6 +234,7 @@ class AutoLoad {
 	 */
 	function load($class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->count++;
 
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);				// why?
@@ -234,12 +243,15 @@ class AutoLoad {
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 
-		$file = $this->classFileMap[$class];
+		$file = isset($this->classFileMap[$class]) ? $this->classFileMap[$class] : NULL;
+		$file2 = str_replace('class.', '', $file);
 
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
 		if ($file && file_exists($file)) {
 			include_once $file;
+		} elseif ($file2 && file_exists($file2)) {
+			include_once $file2;
 		} else {
 			$file = $this->findInFolders($classFile, $subFolders);
 			if ($file) {
@@ -277,7 +289,7 @@ class AutoLoad {
 
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
-				$file2 = str_replace('/class.', '/', $file);
+				$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
 				if (file_exists($file2)) {
 					$file = $file2;
 				}

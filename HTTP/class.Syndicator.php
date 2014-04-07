@@ -4,7 +4,15 @@ define('LOWERCASE',3);
 define('UPPERCASE',1);
 
 class Syndicator {
+
+	/**
+	 * @var string
+	 */
 	var $url;
+
+	/**
+	 * @var bool
+	 */
 	var $isCaching = FALSE;
 
 	/**
@@ -35,11 +43,16 @@ class Syndicator {
 	var $cache;
 
 	/**
-	 * @var Proxy
+	 * @var Proxy|bool
 	 */
 	public $useProxy = NULL;
 
 	public $input = 'HTML';
+
+	/**
+	 * @var array
+	 */
+	public $log = array();
 
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -96,13 +109,13 @@ class Syndicator {
 
 	function retrieveFile($retries = 1) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$c = Index::getInstance()->controller;
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$c->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
+				$this->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
+				$this->log('No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
 				$this->cache->set($this->url, $html);
 				//debug($cache->map($this->url).' Size: '.strlen($html), 'Set cache');
@@ -114,12 +127,24 @@ class Syndicator {
 		return $html;
 	}
 
-	function downloadFile($href, $retries) {
+	function log($msg) {
+		$this->log[] = $msg;
+		$c = Index::getInstance()->controller;
+		$c->log($msg);
+	}
+
+	function downloadFile($href, $retries = 1) {
 		$ug = new URLGet($href);
+		$ug->timeout = 10;
 		$ug->fetch($this->useProxy, $retries);
 		return $ug->getContent();
 	}
 
+	/**
+	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
+	 * @param $str
+	 * @return mixed
+	 */
 	function detect_cyr_charset($str) {
 	    $charsets = Array(
 	                      'koi8-r' => 0,
@@ -226,7 +251,6 @@ class Syndicator {
 				//$out = tidy_get_output($tidy);
 				$out = $tidy->value;
 			} else {
-				require_once 'nadlib/HTML/htmLawed.php';
 				$out = htmLawed($html, array(
 					'valid_xhtml' => 1,
 					'tidy' => 1,
@@ -262,14 +286,18 @@ class Syndicator {
 	function getXML($recode) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		try {
-			$xml = new SimpleXMLElement($recode);
-			//$xml['xmlns'] = '';
-			$namespaces = $xml->getNamespaces(true);
-			//debug($namespaces, 'Namespaces');
-			//Register them with their prefixes
-			foreach ($namespaces as $prefix => $ns) {
-			    $xml->registerXPathNamespace('default', $ns);
-			    break;
+			if ($recode{0} == '<') {
+				$xml = new SimpleXMLElement($recode);
+				//$xml['xmlns'] = '';
+				$namespaces = $xml->getNamespaces(true);
+				//debug($namespaces, 'Namespaces');
+				//Register them with their prefixes
+				foreach ($namespaces as $prefix => $ns) {
+					$xml->registerXPathNamespace('default', $ns);
+					break;
+				}
+			} else {
+				$xml = new SimpleXMLElement('');
 			}
 		} catch (Exception $e) {
 			//debug($recode);
