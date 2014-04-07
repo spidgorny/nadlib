@@ -44,9 +44,10 @@ class InitNADLIB {
 
 		$this->al->useCookies = $this->useCookies;
 		$this->al->register();
-        Config::getInstance();
 
-		Config::getInstance();
+		if (class_exists('Config')) {
+			Config::getInstance();
+		}
 
 		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
@@ -71,7 +72,9 @@ class InitNADLIB {
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
 
-		require_once 'vendor/autoload.php';
+		if (file_exists('vendor/autoload.php')) {
+			require_once 'vendor/autoload.php';
+		}
 	}
 
 	function initWhoops() {
