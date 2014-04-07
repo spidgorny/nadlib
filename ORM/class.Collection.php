@@ -125,6 +125,12 @@ class Collection {
 	public $log = array();
 
 	/**
+	 * HTMLFormTable
+	 * @var array
+	 */
+	var $desc = array();
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
