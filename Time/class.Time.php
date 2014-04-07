@@ -6,7 +6,11 @@
  */
 
 class Time {
-	protected $time;
+
+	/**
+	 * @var int
+	 */
+	public $time;
 	const HUMAN = 'H:i';
 	public $debug;
 	public $human;
@@ -529,12 +533,15 @@ class Time {
 	 * @return Time
 	 */
 	function adjust($strtotime) {
-		$this->time = strtotime($strtotime, $this->time);
+		$newTime = strtotime($strtotime, $this->time);
+		//debug($this->time, $strtotime, $newTime);
+		$this->time = $newTime;
+		$this->updateDebug();
 		return $this;
 	}
 	
 	/**
-	 * Conbines date and time and creates a new Time object
+	 * Combines date and time and creates a new Time object
 	 * @param $date
 	 * @param $time
 	 * @return Time
