@@ -23,9 +23,10 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
+	 * Protected in order to force usage of getData()
 	 * @var ArrayPlus|array
 	 */
-	var $data = array();
+	protected $data = array();
 
 	public $thes = array();
 
