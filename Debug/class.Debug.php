@@ -43,11 +43,18 @@ class Debug {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= '
 			<style>
+				div.debug {
+					color: black;
+				}
+				div.debug a {
+					color: black;
+				}
 				td.view_array {
 					border: dotted 1px #555;
 					font-size: 12px;
 					vertical-align: top;
 					border-collapse: collapse;
+					color: black;
 				}
 			</style>';
 			if (!headers_sent()) {
@@ -77,7 +84,7 @@ class Debug {
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'inline');
+		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'display: inline');
 		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
 		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
 
@@ -174,9 +181,10 @@ class Debug {
 			}
 			$content .= '</table>';
 		} else if (is_object($a)) {
-			$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
 			if ($a instanceof htmlString) {
-				$content .= $a.'';
+				$content = $a.'';
+			} else {
+				$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
 			}
 		} else if (is_resource($a)) {
 			$content = $a;

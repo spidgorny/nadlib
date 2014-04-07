@@ -55,6 +55,14 @@ class HTMLFormTable extends HTMLForm {
 	 */
 	public $validator;
 
+    /**
+     * Is needed in case validation is made before checking if it's valid.
+     * It's set in HTMLFormTable::validate();
+     *
+     * @var bool
+     */
+    public $isValid = false;
+
 	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
@@ -130,7 +138,10 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "textarea":
 					$this->textarea($fieldName, $fieldValue,
-						$desc['more'].
+						(is_array($desc['more'])
+							? HTMLForm::getAttrHTML($desc['more'])
+							: $desc['more']
+						).
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
 						($desc['disabled'] ? ' disabled="1"' : '').
 						($desc['class'] ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
@@ -251,7 +262,12 @@ class HTMLFormTable extends HTMLForm {
 					$type = isset($type) ? $type : 'text';
 					//$this->text(htmlspecialchars($desc['more']));
 					$this->input($fieldName, $fieldValue,
-						($desc['more'] ? $desc['more'] : '') .
+						(is_array($desc['more'])
+							? HTMLForm::getAttrHTML($desc['more'])
+							: '') .
+						(($desc['more'] && !is_array($desc['more']))
+							? $desc['more']
+							: '') .
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
 						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
@@ -491,6 +507,7 @@ class HTMLFormTable extends HTMLForm {
 	 * @param array		Form description array
 	 * @param string	Column name that contains values. Within this class default value is the only that makes sence.
 	 * @return array	1D array with name/values
+	 * @deprecated
 	 */
 	function getValues(array $arr = NULL, $col = 'value') {
 		$arr = $arr ? $arr : $this->desc;
@@ -522,6 +539,7 @@ class HTMLFormTable extends HTMLForm {
 		foreach ($desc as $field => $params) {
 			if ($params['type'] == 'datepopup')	{
 				$date = strtotime($form[$field]);
+				debug(__METHOD__, $field, $form[$field], $date);
 				if ($date) {
 					$form[$field] = $date;
 				}
@@ -574,9 +592,10 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * @param array $assoc
 	 * @param bool $forceInsert
+	 * @return array
 	 */
 	function fill(array $assoc, $forceInsert = false) {
-		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
+		return $this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
 	}
 
 	/**
@@ -653,7 +672,8 @@ class HTMLFormTable extends HTMLForm {
 
 	function validate() {
 		$this->validator = new HTMLFormValidate($this);
-		return $this->validator->validate();
+        $this->isValid = $this->validator->validate();
+		return $this->isValid;
 	}
 
 	/**

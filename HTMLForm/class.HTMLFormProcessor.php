@@ -38,6 +38,12 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	protected $submitted = false;
 
+	/**
+	 * For debugging
+	 * @var array
+	 */
+	public $method = array();
+
 	function __construct(array $default = array()) {
 		parent::__construct();
 		$this->prefix = get_class($this);
@@ -45,6 +51,7 @@ abstract class HTMLFormProcessor extends AppController {
 		assert($this->submitButton != '');
 		$this->submitButton = strip_tags(__($this->submitButton));
 		$this->submitted = $this->request->is_set($this->prefix);
+		//debug($this->prefix, $this->request->is_set($this->prefix));
 	}
 
 	/**
@@ -59,24 +66,33 @@ abstract class HTMLFormProcessor extends AppController {
 		//debug($this->desc);
 		//debug($this->prefix);
 		if ($this->submitted) {
+			$this->method[] = '$this->submitted = true';
 			//$urlParams = $this->request->getArray($this->prefix);
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $urlParams);
 			$subRequest = $this->request->getSubRequest($this->prefix);
 			//debug('submit detected', $this->prefix, sizeof($subRequest->getAll()), implode(', ', array_keys($subRequest->getAll())));
 			$this->form->importValues($subRequest);
+			//debug('importValues', $subRequest, $this->form->getValues(), $this->form->desc['begins']);
 			$this->desc = $this->form->desc;
-			//debug($this->form->desc);
+			$this->method[] = '$this->desc = $this->form->importValues($subRequest($this->prefix))';
+
 			$this->validator = new HTMLFormValidate($this->form);
 			$this->validated = $this->validator->validate();
-			$this->desc = $this->validator->getDesc();
-			$this->form->desc = $this->desc;
+			$this->form->desc = $this->desc = $this->validator->getDesc();
+			$this->method[] = '$this->desc = $this->validator->getDesc()';
 		} else {
+			$this->method[] = '$this->submitted = false';
 			//$this->desc = HTMLFormTable::fillValues($this->desc, $this->default);
 			//debug($this->default);
-			$this->form->importValues($this->default instanceof Request
-				? $this->default
-				: new Request($this->default));
-			$this->desc = $this->form->desc;
+			if ($this->default) {
+				$this->form->importValues($this->default instanceof Request
+					? $this->default
+					: new Request($this->default));
+				$this->desc = $this->form->desc;
+				$this->method[] = '$this->desc = $this->form->importValues($this->default)';
+			} else {
+				$this->method[] = '! import $this->default';
+			}
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}

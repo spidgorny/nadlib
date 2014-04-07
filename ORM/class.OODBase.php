@@ -8,7 +8,7 @@
 
 abstract class OODBase {
 	/**
-	 * @var MySQL|dbLayer|dbLayerDB
+	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -136,17 +136,22 @@ abstract class OODBase {
 	 * Returns $this
 	 *
 	 * @param array $data
+	 * @throws Exception
 	 * @return OODBase
 	 */
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
-		$query = $this->db->qb->getInsertQuery($this->table, $data);
+		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
-		$this->init($id ? $id : $this->id);
+		if ($id) {
+			$this->init($id ? $id : $this->id);
+		} else {
+			throw new Exception('OODBase for '.$this->table.' no insert id after insert');
+		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
 	}
@@ -169,9 +174,9 @@ abstract class OODBase {
 			} else {
 				$where[$this->idField] = $this->id;
 			}
-			$query = $this->db->qb->getUpdateQuery($this->table, $data, $where);
-			//debug($query);
+			$query = $this->db->getUpdateQuery($this->table, $data, $where);
 			$res = $this->db->perform($query);
+			//debug($query, $res, $this->db->lastQuery, $this->id);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
 			// If the input arrays have the same string keys,
 			// then the later value for that key will overwrite the previous one.
@@ -181,7 +186,7 @@ abstract class OODBase {
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
-			throw new Exception(__('Updating is not possible as there is no ID defined.'));
+			throw new Exception(__('Updating '.$this->table.' is not possible as there is no ID defined.'));
 		}
 		return $res;
 	}
@@ -190,7 +195,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		$query = $this->db->qb->getDeleteQuery($this->table, $where);
+		$query = $this->db->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
 	}
@@ -202,7 +207,7 @@ abstract class OODBase {
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
 		$rows = $this->db->fetchSelectQuery($this->table, $this->where + $where, $orderByLimit);
 		if (is_array($rows)) {
 			if (is_array(first($rows))) {
@@ -214,7 +219,7 @@ abstract class OODBase {
 			$data = array();
 		}
 		$this->init($data, true);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$this->table.')');
 		return $data;
 	}
 
@@ -413,6 +418,7 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Is cached in instances
 	 * @param string $name
 	 * @param null $field
 	 * @return static

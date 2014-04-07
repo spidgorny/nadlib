@@ -4,7 +4,7 @@
  * Class MySQL
  * @mixin SQLBuilder
  */
-class MySQL {
+class MySQL extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -77,16 +77,20 @@ class MySQL {
 	function perform($query) {
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
+			$btl = debug_backtrace();
 			do {
-				$caller = Debug::getCaller($c);
+				$bt = $btl[$c];
+				$caller = "{$bt['class']}::{$bt['function']}";
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
 				'MySQL::runSelectQuery',
-				//'OODBase::findInDB',
+				'OODBase::findInDB',
 				'MySQL::fetchAll',
-				//'FlexiTable::findInDB',
+				'FlexiTable::findInDB',
 				'MySQL::getTableColumns',
+				'MySQL::perform',
+				'OODBase::fetchFromDB',
 			)));
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
@@ -139,6 +143,10 @@ class MySQL {
 		}
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
+	}
+
+	function fetchAssocSeek($res) {
+		return $this->fetchAssoc($res);
 	}
 
 	function fetchRow($res) {
@@ -285,11 +293,7 @@ class MySQL {
 		}
 	}
 
-	function uncompress($value) {
-		return @gzuncompress(substr($value, 4));
-	}
-
-	static function quoteKey($key) {
+	function quoteKey($key) {
 		return $key = '`'.$key.'`';
 	}
 
@@ -320,8 +324,12 @@ class MySQL {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
 	}
 
-	static function escapeBool($value) {
+	function escapeBool($value) {
 		return intval(!!$value);
+	}
+
+	function getScheme() {
+		return get_class($this);
 	}
 
 }

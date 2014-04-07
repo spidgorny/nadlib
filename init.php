@@ -25,6 +25,8 @@ class InitNADLIB {
 		);
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
+		Mb_Internal_Encoding ( 'UTF-8' );
+		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
 			header('X-nadlib: DEVELOPMENT');
@@ -35,12 +37,16 @@ class InitNADLIB {
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
 		} else {
+			header('X-nadlib: PRODUCTION');
 			error_reporting(0);
 			ini_set('display_errors', FALSE);
 		}
 
 		$this->al->useCookies = $this->useCookies;
 		$this->al->register();
+        Config::getInstance();
+
+		Config::getInstance();
 
 		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
@@ -64,6 +70,8 @@ class InitNADLIB {
 		}
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
+
+		require_once 'vendor/autoload.php';
 	}
 
 	function initWhoops() {
@@ -82,15 +90,21 @@ if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
     if (method_exists('Debug', 'debug_args')) {
-	    if (class_exists('FirePHP') && !Request::isCLI()) {
+	    if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
 		    $fp = FirePHP::getInstance(true);
-		    $fp->setOption('includeLineNumbers', true);
-		    $trace = Debug::getSimpleTrace();
-		    if ($trace) {
-		        //$fp->table('Trace', $trace);
-		    }
-		    //$fp->trace('Trace');
-		    $fp->log(sizeof($params) == 1 ? $a : $params);
+			if ($fp->detectClientExtension()) {
+				$fp->setOption('includeLineNumbers', true);
+				$fp->setOption('maxArrayDepth', 10);
+				$fp->setOption('maxDepth', 20);
+				$trace = Debug::getSimpleTrace();
+				array_shift($trace);
+				if ($trace) {
+					$fp->table(implode(' ', first($trace)), $trace);
+				}
+				$fp->log(1 == sizeof($params) ? $a : $params);
+			} else {
+				call_user_func_array(array('Debug', 'debug_args'), $params);
+			}
 	    } else {
 		    call_user_func_array(array('Debug', 'debug_args'), $params);
 	    }
@@ -217,6 +231,18 @@ function debug_pre_print_backtrace() {
 }
 
 /**
+ * Replaces "\t" tabs in non breaking spaces so they can be displayed in html
+ *
+ * @param $text
+ * @param int $tabDepth
+ * @return mixed
+ */
+function tab2nbsp ($text, $tabDepth = 4) {
+    $tabSpaces = str_repeat('&nbsp;', $tabDepth);
+    return str_replace("\t", $tabSpaces, $text);
+}
+
+/**
  * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
  */
 if(!function_exists('get_called_class')) {
@@ -332,4 +358,13 @@ function get_overriden_methods($class) {
 	}
 
 	return $array;
+}
+
+/**
+ * http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential
+ * @param $arr
+ * @return bool
+ */
+function is_assoc($arr) {
+	return array_keys($arr) !== range(0, count($arr) - 1);
 }

@@ -69,7 +69,7 @@ class ConfigBase {
 	public $config;
 
 	protected function __construct() {
-		//d(self::$includeFolders);
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
@@ -96,6 +96,7 @@ class ConfigBase {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 	}
 
 	/**
@@ -116,28 +117,36 @@ class ConfigBase {
 	 * @return $this
 	 */
 	public function postInit() {
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		if ($this->db_database) {
-			try {
-				$this->db = new MySQL(
+			$di = new DIContainer();
+			if (extension_loaded('mysqlnd')) {
+				$di->db_class = 'dbLayerPDO';
+				$this->db = new $di->db_class(
+					$this->db_user,
+					$this->db_password,
+					'mysql',
+					'',
+					$this->db_server,
+					$this->db_database
+				);
+				$this->db->perform('set names utf8');
+			} else {
+				$di->db_class = 'MySQL';
+				$this->db = new $di->db_class(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
-			} catch (Exception $e) {
-				$this->db = new MySQL(
-					$this->db_database,
-					$this->db_server,
-					$this->db_user,
-					'');
 			}
-			$di = new DIContainer();
 			$di->db = $this->db;
 			$this->qb = new SQLBuilder($di);
-			$this->db->qb = $this->qb;
 		}
+
 
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		return $this;
 	}
 
@@ -167,5 +176,27 @@ class ConfigBase {
 			}
 		}
 	}
+
+    /**
+     * @return \SQLBuilder
+     */
+    public function getQb()
+    {
+        if(!isset($this->qb)) {
+            $di = new DIContainer();
+            $di->db = Config::getInstance()->db;
+            $this->setQb(new SQLBuilder($di));
+        }
+
+        return $this->qb;
+    }
+
+    /**
+     * @param \SQLBuilder $qb
+     */
+    public function setQb($qb)
+    {
+        $this->qb = $qb;
+    }
 
 }

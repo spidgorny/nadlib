@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// Mod by Slawa.
 
 function drawRating($rating) {
 	$width = isset($_GET['width']) ? $_GET['width'] : 100;
@@ -62,19 +63,18 @@ function html2rgb($color) {
 	return array($r, $g, $b);
 }
 
-if (function_exists('imagecreate')) {
-	error_reporting(0);
-	ini_set('display_errors', false);
-	header("Content-type: image/png");
-	$expires = 60*60*24*365; // days
-	header("Pragma: public");
-	header("Cache-Control: maxage=".$expires);
-	header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
-	drawRating(min(100, intval($_GET['rating'])));
-} else {
+if (0 || !function_exists('imagecreate')) {
 	error_reporting(E_ALL);
 	ini_set('display_errors', true);
 	echo 'PHP: '.phpversion().'<br />';
 	echo 'GD not installed';
-	imagecreate(10, 10);
+} else {
+	error_reporting(0);
+	ini_set('display_errors', false);
+	header("Content-type: image/png");
 }
+$expires = 60*60*24*365;        // days
+header("Pragma: public");
+header("Cache-Control: maxage=".$expires);
+header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+drawRating(min(100, intval($_GET['rating'])));

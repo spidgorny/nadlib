@@ -11,8 +11,8 @@ class MemcacheFile {
 	function __construct() {
 		$sub = Config::getInstance()->appRoot;
 
-		if (!file_exists($sub.'/'.$this->folder)) {
-			debug(__METHOD__, $sub.'/'.$this->folder);
+		if (!file_exists($sub.$this->folder)) {
+			debug(__METHOD__, $sub.$this->folder);
 			die();
 		} else {
 			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
@@ -44,12 +44,15 @@ class MemcacheFile {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
+	function isValid($key, $expire = 0) {
+		$file = $this->map($key);
+		return !$expire || (@filemtime($file) > (time() - $expire));
+	}
+
 	function get($key, $expire = 0) {
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$file = $this->map($key);
-		if ($expire && @filemtime($file) < time() - $expire) {
-
-		} else {
+		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
 			if ($val) {
 				$val = unserialize($val);

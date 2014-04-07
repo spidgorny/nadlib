@@ -158,7 +158,7 @@ class Flot extends AppController {
 		return $chart;
 	}
 
-	function getChartMax(array $chart) {
+	static function getChartMax(array $chart) {
 		$max = 0;
 		foreach ($chart as $series) {
 			foreach ($series as $pair) {

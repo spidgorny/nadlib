@@ -33,8 +33,11 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 	function perform($query) {
 		if ($this->connection) {
 			$this->result = odbc_exec($this->connection, $query);
+			if (!$this->result) {
+				throw new Exception($this->lastError());
+			}
 		} else {
-			throw new Exception(__METHOD__);
+			throw new Exception($this->lastError());
 		}
 		return $this->result;
 	}
@@ -77,22 +80,20 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 	function fetchAssoc($res) {
 		if ($this->connection) {
 			if (is_null($this->cursor)) {
-				return odbc_fetch_array($res);
+				$row = odbc_fetch_array($res);
 			} else {
 				// row numbering starts with 1 - @see php.net
-				return odbc_fetch_array($res, 1+$this->cursor++);
+				$row = odbc_fetch_array($res, 1+$this->cursor++);
 			}
+			//debug(__METHOD__, $this->cursor, $row);
+			return $row;
 		} else {
 			throw new Exception(__METHOD__);
 		}
 	}
 
-	function __call($method, array $params) {
-		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
-		} else {
-			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
-		}
+	function lastError() {
+		return 'ODBC error #'.odbc_error().': '.odbc_errormsg();
 	}
 
 }

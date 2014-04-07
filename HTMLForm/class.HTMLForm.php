@@ -360,7 +360,10 @@ class HTMLForm {
 	}
 
 	function textarea($name, $value = NULL, $more = '') {
-		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".htmlspecialchars($value)."</textarea>";
+		$more = is_array($more) ? HTMLForm::getAttrHTML($more) : $more;
+		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".
+			htmlspecialchars($value).
+		"</textarea>";
 	}
 
 	/**
@@ -630,7 +633,6 @@ class HTMLForm {
 	 * @return string
 	 */
 	function getAttrHTML(array $attr = NULL) {
-		//debug_pre_print_backtrace();
 		$part = array();
 		if ($attr) foreach ($attr as $key => $val) {
 			if (is_array($val)) {
@@ -696,7 +698,9 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$this->stdout .= AppController::ahref('<img src="img/tb_folder.gif" title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
+		$this->stdout .= AppController::ahref('<img
+			src="img/tb_folder.gif"
+			title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
 			\''.$desc['selectID'].'\',
 			\''.$desc['treeDivID'].'\',
 			\''.$desc['tableName'].'\',
@@ -708,9 +712,18 @@ class HTMLForm {
 			'.$desc['onclickMore'].'
 			return false;
 		"');
-		$style = 'display: none; position: absolute; left: 0; top: 0; width: 404px; height: auto; border: solid 3px #8FBC8F; margin: 3px; background-color: white; az-index: 98;';
+		$style = 'display: none;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 480px;
+		height: auto;
+		border: solid 3px #8FBC8F;
+		margin: 3px;
+		background-color: white;
+		az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
-		$this->stdout .= AppController::enclose('Tree-Element Selector', '',
+		$this->stdout .= AppController::encloseOld('Tree-Element Selector', '',
 			array(
 				'outerStyle' => $style,
 				'foldable' => FALSE,
@@ -718,7 +731,7 @@ class HTMLForm {
 				'paddedID' => (isset($desc['paddedID'])?$desc['paddedID']:''),
 				'closable' => TRUE,
 				'absolute' => TRUE,
-				'paddedStyle' => 'height: 350px; overflow: auto;',
+				'paddedStyle' => 'height: 640px; overflow: auto;',
 				'titleMore' => 'onmousedown="dragStart(event, \''.$desc['treeDivID'].'\')" style="cursor: move;"',
 			));
 	}
@@ -732,8 +745,11 @@ class HTMLForm {
 		$this->hidden($fieldName, $fieldValue, 'id="'.$desc['selectID'].'"');
 		$fieldName[sizeof($fieldName)-1] = end($fieldName).'_name';
 		$this->input($fieldName, $desc['valueName'],
-			'style="width: '.$desc['size'].'" readonly id="'.$desc['selectID'].'_name" '.$desc['more']);
-		$this->text('&nbsp;');
+			'style="width: '.$desc['size'].'"
+			readonly
+			id="'.$desc['selectID'].'_name" '.
+			$desc['more']);
+		$this->text('</td><td>');
 		$this->ajaxTree($desc);
 		$this->text('</nobr>');
 	}
