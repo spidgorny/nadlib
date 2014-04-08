@@ -35,8 +35,10 @@ class FileCache {
 		if (is_array($val)) {
 			$val = serialize($val);
 		}
-		$con = Index::getInstance()->controller;
-		$con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.@sizeof($val).'/'.@strlen($val), __CLASS__);
+		if (class_exists('Index')) {
+			$con = Index::getInstance()->controller;
+			$con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.@sizeof($val).'/'.@strlen($val), __CLASS__);
+		}
 		file_put_contents($this->map($key), $val);
 	}
 

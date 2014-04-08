@@ -230,18 +230,11 @@ class Uploader {
 	 * Handles the file upload from https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin
 	 * If no error it will call a callback to retrieve a redirect URL
 	 * @param $callback
+	 * @param array $params
 	 */
-	function handleBlueImpUpload($callback) {
+	function handleBlueImpUpload($callback, array $params) {
 		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
-		$uh = new UploadHandler(array(
-			'upload_dir' => 'storage/',
-			'param_name' => 'file',
-			'image_library' => Request::isWindows() ? 1 : 2,	// Linux
-			//'convert_bin' => '/usr/bin/convert',
-			'convert_bin' => '/homepages/46/d209488023/htdocs/im/bin/convert',
-			//'identify_bin' => '/usr/bin/identify',
-			'identify_bin' => '/homepages/46/d209488023/htdocs/im/bin/identify',
-		), false);
+		$uh = new UploadHandler($params, false);
 		//$uh->post(true); exit();
 		ob_start();
 		$uh->post(true);

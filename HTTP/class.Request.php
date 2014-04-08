@@ -321,7 +321,11 @@ class Request {
 				if ($levels) {
 					$levels = array_reverse($levels);
 					foreach ($levels as $class) {
-						//debug($class, class_exists($class.'Controller'), class_exists($class));
+						// RewriteRule should not contain "?c="
+						nodebug(
+							$class,
+							class_exists($class.'Controller'),
+							class_exists($class));
 						// to simplify URL it first searches for the corresponding controller
 						if ($class && class_exists($class.'Controller')) {	// this is untested
 							$last = $class.'Controller';

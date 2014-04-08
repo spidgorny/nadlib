@@ -43,7 +43,7 @@ class AutoLoad {
 	 * @var int
 	 */
 	public $count = 0;
-	
+
 	/**
 	 * Relative to getcwd()
 	 * Can be "../" from /nadlib/be/
@@ -143,7 +143,8 @@ class AutoLoad {
 				include_once $configPath;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
 			} else {
-				print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				// some projects don't need Config
+				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
 			}
 		}
 	}
@@ -198,7 +199,8 @@ class AutoLoad {
 				$el = $this->appRoot . $el;
 			}
 		} else {
-			echo ('Config not found');
+			// that's ok. relax. be quiet.
+			//echo ('Config not found');
 		}
 		return $folders;
 	}
@@ -328,7 +330,7 @@ class AutoLoad {
 	static function register() {
 		$instance = self::getInstance();
 		$instance->initFolders();
-		spl_autoload_register(array($instance, 'load'));
+		spl_autoload_register(array($instance, 'load'), true, true);    // before composer
 	}
 
 }
