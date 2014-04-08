@@ -8,9 +8,9 @@ class ConfigBase {
 	protected static $instance;
 
 	public $db_server = '127.0.0.1';
-	public $db_database = '';
 	public $db_user = 'root';
-	public $db_password = 'root';
+	protected $db_password = 'root';
+	public $db_database = '';
 
 	/**
 	 * @var int
@@ -142,7 +142,6 @@ class ConfigBase {
 			$di->db = $this->db;
 			$this->qb = new SQLBuilder($di);
 		}
-
 
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;

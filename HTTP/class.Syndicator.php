@@ -129,15 +129,23 @@ class Syndicator {
 
 	function log($msg) {
 		$this->log[] = $msg;
-		$c = Index::getInstance()->controller;
-		$c->log($msg);
+		if (class_exists('Index')) {
+			$c = Index::getInstance()->controller;
+			$c->log($msg);
+		} else {
+			echo $msg.BR;
+		}
 	}
 
 	function downloadFile($href, $retries = 1) {
-		$ug = new URLGet($href);
-		$ug->timeout = 10;
-		$ug->fetch($this->useProxy, $retries);
-		return $ug->getContent();
+		if (startsWith($href, 'http')) {
+			$ug = new URLGet($href);
+			$ug->timeout = 10;
+			$ug->fetch($this->useProxy, $retries);
+			return $ug->getContent();
+		} else {
+			return file_get_contents($href);
+		}
 	}
 
 	/**

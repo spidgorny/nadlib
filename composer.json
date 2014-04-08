@@ -8,7 +8,8 @@
 		"mustangostang/spyc": "dev-master",
 		"flot/flot": "dev-master",
 		"php-sql-parser": "dev-master",
-		"GerHobbelt/HTMLawed": "dev-master"
+		"GerHobbelt/HTMLawed": "dev-master",
+		"leafo/lessphp": "0.4.0"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
@@ -21,13 +22,14 @@
 		"fabpot/twittee": "dev-master",
 		"sharom/twitter-bootstrap": "dev-master"
     },
-	"autoload": {
-		"_classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
+	"_autoloadddd": {
+		"_classmap_": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
 		"_files": [
 			"init.php"
 		],
 		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php"
+			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
+			"vendor/php-sql-parser/src/PHPSQLParser.php"
 		],
 		"psr-0": {
 			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
