@@ -408,14 +408,21 @@ class Collection {
 	}
 
 	/**
-	 * @return array|ArrayPlus
+	 * @return ArrayPlus
 	 */
 	function getData() {
 		if (!$this->query) {
 			$this->retrieveDataFromDB();
 		}
+        if (!$this->data instanceof ArrayPlus) {
+            $this->data = ArrayPlus::create($this->data);
+        }
 		return $this->data;
 	}
+
+    function setData($data) {
+        $this->data = ArrayPlus::create((array) $data);
+    }
 
 	function prepareRenderRow(array $row) {
 		return $row;
