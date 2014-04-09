@@ -627,18 +627,6 @@ order by a.attnum';
 		return $key;
 	}
 
-	function runUpdateInsert($table, $set, $where) {
-		$found = $this->runSelectQuery($table, $where);
-		if ($this->numRows($found)) {
-			$res = 'update';
-			$this->runUpdateQuery($table, $set, $where);
-		} else {
-			$res = 'insert';
-			$this->runInsertQuery($table, $set + $where);
-		}
-		return $res;
-	}
-
 	function getCallerFunction() {
 		$skipFunctions = array(
 			'runSelectQuery',
