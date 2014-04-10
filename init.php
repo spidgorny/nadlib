@@ -20,7 +20,7 @@ class InitNADLIB {
 		//print_r($_SERVER);
 
 		define('DEVELOPMENT', Request::isCLI()
-			? (Request::isWindows() || false) // at home
+			? (Request::isWindows() || $_COOKIE['debug']) // at home
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
 
