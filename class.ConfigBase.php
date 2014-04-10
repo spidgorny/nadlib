@@ -78,6 +78,7 @@ class ConfigBase {
 			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
 		}
 
+		//debug_print_backtrace();
 		nodebug(array(
 			'Config->documentRoot' => $this->documentRoot,
 			'Config->appRoot' => $this->appRoot,
