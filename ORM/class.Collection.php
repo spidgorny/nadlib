@@ -25,7 +25,7 @@ class Collection {
 	 * Retrieved rows from DB
 	 * @var ArrayPlus|array
 	 */
-	var $data = array();
+	protected $data = array();
 
 	public $thes = array();
 

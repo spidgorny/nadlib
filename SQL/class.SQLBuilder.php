@@ -253,8 +253,6 @@ class SQLBuilder {
 	);
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var MySQL
 	 */
 	public $db;

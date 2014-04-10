@@ -115,7 +115,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserver errors
+			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserve errors
 		} else {
 			print('
 			<script type="text/javascript">

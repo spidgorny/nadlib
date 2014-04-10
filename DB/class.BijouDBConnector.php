@@ -1,6 +1,10 @@
 <?php
 
-class BijouDBConnector {
+/**
+ * Class BijouDBConnector
+ * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
+ */
+class BijouDBConnector extends dbLayerBase {
 
 	/**
 	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
@@ -17,6 +21,7 @@ class BijouDBConnector {
 	 */
 	function __construct(t3lib_DB $t3lib_DB = NULL) {
 		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
+		$this->setQB();
 	}
 	
 	function perform($query) {
