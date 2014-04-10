@@ -70,9 +70,12 @@ class Pager {
 				$this->setCurrentPage($pagerData['page']);
 				$this->saveCurrentPage();
 			}
-		} elseif ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
-			//debug(__METHOD__, $this->prefix, $pager['page']);
-			$this->setCurrentPage($pager['page']);
+		} elseif ($this->user && method_exists($this->user, 'getPref')) {
+			$pager = $this->user->getPref('Pager.'.$this->prefix);
+			if ($pager) {
+				//debug(__METHOD__, $this->prefix, $pager['page']);
+				$this->setCurrentPage($pager['page']);
+			}
 		} else {
 			$this->setCurrentPage(0);
 		}
