@@ -60,6 +60,9 @@ class BijouDBConnector extends dbLayerBase {
 	}
 
 	function fetchRow($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		return $this->t3db->sql_fetch_row($res);
 	}
 
@@ -138,7 +141,7 @@ class BijouDBConnector extends dbLayerBase {
 	}
 
 	function escapeString($value) {
-		return $this->t3d->fullQuoteStr($value, '');
+		return $this->t3db->fullQuoteStr($value, '');
 	}
 
 	function getDefaultInsertFields() {
