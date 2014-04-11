@@ -234,8 +234,8 @@ class Time {
 	    $now             = time();
 	    $unix_date       = $this->time;
 
-	       // check validity of date
-	    if(empty($unix_date)) {
+	    // check validity of date
+	    if (empty($unix_date)) {
 	        return __("Bad date");
 	    }
 
