@@ -23,6 +23,7 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
+	 * Protected in order to force usage of getData()
 	 * @var ArrayPlus|array
 	 */
 	protected $data = array();
@@ -365,7 +366,8 @@ class Collection {
 	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		if ($this->data) {
+        $this->getData();
+		if ($this->count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
@@ -384,7 +386,7 @@ class Collection {
 	}
 
 	function getDataTable() {
-		$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
+		$s = new slTable($this->getData(), HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->thes);
 		$s->ID = get_class($this);
 		$s->sortable = $this->useSorting;
@@ -406,14 +408,21 @@ class Collection {
 	}
 
 	/**
-	 * @return array|ArrayPlus
+	 * @return ArrayPlus
 	 */
 	function getData() {
 		if (!$this->query) {
 			$this->retrieveDataFromDB();
 		}
+        if (!$this->data instanceof ArrayPlus) {
+            $this->data = ArrayPlus::create($this->data);
+        }
 		return $this->data;
 	}
+
+    function setData($data) {
+        $this->data = ArrayPlus::create((array) $data);
+    }
 
 	function prepareRenderRow(array $row) {
 		return $row;
@@ -671,6 +680,8 @@ class Collection {
 	 * elements on the page still have prev and next elements. But it's SLOW!
 	 *
 	 * @param OODBase $model
+	 * @throws LoginException
+	 * @throws Exception
 	 * @return string
 	 */
 	function getNextPrevBrowser(OODBase $model) {
@@ -701,16 +712,19 @@ class Collection {
 		} else {
 			$prevData = $nextData = array();
 		}
-		$data = $prevData + (
-            ($this->data instanceof ArrayPlus) ? $this->data->getData() : $this->data
-            ) + $nextData; // not array_merge which will reindex
+
+		$central = ($this->data instanceof ArrayPlus)
+			? $this->data->getData()
+			: ($this->data ?: array())  // NOT NULL
+		;
 
 		nodebug($model->id,
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$this->data))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
-		$ap = AP($data);
+		$data = $prevData + $central + $nextData; // not array_merge which will reindex
+		$ap = ArrayPlus::create($data);
 		//debug($data);
 
 		$prev = $ap->getPrevKey($model->id);
