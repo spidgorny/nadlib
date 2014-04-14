@@ -20,7 +20,7 @@ class Lesser extends AppController {
 		if ($cssFile) {
 			$cssFileName = $this->request->getFilename('css');
 			$this->output = 'cache/'.str_replace('.less', '.css', $cssFileName);
-			debug($cssFile, $cssFileName, file_exists($cssFile), $this->output);
+			//debug($cssFile, $cssFileName, file_exists($cssFile), $this->output);
 
 			header("Date: ".gmdate("D, d M Y H:i:s", time())." GMT");
 			header("Last-Modified: ".gmdate("D, d M Y H:i:s", time())." GMT");;
