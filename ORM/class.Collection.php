@@ -23,6 +23,7 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
+	 * Protected in order to force usage of getData()
 	 * @var ArrayPlus|array
 	 */
 	protected $data = array();
@@ -672,6 +673,8 @@ class Collection {
 	 * elements on the page still have prev and next elements. But it's SLOW!
 	 *
 	 * @param OODBase $model
+	 * @throws LoginException
+	 * @throws Exception
 	 * @return string
 	 */
 	function getNextPrevBrowser(OODBase $model) {
@@ -702,16 +705,19 @@ class Collection {
 		} else {
 			$prevData = $nextData = array();
 		}
-		$data = $prevData + (
-            ($this->data instanceof ArrayPlus) ? $this->data->getData() : $this->data
-            ) + $nextData; // not array_merge which will reindex
+
+		$central = ($this->data instanceof ArrayPlus)
+			? $this->data->getData()
+			: ($this->data ?: array())  // NOT NULL
+		;
 
 		nodebug($model->id,
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$this->data))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
-		$ap = AP($data);
+		$data = $prevData + $central + $nextData; // not array_merge which will reindex
+		$ap = ArrayPlus::create($data);
 		//debug($data);
 
 		$prev = $ap->getPrevKey($model->id);
