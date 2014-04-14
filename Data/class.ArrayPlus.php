@@ -434,7 +434,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function implode($sep) {
-		return implode($sep, (array) $this);
+		return implode($sep, $this->getData());
 	}
 
 	function typoscript($prefix = '') {
