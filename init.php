@@ -20,7 +20,7 @@ class InitNADLIB {
 		//print_r($_SERVER);
 
 		define('DEVELOPMENT', Request::isCLI()
-			? (Request::isWindows() || $_COOKIE['debug']) // at home
+			? (Request::isWindows() || (isset($_COOKIE['debug']) && $_COOKIE['debug']))
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
 
@@ -29,7 +29,7 @@ class InitNADLIB {
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
-			header('X-nadlib: DEVELOPMENT');
+			@header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -37,7 +37,7 @@ class InitNADLIB {
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
 		} else {
-			header('X-nadlib: PRODUCTION');
+			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
 			ini_set('display_errors', FALSE);
 		}
@@ -77,12 +77,12 @@ class InitNADLIB {
 		}
 	}
 
-	function initWhoops() {
+	/*function initWhoops() {
 		$run     = new Whoops\Run;
 		$handler = new Whoops\Handler\PrettyPageHandler;
 		$run->pushHandler($handler);
 		$run->register();
-	}
+	}*/
 
 }
 
