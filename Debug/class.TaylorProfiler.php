@@ -322,7 +322,7 @@ class TaylorProfiler {
 
 	static function getMemoryUsage($returnString = false) {
 		static $max;
-		$max = $max ?: intval(ini_get('memory_limit'));	// MB implied
+		$max = $max ? $max : intval(ini_get('memory_limit'));	// MB implied
 		$cur = memory_get_usage(true) / 1024 / 1024;
 		if ($returnString) {
 			$content = str_pad(number_format($cur, 0, '.', ''), 4, ' ', STR_PAD_LEFT).'/'.$max.'MB '.number_format($cur/$max*100, 3, '.', '').'% ';
@@ -333,7 +333,7 @@ class TaylorProfiler {
 	}
 
 	static function addMemoryMap($obj) {
-		self::$sos = self::$sos ?: new SplObjectStorage();
+		self::$sos = self::$sos ? self::$sos : new SplObjectStorage();
 		self::$sos->attach($obj);
 	}
 
@@ -392,7 +392,7 @@ class TaylorProfiler {
 	
 	static function getTimeUsage() {
 		static $max;
-		$max = $max ?: intval(ini_get('max_execution_time'));
+		$max = $max ? $max : intval(ini_get('max_execution_time'));
 		$cur = microtime(true) - $_SERVER['REQUEST_TIME'];
 		return number_format($cur/$max, 3, '.', '');
 	}
