@@ -72,9 +72,10 @@ class InitNADLIB {
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
 
-		if (file_exists('vendor/autoload.php')) {
-			require_once 'vendor/autoload.php';
-		}
+        // in DCI for example, we don't use composer (yet!?)
+        if (file_exists('vendor/autoload.php')) {
+            require_once 'vendor/autoload.php';
+        }
 	}
 
 	function initWhoops() {
