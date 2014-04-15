@@ -338,7 +338,14 @@ class AutoLoad {
 	static function register() {
 		$instance = self::getInstance();
 		$instance->initFolders();
-		spl_autoload_register(array($instance, 'load'), true, true);    // before composer
+		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
+		if ($result) {
+			echo __METHOD__ . ' OK'.BR;
+		} else {
+			debug(error_get_last());
+			debug(is_callable(array($instance, 'load')));
+			//die('Autloading failed'.BR);
+		}
 	}
 
 }
