@@ -4,7 +4,7 @@
  * Class BijouDBConnector
  * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
  */
-class BijouDBConnector extends dbLayerBase {
+class BijouDBConnector extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
@@ -212,6 +212,10 @@ class BijouDBConnector extends dbLayerBase {
 		return $this->t3db->quoteStr($str, '');
 	}
 
+	function escapeBool($io) {
+		return intval(!!$io);
+	}
+
 	function quoteKey($key) {
 		return MySQL::quoteKey($key);
 	}
@@ -228,4 +232,11 @@ class BijouDBConnector extends dbLayerBase {
 		return $this->t3db->sql_free_result($res);
 	}
 
+	function affectedRows() {
+		// TODO: Implement affectedRows() method.
+	}
+
+	function getTables() {
+		// TODO: Implement getTables() method.
+	}
 }
