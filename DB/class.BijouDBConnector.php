@@ -20,7 +20,7 @@ class BijouDBConnector extends dbLayerBase {
 	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
 	 */
 	function __construct(t3lib_DB $t3lib_DB = NULL) {
-		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
+		$this->t3db = $t3lib_DB ? $t3lib_DB : $GLOBALS['TYPO3_DB'];
 		$this->setQB();
 	}
 	
