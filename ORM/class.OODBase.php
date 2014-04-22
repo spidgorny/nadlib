@@ -430,7 +430,7 @@ abstract class OODBase {
 		// first search instances
 		if (is_array(self::$instances[$self])) {
 			foreach (self::$instances[$self] as $inst) {
-				$field = $field ?: $inst->titleColumn;
+				$field = $field ? $field : $inst->titleColumn;
 				if ($inst->data[$field] == $name) {
 					$c = $inst;
 					break;
@@ -441,7 +441,7 @@ abstract class OODBase {
 		if (!$c) {
 			$c = new $self();
 			/** @var $c OODBase */
-			$field = $field ?: $c->titleColumn;
+			$field = $field ? $field : $c->titleColumn;
 			$c->findInDB(array(
 				$field => $name,
 			));

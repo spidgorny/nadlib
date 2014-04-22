@@ -29,7 +29,7 @@ class DIContainer {
 			: $v;
 	}
 
-	function asShared($callable) {
+/*	function asShared($callable) {
 		return function ($c) use ($callable) {
 			static $object;
 
@@ -40,5 +40,5 @@ class DIContainer {
 			return $object;
 		};
 	}
-
+*/
 }
