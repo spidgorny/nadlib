@@ -84,10 +84,12 @@ class ProgressBar {
 	 */
 	function getCSS() {
 		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/ProgressBar.less';
+		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
+				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
 		} else {
 			$l = new lessc();
 			$css = $l->compileFile($less);
@@ -140,6 +142,7 @@ class ProgressBar {
 
 	function setIndex($i) {
 		$percent = $i/$this->count*100;
+		$every = ceil($this->count / 1000);   // 100% * 10 for each 0.1
         if (!($i % $every)) {
 			$this->setProgressBarProgress($percent);
 		}
