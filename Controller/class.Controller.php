@@ -97,7 +97,8 @@ abstract class Controller {
 			} else {
 				$class = $params['c'];
 				unset($params['c']);
-				$url = new URL($this->request->getLocation().$class, $params);
+				$location = $prefix != '?' ? $prefix : $this->request->getLocation();
+				$url = new URL($location.$class, $params);
 			}
 		} else {
 			if (isset($params['c']) && !$params['c']) {
