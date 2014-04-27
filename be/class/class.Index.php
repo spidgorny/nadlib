@@ -30,12 +30,13 @@ class Index extends IndexBase {
 
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 
-		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'/components/modernizr/modernizr.js"></script>';
+		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'components/modernizr/modernizr.js"></script>';
 		$this->addCSS($this->nadlibFromDocRoot.'components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
 		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.css');
 		$this->addJQuery();
-		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
+		//$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
+		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.js');
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();

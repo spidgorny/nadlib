@@ -22,7 +22,10 @@
     },
 	"autoload": {
 		"classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
-		"files": ["init.php"]
+		"files": [
+			"init.php",
+			"vendor/mustangostang/spyc/Spyc.php"
+		]
 	},
 	"repositories_bak": [
 		{
