@@ -92,7 +92,7 @@ class ConfigBase {
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
-			require_once 'vendor/mustangostang/spyc/Spyc.php';
+			//require_once 'vendor/mustangostang/spyc/Spyc.php';
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
