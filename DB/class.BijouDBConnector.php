@@ -217,7 +217,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return MySQL::quoteKey($key);
+		return $key = '`'.$key.'`';
 	}
 
 	function getTableColumns($table) {
