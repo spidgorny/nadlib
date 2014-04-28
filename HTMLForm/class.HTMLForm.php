@@ -708,7 +708,9 @@ class HTMLForm {
 			\''.$desc['tableTitle'].'\',
 			\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
 			\''.$desc['categoryID'].'\',
-			\''.$desc['onlyLeaves'].'\');
+			\''.$desc['onlyLeaves'].'\',
+			\''.$desc['selected'].'\'
+			);
 			'.$desc['onclickMore'].'
 			return false;
 		"');
