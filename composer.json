@@ -29,7 +29,8 @@
 		],
 		"files": [
 			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
-			"vendor/php-sql-parser/src/PHPSQLParser.php"
+			"vendor/php-sql-parser/src/PHPSQLParser.php",
+			"vendor/mustangostang/spyc/Spyc.php"
 		],
 		"psr-0": {
 			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
