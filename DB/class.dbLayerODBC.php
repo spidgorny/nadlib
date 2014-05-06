@@ -96,4 +96,8 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		return 'ODBC error #'.odbc_error().': '.odbc_errormsg();
 	}
 
+	function lastError() {
+		return odbc_error().': '.odbc_errormsg();
+	}
+
 }

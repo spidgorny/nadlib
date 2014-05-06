@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class Mailer - simple mail sending class which supports either plain text or HTML
+ * mails. No attachments. Use SwiftMailer for anything more complicated. Takes care
+ * of the UTF-8 in subjects.
+ */
 class Mailer {
 
 	/**
@@ -54,7 +59,11 @@ class Mailer {
 
 	function send() {
 		if (HTMLFormValidate::validMail($this->to)) {
-			mail($this->to, $this->getSubject(), $this->getBodyText(), implode("\n", $this->headers)."\n", implode(' ', $this->params));
+			mail($this->to,
+				$this->getSubject(),
+				$this->getBodyText(),
+				implode("\n", $this->headers)."\n",
+				implode(' ', $this->params));
 		} else {
 			throw new Exception('Invalid email address');
 		}
