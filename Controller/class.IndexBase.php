@@ -183,6 +183,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
+	static function mergeStringArrayRecursive($render) {
+		if (is_array($render)) {
+			//$render = implode("\n", $render); // not recursive
+			$combined = '';
+			array_walk_recursive($render, function ($value, $key) use (&$combined) {
+				$combined .= $value."\n";
+			});
+			$render = $combined;
+		}
+		return $render;
+	}
+
 	function renderException(Exception $e, $wrapClass = '') {
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.$e->getMessage();
