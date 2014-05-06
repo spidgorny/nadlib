@@ -32,16 +32,16 @@ class MemcacheFile {
 	}
 
 	function set($key, $val) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$file = $this->map($key);
 		if (is_writable($this->folder)) {
 			file_put_contents($file, serialize($val));
 			@chmod($file, 0777);	// needed for cronjob accessing cache files
 		} else {
-			if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+			if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception($file.' write access denied.');
 		}
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function isValid($key, $expire = 0) {
@@ -50,7 +50,7 @@ class MemcacheFile {
 	}
 
 	function get($key, $expire = 0) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$file = $this->map($key);
 		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
@@ -58,7 +58,7 @@ class MemcacheFile {
 				$val = unserialize($val);
 			}
 		}
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $val;
 	}
 

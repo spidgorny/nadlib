@@ -88,7 +88,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function init($id, $fromFindInDB = false) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (is_array($id)) {
 			if (is_scalar($this->idField) || $fromFindInDB) {
 				$this->initByRow($id);
@@ -110,10 +110,10 @@ abstract class OODBase {
 			}
 		} else if (!is_null($id)) {
 			debug($id);
-			if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(__METHOD__);
 		}
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function getName() {
@@ -366,7 +366,7 @@ abstract class OODBase {
 	}
 
 	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name')) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '<div class="showAssoc">
 		<h3>'.get_class($this).':</h3>';
 			foreach ($thes as $key => $name) {
@@ -376,7 +376,7 @@ abstract class OODBase {
 				$content .= $val.'<br clear="all" />';
 			}
 		$content .= '</div>';
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
@@ -456,7 +456,7 @@ abstract class OODBase {
 
 	//abstract function createRecord($data);
 	static function createRecord($insert, $class) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
 
@@ -475,7 +475,7 @@ abstract class OODBase {
 		} else {
 			$object = NULL;
 		}
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $object;
 	}
 

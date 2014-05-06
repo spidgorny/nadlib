@@ -51,14 +51,14 @@ class MemcacheArray implements ArrayAccess {
 	 * @param int $expire - seconds to keep the cache active
 	 */
 	function __construct($file, $expire = 0) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__.' ('.$file.')');
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
 		$this->file = $file;
 		$this->expire = $expire instanceof Duration ? $expire->getTimestamp() : $expire;
 		$this->fc = new MemcacheFile();
 		$this->data = $this->fc->get($this->file, $this->expire);
 		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__.' ('.$file.')');
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 
 	/**
@@ -66,13 +66,13 @@ class MemcacheArray implements ArrayAccess {
 	 * Modified to save only on changed data
 	 */
 	function __destruct() {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($this->onDestruct) {
 			call_user_func($this->onDestruct, $this);
 		}
 		$this->save();
 		//debug(sizeof($this->data));
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function save() {
@@ -83,13 +83,13 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	function clearCache() {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$prev = sizeof(self::$instances);
 		$prevKeys = array_keys(self::$instances);
 		self::unsetInstance($this->file);
 		$curr = sizeof(self::$instances);
 		//debug(__METHOD__, $this->file, $prev, $curr, $prevKeys, array_keys(self::$instances));
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	public function offsetSet($offset, $value) {
