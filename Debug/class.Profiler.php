@@ -46,11 +46,11 @@ class Profiler {
 	}
 
 	function startTimer($method) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer($method);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($method);
 	}
 
 	function stopTimer($method) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer($method);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($method);
 	}
 
 	function __toString() {

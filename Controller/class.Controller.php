@@ -338,6 +338,22 @@ abstract class Controller {
 		return $content;
 	}
 
+	function encloseInTable() {
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/columnContainer.less');
+		$elements = func_get_args();
+		$content = '<div class="columnContainer">';
+		foreach ($elements as &$el) {
+			if (!$el instanceof HTMLTag) {
+				$el = new HTMLTag('div', array(
+					'class' => 'column',
+				), $el, true);
+			}
+		}
+		$content .= implode("\n", $elements);
+		$content .= '</div>';
+		return $content;
+	}
+
 	/**
 	 * Commented to allow get_class_methods() to return false
 	 * @return string
