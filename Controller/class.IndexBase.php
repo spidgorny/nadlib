@@ -42,6 +42,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $template = 'template.phtml';
 
+	public $sidebar = '';
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
@@ -54,7 +56,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if(!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/) {
+		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/) {
 			session_start();
 		}
 
@@ -172,7 +174,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$v = new View($this->template, $this);
 		$v->content = $content;
 		$v->title = strip_tags($this->controller->title);
-		$v->sidebar = $this->showSidebar();
+		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
@@ -184,6 +186,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$render = $this->controller->render();
 		$render = $this->mergeStringArrayRecursive($render);
+		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}

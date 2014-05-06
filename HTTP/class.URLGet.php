@@ -113,7 +113,7 @@ class URLGet {
 		}
 		curl_close($process);
 
-		if (!$html || $this->info['http_code'] != 200) {
+		if (/*!$html || */$this->info['http_code'] != 200) {	// when downloading large file directly to file system
 			if ($this->proxy) {
 				//Controller::log('Using proxy: '.$proxy.': FAIL', __CLASS__);
 				$this->proxy->fail();
