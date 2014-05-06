@@ -23,9 +23,10 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
+	 * Protected in order to force usage of getData()
 	 * @var ArrayPlus|array
 	 */
-	var $data = array();
+	protected $data = array();
 
 	public $thes = array();
 
@@ -125,6 +126,12 @@ class Collection {
 	public $log = array();
 
 	/**
+	 * HTMLFormTable
+	 * @var array
+	 */
+	var $desc = array();
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -161,9 +168,15 @@ class Collection {
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
 		//debug($this->parentField, $this->parentID, $this->where);
-		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
+
+		// never retrieve data in advance
+		// use lazy retrieval
+		// don't access $this->data - use $this->getData()
+		// don't access $this->members - use $this->objectify()
+		/*if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
+		*/
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
@@ -192,7 +205,7 @@ class Collection {
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$this->query = $this->getQueryWithLimit($this->where);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -206,7 +219,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 	}
 
 	/**
@@ -215,7 +228,7 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$query = $this->getQuery();
 		$sql = new SQLQuery($query);
 		array_unshift($sql->parsed['SELECT'], array(
@@ -251,7 +264,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
 	}
 
 	/**
@@ -353,7 +366,8 @@ class Collection {
 	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		if ($this->data) {
+        $this->getData();
+		if ($this->count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
@@ -372,7 +386,7 @@ class Collection {
 	}
 
 	function getDataTable() {
-		$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
+		$s = new slTable($this->getData(), HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->thes);
 		$s->ID = get_class($this);
 		$s->sortable = $this->useSorting;
@@ -394,14 +408,21 @@ class Collection {
 	}
 
 	/**
-	 * @return array|ArrayPlus
+	 * @return ArrayPlus
 	 */
 	function getData() {
 		if (!$this->query) {
 			$this->retrieveDataFromDB();
 		}
+        if (!$this->data instanceof ArrayPlus) {
+            $this->data = ArrayPlus::create($this->data);
+        }
 		return $this->data;
 	}
+
+    function setData($data) {
+        $this->data = ArrayPlus::create((array) $data);
+    }
 
 	function prepareRenderRow(array $row) {
 		return $row;
@@ -659,6 +680,8 @@ class Collection {
 	 * elements on the page still have prev and next elements. But it's SLOW!
 	 *
 	 * @param OODBase $model
+	 * @throws LoginException
+	 * @throws Exception
 	 * @return string
 	 */
 	function getNextPrevBrowser(OODBase $model) {
@@ -689,16 +712,19 @@ class Collection {
 		} else {
 			$prevData = $nextData = array();
 		}
-		$data = $prevData + (
-            ($this->data instanceof ArrayPlus) ? $this->data->getData() : $this->data
-            ) + $nextData; // not array_merge which will reindex
+
+		$central = ($this->data instanceof ArrayPlus)
+			? $this->data->getData()
+			: ($this->data ?: array())  // NOT NULL
+		;
 
 		nodebug($model->id,
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$this->data))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
-		$ap = AP($data);
+		$data = $prevData + $central + $nextData; // not array_merge which will reindex
+		$ap = ArrayPlus::create($data);
 		//debug($data);
 
 		$prev = $ap->getPrevKey($model->id);

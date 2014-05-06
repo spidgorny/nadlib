@@ -65,7 +65,7 @@ class MemcacheFile {
 	function clearCache($key) {
 		$file = $this->map($key);
 		if (file_exists($file)) {
-			debug('<font color="green">Deleting '.$file.'</font>');
+			//debug('<font color="green">Deleting '.$file.'</font>');
 			unlink($file);
 		}
 	}

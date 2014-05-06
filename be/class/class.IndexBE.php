@@ -18,6 +18,7 @@ class Index extends IndexBase {
 		$config->defaultController = 'HomeBE';
 		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
 		$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
+		//$config->documentRoot = $config->documentRoot ?: '/';	// must end without slash
 		// it's not reading the config.yaml from /be/, but from the project root
 		$config->config['View']['folder'] = '../be/template/';
 
@@ -30,7 +31,7 @@ class Index extends IndexBase {
 
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 
-		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'/components/modernizr/modernizr.js"></script>';
+		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'components/modernizr/modernizr.js"></script>';
 		$this->addCSS($this->nadlibFromDocRoot.'components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
 		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.css');
@@ -81,7 +82,11 @@ class Index extends IndexBase {
 		$this->menu->recursive = false;
 		$this->menu->renderOnlyCurrent = true;
 		$this->menu->useControllerSlug = false;
-		$this->menu->basePath->setPath($this->menu->basePath->components['path'].$this->nadlibFromDocRoot.'be/');
+		$this->menu->setBasePath();	// because 1und1 rewrite is not enabled
+		//debug($this->menu->basePath);
+		$docRoot = $this->request->getDocumentRoot();
+		$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$this->menu->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
 	}
 
 	function loadBEmenu(array $menu) {
@@ -146,9 +151,12 @@ class Index extends IndexBase {
 		$m = new Menu($this->menu->items->getData(), 1);
 		$m->recursive = false;
 		$m->renderOnlyCurrent = true;
-		$m->useControllerSlug = true;
-		$m->useRecursiveURL = false;
-		$m->basePath->setPath($m->basePath->components['path'].$this->nadlibFromDocRoot.'be/');
+		$m->useControllerSlug = false;
+		//$m->useRecursiveURL = false;
+		$m->setBasePath();	// because 1und1 rewrite is not enabled
+		$docRoot = $m->request->getDocumentRoot();
+		$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$m->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
 		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
