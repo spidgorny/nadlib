@@ -22,8 +22,8 @@
 		"fabpot/twittee": "dev-master",
 		"sharom/twitter-bootstrap": "dev-master"
     },
-	"_autoloadddd": {
-		"_classmap_": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
+	"autoload": {
+		"_classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
 		"_files": [
 			"init.php"
 		],
