@@ -54,10 +54,24 @@ class PersistantOODBase extends OODBase {
 	 * @return resource
 	 */
 	function insert(array $data) {
-		$ret = parent::insert($data);
+		nodebug(array('insert before',
+			$this->stateHash => $this->originalData,
+			$this->getStateHash() => $this->data,
+			$this->id
+		));
+		try {
+			$ret = parent::insert($data);
+		} catch (Exception $e) {
+			//debug('LastInsertID() failed but it\'s OK');
+		}
 		//debug($this->db->lastQuery);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
+		nodebug(array('insert after',
+			$this->stateHash =>$this->originalData,
+			$this->getStateHash() => $this->data,
+			$this->id,
+		));
 		return $ret;
 	}
 
@@ -77,7 +91,11 @@ class PersistantOODBase extends OODBase {
 
 	function save() {
 		if ($this->getStateHash() != $this->stateHash) {
-			//debug($this->getStateHash(), $this->stateHash, $this->data, $this->originalData, $this->id);
+			nodebug(array(
+				$this->stateHash => $this->originalData,
+				$this->getStateHash() => $this->data,
+				$this->id
+			));
 			if ($this->id) {
 				//debug(__CLASS__, $this->id, $this->getStateHash(), $this->stateHash, $this->data, $this->originalData);
 				//debug(get_class($this), $this->id, $this->originalData, $this->data);
