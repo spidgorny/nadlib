@@ -224,7 +224,11 @@ class slTable {
 		//debug('$this->sortBy', $this->sortBy);
 		if ($this->sortable && $this->sortBy) {
 			//print view_table($this->data);
-			uasort($this->data, array($this, 'tabSortByUrl')); // $this->sortBy is used inside
+            if ($this->data instanceof ArrayPlus) {
+                $this->data->uasort(array($this, 'tabSortByUrl'));
+            } else {
+                uasort($this->data, array($this, 'tabSortByUrl')); // $this->sortBy is used inside
+            }
 			//print view_table($this->data);
 			//debug($this->thes[$this->sortBy]);
 			if (isset($this->thes[$this->sortBy])) {
@@ -500,15 +504,10 @@ class slTable {
 		return $more;
 	}
 
-	function show() {
-		if (!$this->generation) {
-			$this->generate();
-		}
-		$this->generation->render();
-	}
-
 	function render() {
-		$this->show();
+		echo Request::isCLI()
+			? $this->getCLITable()
+			: $this->getContent();
 	}
 
 	function getContent($caller = '') {

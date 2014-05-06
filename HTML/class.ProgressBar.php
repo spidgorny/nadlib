@@ -35,6 +35,12 @@ class ProgressBar {
 	 */
 	var $count = 0;
 
+    /**
+     * Force getCss() to NOT load from Index if Index exists
+     * @var bool
+     */
+    var $useIndexCss = true;
+
 	/**
 	 * @ param #2 $color = '#43b6df'
 	 * @param int $percentDone
@@ -66,16 +72,29 @@ class ProgressBar {
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
+            print($this->getCSS());
 			print($this->getContent());
-			print $this->getCSS();
 			$this->flush();
 		}
 	}
 
+	/**
+	 * pre-compiles LESS inline
+	 * @return string
+	 */
 	function getCSS() {
-		$l = new lessc();
-		$css = $l->compileFile(dirname(__FILE__).'/../CSS/ProgressBar.less');
-		return '<style>'.$css.'</style>';
+		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/ProgressBar.less';
+		if ($this->useIndexCss && class_exists('Index')) {
+			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
+			Index::getInstance()->addCSS($less);
+		} elseif ($GLOBALS['HTMLHEADER']) {
+			$GLOBALS['HTMLHEADER']['ProgressBar.less']
+				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
+		} else {
+			$l = new lessc();
+			$css = $l->compileFile($less);
+			return '<style>' . $css . '</style>';
+		}
 	}
 
 	function __toString() {
@@ -94,15 +113,7 @@ class ProgressBar {
 			</div>
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
-		if (class_exists('Index')) {
-			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
-		} elseif ($GLOBALS['HTMLHEADER']) {
-			$GLOBALS['HTMLHEADER']['ProgressBar.less']
-				= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
-		} else {
-			$content .= $this->getCSS();	// pre-compiles LESS inline
-		}
+		$content .= $this->getCSS();
 		return $content;
 	}
 
@@ -110,7 +121,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserver errors
+			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserve errors
 		} else {
 			print('
 			<script type="text/javascript">
@@ -131,8 +142,8 @@ class ProgressBar {
 
 	function setIndex($i) {
 		$percent = $i/$this->count*100;
-		$every = $this->count / 1000;   // 100% * 10 for each 0.1
-		if (!($i % $every)) {
+		$every = ceil($this->count / 1000);   // 100% * 10 for each 0.1
+        if (!($i % $every)) {
 			$this->setProgressBarProgress($percent);
 		}
 	}

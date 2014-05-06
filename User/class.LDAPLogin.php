@@ -21,6 +21,11 @@ class LDAPLogin {
 
     public $error = null;
 
+	/**
+	 * @var LDAPUser or a descendant
+	 */
+	public $userClass;
+
     public function __construct($host, $base) {
 		$this->LDAP_HOST = $host;
 		$this->LDAP_BASEDN = $base;
@@ -46,7 +51,12 @@ class LDAPLogin {
         return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
     }
 
-    public function authLdap($username, $password) {
+	/**
+	 * @param $username
+	 * @param $password
+	 * @return bool|void|LDAPUser
+	 */
+	public function authLdap($username, $password) {
         $this->_connectLdap();
 
         if (($username == null) || ($password == null)) {
@@ -74,7 +84,8 @@ class LDAPLogin {
 				$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $this->_sanitizeLdap($password));
 
 				if ($ldapbind) {
-					return new LDAPUser($info[$i]);
+					$this->userClass->initLDAP($info[$i]);
+					return $this->userClass;
 				} else {
 					$this->error = "LDAP login failed.";
 					//echo getDebug($ldapbind);

@@ -20,7 +20,7 @@ class InitNADLIB {
 		//print_r($_SERVER);
 
 		define('DEVELOPMENT', Request::isCLI()
-			? (Request::isWindows() || false) // at home
+			? (Request::isWindows() || (isset($_COOKIE['debug']) && $_COOKIE['debug']))
 			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
 		);
 
@@ -29,7 +29,7 @@ class InitNADLIB {
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
-			header('X-nadlib: DEVELOPMENT');
+			@header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -37,16 +37,17 @@ class InitNADLIB {
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
 		} else {
-			header('X-nadlib: PRODUCTION');
+			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
 			ini_set('display_errors', FALSE);
 		}
 
 		$this->al->useCookies = $this->useCookies;
 		$this->al->register();
-        Config::getInstance();
 
-		Config::getInstance();
+		if (class_exists('Config')) {
+			Config::getInstance();
+		}
 
 		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
@@ -71,15 +72,18 @@ class InitNADLIB {
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
 
-		require_once 'vendor/autoload.php';
+	        // in DCI for example, we don't use composer (yet!?)
+	        if (file_exists('vendor/autoload.php')) {
+	            require_once 'vendor/autoload.php';
+	        }
 	}
 
-	function initWhoops() {
+	/*function initWhoops() {
 		$run     = new Whoops\Run;
 		$handler = new Whoops\Handler\PrettyPageHandler;
 		$run->pushHandler($handler);
 		$run->register();
-	}
+	}*/
 
 }
 
@@ -125,8 +129,11 @@ function nodebug() {
 
 function getDebug() {
 	ob_start();
+	$tmp = $_COOKIE['debug'];
+	$_COOKIE['debug'] = 1;
 	$params = func_get_args();
 	call_user_func_array(array('Debug', 'debug_args'), $params);
+	$_COOKIE['debug'] = $tmp;
 	return ob_get_clean();
 }
 

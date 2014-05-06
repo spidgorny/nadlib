@@ -46,7 +46,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	/**
-	 * Returns an array of the elements in a specific column
+	 * Returns an array of the elements in a specific column.
 	 * @param $col
 	 * @return $this
 	 */
@@ -55,8 +55,8 @@ class ArrayPlus extends ArrayObject implements Countable {
 		foreach ((array)$this as $key => $row) {
 			$return[$key] = $row[$col];
 		}
-		$this->setData($return);
-		return $this;
+		$ap = new ArrayPlus($return);
+		return $ap;
 	}
 
 	function column_coalesce($col1, $col2) {
@@ -434,7 +434,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function implode($sep) {
-		return implode($sep, (array) $this);
+		return implode($sep, $this->getData());
 	}
 
 	function typoscript($prefix = '') {

@@ -77,7 +77,7 @@ abstract class Controller {
 		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
-		$this->useRouter = $this->request->apacheModuleRewrite();
+		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed
 		if (class_exists('Config')) {
 			$this->db = Config::getInstance()->db;
 			$this->user = Config::getInstance()->user;
@@ -248,6 +248,7 @@ abstract class Controller {
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
 		$h = $h ? $h : $this->encloseTag;
+		$content = IndexBase::mergeStringArrayRecursive($content);
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
@@ -399,7 +400,7 @@ abstract class Controller {
 	 * @internal param null $class
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText', array $submitParams = array()) {
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array()) {
 		$f = new HTMLForm();
 		if ($formAction) {
 			$f->action($formAction);
@@ -419,6 +420,18 @@ abstract class Controller {
 			) + $submitParams);
 		}
 		return $f;
+	}
+
+	function inTable(array $parts) {
+		$size = sizeof($parts);
+		$x = round(12 / $size);
+		$content = '<div class="row">';
+		foreach ($parts as $c) {
+			$c = IndexBase::mergeStringArrayRecursive($c);
+			$content .= '<div class="col-md-'.$x.'">'.$c.'</div>';
+		}
+		$content .= '</div>';
+		return $content;
 	}
 
 }

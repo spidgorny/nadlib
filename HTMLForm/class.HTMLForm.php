@@ -242,6 +242,10 @@ class HTMLForm {
 		if ($multiple) {
 			$this->stdout .= ' multiple="1"';
 		}
+		$more .=
+		(isset($desc['size']) ? ' size="'.$desc['size'].'"' : '') .
+		(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
+		(isset($desc['more']) ? $desc['more'] : '');
 		$this->stdout .= $more . ">\n";
 		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</select>\n";

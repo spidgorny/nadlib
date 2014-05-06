@@ -43,7 +43,7 @@ class AutoLoad {
 	 * @var int
 	 */
 	public $count = 0;
-	
+
 	/**
 	 * Relative to getcwd()
 	 * Can be "../" from /nadlib/be/
@@ -63,6 +63,9 @@ class AutoLoad {
 	 * #see register()
 	 */
 	protected function __construct() {
+		if (phpversion() < 5.3 && !defined('__DIR__')) {
+			define('__DIR__', dirname(__FILE__));
+		}
 		require_once __DIR__ . '/HTTP/class.URL.php';
 		require_once __DIR__ . '/HTTP/class.Request.php';
 
@@ -84,6 +87,9 @@ class AutoLoad {
 		$scriptWithPath = URL::getScriptWithPath();
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
 		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+		}
 		return array(
 			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -95,9 +101,9 @@ class AutoLoad {
 			'$relToNadlibCLI' => $relToNadlibCLI,
 			'$relToNadlibPU' => $relToNadlibPU,
 			'$this->nadlibRoot' => $this->nadlibRoot,
-			'Config->documentRoot' => Config::getInstance()->documentRoot,
+			'Config->documentRoot' => $config->documentRoot,
 			'$this->appRoot' => $this->appRoot,
-			'Config->appRoot' => Config::getInstance()->appRoot,
+			'Config->appRoot' => $config->appRoot,
 			'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
 			'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
 			'request->getLocation()' => Request::getInstance()->getLocation(),
@@ -143,7 +149,8 @@ class AutoLoad {
 				include_once $configPath;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
 			} else {
-				print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				// some projects don't need Config
+				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
 			}
 		}
 	}
@@ -198,7 +205,8 @@ class AutoLoad {
 				$el = $this->appRoot . $el;
 			}
 		} else {
-			echo ('Config not found');
+			// that's ok. relax. be quiet.
+			//echo ('Config not found');
 		}
 		return $folders;
 	}
@@ -261,7 +269,9 @@ class AutoLoad {
 		}
 
 		if (!class_exists($class) && !interface_exists($class)) {
-			unset($_SESSION[__CLASS__]['folders']);	// just in case
+			if (isset($_SESSION)) {
+				unset($_SESSION[__CLASS__]['folders']); // just in case
+			}
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
 				$config = Config::getInstance();
@@ -328,7 +338,14 @@ class AutoLoad {
 	static function register() {
 		$instance = self::getInstance();
 		$instance->initFolders();
-		spl_autoload_register(array($instance, 'load'));
+		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
+		if ($result) {
+			//echo __METHOD__ . ' OK'.BR;
+		} else {
+			debug(error_get_last());
+			debug(is_callable(array($instance, 'load')));
+			//die('Autloading failed'.BR);
+		}
 	}
 
 }

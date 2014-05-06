@@ -93,6 +93,14 @@ class Flot extends AppController {
 	function render($divID = 'chart1') {
 		$content = '';
 		$chart = $this->getChartTable($this->data);
+		$max = $this->getChartMax($chart);
+		$content .= $this->showChart($divID, $chart, $this->cumulative, $max);
+		return $content;
+	}
+
+	function renderCumulative($divID = 'chart1') {
+		$content = '';
+		$chart = $this->getChartTable($this->data);
 		$this->cumulative = $this->getChartCumulative($chart);
 		$max = $this->getChartMax($this->cumulative);
 		$content .= $this->showChart($divID, $chart, $this->cumulative, $max);

@@ -124,11 +124,13 @@ class HTMLFormTable extends HTMLForm {
 			$type->setForm($this);
 			$type->setValue($desc['value']);
 			$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
+			$type->desc = $desc;
 			$this->stdout .= $type->render();
 		} else if ($type instanceof Collection) {
 			$type->setField($fieldName);
 			$type->setForm($this);
 			$type->setValue($desc['value']);
+			$type->desc = $desc;
 			$this->stdout .= $type->renderHTMLForm();
 		} else {
 			switch($type) {
@@ -162,10 +164,7 @@ class HTMLFormTable extends HTMLForm {
 					$options = $this->fetchSelectionOptions($desc);
 					$this->selection($fieldName, $options,
 						isset($fieldValue) ? $fieldValue : $desc['default'],
-						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
-						(isset($desc['size']) ? 'size="'.$desc['size'].'"' : '') .
-						(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
-						(isset($desc['more']) ? $desc['more'] : ''),
+						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL, '',
 						isset($desc['multiple']) ? $desc['multiple'] : NULL,
 						$desc);
 				break;
@@ -335,7 +334,7 @@ class HTMLFormTable extends HTMLForm {
 					}
 					$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
 					if ($withBR) {
-						//$this->stdout .= '<br />';	// depends on CSS
+						//$this->stdout .= '<br />';	// depends on CSS (!!!)
 					} else {
 						$this->stdout .= '</td><td>';
 					}
