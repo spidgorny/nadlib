@@ -1,6 +1,6 @@
 <?php
 
-class dbLayerMS implements DBInterface {
+class dbLayerMS extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -83,7 +83,7 @@ class dbLayerMS implements DBInterface {
 			$msg2 = mssql_fetch_assoc(mssql_query('SELECT @@ERROR AS ErrorCode', $this->connection))['ErrorCode'];
 			$this->close();
 			$this->connect();
-			debug($query);
+			debug($msg2, $msg, $query);
 			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
