@@ -9,7 +9,7 @@ class SQLQuery extends PHPSQLParser\PHPSQLParser {
 	}
 
 	function __toString() {
-		$psc = new PHPSQLParser\PHPSQLCreator($this->parsed);
+		$psc = new \PHPSQLParser\PHPSQLCreator($this->parsed);
 		return $psc->created.'';
 	}
 

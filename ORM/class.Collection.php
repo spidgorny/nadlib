@@ -409,7 +409,9 @@ class Collection {
 	 * @return array|ArrayPlus
 	 */
 	function getData() {
-		if (!$this->query) {
+		if (!$this->query && (
+			!$this->data
+			|| !$this->data->count())) {
 			$this->retrieveDataFromDB();
 		}
 		return $this->data;

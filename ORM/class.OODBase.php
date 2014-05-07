@@ -209,13 +209,10 @@ abstract class OODBase {
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
-		$rows = $this->db->fetchSelectQuery($this->table, $this->where + $where, $orderByLimit);
+		$rows = $this->db->fetchOneSelectQuery($this->table,
+			$this->where + $where, $orderByLimit);
 		if (is_array($rows)) {
-			if (is_array(first($rows))) {
-				$data = first($rows);
-			} else {
-				$data = $rows;
-			}
+			$data = $rows;
 		} else {
 			$data = array();
 		}
@@ -349,7 +346,7 @@ abstract class OODBase {
 					);
 				}
 			}
-			$s = new slTable($assoc, '', array(
+			$s = new slTable($assoc, 'class="table table-striped"', array(
 				0 => '',
 				'' => array('no_hsc' => true)
 			));

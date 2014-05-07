@@ -91,7 +91,7 @@ class PersistantOODBase extends OODBase {
 
 	function save() {
 		if ($this->getStateHash() != $this->stateHash) {
-			nodebug(array(
+			debug(array(
 				$this->stateHash => $this->originalData,
 				$this->getStateHash() => $this->data,
 				$this->id
@@ -115,4 +115,10 @@ class PersistantOODBase extends OODBase {
 		return $action;
 	}
 
+	function findInDB(array $where, $orderByLimit = '') {
+		$ret = parent::findInDB($where, $orderByLimit);
+		$this->originalData = $this->data;
+		$this->stateHash = $this->getStateHash();
+		return $ret;
+	}
 }

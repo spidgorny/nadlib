@@ -199,49 +199,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return "'".$this->escape($string)."'";
 	}
 
-	/**
-	 * Return ALL rows
-	 * @param <type> $order
-	 * @param array $where
-	 * @param string $order
-	 * @param string $addFields
-	 * @return array <type>
-	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
-		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
-		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
-		$query = $this->getSelectQuery($table, $where, $order, $addFields);
-		$res = $this->perform($query);
-		$data = $this->fetchAll($res);
-		return $data;
-	}
-
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus);
-		$res = $this->perform($query);
-		$data = $this->fetchAssoc($res);
-		return $data;
-	}
-
-	function runSelectQuery($table, array $where, $order = '', $selectPlus = '') {
-		$qb = Config::getInstance()->qb;
-		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus);
-		return $res;
-	}
-
-	function runUpdateQuery($table, array $set, array $where) {
-		$qb = Config::getInstance()->qb;
-		$res = $qb->runUpdateQuery($table, $set, $where);
-		return $res;
-	}
-
-	function runInsertQuery($table, array $set) {
-		$qb = Config::getInstance()->qb;
-		$res = $qb->runInsertQuery($table, $set);
-		return $res;
-	}
-
 	function getDatabaseCharacterSet() {
 		return current($this->fetchAssoc('show variables like "character_set_database"'));
 	}

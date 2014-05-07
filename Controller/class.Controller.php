@@ -336,6 +336,19 @@ abstract class Controller {
 		return $content;
 	}
 
+	function encloseInTableHTML3(array $cells) {
+		$content[] = '<table>';
+		$content[] = '<tr>';
+		foreach ($cells as $info) {
+			$content[] = '<td valign="top">';
+			$content[] = $info.'';
+			$content[] = '</td>';
+		}
+		$content[] = '</tr>';
+		$content[] = '</table>';
+		return $content;
+	}
+
 	function encloseInTable() {
 		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/columnContainer.less');
 		$elements = func_get_args();
