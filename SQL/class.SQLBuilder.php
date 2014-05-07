@@ -595,10 +595,20 @@ class SQLBuilder {
 		return $authorID;
 	}
 
-	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '') {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
-		$res = $this->db->perform($query);
-		$data = $this->db->fetchAll($res);
+	/**
+	 * Return ALL rows
+	 * @param <type> $order
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addFields
+	 * @return array <type>
+	 */
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
+		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields);
+		$res = $this->perform($query);
+		$data = $this->fetchAll($res);
 		return $data;
 	}
 
@@ -729,6 +739,13 @@ class SQLBuilder {
 			$f->perform($query);
 			return $f;
 		}
+	}
+
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
+		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		$res = $this->perform($query);
+		$data = $this->fetchAssoc($res);
+		return $data;
 	}
 
 }
