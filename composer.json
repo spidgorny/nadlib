@@ -6,7 +6,7 @@
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"flot/flot": "dev-master",
+		"Flot": "dev-master",
 		"php-sql-parser": "dev-master",
 		"GerHobbelt/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0"
