@@ -485,7 +485,7 @@ class dbLayer {
 		return $this->perform($query);
 	}
 
-	function getLastInsertID($res, $table = 'not required since 8.1') {
+	function getLastInsertID($res = NULL, $table = 'not required since 8.1') {
 		$pgv = pg_version();
 		if ($pgv['server'] >= 8.1) {
 			$id = $this->lastval();
