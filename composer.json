@@ -87,6 +87,10 @@
                 }
             }
         },
+		{
+			"type": "vcs",
+			"url": "https://github.com/flot/flot"
+		},
         {
             "type":"package",
             "package": {
