@@ -5,7 +5,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	/**
 	 * @var string
 	 */
-	protected $server, $database, $user, $password;
+	public $server, $database, $user, $password;
 
 	/**
 	 * @var string
@@ -241,6 +241,11 @@ AND name = '?')", array($table));
 
 	function affectedRows() {
 		return mssql_rows_affected($this->connection);
+	}
+
+	function switchDB($name) {
+		mssql_select_db($name);
+		$this->database = $name;
 	}
 
 }

@@ -613,7 +613,7 @@ class slTable {
 				'' => $val,
 			);
 		}
-		$s = new self($assoc, 'class="visual nospacing table"', array(
+		$s = new self($assoc, 'class="visual nospacing table table-striped"', array(
 			0 => '',
 			'' => array('no_hsc' => $no_hsc),
 		));

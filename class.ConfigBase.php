@@ -179,8 +179,7 @@ class ConfigBase {
     /**
      * @return \SQLBuilder
      */
-    public function getQb()
-    {
+    public function getQb() {
         if(!isset($this->qb)) {
             $di = new DIContainer();
             $di->db = Config::getInstance()->db;
@@ -193,8 +192,7 @@ class ConfigBase {
     /**
      * @param \SQLBuilder $qb
      */
-    public function setQb($qb)
-    {
+    public function setQb($qb) {
         $this->qb = $qb;
     }
 
