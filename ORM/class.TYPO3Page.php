@@ -7,8 +7,9 @@ class TYPO3Page extends OODBase {
 
 	/**
 	 * @var TYPO3PageCollection
+	 * NULL for initial check
 	 */
-	public $children;
+	public $children = NULL;
 
 	/**
 	 * @var TYPO3ContentCollection
@@ -27,6 +28,13 @@ class TYPO3Page extends OODBase {
 			$this->children = new TYPO3PageCollection($this->id);
 			//debug($this->children->query);
 		}
+	}
+
+	function getChildren() {
+		if (is_null($this->children)) {
+			$this->fetchChildren();
+		}
+		return $this->children;
 	}
 
 	function fetchContent($colPos) {
