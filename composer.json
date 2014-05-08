@@ -29,7 +29,7 @@
 		],
 		"files": [
 			"../../GerHobbelt/HTMLawed/htmLawed.php",
-			"../../php-sql-parser/src/PHPSQLParser.php",
+			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
 			"../../mustangostang/spyc/Spyc.php"
 		],
 		"psr-0": {
