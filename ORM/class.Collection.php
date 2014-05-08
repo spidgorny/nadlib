@@ -450,6 +450,7 @@ class Collection {
 				return $row;
 			}
 		}
+		return NULL;
 	}
 
 	/**

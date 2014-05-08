@@ -28,9 +28,10 @@
 			"init.php"
 		],
 		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
-			"vendor/php-sql-parser/src/PHPSQLParser.php",
-			"vendor/mustangostang/spyc/Spyc.php"
+			"../../GerHobbelt/HTMLawed/htmLawed.php",
+			"../../php-sql-parser/src/PHPSQLParser.php",
+			"../../php-sql-parser/src/PHPSQLCreated.php",
+			"../../mustangostang/spyc/Spyc.php"
 		],
 		"psr-0": {
 			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
