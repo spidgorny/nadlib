@@ -61,7 +61,7 @@ class HTMLFormValidate {
 			$d['error'] = __('Field "%1" must be set', $d['label'] ?: $field);
 		} elseif ($d['obligatory'] && !$value) {
 			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
-		} elseif ($type == 'email' || $field == 'email' && $value && !$this->validMail($value)) {
+		} elseif (($type == 'email' || $field == 'email') && $value && !$this->validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
 		} elseif ($field == 'password' && strlen($value) < 6) {
 			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
@@ -139,8 +139,80 @@ class HTMLFormValidate {
 		return $this->desc;
 	}
 
-	static function validMail($email) {
-		return preg_match("/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i", $email);
+	//static function validMail($email) {
+		//return preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b/i", $email);
+	//	return $this->validEmail()
+	//}
+
+	/**
+	Validate an email address.
+	Provide email address (raw input)
+	Returns true if the email address has the email
+	address format and the domain exists.
+	 * http://www.linuxjournal.com/article/9585?page=0,3
+	 */
+	static function validEmail($email)	{
+		$isValid = true;
+		$atIndex = strrpos($email, "@");
+		if (is_bool($atIndex) && !$atIndex)
+		{
+			$isValid = false;
+		}
+		else
+		{
+			$domain = substr($email, $atIndex+1);
+			$local = substr($email, 0, $atIndex);
+			$localLen = strlen($local);
+			$domainLen = strlen($domain);
+			if ($localLen < 1 || $localLen > 64)
+			{
+				// local part length exceeded
+				$isValid = false;
+			}
+			else if ($domainLen < 1 || $domainLen > 255)
+			{
+				// domain part length exceeded
+				$isValid = false;
+			}
+			else if ($local[0] == '.' || $local[$localLen-1] == '.')
+			{
+				// local part starts or ends with '.'
+				$isValid = false;
+			}
+			else if (preg_match('/\\.\\./', $local))
+			{
+				// local part has two consecutive dots
+				$isValid = false;
+			}
+			else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
+			{
+				// character not valid in domain part
+				$isValid = false;
+			}
+			else if (preg_match('/\\.\\./', $domain))
+			{
+				// domain part has two consecutive dots
+				$isValid = false;
+			}
+			else if
+			(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
+				str_replace("\\\\","",$local)))
+			{
+				// character not valid in local part unless
+				// local part is quoted
+				if (!preg_match('/^"(\\\\"|[^"])+"$/',
+					str_replace("\\\\","",$local)))
+				{
+					$isValid = false;
+				}
+			}
+			if ($isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A")))
+      {
+		  // domain not found in DNS
+		  $isValid = false;
+	  }
+   }
+		return $isValid;
 	}
 
 	function getErrorList() {
