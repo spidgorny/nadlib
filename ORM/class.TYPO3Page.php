@@ -74,7 +74,7 @@ class TYPO3Page extends OODBase {
 	function insert(array $data) {
 		$data['tstamp'] = time();
 		$data['crdate'] = time();
-		$data['doktype'] = $data['doktype'] ?: 1;
+		$data['doktype'] = $data['doktype'] ? $data['doktype'] : 1;
 		return parent::insert($data);
 	}
 

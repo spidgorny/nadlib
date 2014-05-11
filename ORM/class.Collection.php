@@ -545,7 +545,7 @@ class Collection {
 	 * @return object[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
-		$class = $class ?: $this->itemClassName;
+		$class = $class ? $class : $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];

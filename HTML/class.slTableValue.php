@@ -84,7 +84,7 @@ class slTableValue {
 							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'].'.*, '.$what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
-							$whatAs = $whatAs[1] ?: $what;
+							$whatAs = $whatAs[1] ? $whatAs[1] : $what;
 							$options = ArrayPlus::create($options)
 								->IDalize($id, true)
 								->column($whatAs)
@@ -169,9 +169,9 @@ class slTableValue {
 			case "bool":
 			case "boolean":
 				if (intval($val)) {
-					$out = $k['true'] ?: $this->SLTABLE_IMG_CHECK;
+					$out = $k['true']  ? $k['true'] : $this->SLTABLE_IMG_CHECK;
 				} else {
-					$out = $k['false'] ?: $this->SLTABLE_IMG_CROSS;
+					$out = $k['false'] ? $k['false'] : $this->SLTABLE_IMG_CROSS;
 				}
 				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
 			break;

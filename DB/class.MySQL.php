@@ -166,9 +166,10 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function numRows($res = NULL) {
-		if (is_resource($res ?: $this->lastResult)) {
-			return mysql_num_rows($res ?: $this->lastResult);
+		if (is_resource($res ? $res : $this->lastResult)) {
+			return mysql_num_rows($res ? $res : $this->lastResult);
 		}
+		return NULL;
 	}
 
 	function dataSeek($res, $number) {
