@@ -207,11 +207,11 @@ class Syndicator {
 				debug($detect, "detect_cyr_charset");
 			}
 			$utf8 = mb_convert_encoding($html, 'UTF-8', $this->recodeUTF8 === TRUE ? 'Windows-1251' : $detect);
-			$utf8 = str_replace(0x20, ' ', $utf8);
+			//$utf8 = str_replace(0x20, ' ', $utf8);
 		} else {
 			$utf8 = $html;
 		}
-		$utf8 = str_replace('&#151;', '-', $utf8);
+		//$utf8 = str_replace('&#151;', '-', $utf8);
 		//debug(substr($utf8, 0, 1000));
 
 		// new
@@ -223,7 +223,7 @@ class Syndicator {
 		//$this->tidy = $utf8;
 		//debug(substr($tidy, 0, 1000));
 		//exit();
-		$this->tidy = preg_replace('/<meta name="description"[^>]*>/', '', $this->tidy);
+		//$this->tidy = preg_replace('/<meta name="description"[^>]*>/', '', $this->tidy);
 
 		$recode = $this->recode($this->tidy);
 		//debug($recode, 'Recode');
