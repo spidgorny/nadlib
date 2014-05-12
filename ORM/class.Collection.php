@@ -826,4 +826,9 @@ class Collection {
 		return $this->count;
 	}
 
+	function clearInstances() {
+		unset($this->data);
+		unset($this->members);
+	}
+
 }

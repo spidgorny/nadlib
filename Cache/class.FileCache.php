@@ -33,6 +33,7 @@ class FileCache {
 
 	function set($key, $val) {
 		if (is_array($val)) {
+			//print_r($key);
 			$val = serialize($val);
 		}
 		if (class_exists('Index')) {
