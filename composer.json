@@ -7,7 +7,7 @@
 		"components/modernizr": "dev-master@dev",
 		"mustangostang/spyc": "dev-master@dev",
 		"flot/flot": "dev-master@dev",
-		"php-sql-parser": "dev-master@dev",
+		"php-sql-parser": "dev-trunk",
 		"GerHobbelt/HTMLawed": "dev-master@dev",
 		"leafo/lessphp": "0.4.0@dev"
 	},
@@ -90,10 +90,6 @@
                 }
             }
         },
-		{
-			"type": "vcs",
-			"url": "https://github.com/flot/flot"
-		},
         {
             "type":"package",
             "package": {
