@@ -2,6 +2,8 @@
 
 class Index extends IndexBase {
 
+	static $isBE = true;
+
 	public $projectName = 'nadlib|BE';
 
 	public $template = './../be/template/template.phtml';
