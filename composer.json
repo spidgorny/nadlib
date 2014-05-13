@@ -31,7 +31,6 @@
 			"../../GerHobbelt/HTMLawed/htmLawed.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php",
-			"../../mustangostang/spyc/Spyc.php"
 		],
 		"psr-0": {
 			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
