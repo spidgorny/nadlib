@@ -116,7 +116,8 @@ class HTMLFormValidate {
 
 		if ($d['dependant'] && $isCheckbox && $value) { // only checked should be validated
 			//t3lib_div::debug(array($field, $value, $isCheckbox));
-			$fv = new HTMLFormValidate($d['dependant']);
+			$f2 = new HTMLFormTable($d['dependant']);
+			$fv = new HTMLFormValidate($f2);
 			if (!$fv->validate()) {
 				$d['dependant'] = $fv->getDesc();
 				$d['error'] = implode("<br />\n", $fv->getErrorList());
