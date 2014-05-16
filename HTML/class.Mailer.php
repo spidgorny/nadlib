@@ -58,7 +58,7 @@ class Mailer {
 	}
 
 	function send() {
-		if (HTMLFormValidate::validMail($this->to)) {
+		if (HTMLFormValidate::validEmail($this->to)) {
 			mail($this->to,
 				$this->getSubject(),
 				$this->getBodyText(),

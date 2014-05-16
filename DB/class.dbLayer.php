@@ -356,6 +356,14 @@ class dbLayer {
 		return $c;
 	}
 
+    function quoteKeys($a) {
+        $c = array();
+        foreach ($a as $b) {
+            $c[] = $this->quoteKey($b);
+        }
+        return $c;
+    }
+
     /**
      * @param string $table Table name
      * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
@@ -363,7 +371,7 @@ class dbLayer {
      */
     function getInsertQuery($table, $columns) {
 		$q = 'INSERT INTO '.$table.' (';
-		$q .= implode(", ", array_keys($columns));
+		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
 		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
 		$q .= ")";
@@ -625,18 +633,6 @@ order by a.attnum';
 	function quoteKey($key) {
 		$key = '"'.$key.'"';
 		return $key;
-	}
-
-	function runUpdateInsert($table, $set, $where) {
-		$found = $this->runSelectQuery($table, $where);
-		if ($this->numRows($found)) {
-			$res = 'update';
-			$this->runUpdateQuery($table, $set, $where);
-		} else {
-			$res = 'insert';
-			$this->runInsertQuery($table, $set + $where);
-		}
-		return $res;
 	}
 
 	function getCallerFunction() {

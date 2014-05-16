@@ -35,6 +35,12 @@ class ProgressBar {
 	 */
 	var $count = 0;
 
+    /**
+     * Force getCss() to NOT load from Index if Index exists
+     * @var bool
+     */
+    var $useIndexCss = true;
+
 	/**
 	 * @ param #2 $color = '#43b6df'
 	 * @param int $percentDone
@@ -66,8 +72,8 @@ class ProgressBar {
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
+            print($this->getCSS());
 			print($this->getContent());
-			print $this->getCSS();
 			$this->flush();
 		}
 	}
@@ -78,12 +84,12 @@ class ProgressBar {
 	 */
 	function getCSS() {
 		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/ProgressBar.less';
-		if (class_exists('Index')) {
+		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
-				= '<link rel="stylesheet" href="'.$less.'" />';
+				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
 		} else {
 			$l = new lessc();
 			$css = $l->compileFile($less);
@@ -136,7 +142,7 @@ class ProgressBar {
 
 	function setIndex($i, $always = false) {
 		$percent = $i/$this->count*100;
-		$every = $this->count / 1000;   // 100% * 10 for each 0.1
+		$every = ceil($this->count / 1000);   // 100% * 10 for each 0.1
 		if (!($i % $every) || $always) {
 			$this->setProgressBarProgress($percent);
 		}

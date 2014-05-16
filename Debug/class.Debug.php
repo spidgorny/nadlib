@@ -4,6 +4,8 @@ class Debug {
 
 	const LEVELS = 'LEVELS';
 
+	static $stylesPrinted = false;
+
 	static function debug_args() {
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
@@ -41,22 +43,7 @@ class Debug {
 			echo $dump, "\n";
 		} else if ($_COOKIE['debug']) {
 			$content = self::renderHTMLView($db, $a, $levels);
-			$content .= '
-			<style>
-				div.debug {
-					color: black;
-				}
-				div.debug a {
-					color: black;
-				}
-				td.view_array {
-					border: dotted 1px #555;
-					font-size: 12px;
-					vertical-align: top;
-					border-collapse: collapse;
-					color: black;
-				}
-			</style>';
+			$content .= self::printStyles();
 			if (!headers_sent()) {
 				echo '<!DOCTYPE html><html>';
 			}
@@ -72,31 +59,25 @@ class Debug {
 		$first = current($db);
 		$function = self::getMethod($first);
 		$props = array(
-			'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
-			'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
+			'<span class="debug_prop">Function:</span> '.$function,
+			'<span class="debug_prop">Type:</span> '.gettype($a).
 				(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
 		);
 		if (is_array($a)) {
-			$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
+			$props[] = '<span class="debug_prop">Size:</span> '.sizeof($a);
 		} else if (!is_object($a) && !is_resource($a)) {
-			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
+			$props[] = '<span class="debug_prop">Length:</span> '.strlen($a);
 		}
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'display: inline');
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
-		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
+		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent, 'display: inline').' of '.ini_get('memory_limit');
+		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
+		$props[] = '<span class="debug_prop">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
 
 		$content = '
-			<div class="debug" style="
-				background: #EEEEEE;
-				border: solid 1px silver;
-				display: inline-block;
-				font-size: 12px;
-				font-family: verdana;
-				vertical-align: top;">
-				<div class="caption" style="background-color: #EEEEEE">
+			<div class="debug">
+				<div class="caption">
 					'.implode(BR, $props).'
 					<a href="javascript: void(0);" onclick="
 						var a = this.nextSibling.nextSibling;
@@ -110,7 +91,7 @@ class Debug {
 	}
 
 	static function getSimpleTrace($db = NULL) {
-		$db = $db ?: debug_backtrace();
+		$db = $db ? $db : debug_backtrace();
 		foreach ($db as &$row) {
 			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
@@ -161,7 +142,7 @@ class Debug {
 		}
 
 		if (is_array($a)) {	// not else if so it also works for objects
-			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
+			$content = '<table class="view_array">';
 			foreach ($a as $i => $r) {
 				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
 				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
@@ -239,6 +220,51 @@ class Debug {
 			$content[] = $debugLine['class'].'::'.$debugLine['function'];
 		}
 		$content = implode(' // ', $content);
+		return $content;
+	}
+
+	static function getArraySize(array $tmpArray) {
+		$size = array();
+		foreach ($tmpArray as $key => $row) {
+			$size[$key] = strlen(serialize($row));
+		}
+		debug(array_sum($size), $size);
+	}
+
+	static function printStyles() {
+		if (!self::$stylesPrinted) {
+			$content = '
+			<style>
+				div.debug {
+					color: black;
+					background: #EEEEEE;
+					border: solid 1px silver;
+					display: inline-block;
+					font-size: 12px;
+					font-family: verdana;
+					vertical-align: top;
+				}
+				div.debug a {
+					color: black;
+				}
+				div.debug .caption {
+					background-color: #EEEEEE;
+				}
+				td.view_array {
+					border: dotted 1px #555;
+					font-size: 12px;
+					vertical-align: top;
+					border-collapse: collapse;
+					color: black;
+					margin: 2px;
+				}
+				.debug_prop {
+					display: inline-block;
+					width: 5em;
+				}
+			</style>';
+			self::$stylesPrinted = true;
+		}
 		return $content;
 	}
 

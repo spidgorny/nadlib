@@ -28,12 +28,14 @@
 			"init.php"
 		],
 		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
-			"vendor/php-sql-parser/src/PHPSQLParser.php",
-			"vendor/mustangostang/spyc/Spyc.php"
+			"../../GerHobbelt/HTMLawed/htmLawed.php",
+			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
+			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php",
 		],
 		"psr-0": {
-			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
+			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
+			"PHPSQLParser": "../../php-sql-parser/src/PHPSQLParser/",
+			"PHPSQLCreator": "../../php-sql-parser/src/PHPSQLParser/"
 		}
 	},
 	"repositories_bak": [
@@ -87,10 +89,6 @@
                 }
             }
         },
-		{
-			"type": "vcs",
-			"url": "https://github.com/flot/flot"
-		},
         {
             "type":"package",
             "package": {
