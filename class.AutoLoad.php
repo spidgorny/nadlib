@@ -69,45 +69,49 @@ class AutoLoad {
 		require_once __DIR__ . '/HTTP/class.URL.php';
 		require_once __DIR__ . '/HTTP/class.Request.php';
 
-		$this->nadlibRoot = dirname(__FILE__).'/';
-		$this->appRoot = $this->detectAppRoot();
-		$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
-		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot).'/';
-
-		if (false) {
-			echo '<pre>';
-			print_r($this->debug());
-			echo '</pre>';
-		}
+		$this->detectNadlibRoot();
 
 		$this->loadConfig();
 	}
 
-	function debug() {
+	function detectNadlibRoot() {
 		$scriptWithPath = URL::getScriptWithPath();
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
 		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 		}
-		return array(
-			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
-			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-			'getcwd()' => getcwd(),
-			'__FILE__' => __FILE__,
-			'$scriptWithPath' => $scriptWithPath,
-			'dirname(__FILE__)' => dirname(__FILE__),
-			'baseHref' => Request::getLocation(),
-			'$relToNadlibCLI' => $relToNadlibCLI,
-			'$relToNadlibPU' => $relToNadlibPU,
-			'$this->nadlibRoot' => $this->nadlibRoot,
-			'Config->documentRoot' => $config->documentRoot,
-			'$this->appRoot' => $this->appRoot,
-			'Config->appRoot' => $config->appRoot,
-			'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
-			'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
-			'request->getLocation()' => Request::getInstance()->getLocation(),
-		);
+		$this->nadlibRoot = dirname(__FILE__).'/';
+		$this->appRoot = $this->detectAppRoot();
+		if (strlen($this->appRoot > 1)) { // '/'
+			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
+		} else {
+			$this->nadlibFromDocRoot = $relToNadlibPU;
+		}
+		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot) . '/';
+
+		if (false) {
+			echo '<pre>';
+			print_r(array(
+				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'getcwd()' => getcwd(),
+				'__FILE__' => __FILE__,
+				'$scriptWithPath' => $scriptWithPath,
+				'dirname(__FILE__)' => dirname(__FILE__),
+				'baseHref' => Request::getLocation(),
+				'$relToNadlibCLI' => $relToNadlibCLI,
+				'$relToNadlibPU' => $relToNadlibPU,
+				'$this->nadlibRoot' => $this->nadlibRoot,
+				'Config->documentRoot' => $config->documentRoot,
+				'$this->appRoot' => $this->appRoot,
+				'Config->appRoot' => $config->appRoot,
+				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
+				'request->getLocation()' => Request::getInstance()->getLocation(),
+			));
+			echo '</pre>';
+		}
 	}
 
 	/**
@@ -130,7 +134,11 @@ class AutoLoad {
 			}
 			$appRoot = dirname($appRoot);
 		}
-		return $appRoot.DIRECTORY_SEPARATOR;
+        // always add trailing slash!
+        if ($appRoot != '/') {
+            $appRoot .= DIRECTORY_SEPARATOR;
+        }
+		return $appRoot;
 	}
 
 	function loadConfig() {

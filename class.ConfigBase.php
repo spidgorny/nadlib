@@ -10,6 +10,7 @@ class ConfigBase {
 	public $db_server = '127.0.0.1';
 	public $db_user = 'root';
 	protected $db_password = 'root';
+
 	public $db_database = '';
 
 	/**

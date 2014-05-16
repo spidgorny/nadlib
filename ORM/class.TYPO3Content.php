@@ -20,7 +20,7 @@ class TYPO3Content extends OODBase {
 
 	function update(array $data) {
 		$data['tstamp'] = time();
-		return parent::insert($data);
+		return parent::update($data);
 	}
 
 }

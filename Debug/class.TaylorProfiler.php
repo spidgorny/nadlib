@@ -377,7 +377,9 @@ class TaylorProfiler {
 			'db:'.$dbTime.'s '.
 			'mem:'.number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
 			ini_get('memory_limit').'</div>
-		</div>';
+		</div>
+		<div style="clear:both"></div>
+		';
 		return $content;
 	}
 

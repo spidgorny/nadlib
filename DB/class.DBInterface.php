@@ -9,7 +9,7 @@ interface DBInterface {
 
 	function perform($query);
 
-	function numRows($res);
+	function numRows($res = NULL);
 
 	function affectedRows();
 

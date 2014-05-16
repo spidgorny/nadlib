@@ -10,8 +10,13 @@ class TYPO3ContentCollection extends Collection {
 		'deleted' => false,
 	);
 
+	/**
+	 * @param string $class
+	 * @param bool $byInstance
+	 * @return TYPO3Content[]
+	 */
 	function objectify($class = '', $byInstance = false) {
-		parent::objectify('TYPO3Content');
+		return parent::objectify('TYPO3Content');
 	}
 
 }

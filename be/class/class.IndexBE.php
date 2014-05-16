@@ -110,7 +110,8 @@ class Index extends IndexBase {
 	}
 
 	function renderController() {
-		$c = get_class($this->controller);	/** @var $c Controller */
+		$c = get_class($this->controller);
+		/** @var $c Controller */
 		//$public = $c::$public;	// Parse error:  syntax error, unexpected T_PAAMAYIM_NEKUDOTAYIM
 		$vars = get_class_vars($c);
 		$public = $vars['public'];
@@ -138,6 +139,7 @@ class Index extends IndexBase {
 		$v->content = $this->content . $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
+		$v->version = @file_get_contents('VERSION');
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
 		// is the root of the project
