@@ -133,10 +133,11 @@ class AutoLoad {
 				break;
 			}
 			$appRoot = dirname($appRoot);
-			if ($appRoot != '/') {
-				$appRoot .= DIRECTORY_SEPARATOR;
-			}
 		}
+        // always add trailing slash!
+        if ($appRoot != '/') {
+            $appRoot .= DIRECTORY_SEPARATOR;
+        }
 		return $appRoot;
 	}
 
