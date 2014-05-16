@@ -2,14 +2,14 @@
     "name": "spidgorny/nadlib",
     "require": {
 		"php": ">=5.3.8",
-		"michelf/php-markdown": "*",
-		"components/bootstrap": "dev-master",
-		"components/modernizr": "dev-master",
-		"mustangostang/spyc": "dev-master",
-		"flot/flot": "dev-master",
-		"php-sql-parser": "dev-master",
-		"GerHobbelt/HTMLawed": "dev-master",
-		"leafo/lessphp": "0.4.0"
+		"michelf/php-markdown": "*@dev",
+		"components/bootstrap": "dev-master@dev",
+		"components/modernizr": "dev-master@dev",
+		"mustangostang/spyc": "dev-master@dev",
+		"flot/flot": "dev-master@dev",
+		"php-sql-parser": "dev-trunk",
+		"GerHobbelt/HTMLawed": "dev-master@dev",
+		"leafo/lessphp": "0.4.0@dev"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
@@ -31,7 +31,6 @@
 			"../../GerHobbelt/HTMLawed/htmLawed.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php",
-			"../../mustangostang/spyc/Spyc.php"
 		],
 		"psr-0": {
 			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
@@ -90,10 +89,6 @@
                 }
             }
         },
-		{
-			"type": "vcs",
-			"url": "https://github.com/flot/flot"
-		},
         {
             "type":"package",
             "package": {

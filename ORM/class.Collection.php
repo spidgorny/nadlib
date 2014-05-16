@@ -11,7 +11,7 @@ class Collection {
 	 *
 	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO
 	 */
-	public $db;
+	protected $db;
 
 	/**
 	 * @var string
