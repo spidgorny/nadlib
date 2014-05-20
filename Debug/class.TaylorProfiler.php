@@ -157,7 +157,6 @@ class TaylorProfiler {
     function printTimers($enabled=false) {
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
-            $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
             $oaTime = $this->getMicroTime() - $this->initTime;
@@ -172,6 +171,9 @@ class TaylorProfiler {
                 $row['avg'] = $row['total']*1000/$row['count'];
                 $row['perc'] = ($row['total']/$oaTime)*100;
                 $together[$key] = $row;
+	            if ($key == 'unprofiled') {
+		            $together[$key]['bold'] = true;
+	            }
             }
 
             // add missing
@@ -182,12 +184,25 @@ class TaylorProfiler {
             $missed=$oaTime-$TimedTotal;
             $perc = ($missed/$oaTime)*100;
             $tot_perc+=$perc;
-            $together['Missed'] = array(
-            	'desc' => 'Missed',
-            	'time' => number_format($missed, 2, '.', ''),
+            $together['Missed between the calls'] = array(
+            	'desc' => 'Missed between the calls',
+	            'bold' => true,
+	            'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
             	'count' => 0,
             	'perc' => number_format($perc, 2, '.', '').'%',
+            );
+
+			$startup = $this->initTime - ($_SERVER['REQUEST_TIME_FLOAT']
+					? $_SERVER['REQUEST_TIME_FLOAT']
+					: $_SERVER['REQUEST_TIME']);
+            $together['Statup'] = array(
+            	'desc' => 'Startup',
+	            'bold' => true,
+            	'time' => number_format($startup, 2, '.', ''),
+            	'total' => number_format($startup, 2, '.', ''),
+            	'count' => 0,
+            	'perc' => number_format($startup/$oaTime*100, 2, '.', '').'%',
             );
 
             uasort($together, array($this, 'sort'));
@@ -199,14 +214,18 @@ class TaylorProfiler {
 	            $total = $row['total'];
                 $TimedTotal += $total;
 	            $perc = $row['perc'];
-	            $tot_perc+=$perc;
+	            $tot_perc += $perc;
+				$htmlKey = htmlspecialchars($key);
+				if ($row['bold']) {
+					$htmlKey = '<b>'.$htmlKey.'</b>';
+				}
 	            $table[] = array(
 	               	'nr' => ++$i,
 	               	'count' => $row['count'],
 	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
 	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
 	               	'percent' => number_format($perc, 2, '.', '').'%',
-	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.htmlspecialchars($key).'</span>',
+	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$htmlKey.'</span>',
 	            );
 		   }
 
