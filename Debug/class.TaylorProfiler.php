@@ -157,7 +157,6 @@ class TaylorProfiler {
     function printTimers($enabled=false) {
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
-            $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
             $oaTime = $this->getMicroTime() - $this->initTime;
@@ -183,7 +182,7 @@ class TaylorProfiler {
             $perc = ($missed/$oaTime)*100;
             $tot_perc+=$perc;
             $together['Missed'] = array(
-            	'desc' => 'Missed',
+            	'desc' => 'Missed between the calls',
             	'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
             	'count' => 0,
