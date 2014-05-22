@@ -423,7 +423,8 @@ class Collection {
 	}
 
     function setData($data) {
-        $this->data = ArrayPlus::create((array) $data);
+        $this->data  = ArrayPlus::create((array) $data);
+        $this->count = count($this->data);
     }
 
 	function prepareRenderRow(array $row) {
