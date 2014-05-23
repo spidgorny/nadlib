@@ -387,9 +387,9 @@ abstract class OODBase {
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
-		//debug($static, sizeof(self::$instances[$static]));
+		//debug($static, sizeof(self::$instances[$static]), $id);
 		if (is_scalar($id)) {
-			$inst = &self::$instances[$static][$id];
+			$inst = self::$instances[$static][$id];
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				if (false) {
@@ -399,7 +399,8 @@ abstract class OODBase {
 					$inst = new $static();		// don't put anything else here
 					//die(__METHOD__.'#'.__LINE__);
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
-					//die(__METHOD__.'#'.__LINE__);
+					die(__METHOD__.'#'.__LINE__);
+					self::$instances[$static][$id] = $inst;
 				}
 			}
 		} else {
