@@ -216,7 +216,7 @@ abstract class OODBase {
 		} else {
 			$data = array();
 		}
-		$this->init($data, true);
+		$this->initByRow($data);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$this->table.')');
 		return $data;
 	}
@@ -397,7 +397,6 @@ abstract class OODBase {
 					$inst = new $static();		// don't put anything else here
 					//die(__METHOD__.'#'.__LINE__);
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
-					die(__METHOD__.'#'.__LINE__);
 					self::$instances[$static][$id] = $inst;
 				}
 			}
