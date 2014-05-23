@@ -289,7 +289,7 @@ return $return; */
 					$padLength = (count($relPath) + $remaining - 1) * -1;
 					$relPath = array_pad($relPath, $padLength, '..');
 					break;
-				} else {
+				} else if ($relPath[0]) {
 					$relPath[0] = './' . $relPath[0];
 				}
 			}
