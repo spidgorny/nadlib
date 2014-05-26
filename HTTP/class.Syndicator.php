@@ -3,6 +3,8 @@
 define('LOWERCASE',3);
 define('UPPERCASE',1);
 
+use Symfony\Component\CssSelector\CssSelector;
+
 class Syndicator {
 
 	/**
@@ -230,6 +232,7 @@ class Syndicator {
 
 		//$recode = preg_replace('/<option value="0">.*?<\/option>/is', '', $recode);
 
+		$recode = str_replace('xmlns=', 'ns=', $recode);
 		$xml = $this->getXML($recode);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $xml;
@@ -413,6 +416,13 @@ class Syndicator {
 			$e = trim(strip_tags($e));
 		}
 		return $elements;
+	}
+
+	function css($selector) {
+		CssSelector::enableHtmlExtension();
+		$xpath = CssSelector::toXPath($selector);
+		//debug($xpath);
+		return $this->getElements($xpath);
 	}
 
 }

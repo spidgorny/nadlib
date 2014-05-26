@@ -23,11 +23,25 @@
 		"sharom/twitter-bootstrap": "dev-master"
     },
 	"autoload": {
-		"_classmap": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
-		"_files": [
-			"init.php"
+		"classmap": [
+			"./",
+			"Cache/",
+			"Controller/",
+			"CSS/",
+			"Data/",
+			"DB/",
+			"Debug/",
+			"HTML/",
+			"HTMLForm/",
+			"HTTP/",
+			"LocalLang/",
+			"ORM/",
+			"SQL/",
+			"Time/",
+			"User/"
 		],
 		"files": [
+			"init.php",
 			"../../GerHobbelt/HTMLawed/htmLawed.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php",
