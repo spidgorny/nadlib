@@ -395,9 +395,7 @@ abstract class OODBase {
 				} else {
 												// NewRequest needs it like this
 					$inst = new $static();		// don't put anything else here
-					//die(__METHOD__.'#'.__LINE__);
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
-					die(__METHOD__.'#'.__LINE__);
 					self::$instances[$static][$id] = $inst;
 				}
 			}
