@@ -179,10 +179,23 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function getTableColumnsEx($table) {
-		if ($this->getScheme() == 'mysql') {
-			$this->perform('show columns from '.$this->quoteKey($table));
+		switch ($this->getScheme()) {
+			case 'mysql':
+				$this->perform('show columns from '.$this->quoteKey($table));
+				$tableInfo = $this->fetchAll($this->result, 'Field');
+				break;
+			case 'sqlite':
+				$this->perform('PRAGMA table_info('.$this->quoteKey($table).')');
+				$tableInfo = $this->fetchAll($this->result, 'name');
+				foreach ($tableInfo as &$row) {
+					$row['Field'] = $row['name'];
+					$row['Type'] = $row['type'];
+					$row['Null'] = $row['notnull'] ? 'NO' : 'YES';
+				}
+				//debug($tableInfo);
+				break;
 		}
-		return $this->fetchAll($this->result, 'Field');
+		return $tableInfo;
 	}
 
 	/**
