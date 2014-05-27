@@ -2,7 +2,7 @@
     "name": "spidgorny/nadlib",
     "require": {
 		"php": ">=5.3.8",
-		"michelf/php-markdown": "*",
+		"michelf/php-markdown": "~1.4",
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
@@ -44,7 +44,7 @@
 			"init.php",
 			"../../GerHobbelt/HTMLawed/htmLawed.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
-			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php",
+			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php"
 		],
 		"psr-0": {
 			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
