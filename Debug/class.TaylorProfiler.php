@@ -196,7 +196,7 @@ class TaylorProfiler {
 			$startup = $this->initTime - ($_SERVER['REQUEST_TIME_FLOAT']
 					? $_SERVER['REQUEST_TIME_FLOAT']
 					: $_SERVER['REQUEST_TIME']);
-            $together['Statup'] = array(
+            $together['Startup'] = array(
             	'desc' => 'Startup',
 	            'bold' => true,
             	'time' => number_format($startup, 2, '.', ''),
