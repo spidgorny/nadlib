@@ -130,7 +130,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	function numRows($res = NULL) {
 		$count = $res->rowCount();
-		//debug($this->lastQuery, $count);
+		//debug($this->lastQuery, $count, $this->getScheme());
 		if ($count == -1 || $this->getScheme() == 'sqlite') {
 			$countQuery = 'SELECT count(*) FROM ('.$res->queryString.') AS sub1';
 			$rows = $this->fetchAll($countQuery);
