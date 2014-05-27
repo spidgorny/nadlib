@@ -698,7 +698,8 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$this->stdout .= AppController::ahref('<img
+		$controller = Index::getInstance()->controller;
+		$this->stdout .= $controller->ahref('<img
 			src="img/tb_folder.gif"
 			title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
 			\''.$desc['selectID'].'\',
@@ -723,7 +724,7 @@ class HTMLForm {
 		background-color: white;
 		az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
-		$this->stdout .= AppController::encloseOld('Tree-Element Selector', '',
+		$this->stdout .= $controller->encloseOld('Tree-Element Selector', '',
 			array(
 				'outerStyle' => $style,
 				'foldable' => FALSE,
