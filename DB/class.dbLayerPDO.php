@@ -227,9 +227,12 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function fetchAll($stringOrRes, $key = NULL) {
 		if (is_string($stringOrRes)) {
-			$this->perform($stringOrRes);
+			$res = $this->perform($stringOrRes);
+		} else {
+			$res = $stringOrRes;
 		}
-		$data = $this->result->fetchAll(PDO::FETCH_ASSOC);
+		$data = $res->fetchAll(PDO::FETCH_ASSOC);
+		//debug($this->lastQuery, $this->result, $data);
 
 		if ($key) {
 			$copy = $data;

@@ -200,7 +200,8 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
-		if ($this->db instanceof MySQL || ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
+		if ($this->db instanceof MySQL
+			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
 			$this->log('retrieveDataFromMySQL');
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
@@ -416,7 +417,7 @@ class Collection {
 			|| !$this->data->count())) {
 			$this->retrieveDataFromDB();
 		}
-        if (!$this->data instanceof ArrayPlus) {
+        if (!($this->data instanceof ArrayPlus)) {
             $this->data = ArrayPlus::create($this->data);
         }
 		return $this->data;

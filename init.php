@@ -59,7 +59,7 @@ class InitNADLIB {
 					: 5);	// small enough to notice if the site is having perf. problems
 			}
 			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
-			if (!Request::isCLI()) {
+			if (!Request::isCLI() && !headers_sent()) {
 				header('Cache-Control: no-cache, no-store, max-age=0');
 				header('Expires: -1');
 			}
