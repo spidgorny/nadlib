@@ -80,7 +80,7 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		$useRouter = class_exists('Config')
+		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
 			: '';
 		$rootpath = $this->request->getURLLevels();
@@ -103,7 +103,7 @@ class Menu /*extends Controller*/ {
 	 * Called by the constructor
 	 */
 	function setBasePath() {
-		$useRouter = class_exists('Config')
+		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
 			: ($this->request->apacheModuleRewrite());
 		if ($useRouter) {   // not finished
@@ -129,7 +129,9 @@ class Menu /*extends Controller*/ {
 		$this->basePath = $path;
 		nodebug(array(
 			'class_exists(Config)' => class_exists('Config'),
-			'Config::getInstance()->config[Controller]' => class_exists('Config') ? Config::getInstance()->config['Controller'] : NULL,
+			'Config::getInstance()->config[Controller]' => (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
+				? Config::getInstance()->config['Controller']
+				: NULL,
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,
