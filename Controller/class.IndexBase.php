@@ -44,14 +44,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $sidebar = '';
 
+	/**
+	 * @var Config
+	 */
+	var $config;
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		//parent::__construct();
 		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			$this->db = $config->db;
-			$this->user = $config->user;
+			$this->config = Config::getInstance();
+			$this->db = $this->config->db;
+			$this->user = $this->config->user;
 		}
 		$this->ll = new LocalLangDummy();	// the real one is in Config!
 
@@ -59,7 +64,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/) {
+		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/ && !headers_sent()) {
 			session_start();
 		}
 

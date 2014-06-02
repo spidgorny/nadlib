@@ -307,7 +307,7 @@ class Request {
 		} else {
 			$controller = $this->getTrim('c');
 			if ($controller) {
-				// to simplofy URL it first searches for the corresponding controller
+				// to simplify URL it first searches for the corresponding controller
 				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
 				$tmp = $ptr;
 				$ptr = false;
@@ -316,7 +316,7 @@ class Request {
 				}
 				$ptr = $tmp;
 				//$controller = end(explode('/', $controller)); // in case it's with subfolder
-				// ^ commented as subfolders need be used for BEmenu
+				// ^ commented as sub folders need be used for BEmenu
 			} else {
 				$levels = $this->getURLLevels();
 				if ($levels) {
@@ -337,7 +337,11 @@ class Request {
 							break;
 						}
 					}
-					$controller = $last;
+					if ($last) {
+						$controller = $last;
+					} else {
+						$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+					}
 				} else {
 					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
@@ -429,9 +433,9 @@ class Request {
 			$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST']
+			isset($_SERVER['HTTP_X_FORWARDED_HOST'])
 				? $_SERVER['HTTP_X_FORWARDED_HOST']
-				: $_SERVER['HTTP_HOST']
+				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL)
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);

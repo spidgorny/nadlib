@@ -22,7 +22,7 @@ class BEUser extends UserBase {
 
 	function try2login() {
 		//debug('session_start');
-		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI()) {
+		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
 			session_start();
 		}
 	}

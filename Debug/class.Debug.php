@@ -7,6 +7,7 @@ class Debug {
 	static $stylesPrinted = false;
 
 	static function debug_args() {
+		$content = '';
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
 			$a = $args[0];
