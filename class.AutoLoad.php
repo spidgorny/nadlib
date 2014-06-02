@@ -83,10 +83,12 @@ class AutoLoad {
 		}
 		$this->nadlibRoot = dirname(__FILE__).'/';
 		$this->appRoot = $this->detectAppRoot();
-		if (strlen($this->appRoot > 1)) { // '/'
+		if (strlen($this->appRoot > 1) && $this->appRoot[1] != ':') { // '/', 'w:\\'
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
 		} else {
-			$this->nadlibFromDocRoot = $relToNadlibPU;
+			//$this->nadlibFromDocRoot = $relToNadlibPU;
+			$this->nadlibFromDocRoot = Request::getDocumentRoot();
+			$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
 		}
 		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot) . '/';
 
@@ -103,9 +105,9 @@ class AutoLoad {
 				'$relToNadlibCLI' => $relToNadlibCLI,
 				'$relToNadlibPU' => $relToNadlibPU,
 				'$this->nadlibRoot' => $this->nadlibRoot,
-				'Config->documentRoot' => $config->documentRoot,
+				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
 				'$this->appRoot' => $this->appRoot,
-				'Config->appRoot' => $config->appRoot,
+				'Config->appRoot' => isset($config) ? $config->appRoot : NULL,
 				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
 				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
 				'request->getLocation()' => Request::getInstance()->getLocation(),
@@ -181,7 +183,9 @@ class AutoLoad {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
 				session_set_cookie_params(0, '');	// current folder
-				session_start();
+				if (session_status() != PHP_SESSION_ACTIVE && !headers_sent()) {
+					session_start();
+				}
 
 				if (isset($_SESSION[__CLASS__])) {
 					$folders = isset($_SESSION[__CLASS__]['folders'])

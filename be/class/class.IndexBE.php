@@ -6,7 +6,7 @@ class Index extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
-	public $template = './../be/template/template.phtml';
+	public $template = 'template/template.phtml';
 
 	/**
 	 * @var Menu
@@ -14,31 +14,33 @@ class Index extends IndexBase {
 	public $menu;
 
 	function __construct() {
-		parent::__construct();
 		//debug_pre_print_backtrace();
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			$config->defaultController = 'HomeBE';
-			$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
-			$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
-			//$config->documentRoot = $config->documentRoot ?: '/';	// must end without slash
-			// it's not reading the config.yaml from /be/, but from the project root
-			$config->config['View']['folder'] = '../be/template/';
-
-			//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
-			//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
-			//base href will be fixed manually below
-
-			$config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->appRoot);
-			$config->appRoot = str_replace('/nadlib/be', '', $config->appRoot);
+		if (!class_exists('Config')) {
+			require_once 'class.ConfigBE.php';
+			$this->config = Config::getInstance();
 		}
+		parent::__construct();
+
+		$this->config->defaultController = 'HomeBE';
+		$this->config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
+		$this->config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
+		//$config->documentRoot = $this->config->documentRoot ?: '/';	// must end without slash
+		// it's not reading the config.yaml from /be/, but from the project root
+		$this->config->config['View']['folder'] = '../be/template/';
+
+		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
+		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
+		//base href will be fixed manually below
+
+		$this->config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->appRoot);
+		$this->config->appRoot = str_replace('/nadlib/be', '', $this->config->appRoot);
 
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 
 		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'components/modernizr/modernizr.js"></script>';
 		$this->addCSS($this->nadlibFromDocRoot.'components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
-		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.css');
+		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.less');
 		$this->addJQuery();
 		//$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
 		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.js');
@@ -46,9 +48,7 @@ class Index extends IndexBase {
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
-		if (isset($config)) {
-			$config->user = $this->user; // for consistency
-		}
+		$this->config->user = $this->user; // for consistency
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);

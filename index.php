@@ -24,7 +24,11 @@ class NadlibIndex extends AppControllerBE {
 			$content[] = $this->cliMode();
 		} else {
 			//$this->request->redirect('be/');
-			include('be/index.php');
+			//include('be/index.php');
+			require_once 'be/class/class.IndexBE.php';	// force this Index class
+			$i = Index::getInstance(true);
+			$i->initController();
+			$content[] = $i->render();
 		}
 		$content = IndexBase::mergeStringArrayRecursive($content);
 		return $content;
@@ -42,6 +46,10 @@ class NadlibIndex extends AppControllerBE {
 			throw new InvalidArgumentException('"'.$cmd.'" is unknown');
 		}
 		return $content;
+	}
+
+	function initAction() {
+		return 'initAction';
 	}
 
 }

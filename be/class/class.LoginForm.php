@@ -22,7 +22,7 @@ class LoginForm extends AjaxLogin {
 		unset($env['HTTP_COOKIE']);
 		unset($env['REMOTE_PORT']);
 		unset($env['CONTENT_LENGTH  ']);
-		debug($env);
+		//debug($env);
 		$this->secret = md5(json_encode($env));
 		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
 	}
