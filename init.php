@@ -19,10 +19,12 @@ class InitNADLIB {
 	function init() {
 		//print_r($_SERVER);
 
-		define('DEVELOPMENT', Request::isCLI()
-			? (Request::isWindows() || (isset($_COOKIE['debug']) && $_COOKIE['debug']))
-			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
-		);
+		if (!defined('DEVELOPMENT')) {
+			define('DEVELOPMENT', Request::isCLI()
+				? (Request::isWindows() || (isset($_COOKIE['debug']) && $_COOKIE['debug']))
+				: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+			);
+		}
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
 		Mb_Internal_Encoding ( 'UTF-8' );
@@ -42,8 +44,11 @@ class InitNADLIB {
 			ini_set('display_errors', FALSE);
 		}
 
-		$this->al->useCookies = $this->useCookies;
-		$this->al->register();
+		// don't use nadlib autoloading is using composer
+		if ($this->al) {
+			$this->al->useCookies = $this->useCookies;
+			$this->al->register();
+		}
 
 		if (class_exists('Config')) {
 			Config::getInstance();

@@ -27,7 +27,8 @@ class Request {
 
 		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
 			? $_SERVER['SCRIPT_URL']
-			: $_SERVER['REQUEST_URI']);
+			: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL)
+		);
 	}
 
 	function deQuote(array $request) {
@@ -163,7 +164,7 @@ class Request {
 	}
 
 	function bool($name) {
-		return $this->data[$name] ? TRUE : FALSE;
+		return (isset($this->data[$name]) && $this->data[$name]) ? TRUE : FALSE;
 	}
 
 	function getBool($name) {
@@ -346,8 +347,8 @@ class Request {
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
-			'last' => $last,
-			'default' => Config::getInstance()->defaultController,
+			'last' => isset($last) ? $last : NULL,
+			'default' => class_exists('Config') ? Config::getInstance()->defaultController : NULL,
 			'data' => $this->data));
 		return $controller;
 	}

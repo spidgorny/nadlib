@@ -129,7 +129,7 @@ class Menu /*extends Controller*/ {
 		$this->basePath = $path;
 		nodebug(array(
 			'class_exists(Config)' => class_exists('Config'),
-			'Config::getInstance()->config[Controller]' => Config::getInstance()->config['Controller'],
+			'Config::getInstance()->config[Controller]' => class_exists('Config') ? Config::getInstance()->config['Controller'] : NULL,
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,

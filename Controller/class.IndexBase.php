@@ -46,10 +46,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		//parent::__construct();
-		$config = Config::getInstance();
-		$this->db = $config->db;
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			$this->db = $config->db;
+			$this->user = $config->user;
+		}
 		$this->ll = new LocalLangDummy();	// the real one is in Config!
 
 		$this->request = Request::getInstance();
@@ -60,9 +63,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			session_start();
 		}
 
-		$this->user = $config->user;
 		$this->restoreMessages();
-		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -72,9 +74,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$instance = &self::$instance ?: $GLOBALS['i'];	// to read IndexBE instance
+		$instance = &self::$instance ?: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
 		if (!$instance && $createNew) {
-			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+			if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
 			//$instance->initController();	// scheisse: call it in index.php
@@ -264,8 +266,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function restoreMessages() {
-		$this->content .= $_SESSION[__CLASS__]['messages'];
-		$_SESSION[__CLASS__]['messages'] = '';
+		if (isset($_SESSION[__CLASS__])) {
+			$this->content .= $_SESSION[__CLASS__]['messages'];
+			$_SESSION[__CLASS__]['messages'] = '';
+		}
 	}
 
 	function addJQuery() {

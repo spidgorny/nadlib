@@ -35,7 +35,11 @@ class URL {
 		}
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+			if (isset($_SERVER['HTTP_HOST'])) {
+				$url = $http . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			} else {
+				$url = $http . '://localhost/';
+			}
 		}
 		$this->parseURL($url);
 		if ($params) {
@@ -293,7 +297,7 @@ return $return; */
 					$padLength = (count($relPath) + $remaining - 1) * -1;
 					$relPath = array_pad($relPath, $padLength, '..');
 					break;
-				} else {
+				} else if ($relPath) {
 					$relPath[0] = './' . $relPath[0];
 				}
 			}
