@@ -429,7 +429,7 @@ class Request {
 		}
 
 		// hack
-		$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
+		//$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
 
 		if (strlen($docRoot) == 1) {
 			$docRoot = '/';
@@ -743,6 +743,7 @@ class Request {
 		}
 		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
 		return $docRoot;
 	}

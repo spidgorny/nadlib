@@ -380,3 +380,10 @@ function get_overriden_methods($class) {
 function is_assoc($arr) {
 	return array_keys($arr) !== range(0, count($arr) - 1);
 }
+
+function cap($string, $with) {
+	if (!endsWith($string, $with)) {
+		$string .= $with;
+	}
+	return $string;
+}

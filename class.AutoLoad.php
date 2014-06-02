@@ -85,14 +85,18 @@ class AutoLoad {
 		$this->appRoot = $this->detectAppRoot();
 		if (strlen($this->appRoot > 1) && $this->appRoot[1] != ':') { // '/', 'w:\\'
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
+			$appRootIsRoot = true;
 		} else {
-			//$this->nadlibFromDocRoot = $relToNadlibPU;
-			$this->nadlibFromDocRoot = Request::getDocumentRoot();
-			$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
+			if (basename(dirname($scriptWithPath)) == 'nadlib') {
+				$this->nadlibFromDocRoot = Request::getDocumentRoot();
+				$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
+			} else {
+				$this->nadlibFromDocRoot = $relToNadlibPU;
+			}
 		}
 		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot) . '/';
 
-		if (false) {
+		if (0) {
 			echo '<pre>';
 			print_r(array(
 				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
@@ -107,6 +111,7 @@ class AutoLoad {
 				'$this->nadlibRoot' => $this->nadlibRoot,
 				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
 				'$this->appRoot' => $this->appRoot,
+				'appRootIsRoot' => $appRootIsRoot,
 				'Config->appRoot' => isset($config) ? $config->appRoot : NULL,
 				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
 				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
