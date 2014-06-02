@@ -73,7 +73,7 @@ abstract class OODBase {
 			$this->table = $config->prefixTable($this->table);
 			$this->db = $config->db;
 		} else {
-			$this->db = $GLOBALS['db'];
+			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);

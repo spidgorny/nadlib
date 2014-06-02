@@ -2,6 +2,8 @@
 
 class Index extends IndexBase {
 
+	static $isBE = true;
+
 	public $projectName = 'nadlib|BE';
 
 	public $template = './../be/template/template.phtml';
@@ -14,20 +16,22 @@ class Index extends IndexBase {
 	function __construct() {
 		parent::__construct();
 		//debug_pre_print_backtrace();
-		$config = Config::getInstance();
-		$config->defaultController = 'HomeBE';
-		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
-		$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
-		//$config->documentRoot = $config->documentRoot ?: '/';	// must end without slash
-		// it's not reading the config.yaml from /be/, but from the project root
-		$config->config['View']['folder'] = '../be/template/';
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			$config->defaultController = 'HomeBE';
+			$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
+			$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
+			//$config->documentRoot = $config->documentRoot ?: '/';	// must end without slash
+			// it's not reading the config.yaml from /be/, but from the project root
+			$config->config['View']['folder'] = '../be/template/';
 
-		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
-		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
-		//base href will be fixed manually below
+			//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
+			//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
+			//base href will be fixed manually below
 
-		$config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->appRoot);
-		$config->appRoot = str_replace('/nadlib/be', '', $config->appRoot);
+			$config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->appRoot);
+			$config->appRoot = str_replace('/nadlib/be', '', $config->appRoot);
+		}
 
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 
@@ -36,11 +40,15 @@ class Index extends IndexBase {
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
 		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.css');
 		$this->addJQuery();
-		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
+		//$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
+		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.js');
+
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
-		$config->user = $this->user;	// for consistency
+		if (isset($config)) {
+			$config->user = $this->user; // for consistency
+		}
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
@@ -90,21 +98,22 @@ class Index extends IndexBase {
 	}
 
 	function loadBEmenu(array $menu) {
-        if (file_exists('class/config.yaml')) {
-            $c = Spyc::YAMLLoad('../../../../class/config.yaml');
-            //debug($c['BEmenu']);
-            if ($c['BEmenu']) {
-                //$c['BEmenu'] = array('FE' => $c['BEmenu']);
-                foreach($c['BEmenu'] as $key => $sub) {
-                    if (is_array($sub)) {
-                        $menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
-                    } else {
-                        $menu['ClearCache']->elements[$key] = $sub;
-                    }
-                }
-            }
-        }
-
+		if (class_exists('Spyc')) {
+			if (file_exists('class/config.yaml')) {
+				$c = Spyc::YAMLLoad('../../../../class/config.yaml');
+				//debug($c['BEmenu']);
+				if ($c['BEmenu']) {
+					//$c['BEmenu'] = array('FE' => $c['BEmenu']);
+					foreach ($c['BEmenu'] as $key => $sub) {
+						if (is_array($sub)) {
+							$menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
+						} else {
+							$menu['ClearCache']->elements[$key] = $sub;
+						}
+					}
+				}
+			}
+		}
 
 		return $menu;
 	}

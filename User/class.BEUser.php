@@ -15,12 +15,16 @@ class BEUser extends UserBase {
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		Config::getInstance()->mergeConfig($this);
+		if (class_exists('Config')) {
+			Config::getInstance()->mergeConfig($this);
+		}
 	}
 
 	function try2login() {
 		//debug('session_start');
-		session_start();
+		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI()) {
+			session_start();
+		}
 	}
 
 	function can($something) {

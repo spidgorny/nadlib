@@ -74,7 +74,7 @@ abstract class Controller {
 	static public $public = false;
 
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed

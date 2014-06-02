@@ -180,9 +180,9 @@ class Debug {
 	}
 
 	static function getMethod(array $first) {
-		if ($first['object']) {
+		if (isset($first['object']) && $first['object']) {
 			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
-		} else if ($first['class']) {
+		} else if (isset($first['class']) && $first['class']) {
 			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
 		} else {
 			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
@@ -232,6 +232,7 @@ class Debug {
 	}
 
 	static function printStyles() {
+		$content = '';
 		if (!self::$stylesPrinted) {
 			$content = '
 			<style>

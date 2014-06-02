@@ -308,7 +308,7 @@ class slTable {
 			if (!is_array($thmore)) {
 				$thmore = array('' => $thmore);
 			}
-			if ($thv['align']) {
+			if (isset($thv['align']) && $thv['align']) {
 				$thmore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
@@ -388,11 +388,13 @@ class slTable {
 							$class[] = ($i%2?'even':'odd');
 						}
 					}
-					if ($this->dataClass[$key]) {
+					if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					if (isset($row['###TR_MORE###'])) {
+						$tr .= ' ' . $row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					}
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
 					//debug_pre_print_backtrace();
 					$this->genRow($t, $row);
@@ -432,7 +434,7 @@ class slTable {
 			if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
 				$k += $row[$col.'.'];
 			}
-			if ($row[$col] instanceof slTableValue) {
+			if (isset($row[$col]) && $row[$col] instanceof slTableValue) {
 				$k += $row[$col]->desc;
 			}
 
@@ -458,7 +460,7 @@ class slTable {
 						   $val->render($col, $row) .
 						   (isset($k['after']) ? $k['after'] : '');
 
-					if ($k['colspan']) {
+					if (isset($k['colspan']) && $k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
 
