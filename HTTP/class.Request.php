@@ -427,10 +427,14 @@ class Request {
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
+
+		// hack
+		$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
+
 		if (strlen($docRoot) == 1) {
 			$docRoot = '/';
 		} else {
-			$docRoot .= '/';
+			//$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.(
 			isset($_SERVER['HTTP_X_FORWARDED_HOST'])

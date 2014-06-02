@@ -6,11 +6,20 @@ class Lesser extends AppController {
 
 	protected $output = 'cache/merge.css';
 
+	/**
+	 * No auth needed
+	 * @var bool
+	 */
+	public static $public = true;
+
 	function __construct() {
 		if (!$_REQUEST['d']) {
 			unset($_COOKIE['debug']);
 		}
 		parent::__construct();
+		if (!is_dir(dirname($this->output))) {
+			mkdir(dirname($this->output));
+		}
 	}
 
 	function render() {
