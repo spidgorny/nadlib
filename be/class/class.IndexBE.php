@@ -48,6 +48,7 @@ class Index extends IndexBase {
 		$this->addJQuery();
 		//$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
 		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.js');
+		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
 
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
