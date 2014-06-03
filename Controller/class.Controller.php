@@ -82,6 +82,8 @@ abstract class Controller {
 			$this->db = Config::getInstance()->db;
 			$this->user = Config::getInstance()->user;
 			Config::getInstance()->mergeConfig($this);
+		} else {
+			//$this->user = new UserBase();
 		}
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
