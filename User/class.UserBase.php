@@ -150,7 +150,13 @@ abstract class UserBase extends OODBase {
 	}
 
 	function getGravatarURL($gravatarSize = 50) {
-		return 'http://www.gravatar.com/avatar/'.md5(strtolower(trim($this->data['email']))).'?s='.intval($gravatarSize);
+		return 'http://www.gravatar.com/avatar/'.md5(
+			strtolower(
+				trim(
+					ifsetor($this->data['email'])
+				)
+			)
+		).'?s='.intval($gravatarSize);
 	}
 
 }

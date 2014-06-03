@@ -158,7 +158,7 @@ class Menu /*extends Controller*/ {
 		$rootpath = $this->request->getURLLevels();
 		$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for sub-menu of Dashboard/About
 		if (!$rootpath) {                                       // no rewrite, then find the menu with current as a key
-			if ($this->items[$this->current]) {                 // if $current is a top-level menu then add it, otherwise search (see below)
+			if (ifsetor($this->items[$this->current])) {        // if $current is a top-level menu then add it, otherwise search (see below)
 				$rootpath = array(
 					//$this->current,                           // commented otherwise it will show a corresponding submenu
 				);

@@ -449,7 +449,7 @@ class slTable {
 				$val = isset($row[$col]) ? $row[$col] : NULL;
 				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
 					$t->tag($val);
-					if ($val->attr['colspan']) {
+					if (ifsetor($val->attr['colspan'])) {
 						$skipCols = $val->attr['colspan'] - 1;
 					}
 				} else if ($val instanceof HTMLnoTag) {

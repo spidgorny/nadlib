@@ -281,6 +281,7 @@ abstract class Controller {
 	}
 
 	function performAction($action = NULL) {
+		$content = '';
 		$method = $action ? $action : $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
