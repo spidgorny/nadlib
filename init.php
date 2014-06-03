@@ -387,3 +387,18 @@ function cap($string, $with) {
 	}
 	return $string;
 }
+
+/**
+ * @param $variable
+ * @param null $default
+ * @return null
+ * @see https://wiki.php.net/rfc/ifsetor
+ */
+function ifsetor(&$variable, $default = null) {
+	if (isset($variable)) {
+		$tmp = $variable;
+	} else {
+		$tmp = $default;
+	}
+	return $tmp;
+}

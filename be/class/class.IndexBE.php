@@ -98,8 +98,14 @@ class Index extends IndexBase {
 		$this->menu->setBasePath();	// because 1und1 rewrite is not enabled
 		//debug($this->menu->basePath);
 		$docRoot = $this->request->getDocumentRoot();
-		$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
-		$this->menu->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
+		$docRoot = new Path($docRoot);
+		$docRoot->trimIf('nadlib');
+		$nadlibPath = new Path($this->nadlibFromDocRoot);
+		$docRoot->append($nadlibPath);
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$docRoot->trimIf('be');
+		//debug($this->request->getDocumentRoot(), $docRoot, $this->nadlibFromDocRoot, $nadlibPath);
+		$this->menu->basePath->setPath($docRoot);
 	}
 
 	function loadBEmenu(array $menu) {
@@ -169,10 +175,10 @@ class Index extends IndexBase {
 		$m->renderOnlyCurrent = true;
 		$m->useControllerSlug = false;
 		//$m->useRecursiveURL = false;
-		$m->setBasePath();	// because 1und1 rewrite is not enabled
-		$docRoot = $m->request->getDocumentRoot();
-		$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
-		$m->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
+		//$m->setBasePath();	// because 1und1 rewrite is not enabled
+		//$docRoot = $m->request->getDocumentRoot();
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		//$m->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
 		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();

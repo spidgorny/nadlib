@@ -87,11 +87,15 @@ class AutoLoad {
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
 			$appRootIsRoot = true;
 		} else {
-			if (basename(dirname($scriptWithPath)) == 'nadlib') {
+			$path = new Path($scriptWithPath);
+			//if (basename(dirname($scriptWithPath)) == 'nadlib') {
+			if ($path->contains('nadlib')) {
 				$this->nadlibFromDocRoot = Request::getDocumentRoot();
 				$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
+				$appRootIsRoot = 'DocumentRoot without /be';
 			} else {
 				$this->nadlibFromDocRoot = $relToNadlibPU;
+				$appRootIsRoot = '$relToNadlibPU';
 			}
 		}
 		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot) . '/';

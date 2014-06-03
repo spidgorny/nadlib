@@ -43,7 +43,8 @@
 			"User/"
 		],
 		"files": [
-			"init.php"
+			"init.php",
+			"vendor/michelf/php-markdown/markdown.php"
 		],
 		"psr-0": {
 			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
