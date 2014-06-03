@@ -2,8 +2,13 @@
 
 require_once 'vendor/autoload.php';
 require_once 'init.php';
-//$in = new InitNADLIB();
-//$in->init();
+$in = new InitNADLIB();
+$in->init();
+
+class Config extends ConfigBE {}
+class AppController extends AppControllerBE {}
+
+require_once 'be/class/class.ConfigBE.php';
 define('DEVELOPMENT', true);
 
 function __($a) {

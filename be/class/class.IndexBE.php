@@ -17,7 +17,7 @@ class Index extends IndexBase {
 		//debug_pre_print_backtrace();
 		if (!class_exists('Config')) {
 			require_once 'class.ConfigBE.php';
-			$this->config = Config::getInstance();
+			$this->config = ConfigBE::getInstance();
 		}
 		parent::__construct();
 
