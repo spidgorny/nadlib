@@ -171,7 +171,7 @@ class Menu /*extends Controller*/ {
 				//$found = $rec->findPath($this->current);
 				if ($rec instanceof Recursive) {
 					$children = $rec->getChildren();
-					$found = $children[$this->current];
+					$found = isset($children[$this->current]) ? $children[$this->current] : NULL;
 					//debug($children, $found, $key, $this->current);
 					if ($found) {
 						$rootpath = array(
@@ -187,7 +187,7 @@ class Menu /*extends Controller*/ {
 		}
 		if ($this->level == 0) {
 			$this->current = $this->current;                    // no change
-		} elseif ($this->items[$this->current] instanceof Recursive) {
+		} elseif (ifsetor($this->items[$this->current]) instanceof Recursive) {
 			$this->current = $this->current.'/'.$this->current;
 		}
 		return $rootpath;
@@ -320,6 +320,7 @@ class Menu /*extends Controller*/ {
      * @return bool
      */
 	function isCurrent($class, array $subMenu = array(), $level) {
+		$combined = NULL;
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);

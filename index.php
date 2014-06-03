@@ -25,7 +25,8 @@ class NadlibIndex extends AppControllerBE {
 		} else {
 			//$this->request->redirect('be/');
 			//include('be/index.php');
-			require_once 'be/class/class.IndexBE.php';	// force this Index class
+			chdir('be');
+			require_once 'class/class.IndexBE.php';	// force this Index class
 			$i = Index::getInstance(true);
 			$i->initController();
 			$content[] = $i->render();

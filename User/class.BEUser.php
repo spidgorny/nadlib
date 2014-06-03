@@ -36,7 +36,7 @@ class BEUser extends UserBase {
 	}
 
 	function isAuth() {
-		return $_SESSION[__CLASS__]['login'] && ($_SESSION[__CLASS__]['login'] == $this->id);
+		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
 	function logout() {

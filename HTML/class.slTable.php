@@ -303,8 +303,12 @@ class slTable {
 			if (!is_array($thv)) {
 				$thv = array('name' => $thv);
 			}
-			$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
-			$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
+			$thvName = isset($thv['name'])
+				? $thv['name']
+				: (isset($thv['label']) ? $thv['label'] : NULL);
+			$thmore[$thk] = isset($thv['thmore'])
+				? $thv['thmore']
+				: (isset($thv['more']) ? $thv['more'] : NULL);
 			if (!is_array($thmore)) {
 				$thmore = array('' => $thmore);
 			}

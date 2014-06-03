@@ -457,7 +457,9 @@ class Request {
 
 	function isAjax() {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
-		return $this->getBool('ajax') || (strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
+		return $this->getBool('ajax') || (
+			isset($headers['X-Requested-With'])
+			&&strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
 	}
 
 	function getHeader($name) {
@@ -745,6 +747,7 @@ class Request {
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
 		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
+		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
 		return $docRoot;
 	}
 
