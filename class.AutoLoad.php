@@ -68,10 +68,19 @@ class AutoLoad {
 		}
 		require_once __DIR__ . '/HTTP/class.URL.php';
 		require_once __DIR__ . '/HTTP/class.Request.php';
+		require_once __DIR__ . '/HTTP/class.Path.php';
+	}
 
-		$this->detectNadlibRoot();
-
-		$this->loadConfig();
+	/**
+	 * @return AutoLoad
+	 */
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self();
+			self::$instance->detectNadlibRoot();
+			self::$instance->loadConfig();
+		}
+		return self::$instance;
 	}
 
 	function detectNadlibRoot() {
@@ -123,6 +132,7 @@ class AutoLoad {
 				'request->getLocation()' => Request::getInstance()->getLocation(),
 			));
 			echo '</pre>';
+			debug_pre_print_backtrace();
 		}
 	}
 
@@ -164,7 +174,7 @@ class AutoLoad {
 		if (!class_exists('Config')) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
 			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
-			//var_dump($configPath, file_exists($configPath)); exit();
+			//debug($configPath, file_exists($configPath)); exit();
 			if (file_exists($configPath)) {
 				include_once $configPath;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
@@ -213,7 +223,6 @@ class AutoLoad {
 			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
 			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
-		//debug($folders);
 
 		return $folders;
 	}
@@ -279,8 +288,10 @@ class AutoLoad {
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
 		if ($file && file_exists($file)) {
+			/** @noinspection PhpIncludeInspection */
 			include_once $file;
 		} elseif ($file2 && file_exists($file2)) {
+			/** @noinspection PhpIncludeInspection */
 			include_once $file2;
 		} else {
 			$file = $this->findInFolders($classFile, $subFolders);
@@ -329,10 +340,12 @@ class AutoLoad {
 
 			if (file_exists($file)) {
 				$this->log($classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
+				$this->log($classFile.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
 				$this->classFileMap[$classFile] = $file;
 				return $file;
 			} else {
 				$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
+				$this->log($classFile.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
 			}
 		}
 	}
@@ -345,16 +358,6 @@ class AutoLoad {
 				echo $debugLine;
 			}
 		}
-	}
-
-	/**
-	 * @return AutoLoad
-	 */
-	static function getInstance() {
-		if (!self::$instance) {
-			self::$instance = new self();
-		}
-		return self::$instance;
 	}
 
 	static function register() {

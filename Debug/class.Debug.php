@@ -115,10 +115,10 @@ class Debug {
 					'file' => 'file',
 					'line' => 'line',
 					'class' => 'class',
+					'object' => 'object',
 					'type' => 'type',
 					'function' => 'function',
 					'args' => 'args',
-					'object' => 'object',
 				)).'</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';

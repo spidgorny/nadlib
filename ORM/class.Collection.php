@@ -327,6 +327,7 @@ class Collection {
 		if ($where instanceof SQLWhere) {
 			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
+			debug_pre_print_backtrace();
 			$query = $this->db->getSelectQuery(
 				$this->table.' '.$this->join,
 				$where,
