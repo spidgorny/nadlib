@@ -1,6 +1,6 @@
 <?php
 
-class Config extends ConfigBase {
+class ConfigBE extends ConfigBase {
 
 	var $defaultController = 'HomeBE';
 
