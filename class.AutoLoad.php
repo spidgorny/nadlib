@@ -98,7 +98,8 @@ class AutoLoad {
 				$appRootIsRoot = '$relToNadlibPU';
 			}
 		}
-		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot) . '/';
+		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
+		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
 
 		if (0) {
 			echo '<pre>';

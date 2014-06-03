@@ -20,13 +20,13 @@ class ServerStat extends AppControllerBE {
 	}
 
 	function render() {
-		$this->index->addJS('vendor/spidgorny/nadlib/be/js/main.js');
+		$this->index->addJS('be/js/main.js');
 		$content = $this->performAction();
 		if (!$content) {
 			$content = '<div
 				id="div_SystemInfo"
 				class="row updateHere"
-				src="vendor/spidgorny/nadlib/be/?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
+				src="?c=ServerStat&ajax=1&action=updateHere">'.$this->renderEverything().'</div>';
 
 		}
 		return $content;
@@ -176,7 +176,7 @@ class ServerStat extends AppControllerBE {
 			'total' => array('name' => $this->totalTime, 'decimals' => 3),
 			'percent' => '100%',
 		));
-		$s->data = $this->LOG ? $this->LOG : $this->config->db->queryLog;
+		$s->data = ifsetor($this->LOG, ifsetor($this->config->db->queryLog));
 		$s->isOddEven = TRUE;
 		$s->more = 'class="nospacing"';
 		return $s;
@@ -195,33 +195,8 @@ class ServerStat extends AppControllerBE {
         return $uptimeString;
     }
 
-	function getRAMInfo() {
-		$meminfo = "/proc/meminfo";
-		if (file_exists($meminfo)) {
-			$mem = file_get_contents($meminfo);
-			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
-				$totalp = $matches[1];
-			}
-			unset($matches);
-			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
-				$freep = $matches[1];
-			}
-			$freiq = $freep;
-			$insgesamtq = $totalp;
-			$belegtq = $insgesamtq - $freiq;
-			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
-			$res = array(
-				'total' => $totalp,
-				'used' => $belegtq,
-				'free' => $freiq,
-				'percent' => $prozent_belegtq,
-			);
-		}
-        return $res;
-	}
-
 	function getBarURL($percent) {
-		$content = 'vendor/spidgorny/nadlib/bar.php?rating='.round($percent).'&!border=0&height=25';
+		$content = AutoLoad::getInstance()->nadlibFromDocRoot.'bar.php?rating='.round($percent).'&!border=0&height=25';
 		return $content;
 	}
 
@@ -237,24 +212,52 @@ class ServerStat extends AppControllerBE {
 	}
 
 	protected function getStat($_statPath = '/proc/stat') {
-        $stat = @file_get_contents($_statPath);
+		$stat = @file_get_contents($_statPath);
 
-        if (substr($stat, 0, 3) == 'cpu') {
-            $parts = explode(" ", preg_replace("!cpu +!", "", $stat));
-        } else {
-            return false;
-        }
+		if (substr($stat, 0, 3) == 'cpu') {
+			$parts = explode(" ", preg_replace("!cpu +!", "", $stat));
+		} else {
+			return false;
+		}
 
-        $return = array();
-        $return['user'] = $parts[0];
-        $return['nice'] = $parts[1];
-        $return['system'] = $parts[2];
-        $return['idle'] = $parts[3];
-        return $return;
-    }
+		$return = array();
+		$return['user'] = $parts[0];
+		$return['nice'] = $parts[1];
+		$return['system'] = $parts[2];
+		$return['idle'] = $parts[3];
+		return $return;
+	}
+
+	function getRAMInfo() {
+		$meminfo = "/proc/meminfo";
+		if (file_exists($meminfo)) {
+			$mem = file_get_contents($meminfo);
+			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
+				$totalp = $matches[1];
+			}
+			unset($matches);
+			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
+				$freep = $matches[1];
+			}
+			$freiq = $freep;
+			$insgesamtq = $totalp;
+			$belegtq = $insgesamtq - $freiq;
+			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
+		}
+		$res = array(
+			'total' => ifsetor($totalp),
+			'used' => ifsetor($belegtq),
+			'free' => ifsetor($freiq),
+			'percent' => ifsetor($prozent_belegtq),
+		);
+		return $res;
+	}
 
     function getCpuUsage($_statPath = '/proc/stat') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+	    $percentages = array(
+		    'idle' => NULL,
+	    );
 		if (file_exists($_statPath)) {
 			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
 			sleep(1);
@@ -268,7 +271,6 @@ class ServerStat extends AppControllerBE {
 			}
 
 			$deltaTotal = array_sum($delta);
-			$percentages = array();
 
 			foreach ($delta as $k => $v) {
 				$percentages[$k] = $v / $deltaTotal * 100;

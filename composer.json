@@ -3,7 +3,7 @@
 	"minimum-stability": "dev",
     "require": {
 		"php": ">=5.3.8",
-		"michelf/php-markdown": "*",
+		"michelf/php-markdown": "~1.4",
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
@@ -43,8 +43,7 @@
 			"User/"
 		],
 		"files": [
-			"init.php",
-			"vendor/michelf/php-markdown/markdown.php"
+			"init.php"
 		],
 		"psr-0": {
 			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
