@@ -128,7 +128,6 @@ class ConfigBase {
 	 */
 	public function postInit() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
-		debug($this->db_database);
 		if ($this->db_database) {
 			$di = new DIContainer();
 			if (extension_loaded('mysqlnd')) {
