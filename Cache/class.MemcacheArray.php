@@ -47,6 +47,13 @@ class MemcacheArray implements ArrayAccess {
 	public $miss = 0;
 
 	/**
+	 * Will show a line on the screen every time this is used.
+	 * Useful to debug cache issues.
+	 * @var bool
+	 */
+	static $debug = false;
+
+	/**
 	 * @param string $file - filename inside /cache/ folder
 	 * @param int $expire - seconds to keep the cache active
 	 */
@@ -58,6 +65,9 @@ class MemcacheArray implements ArrayAccess {
 		$this->data = $this->fc->get($this->file, $this->expire);
 		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);
+		if (self::$debug) {
+			echo __METHOD__.'('.$file.', '.$expire.'). Sizeof: '.sizeof($this->data).BR;
+		}
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__.' ('.$file.')');
 	}
 
@@ -93,8 +103,8 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	public function offsetSet($offset, $value) {
-        $this->data[$offset] = $value;
-    }
+		$this->data[$offset] = $value;
+	}
 
 	function exists($key) {
 		return isset($this->data[$key]);
@@ -112,23 +122,26 @@ class MemcacheArray implements ArrayAccess {
 	function set($key, $value) {
 		$this->data[$key] = $value;
 	}
-    public function offsetExists($offset) {
-        return isset($this->data[$offset]);
-    }
+	public function offsetExists($offset) {
+		return isset($this->data[$offset]);
+	}
 
-    public function offsetUnset($offset) {
-        unset($this->data[$offset]);
-    }
+	public function offsetUnset($offset) {
+		unset($this->data[$offset]);
+	}
 
-    public function offsetGet($offset) {
-        return isset($this->data[$offset]) ? $this->data[$offset] : null;
-    }
+	public function offsetGet($offset) {
+		return isset($this->data[$offset]) ? $this->data[$offset] : null;
+	}
 
-    static function getInstance($file, $expire = 0) {
-    	return self::$instances[$file]
-    		?  self::$instances[$file]
-    		: (self::$instances[$file] = new self($file, $expire));
-    }
+	static function getInstance($file, $expire = 0) {
+		if (self::$debug) {
+			//echo __METHOD__.'('.$file.')'.BR;
+		}
+		return self::$instances[$file]
+			?  self::$instances[$file]
+			: (self::$instances[$file] = new self($file, $expire));
+	}
 
 	static function unsetInstance($file) {
 		if (self::$instances[$file]) {
@@ -138,6 +151,10 @@ class MemcacheArray implements ArrayAccess {
 			self::$instances[$file]->fc->clearCache(self::$instances[$file]->file);
 		}
 		unset(self::$instances[$file]);
+	}
+
+	static function enableDebug() {
+		self::$debug = true;
 	}
 
 }

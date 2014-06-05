@@ -9,6 +9,9 @@ class MemcacheFile {
 	public $folder = 'cache/';
 
 	function __construct() {
+		if (MemcacheArray::$debug) {
+			//echo __METHOD__.BR;
+		}
 		$sub = Config::getInstance()->appRoot;
 
 		if (!file_exists($sub.'/'.$this->folder)) {
