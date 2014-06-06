@@ -80,7 +80,7 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		$useRouter = class_exists('Config')
+		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
 			: '';
 		$rootpath = $this->request->getURLLevels();
@@ -103,7 +103,7 @@ class Menu /*extends Controller*/ {
 	 * Called by the constructor
 	 */
 	function setBasePath() {
-		$useRouter = class_exists('Config')
+		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
 			: ($this->request->apacheModuleRewrite());
 		if ($useRouter) {   // not finished
@@ -129,7 +129,9 @@ class Menu /*extends Controller*/ {
 		$this->basePath = $path;
 		nodebug(array(
 			'class_exists(Config)' => class_exists('Config'),
-			'Config::getInstance()->config[Controller]' => Config::getInstance()->config['Controller'],
+			'Config::getInstance()->config[Controller]' => (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
+				? Config::getInstance()->config['Controller']
+				: NULL,
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,
@@ -156,7 +158,7 @@ class Menu /*extends Controller*/ {
 		$rootpath = $this->request->getURLLevels();
 		$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for sub-menu of Dashboard/About
 		if (!$rootpath) {                                       // no rewrite, then find the menu with current as a key
-			if ($this->items[$this->current]) {                 // if $current is a top-level menu then add it, otherwise search (see below)
+			if (ifsetor($this->items[$this->current])) {        // if $current is a top-level menu then add it, otherwise search (see below)
 				$rootpath = array(
 					//$this->current,                           // commented otherwise it will show a corresponding submenu
 				);
@@ -169,7 +171,7 @@ class Menu /*extends Controller*/ {
 				//$found = $rec->findPath($this->current);
 				if ($rec instanceof Recursive) {
 					$children = $rec->getChildren();
-					$found = $children[$this->current];
+					$found = isset($children[$this->current]) ? $children[$this->current] : NULL;
 					//debug($children, $found, $key, $this->current);
 					if ($found) {
 						$rootpath = array(
@@ -185,7 +187,7 @@ class Menu /*extends Controller*/ {
 		}
 		if ($this->level == 0) {
 			$this->current = $this->current;                    // no change
-		} elseif ($this->items[$this->current] instanceof Recursive) {
+		} elseif (ifsetor($this->items[$this->current]) instanceof Recursive) {
 			$this->current = $this->current.'/'.$this->current;
 		}
 		return $rootpath;
@@ -318,6 +320,7 @@ class Menu /*extends Controller*/ {
      * @return bool
      */
 	function isCurrent($class, array $subMenu = array(), $level) {
+		$combined = NULL;
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);

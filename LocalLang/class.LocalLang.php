@@ -32,7 +32,7 @@ abstract class LocalLang {
 	 * @param null $forceLang
 	 */
 	function __construct($forceLang = NULL) {
-		if ($_REQUEST['setLangCookie']) {
+		if (isset($_REQUEST['setLangCookie']) && $_REQUEST['setLangCookie']) {
 			$_COOKIE['lang'] = $_REQUEST['setLangCookie'];
 			setcookie('lang', $_REQUEST['setLangCookie'], time()+365*24*60*60, dirname($_SERVER['PHP_SELF']));
 		}
@@ -42,18 +42,20 @@ abstract class LocalLang {
 			$this->lang = $forceLang;
 		} else {
 			$this->detectLang();
-			$this->lang = $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
+			$this->lang = isset($_COOKIE['lang']) && $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
 				? $_COOKIE['lang']
 				: $this->lang;
 		}
 
-		$c = Config::getInstance();
-		if (isset($c->config[__CLASS__])) {
-			foreach ($c->config[__CLASS__] as $key => $val) {
-				$this->$key = $val;
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			if (isset($c->config[__CLASS__])) {
+				foreach ($c->config[__CLASS__] as $key => $val) {
+					$this->$key = $val;
+				}
 			}
+			//debug($c->config, $c->config[__CLASS__], $this);
 		}
-		//debug($c->config, $c->config[__CLASS__], $this);
 
 		// Read language data from somewhere in a subclass
 	}

@@ -196,7 +196,7 @@ class AjaxLogin extends AppController {
 						type="text"
 						name="username"
 						placeholder="E-mail"
-						value="'.$_REQUEST['username'].'" />
+						value="'.(isset($_REQUEST['username']) ? $_REQUEST['username'] : NULL).'" />
 				</div>
 				<div class="form-group col-md-4">
 					<input class="form-control" type="password"

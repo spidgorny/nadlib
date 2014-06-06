@@ -15,12 +15,16 @@ class BEUser extends UserBase {
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		Config::getInstance()->mergeConfig($this);
+		if (class_exists('Config')) {
+			Config::getInstance()->mergeConfig($this);
+		}
 	}
 
 	function try2login() {
 		//debug('session_start');
-		session_start();
+		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
+			session_start();
+		}
 	}
 
 	function can($something) {
@@ -32,7 +36,7 @@ class BEUser extends UserBase {
 	}
 
 	function isAuth() {
-		return $_SESSION[__CLASS__]['login'] && ($_SESSION[__CLASS__]['login'] == $this->id);
+		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
 	function logout() {

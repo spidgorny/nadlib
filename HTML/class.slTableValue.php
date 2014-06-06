@@ -237,7 +237,7 @@ class slTableValue {
 							$val = $val->getName();
 						}
 					}
-					if ($k['no_hsc']) {
+					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
 					} else if ($val instanceof htmlString) {
 						$out = $val.'';
@@ -258,11 +258,11 @@ class slTableValue {
 				}
 			break;
 		}
-		if ($k['wrap']) {
+		if (isset($k['wrap']) && $k['wrap']) {
 			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 			$out = $wrap->wrap($out);
 		}
-		if ($k['link']) {
+		if (isset($k['link']) && $k['link']) {
 			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
