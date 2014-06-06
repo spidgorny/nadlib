@@ -385,7 +385,15 @@ abstract class OODBase {
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
-		//debug($static, sizeof(self::$instances[$static]), $id);
+		nodebug(array(
+			__METHOD__,
+			'class' => $static,
+			'instances' => sizeof(self::$instances[$static]),
+			'id' => $id,
+			'exists' => self::$instances[$static]
+				? implode(', ', array_keys(self::$instances[$static]))
+				: NULL,
+		));
 		if (is_scalar($id)) {
 			$inst = self::$instances[$static][$id];
 			if (!$inst) {
@@ -395,8 +403,8 @@ abstract class OODBase {
 				} else {
 												// NewRequest needs it like this
 					$inst = new $static();		// don't put anything else here
+					self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
-					self::$instances[$static][$id] = $inst;
 				}
 			}
 		} else {
@@ -422,7 +430,7 @@ abstract class OODBase {
 	 */
 	static function getInstanceByName($name, $field = NULL) {
 		$self = get_called_class();
-		//debug($self, $name, count(self::$instances[$self]));
+		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
 		// first search instances
 		if (is_array(self::$instances[$self])) {
@@ -439,14 +447,9 @@ abstract class OODBase {
 			$c = new $self();
 			/** @var $c OODBase */
 			$field = $field ? $field : $c->titleColumn;
-			$c->findInDB(array(
+			$c->findInDBsetInstance(array(
 				$field => $name,
 			));
-
-			// store back so it can be found
-			if ($c) {
-				self::$instances[$self][$c->id] = $c;
-			}
 		}
 		return $c;
 	}
@@ -494,6 +497,29 @@ abstract class OODBase {
 			case 'object': $content .= ' '.get_class($this->$name); break;
 		}
 		return $content;
+	}
+
+	/**
+	 * Prevents infinite loop Sigi->Ruben->Sigi->Ruben
+	 * by adding a new Person object to the self::$instances registry
+	 * BEFORE calling init().
+	 * @param array $where
+	 * @param string $orderByLimit
+	 * @return array
+	 */
+	function findInDBsetInstance(array $where, $orderByLimit = '') {
+		$data = $this->db->fetchOneSelectQuery($this->table,
+			$this->where + $where, $orderByLimit);
+		if (is_array($data)) {
+			$className = get_called_class();
+			$id = $data[$this->idField];
+			self::$instances[$className][$id] = $this;   //!!!
+			nodebug(__METHOD__, $className, $id,
+				sizeof(self::$instances[$className]),
+				isset(self::$instances[$className][$id]));
+			$this->init($data, true);
+			return $data;
+		}
 	}
 
 }
