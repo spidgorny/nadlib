@@ -575,22 +575,23 @@ class Collection {
 		return $this->render().'';
 	}
 
-	/**
-	 * Wrap output in <form> manually if necessary
-	 */
-	function addCheckboxes() {
-		$this->thes = array('checked' => array(
-			'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
-            'align' => "center",
-			'no_hsc' => true,
-		)) + $this->thes;
-		$class = get_class($this);
-		foreach ($this->data as &$row) {
-			$id = $row[$this->idField];
-			$checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
-			$row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
-		}
-	}
+    /**
+     * Wrap output in <form> manually if necessary
+     * @param string $idFieldName Optional param to define a different ID field to use as checkbox value
+     */
+    function addCheckboxes($idFieldName = '') {
+        $this->thes = array('checked' => array(
+                'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
+                'align' => "center",
+                'no_hsc' => true,
+            )) + $this->thes;
+        $class = get_class($this);
+        foreach ($this->data as &$row) {
+            $id = !empty($idFieldName) ? $row[$idFieldName] : $row[$this->idField];
+            $checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
+            $row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
+        }
+    }
 
 	function showFilter() {
 		if ($this->filter) {
