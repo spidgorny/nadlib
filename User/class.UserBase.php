@@ -102,7 +102,7 @@ abstract class UserBase extends OODBase {
 	}
 
 	function insertNoUserCheck(array $data) {
-		$data['ctime'] = new AsIs('NOW()');
+		$data['ctime'] = new SQLDateTime();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);

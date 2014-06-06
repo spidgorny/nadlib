@@ -130,7 +130,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	function numRows($res = NULL) {
 		$count = $res->rowCount();
-		//debug($this->lastQuery, $count);
+		//debug($this->lastQuery, $count, $this->getScheme());
 		if ($count == -1 || $this->getScheme() == 'sqlite') {
 			$countQuery = 'SELECT count(*) FROM ('.$res->queryString.') AS sub1';
 			$rows = $this->fetchAll($countQuery);
@@ -227,9 +227,12 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function fetchAll($stringOrRes, $key = NULL) {
 		if (is_string($stringOrRes)) {
-			$this->perform($stringOrRes);
+			$res = $this->perform($stringOrRes);
+		} else {
+			$res = $stringOrRes;
 		}
-		$data = $this->result->fetchAll(PDO::FETCH_ASSOC);
+		$data = $res->fetchAll(PDO::FETCH_ASSOC);
+		//debug($this->lastQuery, $this->result, $data);
 
 		if ($key) {
 			$copy = $data;
