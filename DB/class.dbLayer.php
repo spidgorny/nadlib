@@ -85,6 +85,7 @@ class dbLayer {
 		$prof = new Profiler();
 		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
+		//debug($query);
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
@@ -95,7 +96,7 @@ class dbLayer {
 			if ($this->saveQueries) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -116,7 +117,7 @@ class dbLayer {
 			if ($this->saveQueries) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -124,7 +125,9 @@ class dbLayer {
 	}
 
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
-		$trace = $this->getCallerFunction();
+		if (0 && DEVELOPMENT) {
+			$trace = $this->getCallerFunction();
+		}
 		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
