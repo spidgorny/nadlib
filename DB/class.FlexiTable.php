@@ -38,7 +38,7 @@ class FlexiTable extends OODBase {
 
 	function insert(array $row) {
 		if (!$row['ctime']) {
-			$row['ctime'] = new AsIs('now()');
+			$row['ctime'] = new SQLDateTime();
 		}
 		if (!$row['cuser']) {
 			$row['cuser'] = Config::getInstance()->user->id;
