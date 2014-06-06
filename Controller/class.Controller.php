@@ -74,7 +74,7 @@ abstract class Controller {
 	static public $public = false;
 
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed
@@ -82,6 +82,8 @@ abstract class Controller {
 			$this->db = Config::getInstance()->db;
 			$this->user = Config::getInstance()->user;
 			Config::getInstance()->mergeConfig($this);
+		} else {
+			//$this->user = new UserBase();
 		}
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
@@ -197,7 +199,7 @@ abstract class Controller {
 	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance[$static]
+		return isset(self::$instance[$static])
 			? self::$instance[$static]
 			: (self::$instance[$static] = new $static());
 	}
@@ -281,6 +283,7 @@ abstract class Controller {
 	}
 
 	function performAction($action = NULL) {
+		$content = '';
 		$method = $action ? $action : $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style

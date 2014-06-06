@@ -1,5 +1,6 @@
 {
     "name": "spidgorny/nadlib",
+	"minimum-stability": "dev",
     "require": {
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "~1.4",
@@ -13,9 +14,10 @@
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
-		"phpunit/php-code-coverage": "2.1.*@dev",
-		"phpunit/phpunit-mock-objects": "2.1.*@dev",
-		"phpunit/phpunit": "dev-master"
+		"sebastian/comparator": "*",
+		"phpunit/php-code-coverage": "*",
+		"phpunit/phpunit-mock-objects": "*",
+		"phpunit/phpunit": "*"
     },
     "require_bak": {
 		"pdepend/pdepend": "1.1.0",
@@ -24,7 +26,6 @@
     },
 	"autoload": {
 		"classmap": [
-			"./",
 			"Cache/",
 			"Controller/",
 			"CSS/",
@@ -44,13 +45,20 @@
 			"init.php",
 			"../../GerHobbelt/HTMLawed/htmLawed.php",
 			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
-			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php"
+			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php",
 		],
 		"psr-0": {
 			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
 			"PHPSQLParser": "../../php-sql-parser/src/PHPSQLParser/",
 			"PHPSQLCreator": "../../php-sql-parser/src/PHPSQLParser/"
 		}
+	},
+	"autoload-dev": {
+		"files": [
+			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
+			"vendor/php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
+			"vendor/php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php"
+		]
 	},
 	"repositories_bak": [
 		{

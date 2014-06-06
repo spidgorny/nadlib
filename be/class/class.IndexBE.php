@@ -2,9 +2,11 @@
 
 class Index extends IndexBase {
 
+	static $isBE = true;
+
 	public $projectName = 'nadlib|BE';
 
-	public $template = './../be/template/template.phtml';
+	public $template = 'template/template.phtml';
 
 	/**
 	 * @var Menu
@@ -12,35 +14,46 @@ class Index extends IndexBase {
 	public $menu;
 
 	function __construct() {
-		parent::__construct();
 		//debug_pre_print_backtrace();
-		$config = Config::getInstance();
-		$config->defaultController = 'HomeBE';
-		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->documentRoot);
-		$config->documentRoot = str_replace('/nadlib/be', '', $config->documentRoot);
-		//$config->documentRoot = $config->documentRoot ?: '/';	// must end without slash
+		if (!class_exists('Config')) {
+			require_once 'class.ConfigBE.php';
+			$this->config = ConfigBE::getInstance();
+		}
+		parent::__construct();
+
+		$this->config->defaultController = 'HomeBE';
+		$this->config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
+		$this->config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
+		//$config->documentRoot = $this->config->documentRoot ?: '/';	// must end without slash
 		// it's not reading the config.yaml from /be/, but from the project root
-		$config->config['View']['folder'] = '../be/template/';
+		$this->config->config['View']['folder'] = '../be/template/';
 
 		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
 		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
 		//base href will be fixed manually below
 
-		$config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $config->appRoot);
-		$config->appRoot = str_replace('/nadlib/be', '', $config->appRoot);
+		$this->config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->appRoot);
+		//$this->config->appRoot = str_replace('/nadlib/be', '', $this->config->appRoot);
 
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 
 		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'components/modernizr/modernizr.js"></script>';
 		$this->addCSS($this->nadlibFromDocRoot.'components/bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
-		$this->addCSS($this->nadlibFromDocRoot.'CSS/TaylorProfiler.css');
+		if (self::$isBE) {
+			$this->addCSS('../CSS/TaylorProfiler.less');
+		} else {
+			$this->addCSS($this->nadlibFromDocRoot . 'CSS/TaylorProfiler.less');
+		}
 		$this->addJQuery();
-		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
+		//$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
+		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.js');
+		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
+
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
-		$config->user = $this->user;	// for consistency
+		$this->config->user = $this->user; // for consistency
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
@@ -85,26 +98,33 @@ class Index extends IndexBase {
 		$this->menu->setBasePath();	// because 1und1 rewrite is not enabled
 		//debug($this->menu->basePath);
 		$docRoot = $this->request->getDocumentRoot();
-		$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
-		$this->menu->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
+		$docRoot = new Path($docRoot);
+		$docRoot->trimIf('nadlib');
+		$nadlibPath = new Path($this->nadlibFromDocRoot);
+		$docRoot->append($nadlibPath);
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$docRoot->trimIf('be');
+		//debug($this->request->getDocumentRoot(), $docRoot, $this->nadlibFromDocRoot, $nadlibPath);
+		$this->menu->basePath->setPath($docRoot);
 	}
 
 	function loadBEmenu(array $menu) {
-        if (file_exists('class/config.yaml')) {
-            $c = Spyc::YAMLLoad('../../../../class/config.yaml');
-            //debug($c['BEmenu']);
-            if ($c['BEmenu']) {
-                //$c['BEmenu'] = array('FE' => $c['BEmenu']);
-                foreach($c['BEmenu'] as $key => $sub) {
-                    if (is_array($sub)) {
-                        $menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
-                    } else {
-                        $menu['ClearCache']->elements[$key] = $sub;
-                    }
-                }
-            }
-        }
-
+		if (class_exists('Spyc')) {
+			if (file_exists('class/config.yaml')) {
+				$c = Spyc::YAMLLoad('../../../../class/config.yaml');
+				//debug($c['BEmenu']);
+				if ($c['BEmenu']) {
+					//$c['BEmenu'] = array('FE' => $c['BEmenu']);
+					foreach ($c['BEmenu'] as $key => $sub) {
+						if (is_array($sub)) {
+							$menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
+						} else {
+							$menu['ClearCache']->elements[$key] = $sub;
+						}
+					}
+				}
+			}
+		}
 
 		return $menu;
 	}
@@ -155,10 +175,10 @@ class Index extends IndexBase {
 		$m->renderOnlyCurrent = true;
 		$m->useControllerSlug = false;
 		//$m->useRecursiveURL = false;
-		$m->setBasePath();	// because 1und1 rewrite is not enabled
-		$docRoot = $m->request->getDocumentRoot();
-		$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
-		$m->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
+		//$m->setBasePath();	// because 1und1 rewrite is not enabled
+		//$docRoot = $m->request->getDocumentRoot();
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		//$m->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
 		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();

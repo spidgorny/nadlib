@@ -392,10 +392,20 @@ class TaylorProfiler {
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
-		<div class="floatTime">t:'.$totalTime.'s '.
-			'db:'.$dbTime.'s '.
-			'mem:'.number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
-			ini_get('memory_limit').'</div>
+			<div class="floatTime">
+				<table>
+					<tr>
+						<td>PHP:</td><td>'.$totalTime.'s</td>
+					</tr>
+					<tr>
+						<td>db:</td><td>'.$dbTime.'s</td>
+					</tr>
+					<tr>
+						<td>mem:</td><td>'.number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
+						ini_get('memory_limit').'</td>
+					</tr>
+				</table>
+			</div>
 		</div>
 		<div style="clear:both"></div>
 		';
@@ -410,7 +420,7 @@ class TaylorProfiler {
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 4, '.', '');
 	}
-	
+
 	static function getTimeUsage() {
 		static $max;
 		$max = $max ? $max : intval(ini_get('max_execution_time'));
