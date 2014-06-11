@@ -13,6 +13,15 @@ class Index extends IndexBase {
 	 */
 	public $menu;
 
+	/**
+	 * @var AutoLoad
+	 */
+	protected $al;
+
+	protected $nadlibFromDocRoot;
+
+	protected $nadlibFromCWD;
+
 	function __construct() {
 		//debug_pre_print_backtrace();
 		if (!class_exists('Config')) {
@@ -35,19 +44,16 @@ class Index extends IndexBase {
 		$this->config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->appRoot);
 		//$this->config->appRoot = str_replace('/nadlib/be', '', $this->config->appRoot);
 
-		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
+		$this->al = AutoLoad::getInstance();
+		$this->nadlibFromDocRoot = $this->al->nadlibFromDocRoot;
+		$this->nadlibFromCWD = $this->al->nadlibFromCWD;
 
-		$this->header['modernizr.js'] = '<script src="'.$this->nadlibFromDocRoot.'components/modernizr/modernizr.js"></script>';
-		$this->addCSS($this->nadlibFromDocRoot.'components/bootstrap/css/bootstrap.min.css');
+		$this->header['modernizr.js'] = '<script src="'.$this->al->componentsPath.'modernizr/modernizr.js"></script>';  // Must be header and not footer
+		$this->addCSS($this->al->componentsPath.'bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
-		if (self::$isBE) {
-			$this->addCSS('../CSS/TaylorProfiler.less');
-		} else {
-			$this->addCSS($this->nadlibFromDocRoot . 'CSS/TaylorProfiler.less');
-		}
+		$this->addCSS($this->nadlibFromCWD . '../CSS/TaylorProfiler.less');
 		$this->addJQuery();
-		//$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.min.js');
-		$this->addJS($this->nadlibFromDocRoot.'components/bootstrap/js/bootstrap.js');
+		$this->addJS($this->al->componentsPath.'bootstrap/js/bootstrap.js');
 		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
 
 		$this->user = new BEUser();
@@ -99,9 +105,9 @@ class Index extends IndexBase {
 		//debug($this->menu->basePath);
 		$docRoot = $this->request->getDocumentRoot();
 		$docRoot = new Path($docRoot);
-		$docRoot->trimIf('nadlib');
-		$nadlibPath = new Path($this->nadlibFromDocRoot);
-		$docRoot->append($nadlibPath);
+		//$docRoot->trimIf('nadlib');
+		//$nadlibPath = new Path($this->nadlibFromDocRoot);
+		//$docRoot->append($nadlibPath);
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
 		$docRoot->trimIf('be');
 		//debug($this->request->getDocumentRoot(), $docRoot, $this->nadlibFromDocRoot, $nadlibPath);

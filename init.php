@@ -309,7 +309,7 @@ if (!function_exists('nodebug')) {
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
-	function cap($string, $with)
+	function cap($string, $with = '/')
 	{
 		if (!endsWith($string, $with)) {
 			$string .= $with;
