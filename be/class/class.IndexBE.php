@@ -74,6 +74,7 @@ class Index extends IndexBase {
 				'ConfigView' => 'config.yaml',
 				'PHPInfo' => 'phpinfo()',
 				'Documentation' => 'Documentation',
+				'IniCheck' => 'php.ini Check',
 			)),
 			'UnitTestReport' => new Recursive('Test', array(
 				'UnitTestReport' => 'Unit Test Report',

@@ -78,9 +78,16 @@ class ConfigBase {
 	 */
 	public $user;
 
+	/**
+	 * @var string
+	 * @deprecated
+	 */
+	public $appRoot;
+
 	protected function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
+
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
 		} else {
