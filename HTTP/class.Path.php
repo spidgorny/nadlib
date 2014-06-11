@@ -160,8 +160,8 @@ class Path {
 	}
 
 	function reverse() {
-		if (!$this->isAbsolute) {
-			$this->aPath = array_fill(0, sizeof($this->aPath), '..');
+		if (!$this->isAbsolute && !empty($this->aPath)) {
+            $this->aPath = array_fill(0, sizeof($this->aPath), '..');
 			$this->implode();
 		}
 		return $this;
