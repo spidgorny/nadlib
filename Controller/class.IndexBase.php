@@ -277,6 +277,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 	}
 
+	/**
+	 * @return $this
+	 */
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$jQueryPath = 'components/jquery/jquery.min.js';
@@ -291,10 +294,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$rel->trimIf('be');
 				$rel->reverse();
 				$this->addJS($rel . $jQueryPath);
-				return;
+				return $this;
 			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
 				$this->addJS($al->nadlibFromDocRoot . $jQueryPath);
-				return;
+				return $this;
 			}
 		}
 		$this->footer['jquery.js'] = '
