@@ -280,17 +280,27 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addJQuery() {
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			$jQueryPath = 'components/jquery/jquery.min.js';
-			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
-				$this->addJS($jQueryPath);
-			} else {
-				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+			$al = AutoLoad::getInstance();
+			nodebug($jQueryPath,
+				$al->appRoot,
+				file_exists($al->appRoot . $jQueryPath),
+				file_exists($al->nadlibFromDocRoot . $jQueryPath)
+			);
+			if (file_exists ($al->appRoot . $jQueryPath)) {
+				$rel = Path::make(getcwd())->remove($al->appRoot);
+				$rel->trimIf('be');
+				$rel->reverse();
+				$this->addJS($rel . $jQueryPath);
+				return;
+			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
+				$this->addJS($al->nadlibFromDocRoot . $jQueryPath);
+				return;
 			}
-		} else {
-			$this->footer['jquery.js'] = '
-				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-				<script>window.jQuery || document.write(\'<script src="components/jquery/jquery.min.js"><\/script>\')</script>
-			';
 		}
+		$this->footer['jquery.js'] = '
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+			<script>window.jQuery || document.write(\'<script src="components/jquery/jquery.min.js"><\/script>\')</script>
+			';
 		return $this;
 	}
 

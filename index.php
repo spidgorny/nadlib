@@ -1,6 +1,12 @@
 <?php
 
-require_once 'vendor/autoload.php';
+if (file_exists('vendor/autoload.php')) {
+	require_once 'vendor/autoload.php';
+} elseif (file_exists('../vendor/autoload.php')) {
+	require_once '../vendor/autoload.php';
+} elseif (file_exists('../../vendor/autoload.php')) {
+	require_once '../../vendor/autoload.php';
+}
 require_once 'init.php';
 $in = new InitNADLIB();
 $in->init();
@@ -20,7 +26,7 @@ class NadlibIndex extends AppControllerBE {
 	function __construct() {
 		parent::__construct();
 		if (!file_exists('vendor/autoload.php')) {
-			throw new Exception('Run "composer update"');
+			//throw new Exception('Run "composer update"');
 		}
 	}
 

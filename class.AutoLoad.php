@@ -57,6 +57,10 @@ class AutoLoad {
 	 */
 	public $nadlibFromDocRoot;
 
+	public $nadlibFromCWD;
+
+	public $componentsPath;
+
 	/**
 	 * getFolders() is called from outside
 	 * to be able to modify $useCookies
@@ -110,6 +114,17 @@ class AutoLoad {
 		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
 		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
 
+		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
+
+		$this->componentsPath = new Path('');
+		if (!$this->componentsPath->appendIfExists('components')) {
+			$this->componentsPath->up();
+			if (!$this->componentsPath->appendIfExists('components')) {
+				$this->componentsPath->up();
+				$this->componentsPath->appendIfExists('components');
+			}
+		}
+
 		if (0) {
 			echo '<pre>';
 			print_r(array(
@@ -124,12 +139,14 @@ class AutoLoad {
 				'$relToNadlibPU' => $relToNadlibPU,
 				'$this->nadlibRoot' => $this->nadlibRoot,
 				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
-				'$this->appRoot' => $this->appRoot,
+				'$this->appRoot' => $this->appRoot.'',
 				'appRootIsRoot' => $appRootIsRoot,
 				'Config->appRoot' => isset($config) ? $config->appRoot : NULL,
 				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
 				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
 				'request->getLocation()' => Request::getInstance()->getLocation(),
+				'this->componentsPath' => $this->componentsPath.'',
 			));
 			echo '</pre>';
 			debug_pre_print_backtrace();
@@ -144,7 +161,7 @@ class AutoLoad {
 	function detectAppRoot() {
 		$appRoot = dirname(URL::getScriptWithPath());
 		$appRoot = realpath($appRoot);
-		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
+		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && $appRoot != '/'
 			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
@@ -156,10 +173,16 @@ class AutoLoad {
 			}
 			$appRoot = dirname($appRoot);
 		}
-        // always add trailing slash!
-        if ($appRoot != '/') {
-            $appRoot .= DIRECTORY_SEPARATOR;
-        }
+
+		if ($appRoot == '/') {  // nothing is found by previous method
+			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
+			$appRoot->upIf('nadlib');
+			$appRoot->upIf('spidgorny');
+			$appRoot->upIf('vendor');
+		}
+
+		// always add trailing slash!
+	    $appRoot = cap($appRoot, '/');
 		return $appRoot;
 	}
 
@@ -186,7 +209,7 @@ class AutoLoad {
 	}
 
 	function initFolders() {
-        //if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
+		//if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
