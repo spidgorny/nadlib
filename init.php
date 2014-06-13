@@ -351,3 +351,27 @@ function get_overriden_methods($class) {
 function is_assoc($arr) {
 	return array_keys($arr) !== range(0, count($arr) - 1);
 }
+
+function cap($string, $with = '/')
+{
+	if (!endsWith($string, $with)) {
+		$string .= $with;
+	}
+	return $string;
+}
+
+/**
+ * @param $variable
+ * @param null $default
+ * @return null
+ * @see https://wiki.php.net/rfc/ifsetor
+ */
+function ifsetor(&$variable, $default = null)
+{
+	if (isset($variable)) {
+		$tmp = $variable;
+	} else {
+		$tmp = $default;
+	}
+	return $tmp;
+}
