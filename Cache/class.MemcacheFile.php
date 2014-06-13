@@ -9,7 +9,7 @@ class MemcacheFile {
 	public $folder = 'cache/';
 
 	function __construct() {
-		$sub = Config::getInstance()->appRoot;
+		$sub = cap(Config::getInstance()->appRoot);
 
 		if (!file_exists($sub.$this->folder)) {
 			debug(__METHOD__, $sub.$this->folder);
