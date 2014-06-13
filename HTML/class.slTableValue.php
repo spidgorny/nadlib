@@ -263,7 +263,12 @@ class slTableValue {
 			$out = $wrap->wrap($out);
 		}
 		if ($k['link']) {
-			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+			$link = $k['link'];
+			foreach ($row as $key => $rowVal) {
+				$link = str_replace('###'.strtoupper($key).'###', $rowVal, $link);
+			}
+			$link = str_replace('###VALUE###', $val, $link);
+			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');
