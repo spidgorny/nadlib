@@ -4,7 +4,7 @@
  * Class MySQL
  * @mixin SQLBuilder
  */
-class MySQL implements DBInterface {
+class MySQL extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -285,6 +285,7 @@ class MySQL implements DBInterface {
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
+			debug(get_class($this->qb));
 			throw new Exception($method.'() not found in '.get_class($this).' and SQLBuilder');
 		}
 	}
@@ -322,6 +323,35 @@ class MySQL implements DBInterface {
 
 	function escapeBool($value) {
 		return intval(!!$value);
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/15637291/how-use-mysql-data-seek-with-pdo
+	 * Will start with 0 and skip rows until $start.
+	 * Will end with $start+$limit.
+	 * @param $res
+	 * @param $start
+	 * @param $limit
+	 * @return array
+	 */
+	function fetchPartitionMySQL($res, $start, $limit) {
+		$data = array();
+		for ($i = 0; $i < $start + $limit; $i++) {
+			$row = $this->fetchAssoc($res);
+			if ($row !== false) {
+				if ($i >= $start) {
+					$data[] = $row;
+				}
+			} else {
+				break;
+			}
+		}
+		$this->free($res);
+		return $data;
+	}
+
+	function uncompress($value) {
+		return @gzuncompress(substr($value, 4));
 	}
 
 }
