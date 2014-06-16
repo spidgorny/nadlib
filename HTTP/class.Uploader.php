@@ -55,7 +55,7 @@ class Uploader {
 		$uf = new Uploader();
 		$f = $uf->getUploadForm()
 		// add custom hidden fields to upload form (e.g. Loan[id])
-		if(!empty($hiddenFields)) {
+		if (!empty($hiddenFields)) {
 			foreach ($hiddenFields as $name => $value) {
 				$f->hidden($name, $value);
 			}
@@ -198,6 +198,38 @@ class Uploader {
 		if ($uf = $_FILES[$from]) {
 			return file_get_contents($uf['tmp_name']);
 		}
+	}
+
+	public function getTempFile($fieldName = 'file') {
+		if ($this->isUploaded()) {
+			return $_FILES[$fieldName]['tmp_name'];
+		}
+	}
+
+	/**
+	 * Handles the file upload from https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin
+	 * If no error it will call a callback to retrieve a redirect URL
+	 * @param $callback
+	 */
+	function handleBlueImpUpload($callback) {
+		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
+		$uh = new UploadHandler(array(
+			'upload_dir' => 'storage/',
+			'param_name' => 'file',
+		), false);
+		//$uh->post(true); exit();
+		ob_start();
+		$uh->post(true);
+		$done = ob_get_clean();
+		$json = json_decode($done);
+		//print_r(array($uh, $done, $json));
+		$data = get_object_vars($json->file[0]);
+		if (!$data['error']) {
+			$redirect = $callback($data);
+			$json->file[0]->redirect = $redirect;
+		}
+		echo json_encode($json);
+		exit();
 	}
 
 }

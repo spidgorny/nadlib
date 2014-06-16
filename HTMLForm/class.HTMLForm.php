@@ -147,10 +147,10 @@ class HTMLForm {
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "", $more = '') {
+	function password($name, $value = "", array $desc = array()) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
-		$this->stdout .= $this->getInput("password", $name, $value, $more);
+		$this->stdout .= $this->getInput("password", $name, $value, '', $desc['class']);
 	}
 
 	function hidden($name, $value, $more = "") {

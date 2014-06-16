@@ -87,9 +87,9 @@ class slTable {
 	 */
 	public $trmore;
 
-	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle">';
+	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
 
-	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle">';
+	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
 
 	/**
 	 * @var BijouDBConnector
@@ -238,6 +238,8 @@ class slTable {
 				}
 			}
 		}
+		//debug_pre_print_backtrace();
+		//debug($this->thes[$this->sortBy]);
 	}
 
 	function generateThes() {
@@ -659,7 +661,14 @@ class slTable {
 		return $xls;
 	}
 
-	function getCLITable($cutTooLong = false) {
+	/**
+	 * Separation by "\t" is too stupid. We count how many chars are there in each column
+	 * and then padd it accordingly
+	 * @param bool $cutTooLong
+	 * @param bool $useAvg
+	 * @return string
+	 */
+	function getCLITable($cutTooLong = false, $useAvg = false) {
 		$this->generateThes();
 		$widthMax = array();
 		$widthAvg = array();
@@ -671,11 +680,13 @@ class slTable {
 				$widthAvg[$field] += mb_strlen($value);
 			}
 		}
-		foreach ($this->thes as $field => $name) {
-			$widthAvg[$field] /= sizeof($this->data);
-			//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
-			$avgLen = $widthAvg[$field];
-			$widthMax[$field] = max(8, 1+$avgLen);
+		if ($useAvg) {
+			foreach ($this->thes as $field => $name) {
+				$widthAvg[$field] /= sizeof($this->data);
+				//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
+				$avgLen = $widthAvg[$field];
+				$widthMax[$field] = max(8, 1+$avgLen);
+			}
 		}
 
 		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
