@@ -113,7 +113,7 @@ class Excel_XML
 			if (is_numeric($v)) {
 				$dataType = 'Number';
 			}
-			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . /*utf8_encode*/($v) . "</Data></Cell>\n";
+			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . htmlspecialchars($v) . "</Data></Cell>\n";
 
 		endforeach;
 
