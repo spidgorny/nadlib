@@ -155,7 +155,7 @@ class slTableValue {
 				if ($row[$col.'.link']) {
 					$out = new HTMLTag('a', array(
 						'href' => $row[$col.'.link'],
-					), $img);
+					), $img, !$d['no_hsc']);
 				} else {
 					$out = $img;
 				}
