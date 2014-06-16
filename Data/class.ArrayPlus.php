@@ -339,6 +339,21 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return array_sum($this->data);
 	}
 
+	function min() {
+		return min($this->data);
+	}
+
+	function max() {
+		return max($this->data);
+	}
+
+	function avg() {
+		$count = $this->count();
+		if ($count != 0) {
+			return $this->sum() / $count;
+		}
+	}
+
 	/**
 	 * Runs get_object_vars() recursively
 	 * @param array $data

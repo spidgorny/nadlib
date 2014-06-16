@@ -15,7 +15,7 @@ class AutoLoad {
 	/**
 	 * @var boolean
 	 */
-	public $debug = true;
+	public $debug = false;
 
 	/**
 	 * @var AutoLoad
@@ -91,7 +91,7 @@ class AutoLoad {
 	}
 
 	function getFolders() {
-		require_once 'HTTP/class.Request.php';
+		require_once __DIR__.'/HTTP/class.Request.php';
 		$folders = array();
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
@@ -115,6 +115,7 @@ class AutoLoad {
 				$el = $this->nadlibRoot . $el;
 			}
 			if (class_exists('Config') && Config::$includeFolders) {
+				//d($folders, Config::$includeFolders);
 				$folders = array_merge($folders, Config::$includeFolders);
 			}
 		}
@@ -176,8 +177,8 @@ class AutoLoad {
 
 	function findInFolders($classFile, $subFolders) {
 		$this->loadConfig();
-		$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
-		$appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $appRoot);
+		$appRoot = Config::getInstance()->appRoot;
+		printbr($appRoot);
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
@@ -192,22 +193,20 @@ class AutoLoad {
 				$file2 = str_replace('/class.', '/', $file);
 				if (file_exists($file2)) {
 					$file = $file2;
-				} 
+				}
 			}
 
-
-
 			if (file_exists($file)) {
-				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />';
+				$debugLine = $classFile.' <span style="color: green;">'.$file.'</span><br />'."\n";
 				include_once($file);
 				$this->classFileMap[$classFile] = $file;
 			} else {
-				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span><br />';
+				$debugLine = $classFile.' <span style="color: red;">'.$file.'</span><br />'."\n";
 			}
 
 			$debug[] = $debugLine;
 			if ($this->debug && $_COOKIE['debug']) {
-				echo $debugLine;
+				//echo $debugLine;
 			}
 			if (file_exists($file)) {
 				break;

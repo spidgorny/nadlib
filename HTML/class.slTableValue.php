@@ -40,7 +40,7 @@ class slTableValue {
 /*	function render() {
 		$value = $this->value;
 		if (is_array($value)) {
-			$value = t3lib_div::view_array($value);
+			$value = t3lib_utility_Debug::viewArray($value);
 		} else {
 			if ($this->desc['hsc']) {
 				$value = htmlspecialchars($value);
@@ -117,16 +117,20 @@ class slTableValue {
 				}
 			break;
 			case "file":
-				$out = str::ahref($val, $GLOBALS['uploadURL'].$val, FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => $GLOBALS['uploadURL'].$val,
+				), $val);
 			break;
 			case "money":
 				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
 			break;
 			case "delete":
-				$out = str::ahref("Del", "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'], FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'],
+				), "Del");
 			break;
 			case "datatable":
-				//$out .= t3lib_div::view_array(array('col' => $col, 'val' => $val, 'desc' => $k));
+				//$out .= t3lib_utility_Debug::viewArray(array('col' => $col, 'val' => $val, 'desc' => $k));
 				$out = $k['prefix'];
 				$f = $this->caller->makeInstance('HTMLForm');
 				$f->prefix($this->prefixId);
@@ -149,7 +153,9 @@ class slTableValue {
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
 				if ($row[$col.'.link']) {
-					$out = str::ahref($img, $row[$col.'.link'], FALSE);
+					$out = new HTMLTag('a', array(
+						'href' => $row[$col.'.link'],
+					), $img);
 				} else {
 					$out = $img;
 				}
@@ -160,7 +166,7 @@ class slTableValue {
 				} else {
 					$out = $k['false'];
 				}
-				//$out .= t3lib_div::view_array(array('val' => $val, 'k' => $k, 'out' => $out));
+				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
 			break;
 			case "excel":
 				$out = str_replace(',', '.', $val); // from excel?

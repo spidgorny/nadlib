@@ -2,11 +2,32 @@
 
 class dbLayerMS {
 	protected $server, $database, $user, $password;
+
+	/**
+	 * @var string
+	 */
 	public $lastQuery;
+
+	/**
+	 * @var resource
+	 */
 	protected $connection;
+
+	/**
+	 * @var dbLayerMS
+	 */
 	protected static $instance;
+
+	/**
+	 * Will output every query
+	 * @var bool
+	 */
 	public $debug = false;
 
+	/**
+	 * In MSSQL mssql_select_db() is returning the following as error messages
+	 * @var array
+	 */
 	public $ignoreMessages = array(
 		"Changed database context to 'DEV_LOTCHECK'.",
 		"Changed database context to 'PRD_LOTCHECK'.",
@@ -40,15 +61,24 @@ class dbLayerMS {
 			$query = str_replace('?', $ar, $query);
 		}
 		$profiler = new Profiler();
-		$res = mssql_query($query, $this->connection);
-		if ($this->debug) {
-			debug(__METHOD__, $query, $this->numRows($res), $profiler->elapsed());
-		}
+		$res = @mssql_query($query, $this->connection);
 		$msg = mssql_get_last_message();
+		if ($this->debug) {
+			debug(array(
+				'method' => __METHOD__,
+				'query' => $query,
+				is_resource($res)
+					? $this->numRows($res)
+					: ($res ? 'TRUE' : 'FALSE'),
+				'elapsed' => $profiler->elapsed(),
+				'msg' => $msg,
+			));
+		}
 		if ($msg && !in_array($msg, $this->ignoreMessages)) {
-			debug($msg, $query);
+			//debug($msg, $query);
 			$this->close();
 			$this->connect();
+			throw new Exception($msg);
 		}
 		$this->lastQuery = $query;
 		return $res;
@@ -94,6 +124,7 @@ class dbLayerMS {
 
 	/**
 	 *
+	 * @param $table
 	 * @return array ('name' => ...)
 	 */
 	function getFields($table) {
