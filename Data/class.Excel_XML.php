@@ -60,7 +60,7 @@ class Excel_XML
 	 * @access private
 	 * @var string
 	 */
-	private $header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
+	public $header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
 <Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"
  xmlns:x=\"urn:schemas-microsoft-com:office:excel\"
  xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"
