@@ -11,7 +11,7 @@ class PersistantOODBase extends OODBase {
 	 *
 	 * @var array
 	 */
-	protected $originalData;
+	public $originalData;
 /*	static public $inserted = 0;
 	static public $updated = 0;
 	static public $skipped = 0;
@@ -94,7 +94,7 @@ class PersistantOODBase extends OODBase {
 			debug(array(
 				$this->stateHash => $this->originalData,
 				$this->getStateHash() => $this->data,
-				$this->id
+				$this->table => $this->id,
 			));
 			if ($this->id) {
 				//debug(__CLASS__, $this->id, $this->getStateHash(), $this->stateHash, $this->data, $this->originalData);
