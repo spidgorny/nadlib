@@ -400,7 +400,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeJS() {
-		return implode("\n", $this->footer);
+		if (file_exists('vendor/minify/min/index.php')) {
+			$files = array_keys($this->footer);
+			foreach ($files as &$file) {
+				$file = $this->request->getDocumentRoot() . $file;
+			}
+			$files = implode(",", $files);
+			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
+		} else {
+			$content = implode("\n", $this->footer);
+		}
+		return $content;
 	}
 
 }
