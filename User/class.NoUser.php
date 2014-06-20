@@ -26,8 +26,11 @@ class NoUser extends UserBase {
 		return NULL;
 	}
 
+	/**
+	 * @return null
+	 */
 	function getUnreadMessages() {
-		return 0;
+		return NULL;
 	}
 
 }
