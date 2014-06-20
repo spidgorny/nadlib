@@ -52,7 +52,8 @@ class Pager {
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
 		$this->user = Config::getInstance()->user;
-        if(!$this->user) $this->user = DCI::getInstance()->user;
+		// Inject dependencies, this breaks all projects which don't have DCI class
+        //if (!$this->user) $this->user = DCI::getInstance()->user;
 		Config::getInstance()->mergeConfig($this);
 	}
 
