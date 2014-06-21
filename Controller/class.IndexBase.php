@@ -216,7 +216,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderException(Exception $e, $wrapClass = '') {
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.get_class($e).BR.
-			$e->getMessage();
+			nl2br(htmlspecialchars($e->getMessage()));
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
 			//$content .= getDebug($e);
