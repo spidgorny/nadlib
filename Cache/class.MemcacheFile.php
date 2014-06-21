@@ -15,7 +15,7 @@ class MemcacheFile {
 			debug(__METHOD__, $sub.$this->folder);
 			die();
 		} else {
-			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = $sub . $this->folder;
 		}
 	}
 

@@ -188,24 +188,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function fetchPartition($res, $start, $limit) {
-		if ($this->getScheme() == 'mysql') {
-			return $this->fetchPartitionMySQL($res, $start, $limit);
-		}
-		$data = array();
-		for ($i = $start; $i < $start + $limit; $i++) {
-			$this->dataSeek($i);
-			$row = $this->fetchAssocSeek($res);
-			if ($row !== false) {
-				$data[] = $row;
-			} else {
-				break;
-			}
-		}
-		$this->free($res);
-		return $data;
-	}
-
 	/**
 	 * http://stackoverflow.com/questions/15637291/how-use-mysql-data-seek-with-pdo
 	 * Will start with 0 and skip rows until $start.
