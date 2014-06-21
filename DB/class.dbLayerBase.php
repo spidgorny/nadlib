@@ -21,4 +21,29 @@ class dbLayerBase {
 		return $url;
 	}
 
+	/**
+	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
+	 */
+	function getScheme() {
+		return strtolower(str_replace('dbLayer', '', get_class($this)));
+	}
+
+	function fetchPartition($res, $start, $limit) {
+		if ($this->getScheme() == 'mysql') {
+			return $this->fetchPartitionMySQL($res, $start, $limit);
+		}
+		$data = array();
+		for ($i = $start; $i < $start + $limit; $i++) {
+			$this->dataSeek($i);
+			$row = $this->fetchAssocSeek($res);
+			if ($row !== false) {
+				$data[] = $row;
+			} else {
+				break;
+			}
+		}
+		$this->free($res);
+		return $data;
+	}
+
 }

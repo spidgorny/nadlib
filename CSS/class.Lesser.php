@@ -15,6 +15,9 @@ class Lesser extends AppController {
 		$less = new lessc();
 		//$less->importDir[] = '../../';
 		$cssFile = $this->request->getFilePathName('css');
+		if (!$cssFile) {
+			$cssFile = 'public/' . $this->request->getTrim('css');
+		}
 		if ($cssFile) {
 			$cssFileName = $this->request->getFilename('css');
 			//debug($cssFile, $cssFileName);
