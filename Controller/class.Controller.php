@@ -73,15 +73,21 @@ abstract class Controller {
 	 */
 	static public $public = false;
 
+	/**
+	 * @var Config
+	 */
+	public $config;
+
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
+		$this->config = Config::getInstance();
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->db;
-			$this->user = Config::getInstance()->user;
-			Config::getInstance()->mergeConfig($this);
+			$this->db = $this->config->db;
+			$this->user = $this->config->user;
+			$this->config->mergeConfig($this);
 		}
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
