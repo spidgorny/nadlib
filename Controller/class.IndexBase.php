@@ -374,7 +374,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
-			$source = '?c=Lesser&css='.$source;
+			if ($this->request->apacheModuleRewrite()) {
+				//$source = $source;	// rewrite inside css folder
+			} else {
+				$source = '?c=Lesser&css=' . $source;
+			}
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;
