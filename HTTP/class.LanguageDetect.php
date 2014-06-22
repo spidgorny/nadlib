@@ -13,11 +13,11 @@ class LanguageDetect {
 	}
 
 	function getAcceptedLanguages () {
-        $languagesArr = array ();
+        $languagesArr = array();
 		$rawAcceptedLanguagesArr = explode(',', isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : NULL);
 
 		if ($rawAcceptedLanguagesArr) {
-			$acceptedLanguagesArr = [];
+			$acceptedLanguagesArr = array();
 			foreach ($rawAcceptedLanguagesArr as $languageAndQualityStr) {
 				if (strpos($languageAndQualityStr, ';') !== false) {
 					list ($languageCode, $quality) = explode(';', $languageAndQualityStr);
