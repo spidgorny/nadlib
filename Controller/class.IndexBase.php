@@ -281,15 +281,28 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return $this
 	 */
 	function addJQuery() {
+		if (isset($this->footer['jquery.js'])) {
+			return $this;
+		}
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$jQueryPath = 'components/jquery/jquery.min.js';
+			$jQueryPath = 'jquery/jquery.min.js';
 			$al = AutoLoad::getInstance();
-			nodebug($jQueryPath,
-				$al->appRoot,
-				file_exists($al->appRoot . $jQueryPath),
-				file_exists($al->nadlibFromDocRoot . $jQueryPath)
-			);
-			if (file_exists ($al->appRoot . $jQueryPath)) {
+			nodebug(array(
+				'jQueryPath' => $jQueryPath,
+				'appRoot' => $al->appRoot,
+				'componentsPath' => $al->componentsPath,
+				'fe(jQueryPath)' => file_exists($jQueryPath),
+				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'documentRoot' => $al->documentRoot,
+				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+			));
+			if (file_exists($al->componentsPath.$jQueryPath)) {
+				$this->addJS($al->componentsPath->relativeFromDocRoot().$jQueryPath);
+				return $this;
+			} elseif (file_exists($al->appRoot . $jQueryPath)) {
 				$rel = Path::make(getcwd())->remove($al->appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
@@ -302,28 +315,47 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 		$this->footer['jquery.js'] = '
 			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-			<script>window.jQuery || document.write(\'<script src="components/jquery/jquery.min.js"><\/script>\')</script>
+			<script>window.jQuery || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>
 			';
 		return $this;
 	}
 
 	function addJQueryUI() {
 		$this->addJQuery();
+		$al = AutoLoad::getInstance();
+		$jQueryPath = clone $al->componentsPath;
+		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$jQueryPath = 'components/jquery-ui/ui/minified/jquery-ui.min.js';
-			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
-				$this->addJS($jQueryPath);
+			nodebug(array(
+				'jQueryPath' => $jQueryPath,
+				'jQueryPath->exists()' => $jQueryPath->exists(),
+				'appRoot' => $al->appRoot,
+				'componentsPath' => $al->componentsPath,
+				'fe(jQueryPath)' => file_exists($jQueryPath),
+				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'documentRoot' => $al->documentRoot,
+				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+			));
+			if ($jQueryPath->exists()) {
+				$this->addJS($jQueryPath->relativeFromDocRoot()->getUncapped());
+				return $this;
+			} elseif (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
+				$this->addJS(AutoLoad::getInstance()->appRoot . $jQueryPath);
+				return $this;
 			} else {
 				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+				return $this;
 			}
-
-            // commented out because this should be project specific
-			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
-		} else {
-			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
-			$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
 		}
+
+		// commented out because this should be project specific
+		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+		<script>window.jQueryUI || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
 		return $this;
 	}
 
