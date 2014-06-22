@@ -45,6 +45,11 @@ class AutoLoad {
 	public $count = 0;
 
 	/**
+	 * @var Path
+	 */
+	public $documentRoot;
+
+	/**
 	 * Relative to getcwd()
 	 * Can be "../" from /nadlib/be/
 	 * @var string
@@ -59,6 +64,9 @@ class AutoLoad {
 
 	public $nadlibFromCWD;
 
+	/**
+	 * @var Path
+	 */
 	public $componentsPath;
 
 	/**
@@ -88,6 +96,9 @@ class AutoLoad {
 	}
 
 	function detectNadlibRoot() {
+		$this->documentRoot = new Path($_SERVER['DOCUMENT_ROOT']);
+		$this->documentRoot->resolveLink();
+
 		$scriptWithPath = URL::getScriptWithPath();
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
 		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
@@ -121,7 +132,12 @@ class AutoLoad {
 			$this->componentsPath->up();
 			if (!$this->componentsPath->appendIfExists('components')) {
 				$this->componentsPath->up();
-				$this->componentsPath->appendIfExists('components');
+				if (!$this->componentsPath->appendIfExists('components')) {
+					$this->componentsPath = new Path($this->documentRoot);
+					if ($this->componentsPath->appendIfExists('components')) {	// no !
+						//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
+					}
+				}
 			}
 		}
 
@@ -226,7 +242,7 @@ class AutoLoad {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
 				session_set_cookie_params(0, '');	// current folder
-				if (session_status() != PHP_SESSION_ACTIVE && !headers_sent()) {
+				if ((phpversion() > 5.4 && session_status() != PHP_SESSION_ACTIVE) && !headers_sent()) {
 					session_start();
 				}
 
