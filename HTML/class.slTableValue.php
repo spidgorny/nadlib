@@ -161,7 +161,7 @@ class slTableValue {
 				if ($row[$col.'.link']) {
 					$out = new HTMLTag('a', array(
 						'href' => $row[$col.'.link'],
-					), $img);
+					), $img, !$d['no_hsc']);
 				} else {
 					$out = $img;
 				}
@@ -263,7 +263,12 @@ class slTableValue {
 			$out = $wrap->wrap($out);
 		}
 		if (isset($k['link']) && $k['link']) {
-			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+			$link = $k['link'];
+			foreach ($row as $key => $rowVal) {
+				$link = str_replace('###'.strtoupper($key).'###', $rowVal, $link);
+			}
+			$link = str_replace('###VALUE###', $val, $link);
+			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');

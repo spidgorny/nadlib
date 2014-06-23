@@ -366,7 +366,7 @@ class Request {
 	function getController() {
 		$c = $this->getControllerString();
 		if (!$c) {
-			$c = $GLOBALS['i']->controller; // default
+			$c = Index::getInstance()->controller; // default
 		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {

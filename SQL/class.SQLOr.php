@@ -10,15 +10,16 @@ class SQLOr extends SQLWherePart {
 	protected $or = array();
 
 	/**
-	 * @var dbLayerPG
+	 * @var dbLayerPG|dbLayer
 	 */
 	protected $db;
+
+	protected $join = ' OR ';
 
 	function __construct(array $ors) {
 		//parent::__construct();
 		$this->or = $ors;
 		$this->db = Config::getInstance()->db;
-        $this->qb = Config::getInstance()->getQb();
 	}
 
 	function __toString() {
@@ -67,7 +68,7 @@ class SQLOr extends SQLWherePart {
 			$ors = $this->db->quoteWhere($this->or);
 		}
 		if ($ors) {
-			$res = '('.implode(' OR ', $ors).')';
+			$res = '('.implode($this->join, $ors).')';
 		} else {
 			$res = '/* EMPTY OR */';
 		}

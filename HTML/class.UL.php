@@ -8,13 +8,18 @@ class UL {
 
 	var $after = '</ul>';
 
-	var $wrap = '<li class="###ACTIVE###">|</li>';
+	var $wrap = '<li###ACTIVE###>|</li>';
 
 	var $activeClass = '';
 
-	var $active = 'class="active"';
+	var $active = ' class="active"';
 
 	var $links = array();
+
+	/**
+	 * @var callback to link generation function(index, name)
+	 */
+	public $linkFunc;
 
 	function __construct(array $items) {
 		$this->items = $items;
@@ -26,13 +31,16 @@ class UL {
 		foreach ($this->items as $class => $li) {
 			if ($this->links) {
 				$link = $this->links[$class];
-				if ($link) {
-					$wrap = Wrap::make('<a href="'.$link.'">|</a>');
-				} else {
-					$wrap = Wrap::make('<a>|</a>');
-				}
-				$li = $wrap->wrap($li);
+			} else if ($this->linkFunc) {
+				$link = call_user_func($this->linkFunc, $class, $li);
 			}
+			if ($link) {
+				$wrap = Wrap::make('<a href="'.$link.'">|</a>');
+			} else {
+				$wrap = Wrap::make('<a>|</a>');
+			}
+			$li = $wrap->wrap($li);
+
 			$line = Wrap::make($this->wrap)->wrap($li);
 			$line = str_replace('###CLASS###', $class, $line);
 			$line = str_replace('###TEXT###', $li, $line);
