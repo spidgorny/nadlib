@@ -226,35 +226,33 @@ abstract class Controller {
 		return $this->render().'';
 	}
 
-	/**
-	 * @param string $string		- source page name
-	 * @param bool $preserveSpaces	- leaves spaces
-	 * @return string				- converted to URL friendly name
-	 */
-	static function friendlyURL($string, $preserveSpaces = false) {
-		$string = preg_replace("`\[.*\]`U","",$string);
-		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
-		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
-		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
-		if (!$preserveSpaces) {
-			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
-		}
-		return strtolower(trim($string, '-'));
-	}
-
 	function encloseIn($title, $content) {
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
+	/**
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param $content
+	 * @param string $caption
+	 * @param null $h
+	 * @return array|string
+	 */
 	function encloseInAA($content, $caption = '', $h = NULL) {
 		$h = $h ? $h : $this->encloseTag;
 		$content = IndexBase::mergeStringArrayRecursive($content);
 		if ($caption) {
-			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
+			Index::getInstance()->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/header-link.less');
+			$slug = URL::friendlyURL($caption);
+			$link = '<a class="header-link" href="#'.$slug.'">
+				<i class="fa fa-link"></i>
+			</a>';
+			$content = '<'.$h.' id="'.$slug.'">'.$link.$caption.'</'.$h.'>'.$content;
 		}
 		//debug_pre_print_backtrace();
-		$content = '<div class="padding clearfix">'.$content.'</div>';
+		$content = '<section class="padding clearfix"
+			style="position: relative;">'.$content.'</section>';
 		return $content;
 	}
 

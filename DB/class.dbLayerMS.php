@@ -205,7 +205,7 @@ AND name = '?')", array($table));
 		return $res;
 	}
 */
-	function numRows($res) {
+	function numRows($res = NULL) {
 		return mssql_num_rows($res);
 	}
 

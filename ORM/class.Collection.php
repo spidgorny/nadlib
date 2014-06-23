@@ -7,11 +7,12 @@
  */
  /*abstract*/ // commented because of createForTable()
 class Collection {
+
 	/**
-	 *
+	 * In case of MSSQL it needs to be set from outside
 	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO
 	 */
-	protected $db;
+	public $db;
 
 	/**
 	 * @var string
