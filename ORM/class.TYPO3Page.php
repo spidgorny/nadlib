@@ -63,7 +63,7 @@ class TYPO3Page extends OODBase {
 	}
 
 	function getSlug() {
-		return Controller::friendlyURL($this->data['title']);
+		return URL::friendlyURL($this->data['title']);
 	}
 
 	function findDeepChild(array $match) {

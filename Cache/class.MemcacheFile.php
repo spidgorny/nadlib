@@ -12,12 +12,13 @@ class MemcacheFile {
 		if (MemcacheArray::$debug) {
 			//echo __METHOD__.BR;
 		}
-		$sub = AutoLoad::getInstance()->appRoot;
+		$sub = cap(AutoLoad::getInstance()->appRoot);
 
 		if (!file_exists($sub.$this->folder)) {
 			debug(__METHOD__, $sub.$this->folder);
+			die();
 		} else {
-			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = $sub . $this->folder;
 		}
 	}
 
