@@ -63,7 +63,7 @@ class HTMLFormTable extends HTMLForm {
      */
     public $isValid = false;
 
-	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
+	function __construct(array $desc = array(), $prefix = array(), $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
@@ -90,7 +90,7 @@ class HTMLFormTable extends HTMLForm {
 	function importValues(Request $form) {
 		//$this->desc = $this->fillValues($this->desc, $form);
 		foreach ($this->desc as $key => &$desc) {
-			if ($desc instanceof HTMLFormTable) {
+			if ($desc instanceof HTMLFormTable1) {
 				$prefix_1 = $desc->prefix;
 				array_shift($prefix_1);
 				$subForm = $form->getSubRequestByPath($prefix_1);
@@ -399,13 +399,15 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	/**
-	 * @param array $formData	@deprecated - use __construct() instead
+	 * @param array $formData @deprecated - use __construct() instead
 	 * @param array $prefix
 	 * @param bool $mainForm
 	 * @param string $append
+	 * @return $this
 	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
+		return $this;
 	}
 
 	function getForm(array $formData, array $prefix = array(), $mainForm = TRUE, $append = '') {
@@ -427,7 +429,7 @@ class HTMLFormTable extends HTMLForm {
 		}
 		$tableMore = $this->tableMore;
 		$tableMore['class'] = (isset($tableMore['class']) ? $tableMore['class'] : '') . " htmlFormTable";
-		$this->stdout .= '<table '.$this->getAttrHTML($tableMore).'>';
+		$this->stdout .= '<table '.HTMLForm::getAttrHTML($tableMore).'>';
 		$this->stdout .= $this->renderFormRows($formData, $prefix);
 		$this->stdout .= "</table>".$append;
 		if ($startedFieldset) {
