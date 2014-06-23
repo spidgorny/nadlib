@@ -99,17 +99,17 @@ class URLGet {
 
 		$response = curl_exec($process);
 		$header_size = curl_getinfo($process, CURLINFO_HEADER_SIZE);
-		$header = substr($response, 0, $header_size);
+		$headers = substr($response, 0, $header_size);
 		$html = substr($response, $header_size);
 
 		$this->info = curl_getinfo($process);
 		$this->logger->log('URLGet Info: '.json_encode($this->info, JSON_PRETTY_PRINT));
 		$this->logger->log('URLGet Errno: '.curl_errno($process));
 		$this->logger->log('URLGet HTTP code: '.$this->info['http_code']);
-		$this->logger->log('URLGet Header: '.$header);
+		$this->logger->log('URLGet Headers: '.$headers);
 		//debug($this->info);
 		if (curl_errno($process)){
-			//debug('Curl error: ' . curl_error($process));
+			debug('Curl error: ' . curl_error($process));
 		}
 		curl_close($process);
 

@@ -73,15 +73,21 @@ abstract class Controller {
 	 */
 	static public $public = false;
 
+	/**
+	 * @var Config
+	 */
+	public $config;
+
 	function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
-		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed
+		$this->useRouter = $this->request->apacheModuleRewrite();
+		$this->config = Config::getInstance();
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->db;
-			$this->user = Config::getInstance()->user;
-			Config::getInstance()->mergeConfig($this);
+			$this->db = $this->config->db;
+			$this->user = $this->config->user;
+			$this->config->mergeConfig($this);
 		} else {
 			//$this->user = new UserBase();
 		}
@@ -144,6 +150,7 @@ abstract class Controller {
 	 */
 	public function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
+		//debug($params);
 		return $this->makeURL($params, false, $prefix);
 	}
 
