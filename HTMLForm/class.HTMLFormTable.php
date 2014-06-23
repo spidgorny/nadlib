@@ -90,7 +90,7 @@ class HTMLFormTable extends HTMLForm {
 	function importValues(Request $form) {
 		//$this->desc = $this->fillValues($this->desc, $form);
 		foreach ($this->desc as $key => &$desc) {
-			if ($desc instanceof HTMLFormTable1) {
+			if ($desc instanceof HTMLFormTable) {
 				$prefix_1 = $desc->prefix;
 				array_shift($prefix_1);
 				$subForm = $form->getSubRequestByPath($prefix_1);
