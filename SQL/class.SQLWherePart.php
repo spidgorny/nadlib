@@ -7,6 +7,11 @@
 class SQLWherePart {
 	
 	/**
+	 * @var dbLayerBase
+	 */
+	protected $db;
+
+	/**
 	 * @var SQLBuilder
 	 */
 	protected $qb;
@@ -16,12 +21,12 @@ class SQLWherePart {
 
 	function __construct($sql = '') {
 		$this->sql = $sql;
-		$this->qb = Config::getInstance()->qb;
+		$this->db = Config::getInstance()->db;
 	}
 
 	function __toString() {
 		if ($this->field && !is_numeric($this->field)) {
-			$part1 = $this->qb->quoteWhere(
+			$part1 = $this->db->quoteWhere(
 				array($this->field => $this->sql)
 			);
 			return implode('', $part1);
