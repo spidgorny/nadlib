@@ -82,7 +82,7 @@ abstract class UserBase extends OODBase {
 	 *
 	 * @param array $data
 	 * @throws Exception
-	 * @return unknown
+	 * @return void
 	 */
 	function insert(array $data) {
         //debug($data);
@@ -92,13 +92,13 @@ abstract class UserBase extends OODBase {
                 throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
             } else {
                 //$data['password'] = md5($data['password']);
-                return $this->insertNoUserCheck($data);
+                $this->insertNoUserCheck($data);
             }
         } else {
             $index = Index::getInstance();
+			debug(__METHOD__);
             $index->error('No email provided.');
         }
-		return NULL;
 	}
 
 	function insertNoUserCheck(array $data) {
