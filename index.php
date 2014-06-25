@@ -11,8 +11,8 @@ require_once 'init.php';
 $in = new InitNADLIB();
 $in->init();
 
-class Config extends ConfigBE {}
-class AppController extends AppControllerBE {}
+class_alias('ConfigBE', 'Config');
+class_alias('AppControllerBE', 'AppController');
 
 require_once 'be/class/class.ConfigBE.php';
 define('DEVELOPMENT', true);
