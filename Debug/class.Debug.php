@@ -48,7 +48,12 @@ class Debug {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= self::printStyles();
 			if (!headers_sent()) {
-				echo '<!DOCTYPE html><html>';
+				$index = Index::getInstance();
+				if (method_exists($index, 'renderHead')) {
+					$index->renderHead();
+				} else {
+					echo '<!DOCTYPE html><html>';
+				}
 			}
 			print($content); flush();
 		}

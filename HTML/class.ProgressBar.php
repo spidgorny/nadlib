@@ -72,6 +72,10 @@ class ProgressBar {
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
+			$index = Index::getInstance();
+			if (method_exists($index, 'renderHead')) {
+				$index->renderHead();
+			}
             print($this->getCSS());
 			print($this->getContent());
 			$this->flush();

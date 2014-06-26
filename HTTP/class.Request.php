@@ -418,7 +418,7 @@ class Request {
 
 	/**
 	 * Returns the full URL to the document root of the current site
-	 * @return string
+	 * @return URL
 	 */
 	static function getLocation() {
 		if (class_exists('Config')) {
@@ -443,6 +443,7 @@ class Request {
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
+		$url = new URL($url);
 		return $url;
 	}
 
