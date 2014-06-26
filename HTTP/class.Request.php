@@ -779,4 +779,12 @@ class Request {
 		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 	}
 
+	function getPOST() {
+		if ($HTTP_RAW_POST_DATA) {
+			return $HTTP_RAW_POST_DATA;
+		} else {
+			return file_get_contents("php://input");
+		}
+	}
+
 }
