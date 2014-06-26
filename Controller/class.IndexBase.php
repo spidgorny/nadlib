@@ -439,12 +439,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function implodeJS() {
 		if (file_exists('vendor/minify/min/index.php')) {
+			$include = array(); // some files can't be found
 			$files = array_keys($this->footer);
-			foreach ($files as &$file) {
-				$file = $this->request->getDocumentRoot() . $file;
+			foreach ($files as $f => &$file) {
+				if (file_exists($file)) {
+					$file = $this->request->getDocumentRoot() . $file;
+				} else {
+					unset($files[$f]);
+					$include[$file] = $this->footer[$file];
+				}
 			}
 			$files = implode(",", $files);
 			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
+			$content .= implode("\n", $include);
 		} else {
 			$content = implode("\n", $this->footer);
 		}
