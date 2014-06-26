@@ -303,7 +303,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$this->addJS($al->componentsPath->relativeFromDocRoot().$jQueryPath);
 				return $this;
 			} elseif (file_exists($al->appRoot . $jQueryPath)) {
-				$rel = Path::make(getcwd())->remove($al->appRoot);
+                // does not work if both paths are the same!!
+//				$rel = Path::make(getcwd())->remove($al->appRoot);
+                $rel = Path::make(Config::getInstance()->documentRoot)->remove($al->appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
 				$this->addJS($rel . $jQueryPath);
