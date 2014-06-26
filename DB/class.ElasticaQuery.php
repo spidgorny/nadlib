@@ -61,7 +61,7 @@ class ElasticaQuery {
 	function setOrderBy($orderBy) {
 		foreach ($orderBy as $by => $ascDesc) {
 			$this->elasticaQuery->setSort(array(
-				$by => array('order' => $ascDesc),
+				$by => array('order' => $ascDesc ?: 'asc'),
 			));
 		}
 	}

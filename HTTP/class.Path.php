@@ -95,7 +95,7 @@ class Path {
 	 * @return bool
 	 */
 	function exists() {
-		return is_dir($this->sPath);
+		return is_dir($this->sPath) || file_exists($this->sPath);
 	}
 
 	function trim() {
@@ -165,6 +165,25 @@ class Path {
 			$this->implode();
 		}
 		return $this;
+	}
+
+	public function resolveLink() {
+		if (is_link($this->sPath)) {
+			$this->sPath = readlink($this->sPath);
+			$this->explode();
+		}
+	}
+
+	public function relativeFromDocRoot() {
+		$new = array_diff($this->aPath, AutoLoad::getInstance()->documentRoot->aPath);
+		return Path::fromArray($new);
+	}
+
+	static function fromArray(array $parts) {
+		$path = new Path('');
+		$path->aPath = $parts;
+		$path->implode();
+		return $path;
 	}
 
 }
