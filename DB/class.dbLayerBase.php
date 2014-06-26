@@ -25,6 +25,13 @@ class dbLayerBase {
 		return $url;
 	}
 
+	/**
+	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
+	 */
+	function getScheme() {
+		return strtolower(str_replace('dbLayer', '', get_class($this)));
+	}
+
 	function __call($method, array $params) {
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);

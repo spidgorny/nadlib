@@ -37,9 +37,17 @@ class Lesser extends AppController {
 	}
 
 	function render() {
-		$less = new lessc();
 		//$less->importDir[] = '../../';
 		$cssFile = $this->request->getFilePathName('css');
+		if (!$cssFile) {
+			$cssFile = 'public/' . $this->request->getTrim('css');
+			if (!file_exists($cssFile)) {
+				$cssFile = new Path(AutoLoad::getInstance()->documentRoot);
+				$cssFile->appendString($_SERVER['REQUEST_URI']);	// rewrite_rule
+				$cssFile = $cssFile->getUncapped();
+				//echo $cssFile.BR;
+			}
+		}
 		if ($cssFile) {
 			$cssFileName = $this->request->getFilename('css');
 			$this->output = dirname($this->output).'/'.str_replace('.less', '.css', $cssFileName);
@@ -53,6 +61,7 @@ class Lesser extends AppController {
 				header_remove('Cache-control');
 			}
 
+			$less = new lessc();
 			if (is_writable($this->output)) {
 				if ($this->request->isRefresh()) {
 					$less->compileFile($cssFile, $this->output);
