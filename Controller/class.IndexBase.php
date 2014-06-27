@@ -303,7 +303,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$this->addJS($al->componentsPath->relativeFromDocRoot().$jQueryPath);
 				return $this;
 			} elseif (file_exists($al->appRoot . $jQueryPath)) {
-				$rel = Path::make(getcwd())->remove($al->appRoot);
+                // does not work if both paths are the same!!
+//				$rel = Path::make(getcwd())->remove($al->appRoot);
+                $rel = Path::make(Config::getInstance()->documentRoot)->remove($al->appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
 				$this->addJS($rel . $jQueryPath);
@@ -436,7 +438,25 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeJS() {
-		return implode("\n", $this->footer);
+		if (file_exists('vendor/minify/min/index.php')) {
+			$include = array(); // some files can't be found
+			$files = array_keys($this->footer);
+			foreach ($files as $f => &$file) {
+				if (file_exists($file)) {
+					$file = $this->request->getDocumentRoot() . $file;
+				} else {
+					unset($files[$f]);
+					$include[$file] = $this->footer[$file];
+				}
+			}
+			$files = implode(",", $files);
+			$files .= DEVELOPMENT ? '&debug' : '';
+			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
+			$content .= implode("\n", $include);
+		} else {
+			$content = implode("\n", $this->footer);
+		}
+		return $content;
 	}
 
 }
