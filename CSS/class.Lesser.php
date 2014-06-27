@@ -84,7 +84,6 @@ class Lesser extends AppController {
 			echo 'error which file?';
 		}
 		$this->request->set('ajax', true);	// avoid any HTML
-		//debug($this->request->isAjax());
 	}
 
 }

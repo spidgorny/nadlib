@@ -418,7 +418,7 @@ class Request {
 
 	/**
 	 * Returns the full URL to the document root of the current site
-	 * @return string
+	 * @return URL
 	 */
 	static function getLocation() {
 		if (class_exists('Config')) {
@@ -443,6 +443,7 @@ class Request {
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
+		$url = new URL($url);
 		return $url;
 	}
 
@@ -777,6 +778,14 @@ class Request {
 		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		//return $os == 'Windows_NT';
 		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
+	function getPOST() {
+		if ($HTTP_RAW_POST_DATA) {
+			return $HTTP_RAW_POST_DATA;
+		} else {
+			return file_get_contents("php://input");
+		}
 	}
 
 }
