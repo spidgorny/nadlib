@@ -315,8 +315,17 @@ class Request {
 					$controller = $controller.'Controller';
 				}
 				$ptr = $tmp;
-				//$controller = end(explode('/', $controller)); // in case it's with subfolder
-				// ^ commented as sub folders need be used for BEmenu
+
+				$Scontroller = new Stringy\Stringy($controller);
+				if ($Scontroller->contains('/')) {	// in case it's with sub-folder
+					$dir = dirname($Scontroller);
+					$parts = trimExplode('/', $controller);
+					if (!file_exists($dir)) {
+						$controller = first($parts);
+					} else {
+						$controller = end($parts);
+					}
+				}
 			} else {
 				$levels = $this->getURLLevels();
 				if ($levels) {
