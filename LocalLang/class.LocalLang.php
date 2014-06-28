@@ -207,9 +207,9 @@ abstract class LocalLang {
 			<select class="input-small langMenu" name="setLangCookie">'.$options.'
 			</select>
 		</form>';
-		Index::getInstance()->addCSS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
-		Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
-		//Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
+		Index::getInstance()->addCSS('vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
+		Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
+		//Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
 		return $content;
 	}
 
