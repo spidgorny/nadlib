@@ -105,7 +105,7 @@ class Menu /*extends Controller*/ {
 	function setBasePath() {
 		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
-			: ($this->request->apacheModuleRewrite());
+			: ($this->request->apacheModuleRewrite() && class_exists('Router'));
 		if ($useRouter) {   // not finished
 			$path = new URL();
 			$path->clearParams();
@@ -115,9 +115,11 @@ class Menu /*extends Controller*/ {
 				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
 				$appRoot = AutoLoad::getInstance()->appRoot;
 				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
-				$path->setPath($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot) . '/');
+				$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
+				$path->setParams();
 			} else {
-				$path->setPath($path->documentRoot.'/');
+				$path->setPath(cap($path->documentRoot));
+				$path->setParams();
 			}
 			// commented when using the slug
 			//$path->setParam($this->controllerVarName, '');	// forces a link with "?c="

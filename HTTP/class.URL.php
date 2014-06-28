@@ -26,6 +26,12 @@ class URL {
 	public $documentRoot = '';
 
 	/**
+	 * = $this->components['path']
+	 * @var Path
+	 */
+	protected $path;
+
+	/**
 	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
@@ -35,6 +41,7 @@ class URL {
 		}
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI']);
 			if (isset($_SERVER['HTTP_HOST'])) {
 				$url = $http . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			} else {
@@ -60,6 +67,10 @@ class URL {
 			}
 		}
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
+		if (isset($this->components['path'])) {
+			$this->path = new Path($this->components['path']);
+			$this->components['path'] = $this->path;
+		}
 		if (isset($this->components['query'])) {
 			parse_str($this->components['query'], $this->params);
 		}
@@ -129,7 +140,7 @@ class URL {
 	}
 
 	function getPath() {
-		$path = $this->components['path'];
+		$path = $this->path;
 		if ($this->documentRoot != '/') {
 			$path = str_replace($this->documentRoot, '', $path);
 		}
@@ -138,7 +149,7 @@ class URL {
 	}
 
 	function setPath($path) {
-		$this->components['path'] = $path;
+		$this->components['path'] = $path instanceof Path ? $path : new Path($path);
 	}
 
 	/**
@@ -146,7 +157,7 @@ class URL {
 	 * @param $name
 	 */
 	function setBasename($name) {
-		$this->components['path'] .= $name;
+		$this->path->setFile($name);
 	}
 
 	function getBasename() {

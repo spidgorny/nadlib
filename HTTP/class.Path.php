@@ -8,9 +8,15 @@ class Path {
 
 	var $isAbsolute = false;
 
+	var $isDir = true;
+
+	var $isFile = false;
+
 	function __construct($sPath) {
 		$this->sPath = $sPath;
 		$this->isAbsolute = startsWith($this->sPath, '/');
+		$this->isDir = endsWith($this->sPath, '/');
+		$this->isFile = !$this->isDir;
 		$this->explode();
 		$this->implode();   // to prevent '//'
 	}
@@ -41,11 +47,11 @@ class Path {
 	}
 
 	function __toString() {
-		return $this->getCapped();
+		return $this->isDir ? $this->getCapped() : $this->getUncapped();
 	}
 
 	/**
-	 * @param $dirname
+	 * @param string $dirname
 	 * @return bool
 	 */
 	function contains($dirname) {
@@ -184,6 +190,15 @@ class Path {
 		$path->aPath = $parts;
 		$path->implode();
 		return $path;
+	}
+
+	public function setFile($name) {
+		if ($this->isFile) {
+			$this->aPath[sizeof($this->aPath)-1] = $name;
+		} else {
+			$this->aPath[] = $name;
+		}
+		$this->implode();
 	}
 
 }
