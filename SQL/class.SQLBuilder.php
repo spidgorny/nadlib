@@ -619,7 +619,7 @@ class SQLBuilder {
 
 	/**
 	 * Originates from BBMM
-	 * @param type $sword
+	 * @param string $sword
 	 * @param array $fields
 	 * @return AsIs
 	 */
