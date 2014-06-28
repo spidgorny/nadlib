@@ -29,7 +29,7 @@ class View {
 	/**
 	 * @var Index
 	 */
-	protected $index;
+	public $index;
 
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
