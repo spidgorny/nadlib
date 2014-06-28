@@ -108,13 +108,15 @@ abstract class Controller {
 				$url = new URL($prefix != '?'
 					? $prefix
 					: $this->request->getLocation(), $params);
-				$url->components['path'] .= $class;
+				$path = $url->getPath();
+				$path->setFile($class);
+				$url->setPath($path);
 			}
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = new URL($prefix != '?'
+			$url = new URL(($prefix && $prefix != '?')
 				? $prefix
 				: $this->request->getLocation(), $params);
 			//debug($prefix, $url);

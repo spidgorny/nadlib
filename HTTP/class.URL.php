@@ -139,10 +139,14 @@ class URL {
 		$this->components['query'] = $this->buildQuery();
 	}
 
+	/**
+	 * @return Path
+	 */
 	function getPath() {
 		$path = $this->path;
 		if ($this->documentRoot != '/') {
-			$path = str_replace($this->documentRoot, '', $path);
+			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
+			$path = new Path($path);
 		}
 		//debug($this->components['path'], $this->documentRoot, $path);
 		return $path;

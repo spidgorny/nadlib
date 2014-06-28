@@ -3,6 +3,7 @@
 class ChangePassword extends HTMLFormProcessor {
 	protected $minLength = 8;
 	protected $submitButton = 'Change';
+	public $title = 'Change Password';
 
 	function getDesc() {
 		$desc = array();
