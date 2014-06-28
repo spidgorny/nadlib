@@ -619,7 +619,7 @@ class SQLBuilder {
 
 	/**
 	 * Originates from BBMM
-	 * @param type $sword
+	 * @param string $sword
 	 * @param array $fields
 	 * @return AsIs
 	 */
@@ -747,7 +747,7 @@ class SQLBuilder {
 		$data = $this->fetchAssoc($res);
 		return $data;
 	}
-	
+
 	function runUpdateInsert($table, $set, $where) {
 		$found = $this->runSelectQuery($table, $where);
 		if ($this->numRows($found)) {
