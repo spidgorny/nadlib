@@ -128,6 +128,7 @@ class AutoLoad {
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
 
 		$this->componentsPath = new Path('');
+		$this->componentsPath->setAsDir();
 		if (!$this->componentsPath->appendIfExists('components')) {
 			$this->componentsPath->up();
 			if (!$this->componentsPath->appendIfExists('components')) {
