@@ -182,7 +182,10 @@ class Path {
 
 	public function relativeFromDocRoot() {
 		$new = array_diff($this->aPath, AutoLoad::getInstance()->documentRoot->aPath);
-		return Path::fromArray($new);
+		$relative = Path::fromArray($new);
+		$relative->isFile = $this->isFile;
+		$relative->isDir = $this->isDir;
+		return $relative;
 	}
 
 	static function fromArray(array $parts) {
@@ -199,6 +202,16 @@ class Path {
 			$this->aPath[] = $name;
 		}
 		$this->implode();
+	}
+
+	public function setAsDir() {
+		$this->isDir = true;
+		$this->isFile = false;
+	}
+
+	public function setAsFile() {
+		$this->isDir = false;
+		$this->isFile = true;
 	}
 
 }
