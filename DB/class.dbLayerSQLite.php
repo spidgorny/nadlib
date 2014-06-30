@@ -46,10 +46,14 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	 */
 	function numRows($res = NULL) {
 		if ($res instanceof SQLite3Result) {
-			return $res->numRows();
+			//debug(get_class($res), get_class_methods($res));
+			$all = $this->fetchAssoc($res);
+			$numRows = sizeof($all);
+			$res->reset();
 		} else {
 			debug($res);
 		}
+		return $numRows;
 	}
 
 	function affectedRows() {
@@ -66,7 +70,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	}
 
 	function free($res) {
-		// nothing
+		$res->finalize();
 	}
 
 	function quoteKey($key) {
