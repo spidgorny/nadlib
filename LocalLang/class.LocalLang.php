@@ -220,6 +220,7 @@ if (!function_exists('__')) {	// conflict with cake
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 		}
+		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
 		if ($index && $index->ll) {
 			$text = $index->ll->T($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
