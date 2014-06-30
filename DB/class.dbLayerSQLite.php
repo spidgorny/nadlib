@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class dbLayerSQLite
+ * @mixin SQLBuilder
+ */
 class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	/**
@@ -8,7 +12,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	var $file;
 
 	/**
-	 * @var resource
+	 * @var SQLite3
 	 */
 	var $connection;
 
@@ -24,12 +28,15 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	function __construct($file) {
 		$this->file = $file;
-		$this->connection = new SQLiteDatabase($this->file);
+		$this->connection = new SQLite3($this->file);
 	}
 
 	function perform($query) {
 		$this->lastQuery = $query;
 		$this->result = $this->connection->query($query);
+		if (!$this->result) {
+			debug($this->connection->lastErrorMsg());
+		}
 		return $this->result;
 	}
 
@@ -37,8 +44,12 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	 * @param $res SQLiteResult
 	 * @return mixed
 	 */
-	function numRows($res) {
-		return $res->numRows();
+	function numRows($res = NULL) {
+		if ($res instanceof SQLite3Result) {
+			return $res->numRows();
+		} else {
+			debug($res);
+		}
 	}
 
 	function affectedRows() {
@@ -64,6 +75,25 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	function escapeBool($value) {
 		return intval(!!$value);
+	}
+
+	function getTableColumnsEx($table) {
+		$this->perform('PRAGMA table_info('.$this->quoteKey($table).')');
+		$tableInfo = $this->fetchAll($this->result, 'name');
+		foreach ($tableInfo as &$row) {
+			$row['Field'] = $row['name'];
+			$row['Type'] = $row['type'];
+			$row['Null'] = $row['notnull'] ? 'NO' : 'YES';
+		}
+		return $tableInfo;
+	}
+
+	function fetchAssoc($res) {
+		return $res->fetchArray(SQLITE3_ASSOC);
+	}
+
+	function escape($str) {
+		return SQLite3::escapeString($str);
 	}
 
 }
