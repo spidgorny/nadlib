@@ -43,7 +43,8 @@ class LocalLangDB extends LocalLang {
 	static function getInstance() {
 		static $instance = NULL;
 		if (!$instance) {
-			$instance = new LocalLangDB();
+			$instance = new static();
+			$instance->init();
 		}
 		return $instance;
 	}
@@ -91,40 +92,34 @@ class LocalLangDB extends LocalLang {
 	}
 
 	function readDB($lang) {
-		//try {
-			$res = $this->db->getTableColumnsEx($this->table);
-			if ($res) {
-				// wrong query
-				/*$rows = $this->db->fetchSelectQuery($this->table.
-					" AS a RIGHT OUTER JOIN ".$this->table." AS en
-					ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", array(
-					'a.lang' => new SQLAnd(array(
-						'a.lang' => new SQLWhereEqual('a.lang', $lang),
-						'a.lang ' => new SQLWhereEqual('a.lang', NULL),
-						)
-					),
-					'a.lang' => $lang,
-					'en.lang' => 'en',
-				), 'ORDER BY id',
-					'coalesce(a.id, en.id) AS id,
-					coalesce(a.code, en.code) AS code,
-					coalesce(a.lang, en.lang) AS lang,
-					coalesce(a.text, en.text) AS text,
-					a.page');
-				debug($this->db->lastQuery, sizeof($rows), first($rows));*/
-				$rows = $this->db->fetchSelectQuery($this->table, array(
-					'lang' => $lang,
-				), 'ORDER BY id');
-				$rows = ArrayPlus::create($rows)->IDalize('id')->getData();
-			} else {
-				debug($this->db->lastQuery);
-				throw new Exception('No translation found in DB');
-			}
-		//} catch (Exception $e) {
-			// read from DB failed, continue
-			//throw new Exception('Reading locallang from DB failed.');
-			// throwing exception leads to making a new instance of LocalLang and it masks DB error
-		//}
+		$res = $this->db->getTableColumnsEx($this->table);
+		if ($res) {
+			// wrong query
+			/*$rows = $this->db->fetchSelectQuery($this->table.
+				" AS a RIGHT OUTER JOIN ".$this->table." AS en
+				ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", array(
+				'a.lang' => new SQLAnd(array(
+					'a.lang' => new SQLWhereEqual('a.lang', $lang),
+					'a.lang ' => new SQLWhereEqual('a.lang', NULL),
+					)
+				),
+				'a.lang' => $lang,
+				'en.lang' => 'en',
+			), 'ORDER BY id',
+				'coalesce(a.id, en.id) AS id,
+				coalesce(a.code, en.code) AS code,
+				coalesce(a.lang, en.lang) AS lang,
+				coalesce(a.text, en.text) AS text,
+				a.page');
+			debug($this->db->lastQuery, sizeof($rows), first($rows));*/
+			$rows = $this->db->fetchSelectQuery($this->table, array(
+				'lang' => $lang,
+			), 'ORDER BY id');
+			$rows = ArrayPlus::create($rows)->IDalize('id')->getData();
+		} else {
+			debug($this->db->lastQuery);
+			throw new Exception('No translation found in DB');
+		}
 		return $rows;
 	}
 
