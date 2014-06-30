@@ -27,7 +27,8 @@ class Request {
 
 		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
 			? $_SERVER['SCRIPT_URL']
-			: $_SERVER['REQUEST_URI']);
+			: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL)
+		);
 	}
 
 	function deQuote(array $request) {
@@ -163,7 +164,7 @@ class Request {
 	}
 
 	function bool($name) {
-		return $this->data[$name] ? TRUE : FALSE;
+		return (isset($this->data[$name]) && $this->data[$name]) ? TRUE : FALSE;
 	}
 
 	function getBool($name) {
@@ -306,7 +307,7 @@ class Request {
 		} else {
 			$controller = $this->getTrim('c');
 			if ($controller) {
-				// to simplofy URL it first searches for the corresponding controller
+				// to simplify URL it first searches for the corresponding controller
 				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
 				$tmp = $ptr;
 				$ptr = false;
@@ -314,8 +315,17 @@ class Request {
 					$controller = $controller.'Controller';
 				}
 				$ptr = $tmp;
-				//$controller = end(explode('/', $controller)); // in case it's with subfolder
-				// ^ commented as subfolders need be used for BEmenu
+
+				$Scontroller = new Stringy\Stringy($controller);
+				if ($Scontroller->contains('/')) {	// in case it's with sub-folder
+					$dir = dirname($Scontroller);
+					$parts = trimExplode('/', $controller);
+					if (!file_exists($dir)) {
+						$controller = first($parts);
+					} else {
+						$controller = end($parts);
+					}
+				}
 			} else {
 				$levels = $this->getURLLevels();
 				if ($levels) {
@@ -336,7 +346,11 @@ class Request {
 							break;
 						}
 					}
-					$controller = $last;
+					if ($last) {
+						$controller = $last;
+					} else {
+						$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+					}
 				} else {
 					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
@@ -346,8 +360,8 @@ class Request {
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
-			'last' => $last,
-			'default' => Config::getInstance()->defaultController,
+			'last' => isset($last) ? $last : NULL,
+			'default' => class_exists('Config') ? Config::getInstance()->defaultController : NULL,
 			'data' => $this->data));
 		return $controller;
 	}
@@ -361,7 +375,7 @@ class Request {
 	function getController() {
 		$c = $this->getControllerString();
 		if (!$c) {
-			$c = $GLOBALS['i']->controller; // default
+			$c = Index::getInstance()->controller; // default
 		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
@@ -413,7 +427,7 @@ class Request {
 
 	/**
 	 * Returns the full URL to the document root of the current site
-	 * @return string
+	 * @return URL
 	 */
 	static function getLocation() {
 		if (class_exists('Config')) {
@@ -422,18 +436,23 @@ class Request {
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
+
+		// hack
+		//$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
+
 		if (strlen($docRoot) == 1) {
 			$docRoot = '/';
 		} else {
-			$docRoot .= '/';
+			//$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST']
+			isset($_SERVER['HTTP_X_FORWARDED_HOST'])
 				? $_SERVER['HTTP_X_FORWARDED_HOST']
-				: $_SERVER['HTTP_HOST']
+				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL)
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
+		$url = new URL($url);
 		return $url;
 	}
 
@@ -448,7 +467,9 @@ class Request {
 
 	function isAjax() {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
-		return $this->getBool('ajax') || (strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
+		return $this->getBool('ajax') || (
+			isset($headers['X-Requested-With'])
+			&&strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
 	}
 
 	function getHeader($name) {
@@ -638,7 +659,7 @@ class Request {
 	 */
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
-		//debug(getcwd(), $filename, realpath($filename));
+		//echo getDebug(getcwd(), $filename, realpath($filename));
 		$filename = realpath($filename);
 		return $filename;
 	}
@@ -734,7 +755,9 @@ class Request {
 		}
 		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
+		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
 		return $docRoot;
 	}
 
@@ -764,6 +787,14 @@ class Request {
 		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		//return $os == 'Windows_NT';
 		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
+	function getPOST() {
+		if ($HTTP_RAW_POST_DATA) {
+			return $HTTP_RAW_POST_DATA;
+		} else {
+			return file_get_contents("php://input");
+		}
 	}
 
 }

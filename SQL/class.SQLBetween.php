@@ -11,24 +11,18 @@ class SQLBetween extends SQLWherePart {
 	 * @var mixed
 	 */
 	public $end;
-	
-	/**
-	 * @var dbLayerPG
-	 */
-	protected $db;
 
 	/**
-	 * @var SQLBuilder
+	 * @var DBInterface
 	 */
-	protected $qb;
+	protected $db;
 
 	function __construct($start, $end) {
 		$this->start = $start;
 		$this->end = $end;
 		$this->db = Config::getInstance()->db;
-		$this->qb = Config::getInstance()->getQb();
 	}
-	
+
 	function toString($field) {
 		return $this->db->quoteKey($field).' BETWEEN '.$this->db->quoteSQL($this->start).' AND '.$this->db->quoteSQL($this->end);
 	}

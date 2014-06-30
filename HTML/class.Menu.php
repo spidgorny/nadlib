@@ -80,7 +80,7 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		$useRouter = class_exists('Config')
+		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
 			: '';
 		$rootpath = $this->request->getURLLevels();
@@ -103,9 +103,9 @@ class Menu /*extends Controller*/ {
 	 * Called by the constructor
 	 */
 	function setBasePath() {
-		$useRouter = class_exists('Config')
+		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
-			: ($this->request->apacheModuleRewrite());
+			: ($this->request->apacheModuleRewrite() && class_exists('Router'));
 		if ($useRouter) {   // not finished
 			$path = new URL();
 			$path->clearParams();
@@ -115,9 +115,11 @@ class Menu /*extends Controller*/ {
 				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
 				$appRoot = AutoLoad::getInstance()->appRoot;
 				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
-				$path->setPath($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot) . '/');
+				$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
+				$path->setParams();
 			} else {
-				$path->setPath($path->documentRoot.'/');
+				$path->setPath(cap($path->documentRoot));
+				$path->setParams();
 			}
 			// commented when using the slug
 			//$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
@@ -129,7 +131,9 @@ class Menu /*extends Controller*/ {
 		$this->basePath = $path;
 		nodebug(array(
 			'class_exists(Config)' => class_exists('Config'),
-			'Config::getInstance()->config[Controller]' => Config::getInstance()->config['Controller'],
+			'Config::getInstance()->config[Controller]' => (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
+				? Config::getInstance()->config['Controller']
+				: NULL,
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,
@@ -156,7 +160,7 @@ class Menu /*extends Controller*/ {
 		$rootpath = $this->request->getURLLevels();
 		$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for sub-menu of Dashboard/About
 		if (!$rootpath) {                                       // no rewrite, then find the menu with current as a key
-			if ($this->items[$this->current]) {                 // if $current is a top-level menu then add it, otherwise search (see below)
+			if (ifsetor($this->items[$this->current])) {        // if $current is a top-level menu then add it, otherwise search (see below)
 				$rootpath = array(
 					//$this->current,                           // commented otherwise it will show a corresponding submenu
 				);
@@ -169,7 +173,7 @@ class Menu /*extends Controller*/ {
 				//$found = $rec->findPath($this->current);
 				if ($rec instanceof Recursive) {
 					$children = $rec->getChildren();
-					$found = $children[$this->current];
+					$found = isset($children[$this->current]) ? $children[$this->current] : NULL;
 					//debug($children, $found, $key, $this->current);
 					if ($found) {
 						$rootpath = array(
@@ -185,7 +189,7 @@ class Menu /*extends Controller*/ {
 		}
 		if ($this->level == 0) {
 			$this->current = $this->current;                    // no change
-		} elseif ($this->items[$this->current] instanceof Recursive) {
+		} elseif (ifsetor($this->items[$this->current]) instanceof Recursive) {
 			$this->current = $this->current.'/'.$this->current;
 		}
 		return $rootpath;
@@ -233,7 +237,7 @@ class Menu /*extends Controller*/ {
 					//if (method_exists($o, 'getMenuSuffix')) {
 					$methods = get_class_methods($class);
 					//if ($class == 'AssignHardware') debug($class, $methods, in_array('getMenuSuffix', $methods));
-					if (in_array('getMenuSuffix', $methods)) {
+					if ($methods && in_array('getMenuSuffix', $methods)) {
 						$o = new $class();
 						$name .= call_user_func(array($o, 'getMenuSuffix'));
 					}
@@ -318,6 +322,7 @@ class Menu /*extends Controller*/ {
      * @return bool
      */
 	function isCurrent($class, array $subMenu = array(), $level) {
+		$combined = NULL;
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);

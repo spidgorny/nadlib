@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
+ * Extend with a name Class and add any configuration parameters and factory calls.
+ */
 class ConfigBase {
 	/**
 	 * del: Public to allow Request to know if there's an instance
@@ -69,9 +73,21 @@ class ConfigBase {
 
 	public $config;
 
+	/**
+	 * @var UserBase
+	 */
+	public $user;
+
+	/**
+	 * @var string
+	 * @deprecated
+	 */
+	public $appRoot;
+
 	protected function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
+
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
 		} else {
@@ -93,7 +109,7 @@ class ConfigBase {
 		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
-		if (file_exists('class/config.yaml')) {
+		if (file_exists('class/config.yaml') && class_exists('Spyc')) {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
@@ -103,7 +119,7 @@ class ConfigBase {
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
-	 * @return Config
+	 * @return Config - not ConfigBase
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {
@@ -142,6 +158,7 @@ class ConfigBase {
 			}
 			$di->db = $this->db;
 			$this->qb = new SQLBuilder($di);
+			$this->db->qb = $this->qb;
 		}
 
 		// init user here as he needs to access Config::getInstance()
@@ -168,7 +185,7 @@ class ConfigBase {
 
 	function mergeConfig($obj) {
 		$class = get_class($obj);
-		if (is_array($this->config[$class])) {
+		if (isset($this->config[$class]) && is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
 				if ($key != 'includeFolders') {	// Strict Standards: Accessing static property Config::$includeFolders as non static
 					$obj->$key = $val;
@@ -181,7 +198,7 @@ class ConfigBase {
      * @return \SQLBuilder
      */
     public function getQb() {
-        if(!isset($this->qb)) {
+        if (!isset($this->qb)) {
             $di = new DIContainer();
             $di->db = Config::getInstance()->db;
             $this->setQb(new SQLBuilder($di));

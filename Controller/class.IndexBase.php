@@ -44,25 +44,32 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $sidebar = '';
 
+	/**
+	 * @var Config
+	 */
+	var $config;
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		//parent::__construct();
-		$config = Config::getInstance();
-		$this->db = $config->db;
+		if (class_exists('Config')) {
+			$this->config = Config::getInstance();
+			$this->db = $this->config->db;
+			$this->user = $this->config->user;
+		}
 		$this->ll = new LocalLangDummy();	// the real one is in Config!
 
 		$this->request = Request::getInstance();
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/) {
+		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/ && !headers_sent()) {
 			session_start();
 		}
 
-		$this->user = $config->user;
 		$this->restoreMessages();
-		if ($_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -72,9 +79,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$instance = &self::$instance ?: $GLOBALS['i'];	// to read IndexBE instance
+		$instance = &self::$instance ?: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
 		if (!$instance && $createNew) {
-			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+			if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
 			//$instance->initController();	// scheisse: call it in index.php
@@ -92,7 +99,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	public function initController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$slug = $this->request->getControllerString();
 		if ($slug) {
 			$this->loadController($slug);
@@ -209,7 +216,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderException(Exception $e, $wrapClass = '') {
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.get_class($e).BR.
-			$e->getMessage();
+			nl2br(htmlspecialchars($e->getMessage()));
 		if (DEVELOPMENT) {
 			$content .= '<br />'.nl2br($e->getTraceAsString());
 			//$content .= getDebug($e);
@@ -264,44 +271,93 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function restoreMessages() {
-		$this->content .= $_SESSION[__CLASS__]['messages'];
-		$_SESSION[__CLASS__]['messages'] = '';
+		if (isset($_SESSION[__CLASS__])) {
+			$this->content .= $_SESSION[__CLASS__]['messages'];
+			$_SESSION[__CLASS__]['messages'] = '';
+		}
 	}
 
+	/**
+	 * @return $this
+	 */
 	function addJQuery() {
-		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$jQueryPath = 'components/jquery/jquery.min.js';
-			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
-				$this->addJS($jQueryPath);
-			} else {
-				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
-			}
-		} else {
-			$this->footer['jquery.js'] = '
-				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-				<script>window.jQuery || document.write(\'<script src="components/jquery/jquery.min.js"><\/script>\')</script>
-			';
+		if (isset($this->footer['jquery.js'])) {
+			return $this;
 		}
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
+			$jQueryPath = 'jquery/jquery.min.js';
+			$al = AutoLoad::getInstance();
+			nodebug(array(
+				'jQueryPath' => $jQueryPath,
+				'appRoot' => $al->appRoot,
+				'componentsPath' => $al->componentsPath,
+				'fe(jQueryPath)' => file_exists($jQueryPath),
+				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'documentRoot' => $al->documentRoot,
+				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+			));
+			if (file_exists($al->componentsPath.$jQueryPath)) {
+				$this->addJS($al->componentsPath->relativeFromDocRoot().$jQueryPath);
+				return $this;
+			} elseif (file_exists($al->appRoot . $jQueryPath)) {
+                // does not work if both paths are the same!!
+//				$rel = Path::make(getcwd())->remove($al->appRoot);
+                $rel = Path::make(Config::getInstance()->documentRoot)->remove($al->appRoot);
+				$rel->trimIf('be');
+				$rel->reverse();
+				$this->addJS($rel . $jQueryPath);
+				return $this;
+			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
+				$this->addJS($al->nadlibFromDocRoot . $jQueryPath);
+				return $this;
+			}
+		}
+		$this->footer['jquery.js'] = '
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+			<script>window.jQuery || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>
+			';
 		return $this;
 	}
 
 	function addJQueryUI() {
 		$this->addJQuery();
+		$al = AutoLoad::getInstance();
+		$jQueryPath = clone $al->componentsPath;
+		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$jQueryPath = 'components/jquery-ui/ui/minified/jquery-ui.min.js';
-			if (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
-				$this->addJS($jQueryPath);
+			nodebug(array(
+				'jQueryPath' => $jQueryPath,
+				'jQueryPath->exists()' => $jQueryPath->exists(),
+				'appRoot' => $al->appRoot,
+				'componentsPath' => $al->componentsPath,
+				'fe(jQueryPath)' => file_exists($jQueryPath),
+				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'documentRoot' => $al->documentRoot,
+				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+			));
+			if ($jQueryPath->exists()) {
+				$this->addJS($jQueryPath->relativeFromDocRoot()->getUncapped());
+				return $this;
+			} elseif (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
+				$this->addJS(AutoLoad::getInstance()->appRoot . $jQueryPath);
+				return $this;
 			} else {
 				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+				return $this;
 			}
-
-            // commented out because this should be project specific
-			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
-		} else {
-			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
-			$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
 		}
+
+		// commented out because this should be project specific
+		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+		<script>window.jQueryUI || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
 		return $this;
 	}
 
@@ -320,7 +376,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
-			$source = '?c=Lesser&css='.$source;
+			if ($this->request->apacheModuleRewrite()) {
+				//$source = $source;	// rewrite inside css folder
+			} else {
+				$source = '?c=Lesser&css=' . $source;
+			}
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;
@@ -337,6 +397,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderProfiler() {
+		$content = '';
 		if (DEVELOPMENT &&
 			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
@@ -377,7 +438,25 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeJS() {
-		return implode("\n", $this->footer);
+		if (file_exists('vendor/minify/min/index.php')) {
+			$include = array(); // some files can't be found
+			$files = array_keys($this->footer);
+			foreach ($files as $f => &$file) {
+				if (file_exists($file)) {
+					$file = $this->request->getDocumentRoot() . $file;
+				} else {
+					unset($files[$f]);
+					$include[$file] = $this->footer[$file];
+				}
+			}
+			$files = implode(",", $files);
+			$files .= DEVELOPMENT ? '&debug' : '';
+			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
+			$content .= implode("\n", $include);
+		} else {
+			$content = implode("\n", $this->footer);
+		}
+		return $content;
 	}
 
 }

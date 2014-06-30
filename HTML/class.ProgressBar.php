@@ -72,6 +72,10 @@ class ProgressBar {
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
+			$index = Index::getInstance();
+			if (method_exists($index, 'renderHead')) {
+				$index->renderHead();
+			}
             print($this->getCSS());
 			print($this->getContent());
 			$this->flush();
@@ -148,7 +152,7 @@ class ProgressBar {
 		}
 	}
 
-	function flush($ob_flush = false) {
+	static function flush($ob_flush = false) {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
 		if ($ob_flush) {
 			ob_end_flush();
@@ -162,21 +166,22 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;') {
+	static function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '') {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return new htmlString('<div style="'.$css.'">'.
-			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+			number_format($p, 2).'&nbsp;%&nbsp;
+			<img src="'.$prefix.'bar.php?rating='.round($p).$append.'" style="vertical-align: middle;" />
 		</div>');
 	}
 
-	function getBackground($p, $width = '100px') {
+	static function getBackground($p, $width = '100px') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return '<div style="
 			display: inline-block;
 			width: '.$width.';
 			text-align: center;
 			wrap: nowrap;
-			background: url(vendor/spidgorny/nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
+			background: url('.$prefix.'bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, 2).'%</div>';
 	}
 
 	public function setTitle() {

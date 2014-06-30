@@ -73,15 +73,23 @@ abstract class Controller {
 	 */
 	static public $public = false;
 
+	/**
+	 * @var Config
+	 */
+	public $config;
+
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
-		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed
+		$this->useRouter = $this->request->apacheModuleRewrite();
+		$this->config = Config::getInstance();
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->db;
-			$this->user = Config::getInstance()->user;
-			Config::getInstance()->mergeConfig($this);
+			$this->db = $this->config->db;
+			$this->user = $this->config->user;
+			$this->config->mergeConfig($this);
+		} else {
+			//$this->user = new UserBase();
 		}
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
@@ -100,13 +108,15 @@ abstract class Controller {
 				$url = new URL($prefix != '?'
 					? $prefix
 					: $this->request->getLocation(), $params);
-				$url->components['path'] .= $class;
+				$path = $url->getPath();
+				$path->setFile($class);
+				$url->setPath($path);
 			}
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = new URL($prefix != '?'
+			$url = new URL(($prefix && $prefix != '?')
 				? $prefix
 				: $this->request->getLocation(), $params);
 			//debug($prefix, $url);
@@ -142,6 +152,7 @@ abstract class Controller {
 	 */
 	public function getURL(array $params, $prefix = '?') {
 		$params = $params + $this->linkVars;
+		//debug($params);
 		return $this->makeURL($params, false, $prefix);
 	}
 
@@ -197,7 +208,7 @@ abstract class Controller {
 	static function getInstance() {
 		$static = get_called_class();
 		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance[$static]
+		return isset(self::$instance[$static])
 			? self::$instance[$static]
 			: (self::$instance[$static] = new $static());
 	}
@@ -224,35 +235,33 @@ abstract class Controller {
 		return $this->render().'';
 	}
 
-	/**
-	 * @param string $string		- source page name
-	 * @param bool $preserveSpaces	- leaves spaces
-	 * @return string				- converted to URL friendly name
-	 */
-	static function friendlyURL($string, $preserveSpaces = false) {
-		$string = preg_replace("`\[.*\]`U","",$string);
-		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
-		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
-		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
-		if (!$preserveSpaces) {
-			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
-		}
-		return strtolower(trim($string, '-'));
-	}
-
 	function encloseIn($title, $content) {
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
+	/**
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param $content
+	 * @param string $caption
+	 * @param null $h
+	 * @return array|string
+	 */
 	function encloseInAA($content, $caption = '', $h = NULL) {
 		$h = $h ? $h : $this->encloseTag;
 		$content = IndexBase::mergeStringArrayRecursive($content);
 		if ($caption) {
-			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
+			Index::getInstance()->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/header-link.less');
+			$slug = URL::friendlyURL($caption);
+			$link = '<a class="header-link" href="#'.$slug.'">
+				<i class="fa fa-link"></i>
+			</a>';
+			$content = '<'.$h.' id="'.$slug.'">'.$link.$caption.'</'.$h.'>'.$content;
 		}
 		//debug_pre_print_backtrace();
-		$content = '<div class="padding clearfix">'.$content.'</div>';
+		$content = '<section class="padding clearfix"
+			style="position: relative;">'.$content.'</section>';
 		return $content;
 	}
 
@@ -281,6 +290,7 @@ abstract class Controller {
 	}
 
 	function performAction($action = NULL) {
+		$content = '';
 		$method = $action ? $action : $this->request->getTrim('action');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style

@@ -63,7 +63,7 @@ class HTMLFormTable extends HTMLForm {
      */
     public $isValid = false;
 
-	function __construct(array $desc = array(), $prefix = '', $fieldset = '') {
+	function __construct(array $desc = array(), $prefix = array(), $fieldset = '') {
 		$this->desc = $desc;
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
@@ -112,13 +112,14 @@ class HTMLFormTable extends HTMLForm {
 		if (isset($desc['prefix']) && $desc['prefix']) {
 			$this->text($desc['prefix']);
 		}
-		if (!$desc['id']) {
+		if (empty($desc['id'])) {
 			$elementID = uniqid('id_');
 			$desc['id'] = $elementID;
 		} else {
 			$elementID = $desc['id'];
 		}
-		$type = $desc['type']; /* @var $type Collection */
+		$type = ifsetor($desc['type']);
+		/* @var $type Collection */
 		if ($type instanceof HTMLFormType) {
 			$type->setField($fieldName);
 			$type->setForm($this);
@@ -261,17 +262,17 @@ class HTMLFormTable extends HTMLForm {
 					$type = isset($type) ? $type : 'text';
 					//$this->text(htmlspecialchars($desc['more']));
 					$this->input($fieldName, $fieldValue,
-						(is_array($desc['more'])
+						(is_array(ifsetor($desc['more']))
 							? HTMLForm::getAttrHTML($desc['more'])
 							: '') .
 						(($desc['more'] && !is_array($desc['more']))
 							? $desc['more']
 							: '') .
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
-						($desc['size'] ? ' size="'.$desc['size'].'"' : '') .
+						(isset($desc['size']) ? ' size="'.$desc['size'].'"' : '') .
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						($desc['readonly'] ? ' readonly="readonly"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '').
+						(isset($desc['readonly']) ? ' readonly="readonly"' : '').
+						(isset($desc['disabled']) ? ' disabled="1"' : '').
 						($desc['autofocus'] ? ' autofocus' : '')
 						, $type, $desc['class']
 					);
@@ -286,16 +287,16 @@ class HTMLFormTable extends HTMLForm {
 		$desc['TDmore'] = (isset($desc['TDmore']) && is_array($desc['TDmore']))
 			? $desc['TDmore']
 			: array();
-		if ($desc['newTD']) {
+		if (isset($desc['newTD'])) {
 			$this->stdout .= '</tr></table></td>
 			<td '.$desc['TDmore'].'><table class="htmlFormTable"><tr>';
 		}
-		$fieldValue = $desc['value'];
-		$type = $desc['type'];
+		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
+		$type = isset($desc['type']) ? $desc['type'] : NULL;
 
 		if (is_object($type) || ($type != 'hidden' && !in_array($type, array('fieldset', '/fieldset')))) {
-			if (!$desc['formHide']) {
-				if ($desc['br'] || $this->defaultBR) {
+			if (empty($desc['formHide'])) {
+				if (!empty($desc['br']) || $this->defaultBR) {
 				} else {
 					$desc['TDmore']['class'] = isset($desc['TDmore']['class']) ? $desc['TDmore']['class'] : '';
 					$desc['TDmore']['class'] .= ' tdlabel';
@@ -310,7 +311,7 @@ class HTMLFormTable extends HTMLForm {
 				$newContent = substr($this->stdout, strlen($tmp));
 				$this->stdout = $tmp;
 
-				$withBR = ($desc['br'] === NULL && $this->defaultBR) || $desc['br'];
+				$withBR = (ifsetor($desc['br']) === NULL && $this->defaultBR) || $desc['br'];
 				if (isset($desc['label'])) {
 					$label = $desc['label'];
 					if (!$withBR) {
@@ -345,7 +346,7 @@ class HTMLFormTable extends HTMLForm {
 					$desc['class'] .= ' error';
 				}
 
-				if ($desc['wrap'] instanceof Wrap) {
+				if (ifsetor($desc['wrap']) instanceof Wrap) {
 					$newContent = $desc['wrap']->wrap($newContent);
 				}
 
@@ -353,7 +354,7 @@ class HTMLFormTable extends HTMLForm {
 					.$newContent.
 					(isset($desc['append']) ? $desc['append'] : '');
 
-				if ($desc['cursor']) {
+				if (ifsetor($desc['cursor'])) {
 					$this->stdout .= "<script>
 						<!--
 							var obj = document.getElementById('{$elementID}');
@@ -361,13 +362,13 @@ class HTMLFormTable extends HTMLForm {
 						-->
 					</script>";
 				}
-				if ($desc['error']) {
+				if (ifsetor($desc['error'])) {
 					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']"
 					class="error ui-state-error alert-error alert-danger">';
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
 				}
-				if ($desc['newTD']) {
+				if (ifsetor($desc['newTD'])) {
 					$this->stdout .= '</td>';
 				}
 			}
@@ -398,19 +399,22 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	/**
-	 * @param array $formData	@deprecated - use __construct() instead
+	 * @param array $formData @deprecated - use __construct() instead
 	 * @param array $prefix
 	 * @param bool $mainForm
 	 * @param string $append
+	 * @return $this
 	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
+		return $this;
 	}
 
 	function getForm(array $formData, array $prefix = array(), $mainForm = TRUE, $append = '') {
 		if (!is_array($formData)) {
 			debug_pre_print_backtrace();
 		}
+		$startedFieldset = FALSE;
 		$tmp = $this->stdout;
 		$this->stdout = '';
 
@@ -425,7 +429,7 @@ class HTMLFormTable extends HTMLForm {
 		}
 		$tableMore = $this->tableMore;
 		$tableMore['class'] = (isset($tableMore['class']) ? $tableMore['class'] : '') . " htmlFormTable";
-		$this->stdout .= '<table '.$this->getAttrHTML($tableMore).'>';
+		$this->stdout .= '<table '.HTMLForm::getAttrHTML($tableMore).'>';
 		$this->stdout .= $this->renderFormRows($formData, $prefix);
 		$this->stdout .= "</table>".$append;
 		if ($startedFieldset) {
@@ -467,27 +471,27 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '<tr><td colspan="2">'.$subForm->getBuffer().'</td></tr>';
 			} else if (is_array($fieldDesc) && !in_array($sType, array('hidden', 'hiddenArray'))) {
 				if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
-					$this->stdout .= "<tr ".$this->getAttrHTML($fieldDesc['TRmore']).">";
+					$this->stdout .= "<tr ".$this->getAttrHTML(isset($fieldDesc['TRmore']) ? $fieldDesc['TRmore'] : NULL).">";
 				}
 
-				if ($fieldDesc['table']) {
+				if (isset($fieldDesc['table'])) {
 					$this->stdout .= '<td>';
 					$this->showForm($fieldDesc, $path, FALSE);
 					$this->stdout .= "</td>";
 				}
-				if ($fieldDesc['dependant']) {
+				if (isset($fieldDesc['dependant'])) {
 					$fieldDesc['prepend'] = '<fieldset class="expandable"><legend>';
 					$fieldDesc['append'] .= '</legend>'.
 						$this->getForm($fieldDesc['dependant'], $prefix, FALSE) // $path
 					.'</fieldset>';
 					$this->showCell($path, $fieldDesc);
-				} else if ($fieldDesc['horisontal']) {
+				} else if (isset($fieldDesc['horisontal'])) {
 					$this->showRow($path, $fieldDesc);
 				} else {
 					$this->showCell($path, $fieldDesc);
 				}
 
-				if (!$fieldDesc['horisontal']) {
+				if (!ifsetor($fieldDesc['horisontal'])) {
 					$this->stdout .= "</tr>";
 				}
 			} else if (in_array($sType, array('hidden', 'hiddenArray'))) { // hidden

@@ -303,12 +303,16 @@ class slTable {
 			if (!is_array($thv)) {
 				$thv = array('name' => $thv);
 			}
-			$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
-			$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
+			$thvName = isset($thv['name'])
+				? $thv['name']
+				: (isset($thv['label']) ? $thv['label'] : NULL);
+			$thmore[$thk] = isset($thv['thmore'])
+				? $thv['thmore']
+				: (isset($thv['more']) ? $thv['more'] : NULL);
 			if (!is_array($thmore)) {
 				$thmore = array('' => $thmore);
 			}
-			if ($thv['align']) {
+			if (isset($thv['align']) && $thv['align']) {
 				$thmore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
@@ -388,11 +392,13 @@ class slTable {
 							$class[] = ($i%2?'even':'odd');
 						}
 					}
-					if ($this->dataClass[$key]) {
+					if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					if (isset($row['###TR_MORE###'])) {
+						$tr .= ' ' . $row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					}
 					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
 					//debug_pre_print_backtrace();
 					$this->genRow($t, $row);
@@ -432,7 +438,7 @@ class slTable {
 			if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
 				$k += $row[$col.'.'];
 			}
-			if ($row[$col] instanceof slTableValue) {
+			if (isset($row[$col]) && $row[$col] instanceof slTableValue) {
 				$k += $row[$col]->desc;
 			}
 
@@ -443,7 +449,7 @@ class slTable {
 				$val = isset($row[$col]) ? $row[$col] : NULL;
 				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
 					$t->tag($val);
-					if ($val->attr['colspan']) {
+					if (ifsetor($val->attr['colspan'])) {
 						$skipCols = $val->attr['colspan'] - 1;
 					}
 				} else if ($val instanceof HTMLnoTag) {
@@ -452,13 +458,16 @@ class slTable {
 					if (!$val) {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
-					$val = new slTableValue($val, $k);
+
+					if (!($val instanceof slTableValue)) {
+						$val = new slTableValue($val, $k);
+					}
 
 					$out = (isset($k['before']) ? $k['before'] : '').
 						   $val->render($col, $row) .
 						   (isset($k['after']) ? $k['after'] : '');
 
-					if ($k['colspan']) {
+					if (isset($k['colspan']) && $k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
 

@@ -9,13 +9,16 @@ class MemcacheFile {
 	public $folder = 'cache/';
 
 	function __construct() {
-		$sub = Config::getInstance()->appRoot;
+		if (MemcacheArray::$debug) {
+			//echo __METHOD__.BR;
+		}
+		$sub = cap(AutoLoad::getInstance()->appRoot);
 
 		if (!file_exists($sub.$this->folder)) {
 			debug(__METHOD__, $sub.$this->folder);
 			die();
 		} else {
-			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = $sub . $this->folder;
 		}
 	}
 
