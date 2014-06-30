@@ -7,6 +7,7 @@ class Debug {
 	static $stylesPrinted = false;
 
 	static function debug_args() {
+		$content = '';
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
 			$a = $args[0];
@@ -16,6 +17,8 @@ class Debug {
 			if ($a[1] === self::LEVELS) {
 				$levels = $a[2];
 				$a = $a[0];
+			} else {
+				$levels = NULL;
 			}
 		}
 
@@ -45,7 +48,12 @@ class Debug {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= self::printStyles();
 			if (!headers_sent()) {
-				echo '<!DOCTYPE html><html>';
+				$index = Index::getInstance();
+				if (method_exists($index, 'renderHead')) {
+					$index->renderHead();
+				} else {
+					echo '<!DOCTYPE html><html>';
+				}
 			}
 			print($content); flush();
 		}
@@ -112,10 +120,10 @@ class Debug {
 					'file' => 'file',
 					'line' => 'line',
 					'class' => 'class',
+					'object' => 'object',
 					'type' => 'type',
 					'function' => 'function',
 					'args' => 'args',
-					'object' => 'object',
 				)).'</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';
@@ -180,9 +188,9 @@ class Debug {
 	}
 
 	static function getMethod(array $first) {
-		if ($first['object']) {
+		if (isset($first['object']) && $first['object']) {
 			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
-		} else if ($first['class']) {
+		} else if (isset($first['class']) && $first['class']) {
 			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
 		} else {
 			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
@@ -232,6 +240,7 @@ class Debug {
 	}
 
 	static function printStyles() {
+		$content = '';
 		if (!self::$stylesPrinted) {
 			$content = '
 			<style>

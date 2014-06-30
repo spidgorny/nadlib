@@ -68,9 +68,15 @@ class Uploader {
 		$f->file($fieldName);
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
-		$f->text('<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>');
-		$f->text('<div class="message">Max post: '.ini_get('post_max_size').'</div>');
-		$f->text('<div class="message">Allowed: '.implode(', ', $this->allowed).'</div>');
+		$f->text('
+		<div class="message">
+		    <table style="width: 250px">
+		        <tr><td><nobr>Max size:</nobr></td><td>'.ini_get('upload_max_filesize').'</td></tr>
+		        <tr><td><nobr>Max post:</nobr></td><td>'.ini_get('post_max_size').'</td></tr>
+		        <tr><td><nobr>Allowed:</nobr></td><td>'.implode(', ', $this->allowed).'</td></tr>
+		    </table>
+		</div>
+		');
 		return $f;
 	}
 

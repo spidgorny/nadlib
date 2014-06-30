@@ -619,7 +619,7 @@ class SQLBuilder {
 
 	/**
 	 * Originates from BBMM
-	 * @param type $sword
+	 * @param string $sword
 	 * @param array $fields
 	 * @return AsIs
 	 */
@@ -631,7 +631,7 @@ class SQLBuilder {
 			foreach ($fields as $field) {
 				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
 			}
-			$where['0'] = new AsIsOp(' = 0 AND ('.implode(' OR ', $like).')');
+			$where[] = new AsIsOp(' ('.implode(' OR ', $like).')');
 		}
 		//debug($where);
 		return $where;
@@ -747,7 +747,7 @@ class SQLBuilder {
 		$data = $this->fetchAssoc($res);
 		return $data;
 	}
-	
+
 	function runUpdateInsert($table, $set, $where) {
 		$found = $this->runSelectQuery($table, $where);
 		if ($this->numRows($found)) {

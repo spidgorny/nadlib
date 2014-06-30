@@ -91,7 +91,8 @@ class AjaxLogin extends AppController {
 
 	function performAction($action = NULL) {
 		$content = '';
-		if ($action = $action ? $action : $this->action) {
+		$action = $action ? $action : $this->action;
+		if ($action) {
 			if (in_array($action, $this->allowedActions) || $this->user->isAuth()) {
 				try {
 					$cb = $action.'Action';
@@ -195,7 +196,7 @@ class AjaxLogin extends AppController {
 						type="text"
 						name="username"
 						placeholder="E-mail"
-						value="'.$_REQUEST['username'].'" />
+						value="'.(isset($_REQUEST['username']) ? $_REQUEST['username'] : NULL).'" />
 				</div>
 				<div class="form-group col-md-4">
 					<input class="form-control" type="password"

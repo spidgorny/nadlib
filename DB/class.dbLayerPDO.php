@@ -128,9 +128,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @param $res PDOStatement
 	 * @return array|mixed
 	 */
-	function numRows($res) {
+	function numRows($res = NULL) {
 		$count = $res->rowCount();
-		//debug($this->lastQuery, $count);
+		//debug($this->lastQuery, $count, $this->getScheme());
 		if ($count == -1 || $this->getScheme() == 'sqlite') {
 			$countQuery = 'SELECT count(*) FROM ('.$res->queryString.') AS sub1';
 			$rows = $this->fetchAll($countQuery);
@@ -193,10 +193,23 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function getTableColumnsEx($table) {
-		if ($this->getScheme() == 'mysql') {
-			$this->perform('show columns from '.$this->quoteKey($table));
+		switch ($this->getScheme()) {
+			case 'mysql':
+				$this->perform('show columns from '.$this->quoteKey($table));
+				$tableInfo = $this->fetchAll($this->result, 'Field');
+				break;
+			case 'sqlite':
+				$this->perform('PRAGMA table_info('.$this->quoteKey($table).')');
+				$tableInfo = $this->fetchAll($this->result, 'name');
+				foreach ($tableInfo as &$row) {
+					$row['Field'] = $row['name'];
+					$row['Type'] = $row['type'];
+					$row['Null'] = $row['notnull'] ? 'NO' : 'YES';
+				}
+				//debug($tableInfo);
+				break;
 		}
-		return $this->fetchAll($this->result, 'Field');
+		return $tableInfo;
 	}
 
 	/**
@@ -214,9 +227,12 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function fetchAll($stringOrRes, $key = NULL) {
 		if (is_string($stringOrRes)) {
-			$this->perform($stringOrRes);
+			$res = $this->perform($stringOrRes);
+		} else {
+			$res = $stringOrRes;
 		}
-		$data = $this->result->fetchAll(PDO::FETCH_ASSOC);
+		$data = $res->fetchAll(PDO::FETCH_ASSOC);
+		//debug($this->lastQuery, $this->result, $data);
 
 		if ($key) {
 			$copy = $data;

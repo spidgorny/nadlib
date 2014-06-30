@@ -13,13 +13,15 @@ class HomeBE extends AppControllerBE {
 		//debug($auth_methods);
 
 		$cmd = 'hg log -l1';
-		exec($cmd, $output);
-		$content .= implode('<br />', $output);
+		@exec($cmd, $output);
+		if ($output) {
+			$content .= implode('<br />', $output);
+		}
 
-		$content .= getDebug(AutoLoad::getInstance()->debug());
+		//$content .= getDebug(AutoLoad::getInstance()->getDebug());
 		$content .= SysInfo::getInstance()->render();
 
-		$content .= getDebug($_ENV);
+		$content .= '<h1>$_ENV</h1>'.getDebug($_ENV);
 
 		return $content;
 	}

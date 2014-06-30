@@ -103,7 +103,7 @@ class Mailer {
      * @param array $attachments
      * @param array $additionalSenders This will be added to
      * @throws Exception
-     * @return int Number of recipients who were accepted for delivery.
+     * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
      */
     public static function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
     {
@@ -120,7 +120,7 @@ class Mailer {
         $message->setFrom(Index::getInstance()->mailFromSwiftMailer);
         if (!empty($additionalSenders)) {
             foreach ($additionalSenders as $address) {
-                empty($address) ?: $message->addFrom($address);
+                empty($address) ?: $message->addFrom(key($address));
             }
         }
 
@@ -150,7 +150,10 @@ class Mailer {
 
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
-        return $mailer->send($message);
+        $failedRecipients = array();
+        $sent = $mailer->send($message, $failedRecipients);
+
+        return !empty($failedRecipients) ? $failedRecipients : $sent;
     }
 
 }

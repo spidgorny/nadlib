@@ -82,7 +82,7 @@ abstract class UserBase extends OODBase {
 	 *
 	 * @param array $data
 	 * @throws Exception
-	 * @return unknown
+	 * @return void
 	 */
 	function insert(array $data) {
         //debug($data);
@@ -92,17 +92,17 @@ abstract class UserBase extends OODBase {
                 throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
             } else {
                 //$data['password'] = md5($data['password']);
-                return $this->insertNoUserCheck($data);
+                $this->insertNoUserCheck($data);
             }
         } else {
             $index = Index::getInstance();
+			debug(__METHOD__);
             $index->error('No email provided.');
         }
-		return NULL;
 	}
 
 	function insertNoUserCheck(array $data) {
-		$data['ctime'] = new AsIs('NOW()');
+		$data['ctime'] = new SQLDateTime();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
@@ -150,7 +150,13 @@ abstract class UserBase extends OODBase {
 	}
 
 	function getGravatarURL($gravatarSize = 50) {
-		return 'http://www.gravatar.com/avatar/'.md5(strtolower(trim($this->data['email']))).'?s='.intval($gravatarSize);
+		return 'http://www.gravatar.com/avatar/'.md5(
+			strtolower(
+				trim(
+					ifsetor($this->data['email'])
+				)
+			)
+		).'?s='.intval($gravatarSize);
 	}
 
 }

@@ -45,6 +45,11 @@ class AutoLoad {
 	public $count = 0;
 
 	/**
+	 * @var Path
+	 */
+	public $documentRoot;
+
+	/**
 	 * Relative to getcwd()
 	 * Can be "../" from /nadlib/be/
 	 * @var string
@@ -57,6 +62,13 @@ class AutoLoad {
 	 */
 	public $nadlibFromDocRoot;
 
+	public $nadlibFromCWD;
+
+	/**
+	 * @var Path
+	 */
+	public $componentsPath;
+
 	/**
 	 * getFolders() is called from outside
 	 * to be able to modify $useCookies
@@ -68,13 +80,25 @@ class AutoLoad {
 		}
 		require_once __DIR__ . '/HTTP/class.URL.php';
 		require_once __DIR__ . '/HTTP/class.Request.php';
+		require_once __DIR__ . '/HTTP/class.Path.php';
+	}
 
-		$this->detectNadlibRoot();
-
-		$this->loadConfig();
+	/**
+	 * @return AutoLoad
+	 */
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self();
+			self::$instance->detectNadlibRoot();
+			self::$instance->loadConfig();
+		}
+		return self::$instance;
 	}
 
 	function detectNadlibRoot() {
+		$this->documentRoot = new Path($_SERVER['DOCUMENT_ROOT']);
+		$this->documentRoot->resolveLink();
+
 		$scriptWithPath = URL::getScriptWithPath();
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
 		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
@@ -83,14 +107,42 @@ class AutoLoad {
 		}
 		$this->nadlibRoot = dirname(__FILE__).'/';
 		$this->appRoot = $this->detectAppRoot();
-		if (strlen($this->appRoot > 1)) { // '/'
+		if (strlen($this->appRoot > 1) && $this->appRoot[1] != ':') { // '/', 'w:\\'
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
+			$appRootIsRoot = true;
 		} else {
-			$this->nadlibFromDocRoot = $relToNadlibPU;
+			$path = new Path($scriptWithPath);
+			//if (basename(dirname($scriptWithPath)) == 'nadlib') {
+			if ($path->contains('nadlib')) {
+				$this->nadlibFromDocRoot = Request::getDocumentRoot();
+				$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
+				$appRootIsRoot = 'DocumentRoot without /be';
+			} else {
+				$this->nadlibFromDocRoot = $relToNadlibPU;
+				$appRootIsRoot = '$relToNadlibPU';
+			}
 		}
-		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot) . '/';
+		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
+		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
 
-		if (false) {
+		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
+
+		$this->componentsPath = new Path('');
+		$this->componentsPath->setAsDir();
+		if (!$this->componentsPath->appendIfExists('components')) {
+			$this->componentsPath->up();
+			if (!$this->componentsPath->appendIfExists('components')) {
+				$this->componentsPath->up();
+				if (!$this->componentsPath->appendIfExists('components')) {
+					$this->componentsPath = new Path($this->documentRoot);
+					if ($this->componentsPath->appendIfExists('components')) {	// no !
+						//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
+					}
+				}
+			}
+		}
+
+		if (0) {
 			echo '<pre>';
 			print_r(array(
 				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
@@ -103,14 +155,18 @@ class AutoLoad {
 				'$relToNadlibCLI' => $relToNadlibCLI,
 				'$relToNadlibPU' => $relToNadlibPU,
 				'$this->nadlibRoot' => $this->nadlibRoot,
-				'Config->documentRoot' => $config->documentRoot,
-				'$this->appRoot' => $this->appRoot,
-				'Config->appRoot' => $config->appRoot,
+				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
+				'$this->appRoot' => $this->appRoot.'',
+				'appRootIsRoot' => $appRootIsRoot,
+				'Config->appRoot' => isset($config) ? $config->appRoot : NULL,
 				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
 				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
 				'request->getLocation()' => Request::getInstance()->getLocation(),
+				'this->componentsPath' => $this->componentsPath.'',
 			));
 			echo '</pre>';
+			debug_pre_print_backtrace();
 		}
 	}
 
@@ -122,7 +178,7 @@ class AutoLoad {
 	function detectAppRoot() {
 		$appRoot = dirname(URL::getScriptWithPath());
 		$appRoot = realpath($appRoot);
-		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
+		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && $appRoot != '/'
 			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
@@ -134,10 +190,16 @@ class AutoLoad {
 			}
 			$appRoot = dirname($appRoot);
 		}
-        // always add trailing slash!
-        if ($appRoot != '/') {
-            $appRoot .= DIRECTORY_SEPARATOR;
-        }
+
+		if ($appRoot == '/') {  // nothing is found by previous method
+			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
+			$appRoot->upIf('nadlib');
+			$appRoot->upIf('spidgorny');
+			$appRoot->upIf('vendor');
+		}
+
+		// always add trailing slash!
+	    $appRoot = cap($appRoot, '/');
 		return $appRoot;
 	}
 
@@ -152,7 +214,7 @@ class AutoLoad {
 		if (!class_exists('Config')) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
 			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
-			//var_dump($configPath, file_exists($configPath)); exit();
+			//debug($configPath, file_exists($configPath)); exit();
 			if (file_exists($configPath)) {
 				include_once $configPath;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
@@ -164,7 +226,7 @@ class AutoLoad {
 	}
 
 	function initFolders() {
-        //if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
+		//if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
@@ -181,7 +243,9 @@ class AutoLoad {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
 				session_set_cookie_params(0, '');	// current folder
-				session_start();
+				if ((phpversion() > 5.4 && session_status() != PHP_SESSION_ACTIVE) && !headers_sent()) {
+					session_start();
+				}
 
 				if (isset($_SESSION[__CLASS__])) {
 					$folders = isset($_SESSION[__CLASS__]['folders'])
@@ -199,7 +263,6 @@ class AutoLoad {
 			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
 			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
-		//debug($folders);
 
 		return $folders;
 	}
@@ -265,8 +328,10 @@ class AutoLoad {
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
 		if ($file && file_exists($file)) {
+			/** @noinspection PhpIncludeInspection */
 			include_once $file;
 		} elseif ($file2 && file_exists($file2)) {
+			/** @noinspection PhpIncludeInspection */
 			include_once $file2;
 		} else {
 			$file = $this->findInFolders($classFile, $subFolders);
@@ -315,10 +380,12 @@ class AutoLoad {
 
 			if (file_exists($file)) {
 				$this->log($classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
+				$this->log($classFile.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
 				$this->classFileMap[$classFile] = $file;
 				return $file;
 			} else {
 				$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
+				$this->log($classFile.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
 			}
 		}
 	}
@@ -331,16 +398,6 @@ class AutoLoad {
 				echo $debugLine;
 			}
 		}
-	}
-
-	/**
-	 * @return AutoLoad
-	 */
-	static function getInstance() {
-		if (!self::$instance) {
-			self::$instance = new self();
-		}
-		return self::$instance;
 	}
 
 	static function register() {
