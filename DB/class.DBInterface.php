@@ -23,4 +23,6 @@ interface DBInterface {
 
 	function escapeBool($value);
 
+	function fetchAssoc($res);
+
 }
