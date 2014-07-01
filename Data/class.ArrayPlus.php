@@ -286,6 +286,20 @@ class ArrayPlus extends ArrayObject implements Countable {
 		}
 	}
 
+	function findAlternativeFromMenu($current) {
+		foreach ($this->items as $key => $rec) {
+			/** @var $rec Recursive */
+			//$found = $rec->findPath($this->current);
+			if ($rec instanceof Recursive) {
+				$children = $rec->getChildren();
+				$found = isset($children[current]) ? $children[$current] : NULL;
+				//debug($children, $found, $key, $this->current);
+				return $found;
+			}
+		}
+		return NULL;
+	}
+
 	function first() {
 		reset($this);
 		return current($this);

@@ -148,7 +148,7 @@ class URL {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 			$path = new Path($path);
 		}
-		//debug($this->components['path'], $this->documentRoot, $path);
+		//debug($this->path.'', $this->documentRoot, $path.'');
 		return $path;
 	}
 

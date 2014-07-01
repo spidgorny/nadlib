@@ -182,6 +182,8 @@ class IndexBE extends IndexBase {
 		$m->recursive = false;
 		$m->renderOnlyCurrent = true;
 		$m->useControllerSlug = false;
+		$m->useRecursiveURL = false;
+		$m->setCurrent(1);
 		//$m->useRecursiveURL = false;
 		//$m->setBasePath();	// because 1und1 rewrite is not enabled
 		//$docRoot = $m->request->getDocumentRoot();
