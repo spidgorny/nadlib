@@ -74,6 +74,7 @@ class IndexBE extends IndexBase {
 				'Cookies' => 'Cookies',
 				'ConfigView' => 'config.yaml',
 				'PHPInfo' => 'phpinfo()',
+				'About' => 'About',
 				'Documentation' => 'Documentation',
 				'IniCheck' => 'php.ini Check',
 			)),
