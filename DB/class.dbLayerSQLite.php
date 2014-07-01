@@ -26,6 +26,11 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	 */
 	var $result;
 
+	/**
+	 * @var int - accumulated DB execution time
+	 */
+	var $dbTime = 0;
+
 	function __construct($file) {
 		$this->file = $file;
 		$this->connection = new SQLite3($this->file);
@@ -33,7 +38,9 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	function perform($query) {
 		$this->lastQuery = $query;
+		$profiler = new Profiler();
 		$this->result = $this->connection->query($query);
+		$this->dbTime += $profiler->elapsed();
 		if (!$this->result) {
 			debug($this->connection->lastErrorMsg());
 		}
