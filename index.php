@@ -1,44 +1,67 @@
 <?php
 
-if (file_exists('vendor/autoload.php')) {
-	require_once 'vendor/autoload.php';
-} elseif (file_exists('../vendor/autoload.php')) {
-	require_once '../vendor/autoload.php';
-} elseif (file_exists('../../vendor/autoload.php')) {
-	require_once '../../vendor/autoload.php';
-}
-require_once 'init.php';
-$in = new InitNADLIB();
-$in->init();
-
-class_alias('ConfigBE', 'Config');
-class_alias('AppControllerBE', 'AppController');
-
-require_once 'be/class/class.ConfigBE.php';
 define('DEVELOPMENT', true);
 
 function __($a) {
 	return $a;
 }
 
-class NadlibIndex extends AppControllerBE {
+class NadlibIndex {
 
 	function __construct() {
-		parent::__construct();
+		if (file_exists('vendor/autoload.php')) {
+			require_once 'vendor/autoload.php';
+		} elseif (file_exists('../vendor/autoload.php')) {
+			require_once '../vendor/autoload.php';
+		} elseif (file_exists('../../vendor/autoload.php')) {
+			require_once '../../vendor/autoload.php';
+		} elseif (file_exists('../../../vendor/autoload.php')) {
+			require_once '../../../vendor/autoload.php';
+		}
+
+		require_once 'class.DIContainer.php';
+		$this->dic = new DIContainer();
+		$this->dic->index = function ($c) {
+			require_once 'be/class/class.IndexBE.php';
+			return IndexBE::getInstance();
+		};
+		$this->dic->config = function ($c) {
+			return Config::getInstance();
+		};
+		$this->dic->autoload = function ($c) {
+			return AutoLoad::getInstance();
+		};
+		require_once 'init.php';
+		$in = new InitNADLIB();
+		$in->init();
+
+		if (!class_exists('Config')) {
+			require_once 'be/class/class.ConfigBE.php';
+			class_alias('ConfigBE', 'Config');
+		}
+		if (!class_exists('AppController')) {
+			class_alias('AppControllerBE', 'AppController');
+		}
+		if (!class_exists('Index')) {
+			class_alias('IndexBE', 'Index');
+		}
+
 		if (!file_exists('vendor/autoload.php')) {
 			//throw new Exception('Run "composer update"');
 		}
+		$this->dic->config->defaultController = 'HomeBE';
+
 	}
 
 	function render() {
 		if (Request::isCLI()) {
 			$content[] = $this->cliMode();
 		} else {
-			//$this->request->redirect('be/');
-			//include('be/index.php');
 			chdir('be');
-			require_once 'class/class.IndexBE.php';	// force this Index class
-			$i = Index::getInstance(true);
+			//echo ($this->dic->autoload->nadlibFromCWD);
+			//$this->dic->autoload->nadlibFromCWD = '../'.$this->dic->autoload->nadlibFromCWD;
+			//echo ($this->dic->autoload->nadlibFromCWD);
+			$i = $this->dic->index;
 			$i->initController();
 			$content[] = $i->render();
 		}

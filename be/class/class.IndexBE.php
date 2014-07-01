@@ -1,6 +1,6 @@
 <?php
 
-class Index extends IndexBase {
+class IndexBE extends IndexBase {
 
 	static $isBE = true;
 
@@ -51,7 +51,7 @@ class Index extends IndexBase {
 		$this->header['modernizr.js'] = '<script src="'.$this->al->componentsPath.'modernizr/modernizr.js"></script>';  // Must be header and not footer
 		$this->addCSS($this->al->componentsPath.'bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
-		$this->addCSS($this->nadlibFromCWD . '../CSS/TaylorProfiler.less');
+		$this->addCSS($this->nadlibFromCWD . 'CSS/TaylorProfiler.less');
 		$this->addJQuery();
 		$this->addJS($this->al->componentsPath.'bootstrap/js/bootstrap.js');
 		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
