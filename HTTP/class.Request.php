@@ -559,6 +559,7 @@ class Request {
 	 */
 	function getURLLevels() {
 		$path = $this->url->getPath();
+		//$path = $path->getURL();
 		if (strlen($path) > 1) {	// "/"
 			$path = trimExplode('/', $path);
 			if ($path[0] == 'index.php') {
@@ -798,7 +799,7 @@ class Request {
 	}
 
 	function getPOST() {
-		if ($HTTP_RAW_POST_DATA) {
+		if (isset($HTTP_RAW_POST_DATA)) {
 			return $HTTP_RAW_POST_DATA;
 		} else {
 			return file_get_contents("php://input");
