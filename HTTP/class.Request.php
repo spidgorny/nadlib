@@ -558,18 +558,26 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
-		$path = $this->url->getPath();
+		$cwd = new Path(getcwd());
+		$url = AutoLoad::getInstance()->documentRoot.$this->url->getPath();
+		$path = new Path($url);
+		$path->remove($cwd);
 		//$path = $path->getURL();
 		if (strlen($path) > 1) {	// "/"
-			$path = trimExplode('/', $path);
-			if ($path[0] == 'index.php') {
-				array_shift($path);
+			$levels = trimExplode('/', $path);
+			if ($levels[0] == 'index.php') {
+				array_shift($levels);
 			}
-			//debug($this->url->getPath(), $path);
 		} else {
-			$path = array();
+			$levels = array();
 		}
-		return $path;
+		nodebug(array(
+			'cwd' => $cwd.'',
+			'url' => $url.'',
+			'path' => $path.'',
+			'getURL()' => $path->getURL().'',
+			'levels' => $levels));
+		return $levels;
 	}
 
 	/**

@@ -548,7 +548,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		foreach ($ar2 as $key2 => $val2) {
 			if (isset($this[$key2])) {
 				$tmp = AP($this[$key2]);
-				$tmp->merge_recursive_overwrite($subindex, $val2);
+				$tmp->merge_recursive_overwrite($val2);
 				$this[$key2] = $tmp->getData();
 			} else {
 				$this[$key2] = $val2;
