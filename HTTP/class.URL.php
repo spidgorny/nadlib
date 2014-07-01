@@ -311,11 +311,15 @@ return $return; */
 		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
         // C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
         if (Request::isCLI()) {
-			if (basename(__FILE__) == __FILE__) {	// index.php
+	        // this below may not work since __FILE__ is class.URL.php and not index.php
+/*			if (basename(__FILE__) == __FILE__) {	// index.php
 				$scriptWithPath = getcwd().'/'.__FILE__;
 			} else {
 				$scriptWithPath = __FILE__;
-			}
+			}*/
+	        $scriptWithPath = isset($_SERVER['SCRIPT_FILENAME'])
+		        ? $_SERVER['SCRIPT_FILENAME']
+		        : $_SERVER['PHP_SELF'];
 		} else {
 			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
 			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de

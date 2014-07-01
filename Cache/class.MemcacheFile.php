@@ -15,7 +15,7 @@ class MemcacheFile {
 		$sub = cap(AutoLoad::getInstance()->appRoot);
 
 		if (!file_exists($sub.$this->folder)) {
-			debug(__METHOD__, $sub.$this->folder);
+			debug(__METHOD__, $sub, $this->folder);
 			die();
 		} else {
 			$this->folder = $sub . $this->folder;
