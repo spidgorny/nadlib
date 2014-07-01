@@ -26,7 +26,7 @@ class SQLBuilder {
 	 * Reserved MySQL words
 	 * @var array
 	 */
-	protected $reserved = array (
+	protected static $reserved = array (
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
 		2 => 'ALL',
@@ -252,6 +252,14 @@ class SQLBuilder {
 		'VALUES',
 	);
 
+    /**
+     * @return array
+     */
+    public static function getReserved()
+    {
+        return self::$reserved;
+    }
+
 	/**
 	 * @var MySQL
 	 */
@@ -266,7 +274,7 @@ class SQLBuilder {
 	}
 
 	function quoteKey($key) {
-		if (in_array(strtoupper($key), $this->reserved)) {
+		if (in_array(strtoupper($key), self::$reserved)) {
 			$key = $this->db->quoteKey($key);
 		}
 		return $key;
