@@ -19,11 +19,17 @@ class NadlibIndex {
 			require_once '../../../vendor/autoload.php';
 		}
 
-		require_once 'class.DIContainer.php';
+		require_once 'init.php';
+		$in = new InitNADLIB();
+		$in->init();
+
 		$this->dic = new DIContainer();
 		$this->dic->index = function ($c) {
 			require_once 'be/class/class.IndexBE.php';
 			return IndexBE::getInstance();
+		};
+		$this->dic->debug = function ($c) {
+			return new Debug($c->index);
 		};
 		$this->dic->config = function ($c) {
 			return Config::getInstance();
@@ -31,9 +37,6 @@ class NadlibIndex {
 		$this->dic->autoload = function ($c) {
 			return AutoLoad::getInstance();
 		};
-		require_once 'init.php';
-		$in = new InitNADLIB();
-		$in->init();
 
 		if (!class_exists('Config')) {
 			require_once 'be/class/class.ConfigBE.php';
@@ -62,6 +65,8 @@ class NadlibIndex {
 			//$this->dic->autoload->nadlibFromCWD = '../'.$this->dic->autoload->nadlibFromCWD;
 			//echo ($this->dic->autoload->nadlibFromCWD);
 			$i = $this->dic->index;
+			/** @var $i IndexBE */
+			//echo get_class($i), BR, class_exists('Index'), BR, get_class(Index::getInstance());
 			$i->initController();
 			$content[] = $i->render();
 		}

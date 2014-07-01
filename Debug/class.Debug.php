@@ -6,7 +6,50 @@ class Debug {
 
 	static $stylesPrinted = false;
 
-	static function debug_args() {
+	var $index;
+
+	/**
+	 * @var Debug
+	 */
+	static protected $instance;
+
+	/**
+	 * @param $index Index|IndexBE
+	 */
+	function __construct($index) {
+		$this->index = $index;
+		self::$instance = $this;
+	}
+
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self(Index::getInstance());
+		}
+		return self::$instance;
+	}
+
+	function debug($params) {
+		if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
+			$fp = FirePHP::getInstance(true);
+			if ($fp->detectClientExtension()) {
+				$fp->setOption('includeLineNumbers', true);
+				$fp->setOption('maxArrayDepth', 10);
+				$fp->setOption('maxDepth', 20);
+				$trace = Debug::getSimpleTrace();
+				array_shift($trace);
+				if ($trace) {
+					$fp->table(implode(' ', first($trace)), $trace);
+				}
+				$fp->log(1 == sizeof($params) ? first($params) : $params);
+			} else {
+				call_user_func_array(array('Debug', 'debug_args'), $params);
+			}
+		} else {
+			call_user_func_array(array('Debug', 'debug_args'), $params);
+		}
+	}
+
+	function debug_args() {
 		$content = '';
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
@@ -48,9 +91,8 @@ class Debug {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= self::printStyles();
 			if (!headers_sent()) {
-				$index = Index::getInstance();
-				if (method_exists($index, 'renderHead')) {
-					$index->renderHead();
+				if (method_exists($this->index, 'renderHead')) {
+					$this->index->renderHead();
 				} else {
 					echo '<!DOCTYPE html><html>';
 				}
@@ -63,8 +105,7 @@ class Debug {
 	static function renderHTMLView($db, $a, $levels) {
 		$trace = Debug::getTraceTable($db);
 
-		reset($db);
-		$first = current($db);
+		$first = $db[1];
 		$function = self::getMethod($first);
 		$props = array(
 			'<span class="debug_prop">Function:</span> '.$function,

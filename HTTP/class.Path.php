@@ -180,11 +180,23 @@ class Path {
 		}
 	}
 
+	/**
+	 * @return Path
+	 */
 	public function relativeFromDocRoot() {
 		$new = array_diff($this->aPath, AutoLoad::getInstance()->documentRoot->aPath);
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;
+		return $relative;
+	}
+
+	public function getURL() {
+		//$self = new Path(AutoLoad::getInstance()->appRoot);
+		$self = new Path(URL::getScriptWithPath());
+		$relative = new Path(URL::getRelativePath($self, $this));
+		$relative->setAsDir();
+		//debug(__METHOD__, $this.'', $self.'', $relative.'');
 		return $relative;
 	}
 

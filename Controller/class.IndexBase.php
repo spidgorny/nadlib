@@ -300,7 +300,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
 			));
 			if (file_exists($al->componentsPath.$jQueryPath)) {
-				$this->addJS($al->componentsPath->relativeFromDocRoot().$jQueryPath);
+				$this->addJS($al->componentsPath->getURL().$jQueryPath);
 				return $this;
 			} elseif (file_exists($al->appRoot . $jQueryPath)) {
                 // does not work if both paths are the same!!
@@ -432,7 +432,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//return implode("\n", $this->header);
 		$content = array();
 		foreach ($this->header as $key => $script) {
-			$content[] = '<!--'.$key.'-->'.$script;
+			$content[] = '<!--'.$key.'-->'."\n".$script;
 		}
 		return implode("\n", $content);
 	}

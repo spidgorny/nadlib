@@ -48,12 +48,13 @@ class IndexBE extends IndexBase {
 		$this->nadlibFromDocRoot = $this->al->nadlibFromDocRoot;
 		$this->nadlibFromCWD = $this->al->nadlibFromCWD;
 
-		$this->header['modernizr.js'] = '<script src="'.$this->al->componentsPath.'modernizr/modernizr.js"></script>';  // Must be header and not footer
-		$this->addCSS($this->al->componentsPath.'bootstrap/css/bootstrap.min.css');
+		//debug($this->al->componentsPath, $this->al->appRoot, $this->al->componentsPath->getURL());
+		$this->header['modernizr.js'] = '<script src="'.$this->al->componentsPath->getURL().'modernizr/modernizr.js"></script>';  // Must be header and not footer
+		$this->addCSS($this->al->componentsPath->getURL().'bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
 		$this->addCSS($this->nadlibFromCWD . 'CSS/TaylorProfiler.less');
 		$this->addJQuery();
-		$this->addJS($this->al->componentsPath.'bootstrap/js/bootstrap.js');
+		$this->addJS($this->al->componentsPath->getURL().'bootstrap/js/bootstrap.js');
 		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
 
 		$this->user = new BEUser();
