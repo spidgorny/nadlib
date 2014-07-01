@@ -107,6 +107,8 @@ class AutoLoad {
 		}
 		$this->nadlibRoot = dirname(__FILE__).'/';
 		$this->appRoot = $this->detectAppRoot();
+//		echo 'appRoot: ', $this->appRoot, BR;
+
 		if (strlen($this->appRoot > 1) && $this->appRoot[1] != ':') { // '/', 'w:\\'
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
 			$appRootIsRoot = true;
@@ -124,10 +126,11 @@ class AutoLoad {
 		}
 		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
 		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
+//		echo 'documentRoot: ', $this->documentRoot, BR;
 
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
 
-		$this->componentsPath = new Path('');
+		$this->componentsPath = new Path($this->appRoot);
 		$this->componentsPath->setAsDir();
 		if (!$this->componentsPath->appendIfExists('components')) {
 			$this->componentsPath->up();
