@@ -391,25 +391,74 @@ class TaylorProfiler {
 			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
+		if (Config::getInstance()->db->dbTime) {
+			$dbTime = Config::getInstance()->db->dbTime;
+			$dbTime = number_format($dbTime, 3, '.', '');
+		}
+		if (session_status() == PHP_SESSION_ACTIVE) {
+			$totalMax = $_SESSION[__CLASS__]['totalMax'];
+			$totalBar = '<img src="'.ProgressBar::getBar($totalTime/$totalMax*100).'" />';
+			$_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
+
+			$dbMax = $_SESSION[__CLASS__]['dbMax'];
+			$dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
+			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
+		}
+
+		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
+		$maxMem = self::return_bytes(ini_get('memory_limit'));
+		$memBar = '<img src="'.ProgressBar::getBar(memory_get_peak_usage()/$maxMem*100).'" />';
 		$content = '<div class="floatTimeContainer">
 			<div class="floatTime">
 				<table>
 					<tr>
-						<td>PHP:</td><td>'.$totalTime.'s</td>
+						<td>PHP+DB:</td>
+						<td>'.$totalTime.'s</td>
+						<td>'.$totalBar.'</td>
+						<td>'.$totalMax.'s</td>
 					</tr>
 					<tr>
-						<td>db:</td><td>'.$dbTime.'s</td>
+						<td>DB:</td>
+						<td>'.$dbTime.'s</td>
+						<td>'.$dbBar.'</td>
+						<td>'.$dbMax.'</td>
 					</tr>
 					<tr>
-						<td>mem:</td><td>'.number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
-						ini_get('memory_limit').'</td>
+						<td>Mem:</td>
+						<td>'.$peakMem.'MB</td>
+						<td>'.$memBar.'</td>
+						<td>'.ini_get('memory_limit').'</td>
 					</tr>
 				</table>
 			</div>
 		</div>
 		<div style="clear:both"></div>
 		';
+		$content .= '<style>'.file_get_contents(
+				AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/TaylorProfiler.less'
+		).'</style>';
 		return $content;
+	}
+
+	/**
+	 * http://stackoverflow.com/a/1336624
+	 * @param $val
+	 * @return int|string
+	 */
+	function return_bytes($val) {
+		$val = trim($val);
+		$last = strtolower($val[strlen($val)-1]);
+		switch($last) {
+			// The 'G' modifier is available since PHP 5.1.0
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+
+		return $val;
 	}
 
 	/**
