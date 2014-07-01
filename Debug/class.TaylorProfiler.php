@@ -435,7 +435,7 @@ class TaylorProfiler {
 		<div style="clear:both"></div>
 		';
 		$content .= '<style>'.file_get_contents(
-				AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/TaylorProfiler.less'
+				__DIR__.'/../CSS/TaylorProfiler.less'
 		).'</style>';
 		return $content;
 	}
@@ -445,7 +445,7 @@ class TaylorProfiler {
 	 * @param $val
 	 * @return int|string
 	 */
-	function return_bytes($val) {
+	static function return_bytes($val) {
 		$val = trim($val);
 		$last = strtolower($val[strlen($val)-1]);
 		switch($last) {
