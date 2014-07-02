@@ -104,7 +104,7 @@ class TimeTrack extends AppControllerBE {
 		$ap = ArrayPlus::create($times);
 		$sum = $ap->column('time')->sum();
 		$percentage = 100;
-		$content[] = '<div class="well">
+		$content[] = '<div class="">
 			<h3>Total</h3>
 			<h1>'.$sum.' hours
 				<span class="small">'.$percentage.'%</span>
