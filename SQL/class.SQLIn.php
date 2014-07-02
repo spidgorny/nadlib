@@ -13,7 +13,7 @@ class SQLIn extends SQLWherePart {
 		$field = $this->field;
 
 		// this prevents field names with dot notation being quoted!
-		if (in_array(strtoupper($this->field), SQLBuilder::getReserved())) {
+		if (in_array(strtoupper($this->field), $this->db->getReserved())) {
 			$field = $this->db->quoteKey($this->field);
 		}
 
