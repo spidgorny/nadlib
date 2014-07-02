@@ -557,6 +557,30 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * 2D table => 3D table
+	 * @param $groupBy
+	 * @return $this
+	 */
+	public function groupBy($groupBy) {
+		$new = [];
+		foreach ($this->getData() as $line) {
+			$key = $line[$groupBy];
+			$new[$key][] = $line;
+		}
+		$this->setData($new);
+		return $this;
+	}
+
+	function sumGroups($field) {
+		$new = new ArrayPlus();
+		foreach ($this->getData() as $key => $subtable) {
+			$ap = ArrayPlus::create($subtable);
+			$new[$key] = $ap->column($field)->sum();
+		}
+		return $new;
+	}
+
 }
 
 function AP(array $a = array()) {

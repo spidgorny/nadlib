@@ -77,6 +77,7 @@ class IndexBE extends IndexBase {
 				'About' => 'About',
 				'Documentation' => 'Documentation',
 				'IniCheck' => 'php.ini Check',
+				'TimeTrack' => 'Time Track',
 			)),
 			'UnitTestReport' => new Recursive('Test', array(
 				'UnitTestReport' => 'Unit Test Report',
