@@ -11,6 +11,13 @@ class dbLayerBase {
 	 */
 	var $qb;
 
+	/**
+	 * List of reserved words for each DB
+	 * which can't be used as field names and must be quoted
+	 * @var array
+	 */
+	var $reserved = array();
+
 	function setQB() {
 		$di = new DIContainer();
 		$di->db = $this;
@@ -58,6 +65,10 @@ class dbLayerBase {
 		}
 		$this->free($res);
 		return $data;
+	}
+
+	function getReserved() {
+		return $this->reserved;
 	}
 
 }

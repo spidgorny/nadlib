@@ -34,7 +34,11 @@ class SQLWherePart {
 			return $this->sql.'';
 		}
 	}
-	
+
+	function injectDB(dbLayerBase $db) {
+		$this->db = $db;
+	}
+
 	function injectQB(SQLBuilder $qb) {
 		$this->qb = $qb;
 	}
