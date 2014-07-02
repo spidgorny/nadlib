@@ -10,7 +10,7 @@ class About extends AppControllerBE {
 	}
 
 	function render() {
-		$v = new MarkdownView(__DIR__.'/../../../docs/'.$this->file);
+		$v = new MarkdownView(AutoLoad::getInstance()->nadlibRoot.'docs/'.$this->file);
 		$content = $v->render();
 		$content = preg_replace('/href="(.+\.md)"/', 'href="About/$1"', $content);
 		return $content;
