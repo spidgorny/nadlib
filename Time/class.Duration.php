@@ -71,7 +71,7 @@ class Duration extends Time {
 		$total = 0;
 		$parts = trimExplode(' ', $string);
 		foreach ($parts as $p) {
-			$value = intval($p);
+			$value = floatval($p);
 			$uom = str_replace($value, '', $p);
 			//debug($p, $value, $uom);
 			switch ($uom) {
@@ -118,6 +118,13 @@ class Duration extends Time {
 					$total += $value*60*60*24*365;
 				break;
 			}
+		}
+		if (!$total) {
+			$tz = date_default_timezone_get();
+			date_default_timezone_set('Asia/Tokyo');
+			$total = strtotime($string.' UTC', 0);
+			//debug($string, $tz, date_default_timezone_get(), $total, $total/60/60);
+			date_default_timezone_set($tz);
 		}
 		return new Duration($total);
 	}
@@ -252,6 +259,18 @@ class Duration extends Time {
 		} else {
 			throw new Exception(__METHOD__.'#'.__LINE__);
 		}
+	}
+
+	public function getMinutes() {
+		return $this->time / 60;
+	}
+
+	public function getHours() {
+		return $this->time / 60 / 60;
+	}
+
+	public function getDays() {
+		return $this->time / 60 / 60 / 24;
 	}
 
 }
