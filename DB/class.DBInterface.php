@@ -11,11 +11,11 @@ interface DBInterface {
 
 	function numRows($res = NULL);
 
-	function affectedRows();
+	function affectedRows($res = NULL);
 
 	function getTables();
 
-	function lastInsertID();
+	function lastInsertID($res, $table = NULL);
 
 	function free($res);
 
