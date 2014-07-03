@@ -326,11 +326,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->addJQuery();
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
-		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			nodebug(array(
 				'jQueryPath' => $jQueryPath,
 				'jQueryPath->exists()' => $jQueryPath->exists(),
+				'jQueryPath->getURL()' => $jQueryPath->getURL(),
 				'appRoot' => $al->appRoot,
 				'componentsPath' => $al->componentsPath,
 				'fe(jQueryPath)' => file_exists($jQueryPath),
@@ -342,7 +343,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
 			));
 			if ($jQueryPath->exists()) {
-				$this->addJS($jQueryPath->relativeFromDocRoot()->getUncapped());
+				$this->addJS($jQueryPath->getURL()->getUncapped());
 				return $this;
 			} elseif (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
 				$this->addJS(AutoLoad::getInstance()->appRoot . $jQueryPath);
