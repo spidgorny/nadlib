@@ -303,6 +303,8 @@ if (!function_exists('nodebug')) {
 	}
 
 	/**
+     * Shortcut for
+     * isset($variable) ? $variable : $default
 	 * @param $variable
 	 * @param null $default
 	 * @return null
