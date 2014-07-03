@@ -31,6 +31,10 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	 */
 	var $dbTime = 0;
 
+	var $reservedWords = array(
+		'from',
+	);
+
 	function __construct($file) {
 		$this->file = $file;
 		$this->connection = new SQLite3($this->file);
@@ -42,7 +46,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		$this->result = $this->connection->query($query);
 		$this->dbTime += $profiler->elapsed();
 		if (!$this->result) {
-			debug($this->connection->lastErrorMsg());
+			debug($query, $this->connection->lastErrorMsg());
 		}
 		return $this->result;
 	}

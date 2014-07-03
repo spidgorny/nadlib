@@ -352,7 +352,7 @@ abstract class Controller {
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';
-			$content[] = $info.'';
+			$content[] = IndexBase::mergeStringArrayRecursive($info);
 			$content[] = '</td>';
 		}
 		$content[] = '</tr>';
