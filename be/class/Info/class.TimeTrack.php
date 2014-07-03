@@ -14,10 +14,11 @@ class TimeTrack extends AppControllerBE {
 		if (file_exists($this->cacheFile)) {
 			$times = file_get_contents($this->cacheFile);
 			$times = json_decode($times, true);
-			$content[] = $this->listTimes($times);
+
 			$total = $this->showTotal($times);
 			$who = $this->showByWho($times);
 			$content[] = $this->inTable(array($total, $who));
+			$content[] = $this->listTimes($times);
 		}
 		return $content;
 	}
