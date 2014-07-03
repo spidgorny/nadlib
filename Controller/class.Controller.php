@@ -87,6 +87,7 @@ abstract class Controller {
 		if (class_exists('Config')) {
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
+			debug($this->user);
 			$this->config->mergeConfig($this);
 		} else {
 			//$this->user = new UserBase();
