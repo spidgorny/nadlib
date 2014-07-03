@@ -375,7 +375,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addCSS($source) {
-		debug($source);
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
 			if ($this->request->apacheModuleRewrite()) {
 				//$source = $source;	// rewrite inside css folder
