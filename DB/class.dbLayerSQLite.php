@@ -111,4 +111,16 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return SQLite3::escapeString($str);
 	}
 
+	function transaction() {
+		return $this->perform('BEGIN');
+	}
+
+	function commit() {
+		return $this->perform('COMMIT');
+	}
+
+	function rollback() {
+		return $this->perform('ROLLBACK');
+	}
+
 }

@@ -25,4 +25,10 @@ interface DBInterface {
 
 	function fetchAssoc($res);
 
+	function transaction();
+
+	function commit();
+
+	function rollback();
+
 }

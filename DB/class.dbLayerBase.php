@@ -71,4 +71,16 @@ class dbLayerBase {
 		return $this->reserved;
 	}
 
+	function transaction() {
+		return $this->perform('BEGIN');
+	}
+
+	function commit() {
+		return $this->perform('COMMIT');
+	}
+
+	function rollback() {
+		return $this->perform('ROLLBACK');
+	}
+
 }
