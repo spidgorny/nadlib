@@ -65,6 +65,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		));
 		//debug($this->dsn);
 		$this->connectDSN($this->dsn, $user, $password);
+		if ($this->getScheme() == 'mysql') {
+			$my = new MySQL();
+			$this->reserved = $my->getReserved();
+		}
 	}
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
@@ -179,7 +183,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return intval(!!$value);
 	}
 
-	function fetchAssoc(PDOStatement $res) {
+	/**
+	 * @param $res PDOStatement
+	 * @return mixed
+	 */
+	function fetchAssoc($res) {
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		return $row;
 	}
