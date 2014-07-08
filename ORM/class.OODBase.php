@@ -32,7 +32,8 @@ abstract class OODBase {
 	public $thes = array();
 
 	/**
-	 * @var self[get_called_class()][$id]
+	 * @var self
+	 * array[get_called_class()][$id]
 	 */
 	static $instances = array();
 
@@ -193,6 +194,9 @@ abstract class OODBase {
 		}
 		$obj = new $static();
 		$obj->findInDB($where);
+		if ($obj->id) {
+			self::$instances[$static][$obj->id] = $obj;
+		}
 		return $obj;
 	}
 
@@ -303,7 +307,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return self
+	 * @return self|$this|static
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
@@ -316,6 +320,9 @@ abstract class OODBase {
 			}
 		} else {
 			$inst = new $static($id);
+			if ($inst->id) {
+				self::$instances[$static][$inst->id] = $inst;
+			}
 		}
 		return $inst;
 	}
