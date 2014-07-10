@@ -58,7 +58,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 			$val = $value;
 			$val = strtotime($val);
 		} else {
-			$val = time();
+			$val = NULL;	// time();
 		}
 		//debug($this->jsFormat, $value, $val);
 		return $val;

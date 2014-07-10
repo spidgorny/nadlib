@@ -38,7 +38,7 @@ class Timeline2 /*extends AppController */{
 			$height_10 = $this->height / 3;
 			$height_20 = $this->height / 3 * 2;
 			$height_30 = $this->height;
-			$fontSize = $this->height / 4;
+			$fontSize = $this->height / 4.0;
 
 			$nextDay = clone $this->start;
 			$nextDay = $nextDay->math('+1 day');
@@ -57,8 +57,10 @@ class Timeline2 /*extends AppController */{
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 day'))) {
 				$x = $this->date2x($date);
-				$content .= '<line x1="'.$x.'" y1="'.($height_10).'" x2="'.$x.'" y2="'.($height_10+$height_10/2).'"
+				if ($dayWidth > 2) {	// px
+					$content .= '<line x1="'.$x.'" y1="'.($height_10).'" x2="'.$x.'" y2="'.($height_10+$height_10/2).'"
 					style="stroke:'.$this->textColor.';stroke-width:1"/>';
+				}
 				// if enough space for dates
 				if ($dayWidth > ($fontSize*1.5)) {
 					$content .= '<text
@@ -90,12 +92,31 @@ class Timeline2 /*extends AppController */{
 				$x = $this->date2x($date);
 				$content .= '<line x1="'.($x+0).'" y1="'.$height_10.'" x2="'.($x+0).'" y2="'.($height_30).'"
 					style="stroke:'.$this->textColor.';stroke-width:1"/>';
-				$content .= '<text
+				if (($dayWidth * 30) > ($fontSize*3)) {	// 3 letters in Jan
+					$content .= '<text
 					x="'.($x+1).'"
 					y="'.($height_20 + $fontSize*0.9).'"
 					fill="'.$this->textColor.'"
 					font-size="'.$fontSize.'"
 					>'.$date->format('M').'</text>';
+				}
+			}
+
+			// year labels
+			//debug($dayWidth, ($dayWidth * 30), $fontSize, ($fontSize*3));
+			if (($dayWidth * 30) < ($fontSize*3)) {	// 3 letters in Jan
+				for ($date = clone $this->start/* @var $date Date */;
+					 $date->earlier($this->end);
+					 $date->add(new Duration('1 year'))) {
+					$x = $this->date2x($date);
+					$content .= '<text
+						x="'.($x+1).'"
+						y="'.($height_20 + $fontSize*0.9).'"
+						fill="'.$this->textColor.'"
+						font-size="'.$fontSize.'"
+						>'.$date->format('Y').'</text>';
+
+				}
 			}
 
 			// fill top background
@@ -126,7 +147,7 @@ class Timeline2 /*extends AppController */{
 		$rc = $this->duration->getTimestamp() / 60 / 60 / 24;
 		$percent = round($percent * $rc) / $rc;
 		//debug($date->getTimestamp(), $this->start->getTimestamp(), $sinceStart->getTimestamp(), $this->duration->getTimestamp(), $percent);
-		return round($percent * $this->width);
+		return round($percent * $this->width, 2);
 	}
 
 }

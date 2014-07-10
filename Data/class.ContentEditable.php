@@ -19,7 +19,8 @@ class ContentEditable {
 
 	function __construct($file) {
 		$this->file = $file;
-		$this->filename = 'pages/'.$this->file.'.txt';
+		$files = glob('pages/'.$this->file.'.*');
+		$this->filename = $files[0];
 		$this->content = @file_get_contents($this->filename);
 		if (!$this->content) {
 			$this->content = '&nbsp;';
@@ -51,7 +52,23 @@ class ContentEditable {
 	}
 
 	function __toString() {
-		return ($this->content);	// don't add nl2br()
+		$ext = pathinfo($this->filename, PATHINFO_EXTENSION);
+		switch ($ext) {
+			case 'txt':
+				$content = nl2br(htmlspecialchars($this->content));
+				break;
+			case 'html':
+				$content = $this->content;
+				$content = str_replace('src="', 'src="'.dirname($this->filename).'/', $content);	// IMG
+				break;
+			case 'md':
+				$md = new Markdown($this->filename);
+				$content = $md->render();
+				break;
+			default:
+				throw new Exception(__METHOD__);
+		}
+		return $content;
 	}
 
 	/**
