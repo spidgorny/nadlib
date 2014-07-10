@@ -28,8 +28,13 @@ class SQLOr extends SQLWherePart {
 		}
 		if ($this->qb->db instanceof dbLayerPG) {		// ???
 			$ors = array();
-			foreach ($this->or as $or) {
-				$ors[] = $this->db->getWherePart($or, false);
+			foreach ($this->or as $key => $or) {
+				if (is_main($key)) {
+					$ors[] = $this->db->getWherePart(array(
+						$key => $or,
+						$key.'.' => $this->or[$key.'.'],
+					), false);
+				}
 			}
 		} else if ($this->qb->db instanceof dbLayer) {	// DCI, ORS
 			// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))

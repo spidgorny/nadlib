@@ -48,6 +48,7 @@ abstract class LocalLang {
 		$l = new LanguageDetect();
 		//debug($this->ll);
 		//debug($l->languages);
+		$replace = false;
 		foreach ($l->languages as $lang) {
 			//debug(array($lang => isset($this->ll[$lang])));
 			if (isset($this->ll[$lang])) {
@@ -200,10 +201,11 @@ abstract class LocalLang {
 
 if (!function_exists('__')) {	// conflict with cake
 	function __($code, $r1 = null, $r2 = null, $r3 = null) {
-		if (Config::getInstance() && Config::getInstance()->ll) {
-		$text = Config::getInstance()->ll->T($code, $r1, $r2, $r3);
-		//echo $code, '-', $text, '<br />', "\n";
-		return $text;
+		$index = Index::getInstance();
+		if ($index && $index->ll) {
+			$text = $index->ll->T($code, $r1, $r2, $r3);
+			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
+			return $text;
 		} else {
 			return $code;
 		}

@@ -2,6 +2,11 @@
 
 class PlainSessionUser extends User {
 
+	/**
+	 * @var PlainSessionUser
+	 */
+	static protected $instance;
+
 	function __construct() {
 		if (!Request::isCLI()) {
 			//debug('session_start');
@@ -21,8 +26,21 @@ class PlainSessionUser extends User {
 	}
 
 	function isAuth() {
-		return true;
-		return session_status() == PHP_SESSION_ACTIVE;	// PHP 5.4
+		if (phpversion() >= 5.4) {
+			return session_status() == PHP_SESSION_ACTIVE;	// PHP 5.4
+		} else {
+			return true;
+		}
+	}
+
+	function __toString() {
+		return session_id();
+	}
+
+	public static function getInstance() {
+		return self::$instance
+			?  self::$instance
+			:  self::$instance = new self();
 	}
 
 }

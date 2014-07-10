@@ -37,13 +37,18 @@ class Menu /*extends Controller*/ {
 	 */
 	public $renderOnlyCurrent = true;
 
-	public $ulClass = 'nav nav-list menu csc-menu';
+	public $ulClass = 'nav nav-list menu csc-menu list-group';
 
+	/**
+	 * @var URL
+	 */
 	public $basePath;
 
 	public $recursive = true;
 
 	public $useRecursiveURL = true;
+
+	public $useControllerSlug = true;
 
 	function __construct(array $items, $level = NULL) {
 		//parent::__construct();
@@ -54,6 +59,7 @@ class Menu /*extends Controller*/ {
 		if (class_exists('Config')) {
 			$this->user = Config::getInstance()->user;
 		}
+		$this->useControllerSlug = $this->request->apacheModuleRewrite();
 		$this->setCurrent($level);
 		$this->setBasePath();
 	}
@@ -63,7 +69,9 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config')
+			? Config::getInstance()->config['Controller']['useRouter']
+			: '';
 		if ($useRouter) {
 			$rootpath = $this->request->getURLLevels();
 			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
@@ -77,14 +85,16 @@ class Menu /*extends Controller*/ {
 	 * Called by the constructor
 	 */
 	function setBasePath() {
-		$useRouter = class_exists('Config') ? Config::getInstance()->config['Controller']['useRouter'] : '';
+		$useRouter = class_exists('Config')
+			? Config::getInstance()->config['Controller']['useRouter']
+			: ($this->request->apacheModuleRewrite());
 		if ($useRouter) {
-			//$path = $this->request->getURLLevels();
-			//$path = implode('/', $path);
+			$path = new URL();
+			$path->clearParams();
 		} else {
 			$path = new URL();
 			$path->clearParams();
-			$path->setParam('c', '');
+			$path->setParam('c', '');	// forces a link with "?c="
 		}
 		$this->basePath = $path;
 		//debug($this->current, $this->basePath);
@@ -161,10 +171,15 @@ class Menu /*extends Controller*/ {
 			if ($name) {	// empty menu items indicate menu location for a controller
 				$path = $this->getClassPath($class, $root);
 				//$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? $class == $this->current : true;
-				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent ? in_array($class, $this->request->getURLLevels()) : true;
-				$hasChildren = $renderOnlyCurrentSubmenu && $name instanceof Recursive && $name->getChildren();
-				$activeAclass = $this->isCurrent($class) ? 'act' : '';
-				$activeLIclass = $this->isCurrent($class) ? 'active' : '';
+				$renderOnlyCurrentSubmenu = $this->renderOnlyCurrent
+					? in_array($class, $this->request->getURLLevels())
+					: true;
+				$hasChildren = $renderOnlyCurrentSubmenu
+					&& $name instanceof Recursive
+					&& $name->getChildren();
+				$cur = $this->isCurrent($class, $root);
+				$activeLIclass = $cur	? 'list-group-item active' : 'list-group-item';
+				$activeAclass  = $cur 	? 'act' : '';
 				if ($name instanceof HTMLTag) {
 					$aTag = $name.'';
 				} else {
@@ -196,19 +211,22 @@ class Menu /*extends Controller*/ {
 	 * For http://appdev.nintendo.de/~depidsvy/posaCards/ListSales/ChartSales/BreakdownTotal/?filter[id_country]=2
 	 * to work we need to split by '/' not only the path but also parameters
 	 * @param string $class
+	 * @param $subMenu
 	 * @return bool
 	 */
-	function isCurrent($class) {
+	function isCurrent($class, $subMenu) {
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);
 			if (end($parts) == $class) {
 				$ret = true;
 			}
+		} elseif ($subMenu) {
+			$ret = (implode('/', $subMenu).'/'.$class) == $this->current;
 		} else {
 			$ret = $this->current == $class;
 		}
-		//debug($this->current, $class);
+		//debug($class, $subMenu, $this->current, $ret);
 		return $ret;
 	}
 
@@ -219,19 +237,25 @@ class Menu /*extends Controller*/ {
 	 * @return string
 	 */
 	function getClassPath($class, array $root) {
-		if ($this->useRecursiveURL) {
-			//$path = $this->items->find($class);
-			//debug($class, $path);
-			$path = array_merge($root, array($class));
-			if ($path) {
-				$path = $this->basePath . implode('/', $path);
-			} else {
-				$path = $this->basePath . $class;
-			}
+		if (startsWith($class, 'http')) {
+			return $class;
 		} else {
-			$path = $this->basePath . $class;
+			if ($this->useRecursiveURL) {
+				//$path = $this->items->find($class);
+				//debug($class, $path);
+				$path = array_merge($root, array($class));
+			//if ($path) {
+			if ($path && $this->useControllerSlug) {
+				$link = $this->basePath . implode('/', $path);
+				} else {
+				$link = $this->basePath . $class;
+				}
+			} else {
+			$link = $this->basePath . $class;
+			}
 		}
-		return $path;
+		//debug($class, $root, $path, $this->useControllerSlug, $this->basePath, $link);
+		return $link;
 	}
 
 	function __toString() {

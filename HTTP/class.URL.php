@@ -62,7 +62,7 @@ class URL {
 		return $url;
 	}
 
-	function setParam($param, $value) {
+	public function setParam($param, $value) {
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
@@ -162,6 +162,7 @@ class URL {
 	 */
 	function buildURL($parsed = NULL) {
 		if (!$parsed) {
+			$this->components['query'] = $this->buildQuery(); // to make sure manual manipulations are not possible (although it's already protected?)
 			$parsed = $this->components;
 		}
 	    if (!is_array($parsed)) {
@@ -186,13 +187,13 @@ class URL {
 	    return $uri;
 	}
 
-	function __toString() {
+	public function __toString() {
 		$url = $this->buildURL();
 		//debug($this->components, $url);
 		return $url.'';
 	}
 
-	function getRequest() {
+	public function getRequest() {
 		$r = new Request($this->params ? $this->params : array());
 		$r->url = $this;
 		return $r;
@@ -250,6 +251,59 @@ return $return; */
 	function exists() {
 		$AgetHeaders = @get_headers($this->buildURL());
 		return preg_match("|200|", $AgetHeaders[0]);
+	}
+
+	/**
+	 * http://stackoverflow.com/a/2638272/417153
+	 * @param string $from
+	 * @param string $to
+	 * @return string
+	 */
+	static function getRelativePath($from, $to) {
+		// some compatibility fixes for Windows paths
+		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		$to   = is_dir($to)   ? rtrim($to, '\/') . '/'   : $to;
+		$from = str_replace('\\', '/', $from);
+		$to   = str_replace('\\', '/', $to);
+
+		$from     = explode('/', $from);
+		$to       = explode('/', $to);
+		$relPath  = $to;
+		//debug($from, $to, $relPath);
+
+		foreach ($from as $depth => $dir) {
+			// find first non-matching dir
+			if($dir === $to[$depth]) {
+				// ignore this directory
+				array_shift($relPath);
+			} else {
+				// get number of remaining dirs to $from
+				$remaining = count($from) - $depth;
+				if ($remaining > 1) {
+					// add traversals up to first matching dir
+					$padLength = (count($relPath) + $remaining - 1) * -1;
+					$relPath = array_pad($relPath, $padLength, '..');
+					break;
+				} else {
+					$relPath[0] = './' . $relPath[0];
+				}
+			}
+		}
+		return implode('/', $relPath);
+	}
+
+	static function getScriptWithPath() {
+		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
+		if (Request::isCLI()) {
+			if (basename($_SERVER['SCRIPT_FILENAME']) == $_SERVER['SCRIPT_FILENAME']) {	// index.php
+				$scriptWithPath = getcwd().'/'.$_SERVER['SCRIPT_FILENAME'];
+			} else {
+				$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+			}
+		} else {
+			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+		}
+		return $scriptWithPath;
 	}
 
 }

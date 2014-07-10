@@ -147,7 +147,13 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
     	return sizeof($this->data);
     }
 
-    function searchColumn($key, $val) {
+	/**
+	 * Returns the first found row
+	 * @param $key
+	 * @param $val
+	 * @return mixed
+	 */
+	function searchColumn($key, $val) {
     	foreach ($this->data as $row) {
     		if ($row[$key] == $val) {
     			return $row;
@@ -333,6 +339,21 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return array_sum($this->data);
 	}
 
+	function min() {
+		return min($this->data);
+	}
+
+	function max() {
+		return max($this->data);
+	}
+
+	function avg() {
+		$count = $this->count();
+		if ($count != 0) {
+			return $this->sum() / $count;
+		}
+	}
+
 	/**
 	 * Runs get_object_vars() recursively
 	 * @param array $data
@@ -411,6 +432,29 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 			}
 		}
 		return $replace;
+	}
+
+	function count_if($k) {
+		$count = 0;
+		foreach ($this->data as $val) {
+			if ($val[$k]) {
+				$count++;
+			}
+		}
+		return $count;
+	}
+
+	function count_if_sub($k1s, $k2) {
+		$count = 0;
+		foreach ($this->data as $val) {
+			foreach ($val as $key2 => $val2) {
+				if (in_array($key2, $k1s) && $val2[$k2]) {
+					$count++;
+					break;
+				}
+			}
+		}
+		return $count;
 	}
 
 }

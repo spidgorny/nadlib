@@ -33,7 +33,6 @@ class HTMLFormValidate {
 					$d['value'] = intval($d['value']);
 				}
 				$type = $d['type'];
-				$value = $d['value'];
 				$isCheckbox = in_array($type, array(
 					'check',
 					'checkbox',
@@ -42,14 +41,15 @@ class HTMLFormValidate {
 					'recaptchaAjax',
 					'select',
 				));
-				$d = $this->validateField($field, $d, $type, $value, $isCheckbox);
+				$d = $this->validateField($field, $d, $type, $isCheckbox);
 				$error = $error || $d['error'];
 			}
 		}
 		return !$error;
 	}
 
-	function validateField($field, $d, $type, $value, $isCheckbox) {
+	function validateField($field, array $d, $type, $isCheckbox) {
+		$value = $d['value'];
 		if (!$d['optional'] && (
 			!($value) || (!$d['allow0'] && !isset($value)))
 			&& !$isCheckbox) {
@@ -57,15 +57,18 @@ class HTMLFormValidate {
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
-		} elseif ($d['mustBset'] && !isset($value)) {	// must be before 'obligatory'
-			$e['error'] = __('Field "%1" must be set', $d['label'] ?: $field);
+		} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
+			$d['error'] = __('Field "%1" must be set', $d['label'] ?: $field);
 		} elseif ($d['obligatory'] && !$value) {
 			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
-		} elseif ($field == 'email' && $value && !$this->validMail($value)) {
+		} elseif ($type == 'email' || $field == 'email' && $value && !$this->validMail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
 		} elseif ($field == 'password' && strlen($value) < 6) {
 			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
+        } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
+            $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && $value < $d['min']) {
+			debug($value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
 		} elseif ($d['max'] && $value > $d['max']) {
 			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $d['label'] ?: $field, $d['max']);
@@ -119,6 +122,17 @@ class HTMLFormValidate {
 		return $d;
 	}
 
+    function securePassword($value) {
+        /*
+        * REGEX used for password strength check
+        *  (?=.*\\d.*)      : at least one Digit
+        *  (?=.*[a-zA-Z].*) : any Letters
+        *  (?=.*[A-Z])      : at least one Uppercase
+        *  {8,}             : 8 Length
+        */
+        $passwordRegex = '/(?=.*\\d.*)(?=.*[a-zA-Z].*)(?=.*[A-Z]).{8,}/';
+        return(preg_match($passwordRegex, $value));
+    }
 
 	function getDesc() {
 		return $this->desc;

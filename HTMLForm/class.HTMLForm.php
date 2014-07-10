@@ -147,10 +147,10 @@ class HTMLForm {
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "", $more = '') {
+	function password($name, $value = "", array $desc = array()) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
-		$this->stdout .= $this->getInput("password", $name, $value, $more);
+		$this->stdout .= $this->getInput("password", $name, $value, '', $desc['class']);
 	}
 
 	function hidden($name, $value, $more = "") {
@@ -180,9 +180,17 @@ class HTMLForm {
 	 */
 	function radioLabel($name, $value, $checked, $label = "", $more = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."' {$more}> ";
-		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+		$aName = is_array($name) ? $name : array();
+		$id = implode('_', array_merge($this->prefix, $aName))."_".$value;
+		$this->stdout .= '<label class="radio" for="'.$id.'">
+		<input
+			type="radio"
+			'.$this->getName($name).'
+			value="'.htmlspecialchars($value, ENT_QUOTES).'" '.
+			($checked ? "checked" : "").'
+			id="'.$id.'"
+			'.$more.'> ';
+		$this->stdout .= $this->hsc($label)."</label>";
 	}
 
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
@@ -289,11 +297,23 @@ class HTMLForm {
 		return $content;
 	}
 
-	function date($name, $value) {
-		if (!$value) {
-			$value = date('d.m.Y');
+	/**
+	 * Default value is no longer "today"
+	 * @param $name
+	 * @param $value
+	 * @param array $desc
+	 */
+	function date($name, $value, array $desc = array()) {
+		$format = $desc['format'] ?: 'd.m.Y';
+		if (is_numeric($value)) {
+			$value = date($format, $value);
+		} elseif (!$value) {
+			//$value = date('d.m.Y');
 		}
-		$this->input($name, $value);
+		$this->input($name, $value,
+			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
+			(isset($desc['more']) ? $desc['more'] : '')
+		);
 	}
 
 	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
@@ -328,11 +348,11 @@ class HTMLForm {
 ';
 	}
 
-	function money($name, $value) {
+	function money($name, $value, array $desc) {
 		if (!$value) {
 			$value = "0.00";
 		}
-		$this->input($name, $value);
+		$this->input($name, $value, $desc['more']);
 		$this->text("&euro;");
 	}
 
@@ -495,7 +515,7 @@ class HTMLForm {
 		return $content;
 	}
 
-	function dropSelect($fieldName, array $options) {
+	static function dropSelect($fieldName, array $options) {
 		$content = '
 			<input type="hidden" name="'.$fieldName.'" id="'.$fieldName.'">
 			<input type="text" name="'.$fieldName.'_name" id="'.$fieldName.'_name" onchange="setDropSelectValue(this.value, this.value);">
@@ -557,7 +577,7 @@ class HTMLForm {
 	 * @see set()
 	 */
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
 		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
@@ -573,7 +593,7 @@ class HTMLForm {
 			$this->stdout .= '</label>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -584,8 +604,8 @@ class HTMLForm {
 	 * @see $this->radioset()
 	 */
 	function radioArray($name, array $options, $selected) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
-		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->stdout .= '<div class="radioArray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
@@ -594,7 +614,7 @@ class HTMLForm {
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function __toString() {

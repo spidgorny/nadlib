@@ -1,15 +1,25 @@
 <?php
 
+define('BR', "<br />\n");
+
 class InitNADLIB {
 
 	var $useCookies = true;
 
+	/**
+	 * @var AutoLoad
+	 */
+	var $al;
+
+	function __construct() {
+		require_once dirname(__FILE__) . '/class.AutoLoad.php';
+		$this->al = AutoLoad::getInstance();
+	}
+
 	function init() {
 		//print_r($_SERVER);
-		require_once dirname(__FILE__) . '/class.AutoLoad.php';
-		$al = AutoLoad::getInstance();
-		$al->useCookies = $this->useCookies;
-		$al->register();
+		$this->al->useCookies = $this->useCookies;
+		$this->al->register();
 
 		$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		define('DEVELOPMENT', Request::isCLI()
@@ -18,6 +28,7 @@ class InitNADLIB {
 		);
 
 		if (DEVELOPMENT) {
+			header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -29,7 +40,9 @@ class InitNADLIB {
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config')) {
 				//print_r(Config::getInstance()->config['Config']);
-				set_time_limit(Config::getInstance()->timeLimit ? Config::getInstance()->timeLimit : 5);	// small enough to notice if the site is having perf. problems
+				set_time_limit(Config::getInstance()->timeLimit
+					? Config::getInstance()->timeLimit
+					: 5);	// small enough to notice if the site is having perf. problems
 			}
 			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 			if (!Request::isCLI()) {
@@ -49,10 +62,21 @@ class InitNADLIB {
 		Request::removeCookiesFromRequest();
 	}
 
+	function initWhoops() {
+		$run     = new Whoops\Run;
+		$handler = new Whoops\Handler\PrettyPageHandler;
+		$run->pushHandler($handler);
+		$run->register();
+	}
+
 }
 
+/**
+ * May already be defined in TYPO3
+ */
+if (!function_exists('debug')) {
 function debug($a) {
-	$params = func_get_args();
+    $params = func_get_args();
 	if (method_exists('Debug', 'debug_args')) {
 		call_user_func_array(array('Debug', 'debug_args'), $params);
 	} else {
@@ -62,6 +86,7 @@ function debug($a) {
 			, true)
 		).'</pre>';
 	}
+}
 }
 
 function nodebug() {
@@ -226,7 +251,7 @@ if(!function_exists('get_called_class')) {
 /**
  * Complements the built-in end() function
  * @param array $list
- * @return mixed
+ * @return array|mixed
  */
 function first(array $list) {
 	reset($list);
@@ -245,6 +270,12 @@ function eachv(array &$list) {
 	return $current;
 }
 
+/**
+ * @used FullGrid
+ * @param array $a
+ * @param array $b
+ * @return array
+ */
 function array_combine_stringkey(array $a, array $b) {
 	$ret = array();
 	reset($b);
