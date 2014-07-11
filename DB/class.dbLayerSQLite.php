@@ -31,8 +31,12 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	 */
 	var $dbTime = 0;
 
-	var $reservedWords = array(
-		'from',
+	/**
+	 * MUST BE UPPERCASE
+	 * @var array
+	 */
+	var $reserved = array(
+		'FROM',
 	);
 
 	function __construct($file) {
@@ -58,8 +62,12 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	function numRows($res = NULL) {
 		if ($res instanceof SQLite3Result) {
 			//debug(get_class($res), get_class_methods($res));
-			$all = $this->fetchAssoc($res);
-			$numRows = sizeof($all);
+			//$all = $this->fetchAll($res);   // will free() inside
+			//$numRows = sizeof($all);
+			$numRows = 0;
+			while ($this->fetchAssoc($res) !== FALSE) {
+				$numRows++;
+			}
 			$res->reset();
 		} else {
 			debug($res);

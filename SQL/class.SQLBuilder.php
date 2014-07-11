@@ -13,6 +13,7 @@
  *
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
+ * @mixin dbLayerBase
  */
 class SQLBuilder {
 
@@ -36,7 +37,8 @@ class SQLBuilder {
 	}
 
 	function quoteKey($key) {
-		if (in_array(strtoupper($key), $this->getReserved())) {
+		$reserved = $this->getReserved();
+		if (in_array(strtoupper($key), $reserved)) {
 			$key = $this->db->quoteKey($key);
 		}
 		return $key;
@@ -367,7 +369,7 @@ class SQLBuilder {
 
 	/**
 	 * Return ALL rows
-	 * @param <type> $order
+	 * @param string $table
 	 * @param array $where
 	 * @param string $order
 	 * @param string $addFields
