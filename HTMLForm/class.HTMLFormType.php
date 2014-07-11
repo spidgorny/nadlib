@@ -10,8 +10,11 @@ abstract class HTMLFormType {
 	/**
 	 * @var HTMLForm
 	 */
-	protected $form;
+	public $form;
 
+	/**
+	 * @var array
+	 */
 	public $field;
 	public $fullname;
 	public $value;
