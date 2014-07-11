@@ -23,7 +23,7 @@ class AutoLoad {
 	private static $instance;
 
 	/**
-	 * @var string
+	 * @var Path
 	 */
 	public $appRoot;
 
@@ -109,7 +109,7 @@ class AutoLoad {
 		$this->appRoot = $this->detectAppRoot();
 //		echo 'appRoot: ', $this->appRoot, BR;
 
-		if (strlen($this->appRoot > 1) && $this->appRoot[1] != ':') { // '/', 'w:\\'
+		if ((strlen($this->appRoot) > 1) && !$this->appRoot->isAbsolute) { // '/', 'w:\\'
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
 			$appRootIsRoot = true;
 		} else {
@@ -203,6 +203,7 @@ class AutoLoad {
 
 		// always add trailing slash!
 	    $appRoot = cap($appRoot, '/');
+		$appRoot = new Path($appRoot);
 		return $appRoot;
 	}
 
