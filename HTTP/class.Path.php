@@ -13,8 +13,8 @@ class Path {
 	var $isFile = false;
 
 	function __construct($sPath) {
-		$this->sPath = $sPath;
-		$this->isAbsolute = startsWith($this->sPath, '/');
+		$this->sPath = $sPath.'';
+		$this->isAbsolute = startsWith($this->sPath, '/') || $this->sPath[1] == ':';
 		$this->isDir = endsWith($this->sPath, '/');
 		$this->isFile = !$this->isDir;
 		$this->explode();
@@ -42,7 +42,7 @@ class Path {
 	 * Modifies the string path after array modification
 	 */
 	function implode() {
-		$this->sPath = ($this->isAbsolute ? '/' : '').
+		$this->sPath = ((!Request::isWindows() && $this->isAbsolute) ? '/' : '').
 			implode('/', $this->aPath);
 	}
 
@@ -184,11 +184,39 @@ class Path {
 	 * @return Path
 	 */
 	public function relativeFromDocRoot() {
-		$new = array_diff($this->aPath, AutoLoad::getInstance()->documentRoot->aPath);
+		$this->makeAbsolute();
+		$al = AutoLoad::getInstance();
+		$new = array_diff($this->aPath, $al->documentRoot->aPath);
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;
 		return $relative;
+	}
+
+	/**
+	 * @return Path
+	 */
+	public function relativeFromAppRoot() {
+		$this->makeAbsolute();
+		$al = AutoLoad::getInstance();
+		$new = array_diff($this->aPath, $al->appRoot->aPath);
+		$relative = Path::fromArray($new);
+		$relative->isFile = $this->isFile;
+		$relative->isDir = $this->isDir;
+		return $relative;
+	}
+
+	function makeAbsolute() {
+		if (!$this->isAbsolute) {
+			debug(getcwd(), $this);
+			$prefix = new Path(getcwd());
+			debug($prefix);
+			$prefix->append($this);
+			$this->aPath = $prefix->aPath;
+			$this->implode();
+			$this->isAbsolute = true;
+			debug(getcwd(), $this);
+		}
 	}
 
 	public function getURL() {

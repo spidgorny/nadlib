@@ -209,6 +209,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$combined .= $value."\n";
 			});
 			$render = $combined;
+		} else if (is_object($render)) {
+			$render = $render.'';
 		}
 		return $render;
 	}
@@ -327,6 +329,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
 		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->setAsFile();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			nodebug(array(
 				'jQueryPath' => $jQueryPath,
@@ -344,11 +347,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($jQueryPath->exists()) {
 				$this->addJS($jQueryPath->relativeFromDocRoot()->getUncapped());
 				return $this;
-			} elseif (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
-				$this->addJS(AutoLoad::getInstance()->appRoot . $jQueryPath);
-				return $this;
 			} else {
-				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+				$jQueryPath = clone $al->componentsPath;
+				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
+				$jQueryPath->setAsFile();
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
 				return $this;
 			}
 		}
@@ -429,7 +432,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeCSS() {
-		//return implode("\n", $this->header);
 		$content = array();
 		foreach ($this->header as $key => $script) {
 			$content[] = '<!--'.$key.'-->'."\n".$script;
