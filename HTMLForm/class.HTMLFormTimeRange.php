@@ -67,6 +67,10 @@ class HTMLFormTimeRange extends HTMLFormType {
 		assert($this->step);
 		$al = AutoLoad::getInstance();
 		$content = new View($al->nadlibRoot.'HTMLForm/HTMLFormTimeRange.phtml', $this);
+		$fieldString = $this->form->getName($this->field, '', true);
+		$fieldString = str_replace('[', '\\[', $fieldString);
+		$fieldString = str_replace(']', '\\]', $fieldString);
+		$content->fieldEscaped = $fieldString;
 		return $content;
 	}
 

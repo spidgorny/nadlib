@@ -63,8 +63,8 @@ class HTMLFormValidate {
 			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
 		} elseif (($type == 'email' || $field == 'email') && $value && !$this->validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
-		} elseif ($field == 'password' && strlen($value) < 6) {
-			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
+		} elseif ($field == 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
+			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
         } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
             $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && ($value < $d['min'])) {

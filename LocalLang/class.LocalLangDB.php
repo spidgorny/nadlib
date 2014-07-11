@@ -58,10 +58,18 @@ class LocalLangDB extends LocalLang {
 		//debug(__METHOD__, DEVELOPMENT, $code, $this->ll[$code]);
 		if (DEVELOPMENT && $code) {
 			try {
-				$this->db->runInsertNew($this->table, array(
+				$insert = array(
 					'code' => $code,
 					'lang' => $this->defaultLang,		// is maybe wrong to save to the defaultLang?
-				), array(
+				);
+				$cols = $this->db->getTableColumnsEx($this->table);
+				if ($cols['cuser']) {
+					$insert['cuser'] = Config::getInstance()->user->id;
+				}
+				if ($cols['muser']) {
+					$insert['muser'] = Config::getInstance()->user->id;
+				}
+				$this->db->runInsertNew($this->table, $insert, array(
 					'text' => '',
 					'page' => Request::getInstance()->getURL(),
 				));
