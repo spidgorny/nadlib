@@ -116,7 +116,7 @@ abstract class HTMLFormProcessor extends AppController {
 		if ($this->validated) {
 			//$data = $this->form->getValues();	// doesn't work with multidimentional
 			$data = $this->request->getArray($this->prefix);
-			$content .= $this->onSuccess($data);
+			$content .= IndexBase::mergeStringArrayRecursive($this->onSuccess($data));
 		} else {
 			if ($this->submitted) {
 				$content .= '<div class="error alert alert-error ui-state-error padding">'.
