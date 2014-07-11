@@ -320,7 +320,7 @@ class Request {
 				if ($Scontroller->contains('/')) {	// in case it's with sub-folder
 					$dir = dirname($Scontroller);
 					$parts = trimExplode('/', $controller);
-					debug($dir, $parts, file_exists($dir));
+					//debug($dir, $parts, file_exists($dir));
 					if (file_exists($dir)) {
 						$controller = end($parts);
 					} else {
