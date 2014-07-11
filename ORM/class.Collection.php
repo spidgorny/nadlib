@@ -83,9 +83,10 @@ class Collection {
 	public $query;
 
 	/**
+	 * Is NULL until it's set to 0 or more
 	 * @var integer Total amount of data retrieved (not limited by Pager)
 	 */
-	public $count = 0;
+	public $count = NULL;
 
 	/**
 	 * Should it be here? Belongs to the controller?
@@ -819,13 +820,20 @@ class Collection {
 		return $memberIterator;
 	}
 
+	/**
+	 * Don't update $this->query otherwise getData() will think we have
+	 * retrieved nothing.
+	 * @return int
+	 */
 	public function getCount() {
-		$this->query = $this->getQuery($this->where);
-		$res = $this->db->perform($this->query);
-		if ($this->pager) {
-			$this->count = $this->pager->numberOfRecords;
-		} else {
-			$this->count = $this->db->numRows($res);
+		if (is_null($this->count)) {
+			$query = $this->getQuery($this->where);
+			$res = $this->db->perform($query);
+			if ($this->pager) {
+				$this->count = $this->pager->numberOfRecords;
+			} else {
+				$this->count = $this->db->numRows($res);
+			}
 		}
 		return $this->count;
 	}

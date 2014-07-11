@@ -181,7 +181,7 @@ abstract class Scaffold extends AppController {
 			'c' => get_class($this),
 			'ajax' => TRUE,
 			'action' => 'showForm',
-		), $this->formPrefix, '', 'class="button"');
+		), $this->formPrefix, '', array('class' => "button"));
 		return $content;
 	}
 

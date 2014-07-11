@@ -16,7 +16,8 @@ function showSliders() {
 			var end = ui.values[1];
 			end = new Date(end*60*1000);
 			end = new String(end.getUTCHours()).zf() + ':' + new String(end.getUTCMinutes()).zf();
-			$("#"+$slider.attr('field')).val(start + '-' + end);
+			var $input = $("#"+$(this).attr('field'));
+			$input.val(start + '-' + end);
 		}
 	});
 	//$("#<?= $this->field ?>").val($("#slider-range-<?= $this->div ?>").slider("values", 0) + '-' + $("#slider-range-<?= $this->div ?>").slider("values", 1));
