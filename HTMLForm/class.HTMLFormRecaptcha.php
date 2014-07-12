@@ -15,16 +15,21 @@ class HTMLFormRecaptcha {
 		if (!$this->publickey || !$this->privatekey) {
 			throw new Exception(__METHOD__);
 		}
+		require_once 'vendor/recaptcha/recaptchalib.php';
 	}
 
 	function getForm(array $desc) {
-		require_once 'lib/recaptcha-php-1.10/recaptchalib.php';
 		$content = recaptcha_get_html($this->publickey, $desc['error']);
 		return $content;
 	}
 
 	function getFormAjax(array $desc) {
-		$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error='.htmlspecialchars($desc['captcha-error']).'"></script>
+		$r = Request::getInstance();
+		if (!$r->isAjax()) {
+			$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error=' .
+				htmlspecialchars(urlencode($desc['captcha-error'] ? '' : ''), ENT_QUOTES) . '"></script>';
+		}
+		$content .= '
 		<div id="recaptcha_div"></div>
  		<script>
  			Recaptcha.create("'.$this->publickey.'", "recaptcha_div");
@@ -38,7 +43,6 @@ class HTMLFormRecaptcha {
 	function validate($field, array $d) {
 		if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
 			define("RECAPTCHA_VERIFY_SERVER", gethostbyname("www.google.com"));
-			require_once('lib/recaptcha-php-1.10/recaptchalib.php');
 			$resp = recaptcha_check_answer(
 				$this->privatekey,
 				$_SERVER["REMOTE_ADDR"],
@@ -51,6 +55,7 @@ class HTMLFormRecaptcha {
 		} else {
 			return __('Field "%1" is obligatory.', $d['label'] ?: $field);
 		}
+		return '';
 	}
 
 }
