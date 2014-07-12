@@ -18,7 +18,7 @@ class dbLayerBase {
 	 */
 	var $reserved = array();
 
-	function setQB() {
+	function setQB(SQLBuilder $qb) {
 		$di = new DIContainer();
 		$di->db = $this;
 		$qb = new SQLBuilder($di);

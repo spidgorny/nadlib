@@ -396,12 +396,18 @@ class TaylorProfiler {
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		if (session_status() == PHP_SESSION_ACTIVE) {
-			$totalMax = $_SESSION[__CLASS__]['totalMax'];
-			$totalBar = '<img src="'.ProgressBar::getBar($totalTime/$totalMax*100).'" />';
-			$_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
+            // total
+			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
+            if ($totalMax > 0) {
+                $totalBar = '<img src="'.ProgressBar::getBar($totalTime/$totalMax*100).'" />';
+            }
+            $_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
 
-			$dbMax = $_SESSION[__CLASS__]['dbMax'];
-			$dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
+            // db
+            $dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
+            if ($dbMax > 0) {
+                $dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
+            }
 			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
 		}
 

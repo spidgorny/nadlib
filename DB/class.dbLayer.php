@@ -4,7 +4,8 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer {
+class dbLayer extends dbLayerBase implements DBInterface {
+
 	var $RETURN_NULL = TRUE;
 
     /**
@@ -50,6 +51,10 @@ class dbLayer {
 	 * @var string DB name
 	 */
 	var $db;
+
+    var $reservedWords = array(
+        'SELECT',
+    );
 
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
         if ($dbse) {
@@ -484,7 +489,7 @@ class dbLayer {
 		return $res;
 	}
 
-	function numRows($query) {
+	function numRows($query = NULL) {
 		if (is_string($query)) {
 			$query = $this->perform($query);
 		}
@@ -726,7 +731,7 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb($qb) {
+    public function setQb(SQLBuilder $qb) {
         $this->qb = $qb;
     }
 
@@ -738,5 +743,9 @@ order by a.attnum';
         }
 
         return $this->qb;
+    }
+
+    function affectedRows($res = NULL) {
+        return pg_affected_rows($res);
     }
 }
