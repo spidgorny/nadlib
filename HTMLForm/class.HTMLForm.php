@@ -662,7 +662,12 @@ class HTMLForm {
 
 	function recaptcha(array $desc = array()) {
 		$hfr = new HTMLFormRecaptcha();
-		$content = $hfr->getForm($desc);
+		$r = Request::getInstance();
+		if ($r->isAjax()) {
+			$content = $hfr->getFormAjax($desc);
+		} else {
+			$content = $hfr->getForm($desc);
+		}
 		$this->stdout .= $content;
 		return $content;
 	}
