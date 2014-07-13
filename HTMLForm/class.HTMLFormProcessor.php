@@ -10,7 +10,6 @@
 abstract class HTMLFormProcessor extends AppController {
 	protected $prefix = __CLASS__;
 	protected $default = array();
-	protected $desc = array();
 
 	/**
 	 * @var HTMLFormValidate
@@ -60,9 +59,8 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	function postInit() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$this->form = new HTMLFormTable();	// needed sometime in getDesc
-		$this->desc = $this->getDesc();
-		$this->form = $this->getForm();		// $this->desc will be used inside
+		$this->form = new HTMLFormTable($this->getDesc());	// needed sometime in getDesc
+		$this->form = $this->getForm($this->form);		// $this->desc will be used inside
 		//debug($this->desc);
 		//debug($this->prefix);
 		if ($this->submitted) {
@@ -73,12 +71,11 @@ abstract class HTMLFormProcessor extends AppController {
 			//debug('submit detected', $this->prefix, sizeof($subRequest->getAll()), implode(', ', array_keys($subRequest->getAll())));
 			$this->form->importValues($subRequest);
 			//debug('importValues', $subRequest, $this->form->getValues(), $this->form->desc['begins']);
-			$this->desc = $this->form->desc;
 			$this->method[] = '$this->desc = $this->form->importValues($subRequest($this->prefix))';
 
 			$this->validator = new HTMLFormValidate($this->form);
 			$this->validated = $this->validator->validate();
-			$this->form->desc = $this->desc = $this->validator->getDesc();
+			$this->form->desc = $this->validator->getDesc();
 			$this->method[] = '$this->desc = $this->validator->getDesc()';
 		} else {
 			$this->method[] = '$this->submitted = false';
@@ -88,7 +85,6 @@ abstract class HTMLFormProcessor extends AppController {
 				$this->form->importValues($this->default instanceof Request
 					? $this->default
 					: new Request($this->default));
-				$this->desc = $this->form->desc;
 				$this->method[] = '$this->desc = $this->form->importValues($this->default)';
 			} else {
 				$this->method[] = '! import $this->default';
@@ -114,7 +110,7 @@ abstract class HTMLFormProcessor extends AppController {
 		//debug($errors);
 		//debug($this->desc);
 		if ($this->validated) {
-			//$data = $this->form->getValues();	// doesn't work with multidimentional
+			//$data = $this->form->getValues();	// doesn't work with multidimensional
 			$data = $this->request->getArray($this->prefix);
 			$content .= IndexBase::mergeStringArrayRecursive($this->onSuccess($data));
 		} else {
@@ -132,7 +128,6 @@ abstract class HTMLFormProcessor extends AppController {
 	function getForm(HTMLFormTable $preForm = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$f = $preForm ? $preForm : $this->form;
-		$f->setDesc($this->desc);
 		if ($this->ajax) {
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
 		}
@@ -144,10 +139,10 @@ abstract class HTMLFormProcessor extends AppController {
 	}
 
 	function showForm() {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (!$this->form) {
 			throw new Exception(__METHOD__.': initialize form with getForm()');
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
