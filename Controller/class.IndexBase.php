@@ -210,6 +210,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			});
 			$render = $combined;
 		} else if (is_object($render)) {
+			//debug(get_class($render));
 			$render = $render.'';
 		}
 		return $render;
@@ -345,7 +346,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
 			));
 			if ($jQueryPath->exists()) {
-				$this->addJS($jQueryPath->relativeFromDocRoot()->getUncapped());
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
 				return $this;
 			} else {
 				$jQueryPath = clone $al->componentsPath;
