@@ -559,7 +559,9 @@ class Request {
 	 */
 	function getURLLevels() {
 		$cwd = new Path(getcwd());
-		$url = AutoLoad::getInstance()->documentRoot.$this->url->getPath();
+		$al = AutoLoad::getInstance();
+		$url = clone $al->documentRoot;
+		$url->append($this->url->getPath());
 		$path = new Path($url);
 		$path->remove($cwd);
 		//$path = $path->getURL();

@@ -406,7 +406,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return mysql_data_seek($res, $number);
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res, $table = NULL) {
 		return mysql_insert_id($this->connection);
 	}
 
@@ -505,7 +505,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		return mysql_affected_rows();
 	}
 

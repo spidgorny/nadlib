@@ -144,7 +144,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $count;
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		return $this->result->rowCount();
 	}
 
@@ -164,7 +164,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $this->result->fetchAll();
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res, $table = NULL) {
 		return $this->connection->lastInsertId();
 	}
 
