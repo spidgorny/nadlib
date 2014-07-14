@@ -75,7 +75,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return $numRows;
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		$this->result->numRows();
 	}
 
@@ -84,7 +84,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return $this->fetchAll($this->result);
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res = NULL, $table = NULL) {
 		return $this->connection->lastInsertRowid();
 	}
 
