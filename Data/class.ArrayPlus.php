@@ -48,7 +48,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * Returns an array of the elements in a specific column.
 	 * @param $col
-	 * @return $this
+	 * @return static
 	 */
 	function column($col) {
 		$return = array();
@@ -197,8 +197,13 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * @param $callback
+	 * @return static
+	 */
 	public function map($callback) {
 		$this->setData(array_map($callback, $this->getData()));
+		return $this;
 	}
 
 	/**
@@ -524,7 +529,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 			'count' => $this->count(),
 		);
 	}
-	
+
     /**
      * @param $oldKey
      * @param $newKey
@@ -539,7 +544,7 @@ class ArrayPlus extends ArrayObject implements Countable {
         $keys[$index] = $newKey;
         $this->exchangeArray(array_combine($keys, array_values((array) $this)));
     }
-	
+
 	/**
 	 * @param $ar2
 	 * @return static

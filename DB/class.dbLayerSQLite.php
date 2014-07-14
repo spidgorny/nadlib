@@ -131,7 +131,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return $this->perform('ROLLBACK');
 	}
 
-	public function getSchema() {
+	public function getScheme() {
 		return 'sqlite';
 	}
 }

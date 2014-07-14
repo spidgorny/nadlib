@@ -305,7 +305,7 @@ class Collection {
 		}
 		if ($this->parentID > 0) {
 			$where[$this->parentField] = is_array($this->parentID)
-				? new SQLOr($this->parentID)
+				? new SQLIn($this->parentID)
 				: $this->parentID;
 		}
 		// bijou old style - each collection should care about hidden and deleted

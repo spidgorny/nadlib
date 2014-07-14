@@ -59,8 +59,10 @@ class SQLBuilder {
 			return $value->__toString();
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
+		} elseif ($value instanceof IndTime) {
+			return $this->quoteSQL($value->getMySQL());
 		} else if ($value instanceof Time) {
-			return "'".$this->db->escape($value->__toString())."'";
+			return "'".$this->db->escape($value->toSQL())."'";
 		} else if ($value instanceof SQLDate) {
 			return "'".$this->db->escape($value->__toString())."'";
 		} else if ($value instanceof AsIs) {

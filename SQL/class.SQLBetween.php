@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class SQLBetween
+ */
 class SQLBetween extends SQLWherePart {
 
 	/**
@@ -12,19 +15,14 @@ class SQLBetween extends SQLWherePart {
 	 */
 	public $end;
 
-	/**
-	 * @var DBInterface
-	 */
-	protected $db;
-
 	function __construct($start, $end) {
+		parent::__construct();
 		$this->start = $start;
 		$this->end = $end;
-		$this->db = Config::getInstance()->db;
 	}
 
 	function toString($field) {
-		return $this->db->quoteKey($field).' BETWEEN '.$this->db->quoteSQL($this->start).' AND '.$this->db->quoteSQL($this->end);
+		return /*$this->db->quoteKey*/($field).' BETWEEN '.$this->db->quoteSQL($this->start).' AND '.$this->db->quoteSQL($this->end);
 	}
 
 	function __toString() {

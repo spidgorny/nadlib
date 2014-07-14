@@ -80,9 +80,9 @@ class TimeChart {
 			throw new Exception(__METHOD__);
 		}
 		$timeField = $this->db->quoteKey($this->timeField);
-		if ($this->db->getSchema() == 'mysql') {
-			$content = 'strftime(' . $timeField . ', "' . $dateFormat . '")';
-		} elseif ($this->db->getSchema() == 'sqlite') {
+		if ($this->db->getScheme() == 'mysql') {
+			$content = 'date_format(' . $timeField . ', "' . $dateFormat . '")';
+		} elseif ($this->db->getScheme() == 'sqlite') {
 			$content = 'strftime("' . $dateFormat . '", ' . $timeField . ')';
 		}
 		return $content;

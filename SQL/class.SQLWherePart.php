@@ -5,9 +5,9 @@
  */
 
 class SQLWherePart {
-	
+
 	/**
-	 * @var dbLayerBase
+	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO
 	 */
 	protected $db;
 
