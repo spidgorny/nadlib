@@ -124,6 +124,14 @@ class Path {
 	}
 
 	/**
+	 * @param $with
+	 * @return bool
+	 */
+	function ends($with) {
+		return end($this->aPath) == $with;
+	}
+
+	/**
 	 * @return self
 	 */
 	public function up() {

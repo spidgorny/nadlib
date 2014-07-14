@@ -177,6 +177,8 @@ class AutoLoad {
 	 * Original idea was to remove vendor/s/nadlib/be from the CWD
 	 * but since $this->nadlibRoot is relative "../" it's impossible.
 	 * Now we go back one folder until we find "class/class.Config.php" which MUST exist
+	 *
+	 * Since it's not 100% that it exists we just take the REQUEST_URL
 	 */
 	function detectAppRoot() {
 		$appRoot = dirname(URL::getScriptWithPath());
