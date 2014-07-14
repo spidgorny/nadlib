@@ -550,4 +550,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return get_class($this);
 	}
 
+	public function getSchema() {
+		return 'mysql';
+	}
 }
