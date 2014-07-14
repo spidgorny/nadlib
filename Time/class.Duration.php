@@ -35,6 +35,7 @@ class Duration extends Time {
 		} else {
 			$this->time = $input;
 		}
+		$this->updateDebug();
 	}
 
 	function format($rules) {
