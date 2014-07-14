@@ -544,21 +544,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $row;
 	}
 
-	/**
-	 *
-	 * @param string $table
-	 * @param array $where
-	 * @param string $order
-	 * @param string $selectPlus
-	 * @param $key
-	 * @return array[]
-	 */
-	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->fetchAll($res, $key);
-		return $rows;
-	}
-
 	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->transaction();
@@ -748,4 +733,8 @@ order by a.attnum';
     function affectedRows($res = NULL) {
         return pg_affected_rows($res);
     }
+
+	public function getSchema() {
+		return 'postgresql';
+	}
 }
