@@ -5,7 +5,7 @@
  */
 class Flot extends AppController {
 
-	protected $colors = array(
+	public $colors = array(
 		'#edc240',
 		'#afd8f8',
 		'#cb4b4b',
@@ -58,6 +58,18 @@ class Flot extends AppController {
 	 */
 	var $flotPath = 'components/flot/flot/';
 
+	var $jsConfig = array(
+    	'xaxis' => array(
+    		'mode' => "time"
+		),
+		'yaxes' => array(
+			array(),
+			array(
+    			'position' => "right"
+			)
+		),
+	);
+
 	/**
 	 * @param array $data	- source data
 	 * @param $keyKey		- group by field (distinct charts, lines)
@@ -79,13 +91,27 @@ class Flot extends AppController {
 		$this->cMin = $this->getChartMax($this->cumulative, 'min');
 		$this->cMax = $this->getChartMax($this->cumulative);
 
+		$this->jsConfig['colors'] = $this->colors;
+		$this->setMinMax();
+
 		// add this manually before rendering if needed
 		//$this->cumulative = $this->getChartCumulative($this->chart);
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function setFlot($path) {
+	function setFlotPath($path) {
 		$this->flotPath = $path;
+	}
+
+	function setMinMax() {
+		$this->jsConfig['yaxes'][0] = array(
+			'min' => $this->min,
+			'max' => $this->max,
+		);
+		$this->jsConfig['yaxes'][1] += array(
+			'min' => $this->cMin,
+			'max' => $this->cMax,
+		);
 	}
 
 	/**
@@ -108,13 +134,13 @@ class Flot extends AppController {
 		if (!is_dir($this->flotPath)) {
 			throw new Exception($this->flotPath.' is not correct');
 		}
-		$content .= $this->showChart($divID, $this->chart, $this->cumulative, $this->max);
+		$content .= $this->showChart($divID, $this->chart);
 		return $content;
 	}
 
 	function renderCumulative($divID = 'chart1') {
 		$content = '';
-		$content .= $this->showChart($divID, $this->chart, $this->cumulative, $this->max);
+		$content .= $this->showChart($divID, $this->chart, $this->cumulative);
 		return $content;
 	}
 
@@ -153,10 +179,14 @@ class Flot extends AppController {
 		$chart = array();
 		foreach ($rows as $i => $row) {
 			$key = $this->keyKey ? $row[$this->keyKey] : 'one';
-			$time = $row[$this->timeKey];
-			if ($time) {
-				$time = is_string($time) ? strtotime($time) : $time;
-				$chart[$key][$time] = array($time*1000, $row[$this->amountKey]);
+			$timeMaybe = $row[$this->timeKey];
+			if ($timeMaybe) {
+				$time = is_string($timeMaybe) ? strtotime($timeMaybe) : $timeMaybe;
+				if ($time != -1 && $time > 100) {
+					$chart[$key][$time] = array($time * 1000, $row[$this->amountKey]);
+				} else {
+					$chart[$key][$time] = array($timeMaybe, $row[$this->amountKey]);
+				}
 			} else {
 				unset($rows[$i]);
 			}
@@ -187,7 +217,7 @@ class Flot extends AppController {
 		return $max;
 	}
 
-	function showChart($divID, array $charts, array $cumulative) {
+	function showChart($divID, array $charts, array $cumulative = array()) {
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
@@ -239,6 +269,13 @@ class Flot extends AppController {
 		}
 		//$max *= 2;
 
+		$config = json_encode($this->jsConfig, defined(JSON_PRETTY_PRINT)
+			? JSON_PRETTY_PRINT : NULL);
+		if (FALSE !== strpos($config, 'ticksWeeks')) {
+			$al = AutoLoad::getInstance();
+			$this->index->addJS($al->nadlibFromDocRoot.'js/flot-weeks.js');
+			$config = str_replace('"ticksWeeks"', 'ticksWeeks', $config); // hack
+		}
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
 jQuery("document").ready(function ($) {
@@ -247,21 +284,7 @@ jQuery("document").ready(function ($) {
     $.plot($("#'.$divID.'"), [
     	'.implode(", ", $dKeys).',
     	'.implode(", ", $cKeys).'
-    ], {
-    	xaxis: {
-    		mode: "time"
-    	},
-    	yaxes: [ {
-    			min: '.$this->min.',
-    			max: '.$this->max.'
-    		}, {
-    			min: '.$this->cMin.',
-    		    max: '.$this->cMax.',
-    			position: "right"
-    		}
-    	],
-    	colors: '.json_encode($this->colors).'
-    });
+    ], '.$config.');
 });
 </script>';
 		return $content;

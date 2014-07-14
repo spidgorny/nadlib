@@ -198,7 +198,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	public function map($callback) {
-		return array_map($callback, $this);
+		$this->setData(array_map($callback, $this->getData()));
 	}
 
 	/**
