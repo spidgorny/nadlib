@@ -31,6 +31,6 @@ interface DBInterface {
 
 	function rollback();
 
-	public function getSchema();
+	public function getScheme();
 
 }

@@ -176,7 +176,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return $key = '`'.$key.'`';
+		return '`'.$key.'`';
 	}
 
 	function escapeBool($value) {

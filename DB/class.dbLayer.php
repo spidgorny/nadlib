@@ -734,7 +734,7 @@ order by a.attnum';
         return pg_affected_rows($res);
     }
 
-	public function getSchema() {
+	public function getScheme() {
 		return 'postgresql';
 	}
 }

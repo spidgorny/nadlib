@@ -427,6 +427,9 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteSQL($string) {
+		if ($string instanceof Time) {
+			$string = $string->getMySQL();
+		}
 		return "'".$this->escape($string)."'";
 	}
 
@@ -547,10 +550,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function getScheme() {
-		return get_class($this);
+		return strtolower(get_class($this));
 	}
 
-	public function getSchema() {
-		return 'mysql';
-	}
 }
