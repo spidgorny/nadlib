@@ -64,7 +64,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			'PROTOCOL' => 'TCPIP',
 		));
 		//debug($this->dsn);
+		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
+		$this->dbTime += $profiler->elapsed();
 		if ($this->getScheme() == 'mysql') {
 			$my = new MySQL();
 			$this->reserved = $my->getReserved();
@@ -86,10 +88,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 				PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
 			);
 		}
+		$profiler = new Profiler();
 		$this->result = $this->connection->prepare($query, $params);
+		$this->dbTime += $profiler->elapsed();
 		if ($this->result) {
 			//try {
-				$ok = $this->result->execute($params);
+			$profiler = new Profiler();
+			$ok = $this->result->execute($params);
+			$this->dbTime += $profiler->elapsed();
 			//} catch (Exception $e) {
 			//	$ok = false;
 			//}
