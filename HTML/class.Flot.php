@@ -91,7 +91,6 @@ class Flot extends AppController {
 		$this->cMin = $this->getChartMax($this->cumulative, 'min');
 		$this->cMax = $this->getChartMax($this->cumulative);
 
-		$this->jsConfig['colors'] = $this->colors;
 		$this->setMinMax();
 
 		// add this manually before rendering if needed
@@ -104,6 +103,8 @@ class Flot extends AppController {
 	}
 
 	function setMinMax() {
+		$this->jsConfig['colors'] = $this->colors;
+
 		$this->jsConfig['yaxes'][0] = array(
 			'min' => $this->min,
 			'max' => $this->max,
