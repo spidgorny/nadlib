@@ -47,7 +47,6 @@ class TaylorProfiler {
         $this->description = array();
         $this->startTime = array();
         $this->endTime = array();
-        $this->initTime = 0;
         $this->cur_timer = "";
         $this->stack = array();
         $this->trail = "";
@@ -173,6 +172,7 @@ class TaylorProfiler {
                 $together[$key] = $row;
 	            if ($key == 'unprofiled') {
 		            $together[$key]['bold'] = true;
+		            $together[$key]['desc'] = 'Between new TaylorProfiler() and printTimers()';
 	            }
             }
 
@@ -185,7 +185,7 @@ class TaylorProfiler {
             $perc = ($missed/$oaTime)*100;
             $tot_perc+=$perc;
             $together['Missed between the calls'] = array(
-            	'desc' => 'Missed between the calls',
+            	'desc' => 'Missed between the calls ('.$oaTime.'-'.$TimedTotal.'['.sizeof($together).'])',
 	            'bold' => true,
 	            'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
@@ -193,24 +193,26 @@ class TaylorProfiler {
             	'perc' => number_format($perc, 2, '.', '').'%',
             );
 
-			$startup = $this->initTime - ($_SERVER['REQUEST_TIME_FLOAT']
+			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+				$requestTime = $_SERVER['REQUEST_TIME_FLOAT']
 					? $_SERVER['REQUEST_TIME_FLOAT']
-					: $_SERVER['REQUEST_TIME']);
-            $together['Startup'] = array(
-            	'desc' => 'Startup',
-	            'bold' => true,
-            	'time' => number_format($startup, 2, '.', ''),
-            	'total' => number_format($startup, 2, '.', ''),
-            	'count' => 0,
-            	'perc' => number_format($startup/$oaTime*100, 2, '.', '').'%',
-            );
+					: $_SERVER['REQUEST_TIME'];
+				$startup = $this->initTime - $requestTime;
+				$together['Startup'] = array(
+					'desc'  => 'Startup (REQUEST_TIME_FLOAT) ('.$this->initTime.'-'.$requestTime.')',
+					'bold'  => true,
+					'time'  => number_format($startup, 2, '.', ''),
+					'total' => number_format($startup, 2, '.', ''),
+					'count' => 0,
+					'perc'  => number_format($startup / $oaTime * 100, 2, '.', '') . '%',
+				);
+			}
 
             uasort($together, array($this, 'sort'));
 
 			$i = 0;
 			foreach ($together as $key => $row) {
-			    $val = $row['desc'];
-	            $t = $row['time'];
+			    $desc = $row['desc'];
 	            $total = $row['total'];
                 $TimedTotal += $total;
 	            $perc = $row['perc'];
@@ -219,13 +221,14 @@ class TaylorProfiler {
 				if ($row['bold']) {
 					$htmlKey = '<b>'.$htmlKey.'</b>';
 				}
+				$desc = $this->description2[$key] ?: $desc;
 	            $table[] = array(
 	               	'nr' => ++$i,
 	               	'count' => $row['count'],
 	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
 	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
 	               	'percent' => number_format($perc, 2, '.', '').'%',
-	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$htmlKey.'</span>',
+	                'routine' => '<span title="'.htmlspecialchars($desc).'">'.$htmlKey.'</span>',
 	            );
 		   }
 
