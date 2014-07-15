@@ -18,6 +18,11 @@ class dbLayerBase {
 	 */
 	var $reserved = array();
 
+	/**
+	 * @var int - accumulated DB execution time
+	 */
+	var $dbTime = 0;
+
 	function setQB(SQLBuilder $qb = NULL) {
 		$di = new DIContainer();
 		$di->db = $this;

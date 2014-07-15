@@ -27,11 +27,6 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	var $result;
 
 	/**
-	 * @var int - accumulated DB execution time
-	 */
-	var $dbTime = 0;
-
-	/**
 	 * MUST BE UPPERCASE
 	 * @var array
 	 */
