@@ -337,7 +337,7 @@ class Time {
 	 *
 	 * @param Duration $plus
 	 * @param bool $debug
-	 * @return $this
+	 * @return static
 	 */
 	function addDur(Duration $plus, $debug = FALSE) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -539,7 +539,7 @@ class Time {
 		$this->updateDebug();
 		return $this;
 	}
-	
+
 	/**
 	 * Combines date and time and creates a new Time object
 	 * @param $date

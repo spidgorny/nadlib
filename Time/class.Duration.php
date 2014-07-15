@@ -121,10 +121,11 @@ class Duration extends Time {
 			}
 		}
 		if (!$total) {
+			$totalBefore = $total;
 			$tz = date_default_timezone_get();
-			date_default_timezone_set('Asia/Tokyo');
+			date_default_timezone_set('UTC');
 			$total = strtotime($string.' UTC', 0);
-			//debug($string, $tz, date_default_timezone_get(), $total, $total/60/60);
+			//debug($string, $totalBefore, $tz, date_default_timezone_get(), $total, $total/60/60);
 			date_default_timezone_set($tz);
 		}
 		return new Duration($total);
