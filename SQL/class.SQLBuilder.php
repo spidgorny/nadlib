@@ -362,7 +362,7 @@ class SQLBuilder {
 
 	function getFoundOrLastID($inserted) {
 		if ($inserted) {
-			$authorID = $this->db->lastInsertID();
+			$authorID = $this->db->lastInsertID($inserted);
 		} else {
 			$authorID = $this->found['id'];
 		}
