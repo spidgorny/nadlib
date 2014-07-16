@@ -60,12 +60,17 @@ class TimeChart {
 		$this->where = $where;
 		$this->timeField = $timeField;
 		$this->groupBy = $groupBy;
+		if ($this->db->getScheme() == 'mysql') {
+			$this->options['year-week'] = '%Y-W%u';
+		}
 	}
 
 	function fetch() {
 		if (!$this->data) {
 			$sqlDate = $this->getSQLForTime();
-			$this->query = $this->db->getSelectQuery($this->table, $this->where,
+			$where = $this->where;
+			//$where["'1970-01'"] = new AsIsOp("!= ".$sqlDate);
+			$this->query = $this->db->getSelectQuery($this->table, $where,
 				'GROUP BY '.$sqlDate.'
 				 ORDER BY '.$sqlDate,
 				'"'.$this->title.'" as line,

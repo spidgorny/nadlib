@@ -232,7 +232,7 @@ class TaylorProfiler {
 	            );
 		   }
 
-            $s = new slTable($table, 'class="nospacing" width="100%"');
+            $s = new slTable($table, 'class="nospacing no-print" width="100%"');
             $s->thes(array(
             	'nr' => 'nr',
             	'count' => array(
