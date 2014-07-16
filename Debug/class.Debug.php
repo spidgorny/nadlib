@@ -54,7 +54,7 @@ class Debug {
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
 			$a = $args[0];
-			$levels = NULL;
+			$levels = /*NULL*/3;
 		} else {
 			$a = $args;
 			if ($a[1] === self::LEVELS) {
@@ -203,8 +203,10 @@ class Debug {
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo $levels, ': null: '.is_null($levels)."<br />\n";
-				if (is_null($levels) || $levels > 0) {
+				if (($a != $r) && (is_null($levels) || $levels > 0)) {
 					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
+				} else {
+					$content .= '<i>Too deep</i>';
 				}
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';
