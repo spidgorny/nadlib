@@ -539,7 +539,7 @@ class Time {
 		$this->updateDebug();
 		return $this;
 	}
-	
+
 	/**
 	 * Combines date and time and creates a new Time object
 	 * @param $date
@@ -594,6 +594,21 @@ class Time {
 		$difference = Time::makeInstance('now')->minus($this);
 		$older = $difference->later($duration);
 		return $older;
+	}
+
+	/**
+	 * @return Date
+	 */
+	public function getDateObject() {
+		return new Date($this->getTimestamp());
+	}
+
+	public function getHTMLDate() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanDate().'</time>');
+	}
+
+	public function getHTMLTime() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTime().'</time>');
 	}
 
 }
