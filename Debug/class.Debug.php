@@ -23,7 +23,8 @@ class Debug {
 
 	static function getInstance() {
 		if (!self::$instance) {
-			self::$instance = new self(Index::getInstance());
+			$index = class_exists('Index', false) ? Index::getInstance() : NULL;
+			self::$instance = new self($index);
 		}
 		return self::$instance;
 	}
