@@ -34,7 +34,7 @@ class Time {
 				//debug('clone '.$this->getHumanDateTime());
 			} else if (is_numeric($input)) {
 				$this->time = $input;
-			} else {
+			} else if (class_exists('Config')) {
 				Config::getInstance()->log(__CLASS__.'#'.__LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		} else {
