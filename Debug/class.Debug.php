@@ -28,6 +28,32 @@ class Debug {
 		return self::$instance;
 	}
 
+	public static function shallow($coming) {
+		$debug = Debug::getInstance();
+		if (is_array($coming)) {
+			foreach ($coming as $key => &$val) {
+				$debug->getSimpleType($val);
+			}
+		} elseif (is_object($coming)) {
+			$props = get_object_vars($coming);
+			foreach ($props as $key => $val) {
+				$coming->$key = $debug->getSimpleType($val);
+			}
+		}
+		$debug->debug_args($coming);
+	}
+
+	function getSimpleType($val) {
+		if (is_array($val)) {
+			$val = 'array['.sizeof($val).']';
+		} elseif (is_object($val)) {
+			$val = 'object['.get_class($val).']';
+		} elseif (is_string($val) && strlen($val) > 100) {
+			$val = substr($val, 0, 100).'...';
+		}
+		return $val;
+	}
+
 	function debug($params) {
 		if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
 			$fp = FirePHP::getInstance(true);
