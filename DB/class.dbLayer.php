@@ -716,7 +716,7 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb(SQLBuilder $qb) {
+    public function setQb(SQLBuilder $qb = NULL) {
         $this->qb = $qb;
     }
 
