@@ -182,10 +182,12 @@ class Time {
 	}
 
 	/**
+	 * This is like ISO but human readable
+	 * If you need human-human use getHumanDateTime()
 	 * @return string
 	 */
 	function getDateTime() {
-		return date('d.m.Y H:i:s', $this->time);
+		return date('Y-m-d H:i:s', $this->time);
 	}
 
 	/**
