@@ -700,11 +700,12 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
 		$this->stdout .= AppController::ahref('<img
 			src="img/tb_folder.gif"
-			title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
+			title="'.$desc['ButtonTitle'].'">', '#', '',
+			'onclick="ajaxTreeOpen(
 			\''.$desc['selectID'].'\',
 			\''.$desc['treeDivID'].'\',
 			\''.$desc['tableName'].'\',
-			\''.$desc['tableRoot'].'\',
+			\''.json_encode($desc['tableRoot']).'\',
 			\''.$desc['tableTitle'].'\',
 			\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
 			\''.$desc['categoryID'].'\',
