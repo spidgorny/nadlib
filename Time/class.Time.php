@@ -598,4 +598,19 @@ class Time {
 		return $older;
 	}
 
+	/**
+	 * @return Date
+	 */
+	public function getDateObject() {
+		return new Date($this->getTimestamp());
+	}
+
+	public function getHTMLDate() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanDate().'</time>');
+	}
+
+	public function getHTMLTime() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTime().'</time>');
+	}
+
 }
