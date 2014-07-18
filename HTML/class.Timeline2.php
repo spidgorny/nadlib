@@ -106,7 +106,7 @@ class Timeline2 /*extends AppController */{
 			}
 			// if enough space for dates
 			//if ($this->dayWidth > (48 * 3 * $this->fontSize*1.5)) {
-			if (!($i++ % $every)) {
+			if ($every > 1 && !($i++ % $every)) {
 				$content .= '<text
 					x="'.($x-($this->fontSize/1.5/2)).'"
 					y="'.($this->height_10 + $this->fontSize*1.3).'"
