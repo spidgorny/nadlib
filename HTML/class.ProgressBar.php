@@ -130,10 +130,12 @@ class ProgressBar {
 	}
 
 	function setIndex($i) {
-		$percent = $i/$this->count*100;
-		$every = $this->count / 1000;   // 100% * 10 for each 0.1
-		if (!($i % $every)) {
-			$this->setProgressBarProgress($percent);
+		if ($this->count) {
+			$percent = $i / $this->count * 100;
+			$every = $this->count / 1000; // 100% * 10 for each 0.1
+			if ($every < 1 || !($i % $every)) {
+				$this->setProgressBarProgress($percent);
+			}
 		}
 	}
 
