@@ -92,7 +92,7 @@ class Timeline2 /*extends AppController */{
 
 	function hourTicks() {
 		$content = '';
-		$every = $this->dayWidth / 48 / 3; // 3 chars for "22h"
+		$every = $this->dayWidth / 24 / 3 / $this->fontSize; // 3 chars for "22h"
 		$i = 0;
 		/* @var $date Time */
 		for ($date = new Time($this->start);
@@ -220,16 +220,22 @@ class Timeline2 /*extends AppController */{
 		return round($percent * $this->width, 2);
 	}
 
-	function renderTimeRange(Time $from, Time $till, $color = NULL) {
+	function renderTimeRange(Time $from, Time $till,
+	                         $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)') {
 		$x = $this->date2xTime($from);
 		$width = $this->date2xTime($till) - $x;
-		$color = $color ?: $this->rangeColor;
+		$id = uniqid('rect_');
 		$this->rangeContent[] = '<rect
+				id="'.$id.'"
 				x="'.$x.'"
 				y="'.(0).'"
 				width="'.$width.'"
 				height="'.($this->height - $this->height_20).'"
-				style="fill:'.$color.'; stroke-width:0; stroke:rgb(0,0,0)" />';
+				style="'.$style.'"
+				startTime="'.$from->getDateTime().'"
+				endTime="'.$till->getDateTime().'"
+				/>';
+		return $id;
 	}
 
 }
