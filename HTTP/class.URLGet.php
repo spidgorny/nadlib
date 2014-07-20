@@ -43,7 +43,7 @@ class URLGet {
 					$curlParams = array();
 					if (!!$proxy) {
 						if (!($proxy instanceof Proxy)) {
-							$this->proxy = Proxy::getRandom();
+							$this->proxy = Proxy::getRandomOrBest();
 						}
 						$curlParams[CURLOPT_PROXY] = $this->proxy;
 					}
@@ -52,13 +52,13 @@ class URLGet {
 					$html = $this->fetchFOpen();
 				}
 			} catch (Exception $e) {
-				$this->logger->log($e->getMessage(), __CLASS__);
+				$this->logger->log($e->getMessage(), __METHOD__);
 			}
 			if ($html) {
 				break;
 			}
 		}
-		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').')', __CLASS__);
+		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)', __METHOD__);
 		$this->html = $html;
 	}
 
