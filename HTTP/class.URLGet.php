@@ -30,7 +30,7 @@ class URLGet {
 	protected $proxy;
 
 	/**
-	 * @param bool $proxy - it was a proxy object, but now it's boolean
+	 * @param bool|Proxy $proxy - it was a proxy object, but now it's boolean
 	 * as a new proxy will get generation
 	 * @param int $retries
 	 */
@@ -41,8 +41,10 @@ class URLGet {
 			try {
 				if (function_exists('curl_init')) {
 					$curlParams = array();
-					if ($proxy) {
-						$this->proxy = Proxy::getRandom();
+					if (!!$proxy) {
+						if (!($proxy instanceof Proxy)) {
+							$this->proxy = Proxy::getRandom();
+						}
 						$curlParams[CURLOPT_PROXY] = $this->proxy;
 					}
 					$html = $this->fetchCURL($curlParams);
@@ -104,17 +106,8 @@ class URLGet {
 		curl_close($process);
 
 		if (!$html || $this->info['http_code'] != 200) {
-			if ($this->proxy) {
-				//Controller::log('Using proxy: '.$proxy.': FAIL', __CLASS__);
-				$this->proxy->fail();
-			}
 			//debug($this->info);
 			throw new Exception('failed to read URL: '.$this->url);
-		} else {
-			if ($this->proxy) {
-				//Controller::log('Using proxy: '.$proxy.': OK', __CLASS__);
-				$this->proxy->ok();
-			}
 		}
 		return $html;
 	}

@@ -218,6 +218,7 @@ class TaylorProfiler {
             $out = $s->getContent();
             return $out;
         }
+		return NULL;
     }
 
     function sort($a, $b) {
