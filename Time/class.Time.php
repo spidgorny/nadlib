@@ -59,7 +59,6 @@ class Time {
 	}
 
 	/**
-	 *
 	 * @return int
 	 */
 	function getGMTTimestamp() {
@@ -467,7 +466,7 @@ class Time {
 	}
 
 	/**
-	 * Conbines date and time and creates a new Time object
+	 * Combines date and time and creates a new Time object
 	 * @param $date
 	 * @param $time
 	 * @return Time
@@ -498,10 +497,10 @@ class Time {
 	 * @static
 	 * @param $str
 	 * @param null $rel
-	 * @return Time
+	 * @return static
 	 */
 	static function makeInstance($str, $rel = NULL) {
-		return new Time($str, $rel);
+		return new static($str, $rel);
 	}
 
 	function getTwo() {
