@@ -500,7 +500,7 @@ class Request {
 		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
 	}
 
-	function isCLI() {
+	static function isCLI() {
 		return isset($_SERVER['argc']);
 	}
 
@@ -576,6 +576,16 @@ class Request {
 
 	function importCLIparams($noopt = array()) {
 		$this->data += $this->parseParameters($noopt);
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	static function isWindows() {
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 	}
 
 }

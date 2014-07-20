@@ -486,7 +486,7 @@ class SQLBuilder {
 	}
 
 	function runInsertUpdateQuery($table, array $fields, array $where) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.'('.$table.')');
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
 		if ($this->db->numRows($res)) {
@@ -500,7 +500,7 @@ class SQLBuilder {
 		$this->found = $this->db->fetchAssoc($res);
 		$res = $this->db->perform($query);
 		$this->db->commit();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.'('.$table.')');
 		return $inserted;
 	}
 
@@ -508,8 +508,9 @@ class SQLBuilder {
 	 * Inserts only if not yet found.
 	 *
 	 * @param $table
-	 * @param $fields
-	 * @return
+	 * @param array $fields
+	 * @throws Exception
+	 * @return resource
 	 */
 	function runInsertNew($table, array $fields) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -524,8 +525,11 @@ class SQLBuilder {
 	}
 
 	function runInsertQuery($table, array $columns) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.'('.$table.')');
 		$query = $this->getInsertQuery($table, $columns);
-		return $this->db->perform($query);
+		$ret = $this->db->perform($query, false);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.'('.$table.')');
+		return $ret;
 	}
 
 	function getFoundOrLastID($inserted) {

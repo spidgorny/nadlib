@@ -571,7 +571,12 @@ class slTable {
 		if (!$this->generation) {
 			$this->generate($caller);
 		}
-		return $this->generation->getContent();
+		if (Request::isCLI()) {
+			$content = $this->getCLITable();
+		} else {
+			$content = $this->generation->getContent();
+		}
+		return $content;
 	}
 
 	function getData($table) {
@@ -693,7 +698,7 @@ class slTable {
 			$widthMax[$field] = max(8, 1+$avgLen);
 		}
 
-		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
+		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data, array($this->footer));
 
 		$content = "\n";
 		foreach ($dataWithHeader as $row) {

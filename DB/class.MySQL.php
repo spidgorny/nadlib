@@ -61,8 +61,8 @@ class MySQL {
 		return "{$bt['class']}::{$bt['function']}";
 	}
 
-	function perform($query) {
-		if (isset($GLOBALS['profiler'])) {
+	function perform($query, $withProfiler = true) {
+		if ($withProfiler && isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
 				$caller = $this->getCaller($c);
@@ -105,7 +105,7 @@ class MySQL {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
+		if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
