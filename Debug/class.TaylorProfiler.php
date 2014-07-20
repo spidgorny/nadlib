@@ -337,6 +337,16 @@ class TaylorProfiler {
 		return $GLOBALS['profiler'] instanceof self ? $GLOBALS['profiler'] : NULL;
 	}
 
+	static function start($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->startTimer($method) : NULL;
+	}
+
+	static function stop($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->stopTimer($method) : NULL;
+	}
+
 }
 
 /*
