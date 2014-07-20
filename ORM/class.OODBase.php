@@ -269,7 +269,7 @@ class OODBase {
 
 	/**
 	 * @param $id
-	 * @return OODBase
+	 * @return static
 	 */
 	static function getInstance($id) {
 		$static = get_called_class();
