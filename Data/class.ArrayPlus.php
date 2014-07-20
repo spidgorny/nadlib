@@ -43,7 +43,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	/**
 	 * Returns an array of the elements in a specific column
 	 * @param $col
-	 * @return $this
+	 * @return static
 	 */
 	function column($col) {
 		$return = array();
@@ -300,6 +300,10 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	function sum() {
 		return array_sum($this->data);
+	}
+
+	public function avg() {
+		return count($this->data) ? $this->sum()/count($this->data) : NULL;
 	}
 
 	/**
