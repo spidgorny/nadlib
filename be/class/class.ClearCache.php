@@ -59,10 +59,10 @@ class ClearCache extends AppControllerBE {
 			if (in_array($ext, array('', 'cache'))) {
 				unlink($this->dir.$file['file']);
 				//echo $file, "\n";
-				echo '.';
+				//echo '.';
 			}
 		}
-		echo "\n";
+		//echo "\n";
 	}
 
 }

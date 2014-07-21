@@ -161,10 +161,14 @@ class slTable {
 		$bb = $b[$by];
 
 		// get $aa && $bb
-		if ($this->thes[$by]['type'] == 'date') {
+		$type = ifsetor($this->thes[$by]);
+		if (is_array($type)) {
+			$type = ifsetor($type['type']);
+		}
+		if ($type == 'date') {
 			$aa = strtotime2($aa);
 			$bb = strtotime2($bb);
-		} else if ($this->thes[$by]['type'] == 'int') {
+		} else if ($type == 'int') {
 			$aa = intval(strip_tags($aa));
 			$bb = intval(strip_tags($bb));
 		} else {
