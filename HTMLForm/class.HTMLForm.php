@@ -705,11 +705,12 @@ class HTMLForm {
 		$controller = Index::getInstance()->controller;
 		$this->stdout .= $controller->ahref('<img
 			src="img/tb_folder.gif"
-			title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
+			title="'.$desc['ButtonTitle'].'">', '#', '',
+			'onclick="ajaxTreeOpen(
 			\''.$desc['selectID'].'\',
 			\''.$desc['treeDivID'].'\',
 			\''.$desc['tableName'].'\',
-			\''.$desc['tableRoot'].'\',
+			\''.json_encode($desc['tableRoot']).'\',
 			\''.$desc['tableTitle'].'\',
 			\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
 			\''.$desc['categoryID'].'\',
