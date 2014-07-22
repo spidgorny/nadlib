@@ -68,6 +68,7 @@ abstract class OODBase {
 	 * @return OODBase
 	 */
 	function __construct($id = NULL) {
+		//debug(get_called_class(), __FUNCTION__, $id);
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
@@ -408,7 +409,11 @@ abstract class OODBase {
 				}
 			}
 		} else {
-			$inst = new $static($id);
+			$inst = new $static();
+			$inst->init($id);
+			if ($inst->id) {
+				self::$instances[$static][$inst->id] = $inst;
+			}
 		}
 		return $inst;
 	}
