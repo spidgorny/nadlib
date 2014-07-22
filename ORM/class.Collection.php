@@ -401,13 +401,14 @@ class Collection {
 	 * @return ArrayPlus
 	 */
 	function getData() {
-		if (!$this->query && (
+		if (!$this->query || (
 			!$this->data
 			|| !$this->data->count())) {
 			$this->retrieveDataFromDB();
 		}
         if (!($this->data instanceof ArrayPlus)) {
             $this->data = ArrayPlus::create($this->data);
+	        $this->count = sizeof($this->data);
         }
 		return $this->data;
 	}
@@ -470,15 +471,22 @@ class Collection {
 	}
 
 	function renderList() {
-		$content = '<ul>';
-		foreach ($this->getData() as $row) {
-			$content .= '<li>';
-			foreach ($this->thes as $key => $_) {
-				$content .= $row[$key]. ' ';
+		$content = '';
+		if ($this->getCount()) {
+			$content .= '<ul>';
+			foreach ($this->getData() as $row) {
+				$content .= '<li>';
+				if ($this->thes) {
+					foreach ($this->thes as $key => $_) {
+						$content .= $row[$key] . ' ';
+					}
+				} else {
+					$content .= $row[$this->titleColumn];
+				}
+				$content .= '</li>';
 			}
-			$content .= '</li>';
+			$content .= '</ul>';
 		}
-		$content .= '</ul>';
 		return $content;
 	}
 
