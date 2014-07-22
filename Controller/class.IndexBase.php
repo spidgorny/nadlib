@@ -337,8 +337,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'jQueryPath->exists()' => $jQueryPath->exists(),
 				'appRoot' => $al->appRoot,
 				'componentsPath' => $al->componentsPath,
-				'fe(jQueryPath)' => file_exists($jQueryPath),
-				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
+				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath->getUncapped()),
 				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
 				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -453,7 +453,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				}
 			}
 			$files = implode(",", $files);
-			$files .= DEVELOPMENT ? '&debug' : '';
+			//$files .= DEVELOPMENT ? '&debug' : '';
 			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
 			$content .= implode("\n", $include);
 		} else {
