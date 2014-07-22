@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class uTestBase
+ * PHPUnit alternative
+ */
 class uTestBase extends AppControllerBE {
 	protected $start;
 	protected $stat = array();			// true/false counter

@@ -304,13 +304,11 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function perform($query) {
-		if (isset($GLOBALS['profiler'])) {
+	function perform($query, $withProfiler = true) {
+		if ($withProfiler && isset($GLOBALS['profiler'])) {
 			$c = 2;
-			$btl = debug_backtrace();
 			do {
-				$bt = $btl[$c];
-				$caller = "{$bt['class']}::{$bt['function']}";
+				$caller = $this->getCaller($c);
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
@@ -342,7 +340,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				nodebug(array(
@@ -355,6 +352,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
+		if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
