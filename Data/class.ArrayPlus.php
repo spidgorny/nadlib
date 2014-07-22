@@ -470,6 +470,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $replace;
 	}
 
+	function concat() {
+		return implode('', $this->data);
+	}
+
 	function count_if($k) {
 		$count = 0;
 		foreach ($this as $val) {
