@@ -450,7 +450,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				}
 			}
 			$files = implode(",", $files);
-			$files .= DEVELOPMENT ? '&debug' : '';
+			//$files .= DEVELOPMENT ? '&debug' : '';
 			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
 			$content .= implode("\n", $include);
 		} else {
