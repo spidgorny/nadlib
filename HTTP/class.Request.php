@@ -405,10 +405,23 @@ class Request {
 
 	function getRefererController() {
 		$url = $this->getReferer();
+		$url->setParams(array());   // get rid of any action
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : Config::getInstance()->defaultController;
+		return $return ? $return : NULL;
+	}
+
+	function getRefererIfNotSelf() {
+		$referer = $this->getReferer();
+		$rController = $this->getRefererController();
+		$index = Index::getInstance();
+		$cController = $index->controller
+			? get_class($index->controller)
+			: Config::getInstance()->defaultController;
+		$ok = (($rController != $cController) && ($referer.'' != new URL().''));
+		//debug($rController, __CLASS__, $ok);
+		return $ok ? $referer : NULL;
 	}
 
 	function redirect($controller) {
