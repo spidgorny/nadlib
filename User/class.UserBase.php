@@ -3,13 +3,12 @@
 abstract class UserBase extends OODBase {
 	public $table = 'user';
 	protected $prefs = array();
-	protected static $instances = array();
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
 	 * protected will not work because OODBase::__construct is public
 	 *
-	 * @param unknown_type $id
+	 * @param int $id
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);
