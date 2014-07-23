@@ -438,10 +438,12 @@ class Request {
 		}
 	}
 
-	function redirectJS($controller) {
+	function redirectJS($controller, $delay = 0) {
 		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
 			<script>
-				document.location = "'.$controller.'";
+				setTimeout(function () {
+					document.location = "'.$controller.'";
+				}, '.$delay.');
 			</script>';
 		exit();
 	}
