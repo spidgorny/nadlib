@@ -16,8 +16,17 @@ class AppControllerBE extends Controller {
 
 	var $nadlibFromDocRoot;
 
+	/**
+	 * Protect from unauthorized access
+	 * @var bool
+	 */
+	static $public = false;
+
 	function __construct() {
 		parent::__construct();
+		if ((!$this->user || !$this->user->isAuth()) && !self::$public) {
+			throw new AccessDeniedException(__METHOD__);
+		}
 		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
 		if (class_exists('Index')) {
 			$this->index = Index::getInstance();

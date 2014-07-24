@@ -179,7 +179,7 @@ abstract class LocalLang {
 	function getLangStats() {
 		$en = $this->readDB('en');
 		$countEN = sizeof($en) ? sizeof($en) : 1;
-		$langs = $this->possibleLangs;
+		$langs = array_combine($this->possibleLangs, $this->possibleLangs);
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
 			$lang = array(
