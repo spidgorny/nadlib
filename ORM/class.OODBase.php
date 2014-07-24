@@ -212,6 +212,7 @@ abstract class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
+		$this->lastQuery = $this->db->lastQuery;
 		if (is_array($rows)) {
 			$data = $rows;
 		} else {
