@@ -20,24 +20,6 @@ abstract class UserBase extends OODBase {
 		parent::__construct($id);
 	}
 
-	/**
-	 * @param null $id
-	 * @return User
-	 */
-	public static function getInstance($id) {
-		if (!($obj = self::$instances[$id])) {
-			$static = 'User'; //get_class($this);
-			$obj = new $static($id);
-			$id = $obj->id;
-			if (!self::$instances[$id]) {
-				self::$instances[$id] = $obj;
-			} else {
-				$obj = self::$instances[$id];
-			}
-		}
-		return $obj;
-	}
-
 	public static function unsetInstance($id) {
 		unset(self::$instances[$id]);
 		//debug(self::$instances);
