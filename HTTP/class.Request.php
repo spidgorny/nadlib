@@ -795,6 +795,9 @@ class Request {
 		return $docRoot;
 	}
 
+	/**
+	 * @param int $age - seconds
+	 */
 	function setCacheable($age = 60) {
 		header('Pragma: cache');
 		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
