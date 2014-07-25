@@ -163,14 +163,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderTemplateIfNotAjax($content) {
+		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			$contentOut = is_array($this->content)
+			$contentOut .= is_array($this->content)
 				? implode("\n", $this->content)
 				: $this->content;	// display Exception
 			$contentOut .= $content;
 			$contentOut = $this->renderTemplate($contentOut);
 		} else {
-			$contentOut = $content . $this->content;
+			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
+			$contentOut .= $content;
 			$this->content = '';		// clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;

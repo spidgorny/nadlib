@@ -95,8 +95,11 @@ class RandomStringGenerator
 
 	function generateSplit4($length) {
 		$continuous = $this->generate($length);
-		$parts = chunk_split($continuous, 4);
-		return implode('-', $parts);
+		$parts = chunk_split($continuous, 4, '-');
+		if ($parts[strlen($parts)-1] == '-') {
+			$parts = substr($parts, 0, strlen($parts) - 1);
+		}
+		return $parts;
 	}
 
 	/**
