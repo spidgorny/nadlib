@@ -35,7 +35,7 @@ abstract class UserBase extends OODBase {
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
-		if ($this->db && $this->id) {
+		if ($this->db && $this->id && $this->prefs) {
 			$this->update(array('prefs' => serialize($this->prefs)));
 		}
 	}
@@ -85,6 +85,7 @@ abstract class UserBase extends OODBase {
 
 	function insertNoUserCheck(array $data) {
 		$data['ctime'] = new SQLDateTime();
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
