@@ -1,6 +1,6 @@
 <?php
 
-class Index extends IndexBase {
+class IndexBE extends IndexBase {
 
 	static $isBE = true;
 
@@ -48,12 +48,13 @@ class Index extends IndexBase {
 		$this->nadlibFromDocRoot = $this->al->nadlibFromDocRoot;
 		$this->nadlibFromCWD = $this->al->nadlibFromCWD;
 
-		$this->header['modernizr.js'] = '<script src="'.$this->al->componentsPath.'modernizr/modernizr.js"></script>';  // Must be header and not footer
-		$this->addCSS($this->al->componentsPath.'bootstrap/css/bootstrap.min.css');
+		//debug($this->al->componentsPath, $this->al->appRoot, $this->al->componentsPath->getURL());
+		$this->header['modernizr.js'] = '<script src="'.$this->al->componentsPath->getURL().'modernizr/modernizr.js"></script>';  // Must be header and not footer
+		$this->addCSS($this->al->componentsPath->getURL().'bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
-		$this->addCSS($this->nadlibFromCWD . '../CSS/TaylorProfiler.less');
+		$this->addCSS($this->nadlibFromCWD . 'CSS/TaylorProfiler.less');
 		$this->addJQuery();
-		$this->addJS($this->al->componentsPath.'bootstrap/js/bootstrap.js');
+		$this->addJS($this->al->componentsPath->getURL().'bootstrap/js/bootstrap.js');
 		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
 
 		$this->user = new BEUser();
@@ -73,8 +74,11 @@ class Index extends IndexBase {
 				'Cookies' => 'Cookies',
 				'ConfigView' => 'config.yaml',
 				'PHPInfo' => 'phpinfo()',
+				'About' => 'About',
 				'Documentation' => 'Documentation',
 				'IniCheck' => 'php.ini Check',
+				'TimeTrack' => 'Time Track',
+				'Issues' => 'Issues',
 			)),
 			'UnitTestReport' => new Recursive('Test', array(
 				'UnitTestReport' => 'Unit Test Report',
@@ -181,6 +185,8 @@ class Index extends IndexBase {
 		$m->recursive = false;
 		$m->renderOnlyCurrent = true;
 		$m->useControllerSlug = false;
+		$m->useRecursiveURL = false;
+		$m->setCurrent(1);
 		//$m->useRecursiveURL = false;
 		//$m->setBasePath();	// because 1und1 rewrite is not enabled
 		//$docRoot = $m->request->getDocumentRoot();

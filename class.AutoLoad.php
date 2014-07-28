@@ -23,7 +23,7 @@ class AutoLoad {
 	private static $instance;
 
 	/**
-	 * @var string
+	 * @var Path
 	 */
 	public $appRoot;
 
@@ -107,7 +107,9 @@ class AutoLoad {
 		}
 		$this->nadlibRoot = dirname(__FILE__).'/';
 		$this->appRoot = $this->detectAppRoot();
-		if (strlen($this->appRoot > 1) && $this->appRoot[1] != ':') { // '/', 'w:\\'
+//		echo 'appRoot: ', $this->appRoot, BR;
+
+		if ((strlen($this->appRoot) > 1) && !$this->appRoot->isAbsolute) { // '/', 'w:\\'
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
 			$appRootIsRoot = true;
 		} else {
@@ -124,10 +126,12 @@ class AutoLoad {
 		}
 		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
 		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
+//		echo 'documentRoot: ', $this->documentRoot, BR;
 
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
 
-		$this->componentsPath = new Path('');
+		$this->componentsPath = new Path($this->appRoot);
+		$this->componentsPath->setAsDir();
 		if (!$this->componentsPath->appendIfExists('components')) {
 			$this->componentsPath->up();
 			if (!$this->componentsPath->appendIfExists('components')) {
@@ -173,6 +177,8 @@ class AutoLoad {
 	 * Original idea was to remove vendor/s/nadlib/be from the CWD
 	 * but since $this->nadlibRoot is relative "../" it's impossible.
 	 * Now we go back one folder until we find "class/class.Config.php" which MUST exist
+	 *
+	 * Since it's not 100% that it exists we just take the REQUEST_URL
 	 */
 	function detectAppRoot() {
 		$appRoot = dirname(URL::getScriptWithPath());
@@ -199,6 +205,7 @@ class AutoLoad {
 
 		// always add trailing slash!
 	    $appRoot = cap($appRoot, '/');
+		$appRoot = new Path($appRoot);
 		return $appRoot;
 	}
 

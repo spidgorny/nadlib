@@ -71,6 +71,10 @@ class ConfigBase {
 	 */
 	public $flexiTable = false;
 
+	/**
+	 * Read from config.yaml
+	 * @var array
+	 */
 	public $config;
 
 	/**
@@ -109,8 +113,10 @@ class ConfigBase {
 		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
-		if (file_exists('class/config.yaml') && class_exists('Spyc')) {
-			$this->config = Spyc::YAMLLoad('class/config.yaml');
+		$configYAML = AutoLoad::getInstance()->appRoot.'class/config.yaml';
+		//print_r(array($configYAML, file_exists($configYAML)));
+		if (file_exists($configYAML) && class_exists('Spyc')) {
+			$this->config = Spyc::YAMLLoad($configYAML);
 		}
 		$this->mergeConfig($this);
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;

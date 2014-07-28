@@ -108,8 +108,10 @@ class ProgressBar {
 	function getContent() {
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
+		//debug($this->percentDone, $percentDone);
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
-			<div id="'.$this->textid.'" class="'.$this->textid.'">'.$percentDone.'</div>
+			<div id="'.$this->textid.'" class="'.$this->textid.'">'.
+			$percentDone.'</div>
 			<div class="pb_bar">
 				<div id="'.$this->pbarid.'" class="pb_before"
 				style="background-color: '.$this->color.'; width: '.$percentDone.';"></div>
@@ -169,11 +171,16 @@ class ProgressBar {
 	}
 
 	static function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '') {
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		$url = self::getBar($p, $append);
 		return new htmlString('<div style="'.$css.'">'.
-			number_format($p, 2).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'bar.php?rating='.round($p).$append.'" style="vertical-align: middle;" />
+			number_format($p, 2, '.', '').'&nbsp;%&nbsp;
+			<img src="'.$url.'" style="vertical-align: middle;" />
 		</div>');
+	}
+
+	static function getBar($p, $append = '') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return $prefix . 'bar.php?rating=' . round($p) . $append;
 	}
 
 	static function getBackground($p, $width = '100px') {

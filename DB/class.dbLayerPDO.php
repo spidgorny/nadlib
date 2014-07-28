@@ -64,7 +64,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			'PROTOCOL' => 'TCPIP',
 		));
 		//debug($this->dsn);
+		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
+		$this->dbTime += $profiler->elapsed();
+		if ($this->getScheme() == 'mysql') {
+			$my = new MySQL();
+			$this->reserved = $my->getReserved();
+		}
 	}
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
@@ -82,10 +88,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 				PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
 			);
 		}
+		$profiler = new Profiler();
 		$this->result = $this->connection->prepare($query, $params);
+		$this->dbTime += $profiler->elapsed();
 		if ($this->result) {
 			//try {
-				$ok = $this->result->execute($params);
+			$profiler = new Profiler();
+			$ok = $this->result->execute($params);
+			$this->dbTime += $profiler->elapsed();
 			//} catch (Exception $e) {
 			//	$ok = false;
 			//}
@@ -140,7 +150,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $count;
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		return $this->result->rowCount();
 	}
 
@@ -160,7 +170,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $this->result->fetchAll();
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res, $table = NULL) {
 		return $this->connection->lastInsertId();
 	}
 
@@ -172,14 +182,18 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return $key = '`'.$key.'`';
+		return '`'.$key.'`';
 	}
 
 	function escapeBool($value) {
 		return intval(!!$value);
 	}
 
-	function fetchAssoc(PDOStatement $res) {
+	/**
+	 * @param $res PDOStatement
+	 * @return mixed
+	 */
+	function fetchAssoc($res) {
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		return $row;
 	}

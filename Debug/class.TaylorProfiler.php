@@ -47,7 +47,6 @@ class TaylorProfiler {
         $this->description = array();
         $this->startTime = array();
         $this->endTime = array();
-        $this->initTime = 0;
         $this->cur_timer = "";
         $this->stack = array();
         $this->trail = "";
@@ -173,6 +172,7 @@ class TaylorProfiler {
                 $together[$key] = $row;
 	            if ($key == 'unprofiled') {
 		            $together[$key]['bold'] = true;
+		            $together[$key]['desc'] = 'Between new TaylorProfiler() and printTimers()';
 	            }
             }
 
@@ -185,7 +185,7 @@ class TaylorProfiler {
             $perc = ($missed/$oaTime)*100;
             $tot_perc+=$perc;
             $together['Missed between the calls'] = array(
-            	'desc' => 'Missed between the calls',
+            	'desc' => 'Missed between the calls ('.$oaTime.'-'.$TimedTotal.'['.sizeof($together).'])',
 	            'bold' => true,
 	            'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
@@ -193,24 +193,26 @@ class TaylorProfiler {
             	'perc' => number_format($perc, 2, '.', '').'%',
             );
 
-			$startup = $this->initTime - ($_SERVER['REQUEST_TIME_FLOAT']
+			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+				$requestTime = $_SERVER['REQUEST_TIME_FLOAT']
 					? $_SERVER['REQUEST_TIME_FLOAT']
-					: $_SERVER['REQUEST_TIME']);
-            $together['Startup'] = array(
-            	'desc' => 'Startup',
-	            'bold' => true,
-            	'time' => number_format($startup, 2, '.', ''),
-            	'total' => number_format($startup, 2, '.', ''),
-            	'count' => 0,
-            	'perc' => number_format($startup/$oaTime*100, 2, '.', '').'%',
-            );
+					: $_SERVER['REQUEST_TIME'];
+				$startup = $this->initTime - $requestTime;
+				$together['Startup'] = array(
+					'desc'  => 'Startup (REQUEST_TIME_FLOAT) ('.$this->initTime.'-'.$requestTime.')',
+					'bold'  => true,
+					'time'  => number_format($startup, 2, '.', ''),
+					'total' => number_format($startup, 2, '.', ''),
+					'count' => 0,
+					'perc'  => number_format($startup / $oaTime * 100, 2, '.', '') . '%',
+				);
+			}
 
             uasort($together, array($this, 'sort'));
 
 			$i = 0;
 			foreach ($together as $key => $row) {
-			    $val = $row['desc'];
-	            $t = $row['time'];
+			    $desc = $row['desc'];
 	            $total = $row['total'];
                 $TimedTotal += $total;
 	            $perc = $row['perc'];
@@ -219,17 +221,18 @@ class TaylorProfiler {
 				if ($row['bold']) {
 					$htmlKey = '<b>'.$htmlKey.'</b>';
 				}
+				$desc = $this->description2[$key] ?: $desc;
 	            $table[] = array(
 	               	'nr' => ++$i,
 	               	'count' => $row['count'],
 	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
 	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
 	               	'percent' => number_format($perc, 2, '.', '').'%',
-	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.$htmlKey.'</span>',
+	                'routine' => '<span title="'.htmlspecialchars($desc).'">'.$htmlKey.'</span>',
 	            );
 		   }
 
-            $s = new slTable($table, 'class="nospacing" width="100%"');
+            $s = new slTable($table, 'class="nospacing no-print" width="100%"');
             $s->thes(array(
             	'nr' => 'nr',
             	'count' => array(
@@ -391,25 +394,80 @@ class TaylorProfiler {
 			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
+		if (Config::getInstance()->db->dbTime) {
+			$dbTime = Config::getInstance()->db->dbTime;
+			$dbTime = number_format($dbTime, 3, '.', '');
+		}
+		if (session_status() == PHP_SESSION_ACTIVE) {
+            // total
+			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
+            if ($totalMax > 0) {
+                $totalBar = '<img src="'.ProgressBar::getBar($totalTime/$totalMax*100).'" />';
+            }
+            $_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
+
+            // db
+            $dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
+            if ($dbMax > 0) {
+                $dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
+            }
+			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
+		}
+
+		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
+		$maxMem = self::return_bytes(ini_get('memory_limit'));
+		$memBar = '<img src="'.ProgressBar::getBar(memory_get_peak_usage()/$maxMem*100).'" />';
 		$content = '<div class="floatTimeContainer">
 			<div class="floatTime">
 				<table>
 					<tr>
-						<td>PHP:</td><td>'.$totalTime.'s</td>
+						<td>PHP+DB:</td>
+						<td>'.$totalTime.'s</td>
+						<td>'.$totalBar.'</td>
+						<td>'.$totalMax.'s</td>
 					</tr>
 					<tr>
-						<td>db:</td><td>'.$dbTime.'s</td>
+						<td>DB:</td>
+						<td>'.$dbTime.'s</td>
+						<td>'.$dbBar.'</td>
+						<td>'.$dbMax.'</td>
 					</tr>
 					<tr>
-						<td>mem:</td><td>'.number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
-						ini_get('memory_limit').'</td>
+						<td>Mem:</td>
+						<td>'.$peakMem.'MB</td>
+						<td>'.$memBar.'</td>
+						<td>'.ini_get('memory_limit').'</td>
 					</tr>
 				</table>
 			</div>
 		</div>
 		<div style="clear:both"></div>
 		';
+		$content .= '<style>'.file_get_contents(
+				__DIR__.'/../CSS/TaylorProfiler.less'
+		).'</style>';
 		return $content;
+	}
+
+	/**
+	 * http://stackoverflow.com/a/1336624
+	 * @param $val
+	 * @return int|string
+	 */
+	static function return_bytes($val) {
+		$val = trim($val);
+		$last = strtolower($val[strlen($val)-1]);
+		switch($last) {
+			// The 'G' modifier is available since PHP 5.1.0
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+
+		return $val;
 	}
 
 	/**

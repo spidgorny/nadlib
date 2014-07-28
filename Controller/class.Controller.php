@@ -87,6 +87,7 @@ abstract class Controller {
 		if (class_exists('Config')) {
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
+			//debug($this->user);
 			$this->config->mergeConfig($this);
 		} else {
 			//$this->user = new UserBase();
@@ -97,37 +98,19 @@ abstract class Controller {
 		self::$instance[get_class($this)] = $this;
 	}
 
-	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
-		if ($this->useRouter && !$forceSimple) {
-			if (file_exists('class/class.Router.php')) {
-				$r = new Router();
-				$url = $r->makeURL($params, $prefix);
-			} else {
-				$class = $params['c'];
-				unset($params['c']);
-				$url = new URL($prefix != '?'
-					? $prefix
-					: $this->request->getLocation(), $params);
-				$url->components['path'] .= $class;
-			}
-		} else {
-			if (isset($params['c']) && !$params['c']) {
-				unset($params['c']); // don't supply empty controller
-			}
-			$url = new URL($prefix != '?'
-				? $prefix
-				: $this->request->getLocation(), $params);
-			//debug($prefix, $url);
-			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
-
-			//debug($url->documentRoot, $prefix, $url.'');
-			/*foreach ($params as &$val) {
-				$val = str_replace('#', '%23', $val);
-			} unset($val);
-			if ($params || $prefix != '?') {
-				$url = $prefix.http_build_query($params, '', '&'); //, PHP_QUERY_RFC3986);
-			}*/
+	protected function makeURL(array $params, $prefix = NULL) {
+		$class = $params['c'];
+		unset($params['c']);    // RealURL
+		if ($class && !$prefix) {
+			$prefix = $class;
 		}
+		$url = new URL($prefix
+			? $prefix
+			: $this->request->getLocation(), $params);
+		$path = $url->getPath();
+		$path->setFile($class);
+		$path->setAsFile();
+		$url->setPath($path);
 		return $url;
 	}
 
@@ -138,7 +121,7 @@ abstract class Controller {
 	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array(), $page = '?') {
+	function makeRelURL(array $params = array(), $page = NULL) {
 		return $this->makeURL($params + $this->linkVars, $page);
 	}
 
@@ -148,10 +131,10 @@ abstract class Controller {
 	 * @param string $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params, $prefix = '?') {
+	public function getURL(array $params, $prefix = NULL) {
 		$params = $params + $this->linkVars;
 		//debug($params);
-		return $this->makeURL($params, false, $prefix);
+		return $this->makeURL($params, $prefix);
 	}
 
 	/**
@@ -166,23 +149,21 @@ abstract class Controller {
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
 		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
-			'href' => $this->makeURL($params, false, $page),
+			'href' => $this->makeURL($params, $page),
 		)+$more, $text, $isHTML);
 		return $content;
 	}
 
-	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = '', $ahrefPlus = '') {
-		$content = '<a href="javascript: void(0);" '.$aMore.' onclick="
-			$(\'#'.$div.'\').load(\''.$this->makeURL($params).'\');
-			'.$jsPlus.'" '.$ahrefPlus.'>'.$text.'</a>';
-		return $content;
-	}
-
-	function slideLoad($text, array $params, $div) {
-		$content = '<a href="javascript: void(0);" onclick="
-			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, false, '').'\');
-		">'.$text.'</a>';
-		return $content;
+	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array()) {
+		$url = $this->makeURL($params);
+		$link = new HTMLTag('a', $aMore + array(
+			'href' => $url,
+			'onclick' => '
+			$(\'#'.$div.'\').load(\''.$url.'\');
+			return false;
+			'.$jsPlus,
+			), $text, true);
+		return $link;
 	}
 
 	function begins($line, $with) {
@@ -350,7 +331,7 @@ abstract class Controller {
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';
-			$content[] = $info.'';
+			$content[] = IndexBase::mergeStringArrayRecursive($info);
 			$content[] = '</td>';
 		}
 		$content[] = '</tr>';

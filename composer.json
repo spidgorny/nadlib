@@ -10,7 +10,8 @@
 		"flot/flot": "dev-master",
 		"php-sql-parser": "dev-master",
 		"GerHobbelt/HTMLawed": "dev-master",
-		"leafo/lessphp": "0.4.0"
+		"leafo/lessphp": "0.4.0",
+	    "danielstjules/stringy": ">=1.5.1"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",

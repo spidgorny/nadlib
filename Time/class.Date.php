@@ -82,4 +82,23 @@ class Date extends Time {
 		return new Date(strtotime($str));
 	}
 
+	function getHumanMerged() {
+		return date('Ymd', $this->time);
+	}
+
+	public function fromMerged($date) {
+		$y = substr($date, 0, 4);
+		$m = substr($date, 4, 2);
+		$d = substr($date, 6, 2);
+		$this->time = strtotime($y.'-'.$m.'-'.$d);
+	}
+
+	/**
+	 * Mon, Tue, Wed, Thu, Fri, Sat, Sun
+	 * @return string
+	 */
+	public function getDOW() {
+		return date('D', $this->time);
+	}
+
 }

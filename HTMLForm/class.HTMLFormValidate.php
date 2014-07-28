@@ -63,8 +63,8 @@ class HTMLFormValidate {
 			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
 		} elseif (($type == 'email' || $field == 'email') && $value && !$this->validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
-		} elseif ($field == 'password' && strlen($value) < 6) {
-			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
+		} elseif ($field == 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
+			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
         } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
             $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && ($value < $d['min'])) {
@@ -77,22 +77,8 @@ class HTMLFormValidate {
 		} elseif ($d['maxlen'] && strlen($value) > $d['maxlen']) {
 			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $d['label'] ?: $field, $d['maxlen'], strlen($value));
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
-			//debug($_REQUEST);
-			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
-				require_once('lib/recaptcha-php-1.10/recaptchalib.php');
-				$f = new HTMLForm();
-				$resp = recaptcha_check_answer (
-					$f->privatekey,
-					$_SERVER["REMOTE_ADDR"],
-					$_REQUEST["recaptcha_challenge_field"],
-					$_REQUEST["recaptcha_response_field"]);
-				//debug($resp);
-				if (!$resp->is_valid) {
-					$d['error'] = __($resp->error);
-				}
-			} else {
-				$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
-			}
+			$hfr = new HTMLFormRecaptcha();
+			$d['error'] = $hfr->validate($field, $d);
 		} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
 			$d['error'] = $d['validateError'];
 		} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed

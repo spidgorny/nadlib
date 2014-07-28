@@ -4,7 +4,8 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer {
+class dbLayer extends dbLayerBase implements DBInterface {
+
 	var $RETURN_NULL = TRUE;
 
     /**
@@ -50,6 +51,10 @@ class dbLayer {
 	 * @var string DB name
 	 */
 	var $db;
+
+    var $reservedWords = array(
+        'SELECT',
+    );
 
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
         if ($dbse) {
@@ -484,7 +489,7 @@ class dbLayer {
 		return $res;
 	}
 
-	function numRows($query) {
+	function numRows($query = NULL) {
 		if (is_string($query)) {
 			$query = $this->perform($query);
 		}
@@ -537,27 +542,6 @@ class dbLayer {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
 		$row = $this->fetchAll($res, $idField);
 		return $row;
-	}
-
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAssoc($res);
-		return $row;
-	}
-
-	/**
-	 *
-	 * @param type $table
-	 * @param array $where
-	 * @param string $order
-	 * @param string $selectPlus
-	 * @param $key
-	 * @return table
-	 */
-	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->fetchAll($res, $key);
-		return $rows;
 	}
 
 	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
@@ -732,7 +716,7 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb($qb) {
+    public function setQb(SQLBuilder $qb) {
         $this->qb = $qb;
     }
 
@@ -745,4 +729,12 @@ order by a.attnum';
 
         return $this->qb;
     }
+
+    function affectedRows($res = NULL) {
+        return pg_affected_rows($res);
+    }
+
+	public function getScheme() {
+		return 'postgresql';
+	}
 }

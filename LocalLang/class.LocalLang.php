@@ -183,7 +183,7 @@ abstract class LocalLang {
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
 			$lang = array(
-				'img' => '<img src="img/'.$lang.'.gif" width="20" height="12">',
+				'img' => new htmlString('<img src="img/'.$lang.'.gif" width="20" height="12">'),
 				'lang' => $lang,
 				'rows' => sizeof($rows),
 				'percent' => number_format(sizeof($rows)/$countEN*100, 0).'%',
@@ -207,9 +207,9 @@ abstract class LocalLang {
 			<select class="input-small langMenu" name="setLangCookie">'.$options.'
 			</select>
 		</form>';
-		Index::getInstance()->addCSS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
-		Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
-		//Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
+		Index::getInstance()->addCSS('vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
+		Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
+		//Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
 		return $content;
 	}
 
@@ -220,6 +220,7 @@ if (!function_exists('__')) {	// conflict with cake
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 		}
+		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
 		if ($index && $index->ll) {
 			$text = $index->ll->T($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";

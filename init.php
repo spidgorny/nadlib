@@ -10,25 +10,9 @@ require_once 'class.InitNADLIB.php';
 if (!function_exists('debug')) {
 function debug($a) {
     $params = func_get_args();
-    if (method_exists('Debug', 'debug_args')) {
-	    if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
-		    $fp = FirePHP::getInstance(true);
-			if ($fp->detectClientExtension()) {
-				$fp->setOption('includeLineNumbers', true);
-				$fp->setOption('maxArrayDepth', 10);
-				$fp->setOption('maxDepth', 20);
-				$trace = Debug::getSimpleTrace();
-				array_shift($trace);
-				if ($trace) {
-					$fp->table(implode(' ', first($trace)), $trace);
-				}
-				$fp->log(1 == sizeof($params) ? $a : $params);
-			} else {
-				call_user_func_array(array('Debug', 'debug_args'), $params);
-			}
-	    } else {
-		    call_user_func_array(array('Debug', 'debug_args'), $params);
-	    }
+	if (class_exists('Debug')) {
+		$debug = Debug::getInstance();
+		$debug->debug($params);
 	} else {
 		ob_start();
 		var_dump(
@@ -52,7 +36,8 @@ if (!function_exists('nodebug')) {
 		$tmp = $_COOKIE['debug'];
 		$_COOKIE['debug'] = 1;
 		$params = func_get_args();
-		call_user_func_array(array('Debug', 'debug_args'), $params);
+		$debug = Debug::getInstance();
+		call_user_func_array(array($debug, 'debug_args'), $params);
 		$_COOKIE['debug'] = $tmp;
 		return ob_get_clean();
 	}
@@ -318,6 +303,8 @@ if (!function_exists('nodebug')) {
 	}
 
 	/**
+     * Shortcut for
+     * isset($variable) ? $variable : $default
 	 * @param $variable
 	 * @param null $default
 	 * @return null
