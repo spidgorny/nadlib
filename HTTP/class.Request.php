@@ -316,8 +316,8 @@ class Request {
 				}
 				$ptr = $tmp;
 
-				$Scontroller = new Stringy\Stringy($controller);
-				if ($Scontroller->contains('/')) {	// in case it's with sub-folder
+				$Scontroller = new Path($controller);
+				if ($Scontroller->length() > 1) {	// in case it's with sub-folder
 					$dir = dirname($Scontroller);
 					$parts = trimExplode('/', $controller);
 					//debug($dir, $parts, file_exists($dir));
