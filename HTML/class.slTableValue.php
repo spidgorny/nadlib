@@ -235,6 +235,8 @@ class slTableValue {
 					if (is_object($val)) {
 						if (method_exists($val, 'getName')) {
 							$val = $val->getName();
+						} else {
+							$val = '['.get_class($val).']';
 						}
 					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
