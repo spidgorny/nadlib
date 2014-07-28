@@ -292,7 +292,8 @@ class Time {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$noe = $this->format('H:i');
 		if ($noe{3}.$noe{4} != '00') {
-			$noe = '<small>'.$noe.'</small>';
+			//$noe = '<small>'.$noe.'</small>';
+			$noe = new HTMLTag('small', array(), $noe);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $noe;
@@ -393,7 +394,7 @@ class Time {
 		$format = $plus->getTimestamp();
 		$new = $this->time + $format;
 
-		if ($debug) {
+		if (0) {
 			echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_long($format) ? $format : 0) . ') = [' . $new.']<br>';
 		}
 		$new = new self($new);

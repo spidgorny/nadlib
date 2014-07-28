@@ -217,6 +217,7 @@ class slTableValue {
 					$out = $val->format($k['type']->format);
 				}
 			break;
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case "textarea":
 				$val = nl2br($val);
 			//break; // FALL DOWN!
@@ -232,13 +233,6 @@ class slTableValue {
 						$val = nl2br($val);
 						$k['no_hsc'] = true; 	// for below
 					}
-					if (is_object($val)) {
-						if (method_exists($val, 'getName')) {
-							$val = $val->getName();
-						} else {
-							$val = '['.get_class($val).']';
-						}
-					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
 					} else if ($val instanceof htmlString) {
@@ -247,6 +241,12 @@ class slTableValue {
 						$out = $val.'';
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
+					} elseif (is_object($val)) {
+						if (method_exists($val, 'getName')) {
+							$val = $val->getName();
+						} else {
+							$val = '['.get_class($val).']';
+						}
 					} elseif (is_array($val)) {
 						if (is_assoc($val)) {
 							$out = json_encode($val, JSON_PRETTY_PRINT);
