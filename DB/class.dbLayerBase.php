@@ -26,7 +26,7 @@ class dbLayerBase {
 	function setQB(SQLBuilder $qb = NULL) {
 		$di = new DIContainer();
 		$di->db = $this;
-		$qb = $qb ?: new SQLBuilder($di);
+		$qb = $qb ? $qb : new SQLBuilder($di);
 		$this->qb = $qb;
 	}
 

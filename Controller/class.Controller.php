@@ -98,6 +98,14 @@ abstract class Controller {
 		self::$instance[get_class($this)] = $this;
 	}
 
+	/**
+	 * Why protected?
+	 * @param array $params
+	 * @param null $prefix
+	 * @return URL
+	 * @protected
+	 * @use getURL()
+	 */
 	protected function makeURL(array $params, $prefix = NULL) {
 		$class = $params['c'];
 		unset($params['c']);    // RealURL

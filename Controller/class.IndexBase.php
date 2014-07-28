@@ -51,7 +51,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		//parent::__construct();
 		if (class_exists('Config')) {
 			$this->config = Config::getInstance();
@@ -69,7 +68,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 
 		$this->restoreMessages();
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.'#'.__LINE__.BR;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
@@ -79,7 +77,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function getInstance($createNew = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$instance = &self::$instance ?: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
+		$instance = self::$instance
+			? self::$instance
+			: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
 		if (!$instance && $createNew) {
 			if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
@@ -99,7 +99,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	public function initController() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$slug = $this->request->getControllerString();
 		if ($slug) {
 			$this->loadController($slug);
@@ -205,15 +204,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (is_array($render)) {
 			//$render = implode("\n", $render); // not recursive
 			$combined = '';
-			array_walk_recursive($render, function ($value, $key) use (&$combined) {
-				$combined .= $value."\n";
-			});
+			array_walk_recursive($render, array('IndexBase', 'walkMerge'));
 			$render = $combined;
 		} else if (is_object($render)) {
 			//debug(get_class($render));
 			$render = $render.'';
 		}
 		return $render;
+	}
+
+	protected static function walkMerge($value, $key, &$combined) {
+		$combined .= $value."\n";
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {

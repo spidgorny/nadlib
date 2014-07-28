@@ -91,6 +91,7 @@ class AutoLoad {
 			self::$instance = new self();
 			self::$instance->detectNadlibRoot();
 			self::$instance->loadConfig();
+			self::$instance->initFolders();
 		}
 		return self::$instance;
 	}
@@ -169,7 +170,6 @@ class AutoLoad {
 				'this->componentsPath' => $this->componentsPath.'',
 			));
 			echo '</pre>';
-			debug_pre_print_backtrace();
 		}
 	}
 
@@ -358,6 +358,8 @@ class AutoLoad {
 					if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
+			} else {
+				$this->log(__METHOD__.': '.$class.' not found');
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
 		} else {
@@ -366,6 +368,11 @@ class AutoLoad {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * @param $classFile
+	 * @param $subFolders
+	 * @return string
+	 */
 	function findInFolders($classFile, $subFolders) {
 		foreach ($this->folders as $path) {
 			$file =
@@ -408,14 +415,17 @@ class AutoLoad {
 
 	static function register() {
 		$instance = self::getInstance();
-		$instance->initFolders();
 		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
 		} else {
-			debug(error_get_last());
-			debug(is_callable(array($instance, 'load')));
-			//die('Autloading failed'.BR);
+			//debug(phpversion());
+			//debug(error_get_last());
+			//debug(is_callable(array($instance, 'load')));
+			function __autoload($class) {
+				$instance = AutoLoad::getInstance();
+				$instance->load($class);
+			}
 		}
 	}
 

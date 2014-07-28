@@ -11,8 +11,17 @@ class Time {
 	 * @var int
 	 */
 	public $time;
+
 	const HUMAN = 'H:i';
+
+	/**
+	 * @var string
+	 */
 	public $debug;
+
+	/**
+	 * @var string
+	 */
 	public $human;
 
 	/**
@@ -297,6 +306,8 @@ class Time {
 	function format($rules) {
 		if ($this->time) {
 			$content = date($rules, $this->time);
+		} else {
+			$content = '';
 		}
 		return $content;
 	}
