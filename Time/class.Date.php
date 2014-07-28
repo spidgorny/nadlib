@@ -78,6 +78,10 @@ class Date extends Time {
 		return new self($this->time + $plus->getTimestamp());
 	}
 
+	public function minusDur($day1) {
+		return new self($this->time - $day1->getTimestamp());
+	}
+
 	static public function fromHuman($str) {
 		return new Date(strtotime($str));
 	}
