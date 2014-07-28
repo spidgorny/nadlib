@@ -26,6 +26,12 @@ class URL {
 	public $documentRoot = '';
 
 	/**
+	 * = $this->components['path']
+	 * @var Path
+	 */
+	protected $path;
+
+	/**
 	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
@@ -35,6 +41,7 @@ class URL {
 		}
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI']);
 			if (isset($_SERVER['HTTP_HOST'])) {
 				$url = $http . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			} else {
@@ -60,6 +67,10 @@ class URL {
 			}
 		}
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
+		if (isset($this->components['path'])) {
+			$this->path = new Path($this->components['path']);
+			$this->components['path'] = $this->path;
+		}
 		if (isset($this->components['query'])) {
 			parse_str($this->components['query'], $this->params);
 		}
@@ -128,17 +139,21 @@ class URL {
 		$this->components['query'] = $this->buildQuery();
 	}
 
+	/**
+	 * @return Path
+	 */
 	function getPath() {
-		$path = $this->components['path'];
+		$path = $this->path;
 		if ($this->documentRoot != '/') {
-			$path = str_replace($this->documentRoot, '', $path);
+			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
+			$path = new Path($path);
 		}
-		//debug($this->components['path'], $this->documentRoot, $path);
+		//debug($this->path.'', $this->documentRoot, $path.'');
 		return $path;
 	}
 
 	function setPath($path) {
-		$this->components['path'] = $path;
+		$this->components['path'] = $path instanceof Path ? $path : new Path($path);
 	}
 
 	/**
@@ -146,7 +161,7 @@ class URL {
 	 * @param $name
 	 */
 	function setBasename($name) {
-		$this->components['path'] .= $name;
+		$this->path->setFile($name);
 	}
 
 	function getBasename() {
@@ -297,7 +312,7 @@ return $return; */
 					$padLength = (count($relPath) + $remaining - 1) * -1;
 					$relPath = array_pad($relPath, $padLength, '..');
 					break;
-				} else if ($relPath) {
+				} else if (is_array($relPath) && isset($relPath[0])) {
 					$relPath[0] = './' . $relPath[0];
 				}
 			}
@@ -311,11 +326,15 @@ return $return; */
 		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
         // C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
         if (Request::isCLI()) {
-			if (basename(__FILE__) == __FILE__) {	// index.php
+	        // this below may not work since __FILE__ is class.URL.php and not index.php
+/*			if (basename(__FILE__) == __FILE__) {	// index.php
 				$scriptWithPath = getcwd().'/'.__FILE__;
 			} else {
 				$scriptWithPath = __FILE__;
-			}
+			}*/
+	        $scriptWithPath = isset($_SERVER['SCRIPT_FILENAME'])
+		        ? $_SERVER['SCRIPT_FILENAME']
+		        : $_SERVER['PHP_SELF'];
 		} else {
 			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
 			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de

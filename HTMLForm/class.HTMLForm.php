@@ -20,10 +20,8 @@ class HTMLForm {
 	protected $fieldsetMore = array();
 	var $formMore = '';
 	public $debug = false;
-	var $publickey = "6LeuPQwAAAAAADaepRj6kI13tqxU0rPaLUBtQplC";
-	var $privatekey = "6LeuPQwAAAAAAAuAnYFIF-ZM9yXnkbssaF0rRtkj";
 
-	function htmlForm($action = '') {
+	function __construct($action = '') {
 		$this->action = $action;
 	}
 
@@ -663,8 +661,13 @@ class HTMLForm {
 	}
 
 	function recaptcha(array $desc = array()) {
-		require_once('lib/recaptcha-php-1.10/recaptchalib.php');
-		$content = recaptcha_get_html($this->publickey, $desc['error']);
+		$hfr = new HTMLFormRecaptcha();
+		$r = Request::getInstance();
+		if ($r->isAjax()) {
+			$content = $hfr->getFormAjax($desc);
+		} else {
+			$content = $hfr->getForm($desc);
+		}
 		$this->stdout .= $content;
 		return $content;
 	}
@@ -678,14 +681,8 @@ class HTMLForm {
 	 * @return string
 	 */
 	function recaptchaAjax(array $desc) {
-		$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error='.htmlspecialchars($desc['captcha-error']).'"></script>
-		<div id="recaptcha_div"></div>
- 		<script>
- 			Recaptcha.create("'.$this->publickey.'", "recaptcha_div");
- 		</script>
- 		<input type="hidden" name="'.$desc['name'].'">
- 		<!--input type="hidden" name="recaptcha_challenge_field"-->
- 		<!--input type="hidden" name="recaptcha_response_field"-->';
+		$hfr = new HTMLFormRecaptcha();
+		$content = $hfr->getFormAjax($desc);
 		$this->stdout .= $content;
 		return $content;
 	}

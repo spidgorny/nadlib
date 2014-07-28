@@ -5,9 +5,9 @@
  */
 
 class SQLWherePart {
-	
+
 	/**
-	 * @var dbLayerBase
+	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO
 	 */
 	protected $db;
 
@@ -34,7 +34,11 @@ class SQLWherePart {
 			return $this->sql.'';
 		}
 	}
-	
+
+	function injectDB(dbLayerBase $db) {
+		$this->db = $db;
+	}
+
 	function injectQB(SQLBuilder $qb) {
 		$this->qb = $qb;
 	}

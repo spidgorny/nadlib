@@ -6,12 +6,81 @@ class Debug {
 
 	static $stylesPrinted = false;
 
-	static function debug_args() {
+	var $index;
+
+	/**
+	 * @var Debug
+	 */
+	static protected $instance;
+
+	/**
+	 * @param $index Index|IndexBE
+	 */
+	function __construct($index) {
+		$this->index = $index;
+		self::$instance = $this;
+	}
+
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self(Index::getInstance());
+		}
+		return self::$instance;
+	}
+
+	public static function shallow($coming) {
+		$debug = Debug::getInstance();
+		if (is_array($coming)) {
+			foreach ($coming as $key => &$val) {
+				$debug->getSimpleType($val);
+			}
+		} elseif (is_object($coming)) {
+			$props = get_object_vars($coming);
+			foreach ($props as $key => $val) {
+				$coming->$key = $debug->getSimpleType($val);
+			}
+		}
+		$debug->debug_args($coming);
+	}
+
+	function getSimpleType($val) {
+		if (is_array($val)) {
+			$val = 'array['.sizeof($val).']';
+		} elseif (is_object($val)) {
+			$val = 'object['.get_class($val).']';
+		} elseif (is_string($val) && strlen($val) > 100) {
+			$val = substr($val, 0, 100).'...';
+		}
+		return $val;
+	}
+
+	function debug($params) {
+		if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
+			$fp = FirePHP::getInstance(true);
+			if ($fp->detectClientExtension()) {
+				$fp->setOption('includeLineNumbers', true);
+				$fp->setOption('maxArrayDepth', 10);
+				$fp->setOption('maxDepth', 20);
+				$trace = Debug::getSimpleTrace();
+				array_shift($trace);
+				if ($trace) {
+					$fp->table(implode(' ', first($trace)), $trace);
+				}
+				$fp->log(1 == sizeof($params) ? first($params) : $params);
+			} else {
+				call_user_func_array(array('Debug', 'debug_args'), $params);
+			}
+		} else {
+			call_user_func_array(array('Debug', 'debug_args'), $params);
+		}
+	}
+
+	function debug_args() {
 		$content = '';
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
 			$a = $args[0];
-			$levels = NULL;
+			$levels = /*NULL*/3;
 		} else {
 			$a = $args;
 			if ($a[1] === self::LEVELS) {
@@ -48,9 +117,8 @@ class Debug {
 			$content = self::renderHTMLView($db, $a, $levels);
 			$content .= self::printStyles();
 			if (!headers_sent()) {
-				$index = Index::getInstance();
-				if (method_exists($index, 'renderHead')) {
-					$index->renderHead();
+				if (method_exists($this->index, 'renderHead')) {
+					$this->index->renderHead();
 				} else {
 					echo '<!DOCTYPE html><html>';
 				}
@@ -63,8 +131,7 @@ class Debug {
 	static function renderHTMLView($db, $a, $levels) {
 		$trace = Debug::getTraceTable($db);
 
-		reset($db);
-		$first = current($db);
+		$first = $db[1];
 		$function = self::getMethod($first);
 		$props = array(
 			'<span class="debug_prop">Function:</span> '.$function,
@@ -162,8 +229,10 @@ class Debug {
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo $levels, ': null: '.is_null($levels)."<br />\n";
-				if (is_null($levels) || $levels > 0) {
+				if (($a != $r) && (is_null($levels) || $levels > 0)) {
 					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
+				} else {
+					$content .= '<i>Too deep</i>';
 				}
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';

@@ -11,10 +11,22 @@ class dbLayerBase {
 	 */
 	var $qb;
 
-	function setQB() {
+	/**
+	 * List of reserved words for each DB
+	 * which can't be used as field names and must be quoted
+	 * @var array
+	 */
+	var $reserved = array();
+
+	/**
+	 * @var int - accumulated DB execution time
+	 */
+	var $dbTime = 0;
+
+	function setQB(SQLBuilder $qb = NULL) {
 		$di = new DIContainer();
 		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = $qb ?: new SQLBuilder($di);
 		$this->qb = $qb;
 	}
 
@@ -58,6 +70,22 @@ class dbLayerBase {
 		}
 		$this->free($res);
 		return $data;
+	}
+
+	function getReserved() {
+		return $this->reserved;
+	}
+
+	function transaction() {
+		return $this->perform('BEGIN');
+	}
+
+	function commit() {
+		return $this->perform('COMMIT');
+	}
+
+	function rollback() {
+		return $this->perform('ROLLBACK');
 	}
 
 }

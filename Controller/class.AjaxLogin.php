@@ -111,11 +111,13 @@ class AjaxLogin extends AppController {
 		$content = '';
 		$this->getScript();
 		try {
-			$this->user->try2login();
+			if ($this->user) {
+				$this->user->try2login();
+			}
 			$contentPlus = $this->performAction($this->action);
 			if ($contentPlus) {
 				$content .= $contentPlus;
-			} else if ($this->user->isAuth()) {
+			} else if ($this->user && $this->user->isAuth()) {
 				$content .= $this->menuAction();
 			} else if ($this->action == 'activate') {
 				$content .= $this->activateActionReal();

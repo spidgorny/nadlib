@@ -14,16 +14,6 @@ class URLGet {
 	protected $logger;
 
 	/**
-	 *
-	 * @param string $url
-	 */
-	public function __construct($url) {
-		$this->url = $url;
-		$this->logger = Index::getInstance()->controller;
-		//$this->fetch();
-	}
-
-	/**
 	 * @var CURL info
 	 */
 	public $info;
@@ -34,26 +24,53 @@ class URLGet {
 	protected $proxy;
 
 	/**
-	 * @param bool $proxy - it was a proxy object, but now it's boolean
-	 * as a new proxy will get generation
+	 * for file_get_content()
+	 * @var array
+	 */
+	public $context = array();
+
+	/**
+	 * @var array
+	 */
+	public $curlParams = array();
+
+	/**
+	 *
+	 * @param string $url
+	 */
+	public function __construct($url) {
+		$this->url = $url;
+		$this->logger = Index::getInstance()->controller;
+		$this->context = array(
+			'http' => array(
+				'timeout' => $this->timeout,
+			)
+		);
+	}
+
+	function setProxy($host, $username, $password) {
+		$this->proxy = new Proxy(array(
+			'proxy' => 'http://'.$username.':'.$password.'@'.$host,
+		));
+	}
+
+	/**
 	 * @param int $retries
 	 */
-	public function fetch($proxy = false, $retries = 1) {
+	public function fetch($retries = 1) {
 		$start = microtime(true);
 		$this->logger->log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
 		for ($i = 0; $i < $retries; $i++) {
 			try {
 				if (function_exists('curl_init')) {
 					$this->logger->log('CURL is enabled');
-					$curlParams = array();
-					if ($proxy) {
+					if ($this->proxy) {
 						$this->logger->log('Proxy is defined');
-						$this->proxy = Proxy::getRandom();
 						$curlParams[CURLOPT_PROXY] = $this->proxy;
 					} else {
 						$this->logger->log('No Proxy');
 					}
-					$html = $this->fetchCURL($curlParams);
+					$html = $this->fetchCURL($this->curlParams);
 				} else {
 					$this->logger->log('CURL is disabled');
 					$html = $this->fetchFOpen();
@@ -71,12 +88,8 @@ class URLGet {
 	}
 
 	public function fetchFOpen() {
-		$ctx = stream_context_create(array(
-		    'http' => array(
-		        'timeout' => $this->timeout,
-		    )
-		));
-		$html = @file_get_contents($this->url, 0, $ctx);
+		$ctx = stream_context_create($this->context);
+		$html = file_get_contents($this->url, 0, $ctx);
 		return $html;
 	}
 

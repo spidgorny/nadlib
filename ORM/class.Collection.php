@@ -83,9 +83,10 @@ class Collection {
 	public $query;
 
 	/**
+	 * Is NULL until it's set to 0 or more
 	 * @var integer Total amount of data retrieved (not limited by Pager)
 	 */
-	public $count = 0;
+	public $count = NULL;
 
 	/**
 	 * Should it be here? Belongs to the controller?
@@ -160,29 +161,10 @@ class Collection {
 		$this->request = Request::getInstance();
 		$this->postInit();
 
-		// should be dealt with by the Controller
-		/*$sortBy = $this->request->getSubRequest('slTable')->getCoalesce('sortBy', $this->orderBy);
-		if ($this->thes && is_array($this->thes[$sortBy]) && $this->thes[$sortBy]['source']) {
-			$sortBy = $this->thes[$sortBy]['source'];
-		}
-		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
-		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
-
-		//debug($this->parentField, $this->parentID, $this->where);
-
-		// never retrieve data in advance
-		// use lazy retrieval
-		// don't access $this->data - use $this->getData()
-		// don't access $this->members - use $this->objectify()
-		/*if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
-			$this->retrieveDataFromDB();
-		}
-		*/
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->translateThes();
-		//$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -322,7 +304,9 @@ class Collection {
 			$where = $this->where;
 		}
 		if ($this->parentID > 0) {
-			$where[$this->parentField] = $this->parentID;
+			$where[$this->parentField] = is_array($this->parentID)
+				? new SQLIn($this->parentID)
+				: $this->parentID;
 		}
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
@@ -819,13 +803,20 @@ class Collection {
 		return $memberIterator;
 	}
 
+	/**
+	 * Don't update $this->query otherwise getData() will think we have
+	 * retrieved nothing.
+	 * @return int
+	 */
 	public function getCount() {
-		$this->query = $this->getQuery($this->where);
-		$res = $this->db->perform($this->query);
-		if ($this->pager) {
-			$this->count = $this->pager->numberOfRecords;
-		} else {
-			$this->count = $this->db->numRows($res);
+		if (is_null($this->count)) {
+			$query = $this->getQuery($this->where);
+			$res = $this->db->perform($query);
+			if ($this->pager) {
+				$this->count = $this->pager->numberOfRecords;
+			} else {
+				$this->count = $this->db->numRows($res);
+			}
 		}
 		return $this->count;
 	}

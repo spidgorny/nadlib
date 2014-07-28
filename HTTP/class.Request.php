@@ -315,36 +315,20 @@ class Request {
 					$controller = $controller.'Controller';
 				}
 				$ptr = $tmp;
-				//$controller = end(explode('/', $controller)); // in case it's with subfolder
-				// ^ commented as sub folders need be used for BEmenu
-			} else {
-				$levels = $this->getURLLevels();
-				if ($levels) {
-					$levels = array_reverse($levels);
-					foreach ($levels as $class) {
-						// RewriteRule should not contain "?c="
-						nodebug(
-							$class,
-							class_exists($class.'Controller'),
-							class_exists($class));
-						// to simplify URL it first searches for the corresponding controller
-						if ($class && class_exists($class.'Controller')) {	// this is untested
-							$last = $class.'Controller';
-							break;
-						}
-						if (class_exists($class)) {
-							$last = $class;
-							break;
-						}
-					}
-					if ($last) {
-						$controller = $last;
+
+				$Scontroller = new Stringy\Stringy($controller);
+				if ($Scontroller->contains('/')) {	// in case it's with sub-folder
+					$dir = dirname($Scontroller);
+					$parts = trimExplode('/', $controller);
+					//debug($dir, $parts, file_exists($dir));
+					if (file_exists($dir)) {
+						$controller = end($parts);
 					} else {
-						$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+						$controller = first($parts);
 					}
-				} else {
-					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
+			} else {
+				$controller = $this->getControllerByPath();
 			}
 		}   // cli
 		nodebug(array(
@@ -352,8 +336,41 @@ class Request {
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
 			'last' => isset($last) ? $last : NULL,
-			'default' => class_exists('Config') ? Config::getInstance()->defaultController : NULL,
+			'default' => class_exists('Config')
+				? Config::getInstance()->defaultController
+				: NULL,
 			'data' => $this->data));
+		return $controller;
+	}
+
+	function getControllerByPath() {
+		$levels = $this->getURLLevels();
+		if ($levels) {
+			$levels = array_reverse($levels);
+			foreach ($levels as $class) {
+				// RewriteRule should not contain "?c="
+				nodebug(
+					$class,
+					class_exists($class.'Controller'),
+					class_exists($class));
+				// to simplify URL it first searches for the corresponding controller
+				if ($class && class_exists($class.'Controller')) {	// this is untested
+					$last = $class.'Controller';
+					break;
+				}
+				if (class_exists($class)) {
+					$last = $class;
+					break;
+				}
+			}
+			if ($last) {
+				$controller = $last;
+			} else {
+				$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+			}
+		} else {
+			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+		}
 		return $controller;
 	}
 
@@ -541,17 +558,28 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
-		$path = $this->url->getPath();
+		$cwd = new Path(getcwd());
+		$al = AutoLoad::getInstance();
+		$url = clone $al->documentRoot;
+		$url->append($this->url->getPath());
+		$path = new Path($url);
+		$path->remove($cwd);
+		//$path = $path->getURL();
 		if (strlen($path) > 1) {	// "/"
-			$path = trimExplode('/', $path);
-			if ($path[0] == 'index.php') {
-				array_shift($path);
+			$levels = trimExplode('/', $path);
+			if ($levels[0] == 'index.php') {
+				array_shift($levels);
 			}
-			//debug($this->url->getPath(), $path);
 		} else {
-			$path = array();
+			$levels = array();
 		}
-		return $path;
+		nodebug(array(
+			'cwd' => $cwd.'',
+			'url' => $url.'',
+			'path' => $path.'',
+			'getURL()' => $path->getURL().'',
+			'levels' => $levels));
+		return $levels;
 	}
 
 	/**
@@ -781,7 +809,7 @@ class Request {
 	}
 
 	function getPOST() {
-		if ($HTTP_RAW_POST_DATA) {
+		if (isset($HTTP_RAW_POST_DATA)) {
 			return $HTTP_RAW_POST_DATA;
 		} else {
 			return file_get_contents("php://input");

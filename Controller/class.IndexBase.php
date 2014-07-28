@@ -209,6 +209,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$combined .= $value."\n";
 			});
 			$render = $combined;
+		} else if (is_object($render)) {
+			//debug(get_class($render));
+			$render = $render.'';
 		}
 		return $render;
 	}
@@ -300,7 +303,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
 			));
 			if (file_exists($al->componentsPath.$jQueryPath)) {
-				$this->addJS($al->componentsPath->relativeFromDocRoot().$jQueryPath);
+				$this->addJS($al->componentsPath->getURL().$jQueryPath);
 				return $this;
 			} elseif (file_exists($al->appRoot . $jQueryPath)) {
                 // does not work if both paths are the same!!
@@ -327,6 +330,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
 		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->setAsFile();
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			nodebug(array(
 				'jQueryPath' => $jQueryPath,
@@ -342,13 +346,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
 			));
 			if ($jQueryPath->exists()) {
-				$this->addJS($jQueryPath->relativeFromDocRoot()->getUncapped());
-				return $this;
-			} elseif (file_exists(AutoLoad::getInstance()->appRoot . $jQueryPath)) {
-				$this->addJS(AutoLoad::getInstance()->appRoot . $jQueryPath);
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
 				return $this;
 			} else {
-				$this->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . $jQueryPath);
+				$jQueryPath = clone $al->componentsPath;
+				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
+				$jQueryPath->setAsFile();
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
 				return $this;
 			}
 		}
@@ -429,10 +433,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeCSS() {
-		//return implode("\n", $this->header);
 		$content = array();
 		foreach ($this->header as $key => $script) {
-			$content[] = '<!--'.$key.'-->'.$script;
+			$content[] = '<!--'.$key.'-->'."\n".$script;
 		}
 		return implode("\n", $content);
 	}

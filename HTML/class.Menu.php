@@ -57,6 +57,11 @@ class Menu /*extends Controller*/ {
 	 */
 	public $useRecursiveURL = true;
 
+	/**
+	 * @var bool
+	 * TRUE: explode('/', $path)
+	 * FALSE: Request::getControllerSting()
+	 */
 	public $useControllerSlug = true;
 
 	public $controllerVarName = 'c';
@@ -105,7 +110,7 @@ class Menu /*extends Controller*/ {
 	function setBasePath() {
 		$useRouter = (class_exists('Config') && isset(Config::getInstance()->config['Controller']))
 			? Config::getInstance()->config['Controller']['useRouter']
-			: ($this->request->apacheModuleRewrite());
+			: ($this->request->apacheModuleRewrite() && class_exists('Router'));
 		if ($useRouter) {   // not finished
 			$path = new URL();
 			$path->clearParams();
@@ -115,9 +120,11 @@ class Menu /*extends Controller*/ {
 				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
 				$appRoot = AutoLoad::getInstance()->appRoot;
 				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
-				$path->setPath($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot) . '/');
+				$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
+				$path->setParams();
 			} else {
-				$path->setPath($path->documentRoot.'/');
+				$path->setPath(cap($path->documentRoot));
+				$path->setParams();
 			}
 			// commented when using the slug
 			//$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
@@ -155,40 +162,40 @@ class Menu /*extends Controller*/ {
 	}
 
 	function getRootpath() {
-		$rootpath = $this->request->getURLLevels();
-		$rootpath = array_slice($rootpath, 0, $this->level);	// avoid searching for sub-menu of Dashboard/About
-		if (!$rootpath) {                                       // no rewrite, then find the menu with current as a key
-			if (ifsetor($this->items[$this->current])) {        // if $current is a top-level menu then add it, otherwise search (see below)
-				$rootpath = array(
-					//$this->current,                           // commented otherwise it will show a corresponding submenu
-				);
-			}
-		}
-		//debug($rootpath, sizeof($rootpath), $this->level, $this->current);
-		if (sizeof($rootpath) < $this->level) {                 // URL contains only the sub-page without the path, search for it
-			foreach ($this->items as $key => $rec) {
-				/** @var $rec Recursive */
-				//$found = $rec->findPath($this->current);
-				if ($rec instanceof Recursive) {
-					$children = $rec->getChildren();
-					$found = isset($children[$this->current]) ? $children[$this->current] : NULL;
-					//debug($children, $found, $key, $this->current);
-					if ($found) {
-						$rootpath = array(
-							$key,
-							//$this->current,
-						);
-						$this->current = $key.'/'.$this->current;
-						break;
-					}
+		if ($this->useRecursiveURL) {
+			$rootpath = $this->request->getURLLevels();
+			$rootpath = array_slice($rootpath, 0, $this->level); // avoid searching for sub-menu of Dashboard/About
+			if (!$rootpath) { // no rewrite, then find the menu with current as a key
+				if (ifsetor($this->items[$this->current])) { // if $current is a top-level menu then add it, otherwise search (see below)
+					$rootpath = array(//$this->current,                           // commented otherwise it will show a corresponding submenu
+					);
 				}
 			}
-			//debug($rootpath);
-		}
-		if ($this->level == 0) {
-			$this->current = $this->current;                    // no change
-		} elseif (ifsetor($this->items[$this->current]) instanceof Recursive) {
-			$this->current = $this->current.'/'.$this->current;
+			//debug($rootpath, sizeof($rootpath), $this->level, $this->current);
+			if (sizeof($rootpath) < $this->level) { // URL contains only the sub-page without the path, search for it
+				$found = $this->items->find($this->current);
+				if ($found) {
+					$rootpath = array(
+						$found,
+						//$this->current,
+					);
+					$this->current = $found . '/' . $this->current;
+				}
+				//debug($rootpath);
+			}
+			if ($this->level == 0) {
+				$this->current = $this->current; // no change
+			} elseif (ifsetor($this->items[$this->current]) instanceof Recursive) {
+				$this->current = $this->current . '/' . $this->current;
+			}
+		} else {
+			$controller = $this->request->getControllerString();
+			if (ifsetor($this->items[$controller])) {
+				$rootpath = array($controller);
+			} else {    // search inside
+				$rootpath = $this->items->find($controller);
+				$rootpath = array(first($rootpath));    // needed for getItemsOnLevel
+			}
 		}
 		return $rootpath;
 	}
