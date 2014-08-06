@@ -43,7 +43,7 @@ class Time {
 				//debug('clone '.$this->getHumanDateTime());
 			} else if (is_numeric($input)) {
 				$this->time = $input;
-			} else {
+			} else if (class_exists('Config')) {
 				Config::getInstance()->log(__CLASS__.'#'.__LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		} else {
@@ -82,7 +82,6 @@ class Time {
 	}
 
 	/**
-	 *
 	 * @return int
 	 */
 	function getGMTTimestamp() {
@@ -191,10 +190,12 @@ class Time {
 	}
 
 	/**
+	 * This is like ISO but human readable
+	 * If you need human-human use getHumanDateTime()
 	 * @return string
 	 */
 	function getDateTime() {
-		return date('d.m.Y H:i:s', $this->time);
+		return date('Y-m-d H:i:s', $this->time);
 	}
 
 	/**
@@ -584,10 +585,10 @@ class Time {
 	 * @static
 	 * @param $str
 	 * @param null $rel
-	 * @return Time
+	 * @return static
 	 */
 	static function makeInstance($str, $rel = NULL) {
-		return new Time($str, $rel);
+		return new static($str, $rel);
 	}
 
 	function getTwo() {
@@ -606,6 +607,21 @@ class Time {
 		$difference = Time::makeInstance('now')->minus($this);
 		$older = $difference->later($duration);
 		return $older;
+	}
+
+	/**
+	 * @return Date
+	 */
+	public function getDateObject() {
+		return new Date($this->getTimestamp());
+	}
+
+	public function getHTMLDate() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanDate().'</time>');
+	}
+
+	public function getHTMLTime() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTime().'</time>');
 	}
 
 }
