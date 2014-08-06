@@ -53,16 +53,20 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306) {
 		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
-		$this->dsn = $scheme.':'.$this->getDSN(array(
-			'DRIVER' => '{'.$driver.'}',
-			'DATABASE' => $db,
-			'host' => $host,
-			'SYSTEM' => $host,
-			'dbname' => $db,
-			'HOSTNAME' => $host,
-			'PORT' => $port,
-			'PROTOCOL' => 'TCPIP',
-		));
+		if ($scheme == 'sqlite') {
+			$this->dsn = $scheme.':'.$db;
+		} else {
+			$this->dsn = $scheme . ':' . $this->getDSN(array(
+					'DRIVER' => '{' . $driver . '}',
+					'DATABASE' => $db,
+					'host' => $host,
+					'SYSTEM' => $host,
+					'dbname' => $db,
+					'HOSTNAME' => $host,
+					'PORT' => $port,
+					'PROTOCOL' => 'TCPIP',
+				));
+		}
 		//debug($this->dsn);
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
