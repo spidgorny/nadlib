@@ -69,11 +69,15 @@ class Debug {
 				}
 				$fp->log(1 == sizeof($params) ? first($params) : $params);
 			} else {
-				call_user_func_array(array('Debug', 'debug_args'), $params);
+				$content = call_user_func_array(array('Debug', 'debug_args'), $params);
 			}
 		} else {
-			call_user_func_array(array('Debug', 'debug_args'), $params);
+			$content = call_user_func_array(array('Debug', 'debug_args'), $params);
 		}
+		if (!is_null($content)) {
+			print($content);
+		}
+		flush();
 	}
 
 	function debug_args() {
@@ -121,10 +125,9 @@ class Debug {
 				if (method_exists($this->index, 'renderHead')) {
 					$this->index->renderHead();
 				} else {
-					echo '<!DOCTYPE html><html>';
+					$content = '<!DOCTYPE html><html>' . $content;
 				}
 			}
-			print($content); flush();
 		}
 		return $content;
 	}
@@ -220,9 +223,10 @@ class Debug {
 		if (is_array($a)) {	// not else if so it also works for objects
 			$content = '<table class="view_array">';
 			foreach ($a as $i => $r) {
-				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
-				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
-				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
+				$type = gettype($r);
+				$type = $type == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
+				$type = $type == 'string' ? gettype($r).'['.strlen($r).']' : $type;
+				$type = $type == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
 				$content .= '<tr>
 					<td class="view_array">'.$i.'</td>
 					<td class="view_array">'.$type.'</td>
@@ -230,10 +234,12 @@ class Debug {
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo $levels, ': null: '.is_null($levels)."<br />\n";
-				if (($a != $r) && (is_null($levels) || $levels > 0)) {
-					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
+				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
+					$content .= Debug::view_array($r, is_null($levels)
+						? NULL
+						: $levels-1);
 				} else {
-					$content .= '<i>Too deep</i>';
+					$content .= '<i>Too deep, $level: '.$levels.'</i>';
 				}
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';

@@ -6,12 +6,12 @@ class HTMLFormTimeRange extends HTMLFormType {
 	public $max = 1440;		// 24*60
 
 	/**
-	 * @var Time
+	 * @var IndTime
 	 */
 	public $start; // = 1000;
 
 	/**
-	 * @var Time
+	 * @var IndTime
 	 */
 	public $end; // = 1730;
 

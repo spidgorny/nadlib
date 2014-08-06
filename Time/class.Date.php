@@ -30,6 +30,10 @@ class Date extends Time {
 	}
 
 	function getISO() {
+		return date('Y-m-d', $this->time);
+	}
+
+	function getGMT() {
 		return gmdate('Y-m-d', $this->time);
 	}
 

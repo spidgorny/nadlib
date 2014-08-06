@@ -107,13 +107,14 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
+	/**
+	 * $this->user->try2login() should been called already
+	 * @return string
+	 */
 	function render() {
 		$content = '';
 		$this->getScript();
 		try {
-			if ($this->user) {
-				$this->user->try2login();
-			}
 			$contentPlus = $this->performAction($this->action);
 			if ($contentPlus) {
 				$content .= $contentPlus;
@@ -129,7 +130,7 @@ class AjaxLogin extends AppController {
 			}
 			$content = '<div id="AjaxLogin" '.($this->openable ? 'rel="toggle"' : '').'>'.$content.'</div>';
 		} catch (Exception $e) {
-			$content = '<div class="error alert alert-danger">'.__($e->getMessage()).'</div>';
+			$content = '<div class="error_top alert alert-danger">'.__($e->getMessage()).'</div>';
 			if (DEVELOPMENT) {
 				$content .= $e->getTraceAsString();
 			}
