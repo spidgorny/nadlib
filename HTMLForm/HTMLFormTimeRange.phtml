@@ -11,7 +11,7 @@
 	 field="<?= $this->fieldEscaped ?>"
 	 min="<?= $this->min ?>"
 	 max="<?= $this->max ?>"
-	 start="<?= $this->start ?>"
-	 end="<?= $this->end ?>"
+	 start="<?= $this->start->getMinutes() ?>"
+	 end="<?= $this->end->getMinutes() ?>"
 	 step="<?= $this->step ?>"
 	></div>
