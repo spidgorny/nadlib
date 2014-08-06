@@ -69,6 +69,7 @@ class Timeline2 /*extends AppController */{
 				height="'.$this->height_30.'"
 				style="fill:'.$this->fillBottomColor.';stroke-width:0" />'."\n";
 
+			$content .= $this->hourTicks();
 			$content .= $this->dateTicks();
 			$content .= $this->weekTicks();
 			$content .= $this->monthTicks();
@@ -86,6 +87,34 @@ class Timeline2 /*extends AppController */{
 			$content .= '</svg>';
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $content;
+	}
+
+	function hourTicks() {
+		$content = '';
+		$every = $this->dayWidth / 24 / 3 / $this->fontSize; // 3 chars for "22h"
+		$i = 0;
+		/* @var $date Time */
+		for ($date = new Time($this->start);
+		     $date->earlier($this->end);
+		     $date->add(new Duration('1 hour'))) {
+			$x = $this->date2xTime($date);
+			if ($this->dayWidth > 24 * 2) {	// 24h * 2 pixels
+				$content .= '<line x1="'.$x.'" y1="'.($this->height_10).'" x2="'.$x.'"
+					y2="'.($this-> height_10 + $this->height_10/2).'"
+					style="stroke:'.$this->textColor.';stroke-width:1"/>';
+			}
+			// if enough space for dates
+			//if ($this->dayWidth > (48 * 3 * $this->fontSize*1.5)) {
+			if ($every > 1 && !($i++ % $every)) {
+				$content .= '<text
+					x="'.($x-($this->fontSize/1.5/2)).'"
+					y="'.($this->height_10 + $this->fontSize*1.3).'"
+					fill="'.$this->textColor.'"
+					font-size="'.($this->fontSize/1.5).'"
+					>'.$date->format('H\h').'</text>';
+			}
+		}
 		return $content;
 	}
 
@@ -182,6 +211,31 @@ class Timeline2 /*extends AppController */{
 				width="'.$width.'"
 				height="'.($this->height - $this->height_20).'"
 				style="fill:'.$this->rangeColor.'; stroke-width:0; stroke:rgb(0,0,0)" />';
+	}
+
+	function date2xTime(Time $time) {
+		$sinceStart = $time->minus($this->start);
+		//$tillEnd = $this->end->minus($date);
+		$percent = $sinceStart->getTimestamp() / ($this->duration->getTimestamp());
+		return round($percent * $this->width, 2);
+	}
+
+	function renderTimeRange(Time $from, Time $till,
+	                         $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)') {
+		$x = $this->date2xTime($from);
+		$width = $this->date2xTime($till) - $x;
+		$id = uniqid('rect_');
+		$this->rangeContent[] = '<rect
+				id="'.$id.'"
+				x="'.$x.'"
+				y="'.(0).'"
+				width="'.$width.'"
+				height="'.($this->height - $this->height_20).'"
+				style="'.$style.'"
+				startTime="'.$from->getDateTime().'"
+				endTime="'.$till->getDateTime().'"
+				/>';
+		return $id;
 	}
 
 }

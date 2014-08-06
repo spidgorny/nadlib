@@ -25,7 +25,6 @@ class Duration extends Time {
 	function  __construct($input = NULL) {
 		if ($input instanceof Time) {
 			$this->time = $input->time;
-			$this->updateDebug();
 		} elseif (is_string($input)) {
 			$temp = self::fromHuman($input);
 			$this->time = $temp->getTimestamp();

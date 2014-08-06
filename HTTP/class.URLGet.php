@@ -55,6 +55,8 @@ class URLGet {
 	}
 
 	/**
+	 * @param bool|Proxy $proxy - it was a proxy object, but now it's boolean
+	 * as a new proxy will get generation
 	 * @param int $retries
 	 */
 	public function fetch($retries = 1) {
@@ -66,6 +68,9 @@ class URLGet {
 					$this->logger->log('CURL is enabled');
 					if ($this->proxy) {
 						$this->logger->log('Proxy is defined');
+						if (!($proxy instanceof Proxy)) {
+							$this->proxy = Proxy::getRandomOrBest();
+						}
 						$curlParams[CURLOPT_PROXY] = $this->proxy;
 					} else {
 						$this->logger->log('No Proxy');
@@ -76,14 +81,14 @@ class URLGet {
 					$html = $this->fetchFOpen();
 				}
 			} catch (Exception $e) {
-				$this->logger->log($e->getMessage(), __CLASS__);
+				$this->logger->log($e->getMessage(), __METHOD__);
 			}
 			if ($html) {
 				$this->logger->log('Download successful. Data size: '.strlen($html).' bytes');
 				break;
 			}
 		}
-		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').')', __CLASS__);
+		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)', __METHOD__);
 		$this->html = $html;
 	}
 
@@ -127,17 +132,8 @@ class URLGet {
 		curl_close($process);
 
 		if (/*!$html || */$this->info['http_code'] != 200) {	// when downloading large file directly to file system
-			if ($this->proxy) {
-				//Controller::log('Using proxy: '.$proxy.': FAIL', __CLASS__);
-				$this->proxy->fail();
-			}
 			//debug($this->info);
 			throw new Exception('failed to read URL: '.$this->url);
-		} else {
-			if ($this->proxy) {
-				//Controller::log('Using proxy: '.$proxy.': OK', __CLASS__);
-				$this->proxy->ok();
-			}
 		}
 		return $html;
 	}

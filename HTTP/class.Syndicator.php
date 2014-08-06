@@ -56,6 +56,11 @@ class Syndicator {
 	 */
 	public $log = array();
 
+	/**
+	 * @var callback to check that downloaded file is what is expected
+	 */
+	public $validateDownload;
+
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if ($url) {
@@ -119,7 +124,22 @@ class Syndicator {
 			} else {
 				$this->log('No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
-				$this->cache->set($this->url, $html);
+				if (is_callable($this->validateDownload)) {
+					$ok = call_user_func($this->validateDownload, $html);
+					if ($ok) {
+						$this->cache->set($this->url, $html);
+						$this->proxyOK();
+					} else {
+						$this->proxyFail();
+					}
+				} else {
+					if (strlen($html)) {
+						$this->cache->set($this->url, $html);
+						$this->proxyOK();
+					} else {
+						$this->proxyFail();
+					}
+				}
 				//debug($cache->map($this->url).' Size: '.strlen($html), 'Set cache');
 			}
 		} else {
@@ -127,6 +147,22 @@ class Syndicator {
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $html;
+	}
+
+	function proxyOK() {
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log('Using proxy: '.$this->useProxy.': OK', __CLASS__);
+			$this->useProxy->ok();
+		}
+	}
+
+	function proxyFail() {
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log('Using proxy: '.$this->useProxy.': OK', __CLASS__);
+			$this->useProxy->fail();
+		}
 	}
 
 	function log($msg) {

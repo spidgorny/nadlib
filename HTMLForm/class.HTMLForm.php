@@ -699,24 +699,24 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$controller = Index::getInstance()->controller;
-		$this->stdout .= $controller->ahref('<img
-			src="img/tb_folder.gif"
-			title="'.$desc['ButtonTitle'].'">', '#', '',
-			'onclick="ajaxTreeOpen(
-			\''.$desc['selectID'].'\',
-			\''.$desc['treeDivID'].'\',
-			\''.$desc['tableName'].'\',
-			\''.json_encode($desc['tableRoot']).'\',
-			\''.$desc['tableTitle'].'\',
-			\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
-			\''.$desc['categoryID'].'\',
-			\''.$desc['onlyLeaves'].'\',
-			\''.$desc['selected'].'\'
+		$this->stdout .= new HTMLTag('a', array(
+			'href' => '#',
+			'onclick' => 'ajaxTreeOpen(
+				\''.$desc['selectID'].'\',
+				\''.$desc['treeDivID'].'\',
+				\''.$desc['tableName'].'\',
+				\''.json_encode($desc['tableRoot']).'\',
+				\''.$desc['tableTitle'].'\',
+				\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
+				\''.$desc['categoryID'].'\',
+				\''.$desc['onlyLeaves'].'\',
+				\''.$desc['selected'].'\'
 			);
 			'.$desc['onclickMore'].'
 			return false;
-		"');
+		'), '<img
+			src="img/tb_folder.gif"
+			title="'.$desc['ButtonTitle'].'">', true);
 		$style = 'display: none;
 		position: absolute;
 		left: 0;
@@ -728,6 +728,7 @@ class HTMLForm {
 		background-color: white;
 		az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
+		$controller = Index::getInstance()->controller;
 		$this->stdout .= $controller->encloseOld('Tree-Element Selector', '',
 			array(
 				'outerStyle' => $style,

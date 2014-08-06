@@ -307,9 +307,13 @@ class Collection {
 			$where = $this->where;
 		}
 		if ($this->parentID > 0) {
-			$where[$this->parentField] = is_array($this->parentID)
-				? new SQLIn($this->parentID)
-				: $this->parentID;
+			if ($this->parentID instanceof Date) {
+				$where[$this->parentField] = $this->parentID->getMySQL();
+			} else {
+				$where[$this->parentField] = is_array($this->parentID)
+					? new SQLIn($this->parentID)
+					: $this->parentID;
+			}
 		}
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
@@ -400,13 +404,14 @@ class Collection {
 	 * @return ArrayPlus
 	 */
 	function getData() {
-		if (!$this->query && (
+		if (!$this->query || (
 			!$this->data
 			|| !$this->data->count())) {
 			$this->retrieveDataFromDB();
 		}
         if (!($this->data instanceof ArrayPlus)) {
             $this->data = ArrayPlus::create($this->data);
+	        $this->count = sizeof($this->data);
         }
 		return $this->data;
 	}
@@ -469,15 +474,22 @@ class Collection {
 	}
 
 	function renderList() {
-		$content = '<ul>';
-		foreach ($this->getData() as $row) {
-			$content .= '<li>';
-			foreach ($this->thes as $key => $_) {
-				$content .= $row[$key]. ' ';
+		$content = '';
+		if ($this->getCount()) {
+			$content .= '<ul>';
+			foreach ($this->getData() as $row) {
+				$content .= '<li>';
+				if ($this->thes) {
+					foreach ($this->thes as $key => $_) {
+						$content .= $row[$key] . ' ';
+					}
+				} else {
+					$content .= $row[$this->titleColumn];
+				}
+				$content .= '</li>';
 			}
-			$content .= '</li>';
+			$content .= '</ul>';
 		}
-		$content .= '</ul>';
 		return $content;
 	}
 
