@@ -374,6 +374,7 @@ class AutoLoad {
 	 * @return string
 	 */
 	function findInFolders($classFile, $subFolders) {
+		$appRoot = class_exists('Config') ? Config::getInstance()->appRoot : '';
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
