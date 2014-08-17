@@ -134,7 +134,7 @@ class AutoLoad {
 			if (file_exists($configPath)) {
 				include_once $configPath;
 			} else {
-				print('class.Config.php not found.<br />'."\n");
+				//print('class.Config.php not found.<br />'."\n");
 			}
 		}
 	}
@@ -183,7 +183,7 @@ class AutoLoad {
 	}
 
 	function findInFolders($classFile, $subFolders) {
-		$appRoot = Config::getInstance()->appRoot;
+		$appRoot = class_exists('Config') ? Config::getInstance()->appRoot : '';
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
