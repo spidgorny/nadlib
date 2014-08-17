@@ -349,6 +349,8 @@ class Debug {
 				}
 			</style>';
 			self::$stylesPrinted = true;
+		} else {
+			$content .= '<!-- styles printed -->';
 		}
 		return $content;
 	}

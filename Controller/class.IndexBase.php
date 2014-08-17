@@ -135,6 +135,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	function getController() {
+		if (!$this->controller) {
+			$this->initController();
+		}
+		return $this->controller;
+	}
+
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '';
