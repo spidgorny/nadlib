@@ -53,7 +53,7 @@ class HTMLFormValidate {
 		if (!$d['optional'] && (
 			!($value) || (!$d['allow0'] && !isset($d['value'])))
 			&& !$isCheckbox) {
-			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
+			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ? $d['label'] : $field);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
