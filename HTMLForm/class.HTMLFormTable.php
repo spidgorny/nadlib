@@ -180,7 +180,10 @@ class HTMLFormTable extends HTMLForm {
 					if ($desc['set0']) {
 						$this->hidden($fieldName, 0);
 					}
-					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $desc['more'].' id="'.$elementID.'"');
+					$more = is_array($desc['more'])
+						? $desc['more'] + array('id' => $elementID)
+						: $desc['more'] . ' id="'.$elementID.'"';
+					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $more);
 				break;
 				case "time":
 					$this->time($fieldName, $fieldValue, $desc['unlimited']);
@@ -330,7 +333,9 @@ class HTMLFormTable extends HTMLForm {
 								}
 							}
 							$label .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
-							$label .= $this->debug ? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>' : '';
+							$label .= $this->debug
+								? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>'
+								: '';
 						}
 					}
 					$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';

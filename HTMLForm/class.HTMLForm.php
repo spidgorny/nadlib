@@ -197,7 +197,8 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("checkbox", $name, $value,
 			($checked?'checked="checked"':"").' '.
 			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
-			(is_array($more) ? $this->getAttrHTML($more) : $more)
+			(is_array($more) ? $this->getAttrHTML($more) : $more),
+			$more['class']
 		);
 	}
 
