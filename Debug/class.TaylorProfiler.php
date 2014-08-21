@@ -66,7 +66,7 @@ class TaylorProfiler {
 	function getName() {
 		if (class_exists('MySQL') && method_exists('MySQL', 'getCaller')) {
 			$name = MySQL::getCaller();
-		} else {
+		} else if (class_exists('dbLayerPG')) {
 			$i = 3;
 			$name = dbLayerPG::getCaller($i, 2);
 		}
