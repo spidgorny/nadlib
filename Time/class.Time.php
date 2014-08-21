@@ -588,7 +588,8 @@ class Time {
 	 * @return static
 	 */
 	static function makeInstance($str, $rel = NULL) {
-		return new static($str, $rel);
+		$static = get_called_class();
+		return new $static($str, $rel);
 	}
 
 	function getTwo() {
