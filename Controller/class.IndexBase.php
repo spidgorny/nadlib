@@ -212,8 +212,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	static function mergeStringArrayRecursive($render) {
 		if (is_array($render)) {
 			//$render = implode("\n", $render); // not recursive
-			$combined = '';
-			array_walk_recursive($render, array('IndexBase', 'walkMerge'));
+			if (phpversion() < 5.3) {
+				$combined = '';
+				/*array_walk_recursive($render,
+					array('IndexBase', 'walkMerge'),
+					$combined); // must have &
+				*/
+				$combined = array_merge_recursive($render);
+				$combined = implode('', $combined);
+			} else {
+				/*array_walk_recursive($render, function ($a) {
+
+				});*/
+			}
 			$render = $combined;
 		} else if (is_object($render)) {
 			//debug(get_class($render));
