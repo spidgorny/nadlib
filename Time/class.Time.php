@@ -24,6 +24,8 @@ class Time {
 	 */
 	public $human;
 
+	protected $format = 'Y-m-d H:i:s Z (U)';
+
 	/**
 	 * Append GMT for Greenwich
 	 * @param null $input
@@ -61,7 +63,7 @@ class Time {
 	}
 
 	function __toString() {
-		return date('Y-m-d H:i:s Z', $this->time).' ('.$this->time.')';
+		return $this->format($this->format);
 	}
 
 	static function make($input = NULL, $relativeTo = NULL) {
@@ -623,6 +625,10 @@ class Time {
 
 	public function getHTMLTime() {
 		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTime().'</time>');
+	}
+
+	public function setFormat($string) {
+		$this->format = $string;
 	}
 
 }

@@ -69,6 +69,7 @@ class ProgressBar {
 
 	function render() {
 		if (!$this->cli) {
+			ini_set('output_buffering', 0); // php_value output_buffering 0
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
