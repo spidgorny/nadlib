@@ -95,10 +95,12 @@ class ProgressBar {
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
-		} else {
+		} else if (class_exists('lessc')) {
 			$l = new lessc();
 			$css = $l->compileFile($less);
 			return '<style>' . $css . '</style>';
+		} else {
+			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do
 		}
 	}
 
