@@ -18,6 +18,7 @@ class htmlString {
 	/**
 	 * htmlspecialchars which knows about htmlString()
 	 * @param $string
+	 * @return string
 	 */
 	static function hsc($string) {
 		if ($string instanceof htmlString) {
