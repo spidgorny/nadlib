@@ -221,7 +221,8 @@ class Timeline2 /*extends AppController */{
 	}
 
 	function renderTimeRange(Time $from, Time $till,
-	                         $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)') {
+		$style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
+		$more = array()) {
 		$x = $this->date2xTime($from);
 		$width = $this->date2xTime($till) - $x;
 		$id = uniqid('rect_');
@@ -234,6 +235,7 @@ class Timeline2 /*extends AppController */{
 				style="'.$style.'"
 				startTime="'.$from->getDateTime().'"
 				endTime="'.$till->getDateTime().'"
+				'.HTMLTag::renderAttr($more).'
 				/>';
 		return $id;
 	}

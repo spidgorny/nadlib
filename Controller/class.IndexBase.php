@@ -218,11 +218,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 					array('IndexBase', 'walkMerge'),
 					$combined); // must have &
 				*/
-				$combined = array_merge_recursive($render);
-				$combined = implode('', $combined);
-			} else {
-				/*array_walk_recursive($render, function ($a) {
 
+				//$combined = array_merge_recursive($render);
+				//$combined = implode('', $combined);
+
+				$combinedA = new ArrayObject();
+				array_walk_recursive($render, array('IndexBase', 'walkMergeArray'), $combinedA);
+				$combined = implode('', $combinedA->getArrayCopy());
+			} else {
+				/*array_walk_recursive($render, function ($a, $key, &$combined) {
+					$combined .= $a;
 				});*/
 			}
 			$render = $combined;
@@ -235,6 +240,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	protected static function walkMerge($value, $key, &$combined) {
 		$combined .= $value."\n";
+	}
+
+	protected static function walkMergeArray($value, $key, $combined) {
+		$combined[] = $value;
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
