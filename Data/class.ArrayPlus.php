@@ -363,7 +363,7 @@ class ArrayPlusReference extends ArrayPlus {
 		$this->data =& $a;
 	}
 
-    static function create(array &$data = array()) {
+    static function createReference(array &$data = array()) {
     	$self = new self($data);
     	return $self;
     }
