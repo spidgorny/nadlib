@@ -240,4 +240,8 @@ class Timeline2 /*extends AppController */{
 		return $id;
 	}
 
+	function __toString() {
+		return $this->render().'';
+	}
+
 }
