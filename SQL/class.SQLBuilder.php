@@ -488,13 +488,17 @@ class SQLBuilder {
 		}
 
 		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+		do {
+			$row = $this->fetchAssoc($res);
+			if ($row === FALSE || $row == array()) {
+				break;
+			}
 			if ($key) {
 				$data[$row[$key]] = $row;
 			} else {
 				$data[] = $row;
 			}
-		}
+		} while (true);
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
 		$this->free($res);
@@ -548,7 +552,7 @@ class SQLBuilder {
 	 */
 	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->fetchAll($res, $key);
+		$rows = $this->db->fetchAll($res, $key);
 		return $rows;
 	}
 
