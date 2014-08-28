@@ -72,19 +72,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
-	 * @param bool $createNew
+	 * @param bool $createNew - must be false
 	 * @return Index|IndexBE
 	 */
-	static function getInstance($createNew = true) {
+	static function getInstance($createNew = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
 			: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
 		if (!$instance && $createNew) {
-			if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
-			//$instance->initController();	// scheisse: call it in index.php
+			self::$instance = $instance;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $instance;
