@@ -198,7 +198,7 @@ class HTMLForm {
 			($checked?'checked="checked"':"").' '.
 			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
 			(is_array($more) ? $this->getAttrHTML($more) : $more),
-			$more['class']
+			is_array($more) ? ifsetor($more['class']) : ''
 		);
 	}
 
