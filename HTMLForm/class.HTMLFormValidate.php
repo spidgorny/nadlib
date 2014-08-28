@@ -230,7 +230,7 @@ class HTMLFormValidate {
         $emailAddresses = preg_split('/\s*,\s*/', $value);
         foreach ($emailAddresses as &$emailAddress) {
             if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
-                !self::validEmail($value)) {
+                !self::validEmail($emailAddress)) {
                 $invalid[] = $emailAddress;
             }
         }
