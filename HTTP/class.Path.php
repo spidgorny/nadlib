@@ -14,7 +14,7 @@ class Path {
 
 	function __construct($sPath) {
 		$this->sPath = $sPath.'';
-		$this->isAbsolute = startsWith($this->sPath, '/') || $this->sPath[1] == ':';
+		$this->isAbsolute = startsWith($this->sPath, '/') || (isset($this->sPath[1]) && $this->sPath[1] == ':');
 		$this->isDir = endsWith($this->sPath, '/');
 		$this->isFile = !$this->isDir;
 		$this->explode();
@@ -42,7 +42,8 @@ class Path {
 	 * Modifies the string path after array modification
 	 */
 	function implode() {
-		$this->sPath = ((!Request::isWindows() && $this->isAbsolute) ? '/' : '').
+		$notSlash = $this->aPath != array('/');
+		$this->sPath = ((!Request::isWindows() && $this->isAbsolute && $notSlash) ? '/' : '').
 			implode('/', $this->aPath);
 	}
 
@@ -120,7 +121,7 @@ class Path {
 	}
 
 	function getCapped() {
-		return $this->sPath.'/';
+		return cap($this->sPath);
 	}
 
 	/**
