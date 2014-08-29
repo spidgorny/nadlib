@@ -108,7 +108,7 @@ abstract class LocalLang {
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
 		if (isset($this->ll[$text])) {
 			if ($this->ll[$text] && $this->ll[$text] != '.') {
-				$trans = $this->ll[$text];
+				$trans = $this->Tp($text, $replace, $s2, $s3);
 				$trans = $this->getEditLinkMaybe($trans, $text, '');
 			} else {
 				$trans = $this->getEditLinkMaybe($text, $text);
@@ -119,6 +119,19 @@ abstract class LocalLang {
 			$this->saveMissingMessage($text);
 			$trans = $this->getEditLinkMaybe($text);
 		}
+		return $trans;
+	}
+
+	/**
+	 * Bare plain-text localization without outputting any HTML
+	 * @param $text
+	 * @param null $replace
+	 * @param null $s2
+	 * @param null $s3
+	 * @return mixed|null
+	 */
+	function Tp($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
+		$trans = ifsetor($this->ll[$text]);
 		if (is_array($replace)) {
 			foreach ($replace as $key => $val) {
 				$trans = str_replace('{'.$key.'}', $val, $trans);
@@ -135,10 +148,11 @@ abstract class LocalLang {
 	function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage') {
 		if ($this->editMode && $id) {
 			$trans = '<span class="'.$class.' clickTranslate" rel="'.htmlspecialchars($id).'">'.$text.'</span>';
+			$al = AutoLoad::getInstance();
 			$index = Index::getInstance();
 			$index->addJQuery();
-			$index->addJS('nadlib/js/clickTranslate.js');
-			$index->addCSS('nadlib/CSS/clickTranslate.css');
+			$index->addJS($al->nadlibFromDocRoot.'js/clickTranslate.js');
+			$index->addCSS($al->nadlibFromDocRoot.'CSS/clickTranslate.css');
 		} else if ($this->indicateUntranslated) {
 			$trans = '<span class="untranslatedMessage">['.$text.']</span>';
 		} else {
@@ -192,6 +206,19 @@ if (!function_exists('__')) {	// conflict with cake
 		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
 		if ($index && $index->ll) {
 			$text = $index->ll->T($code, $r1, $r2, $r3);
+			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
+			return $text;
+		} else {
+			return $code;
+		}
+	}
+	function __p($code, $r1 = null, $r2 = null, $r3 = null) {
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+		}
+		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
+		if ($index && $index->ll) {
+			$text = $index->ll->Tp($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $text;
 		} else {

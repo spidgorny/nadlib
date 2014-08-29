@@ -3,10 +3,19 @@
 /**
  * Class TranslateLL
  * TODO: Combine with Localize
+ * No, don't combine and this is used to localize a SINGLE message.
+ * Admins get here by using clickTranslate.js
  */
-
 class TranslateLL extends HTMLFormProcessor {
 	protected $submitButton = 'Update';
+
+	function __construct() {
+		parent::__construct();
+		$this->user = Config::getInstance()->user;
+		if (!$this->user || !$this->user->id || !$this->user->isAdmin()) {
+			throw new AccessDeniedException();
+		}
+	}
 
 	function getDesc() {
 		$ll = Index::getInstance()->ll;
