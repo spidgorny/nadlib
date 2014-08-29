@@ -7,7 +7,13 @@
  * Admins get here by using clickTranslate.js
  */
 class TranslateLL extends HTMLFormProcessor {
+
 	protected $submitButton = 'Update';
+
+	/**
+	 * @var CookieUser
+	 */
+	var $user;
 
 	function __construct() {
 		parent::__construct();
@@ -39,6 +45,9 @@ class TranslateLL extends HTMLFormProcessor {
 				'label' => __('Trans'),
 				'type' => 'textarea',
 				'value' => $ll->ll[$code],
+				'more' => array(
+					'rows' => 20,
+				)
 			),
 		);
 		return $desc;

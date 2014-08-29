@@ -86,17 +86,21 @@ class LocalLangDB extends LocalLang {
 	/**
 	 * Dangerous - may overwrite
 	 * @param array $data
+	 * @throws AccessDeniedException
+	 * @throws Exception
 	 */
 	function updateMessage(array $data) {
-		debug_pre_print_backtrace();
-		exit();
-		$llm = new LocalLangModel($data['lang'], $data['code']);
-		if ($llm->id) {
-			$llm->update(array(
-				'text' => $data['text'],
-			));
+		if (Config::getInstance()->user->isAdmin()) {
+			$llm = new LocalLangModel($data['lang'], $data['code']);
+			if ($llm->id) {
+				$llm->update(array(
+					'text' => $data['text'],
+				));
+			} else {
+				$llm->insert($data);
+			}
 		} else {
-			$llm->insert($data);
+			throw new AccessDeniedException();
 		}
 	}
 
@@ -144,7 +148,7 @@ class LocalLangDB extends LocalLang {
 				$u = URL::getCurrent();
 				$u->setParam('setLangCookie', $row['lang']);
 				$title = $row['lang'] . ' (' . $row['percent'] . ')';
-				$content .= '<a href="' . $u->buildURl() . '" title="' . $title . '">
+				$content .= '<a href="' . $u->buildURL() . '" title="' . $title . '">
 					<img src="img/' . $row['lang'] . '.gif" width="20" height="12" />
 				</a>';
 			}
