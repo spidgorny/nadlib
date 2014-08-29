@@ -139,13 +139,15 @@ class LocalLangDB extends LocalLang {
 	function showLangSelection() {
 		$content = '';
 		$stats = $this->getLangStats();
-		foreach ($stats as $row) {
-			$u = URL::getCurrent();
-			$u->setParam('setLangCookie', $row['lang']);
-			$title = $row['lang'].' ('.$row['percent'].')';
-			$content .= '<a href="'.$u->buildURL().'" title="'.$title.'">
-				<img src="img/'.$row['lang'].'.gif" width="20" height="12">
-			</a>';
+		if (sizeof($stats) > 1) {           // don't show selection of just one language
+			foreach ($stats as $row) {
+				$u = URL::getCurrent();
+				$u->setParam('setLangCookie', $row['lang']);
+				$title = $row['lang'] . ' (' . $row['percent'] . ')';
+				$content .= '<a href="' . $u->buildURl() . '" title="' . $title . '">
+					<img src="img/' . $row['lang'] . '.gif" width="20" height="12" />
+				</a>';
+			}
 		}
 		//debug($_SERVER['REQUEST_URI'], $u, $u->buildURL());
 		return $content;
@@ -158,7 +160,7 @@ class LocalLangDB extends LocalLang {
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
 			$lang = array(
-				'img' => new htmlString('<img src="img/'.$lang.'.gif" width="20" height="12">'),
+				'img' => new htmlString('<img src="img/'.$lang.'.gif" width="20" height="12" />'),
 				'lang' => $lang,
 				'rows' => sizeof($rows),
 				'percent' => number_format(sizeof($rows)/$countEN*100, 0).'%',
