@@ -202,11 +202,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
+	/**
+	 * @param string|string[] $render
+	 * @return string
+	 */
 	static function mergeStringArrayRecursive($render) {
 		if (is_array($render)) {
 			//$render = implode("\n", $render); // not recursive
 			$combined = '';
-			array_walk_recursive($render, array('IndexBase', 'walkMerge'));
+			if (phpversion() < 5.4) {
+				array_walk_recursive($render, array('IndexBase', 'walkMerge'), $combined);
+			} else {
+				array_walk_recursive($render, function ($value, $key) use (&$combined) {
+					$combined .= $value."\n";
+				});
+			}
 			$render = $combined;
 		} else if (is_object($render)) {
 			//debug(get_class($render));
@@ -215,7 +225,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
-	protected static function walkMerge($value, $key, &$combined) {
+	protected static function walkMerge($value, $key, &$combined = '') {
 		$combined .= $value."\n";
 	}
 
