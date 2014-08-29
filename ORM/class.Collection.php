@@ -419,6 +419,9 @@ class Collection {
     function setData($data) {
         $this->data  = ArrayPlus::create((array) $data);
         $this->count = count($this->data);
+
+		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
+		$this->query = true;
     }
 
 	function prepareRenderRow(array $row) {
