@@ -208,6 +208,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
+	/**
+	 * @param string|string[] $render
+	 * @return string
+	 */
 	static function mergeStringArrayRecursive($render) {
 		if (is_array($render)) {
 			$combined = '';
