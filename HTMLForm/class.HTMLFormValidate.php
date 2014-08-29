@@ -62,7 +62,7 @@ class HTMLFormValidate {
 			$d['error'] = __('Field "%1" must be set', $label);
 		} elseif ($d['obligatory'] && !$value) {
 			$d['error'] = __('Field "%1" is obligatory', $label);
-		} elseif (($type == 'email' || $field == 'email') && $value && !$this->validEmail($value)) {
+		} elseif (($type == 'email' || $field == 'email') && $value && !self::validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
 		} elseif ($field == 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
 			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
@@ -231,7 +231,7 @@ class HTMLFormValidate {
         $emailAddresses = preg_split('/\s*,\s*/', $value);
         foreach ($emailAddresses as &$emailAddress) {
             if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
-                !self::validMail($value)) {
+                !self::validEmail($emailAddress)) {
                 $invalid[] = $emailAddress;
             }
         }
