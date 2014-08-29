@@ -5,7 +5,7 @@
  *
  */
 class LocalLangDB extends LocalLang {
-	public $indicateUntranslated = false;
+
 	public $table = 'interface';
 
 	/**
@@ -143,7 +143,7 @@ class LocalLangDB extends LocalLang {
 			$u = URL::getCurrent();
 			$u->setParam('setLangCookie', $row['lang']);
 			$title = $row['lang'].' ('.$row['percent'].')';
-			$content .= '<a href="'.$u->buildURl().'" title="'.$title.'">
+			$content .= '<a href="'.$u->buildURL().'" title="'.$title.'">
 				<img src="img/'.$row['lang'].'.gif" width="20" height="12">
 			</a>';
 		}
