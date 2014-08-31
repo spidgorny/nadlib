@@ -20,7 +20,7 @@ class Wrap {
 		return $this->wrap1.$str.$this->wrap2;
 	}
 
-	static function make($w1, $w2) {
+	static function make($w1, $w2 = '') {
 		return new self($w1, $w2);
 	}
 
