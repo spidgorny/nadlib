@@ -42,11 +42,17 @@ class HTMLFormSelection extends HTMLFormType {
 		if ($this->multiple) {
 			$content[] = ' multiple="1"';
 		}
+
 		$more = $this->more;
 		$more += (isset($this->desc['size']) ? array('size' => $this->desc['size']) : array());
 		$more += (isset($this->desc['id']) ? array('id' => $this->desc['id']) : array());
-		$more += (isset($this->desc['more']) ? $this->desc['more'] : array());
+		if (isset($this->desc['more'])) {
+			$more += is_array($this->desc['more'])
+				? $this->desc['more']
+				: HTMLTag::parseAttributes($this->desc['more']);
+		}
 		$content[] = HTMLTag::renderAttr($more) . ">\n";
+
 		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc);
 		$content[] = "</select>\n";
 		return new MergedContent($content);
