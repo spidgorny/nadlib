@@ -238,6 +238,7 @@ class HTMLForm {
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
 		$sel->multiple = $multiple;
 		$sel->desc = $desc;
+		$sel->setForm($this);
 		$this->stdout .= $sel->render();
 	}
 
