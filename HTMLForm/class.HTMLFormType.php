@@ -16,7 +16,9 @@ abstract class HTMLFormType {
 	 * @var array
 	 */
 	public $field;
+
 	public $fullname;
+
 	public $value;
 
 	function __construct() {
@@ -32,14 +34,16 @@ abstract class HTMLFormType {
 	}
 
 	/**
-	 * It's a string value which needs to be parsed into the minutes!!!
-	 *
-	 * @param unknown_type $value - 10:00-13:30
+	 * @param string $value
 	 */
 	function setValue($value) {
 		$this->value = $value;
 	}
 
 	abstract function render();
+
+	function __toString() {
+		return $this->render().'';
+	}
 
 }
