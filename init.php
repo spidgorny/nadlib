@@ -1,7 +1,5 @@
 <?php
 
-define('BR', "<br />\n");
-
 require_once 'class.InitNADLIB.php';
 
 /**
