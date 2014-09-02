@@ -15,7 +15,7 @@ class URL {
 	public $components = array();
 
 	/**
-	 * $this->components['query'] docomposed into an array
+	 * $this->components['query'] decomposed into an array
 	 * @var array
 	 */
 	public $params = array();
