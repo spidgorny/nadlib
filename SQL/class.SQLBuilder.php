@@ -48,7 +48,7 @@ class SQLBuilder {
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
 	 * @param $value
-	 * @throws Exception
+	 * @throws MustBeStringException
 	 * @internal param $key
 	 * @return string
 	 */
@@ -83,7 +83,7 @@ class SQLBuilder {
 				return "'".$this->db->escape($value)."'";
 			} else {
 				debug($value);
-				throw new Exception('Must be string.');
+				throw new MustBeStringException('Must be string.');
 			}
 		}
 	}
@@ -178,7 +178,12 @@ class SQLBuilder {
 					$set[] = $or;
 				} else {
 					//debug_pre_print_backtrace();
-					$val = SQLBuilder::quoteSQL($val);
+					try {
+						$val = SQLBuilder::quoteSQL($val);
+					} catch (MustBeStringException $e) {
+						debug($key);
+						throw $e;
+					}
 					$set[] = "$key = $val";
 				}
 			}
