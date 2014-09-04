@@ -48,11 +48,11 @@ class SQLBuilder {
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
 	 * @param $value
+	 * @param null $key
 	 * @throws MustBeStringException
-	 * @internal param $key
 	 * @return string
 	 */
-	function quoteSQL($value) {
+	function quoteSQL($value, $key = NULL) {
 		if ($value instanceof AsIs) {
 			return $value->__toString();
 		} else if ($value instanceof AsIsOp) {
@@ -60,7 +60,7 @@ class SQLBuilder {
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
 		} elseif ($value instanceof IndTime) {
-			return $this->quoteSQL($value->getMySQL());
+			return $this->quoteSQL($value->getMySQL(), $key);
 		} else if ($value instanceof Time) {
 			return "'".$this->db->escape($value->toSQL())."'";
 		} else if ($value instanceof SQLDate) {
@@ -82,7 +82,7 @@ class SQLBuilder {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
 			} else {
-				debug($value);
+				debug($key, $value);
 				throw new MustBeStringException('Must be string.');
 			}
 		}
@@ -116,6 +116,8 @@ class SQLBuilder {
 	 * In other words, it takes care of col = 'NULL' situation and makes it col IS NULL
 	 *
 	 * @param array $where
+	 * @throws Exception
+	 * @throws MustBeStringException
 	 * @return array
 	 */
 	function quoteWhere(array $where) {
