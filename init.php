@@ -114,6 +114,10 @@ if (!function_exists('nodebug')) {
 		return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 	}
 
+	function contains($haystack, $needle) {
+		return strpos($haystack, $needle) !== FALSE;
+	}
+
 	/**
 	 * Does string splitting with cleanup.
 	 * @param $sep
