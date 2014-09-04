@@ -143,6 +143,7 @@ abstract class OODBase {
 	 */
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
 		//$data['ctime'] = new AsIs('NOW()');
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -168,6 +169,7 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+			Index::getInstance()->log(get_called_class().'::'.__FUNCTION__.'('.$this->id.')', $data);
 			$where = array();
 			if (is_array($this->idField)) {
 				foreach ($this->idField as $field) {
@@ -197,6 +199,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
@@ -212,6 +215,7 @@ abstract class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
+		$this->lastQuery = $this->db->lastQuery;
 		if (is_array($rows)) {
 			$data = $rows;
 		} else {
@@ -465,6 +469,7 @@ abstract class OODBase {
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
 
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $insert);
 		$db = Config::getInstance()->db;
 		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);

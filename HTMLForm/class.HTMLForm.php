@@ -249,7 +249,7 @@ class HTMLForm {
 	 * @param array $desc
 	 */
 	function date($name, $value, array $desc = array()) {
-		$format = $desc['format'] ?: 'd.m.Y';
+		$format = $desc['format'] ? $desc['format'] : 'd.m.Y';
 		if (is_numeric($value)) {
 			$value = date($format, $value);
 		} elseif (!$value) {

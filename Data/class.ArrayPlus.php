@@ -572,7 +572,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @return $this
 	 */
 	public function groupBy($groupBy) {
-		$new = [];
+		$new = array();
 		foreach ($this->getData() as $line) {
 			$key = $line[$groupBy];
 			$new[$key][] = $line;

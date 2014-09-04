@@ -136,4 +136,37 @@ class LocalLangDB extends LocalLang {
 		return $this->rows[$id];
 	}
 
+	function showLangSelection() {
+		$content = '';
+		$stats = $this->getLangStats();
+		if (sizeof($stats) > 1) {           // don't show selection of just one language
+			foreach ($stats as $row) {
+				$u = URL::getCurrent();
+				$u->setParam('setLangCookie', $row['lang']);
+				$title = $row['lang'] . ' (' . $row['percent'] . ')';
+				$content .= '<a href="' . $u->buildURl() . '" title="' . $title . '">
+					<img src="img/' . $row['lang'] . '.gif" width="20" height="12" />
+				</a>';
+			}
+		}
+		//debug($_SERVER['REQUEST_URI'], $u, $u->buildURL());
+		return $content;
+	}
+
+	function getLangStats() {
+		$en = $this->readDB('en');
+		$countEN = sizeof($en) ? sizeof($en) : 1;
+		$langs = array_combine($this->possibleLangs, $this->possibleLangs);
+		foreach ($langs as &$lang) {
+			$rows = $this->readDB($lang);
+			$lang = array(
+				'img' => new htmlString('<img src="img/'.$lang.'.gif" width="20" height="12" />'),
+				'lang' => $lang,
+				'rows' => sizeof($rows),
+				'percent' => number_format(sizeof($rows)/$countEN*100, 0).'%',
+			);
+		}
+		return $langs;
+	}
+
 }

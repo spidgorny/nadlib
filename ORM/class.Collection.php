@@ -183,8 +183,10 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
-		if ($this->db instanceof MySQL
-			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
+		if (phpversion() > 5.3 && (
+			$this->db instanceof MySQL
+			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')
+		)) {
 			$this->log('retrieveDataFromMySQL');
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
@@ -210,6 +212,7 @@ class Collection {
 	 * https://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_found-rows
 	 * @param bool $allowMerge
 	 * @param bool $preprocess
+	 * @requires PHP 5.3
 	 */
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
@@ -721,7 +724,7 @@ class Collection {
 
 		$central = ($this->data instanceof ArrayPlus)
 			? $this->data->getData()
-			: ($this->data ?: array())  // NOT NULL
+			: ($this->data ? $this->data : array())  // NOT NULL
 		;
 
 		nodebug($model->id,
