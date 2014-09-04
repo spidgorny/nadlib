@@ -72,19 +72,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
-	 * @param bool $createNew
+	 * @param bool $createNew - must be false
 	 * @return Index|IndexBE
 	 */
-	static function getInstance($createNew = true) {
+	static function getInstance($createNew = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
 			: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
 		if (!$instance && $createNew) {
-			if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
-			//$instance->initController();	// scheisse: call it in index.php
+			self::$instance = $instance;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $instance;
@@ -133,6 +132,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			throw new Exception($exception);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+	}
+
+	function getController() {
+		if (!$this->controller) {
+			$this->initController();
+		}
+		return $this->controller;
 	}
 
 	function render() {
@@ -208,15 +214,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	static function mergeStringArrayRecursive($render) {
 		if (is_array($render)) {
-			//$render = implode("\n", $render); // not recursive
 			$combined = '';
-			if (phpversion() < 5.4) {
-				array_walk_recursive($render, array('IndexBase', 'walkMerge'), $combined);
-			} else {
-				array_walk_recursive($render, function ($value, $key) use (&$combined) {
-					$combined .= $value."\n";
-				});
-			}
+			/*array_walk_recursive($render,
+				array('IndexBase', 'walkMerge'),
+				$combined); // must have &
+			*/
+
+			//$combined = array_merge_recursive($render);
+			//$combined = implode('', $combined);
+
+			$combinedA = new ArrayObject();
+			array_walk_recursive($render, array('IndexBase', 'walkMergeArray'), $combinedA);
+			$combined = implode('', $combinedA->getArrayCopy());
 			$render = $combined;
 		} else if (is_object($render)) {
 			//debug(get_class($render));
@@ -227,6 +236,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	protected static function walkMerge($value, $key, &$combined = '') {
 		$combined .= $value."\n";
+	}
+
+	protected static function walkMergeArray($value, $key, $combined) {
+		$combined[] = $value;
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {

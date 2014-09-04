@@ -4,6 +4,8 @@ class Date extends Time {
 	const HUMAN = 'd.m.Y';
 	const SYSTEM = 'Y-m-d';
 
+	var $format = 'd.m.Y';
+
 	function __construct($input = NULL, $relativeTo = NULL) {
 		parent::__construct($input, $relativeTo);
 		//$this->modify('Y-m-d \G\M\T'); // very slow!
@@ -59,9 +61,6 @@ class Date extends Time {
 		return new self(strtotime($formula, $this->time));
 	}
 
-	function __toString() {
-		return $this->getHumanDate();
-	}
 	/**
 	 * @param string $format d.m.Y
 	 * @return htmlString

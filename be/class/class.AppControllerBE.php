@@ -20,7 +20,7 @@ class AppControllerBE extends Controller {
 	 * Protect from unauthorized access
 	 * @var bool
 	 */
-	static $public = false;
+	static $public = true;
 
 	function __construct() {
 		parent::__construct();

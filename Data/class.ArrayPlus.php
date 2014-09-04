@@ -270,6 +270,11 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $keys[$found_index+1];
 	}
 
+	/**
+	 * Searches inside Recursive tree
+	 * @param $needle
+	 * @return array|null
+	 */
 	function find($needle) {
 		foreach ($this as $key => $val) {
 			//debug($needle, $key, $val);
@@ -602,6 +607,15 @@ class ArrayPlus extends ArrayObject implements Countable {
 			if (isset($row[$string])) return true;
 		}
 		return false;
+	}
+	
+	public function findDelete($niceName) {
+		$ar = $this->getData();
+		$index = array_search($niceName, $ar);
+		if ($index !== FALSE) {
+			array_splice($ar, $index, 1);
+			$this->setData($ar);
+		}
 	}
 
 }

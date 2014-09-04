@@ -195,11 +195,15 @@ abstract class Controller {
 	static function getInstance() {
 		$static = get_called_class();
 		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		if (isset(self::$instance[$static])) {
-			return self::$instance[$static];
+		$isset = isset(self::$instance[$static]);
+		if ($isset) {
+			$result = self::$instance[$static];
 		} else {
-			return Index::getInstance()->controller;
+			$index = Index::getInstance();
+			$result = $index->getController();
 		}
+		//debug($isset, get_class($index), get_class($result));
+		return $result;
 	}
 
 	/*function redirect($url) {

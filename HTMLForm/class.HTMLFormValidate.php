@@ -50,32 +50,33 @@ class HTMLFormValidate {
 
 	function validateField($field, array $d, $type, $isCheckbox) {
 		$value = $d['value'];
+		$label = $d['label'] ? $d['label'] : $field;
 		if (!$d['optional'] && (
 			!($value) || (!$d['allow0'] && !isset($d['value'])))
 			&& !$isCheckbox) {
-			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
+			$d['error'] = __('Field "%1" is obligatory.', $label);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
 		} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
-			$d['error'] = __('Field "%1" must be set', $d['label'] ?: $field);
+			$d['error'] = __('Field "%1" must be set', $label);
 		} elseif ($d['obligatory'] && !$value) {
-			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
+			$d['error'] = __('Field "%1" is obligatory', $label);
 		} elseif (($type == 'email' || $field == 'email') && $value && !self::validEmail($value)) {
-			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
+			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
 		} elseif ($field == 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
 			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
         } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
             $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && ($value < $d['min'])) {
 			//debug(__METHOD__, $value, $d['min']);
-			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
+			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $label, $d['min']);
 		} elseif ($d['max'] && ($value > $d['max'])) {
-			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $d['label'] ?: $field, $d['max']);
+			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $label, $d['max']);
 		} elseif ($d['minlen'] && strlen($value) < $d['minlen']) {
-			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $d['label'] ?: $field, $d['minlen'], strlen($value));
+			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $label, $d['minlen'], strlen($value));
 		} elseif ($d['maxlen'] && strlen($value) > $d['maxlen']) {
-			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $d['label'] ?: $field, $d['maxlen'], strlen($value));
+			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $label, $d['maxlen'], strlen($value));
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
 			$hfr = new HTMLFormRecaptcha();
 			$d['error'] = $hfr->validate($field, $d);
@@ -84,11 +85,11 @@ class HTMLFormValidate {
 		} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
 			$d['error'] = $d['validateError'];
 		} elseif ($d['validate'] == 'int' && strval(intval($value)) != $value) {
-			$d['error'] = __('Value "%1" must be integer', $d['label'] ?: $field);
+			$d['error'] = __('Value "%1" must be integer', $label);
 		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
-			$d['error'] = __('Value "%1" must be date', $d['label'] ?: $field);
+			$d['error'] = __('Value "%1" must be date', $label);
 		} elseif ($d['validate'] == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
-			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $d['label'] ?: $field, implode(', ', $inValid));
+			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $label, implode(', ', $inValid));
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
