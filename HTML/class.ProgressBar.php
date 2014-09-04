@@ -69,6 +69,7 @@ class ProgressBar {
 
 	function render() {
 		if (!$this->cli) {
+			ini_set('output_buffering', 0); // php_value output_buffering 0
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
@@ -94,10 +95,12 @@ class ProgressBar {
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
-		} else {
+		} else if (class_exists('lessc')) {
 			$l = new lessc();
 			$css = $l->compileFile($less);
 			return '<style>' . $css . '</style>';
+		} else {
+			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do
 		}
 	}
 

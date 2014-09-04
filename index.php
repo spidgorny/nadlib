@@ -26,7 +26,8 @@ class NadlibIndex {
 		$this->dic = new DIContainer();
 		$this->dic->index = function ($c) {
 			require_once 'be/class/class.IndexBE.php';
-			return IndexBE::getInstance();
+			$indexBE = IndexBE::getInstance();
+			return $indexBE;
 		};
 		$this->dic->debug = function ($c) {
 			return new Debug($c->index);
@@ -94,5 +95,6 @@ class NadlibIndex {
 
 }
 
-$i = new NadlibIndex();
-echo $i->render();
+/** Should not be called $i because Index::getInstance() will return $GLOBALS['i'] */
+$i2 = new NadlibIndex();
+echo $i2->render();

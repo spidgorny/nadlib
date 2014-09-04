@@ -388,7 +388,7 @@ class slTable {
 				foreach ($data as $key => $row) { // (almost $this->data)
                     ++$i;
                     $class = array();
-					if (isset($row['###TD_CLASS###'])) {
+					if (is_array($row) && isset($row['###TD_CLASS###'])) {
 						$class[] = $row['###TD_CLASS###'];
 					} else {
 						// only when not manually defined
@@ -400,10 +400,13 @@ class slTable {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					if (isset($row['###TR_MORE###'])) {
+					if (is_array($row) && isset($row['###TR_MORE###'])) {
 						$tr .= ' ' . $row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
 					}
-					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
+					$rowID = (is_array($row) && isset($row['id']))
+						? $row['id']
+						: '';
+					$t->tr($tr . ' ' . str_replace('###ROW_ID###', $rowID, $this->trmore));
 					//debug_pre_print_backtrace();
 					$this->genRow($t, $row);
 					$t->tre();

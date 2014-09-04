@@ -308,7 +308,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if ($withProfiler && isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
-				$caller = $this->getCaller($c);
+				$caller = Debug::getCaller($c);
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
