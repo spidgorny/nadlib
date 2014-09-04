@@ -87,11 +87,11 @@ class InitNADLIB {
 		}
 	}
 
-	function initWhoops() {
+/*	function initWhoops() {
 		$run     = new Whoops\Run;
 		$handler = new Whoops\Handler\PrettyPageHandler;
 		$run->pushHandler($handler);
 		$run->register();
 	}
-
+*/
 }

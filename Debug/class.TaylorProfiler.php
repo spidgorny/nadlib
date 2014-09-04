@@ -221,7 +221,7 @@ class TaylorProfiler {
 				if ($row['bold']) {
 					$htmlKey = '<b>'.$htmlKey.'</b>';
 				}
-				$desc = $this->description2[$key] ?: $desc;
+				$desc = $this->description2[$key] ? $this->description2[$key] : $desc;
 	            $table[] = array(
 	               	'nr' => ++$i,
 	               	'count' => $row['count'],
@@ -399,7 +399,8 @@ class TaylorProfiler {
 			$dbTime = Config::getInstance()->db->dbTime;
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if (session_status() == PHP_SESSION_ACTIVE) {
+		if (function_exists('session_status')
+			&& session_status() == PHP_SESSION_ACTIVE) {
             // total
 			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
             if ($totalMax > 0) {
@@ -445,7 +446,7 @@ class TaylorProfiler {
 		<div style="clear:both"></div>
 		';
 		$content .= '<style>'.file_get_contents(
-				__DIR__.'/../CSS/TaylorProfiler.less'
+				dirname(__FILE__).'/../CSS/TaylorProfiler.less'
 		).'</style>';
 		return $content;
 	}
@@ -462,10 +463,13 @@ class TaylorProfiler {
 			// The 'G' modifier is available since PHP 5.1.0
 			case 'g':
 				$val *= 1024;
+				break;
 			case 'm':
 				$val *= 1024;
+				break;
 			case 'k':
 				$val *= 1024;
+				break;
 		}
 
 		return $val;

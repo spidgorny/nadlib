@@ -59,7 +59,8 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	function postInit() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$this->form = new HTMLFormTable($this->getDesc());	// needed sometime in getDesc
+		$this->form = new HTMLFormTable();	// needed sometime in getDesc
+		$this->form->setDesc($this->getDesc());
 		$this->form = $this->getForm($this->form);		// $this->desc will be used inside
 		//debug($this->desc);
 		//debug($this->prefix);

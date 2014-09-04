@@ -24,7 +24,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	/**
 	 * @var SQLiteResult
 	 */
-	var $result;
+	var $lastResult;
 
 	/**
 	 * MUST BE UPPERCASE
@@ -42,12 +42,12 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	function perform($query) {
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
-		$this->result = $this->connection->query($query);
+		$this->lastResult = $this->connection->query($query);
 		$this->dbTime += $profiler->elapsed();
-		if (!$this->result) {
+		if (!$this->lastResult) {
 			debug($query, $this->connection->lastErrorMsg());
 		}
-		return $this->result;
+		return $this->lastResult;
 	}
 
 	/**
@@ -71,12 +71,12 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	}
 
 	function affectedRows($res = NULL) {
-		$this->result->numRows();
+		$this->lastResult->numRows();
 	}
 
 	function getTables() {
 		$this->perform("SELECT * FROM dbname.sqlite_master WHERE type='table'");
-		return $this->fetchAll($this->result);
+		return $this->fetchAll($this->lastResult);
 	}
 
 	function lastInsertID($res = NULL, $table = NULL) {
@@ -97,7 +97,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	function getTableColumnsEx($table) {
 		$this->perform('PRAGMA table_info('.$this->quoteKey($table).')');
-		$tableInfo = $this->fetchAll($this->result, 'name');
+		$tableInfo = $this->fetchAll($this->lastResult, 'name');
 		foreach ($tableInfo as &$row) {
 			$row['Field'] = $row['name'];
 			$row['Type'] = $row['type'];

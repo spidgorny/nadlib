@@ -15,7 +15,8 @@ class SessionUser extends PlainSessionUser {
 		if ($login = $_SESSION[__CLASS__]['login']) {
 			$inSession = $this->checkPassword($login, $_SESSION[__CLASS__]['password']);
 			if ($inSession) {
-				$this->findInDB(array('email' => $login));
+				//$this->findInDB(array('email' => $login));
+				$this->init($inSession);
 			} else {
 				//throw new Exception('You are not logged in. Nevermind, you can do it later.');
 			}

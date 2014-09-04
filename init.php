@@ -30,14 +30,15 @@ if (!function_exists('nodebug')) {
 
 	function getDebug()
 	{
-		ob_start();
 		$tmp = $_COOKIE['debug'];
 		$_COOKIE['debug'] = 1;
+
 		$params = func_get_args();
 		$debug = Debug::getInstance();
-		call_user_func_array(array($debug, 'debug_args'), $params);
+		$content = call_user_func_array(array($debug, 'debug_args'), $params);
+
 		$_COOKIE['debug'] = $tmp;
-		return ob_get_clean();
+		return $content;
 	}
 
 	function pre_print_r($a)

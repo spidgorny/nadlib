@@ -140,7 +140,6 @@ class ConfigBase {
 	 * @return $this
 	 */
 	public function postInit() {
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		if ($this->db_database) {
 			$di = new DIContainer();
 			if (extension_loaded('mysqlnd')) {
@@ -169,7 +168,6 @@ class ConfigBase {
 
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		return $this;
 	}
 

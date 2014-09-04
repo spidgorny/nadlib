@@ -263,4 +263,8 @@ class Path {
 		$this->isFile = true;
 	}
 
+	public function length() {
+		return sizeof($this->aPath);
+	}
+
 }

@@ -30,6 +30,10 @@ class Date extends Time {
 	}
 
 	function getISO() {
+		return date('Y-m-d', $this->time);
+	}
+
+	function getGMT() {
 		return gmdate('Y-m-d', $this->time);
 	}
 
@@ -76,6 +80,10 @@ class Date extends Time {
 
 	function plusDur(Duration $plus) {
 		return new self($this->time + $plus->getTimestamp());
+	}
+
+	public function minusDur($day1) {
+		return new self($this->time - $day1->getTimestamp());
 	}
 
 	static public function fromHuman($str) {

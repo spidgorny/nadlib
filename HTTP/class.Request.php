@@ -316,8 +316,8 @@ class Request {
 				}
 				$ptr = $tmp;
 
-				$Scontroller = new Stringy\Stringy($controller);
-				if ($Scontroller->contains('/')) {	// in case it's with sub-folder
+				$Scontroller = new Path($controller);
+				if ($Scontroller->length() > 1) {	// in case it's with sub-folder
 					$dir = dirname($Scontroller);
 					$parts = trimExplode('/', $controller);
 					//debug($dir, $parts, file_exists($dir));
@@ -405,10 +405,23 @@ class Request {
 
 	function getRefererController() {
 		$url = $this->getReferer();
+		$url->setParams(array());   // get rid of any action
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : Config::getInstance()->defaultController;
+		return $return ? $return : NULL;
+	}
+
+	function getRefererIfNotSelf() {
+		$referer = $this->getReferer();
+		$rController = $this->getRefererController();
+		$index = Index::getInstance();
+		$cController = $index->controller
+			? get_class($index->controller)
+			: Config::getInstance()->defaultController;
+		$ok = (($rController != $cController) && ($referer.'' != new URL().''));
+		//debug($rController, __CLASS__, $ok);
+		return $ok ? $referer : NULL;
 	}
 
 	function redirect($controller) {
@@ -425,10 +438,12 @@ class Request {
 		}
 	}
 
-	function redirectJS($controller) {
+	function redirectJS($controller, $delay = 0) {
 		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
 			<script>
-				document.location = "'.$controller.'";
+				setTimeout(function () {
+					document.location = "'.$controller.'";
+				}, '.$delay.');
 			</script>';
 		exit();
 	}
@@ -780,6 +795,9 @@ class Request {
 		return $docRoot;
 	}
 
+	/**
+	 * @param int $age - seconds
+	 */
 	function setCacheable($age = 60) {
 		header('Pragma: cache');
 		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
