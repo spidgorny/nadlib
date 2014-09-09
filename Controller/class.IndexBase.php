@@ -251,7 +251,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			'.get_class($e).BR.
 			nl2br($message);
 		if (DEVELOPMENT) {
-			$content .= '<br />'.nl2br($e->getTraceAsString());
+			$content .= BR.BR.'<div style="text-align: left">'.
+				nl2br($e->getTraceAsString()).'</div>';
 			//$content .= getDebug($e);
 		}
 		$content .= '</div>';
