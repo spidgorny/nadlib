@@ -584,7 +584,11 @@ class Collection {
      */
     function addCheckboxes($idFieldName = '') {
         $this->thes = array('checked' => array(
-                'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
+                'name' => '<a href="javascript:void(0)">
+					<input type="checkbox"
+					id="checkAllAuto"
+					name="checkAllAuto"
+					onclick="checkAll()" /></a>', // if we need sorting here just add ""
                 'align' => "center",
                 'no_hsc' => true,
             )) + $this->thes;
