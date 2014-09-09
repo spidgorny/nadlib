@@ -310,7 +310,7 @@ class HTMLForm {
 	}
 
 	/**
-	 * Changelog: second $more parameter was removed, please user $params instead
+	 * Changelog: second $more parameter was removed, please use $params instead
 	 * @param null $value
 	 * @param array $params
 	 */

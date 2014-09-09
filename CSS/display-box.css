@@ -16,8 +16,25 @@ http://stackoverflow.com/questions/16280040/css3-flexbox-display-box-vs-flexbox-
 	box-orient: horizontal;
 	-moz-box-align: stretch;
 	box-align: stretch;
+}
+.display-box100 {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: -o-box;
+	display: box;
+	display: flex;
+	-moz-box-orient: horizontal;
+	box-orient: horizontal;
+	-moz-box-align: stretch;
+	box-align: stretch;
 	width: 100%;
 }
+
 .display-box > *,
 .flex-box {
 	width: 100%;
