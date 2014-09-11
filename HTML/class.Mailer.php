@@ -33,8 +33,8 @@ class Mailer {
 	var $params = array();
 
 	function __construct($to, $subject, $bodytext) {
-		$this->to = $to;
-		$this->subject = $subject;
+		$this->to = trim($to);
+		$this->subject = trim($subject);
 		$this->bodytext = $bodytext;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
 		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
@@ -58,6 +58,7 @@ class Mailer {
 	}
 
 	function send() {
+		$this->to = trim($this->to);
 		if (HTMLFormValidate::validEmail($this->to)) {
 			mail($this->to,
 				$this->getSubject(),
