@@ -127,19 +127,19 @@ class Mailer {
 
         if (!empty($to)) {
             foreach ($to as $address) {
-                empty($address) ?: $message->addTo($address);
+                empty($address) ?: $message->addTo(trim($address));
             }
         }
 
         if (!empty($cc)) {
             foreach ($cc as $address) {
-                empty($address) ?: $message->addCc($address);
+                empty($address) ?: $message->addCc(trim($address));
             }
         }
 
         if (!empty($bcc)) {
             foreach ($bcc as $address) {
-                empty($address) ?: $message->addBcc($address);
+                empty($address) ?: $message->addBcc(trim($address));
             }
         }
 
