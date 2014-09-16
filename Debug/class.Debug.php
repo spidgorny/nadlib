@@ -13,12 +13,27 @@ class Debug {
 	 */
 	static protected $instance;
 
+	var $renderer;
+
 	/**
 	 * @param $index Index|IndexBE
 	 */
 	function __construct($index) {
 		$this->index = $index;
 		self::$instance = $this;
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			if (ifsetor($c->debugRenderer)) {
+				$this->renderer = $c->debugRenderer;
+			} else {
+				$this->renderer = $this->canCLI() ? 'CLI'
+					: $this->canFirebug() ? 'Firebug'
+					: $this->canDebugster() ? 'Debugster'
+					: $this->canHTML() ? 'HTML'
+					: '';
+				//echo('Renderer: '.$this->renderer);
+			}
+		}
 	}
 
 	static function getInstance() {
@@ -55,34 +70,66 @@ class Debug {
 		return $val;
 	}
 
-	function debug($params) {
-		if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
-			$fp = FirePHP::getInstance(true);
-			if ($fp->detectClientExtension()) {
-				$fp->setOption('includeLineNumbers', true);
-				$fp->setOption('maxArrayDepth', 10);
-				$fp->setOption('maxDepth', 20);
-				$trace = Debug::getSimpleTrace();
-				array_shift($trace);
-				if ($trace) {
-					$fp->table(implode(' ', first($trace)), $trace);
-				}
-				$fp->log(1 == sizeof($params) ? first($params) : $params);
-			} else {
-				$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+	function canFirebug() {
+		return class_exists('FirePHP') && !Request::isCLI() && !headers_sent();
+	}
+
+	function debugWithFirebug(array $params) {
+		$fp = FirePHP::getInstance(true);
+		if ($fp->detectClientExtension()) {
+			$fp->setOption('includeLineNumbers', true);
+			$fp->setOption('maxArrayDepth', 10);
+			$fp->setOption('maxDepth', 20);
+			$trace = Debug::getSimpleTrace();
+			array_shift($trace);
+			if ($trace) {
+				$fp->table(implode(' ', first($trace)), $trace);
 			}
+			$fp->log(1 == sizeof($params) ? first($params) : $params);
 		} else {
 			$content = call_user_func_array(array('Debug', 'debug_args'), $params);
 		}
-		if (!is_null($content)) {
-			print($content);
-		}
-		flush();
+		return $content;
 	}
 
-	function debug_args() {
+
+	function debug($params) {
 		$content = '';
+		if ($this->renderer) {
+			$method = 'debugWith' . $this->renderer;
+			if (method_exists($this, $method)) {
+				$content = $this->$method($params);
+			}
+		}
+		return $content;
+	}
+
+	function canCLI() {
+		return Request::isCLI();
+	}
+
+	function debugWithCLI() {
+		$db = debug_backtrace();
+		$db = array_slice($db, 2, sizeof($db));
+		foreach ($db as $row) {
+			$trace[] = self::getMethod($row);
+		}
+		echo '---' . implode(' // ', $trace) . "\n";
+
 		$args = func_get_args();
+		$this->getLevels($args);
+		if (is_object($args)) {
+			$args = get_object_vars($args);   // prevent private vars
+		}
+
+		ob_start();
+		var_dump($args);
+		$dump = ob_get_clean();
+		$dump = str_replace("=>\n", ' =>', $dump);
+		echo $dump, "\n";
+	}
+
+	function getLevels(array &$args) {
 		if (sizeof($args) == 1) {
 			$a = $args[0];
 			$levels = /*NULL*/3;
@@ -95,38 +142,36 @@ class Debug {
 				$levels = NULL;
 			}
 		}
+		$args = $a;
+		return $levels;
+	}
+
+	function canHTML() {
+		return $_COOKIE['debug'];
+	}
+
+	function debugWithHTML(array $params) {
+		$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+		if (!is_null($content)) {
+			print($content);
+		}
+		flush();
+	}
+
+	function debug_args() {
+		$args = func_get_args();
+		$levels = $this->getLevels($args);
 
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 
-		//print_r(array($_SERVER['argc'], $_SERVER['argv']));
-		//if (isset($_SERVER['argc'])) {
-		if (Request::isCLI()) {
-			foreach ($db as $row) {
-				$trace[] = self::getMethod($row);
-			}
-			echo '---'.implode(' // ', $trace)."\n";
-
-			if (is_object($a)) {
-				$a = get_object_vars($a);   // prevent private vars
-			}
-
-			ob_start();
-			var_dump(
-				$a
-			);
-			$dump = ob_get_clean();
-			$dump = str_replace("=>\n", ' =>', $dump);
-			echo $dump, "\n";
-		} else if ($_COOKIE['debug']) {
-			$content = self::renderHTMLView($db, $a, $levels);
-			$content .= self::printStyles();
-			if (!headers_sent()) {
-				if (method_exists($this->index, 'renderHead')) {
-					$this->index->renderHead();
-				} else {
-					$content = '<!DOCTYPE html><html>' . $content;
-				}
+		$content = self::renderHTMLView($db, $args, $levels);
+		$content .= self::printStyles();
+		if (!headers_sent()) {
+			if (method_exists($this->index, 'renderHead')) {
+				$this->index->renderHead();
+			} else {
+				$content = '<!DOCTYPE html><html>' . $content;
 			}
 		}
 		return $content;
@@ -211,8 +256,10 @@ class Debug {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
-			//} elseif (method_exists($a, '__toString')) {
-			//	$a = $a->__toString();
+			} elseif (method_exists($a, '__toString')) {    // commenting this often leads to out of memory
+				$a = $a->__toString();
+			} elseif (method_exists($a, 'getName')) {
+				$a = $a->getName();
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
 			} else {
@@ -353,6 +400,10 @@ class Debug {
 			$content .= '<!-- styles printed -->';
 		}
 		return $content;
+	}
+
+	function canDebugster() {
+		return false;
 	}
 
 }
