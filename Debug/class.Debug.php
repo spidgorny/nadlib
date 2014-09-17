@@ -13,7 +13,11 @@ class Debug {
 	 */
 	static protected $instance;
 
-	var $renderer;
+	/**
+	 * no debug unless $_COOKIE['debug']
+	 * @var string
+	 */
+	var $renderer = '';
 
 	/**
 	 * @param $index Index|IndexBE
@@ -27,10 +31,10 @@ class Debug {
 				$this->renderer = $c->debugRenderer;
 			} else {
 				$this->renderer = $this->canCLI() ? 'CLI'
-					: $this->canFirebug() ? 'Firebug'
-					: $this->canDebugster() ? 'Debugster'
-					: $this->canHTML() ? 'HTML'
-					: '';
+					: ($this->canFirebug() ? 'Firebug'
+					: ($this->canDebugster() ? 'Debugster'
+					: ($this->canHTML() ? 'HTML'
+					: '')));
 				//echo('Renderer: '.$this->renderer);
 			}
 		}
@@ -71,7 +75,12 @@ class Debug {
 	}
 
 	function canFirebug() {
-		return class_exists('FirePHP') && !Request::isCLI() && !headers_sent();
+		$can = class_exists('FirePHP') && !Request::isCLI() && !headers_sent();
+		if ($can) {
+			$fb = FirePHP::getInstance(true);
+			$can = $fb->detectClientExtension();
+		}
+		return $can;
 	}
 
 	function debugWithFirebug(array $params) {
