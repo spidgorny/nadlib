@@ -386,6 +386,10 @@ class slTable {
 				}
 				$i = -1;
 				foreach ($data as $key => $row) { // (almost $this->data)
+					if (!is_array($row)) {
+						debug($key, $row);
+						throw new Exception('slTable row is not an array');
+					}
                     ++$i;
                     $class = array();
 					if (is_array($row) && isset($row['###TD_CLASS###'])) {
