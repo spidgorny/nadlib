@@ -78,7 +78,7 @@ abstract class Grid extends AppController {
 
 	/**
 	 * @param null $cn Supply get_class($this) to the function
-	 * 					or it should be called after $this->collection is initialized
+	 * or it should be called after $this->collection is initialized
 	 */
 	function saveFilterColumnsSort($cn = NULL) {
 		$cn = $cn ? $cn : get_class($this->collection);
