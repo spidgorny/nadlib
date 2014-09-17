@@ -35,8 +35,10 @@ class Debug {
 					: ($this->canDebugster() ? 'Debugster'
 					: ($this->canHTML() ? 'HTML'
 					: '')));
-				//echo('Renderer: '.$this->renderer);
 			}
+		}
+		if ($_COOKIE['debug']) {
+			//echo('Renderer: ' . $this->renderer);
 		}
 	}
 
@@ -75,7 +77,10 @@ class Debug {
 	}
 
 	function canFirebug() {
-		$can = class_exists('FirePHP') && !Request::isCLI() && !headers_sent() && $_COOKIE['debug'];
+		$can = class_exists('FirePHP')
+			&& !Request::isCLI()
+			&& !headers_sent()
+			&& $_COOKIE['debug'];
 		if ($can) {
 			$fb = FirePHP::getInstance(true);
 			$can = $fb->detectClientExtension();
