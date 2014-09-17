@@ -19,14 +19,15 @@ class Lesser extends AppController {
 		parent::__construct();
 		$this->output = Path::make(AutoLoad::getInstance()->appRoot)->appendString($this->output);
 		$cacheDir = dirname($this->output);
-		(array(
+		nodebug(array(
+			'lessc' => class_exists('lessc'),
 			'appRoot' => AutoLoad::getInstance()->appRoot,
 			'output' => $this->output,
 			'cacheDir' => $cacheDir,
 			'file_exists()' => file_exists($cacheDir),
 			'is_dir()' => is_dir($cacheDir),
 			'is_writable()' => is_writable($cacheDir)
-		));
+		), Debug::LEVELS, 5);
 		if (!is_dir($cacheDir)) {
 			echo '#mkdir(', $cacheDir, ');'."\n";
 			$ok = mkdir($cacheDir);
