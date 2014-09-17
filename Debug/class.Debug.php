@@ -75,7 +75,7 @@ class Debug {
 	}
 
 	function canFirebug() {
-		$can = class_exists('FirePHP') && !Request::isCLI() && !headers_sent();
+		$can = class_exists('FirePHP') && !Request::isCLI() && !headers_sent() && $_COOKIE['debug'];
 		if ($can) {
 			$fb = FirePHP::getInstance(true);
 			$can = $fb->detectClientExtension();

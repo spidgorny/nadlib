@@ -2,6 +2,12 @@
 
 class GroupSwitch extends AppController {
 
+	/**
+	 * Debugging is only enabled for these people.
+	 * This is not a standard Nadlib functionality
+	 * @see Index
+	 * @var array
+	 */
 	public $allowedUsers = array(
 		'depidsvy',
 		'deloprub',
