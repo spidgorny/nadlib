@@ -6,30 +6,28 @@ require_once 'class.InitNADLIB.php';
  * May already be defined in TYPO3
  */
 if (!function_exists('debug')) {
-function debug($a) {
-    $params = func_get_args();
-	if (class_exists('Debug')) {
-		$debug = Debug::getInstance();
-		$debug->debug($params);
-	} else {
-		ob_start();
-		var_dump(
-			func_num_args() == 1 ? $a : $params
-		);
-		$dump = ob_get_clean();
-		$dump = str_replace("=>\n", ' =>', $dump);
-		echo '<pre>'.htmlspecialchars($dump).'</pre>';
+	function debug($a) {
+	    $params = func_get_args();
+		if (class_exists('Debug')) {
+			$debug = Debug::getInstance();
+			$debug->debug($params);
+		} else {
+			ob_start();
+			var_dump(
+				func_num_args() == 1 ? $a : $params
+			);
+			$dump = ob_get_clean();
+			$dump = str_replace("=>\n", ' =>', $dump);
+			echo '<pre>'.htmlspecialchars($dump).'</pre>';
+		}
 	}
-}
 }
 
 if (!function_exists('nodebug')) {
-	function nodebug()
-	{
+	function nodebug() {
 	}
 
-	function getDebug()
-	{
+	function getDebug() {
 		$tmp = $_COOKIE['debug'];
 		$_COOKIE['debug'] = 1;
 
@@ -41,15 +39,13 @@ if (!function_exists('nodebug')) {
 		return $content;
 	}
 
-	function pre_print_r($a)
-	{
+	function pre_print_r($a) {
 		echo '<pre style="white-space: pre-wrap;">';
 		print_r($a);
 		echo '</pre>';
 	}
 
-	function debug_once()
-	{
+	function debug_once() {
 		static $used = array();
 		$trace = debug_backtrace();
 		array_shift($trace); // debug_once itself
@@ -63,8 +59,7 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
-	function debug_size($a)
-	{
+	function debug_size($a) {
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
 			$keys = array_keys($vals);
