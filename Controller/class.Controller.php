@@ -313,6 +313,7 @@ abstract class Controller {
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
 		$content = '';
 		foreach ($elements as $html) {
+			$html = IndexBase::mergeStringArrayRecursive($html);
 			$content .= '<div style="float: left;">'.$html.'</div>';
 		}
 		$content = $content.'<div style="clear: both"></div>';
@@ -324,6 +325,7 @@ abstract class Controller {
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
+			$html = IndexBase::mergeStringArrayRecursive($html);
 			$content .= '<div class="flex-box">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
