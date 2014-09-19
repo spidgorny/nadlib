@@ -387,7 +387,12 @@ class AutoLoad {
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
 				$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
-				if (file_exists($file2)) {
+				if (file_exists($file2)
+					&& !(
+						basename($file2) == 'Index.php'
+						&& basename(dirname(realpath($file2))) == 'nadlib'
+					)
+				) {	// on windows exclude index.php
 					$file = $file2;
 				}
 			}
