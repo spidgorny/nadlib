@@ -33,8 +33,8 @@ class Mailer {
 	var $params = array();
 
 	function __construct($to, $subject, $bodytext) {
-		$this->to = $to;
-		$this->subject = $subject;
+		$this->to = trim($to);
+		$this->subject = trim($subject);
 		$this->bodytext = $bodytext;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
 		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
@@ -58,6 +58,7 @@ class Mailer {
 	}
 
 	function send() {
+		$this->to = trim($this->to);
 		if (HTMLFormValidate::validEmail($this->to)) {
 			mail($this->to,
 				$this->getSubject(),
@@ -126,19 +127,19 @@ class Mailer {
 
         if (!empty($to)) {
             foreach ($to as $address) {
-                empty($address) ?: $message->addTo($address);
+                empty($address) ?: $message->addTo(trim($address));
             }
         }
 
         if (!empty($cc)) {
             foreach ($cc as $address) {
-                empty($address) ?: $message->addCc($address);
+                empty($address) ?: $message->addCc(trim($address));
             }
         }
 
         if (!empty($bcc)) {
             foreach ($bcc as $address) {
-                empty($address) ?: $message->addBcc($address);
+                empty($address) ?: $message->addBcc(trim($address));
             }
         }
 

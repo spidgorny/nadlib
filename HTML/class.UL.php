@@ -37,7 +37,8 @@ class UL {
 			if ($link) {
 				$wrap = Wrap::make('<a href="'.$link.'">|</a>');
 			} else {
-				$wrap = Wrap::make('<a>|</a>');
+				//$wrap = Wrap::make('<a>|</a>');
+				$wrap = Wrap::make('|');
 			}
 			$li = $wrap->wrap($li);
 

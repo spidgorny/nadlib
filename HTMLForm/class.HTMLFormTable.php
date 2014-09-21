@@ -165,7 +165,8 @@ class HTMLFormTable extends HTMLForm {
 					$options = $this->fetchSelectionOptions($desc);
 					$this->selection($fieldName, $options,
 						isset($fieldValue) ? $fieldValue : $desc['default'],
-						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL, '',
+						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
+						array(),    // more
 						isset($desc['multiple']) ? $desc['multiple'] : NULL,
 						$desc);
 				break;
