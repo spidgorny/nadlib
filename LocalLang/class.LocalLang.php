@@ -107,16 +107,14 @@ abstract class LocalLang {
 	 */
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
 		if (isset($this->ll[$text])) {
-			if ($this->ll[$text] && $this->ll[$text] != '.') {
-				$trans = $this->Tp($text, $replace, $s2, $s3);
-				$trans = $this->getEditLinkMaybe($trans, $text, '');
-			} else {
-				$trans = $this->getEditLinkMaybe($text, $text);
-			}
+			$trans = ifsetor($this->ll[$text]);
+			$trans = $this->Tp($trans, $replace, $s2, $s3);
+			$trans = $this->getEditLinkMaybe($trans, $text, '');
 		} else {
 			//debug($this->ll);
 			//debug($text, $this->ll[$text], $this->ll['E-Mail']);
 			$this->saveMissingMessage($text);
+			$text = $this->Tp($text, $replace, $s2, $s3);
 			$trans = $this->getEditLinkMaybe($text);
 		}
 		return $trans;
@@ -124,14 +122,13 @@ abstract class LocalLang {
 
 	/**
 	 * Bare plain-text localization without outputting any HTML
-	 * @param $text
+	 * @param $trans
 	 * @param null $replace
 	 * @param null $s2
 	 * @param null $s3
 	 * @return mixed|null
 	 */
-	function Tp($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
-		$trans = ifsetor($this->ll[$text]);
+	function Tp($trans, $replace = NULL, $s2 = NULL, $s3 = NULL) {
 		if (is_array($replace)) {
 			foreach ($replace as $key => $val) {
 				$trans = str_replace('{'.$key.'}', $val, $trans);
@@ -204,11 +201,14 @@ if (!function_exists('__')) {	// conflict with cake
 			$index = Index::getInstance();
 		}
 		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
-		if ($index && $index->ll) {
+		if (!empty($index) && $index->ll) {
 			$text = $index->ll->T($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $text;
 		} else {
+			$code = str_replace('%1', $r1, $code);
+			$code = str_replace('%2', $r2, $code);
+			$code = str_replace('%3', $r3, $code);
 			return $code;
 		}
 	}
