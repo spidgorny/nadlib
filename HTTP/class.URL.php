@@ -627,14 +627,21 @@ return $return; */
 	 * @return string				- converted to URL friendly name
 	 */
 	static function friendlyURL($string, $preserveSpaces = false) {
-		$string = preg_replace("`\[.*\]`U","",$string);
+		$string = preg_replace("`\[.*\]`U", "", $string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
 		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
 		if (!$preserveSpaces) {
-			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
+			$string = preg_replace( array("`[^a-z0-9]`i", "`[-]+`") , "-", $string);
 		}
 		return strtolower(trim($string, '-'));
+	}
+
+	static function getSlug($string) {
+		$string = mb_strtolower($string);
+		$string = preg_replace("` +`", "-", $string);
+		$string = trim($string);
+		return $string;
 	}
 
 }
