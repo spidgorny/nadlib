@@ -20,7 +20,10 @@ function debug($a) {
 		);
 		$dump = ob_get_clean();
 		$dump = str_replace("=>\n", ' =>', $dump);
-		echo '<pre>'.htmlspecialchars($dump).'</pre>';
+		if (!function_exists('xdebug_break')) {
+			$dump = htmlspecialchars($dump);
+		}
+		echo '<pre>'.$dump.'</pre>';
 	}
 }
 }
