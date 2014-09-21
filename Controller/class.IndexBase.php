@@ -234,7 +234,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
-	protected static function walkMerge($value, $key, &$combined) {
+	protected static function walkMerge($value, $key, &$combined = '') {
 		$combined .= $value."\n";
 	}
 
@@ -243,11 +243,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
+		$message = $e->getMessage();
+		$message = $message instanceof htmlString
+			? $message.''
+			: htmlspecialchars($message);
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
 			'.get_class($e).BR.
-			nl2br(htmlspecialchars($e->getMessage()));
+			nl2br($message);
 		if (DEVELOPMENT) {
-			$content .= '<br />'.nl2br($e->getTraceAsString());
+			$content .= BR.BR.'<div style="text-align: left">'.
+				nl2br($e->getTraceAsString()).'</div>';
 			//$content .= getDebug($e);
 		}
 		$content .= '</div>';
@@ -269,12 +274,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 	}
 
+	/**
+	 * Move it to the MRBS
+	 * @param $action
+	 * @param $bookingID
+	 */
 	function log($action, $bookingID) {
-		$this->db->runInsertQuery('log', array(
+		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
-		));
+		));*/
 	}
 
 	function message($text) {
@@ -353,24 +363,25 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQueryUI() {
 		$this->addJQuery();
+		if ($this->footer['jqueryui.js']) return $this;
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
 		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
+		nodebug(array(
+			'jQueryPath' => $jQueryPath,
+			'jQueryPath->exists()' => $jQueryPath->exists(),
+			'appRoot' => $al->appRoot,
+			'componentsPath' => $al->componentsPath,
+			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
+			'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath->getUncapped()),
+			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'documentRoot' => $al->documentRoot,
+			'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+		));
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			nodebug(array(
-				'jQueryPath' => $jQueryPath,
-				'jQueryPath->exists()' => $jQueryPath->exists(),
-				'appRoot' => $al->appRoot,
-				'componentsPath' => $al->componentsPath,
-				'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
-				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath->getUncapped()),
-				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
-				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
-				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-				'documentRoot' => $al->documentRoot,
-				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
-			));
 			if ($jQueryPath->exists()) {
 				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
 				return $this;

@@ -595,6 +595,20 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $new;
 	}
 
+	public function columnEmpty($string) {
+		foreach ($this->getData() as $row) {
+			if ($row[$string]) return false;
+		}
+		return true;
+	}
+
+	public function columnSet($string) {
+		foreach ($this->getData() as $row) {
+			if (isset($row[$string])) return true;
+		}
+		return false;
+	}
+	
 	public function findDelete($niceName) {
 		$ar = $this->getData();
 		$index = array_search($niceName, $ar);

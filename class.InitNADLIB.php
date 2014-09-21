@@ -17,6 +17,12 @@ class InitNADLIB {
 	function init() {
 		//print_r($_SERVER);
 
+		if (Request::isCLI()) {
+			define('BR', "\n");
+		} else {
+			define('BR', "<br />\n");
+		}
+
 		if (!defined('DEVELOPMENT')) {
 			define('DEVELOPMENT', Request::isCLI()
 				? (Request::isWindows() || (isset($_COOKIE['debug']) && $_COOKIE['debug']))

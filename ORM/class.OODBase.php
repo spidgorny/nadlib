@@ -390,7 +390,7 @@ abstract class OODBase {
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
-		nodebug(array(
+		/*nodebug(array(
 			__METHOD__,
 			'class' => $static,
 			'instances' => sizeof(self::$instances[$static]),
@@ -398,7 +398,7 @@ abstract class OODBase {
 			'exists' => self::$instances[$static]
 				? implode(', ', array_keys(self::$instances[$static]))
 				: NULL,
-		));
+		));*/
 		if (is_scalar($id)) {
 			$inst = self::$instances[$static][$id];
 			if (!$inst) {

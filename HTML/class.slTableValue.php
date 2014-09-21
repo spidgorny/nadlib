@@ -241,11 +241,13 @@ class slTableValue {
 						$out = $val.'';
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
+					} else if ($val instanceof HTMLForm) {
+						$out = $val->getContent().'';   // to avoid calling getName()
 					} elseif (is_object($val)) {
 						if (method_exists($val, 'getName')) {
-							$val = $val->getName();
+							$out = $val->getName();
 						} else {
-							$val = '['.get_class($val).']';
+							$out = '['.get_class($val).']';
 						}
 					} elseif (is_array($val)) {
 						if (is_assoc($val)) {

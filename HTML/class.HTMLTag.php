@@ -59,7 +59,7 @@ class HTMLTag {
 		$attributes = str_replace('<'.$tag.'>', '', $str);
 		$attributes = str_replace('</'.$tag.'>', '', $attributes);
 		$obj = new HTMLTag($tag);
-		$obj->attr = $obj->parseAttributes($attributes);
+		$obj->attr = self::parseAttributes($attributes);
 		$obj->content = strip_tags($str);
 		return $obj;
 	}
@@ -69,7 +69,7 @@ class HTMLTag {
 	 * @param string $text
 	 * @return array
 	 */
-	function parseAttributes($text) {
+	static function parseAttributes($text) {
 		$attributes = array();
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)
