@@ -37,7 +37,10 @@ class ConfigBase {
 
 	public $defaultController = 'Overview';
 
-	public $documentRoot = '';
+	/**
+	 * @var Path
+	 */
+	public $documentRoot;
 
 	public static $includeFolders = array(
 		'.',
@@ -136,7 +139,7 @@ class ConfigBase {
 	}
 
 	/**
-	 * Does heavy operations during bootstraping
+	 * Does heavy operations during bootstrapping
 	 * @return $this
 	 */
 	public function postInit() {

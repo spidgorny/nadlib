@@ -104,7 +104,7 @@ class AutoLoad {
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
 		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
 		if (class_exists('Config')) {
-			$config = Config::getInstance();
+			//$config = Config::getInstance();	// can't do until autoload is registered
 		}
 		$this->nadlibRoot = dirname(__FILE__).'/';
 		$this->appRoot = $this->detectAppRoot();
@@ -185,10 +185,15 @@ class AutoLoad {
 		$appRoot = realpath($appRoot);
 		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
-		while ($appRoot && $appRoot != '/'
+		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
 			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
 		) {
 			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'class.Config.php');
+			//debug($appRoot, strlen($appRoot), $exists);
+			if ($exists) {
+				break;
+			}
+			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'Config.php');
 			//debug($appRoot, strlen($appRoot), $exists);
 			if ($exists) {
 				break;
@@ -269,6 +274,7 @@ class AutoLoad {
 			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
 			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
+		//debug($folders);
 
 		return $folders;
 	}

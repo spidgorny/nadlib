@@ -463,10 +463,8 @@ class Request {
 		// hack
 		//$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
 
-		if (strlen($docRoot) == 1) {
-			$docRoot = '/';
-		} else {
-			//$docRoot .= '/';
+		if (!startsWith($docRoot, '/')) {
+			$docRoot = '/'.$docRoot;
 		}
 		$url = Request::getRequestType().'://'.(
 			isset($_SERVER['HTTP_X_FORWARDED_HOST'])
@@ -573,12 +571,22 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
-		$cwd = new Path(getcwd());
-		$al = AutoLoad::getInstance();
-		$url = clone $al->documentRoot;
-		$url->append($this->url->getPath());
-		$path = new Path($url);
-		$path->remove($cwd);
+		if (false) {	// linux
+			$cwd = new Path(getcwd());
+			$al = AutoLoad::getInstance();
+			$url = clone $al->documentRoot;
+			$url->append($this->url->getPath());
+			$path = new Path($url);
+			$path->remove($cwd);
+		} else {	// windows
+			$url = new Path('');
+			$url->append($this->url->getPath());
+			$path = new Path($url);
+			$al = AutoLoad::getInstance();
+			$config = Config::getInstance();
+			$path->remove(clone $config->documentRoot);
+			//$path->remove(clone $al->documentRoot);
+		}
 		//$path = $path->getURL();
 		if (strlen($path) > 1) {	// "/"
 			$levels = trimExplode('/', $path);
@@ -792,6 +800,7 @@ class Request {
 		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
 		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
+		$docRoot = new Path($docRoot);
 		return $docRoot;
 	}
 
