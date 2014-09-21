@@ -38,9 +38,10 @@ class PlainSessionUser extends UserBase {
 	}
 
 	public static function getInstance($id) {
+		$static = get_called_class();
 		return self::$instance
 			?  self::$instance
-			:  self::$instance = new self($id);
+			:  self::$instance = new $static($id);
 	}
 
 	function try2login() {
