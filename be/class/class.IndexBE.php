@@ -34,7 +34,7 @@ class IndexBE extends IndexBase {
 		$this->config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
 		$this->config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
 		//$config->documentRoot = $this->config->documentRoot ?: '/';	// must end without slash
-		// it's not reading the config.yaml from /be/, but from the project root
+		// it's not reading the config.json from /be/, but from the project root
 		$this->config->config['View']['folder'] = '../be/template/';
 
 		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
