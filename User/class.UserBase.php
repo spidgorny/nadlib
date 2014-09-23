@@ -1,6 +1,6 @@
 <?php
 
-abstract class UserBase extends OODBase {
+abstract class UserBase extends FlexiTable {
 
 	public $table = 'user';
 

@@ -55,8 +55,8 @@ class SessionUser extends PlainSessionUser {
 	 * Session only stores MD5'ed passwords! It can't be otherwise!
 	 * This is a success function which loads user data as well.
 	 *
-	 * @param unknown_type $email
-	 * @param unknown_type $password - hash
+	 * @param string $email
+	 * @param string $password - hash
 	 * @throws Exception
 	 */
 	function saveLogin($email, $password) {

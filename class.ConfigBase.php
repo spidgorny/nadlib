@@ -75,7 +75,7 @@ class ConfigBase {
 	public $flexiTable = false;
 
 	/**
-	 * Read from config.yaml
+	 * Read from config.json
 	 * @var array
 	 */
 	public $config;
@@ -115,13 +115,19 @@ class ConfigBase {
 		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
 		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
 
-		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
+		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));
 		$configYAML = AutoLoad::getInstance()->appRoot.'class/config.yaml';
 		//print_r(array($configYAML, file_exists($configYAML)));
 		if (file_exists($configYAML) && class_exists('Spyc')) {
 			$this->config = Spyc::YAMLLoad($configYAML);
 		}
 		$this->mergeConfig($this);
+
+		$configJSON = AutoLoad::getInstance()->appRoot.'class/config.json';
+		if (file_exists($configJSON)) {
+			$this->config = json_decode(file_get_contents($configJSON), true);
+			$this->mergeConfig($this);
+		}
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 	}
 
