@@ -5,6 +5,10 @@ define('UPPERCASE',1);
 
 class Syndicator {
 	var $url;
+
+	/**
+	 * @var bool|int enabled or seconds for caching
+	 */
 	var $isCaching = FALSE;
 
 	/**
@@ -85,7 +89,7 @@ class Syndicator {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$c = Index::getInstance()->controller;
 		if ($this->isCaching) {
-			$this->cache = new FileCache();
+			$this->cache = new FileCache(is_bool($this->isCaching) ? 60 * 60 : $this->isCaching);
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
 				$c->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
