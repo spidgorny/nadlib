@@ -463,7 +463,12 @@ abstract class OODBase {
 		return $c;
 	}
 
-	//abstract function createRecord($data);
+	/**
+	 * @param $insert
+	 * @param $class
+	 * @return static
+	 * @throws Exception
+	 */
 	static function createRecord($insert, $class) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
