@@ -22,8 +22,14 @@ class SQLOr extends SQLWherePart {
 		$this->db = Config::getInstance()->db;
 	}
 
+	/**
+	 * Please make SQLOrBijou, SQLOrORS and so on classes.
+	 * This one should be just simple general.
+	 * @return string
+	 */
 	function __toString() {
-		if ($this->qb->db instanceof dbLayerPG) {		// ???
+		//debug(get_class($this->db));
+		if (false && $this->db instanceof dbLayerPG) {		// bijou
 			$ors = array();
 			foreach ($this->or as $key => $or) {
 				if (is_main($key)) {
@@ -33,7 +39,7 @@ class SQLOr extends SQLWherePart {
 					), false);
 				}
 			}
-		} else if ($this->qb->db instanceof dbLayer) {	// DCI, ORS
+		} elseif (false && $this->db instanceof dbLayer) {	// DCI, ORS
 			// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
 			// http://ors.nintendo.de/NotifyVersion
             if (is_int($this->field)) {                 // added is_int condition to solve problem with software mngmt & request (hw/sw request)  .. deklesoe 20130514
