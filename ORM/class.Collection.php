@@ -477,23 +477,21 @@ class Collection {
 	}
 
 	function renderList() {
-		$content = '';
+		$list = [];
 		if ($this->getCount()) {
-			$content .= '<ul>';
-			foreach ($this->getData() as $row) {
-				$content .= '<li>';
+			foreach ($this->getData() as $i => $row) {
 				if ($this->thes) {
+					$mess = '';
 					foreach ($this->thes as $key => $_) {
-						$content .= $row[$key] . ' ';
+						$mess .= $row[$key] . ' ';
 					}
+					$list[$i] = trim($mess);
 				} else {
-					$content .= $row[$this->titleColumn];
+					$list[$i] = $row[$this->titleColumn];
 				}
-				$content .= '</li>';
 			}
-			$content .= '</ul>';
 		}
-		return $content;
+		return new UL($list);
 	}
 
 	/**
