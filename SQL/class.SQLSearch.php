@@ -38,7 +38,7 @@ class SQLSearch {
 		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		$query = '';
 		if ($where) {
-			$whereString = $this->qb->quoteWhere($where);
+			$whereString = $this->db->quoteWhere($where);
 			$query .= implode(' AND ', $whereString);
 		}
 		return $query;

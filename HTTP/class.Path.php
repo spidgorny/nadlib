@@ -217,14 +217,14 @@ class Path {
 
 	function makeAbsolute() {
 		if (!$this->isAbsolute) {
-			debug(getcwd(), $this);
+			//debug(getcwd(), $this);
 			$prefix = new Path(getcwd());
-			debug($prefix);
+			//debug($prefix);
 			$prefix->append($this);
 			$this->aPath = $prefix->aPath;
 			$this->implode();
 			$this->isAbsolute = true;
-			debug(getcwd(), $this);
+			//debug(getcwd(), $this);
 		}
 	}
 

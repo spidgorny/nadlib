@@ -106,7 +106,7 @@ class AutoLoad {
 		if (class_exists('Config')) {
 			//$config = Config::getInstance();	// can't do until autoload is registered
 		}
-		$this->nadlibRoot = dirname(__FILE__).'/';
+		$this->nadlibRoot = dirname(__FILE__) . '/';
 		$this->appRoot = $this->detectAppRoot();
 //		echo 'appRoot: ', $this->appRoot, BR;
 
@@ -131,20 +131,7 @@ class AutoLoad {
 
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
 
-		$this->componentsPath = new Path($this->appRoot);
-		$this->componentsPath->setAsDir();
-		if (!$this->componentsPath->appendIfExists('components')) {
-			$this->componentsPath->up();
-			if (!$this->componentsPath->appendIfExists('components')) {
-				$this->componentsPath->up();
-				if (!$this->componentsPath->appendIfExists('components')) {
-					$this->componentsPath = new Path($this->documentRoot);
-					if ($this->componentsPath->appendIfExists('components')) {	// no !
-						//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
-					}
-				}
-			}
-		}
+		$this->setComponentsPath();
 
 		if (0) {
 			echo '<pre>';
@@ -170,6 +157,34 @@ class AutoLoad {
 				'this->componentsPath' => $this->componentsPath.'',
 			));
 			echo '</pre>';
+		}
+	}
+
+	function setComponentsPath() {
+		if (file_exists('composer.json')) {
+			$json = json_decode(file_get_contents('composer.json'), 1);
+			//debug($json['config']);
+			if ($json['config']['component-dir']) {
+				$this->componentsPath = new Path($json['config']['component-dir']);
+				$this->componentsPath->remove('public');
+				$this->componentsPath = $this->componentsPath->relativeFromAppRoot();
+			}
+		}
+		if (!$this->componentsPath) {
+			$this->componentsPath = new Path($this->appRoot);
+			$this->componentsPath->setAsDir();
+			if (!$this->componentsPath->appendIfExists('components')) {
+				$this->componentsPath->up();
+				if (!$this->componentsPath->appendIfExists('components')) {
+					$this->componentsPath->up();
+					if (!$this->componentsPath->appendIfExists('components')) {
+						$this->componentsPath = new Path($this->documentRoot);
+						if ($this->componentsPath->appendIfExists('components')) {    // no !
+							//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
+						}
+					}
+				}
+			}
 		}
 	}
 

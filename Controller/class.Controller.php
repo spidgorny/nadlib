@@ -28,7 +28,7 @@ abstract class Controller {
 	/**
 	 * @var boolean
 	 * @use $this->preventDefault() to set
-	 * chack manually in render()
+	 * Check manually in render()
 	 */
 	public $noRender = false;
 
@@ -415,7 +415,6 @@ abstract class Controller {
 	 * @param array $hidden
 	 * @param string $submitClass
 	 * @param array $submitParams
-	 * @internal param null $class
 	 * @return HTMLForm
 	 */
 	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array()) {
@@ -431,7 +430,7 @@ abstract class Controller {
 		}
 		$f->hidden('action', $action);
 		if ($name instanceof htmlString) {
-			$f->button($name, 'type="submit" class="'.$submitClass.'"');
+			$f->button($name, 'type="submit" class="'.$submitClass.'" ' . HTMLTag::renderAttr($submitParams));
 		} else {
 			$f->submit($name, array(
 				'class' => $submitClass,

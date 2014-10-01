@@ -821,7 +821,10 @@ class Request {
 	 */
 	public function importNameless(array $keys) {
 		foreach ($keys as $k => $val) {
-			$this->data[$val] = $this->getNameless($k);
+			$available = $this->getNameless($k);
+			if ($available) {
+				$this->data[$val] = $available;
+			}
 		}
 	}
 

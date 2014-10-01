@@ -682,6 +682,7 @@ class HTMLFormTable extends HTMLForm {
 	function validate() {
 		$this->validator = new HTMLFormValidate($this);
         $this->isValid = $this->validator->validate();
+		$this->desc = $this->validator->getDesc();
 		return $this->isValid;
 	}
 
