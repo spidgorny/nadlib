@@ -73,6 +73,7 @@ class Uploader {
 		    <table style="width: 250px">
 		        <tr><td><nobr>Max size:</nobr></td><td>'.ini_get('upload_max_filesize').'</td></tr>
 		        <tr><td><nobr>Max post:</nobr></td><td>'.ini_get('post_max_size').'</td></tr>
+		        <tr><td><nobr>Free space:</nobr></td><td>'.number_format(disk_free_space('.')/1024/1024, 0, '.', '').'M</td></tr>
 		        <tr><td><nobr>Allowed:</nobr></td><td>'.implode(', ', $this->allowed).'</td></tr>
 		    </table>
 		</div>
