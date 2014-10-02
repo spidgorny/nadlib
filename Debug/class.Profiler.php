@@ -35,6 +35,11 @@ class Profiler {
 		return number_format($out, 5, '.', '');
 	}
 
+	function elapsedCont() {
+		$out = microtime(true) - $this->startTime;
+		return number_format($out, 5, '.', '');
+	}
+
 	function Done($isReturn = FALSE) {
 		$out = number_format($this->elapsed(), 3);
 		$content = "Done in $out seconds.";

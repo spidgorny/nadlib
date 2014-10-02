@@ -11,6 +11,21 @@ class dbLayerBase {
 	 */
 	var $qb;
 
+	/**
+	 * @var string
+	 */
+	var $lastQuery;
+
+	/**
+	 * @var int
+	 */
+	var $queryCount = 0;
+
+	/**
+	 * @var int Time in seconds
+	 */
+	var $queryTime = 0;
+
 	function setQB() {
 		$di = new DIContainer();
 		$di->db = $this;
@@ -51,6 +66,11 @@ class dbLayerBase {
 		}
 		$this->free($res);
 		return $data;
+	}
+
+	function saveQueryLog($query, $time) {
+		$this->queryCount++;
+		$this->queryTime += $time;
 	}
 
 }
