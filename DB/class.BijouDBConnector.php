@@ -12,11 +12,6 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	protected $t3db;
 	
 	/**
-	 * @var string
-	 */
-	var $lastQuery;
-
-	/**
 	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
 	 */
 	function __construct(t3lib_DB $t3lib_DB = NULL) {
@@ -171,8 +166,6 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	function unlockTables() {
 		$this->t3db->sql_query('UNLOCK TABLES');
 	}
-
-	function saveQueryLog() {}
 
 	/**
 	 * Returns THE ONE FIRST result.

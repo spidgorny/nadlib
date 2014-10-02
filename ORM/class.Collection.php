@@ -409,8 +409,14 @@ class Collection {
 	 * @return array|ArrayPlus
 	 */
 	function getData() {
-		if (!$this->query) {
+		if (!$this->query || (
+				!$this->data
+				|| !$this->data->count())) {
 			$this->retrieveDataFromDB();
+		}
+		if (!($this->data instanceof ArrayPlus)) {
+			$this->data = ArrayPlus::create($this->data);
+			$this->count = sizeof($this->data);
 		}
 		return $this->data;
 	}
