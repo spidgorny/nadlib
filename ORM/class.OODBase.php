@@ -59,6 +59,8 @@ abstract class OODBase {
 	 */
 	public $lastQuery;
 
+	public $parentField = 'pid';
+
 	/**
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
@@ -535,6 +537,10 @@ abstract class OODBase {
 			$this->init($data, true);
 			return $data;
 		}
+	}
+
+	function getParent() {
+		return self::getInstance($this->data[$this->parentField]);
 	}
 
 }
