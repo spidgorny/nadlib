@@ -101,7 +101,8 @@ abstract class OODBase {
 				}
 			}
 		} else if ($id instanceof SQLWhere) {
-			$this->findInDB($id->getAsArray());
+			$where = $id->getAsArray();
+			$this->findInDB($where);
 		} else if (is_scalar($id)) {
 			$this->id = $id;
 			$this->findInDB(array($this->idField => $this->id));
