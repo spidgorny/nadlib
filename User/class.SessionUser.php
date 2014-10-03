@@ -7,12 +7,14 @@ class SessionUser extends PlainSessionUser {
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		$this->autologin(); // the main difference of SessionUser from PlainSessionUser
+		if (get_class($this) == 'LoginUser') {
+			$this->autologin(); // the main difference of SessionUser from PlainSessionUser
+		}
 	}
 
 	function autologin() {
 		$class = get_called_class();
-		//debug($class, $_SESSION[$class]);
+		debug($class, $_SESSION[$class]);
 		if ($login = $_SESSION[$class]['login']) {
 			$inSession = $this->checkPassword($login, $_SESSION[$class]['password']);
 			if ($inSession) {
