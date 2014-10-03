@@ -479,15 +479,15 @@ class Collection {
 	function renderList() {
 		$list = [];
 		if ($this->getCount()) {
-			foreach ($this->getData() as $i => $row) {
+			foreach ($this->getData() as $id => $row) {
 				if ($this->thes) {
-					$mess = '';
+					$item = '';
 					foreach ($this->thes as $key => $_) {
-						$mess .= $row[$key] . ' ';
+						$item .= $row[$key] . ' ';
 					}
-					$list[$i] = trim($mess);
+					$list[$id] = $item;
 				} else {
-					$list[$i] = $row[$this->titleColumn];
+					$list[$id] = $row[$this->titleColumn];
 				}
 			}
 		}

@@ -59,6 +59,8 @@ abstract class OODBase {
 	 */
 	public $lastQuery;
 
+	public $parentField = 'pid';
+
 	/**
 	 * For parent retrieval in getParent()
 	 * @var string
