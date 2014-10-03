@@ -6,7 +6,7 @@
 class BEUser extends UserBase {
 
 	/**
-	 * Loaded from config.yaml
+	 * Loaded from config.json
 	 * @var array
 	 */
 	public $acl = array(
