@@ -59,8 +59,6 @@ abstract class OODBase {
 	 */
 	public $lastQuery;
 
-	public $parentField = 'pid';
-
 	/**
 	 * For parent retrieval in getParent()
 	 * @var string
@@ -547,7 +545,13 @@ abstract class OODBase {
 	}
 
 	function getParent() {
-		return self::getInstance($this->data[$this->parentField]);
+		$id = $this->data[$this->parentField];
+		if ($id) {
+			$obj = self::getInstance($id);
+		} else {
+			$obj = NULL;
+		}
+		return $obj;
 	}
 
 }
