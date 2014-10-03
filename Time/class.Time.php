@@ -283,7 +283,8 @@ class Time {
 	 * @return htmlString
 	 */
 	function render() {
-		return new htmlString('<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>');
+		return new htmlString('<time datetime="'.$this->getDateTime().'"
+			class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>');
 	}
 
 	/**
