@@ -196,9 +196,13 @@ class Pager {
 	}
 
 	function getCSS() {
-		$l = new lessc();
-		$css = $l->compileFile(dirname(__FILE__).'/../CSS/PaginationControl.less');
-		return '<style>'.$css.'</style>';
+		if (class_exists('lessc')) {
+			$l = new lessc();
+			$css = $l->compileFile(dirname(__FILE__) . '/../CSS/PaginationControl.less');
+			return '<style>' . $css . '</style>';
+		} else {
+			return '';
+		}
 	}
 
 	function renderPageSelectors(URL $url = NULL) {

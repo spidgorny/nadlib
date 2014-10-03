@@ -366,7 +366,7 @@ class SQLBuilder {
 	function runInsertQuery($table, array $columns) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.'('.$table.')');
 		$query = $this->getInsertQuery($table, $columns);
-		$ret = $this->db->perform($query, false);
+		$ret = $this->db->perform($query);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.'('.$table.')');
 		return $ret;
 	}

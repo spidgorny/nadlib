@@ -39,6 +39,7 @@ class Localize extends AppControllerBE {
 		$this->ru = new LocalLangDB('ru');
 		$this->ru->indicateUntranslated = false;
 		$this->ru->init();
+		//debug($this->ru->ll, $this->ru->lang);
 		$this->url = new URL('?c=Localize');
 	}
 
@@ -75,7 +76,7 @@ class Localize extends AppControllerBE {
 		$content .= $pager->renderPageSelectors($this->url);
 		$content = $this->encloseIn(__('Localize'), $content);
 		//$this->index->addJQuery();
-		$this->index->addJS('../js/jquery.jeditable.mini.js');
+		$this->index->addJS('js/vendor/tuupola/jquery_jeditable/jquery.jeditable.js');
 		$this->index->addJS("js/Localize.js");
 		return $content;
 	}
@@ -125,7 +126,9 @@ class Localize extends AppControllerBE {
 						'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
 					'lang' => $lobj->lang,
 					'class' => 'inlineEdit '.$colorCode,
-				), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
+				),
+					//isset($lobj->ll[$key]) ? $lobj->M($key) : '-');
+					ifsetor($lobj->ll[$key], 'nothing'));
 
 				// Page
 				$row = $lobj->getRow($dbID);

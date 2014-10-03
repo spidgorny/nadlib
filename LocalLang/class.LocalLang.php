@@ -110,6 +110,7 @@ abstract class LocalLang {
 			$trans = ifsetor($this->ll[$text]);
 			$trans = $this->Tp($trans, $replace, $s2, $s3);
 			$trans = $this->getEditLinkMaybe($trans, $text, '');
+			//if ($text == 'Search') { debug($text, $trans); }
 		} else {
 			//debug($this->ll);
 			//debug($text, $this->ll[$text], $this->ll['E-Mail']);

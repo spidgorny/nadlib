@@ -70,7 +70,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		//debug($this->dsn);
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
-		$this->dbTime += $profiler->elapsed();
+		$this->queryTime += $profiler->elapsed();
 		if ($this->getScheme() == 'mysql') {
 			$my = new MySQL();
 			$this->reserved = $my->getReserved();
@@ -86,20 +86,17 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function perform($query, array $params = array()) {
 		$this->lastQuery = $query;
-		$params = array();
 		if ($this->getScheme() == 'mysql') {
-			$params = array(
-				PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL,
-			);
+			$params[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
 		$profiler = new Profiler();
 		$this->result = $this->connection->prepare($query, $params);
-		$this->dbTime += $profiler->elapsed();
+		$this->queryTime += $profiler->elapsed();
 		if ($this->result) {
 			//try {
 			$profiler = new Profiler();
 			$ok = $this->result->execute($params);
-			$this->dbTime += $profiler->elapsed();
+			$this->queryTime += $profiler->elapsed();
 			//} catch (Exception $e) {
 			//	$ok = false;
 			//}
