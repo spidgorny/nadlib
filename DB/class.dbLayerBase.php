@@ -17,11 +17,21 @@ class dbLayerBase {
 	 * @var array
 	 */
 	var $reserved = array();
+	
+	/**
+	 * @var string
+	 */
+	var $lastQuery;
 
 	/**
-	 * @var int - accumulated DB execution time
+	 * @var int
 	 */
-	var $dbTime = 0;
+	var $queryCount = 0;
+
+	/**
+	 * @var int Time in seconds
+	 */
+	var $queryTime = 0;
 
 	function setQB(SQLBuilder $qb = NULL) {
 		$di = new DIContainer();
@@ -70,6 +80,11 @@ class dbLayerBase {
 		}
 		$this->free($res);
 		return $data;
+	}
+
+	function saveQueryLog($query, $time) {
+		$this->queryCount++;
+		$this->queryTime += $time;
 	}
 
 	function getReserved() {
