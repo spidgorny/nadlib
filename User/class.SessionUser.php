@@ -14,7 +14,7 @@ class SessionUser extends PlainSessionUser {
 
 	function autologin() {
 		$class = get_called_class();
-		debug($class, $_SESSION[$class]);
+		//debug($class, $_SESSION[$class]);
 		if ($login = $_SESSION[$class]['login']) {
 			$inSession = $this->checkPassword($login, $_SESSION[$class]['password']);
 			if ($inSession) {
