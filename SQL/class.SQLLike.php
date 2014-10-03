@@ -24,7 +24,9 @@ class SQLLike extends SQLWherePart {
 
 	function __toString() {
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
-		return $this->field ." ". $like ." '%".$this->db->escape($this->string)."%'";
+		$w = explode('|', $this->wrap);
+		$wrap = $w[0] . $this->qb->db->escape($this->string) . $w[1];
+		return $this->field ." ". $like ." '".$wrap."'";
 	}
 
 }
