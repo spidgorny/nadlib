@@ -248,7 +248,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			? $message.''
 			: htmlspecialchars($message);
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
-			'.get_class($e).BR.
+			'.get_class($e).' ('.$e->getCode().')'.BR.
 			nl2br($message);
 		if (DEVELOPMENT) {
 			$content .= BR.BR.'<div style="text-align: left">'.

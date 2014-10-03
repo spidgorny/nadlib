@@ -344,8 +344,8 @@ class Collection {
 
 	function preprocessData() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		foreach ($this->data as &$row) { // Iterator by reference
-			$row = $this->preprocessRow($row);
+		foreach ($this->data as $i => $row) { // Iterator by reference
+			$date[$i] = $this->preprocessRow($row);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
