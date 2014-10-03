@@ -499,25 +499,26 @@ class Collection {
 	 * @return string
 	 */
 	function renderMembers() {
-		$content = '';
+		$content = [];
 		//debug(sizeof($this->members));
 		if ($this->objectify()) {
 			foreach ($this->objectify() as $key => $obj) {
 				//debug($i++, (strlen($content)/1024/1024).'M');
 				if (is_object($obj)) {
-					$content .= $obj->render()."\n";
+					$content[] = $obj->render();
+					$content[] = "\n";
 				} else {
-					$content .= getDebug(__METHOD__, $key, $obj);
+					$content[] = getDebug(__METHOD__, $key, $obj);
 				}
 			}
 		} else {
-			$content .= '<div class="message">'.__('No data').'</div>';
+			$content[] = '<div class="message">'.__('No data').'</div>';
 		}
 		if ($this->pager) {
 			//$this->pager->debug();
 			$url = new URL();
 			$pages = $this->pager->renderPageSelectors($url);
-			$content = $pages . $content . $pages;
+			$content = array($pages, $content, $pages);
 		}
 		return $content;
 	}

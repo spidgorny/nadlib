@@ -47,7 +47,7 @@ abstract class UserBase extends OODBase {
 	 * @return boolean
 	 */
 	function checkPassword($login, $password) {
-		$query = $this->db->getSelectQuery($this->table, array('email' => $login));
+		$query = $this->db->getSelectQuery($this->table, array($this->idField => $login));
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
 		//debug(array($login, $password, $row['password']));

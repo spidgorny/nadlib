@@ -177,7 +177,7 @@ class Debug {
 		$levels = $this->getLevels($args);
 
 		$db = debug_backtrace();
-		$db = array_slice($db, 2, sizeof($db));
+		$db = array_slice($db, 4, sizeof($db));
 
 		$content = self::renderHTMLView($db, $args, $levels);
 		$content .= self::printStyles();

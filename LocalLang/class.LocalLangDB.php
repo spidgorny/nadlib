@@ -2,7 +2,6 @@
 
 /**
  * Singleton
- *
  */
 class LocalLangDB extends LocalLang {
 
