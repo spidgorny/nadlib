@@ -111,23 +111,23 @@ abstract class Scaffold extends AppController {
 	abstract function setModel();
 
 	public function render() {
-		$content = '';
+		$content = [];
 //		debug($this->action);
 		switch ($this->action) {
 			case 'showForm':
-				$content = $this->showForm();
+				$content[] = $this->showForm();
 			break;
 			case 'showEdit':
-				$content .= $this->showEditForm();
+				$content[] = $this->showEditForm();
 			break;
 			case 'add':
 			case 'update':
-				$content = $this->showPerform();
+				$content[] = $this->showPerform();
 			break;
 			default:    // view table
-				$content = $this->showTable();
-				$content .= $this->showButtons();
-				$content .= '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
+				$content[] = $this->showTable();
+				$content[] = $this->showButtons();
+				$content[] = '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
 			break;
 		}
 		return $content;
@@ -225,7 +225,7 @@ abstract class Scaffold extends AppController {
 	 * @return string
 	 */
 	public function showPerform() {
-		$content = '';
+		$content = [];
 		//$userData = $this->request->getArray($this->formPrefix);
 		//debug($userData, $formPrefix);
 
@@ -236,21 +236,21 @@ abstract class Scaffold extends AppController {
 		if ($v->validate()) {
 			try {
 				switch ($this->action) {
-					case 'add': $content = $this->insertRecord($this->data); break;
-					case 'update': $content = $this->updateRecord($this->data); break;
+					case 'add': $content[] = $this->insertRecord($this->data); break;
+					case 'update': $content[] = $this->updateRecord($this->data); break;
 					default: {
 						debug(__METHOD__);
 						throw new Exception(__METHOD__);
 					}
 				}
 			} catch (Exception $e) {
-				$content .= '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
-				$content .= $this->showForm();
+				$content[] = '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
+				$content[] = $this->showForm();
 			}
 		} else {
 			//$desc = $v->getDesc();
-			$content .= '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
-			$content .= $this->showForm();
+			$content[] = '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
+			$content[] = $this->showForm();
 			//debug($desc['participants'], $userData['participants']);
 		}
 		return $content;

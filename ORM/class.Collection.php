@@ -133,6 +133,8 @@ class Collection {
 	 */
 	var $desc = array();
 
+	var $noDataMessage = 'No data';
+
 	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
@@ -512,7 +514,7 @@ class Collection {
 				}
 			}
 		} else {
-			$content[] = '<div class="message">'.__('No data').'</div>';
+			$content[] = '<div class="message">'.__($this->noDataMessage).'</div>';
 		}
 		if ($this->pager) {
 			//$this->pager->debug();
