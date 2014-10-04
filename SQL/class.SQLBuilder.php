@@ -54,8 +54,13 @@ class SQLBuilder {
 	 */
 	function quoteSQL($value, $key = NULL) {
 		if ($value instanceof AsIs) {
+			$value->injectDB($this->db);
+			$value->injectQB($this);
+			$value->injectField($key);
 			return $value->__toString();
 		} else if ($value instanceof AsIsOp) {
+			//$value->injectQB($this);
+			//$value->injectField($key);
 			return $value->__toString();
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
@@ -65,8 +70,6 @@ class SQLBuilder {
 			return "'".$this->db->escape($value->toSQL())."'";
 		} else if ($value instanceof SQLDate) {
 			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value instanceof AsIs) {
-			return $value.'';
 		} else if ($value instanceof SimpleXMLElement) {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} else if (is_object($value)) {
@@ -126,6 +129,9 @@ class SQLBuilder {
 			if ($key{strlen($key)-1} != '.') {
 				$key = $this->quoteKey($key);
 				if ($val instanceof AsIs) {
+					$val->injectDB($this->db);
+					$val->injectQB($this);
+					$val->injectField($key);
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
 					if (is_numeric($key)) {

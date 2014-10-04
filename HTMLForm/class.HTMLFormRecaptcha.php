@@ -13,7 +13,7 @@ class HTMLFormRecaptcha {
 		$this->publickey = Config::getInstance()->recaptcha['publickey'];
 		$this->privatekey = Config::getInstance()->recaptcha['privatekey'];
 		if (!$this->publickey || !$this->privatekey) {
-			throw new Exception(__METHOD__);
+			throw new Exception('Please define publickey and privatekey for Recaptcha.');
 		}
 		require_once 'vendor/recaptcha/recaptchalib.php';
 	}
