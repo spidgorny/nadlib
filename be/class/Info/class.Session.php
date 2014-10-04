@@ -41,7 +41,19 @@ class Session extends AppControllerBE {
 		foreach ($keys as &$key) {
 			$key = '<a href="#'.$key.'">'.$key.'</a>';
 		}
-		$content = implode('<br />', $keys);
+		$content[] = implode('<br />', $keys);
+
+		$content[] = BR;
+
+		$ini = ini_get_all('session');
+		$ini = ArrayPlus::create($ini)->column('local_value')->getData();
+		//$content[] = getDebug($ini);
+		//$content[] = slTable::showAssoc($ini);
+		$ul = new UL($ini);
+		$ul->before = '<dl>';
+		$ul->after = '</dl>';
+		$ul->wrap = '<dt>###CLASS###</dt><dd>|</dd>';
+		$content[] = $ul;
 		return $content;
 	}
 
