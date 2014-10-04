@@ -608,7 +608,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		}
 		return false;
 	}
-	
+
 	public function findDelete($niceName) {
 		$ar = $this->getData();
 		$index = array_search($niceName, $ar);
@@ -616,6 +616,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 			array_splice($ar, $index, 1);
 			$this->setData($ar);
 		}
+	}
+
+	public function getKeys() {
+		return array_keys($this->getData());
 	}
 
 }

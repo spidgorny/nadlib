@@ -90,6 +90,7 @@ abstract class Scaffold extends AppController {
 		$this->setModel();	// uses $this->id
 
 		$this->form = new HTMLFormTable();
+		//debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
 		if ($this->request->isSubmit()) {
 			$this->data = $this->request->getArray($this->formPrefix);
 		} else {
@@ -125,11 +126,16 @@ abstract class Scaffold extends AppController {
 				$content[] = $this->showPerform();
 			break;
 			default:    // view table
-				$content[] = $this->showTable();
-				$content[] = $this->showButtons();
-				$content[] = '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
+				$content[] = $this->showDefault();
 			break;
 		}
+		return $content;
+	}
+
+	function showDefault() {
+		$content[] = $this->showTable();
+		$content[] = $this->showButtons();
+		$content[] = '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
 		return $content;
 	}
 
