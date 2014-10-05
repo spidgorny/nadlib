@@ -352,7 +352,10 @@ class HTMLFormTable extends HTMLForm {
 					$desc['class'] .= ' error';
 				}
 
-				if (ifsetor($desc['wrap']) instanceof Wrap) {
+				if (ifsetor($desc['wrap'])) {
+					if (!$desc['wrap'] instanceof Wrap) {
+						$desc['wrap'] = new Wrap($desc['wrap']);
+					}
 					$newContent = $desc['wrap']->wrap($newContent);
 				}
 

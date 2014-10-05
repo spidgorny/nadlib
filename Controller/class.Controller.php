@@ -239,9 +239,10 @@ abstract class Controller {
 	 * @param $content
 	 * @param string $caption
 	 * @param null $h
+	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = NULL) {
+	function encloseInAA($content, $caption = '', $h = NULL, $more = array()) {
 		$h = $h ? $h : $this->encloseTag;
 		$content = IndexBase::mergeStringArrayRecursive($content);
 		if ($caption) {
@@ -253,7 +254,7 @@ abstract class Controller {
 			$content = '<'.$h.' id="'.$slug.'">'.$link.$caption.'</'.$h.'>'.$content;
 		}
 		//debug_pre_print_backtrace();
-		$content = '<section class="padding clearfix"
+		$content = '<section class="padding clearfix '.$more['class'].'"
 			style="position: relative;">'.$content.'</section>';
 		return $content;
 	}
