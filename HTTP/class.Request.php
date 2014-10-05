@@ -448,6 +448,20 @@ class Request {
 		exit();
 	}
 
+	function redirectFromAjax($relative) {
+		if (startsWith($relative, 'http')) {
+			$link = $relative;
+		} else {
+			$link = $this->getLocation() . $relative;
+		}
+		if (!headers_sent()) {
+			header('X-Redirect: '.$link);	// to be handled by AJAX callback
+			exit();
+		} else {
+			$this->redirectJS($link);
+		}
+	}
+
 	/**
 	 * Returns the full URL to the document root of the current site
 	 * @return URL
