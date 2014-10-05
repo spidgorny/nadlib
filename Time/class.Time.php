@@ -235,7 +235,7 @@ class Time {
 	/**
 	 * <span class="time">in 10 hours</span>
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	function render() {
 		return '<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>';
