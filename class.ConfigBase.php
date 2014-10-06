@@ -81,7 +81,7 @@ class ConfigBase {
 	public $config;
 
 	/**
-	 * @var UserBase
+	 * @var LoginUser
 	 */
 	public $user;
 
