@@ -197,7 +197,9 @@ abstract class Scaffold extends AppController {
 		} else {
 			$f = $this->getForm();
 			$f->prefix('');
-			$f->submit($this->addButton);
+			$f->submit($this->addButton, array(
+				'class' => 'btn btn-primary',
+			));
 		}
 		return $f;
 	}
@@ -219,7 +221,9 @@ abstract class Scaffold extends AppController {
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
-		$f->submit($this->updateButton);
+		$f->submit($this->updateButton, array(
+			'class' => 'btn btn-primary',
+		));
 		return $f;
 	}
 
