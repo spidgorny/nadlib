@@ -407,6 +407,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addJS($source) {
+		if (!contains($source, '?')) {
+			$mtime = @filemtime($source);
+			if (!$mtime) {
+				$mtime = @filemtime('public/'.$source);
+			}
+			if ($mtime) {
+				$source .= '?' . $mtime;
+			}
+		}
 		$this->footer[$source] = '<script src="'.$source.'"></script>';
 		return $this;
 	}
@@ -421,6 +430,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				//$source = $source;	// rewrite inside css folder
 			} else {
 				$source = '?c=Lesser&css=' . $source;
+			}
+		} else {
+			if (!contains($source, '?')) {
+				$mtime = @filemtime($source);
+				if (!$mtime) {
+					$mtime = @filemtime('public/'.$source);
+				}
+				if ($mtime) {
+					$source .= '?' . $mtime;
+				}
 			}
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
