@@ -431,7 +431,10 @@ abstract class Controller {
 		}
 		$f->hidden('action', $action);
 		if ($name instanceof htmlString) {
-			$f->button($name, 'type="submit" class="'.$submitClass.'" ' . HTMLTag::renderAttr($submitParams));
+			$f->button($name, array(
+				'type' => "submit",
+				'class' => $submitClass,
+				) + $submitParams);
 		} else {
 			$f->submit($name, array(
 				'class' => $submitClass,
