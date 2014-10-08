@@ -23,6 +23,8 @@ class Mailer {
 	var $bodytext;
 
 	/**
+	 * Need to repeat key inside the value
+	 * From => From: somebody
 	 * @var array
 	 */
 	var $headers = array();
@@ -58,16 +60,17 @@ class Mailer {
 	}
 
 	function send() {
-		$this->to = trim($this->to);
-		if (HTMLFormValidate::validEmail($this->to)) {
-			mail($this->to,
-				$this->getSubject(),
-				$this->getBodyText(),
-				implode("\n", $this->headers)."\n",
-				implode(' ', $this->params));
-		} else {
-			throw new Exception('Invalid email address');
+		$tos = trimExplode(',', $this->to);
+		foreach ($tos as $email) {
+			if (!HTMLFormValidate::validEmail($email)) {
+				throw new Exception(__('Invalid email address: %1', $email));
+			}
 		}
+		mail(implode(', ', $tos),
+			$this->getSubject(),
+			$this->getBodyText(),
+			implode("\n", $this->headers)."\n",
+			implode(' ', $this->params));
 	}
 
 	function getSubject() {
