@@ -330,4 +330,8 @@ class View {
 		return View::_autolink_find_URLS($comment);
 	}
 
+	function s($a) {
+		return Index::mergeStringArrayRecursive($a);
+	}
+
 }
