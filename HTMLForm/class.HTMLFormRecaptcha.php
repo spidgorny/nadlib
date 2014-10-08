@@ -16,6 +16,8 @@ class HTMLFormRecaptcha {
 			throw new Exception('Please define publickey and privatekey for Recaptcha.');
 		}
 		require_once 'vendor/recaptcha/recaptchalib.php';
+		//$error = htmlspecialchars(urlencode($desc['captcha-error'] ? '' : ''), ENT_QUOTES);
+		Index::getInstance()->addJS('//www.google.com/recaptcha/api/js/recaptcha_ajax.js'); //?error=' . $error);
 	}
 
 	function getForm(array $desc) {
@@ -25,11 +27,7 @@ class HTMLFormRecaptcha {
 
 	function getFormAjax(array $desc) {
 		$r = Request::getInstance();
-		if (!$r->isAjax()) {
-			$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error=' .
-				htmlspecialchars(urlencode($desc['captcha-error'] ? '' : ''), ENT_QUOTES) . '"></script>';
-		}
-		$content .= '
+		$content = '
 		<div id="recaptcha_div"></div>
  		<script>
  			Recaptcha.create("'.$this->publickey.'", "recaptcha_div");
