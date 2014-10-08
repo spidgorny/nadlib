@@ -113,9 +113,12 @@ if (!function_exists('nodebug')) {
 	 * @param $needle
 	 * @return bool
 	 */
-	function endsWith($haystack, $needle)
-	{
+	function endsWith($haystack, $needle) {
 		return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
+	}
+
+	function contains($haystack, $needle) {
+		return FALSE !== strpos($haystack, $needle);
 	}
 
 	/**
