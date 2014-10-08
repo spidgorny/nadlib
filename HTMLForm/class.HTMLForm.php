@@ -322,7 +322,8 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 	}
 
-	function button($innerHTML = NULL, $more = '') {
+	function button($innerHTML = NULL, array $more = array()) {
+		$more = HTMLTag::renderAttr($more);
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 

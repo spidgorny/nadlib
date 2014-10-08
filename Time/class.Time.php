@@ -267,14 +267,18 @@ class Time {
 
 	    $difference = round($difference);
 
-	    if ($difference != 1) {
+	    if (!$difference) {
+			$content = __('Just now');
+		} elseif ($difference != 1) {
     		$period = $pperiods[$j];
+			$content = "$difference $period {$tense}";
 	    } else {
     		$period = $periods[$j];
+			$content = "$difference $period {$tense}";
 	    }
 
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-	    return "$difference $period {$tense}";
+	    return $content;
 	}
 
 	/**
