@@ -500,8 +500,17 @@ class Request {
 		return $this->url;
 	}
 
+	/**
+	 * http://php.net/manual/en/function.apache-request-headers.php#70810
+	 * @return bool
+	 */
 	function isAjax() {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		if (!$headers) {
+			$headers = array(
+				'X-Requested-With' => $_SERVER['HTTP_X_REQUESTED_WITH']
+			);
+		}
 		return $this->getBool('ajax') || (
 			isset($headers['X-Requested-With'])
 			&&strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));

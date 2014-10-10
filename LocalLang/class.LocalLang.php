@@ -106,6 +106,7 @@ abstract class LocalLang {
 	 * @return string translated message
 	 */
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
+		//debug($text, isset($this->ll[$text]), $this->ll[$text]);
 		if (isset($this->ll[$text])) {
 			$trans = ifsetor($this->ll[$text]);
 			$trans = $this->Tp($trans, $replace, $s2, $s3);
@@ -113,7 +114,7 @@ abstract class LocalLang {
 			//if ($text == 'Search') { debug($text, $trans); }
 		} else {
 			//debug($this->ll);
-			//debug($text, $this->ll[$text], $this->ll['E-Mail']);
+			//debug($text, $this->ll[$text], spl_object_hash($this));
 			$this->saveMissingMessage($text);
 			$text = $this->Tp($text, $replace, $s2, $s3);
 			$trans = $this->getEditLinkMaybe($text);
@@ -196,23 +197,26 @@ abstract class LocalLang {
 
 }
 
-if (!function_exists('__')) {	// conflict with cake
+if (!function_exists('__')) {	// conflict with cakePHP
+
 	function __($code, $r1 = null, $r2 = null, $r3 = null) {
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 		}
-		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
+		//debug($code, !!$index, get_class($index), !!$index->ll, get_class($index->ll));
 		if (!empty($index) && $index->ll) {
 			$text = $index->ll->T($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $text;
 		} else {
+			//debug('Replace without LL:', $code);
 			$code = str_replace('%1', $r1, $code);
 			$code = str_replace('%2', $r2, $code);
 			$code = str_replace('%3', $r3, $code);
 			return $code;
 		}
 	}
+
 	function __p($code, $r1 = null, $r2 = null, $r3 = null) {
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
