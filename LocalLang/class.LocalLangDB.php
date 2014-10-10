@@ -54,7 +54,13 @@ class LocalLangDB extends LocalLang {
 	 * @param $code
 	 */
 	function saveMissingMessage($code) {
-		//debug(__METHOD__, DEVELOPMENT, $code, $this->ll[$code]);
+		nodebug(array(
+			'object' => spl_object_hash($this),
+			'method' => __METHOD__,
+			'DEVELOPMENT' => DEVELOPMENT,
+			'code' => $code,
+			'$this->ll[code]' => $this->ll[$code],
+			));
 		if (DEVELOPMENT && $code) {
 			try {
 				$where = array(
@@ -76,6 +82,7 @@ class LocalLangDB extends LocalLang {
 				//debug($db->lastQuery, $db->affectedRows());
 				$this->ll[$code] = $code;
 				$this->codeID[$code] = $this->db->lastInsertID($res);
+				//debug($this->db->lastQuery);
 			} catch (Exception $e) {
 				Index::getInstance()->log(__METHOD__, $e->getMessage());
 			}
