@@ -34,7 +34,7 @@ class Profiler {
 		if (!$this->endTime) {
 			$this->stop();
 		}
-		$out = $this->endTime-$this->startTime;
+		$out = $this->endTime - $this->startTime;
 		return number_format($out, 5, '.', '');
 	}
 

@@ -80,6 +80,16 @@ class Path {
 	}
 
 	/**
+	 * @param $plus
+	 * @return $this
+	 */
+	function prependString($plus) {
+		$pPlus = new Path($plus);
+		$this->aPath = array_merge($pPlus->aPath, $this->aPath);
+		return $this;
+	}
+
+	/**
 	 * @param $plus string|Path
 	 * @return bool
 	 */
@@ -224,8 +234,13 @@ class Path {
 			$this->aPath = $prefix->aPath;
 			$this->implode();
 			$this->isAbsolute = true;
-			//debug(getcwd(), $this);
+			$this->checkFileDir();
 		}
+	}
+
+	function checkFileDir() {
+		$this->isFile = is_file($this->sPath);
+		$this->isDir = is_dir($this->sPath);
 	}
 
 	public function getURL() {
@@ -265,6 +280,17 @@ class Path {
 
 	public function length() {
 		return sizeof($this->aPath);
+	}
+
+	public function getDebug() {
+		return array(
+			'sPath' => $this->sPath,
+			'aPath' => $this->aPath,
+			'isAbsolute' => $this->isAbsolute,
+			'isDir' => $this->isDir,
+			'isFile' => $this->isFile,
+			'exists' => $this->exists(),
+		);
 	}
 
 }
