@@ -16,6 +16,8 @@ class UL {
 
 	var $links = array();
 
+	var $linkWrap = '<a href="###LINK###">|</a>';
+
 	/**
 	 * @var callback to link generation function(index, name)
 	 */
@@ -35,7 +37,7 @@ class UL {
 				$link = call_user_func($this->linkFunc, $class, $li);
 			}
 			if ($link) {
-				$wrap = Wrap::make('<a href="'.$link.'">|</a>');
+				$wrap = Wrap::make(str_replace('###LINK###', $link, $this->linkWrap));
 			} else {
 				//$wrap = Wrap::make('<a>|</a>');
 				$wrap = Wrap::make('|');
