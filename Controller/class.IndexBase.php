@@ -44,6 +44,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $sidebar = '';
 
+	public $description = '';
+
 	/**
 	 * @var Config
 	 */
