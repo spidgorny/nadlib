@@ -407,6 +407,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addJS($source) {
+		$called = Debug::getCaller();
 		if (!contains($source, '?')) {
 			$mtime = @filemtime($source);
 			if (!$mtime) {
@@ -416,7 +417,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$source .= '?' . $mtime;
 			}
 		}
-		$this->footer[$source] = '<script src="'.$source.'"></script>';
+		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$source.'"></script>';
 		return $this;
 	}
 

@@ -313,7 +313,7 @@ class View {
 		$content = '';
 		$links = $this->getLinks($comment);
 		foreach ($links as $link => $_) {
-			$Essence = Essence\Essence::instance( );
+			$Essence = @Essence\Essence::instance( );
 			$Media = $Essence->embed($link);
 
 			if ( $Media ) {
