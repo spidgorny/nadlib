@@ -77,6 +77,9 @@ class ProgressBar {
 			if (method_exists($index, 'renderHead')) {
 				$index->renderHead();
 			}
+			if (!headers_sent()) {
+				echo '<!DOCTYPE html>';
+			}
             print($this->getCSS());
 			print($this->getContent());
 			$this->flush();
@@ -92,6 +95,7 @@ class ProgressBar {
 		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
+			return Index::getInstance()->header[$less];
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
