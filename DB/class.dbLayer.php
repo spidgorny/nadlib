@@ -65,11 +65,13 @@ class dbLayer {
 		$prof = new Profiler();
 		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
-		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
+		$this->LAST_PERFORM_RESULT = @pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
-			debug($query);
-			debug_pre_print_backtrace();
-			throw new Exception(pg_errormessage($this->CONNECTION));
+			//debug($query);
+			//debug_pre_print_backtrace();
+			$exception = new DatabaseException(pg_errormessage($this->CONNECTION));
+			$exception->query = $query;
+			throw $exception;
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->saveQueries) {
@@ -103,10 +105,21 @@ class dbLayer {
 		return $this->LAST_PERFORM_RESULT;
 	}
 
+	/**
+	 * @param $what string columns to retrieve.
+	 * You may request multiple columns, but the value must be last.
+	 * @param $from
+	 * @param $where
+	 * @param bool $returnNull
+	 * @param bool $debug
+	 * @return null
+	 * @throws DoubleResultException
+	 * @throws Exception
+	 */
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		$trace = $this->getCallerFunction();
 		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
-		$query = "select ($what) as res from $from where $where";
+		$query = "select $what as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
 		$result = $this->perform($query);
 		$rows = pg_num_rows($result);
@@ -123,7 +136,7 @@ class dbLayer {
 				printbr("<b>$query: $rows</b>");
 				printbr("ERROR: No result or more than one result of sqlFind()");
 				debug_pre_print_backtrace();
-				exit();
+				throw new DoubleResultException($query);
 			}
 		}
 		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
@@ -194,7 +207,7 @@ class dbLayer {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
 			$return = array();
-			foreach($meta as $col => $m) {
+			foreach ($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
 			return $return;
@@ -202,6 +215,11 @@ class dbLayer {
 			error("Table not found: <b>$table</b>");
 			exit();
 		}
+	}
+
+	function getColumnInfo($table) {
+		$meta = pg_meta_data($this->CONNECTION, $table);
+		return $meta;
 	}
 
 	function getTableDataEx($table, $where = "", $what = "*") {
@@ -269,6 +287,21 @@ class dbLayer {
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
 		return ArrayPlus::create($return)->column('relname');
+	}
+
+	function getColumnDefault($table) {
+		$query = "SELECT *
+		FROM information_schema.columns where table_name = '".$table."'
+		ORDER BY ordinal_position";
+		$data = $this->fetchAll($query);
+		foreach ($data as &$row) {
+			if (contains($row['column_default'], 'nextval')) {
+				$parts = trimExplode("'", $row['column_default']);
+				$row['sequence'] = $parts[1];
+				$row['sequence'] = str_replace('"', '', $row['sequence']);  // can be quoted
+			}
+		}
+		return ArrayPlus::create($data)->IDalize('column_name')->getData();
 	}
 
 	function amountOf($table, $where = "1 = 1") {
