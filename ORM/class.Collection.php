@@ -147,10 +147,10 @@ class Collection {
 		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
 
 		//debug($this->parentField, $this->parentID, $this->where);
-		if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
+/*  	if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
 			$this->retrieveDataFromDB();
 		}
-		foreach ($this->thes as &$val) {
+*/		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->translateThes();
