@@ -185,6 +185,7 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
+		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
 			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')
@@ -346,8 +347,8 @@ class Collection {
 
 	function preprocessData() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		foreach ($this->data as $i => $row) { // Iterator by reference
-			$date[$i] = $this->preprocessRow($row);
+		foreach ($this->data as $i => &$row) { // Iterator by reference
+			$row = $this->preprocessRow($row);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}

@@ -823,6 +823,9 @@ class Request {
 		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
 		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
+
+		//debug_pre_print_backtrace();
+		require_once __DIR__.'/class.Path.php'; // needed if called early
 		$docRoot = new Path($docRoot);
 		return $docRoot;
 	}
