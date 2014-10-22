@@ -69,7 +69,10 @@ class dbLayer {
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug($query);
 			//debug_pre_print_backtrace();
-			$exception = new DatabaseException(pg_errormessage($this->CONNECTION));
+			$error = $this->CONNECTION
+				? pg_errormessage($this->CONNECTION)
+				: error_get_last().'';
+			$exception = new DatabaseException($error);
 			$exception->query = $query;
 			throw $exception;
 		} else {
