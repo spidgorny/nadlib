@@ -216,8 +216,9 @@ class AutoLoad {
 			$appRoot = dirname($appRoot);
 		}
 
-		if ($appRoot == '/') {  // nothing is found by previous method
+		if (!$appRoot || $appRoot == '/') {  // nothing is found by previous method
 			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
+			//debug($appRoot, URL::getScriptWithPath());
 			$appRoot->upIf('nadlib');
 			$appRoot->upIf('spidgorny');
 			$appRoot->upIf('vendor');
@@ -295,6 +296,7 @@ class AutoLoad {
 	}
 
 	function getFoldersFromConfig() {
+		$this->loadConfig();    // make sure
 		$folders = array();
 		if (class_exists('Config') && Config::$includeFolders) {
 			$folders = Config::$includeFolders;
@@ -304,7 +306,7 @@ class AutoLoad {
 			}
 		} else {
 			// that's ok. relax. be quiet.
-			//echo ('Config not found');
+			echo 'Config not found'.BR;
 		}
 		return $folders;
 	}

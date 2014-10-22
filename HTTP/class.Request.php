@@ -605,10 +605,13 @@ class Request {
 			$url = new Path('');
 			$url->append($this->url->getPath());
 			$path = new Path($url);
-			$al = AutoLoad::getInstance();
-			$config = Config::getInstance();
-			$path->remove(clone $config->documentRoot);
-			//$path->remove(clone $al->documentRoot);
+			if (true) {
+				$al = AutoLoad::getInstance();
+				$path->remove(clone $al->documentRoot);
+			} else {
+				$config = Config::getInstance();
+				$path->remove(clone $config->documentRoot);
+			}
 		}
 		//$path = $path->getURL();
 		if (strlen($path) > 1) {	// "/"
