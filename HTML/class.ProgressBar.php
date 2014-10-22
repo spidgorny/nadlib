@@ -134,7 +134,7 @@ class ProgressBar {
 		}
 		//d(array($prefix, AutoLoad::getInstance()->nadlibRoot));
 		$prefix = AutoLoad::getInstance()->nadlibRoot;
-		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: center; white-space: nowrap;">'.
+		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: right; white-space: nowrap;">'.
 			number_format($p, $this->decimals).'&nbsp;%&nbsp;
 			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />
 		</div>');

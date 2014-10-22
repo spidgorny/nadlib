@@ -59,7 +59,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if(!Request::isCLI()) {
+		if (!Request::isCLI() && !headers_sent()) {
 			session_start();
 		}
 
