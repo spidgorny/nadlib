@@ -605,10 +605,10 @@ class Request {
 			$url = new Path('');
 			$url->append($this->url->getPath());
 			$path = new Path($url);
-			if (true) {
+			if (false) {    // doesn't work in ORS
 				$al = AutoLoad::getInstance();
 				$path->remove(clone $al->documentRoot);
-			} else {
+			} else {        // works in ORS
 				$config = Config::getInstance();
 				$path->remove(clone $config->documentRoot);
 			}
