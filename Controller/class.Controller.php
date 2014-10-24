@@ -372,7 +372,6 @@ abstract class Controller {
 	 * @param $formAction
 	 * @param array $hidden
 	 * @param string $submitClass
-	 * @internal param null $class
 	 * @return HTMLForm
 	 */
 	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText') {
