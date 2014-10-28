@@ -6,10 +6,13 @@ class Selectable {
 
 	/**
 	 * Assoc
-	 * @var type
+	 * @var array
 	 */
 	public $data = array();
 
+	/**
+	 * @var int
+	 */
 	public $selected;
 
 	/**
