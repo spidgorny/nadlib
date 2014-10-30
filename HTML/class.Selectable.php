@@ -70,6 +70,10 @@ class Selectable {
 		return $f->getContent();
 	}
 
+	function getOptions() {
+		return $this->data;
+	}
+
 	function getName() {
 		return $this->data[$this->selected];
 	}
