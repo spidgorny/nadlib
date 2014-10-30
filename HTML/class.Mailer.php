@@ -23,6 +23,7 @@ class Mailer {
 	var $bodytext;
 
 	/**
+	 * Assoc, but the key should be repeated in the value
 	 * @var array
 	 */
 	var $headers = array();
@@ -33,8 +34,12 @@ class Mailer {
 	var $params = array();
 
 	function __construct($to, $subject, $bodytext) {
-		$this->to = $to;
-		$this->subject = $subject;
+		if (is_array($to)) {
+			$this->to = implode(', ', $to);
+		} else {
+			$this->to = trim($to);
+		}
+		$this->subject = trim($subject);
 		$this->bodytext = $bodytext;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
 		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
@@ -58,15 +63,17 @@ class Mailer {
 	}
 
 	function send() {
-		if (HTMLFormValidate::validEmail($this->to)) {
-			mail($this->to,
-				$this->getSubject(),
-				$this->getBodyText(),
-				implode("\n", $this->headers)."\n",
-				implode(' ', $this->params));
-		} else {
-			throw new Exception('Invalid email address');
+		$tos = trimExplode(',', $this->to);
+		foreach ($tos as $email) {
+			if (!HTMLFormValidate::validEmail($email)) {
+				throw new Exception(__('Invalid email address: %1', $email));
+			}
 		}
+		mail(implode(', ', $tos),
+			$this->getSubject(),
+			$this->getBodyText(),
+			implode("\n", $this->headers)."\n",
+			implode(' ', $this->params));
 	}
 
 	function getSubject() {
