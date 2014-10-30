@@ -120,31 +120,41 @@ class Mailer {
         $message->setFrom(Index::getInstance()->mailFromSwiftMailer);
         if (!empty($additionalSenders)) {
             foreach ($additionalSenders as $address) {
-                empty($address) ?: $message->addFrom(key($address));
+                empty($address)
+	                ? $address
+	                : $message->addFrom(key($address));
             }
         }
 
         if (!empty($to)) {
             foreach ($to as $address) {
-                empty($address) ?: $message->addTo($address);
+                empty($address)
+	                ? $address
+	                : $message->addTo($address);
             }
         }
 
         if (!empty($cc)) {
             foreach ($cc as $address) {
-                empty($address) ?: $message->addCc($address);
+                empty($address)
+	                ? $address
+	                : $message->addCc($address);
             }
         }
 
         if (!empty($bcc)) {
             foreach ($bcc as $address) {
-                empty($address) ?: $message->addBcc($address);
+                empty($address)
+	                ? $address
+	                : $message->addBcc($address);
             }
         }
 
         if (!empty($attachments)) {
             foreach ($attachments as $attachment) {
-                empty($attachment) ?: $message->attach(Swift_Attachment::fromPath($attachment));
+                empty($attachment)
+	                ? $attachment
+	                : $message->attach(Swift_Attachment::fromPath($attachment));
             }
         }
 
