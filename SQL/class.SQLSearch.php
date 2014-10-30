@@ -1,12 +1,42 @@
 <?php
 
 class SQLSearch {
+
+	/**
+	 * @var string table name
+	 */
 	protected $table;
+
+	/**
+	 * @var string search string
+	 */
 	protected $sword;
+
+	/**
+	 * Search string split into words
+	 * @var array
+	 */
 	protected $words = array();
+
+	/**
+	 * Update it from outside to search different columns
+	 * @var array
+	 */
 	public $searchableFields = array(
 		'title',
 	);
+
+	/**
+	 * Not used
+	 * @var string
+	 */
+	public $queryJoins = '';
+
+	/**
+	 * Replace with ILIKE if necessary
+	 * @var string
+	 */
+	public $likeOperator = 'LIKE';
 
 	function __construct($table, $sword) {
 		//debug(array($table, $sword));
@@ -29,7 +59,8 @@ class SQLSearch {
 
 	function __toString() {
 		$where = $this->getWhere();
-		$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
+		//$query = str_replace('WHERE', $this->queryJoins.' WHERE', $query);
+		$query = '';
 		if ($where) {
 			$qb = Config::getInstance()->qb;
 			$whereString = $qb->quoteWhere($where);
@@ -38,7 +69,7 @@ class SQLSearch {
 		return $query;
 	}
 
-	function getWhere() {
+	public function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;
@@ -54,7 +85,7 @@ class SQLSearch {
 					$word = substr($word, 1);
 					$where[] = $this->table.'.id NOT IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
 				} else {
-					//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
+					//$this->queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
 					// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
 					$where[] = $this->table.'.id IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
 				}
@@ -63,7 +94,7 @@ class SQLSearch {
 		return $where;
 	}
 
-	function getSearchSubquery($word, $select = NULL) {
+	protected function getSearchSubquery($word, $select = NULL) {
 		$table = $this->table;
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
@@ -76,12 +107,12 @@ class SQLSearch {
 		return $query;
 	}
 
-	function getSearchWhere($word, $prefix = '') {
+	protected function getSearchWhere($word, $prefix = '') {
 		if ($word{0} == '!') {
-			$like = 'NOT LIKE';
+			$like = 'NOT ' . $this->likeOperator;
 			$or = "\n\t\tAND";
 		} else {
-			$like = 'LIKE';
+			$like = $this->likeOperator;
 			$or = "\n\t\tOR";
 		}
 

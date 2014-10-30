@@ -13,6 +13,9 @@ class Profiler {
 		return $time;
 	}
 
+	/**
+	 * @return float
+	 */
 	function elapsed() {
 		$endTime = $this->getMilliTime();
 		$out = $endTime-$this->startTime;
