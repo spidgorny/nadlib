@@ -340,11 +340,19 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	}
 
 	function min() {
-		return min($this->data);
+		if ($this->count()) {
+			return min($this->data);
+		} else {
+			return NULL;
+		}
 	}
 
 	function max() {
-		return max($this->data);
+		if ($this->count()) {
+			return max($this->data);
+		} else {
+			return NULL;
+		}
 	}
 
 	function avg() {

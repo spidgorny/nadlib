@@ -297,6 +297,30 @@ class Collection {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
+	/**
+	 * @return ArrayPlus
+	 */
+	function getData() {
+		if (!$this->query || (
+				!$this->data
+				|| !$this->data->count())) {
+			$this->retrieveDataFromDB();
+		}
+		if (!($this->data instanceof ArrayPlus)) {
+			$this->data = ArrayPlus::create($this->data);
+			$this->count = sizeof($this->data);
+		}
+		return $this->data;
+	}
+
+	function setData($data) {
+		$this->data  = ArrayPlus::create((array) $data);
+		$this->count = count($this->data);
+
+		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
+		$this->query = true;
+	}
+
 	function prepareRenderRow(array $row) {
 		return $row;
 	}

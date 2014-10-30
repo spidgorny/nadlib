@@ -121,7 +121,10 @@ class dbLayer {
 	 */
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		$trace = $this->getCallerFunction();
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		$key = __METHOD__;
+			//.' ('.$from.')'.' // '.$trace['class'].'::'.
+			//ifsetor($trace['function']);
+		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer($key);
 		$query = "select $what as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
 		$result = $this->perform($query);
@@ -142,7 +145,7 @@ class dbLayer {
 				throw new DoubleResultException($query);
 			}
 		}
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer($key);
 		return $return;
 	}
 
@@ -525,12 +528,12 @@ class dbLayer {
 
 	/**
 	 *
-	 * @param type $table
+	 * @param string $table
 	 * @param array $where
 	 * @param string $order
 	 * @param string $selectPlus
 	 * @param $key
-	 * @return table
+	 * @return array[]
 	 */
 	function fetchAllSelectQuery($table, array $where = array(), $order = '',
 	                             $selectPlus = '', $key = NULL) {

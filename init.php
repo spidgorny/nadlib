@@ -345,8 +345,7 @@ function cap($string, $with = '/')
  * @return null
  * @see https://wiki.php.net/rfc/ifsetor
  */
-function ifsetor(&$variable, $default = null)
-{
+function ifsetor(&$variable, $default = null) {
 	if (isset($variable)) {
 		$tmp = $variable;
 	} else {
