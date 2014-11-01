@@ -91,6 +91,7 @@ class AutoLoad {
 			self::$instance = new self();
 			self::$instance->detectNadlibRoot();
 			self::$instance->loadConfig();
+			self::$instance->config = Config::getInstance();
 			self::$instance->initFolders();
 		}
 		return self::$instance;
@@ -374,8 +375,7 @@ class AutoLoad {
 			}
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
-				$config = Config::getInstance();
-				if ($config->config['autoload']['notFoundException']) {
+				if ($this->config->config['autoload']['notFoundException']) {
 					if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
@@ -395,7 +395,7 @@ class AutoLoad {
 	 * @return string
 	 */
 	function findInFolders($classFile, $subFolders) {
-		$appRoot = class_exists('Config') ? Config::getInstance()->appRoot : '';
+		$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.

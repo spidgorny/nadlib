@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class dbLayerODBC
+ * Class dbLayerPDO
  * @mixin SQLBuilder
  */
 class dbLayerPDO extends dbLayerBase implements DBInterface {
