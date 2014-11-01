@@ -79,6 +79,8 @@ class SessionUser extends PlainSessionUser {
 	function logout() {
 		$class = get_called_class();
 		unset($_SESSION[$class]);
+		session_regenerate_id(true);
+		session_destroy();
 	}
 
 }
