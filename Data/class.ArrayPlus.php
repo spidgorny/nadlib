@@ -381,11 +381,19 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function min() {
+		if ($this->count()) {
 		return min($this->getData());
+		} else {
+			return NULL;
+		}
 	}
 
 	function max() {
+		if ($this->count()) {
 		return max($this->getData());
+		} else {
+			return NULL;
+		}
 	}
 
 	function avg() {
