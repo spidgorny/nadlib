@@ -37,8 +37,17 @@ class Debug {
 					: '')));
 			}
 		}
-		if ($_COOKIE['debug']) {
-			//echo('Renderer: ' . $this->renderer);
+		//var_dump($_COOKIE);
+		if (false && $_COOKIE['debug']) {
+			echo 'Renderer: ' . $this->renderer;
+			echo '<pre>';
+			var_dump(array(
+				'canCLI' => $this->canCLI(),
+				'canFirebug' => $this->canFirebug(),
+				'canDebugster' => $this->canDebugster(),
+				'canHTML' => $this->canHTML(),
+			));
+			echo '</pre>';
 		}
 	}
 
@@ -195,7 +204,9 @@ class Debug {
 		$trace = Debug::getTraceTable($db);
 
 		$first = $db[1];
-		$function = self::getMethod($first);
+		if ($first) {
+			$function = self::getMethod($first);
+		}
 		$props = array(
 			'<span class="debug_prop">Function:</span> '.$function,
 			'<span class="debug_prop">Type:</span> '.gettype($a).

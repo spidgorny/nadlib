@@ -185,6 +185,8 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'('.$allowMerge.', '.$preprocess.')');
+		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
 			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')
@@ -296,7 +298,11 @@ class Collection {
 	}
 
 	function log($msg) {
-		$this->log[(string)microtime(true)] = $msg;
+		$time = (string)microtime(true);
+		if (isset($this->log[$time])) {
+			$time .= '.'.uniqid();
+		}
+		$this->log[$time] = $msg;
 	}
 
 	/**
@@ -346,8 +352,9 @@ class Collection {
 
 	function preprocessData() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		foreach ($this->data as $i => $row) { // Iterator by reference
-			$date[$i] = $this->preprocessRow($row);
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		foreach ($this->data as $i => &$row) { // Iterator by reference
+			$row = $this->preprocessRow($row);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
@@ -361,7 +368,8 @@ class Collection {
 	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-        $this->getData();
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		$this->getData();
 		if ($this->count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
@@ -381,6 +389,7 @@ class Collection {
 	}
 
 	function getDataTable() {
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		$s = new slTable($this->getData(), HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->thes);
 		$s->ID = get_class($this);
@@ -395,6 +404,7 @@ class Collection {
 
 	function prepareRender() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		$this->getData();
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->prepareRenderRow($row);
@@ -406,9 +416,14 @@ class Collection {
 	 * @return ArrayPlus
 	 */
 	function getData() {
-		if (!$this->query || (
-			!$this->data
-			|| !$this->data->count())) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		$this->log('query: '.!!$this->query);
+		$this->log('data: '.!!$this->data);
+		$this->log('data->count: '.count($this->data));
+		if (!$this->query
+			|| !$this->data
+			//|| !$this->data->count()  // not necessary, we have retrieved nothing
+		) {
 			$this->retrieveDataFromDB();
 		}
         if (!($this->data instanceof ArrayPlus)) {
@@ -418,7 +433,12 @@ class Collection {
 		return $this->data;
 	}
 
+	/**
+	 * A function to fake the data as if it was retrieved from DB
+	 * @param $data
+	 */
     function setData($data) {
+	    $this->log(get_class($this).'::'.__FUNCTION__.'()');
         $this->data  = ArrayPlus::create((array) $data);
         $this->count = count($this->data);
 

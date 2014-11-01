@@ -57,7 +57,8 @@ class SQLBuilder {
 			$value->injectDB($this->db);
 			$value->injectQB($this);
 			$value->injectField($key);
-			return $value->__toString();
+			$result = $value->__toString();
+			return $result;
 		} else if ($value instanceof AsIsOp) {
 			//$value->injectQB($this);
 			//$value->injectField($key);
@@ -108,8 +109,16 @@ class SQLBuilder {
 	 */
 	function quoteValues(array $a) {
 		$c = array();
-		foreach($a as $key => $b) {
+		foreach ($a as $key => $b) {
 			$c[] = SQLBuilder::quoteSQL($b, $key);
+		}
+		return $c;
+	}
+
+	function quoteKeys($a) {
+		$c = array();
+		foreach ($a as $b) {
+			$c[] = $this->quoteKey($b);
 		}
 		return $c;
 	}
@@ -200,19 +209,27 @@ class SQLBuilder {
 
 	}
 
-	function getInsertQuery($table, array $columns) {
-		$set = $this->quoteLike($columns, '$key');
-		$set = implode(", ", $set);
-
-		//$values = $this->quoteLike($columns, '$val');
-		$values = array_values($columns);
-		$values = $this->quoteValues($values);
-		$values = implode(", ", $values);
-
-		$q = "INSERT INTO ".$this->quoteKey($table)."\n($set)\nVALUES ($values)";
+	/**
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @return string
+	 */
+	function getInsertQuery($table, $columns) {
+		$q = 'INSERT INTO '.$this->quoteKey($table).' (';
+		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
+		$q .= ") VALUES (";
+		$q .= implode(", ", $this->quoteValues(array_values($columns)));
+		$q .= ")";
 		return $q;
 	}
 
+	/**
+	 *
+	 * @param $columns  [a => b, c => d]
+	 * @param $like     "$key ILIKE '%$val%'"
+	 * @return array    [a ILIKE '%b%', c ILIKE '%d%']
+	 * @throws MustBeStringException
+	 */
 	function quoteLike($columns, $like) {
 		$set = array();
 		foreach ($columns as $key => $val) {
@@ -388,18 +405,20 @@ class SQLBuilder {
 
 	/**
 	 * Return ALL rows
+	 * This used to retrieve a single row !!!
 	 * @param string $table
 	 * @param array $where
 	 * @param string $order
 	 * @param string $addFields
+	 * @param string $idField   - will return data as assoc indexed by this column
 	 * @return array <type>
 	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = NULL) {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
 		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
 		$query = $this->getSelectQuery($table, $where, $order, $addFields);
 		$res = $this->perform($query);
-		$data = $this->fetchAll($res);
+		$data = $this->fetchAll($res, $idField);
 		return $data;
 	}
 
