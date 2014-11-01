@@ -340,7 +340,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'documentRoot' => $al->documentRoot,
 				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
 			));
-			if (file_exists($al->componentsPath.$jQueryPath)) {
+			if (file_exists($al->componentsPath . $jQueryPath)) {
+				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
 				$this->addJS($al->componentsPath->getURL().$jQueryPath);
 				return $this;
 			} elseif (file_exists($al->appRoot . $jQueryPath)) {
@@ -368,6 +369,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if ($this->footer['jqueryui.js']) return $this;
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
+		//debug($jQueryPath);
 		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
 		nodebug(array(
