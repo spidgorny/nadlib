@@ -35,7 +35,11 @@ class Mailer {
 	var $params = array();
 
 	function __construct($to, $subject, $bodytext) {
-		$this->to = trim($to);
+		if (is_array($to)) {
+			$this->to = implode(', ', $to);
+		} else {
+			$this->to = trim($to);
+		}
 		$this->subject = trim($subject);
 		$this->bodytext = $bodytext;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
@@ -60,17 +64,15 @@ class Mailer {
 	}
 
 	function send() {
-		$tos = trimExplode(',', $this->to);
-		foreach ($tos as $email) {
-			if (!HTMLFormValidate::validEmail($email)) {
-				throw new Exception(__('Invalid email address: %1', $email));
-			}
+		if (HTMLFormValidate::validEmail($this->to)) {
+			mail($this->to,
+				$this->getSubject(),
+				$this->getBodyText(),
+				implode("\n", $this->headers)."\n",
+				implode(' ', $this->params));
+		} else {
+			throw new Exception('Invalid email address');
 		}
-		mail(implode(', ', $tos),
-			$this->getSubject(),
-			$this->getBodyText(),
-			implode("\n", $this->headers)."\n",
-			implode(' ', $this->params));
 	}
 
 	function getSubject() {
@@ -124,31 +126,41 @@ class Mailer {
         $message->setFrom(Index::getInstance()->mailFromSwiftMailer);
         if (!empty($additionalSenders)) {
             foreach ($additionalSenders as $address) {
-                empty($address) ?: $message->addFrom(key($address));
+                empty($address)
+	                ? $address
+	                : $message->addFrom(key($address));
             }
         }
 
         if (!empty($to)) {
             foreach ($to as $address) {
-                empty($address) ?: $message->addTo(trim($address));
+                empty($address)
+	                ? $address
+	                : $message->addTo(trim($address));
             }
         }
 
         if (!empty($cc)) {
             foreach ($cc as $address) {
-                empty($address) ?: $message->addCc(trim($address));
+                empty($address)
+	                ? $address
+	                : $message->addCc($address);
             }
         }
 
         if (!empty($bcc)) {
             foreach ($bcc as $address) {
-                empty($address) ?: $message->addBcc(trim($address));
+                empty($address)
+	                ? $address
+	                : $message->addBcc($address);
             }
         }
 
         if (!empty($attachments)) {
             foreach ($attachments as $attachment) {
-                empty($attachment) ?: $message->attach(Swift_Attachment::fromPath($attachment));
+                empty($attachment)
+	                ? $attachment
+	                : $message->attach(Swift_Attachment::fromPath($attachment));
             }
         }
 
