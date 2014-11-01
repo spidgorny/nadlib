@@ -426,10 +426,10 @@ class Collection {
 		) {
 			$this->retrieveDataFromDB();
 		}
-        if (!($this->data instanceof ArrayPlus)) {
-            $this->data = ArrayPlus::create($this->data);
-	        $this->count = sizeof($this->data);
-        }
+        	if (!($this->data instanceof ArrayPlus)) {
+            		$this->data = ArrayPlus::create($this->data);
+	        	$this->count = sizeof($this->data);
+        	}
 		return $this->data;
 	}
 

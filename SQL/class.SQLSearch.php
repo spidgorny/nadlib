@@ -4,9 +4,27 @@ class SQLSearch {
 	protected $table;
 	protected $sword;
 	protected $words = array();
+
+	/**
+	 * Update it from outside to search different columns
+	 * @var array
+	 */
 	public $searchableFields = array(
 		'title',
 	);
+
+	/**
+	 * Not used
+	 * @var string
+	 */
+	public $queryJoins = '';
+
+	/**
+	 * Replace with ILIKE if necessary
+	 * @var string
+	 */
+	public $likeOperator = 'LIKE';
+
 
 	/**
 	 * @var DBInterface
@@ -47,7 +65,7 @@ class SQLSearch {
 	/**
 	 * @return array
 	 */
-	public function getWhere() {
+	function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;

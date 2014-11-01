@@ -129,10 +129,23 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $this->LAST_PERFORM_RESULT;
 	}
 
+	/**
+	 * @param $what string columns to retrieve.
+	 * You may request multiple columns, but the value must be last.
+	 * @param $from
+	 * @param $where
+	 * @param bool $returnNull
+	 * @param bool $debug
+	 * @return null
+	 * @throws DoubleResultException
+	 * @throws Exception
+
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		if (0 && DEVELOPMENT) {
 			$trace = $this->getCallerFunction();
-		}
+		$key = __METHOD__;
+			//.' ('.$from.')'.' // '.$trace['class'].'::'.
+			//ifsetor($trace['function']);
 		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
@@ -232,7 +245,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
 			$return = array();
-			foreach ($meta as $col => $m) {
+			foreach($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
 			return $return;
@@ -240,8 +253,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			error("Table not found: <b>$table</b>");
 			exit();
 		}
-	}
-
 	function getTableDataEx($table, $where = "", $what = "*") {
 		$query = "select ".$what." from $table";
 		if (!empty($where)) $query .= " where $where";
