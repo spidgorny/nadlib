@@ -27,12 +27,10 @@ function debug($a) {
 }
 
 if (!function_exists('nodebug')) {
-	function nodebug()
-	{
+	function nodebug() {
 	}
 
-	function getDebug()
-	{
+	function getDebug()	{
 		$tmp = $_COOKIE['debug'];
 		$_COOKIE['debug'] = 1;
 
@@ -44,15 +42,13 @@ if (!function_exists('nodebug')) {
 		return $content;
 	}
 
-	function pre_print_r($a)
-	{
+	function pre_print_r($a) {
 		echo '<pre style="white-space: pre-wrap;">';
 		print_r($a);
 		echo '</pre>';
 	}
 
-	function debug_once()
-	{
+	function debug_once() {
 		static $used = array();
 		$trace = debug_backtrace();
 		array_shift($trace); // debug_once itself
@@ -66,8 +62,7 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
-	function debug_size($a)
-	{
+	function debug_size($a)	{
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
 			$keys = array_keys($vals);
@@ -94,8 +89,7 @@ if (!function_exists('nodebug')) {
 	 * @param string|string[] $needle
 	 * @return bool
 	 */
-	function startsWith($haystack, $needle)
-	{
+	function startsWith($haystack, $needle) {
 		if (!is_array($needle)) {
 			$needle = array($needle);
 		}
@@ -128,8 +122,7 @@ if (!function_exists('nodebug')) {
 	 * @param null $max
 	 * @return array
 	 */
-	function trimExplode($sep, $str, $max = NULL)
-	{
+	function trimExplode($sep, $str, $max = NULL) {
 		if ($max) {
 			$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
 		} else {
@@ -141,8 +134,7 @@ if (!function_exists('nodebug')) {
 		return $parts;
 	}
 
-	function debug_pre_print_backtrace()
-	{
+	function debug_pre_print_backtrace() {
 		if (DEVELOPMENT) {
 			print '<pre>';
 			if (phpversion() >= '5.3') {
@@ -161,8 +153,7 @@ if (!function_exists('nodebug')) {
 	 * @param int $tabDepth
 	 * @return mixed
 	 */
-	function tab2nbsp($text, $tabDepth = 4)
-	{
+	function tab2nbsp($text, $tabDepth = 4)	{
 		$tabSpaces = str_repeat('&nbsp;', $tabDepth);
 		return str_replace("\t", $tabSpaces, $text);
 	}

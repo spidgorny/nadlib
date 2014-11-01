@@ -605,10 +605,13 @@ class Request {
 			$url = new Path('');
 			$url->append($this->url->getPath());
 			$path = new Path($url);
-			$al = AutoLoad::getInstance();
-			$config = Config::getInstance();
-			$path->remove(clone $config->documentRoot);
-			//$path->remove(clone $al->documentRoot);
+			if (false) {    // doesn't work in ORS
+				$al = AutoLoad::getInstance();
+				$path->remove(clone $al->documentRoot);
+			} else {        // works in ORS
+				$config = Config::getInstance();
+				$path->remove(clone $config->documentRoot);
+			}
 		}
 		//$path = $path->getURL();
 		if (strlen($path) > 1) {	// "/"
@@ -823,6 +826,9 @@ class Request {
 		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
 		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
+
+		//debug_pre_print_backtrace();
+		require_once __DIR__.'/class.Path.php'; // needed if called early
 		$docRoot = new Path($docRoot);
 		return $docRoot;
 	}
