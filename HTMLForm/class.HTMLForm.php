@@ -101,7 +101,8 @@ class HTMLForm {
 	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
 		$a = '';
-		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
+		$moreClass = is_array($more) ? ifsetor($more['class']) : '';
+		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.' '.$moreClass.'"';
 		$a .= $this->getName($name, $namePlus);
 		if ($value || $value === 0) {
 			$value = htmlspecialchars($value, ENT_QUOTES);
