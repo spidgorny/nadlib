@@ -370,7 +370,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
 		//debug($jQueryPath);
-		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
 		nodebug(array(
 			'jQueryPath' => $jQueryPath,
