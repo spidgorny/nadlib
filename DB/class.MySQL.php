@@ -348,9 +348,11 @@ class MySQL extends dbLayerBase implements DBInterface {
 					'query' => $query,
 				));
 			}
-			throw new Exception(mysql_errno($this->connection).': '.mysql_error($this->connection).
+			$e = new DatabaseException(mysql_errno($this->connection).': '.mysql_error($this->connection).
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
+			$e->setQuery($this->lastQuery);
+			throw $e;
 		}
 		if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;

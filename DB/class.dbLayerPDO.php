@@ -110,7 +110,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 					'connection' => $this->connection,
 					'result' => $this->result,
 				));
-				throw new Exception(getDebug(array(
+				$e = new DatabaseException(getDebug(array(
 						'class' => get_class($this),
 						'ok' => $ok,
 						'code' => $this->connection->errorCode(),
@@ -120,9 +120,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 						'result' => $this->result,
 					)),
 					$this->connection->errorCode() ?: 0);
+				$e->setQuery($query);
+				throw $e;
 			}
 		} else {
-			throw new Exception(getDebug(array(
+			$e = new DatabaseException(getDebug(array(
 					'class' => get_class($this),
 					'code' => $this->connection->errorCode(),
 					'errorInfo' => $this->connection->errorInfo(),
@@ -131,6 +133,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 					'result' => $this->result,
 				)),
 				$this->connection->errorCode() ?: 0);
+			$e->setQuery($query);
+			throw $e;
 		}
 		return $this->result;
 	}

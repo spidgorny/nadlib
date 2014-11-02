@@ -389,7 +389,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
      * @return string
      */
     function getInsertQuery($table, $columns) {
-		$q = 'INSERT INTO '.$table.' (';
+		$q = 'INSERT INTO '.$table." (";
 		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
 		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
@@ -748,4 +748,5 @@ order by a.attnum';
 	public function getScheme() {
 		return 'postgresql';
 	}
+
 }
