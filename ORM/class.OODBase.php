@@ -554,4 +554,10 @@ abstract class OODBase {
 		return $obj;
 	}
 
+	function getJson() {
+		return array(
+			'data' => $this->data,
+		);
+	}
+
 }

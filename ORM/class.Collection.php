@@ -869,4 +869,14 @@ class Collection {
 		unset($this->members);
 	}
 
+	function getJson() {
+		foreach ($this->objectify() as $id => $member) {
+			$members[$id] = $member->getJson();
+		}
+		return array(
+			'count' => $this->getCount(),
+			'members' => $members,
+		);
+	}
+
 }

@@ -594,9 +594,11 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
+		$config = Config::getInstance();
+		$al = AutoLoad::getInstance();
+
 		if (false) {	// linux
 			$cwd = new Path(getcwd());
-			$al = AutoLoad::getInstance();
 			$url = clone $al->documentRoot;
 			$url->append($this->url->getPath());
 			$path = new Path($url);
@@ -605,11 +607,10 @@ class Request {
 			$url = new Path('');
 			$url->append($this->url->getPath());
 			$path = new Path($url);
+
 			if (false) {    // doesn't work in ORS
-				$al = AutoLoad::getInstance();
 				$path->remove(clone $al->documentRoot);
-			} else {        // works in ORS
-				$config = Config::getInstance();
+			} elseif ($config->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $config->documentRoot);
 			}
 		}
