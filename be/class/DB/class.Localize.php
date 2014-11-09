@@ -22,29 +22,38 @@ class Localize extends AppControllerBE {
 	/**
 	 * @var LocalLang
 	 */
-	protected $de, $ru;
+	protected $en, $de, $ru;
 
 	public $title = 'Localize';
 
 	public $table = 'interface';
+
+	var $languages = array(
+		'en', 'de', 'ru',
+	);
+
+	/**
+	 * @var URL
+	 */
+	var $url;
 
 	function __construct() {
 		parent::__construct();
 		$this->from = new LocalLangDB('en');
 		$this->from->indicateUntranslated = false;
 		$this->from->init();
+		$this->en = $this->from;
 		$this->de = new LocalLangDB('de');
 		$this->de->indicateUntranslated = false;
 		$this->de->init();
 		$this->ru = new LocalLangDB('ru');
 		$this->ru->indicateUntranslated = false;
 		$this->ru->init();
-		//debug($this->ru->ll, $this->ru->lang);
 		$this->url = new URL('?c=Localize');
 	}
 
 	function render() {
-		$content = $this->performAction();
+		$content[] = $this->performAction();
 		/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
 			'c' => 'ImportMissing',
 		)).'</div>';*/
@@ -55,12 +64,12 @@ class Localize extends AppControllerBE {
 		$pager->setNumberOfRecords(sizeof($keys));
 		$pager->detectCurrentPage();
 		$keys = array_slice($keys, $pager->startingRecord, $pager->itemsPerPage, true);
-		$content .= $pager->renderPageSelectors($this->url);
+		$content[] = $pager->renderPageSelectors($this->url);
 
 		$table = $this->getTranslationTable($keys);
 		$s = new slTable($table, 'id="localize" width="100%" class="table table-striped"', array(
 			'key' => 'Key',
-			'from' => $this->from->lang,
+			$this->from->lang => $this->from->lang,
 			'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
 			'ru' => array('name' => $this->ru->lang, 'ano_hsc' => true),
 			'page' => array(
@@ -72,8 +81,8 @@ class Localize extends AppControllerBE {
 			)
 		));
 
-		$content .= $s;
-		$content .= $pager->renderPageSelectors($this->url);
+		$content[] = $s;
+		$content[] = $pager->renderPageSelectors($this->url);
 		$content = $this->encloseIn(__('Localize'), $content);
 		//$this->index->addJQuery();
 		$this->index->addJS('js/vendor/tuupola/jquery_jeditable/jquery.jeditable.js');
@@ -95,6 +104,7 @@ class Localize extends AppControllerBE {
 			}
 		}
 		$keys = array_keys($all);
+		sort($keys);
 		return $keys;
 	}
 
@@ -109,7 +119,7 @@ class Localize extends AppControllerBE {
 										'class' => 'inlineEdit',
 									), $this->from->M($key)),
 				*/				);
-			foreach (array('from', 'de', 'ru') as $lang) {
+			foreach ($this->languages as $lang) {
 				$lobj = $this->$lang;
 				/** @var $lobj LocalLangDB */
 				$dbID = $lobj->id($key);
@@ -129,7 +139,7 @@ class Localize extends AppControllerBE {
 					'class' => 'inlineEdit '.$colorCode,
 				),
 					//isset($lobj->ll[$key]) ? $lobj->M($key) : '-');
-					ifsetor($lobj->ll[$key], 'nothing'));
+					ifsetor($lobj->ll[$key], ''));
 
 				// Page
 				$row = $lobj->getRow($dbID);
@@ -141,7 +151,7 @@ class Localize extends AppControllerBE {
 					$table[$key]['page'] .= new HTMLTag('a', array(
 							'href' => $row['page'],
 							'class' => $colorPage,
-						), $url->getParam('c') ?: basename($url->getPath())).' ';
+						), $url->getParam('c') ?: urldecode(basename($url->getPath()))).' ';
 				}
 
 			}
@@ -204,9 +214,15 @@ class Localize extends AppControllerBE {
 		$f->hidden('c', get_class($this));
 		$f->input('search', $this->request->getTrim('search'), '', 'text', "span2");
 		$f->submit('Search');
-		$content = $f;
+		$content[] = $f;
 
-		$content .= $this->getActionButton('Delete Duplicates', 'deleteDuplicates');
+		$content[] = $this->getActionButton('Delete Duplicates', 'deleteDuplicates');
+		$content[] = $this->getActionButton('Download JSON', 'downloadJSON', NULL, array(), 'btn btn-info');
+
+		$u = new Uploader(array('json'));
+		$f = $u->getUploadForm('file');
+		$f->hidden('action', 'importJSON');
+		$content[] = $f;
 
 		return $content;
 	}
@@ -234,6 +250,53 @@ class Localize extends AppControllerBE {
 		), array(
 			'code' => $this->request->getTrimRequired('code'),
 		));
+	}
+
+	function downloadJSONAction() {
+		$keys = $this->getAllKeys();
+		$transTab = $this->getTranslationTable($keys);
+		foreach ($transTab as &$row) {
+			unset($row['page']);
+			unset($row['del']);
+			$row['en'] = strip_tags($row['en']);
+			$row['de'] = strip_tags($row['de']);
+			$row['ru'] = strip_tags($row['ru']);
+		}
+		$this->request->forceDownload('application/json', $this->index->appName.'-Localization.json');
+		echo json_encode($transTab, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+		exit();
+	}
+
+	function importJSONAction() {
+		$fileData = json_decode(file_get_contents($_FILES['file']['tmp_name']), true);
+		//debug(sizeof($fileData), first($fileData));
+		foreach ($fileData as $row) {
+			$key = $row['key'];
+			foreach ($row as $lang => $value) {
+				if ($lang == 'key') continue;
+				$l = new LocalLangModel();
+				$l->table = 'interface';
+				$l->findInDB(array(
+					'code' => $key,
+					'lang' => $lang,
+				));
+				if ($l->id) {
+					if ($l->getValue() != $value) {
+						$content[] = '<p class="text-danger">Import skipped for ['.$key.'/'.$lang.']: "'.$value.'" exists as "'.$l->getValue().'"</p>';
+					}
+				} else {
+					if ($value != 'nothing') {
+						$content[] = '<p class="text-info">Importing for [' . $key . '/' . $lang . ']: "' . $value . '"' . BR;
+						$l->insert(array(
+							'code' => $key,
+							'lang' => $lang,
+							'text' => $value,
+						));
+					}
+				}
+			}
+		}
+		return $content;
 	}
 
 }

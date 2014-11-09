@@ -90,7 +90,8 @@ abstract class Scaffold extends AppController {
 			$this->id = $this->request->getInt($this->table.'.id'); // NON AJAX POST
 		}
 		if (!$this->id) {
-			$this->id = $this->request->getInt('id');
+			// don't do it. It can be ID of anything (parent record)
+			//$this->id = $this->request->getInt('id');
 		}
 
 		$this->subRequest = $this->request->getSubRequest($this->formPrefix);

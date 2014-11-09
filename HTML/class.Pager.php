@@ -222,10 +222,10 @@ class Pager {
 			self::$cssOutput = true;
 		}
 
-		$content .= '<div class="pagination paginationControl">';
+		$content .= '<div class="paginationControl">';
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
-			$content .= $this->renderPager();
+			$content .= $this->renderPager();	// will render UL inside
 		}
 		$content .= '</div>';
 		return $content;
@@ -299,7 +299,7 @@ class Pager {
 			</form>";
 		}
  		//debug($term);
-		$content = '<ul>'.$content.'&nbsp;'.'</ul>'.$form;
+		$content = '<ul class="pagination">'.$content.'&nbsp;'.'</ul>'.$form;
 		return $content;
 	}
 
