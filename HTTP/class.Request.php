@@ -878,4 +878,9 @@ class Request {
 		}
 	}
 
+	function forceDownload($contentType, $filename) {
+		header('Content-Type: '.$contentType);
+		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+	}
+
 }

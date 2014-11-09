@@ -6,11 +6,18 @@
  */
 class Uploader {
 
-
+	/**
+	 * Allowed extensions
+	 * @var array|null
+	 */
 	public $allowed = array(
 		'gif', 'jpg', 'png', 'jpeg',
 	);
 
+	/**
+	 * Allowed mime types, not checked if empty
+	 * @var array
+	 */
 	public $allowedMime = array(
 
 	);

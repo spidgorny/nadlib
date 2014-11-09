@@ -230,6 +230,7 @@ abstract class Controller {
 
 	function encloseIn($title, $content) {
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		$content = IndexBase::mergeStringArrayRecursive($content);
 		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
