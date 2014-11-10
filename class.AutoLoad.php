@@ -165,7 +165,8 @@ class AutoLoad {
 		if (file_exists('composer.json')) {
 			$json = json_decode(file_get_contents('composer.json'), 1);
 			//debug($json['config']);
-			if (isset($json['config']) && $json['config']['component-dir']) {
+			if (isset($json['config'])
+				&& isset($json['config']['component-dir'])) {
 				$this->componentsPath = new Path($json['config']['component-dir']);
 				$this->componentsPath->remove('public');
 				$this->componentsPath = $this->componentsPath->relativeFromAppRoot();
