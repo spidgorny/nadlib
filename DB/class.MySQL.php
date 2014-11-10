@@ -458,6 +458,13 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return $row;
 	}
 
+	function getTableColumns($table) {
+		$details = $this->getTableColumnsEx($table);
+		$keys = array_keys($details);
+		$columns = array_combine($keys, $keys);
+		return $columns;
+	}
+
 	/**
 	 * Return a 2D array
 	 * @param $table

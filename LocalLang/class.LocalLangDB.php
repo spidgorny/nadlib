@@ -8,7 +8,7 @@ class LocalLangDB extends LocalLang {
 	public $table = 'interface';
 
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayerBase
 	 */
 	protected $db;
 
@@ -18,11 +18,10 @@ class LocalLangDB extends LocalLang {
 	 */
 	protected $rows = array();
 
+	public $saveMissingMessages = true;
+
 	function __construct($forceLang = NULL) {
 		parent::__construct($forceLang);
-        $config = Config::getInstance();
-		$this->db = $config->db;
-        $this->table = $config->prefixTable($this->table);
 	}
 
 	/**
@@ -30,6 +29,9 @@ class LocalLangDB extends LocalLang {
 	 * Because we need to specify the desired language $this->lang
 	 */
 	function init() {
+		$config = Config::getInstance();
+		$this->db = $config->db;
+		$this->table = $config->prefixTable($this->table);
 		$this->rows = $this->readDB($this->lang);
 		if ($this->rows) {
 			$apRows = ArrayPlus::create($this->rows);
@@ -61,7 +63,7 @@ class LocalLangDB extends LocalLang {
 			'code' => $code,
 			'$this->ll[code]' => $this->ll[$code],
 			));
-		if (DEVELOPMENT && $code) {
+		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
 			try {
 				$where = array(
 					'code' => $code,
@@ -71,7 +73,7 @@ class LocalLangDB extends LocalLang {
 					'text' => '',
 					'page' => Request::getInstance()->getURL(),
 				);
-				$cols = $this->db->getTableColumnsEx($this->table);
+				$cols = $this->db->getTableColumns($this->table);
 				if ($cols['cuser']) {
 					$insert['cuser'] = Config::getInstance()->user->id;
 				}
