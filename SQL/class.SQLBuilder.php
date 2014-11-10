@@ -215,11 +215,10 @@ class SQLBuilder {
 	 * @return string
 	 */
 	function getInsertQuery($table, $columns) {
-		$q = 'INSERT INTO '.$this->quoteKey($table).' (';
-		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
-		$q .= ") VALUES (";
-		$q .= implode(", ", $this->quoteValues(array_values($columns)));
-		$q .= ")";
+		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
+		debug(array_keys($columns), $fields);
+		$values = implode(", ", $this->quoteValues(array_values($columns)));
+		$q = 'INSERT INTO '.$this->quoteKey($table).' ('.$fields . ") VALUES (" . $values . ")";
 		return $q;
 	}
 

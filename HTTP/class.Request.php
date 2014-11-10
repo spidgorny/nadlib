@@ -430,12 +430,20 @@ class Request {
 		}
 		if (!headers_sent()
 //			|| DEVELOPMENT
+			&& $this->canRedirect($controller)
 		) {
 			header('Location: '.$controller);
 			exit();
 		} else {
 			$this->redirectJS($controller);
 		}
+	}
+
+	function canRedirect($to) {
+		$absURL = $this->getURL();
+		$absURL->makeAbsolute();
+		//debug($absURL.'', $to.''); exit();
+		return $absURL.'' != $to.'';
 	}
 
 	function redirectJS($controller, $delay = 0) {
