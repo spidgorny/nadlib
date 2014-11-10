@@ -14,13 +14,14 @@ WHERE app_interface.text IS NULL
  */
 
 class Localize extends AppControllerBE {
+
 	/**
-	 * @var LocalLang
+	 * @var LocalLangDB
 	 */
 	protected $from;
 
 	/**
-	 * @var LocalLang
+	 * @var LocalLangDB
 	 */
 	protected $en, $de, $ru;
 
@@ -39,17 +40,23 @@ class Localize extends AppControllerBE {
 
 	function __construct() {
 		parent::__construct();
+
 		$this->from = new LocalLangDB('en');
 		$this->from->indicateUntranslated = false;
+		$this->from->saveMissingMessages = false;
 		$this->from->init();
 		$this->en = $this->from;
+
 		$this->de = new LocalLangDB('de');
 		$this->de->indicateUntranslated = false;
+		$this->de->saveMissingMessages = false;
 		$this->de->init();
+
 		$this->ru = new LocalLangDB('ru');
 		$this->ru->indicateUntranslated = false;
+		$this->ru->saveMissingMessages = false;
 		$this->ru->init();
-		$this->url = new URL('?c=Localize');
+		$this->url = new URL('?c='.get_class($this));
 	}
 
 	function render() {
@@ -67,7 +74,7 @@ class Localize extends AppControllerBE {
 		$content[] = $pager->renderPageSelectors($this->url);
 
 		$table = $this->getTranslationTable($keys);
-		$s = new slTable($table, 'id="localize" width="100%" class="table table-striped"', array(
+		$s = new slTable($table, 'id="localize" width="100%" class="table _table-striped"', array(
 			'key' => 'Key',
 			$this->from->lang => $this->from->lang,
 			'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
@@ -128,13 +135,13 @@ class Localize extends AppControllerBE {
 				if ($row['deleted']) {
 					$colorCode = 'muted';
 				} else {
-					$colorCode = $this->from->M($key) == $lobj->M($key)
-						? 'red'
-						: 'green';
+					$colorCode = $this->from->ll[$key] == $lobj->ll[$key]
+						? 'red bg-danger'
+						: 'green bg-success';
 				}
 
 				$table[$key][$lang] = new HTMLTag('td', array(
-						'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
+					'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
 					'lang' => $lobj->lang,
 					'class' => 'inlineEdit '.$colorCode,
 				),
@@ -158,7 +165,7 @@ class Localize extends AppControllerBE {
 			// Del
 			$table[$key]['del'] .= new HTMLTag('a', array(
 				'href' => new URL('', array(
-					'c' => 'Localize',
+					'c' => get_class($this),
 					'action' => 'deleteRow',
 					'code' => $key,
 				))
@@ -244,12 +251,22 @@ class Localize extends AppControllerBE {
 	}
 
 	function deleteRowAction() {
-		//debug($_REQUEST);
-		$this->db->runUpdateQuery('interface', array(
-			'deleted' => true,
-		), array(
-			'code' => $this->request->getTrimRequired('code'),
-		));
+		$code = $this->request->getTrimRequired('code');
+		$columns = $this->db->getTableColumns($this->table);
+		if ($columns['deleted']) {
+			$this->db->runUpdateQuery($this->table, array(
+				'deleted' => true,
+			), array(
+				'code' => $code,
+			));
+		} else {
+			$l = new LocalLangModel();
+			$l->table = $this->table;
+			$l->delete(array(
+				'code' => $code,
+			));
+			debug($l->lastQuery);
+		}
 	}
 
 	function downloadJSONAction() {
