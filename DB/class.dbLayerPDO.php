@@ -304,4 +304,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $this->perform('ROLLBACK');
 	}
 
+	function getTableColumns($table) {
+		$query = "SELECT * FROM ".$table." LIMIT 1";
+		$res = $this->perform($query);
+		$row = $this->fetchAssoc($res);
+		$columns = array_keys($row);
+		$columns = array_combine($columns, $columns);
+		return $columns;
+	}
+
 }

@@ -208,7 +208,7 @@ abstract class OODBase {
 		}
 		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
-		//debug($query);
+		$this->lastQuery = $query;
 		return $this->db->perform($query);
 	}
 
