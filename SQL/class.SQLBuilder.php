@@ -216,7 +216,6 @@ class SQLBuilder {
 	 */
 	function getInsertQuery($table, $columns) {
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
-		debug(array_keys($columns), $fields);
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$q = 'INSERT INTO '.$this->quoteKey($table).' ('.$fields . ") VALUES (" . $values . ")";
 		return $q;
