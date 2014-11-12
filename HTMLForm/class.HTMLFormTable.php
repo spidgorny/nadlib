@@ -98,7 +98,7 @@ class HTMLFormTable extends HTMLForm {
 					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
 				$desc->importValues($subForm);
 				//debug('after', $desc->desc);
-			} else if ($desc['type'] instanceof HTMLFormDatePicker) {
+			} else if (ifsetor($desc['type']) instanceof HTMLFormDatePicker) {
 				$val = $form->getTrim($key);
 				$desc['value'] = $desc['type']->getISODate($val);
 				//debug(__METHOD__, $val, $desc['value']);
@@ -207,7 +207,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc);
 				break;
 				case 'submit':
-					$desc['name'] = $desc['name'] ? $desc['name'] : $fieldName;
+					$desc['name'] = ifsetor($desc['name'], $fieldName);
 					//debug($desc);
 					$this->submit($desc['value'], $desc);
 				break;
@@ -277,7 +277,7 @@ class HTMLFormTable extends HTMLForm {
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
 						(isset($desc['readonly']) ? ' readonly="readonly"' : '').
 						(isset($desc['disabled']) ? ' disabled="1"' : '').
-						($desc['autofocus'] ? ' autofocus' : '')
+						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
 						, $type, $desc['class']
 					);
 				break;

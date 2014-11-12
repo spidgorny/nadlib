@@ -376,6 +376,7 @@ class SQLBuilder {
 	 */
 	function runInsertNew($table, array $fields, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$resInsert = NULL;
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
 			$query = $this->getInsertQuery($table, $fields + $insert);

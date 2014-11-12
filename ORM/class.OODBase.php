@@ -407,7 +407,7 @@ abstract class OODBase {
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = self::$instances[$static][$id];
+			$inst = ifsetor(self::$instances[$static][$id]);
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				if (false) {

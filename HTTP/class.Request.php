@@ -604,6 +604,7 @@ class Request {
 			$path = new Path($url);
 			$path->remove($cwd);
 		} else {	// windows
+			$cwd = NULL;
 			$url = new Path('');
 			$url->append($this->url->getPath());
 			$path = new Path($url);
