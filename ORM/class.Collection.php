@@ -195,7 +195,10 @@ class Collection {
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		$tableParent = " (".$this->table.':'.(is_array($this->parentID)
+				? implode(', ', $this->parentID)
+				: $this->parentID).")";
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.$tableParent);
 		$this->query = $this->getQueryWithLimit($this->where);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -209,7 +212,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.$tableParent);
 	}
 
 	/**

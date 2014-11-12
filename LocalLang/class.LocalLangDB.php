@@ -61,7 +61,7 @@ class LocalLangDB extends LocalLang {
 			'method' => __METHOD__,
 			'DEVELOPMENT' => DEVELOPMENT,
 			'code' => $code,
-			'$this->ll[code]' => $this->ll[$code],
+			'$this->ll[code]' => ifsetor($this->ll[$code]),
 			));
 		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
 			try {
@@ -74,10 +74,10 @@ class LocalLangDB extends LocalLang {
 					'page' => Request::getInstance()->getURL(),
 				);
 				$cols = $this->db->getTableColumns($this->table);
-				if ($cols['cuser']) {
+				if (ifsetor($cols['cuser'])) {
 					$insert['cuser'] = Config::getInstance()->user->id;
 				}
-				if ($cols['muser']) {
+				if (ifsetor($cols['muser'])) {
 					$insert['muser'] = Config::getInstance()->user->id;
 				}
 				$res = $this->db->runInsertNew($this->table, $where, $insert);
