@@ -819,6 +819,9 @@ class Request {
 		$this->data = array();
 	}
 
+	/**
+	 * @return Path
+	 */
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 		if ($_SERVER['DOCUMENT_ROOT'] &&
