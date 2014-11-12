@@ -92,6 +92,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$profiler = new Profiler();
 		$this->result = $this->connection->prepare($query, $params);
 		$this->queryTime += $profiler->elapsed();
+		if ($this->logToLog) {
+			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime.' '.$query);
+		}
 		if ($this->result) {
 			//try {
 			$profiler = new Profiler();

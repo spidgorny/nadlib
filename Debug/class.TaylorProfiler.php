@@ -229,8 +229,10 @@ class TaylorProfiler {
 	               	'nr' => ++$i,
 	               	'count' => $row['count'],
 	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
-	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
-	               	'percent' => number_format($perc, 2, '.', '').'%',
+	               	'avg/1' => number_format(ifsetor($row['avg']), 2, '.', '').'',
+	               	'percent' => is_numeric($perc)
+						? number_format($perc, 2, '.', '').'%'
+						: $perc,
 	                'routine' => '<span title="'.htmlspecialchars($desc).'">'.$htmlKey.'</span>',
 	            );
 		   }
@@ -390,16 +392,17 @@ class TaylorProfiler {
 
 	static function renderFloat() {
 		$totalTime = self::getElapsedTime();
-		if (Config::getInstance()->db->queryLog) {
-			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+		$db = Config::getInstance()->db;
+		if ($db->queryLog) {
+			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if (Config::getInstance()->db->saveQueries) {
-			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
+		if (ifsetor($db->QUERIES)) {
+			$dbTime = array_sum($db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if (Config::getInstance()->db->queryTime) {
-			$dbTime = Config::getInstance()->db->queryTime;
+		if ($db->queryTime) {
+			$dbTime = $db->queryTime;
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		if (function_exists('session_status')

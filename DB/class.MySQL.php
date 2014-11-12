@@ -32,18 +32,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 	protected static $instance;
 
 	/**
-	 * set to NULL for disabling
-	 * @var array
-	 */
-	public $queryLog = array();
-
-	/**
-	 * @var bool Allows logging every query to the error.log.
-	 * Helps to detect the reason for white screen problems.
-	 */
-	public $logToLog = false;
-
-	/**
 	 * Reserved MySQL words
 	 * @var array
 	 */

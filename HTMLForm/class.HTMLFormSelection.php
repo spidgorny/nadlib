@@ -70,7 +70,7 @@ class HTMLFormSelection extends HTMLFormType {
 		//Debug::debug_args($aOptions);
 		$content = '';
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
-			if ($desc['===']) {
+			if (ifsetor($desc['==='])) {
 				$selected = $default === $value;
 				if (sizeof($aOptions) == 14) {
 					debug(array(

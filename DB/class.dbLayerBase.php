@@ -17,7 +17,7 @@ class dbLayerBase {
 	 * @var array
 	 */
 	var $reserved = array();
-	
+
 	/**
 	 * @var string
 	 */
@@ -32,6 +32,18 @@ class dbLayerBase {
 	 * @var int Time in seconds
 	 */
 	var $queryTime = 0;
+
+	/**
+	 * set to NULL for disabling
+	 * @var array
+	 */
+	public $queryLog = array();
+
+	/**
+	 * @var bool Allows logging every query to the error.log.
+	 * Helps to detect the reason for white screen problems.
+	 */
+	public $logToLog = false;
 
 	function setQB(SQLBuilder $qb = NULL) {
 		$di = new DIContainer();
