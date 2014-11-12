@@ -87,8 +87,9 @@ class TaylorProfiler {
     	if ($this->trace_enabled) {
 	        $this->trace[] = array(
 				'time' => time(),
-				'function' => "$name {",
-				'memory' => memory_get_usage());
+				'function' => $name." {",
+				'memory' => memory_get_usage()
+		);
     	}
 		if ($this->output_enabled) {
 	        $n=array_push( $this->stack, $this->cur_timer );
@@ -220,7 +221,7 @@ class TaylorProfiler {
 	            $perc = $row['perc'];
 	            $tot_perc += $perc;
 				$htmlKey = htmlspecialchars($key);
-				if ($row['bold']) {
+				if (ifsetor($row['bold'])) {
 					$htmlKey = '<b>'.$htmlKey.'</b>';
 				}
 				$desc = $this->description2[$key] ? $this->description2[$key] : $desc;
@@ -397,8 +398,8 @@ class TaylorProfiler {
 			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if (Config::getInstance()->db->dbTime) {
-			$dbTime = Config::getInstance()->db->dbTime;
+		if (Config::getInstance()->db->queryTime) {
+			$dbTime = Config::getInstance()->db->queryTime;
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		if (function_exists('session_status')
@@ -464,10 +465,10 @@ class TaylorProfiler {
 		switch($last) {
 			// The 'G' modifier is available since PHP 5.1.0
 			case 'g':
-				$val *= 1024;
+				$val *= 1024*1024*1024;
 				break;
 			case 'm':
-				$val *= 1024;
+				$val *= 1024*1024;
 				break;
 			case 'k':
 				$val *= 1024;
@@ -481,7 +482,7 @@ class TaylorProfiler {
 	 * @return float
 	 */
 	static function getMemUsage() {
-		$max = intval(ini_get('memory_limit'))*1024*1024;
+		$max = self::return_bytes(ini_get('memory_limit'));
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 4, '.', '');
 	}
@@ -495,7 +496,6 @@ class TaylorProfiler {
 
 	static function getMemDiff() {
 		static $prev = 0;
-		//$max = intval(ini_get('memory_limit'))*1024*1024;
 		$cur = memory_get_usage();
 		$return = number_format(($cur-$prev)/1024/1024, 3, '.', '').'M';
 		$prev = $cur;
@@ -541,8 +541,8 @@ class TaylorProfiler {
 	}
 
 	static function dumpQueries() {
-		if (DEVELOPMENT) {
-			$queryLog = Config::getInstance()->db->queryLog;
+		$queryLog = Config::getInstance()->db->queryLog;
+		if (DEVELOPMENT && $queryLog) {
 			//debug($queryLog);
 			array_multisort(ArrayPlus::create($queryLog)->column('sumtime')->getData(), SORT_DESC, $queryLog);
 			$log = array();
