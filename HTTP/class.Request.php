@@ -453,7 +453,7 @@ class Request {
 					document.location = "'.$controller.'";
 				}, '.$delay.');
 			</script>';
-		exit();
+		//exit();
 	}
 
 	function redirectFromAjax($relative) {
