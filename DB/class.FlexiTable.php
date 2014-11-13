@@ -87,7 +87,7 @@ class FlexiTable extends OODBase {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		$table = str_replace('`', '', $this->table);
 		$table = str_replace("'", '', $table);
-		if (!self::$tableColumns[$table] || $force) {
+		if (!ifsetor(self::$tableColumns[$table]) || $force) {
 			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
 		}
 		$this->columns = self::$tableColumns[$table];

@@ -366,7 +366,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		if ($this->footer['jqueryui.js']) return $this;
+		if (ifsetor($this->footer['jqueryui.js'])) return $this;
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
 		//debug($jQueryPath);
@@ -478,14 +478,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
-					if ($this->db->queryLog) {
+					if (ifsetor($this->db->queryLog)) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
-					if ($this->db->QUERIES) {
-						$dbLayer = $this->db;
-						/** @var $dbLayer dbLayer */
-						$content .= $dbLayer->dumpQueries();
-					}
+					$content .= TaylorProfiler::dumpQueries();
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {
 				$content = TaylorProfiler::renderFloat();

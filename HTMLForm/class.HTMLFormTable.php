@@ -146,8 +146,8 @@ class HTMLFormTable extends HTMLForm {
 							: $desc['more']
 						).
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '').
-						($desc['class'] ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
+						(ifsetor($desc['disabled']) ? ' disabled="1"' : '').
+						(ifsetor($desc['class']) ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
 					);
 				break;
 				case "date":
