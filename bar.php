@@ -63,14 +63,14 @@ function html2rgb($color) {
 	return array($r, $g, $b);
 }
 
-if (0 || !function_exists('imagecreate')) {
+if (!function_exists('imagecreate')) {
 	error_reporting(E_ALL);
 	ini_set('display_errors', true);
 	echo 'PHP: '.phpversion().'<br />';
 	echo 'GD not installed';
 } else {
 	error_reporting(0);
-	ini_set('display_errors', false);
+	//ini_set('display_errors', false);
 	header("Content-type: image/png");
 }
 $expires = 60*60*24*365;        // days

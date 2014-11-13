@@ -474,8 +474,7 @@ class Request {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
 
-		// hack
-		//$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
+		//debug(get_class($c), $docRoot, $_SERVER['PHP_SELF']);
 
 		if (!startsWith($docRoot, '/')) {
 			$docRoot = '/'.$docRoot;
@@ -485,7 +484,6 @@ class Request {
 				? $_SERVER['HTTP_X_FORWARDED_HOST']
 				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL)
 		).$docRoot;
-		//$GLOBALS['i']->content .= $url;
 		//debug($url);
 		$url = new URL($url);
 		return $url;
