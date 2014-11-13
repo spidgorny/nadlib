@@ -649,4 +649,18 @@ return $return; */
 		return $string;
 	}
 
+	public function makeAbsolute() {
+		if (!$this->components['scheme']) {
+			$this->components['scheme'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on'
+				? 'https'
+				: 'http';
+		}
+		if (!$this->components['host']) {
+			$this->components['host'] = $_SERVER['HTTP_HOST'];
+		}
+		if (!$this->components['path']) {
+			$this->components['path'] = $_SERVER['REQUEST_URI'];
+		}
+	}
+
 }
