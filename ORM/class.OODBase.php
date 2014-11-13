@@ -136,8 +136,10 @@ abstract class OODBase {
 			foreach ($this->idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
-		} else {
+		} else if (ifsetor($this->data[$this->idField])) {
 			$this->id = $this->data[$this->idField];
+		} else {
+			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
 
@@ -249,6 +251,7 @@ abstract class OODBase {
 				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
 			}
 		}
+		/** @var static $obj */
 		$obj = new $static();
 		$obj->findInDB($where);
 		return $obj;
@@ -448,8 +451,9 @@ abstract class OODBase {
 		$self = get_called_class();
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
+		$c = NULL;
 		// first search instances
-		if (is_array(self::$instances[$self])) {
+		if (is_array(ifsetor(self::$instances[$self]))) {
 			foreach (self::$instances[$self] as $inst) {
 				$field = $field ? $field : $inst->titleColumn;
 				if ($inst->data[$field] == $name) {

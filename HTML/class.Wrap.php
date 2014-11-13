@@ -8,7 +8,7 @@ class Wrap {
 			$this->wrap1 = $strWrap;
 			$this->wrap2 = $arrWrap2;
 		} else {
-			list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
+			@list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
 		}
 		//$db = Config::getInstance()->db;
 		//echo __METHOD__.' '.$db->getCaller(3).' '.$this->__toString().'<br />'."\n";

@@ -360,7 +360,8 @@ class Debug {
 		if ($bt['function'] == 'runSelectQuery') {
 			$bt = next($btl);
 		}
-		return "{$bt['class']}::{$bt['function']}";
+		return ifsetor($bt['class'], get_class(ifsetor($bt['object'])))
+			. '::' . $bt['function'];
 	}
 
 	/**
