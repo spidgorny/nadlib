@@ -410,16 +410,26 @@ class TaylorProfiler {
             // total
 			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
             if ($totalMax > 0) {
-                $totalBar = '<img src="'.ProgressBar::getBar($totalTime/$totalMax*100).'" />';
-            }
+				$totalBar = '<img src="' . ProgressBar::getBar($totalTime / $totalMax * 100) . '" />';
+			} else {
+				$totalBar = '<img src="'.ProgressBar::getBar(0).'" />';
+			}
             $_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
 
             // db
             $dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
             if ($dbMax > 0) {
                 $dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
-            }
+            } else {
+				$dbBar = '<img src="'.ProgressBar::getBar(0).'" />';
+			}
 			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
+		} else {
+			$totalBar = '';
+			$totalMax = '';
+			$dbTime = '';
+			$dbBar = '';
+			$dbMax = '';
 		}
 
 		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
