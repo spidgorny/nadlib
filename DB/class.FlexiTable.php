@@ -37,7 +37,7 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
-		if (!$row['ctime']) {
+		if (!ifsetor($row['ctime'])) {
 			$row['ctime'] = new SQLDateTime();
 		}
 		if (!$row['cuser']) {
