@@ -255,7 +255,7 @@ abstract class Controller {
 			$content = '<'.$h.' id="'.$slug.'">'.$link.$caption.'</'.$h.'>'.$content;
 		}
 		//debug_pre_print_backtrace();
-		$content = '<section class="padding clearfix '.$more['class'].'"
+		$content = '<section class="padding clearfix '.ifsetor($more['class']).'"
 			style="position: relative;">'.$content.'</section>';
 		return $content;
 	}

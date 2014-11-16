@@ -301,6 +301,8 @@ if (!function_exists('nodebug')) {
 	/**
      * Shortcut for
      * isset($variable) ? $variable : $default
+	 * BUT, it creates a NULL elements with the multidimensional arrays!!!
+	 * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
 	 * @param $variable
 	 * @param null $default
 	 * @return null

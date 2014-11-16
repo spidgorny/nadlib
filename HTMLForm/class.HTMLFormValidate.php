@@ -32,7 +32,7 @@ class HTMLFormValidate {
 				if (ifsetor($d['mustBint'])) {
 					$d['value'] = intval($d['value']);
 				}
-				$type = $d['type'];
+				$type = ifsetor($d['type']);
 				$isCheckbox = in_array($type, array(
 					'check',
 					'checkbox',
@@ -49,7 +49,7 @@ class HTMLFormValidate {
 	}
 
 	function validateField($field, array $d, $type, $isCheckbox) {
-		$value = $d['value'];
+		$value = ifsetor($d['value']);
 		$label = ifsetor($d['label'], $field);
 		if (!ifsetor($d['optional']) && (
 			!($value) || (!ifsetor($d['allow0']) && !isset($d['value'])))
