@@ -700,7 +700,7 @@ class Request {
 		$levels = array_values($levels);	// reindex
 		/* } */
 
-		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
+		return ifsetor($levels[$index]) ? $levels[$index] : $this->getTrim($alternative);
 	}
 
 	static function isCLI() {
