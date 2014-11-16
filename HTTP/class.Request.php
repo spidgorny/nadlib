@@ -253,6 +253,7 @@ class Request {
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
+		return NULL;
 	}
 
 	function getFile($name, $prefix = NULL, $prefix2 = NULL) {
@@ -347,6 +348,7 @@ class Request {
 		$levels = $this->getURLLevels();
 		if ($levels) {
 			$levels = array_reverse($levels);
+			$last = NULL;
 			foreach ($levels as $class) {
 				// RewriteRule should not contain "?c="
 				nodebug(
