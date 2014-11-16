@@ -432,12 +432,20 @@ class Request {
 		}
 		if (!headers_sent()
 //			|| DEVELOPMENT
+			&& $this->canRedirect($controller)
 		) {
 			header('Location: '.$controller);
 			exit();
 		} else {
 			$this->redirectJS($controller);
 		}
+	}
+
+	function canRedirect($to) {
+		$absURL = $this->getURL();
+		$absURL->makeAbsolute();
+		//debug($absURL.'', $to.''); exit();
+		return $absURL.'' != $to.'';
 	}
 
 	function redirectJS($controller, $delay = 0) {
@@ -447,7 +455,7 @@ class Request {
 					document.location = "'.$controller.'";
 				}, '.$delay.');
 			</script>';
-		exit();
+		//exit();
 	}
 
 	function redirectFromAjax($relative) {
@@ -813,6 +821,9 @@ class Request {
 		$this->data = array();
 	}
 
+	/**
+	 * @return Path
+	 */
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 		if ($_SERVER['DOCUMENT_ROOT'] &&

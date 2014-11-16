@@ -47,13 +47,17 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 */
 	var $db;
 
-    var $reservedWords = array(
-        'SELECT',
+    var $reserved = array(
+        'SELECT', 'LIKE',
     );
 
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
         if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
+	        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+	        $words = $this->fetchAll($query, 'word');
+	        $this->reserved = array_keys($words);
+	        $this->reserved = array_map('strtoupper', $this->reserved); // important
 		}
 	}
 
@@ -240,7 +244,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
 			$return = array();
-			foreach($meta as $col => $m) {
+			foreach ($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
 			return $return;
@@ -248,6 +252,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			error("Table not found: <b>$table</b>");
 			exit();
 		}
+	}
+
 	function getTableDataEx($table, $where = "", $what = "*") {
 		$query = "select ".$what." from $table";
 		if (!empty($where)) $query .= " where $where";
@@ -377,20 +383,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
         }
         return $c;
     }
-
-    /**
-     * @param string $table Table name
-     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-     * @return string
-     */
-    function getInsertQuery($table, $columns) {
-		$q = 'INSERT INTO '.$table." (";
-		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
-		$q .= ") VALUES (";
-		$q .= implode(", ", $this->quoteValues(array_values($columns)));
-		$q .= ")";
-		return $q;
-	}
 
 	function fetchAll($result, $key = NULL) {
 		if (is_string($result)) {
