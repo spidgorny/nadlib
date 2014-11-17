@@ -132,10 +132,10 @@ class Localize extends AppControllerBE {
 				$dbID = $lobj->id($key);
 
 				$row = $this->db->fetchOneSelectQuery('interface', array('id' => $dbID));
-				if ($row['deleted']) {
+				if (ifsetor($row['deleted'])) {
 					$colorCode = 'muted';
 				} else {
-					$colorCode = $this->from->ll[$key] == $lobj->ll[$key]
+					$colorCode = ifsetor($this->from->ll[$key]) == ifsetor($lobj->ll[$key])
 						? 'red bg-danger'
 						: 'green bg-success';
 				}
@@ -155,6 +155,7 @@ class Localize extends AppControllerBE {
 					$colorPage = strpos($url->getPath(), 'nadlib/be') !== false
 						? 'be'
 						: 'fe';
+					$table[$key]['page'] = ifsetor($table[$key]['page']);	// can be multiple
 					$table[$key]['page'] .= new HTMLTag('a', array(
 							'href' => $row['page'],
 							'class' => $colorPage,
@@ -163,7 +164,7 @@ class Localize extends AppControllerBE {
 
 			}
 			// Del
-			$table[$key]['del'] .= new HTMLTag('a', array(
+			$table[$key]['del'] = new HTMLTag('a', array(
 				'href' => new URL('', array(
 					'c' => get_class($this),
 					'action' => 'deleteRow',
@@ -253,7 +254,7 @@ class Localize extends AppControllerBE {
 	function deleteRowAction() {
 		$code = $this->request->getTrimRequired('code');
 		$columns = $this->db->getTableColumns($this->table);
-		if ($columns['deleted']) {
+		if (ifsetor($columns['deleted'])) {
 			$this->db->runUpdateQuery($this->table, array(
 				'deleted' => true,
 			), array(
@@ -265,8 +266,13 @@ class Localize extends AppControllerBE {
 			$l->delete(array(
 				'code' => $code,
 			));
-			debug($l->lastQuery);
+			//debug($l->lastQuery);
 		}
+		$url = new URL();
+		$url->unsetParam('action');
+		$url->unsetParam('code');
+		//debug($url.'');
+		$this->request->redirect($url);
 	}
 
 	function downloadJSONAction() {

@@ -171,7 +171,7 @@ abstract class LocalLang {
 	}
 
 	function id($code) {
-		return $this->codeID[$code];
+		return ifsetor($this->codeID[$code]);
 	}
 
 	/**

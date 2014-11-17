@@ -145,7 +145,7 @@ class LocalLangDB extends LocalLang {
 	}
 
 	function getRow($id) {
-		return $this->rows[$id];
+		return ifsetor($this->rows[$id]);
 	}
 
 	function showLangSelection() {
