@@ -525,16 +525,24 @@ class TaylorProfiler {
 		$bt = debug_backtrace();
 		$list = array();
 		foreach ($bt as $row) {
-			$list[] = ($row['object'] ? get_class($row['object']) : $row['class']).'::'.$row['function'];
+			$list[] = (isset($row['object'])
+					? get_class($row['object'])
+					: ifsetor($row['class'])
+				).'::'.$row['function'];
 		}
 		$list = array_reverse($list);
+		$list = array_slice($list, 0, -1);	// cut TaylorProfiler::tick
 		$list = array_slice($list, 3);
 		$mem = self::getMemUsage();
 		$diff = number_format(100*($mem - $prev), 2);
 		$diff = $diff > 0 ? '<font color="green">'.$diff.'</font>' : '<font color="red">'.$diff.'</font>';
 		$trace = implode(' -> ', $list);
 		$trace = substr($trace, -80);
-		$output = '<pre>diff: '.$diff.' '.number_format($mem*100, 2).'% '.$trace.'</pre>';
+
+		$start = ifsetor($_SERVER['REQUEST_TIME_FLOAT'], $_SERVER['REQUEST_TIME']);
+		$time = number_format(microtime(true) - $start, 3, '.', '');
+
+		$output = '<pre>'.$time.' diff: '.$diff.' '.number_format($mem*100, 2).'% '.$trace.'</pre>';
 		if (Request::isCLI()) {
 			$output = strip_tags($output);
 		}

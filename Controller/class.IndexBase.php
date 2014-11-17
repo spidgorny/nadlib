@@ -413,7 +413,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	function addJS($source) {
 		$called = Debug::getCaller();
-		if (!contains($source, '?')) {
+		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
 				$mtime = @filemtime('public/'.$source);
@@ -438,7 +438,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$source = '?c=Lesser&css=' . $source;
 			}
 		} else {
-			if (!contains($source, '?')) {
+			if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 				$mtime = @filemtime($source);
 				if (!$mtime) {
 					$mtime = @filemtime('public/'.$source);

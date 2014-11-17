@@ -98,7 +98,7 @@ class URL {
 	}
 
 	function getParam($param) {
-		return $this->params[$param];
+		return ifsetor($this->params[$param]);
 	}
 
 	/**
@@ -650,15 +650,15 @@ return $return; */
 	}
 
 	public function makeAbsolute() {
-		if (!$this->components['scheme']) {
+		if (!ifsetor($this->components['scheme'])) {
 			$this->components['scheme'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on'
 				? 'https'
 				: 'http';
 		}
-		if (!$this->components['host']) {
+		if (!ifsetor($this->components['host'])) {
 			$this->components['host'] = $_SERVER['HTTP_HOST'];
 		}
-		if (!$this->components['path']) {
+		if (!ifsetor($this->components['path'])) {
 			$this->components['path'] = $_SERVER['REQUEST_URI'];
 		}
 	}
