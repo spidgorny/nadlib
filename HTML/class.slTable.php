@@ -205,8 +205,8 @@ class slTable {
 	 */
 	function setSortBy($by = NULL, $or = NULL) {
 		if ($by === NULL && $or === NULL) {
-			$by = $_REQUEST['slTable']['sortBy'];
-			$or = $_REQUEST['slTable']['sortOrder'];
+			$by = ifsetor($_REQUEST['slTable']['sortBy']);
+			$or = ifsetor($_REQUEST['slTable']['sortOrder']);
 			//debug(array($by, $or));
 		} else if (is_array($by)) {
 			list($by, $or) = $by;
@@ -321,7 +321,7 @@ class slTable {
 			}
 			if ($this->sortable) {
 				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
-					$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;	// set to null - don't sort
+					$sortField = ifsetor($thv['dbField'], $thk);	// set to null - don't sort
 					$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
 					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
 						'sortBy' => $sortField,

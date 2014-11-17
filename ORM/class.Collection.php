@@ -398,7 +398,7 @@ class Collection {
 		$s->ID = get_class($this);
 		$s->sortable = $this->useSorting;
 		if (class_exists('Index')) {
-			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+			$s->setSortBy(ifsetor(Index::getInstance()->controller->sortBy));	// UGLY
 			//debug(Index::getInstance()->controller);
 			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
 		}

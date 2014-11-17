@@ -78,6 +78,13 @@ abstract class Controller {
 	 */
 	public $config;
 
+	/**
+	 * Used by Collection to get the current sorting method.
+	 * Ugly, please reprogram.
+	 * @var
+	 */
+	public $sortBy;
+
 	function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
