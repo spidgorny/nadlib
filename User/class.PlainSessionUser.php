@@ -18,7 +18,7 @@ class PlainSessionUser extends UserBase {
 	}
 
 	function getPref($name) {
-		return $_SESSION[$name];
+		return ifsetor($_SESSION[$name]);
 	}
 
 	function setPref($name, $value) {

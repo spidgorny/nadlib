@@ -218,7 +218,8 @@ abstract class OODBase {
 	 * Retrieves a record from the DB and calls $this->init()
 	 * @param array $where
 	 * @param string $orderByLimit
-	 * @return boolean (id) of the found record
+	 * @return bool of the found record
+	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
@@ -227,10 +228,13 @@ abstract class OODBase {
 		$this->lastQuery = $this->db->lastQuery;
 		if (is_array($rows)) {
 			$data = $rows;
+			$this->init($data, true);
 		} else {
 			$data = array();
+			if ($this->forceInit) {
+				$this->init($data, true);
+			}
 		}
-		$this->init($data, true);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$this->table.')');
 		return $data;
 	}
