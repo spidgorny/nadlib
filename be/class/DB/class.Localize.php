@@ -285,8 +285,7 @@ class Localize extends AppControllerBE {
 				'code' => $code,
 			));
 		} else {
-			$l = new LocalLangModel();
-			$l->table = $this->table;
+			$l = $this->config->getLocalLangModel();
 			$l->delete(array(
 				'code' => $code,
 			));
