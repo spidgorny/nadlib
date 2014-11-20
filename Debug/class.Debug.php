@@ -242,7 +242,8 @@ class Debug {
 	static function getSimpleTrace($db = NULL) {
 		$db = $db ? $db : debug_backtrace();
 		foreach ($db as &$row) {
-			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
+			$file = ifsetor($row['file']);
+			$row['file'] = basename(dirname($file)).'/'.basename($file);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}
@@ -337,7 +338,7 @@ class Debug {
 
 	static function getMethod(array $first) {
 		if (isset($first['object']) && $first['object']) {
-			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
+			$function = get_class($first['object']).'::'.$first['function'].'#'.ifsetor($first['line']);
 		} else if (isset($first['class']) && $first['class']) {
 			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
 		} else {
