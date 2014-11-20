@@ -57,7 +57,7 @@ abstract class Grid extends AppController {
 	 * How does it work when some params need to be cleared?
 	 *
 	 * @deprecated - use saveFilterColumnsSort() instead
-	 *
+	 * @param null $subname
 	 */
 	function mergeRequest($subname = NULL) {
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
@@ -81,9 +81,12 @@ abstract class Grid extends AppController {
 	 * or it should be called after $this->collection is initialized
 	 */
 	function saveFilterColumnsSort($cn = NULL) {
+		if (!$this->collection) {
+			$this->injectCollection();
+		}
 		$cn = $cn ? $cn : get_class($this->collection);
 		//debug($cn);
-		assert($cn);
+		assert($cn > '');
 
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 
@@ -98,7 +101,7 @@ abstract class Grid extends AppController {
 				? $this->columns
 				: $this->user->getPref('Columns.'.$cn);
 		}
-		if (!$this->columns && $this->model->thes) {
+		if (!$this->columns && ifsetor($this->model->thes)) {
 			$this->columns = array_keys($this->model->thes);
 		}
 		if (!$this->columns && $this->collection->thes) {
@@ -146,10 +149,25 @@ abstract class Grid extends AppController {
 	}
 
 	function render() {
+		if (!$this->collection) {
+			$this->injectCollection();
+		}
 		$content = $this->collection->render();
 		$content .= '<hr />';
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this), $this->encloseTag);
 		return $content;
+	}
+
+	function injectCollection() {
+		$class = new ReflectionObject($this);
+		$col = $class->getProperty('collection');
+		$comment = $col->getDocComment();
+		$parser = new DocCommentParser();
+		$parser->parseDocComment($comment);
+		$colName = $parser->getFirstTagValue('var');
+		if ($colName) {
+			$this->collection = new $colName();
+		}
 	}
 
 	/**

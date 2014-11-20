@@ -135,6 +135,8 @@ class Collection {
 
 	var $noDataMessage = 'No data';
 
+	var $filter = array();
+
 	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
@@ -625,6 +627,7 @@ class Collection {
     }
 
 	function showFilter() {
+		$content = array();
 		if ($this->filter) {
 			$f = new HTMLFormTable();
 			$f->method('GET');
@@ -632,7 +635,7 @@ class Collection {
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
 			$f->submit('Filter', array('class' => 'btn btn-primary'));
-			$content = $f->getContent();
+			$content[] = $f->getContent();
 		}
 		return $content;
 	}
