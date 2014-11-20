@@ -224,12 +224,36 @@ class Localize extends AppControllerBE {
 		$f->submit('Search');
 		$content[] = $f;
 
+		$content[] = '<hr />';
 		$content[] = $this->getActionButton('Delete Duplicates', 'deleteDuplicates');
-		$content[] = $this->getActionButton('Download JSON', 'downloadJSON', NULL, array(), 'btn btn-info');
 
+		$content[] = '<hr />';
+		$content[] = $this->getActionButton('Download JSON', 'downloadJSON', NULL, array(), 'btn btn-info');
 		$u = new Uploader(array('json'));
 		$f = $u->getUploadForm('file');
 		$f->hidden('action', 'importJSON');
+		$content[] = $f;
+
+		$content[] = '<hr />';
+		$desc = array(
+			'code' => array(
+				'label' => 'Code',
+			));
+		foreach ($this->languages as $lang) {
+			$desc[$lang] = array(
+				'label' => $lang,
+			);
+		}
+		$desc['action'] = array(
+			'type' => 'hidden',
+			'value' => 'addNew',
+		);
+		$desc['submit'] = array(
+			'type' => 'submit',
+			'value' => __('Add new translation'),
+		);
+		$f = new HTMLFormTable();
+		$f->showForm($desc);
 		$content[] = $f;
 
 		return $content;
@@ -291,6 +315,7 @@ class Localize extends AppControllerBE {
 	}
 
 	function importJSONAction() {
+		$content = [];
 		$fileData = json_decode(file_get_contents($_FILES['file']['tmp_name']), true);
 		//debug(sizeof($fileData), first($fileData));
 		foreach ($fileData as $row) {
@@ -302,13 +327,13 @@ class Localize extends AppControllerBE {
 				$l->findInDB(array(
 					'code' => $key,
 					'lang' => $lang,
-				));
+				), '', false);
 				if ($l->id) {
 					if ($l->getValue() != $value) {
 						$content[] = '<p class="text-danger">Import skipped for ['.$key.'/'.$lang.']: "'.$value.'" exists as "'.$l->getValue().'"</p>';
 					}
 				} else {
-					if ($value != 'nothing') {
+					if ($value && $value != 'nothing') {
 						$content[] = '<p class="text-info">Importing for [' . $key . '/' . $lang . ']: "' . $value . '"' . BR;
 						$l->insert(array(
 							'code' => $key,
@@ -317,6 +342,24 @@ class Localize extends AppControllerBE {
 						));
 					}
 				}
+			}
+		}
+		return $content;
+	}
+
+	function addNewAction() {
+		$content = array();
+		$code = $this->request->getTrimRequired('code');
+		foreach ($this->languages as $lang) {
+			$text = $this->request->getTrim($lang);
+			if ($text) {
+				$lm = $this->config->getLocalLangModel();
+				$lm->insert(array(
+					'code' => $code,
+					'lang' => $lang,
+					'text' => $text,
+				));
+				$content[] = '<div class="message">Added '.$text.' ('.$lang.')</div>';
 			}
 		}
 		return $content;
