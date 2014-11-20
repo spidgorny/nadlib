@@ -18,8 +18,6 @@ class LocalLangDB extends LocalLang {
 	 */
 	protected $rows = array();
 
-	public $saveMissingMessages = true;
-
 	function __construct($forceLang = NULL) {
 		parent::__construct($forceLang);
 	}
@@ -61,6 +59,8 @@ class LocalLangDB extends LocalLang {
 			'method' => __METHOD__,
 			'DEVELOPMENT' => DEVELOPMENT,
 			'code' => $code,
+			'$this->saveMissingMessages' => $this->saveMissingMessages,
+			'$this->db' => !!$this->db,
 			'$this->ll[code]' => ifsetor($this->ll[$code]),
 			));
 		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
@@ -81,7 +81,7 @@ class LocalLangDB extends LocalLang {
 					$insert['muser'] = Config::getInstance()->user->id;
 				}
 				$res = $this->db->runInsertNew($this->table, $where, $insert);
-				//debug($db->lastQuery, $db->affectedRows());
+				//debug($code, $this->db->lastQuery, $this->db->numRows($this->db->lastResult), $this->db->affectedRows());
 				$this->ll[$code] = $code;
 				$this->codeID[$code] = $this->db->lastInsertID($res);
 				//debug($this->db->lastQuery);
