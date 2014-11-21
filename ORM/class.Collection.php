@@ -539,6 +539,7 @@ class Collection {
 				}
 			}
 		} else {
+			//Index::getInstance()->ll->debug = true;
 			$content[] = '<div class="message">'.__($this->noDataMessage).'</div>';
 		}
 		if ($this->pager) {
