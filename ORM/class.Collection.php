@@ -854,6 +854,7 @@ class Collection {
 	public function getCount() {
 		if (is_null($this->count)) {
 			$query = $this->getQuery($this->where);
+			debug($query);
 			$res = $this->db->perform($query);
 			if ($this->pager) {
 				$this->count = $this->pager->numberOfRecords;
