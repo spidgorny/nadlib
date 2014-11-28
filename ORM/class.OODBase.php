@@ -55,7 +55,12 @@ abstract class OODBase {
 	static $instances = array();
 
 	/**
-	 * @var string - saved after insertUpdate
+	 * @var string - saved after findInDB
+	 */
+	public $lastSelectQuery;
+
+	/**
+	 * @var string - saved after insert/update
 	 */
 	public $lastQuery;
 
@@ -186,6 +191,7 @@ abstract class OODBase {
 				$where[$this->idField] = $this->id;
 			}
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
+			$this->lastQuery = $query;
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -222,7 +228,7 @@ abstract class OODBase {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
-		$this->lastQuery = $this->db->lastQuery;
+		$this->lastSelectQuery = $this->db->lastQuery;
 		if (is_array($rows)) {
 			$data = $rows;
 		} else {
