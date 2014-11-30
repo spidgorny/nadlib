@@ -313,7 +313,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		}
 		if ($this->logToLog) {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime.' '.$query);
+			error_log($runTime.' '.str_replace("\n", ' ', $query));
 		}
 
 		$start = microtime(true);

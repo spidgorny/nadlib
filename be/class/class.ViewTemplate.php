@@ -3,8 +3,10 @@
 class ViewTemplate extends AppController {
 
 	function sidebar() {
-		$files = new ListFilesIn('templates');
-		$ul = new UL($files);
+		$folder = AutoLoad::getInstance()->appRoot.'template';
+		$content[] = $folder.BR;
+		$files = new ListFilesIn($folder);
+		$ul = new UL($files->getArrayCopy());
 		$content[] = $ul;
 		return $content;
 	}
