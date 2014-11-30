@@ -349,12 +349,11 @@ class slTable {
 		$t->stdout .= '<colgroup>';
 		$i = 0;
 		foreach ($thes2 as $key => $dummy) {
-						$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
-
+			$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 			if ($this->isAlternatingColumns) {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
-			$t->stdout .= '<col class="col_'.$key.'" />';
+			$t->stdout .= '<col class="col_'.$key.'" />'."\n";
 		}
 		$t->stdout .= '</colgroup>';
 

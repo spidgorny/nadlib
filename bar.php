@@ -18,23 +18,27 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Mod by Slawa.
 
+require_once 'init.php';
+
 function drawRating($rating) {
 	$width = isset($_GET['width']) ? $_GET['width'] : 100;
 	$height = isset($_GET['height']) ? $_GET['height'] : 15;
 	$ratingbar = ($rating/100)*($width-5);
 	$barDX = 2;
 	$image = imagecreate($width,$height);
-	$color = $_GET['color'] ? html2rgb($_GET['color']) : array(0x43, 0xB6, 0xDF); #43B6DF
+	$color = isset($_GET['color']) ? $_GET['color'] : NULL;
+	$color = $color ? html2rgb($color) : array(0x43, 0xB6, 0xDF); #43B6DF
 	$fill = ImageColorAllocate($image, $color[0], $color[1], $color[2]);
 	//if ($rating > 49) { $fill = ImageColorAllocate($image,255,255,0); }
 	//if ($rating > 74) { $fill = ImageColorAllocate($image,255,128,0); }
 	//if ($rating > 89) { $fill = ImageColorAllocate($image,255,0,0); }
 
-	$backColor = $_GET['bg'] ? html2rgb($_GET['bg']) : array(0xFF, 0xFF, 0xFF);
+	$bg = isset($_GET['bg']) ? $_GET['bg'] : NULL;
+	$backColor = $bg ? html2rgb($bg) : array(0xFF, 0xFF, 0xFF);
 	$back = ImageColorAllocate($image, $backColor[0], $backColor[1], $backColor[2]);
 	$border = ImageColorAllocate($image,127,127,127);
 	ImageFilledRectangle($image,0,0,$width-1,$height-1,$back);
-	if (!$_GET['!border']) {
+	if (!ifsetor($_GET['!border'])) {
 		ImageRectangle($image,0,0,$width-1,$height-1,$border);
 	} else {
 		$ratingbar += 2;
@@ -71,10 +75,10 @@ if (!function_exists('imagecreate')) {
 } else {
 	error_reporting(0);
 	//ini_set('display_errors', false);
-	header("Content-type: image/png");
+	header("Content-Type: image/png");
+	$expires = 60*60*24*365;        // days
+	header("Pragma: public");
+	header("Cache-Control: maxage=".$expires);
+	header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+	drawRating(min(100, intval($_GET['rating'])));
 }
-$expires = 60*60*24*365;        // days
-header("Pragma: public");
-header("Cache-Control: maxage=".$expires);
-header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
-drawRating(min(100, intval($_GET['rating'])));
