@@ -282,11 +282,15 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function connect($host, $login, $password) {
+	function connect($host, $login, $password, $newConnection = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//echo __METHOD__.'<br />';
 		//ini_set('mysql.connect_timeout', 3);
-		$this->connection = @mysql_pconnect($host, $login, $password);
+		if ($newConnection) {
+			$this->connection = mysql_connect($host, $login, $password, $newConnection);
+		} else {
+			$this->connection = @mysql_pconnect($host, $login, $password);
+		}
 		if (!$this->connection) {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
