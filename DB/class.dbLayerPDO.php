@@ -90,7 +90,12 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$params[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
 		$profiler = new Profiler();
-		$this->lastResult = $this->connection->prepare($query, $params);
+		try {
+			$this->lastResult = $this->connection->prepare($query, $params);
+		} catch (PDOException $e) {
+			debug($query, $params, $e->getMessage());
+			throw $e;
+		}
 		$this->queryTime += $profiler->elapsed();
 		if ($this->logToLog) {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
