@@ -106,7 +106,7 @@ abstract class Scaffold extends Controller {
 			'ajax' => TRUE,
 			'action' => 'showEdit',
 			$this->table.'.id' => $id,
-		), $this->formPrefix);
+		));//, $this->formPrefix);
 		return $content;
 	}
 
@@ -133,7 +133,8 @@ abstract class Scaffold extends Controller {
 	 * @return HTMLFormTable
 	 */
 	protected function showEditForm() {
-		$f = $this->getForm($action = $override['action'] ? $override['action'] : 'add');
+		//$f = $this->getForm($action = $override['action'] ? $override['action'] : 'add');
+		$f = $this->getForm('add');
 		$override = array(
 			'action' => 'update',
 			$this->table.'.id' => $this->id,

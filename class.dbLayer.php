@@ -370,7 +370,7 @@ class dbLayer {
 		return $newID;
 	}
 
-	function getLastInsertID($res, $table) {
+	function getLastInsertID($res = NULL, $table = NULL) {
 		$pgv = pg_version();
 		if ($pgv['server'] >= 8.1) {
 			$res = $this->perform('SELECT LASTVAL() AS lastval');
@@ -381,6 +381,10 @@ class dbLayer {
 			$id = $this->sqlFind('id', $table, "oid = '".$oid."'");
 		}
 		return $id;
+	}
+
+	function lastInsertID($res = NULL, $table = NULL) {
+		return $this->getLastInsertID($res, $table);
 	}
 
 	function getArrayIntersect(array $options, $field = 'list_next') {
@@ -428,9 +432,11 @@ class dbLayer {
 
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
-	 * @param $dbarr
+	 * @param $input
+	 * @return array
 	 */
 	function getPGArray($input) {
+		if (!$input) return array();
 		if ($input{0} == '{') {	// array inside
 			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
 			return $this->getPGArray($input);

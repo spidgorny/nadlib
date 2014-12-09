@@ -12,6 +12,7 @@ class OODBase {
 	protected $titleColumn = 'name';
 	public $id;
 	public $data = array();
+	public $query;	// for debug
 
 	/**
 	 * Enter description here...
@@ -54,8 +55,8 @@ class OODBase {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
 		$qb = Config::getInstance()->qb;
-		$query = $qb->getInsertQuery($this->table, $data);
-		$this->db->perform($query);
+		$this->query = $qb->getInsertQuery($this->table, $data);
+		$this->db->perform($this->query);
 		$this->init($this->db->lastInsertID());
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $this;
@@ -72,9 +73,9 @@ class OODBase {
 			//$data['mtime'] = new AsIs('NOW()');
 			//$data['muser'] = $GLOBALS['i']->user->id;					// TODO: add to DB
 			$qb = Config::getInstance()->qb;
-			$query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
+			$this->query = $qb->getUpdateQuery($this->table, $data, array($this->idField => $this->id));
 			//debug($query);
-			$res = $this->db->perform($query);
+			$res = $this->db->perform($this->query);
 			$this->data = array_merge($this->data, $data); // should overwrite
 		} else {
 			$this->db->rollback();
@@ -89,9 +90,9 @@ class OODBase {
 			$where = array($this->idField => $this->id);
 		}
 		$qb = Config::getInstance()->qb;
-		$query = $qb->getDeleteQuery($this->table, $where);
+		$this->query = $qb->getDeleteQuery($this->table, $where);
 		//debug($query);
-		return $this->db->perform($query);
+		return $this->db->perform($this->query);
 	}
 
 	/**
@@ -103,6 +104,7 @@ class OODBase {
 	function findInDB(array $where, $orderby = '') {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderby);
+		$this->query = $this->db->lastQuery;
 		//d($rows);
 		if (is_array($rows)) {
 			if (is_array(current($rows))) {
