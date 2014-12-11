@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class AccessRights represents all the rights of a specific group
+ */
 class AccessRights {
 	protected $accessTable = 'access';
 	protected $groupAccessTable = 'department_access';
