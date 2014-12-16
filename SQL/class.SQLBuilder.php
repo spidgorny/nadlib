@@ -67,10 +67,14 @@ class SQLBuilder {
 			return $value->__toString();
 		} elseif ($value instanceof IndTime) {
 			return $this->quoteSQL($value->getMySQL(), $key);
+		} else if ($value instanceof SQLDate) {							// before Time
+			$content = "'".$this->db->escape($value->__toString())."'";
+			//debug($content, $value);
+			return $content;
 		} else if ($value instanceof Time) {
-			return "'".$this->db->escape($value->toSQL())."'";
-		} else if ($value instanceof SQLDate) {
-			return "'".$this->db->escape($value->__toString())."'";
+			$content = "'".$this->db->escape($value->toSQL())."'";
+			//debug($content);
+			return $content;
 		} else if ($value instanceof SimpleXMLElement) {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} else if (is_object($value)) {

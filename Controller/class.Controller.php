@@ -181,10 +181,6 @@ abstract class Controller {
 		return $link;
 	}
 
-	function begins($line, $with) {
-		return (substr($line, 0, strlen($with)) == $with);
-	}
-
 	/**
 	 * @param array $data
 	 * @return array
