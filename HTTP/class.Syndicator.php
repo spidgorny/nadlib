@@ -11,10 +11,7 @@ class Syndicator {
 	 * @var string
 	 */
 	var $url;
-
-	/**
-	 * @var bool
-	 */
+	 * @var bool|int enabled or seconds for caching
 	var $isCaching = FALSE;
 
 	/**

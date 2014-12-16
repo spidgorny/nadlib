@@ -31,7 +31,7 @@ class Wrap {
 	 * @param $w2
 	 * @return Wrap
 	 */
-	static function make($w1, $w2 = '') {
+	static function make($w1, $w2 = NULL) {
 		return new self($w1, $w2);
 	}
 
