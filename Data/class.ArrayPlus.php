@@ -484,7 +484,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function concat() {
-		return implode('', $this->data);
+		return implode('', $this->getData());
 	}
 
 	function count_if($k) {
