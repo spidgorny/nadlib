@@ -123,7 +123,9 @@ abstract class Controller {
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		$path->setFile($class);
+		if ($class) {
+			$path->setFile($class);
+		}
 		$path->setAsFile();
 		$url->setPath($path);
 		return $url;
