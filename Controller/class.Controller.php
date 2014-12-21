@@ -114,7 +114,7 @@ abstract class Controller {
 	 * @use getURL()
 	 */
 	protected function makeURL(array $params, $prefix = NULL) {
-		$class = $params['c'];
+		$class = ifsetor($params['c']);
 		unset($params['c']);    // RealURL
 		if ($class && !$prefix) {
 			$prefix = $class;
