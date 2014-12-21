@@ -51,11 +51,11 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		if (!$row['mtime']) {
+		if (!ifsetor($row['mtime'])) {
 			$mtime = new Time();
 			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		}
-		if (!$row['muser'] && Config::getInstance()->user->id) {
+		if (!ifsetor($row['muser']) && Config::getInstance()->user->id) {
 			$row['muser'] = Config::getInstance()->user->id;
 		}
 		if ($this->doCheck) {

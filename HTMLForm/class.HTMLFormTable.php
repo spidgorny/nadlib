@@ -75,6 +75,7 @@ class HTMLFormTable extends HTMLForm {
 		if ($fieldset) {
 			$this->fieldset($fieldset);
 		}
+		$this->tableMore['class'] = 'htmlFormTable';
 	}
 
 	function setDesc(array $desc) {
@@ -293,7 +294,7 @@ class HTMLFormTable extends HTMLForm {
 			: array();
 		if (isset($desc['newTD'])) {
 			$this->stdout .= '</tr></table></td>
-			<td '.$desc['TDmore'].'><table class="htmlFormTable"><tr>';
+			<td '.$desc['TDmore'].'><table '.HTMLForm::getAttrHTML($this->tableMore).'><tr>';
 		}
 		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
 		$type = isset($desc['type']) ? $desc['type'] : NULL;
@@ -415,6 +416,7 @@ class HTMLFormTable extends HTMLForm {
 	 * @return $this
 	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
+		$this->tableMore['class'] .= $this->defaultBR ? ' defaultBR' : '';
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
 		return $this;
 	}
@@ -436,9 +438,7 @@ class HTMLFormTable extends HTMLForm {
 			$startedFieldset = TRUE;
 			$this->fieldset = NULL;
 		}
-		$tableMore = $this->tableMore;
-		$tableMore['class'] = (isset($tableMore['class']) ? $tableMore['class'] : '') . " htmlFormTable";
-		$this->stdout .= '<table '.HTMLForm::getAttrHTML($tableMore).'>';
+		$this->stdout .= '<table '.HTMLForm::getAttrHTML($this->tableMore).'>';
 		$this->stdout .= $this->renderFormRows($formData, $prefix);
 		$this->stdout .= "</table>".$append;
 		if ($startedFieldset) {
@@ -583,7 +583,7 @@ class HTMLFormTable extends HTMLForm {
 					$desc[$key]['value'] = $val;
 				}
 
-				$sType = is_object($descKey['type'])
+				$sType = is_object(ifsetor($descKey['type']))
 					? get_class($descKey['type'])
 					: $descKey['type'];
 				switch ($sType) {
@@ -663,7 +663,7 @@ class HTMLFormTable extends HTMLForm {
 	 * @return array
 	 */
 	static function fetchSelectionOptions(array $desc) {
-		if ($desc['from'] && $desc['title']) {
+		if (ifsetor($desc['from']) && $desc['title']) {
 			//debugster($desc);
 			$options = Config::getInstance()->qb->getTableOptions($desc['from'],
 				$desc['title'],
