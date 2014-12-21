@@ -419,6 +419,8 @@ class AutoLoad {
 				) {	// on windows exclude index.php
 					$file = $file2;
 				}
+			} else {
+				$file2 = NULL;
 			}
 
 			if (file_exists($file)) {
