@@ -188,6 +188,10 @@ class Request {
 		return $val;
 	}
 
+	/**
+	 * @param $name
+	 * @return array
+	 */
 	function getArray($name) {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
 	}

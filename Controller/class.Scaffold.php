@@ -52,7 +52,7 @@ abstract class Scaffold extends AppController {
 	 *
 	 * @var OODBase
 	 */
-	protected $model;
+	public $model;
 
 	/**
 	 * extra attributes for the form like onSubmit
