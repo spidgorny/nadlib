@@ -42,7 +42,7 @@ class SQLSearch {
 
 	function getSplitWords($sword) {
 		$sword = trim($sword);
-		$words = explode(' ', $sword . ' ' . $GLOBALS['i']->user->data['searchAppend']);
+		$words = explode(' ', $sword . ' ' . ifsetor(Index::getInstance()->user->data['searchAppend']));
 		$words = array_map('trim', $words);
 		$words = array_filter($words);
 		$words = array_unique($words);
