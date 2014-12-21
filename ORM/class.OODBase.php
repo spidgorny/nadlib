@@ -66,6 +66,11 @@ abstract class OODBase {
 	public $parentField = 'pid';
 
 	/**
+	 * @var ?
+	 */
+	public $forceInit;
+
+	/**
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *

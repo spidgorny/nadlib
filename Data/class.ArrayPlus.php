@@ -630,6 +630,13 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return array_keys($this->getData());
 	}
 
+	public function replaceKeys(array $visibleFields) {
+		foreach ($visibleFields as $key => $val) {
+			$this->replace_key($key, $val);
+		}
+		return $this;
+	}
+
 }
 
 function AP(array $a = array()) {
