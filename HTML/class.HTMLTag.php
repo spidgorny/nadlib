@@ -31,6 +31,10 @@ class HTMLTag {
 		return $tag;
 	}
 
+	function getContent() {
+		return $this->content;
+	}
+
 	static function renderAttr(array $attr) {
 		$set = array();
 		foreach ($attr as $key => $val) {

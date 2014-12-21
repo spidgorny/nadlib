@@ -520,7 +520,7 @@ class Request {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
 		if (!$headers) {
 			$headers = array(
-				'X-Requested-With' => $_SERVER['HTTP_X_REQUESTED_WITH']
+				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			);
 		}
 		return $this->getBool('ajax') || (

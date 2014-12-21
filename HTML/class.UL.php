@@ -50,7 +50,7 @@ class UL {
 				//$wrap = Wrap::make('<a>|</a>');
 				$wrap = Wrap::make('|');
 			}
-			$li = $wrap->wrap(__($li));
+			$li = $wrap->wrap($li);				// don't translate __() because the values may come from DB
 
 			$line = Wrap::make($this->wrap)->wrap($li);
 			$line = str_replace('###CLASS###', $class, $line);

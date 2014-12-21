@@ -66,14 +66,14 @@ class Localize extends AppControllerBE {
 		)).'</div>';*/
 
 		$keys = $this->getAllKeys();
+		$table = $this->getTranslationTable($keys);
 
 		$pager = new Pager();
-		$pager->setNumberOfRecords(sizeof($keys));
+		$pager->setNumberOfRecords(sizeof($table));
 		$pager->detectCurrentPage();
-		$keys = array_slice($keys, $pager->startingRecord, $pager->itemsPerPage, true);
+		$table = array_slice($table, $pager->startingRecord, $pager->itemsPerPage, true);
 		$content[] = $pager->renderPageSelectors($this->url);
 
-		$table = $this->getTranslationTable($keys);
 		$s = new slTable($table, 'id="localize" width="100%" class="table _table-striped"', array(
 			'key' => 'Key',
 			$this->from->lang => $this->from->lang,
@@ -172,6 +172,17 @@ class Localize extends AppControllerBE {
 				))
 			), '&times;', true);
 		}
+		if ($_COOKIE['untranslated']) {
+			foreach ($table as $i => $row) {
+				foreach ($this->languages as $lang) {
+					/** @var HTMLTag $ru */
+					$ru = $row[$lang];
+					if (ifsetor($_COOKIE['untranslated'][$lang]) && $ru->getContent()) {
+						unset($table[$i]);
+					}
+				}
+			}
+		}
 		return $table;
 	}
 
@@ -224,6 +235,8 @@ class Localize extends AppControllerBE {
 		$f->submit('Search');
 		$content[] = $f;
 
+		$content[] = $this->encloseInAA($this->getUntranslatedCheckbox(), 'Untranslated');
+
 		$content[] = '<hr />';
 		$content[] = $this->getActionButton('Delete Duplicates', 'deleteDuplicates');
 
@@ -256,6 +269,17 @@ class Localize extends AppControllerBE {
 		$f->showForm($desc);
 		$content[] = $f;
 
+		return $content;
+	}
+
+	function getUntranslatedCheckbox() {
+		foreach ($this->languages as $lang) {
+			$checked = ifsetor($_COOKIE['untranslated'][$lang]) ? 'checked="checked"' : '';
+			$content[] = '<label>
+				<input type="checkbox" class="setCookie" name="untranslated[' . $lang . ']" value="1" '.$checked.'/>
+				'.$lang.'
+			</label><br />';
+		}
 		return $content;
 	}
 
@@ -362,6 +386,10 @@ class Localize extends AppControllerBE {
 			}
 		}
 		return $content;
+	}
+
+	function untranslatedAction() {
+		// nothing, used in the filter
 	}
 
 }
