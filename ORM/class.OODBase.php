@@ -48,9 +48,9 @@ abstract class OODBase {
 	 * @var array
 	 */
 	protected $where = array();
-
+	
 	/**
-	 * @var self[get_called_class()][$id]
+	 * array[get_called_class()][$id]
 	 */
 	static $instances = array();
 
@@ -263,6 +263,9 @@ abstract class OODBase {
 		/** @var static $obj */
 		$obj = new $static();
 		$obj->findInDB($where);
+		if ($obj->id) {
+			self::$instances[$static][$obj->id] = $obj;
+		}
 		return $obj;
 	}
 
@@ -405,7 +408,7 @@ abstract class OODBase {
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id int
-	 * @return static
+	 * @return self|$this|static
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
