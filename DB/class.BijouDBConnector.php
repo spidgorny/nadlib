@@ -136,7 +136,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function numRows($res) {
+	function numRows($res = NULL) {
 		return $this->t3db->sql_num_rows($res);
 	}
 
