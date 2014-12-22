@@ -10,6 +10,8 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
 	 */
 	protected $t3db;
+
+	public $lastError;
 	
 	/**
 	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
@@ -23,6 +25,9 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 		$this->lastQuery = $query;
 		$start = array_sum(explode(' ', microtime()));
 		$res = $this->t3db->sql_query($query);
+		if (!$res) {
+			$this->lastError = $this->t3db->sql_error();
+		}
 		$elapsed = array_sum(explode(' ', microtime())) - $start;
 		$this->saveQueryLog($query, $elapsed);
 		return $res;
