@@ -36,6 +36,8 @@ class Flot extends AppController {
 	 */
 	public $cumulative = array();
 
+	public $movingAverage = array();
+
 	public $min = 0;
 
 	/**
@@ -69,6 +71,8 @@ class Flot extends AppController {
 			)
 		),
 	);
+
+	public $MALength = 20;
 
 	/**
 	 * @param array $data	- source data
@@ -163,6 +167,42 @@ class Flot extends AppController {
 			$row['cumulative'] = $this->cumulative['Total'][$jsTime][1];
 		}
 		return $data;
+	}
+
+	/**
+	 * http://bytes.com/topic/php/answers/747586-calculate-moving-average
+	 * @return string
+	 */
+	function renderMovingAverage() {
+		$content = '';
+		$charts = $this->getChartTable($this->data);
+		$this->movingAverage = $this->getMovingAverage($charts);
+		$content .= $this->showChart('chart1', $charts, $this->movingAverage);
+		return $content;
+	}
+
+	function getMovingAverage(array $charts) {
+		foreach ($charts as $s => &$series) {
+			$res = array();
+			foreach ($series as $pair) {
+				$res[$pair[0]] = $pair[1];
+			}
+
+			$i = 0;
+			foreach ($res as &$row) {
+				$slice = array_slice($res, max($i-$this->MALength+1, 0), $this->MALength);
+				$row = round(
+					array_sum($slice) /
+					count($slice), 4);
+				$i++;
+			}
+
+			foreach ($res as $key => &$val) {
+				$val = array($key, $val);
+			}
+			$series = $res;
+		}
+		return $charts;
 	}
 
 	/**
