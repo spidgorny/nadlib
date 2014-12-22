@@ -531,17 +531,21 @@ class HTMLForm {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
+		$this->stdout .= '<div style="
+			width: '.$width.';
+			height: '.$height.';
+			overflow: auto;
+			" class="checkarray '.$sName.'">';
 		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
-			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'">';
+			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'" style="white-space: nowrap;">';
 			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
 			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
 			$this->check($newName, $value, $checked, $moreStr);
 			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
-			$this->stdout .= '</label>';
+			$this->stdout .= '</label> ';
 		}
 		$this->stdout .= '</div>';
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
