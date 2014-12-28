@@ -102,13 +102,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			error_log($runTime.' '.$query);
 		}
 		if ($this->lastResult) {
-			//try {
 			$profiler = new Profiler();
-			$ok = $this->lastResult->execute($params);
+			try {
+				$ok = $this->lastResult->execute($params);
+			} catch (PDOException $e) {
+				debug($query, $params, $e->getMessage());
+				throw $e;
+			}
 			$this->queryTime += $profiler->elapsed();
-			//} catch (Exception $e) {
-			//	$ok = false;
-			//}
 			if (!$ok) {
 				debug(array(
 					'class' => get_class($this),
