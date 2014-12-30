@@ -131,7 +131,7 @@ class Localize extends AppControllerBE {
 				/** @var $lobj LocalLangDB */
 				$dbID = $lobj->id($key);
 
-				$row = $this->db->fetchOneSelectQuery('interface', array('id' => $dbID));
+				$row = $this->db->fetchOneSelectQuery($this->table, array('id' => $dbID));
 				if (ifsetor($row['deleted'])) {
 					$colorCode = 'muted';
 				} else {
@@ -284,14 +284,14 @@ class Localize extends AppControllerBE {
 	}
 
 	function deleteDuplicatesAction() {
-		$rows = $this->db->fetchSelectQuery('interface', array(
+		$rows = $this->db->fetchSelectQuery($this->table, array(
 			'lang' => 'en',
 		), 'ORDER BY code, id');
 		$prevCode = NULL;
 		foreach ($rows as $row) {
 			if ($prevCode == $row['code']) {
 				echo 'Del: ', $row['code'], ' (id: ', $row['id'], ')<br />', "\n";
-				$this->db->runDeleteQuery('interface', array(
+				$this->db->runDeleteQuery($this->table, array(
 					'id' => $row['id'],
 				));
 			}
@@ -346,7 +346,7 @@ class Localize extends AppControllerBE {
 			foreach ($row as $lang => $value) {
 				if ($lang == 'key') continue;
 				$l = new LocalLangModel();
-				$l->table = 'interface';
+				$l->table = $this->table;
 				$l->findInDB(array(
 					'code' => $key,
 					'lang' => $lang,
