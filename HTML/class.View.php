@@ -92,6 +92,13 @@ class View {
 		return $content;
 	}
 
+	/**
+	 * Really primitive and buggy.
+	 * @use markdown() instead
+	 * @param $text
+	 * @param null $linkCallback
+	 * @return mixed|string
+	 */
 	function wikify($text, $linkCallback = null) {
 		$inUL = false;
 		$lines2 = array();
@@ -332,6 +339,11 @@ class View {
 
 	function s($a) {
 		return Index::mergeStringArrayRecursive($a);
+	}
+
+	function markdown($text) {
+		$my_html = \Michelf\Markdown::defaultTransform($text);
+		return $my_html;
 	}
 
 }
