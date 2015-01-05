@@ -157,4 +157,49 @@ class AlterTable extends AlterIndex {
 		return $query;
 	}
 
+	function renderTableStructdbLayerSQLite(array $struct, array $local) {
+		$content = '';
+		foreach ($struct as $table => $desc) {
+			$content .= '<h4>Table: '.$table.'</h4>';
+
+			$indexCompare = array();
+			foreach ($desc['columns'] as $i => $index) {
+				$localIndex = $local[$table]['columns'][$i];
+
+				//unset($index['num'], $localIndex['num']);
+				$index['Field'] = $i;
+				$localIndex['Field'] = $i;
+
+				if ($index == $localIndex) {
+					$indexCompare[] = array('same' => 'sql file',
+							'###TR_MORE###' => 'style="background: lightgreen"',
+							'Field' => $i,
+						) + $index;
+				} else {
+					$indexCompare[] = array('same' => 'json file',
+							'###TR_MORE###' => 'style="background: yellow"',
+						) + $index;
+					$indexCompare[] = array('same' => 'database',
+							'###TR_MORE###' => 'style="color: white; background: red"',
+							'Field' => $i,
+						) + $localIndex;
+					$indexCompare[] = array('same' => 'ALTER',
+						'###TR_MORE###' => 'style="color: white; background: green"',
+						'Field' => $i,
+						'type' => new HTMLTag('td', array(
+							'colspan' => 5,
+						), $localIndex['type']
+							? $this->getChangeQueryDBLayer($table, $index)
+							: $this->getAlterQueryDBLayer($table, $index)
+						)
+					);
+				}
+			}
+
+			$s = new slTable($indexCompare, 'class="table nospacing"');
+			$content .= $s;
+		}
+		return $content;
+	}
+
 }
