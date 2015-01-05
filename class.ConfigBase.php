@@ -120,10 +120,12 @@ class ConfigBase {
 		//print_r(array($configYAML, file_exists($configYAML)));
 		if (file_exists($configYAML) && class_exists('Spyc')) {
 			$this->config = Spyc::YAMLLoad($configYAML);
+			debug($this->config);
 		}
 		$this->mergeConfig($this);
 
 		$configJSON = AutoLoad::getInstance()->appRoot.'class/config.json';
+		//print_r(array($configJSON, file_exists($configJSON)));
 		if (file_exists($configJSON)) {
 			$this->config = json_decode(file_get_contents($configJSON), true);
 			$this->mergeConfig($this);
