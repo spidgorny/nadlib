@@ -120,7 +120,6 @@ class ConfigBase {
 		//print_r(array($configYAML, file_exists($configYAML)));
 		if (file_exists($configYAML) && class_exists('Spyc')) {
 			$this->config = Spyc::YAMLLoad($configYAML);
-			debug($this->config);
 		}
 		$this->mergeConfig($this);
 
