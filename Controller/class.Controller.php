@@ -462,4 +462,17 @@ abstract class Controller {
 		return $content;
 	}
 
+	function attr($s) {
+		if (is_array($s)) {
+			$content = [];
+			foreach ($s as $k => $v) {
+				$content[] = $k . '="' . $this->attr($v) . '"';
+			}
+			$content = implode(' ', $content);
+		} else {
+			$content = htmlspecialchars($s, ENT_QUOTES);
+		}
+		return $content;
+	}
+
 }

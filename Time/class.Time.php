@@ -182,6 +182,22 @@ class Time {
 	}
 
 	/**
+	 * 12:21
+	 *
+	 * @return string
+	 */
+	function getHumanTimeGMT() {
+		//$zone = datefmt_get_timezone();
+		$zone = date_default_timezone_get();
+		//datefmt_set_timezone('GMT');
+		date_default_timezone_set('GMT');
+		$str = date('H:i', $this->time);
+		//datefmt_set_timezone($zone);
+		date_default_timezone_set($zone);
+		return $str;
+	}
+
+	/**
 	 * 12:21:15
 	 *
 	 * @param string $format
@@ -632,8 +648,25 @@ class Time {
 		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTime().'</time>');
 	}
 
+	public function getHTMLTimeGMT() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTimeGMT().'</time>');
+	}
+
 	public function setFormat($string) {
 		$this->format = $string;
+	}
+
+	public function makeGMT() {
+		$this->setTime(strtotime(gmdate('Y-m-d H:i:s', $this->time). ' GMT', 0));
+	}
+
+	function setTime($time) {
+		$this->time = $time;
+		$this->updateDebug();
+	}
+
+	function addDate(Date $date) {
+		$this->setTime(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
 	}
 
 }
