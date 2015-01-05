@@ -51,6 +51,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	var $config;
 
+	var $title = '';
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//parent::__construct();
@@ -245,6 +247,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
+		$this->title = $e->getMessage();
 		$message = $e->getMessage();
 		$message = $message instanceof htmlString
 			? $message.''
