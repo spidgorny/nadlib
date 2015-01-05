@@ -435,7 +435,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
 				//$source = $source;	// rewrite inside css folder
 			} else {
-				$source = '?c=Lesser&css=' . $source;
+				$source = 'css/?c=Lesser&css=' . $source;
 			}
 		} else {
 			if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
