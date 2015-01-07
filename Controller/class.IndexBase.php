@@ -189,7 +189,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$v = new View($this->template, $this);
 		$v->content = $content;
-		$v->title = strip_tags($this->controller->title);
+		$v->title = strip_tags(ifsetor($this->controller->title));
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
