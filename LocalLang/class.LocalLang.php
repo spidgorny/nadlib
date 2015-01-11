@@ -226,6 +226,14 @@ if (!function_exists('__')) {	// conflict with cakePHP
 		}
 	}
 
+	/**
+	 * Same as __(), but calls only str_replace() without translating
+	 * @param $code
+	 * @param null $r1
+	 * @param null $r2
+	 * @param null $r3
+	 * @return mixed|null
+	 */
 	function __p($code, $r1 = null, $r2 = null, $r3 = null) {
 		if (class_exists('Index')) {
 			$index = Index::getInstance();

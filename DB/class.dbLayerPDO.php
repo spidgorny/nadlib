@@ -176,13 +176,34 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function getTables() {
+		$tables = $this->getTablesEx();
+		$names = array_keys($tables);
+		return $names;
+	}
+
+	/**
+	 * Keys must be table names
+	 * @return array|null
+	 * @throws DatabaseException
+	 */
+	function getTablesEx() {
 		$scheme = $this->getScheme();
 		if ($scheme == 'mysql') {
-			$this->perform('show tables');
-		} else if ($scheme == 'odbc') {
-			$this->perform('db2 list tables for all');
+			$res = $this->perform('show tables');
+			$tables = $res->fetchAll();
+			$tables = ArrayPlus::create($tables)->column('0')->getData(); // "Tables_is_DBname"
+			$keys = $tables;
+			foreach ($tables as &$name) {
+				$name = array('table' => $name);
+			}
+			$tables = array_combine($keys, $tables);
+		} elseif ($scheme == 'odbc') {
+			$res = $this->perform('db2 list tables for all');
+			$tables = $res->fetchAll();
+		} else {
+			$tables = array();
 		}
-		return $this->lastResult->fetchAll();
+		return $tables;
 	}
 
 	function lastInsertID($res, $table = NULL) {
