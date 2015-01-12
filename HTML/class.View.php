@@ -341,7 +341,7 @@ class View {
 		return Index::mergeStringArrayRecursive($a);
 	}
 
-	function markdown($text) {
+	static function markdown($text) {
 		$my_html = \Michelf\Markdown::defaultTransform($text);
 		return $my_html;
 	}
