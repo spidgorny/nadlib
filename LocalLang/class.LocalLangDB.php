@@ -70,7 +70,7 @@ class LocalLangDB extends LocalLang {
 					'lang' => $this->defaultLang,		// is maybe wrong to save to the defaultLang?
 				);
 				$insert = array(
-					'text' => '',
+					'text' => $code,					// not empty, because that's how it will be translated
 					'page' => Request::getInstance()->getURL(),
 				);
 				$cols = $this->db->getTableColumns($this->table);
@@ -113,6 +113,7 @@ class LocalLangDB extends LocalLang {
 	}
 
 	function readDB($lang) {
+		//debug_pre_print_backtrace();
 		$res = $this->db->getTableColumnsEx($this->table);
 		if ($res) {
 			// wrong query

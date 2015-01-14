@@ -434,7 +434,7 @@ class TaylorProfiler {
 		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
 		$maxMem = self::return_bytes(ini_get('memory_limit'));
 		$memBar = '<img src="'.ProgressBar::getBar(memory_get_peak_usage()/$maxMem*100).'" />';
-		$content = '<div class="floatTimeContainer">
+		$content = '<div class="floatTimeContainer noprint">
 			<div class="floatTime">
 				<table>
 					<tr>

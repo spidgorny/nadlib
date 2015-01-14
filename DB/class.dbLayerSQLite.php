@@ -36,6 +36,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	function __construct($file) {
 		$this->file = $file;
+		$this->database = basename($this->file);
 		$this->connection = new SQLite3($this->file);
 	}
 
@@ -52,14 +53,14 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @param $res SQLiteResult
-	 * @return mixed
+	 * @return int
 	 */
 	function numRows($res = NULL) {
+		$numRows = 0;
 		if ($res instanceof SQLite3Result) {
 			//debug(get_class($res), get_class_methods($res));
 			//$all = $this->fetchAll($res);   // will free() inside
 			//$numRows = sizeof($all);
-			$numRows = 0;
 			while ($this->fetchAssoc($res) !== FALSE) {
 				$numRows++;
 			}
@@ -75,7 +76,22 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	}
 
 	function getTables() {
-		$this->perform("SELECT * FROM dbname.sqlite_master WHERE type='table'");
+		$tables = $this->getTablesEx();
+		return array_keys($tables);
+	}
+
+	function getTablesEx() {
+		$this->perform("SELECT *
+		FROM sqlite_master
+		WHERE type = 'table'
+		ORDER BY name
+		");
+		$tables = $this->fetchAll($this->lastResult, 'name');
+		return $tables;
+	}
+
+	function getIndexesFrom($table) {
+		$this->perform("SELECT * FROM sqlite_master WHERE type = 'index'");
 		return $this->fetchAll($this->lastResult);
 	}
 

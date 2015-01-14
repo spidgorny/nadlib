@@ -33,7 +33,7 @@ abstract class Controller {
 	public $noRender = false;
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO
+	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO|dbLayerSQLite
 	 */
 	protected $db;
 
@@ -459,6 +459,19 @@ abstract class Controller {
 			$content .= '<div class="col-md-'.$x.'">'.$c.'</div>';
 		}
 		$content .= '</div>';
+		return $content;
+	}
+
+	function attr($s) {
+		if (is_array($s)) {
+			$content = [];
+			foreach ($s as $k => $v) {
+				$content[] = $k . '="' . $this->attr($v) . '"';
+			}
+			$content = implode(' ', $content);
+		} else {
+			$content = htmlspecialchars($s, ENT_QUOTES);
+		}
 		return $content;
 	}
 

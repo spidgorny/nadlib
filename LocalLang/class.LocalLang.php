@@ -114,7 +114,7 @@ abstract class LocalLang {
 	 */
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
 		if (isset($this->ll[$text])) {
-			$trans = ifsetor($this->ll[$text]);
+			$trans = ifsetor($this->ll[$text], $text);
 			$trans = $this->Tp($trans, $replace, $s2, $s3);
 			$trans = $this->getEditLinkMaybe($trans, $text, '');
 			//if ($text == 'Search') { debug($text, $trans); }
@@ -122,10 +122,10 @@ abstract class LocalLang {
 			//debug($this->ll);
 			//debug($text, $this->ll[$text], spl_object_hash($this));
 			$this->saveMissingMessage($text);
-			$text = $this->Tp($text, $replace, $s2, $s3);
-			$trans = $this->getEditLinkMaybe($text);
+			$trans = $this->Tp($text, $replace, $s2, $s3);
+			$trans = $this->getEditLinkMaybe($trans);
 		}
-		if ($this->debug) {
+		if ($this->debug = $text == 'asd') {
 			debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
 		}
 		return $trans;
@@ -226,6 +226,14 @@ if (!function_exists('__')) {	// conflict with cakePHP
 		}
 	}
 
+	/**
+	 * Same as __(), but calls only str_replace() without translating
+	 * @param $code
+	 * @param null $r1
+	 * @param null $r2
+	 * @param null $r3
+	 * @return mixed|null
+	 */
 	function __p($code, $r1 = null, $r2 = null, $r3 = null) {
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
