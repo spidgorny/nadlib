@@ -45,6 +45,11 @@ class dbLayerBase {
 	 */
 	public $logToLog = false;
 
+	/**
+	 * @var string DB name (file name)
+	 */
+	public $database;
+
 	function setQB(SQLBuilder $qb = NULL) {
 		$di = new DIContainer();
 		$di->db = $this;

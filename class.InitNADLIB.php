@@ -11,17 +11,17 @@ class InitNADLIB {
 
 	function __construct() {
 		require_once dirname(__FILE__) . '/class.AutoLoad.php';
-		$this->al = AutoLoad::getInstance();
-	}
-
-	function init() {
-		//print_r($_SERVER);
-
+		require_once dirname(__FILE__) . '/HTTP/class.Request.php';
 		if (Request::isCLI()) {
 			define('BR', "\n");
 		} else {
 			define('BR', "<br />\n");
 		}
+		$this->al = AutoLoad::getInstance();
+	}
+
+	function init() {
+		//print_r($_SERVER);
 
 		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {

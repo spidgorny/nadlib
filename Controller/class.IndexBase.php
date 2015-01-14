@@ -51,6 +51,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	var $config;
 
+	var $title = '';
+
 	public function __construct() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//parent::__construct();
@@ -58,8 +60,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->config = Config::getInstance();
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
+			$this->ll = $this->config->ll;
 		}
-		$this->ll = new LocalLangDummy();	// the real one is in Config!
 
 		$this->request = Request::getInstance();
 		//debug('session_start');
@@ -245,6 +247,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
+		$this->title = $e->getMessage();
 		$message = $e->getMessage();
 		$message = $message instanceof htmlString
 			? $message.''
@@ -432,10 +435,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
-			if ($this->request->apacheModuleRewrite()) {
+			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
 				//$source = $source;	// rewrite inside css folder
 			} else {
-				$source = '?c=Lesser&css=' . $source;
+				$source = 'css/?c=Lesser&css=' . $source;
 			}
 		} else {
 			if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
@@ -475,7 +478,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($profiler) {
 				if (!$this->request->isCLI()) {
 					$content = $profiler->renderFloat();
-					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
 					if (ifsetor($this->db->queryLog)) {

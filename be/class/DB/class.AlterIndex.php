@@ -11,17 +11,17 @@ class AlterIndex extends AppControllerBE {
 		parent::__construct();
 		$c = Config::getInstance();
 		//$this->db->switchDB('glore');
-		$this->jsonFile = $c->appRoot.'/sql/'.$this->db->db.'.json';
+		$this->jsonFile = $c->appRoot.'/sql/'.$this->db->database.'.json';
 
-		if (true) {
+		if (false) {
 			require_once $c->appRoot.'/constants.php';
 			$GLOBALS['dbLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
 			$this->db = $GLOBALS['dbLayer'];
 			$c->db = $GLOBALS['dbLayer'];
 			$c->qb->db = $GLOBALS['dbLayer'];
+			$this->jsonFile = $c->appRoot.'/sql/buglog_dev.json';
 		}
 
-		$this->jsonFile = $c->appRoot.'/sql/buglog_dev.json';
 	}
 
 	function sidebar() {
@@ -46,6 +46,7 @@ class AlterIndex extends AppControllerBE {
 	function getDBStruct() {
 		$result = array();
 		$tables = $this->db->getTables();
+		//debug($tables);
 		foreach ($tables as $t) {
 			$struct = $this->db->getTableColumnsEx($t);
 			//unset($struct['password']);	// debug

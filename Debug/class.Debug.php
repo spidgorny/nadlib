@@ -186,7 +186,7 @@ class Debug {
 		$levels = $this->getLevels($args);
 
 		$db = debug_backtrace();
-		$db = array_slice($db, 4, sizeof($db));
+		$db = array_slice($db, 3, sizeof($db));
 
 		$content = self::renderHTMLView($db, $args, $levels);
 		$content .= self::printStyles();
@@ -206,6 +206,8 @@ class Debug {
 		$first = $db[1];
 		if ($first) {
 			$function = self::getMethod($first);
+		} else {
+			$function = '';
 		}
 		$props = array(
 			'<span class="debug_prop">Function:</span> '.$function,
@@ -282,10 +284,10 @@ class Debug {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
-			} elseif (method_exists($a, '__toString')) {    // commenting this often leads to out of memory
-				$a = $a->__toString();
-			} elseif (method_exists($a, 'getName')) {
-				$a = $a->getName();
+			//} elseif (method_exists($a, '__toString')) {    // commenting this often leads to out of memory
+			//	$a = $a->__toString();
+			//} elseif (method_exists($a, 'getName')) {
+			//	$a = $a->getName();	-- not enough info
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
 			} else {

@@ -8,15 +8,16 @@
 define('TAB', "\t");
 define('CR', "\r");
 define('LF', "\n");
-require_once('../vendor/typo3/class.t3lib_div.php');
+$typo3 = AutoLoad::getInstance()->nadlibRoot.'vendor/typo3/';
+require_once($typo3.'class.t3lib_div.php');
 //require_once('../vendor/typo3/class.t3lib_sqlparser.php');
-require_once('../vendor/typo3/sysext/core/Classes/Database/SqlParser.php');
+require_once($typo3.'sysext/core/Classes/Database/SqlParser.php');
 //require_once('../vendor/typo3/class.t3lib_install_sql.php');
-require_once('../vendor/typo3/sysext/install/Classes/Sql/SchemaMigrator.php');
+require_once($typo3.'sysext/install/Classes/Sql/SchemaMigrator.php');
 //require_once('../vendor/typo3/class.t3lib_db.php');
-require_once('../vendor/typo3/sysext/core/Classes/Database/DatabaseConnection.php');
+require_once($typo3.'sysext/core/Classes/Database/DatabaseConnection.php');
 //require_once('../vendor/typo3/class.t3lib_utility_math.php');
-require_once('../vendor/typo3/sysext/core/Classes/Utility/MathUtility.php');
+require_once($typo3.'sysext/core/Classes/Utility/MathUtility.php');
 
 class AlterDB extends AppControllerBE {
 
@@ -124,7 +125,8 @@ class AlterDB extends AppControllerBE {
 		if (!is_dir($sqlFolder)) {
 			return '<div class="error">No '.$sqlFolder.'</div>';
 		}
-		foreach (new RecursiveDirectoryIterator($sqlFolder) as $file) { /** @var $file SplFileInfo */
+		/** @var $file SplFileInfo */
+		foreach (new RecursiveDirectoryIterator($sqlFolder) as $file) {
 			//debug($file);
 			if ($file->getFilename() != '.' && $file->getFilename() != '..') {
 				$menu[$file->getPathname()] = $file->getFilename();

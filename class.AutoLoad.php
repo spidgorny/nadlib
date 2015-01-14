@@ -91,7 +91,9 @@ class AutoLoad {
 			self::$instance = new self();
 			self::$instance->detectNadlibRoot();
 			self::$instance->loadConfig();
-			self::$instance->config = Config::getInstance();
+			if (class_exists('Config')) {
+				self::$instance->config = Config::getInstance();
+			}
 			self::$instance->initFolders();
 		}
 		return self::$instance;
@@ -308,7 +310,7 @@ class AutoLoad {
 			}
 		} else {
 			// that's ok. relax. be quiet.
-			echo 'Config not found'.BR;
+			//echo 'Config not found'.BR;
 		}
 		return $folders;
 	}

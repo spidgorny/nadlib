@@ -202,6 +202,7 @@ class Collection {
 				: $this->parentID).")";
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.$tableParent);
 		$this->query = $this->getQueryWithLimit($this->where);
+		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
@@ -232,6 +233,7 @@ class Collection {
 			'base_expr' => 'SQL_CALC_FOUND_ROWS',
 			'delim' => ' ',
 		));
+		$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
 		//debug($sql->parsed);
 		$this->query = $sql->__toString();
 		$res = $this->db->perform($this->query);
@@ -333,6 +335,7 @@ class Collection {
 		if ($where instanceof SQLWhere) {
 			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
 		} else {
+			//debug_pre_print_backtrace();
 			$query = $this->db->getSelectQuery(
 				$this->table.' '.$this->join,
 				$where,
@@ -557,6 +560,7 @@ class Collection {
 				$trans = __($trans);
 			}
 		}
+		//debug_pre_print_backtrace();
 		$this->prevText = __($this->prevText);
 		$this->nextText = __($this->nextText);
 	}
@@ -860,11 +864,11 @@ class Collection {
 	 */
 	public function getCount() {
 		if (is_null($this->count)) {
-			$query = $this->getQuery($this->where);
-			$res = $this->db->perform($query);
+			$query = $this->getQueryWithLimit($this->where);
 			if ($this->pager) {
 				$this->count = $this->pager->numberOfRecords;
 			} else {
+				$res = $this->db->perform($query);
 				$this->count = $this->db->numRows($res);
 			}
 		}

@@ -81,7 +81,7 @@ class Date extends Time {
 		return new self($this->time + $plus->getTimestamp());
 	}
 
-	public function minusDur($day1) {
+	public function minusDur(Date $day1) {
 		return new self($this->time - $day1->getTimestamp());
 	}
 
