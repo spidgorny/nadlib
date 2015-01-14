@@ -60,7 +60,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->config = Config::getInstance();
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
-			$this->ll = $this->config->ll;
+			$this->ll = ifsetor($this->config->ll);
 		}
 
 		$this->request = Request::getInstance();
