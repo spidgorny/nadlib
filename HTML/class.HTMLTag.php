@@ -23,7 +23,7 @@ class HTMLTag {
 		$content = ($this->isHTML || $this->content instanceof HTMLTag)
 			? $this->content
 			: htmlspecialchars($this->content, ENT_QUOTES);
-		$tag = '<'.$this->tag.' '.$this->renderAttr($this->attr).$xmlClose.'>';
+		$tag = '<'.trim($this->tag.' '.$this->renderAttr($this->attr)).$xmlClose.'>';
 		$tag .= $content;
 		if ($this->closingTag) {
 			$tag .= '</' . $this->tag . '>';

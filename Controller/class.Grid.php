@@ -10,7 +10,7 @@ abstract class Grid extends AppController {
 	/**
 	 * @var OODBase
 	 */
-	protected $model;
+	public $model;
 
 	/**
 	 * @var array

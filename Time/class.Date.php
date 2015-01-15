@@ -108,4 +108,8 @@ class Date extends Time {
 		return date('D', $this->time);
 	}
 
+	function getApproximate() {
+		return $this->getHTMLDate();
+	}
+
 }
