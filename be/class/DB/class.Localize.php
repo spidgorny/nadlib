@@ -182,7 +182,7 @@ class Localize extends AppControllerBE {
 				))
 			), '&times;', true);
 		}
-		if ($_COOKIE['untranslated']) {
+		if (ifsetor($_COOKIE['untranslated'])) {
 			foreach ($table as $i => $row) {
 				foreach ($this->languages as $lang) {
 					/** @var HTMLTag $ru */

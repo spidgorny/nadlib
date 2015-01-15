@@ -82,6 +82,12 @@ class View {
 		} else {
 			ob_end_clean();
 		}
+
+		preg_match_all('/__([^_]+)__/', $content, $matches);
+		foreach ($matches[1] as $ll) {
+			$content = str_replace('__'.$ll.'__', __($ll), $content);
+		}
+
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
