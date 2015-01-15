@@ -166,12 +166,18 @@ class ProgressBar {
 		}
 	}
 
-	static function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '') {
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '') {
 		return new htmlString('<div style="'.$css.'">'.
 			number_format($p, 2).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'bar.php?rating='.round($p).$append.'" style="vertical-align: middle;" />
+			'.self::getImage($p, $append).'
 		</div>');
+	}
+
+	static function getImage($p, $append = '') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return '<img src="'.$prefix.'bar.php?rating='.round($p).$append.'"
+		style="vertical-align: middle;"
+		title="'.number_format($p, 2).'%" />';
 	}
 
 	static function getBackground($p, $width = '100px') {
