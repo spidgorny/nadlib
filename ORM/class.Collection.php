@@ -890,4 +890,9 @@ class Collection {
 		);
 	}
 
+	function reload() {
+		$this->query = NULL;
+		$this->retrieveDataFromDB();
+	}
+
 }

@@ -407,7 +407,7 @@ class HTMLForm {
 		$newName = array_merge($name, array(''));
 		$tmp = $this->class;
 		$this->class = 'submit';
-		$between = $desc['between'] ? $desc['between'] : ', ';
+		$between = ifsetor($desc['between'], ', ');
 		foreach ((array)$desc['options'] as $key => $val) {
 			$this->text('<nobr><label>');
 			$this->check($newName, $key, in_array($key, $value));
