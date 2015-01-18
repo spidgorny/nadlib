@@ -36,7 +36,7 @@ class SearchPlaceholder extends AppController {
 		$content .= '<div id="SearchPlaceholder"></div>';
 		$this->index->addJQuery();
 		//$this->index->footer[] = '<script> jQuery.noConflict(); </script>';
-		$this->index->addJS('vendor/spidgorny/nadlib/js/SearchPlaceholder.js');
+		$this->index->addJS($this->al->nadlibFromDocRoot.'js/SearchPlaceholder.js');
 		return $content;
 	}
 
