@@ -274,7 +274,7 @@ class AutoLoad {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
 				session_set_cookie_params(0, '');	// current folder
-				if ((phpversion() > 5.4 && session_status() != PHP_SESSION_ACTIVE) && !headers_sent()) {
+				if ((phpversion() < 5.4 || (phpversion() >= 5.4 && session_status() != PHP_SESSION_ACTIVE)) && !headers_sent()) {
 					session_start();
 				}
 
@@ -295,6 +295,7 @@ class AutoLoad {
 			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
 		//debug($folders);
+		//debug($this->classFileMap, $_SESSION[__CLASS__]);
 
 		return $folders;
 	}
@@ -337,6 +338,7 @@ class AutoLoad {
 			$_SESSION[__CLASS__]['classFileMap'] = $this->classFileMap;
 			$_SESSION[__CLASS__]['folders'] = $this->folders;
 		}
+		//debug($this->stat, $this->classFileMap, $this->folders);
 	}
 
 	/**
@@ -363,14 +365,17 @@ class AutoLoad {
 		if ($file && file_exists($file)) {
 			/** @noinspection PhpIncludeInspection */
 			include_once $file;
+			$this->stat['loadFile1']++;
 		} elseif ($file2 && file_exists($file2)) {
 			/** @noinspection PhpIncludeInspection */
 			include_once $file2;
+			$this->stat['loadFile2']++;
 		} else {
 			$file = $this->findInFolders($classFile, $subFolders);
 			if ($file) {
 				include_once $file;
 				$this->classFileMap[$class] = $file;
+				$this->stat['findInFolders']++;
 			}
 		}
 
