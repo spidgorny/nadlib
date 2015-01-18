@@ -40,7 +40,7 @@ class FlexiTable extends OODBase {
 		if (!ifsetor($row['ctime'])) {
 			$row['ctime'] = new SQLDateTime();
 		}
-		if (!$row['cuser']) {
+		if (!ifsetor($row['cuser'])) {
 			$row['cuser'] = Config::getInstance()->user->id;
 		}
 		if ($this->doCheck) {
