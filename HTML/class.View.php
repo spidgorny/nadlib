@@ -276,7 +276,7 @@ class View {
 
 	static function bar($percent, array $params = array(), $attr = array()) {
 		$percent = round($percent);
-		$src = 'vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
+		$src = AutoLoad::getInstance()->nadlibFromDocRoot.'bar.php?'.http_build_query($params + array(
 			'rating' => $percent,
 			'color' => '6DC5B4',
 		));
