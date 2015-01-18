@@ -250,7 +250,7 @@ abstract class Controller {
 	 */
 	function encloseInAA($content, $caption = '', $h = NULL, $more = array()) {
 		$h = $h ? $h : $this->encloseTag;
-		$content = IndexBase::mergeStringArrayRecursive($content);
+		$content = $this->s($content);
 		if ($caption) {
 			Index::getInstance()->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/header-link.less');
 			$slug = URL::friendlyURL($caption);
@@ -473,6 +473,21 @@ abstract class Controller {
 			$content = htmlspecialchars($s, ENT_QUOTES);
 		}
 		return $content;
+	}
+
+	function s($something) {
+		return IndexBase::mergeStringArrayRecursive($something);
+	}
+
+	/**
+	 * @param string|URL 		$href
+	 * @param string|htmlString $text
+	 * @return HTMLTag
+	 */
+	function a($href, $text = '', $isHTML = false) {
+		return new HTMLTag('a', array(
+			'href' => $href,
+		), $text ?: $href, $isHTML);
 	}
 
 }
