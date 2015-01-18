@@ -31,14 +31,10 @@ if (!function_exists('nodebug')) {
 	}
 
 	function getDebug()	{
-		$tmp = $_COOKIE['debug'];
-		$_COOKIE['debug'] = 1;
-
 		$params = func_get_args();
 		$debug = Debug::getInstance();
-		$content = call_user_func_array(array($debug, 'debug_args'), $params);
-
-		$_COOKIE['debug'] = $tmp;
+		$content = $debug::printStyles();
+		$content .= call_user_func_array(array($debug, 'view_array'), $params);
 		return $content;
 	}
 

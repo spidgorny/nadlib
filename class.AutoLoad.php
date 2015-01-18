@@ -242,7 +242,7 @@ class AutoLoad {
 		if (!class_exists('ConfigBase')) {
 			require_once 'class.ConfigBase.php';
 		}
-		if (!class_exists('Config')) {
+		if (!class_exists('Config', false)) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
 			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
 			//debug($configPath, file_exists($configPath)); exit();
@@ -385,6 +385,7 @@ class AutoLoad {
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
 			} else {
+				//debug_pre_print_backtrace();
 				$this->log(__METHOD__.': '.$class.' not found');
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';

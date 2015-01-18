@@ -168,6 +168,22 @@ class URL {
 		return basename($this->getPath());
 	}
 
+	function getExtension() {
+		$basename = $this->getBasename();
+		$ext = pathinfo($basename, PATHINFO_EXTENSION);
+		return $ext;
+	}
+
+	/**
+	 * Lowercase guaranteed
+	 * @return mixed|string
+	 */
+	function getExtensionLC() {
+		$ext = $this->getExtension();
+		$ext = mb_strtolower($ext);
+		return $ext;
+	}
+
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
 		//debug($this);

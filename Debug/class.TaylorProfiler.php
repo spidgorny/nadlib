@@ -391,8 +391,8 @@ class TaylorProfiler {
 
 	static function renderFloat() {
 		$totalTime = self::getElapsedTime();
-		$db = Config::getInstance()->db;
-		if ($db->queryLog) {
+		$db = class_exists('Config') ? Config::getInstance()->db : NULL;
+		if ($db && $db->queryLog) {
 			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
@@ -561,7 +561,9 @@ class TaylorProfiler {
 	}
 
 	static function dumpQueries() {
-		$queryLog = Config::getInstance()->db->queryLog;
+		$queryLog = class_exists('Config', false)
+			? Config::getInstance()->db->queryLog
+			: NULL;
 		if (DEVELOPMENT && $queryLog) {
 			//debug($queryLog);
 			array_multisort(ArrayPlus::create($queryLog)->column('sumtime')->getData(), SORT_DESC, $queryLog);

@@ -371,11 +371,16 @@ class Request {
 			}
 			if ($last) {
 				$controller = $last;
+			} elseif (class_exists('Config')) {
+				// not good as we never get 404
+				$controller = Config::getInstance()->defaultController;
 			} else {
-				$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+				$controller = NULL;
 			}
-		} else {
+		} elseif (class_exists('Config')) {
 			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+		} else {
+			$controller = NULL;
 		}
 		return $controller;
 	}
@@ -606,7 +611,7 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
-		$config = Config::getInstance();
+		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
 		$al = AutoLoad::getInstance();
 
 		if (false) {	// linux
