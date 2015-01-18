@@ -304,7 +304,7 @@ class Request {
 		return $a ? $a : $b;
 	}
 
-	function getControllerString() {
+	function getControllerString($returnDefault = true) {
 		if ($this->isCLI()) {
 			$controller = $_SERVER['argv'][1];
 			$this->data += $this->parseParameters();
@@ -333,7 +333,7 @@ class Request {
 					}
 				}
 			} else {
-				$controller = $this->getControllerByPath();
+				$controller = $this->getControllerByPath($returnDefault);
 			}
 		}   // cli
 		nodebug(array(
@@ -348,7 +348,7 @@ class Request {
 		return $controller;
 	}
 
-	function getControllerByPath() {
+	function getControllerByPath($returnDefault = true) {
 		$levels = $this->getURLLevels();
 		if ($levels) {
 			$levels = array_reverse($levels);
@@ -371,13 +371,13 @@ class Request {
 			}
 			if ($last) {
 				$controller = $last;
-			} elseif (class_exists('Config')) {
+			} elseif ($returnDefault && class_exists('Config')) {
 				// not good as we never get 404
 				$controller = Config::getInstance()->defaultController;
 			} else {
 				$controller = NULL;
 			}
-		} elseif (class_exists('Config')) {
+		} elseif ($returnDefault && class_exists('Config')) {
 			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 		} else {
 			$controller = NULL;

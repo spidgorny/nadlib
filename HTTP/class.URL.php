@@ -154,6 +154,7 @@ class URL {
 
 	function setPath($path) {
 		$this->components['path'] = $path instanceof Path ? $path : new Path($path);
+		$this->path = $this->components['path'];
 	}
 
 	/**
