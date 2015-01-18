@@ -1,6 +1,6 @@
 <?php
 
-require_once 'class.InitNADLIB.php';
+require_once __DIR__.'/class.InitNADLIB.php';
 
 /**
  * May already be defined in TYPO3
