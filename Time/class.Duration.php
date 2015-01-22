@@ -222,6 +222,7 @@ class Duration extends Time {
             return false;
         }
 
+	    $array = array();
         foreach ($duration as $key => $value) {
             $segment_name = substr($key, 0, -1);
             $segment = abs($value) . ' ' . $segment_name;	// otherwise -1 years, -1 months ago
