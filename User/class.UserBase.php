@@ -14,7 +14,7 @@ abstract class UserBase extends FlexiTable {
 	 * $id is intentionally not = NULL in order to force using getInstance()
 	 * protected will not work because OODBase::__construct is public
 	 *
-	 * @param unknown_type $id
+	 * @param int|array $id
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);

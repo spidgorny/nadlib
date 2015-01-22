@@ -628,6 +628,10 @@ class slTable {
 
 			if ($val instanceof htmlString || $val instanceof HTMLTag) {
 				//$val = $val;
+			} elseif (is_array($val)) {
+				//debug($key, $val);
+				//throw new InvalidArgumentException('slTable array instead of scalar');
+				//return '['.implode(', ', $val).']';
 			} else {
 				if (mb_strpos($val, "\n") !== FALSE) {
 					$val = new htmlString('<pre>'.htmlspecialchars($val, ENT_NOQUOTES).'</pre>');
