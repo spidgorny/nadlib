@@ -55,6 +55,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
 		if ($scheme == 'sqlite') {
 			$this->dsn = $scheme.':'.$db;
+			$this->database = basename($db);
 		} else {
 			$this->dsn = $scheme . ':' . $this->getDSN(array(
 					'DRIVER' => '{' . $driver . '}',
@@ -66,6 +67,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 					'PORT' => $port,
 					'PROTOCOL' => 'TCPIP',
 				));
+			$this->database = $db;
 		}
 		//debug($this->dsn);
 		$profiler = new Profiler();
@@ -200,6 +202,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		} elseif ($scheme == 'odbc') {
 			$res = $this->perform('db2 list tables for all');
 			$tables = $res->fetchAll();
+		} elseif ($scheme == 'sqlite') {
+			try {
+				$db2 = new dbLayerSQLite('');
+			} catch (Exception $e) {
+				// OK
+			}
+			$tables = $db2->getTablesEx();
 		} else {
 			$tables = array();
 		}

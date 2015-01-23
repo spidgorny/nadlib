@@ -9,7 +9,12 @@
 class AlterTable extends AlterIndex {
 
 	function renderTableStruct(array $struct, array $local) {
-		$func = 'renderTableStruct'.get_class($this->db);
+		$class = get_class($this->db);
+		if ($class == 'dbLayerPDO') {
+			$class = $this->db->getScheme();
+			if ($class == 'sqlite') $class = 'dbLayerSQLite';
+		}
+		$func = 'renderTableStruct'.$class;
 		return call_user_func(array($this, $func), $struct, $local);
 	}
 
