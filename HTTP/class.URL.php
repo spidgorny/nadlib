@@ -47,8 +47,10 @@ class URL {
 			} else {
 				$url = $http . '://localhost/';
 			}
+			$this->parseURL($url);
+		} else {
+			$this->parseURL($url);
 		}
-		$this->parseURL($url);
 		if ($params) {
 			$this->addParams($params);	// setParams was deleting all filters from the URL
 		}
