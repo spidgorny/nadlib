@@ -10,8 +10,16 @@ class UL {
 
 	var $wrap = '<li###ACTIVE###>|</li>';
 
+	/**
+	 * Should be equal to an $this->items key which is selected
+	 * @var string
+	 */
 	var $activeClass = '';
 
+	/**
+	 * Piece of HTML to mark active items
+	 * @var string
+	 */
 	var $active = ' class="active"';
 
 	var $links = array();
