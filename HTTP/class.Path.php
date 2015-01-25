@@ -298,4 +298,12 @@ class Path {
 		);
 	}
 
+	public function getLevels() {
+		return $this->aPath;
+	}
+
+	public function getNameless($i) {
+		return $this->aPath[$i];
+	}
+
 }
