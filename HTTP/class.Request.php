@@ -411,7 +411,7 @@ class Request {
 	}
 
 	function getReferer() {
-		return $_SERVER['HTTP_REFERER'] ? new URL($_SERVER['HTTP_REFERER']) : NULL;
+		return ifsetor($_SERVER['HTTP_REFERER']) ? new URL($_SERVER['HTTP_REFERER']) : NULL;
 	}
 
 	function getRefererController() {
