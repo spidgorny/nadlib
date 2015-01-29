@@ -85,12 +85,15 @@ abstract class Controller {
 	 */
 	public $sortBy;
 
+	protected $al;
+
 	function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->config = Config::getInstance();
+		$this->al = AutoLoad::getInstance();
 		if (class_exists('Config')) {
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
@@ -329,7 +332,7 @@ abstract class Controller {
 	}
 
 	function inColumnsHTML5() {
-		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
+		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -341,7 +344,7 @@ abstract class Controller {
 	}
 
 	function inEqualColumnsHTML5() {
-		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
+		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -365,7 +368,7 @@ abstract class Controller {
 	}
 
 	function encloseInTable() {
-		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/columnContainer.less');
+		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/columnContainer.less');
 		$elements = func_get_args();
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
