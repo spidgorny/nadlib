@@ -35,9 +35,17 @@ class UL {
 	 */
 	public $linkFunc;
 
-	function __construct(array $items) {
+	function __construct(array $items = array()) {
 		$this->items = $items;
 		$this->activeClass = each($this->items);
+	}
+
+	public function add($value, $key = NULL) {
+		if ($key) {
+			$this->items[$key] = $value;
+		} else {
+			$this->items[] = $value;
+		}
 	}
 
 	function render() {
