@@ -10,8 +10,16 @@ class UL {
 
 	var $wrap = '<li###ACTIVE###>|</li>';
 
+	/**
+	 * Should be equal to an $this->items key which is selected
+	 * @var string
+	 */
 	var $activeClass = '';
 
+	/**
+	 * Piece of HTML to mark active items
+	 * @var string
+	 */
 	var $active = ' class="active"';
 
 	var $links = array();
@@ -27,9 +35,17 @@ class UL {
 	 */
 	public $linkFunc;
 
-	function __construct(array $items) {
+	function __construct(array $items = array()) {
 		$this->items = $items;
 		$this->activeClass = each($this->items);
+	}
+
+	public function add($value, $key = NULL) {
+		if ($key) {
+			$this->items[$key] = $value;
+		} else {
+			$this->items[] = $value;
+		}
 	}
 
 	function render() {
