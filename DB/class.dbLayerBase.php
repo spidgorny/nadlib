@@ -51,10 +51,7 @@ class dbLayerBase {
 	public $database;
 
 	function setQB(SQLBuilder $qb = NULL) {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = $qb ? $qb : new SQLBuilder($di);
-		$this->qb = $qb;
+		$this->qb = $qb ?: Config::getInstance()->getQb();
 	}
 
 	function getDSN(array $params) {
