@@ -37,7 +37,14 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	function __construct($file) {
 		$this->file = $file;
 		$this->database = basename($this->file);
-		$this->connection = new SQLite3($this->file);
+	}
+
+	function connect() {
+		if (class_exists('SQLite3')) {
+			$this->connection = new SQLite3($this->file);
+		} else {
+			throw new Exception('SQLite3 extension is not enabled');
+		}
 	}
 
 	function perform($query) {

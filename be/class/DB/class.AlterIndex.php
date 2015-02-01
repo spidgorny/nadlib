@@ -46,7 +46,6 @@ class AlterIndex extends AppControllerBE {
 	function getDBStruct() {
 		$result = array();
 		$tables = $this->db->getTables();
-		//debug($tables);
 		foreach ($tables as $t) {
 			$struct = $this->db->getTableColumnsEx($t);
 			//unset($struct['password']);	// debug
