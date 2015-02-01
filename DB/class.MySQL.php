@@ -9,11 +9,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 	/**
 	 * @var string
 	 */
-	public $db;
-
-	/**
-	 * @var string
-	 */
 	public $lastQuery;
 
 	/**
@@ -263,8 +258,8 @@ class MySQL extends dbLayerBase implements DBInterface {
 
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$this->db = $db;
-		if ($this->db) {
+		$this->database = $db;
+		if ($this->database) {
 			$this->connect($host, $login, $password);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -283,7 +278,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
-		$res = mysql_select_db($this->db, $this->connection);
+		$res = mysql_select_db($this->database, $this->connection);
 		if (!$res) {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
@@ -476,6 +471,9 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function __call($method, array $params) {
+		if (!$this->qb) {
+			$this->qb = Config::getInstance()->getQb();
+		}
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
@@ -489,8 +487,8 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function switchDB($db) {
-		$this->db = $db;
-		mysql_select_db($this->db);
+		$this->database= $db;
+		mysql_select_db($this->database);
 	}
 
 	function fetchOptions($query) {

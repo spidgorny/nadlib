@@ -28,7 +28,7 @@ class LocalLangDB extends LocalLang {
 	 */
 	function init() {
 		$config = Config::getInstance();
-		$this->db = $config->db;
+		$this->db = $config->getDB();
 		$this->table = $config->prefixTable($this->table);
 		$this->rows = $this->readDB($this->lang);
 		if ($this->rows) {

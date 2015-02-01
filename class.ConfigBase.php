@@ -151,11 +151,18 @@ class ConfigBase {
 	 * @return $this
 	 */
 	public function postInit() {
+		//$this->getDB();
+		// init user here as he needs to access Config::getInstance()
+		$this->user = NULL;
+		return $this;
+	}
+
+	function getDB() {
+		if ($this->db) return $this->db;
+
 		if ($this->db_database) {
-			$di = new DIContainer();
 			if (extension_loaded('mysqlnd')) {
-				$di->db_class = 'dbLayerPDO';
-				$this->db = new $di->db_class(
+				$this->db = new dbLayerPDO(
 					$this->db_user,
 					$this->db_password,
 					'mysql',
@@ -165,21 +172,14 @@ class ConfigBase {
 				);
 				$this->db->perform('set names utf8');
 			} else {
-				$di->db_class = 'MySQL';
-				$this->db = new $di->db_class(
+				$this->db = new MySQL(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
 			}
-			$di->db = $this->db;
-			$this->qb = new SQLBuilder($di);
-			$this->db->qb = $this->qb;
 		}
-
-		// init user here as he needs to access Config::getInstance()
-		$this->user = NULL;
-		return $this;
+		return $this->db;
 	}
 
 	public function prefixTable($a) {
@@ -214,9 +214,7 @@ class ConfigBase {
      */
     public function getQb() {
         if (!isset($this->qb)) {
-            $di = new DIContainer();
-            $di->db = Config::getInstance()->db;
-            $this->setQb(new SQLBuilder($di));
+            $this->setQb(new SQLBuilder($this));
         }
 
         return $this->qb;
@@ -225,7 +223,7 @@ class ConfigBase {
     /**
      * @param \SQLBuilder $qb
      */
-    public function setQb($qb) {
+    public function setQb(SQLBuilder $qb) {
         $this->qb = $qb;
     }
 

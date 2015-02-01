@@ -28,12 +28,19 @@ class SQLBuilder {
 	 */
 	public $db;
 
-	function __construct(DIContainer $di) {
-		if ($di instanceof DIContainer && $di->db) {
-			$this->db = $di->db;
-		} else {
-			$this->db = Config::getInstance()->db;
-		}
+	/**
+	 * @var Config
+	 */
+	public $config;
+
+	function __construct(Config $config) {
+		//$this->db = $config->getDB();	// recursion, Promises would make sense here
+		$this->config = $config;
+		$this->db = $config->db;
+	}
+
+	function getDB() {
+		return $this->db = $this->db ?: $this->config->getDB();
 	}
 
 	function quoteKey($key) {
@@ -485,7 +492,7 @@ class SQLBuilder {
 	}
 
 	function __call($method, array $params) {
-		return call_user_func_array(array($this->db, $method), $params);
+		return call_user_func_array(array($this->getDB(), $method), $params);
 	}
 
 	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL) {
