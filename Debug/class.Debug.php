@@ -105,6 +105,8 @@ class Debug {
 			$fp->setOption('maxDepth', 20);
 			$trace = Debug::getSimpleTrace();
 			array_shift($trace);
+			array_shift($trace);
+			array_shift($trace);
 			if ($trace) {
 				$fp->table(implode(' ', first($trace)), $trace);
 			}
