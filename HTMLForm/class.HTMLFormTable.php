@@ -279,7 +279,8 @@ class HTMLFormTable extends HTMLForm {
 						(isset($desc['readonly']) ? ' readonly="readonly"' : '').
 						(isset($desc['disabled']) ? ' disabled="1"' : '').
 						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
-						, $type, ifsetor($desc['class'])
+						, $type,
+						ifsetor($desc['class'])
 					);
 				break;
 			}
