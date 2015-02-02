@@ -691,13 +691,7 @@ class Request {
 		if (false !== strpos(ini_get('variables_order'), 'C')) {
 			//debug($_COOKIE, ini_get('variables_order'));
 			foreach ($_COOKIE as $key => $_) {
-				if (isset($_GET[$key])) {
-					$_REQUEST[$key] = $_GET[$key];
-				} else if (isset($_POST[$key])) {
-					$_REQUEST[$key] = $_POST[$key];
-				}
-
-				if (isset($_REQUEST[$key])) {
+				if (!isset($_GET[$key]) && !isset($_POST[$key])) {
 					unset($_REQUEST[$key]);
 				}
 			}

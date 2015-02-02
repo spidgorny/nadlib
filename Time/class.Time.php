@@ -66,8 +66,14 @@ class Time {
 		return $this->format($this->format);
 	}
 
+	/**
+	 * @param null $input
+	 * @param null $relativeTo
+	 * @return static
+	 */
 	static function make($input = NULL, $relativeTo = NULL) {
-		return new self($input, $relativeTo);
+		$self = get_called_class();
+		return new $self($input, $relativeTo);
 	}
 
 	function toSQL() {
