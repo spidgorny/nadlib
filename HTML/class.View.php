@@ -264,7 +264,7 @@ class View {
 	}
 
 	function linkBIDs($text) {
-		$text = preg_replace('/\[#(\d+)\]/', '<a href="?main2.php?bid=$1">$1</a>', $text);
+		$text = preg_replace('/\[#(\d+)\]/', '<a href="?bid=$1">$1</a>', $text);
 		return $text;
 	}
 
