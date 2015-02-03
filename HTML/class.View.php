@@ -70,7 +70,7 @@ class View {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
-		//debug($this->folder, $this->file, $file, filesize($file));
+		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
 
