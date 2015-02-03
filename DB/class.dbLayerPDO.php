@@ -353,4 +353,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $columns;
 	}
 
+	function getIndexesFrom($table) {
+		return array();
+	}
+
 }
