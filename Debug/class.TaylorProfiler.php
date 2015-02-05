@@ -476,6 +476,16 @@ class TaylorProfiler {
 		}
 	}
 
+	static function start($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->startTimer($method) : NULL;
+	}
+
+	static function stop($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->stopTimer($method) : NULL;
+	}
+
 }
 
 /*
