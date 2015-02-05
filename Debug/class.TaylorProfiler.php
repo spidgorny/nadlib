@@ -383,6 +383,7 @@ class TaylorProfiler {
 
 	static function renderFloat() {
 		$totalTime = self::getElapsedTime();
+		$dbTime = 0;
 		if (Config::getInstance()->db->queryLog) {
 			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
@@ -510,6 +511,16 @@ class TaylorProfiler {
 			));
 			return $s;
 		}
+	}
+
+	static function start($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->startTimer($method) : NULL;
+	}
+
+	static function stop($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->stopTimer($method) : NULL;
 	}
 
 }
