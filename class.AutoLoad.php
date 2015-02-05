@@ -153,7 +153,8 @@ class AutoLoad {
 	 * @throws Exception
 	 */
 	function load($class) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$tp = ifsetor($GLOBALS['profiler']);
+		if ($tp) $tp->start(__METHOD__);
 
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);				// why?
@@ -182,7 +183,7 @@ class AutoLoad {
 			if (false && class_exists('Config')) {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
-					if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+					TaylorProfiler::stop(__METHOD__);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
 			}
@@ -190,7 +191,7 @@ class AutoLoad {
 		} else {
 			//echo $classFile.' ';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if ($tp) $tp->stop(__METHOD__);
 	}
 
 	function findInFolders($classFile, $subFolders) {
