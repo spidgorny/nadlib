@@ -577,7 +577,7 @@ class HTMLForm {
 	 * @see set()
 	 */
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
 		$this->stdout .= '<div style="
@@ -597,7 +597,7 @@ class HTMLForm {
 			$this->stdout .= '</label> ';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -608,7 +608,7 @@ class HTMLForm {
 	 * @see $this->radioset()
 	 */
 	function radioArray($name, array $options, $selected) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->stdout .= '<div class="radioArray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
@@ -618,7 +618,7 @@ class HTMLForm {
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function __toString() {
