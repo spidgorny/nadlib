@@ -455,7 +455,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->transaction();
 		$res = $this->runSelectQuery($table, $where);
 		$this->found = $this->fetchAssoc($res);
@@ -470,7 +470,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			//$inserted = $this->lastval(); should not be used directly
 		}
 		$this->commit();
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
 	}
 

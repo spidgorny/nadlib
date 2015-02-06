@@ -347,7 +347,8 @@ class AutoLoad {
 	 * @throws Exception
 	 */
 	function load($class) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$tp = ifsetor($GLOBALS['profiler']);
+		if ($tp) $tp->start(__METHOD__);
 		$this->count++;
 
 		$namespaces = explode('\\', $class);
@@ -385,8 +386,9 @@ class AutoLoad {
 			}
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
-				if ($this->config->config['autoload']['notFoundException']) {
-					if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+				$config = Config::getInstance();
+				if ($config->config['autoload']['notFoundException']) {
+					if ($tp) $tp->stop(__METHOD__);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
 			} else {
@@ -397,7 +399,7 @@ class AutoLoad {
 		} else {
 			//echo $classFile.' ';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if ($tp) $tp->stop(__METHOD__);
 	}
 
 	/**
