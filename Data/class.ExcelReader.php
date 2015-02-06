@@ -11,17 +11,19 @@ class ExcelReader {
 	protected $xml;
 	public $ll;
 
-	function __construct($excelFile) {
+	function __construct($excelFile, $usePersistance = false) {
 		$this->excel = $excelFile{0} == '/'
 			? $excelFile
 			: $excelFile;
 		$this->filename .= basename($this->excel).'.serial';
 
 		// read from excel - SimpleXML can't be serialized
-		//$this->xml = $this->readPersistant();
+		if ($usePersistance) {
+			$this->xml = $this->readPersistant();
+		}
 		if (!$this->xml) {
 			$this->readExcel();
-			if ($this->xml) {
+			if ($this->xml && $usePersistance) {
 				$this->savePersistant($this->xml);
 			}
 		}
@@ -29,7 +31,7 @@ class ExcelReader {
 	}
 
 	function readPersistant() {
-		//return false;
+		$data = NULL;
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
 				$data = file_get_contents($this->filename);
