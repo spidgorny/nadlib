@@ -509,7 +509,7 @@ class SQLBuilder {
 	}
 
 	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
 		if ($this->db->numRows($res)) {
@@ -524,7 +524,7 @@ class SQLBuilder {
 		$this->found = $this->db->fetchAssoc($res);
 		$this->db->perform($query);
 		$this->db->commit();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
 	}
 
@@ -536,14 +536,14 @@ class SQLBuilder {
 	 * @return resource
 	 */
 	function runInsertNew($table, array $fields) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
 			$query = $this->getInsertQuery($table, $fields);
 			//debug($query);
 			$resInsert = $this->db->perform($query);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $resInsert;
 	}
 

@@ -123,7 +123,7 @@ abstract class OODBase {
 	 * @return OODBase
 	 */
 	function insert(array $data) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		//$data['ctime'] = new AsIs('NOW()');
 		$qb = Config::getInstance()->qb;
 		$query = $qb->getInsertQuery($this->table, $data);
@@ -131,7 +131,7 @@ abstract class OODBase {
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
 		$this->init($id ? $id : $this->id);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $this;
 	}
 
@@ -144,7 +144,7 @@ abstract class OODBase {
 	 */
 	function update(array $data) {
 		if ($this->id) {
-			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+			TaylorProfiler::start(__METHOD__);
 			//$data['mtime'] = new AsIs('NOW()');
 			//$data['muser'] = $GLOBALS['i']->user->id;					// TODO: add to DB
 			$qb = Config::getInstance()->qb;
@@ -156,7 +156,7 @@ abstract class OODBase {
 			// then the later value for that key will overwrite the previous one.
 			//$this->data = array_merge($this->data, $data);
 			$this->init($this->id);
-			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
@@ -182,7 +182,7 @@ abstract class OODBase {
 	 * @return boolean (id) of the found record
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$rows = $this->db->fetchSelectQuery($this->table, $this->where + $where, $orderByLimit);
 		if (is_array($rows)) {
 			if (is_array(first($rows))) {
@@ -194,7 +194,7 @@ abstract class OODBase {
 			$data = array();
 		}
 		$this->init($data);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $data;
 	}
 
@@ -272,7 +272,7 @@ abstract class OODBase {
 						  array $insert = array(),
 						  array $update = array()
 	) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->db->transaction();
 		if ($where) {
 			$this->findInDB($where);
@@ -296,7 +296,7 @@ abstract class OODBase {
 			//debug($this->id, $this->data, $op, $this->db->lastQuery);
 		}
 		$this->db->commit();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $op;
 	}
 

@@ -43,34 +43,34 @@ class MySQL {
 	public $logToLog = false;
 
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->db = $db;
 		if ($this->db) {
 			$this->connect($host, $login, $password);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function connect($host, $login, $password) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		//echo __METHOD__.'<br />';
 		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
-			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_select_db($this->db, $this->connection);
 		if (!$res) {
-			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_set_charset('utf8', $this->connection);
 		if (!$res) {
-			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function perform($query) {
@@ -107,7 +107,7 @@ class MySQL {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
+		TaylorProfiler::stop($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				nodebug(array(
@@ -125,7 +125,7 @@ class MySQL {
 
 	function fetchAssoc($res) {
 		$key = __METHOD__.' ('.$this->lastQuery.')';
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		//TaylorProfiler::start($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -136,17 +136,17 @@ class MySQL {
 			debug_pre_print_backtrace();
 			exit();
 		}
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		//TaylorProfiler::stop($key);
 		return $row;
 	}
 
 	function fetchRow($res) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
 		$row = mysql_fetch_row($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $row;
 	}
 
@@ -158,7 +158,7 @@ class MySQL {
 	 * @return array
 	 */
 	function fetchAll($res, $key = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -180,7 +180,7 @@ class MySQL {
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
 		$this->free($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $data;
 	}
 
@@ -293,7 +293,7 @@ class MySQL {
 	}
 
 	function getTableColumns($table) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
+		TaylorProfiler::start(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
 			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
 			$res = $this->perform($query);
@@ -301,7 +301,7 @@ class MySQL {
 		} else {
 			$columns = array();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$table})".Debug::getCaller());
+		TaylorProfiler::stop(__METHOD__." ({$table})".Debug::getCaller());
 		return $columns;
 	}
 
