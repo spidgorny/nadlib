@@ -17,7 +17,7 @@ class Time {
 	 * @param null $relativeTo
 	 */
 	function __construct($input = NULL, $relativeTo = NULL) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.MySQL::getCaller().')');
+		//TaylorProfiler::start(__METHOD__.' ('.MySQL::getCaller().')');
 		if (!is_null($input)) { // 0 is 1970-01-01 00:00:00
 			if (is_string($input)) {
 				if (is_null($relativeTo)) {
@@ -37,14 +37,14 @@ class Time {
 			$this->time = time();
 		}
 		$this->updateDebug();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.MySQL::getCaller().')');
+		//TaylorProfiler::stop(__METHOD__.' ('.MySQL::getCaller().')');
 	}
 
 	function updateDebug() {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//TaylorProfiler::start(__METHOD__);
 		$this->debug = $this->getISO();
 		$this->human = $this->getHumanDateTime();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		//TaylorProfiler::stop(__METHOD__);
 	}
 
 	function __toString() {
@@ -198,7 +198,7 @@ class Time {
 	 * @return string
 	 */
 	function in() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$periods = array(
 			"second",
 			"minute",
@@ -257,7 +257,7 @@ class Time {
     		$period = $periods[$j];
 	    }
 
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	    return "$difference $period {$tense}";
 	}
 
@@ -276,12 +276,12 @@ class Time {
 	 * @return string
 	 */
 	function renderCaps() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$noe = $this->format('H:i');
 		if ($noe{3}.$noe{4} != '00') {
 			$noe = '<small>'.$noe.'</small>';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $noe;
 	}
 
@@ -321,10 +321,10 @@ class Time {
 	 * @return Time
 	 */
 	function add(Time $plus, $debug = FALSE) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//TaylorProfiler::start(__METHOD__);
 		$this->time = $this->plus($plus, $debug)->time;
 		$this->updateDebug();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		//TaylorProfiler::stop(__METHOD__);
 		return $this;
 	}
 
@@ -336,10 +336,10 @@ class Time {
 	 * @return $this
 	 */
 	function addDur(Duration $plus, $debug = FALSE) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->time = $this->time + $plus->getTimestamp();
 		$this->updateDebug();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $this;
 	}
 
@@ -351,10 +351,10 @@ class Time {
 	 * @return Time
 	 */
 	function substract(Time $plus, $debug = FALSE) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//TaylorProfiler::start(__METHOD__);
 		$this->time = $this->minus2($plus, $debug)->time;
 		$this->updateDebug();
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		//TaylorProfiler::stop(__METHOD__);
 		return $this;
 	}
 
@@ -365,7 +365,7 @@ class Time {
 	 * @return Time
 	 */
 	function plus(Time $plus, $debug = FALSE) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//TaylorProfiler::start(__METHOD__);
 		/*$format = '+ '.
 			($plus->format('Y')-1970).' years '.
 			($plus->format('m')-1).' months '.
@@ -382,7 +382,7 @@ class Time {
 			echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_long($format) ? $format : 0) . ') = [' . $new.']<br>';
 		}
 		$new = new self($new);
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		//TaylorProfiler::stop(__METHOD__);
 		return $new;
 	}
 
@@ -398,7 +398,7 @@ class Time {
 	 */
 	function minus(Time $plus, $debug = FALSE) {
 		return $this->minus2($plus, $debug);
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//TaylorProfiler::start(__METHOD__);
 		$format = '- '.
 			($plus->format('Y')-1970).' years '.
 			($plus->format('m')-1).' months '.
@@ -410,7 +410,7 @@ class Time {
 		$static = get_class($this);
 		$new = new $static($new);
 		if ($debug) echo $this . ' '. $format.' = '.$new.'<br>';
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		//TaylorProfiler::stop(__METHOD__);
 		return $new;
 	}
 
@@ -421,14 +421,14 @@ class Time {
 	 * @return Time
 	 */
 	function minus2(Time $plus, $debug = FALSE) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//TaylorProfiler::start(__METHOD__);
 		//$format = gmmktime($plus->format('H'), $plus->format('i'), $plus->format('s'), $plus->format('m'), $plus->format('d'), $plus->format('Y'));
 		$format = $plus->getTimestamp();
 		$new = $this->time - $format;
 		if ($debug) echo $this . ' - '. $format.' = '.$new.'<br>';
 		$static = get_class($this);
 		$new = new $static($new);
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		//TaylorProfiler::stop(__METHOD__);
 		return $new;
 	}
 
@@ -444,11 +444,11 @@ class Time {
 		/*$key = __METHOD__.' ('.$db->getCaller(2).', '.$db->getCaller(3).')';
 		*/
 		$key = __METHOD__;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		TaylorProfiler::start($key);
 		$t = new Time($this->format($format));
 		$this->time = $t->getTimestamp();
 		$this->updateDebug();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		TaylorProfiler::stop($key);
 		return $this;
 	}
 
@@ -458,9 +458,9 @@ class Time {
 	 * @return Time
 	 */
 	function getModify($format) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		//TaylorProfiler::start(__METHOD__);
 		$new = new Time($this->format($format));
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		//TaylorProfiler::stop(__METHOD__);
 		return $new;
 	}
 
@@ -478,7 +478,7 @@ class Time {
 	}
 
 	function getDuration() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 	    $periods = array(
 	    	"second" => 1,
 	    	"minute" => 60,
@@ -519,7 +519,7 @@ class Time {
 			$content = 'no time';
 		}
 	    //exit();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	    return $content;
 	}
 

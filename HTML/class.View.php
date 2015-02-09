@@ -30,7 +30,7 @@ class View {
 	protected $index;
 
 	function __construct($file, $copyObject = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
+		TaylorProfiler::start(__METHOD__.' ('.$file.')');
 		$this->folder = Config::getInstance()->appRoot.'/template/';
 		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
 			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
@@ -48,14 +48,14 @@ class View {
 		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
 		$this->request = Request::getInstance();
 		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
+		TaylorProfiler::stop(__METHOD__.' ('.$file.')');
 	}
 
 /*	Add as many public properties as you like and use them in the PHTML file. */
 
 	function render() {
 		$key = __METHOD__.' ('.basename($this->file).')';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		TaylorProfiler::start($key);
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
@@ -73,7 +73,7 @@ class View {
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
 			$content = '<!-- View template: '.$this->folder.$this->file.' -->'.$content;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		TaylorProfiler::stop($key);
 		return $content;
 	}
 

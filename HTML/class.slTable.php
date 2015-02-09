@@ -355,7 +355,7 @@ class slTable {
 	}
 
 	function generate($caller = '') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$caller})");
+		TaylorProfiler::start(__METHOD__." ({$caller})");
 		if (!$this->generation) {	// cache
 			if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
 				$this->generateThes();
@@ -415,7 +415,7 @@ class slTable {
 				$this->generation->stdout = '<div class="message">'.__('No Data').'</div>';
 			}
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$caller})");
+		TaylorProfiler::stop(__METHOD__." ({$caller})");
 	}
 
 	function genRow(HTMLTableBuf $t, array $row) {

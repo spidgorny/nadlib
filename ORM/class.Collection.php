@@ -172,7 +172,7 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->query = $this->getQuery($this->where);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -186,7 +186,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 	}
 
 	/**
@@ -216,7 +216,7 @@ class Collection {
 	 * @return string
 	 */
 	function getQuery($where = array()) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;
 		}
@@ -242,16 +242,16 @@ class Collection {
 			$query .= $this->pager->getSQLLimit();
 		}
 		//debug($query);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $query;
 	}
 
 	function preprocessData() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 	}
 
 	function preprocessRow(array $row) {
@@ -262,7 +262,7 @@ class Collection {
 	 * @return slTable|string - returns the slTable if not using Pager
 	 */
 	function render() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		if ($this->data) {
 			$this->prepareRender();
 			//debug($this->tableMore);
@@ -285,16 +285,16 @@ class Collection {
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $content;
 	}
 
 	function prepareRender() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->prepareRenderRow($row);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 	}
 
 	/**
