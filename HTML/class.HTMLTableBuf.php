@@ -1,47 +1,79 @@
 <?php
 
 class HTMLTableBuf {
-	var $stdout = "";
 
-	function text($text) {
-		$this->stdout .= $text;
+	/**
+	 * @var MergedContent
+	 */
+	public $stdout;
+
+	function __construct() {
+		$this->stdout = new MergedContent();
 	}
 
 	function table($more = "") {
-		$this->stdout .= "<table $more>\n";
+		$this->stdout['table'] = "<table $more>\n";
 	}
 
 	function tablee() {
-		$this->stdout .= "</table>\n";
+		$this->stdout['/table'] = "</table>\n";
+	}
+
+	function htr($more = "") {
+		$this->stdout->addSub('thead', "<tr ".$more.">\n");
+	}
+
+	function htre() {
+		$this->stdout->addSub('thead', "</tr>\n");
 	}
 
 	function tr($more = "") {
-		$this->stdout .= "<tr ".$more.">\n";
+		$this->stdout->addSub('tbody', "<tr ".$more.">\n");
 	}
 
 	function tre() {
-		$this->stdout .= "</tr>\n";
+		$this->stdout->addSub('tbody', "</tr>\n");
+	}
+
+	function ftr($more = "") {
+		$this->stdout->addSub('tfoot', "<tr ".$more.">\n");
+	}
+
+	function ftre() {
+		$this->stdout->addSub('tfoot', "</tr>\n");
 	}
 
 	function th($more = '') {
-		$this->stdout .= "<th ".$more.">\n";
+		$this->stdout->addSub('thead', "<th ".$more.">\n");
 	}
 
 	function the() {
-		$this->stdout .= "</th>\n";
+		$this->stdout->addSub('thead', "</th>\n");
 	}
 
 	function td($more = "") {
-		$this->stdout .= "<td $more>";
+		$this->stdout->addSub('tbody', "<td $more>");
 	}
 
 	function tde() {
-		$this->stdout .= "</td>\n";
+		$this->stdout->addSub('tbody', "</td>\n");
+	}
+
+	function thead($text) {
+		$this->stdout->addSub('thead', $text);
+	}
+
+	function text($text) {
+		$this->stdout->addSub('tbody', $text);
+	}
+
+	function tfoot($text) {
+		$this->stdout->addSub('tfoot', $text);
 	}
 
 	function cell($a, array $more = array()) {
 		$this->td(HTMLTag::renderAttr($more));
-		$this->stdout .= $a;
+		$this->text($a);
 		$this->tde();
 	}
 
@@ -51,19 +83,18 @@ class HTMLTableBuf {
 	 * @param string $trmore	- more on the whole row
 	 */
 	function thes(array $aCaption, $thmore = array(), $trmore = '') {
-		$this->stdout .= '<thead>';
-		$this->tr($trmore);
-			foreach($aCaption as $i => $caption) {
-				$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
-				if (is_array($more)) {
-					$more = HTMLTag::renderAttr($more);
-				}
-				$this->th($more);
-					$this->stdout .= $caption;
-				$this->the();
+		$this->htr($trmore);
+		foreach($aCaption as $i => $caption) {
+			$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
+			if (is_array($more)) {
+				$more = HTMLTag::renderAttr($more);
 			}
-		$this->tre();
-		$this->stdout .= '</thead>';
+			$this->th($more);
+			$this->thead('thead', $caption);
+			$this->the();
+		}
+		$this->htre();
+		//debug($this->stdout);
 	}
 
 	function render() {
@@ -71,11 +102,15 @@ class HTMLTableBuf {
 	}
 
 	function getContent() {
-		return $this->stdout;
+		return $this->stdout.'';
 	}
 
 	function tag(HTMLTag $tag) {
-		$this->stdout .= $tag.'';
+		$this->stdout->addSub('tbody', $tag.'');
+	}
+
+	function isDone() {
+		return !!$this->stdout['/table'];
 	}
 
 }

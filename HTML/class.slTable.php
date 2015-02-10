@@ -113,6 +113,7 @@ class slTable {
 			$this->arrowAsc = '&#x25b2;';
 		}
 		$this->sortLinkPrefix = new URL();
+		$this->generation = new HTMLTableBuf();
 	}
 
 	/**
@@ -285,7 +286,7 @@ class slTable {
 		return $names;
 	}
 
-	function generateThead(HTMLTableBuf $t) {
+	function generateThead() {
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
 			if (is_array($k) && isset($k['!show']) && $k['!show']) {
@@ -329,91 +330,93 @@ class slTable {
 			}
 		}
 
-		//debug($thes, $this->sortable);
+		$this->generation->thead('<thead>');
+		debug($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
-			$t->thes($thes2, $thmore, $this->thesMore . (is_array($this->more) ? HTMLTag::renderAttr($this->more['thesMore']) : '')); // $t is not $this // sorting must be done before
+			$more = is_array($this->more) ? HTMLTag::renderAttr($this->more['thesMore']) : '';
+			$this->generation->thes($thes2, $thmore, $this->thesMore . $more);
+			// $t is not $this // sorting must be done before
 		}
 
-		$t->stdout .= '<colgroup>';
+		$this->generation->thead('<colgroup>');
 		$i = 0;
 		foreach ($thes2 as $key => $dummy) {
-						$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
+			$key = strip_tags($key);
+			// <col class="col_E-manual<img src="design/manual.gif">" />
 
 			if ($this->isAlternatingColumns) {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
-			$t->stdout .= '<col class="col_'.$key.'" />';
+			$this->generation->thead('<col class="col_'.$key.'" />');
 		}
-		$t->stdout .= '</colgroup>';
+		$this->generation->thead('</colgroup>');
 
 		if ($this->dataPlus) {
 			$this->data = array_merge(array($this->dataPlus), $this->data);
 		}
 
-		$t->stdout .= $this->theadPlus;
-		$t->stdout .= '<tbody>';
+		$this->generation->thead($this->theadPlus);
+		$this->generation->thead('</thead>');
 	}
 
 	function generate($caller = '') {
 		TaylorProfiler::start(__METHOD__." ({$caller})");
-		if (!$this->generation) {	// cache
-			if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
-				$this->generateThes();
+		if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
+			$this->generateThes();
 
-				$this->sort();
+			$this->sort();
 
-				$t = new HTMLTableBuf();
-				$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
+			$t = $this->generation;
+			$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
 
-				$this->generateThead($t);
+			$this->generateThead();
+			$this->generation->text('<tbody>');
 
-				if (is_array($this->data) || $this->data instanceof Traversable) {
-					$data = $this->data;
-				} else {
-					$data = array();
-				}
-				$i = -1;
-				foreach ($data as $key => $row) { // (almost $this->data)
-                    ++$i;
-                    $class = array();
-					if (isset($row['###TD_CLASS###'])) {
-						$class[] = $row['###TD_CLASS###'];
-					} else {
-						// only when not manually defined
-						if ($this->isOddEven) {
-							$class[] = ($i%2?'even':'odd');
-						}
-					}
-					if ($this->dataClass[$key]) {
-						$class[] = $this->dataClass[$key];
-					}
-					$tr = 'class="'.implode(' ', $class).'"';
-					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
-					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
-					//debug_pre_print_backtrace();
-					$this->genRow($t, $row);
-					$t->tre();
-				}
-				$t->stdout .= '</tbody>';
-				if ($this->footer) {
-					$t->stdout .= '<tfoot>';
-					$class = array();
-					if ($this->isOddEven) {
-						$class[] = (++$i%2?'even':'odd');
-					}
-					$class[] = 'footer';
-					$tr = 'class="'.implode(' ', $class).'"';
-					$t->tr($tr);
-					$this->genRow($t, $this->footer);
-					$t->tre();
-					$t->stdout .= '</tfoot>';
-				}
-				$t->tablee();
-				$this->generation = $t;
+			if (is_array($this->data) || $this->data instanceof Traversable) {
+				$data = $this->data;
 			} else {
-				$this->generation = new HTMLTableBuf();
-				$this->generation->stdout = '<div class="message">'.__('No Data').'</div>';
+				$data = array();
 			}
+			$i = -1;
+			foreach ($data as $key => $row) { // (almost $this->data)
+                ++$i;
+                $class = array();
+				if (isset($row['###TD_CLASS###'])) {
+					$class[] = $row['###TD_CLASS###'];
+				} else {
+					// only when not manually defined
+					if ($this->isOddEven) {
+						$class[] = ($i%2?'even':'odd');
+					}
+				}
+				if ($this->dataClass[$key]) {
+					$class[] = $this->dataClass[$key];
+				}
+				$tr = 'class="'.implode(' ', $class).'"';
+				$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+				$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
+				//debug_pre_print_backtrace();
+				$this->genRow($t, $row);
+				$t->tre();
+			}
+			$this->generation->text('</tbody>');
+			if ($this->footer) {
+				$this->generation->tfoot('<tfoot>');
+				$class = array();
+				if ($this->isOddEven) {
+					$class[] = (++$i%2?'even':'odd');
+				}
+				$class[] = 'footer';
+				$tr = 'class="'.implode(' ', $class).'"';
+				$t->ftr($tr);
+				$this->genRow($t, $this->footer);
+				$t->ftre();
+				$this->generation->tfoot('</tfoot>');
+			}
+			$t->tablee();
+			$this->generation = $t;
+		} else {
+			$this->generation->text('<div class="message">'.__('No Data').'</div>');
 		}
 		TaylorProfiler::stop(__METHOD__." ({$caller})");
 	}
@@ -504,7 +507,7 @@ class slTable {
 	}
 
 	function show() {
-		if (!$this->generation) {
+		if (!$this->generation->isDone()) {
 			$this->generate();
 		}
 		$this->generation->render();
@@ -515,7 +518,7 @@ class slTable {
 	}
 
 	function getContent($caller = '') {
-		if (!$this->generation) {
+		if (!$this->generation->isDone()) {
 			$this->generate($caller);
 		}
 		return $this->generation->getContent();
