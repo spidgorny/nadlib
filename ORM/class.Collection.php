@@ -62,7 +62,7 @@ class Collection {
 	 * objectify() without parameters will try this class name
 	 * @var string
 	 */
-	protected $itemClassName = 'OODBase?';
+	protected $itemClassName;
 
 	/**
 	 * SQL part
@@ -370,8 +370,22 @@ class Collection {
 		$content = '<ul>';
 		foreach ($this->data as $row) {
 			$content .= '<li>';
-			foreach ($this->thes as $key => $_) {
-				$content .= $row[$key]. ' ';
+			if ($this->thes) {
+				foreach ($this->thes as $key => $_) {
+					$content .= $row[$key] . ' ';
+				}
+			} elseif ($this->itemClassName) {
+				/** @var OODBase $obj */
+				$obj = new $this->itemClassName($row);
+				if (method_exists($obj, 'getSingleLink')) {
+					$content .= new HTMLTag('a', array(
+						'href' => $obj->getsingleLink(),
+					), $obj->getName());
+				} else {
+					$content .= $obj->getName();
+				}
+			} else {
+				$content .= '<div class="error">No $thes, no $itemClassName</div>';
 			}
 			$content .= '</li>';
 		}
@@ -386,8 +400,8 @@ class Collection {
 	function renderMembers() {
 		$content = '';
 		//debug(sizeof($this->members));
+		/** @var $obj OODBase */
 		foreach ($this->members as $key => $obj) {
-			//debug($i++, (strlen($content)/1024/1024).'M');
 			if (is_object($obj)) {
 				$content .= $obj->render()."\n";
 			} else {
@@ -418,7 +432,8 @@ class Collection {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
-		$db = $GLOBALS['db'];
+		/** @var dbLayerBL $db */
+		$db = $GLOBALS['dbLayer'];
 		$firstWord = $db->getFirstWord($c->table);
 		$c->select = ' '.$firstWord.'.*';
 		return $c;
