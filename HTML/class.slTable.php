@@ -68,8 +68,16 @@ class slTable {
 	 */
 	var $footer = array();
 
+	/**
+	 * Vertical stripes
+	 * @var bool
+	 */
 	var $isAlternatingColumns = FALSE;
 
+	/**
+	 * Horizontal stripes
+	 * @var bool
+	 */
 	var $isOddEven = TRUE;
 
 	/**
@@ -80,13 +88,14 @@ class slTable {
 	/**
 	 * @var string before <tbody>
 	 */
-	var $theadPlus = '';
+	var $thesPlus = '';
 
 	/**
 	 * @var string
 	 */
 	public $trmore;
 
+	/**
 	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
 
 	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
@@ -295,18 +304,18 @@ class slTable {
 		}
 
 		$thes2 = array();
-		$thmore = array();
+		$thMore = array();
 		if (is_array($thes)) foreach ($thes as $thk => $thv) {
 			if (!is_array($thv)) {
 				$thv = array('name' => $thv);
 			}
 			$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
-			$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
-			if (!is_array($thmore)) {
-				$thmore = array('' => $thmore);
+			$thMore[$thk] = ifsetor($thv['thmore'], ifsetor($thv['more']));
+			if (!is_array($thMore)) {
+				$thMore = array('' => $thMore);
 			}
 			if ($thv['align']) {
-				$thmore[$thk]['align'] = $thv['align'];
+				$thMore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
 				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
@@ -330,15 +339,27 @@ class slTable {
 			}
 		}
 
-		$this->generation->thead('<thead>');
-		debug($thes, $this->sortable, $thes2, implode('', $thes2));
+		$this->generation->thead['colgroup'] = $this->getColGroup($thes2);
+		$this->generation->addTHead('<thead>');
+		//debug($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
-			$more = is_array($this->more) ? HTMLTag::renderAttr($this->more['thesMore']) : '';
-			$this->generation->thes($thes2, $thmore, $this->thesMore . $more);
+			$more = is_array($this->more)
+				? HTMLTag::renderAttr($this->more['thesMore'])
+				: '';
+			$this->generation->thes($thes2, $thMore, $this->thesMore . $more);
 			// $t is not $this // sorting must be done before
 		}
 
-		$this->generation->thead('<colgroup>');
+		if ($this->dataPlus) {
+			$this->data = array_merge(array($this->dataPlus), $this->data);
+		}
+
+		$this->generation->addTHead($this->colgroup);
+		$this->generation->addTHead('</thead>');
+	}
+
+	function getColGroup(array $thes2) {
+		$colgroup = '<colgroup>';
 		$i = 0;
 		foreach ($thes2 as $key => $dummy) {
 			$key = strip_tags($key);
@@ -347,27 +368,24 @@ class slTable {
 			if ($this->isAlternatingColumns) {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
-			$this->generation->thead('<col class="col_'.$key.'" />');
+			$colgroup .= '<col class="col_'.$key.'" />';
 		}
-		$this->generation->thead('</colgroup>');
-
-		if ($this->dataPlus) {
-			$this->data = array_merge(array($this->dataPlus), $this->data);
-		}
-
-		$this->generation->thead($this->theadPlus);
-		$this->generation->thead('</thead>');
+		$colgroup .= '</colgroup>';
+		return $colgroup;
 	}
 
 	function generate($caller = '') {
 		TaylorProfiler::start(__METHOD__." ({$caller})");
-		if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {	// footer needs to be displayed
+		// footer needs to be displayed
+		if ((sizeof($this->data) && $this->data != FALSE) || $this->footer) {
 			$this->generateThes();
 
 			$this->sort();
 
 			$t = $this->generation;
-			$t->table('id="'.$this->ID.'" '.(is_string($this->more) ? $this->more : $this->more['tableMore']));
+			$t->table('id="'.$this->ID.'" '.(is_string($this->more)
+					? $this->more
+					: $this->more['tableMore']));
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -386,7 +404,7 @@ class slTable {
 				} else {
 					// only when not manually defined
 					if ($this->isOddEven) {
-						$class[] = ($i%2?'even':'odd');
+						$class[] = ($i%2?' even':' odd');
 					}
 				}
 				if ($this->dataClass[$key]) {
@@ -400,25 +418,26 @@ class slTable {
 				$t->tre();
 			}
 			$this->generation->text('</tbody>');
-			if ($this->footer) {
-				$this->generation->tfoot('<tfoot>');
-				$class = array();
-				if ($this->isOddEven) {
-					$class[] = (++$i%2?'even':'odd');
-				}
-				$class[] = 'footer';
-				$tr = 'class="'.implode(' ', $class).'"';
-				$t->ftr($tr);
-				$this->genRow($t, $this->footer);
-				$t->ftre();
-				$this->generation->tfoot('</tfoot>');
-			}
+			$this->genFooter();
 			$t->tablee();
 			$this->generation = $t;
 		} else {
 			$this->generation->text('<div class="message">'.__('No Data').'</div>');
 		}
 		TaylorProfiler::stop(__METHOD__." ({$caller})");
+	}
+
+	function genFooter() {
+		if ($this->footer) {
+			$this->generation->tfoot('<tfoot>');
+			$class = array();
+			$class[] = 'footer';
+			$tr = 'class="'.implode(' ', $class).'"';
+			$this->generation->ftr($tr);
+			$this->genRow($this->generation, $this->footer);
+			$this->generation->ftre();
+			$this->generation->tfoot('</tfoot>');
+		}
 	}
 
 	function genRow(HTMLTableBuf $t, array $row) {
