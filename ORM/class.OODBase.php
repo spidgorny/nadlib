@@ -370,11 +370,13 @@ abstract class OODBase {
 					$inst = new $static($id);	// VersionInfo needs it like this
 				} else {
 												// NewRequest needs it like this
+					/** @var OODBase $inst */
 					$inst = new $static();		// don't put anything else here
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
 				}
 			}
 		} else {
+			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
 			if ($inst->id) {
