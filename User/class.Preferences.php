@@ -1,6 +1,7 @@
 <?php
 
 class Preferences {
+
 	/**
 	 * Enter description here...
 	 *
