@@ -631,10 +631,13 @@ class slTable {
 			if ($val instanceof htmlString || $val instanceof HTMLTag) {
 				//$val = $val;
 			} else {
-				if (mb_strpos($val, "\n") !== FALSE) {
-					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
-				} else if (!$no_hsc) {
-					$val = htmlspecialchars($val);
+				if (!$no_hsc) {
+					if (mb_strpos($val, "\n") !== FALSE) {
+						$val = htmlspecialchars($val);
+						$val = new htmlString('<pre>' . $val . '</pre>');
+					} else {
+						$val = htmlspecialchars($val);
+					}
 				}
 			}
 
