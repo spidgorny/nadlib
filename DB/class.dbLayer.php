@@ -53,7 +53,6 @@ class dbLayer {
 		if (!$this->CONNECTION) {
 			throw new Exception("No postgre connection.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
-			return false;
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		}
@@ -120,13 +119,13 @@ class dbLayer {
 	 * @throws Exception
 	 */
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
-		$trace = $this->getCallerFunction();
+		//$trace = $this->getCallerFunction();
 		$key = __METHOD__;
 			//.' ('.$from.')'.' // '.$trace['class'].'::'.
 			//ifsetor($trace['function']);
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer($key);
+		TaylorProfiler::start($key);
 		$query = "select $what as res from $from where $where";
-		if ($debug) printbr("<b>$query</b>");
+		if ($debug) printbr("<strong>$query</strong>");
 		$result = $this->perform($query);
 		$rows = pg_num_rows($result);
 		if ($rows == 1) {
@@ -139,13 +138,13 @@ class dbLayer {
 				pg_free_result($result);
 				$return = NULL;
 			} else {
-				printbr("<b>$query: $rows</b>");
+				printbr("<strong>$query: $rows</strong>");
 				printbr("ERROR: No result or more than one result of sqlFind()");
 				debug_pre_print_backtrace();
 				throw new DoubleResultException($query);
 			}
 		}
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer($key);
+		TaylorProfiler::stop($key);
 		return $return;
 	}
 
@@ -171,7 +170,7 @@ class dbLayer {
 		if (is_array($meta)) {
 			return array_keys($meta);
 		} else {
-			error("Table not found: <b>$table</b>");
+			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
 	}
@@ -190,7 +189,7 @@ class dbLayer {
 			if (is_array($meta)) {
 				$cache[$table] = array_keys($meta);
 			} else {
-				error("Table not found: <b>$table</b>");
+				error("Table not found: <strong>$table</strong>");
 				exit();
 			}
 		}
@@ -218,7 +217,7 @@ class dbLayer {
 			}
 			return $return;
 		} else {
-			error("Table not found: <b>$table</b>");
+			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
 	}
@@ -520,7 +519,7 @@ class dbLayer {
 		return $row;
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
 		$row = $this->fetchAssoc($res);
 		return $row;
@@ -549,7 +548,7 @@ class dbLayer {
 		$this->found = $this->fetchAssoc($res);
 		if ($this->found) {
 			$query = $this->getUpdateQuery($table, $fields, $where);
-			$res = $this->perform($query);
+			$this->perform($query);
 			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $createPlus);
@@ -582,7 +581,7 @@ where
     and pg_catalog.pg_table_is_visible(c.oid)
 order by a.attnum';
 		$rows = $this->fetchAll($query);
-		$rows = slArray::column_assoc($rows, 'comment', 'colname');
+		$rows = ArrayPlus::create($rows)->column_assoc('comment', 'colname');
 		return $rows[$column];
 	}
 
@@ -656,6 +655,7 @@ order by a.attnum';
 		}
 		reset($debug);
 		$content = array();
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		foreach (range(1, 2) as $_) {
 			$func = current($debug);
 			$func['line'] = $prev['line'];	// line is from the parent function?
