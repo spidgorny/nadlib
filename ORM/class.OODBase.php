@@ -71,7 +71,7 @@ abstract class OODBase {
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
-			$this->db = $config->db;
+			$this->db = $config->getDB();
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
@@ -209,6 +209,9 @@ abstract class OODBase {
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
+		if (!$this->db) {
+			debug_pre_print_backtrace();
+		}
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		if (is_array($rows)) {
@@ -465,6 +468,7 @@ abstract class OODBase {
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
 
+		/** @var dbLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);
