@@ -350,6 +350,54 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $this->perform("rollback");
 	}
 
+	function quoteSQL($value) {
+		if ($value === NULL) {
+			return "NULL";
+		} else if ($value === FALSE) {
+			return "'f'";
+		} else if ($value === TRUE) {
+			return "'t'";
+		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
+			return $value;
+		} else if (is_bool($value)) {
+			return $value ? "'t'" : "'f'";
+		} else if ($value instanceof SQLParam) {
+			return $value;
+		} else {
+			return "'".$this->escape($value)."'";
+		}
+	}
+
+	function quoteValues($a) {
+		$c = array();
+		foreach ($a as $b) {
+			$c[] = $this->quoteSQL($b);
+		}
+		return $c;
+	}
+
+    function quoteKeys($a) {
+        $c = array();
+        foreach ($a as $b) {
+            $c[] = $this->quoteKey($b);
+        }
+        return $c;
+    }
+
+    /**
+     * @param string $table Table name
+     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+     * @return string
+     */
+    function getInsertQuery($table, $columns) {
+		$q = "INSERT INTO {$table} (";
+		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
+		$q .= ") VALUES (";
+		$q .= implode(", ", $this->quoteValues(array_values($columns)));
+		$q .= ")";
+		return $q;
+	}
+
 	/**
 	 * Overrides because of pg_fetch_all
 	 * @param resource|string $result
@@ -629,7 +677,7 @@ order by a.attnum';
     public function getQb() {
         if(!isset($this->qb)) {
             $di = new DIContainer();
-            $di->db = Config::getInstance()->db;
+            $di->db = Config::getInstance()->getDB();
             $this->setQb(new SQLBuilder($di));
         }
 

@@ -15,6 +15,11 @@ class SQLBetween extends SQLWherePart {
 	 */
 	public $end;
 
+	/**
+	 * @var DBInterface|dbLayerBase
+	 */
+	protected $db;
+
 	function __construct($start, $end) {
 		parent::__construct();
 		$this->start = $start;

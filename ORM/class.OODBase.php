@@ -9,7 +9,7 @@
 abstract class OODBase {
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS
+	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS|dbLayerPG|dbLayerBase
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -88,7 +88,7 @@ abstract class OODBase {
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
-			$this->db = $config->db;
+			$this->db = $config->getDB();
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
@@ -234,6 +234,9 @@ abstract class OODBase {
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
 		TaylorProfiler::start(__METHOD__);
+		if (!$this->db) {
+			debug_pre_print_backtrace();
+		}
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		$this->lastSelectQuery = $this->db->lastQuery;
@@ -414,7 +417,7 @@ abstract class OODBase {
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id|array int
-	 * @return static
+	 * @return static|$this
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
@@ -505,8 +508,8 @@ abstract class OODBase {
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
 
-		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $insert);
-		$db = Config::getInstance()->db;
+		/** @var dbLayerBase $db */
+		$db = Config::getInstance()->getDB();
 		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);
 		$res = $db->perform($query);
