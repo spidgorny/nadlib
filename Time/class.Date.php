@@ -82,4 +82,8 @@ class Date extends Time {
 		return new Date(strtotime($str));
 	}
 
+	public function isWeekend() {
+		return in_array($this->format('D'), array('Sat', 'Sun'));
+	}
+
 }

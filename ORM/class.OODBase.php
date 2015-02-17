@@ -9,7 +9,7 @@
 abstract class OODBase {
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS
+	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS|dbLayerPG|dbLayerBase
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -381,7 +381,7 @@ abstract class OODBase {
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id int
-	 * @return static
+	 * @return static|$this
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
