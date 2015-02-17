@@ -465,7 +465,7 @@ abstract class OODBase {
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
 
-		$db = Config::getInstance()->db;
+		$db = Config::getInstance()->getDB();
 		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);
 		$res = $db->perform($query);

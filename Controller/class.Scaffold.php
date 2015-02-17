@@ -321,7 +321,7 @@ abstract class Scaffold extends AppController {
 					'value' => $this->model->data[$key],
 				) + $k;
 				if ($k['type'] == 'combo') {
-					$desc[$key]['options'] = Config::getInstance()->db->getTableOptions(
+					$desc[$key]['options'] = Config::getInstance()->getDB()->getTableOptions(
 						$this->model->table,
 						$key, array(),
 						'ORDER BY '.$this->db->quoteKey($key), $key);

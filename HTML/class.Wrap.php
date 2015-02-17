@@ -10,8 +10,6 @@ class Wrap {
 		} else {
 			list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
 		}
-		//$db = Config::getInstance()->db;
-		//echo __METHOD__.' '.$db->getCaller(3).' '.$this->__toString().'<br />'."\n";
 	}
 
 	function __toString() {

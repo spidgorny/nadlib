@@ -19,7 +19,7 @@ class SQLOr extends SQLWherePart {
 	function __construct(array $ors) {
 		//parent::__construct();
 		$this->or = $ors;
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	/**

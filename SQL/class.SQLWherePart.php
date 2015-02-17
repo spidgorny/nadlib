@@ -21,7 +21,7 @@ class SQLWherePart {
 
 	function __construct($sql = '') {
 		$this->sql = $sql;
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	function __toString() {

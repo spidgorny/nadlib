@@ -47,7 +47,7 @@ class Pager {
 		}
 		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 		$this->request = Request::getInstance();
 		$this->setUser(Config::getInstance()->user);
 		// Inject dependencies, this breaks all projects which don't have DCI class
