@@ -16,7 +16,7 @@ class AccessRights {
 	protected $db;
 
 	function __construct($idGroup) {
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 		$this->init($this->groupID = $idGroup);
 	}
 

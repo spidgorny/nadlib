@@ -33,7 +33,7 @@ class slTableValue {
 		$this->value = $value;
 		$this->desc += (array)$desc;
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->db;
+			$this->db = Config::getInstance()->getDB();
 		}
 	}
 

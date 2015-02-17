@@ -18,12 +18,13 @@ class Proxy extends OODBase {
 
 	function __construct($row = NULL) {
 		parent::__construct($row);
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 		$this->ratio = $this->data['ok']/max(1, $this->data['fail']);
 	}
 
 	static function getRandom() {
-		$db = Config::getInstance()->db;
+		$db = Config::getInstance()->getDB();
+		/** @var AppController $c */
 		$c = Index::getInstance()->controller;
 		if (rand(0, 100) > 75) { // 25%
 			$row = $db->fetchSelectQuery('proxy', array('fail' => new AsIs('< ').self::$maxFail),
@@ -53,7 +54,7 @@ class Proxy extends OODBase {
 	}
 
 	static function getBest($limit = 100) {
-		$db = Config::getInstance()->db;
+		$db = Config::getInstance()->getDB();
 		$rows = $db->fetchSelectQuery('proxy', array(
 			'fail' => new AsIsOp('< '.self::$maxFailBest),
 			//'ok' => new AsIs('> 0'),
@@ -70,7 +71,7 @@ class Proxy extends OODBase {
 	 * @return array(342571/359601)
 	 */
 	static function getProxies() {
-		$db = Config::getInstance()->db;
+		$db = Config::getInstance()->getDB();
 		$row = $db->fetchSelectQuery('proxy', array(), '', 'count(*)', TRUE);	// total
 		$p = new Proxy();
 		$okProxy = $p->getOKcount();

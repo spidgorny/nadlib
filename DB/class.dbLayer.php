@@ -4,7 +4,7 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer {
+class dbLayer extends dbLayerBase {
 	var $RETURN_NULL = TRUE;
 
     /**
@@ -373,7 +373,7 @@ class dbLayer {
      * @return string
      */
     function getInsertQuery($table, $columns) {
-		$q = 'INSERT INTO '.$table.' (';
+		$q = "INSERT INTO {$table} (";
 		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
 		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
@@ -739,7 +739,7 @@ order by a.attnum';
     public function getQb() {
         if(!isset($this->qb)) {
             $di = new DIContainer();
-            $di->db = Config::getInstance()->db;
+            $di->db = Config::getInstance()->getDB();
             $this->setQb(new SQLBuilder($di));
         }
 

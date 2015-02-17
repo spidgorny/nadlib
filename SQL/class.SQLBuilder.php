@@ -257,12 +257,8 @@ class SQLBuilder {
 	 */
 	public $db;
 
-	function __construct(DIContainer $di) {
-		if ($di instanceof DIContainer && $di->db) {
-			$this->db = $di->db;
-		} else {
-			$this->db = Config::getInstance()->db;
-		}
+	function __construct(dbLayerBase $db) {
+		$this->db = $db;
 	}
 
 	function quoteKey($key) {

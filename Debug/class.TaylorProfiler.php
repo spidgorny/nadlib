@@ -384,12 +384,13 @@ class TaylorProfiler {
 	static function renderFloat() {
 		$totalTime = self::getElapsedTime();
 		$dbTime = 0;
-		if (Config::getInstance()->db->queryLog) {
-			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+		$db = Config::getInstance()->get();
+		if ($db->queryLog) {
+			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if (Config::getInstance()->db->saveQueries) {
-			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
+		if ($db->saveQueries) {
+			$dbTime = array_sum($db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		$content = '<div class="floatTimeContainer">
@@ -478,7 +479,7 @@ class TaylorProfiler {
 
 	static function dumpQueries() {
 		if (DEVELOPMENT) {
-			$queryLog = Config::getInstance()->db->queryLog;
+			$queryLog = Config::getInstance()->getDB()->queryLog;
 			//debug($queryLog);
 			array_multisort(ArrayPlus::create($queryLog)->column('sumtime')->getData(), SORT_DESC, $queryLog);
 			$log = array();

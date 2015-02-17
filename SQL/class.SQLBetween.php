@@ -13,14 +13,14 @@ class SQLBetween extends SQLWherePart {
 	public $end;
 
 	/**
-	 * @var DBInterface
+	 * @var DBInterface|dbLayerBase
 	 */
 	protected $db;
 
 	function __construct($start, $end) {
 		$this->start = $start;
 		$this->end = $end;
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	function toString($field) {

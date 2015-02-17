@@ -19,7 +19,7 @@ class SQLSearch {
 		$this->sword = $sword;
 		$this->words = $this->getSplitWords($this->sword);
 		//debug($this->words);
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	function getSplitWords($sword) {

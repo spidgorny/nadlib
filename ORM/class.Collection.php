@@ -142,7 +142,7 @@ class Collection {
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
 		$this->parentID = $pid;
@@ -318,6 +318,9 @@ class Collection {
 	 */
 	function getQuery($where = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		if (!$this->db) {
+			debug_pre_print_backtrace();
+		}
 		if (!$where) {
 			$where = $this->where;
 		}

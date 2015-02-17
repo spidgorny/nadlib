@@ -21,7 +21,7 @@ class SQLWhereEqual extends SQLWherePart {
 	function __construct($field, $val) {
 		$this->field = $field;
 		$this->val = $val;
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	function __toString() {
