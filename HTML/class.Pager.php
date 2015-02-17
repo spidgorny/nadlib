@@ -24,7 +24,7 @@ class Pager {
 	protected $prefix;
 
 	/**
-	 * @var LoginUser
+	 * @var User|LoginUser|blUser|grUser
 	 */
 	protected $user;
 
@@ -38,6 +38,12 @@ class Pager {
 	public $pageSize;
 
 	static $cssOutput = false;
+
+	/**
+	 * Mouse over tooltip text per page
+	 * @var array
+	 */
+	var $pageTitles = array();
 
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
@@ -307,9 +313,14 @@ class Pager {
 	function getSinglePageLink($k, $text) {
 		$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $k));
 		if ($k == $this->currentPage) {
-			$content = '<li class="active"><a href="'.$link.'" class="active">'.$text.'</a></li>';
+			$content = '<li class="active"><a href="'.$link.'"
+				class="active"
+				title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+				>'.$text.'</a></li>';
 		} else {
-			$content = '<li><a href="'.$link.'">'.$text.'</a></li>';
+			$content = '<li><a href="'.$link.'"
+			title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+			>'.$text.'</a></li>';
 		}
 		return $content;
 	}

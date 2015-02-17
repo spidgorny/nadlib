@@ -209,7 +209,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 
 	function getTableColumnsCached($table) {
 		//debug($table); exit;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if (!$this->mcaTableColumns) {
 			$this->mcaTableColumns = new MemcacheArray(__CLASS__.'.'.__FUNCTION__, 24 * 60 * 60);
 		}
@@ -226,7 +226,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			}
 		}
 		$return = $cache[$table];
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		// used to only attach columns in bug list
 		$pageAttachCustom = array('BugLog', 'Filter');
 		if (in_array($_REQUEST['pageType'], $pageAttachCustom)) {

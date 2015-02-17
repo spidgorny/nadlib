@@ -155,7 +155,7 @@ class AlterDB extends AppControllerBE {
 	}
 
 	function initInstallerSQL() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$config = Config::getInstance();
 
 		//$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
@@ -166,11 +166,11 @@ class AlterDB extends AppControllerBE {
 
 		//$this->installerSQL = new t3lib_install_Sql();
 		$this->installerSQL = new TYPO3\CMS\Install\Sql\SchemaMigrator();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function getDiff($query) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$FDfile = $this->installerSQL->getFieldDefinitions_fileContent($query);
 		$FDfile = $this->filterDifferencesFile($FDfile);
 		//$content .= getDebug($FDfile);
@@ -179,7 +179,7 @@ class AlterDB extends AppControllerBE {
 		$FDdb = $this->filterDifferencesDB($FDdb);
 
 		$diff = $this->installerSQL->getDatabaseExtra($FDfile, $FDdb);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $diff;
 	}
 

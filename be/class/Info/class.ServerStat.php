@@ -272,7 +272,7 @@ class ServerStat extends AppControllerBE {
 	}
 
     function getCpuUsage($_statPath = '/proc/stat') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 	    $percentages = array(
 		    'idle' => NULL,
 	    );
@@ -294,7 +294,7 @@ class ServerStat extends AppControllerBE {
 				$percentages[$k] = $v / $deltaTotal * 100;
 			}
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
         return $percentages;
 	}
 

@@ -54,7 +54,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	var $title = '';
 
 	public function __construct() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		if (class_exists('Config')) {
 			$this->config = Config::getInstance();
@@ -72,7 +72,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 
 		$this->restoreMessages();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -80,7 +80,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index|IndexBE
 	 */
 	static function getInstance($createNew = false) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
 			: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
@@ -89,7 +89,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$instance = new $static();
 			self::$instance = $instance;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $instance;
 	}
 
@@ -101,14 +101,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	public function initController() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$slug = $this->request->getControllerString();
 		if ($slug) {
 			$this->loadController($slug);
 		} else {
 			throw new Exception404($slug);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -118,7 +118,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @throws Exception
 	 */
 	protected function loadController($slug) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $slug);
 		$class = end($slugParts);	// again, because __autoload need the full path
 		//debug(__METHOD__, $slug, $class, class_exists($class));
@@ -132,10 +132,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
 			unset($_SESSION['AutoLoad']);
-			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 			throw new Exception($exception);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function getController() {
@@ -146,7 +146,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function render() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		try {
 			$this->initController();
@@ -166,7 +166,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 
 		$content = $this->renderTemplateIfNotAjax($content);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
 	}
@@ -188,7 +188,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderTemplate($content) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$v = new View($this->template, $this);
 		$v->content = $content;
 		$v->title = strip_tags(ifsetor($this->controller->title));
@@ -196,19 +196,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $v;
 	}
 
 	function renderController() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$render = $this->controller->render();
 		$render = $this->mergeStringArrayRecursive($render);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $render;
 	}
 
@@ -461,12 +461,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function showSidebar() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
 			$content = $this->mergeStringArrayRecursive($content);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
 
