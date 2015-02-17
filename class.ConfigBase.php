@@ -214,7 +214,9 @@ class ConfigBase {
      */
     public function getQb() {
         if (!isset($this->qb)) {
-            $this->setQb(new SQLBuilder($this));
+            $di = new DIContainer();
+            $di->db = Config::getInstance()->getDB();
+            $this->setQb(new SQLBuilder($di));
         }
 
         return $this->qb;
