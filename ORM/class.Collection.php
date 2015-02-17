@@ -68,7 +68,7 @@ class Collection {
 	 * objectify() without parameters will try this class name
 	 * @var string
 	 */
-	public $itemClassName = 'OODBase?';
+	protected $itemClassName;
 
 	/**
 	 * SQL part
@@ -200,7 +200,7 @@ class Collection {
 		$tableParent = " (".$this->table.':'.(is_array($this->parentID)
 				? implode(', ', $this->parentID)
 				: $this->parentID).")";
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.$tableParent);
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->query = $this->getQueryWithLimit($this->where);
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
@@ -215,7 +215,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.$tableParent);
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 	}
 
 	/**
@@ -317,7 +317,7 @@ class Collection {
 	 * @return string
 	 */
 	function getQuery($where = array()) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		if (!$where) {
 			$where = $this->where;
 		}
@@ -355,16 +355,18 @@ class Collection {
 			$this->pager->initByQuery($query);
 			$query .= $this->pager->getSQLLimit();
 		}
+		//debug($query);
+		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $query;
 	}
 
 	function preprocessData() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 	}
 
 	function preprocessRow(array $row) {
@@ -375,7 +377,7 @@ class Collection {
 	 * @return slTable|string - returns the slTable if not using Pager
 	 */
 	function render() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		$this->getData();
 		if ($this->count) {
@@ -392,7 +394,7 @@ class Collection {
 		} else {
 			$content = '<div class="message">No data</div>';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $content;
 	}
 
@@ -411,13 +413,13 @@ class Collection {
 	}
 
 	function prepareRender() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		$this->getData();
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->prepareRenderRow($row);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 	}
 
 	/**
@@ -512,13 +514,26 @@ class Collection {
 			foreach ($this->getData() as $id => $row) {
 				if ($this->thes) {
 					$item = '';
-					foreach ($this->thes as $key => $_) {
+			if ($this->thes) {
+			foreach ($this->thes as $key => $_) {
 						$item .= $row[$key] . ' ';
 					}
 					$list[$id] = $item;
+			} elseif ($this->itemClassName) {
+				/** @var OODBase $obj */
+				$obj = new $this->itemClassName($row);
+				if (method_exists($obj, 'getSingleLink')) {
+					$content .= new HTMLTag('a', array(
+						'href' => $obj->getsingleLink(),
+					), $obj->getName());
+				} else {
+					$content .= $obj->getName();
+				}
 				} else {
 					$list[$id] = $row[$this->titleColumn];
 				}
+			} else {
+				$content .= '<div class="error">No $thes, no $itemClassName</div>';
 			}
 		}
 		return new UL($list);
@@ -533,7 +548,7 @@ class Collection {
 		//debug(sizeof($this->members));
 		if ($this->objectify()) {
 			foreach ($this->objectify() as $key => $obj) {
-				//debug($i++, (strlen($content)/1024/1024).'M');
+			//debug($i++, (strlen($content)/1024/1024).'M');
 				if (is_object($obj)) {
 					$content[] = $obj->render();
 					$content[] = "\n";
@@ -576,7 +591,8 @@ class Collection {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
-		$db = $GLOBALS['db'];
+		/** @var dbLayerBL $db */
+		$db = $GLOBALS['dbLayer'];
 		$firstWord = $db->getFirstWord($c->table);
 		$c->select = ' '.$firstWord.'.*';
 		return $c;

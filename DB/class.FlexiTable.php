@@ -84,7 +84,7 @@ class FlexiTable extends OODBase {
 	}
 
 	function fetchColumns($force = false) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		//TaylorProfiler::start(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		$table = str_replace('`', '', $this->table);
 		$table = str_replace("'", '', $table);
 		if (!ifsetor(self::$tableColumns[$table]) || $force) {
@@ -92,7 +92,7 @@ class FlexiTable extends OODBase {
 		}
 		$this->columns = self::$tableColumns[$table];
 		//debug($table, sizeof($this->columns), array_keys(self::$tableColumns), $this->db->lastQuery);
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		//TaylorProfiler::stop(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
 	function checkCreateTable() {

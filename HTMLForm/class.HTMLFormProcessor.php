@@ -66,7 +66,7 @@ abstract class HTMLFormProcessor extends AppController {
 	 * Who's gonna call this function? Index?
 	 */
 	function postInit() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->form = new HTMLFormTable();	// needed sometime in getDesc
 		$this->form->setDesc($this->getDesc());
 		$this->form = $this->getForm($this->form);		// $this->desc will be used inside
@@ -99,7 +99,7 @@ abstract class HTMLFormProcessor extends AppController {
 				$this->method[] = '! import $this->default';
 			}
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	abstract function getDesc();
@@ -109,7 +109,7 @@ abstract class HTMLFormProcessor extends AppController {
 	 * @return HTMLFormTable
 	 */
 	function render() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		if (!$this->form) {
 			$this->postInit();
@@ -130,12 +130,12 @@ abstract class HTMLFormProcessor extends AppController {
 			$content .= $this->showForm();
 		}
 		$content = $this->encloseInAA($content, $this->title);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
 
 	function getForm(HTMLFormTable $preForm = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$f = $preForm ? $preForm : $this->form;
 		if ($this->ajax) {
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
@@ -143,20 +143,20 @@ abstract class HTMLFormProcessor extends AppController {
 		$f->method('POST');
 		$f->hidden('c', $this->prefix);
 		$f->hidden('ajax', $this->ajax);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $f;
 	}
 
 	function showForm() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (!$this->form) {
 			throw new Exception(__METHOD__.': initialize form with getForm()');
 		}
+		TaylorProfiler::start(__METHOD__);
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
 		$this->form->submit($this->submitButton, array('class' => 'btn btn-success'));
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $this->form->getContent();
 	}
 

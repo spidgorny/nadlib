@@ -59,13 +59,13 @@ class Syndicator {
 	public $validateDownload;
 
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if ($url) {
 			$this->url = $url;
 			$this->isCaching = $caching;
 			$this->recodeUTF8 = $recodeUTF8;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -112,7 +112,8 @@ class Syndicator {
 	}
 
 	function retrieveFile($retries = 1) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
+		$c = Index::getInstance()->controller;
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
@@ -142,7 +143,7 @@ class Syndicator {
 		} else {
 			$html = $this->downloadFile($this->url, $retries);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $html;
 	}
 
@@ -228,7 +229,7 @@ class Syndicator {
 	}
 
 	function processFile($html) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		//debug(substr($html, 0, 1000));
 		if ($this->input == 'HTML') {
 			$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8);
@@ -267,12 +268,12 @@ class Syndicator {
 
 		$recode = str_replace('xmlns=', 'ns=', $recode);
 		$xml = $this->getXML($recode);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $xml;
 	}
 
 	function tidy($html) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		//debug(extension_loaded('tidy'));
 		if ($this->input == 'HTML') {
 			if (extension_loaded('tidy')) {
@@ -303,12 +304,12 @@ class Syndicator {
 		} elseif ($this->input == 'XML') {
 			$out = $html;	// hope that XML is valid
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $out;
 	}
 
 	function recode($xml) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		//$enc = mb_detect_encoding($xml);
 		//debug($enc);
 		//$xml = mb_convert_encoding($xml, 'UTF-8', 'Windows-1251');
@@ -323,12 +324,12 @@ class Syndicator {
 		//$xml = str_replace('//<![CDATA[', '<![CDATA[', $xml);
 		//$xml = preg_replace("/<html[^>]*>/", "<html>", $xml);
 		//$xml = $this->strip_html_tags($xml);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $xml;
 	}
 
 	function getXML($recode) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		try {
 			if ($recode{0} == '<') {
 				$xml = new SimpleXMLElement($recode);
@@ -357,18 +358,18 @@ class Syndicator {
 			$db->perform($query);
 */
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $xml;
 	}
 
 	function getElements($xpath) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if ($this->xml) {
 			//debug($this->xml);
 			$this->xpath = $xpath;
 			$target = $this->xml->xpath($this->xpath);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $target;
 	}
 
@@ -378,13 +379,13 @@ class Syndicator {
 	 * @return simple_xml_element
 	 */
 	function getElement($xpath) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$res = $this->getElements($xpath);
 		if ($res) {
 			reset($res);
 			$first = current($res);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $first;
 	}
 
