@@ -27,6 +27,9 @@ class Profiler {
 		$this->endTime = microtime(true);
 	}
 
+	/**
+	 * @return float
+	 */
 	function elapsed() {
 		if (!$this->endTime) {
 			$this->stop();
