@@ -94,7 +94,7 @@ class dbLayer extends dbLayerBase {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->saveQueries) {
-				@$this->QUERIES[$query] += $prof->elapsed();
+				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
@@ -115,7 +115,7 @@ class dbLayer extends dbLayerBase {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->saveQueries) {
-				@$this->QUERIES[$query] += $prof->elapsed();
+				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
@@ -128,7 +128,7 @@ class dbLayer extends dbLayerBase {
 		if (0 && DEVELOPMENT) {
 			$trace = $this->getCallerFunction();
 		}
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		TaylorProfiler::start(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
 		$result = $this->perform($query);
@@ -143,13 +143,13 @@ class dbLayer extends dbLayerBase {
 				pg_free_result($result);
 				$return = NULL;
 			} else {
-				printbr("<b>$query: $rows</b>");
-				printbr("ERROR: No result or more than one result of sqlFind()");
+				print ("<b>$query: $rows</b>" . BR);
+				print ("ERROR: No result or more than one result of sqlFind()" . BR);
 				debug_pre_print_backtrace();
 				exit();
 			}
 		}
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
+		TaylorProfiler::stop(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		return $return;
 	}
 
