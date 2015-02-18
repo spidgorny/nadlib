@@ -97,8 +97,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if (!is_null($this->queryLog)) {
-				@$this->QUERIES[$query] += $prof->elapsed();
+			if ($this->saveQueries) {
+				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
@@ -118,73 +118,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if (!is_null($this->queryLog)) {
-				@$this->QUERIES[$query] += $prof->elapsed();
+			if ($this->saveQueries) {
+				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
 		return $this->LAST_PERFORM_RESULT;
-	}
-
-	/**
-	 * @param $what string columns to retrieve.
-	 * You may request multiple columns, but the value must be last.
-	 * @param $from
-	 * @param $where
-	 * @param bool $returnNull
-	 * @param bool $debug
-	 * @return null
-	 * @throws DoubleResultException
-	 * @throws Exception
-
-	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
-		if (0 && DEVELOPMENT) {
-			$trace = $this->getCallerFunction();
-		$key = __METHOD__;
-			//.' ('.$from.')'.' // '.$trace['class'].'::'.
-			//ifsetor($trace['function']);
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
-		$query = "select ($what) as res from $from where $where";
-		if ($debug) printbr("<b>$query</b>");
-		$result = $this->perform($query);
-		$rows = pg_num_rows($result);
-		if ($rows == 1) {
-			$row = pg_fetch_row($result, 0);
-			pg_free_result($result);
-//			printbr("<b>$query: $row[0]</b>");
-			$return = $row[0];
-		} else {
-			if ($rows == 0 && $returnNull) {
-				pg_free_result($result);
-				$return = NULL;
-			} else {
-				printbr("<b>$query: $rows</b>");
-				printbr("ERROR: No result or more than one result of sqlFind()");
-				debug_pre_print_backtrace();
-				exit();
-			}
-		}
-		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
-		return $return;
-	}
-
-	function sqlFindRow($query) {
-		$result = $this->perform($query);
-		if ($result && pg_num_rows($result)) {
-			$a = pg_fetch_assoc($result, 0);
-			pg_free_result($result);
-			return $a;
-		} else {
-			return array();
-		}
-	}
-
-	function sqlFindSql($query) {
-		$result = $this->perform($query);
-		$a = pg_fetch_row($result, 0);
-		return $a[0];
 	}
 
 	/**
