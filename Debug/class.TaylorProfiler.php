@@ -40,6 +40,8 @@ class TaylorProfiler {
 	 */
 	static $sos;
 
+	static $instance;
+
 	/**
     * Initialise the timer. with the current micro time
     */
@@ -332,6 +334,7 @@ class TaylorProfiler {
     }
 
     function getMaxMemory() {
+	    $ret = NULL;
     	$amem = array2::array_column($this->trace, 'memory');
     	if (sizeof($amem)) {
     		$ret = max($amem);
@@ -384,7 +387,7 @@ class TaylorProfiler {
 	static function renderFloat() {
 		$totalTime = self::getElapsedTime();
 		$dbTime = 0;
-		$db = Config::getInstance()->get();
+		$db = Config::getInstance()->getDB();
 		if ($db->queryLog) {
 			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
@@ -473,8 +476,13 @@ class TaylorProfiler {
 	/**
 	 * @return null|TaylorProfiler
 	 */
-	public static function getInstance() {
-		return $GLOBALS['profiler'] instanceof self ? $GLOBALS['profiler'] : NULL;
+	public static function getInstance($output_enabled=false, $trace_enabled=false) {
+		return ifsetor($GLOBALS['profiler']) instanceof self
+			? $GLOBALS['profiler']
+			: (
+				self::$instance
+				?: self::$instance = new self($output_enabled, $trace_enabled)
+			);
 	}
 
 	static function dumpQueries() {
