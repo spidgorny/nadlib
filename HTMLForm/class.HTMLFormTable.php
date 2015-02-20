@@ -179,7 +179,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "check":
 				case "checkbox":
-					if ($desc['set0']) {
+					if (ifsetor($desc['set0'])) {
 						$this->hidden($fieldName, 0);
 					}
 					$more = is_array(ifsetor($desc['more']))
