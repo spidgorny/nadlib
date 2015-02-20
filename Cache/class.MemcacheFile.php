@@ -13,7 +13,7 @@ class MemcacheFile {
 	public $expire = 0;
 
 	/**
-	 * If you define $key and $expire in the constructore
+	 * If you define $key and $expire in the constructor
 	 * you don't need to define it in each method below.
 	 * Otherwise, please specify.
 	 * @param null $key
@@ -26,7 +26,7 @@ class MemcacheFile {
 		$sub = cap(AutoLoad::getInstance()->appRoot);
 
 		if (!file_exists($sub.$this->folder)) {
-			debug(__METHOD__, $sub, $this->folder);
+			debug('unable to access cache folder', __METHOD__, $sub, $this->folder);
 			die();
 		} else {
 			$this->folder = $sub . $this->folder;
@@ -53,16 +53,16 @@ class MemcacheFile {
 	}
 
 	function set($key, $val) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$file = $this->map($key);
 		if (is_writable($this->folder)) {
 			file_put_contents($file, serialize($val));
 			@chmod($file, 0777);	// needed for cronjob accessing cache files
 		} else {
-			if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 			throw new Exception($file.' write access denied.');
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function isValid($key = NULL, $expire = 0) {
@@ -78,7 +78,7 @@ class MemcacheFile {
 	}
 
 	function get($key = NULL, $expire = 0) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
@@ -88,7 +88,7 @@ class MemcacheFile {
 				$val = unserialize($val);
 			}
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $val;
 	}
 
