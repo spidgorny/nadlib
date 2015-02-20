@@ -168,6 +168,14 @@ class dbLayerOCI extends dbLayer {
 		}
 	}
 
+	function fetchAll($result) {
+		$ret = array();
+		while (($row = $this->fetchAssoc($result)) !== FALSE) {
+			$ret[] = $row;
+		}
+		return $ret;
+	}
+
 	function fetchAssoc($result) {
 		$array = oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
 		return $array;

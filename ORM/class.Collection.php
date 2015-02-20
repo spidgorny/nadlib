@@ -146,7 +146,7 @@ class Collection {
 	 * @param string $order	- appended to the SQL
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
@@ -169,7 +169,7 @@ class Collection {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->translateThes();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 	}
 
 	function postInit() {
@@ -512,31 +512,28 @@ class Collection {
 	}
 
 	function renderList() {
-		$list = [];
+		$list = array();
 		if ($this->getCount()) {
 			foreach ($this->getData() as $id => $row) {
 				if ($this->thes) {
 					$item = '';
-			if ($this->thes) {
-			foreach ($this->thes as $key => $_) {
+					foreach ($this->thes as $key => $_) {
 						$item .= $row[$key] . ' ';
 					}
 					$list[$id] = $item;
-			} elseif ($this->itemClassName) {
-				/** @var OODBase $obj */
-				$obj = new $this->itemClassName($row);
-				if (method_exists($obj, 'getSingleLink')) {
-					$content .= new HTMLTag('a', array(
-						'href' => $obj->getsingleLink(),
-					), $obj->getName());
-				} else {
-					$content .= $obj->getName();
-				}
+				} elseif ($this->itemClassName) {
+					/** @var OODBase $obj */
+					$obj = new $this->itemClassName($row);
+					if (method_exists($obj, 'getSingleLink')) {
+						$list[$id] = new HTMLTag('a', array(
+							'href' => $obj->getsingleLink(),
+						), $obj->getName());
+					} else {
+						$list[$id] = $obj->getName();
+					}
 				} else {
 					$list[$id] = $row[$this->titleColumn];
 				}
-			} else {
-				$content .= '<div class="error">No $thes, no $itemClassName</div>';
 			}
 		}
 		return new UL($list);
@@ -547,7 +544,7 @@ class Collection {
 	 * @return string
 	 */
 	function renderMembers() {
-		$content = [];
+		$content = array();
 		//debug(sizeof($this->members));
 		if ($this->objectify()) {
 			foreach ($this->objectify() as $key => $obj) {
@@ -594,8 +591,8 @@ class Collection {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
-		/** @var dbLayerBL $db */
-		$db = $GLOBALS['dbLayer'];
+		/** @var dbLayer|dbLayerBL $db */
+		$db = Config::getInstance()->getDB();
 		$firstWord = $db->getFirstWord($c->table);
 		$c->select = ' '.$firstWord.'.*';
 		return $c;
