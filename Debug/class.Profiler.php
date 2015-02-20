@@ -54,11 +54,11 @@ class Profiler {
 	}
 
 	function startTimer($method) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($method);
+		TaylorProfiler::start($method);
 	}
 
 	function stopTimer($method) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($method);
+		TaylorProfiler::stop($method);
 	}
 
 	function __toString() {

@@ -327,7 +327,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
+		TaylorProfiler::stop($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				nodebug(array(

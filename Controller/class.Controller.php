@@ -95,8 +95,8 @@ abstract class Controller {
 		$this->config = Config::getInstance();
 		$this->al = AutoLoad::getInstance();
 		if (class_exists('Config')) {
-			$this->db = $this->config->db;
-			$this->user = $this->config->user;
+			$this->db = $this->config->getDB();
+			$this->user = $this->config->getUser();
 			//debug($this->user);
 			$this->config->mergeConfig($this);
 		} else {
