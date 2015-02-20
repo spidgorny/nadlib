@@ -124,6 +124,14 @@ class dbLayerORA extends dbLayer {
 		}
 	}
 
+	function fetchAll($result) {
+		$ret = array();
+		while (($row == $this->fetchAssoc($result)) !== FALSE) {
+			$ret[] = $row;
+		}
+		return $ret;
+	}
+
 	function fetchAssoc($result) {
 		$res = ora_fetch_into($result, $array, ORA_FETCHINTO_NULLS|ORA_FETCHINTO_ASSOC);
 		if ($res) {

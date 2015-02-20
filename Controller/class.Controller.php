@@ -467,7 +467,7 @@ abstract class Controller {
 
 	function attr($s) {
 		if (is_array($s)) {
-			$content = [];
+			$content = array();
 			foreach ($s as $k => $v) {
 				$content[] = $k . '="' . $this->attr($v) . '"';
 			}
@@ -483,8 +483,9 @@ abstract class Controller {
 	}
 
 	/**
-	 * @param string|URL 		$href
+	 * @param string|URL $href
 	 * @param string|htmlString $text
+	 * @param bool $isHTML
 	 * @return HTMLTag
 	 */
 	function a($href, $text = '', $isHTML = false) {

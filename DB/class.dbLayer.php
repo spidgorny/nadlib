@@ -617,9 +617,8 @@ order by a.attnum';
 
     public function getQb() {
         if(!isset($this->qb)) {
-            $di = new DIContainer();
-            $di->db = Config::getInstance()->getDB();
-            $this->setQb(new SQLBuilder($di));
+            $db = Config::getInstance()->getDB();
+            $this->setQb(new SQLBuilder($db));
         }
 
         return $this->qb;

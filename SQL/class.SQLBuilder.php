@@ -33,10 +33,9 @@ class SQLBuilder {
 	 */
 	public $config;
 
-	function __construct(Config $config) {
-		//$this->db = $config->getDB();	// recursion, Promises would make sense here
-		$this->config = $config;
-		$this->db = $config->db;
+	function __construct(dbLayerBase $db) {
+		$this->config = Config::getInstance();
+		$this->db = $db;
 	}
 
 	function getDB() {
