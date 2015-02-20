@@ -230,7 +230,9 @@ class Uploader {
 
 	function getContent($from) {
 		if ($uf = $_FILES[$from]) {
-			return file_get_contents($uf['tmp_name']);
+			if ($uf['tmp_name']) {
+				return file_get_contents($uf['tmp_name']);
+			}
 		}
 	}
 
