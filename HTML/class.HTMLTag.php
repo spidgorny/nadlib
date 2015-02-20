@@ -50,6 +50,10 @@ class HTMLTag {
 		return $this->attr[$name];
 	}
 
+	function setAttr($name, $value) {
+		$this->attr[$name] = $value;
+	}
+
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str
