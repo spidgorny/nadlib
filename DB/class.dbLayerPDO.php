@@ -35,7 +35,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		if ($user) {
 			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
 		}
-		$this->setQB();
+
+		//$this->setQB(); // must be injected outside (inf loop)
 	}
 
 	static function getAvailableDrivers() {
