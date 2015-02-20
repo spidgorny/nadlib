@@ -225,7 +225,7 @@ class Collection {
 	 * @requires PHP 5.3
 	 */
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		TaylorProfiler::start(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$query = $this->getQuery();
 		$sql = new SQLQuery($query);
 		array_unshift($sql->parsed['SELECT'], array(
@@ -262,7 +262,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		TaylorProfiler::stop(__METHOD__." (".$this->table.':'.$this->parentID.")");
 	}
 
 	/**
@@ -347,7 +347,7 @@ class Collection {
 				TRUE);
 		}
 		//debug($query);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $query;
 	}
 

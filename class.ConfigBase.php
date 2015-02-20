@@ -63,7 +63,7 @@ class ConfigBase {
 		'be/class/DB',
 		'be/class/Info',
 		'be/class/Test',
-        'Queue',
+		'Queue',
 	);
 
 	/**
@@ -81,7 +81,7 @@ class ConfigBase {
 	public $config;
 
 	/**
-	 * @var LoginUser
+	 * @var User|LoginUser
 	 */
 	public $user;
 
@@ -209,24 +209,23 @@ class ConfigBase {
 		}
 	}
 
-    /**
-     * @return \SQLBuilder
-     */
-    public function getQb() {
-        if (!isset($this->qb)) {
-            $di = new DIContainer();
-            $di->db = Config::getInstance()->getDB();
-            $this->setQb(new SQLBuilder($di));
-        }
+	/**
+	 * @return \SQLBuilder
+	 */
+	public function getQb() {
+		if (!isset($this->qb)) {
+			$db = Config::getInstance()->getDB();
+			$this->setQb(new SQLBuilder($db));
+		}
 
-        return $this->qb;
-    }
+		return $this->qb;
+	}
 
-    /**
-     * @param \SQLBuilder $qb
-     */
-    public function setQb(SQLBuilder $qb) {
-        $this->qb = $qb;
-    }
+	/**
+	 * @param \SQLBuilder $qb
+	 */
+	public function setQb(SQLBuilder $qb) {
+		$this->qb = $qb;
+	}
 
 }
