@@ -37,6 +37,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		}
 
 		//$this->setQB(); // must be injected outside (inf loop)
+//		debug_pre_print_backtrace();
 	}
 
 	static function getAvailableDrivers() {
@@ -74,7 +75,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
 		$this->queryTime += $profiler->elapsed();
-		if ($this->getScheme() == 'mysql') {
+		if ($this->isMySQL()) {
 			$my = new MySQL();
 			$this->reserved = $my->getReserved();
 		}
@@ -176,6 +177,18 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
 		return $scheme;
+	}
+
+	function isMySQL() {
+		return $this->getScheme() == 'mysql';
+	}
+
+	function isPostgres() {
+		return $this->getScheme() == 'psql';
+	}
+
+	function isSQLite() {
+		return $this->getScheme() == 'sqlite';
 	}
 
 	function getTables() {

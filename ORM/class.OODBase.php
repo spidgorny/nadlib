@@ -12,7 +12,7 @@ abstract class OODBase {
 	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS|dbLayerPG|dbLayerBase
 	 * public to allow unset($o->db); before debugging
 	 */
-	protected $db;
+	public $db;
 
 	/**
 	 * database table name for referencing everywhere. MUST BE OVERRIDEN IN SUBCLASS!
