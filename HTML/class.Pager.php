@@ -55,7 +55,7 @@ class Pager {
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->getDB();
 		$this->request = Request::getInstance();
-		$this->setUser(Config::getInstance()->user);
+		$this->setUser(Config::getInstance()->getUser());
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
 		Config::getInstance()->mergeConfig($this);
@@ -399,7 +399,7 @@ class Pager {
 	}
 
     /**
-     * @param \LoginUser $user
+     * @param User\LoginUser $user
      */
     public function setUser($user)
     {

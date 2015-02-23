@@ -81,6 +81,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		}
 	}
 
+	function isConnected() {
+		return !!$this->connection;
+	}
+
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
 		$this->dsn = $dsn;
 		$this->connection = new PDO($this->dsn, $user, $password);

@@ -35,7 +35,7 @@ abstract class UserBase extends FlexiTable {
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
-		if ($this->db && $this->id && $this->prefs) {
+		if ($this->db && $this->db->isConnected() && $this->id && $this->prefs) {
 			$this->update(array('prefs' => serialize($this->prefs)));
 		}
 	}
