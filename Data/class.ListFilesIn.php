@@ -29,4 +29,12 @@ class ListFilesIn extends ArrayObject {
 		parent::__construct($menu);
 	}
 
+	/**
+	 * @param mixed $index
+	 * @return SplFileInfo[]
+	 */
+	public function offsetGet($index) {
+		return parent::offsetGet($index);
+	}
+
 }
