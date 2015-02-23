@@ -45,8 +45,8 @@
 		"files": [
 			"init.php",
 			"../../GerHobbelt/HTMLawed/htmLawed.php",
-			"../../php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
-			"../../php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php"
+			"../../php-sql-parser/src/PHPSQLParser.php",
+			"../../php-sql-parser/src/PHPSQLCreator.php"
 		],
 		"psr-0": {
 			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
@@ -57,8 +57,8 @@
 	"autoload-dev": {
 		"files": [
 			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
-			"vendor/php-sql-parser/src/PHPSQLParser/PHPSQLParser.php",
-			"vendor/php-sql-parser/src/PHPSQLParser/PHPSQLCreator.php"
+			"vendor/php-sql-parser/src/PHPSQLParser.php",
+			"vendor/php-sql-parser/src/PHPSQLCreator.php"
 		]
 	},
 	"repositories_bak": [
