@@ -33,7 +33,7 @@ abstract class Controller {
 	public $noRender = false;
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO|dbLayerSQLite
+	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO|dbLayerSQLite|dbLayerBase
 	 */
 	protected $db;
 
