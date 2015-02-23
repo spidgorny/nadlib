@@ -11,13 +11,13 @@ class TranslateLL extends HTMLFormProcessor {
 	protected $submitButton = 'Update';
 
 	/**
-	 * @var CookieUser
+	 * @var CookieUser|User|LoginUser
 	 */
 	var $user;
 
 	function __construct() {
 		parent::__construct();
-		$this->user = Config::getInstance()->user;
+		$this->user = Config::getInstance()->getUser();
 		if (!$this->user || !$this->user->id || !$this->user->isAdmin()) {
 			throw new AccessDeniedException();
 		}

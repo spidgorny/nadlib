@@ -149,7 +149,7 @@ class Collection {
 		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
-		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
+		$this->select = $this->select ?: 'DISTINCT '.$this->db->getFirstWord($this->table).'.*';
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
@@ -213,6 +213,7 @@ class Collection {
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
 		if ($preprocess) {
+			$this->db->free($res);
 			$this->preprocessData();
 		}
 		TaylorProfiler::stop(__METHOD__." ({$this->table})");
@@ -260,6 +261,7 @@ class Collection {
 
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
 		if ($preprocess) {
+			$this->db->free($res);
 			$this->preprocessData();
 		}
 		TaylorProfiler::stop(__METHOD__." (".$this->table.':'.$this->parentID.")");

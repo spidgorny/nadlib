@@ -77,7 +77,7 @@ class Menu /*extends Controller*/ {
 		$this->request = Request::getInstance();
 		//$this->tryInstance();
 		if (class_exists('Config')) {
-			$this->user = Config::getInstance()->user;
+			$this->user = Config::getInstance()->getUser();
 		}
 		$this->useControllerSlug = $this->request->apacheModuleRewrite();
 		$this->setCurrent($level);
