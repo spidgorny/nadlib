@@ -17,6 +17,12 @@ class UL {
 	var $links = array();
 
 	/**
+	 * <a href="###LINK###">|</a>
+	 * @var string
+	 */
+	var $linkWrap = '';
+
+	/**
 	 * @var callback to link generation function(index, name)
 	 */
 	public $linkFunc;
@@ -33,11 +39,15 @@ class UL {
 				$link = $this->links[$class];
 			} else if ($this->linkFunc) {
 				$link = call_user_func($this->linkFunc, $class, $li);
+			} elseif ($this->linkWrap) {
+				$link = $class;
+			} else {
+				$link = NULL;
 			}
 			if ($link) {
-				$wrap = Wrap::make('<a href="'.$link.'">|</a>');
+				$wrap = Wrap::make(str_replace('###LINK###', $link, $this->linkWrap));
 			} else {
-				$wrap = Wrap::make('<a>|</a>');
+				$wrap = Wrap::make('|');
 			}
 			$li = $wrap->wrap($li);
 
@@ -53,6 +63,17 @@ class UL {
 
 	function __toString() {
 		return $this->render();
+	}
+
+	public static function DL(array $assoc) {
+		$ul = new UL($assoc);
+		$links = array_keys($assoc);
+		$ul->links = array_combine($links, $links);
+		$ul->wrap = '<dt>###CLASS###</dt>';
+		$ul->linkWrap = '<dd>|</dd>';
+		$ul->before = '<dl class="dl-horizontal">';
+		$ul->after = '</dl>';
+		return $ul;
 	}
 
 }
