@@ -39,4 +39,9 @@ class SQLWhereEqual extends SQLWherePart {
 		return $this->__toString();
 	}
 
+	function injectField($field) {
+//		debug(__METHOD__, $field);
+		parent::injectField($field);
+	}
+
 }
