@@ -581,6 +581,62 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $new;
 	}
 
+	public function columnEmpty($string) {
+		foreach ($this->getData() as $row) {
+			if ($row[$string]) return false;
+		}
+		return true;
+	}
+
+	public function columnSet($string) {
+		foreach ($this->getData() as $row) {
+			if (isset($row[$string])) return true;
+		}
+		return false;
+	}
+
+	public function findDelete($niceName) {
+		$ar = $this->getData();
+		$index = array_search($niceName, $ar);
+		if ($index !== FALSE) {
+			array_splice($ar, $index, 1);
+			$this->setData($ar);
+		}
+	}
+
+	public function getKeys() {
+		return array_keys($this->getData());
+	}
+
+	public function replaceKeys(array $visibleFields) {
+		foreach ($visibleFields as $key => $val) {
+			$this->replace_key($key, $val);
+		}
+		return $this;
+	}
+
+	/**
+	 * http://php.net/manual/en/function.array-splice.php#111204
+	 * @param $input
+	 * @param $offset       - key of the element to insert BEFORE(!)
+	 * @param $length
+	 * @param $replacement
+	 */
+	static function array_splice_assoc(&$input, $offset, $length, $replacement) {
+		$replacement = (array) $replacement;
+		$key_indices = array_flip(array_keys($input));
+		if (isset($input[$offset]) && is_string($offset)) {
+			$offset = $key_indices[$offset];
+		}
+		if (isset($input[$length]) && is_string($length)) {
+			$length = $key_indices[$length] - $offset;
+		}
+
+		$input = array_slice($input, 0, $offset, TRUE)
+			+ $replacement
+			+ array_slice($input, $offset + $length, NULL, TRUE);
+	}
+
 }
 
 function AP(array $a = array()) {
