@@ -73,6 +73,8 @@ class TaylorProfiler {
 		} else if (class_exists('dbLayerPG')) {
 			$i = 3;
 			$name = dbLayerPG::getCaller($i, 2);
+		} else {
+			$name = 'noname';
 		}
 		return $name;
 	}
