@@ -417,7 +417,7 @@ abstract class OODBase {
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id|array int
-	 * @return static|$this
+	 * @return static
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
