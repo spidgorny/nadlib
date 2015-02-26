@@ -899,6 +899,7 @@ class Collection {
 	}
 
 	function getJson() {
+		$members = array();
 		foreach ($this->objectify() as $id => $member) {
 			$members[$id] = $member->getJson();
 		}
