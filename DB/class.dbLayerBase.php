@@ -126,30 +126,42 @@ class dbLayerBase implements DBInterface {
 	}
 
 	function affectedRows($res = NULL) {
-		// TODO: Implement affectedRows() method.
+		return 0;
 	}
 
 	function getTables() {
-		// TODO: Implement getTables() method.
+		return array();
 	}
 
 	function lastInsertID($res, $table = NULL) {
-		// TODO: Implement lastInsertID() method.
+		return 0;
 	}
 
 	function free($res) {
-		// TODO: Implement free() method.
 	}
 
 	function quoteKey($key) {
-		// TODO: Implement quoteKey() method.
+		return $key;
 	}
 
 	function escapeBool($value) {
-		// TODO: Implement escapeBool() method.
+		return $value;
 	}
 
 	function fetchAssoc($res) {
 		return array();
 	}
+
+	function getTablesEx() {
+		return array();
+	}
+
+	function getTableColumnsEx($table) {
+		return array();
+	}
+
+	function getIndexesFrom($table) {
+		return array();
+	}
+
 }
