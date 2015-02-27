@@ -5,17 +5,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * @var MySQL
 	 */
-	public $db;
+	protected $db;
 
 	/**
+	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
-	public $ll;
+	protected $ll;
 
 	/**
 	 * @var User|LoginUser
 	 */
-	public $user;
+	protected $user;
 
 	/**
 	 * For any error messages during initialization.
@@ -45,6 +46,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public $sidebar = '';
 
 	public $description = '';
+
+	public $keywords = '';
 
 	/**
 	 * @var Config

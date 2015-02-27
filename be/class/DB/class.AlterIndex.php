@@ -7,6 +7,11 @@ class AlterIndex extends AppControllerBE {
 	 */
 	var $jsonFile;
 
+	/**
+	 * @var dbLayerBase
+	 */
+	var $db;
+
 	function __construct() {
 		parent::__construct();
 		$filename = $this->request->getFilename('file') ?: $this->db->database.'.json';
@@ -28,7 +33,9 @@ class AlterIndex extends AppControllerBE {
 		$content[] = 'Schema: '.$this->db->getScheme().BR;
 		$content[] = 'DB: '.$this->db->database.BR;
 		$content[] = 'File: '.basename($this->jsonFile).BR;
-		$content[] = $this->getActionButton('Save DB Struct', 'saveStruct');
+		if ($this->db->database) {
+			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', NULL, array(), 'btn btn-info');
+		}
 
 		$li = array();
 		$files = new ListFilesIn($this->config->appRoot.'/sql/');
