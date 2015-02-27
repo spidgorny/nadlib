@@ -329,6 +329,8 @@ class Collection {
 		if ($this->parentID > 0) {
 			if ($this->parentID instanceof Date) {
 				$where[$this->parentField] = $this->parentID->getMySQL();
+			} elseif ($this->parentID instanceof OODBase) {
+				$where[$this->parentField] = $this->parentID->id;
 			} else {
 				$where[$this->parentField] = is_array($this->parentID)
 					? new SQLIn($this->parentID)
