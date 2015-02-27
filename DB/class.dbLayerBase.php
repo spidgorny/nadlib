@@ -4,7 +4,7 @@
  * Class dbLayerBase
  * @mixin SQLBuilder
  */
-class dbLayerBase {
+class dbLayerBase implements DBInterface {
 
 	/**
 	 * @var SQLBuilder
@@ -117,4 +117,39 @@ class dbLayerBase {
 		return $this->perform('ROLLBACK');
 	}
 
+	function perform($query) {
+		return NULL;
+	}
+
+	function numRows($res = NULL) {
+		return NULL;
+	}
+
+	function affectedRows($res = NULL) {
+		// TODO: Implement affectedRows() method.
+	}
+
+	function getTables() {
+		// TODO: Implement getTables() method.
+	}
+
+	function lastInsertID($res, $table = NULL) {
+		// TODO: Implement lastInsertID() method.
+	}
+
+	function free($res) {
+		// TODO: Implement free() method.
+	}
+
+	function quoteKey($key) {
+		// TODO: Implement quoteKey() method.
+	}
+
+	function escapeBool($value) {
+		// TODO: Implement escapeBool() method.
+	}
+
+	function fetchAssoc($res) {
+		return array();
+	}
 }

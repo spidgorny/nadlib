@@ -470,6 +470,7 @@ class SQLBuilder {
 	function combineSplitTags($words) {
 		$new = array();
 		$i = 0;
+		$in = false;
 		foreach ($words as $word) {
 			$word = new String($word);
 			if ($word->contains('[')) {

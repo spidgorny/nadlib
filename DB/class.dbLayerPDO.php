@@ -48,7 +48,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @param $user
 	 * @param $password
 	 * @param $scheme
-	 * @param $driver        IBM DB2 ODBC DRIVER
+	 * @param $driver        string IBM DB2 ODBC DRIVER
 	 * @param $host
 	 * @param $db
 	 * @param int $port
@@ -205,8 +205,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * Keys must be table names
 	 * @return array|null
 	 * @throws DatabaseException
+	 * @throws Exception
 	 */
 	function getTablesEx() {
+		$tables = array();
 		$scheme = $this->getScheme();
 		if ($scheme == 'mysql') {
 			$res = $this->perform('show tables');
@@ -222,13 +224,15 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$tables = $res->fetchAll();
 		} elseif ($scheme == 'sqlite') {
 			try {
-				$db2 = new dbLayerSQLite('');
+				$file = $this->dsn;
+				$file = str_replace('sqlite:', '', $file);
+				$db2 = new dbLayerSQLite($file);
+				$db2->connect();
+				$db2->setQB(new SQLBuilder($db2)); // different DB inside
+				$tables = $db2->getTablesEx();
 			} catch (Exception $e) {
-				// OK
+				throw $e;
 			}
-			$tables = $db2->getTablesEx();
-		} else {
-			$tables = array();
 		}
 		return $tables;
 	}
