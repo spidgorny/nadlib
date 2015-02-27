@@ -354,8 +354,8 @@ class TaylorProfiler {
 
 	static function getMemoryUsage($returnString = false) {
 		static $max;
-		$max = $max ? $max : intval(ini_get('memory_limit'));	// MB implied
-		$cur = memory_get_usage(true) / 1024 / 1024;
+		$max = $max ? $max : self::return_bytes(ini_get('memory_limit'));
+		$cur = memory_get_usage(true);
 		if ($returnString) {
 			$content = str_pad(number_format($cur, 0, '.', ''), 4, ' ', STR_PAD_LEFT).'/'.$max.'MB '.number_format($cur/$max*100, 3, '.', '').'% ';
 		} else {
