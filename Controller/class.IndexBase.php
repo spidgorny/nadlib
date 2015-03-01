@@ -361,7 +361,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
 				$this->addJS($al->nadlibFromDocRoot . $jQueryPath);
 				return $this;
+			} else {
+				$jQueryPath = 'components/jquery/jquery.min.js';
 			}
+		} else {
+			$jQueryPath = 'components/jquery/jquery.min.js';
 		}
 		$this->footer['jquery.js'] = '
 			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>

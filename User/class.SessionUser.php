@@ -61,15 +61,15 @@ class SessionUser extends PlainSessionUser {
 	 * @param string $password - hash
 	 * @throws Exception
 	 */
-	function saveLogin($email, $password) {
+	function saveLogin($email = NULL, $password = NULL) {
 		if (strlen($password) != 32) {
 			throw new Exception(__METHOD__.': supplied password is not hash.');
 		} else {
-			$class = get_called_class();
-			$_SESSION[$class]['login'] = $email;
-			$_SESSION[$class]['password'] = $password;
-			$this->findInDB(array('email' => $email));
-			if (!$this->id) {
+			if ($this->id) {
+				$class = get_called_class();
+				$_SESSION[$class]['login'] = $email;
+				$_SESSION[$class]['password'] = $password;
+			} else {
 				//debug($this->data, 'saveLogin');
 				throw new Exception('Login/password matched, but DB retrieval not.');
 			}
