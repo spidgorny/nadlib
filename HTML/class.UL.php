@@ -35,7 +35,7 @@ class UL {
 	 */
 	public $linkFunc;
 
-	function __construct(array $items) {
+	function __construct(array $items = array()) {
 		$this->items = $items;
 		$this->activeClass = each($this->items);
 	}
@@ -72,6 +72,10 @@ class UL {
 
 	function __toString() {
 		return $this->render();
+	}
+
+	function add($item) {
+		$this->items[] = $item;
 	}
 
 }
