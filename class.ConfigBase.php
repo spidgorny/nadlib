@@ -91,6 +91,8 @@ class ConfigBase {
 	 */
 	public $appRoot;
 
+	var $mailFrom = '';
+
 	protected function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
@@ -179,6 +181,7 @@ class ConfigBase {
 					$this->db_password);
 			}
 		}
+		$this->db->setQB($this->getQb());
 		return $this->db;
 	}
 

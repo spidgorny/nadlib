@@ -234,7 +234,9 @@ class Collection {
 			'base_expr' => 'SQL_CALC_FOUND_ROWS',
 			'delim' => ' ',
 		));
-		$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+		if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
+			$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+		}
 		//debug($sql->parsed);
 		$this->query = $sql->__toString();
 		$res = $this->db->perform($this->query);
