@@ -365,7 +365,6 @@ class slTable {
 			$this->data = array_merge(array($this->dataPlus), $this->data);
 		}
 
-		$this->generation->addTHead($this->colgroup);
 		$this->generation->addTHead('</thead>');
 	}
 
