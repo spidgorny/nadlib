@@ -97,7 +97,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->saveQueries) {
+			if ($this->queryLog) {
 				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
