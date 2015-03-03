@@ -8,7 +8,7 @@
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
 		"flot/flot": "dev-master",
-		"php-sql-parser": "dev-master",
+		"soundintheory/php-sql-parser": "*",
 		"GerHobbelt/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1"
@@ -43,22 +43,15 @@
 			"User/"
 		],
 		"files": [
-			"init.php",
-			"../../GerHobbelt/HTMLawed/htmLawed.php",
-			"../../php-sql-parser/src/PHPSQLParser.php",
-			"../../php-sql-parser/src/PHPSQLCreator.php"
+			"init.php"
 		],
 		"psr-0": {
-			"htmLawed": "../../vendor/GerHobbelt/HTMLawed/",
-			"PHPSQLParser": "../../php-sql-parser/src/PHPSQLParser/",
-			"PHPSQLCreator": "../../php-sql-parser/src/PHPSQLParser/"
+			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
 		}
 	},
 	"autoload-dev": {
 		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
-			"vendor/php-sql-parser/src/PHPSQLParser.php",
-			"vendor/php-sql-parser/src/PHPSQLCreator.php"
+			"vendor/GerHobbelt/HTMLawed/htmLawed.php"
 		]
 	},
 	"repositories_bak": [
