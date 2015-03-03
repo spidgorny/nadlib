@@ -59,7 +59,7 @@ class slTableValue {
 		return $this->render();
 	}
 
-	function getCell($col, $val, $k, array $row) {
+	function getCell($col, $val, array $k, array $row) {
 		$type = isset($k['type']) ? $k['type'] : NULL;
 		if (is_object($type)) {
 			$type = get_class($type);
@@ -161,7 +161,7 @@ class slTableValue {
 				if ($row[$col.'.link']) {
 					$out = new HTMLTag('a', array(
 						'href' => $row[$col.'.link'],
-					), $img, !$k['no_hsc']);
+					), $img, $k['no_hsc']);
 				} else {
 					$out = $img;
 				}
@@ -180,7 +180,7 @@ class slTableValue {
 				$out = number_format($out, 2, ',', '.');
 			break;
 			case 'check':
-				$out = '<div style="align: center;">
+				$out = '<div style="text-align: center;">
 					<input class="check" type="checkbox" disabled="" '.($val ? 'checked' : '').' />
 				</div>';
 			break;

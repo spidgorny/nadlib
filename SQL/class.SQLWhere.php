@@ -26,7 +26,7 @@ class SQLWhere {
 	function __toString() {
 		if ($this->parts) {
 			foreach ($this->parts as $field => $p) {
-				if ($p instanceof SQLWherePart) {
+				if ($p instanceof SQLWherePart && !is_numeric($field)) {
 					$p->injectField($field);
 				}
 			}

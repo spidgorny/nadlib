@@ -164,7 +164,9 @@ class SQLBuilder {
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
 					$val->injectQB($this);
-					$val->injectField($key);
+					if (!is_numeric($key)) {
+						$val->injectField($key);
+					}
 					$set[] = $val->__toString();
 				} else if ($val instanceof SimpleXMLElement) {
 					$set[] = $val->asXML();
