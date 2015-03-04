@@ -120,7 +120,7 @@ class HTMLFormTable extends HTMLForm {
 			$elementID = $desc['id'];
 		}
 		$type = ifsetor($desc['type']);
-		/* @var $type Collection */
+		/* @var $type HTMLFormType */
 		if ($type instanceof HTMLFormType) {
 			$type->setField($fieldName);
 			$type->setForm($this);
@@ -128,6 +128,7 @@ class HTMLFormTable extends HTMLForm {
 			$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
 			$type->desc = $desc;
 			$this->stdout .= $type->render();
+			/* @var $type Collection */
 		} else if ($type instanceof Collection) {
 			$type->setField($fieldName);
 			$type->setForm($this);
@@ -517,8 +518,8 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Deprecated. Used to retrieve name/values pairs from the array with $this->withValues = FALSE.
 	 *
-	 * @param array		Form description array
-	 * @param string	Column name that contains values. Within this class default value is the only that makes sence.
+	 * @param array		$arr Form description array
+	 * @param string	$col Column name that contains values. Within this class default value is the only that makes sence.
 	 * @return array	1D array with name/values
 	 * @deprecated
 	 */
