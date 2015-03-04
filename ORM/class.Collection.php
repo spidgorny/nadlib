@@ -62,7 +62,7 @@ class Collection {
 	 * array of objects converted from $this->data // convert to public
 	 * @var array
 	 */
-	public $members = array();
+	protected $members = array();
 
 	/**
 	 * objectify() without parameters will try this class name
@@ -229,11 +229,13 @@ class Collection {
 		TaylorProfiler::start(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$query = $this->getQuery();
 		$sql = new SQLQuery($query);
+		//debug($sql->parsed['SELECT']);
 		array_unshift($sql->parsed['SELECT'], array(
 			'expr_type' => 'reserved',
 			'base_expr' => 'SQL_CALC_FOUND_ROWS',
 			'delim' => ' ',
 		));
+		//debug($sql->parsed);
 		if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
 			$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
 		}
@@ -597,7 +599,7 @@ class Collection {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
-		/** @var dbLayer|dbLayerBL $db */
+		/** @var dbLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$firstWord = $db->getFirstWord($c->table);
 		$c->select = ' '.$firstWord.'.*';

@@ -263,6 +263,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @return mixed
 	 */
 	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		return $row;
 	}
