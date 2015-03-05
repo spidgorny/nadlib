@@ -214,9 +214,9 @@ if (!function_exists('__')) {	// conflict with cakePHP
 		}
 		nodebug($code, !!$index,
 			is_object($index) ? get_class($index) : gettype($index),
-			!!$index->ll);
-		if (!empty($index) && $index->ll) {
-			$text = $index->ll->T($code, $r1, $r2, $r3);
+			!!$index->getLL());
+		if (!empty($index) && $index->getLL()) {
+			$text = $index->getLL()->T($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $text;
 		} else {
@@ -238,8 +238,8 @@ if (!function_exists('__')) {	// conflict with cakePHP
 			$index = Config::getInstance();
 		}
 		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
-		if ($index && $index->ll) {
-			$text = $index->ll->Tp($code, $r1, $r2, $r3);
+		if ($index && $index->getLL()) {
+			$text = $index->getLL()->Tp($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $text;
 		} else {

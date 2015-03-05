@@ -151,6 +151,7 @@ abstract class OODBase {
 		} else if (ifsetor($this->data[$this->idField])) {
 			$this->id = $this->data[$this->idField];
 		} else {
+			debug(gettype($row), $this->idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
@@ -239,6 +240,7 @@ abstract class OODBase {
 		if (!$this->db) {
 			debug_pre_print_backtrace();
 		}
+		//debug(get_class($this->db));
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		$this->lastSelectQuery = $this->db->lastQuery;
