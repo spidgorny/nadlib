@@ -8,8 +8,16 @@
  * - submitButton
  */
 abstract class HTMLFormProcessor extends AppController {
+
+	/**
+	 * @var string
+	 */
 	protected $prefix = __CLASS__;
-	protected $default = array();
+
+	/**
+	 * @var array
+	 */
+	public $default = array();
 
 	/**
 	 * @var HTMLFormValidate

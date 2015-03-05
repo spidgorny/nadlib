@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class dbLayerODBC
+ * Class dbLayerPDO
  * @mixin SQLBuilder
  */
 class dbLayerPDO extends dbLayerBase implements DBInterface {
@@ -14,7 +14,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	/**
 	 * @var PDOStatement
 	 */
-	public $result;
+	public $lastResult;
 
 	/**
 	 * @var string
@@ -90,12 +90,21 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$params[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
 		$profiler = new Profiler();
-		$this->result = $this->connection->prepare($query, $params);
+		try {
+			$this->lastResult = $this->connection->prepare($query, $params);
+		} catch (PDOException $e) {
+			debug($query, $params, $e->getMessage());
+			throw $e;
+		}
 		$this->queryTime += $profiler->elapsed();
-		if ($this->result) {
+		if ($this->logToLog) {
+			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime.' '.$query);
+		}
+		if ($this->lastResult) {
 			//try {
 			$profiler = new Profiler();
-			$ok = $this->result->execute($params);
+			$ok = $this->lastResult->execute($params);
 			$this->queryTime += $profiler->elapsed();
 			//} catch (Exception $e) {
 			//	$ok = false;
@@ -108,31 +117,35 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 					'errorInfo' => $this->connection->errorInfo(),
 					'query' => $query,
 					'connection' => $this->connection,
-					'result' => $this->result,
+					'result' => $this->lastResult,
 				));
-				throw new Exception(getDebug(array(
+				$e = new DatabaseException(getDebug(array(
 						'class' => get_class($this),
 						'ok' => $ok,
 						'code' => $this->connection->errorCode(),
 						'errorInfo' => $this->connection->errorInfo(),
 						'query' => $query,
 						'connection' => $this->connection,
-						'result' => $this->result,
+						'result' => $this->lastResult,
 					)),
 					$this->connection->errorCode() ?: 0);
+				$e->setQuery($query);
+				throw $e;
 			}
 		} else {
-			throw new Exception(getDebug(array(
+			$e = new DatabaseException(getDebug(array(
 					'class' => get_class($this),
 					'code' => $this->connection->errorCode(),
 					'errorInfo' => $this->connection->errorInfo(),
 					'query' => $query,
 					'connection' => $this->connection,
-					'result' => $this->result,
+					'result' => $this->lastResult,
 				)),
 				$this->connection->errorCode() ?: 0);
+			$e->setQuery($query);
+			throw $e;
 		}
-		return $this->result;
+		return $this->lastResult;
 	}
 
 	/**
@@ -152,7 +165,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function affectedRows($res = NULL) {
-		return $this->result->rowCount();
+		return $this->lastResult->rowCount();
 	}
 
 	function getScheme() {
@@ -168,7 +181,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		} else if ($scheme == 'odbc') {
 			$this->perform('db2 list tables for all');
 		}
-		return $this->result->fetchAll();
+		return $this->lastResult->fetchAll();
 	}
 
 	function lastInsertID($res, $table = NULL) {
@@ -211,11 +224,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		switch ($this->getScheme()) {
 			case 'mysql':
 				$this->perform('show columns from '.$this->quoteKey($table));
-				$tableInfo = $this->fetchAll($this->result, 'Field');
+				$tableInfo = $this->fetchAll($this->lastResult, 'Field');
 				break;
 			case 'sqlite':
 				$this->perform('PRAGMA table_info('.$this->quoteKey($table).')');
-				$tableInfo = $this->fetchAll($this->result, 'name');
+				$tableInfo = $this->fetchAll($this->lastResult, 'name');
 				foreach ($tableInfo as &$row) {
 					$row['Field'] = $row['name'];
 					$row['Type'] = $row['type'];
@@ -298,6 +311,15 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function rollback() {
 		return $this->perform('ROLLBACK');
+	}
+
+	function getTableColumns($table) {
+		$query = "SELECT * FROM ".$table." LIMIT 1";
+		$res = $this->perform($query);
+		$row = $this->fetchAssoc($res);
+		$columns = array_keys($row);
+		$columns = array_combine($columns, $columns);
+		return $columns;
 	}
 
 }

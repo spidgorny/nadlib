@@ -48,14 +48,19 @@ abstract class OODBase {
 	 * @var array
 	 */
 	protected $where = array();
-
+	
 	/**
-	 * @var self[get_called_class()][$id]
+	 * array[get_called_class()][$id]
 	 */
 	static $instances = array();
 
 	/**
-	 * @var string - saved after insertUpdate
+	 * @var string - saved after findInDB
+	 */
+	public $lastSelectQuery;
+
+	/**
+	 * @var string - saved after insert/update
 	 */
 	public $lastQuery;
 
@@ -64,6 +69,11 @@ abstract class OODBase {
 	 * @var string
 	 */
 	public $parentField = 'pid';
+
+	/**
+	 * @var ?
+	 */
+	public $forceInit;
 
 	/**
 	 * Constructor should be given the ID of the existing record in DB.
@@ -138,8 +148,10 @@ abstract class OODBase {
 			foreach ($this->idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
-		} else {
+		} else if (ifsetor($this->data[$this->idField])) {
 			$this->id = $this->data[$this->idField];
+		} else {
+			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
 
@@ -153,7 +165,7 @@ abstract class OODBase {
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
-		//$data['ctime'] = new AsIs('NOW()');
+		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$res = $this->db->perform($query);
@@ -188,6 +200,7 @@ abstract class OODBase {
 				$where[$this->idField] = $this->id;
 			}
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
+			$this->lastQuery = $query;
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);
 			$this->lastQuery = $this->db->lastQuery;	// save before commit
@@ -210,7 +223,7 @@ abstract class OODBase {
 		}
 		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
-		//debug($query);
+		$this->lastQuery = $query;
 		return $this->db->perform($query);
 	}
 
@@ -218,19 +231,23 @@ abstract class OODBase {
 	 * Retrieves a record from the DB and calls $this->init()
 	 * @param array $where
 	 * @param string $orderByLimit
-	 * @return boolean (id) of the found record
+	 * @return bool of the found record
+	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
-		$this->lastQuery = $this->db->lastQuery;
+		$this->lastSelectQuery = $this->db->lastQuery;
 		if (is_array($rows)) {
 			$data = $rows;
+			$this->init($data, true);
 		} else {
 			$data = array();
+			if ($this->forceInit) {
+				$this->init($data, true);
+			}
 		}
-		$this->init($data, true);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$this->table.')');
 		return $data;
 	}
@@ -251,8 +268,12 @@ abstract class OODBase {
 				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
 			}
 		}
+		/** @var static $obj */
 		$obj = new $static();
 		$obj->findInDB($where);
+		if ($obj->id) {
+			self::$instances[$static][$obj->id] = $obj;
+		}
 		return $obj;
 	}
 
@@ -395,7 +416,7 @@ abstract class OODBase {
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id int
-	 * @return static
+	 * @return self|$this|static
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
@@ -409,7 +430,7 @@ abstract class OODBase {
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = self::$instances[$static][$id];
+			$inst = ifsetor(self::$instances[$static][$id]);
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				if (false) {
@@ -450,8 +471,9 @@ abstract class OODBase {
 		$self = get_called_class();
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
+		$c = NULL;
 		// first search instances
-		if (is_array(self::$instances[$self])) {
+		if (is_array(ifsetor(self::$instances[$self]))) {
 			foreach (self::$instances[$self] as $inst) {
 				$field = $field ? $field : $inst->titleColumn;
 				if ($inst->data[$field] == $name) {
@@ -554,6 +576,12 @@ abstract class OODBase {
 			$obj = NULL;
 		}
 		return $obj;
+	}
+
+	function getJson() {
+		return array(
+			'data' => $this->data,
+		);
 	}
 
 }

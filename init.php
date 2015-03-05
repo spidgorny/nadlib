@@ -62,7 +62,7 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
-	function debug_size($a)	{
+	function debug_size($a) {
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
 			$keys = array_keys($vals);
@@ -153,7 +153,7 @@ if (!function_exists('nodebug')) {
 	 * @param int $tabDepth
 	 * @return mixed
 	 */
-	function tab2nbsp($text, $tabDepth = 4)	{
+	function tab2nbsp($text, $tabDepth = 4) {
 		$tabSpaces = str_repeat('&nbsp;', $tabDepth);
 		return str_replace("\t", $tabSpaces, $text);
 	}
@@ -162,8 +162,7 @@ if (!function_exists('nodebug')) {
 	 * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
 	 */
 	if (!function_exists('get_called_class')) {
-		function get_called_class($bt = false, $l = 1)
-		{
+		function get_called_class($bt = false, $l = 1) {
 			if (!$bt) $bt = debug_backtrace();
 			if (!isset($bt[$l])) throw new Exception("Cannot find called class -> stack level too deep.");
 			if (!isset($bt[$l]['type'])) {
@@ -215,8 +214,7 @@ if (!function_exists('nodebug')) {
 	 * @param array $list
 	 * @return array|mixed
 	 */
-	function first(array $list)
-	{
+	function first(array $list) {
 		reset($list);
 		return current($list);
 	}
@@ -227,8 +225,7 @@ if (!function_exists('nodebug')) {
 	 * @param array $list
 	 * @return mixed
 	 */
-	function eachv(array &$list)
-	{
+	function eachv(array &$list) {
 		$current = current($list);
 		next($list);
 		return $current;
@@ -240,8 +237,7 @@ if (!function_exists('nodebug')) {
 	 * @param array $b
 	 * @return array
 	 */
-	function array_combine_stringkey(array $a, array $b)
-	{
+	function array_combine_stringkey(array $a, array $b) {
 		$ret = array();
 		reset($b);
 		foreach ($a as $key) {
@@ -256,8 +252,7 @@ if (!function_exists('nodebug')) {
 	 * @param $class
 	 * @return array|null
 	 */
-	function get_overriden_methods($class)
-	{
+	function get_overriden_methods($class) {
 		$rClass = new ReflectionClass($class);
 		$array = NULL;
 
@@ -285,13 +280,11 @@ if (!function_exists('nodebug')) {
 	 * @param $arr
 	 * @return bool
 	 */
-	function is_assoc($arr)
-	{
+	function is_assoc($arr)	{
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
-	function cap($string, $with = '/')
-	{
+	function cap($string, $with = '/') {
 		if (!endsWith($string, $with)) {
 			$string .= $with;
 		}
@@ -301,6 +294,8 @@ if (!function_exists('nodebug')) {
 	/**
      * Shortcut for
      * isset($variable) ? $variable : $default
+	 * BUT, it creates a NULL elements with the multidimensional arrays!!!
+	 * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
 	 * @param $variable
 	 * @param null $default
 	 * @return null
@@ -314,4 +309,5 @@ if (!function_exists('nodebug')) {
 		}
 		return $tmp;
 	}
+
 }

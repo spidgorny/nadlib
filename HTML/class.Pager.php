@@ -59,8 +59,8 @@ class Pager {
 	 * To be called only after setNumberOfRecords()
 	 */
 	function detectCurrentPage() {
-		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
-			if ($pagerData['startingRecord']) {
+		if (($pagerData = ifsetor($_REQUEST['Pager_'.$this->prefix]))) {
+			if (ifsetor($pagerData['startingRecord'])) {
 				$this->startingRecord = (int)($pagerData['startingRecord']);
 				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
 			} else {
@@ -210,22 +210,23 @@ class Pager {
 		$this->url = $url;
 
 		if (!self::$cssOutput) {
+			$al = AutoLoad::getInstance();
 			if (class_exists('Index') && $this->request->apacheModuleRewrite()) {
 				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-				Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/PaginationControl.less');
+				Index::getInstance()->addCSS($al->nadlibFromDocRoot.'CSS/PaginationControl.less');
 			} elseif (false && $GLOBALS['HTMLHEADER']) {
 				$GLOBALS['HTMLHEADER']['PaginationControl.less']
-					= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/PaginationControl.less" />';
+					= '<link rel="stylesheet" href="'.$al->nadlibFromDocRoot.'CSS/PaginationControl.less" />';
 			} elseif (!Request::isCLI()) {
 				$content .= $this->getCSS();	// pre-compiles LESS inline
 			}
 			self::$cssOutput = true;
 		}
 
-		$content .= '<div class="pagination paginationControl">';
+		$content .= '<div class="paginationControl">';
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
-			$content .= $this->renderPager();
+			$content .= $this->renderPager();	// will render UL inside
 		}
 		$content .= '</div>';
 		return $content;
@@ -299,7 +300,7 @@ class Pager {
 			</form>";
 		}
  		//debug($term);
-		$content = '<ul>'.$content.'&nbsp;'.'</ul>'.$form;
+		$content = '<ul class="pagination">'.$content.'&nbsp;'.'</ul>'.$form;
 		return $content;
 	}
 

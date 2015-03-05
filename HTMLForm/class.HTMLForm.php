@@ -101,7 +101,8 @@ class HTMLForm {
 	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
 		$a = '';
-		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
+		$moreClass = is_array($more) ? ifsetor($more['class']) : '';
+		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.' '.$moreClass.'"';
 		$a .= $this->getName($name, $namePlus);
 		if ($value || $value === 0) {
 			$value = htmlspecialchars($value, ENT_QUOTES);
@@ -218,7 +219,7 @@ class HTMLForm {
 
 	function file($name, array $desc = array()) {
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout .= $this->getInput("file", $name, '', $desc['more'], $desc['class']);
+		$this->stdout .= $this->getInput("file", $name, '', ifsetor($desc['more']), ifsetor($desc['class']));
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
@@ -530,17 +531,21 @@ class HTMLForm {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
-		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
+		$this->stdout .= '<div style="
+			width: '.$width.';
+			height: '.$height.';
+			overflow: auto;
+			" class="checkarray '.$sName.'">';
 		$newName = array_merge($name, array(''));
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
-			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'">';
+			$this->stdout .= '<label class="checkline_'.($checked ? 'active' : 'normal').'" style="white-space: nowrap;">';
 			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
 			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
 			$this->check($newName, $value, $checked, $moreStr);
 			$this->text('<span title="id='.$value.'">'.(is_array($row) ? implode(', ', $row) : $row).'</span>');
-			$this->stdout .= '</label>';
+			$this->stdout .= '</label> ';
 		}
 		$this->stdout .= '</div>';
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);

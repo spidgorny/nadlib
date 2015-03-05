@@ -52,7 +52,7 @@ abstract class Scaffold extends AppController {
 	 *
 	 * @var OODBase
 	 */
-	protected $model;
+	public $model;
 
 	/**
 	 * extra attributes for the form like onSubmit
@@ -74,6 +74,11 @@ abstract class Scaffold extends AppController {
 
 	protected $editIcon = '<img src="img/stock-edit-16.png" />';
 
+	/**
+	 * @var Request
+	 */
+	protected $subRequest;
+
 	function __construct() {
 		parent::__construct();
 		$this->translateThes();
@@ -85,14 +90,17 @@ abstract class Scaffold extends AppController {
 			$this->id = $this->request->getInt($this->table.'.id'); // NON AJAX POST
 		}
 		if (!$this->id) {
-			$this->id = $this->request->getInt('id');
+			// don't do it. It can be ID of anything (parent record)
+			//$this->id = $this->request->getInt('id');
 		}
+
+		$this->subRequest = $this->request->getSubRequest($this->formPrefix);
 		$this->setModel();	// uses $this->id
 
 		$this->form = new HTMLFormTable();
 		//debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
 		if ($this->request->isSubmit()) {
-			$this->data = $this->request->getArray($this->formPrefix);
+			$this->data = $this->subRequest->getAll();
 		} else {
 			$this->data = $this->model->data;
 		}
@@ -126,7 +134,11 @@ abstract class Scaffold extends AppController {
 				$content[] = $this->showPerform();
 			break;
 			default:    // view table
-				$content[] = $this->showDefault();
+				if (method_exists($this, $this->action.'Action')) {
+					$content[] = call_user_func(array($this, $this->action.'Action'));
+				} else {
+					$content[] = $this->showDefault();
+				}
 			break;
 		}
 		return $content;
@@ -221,7 +233,8 @@ abstract class Scaffold extends AppController {
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
-		$f->submit($this->updateButton, array(
+		$f->button('<span class="glyphicon glyphicon-floppy-disk"></span> '.$this->updateButton, array(
+			'type' => 'submit',
 			'class' => 'btn btn-primary',
 		));
 		return $f;
@@ -253,15 +266,19 @@ abstract class Scaffold extends AppController {
 						throw new Exception(__METHOD__);
 					}
 				}
-			} catch (Exception $e) {
+			} catch (DatabaseException $e) {
 				$content[] = '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
+				debug($e->getQuery());
 				$content[] = $this->showForm();
+			} catch (PDOException $e) {
+				debug($e->getMessage());
+				debug($this->db->lastQuery);
 			}
 		} else {
 			//$desc = $v->getDesc();
 			$content[] = '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
+			$content[] = $v->getErrorList();
 			$content[] = $this->showForm();
-			//debug($desc['participants'], $userData['participants']);
 		}
 		return $content;
 	}
@@ -352,11 +369,11 @@ abstract class Scaffold extends AppController {
 	}
 
 	function afterInsert(array $userData) {
-		return 'Inserted';
+		return '<div class="success">'.__('Inserted').'</div>';
 	}
 
 	function afterUpdate(array $userData) {
-		return 'Updated';
+		return '<div class="success">'.__('Updated').'</div>';
 	}
 
 }

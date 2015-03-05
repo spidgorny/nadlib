@@ -340,7 +340,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'documentRoot' => $al->documentRoot,
 				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
 			));
-			if (file_exists($al->componentsPath.$jQueryPath)) {
+			if (file_exists($al->componentsPath . $jQueryPath)) {
+				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
 				$this->addJS($al->componentsPath->getURL().$jQueryPath);
 				return $this;
 			} elseif (file_exists($al->appRoot . $jQueryPath)) {
@@ -365,10 +366,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addJQueryUI() {
 		$this->addJQuery();
-		if ($this->footer['jqueryui.js']) return $this;
+		if (ifsetor($this->footer['jqueryui.js'])) return $this;
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
-		$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		//debug($jQueryPath);
+		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
 		nodebug(array(
 			'jQueryPath' => $jQueryPath,
@@ -410,7 +413,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	function addJS($source) {
 		$called = Debug::getCaller();
-		if (!contains($source, '?')) {
+		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
 				$mtime = @filemtime('public/'.$source);
@@ -435,7 +438,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$source = '?c=Lesser&css=' . $source;
 			}
 		} else {
-			if (!contains($source, '?')) {
+			if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 				$mtime = @filemtime($source);
 				if (!$mtime) {
 					$mtime = @filemtime('public/'.$source);
@@ -475,14 +478,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
-					if ($this->db->queryLog) {
+					if (ifsetor($this->db->queryLog)) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
-					if ($this->db->QUERIES) {
-						$dbLayer = $this->db;
-						/** @var $dbLayer dbLayer */
-						$content .= $dbLayer->dumpQueries();
-					}
+					$content .= TaylorProfiler::dumpQueries();
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {
 				$content = TaylorProfiler::renderFloat();

@@ -75,6 +75,7 @@ class HTMLFormTable extends HTMLForm {
 		if ($fieldset) {
 			$this->fieldset($fieldset);
 		}
+		$this->tableMore['class'] = 'htmlFormTable';
 	}
 
 	function setDesc(array $desc) {
@@ -98,7 +99,7 @@ class HTMLFormTable extends HTMLForm {
 					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
 				$desc->importValues($subForm);
 				//debug('after', $desc->desc);
-			} else if ($desc['type'] instanceof HTMLFormDatePicker) {
+			} else if (ifsetor($desc['type']) instanceof HTMLFormDatePicker) {
 				$val = $form->getTrim($key);
 				$desc['value'] = $desc['type']->getISODate($val);
 				//debug(__METHOD__, $val, $desc['value']);
@@ -141,13 +142,13 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "textarea":
 					$this->textarea($fieldName, $fieldValue,
-						(is_array($desc['more'])
+						(is_array(ifsetor($desc['more']))
 							? HTMLForm::getAttrHTML($desc['more'])
 							: $desc['more']
 						).
 						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
-						($desc['disabled'] ? ' disabled="1"' : '').
-						($desc['class'] ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
+						(ifsetor($desc['disabled']) ? ' disabled="1"' : '').
+						(ifsetor($desc['class']) ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
 					);
 				break;
 				case "date":
@@ -181,7 +182,7 @@ class HTMLFormTable extends HTMLForm {
 					if ($desc['set0']) {
 						$this->hidden($fieldName, 0);
 					}
-					$more = is_array($desc['more'])
+					$more = is_array(ifsetor($desc['more']))
 						? $desc['more'] + array('id' => $elementID)
 						: $desc['more'] . ' id="'.$elementID.'"';
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $more);
@@ -207,7 +208,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc);
 				break;
 				case 'submit':
-					$desc['name'] = $desc['name'] ? $desc['name'] : $fieldName;
+					$desc['name'] = ifsetor($desc['name'], $fieldName);
 					//debug($desc);
 					$this->submit($desc['value'], $desc);
 				break;
@@ -277,8 +278,8 @@ class HTMLFormTable extends HTMLForm {
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
 						(isset($desc['readonly']) ? ' readonly="readonly"' : '').
 						(isset($desc['disabled']) ? ' disabled="1"' : '').
-						($desc['autofocus'] ? ' autofocus' : '')
-						, $type, $desc['class']
+						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
+						, $type, ifsetor($desc['class'])
 					);
 				break;
 			}
@@ -293,7 +294,7 @@ class HTMLFormTable extends HTMLForm {
 			: array();
 		if (isset($desc['newTD'])) {
 			$this->stdout .= '</tr></table></td>
-			<td '.$desc['TDmore'].'><table class="htmlFormTable"><tr>';
+			<td '.$desc['TDmore'].'><table '.HTMLForm::getAttrHTML($this->tableMore).'><tr>';
 		}
 		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
 		$type = isset($desc['type']) ? $desc['type'] : NULL;
@@ -321,7 +322,7 @@ class HTMLFormTable extends HTMLForm {
 					if (!$withBR) {
 						if ($desc['label']) {
 							$label .= ':&nbsp;';
-							if (!$desc['optional'] &&
+							if (!ifsetor($desc['optional']) &&
 								!in_array($type, array('check', 'checkbox'))) {
 								if ($this->noStarUseBold) {
 									$label = '<b title="Obligatory">'.$label.'</b>';
@@ -333,7 +334,7 @@ class HTMLFormTable extends HTMLForm {
 									$label = '<span title="Optional">'.$label.'</span>';
 								}
 							}
-							$label .= ($desc['explanationgif']) ? $desc['explanationgif'] : '';
+							$label .= ifsetor($desc['explanationgif']);
 							$label .= $this->debug
 								? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>'
 								: '';
@@ -349,7 +350,7 @@ class HTMLFormTable extends HTMLForm {
 				if (isset($desc['error'])) {
 					//debug($fieldName, $desc);
 					//debug_pre_print_backtrace();
-					$desc['class'] .= ' error';
+					$desc['class'] = ifsetor($desc['class']) . ' error';
 				}
 
 				if (ifsetor($desc['wrap'])) {
@@ -415,6 +416,7 @@ class HTMLFormTable extends HTMLForm {
 	 * @return $this
 	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
+		$this->tableMore['class'] .= $this->defaultBR ? ' defaultBR' : '';
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
 		return $this;
 	}
@@ -436,9 +438,7 @@ class HTMLFormTable extends HTMLForm {
 			$startedFieldset = TRUE;
 			$this->fieldset = NULL;
 		}
-		$tableMore = $this->tableMore;
-		$tableMore['class'] = (isset($tableMore['class']) ? $tableMore['class'] : '') . " htmlFormTable";
-		$this->stdout .= '<table '.HTMLForm::getAttrHTML($tableMore).'>';
+		$this->stdout .= '<table '.HTMLForm::getAttrHTML($this->tableMore).'>';
 		$this->stdout .= $this->renderFormRows($formData, $prefix);
 		$this->stdout .= "</table>".$append;
 		if ($startedFieldset) {
@@ -566,34 +566,36 @@ class HTMLFormTable extends HTMLForm {
 	 * and as $assoc['key']['value'] = $value.
 	 * Non-static due to $this->withValue and $this->formatDate
 	 *
-	 * @param	array	Structure of the HTMLFormTable
-	 * @param	array	Values in one of the supported formats.
+	 * @param	array	$desc - Structure of the HTMLFormTable
+	 * @param	array	$assoc - Values in one of the supported formats.
 	 * @param	boolean	??? what's for?
 	 * @return	array	HTMLFormTable structure.
 	 * @deprecated in favor of fill()
 	 */
 	function fillValues(array $desc, array $assoc = NULL, $forceInsert = false) {
 		foreach ($assoc as $key => $val) {
-			if (is_array($desc[$key]) || $forceInsert) {
+			//$descKey = ifsetor($desc[$key]);		// CREATES $key => NULL INDEXES
+			$descKey = isset($desc[$key]) ? $desc[$key] : NULL;
+			if (is_array($descKey) || $forceInsert) {
 				if (is_array($val) && $this->withValue) {
 					$desc[$key]['value'] = $val['value'];
 				} else {
 					$desc[$key]['value'] = $val;
 				}
 
-				$sType = is_object($desc[$key]['type'])
-					? get_class($desc[$key]['type'])
-					: $desc[$key]['type'];
+				$sType = is_object(ifsetor($descKey['type']))
+					? get_class($descKey['type'])
+					: $descKey['type'];
 				switch ($sType) {
 					case 'date':
-						if (is_numeric($desc[$key]['value']) && $desc[$key]['value']) {
-							$desc[$key]['value'] = $this->formatDate($desc[$key]['value'], $desc[$key]);
+						if (is_numeric($descKey['value']) && $descKey['value']) {
+							$desc[$key]['value'] = $this->formatDate($descKey['value'], $descKey);
 						}
 					break;
 				}
 
-				if ($desc[$key]['dependant']) {
-					$desc[$key]['dependant'] = $this->fillValues($desc[$key]['dependant'], $assoc);
+				if (ifsetor($descKey['dependant'])) {
+					$desc[$key]['dependant'] = $this->fillValues($descKey['dependant'], $assoc);
 					//t3lib_div::debug($desc[$key]['dependant']);
 				}
 			}
@@ -607,7 +609,8 @@ class HTMLFormTable extends HTMLForm {
 	 * @return array
 	 */
 	function fill(array $assoc, $forceInsert = false) {
-		return $this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
+		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
+		return $this->debug;
 	}
 
 	/**
@@ -660,7 +663,7 @@ class HTMLFormTable extends HTMLForm {
 	 * @return array
 	 */
 	static function fetchSelectionOptions(array $desc) {
-		if ($desc['from'] && $desc['title']) {
+		if (ifsetor($desc['from']) && $desc['title']) {
 			//debugster($desc);
 			$options = Config::getInstance()->qb->getTableOptions($desc['from'],
 				$desc['title'],

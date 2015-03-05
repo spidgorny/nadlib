@@ -28,6 +28,13 @@ abstract class LocalLang {
 	public 		$editMode = false;
 
 	/**
+	 * @var bool
+	 */
+	public $debug = false;
+
+	public $saveMissingMessages = true;
+
+	/**
 	 * Will detect the language by the cookie or browser sniffing
 	 * @param null $forceLang
 	 */
@@ -106,7 +113,6 @@ abstract class LocalLang {
 	 * @return string translated message
 	 */
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
-		//debug($text, isset($this->ll[$text]), $this->ll[$text]);
 		if (isset($this->ll[$text])) {
 			$trans = ifsetor($this->ll[$text]);
 			$trans = $this->Tp($trans, $replace, $s2, $s3);
@@ -118,6 +124,9 @@ abstract class LocalLang {
 			$this->saveMissingMessage($text);
 			$text = $this->Tp($text, $replace, $s2, $s3);
 			$trans = $this->getEditLinkMaybe($text);
+		}
+		if ($this->debug) {
+			debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
 		}
 		return $trans;
 	}
@@ -171,7 +180,7 @@ abstract class LocalLang {
 	}
 
 	function id($code) {
-		return $this->codeID[$code];
+		return ifsetor($this->codeID[$code]);
 	}
 
 	/**

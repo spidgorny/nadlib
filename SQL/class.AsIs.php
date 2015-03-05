@@ -3,7 +3,7 @@
 /**
  * Helps to distinguish normal data types of PHP from explicit SQL commands
  * that don't need to be quoted inside SQLBuilder class.
- * Usage: $data['mtime'] = new AsIs('NOW()');
+ * Usage: $data['mtime'] = new AsIs('NOW()');	// there's SQLNow() for this
  * Before that you would have to use this:
  * $data['mtime'] = 'now()';
  * $data['mtime.'] = array('asis' => TRUE);

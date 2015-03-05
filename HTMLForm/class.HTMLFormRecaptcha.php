@@ -21,7 +21,7 @@ class HTMLFormRecaptcha {
 	}
 
 	function getForm(array $desc) {
-		$content = recaptcha_get_html($this->publickey, $desc['error']);
+		$content = recaptcha_get_html($this->publickey, ifsetor($desc['error']));
 		return $content;
 	}
 

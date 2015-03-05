@@ -8,7 +8,7 @@ class SQLNow extends AsIs {
 
     function __toString() {
         $map = array(
-            'sqlite' => "date('now')",
+            'sqlite' => "datetime('now')",
             'mysql' => 'now()',
         );
         $schema = $this->db->getScheme();

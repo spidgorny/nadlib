@@ -26,11 +26,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
      */
     public $qb = null;
 
-    	/**
-	 * logging:
-	 */
-	public $saveQueries = false;
-
 	var $QUERIES = array();
 	var $QUERYMAL = array();
 	var $QUERYFUNC = array();
@@ -102,7 +97,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->saveQueries) {
+			if (!is_null($this->queryLog)) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
@@ -123,7 +118,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->saveQueries) {
+			if (!is_null($this->queryLog)) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
@@ -133,10 +128,23 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $this->LAST_PERFORM_RESULT;
 	}
 
+	/**
+	 * @param $what string columns to retrieve.
+	 * You may request multiple columns, but the value must be last.
+	 * @param $from
+	 * @param $where
+	 * @param bool $returnNull
+	 * @param bool $debug
+	 * @return null
+	 * @throws DoubleResultException
+	 * @throws Exception
+
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
 		if (0 && DEVELOPMENT) {
 			$trace = $this->getCallerFunction();
-		}
+		$key = __METHOD__;
+			//.' ('.$from.')'.' // '.$trace['class'].'::'.
+			//ifsetor($trace['function']);
 		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
@@ -342,40 +350,13 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $this->perform("rollback");
 	}
 
-	function quoteSQL($value) {
-		if ($value === NULL) {
-			return "NULL";
-		} else if ($value === FALSE) {
-			return "'f'";
-		} else if ($value === TRUE) {
-			return "'t'";
-		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
-			return $value;
-		} else if (is_bool($value)) {
-			return $value ? "'t'" : "'f'";
-		} else if ($value instanceof SQLParam) {
-			return $value;
-		} else {
-			return "'".$this->escape($value)."'";
-		}
-	}
-
-	function quoteValues($a) {
-		$c = array();
-		foreach ($a as $b) {
-			$c[] = $this->quoteSQL($b);
-		}
-		return $c;
-	}
-
-    function quoteKeys($a) {
-        $c = array();
-        foreach ($a as $b) {
-            $c[] = $this->quoteKey($b);
-        }
-        return $c;
-    }
-
+	/**
+	 * Overrides because of pg_fetch_all
+	 * @param resource|string $result
+	 * @param null $key
+	 * @return array
+	 * @throws Exception
+	 */
 	function fetchAll($result, $key = NULL) {
 		if (is_string($result)) {
 			$result = $this->perform($result);
@@ -392,51 +373,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 
 		pg_free_result($result);
 		return $res;
-	}
-
-    /**
-     * @param string $table
-     * @param array $columns
-     * @param array $where
-     * @return string
-     */
-    function getUpdateQuery($table, $columns, $where) {
-		$q = 'UPDATE '.$table .' SET ';
-		$set = array();
-		foreach ($columns as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		$q .= implode(", ", $set);
-		$q .= " WHERE ";
-		$set = array();
-		foreach ($where as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		$q .= implode(" AND ", $set);
-		return $q;
-	}
-
-	function getFirstWord($table) {
-		$table1 = explode(' ', $table);
-		$table1 = $table1[0];
-		return $table1;
-	}
-
-	function getDeleteQuery($table, array $where, $what = '') {
-		$q = "DELETE ".$what." FROM $table ";
-		$set = array();
-		foreach ($where as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" AND ", $set);
-		} else {
-			$q .= ' WHERE 1 = 0';
-		}
-		return $q;
 	}
 
 	/**
@@ -473,22 +409,11 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $value;
 	}
 
-	function runSelectQuery($table, $where = array(), $order = '', $select = '*') {
-		$query = $this->getSelectQuery($table, $where, $order, $select);
-		$res = $this->perform($query);
-		return $res;
-	}
-
 	function numRows($query = NULL) {
 		if (is_string($query)) {
 			$query = $this->perform($query);
 		}
 		return pg_num_rows($query);
-	}
-
-	function runUpdateQuery($table, array $set, array $where) {
-		$query = $this->getUpdateQuery($table, $set, $where);
-		return $this->perform($query);
 	}
 
 	function getLastInsertID($res = NULL, $table = 'not required since 8.1') {
@@ -520,20 +445,15 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	/**
-	 * This used to retrieve a single row !!!
+	 * Check why this override is necessary.
+	 * Probably it is not.
 	 * @param $table
-	 * @param $where
-	 * @param string $order
-	 * @param string $selectPlus
-	 * @param null $idField
-	 * @return array
+	 * @param array $fields
+	 * @param array $where
+	 * @param array $createPlus
+	 * @return null
+	 * @throws Exception
 	 */
-	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '', $idField = NULL) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAll($res, $idField);
-		return $row;
-	}
-
 	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->transaction();
@@ -552,10 +472,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$this->commit();
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $inserted;
-	}
-
-	function runDeleteQuery($table, $where) {
-		$this->perform($this->getDeleteQuery($table, $where));
 	}
 
 	function getComment($table, $column) {
@@ -727,4 +643,5 @@ order by a.attnum';
 	public function getScheme() {
 		return 'postgresql';
 	}
+
 }

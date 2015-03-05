@@ -73,7 +73,7 @@ class Proxy extends OODBase {
 	 */
 	static function getProxies() {
 		$db = Config::getInstance()->db;
-		$row = $db->fetchSelectQuery('proxy', array(), '', 'count(*)', TRUE);	// total
+		$row = $db->fetchSelectQuery('proxy', array(), '', 'count(*)');	// total
 		$p = new Proxy();
 		$okProxy = $p->getOKcount();
 		return array($okProxy, $row[0]['count(*)']);
@@ -82,7 +82,7 @@ class Proxy extends OODBase {
 	function getOKcount() {
 		$rowOK = $this->db->fetchSelectQuery('proxy', array(
 			'fail' => new AsIsOp('< '.self::$maxFail)
-		), '', 'count(*)', TRUE);
+		), '', 'count(*)');
 		return $rowOK[0]['count(*)'];
 	}
 

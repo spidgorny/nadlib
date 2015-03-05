@@ -34,17 +34,17 @@ class View {
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
 		$config = Config::getInstance();
-		$this->folder = $config->appRoot.'/template/';
-		if (class_exists('Config') && $config->config[__CLASS__]['folder']) {
+		$this->folder = ($config->appRoot ? cap($config->appRoot, '/') : '').'template/';
+		if (class_exists('Config') && ifsetor($config->config[__CLASS__]['folder'])) {
 			$this->folder = dirname(__FILE__).'/'.$config->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
-		nodebug(
+		/*nodebug(
 			$config->appRoot,
 			$config->config[__CLASS__],
 			$config->config[__CLASS__]['folder'],
 			$this->folder,
-			$this->file);
+			$this->file);*/
 		if ($copyObject) {
 			$this->caller = $copyObject;
 			/*$vars = get_object_vars($copyObject);

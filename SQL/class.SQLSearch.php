@@ -4,9 +4,27 @@ class SQLSearch {
 	protected $table;
 	protected $sword;
 	protected $words = array();
+
+	/**
+	 * Update it from outside to search different columns
+	 * @var array
+	 */
 	public $searchableFields = array(
 		'title',
 	);
+
+	/**
+	 * Not used
+	 * @var string
+	 */
+	public $queryJoins = '';
+
+	/**
+	 * Replace with ILIKE if necessary
+	 * @var string
+	 */
+	public $likeOperator = 'LIKE';
+
 
 	/**
 	 * @var DBInterface
@@ -24,7 +42,7 @@ class SQLSearch {
 
 	function getSplitWords($sword) {
 		$sword = trim($sword);
-		$words = explode(' ', $sword . ' ' . $GLOBALS['i']->user->data['searchAppend']);
+		$words = explode(' ', $sword . ' ' . ifsetor(Index::getInstance()->user->data['searchAppend']));
 		$words = array_map('trim', $words);
 		$words = array_filter($words);
 		$words = array_unique($words);
@@ -47,7 +65,7 @@ class SQLSearch {
 	/**
 	 * @return array
 	 */
-	public function getWhere() {
+	function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;

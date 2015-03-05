@@ -16,7 +16,11 @@ class UL {
 
 	var $links = array();
 
-	var $linkWrap = '<a href="###LINK###">|</a>';
+	/**
+	 * <a href="###LINK###">|</a>
+	 * @var string
+	 */
+	var $linkWrap = '';
 
 	/**
 	 * @var callback to link generation function(index, name)
@@ -33,8 +37,12 @@ class UL {
 		foreach ($this->items as $class => $li) {
 			if ($this->links) {
 				$link = $this->links[$class];
-			} else if ($this->linkFunc) {
+			} elseif ($this->linkFunc) {
 				$link = call_user_func($this->linkFunc, $class, $li);
+			} elseif ($this->linkWrap) {
+				$link = $class;
+			} else {
+				$link = NULL;
 			}
 			if ($link) {
 				$wrap = Wrap::make(str_replace('###LINK###', $link, $this->linkWrap));
@@ -42,7 +50,7 @@ class UL {
 				//$wrap = Wrap::make('<a>|</a>');
 				$wrap = Wrap::make('|');
 			}
-			$li = $wrap->wrap($li);
+			$li = $wrap->wrap($li);				// don't translate __() because the values may come from DB
 
 			$line = Wrap::make($this->wrap)->wrap($li);
 			$line = str_replace('###CLASS###', $class, $line);
