@@ -286,7 +286,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addJS($source) {
-		$this->footer[$source] = '<script src="'.$source.'"></script>';
+		$called = Debug::getCaller();
+		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
+			$mtime = @filemtime($source);
+			if (!$mtime) {
+				$mtime = @filemtime('public/'.$source);
+			}
+			if ($mtime) {
+				$source .= '?' . $mtime;
+			}
+		}
+		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$source.'"></script>';
 		return $this;
 	}
 
