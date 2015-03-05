@@ -567,12 +567,12 @@ abstract class OODBase {
 				sizeof(self::$instances[$className]),
 				isset(self::$instances[$className][$id]));
 			$this->init($data, true);
-			return $data;
 		}
+		return $data;
 	}
 
 	function getParent() {
-		$id = $this->data[$this->parentField];
+		$id = ifsetor($this->data[$this->parentField]);
 		if ($id) {
 			$obj = self::getInstance($id);
 		} else {
