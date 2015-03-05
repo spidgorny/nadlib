@@ -88,7 +88,9 @@ abstract class OODBase {
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
-			$this->db = $config->getDB();
+			if (!$this->db) {
+				$this->db = $config->getDB();
+			}
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
