@@ -355,7 +355,7 @@ abstract class Controller {
 	}
 
 	function encloseInTableHTML3(array $cells) {
-		$content[] = '<table>';
+		$content[] = '<table class="encloseInTable">';
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';

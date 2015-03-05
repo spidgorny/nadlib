@@ -70,7 +70,7 @@ class Selectable {
 		return $f->getContent();
 	}
 
-	function getOptions() {
+	function getOptions($selected = NULL) {
 		return $this->data;
 	}
 

@@ -63,7 +63,6 @@ class UL {
 			if ($link) {
 				$wrap = Wrap::make(str_replace('###LINK###', $link, $this->linkWrap));
 			} else {
-				//$wrap = Wrap::make('<a>|</a>');
 				$wrap = Wrap::make('|');
 			}
 			$li = $wrap->wrap($li);				// don't translate __() because the values may come from DB
