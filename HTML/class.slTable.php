@@ -205,8 +205,8 @@ class slTable {
 	 */
 	function setSortBy($by = NULL, $or = NULL) {
 		if ($by === NULL && $or === NULL) {
-			$by = $_REQUEST['slTable']['sortBy'];
-			$or = $_REQUEST['slTable']['sortOrder'];
+			$by = ifsetor($_REQUEST['slTable']['sortBy']);
+			$or = ifsetor($_REQUEST['slTable']['sortOrder']);
 			//debug(array($by, $or));
 		} else if (is_array($by)) {
 			list($by, $or) = $by;
@@ -241,7 +241,7 @@ class slTable {
 				} else {
 					$th = &$this->thes[$this->sortBy];
 				}
-				if ($th) {
+				if ($th && !endsWith($th, $this->arrowAsc) && !endsWith($th, $this->arrowDesc)) {
 					$th .= $this->sortOrder ? $this->arrowDesc : $this->arrowAsc;
 				}
 			}
@@ -321,7 +321,7 @@ class slTable {
 			}
 			if ($this->sortable) {
 				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
-					$sortField = $thv['dbField'] ? $thv['dbField'] : $thk;	// set to null - don't sort
+					$sortField = ifsetor($thv['dbField'], $thk);	// set to null - don't sort
 					$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
 					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
 						'sortBy' => $sortField,
@@ -349,12 +349,11 @@ class slTable {
 		$t->stdout .= '<colgroup>';
 		$i = 0;
 		foreach ($thes2 as $key => $dummy) {
-						$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
-
+			$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 			if ($this->isAlternatingColumns) {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
-			$t->stdout .= '<col class="col_'.$key.'" />';
+			$t->stdout .= '<col class="col_'.$key.'" />'."\n";
 		}
 		$t->stdout .= '</colgroup>';
 

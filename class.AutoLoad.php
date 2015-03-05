@@ -91,6 +91,7 @@ class AutoLoad {
 			self::$instance = new self();
 			self::$instance->detectNadlibRoot();
 			self::$instance->loadConfig();
+			self::$instance->config = Config::getInstance();
 			self::$instance->initFolders();
 		}
 		return self::$instance;
@@ -164,7 +165,8 @@ class AutoLoad {
 		if (file_exists('composer.json')) {
 			$json = json_decode(file_get_contents('composer.json'), 1);
 			//debug($json['config']);
-			if (isset($json['config']) && $json['config']['component-dir']) {
+			if (isset($json['config'])
+				&& isset($json['config']['component-dir'])) {
 				$this->componentsPath = new Path($json['config']['component-dir']);
 				$this->componentsPath->remove('public');
 				$this->componentsPath = $this->componentsPath->relativeFromAppRoot();
@@ -376,8 +378,7 @@ class AutoLoad {
 			}
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
-				$config = Config::getInstance();
-				if ($config->config['autoload']['notFoundException']) {
+				if ($this->config->config['autoload']['notFoundException']) {
 					if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 					throw new Exception('Class '.$class.' ('.$file.') not found.');
 				}
@@ -397,7 +398,7 @@ class AutoLoad {
 	 * @return string
 	 */
 	function findInFolders($classFile, $subFolders) {
-		$appRoot = class_exists('Config') ? Config::getInstance()->appRoot : '';
+		$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
@@ -418,6 +419,8 @@ class AutoLoad {
 				) {	// on windows exclude index.php
 					$file = $file2;
 				}
+			} else {
+				$file2 = NULL;
 			}
 
 			if (file_exists($file)) {

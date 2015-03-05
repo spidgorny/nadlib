@@ -32,18 +32,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 	protected static $instance;
 
 	/**
-	 * set to NULL for disabling
-	 * @var array
-	 */
-	public $queryLog = array();
-
-	/**
-	 * @var bool Allows logging every query to the error.log.
-	 * Helps to detect the reason for white screen problems.
-	 */
-	public $logToLog = false;
-
-	/**
 	 * Reserved MySQL words
 	 * @var array
 	 */
@@ -282,11 +270,15 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function connect($host, $login, $password) {
+	function connect($host, $login, $password, $newConnection = false) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//echo __METHOD__.'<br />';
 		//ini_set('mysql.connect_timeout', 3);
-		$this->connection = @mysql_pconnect($host, $login, $password);
+		if ($newConnection) {
+			$this->connection = mysql_connect($host, $login, $password, $newConnection);
+		} else {
+			$this->connection = @mysql_pconnect($host, $login, $password);
+		}
 		if (!$this->connection) {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
@@ -325,7 +317,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		}
 		if ($this->logToLog) {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime.' '.$query);
+			error_log($runTime.' '.str_replace("\n", ' ', $query));
 		}
 
 		$start = microtime(true);
@@ -348,9 +340,11 @@ class MySQL extends dbLayerBase implements DBInterface {
 					'query' => $query,
 				));
 			}
-			throw new Exception(mysql_errno($this->connection).': '.mysql_error($this->connection).
+			$e = new DatabaseException(mysql_errno($this->connection).': '.mysql_error($this->connection).
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
+			$e->setQuery($this->lastQuery);
+			throw $e;
 		}
 		if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
@@ -454,6 +448,13 @@ class MySQL extends dbLayerBase implements DBInterface {
 		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
+	}
+
+	function getTableColumns($table) {
+		$details = $this->getTableColumnsEx($table);
+		$keys = array_keys($details);
+		$columns = array_combine($keys, $keys);
+		return $columns;
 	}
 
 	/**

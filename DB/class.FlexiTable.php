@@ -37,7 +37,7 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
-		if (!$row['ctime']) {
+		if (!ifsetor($row['ctime'])) {
 			$row['ctime'] = new SQLDateTime();
 		}
 		if (!$row['cuser']) {
@@ -51,11 +51,11 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		if (!$row['mtime']) {
+		if (!ifsetor($row['mtime'])) {
 			$mtime = new Time();
 			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		}
-		if (!$row['muser'] && Config::getInstance()->user->id) {
+		if (!ifsetor($row['muser']) && Config::getInstance()->user->id) {
 			$row['muser'] = Config::getInstance()->user->id;
 		}
 		if ($this->doCheck) {
@@ -87,7 +87,7 @@ class FlexiTable extends OODBase {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		$table = str_replace('`', '', $this->table);
 		$table = str_replace("'", '', $table);
-		if (!self::$tableColumns[$table] || $force) {
+		if (!ifsetor(self::$tableColumns[$table]) || $force) {
 			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
 		}
 		$this->columns = self::$tableColumns[$table];

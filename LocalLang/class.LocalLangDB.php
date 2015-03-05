@@ -8,7 +8,7 @@ class LocalLangDB extends LocalLang {
 	public $table = 'interface';
 
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayerBase
 	 */
 	protected $db;
 
@@ -20,9 +20,6 @@ class LocalLangDB extends LocalLang {
 
 	function __construct($forceLang = NULL) {
 		parent::__construct($forceLang);
-        $config = Config::getInstance();
-		$this->db = $config->db;
-        $this->table = $config->prefixTable($this->table);
 	}
 
 	/**
@@ -30,6 +27,9 @@ class LocalLangDB extends LocalLang {
 	 * Because we need to specify the desired language $this->lang
 	 */
 	function init() {
+		$config = Config::getInstance();
+		$this->db = $config->db;
+		$this->table = $config->prefixTable($this->table);
 		$this->rows = $this->readDB($this->lang);
 		if ($this->rows) {
 			$apRows = ArrayPlus::create($this->rows);
@@ -59,9 +59,11 @@ class LocalLangDB extends LocalLang {
 			'method' => __METHOD__,
 			'DEVELOPMENT' => DEVELOPMENT,
 			'code' => $code,
-			'$this->ll[code]' => $this->ll[$code],
+			'$this->saveMissingMessages' => $this->saveMissingMessages,
+			'$this->db' => !!$this->db,
+			'$this->ll[code]' => ifsetor($this->ll[$code]),
 			));
-		if (DEVELOPMENT && $code) {
+		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
 			try {
 				$where = array(
 					'code' => $code,
@@ -71,15 +73,15 @@ class LocalLangDB extends LocalLang {
 					'text' => '',
 					'page' => Request::getInstance()->getURL(),
 				);
-				$cols = $this->db->getTableColumnsEx($this->table);
-				if ($cols['cuser']) {
+				$cols = $this->db->getTableColumns($this->table);
+				if (ifsetor($cols['cuser'])) {
 					$insert['cuser'] = Config::getInstance()->user->id;
 				}
-				if ($cols['muser']) {
+				if (ifsetor($cols['muser'])) {
 					$insert['muser'] = Config::getInstance()->user->id;
 				}
 				$res = $this->db->runInsertNew($this->table, $where, $insert);
-				//debug($db->lastQuery, $db->affectedRows());
+				//debug($code, $this->db->lastQuery, $this->db->numRows($this->db->lastResult), $this->db->affectedRows());
 				$this->ll[$code] = $code;
 				$this->codeID[$code] = $this->db->lastInsertID($res);
 				//debug($this->db->lastQuery);
@@ -143,7 +145,7 @@ class LocalLangDB extends LocalLang {
 	}
 
 	function getRow($id) {
-		return $this->rows[$id];
+		return ifsetor($this->rows[$id]);
 	}
 
 	function showLangSelection() {

@@ -188,6 +188,10 @@ class Request {
 		return $val;
 	}
 
+	/**
+	 * @param $name
+	 * @return array
+	 */
 	function getArray($name) {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
 	}
@@ -253,6 +257,7 @@ class Request {
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
+		return NULL;
 	}
 
 	function getFile($name, $prefix = NULL, $prefix2 = NULL) {
@@ -347,6 +352,7 @@ class Request {
 		$levels = $this->getURLLevels();
 		if ($levels) {
 			$levels = array_reverse($levels);
+			$last = NULL;
 			foreach ($levels as $class) {
 				// RewriteRule should not contain "?c="
 				nodebug(
@@ -400,7 +406,7 @@ class Request {
 	}
 
 	function getReferer() {
-		return new URL($_SERVER['HTTP_REFERER']);
+		return $_SERVER['HTTP_REFERER'] ? new URL($_SERVER['HTTP_REFERER']) : NULL;
 	}
 
 	function getRefererController() {
@@ -482,8 +488,7 @@ class Request {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
 
-		// hack
-		//$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
+		//debug(get_class($c), $docRoot, $_SERVER['PHP_SELF']);
 
 		if (!startsWith($docRoot, '/')) {
 			$docRoot = '/'.$docRoot;
@@ -493,7 +498,6 @@ class Request {
 				? $_SERVER['HTTP_X_FORWARDED_HOST']
 				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL)
 		).$docRoot;
-		//$GLOBALS['i']->content .= $url;
 		//debug($url);
 		$url = new URL($url);
 		return $url;
@@ -516,7 +520,7 @@ class Request {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
 		if (!$headers) {
 			$headers = array(
-				'X-Requested-With' => $_SERVER['HTTP_X_REQUESTED_WITH']
+				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			);
 		}
 		return $this->getBool('ajax') || (
@@ -602,22 +606,24 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
+		$config = Config::getInstance();
+		$al = AutoLoad::getInstance();
+
 		if (false) {	// linux
 			$cwd = new Path(getcwd());
-			$al = AutoLoad::getInstance();
 			$url = clone $al->documentRoot;
 			$url->append($this->url->getPath());
 			$path = new Path($url);
 			$path->remove($cwd);
 		} else {	// windows
+			$cwd = NULL;
 			$url = new Path('');
 			$url->append($this->url->getPath());
 			$path = new Path($url);
+
 			if (false) {    // doesn't work in ORS
-				$al = AutoLoad::getInstance();
 				$path->remove(clone $al->documentRoot);
-			} else {        // works in ORS
-				$config = Config::getInstance();
+			} elseif ($config->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $config->documentRoot);
 			}
 		}
@@ -708,7 +714,7 @@ class Request {
 		$levels = array_values($levels);	// reindex
 		/* } */
 
-		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
+		return ifsetor($levels[$index]) ? $levels[$index] : $this->getTrim($alternative);
 	}
 
 	static function isCLI() {
@@ -848,10 +854,12 @@ class Request {
 	 * @param int $age - seconds
 	 */
 	function setCacheable($age = 60) {
-		header('Pragma: cache');
-		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-		header('Cache-Control: max-age='.$age);
+		if (!headers_sent()) {
+			header('Pragma: cache');
+			header('Expires: ' . date('D, d M Y H:i:s', time() + $age) . ' GMT');
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+			header('Cache-Control: max-age=' . $age);
+		}
 	}
 
 	/**
@@ -884,6 +892,11 @@ class Request {
 		} else {
 			return file_get_contents("php://input");
 		}
+	}
+
+	function forceDownload($contentType, $filename) {
+		header('Content-Type: '.$contentType);
+		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
 
 }

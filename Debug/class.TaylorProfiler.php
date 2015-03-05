@@ -79,16 +79,16 @@ class TaylorProfiler {
 	 *   Start an individual timer
 	 *   This will pause the running timer and place it on a stack.
 	 * @param string $name name of the timer
-	 * @param string $desc
-	 * @internal param \optional $string $desc description of the timer
+	 * @param string $desc description of the timer
 	 */
     function startTimer($name = NULL, $desc="" ){
 		$name = $name ? $name : $this->getName();
     	if ($this->trace_enabled) {
 	        $this->trace[] = array(
 				'time' => time(),
-				'function' => "$name {",
-				'memory' => memory_get_usage());
+				'function' => $name." {",
+				'memory' => memory_get_usage()
+		);
     	}
 		if ($this->output_enabled) {
 	        $n=array_push( $this->stack, $this->cur_timer );
@@ -220,7 +220,7 @@ class TaylorProfiler {
 	            $perc = $row['perc'];
 	            $tot_perc += $perc;
 				$htmlKey = htmlspecialchars($key);
-				if ($row['bold']) {
+				if (ifsetor($row['bold'])) {
 					$htmlKey = '<b>'.$htmlKey.'</b>';
 				}
 				$desc = $this->description2[$key] ? $this->description2[$key] : $desc;
@@ -228,8 +228,10 @@ class TaylorProfiler {
 	               	'nr' => ++$i,
 	               	'count' => $row['count'],
 	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
-	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
-	               	'percent' => number_format($perc, 2, '.', '').'%',
+	               	'avg/1' => number_format(ifsetor($row['avg']), 2, '.', '').'',
+	               	'percent' => is_numeric($perc)
+						? number_format($perc, 2, '.', '').'%'
+						: $perc,
 	                'routine' => '<span title="'.htmlspecialchars($desc).'">'.$htmlKey.'</span>',
 	            );
 		   }
@@ -389,16 +391,17 @@ class TaylorProfiler {
 
 	static function renderFloat() {
 		$totalTime = self::getElapsedTime();
-		if (Config::getInstance()->db->queryLog) {
-			$dbTime = ArrayPlus::create(Config::getInstance()->db->queryLog)->column('sumtime')->sum();
+		$db = Config::getInstance()->db;
+		if ($db->queryLog) {
+			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if (Config::getInstance()->db->saveQueries) {
-			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
+		if (ifsetor($db->QUERIES)) {
+			$dbTime = array_sum($db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if (Config::getInstance()->db->dbTime) {
-			$dbTime = Config::getInstance()->db->dbTime;
+		if ($db->queryTime) {
+			$dbTime = $db->queryTime;
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		if (function_exists('session_status')
@@ -406,16 +409,26 @@ class TaylorProfiler {
             // total
 			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
             if ($totalMax > 0) {
-                $totalBar = '<img src="'.ProgressBar::getBar($totalTime/$totalMax*100).'" />';
-            }
+				$totalBar = '<img src="' . ProgressBar::getBar($totalTime / $totalMax * 100) . '" />';
+			} else {
+				$totalBar = '<img src="'.ProgressBar::getBar(0).'" />';
+			}
             $_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
 
             // db
             $dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
             if ($dbMax > 0) {
                 $dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
-            }
+            } else {
+				$dbBar = '<img src="'.ProgressBar::getBar(0).'" />';
+			}
 			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
+		} else {
+			$totalBar = '';
+			$totalMax = '';
+			$dbTime = '';
+			$dbBar = '';
+			$dbMax = '';
 		}
 
 		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
@@ -464,10 +477,10 @@ class TaylorProfiler {
 		switch($last) {
 			// The 'G' modifier is available since PHP 5.1.0
 			case 'g':
-				$val *= 1024;
+				$val *= 1024*1024*1024;
 				break;
 			case 'm':
-				$val *= 1024;
+				$val *= 1024*1024;
 				break;
 			case 'k':
 				$val *= 1024;
@@ -481,7 +494,7 @@ class TaylorProfiler {
 	 * @return float
 	 */
 	static function getMemUsage() {
-		$max = intval(ini_get('memory_limit'))*1024*1024;
+		$max = self::return_bytes(ini_get('memory_limit'));
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 4, '.', '');
 	}
@@ -495,7 +508,6 @@ class TaylorProfiler {
 
 	static function getMemDiff() {
 		static $prev = 0;
-		//$max = intval(ini_get('memory_limit'))*1024*1024;
 		$cur = memory_get_usage();
 		$return = number_format(($cur-$prev)/1024/1024, 3, '.', '').'M';
 		$prev = $cur;
@@ -512,16 +524,24 @@ class TaylorProfiler {
 		$bt = debug_backtrace();
 		$list = array();
 		foreach ($bt as $row) {
-			$list[] = ($row['object'] ? get_class($row['object']) : $row['class']).'::'.$row['function'];
+			$list[] = (isset($row['object'])
+					? get_class($row['object'])
+					: ifsetor($row['class'])
+				).'::'.$row['function'];
 		}
 		$list = array_reverse($list);
+		$list = array_slice($list, 0, -1);	// cut TaylorProfiler::tick
 		$list = array_slice($list, 3);
 		$mem = self::getMemUsage();
 		$diff = number_format(100*($mem - $prev), 2);
 		$diff = $diff > 0 ? '<font color="green">'.$diff.'</font>' : '<font color="red">'.$diff.'</font>';
 		$trace = implode(' -> ', $list);
 		$trace = substr($trace, -80);
-		$output = '<pre>diff: '.$diff.' '.number_format($mem*100, 2).'% '.$trace.'</pre>';
+
+		$start = ifsetor($_SERVER['REQUEST_TIME_FLOAT'], $_SERVER['REQUEST_TIME']);
+		$time = number_format(microtime(true) - $start, 3, '.', '');
+
+		$output = '<pre>'.$time.' diff: '.$diff.' '.number_format($mem*100, 2).'% '.$trace.'</pre>';
 		if (Request::isCLI()) {
 			$output = strip_tags($output);
 		}
@@ -541,8 +561,8 @@ class TaylorProfiler {
 	}
 
 	static function dumpQueries() {
-		if (DEVELOPMENT) {
-			$queryLog = Config::getInstance()->db->queryLog;
+		$queryLog = Config::getInstance()->db->queryLog;
+		if (DEVELOPMENT && $queryLog) {
 			//debug($queryLog);
 			array_multisort(ArrayPlus::create($queryLog)->column('sumtime')->getData(), SORT_DESC, $queryLog);
 			$log = array();

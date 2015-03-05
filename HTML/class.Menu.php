@@ -41,9 +41,13 @@ class Menu /*extends Controller*/ {
 	 */
 	public $renderOnlyCurrent = true;
 
-	public $ulClass = 'nav nav-list menu csc-menu list-group';
+	public $ulClass = 'nav nav-list nav-pills nav-stacked menu csc-menu list-group';
 
-	public $liClass = 'list-group-item';
+	/**
+	 * list-group-item for bootstrap 1/2
+	 * @var string
+	 */
+	public $liClass = '';
 
 	/**
 	 * @var URL

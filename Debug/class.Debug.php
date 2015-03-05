@@ -242,7 +242,8 @@ class Debug {
 	static function getSimpleTrace($db = NULL) {
 		$db = $db ? $db : debug_backtrace();
 		foreach ($db as &$row) {
-			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
+			$file = ifsetor($row['file']);
+			$row['file'] = basename(dirname($file)).'/'.basename($file);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}
@@ -337,7 +338,7 @@ class Debug {
 
 	static function getMethod(array $first) {
 		if (isset($first['object']) && $first['object']) {
-			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
+			$function = get_class($first['object']).'::'.$first['function'].'#'.ifsetor($first['line']);
 		} else if (isset($first['class']) && $first['class']) {
 			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
 		} else {
@@ -360,7 +361,8 @@ class Debug {
 		if ($bt['function'] == 'runSelectQuery') {
 			$bt = next($btl);
 		}
-		return "{$bt['class']}::{$bt['function']}";
+		return ifsetor($bt['class'], get_class(ifsetor($bt['object'])))
+			. '::' . $bt['function'];
 	}
 
 	/**
@@ -377,6 +379,26 @@ class Debug {
 		}
 		$content = implode(' // ', $content);
 		return $content;
+	}
+
+	/**
+	 * http://stackoverflow.com/a/2510459/417153
+	 * @param $bytes
+	 * @param int $precision
+	 * @return string
+	 */
+	static function formatBytes($bytes, $precision = 2) {
+		$units = array('B', 'KB', 'MB', 'GB', 'TB');
+
+		$bytes = max($bytes, 0);
+		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+		$pow = min($pow, count($units) - 1);
+
+		// Uncomment one of the following alternatives
+		// $bytes /= pow(1024, $pow);
+		$bytes /= (1 << (10 * $pow));
+
+		return round($bytes, $precision) . ' ' . $units[$pow];
 	}
 
 	static function getArraySize(array $tmpArray) {

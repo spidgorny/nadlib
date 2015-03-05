@@ -78,6 +78,13 @@ abstract class Controller {
 	 */
 	public $config;
 
+	/**
+	 * Used by Collection to get the current sorting method.
+	 * Ugly, please reprogram.
+	 * @var
+	 */
+	public $sortBy;
+
 	function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
@@ -107,7 +114,7 @@ abstract class Controller {
 	 * @use getURL()
 	 */
 	protected function makeURL(array $params, $prefix = NULL) {
-		$class = $params['c'];
+		$class = ifsetor($params['c']);
 		unset($params['c']);    // RealURL
 		if ($class && !$prefix) {
 			$prefix = $class;
@@ -116,7 +123,9 @@ abstract class Controller {
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		$path->setFile($class);
+		if ($class) {
+			$path->setFile($class);
+		}
 		$path->setAsFile();
 		$url->setPath($path);
 		return $url;
@@ -174,10 +183,6 @@ abstract class Controller {
 		return $link;
 	}
 
-	function begins($line, $with) {
-		return (substr($line, 0, strlen($with)) == $with);
-	}
-
 	/**
 	 * @param array $data
 	 * @return array
@@ -230,6 +235,7 @@ abstract class Controller {
 
 	function encloseIn($title, $content) {
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		$content = IndexBase::mergeStringArrayRecursive($content);
 		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
@@ -253,8 +259,9 @@ abstract class Controller {
 			</a>';
 			$content = '<'.$h.' id="'.$slug.'">'.$link.$caption.'</'.$h.'>'.$content;
 		}
+		$more['class'] .= (ifsetor($more['class']) ? ' ' : '').get_class($this);
 		//debug_pre_print_backtrace();
-		$content = '<section class="padding clearfix '.$more['class'].'"
+		$content = '<section class="padding clearfix '.ifsetor($more['class']).'"
 			style="position: relative;">'.$content.'</section>';
 		return $content;
 	}

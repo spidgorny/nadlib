@@ -135,6 +135,8 @@ class Collection {
 
 	var $noDataMessage = 'No data';
 
+	var $filter = array();
+
 	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
@@ -195,7 +197,10 @@ class Collection {
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		$tableParent = " (".$this->table.':'.(is_array($this->parentID)
+				? implode(', ', $this->parentID)
+				: $this->parentID).")";
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.$tableParent);
 		$this->query = $this->getQueryWithLimit($this->where);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -209,7 +214,7 @@ class Collection {
 		if ($preprocess) {
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.$tableParent);
 	}
 
 	/**
@@ -395,7 +400,7 @@ class Collection {
 		$s->ID = get_class($this);
 		$s->sortable = $this->useSorting;
 		if (class_exists('Index')) {
-			$s->setSortBy(Index::getInstance()->controller->sortBy);	// UGLY
+			$s->setSortBy(ifsetor(Index::getInstance()->controller->sortBy));	// UGLY
 			//debug(Index::getInstance()->controller);
 			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
 		}
@@ -426,10 +431,10 @@ class Collection {
 		) {
 			$this->retrieveDataFromDB();
 		}
-        if (!($this->data instanceof ArrayPlus)) {
-            $this->data = ArrayPlus::create($this->data);
-	        $this->count = sizeof($this->data);
-        }
+        	if (!($this->data instanceof ArrayPlus)) {
+            		$this->data = ArrayPlus::create($this->data);
+	        	$this->count = sizeof($this->data);
+        	}
 		return $this->data;
 	}
 
@@ -534,6 +539,7 @@ class Collection {
 				}
 			}
 		} else {
+			//Index::getInstance()->ll->debug = true;
 			$content[] = '<div class="message">'.__($this->noDataMessage).'</div>';
 		}
 		if ($this->pager) {
@@ -622,6 +628,7 @@ class Collection {
     }
 
 	function showFilter() {
+		$content = array();
 		if ($this->filter) {
 			$f = new HTMLFormTable();
 			$f->method('GET');
@@ -629,7 +636,7 @@ class Collection {
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
 			$f->submit('Filter', array('class' => 'btn btn-primary'));
-			$content = $f->getContent();
+			$content[] = $f->getContent();
 		}
 		return $content;
 	}
@@ -868,6 +875,16 @@ class Collection {
 	function clearInstances() {
 		unset($this->data);
 		unset($this->members);
+	}
+
+	function getJson() {
+		foreach ($this->objectify() as $id => $member) {
+			$members[$id] = $member->getJson();
+		}
+		return array(
+			'count' => $this->getCount(),
+			'members' => $members,
+		);
 	}
 
 }

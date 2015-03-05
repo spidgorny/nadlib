@@ -29,10 +29,10 @@ class HTMLFormValidate {
 				//$d->desc = $v2->getDesc();
 				//debug('updateDesc', $d->getFieldset());
 			} else {
-				if ($d['mustBint']) {
+				if (ifsetor($d['mustBint'])) {
 					$d['value'] = intval($d['value']);
 				}
-				$type = $d['type'];
+				$type = ifsetor($d['type']);
 				$isCheckbox = in_array($type, array(
 					'check',
 					'checkbox',
@@ -42,25 +42,25 @@ class HTMLFormValidate {
 					'select',
 				));
 				$d = $this->validateField($field, $d, $type, $isCheckbox);
-				$error = $error || $d['error'];
+				$error = $error || ifsetor($d['error']);
 			}
 		}
 		return !$error;
 	}
 
 	function validateField($field, array $d, $type, $isCheckbox) {
-		$value = $d['value'];
-		$label = $d['label'] ? $d['label'] : $field;
-		if (!$d['optional'] && (
-			!($value) || (!$d['allow0'] && !isset($d['value'])))
+		$value = ifsetor($d['value']);
+		$label = ifsetor($d['label'], $field);
+		if (!ifsetor($d['optional']) && (
+			!($value) || (!ifsetor($d['allow0']) && !isset($d['value'])))
 			&& !$isCheckbox) {
 			$d['error'] = __('Field "%1" is obligatory.', $label);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
-		} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
+		} elseif (ifsetor($d['mustBset']) && !isset($d['value'])) {	// must be before 'obligatory'
 			$d['error'] = __('Field "%1" must be set', $label);
-		} elseif ($d['obligatory'] && !$value) {
+		} elseif (ifsetor($d['obligatory']) && !$value) {
 			$d['error'] = __('Field "%1" is obligatory', $label);
 		} elseif (($type == 'email' || $field == 'email') && $value && !self::validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
@@ -68,27 +68,27 @@ class HTMLFormValidate {
 			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
         } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
             $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
-		} elseif ($d['min'] && ($value < $d['min'])) {
+		} elseif (ifsetor($d['min']) && ($value < $d['min'])) {
 			//debug(__METHOD__, $value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $label, $d['min']);
-		} elseif ($d['max'] && ($value > $d['max'])) {
+		} elseif (ifsetor($d['max']) && ($value > $d['max'])) {
 			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $label, $d['max']);
-		} elseif ($d['minlen'] && strlen($value) < $d['minlen']) {
+		} elseif (ifsetor($d['minlen']) && strlen($value) < $d['minlen']) {
 			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $label, $d['minlen'], strlen($value));
-		} elseif ($d['maxlen'] && strlen($value) > $d['maxlen']) {
+		} elseif (ifsetor($d['maxlen']) && strlen($value) > $d['maxlen']) {
 			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $label, $d['maxlen'], strlen($value));
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
 			$hfr = new HTMLFormRecaptcha();
 			$d['error'] = $hfr->validate($field, $d);
-		} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
+		} elseif ($value && ifsetor($d['validate']) == 'in_array' && !in_array($value, $d['validateArray'])) {
 			$d['error'] = $d['validateError'];
-		} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
+		} elseif ($value && ifsetor($d['validate']) == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
 			$d['error'] = $d['validateError'];
-		} elseif ($d['validate'] == 'int' && strval(intval($value)) != $value) {
+		} elseif (ifsetor($d['validate']) == 'int' && strval(intval($value)) != $value) {
 			$d['error'] = __('Value "%1" must be integer', $label);
-		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
+		} elseif (ifsetor($d['validate']) == 'date' && strtotime($value) === false) {
 			$d['error'] = __('Value "%1" must be date', $label);
-		} elseif ($d['validate'] == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
+		} elseif (ifsetor($d['validate']) == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
 			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $label, implode(', ', $inValid));
 		} else {
 			unset($d['error']);
@@ -101,7 +101,7 @@ class HTMLFormValidate {
 			}
 		}
 
-		if ($d['dependant'] && $isCheckbox && $value) { // only checked should be validated
+		if (ifsetor($d['dependant']) && $isCheckbox && $value) { // only checked should be validated
 			//t3lib_div::debug(array($field, $value, $isCheckbox));
 			$f2 = new HTMLFormTable($d['dependant']);
 			$fv = new HTMLFormValidate($f2);

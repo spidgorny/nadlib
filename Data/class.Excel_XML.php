@@ -49,8 +49,7 @@
  * @todo Add error handling (array corruption etc.)
  * @todo Write a wrapper method to do everything on-the-fly
  */
-class Excel_XML
-{
+class Excel_XML {
 
 	/**
 	 * Header of excel document (prepended to the rows)
@@ -62,9 +61,9 @@ class Excel_XML
 	 */
 	public $header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
 <Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"
- xmlns:x=\"urn:schemas-microsoft-com:office:excel\"
- xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"
- xmlns:html=\"http://www.w3.org/TR/REC-html40\">";
+	xmlns:x=\"urn:schemas-microsoft-com:office:excel\"
+	xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"
+	xmlns:html=\"http://www.w3.org/TR/REC-html40\">";
 
 	/**
 	 * Footer of excel document (appended to the rows)

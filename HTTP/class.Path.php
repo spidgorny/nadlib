@@ -246,9 +246,14 @@ class Path {
 	public function getURL() {
 		//$self = new Path(AutoLoad::getInstance()->appRoot);
 		$self = new Path(URL::getScriptWithPath());
-		$relative = new Path(URL::getRelativePath($self, $this));
-		$relative->setAsDir();
-		//debug(__METHOD__, $this.'', $self.'', $relative.'');
+		//debug($self, basename($this->sPath), $this->sPath);
+		if ($self->contains(basename($this->sPath))) {
+			$relative = new Path(URL::getRelativePath($self, $this));
+			$relative->setAsDir();
+			//debug(__METHOD__, $this . '', $self . '', $relative . '');
+		} else {
+			$relative = cap(URL::getRelativePath($self, $this->sPath));
+		}
 		return $relative;
 	}
 

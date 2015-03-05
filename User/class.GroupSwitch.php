@@ -29,15 +29,16 @@ class GroupSwitch extends AppController {
 	function render() {
 		//debug($this->user->data);
 		$content = '';
-		if (in_array($this->user->data['login'], $this->allowedUsers)) {
+		if ($this->canSwitchGroup()) {
 			$this->performAction();
+			$this->groups = $this->fetchGroups();
 			$items = array();
 			foreach ($this->groups as $groupID => $groupName) {
 				$el = $this->makeLink($groupName, array(
 					'action' => 'setGroup',
 					'groupID' => $groupID,
-				), 'GroupSwitch').' ';
-				if ($this->user->rights->groupID == $groupID) {
+				), get_class($this)).' ';
+				if ($this->isCurrentGroup($groupID)) {
 					$el = '<b>'.$el.'</b>';
 				}
 				$items[] = $el;
@@ -47,9 +48,17 @@ class GroupSwitch extends AppController {
 		return $content;
 	}
 
-	//function __toString() {
-	//	return $this->render().'';
-	//}
+	function canSwitchGroup() {
+		return in_array($this->user->data['login'], $this->allowedUsers);
+	}
+
+	function fetchGroups() {
+		return $this->groups;
+	}
+
+	function isCurrentGroup($groupID) {
+		return $this->user->rights->groupID == $groupID;
+	}
 
 	function setGroupAction() {
 		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
