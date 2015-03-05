@@ -373,9 +373,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			$res = $this->perform($res);
 		}
 		$row = pg_fetch_assoc($res);
-		if (!$row) {
+/*      // problem in OODBase
+ * 		if (!$row) {
 			$row = array();
-		}
+		}*/
 		return $row;
 	}
 

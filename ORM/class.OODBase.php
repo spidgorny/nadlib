@@ -244,6 +244,7 @@ abstract class OODBase {
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		$this->lastSelectQuery = $this->db->lastQuery;
+		//debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
 			$this->init($data, true);
