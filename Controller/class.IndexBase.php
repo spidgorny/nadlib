@@ -63,7 +63,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->config = Config::getInstance();
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
-			$this->ll = ifsetor($this->config->ll);
+			$this->ll = $this->config->getLL();
 		}
 
 		$this->request = Request::getInstance();
@@ -208,7 +208,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$render = $this->controller->render();
 		$render = $this->mergeStringArrayRecursive($render);
 		$this->sidebar = $this->showSidebar();
-		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
+		if ($this->controller->layout instanceof Wrap
+			&& !$this->request->isAjax()) {
+			/** @var $this->controller->layout Wrap */
 			$render = $this->controller->layout->wrap($render);
 		}
 		TaylorProfiler::stop(__METHOD__);

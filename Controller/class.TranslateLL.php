@@ -24,7 +24,7 @@ class TranslateLL extends HTMLFormProcessor {
 	}
 
 	function getDesc() {
-		$ll = Index::getInstance()->ll;
+		$ll = $this->config->getLL();
 		$code = $this->request->getTrim('code');
 		$desc = array(
 			'lang' => array(
@@ -64,7 +64,7 @@ class TranslateLL extends HTMLFormProcessor {
 	}
 
 	function onSuccess(array $data) {
-		$ll = Index::getInstance()->ll;
+		$ll = $this->config->getLL();
 		$ll->updateMessage($data);
 		$content = '<div class="message">Updated.</div>';
 		$content .= '<script>
