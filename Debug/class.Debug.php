@@ -4,63 +4,198 @@ class Debug {
 
 	const LEVELS = 'LEVELS';
 
-	static function debug_args() {
+	static $stylesPrinted = false;
+
+	var $index;
+
+	/**
+	 * @var Debug
+	 */
+	static protected $instance;
+
+	/**
+	 * no debug unless $_COOKIE['debug']
+	 * @var string
+	 */
+	var $renderer = '';
+
+	/**
+	 * @param $index Index|IndexBE
+	 */
+	function __construct($index) {
+		$this->index = $index;
+		self::$instance = $this;
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			if (ifsetor($c->debugRenderer)) {
+				$this->renderer = $c->debugRenderer;
+			} else {
+				$this->renderer = $this->canCLI() ? 'CLI'
+					: ($this->canFirebug() ? 'Firebug'
+					: ($this->canDebugster() ? 'Debugster'
+					: ($this->canHTML() ? 'HTML'
+					: '')));
+			}
+		}
+		//var_dump($_COOKIE);
+		if (false && $_COOKIE['debug']) {
+			echo 'Renderer: ' . $this->renderer;
+			echo '<pre>';
+			var_dump(array(
+				'canCLI' => $this->canCLI(),
+				'canFirebug' => $this->canFirebug(),
+				'canDebugster' => $this->canDebugster(),
+				'canHTML' => $this->canHTML(),
+			));
+			echo '</pre>';
+		}
+	}
+
+	static function getInstance() {
+		if (!self::$instance) {
+			$index = class_exists('Index', false) ? Index::getInstance() : NULL;
+			self::$instance = new self($index);
+		}
+		return self::$instance;
+	}
+
+	public static function shallow($coming) {
+		$debug = Debug::getInstance();
+		if (is_array($coming)) {
+			foreach ($coming as $key => &$val) {
+				$debug->getSimpleType($val);
+			}
+		} elseif (is_object($coming)) {
+			$props = get_object_vars($coming);
+			foreach ($props as $key => $val) {
+				$coming->$key = $debug->getSimpleType($val);
+			}
+		}
+		$debug->debug_args($coming);
+	}
+
+	function getSimpleType($val) {
+		if (is_array($val)) {
+			$val = 'array['.sizeof($val).']';
+		} elseif (is_object($val)) {
+			$val = 'object['.get_class($val).']';
+		} elseif (is_string($val) && strlen($val) > 100) {
+			$val = substr($val, 0, 100).'...';
+		}
+		return $val;
+	}
+
+	function canFirebug() {
+		$can = class_exists('FirePHP')
+			&& !Request::isCLI()
+			&& !headers_sent()
+			&& $_COOKIE['debug'];
+		if ($can) {
+			$fb = FirePHP::getInstance(true);
+			$can = $fb->detectClientExtension();
+		}
+		return $can;
+	}
+
+	function debugWithFirebug(array $params) {
+		$fp = FirePHP::getInstance(true);
+		if ($fp->detectClientExtension()) {
+			$fp->setOption('includeLineNumbers', true);
+			$fp->setOption('maxArrayDepth', 10);
+			$fp->setOption('maxDepth', 20);
+			$trace = Debug::getSimpleTrace();
+			array_shift($trace);
+			if ($trace) {
+				$fp->table(implode(' ', first($trace)), $trace);
+			}
+			$fp->log(1 == sizeof($params) ? first($params) : $params);
+		} else {
+			$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+		}
+		return $content;
+	}
+
+
+	function debug($params) {
+		$content = '';
+		if ($this->renderer) {
+			$method = 'debugWith' . $this->renderer;
+			if (method_exists($this, $method)) {
+				$content = $this->$method($params);
+			}
+		}
+		return $content;
+	}
+
+	function canCLI() {
+		return Request::isCLI();
+	}
+
+	function debugWithCLI() {
+		$db = debug_backtrace();
+		$db = array_slice($db, 2, sizeof($db));
+		foreach ($db as $row) {
+			$trace[] = self::getMethod($row);
+		}
+		echo '---' . implode(' // ', $trace) . "\n";
+
 		$args = func_get_args();
+		$this->getLevels($args);
+		if (is_object($args)) {
+			$args = get_object_vars($args);   // prevent private vars
+		}
+
+		ob_start();
+		var_dump($args);
+		$dump = ob_get_clean();
+		$dump = str_replace("=>\n", ' =>', $dump);
+		echo $dump, "\n";
+	}
+
+	function getLevels(array &$args) {
 		if (sizeof($args) == 1) {
 			$a = $args[0];
-			$levels = NULL;
+			$levels = /*NULL*/3;
 		} else {
 			$a = $args;
 			if ($a[1] === self::LEVELS) {
 				$levels = $a[2];
 				$a = $a[0];
+			} else {
+				$levels = NULL;
 			}
 		}
+		$args = $a;
+		return $levels;
+	}
+
+	function canHTML() {
+		return $_COOKIE['debug'];
+	}
+
+	function debugWithHTML(array $params) {
+		$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+		if (!is_null($content)) {
+			print($content);
+		}
+		flush();
+	}
+
+	function debug_args() {
+		$args = func_get_args();
+		$levels = $this->getLevels($args);
 
 		$db = debug_backtrace();
-		$db = array_slice($db, 2, sizeof($db));
+		$db = array_slice($db, 4, sizeof($db));
 
-		//print_r(array($_SERVER['argc'], $_SERVER['argv']));
-		//if (isset($_SERVER['argc'])) {
-		if (Request::isCLI()) {
-			foreach ($db as $row) {
-				$trace[] = self::getMethod($row);
+		$content = self::renderHTMLView($db, $args, $levels);
+		$content .= self::printStyles();
+		if (!headers_sent()) {
+			if (method_exists($this->index, 'renderHead')) {
+				$this->index->renderHead();
+			} else {
+				$content = '<!DOCTYPE html><html>' . $content;
 			}
-			echo '---'.implode(' // ', $trace)."\n";
-
-			if (is_object($a)) {
-				$a = get_object_vars($a);   // prevent private vars
-			}
-
-			ob_start();
-			var_dump(
-				$a
-			);
-			$dump = ob_get_clean();
-			$dump = str_replace("=>\n", ' =>', $dump);
-			echo $dump, "\n";
-		} else if ($_COOKIE['debug']) {
-			$content = self::renderHTMLView($db, $a, $levels);
-			$content .= '
-			<style>
-				div.debug {
-					color: black;
-				}
-				div.debug a {
-					color: black;
-				}
-				td.view_array {
-					border: dotted 1px #555;
-					font-size: 12px;
-					vertical-align: top;
-					border-collapse: collapse;
-					color: black;
-				}
-			</style>';
-			if (!headers_sent()) {
-				echo '<!DOCTYPE html><html>';
-			}
-			print($content); flush();
 		}
 		return $content;
 	}
@@ -68,35 +203,30 @@ class Debug {
 	static function renderHTMLView($db, $a, $levels) {
 		$trace = Debug::getTraceTable($db);
 
-		reset($db);
-		$first = current($db);
-		$function = self::getMethod($first);
+		$first = $db[1];
+		if ($first) {
+			$function = self::getMethod($first);
+		}
 		$props = array(
-			'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
-			'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
+			'<span class="debug_prop">Function:</span> '.$function,
+			'<span class="debug_prop">Type:</span> '.gettype($a).
 				(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
 		);
 		if (is_array($a)) {
-			$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
+			$props[] = '<span class="debug_prop">Size:</span> '.sizeof($a);
 		} else if (!is_object($a) && !is_resource($a)) {
-			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
+			$props[] = '<span class="debug_prop">Length:</span> '.strlen($a);
 		}
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'display: inline');
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
-		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
+		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent, 'display: inline').' of '.ini_get('memory_limit');
+		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
+		$props[] = '<span class="debug_prop">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
 
 		$content = '
-			<div class="debug" style="
-				background: #EEEEEE;
-				border: solid 1px silver;
-				display: inline-block;
-				font-size: 12px;
-				font-family: verdana;
-				vertical-align: top;">
-				<div class="caption" style="background-color: #EEEEEE">
+			<div class="debug">
+				<div class="caption">
 					'.implode(BR, $props).'
 					<a href="javascript: void(0);" onclick="
 						var a = this.nextSibling.nextSibling;
@@ -110,7 +240,7 @@ class Debug {
 	}
 
 	static function getSimpleTrace($db = NULL) {
-		$db = $db ?: debug_backtrace();
+		$db = $db ? $db : debug_backtrace();
 		foreach ($db as &$row) {
 			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
@@ -131,10 +261,10 @@ class Debug {
 					'file' => 'file',
 					'line' => 'line',
 					'class' => 'class',
+					'object' => 'object',
 					'type' => 'type',
 					'function' => 'function',
 					'args' => 'args',
-					'object' => 'object',
 				)).'</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';
@@ -151,8 +281,10 @@ class Debug {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
-			//} elseif (method_exists($a, '__toString')) {
-			//	$a = $a->__toString();
+			} elseif (method_exists($a, '__toString')) {    // commenting this often leads to out of memory
+				$a = $a->__toString();
+			} elseif (method_exists($a, 'getName')) {
+				$a = $a->getName();
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
 			} else {
@@ -161,11 +293,12 @@ class Debug {
 		}
 
 		if (is_array($a)) {	// not else if so it also works for objects
-			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
+			$content = '<table class="view_array">';
 			foreach ($a as $i => $r) {
-				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
-				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
-				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
+				$type = gettype($r);
+				$type = $type == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
+				$type = $type == 'string' ? gettype($r).'['.strlen($r).']' : $type;
+				$type = $type == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
 				$content .= '<tr>
 					<td class="view_array">'.$i.'</td>
 					<td class="view_array">'.$type.'</td>
@@ -173,8 +306,12 @@ class Debug {
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo $levels, ': null: '.is_null($levels)."<br />\n";
-				if (is_null($levels) || $levels > 0) {
-					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
+				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
+					$content .= Debug::view_array($r, is_null($levels)
+						? NULL
+						: $levels-1);
+				} else {
+					$content .= '<i>Too deep, $level: '.$levels.'</i>';
 				}
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';
@@ -199,9 +336,9 @@ class Debug {
 	}
 
 	static function getMethod(array $first) {
-		if ($first['object']) {
+		if (isset($first['object']) && $first['object']) {
 			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
-		} else if ($first['class']) {
+		} else if (isset($first['class']) && $first['class']) {
 			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
 		} else {
 			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
@@ -240,6 +377,58 @@ class Debug {
 		}
 		$content = implode(' // ', $content);
 		return $content;
+	}
+
+	static function getArraySize(array $tmpArray) {
+		$size = array();
+		foreach ($tmpArray as $key => $row) {
+			$size[$key] = strlen(serialize($row));
+		}
+		debug(array_sum($size), $size);
+	}
+
+	static function printStyles() {
+		$content = '';
+		if (!self::$stylesPrinted) {
+			$content = '
+			<style>
+				div.debug {
+					color: black;
+					background: #EEEEEE;
+					border: solid 1px silver;
+					display: inline-block;
+					font-size: 12px;
+					font-family: verdana;
+					vertical-align: top;
+				}
+				div.debug a {
+					color: black;
+				}
+				div.debug .caption {
+					background-color: #EEEEEE;
+				}
+				td.view_array {
+					border: dotted 1px #555;
+					font-size: 12px;
+					vertical-align: top;
+					border-collapse: collapse;
+					color: black;
+					margin: 2px;
+				}
+				.debug_prop {
+					display: inline-block;
+					width: 5em;
+				}
+			</style>';
+			self::$stylesPrinted = true;
+		} else {
+			$content .= '<!-- styles printed -->';
+		}
+		return $content;
+	}
+
+	function canDebugster() {
+		return false;
 	}
 
 }

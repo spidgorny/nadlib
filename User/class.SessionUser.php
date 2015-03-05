@@ -7,15 +7,18 @@ class SessionUser extends PlainSessionUser {
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		$this->autologin(); // the main difference of SessionUser
+		if (get_class($this) == 'LoginUser') {
+			$this->autologin(); // the main difference of SessionUser from PlainSessionUser
+		}
 	}
 
 	function autologin() {
-		//debug($_SESSION);
-		if ($login = $_SESSION[__CLASS__]['login']) {
-			$inSession = $this->checkPassword($login, $_SESSION[__CLASS__]['password']);
+		$class = get_called_class();
+		if ($login = $_SESSION[$class]['login']) {
+			$inSession = $this->checkPassword($login, $_SESSION[$class]['password']);
 			if ($inSession) {
-				$this->findInDB(array('email' => $login));
+				//$this->findInDB(array('email' => $login));
+				$this->init($login);
 			} else {
 				//throw new Exception('You are not logged in. Nevermind, you can do it later.');
 			}
@@ -54,16 +57,17 @@ class SessionUser extends PlainSessionUser {
 	 * Session only stores MD5'ed passwords! It can't be otherwise!
 	 * This is a success function which loads user data as well.
 	 *
-	 * @param unknown_type $email
-	 * @param unknown_type $password - hash
+	 * @param string $email
+	 * @param string $password - hash
 	 * @throws Exception
 	 */
 	function saveLogin($email, $password) {
 		if (strlen($password) != 32) {
 			throw new Exception(__METHOD__.': supplied password is not hash.');
 		} else {
-			$_SESSION[__CLASS__]['login'] = $email;
-			$_SESSION[__CLASS__]['password'] = $password;
+			$class = get_called_class();
+			$_SESSION[$class]['login'] = $email;
+			$_SESSION[$class]['password'] = $password;
 			$this->findInDB(array('email' => $email));
 			if (!$this->id) {
 				//debug($this->data, 'saveLogin');
@@ -73,10 +77,8 @@ class SessionUser extends PlainSessionUser {
 	}
 
 	function logout() {
-		unset($_SESSION[__CLASS__]);
-		User::unsetInstance($GLOBALS['i']->user->id);
-		unset($GLOBALS['i']->user);
-		$GLOBALS['i']->user = new User(); // make new anonymous user - does it work?
+		$class = get_called_class();
+		unset($_SESSION[$class]);
 	}
 
 }

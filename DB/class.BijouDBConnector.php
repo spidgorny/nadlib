@@ -17,7 +17,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
 	 */
 	function __construct(t3lib_DB $t3lib_DB = NULL) {
-		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
+		$this->t3db = $t3lib_DB ? $t3lib_DB : $GLOBALS['TYPO3_DB'];
 		$this->setQB();
 	}
 	
@@ -60,6 +60,9 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	}
 
 	function fetchRow($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		return $this->t3db->sql_fetch_row($res);
 	}
 
@@ -138,7 +141,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	}
 
 	function escapeString($value) {
-		return $this->t3d->fullQuoteStr($value, '');
+		return $this->t3db->fullQuoteStr($value, '');
 	}
 
 	function getDefaultInsertFields() {

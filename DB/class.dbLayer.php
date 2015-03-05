@@ -4,13 +4,14 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer {
+class dbLayer extends dbLayerBase implements DBInterface {
+
 	var $RETURN_NULL = TRUE;
 
     /**
      * @var resource
      */
-    public $CONNECTION = NULL;
+    protected $CONNECTION = NULL;
 
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -51,9 +52,17 @@ class dbLayer {
 	 */
 	var $db;
 
+    var $reserved = array(
+        'SELECT', 'LIKE',
+    );
+
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
         if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
+	        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+	        $words = $this->fetchAll($query, 'word');
+	        $this->reserved = array_keys($words);
+	        $this->reserved = array_map('strtoupper', $this->reserved); // important
 		}
 	}
 
@@ -85,6 +94,7 @@ class dbLayer {
 		$prof = new Profiler();
 		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
+		//debug($query);
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
@@ -95,7 +105,7 @@ class dbLayer {
 			if ($this->saveQueries) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -116,7 +126,7 @@ class dbLayer {
 			if ($this->saveQueries) {
 				@$this->QUERIES[$query] += $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -124,7 +134,9 @@ class dbLayer {
 	}
 
 	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
-		$trace = $this->getCallerFunction();
+		if (0 && DEVELOPMENT) {
+			$trace = $this->getCallerFunction();
+		}
 		if (isset($GLOBALS['profiler'])) @$GLOBALS['profiler']->startTimer(__METHOD__.' ('.$from.')'.' // '.$trace['class'].'::'.$trace['function']);
 		$query = "select ($what) as res from $from where $where";
 		if ($debug) printbr("<b>$query</b>");
@@ -356,19 +368,13 @@ class dbLayer {
 		return $c;
 	}
 
-    /**
-     * @param string $table Table name
-     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-     * @return string
-     */
-    function getInsertQuery($table, $columns) {
-		$q = 'INSERT INTO '.$table.' (';
-		$q .= implode(", ", array_keys($columns));
-		$q .= ") VALUES (";
-		$q .= implode(", ", $this->quoteValues(array_values($columns)));
-		$q .= ")";
-		return $q;
-	}
+    function quoteKeys($a) {
+        $c = array();
+        foreach ($a as $b) {
+            $c[] = $this->quoteKey($b);
+        }
+        return $c;
+    }
 
 	function fetchAll($result, $key = NULL) {
 		if (is_string($result)) {
@@ -473,7 +479,7 @@ class dbLayer {
 		return $res;
 	}
 
-	function numRows($query) {
+	function numRows($query = NULL) {
 		if (is_string($query)) {
 			$query = $this->perform($query);
 		}
@@ -485,7 +491,7 @@ class dbLayer {
 		return $this->perform($query);
 	}
 
-	function getLastInsertID($res, $table = 'not required since 8.1') {
+	function getLastInsertID($res = NULL, $table = 'not required since 8.1') {
 		$pgv = pg_version();
 		if ($pgv['server'] >= 8.1) {
 			$id = $this->lastval();
@@ -526,27 +532,6 @@ class dbLayer {
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
 		$row = $this->fetchAll($res, $idField);
 		return $row;
-	}
-
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAssoc($res);
-		return $row;
-	}
-
-	/**
-	 *
-	 * @param type $table
-	 * @param array $where
-	 * @param string $order
-	 * @param string $selectPlus
-	 * @param $key
-	 * @return table
-	 */
-	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->fetchAll($res, $key);
-		return $rows;
 	}
 
 	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
@@ -625,18 +610,6 @@ order by a.attnum';
 	function quoteKey($key) {
 		$key = '"'.$key.'"';
 		return $key;
-	}
-
-	function runUpdateInsert($table, $set, $where) {
-		$found = $this->runSelectQuery($table, $where);
-		if ($this->numRows($found)) {
-			$res = 'update';
-			$this->runUpdateQuery($table, $set, $where);
-		} else {
-			$res = 'insert';
-			$this->runInsertQuery($table, $set + $where);
-		}
-		return $res;
 	}
 
 	function getCallerFunction() {
@@ -733,7 +706,7 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb($qb) {
+    public function setQb(SQLBuilder $qb = NULL) {
         $this->qb = $qb;
     }
 
@@ -746,4 +719,12 @@ order by a.attnum';
 
         return $this->qb;
     }
+
+    function affectedRows($res = NULL) {
+        return pg_affected_rows($res);
+    }
+
+	public function getScheme() {
+		return 'postgresql';
+	}
 }

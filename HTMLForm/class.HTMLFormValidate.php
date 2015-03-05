@@ -50,59 +50,46 @@ class HTMLFormValidate {
 
 	function validateField($field, array $d, $type, $isCheckbox) {
 		$value = $d['value'];
+		$label = $d['label'] ? $d['label'] : $field;
 		if (!$d['optional'] && (
 			!($value) || (!$d['allow0'] && !isset($d['value'])))
 			&& !$isCheckbox) {
-			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
+			$d['error'] = __('Field "%1" is obligatory.', $label);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
 		} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
-			$d['error'] = __('Field "%1" must be set', $d['label'] ?: $field);
+			$d['error'] = __('Field "%1" must be set', $label);
 		} elseif ($d['obligatory'] && !$value) {
-			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
-		} elseif ($type == 'email' || $field == 'email' && $value && !$this->validMail($value)) {
-			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
-		} elseif ($field == 'password' && strlen($value) < 6) {
-			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
+			$d['error'] = __('Field "%1" is obligatory', $label);
+		} elseif (($type == 'email' || $field == 'email') && $value && !self::validEmail($value)) {
+			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
+		} elseif ($field == 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
+			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
         } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
             $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && ($value < $d['min'])) {
 			//debug(__METHOD__, $value, $d['min']);
-			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
+			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $label, $d['min']);
 		} elseif ($d['max'] && ($value > $d['max'])) {
-			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $d['label'] ?: $field, $d['max']);
+			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $label, $d['max']);
 		} elseif ($d['minlen'] && strlen($value) < $d['minlen']) {
-			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $d['label'] ?: $field, $d['minlen'], strlen($value));
+			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $label, $d['minlen'], strlen($value));
 		} elseif ($d['maxlen'] && strlen($value) > $d['maxlen']) {
-			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $d['label'] ?: $field, $d['maxlen'], strlen($value));
+			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $label, $d['maxlen'], strlen($value));
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
-			//debug($_REQUEST);
-			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
-				require_once('lib/recaptcha-php-1.10/recaptchalib.php');
-				$f = new HTMLForm();
-				$resp = recaptcha_check_answer (
-					$f->privatekey,
-					$_SERVER["REMOTE_ADDR"],
-					$_REQUEST["recaptcha_challenge_field"],
-					$_REQUEST["recaptcha_response_field"]);
-				//debug($resp);
-				if (!$resp->is_valid) {
-					$d['error'] = __($resp->error);
-				}
-			} else {
-				$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
-			}
+			$hfr = new HTMLFormRecaptcha();
+			$d['error'] = $hfr->validate($field, $d);
 		} elseif ($value && $d['validate'] == 'in_array' && !in_array($value, $d['validateArray'])) {
 			$d['error'] = $d['validateError'];
 		} elseif ($value && $d['validate'] == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
 			$d['error'] = $d['validateError'];
 		} elseif ($d['validate'] == 'int' && strval(intval($value)) != $value) {
-			$d['error'] = __('Value "%1" must be integer', $d['label'] ?: $field);
+			$d['error'] = __('Value "%1" must be integer', $label);
 		} elseif ($d['validate'] == 'date' && strtotime($value) === false) {
-			$d['error'] = __('Value "%1" must be date', $d['label'] ?: $field);
+			$d['error'] = __('Value "%1" must be date', $label);
 		} elseif ($d['validate'] == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
-			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $d['label'] ?: $field, implode(', ', $inValid));
+			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $label, implode(', ', $inValid));
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
@@ -142,8 +129,80 @@ class HTMLFormValidate {
 		return $this->desc;
 	}
 
-	static function validMail($email) {
-		return preg_match("/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i", $email);
+	//static function validMail($email) {
+		//return preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b/i", $email);
+	//	return $this->validEmail()
+	//}
+
+	/**
+	Validate an email address.
+	Provide email address (raw input)
+	Returns true if the email address has the email
+	address format and the domain exists.
+	 * http://www.linuxjournal.com/article/9585?page=0,3
+	 */
+	static function validEmail($email)	{
+		$isValid = true;
+		$atIndex = strrpos($email, "@");
+		if (is_bool($atIndex) && !$atIndex)
+		{
+			$isValid = false;
+		}
+		else
+		{
+			$domain = substr($email, $atIndex+1);
+			$local = substr($email, 0, $atIndex);
+			$localLen = strlen($local);
+			$domainLen = strlen($domain);
+			if ($localLen < 1 || $localLen > 64)
+			{
+				// local part length exceeded
+				$isValid = false;
+			}
+			else if ($domainLen < 1 || $domainLen > 255)
+			{
+				// domain part length exceeded
+				$isValid = false;
+			}
+			else if ($local[0] == '.' || $local[$localLen-1] == '.')
+			{
+				// local part starts or ends with '.'
+				$isValid = false;
+			}
+			else if (preg_match('/\\.\\./', $local))
+			{
+				// local part has two consecutive dots
+				$isValid = false;
+			}
+			else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
+			{
+				// character not valid in domain part
+				$isValid = false;
+			}
+			else if (preg_match('/\\.\\./', $domain))
+			{
+				// domain part has two consecutive dots
+				$isValid = false;
+			}
+			else if
+			(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
+				str_replace("\\\\","",$local)))
+			{
+				// character not valid in local part unless
+				// local part is quoted
+				if (!preg_match('/^"(\\\\"|[^"])+"$/',
+					str_replace("\\\\","",$local)))
+				{
+					$isValid = false;
+				}
+			}
+			if ($isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A")))
+      {
+		  // domain not found in DNS
+		  $isValid = false;
+	  }
+   }
+		return $isValid;
 	}
 
 	function getErrorList() {
@@ -172,7 +231,7 @@ class HTMLFormValidate {
         $emailAddresses = preg_split('/\s*,\s*/', $value);
         foreach ($emailAddresses as &$emailAddress) {
             if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
-                !self::validMail($value)) {
+                !self::validEmail($emailAddress)) {
                 $invalid[] = $emailAddress;
             }
         }

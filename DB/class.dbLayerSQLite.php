@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class dbLayerSQLite
+ * @mixin SQLBuilder
+ */
 class dbLayerSQLite extends dbLayerBase implements DBInterface {
 
 	/**
@@ -8,7 +12,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	var $file;
 
 	/**
-	 * @var resource
+	 * @var SQLite3
 	 */
 	var $connection;
 
@@ -20,42 +24,67 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	/**
 	 * @var SQLiteResult
 	 */
-	var $result;
+	var $lastResult;
+
+	/**
+	 * MUST BE UPPERCASE
+	 * @var array
+	 */
+	var $reserved = array(
+		'FROM',
+	);
 
 	function __construct($file) {
 		$this->file = $file;
-		$this->connection = new SQLiteDatabase($this->file);
+		$this->connection = new SQLite3($this->file);
 	}
 
 	function perform($query) {
 		$this->lastQuery = $query;
-		$this->result = $this->connection->query($query);
-		return $this->result;
+		$profiler = new Profiler();
+		$this->lastResult = $this->connection->query($query);
+		$this->dbTime += $profiler->elapsed();
+		if (!$this->lastResult) {
+			debug($query, $this->connection->lastErrorMsg());
+		}
+		return $this->lastResult;
 	}
 
 	/**
 	 * @param $res SQLiteResult
 	 * @return mixed
 	 */
-	function numRows($res) {
-		return $res->numRows();
+	function numRows($res = NULL) {
+		if ($res instanceof SQLite3Result) {
+			//debug(get_class($res), get_class_methods($res));
+			//$all = $this->fetchAll($res);   // will free() inside
+			//$numRows = sizeof($all);
+			$numRows = 0;
+			while ($this->fetchAssoc($res) !== FALSE) {
+				$numRows++;
+			}
+			$res->reset();
+		} else {
+			debug($res);
+		}
+		return $numRows;
 	}
 
-	function affectedRows() {
-		$this->result->numRows();
+	function affectedRows($res = NULL) {
+		$this->lastResult->numRows();
 	}
 
 	function getTables() {
 		$this->perform("SELECT * FROM dbname.sqlite_master WHERE type='table'");
-		return $this->fetchAll($this->result);
+		return $this->fetchAll($this->lastResult);
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res = NULL, $table = NULL) {
 		return $this->connection->lastInsertRowid();
 	}
 
 	function free($res) {
-		// nothing
+		$res->finalize();
 	}
 
 	function quoteKey($key) {
@@ -66,4 +95,38 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return intval(!!$value);
 	}
 
+	function getTableColumnsEx($table) {
+		$this->perform('PRAGMA table_info('.$this->quoteKey($table).')');
+		$tableInfo = $this->fetchAll($this->lastResult, 'name');
+		foreach ($tableInfo as &$row) {
+			$row['Field'] = $row['name'];
+			$row['Type'] = $row['type'];
+			$row['Null'] = $row['notnull'] ? 'NO' : 'YES';
+		}
+		return $tableInfo;
+	}
+
+	function fetchAssoc($res) {
+		return $res->fetchArray(SQLITE3_ASSOC);
+	}
+
+	function escape($str) {
+		return SQLite3::escapeString($str);
+	}
+
+	function transaction() {
+		return $this->perform('BEGIN');
+	}
+
+	function commit() {
+		return $this->perform('COMMIT');
+	}
+
+	function rollback() {
+		return $this->perform('ROLLBACK');
+	}
+
+	public function getScheme() {
+		return 'sqlite';
+	}
 }

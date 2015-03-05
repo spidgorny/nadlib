@@ -84,7 +84,7 @@ class slTableValue {
 							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'].'.*, '.$what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
-							$whatAs = $whatAs[1] ?: $what;
+							$whatAs = $whatAs[1] ? $whatAs[1] : $what;
 							$options = ArrayPlus::create($options)
 								->IDalize($id, true)
 								->column($whatAs)
@@ -161,7 +161,7 @@ class slTableValue {
 				if ($row[$col.'.link']) {
 					$out = new HTMLTag('a', array(
 						'href' => $row[$col.'.link'],
-					), $img);
+					), $img, !$k['no_hsc']);
 				} else {
 					$out = $img;
 				}
@@ -169,9 +169,9 @@ class slTableValue {
 			case "bool":
 			case "boolean":
 				if (intval($val)) {
-					$out = $k['true'] ?: $this->SLTABLE_IMG_CHECK;
+					$out = $k['true']  ? $k['true'] : $this->SLTABLE_IMG_CHECK;
 				} else {
-					$out = $k['false'] ?: $this->SLTABLE_IMG_CROSS;
+					$out = $k['false'] ? $k['false'] : $this->SLTABLE_IMG_CROSS;
 				}
 				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
 			break;
@@ -217,6 +217,7 @@ class slTableValue {
 					$out = $val->format($k['type']->format);
 				}
 			break;
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case "textarea":
 				$val = nl2br($val);
 			//break; // FALL DOWN!
@@ -232,12 +233,7 @@ class slTableValue {
 						$val = nl2br($val);
 						$k['no_hsc'] = true; 	// for below
 					}
-					if (is_object($val)) {
-						if (method_exists($val, 'getName')) {
-							$val = $val->getName();
-						}
-					}
-					if ($k['no_hsc']) {
+					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
 					} else if ($val instanceof htmlString) {
 						$out = $val.'';
@@ -245,6 +241,14 @@ class slTableValue {
 						$out = $val.'';
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
+					} else if ($val instanceof HTMLForm) {
+						$out = $val->getContent().'';   // to avoid calling getName()
+					} elseif (is_object($val)) {
+						if (method_exists($val, 'getName')) {
+							$out = $val->getName();
+						} else {
+							$out = '['.get_class($val).']';
+						}
 					} elseif (is_array($val)) {
 						if (is_assoc($val)) {
 							$out = json_encode($val, JSON_PRETTY_PRINT);
@@ -258,12 +262,17 @@ class slTableValue {
 				}
 			break;
 		}
-		if ($k['wrap']) {
+		if (isset($k['wrap']) && $k['wrap']) {
 			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 			$out = $wrap->wrap($out);
 		}
-		if ($k['link']) {
-			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+		if (isset($k['link']) && $k['link']) {
+			$link = $k['link'];
+			foreach ($row as $key => $rowVal) {
+				$link = str_replace('###'.strtoupper($key).'###', $rowVal, $link);
+			}
+			$link = str_replace('###VALUE###', $val, $link);
+			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');

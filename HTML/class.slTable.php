@@ -161,10 +161,14 @@ class slTable {
 		$bb = $b[$by];
 
 		// get $aa && $bb
-		if ($this->thes[$by]['type'] == 'date') {
+		$type = ifsetor($this->thes[$by]);
+		if (is_array($type)) {
+			$type = ifsetor($type['type']);
+		}
+		if ($type == 'date') {
 			$aa = strtotime2($aa);
 			$bb = strtotime2($bb);
-		} else if ($this->thes[$by]['type'] == 'int') {
+		} else if ($type == 'int') {
 			$aa = intval(strip_tags($aa));
 			$bb = intval(strip_tags($bb));
 		} else {
@@ -224,7 +228,11 @@ class slTable {
 		//debug('$this->sortBy', $this->sortBy);
 		if ($this->sortable && $this->sortBy) {
 			//print view_table($this->data);
-			uasort($this->data, array($this, 'tabSortByUrl')); // $this->sortBy is used inside
+            if ($this->data instanceof ArrayPlus) {
+                $this->data->uasort(array($this, 'tabSortByUrl'));
+            } else {
+                uasort($this->data, array($this, 'tabSortByUrl')); // $this->sortBy is used inside
+            }
 			//print view_table($this->data);
 			//debug($this->thes[$this->sortBy]);
 			if (isset($this->thes[$this->sortBy])) {
@@ -299,12 +307,16 @@ class slTable {
 			if (!is_array($thv)) {
 				$thv = array('name' => $thv);
 			}
-			$thvName = $thv['name'] ? $thv['name'] : $thv['label'];
-			$thmore[$thk] = isset($thv['thmore']) ? $thv['thmore'] : (isset($thv['more']) ? $thv['more'] : NULL);
+			$thvName = isset($thv['name'])
+				? $thv['name']
+				: (isset($thv['label']) ? $thv['label'] : NULL);
+			$thmore[$thk] = isset($thv['thmore'])
+				? $thv['thmore']
+				: (isset($thv['more']) ? $thv['more'] : NULL);
 			if (!is_array($thmore)) {
 				$thmore = array('' => $thmore);
 			}
-			if ($thv['align']) {
+			if (isset($thv['align']) && $thv['align']) {
 				$thmore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
@@ -374,9 +386,13 @@ class slTable {
 				}
 				$i = -1;
 				foreach ($data as $key => $row) { // (almost $this->data)
+					if (!is_array($row)) {
+						debug($key, $row);
+						throw new Exception('slTable row is not an array');
+					}
                     ++$i;
                     $class = array();
-					if (isset($row['###TD_CLASS###'])) {
+					if (is_array($row) && isset($row['###TD_CLASS###'])) {
 						$class[] = $row['###TD_CLASS###'];
 					} else {
 						// only when not manually defined
@@ -384,12 +400,17 @@ class slTable {
 							$class[] = ($i%2?'even':'odd');
 						}
 					}
-					if ($this->dataClass[$key]) {
+					if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
 						$class[] = $this->dataClass[$key];
 					}
 					$tr = 'class="'.implode(' ', $class).'"';
-					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
-					$t->tr($tr . ' ' . str_replace('###ROW_ID###', isset($row['id']) ? $row['id'] : '', $this->trmore));
+					if (is_array($row) && isset($row['###TR_MORE###'])) {
+						$tr .= ' ' . $row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					}
+					$rowID = (is_array($row) && isset($row['id']))
+						? $row['id']
+						: '';
+					$t->tr($tr . ' ' . str_replace('###ROW_ID###', $rowID, $this->trmore));
 					//debug_pre_print_backtrace();
 					$this->genRow($t, $row);
 					$t->tre();
@@ -428,7 +449,7 @@ class slTable {
 			if (isset($row[$col.'.']) && is_array($row[$col.'.'])) {
 				$k += $row[$col.'.'];
 			}
-			if ($row[$col] instanceof slTableValue) {
+			if (isset($row[$col]) && $row[$col] instanceof slTableValue) {
 				$k += $row[$col]->desc;
 			}
 
@@ -439,7 +460,7 @@ class slTable {
 				$val = isset($row[$col]) ? $row[$col] : NULL;
 				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
 					$t->tag($val);
-					if ($val->attr['colspan']) {
+					if (ifsetor($val->attr['colspan'])) {
 						$skipCols = $val->attr['colspan'] - 1;
 					}
 				} else if ($val instanceof HTMLnoTag) {
@@ -448,13 +469,16 @@ class slTable {
 					if (!$val) {
 						$val = isset($row[strtolower($col)]) ? $row[strtolower($col)] : NULL;
 					}
-					$val = new slTableValue($val, $k);
+
+					if (!($val instanceof slTableValue)) {
+						$val = new slTableValue($val, $k);
+					}
 
 					$out = (isset($k['before']) ? $k['before'] : '').
 						   $val->render($col, $row) .
 						   (isset($k['after']) ? $k['after'] : '');
 
-					if ($k['colspan']) {
+					if (isset($k['colspan']) && $k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
 					}
 
@@ -500,22 +524,22 @@ class slTable {
 		return $more;
 	}
 
-	function show() {
-		if (!$this->generation) {
-			$this->generate();
-		}
-		$this->generation->render();
-	}
-
 	function render() {
-		$this->show();
+		echo Request::isCLI()
+			? $this->getCLITable()
+			: $this->getContent();
 	}
 
 	function getContent($caller = '') {
 		if (!$this->generation) {
 			$this->generate($caller);
 		}
-		return $this->generation->getContent();
+		if (Request::isCLI()) {
+			$content = $this->getCLITable();
+		} else {
+			$content = $this->generation->getContent();
+		}
+		return $content;
 	}
 
 	function getData($table) {
@@ -618,7 +642,7 @@ class slTable {
 				'' => $val,
 			);
 		}
-		$s = new self($assoc, 'class="visual nospacing table"', array(
+		$s = new self($assoc, 'class="visual nospacing table table-striped"', array(
 			0 => '',
 			'' => array('no_hsc' => $no_hsc),
 		));
@@ -685,7 +709,7 @@ class slTable {
 			}
 		}
 
-		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data);
+		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data, array($this->footer));
 
 		$content = "\n";
 		foreach ($dataWithHeader as $row) {

@@ -35,6 +35,12 @@ class ProgressBar {
 	 */
 	var $count = 0;
 
+    /**
+     * Force getCss() to NOT load from Index if Index exists
+     * @var bool
+     */
+    var $useIndexCss = true;
+
 	/**
 	 * @ param #2 $color = '#43b6df'
 	 * @param int $percentDone
@@ -63,11 +69,19 @@ class ProgressBar {
 
 	function render() {
 		if (!$this->cli) {
+			ini_set('output_buffering', 0); // php_value output_buffering 0
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
+			$index = Index::getInstance();
+			if (method_exists($index, 'renderHead')) {
+				$index->renderHead();
+			}
+			if (!headers_sent()) {
+				echo '<!DOCTYPE html>';
+			}
+            print($this->getCSS());
 			print($this->getContent());
-			print $this->getCSS();
 			$this->flush();
 		}
 	}
@@ -78,16 +92,19 @@ class ProgressBar {
 	 */
 	function getCSS() {
 		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/ProgressBar.less';
-		if (class_exists('Index')) {
+		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
+			return Index::getInstance()->header[$less];
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
-				= '<link rel="stylesheet" href="'.$less.'" />';
-		} else {
+				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
+		} else if (class_exists('lessc')) {
 			$l = new lessc();
 			$css = $l->compileFile($less);
 			return '<style>' . $css . '</style>';
+		} else {
+			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do
 		}
 	}
 
@@ -98,8 +115,10 @@ class ProgressBar {
 	function getContent() {
 		$this->percentDone = floatval($this->percentDone);
 		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
+		//debug($this->percentDone, $percentDone);
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
-			<div id="'.$this->textid.'" class="'.$this->textid.'">'.$percentDone.'</div>
+			<div id="'.$this->textid.'" class="'.$this->textid.'">'.
+			$percentDone.'</div>
 			<div class="pb_bar">
 				<div id="'.$this->pbarid.'" class="pb_before"
 				style="background-color: '.$this->color.'; width: '.$percentDone.';"></div>
@@ -135,14 +154,16 @@ class ProgressBar {
 	}
 
 	function setIndex($i, $always = false) {
-		$percent = $i/$this->count*100;
-		$every = $this->count / 1000;   // 100% * 10 for each 0.1
-		if (!($i % $every) || $always) {
-			$this->setProgressBarProgress($percent);
+		if ($this->count) {
+			$percent = $i / $this->count * 100;
+			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
+			if ($every < 1 || !($i % $every) || $always) {
+				$this->setProgressBarProgress($percent);
+			}
 		}
 	}
 
-	function flush($ob_flush = false) {
+	static function flush($ob_flush = false) {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
 		if ($ob_flush) {
 			ob_end_flush();
@@ -156,21 +177,27 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;') {
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+	static function getImage($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '') {
+		$url = self::getBar($p, $append);
 		return new htmlString('<div style="'.$css.'">'.
-			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+			number_format($p, 2, '.', '').'&nbsp;%&nbsp;
+			<img src="'.$url.'" style="vertical-align: middle;" />
 		</div>');
 	}
 
-	function getBackground($p, $width = '100px') {
+	static function getBar($p, $append = '') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return $prefix . 'bar.php?rating=' . round($p) . $append;
+	}
+
+	static function getBackground($p, $width = '100px') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return '<div style="
 			display: inline-block;
 			width: '.$width.';
 			text-align: center;
 			wrap: nowrap;
-			background: url(vendor/spidgorny/nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
+			background: url('.$prefix.'bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, 2).'%</div>';
 	}
 
 	public function setTitle() {

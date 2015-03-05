@@ -29,7 +29,7 @@ class View {
 	/**
 	 * @var Index
 	 */
-	protected $index;
+	public $index;
 
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
@@ -53,7 +53,10 @@ class View {
 			}
 			*/
 		}
-		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
+		$this->ll = (class_exists('Config') && isset(Config::getInstance()->ll))
+			? Config::getInstance()->ll : NULL;
+		$this->ll = (class_exists('Index') && isset(Index::getInstance()->ll))
+			? Index::getInstance()->ll : $this->ll;
 		$this->request = Request::getInstance();
 		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
@@ -275,6 +278,60 @@ class View {
 			'alt' => $percent.'%',
 		);
 		return new HTMLTag('img', $attr, NULL);
+	}
+
+	function purifyLinkify($comment) {
+		$comment = preg_replace("/#(\w+)/", "<a href=\"Search?q=\\1\" target=\"_blank\">#\\1</a>", $comment);
+		$comment = $this->cleanComment($comment);
+		$comment = nl2br($comment);
+		$comment .= $this->getEmbeddables($comment);
+		return $comment;
+	}
+
+	/**
+	 * @param string $comment
+	 * @return string
+	 */
+	function cleanComment($comment) {
+		//$v = new View('');
+		//$comment = $v->autolink($comment);
+		$config = HTMLPurifier_Config::createDefault();
+		//debug($config);
+		$cc = new CommentCollection(-1);
+		$config->set('HTML.Allowed', $cc->allowedTags);
+		$config->set('Attr.AllowedFrameTargets', array('_blank'));
+		$config->set('Attr.AllowedRel', array('nofollow'));
+		$config->set('AutoFormat.Linkify', true);
+		$config->set('HTML.TargetBlank', true);
+		$config->set('HTML.Nofollow', true);
+		$purifier = new HTMLPurifier($config);
+		$clean_html = $purifier->purify($comment);
+		return $clean_html;
+	}
+
+	function getEmbeddables($comment) {
+		$content = '';
+		$links = $this->getLinks($comment);
+		foreach ($links as $link => $_) {
+			$Essence = @Essence\Essence::instance( );
+			$Media = $Essence->embed($link);
+
+			if ( $Media ) {
+				$content .= $Media->html;
+			}
+		}
+		return $content;
+	}
+
+	/**
+	 * @return array
+	 */
+	function getLinks($comment) {
+		return View::_autolink_find_URLS($comment);
+	}
+
+	function s($a) {
+		return Index::mergeStringArrayRecursive($a);
 	}
 
 }

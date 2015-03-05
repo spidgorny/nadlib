@@ -5,12 +5,26 @@
  *
  */
 abstract class LocalLang {
-	var		  	$ll = array();									// actual messages
+	/**
+	 * actual messages
+	 * @var array
+	 */
+	var		  	$ll = array();
+
 	protected 	$defaultLang = 'en';
+
 	public	 	$possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
-	public	  	$lang;											// name of the selected language
+
+	/**
+	 * name of the selected language
+	 * @var string
+	 */
+	public	  	$lang;
+
 	public    	$indicateUntranslated = false;
+
 	protected 	$codeID = array();
+
 	public 		$editMode = false;
 
 	/**
@@ -18,7 +32,7 @@ abstract class LocalLang {
 	 * @param null $forceLang
 	 */
 	function __construct($forceLang = NULL) {
-		if ($_REQUEST['setLangCookie']) {
+		if (isset($_REQUEST['setLangCookie']) && $_REQUEST['setLangCookie']) {
 			$_COOKIE['lang'] = $_REQUEST['setLangCookie'];
 			setcookie('lang', $_REQUEST['setLangCookie'], time()+365*24*60*60, dirname($_SERVER['PHP_SELF']));
 		}
@@ -28,18 +42,20 @@ abstract class LocalLang {
 			$this->lang = $forceLang;
 		} else {
 			$this->detectLang();
-			$this->lang = $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
+			$this->lang = isset($_COOKIE['lang']) && $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
 				? $_COOKIE['lang']
 				: $this->lang;
 		}
 
-		$c = Config::getInstance();
-		if (isset($c->config[__CLASS__])) {
-			foreach ($c->config[__CLASS__] as $key => $val) {
-				$this->$key = $val;
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			if (isset($c->config[__CLASS__])) {
+				foreach ($c->config[__CLASS__] as $key => $val) {
+					$this->$key = $val;
+				}
 			}
+			//debug($c->config, $c->config[__CLASS__], $this);
 		}
-		//debug($c->config, $c->config[__CLASS__], $this);
 
 		// Read language data from somewhere in a subclass
 	}
@@ -90,19 +106,31 @@ abstract class LocalLang {
 	 * @return string translated message
 	 */
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
+		//debug($text, isset($this->ll[$text]), $this->ll[$text]);
 		if (isset($this->ll[$text])) {
-			if ($this->ll[$text] && $this->ll[$text] != '.') {
-				$trans = $this->ll[$text];
-				$trans = $this->getEditLinkMaybe($trans, $text, '');
-			} else {
-				$trans = $this->getEditLinkMaybe($text, $text);
-			}
+			$trans = ifsetor($this->ll[$text]);
+			$trans = $this->Tp($trans, $replace, $s2, $s3);
+			$trans = $this->getEditLinkMaybe($trans, $text, '');
+			//if ($text == 'Search') { debug($text, $trans); }
 		} else {
 			//debug($this->ll);
-			//debug($text, $this->ll[$text], $this->ll['E-Mail']);
+			//debug($text, $this->ll[$text], spl_object_hash($this));
 			$this->saveMissingMessage($text);
+			$text = $this->Tp($text, $replace, $s2, $s3);
 			$trans = $this->getEditLinkMaybe($text);
 		}
+		return $trans;
+	}
+
+	/**
+	 * Bare plain-text localization without outputting any HTML
+	 * @param $trans
+	 * @param null $replace
+	 * @param null $s2
+	 * @param null $s3
+	 * @return mixed|null
+	 */
+	function Tp($trans, $replace = NULL, $s2 = NULL, $s3 = NULL) {
 		if (is_array($replace)) {
 			foreach ($replace as $key => $val) {
 				$trans = str_replace('{'.$key.'}', $val, $trans);
@@ -119,10 +147,11 @@ abstract class LocalLang {
 	function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage') {
 		if ($this->editMode && $id) {
 			$trans = '<span class="'.$class.' clickTranslate" rel="'.htmlspecialchars($id).'">'.$text.'</span>';
+			$al = AutoLoad::getInstance();
 			$index = Index::getInstance();
 			$index->addJQuery();
-			$index->addJS('nadlib/js/clickTranslate.js');
-			$index->addCSS('nadlib/CSS/clickTranslate.css');
+			$index->addJS($al->nadlibFromDocRoot.'js/clickTranslate.js');
+			$index->addCSS($al->nadlibFromDocRoot.'CSS/clickTranslate.css');
 		} else if ($this->indicateUntranslated) {
 			$trans = '<span class="untranslatedMessage">['.$text.']</span>';
 		} else {
@@ -145,37 +174,6 @@ abstract class LocalLang {
 		return $this->codeID[$code];
 	}
 
-	function showLangSelection() {
-		$content = '';
-		$stats = $this->getLangStats();
-		foreach ($stats as $row) {
-			$u = URL::getCurrent();
-			$u->setParam('setLangCookie', $row['lang']);
-			$title = $row['lang'].' ('.$row['percent'].')';
-			$content .= '<a href="'.$u->buildURl().'" title="'.$title.'">
-				<img src="img/'.$row['lang'].'.gif" width="20" height="12">
-			</a>';
-		}
-		//debug($_SERVER['REQUEST_URI'], $u, $u->buildURL());
-		return $content;
-	}
-
-	function getLangStats() {
-		$en = $this->readDB('en');
-		$countEN = sizeof($en) ? sizeof($en) : 1;
-		$langs = $this->possibleLangs;
-		foreach ($langs as &$lang) {
-			$rows = $this->readDB($lang);
-			$lang = array(
-				'img' => '<img src="img/'.$lang.'.gif" width="20" height="12">',
-				'lang' => $lang,
-				'rows' => sizeof($rows),
-				'percent' => number_format(sizeof($rows)/$countEN*100, 0).'%',
-			);
-		}
-		return $langs;
-	}
-
 	/**
 	 * This doesn't work in Chrome somehow
 	 * @return string
@@ -191,19 +189,41 @@ abstract class LocalLang {
 			<select class="input-small langMenu" name="setLangCookie">'.$options.'
 			</select>
 		</form>';
-		Index::getInstance()->addCSS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
-		Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
-		//Index::getInstance()->addJS('js/vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
+		Index::getInstance()->addCSS('vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
+		Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
+		//Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
 		return $content;
 	}
 
 }
 
-if (!function_exists('__')) {	// conflict with cake
+if (!function_exists('__')) {	// conflict with cakePHP
+
 	function __($code, $r1 = null, $r2 = null, $r3 = null) {
-		$index = Index::getInstance();
-		if ($index && $index->ll) {
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+		}
+		//debug($code, !!$index, get_class($index), !!$index->ll, get_class($index->ll));
+		if (!empty($index) && $index->ll) {
 			$text = $index->ll->T($code, $r1, $r2, $r3);
+			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
+			return $text;
+		} else {
+			//debug('Replace without LL:', $code);
+			$code = str_replace('%1', $r1, $code);
+			$code = str_replace('%2', $r2, $code);
+			$code = str_replace('%3', $r3, $code);
+			return $code;
+		}
+	}
+
+	function __p($code, $r1 = null, $r2 = null, $r3 = null) {
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+		}
+		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
+		if ($index && $index->ll) {
+			$text = $index->ll->Tp($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $text;
 		} else {

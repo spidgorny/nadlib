@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class Mailer - simple mail sending class which supports either plain text or HTML
+ * mails. No attachments. Use SwiftMailer for anything more complicated. Takes care
+ * of the UTF-8 in subjects.
+ */
 class Mailer {
 
 	/**
@@ -18,6 +23,8 @@ class Mailer {
 	var $bodytext;
 
 	/**
+	 * Need to repeat key inside the value
+	 * From => From: somebody
 	 * @var array
 	 */
 	var $headers = array();
@@ -28,8 +35,8 @@ class Mailer {
 	var $params = array();
 
 	function __construct($to, $subject, $bodytext) {
-		$this->to = $to;
-		$this->subject = $subject;
+		$this->to = trim($to);
+		$this->subject = trim($subject);
 		$this->bodytext = $bodytext;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
 		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
@@ -53,11 +60,17 @@ class Mailer {
 	}
 
 	function send() {
-		if (HTMLFormValidate::validMail($this->to)) {
-			mail($this->to, $this->getSubject(), $this->getBodyText(), implode("\n", $this->headers)."\n", implode(' ', $this->params));
-		} else {
-			throw new Exception('Invalid email address');
+		$tos = trimExplode(',', $this->to);
+		foreach ($tos as $email) {
+			if (!HTMLFormValidate::validEmail($email)) {
+				throw new Exception(__('Invalid email address: %1', $email));
+			}
 		}
+		mail(implode(', ', $tos),
+			$this->getSubject(),
+			$this->getBodyText(),
+			implode("\n", $this->headers)."\n",
+			implode(' ', $this->params));
 	}
 
 	function getSubject() {
@@ -94,7 +107,7 @@ class Mailer {
      * @param array $attachments
      * @param array $additionalSenders This will be added to
      * @throws Exception
-     * @return int Number of recipients who were accepted for delivery.
+     * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
      */
     public static function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
     {
@@ -111,25 +124,25 @@ class Mailer {
         $message->setFrom(Index::getInstance()->mailFromSwiftMailer);
         if (!empty($additionalSenders)) {
             foreach ($additionalSenders as $address) {
-                empty($address) ?: $message->addFrom($address);
+                empty($address) ?: $message->addFrom(key($address));
             }
         }
 
         if (!empty($to)) {
             foreach ($to as $address) {
-                empty($address) ?: $message->addTo($address);
+                empty($address) ?: $message->addTo(trim($address));
             }
         }
 
         if (!empty($cc)) {
             foreach ($cc as $address) {
-                empty($address) ?: $message->addCc($address);
+                empty($address) ?: $message->addCc(trim($address));
             }
         }
 
         if (!empty($bcc)) {
             foreach ($bcc as $address) {
-                empty($address) ?: $message->addBcc($address);
+                empty($address) ?: $message->addBcc(trim($address));
             }
         }
 
@@ -141,7 +154,10 @@ class Mailer {
 
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
-        return $mailer->send($message);
+        $failedRecipients = array();
+        $sent = $mailer->send($message, $failedRecipients);
+
+        return !empty($failedRecipients) ? $failedRecipients : $sent;
     }
 
 }

@@ -50,7 +50,8 @@ class Pager {
 		$this->db = Config::getInstance()->db;
 		$this->request = Request::getInstance();
 		$this->setUser(Config::getInstance()->user);
-
+		// Inject dependencies, this breaks all projects which don't have DCI class
+        //if (!$this->user) $this->user = DCI::getInstance()->user;
 		Config::getInstance()->mergeConfig($this);
 	}
 
@@ -70,9 +71,12 @@ class Pager {
 				$this->setCurrentPage($pagerData['page']);
 				$this->saveCurrentPage();
 			}
-		} elseif ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
-			//debug(__METHOD__, $this->prefix, $pager['page']);
-			$this->setCurrentPage($pager['page']);
+		} elseif ($this->user && method_exists($this->user, 'getPref')) {
+			$pager = $this->user->getPref('Pager.'.$this->prefix);
+			if ($pager) {
+				//debug(__METHOD__, $this->prefix, $pager['page']);
+				$this->setCurrentPage($pager['page']);
+			}
 		} else {
 			$this->setCurrentPage(0);
 		}
@@ -192,9 +196,13 @@ class Pager {
 	}
 
 	function getCSS() {
-		$l = new lessc();
-		$css = $l->compileFile(dirname(__FILE__).'/../CSS/PaginationControl.less');
-		return '<style>'.$css.'</style>';
+		if (class_exists('lessc')) {
+			$l = new lessc();
+			$css = $l->compileFile(dirname(__FILE__) . '/../CSS/PaginationControl.less');
+			return '<style>' . $css . '</style>';
+		} else {
+			return '';
+		}
 	}
 
 	function renderPageSelectors(URL $url = NULL) {

@@ -16,8 +16,6 @@ class SQLLike extends SQLWherePart {
 
 	public $ilike = 'ILIKE';
 
-	public $wrap = '%|%';
-
 	function __construct($string, $caseInsensitive = false) {
 		parent::__construct();
         $this->caseInsensitive = $caseInsensitive;

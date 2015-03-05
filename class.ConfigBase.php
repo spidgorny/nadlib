@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
+ * Extend with a name Class and add any configuration parameters and factory calls.
+ */
 class ConfigBase {
 	/**
 	 * del: Public to allow Request to know if there's an instance
@@ -10,6 +14,7 @@ class ConfigBase {
 	public $db_server = '127.0.0.1';
 	public $db_user = 'root';
 	protected $db_password = 'root';
+
 	public $db_database = '';
 
 	/**
@@ -32,7 +37,10 @@ class ConfigBase {
 
 	public $defaultController = 'Overview';
 
-	public $documentRoot = '';
+	/**
+	 * @var Path
+	 */
+	public $documentRoot;
 
 	public static $includeFolders = array(
 		'.',
@@ -66,11 +74,27 @@ class ConfigBase {
 	 */
 	public $flexiTable = false;
 
+	/**
+	 * Read from config.json
+	 * @var array
+	 */
 	public $config;
+
+	/**
+	 * @var LoginUser
+	 */
+	public $user;
+
+	/**
+	 * @var string
+	 * @deprecated
+	 */
+	public $appRoot;
 
 	protected function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
+
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
 		} else {
@@ -91,19 +115,26 @@ class ConfigBase {
 		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
 		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
 
-		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
-		if (file_exists('class/config.yaml')) {
-			require_once 'vendor/mustangostang/spyc/Spyc.php';
-			$this->config = Spyc::YAMLLoad('class/config.yaml');
+		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));
+		$configYAML = AutoLoad::getInstance()->appRoot.'class/config.yaml';
+		//print_r(array($configYAML, file_exists($configYAML)));
+		if (file_exists($configYAML) && class_exists('Spyc')) {
+			$this->config = Spyc::YAMLLoad($configYAML);
 		}
 		$this->mergeConfig($this);
+
+		$configJSON = AutoLoad::getInstance()->appRoot.'class/config.json';
+		if (file_exists($configJSON)) {
+			$this->config = json_decode(file_get_contents($configJSON), true);
+			$this->mergeConfig($this);
+		}
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 	}
 
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
-	 * @return Config
+	 * @return Config - not ConfigBase
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {
@@ -114,11 +145,10 @@ class ConfigBase {
 	}
 
 	/**
-	 * Does heavy operations during bootstraping
+	 * Does heavy operations during bootstrapping
 	 * @return $this
 	 */
 	public function postInit() {
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		if ($this->db_database) {
 			$di = new DIContainer();
 			if (extension_loaded('mysqlnd')) {
@@ -142,11 +172,11 @@ class ConfigBase {
 			}
 			$di->db = $this->db;
 			$this->qb = new SQLBuilder($di);
+			$this->db->qb = $this->qb;
 		}
 
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 		return $this;
 	}
 
@@ -168,7 +198,7 @@ class ConfigBase {
 
 	function mergeConfig($obj) {
 		$class = get_class($obj);
-		if (is_array($this->config[$class])) {
+		if (isset($this->config[$class]) && is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
 				if ($key != 'includeFolders') {	// Strict Standards: Accessing static property Config::$includeFolders as non static
 					$obj->$key = $val;
@@ -180,9 +210,8 @@ class ConfigBase {
     /**
      * @return \SQLBuilder
      */
-    public function getQb()
-    {
-        if(!isset($this->qb)) {
+    public function getQb() {
+        if (!isset($this->qb)) {
             $di = new DIContainer();
             $di->db = Config::getInstance()->db;
             $this->setQb(new SQLBuilder($di));
@@ -194,8 +223,7 @@ class ConfigBase {
     /**
      * @param \SQLBuilder $qb
      */
-    public function setQb($qb)
-    {
+    public function setQb($qb) {
         $this->qb = $qb;
     }
 

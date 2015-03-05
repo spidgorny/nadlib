@@ -8,14 +8,35 @@ class MemcacheFile {
 	 */
 	public $folder = 'cache/';
 
-	function __construct() {
-		$sub = Config::getInstance()->appRoot;
+	public $key;
+
+	public $expire = 0;
+
+	/**
+	 * If you define $key and $expire in the constructore
+	 * you don't need to define it in each method below.
+	 * Otherwise, please specify.
+	 * @param null $key
+	 * @param int $expire
+	 */
+	function __construct($key = NULL, $expire = 0) {
+		if (MemcacheArray::$debug) {
+			//echo __METHOD__.BR;
+		}
+		$sub = cap(AutoLoad::getInstance()->appRoot);
 
 		if (!file_exists($sub.$this->folder)) {
-			debug(__METHOD__, $sub.$this->folder);
+			debug(__METHOD__, $sub, $this->folder);
 			die();
 		} else {
-			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = $sub . $this->folder;
+		}
+
+		if ($key) {
+			$this->key = $key;
+		}
+		if ($expire) {
+			$this->expire = $expire;
 		}
 	}
 
@@ -32,25 +53,34 @@ class MemcacheFile {
 	}
 
 	function set($key, $val) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$file = $this->map($key);
 		if (is_writable($this->folder)) {
 			file_put_contents($file, serialize($val));
 			@chmod($file, 0777);	// needed for cronjob accessing cache files
 		} else {
-			if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+			if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception($file.' write access denied.');
 		}
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function isValid($key, $expire = 0) {
+	function isValid($key = NULL, $expire = 0) {
+		$key = $key ?: $this->key;
+		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
-		return !$expire || (@filemtime($file) > (time() - $expire));
+		$mtime = @filemtime($file);
+		$bigger = ($mtime > (time() - $expire));
+		if ($this->key == 'OvertimeChart::getStatsCached') {
+//			debug($this->key, $file, $mtime, $expire, $bigger);
+		}
+		return /*!$expire ||*/ $bigger;
 	}
 
-	function get($key, $expire = 0) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+	function get($key = NULL, $expire = 0) {
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$key = $key ?: $this->key;
+		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
 		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
@@ -58,7 +88,7 @@ class MemcacheFile {
 				$val = unserialize($val);
 			}
 		}
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $val;
 	}
 

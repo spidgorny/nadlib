@@ -7,8 +7,9 @@
  */
  /*abstract*/ // commented because of createForTable()
 class Collection {
+
 	/**
-	 *
+	 * In case of MSSQL it needs to be set from outside
 	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO
 	 */
 	public $db;
@@ -23,6 +24,7 @@ class Collection {
 
 	/**
 	 * Retrieved rows from DB
+	 * Protected in order to force usage of getData()
 	 * @var ArrayPlus|array
 	 */
 	protected $data = array();
@@ -81,9 +83,10 @@ class Collection {
 	public $query;
 
 	/**
+	 * Is NULL until it's set to 0 or more
 	 * @var integer Total amount of data retrieved (not limited by Pager)
 	 */
-	public $count = 0;
+	public $count = NULL;
 
 	/**
 	 * Should it be here? Belongs to the controller?
@@ -130,6 +133,8 @@ class Collection {
 	 */
 	var $desc = array();
 
+	var $noDataMessage = 'No data';
+
 	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
@@ -158,29 +163,10 @@ class Collection {
 		$this->request = Request::getInstance();
 		$this->postInit();
 
-		// should be dealt with by the Controller
-		/*$sortBy = $this->request->getSubRequest('slTable')->getCoalesce('sortBy', $this->orderBy);
-		if ($this->thes && is_array($this->thes[$sortBy]) && $this->thes[$sortBy]['source']) {
-			$sortBy = $this->thes[$sortBy]['source'];
-		}
-		$sortOrder = $this->request->getSubRequest('slTable')->getBool('sortOrder') ? 'DESC' : 'ASC';
-		$this->orderBy = 'ORDER BY '.$sortBy.' '.$sortOrder;*/
-
-		//debug($this->parentField, $this->parentID, $this->where);
-
-		// never retrieve data in advance
-		// use lazy retrieval
-		// don't access $this->data - use $this->getData()
-		// don't access $this->members - use $this->objectify()
-		/*if (($this->parentField && $this->parentID > 0) || (!$this->parentID && $this->where)) {
-			$this->retrieveDataFromDB();
-		}
-		*/
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->translateThes();
-		//$GLOBALS['HTMLFOOTER']['jquery.infinitescroll.min.js'] = '<script src="js/jquery.infinitescroll.min.js"></script>';
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
 	}
 
@@ -199,7 +185,12 @@ class Collection {
 	 * @param bool $preprocess
 	 */
 	function retrieveDataFromDB($allowMerge = false, $preprocess = true) {
-		if ($this->db instanceof MySQL || ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'('.$allowMerge.', '.$preprocess.')');
+		//debug(__METHOD__, $allowMerge, $preprocess);
+		if (phpversion() > 5.3 && (
+			$this->db instanceof MySQL
+			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')
+		)) {
 			$this->log('retrieveDataFromMySQL');
 			$this->retrieveDataFromMySQL($allowMerge, $preprocess);
 			return;
@@ -225,6 +216,7 @@ class Collection {
 	 * https://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_found-rows
 	 * @param bool $allowMerge
 	 * @param bool $preprocess
+	 * @requires PHP 5.3
 	 */
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
@@ -306,7 +298,11 @@ class Collection {
 	}
 
 	function log($msg) {
-		$this->log[(string)microtime(true)] = $msg;
+		$time = (string)microtime(true);
+		if (isset($this->log[$time])) {
+			$time .= '.'.uniqid();
+		}
+		$this->log[$time] = $msg;
 	}
 
 	/**
@@ -319,7 +315,13 @@ class Collection {
 			$where = $this->where;
 		}
 		if ($this->parentID > 0) {
-			$where[$this->parentField] = $this->parentID;
+			if ($this->parentID instanceof Date) {
+				$where[$this->parentField] = $this->parentID->getMySQL();
+			} else {
+				$where[$this->parentField] = is_array($this->parentID)
+					? new SQLIn($this->parentID)
+					: $this->parentID;
+			}
 		}
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
@@ -350,7 +352,8 @@ class Collection {
 
 	function preprocessData() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		foreach ($this->data as &$row) { // Iterator by reference
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
@@ -365,7 +368,9 @@ class Collection {
 	 */
 	function render() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
-		if ($this->data) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		$this->getData();
+		if ($this->count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
@@ -384,7 +389,8 @@ class Collection {
 	}
 
 	function getDataTable() {
-		$s = new slTable($this->data, HTMLTag::renderAttr($this->tableMore));
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		$s = new slTable($this->getData(), HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->thes);
 		$s->ID = get_class($this);
 		$s->sortable = $this->useSorting;
@@ -398,6 +404,7 @@ class Collection {
 
 	function prepareRender() {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table})");
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		$this->getData();
 		foreach ($this->data as &$row) { // Iterator by reference
 			$row = $this->prepareRenderRow($row);
@@ -406,20 +413,38 @@ class Collection {
 	}
 
 	/**
-	 * @return array|ArrayPlus
+	 * @return ArrayPlus
 	 */
 	function getData() {
-		if (!$this->query || (
-				!$this->data
-				|| !$this->data->count())) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		$this->log('query: '.!!$this->query);
+		$this->log('data: '.!!$this->data);
+		$this->log('data->count: '.count($this->data));
+		if (!$this->query
+			|| !$this->data
+			//|| !$this->data->count()  // not necessary, we have retrieved nothing
+		) {
 			$this->retrieveDataFromDB();
 		}
-		if (!($this->data instanceof ArrayPlus)) {
-			$this->data = ArrayPlus::create($this->data);
-			$this->count = sizeof($this->data);
-		}
+        if (!($this->data instanceof ArrayPlus)) {
+            $this->data = ArrayPlus::create($this->data);
+	        $this->count = sizeof($this->data);
+        }
 		return $this->data;
 	}
+
+	/**
+	 * A function to fake the data as if it was retrieved from DB
+	 * @param $data
+	 */
+    function setData($data) {
+	    $this->log(get_class($this).'::'.__FUNCTION__.'()');
+        $this->data  = ArrayPlus::create((array) $data);
+        $this->count = count($this->data);
+
+		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
+		$this->query = true;
+    }
 
 	function prepareRenderRow(array $row) {
 		return $row;
@@ -454,6 +479,7 @@ class Collection {
 				return $row;
 			}
 		}
+		return NULL;
 	}
 
 	/**
@@ -473,16 +499,21 @@ class Collection {
 	}
 
 	function renderList() {
-		$content = '<ul>';
-		foreach ($this->getData() as $row) {
-			$content .= '<li>';
-			foreach ($this->thes as $key => $_) {
-				$content .= $row[$key]. ' ';
+		$list = [];
+		if ($this->getCount()) {
+			foreach ($this->getData() as $id => $row) {
+				if ($this->thes) {
+					$item = '';
+					foreach ($this->thes as $key => $_) {
+						$item .= $row[$key] . ' ';
+					}
+					$list[$id] = $item;
+				} else {
+					$list[$id] = $row[$this->titleColumn];
+				}
 			}
-			$content .= '</li>';
 		}
-		$content .= '</ul>';
-		return $content;
+		return new UL($list);
 	}
 
 	/**
@@ -490,25 +521,26 @@ class Collection {
 	 * @return string
 	 */
 	function renderMembers() {
-		$content = '';
+		$content = [];
 		//debug(sizeof($this->members));
 		if ($this->objectify()) {
 			foreach ($this->objectify() as $key => $obj) {
 				//debug($i++, (strlen($content)/1024/1024).'M');
 				if (is_object($obj)) {
-					$content .= $obj->render()."\n";
+					$content[] = $obj->render();
+					$content[] = "\n";
 				} else {
-					$content .= getDebug(__METHOD__, $key, $obj);
+					$content[] = getDebug(__METHOD__, $key, $obj);
 				}
 			}
 		} else {
-			$content .= '<div class="message">'.__('No data').'</div>';
+			$content[] = '<div class="message">'.__($this->noDataMessage).'</div>';
 		}
 		if ($this->pager) {
 			//$this->pager->debug();
 			$url = new URL();
 			$pages = $this->pager->renderPageSelectors($url);
-			$content = $pages . $content . $pages;
+			$content = array($pages, $content, $pages);
 		}
 		return $content;
 	}
@@ -548,7 +580,7 @@ class Collection {
 	 * @return object[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
-		$class = $class ?: $this->itemClassName;
+		$class = $class ? $class : $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];
@@ -567,22 +599,27 @@ class Collection {
 		return $this->render().'';
 	}
 
-	/**
-	 * Wrap output in <form> manually if necessary
-	 */
-	function addCheckboxes() {
-		$this->thes = array('checked' => array(
-			'name' => '<a href="javascript:void(0)"><input type="checkbox" id="checkAllAuto" name="checkAllAuto" onclick="checkAll()" /></a>', // if we need sorting here just add ""
-            'align' => "center",
-			'no_hsc' => true,
-		)) + $this->thes;
-		$class = get_class($this);
-		foreach ($this->data as &$row) {
-			$id = $row[$this->idField];
-			$checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
-			$row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
-		}
-	}
+    /**
+     * Wrap output in <form> manually if necessary
+     * @param string $idFieldName Optional param to define a different ID field to use as checkbox value
+     */
+    function addCheckboxes($idFieldName = '') {
+        $this->thes = array('checked' => array(
+                'name' => '<a href="javascript:void(0)">
+					<input type="checkbox"
+					id="checkAllAuto"
+					name="checkAllAuto"
+					onclick="checkAll()" /></a>', // if we need sorting here just add ""
+                'align' => "center",
+                'no_hsc' => true,
+            )) + $this->thes;
+        $class = get_class($this);
+        foreach ($this->data as &$row) {
+            $id = !empty($idFieldName) ? $row[$idFieldName] : $row[$this->idField];
+            $checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
+            $row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
+        }
+    }
 
 	function showFilter() {
 		if ($this->filter) {
@@ -677,6 +714,8 @@ class Collection {
 	 * elements on the page still have prev and next elements. But it's SLOW!
 	 *
 	 * @param OODBase $model
+	 * @throws LoginException
+	 * @throws Exception
 	 * @return string
 	 */
 	function getNextPrevBrowser(OODBase $model) {
@@ -707,16 +746,19 @@ class Collection {
 		} else {
 			$prevData = $nextData = array();
 		}
-		$data = $prevData + (
-            ($this->data instanceof ArrayPlus) ? $this->data->getData() : $this->data
-            ) + $nextData; // not array_merge which will reindex
+
+		$central = ($this->data instanceof ArrayPlus)
+			? $this->data->getData()
+			: ($this->data ? $this->data : array())  // NOT NULL
+		;
 
 		nodebug($model->id,
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$this->data))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
 		);
-		$ap = AP($data);
+		$data = $prevData + $central + $nextData; // not array_merge which will reindex
+		$ap = ArrayPlus::create($data);
 		//debug($data);
 
 		$prev = $ap->getPrevKey($model->id);
@@ -804,15 +846,28 @@ class Collection {
 		return $memberIterator;
 	}
 
+	/**
+	 * Don't update $this->query otherwise getData() will think we have
+	 * retrieved nothing.
+	 * @return int
+	 */
 	public function getCount() {
-		$this->query = $this->getQuery($this->where);
-		$res = $this->db->perform($this->query);
-		if ($this->pager) {
-			$this->count = $this->pager->numberOfRecords;
-		} else {
-			$this->count = $this->db->numRows($res);
+		if (is_null($this->count)) {
+			$query = $this->getQuery($this->where);
+			//debug($query);
+			$res = $this->db->perform($query);
+			if ($this->pager) {
+				$this->count = $this->pager->numberOfRecords;
+			} else {
+				$this->count = $this->db->numRows($res);
+			}
 		}
 		return $this->count;
+	}
+
+	function clearInstances() {
+		unset($this->data);
+		unset($this->members);
 	}
 
 }

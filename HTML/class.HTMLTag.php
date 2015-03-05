@@ -9,6 +9,7 @@ class HTMLTag {
 	public $attr = array();
 	public $content;
 	public $isHTML = FALSE;
+	public $closingTag = true;
 
 	function __construct($tag, array $attr = array(), $content = '', $isHTML = FALSE) {
 		$this->tag = $tag;
@@ -18,10 +19,16 @@ class HTMLTag {
 	}
 
 	function __toString() {
+		$xmlClose = $this->closingTag ? '' : '/';
 		$content = ($this->isHTML || $this->content instanceof HTMLTag)
 			? $this->content
 			: htmlspecialchars($this->content, ENT_QUOTES);
-		return '<'.$this->tag.' '.$this->renderAttr($this->attr).'>'.$content.'</'.$this->tag.'>';
+		$tag = '<'.$this->tag.' '.$this->renderAttr($this->attr).$xmlClose.'>';
+		$tag .= $content;
+		if ($this->closingTag) {
+			$tag .= '</' . $this->tag . '>';
+		}
+		return $tag;
 	}
 
 	static function renderAttr(array $attr) {
@@ -52,7 +59,7 @@ class HTMLTag {
 		$attributes = str_replace('<'.$tag.'>', '', $str);
 		$attributes = str_replace('</'.$tag.'>', '', $attributes);
 		$obj = new HTMLTag($tag);
-		$obj->attr = $obj->parseAttributes($attributes);
+		$obj->attr = self::parseAttributes($attributes);
 		$obj->content = strip_tags($str);
 		return $obj;
 	}
@@ -62,7 +69,7 @@ class HTMLTag {
 	 * @param string $text
 	 * @return array
 	 */
-	function parseAttributes($text) {
+	static function parseAttributes($text) {
 		$attributes = array();
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)

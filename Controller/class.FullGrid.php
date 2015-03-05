@@ -95,6 +95,7 @@ abstract class FullGrid extends Grid {
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
+	 * @throws Exception
 	 * @return array
 	 */
 	function getFilterDesc(array $fields = NULL) {
@@ -153,7 +154,7 @@ abstract class FullGrid extends Grid {
 				$copy = clone $this->collection;
 				$copy->where[$key] = $val;
 				$copy->retrieveDataFromDB();
-				$val .= ' ('.sizeof($copy->data).')';
+				$val .= ' ('.sizeof($copy->getData()).')';
 			}
 		}
 

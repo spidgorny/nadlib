@@ -27,7 +27,8 @@ class Request {
 
 		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
 			? $_SERVER['SCRIPT_URL']
-			: $_SERVER['REQUEST_URI']);
+			: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL)
+		);
 	}
 
 	function deQuote(array $request) {
@@ -163,7 +164,7 @@ class Request {
 	}
 
 	function bool($name) {
-		return $this->data[$name] ? TRUE : FALSE;
+		return (isset($this->data[$name]) && $this->data[$name]) ? TRUE : FALSE;
 	}
 
 	function getBool($name) {
@@ -306,7 +307,7 @@ class Request {
 		} else {
 			$controller = $this->getTrim('c');
 			if ($controller) {
-				// to simplofy URL it first searches for the corresponding controller
+				// to simplify URL it first searches for the corresponding controller
 				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
 				$tmp = $ptr;
 				$ptr = false;
@@ -314,41 +315,62 @@ class Request {
 					$controller = $controller.'Controller';
 				}
 				$ptr = $tmp;
-				//$controller = end(explode('/', $controller)); // in case it's with subfolder
-				// ^ commented as subfolders need be used for BEmenu
-			} else {
-				$levels = $this->getURLLevels();
-				if ($levels) {
-					$levels = array_reverse($levels);
-					foreach ($levels as $class) {
-						// RewriteRule should not contain "?c="
-						nodebug(
-							$class,
-							class_exists($class.'Controller'),
-							class_exists($class));
-						// to simplify URL it first searches for the corresponding controller
-						if ($class && class_exists($class.'Controller')) {	// this is untested
-							$last = $class.'Controller';
-							break;
-						}
-						if (class_exists($class)) {
-							$last = $class;
-							break;
-						}
+
+				$Scontroller = new Path($controller);
+				if ($Scontroller->length() > 1) {	// in case it's with sub-folder
+					$dir = dirname($Scontroller);
+					$parts = trimExplode('/', $controller);
+					//debug($dir, $parts, file_exists($dir));
+					if (file_exists($dir)) {
+						$controller = end($parts);
+					} else {
+						$controller = first($parts);
 					}
-					$controller = $last;
-				} else {
-					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
 				}
+			} else {
+				$controller = $this->getControllerByPath();
 			}
 		}   // cli
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
-			'last' => $last,
-			'default' => Config::getInstance()->defaultController,
+			'last' => isset($last) ? $last : NULL,
+			'default' => class_exists('Config')
+				? Config::getInstance()->defaultController
+				: NULL,
 			'data' => $this->data));
+		return $controller;
+	}
+
+	function getControllerByPath() {
+		$levels = $this->getURLLevels();
+		if ($levels) {
+			$levels = array_reverse($levels);
+			foreach ($levels as $class) {
+				// RewriteRule should not contain "?c="
+				nodebug(
+					$class,
+					class_exists($class.'Controller'),
+					class_exists($class));
+				// to simplify URL it first searches for the corresponding controller
+				if ($class && class_exists($class.'Controller')) {	// this is untested
+					$last = $class.'Controller';
+					break;
+				}
+				if (class_exists($class)) {
+					$last = $class;
+					break;
+				}
+			}
+			if ($last) {
+				$controller = $last;
+			} else {
+				$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+			}
+		} else {
+			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+		}
 		return $controller;
 	}
 
@@ -361,7 +383,7 @@ class Request {
 	function getController() {
 		$c = $this->getControllerString();
 		if (!$c) {
-			$c = $GLOBALS['i']->controller; // default
+			$c = Index::getInstance()->controller; // default
 		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
@@ -383,10 +405,23 @@ class Request {
 
 	function getRefererController() {
 		$url = $this->getReferer();
+		$url->setParams(array());   // get rid of any action
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : Config::getInstance()->defaultController;
+		return $return ? $return : NULL;
+	}
+
+	function getRefererIfNotSelf() {
+		$referer = $this->getReferer();
+		$rController = $this->getRefererController();
+		$index = Index::getInstance();
+		$cController = $index->controller
+			? get_class($index->controller)
+			: Config::getInstance()->defaultController;
+		$ok = (($rController != $cController) && ($referer.'' != new URL().''));
+		//debug($rController, __CLASS__, $ok);
+		return $ok ? $referer : NULL;
 	}
 
 	function redirect($controller) {
@@ -395,6 +430,7 @@ class Request {
 		}
 		if (!headers_sent()
 //			|| DEVELOPMENT
+			&& $this->canRedirect($controller)
 		) {
 			header('Location: '.$controller);
 			exit();
@@ -403,17 +439,40 @@ class Request {
 		}
 	}
 
-	function redirectJS($controller) {
+	function canRedirect($to) {
+		$absURL = $this->getURL();
+		$absURL->makeAbsolute();
+		//debug($absURL.'', $to.''); exit();
+		return $absURL.'' != $to.'';
+	}
+
+	function redirectJS($controller, $delay = 0) {
 		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
 			<script>
-				document.location = "'.$controller.'";
+				setTimeout(function () {
+					document.location = "'.$controller.'";
+				}, '.$delay.');
 			</script>';
-		exit();
+		//exit();
+	}
+
+	function redirectFromAjax($relative) {
+		if (startsWith($relative, 'http')) {
+			$link = $relative;
+		} else {
+			$link = $this->getLocation() . $relative;
+		}
+		if (!headers_sent()) {
+			header('X-Redirect: '.$link);	// to be handled by AJAX callback
+			exit();
+		} else {
+			$this->redirectJS($link);
+		}
 	}
 
 	/**
 	 * Returns the full URL to the document root of the current site
-	 * @return string
+	 * @return URL
 	 */
 	static function getLocation() {
 		if (class_exists('Config')) {
@@ -422,18 +481,21 @@ class Request {
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
-		if (strlen($docRoot) == 1) {
-			$docRoot = '/';
-		} else {
-			$docRoot .= '/';
+
+		// hack
+		//$docRoot = AutoLoad::getInstance()->nadlibFromDocRoot.'be/';
+
+		if (!startsWith($docRoot, '/')) {
+			$docRoot = '/'.$docRoot;
 		}
 		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST']
+			isset($_SERVER['HTTP_X_FORWARDED_HOST'])
 				? $_SERVER['HTTP_X_FORWARDED_HOST']
-				: $_SERVER['HTTP_HOST']
+				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL)
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
+		$url = new URL($url);
 		return $url;
 	}
 
@@ -446,9 +508,20 @@ class Request {
 		return $this->url;
 	}
 
+	/**
+	 * http://php.net/manual/en/function.apache-request-headers.php#70810
+	 * @return bool
+	 */
 	function isAjax() {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
-		return $this->getBool('ajax') || (strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
+		if (!$headers) {
+			$headers = array(
+				'X-Requested-With' => $_SERVER['HTTP_X_REQUESTED_WITH']
+			);
+		}
+		return $this->getBool('ajax') || (
+			isset($headers['X-Requested-With'])
+			&&strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
 	}
 
 	function getHeader($name) {
@@ -529,17 +602,41 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
-		$path = $this->url->getPath();
-		if (strlen($path) > 1) {	// "/"
-			$path = trimExplode('/', $path);
-			if ($path[0] == 'index.php') {
-				array_shift($path);
+		if (false) {	// linux
+			$cwd = new Path(getcwd());
+			$al = AutoLoad::getInstance();
+			$url = clone $al->documentRoot;
+			$url->append($this->url->getPath());
+			$path = new Path($url);
+			$path->remove($cwd);
+		} else {	// windows
+			$url = new Path('');
+			$url->append($this->url->getPath());
+			$path = new Path($url);
+			if (false) {    // doesn't work in ORS
+				$al = AutoLoad::getInstance();
+				$path->remove(clone $al->documentRoot);
+			} else {        // works in ORS
+				$config = Config::getInstance();
+				$path->remove(clone $config->documentRoot);
 			}
-			//debug($this->url->getPath(), $path);
-		} else {
-			$path = array();
 		}
-		return $path;
+		//$path = $path->getURL();
+		if (strlen($path) > 1) {	// "/"
+			$levels = trimExplode('/', $path);
+			if ($levels[0] == 'index.php') {
+				array_shift($levels);
+			}
+		} else {
+			$levels = array();
+		}
+		nodebug(array(
+			'cwd' => $cwd.'',
+			'url' => $url.'',
+			'path' => $path.'',
+			'getURL()' => $path->getURL().'',
+			'levels' => $levels));
+		return $levels;
 	}
 
 	/**
@@ -638,7 +735,7 @@ class Request {
 	 */
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
-		//debug(getcwd(), $filename, realpath($filename));
+		//echo getDebug(getcwd(), $filename, realpath($filename));
 		$filename = realpath($filename);
 		return $filename;
 	}
@@ -722,6 +819,9 @@ class Request {
 		$this->data = array();
 	}
 
+	/**
+	 * @return Path
+	 */
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 		if ($_SERVER['DOCUMENT_ROOT'] &&
@@ -734,10 +834,19 @@ class Request {
 		}
 		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
+		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
+
+		//debug_pre_print_backtrace();
+		require_once __DIR__.'/class.Path.php'; // needed if called early
+		$docRoot = new Path($docRoot);
 		return $docRoot;
 	}
 
+	/**
+	 * @param int $age - seconds
+	 */
 	function setCacheable($age = 60) {
 		header('Pragma: cache');
 		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
@@ -752,7 +861,10 @@ class Request {
 	 */
 	public function importNameless(array $keys) {
 		foreach ($keys as $k => $val) {
-			$this->data[$val] = $this->getNameless($k);
+			$available = $this->getNameless($k);
+			if ($available) {
+				$this->data[$val] = $available;
+			}
 		}
 	}
 
@@ -764,6 +876,14 @@ class Request {
 		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		//return $os == 'Windows_NT';
 		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
+	function getPOST() {
+		if (isset($HTTP_RAW_POST_DATA)) {
+			return $HTTP_RAW_POST_DATA;
+		} else {
+			return file_get_contents("php://input");
+		}
 	}
 
 }

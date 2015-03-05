@@ -48,4 +48,8 @@ class AccessRights {
 		return $this->arCache;
 	}
 
+	function render() {
+		return new UL($this->arCache);
+	}
+
 }

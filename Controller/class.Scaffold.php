@@ -45,7 +45,7 @@ abstract class Scaffold extends AppController {
 	 * edit
 	 * @var string
 	 */
-	protected $action = 'showEdit';
+	protected $action = '';
 
 	/**
 	 * OODBase based model class to modify database.
@@ -66,9 +66,11 @@ abstract class Scaffold extends AppController {
 	 */
 	protected $id;
 
+	/**
+	 * Either from the <FORM> or default from DB?
+	 * @var array
+	 */
 	public $data;
-
-	protected $desc;
 
 	protected $editIcon = '<img src="img/stock-edit-16.png" />';
 
@@ -88,11 +90,14 @@ abstract class Scaffold extends AppController {
 		$this->setModel();	// uses $this->id
 
 		$this->form = new HTMLFormTable();
+		//debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
 		if ($this->request->isSubmit()) {
 			$this->data = $this->request->getArray($this->formPrefix);
 		} else {
 			$this->data = $this->model->data;
 		}
+		$this->form->desc = $this->getDesc($this->data);
+//		debug($this->form->desc);
 		nodebug(array(
 			'id' => $this->id,
 			'isSubmit' => $this->request->isSubmit(),
@@ -107,24 +112,30 @@ abstract class Scaffold extends AppController {
 	abstract function setModel();
 
 	public function render() {
-		$content = '';
+		$content = [];
+//		debug($this->action);
 		switch ($this->action) {
 			case 'showForm':
-				$content = $this->showForm();
+				$content[] = $this->showForm();
 			break;
 			case 'showEdit':
-				$content .= $this->showEditForm();
+				$content[] = $this->showEditForm();
 			break;
 			case 'add':
 			case 'update':
-				$content = $this->showPerform();
+				$content[] = $this->showPerform();
 			break;
 			default:    // view table
-				$content = $this->showTable();
-				$content .= $this->showButtons();
-				$content .= '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
+				$content[] = $this->showDefault();
 			break;
 		}
+		return $content;
+	}
+
+	function showDefault() {
+		$content[] = $this->showTable();
+		$content[] = $this->showButtons();
+		$content[] = '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
 		return $content;
 	}
 
@@ -139,6 +150,7 @@ abstract class Scaffold extends AppController {
 		$data = $this->processData($data);
 
 		if ($data) {
+			debug($this->model->data, $data);
 			$s = new slTable($data, 'class="nospacing spaceBelow"');
 			$s->thes($this->thes);
 			$content = $s->getContent();
@@ -157,14 +169,17 @@ abstract class Scaffold extends AppController {
 
 	public function getEditIcon($id) {
 		//makeAjaxLink
-		$content = $this->makeLink($this->editIcon, array(
+		$aTag = $this->makeLink($this->editIcon, array(
 			'c' => get_class($this),
 			'pageType' => get_class($this),
 			'ajax' => TRUE,
 			'action' => 'showEdit',
 			$this->table.'.id' => $id,
 		), $this->formPrefix);
-		return $content;
+		$href = $aTag->attr['href'];
+		/** @var $href URL */
+		$aTag->attr['href'] = $href->buildQuery();
+		return $aTag;
 	}
 
 	protected function showButtons() {
@@ -172,7 +187,7 @@ abstract class Scaffold extends AppController {
 			'c' => get_class($this),
 			'ajax' => TRUE,
 			'action' => 'showForm',
-		), $this->formPrefix, '', 'class="button"');
+		), $this->formPrefix, '', array('class' => "button"));
 		return $content;
 	}
 
@@ -181,7 +196,10 @@ abstract class Scaffold extends AppController {
 			$f = $this->showEditForm();
 		} else {
 			$f = $this->getForm();
-			$f->submit($this->addButton);
+			$f->prefix('');
+			$f->submit($this->addButton, array(
+				'class' => 'btn btn-primary',
+			));
 		}
 		return $f;
 	}
@@ -203,7 +221,9 @@ abstract class Scaffold extends AppController {
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
-		$f->submit($this->updateButton);
+		$f->submit($this->updateButton, array(
+			'class' => 'btn btn-primary',
+		));
 		return $f;
 	}
 
@@ -215,7 +235,7 @@ abstract class Scaffold extends AppController {
 	 * @return string
 	 */
 	public function showPerform() {
-		$content = '';
+		$content = [];
 		//$userData = $this->request->getArray($this->formPrefix);
 		//debug($userData, $formPrefix);
 
@@ -226,21 +246,21 @@ abstract class Scaffold extends AppController {
 		if ($v->validate()) {
 			try {
 				switch ($this->action) {
-					case 'add': $content = $this->insertRecord($this->data); break;
-					case 'update': $content = $this->updateRecord($this->data); break;
+					case 'add': $content[] = $this->insertRecord($this->data); break;
+					case 'update': $content[] = $this->updateRecord($this->data); break;
 					default: {
 						debug(__METHOD__);
 						throw new Exception(__METHOD__);
 					}
 				}
 			} catch (Exception $e) {
-				$content .= '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
-				$content .= $this->showForm();
+				$content[] = '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
+				$content[] = $this->showForm();
 			}
 		} else {
 			//$desc = $v->getDesc();
-			$content .= '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
-			$content .= $this->showForm();
+			$content[] = '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
+			$content[] = $this->showForm();
 			//debug($desc['participants'], $userData['participants']);
 		}
 		return $content;
@@ -289,8 +309,7 @@ abstract class Scaffold extends AppController {
 		$this->form->hidden('action', $action);
 		//$this->form->hidden('ajax', TRUE);        // add this to getDesc()
 		$this->form->prefix($this->formPrefix);
-		$this->desc = $this->getDesc($this->data);
-		$this->form->showForm($this->desc);
+		$this->form->showForm();
 		//$this->form->submit($this->addButton);    // because it's used for edit
 		$this->form->formMore = $this->formMore;
 		return $this->form;
@@ -311,10 +330,11 @@ abstract class Scaffold extends AppController {
 	}
 
 	function getDescFromThes() {
+		$special = array('id', 'match', 'mtime', 'muser');
 		$desc = array();
 		foreach ($this->model->thes as $key => $k) {
 			$k = is_array($k) ? $k : array('name' => $k);
-			if (!in_array($key, array('id', 'match', 'mtime', 'muser')) && $k['showSingle'] !== false) {
+			if (!in_array($key, $special) && $k['showSingle'] !== false) {
 				$desc[$key] = array(
 					'label' => $k['name'],
 					'type' => $k['type'],

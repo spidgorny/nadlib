@@ -14,7 +14,8 @@ class DIContainer {
 
 	function __get($id) {
 		if (!isset($this->values[$id])) {
-			throw new InvalidArgumentException(sprintf('Value "%s" is not defined.', $id));
+			throw new InvalidArgumentException(sprintf(
+				__METHOD__.': value "%s" is not defined.', $id));
 		}
 		$v = $this->values[$id];
 /*		print_r(array(
@@ -29,7 +30,7 @@ class DIContainer {
 			: $v;
 	}
 
-	function asShared($callable) {
+/*	function asShared($callable) {
 		return function ($c) use ($callable) {
 			static $object;
 
@@ -40,5 +41,5 @@ class DIContainer {
 			return $object;
 		};
 	}
-
+*/
 }

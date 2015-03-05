@@ -28,7 +28,7 @@ abstract class Controller {
 	/**
 	 * @var boolean
 	 * @use $this->preventDefault() to set
-	 * chack manually in render()
+	 * Check manually in render()
 	 */
 	public $noRender = false;
 
@@ -73,15 +73,24 @@ abstract class Controller {
 	 */
 	static public $public = false;
 
+	/**
+	 * @var Config
+	 */
+	public $config;
+
 	function __construct() {
-		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
-		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed
+		$this->useRouter = $this->request->apacheModuleRewrite();
+		$this->config = Config::getInstance();
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->db;
-			$this->user = Config::getInstance()->user;
-			Config::getInstance()->mergeConfig($this);
+			$this->db = $this->config->db;
+			$this->user = $this->config->user;
+			//debug($this->user);
+			$this->config->mergeConfig($this);
+		} else {
+			//$this->user = new UserBase();
 		}
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
@@ -89,37 +98,27 @@ abstract class Controller {
 		self::$instance[get_class($this)] = $this;
 	}
 
-	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
-		if ($this->useRouter && !$forceSimple) {
-			if (file_exists('class/class.Router.php')) {
-				$r = new Router();
-				$url = $r->makeURL($params, $prefix);
-			} else {
-				$class = $params['c'];
-				unset($params['c']);
-				$url = new URL($prefix != '?'
-					? $prefix
-					: $this->request->getLocation(), $params);
-				$url->components['path'] .= $class;
-			}
-		} else {
-			if (isset($params['c']) && !$params['c']) {
-				unset($params['c']); // don't supply empty controller
-			}
-			$url = new URL($prefix != '?'
-				? $prefix
-				: $this->request->getLocation(), $params);
-			//debug($prefix, $url);
-			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
-
-			//debug($url->documentRoot, $prefix, $url.'');
-			/*foreach ($params as &$val) {
-				$val = str_replace('#', '%23', $val);
-			} unset($val);
-			if ($params || $prefix != '?') {
-				$url = $prefix.http_build_query($params, '', '&'); //, PHP_QUERY_RFC3986);
-			}*/
+	/**
+	 * Why protected?
+	 * @param array $params
+	 * @param null $prefix
+	 * @return URL
+	 * @protected
+	 * @use getURL()
+	 */
+	protected function makeURL(array $params, $prefix = NULL) {
+		$class = $params['c'];
+		unset($params['c']);    // RealURL
+		if ($class && !$prefix) {
+			$prefix = $class;
 		}
+		$url = new URL($prefix
+			? $prefix
+			: $this->request->getLocation(), $params);
+		$path = $url->getPath();
+		$path->setFile($class);
+		$path->setAsFile();
+		$url->setPath($path);
 		return $url;
 	}
 
@@ -130,7 +129,7 @@ abstract class Controller {
 	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array(), $page = '?') {
+	function makeRelURL(array $params = array(), $page = NULL) {
 		return $this->makeURL($params + $this->linkVars, $page);
 	}
 
@@ -140,10 +139,10 @@ abstract class Controller {
 	 * @param string $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params, $prefix = '?') {
+	public function getURL(array $params, $prefix = NULL) {
 		$params = $params + $this->linkVars;
 		//debug($params);
-		return $this->makeURL($params, false, $prefix);
+		return $this->makeURL($params, $prefix);
 	}
 
 	/**
@@ -158,23 +157,21 @@ abstract class Controller {
 	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
 		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
-			'href' => $this->makeURL($params, false, $page),
+			'href' => $this->makeURL($params, $page),
 		)+$more, $text, $isHTML);
 		return $content;
 	}
 
-	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = '', $ahrefPlus = '') {
-		$content = '<a href="javascript: void(0);" '.$aMore.' onclick="
-			$(\'#'.$div.'\').load(\''.$this->makeURL($params).'\');
-			'.$jsPlus.'" '.$ahrefPlus.'>'.$text.'</a>';
-		return $content;
-	}
-
-	function slideLoad($text, array $params, $div) {
-		$content = '<a href="javascript: void(0);" onclick="
-			$(\'#'.$div.'\').slideLoad(\''.$this->makeURL($params, false, '').'\');
-		">'.$text.'</a>';
-		return $content;
+	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array()) {
+		$url = $this->makeURL($params);
+		$link = new HTMLTag('a', $aMore + array(
+			'href' => $url,
+			'onclick' => '
+			$(\'#'.$div.'\').load(\''.$url.'\');
+			return false;
+			'.$jsPlus,
+			), $text, true);
+		return $link;
 	}
 
 	function begins($line, $with) {
@@ -197,10 +194,16 @@ abstract class Controller {
 
 	static function getInstance() {
 		$static = get_called_class();
-		if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		return self::$instance[$static]
-			? self::$instance[$static]
-			: (self::$instance[$static] = new $static());
+		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
+		$isset = isset(self::$instance[$static]);
+		if ($isset) {
+			$result = self::$instance[$static];
+		} else {
+			$index = Index::getInstance();
+			$result = $index->getController();
+		}
+		//debug($isset, get_class($index), get_class($result));
+		return $result;
 	}
 
 	/*function redirect($url) {
@@ -225,35 +228,34 @@ abstract class Controller {
 		return $this->render().'';
 	}
 
-	/**
-	 * @param string $string		- source page name
-	 * @param bool $preserveSpaces	- leaves spaces
-	 * @return string				- converted to URL friendly name
-	 */
-	static function friendlyURL($string, $preserveSpaces = false) {
-		$string = preg_replace("`\[.*\]`U","",$string);
-		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
-		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
-		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
-		if (!$preserveSpaces) {
-			$string = preg_replace( array("`[^a-z0-9]`i","`[-]+`") , "-", $string);
-		}
-		return strtolower(trim($string, '-'));
-	}
-
 	function encloseIn($title, $content) {
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
-	function encloseInAA($content, $caption = '', $h = NULL) {
+	/**
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param $content
+	 * @param string $caption
+	 * @param null $h
+	 * @param array $more
+	 * @return array|string
+	 */
+	function encloseInAA($content, $caption = '', $h = NULL, $more = array()) {
 		$h = $h ? $h : $this->encloseTag;
 		$content = IndexBase::mergeStringArrayRecursive($content);
 		if ($caption) {
-			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
+			Index::getInstance()->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/header-link.less');
+			$slug = URL::friendlyURL($caption);
+			$link = '<a class="header-link" href="#'.$slug.'">
+				<i class="fa fa-link"></i>
+			</a>';
+			$content = '<'.$h.' id="'.$slug.'">'.$link.$caption.'</'.$h.'>'.$content;
 		}
 		//debug_pre_print_backtrace();
-		$content = '<div class="padding clearfix">'.$content.'</div>';
+		$content = '<section class="padding clearfix '.$more['class'].'"
+			style="position: relative;">'.$content.'</section>';
 		return $content;
 	}
 
@@ -282,7 +284,9 @@ abstract class Controller {
 	}
 
 	function performAction($action = NULL) {
-		$method = $action ? $action : $this->request->getTrim('action');
+		$content = '';
+		$reqAction = $this->request->getTrim('action');
+		$method = $action ? $action : (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
@@ -310,6 +314,7 @@ abstract class Controller {
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
 		$content = '';
 		foreach ($elements as $html) {
+			$html = IndexBase::mergeStringArrayRecursive($html);
 			$content .= '<div style="float: left;">'.$html.'</div>';
 		}
 		$content = $content.'<div style="clear: both"></div>';
@@ -321,6 +326,7 @@ abstract class Controller {
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
+			$html = IndexBase::mergeStringArrayRecursive($html);
 			$content .= '<div class="flex-box">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
@@ -335,6 +341,35 @@ abstract class Controller {
 			$content .= '<div class="flex-box flex-equal">'.$html.'</div>';
 		}
 		$content = '<div class="display-box equal">'.$content.'</div>';
+		return $content;
+	}
+
+	function encloseInTableHTML3(array $cells) {
+		$content[] = '<table>';
+		$content[] = '<tr>';
+		foreach ($cells as $info) {
+			$content[] = '<td valign="top">';
+			$content[] = IndexBase::mergeStringArrayRecursive($info);
+			$content[] = '</td>';
+		}
+		$content[] = '</tr>';
+		$content[] = '</table>';
+		return $content;
+	}
+
+	function encloseInTable() {
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/columnContainer.less');
+		$elements = func_get_args();
+		$content = '<div class="columnContainer">';
+		foreach ($elements as &$el) {
+			if (!$el instanceof HTMLTag) {
+				$el = new HTMLTag('div', array(
+					'class' => 'column',
+				), $el, true);
+			}
+		}
+		$content .= implode("\n", $elements);
+		$content .= '</div>';
 		return $content;
 	}
 
@@ -381,10 +416,9 @@ abstract class Controller {
 	 * @param array $hidden
 	 * @param string $submitClass
 	 * @param array $submitParams
-	 * @internal param null $class
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText', array $submitParams = array()) {
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array()) {
 		$f = new HTMLForm();
 		if ($formAction) {
 			$f->action($formAction);
@@ -397,7 +431,10 @@ abstract class Controller {
 		}
 		$f->hidden('action', $action);
 		if ($name instanceof htmlString) {
-			$f->button($name, 'type="submit" class="'.$submitClass.'"');
+			$f->button($name, array(
+				'type' => "submit",
+				'class' => $submitClass,
+				) + $submitParams);
 		} else {
 			$f->submit($name, array(
 				'class' => $submitClass,

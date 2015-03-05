@@ -47,7 +47,6 @@ class TaylorProfiler {
         $this->description = array();
         $this->startTime = array();
         $this->endTime = array();
-        $this->initTime = 0;
         $this->cur_timer = "";
         $this->stack = array();
         $this->trail = "";
@@ -67,7 +66,9 @@ class TaylorProfiler {
 	function getName() {
 		if (class_exists('MySQL') && method_exists('MySQL', 'getCaller')) {
 			$name = MySQL::getCaller();
-		} else {
+		} elseif (class_exists('Debug') && method_exists('Debug', 'getCaller')) {
+			$name = Debug::getCaller();
+		} else if (class_exists('dbLayerPG')) {
 			$i = 3;
 			$name = dbLayerPG::getCaller($i, 2);
 		}
@@ -157,7 +158,6 @@ class TaylorProfiler {
     function printTimers($enabled=false) {
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
-            $TimedTotal = 0;
             $tot_perc = 0;
             ksort($this->description);
             $oaTime = $this->getMicroTime() - $this->initTime;
@@ -172,6 +172,10 @@ class TaylorProfiler {
                 $row['avg'] = $row['total']*1000/$row['count'];
                 $row['perc'] = ($row['total']/$oaTime)*100;
                 $together[$key] = $row;
+	            if ($key == 'unprofiled') {
+		            $together[$key]['bold'] = true;
+		            $together[$key]['desc'] = 'Between new TaylorProfiler() and printTimers()';
+	            }
             }
 
             // add missing
@@ -182,35 +186,55 @@ class TaylorProfiler {
             $missed=$oaTime-$TimedTotal;
             $perc = ($missed/$oaTime)*100;
             $tot_perc+=$perc;
-            $together['Missed'] = array(
-            	'desc' => 'Missed',
-            	'time' => number_format($missed, 2, '.', ''),
+            $together['Missed between the calls'] = array(
+            	'desc' => 'Missed between the calls ('.$oaTime.'-'.$TimedTotal.'['.sizeof($together).'])',
+	            'bold' => true,
+	            'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
             	'count' => 0,
             	'perc' => number_format($perc, 2, '.', '').'%',
             );
 
+			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+				$requestTime = $_SERVER['REQUEST_TIME_FLOAT']
+					? $_SERVER['REQUEST_TIME_FLOAT']
+					: $_SERVER['REQUEST_TIME'];
+				$startup = $this->initTime - $requestTime;
+				$together['Startup'] = array(
+					'desc'  => 'Startup (REQUEST_TIME_FLOAT) ('.$this->initTime.'-'.$requestTime.')',
+					'bold'  => true,
+					'time'  => number_format($startup, 2, '.', ''),
+					'total' => number_format($startup, 2, '.', ''),
+					'count' => 0,
+					'perc'  => number_format($startup / $oaTime * 100, 2, '.', '') . '%',
+				);
+			}
+
             uasort($together, array($this, 'sort'));
 
 			$i = 0;
 			foreach ($together as $key => $row) {
-			    $val = $row['desc'];
-	            $t = $row['time'];
+			    $desc = $row['desc'];
 	            $total = $row['total'];
                 $TimedTotal += $total;
 	            $perc = $row['perc'];
-	            $tot_perc+=$perc;
+	            $tot_perc += $perc;
+				$htmlKey = htmlspecialchars($key);
+				if ($row['bold']) {
+					$htmlKey = '<b>'.$htmlKey.'</b>';
+				}
+				$desc = $this->description2[$key] ? $this->description2[$key] : $desc;
 	            $table[] = array(
 	               	'nr' => ++$i,
 	               	'count' => $row['count'],
 	               	'time, ms' => number_format($total*1000, 2, '.', '').'',
 	               	'avg/1' => number_format($row['avg'], 2, '.', '').'',
 	               	'percent' => number_format($perc, 2, '.', '').'%',
-	                'routine' => '<span title="'.htmlspecialchars($this->description2[$key]).'">'.htmlspecialchars($key).'</span>',
+	                'routine' => '<span title="'.htmlspecialchars($desc).'">'.$htmlKey.'</span>',
 	            );
 		   }
 
-            $s = new slTable($table, 'class="nospacing" width="100%"');
+            $s = new slTable($table, 'class="nospacing no-print" width="100%"');
             $s->thes(array(
             	'nr' => 'nr',
             	'count' => array(
@@ -247,6 +271,7 @@ class TaylorProfiler {
 				: $s->getContent();
             return $out;
         }
+		return NULL;
     }
 
     function sort($a, $b) {
@@ -322,7 +347,7 @@ class TaylorProfiler {
 
 	static function getMemoryUsage($returnString = false) {
 		static $max;
-		$max = $max ?: intval(ini_get('memory_limit'));	// MB implied
+		$max = $max ? $max : intval(ini_get('memory_limit'));	// MB implied
 		$cur = memory_get_usage(true) / 1024 / 1024;
 		if ($returnString) {
 			$content = str_pad(number_format($cur, 0, '.', ''), 4, ' ', STR_PAD_LEFT).'/'.$max.'MB '.number_format($cur/$max*100, 3, '.', '').'% ';
@@ -333,7 +358,7 @@ class TaylorProfiler {
 	}
 
 	static function addMemoryMap($obj) {
-		self::$sos = self::$sos ?: new SplObjectStorage();
+		self::$sos = self::$sos ? self::$sos : new SplObjectStorage();
 		self::$sos->attach($obj);
 	}
 
@@ -372,13 +397,84 @@ class TaylorProfiler {
 			$dbTime = array_sum(Config::getInstance()->db->QUERIES);
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
+		if (Config::getInstance()->db->dbTime) {
+			$dbTime = Config::getInstance()->db->dbTime;
+			$dbTime = number_format($dbTime, 3, '.', '');
+		}
+		if (function_exists('session_status')
+			&& session_status() == PHP_SESSION_ACTIVE) {
+            // total
+			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
+            if ($totalMax > 0) {
+                $totalBar = '<img src="'.ProgressBar::getBar($totalTime/$totalMax*100).'" />';
+            }
+            $_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
+
+            // db
+            $dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
+            if ($dbMax > 0) {
+                $dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
+            }
+			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
+		}
+
+		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
+		$maxMem = self::return_bytes(ini_get('memory_limit'));
+		$memBar = '<img src="'.ProgressBar::getBar(memory_get_peak_usage()/$maxMem*100).'" />';
 		$content = '<div class="floatTimeContainer">
-		<div class="floatTime">t:'.$totalTime.'s '.
-			'db:'.$dbTime.'s '.
-			'mem:'.number_format(memory_get_peak_usage()/1024/1024, 3, '.', '').'MB/'.
-			ini_get('memory_limit').'</div>
-		</div>';
+			<div class="floatTime">
+				<table>
+					<tr>
+						<td>PHP+DB:</td>
+						<td>'.$totalTime.'s</td>
+						<td>'.$totalBar.'</td>
+						<td>'.$totalMax.'s</td>
+					</tr>
+					<tr>
+						<td>DB:</td>
+						<td>'.$dbTime.'s</td>
+						<td>'.$dbBar.'</td>
+						<td>'.$dbMax.'</td>
+					</tr>
+					<tr>
+						<td>Mem:</td>
+						<td>'.$peakMem.'MB</td>
+						<td>'.$memBar.'</td>
+						<td>'.ini_get('memory_limit').'</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div style="clear:both"></div>
+		';
+		$content .= '<style>'.file_get_contents(
+				dirname(__FILE__).'/../CSS/TaylorProfiler.less'
+		).'</style>';
 		return $content;
+	}
+
+	/**
+	 * http://stackoverflow.com/a/1336624
+	 * @param $val
+	 * @return int|string
+	 */
+	static function return_bytes($val) {
+		$val = trim($val);
+		$last = strtolower($val[strlen($val)-1]);
+		switch($last) {
+			// The 'G' modifier is available since PHP 5.1.0
+			case 'g':
+				$val *= 1024;
+				break;
+			case 'm':
+				$val *= 1024;
+				break;
+			case 'k':
+				$val *= 1024;
+				break;
+		}
+
+		return $val;
 	}
 
 	/**
@@ -389,10 +485,10 @@ class TaylorProfiler {
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 4, '.', '');
 	}
-	
+
 	static function getTimeUsage() {
 		static $max;
-		$max = $max ?: intval(ini_get('max_execution_time'));
+		$max = $max ? $max : intval(ini_get('max_execution_time'));
 		$cur = microtime(true) - $_SERVER['REQUEST_TIME'];
 		return number_format($cur/$max, 3, '.', '');
 	}
@@ -408,7 +504,7 @@ class TaylorProfiler {
 
 	static function enableTick($ticker = 100) {
 		register_tick_function(array(__CLASS__, 'tick'));
-		declare(ticks=100);
+		declare(ticks=10);
 	}
 
 	static function tick() {
@@ -479,6 +575,16 @@ class TaylorProfiler {
 			));
 			return $s;
 		}
+	}
+
+	static function start($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->startTimer($method) : NULL;
+	}
+
+	static function stop($method) {
+		$tp = TaylorProfiler::getInstance();
+		$tp ? $tp->stopTimer($method) : NULL;
 	}
 
 }
