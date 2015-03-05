@@ -58,7 +58,7 @@ class MemcacheArray implements ArrayAccess {
 	 * @param int $expire - seconds to keep the cache active
 	 */
 	function __construct($file, $expire = 0) {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
+		TaylorProfiler::start(__METHOD__.' ('.$file.')');
 		$this->file = $file;
 		$this->expire = $expire instanceof Duration ? $expire->getTimestamp() : $expire;
 		$this->fc = new MemcacheFile();
@@ -68,7 +68,7 @@ class MemcacheArray implements ArrayAccess {
 		if (self::$debug) {
 			echo __METHOD__.'('.$file.', '.$expire.'). Sizeof: '.sizeof($this->data).BR;
 		}
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
+		TaylorProfiler::stop(__METHOD__.' ('.$file.')');
 	}
 
 	/**
@@ -76,13 +76,13 @@ class MemcacheArray implements ArrayAccess {
 	 * Modified to save only on changed data
 	 */
 	function __destruct() {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if ($this->onDestruct) {
 			call_user_func($this->onDestruct, $this);
 		}
 		$this->save();
 		//debug(sizeof($this->data));
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function save() {
@@ -93,13 +93,13 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	function clearCache() {
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$prev = sizeof(self::$instances);
 		$prevKeys = array_keys(self::$instances);
 		self::unsetInstance($this->file);
 		$curr = sizeof(self::$instances);
 		//debug(__METHOD__, $this->file, $prev, $curr, $prevKeys, array_keys(self::$instances));
-		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	public function offsetSet($offset, $value) {

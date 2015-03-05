@@ -164,7 +164,9 @@ class SQLBuilder {
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
 					$val->injectQB($this);
-					$val->injectField($key);
+					if (!is_numeric($key)) {
+						$val->injectField($key);
+					}
 					$set[] = $val->__toString();
 				} else if ($val instanceof SimpleXMLElement) {
 					$set[] = $val->asXML();
@@ -263,6 +265,7 @@ class SQLBuilder {
 
 	function getFirstWord($table) {
 		$table1 = trimExplode(' ', $table);
+		$table1 = trimExplode("\t", $table1[0]);
 		$table0 = first($table1);
 		//debug($table, $table1, $table0);
 		return $table0;

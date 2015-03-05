@@ -54,6 +54,7 @@ class PersistantOODBase extends OODBase {
 	 * @return resource
 	 */
 	function insert(array $data) {
+		$ret = NULL;
 		nodebug(array('insert before',
 			$this->stateHash => $this->originalData,
 			$this->getStateHash() => $this->data,

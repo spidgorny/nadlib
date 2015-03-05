@@ -392,6 +392,7 @@ class Request {
 	 * @return object
 	 */
 	function getController() {
+		$ret = NULL;
 		$c = $this->getControllerString();
 		if (!$c) {
 			$c = Index::getInstance()->controller; // default
@@ -420,12 +421,15 @@ class Request {
 	}
 
 	function getRefererController() {
+		$return = NULL;
 		$url = $this->getReferer();
-		$url->setParams(array());   // get rid of any action
-		$rr = $url->getRequest();
-		$return = $rr->getControllerString();
+		if ($url) {
+			$url->setParams(array());   // get rid of any action
+			$rr = $url->getRequest();
+			$return = $rr->getControllerString();
+		}
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : NULL;
+		return $return;
 	}
 
 	function getRefererIfNotSelf() {
