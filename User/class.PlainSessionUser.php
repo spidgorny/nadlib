@@ -7,14 +7,14 @@ class PlainSessionUser extends UserBase {
 	 */
 	static protected $instance;
 
-	function __construct() {
+	function __construct($id = NULL) {
 		if (!Request::isCLI()) {
 			//debug('session_start');
 			@session_start();
 		} else {
 			$_SESSION = array();
 		}
-		parent::__construct();
+		parent::__construct($id);
 	}
 
 	function getPref($name) {
@@ -35,12 +35,6 @@ class PlainSessionUser extends UserBase {
 
 	function __toString() {
 		return session_id();
-	}
-
-	public static function getInstance($id) {
-		return self::$instance
-			?  self::$instance
-			:  self::$instance = new self($id);
 	}
 
 	function try2login() {

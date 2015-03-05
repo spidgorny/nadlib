@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class uTestBase
+ * PHPUnit alternative
+ */
 class uTestBase extends AppControllerBE {
 	protected $start;
 	protected $stat = array();			// true/false counter
@@ -49,7 +53,7 @@ class uTestBase extends AppControllerBE {
 		$content .= '</table>';
 		//$content .= getDebug($this->stat);
 		$content = $this->encloseIn(new htmlString('&mu;Test'), $content, true);
-		if ($GLOBALS['prof']) $content .= $GLOBALS['prof']->printTimers(1);
+		if ($GLOBALS['profiler']) $content .= $GLOBALS['profiler']->printTimers(1);
 		return $content;
 	}
 

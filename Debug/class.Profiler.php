@@ -27,11 +27,14 @@ class Profiler {
 		$this->endTime = microtime(true);
 	}
 
+	/**
+	 * @return float
+	 */
 	function elapsed() {
 		if (!$this->endTime) {
 			$this->stop();
 		}
-		$out = $this->endTime-$this->startTime;
+		$out = $this->endTime - $this->startTime;
 		return number_format($out, 5, '.', '');
 	}
 
@@ -51,11 +54,11 @@ class Profiler {
 	}
 
 	function startTimer($method) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer($method);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($method);
 	}
 
 	function stopTimer($method) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer($method);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($method);
 	}
 
 	function __toString() {

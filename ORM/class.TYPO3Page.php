@@ -7,8 +7,9 @@ class TYPO3Page extends OODBase {
 
 	/**
 	 * @var TYPO3PageCollection
+	 * NULL for initial check
 	 */
-	public $children;
+	public $children = NULL;
 
 	/**
 	 * @var TYPO3ContentCollection
@@ -27,6 +28,13 @@ class TYPO3Page extends OODBase {
 			$this->children = new TYPO3PageCollection($this->id);
 			//debug($this->children->query);
 		}
+	}
+
+	function getChildren() {
+		if (is_null($this->children)) {
+			$this->fetchChildren();
+		}
+		return $this->children;
 	}
 
 	function fetchContent($colPos) {
@@ -55,7 +63,7 @@ class TYPO3Page extends OODBase {
 	}
 
 	function getSlug() {
-		return Controller::friendlyURL($this->data['title']);
+		return URL::friendlyURL($this->data['title']);
 	}
 
 	function findDeepChild(array $match) {
@@ -66,7 +74,7 @@ class TYPO3Page extends OODBase {
 	function insert(array $data) {
 		$data['tstamp'] = time();
 		$data['crdate'] = time();
-		$data['doktype'] = $data['doktype'] ?: 1;
+		$data['doktype'] = $data['doktype'] ? $data['doktype'] : 1;
 		return parent::insert($data);
 	}
 

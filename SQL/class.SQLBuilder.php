@@ -13,6 +13,7 @@
  *
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
+ * @mixin dbLayerBase
  */
 class SQLBuilder {
 
@@ -21,236 +22,6 @@ class SQLBuilder {
 	 * @var mixed
 	 */
 	public $found;
-
-	/**
-	 * Reserved MySQL words
-	 * @var array
-	 */
-	protected $reserved = array (
-		0 => 'ACCESSIBLE',
-		1 => 'ADD',
-		2 => 'ALL',
-		3 => 'ANALYZE',
-		4 => 'AND',
-		5 => 'AS',
-		6 => 'ASC',
-		7 => 'ASENSITIVE',
-		8 => 'BEFORE',
-		9 => 'BETWEEN',
-		10 => 'BIGINT',
-		11 => 'BINARY',
-		12 => 'BLOB',
-		13 => 'BOTH',
-		14 => 'CALL',
-		15 => 'CASCADE',
-		16 => 'CASE',
-		17 => 'CHANGE',
-		18 => 'CHAR',
-		19 => 'CHARACTER',
-		20 => 'CHECK',
-		21 => 'COLLATE',
-		22 => 'COLUMN',
-		23 => 'CONDITION',
-		24 => 'CONSTRAINT',
-		25 => 'CONVERT',
-		26 => 'CREATE',
-		27 => 'CROSS',
-		28 => 'CURRENT_DATE',
-		29 => 'CURRENT_TIME',
-		30 => 'CURRENT_TIMESTAMP',
-		31 => 'CURRENT_USER',
-		32 => 'CURSOR',
-		33 => 'DATABASES',
-		34 => 'DAY_HOUR',
-		35 => 'DAY_MICROSECOND',
-		36 => 'DAY_MINUTE',
-		37 => 'DAY_SECOND',
-		38 => 'DEC',
-		39 => 'DECIMAL',
-		40 => 'DECLARE',
-		41 => 'DELAYED',
-		42 => 'DELETE',
-		43 => 'DESC',
-		44 => 'DESCRIBE',
-		45 => 'DETERMINISTIC',
-		46 => 'DISTINCT',
-		47 => 'DISTINCTROW',
-		48 => 'DIV',
-		49 => 'DROP',
-		50 => 'DUAL',
-		51 => 'EACH',
-		52 => 'ELSE',
-		53 => 'ELSEIF',
-		54 => 'ENCLOSED',
-		55 => 'ESCAPED',
-		56 => 'EXISTS',
-		57 => 'EXPLAIN',
-		58 => 'FALSE',
-		59 => 'FETCH',
-		60 => 'FLOAT',
-		61 => 'FLOAT4',
-		62 => 'FLOAT8',
-		63 => 'FOR',
-		64 => 'FORCE',
-		65 => 'FOREIGN',
-		66 => 'FROM',
-		67 => 'FULLTEXT',
-		68 => 'GROUP',
-		69 => 'HAVING',
-		70 => 'HIGH_PRIORITY',
-		71 => 'HOUR_MICROSECOND',
-		72 => 'HOUR_MINUTE',
-		73 => 'HOUR_SECOND',
-		74 => 'IF',
-		75 => 'IGNORE',
-		76 => 'INDEX',
-		77 => 'INFILE',
-		78 => 'INNER',
-		79 => 'INOUT',
-		80 => 'INSENSITIVE',
-		81 => 'INSERT',
-		82 => 'INT',
-		83 => 'INT1',
-		84 => 'INT2',
-		85 => 'INT3',
-		86 => 'INT4',
-		87 => 'INTEGER',
-		88 => 'INTERVAL',
-		89 => 'INTO',
-		90 => 'IS',
-		91 => 'ITERATE',
-		92 => 'JOIN',
-		93 => 'KEY',
-		94 => 'KEYS',
-		95 => 'KILL',
-		96 => 'LEADING',
-		97 => 'LEAVE',
-		98 => 'LIKE',
-		99 => 'LIMIT',
-		100 => 'LINEAR',
-		101 => 'LINES',
-		102 => 'LOAD',
-		103 => 'LOCALTIME',
-		104 => 'LOCALTIMESTAMP',
-		105 => 'LOCK',
-		106 => 'LONG',
-		107 => 'LONGBLOB',
-		108 => 'LONGTEXT',
-		109 => 'LOW_PRIORITY',
-		110 => 'MASTER_SSL_VERIFY_SERVER_CERT',
-		111 => 'MATCH',
-		112 => 'MEDIUMBLOB',
-		113 => 'MEDIUMINT',
-		114 => 'MIDDLEINT',
-		115 => 'MINUTE_MICROSECOND',
-		116 => 'MINUTE_SECOND',
-		117 => 'MOD',
-		118 => 'MODIFIES',
-		119 => 'NATURAL',
-		120 => 'NOT',
-		121 => 'NO_WRITE_TO_BINLOG',
-		122 => 'NUMERIC',
-		123 => 'ON',
-		124 => 'OPTIMIZE',
-		125 => 'OPTION',
-		126 => 'OPTIONALLY',
-		127 => 'OR',
-		128 => 'ORDER',
-		129 => 'OUT',
-		130 => 'OUTER',
-		131 => 'OUTFILE',
-		132 => 'PRECISION',
-		133 => 'PROCEDURE',
-		134 => 'PURGE',
-		135 => 'RANGE',
-		136 => 'READ',
-		137 => 'READS',
-		138 => 'READ_WRITE',
-		139 => 'REAL',
-		140 => 'REFERENCES',
-		141 => 'REGEXP',
-		142 => 'RELEASE',
-		143 => 'RENAME',
-		144 => 'REPLACE',
-		145 => 'REQUIRE',
-		146 => 'RESTRICT',
-		147 => 'RETURN',
-		148 => 'REVOKE',
-		149 => 'RIGHT',
-		150 => 'RLIKE',
-		151 => 'SCHEMA',
-		152 => 'SCHEMAS',
-		153 => 'SECOND_MICROSECOND',
-		154 => 'SELECT',
-		155 => 'SEPARATOR',
-		156 => 'SET',
-		157 => 'SHOW',
-		158 => 'SMALLINT',
-		159 => 'SPATIAL',
-		160 => 'SPECIFIC',
-		161 => 'SQL',
-		162 => 'SQLEXCEPTION',
-		163 => 'SQLWARNING',
-		164 => 'SQL_BIG_RESULT',
-		165 => 'SQL_CALC_FOUND_ROWS',
-		166 => 'SQL_SMALL_RESULT',
-		167 => 'SSL',
-		168 => 'STARTING',
-		169 => 'STRAIGHT_JOIN',
-		170 => 'TABLE',
-		171 => 'THEN',
-		172 => 'TINYBLOB',
-		173 => 'TINYINT',
-		174 => 'TINYTEXT',
-		175 => 'TO',
-		176 => 'TRAILING',
-		177 => 'TRIGGER',
-		178 => 'TRUE',
-		179 => 'UNION',
-		180 => 'UNIQUE',
-		181 => 'UNLOCK',
-		182 => 'UNSIGNED',
-		183 => 'UPDATE',
-		184 => 'USAGE',
-		185 => 'USE',
-		186 => 'USING',
-		187 => 'UTC_DATE',
-		188 => 'UTC_TIME',
-		189 => 'UTC_TIMESTAMP',
-		190 => 'VARBINARY',
-		191 => 'VARCHAR',
-		192 => 'VARCHARACTER',
-		193 => 'VARYING',
-		194 => 'WHEN',
-		195 => 'WHERE',
-		196 => 'WHILE',
-		197 => 'WITH',
-		198 => 'WRITE',
-		199 => 'XOR',
-		200 => 'YEAR_MONTH',
-		201 => 'ZEROFILL',
-		'ALTER',
-		'BY',
-		'CONTINUE',
-		'DATABASE',
-		'DEFAULT',
-		'DOUBLE',
-		'EXIT',
-		'GRANT',
-		'IN',
-		'INT8',
-		'LEFT',
-		'LOOP',
-		'MEDIUMTEXT',
-		'NULL',
-		'PRIMARY',
-		'REPEAT',
-		'SENSITIVE',
-		'SQLSTATE',
-		'TERMINATED',
-		'UNDO',
-		'VALUES',
-	);
 
 	/**
 	 * @var MySQL
@@ -266,7 +37,8 @@ class SQLBuilder {
 	}
 
 	function quoteKey($key) {
-		if (in_array(strtoupper($key), $this->reserved)) {
+		$reserved = $this->getReserved();
+		if (in_array(strtoupper($key), $reserved)) {
 			$key = $this->db->quoteKey($key);
 		}
 		return $key;
@@ -276,23 +48,29 @@ class SQLBuilder {
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
 	 * @param $value
-	 * @throws Exception
-	 * @internal param $key
+	 * @param null $key
+	 * @throws MustBeStringException
 	 * @return string
 	 */
-	function quoteSQL($value) {
+	function quoteSQL($value, $key = NULL) {
 		if ($value instanceof AsIs) {
-			return $value->__toString();
+			$value->injectDB($this->db);
+			$value->injectQB($this);
+			$value->injectField($key);
+			$result = $value->__toString();
+			return $result;
 		} else if ($value instanceof AsIsOp) {
+			//$value->injectQB($this);
+			//$value->injectField($key);
 			return $value->__toString();
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
+		} elseif ($value instanceof IndTime) {
+			return $this->quoteSQL($value->getMySQL(), $key);
 		} else if ($value instanceof Time) {
-			return "'".$this->db->escape($value->__toString())."'";
+			return "'".$this->db->escape($value->toSQL())."'";
 		} else if ($value instanceof SQLDate) {
 			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value instanceof AsIs) {
-			return $value.'';
 		} else if ($value instanceof SimpleXMLElement) {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} else if (is_object($value)) {
@@ -308,8 +86,8 @@ class SQLBuilder {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
 			} else {
-				debug($value);
-				throw new Exception('Must be string.');
+				debug($key, $value);
+				throw new MustBeStringException('Must be string.');
 			}
 		}
 	}
@@ -331,8 +109,16 @@ class SQLBuilder {
 	 */
 	function quoteValues(array $a) {
 		$c = array();
-		foreach($a as $key => $b) {
+		foreach ($a as $key => $b) {
 			$c[] = SQLBuilder::quoteSQL($b, $key);
+		}
+		return $c;
+	}
+
+	function quoteKeys($a) {
+		$c = array();
+		foreach ($a as $b) {
+			$c[] = $this->quoteKey($b);
 		}
 		return $c;
 	}
@@ -342,6 +128,8 @@ class SQLBuilder {
 	 * In other words, it takes care of col = 'NULL' situation and makes it col IS NULL
 	 *
 	 * @param array $where
+	 * @throws Exception
+	 * @throws MustBeStringException
 	 * @return array
 	 */
 	function quoteWhere(array $where) {
@@ -350,6 +138,9 @@ class SQLBuilder {
 			if ($key{strlen($key)-1} != '.') {
 				$key = $this->quoteKey($key);
 				if ($val instanceof AsIs) {
+					$val->injectDB($this->db);
+					$val->injectQB($this);
+					$val->injectField($key);
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
 					if (is_numeric($key)) {
@@ -404,7 +195,12 @@ class SQLBuilder {
 					$set[] = $or;
 				} else {
 					//debug_pre_print_backtrace();
-					$val = SQLBuilder::quoteSQL($val);
+					try {
+						$val = SQLBuilder::quoteSQL($val);
+					} catch (MustBeStringException $e) {
+						debug($key);
+						throw $e;
+					}
 					$set[] = "$key = $val";
 				}
 			}
@@ -413,19 +209,25 @@ class SQLBuilder {
 
 	}
 
-	function getInsertQuery($table, array $columns) {
-		$set = $this->quoteLike($columns, '$key');
-		$set = implode(", ", $set);
-
-		//$values = $this->quoteLike($columns, '$val');
-		$values = array_values($columns);
-		$values = $this->quoteValues($values);
-		$values = implode(", ", $values);
-
-		$q = "INSERT INTO ".$this->quoteKey($table)."\n($set)\nVALUES ($values)";
+	/**
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @return string
+	 */
+	function getInsertQuery($table, $columns) {
+		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
+		$values = implode(", ", $this->quoteValues(array_values($columns)));
+		$q = 'INSERT INTO '.$this->quoteKey($table).' ('.$fields . ") VALUES (" . $values . ")";
 		return $q;
 	}
 
+	/**
+	 *
+	 * @param $columns  [a => b, c => d]
+	 * @param $like     "$key ILIKE '%$val%'"
+	 * @return array    [a ILIKE '%b%', c ILIKE '%d%']
+	 * @throws MustBeStringException
+	 */
 	function quoteLike($columns, $like) {
 		$set = array();
 		foreach ($columns as $key => $val) {
@@ -542,7 +344,7 @@ class SQLBuilder {
 	 * @return bool|int
 	 */
 	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.'('.$table.')');
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
 		if ($this->db->numRows($res)) {
@@ -557,7 +359,7 @@ class SQLBuilder {
 		$this->found = $this->db->fetchAssoc($res);
 		$this->db->perform($query);
 		$this->db->commit();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.'('.$table.')');
 		return $inserted;
 	}
 
@@ -567,6 +369,7 @@ class SQLBuilder {
 	 * @param $table
 	 * @param array $fields
 	 * @param array $insert
+	 * @throws Exception
 	 * @return resource
 	 */
 	function runInsertNew($table, array $fields, array $insert = array()) {
@@ -582,22 +385,38 @@ class SQLBuilder {
 	}
 
 	function runInsertQuery($table, array $columns) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.'('.$table.')');
 		$query = $this->getInsertQuery($table, $columns);
-		return $this->db->perform($query);
+		$ret = $this->db->perform($query);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.'('.$table.')');
+		return $ret;
 	}
 
 	function getFoundOrLastID($inserted) {
 		if ($inserted) {
-			$authorID = $this->db->lastInsertID();
+			$authorID = $this->db->lastInsertID($inserted);
 		} else {
 			$authorID = $this->found['id'];
 		}
 		return $authorID;
 	}
 
-	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '') {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
-		$data = $this->db->fetchAll($this->db->perform($query));
+	/**
+	 * Return ALL rows
+	 * This used to retrieve a single row !!!
+	 * @param string $table
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addFields
+	 * @param string $idField   - will return data as assoc indexed by this column
+	 * @return array <type>
+	 */
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = NULL) {
+		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields);
+		$res = $this->perform($query);
+		$data = $this->fetchAll($res, $idField);
 		return $data;
 	}
 
@@ -608,7 +427,7 @@ class SQLBuilder {
 
 	/**
 	 * Originates from BBMM
-	 * @param type $sword
+	 * @param string $sword
 	 * @param array $fields
 	 * @return AsIs
 	 */
@@ -620,7 +439,7 @@ class SQLBuilder {
 			foreach ($fields as $field) {
 				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
 			}
-			$where['0'] = new AsIsOp(' = 0 AND ('.implode(' OR ', $like).')');
+			$where[] = new AsIsOp(' ('.implode(' OR ', $like).')');
 		}
 		//debug($where);
 		return $where;
@@ -699,13 +518,17 @@ class SQLBuilder {
 		}
 
 		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+		do {
+			$row = $this->fetchAssoc($res);
+			if ($row === FALSE || $row == array()) {
+				break;
+			}
 			if ($key) {
 				$data[$row[$key]] = $row;
 			} else {
 				$data[] = $row;
 			}
-		}
+		} while (true);
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
 		$this->free($res);
@@ -728,6 +551,39 @@ class SQLBuilder {
 			$f->perform($query);
 			return $f;
 		}
+	}
+
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
+		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		$res = $this->perform($query);
+		$data = $this->fetchAssoc($res);
+		return $data;
+	}
+
+	function runUpdateInsert($table, $set, $where) {
+		$found = $this->runSelectQuery($table, $where);
+		if ($this->numRows($found)) {
+			$res = 'update';
+			$this->runUpdateQuery($table, $set, $where);
+		} else {
+			$res = 'insert';
+			$this->runInsertQuery($table, $set + $where);
+		}
+		return $res;
+	}
+
+	/**
+	 * @param string $table
+	 * @param array $where
+	 * @param string $order
+	 * @param string $selectPlus
+	 * @param $key
+	 * @return array[]
+	 */
+	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
+		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
+		$rows = $this->db->fetchAll($res, $key);
+		return $rows;
 	}
 
 }

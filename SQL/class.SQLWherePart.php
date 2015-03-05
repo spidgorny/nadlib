@@ -5,7 +5,12 @@
  */
 
 class SQLWherePart {
-	
+
+	/**
+	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO
+	 */
+	protected $db;
+
 	/**
 	 * @var SQLBuilder
 	 */
@@ -16,12 +21,12 @@ class SQLWherePart {
 
 	function __construct($sql = '') {
 		$this->sql = $sql;
-		$this->qb = Config::getInstance()->getQb();
+		$this->db = Config::getInstance()->db;
 	}
 
 	function __toString() {
 		if ($this->field && !is_numeric($this->field)) {
-			$part1 = $this->qb->quoteWhere(
+			$part1 = $this->db->quoteWhere(
 				array($this->field => $this->sql)
 			);
 			return implode('', $part1);
@@ -29,7 +34,11 @@ class SQLWherePart {
 			return $this->sql.'';
 		}
 	}
-	
+
+	function injectDB(dbLayerBase $db) {
+		$this->db = $db;
+	}
+
 	function injectQB(SQLBuilder $qb) {
 		$this->qb = $qb;
 	}

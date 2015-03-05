@@ -38,7 +38,7 @@ class FlexiTable extends OODBase {
 
 	function insert(array $row) {
 		if (!$row['ctime']) {
-			$row['ctime'] = new AsIs('now()');
+			$row['ctime'] = new SQLDateTime();
 		}
 		if (!$row['cuser']) {
 			$row['cuser'] = Config::getInstance()->user->id;
@@ -105,10 +105,10 @@ class FlexiTable extends OODBase {
 
 	function checkCreateField($field, $value) {
 		//debug($this->columns);
-		$qb = Config::getInstance()->qb;
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
-			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$qb->quoteKey($field).' '.$this->getType($value));
+			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).
+				' ADD COLUMN '.$this->db->quoteKey($field).' '.$this->getType($value));
 			$this->fetchColumns(true);
 		}
 	}

@@ -20,10 +20,8 @@ class HTMLForm {
 	protected $fieldsetMore = array();
 	var $formMore = '';
 	public $debug = false;
-	var $publickey = "6LeuPQwAAAAAADaepRj6kI13tqxU0rPaLUBtQplC";
-	var $privatekey = "6LeuPQwAAAAAAAuAnYFIF-ZM9yXnkbssaF0rRtkj";
 
-	function htmlForm($action = '') {
+	function __construct($action = '') {
 		$this->action = $action;
 	}
 
@@ -199,7 +197,8 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("checkbox", $name, $value,
 			($checked?'checked="checked"':"").' '.
 			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
-			(is_array($more) ? $this->getAttrHTML($more) : $more)
+			(is_array($more) ? $this->getAttrHTML($more) : $more),
+			is_array($more) ? ifsetor($more['class']) : ''
 		);
 	}
 
@@ -229,79 +228,19 @@ class HTMLForm {
 	 * @param $aOptions
 	 * @param $default
 	 * @param bool $autoSubmit
-	 * @param string $more
+	 * @param array $more
 	 * @param bool $multiple
 	 * @param array $desc
 	 * @see renderSelectionOptions
 	 */
-	function selection($name, array $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
-		$this->stdout .= "<select ".$this->getName($name, $multiple ? '[]' : '');
-		if ($autoSubmit) {
-			$this->stdout .= " onchange='this.form.submit()' ";
-		}
-		if ($multiple) {
-			$this->stdout .= ' multiple="1"';
-		}
-		$more .=
-		(isset($desc['size']) ? ' size="'.$desc['size'].'"' : '') .
-		(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
-		(isset($desc['more']) ? $desc['more'] : '');
-		$this->stdout .= $more . ">\n";
-		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
-		$this->stdout .= "</select>\n";
-	}
-
-	/**
-	 * @param array $aOptions
-	 * @param $default
-	 * @param array $desc
-	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
-	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
-	 * @return string
-	 */
-	function getSelectionOptions(array $aOptions, $default, array $desc = array()) {
-		//Debug::debug_args($aOptions);
-		$content = '';
-		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
-			if ($desc['===']) {
-				$selected = $default === $value;
-				if (sizeof($aOptions) == 14) {
-					debug(array(
-						'default' => $default,
-						'value' => $value,
-						'selected' => $selected,
-					));
-				}
-			} else {
-				//debug($default, $value);
-				if ((is_array($default) && in_array($value, $default))
-				|| (!is_array($default) && $default == $value)) {
-					$selected = true;
-				} else {
-					$selected = false;
-				}
-			}
-			if ($option instanceof HTMLTag) {
-				$content .= $option;
-			} else if ($option instanceof Recursive) {
-				$content .= '<optgroup label="'.$option.'">';
-				$content .= $this->getSelectionOptions($option->getChildren(), $default, $desc);
-				$content .= '</optgroup>';
-			} else {
-				$content .= "<option value=\"$value\"";
-				if ($selected) {
-					$content .= " selected";
-				}
-				if (isset($desc['classAsValuePrefix'])) {
-					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
-				}
-                if (isset($desc['useTitle']) && $desc['useTitle'] == true) {
-                    $content .= ' title="'.strip_tags($option).'"';
-                }
-				$content .= ">$option</option>\n";
-			}
-		}
-		return $content;
+	function selection($name, array $aOptions, $default, $autoSubmit = FALSE, $more = array(), $multiple = false, array $desc = array()) {
+		$sel = new HTMLFormSelection($name, $aOptions, $default);
+		$sel->autoSubmit = $autoSubmit;
+		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
+		$sel->multiple = $multiple;
+		$sel->desc = $desc;
+		$sel->setForm($this);
+		$this->stdout .= $sel->render();
 	}
 
 	/**
@@ -311,7 +250,7 @@ class HTMLForm {
 	 * @param array $desc
 	 */
 	function date($name, $value, array $desc = array()) {
-		$format = $desc['format'] ?: 'd.m.Y';
+		$format = $desc['format'] ? $desc['format'] : 'd.m.Y';
 		if (is_numeric($value)) {
 			$value = date($format, $value);
 		} elseif (!$value) {
@@ -371,19 +310,20 @@ class HTMLForm {
 	}
 
 	/**
-	 * Changelog: second $more parameter was removed, please user $params instead
+	 * Changelog: second $more parameter was removed, please use $params instead
 	 * @param null $value
 	 * @param array $params
 	 */
 	function submit($value = NULL, array $params = array()) {
-		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
-		$params['name'] = $params['name'] ? $params['name'] : 'submit';
+		$params['class'] = ifsetor($params['class'], 'submit btn');
+		$params['name'] = ifsetor($params['name'], 'submit');
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 	}
 
-	function button($innerHTML = NULL, $more = '') {
+	function button($innerHTML = NULL, array $more = array()) {
+		$more = HTMLTag::renderAttr($more);
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
@@ -663,8 +603,13 @@ class HTMLForm {
 	}
 
 	function recaptcha(array $desc = array()) {
-		require_once('lib/recaptcha-php-1.10/recaptchalib.php');
-		$content = recaptcha_get_html($this->publickey, $desc['error']);
+		$hfr = new HTMLFormRecaptcha();
+		$r = Request::getInstance();
+		if ($r->isAjax()) {
+			$content = $hfr->getFormAjax($desc);
+		} else {
+			$content = $hfr->getForm($desc);
+		}
 		$this->stdout .= $content;
 		return $content;
 	}
@@ -678,14 +623,8 @@ class HTMLForm {
 	 * @return string
 	 */
 	function recaptchaAjax(array $desc) {
-		$content = '<script type="text/javascript" src="http://api.recaptcha.net/js/recaptcha_ajax.js?error='.htmlspecialchars($desc['captcha-error']).'"></script>
-		<div id="recaptcha_div"></div>
- 		<script>
- 			Recaptcha.create("'.$this->publickey.'", "recaptcha_div");
- 		</script>
- 		<input type="hidden" name="'.$desc['name'].'">
- 		<!--input type="hidden" name="recaptcha_challenge_field"-->
- 		<!--input type="hidden" name="recaptcha_response_field"-->';
+		$hfr = new HTMLFormRecaptcha();
+		$content = $hfr->getFormAjax($desc);
 		$this->stdout .= $content;
 		return $content;
 	}
@@ -702,20 +641,24 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$this->stdout .= AppController::ahref('<img
-			src="img/tb_folder.gif"
-			title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
-			\''.$desc['selectID'].'\',
-			\''.$desc['treeDivID'].'\',
-			\''.$desc['tableName'].'\',
-			\''.$desc['tableRoot'].'\',
-			\''.$desc['tableTitle'].'\',
-			\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
-			\''.$desc['categoryID'].'\',
-			\''.$desc['onlyLeaves'].'\');
+		$this->stdout .= new HTMLTag('a', array(
+			'href' => '#',
+			'onclick' => 'ajaxTreeOpen(
+				\''.$desc['selectID'].'\',
+				\''.$desc['treeDivID'].'\',
+				\''.$desc['tableName'].'\',
+				\''.json_encode($desc['tableRoot']).'\',
+				\''.$desc['tableTitle'].'\',
+				\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
+				\''.$desc['categoryID'].'\',
+				\''.$desc['onlyLeaves'].'\',
+				\''.$desc['selected'].'\'
+			);
 			'.$desc['onclickMore'].'
 			return false;
-		"');
+		'), '<img
+			src="img/tb_folder.gif"
+			title="'.$desc['ButtonTitle'].'">', true);
 		$style = 'display: none;
 		position: absolute;
 		left: 0;
@@ -727,7 +670,8 @@ class HTMLForm {
 		background-color: white;
 		az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
-		$this->stdout .= AppController::encloseOld('Tree-Element Selector', '',
+		$controller = Index::getInstance()->controller;
+		$this->stdout .= $controller->encloseOld('Tree-Element Selector', '',
 			array(
 				'outerStyle' => $style,
 				'foldable' => FALSE,

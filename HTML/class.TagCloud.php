@@ -58,7 +58,7 @@ class TagCloud extends AppController {
 	function renderHTMLandFlash() {
 		$this->index->addCSS('css/wordcloud.css');
 		$this->index->addJS('lib/wp-cumulus/swfobject.js');
-		$this->index->addJS('nadlib/js/tagCloud.js');
+		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'js/tagCloud.js');
 		return '
 		<div id="flashcontent">
 			'.$this->renderHTML().'

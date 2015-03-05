@@ -60,7 +60,7 @@ class Excel_XML
 	 * @access private
 	 * @var string
 	 */
-	private $header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
+	public $header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
 <Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"
  xmlns:x=\"urn:schemas-microsoft-com:office:excel\"
  xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"
@@ -113,7 +113,7 @@ class Excel_XML
 			if (is_numeric($v)) {
 				$dataType = 'Number';
 			}
-			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . /*utf8_encode*/($v) . "</Data></Cell>\n";
+			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . htmlspecialchars($v) . "</Data></Cell>\n";
 
 		endforeach;
 

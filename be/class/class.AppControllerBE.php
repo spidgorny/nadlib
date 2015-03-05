@@ -1,6 +1,6 @@
 <?php
 
-class AppControllerBE extends Controller {
+class AppControllerBE extends AppController {
 
 	/**
 	 * -forceDL in CLI will re-download and extract data
@@ -16,10 +16,20 @@ class AppControllerBE extends Controller {
 
 	var $nadlibFromDocRoot;
 
+	/**
+	 * Protect from unauthorized access
+	 * @var bool
+	 */
+	static $public = false;	// must be false at all times!
+
 	function __construct() {
 		parent::__construct();
-		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
-		$this->index = Index::getInstance();
+		if ((!$this->user || !$this->user->isAdmin()) && !self::$public) {
+			throw new AccessDeniedException(__('Access denied to page %1', get_class($this)));
+		}
+		if (class_exists('Index')) {
+			$this->index = Index::getInstance();
+		}
 		//debug($this->request->getAll());
 		if ($this->request->getBool('forceDL')) {
 			$this->forceCronjobDL = true;

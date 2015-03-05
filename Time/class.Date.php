@@ -4,6 +4,8 @@ class Date extends Time {
 	const HUMAN = 'd.m.Y';
 	const SYSTEM = 'Y-m-d';
 
+	var $format = 'd.m.Y';
+
 	function __construct($input = NULL, $relativeTo = NULL) {
 		parent::__construct($input, $relativeTo);
 		//$this->modify('Y-m-d \G\M\T'); // very slow!
@@ -30,6 +32,10 @@ class Date extends Time {
 	}
 
 	function getISO() {
+		return date('Y-m-d', $this->time);
+	}
+
+	function getGMT() {
 		return gmdate('Y-m-d', $this->time);
 	}
 
@@ -55,9 +61,6 @@ class Date extends Time {
 		return new self(strtotime($formula, $this->time));
 	}
 
-	function __toString() {
-		return $this->getHumanDate();
-	}
 	/**
 	 * @param string $format d.m.Y
 	 * @return htmlString
@@ -78,8 +81,31 @@ class Date extends Time {
 		return new self($this->time + $plus->getTimestamp());
 	}
 
+	public function minusDur($day1) {
+		return new self($this->time - $day1->getTimestamp());
+	}
+
 	static public function fromHuman($str) {
 		return new Date(strtotime($str));
+	}
+
+	function getHumanMerged() {
+		return date('Ymd', $this->time);
+	}
+
+	public function fromMerged($date) {
+		$y = substr($date, 0, 4);
+		$m = substr($date, 4, 2);
+		$d = substr($date, 6, 2);
+		$this->time = strtotime($y.'-'.$m.'-'.$d);
+	}
+
+	/**
+	 * Mon, Tue, Wed, Thu, Fri, Sat, Sun
+	 * @return string
+	 */
+	public function getDOW() {
+		return date('D', $this->time);
 	}
 
 }

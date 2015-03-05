@@ -7,8 +7,9 @@
  */
 
 abstract class OODBase {
+
 	/**
-	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO
+	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -59,6 +60,12 @@ abstract class OODBase {
 	public $lastQuery;
 
 	/**
+	 * For parent retrieval in getParent()
+	 * @var string
+	 */
+	public $parentField = 'pid';
+
+	/**
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
@@ -67,6 +74,7 @@ abstract class OODBase {
 	 * @return OODBase
 	 */
 	function __construct($id = NULL) {
+		//debug(get_called_class(), __FUNCTION__, $id);
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
@@ -74,7 +82,7 @@ abstract class OODBase {
 				$this->db = $config->db;
 			}
 		} else {
-			$this->db = $GLOBALS['db'];
+			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
@@ -90,7 +98,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function init($id, $fromFindInDB = false) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (is_array($id)) {
 			if (is_scalar($this->idField) || $fromFindInDB) {
 				$this->initByRow($id);
@@ -113,14 +121,14 @@ abstract class OODBase {
 			}
 		} else if (!is_null($id)) {
 			debug($id);
-			if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(__METHOD__);
 		}
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function getName() {
-		return $this->data[$this->titleColumn] ? $this->data[$this->titleColumn] : $this->id;
+		return ifsetor($this->data[$this->titleColumn], $this->id);
 	}
 
 	function initByRow(array $row) {
@@ -144,6 +152,7 @@ abstract class OODBase {
 	 */
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
 		//$data['ctime'] = new AsIs('NOW()');
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -169,6 +178,7 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+			Index::getInstance()->log(get_called_class().'::'.__FUNCTION__.'('.$this->id.')', $data);
 			$where = array();
 			if (is_array($this->idField)) {
 				foreach ($this->idField as $field) {
@@ -198,6 +208,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		//debug($query);
 		return $this->db->perform($query);
@@ -211,13 +222,11 @@ abstract class OODBase {
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
-		$rows = $this->db->fetchSelectQuery($this->table, $this->where + $where, $orderByLimit);
+		$rows = $this->db->fetchOneSelectQuery($this->table,
+			$this->where + $where, $orderByLimit);
+		$this->lastQuery = $this->db->lastQuery;
 		if (is_array($rows)) {
-			if (is_array(first($rows))) {
-				$data = first($rows);
-			} else {
-				$data = $rows;
-			}
+			$data = $rows;
 		} else {
 			$data = array();
 		}
@@ -351,7 +360,7 @@ abstract class OODBase {
 					);
 				}
 			}
-			$s = new slTable($assoc, '', array(
+			$s = new slTable($assoc, 'class="table table-striped"', array(
 				0 => '',
 				'' => array('no_hsc' => true)
 			));
@@ -369,7 +378,7 @@ abstract class OODBase {
 	}
 
 	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name')) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '<div class="showAssoc">
 		<h3>'.get_class($this).':</h3>';
 			foreach ($thes as $key => $name) {
@@ -379,7 +388,7 @@ abstract class OODBase {
 				$content .= $val.'<br clear="all" />';
 			}
 		$content .= '</div>';
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $content;
 	}
 
@@ -390,9 +399,17 @@ abstract class OODBase {
 	 */
 	public static function getInstance($id) {
 		$static = get_called_class();
-		//debug($static, sizeof(self::$instances[$static]));
+		/*nodebug(array(
+			__METHOD__,
+			'class' => $static,
+			'instances' => sizeof(self::$instances[$static]),
+			'id' => $id,
+			'exists' => self::$instances[$static]
+				? implode(', ', array_keys(self::$instances[$static]))
+				: NULL,
+		));*/
 		if (is_scalar($id)) {
-			$inst = &self::$instances[$static][$id];
+			$inst = self::$instances[$static][$id];
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				if (false) {
@@ -400,19 +417,22 @@ abstract class OODBase {
 				} else {
 												// NewRequest needs it like this
 					$inst = new $static();		// don't put anything else here
-					//die(__METHOD__.'#'.__LINE__);
+					self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
 					$inst->init($id);			// separate call to avoid infinite loop in ORS
-					//die(__METHOD__.'#'.__LINE__);
 				}
 			}
 		} else {
-			$inst = new $static($id);
+			$inst = new $static();
+			$inst->init($id);
+			if ($inst->id) {
+				self::$instances[$static][$inst->id] = $inst;
+			}
 		}
 		return $inst;
 	}
 
-	function clearInstances() {
-		self::$instances[get_class($this)] = array();
+	static function clearInstances() {
+		self::$instances[get_called_class()] = array();
 		gc_collect_cycles();
 	}
 
@@ -428,12 +448,12 @@ abstract class OODBase {
 	 */
 	static function getInstanceByName($name, $field = NULL) {
 		$self = get_called_class();
-		//debug($self, $name, count(self::$instances[$self]));
+		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
 		// first search instances
 		if (is_array(self::$instances[$self])) {
 			foreach (self::$instances[$self] as $inst) {
-				$field = $field ?: $inst->titleColumn;
+				$field = $field ? $field : $inst->titleColumn;
 				if ($inst->data[$field] == $name) {
 					$c = $inst;
 					break;
@@ -444,30 +464,32 @@ abstract class OODBase {
 		if (!$c) {
 			$c = new $self();
 			/** @var $c OODBase */
-			$field = $field ?: $c->titleColumn;
-			$c->findInDB(array(
+			$field = $field ? $field : $c->titleColumn;
+			$c->findInDBsetInstance(array(
 				$field => $name,
 			));
-
-			// store back so it can be found
-			if ($c) {
-				self::$instances[$self][$c->id] = $c;
-			}
 		}
 		return $c;
 	}
 
-	//abstract function createRecord($data);
+	/**
+	 * @param $insert
+	 * @param $class
+	 * @return static
+	 * @throws Exception
+	 */
 	static function createRecord($insert, $class) {
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
 
-		$query = $GLOBALS['db']->getInsertQuery(constant($class.'::table'), $insert);
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $insert);
+		$db = Config::getInstance()->db;
+		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);
-		$res = $GLOBALS['db']->perform($query);
+		$res = $db->perform($query);
 		if ($res) {
-			$id = $GLOBALS['db']->getLastInsertID($res, constant($class.'::table'));
+			$id = $db->getLastInsertID($res, constant($class.'::table'));
 			//t3lib_div::debug($id);
 
 			if ($class) {
@@ -478,7 +500,7 @@ abstract class OODBase {
 		} else {
 			$object = NULL;
 		}
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $object;
 	}
 
@@ -499,6 +521,39 @@ abstract class OODBase {
 			case 'object': $content .= ' '.get_class($this->$name); break;
 		}
 		return $content;
+	}
+
+	/**
+	 * Prevents infinite loop Sigi->Ruben->Sigi->Ruben
+	 * by adding a new Person object to the self::$instances registry
+	 * BEFORE calling init().
+	 * @param array $where
+	 * @param string $orderByLimit
+	 * @return array
+	 */
+	function findInDBsetInstance(array $where, $orderByLimit = '') {
+		$data = $this->db->fetchOneSelectQuery($this->table,
+			$this->where + $where, $orderByLimit);
+		if (is_array($data)) {
+			$className = get_called_class();
+			$id = $data[$this->idField];
+			self::$instances[$className][$id] = $this;   //!!!
+			nodebug(__METHOD__, $className, $id,
+				sizeof(self::$instances[$className]),
+				isset(self::$instances[$className][$id]));
+			$this->init($data, true);
+			return $data;
+		}
+	}
+
+	function getParent() {
+		$id = $this->data[$this->parentField];
+		if ($id) {
+			$obj = self::getInstance($id);
+		} else {
+			$obj = NULL;
+		}
+		return $obj;
 	}
 
 }

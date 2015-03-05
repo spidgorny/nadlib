@@ -12,6 +12,13 @@ class dbLayerBase {
 	var $qb;
 
 	/**
+	 * List of reserved words for each DB
+	 * which can't be used as field names and must be quoted
+	 * @var array
+	 */
+	var $reserved = array();
+	
+	/**
 	 * @var string
 	 */
 	var $lastQuery;
@@ -26,10 +33,10 @@ class dbLayerBase {
 	 */
 	var $queryTime = 0;
 
-	function setQB() {
+	function setQB(SQLBuilder $qb = NULL) {
 		$di = new DIContainer();
 		$di->db = $this;
-		$qb = new SQLBuilder($di);
+		$qb = $qb ? $qb : new SQLBuilder($di);
 		$this->qb = $qb;
 	}
 
@@ -38,6 +45,13 @@ class dbLayerBase {
 		$url = str_replace('%20', ' ', $url);	// back convert
 		$url = urldecode($url);
 		return $url;
+	}
+
+	/**
+	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
+	 */
+	function getScheme() {
+		return strtolower(str_replace('dbLayer', '', get_class($this)));
 	}
 
 	function __call($method, array $params) {
@@ -71,6 +85,22 @@ class dbLayerBase {
 	function saveQueryLog($query, $time) {
 		$this->queryCount++;
 		$this->queryTime += $time;
+	}
+
+	function getReserved() {
+		return $this->reserved;
+	}
+
+	function transaction() {
+		return $this->perform('BEGIN');
+	}
+
+	function commit() {
+		return $this->perform('COMMIT');
+	}
+
+	function rollback() {
+		return $this->perform('ROLLBACK');
 	}
 
 }

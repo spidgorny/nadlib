@@ -43,6 +43,236 @@ class MySQL extends dbLayerBase implements DBInterface {
 	 */
 	public $logToLog = false;
 
+	/**
+	 * Reserved MySQL words
+	 * @var array
+	 */
+	public $reserved = array (
+		0 => 'ACCESSIBLE',
+		1 => 'ADD',
+		2 => 'ALL',
+		3 => 'ANALYZE',
+		4 => 'AND',
+		5 => 'AS',
+		6 => 'ASC',
+		7 => 'ASENSITIVE',
+		8 => 'BEFORE',
+		9 => 'BETWEEN',
+		10 => 'BIGINT',
+		11 => 'BINARY',
+		12 => 'BLOB',
+		13 => 'BOTH',
+		14 => 'CALL',
+		15 => 'CASCADE',
+		16 => 'CASE',
+		17 => 'CHANGE',
+		18 => 'CHAR',
+		19 => 'CHARACTER',
+		20 => 'CHECK',
+		21 => 'COLLATE',
+		22 => 'COLUMN',
+		23 => 'CONDITION',
+		24 => 'CONSTRAINT',
+		25 => 'CONVERT',
+		26 => 'CREATE',
+		27 => 'CROSS',
+		28 => 'CURRENT_DATE',
+		29 => 'CURRENT_TIME',
+		30 => 'CURRENT_TIMESTAMP',
+		31 => 'CURRENT_USER',
+		32 => 'CURSOR',
+		33 => 'DATABASES',
+		34 => 'DAY_HOUR',
+		35 => 'DAY_MICROSECOND',
+		36 => 'DAY_MINUTE',
+		37 => 'DAY_SECOND',
+		38 => 'DEC',
+		39 => 'DECIMAL',
+		40 => 'DECLARE',
+		41 => 'DELAYED',
+		42 => 'DELETE',
+		43 => 'DESC',
+		44 => 'DESCRIBE',
+		45 => 'DETERMINISTIC',
+		46 => 'DISTINCT',
+		47 => 'DISTINCTROW',
+		48 => 'DIV',
+		49 => 'DROP',
+		50 => 'DUAL',
+		51 => 'EACH',
+		52 => 'ELSE',
+		53 => 'ELSEIF',
+		54 => 'ENCLOSED',
+		55 => 'ESCAPED',
+		56 => 'EXISTS',
+		57 => 'EXPLAIN',
+		58 => 'FALSE',
+		59 => 'FETCH',
+		60 => 'FLOAT',
+		61 => 'FLOAT4',
+		62 => 'FLOAT8',
+		63 => 'FOR',
+		64 => 'FORCE',
+		65 => 'FOREIGN',
+		66 => 'FROM',
+		67 => 'FULLTEXT',
+		68 => 'GROUP',
+		69 => 'HAVING',
+		70 => 'HIGH_PRIORITY',
+		71 => 'HOUR_MICROSECOND',
+		72 => 'HOUR_MINUTE',
+		73 => 'HOUR_SECOND',
+		74 => 'IF',
+		75 => 'IGNORE',
+		76 => 'INDEX',
+		77 => 'INFILE',
+		78 => 'INNER',
+		79 => 'INOUT',
+		80 => 'INSENSITIVE',
+		81 => 'INSERT',
+		82 => 'INT',
+		83 => 'INT1',
+		84 => 'INT2',
+		85 => 'INT3',
+		86 => 'INT4',
+		87 => 'INTEGER',
+		88 => 'INTERVAL',
+		89 => 'INTO',
+		90 => 'IS',
+		91 => 'ITERATE',
+		92 => 'JOIN',
+		93 => 'KEY',
+		94 => 'KEYS',
+		95 => 'KILL',
+		96 => 'LEADING',
+		97 => 'LEAVE',
+		98 => 'LIKE',
+		99 => 'LIMIT',
+		100 => 'LINEAR',
+		101 => 'LINES',
+		102 => 'LOAD',
+		103 => 'LOCALTIME',
+		104 => 'LOCALTIMESTAMP',
+		105 => 'LOCK',
+		106 => 'LONG',
+		107 => 'LONGBLOB',
+		108 => 'LONGTEXT',
+		109 => 'LOW_PRIORITY',
+		110 => 'MASTER_SSL_VERIFY_SERVER_CERT',
+		111 => 'MATCH',
+		112 => 'MEDIUMBLOB',
+		113 => 'MEDIUMINT',
+		114 => 'MIDDLEINT',
+		115 => 'MINUTE_MICROSECOND',
+		116 => 'MINUTE_SECOND',
+		117 => 'MOD',
+		118 => 'MODIFIES',
+		119 => 'NATURAL',
+		120 => 'NOT',
+		121 => 'NO_WRITE_TO_BINLOG',
+		122 => 'NUMERIC',
+		123 => 'ON',
+		124 => 'OPTIMIZE',
+		125 => 'OPTION',
+		126 => 'OPTIONALLY',
+		127 => 'OR',
+		128 => 'ORDER',
+		129 => 'OUT',
+		130 => 'OUTER',
+		131 => 'OUTFILE',
+		132 => 'PRECISION',
+		133 => 'PROCEDURE',
+		134 => 'PURGE',
+		135 => 'RANGE',
+		136 => 'READ',
+		137 => 'READS',
+		138 => 'READ_WRITE',
+		139 => 'REAL',
+		140 => 'REFERENCES',
+		141 => 'REGEXP',
+		142 => 'RELEASE',
+		143 => 'RENAME',
+		144 => 'REPLACE',
+		145 => 'REQUIRE',
+		146 => 'RESTRICT',
+		147 => 'RETURN',
+		148 => 'REVOKE',
+		149 => 'RIGHT',
+		150 => 'RLIKE',
+		151 => 'SCHEMA',
+		152 => 'SCHEMAS',
+		153 => 'SECOND_MICROSECOND',
+		154 => 'SELECT',
+		155 => 'SEPARATOR',
+		156 => 'SET',
+		157 => 'SHOW',
+		158 => 'SMALLINT',
+		159 => 'SPATIAL',
+		160 => 'SPECIFIC',
+		161 => 'SQL',
+		162 => 'SQLEXCEPTION',
+		163 => 'SQLWARNING',
+		164 => 'SQL_BIG_RESULT',
+		165 => 'SQL_CALC_FOUND_ROWS',
+		166 => 'SQL_SMALL_RESULT',
+		167 => 'SSL',
+		168 => 'STARTING',
+		169 => 'STRAIGHT_JOIN',
+		170 => 'TABLE',
+		171 => 'THEN',
+		172 => 'TINYBLOB',
+		173 => 'TINYINT',
+		174 => 'TINYTEXT',
+		175 => 'TO',
+		176 => 'TRAILING',
+		177 => 'TRIGGER',
+		178 => 'TRUE',
+		179 => 'UNION',
+		180 => 'UNIQUE',
+		181 => 'UNLOCK',
+		182 => 'UNSIGNED',
+		183 => 'UPDATE',
+		184 => 'USAGE',
+		185 => 'USE',
+		186 => 'USING',
+		187 => 'UTC_DATE',
+		188 => 'UTC_TIME',
+		189 => 'UTC_TIMESTAMP',
+		190 => 'VARBINARY',
+		191 => 'VARCHAR',
+		192 => 'VARCHARACTER',
+		193 => 'VARYING',
+		194 => 'WHEN',
+		195 => 'WHERE',
+		196 => 'WHILE',
+		197 => 'WITH',
+		198 => 'WRITE',
+		199 => 'XOR',
+		200 => 'YEAR_MONTH',
+		201 => 'ZEROFILL',
+		'ALTER',
+		'BY',
+		'CONTINUE',
+		'DATABASE',
+		'DEFAULT',
+		'DOUBLE',
+		'EXIT',
+		'GRANT',
+		'IN',
+		'INT8',
+		'LEFT',
+		'LOOP',
+		'MEDIUMTEXT',
+		'NULL',
+		'PRIMARY',
+		'REPEAT',
+		'SENSITIVE',
+		'SQLSTATE',
+		'TERMINATED',
+		'UNDO',
+		'VALUES',
+	);
+
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db = $db;
@@ -74,13 +304,11 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function perform($query) {
-		if (isset($GLOBALS['profiler'])) {
+	function perform($query, $withProfiler = true) {
+		if ($withProfiler && isset($GLOBALS['profiler'])) {
 			$c = 2;
-			$btl = debug_backtrace();
 			do {
-				$bt = $btl[$c];
-				$caller = "{$bt['class']}::{$bt['function']}";
+				$caller = Debug::getCaller($c);
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
@@ -112,7 +340,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				nodebug(array(
@@ -125,6 +352,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
+		if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
@@ -166,16 +394,17 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function numRows($res = NULL) {
-		if (is_resource($res ?: $this->lastResult)) {
-			return mysql_num_rows($res ?: $this->lastResult);
+		if (is_resource($res ? $res : $this->lastResult)) {
+			return mysql_num_rows($res ? $res : $this->lastResult);
 		}
+		return NULL;
 	}
 
 	function dataSeek($res, $number) {
 		return mysql_data_seek($res, $number);
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res, $table = NULL) {
 		return mysql_insert_id($this->connection);
 	}
 
@@ -196,50 +425,10 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteSQL($string) {
+		if ($string instanceof Time) {
+			$string = $string->getMySQL();
+		}
 		return "'".$this->escape($string)."'";
-	}
-
-	/**
-	 * Return ALL rows
-	 * @param <type> $order
-	 * @param array $where
-	 * @param string $order
-	 * @param string $addFields
-	 * @return array <type>
-	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
-		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
-		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
-		$query = $this->getSelectQuery($table, $where, $order, $addFields);
-		$res = $this->perform($query);
-		$data = $this->fetchAll($res);
-		return $data;
-	}
-
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus);
-		$res = $this->perform($query);
-		$data = $this->fetchAssoc($res);
-		return $data;
-	}
-
-	function runSelectQuery($table, array $where, $order = '', $selectPlus = '') {
-		$qb = Config::getInstance()->qb;
-		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus);
-		return $res;
-	}
-
-	function runUpdateQuery($table, array $set, array $where) {
-		$qb = Config::getInstance()->qb;
-		$res = $qb->runUpdateQuery($table, $set, $where);
-		return $res;
-	}
-
-	function runInsertQuery($table, array $set) {
-		$qb = Config::getInstance()->qb;
-		$res = $qb->runInsertQuery($table, $set);
-		return $res;
 	}
 
 	function getDatabaseCharacterSet() {
@@ -289,6 +478,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
+			debug(get_class($this->qb));
 			throw new Exception($method.'() not found in '.get_class($this).' and SQLBuilder');
 		}
 	}
@@ -316,7 +506,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		return mysql_affected_rows();
 	}
 
@@ -328,8 +518,37 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return intval(!!$value);
 	}
 
+	/**
+	 * http://stackoverflow.com/questions/15637291/how-use-mysql-data-seek-with-pdo
+	 * Will start with 0 and skip rows until $start.
+	 * Will end with $start+$limit.
+	 * @param $res
+	 * @param $start
+	 * @param $limit
+	 * @return array
+	 */
+	function fetchPartitionMySQL($res, $start, $limit) {
+		$data = array();
+		for ($i = 0; $i < $start + $limit; $i++) {
+			$row = $this->fetchAssoc($res);
+			if ($row !== false) {
+				if ($i >= $start) {
+					$data[] = $row;
+				}
+			} else {
+				break;
+			}
+		}
+		$this->free($res);
+		return $data;
+	}
+
+	function uncompress($value) {
+		return @gzuncompress(substr($value, 4));
+	}
+
 	function getScheme() {
-		return get_class($this);
+		return strtolower(get_class($this));
 	}
 
 }

@@ -48,7 +48,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * Returns an array of the elements in a specific column.
 	 * @param $col
-	 * @return $this
+	 * @return static
 	 */
 	function column($col) {
 		$return = array();
@@ -197,8 +197,13 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * @param $callback
+	 * @return static
+	 */
 	public function map($callback) {
-		return array_map($callback, $this);
+		$this->setData(array_map($callback, $this->getData()));
+		return $this;
 	}
 
 	/**
@@ -265,6 +270,11 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $keys[$found_index+1];
 	}
 
+	/**
+	 * Searches inside Recursive tree
+	 * @param $needle
+	 * @return array|null
+	 */
 	function find($needle) {
 		foreach ($this as $key => $val) {
 			//debug($needle, $key, $val);
@@ -284,6 +294,20 @@ class ArrayPlus extends ArrayObject implements Countable {
 				return $find;
 			}
 		}
+	}
+
+	function findAlternativeFromMenu($current) {
+		foreach ($this->items as $key => $rec) {
+			/** @var $rec Recursive */
+			//$found = $rec->findPath($this->current);
+			if ($rec instanceof Recursive) {
+				$children = $rec->getChildren();
+				$found = isset($children[current]) ? $children[$current] : NULL;
+				//debug($children, $found, $key, $this->current);
+				return $found;
+			}
+		}
+		return NULL;
 	}
 
 	function first() {
@@ -434,7 +458,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function implode($sep) {
-		return implode($sep, (array) $this);
+		return implode($sep, $this->getData());
 	}
 
 	function typoscript($prefix = '') {
@@ -449,6 +473,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 			}
 		}
 		return $replace;
+	}
+
+	function concat() {
+		return implode('', $this->data);
 	}
 
 	function count_if($k) {
@@ -510,7 +538,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 			'count' => $this->count(),
 		);
 	}
-	
+
     /**
      * @param $oldKey
      * @param $newKey
@@ -525,7 +553,7 @@ class ArrayPlus extends ArrayObject implements Countable {
         $keys[$index] = $newKey;
         $this->exchangeArray(array_combine($keys, array_values((array) $this)));
     }
-	
+
 	/**
 	 * @param $ar2
 	 * @return static
@@ -534,13 +562,64 @@ class ArrayPlus extends ArrayObject implements Countable {
 		foreach ($ar2 as $key2 => $val2) {
 			if (isset($this[$key2])) {
 				$tmp = AP($this[$key2]);
-				$tmp->merge_recursive_overwrite($subindex, $val2);
+				$tmp->merge_recursive_overwrite($val2);
 				$this[$key2] = $tmp->getData();
 			} else {
 				$this[$key2] = $val2;
 			}
 		}
 		return $this;
+	}
+
+	/**
+	 * 2D table => 3D table
+	 * @param $groupBy
+	 * @return $this
+	 */
+	public function groupBy($groupBy) {
+		$new = array();
+		foreach ($this->getData() as $line) {
+			$key = $line[$groupBy];
+			$new[$key][] = $line;
+		}
+		$this->setData($new);
+		return $this;
+	}
+
+	function sumGroups($field) {
+		$new = new ArrayPlus();
+		foreach ($this->getData() as $key => $subtable) {
+			$ap = ArrayPlus::create($subtable);
+			$new[$key] = $ap->column($field)->sum();
+		}
+		return $new;
+	}
+
+	public function columnEmpty($string) {
+		foreach ($this->getData() as $row) {
+			if ($row[$string]) return false;
+		}
+		return true;
+	}
+
+	public function columnSet($string) {
+		foreach ($this->getData() as $row) {
+			if (isset($row[$string])) return true;
+		}
+		return false;
+	}
+
+	public function findDelete($niceName) {
+		$ar = $this->getData();
+		$index = array_search($niceName, $ar);
+		if ($index !== FALSE) {
+			array_splice($ar, $index, 1);
+			$this->setData($ar);
+		}
+	}
+
+	public function getKeys() {
+		return array_keys($this->getData());
 	}
 
 }
