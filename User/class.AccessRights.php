@@ -31,7 +31,6 @@ class AccessRights {
 			array(), 'ORDER BY '.$this->accessTable.'.name',
 			$this->accessTable.'.*, '.$this->groupAccessTable.'.id as affirmative');
 		$data = $this->db->fetchAll($res);
-		//debug($GLOBALS['i']->db->lastQuery);
 		//debug($data);
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();

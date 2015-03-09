@@ -46,7 +46,9 @@ class SessionUser extends PlainSessionUser {
 			$dataObj = new stdClass();
 			$dataObj->email = $email;
 			$dataObj->password = $password;
-			mail($email, 'Account created', new View('emailNewAutoAccount.phtml', $dataObj), "From: ".$GLOBALS['i']->mailFrom);
+
+			$config = Config::getInstance();
+			mail($email, 'Account created', new View('emailNewAutoAccount.phtml', $dataObj), "From: ".$config->mailFrom);
 
 			$this->saveLogin($email, md5($password));
 			//$this->autologin();
