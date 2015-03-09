@@ -210,13 +210,15 @@ if (!function_exists('__')) {	// conflict with cakePHP
 
 	function __($code, $r1 = null, $r2 = null, $r3 = null) {
 		if (class_exists('Config')) {
-			$index = Config::getInstance();
+			$config = Config::getInstance();
+		} else {
+			$config = NULL;
 		}
-		nodebug($code, !!$index,
-			is_object($index) ? get_class($index) : gettype($index),
-			!!$index->getLL());
-		if (!empty($index) && $index->getLL()) {
-			$text = $index->getLL()->T($code, $r1, $r2, $r3);
+		nodebug($code, !!$config,
+			is_object($config) ? get_class($config) : gettype($config),
+			!!$config->getLL());
+		if (!empty($config) && $config->getLL()) {
+			$text = $config->getLL()->T($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $text;
 		} else {
