@@ -315,11 +315,11 @@ class Pager {
 		if ($k == $this->currentPage) {
 			$content = '<li class="active"><a href="'.$link.'"
 				class="active"
-				title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+				title="'.htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES).'"
 				>'.$text.'</a></li>';
 		} else {
 			$content = '<li><a href="'.$link.'"
-			title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+			title="'.htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES).'"
 			>'.$text.'</a></li>';
 		}
 		return $content;
