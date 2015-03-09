@@ -467,7 +467,7 @@ class Request {
 	}
 
 	function redirectJS($controller, $delay = 0) {
-		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
+		echo __('Redirecting to').' <a href="'.$controller.'">'.$controller.'</a>
 			<script>
 				setTimeout(function () {
 					document.location = "'.$controller.'";
