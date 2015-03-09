@@ -6,8 +6,8 @@ class TagCloud extends AppController {
 
 	function __construct() {
 		parent::__construct();
-		$words = $GLOBALS['i']->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
-		$words = $GLOBALS['i']->db->fetchAll($words);
+		$words = $this->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
+		$words = $this->db->fetchAll($words);
 		$words = ArrayPlus::create($words)->each(array($this, 'parseWords'))->getData();
 		//debug($words);
 		$this->words = $words;
