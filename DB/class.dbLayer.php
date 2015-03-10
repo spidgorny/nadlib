@@ -11,7 +11,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
     /**
      * @var resource
      */
-    protected $CONNECTION = NULL;
+    public $CONNECTION = NULL;
 
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -54,10 +54,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
         if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
-	        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
-	        $words = $this->fetchAll($query, 'word');
-	        $this->reserved = array_keys($words);
-	        $this->reserved = array_map('strtoupper', $this->reserved); // important
+	        //debug(pg_version()); exit();
+	        $version = pg_version();
+	        if ($version['server'] >= 8.4) {
+		        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+		        $words = $this->fetchAll($query, 'word');
+		        $this->reserved = array_keys($words);
+		        $this->reserved = array_map('strtoupper', $this->reserved); // important
+	        }
 		}
 	}
 
