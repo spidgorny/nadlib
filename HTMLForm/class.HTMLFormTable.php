@@ -374,9 +374,9 @@ class HTMLFormTable extends HTMLForm {
 		if (isset($desc['label'])) {
 			$label = $desc['label'];
 			if (!$withBR) {
-				$label .= ':&nbsp;';
+				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
 				if (!ifsetor($desc['optional']) &&
-					!in_array($type, array('check', 'checkbox'))) {
+					!in_array($type, array('check', 'checkbox', 'submit'))) {
 					if ($this->noStarUseBold) {
 						$label = '<b title="Obligatory">'.$label.'</b>';
 					} else {
@@ -393,11 +393,7 @@ class HTMLFormTable extends HTMLForm {
 					: '';
 			}
 			$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
-			if ($withBR) {
-				//$this->stdout .= '<br />';	// depends on CSS (!!!)
-			} else {
-				$this->stdout .= '</td><td>';
-			}
+			$this->stdout .= '</td><td>';
 		}
 	}
 
