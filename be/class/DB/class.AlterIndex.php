@@ -71,7 +71,6 @@ class AlterIndex extends AppControllerBE {
 		$tables = $this->db->getTables();
 		foreach ($tables as $t) {
 			$struct = $this->db->getTableColumnsEx($t);
-			//unset($struct['password']);	// debug
 			$indexes = $this->db->getIndexesFrom($t);
 			$result[$t] = array(
 				'columns' => $struct,
@@ -82,14 +81,16 @@ class AlterIndex extends AppControllerBE {
 	}
 
 	function render() {
-		$content = $this->performAction();
+		$content[] = $this->performAction();
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
 			$struct = json_decode($struct, true);
 
 			$local = $this->getDBStruct();
 
-			$content = $this->renderTableStruct($struct, $local);
+			$content[] = $this->renderTableStruct($struct, $local);
+		} else {
+			$content[] = '<div class="message">Choose file on the left</div>';
 		}
 		return $content;
 	}

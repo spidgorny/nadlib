@@ -73,7 +73,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
-		$this->db = $dbse;
+		$this->database = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
@@ -122,7 +122,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->saveQueries) {
+			if ($this->queryLog) {
 				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
