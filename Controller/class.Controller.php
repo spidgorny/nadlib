@@ -117,16 +117,19 @@ abstract class Controller {
 	 * @use getURL()
 	 */
 	protected function makeURL(array $params, $prefix = NULL) {
-		$class = ifsetor($params['c']);
-		unset($params['c']);    // RealURL
-		if ($class && !$prefix) {
-			$prefix = $class;
+		$class = NULL;
+		if ($this->request->apacheModuleRewrite()) {
+			$class = ifsetor($params['c']);
+			unset($params['c']);    // RealURL
+			if ($class && !$prefix) {
+				$prefix = $class;
+			}
 		}
 		$url = new URL($prefix
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		if ($class) {
+		if ($class && $this->request->apacheModuleRewrite()) {
 			$path->setFile($class);
 		}
 		$path->setAsFile();
