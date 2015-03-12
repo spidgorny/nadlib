@@ -102,6 +102,7 @@ class Date extends Time {
 		$m = substr($date, 4, 2);
 		$d = substr($date, 6, 2);
 		$this->time = strtotime($y.'-'.$m.'-'.$d);
+		$this->updateDebug();
 	}
 
 	/**
