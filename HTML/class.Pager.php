@@ -274,7 +274,7 @@ class Pager {
  		//debug($pages, $maxpage);
  		if ($this->currentPage > 0) {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage-1));
-			$link = $this->url->setParam('pageSize', $this->pageSize->selected);
+			$link = $link->setParam('pageSize', $this->pageSize->selected);
 			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
  		} else {
 	 		$content .= '<li class="disabled"><span class="disabled">&larr;</span></li>';
