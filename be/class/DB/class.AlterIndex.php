@@ -30,6 +30,11 @@ class AlterIndex extends AppControllerBE {
 
 	function sidebar() {
 		$content = array();
+		if (class_exists('AdminPage')) {
+			$ap = new AdminPage();
+			$content[] = $ap->sidebar();
+		}
+
 		$content[] = 'Schema: '.$this->db->getScheme().BR;
 		$content[] = 'Wrapper: '.get_class($this->db).BR;
 		$content[] = 'DB: '.$this->db->database.BR;
