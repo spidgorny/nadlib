@@ -301,9 +301,9 @@ class Collection {
 	 * @return ArrayPlus
 	 */
 	function getData() {
-		if (!$this->query || (
-				!$this->data
-				|| !$this->data->count())) {
+		if (!$this->query
+			|| is_null($this->data)
+		) {
 			$this->retrieveDataFromDB();
 		}
 		if (!($this->data instanceof ArrayPlus)) {
