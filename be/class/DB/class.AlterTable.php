@@ -122,7 +122,8 @@ class AlterTable extends AlterIndex {
 		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
 		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
 		' '.$index['Extra'];
-		$link = $this->a(new URL(get_class(), array(
+		$link = $this->a($this->makeURL(array(
+			'c' => get_class($this),
 			'file' => basename($this->jsonFile),
 			'action' => 'runSQL',
 			'sql' => $query,
@@ -138,7 +139,8 @@ class AlterTable extends AlterIndex {
 		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
 		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
 		' '.$index['Extra'];
-		$link = $this->a(new URL(get_class(), array(
+		$link = $this->a($this->makeURL(array(
+			'c' => get_class($this),
 			'file' => basename($this->jsonFile),
 			'action' => 'runSQL',
 			'sql' => $query,

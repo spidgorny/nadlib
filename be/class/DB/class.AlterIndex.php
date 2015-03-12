@@ -31,6 +31,7 @@ class AlterIndex extends AppControllerBE {
 	function sidebar() {
 		$content = array();
 		$content[] = 'Schema: '.$this->db->getScheme().BR;
+		$content[] = 'Wrapper: '.get_class($this->db).BR;
 		$content[] = 'DB: '.$this->db->database.BR;
 		$content[] = 'File: '.basename($this->jsonFile).BR;
 		if ($this->db->database) {

@@ -90,8 +90,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->connection = new PDO($this->dsn, $user, $password);
 		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
-		$url = parse_url($this->dsn);
-		$this->database = basename($url['path']);
+
+		//$url = parse_url($this->dsn);
+		//$this->database = basename($url['path']);
 	}
 
 	function perform($query, array $params = array()) {
