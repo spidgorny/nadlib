@@ -69,6 +69,10 @@ class AutoLoad {
 	 */
 	public $componentsPath;
 
+	public $stat = array(
+		'findInFolders' => 0,
+	);
+
 	/**
 	 * getFolders() is called from outside
 	 * to be able to modify $useCookies

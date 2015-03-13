@@ -401,7 +401,7 @@ class Collection {
 				$content = $s;
 			}
 		} else {
-			$content = '<div class="message">No data</div>';
+			$content = '<div class="message">'.__($this->noDataMessage).'</div>';
 		}
 		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $content;
