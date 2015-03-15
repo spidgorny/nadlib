@@ -228,19 +228,23 @@ class Collection {
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
 		TaylorProfiler::start(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$query = $this->getQuery();
-		$sql = new SQLQuery($query);
-		//debug($sql->parsed['SELECT']);
-		array_unshift($sql->parsed['SELECT'], array(
-			'expr_type' => 'reserved',
-			'base_expr' => 'SQL_CALC_FOUND_ROWS',
-			'delim' => ' ',
-		));
-		//debug($sql->parsed);
-		if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
-			$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+		if (class_exists('PHPSQL\Parser') && false) {
+			$sql = new SQLQuery($query);
+			//debug($sql->parsed['SELECT']);
+			array_unshift($sql->parsed['SELECT'], array(
+				'expr_type' => 'reserved',
+				'base_expr' => 'SQL_CALC_FOUND_ROWS',
+				'delim'     => ' ',
+			));
+			//debug($sql->parsed);
+			if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
+				$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+			}
+			//debug($sql->parsed);
+			$this->query = $sql->__toString();
+		} else {
+			$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);
 		}
-		//debug($sql->parsed);
-		$this->query = $sql->__toString();
 		$res = $this->db->perform($this->query);
 
 		if ($this->pager) {
