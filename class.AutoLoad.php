@@ -251,6 +251,7 @@ class AutoLoad {
 		if (!class_exists('Config', false)) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
 			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
+			$this->stat['configPath'] = $configPath;
 			//debug($configPath, file_exists($configPath)); exit();
 			if (file_exists($configPath)) {
 				include_once $configPath;
@@ -302,10 +303,19 @@ class AutoLoad {
 			}
 		}
 
-		if (!$folders) {
+		if ($folders) {
+			$this->stat['folders'] = 'fromSession';
+		} else {
+			$this->stat['folders'] = 'fromConfig';
 			$folders = array();
-			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
-			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
+
+			$plus = $this->getFoldersFromConfig();
+			$this->stat['folders'] .= ', '.sizeof($plus);
+			$folders = array_merge($folders, $plus);		// should come first to override /be/
+
+			$plus = $this->getFoldersFromConfigBase();
+			$this->stat['folders'] .= ', '.sizeof($plus);
+			$folders = array_merge($folders, $plus);
 		}
 		//debug($folders);
 		//debug($this->classFileMap, $_SESSION[__CLASS__]);
@@ -360,10 +370,11 @@ class AutoLoad {
 	 * @throws Exception
 	 */
 	function load($class) {
-		$tp = ifsetor($GLOBALS['profiler']);
+		//$tp = TaylorProfiler::getInstance();
+		$tp = NULL;
 		if ($tp) $tp->start(__METHOD__);
 		if ($class == 'AdminPage') {
-			$this->debug = true;
+			$this->debug = false;
 		} else {
 			$this->debug = false;
 		}
@@ -395,12 +406,19 @@ class AutoLoad {
 				include_once $file;
 				$this->classFileMap[$class] = $file;
 				$this->stat['findInFolders']++;
+			} elseif ($this->debug) {
+				//debug($this->stat['folders'], $this->stat['configPath']);
+				//debug($this->folders);
 			}
 		}
 
 		if (!class_exists($class) && !interface_exists($class)) {
 			if (isset($_SESSION)) {
+				//debug('clear folder as '.$class.' is not found');
+				//$this->folders = array();				// @see __destruct(), commented as it's too global
 				unset($_SESSION[__CLASS__]['folders']); // just in case
+				//debug($_SESSION[__CLASS__]['folders']);
+				$this->useCookies = false;				// prevent __destruct saving data to the session
 			}
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
