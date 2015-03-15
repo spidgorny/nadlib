@@ -399,7 +399,7 @@ class Pager {
 	}
 
     /**
-     * @param User\LoginUser $user
+     * @param User|LoginUser $user
      */
     public function setUser($user)
     {
