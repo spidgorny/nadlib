@@ -11,7 +11,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
     /**
      * @var resource
      */
-    protected $CONNECTION = NULL;
+    public $CONNECTION = NULL;
 
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -54,10 +54,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
         if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
-	        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
-	        $words = $this->fetchAll($query, 'word');
-	        $this->reserved = array_keys($words);
-	        $this->reserved = array_map('strtoupper', $this->reserved); // important
+	        //debug(pg_version()); exit();
+	        $version = pg_version();
+	        if ($version['server'] >= 8.4) {
+		        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+		        $words = $this->fetchAll($query, 'word');
+		        $this->reserved = array_keys($words);
+		        $this->reserved = array_map('strtoupper', $this->reserved); // important
+	        }
 		}
 	}
 
@@ -69,7 +73,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
-		$this->db = $dbse;
+		$this->database = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
@@ -118,7 +122,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->saveQueries) {
+			if ($this->queryLog) {
 				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
 				//$this->QUERYFUNC[$query] = $this->getCallerFunction();

@@ -332,9 +332,10 @@ class HTMLForm {
 	 */
 	function submit($value = NULL, array $params = array()) {
 		$params['class'] = ifsetor($params['class'], 'submit btn');
-		$params['name'] = ifsetor($params['name'], 'submit');
+		$params['name'] = ifsetor($params['name'], 'btnSubmit');
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
+		// this.form.submit() will not work
 		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 	}
 
@@ -345,7 +346,11 @@ class HTMLForm {
 
 	function image($value = NULL, $more = "", $desc = array()) {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=image ".$this->getName('submit')." src=".$desc['src']." class='submitbutton' " . ($value?"value=\"$value\"":"") . " $more>\n";
+		$this->stdout .= "<input type=image
+		".$this->getName('imgSubmit')."
+		src=".$desc['src']."
+		class='submitbutton' " .
+			($value?"value=\"$value\"":"") . " $more>\n";
 	}
 
 	function reset($value = NULL, $more = "") {
