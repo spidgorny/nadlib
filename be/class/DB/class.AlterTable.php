@@ -71,7 +71,7 @@ class AlterTable extends AlterIndex {
 						'Field' => new HTMLTag('td', array(
 							'colspan' => 10,
 							'class' => 'sql',
-						), $this->getCreateQuery($table, $index)
+						), $this->getCreateQuery($table, $desc['columns'])
 						),
 					);
 					break;
@@ -148,8 +148,13 @@ class AlterTable extends AlterIndex {
 		return $link;
 	}
 
-	function getCreateQuery($table, array $index) {
-		return 'CREATE TABLE '.$table.' (id int auto_increment);';
+	function getCreateQuery($table, array $columns) {
+		$set = array();
+		foreach ($columns as $col) {
+			$set[] = $col['name'].' '.$col['type'].' '.($col['notnull'] ? 'NOT NULL' : 'NULL');
+		}
+		//debug($col);
+		return 'CREATE TABLE '.$table.' ('.implode(",\n", $set).');';
 	}
 
 	function sameType($index1, $index2) {

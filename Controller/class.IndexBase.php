@@ -307,7 +307,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function error($text) {
-		$msg = '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
 		} else {
