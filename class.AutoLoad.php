@@ -358,6 +358,11 @@ class AutoLoad {
 	function load($class) {
 		$tp = ifsetor($GLOBALS['profiler']);
 		if ($tp) $tp->start(__METHOD__);
+		if ($class == 'AdminPage') {
+			$this->debug = true;
+		} else {
+			$this->debug = false;
+		}
 		$this->count++;
 
 		$namespaces = explode('\\', $class);
