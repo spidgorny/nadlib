@@ -12,7 +12,7 @@ abstract class OODBase {
 	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS|dbLayerPG|dbLayerBase
 	 * public to allow unset($o->db); before debugging
 	 */
-	protected $db;
+	public $db;
 
 	/**
 	 * database table name for referencing everywhere. MUST BE OVERRIDEN IN SUBCLASS!
@@ -88,7 +88,9 @@ abstract class OODBase {
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
-			$this->db = $config->getDB();
+			if (!$this->db) {
+				$this->db = $config->getDB();
+			}
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
@@ -106,7 +108,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function init($id, $fromFindInDB = false) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if (is_array($id)) {
 			if (is_scalar($this->idField) || $fromFindInDB) {
 				$this->initByRow($id);
@@ -129,10 +131,10 @@ abstract class OODBase {
 			}
 		} else if (!is_null($id)) {
 			debug($id);
-			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 			throw new Exception(__METHOD__);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function getName() {
@@ -149,6 +151,7 @@ abstract class OODBase {
 		} else if (ifsetor($this->data[$this->idField])) {
 			$this->id = $this->data[$this->idField];
 		} else {
+			debug(gettype($row), $this->idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
@@ -237,9 +240,11 @@ abstract class OODBase {
 		if (!$this->db) {
 			debug_pre_print_backtrace();
 		}
+		//debug(get_class($this->db));
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		$this->lastSelectQuery = $this->db->lastQuery;
+		//debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
 			$this->init($data, true);
@@ -400,7 +405,7 @@ abstract class OODBase {
 	}
 
 	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name')) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$content = '<div class="showAssoc">
 		<h3>'.get_class($this).':</h3>';
 			foreach ($thes as $key => $name) {
@@ -410,7 +415,7 @@ abstract class OODBase {
 				$content .= $val.'<br clear="all" />';
 			}
 		$content .= '</div>';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
 
@@ -504,7 +509,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	static function createRecord($insert, $class) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
 
@@ -525,7 +530,7 @@ abstract class OODBase {
 		} else {
 			$object = NULL;
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $object;
 	}
 
@@ -567,12 +572,12 @@ abstract class OODBase {
 				sizeof(self::$instances[$className]),
 				isset(self::$instances[$className][$id]));
 			$this->init($data, true);
-			return $data;
 		}
+		return $data;
 	}
 
 	function getParent() {
-		$id = $this->data[$this->parentField];
+		$id = ifsetor($this->data[$this->parentField]);
 		if ($id) {
 			$obj = self::getInstance($id);
 		} else {
@@ -585,6 +590,12 @@ abstract class OODBase {
 		return array(
 			'data' => $this->data,
 		);
+	}
+
+	function getNameLink() {
+		return new HTMLTag('a', array(
+			'href' => $this->getSingleLink(),
+		), $this->getName());
 	}
 
 }

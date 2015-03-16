@@ -172,7 +172,7 @@ class Debug {
 	}
 
 	function canHTML() {
-		return $_COOKIE['debug'];
+		return ifsetor($_COOKIE['debug']);
 	}
 
 	function debugWithHTML(array $params) {

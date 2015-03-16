@@ -48,7 +48,7 @@ class SQLWherePart {
 	}
 
 	function debug() {
-		return $this->sql;
+		return $this->__toString();
 	}
 
 }

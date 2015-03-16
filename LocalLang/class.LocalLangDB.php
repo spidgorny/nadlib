@@ -74,11 +74,12 @@ class LocalLangDB extends LocalLang {
 					'page' => Request::getInstance()->getURL(),
 				);
 				$cols = $this->db->getTableColumns($this->table);
+				$user = Config::getInstance()->getUser();
 				if (ifsetor($cols['cuser'])) {
-					$insert['cuser'] = Config::getInstance()->user->id;
+					$insert['cuser'] = $user->id;
 				}
 				if (ifsetor($cols['muser'])) {
-					$insert['muser'] = Config::getInstance()->user->id;
+					$insert['muser'] = $user->id;
 				}
 				$res = $this->db->runInsertNew($this->table, $where, $insert);
 				//debug($code, $this->db->lastQuery, $this->db->numRows($this->db->lastResult), $this->db->affectedRows());
@@ -98,7 +99,8 @@ class LocalLangDB extends LocalLang {
 	 * @throws Exception
 	 */
 	function updateMessage(array $data) {
-		if (Config::getInstance()->user->isAdmin()) {
+		$user = Config::getInstance()->getUser();
+		if ($user->isAdmin()) {
 			$llm = new LocalLangModel($data['lang'], $data['code']);
 			if ($llm->id) {
 				$llm->update(array(

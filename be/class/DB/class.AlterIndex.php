@@ -7,27 +7,56 @@ class AlterIndex extends AppControllerBE {
 	 */
 	var $jsonFile;
 
+	/**
+	 * @var dbLayerBase
+	 */
+	var $db;
+
 	function __construct() {
 		parent::__construct();
-		$c = Config::getInstance();
-		//$this->db->switchDB('glore');
-		$this->jsonFile = $c->appRoot.'/sql/'.$this->db->database.'.json';
+		$filename = $this->request->getFilename('file') ?: $this->db->database.'.json';
+		$this->jsonFile = $this->config->appRoot.'/sql/'.$filename;
 
 		if (false) {
-			require_once $c->appRoot.'/constants.php';
+			require_once $this->config->appRoot.'/constants.php';
 			$GLOBALS['dbLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
 			$this->db = $GLOBALS['dbLayer'];
-			$c->db = $GLOBALS['dbLayer'];
-			$c->qb->db = $GLOBALS['dbLayer'];
-			$this->jsonFile = $c->appRoot.'/sql/buglog_dev.json';
+			$this->config->db = $GLOBALS['dbLayer'];
+			$this->config->qb->db = $GLOBALS['dbLayer'];
+			$this->jsonFile = $this->config->appRoot.'/sql/buglog_dev.json';
 		}
 
 	}
 
 	function sidebar() {
-		$content = '';
-		$content .= 'DB: '.$this->db->database.BR;
-		$content .= $this->getActionButton('Save DB Struct', 'saveStruct');
+		$content = array();
+		if (class_exists('AdminPage')) {
+			$ap = new AdminPage();
+			$content[] = $ap->sidebar();
+		}
+
+		$content[] = 'Schema: '.$this->db->getScheme().BR;
+		$content[] = 'Wrapper: '.get_class($this->db).BR;
+		$content[] = 'DB: '.$this->db->database.BR;
+		$content[] = 'File: '.basename($this->jsonFile).BR;
+		if ($this->db->database) {
+			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', NULL, array(), 'btn btn-info');
+		}
+
+		$li = array();
+		$files = new ListFilesIn($this->config->appRoot.'/sql/');
+		foreach ($files as $file) {
+			/** @var $file SplFileInfo */
+			if ($file->getExtension() == 'json') {
+				$li[] = $this->a(new URL(get_class($this), array(
+						'file' => basename($file),
+					)), basename($file)) .
+					'<div style="float: right;">[' . date('Y-m-d H:i', $file->getCTime()) . ']</div>';
+			}
+		}
+		$ul = new UL($li);
+		$content[] = $ul;
+
 		return $content;
 	}
 
@@ -48,7 +77,6 @@ class AlterIndex extends AppControllerBE {
 		$tables = $this->db->getTables();
 		foreach ($tables as $t) {
 			$struct = $this->db->getTableColumnsEx($t);
-			//unset($struct['password']);	// debug
 			$indexes = $this->db->getIndexesFrom($t);
 			$result[$t] = array(
 				'columns' => $struct,
@@ -59,14 +87,16 @@ class AlterIndex extends AppControllerBE {
 	}
 
 	function render() {
-		$content = $this->performAction();
+		$content[] = $this->performAction();
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
 			$struct = json_decode($struct, true);
 
 			$local = $this->getDBStruct();
 
-			$content = $this->renderTableStruct($struct, $local);
+			$content[] = $this->renderTableStruct($struct, $local);
+		} else {
+			$content[] = '<div class="message">Choose file on the left</div>';
 		}
 		return $content;
 	}

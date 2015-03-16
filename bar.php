@@ -73,7 +73,7 @@ if (!function_exists('imagecreate')) {
 	echo 'PHP: '.phpversion().'<br />';
 	echo 'GD not installed';
 } else {
-	error_reporting(0);
+	error_reporting(E_ALL);
 	//ini_set('display_errors', false);
 	header("Content-Type: image/png");
 	$expires = 60*60*24*365;        // days

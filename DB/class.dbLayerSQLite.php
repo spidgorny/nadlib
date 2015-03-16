@@ -51,7 +51,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
 		$this->lastResult = $this->connection->query($query);
-		$this->dbTime += $profiler->elapsed();
+		$this->queryTime += $profiler->elapsed();
 		if (!$this->lastResult) {
 			debug($query, $this->connection->lastErrorMsg());
 		}
@@ -106,6 +106,9 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return $this->connection->lastInsertRowid();
 	}
 
+	/**
+	 * @param $res SQLite3Result
+	 */
 	function free($res) {
 		$res->finalize();
 	}

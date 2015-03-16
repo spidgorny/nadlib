@@ -55,7 +55,7 @@ class Pager {
 		$this->prefix = $prefix;
 		$this->db = Config::getInstance()->getDB();
 		$this->request = Request::getInstance();
-		$this->setUser(Config::getInstance()->user);
+		$this->setUser(Config::getInstance()->getUser());
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
 		Config::getInstance()->mergeConfig($this);
@@ -91,12 +91,12 @@ class Pager {
 	function initByQuery($query) {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($query, 0, 300).')';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		TaylorProfiler::start($key);
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		TaylorProfiler::stop($key);
 	}
 
 	/**
@@ -274,7 +274,7 @@ class Pager {
  		//debug($pages, $maxpage);
  		if ($this->currentPage > 0) {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage-1));
-			$link = $this->url->setParam('pageSize', $this->pageSize->selected);
+			$link = $link->setParam('pageSize', $this->pageSize->selected);
 			$content .= '<li><a href="'.$link.'" rel="prev">&lt;</a></li>';
  		} else {
 	 		$content .= '<li class="disabled"><span class="disabled">&larr;</span></li>';
@@ -315,11 +315,11 @@ class Pager {
 		if ($k == $this->currentPage) {
 			$content = '<li class="active"><a href="'.$link.'"
 				class="active"
-				title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+				title="'.htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES).'"
 				>'.$text.'</a></li>';
 		} else {
 			$content = '<li><a href="'.$link.'"
-			title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+			title="'.htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES).'"
 			>'.$text.'</a></li>';
 		}
 		return $content;
@@ -399,7 +399,7 @@ class Pager {
 	}
 
     /**
-     * @param \LoginUser $user
+     * @param User|LoginUser $user
      */
     public function setUser($user)
     {

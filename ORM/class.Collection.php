@@ -62,7 +62,7 @@ class Collection {
 	 * array of objects converted from $this->data // convert to public
 	 * @var array
 	 */
-	public $members = array();
+	protected $members = array();
 
 	/**
 	 * objectify() without parameters will try this class name
@@ -149,7 +149,7 @@ class Collection {
 		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
-		$this->select = $this->select ? $this->select : 'DISTINCT '.$this->table.'.*';
+		$this->select = $this->select ?: 'DISTINCT '.$this->db->getFirstWord($this->table).'.*';
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
@@ -213,6 +213,7 @@ class Collection {
 		$data = $this->db->fetchAll($res);
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
 		if ($preprocess) {
+			$this->db->free($res);
 			$this->preprocessData();
 		}
 		TaylorProfiler::stop(__METHOD__." ({$this->table})");
@@ -225,15 +226,19 @@ class Collection {
 	 * @requires PHP 5.3
 	 */
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		TaylorProfiler::start(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$query = $this->getQuery();
 		$sql = new SQLQuery($query);
+		//debug($sql->parsed['SELECT']);
 		array_unshift($sql->parsed['SELECT'], array(
 			'expr_type' => 'reserved',
 			'base_expr' => 'SQL_CALC_FOUND_ROWS',
 			'delim' => ' ',
 		));
-		$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+		//debug($sql->parsed);
+		if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
+			$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+		}
 		//debug($sql->parsed);
 		$this->query = $sql->__toString();
 		$res = $this->db->perform($this->query);
@@ -260,9 +265,10 @@ class Collection {
 
 		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
 		if ($preprocess) {
+			$this->db->free($res);
 			$this->preprocessData();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		TaylorProfiler::stop(__METHOD__." (".$this->table.':'.$this->parentID.")");
 	}
 
 	/**
@@ -327,6 +333,8 @@ class Collection {
 		if ($this->parentID > 0) {
 			if ($this->parentID instanceof Date) {
 				$where[$this->parentField] = $this->parentID->getMySQL();
+			} elseif ($this->parentID instanceof OODBase) {
+				$where[$this->parentField] = $this->parentID->id;
 			} else {
 				$where[$this->parentField] = is_array($this->parentID)
 					? new SQLIn($this->parentID)
@@ -347,7 +355,7 @@ class Collection {
 				TRUE);
 		}
 		//debug($query);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $query;
 	}
 
@@ -591,7 +599,7 @@ class Collection {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
-		/** @var dbLayer|dbLayerBL $db */
+		/** @var dbLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$firstWord = $db->getFirstWord($c->table);
 		$c->select = ' '.$firstWord.'.*';
@@ -881,6 +889,7 @@ class Collection {
 	public function getCount() {
 		if (is_null($this->count)) {
 			$query = $this->getQueryWithLimit($this->where);
+			//debug($query);
 			if ($this->pager) {
 				$this->count = $this->pager->numberOfRecords;
 			} else {
@@ -897,6 +906,7 @@ class Collection {
 	}
 
 	function getJson() {
+		$members = array();
 		foreach ($this->objectify() as $id => $member) {
 			$members[$id] = $member->getJson();
 		}

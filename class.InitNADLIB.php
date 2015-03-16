@@ -52,6 +52,7 @@ class InitNADLIB {
 		// don't use nadlib autoloading is using composer
 		if ($this->al) {
 			$this->al->useCookies = $this->useCookies;
+			$this->al->initFolders();
 			$this->al->register();
 		}
 

@@ -53,10 +53,8 @@ class View {
 			}
 			*/
 		}
-		$this->ll = (class_exists('Config') && isset(Config::getInstance()->ll))
-			? Config::getInstance()->ll : NULL;
-		$this->ll = (class_exists('Index') && isset(Index::getInstance()->ll))
-			? Index::getInstance()->ll : $this->ll;
+		$this->ll = (class_exists('Config') && Config::getInstance()->getLL())
+			? Config::getInstance()->getLL() : NULL;
 		$this->request = Request::getInstance();
 		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
 		TaylorProfiler::stop(__METHOD__.' ('.$file.')');
@@ -82,6 +80,8 @@ class View {
 		} else {
 			ob_end_clean();
 		}
+
+		$content = $this->s($content);
 
 		preg_match_all('/__([^_]+)__/', $content, $matches);
 		foreach ($matches[1] as $ll) {
@@ -326,6 +326,7 @@ class View {
 		$content = '';
 		$links = $this->getLinks($comment);
 		foreach ($links as $link => $_) {
+			/** @noinspection PhpUndefinedNamespaceInspection */
 			$Essence = @Essence\Essence::instance( );
 			$Media = $Essence->embed($link);
 

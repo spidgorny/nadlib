@@ -5,17 +5,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * @var MySQL
 	 */
-	public $db;
+	protected $db;
 
 	/**
+	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
-	public $ll;
+	protected $ll;
 
 	/**
 	 * @var User|LoginUser
 	 */
-	public $user;
+	protected $user;
 
 	/**
 	 * For any error messages during initialization.
@@ -46,6 +47,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $description = '';
 
+	public $keywords = '';
+
 	/**
 	 * @var Config
 	 */
@@ -60,7 +63,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->config = Config::getInstance();
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
-			$this->ll = ifsetor($this->config->ll);
+			$this->ll = $this->config->getLL();
 		}
 
 		$this->request = Request::getInstance();
@@ -205,7 +208,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$render = $this->controller->render();
 		$render = $this->mergeStringArrayRecursive($render);
 		$this->sidebar = $this->showSidebar();
-		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
+		if ($this->controller->layout instanceof Wrap
+			&& !$this->request->isAjax()) {
+			/** @var $this->controller->layout Wrap */
 			$render = $this->controller->layout->wrap($render);
 		}
 		TaylorProfiler::stop(__METHOD__);
@@ -358,7 +363,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
 				$this->addJS($al->nadlibFromDocRoot . $jQueryPath);
 				return $this;
+			} else {
+				$jQueryPath = 'components/jquery/jquery.min.js';
 			}
+		} else {
+			$jQueryPath = 'components/jquery/jquery.min.js';
 		}
 		$this->footer['jquery.js'] = '
 			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>

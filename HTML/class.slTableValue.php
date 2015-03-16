@@ -229,6 +229,9 @@ class slTableValue {
 					if (isset($k['hsc']) && $k['hsc']) {
 						$val = htmlspecialchars($val);
 					}
+					if (ifsetor($k['explode'])) {
+						$val = trimExplode($k['explode'], $val);
+					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
 						$val = nl2br($val);
 						$k['no_hsc'] = true; 	// for below

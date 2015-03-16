@@ -58,7 +58,7 @@ class Timeline2 /*extends AppController */{
 	}
 
 	function render() {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if ($this->duration->getTimestamp()) {
 			$content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="'.$this->width.'" height="'.$this->height.'">'."\n";
 			// fill 100%
@@ -86,7 +86,7 @@ class Timeline2 /*extends AppController */{
 			$content .= implode("\n", $this->rangeContent);
 			$content .= '</svg>';
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
 

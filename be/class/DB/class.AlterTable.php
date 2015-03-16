@@ -15,45 +15,69 @@ class AlterTable extends AlterIndex {
 			if ($class == 'sqlite') $class = 'dbLayerSQLite';
 		}
 		$func = 'renderTableStruct'.$class;
-		return call_user_func(array($this, $func), $struct, $local);
+		$content[] = '<h5>'.$func.'</h5>';
+		$content[] = call_user_func(array($this, $func), $struct, $local);
+		return $content;
 	}
 
 	function renderTableStructMySQL(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
 			$content .= '<h4>Table: '.$table.'</h4>';
+			//$content .= '<pre>'.json_encode($desc['columns'], JSON_PRETTY_PRINT).'</pre>';
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
-				$localIndex = $local[$table]['columns'][$i];
-				unset($index['Cardinality'], $localIndex['Cardinality']);
-				if ($index != $localIndex) {
-					//$content .= getDebug($index, $localIndex);
-					if (is_array($index)) {
-						$indexCompare[] = array('same' => 'sql file',
-							'###TR_MORE###' => 'style="background: pink"',
-							) + $index;
-					}
-					if (is_array($localIndex)) {
-						$indexCompare[] = array('same' => 'database',
-							'###TR_MORE###' => 'style="background: pink"',
-						) + $localIndex;
+				if (isset($local[$table])) {
+					$localIndex = $local[$table]['columns'][$i];
+					if ($localIndex) {
+						unset($index['Cardinality'], $localIndex['Cardinality']);
+						if (!$this->sameType($index, $localIndex)) {
+							//$content .= getDebug($index, $localIndex);
+							$line = array(
+									'same'          => 'diff',
+									'###TR_MORE###' => 'style="background: pink"',
+								) + $index;
+							$line['Type'] .= ' (local: ' . $localIndex['Type'] . ')';
+							$indexCompare[] = $line;
+							$indexCompare[] = array(
+								'Field' => new HTMLTag('td', array(
+									'colspan' => 10,
+									'class'   => 'sql',
+								), $this->getAlterQuery($table, $localIndex['Field'], $index)
+								),
+							);
+						} else {
+							//$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
+							$index['same'] = 'same';
+							$index['###TR_MORE###'] = 'style="background: yellow"';
+							$indexCompare[] = $index;
+						}
 					} else {
+						$indexCompare[] = 							$line = array(
+							'same'          => 'new',
+							'###TR_MORE###' => 'style="background: red"',
+						) +	$index;
 						$indexCompare[] = array(
 							'Field' => new HTMLTag('td', array(
-									'colspan' => 10,
-								), $this->getAlterQuery($table, $index)
+								'colspan' => 10,
+								'class'   => 'sql',
+							), $this->getAddQuery($table, $index)
 							),
 						);
 					}
 				} else {
-					//$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
-					$index['same'] = 'same';
-					$index['###TR_MORE###'] = 'style="background: yellow"';
-					$indexCompare[] = $index;
+					$indexCompare[] = array(
+						'Field' => new HTMLTag('td', array(
+							'colspan' => 10,
+							'class' => 'sql',
+						), $this->getCreateQuery($table, $index)
+						),
+					);
+					break;
 				}
 			}
-			$s = new slTable($indexCompare, 'class="table"', array (
+			$s = new slTable($indexCompare, 'class="table" width="100%"', array (
 				'same' =>				array (
 					'name' => 'same',
 				),
@@ -63,7 +87,7 @@ class AlterTable extends AlterIndex {
 				'Type' =>				array (
 					'name' => 'Type',
 				),
-				'Collation' =>				array (
+				'Collation' =>			array (
 					'name' => 'Collation',
 				),
 				'Null' =>				array (
@@ -90,7 +114,24 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function getAlterQuery($table, array $index) {
+	function getAlterQuery($table, $oldName, array $index) {
+		$query = 'ALTER TABLE '.$table.' MODIFY COLUMN '.$oldName.' '.$index['Field'].
+		' '.$index['Type'].
+		' '.(($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL').
+		' '.($index['Collation'] ? 'COLLATE '.$index['Collation'] : '').
+		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
+		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
+		' '.$index['Extra'];
+		$link = $this->a($this->makeURL(array(
+			'c' => get_class($this),
+			'file' => basename($this->jsonFile),
+			'action' => 'runSQL',
+			'sql' => $query,
+		)), $query);
+		return $link;
+	}
+
+	function getAddQuery($table, array $index) {
 		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
 		' '.$index['Type'].
 		' '.(($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL').
@@ -98,7 +139,39 @@ class AlterTable extends AlterIndex {
 		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
 		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
 		' '.$index['Extra'];
-		return $query;
+		$link = $this->a($this->makeURL(array(
+			'c' => get_class($this),
+			'file' => basename($this->jsonFile),
+			'action' => 'runSQL',
+			'sql' => $query,
+		)), $query);
+		return $link;
+	}
+
+	function getCreateQuery($table, array $index) {
+		return 'CREATE TABLE '.$table.' (id int auto_increment);';
+	}
+
+	function sameType($index1, $index2) {
+		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int');
+		$text = array('text', 'varchar(255)', 'tinytext');
+		$time = array('numeric', 'timestamp');
+		$real = array('real', 'double', 'float');
+		$t1 = $index1['Type'];
+		$t2 = $index2['Type'];
+		if ($t1 == $t2) {
+			return true;
+		} elseif (in_array($t1, $int) && in_array($t2, $int)) {
+			return true;
+		} elseif (in_array($t1, $text) && in_array($t2, $text)) {
+			return true;
+		} elseif (in_array($t1, $time) && in_array($t2, $time)) {
+			return true;
+		} elseif (in_array($t1, $real) && in_array($t2, $real)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	function renderTableStructdbLayerBL(array $struct, array $local) {
@@ -205,6 +278,16 @@ class AlterTable extends AlterIndex {
 			$content .= $s;
 		}
 		return $content;
+	}
+
+	function runSQLAction() {
+		$sql = $this->request->getTrim('sql');
+		if (contains($sql, 'DROP') || contains($sql, 'TRUNCATE') || contains($sql, 'DELETE')) {
+			throw new AccessDeniedException('Destructing query detected');
+		} else {
+			$this->db->perform($sql);
+			$this->request->redirect(get_class().'?file='.$this->request->getTrimRequired('file'));
+		}
 	}
 
 }
