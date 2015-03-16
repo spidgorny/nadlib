@@ -43,6 +43,10 @@ abstract class Controller {
 	 */
 	public $title;
 
+	/**
+	 * Even if mod_rewrite is installed, we may not want to use it
+	 * @var bool
+	 */
 	protected $useRouter = false;
 
 	/**
@@ -118,7 +122,8 @@ abstract class Controller {
 	 */
 	protected function makeURL(array $params, $prefix = NULL) {
 		$class = NULL;
-		if ($this->request->apacheModuleRewrite()) {
+		if ($this->useRouter
+			&& $this->request->apacheModuleRewrite()) {
 			$class = ifsetor($params['c']);
 			unset($params['c']);    // RealURL
 			if ($class && !$prefix) {
@@ -128,12 +133,12 @@ abstract class Controller {
 		$url = new URL($prefix
 			? $prefix
 			: $this->request->getLocation(), $params);
-		$path = $url->getPath();
-		if ($class && $this->request->apacheModuleRewrite()) {
+		if ($this->useRouter && $class && $this->request->apacheModuleRewrite()) {
+			$path = $url->getPath();
 			$path->setFile($class);
+			$path->setAsFile();
+			$url->setPath($path);
 		}
-		$path->setAsFile();
-		$url->setPath($path);
 		return $url;
 	}
 
