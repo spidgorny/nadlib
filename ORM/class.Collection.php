@@ -442,8 +442,8 @@ class Collection {
 		$this->log('data: '.!!$this->data);
 		$this->log('data->count: '.count($this->data));
 		if (!$this->query
-			|| !$this->data
-			//|| !$this->data->count()  // not necessary, we have retrieved nothing
+			|| is_null($this->data)
+			//|| !$this->data->count())) {
 		) {
 			$this->retrieveDataFromDB();
 		}
