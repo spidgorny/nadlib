@@ -264,8 +264,9 @@ class SQLBuilder {
 	}
 
 	function getFirstWord($table) {
-		$table1 = explode(' ', $table);
-		$table0 = $table1[0];
+		$table1 = trimExplode(' ', $table);
+		$table1 = trimExplode("\t", $table1[0]);
+		$table0 = first($table1);
 		//debug($table, $table1, $table0);
 		return $table0;
 	}
@@ -398,10 +399,10 @@ class SQLBuilder {
 	}
 
 	function runInsertQuery($table, array $columns) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.'('.$table.')');
+		TaylorProfiler::start(__METHOD__.'('.$table.')');
 		$query = $this->getInsertQuery($table, $columns);
 		$ret = $this->db->perform($query);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.'('.$table.')');
+		TaylorProfiler::stop(__METHOD__.'('.$table.')');
 		return $ret;
 	}
 
@@ -472,6 +473,7 @@ class SQLBuilder {
 	function combineSplitTags($words) {
 		$new = array();
 		$i = 0;
+		$in = false;
 		foreach ($words as $word) {
 			$word = new String($word);
 			if ($word->contains('[')) {
@@ -525,7 +527,7 @@ class SQLBuilder {
 	 * @return array
 	 */
 	function fetchAll($res, $key = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -545,7 +547,7 @@ class SQLBuilder {
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
 		$this->free($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $data;
 	}
 

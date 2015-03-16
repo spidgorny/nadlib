@@ -94,7 +94,9 @@ class AutoLoad {
 			if (class_exists('Config')) {
 				self::$instance->config = Config::getInstance();
 			}
-			self::$instance->initFolders();
+
+			// should not be called before $this->useCookies is set
+			//self::$instance->initFolders();
 		}
 		return self::$instance;
 	}
@@ -274,7 +276,14 @@ class AutoLoad {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
 				session_set_cookie_params(0, '');	// current folder
-				if ((phpversion() < 5.4 || (phpversion() >= 5.4 && session_status() != PHP_SESSION_ACTIVE)) && !headers_sent()) {
+				if ((phpversion() < 5.4 || (
+							phpversion() >= 5.4
+							&& session_status() != PHP_SESSION_ACTIVE
+						)
+					) && !headers_sent() && $this->useCookies) {
+					//echo '$this->useCookies', $this->useCookies, BR;
+					//echo 'session_start ', __METHOD__, BR;
+					//debug_pre_print_backtrace();
 					session_start();
 				}
 

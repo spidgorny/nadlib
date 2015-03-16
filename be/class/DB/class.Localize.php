@@ -38,6 +38,12 @@ class Localize extends AppControllerBE {
 	 */
 	var $url;
 
+	/**
+	 * Cached
+	 * @var array
+	 */
+	var $allKeys = array();
+
 	function __construct() {
 		parent::__construct();
 
@@ -68,7 +74,7 @@ class Localize extends AppControllerBE {
 		if (!$this->noRender) {
 			$content[] = $this->renderList();
 		}
-		$content = $this->encloseIn(__('Localize'), $content);
+		$content = $this->encloseIn(__('Localize').' ('.sizeof($this->allKeys).')', $content);
 		//$this->index->addJQuery();
 		$this->index->addJS('vendor/tuupola/jquery_jeditable/jquery.jeditable.js');
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot."js/Localize.js");
@@ -109,20 +115,24 @@ class Localize extends AppControllerBE {
 	}
 
 	function getAllKeys() {
-		$all = $this->from->getMessages();
-		$all += $this->de->getMessages();
-		$all += $this->ru->getMessages();
-		if (($search = strtolower($this->request->getTrim('search')))) {
-			foreach ($all as $key => $trans) {
-				if (strpos(strtolower($trans), $search) === FALSE &&
-					strpos(strtolower($key)  , $search) === FALSE) {
-					unset($all[$key]);
+		if (!$this->allKeys) {
+			$all = $this->from->getMessages();
+			$all += $this->de->getMessages();
+			$all += $this->ru->getMessages();
+			if (($search = strtolower($this->request->getTrim('search')))) {
+				foreach ($all as $key => $trans) {
+					if (strpos(strtolower($trans), $search) === FALSE &&
+						strpos(strtolower($key), $search) === FALSE
+					) {
+						unset($all[$key]);
+					}
 				}
 			}
+			$keys = array_keys($all);
+			sort($keys);
+			$this->allKeys = $keys;
 		}
-		$keys = array_keys($all);
-		sort($keys);
-		return $keys;
+		return $this->allKeys;
 	}
 
 	function getTranslationTable(array $keys) {
@@ -257,6 +267,8 @@ class Localize extends AppControllerBE {
 
 		$content[] = '<hr />';
 		$content[] = $this->getActionButton('Download JSON', 'downloadJSON', NULL, array(), 'btn btn-info');
+		$content[] = $this->getActionButton('Save JSON', 'saveJSON', NULL, array(), 'btn btn-info');
+
 		$u = new Uploader(array('json'));
 		$f = $u->getUploadForm('file');
 		$f->hidden('action', 'importJSON');
@@ -315,7 +327,7 @@ class Localize extends AppControllerBE {
 	}
 
 	function deleteRowAction() {
-		$code = $this->request->getTrimRequired('code');
+		$code = $this->request->getString('code');
 		$columns = $this->db->getTableColumns($this->table);
 		if (ifsetor($columns['deleted'])) {
 			$this->db->runUpdateQuery($this->table, array(
@@ -343,6 +355,7 @@ class Localize extends AppControllerBE {
 		foreach ($transTab as &$row) {
 			unset($row['page']);
 			unset($row['del']);
+			$row['key'] = strip_tags($row['key']);
 			$row['en'] = strip_tags($row['en']);
 			$row['de'] = strip_tags($row['de']);
 			$row['ru'] = strip_tags($row['ru']);
@@ -350,6 +363,20 @@ class Localize extends AppControllerBE {
 		$this->request->forceDownload('application/json', $this->index->appName.'-Localization.json');
 		echo json_encode($transTab, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 		exit();
+	}
+
+	function saveJSONAction() {
+		$keys = $this->getAllKeys();
+		$transTab = $this->getTranslationTable($keys);
+		foreach ($transTab as &$row) {
+			unset($row['page']);
+			unset($row['del']);
+			$row['key'] = strip_tags($row['key']);
+			$row['en'] = strip_tags($row['en']);
+			$row['de'] = strip_tags($row['de']);
+			$row['ru'] = strip_tags($row['ru']);
+		}
+		file_put_contents('sql/localize.json', json_encode($transTab, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 	}
 
 	function importJSONAction() {
@@ -413,7 +440,7 @@ class Localize extends AppControllerBE {
 			$content[] = '<h2>'.$lang.'</h2>';
 			/** @var LocalLangDB $langObj */
 			$langObj = $this->$lang;
-			$trans = $langObj->ll[$key];	// not T() because we don't need to replace %1
+			$trans = ifsetor($langObj->ll[$key]);	// not T() because we don't need to replace %1
 			$lines = sizeof(explode("\n", $trans));
 			$id = $langObj->id($key);
 			if (!$id) {

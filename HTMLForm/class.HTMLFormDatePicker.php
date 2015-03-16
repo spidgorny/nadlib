@@ -67,4 +67,9 @@ class HTMLFormDatePicker extends HTMLFormType {
 		return $val;
 	}
 
+	function setValue($value) {
+		//debug($value);
+		parent::setValue($value);
+	}
+
 }

@@ -35,7 +35,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		if ($user) {
 			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
 		}
-		$this->setQB();
+
+		//$this->setQB(); // must be injected outside (inf loop)
+//		debug_pre_print_backtrace();
 	}
 
 	static function getAvailableDrivers() {
@@ -46,7 +48,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @param $user
 	 * @param $password
 	 * @param $scheme
-	 * @param $driver        IBM DB2 ODBC DRIVER
+	 * @param $driver        string IBM DB2 ODBC DRIVER
 	 * @param $host
 	 * @param $db
 	 * @param int $port
@@ -73,10 +75,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
 		$this->queryTime += $profiler->elapsed();
-		if ($this->getScheme() == 'mysql') {
+		if ($this->isMySQL()) {
 			$my = new MySQL();
 			$this->reserved = $my->getReserved();
 		}
+	}
+
+	function isConnected() {
+		return !!$this->connection;
 	}
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
@@ -84,6 +90,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->connection = new PDO($this->dsn, $user, $password);
 		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
+
+		//$url = parse_url($this->dsn);
+		//$this->database = basename($url['path']);
 	}
 
 	function perform($query, array $params = array()) {
@@ -177,6 +186,18 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $scheme;
 	}
 
+	function isMySQL() {
+		return $this->getScheme() == 'mysql';
+	}
+
+	function isPostgres() {
+		return $this->getScheme() == 'psql';
+	}
+
+	function isSQLite() {
+		return $this->getScheme() == 'sqlite';
+	}
+
 	function getTables() {
 		$tables = $this->getTablesEx();
 		$names = array_keys($tables);
@@ -187,8 +208,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * Keys must be table names
 	 * @return array|null
 	 * @throws DatabaseException
+	 * @throws Exception
 	 */
 	function getTablesEx() {
+		$tables = array();
 		$scheme = $this->getScheme();
 		if ($scheme == 'mysql') {
 			$res = $this->perform('show tables');
@@ -204,13 +227,15 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$tables = $res->fetchAll();
 		} elseif ($scheme == 'sqlite') {
 			try {
-				$db2 = new dbLayerSQLite('');
+				$file = $this->dsn;
+				$file = str_replace('sqlite:', '', $file);
+				$db2 = new dbLayerSQLite($file);
+				$db2->connect();
+				$db2->setQB(new SQLBuilder($db2)); // different DB inside
+				$tables = $db2->getTablesEx();
 			} catch (Exception $e) {
-				// OK
+				throw $e;
 			}
-			$tables = $db2->getTablesEx();
-		} else {
-			$tables = array();
 		}
 		return $tables;
 	}
@@ -239,6 +264,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @return mixed
 	 */
 	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		return $row;
 	}

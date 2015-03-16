@@ -33,4 +33,10 @@ interface DBInterface {
 
 	public function getScheme();
 
+	function getTablesEx();
+
+	function getTableColumnsEx($table);
+
+	function getIndexesFrom($table);
+
 }

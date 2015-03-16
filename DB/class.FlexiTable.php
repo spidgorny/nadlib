@@ -41,7 +41,8 @@ class FlexiTable extends OODBase {
 			$row['ctime'] = new SQLDateTime();
 		}
 		if (!ifsetor($row['cuser'])) {
-			$row['cuser'] = Config::getInstance()->user->id;
+			$user = Config::getInstance()->getUser();
+			$row['cuser'] = $user->id;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
@@ -55,8 +56,9 @@ class FlexiTable extends OODBase {
 			$mtime = new Time();
 			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		}
-		if (!ifsetor($row['muser']) && Config::getInstance()->user->id) {
-			$row['muser'] = Config::getInstance()->user->id;
+		$user = Config::getInstance()->getUser();
+		if (!ifsetor($row['muser']) && $user->id) {
+			$row['muser'] = $user->id;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);

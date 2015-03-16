@@ -33,7 +33,7 @@ abstract class Controller {
 	public $noRender = false;
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO|dbLayerSQLite
+	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO|dbLayerSQLite|dbLayerBase
 	 */
 	protected $db;
 
@@ -95,8 +95,8 @@ abstract class Controller {
 		$this->config = Config::getInstance();
 		$this->al = AutoLoad::getInstance();
 		if (class_exists('Config')) {
-			$this->db = $this->config->db;
-			$this->user = $this->config->user;
+			$this->db = $this->config->getDB();
+			$this->user = $this->config->getUser();
 			//debug($this->user);
 			$this->config->mergeConfig($this);
 		} else {
@@ -117,16 +117,19 @@ abstract class Controller {
 	 * @use getURL()
 	 */
 	protected function makeURL(array $params, $prefix = NULL) {
-		$class = ifsetor($params['c']);
-		unset($params['c']);    // RealURL
-		if ($class && !$prefix) {
-			$prefix = $class;
+		$class = NULL;
+		if ($this->request->apacheModuleRewrite()) {
+			$class = ifsetor($params['c']);
+			unset($params['c']);    // RealURL
+			if ($class && !$prefix) {
+				$prefix = $class;
+			}
 		}
 		$url = new URL($prefix
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		if ($class) {
+		if ($class && $this->request->apacheModuleRewrite()) {
 			$path->setFile($class);
 		}
 		$path->setAsFile();
@@ -355,7 +358,7 @@ abstract class Controller {
 	}
 
 	function encloseInTableHTML3(array $cells) {
-		$content[] = '<table>';
+		$content[] = '<table class="encloseInTable">';
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';

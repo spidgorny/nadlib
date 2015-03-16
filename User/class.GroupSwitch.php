@@ -15,6 +15,7 @@ class GroupSwitch extends AppController {
         'dedomedu', // requested by deloprub on Feb. 11th 2014
         'destadea', // requested by deloprub on 2014-04-17
         'deguipie', // requested by deloprub on 2014-04-17
+		'demuehor', // requested by deloprup on 2015-03-05
 	);
 
 	protected $groups = array(

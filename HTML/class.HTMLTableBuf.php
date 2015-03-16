@@ -112,7 +112,7 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function isDone() {
-		return !!$this['/table'];
+		return isset($this['/table']);
 	}
 
 }

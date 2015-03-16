@@ -17,7 +17,7 @@ class ForgotPassword extends AppController {
 				$user->update(array('password' => md5($newPassword)));
 				$mail = new View('mailForgotPassword.txt', $this);
 				$mail->newPassword = $newPassword;
-				mail($user->data['email'], 'New generated password for BBMM.', $mail, $GLOBALS['i']->emailFrom);
+				mail($user->data['email'], 'New generated password for BBMM.', $mail, $this->config->mailFrom);
 				$content .= '<div class="message">Check your mail. Your new password is sent to '.$user->data['email'].'.</div>
 				<a href="">Login here</a>';
 			} else {
