@@ -101,7 +101,8 @@ class TimeChart {
 			//$s = new slTable($data);
 			//$content .= $s;
 		} else {
-			debug($this->query);
+			//debug($this->query);
+			$content = '';
 		}
 		return $content;
 	}
