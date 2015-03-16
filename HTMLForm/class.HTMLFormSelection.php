@@ -89,6 +89,7 @@ class HTMLFormSelection extends HTMLFormType {
 				}
 			}
 			if ($option instanceof HTMLTag) {
+				$option->attr('selected', $selected);
 				$content .= $option;
 			} else if ($option instanceof Recursive) {
 				$content .= '<optgroup label="'.$option.'">';
