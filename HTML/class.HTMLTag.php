@@ -46,8 +46,18 @@ class HTMLTag {
 		return implode(' ', $set);
 	}
 
-	function attr($name) {
-		return $this->attr[$name];
+	/**
+	 * jQuery style
+	 * @param $name
+	 * @param null $value
+	 * @return mixed
+	 */
+	function attr($name, $value = NULL) {
+		if ($value) {
+			$this->attr[$name] = $value;
+		} else {
+			return $this->attr[$name];
+		}
 	}
 
 	/**

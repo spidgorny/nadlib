@@ -330,7 +330,11 @@ class HTMLForm {
 
 	function image($value = NULL, $more = "", $desc = array()) {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=image ".$this->getName('submit')." src=".$desc['src']." class='submitbutton' " . ($value?"value=\"$value\"":"") . " $more>\n";
+		$this->stdout .= "<input type=image
+		".$this->getName('submit')."
+		src=".$desc['src']."
+		class='submitbutton' " .
+			($value?"value=\"$value\"":"") . " $more>\n";
 	}
 
 	function reset($value = NULL, $more = "") {
