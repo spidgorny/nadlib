@@ -22,7 +22,7 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Additional parameters for <table>
-	 * @var
+	 * @var array
 	 */
 	var $tableMore;
 
