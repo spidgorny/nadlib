@@ -42,8 +42,8 @@ class Request {
 		return $request;
 	}
 
-	static function getInstance() {
-		return self::$instance = self::$instance ? self::$instance : new self();
+	static function getInstance($cons = NULL) {
+		return self::$instance = self::$instance ? self::$instance : new self($cons);
 	}
 
 	static function getExistingInstance() {
