@@ -727,4 +727,19 @@ class HTMLForm {
 		$this->text('</nobr>');
 	}
 
+	function flipSwitch($name, $value, $checked, $more = '') {
+		$id = uniqid('flipSwitch_');
+		$this->stdout .= '<div class="onoffswitch">
+    <input type="checkbox" name="'.$name.'"
+     value="'.$value.'"
+     class="onoffswitch-checkbox"
+     id="'.$id.'" '.($checked ? 'checked' : '').'
+     '.$more.'>
+    <label class="onoffswitch-label" for="'.$id.'">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>';
+	}
+
 }

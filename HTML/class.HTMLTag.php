@@ -20,7 +20,9 @@ class HTMLTag {
 
 	function __toString() {
 		$xmlClose = $this->closingTag ? '' : '/';
-		$content = ($this->isHTML || $this->content instanceof HTMLTag)
+		$content = ($this->isHTML
+			|| $this->content instanceof HTMLTag
+			|| $this->content instanceof htmlString)
 			? $this->content
 			: htmlspecialchars($this->content, ENT_QUOTES);
 		$tag = '<'.trim($this->tag.' '.$this->renderAttr($this->attr)).$xmlClose.'>';

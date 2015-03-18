@@ -345,7 +345,7 @@ class View {
 	}
 
 	function s($a) {
-		return Index::mergeStringArrayRecursive($a);
+		return IndexBase::mergeStringArrayRecursive($a);
 	}
 
 	static function markdown($text) {
