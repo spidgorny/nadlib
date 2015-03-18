@@ -319,14 +319,14 @@ class slTable {
 			$thvName = isset($thv['name'])
 				? $thv['name']
 				: (isset($thv['label']) ? $thv['label'] : NULL);
-			$thmore[$thk] = isset($thv['thmore'])
+			$thMore[$thk] = isset($thv['thmore'])
 				? $thv['thmore']
 				: (isset($thv['more']) ? $thv['more'] : NULL);
-			if (!is_array($thmore)) {
-				$thmore = array('' => $thmore);
+			if (!is_array($thMore)) {
+				$thMore = array('' => $thMore);
 			}
 			if (isset($thv['align']) && $thv['align']) {
-				$thmore[$thk]['align'] = $thv['align'];
+				$thMore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
 				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
