@@ -81,7 +81,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (!$this->CONNECTION) {
 			throw new Exception("No postgre connection.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
-			return false;
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		}
@@ -142,7 +141,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (is_array($meta)) {
 			return array_keys($meta);
 		} else {
-			error("Table not found: <b>$table</b>");
+			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
 	}
@@ -166,7 +165,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			if (is_array($meta)) {
 				$cache[$table] = array_keys($meta);
 			} else {
-				error("Table not found: <b>$table</b>");
+				error("Table not found: <strong>$table</strong>");
 				exit();
 			}
 		}
@@ -194,7 +193,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			}
 			return $return;
 		} else {
-			error("Table not found: <b>$table</b>");
+			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
 	}
@@ -455,7 +454,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$this->found = $this->fetchAssoc($res);
 		if ($this->found) {
 			$query = $this->getUpdateQuery($table, $fields, $where);
-			$res = $this->perform($query);
+			$this->perform($query);
 			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $createPlus);
@@ -484,7 +483,7 @@ where
     and pg_catalog.pg_table_is_visible(c.oid)
 order by a.attnum';
 		$rows = $this->fetchAll($query);
-		$rows = slArray::column_assoc($rows, 'comment', 'colname');
+		$rows = ArrayPlus::create($rows)->column_assoc('comment', 'colname');
 		return $rows[$column];
 	}
 
@@ -543,6 +542,7 @@ order by a.attnum';
 		}
 		reset($debug);
 		$content = array();
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		foreach (range(1, 2) as $_) {
 			$func = current($debug);
 			$func['line'] = $prev['line'];	// line is from the parent function?
