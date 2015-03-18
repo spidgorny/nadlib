@@ -19,6 +19,11 @@ class dbLayerBase implements DBInterface {
 	var $reserved = array();
 
 	/**
+	 * @var resource
+	 */
+	var $connection;
+
+	/**
 	 * @var string
 	 */
 	var $lastQuery;
@@ -162,6 +167,10 @@ class dbLayerBase implements DBInterface {
 
 	function getIndexesFrom($table) {
 		return array();
+	}
+
+	function isConnected() {
+		return !!$this->connection;
 	}
 
 }

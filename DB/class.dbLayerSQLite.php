@@ -37,6 +37,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	function __construct($file) {
 		$this->file = $file;
 		$this->database = basename($this->file);
+		$this->connect();
 	}
 
 	function connect() {
@@ -48,6 +49,9 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query) {
+		if (!$this->connection) {
+			debug_pre_print_backtrace();
+		}
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
 		$this->lastResult = $this->connection->query($query);
@@ -132,6 +136,10 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return $tableInfo;
 	}
 
+	/**
+	 * @param SQLite3Result $res
+	 * @return mixed
+	 */
 	function fetchAssoc($res) {
 		return $res->fetchArray(SQLITE3_ASSOC);
 	}

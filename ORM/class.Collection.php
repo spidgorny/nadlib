@@ -10,7 +10,7 @@ class Collection {
 
 	/**
 	 * In case of MSSQL it needs to be set from outside
-	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO
+	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO|dbLayerSQLite
 	 */
 	public $db;
 
@@ -201,7 +201,7 @@ class Collection {
 				? implode(', ', $this->parentID)
 				: $this->parentID).")";
 		TaylorProfiler::start(__METHOD__." ({$this->table})");
-		$this->query = $this->getQueryWithLimit($this->where);
+		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
