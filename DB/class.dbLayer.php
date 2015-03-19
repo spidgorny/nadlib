@@ -379,6 +379,15 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $row;
 	}
 
+	/**
+	 * Called after dataSeek()
+	 * @param $res
+	 * @return array
+	 */
+	function fetchAssocSeek($res) {
+		return $this->fetchAssoc($res);
+	}
+
 	function getAllRows($query) {
 		$result = $this->perform($query);
 		$data = $this->fetchAll($result);

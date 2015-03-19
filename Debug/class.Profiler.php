@@ -45,7 +45,7 @@ class Profiler {
 
 	function Done($isReturn = FALSE) {
 		$out = number_format($this->elapsed(), 3);
-		$content = "Done in $out seconds.";
+		$content = "Done in $out seconds." . BR;
 		if ($isReturn) {
 			return $content;
 		} else {
