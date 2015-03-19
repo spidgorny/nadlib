@@ -399,30 +399,6 @@ class dbLayer {
 		return $res;
 	}
 
-    /**
-     * @param string $table
-     * @param array $columns
-     * @param array $where
-     * @return string
-     */
-    function getUpdateQuery($table, $columns, $where) {
-		$q = 'UPDATE '.$table .' SET ';
-		$set = array();
-		foreach ($columns as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		$q .= implode(", ", $set);
-		$q .= " WHERE ";
-		$set = array();
-		foreach ($where as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		$q .= implode(" AND ", $set);
-		return $q;
-	}
-
 	function getFirstWord($table) {
 		$table1 = explode(' ', $table);
 		$table1 = $table1[0];

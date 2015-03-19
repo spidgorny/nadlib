@@ -51,9 +51,11 @@ class SQLBuilder {
 	 * @return string
 	 */
 	function quoteSQL($value) {
-		if ($value instanceof AsIs) {
+		if ($value instanceof AsIsOp) {     // check subclass first
+			$value->injectDB($this->db);
 			return $value->__toString();
-		} else if ($value instanceof AsIsOp) {
+		} else if ($value instanceof AsIs) {
+			$value->injectDB($this->db);
 			return $value->__toString();
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
@@ -61,8 +63,6 @@ class SQLBuilder {
 			return "'".$this->db->escape($value->__toString())."'";
 		} else if ($value instanceof SQLDate) {
 			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value instanceof AsIs) {
-			return $value.'';
 		} else if ($value instanceof SimpleXMLElement) {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} else if (is_object($value)) {
@@ -109,7 +109,7 @@ class SQLBuilder {
 
 	/**
 	 * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
-	 * In other words, it takes care of col = 'NULL' situation and makes it col IS NULL
+	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
 	 *
 	 * @param array $where
 	 * @return array
@@ -119,14 +119,18 @@ class SQLBuilder {
 		foreach ($where as $key => $val) {
 			if ($key{strlen($key)-1} != '.') {
 				$key = $this->quoteKey($key);
-				if ($val instanceof AsIs) {
-					$set[] = $key . ' = ' . $val;
-				} elseif ($val instanceof AsIsOp) {
+				if (false) {
+
+				} elseif ($val instanceof AsIsOp) {       // check subclass first
+					$val->injectDB($this->db);
 					if (is_numeric($key)) {
 						$set[] = $val;
 					} else {
 						$set[] = $key . ' ' . $val;
 					}
+				} elseif ($val instanceof AsIsOp) {
+					$val->injectDB($this->db);
+					$set[] = $key . ' = ' . $val;
 				} else if ($val instanceof SQLBetween) {
 					$val->injectQB($this);
 					$val->injectField($key);
@@ -209,6 +213,12 @@ class SQLBuilder {
 		return $set;
 	}
 
+	/**
+	 * @param string $table
+	 * @param array $columns
+	 * @param array $where
+	 * @return string
+	 */
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$q = "UPDATE $table\nSET ";
