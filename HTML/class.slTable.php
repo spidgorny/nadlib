@@ -764,4 +764,23 @@ class slTable {
 		return $content;
 	}
 
+	function autoFormat() {
+		$this->generateThes();
+		foreach ($this->thes as $key => $name) {
+			$this->thes[$key] = array('name' => $name);
+			$col = array2::array_column($this->data, $key);
+			$numeric = true;
+			foreach ($col as $val) {
+				if (!is_numeric($val)) {
+					$numeric = false;
+					break;
+				}
+			}
+			//debug($col, $numeric);
+			if ($numeric) {
+				$this->thes[$key]['more']['align'] = "right";
+			}
+		}
+	}
+
 }
