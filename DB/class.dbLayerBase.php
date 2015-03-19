@@ -4,7 +4,7 @@
  * Class dbLayerBase
  * @mixin SQLBuilder
  */
-class dbLayerBase {
+class dbLayerBase implements DBInterface {
 
 	/**
 	 * @var SQLBuilder
@@ -76,6 +76,13 @@ class dbLayerBase {
 		}
 	}
 
+	function dataSeek($res, $i) {
+	}
+
+	function fetchAssocSeek($res) {
+		return NULL;
+	}
+
 	function fetchPartition($res, $start, $limit) {
 		if ($this->getScheme() == 'mysql') {
 			return $this->fetchPartitionMySQL($res, $start, $limit);
@@ -92,7 +99,9 @@ class dbLayerBase {
 				break;
 			}
 		}
-		$this->free($res);
+
+		// never free as one may retrieve another portion
+		//$this->free($res);
 		return $data;
 	}
 
@@ -105,6 +114,10 @@ class dbLayerBase {
 		return $this->reserved;
 	}
 
+	function perform($query) {
+		return NULL;
+	}
+
 	function transaction() {
 		return $this->perform('BEGIN');
 	}
@@ -115,6 +128,38 @@ class dbLayerBase {
 
 	function rollback() {
 		return $this->perform('ROLLBACK');
+	}
+
+	function numRows($res = NULL) {
+		return 0;
+	}
+
+	function affectedRows($res = NULL) {
+		// TODO: Implement affectedRows() method.
+	}
+
+	function getTables() {
+		// TODO: Implement getTables() method.
+	}
+
+	function lastInsertID($res, $table = NULL) {
+		// TODO: Implement lastInsertID() method.
+	}
+
+	function free($res) {
+		// TODO: Implement free() method.
+	}
+
+	function quoteKey($key) {
+		// TODO: Implement quoteKey() method.
+	}
+
+	function escapeBool($value) {
+		// TODO: Implement escapeBool() method.
+	}
+
+	function fetchAssoc($res) {
+		// TODO: Implement fetchAssoc() method.
 	}
 
 }
