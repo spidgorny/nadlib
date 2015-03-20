@@ -224,7 +224,7 @@ class Debug {
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent, 'display: inline').' of '.ini_get('memory_limit');
+		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent).' of '.ini_get('memory_limit');
 		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
 		$props[] = '<span class="debug_prop">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
 
@@ -455,6 +455,20 @@ class Debug {
 
 	function canDebugster() {
 		return false;
+	}
+
+	public function consoleLog(array $debugAccess) {
+		$json = htmlspecialchars(json_encode($debugAccess), ENT_QUOTES);
+		$index = Index::getInstance();
+		$index->footer[] = '<script type="text/javascript">
+		setTimeout(function () {
+			var json = "'.$json.'";
+			json = json.replace(/&quot;/g, \'"\');
+			json = json.replace(/&gt;/g, \'>\');
+			var obj = JSON.parse(json);
+			console.log(obj);
+		}, 1);
+		</script>';
 	}
 
 }

@@ -135,10 +135,6 @@ class dbLayerBase implements DBInterface {
 		return $this->perform('ROLLBACK');
 	}
 
-	function perform($query) {
-		return NULL;
-	}
-
 	function numRows($res = NULL) {
 		return 0;
 	}
