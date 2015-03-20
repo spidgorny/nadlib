@@ -460,7 +460,7 @@ class SQLBuilder {
 		foreach ($words as $word) {
 			$like = array();
 			foreach ($fields as $field) {
-				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
+				$like[] = $field . " LIKE '%".$this->db->escape($word)."%'";
 			}
 			$where[] = new AsIsOp(' ('.implode(' OR ', $like).')');
 		}

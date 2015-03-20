@@ -238,7 +238,7 @@ class Debug {
 					">Trace: </a>
 					<div style="display: none;">'.$trace.'</div>
 				</div>
-				'.Debug::view_array($a, $levels).'
+				'.Debug::view_array($a, $levels > 0 ? $levels : 5).'
 			</div>';
 		return $content;
 	}
@@ -282,7 +282,7 @@ class Debug {
 	 * @param $levels
 	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
 	 */
-	static function view_array($a, $levels = NULL) {
+	static function view_array($a, $levels = 1) {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
@@ -310,11 +310,10 @@ class Debug {
 					<td class="view_array">';
 
 				//var_dump($levels); echo '<br/>'."\n";
-				//echo $levels, ': null: '.is_null($levels)."<br />\n";
+				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
 				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
-					$content .= Debug::view_array($r, is_null($levels)
-						? NULL
-						: $levels-1);
+					$content .= Debug::view_array($r,
+						is_null($levels) ? NULL : $levels-1);
 				} else {
 					$content .= '<i>Too deep, $level: '.$levels.'</i>';
 				}
