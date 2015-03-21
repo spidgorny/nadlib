@@ -250,11 +250,14 @@ class AutoLoad {
 		}
 		if (!class_exists('Config', false)) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
-			$this->stat['configPath'] = $configPath;
+			$configPath1 = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
+			$configPath2 = $this->appRoot.'class'.DIRECTORY_SEPARATOR.      'Config.php';
+			$this->stat['configPath'] = $configPath1;
 			//debug($configPath, file_exists($configPath)); exit();
-			if (file_exists($configPath)) {
-				include_once $configPath;
+			if (file_exists($configPath1)) {
+				include_once $configPath1;
+			} elseif (file_exists($configPath2)) {
+				include_once $configPath2;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
 			} else {
 				// some projects don't need Config
@@ -444,7 +447,7 @@ class AutoLoad {
 	 * @return string
 	 */
 	function findInFolders($classFile, $subFolders) {
-		$appRoot = class_exists('Config') ? $this->config->appRoot : '';
+		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.

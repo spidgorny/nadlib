@@ -59,14 +59,14 @@ class SQLBuilder {
 	 * @return string
 	 */
 	function quoteSQL($value, $key = NULL) {
-		if ($value instanceof AsIs) {
+		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
 			$value->injectQB($this);
 			$value->injectField($key);
 			$result = $value->__toString();
 			return $result;
-		} else if ($value instanceof AsIsOp) {
-			//$value->injectQB($this);
+		} else if ($value instanceof AsIs) {
+			$value->injectDB($this->db);
 			//$value->injectField($key);
 			return $value->__toString();
 		} else if ($value instanceof SQLOr) {
@@ -89,7 +89,7 @@ class SQLBuilder {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
-			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
+			return "'".$value."' /* numeric */";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $this->db->escapeBool($value);
 		} else {
@@ -135,7 +135,7 @@ class SQLBuilder {
 
 	/**
 	 * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
-	 * In other words, it takes care of col = 'NULL' situation and makes it col IS NULL
+	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
 	 *
 	 * @param array $where
 	 * @throws Exception
@@ -147,17 +147,20 @@ class SQLBuilder {
 		foreach ($where as $key => $val) {
 			if ($key{strlen($key)-1} != '.') {
 				$key = $this->quoteKey($key);
-				if ($val instanceof AsIs) {
+				if (false) {
+
+				} elseif ($val instanceof AsIsOp) {       // check subclass first
 					$val->injectDB($this->db);
-					$val->injectQB($this);
-					$val->injectField($key);
-					$set[] = $key . ' = ' . $val;
-				} elseif ($val instanceof AsIsOp) {
 					if (is_numeric($key)) {
 						$set[] = $val;
 					} else {
 						$set[] = $key . ' ' . $val;
 					}
+				} elseif ($val instanceof AsIsOp) {
+					$val->injectDB($this->db);
+					$val->injectQB($this);
+					$val->injectField($key);
+					$set[] = $key . ' = ' . $val;
 				} else if ($val instanceof SQLBetween) {
 					$val->injectQB($this);
 					$val->injectField($key);
@@ -253,6 +256,12 @@ class SQLBuilder {
 		return $set;
 	}
 
+	/**
+	 * @param string $table
+	 * @param array $columns
+	 * @param array $where
+	 * @return string
+	 */
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$q = "UPDATE $table\nSET ";
@@ -451,7 +460,7 @@ class SQLBuilder {
 		foreach ($words as $word) {
 			$like = array();
 			foreach ($fields as $field) {
-				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
+				$like[] = $field . " LIKE '%".$this->db->escape($word)."%'";
 			}
 			$where[] = new AsIsOp(' ('.implode(' OR ', $like).')');
 		}

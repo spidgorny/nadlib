@@ -123,8 +123,8 @@ abstract class Controller {
 			$params = array('c' => $class);
 		} else {
 			$class = NULL;
-		}
-		if ($this->request->apacheModuleRewrite()) {
+		if ($this->useRouter
+			&& $this->request->apacheModuleRewrite()) {
 			$class = ifsetor($params['c']);
 			unset($params['c']);    // RealURL
 			if ($class && !$prefix) {
