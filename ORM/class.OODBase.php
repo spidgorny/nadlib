@@ -152,7 +152,10 @@ abstract class OODBase {
 	 */
 	function insert(array $data) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
+		$index = Index::getInstance();
+		if ($index) {
+			$index->log(get_called_class() . '::' . __FUNCTION__, $data);
+		}
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
