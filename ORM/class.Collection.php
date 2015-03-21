@@ -504,7 +504,7 @@ class Collection {
 	}
 
 	function renderList() {
-		$list = [];
+		$list = array();
 		if ($this->getCount()) {
 			foreach ($this->getData() as $id => $row) {
 				if ($this->thes) {
@@ -526,7 +526,7 @@ class Collection {
 	 * @return string
 	 */
 	function renderMembers() {
-		$content = [];
+		$content = array();
 		//debug(sizeof($this->members));
 		if ($this->objectify()) {
 			foreach ($this->objectify() as $key => $obj) {

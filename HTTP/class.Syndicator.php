@@ -11,7 +11,10 @@ class Syndicator {
 	 * @var string
 	 */
 	var $url;
+
+	/**
 	 * @var bool|int enabled or seconds for caching
+	 */
 	var $isCaching = FALSE;
 
 	/**
@@ -105,9 +108,9 @@ class Syndicator {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'JSON';
 		$s->html = $s->retrieveFile();
-		Index::getInstance()->controller->log('Downloaded', __METHOD__);
+		Index::getInstance()->controller->log('Downloaded ('.strlen($s->html).')', __METHOD__);
 		$s->json = json_decode($s->html);
-		Index::getInstance()->controller->log('JSON decoded', __METHOD__);
+		Index::getInstance()->controller->log('JSON decoded ('.sizeof($s->json).')', __METHOD__);
 		return $s;
 	}
 
@@ -119,7 +122,7 @@ class Syndicator {
 				$html = $this->cache->get($this->url);
 				$this->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
-				$this->log('No cache. Download File.');
+				$this->log('No cache. Download File.', __METHOD__);
 				$html = $this->downloadFile($this->url, $retries);
 				if (is_callable($this->validateDownload)) {
 					$ok = call_user_func($this->validateDownload, $html);
@@ -162,11 +165,11 @@ class Syndicator {
 		}
 	}
 
-	function log($msg) {
+	function log($msg, $source = 'Syndicator') {
 		$this->log[] = $msg;
 		if (class_exists('Index')) {
 			$c = Index::getInstance()->controller;
-			$c->log($msg);
+			$c->log($msg, $source);
 		} else {
 			echo $msg.BR;
 		}
@@ -176,7 +179,10 @@ class Syndicator {
 		if (startsWith($href, 'http')) {
 			$ug = new URLGet($href);
 			$ug->timeout = 10;
-			$ug->fetch($this->useProxy, $retries);
+			if ($this->useProxy) {
+				$ug->setProxyObject($this->useProxy);
+			}
+			$ug->fetch($retries);
 			return $ug->getContent();
 		} else {
 			return file_get_contents($href);
@@ -329,6 +335,7 @@ class Syndicator {
 
 	function getXML($recode) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$xml = NULL;
 		try {
 			if ($recode{0} == '<') {
 				$xml = new SimpleXMLElement($recode);
@@ -374,8 +381,8 @@ class Syndicator {
 
 	/**
 	 *
-	 * @param type $xpath
-	 * @return simple_xml_element
+	 * @param string $xpath
+	 * @return SimpleXMLElement
 	 */
 	function getElement($xpath) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
