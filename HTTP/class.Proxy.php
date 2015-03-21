@@ -62,7 +62,7 @@ class Proxy extends OODBase {
 				), '
 			/*ORDER BY ok DESC, fail ASC*/
 			ORDER BY ratio DESC
-			LIMIT ' . $limit, ', ok/fail AS ratio');
+			LIMIT ' . $limit, '*, ok/fail AS ratio');
 			//debug($rows);
 			self::$best = $rows;
 		}
