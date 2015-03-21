@@ -54,8 +54,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	var $config;
 
-	var $title = '';
-
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
@@ -252,7 +250,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$this->title = $e->getMessage();
+		$this->controller->title = $e->getMessage();
 		$message = $e->getMessage();
 		$message = $message instanceof htmlString
 			? $message.''

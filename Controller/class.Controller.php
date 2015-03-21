@@ -116,8 +116,14 @@ abstract class Controller {
 	 * @protected
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL) {
-		$class = NULL;
+	protected function makeURL($params, $prefix = NULL) {
+		// shortcut for link to a controller
+		if (!is_array($params) && !$prefix) {
+			$class = $params;
+			$params = array('c' => $class);
+		} else {
+			$class = NULL;
+		}
 		if ($this->request->apacheModuleRewrite()) {
 			$class = ifsetor($params['c']);
 			unset($params['c']);    // RealURL
