@@ -19,7 +19,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 	/**
 	 * @var resource
 	 */
-	protected $connection;
+	public $connection;
 
 	/**
 	 * @var self
