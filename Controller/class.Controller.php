@@ -110,8 +110,8 @@ abstract class Controller {
 
 	/**
 	 * Why protected?
-	 * @param array $params
-	 * @param null $prefix
+	 * @param array|string 	$params
+	 * @param null 			$prefix
 	 * @return URL
 	 * @protected
 	 * @use getURL()
@@ -123,6 +123,7 @@ abstract class Controller {
 			$params = array('c' => $class);
 		} else {
 			$class = NULL;
+		}
 		if ($this->useRouter
 			&& $this->request->apacheModuleRewrite()) {
 			$class = ifsetor($params['c']);

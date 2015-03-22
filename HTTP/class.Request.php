@@ -907,4 +907,8 @@ class Request {
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
 
+	public function isHTTPS() {
+		return $this->getRequestType() == 'https';
+	}
+
 }
