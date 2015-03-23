@@ -588,6 +588,7 @@ abstract class OODBase {
 
 	function getJson() {
 		return array(
+			'class' => get_class($this),
 			'data' => $this->data,
 		);
 	}
