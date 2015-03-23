@@ -559,6 +559,7 @@ class Collection {
 		$content = array();
 		//debug(sizeof($this->members));
 		if ($this->objectify()) {
+			$content[] = '<div class="'.get_class($this).'">';
 			foreach ($this->objectify() as $key => $obj) {
 			//debug($i++, (strlen($content)/1024/1024).'M');
 				if (is_object($obj)) {
@@ -568,6 +569,7 @@ class Collection {
 					$content[] = getDebug(__METHOD__, $key, $obj);
 				}
 			}
+			$content[] = '</div>';
 		} else {
 			//Index::getInstance()->ll->debug = true;
 			$content[] = '<div class="message">'.__($this->noDataMessage).'</div>';
