@@ -740,6 +740,14 @@ class HTMLForm {
         <span class="onoffswitch-switch"></span>
     </label>
 </div>';
+}
+
+	public function inLabel($string) {
+		$this->stdout .= '<label>'.$string;
+	}
+
+	public function endLabel() {
+		$this->stdout .= '</label>';
 	}
 
 }
