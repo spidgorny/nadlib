@@ -142,6 +142,13 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	 * @return mixed
 	 */
 	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		if (!is_object($res)) {
+			debug($res);
+			debug_pre_print_backtrace();
+		}
 		return $res->fetchArray(SQLITE3_ASSOC);
 	}
 
