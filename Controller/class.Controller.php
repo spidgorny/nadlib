@@ -237,8 +237,17 @@ abstract class Controller {
 	}*/
 
 	function render() {
-		$view = new View(get_class($this).'.phtml', $this);
-		$content = $view->render();
+		$filePHTML = get_class($this).'.phtml';
+		$fileMD = get_class($this).'.md';
+		if (file_exists('template/'.$filePHTML)) {
+			$view = new View($filePHTML, $this);
+			$content = $view->render();
+		} elseif (file_exists('template/'.$fileMD)) {
+			$view = new MarkdownView($fileMD, $this);
+			$content = $view->render();
+		} else {
+			$content = '';
+		}
 		return $content;
 	}
 
