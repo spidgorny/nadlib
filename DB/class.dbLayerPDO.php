@@ -275,7 +275,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->dataSeek = $int;
 	}
 
-	function fetchAssocSeek(PDOStatement $res) {
+	/**
+	 * @param PDOStatement $res
+	 * @return mixed
+	 */
+	function fetchAssocSeek($res) {
 		return $res->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_ABS, $this->dataSeek);
 	}
 

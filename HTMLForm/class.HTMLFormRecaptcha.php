@@ -21,12 +21,12 @@ class HTMLFormRecaptcha {
 	}
 
 	function getForm(array $desc) {
-		$content = recaptcha_get_html($this->publickey, ifsetor($desc['error']));
+		$r = Request::getInstance();
+		$content = recaptcha_get_html($this->publickey, ifsetor($desc['error']), $r->isHTTPS());
 		return $content;
 	}
 
 	function getFormAjax(array $desc) {
-		$r = Request::getInstance();
 		$content = '
 		<div id="recaptcha_div"></div>
  		<script>
