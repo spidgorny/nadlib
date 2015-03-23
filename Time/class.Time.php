@@ -675,4 +675,8 @@ class Time {
 		$this->setTime(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
 	}
 
+	public function getSince() {
+		return new Duration($this->getTimestamp() - time());
+	}
+
 }
