@@ -587,6 +587,10 @@ abstract class OODBase {
 		);
 	}
 
+	function getSingleLink() {
+		return get_class($this).'/'.$this->id;
+	}
+
 	function getNameLink() {
 		return new HTMLTag('a', array(
 			'href' => $this->getSingleLink(),
