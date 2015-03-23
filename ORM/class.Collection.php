@@ -615,7 +615,7 @@ class Collection {
 	 *
 	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
-	 * @return object[]
+	 * @return object[]|OODBase[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
 		$class = $class ? $class : $this->itemClassName;
@@ -915,6 +915,7 @@ class Collection {
 			$members[$id] = $member->getJson();
 		}
 		return array(
+			'class' => get_class($this),
 			'count' => $this->getCount(),
 			'members' => $members,
 		);
