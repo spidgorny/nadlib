@@ -711,4 +711,12 @@ class HTMLForm {
 		$this->text('</nobr>');
 	}
 
+	public function inLabel($string) {
+		$this->stdout .= '<label>'.$string;
+	}
+
+	public function endLabel() {
+		$this->stdout .= '</label>';
+	}
+
 }
