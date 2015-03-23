@@ -926,4 +926,17 @@ class Collection {
 		$this->retrieveDataFromDB();
 	}
 
+	/**
+	 * @param object $obj
+	 * @return bool
+	 */
+	function contains($obj) {
+		foreach ($this->objectify() as $mem) {
+			if ($mem == $obj) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

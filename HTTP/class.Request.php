@@ -494,7 +494,7 @@ class Request {
 	 * Returns the full URL to the document root of the current site
 	 * @return URL
 	 */
-	static function getLocation() {
+	static function getLocation($isUTF8 = false) {
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
@@ -507,14 +507,26 @@ class Request {
 		if (!startsWith($docRoot, '/')) {
 			$docRoot = '/'.$docRoot;
 		}
-		$url = Request::getRequestType().'://'.(
-			isset($_SERVER['HTTP_X_FORWARDED_HOST'])
-				? $_SERVER['HTTP_X_FORWARDED_HOST']
-				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL)
-		).$docRoot;
+
+		$host = self::getHost($isUTF8);
+		$url = Request::getRequestType().'://'.$host.$docRoot;
 		//debug($url);
 		$url = new URL($url);
 		return $url;
+	}
+
+	static function getHost($isUTF8 = false) {
+		$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
+			? $_SERVER['HTTP_X_FORWARDED_HOST']
+			: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL);
+		if (function_exists('idn_to_utf8') && $isUTF8) {
+			$try = idn_to_utf8($host);
+			//debug($host, $try);
+			if ($try) {
+				$host = $try;
+			}
+		}
+		return $host;
 	}
 
 	/**
