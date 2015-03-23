@@ -43,10 +43,6 @@ abstract class Controller {
 	 */
 	public $title;
 
-	/**
-	 * Even if mod_rewrite is installed, we may not want to use it
-	 * @var bool
-	 */
 	protected $useRouter = false;
 
 	/**
@@ -114,14 +110,20 @@ abstract class Controller {
 
 	/**
 	 * Why protected?
-	 * @param array $params
-	 * @param null $prefix
+	 * @param array|string 	$params
+	 * @param null 			$prefix
 	 * @return URL
 	 * @protected
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL) {
-		$class = NULL;
+	protected function makeURL($params, $prefix = NULL) {
+		// shortcut for link to a controller
+		if (!is_array($params) && !$prefix) {
+			$class = $params;
+			$params = array('c' => $class);
+		} else {
+			$class = NULL;
+		}
 		if ($this->useRouter
 			&& $this->request->apacheModuleRewrite()) {
 			$class = ifsetor($params['c']);
@@ -133,12 +135,12 @@ abstract class Controller {
 		$url = new URL($prefix
 			? $prefix
 			: $this->request->getLocation(), $params);
-		if ($this->useRouter && $class && $this->request->apacheModuleRewrite()) {
-			$path = $url->getPath();
+		$path = $url->getPath();
+		if ($class && $this->request->apacheModuleRewrite()) {
 			$path->setFile($class);
-			$path->setAsFile();
-			$url->setPath($path);
 		}
+		$path->setAsFile();
+		$url->setPath($path);
 		return $url;
 	}
 
