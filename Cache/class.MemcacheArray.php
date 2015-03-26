@@ -99,6 +99,7 @@ class MemcacheArray implements ArrayAccess {
 		self::unsetInstance($this->file);
 		$curr = sizeof(self::$instances);
 		//debug(__METHOD__, $this->file, $prev, $curr, $prevKeys, array_keys(self::$instances));
+		$this->fc->clearCache($this->file);
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
