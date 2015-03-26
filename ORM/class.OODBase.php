@@ -149,6 +149,7 @@ abstract class OODBase {
 		} else if (ifsetor($this->data[$this->idField])) {
 			$this->id = $this->data[$this->idField];
 		} else {
+			debug($row, $this->idField);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
