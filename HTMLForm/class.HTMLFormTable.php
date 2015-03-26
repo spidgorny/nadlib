@@ -195,6 +195,9 @@ class HTMLFormTable extends HTMLForm {
 					$more = is_array(ifsetor($desc['more']))
 						? $desc['more'] + array('id' => $elementID)
 						: $desc['more'] . ' id="'.$elementID.'"';
+					if ($desc['postgresql']) {
+						$fieldValue = $fieldValue == 't';
+					}
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $more);
 				break;
 				case "time":
@@ -260,7 +263,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->combo($fieldName, $desc);
 				break;
 				case 'button':
-					$this->button($desc['innerHTML'], $desc['more']);
+					$this->button($desc['innerHTML'], $desc['more'] ?: array());
 				break;
 				case 'fieldset':
 					//$this->fieldset($desc['label']);	// it only sets the global fieldset name
