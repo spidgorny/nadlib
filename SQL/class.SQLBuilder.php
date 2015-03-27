@@ -275,15 +275,20 @@ class SQLBuilder {
 	function getFirstWord($table) {
 		$table1 = trimExplode(' ', $table);
 		$table1 = trimExplode("\t", $table1[0]);
-		$table0 = first($table1);
-		//debug($table, $table1, $table0);
+		$table0 = trim(first($table1));
+//		debug($table, $table1, $table0);
 		return $table0;
 	}
 
 	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
+		if ($table == $table1) {
+			$from = $this->db->quoteKey($table);    // table name always quoted
+		} else {
+			$from = $table; // not quoted
+		}
 		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
-		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
+		$q = "SELECT $select\nFROM " . $from;
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE\n" . implode("\nAND ", $set);
