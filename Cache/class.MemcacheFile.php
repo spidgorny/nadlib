@@ -79,6 +79,7 @@ class MemcacheFile {
 
 	function get($key = NULL, $expire = 0) {
 		TaylorProfiler::start(__METHOD__);
+		$val = NULL;
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
@@ -95,8 +96,10 @@ class MemcacheFile {
 	function clearCache($key) {
 		$file = $this->map($key);
 		if (file_exists($file)) {
-			//debug('<font color="green">Deleting '.$file.'</font>');
+			//echo '<font color="green">Deleting '.$file.'</font>', BR;
 			unlink($file);
+		} else {
+			//echo '<font color="orange">Cache file'.$file.' does not exist.</font>', BR;
 		}
 	}
 
