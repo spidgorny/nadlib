@@ -2,7 +2,16 @@
 
 class MarkdownView extends View {
 
+	/**
+	 * Cached processed markdown to HTML
+	 * @var string
+	 */
+	var $content;
+
 	function render() {
+		if ($this->content) {
+			return $this->content;
+		}
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
@@ -17,6 +26,14 @@ class MarkdownView extends View {
 			$html = $contents;
 		}
 		return $html;
+	}
+
+	public function processIncludes() {
+		$content = $this->render();
+		$content = preg_replace_callback('/{{(.+?)}}/', function ($matches) {
+			return new MarkdownView($matches[1]);
+		}, $content);
+		$this->content = $content;
 	}
 
 }
