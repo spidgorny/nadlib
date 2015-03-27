@@ -11,6 +11,9 @@ class URLGet {
 
 	protected $html = '';
 
+	/**
+	 * @var Index
+	 */
 	protected $logger;
 
 	/**
@@ -33,6 +36,8 @@ class URLGet {
 	 * @var array
 	 */
 	public $curlParams = array();
+
+	public $headers = array();
 
 	/**
 	 *
@@ -74,7 +79,7 @@ class URLGet {
 						}
 						$curlParams[CURLOPT_PROXY] = $this->proxy;
 					} else {
-						$this->logger->log('No Proxy');
+						$this->logger->log('No Proxy', __METHOD__);
 					}
 					$html = $this->fetchCURL($this->curlParams);
 				} else {
@@ -94,6 +99,10 @@ class URLGet {
 	}
 
 	public function fetchFOpen() {
+		if ($this->headers) {
+			$this->context['http']['header'] = ArrayPlus::create($this->headers)->getHeaders("\r\n");
+		}
+		//debug($this->context);
 		$ctx = stream_context_create($this->context);
 		$html = file_get_contents($this->url, 0, $ctx);
 		return $html;
@@ -102,7 +111,7 @@ class URLGet {
 	public function fetchCURL(array $options = array()) {
 		$this->logger->log($this->url, __METHOD__);
 		$process = curl_init($this->url);
-		//curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
+		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
 		curl_setopt($process, CURLOPT_HEADER, 1);
 		//curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
 		//if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);

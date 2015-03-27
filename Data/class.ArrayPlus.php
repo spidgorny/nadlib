@@ -659,6 +659,22 @@ class ArrayPlus extends ArrayObject implements Countable {
 			+ array_slice($input, $offset + $length, NULL, TRUE);
 	}
 
+	/**
+	 * Used in HTTP protocol
+	 * @param null $joinWith
+	 * @return array|string
+	 */
+	public function getHeaders($joinWith = NULL) {
+		$headers = array();
+		foreach ($this as $key => $val) {
+			$headers[] = $key.': '.$val;
+		}
+		if ($joinWith) {
+			$headers = implode($joinWith, $headers);
+		}
+		return $headers;
+	}
+
 }
 
 function AP(array $a = array()) {

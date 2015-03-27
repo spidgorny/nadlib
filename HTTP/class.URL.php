@@ -280,23 +280,33 @@ class URL {
 		return file_get_contents($url, false, $context);
 	}
 
-	/*
-$process = curl_init($url);
-curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
-curl_setopt($process, CURLOPT_HEADER, 1);
-curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
-if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
-if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEJAR, $this->cookie_file);
-curl_setopt($process, CURLOPT_ENCODING , $this->compression);
-curl_setopt($process, CURLOPT_TIMEOUT, 30);
-if ($this->proxy) curl_setopt($process, CURLOPT_PROXY, $this->proxy);
-curl_setopt($process, CURLOPT_POSTFIELDS, $data);
-curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);
-curl_setopt($process, CURLOPT_POST, 1);
-$return = curl_exec($process);
-curl_close($process);
-return $return; */
+	function getCURL() {
+		$process = curl_init($this->__toString());
+		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
+		curl_setopt($process, CURLOPT_HEADER, 1);
+		curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
+		if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
+		if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEJAR, $this->cookie_file);
+		curl_setopt($process, CURLOPT_ENCODING, $this->compression);
+		curl_setopt($process, CURLOPT_TIMEOUT, 30);
+		if ($this->proxy) curl_setopt($process, CURLOPT_PROXY, $this->proxy);
+		curl_setopt($process, CURLOPT_POSTFIELDS, $this->buildQuery());
+		curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($process, CURLOPT_POST, 1);
+		return $process;
+	}
+
+	function CURL() {
+		$process = $this->getCURL();
+		$return = curl_exec($process);
+		curl_close($process);
+		return $return;
+	}
+
+	function getURLGet() {
+		return new URLGet($this->__toString());
+	}
 
 	function exists() {
 		$AgetHeaders = @get_headers($this->buildURL());
@@ -696,6 +706,15 @@ return $return; */
 
 	function getPass() {
 		return $this->components['pass'];
+	}
+
+	/**
+	 * @param array $queryString - array of objects with (->name, ->value)
+	 */
+	public function setParamsFromHAR($queryString) {
+		foreach ($queryString as $pair) {
+			$this->setParam($pair->name, $pair->value);
+		}
 	}
 
 }
