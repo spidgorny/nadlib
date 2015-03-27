@@ -239,11 +239,20 @@ abstract class Controller {
 	function render() {
 		$filePHTML = get_class($this).'.phtml';
 		$fileMD = get_class($this).'.md';
+
+		$reflector = new ReflectionClass(get_class($this));
+		$classDir = dirname($reflector->getFileName());
 		if (file_exists('template/'.$filePHTML)) {
 			$view = new View($filePHTML, $this);
 			$content = $view->render();
 		} elseif (file_exists('template/'.$fileMD)) {
 			$view = new MarkdownView($fileMD, $this);
+			$content = $view->render();
+		} elseif (file_exists($classDir.'/'.$filePHTML)) {
+			$view = new View($classDir.'/'.$filePHTML, $this);
+			$content = $view->render();
+		} elseif (file_exists($classDir.'/'.$fileMD)) {
+			$view = new MarkdownView($classDir.'/'.$fileMD, $this);
 			$content = $view->render();
 		} else {
 			$content = '';
