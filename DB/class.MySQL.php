@@ -483,7 +483,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return $key = '`'.$key.'`';
+		return $key = '`'.trim($key).'`';
 	}
 
 	function switchDB($db) {
