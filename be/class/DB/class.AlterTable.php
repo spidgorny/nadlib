@@ -8,6 +8,10 @@
  */
 class AlterTable extends AlterIndex {
 
+	var $different = 0;
+	var $same = 0;
+	var $missing = 0;
+
 	function renderTableStruct(array $struct, array $local) {
 		$class = get_class($this->db);
 		if ($class == 'dbLayerPDO') {
@@ -23,7 +27,7 @@ class AlterTable extends AlterIndex {
 	function renderTableStructMySQL(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4>Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
 			//$content .= '<pre>'.json_encode($desc['columns'], JSON_PRETTY_PRINT).'</pre>';
 
 			$indexCompare = array();
@@ -126,6 +130,7 @@ class AlterTable extends AlterIndex {
 			'c' => get_class($this),
 			'file' => basename($this->jsonFile),
 			'action' => 'runSQL',
+			'table' => $table,
 			'sql' => $query,
 		)), $query);
 		return $link;
@@ -143,6 +148,7 @@ class AlterTable extends AlterIndex {
 			'c' => get_class($this),
 			'file' => basename($this->jsonFile),
 			'action' => 'runSQL',
+			'table' => $table,
 			'sql' => $query,
 		)), $query);
 		return $link;
@@ -160,7 +166,7 @@ class AlterTable extends AlterIndex {
 	function sameType($index1, $index2) {
 		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int');
 		$text = array('text', 'varchar(255)', 'tinytext');
-		$time = array('numeric', 'timestamp');
+		$time = array('numeric', 'timestamp', 'datetime');
 		$real = array('real', 'double', 'float');
 		$t1 = $index1['Type'];
 		$t2 = $index2['Type'];
@@ -182,7 +188,7 @@ class AlterTable extends AlterIndex {
 	function renderTableStructdbLayerBL(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4>Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
@@ -226,7 +232,7 @@ class AlterTable extends AlterIndex {
 
 	function getAlterQueryDBLayer($table, array $index) {
 		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
-			' '.$index['type'].
+			' '.$index['Type'].
 			' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
 			' '.($index['not null'] ? 'NOT NULL' : 'NULL');
 		return $query;
@@ -234,7 +240,7 @@ class AlterTable extends AlterIndex {
 
 	function getChangeQueryDBLayer($table, array $index) {
 		$query = 'ALTER TABLE '.$table.' ALTER COLUMN '.$index['Field'].' '.$index['Field'].
-			' '.$index['type'].
+			' '.$index['Type'].
 			' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
 			' '.($index['not null'] ? 'NOT NULL' : 'NULL');
 		return $query;
@@ -243,40 +249,59 @@ class AlterTable extends AlterIndex {
 	function renderTableStructdbLayerSQLite(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4>Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
+				$index = $this->convertFromOtherDB($index);
 				$localIndex = $local[$table]['columns'][$i];
+				if ($localIndex) {
+					$localIndex = $this->convertFromOtherDB($localIndex);
 
-				//unset($index['num'], $localIndex['num']);
-				$index['Field'] = $i;
-				$localIndex['Field'] = $i;
+					$index['Field'] = $i;
+					$localIndex['Field'] = $i;
 
-				if ($index == $localIndex) {
-					$indexCompare[] = array('same' => 'sql file',
-							'###TR_MORE###' => 'style="background: lightgreen"',
+					if ($this->sameType($index, $localIndex)) {
+						$indexCompare[] = array('same' => 'sql file',
+								'###TR_MORE###' => 'style="background: lightgreen"',
+								'Field' => $i,
+							) + $index;
+						$this->same++;
+					} else {
+						$indexCompare[] = array('same' => 'json file',
+								'###TR_MORE###' => 'style="background: yellow"',
+							) + $index;
+						$indexCompare[] = array('same' => 'database',
+								'###TR_MORE###' => 'style="color: white; background: red"',
+								'Field' => $i,
+							) + $localIndex;
+						$indexCompare[] = array('same' => 'ALTER',
+							'###TR_MORE###' => 'style="color: white; background: green"',
 							'Field' => $i,
-						) + $index;
+							'Type' => new HTMLTag('td', array(
+								'colspan' => 5,
+							), $localIndex['Type']
+								? $this->getChangeQueryDBLayer($table, $index)
+								: $this->getAlterQueryDBLayer($table, $index)
+							)
+						);
+						$this->different++;
+					}
 				} else {
 					$indexCompare[] = array('same' => 'json file',
 							'###TR_MORE###' => 'style="background: yellow"',
 						) + $index;
-					$indexCompare[] = array('same' => 'database',
-							'###TR_MORE###' => 'style="color: white; background: red"',
-							'Field' => $i,
-						) + $localIndex;
-					$indexCompare[] = array('same' => 'ALTER',
-						'###TR_MORE###' => 'style="color: white; background: green"',
-						'Field' => $i,
-						'type' => new HTMLTag('td', array(
+					$indexCompare[] = array(
+						'same' => 'missing',
+						'Type' => new HTMLTag('td', array(
 							'colspan' => 5,
-						), $localIndex['type']
-							? $this->getChangeQueryDBLayer($table, $index)
-							: $this->getAlterQueryDBLayer($table, $index)
-						)
+						), $this->getAddQuery($table, $index)
+						),
 					);
+					$this->missing++;
 				}
+
+				//debug($index, $localIndex); exit();
 			}
 
 			$s = new slTable($indexCompare, 'class="table nospacing"');
@@ -285,13 +310,45 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
+	function convertFromOtherDB(array $desc) {
+		if (isset($desc['cid']) || isset($desc['pk'])) {    // MySQL
+			$original = $desc;
+			unset($desc['cid']);
+			$desc['Field'] = $desc['name'];
+			unset($desc['name']);
+			$desc['Type'] = $desc['type'];
+			unset($desc['type']);
+			$desc['Null'] = $desc['notnull'] ? 'NO' : 'YES';
+			unset($desc['notnull']);
+			$desc['Default'] = $desc['dflt_value'];
+			$desc['Default'] = $this->unQuote($desc['Default']);
+			unset($desc['dflt_value']);
+			$desc['Extra'] = $desc['pk'] ? 'PRIMARY_KEY' : '';
+			unset($desc['pk']);
+			//debug($original, $desc); exit();
+		}
+		return $desc;
+	}
+
+	function unQuote($string) {
+		$first = $string[0];
+		if ($first == '"' || $first == "'") {
+			$string = str_replace($first, '', $string);
+		}
+		return $string;
+	}
+
 	function runSQLAction() {
+		$table = $this->request->getTrimRequired('table');
 		$sql = $this->request->getTrim('sql');
-		if (contains($sql, 'DROP') || contains($sql, 'TRUNCATE') || contains($sql, 'DELETE')) {
+		if (   contains($sql, 'DROP')
+			|| contains($sql, 'TRUNCATE')
+			|| contains($sql, 'DELETE')) {
 			throw new AccessDeniedException('Destructing query detected');
 		} else {
 			$this->db->perform($sql);
-			$this->request->redirect(get_class().'?file='.$this->request->getTrimRequired('file'));
+			$this->request->redirect(get_class().
+				'?file='.$this->request->getTrimRequired('file').'#table-'.$table);
 		}
 	}
 
