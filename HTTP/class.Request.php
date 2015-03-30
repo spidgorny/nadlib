@@ -452,10 +452,16 @@ class Request {
 //			|| DEVELOPMENT
 			&& $this->canRedirect($controller)
 		) {
+			ob_start();
+			debug_print_backtrace();
+			$bt = trimExplode("\n", ob_get_clean());
+			header('Redirect-From: '.$bt[1]);
+
 			header('Location: '.$controller);
+			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>';
 			exit();
 		} else {
-			$this->redirectJS($controller);
+			$this->redirectJS($controller, DEVELOPMENT ? 5000 : 0);
 		}
 	}
 
