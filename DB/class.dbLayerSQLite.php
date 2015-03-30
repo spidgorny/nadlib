@@ -58,6 +58,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		$this->queryTime += $profiler->elapsed();
 		if (!$this->lastResult) {
 			debug($query, $this->connection->lastErrorMsg());
+			throw new Exception('DB query failed');
 		}
 		return $this->lastResult;
 	}
