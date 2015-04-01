@@ -124,10 +124,14 @@ class HTMLFormTable extends HTMLForm {
 		if ($type instanceof HTMLFormType) {
 			$type->setField($fieldName);
 			$type->setForm($this);
-			$type->setValue($desc['value']);
-			$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
+			if (ifsetor($desc['value'])) {
+				$type->setValue($desc['value']);
+			}
+			if (ifsetor($desc['jsParams'])) {
+				$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
+			}
 			$type->desc = $desc;
-			$this->stdout .= $type->render();
+			$this->stdout .= IndexBase::mergeStringArrayRecursive($type->render());
 		} else if ($type instanceof Collection) {
 			$type->setField($fieldName);
 			$type->setForm($this);
