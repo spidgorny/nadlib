@@ -401,6 +401,7 @@ abstract class Controller {
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
 			if (!$el instanceof HTMLTag) {
+				$el = IndexBase::mergeStringArrayRecursive($el);
 				$el = new HTMLTag('div', array(
 					'class' => 'column',
 				), $el, true);

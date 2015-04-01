@@ -31,7 +31,7 @@ class ConfigBase {
 
 	/**
 	 *
-	 * @var MySQL
+	 * @var MySQL|dbLayer|dbLayerSQLite|dbLayerMS|dbLayerPDO
 	 */
 	public $db;
 
