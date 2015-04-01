@@ -425,7 +425,9 @@ class HTMLForm {
 		$between = ifsetor($desc['between'], ', ');
 		foreach ((array)$desc['options'] as $key => $val) {
 			$this->text('<nobr><label>');
-			$this->check($newName, $key, in_array($key, $value));
+			$checked = in_array($key, $value);
+			//debug($key, $value, $checked);
+			$this->check($newName, $key, $checked);
 			$this->text(' '.$val.'</label></nobr>');
 			if ($val != end($desc['options'])) {
 				$this->text($between);
