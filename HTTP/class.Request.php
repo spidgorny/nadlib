@@ -51,6 +51,15 @@ class Request {
 	}
 
 	/**
+	 * Returns raw data, don't use or use with care
+	 * @param $key
+	 * @return mixed
+	 */
+	function get($key) {
+		return $this->data[$key];
+	}
+
+	/**
 	 * Will overwrite
 	 * @param $var
 	 * @param $val

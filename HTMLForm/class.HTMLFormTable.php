@@ -113,7 +113,11 @@ class HTMLFormTable extends HTMLForm {
 					//debug(__METHOD__, $val, $desc['value']);
 				}
 			} else if ($form->is_set($key)) {
-				$desc['value'] = $form->getTrim($key);
+				if (is_array($form->get($key))) {
+					$desc['value'] = $form->getArray($key);
+				} else {
+					$desc['value'] = $form->getTrim($key);
+				}
 			} // else keep default ['value']
 		}
 	}

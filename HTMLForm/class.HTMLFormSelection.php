@@ -70,18 +70,10 @@ class HTMLFormSelection extends HTMLFormType {
 	function getSelectionOptions(array $aOptions, $default, array $desc = array()) {
 		//Debug::debug_args($aOptions);
 		$content = '';
+		/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 		foreach ($aOptions as $value => $option) {
-			/** PHP feature gettype($value) is integer
-			 * even if it's string in an array!!! */
 			if (ifsetor($desc['==='])) {
 				$selected = $default === $value;
-				if (sizeof($aOptions) == 14) {
-					debug(array(
-						'default' => $default,
-						'value' => $value,
-						'selected' => $selected,
-					));
-				}
 			} else {
 				//debug($default, $value);
 				if ((is_array($default) && in_array($value, $default))
