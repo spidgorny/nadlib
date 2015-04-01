@@ -151,12 +151,13 @@ class SQLBuilder {
 
 				} elseif ($val instanceof AsIsOp) {       // check subclass first
 					$val->injectDB($this->db);
+					$val->injectField($key);
 					if (is_numeric($key)) {
 						$set[] = $val;
 					} else {
 						$set[] = $key . ' ' . $val;
 					}
-				} elseif ($val instanceof AsIsOp) {
+				} elseif ($val instanceof AsIs) {
 					$val->injectDB($this->db);
 					$val->injectQB($this);
 					$val->injectField($key);
@@ -443,6 +444,9 @@ class SQLBuilder {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
 		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
 		$query = $this->getSelectQuery($table, $where, $order, $addFields);
+
+		//debug($query); if ($_COOKIE['debug']) { exit(); }
+
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, $idField);
 		return $data;
