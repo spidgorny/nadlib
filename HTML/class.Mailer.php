@@ -65,11 +65,14 @@ class Mailer {
 
 	function send() {
 		if (HTMLFormValidate::validEmail($this->to)) {
-			mail($this->to,
+			$res = mail($this->to,
 				$this->getSubject(),
 				$this->getBodyText(),
 				implode("\n", $this->headers)."\n",
 				implode(' ', $this->params));
+			if (!$res) {
+				throw new Exception('Email sending to '.$this->to.' failed');
+			}
 		} else {
 			throw new Exception('Invalid email address');
 		}
