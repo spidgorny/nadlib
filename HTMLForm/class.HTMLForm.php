@@ -259,7 +259,7 @@ class HTMLForm {
 		}
 		$this->input($name, $value,
 			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
-			(isset($desc['more']) ? $desc['more'] : '')
+			(isset($desc['more']) ? HTMLTag::renderAttr($desc['more']) : '')
 		);
 	}
 
