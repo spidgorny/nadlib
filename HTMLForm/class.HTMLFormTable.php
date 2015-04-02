@@ -400,7 +400,9 @@ class HTMLFormTable extends HTMLForm {
 					: '';
 			}
 			$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
-			$this->stdout .= '</td><td>';
+			if (!$withBR) {
+				$this->stdout .= '</td><td>';
+			}
 		}
 	}
 
