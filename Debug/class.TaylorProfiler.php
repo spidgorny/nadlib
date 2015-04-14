@@ -520,9 +520,9 @@ class TaylorProfiler {
 		return $return;
 	}
 
-	static function enableTick($ticker = 100) {
+	static function enableTick($ticker = 1000) {
 		register_tick_function(array(__CLASS__, 'tick'));
-		declare(ticks=10);
+		declare(ticks=1000);
 	}
 
 	static function tick() {
@@ -542,12 +542,14 @@ class TaylorProfiler {
 		$diff = number_format(100*($mem - $prev), 2);
 		$diff = $diff > 0 ? '<font color="green">'.$diff.'</font>' : '<font color="red">'.$diff.'</font>';
 		$trace = implode(' -> ', $list);
-		$trace = substr($trace, -80);
+		$trace = substr($trace, -500);
 
 		$start = ifsetor($_SERVER['REQUEST_TIME_FLOAT'], $_SERVER['REQUEST_TIME']);
 		$time = number_format(microtime(true) - $start, 3, '.', '');
 
-		$output = '<pre>'.$time.' diff: '.$diff.' '.number_format($mem*100, 2).'% '.$trace.'</pre>';
+		$output = '<pre style="margin: 0; padding: 0;">'.
+			$time.' diff: '.($diff >= 0 ? ' ' : '').$diff.' '.
+			number_format($mem*100, 2).'% '.$trace.'</pre>';
 		if (Request::isCLI()) {
 			$output = strip_tags($output);
 		}
@@ -560,6 +562,8 @@ class TaylorProfiler {
 	}
 
 	/**
+	 * @param bool $output_enabled
+	 * @param bool $trace_enabled
 	 * @return null|TaylorProfiler
 	 */
 	public static function getInstance($output_enabled=false, $trace_enabled=false) {
