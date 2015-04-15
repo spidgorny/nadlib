@@ -209,6 +209,9 @@ abstract class OODBase {
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$this->table.')');
+		if ($this->db instanceof MySQL) {
+			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
+		}
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		if (is_array($rows)) {
