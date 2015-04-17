@@ -675,4 +675,9 @@ class Time {
 		$this->setTime(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
 	}
 
+	function setHis($H, $i = 0, $s = 0) {
+		$this->time = strtotime(date('Y-m-d').' '.$H.':'.$i.':'.$s);
+		$this->updateDebug();
+	}
+
 }
