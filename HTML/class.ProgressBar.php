@@ -51,7 +51,7 @@ class ProgressBar {
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
-		$this->percentDone = $percentDone;
+		$this->percentDone = max(0, min($percentDone, 100));
 		$this->count = $count;
 		$this->cli = Request::isCLI();
 	}
@@ -190,7 +190,7 @@ class ProgressBar {
 		style="vertical-align: middle;"
 		title="'.number_format($p, 2).'%" />';
 	}
-	
+
 	static function getBar($p, $append = '') {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return $prefix . 'bar.php?rating=' . round($p) . $append;
