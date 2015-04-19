@@ -90,6 +90,14 @@ class HTMLForm {
 		return $a;
 	}
 
+	function getNameField($name) {
+		return $this->getName($name, '', true);
+	}
+
+	function getNameTag($name) {
+		return $this->getName($name, '', false);
+	}
+
 	/**
 	 * @param $type
 	 * @param $name
