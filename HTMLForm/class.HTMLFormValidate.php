@@ -33,7 +33,10 @@ class HTMLFormValidate {
 					$d['value'] = intval($d['value']);
 				}
 				$type = ifsetor($d['type']);
-				$isCheckbox = in_array($type, array(
+				if (is_object($type)) {
+					$type = get_class($type);
+				}
+				$isCheckbox = !is_object($type) && in_array($type, array(
 					'check',
 					'checkbox',
 					'captcha',

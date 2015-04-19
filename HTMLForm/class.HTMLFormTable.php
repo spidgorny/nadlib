@@ -598,6 +598,9 @@ class HTMLFormTable extends HTMLForm {
 						}
 					break;
 				}
+				if (is_object(ifsetor($descKey['type']))) {
+					$descKey['type']->setValue($val);
+				}
 
 				if (ifsetor($descKey['dependant'])) {
 					$desc[$key]['dependant'] = $this->fillValues($descKey['dependant'], $assoc);
