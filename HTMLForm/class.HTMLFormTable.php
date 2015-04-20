@@ -735,4 +735,16 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
+	public function clearValues() {
+		foreach ($this->desc as &$row) {
+			if (isset($row['value'])) {
+				unset($row['value']);
+			}
+			// should not be elseif
+			if ($row['type'] instanceof HTMLFormType) {
+				$row['type']->setValue(NULL);
+			}
+		}
+	}
+
 }
