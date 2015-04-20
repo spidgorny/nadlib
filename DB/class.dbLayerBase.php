@@ -159,7 +159,7 @@ class dbLayerBase implements DBInterface {
 	}
 
 	function fetchAssoc($res) {
-		// TODO: Implement fetchAssoc() method.
+		return NULL;
 	}
 
 }
