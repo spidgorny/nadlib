@@ -12,7 +12,7 @@ class Proxy extends OODBase {
 	/**
 	 * @var MySQL
 	 */
-	protected $db;
+	public $db;
 
 	public $ratio = 0;
 
