@@ -46,4 +46,9 @@ class HTMLFormMonthYear extends HTMLFormType {
 		$this->selMonth = $value['month'];
 		$this->year = $value['year'];
 	}
+
+	function validate() {
+		return $this->year ? NULL : 'Введите год';
+	}
+
 }
