@@ -28,6 +28,12 @@ class HTMLFormValidate {
 				$error = $error || !$validateResult;
 				//$d->desc = $v2->getDesc();
 				//debug('updateDesc', $d->getFieldset());
+			} elseif ($d['type'] instanceof HTMLFormType) {
+				$d['type']->setValue(ifsetor($d['value']));
+				$error = $d['type']->validate();
+				if ($error) {
+					$d['error'] = $error;
+				}
 			} else {
 				if (ifsetor($d['mustBint'])) {
 					$d['value'] = intval($d['value']);
@@ -200,18 +206,18 @@ class HTMLFormValidate {
 				}
 			}
 			if ($isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A")))
-      {
-		  // domain not found in DNS
-		  $isValid = false;
-	  }
-   }
+	    	{
+    			// domain not found in DNS
+				$isValid = false;
+			}
+		}
 		return $isValid;
 	}
 
 	function getErrorList() {
 		$list = array();
 		foreach ($this->desc as $key => $desc) {
-			if ($desc['error']) {
+			if (ifsetor($desc['error'])) {
 				$list[$key] = $desc['error'];
 			}
 		}
@@ -221,7 +227,7 @@ class HTMLFormValidate {
     /**
      * If Swift_Mail is installed, Swift_Validate will be used
      *
-     * @param $value should contain multiple email addresses (comma separated)
+     * @param mixed $value should contain multiple email addresses (comma separated)
      * @param array $invalid contains invalid entries (pass by reference)
      * @return bool
      */

@@ -64,6 +64,7 @@ class HTMLFormTable extends HTMLForm {
     public $isValid = false;
 
 	function __construct(array $desc = array(), $prefix = array(), $fieldset = '') {
+		parent::__construct();
 		$this->desc = $desc;
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
@@ -345,6 +346,7 @@ class HTMLFormTable extends HTMLForm {
 								: '';
 						}
 					}
+					$this->stdout .= ifsetor($desc['beforeLabel']);
 					$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
 					if ($withBR) {
 						//$this->stdout .= '<br />';	// depends on CSS (!!!)

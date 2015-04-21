@@ -95,7 +95,7 @@ class ProgressBar {
 		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
-			return Index::getInstance()->header[$less];
+			return ifsetor(Index::getInstance()->header[$less]);
 		} elseif ($GLOBALS['HTMLHEADER']) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
@@ -190,7 +190,7 @@ class ProgressBar {
 		style="vertical-align: middle;"
 		title="'.number_format($p, 2).'%" />';
 	}
-	
+
 	static function getBar($p, $append = '') {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return $prefix . 'bar.php?rating=' . round($p) . $append;
