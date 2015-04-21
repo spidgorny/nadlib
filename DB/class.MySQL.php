@@ -319,12 +319,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		$res = $this->lastResult = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
-			$key = md5($query);
-			$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
-			$this->queryLog[$key]['query'] = $query;
-			$this->queryLog[$key]['time'] = ($this->queryLog[$key]['time'] + $diffTime) / 2;
-			$this->queryLog[$key]['sumtime'] += $diffTime;
-			$this->queryLog[$key]['times']++;
+			$this->queryLog->log($query, $diffTime);
 		}
 		$this->lastQuery = $query;
 		TaylorProfiler::stop($profilerKey);
