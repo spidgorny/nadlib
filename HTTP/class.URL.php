@@ -698,4 +698,8 @@ return $return; */
 		return $this->components['pass'];
 	}
 
+	function getHash() {
+		return $this->components['fragment'];
+	}
+
 }
