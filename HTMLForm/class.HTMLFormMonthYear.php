@@ -28,7 +28,7 @@ class HTMLFormMonthYear extends HTMLFormType {
 		$fieldStringM = $this->form->getNameField(array_merge($this->field, array('month')), '', true);
 		$fieldStringY = $this->form->getNameField(array_merge($this->field, array('year')), '', true);
 		$content[] = '<table><tr><td>';
-		$content[] = '<select name="'.$fieldStringM.'">';
+		$content[] = '<select name="'.$fieldStringM.'" class="form-control">';
 		foreach ($this->months as $m => $mon) {
 			$content[] = new HTMLTag('option', array(
 				'value' => $m,
@@ -37,7 +37,7 @@ class HTMLFormMonthYear extends HTMLFormType {
 		}
 		$content[] = '</select>';
 		$content[] = '</td><td style="padding-left: 1em;">';
-		$content[] = '<input name="'.$fieldStringY.'" value="'.$this->year.'" size="5" placeholder="год"/>';
+		$content[] = '<input name="'.$fieldStringY.'" value="'.$this->year.'" size="5" placeholder="год" class="form-control"/>';
 		$content[] = '</td></tr></table>';
 		return $content;
 	}
