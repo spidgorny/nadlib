@@ -123,7 +123,7 @@ class SQLSearch {
 
 		// test if it's a date
 		$date1 = strtotime($word);
-		if ($date1 > 0) {
+		if (strlen($word) == 10 && $date1 > 0) {
 			$date2 = strtotime('+1 day', $date1);
 			$date1 = date('Y-m-d', $date1);
 			$date2 = date('Y-m-d', $date2);
