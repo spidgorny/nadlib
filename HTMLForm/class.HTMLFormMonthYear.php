@@ -29,12 +29,7 @@ class HTMLFormMonthYear extends HTMLFormType {
 		$fieldStringY = $this->form->getNameField(array_merge($this->field, array('year')), '', true);
 		$content[] = '<table><tr><td>';
 		$content[] = '<select name="'.$fieldStringM.'" class="form-control">';
-		foreach ($this->months as $m => $mon) {
-			$content[] = new HTMLTag('option', array(
-				'value' => $m,
-			) +	($this->selMonth == $m ? array('selected' => true) : array()),
-			$mon);
-		}
+		$content[] = $this->showMonthOptions();
 		$content[] = '</select>';
 		$content[] = '</td><td style="padding-left: 1em;">';
 		$content[] = '<input name="'.$fieldStringY.'" value="'.$this->year.'" size="5" placeholder="год" class="form-control"/>';
@@ -49,6 +44,17 @@ class HTMLFormMonthYear extends HTMLFormType {
 
 	function validate() {
 		return $this->year ? NULL : 'Введите год';
+	}
+
+	function showMonthOptions() {
+		$content = array();
+		foreach ($this->months as $m => $mon) {
+			$content[] = new HTMLTag('option', array(
+					'value' => $m,
+				) +	($this->selMonth == $m ? array('selected' => true) : array()),
+				$mon);
+		}
+		return $content;
 	}
 
 }
