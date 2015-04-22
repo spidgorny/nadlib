@@ -92,4 +92,14 @@ class UL {
 		return $ul;
 	}
 
+	public static function recursive(array $epesEmployees) {
+		foreach ($epesEmployees as &$el) {
+			if ($el instanceof Recursive) {
+				$el = $el->value . UL::recursive($el->getChildren());
+			}
+		}
+		$ul = new UL($epesEmployees);
+		return $ul;
+	}
+
 }
