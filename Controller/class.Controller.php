@@ -396,4 +396,8 @@ abstract class Controller {
 		return $f;
 	}
 
+	function s($content) {
+		return IndexBase::mergeStringArrayRecursive($content);
+	}
+
 }
