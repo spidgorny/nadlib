@@ -300,8 +300,15 @@ abstract class Controller {
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
-			if (method_exists($this, $method)) {
-				$content = $this->$method();
+
+			if ($proxy = $this->request->getTrim('proxy')) {
+				$proxy = new $proxy($this);
+			} else {
+				$proxy = $this;
+			}
+
+			if (method_exists($proxy, $method)) {
+				$content = $proxy->$method();
 			} else {
 				// other classes except main controller may result in multiple messages
 				//Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
