@@ -151,8 +151,7 @@ if (!function_exists('nodebug')) {
 		return $parts;
 	}
 
-	function debug_pre_print_backtrace()
-	{
+	function debug_pre_print_backtrace() {
 		if (DEVELOPMENT) {
 			print '<pre>';
 			if (phpversion() >= '5.3') {
