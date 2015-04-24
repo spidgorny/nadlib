@@ -455,17 +455,18 @@ abstract class OODBase {
 	}
 
 	//abstract function createRecord($data);
-	static function createRecord($insert, $class) {
+	static function createRecord($insert, $class = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
+		$class = $class ?: get_called_class();
 
 		$db = Config::getInstance()->db;
 		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);
 		$res = $db->perform($query);
 		if ($res) {
-			$id = $db->getLastInsertID($res, constant($class.'::table'));
+			$id = $db->lastInsertID($res, constant($class.'::table'));
 			//t3lib_div::debug($id);
 
 			if ($class) {
