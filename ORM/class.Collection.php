@@ -464,7 +464,11 @@ class Collection {
 	 */
     function setData($data) {
 	    $this->log(get_class($this).'::'.__FUNCTION__.'()');
-        $this->data  = ArrayPlus::create((array) $data);
+	    if ($data instanceof ArrayPlus) {
+		    $this->data = $data;    // preserve sorting
+	    } else {
+		    $this->data = ArrayPlus::create((array)$data);
+	    }
         $this->count = count($this->data);
 
 		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
