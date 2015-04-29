@@ -66,7 +66,7 @@ class dbLayer {
 		$this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = @pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
-			//debug($query);
+			debug($query);
 			//debug_pre_print_backtrace();
 			$error = $this->CONNECTION
 				? pg_errormessage($this->CONNECTION)
