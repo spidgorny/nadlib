@@ -299,9 +299,9 @@ class Request {
 		return $this;
 	}
 
-	function getCoalesce($a, $b) {
+	function getCoalesce($a, $value) {
 		$a = $this->getTrim($a);
-		return $a ? $a : $b;
+		return $a ? $a : $value;
 	}
 
 	function getControllerString($returnDefault = true) {

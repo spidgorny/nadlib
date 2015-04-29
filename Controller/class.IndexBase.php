@@ -288,6 +288,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param $bookingID
 	 */
 	function log($action, $bookingID) {
+		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
