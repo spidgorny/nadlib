@@ -54,8 +54,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	var $config;
 
-	var $title = '';
-
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
@@ -63,7 +61,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->config = Config::getInstance();
 			$this->db = $this->config->db;
 			$this->user = $this->config->user;
-			$this->ll = ifsetor($this->config->ll);
+			$this->ll = $this->config->getLL();
 		}
 
 		$this->request = Request::getInstance();
@@ -208,7 +206,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$render = $this->controller->render();
 		$render = $this->mergeStringArrayRecursive($render);
 		$this->sidebar = $this->showSidebar();
-		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
+		if ($this->controller->layout instanceof Wrap
+			&& !$this->request->isAjax()) {
+			/** @var $this->controller->layout Wrap */
 			$render = $this->controller->layout->wrap($render);
 		}
 		TaylorProfiler::stop(__METHOD__);
@@ -250,7 +250,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$this->title = $e->getMessage();
+		$this->controller->title = $e->getMessage();
 		$message = $e->getMessage();
 		$message = $message instanceof htmlString
 			? $message.''
@@ -284,10 +284,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * Move it to the MRBS
-	 * @param $action
-	 * @param $bookingID
+	 * @param string $action
+	 * @param array $data
 	 */
-	function log($action, $bookingID) {
+	function log($action, array $data) {
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
@@ -306,7 +306,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function error($text) {
-		$msg = '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
 		} else {

@@ -259,6 +259,7 @@ class Flot extends AppController {
 	}
 
 	function showChart($divID, array $charts, array $cumulative = array()) {
+		if (!$charts) return '';
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"

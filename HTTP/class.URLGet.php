@@ -11,6 +11,9 @@ class URLGet {
 
 	protected $html = '';
 
+	/**
+	 * @var Index
+	 */
 	protected $logger;
 
 	/**
@@ -33,6 +36,8 @@ class URLGet {
 	 * @var array
 	 */
 	public $curlParams = array();
+
+	public $headers = array();
 
 	/**
 	 *
@@ -57,10 +62,13 @@ class URLGet {
 
 	/**
 	 * @param int $retries
+	 * @internal param bool|Proxy $proxy - it was a proxy object, but now it's boolean
+	 * as a new proxy will get generation
 	 */
 	public function fetch($retries = 1) {
 		$start = microtime(true);
 		$this->logger->log(__METHOD__, '<a href="'.$this->url.'">'.$this->url.'</a>');
+		$html = NULL;
 		for ($i = 0; $i < $retries; $i++) {
 			try {
 				if (function_exists('curl_init')) {
@@ -92,15 +100,19 @@ class URLGet {
 	}
 
 	public function fetchFOpen() {
+		if ($this->headers) {
+			$this->context['http']['header'] = ArrayPlus::create($this->headers)->getHeaders("\r\n");
+		}
+		//debug($this->context);
 		$ctx = stream_context_create($this->context);
 		$html = file_get_contents($this->url, 0, $ctx);
 		return $html;
 	}
 
 	public function fetchCURL(array $options = array()) {
-		$this->logger->log(__METHOD__.'('.$this->url.')', __METHOD__);
+		$this->logger->log($this->url, __METHOD__);
 		$process = curl_init($this->url);
-		//curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
+		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
 		curl_setopt($process, CURLOPT_HEADER, 1);
 		//curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
 		//if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
@@ -126,7 +138,7 @@ class URLGet {
 		$html = substr($response, $header_size);
 
 		$this->info = curl_getinfo($process);
-		$this->logger->log(__METHOD__, 'URLGet Info: '.json_encode($this->info, JSON_PRETTY_PRINT));
+		$this->logger->log(__METHOD__, 'URLGet Info: '.json_encode($this->info, defined('JSON_PRETTY_PRINT') ? JSON_PRETTY_PRINT : NULL));
 		$this->logger->log(__METHOD__, 'URLGet Errno: '.curl_errno($process));
 		$this->logger->log(__METHOD__, 'URLGet HTTP code: '.$this->info['http_code']);
 		$this->logger->log(__METHOD__, 'URLGet Headers: '.$headers);
@@ -156,6 +168,10 @@ class URLGet {
 	 */
 	public function getContent() {
 		return strval($this->html).'';
+	}
+
+	public function setProxyObject(Proxy $useProxy) {
+		$this->proxy = $useProxy;
 	}
 
 }

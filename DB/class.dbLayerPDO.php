@@ -90,8 +90,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->connection = new PDO($this->dsn, $user, $password);
 		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
-		$url = parse_url($this->dsn);
-		$this->database = basename($url['path']);
+
+		//$url = parse_url($this->dsn);
+		//$this->database = basename($url['path']);
 	}
 
 	function perform($query, array $params = array()) {
@@ -263,6 +264,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @return mixed
 	 */
 	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		$row = $res->fetch(PDO::FETCH_ASSOC);
 		return $row;
 	}
@@ -271,7 +275,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->dataSeek = $int;
 	}
 
-	function fetchAssocSeek(PDOStatement $res) {
+	/**
+	 * @param PDOStatement $res
+	 * @return mixed
+	 */
+	function fetchAssocSeek($res) {
 		return $res->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_ABS, $this->dataSeek);
 	}
 

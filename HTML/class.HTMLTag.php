@@ -20,7 +20,9 @@ class HTMLTag {
 
 	function __toString() {
 		$xmlClose = $this->closingTag ? '' : '/';
-		$content = ($this->isHTML || $this->content instanceof HTMLTag)
+		$content = ($this->isHTML
+			|| $this->content instanceof HTMLTag
+			|| $this->content instanceof htmlString)
 			? $this->content
 			: htmlspecialchars($this->content, ENT_QUOTES);
 		$tag = '<'.trim($this->tag.' '.$this->renderAttr($this->attr)).$xmlClose.'>';
@@ -46,8 +48,18 @@ class HTMLTag {
 		return implode(' ', $set);
 	}
 
-	function attr($name) {
-		return $this->attr[$name];
+	/**
+	 * jQuery style
+	 * @param $name
+	 * @param null $value
+	 * @return mixed
+	 */
+	function attr($name, $value = NULL) {
+		if ($value) {
+			$this->attr[$name] = $value;
+		} else {
+			return $this->attr[$name];
+		}
 	}
 
 	function setAttr($name, $value) {

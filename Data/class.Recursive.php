@@ -25,7 +25,7 @@ class Recursive {
 	}
 
 	function __toString() {
-		return strval(strip_tags($this->value));
+		return strip_tags(strval($this->value));
 	}
 
 	function getChildren() {
@@ -40,6 +40,7 @@ class Recursive {
 		//debug($path);
 		if ($path) {
 			$current = array_shift($path);
+			/** @var Recursive $find */
 			$find = $this->elements[$current];
 			if ($find && $path) {
 				$find = $find->findPath($path);

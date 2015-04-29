@@ -58,6 +58,7 @@ class Menu /*extends Controller*/ {
 
 	/**
 	 * @var bool - will control the URL generation as only last path element or '/'-separated path
+	 * This is required for $useControllerSlug to work
 	 */
 	public $useRecursiveURL = true;
 
@@ -65,6 +66,7 @@ class Menu /*extends Controller*/ {
 	 * @var bool
 	 * TRUE: explode('/', $path)
 	 * FALSE: Request::getControllerSting()
+	 * Call setBasePath() after changing this to make an effect
 	 */
 	public $useControllerSlug = true;
 
@@ -379,11 +381,12 @@ class Menu /*extends Controller*/ {
 		} else {
 			if ($this->useRecursiveURL) {
 				$path = array_merge($root, array($class));
-				if ($path && $this->useControllerSlug) {
-					$link = $this->basePath . implode('/', $path);
-				} else {
-					$link = $this->basePath->setParam($this->controllerVarName, $class);
-				}
+			} else {
+				$path = array($class);
+			}
+
+			if ($path && $this->useControllerSlug) {
+				$link = $this->basePath . implode('/', $path);
 			} else {
 				$link = $this->basePath->setParam($this->controllerVarName, $class);
 			}
@@ -394,7 +397,7 @@ class Menu /*extends Controller*/ {
 			'path' => $path,
 			'useRecursiveURL' => $this->useRecursiveURL,
 			'useControllerSlug' => $this->useControllerSlug,
-			'basePath' => $this->basePath,
+			'basePath' => $this->basePath.'',
 			'link' => $link
 		));
 		return $link;

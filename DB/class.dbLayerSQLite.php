@@ -37,6 +37,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	function __construct($file) {
 		$this->file = $file;
 		$this->database = basename($this->file);
+		$this->connect();
 	}
 
 	function connect() {
@@ -48,12 +49,16 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query) {
+		if (!$this->connection) {
+			debug_pre_print_backtrace();
+		}
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
 		$this->lastResult = $this->connection->query($query);
 		$this->queryTime += $profiler->elapsed();
 		if (!$this->lastResult) {
 			debug($query, $this->connection->lastErrorMsg());
+			throw new Exception('DB query failed');
 		}
 		return $this->lastResult;
 	}
@@ -110,7 +115,8 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 	 * @param $res SQLite3Result
 	 */
 	function free($res) {
-		$res->finalize();
+		// The SQLite3Result object has not been correctly initialised
+		@$res->finalize();
 	}
 
 	function quoteKey($key) {
@@ -132,7 +138,18 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		return $tableInfo;
 	}
 
+	/**
+	 * @param SQLite3Result $res
+	 * @return mixed
+	 */
 	function fetchAssoc($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		if (!is_object($res)) {
+			debug($res);
+			debug_pre_print_backtrace();
+		}
 		return $res->fetchArray(SQLITE3_ASSOC);
 	}
 

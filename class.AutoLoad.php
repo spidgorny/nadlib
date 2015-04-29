@@ -98,7 +98,9 @@ class AutoLoad {
 			if (class_exists('Config')) {
 				self::$instance->config = Config::getInstance();
 			}
-			self::$instance->initFolders();
+
+			// should not be called before $this->useCookies is set
+			//self::$instance->initFolders();
 		}
 		return self::$instance;
 	}
@@ -248,10 +250,14 @@ class AutoLoad {
 		}
 		if (!class_exists('Config', false)) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
+			$configPath1 = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
+			$configPath2 = $this->appRoot.'class'.DIRECTORY_SEPARATOR.      'Config.php';
+			$this->stat['configPath'] = $configPath1;
 			//debug($configPath, file_exists($configPath)); exit();
-			if (file_exists($configPath)) {
-				include_once $configPath;
+			if (file_exists($configPath1)) {
+				include_once $configPath1;
+			} elseif (file_exists($configPath2)) {
+				include_once $configPath2;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
 			} else {
 				// some projects don't need Config
@@ -278,7 +284,14 @@ class AutoLoad {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
 				session_set_cookie_params(0, '');	// current folder
-				if ((phpversion() < 5.4 || (phpversion() >= 5.4 && session_status() != PHP_SESSION_ACTIVE)) && !headers_sent()) {
+				if ((phpversion() < 5.4 || (
+							phpversion() >= 5.4
+							&& session_status() != PHP_SESSION_ACTIVE
+						)
+					) && !headers_sent() && $this->useCookies) {
+					//echo '$this->useCookies', $this->useCookies, BR;
+					//echo 'session_start ', __METHOD__, BR;
+					//debug_pre_print_backtrace();
 					session_start();
 				}
 
@@ -293,10 +306,19 @@ class AutoLoad {
 			}
 		}
 
-		if (!$folders) {
+		if ($folders) {
+			$this->stat['folders'] = 'fromSession';
+		} else {
+			$this->stat['folders'] = 'fromConfig';
 			$folders = array();
-			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
-			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
+
+			$plus = $this->getFoldersFromConfig();
+			$this->stat['folders'] .= ', '.sizeof($plus);
+			$folders = array_merge($folders, $plus);		// should come first to override /be/
+
+			$plus = $this->getFoldersFromConfigBase();
+			$this->stat['folders'] .= ', '.sizeof($plus);
+			$folders = array_merge($folders, $plus);
 		}
 		//debug($folders);
 		//debug($this->classFileMap, $_SESSION[__CLASS__]);
@@ -351,8 +373,14 @@ class AutoLoad {
 	 * @throws Exception
 	 */
 	function load($class) {
-		$tp = ifsetor($GLOBALS['profiler']);
+		//$tp = TaylorProfiler::getInstance();
+		$tp = NULL;
 		if ($tp) $tp->start(__METHOD__);
+		if ($class == 'AdminPage') {
+			$this->debug = false;
+		} else {
+			$this->debug = false;
+		}
 		$this->count++;
 
 		$namespaces = explode('\\', $class);
@@ -381,12 +409,19 @@ class AutoLoad {
 				include_once $file;
 				$this->classFileMap[$class] = $file;
 				$this->stat['findInFolders']++;
+			} elseif ($this->debug) {
+				//debug($this->stat['folders'], $this->stat['configPath']);
+				//debug($this->folders);
 			}
 		}
 
 		if (!class_exists($class) && !interface_exists($class)) {
 			if (isset($_SESSION)) {
+				//debug('clear folder as '.$class.' is not found');
+				//$this->folders = array();				// @see __destruct(), commented as it's too global
 				unset($_SESSION[__CLASS__]['folders']); // just in case
+				//debug($_SESSION[__CLASS__]['folders']);
+				$this->useCookies = false;				// prevent __destruct saving data to the session
 			}
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
@@ -412,7 +447,7 @@ class AutoLoad {
 	 * @return string
 	 */
 	function findInFolders($classFile, $subFolders) {
-		$appRoot = class_exists('Config') ? $this->config->appRoot : '';
+		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
