@@ -328,20 +328,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
         return $c;
     }
 
-    /**
-     * @param string $table Table name
-     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-     * @return string
-     */
-    function getInsertQuery($table, $columns) {
-		$q = "INSERT INTO {$table} (";
-		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
-		$q .= ") VALUES (";
-		$q .= implode(", ", $this->quoteValues(array_values($columns)));
-		$q .= ")";
-		return $q;
-	}
-
 	/**
 	 * Overrides because of pg_fetch_all
 	 * @param resource|string $result
