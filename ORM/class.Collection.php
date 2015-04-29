@@ -485,9 +485,9 @@ class Collection implements IteratorAggregate {
      */
     function getOptions($blackList = array()) {
 		$options = array();
-		//debug(get_class($this), $this->titleColumn);
+		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
 		foreach ($this->getData() as $row) {
-            if( !in_array($row[$this->idField], $blackList) ) {
+            if (!in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
             }
 		}
@@ -875,10 +875,7 @@ class Collection implements IteratorAggregate {
 	function getLazyIterator() {
 		$query = $this->getQuery();
 
-		$di = new DIContainer();
-		$di->db = $this->db;
-
-		$lazy = new DatabaseResultIteratorAssoc($di, $this->idField);
+		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
 		$lazy->perform($query);
 
 		return $lazy;
@@ -898,7 +895,7 @@ class Collection implements IteratorAggregate {
 	 */
 	public function getCount() {
 		if (is_null($this->count)) {
-			$query = $this->getQueryWithLimit($this->where);
+			$query = $this->getQueryWithLimit();
 			//debug($query);
 			if ($this->pager) {
 				$this->count = $this->pager->numberOfRecords;
