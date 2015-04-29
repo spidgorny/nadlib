@@ -113,7 +113,11 @@ class HTMLForm {
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.' '.$moreClass.'"';
 		$a .= $this->getName($name, $namePlus);
 		if ($value || $value === 0) {
-			$value = htmlspecialchars($value, ENT_QUOTES);
+			if (!($value instanceof htmlString)) {
+				$value = htmlspecialchars($value, ENT_QUOTES);
+			} else {
+				$value = str_replace('"', '&quot;', $value);
+			}
 			$a .= ' value="'.$value.'"';
 		}
 		if ($more) {
@@ -196,7 +200,7 @@ class HTMLForm {
 			value="'.htmlspecialchars($value, ENT_QUOTES).'" '.
 			($checked ? "checked" : "").'
 			id="'.$id.'"
-			'.$more.'> ';
+			'.(is_array($more) ? $this->getAttrHTML($more) : $more).'> ';
 		$this->stdout .= $this->hsc($label)."</label>";
 	}
 
@@ -454,7 +458,8 @@ class HTMLForm {
 		$between = $desc['between'] ? $desc['between'] : '<br />';
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
-			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
+			// if you need to compare intvals, do it separately
+			$this->radioLabel($name, $key, $value == $key, $val, $desc['more']);
 			$this->text($between);
 		}
 	}
