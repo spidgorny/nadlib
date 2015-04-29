@@ -243,6 +243,7 @@ abstract class OODBase {
 		//debug(get_class($this->db));
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
+		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
 		//debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
