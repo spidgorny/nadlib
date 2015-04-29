@@ -507,10 +507,11 @@ abstract class OODBase {
 	 * @return static
 	 * @throws Exception
 	 */
-	static function createRecord($insert, $class) {
+	static function createRecord($insert, $class = NULL) {
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
+		$class = $class ?: get_called_class();
 
 		/** @var dbLayerBase $db */
 		$db = Config::getInstance()->getDB();
@@ -518,7 +519,7 @@ abstract class OODBase {
 		//t3lib_div::debug($query);
 		$res = $db->perform($query);
 		if ($res) {
-			$id = $db->getLastInsertID($res, constant($class.'::table'));
+			$id = $db->lastInsertID($res, constant($class.'::table'));
 			//t3lib_div::debug($id);
 
 			if ($class) {

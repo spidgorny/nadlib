@@ -346,12 +346,18 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * Enters array key as ['__key__']
+	 */
 	function insertKeyAsColumn() {
 		foreach ($this->getData() as $key => $_) {
 			$this[$key]['__key__'] = $key;
 		}
 	}
 
+	/**
+	 * Extracts key from array as ['__key__']
+	 */
 	function extractKeyFromColumn() {
 		$new = array();
 		foreach ($this as $row) {

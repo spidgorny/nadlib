@@ -274,9 +274,12 @@ class SQLBuilder {
 
 	function getFirstWord($table) {
 		$table1 = trimExplode(' ', $table);
-		$table1 = trimExplode("\t", $table1[0]);
-		$table0 = trim(first($table1));
-//		debug($table, $table1, $table0);
+		$table0 = $table1[0];
+		$table1 = trimExplode("\t", $table0);
+		$table0 = $table1[0];
+		$table1 = trimExplode("\n", $table0);
+		$table0 = $table1[0];
+		//debug($table, $table1, $table0);
 		return $table0;
 	}
 
