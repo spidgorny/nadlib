@@ -208,7 +208,13 @@ abstract class OODBase {
 			// If the input arrays have the same string keys,
 			// then the later value for that key will overwrite the previous one.
 			//$this->data = array_merge($this->data, $data);
-			$this->init($this->id);
+
+			// may lead to infinite loop
+			//$this->init($this->id);
+			// will call init($fromFindInDB = true)
+			$this->findInDB(array(
+				$this->idField => $this->id,
+			));
 			TaylorProfiler::stop(__METHOD__);
 		} else {
 			//$this->db->rollback();

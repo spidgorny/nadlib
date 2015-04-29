@@ -151,12 +151,13 @@ class SQLBuilder {
 
 				} elseif ($val instanceof AsIsOp) {       // check subclass first
 					$val->injectDB($this->db);
+					$val->injectField($key);
 					if (is_numeric($key)) {
 						$set[] = $val;
 					} else {
 						$set[] = $key . ' ' . $val;
 					}
-				} elseif ($val instanceof AsIsOp) {
+				} elseif ($val instanceof AsIs) {
 					$val->injectDB($this->db);
 					$val->injectQB($this);
 					$val->injectField($key);
@@ -232,7 +233,8 @@ class SQLBuilder {
 	function getInsertQuery($table, $columns) {
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
-		$q = 'INSERT INTO '.$this->quoteKey($table).' ('.$fields . ") VALUES (" . $values . ")";
+		$table = $this->quoteKey($table);
+		$q = "INSERT INTO {$table} ({$fields}) VALUES (" . $values . ")";
 		return $q;
 	}
 
@@ -325,7 +327,12 @@ class SQLBuilder {
 	}
 
 	/**
-	 * 2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	 * 2010/09/12: modified according to mantis request 0001812    - 4th argument added
+	 * @param $array
+	 * @param $field
+	 * @param string $joiner
+	 * @param string $conditioner
+	 * @return string
 	 */
 	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
@@ -446,6 +453,9 @@ class SQLBuilder {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
 		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
 		$query = $this->getSelectQuery($table, $where, $order, $addFields);
+
+		//debug($query); if ($_COOKIE['debug']) { exit(); }
+
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, $idField);
 		return $data;
@@ -508,7 +518,9 @@ class SQLBuilder {
 	}
 
 	function runDeleteQuery($table, array $where) {
-		return $this->db->perform($this->getDeleteQuery($table, $where));
+		$delete = $this->getDeleteQuery($table, $where);
+		debug($delete);
+		return $this->db->perform($delete);
 	}
 
 	function __call($method, array $params) {
@@ -518,8 +530,9 @@ class SQLBuilder {
 	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL) {
 		$res = $this->runSelectQuery($table, $where, $order,
 			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
-			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
-			true);
+			($idField
+				? $table.'*, '.$this->quoteKey($idField).' AS id_field'
+				: ''));
 		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
 		if ($idField) {
 			$data = $this->fetchAll($res, 'id_field');
@@ -577,9 +590,7 @@ class SQLBuilder {
 			$res = $this->db->perform($query);
 			return $res;
 		} else {
-			$di = new DIContainer();
-			$di->db = $this->db;
-			$f = new DatabaseResultIteratorAssoc($di);
+			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->perform($query);
 			return $f;
 		}
