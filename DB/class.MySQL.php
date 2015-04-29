@@ -272,6 +272,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if ($newConnection) {
 			$this->connection = mysql_connect($host, $login, $password, $newConnection);
 		} else {
+		// important to say new_link = true for MSSQL
 			$this->connection = @mysql_pconnect($host, $login, $password);
 		}
 		if (!$this->connection) {
@@ -336,6 +337,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 					'query' => $query,
 				));
 			}
+			debug_pre_print_backtrace();
 			$e = new DatabaseException(mysql_errno($this->connection).': '.mysql_error($this->connection).
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
