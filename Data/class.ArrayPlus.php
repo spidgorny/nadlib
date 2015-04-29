@@ -76,6 +76,16 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	function keepColumns(array $keep) {
+		$data = array();
+		foreach ((array)$this as $i => $row) {
+			$row = array_intersect_key($row, array_combine($keep, $keep));
+			$data[$i] = $row;
+		}
+		$this->setData($data);
+		return $this;
+	}
+
 	/**
 	 * Modifies itself
 	 * @param string $key
@@ -311,8 +321,8 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function first() {
-		reset($this);
-		return current($this);
+		reset($this->getData());
+		return current($this->getData());
 	}
 
 	/**
@@ -657,6 +667,22 @@ class ArrayPlus extends ArrayObject implements Countable {
 		$input = array_slice($input, 0, $offset, TRUE)
 			+ $replacement
 			+ array_slice($input, $offset + $length, NULL, TRUE);
+	}
+
+	/**
+	 * Used in HTTP protocol
+	 * @param null $joinWith
+	 * @return array|string
+	 */
+	public function getHeaders($joinWith = NULL) {
+		$headers = array();
+		foreach ($this as $key => $val) {
+			$headers[] = $key.': '.$val;
+		}
+		if ($joinWith) {
+			$headers = implode($joinWith, $headers);
+		}
+		return $headers;
 	}
 
 }

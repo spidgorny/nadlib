@@ -10,7 +10,7 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * In case of MSSQL it needs to be set from outside
-	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO
+	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO|dbLayerSQLite
 	 */
 	public $db;
 
@@ -62,7 +62,7 @@ class Collection implements IteratorAggregate {
 	 * array of objects converted from $this->data // convert to public
 	 * @var array
 	 */
-	public $members = array();
+	protected $members = array();
 
 	/**
 	 * objectify() without parameters will try this class name
@@ -201,7 +201,7 @@ class Collection implements IteratorAggregate {
 				? implode(', ', $this->parentID)
 				: $this->parentID).")";
 		TaylorProfiler::start(__METHOD__." ({$this->table})");
-		$this->query = $this->getQueryWithLimit($this->where);
+		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -228,17 +228,23 @@ class Collection implements IteratorAggregate {
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
 		TaylorProfiler::start(__METHOD__." (".$this->table.':'.$this->parentID.")");
 		$query = $this->getQuery();
-		$sql = new SQLQuery($query);
-		array_unshift($sql->parsed['SELECT'], array(
-			'expr_type' => 'reserved',
-			'base_expr' => 'SQL_CALC_FOUND_ROWS',
-			'delim' => ' ',
-		));
-		if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
-			$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+		if (class_exists('PHPSQL\Parser') && false) {
+			$sql = new SQLQuery($query);
+			//debug($sql->parsed['SELECT']);
+			array_unshift($sql->parsed['SELECT'], array(
+				'expr_type' => 'reserved',
+				'base_expr' => 'SQL_CALC_FOUND_ROWS',
+				'delim'     => ' ',
+			));
+			//debug($sql->parsed);
+			if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
+				$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
+			}
+			//debug($sql->parsed);
+			$this->query = $sql->__toString();
+		} else {
+			$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);
 		}
-		//debug($sql->parsed);
-		$this->query = $sql->__toString();
 		$res = $this->db->perform($this->query);
 
 		if ($this->pager) {
@@ -440,8 +446,8 @@ class Collection implements IteratorAggregate {
 		$this->log('data: '.!!$this->data);
 		$this->log('data->count: '.count($this->data));
 		if (!$this->query
-			|| !is_null($this->data)
-			//|| !$this->data->count()  // not necessary, we have retrieved nothing
+			|| is_null($this->data)
+			//|| !$this->data->count())) {
 		) {
 			$this->retrieveDataFromDB();
 		}
@@ -458,7 +464,11 @@ class Collection implements IteratorAggregate {
 	 */
     function setData($data) {
 	    $this->log(get_class($this).'::'.__FUNCTION__.'()');
-        $this->data  = ArrayPlus::create((array) $data);
+	    if ($data instanceof ArrayPlus) {
+		    $this->data = $data;    // preserve sorting
+	    } else {
+		    $this->data = ArrayPlus::create((array)$data);
+	    }
         $this->count = count($this->data);
 
 		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
@@ -599,7 +609,7 @@ class Collection implements IteratorAggregate {
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
-		/** @var dbLayer|dbLayerBL $db */
+		/** @var dbLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$firstWord = $db->getFirstWord($c->table);
 		$c->select = ' '.$firstWord.'.*';
@@ -611,7 +621,7 @@ class Collection implements IteratorAggregate {
 	 *
 	 * @param string $class	- required, but is supplied by the subclasses
 	 * @param bool $byInstance
-	 * @return object[]
+	 * @return object[]|OODBase[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
 		$class = $class ? $class : $this->itemClassName;
@@ -911,6 +921,7 @@ class Collection implements IteratorAggregate {
 			$members[$id] = $member->getJson();
 		}
 		return array(
+			'class' => get_class($this),
 			'count' => $this->getCount(),
 			'members' => $members,
 		);

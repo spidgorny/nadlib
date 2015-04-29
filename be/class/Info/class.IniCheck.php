@@ -3,13 +3,14 @@
 class IniCheck extends AppControllerBE {
 
 	function render() {
+		$content = array();
 		$iniFile = AutoLoad::getInstance()->appRoot.'php.ini';
 		$iniData = parse_ini_file($iniFile, true);  // sections
 		foreach ($iniData as $section => $subSection) {
 			$content[] = '<h1>'.$section.'</h1>';
 			$content[] = $this->showSection($subSection);
 		}
-		$content[] = getDebug(get_loaded_extensions());
+		//$content[] = getDebug(get_loaded_extensions());
 		return $content;
 	}
 

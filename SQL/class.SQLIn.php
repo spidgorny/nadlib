@@ -18,7 +18,7 @@ class SQLIn extends SQLWherePart {
 		}
 
 		if (!$field) {
-			debug_pre_print_backtrace();
+			//debug_pre_print_backtrace();
 		}
 		$content = $field ." IN (".implode(", ", $this->db->quoteValues($this->list)).")";
 		return $content;

@@ -27,7 +27,19 @@ class Date extends Time {
 		return new self($input, $relativeTo);
 	}
 
+	/**
+	 * @deprecated This is using gmdate()
+	 * @return string
+	 */
 	function getMySQL() {
+		return date('Y-m-d', $this->time);
+	}
+
+	/**
+	 * This is using gmdate()
+	 * @return string
+	 */
+	function getMySQLUTC() {
 		return gmdate('Y-m-d', $this->time);
 	}
 
@@ -102,6 +114,7 @@ class Date extends Time {
 		$m = substr($date, 4, 2);
 		$d = substr($date, 6, 2);
 		$this->time = strtotime($y.'-'.$m.'-'.$d);
+		$this->updateDebug();
 	}
 
 	/**

@@ -89,6 +89,9 @@ class HTMLTableBuf extends MergedContent {
 	function thes(array $aCaption, $thmore = array(), $trmore = '') {
 		$this->htr($trmore);
 		foreach($aCaption as $i => $caption) {
+			if (is_string($thmore[$i])) {
+				debug($i, $thmore[$i]);
+			}
 			$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
 			if (is_array($more)) {
 				$more = HTMLTag::renderAttr($more);

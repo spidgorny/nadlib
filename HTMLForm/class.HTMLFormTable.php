@@ -22,7 +22,7 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Additional parameters for <table>
-	 * @var
+	 * @var array
 	 */
 	var $tableMore;
 
@@ -70,7 +70,12 @@ class HTMLFormTable extends HTMLForm {
 		$this->request = Request::getInstance();
 		if ($this->desc) {
 			// todo: does not get correct values OR values at all!
-			$this->importValues($this->request->getSubRequestByPath($this->prefix));
+			if ($this->request->is_set(first($this->prefix))) {
+				$form = $this->request->getSubRequestByPath($this->prefix);
+			} else {
+				$form = $this->request;
+			}
+			$this->importValues($form);
 			//$this->showForm();	// call manually to have a chance to change method or defaultBR
 		}
 		if ($fieldset) {
@@ -92,6 +97,7 @@ class HTMLFormTable extends HTMLForm {
 	function importValues(Request $form) {
 		//$this->desc = $this->fillValues($this->desc, $form);
 		foreach ($this->desc as $key => &$desc) {
+			$type = ifsetor($desc['type']);
 			if ($desc instanceof HTMLFormTable) {
 				$prefix_1 = $desc->prefix;
 				array_shift($prefix_1);
@@ -100,12 +106,19 @@ class HTMLFormTable extends HTMLForm {
 					$desc->prefix, $prefix_1, sizeof($subForm->getAll()), implode(', ', $subForm->getAll()));
 				$desc->importValues($subForm);
 				//debug('after', $desc->desc);
-			} else if (ifsetor($desc['type']) instanceof HTMLFormDatePicker) {
+			} else if ($type instanceof HTMLFormDatePicker) {
+				/** @var HTMLFormDatePicker $type */
 				$val = $form->getTrim($key);
-				$desc['value'] = $desc['type']->getISODate($val);
-				//debug(__METHOD__, $val, $desc['value']);
+				if ($val) {
+					$desc['value'] = $type->getISODate($val);
+					//debug(__METHOD__, $val, $desc['value']);
+				}
 			} else if ($form->is_set($key)) {
-				$desc['value'] = $form->getTrim($key);
+				if (is_array($form->get($key))) {
+					$desc['value'] = $form->getArray($key);
+				} else {
+					$desc['value'] = $form->getTrim($key);
+				}
 			} // else keep default ['value']
 		}
 	}
@@ -121,8 +134,8 @@ class HTMLFormTable extends HTMLForm {
 			$elementID = $desc['id'];
 		}
 		$type = ifsetor($desc['type']);
-		/* @var $type Collection */
 		if ($type instanceof HTMLFormType) {
+			/* @var $type HTMLFormType */
 			$type->setField($fieldName);
 			$type->setForm($this);
 			if (ifsetor($desc['value'])) {
@@ -134,6 +147,7 @@ class HTMLFormTable extends HTMLForm {
 			$type->desc = $desc;
 			$this->stdout .= IndexBase::mergeStringArrayRecursive($type->render());
 		} else if ($type instanceof Collection) {
+			/** @var $type Collection */
 			$type->setField($fieldName);
 			$type->setForm($this);
 			$type->setValue($desc['value']);
@@ -190,6 +204,9 @@ class HTMLFormTable extends HTMLForm {
 					$more = is_array(ifsetor($desc['more']))
 						? $desc['more'] + array('id' => $elementID)
 						: $desc['more'] . ' id="'.$elementID.'"';
+					if ($desc['postgresql']) {
+						$fieldValue = $fieldValue == 't';
+					}
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $more);
 				break;
 				case "time":
@@ -255,7 +272,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->combo($fieldName, $desc);
 				break;
 				case 'button':
-					$this->button($desc['innerHTML'], $desc['more']);
+					$this->button($desc['innerHTML'], $desc['more'] ?: array());
 				break;
 				case 'fieldset':
 					//$this->fieldset($desc['label']);	// it only sets the global fieldset name
@@ -322,38 +339,8 @@ class HTMLFormTable extends HTMLForm {
 				$newContent = substr($this->stdout, strlen($tmp));
 				$this->stdout = $tmp;
 
-				$withBR = (ifsetor($desc['br']) === NULL && $this->defaultBR) || $desc['br'];
-				if (isset($desc['label'])) {
-					$label = $desc['label'];
-					if (!$withBR) {
-						if ($desc['label']) {
-							$label .= ':&nbsp;';
-							if (!ifsetor($desc['optional']) &&
-								!in_array($type, array('check', 'checkbox'))) {
-								if ($this->noStarUseBold) {
-									$label = '<b title="Obligatory">'.$label.'</b>';
-								} else {
-									$label .= '<span class="htmlFormTableStar">*</span>';
-								}
-							} else {
-								if ($this->noStarUseBold) {
-									$label = '<span title="Optional">'.$label.'</span>';
-								}
-							}
-							$label .= ifsetor($desc['explanationgif']);
-							$label .= $this->debug
-								? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>'
-								: '';
-						}
-					}
-					$this->stdout .= ifsetor($desc['beforeLabel']);
-					$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
-					if ($withBR) {
-						//$this->stdout .= '<br />';	// depends on CSS (!!!)
-					} else {
-						$this->stdout .= '</td><td>';
-					}
-				}
+				$this->showLabel($desc, $type, $fieldName, $elementID);
+
 				if (isset($desc['error'])) {
 					//debug($fieldName, $desc);
 					//debug_pre_print_backtrace();
@@ -394,8 +381,38 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
+	function showLabel(array $desc, $type, $fieldName, $elementID) {
+		$withBR = (ifsetor($desc['br']) === NULL && $this->defaultBR) || $desc['br'];
+		if (isset($desc['label'])) {
+			$label = $desc['label'];
+			if (!$withBR) {
+				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
+				if (!ifsetor($desc['optional']) &&
+					!in_array($type, array('check', 'checkbox', 'submit'))) {
+					if ($this->noStarUseBold) {
+						$label = '<b title="Obligatory">'.$label.'</b>';
+					} else {
+						$label .= '<span class="htmlFormTableStar">*</span>';
+					}
+				} else {
+					if ($this->noStarUseBold) {
+						$label = '<span title="Optional">'.$label.'</span>';
+					}
+				}
+				$label .= ifsetor($desc['explanationgif']);
+				$label .= $this->debug
+					? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>'
+					: '';
+			}
+			$this->stdout .= ifsetor($desc['beforeLabel']);
+			$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
+			if (!$withBR) {
+				$this->stdout .= '</td><td>';
+			}
+		}
+	}
+
 	function showRow($fieldName, array $desc2) {
-		$stdout = '';
 		//foreach ($desc as $fieldName2 => $desc2) {
 			//if ($fieldName2 != 'horisontal') {
 				$this->mainFormStart();
@@ -523,8 +540,8 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Deprecated. Used to retrieve name/values pairs from the array with $this->withValues = FALSE.
 	 *
-	 * @param array		Form description array
-	 * @param string	Column name that contains values. Within this class default value is the only that makes sence.
+	 * @param array		$arr Form description array
+	 * @param string	$col Column name that contains values. Within this class default value is the only that makes sense.
 	 * @return array	1D array with name/values
 	 * @deprecated
 	 */

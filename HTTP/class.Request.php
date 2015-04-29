@@ -42,12 +42,21 @@ class Request {
 		return $request;
 	}
 
-	static function getInstance() {
-		return self::$instance = self::$instance ? self::$instance : new self();
+	static function getInstance($cons = NULL) {
+		return self::$instance = self::$instance ? self::$instance : new self($cons);
 	}
 
 	static function getExistingInstance() {
 		return self::$instance;
+	}
+
+	/**
+	 * Returns raw data, don't use or use with care
+	 * @param $key
+	 * @return mixed
+	 */
+	function get($key) {
+		return $this->data[$key];
 	}
 
 	/**
@@ -452,10 +461,16 @@ class Request {
 //			|| DEVELOPMENT
 			&& $this->canRedirect($controller)
 		) {
+			ob_start();
+			debug_print_backtrace();
+			$bt = trimExplode("\n", ob_get_clean());
+			header('Redirect-From: '.$bt[1]);
+
 			header('Location: '.$controller);
+			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>';
 			exit();
 		} else {
-			$this->redirectJS($controller);
+			$this->redirectJS($controller, DEVELOPMENT ? 5000 : 0);
 		}
 	}
 
@@ -917,6 +932,10 @@ class Request {
 	function forceDownload($contentType, $filename) {
 		header('Content-Type: '.$contentType);
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+	}
+
+	public function isHTTPS() {
+		return $this->getRequestType() == 'https';
 	}
 
 }

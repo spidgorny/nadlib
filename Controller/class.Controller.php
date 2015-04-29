@@ -110,23 +110,33 @@ abstract class Controller {
 
 	/**
 	 * Why protected?
-	 * @param array $params
-	 * @param null $prefix
+	 * @param array|string 	$params
+	 * @param null 			$prefix
 	 * @return URL
 	 * @protected
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL) {
-		$class = ifsetor($params['c']);
-		unset($params['c']);    // RealURL
-		if ($class && !$prefix) {
-			$prefix = $class;
+	protected function makeURL($params, $prefix = NULL) {
+		// shortcut for link to a controller
+		if (!is_array($params) && !$prefix) {
+			$class = $params;
+			$params = array('c' => $class);
+		} else {
+			$class = NULL;
+		}
+		if ($this->useRouter
+			&& $this->request->apacheModuleRewrite()) {
+			$class = ifsetor($params['c']);
+			unset($params['c']);    // RealURL
+			if ($class && !$prefix) {
+				$prefix = $class;
+			}
 		}
 		$url = new URL($prefix
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		if ($class) {
+		if ($class && $this->request->apacheModuleRewrite()) {
 			$path->setFile($class);
 		}
 		$path->setAsFile();
@@ -229,11 +239,20 @@ abstract class Controller {
 	function render() {
 		$filePHTML = get_class($this).'.phtml';
 		$fileMD = get_class($this).'.md';
+
+		$reflector = new ReflectionClass(get_class($this));
+		$classDir = dirname($reflector->getFileName());
 		if (file_exists('template/'.$filePHTML)) {
 			$view = new View($filePHTML, $this);
 			$content = $view->render();
 		} elseif (file_exists('template/'.$fileMD)) {
 			$view = new MarkdownView($fileMD, $this);
+			$content = $view->render();
+		} elseif (file_exists($classDir.'/'.$filePHTML)) {
+			$view = new View($classDir.'/'.$filePHTML, $this);
+			$content = $view->render();
+		} elseif (file_exists($classDir.'/'.$fileMD)) {
+			$view = new MarkdownView($classDir.'/'.$fileMD, $this);
 			$content = $view->render();
 		} else {
 			$content = '';
@@ -389,6 +408,7 @@ abstract class Controller {
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
 			if (!$el instanceof HTMLTag) {
+				$el = IndexBase::mergeStringArrayRecursive($el);
 				$el = new HTMLTag('div', array(
 					'class' => 'column',
 				), $el, true);
