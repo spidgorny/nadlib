@@ -311,6 +311,7 @@ class Debug {
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
+				//debug_pre_print_backtrace(); exit();
 				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
 					$content .= Debug::view_array($r,
 						is_null($levels) ? NULL : $levels-1);

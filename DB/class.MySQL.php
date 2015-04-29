@@ -328,9 +328,9 @@ class MySQL extends dbLayerBase implements DBInterface {
 		}
 		$this->lastQuery = $query;
 		TaylorProfiler::stop($profilerKey);
-		if (mysql_errno($this->connection)) {
+		if (!$res || mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				nodebug(array(
+				debug(array(
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
@@ -399,14 +399,17 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function transaction() {
+		//echo '<div class="error">Transaction BEGIN</div>';
 		return $this->perform('BEGIN');
 	}
 
 	function commit() {
+		//echo '<div class="error">Transaction COMMIT</div>';
 		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
+		//echo '<div class="error">Transaction ROLLBACK</div>';
 		return $this->perform('ROLLBACK');
 	}
 
