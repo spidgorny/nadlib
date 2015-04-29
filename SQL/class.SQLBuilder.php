@@ -81,7 +81,7 @@ class SQLBuilder {
 			$content = "'".$this->db->escape($value->toSQL())."'";
 			//debug($content);
 			return $content;
-		} else if ($value instanceof SimpleXMLElement) {
+		} else if ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} else if (is_object($value)) {
 			return "'".$this->db->escape($value)."'";

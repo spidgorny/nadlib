@@ -184,12 +184,12 @@ abstract class Controller {
 		return $content;
 	}
 
-	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array()) {
-		$url = $this->makeURL($params);
+	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array(), $prefix = '') {
+		$url = $this->makeURL($params, $prefix);
 		$link = new HTMLTag('a', $aMore + array(
 			'href' => $url,
 			'onclick' => '
-			$(\'#'.$div.'\').load(\''.$url.'\');
+			jQuery(\'#'.$div.'\').load(\''.$url.'\');
 			return false;
 			'.$jsPlus,
 			), $text, true);
