@@ -51,7 +51,7 @@ class ProgressBar {
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
-		$this->percentDone = $percentDone;
+		$this->percentDone = max(0, min($percentDone, 100));
 		$this->count = $count;
 		$this->cli = Request::isCLI();
 	}
