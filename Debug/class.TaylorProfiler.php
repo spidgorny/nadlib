@@ -502,7 +502,7 @@ class TaylorProfiler {
 	static function getMemUsage() {
 		$max = self::return_bytes(ini_get('memory_limit'));
 		$cur = memory_get_usage();
-		return number_format($cur/$max, 4, '.', '');
+		return number_format($cur/$max, 3, '.', '');
 	}
 
 	static function getTimeUsage() {
