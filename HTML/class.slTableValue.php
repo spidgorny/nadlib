@@ -33,7 +33,7 @@ class slTableValue {
 		$this->value = $value;
 		$this->desc += (array)$desc;
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->db;
+			$this->db = Config::getInstance()->getDB();
 		}
 	}
 
@@ -59,7 +59,7 @@ class slTableValue {
 		return $this->render();
 	}
 
-	function getCell($col, $val, $k, array $row) {
+	function getCell($col, $val, array $k, array $row) {
 		$type = isset($k['type']) ? $k['type'] : NULL;
 		if (is_object($type)) {
 			$type = get_class($type);
@@ -84,7 +84,7 @@ class slTableValue {
 							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'].'.*, '.$what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
-							$whatAs = $whatAs[1] ?: $what;
+							$whatAs = $whatAs[1] ? $whatAs[1] : $what;
 							$options = ArrayPlus::create($options)
 								->IDalize($id, true)
 								->column($whatAs)
@@ -161,16 +161,17 @@ class slTableValue {
 				if ($row[$col.'.link']) {
 					$out = new HTMLTag('a', array(
 						'href' => $row[$col.'.link'],
-					), $img);
+					), $img, $k['no_hsc']);
 				} else {
 					$out = $img;
 				}
 			break;
 			case "bool":
+			case "boolean":
 				if (intval($val)) {
-					$out = $k['true'];
+					$out = $k['true']  ? $k['true'] : $this->SLTABLE_IMG_CHECK;
 				} else {
-					$out = $k['false'];
+					$out = $k['false'] ? $k['false'] : $this->SLTABLE_IMG_CROSS;
 				}
 				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
 			break;
@@ -179,12 +180,22 @@ class slTableValue {
 				$out = number_format($out, 2, ',', '.');
 			break;
 			case 'check':
-				$out = '<div style="align: center;">
+				$out = '<div style="text-align: center;">
 					<input class="check" type="checkbox" disabled="" '.($val ? 'checked' : '').' />
 				</div>';
 			break;
 			case "percent":
 				$out = number_format($val*100, 2, '.', '').'&nbsp;%';
+			break;
+			case "bar":
+				if (!is_null($val)) {
+					$pb = new ProgressBar();
+					if (isset($k['css'])) {
+						$out = $pb->getImage($val*100, $k['css']);
+					} else {
+						$out = $pb->getImage($val*100);
+					}
+				}
 			break;
 			case "callback":
 				$out = call_user_func($k['callback'], $val, $k, $row);
@@ -206,6 +217,7 @@ class slTableValue {
 					$out = $val->format($k['type']->format);
 				}
 			break;
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case "textarea":
 				$val = nl2br($val);
 			//break; // FALL DOWN!
@@ -221,12 +233,7 @@ class slTableValue {
 						$val = nl2br($val);
 						$k['no_hsc'] = true; 	// for below
 					}
-					if (is_object($val)) {
-						if (method_exists($val, 'getName')) {
-							$val = $val->getName();
-						}
-					}
-					if ($k['no_hsc']) {
+					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
 					} else if ($val instanceof htmlString) {
 						$out = $val.'';
@@ -234,21 +241,38 @@ class slTableValue {
 						$out = $val.'';
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
+					} else if ($val instanceof HTMLForm) {
+						$out = $val->getContent().'';   // to avoid calling getName()
+					} elseif (is_object($val)) {
+						if (method_exists($val, 'getName')) {
+							$out = $val->getName();
+						} else {
+							$out = '['.get_class($val).']';
+						}
 					} elseif (is_array($val)) {
-						debug($val);
-						$out = 'Array';
+						if (is_assoc($val)) {
+							$out = json_encode($val, JSON_PRETTY_PRINT);
+						} else {
+							$out = '['.implode(', ', $val).']';
+						}
+						$out = htmlspecialchars($out);
 					} else {
 						$out = htmlspecialchars($val);
 					}
 				}
 			break;
 		}
-		if ($k['wrap']) {
+		if (isset($k['wrap']) && $k['wrap']) {
 			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 			$out = $wrap->wrap($out);
 		}
-		if ($k['link']) {
-			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+		if (isset($k['link']) && $k['link']) {
+			$link = $k['link'];
+			foreach ($row as $key => $rowVal) {
+				$link = str_replace('###'.strtoupper($key).'###', $rowVal, $link);
+			}
+			$link = str_replace('###VALUE###', $val, $link);
+			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');

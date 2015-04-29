@@ -10,3 +10,7 @@ bak/
 vendor/
 be/cache/
 .hg_archival.txt
+*.orig
+components/
+tests/
+composer.lock

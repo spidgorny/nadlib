@@ -1,24 +1,24 @@
 <?php
 
-class PlainSessionUser extends User {
+class PlainSessionUser extends UserBase {
 
 	/**
 	 * @var PlainSessionUser
 	 */
 	static protected $instance;
 
-	function __construct() {
+	function __construct($id = NULL) {
 		if (!Request::isCLI()) {
 			//debug('session_start');
-			session_start();
+			@session_start();
 		} else {
 			$_SESSION = array();
 		}
-		parent::__construct();
+		parent::__construct($id);
 	}
 
 	function getPref($name) {
-		return $_SESSION[$name];
+		return ifsetor($_SESSION[$name]);
 	}
 
 	function setPref($name, $value) {
@@ -37,10 +37,8 @@ class PlainSessionUser extends User {
 		return session_id();
 	}
 
-	public static function getInstance() {
-		return self::$instance
-			?  self::$instance
-			:  self::$instance = new self();
+	function try2login() {
+		// session_start
 	}
 
 }

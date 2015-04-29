@@ -51,7 +51,8 @@ class HTMLFormSlicer {
 		$result = true;
 		foreach ($this->slices as &$slice) {
 			//debug($slice['name'] . ' ('.$slice['from'].'-'.$slice['till'].': '.sizeof($slice['desc']).')');
-			$v = new HTMLFormValidate($slice['desc']);
+			$f2 = new HTMLFormTable($slice['desc']);
+			$v = new HTMLFormValidate($f2);
 			$result = $v->validate() && $result;	// recursive inside // this order to force execution
 			$slice['desc'] = $v->getDesc();
 		}

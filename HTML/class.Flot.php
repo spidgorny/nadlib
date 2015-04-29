@@ -5,7 +5,7 @@
  */
 class Flot extends AppController {
 
-	protected $colors = array(
+	public $colors = array(
 		'#edc240',
 		'#afd8f8',
 		'#cb4b4b',
@@ -36,16 +36,43 @@ class Flot extends AppController {
 	 */
 	public $cumulative = array();
 
+	public $movingAverage = array();
+
+	public $min = 0;
+
 	/**
 	 * @var int - max value for cumulative (max of max possible)
 	 */
-	public $max;
+	public $max = 1;
+
+	public $cMin = 0;
+
+	public $cMax = 1;
 
 	public $width = '950px';
 
 	public $height = '600px';
 
 	public $barWidth = '24*60*60*1000*25';
+
+	/**
+	 * @var string
+	 */
+	var $flotPath = 'components/flot/flot/';
+
+	var $jsConfig = array(
+    	'xaxis' => array(
+    		'mode' => "time"
+		),
+		'yaxes' => array(
+			array(),
+			array(
+    			'position' => "right"
+			)
+		),
+	);
+
+	public $MALength = 20;
 
 	/**
 	 * @param array $data	- source data
@@ -59,33 +86,69 @@ class Flot extends AppController {
 		$this->keyKey = $keyKey;
 		$this->timeKey = $timeKey;
 		$this->amountKey = $amountKey;
+
 		$this->chart = $this->getChartTable($this->data);
+		$this->min = $this->getChartMax($this->chart, 'min');
 		$this->max = $this->getChartMax($this->chart);
+
+		$this->cumulative = $this->getChartCumulative($this->chart);
+		$this->cMin = $this->getChartMax($this->cumulative, 'min');
+		$this->cMax = $this->getChartMax($this->cumulative);
+
+		$this->setMinMax();
 
 		// add this manually before rendering if needed
 		//$this->cumulative = $this->getChartCumulative($this->chart);
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function render($divID = 'chart1') {
-		$content = '';
-		$content .= $this->showChart($divID, $this->chart, $this->cumulative, $this->max);
-		return $content;
+	function setFlotPath($path) {
+		$this->flotPath = $path;
+	}
+
+	function setMinMax() {
+		$this->jsConfig['colors'] = $this->colors;
+
+		$this->jsConfig['yaxes'][0] = array(
+			'min' => $this->min,
+			'max' => $this->max,
+		);
+		$this->jsConfig['yaxes'][1] += array(
+			'min' => $this->cMin,
+			'max' => $this->cMax,
+		);
 	}
 
 	/**
 	 * Fixed for Posa Cards
 	 *
-	 * @param array $data
+	 * @internal param array $data
+	 * @param string $divID
+	 * @throws Exception
 	 * @return array
 	 * array[19]
-	1309471200 	array[2]
-	0 	integer 	1309471200000
-	1 	integer 	0
-	1314828000 	array[2]
-	0 	integer 	1314828000000
-	1 	integer 	39
+	 * 1309471200    array[2]
+	 * 0    integer    1309471200000
+	 * 1    integer    0
+	 * 1314828000    array[2]
+	 * 0    integer    1314828000000
+	 * 1    integer    39
 	 */
+	function render($divID = 'chart1') {
+		$content = '';
+		if (!is_dir($this->flotPath)) {
+			throw new Exception($this->flotPath.' is not correct');
+		}
+		$content .= $this->showChart($divID, $this->chart);
+		return $content;
+	}
+
+	function renderCumulative($divID = 'chart1') {
+		$content = '';
+		$content .= $this->showChart($divID, $this->chart, $this->cumulative);
+		return $content;
+	}
+
 	function appendCumulative(array $data) {
 		//debug($this->cumulative, $data);
 		$cumulative2 = array();
@@ -107,6 +170,42 @@ class Flot extends AppController {
 	}
 
 	/**
+	 * http://bytes.com/topic/php/answers/747586-calculate-moving-average
+	 * @return string
+	 */
+	function renderMovingAverage() {
+		$content = '';
+		$charts = $this->getChartTable($this->data);
+		$this->movingAverage = $this->getMovingAverage($charts);
+		$content .= $this->showChart('chart1', $charts, $this->movingAverage);
+		return $content;
+	}
+
+	function getMovingAverage(array $charts) {
+		foreach ($charts as $s => &$series) {
+			$res = array();
+			foreach ($series as $pair) {
+				$res[$pair[0]] = $pair[1];
+			}
+
+			$i = 0;
+			foreach ($res as &$row) {
+				$slice = array_slice($res, max($i-$this->MALength+1, 0), $this->MALength);
+				$row = round(
+					array_sum($slice) /
+					count($slice), 4);
+				$i++;
+			}
+
+			foreach ($res as $key => &$val) {
+				$val = array($key, $val);
+			}
+			$series = $res;
+		}
+		return $charts;
+	}
+
+	/**
 	 * Return a multitude of rows which are extracted by the $keyKey.
 	 * Each row is an assoc array with $timeKey keys and $amountKey values.
 	 * Uses strtotime() so the $timeKey values should be PHP parsable
@@ -120,11 +219,15 @@ class Flot extends AppController {
 	function getChartTable(array $rows) {
 		$chart = array();
 		foreach ($rows as $i => $row) {
-			$key = $row[$this->keyKey];
-			$time = $row[$this->timeKey];
-			if ($time) {
-				$time = strtotime($time);
-				$chart[$key][$time] = array($time*1000, $row[$this->amountKey]);
+			$key = $this->keyKey ? $row[$this->keyKey] : 'one';
+			$timeMaybe = $row[$this->timeKey];
+			if ($timeMaybe) {
+				$time = is_string($timeMaybe) ? strtotime($timeMaybe) : $timeMaybe;
+				if ($time != -1 && $time > 100) {
+					$chart[$key][$time] = array($time * 1000, $row[$this->amountKey]);
+				} else {
+					$chart[$key][$time] = array($timeMaybe, $row[$this->amountKey]);
+				}
 			} else {
 				unset($rows[$i]);
 			}
@@ -134,6 +237,7 @@ class Flot extends AppController {
 
 	function getChartCumulative(array $chart) {
 		foreach ($chart as &$sub) {
+			ksort($sub);
 			$sum = 0;
 			foreach ($sub as &$val) {
 				$sum += $val[1];
@@ -144,24 +248,27 @@ class Flot extends AppController {
 		return $chart;
 	}
 
-	function getChartMax(array $chart) {
+	static function getChartMax(array $chart, $min = false) {
 		$max = 0;
 		foreach ($chart as $series) {
 			foreach ($series as $pair) {
-				$max = max($max, $pair[1]);
+				$max = $min ? min($max, $pair[1]) : max($max, $pair[1]);
 			}
 		}
 		return $max;
 	}
 
-	function showChart($divID, array $charts, array $cumulative, $max) {
+	function showChart($divID, array $charts, array $cumulative = array()) {
 		$this->index->addJQuery();
-		$path = 'components/flot/';
 		$this->index->footer['flot'] = '
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="'.$path.'excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$path.'jquery.flot.time.js"></script>';
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
+			src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.stack.js"></script>
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.time.js"></script>';
 
 		$content = '<div id="'.$divID.'" style="
 			width: '.$this->width.';
@@ -170,7 +277,7 @@ class Flot extends AppController {
 
 		$dKeys = array();
 		foreach ($charts as $key => &$rows) {
-			$jsKey = 'd_'.Controller::friendlyURL($key);
+			$jsKey = 'd_'.URL::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$dKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
@@ -188,7 +295,7 @@ class Flot extends AppController {
 
 		$cKeys = array();
 		foreach ($cumulative as $key => &$rows) {
-			$jsKey = 'c_'.Controller::friendlyURL($key);
+			$jsKey = 'c_'.URL::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$cKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
@@ -203,26 +310,22 @@ class Flot extends AppController {
 		}
 		//$max *= 2;
 
+		$config = json_encode($this->jsConfig, defined(JSON_PRETTY_PRINT)
+			? JSON_PRETTY_PRINT : NULL);
+		if (FALSE !== strpos($config, 'ticksWeeks')) {
+			$al = AutoLoad::getInstance();
+			$this->index->addJS($al->nadlibFromDocRoot.'js/flot-weeks.js');
+			$config = str_replace('"ticksWeeks"', 'ticksWeeks', $config); // hack
+		}
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
-jQuery(function ($) {
+jQuery("document").ready(function ($) {
 	'.implode("\n", $charts).'
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [
     	'.implode(", ", $dKeys).',
     	'.implode(", ", $cKeys).'
-    ], {
-    	xaxis: {
-    		mode: "time"
-    	},
-    	yaxes: [ {
-    			max: '.$max.'
-    		}, {
-    			position: "right"
-    		}
-    	],
-    	colors: '.json_encode($this->colors).'
-    });
+    ], '.$config.');
 });
 </script>';
 		return $content;

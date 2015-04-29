@@ -6,10 +6,25 @@
  */
 
 class Time {
-	protected $time;
+
+	/**
+	 * @var int
+	 */
+	public $time;
+
 	const HUMAN = 'H:i';
+
+	/**
+	 * @var string
+	 */
 	public $debug;
+
+	/**
+	 * @var string
+	 */
 	public $human;
+
+	protected $format = 'Y-m-d H:i:s Z (U)';
 
 	/**
 	 * Append GMT for Greenwich
@@ -30,7 +45,7 @@ class Time {
 				//debug('clone '.$this->getHumanDateTime());
 			} else if (is_numeric($input)) {
 				$this->time = $input;
-			} else {
+			} else if (class_exists('Config')) {
 				Config::getInstance()->log(__CLASS__.'#'.__LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		} else {
@@ -48,11 +63,17 @@ class Time {
 	}
 
 	function __toString() {
-		return date('Y-m-d H:i:s Z', $this->time).' ('.$this->time.')';
+		return $this->format($this->format);
 	}
 
+	/**
+	 * @param null $input
+	 * @param null $relativeTo
+	 * @return static
+	 */
 	static function make($input = NULL, $relativeTo = NULL) {
-		return new self($input, $relativeTo);
+		$self = get_called_class();
+		return new $self($input, $relativeTo);
 	}
 
 	function toSQL() {
@@ -69,7 +90,6 @@ class Time {
 	}
 
 	/**
-	 *
 	 * @return int
 	 */
 	function getGMTTimestamp() {
@@ -168,6 +188,22 @@ class Time {
 	}
 
 	/**
+	 * 12:21
+	 *
+	 * @return string
+	 */
+	function getHumanTimeGMT() {
+		//$zone = datefmt_get_timezone();
+		$zone = date_default_timezone_get();
+		//datefmt_set_timezone('GMT');
+		date_default_timezone_set('GMT');
+		$str = date('H:i', $this->time);
+		//datefmt_set_timezone($zone);
+		date_default_timezone_set($zone);
+		return $str;
+	}
+
+	/**
 	 * 12:21:15
 	 *
 	 * @param string $format
@@ -178,10 +214,12 @@ class Time {
 	}
 
 	/**
+	 * This is like ISO but human readable
+	 * If you need human-human use getHumanDateTime()
 	 * @return string
 	 */
 	function getDateTime() {
-		return date('d.m.Y H:i:s', $this->time);
+		return date('Y-m-d H:i:s', $this->time);
 	}
 
 	/**
@@ -230,8 +268,8 @@ class Time {
 	    $now             = time();
 	    $unix_date       = $this->time;
 
-	       // check validity of date
-	    if(empty($unix_date)) {
+	    // check validity of date
+	    if (empty($unix_date)) {
 	        return __("Bad date");
 	    }
 
@@ -251,14 +289,18 @@ class Time {
 
 	    $difference = round($difference);
 
-	    if ($difference != 1) {
+	    if (!$difference) {
+			$content = __('Just now');
+		} elseif ($difference != 1) {
     		$period = $pperiods[$j];
+			$content = "$difference $period {$tense}";
 	    } else {
     		$period = $periods[$j];
+			$content = "$difference $period {$tense}";
 	    }
 
 		TaylorProfiler::stop(__METHOD__);
-	    return "$difference $period {$tense}";
+	    return $content;
 	}
 
 	/**
@@ -267,7 +309,8 @@ class Time {
 	 * @return htmlString
 	 */
 	function render() {
-		return new htmlString('<span class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>');
+		return new htmlString('<time datetime="'.$this->getDateTime().'"
+			class="time" title="'.$this->getDateTime().'">'.$this->in().'</span>');
 	}
 
 	/**
@@ -279,7 +322,8 @@ class Time {
 		TaylorProfiler::start(__METHOD__);
 		$noe = $this->format('H:i');
 		if ($noe{3}.$noe{4} != '00') {
-			$noe = '<small>'.$noe.'</small>';
+			//$noe = '<small>'.$noe.'</small>';
+			$noe = new HTMLTag('small', array(), $noe);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $noe;
@@ -293,6 +337,8 @@ class Time {
 	function format($rules) {
 		if ($this->time) {
 			$content = date($rules, $this->time);
+		} else {
+			$content = '';
 		}
 		return $content;
 	}
@@ -333,7 +379,7 @@ class Time {
 	 *
 	 * @param Duration $plus
 	 * @param bool $debug
-	 * @return $this
+	 * @return static
 	 */
 	function addDur(Duration $plus, $debug = FALSE) {
 		TaylorProfiler::start(__METHOD__);
@@ -378,7 +424,7 @@ class Time {
 		$format = $plus->getTimestamp();
 		$new = $this->time + $format;
 
-		if ($debug) {
+		if (0) {
 			echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_long($format) ? $format : 0) . ') = [' . $new.']<br>';
 		}
 		$new = new self($new);
@@ -529,12 +575,15 @@ class Time {
 	 * @return Time
 	 */
 	function adjust($strtotime) {
-		$this->time = strtotime($strtotime, $this->time);
+		$newTime = strtotime($strtotime, $this->time);
+		//debug($this->time, $strtotime, $newTime);
+		$this->time = $newTime;
+		$this->updateDebug();
 		return $this;
 	}
-	
+
 	/**
-	 * Conbines date and time and creates a new Time object
+	 * Combines date and time and creates a new Time object
 	 * @param $date
 	 * @param $time
 	 * @return Time
@@ -565,10 +614,11 @@ class Time {
 	 * @static
 	 * @param $str
 	 * @param null $rel
-	 * @return Time
+	 * @return static
 	 */
 	static function makeInstance($str, $rel = NULL) {
-		return new Time($str, $rel);
+		$static = get_called_class();
+		return new $static($str, $rel);
 	}
 
 	function getTwo() {
@@ -587,6 +637,42 @@ class Time {
 		$difference = Time::makeInstance('now')->minus($this);
 		$older = $difference->later($duration);
 		return $older;
+	}
+
+	/**
+	 * @return Date
+	 */
+	public function getDateObject() {
+		return new Date($this->getTimestamp());
+	}
+
+	public function getHTMLDate() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanDate().'</time>');
+	}
+
+	public function getHTMLTime() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTime().'</time>');
+	}
+
+	public function getHTMLTimeGMT() {
+		return new htmlString('<time datetime="'.$this->getISODateTime().'">'.$this->getHumanTimeGMT().'</time>');
+	}
+
+	public function setFormat($string) {
+		$this->format = $string;
+	}
+
+	public function makeGMT() {
+		$this->setTime(strtotime(gmdate('Y-m-d H:i:s', $this->time). ' GMT', 0));
+	}
+
+	function setTime($time) {
+		$this->time = $time;
+		$this->updateDebug();
+	}
+
+	function addDate(Date $date) {
+		$this->setTime(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
 	}
 
 }

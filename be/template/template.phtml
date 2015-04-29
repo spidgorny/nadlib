@@ -10,7 +10,6 @@
 	<base href="<?= $this->baseHref ?>" />
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <script src="vendor/spidgorny/nadlib/be/js/vendor/modernizr-2.6.1.min.js"></script>
 	<?= $this->implodeCSS() ?>
 </head>
 <body>
@@ -20,9 +19,9 @@
 
 <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
 
-<div class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="navbar-inner">
-        <div class="container">
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+	    <div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
 				<span class="sr-only">Toggle navigation</span>
 				<span class="icon-bar"></span>
@@ -30,10 +29,13 @@
 				<span class="icon-bar"></span>
 			</button>
             <a class="navbar-brand" href="."><?= $this->projectName ?></a>
-			<div class="collapse navbar-collapse navbar-ex1-collapse">
-            	<?= $this->loginForm ?>
-			</div>
-        </div>
+		</div>
+		<div class="collapse navbar-collapse">
+
+			<?= $this->menu ?>
+
+            <?= $this->loginForm ?>
+		</div>
     </div>
 </div>
 
@@ -41,7 +43,7 @@
 
     <!-- Example row of columns -->
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-2 sidebar">
             <?= $this->sidebar ?>
         </div>
         <?= $this->content ?>

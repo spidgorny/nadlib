@@ -333,7 +333,6 @@ FileETag None
   Options +FollowSymlinks
 # Options +SymLinksIfOwnerMatch
   RewriteEngine On
-  RewriteBase /kreuzfahrt-auswahl.de
   RewriteCond  %{REQUEST_FILENAME}  !-f
   RewriteCond  %{REQUEST_FILENAME}  !-l
   RewriteCond  %{REQUEST_FILENAME}  !-d
@@ -495,6 +494,7 @@ AddCharset utf-8 .atom .css .js .json .rss .vtt .xml
 # reset everything to PHP defaults. Consult www.php.net for more detailed
 # information about setting PHP directives.
 
+<IfModule php5_module>
 php_flag register_globals Off
 
 # Rename session cookie to something else, than PHPSESSID
@@ -542,8 +542,9 @@ php_value output_buffering 0
 php_flag allow_url_fopen on
 php_flag short_open_tag on
 php_flag display_errors on
-php_flag html_errors on
 php_flag ignore_user_abort off
+php_value variables_order EGPCS
+</IfModule>
 
 # Increase cookie security
 <IfModule php5_module>

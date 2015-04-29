@@ -15,19 +15,44 @@ class ProgressBar {
 	var $cli = false;
 
 	/**
+	 * Must be false in order to user new ProgressBar(...) inside strings.
 	 * @var bool
 	 * Destructor will set the progress bar to 100%
 	 * if enabled.
 	 */
 	var $destruct100 = false;
 
-	function __construct($percentDone = 0, $color = '43b6df') {
+	/**
+	 * Should be undefined so that it can be detected once and then stored.
+	 * Don't put default value here.
+	 * @var int
+	 */
+	var $cliWidth = NULL;
+
+	/**
+	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
+	 * @var int
+	 */
+	var $count = 0;
+
+    /**
+     * Force getCss() to NOT load from Index if Index exists
+     * @var bool
+     */
+    var $useIndexCss = true;
+
+	/**
+	 * @ param #2 $color = '#43b6df'
+	 * @param int $percentDone
+	 * @param int $count
+	 */
+	function __construct($percentDone = 0, $count = 0) {
 		$this->setID('pb-'.uniqid());
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
 		$this->percentDone = $percentDone;
-		$this->color = $color;
+		$this->count = $count;
 		$this->cli = Request::isCLI();
 	}
 
@@ -44,19 +69,43 @@ class ProgressBar {
 
 	function render() {
 		if (!$this->cli) {
+			ini_set('output_buffering', 0); // php_value output_buffering 0
 			if (!headers_sent()) {
 				header('Content-type: text/html; charset=utf-8');
 			}
+			$index = Index::getInstance();
+			if (method_exists($index, 'renderHead')) {
+				$index->renderHead();
+			}
+			if (!headers_sent()) {
+				echo '<!DOCTYPE html>';
+			}
+            print($this->getCSS());
 			print($this->getContent());
-			print $this->getCSS();
 			$this->flush();
 		}
 	}
 
+	/**
+	 * pre-compiles LESS inline
+	 * @return string
+	 */
 	function getCSS() {
-		$l = new lessc();
-		$css = $l->compileFile(dirname(__FILE__).'/../CSS/ProgressBar.less');
-		return '<style>'.$css.'</style>';
+		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/ProgressBar.less';
+		if ($this->useIndexCss && class_exists('Index')) {
+			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
+			Index::getInstance()->addCSS($less);
+			return ifsetor(Index::getInstance()->header[$less]);
+		} elseif ($GLOBALS['HTMLHEADER']) {
+			$GLOBALS['HTMLHEADER']['ProgressBar.less']
+				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
+		} else if (class_exists('lessc')) {
+			$l = new lessc();
+			$css = $l->compileFile($less);
+			return '<style>' . $css . '</style>';
+		} else {
+			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do
+		}
 	}
 
 	function __toString() {
@@ -77,15 +126,7 @@ class ProgressBar {
 			</div>
 			<div style="clear: both;"></div>
 		</div>'."\r\n";
-		if (class_exists('Index')) {
-			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-			Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/ProgressBar.less');
-		} elseif ($GLOBALS['HTMLHEADER']) {
-			$GLOBALS['HTMLHEADER']['ProgressBar.less']
-				= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/ProgressBar.less" />';
-		} else {
-			$content .= $this->getCSS();	// pre-compiles LESS inline
-		}
+		$content .= $this->getCSS();
 		return $content;
 	}
 
@@ -93,7 +134,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo ($text ? $text : $percentDone)."\n";
+			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserve errors
 		} else {
 			print('
 			<script type="text/javascript">
@@ -112,7 +153,17 @@ class ProgressBar {
 		}
 	}
 
-	function flush($ob_flush = false) {
+	function setIndex($i, $always = false) {
+		if ($this->count) {
+			$percent = $i / $this->count * 100;
+			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
+			if ($every < 1 || !($i % $every) || $always) {
+				$this->setProgressBarProgress($percent);
+			}
+		}
+	}
+
+	static function flush($ob_flush = false) {
 		print str_pad('', intval(ini_get('output_buffering')))."\n";
 		if ($ob_flush) {
 			ob_end_flush();
@@ -126,27 +177,33 @@ class ProgressBar {
 		}
 	}
 
-	function getImage($p, $display = 'inline-block') {
-		$prefix = 'vendor/spidgorny/nadlib/';
-		if (IndexBase::getInstance() instanceof IndexBE) {
-			//$prefix = '../../../../';
-			// just use base href instead
-		}
-		//d(array($prefix, AutoLoad::getInstance()->nadlibRoot));
-		$prefix = AutoLoad::getInstance()->nadlibRoot;
-		return new htmlString('<div style="display: '.$display.'; width: 100%; text-align: right; white-space: nowrap;">'.
-			number_format($p, $this->decimals).'&nbsp;%&nbsp;
-			<img src="'.$prefix.'bar.php?rating='.round($p).'" style="vertical-align: middle;" />
+	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '') {
+		return new htmlString('<div style="'.$css.'">'.
+			number_format($p, 2).'&nbsp;%&nbsp;
+			'.self::getImage($p, $append).'
 		</div>');
 	}
 
-	function getBackground($p, $width = '100px') {
+	static function getImage($p, $append = '') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return '<img src="'.$prefix.'bar.php?rating='.round($p).$append.'"
+		style="vertical-align: middle;"
+		title="'.number_format($p, 2).'%" />';
+	}
+
+	static function getBar($p, $append = '') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return $prefix . 'bar.php?rating=' . round($p) . $append;
+	}
+
+	static function getBackground($p, $width = '100px') {
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return '<div style="
 			display: inline-block;
 			width: '.$width.';
 			text-align: center;
 			wrap: nowrap;
-			background: url(vendor/spidgorny/nadlib/bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, $this->decimals).'%</div>';
+			background: url('.$prefix.'bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, 2).'%</div>';
 	}
 
 	public function setTitle() {
@@ -161,6 +218,67 @@ class ProgressBar {
 			var el = document.getElementById("'.$this->pbid.'");
 			el.parentNode.removeChild(el);
 		</script>';
+	}
+
+	function getCLIbar() {
+		$content = '';
+		if (!$this->cliWidth) {
+			$this->cliWidth = intval(round($this->getTerminalWidth() / 2));
+		}
+		if ($this->cliWidth > 0) {  // otherwise cronjob
+			$chars = round(abs($this->percentDone) / 100 * $this->cliWidth);
+			$chars = min($this->cliWidth, $chars);
+			$space = max(0, $this->cliWidth - $chars);
+			$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+		}
+		return $content;
+	}
+
+	function getTerminalWidth() {
+		if (Request::isWindows()) {
+			$both = $this->getTerminalSizeOnWindows();
+			$width = $both['width'];
+		} else if (!Request::isCron()) {
+			$both = $this->getTerminalSizeOnLinux();
+			$width = $both['width'];
+		} else {
+			$width = -1;        // cronjob
+		}
+		return $width;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
+	 * @return array
+	 */
+	function getTerminalSizeOnWindows() {
+		$output = array();
+		$size = array('width'=>0,'height'=>0);
+		exec('mode',$output);
+		foreach ($output as $line) {
+			$matches = array();
+			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i',$line,$matches);
+			if($w) {
+				$size['width'] = intval($matches[1]);
+			} else {
+				$h = preg_match('/^\s*lines\:?\s*(\d+)\s*$/i',$line,$matches);
+				if($h) {
+					$size['height'] = intval($matches[1]);
+				}
+			}
+			if($size['width'] AND $size['height']) {
+				break;
+			}
+		}
+		return $size;
+	}
+
+	function getTerminalSizeOnLinux() {
+		$size = array_combine(
+			array('width', 'height'),
+			array(exec('tput cols'), exec('tput lines'))
+		);
+		return $size;
 	}
 
 }

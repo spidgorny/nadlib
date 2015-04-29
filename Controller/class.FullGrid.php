@@ -86,7 +86,7 @@ abstract class FullGrid extends Grid {
 		$f->prefix('filter');
 		$f->showForm($this->getFilterDesc($fields));
 		$f->prefix(NULL);
-		$f->submit('Filter');
+		$f->submit(__('Filter'));
 		return $f;
 	}
 
@@ -95,23 +95,24 @@ abstract class FullGrid extends Grid {
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
+	 * @throws Exception
 	 * @return array
 	 */
 	function getFilterDesc(array $fields = NULL) {
-		$fields = $fields ? $fields : $this->model->thes;
+		$fields = ifsetor($fields, ifsetor($this->model->thes));
 		$fields = $fields ? $fields : $this->collection->thes;
 		$fields = is_array($fields) ? $fields : array();
 
 		//debug($this->filter);
 		$desc = array();
 		foreach ($fields as $key => $k) {
-			if (!$k['noFilter']) {
+			if (!ifsetor($k['noFilter'])) {
 				$autoClass = ucfirst(str_replace('id_', '', $key)).'Collection';
 				if (class_exists($autoClass) &&
 					in_array('HTMLFormCollection', class_implements($autoClass))) {
 					$type = new $autoClass();
 					$options = NULL;
-				} elseif ($k['tf']) {	// boolean
+				} elseif (ifsetor($k['tf'])) {	// boolean
 					$type = 'select';
 					$stv = new slTableValue('', array());
 					$options = array(
@@ -121,7 +122,7 @@ abstract class FullGrid extends Grid {
 					//debug($key, $this->filter[$key]);
 				} else {
 					$type = 'select';
-					$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
+					$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
 					$options = ArrayPlus::create($options)->trim()->getData();	// convert to string for === operation
 					//debug($options);
 					$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
@@ -132,7 +133,7 @@ abstract class FullGrid extends Grid {
 					'type' => $type,
 					'options' => $options,
 					'null' => true,
-					'value' => $this->filter[$key],
+					'value' => ifsetor($this->filter[$key]),
 					'more' => 'class="input-medium"',
 					'===' => true,
 				);
@@ -143,16 +144,22 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getTableFieldOptions($key, $count = false) {
-		$res = Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
-		$key, array(), 'ORDER BY title', $this->model->idField);
+		if ($this->model instanceof OODBase) {
+			$res = $this->db->getTableOptions($this->model->table
+				? $this->model->table
+				: $this->collection->table,
+				$key, array(), 'ORDER BY title', $this->model->idField);
 
-		if ($count) {
-			foreach ($res as &$val) {
-				$copy = clone $this->collection;
-				$copy->where[$key] = $val;
-				$copy->retrieveDataFromDB();
-				$val .= ' ('.sizeof($copy->data).')';
+			if ($count) {
+				foreach ($res as &$val) {
+					$copy = clone $this->collection;
+					$copy->where[$key] = $val;
+					$copy->retrieveDataFromDB();
+					$val .= ' (' . sizeof($copy->getData()) . ')';
+				}
 			}
+		} else {
+			$res = [];
 		}
 
 		return $res;
@@ -161,11 +168,11 @@ abstract class FullGrid extends Grid {
 	function getColumnsForm() {
 		$desc = array(
 			'columns' => array(
-				'label' => 'Visible<br />',
+				'label' => __('Visible').'<br />',
 				'type' => 'set',
 				'options' => ArrayPlus::create($this->collection->thes)->column('name')->getData(),
 				'value' => $this->columns,
-				'between' => '<br />',
+				'between' => '',
 			),
 			'collectionName' => array(
 				'type' => 'hidden',
@@ -178,7 +185,7 @@ abstract class FullGrid extends Grid {
 		$f->formHideArray($this->linkVars);
 		//$f->prefix('columns');
 		$f->showForm($desc);
-		$f->submit('Set');
+		$f->submit(__('Set'));
 		return $f;
 	}
 

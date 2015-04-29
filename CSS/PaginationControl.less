@@ -1,12 +1,13 @@
 .paginationControl {
 	margin-bottom: 1em;
 	margin-top: 1em;
-	display: inline-block;
+	display: block;
 	ul {
 		margin: 0;
 		white-space: nowrap;
 		display: inline-block;
 		vertical-align: top;
+		box-shadow: none;
 		li {
 			display: inline;
 			margin: 0;
@@ -17,23 +18,24 @@
 	}
 }
 .paginationControl a,
+.paginationControl span.page,
 .paginationControl span.disabled,
 .paginationControl span.active {
-	border:1px solid #DDDDDD;
-	cursor:pointer;
+	border: 1px solid #DDDDDD;
+	cursor: pointer;
 	display: inline-block;
-	height: 19px;
 	margin-top:1px;
 	margin-bottom:1px;
 	margin-right:3px;
-	padding-top:1px;
+	// against bootstrap
+	padding: 0.15em 0.5em !important;
 	text-align:center;
 	text-decoration:none;
 	vertical-align:baseline;
-	min-width: 20px;
+	min-width: 15px;
+	//line-height: 30px !important;
 	color: black;
 	background: #EEEEEE;
-	font-size: 10pt;
 }
 .paginationControl span.disabled {
 	cursor: default;
@@ -46,6 +48,12 @@
 }
 .paginationControl a:hover {
 	background: #DDDDDD;
+	color: black;
+	text-decoration:none;
+}
+.paginationControl a.active:hover {
+	background: #72BDE5;
+	color: white;
 	text-decoration:none;
 }
 .paginationControl {
@@ -60,9 +68,13 @@
 }
 .paginationControl div.page {
 	display: inline-block;
-	height: 19px;
 	vertical-align: bottom;
 	margin-top: 3px;
 	text-align: center;
 	margin-right: 3px;
+	padding: 0.25em;
+}
+
+.paginationControl form {
+	display: inline-block;
 }

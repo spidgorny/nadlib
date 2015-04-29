@@ -6,11 +6,18 @@
  */
 class Uploader {
 
-
+	/**
+	 * Allowed extensions
+	 * @var array|null
+	 */
 	public $allowed = array(
 		'gif', 'jpg', 'png', 'jpeg',
 	);
 
+	/**
+	 * Allowed mime types, not checked if empty
+	 * @var array
+	 */
 	public $allowedMime = array(
 
 	);
@@ -68,18 +75,26 @@ class Uploader {
 		$f->file($fieldName);
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
-		$f->text('<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>');
-		$f->text('<div class="message">Max post: '.ini_get('post_max_size').'</div>');
-		$f->text('<div class="message">Allowed: '.implode(', ', $this->allowed).'</div>');
+		$f->text('
+		<div class="message">
+		    <table style="width: 250px">
+		        <tr><td><nobr>Max size:</nobr></td><td>'.ini_get('upload_max_filesize').'</td></tr>
+		        <tr><td><nobr>Max post:</nobr></td><td>'.ini_get('post_max_size').'</td></tr>
+		        <tr><td><nobr>Free space:</nobr></td><td>'.number_format(disk_free_space('.')/1024/1024, 0, '.', '').'M</td></tr>
+		        <tr><td><nobr>Allowed:</nobr></td><td>'.implode(', ', $this->allowed).'</td></tr>
+		    </table>
+		</div>
+		');
 		return $f;
 	}
 
-	/**
-	 * @param string $from - usually 'file' - the same name as in getUploadForm()
-	 * @param string $to - directory
-	 * @throws Exception
-	 */
-	public function moveUpload($from, $to) {
+    /**
+     * @param string $from - usually 'file' - the same name as in getUploadForm()
+     * @param string $to - directory
+     * @param bool $overwriteExistingFile
+     * @throws Exception
+     */
+	public function moveUpload($from, $to, $overwriteExistingFile = true) {
 		if ($uf = $_FILES[$from]) {
 			if (!$this->checkError($uf)) {
 				throw new Exception($this->errors[$uf['error']]);
@@ -90,7 +105,26 @@ class Uploader {
 			if (!$this->checkMime($uf)) {
 				throw new Exception('File uploaded is not allowed ('.$uf['mime'].')');
 			}
-			$ok = @move_uploaded_file($uf['tmp_name'], $to.$uf['name']);
+
+            // if you don't want existing files to be overwritten,
+            // new file will be renamed to *_n,
+            // where n is the number of existing files
+            $fileName = $to.$uf['name'];
+            if (!$overwriteExistingFile && file_exists($fileName)) {
+                $actualName = pathinfo($fileName, PATHINFO_FILENAME);
+                $originalName = $actualName;
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+                $i = 1;
+                while(file_exists($to.$actualName.".".$extension))
+                {
+                    $actualName = (string) $originalName.'_'.$i;
+                    $fileName = $to.$actualName.".".$extension;
+                    $i++;
+                }
+            }
+
+			$ok = @move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
@@ -196,7 +230,9 @@ class Uploader {
 
 	function getContent($from) {
 		if ($uf = $_FILES[$from]) {
-			return file_get_contents($uf['tmp_name']);
+			if ($uf['tmp_name']) {
+				return file_get_contents($uf['tmp_name']);
+			}
 		}
 	}
 
@@ -210,25 +246,34 @@ class Uploader {
 	 * Handles the file upload from https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin
 	 * If no error it will call a callback to retrieve a redirect URL
 	 * @param $callback
+	 * @param array $params
 	 */
-	function handleBlueImpUpload($callback) {
+	function handleBlueImpUpload($callback, array $params) {
 		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
-		$uh = new UploadHandler(array(
-			'upload_dir' => 'storage/',
-			'param_name' => 'file',
-		), false);
+		$uh = new UploadHandler($params, false);
 		//$uh->post(true); exit();
 		ob_start();
 		$uh->post(true);
 		$done = ob_get_clean();
 		$json = json_decode($done);
 		//print_r(array($uh, $done, $json));
-		$data = get_object_vars($json->file[0]);
-		if (!$data['error']) {
-			$redirect = $callback($data);
-			$json->file[0]->redirect = $redirect;
+		if (is_object($json)) {
+			$data = get_object_vars($json->file[0]);
+			if (!$data['error']) {
+				$redirect = $callback($data);
+				$json->file[0]->redirect = $redirect;
+				$request = Request::getInstance();
+				if ($request->isAjax()) {
+					echo json_encode($json);
+				} else if ($redirect) {
+					$request->redirect($redirect);
+				}
+			} else {
+				echo $data['error'];
+			}
+		} else {
+			echo $done;
 		}
-		echo json_encode($json);
 		exit();
 	}
 

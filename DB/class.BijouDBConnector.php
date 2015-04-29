@@ -1,28 +1,33 @@
 <?php
 
-class BijouDBConnector {
+/**
+ * Class BijouDBConnector
+ * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
+ */
+class BijouDBConnector extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
 	 */
 	protected $t3db;
-	
-	/**
-	 * @var string
-	 */
-	var $lastQuery;
 
+	public $lastError;
+	
 	/**
 	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
 	 */
 	function __construct(t3lib_DB $t3lib_DB = NULL) {
-		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
+		$this->t3db = $t3lib_DB ? $t3lib_DB : $GLOBALS['TYPO3_DB'];
+		$this->setQB();
 	}
 	
 	function perform($query) {
 		$this->lastQuery = $query;
 		$start = array_sum(explode(' ', microtime()));
 		$res = $this->t3db->sql_query($query);
+		if (!$res) {
+			$this->lastError = $this->t3db->sql_error();
+		}
 		$elapsed = array_sum(explode(' ', microtime())) - $start;
 		$this->saveQueryLog($query, $elapsed);
 		return $res;
@@ -55,6 +60,9 @@ class BijouDBConnector {
 	}
 
 	function fetchRow($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		return $this->t3db->sql_fetch_row($res);
 	}
 
@@ -128,12 +136,12 @@ class BijouDBConnector {
 		}
 	}
 
-	function numRows($res) {
+	function numRows($res = NULL) {
 		return $this->t3db->sql_num_rows($res);
 	}
 
 	function escapeString($value) {
-		return $this->t3d->fullQuoteStr($value, '');
+		return $this->t3db->fullQuoteStr($value, '');
 	}
 
 	function getDefaultInsertFields() {
@@ -166,8 +174,6 @@ class BijouDBConnector {
 	function unlockTables() {
 		$this->t3db->sql_query('UNLOCK TABLES');
 	}
-
-	function saveQueryLog() {}
 
 	/**
 	 * Returns THE ONE FIRST result.
@@ -207,8 +213,12 @@ class BijouDBConnector {
 		return $this->t3db->quoteStr($str, '');
 	}
 
+	function escapeBool($io) {
+		return intval(!!$io);
+	}
+
 	function quoteKey($key) {
-		return MySQL::quoteKey($key);
+		return $key = '`'.$key.'`';
 	}
 
 	function getTableColumns($table) {
@@ -223,8 +233,11 @@ class BijouDBConnector {
 		return $this->t3db->sql_free_result($res);
 	}
 
-	function lastInsertID() {
-		return $this->t3db->sql_insert_id();
+	function affectedRows() {
+		// TODO: Implement affectedRows() method.
 	}
 
+	function getTables() {
+		// TODO: Implement getTables() method.
+	}
 }

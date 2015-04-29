@@ -1,8 +1,22 @@
 <?php
 
+/**
+ * Class FlexiTable extends OODBase allowing to automatically create new tables
+ * and add new DB columns based on INSERT and UPDATE queries. Useful for quick DB prototyping.
+ * Data type for new columns is not perfect.
+ */
 class FlexiTable extends OODBase {
+
+	/**
+	 * @var array
+	 */
 	protected $columns = array();
-	protected $doCheck = false;
+
+	/**
+	 * Enables/disables FlexiTable functionality
+	 * @var bool
+	 */
+	public $doCheck = false;
 
 	/**
 	 * array(
@@ -23,8 +37,13 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
-		$row['ctime'] = new AsIs('now()');
-		$row['cuser'] = Config::getInstance()->user->id;
+		if (!ifsetor($row['ctime'])) {
+			$row['ctime'] = new SQLDateTime();
+		}
+		if (!ifsetor($row['cuser'])) {
+			$user = Config::getInstance()->getUser();
+			$row['cuser'] = $user->id;
+		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
@@ -33,9 +52,14 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		$mtime = new Time();
-		$row['mtime'] = $mtime->format('Y-m-d H:i:s');
-		$row['muser'] = Config::getInstance()->user->id;
+		if (!ifsetor($row['mtime'])) {
+			$mtime = new Time();
+			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
+		}
+		$user = Config::getInstance()->getUser();
+		if (!ifsetor($row['muser']) && $user->id) {
+			$row['muser'] = $user->id;
+		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
@@ -65,8 +89,8 @@ class FlexiTable extends OODBase {
 		//TaylorProfiler::start(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		$table = str_replace('`', '', $this->table);
 		$table = str_replace("'", '', $table);
-		if (!self::$tableColumns[$table] || $force) {
-			self::$tableColumns[$table] = $this->db->getTableColumns($table);
+		if (!ifsetor(self::$tableColumns[$table]) || $force) {
+			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
 		}
 		$this->columns = self::$tableColumns[$table];
 		//debug($table, sizeof($this->columns), array_keys(self::$tableColumns), $this->db->lastQuery);
@@ -83,10 +107,10 @@ class FlexiTable extends OODBase {
 
 	function checkCreateField($field, $value) {
 		//debug($this->columns);
-		$qb = Config::getInstance()->qb;
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
-			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$qb->quoteKey($field).' '.$this->getType($value));
+			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).
+				' ADD COLUMN '.$this->db->quoteKey($field).' '.$this->getType($value));
 			$this->fetchColumns(true);
 		}
 	}

@@ -48,18 +48,16 @@ class Pager {
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
-		} else if ($itemsPerPage) {
-			$this->pageSize = new PageSize($itemsPerPage);
 		} else {
-			$this->pageSize = new PageSize($this->itemsPerPage);
+			$this->pageSize = new PageSize($itemsPerPage ?: $this->itemsPerPage);
 		}
-		$this->setItemsPerPage($this->pageSize->get());
+		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 		$this->request = Request::getInstance();
-		$this->user = Config::getInstance()->user;
-		// Extend it like PagerDCI extends Pager
-        //if(!$this->user) $this->user = DCI::getInstance()->user;
+		$this->setUser(Config::getInstance()->getUser());
+		// Inject dependencies, this breaks all projects which don't have DCI class
+        //if (!$this->user) $this->user = DCI::getInstance()->user;
 		Config::getInstance()->mergeConfig($this);
 	}
 
@@ -67,8 +65,8 @@ class Pager {
 	 * To be called only after setNumberOfRecords()
 	 */
 	function detectCurrentPage() {
-		if (($pagerData = $_REQUEST['Pager_'.$this->prefix])) {
-			if ($pagerData['startingRecord']) {
+		if (($pagerData = ifsetor($_REQUEST['Pager_'.$this->prefix]))) {
+			if (ifsetor($pagerData['startingRecord'])) {
 				$this->startingRecord = (int)($pagerData['startingRecord']);
 				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
 			} else {
@@ -79,19 +77,26 @@ class Pager {
 				$this->setCurrentPage($pagerData['page']);
 				$this->saveCurrentPage();
 			}
-		} elseif ($this->user && ($pager = $this->user->getPref('Pager.'.$this->prefix))) {
-			//debug(__METHOD__, $this->prefix, $pager['page']);
-			$this->setCurrentPage($pager['page']);
+		} elseif ($this->user && method_exists($this->user, 'getPref')) {
+			$pager = $this->user->getPref('Pager.'.$this->prefix);
+			if ($pager) {
+				//debug(__METHOD__, $this->prefix, $pager['page']);
+				$this->setCurrentPage($pager['page']);
+			}
 		} else {
 			$this->setCurrentPage(0);
 		}
 	}
 
 	function initByQuery($query) {
+		//debug_pre_print_backtrace();
+		$key = __METHOD__.' ('.substr($query, 0, 300).')';
+		TaylorProfiler::start($key);
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
-		$res = $this->db->fetchAssoc($query);
+		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();
+		TaylorProfiler::stop($key);
 	}
 
 	/**
@@ -197,9 +202,13 @@ class Pager {
 	}
 
 	function getCSS() {
-		$l = new lessc();
-		$css = $l->compileFile(dirname(__FILE__).'/../CSS/PaginationControl.less');
-		return '<style>'.$css.'</style>';
+		if (class_exists('lessc')) {
+			$l = new lessc();
+			$css = $l->compileFile(dirname(__FILE__) . '/../CSS/PaginationControl.less');
+			return '<style>' . $css . '</style>';
+		} else {
+			return '';
+		}
 	}
 
 	function renderPageSelectors(URL $url = NULL) {
@@ -207,29 +216,31 @@ class Pager {
 		$this->url = $url;
 
 		if (!self::$cssOutput) {
+			$al = AutoLoad::getInstance();
 			if (class_exists('Index') && $this->request->apacheModuleRewrite()) {
 				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-				Index::getInstance()->addCSS('vendor/spidgorny/nadlib/CSS/PaginationControl.less');
+				Index::getInstance()->addCSS($al->nadlibFromDocRoot.'CSS/PaginationControl.less');
 			} elseif (false && $GLOBALS['HTMLHEADER']) {
 				$GLOBALS['HTMLHEADER']['PaginationControl.less']
-					= '<link rel="stylesheet" href="vendor/spidgorny/nadlib/CSS/PaginationControl.less" />';
+					= '<link rel="stylesheet" href="'.$al->nadlibFromDocRoot.'CSS/PaginationControl.less" />';
 			} elseif (!Request::isCLI()) {
 				$content .= $this->getCSS();	// pre-compiles LESS inline
 			}
 			self::$cssOutput = true;
 		}
 
-		$content .= '<div class="pagination paginationControl">';
+		$content .= '<div class="paginationControl">';
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
-			$content .= $this->renderPager();
+			$content .= $this->renderPager();	// will render UL inside
 		}
 		$content .= '</div>';
 		return $content;
 	}
 
 	public function debug() {
-		debug(array(
+		return array(
+			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
 			'pageSize->selected' => $this->pageSize->selected,
@@ -246,7 +257,7 @@ class Pager {
 			'showPageJump' => $this->showPageJump,
 			'showPager' => $this->showPager,
 			'prefix' => $this->prefix,
-		));
+		);
 	}
 
 	function renderPager() {
@@ -295,7 +306,7 @@ class Pager {
 			</form>";
 		}
  		//debug($term);
-		$content = '<ul>'.$content.'&nbsp;'.'</ul>'.$form;
+		$content = '<ul class="pagination">'.$content.'&nbsp;'.'</ul>'.$form;
 		return $content;
 	}
 
@@ -304,11 +315,11 @@ class Pager {
 		if ($k == $this->currentPage) {
 			$content = '<li class="active"><a href="'.$link.'"
 				class="active"
-				title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+				title="'.htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES).'"
 				>'.$text.'</a></li>';
 		} else {
 			$content = '<li><a href="'.$link.'"
-			title="'.htmlspecialchars($this->pageTitles[$k], ENT_QUOTES).'"
+			title="'.htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES).'"
 			>'.$text.'</a></li>';
 		}
 		return $content;
@@ -387,4 +398,19 @@ class Pager {
 		return get_class($this).': "'.$this->itemsPerPage.'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}
 
+    /**
+     * @param User\LoginUser $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return \LoginUser
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
 }

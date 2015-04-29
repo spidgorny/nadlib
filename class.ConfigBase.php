@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
+ * Extend with a name Class and add any configuration parameters and factory calls.
+ */
 class ConfigBase {
 	/**
 	 * del: Public to allow Request to know if there's an instance
@@ -8,9 +12,10 @@ class ConfigBase {
 	protected static $instance;
 
 	public $db_server = '127.0.0.1';
-	public $db_database = '';
 	public $db_user = 'root';
-	public $db_password = 'root';
+	protected $db_password = 'root';
+
+	public $db_database = '';
 
 	/**
 	 * @var int
@@ -32,7 +37,10 @@ class ConfigBase {
 
 	public $defaultController = 'Overview';
 
-	public $documentRoot = '';
+	/**
+	 * @var Path
+	 */
+	public $documentRoot;
 
 	public static $includeFolders = array(
 		'.',
@@ -51,10 +59,11 @@ class ConfigBase {
 		'SQL',
 		'Time',
 		'User',
-		'class',	// to load the Config of the main project
-		'model',
 		'be/class',
-        'Queue',
+		'be/class/DB',
+		'be/class/Info',
+		'be/class/Test',
+		'Queue',
 	);
 
 	/**
@@ -65,17 +74,41 @@ class ConfigBase {
 	 */
 	public $flexiTable = false;
 
+	/**
+	 * Read from config.json
+	 * @var array
+	 */
 	public $config;
 
+	/**
+	 * @var User|LoginUser
+	 */
+	public $user;
+
+	/**
+	 * @var string
+	 * @deprecated
+	 */
+	public $appRoot;
+
+	var $mailFrom = '';
+
 	protected function __construct() {
-		//d(self::$includeFolders);
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
+
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
 		} else {
-			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
+			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
 		}
-		//print_r(array('$this->appRoot in ConfigBase', $this->appRoot));
+
+		//debug_print_backtrace();
+		nodebug(array(
+			'Config->documentRoot' => $this->documentRoot,
+			'Config->appRoot' => $this->appRoot,
+		));
 		//debug_pre_print_backtrace();
 
 		//$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -84,53 +117,72 @@ class ConfigBase {
 		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
 		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
 
-		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
-		if (file_exists('class/config.yaml')) {
-			$this->config = Spyc::YAMLLoad('class/config.yaml');
+		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));
+		$configYAML = AutoLoad::getInstance()->appRoot.'class/config.yaml';
+		//print_r(array($configYAML, file_exists($configYAML)));
+		if (file_exists($configYAML) && class_exists('Spyc')) {
+			$this->config = Spyc::YAMLLoad($configYAML);
 		}
 		$this->mergeConfig($this);
+
+		$configJSON = AutoLoad::getInstance()->appRoot.'class/config.json';
+		//print_r(array($configJSON, file_exists($configJSON)));
+		if (file_exists($configJSON)) {
+			$this->config = json_decode(file_get_contents($configJSON), true);
+			$this->mergeConfig($this);
+		}
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 	}
 
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
-	 * @return Config
+	 * @return Config - not ConfigBase
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {
 			self::$instance = new Config();
-			self::$instance->postInit();
+			//self::$instance->postInit();	// will try to connect to the DB before autoload
+			// must be called outside
 		}
 		return self::$instance;
 	}
 
 	/**
-	 * Does heavy operations during bootstraping
+	 * Does heavy operations during bootstrapping
 	 * @return $this
 	 */
 	public function postInit() {
+		//$this->getDB();
+		// init user here as he needs to access Config::getInstance()
+		$this->user = NULL;
+		return $this;
+	}
+
+	function getDB() {
+		if ($this->db) return $this->db;
+
 		if ($this->db_database) {
-			try {
+			if (extension_loaded('mysqlnd')) {
+				$this->db = new dbLayerPDO(
+					$this->db_user,
+					$this->db_password,
+					'mysql',
+					'',
+					$this->db_server,
+					$this->db_database
+				);
+				$this->db->perform('set names utf8');
+			} else {
 				$this->db = new MySQL(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
-			} catch (Exception $e) {
-				$this->db = new MySQL(
-					$this->db_database,
-					$this->db_server,
-					$this->db_user,
-					'');
 			}
-			$di = new DIContainer();
-			$di->db = $this->db;
-			$this->qb = new SQLBuilder($di);
 		}
-
-		// init user here as he needs to access Config::getInstance()
-		$this->user = NULL;
-		return $this;
+		$this->db->setQB($this->getQb());
+		return $this->db;
 	}
 
 	public function prefixTable($a) {
@@ -151,13 +203,32 @@ class ConfigBase {
 
 	function mergeConfig($obj) {
 		$class = get_class($obj);
-		if (is_array($this->config[$class])) {
+		if (isset($this->config[$class]) && is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
 				if ($key != 'includeFolders') {	// Strict Standards: Accessing static property Config::$includeFolders as non static
 					$obj->$key = $val;
 				}
 			}
 		}
+	}
+
+	/**
+	 * @return \SQLBuilder
+	 */
+	public function getQb() {
+		if (!isset($this->qb)) {
+			$db = Config::getInstance()->getDB();
+			$this->setQb(new SQLBuilder($db));
+		}
+
+		return $this->qb;
+	}
+
+	/**
+	 * @param \SQLBuilder $qb
+	 */
+	public function setQb(SQLBuilder $qb) {
+		$this->qb = $qb;
 	}
 
 }
