@@ -678,5 +678,10 @@ class Time {
 	public function getSince() {
 		return new Duration($this->getTimestamp() - time());
 	}
+	
+	function setHis($H, $i = 0, $s = 0) {
+		$this->time = strtotime(date('Y-m-d').' '.$H.':'.$i.':'.$s);
+		$this->updateDebug();
+	}
 
 }
