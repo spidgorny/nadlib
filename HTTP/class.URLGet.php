@@ -1,23 +1,17 @@
 <?php
 
 class URLGet {
+
+	/**
+	 * @var string
+	 */
 	protected $url;
 
-	public $timeout = 5;
+	public $timeout = 10;
 
 	protected $html = '';
 
 	protected $logger;
-
-	/**
-	 *
-	 * @param string $url
-	 */
-	public function __construct($url) {
-		$this->url = $url;
-		$this->logger = Index::getInstance()->controller;
-		//$this->fetch();
-	}
 
 	/**
 	 * @var CURL info
@@ -30,43 +24,77 @@ class URLGet {
 	protected $proxy;
 
 	/**
-	 * @param bool $proxy - it was a proxy object, but now it's boolean
+	 * for file_get_content()
+	 * @var array
+	 */
+	public $context = array();
+
+	/**
+	 * @var array
+	 */
+	public $curlParams = array();
+
+	/**
+	 *
+	 * @param string $url
+	 */
+	public function __construct($url) {
+		$this->url = $url;
+		$this->logger = Index::getInstance()->controller;
+		$this->context = array(
+			'http' => array(
+				'timeout' => $this->timeout,
+			)
+		);
+	}
+
+	function setProxy($host, $username, $password) {
+		$this->proxy = new Proxy(array(
+			'proxy' => 'http://'.$username.':'.$password.'@'.$host,
+		));
+	}
+
+	/**
+	 * @param bool|Proxy $proxy - it was a proxy object, but now it's boolean
 	 * as a new proxy will get generation
 	 * @param int $retries
 	 */
-	public function fetch($proxy = false, $retries = 1) {
+	public function fetch($retries = 1) {
 		$start = microtime(true);
-		//$this->logger->log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
+		$this->logger->log('<a href="'.$this->url.'">'.$this->url.'</a>', __CLASS__);
 		for ($i = 0; $i < $retries; $i++) {
 			try {
 				if (function_exists('curl_init')) {
-					$curlParams = array();
-					if ($proxy) {
-						$this->proxy = Proxy::getRandom();
+					$this->logger->log('CURL is enabled');
+					if ($this->proxy) {
+						$this->logger->log('Proxy is defined');
+						if (!($proxy instanceof Proxy)) {
+							$this->proxy = Proxy::getRandomOrBest();
+						}
 						$curlParams[CURLOPT_PROXY] = $this->proxy;
+					} else {
+						$this->logger->log('No Proxy');
 					}
-					$html = $this->fetchCURL($curlParams);
+					$html = $this->fetchCURL($this->curlParams);
 				} else {
+					$this->logger->log('CURL is disabled');
 					$html = $this->fetchFOpen();
 				}
 			} catch (Exception $e) {
-				$this->logger->log($e->getMessage(), __CLASS__);
+				$this->logger->log($e->getMessage(), __METHOD__);
 			}
 			if ($html) {
+				$this->logger->log('Download successful. Data size: '.strlen($html).' bytes');
 				break;
 			}
 		}
-		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').')', __CLASS__);
+		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)', __METHOD__);
 		$this->html = $html;
 	}
 
 	public function fetchFOpen() {
-		$ctx = stream_context_create(array(
-		    'http' => array(
-		        'timeout' => $this->timeout,
-		    )
-		));
-		$html = @file_get_contents($this->url, 0, $ctx);
+		$ctx = stream_context_create($this->context);
+		$html = file_get_contents($this->url, 0, $ctx);
 		return $html;
 	}
 
@@ -89,32 +117,23 @@ class URLGet {
 
 		$response = curl_exec($process);
 		$header_size = curl_getinfo($process, CURLINFO_HEADER_SIZE);
-		$header = substr($response, 0, $header_size);
+		$headers = substr($response, 0, $header_size);
 		$html = substr($response, $header_size);
 
 		$this->info = curl_getinfo($process);
-		if ($_REQUEST['d'] == 'urlget') {
-			debug($this->info);
-			debug($html);
-			debug($header);
-		}
+		$this->logger->log('URLGet Info: '.json_encode($this->info, JSON_PRETTY_PRINT));
+		$this->logger->log('URLGet Errno: '.curl_errno($process));
+		$this->logger->log('URLGet HTTP code: '.$this->info['http_code']);
+		$this->logger->log('URLGet Headers: '.$headers);
+		//debug($this->info);
 		if (curl_errno($process)){
-			//debug('Curl error: ' . curl_error($process));
+			debug('Curl error: ' . curl_error($process));
 		}
 		curl_close($process);
 
-		if (!$html || $this->info['http_code'] != 200) {
-			if ($this->proxy) {
-				//Controller::log('Using proxy: '.$proxy.': FAIL', __CLASS__);
-				$this->proxy->fail();
-			}
+		if (/*!$html || */$this->info['http_code'] != 200) {	// when downloading large file directly to file system
 			//debug($this->info);
 			throw new Exception('failed to read URL: '.$this->url);
-		} else {
-			if ($this->proxy) {
-				//Controller::log('Using proxy: '.$proxy.': OK', __CLASS__);
-				$this->proxy->ok();
-			}
 		}
 		return $html;
 	}

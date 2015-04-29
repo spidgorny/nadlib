@@ -33,11 +33,19 @@ class FileCache {
 
 	function set($key, $val) {
 		if (is_array($val)) {
+			//print_r($key);
 			$val = serialize($val);
 		}
-		$con = Index::getInstance()->controller;
-		$con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.@sizeof($val).'/'.@strlen($val), __CLASS__);
-		file_put_contents($this->map($key), $val);
+		if (class_exists('Index')) {
+			$con = Index::getInstance()->controller;
+		}
+		if (strlen($val)) {
+			
+			$con && $con->log('Writing cache to <a href="'.$this->map($key).'">'.$this->map($key).', size: '.strlen($val), __CLASS__);
+			file_put_contents($this->map($key), $val);
+		} else {
+			$con && $con->log('NOT writing cache because size: ' . strlen($val), __CLASS__);
+		}
 	}
 
 	function get($key) {

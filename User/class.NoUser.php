@@ -4,7 +4,7 @@
  * Some places require a user object which does nothing if you're not logged-in
  */
 
-class NoUser extends Person {
+class NoUser extends UserBase {
 
 	function __construct() {
 		parent::__construct(NULL);
@@ -18,16 +18,19 @@ class NoUser extends Person {
 		return '';
 	}
 
-	function getPref() {
+	function getPref($key) {
 		return NULL;
 	}
 
-	function setPref() {
+	function setPref($key, $val) {
 		return NULL;
 	}
 
+	/**
+	 * @return null
+	 */
 	function getUnreadMessages() {
-		return 0;
+		return NULL;
 	}
 
 }

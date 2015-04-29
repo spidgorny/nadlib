@@ -25,16 +25,16 @@ class Duration extends Time {
 	function  __construct($input = NULL) {
 		if ($input instanceof Time) {
 			$this->time = $input->time;
-			$this->updateDebug();
 		} elseif (is_string($input)) {
 			$temp = self::fromHuman($input);
 			$this->time = $temp->getTimestamp();
 			if (!$this->time) { // parsing failed
-				parent::__construct($input.' GMT', 0);
+				parent::__construct($input.' ', 0);	// GMT removed as it gives from '3 days' a value of '3d 1h'
 			}
 		} else {
 			$this->time = $input;
 		}
+		$this->updateDebug();
 	}
 
 	function format($rules) {
@@ -63,6 +63,7 @@ class Duration extends Time {
 
 	/**
 	 * Parses the human string like '24h 10m'
+	 * No spaces allowed between the number and value
 	 * @param string $string
 	 * @return \Duration
 	 */
@@ -70,7 +71,7 @@ class Duration extends Time {
 		$total = 0;
 		$parts = trimExplode(' ', $string);
 		foreach ($parts as $p) {
-			$value = intval($p);
+			$value = floatval($p);
 			$uom = str_replace($value, '', $p);
 			//debug($p, $value, $uom);
 			switch ($uom) {
@@ -117,6 +118,14 @@ class Duration extends Time {
 					$total += $value*60*60*24*365;
 				break;
 			}
+		}
+		if (!$total) {
+			$totalBefore = $total;
+			$tz = date_default_timezone_get();
+			date_default_timezone_set('UTC');
+			$total = strtotime($string.' UTC', 0);
+			//debug($string, $totalBefore, $tz, date_default_timezone_get(), $total, $total/60/60);
+			date_default_timezone_set($tz);
 		}
 		return new Duration($total);
 	}
@@ -213,6 +222,7 @@ class Duration extends Time {
             return false;
         }
 
+	    $array = array();
         foreach ($duration as $key => $value) {
             $segment_name = substr($key, 0, -1);
             $segment = abs($value) . ' ' . $segment_name;	// otherwise -1 years, -1 months ago
@@ -251,6 +261,18 @@ class Duration extends Time {
 		} else {
 			throw new Exception(__METHOD__.'#'.__LINE__);
 		}
+	}
+
+	public function getMinutes() {
+		return $this->time / 60;
+	}
+
+	public function getHours() {
+		return $this->time / 60 / 60;
+	}
+
+	public function getDays() {
+		return $this->time / 60 / 60 / 24;
 	}
 
 }

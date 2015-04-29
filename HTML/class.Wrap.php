@@ -8,10 +8,8 @@ class Wrap {
 			$this->wrap1 = $strWrap;
 			$this->wrap2 = $arrWrap2;
 		} else {
-			list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
+			@list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
 		}
-		//$db = Config::getInstance()->db;
-		//echo __METHOD__.' '.$db->getCaller(3).' '.$this->__toString().'<br />'."\n";
 	}
 
 	function __toString() {
@@ -31,7 +29,7 @@ class Wrap {
 	 * @param $w2
 	 * @return Wrap
 	 */
-	static function make($w1, $w2 = '') {
+	static function make($w1, $w2 = NULL) {
 		return new self($w1, $w2);
 	}
 

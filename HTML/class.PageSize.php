@@ -28,8 +28,8 @@ class PageSize extends AppController {
 	function __construct($selected = NULL) {
 		parent::__construct();
 		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;
-		$user = Config::getInstance()->user;
-		if (!$this->selected && $user) {
+		$user = Config::getInstance()->getUser();
+		if (!$this->selected && $user && $user->id && method_exists($user, 'getPref')) {
 			$this->selected = $user->getPref('pageSize');
 		}
 		if (!$this->selected) {
@@ -38,7 +38,7 @@ class PageSize extends AppController {
 		if (!$this->selected) {
 			$this->selected = self::$default;
 		}
-		if ($user) {
+		if ($user && $user->id && method_exists($user, 'setPref')) {
 			$user->setPref('pageSize', $this->selected);
 		}
 		$this->options = array_combine($this->options, $this->options);

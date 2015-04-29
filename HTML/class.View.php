@@ -1,6 +1,10 @@
 <?php
 
 class View {
+
+	/**
+	 * @var string
+	 */
 	protected $file;
 
 	/**
@@ -9,8 +13,6 @@ class View {
 	public $caller;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLang
 	 */
 	protected $ll;
@@ -27,16 +29,22 @@ class View {
 	/**
 	 * @var Index
 	 */
-	protected $index;
+	public $index;
 
 	function __construct($file, $copyObject = NULL) {
 		TaylorProfiler::start(__METHOD__.' ('.$file.')');
-		$this->folder = Config::getInstance()->appRoot.'/template/';
-		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
-			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
+		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
+		$this->folder = ($config->appRoot ? cap($config->appRoot, '/') : '').'template/';
+		if (class_exists('Config') && ifsetor($config->config[__CLASS__]['folder'])) {
+			$this->folder = dirname(__FILE__).'/'.$config->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
-		//debug($this->folder, $this->file);
+		/*nodebug(
+			$config->appRoot,
+			$config->config[__CLASS__],
+			$config->config[__CLASS__]['folder'],
+			$this->folder,
+			$this->file);*/
 		if ($copyObject) {
 			$this->caller = $copyObject;
 			/*$vars = get_object_vars($copyObject);
@@ -45,7 +53,10 @@ class View {
 			}
 			*/
 		}
-		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
+		$this->ll = (class_exists('Config') && isset(Config::getInstance()->ll))
+			? Config::getInstance()->ll : NULL;
+		$this->ll = (class_exists('Index') && isset(Index::getInstance()->ll))
+			? Index::getInstance()->ll : $this->ll;
 		$this->request = Request::getInstance();
 		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
 		TaylorProfiler::stop(__METHOD__.' ('.$file.')');
@@ -59,24 +70,41 @@ class View {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
-		//debug($this->folder, $this->file, $file, filesize($file));
+		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
+
+		//debug(getcwd(), $file);
 		require($file);
+
 		if (!$content) {
 			$content = ob_get_clean();
 		} else {
 			ob_end_clean();
 		}
+
+		preg_match_all('/__([^_]+)__/', $content, $matches);
+		foreach ($matches[1] as $ll) {
+			$content = str_replace('__'.$ll.'__', __($ll), $content);
+		}
+
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-			$content = '<!-- View template: '.$this->folder.$this->file.' -->'.$content;
+			$content = '<!-- View template: '.$this->folder.$this->file.' -->'."\n".
+				$content;
 		}
 		TaylorProfiler::stop($key);
 		return $content;
 	}
 
+	/**
+	 * Really primitive and buggy.
+	 * @use markdown() instead
+	 * @param $text
+	 * @param null $linkCallback
+	 * @return mixed|string
+	 */
 	function wikify($text, $linkCallback = null) {
 		$inUL = false;
 		$lines2 = array();
@@ -196,13 +224,16 @@ class View {
 		$urls = $this->_autolink_find_URLS($text);
 		if (!empty($urls)) // i.e. there were some URLS found in the text
 		{
-			array_walk($urls, array($this, '_autolink_create_html_tags'), array('target' => $target, 'nofollow' => $nofollow));
+			array_walk($urls, array($this, '_autolink_create_html_tags'), array(
+				'target' => $target,
+				'nofollow' => $nofollow,
+			));
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
 		return $text;
 	}
 
-	function _autolink_find_URLS( $text ) {
+	static function _autolink_find_URLS( $text ) {
 		// build the patterns
 		$scheme = '(http:\/\/|https:\/\/)';
 		$www = 'www\.';
@@ -251,7 +282,7 @@ class View {
 
 	static function bar($percent, array $params = array(), $attr = array()) {
 		$percent = round($percent);
-		$src = 'vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
+		$src = AutoLoad::getInstance()->nadlibFromDocRoot.'bar.php?'.http_build_query($params + array(
 			'rating' => $percent,
 			'color' => '6DC5B4',
 		));
@@ -260,6 +291,65 @@ class View {
 			'alt' => $percent.'%',
 		);
 		return new HTMLTag('img', $attr, NULL);
+	}
+
+	function purifyLinkify($comment) {
+		$comment = preg_replace("/#(\w+)/", "<a href=\"Search?q=\\1\" target=\"_blank\">#\\1</a>", $comment);
+		$comment = $this->cleanComment($comment);
+		$comment = nl2br($comment);
+		$comment .= $this->getEmbeddables($comment);
+		return $comment;
+	}
+
+	/**
+	 * @param string $comment
+	 * @return string
+	 */
+	function cleanComment($comment) {
+		//$v = new View('');
+		//$comment = $v->autolink($comment);
+		$config = HTMLPurifier_Config::createDefault();
+		//debug($config);
+		$cc = new CommentCollection(-1);
+		$config->set('HTML.Allowed', $cc->allowedTags);
+		$config->set('Attr.AllowedFrameTargets', array('_blank'));
+		$config->set('Attr.AllowedRel', array('nofollow'));
+		$config->set('AutoFormat.Linkify', true);
+		$config->set('HTML.TargetBlank', true);
+		$config->set('HTML.Nofollow', true);
+		$purifier = new HTMLPurifier($config);
+		$clean_html = $purifier->purify($comment);
+		return $clean_html;
+	}
+
+	function getEmbeddables($comment) {
+		$content = '';
+		$links = $this->getLinks($comment);
+		foreach ($links as $link => $_) {
+			$Essence = @Essence\Essence::instance( );
+			$Media = $Essence->embed($link);
+
+			if ( $Media ) {
+				$content .= $Media->html;
+			}
+		}
+		return $content;
+	}
+
+	/**
+	 * @return array
+	 */
+	function getLinks($comment) {
+		return View::_autolink_find_URLS($comment);
+	}
+
+	function s($a) {
+		return Index::mergeStringArrayRecursive($a);
+	}
+
+	static function markdown($text) {
+		$my_html = \Michelf\Markdown::defaultTransform($text);
+		return $my_html;
 	}
 
 }

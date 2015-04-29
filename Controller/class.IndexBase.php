@@ -1,33 +1,29 @@
 <?php
 
 class IndexBase /*extends Controller*/ {	// infinite loop
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var MySQL
 	 */
-	public $db;
+	protected $db;
 
 	/**
-	 * Enter description here...
-	 *
+	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
-	public $ll;
+	protected $ll;
 
 	/**
-	 * Enter description here...
-	 *
-	 * @var LoginUser
+	 * @var User|LoginUser
 	 */
-	public $user;
+	protected $user;
 
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string
+	 * @var string|array
 	 */
-	public $content = '';
+	public $content;
 
 	/**
 	 * @var AppController
@@ -47,39 +43,54 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $template = 'template.phtml';
 
+	public $sidebar = '';
+
+	public $description = '';
+
+	public $keywords = '';
+
+	/**
+	 * @var Config
+	 */
+	var $config;
+
+	var $title = '';
+
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		//parent::__construct();
-		$config = Config::getInstance();
-		$this->db = $config->db;
-		$this->ll = new LocalLangDummy();	// the real one is in Config!
+		if (class_exists('Config')) {
+			$this->config = Config::getInstance();
+			$this->db = $this->config->db;
+			$this->user = $this->config->user;
+			$this->ll = ifsetor($this->config->ll);
+		}
 
 		$this->request = Request::getInstance();
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if (!Request::isCLI() && !headers_sent()) {
+		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/ && !headers_sent()) {
 			session_start();
 		}
 
-		$this->user = Config::getInstance()->user;
 		$this->restoreMessages();
 		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
-	 * @param bool $createNew
+	 * @param bool $createNew - must be false
 	 * @return Index|IndexBE
 	 */
-	static function getInstance($createNew = true) {
+	static function getInstance($createNew = false) {
 		TaylorProfiler::start(__METHOD__);
-		$instance = &self::$instance ?: $GLOBALS['i'];	// to read IndexBE instance
+		$instance = self::$instance
+			? self::$instance
+			: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
 		if (!$instance && $createNew) {
-			if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 			$static = get_called_class();
 			$instance = new $static();
-			//$instance->initController();	// scheisse: call it in index.php
+			self::$instance = $instance;
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $instance;
@@ -87,22 +98,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * Called by index.php explicitly,
-	 * therefore processes exceptions
+	 * therefore processes exceptions.
+	 *
+	 * That's not true anymore, called in render().
 	 * @throws Exception
 	 */
 	public function initController() {
 		TaylorProfiler::start(__METHOD__);
-		if ($_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
-		try {
-			$slug = $this->request->getControllerString();
-			if ($slug) {
-				$this->loadController($slug);
-			} else {
-				throw new Exception404($slug);
-			}
-		} catch (Exception $e) {
-			$this->controller = NULL;
-			$this->content = $this->renderException($e);
+		$slug = $this->request->getControllerString();
+		if ($slug) {
+			$this->loadController($slug);
+		} else {
+			throw new Exception404($slug);
 		}
 		TaylorProfiler::stop(__METHOD__);
 	}
@@ -127,41 +134,68 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
+			unset($_SESSION['AutoLoad']);
 			TaylorProfiler::stop(__METHOD__);
 			throw new Exception($exception);
 		}
 		TaylorProfiler::stop(__METHOD__);
 	}
 
+	function getController() {
+		if (!$this->controller) {
+			$this->initController();
+		}
+		return $this->controller;
+	}
+
 	function render() {
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
-		if ($this->controller) {
-			try {
+		try {
+			$this->initController();
+			if ($this->controller) {
 				$content .= $this->renderController();
-				if (!$this->request->isAjax() && !$this->request->isCLI()) {
-					$content = $this->renderTemplate($content);
-				} else {
-					$content .= $this->content;
-					$this->content = '';		// clear for the next output. May affect saveMessages()
-				}
-			} catch (Exception $e) {
-				$content = $this->renderException($e);
+			} else {
+				$content .= is_array($this->content)
+					? implode("\n", $this->content)
+					: $this->content;	// display Exception
+				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} else {
-			$content .= $this->content;	// display Exception
+		} catch (LoginException $e) {
+			//$this->content .= $e;
+			throw $e;
+		} catch (Exception $e) {
+			$content = $this->renderException($e);
 		}
+
+		$content = $this->renderTemplateIfNotAjax($content);
 		TaylorProfiler::stop(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
+	}
+
+	function renderTemplateIfNotAjax($content) {
+		$contentOut = '';
+		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+			$contentOut .= is_array($this->content)
+				? implode("\n", $this->content)
+				: $this->content;	// display Exception
+			$contentOut .= $content;
+			$contentOut = $this->renderTemplate($contentOut);
+		} else {
+			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
+			$contentOut .= $content;
+			$this->content = '';		// clear for the next output. May affect saveMessages()
+		}
+		return $contentOut;
 	}
 
 	function renderTemplate($content) {
 		TaylorProfiler::start(__METHOD__);
 		$v = new View($this->template, $this);
 		$v->content = $content;
-		$v->title = strip_tags($this->controller->title);
-		$v->sidebar = $this->showSidebar();
+		$v->title = strip_tags(ifsetor($this->controller->title));
+		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
@@ -172,6 +206,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderController() {
 		TaylorProfiler::start(__METHOD__);
 		$render = $this->controller->render();
+		$render = $this->mergeStringArrayRecursive($render);
+		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap && !$this->request->isAjax()) {
 			$render = $this->controller->layout->wrap($render);
 		}
@@ -179,23 +215,53 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
+	/**
+	 * @param string|string[] $render
+	 * @return string
+	 */
 	static function mergeStringArrayRecursive($render) {
 		if (is_array($render)) {
-			//$render = implode("\n", $render); // not recursive
 			$combined = '';
-			array_walk_recursive($render, function ($value, $key) use (&$combined) {
-				$combined .= $value."\n";
-			});
+			/*array_walk_recursive($render,
+				array('IndexBase', 'walkMerge'),
+				$combined); // must have &
+			*/
+
+			//$combined = array_merge_recursive($render);
+			//$combined = implode('', $combined);
+
+			$combinedA = new ArrayObject();
+			array_walk_recursive($render, array('IndexBase', 'walkMergeArray'), $combinedA);
+			$combined = implode('', $combinedA->getArrayCopy());
 			$render = $combined;
+		} else if (is_object($render)) {
+			//debug(get_class($render));
+			$render = $render.'';
 		}
 		return $render;
 	}
 
+	protected static function walkMerge($value, $key, &$combined = '') {
+		$combined .= $value."\n";
+	}
+
+	protected static function walkMergeArray($value, $key, $combined) {
+		$combined[] = $value;
+	}
+
 	function renderException(Exception $e, $wrapClass = '') {
-		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error padding">
-			'.$e->getMessage();
+		$this->title = $e->getMessage();
+		$message = $e->getMessage();
+		$message = $message instanceof htmlString
+			? $message.''
+			: htmlspecialchars($message);
+		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
+			'.get_class($e).' ('.$e->getCode().')'.BR.
+			nl2br($message);
 		if (DEVELOPMENT) {
-			$content .= '<br />'.nl2br($e->getTraceAsString());
+			$content .= BR.BR.'<div style="text-align: left">'.
+				nl2br($e->getTraceAsString()).'</div>';
+			//$content .= getDebug($e);
 		}
 		$content .= '</div>';
 		$content .= '<div class="headerMargin"></div>';
@@ -207,18 +273,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$e->sendHeader();
 		}
 
-		if (!$this->request->isAjax()) {
-			try {
-				$v = new View($this->template, $this);
-				$v->content = $content;
-				$v->baseHref = $this->request->getLocation();
-				$content = $v->render();
-			} catch (Exception $e) {
-				// second exception may happen
-				echo $e;
-			}
-		}
-
 		return $content;
 	}
 
@@ -228,21 +282,35 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 	}
 
+	/**
+	 * Move it to the MRBS
+	 * @param $action
+	 * @param $bookingID
+	 */
 	function log($action, $bookingID) {
-		$qb = Config::getInstance()->qb;
-		$qb->runInsertQuery('log', array(
+		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
-		));
+		));*/
 	}
 
 	function message($text) {
-		$this->content .= '<div class="message">'.$text.'</div>';
+		$msg = '<div class="message alert alert-info ui-state-message alert alert-notice padding">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function error($text) {
-		$this->content .= '<div class="error ui-state-error alert alert-error padding">'.$text.'</div>';
+		$msg = '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		if (is_array($this->content)) {
+			$this->content[] = $msg;
+		} else {
+			$this->content .= $msg;
+		}
 	}
 
 	function saveMessages() {
@@ -250,34 +318,102 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function restoreMessages() {
-		$this->content .= $_SESSION[__CLASS__]['messages'];
-		$_SESSION[__CLASS__]['messages'] = '';
+		if (isset($_SESSION[__CLASS__])) {
+			$this->content .= $_SESSION[__CLASS__]['messages'];
+			$_SESSION[__CLASS__]['messages'] = '';
+		}
 	}
 
+	/**
+	 * @return $this
+	 */
 	function addJQuery() {
-		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery/jquery.min.js');
-		} else {
-			$this->footer['jquery.js'] = '
-				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-				<script>window.jQuery || document.write(\'<script src="components/jquery/jquery.min.js"><\/script>\')</script>
-			';
+		if (isset($this->footer['jquery.js'])) {
+			return $this;
 		}
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
+			$jQueryPath = 'jquery/jquery.min.js';
+			$al = AutoLoad::getInstance();
+			nodebug(array(
+				'jQueryPath' => $jQueryPath,
+				'appRoot' => $al->appRoot,
+				'componentsPath' => $al->componentsPath,
+				'fe(jQueryPath)' => file_exists($jQueryPath),
+				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'documentRoot' => $al->documentRoot,
+				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+			));
+			if (file_exists($al->componentsPath . $jQueryPath)) {
+				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
+				$this->addJS($al->componentsPath->getURL().$jQueryPath);
+				return $this;
+			} elseif (file_exists($al->appRoot . $jQueryPath)) {
+                // does not work if both paths are the same!!
+//				$rel = Path::make(getcwd())->remove($al->appRoot);
+                $rel = Path::make(Config::getInstance()->documentRoot)->remove($al->appRoot);
+				$rel->trimIf('be');
+				$rel->reverse();
+				$this->addJS($rel . $jQueryPath);
+				return $this;
+			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
+				$this->addJS($al->nadlibFromDocRoot . $jQueryPath);
+				return $this;
+			} else {
+				$jQueryPath = 'components/jquery/jquery.min.js';
+			}
+		} else {
+			$jQueryPath = 'components/jquery/jquery.min.js';
+		}
+		$this->footer['jquery.js'] = '
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+			<script>window.jQuery || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>
+			';
 		return $this;
 	}
 
 	function addJQueryUI() {
 		$this->addJQuery();
+		if (ifsetor($this->footer['jqueryui.js'])) return $this;
+		$al = AutoLoad::getInstance();
+		$jQueryPath = clone $al->componentsPath;
+		//debug($jQueryPath);
+		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
+		$jQueryPath->setAsFile();
+		nodebug(array(
+			'jQueryPath' => $jQueryPath,
+			'jQueryPath->exists()' => $jQueryPath->exists(),
+			'appRoot' => $al->appRoot,
+			'componentsPath' => $al->componentsPath,
+			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
+			'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath->getUncapped()),
+			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'documentRoot' => $al->documentRoot,
+			'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+		));
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			$this->addJS('components/jquery-ui/ui/minified/jquery-ui.min.js');
-
-            // commented out because this should be project specific
-			//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
-		} else {
-			$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-			<script>window.jQueryUI || document.write(\'<script src="components/jquery-ui/ui/minified/jquery-ui.min.js"><\/script>\')</script>';
-			$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
+			if ($jQueryPath->exists()) {
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+				return $this;
+			} else {
+				$jQueryPath = clone $al->componentsPath;
+				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
+				$jQueryPath->setAsFile();
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+				return $this;
+			}
 		}
+
+		// commented out because this should be project specific
+		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+		<script>window.jQueryUI || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
 		return $this;
 	}
 
@@ -287,16 +423,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	function addJS($source) {
 		$called = Debug::getCaller();
+		$fileName = $source;
 		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
 				$mtime = @filemtime('public/'.$source);
 			}
 			if ($mtime) {
-				$source .= '?' . $mtime;
+				$fileName .= '?' . $mtime;
 			}
 		}
-		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$source.'"></script>';
+		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'"></script>';
 		return $this;
 	}
 
@@ -305,8 +442,27 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addCSS($source) {
-		if (pathinfo($source, PATHINFO_EXTENSION) == 'less') {
-			$source = 'Lesser?css='.$source;
+		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
+			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
+				//$source = $source;	// rewrite inside css folder
+			} else {
+				$sourceCSS = str_replace('.less', '.css', $source);
+				if (file_exists($sourceCSS)){
+					$source = $sourceCSS;
+				} else {
+					$source = 'css/?c=Lesser&css=' . $source;
+				}
+			}
+		} else {
+			if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
+				$mtime = @filemtime($source);
+				if (!$mtime) {
+					$mtime = @filemtime('public/'.$source);
+				}
+				if ($mtime) {
+					$source .= '?' . $mtime;
+				}
+			}
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;
@@ -316,12 +472,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
+			$content = $this->mergeStringArrayRecursive($content);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
 
 	function renderProfiler() {
+		$content = '';
 		if (DEVELOPMENT &&
 			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
@@ -333,17 +491,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($profiler) {
 				if (!$this->request->isCLI()) {
 					$content = $profiler->renderFloat();
-					$content .= '<div class="profiler">'.$profiler->printTimers(true).'</div>';
+					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
-					if ($this->db->queryLog) {
+					if (ifsetor($this->db->queryLog)) {
 						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
 					}
-					if ($this->db->QUERIES) {
-						$dbLayer = $this->db;
-						/** @var $dbLayer dbLayer */
-						$content .= $dbLayer->dumpQueries();
-					}
+					$content .= TaylorProfiler::dumpQueries();
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {
 				$content = TaylorProfiler::renderFloat();
@@ -353,11 +507,33 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeCSS() {
-		return implode("\n", $this->header);
+		$content = array();
+		foreach ($this->header as $key => $script) {
+			$content[] = '<!--'.$key.'-->'."\n".$script;
+		}
+		return implode("\n", $content);
 	}
 
 	function implodeJS() {
-		return implode("\n", $this->footer);
+		if (file_exists('vendor/minify/min/index.php')) {
+			$include = array(); // some files can't be found
+			$files = array_keys($this->footer);
+			foreach ($files as $f => &$file) {
+				if (file_exists($file)) {
+					$file = $this->request->getDocumentRoot() . $file;
+				} else {
+					unset($files[$f]);
+					$include[$file] = $this->footer[$file];
+				}
+			}
+			$files = implode(",", $files);
+			//$files .= DEVELOPMENT ? '&debug' : '';
+			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
+			$content .= implode("\n", $include);
+		} else {
+			$content = implode("\n", $this->footer);
+		}
+		return $content;
 	}
 
 }

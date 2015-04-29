@@ -10,7 +10,7 @@ abstract class Grid extends AppController {
 	/**
 	 * @var OODBase
 	 */
-	protected $model;
+	public $model;
 
 	/**
 	 * @var array
@@ -57,7 +57,7 @@ abstract class Grid extends AppController {
 	 * How does it work when some params need to be cleared?
 	 *
 	 * @deprecated - use saveFilterColumnsSort() instead
-	 *
+	 * @param null $subname
 	 */
 	function mergeRequest($subname = NULL) {
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
@@ -78,23 +78,30 @@ abstract class Grid extends AppController {
 
 	/**
 	 * @param null $cn Supply get_class($this) to the function
-	 * 					or it should be called after $this->collection is initialized
+	 * or it should be called after $this->collection is initialized
 	 */
 	function saveFilterColumnsSort($cn = NULL) {
+		if (!$this->collection) {
+			$this->injectCollection();
+		}
 		$cn = $cn ? $cn : get_class($this->collection);
 		//debug($cn);
-		assert($cn);
+		assert($cn > '');
 
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 
 		if ($this->request->is_set('columns') && $allowEdit) {
 			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
 		}
-		$this->columns = $allowEdit ? $this->request->getArray('columns') : array();
-		$this->columns = $this->columns
-			? $this->columns
-			: $this->user->getPref('Columns.'.$cn);
-		if (!$this->columns && $this->model->thes) {
+		$this->columns = $allowEdit
+			? $this->request->getArray('columns')
+			: array();
+		if (method_exists($this->user, 'getPref')) {
+			$this->columns = $this->columns
+				? $this->columns
+				: $this->user->getPref('Columns.'.$cn);
+		}
+		if (!$this->columns && ifsetor($this->model->thes)) {
 			$this->columns = array_keys($this->model->thes);
 		}
 		if (!$this->columns && $this->collection->thes) {
@@ -108,37 +115,59 @@ abstract class Grid extends AppController {
 		} else {
 			$this->filter = $allowEdit ? $this->request->getArray('filter') : array();
 			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
-			$this->filter = $this->filter
-				? $this->filter
-				: $this->user->getPref('Filter.'.$cn);
+			if (method_exists($this->user, 'getPref')) {
+				$this->filter = $this->filter
+					? $this->filter
+					: $this->user->getPref('Filter.'.$cn);
+			}
 			$this->filter = $this->filter ? $this->filter : array();
 			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
 		}
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
-		if ($allowEdit) {
-			$this->user->setPref('Filter.'.$cn, $this->filter);
-		}
 
-		if ($this->request->is_set('slTable') && $allowEdit) {
-			$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+		if (method_exists($this->user, 'setPref')) {
+			if ($allowEdit) {
+				$this->user->setPref('Filter.'.$cn, $this->filter);
+			}
+
+			if ($this->request->is_set('slTable') && $allowEdit) {
+				$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+			}
 		}
 		$sortRequest = $this->request->getArray('slTable');
-		$this->sort = $sortRequest
-			? $sortRequest
-			: ($this->user->getPref('Sort.'.$cn)
-				? $this->user->getPref('Sort.'.$cn)
-				: $this->sort
-			);
+		if (method_exists($this->user, 'getPref')) {
+			$this->sort = $sortRequest
+				? $sortRequest
+				: ($this->user->getPref('Sort.'.$cn)
+					? $this->user->getPref('Sort.'.$cn)
+					: $this->sort
+				);
+		}
 
 		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
 	}
 
 	function render() {
+		if (!$this->collection) {
+			$this->injectCollection();
+		}
 		$content = $this->collection->render();
 		$content .= '<hr />';
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this), $this->encloseTag);
 		return $content;
+	}
+
+	function injectCollection() {
+		$class = new ReflectionObject($this);
+		$col = $class->getProperty('collection');
+		$comment = $col->getDocComment();
+		$parser = new DocCommentParser();
+		$parser->parseDocComment($comment);
+		$colName = $parser->getFirstTagValue('var');
+		if ($colName) {
+			$this->collection = new $colName();
+		}
 	}
 
 	/**

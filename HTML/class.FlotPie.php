@@ -24,6 +24,11 @@ class FlotPie extends AppController {
 	public $data;
 
 	/**
+	 * @var string
+	 */
+	var $flotPath = 'components/flot/flot/';
+
+	/**
 	 * @param array $data	- source data
 	 */
 	function __construct(array $data) {
@@ -40,8 +45,8 @@ class FlotPie extends AppController {
 		Index::getInstance()->addJQuery();
 		Index::getInstance()->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.pie.js"></script>';
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.pie.js"></script>';
 
 		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: none 0px silver;"></div>';
 
@@ -59,10 +64,10 @@ class FlotPie extends AppController {
 
 		Index::getInstance()->footer[$divID] = '
     	<script type="text/javascript">
-    	function labelFormatter(label, series) {
+    function labelFormatter(label, series) {
 		return "<div style=\'font-size:8pt; text-align:center; padding:2px; color:white;\'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
 	}
-$(function () {
+$(function ($) {
 	'.implode("\n", $charts).'
     $.plot($("#'.$divID.'"), [
     	'.implode(", ", $dKeys).'

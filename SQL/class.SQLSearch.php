@@ -1,21 +1,8 @@
 <?php
 
 class SQLSearch {
-
-	/**
-	 * @var string table name
-	 */
 	protected $table;
-
-	/**
-	 * @var string search string
-	 */
 	protected $sword;
-
-	/**
-	 * Search string split into words
-	 * @var array
-	 */
 	protected $words = array();
 
 	/**
@@ -38,17 +25,24 @@ class SQLSearch {
 	 */
 	public $likeOperator = 'LIKE';
 
+
+	/**
+	 * @var DBInterface
+	 */
+	protected $db;
+
 	function __construct($table, $sword) {
 		//debug(array($table, $sword));
 		$this->table = $table;
 		$this->sword = $sword;
 		$this->words = $this->getSplitWords($this->sword);
 		//debug($this->words);
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	function getSplitWords($sword) {
 		$sword = trim($sword);
-		$words = explode(' ', $sword . ' ' . $GLOBALS['i']->user->data['searchAppend']);
+		$words = explode(' ', $sword . ' ' . ifsetor(Config::getInstance()->user->data['searchAppend']));
 		$words = array_map('trim', $words);
 		$words = array_filter($words);
 		$words = array_unique($words);
@@ -59,17 +53,19 @@ class SQLSearch {
 
 	function __toString() {
 		$where = $this->getWhere();
-		//$query = str_replace('WHERE', $this->queryJoins.' WHERE', $query);
+		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		$query = '';
 		if ($where) {
-			$qb = Config::getInstance()->qb;
-			$whereString = $qb->quoteWhere($where);
+			$whereString = $this->db->quoteWhere($where);
 			$query .= implode(' AND ', $whereString);
 		}
 		return $query;
 	}
 
-	public function getWhere() {
+	/**
+	 * @return array
+	 */
+	function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;
@@ -85,7 +81,7 @@ class SQLSearch {
 					$word = substr($word, 1);
 					$where[] = $this->table.'.id NOT IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
 				} else {
-					//$this->queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
+					//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
 					// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
 					$where[] = $this->table.'.id IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
 				}
@@ -94,11 +90,11 @@ class SQLSearch {
 		return $where;
 	}
 
-	protected function getSearchSubquery($word, $select = NULL) {
+	function getSearchSubquery($word, $select = NULL) {
 		$table = $this->table;
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
-		$where = new SQLWhere($where);
+		$where = new SQLWhere(array());
 		$query = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
 
@@ -107,12 +103,12 @@ class SQLSearch {
 		return $query;
 	}
 
-	protected function getSearchWhere($word, $prefix = '') {
+	function getSearchWhere($word, $prefix = '') {
 		if ($word{0} == '!') {
-			$like = 'NOT ' . $this->likeOperator;
+			$like = 'NOT LIKE';
 			$or = "\n\t\tAND";
 		} else {
-			$like = $this->likeOperator;
+			$like = 'LIKE';
 			$or = "\n\t\tOR";
 		}
 
@@ -122,12 +118,12 @@ class SQLSearch {
 			$part[] = "{$prefix}{$field} {$like} '%$1%'";
 		}
 		$part = implode(' ' . $or . ' ', $part);
-		$part = str_replace('$1', $word, $part);
+		$part = str_replace('$1', $this->db->escape($word), $part);
 		$part = str_replace("\r\n", "\n", $part);
 
 		// test if it's a date
 		$date1 = strtotime($word);
-		if ($date1 > 0) {
+		if (strlen($word) == 10 && $date1 > 0) {
 			$date2 = strtotime('+1 day', $date1);
 			$date1 = date('Y-m-d', $date1);
 			$date2 = date('Y-m-d', $date2);

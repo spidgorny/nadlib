@@ -4,17 +4,27 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer {
+class dbLayer extends dbLayerBase implements DBInterface {
+
 	var $RETURN_NULL = TRUE;
-	var $CONNECTION = NULL;
+
+    /**
+     * @var resource
+     */
+    protected $CONNECTION = NULL;
+
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
 
-	/**
-	 * logging:
-	 */
-	public $saveQueries = false;
+    /**
+     * todo: use setter & getter method
+     *
+     * contains query builder class used as mixin.
+     *
+     * @var null
+     */
+    public $qb = null;
 
 	var $QUERIES = array();
 	var $QUERYMAL = array();
@@ -32,9 +42,22 @@ class dbLayer {
 	 */
 	var $lastQuery;
 
+	/**
+	 * @var string DB name
+	 */
+	var $db;
+
+    var $reserved = array(
+        'SELECT', 'LIKE',
+    );
+
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
-		if ($dbse) {
+        if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
+	        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+	        $words = $this->fetchAll($query, 'word');
+	        $this->reserved = array_keys($words);
+	        $this->reserved = array_map('strtoupper', $this->reserved); // important
 		}
 	}
 
@@ -46,6 +69,7 @@ class dbLayer {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
+		$this->db = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
@@ -64,22 +88,18 @@ class dbLayer {
 		$prof = new Profiler();
 		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
-		$this->LAST_PERFORM_RESULT = @pg_query($this->CONNECTION, $query);
+		//debug($query);
+		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
-			//debug_pre_print_backtrace();
-			$error = $this->CONNECTION
-				? pg_errormessage($this->CONNECTION)
-				: error_get_last().'';
-			$exception = new DatabaseException($error);
-			$exception->query = $query;
-			throw $exception;
+			debug_pre_print_backtrace();
+			throw new Exception(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->saveQueries) {
-				@$this->QUERIES[$query] += $prof->elapsed();
+			if ($this->queryLog) {
+				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -98,9 +118,9 @@ class dbLayer {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->saveQueries) {
-				@$this->QUERIES[$query] += $prof->elapsed();
+				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
 				@$this->QUERYMAL[$query]++;
-				$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
 			}
 		}
 		$this->COUNTQUERIES++;
@@ -108,63 +128,10 @@ class dbLayer {
 	}
 
 	/**
-	 * @param $what string columns to retrieve.
-	 * You may request multiple columns, but the value must be last.
-	 * @param $from
-	 * @param $where
-	 * @param bool $returnNull
-	 * @param bool $debug
-	 * @return null
-	 * @throws DoubleResultException
-	 * @throws Exception
+	 * Return one dimensional array
+	 * @param $table
+	 * @return array
 	 */
-	function sqlFind($what, $from, $where, $returnNull = FALSE, $debug = FALSE) {
-		//$trace = $this->getCallerFunction();
-		$key = __METHOD__;
-			//.' ('.$from.')'.' // '.$trace['class'].'::'.
-			//ifsetor($trace['function']);
-		TaylorProfiler::start($key);
-		$query = "select $what as res from $from where $where";
-		if ($debug) printbr("<strong>$query</strong>");
-		$result = $this->perform($query);
-		$rows = pg_num_rows($result);
-		if ($rows == 1) {
-			$row = pg_fetch_row($result, 0);
-			pg_free_result($result);
-//			printbr("<b>$query: $row[0]</b>");
-			$return = $row[0];
-		} else {
-			if ($rows == 0 && $returnNull) {
-				pg_free_result($result);
-				$return = NULL;
-			} else {
-				printbr("<strong>$query: $rows</strong>");
-				printbr("ERROR: No result or more than one result of sqlFind()");
-				debug_pre_print_backtrace();
-				throw new DoubleResultException($query);
-			}
-		}
-		TaylorProfiler::stop($key);
-		return $return;
-	}
-
-	function sqlFindRow($query) {
-		$result = $this->perform($query);
-		if ($result && pg_num_rows($result)) {
-			$a = pg_fetch_assoc($result, 0);
-			pg_free_result($result);
-			return $a;
-		} else {
-			return array();
-		}
-	}
-
-	function sqlFindSql($query) {
-		$result = $this->perform($query);
-		$a = pg_fetch_row($result, 0);
-		return $a[0];
-	}
-
 	function getTableColumns($table) {
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
@@ -173,6 +140,11 @@ class dbLayer {
 			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
+	}
+
+	function getTableColumnsEx($table) {
+		$meta = pg_meta_data($this->CONNECTION, $table);
+		return $meta;
 	}
 
 	function getTableColumnsCached($table) {
@@ -220,11 +192,6 @@ class dbLayer {
 			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
-	}
-
-	function getColumnInfo($table) {
-		$meta = pg_meta_data($this->CONNECTION, $table);
-		return $meta;
 	}
 
 	function getTableDataEx($table, $where = "", $what = "*") {
@@ -287,26 +254,17 @@ class dbLayer {
 	 * @return string[]
 	 */
 	function getTables() {
-		$query = "select relname from pg_class where not relname ~ 'pg_.*' and not relname ~ 'sql_.*' and relkind = 'r'";
+		$query = "select relname
+		from pg_class
+		where
+		not relname ~ 'pg_.*'
+		and not relname ~ 'sql_.*'
+		and relkind = 'r'
+		ORDER BY relname";
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
 		return ArrayPlus::create($return)->column('relname');
-	}
-
-	function getColumnDefault($table) {
-		$query = "SELECT *
-		FROM information_schema.columns where table_name = '".$table."'
-		ORDER BY ordinal_position";
-		$data = $this->fetchAll($query);
-		foreach ($data as &$row) {
-			if (contains($row['column_default'], 'nextval')) {
-				$parts = trimExplode("'", $row['column_default']);
-				$row['sequence'] = $parts[1];
-				$row['sequence'] = str_replace('"', '', $row['sequence']);  // can be quoted
-			}
-		}
-		return ArrayPlus::create($data)->IDalize('column_name')->getData();
 	}
 
 	function amountOf($table, $where = "1 = 1") {
@@ -358,15 +316,35 @@ class dbLayer {
 		return $c;
 	}
 
-	function getInsertQuery($table, $columns) {
-		$q = "INSERT INTO $table (";
-		$q .= implode(", ", array_keys($columns));
+    function quoteKeys($a) {
+        $c = array();
+        foreach ($a as $b) {
+            $c[] = $this->quoteKey($b);
+        }
+        return $c;
+    }
+
+    /**
+     * @param string $table Table name
+     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+     * @return string
+     */
+    function getInsertQuery($table, $columns) {
+		$q = "INSERT INTO {$table} (";
+		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
 		$q .= ") VALUES (";
 		$q .= implode(", ", $this->quoteValues(array_values($columns)));
 		$q .= ")";
 		return $q;
 	}
 
+	/**
+	 * Overrides because of pg_fetch_all
+	 * @param resource|string $result
+	 * @param null $key
+	 * @return array
+	 * @throws Exception
+	 */
 	function fetchAll($result, $key = NULL) {
 		if (is_string($result)) {
 			$result = $this->perform($result);
@@ -383,45 +361,6 @@ class dbLayer {
 
 		pg_free_result($result);
 		return $res;
-	}
-
-	function getUpdateQuery($table, $columns, $where) {
-		$q = "UPDATE $table SET ";
-		$set = array();
-		foreach ($columns as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		$q .= implode(", ", $set);
-		$q .= " where ";
-		$set = array();
-		foreach ($where as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		$q .= implode(" and ", $set);
-		return $q;
-	}
-
-	function getFirstWord($table) {
-		$table1 = explode(' ', $table);
-		$table1 = $table1[0];
-		return $table1;
-	}
-
-	function getDeleteQuery($table, array $where, $what = '') {
-		$q = "DELETE ".$what." FROM $table ";
-		$set = array();
-		foreach ($where as $key => $val) {
-			$val = $this->quoteSQL($val);
-			$set[] = "$key = $val";
-		}
-		if (sizeof($set)) {
-			$q .= " WHERE " . implode(" and ", $set);
-		} else {
-			$q .= ' WHERE 1 = 0';
-		}
-		return $q;
 	}
 
 	/**
@@ -458,25 +397,14 @@ class dbLayer {
 		return $value;
 	}
 
-	function runSelectQuery($table, $where = array(), $order = '', $select = '*') {
-		$query = $this->getSelectQuery($table, $where, $order, $select);
-		$res = $this->perform($query);
-		return $res;
-	}
-
-	function numRows($query) {
+	function numRows($query = NULL) {
 		if (is_string($query)) {
 			$query = $this->perform($query);
 		}
 		return pg_num_rows($query);
 	}
 
-	function runUpdateQuery($table, array $set, array $where) {
-		$query = $this->getUpdateQuery($table, $set, $where);
-		return $this->perform($query);
-	}
-
-	function getLastInsertID($res, $table = 'not required since 8.1') {
+	function getLastInsertID($res = NULL, $table = 'not required since 8.1') {
 		$pgv = pg_version();
 		if ($pgv['server'] >= 8.1) {
 			$id = $this->lastval();
@@ -505,42 +433,15 @@ class dbLayer {
 	}
 
 	/**
-	 * This used to retrieve a single row !!!
+	 * Check why this override is necessary.
+	 * Probably it is not.
 	 * @param $table
-	 * @param $where
-	 * @param string $order
-	 * @param string $selectPlus
-	 * @param null $idField
-	 * @return array
-	 */
-	function fetchSelectQuery($table, $where, $order = '', $selectPlus = '', $idField = NULL) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAll($res, $idField);
-		return $row;
-	}
-
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$row = $this->fetchAssoc($res);
-		return $row;
-	}
-
-	/**
-	 *
-	 * @param string $table
+	 * @param array $fields
 	 * @param array $where
-	 * @param string $order
-	 * @param string $selectPlus
-	 * @param $key
-	 * @return array[]
+	 * @param array $createPlus
+	 * @return null
+	 * @throws Exception
 	 */
-	function fetchAllSelectQuery($table, array $where = array(), $order = '',
-	                             $selectPlus = '', $key = NULL) {
-		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->fetchAll($res, $key);
-		return $rows;
-	}
-
 	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
 		TaylorProfiler::start(__METHOD__);
 		$this->transaction();
@@ -559,10 +460,6 @@ class dbLayer {
 		$this->commit();
 		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
-	}
-
-	function runDeleteQuery($table, $where) {
-		$this->perform($this->getDeleteQuery($table, $where));
 	}
 
 	function getComment($table, $column) {
@@ -607,12 +504,9 @@ order by a.attnum';
 	}
 
 	function __call($method, array $params) {
-		$qb = class_exists('Config') ? Config::getInstance()->qb : new stdClass();
-		if (method_exists($qb, $method)) {
-			//debug_pre_print_backtrace();
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->getQb(), $method)) {
+			return call_user_func_array(array($this->getQb(), $method), $params);
 		} else {
-			debug($qb);
 			throw new Exception('Method '.__CLASS__.'::'.$method.' doesn\'t exist.');
 		}
 	}
@@ -620,18 +514,6 @@ order by a.attnum';
 	function quoteKey($key) {
 		$key = '"'.$key.'"';
 		return $key;
-	}
-
-	function runUpdateInsert($table, $set, $where) {
-		$found = $this->runSelectQuery($table, $where);
-		if ($this->numRows($found)) {
-			$res = 'update';
-			$this->runUpdateQuery($table, $set, $where);
-		} else {
-			$res = 'insert';
-			$this->runInsertQuery($table, $set + $where);
-		}
-		return $res;
 	}
 
 	function getCallerFunction() {
@@ -714,7 +596,9 @@ order by a.attnum';
 	}
 
 	function getIndexesFrom($table) {
-		return $this->fetchAll('select pg_get_indexdef(indexrelid) from pg_index where indrelid = "'.$table.'"::regclass');
+		return $this->fetchAll('select *, pg_get_indexdef(indexrelid)
+		from pg_index
+		where indrelid = \''.$table.'\'::regclass');
 	}
 
     function free($res) {
@@ -722,4 +606,30 @@ order by a.attnum';
             pg_free_result($res);
         }
     }
+
+	function escapeBool($value) {
+		return $value ? 'true' : 'false';
+	}
+
+    public function setQb(SQLBuilder $qb = NULL) {
+        $this->qb = $qb;
+    }
+
+    public function getQb() {
+        if(!isset($this->qb)) {
+            $db = Config::getInstance()->getDB();
+            $this->setQb(new SQLBuilder($db));
+        }
+
+        return $this->qb;
+    }
+
+    function affectedRows($res = NULL) {
+        return pg_affected_rows($res);
+    }
+
+	public function getScheme() {
+		return 'postgresql';
+	}
+
 }

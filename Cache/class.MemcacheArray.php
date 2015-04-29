@@ -47,18 +47,28 @@ class MemcacheArray implements ArrayAccess {
 	public $miss = 0;
 
 	/**
+	 * Will show a line on the screen every time this is used.
+	 * Useful to debug cache issues.
+	 * @var bool
+	 */
+	static $debug = false;
+
+	/**
 	 * @param string $file - filename inside /cache/ folder
 	 * @param int $expire - seconds to keep the cache active
 	 */
 	function __construct($file, $expire = 0) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__.' ('.$file.')');
+		TaylorProfiler::start(__METHOD__.' ('.$file.')');
 		$this->file = $file;
 		$this->expire = $expire instanceof Duration ? $expire->getTimestamp() : $expire;
 		$this->fc = new MemcacheFile();
 		$this->data = $this->fc->get($this->file, $this->expire);
 		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__.' ('.$file.')');
+		if (self::$debug) {
+			echo __METHOD__.'('.$file.', '.$expire.'). Sizeof: '.sizeof($this->data).BR;
+		}
+		TaylorProfiler::stop(__METHOD__.' ('.$file.')');
 	}
 
 	/**
@@ -66,13 +76,13 @@ class MemcacheArray implements ArrayAccess {
 	 * Modified to save only on changed data
 	 */
 	function __destruct() {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		if ($this->onDestruct) {
 			call_user_func($this->onDestruct, $this);
 		}
 		$this->save();
 		//debug(sizeof($this->data));
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function save() {
@@ -83,18 +93,18 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	function clearCache() {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$prev = sizeof(self::$instances);
 		$prevKeys = array_keys(self::$instances);
 		self::unsetInstance($this->file);
 		$curr = sizeof(self::$instances);
 		//debug(__METHOD__, $this->file, $prev, $curr, $prevKeys, array_keys(self::$instances));
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	public function offsetSet($offset, $value) {
-        $this->data[$offset] = $value;
-    }
+		$this->data[$offset] = $value;
+	}
 
 	function exists($key) {
 		return isset($this->data[$key]);
@@ -112,23 +122,27 @@ class MemcacheArray implements ArrayAccess {
 	function set($key, $value) {
 		$this->data[$key] = $value;
 	}
-    public function offsetExists($offset) {
-        return isset($this->data[$offset]);
-    }
+	
+	public function offsetExists($offset) {
+		return isset($this->data[$offset]);
+	}
 
-    public function offsetUnset($offset) {
-        unset($this->data[$offset]);
-    }
+	public function offsetUnset($offset) {
+		unset($this->data[$offset]);
+	}
 
-    public function offsetGet($offset) {
-        return isset($this->data[$offset]) ? $this->data[$offset] : null;
-    }
+	public function offsetGet($offset) {
+		return isset($this->data[$offset]) ? $this->data[$offset] : null;
+	}
 
-    static function getInstance($file, $expire = 0) {
-    	return self::$instances[$file]
-    		?  self::$instances[$file]
-    		: (self::$instances[$file] = new self($file, $expire));
-    }
+	static function getInstance($file, $expire = 0) {
+		if (self::$debug) {
+			//echo __METHOD__.'('.$file.')'.BR;
+		}
+		return self::$instances[$file]
+    		? self::$instances[$file]
+			: (self::$instances[$file] = new self($file, $expire));
+	}
 
 	static function unsetInstance($file) {
 		if (self::$instances[$file]) {
@@ -138,6 +152,10 @@ class MemcacheArray implements ArrayAccess {
 			self::$instances[$file]->fc->clearCache(self::$instances[$file]->file);
 		}
 		unset(self::$instances[$file]);
+	}
+
+	static function enableDebug() {
+		self::$debug = true;
 	}
 
 }

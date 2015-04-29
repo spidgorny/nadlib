@@ -3,8 +3,15 @@
 define('LOWERCASE',3);
 define('UPPERCASE',1);
 
+use Symfony\Component\CssSelector\CssSelector;
+
 class Syndicator {
+
+	/**
+	 * @var string
+	 */
 	var $url;
+	 * @var bool|int enabled or seconds for caching
 	var $isCaching = FALSE;
 
 	/**
@@ -35,11 +42,21 @@ class Syndicator {
 	var $cache;
 
 	/**
-	 * @var Proxy
+	 * @var Proxy|bool
 	 */
 	public $useProxy = NULL;
 
 	public $input = 'HTML';
+
+	/**
+	 * @var array
+	 */
+	public $log = array();
+
+	/**
+	 * @var callback to check that downloaded file is what is expected
+	 */
+	public $validateDownload;
 
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
 		TaylorProfiler::start(__METHOD__);
@@ -101,10 +118,26 @@ class Syndicator {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$c->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
+				$this->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
+				$this->log('No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
-				$this->cache->set($this->url, $html);
+				if (is_callable($this->validateDownload)) {
+					$ok = call_user_func($this->validateDownload, $html);
+					if ($ok) {
+						$this->cache->set($this->url, $html);
+						$this->proxyOK();
+					} else {
+						$this->proxyFail();
+					}
+				} else {
+					if (strlen($html)) {
+						$this->cache->set($this->url, $html);
+						$this->proxyOK();
+					} else {
+						$this->proxyFail();
+					}
+				}
 				//debug($cache->map($this->url).' Size: '.strlen($html), 'Set cache');
 			}
 		} else {
@@ -114,12 +147,48 @@ class Syndicator {
 		return $html;
 	}
 
-	function downloadFile($href, $retries) {
-		$ug = new URLGet($href);
-		$ug->fetch($this->useProxy, $retries);
-		return $ug->getContent();
+	function proxyOK() {
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log('Using proxy: '.$this->useProxy.': OK', __CLASS__);
+			$this->useProxy->ok();
+		}
 	}
 
+	function proxyFail() {
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log('Using proxy: '.$this->useProxy.': OK', __CLASS__);
+			$this->useProxy->fail();
+		}
+	}
+
+	function log($msg) {
+		$this->log[] = $msg;
+		if (class_exists('Index')) {
+			$c = Index::getInstance()->controller;
+			$c->log($msg);
+		} else {
+			echo $msg.BR;
+		}
+	}
+
+	function downloadFile($href, $retries = 1) {
+		if (startsWith($href, 'http')) {
+			$ug = new URLGet($href);
+			$ug->timeout = 10;
+			$ug->fetch($this->useProxy, $retries);
+			return $ug->getContent();
+		} else {
+			return file_get_contents($href);
+		}
+	}
+
+	/**
+	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
+	 * @param $str
+	 * @return mixed
+	 */
 	function detect_cyr_charset($str) {
 	    $charsets = Array(
 	                      'koi8-r' => 0,
@@ -174,11 +243,11 @@ class Syndicator {
 				debug($detect, "detect_cyr_charset");
 			}
 			$utf8 = mb_convert_encoding($html, 'UTF-8', $this->recodeUTF8 === TRUE ? 'Windows-1251' : $detect);
-			$utf8 = str_replace(0x20, ' ', $utf8);
+			//$utf8 = str_replace(0x20, ' ', $utf8);
 		} else {
 			$utf8 = $html;
 		}
-		$utf8 = str_replace('&#151;', '-', $utf8);
+		//$utf8 = str_replace('&#151;', '-', $utf8);
 		//debug(substr($utf8, 0, 1000));
 
 		// new
@@ -190,13 +259,14 @@ class Syndicator {
 		//$this->tidy = $utf8;
 		//debug(substr($tidy, 0, 1000));
 		//exit();
-		$this->tidy = preg_replace('/<meta name="description"[^>]*>/', '', $this->tidy);
+		//$this->tidy = preg_replace('/<meta name="description"[^>]*>/', '', $this->tidy);
 
 		$recode = $this->recode($this->tidy);
 		//debug($recode, 'Recode');
 
 		//$recode = preg_replace('/<option value="0">.*?<\/option>/is', '', $recode);
 
+		$recode = str_replace('xmlns=', 'ns=', $recode);
 		$xml = $this->getXML($recode);
 		TaylorProfiler::stop(__METHOD__);
 		return $xml;
@@ -226,7 +296,6 @@ class Syndicator {
 				//$out = tidy_get_output($tidy);
 				$out = $tidy->value;
 			} else {
-				require_once 'nadlib/HTML/htmLawed.php';
 				$out = htmLawed($html, array(
 					'valid_xhtml' => 1,
 					'tidy' => 1,
@@ -262,14 +331,18 @@ class Syndicator {
 	function getXML($recode) {
 		TaylorProfiler::start(__METHOD__);
 		try {
-			$xml = new SimpleXMLElement($recode);
-			//$xml['xmlns'] = '';
-			$namespaces = $xml->getNamespaces(true);
-			//debug($namespaces, 'Namespaces');
-			//Register them with their prefixes
-			foreach ($namespaces as $prefix => $ns) {
-			    $xml->registerXPathNamespace('default', $ns);
-			    break;
+			if ($recode{0} == '<') {
+				$xml = new SimpleXMLElement($recode);
+				//$xml['xmlns'] = '';
+				$namespaces = $xml->getNamespaces(true);
+				//debug($namespaces, 'Namespaces');
+				//Register them with their prefixes
+				foreach ($namespaces as $prefix => $ns) {
+					$xml->registerXPathNamespace('default', $ns);
+					break;
+				}
+			} else {
+				$xml = new SimpleXMLElement('');
 			}
 		} catch (Exception $e) {
 			//debug($recode);
@@ -377,6 +450,13 @@ class Syndicator {
 			$e = trim(strip_tags($e));
 		}
 		return $elements;
+	}
+
+	function css($selector) {
+		CssSelector::enableHtmlExtension();
+		$xpath = CssSelector::toXPath($selector);
+		//debug($xpath);
+		return $this->getElements($xpath);
 	}
 
 }

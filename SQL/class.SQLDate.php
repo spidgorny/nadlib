@@ -1,8 +1,8 @@
 <?php
 
-class SQLDate {
+class SQLDate extends Date {
+
 	/**
-	 *
 	 * @var Date
 	 */
 	protected $date;
@@ -13,6 +13,10 @@ class SQLDate {
 
 	function __toString() {
 		return $this->date->format('Y-m-d');
+	}
+
+	function debug() {
+		return $this->__toString();
 	}
 
 }

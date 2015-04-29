@@ -10,23 +10,26 @@ class SQLOr extends SQLWherePart {
 	protected $or = array();
 
 	/**
-	 * @var dbLayerPG
+	 * @var dbLayerPG|dbLayer
 	 */
 	protected $db;
+
+	protected $join = ' OR ';
 
 	function __construct(array $ors) {
 		//parent::__construct();
 		$this->or = $ors;
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 	}
 
+	/**
+	 * Please make SQLOrBijou, SQLOrORS and so on classes.
+	 * This one should be just simple general.
+	 * @return string
+	 */
 	function __toString() {
-		if (!$this->qb) {
-			//$di = new DIContainer();
-			//$di->db = $this->db;
-			$this->qb = Config::getInstance()->qb;
-		}
-		if ($this->qb->db instanceof dbLayerPG) {		// ???
+		//debug(get_class($this->db));
+		if (false && $this->db instanceof dbLayerPG) {		// bijou
 			$ors = array();
 			foreach ($this->or as $key => $or) {
 				if (is_main($key)) {
@@ -36,13 +39,13 @@ class SQLOr extends SQLWherePart {
 					), false);
 				}
 			}
-		} else if ($this->qb->db instanceof dbLayer) {	// DCI, ORS
+		} elseif (false && $this->db instanceof dbLayer) {	// DCI, ORS
 			// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
 			// http://ors.nintendo.de/NotifyVersion
             if (is_int($this->field)) {                 // added is_int condition to solve problem with software mngmt & request (hw/sw request)  .. deklesoe 20130514
 				$ors = array();
 				foreach ($this->or as $field => $or) {
-					$tmp = $this->qb->quoteWhere(
+					$tmp = $this->db->quoteWhere(
                         array($field => $or)
 						//array($this->field => $or)    //  commented and replaced with line above due to problem
                                                         //  with query creation for software management .. deklesoe 20130514
@@ -65,13 +68,13 @@ class SQLOr extends SQLWherePart {
 						$p->injectField($field);
 					}
 				}
-				$ors = $this->qb->quoteWhere($this->or);
+				$ors = $this->db->quoteWhere($this->or);
 			}
 		} else {										// MySQL
-			$ors = $this->qb->quoteWhere($this->or);
+			$ors = $this->db->quoteWhere($this->or);
 		}
 		if ($ors) {
-			$res = '('.implode(' OR ', $ors).')';
+			$res = '('.implode($this->join, $ors).')';
 		} else {
 			$res = '/* EMPTY OR */';
 		}

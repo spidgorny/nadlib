@@ -137,7 +137,7 @@ class MessageQueue extends OODBase {
 	 */
 	public function push($taskData, $userId = null) {
 		$data = array(
-			'ctime' 	=> 'NOW()',
+			'ctime' 	=> new SQLNow(),
 			'type'		=> $this->type,
 			'status' 	=> self::STATUS_NEW,
 			'data'		=> json_encode($taskData)

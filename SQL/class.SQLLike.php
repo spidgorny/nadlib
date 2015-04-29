@@ -1,10 +1,26 @@
 <?php
 
 class SQLLike extends SQLWherePart {
-	protected $string;
+
+	/**
+	 * @var string value
+	 */
+	public $string;
+
+	/**
+	 * @var bool
+	 */
 	protected $caseInsensitive;
+
 	public $like = 'LIKE';
+
 	public $ilike = 'ILIKE';
+
+	/**
+	 * Replace with "%|%" if you like
+	 * @var string
+	 */
+	public $wrap = '|';
 
 	function __construct($string, $caseInsensitive = false) {
 		parent::__construct();
@@ -13,7 +29,10 @@ class SQLLike extends SQLWherePart {
 	}
 
 	function __toString() {
-		return $this->field ." ". ($this->caseInsensitive ? $this->ilike : $this->like) ." '%".$this->qb->db->escape($this->string)."%'";
+		$like = $this->caseInsensitive ? $this->ilike : $this->like;
+		$w = explode('|', $this->wrap);
+		$wrap = $w[0] . $this->qb->db->escape($this->string) . $w[1];
+		return $this->field ." ". $like ." '".$wrap."'";
 	}
 
 }

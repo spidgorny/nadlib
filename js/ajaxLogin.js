@@ -1,6 +1,6 @@
 jQuery.noConflict();
 jQuery(document).ready(function ($) {
-	$("#AjaxLogin a[rel='forgotPassword']").live("click", function (e) {
+	$("#AjaxLogin a[rel='forgotPassword']").on("click", function (e) {
 		var a = $(e.target);
 		//console.log(a, a.attr('href'));
 		var href = a.attr("href")+"&"+a.parents("form").formSerialize().replace("&mode=login", "");
@@ -8,7 +8,7 @@ jQuery(document).ready(function ($) {
 		e.preventDefault();
 	});
 	// Register
-	$("#AjaxLogin a[rel='registerForm']").live("click", function (e) {
+	$("#AjaxLogin a[rel='registerForm']").on("click", function (e) {
 		var a = $(e.target);
 		var href = a.attr("href");
 		$("#AjaxLogin").load(href);
@@ -16,7 +16,7 @@ jQuery(document).ready(function ($) {
 	});
 
 	// Edit profile, Change password, Logout
-	$("#loginMenu li a.ajax").live('click', function (e) {
+	$("#loginMenu li a.ajax").on('click', function (e) {
 		var a = $(e.target);
 		div = a.next("div");
 		if (!div.length) {
@@ -33,13 +33,13 @@ jQuery(document).ready(function ($) {
 		}
 		e.preventDefault();
 	});
-	$("button.buttonRegister").live('click', function (e) {
+	$("button.buttonRegister").on('click', function (e) {
 		$('#loginForm').slideUp(); //css('display', 'none');
 		$('#registerForm').slideDown(); //css('display', 'block');
 		//$(this).css('display', 'none');
 		e.preventDefault();
 	});
-	$("a.backToLogin").live('click', function (e) {
+	$("a.backToLogin").on('click', function (e) {
 		$('#loginForm').slideDown();
 		$('#registerForm').slideUp();
 		//$(this).css('display', 'none');
@@ -93,7 +93,7 @@ jQuery(document).ready(function ($) {
 		form.find('input[type="submit"]').attr('disabled', 1);
 		e.preventDefault();
 	});
-	$('.LinkToMyAccount').live('click', function (e) {
+	$('.LinkToMyAccount').on('click', function (e) {
 		$('html, body').animate({scrollTop:0}, 'slow');
 		$('div#AjaxLogin[rel="toggle"]').slideDown();
 		var login = $('#AjaxLogin input[name="username"]');

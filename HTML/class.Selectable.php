@@ -6,10 +6,13 @@ class Selectable {
 
 	/**
 	 * Assoc
-	 * @var type
+	 * @var array
 	 */
 	public $data = array();
 
+	/**
+	 * @var int
+	 */
 	public $selected;
 
 	/**
@@ -65,6 +68,10 @@ class Selectable {
 
 		$f->selection($this->name, $this->data, $this->selected, TRUE);
 		return $f->getContent();
+	}
+
+	function getOptions($selected = NULL) {
+		return $this->data;
 	}
 
 	function getName() {

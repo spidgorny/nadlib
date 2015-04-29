@@ -9,12 +9,6 @@ class Request {
 	protected $data = array();
 
 	/**
-	 * The default controller retrieved from Config.
-	 * @var string
-	 */
-	public $defaultController;
-
-	/**
 	 * @var URL
 	 */
 	public $url;
@@ -27,14 +21,14 @@ class Request {
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
 
 		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
 			? $_SERVER['SCRIPT_URL']
-			: $_SERVER['REQUEST_URI']);
+			: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : NULL)
+		);
 	}
 
 	function deQuote(array $request) {
@@ -115,7 +109,7 @@ class Request {
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
-			debug($value, $options);
+			//debug($value, $options);
 			throw new Exception(__METHOD__.' is throwing an exception.');
 		}
 		return $value;
@@ -137,8 +131,8 @@ class Request {
 	 * Checks for keys, not values
 	 *
 	 * @param $name
-	 * @param array $assoc
-	 * @return null
+	 * @param array $assoc	- only array keys are used in search
+	 * @return int|null
 	 */
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
@@ -170,7 +164,7 @@ class Request {
 	}
 
 	function bool($name) {
-		return $this->data[$name] ? TRUE : FALSE;
+		return (isset($this->data[$name]) && $this->data[$name]) ? TRUE : FALSE;
 	}
 
 	function getBool($name) {
@@ -194,6 +188,10 @@ class Request {
 		return $val;
 	}
 
+	/**
+	 * @param $name
+	 * @return array
+	 */
 	function getArray($name) {
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
 	}
@@ -259,6 +257,7 @@ class Request {
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
+		return NULL;
 	}
 
 	function getFile($name, $prefix = NULL, $prefix2 = NULL) {
@@ -305,7 +304,7 @@ class Request {
 		return $a ? $a : $b;
 	}
 
-	function getControllerString() {
+	function getControllerString($returnDefault = true) {
 		if ($this->isCLI()) {
 			$controller = $_SERVER['argv'][1];
 			$this->data += $this->parseParameters();
@@ -313,7 +312,7 @@ class Request {
 		} else {
 			$controller = $this->getTrim('c');
 			if ($controller) {
-				// to simplofy URL it first searches for the corresponding controller
+				// to simplify URL it first searches for the corresponding controller
 				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
 				$tmp = $ptr;
 				$ptr = false;
@@ -321,37 +320,68 @@ class Request {
 					$controller = $controller.'Controller';
 				}
 				$ptr = $tmp;
-				//$controller = end(explode('/', $controller)); // in case it's with subfolder
-				// ^ commented as subfolders need be used for BEmenu
-			} else {
-				$levels = $this->getURLLevels();
-				if ($levels) {
-					$levels = array_reverse($levels);
-					foreach ($levels as $class) {
-						//debug($class, class_exists($class.'Controller'), class_exists($class));
-						// to simplify URL it first searches for the corresponding controller
-						if ($class && class_exists($class.'Controller')) {	// this is untested
-							$last = $class.'Controller';
-							break;
-						}
-						if (class_exists($class)) {
-							$last = $class;
-							break;
-						}
+
+				$Scontroller = new Path($controller);
+				if ($Scontroller->length() > 1) {	// in case it's with sub-folder
+					$dir = dirname($Scontroller);
+					$parts = trimExplode('/', $controller);
+					//debug($dir, $parts, file_exists($dir));
+					if (file_exists($dir)) {
+						$controller = end($parts);
+					} else {
+						$controller = first($parts);
 					}
-					$controller = $last;
-				} else {
-					$controller = $this->defaultController;	// not good as we never get 404
 				}
+			} else {
+				$controller = $this->getControllerByPath($returnDefault);
 			}
 		}   // cli
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
-			'last' => $last,
-			'default' => $this->defaultController,
+			'last' => isset($last) ? $last : NULL,
+			'default' => class_exists('Config')
+				? Config::getInstance()->defaultController
+				: NULL,
 			'data' => $this->data));
+		return $controller;
+	}
+
+	function getControllerByPath($returnDefault = true) {
+		$levels = $this->getURLLevels();
+		if ($levels) {
+			$levels = array_reverse($levels);
+			$last = NULL;
+			foreach ($levels as $class) {
+				// RewriteRule should not contain "?c="
+				nodebug(
+					$class,
+					class_exists($class.'Controller'),
+					class_exists($class));
+				// to simplify URL it first searches for the corresponding controller
+				if ($class && class_exists($class.'Controller')) {	// this is untested
+					$last = $class.'Controller';
+					break;
+				}
+				if (class_exists($class)) {
+					$last = $class;
+					break;
+				}
+			}
+			if ($last) {
+				$controller = $last;
+			} elseif ($returnDefault && class_exists('Config')) {
+				// not good as we never get 404
+				$controller = Config::getInstance()->defaultController;
+			} else {
+				$controller = NULL;
+			}
+		} elseif ($returnDefault && class_exists('Config')) {
+			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+		} else {
+			$controller = NULL;
+		}
 		return $controller;
 	}
 
@@ -362,9 +392,10 @@ class Request {
 	 * @return object
 	 */
 	function getController() {
+		$ret = NULL;
 		$c = $this->getControllerString();
 		if (!$c) {
-			$c = $GLOBALS['i']->controller; // default
+			$c = Index::getInstance()->controller; // default
 		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
@@ -390,11 +421,27 @@ class Request {
 	}
 
 	function getRefererController() {
-		$url = new URL($_SERVER['HTTP_REFERER']);
-		$rr = $url->getRequest();
-		$return = $rr->getControllerString();
+		$return = NULL;
+		$url = $this->getReferer();
+		if ($url) {
+			$url->setParams(array());   // get rid of any action
+			$rr = $url->getRequest();
+			$return = $rr->getControllerString();
+		}
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : $this->defaultController;
+		return $return;
+	}
+
+	function getRefererIfNotSelf() {
+		$referer = $this->getReferer();
+		$rController = $this->getRefererController();
+		$index = Index::getInstance();
+		$cController = $index->controller
+			? get_class($index->controller)
+			: Config::getInstance()->defaultController;
+		$ok = (($rController != $cController) && ($referer.'' != new URL().''));
+		//debug($rController, __CLASS__, $ok);
+		return $ok ? $referer : NULL;
 	}
 
 	function redirect($controller) {
@@ -403,41 +450,83 @@ class Request {
 		}
 		if (!headers_sent()
 //			|| DEVELOPMENT
+			&& $this->canRedirect($controller)
 		) {
 			header('Location: '.$controller);
+			exit();
 		} else {
-			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
-			<script>
-				document.location = "'.$controller.'";
-			</script>';
+			$this->redirectJS($controller);
 		}
-		exit();
+	}
+
+	function canRedirect($to) {
+		$absURL = $this->getURL();
+		$absURL->makeAbsolute();
+		//debug($absURL.'', $to.''); exit();
+		return $absURL.'' != $to.'';
+	}
+
+	function redirectJS($controller, $delay = 0) {
+		echo __('Redirecting to').' <a href="'.$controller.'">'.$controller.'</a>
+			<script>
+				setTimeout(function () {
+					document.location = "'.$controller.'";
+				}, '.$delay.');
+			</script>';
+		//exit();
+	}
+
+	function redirectFromAjax($relative) {
+		if (startsWith($relative, 'http')) {
+			$link = $relative;
+		} else {
+			$link = $this->getLocation() . $relative;
+		}
+		if (!headers_sent()) {
+			header('X-Redirect: '.$link);	// to be handled by AJAX callback
+			exit();
+		} else {
+			$this->redirectJS($link);
+		}
 	}
 
 	/**
 	 * Returns the full URL to the document root of the current site
-	 * @return string
+	 * @return URL
 	 */
-	static function getLocation() {
+	static function getLocation($isUTF8 = false) {
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
-		if (strlen($docRoot) == 1) {
-			$docRoot = '/';
-		} else {
-			$docRoot .= '/';
+
+		//debug(get_class($c), $docRoot, $_SERVER['PHP_SELF']);
+
+		if (!startsWith($docRoot, '/')) {
+			$docRoot = '/'.$docRoot;
 		}
-		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST']
-				? $_SERVER['HTTP_X_FORWARDED_HOST']
-				: $_SERVER['HTTP_HOST']
-		).$docRoot;
-		//$GLOBALS['i']->content .= $url;
+
+		$host = self::getHost($isUTF8);
+		$url = Request::getRequestType().'://'.$host.$docRoot;
 		//debug($url);
+		$url = new URL($url);
 		return $url;
+	}
+
+	static function getHost($isUTF8 = false) {
+		$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
+			? $_SERVER['HTTP_X_FORWARDED_HOST']
+			: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL);
+		if (function_exists('idn_to_utf8') && $isUTF8) {
+			$try = idn_to_utf8($host);
+			//debug($host, $try);
+			if ($try) {
+				$host = $try;
+			}
+		}
+		return $host;
 	}
 
 	/**
@@ -449,9 +538,20 @@ class Request {
 		return $this->url;
 	}
 
+	/**
+	 * http://php.net/manual/en/function.apache-request-headers.php#70810
+	 * @return bool
+	 */
 	function isAjax() {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
-		return $this->getBool('ajax') || (strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
+		if (!$headers) {
+			$headers = array(
+				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
+			);
+		}
+		return $this->getBool('ajax') || (
+			isset($headers['X-Requested-With'])
+			&&strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
 	}
 
 	function getHeader($name) {
@@ -532,14 +632,43 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
-		$path = $this->url->getPath();
-		if (strlen($path) > 1) {	// "/"
-			$path = trimExplode('/', $path);
-			//debug($this->url->getPath(), $path);
-		} else {
-			$path = array();
+		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
+		$al = AutoLoad::getInstance();
+
+		if (false) {	// linux
+			$cwd = new Path(getcwd());
+			$url = clone $al->documentRoot;
+			$url->append($this->url->getPath());
+			$path = new Path($url);
+			$path->remove($cwd);
+		} else {	// windows
+			$cwd = NULL;
+			$url = new Path('');
+			$url->append($this->url->getPath());
+			$path = new Path($url);
+
+			if (false) {    // doesn't work in ORS
+				$path->remove(clone $al->documentRoot);
+			} elseif ($config->documentRoot instanceof Path) {        // works in ORS
+				$path->remove(clone $config->documentRoot);
+			}
 		}
-		return $path;
+		//$path = $path->getURL();
+		if (strlen($path) > 1) {	// "/"
+			$levels = trimExplode('/', $path);
+			if ($levels[0] == 'index.php') {
+				array_shift($levels);
+			}
+		} else {
+			$levels = array();
+		}
+		nodebug(array(
+			'cwd' => $cwd.'',
+			'url' => $url.'',
+			'path' => $path.'',
+			'getURL()' => $path->getURL().'',
+			'levels' => $levels));
+		return $levels;
 	}
 
 	/**
@@ -583,13 +712,7 @@ class Request {
 		if (false !== strpos(ini_get('variables_order'), 'C')) {
 			//debug($_COOKIE, ini_get('variables_order'));
 			foreach ($_COOKIE as $key => $_) {
-				if (isset($_GET[$key])) {
-					$_REQUEST[$key] = $_GET[$key];
-				} else if (isset($_POST[$key])) {
-					$_REQUEST[$key] = $_POST[$key];
-				}
-
-				if (isset($_REQUEST[$key])) {
+				if (!isset($_GET[$key]) && !isset($_POST[$key])) {
 					unset($_REQUEST[$key]);
 				}
 			}
@@ -611,7 +734,7 @@ class Request {
 		$levels = array_values($levels);	// reindex
 		/* } */
 
-		return $levels[$index] ? $levels[$index] : $this->getTrim($alternative);
+		return ifsetor($levels[$index]) ? $levels[$index] : $this->getTrim($alternative);
 	}
 
 	static function isCLI() {
@@ -623,7 +746,7 @@ class Request {
 	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
 	 * @return bool
 	 */
-	function isCron() {
+	static function isCron() {
 		return !isset($_SERVER['TERM']);
 	}
 
@@ -638,7 +761,7 @@ class Request {
 	 */
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
-		//debug(getcwd(), $filename, realpath($filename));
+		//echo getDebug(getcwd(), $filename, realpath($filename));
 		$filename = realpath($filename);
 		return $filename;
 	}
@@ -722,20 +845,34 @@ class Request {
 		$this->data = array();
 	}
 
+	/**
+	 * @return Path
+	 */
 	static function getDocumentRoot() {
+		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 		if ($_SERVER['DOCUMENT_ROOT'] &&
 			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
-			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '',
-				dirname($_SERVER['SCRIPT_FILENAME']));
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		} else {	//~depidsvy/something
 			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
 			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
 			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
 		}
-		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $docRoot);
+		$before = $docRoot;
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$docRoot = cap($docRoot, '/');
+		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
+		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
+
+		//debug_pre_print_backtrace();
+		require_once __DIR__ . '/class.Path.php'; // needed if called early
+		$docRoot = new Path($docRoot);
 		return $docRoot;
 	}
 
+	/**
+	 * @param int $age - seconds
+	 */
 	function setCacheable($age = 60) {
 		if (!headers_sent()) {
 			header('Pragma: cache');
@@ -744,4 +881,42 @@ class Request {
 			header('Cache-Control: max-age=' . $age);
 		}
 	}
+
+	/**
+	 * getNameless(1) doesn't provide validation.
+	 * Use importNameless() to associate parameters 1, 2, 3, with their names
+	 * @param array $keys
+	 */
+	public function importNameless(array $keys) {
+		foreach ($keys as $k => $val) {
+			$available = $this->getNameless($k);
+			if ($available) {
+				$this->data[$val] = $available;
+			}
+		}
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	static function isWindows() {
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
+	function getPOST() {
+		if (isset($HTTP_RAW_POST_DATA)) {
+			return $HTTP_RAW_POST_DATA;
+		} else {
+			return file_get_contents("php://input");
+		}
+	}
+
+	function forceDownload($contentType, $filename) {
+		header('Content-Type: '.$contentType);
+		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+	}
+
 }

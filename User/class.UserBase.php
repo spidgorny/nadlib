@@ -1,6 +1,6 @@
 <?php
 
-abstract class UserBase extends OODBase {
+abstract class UserBase extends FlexiTable {
 
 	public $table = 'user';
 
@@ -14,28 +14,10 @@ abstract class UserBase extends OODBase {
 	 * $id is intentionally not = NULL in order to force using getInstance()
 	 * protected will not work because OODBase::__construct is public
 	 *
-	 * @param int $id
+	 * @param int|array $id
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);
-	}
-
-	/**
-	 * @param null $id
-	 * @return User
-	 */
-	public static function getInstance($id) {
-		if (!($obj = self::$instances[$id])) {
-			$static = 'User'; //get_class($this);
-			$obj = new $static($id);
-			$id = $obj->id;
-			if (!self::$instances[$id]) {
-				self::$instances[$id] = $obj;
-			} else {
-				$obj = self::$instances[$id];
-			}
-		}
-		return $obj;
 	}
 
 	public static function unsetInstance($id) {
@@ -53,20 +35,19 @@ abstract class UserBase extends OODBase {
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
-		if ($this->db && $this->id) {
+		if ($this->db && $this->db->isConnected() && $this->id && $this->prefs) {
 			$this->update(array('prefs' => serialize($this->prefs)));
 		}
 	}
 
 	/**
 	 *
-	 * @param unknown_type $login
-	 * @param unknown_type $password - plain text password (no, it's md5'ed already)
-	 * @return unknown
+	 * @param string $login
+	 * @param string $password - plain text password (no, it's md5'ed already)
+	 * @return boolean
 	 */
 	function checkPassword($login, $password) {
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($this->table, array('email' => $login));
+		$query = $this->db->getSelectQuery($this->table, array($this->idField => $login));
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
 		//debug(array($login, $password, $row['password']));
@@ -83,7 +64,7 @@ abstract class UserBase extends OODBase {
 	 *
 	 * @param array $data
 	 * @throws Exception
-	 * @return unknown
+	 * @return void
 	 */
 	function insert(array $data) {
         //debug($data);
@@ -93,18 +74,19 @@ abstract class UserBase extends OODBase {
                 throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
             } else {
                 //$data['password'] = md5($data['password']);
-                return $this->insertNoUserCheck($data);
+                $this->insertNoUserCheck($data);
             }
         } else {
-            //$index = Index::getInstance();
-            //$index->notice('No email provided.');
+            $index = Index::getInstance();
+			debug(__METHOD__);
+            $index->error('No email provided.');
         }
 	}
 
 	function insertNoUserCheck(array $data) {
-		$data['ctime'] = new AsIs('NOW()');
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getInsertQuery($this->table, $data);
+		$data['ctime'] = new SQLDateTime();
+		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
+		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
 		unset($data['ctime']);
@@ -139,7 +121,7 @@ abstract class UserBase extends OODBase {
 	}
 
 	function isAuth() {
-		return $this->id ? true : false;
+		return !!$this->id;
 	}
 
 	function getHTML() {
@@ -151,7 +133,13 @@ abstract class UserBase extends OODBase {
 	}
 
 	function getGravatarURL($gravatarSize = 50) {
-		return 'http://www.gravatar.com/avatar/'.md5(strtolower(trim($this->data['email']))).'?s='.intval($gravatarSize);
+		return 'http://www.gravatar.com/avatar/'.md5(
+			strtolower(
+				trim(
+					ifsetor($this->data['email'])
+				)
+			)
+		).'?s='.intval($gravatarSize);
 	}
 
 }

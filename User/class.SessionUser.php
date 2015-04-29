@@ -7,15 +7,18 @@ class SessionUser extends PlainSessionUser {
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		$this->autologin(); // the main difference of SessionUser
+		if (get_class($this) == 'LoginUser') {
+			$this->autologin(); // the main difference of SessionUser from PlainSessionUser
+		}
 	}
 
 	function autologin() {
-		//debug($_SESSION);
-		if ($login = $_SESSION[__CLASS__]['login']) {
-			$inSession = $this->checkPassword($login, $_SESSION[__CLASS__]['password']);
+		$class = get_called_class();
+		if (ifsetor($_SESSION[$class]) && ($login = $_SESSION[$class]['login'])) {
+			$inSession = $this->checkPassword($login, $_SESSION[$class]['password']);
 			if ($inSession) {
-				$this->findInDB(array('email' => $login));
+				//$this->findInDB(array('email' => $login));
+				$this->init($login);
 			} else {
 				//throw new Exception('You are not logged in. Nevermind, you can do it later.');
 			}
@@ -25,7 +28,7 @@ class SessionUser extends PlainSessionUser {
 	function autoCreate($email) {
 		// we go here only if not logged in
 		// if not a new email and no password we need to ask for password
-		$u = User::getInstance(); // not to mess-up with current object
+		$u = new User(); // not to mess-up with current object
 		$u->findInDB(array('email' => $email));
 		if ($u->id) {
 			throw new Exception(__('Your e-mail is known to the system. Please enter a password.<br>
@@ -54,18 +57,19 @@ class SessionUser extends PlainSessionUser {
 	 * Session only stores MD5'ed passwords! It can't be otherwise!
 	 * This is a success function which loads user data as well.
 	 *
-	 * @param unknown_type $email
-	 * @param unknown_type $password - hash
+	 * @param string $email
+	 * @param string $password - hash
 	 * @throws Exception
 	 */
-	function saveLogin($email, $password) {
+	function saveLogin($email = NULL, $password = NULL) {
 		if (strlen($password) != 32) {
 			throw new Exception(__METHOD__.': supplied password is not hash.');
 		} else {
-			$_SESSION[__CLASS__]['login'] = $email;
-			$_SESSION[__CLASS__]['password'] = $password;
-			$this->findInDB(array('email' => $email));
-			if (!$this->id) {
+			if ($this->id) {
+				$class = get_called_class();
+				$_SESSION[$class]['login'] = $email;
+				$_SESSION[$class]['password'] = $password;
+			} else {
 				//debug($this->data, 'saveLogin');
 				throw new Exception('Login/password matched, but DB retrieval not.');
 			}
@@ -73,10 +77,10 @@ class SessionUser extends PlainSessionUser {
 	}
 
 	function logout() {
-		unset($_SESSION[__CLASS__]);
-		User::unsetInstance($GLOBALS['i']->user->id);
-		unset($GLOBALS['i']->user);
-		$GLOBALS['i']->user = User::getInstance(); // make new anonymous user - does it work?
+		$class = get_called_class();
+		unset($_SESSION[$class]);
+		session_regenerate_id(true);
+		session_destroy();
 	}
 
 }

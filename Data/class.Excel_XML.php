@@ -49,8 +49,7 @@
  * @todo Add error handling (array corruption etc.)
  * @todo Write a wrapper method to do everything on-the-fly
  */
-class Excel_XML
-{
+class Excel_XML {
 
 	/**
 	 * Header of excel document (prepended to the rows)
@@ -60,11 +59,11 @@ class Excel_XML
 	 * @access private
 	 * @var string
 	 */
-	private $header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
+	public $header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
 <Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"
- xmlns:x=\"urn:schemas-microsoft-com:office:excel\"
- xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"
- xmlns:html=\"http://www.w3.org/TR/REC-html40\">";
+	xmlns:x=\"urn:schemas-microsoft-com:office:excel\"
+	xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"
+	xmlns:html=\"http://www.w3.org/TR/REC-html40\">";
 
 	/**
 	 * Footer of excel document (appended to the rows)
@@ -113,7 +112,7 @@ class Excel_XML
 			if (is_numeric($v)) {
 				$dataType = 'Number';
 			}
-			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . /*utf8_encode*/($v) . "</Data></Cell>\n";
+			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . htmlspecialchars($v) . "</Data></Cell>\n";
 
 		endforeach;
 
