@@ -11,9 +11,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
     /**
      * @var resource
      */
-    public $CONNECTION = NULL;
+    protected $CONNECTION = NULL;
 
-	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
 
@@ -25,10 +24,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
      * @var null
      */
     public $qb = null;
-
-	var $QUERIES = array();
-	var $QUERYMAL = array();
-	var $QUERYFUNC = array();
 
 	var $AFFECTED_ROWS = NULL;
 
@@ -90,7 +85,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 
 	function perform($query) {
 		$prof = new Profiler();
-		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
 		//debug($query);
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
@@ -101,18 +95,15 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
-				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
-				@$this->QUERYMAL[$query]++;
-				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				$this->queryLog->log($query, $prof->elapsed());
 			}
 		}
-		$this->COUNTQUERIES++;
+		$this->queryCount++;
 		return $this->LAST_PERFORM_RESULT;
 	}
 
     function performWithParams($query, $params) {
 		$prof = new Profiler();
-		$this->LAST_PERFORM_QUERY = $query;
 		$this->lastQuery = $query;
 		$this->LAST_PERFORM_RESULT = pg_query_params($this->CONNECTION, $query, $params);
 		if (!$this->LAST_PERFORM_RESULT) {
@@ -122,12 +113,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
-				$this->QUERIES[$query] = ifsetor($this->QUERIES[$query]) + $prof->elapsed();
-				@$this->QUERYMAL[$query]++;
-				//$this->QUERYFUNC[$query] = $this->getCallerFunction();
+				$this->queryLog->log($query, $prof->elapsed());
 			}
 		}
-		$this->COUNTQUERIES++;
+		$this->queryCount++;
 		return $this->LAST_PERFORM_RESULT;
 	}
 
@@ -559,41 +548,6 @@ order by a.attnum';
 			next($debug);
 		}
 		$content = implode(' < ', $content);
-		return $content;
-	}
-
-	/**
-	 * Renders the list of queries accumulated
-	 * @return string
-	 */
-	function dumpQueries() {
-		$q = $this->QUERIES;
-		arsort($q);
-		foreach ($q as $query => &$time) {
-			$times = $this->QUERYMAL[$query];
-			$time = array(
-				'times' => $times,
-				'query' => $query,
-				'time' => number_format($time, 3),
-				'time/1' => number_format($time/$times, 3),
-				'func' => $this->QUERYFUNC[$query],
-			);
-		}
-		$q = new slTable($q, 'class="view_array" width="1024"', array(
-			'times' => 'Times',
-			'time' => array(
-				'name' => 'Time',
-				'align' => 'right',
-			),
-			'time/1' => array(
-				'name' => 'Time/1',
-				'align' => 'right',
-			),
-			'query' => 'Query',
-			'func' => 'Caller',
-		));
-		$q->isOddEven = false;
-		$content = '<div class="profiler">'.$q.'</div>';
 		return $content;
 	}
 

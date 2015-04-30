@@ -40,9 +40,9 @@ class dbLayerBase implements DBInterface {
 
 	/**
 	 * set to NULL for disabling
-	 * @var array
+	 * @var QueryLog
 	 */
-	public $queryLog = array();
+	public $queryLog;
 
 	/**
 	 * @var bool Allows logging every query to the error.log.
