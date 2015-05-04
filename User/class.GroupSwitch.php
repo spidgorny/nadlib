@@ -9,22 +9,9 @@ class GroupSwitch extends AppController {
 	 * @var array
 	 */
 	public $allowedUsers = array(
-		'depidsvy',
-		'deloprub',
-        //'dejokmaj',
-        'dedomedu', // requested by deloprub on Feb. 11th 2014
-        'destadea', // requested by deloprub on 2014-04-17
-        'deguipie', // requested by deloprub on 2014-04-17
-		'demuehor', // requested by deloprup on 2015-03-05
 	);
 
 	protected $groups = array(
-		'1815684' => 'AppDev',
-		'83079' => 'Artwork',
-		'62' => 'EPES',
-		'13868' => 'Lotcheck',
-		'1815688' => 'Testers',
-		'1895312' => 'Coords',
 	);
 
 	function render() {
@@ -33,18 +20,7 @@ class GroupSwitch extends AppController {
 		if ($this->canSwitchGroup()) {
 			$this->performAction();
 			$this->groups = $this->fetchGroups();
-			$items = array();
-			foreach ($this->groups as $groupID => $groupName) {
-				$el = $this->makeLink($groupName, array(
-					'action' => 'setGroup',
-					'groupID' => $groupID,
-				), get_class($this)).' ';
-				if ($this->isCurrentGroup($groupID)) {
-					$el = '<b>'.$el.'</b>';
-				}
-				$items[] = $el;
-			}
-			$content = implode(' | ', $items);
+			$content = $this->renderGroups();
 		}
 		return $content;
 	}
@@ -66,6 +42,22 @@ class GroupSwitch extends AppController {
 		$referer = new URL($_SERVER['HTTP_REFERER']);
 		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
 		$this->request->redirect($referer);
+	}
+
+	function renderGroups() {
+		$items = array();
+		foreach ($this->groups as $groupID => $groupName) {
+			$el = $this->makeLink($groupName, array(
+					'action' => 'setGroup',
+					'groupID' => $groupID,
+				), get_class($this)).' ';
+			if ($this->isCurrentGroup($groupID)) {
+				$el = '<b>'.$el.'</b>';
+			}
+			$items[] = $el;
+		}
+		$content = implode(' | ', $items);
+		return $content;
 	}
 
 }
