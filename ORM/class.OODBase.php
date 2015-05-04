@@ -410,6 +410,11 @@ abstract class OODBase {
 		return $s;
 	}
 
+	/**
+	 * Only works when $this->thes is defined or provided
+	 * @param array $thes
+	 * @return string
+	 */
 	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name')) {
 		TaylorProfiler::start(__METHOD__);
 		$content = '<div class="showAssoc">
