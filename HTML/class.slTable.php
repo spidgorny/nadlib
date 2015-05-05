@@ -654,6 +654,7 @@ class slTable {
 			}
 
 			if ($val instanceof htmlString || $val instanceof HTMLTag) {
+				//debug($val);
 				//$val = $val;
 			} elseif (is_array($val)) {
 				//debug($key, $val);
