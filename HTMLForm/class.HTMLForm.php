@@ -341,13 +341,16 @@ class HTMLForm {
 	 * Changelog: second $more parameter was removed, please use $params instead
 	 * @param null $value
 	 * @param array $params
+	 * @return string
 	 */
 	function submit($value = NULL, array $params = array()) {
 		$params['class'] = ifsetor($params['class'], 'submit btn');
 		$params['name'] = ifsetor($params['name'], 'submit');
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
-		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
+		$content = $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
+		$this->stdout .= $content;
+		return $content;
 	}
 
 	function button($innerHTML = NULL, array $more = array()) {
@@ -455,11 +458,11 @@ class HTMLForm {
 	 * 		'between' - text separating the options, default <br />
 	 */
 	function radioset($name, $value, array $desc) {
-		$between = $desc['between'] ? $desc['between'] : '<br />';
+		$between = ifsetor($desc['between'], '<br />');
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
 			// if you need to compare intvals, do it separately
-			$this->radioLabel($name, $key, $value == $key, $val, $desc['more']);
+			$this->radioLabel($name, $key, $value == $key, $val, ifsetor($desc['more']));
 			$this->text($between);
 		}
 	}
