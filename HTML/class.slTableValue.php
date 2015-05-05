@@ -226,7 +226,7 @@ class slTableValue {
 					$out = $val->render();
 				} else {
 					//t3lib_div::debug($k);
-					if (isset($k['hsc']) && $k['hsc']) {
+					if (isset($k['hsc']) && $k['hsc'] && !($val instanceof htmlString)) {
 						$val = htmlspecialchars($val);
 					}
 					if (ifsetor($k['explode'])) {
