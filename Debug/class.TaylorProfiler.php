@@ -520,9 +520,9 @@ class TaylorProfiler {
 		return $return;
 	}
 
-	static function enableTick($ticker = 1000) {
+	static function enableTick($ticker = 100) {
 		register_tick_function(array(__CLASS__, 'tick'));
-		declare(ticks=1000);
+		declare(ticks=100);
 	}
 
 	static function tick() {
@@ -540,7 +540,9 @@ class TaylorProfiler {
 		$list = array_slice($list, 3);
 		$mem = self::getMemUsage();
 		$diff = number_format(100*($mem - $prev), 2);
-		$diff = $diff > 0 ? '<font color="green">'.$diff.'</font>' : '<font color="red">'.$diff.'</font>';
+		$diff = $diff > 0
+			? '<font color="green">'.$diff.'</font>'
+			: '<font color="red">'.$diff.'</font>';
 		$trace = implode(' -> ', $list);
 		$trace = substr($trace, -500);
 
@@ -577,7 +579,9 @@ class TaylorProfiler {
 
 	static function dumpQueries() {
 		$queryLog = class_exists('Config', false)
-			? Config::getInstance()->getDB()->queryLog
+			? (Config::getInstance()->getDB()
+				? Config::getInstance()->getDB()->queryLog
+				: NULL)
 			: NULL;
 		if (DEVELOPMENT && $queryLog) {
 			//debug($queryLog);

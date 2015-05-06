@@ -122,7 +122,6 @@ class Flot extends AppController {
 	/**
 	 * Fixed for Posa Cards
 	 *
-	 * @internal param array $data
 	 * @param string $divID
 	 * @throws Exception
 	 * @return array
@@ -232,6 +231,7 @@ class Flot extends AppController {
 				unset($rows[$i]);
 			}
 		}
+		//debug($chart);
 		return $chart;
 	}
 
