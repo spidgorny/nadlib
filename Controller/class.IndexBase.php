@@ -45,6 +45,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $sidebar = '';
 
+	public $appName = 'Project name';
+
 	public $description = '';
 
 	public $keywords = '';
@@ -210,6 +212,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			&& !$this->request->isAjax()) {
 			/** @var $this->controller->layout Wrap */
 			$render = $this->controller->layout->wrap($render);
+			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $render;

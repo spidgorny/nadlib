@@ -59,7 +59,7 @@ abstract class Controller {
 	/**
 	 * Allows selecting fullScreen layout of the template
 	 *
-	 * @var string
+	 * @var string|Wrap
 	 */
 	public $layout;
 
