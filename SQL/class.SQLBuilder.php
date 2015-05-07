@@ -69,7 +69,6 @@ class SQLBuilder {
 			$value->injectDB($this->db);
 			$value->injectQB($this);
 			$value->injectField($key);
-			debug($value);
 			return $value->__toString();
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();

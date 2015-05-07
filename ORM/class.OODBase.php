@@ -410,16 +410,33 @@ abstract class OODBase {
 		return $s;
 	}
 
-	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name')) {
+	/**
+	 * Only works when $this->thes is defined or provided
+	 * @param array $thes
+	 * @return string
+	 */
+	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name'), $title = NULL) {
 		TaylorProfiler::start(__METHOD__);
 		$content = '<div class="showAssoc">
-		<h3>'.get_class($this).':</h3>';
-			foreach ($thes as $key => $name) {
-				$name = is_array($name) ? $name['name'] : $name;
-				$val = $this->data[$key];
-				$content .= '<div class="prefix10">'.$name.':</div>';
-				$content .= $val.'<br clear="all" />';
+		<h3>'.($title ?: get_class($this)).':</h3>';
+		$assoc = array();
+		foreach ($thes as $key => $name) {
+			$val = $this->data[$key];
+			if (is_array($name) && ifsetor($name['reference'])) {  // class name
+				$class = $name['reference'];
+				$obj = $class::getInstance($val);
+				if (method_exists($obj, 'getNameLink')) {
+					$val = $obj->getNameLink();
+				} elseif (method_exists($obj, 'getName')) {
+					$val = $obj->getName();
+				} else {
+					$val = $obj->__toString();
+				}
 			}
+			$niceName = is_array($name) ? $name['name'] : $name;
+			$assoc[$niceName] = $val;
+		}
+		$content .= UL::DL($assoc);
 		$content .= '</div>';
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
