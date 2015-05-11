@@ -321,8 +321,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function first() {
-		reset($this->getData());
-		return current($this->getData());
+		$var = $this->getData();
+		reset($var);
+		return current($var);
 	}
 
 	/**

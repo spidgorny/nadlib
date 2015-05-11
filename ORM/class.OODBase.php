@@ -242,7 +242,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		TaylorProfiler::start(__METHOD__);
+		TaylorProfiler::start($taylorKey = __METHOD__.' ('.$this->table.') // '.Debug::getBackLog(8));
 		if (!$this->db) {
 			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
 		}
@@ -261,7 +261,7 @@ abstract class OODBase {
 				$this->init($data, true);
 			}
 		}
-		TaylorProfiler::stop(__METHOD__);
+		TaylorProfiler::stop($taylorKey);
 		return $data;
 	}
 
