@@ -32,7 +32,13 @@ class HTMLFormMonthYear extends HTMLFormType {
 		$content[] = $this->showMonthOptions();
 		$content[] = '</select>';
 		$content[] = '</td><td style="padding-left: 1em;">';
-		$content[] = '<input name="'.$fieldStringY.'" value="'.$this->year.'" size="5" placeholder="год" class="form-control"/>';
+		$content[] = '<input type="number"
+			name="'.$fieldStringY.'"
+			value="'.$this->year.'"
+			size="5"
+			placeholder="год"
+			class="form-control"
+			min="1900" max="2100"/>';
 		$content[] = '</td></tr></table>';
 		return $content;
 	}
