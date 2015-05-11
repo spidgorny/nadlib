@@ -656,7 +656,7 @@ class HTMLFormTable extends HTMLForm {
 
 	static function getSingle($fieldName, array $desc) {
 		$f = new self();
-		$f->switchType($fieldName, $desc['value'], $desc);
+		$f->switchType($fieldName, ifsetor($desc['value']), $desc);
 		return $f->getBuffer();
 	}
 
