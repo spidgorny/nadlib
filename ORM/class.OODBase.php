@@ -87,7 +87,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 
-	function init($id) {
+	function init($id, $fromFindInDB = false) {
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer(__METHOD__);
 		if (is_array($id)) {
 			$this->initByRow($id);
