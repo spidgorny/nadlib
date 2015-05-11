@@ -242,7 +242,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		TaylorProfiler::start(__METHOD__);
+		TaylorProfiler::start($taylorKey = __METHOD__.' ('.$this->table.') // '.Debug::getBackLog(8));
 		if (!$this->db) {
 			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
 		}
@@ -261,7 +261,7 @@ abstract class OODBase {
 				$this->init($data, true);
 			}
 		}
-		TaylorProfiler::stop(__METHOD__);
+		TaylorProfiler::stop($taylorKey);
 		return $data;
 	}
 
@@ -410,19 +410,66 @@ abstract class OODBase {
 		return $s;
 	}
 
-	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name')) {
+	/**
+	 * Only works when $this->thes is defined or provided
+	 * @param array $thes
+	 * @return string
+	 */
+	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name'), $title = NULL) {
 		TaylorProfiler::start(__METHOD__);
 		$content = '<div class="showAssoc">
-		<h3>'.get_class($this).':</h3>';
-			foreach ($thes as $key => $name) {
-				$name = is_array($name) ? $name['name'] : $name;
-				$val = $this->data[$key];
-				$content .= '<div class="prefix10">'.$name.':</div>';
-				$content .= $val.'<br clear="all" />';
+		<h3>'.($title ?: get_class($this)).':</h3>';
+		$assoc = array();
+		foreach ($thes as $key => $name) {
+			$val = $this->data[$key];
+			if (is_array($name) && ifsetor($name['reference'])) {  // class name
+				$class = $name['reference'];
+				$obj = $class::getInstance($val);
+				if (method_exists($obj, 'getNameLink')) {
+					$val = $obj->getNameLink();
+				} elseif (method_exists($obj, 'getName')) {
+					$val = $obj->getName();
+				} else {
+					$val = $obj->__toString();
+				}
 			}
+			$niceName = is_array($name) ? $name['name'] : $name;
+			$assoc[$niceName] = $val;
+		}
+		$content .= UL::DL($assoc);
 		$content .= '</div>';
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
+	}
+
+	/**
+	 * Caching
+	 * @param $id
+	 * @return mixed
+	 */
+	static function getInstanceCached($id) {
+		if (true) {
+			$file = 'cache/' . URL::friendlyURL(__METHOD__) . '-' . $id . '.serial';
+			if (file_exists($file) && filemtime($file) > (time() - 100)) {
+				$size = filesize($file);
+				if ($size < 1024*4) {
+					$content = file_get_contents($file);
+					$graph = unserialize($content); // faster?
+				} else {
+					$graph = self::getInstanceByID($id);
+				}
+			} else {
+				$graph = self::getInstanceByID($id);
+				file_put_contents($file, serialize($graph));
+			}
+		} else {
+			$graph = self::getInstanceByID($id);
+		}
+		return $graph;
+	}
+
+	static function getInstance($id) {
+		return self::getInstanceByID($id);
 	}
 
 	/**
@@ -430,7 +477,7 @@ abstract class OODBase {
 	 * @param $id|array int
 	 * @return static
 	 */
-	public static function getInstance($id) {
+	public static function getInstanceByID($id) {
 		$static = get_called_class();
 		/*nodebug(array(
 			__METHOD__,

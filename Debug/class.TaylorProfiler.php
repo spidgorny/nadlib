@@ -520,9 +520,9 @@ class TaylorProfiler {
 		return $return;
 	}
 
-	static function enableTick($ticker = 100) {
+	static function enableTick($ticker = 1000) {
 		register_tick_function(array(__CLASS__, 'tick'));
-		declare(ticks=100);
+		declare(ticks=10);
 	}
 
 	static function tick() {
