@@ -11,7 +11,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
     /**
      * @var resource
      */
-    public $CONNECTION = NULL;
+    protected $CONNECTION = NULL;
 
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
