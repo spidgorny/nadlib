@@ -443,11 +443,41 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Caching
+	 * @param $id
+	 * @return mixed
+	 */
+	static function getInstanceCached($id) {
+		if (true) {
+			$file = 'cache/' . URL::friendlyURL(__METHOD__) . '-' . $id . '.serial';
+			if (file_exists($file) && filemtime($file) > (time() - 100)) {
+				$size = filesize($file);
+				if ($size < 1024*4) {
+					$content = file_get_contents($file);
+					$graph = unserialize($content); // faster?
+				} else {
+					$graph = self::getInstanceByID($id);
+				}
+			} else {
+				$graph = self::getInstanceByID($id);
+				file_put_contents($file, serialize($graph));
+			}
+		} else {
+			$graph = self::getInstanceByID($id);
+		}
+		return $graph;
+	}
+
+	static function getInstance($id) {
+		return self::getInstanceByID($id);
+	}
+
+	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id|array int
 	 * @return static
 	 */
-	public static function getInstance($id) {
+	public static function getInstanceByID($id) {
 		$static = get_called_class();
 		/*nodebug(array(
 			__METHOD__,
