@@ -43,7 +43,10 @@ class Debug {
 			if (!headers_sent()) {
 				echo '<!DOCTYPE html><html>';
 			}
-			print($content); flush();
+			print($content);
+			if (ob_get_level() == 0) {
+				flush();
+			}
 		}
 		return $content;
 	}
