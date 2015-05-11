@@ -147,6 +147,7 @@ class Debug {
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo $levels, ': null: '.is_null($levels)."<br />\n";
 				if (is_null($levels) || $levels > 0) {
+					//debug_pre_print_backtrace(); flush();
 					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
 				}
 				//$content = print_r($r, true);
