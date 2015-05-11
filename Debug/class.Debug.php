@@ -378,8 +378,15 @@ class Debug {
 		$debug = debug_backtrace();
 		array_shift($debug);
 		$content = array();
+		$i = $limit;
 		foreach ($debug as $debugLine) {
-			$content[] = $debugLine['class'].'::'.$debugLine['function'];
+			$file = basename($debugLine['file']);
+			$file = str_replace('class.', '', $file);
+			$file = str_replace('.php', '', $file);
+			$content[] = $file.'::'.$debugLine['function'].':'.$debugLine['line'];
+			if (!$i--) {
+				break;
+			}
 		}
 		$content = implode(' // ', $content);
 		return $content;
