@@ -492,8 +492,10 @@ where
     and pg_catalog.pg_table_is_visible(c.oid)
 order by a.attnum';
 		$rows = $this->fetchAll($query);
-		$rows = ArrayPlus::create($rows)->column_assoc('comment', 'colname');
-		return $rows[$column];
+		$assoc = ArrayPlus::create($rows)->column_assoc('colname', 'comment')->getData();
+		$comment = $assoc[$column];
+		//debug($query, $rows, $assoc, $comment);
+		return $comment;
 	}
 
 	/**

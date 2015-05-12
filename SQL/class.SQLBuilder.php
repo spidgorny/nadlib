@@ -156,7 +156,7 @@ class SQLBuilder {
 					} else {
 						$set[] = $key . ' ' . $val;
 					}
-				} elseif ($val instanceof AsIsOp) {
+				} elseif ($val instanceof AsIs) {
 					$val->injectDB($this->db);
 					$val->injectQB($this);
 					$val->injectField($key);
