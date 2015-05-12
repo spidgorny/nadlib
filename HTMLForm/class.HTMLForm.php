@@ -679,6 +679,7 @@ class HTMLForm {
 		background-color: white;
 		az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
+		/** @var Extension $controller */
 		$controller = Index::getInstance()->controller;
 		$this->stdout .= $controller->encloseOld('Tree-Element Selector', '',
 			array(
