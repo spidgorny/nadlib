@@ -95,13 +95,13 @@ class SQLSelectQuery {
 
 	function getQuery() {
 		$query = "SELECT
-	$this->select
-FROM $this->from
-$this->join
-$this->where
-$this->group
-$this->having
-$this->limit";
+		$this->select
+		FROM $this->from
+		$this->join
+		$this->where
+		$this->group
+		$this->having
+		$this->limit";
 		return $query;
 	}
 
