@@ -62,6 +62,7 @@ class Lesser extends AppController {
 				header_remove('Cache-control');
 			}
 
+			require_once 'vendor/oyejorge/less.php/lessc.inc.php';
 			$less = new lessc();
 			if (is_writable($this->output)) {
 				if ($this->request->isRefresh()) {

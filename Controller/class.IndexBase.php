@@ -253,7 +253,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$this->controller->title = $e->getMessage();
+		if ($this->controller) {
+			$this->controller->title = $e->getMessage();
+		}
 		$message = $e->getMessage();
 		$message = $message instanceof htmlString
 			? $message.''
