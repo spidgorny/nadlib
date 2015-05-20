@@ -243,7 +243,8 @@ class Collection implements IteratorAggregate {
 			//debug($sql->parsed);
 			$this->query = $sql->__toString();
 		} else {
-			$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);
+			//$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);	// subquery problem
+			$this->query = preg_replace('/SELECT /', 'SELECT SQL_CALC_FOUND_ROWS ', $query, 1);
 		}
 		$res = $this->db->perform($this->query);
 

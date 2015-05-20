@@ -113,8 +113,9 @@ class ProgressBar {
 	}
 
 	function getContent() {
-		$this->percentDone = floatval($this->percentDone);
-		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
+		$percentDone = floatval($this->percentDone);
+		$percentDone = max(0, min(100, $percentDone));
+		$percentDone = number_format($percentDone, $this->decimals, '.', '') .'%';
 		//debug($this->percentDone, $percentDone);
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
 			<div id="'.$this->textid.'" class="'.$this->textid.'">'.
