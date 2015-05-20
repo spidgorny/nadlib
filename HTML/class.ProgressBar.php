@@ -113,8 +113,9 @@ class ProgressBar {
 	}
 
 	function getContent() {
-		$this->percentDone = floatval($this->percentDone);
-		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
+		$percentDone = floatval($this->percentDone);
+		$percentDone = max(0, min(100, $percentDone));
+		$percentDone = number_format($percentDone, $this->decimals, '.', '') .'%';
 		//debug($this->percentDone, $percentDone);
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
 			<div id="'.$this->textid.'" class="'.$this->textid.'">'.
@@ -192,7 +193,7 @@ class ProgressBar {
 		style="vertical-align: middle;"
 		title="'.number_format($p, 2).'%" />';
 	}
-	
+
 	static function getBar($p, $append = '') {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return $prefix . 'bar.php?rating=' . round($p) . $append;
