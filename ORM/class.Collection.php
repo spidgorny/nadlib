@@ -201,7 +201,7 @@ class Collection implements IteratorAggregate {
 				? implode(', ', $this->parentID)
 				: $this->parentID).")";
 		TaylorProfiler::start(__METHOD__." ({$this->table})");
-		$this->query = $this->getQueryWithLimit($this->where);
+		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -445,10 +445,10 @@ class Collection implements IteratorAggregate {
 		) {
 			$this->retrieveDataFromDB();
 		}
-        	if (!($this->data instanceof ArrayPlus)) {
-            		$this->data = ArrayPlus::create($this->data);
-	        	$this->count = sizeof($this->data);
-        	}
+		if (!($this->data instanceof ArrayPlus)) {
+			$this->data = ArrayPlus::create($this->data);
+			$this->count = sizeof($this->data);
+		}
 		return $this->data;
 	}
 
