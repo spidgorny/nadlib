@@ -487,7 +487,7 @@ class Collection {
 		$options = array();
 		//debug(get_class($this), $this->titleColumn);
 		foreach ($this->getData() as $row) {
-            if( !in_array($row[$this->idField], $blackList) ) {
+            if ( !in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
             }
 		}
