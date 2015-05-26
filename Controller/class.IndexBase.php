@@ -197,7 +197,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $v;
+		return $v->render();
 	}
 
 	function renderController() {
