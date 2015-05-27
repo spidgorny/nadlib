@@ -291,7 +291,7 @@ class dbLayer {
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
-		return ArrayPlus::create($return)->column('relname');
+		return ArrayPlus::create($return)->column('relname')->getData();
 	}
 
 	function getColumnDefault($table) {
