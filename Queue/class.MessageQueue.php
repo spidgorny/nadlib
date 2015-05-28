@@ -43,12 +43,15 @@ class MessageQueue extends OODBase {
 	}
 
 	/**
+	 * Get next task available
 	 * @return object
 	 * @throws Exception
 	 */
 	public function getTaskObject() {
-		// get next task available
-		if($this->fetchNextTask($this->type)) {
+		// need to delete previous record, otherwise infinite loop
+		$this->id = NULL;
+		$this->data = array();
+		if ($this->fetchNextTask($this->type)) {
 			// set task data retrieved from DB
 			$this->setTaskData($this->data['data']);
 
@@ -86,8 +89,9 @@ class MessageQueue extends OODBase {
 		$orderBy = 'ORDER BY id ASC';
 
 		$this->findInDB($where, $orderBy);
+		debug($this->db->lastQuery, $this->data);
 
-		if(!empty($this->data['id'])) {
+		if (!empty($this->data['id'])) {
 			// Set the status to "IN PROGRESS"
 			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
 
