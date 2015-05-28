@@ -857,16 +857,16 @@ class Collection {
 	function getLazyIterator() {
 		$query = $this->getQuery();
 
-		$di = new DIContainer();
-		$di->db = $this->db;
-
-		$lazy = new DatabaseResultIteratorAssoc($di, $this->idField);
+		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
 		$lazy->perform($query);
 
 		return $lazy;
 	}
 
-	function getLazyMemberIterator($class) {
+	function getLazyMemberIterator($class = NULL) {
+		if (!$class) {
+			$class = $this->itemClassName;
+		}
 		$arrayIterator = $this->getLazyIterator();
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
 		$memberIterator->count = $arrayIterator->count();
