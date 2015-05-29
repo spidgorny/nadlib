@@ -65,7 +65,13 @@ class URL {
 			$request = Request::getExistingInstance();
 			if ($request) {
 				//debug(substr($request->getLocation(), 0, -1).$url);
-				$this->components = parse_url(substr($request->getLocation(), 0, -1).$url);
+				$callStack = debug_backtrace();
+				$back1 = first($callStack);
+				//debug($back1);
+				// prevent infinite loop
+				if ($back1['class'].$back1['type'].$back1['function'] != 'Request->getLocation') {
+					$this->components = parse_url(substr($request->getLocation(), 0, -1) . $url);
+				}
 			}
 		}
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
