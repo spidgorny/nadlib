@@ -333,13 +333,9 @@ class slTable {
 						//$more .= $row[$col.'.']['colspan'] ? ' colspan="'.$row[$col.'.']['colspan'].'"' : '';
 						$skipCols = $row[$col.'.']['colspan'] ? $row[$col.'.']['colspan'] - 1 : 0;
 					}
-					if ($val instanceof HTMLTag) {
-						$t->stdout .= $val;
-					} else {
-						$more .= (isset($k['more']) ? $k['more'] : NULL).
-							($row[$col.'.']['colspan'] ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
-						$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
-					}
+					$more .= (isset($k['more']) ? $k['more'] : NULL).
+						($row[$col.'.']['colspan'] ? 'colspan="'.$row[$col.'.']['colspan'].'"' : '');
+					$t->cell($out, isset($width[$iCol]) ? $width[$iCol] : NULL, $more);
 					$iCol++;
 				}
 			}
