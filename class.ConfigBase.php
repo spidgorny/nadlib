@@ -20,7 +20,7 @@ class ConfigBase {
 
 	/**
 	 *
-	 * @var MySQL
+	 * @var MySQL|dbLayer
 	 */
 	public $db;
 

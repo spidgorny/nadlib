@@ -429,15 +429,16 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function getSelectionOptions(array $desc) {
+		$db = Config::getInstance()->db;
 		if ($desc['from'] && $desc['title']) {
 			//debugster($desc);
-			$options = Config::getInstance()->db->getTableOptions($desc['from'],
+			$options = $db->getTableOptions($desc['from'],
 				$desc['title'],
 				$desc['where'] ? $desc['where'] : array(),
-				$desc['order'],
 				$desc['idField'] ? $desc['idField'] : 'id'
 				//$desc['noDeleted']
 			);
+			//debug($options, $db->lastQuery);
 		} else {
 			$options = array();
 		}

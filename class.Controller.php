@@ -16,7 +16,7 @@ abstract class Controller {
 
 	/**
 	 *
-	 * @var MySQL/dbLayer
+	 * @var MySQL|dbLayer
 	 */
 	protected $db;
 
@@ -32,7 +32,7 @@ abstract class Controller {
 	/**
 	 * Enter description here...
 	 *
-	 * @var Clint
+	 * @var Client
 	 */
 	public $client;
 
