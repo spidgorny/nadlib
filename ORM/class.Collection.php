@@ -6,7 +6,7 @@
  *
  */
  /*abstract*/ // commented because of createForTable()
-class Collection {
+class Collection implements IteratorAggregate {
 
 	/**
 	 * In case of MSSQL it needs to be set from outside
@@ -201,7 +201,7 @@ class Collection {
 				? implode(', ', $this->parentID)
 				: $this->parentID).")";
 		TaylorProfiler::start(__METHOD__." ({$this->table})");
-		$this->query = $this->getQueryWithLimit($this->where);
+		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
@@ -401,7 +401,7 @@ class Collection {
 				$content = $s;
 			}
 		} else {
-			$content = '<div class="message">No data</div>';
+			$content = '<div class="message">'.__($this->noDataMessage).'</div>';
 		}
 		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $content;
@@ -445,10 +445,10 @@ class Collection {
 		) {
 			$this->retrieveDataFromDB();
 		}
-        	if (!($this->data instanceof ArrayPlus)) {
-            		$this->data = ArrayPlus::create($this->data);
-	        	$this->count = sizeof($this->data);
-        	}
+		if (!($this->data instanceof ArrayPlus)) {
+			$this->data = ArrayPlus::create($this->data);
+			$this->count = sizeof($this->data);
+		}
 		return $this->data;
 	}
 
@@ -916,4 +916,27 @@ class Collection {
 		$this->retrieveDataFromDB();
 	}
 
+	/**
+	 * @param object $obj
+	 * @return bool
+	 */
+	function contains($obj) {
+		foreach ($this->objectify() as $mem) {
+			if ($mem == $obj) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * (PHP 5 &gt;= 5.0.0)<br/>
+	 * Retrieve an external iterator
+	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+	 * @return Traversable An instance of an object implementing <b>Iterator</b> or
+	 * <b>Traversable</b>
+	 */
+	public function getIterator() {
+		return new ArrayPlus($this->objectify());
+	}
 }

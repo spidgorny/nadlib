@@ -90,6 +90,14 @@ class HTMLForm {
 		return $a;
 	}
 
+	function getNameField($name) {
+		return $this->getName($name, '', true);
+	}
+
+	function getNameTag($name) {
+		return $this->getName($name, '', false);
+	}
+
 	/**
 	 * @param $type
 	 * @param $name
@@ -105,7 +113,11 @@ class HTMLForm {
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.' '.$moreClass.'"';
 		$a .= $this->getName($name, $namePlus);
 		if ($value || $value === 0) {
-			$value = htmlspecialchars($value, ENT_QUOTES);
+			if (!($value instanceof htmlString)) {
+				$value = htmlspecialchars($value, ENT_QUOTES);
+			} else {
+				$value = str_replace('"', '&quot;', $value);
+			}
 			$a .= ' value="'.$value.'"';
 		}
 		if ($more) {
@@ -188,7 +200,7 @@ class HTMLForm {
 			value="'.htmlspecialchars($value, ENT_QUOTES).'" '.
 			($checked ? "checked" : "").'
 			id="'.$id.'"
-			'.$more.'> ';
+			'.(is_array($more) ? $this->getAttrHTML($more) : $more).'> ';
 		$this->stdout .= $this->hsc($label)."</label>";
 	}
 
@@ -329,13 +341,16 @@ class HTMLForm {
 	 * Changelog: second $more parameter was removed, please use $params instead
 	 * @param null $value
 	 * @param array $params
+	 * @return string
 	 */
 	function submit($value = NULL, array $params = array()) {
 		$params['class'] = ifsetor($params['class'], 'submit btn');
 		$params['name'] = ifsetor($params['name'], 'submit');
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
-		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
+		$content = $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
+		$this->stdout .= $content;
+		return $content;
 	}
 
 	function button($innerHTML = NULL, array $more = array()) {
@@ -445,10 +460,11 @@ class HTMLForm {
 	 * 		'between' - text separating the options, default <br />
 	 */
 	function radioset($name, $value, array $desc) {
-		$between = $desc['between'] ? $desc['between'] : '<br />';
+		$between = ifsetor($desc['between'], '<br />');
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
-			$this->radioLabel($name, $key, intval($value) == intval($key), $val, $desc['more']);
+			// if you need to compare intvals, do it separately
+			$this->radioLabel($name, $key, $value == $key, $val, ifsetor($desc['more']));
 			$this->text($between);
 		}
 	}

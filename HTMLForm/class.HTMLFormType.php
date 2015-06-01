@@ -46,4 +46,12 @@ abstract class HTMLFormType {
 		return $this->render().'';
 	}
 
+	/**
+	 * Return error message
+	 * @return null
+	 */
+	function validate() {
+		return NULL;
+	}
+
 }
