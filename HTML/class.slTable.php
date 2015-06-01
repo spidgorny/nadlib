@@ -672,6 +672,7 @@ class slTable {
 			}
 
 			$val = array(
+				//0 => $key instanceof htmlString ? $key : htmlspecialchars($key),
 				0 => htmlspecialchars($key),
 				'' => $val,
 			);

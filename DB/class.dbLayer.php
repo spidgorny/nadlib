@@ -257,7 +257,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
-		return ArrayPlus::create($return)->column('relname');
+		return ArrayPlus::create($return)->column('relname')->getData();
 	}
 
 	function amountOf($table, $where = "1 = 1") {
