@@ -57,18 +57,16 @@ class UL {
 				$link = call_user_func($this->linkFunc, $class, $li);
 			} elseif ($this->linkWrap) {
 				$link = $class;
+				$wrap = Wrap::make($this->linkWrap);
+				// don't translate __() because the values may come from DB
+				$li = $wrap->wrap($li);
 			} else {
 				$link = NULL;
 			}
-			if ($link) {
-				$wrap = Wrap::make(str_replace('###LINK###', $link, $this->linkWrap));
-			} else {
-				//$wrap = Wrap::make('<a>|</a>');
-				$wrap = Wrap::make('|');
-			}
-			$li = $wrap->wrap($li);				// don't translate __() because the values may come from DB
 
 			$line = Wrap::make($this->wrap)->wrap($li);
+			$line = str_replace('%23%23%23LINK%23%23%23', $link, $line);
+			$line = str_replace('###LINK###', $link, $line);
 			$line = str_replace('###CLASS###', $class, $line);
 			$line = str_replace('###TEXT###', $li, $line);
 			$line = str_replace('###ACTIVE###', $class == $this->activeClass ? $this->active : '', $line);
