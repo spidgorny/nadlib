@@ -64,6 +64,7 @@ class HTMLFormTable extends HTMLForm {
     public $isValid = false;
 
 	function __construct(array $desc = array(), $prefix = array(), $fieldset = '') {
+		parent::__construct();
 		$this->desc = $desc;
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
@@ -137,10 +138,14 @@ class HTMLFormTable extends HTMLForm {
 			/* @var $type HTMLFormType */
 			$type->setField($fieldName);
 			$type->setForm($this);
-			$type->setValue($desc['value']);
-			$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
+			if (ifsetor($desc['value'])) {
+				$type->setValue($desc['value']);
+			}
+			if (ifsetor($desc['jsParams'])) {
+				$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
+			}
 			$type->desc = $desc;
-			$this->stdout .= $type->render();
+			$this->stdout .= IndexBase::mergeStringArrayRecursive($type->render());
 		} else if ($type instanceof Collection) {
 			/** @var $type Collection */
 			$type->setField($fieldName);
@@ -396,6 +401,7 @@ class HTMLFormTable extends HTMLForm {
 					? '<br><font color="gray">'.$this->getName($fieldName, '', true).'</font>'
 					: '';
 			}
+			$this->stdout .= ifsetor($desc['beforeLabel']);
 			$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
 			if ($withBR) {
 				//$this->stdout .= '<br />';	// depends on CSS (!!!)
@@ -610,6 +616,9 @@ class HTMLFormTable extends HTMLForm {
 						}
 					break;
 				}
+				if (is_object(ifsetor($descKey['type']))) {
+					$descKey['type']->setValue($val);
+				}
 
 				if (ifsetor($descKey['dependant'])) {
 					$desc[$key]['dependant'] = $this->fillValues($descKey['dependant'], $assoc);
@@ -646,7 +655,7 @@ class HTMLFormTable extends HTMLForm {
 
 	static function getSingle($fieldName, array $desc) {
 		$f = new self();
-		$f->switchType($fieldName, $desc['value'], $desc);
+		$f->switchType($fieldName, ifsetor($desc['value']), $desc);
 		return $f->getBuffer();
 	}
 
@@ -741,6 +750,18 @@ class HTMLFormTable extends HTMLForm {
 			$this->desc['xsrf'] = array(
 				'value' => '',	// use fill($this->request->getAll()) to fill in and validate()
 			);
+		}
+	}
+
+	public function clearValues() {
+		foreach ($this->desc as &$row) {
+			if (isset($row['value'])) {
+				unset($row['value']);
+			}
+			// should not be elseif
+			if ($row['type'] instanceof HTMLFormType) {
+				$row['type']->setValue(NULL);
+			}
 		}
 	}
 

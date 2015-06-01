@@ -95,13 +95,13 @@ class SQLSelectQuery {
 
 	function getQuery() {
 		$query = "SELECT
-	$this->select
-FROM $this->from
-$this->join
-$this->where
-$this->group
-$this->having
-$this->limit";
+		$this->select
+		FROM $this->from
+		$this->join
+		$this->where
+		$this->group
+		$this->having
+		$this->limit";
 		return $query;
 	}
 
@@ -127,7 +127,7 @@ $this->limit";
 					$level--;
 				}
 				$res .= "<br>" . str_repeat("&nbsp;", $level*4) . ") ";
-			} else if ($tok{0} == "'" || $tok{strlen($tok)-1} == "'" || $tok == "'") {
+			} elseif ($tok && ($tok{0} == "'" || $tok{strlen($tok)-1} == "'" || $tok == "'")) {
 				$res .= " ";
 				if ($tok{0} == "'" && !$open) {
 					$res .= '<font color="green">';

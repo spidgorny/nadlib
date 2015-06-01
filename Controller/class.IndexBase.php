@@ -425,16 +425,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	function addJS($source) {
 		$called = Debug::getCaller();
+		$fileName = $source;
 		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
 				$mtime = @filemtime('public/'.$source);
 			}
 			if ($mtime) {
-				$source .= '?' . $mtime;
+				$fileName .= '?' . $mtime;
 			}
 		}
-		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$source.'"></script>';
+		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'"></script>';
 		return $this;
 	}
 

@@ -39,8 +39,8 @@ class HTMLFormRecaptcha {
 	}
 
 	function validate($field, array $d) {
-		if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
-			define("RECAPTCHA_VERIFY_SERVER", gethostbyname("www.google.com"));
+		if (ifsetor($_REQUEST["recaptcha_challenge_field"]) && ifsetor($_REQUEST["recaptcha_response_field"])) {
+			//define("RECAPTCHA_VERIFY_SERVER", gethostbyname("www.google.com"));
 			$resp = recaptcha_check_answer(
 				$this->privatekey,
 				$_SERVER["REMOTE_ADDR"],
