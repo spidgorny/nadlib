@@ -47,6 +47,12 @@ if (!function_exists('nodebug')) {
 		echo '</pre>';
 	}
 
+	function get_print_r($a) {
+		return '<pre style="white-space: pre-wrap;">'.
+		print_r($a, true).
+		'</pre>';
+	}
+
 	function debug_once() {
 		static $used = array();
 		$trace = debug_backtrace();
