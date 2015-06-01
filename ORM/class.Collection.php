@@ -882,7 +882,10 @@ class Collection implements IteratorAggregate {
 		return $lazy;
 	}
 
-	function getLazyMemberIterator($class) {
+	function getLazyMemberIterator($class = NULL) {
+		if (!$class) {
+			$class = $this->itemClassName;
+		}
 		$arrayIterator = $this->getLazyIterator();
 		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
 		$memberIterator->count = $arrayIterator->count();

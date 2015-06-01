@@ -413,7 +413,10 @@ class HTMLForm {
 		if ($desc['table']) {
 			// TODO: replace with SQLBuilder->getTableOptions()
 			$db = Config::getInstance()->getDB();
-			$options = $db->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value FROM '.$desc['table'].' WHERE NOT hidden AND NOT deleted');
+			$options = $db->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value
+			FROM '.$desc['table'].'
+			WHERE NOT hidden AND NOT deleted
+			ORDER BY value');
 			$options = $db->IDalize($options, 'value', 'value');
 		} else {
 			$options = $desc['options'];
@@ -678,7 +681,7 @@ class HTMLForm {
 	 * $desc['tableName'] - SELECT * FROM tableName ...
 	 * $desc['tableRoot'] - ... WHERE pid = tableRoot
 	 * $desc['tableTitle'] - SELECT id, tableTitle FROM ...
-	 * $desc['paddedID'] - paddedID.innterHTML = tree.toString()
+	 * $desc['paddedID'] - paddedID.innerHTML = tree.toString()
 	 */
 	function ajaxTree($desc) {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
@@ -713,6 +716,7 @@ class HTMLForm {
 		background-color: white;
 		az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
+		/** @var Extension $controller */
 		$controller = Index::getInstance()->controller;
 		$this->stdout .= $controller->encloseOld('Tree-Element Selector', '',
 			array(
