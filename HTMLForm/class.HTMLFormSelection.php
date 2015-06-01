@@ -64,6 +64,7 @@ class HTMLFormSelection extends HTMLFormType {
 	 * @param array $desc
 	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
 	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 *      boolean 'useTitle'
 	 * @return string
 	 */
 	function getSelectionOptions(array $aOptions, $default, array $desc = array()) {
@@ -83,6 +84,8 @@ class HTMLFormSelection extends HTMLFormType {
 				}
 			}
 			if ($option instanceof HTMLTag) {
+				$option->attr('selected', $selected);
+				//$option->content .= ' '.$value.' '.$default;
 				$content .= $option;
 			} else if ($option instanceof Recursive) {
 				$content .= '<optgroup label="'.$option.'">';

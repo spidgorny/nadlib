@@ -147,7 +147,7 @@ class MessageQueue extends OODBase {
 			'data'		=> json_encode($taskData)
 		);
 
-		if(!empty($userId)) {
+		if (!empty($userId)) {
 			$data['cuser'] = $userId;
 		}
 		return $this->insert($data);

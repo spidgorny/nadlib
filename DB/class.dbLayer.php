@@ -49,10 +49,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
         if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
-	        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
-	        $words = $this->fetchAll($query, 'word');
-	        $this->reserved = array_keys($words);
-	        $this->reserved = array_map('strtoupper', $this->reserved); // important
+	        //debug(pg_version()); exit();
+	        $version = pg_version();
+	        if ($version['server'] >= 8.4) {
+		        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+		        $words = $this->fetchAll($query, 'word');
+		        $this->reserved = array_keys($words);
+		        $this->reserved = array_map('strtoupper', $this->reserved); // important
+	        }
 		}
 	}
 
@@ -64,7 +68,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
-		$this->db = $dbse;
+		$this->database = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
@@ -72,7 +76,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (!$this->CONNECTION) {
 			throw new Exception("No postgre connection.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
-			return false;
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		}
@@ -127,7 +130,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (is_array($meta)) {
 			return array_keys($meta);
 		} else {
-			error("Table not found: <b>$table</b>");
+			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
 	}
@@ -151,7 +154,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			if (is_array($meta)) {
 				$cache[$table] = array_keys($meta);
 			} else {
-				error("Table not found: <b>$table</b>");
+				error("Table not found: <strong>$table</strong>");
 				exit();
 			}
 		}
@@ -179,7 +182,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			}
 			return $return;
 		} else {
-			error("Table not found: <b>$table</b>");
+			error("Table not found: <strong>$table</strong>");
 			exit();
 		}
 	}
@@ -314,20 +317,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
         return $c;
     }
 
-    /**
-     * @param string $table Table name
-     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-     * @return string
-     */
-    function getInsertQuery($table, $columns) {
-		$q = "INSERT INTO {$table} (";
-		$q .= implode(", ", $this->quoteKeys(array_keys($columns)));
-		$q .= ") VALUES (";
-		$q .= implode(", ", $this->quoteValues(array_values($columns)));
-		$q .= ")";
-		return $q;
-	}
-
 	/**
 	 * Overrides because of pg_fetch_all
 	 * @param resource|string $result
@@ -367,6 +356,15 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			$row = array();
 		}*/
 		return $row;
+	}
+
+	/**
+	 * Called after dataSeek()
+	 * @param $res
+	 * @return array
+	 */
+	function fetchAssocSeek($res) {
+		return $this->fetchAssoc($res);
 	}
 
 	function getAllRows($query) {
@@ -440,7 +438,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$this->found = $this->fetchAssoc($res);
 		if ($this->found) {
 			$query = $this->getUpdateQuery($table, $fields, $where);
-			$res = $this->perform($query);
+			$this->perform($query);
 			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $createPlus);
@@ -469,7 +467,7 @@ where
     and pg_catalog.pg_table_is_visible(c.oid)
 order by a.attnum';
 		$rows = $this->fetchAll($query);
-		$rows = slArray::column_assoc($rows, 'comment', 'colname');
+		$rows = ArrayPlus::create($rows)->column_assoc('comment', 'colname');
 		return $rows[$column];
 	}
 
@@ -528,6 +526,7 @@ order by a.attnum';
 		}
 		reset($debug);
 		$content = array();
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		foreach (range(1, 2) as $_) {
 			$func = current($debug);
 			$func['line'] = $prev['line'];	// line is from the parent function?

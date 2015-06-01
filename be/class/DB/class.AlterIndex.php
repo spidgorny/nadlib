@@ -30,7 +30,13 @@ class AlterIndex extends AppControllerBE {
 
 	function sidebar() {
 		$content = array();
+		if (class_exists('AdminPage')) {
+			$ap = new AdminPage();
+			$content[] = $ap->sidebar();
+		}
+
 		$content[] = 'Schema: '.$this->db->getScheme().BR;
+		$content[] = 'Wrapper: '.get_class($this->db).BR;
 		$content[] = 'DB: '.$this->db->database.BR;
 		$content[] = 'File: '.basename($this->jsonFile).BR;
 		if ($this->db->database) {
@@ -71,7 +77,6 @@ class AlterIndex extends AppControllerBE {
 		$tables = $this->db->getTables();
 		foreach ($tables as $t) {
 			$struct = $this->db->getTableColumnsEx($t);
-			//unset($struct['password']);	// debug
 			$indexes = $this->db->getIndexesFrom($t);
 			$result[$t] = array(
 				'columns' => $struct,
@@ -82,14 +87,16 @@ class AlterIndex extends AppControllerBE {
 	}
 
 	function render() {
-		$content = $this->performAction();
+		$content[] = $this->performAction();
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
 			$struct = json_decode($struct, true);
 
 			$local = $this->getDBStruct();
 
-			$content = $this->renderTableStruct($struct, $local);
+			$content[] = $this->renderTableStruct($struct, $local);
+		} else {
+			$content[] = '<div class="message">Choose file on the left</div>';
 		}
 		return $content;
 	}
@@ -97,11 +104,15 @@ class AlterIndex extends AppControllerBE {
 	function renderTableStruct(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4>Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['indexes'] as $i => $index) {
+				$index = $this->convertFromOtherDB($index);
 				$localIndex = $local[$table]['indexes'][$i];
+				$localIndex = $this->convertFromOtherDB($localIndex);
+				//debug($index, $localIndex);
+
 				unset($index['Cardinality'], $localIndex['Cardinality']);	// changes over time
 				if ($index != $localIndex) {
 					//$content .= getDebug($index, $localIndex);
@@ -127,11 +138,12 @@ class AlterIndex extends AppControllerBE {
 				} else {
 					//$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
 					$index['same'] = 'same';
-					$index['###TR_MORE###'] = 'style="background: yellow"';
+					$index['###TR_MORE###'] = 'style="background: lightyellow"';
 					$indexCompare[] = $index;
+					//debug($index); exit();
 				}
 			}
-			$content .= new slTable($indexCompare, 'class="table"', array(
+			$content .= new slTable($indexCompare, 'class="nospacing table table-striped"', array(
 				'same' => 'Same',
 				'Table' => 'Table',
 				'Non_unique' => 'Non_unique',
@@ -144,11 +156,26 @@ class AlterIndex extends AppControllerBE {
 				//'Packed' => 'Packed',
 				'Null' => 'Null',
 				'Index_type' => 'Index_type',
-				//'Comment' => 'Comment',
+				'Comment' => 'Comment',
 				//'Index_comment' => 'Index_comment',
 			));
 		}
 		return $content;
+	}
+
+	function convertFromOtherDB(array $desc) {
+		if ($desc['tbl_name']) {    // SQLite
+			$desc['Table'] = $desc['tbl_name'];
+			unset($desc['tbl_name']);
+			$desc['Key_name'] = $desc['name'];
+			unset($desc['name']);
+			$desc['Index_type'] = $desc['type'];
+			unset($desc['type']);
+			unset($desc['rootpage']);
+			$desc['comment'] = $desc['sql'];
+			unset($desc['sql']);
+		}
+		return $desc;
 	}
 
 }

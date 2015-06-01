@@ -19,7 +19,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 	/**
 	 * @var resource
 	 */
-	protected $connection;
+	public $connection;
 
 	/**
 	 * @var self
@@ -272,6 +272,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if ($newConnection) {
 			$this->connection = mysql_connect($host, $login, $password, $newConnection);
 		} else {
+		// important to say new_link = true for MSSQL
 			$this->connection = @mysql_pconnect($host, $login, $password);
 		}
 		if (!$this->connection) {
@@ -323,14 +324,15 @@ class MySQL extends dbLayerBase implements DBInterface {
 		}
 		$this->lastQuery = $query;
 		TaylorProfiler::stop($profilerKey);
-		if (mysql_errno($this->connection)) {
+		if (!$res || mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				nodebug(array(
+				debug(array(
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
 				));
 			}
+			debug_pre_print_backtrace();
 			$e = new DatabaseException(mysql_errno($this->connection).': '.mysql_error($this->connection).
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
@@ -394,14 +396,17 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function transaction() {
+		//echo '<div class="error">Transaction BEGIN</div>';
 		return $this->perform('BEGIN');
 	}
 
 	function commit() {
+		//echo '<div class="error">Transaction COMMIT</div>';
 		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
+		//echo '<div class="error">Transaction ROLLBACK</div>';
 		return $this->perform('ROLLBACK');
 	}
 
@@ -479,7 +484,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return $key = '`'.$key.'`';
+		return $key = '`'.trim($key).'`';
 	}
 
 	function switchDB($db) {

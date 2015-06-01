@@ -224,7 +224,7 @@ class Debug {
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent, 'display: inline').' of '.ini_get('memory_limit');
+		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent).' of '.ini_get('memory_limit');
 		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
 		$props[] = '<span class="debug_prop">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
 
@@ -238,7 +238,7 @@ class Debug {
 					">Trace: </a>
 					<div style="display: none;">'.$trace.'</div>
 				</div>
-				'.Debug::view_array($a, $levels).'
+				'.Debug::view_array($a, $levels > 0 ? $levels : 5).'
 			</div>';
 		return $content;
 	}
@@ -282,7 +282,7 @@ class Debug {
 	 * @param $levels
 	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
 	 */
-	static function view_array($a, $levels = NULL) {
+	static function view_array($a, $levels = 1) {
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
@@ -310,11 +310,11 @@ class Debug {
 					<td class="view_array">';
 
 				//var_dump($levels); echo '<br/>'."\n";
-				//echo $levels, ': null: '.is_null($levels)."<br />\n";
+				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
+				//debug_pre_print_backtrace(); exit();
 				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
-					$content .= Debug::view_array($r, is_null($levels)
-						? NULL
-						: $levels-1);
+					$content .= Debug::view_array($r,
+						is_null($levels) ? NULL : $levels-1);
 				} else {
 					$content .= '<i>Too deep, $level: '.$levels.'</i>';
 				}
@@ -378,8 +378,15 @@ class Debug {
 		$debug = debug_backtrace();
 		array_shift($debug);
 		$content = array();
+		$i = $limit;
 		foreach ($debug as $debugLine) {
-			$content[] = $debugLine['class'].'::'.$debugLine['function'];
+			$file = basename($debugLine['file']);
+			$file = str_replace('class.', '', $file);
+			$file = str_replace('.php', '', $file);
+			$content[] = $file.'::'.$debugLine['function'].':'.$debugLine['line'];
+			if (!$i--) {
+				break;
+			}
 		}
 		$content = implode(' // ', $content);
 		return $content;
@@ -455,6 +462,20 @@ class Debug {
 
 	function canDebugster() {
 		return false;
+	}
+
+	public function consoleLog(array $debugAccess) {
+		$json = htmlspecialchars(json_encode($debugAccess), ENT_QUOTES);
+		$index = Index::getInstance();
+		$index->footer[] = '<script type="text/javascript">
+		setTimeout(function () {
+			var json = "'.$json.'";
+			json = json.replace(/&quot;/g, \'"\');
+			json = json.replace(/&gt;/g, \'>\');
+			var obj = JSON.parse(json);
+			console.log(obj);
+		}, 1);
+		</script>';
 	}
 
 }

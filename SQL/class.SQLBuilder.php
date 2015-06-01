@@ -59,15 +59,16 @@ class SQLBuilder {
 	 * @return string
 	 */
 	function quoteSQL($value, $key = NULL) {
-		if ($value instanceof AsIs) {
+		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
 			$value->injectQB($this);
 			$value->injectField($key);
 			$result = $value->__toString();
 			return $result;
-		} else if ($value instanceof AsIsOp) {
-			//$value->injectQB($this);
-			//$value->injectField($key);
+		} else if ($value instanceof AsIs) {
+			$value->injectDB($this->db);
+			$value->injectQB($this);
+			$value->injectField($key);
 			return $value->__toString();
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
@@ -89,7 +90,7 @@ class SQLBuilder {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
-			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
+			return "'".$value."' /* numeric */";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $this->db->escapeBool($value);
 		} else {
@@ -135,7 +136,7 @@ class SQLBuilder {
 
 	/**
 	 * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
-	 * In other words, it takes care of col = 'NULL' situation and makes it col IS NULL
+	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
 	 *
 	 * @param array $where
 	 * @throws Exception
@@ -147,17 +148,21 @@ class SQLBuilder {
 		foreach ($where as $key => $val) {
 			if ($key{strlen($key)-1} != '.') {
 				$key = $this->quoteKey($key);
-				if ($val instanceof AsIs) {
+				if (false) {
+
+				} elseif ($val instanceof AsIsOp) {       // check subclass first
 					$val->injectDB($this->db);
-					$val->injectQB($this);
 					$val->injectField($key);
-					$set[] = $key . ' = ' . $val;
-				} elseif ($val instanceof AsIsOp) {
 					if (is_numeric($key)) {
 						$set[] = $val;
 					} else {
 						$set[] = $key . ' ' . $val;
 					}
+				} elseif ($val instanceof AsIs) {
+					$val->injectDB($this->db);
+					$val->injectQB($this);
+					$val->injectField($key);
+					$set[] = $key . ' = ' . $val;
 				} else if ($val instanceof SQLBetween) {
 					$val->injectQB($this);
 					$val->injectField($key);
@@ -254,6 +259,12 @@ class SQLBuilder {
 		return $set;
 	}
 
+	/**
+	 * @param string $table
+	 * @param array $columns
+	 * @param array $where
+	 * @return string
+	 */
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$q = "UPDATE $table\nSET ";
@@ -266,16 +277,24 @@ class SQLBuilder {
 
 	function getFirstWord($table) {
 		$table1 = trimExplode(' ', $table);
-		$table1 = trimExplode("\t", $table1[0]);
-		$table0 = first($table1);
+		$table0 = $table1[0];
+		$table1 = trimExplode("\t", $table0);
+		$table0 = $table1[0];
+		$table1 = trimExplode("\n", $table0);
+		$table0 = $table1[0];
 		//debug($table, $table1, $table0);
 		return $table0;
 	}
 
 	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
+		if ($table == $table1) {
+			$from = $this->db->quoteKey($table);    // table name always quoted
+		} else {
+			$from = $table; // not quoted
+		}
 		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
-		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
+		$q = "SELECT $select\nFROM " . $from;
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE\n" . implode("\nAND ", $set);
@@ -435,6 +454,9 @@ class SQLBuilder {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
 		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
 		$query = $this->getSelectQuery($table, $where, $order, $addFields);
+
+		//debug($query); if ($_COOKIE['debug']) { exit(); }
+
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, $idField);
 		return $data;
@@ -457,7 +479,7 @@ class SQLBuilder {
 		foreach ($words as $word) {
 			$like = array();
 			foreach ($fields as $field) {
-				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
+				$like[] = $field . " LIKE '%".$this->db->escape($word)."%'";
 			}
 			$where[] = new AsIsOp(' ('.implode(' OR ', $like).')');
 		}

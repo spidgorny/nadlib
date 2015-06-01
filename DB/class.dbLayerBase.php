@@ -19,6 +19,11 @@ class dbLayerBase implements DBInterface {
 	var $reserved = array();
 
 	/**
+	 * @var resource
+	 */
+	var $connection;
+
+	/**
 	 * @var string
 	 */
 	var $lastQuery;
@@ -76,6 +81,13 @@ class dbLayerBase implements DBInterface {
 		}
 	}
 
+	function dataSeek($res, $i) {
+	}
+
+	function fetchAssocSeek($res) {
+		return NULL;
+	}
+
 	function fetchPartition($res, $start, $limit) {
 		if ($this->getScheme() == 'mysql') {
 			return $this->fetchPartitionMySQL($res, $start, $limit);
@@ -92,7 +104,9 @@ class dbLayerBase implements DBInterface {
 				break;
 			}
 		}
-		$this->free($res);
+
+		// never free as one may retrieve another portion
+		//$this->free($res);
 		return $data;
 	}
 
@@ -103,6 +117,10 @@ class dbLayerBase implements DBInterface {
 
 	function getReserved() {
 		return $this->reserved;
+	}
+
+	function perform($query) {
+		return NULL;
 	}
 
 	function transaction() {
@@ -117,12 +135,8 @@ class dbLayerBase implements DBInterface {
 		return $this->perform('ROLLBACK');
 	}
 
-	function perform($query) {
-		return NULL;
-	}
-
 	function numRows($res = NULL) {
-		return NULL;
+		return 0;
 	}
 
 	function affectedRows($res = NULL) {
@@ -138,6 +152,7 @@ class dbLayerBase implements DBInterface {
 	}
 
 	function free($res) {
+		// TODO: Implement free() method.
 	}
 
 	function quoteKey($key) {
@@ -162,6 +177,10 @@ class dbLayerBase implements DBInterface {
 
 	function getIndexesFrom($table) {
 		return array();
+	}
+
+	function isConnected() {
+		return !!$this->connection;
 	}
 
 }

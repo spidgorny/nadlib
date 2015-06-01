@@ -226,8 +226,11 @@ class slTableValue {
 					$out = $val->render();
 				} else {
 					//t3lib_div::debug($k);
-					if (isset($k['hsc']) && $k['hsc']) {
+					if (isset($k['hsc']) && $k['hsc'] && !($val instanceof htmlString)) {
 						$val = htmlspecialchars($val);
+					}
+					if (ifsetor($k['explode'])) {
+						$val = trimExplode($k['explode'], $val);
 					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
 						$val = nl2br($val);
@@ -244,7 +247,9 @@ class slTableValue {
 					} else if ($val instanceof HTMLForm) {
 						$out = $val->getContent().'';   // to avoid calling getName()
 					} elseif (is_object($val)) {
-						if (method_exists($val, 'getName')) {
+						if ($k['call']) {
+							$out = $val->$k['call']();
+						} elseif (method_exists($val, 'getName')) {
 							$out = $val->getName();
 						} else {
 							$out = '['.get_class($val).']';

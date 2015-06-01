@@ -93,6 +93,11 @@ class ConfigBase {
 
 	var $mailFrom = '';
 
+	/**
+	 * @var LocalLang
+	 */
+	var $ll;
+
 	protected function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
@@ -180,8 +185,8 @@ class ConfigBase {
 					$this->db_user,
 					$this->db_password);
 			}
+			$this->db->setQB($this->getQb());
 		}
-		$this->db->setQB($this->getQb());
 		return $this->db;
 	}
 
@@ -229,6 +234,17 @@ class ConfigBase {
 	 */
 	public function setQb(SQLBuilder $qb) {
 		$this->qb = $qb;
+	}
+
+	function getUser() {
+		return NULL;
+	}
+
+	function getLL() {
+		if (!$this->ll) {
+			$this->ll = new LocalLangDummy();
+		}
+		return $this->ll;
 	}
 
 }

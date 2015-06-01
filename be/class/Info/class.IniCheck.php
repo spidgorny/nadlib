@@ -3,19 +3,22 @@
 class IniCheck extends AppControllerBE {
 
 	function render() {
+		$content = array();
 		$iniFile = AutoLoad::getInstance()->appRoot.'php.ini';
 		$iniData = parse_ini_file($iniFile, true);  // sections
 		foreach ($iniData as $section => $subSection) {
-			$content[] = '<h1>'.$section.'</h1>';
-			$content[] = $this->showSection($subSection);
+			$content[] = '<h1>' . $section . '</h1>';
+			if (is_array($subSection)) {
+				$content[] = $this->showSection($subSection);
+			}
 		}
-		$content[] = getDebug(get_loaded_extensions());
+		//$content[] = getDebug(get_loaded_extensions());
 		return $content;
 	}
 
 	function showSection(array $iniData) {
 		foreach ($iniData as $key => $val) {
-			if ($key == 'extension') {
+			if ($key == 'extension' && is_array($val)) {
 				foreach ($val as $ex) {
 					$ex = str_replace('.so', '', $ex);
 					$ex = str_replace('.dll', '', $ex);
