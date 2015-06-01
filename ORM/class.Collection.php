@@ -488,7 +488,7 @@ class Collection implements IteratorAggregate {
 		$options = array();
 		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
 		foreach ($this->getData() as $row) {
-            if (!in_array($row[$this->idField], $blackList) ) {
+            if( !in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
             }
 		}
