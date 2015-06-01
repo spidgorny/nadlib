@@ -731,7 +731,9 @@ class Request {
 		$levels = array_values($levels);	// reindex
 		/* } */
 
-		return ifsetor($levels[$index]) ? $levels[$index] : $this->getTrim($alternative);
+		return ifsetor($levels[$index])
+			? urldecode($levels[$index])    // if it contains spaces
+			: $this->getTrim($alternative);
 	}
 
 	static function isCLI() {
