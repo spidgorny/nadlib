@@ -10,6 +10,9 @@ class SQLNow extends AsIs {
         $map = array(
             'sqlite' => "datetime('now')",
             'mysql' => 'now()',
+            'ms' => 'GetDate()',
+            'postgresql' => 'now()',
+            'pg' => 'now()',
         );
         $schema = $this->db->getScheme();
         $content = $map[$schema] ?: end($map);

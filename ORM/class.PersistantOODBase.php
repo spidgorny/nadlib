@@ -12,6 +12,7 @@ class PersistantOODBase extends OODBase {
 	 * @var array
 	 */
 	public $originalData;
+
 /*	static public $inserted = 0;
 	static public $updated = 0;
 	static public $skipped = 0;
@@ -97,7 +98,10 @@ class PersistantOODBase extends OODBase {
 				$this->getStateHash() => $this->data,
 				$this->table => $this->id,
 			));
-			if ($this->id) {
+			$idDefined = is_array($this->id)
+				? trim(implode('', $this->id))
+				: $this->id;
+			if ($idDefined) {
 				//debug(__CLASS__, $this->id, $this->getStateHash(), $this->stateHash, $this->data, $this->originalData);
 				//debug(get_class($this), $this->id, $this->originalData, $this->data);
 				$this->update($this->data);
@@ -112,6 +116,12 @@ class PersistantOODBase extends OODBase {
 			$action = 'SKIP';
 			static::$skipped++;
 		}
+		nodebug(array(
+			$this->stateHash => $this->originalData,
+			$this->getStateHash() => $this->data,
+			$this->table => $this->id,
+			'action' => $action,
+		));
 		//debug('table: '.$this->table.' action: '.$action.' id: '.$this->id);
 		return $action;
 	}

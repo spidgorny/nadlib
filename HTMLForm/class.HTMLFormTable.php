@@ -22,7 +22,7 @@ class HTMLFormTable extends HTMLForm {
 
 	/**
 	 * Additional parameters for <table>
-	 * @var
+	 * @var array
 	 */
 	var $tableMore;
 
@@ -204,6 +204,9 @@ class HTMLFormTable extends HTMLForm {
 					$more = is_array(ifsetor($desc['more']))
 						? $desc['more'] + array('id' => $elementID)
 						: $desc['more'] . ' id="'.$elementID.'"';
+					if ($desc['postgresql']) {
+						$fieldValue = $fieldValue == 't';
+					}
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $more);
 				break;
 				case "time":
@@ -269,7 +272,7 @@ class HTMLFormTable extends HTMLForm {
 					$this->combo($fieldName, $desc);
 				break;
 				case 'button':
-					$this->button($desc['innerHTML'], $desc['more']);
+					$this->button($desc['innerHTML'], $desc['more'] ?: array());
 				break;
 				case 'fieldset':
 					//$this->fieldset($desc['label']);	// it only sets the global fieldset name
@@ -383,9 +386,9 @@ class HTMLFormTable extends HTMLForm {
 		if (isset($desc['label'])) {
 			$label = $desc['label'];
 			if (!$withBR) {
-				$label .= ':&nbsp;';
+				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
 				if (!ifsetor($desc['optional']) &&
-					!in_array($type, array('check', 'checkbox'))) {
+					!in_array($type, array('check', 'checkbox', 'submit'))) {
 					if ($this->noStarUseBold) {
 						$label = '<b title="Obligatory">'.$label.'</b>';
 					} else {
@@ -403,9 +406,7 @@ class HTMLFormTable extends HTMLForm {
 			}
 			$this->stdout .= ifsetor($desc['beforeLabel']);
 			$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
-			if ($withBR) {
-				//$this->stdout .= '<br />';	// depends on CSS (!!!)
-			} else {
+			if (!$withBR) {
 				$this->stdout .= '</td><td>';
 			}
 		}

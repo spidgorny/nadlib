@@ -51,7 +51,7 @@ class ProgressBar {
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
-		$this->percentDone = $percentDone;
+		$this->percentDone = max(0, min($percentDone, 100));
 		$this->count = $count;
 		$this->cli = Request::isCLI();
 	}
@@ -96,7 +96,7 @@ class ProgressBar {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
 			return ifsetor(Index::getInstance()->header[$less]);
-		} elseif ($GLOBALS['HTMLHEADER']) {
+		} elseif (ifsetor($GLOBALS['HTMLHEADER'])) {
 			$GLOBALS['HTMLHEADER']['ProgressBar.less']
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
 		} else if (class_exists('lessc')) {
@@ -113,8 +113,9 @@ class ProgressBar {
 	}
 
 	function getContent() {
-		$this->percentDone = floatval($this->percentDone);
-		$percentDone = number_format($this->percentDone, $this->decimals, '.', '') .'%';
+		$percentDone = floatval($this->percentDone);
+		$percentDone = max(0, min(100, $percentDone));
+		$percentDone = number_format($percentDone, $this->decimals, '.', '') .'%';
 		//debug($this->percentDone, $percentDone);
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
 			<div id="'.$this->textid.'" class="'.$this->textid.'">'.
@@ -186,6 +187,8 @@ class ProgressBar {
 
 	static function getImage($p, $append = '') {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		// absolute URL to work even before <base href> is defined
+		$prefix = Request::getInstance()->getLocation() . $prefix;
 		return '<img src="'.$prefix.'bar.php?rating='.round($p).$append.'"
 		style="vertical-align: middle;"
 		title="'.number_format($p, 2).'%" />';

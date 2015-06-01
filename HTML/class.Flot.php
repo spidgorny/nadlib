@@ -122,7 +122,6 @@ class Flot extends AppController {
 	/**
 	 * Fixed for Posa Cards
 	 *
-	 * @internal param array $data
 	 * @param string $divID
 	 * @throws Exception
 	 * @return array
@@ -232,6 +231,7 @@ class Flot extends AppController {
 				unset($rows[$i]);
 			}
 		}
+		//debug($chart);
 		return $chart;
 	}
 
@@ -259,6 +259,7 @@ class Flot extends AppController {
 	}
 
 	function showChart($divID, array $charts, array $cumulative = array()) {
+		if (!$charts) return '';
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"

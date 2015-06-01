@@ -45,6 +45,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $sidebar = '';
 
+	public $appName = 'Project name';
+
 	public $description = '';
 
 	public $keywords = '';
@@ -53,8 +55,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @var Config
 	 */
 	var $config;
-
-	var $title = '';
 
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
@@ -212,6 +212,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			&& !$this->request->isAjax()) {
 			/** @var $this->controller->layout Wrap */
 			$render = $this->controller->layout->wrap($render);
+			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $render;
@@ -252,7 +253,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		$this->title = $e->getMessage();
+		if ($this->controller) {
+			$this->controller->title = $e->getMessage();
+		}
 		$message = $e->getMessage();
 		$message = $message instanceof htmlString
 			? $message.''
@@ -286,10 +289,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * Move it to the MRBS
-	 * @param $action
-	 * @param $bookingID
+	 * @param string $action
+	 * @param array $data
 	 */
-	function log($action, $bookingID) {
+	function log($action, array $data) {
+		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
 			'action' => $action,
@@ -307,7 +311,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function error($text) {
-		$msg = '<div class="error ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
 		} else {

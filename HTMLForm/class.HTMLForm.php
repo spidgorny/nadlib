@@ -271,7 +271,7 @@ class HTMLForm {
 		}
 		$this->input($name, $value,
 			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
-			(isset($desc['more']) ? $desc['more'] : '')
+			(isset($desc['more']) ? HTMLTag::renderAttr($desc['more']) : '')
 		);
 	}
 
@@ -345,9 +345,10 @@ class HTMLForm {
 	 */
 	function submit($value = NULL, array $params = array()) {
 		$params['class'] = ifsetor($params['class'], 'submit btn');
-		$params['name'] = ifsetor($params['name'], 'submit');
+		$params['name'] = ifsetor($params['name'], 'btnSubmit');
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
+		// this.form.submit() will not work
 		$content = $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 		$this->stdout .= $content;
 		return $content;
@@ -360,7 +361,11 @@ class HTMLForm {
 
 	function image($value = NULL, $more = "", $desc = array()) {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=image ".$this->getName('submit')." src=".$desc['src']." class='submitbutton' " . ($value?"value=\"$value\"":"") . " $more>\n";
+		$this->stdout .= "<input type=image
+		".$this->getName('imgSubmit')."
+		src=".$desc['src']."
+		class='submitbutton' " .
+			($value?"value=\"$value\"":"") . " $more>\n";
 	}
 
 	function reset($value = NULL, $more = "") {
@@ -738,6 +743,29 @@ class HTMLForm {
 		$this->text('</td><td>');
 		$this->ajaxTree($desc);
 		$this->text('</nobr>');
+	}
+
+	function flipSwitch($name, $value, $checked, $more = '') {
+		$id = uniqid('flipSwitch_');
+		$this->stdout .= '<div class="onoffswitch">
+    <input type="checkbox" name="'.$name.'"
+     value="'.$value.'"
+     class="onoffswitch-checkbox"
+     id="'.$id.'" '.($checked ? 'checked' : '').'
+     '.$more.'>
+    <label class="onoffswitch-label" for="'.$id.'">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>';
+}
+
+	public function inLabel($string) {
+		$this->stdout .= '<label>'.$string;
+	}
+
+	public function endLabel() {
+		$this->stdout .= '</label>';
 	}
 
 }

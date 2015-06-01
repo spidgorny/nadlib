@@ -60,12 +60,13 @@ class UL {
 			} else {
 				$link = NULL;
 			}
-			if ($link) {
+			if ($link && $this->linkWrap) {
 				$wrap = Wrap::make(str_replace('###LINK###', $link, $this->linkWrap));
+				$li = $wrap->wrap($li);
 			} else {
-				$wrap = Wrap::make('|');
+				$li = $link ?: $li;
 			}
-			$li = $wrap->wrap($li);				// don't translate __() because the values may come from DB
+			// don't translate __() because the values may come from DB
 
 			$line = Wrap::make($this->wrap)->wrap($li);
 			$line = str_replace('###CLASS###', $class, $line);
