@@ -180,7 +180,9 @@ class Debug {
 		if (!is_null($content)) {
 			print($content);
 		}
-		flush();
+		if (ob_get_level() == 0) {
+			flush();
+		}
 	}
 
 	function debug_args() {
@@ -311,7 +313,7 @@ class Debug {
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
-				//debug_pre_print_backtrace(); exit();
+				//debug_pre_print_backtrace(); flush();
 				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
 					$content .= Debug::view_array($r,
 						is_null($levels) ? NULL : $levels-1);
