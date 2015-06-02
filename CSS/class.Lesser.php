@@ -35,6 +35,7 @@ class Lesser extends AppController {
 				throw new Exception('Cache dir not existing, can not be created. '.$cacheDir);
 			}
 		}
+		set_time_limit(30);  // compiling bootstrap
 	}
 
 	function render() {
