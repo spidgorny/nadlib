@@ -44,7 +44,7 @@ class Uploader {
 	 */
 	function __construct($allowed = array()) {
 
-		if(!empty($allowed)) {
+		if (!empty($allowed)) {
 			$this->allowed = $allowed;
 		}
 
@@ -239,6 +239,12 @@ class Uploader {
 	public function getTempFile($fieldName = 'file') {
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['tmp_name'];
+		}
+	}
+
+	public function getBasename($fieldName = 'file') {
+		if ($this->isUploaded()) {
+			return $_FILES[$fieldName]['name'];
 		}
 	}
 
