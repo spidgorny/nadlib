@@ -154,7 +154,7 @@ class Duration extends Time {
         if (is_array($duration)) {
 	        $duration = array_slice($duration, 0, $perCount, TRUE);
 	        $content .= $this->array2string($duration);
-			//debug($duration);
+			//debug($this->time, $periods, $duration, $content);
 			if ($this->time < 0) {
 				$content .= ' '.__('ago');
 			}
