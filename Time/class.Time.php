@@ -478,6 +478,10 @@ class Time {
 		return $new;
 	}
 
+	function getDiff(Time $t2) {
+		return $this->time - $t2->time;
+	}
+
 	/**
 	 * Modifies itself according to the format.
 	 * Truncate by hour: Y-m-d H:00:00
