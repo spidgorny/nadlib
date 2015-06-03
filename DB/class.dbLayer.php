@@ -38,6 +38,12 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	var $lastQuery;
 
 	/**
+	 * Transaction count because three are no nested transactions
+	 * @var int
+	 */
+	protected $inTransaction = 0;
+
+	/**
 	 * @var string DB name
 	 */
 	var $db;
@@ -249,8 +255,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	function getTables() {
 		$query = "select relname
 		from pg_class
-		where
-		not relname ~ 'pg_.*'
+		where not relname ~ 'pg_.*'
 		and not relname ~ 'sql_.*'
 		and relkind = 'r'
 		ORDER BY relname";
@@ -258,6 +263,22 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
 		return ArrayPlus::create($return)->column('relname')->getData();
+	}
+
+	function getColumnDefault($table) {
+		$query = "SELECT *
+		FROM information_schema.columns
+		where table_name = '".$table."'
+		ORDER BY ordinal_position";
+		$data = $this->fetchAll($query);
+		foreach ($data as &$row) {
+			if (contains($row['column_default'], 'nextval')) {
+				$parts = trimExplode("'", $row['column_default']);
+				$row['sequence'] = $parts[1];
+				$row['sequence'] = str_replace('"', '', $row['sequence']);  // can be quoted
+			}
+		}
+		return ArrayPlus::create($data)->IDalize('column_name')->getData();
 	}
 
 	function amountOf($table, $where = "1 = 1") {
@@ -269,17 +290,38 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	function transaction($serializable = false) {
+		if ($this->inTransaction) {
+			//error('BEGIN inTransaction: '.$this->inTransaction.'+1');
+			$this->inTransaction++;
+			return true;
+		}
+		$this->inTransaction++;
 		if ($serializable) {
 			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
 		}
+		//error('BEGIN');
 		return $this->perform("BEGIN");
 	}
 
 	function commit() {
+		$this->inTransaction--;
+		if ($this->inTransaction) {
+			//error('COMMIT inTransaction: '.$this->inTransaction);
+			//debug_pre_print_backtrace();
+			return true;
+		}
+		//error('COMMIT');
+		//debug_pre_print_backtrace();
 		return $this->perform("commit");
 	}
 
 	function rollback() {
+		$this->inTransaction--;
+		if ($this->inTransaction) {
+			//error('ROLLBACK inTransaction: '.$this->inTransaction);
+			return true;
+		}
+		//error('ROLLBACK');
 		return $this->perform("rollback");
 	}
 
