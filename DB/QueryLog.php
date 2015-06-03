@@ -47,4 +47,9 @@ class QueryLog {
 		return $content;
 	}
 
+	function getDBTime() {
+		$sumtime = ArrayPlus::create($this->queryLog)->column('sumtime')->sum();
+		return $sumtime;
+	}
+
 }

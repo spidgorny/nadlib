@@ -522,40 +522,47 @@ class TaylorProfiler {
 
 	static function enableTick($ticker = 1000) {
 		register_tick_function(array(__CLASS__, 'tick'));
-		declare(ticks=10);
+		declare(ticks=500);
 	}
 
 	static function tick() {
 		static $prev = 0;
 		$bt = debug_backtrace();
 		$list = array();
+		$prow = array();
 		foreach ($bt as $row) {
-			$list[] = (isset($row['object'])
-					? get_class($row['object'])
+			$list[] = basename($row['file']).
+				((isset($row['object'])
+					&& $row['file'] != 'class.'.get_class($row['object']).'.php')
+					? ('['.get_class($row['object']).']')
 					: ifsetor($row['class'])
-				).'::'.$row['function'];
+				).'::'.$row['function'].
+				'#'.$prow['line'];
+			$prow = $row;
 		}
 		$list = array_reverse($list);
 		$list = array_slice($list, 0, -1);	// cut TaylorProfiler::tick
-		$list = array_slice($list, 3);
+		//$list = array_slice($list, 3);
 		$mem = self::getMemUsage();
 		$diff = number_format(100*($mem - $prev), 2);
-		$diff = $diff > 0
-			? '<font color="green">'.$diff.'</font>'
+		$diff = $diff >= 0
+			? '<font color="green"> '.$diff.'</font>'
 			: '<font color="red">'.$diff.'</font>';
-		$trace = implode(' -> ', $list);
-		$trace = substr($trace, -500);
 
 		$start = ifsetor($_SERVER['REQUEST_TIME_FLOAT'], $_SERVER['REQUEST_TIME']);
 		$time = number_format(microtime(true) - $start, 3, '.', '');
 
 		$output = '<pre style="margin: 0; padding: 0;">'.
 			$time.' diff: '.($diff >= 0 ? ' ' : '').$diff.' '.
-			number_format($mem*100, 2).'% '.$trace.'</pre>';
+			number_format($mem*100, 2).'% '.implode(' -> ', $list).'</pre>';
 		if (Request::isCLI()) {
 			$output = strip_tags($output);
 		}
 		echo $output."\n";
+		if (sizeof($list) > 100) {
+			pre_print_r($list);
+			throw new Exception('Infinite loop detected');
+		}
 		$prev = $mem;
 	}
 

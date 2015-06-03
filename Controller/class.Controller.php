@@ -95,6 +95,7 @@ abstract class Controller {
 		$this->config = Config::getInstance();
 		$this->al = AutoLoad::getInstance();
 		if (class_exists('Config')) {
+			//TaylorProfiler::disableTick(); debug($this->config->dbLive); exit();
 			$this->db = $this->config->getDB();
 			$this->user = $this->config->getUser();
 			//debug($this->user);

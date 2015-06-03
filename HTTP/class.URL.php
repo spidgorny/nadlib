@@ -66,10 +66,14 @@ class URL {
 			if ($request) {
 				//debug(substr($request->getLocation(), 0, -1).$url);
 				$callStack = debug_backtrace();
-				$back1 = first($callStack);
-				//debug($back1);
+				foreach ($callStack as &$call) {
+					$call = $call['class'].$call['type'].$call['function'];
+				}
+				print_r($callStack); ob_end_flush();
 				// prevent infinite loop
-				if ($back1['class'].$back1['type'].$back1['function'] != 'Request->getLocation') {
+				if (!in_array('Request::getLocation', $callStack) &&
+					!in_array('Request->getLocation', $callStack)
+				) {
 					$this->components = parse_url(substr($request->getLocation(), 0, -1) . $url);
 				}
 			}
