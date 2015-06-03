@@ -262,8 +262,10 @@ class slTableValue {
 			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 			$out = $wrap->wrap($out);
 		}
-		if ($k['link']) {
-			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+		if (ifsetor($k['link'])) {
+			$link = $k['link'];
+			$link = str_replace('###ID###', $out, $link);
+			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');
