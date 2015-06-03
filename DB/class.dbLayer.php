@@ -32,6 +32,12 @@ class dbLayer {
 	 */
 	var $lastQuery;
 
+	/**
+	 * Transaction count because three are no nested transactions
+	 * @var int
+	 */
+	protected $inTransaction = 0;
+
 	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
 		if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
@@ -323,17 +329,38 @@ class dbLayer {
 	}
 
 	function transaction($serializable = false) {
+		if ($this->inTransaction) {
+			//error('BEGIN inTransaction: '.$this->inTransaction.'+1');
+			$this->inTransaction++;
+			return true;
+		}
+		$this->inTransaction++;
 		if ($serializable) {
 			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
 		}
+		//error('BEGIN');
 		return $this->perform("BEGIN");
 	}
 
 	function commit() {
+		$this->inTransaction--;
+		if ($this->inTransaction) {
+			//error('COMMIT inTransaction: '.$this->inTransaction);
+			//debug_pre_print_backtrace();
+			return true;
+		}
+		//error('COMMIT');
+		//debug_pre_print_backtrace();
 		return $this->perform("commit");
 	}
 
 	function rollback() {
+		$this->inTransaction--;
+		if ($this->inTransaction) {
+			//error('ROLLBACK inTransaction: '.$this->inTransaction);
+			return true;
+		}
+		//error('ROLLBACK');
 		return $this->perform("rollback");
 	}
 
