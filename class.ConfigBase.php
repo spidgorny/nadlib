@@ -206,11 +206,15 @@ class ConfigBase {
 		}
 	}
 
+	/**
+	 * @param $obj object
+	 */
 	function mergeConfig($obj) {
 		$class = get_class($obj);
 		if (isset($this->config[$class]) && is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
-				if ($key != 'includeFolders') {	// Strict Standards: Accessing static property Config::$includeFolders as non static
+				// Strict Standards: Accessing static property Config::$includeFolders as non static
+				if ($key != 'includeFolders') {
 					$obj->$key = $val;
 				}
 			}
