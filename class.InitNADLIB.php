@@ -36,7 +36,7 @@ class InitNADLIB {
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
-			if (headers_sent($file, $line)) {
+			if (headers_sent($file, $line) && $file && $line) {
 				debug($file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
