@@ -94,15 +94,21 @@ class AutoLoad {
 		if (!self::$instance) {
 			self::$instance = new self();
 			self::$instance->detectNadlibRoot();
-			self::$instance->loadConfig();
-			if (class_exists('Config')) {
-				self::$instance->config = Config::getInstance();
-			}
 
 			// should not be called before $this->useCookies is set
 			//self::$instance->initFolders();
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * While loading Config, we need to make sure nadlib libraries can be loaded
+	 */
+	function postInit() {
+		self::$instance->loadConfig();
+		if (class_exists('Config')) {
+			self::$instance->config = Config::getInstance();
+		}
 	}
 
 	function detectNadlibRoot() {
@@ -508,6 +514,7 @@ class AutoLoad {
 				$instance->load($class);
 			}
 		}
+		$instance->postInit();
 	}
 
 }

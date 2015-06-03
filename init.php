@@ -30,7 +30,12 @@ if (!function_exists('debug')) {
 }
 
 if (!function_exists('nodebug')) {
-	function nodebug() {
+
+	/**
+	 * @param $a,...
+	 * @param $a,...
+	 */
+	function nodebug($a) {
 	}
 
 	function getDebug()	{
