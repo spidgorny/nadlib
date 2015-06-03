@@ -193,6 +193,21 @@ class slTableValue {
 				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
 				$out = $obj.'';
 			break;
+			case "singleton":
+				if ($val) {
+					if ($k['csv']) {
+						$parts = trimExplode(',', $val);
+						$obj = array();
+						foreach ($parts as $id) {
+							$obj[] = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($id);
+						}
+						$out = implode(', ', $obj);
+					} else {
+						$obj = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($val);
+						$out = $obj . '';
+					}
+				}
+			break;
 			case "singleLink":
 				$out = new HTMLTag('a', array(
 					'href' => new URL($k['link'].$row[$k['idField']]),
