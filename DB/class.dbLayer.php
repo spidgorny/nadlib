@@ -287,7 +287,11 @@ class dbLayer {
 	 * @return string[]
 	 */
 	function getTables() {
-		$query = "select relname from pg_class where not relname ~ 'pg_.*' and not relname ~ 'sql_.*' and relkind = 'r'";
+		$query = "select relname
+		from pg_class
+		where not relname ~ 'pg_.*'
+		and not relname ~ 'sql_.*'
+		and relkind = 'r'";
 		$result = $this->perform($query);
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
@@ -296,7 +300,8 @@ class dbLayer {
 
 	function getColumnDefault($table) {
 		$query = "SELECT *
-		FROM information_schema.columns where table_name = '".$table."'
+		FROM information_schema.columns
+		where table_name = '".$table."'
 		ORDER BY ordinal_position";
 		$data = $this->fetchAll($query);
 		foreach ($data as &$row) {
