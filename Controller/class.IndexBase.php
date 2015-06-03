@@ -476,6 +476,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function showSidebar() {
 		TaylorProfiler::start(__METHOD__);
+		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
 			$content = $this->mergeStringArrayRecursive($content);
