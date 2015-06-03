@@ -204,6 +204,21 @@ class slTableValue {
 				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
 				$out = $obj.'';
 			break;
+			case "singleton":
+				if ($val) {
+					if ($k['csv']) {
+						$parts = trimExplode(',', $val);
+						$obj = array();
+						foreach ($parts as $id) {
+							$obj[] = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($id);
+						}
+						$out = implode(', ', $obj);
+					} else {
+						$obj = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($val);
+						$out = $obj . '';
+					}
+				}
+			break;
 			case "singleLink":
 				$out = new HTMLTag('a', array(
 					'href' => new URL($k['link'].$row[$k['idField']]),
@@ -277,6 +292,7 @@ class slTableValue {
 				$link = str_replace('###'.strtoupper($key).'###', $rowVal, $link);
 			}
 			$link = str_replace('###VALUE###', $val, $link);
+			$link = str_replace('###ID###', $out, $link);
 			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
