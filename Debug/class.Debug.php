@@ -97,7 +97,9 @@ class Debug {
 		return $can;
 	}
 
-	function debugWithFirebug(array $params) {
+	function debugWithFirebug(array $params, $title = '') {
+		$content = '';
+		require_once 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
 			$fp->setOption('includeLineNumbers', true);
@@ -110,7 +112,7 @@ class Debug {
 			if ($trace) {
 				$fp->table(implode(' ', first($trace)), $trace);
 			}
-			$fp->log(1 == sizeof($params) ? first($params) : $params);
+			$fp->log(1 == sizeof($params) ? first($params) : $params, $title);
 		} else {
 			$content = call_user_func_array(array('Debug', 'debug_args'), $params);
 		}
@@ -136,6 +138,7 @@ class Debug {
 	function debugWithCLI() {
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
+		$trace = array();
 		foreach ($db as $row) {
 			$trace[] = self::getMethod($row);
 		}
