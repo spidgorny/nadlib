@@ -59,6 +59,7 @@ class MemcacheArray implements ArrayAccess {
 	 */
 	function __construct($file, $expire = 0) {
 		TaylorProfiler::start(__METHOD__.' ('.$file.')');
+		//debug(__METHOD__.' ('.$file.')');
 		$this->file = $file;
 		$this->expire = $expire instanceof Duration ? $expire->getTimestamp() : $expire;
 		$this->fc = new MemcacheFile();
@@ -86,11 +87,14 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	function save() {
-		$serialized = serialize($this->data);
-		if (!$serialized) {
+		if (false) {
+			print_r($this->file); echo BR;
 			debug_pre_print_backtrace();
-			print_r(array_keys($this->data));
+			pre_print_r(array_keys($this->data));
+			//echo '<pre>'; var_dump($this->data); echo '</pre>';
+			//serialize($this->data);
 		}
+		$serialized = serialize($this->data);
 		if ($this->fc && strcmp($this->state, $serialized)) {
 			//debug(__METHOD__, $this->fc->map($this->file), sizeof($this->data), array_keys($this->data));
 			$this->fc->set($this->file, $this->data);
