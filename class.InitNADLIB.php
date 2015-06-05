@@ -43,6 +43,9 @@ class InitNADLIB {
 
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
+			// htaccess may not work
+			ini_set('error_prepend_string', '<pre>');
+			ini_set('error_append_string', '</pre>');
 		} else {
 			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
