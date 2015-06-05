@@ -86,7 +86,12 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	function save() {
-		if ($this->fc && strcmp($this->state, serialize($this->data))) {
+		$serialized = serialize($this->data);
+		if (!$serialized) {
+			debug_pre_print_backtrace();
+			print_r(array_keys($this->data));
+		}
+		if ($this->fc && strcmp($this->state, $serialized)) {
 			//debug(__METHOD__, $this->fc->map($this->file), sizeof($this->data), array_keys($this->data));
 			$this->fc->set($this->file, $this->data);
 		}
