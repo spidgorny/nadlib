@@ -3,12 +3,12 @@
 class ArrayIteratorPlusTest extends PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var ArrayIteratorPlus $ai
+	 * @var ArrayIterator $ai
 	 */
 	protected $ai;
 
 	function setUp() {
-		$this->ai = new ArrayIteratorPlus(array(
+		$this->ai = new ArrayIterator(array(
 			0 => 'a',
 			1 => 'b',
 			'slawa' => 'test',
