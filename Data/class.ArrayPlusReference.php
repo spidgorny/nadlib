@@ -2,7 +2,11 @@
 
 $tmp = error_reporting(error_reporting() ^ E_STRICT);
 
-class ArrayPlusReference extends ArrayPlus {
+/**
+ * Class ArrayPlusReference
+ * @mixin ArrayPlus
+ */
+class ArrayPlusReference /*extends ArrayPlus */{
 
 	function __construct(array &$a = array()) {
 		$this->setData($a);

@@ -15,7 +15,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	/**
 	 * @var resource
 	 */
-	protected $connection;
+	public $connection;
 
 	/**
 	 * @var dbLayerMS
@@ -213,7 +213,7 @@ AND name = '?')", array($table));
 		return '['.$key.']';
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res, $table = NULL) {
 		$lq = $this->lastQuery;
 		$query = 'SELECT SCOPE_IDENTITY()';
 		$res = $this->perform($query);
@@ -239,7 +239,7 @@ AND name = '?')", array($table));
 		return $value ? 1 : 0;
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		return mssql_rows_affected($this->connection);
 	}
 
