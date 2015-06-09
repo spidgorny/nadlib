@@ -1,6 +1,23 @@
 <?php
 
-abstract class IteratorMemberCollection extends Collection implements Iterator, Countable {
+/**
+ * Class IteratorMemberCollection
+ * Fatal error: Class IteratorCollection cannot implement both Iterator and IteratorAggregate at the same time
+ */
+class CollectionMock {
+
+	var $members;
+
+	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
+
+	}
+
+	function objectify() {
+
+	}
+
+}
+abstract class IteratorMemberCollection extends CollectionMock implements Iterator, Countable {
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		parent::__construct($pid, $where, $order);

@@ -2,9 +2,13 @@
 
 /**
  * TODO: move to nadlib and find IteratorMembersCollection
+ * This is a dead end, use Collection->getIterator()
+ * Fatal error: Class IteratorCollection cannot implement both Iterator and IteratorAggregate at the same time
  */
 
-class IteratorCollection extends Collection implements Iterator, Countable {
+class IteratorCollection /*extends Collection*/ implements Iterator, Countable {
+
+	var $data;
 
 	function rewind() {
 		reset($this->data);
