@@ -58,7 +58,7 @@ class HTMLTag {
 		if ($value) {
 			$this->attr[$name] = $value;
 		} else {
-			return $this->attr[$name];
+			return ifsetor($this->attr[$name]);
 		}
 	}
 
