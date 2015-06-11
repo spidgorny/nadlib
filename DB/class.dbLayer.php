@@ -52,7 +52,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
         'SELECT', 'LIKE',
     );
 
-	function __construct($dbse = "buglog", $user = "slawa", $pass = "slawa", $host = "localhost") {
+	function __construct($dbse, $user, $pass, $host = "localhost") {
         if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
 	        //debug(pg_version()); exit();
