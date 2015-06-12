@@ -5,8 +5,10 @@ class NadlibTest extends PHPUnit_Framework_TestCase {
 	function test_requireAll() {
 		//return;
 		$skip = array(
+			'MemcacheMemory',
 		);
-		require_once 'class.AppController.php';
+		require_once 'class.AppController4Test.php';
+		class_alias('AppController4Test', 'AppController');
 
 		$files = glob('**/*');
 		foreach ($files as $file) {
@@ -15,7 +17,9 @@ class NadlibTest extends PHPUnit_Framework_TestCase {
 				$class = $class[1];
 				if (!in_array($class, $skip)) {
 					echo $class."\n";
-					require_once $file;
+					if (!class_exists($class, false)) {
+						require_once $file;
+					}
 				}
 			}
 		}

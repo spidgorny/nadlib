@@ -42,11 +42,11 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		return $this->result;
 	}
 
-	function numRows($res) {
+	function numRows($res = NULL) {
 		return odbc_num_rows($res);
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		// TODO: Implement affectedRows() method.
 	}
 
@@ -65,7 +65,7 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function lastInsertID() {
+	function lastInsertID($result, $key = NULL) {
 		// TODO: Implement lastInsertID() method.
 	}
 
@@ -94,10 +94,6 @@ class dbLayerODBC extends dbLayerBase implements DBInterface {
 
 	function lastError() {
 		return 'ODBC error #'.odbc_error().': '.odbc_errormsg();
-	}
-
-	function lastError() {
-		return odbc_error().': '.odbc_errormsg();
 	}
 
 }

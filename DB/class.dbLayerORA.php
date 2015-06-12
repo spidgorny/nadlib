@@ -53,6 +53,7 @@ class dbLayerORA extends dbLayer {
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
 		$debug = debug_backtrace();
+		$deb = '';
 		foreach ($debug as $i => $row) {
 			if ($i > 1) {
 				$deb .= implode(', ', $row);
@@ -124,9 +125,9 @@ class dbLayerORA extends dbLayer {
 		}
 	}
 
-	function fetchAll($result) {
+	function fetchAll($result, $key = NULL) {
 		$ret = array();
-		while (($row == $this->fetchAssoc($result)) !== FALSE) {
+		while (($row = $this->fetchAssoc($result)) !== FALSE) {
 			$ret[] = $row;
 		}
 		return $ret;
@@ -141,7 +142,7 @@ class dbLayerORA extends dbLayer {
 		}
 	}
 
-	function numRows($result) {
+	function numRows($result = NULL) {
 		return ora_numrows($result);
 	}
 

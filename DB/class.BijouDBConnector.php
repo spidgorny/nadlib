@@ -12,7 +12,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	protected $t3db;
 
 	public $lastError;
-	
+
 	/**
 	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
 	 */
@@ -20,7 +20,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 		$this->t3db = $t3lib_DB ? $t3lib_DB : $GLOBALS['TYPO3_DB'];
 		$this->setQB();
 	}
-	
+
 	function perform($query) {
 		$this->lastQuery = $query;
 		$start = array_sum(explode(' ', microtime()));
@@ -115,7 +115,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 		return $this->t3db->sql_insert_id($res);
 	}
 
-	function lastInsertID($res = NULL) {
+	function lastInsertID($res = NULL, $table = NULL) {
 		return $this->getLastInsertID($res);
 	}
 
@@ -233,7 +233,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 		return $this->t3db->sql_free_result($res);
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		// TODO: Implement affectedRows() method.
 	}
 
