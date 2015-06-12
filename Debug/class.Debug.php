@@ -99,7 +99,10 @@ class Debug {
 
 	function debugWithFirebug(array $params, $title = '') {
 		$content = '';
-		require_once 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
+		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
+		if (!class_exists('FirePHP') && file_exists($require)) {
+			require_once $require;
+		}
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
 			$fp->setOption('includeLineNumbers', true);
