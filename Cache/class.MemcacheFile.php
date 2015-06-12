@@ -21,7 +21,7 @@ class MemcacheFile {
 	 */
 	function __construct($key = NULL, $expire = 0) {
 		if (MemcacheArray::$debug) {
-			//echo __METHOD__.BR;
+			echo __METHOD__.'('.$key.')'.BR;
 		}
 		$sub = cap(AutoLoad::getInstance()->appRoot);
 
