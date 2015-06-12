@@ -30,6 +30,9 @@ class ReplayHAR {
 		$url = $this->getURL();
 		$urlget = $url->getURLGet();
 		$urlget->context['http']['method'] = $this->request->method;
+		foreach ($this->request->headers as $pair) {
+			$urlget->headers[$pair->name] = $pair->value;
+		}
 		return $urlget;
 	}
 

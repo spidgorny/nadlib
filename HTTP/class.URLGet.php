@@ -14,7 +14,7 @@ class URLGet {
 	/**
 	 * @var Index
 	 */
-	protected $logger;
+	public $logger;
 
 	/**
 	 * @var CURL info
@@ -112,7 +112,9 @@ class URLGet {
 	public function fetchCURL(array $options = array()) {
 		$this->logger->log($this->url, __METHOD__);
 		$process = curl_init($this->url);
-		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
+		$headers = ArrayPlus::create($this->headers)->getHeaders("\r\n");
+		$headers = trimExplode("\r\n", $headers);
+		curl_setopt($process, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($process, CURLOPT_HEADER, 1);
 		//curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
 		//if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
