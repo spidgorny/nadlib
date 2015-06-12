@@ -262,7 +262,7 @@ class slTableValue {
 					} else if ($val instanceof HTMLForm) {
 						$out = $val->getContent().'';   // to avoid calling getName()
 					} elseif (is_object($val)) {
-						if ($k['call']) {
+						if (ifsetor($k['call'])) {
 							$out = $val->$k['call']();
 						} elseif (method_exists($val, 'getName')) {
 							$out = $val->getName();

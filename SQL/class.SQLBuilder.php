@@ -177,7 +177,7 @@ class SQLBuilder {
 					$set[] = $val->asXML();
 				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 				//	$set[] = $val.'';
-				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
+				} else if (isset($where[$key.'.']) && ifsetor($where[$key.'.']['asis'])) {
 					if (strpos($val, '###FIELD###') !== FALSE) {
 						$val = str_replace('###FIELD###', $key, $val);
 						$set[] = $val;

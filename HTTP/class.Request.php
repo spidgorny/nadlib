@@ -50,6 +50,11 @@ class Request {
 		return self::$instance;
 	}
 
+	public static function isPHPUnit() {
+		//debug($_SERVER); exit();
+		return !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
+	}
+
 	/**
 	 * Returns raw data, don't use or use with care
 	 * @param $key

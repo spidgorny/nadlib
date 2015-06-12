@@ -259,8 +259,12 @@ abstract class Scaffold extends AppController {
 		if ($v->validate()) {
 			try {
 				switch ($this->action) {
-					case 'add': $content[] = $this->insertRecord($this->data); break;
-					case 'update': $content[] = $this->updateRecord($this->data); break;
+					case 'add':
+						$content[] = $this->insertRecord($this->data);
+						break;
+					case 'update':
+						$content[] = $this->updateRecord($this->data);
+						break;
 					default: {
 						debug(__METHOD__);
 						throw new Exception(__METHOD__);

@@ -93,6 +93,7 @@ class dbLayerOCI extends dbLayer {
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
 		$debug = debug_backtrace();
+		$deb = '';
 		foreach ($debug as $i => $row) {
 			if ($i > 1) {
 				unset($row['object']);
@@ -168,7 +169,7 @@ class dbLayerOCI extends dbLayer {
 		}
 	}
 
-	function fetchAll($result) {
+	function fetchAll($result, $key = NULL) {
 		$ret = array();
 		while (($row = $this->fetchAssoc($result)) !== FALSE) {
 			$ret[] = $row;
@@ -185,7 +186,7 @@ class dbLayerOCI extends dbLayer {
 		return oci_num_rows($result);
 	}
 
-	function numRows($result) {
+	function numRows($result = NULL) {
 		$i = 0;
 		while (($row = $this->fetchAssoc($result)) !== FALSE) {
 			$i++;

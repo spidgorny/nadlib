@@ -4,7 +4,7 @@
  * Class LocalLangTest
  * It's reading data from the class/ll-en.json file and writes new messages back to it
  */
-class LocalLangTest extends LocalLangDummy {
+class LocalLangJson extends LocalLangDummy {
 
 	function __construct() {
 		parent::__construct();
