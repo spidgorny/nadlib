@@ -52,7 +52,10 @@ class Request {
 
 	public static function isPHPUnit() {
 		//debug($_SERVER); exit();
-		return !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
+		$phar = !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
+		$loader = !!ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
+		$phpStorm = basename($_SERVER['PHP_SELF']) == 'ide-phpunit.php';
+		return $phar || $loader || $phpStorm;
 	}
 
 	/**
@@ -521,6 +524,7 @@ class Request {
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
+		//pre_print_r($docRoot);
 
 		//debug(get_class($c), $docRoot, $_SERVER['PHP_SELF']);
 
