@@ -36,8 +36,8 @@ class InitNADLIB {
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
-			if (headers_sent($file, $line) && $file && $line) {
-				debug($file, $line);
+			if (headers_sent($file, $line) && $file && $line && !Request::isPHPUnit()) {
+				debug('Output has started', $file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
 			error_reporting(E_ALL ^ E_NOTICE);

@@ -219,7 +219,11 @@ abstract class Controller {
 			$result = self::$instance[$static];
 		} else {
 			$index = Index::getInstance();
-			$result = $index->getController();
+			if ($index->controller) {
+				$result = $index->getController();
+			} else {
+				$result = new $static;
+			}
 		}
 		//debug($isset, get_class($index), get_class($result));
 		return $result;
