@@ -12,10 +12,12 @@ class InitNADLIB {
 	function __construct() {
 		require_once dirname(__FILE__) . '/class.AutoLoad.php';
 		require_once dirname(__FILE__) . '/HTTP/class.Request.php';
-		if (Request::isCLI()) {
-			define('BR', "\n");
-		} else {
-			define('BR', "<br />\n");
+		if (!defined('BR')) {
+			if (Request::isCLI()) {
+				define('BR', "\n");
+			} else {
+				define('BR', "<br />\n");
+			}
 		}
 		$this->al = AutoLoad::getInstance();
 	}
