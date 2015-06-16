@@ -203,8 +203,17 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $result;
 	}
 
-	function getTableOptions($table, $column, $where = "", $key = 'id') {
+	function getTableOptions($table, $column, $where = "", $order = NULL, $key = 'id') {
 		$tableName = $this->getFirstWord($table);
+		if (is_array($where) && $where) {
+			$where = $this->quoteWhere($where);
+			$where = implode(' AND ', $where);
+		} elseif (!$where) {
+			$where = '1 = 1';
+		}
+		if ($order) {
+			$where .= ' '.$order;
+		}
 		$a = $this->getTableDataEx($table, $where, $tableName.'.*, '.$column);
 
 		// select login.*, coalesce(name, '') || ' ' || coalesce(surname, '') AS combined from login where relcompany = '47493'
@@ -371,6 +380,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 */
 	function fetchAll($result, $key = NULL) {
 		if (is_string($result)) {
+			//debug($result);
 			$result = $this->perform($result);
 		}
 		$res = pg_fetch_all($result);
