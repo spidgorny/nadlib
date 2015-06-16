@@ -92,7 +92,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	function perform($query) {
 		$prof = new Profiler();
 		$this->lastQuery = $query;
-		//debug($query);
+		if (!is_resource($this->CONNECTION)) {
+			debug($query);
+			debug_pre_print_backtrace();
+		}
 		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
