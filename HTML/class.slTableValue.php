@@ -60,6 +60,7 @@ class slTableValue {
 	}
 
 	function getCell($col, $val, array $k, array $row) {
+		$out = '';
 		$type = isset($k['type']) ? $k['type'] : NULL;
 		if (is_object($type)) {
 			$type = get_class($type);
@@ -150,7 +151,7 @@ class slTableValue {
 				$out = '<img src="'.$k['prefix'].$val.'" />';
 			break;
 			case "checkbox":
-				if ($k['tf']) {
+				if (ifsetor($k['tf'])) {
 					$val = $val == 't';
 				}
 				if ($val) {
@@ -158,7 +159,7 @@ class slTableValue {
 				} else {
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
-				if ($row[$col.'.link']) {
+				if (ifsetor($row[$col.'.link'])) {
 					$out = new HTMLTag('a', array(
 						'href' => $row[$col.'.link'],
 					), $img, $k['no_hsc']);
