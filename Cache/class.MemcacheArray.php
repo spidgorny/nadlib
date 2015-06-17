@@ -149,7 +149,7 @@ class MemcacheArray implements ArrayAccess {
 		if (self::$debug) {
 			//echo __METHOD__.'('.$file.')'.BR;
 		}
-		return self::$instances[$file]
+		return isset(self::$instances[$file])
     		? self::$instances[$file]
 			: (self::$instances[$file] = new self($file, $expire));
 	}
