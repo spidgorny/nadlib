@@ -631,7 +631,7 @@ class Request {
 	}
 
 	function isPOST() {
-		return $_SERVER['REQUEST_METHOD'] == 'POST';
+		return ifsetor($_SERVER['REQUEST_METHOD']) == 'POST';
 	}
 
 	function getAll() {
@@ -639,7 +639,7 @@ class Request {
 	}
 
 	function getMethod() {
-		return $_SERVER['REQUEST_METHOD'];
+		return ifsetor($_SERVER['REQUEST_METHOD']);
 	}
 
 	/**
