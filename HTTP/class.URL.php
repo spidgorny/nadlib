@@ -40,10 +40,11 @@ class URL {
 			//return $url;	// doesn't work
 		}
 		if (!isset($url)) { // empty string should not default to localhost
-			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI']);
-			if (isset($_SERVER['HTTP_HOST'])) {
-				$url = $http . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$http = Request::getRequestType();
+			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER);
+			$host = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST'], $_SERVER['HTTP_HOST']);
+			if ($host) {
+				$url = $http . '://' . $host . $_SERVER['REQUEST_URI'];
 			} else {
 				$url = $http . '://localhost/';
 			}
