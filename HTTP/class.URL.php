@@ -61,6 +61,7 @@ class URL {
 
 	function parseURL($url) {
 		$this->components = @parse_url($url);
+		//pre_print_r($this->components);
 		if (!$this->components) {	//  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
 			$request = Request::getExistingInstance();
 			if ($request) {
@@ -75,6 +76,8 @@ class URL {
 					!in_array('Request->getLocation', $callStack)
 				) {
 					$this->components = parse_url(substr($request->getLocation(), 0, -1) . $url);
+				} else {
+					debug($this->components);
 				}
 			}
 		}

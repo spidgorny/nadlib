@@ -52,7 +52,10 @@ class Request {
 
 	public static function isPHPUnit() {
 		//debug($_SERVER); exit();
-		return !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
+		$phar = !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
+		$loader = !!ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
+		$phpStorm = basename($_SERVER['PHP_SELF']) == 'ide-phpunit.php';
+		return $phar || $loader || $phpStorm;
 	}
 
 	/**
@@ -521,8 +524,14 @@ class Request {
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
+		//pre_print_r($docRoot);
 
-		//debug(get_class($c), $docRoot, $_SERVER['PHP_SELF']);
+		false && pre_print_r(array(
+			get_class($c),
+			$docRoot . '',
+			$_SERVER['PHP_SELF'],
+			$_SERVER,
+		));
 
 		if (!startsWith($docRoot, '/')) {
 			$docRoot = '/'.$docRoot;
@@ -622,7 +631,7 @@ class Request {
 	}
 
 	function isPOST() {
-		return $_SERVER['REQUEST_METHOD'] == 'POST';
+		return ifsetor($_SERVER['REQUEST_METHOD']) == 'POST';
 	}
 
 	function getAll() {
@@ -630,7 +639,7 @@ class Request {
 	}
 
 	function getMethod() {
-		return $_SERVER['REQUEST_METHOD'];
+		return ifsetor($_SERVER['REQUEST_METHOD']);
 	}
 
 	/**
@@ -655,7 +664,7 @@ class Request {
 		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
 		$al = AutoLoad::getInstance();
 
-		if (false) {	// linux
+		if (!$this->isWindows()) {	// linux
 			$cwd = new Path(getcwd());
 			$url = clone $al->documentRoot;
 			$url->append($this->url->getPath());
@@ -868,17 +877,34 @@ class Request {
 	}
 
 	/**
+	 * [DOCUMENT_ROOT]      => U:/web
+	 * [SCRIPT_FILENAME]    => C:/Users/DEPIDSVY/NetBeansProjects/merged/index.php
+	 * [PHP_SELF]           => /merged/index.php
+	 * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
 	 * @return Path
 	 */
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
+
+		false && pre_print_r(array(
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+			'PHP_SELF' => $_SERVER['PHP_SELF'],
+			'cwd' => getcwd(),
+		));
+
 		if ($_SERVER['DOCUMENT_ROOT'] &&
+			startsWith($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) &&
 			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
 			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		} else {	//~depidsvy/something
 			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
-			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
-			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+			if ($pos !== FALSE) {
+				$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
+				$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+			} else {
+				$docRoot = dirname($_SERVER['PHP_SELF']);
+			}
 		}
 		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
