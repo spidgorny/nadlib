@@ -55,8 +55,12 @@ class UL {
 				$link = $this->links[$class];
 			} elseif ($this->linkFunc) {
 				$link = call_user_func($this->linkFunc, $class, $li);
-			} elseif ($this->linkWrap) {
+			} else {
 				$link = $class;
+			}
+
+			// maybe we need to wrap after $this->links
+			if ($this->linkWrap) {
 				$wrap = Wrap::make($this->linkWrap);
 				// don't translate __() because the values may come from DB
 				$li = $wrap->wrap($li);
