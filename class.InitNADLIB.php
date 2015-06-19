@@ -40,7 +40,7 @@ class InitNADLIB {
 				debug($file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
-			error_reporting(E_ALL ^ E_NOTICE);
+			error_reporting(-1);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
 
