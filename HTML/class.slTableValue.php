@@ -71,8 +71,8 @@ class slTableValue {
 			case "selection":
 				//debug($k + array('val' => $val));
 				if ($val) {
-					$what = $k['title'] ? $k['title'] : $col;
-					$id = $k['idField'] ? $k['idField'] : 'id';
+					$what = ifsetor($k['title'], $col);
+					$id = ifsetor($k['idField'], 'id');
 					if (!isset($k['options'])) {
 						if ($k['set']) {
 							$list = trimExplode(',', $val);

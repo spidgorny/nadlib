@@ -138,7 +138,7 @@ abstract class OODBase {
 	}
 
 	function getName() {
-		return ifsetor($this->data[$this->titleColumn], $this->id);
+		return ifsetor($this->data[$this->titleColumn]) ?: $this->id;
 	}
 
 	function initByRow(array $row) {

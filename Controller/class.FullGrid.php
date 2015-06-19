@@ -33,11 +33,12 @@ abstract class FullGrid extends Grid {
 	 * @return string
 	 */
 	function getOrderBy() {
+		$ret = '';
 		$sortBy = $this->sort['sortBy'];
 		if ($this->model->thes && is_array($this->model->thes[$sortBy]) && $this->model->thes[$sortBy]['source']) {
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
-		$sortBy = $sortBy ? $sortBy : $this->model->idField;
+		$sortBy = $sortBy ? $sortBy : ifsetor($this->model->idField);
 		if ($sortBy) {
 			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.($this->sort['sortOrder'] ? 'DESC' : 'ASC');
 		}
