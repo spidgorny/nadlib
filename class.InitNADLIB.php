@@ -12,10 +12,12 @@ class InitNADLIB {
 	function __construct() {
 		require_once dirname(__FILE__) . '/class.AutoLoad.php';
 		require_once dirname(__FILE__) . '/HTTP/class.Request.php';
-		if (Request::isCLI()) {
-			define('BR', "\n");
-		} else {
-			define('BR', "<br />\n");
+		if (!defined('BR')) {
+			if (Request::isCLI()) {
+				define('BR', "\n");
+			} else {
+				define('BR', "<br />\n");
+			}
 		}
 		$this->al = AutoLoad::getInstance();
 	}
@@ -36,8 +38,8 @@ class InitNADLIB {
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
-			if (headers_sent($file, $line) && $file && $line) {
-				debug($file, $line);
+			if (headers_sent($file, $line) && $file && $line && !Request::isPHPUnit()) {
+				debug('Output has started', $file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
 			error_reporting(-1);

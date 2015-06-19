@@ -44,8 +44,10 @@ class HTMLFormSelection extends HTMLFormType {
 		}
 
 		$more = $this->more;
-		$more += (isset($this->desc['size']) ? array('size' => $this->desc['size']) : array());
-		$more += (isset($this->desc['id']) ? array('id' => $this->desc['id']) : array());
+		$more += (isset($this->desc['size'])
+			? array('size' => $this->desc['size']) : array());
+		$more += (isset($this->desc['id'])
+			? array('id' => $this->desc['id']) : array());
 		if (isset($this->desc['more'])) {
 			$more += is_array($this->desc['more'])
 				? $this->desc['more']
@@ -60,7 +62,7 @@ class HTMLFormSelection extends HTMLFormType {
 
 	/**
 	 * @param array $aOptions
-	 * @param $default
+	 * @param $default  array|mixed
 	 * @param array $desc
 	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
 	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
@@ -75,7 +77,6 @@ class HTMLFormSelection extends HTMLFormType {
 			if (ifsetor($desc['==='])) {
 				$selected = $default === $value;
 			} else {
-				//debug($default, $value);
 				if ((is_array($default) && in_array($value, $default))
 					|| (!is_array($default) && $default == $value)) {
 					$selected = true;
@@ -83,11 +84,14 @@ class HTMLFormSelection extends HTMLFormType {
 					$selected = false;
 				}
 			}
+			//debug($default, $value, $selected);
 			if ($option instanceof HTMLTag) {
-				$option->attr('selected', $selected);
+				if ($selected) {
+					$option->attr('selected', $selected);
+				}
 				//$option->content .= ' '.$value.' '.$default;
 				$content .= $option;
-			} else if ($option instanceof Recursive) {
+			} elseif ($option instanceof Recursive) {
 				$content .= '<optgroup label="'.$option.'">';
 				$content .= $this->getSelectionOptions($option->getChildren(), $default, $desc);
 				$content .= '</optgroup>';

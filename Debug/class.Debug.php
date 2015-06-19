@@ -388,10 +388,10 @@ class Debug {
 		$content = array();
 		$i = $limit;
 		foreach ($debug as $debugLine) {
-			$file = basename($debugLine['file']);
+			$file = basename(ifsetor($debugLine['file']));
 			$file = str_replace('class.', '', $file);
 			$file = str_replace('.php', '', $file);
-			$content[] = $file.'::'.$debugLine['function'].':'.$debugLine['line'];
+			$content[] = $file.'::'.$debugLine['function'].':'.ifsetor($debugLine['line']);
 			if (!$i--) {
 				break;
 			}

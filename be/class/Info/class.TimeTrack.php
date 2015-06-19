@@ -1,6 +1,6 @@
 <?php
 
-class TimeTrack extends AppControllerBE {
+class TimeTrackHG extends AppControllerBE {
 
 	var $cacheFile;
 
