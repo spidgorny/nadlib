@@ -124,14 +124,16 @@ abstract class FullGrid extends Grid {
 					//debug($key, $this->filter[$key]);
 				} else {
 					$type = 'select';
-					if (!$k['options']) {
+					if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
 						$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
-						$options = ArrayPlus::create($options)->trim()->getData();    // convert to string for === operation
+						// convert to string for === operation
+						$options = ArrayPlus::create($options)->trim()->getData();
 					} else {
 						$options = $k['options'];
 					}
 					//debug($options);
-					$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
+					// will only work for strings, ID to other table needs to avoid it
+					$options = array_combine_stringkey($options, $options);
 					//debug($options);
 				}
 				$desc[$key] = array(
