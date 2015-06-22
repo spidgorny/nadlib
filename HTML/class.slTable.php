@@ -539,6 +539,11 @@ class slTable {
 		if (isset($width[$iCol])) {
 			$more['width'] = $width[$iCol];
 		}
+		if (ifsetor($k['title'])) {
+			$more['title'] = $k['title'] == '###SELF###'
+				? $row[$col]
+				: $k['title'];
+		}
 		return $more;
 	}
 
