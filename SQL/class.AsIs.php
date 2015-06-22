@@ -16,6 +16,7 @@ class AsIs extends SQLWherePart {
 	protected $value;
 
 	function __construct($value) {
+		parent::__construct($value);
 		$this->value = $value;
 	}
 

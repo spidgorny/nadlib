@@ -11,10 +11,11 @@ class SQLNow extends AsIs {
             'sqlite' => "datetime('now')",
             'mysql' => 'now()',
             'ms' => 'GetDate()',
+            'pg' => 'CURRENT_TIMESTAMP',
         );
         $schema = $this->db->getScheme();
         $content = $map[$schema] ?: end($map);
-        return $content;
+        return $content;    // should not be quoted
     }
 
 }
