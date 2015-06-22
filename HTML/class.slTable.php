@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Class slTable - renders the whole table array into HTML.
+ * Has powerful configuration options.
+ * @see slTableValue for a single table cell renderer.
+ */
 class slTable {
 
 	/**
