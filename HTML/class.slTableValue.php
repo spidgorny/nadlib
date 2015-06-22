@@ -223,7 +223,7 @@ class slTableValue {
 			case "singleLink":
 				$out = new HTMLTag('a', array(
 					'href' => new URL($k['link'].$row[$k['idField']]),
-				), $val);
+				), $val ?: $k['text']);
 			break;
 			case 'HTMLFormDatePicker':
 				//$val = strtotime($val);
@@ -272,7 +272,9 @@ class slTableValue {
 						}
 					} elseif (is_array($val)) {
 						if (is_assoc($val)) {
-							$out = json_encode($val, JSON_PRETTY_PRINT);
+							$out = json_encode($val, defined('JSON_PRETTY_PRINT')
+								? JSON_PRETTY_PRINT
+								: NULL);
 						} else {
 							$out = '['.implode(', ', $val).']';
 						}
