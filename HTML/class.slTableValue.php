@@ -211,11 +211,15 @@ class slTableValue {
 						$parts = trimExplode(',', $val);
 						$obj = array();
 						foreach ($parts as $id) {
-							$obj[] = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($id);
+							$obj[] = is_object($k['class'])
+								? $k['class']
+								: $k['class']::getInstance($id);
 						}
 						$out = implode(', ', $obj);
 					} else {
-						$obj = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($val);
+						$obj = is_object($k['class'])
+							? $k['class']
+							: $k['class']::getInstance($val);
 						$out = $obj . '';
 					}
 				}
