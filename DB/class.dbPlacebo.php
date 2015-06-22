@@ -4,7 +4,7 @@
  * Class dbPlacebo
  * @mixin SQLBuilder
  */
-class dbPlacebo implements DBInterface {
+class dbPlacebo extends dbLayerBase implements DBInterface {
 
 	function perform($query) {
 		return '';
@@ -19,22 +19,18 @@ class dbPlacebo implements DBInterface {
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		/** @var $qb SQLBuilder */
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
 			throw new Exception($method.' not found in dbPlacebo and SQLBuilder');
 		}
 	}
 
-	function numRows($res) {
+	function numRows($res = NULL) {
 		// TODO: Implement numRows() method.
 	}
 
-	function affectedRows() {
+	function affectedRows($res = NULL) {
 		// TODO: Implement affectedRows() method.
 	}
 
@@ -42,7 +38,7 @@ class dbPlacebo implements DBInterface {
 		// TODO: Implement getTables() method.
 	}
 
-	function lastInsertID() {
+	function lastInsertID($res = NULL, $table = NULL) {
 		// TODO: Implement lastInsertID() method.
 	}
 
@@ -56,5 +52,37 @@ class dbPlacebo implements DBInterface {
 
 	function escapeBool($value) {
 		// TODO: Implement escapeBool() method.
+	}
+
+	function fetchAssoc($res) {
+		// TODO: Implement fetchAssoc() method.
+	}
+
+	function transaction() {
+		// TODO: Implement transaction() method.
+	}
+
+	function commit() {
+		// TODO: Implement commit() method.
+	}
+
+	function rollback() {
+		// TODO: Implement rollback() method.
+	}
+
+	public function getScheme() {
+		// TODO: Implement getScheme() method.
+	}
+
+	function getTablesEx() {
+		// TODO: Implement getTablesEx() method.
+	}
+
+	function getTableColumnsEx($table) {
+		// TODO: Implement getTableColumnsEx() method.
+	}
+
+	function getIndexesFrom($table) {
+		// TODO: Implement getIndexesFrom() method.
 	}
 }
