@@ -661,7 +661,7 @@ class Collection implements IteratorAggregate {
         $class = get_class($this);
         foreach ($this->data as &$row) {
             $id = !empty($idFieldName) ? $row[$idFieldName] : $row[$this->idField];
-            $checked = $_SESSION[$class][$id] ? 'checked="checked"' : '';
+            $checked = ifsetor($_SESSION[$class][$id]) ? 'checked="checked"' : '';
             $row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
         }
     }
