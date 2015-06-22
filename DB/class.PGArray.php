@@ -52,7 +52,7 @@ class PGArray {
 	 * @return array
 	 */
 	function getPGArray($input) {
-		if ($input{0} == '{') {	// array inside
+		if (strlen($input) && $input{0} == '{') {	// array inside
 			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
 			return $this->getPGArray($input);
 		} else {
@@ -80,7 +80,7 @@ class PGArray {
 			$r[] = array_map('stripslashes', $data);
 		}
 		fclose($temp);
-		return $r[0];
+		return ifsetor($r[0]);
 	}
 
 	/**

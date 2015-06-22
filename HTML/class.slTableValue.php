@@ -71,8 +71,8 @@ class slTableValue {
 			case "selection":
 				//debug($k + array('val' => $val));
 				if ($val) {
-					$what = $k['title'] ? $k['title'] : $col;
-					$id = $k['idField'] ? $k['idField'] : 'id';
+					$what = ifsetor($k['title'], $col);
+					$id = ifsetor($k['idField'], 'id');
 					if (!isset($k['options'])) {
 						if ($k['set']) {
 							$list = trimExplode(',', $val);
@@ -211,11 +211,15 @@ class slTableValue {
 						$parts = trimExplode(',', $val);
 						$obj = array();
 						foreach ($parts as $id) {
-							$obj[] = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($id);
+							$obj[] = is_object($k['class'])
+								? $k['class']
+								: $k['class']::getInstance($id);
 						}
 						$out = implode(', ', $obj);
 					} else {
-						$obj = is_object($k['class']) ? $k['class'] : $k['class']::getInstance($val);
+						$obj = is_object($k['class'])
+							? $k['class']
+							: $k['class']::getInstance($val);
 						$out = $obj . '';
 					}
 				}

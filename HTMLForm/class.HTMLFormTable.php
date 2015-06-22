@@ -204,7 +204,7 @@ class HTMLFormTable extends HTMLForm {
 					$more = is_array(ifsetor($desc['more']))
 						? $desc['more'] + array('id' => $elementID)
 						: $desc['more'] . ' id="'.$elementID.'"';
-					if ($desc['postgresql']) {
+					if (ifsetor($desc['postgresql'])) {
 						$fieldValue = $fieldValue == 't';
 					}
 					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $more);
