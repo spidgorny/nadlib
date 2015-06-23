@@ -42,7 +42,7 @@ class URL {
 		if (!isset($url)) { // empty string should not default to localhost
 			$http = Request::getRequestType();
 			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER);
-			$host = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST'], $_SERVER['HTTP_HOST']);
+			$host = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST'], ifsetor($_SERVER['HTTP_HOST']));
 			if ($host) {
 				$url = $http . '://' . $host . $_SERVER['REQUEST_URI'];
 			} else {
