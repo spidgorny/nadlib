@@ -149,7 +149,7 @@ class DownloadObfuscator {
 
 }
 
-if ($_REQUEST['id'] == DownloadObfuscator::page && $_REQUEST['type'] == DownloadObfuscator::type) {
+if (ifsetor($_REQUEST['id']) == DownloadObfuscator::page && ifsetor($_REQUEST['type']) == DownloadObfuscator::type) {
 	$subid = intval($_REQUEST['subid']);
 	if ($subid) {
 		require_once(t3lib_extMgm::extPath('submission').'/lib/config.php');
