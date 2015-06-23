@@ -657,4 +657,16 @@ abstract class OODBase {
 		), $this->getName());
 	}
 
+	/**
+	 * Give it array of IDs and it will give you an array of objects
+	 * @param array $ids
+	 * @return ArrayPlus
+	 */
+	public static function makeInstances(array $ids) {
+		foreach ($ids as &$id) {
+			$id = static::getInstance($id);
+		}
+		return new ArrayPlus($ids);
+	}
+
 }
