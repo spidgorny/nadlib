@@ -4,7 +4,7 @@
  * Class dbPlacebo
  * @mixin SQLBuilder
  */
-class dbPlacebo implements DBInterface {
+class dbPlacebo extends dbLayerBase implements DBInterface {
 
 	function perform($query) {
 		return '';
@@ -19,12 +19,8 @@ class dbPlacebo implements DBInterface {
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		/** @var $qb SQLBuilder */
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
 			throw new Exception($method.' not found in dbPlacebo and SQLBuilder');
 		}

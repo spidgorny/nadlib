@@ -155,11 +155,11 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	static function unsetInstance($file) {
-		if (self::$instances[$file]) {
+		if (ifsetor(self::$instances[$file])) {
+			if (ifsetor(self::$instances[$file]->fc)) {
+				self::$instances[$file]->fc->clearCache(self::$instances[$file]->file);
+			}
 			self::$instances[$file]->__destruct();
-		}
-		if (self::$instances[$file]->fc) {
-			self::$instances[$file]->fc->clearCache(self::$instances[$file]->file);
 		}
 		unset(self::$instances[$file]);
 	}
