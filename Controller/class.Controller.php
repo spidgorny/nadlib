@@ -92,10 +92,9 @@ abstract class Controller {
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
-		$this->config = Config::getInstance();
 		$this->al = AutoLoad::getInstance();
 		if (class_exists('Config')) {
-			//TaylorProfiler::disableTick(); debug($this->config->dbLive); exit();
+			$this->config = Config::getInstance();
 			$this->db = $this->config->getDB();
 			$this->user = $this->config->getUser();
 			//debug($this->user);
