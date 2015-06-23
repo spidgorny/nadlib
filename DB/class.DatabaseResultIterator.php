@@ -72,7 +72,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	function next() {
 		$this->row = $this->retrieveRow();
 		if ($this->defaultKey) {
-			$this->key = $this->row[$this->defaultKey];
+			$this->key = ifsetor($this->row[$this->defaultKey]);
 		} else {
 			$this->key++;
 		}
