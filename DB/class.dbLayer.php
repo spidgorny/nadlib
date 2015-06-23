@@ -363,14 +363,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $c;
 	}
 
-    function quoteKeys($a) {
-        $c = array();
-        foreach ($a as $b) {
-            $c[] = $this->quoteKey($b);
-        }
-        return $c;
-    }
-
 	/**
 	 * Overrides because of pg_fetch_all
 	 * @param resource|string $result

@@ -16,7 +16,7 @@ class SQLNow extends AsIs {
         );
         $schema = $this->db->getScheme();
         $content = $map[$schema] ?: end($map);
-        return $content;
+        return $content;    // should not be quoted
     }
 
 }
