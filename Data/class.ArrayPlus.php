@@ -622,7 +622,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	public function columnEmpty($string) {
 		foreach ($this->getData() as $row) {
-			if ($row[$string]) return false;
+			if (ifsetor($row[$string])) return false;
 		}
 		return true;
 	}
