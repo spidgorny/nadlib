@@ -1,6 +1,12 @@
 <?php
 
-abstract class IteratorMemberCollection extends Collection implements Iterator, Countable {
+/**
+ * Class IteratorMemberCollection
+ * @deprecated
+ */
+abstract class IteratorMemberCollection /*extends Collection*/ implements Iterator, Countable {
+
+	var $data = array();
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		parent::__construct($pid, $where, $order);
