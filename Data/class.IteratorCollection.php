@@ -2,9 +2,11 @@
 
 /**
  * TODO: move to nadlib and find IteratorMembersCollection
+ * @deprecated Collection implements IteratorAggregate already
  */
+class IteratorCollection /*extends Collection*/ implements Iterator, Countable {
 
-class IteratorCollection extends Collection implements Iterator, Countable {
+	var $data = array();
 
 	function rewind() {
 		reset($this->data);
