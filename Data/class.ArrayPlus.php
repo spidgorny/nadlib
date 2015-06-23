@@ -692,6 +692,48 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $headers;
 	}
 
+	/**
+	 * If we store array of objects, we can retrieve a specific property of all objects
+	 * @param $name
+	 * @return array
+	 */
+	function getProperty($name) {
+		$result = array();
+		foreach ($this->getData() as $i => $object) {
+			if (is_object($object)) {
+				$result[$i] = $object->$name;
+			}
+		}
+		return $result;
+	}
+
+	function call($method) {
+		$result = array();
+		foreach ($this->getData() as $i => $object) {
+			if (is_object($object)) {
+				$result[$i] = $object->$method();
+			}
+		}
+		$this->setData($result);
+		return $this;
+	}
+
+	function andAll() {
+		$result = true;
+		foreach ($this->getData() as $i => $object) {
+			$result = $result && $object;
+		}
+		return $result;
+	}
+
+	function orAll() {
+		$result = false;
+		foreach ($this->getData() as $i => $object) {
+			$result = $result || $object;
+		}
+		return $result;
+	}
+
 }
 
 function AP(array $a = array()) {
