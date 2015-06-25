@@ -138,12 +138,7 @@ class AlterTable extends AlterIndex {
 
 	function getAddQuery($table, array $index) {
 		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
-		' '.$index['Type'].
-		' '.(($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL').
-		' '.($index['Collation'] ? 'COLLATE '.$index['Collation'] : '').
-		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
-		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
-		' '.$index['Extra'];
+		' '.$index['Type'].$this->getFieldParams($index);
 		$link = $this->a($this->makeURL(array(
 			'c' => get_class($this),
 			'file' => basename($this->jsonFile),
@@ -154,7 +149,26 @@ class AlterTable extends AlterIndex {
 		return $link;
 	}
 
-	function getCreateQuery($table, array $columns) {
+	function getFieldParams(array $index) {
+		return ' '.trim(
+			($index['Null'] == 'NO' ? 'NOT NULL' : 'NULL').
+		' '.($index['Collation'] ? 'COLLATE '.$index['Collation'] : '').
+		' '.($index['Default'] ? "DEFAULT ".$index['Default'] : '').		// must not be quoted for CURRENT_TIMESTAMP
+		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
+		' '.($index['Key'] == 'PRI' ? "PRIMARY KEY" : '').
+		' '.$index['Extra']);
+	}
+
+	function getCreateQueryMySQL($table, array $columns) {
+		$set = array();
+		foreach ($columns as $col) {
+			$set[] = $col['Field'].' '.$col['Type'].$this->getFieldParams($col);
+		}
+		//debug($col);
+		return 'CREATE TABLE '.$table.' ('.implode(",\n", $set).');';
+	}
+
+	function getCreateQueryDBLayer($table, array $columns) {
 		$set = array();
 		foreach ($columns as $col) {
 			$set[] = $col['name'].' '.$col['type'].' '.($col['notnull'] ? 'NOT NULL' : 'NULL');
