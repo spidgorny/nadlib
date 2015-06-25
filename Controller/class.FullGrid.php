@@ -43,7 +43,8 @@ abstract class FullGrid extends Grid {
 		}
 		$sortBy = $sortBy ? $sortBy : ifsetor($this->model->idField);
 		if ($sortBy) {
-			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.($this->sort['sortOrder'] ? 'DESC' : 'ASC');
+			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.
+				(ifsetor($this->sort['sortOrder']) ? 'DESC' : 'ASC');
 		}
 		return $ret;
 	}

@@ -52,6 +52,13 @@ class dbLayer extends dbLayerBase implements DBInterface {
         'SELECT', 'LIKE',
     );
 
+	/**
+	 * @param string $dbse
+	 * @param string $user
+	 * @param string $pass
+	 * @param string $host
+	 * @throws Exception
+	 */
 	function __construct($dbse, $user, $pass, $host = "localhost") {
         if ($dbse) {
 			$this->connect($dbse, $user, $pass, $host);
