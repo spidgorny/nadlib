@@ -20,7 +20,7 @@ class LazyMemberIterator extends IteratorIterator {
 	 */
 	public function __construct($array = array(), $flags = 0, $class) {
 		//debug($array, $array->count());
-		parent::__construct($array, $flags);
+		parent::__construct($array);
 		$this->class = $class;
 	}
 
@@ -47,7 +47,6 @@ class LazyMemberIterator extends IteratorIterator {
 		$array = parent::current();
 		if ($array) {
 			$obj = new $this->class($array);
-			//debug($array, $obj);
 			return $obj;
 		} else {
 			return NULL;
