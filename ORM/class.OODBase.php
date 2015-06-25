@@ -468,6 +468,10 @@ abstract class OODBase {
 		return $graph;
 	}
 
+	/**
+	 * @param $id
+	 * @return self
+	 */
 	static function getInstance($id) {
 		return self::getInstanceByID($id);
 	}
