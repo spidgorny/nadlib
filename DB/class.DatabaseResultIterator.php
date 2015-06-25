@@ -58,6 +58,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 		if ($this->rows) {
 			$this->db->dataSeek($this->dbResultResource, 0);
 			$this->next();
+			$this->key = 0;
 		}
 	}
 
