@@ -148,7 +148,7 @@ abstract class OODBase {
 			foreach ($this->idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
-		} else if (ifsetor($this->data[$this->idField])) {
+		} else if (igorw\get_in($this->data, [$this->idField])) {   // not ifsetor
 			$this->id = $this->data[$this->idField];
 		} else {
 			debug(gettype($row), $this->idField, $this->data);
