@@ -473,7 +473,11 @@ class MySQL extends dbLayerBase implements DBInterface {
 
 	function __call($method, array $params) {
 		if (!$this->qb) {
-			$this->qb = Config::getInstance()->getQb();
+			if (class_exists('Config')) {
+				$this->qb = Config::getInstance()->getQb();
+			} else {
+				$this->qb = new SQLBuilder($this);
+			}
 		}
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);

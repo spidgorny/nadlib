@@ -34,7 +34,9 @@ class SQLBuilder {
 	public $config;
 
 	function __construct(dbLayerBase $db) {
-		$this->config = Config::getInstance();
+		if (class_exists('Config')) {
+			$this->config = Config::getInstance();
+		}
 		$this->db = $db;
 	}
 
