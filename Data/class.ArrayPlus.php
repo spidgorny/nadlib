@@ -482,7 +482,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
-	function implode($sep) {
+	function implode($sep = "\n") {
 		return implode($sep, $this->getData());
 	}
 
