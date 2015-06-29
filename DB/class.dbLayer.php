@@ -376,16 +376,18 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			$result = $this->perform($result);
 		}
 		$res = pg_fetch_all($result);
+		pg_free_result($result);
 		if ($_REQUEST['d'] == 'q') {
 			debug($this->lastQuery, sizeof($res));
 		}
 		if (!$res) {
 			$res = array();
-		} else if ($key) {
-			$res = ArrayPlus::create($res)->IDalize($key)->getData();
+		} elseif ($key) {
+			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
+			//debug(sizeof($res), sizeof($ap));
+			$res = $ap;
 		}
 
-		pg_free_result($result);
 		return $res;
 	}
 
