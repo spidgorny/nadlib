@@ -281,6 +281,17 @@ class HTMLFormTable extends HTMLForm {
 				case '/fieldset':
 					$this->stdout .= '</fieldset>';
 				break;
+				case 'tfieldset':
+					if (!$desc['close']) {
+						$this->stdout .= '</td></tr></table>
+						<fieldset><legend>'.$desc['legend'].'</legend>
+						<table><tr><td>';
+					} else {
+						$this->stdout .= '</td></tr></table>
+						</fieldset>
+						<table><tr><td>';
+					}
+					break;
 				case 'email':
 					$type = 'email';
 				//break;	// intentional
@@ -763,6 +774,23 @@ class HTMLFormTable extends HTMLForm {
 				$row['type']->setValue(NULL);
 			}
 		}
+	}
+
+	static function sliceFromTill(array $desc, $from, $till = NULL) {
+		$desc2 = array();
+		$copy = false;
+		foreach ($desc as $key => $val) {
+			if (!$copy) {
+				$copy = $key === $from;
+			}
+			if ($copy) {
+				$desc2[$key] = $val;
+			}
+			if ($key === $till) {
+				break;
+			}
+		}
+		return $desc2;
 	}
 
 }
