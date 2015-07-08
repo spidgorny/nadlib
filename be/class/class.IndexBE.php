@@ -1,6 +1,6 @@
 <?php
 
-class Index extends IndexBase {
+class IndexBE extends IndexBase {
 
 	public $projectName = 'nadlib|BE';
 
