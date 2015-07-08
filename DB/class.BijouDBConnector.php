@@ -138,7 +138,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	}
 
 	function escapeString($value) {
-		return $this->t3d->fullQuoteStr($value, '');
+		return $this->t3db->fullQuoteStr($value, '');
 	}
 
 	function getDefaultInsertFields() {
@@ -146,7 +146,8 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 			'pid' => $this->caller->generalStoragePID,
 			'crdate' => time(),
 			'tstamp' => time(),
-			'cruser_id' => $GLOBALS['TSFE']->fe_user->user['uid'] ? $GLOBALS['TSFE']->fe_user->user['uid'] : 0,
+			'cruser_id' => $GLOBALS['TSFE']->fe_user->user['uid']
+				? $GLOBALS['TSFE']->fe_user->user['uid'] : 0,
 		);
 		//debugster($set);
 		return $set;
@@ -199,8 +200,8 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 		if ($filterFields) {
 			//$where += $this->filterFields(NULL, NULL, $this->getFirstWord($table));
 		}
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $orderBy, $what, $whatExclusive);
+		$qb = Config::getInstance()->getQb();
+		$query = $qb->getSelectQuery($table, $where, $orderBy, $what);
 		//debug($query);
 		$result = $this->perform($query);
 		return $result;
