@@ -151,7 +151,7 @@ class SQLSelectQuery {
 			$tok = strtok(" \n\t");
 		}
 		$res = trim($res);
-		return BR.$res.BR;
+		return new htmlString($res);
 	}
 
 }

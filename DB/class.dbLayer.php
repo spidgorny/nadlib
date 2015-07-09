@@ -100,7 +100,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
 			debug_pre_print_backtrace();
-			throw new Exception(pg_errormessage($this->CONNECTION));
+			throw new DatabaseException(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
@@ -135,6 +135,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @return array
 	 */
 	function getTableColumns($table) {
+		if (!$table) {
+			debug_pre_print_backtrace();
+		}
 		$meta = pg_meta_data($this->CONNECTION, $table);
 		if (is_array($meta)) {
 			return array_keys($meta);
@@ -375,17 +378,20 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			//debug($result);
 			$result = $this->perform($result);
 		}
+		//debug($this->numRows($result));
 		$res = pg_fetch_all($result);
+		pg_free_result($result);
 		if ($_REQUEST['d'] == 'q') {
 			debug($this->lastQuery, sizeof($res));
 		}
 		if (!$res) {
 			$res = array();
-		} else if ($key) {
-			$res = ArrayPlus::create($res)->IDalize($key)->getData();
+		} elseif ($key) {
+			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
+			//debug(sizeof($res), sizeof($ap));
+			$res = $ap;
 		}
 
-		pg_free_result($result);
 		return $res;
 	}
 
