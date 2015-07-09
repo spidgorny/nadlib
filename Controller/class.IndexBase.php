@@ -181,7 +181,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				? implode("\n", $this->content)
 				: $this->content;	// display Exception
 			$contentOut .= $content;
-			$contentOut = $this->renderTemplate($contentOut);
+			$contentOut = $this->renderTemplate($contentOut)->render();
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut .= $content;
@@ -242,6 +242,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$render = $render.'';
 		}
 		return $render;
+	}
+
+	protected static function walkMerge($value, $key, &$combined = '') {
+		$combined .= $value."\n";
+	}
+
+	protected static function walkMergeArray($value, $key, $combined) {
+		$combined[] = $value;
 	}
 
 	protected static function walkMerge($value, $key, &$combined = '') {

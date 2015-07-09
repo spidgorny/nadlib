@@ -531,13 +531,13 @@ class TaylorProfiler {
 		$list = array();
 		$prow = array();
 		foreach ($bt as $row) {
-			$list[] = basename($row['file']).
+			$list[] = basename(ifsetor($row['file'])).
 				((isset($row['object'])
-					&& $row['file'] != 'class.'.get_class($row['object']).'.php')
+					&& ifsetor($row['file']) != 'class.'.get_class($row['object']).'.php')
 					? ('['.get_class($row['object']).']')
 					: ifsetor($row['class'])
 				).'::'.$row['function'].
-				'#'.$prow['line'];
+				'#'.ifsetor($prow['line']);
 			$prow = $row;
 		}
 		$list = array_reverse($list);

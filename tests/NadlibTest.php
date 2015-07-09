@@ -18,6 +18,7 @@ class NadlibTest extends PHPUnit_Framework_TestCase {
 				if (!in_array($class, $skip)) {
 					echo $class."\n";
 					if (!class_exists($class, false)) {
+						/** @noinspection PhpIncludeInspection */
 						require_once $file;
 					}
 				}

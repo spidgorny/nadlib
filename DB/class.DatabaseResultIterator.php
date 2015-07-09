@@ -71,10 +71,12 @@ class DatabaseResultIterator implements Iterator, Countable {
 
 	function next() {
 		$this->row = $this->retrieveRow();
-		if ($this->defaultKey) {
-			$this->key = ifsetor($this->row[$this->defaultKey]);
-		} else {
-			$this->key++;
+		if (is_array($this->row)) {
+			if ($this->defaultKey) {
+				$this->key = igorw\get_in($this->row, [$this->defaultKey]);
+			} else {
+				$this->key++;
+			}
 		}
 		return $this->row;
 	}
