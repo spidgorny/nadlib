@@ -410,16 +410,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$jQueryPath = clone $al->componentsPath;
 				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
 				$jQueryPath->setAsFile();
-				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
-				return $this;
+				if ($jQueryPath->exists()) {
+					$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+					return $this;
+				}
 			}
 		}
 
 		// commented out because this should be project specific
 		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
-		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 		<script>window.jQueryUI || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>';
-		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.css');
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.css');
 		return $this;
 	}
 

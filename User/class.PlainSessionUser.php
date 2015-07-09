@@ -1,6 +1,10 @@
 <?php
 
-class PlainSessionUser extends UserBase {
+/**
+ * Class PlainSessionUser
+ * extends User in order to have a dependency on the application
+ */
+class PlainSessionUser extends User {
 
 	/**
 	 * @var PlainSessionUser
