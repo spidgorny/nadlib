@@ -173,7 +173,7 @@ class Path {
 	function remove($minus) {
 		$minus = $minus instanceof Path ? $minus : new Path($minus);
 		foreach ($minus->aPath as $i => $sub) {
-			if ($this->aPath[0] == $sub) {  // 0 because shift
+			if (ifsetor($this->aPath[0]) == $sub) {  // 0 because shift
 				array_shift($this->aPath);
 				$this->isAbsolute = false;
 			} else {
