@@ -24,8 +24,13 @@ class AppControllerBE extends AppController {
 
 	function __construct() {
 		parent::__construct();
-		if ((!$this->user || !$this->user->isAdmin()) && !self::$public) {
-			throw new AccessDeniedException(__('Access denied to page %1', get_class($this)));
+		if (!self::$public) {
+			if (!$this->user) {
+				throw new AccessDeniedException(__('Access denied to page %1. No user.', get_class($this)));
+			}
+			if (!$this->user->isAdmin()) {
+				throw new AccessDeniedException(__('Access denied to page %1. User is not admin.', get_class($this)));
+			}
 		}
 		if (class_exists('Index')) {
 			$this->index = Index::getInstance();
