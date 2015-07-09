@@ -252,14 +252,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$combined[] = $value;
 	}
 
-	protected static function walkMerge($value, $key, &$combined = '') {
-		$combined .= $value."\n";
-	}
-
-	protected static function walkMergeArray($value, $key, $combined) {
-		$combined[] = $value;
-	}
-
 	function renderException(Exception $e, $wrapClass = '') {
 		if ($this->controller) {
 			$this->controller->title = $e->getMessage();
