@@ -34,7 +34,9 @@ class SQLBuilder {
 	public $config;
 
 	function __construct(dbLayerBase $db) {
-		$this->config = Config::getInstance();
+		if (class_exists('Config')) {
+			$this->config = Config::getInstance();
+		}
 		$this->db = $db;
 	}
 
@@ -235,7 +237,20 @@ class SQLBuilder {
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
-		$q = "INSERT INTO {$table} ({$fields}) VALUES (" . $values . ")";
+		$q = "INSERT INTO {$table} ({$fields}) VALUES ({$values})";
+		return $q;
+	}
+
+	/**
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @return string
+	 */
+	function getReplaceQuery($table, $columns) {
+		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
+		$values = implode(", ", $this->quoteValues(array_values($columns)));
+		$table = $this->quoteKey($table);
+		$q = "REPLACE INTO {$table} ({$fields}) VALUES ({$values})";
 		return $q;
 	}
 
@@ -426,6 +441,14 @@ class SQLBuilder {
 	function runInsertQuery($table, array $columns) {
 		TaylorProfiler::start(__METHOD__.'('.$table.')');
 		$query = $this->getInsertQuery($table, $columns);
+		$ret = $this->db->perform($query);
+		TaylorProfiler::stop(__METHOD__.'('.$table.')');
+		return $ret;
+	}
+
+	function runReplaceQuery($table, array $columns) {
+		TaylorProfiler::start(__METHOD__.'('.$table.')');
+		$query = $this->getReplaceQuery($table, $columns);
 		$ret = $this->db->perform($query);
 		TaylorProfiler::stop(__METHOD__.'('.$table.')');
 		return $ret;

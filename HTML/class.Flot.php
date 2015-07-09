@@ -311,7 +311,7 @@ class Flot extends AppController {
 		}
 		//$max *= 2;
 
-		$config = json_encode($this->jsConfig, defined(JSON_PRETTY_PRINT)
+		$config = json_encode($this->jsConfig, defined('JSON_PRETTY_PRINT')
 			? JSON_PRETTY_PRINT : NULL);
 		if (FALSE !== strpos($config, 'ticksWeeks')) {
 			$al = AutoLoad::getInstance();
