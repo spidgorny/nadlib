@@ -408,7 +408,7 @@ class Collection implements IteratorAggregate {
 				$content = $s;
 			}
 		} else {
-			$content = '<div class="message">'.__($this->noDataMessage).'</div>';
+			$content = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
 		}
 		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $content;
@@ -577,7 +577,7 @@ class Collection implements IteratorAggregate {
 			$content[] = '</div>';
 		} else {
 			//Index::getInstance()->ll->debug = true;
-			$content[] = '<div class="message">'.__($this->noDataMessage).'</div>';
+			$content[] = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
 		}
 		if ($this->pager) {
 			//$this->pager->debug();

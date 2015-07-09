@@ -21,6 +21,11 @@ abstract class HTMLFormType {
 
 	public $value;
 
+	/**
+	 * @var array
+	 */
+	public $desc;
+
 	function __construct() {
 	}
 

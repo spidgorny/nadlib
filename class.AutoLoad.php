@@ -71,6 +71,8 @@ class AutoLoad {
 
 	public $stat = array(
 		'findInFolders' => 0,
+		'loadFile1' => 0,
+		'loadFile2' => 0,
 	);
 
 	/**
