@@ -42,6 +42,8 @@ class TaylorProfiler {
 
 	static $instance;
 
+	var $tickTo = 'html';
+
 	/**
     * Initialise the timer. with the current micro time
     */
@@ -521,11 +523,12 @@ class TaylorProfiler {
 	}
 
 	static function enableTick($ticker = 1000) {
-		register_tick_function(array(__CLASS__, 'tick'));
-		declare(ticks=10);
+		$tp = self::getInstance();
+		register_tick_function(array($tp, 'tick'));
+		declare(ticks=1000);
 	}
 
-	static function tick() {
+	function tick() {
 		static $prev = 0;
 		$bt = debug_backtrace();
 		$list = array();
@@ -533,11 +536,10 @@ class TaylorProfiler {
 			$list[] = (isset($row['object'])
 					? get_class($row['object'])
 					: ifsetor($row['class'])
-				).'::'.$row['function'];
+				).'::'.$row['function'].'#'.ifsetor($row['line']);
 		}
 		$list = array_reverse($list);
 		$list = array_slice($list, 0, -1);	// cut TaylorProfiler::tick
-		$list = array_slice($list, 3);
 		$mem = self::getMemUsage();
 		$diff = number_format(100*($mem - $prev), 2);
 		$diff = $diff > 0
@@ -552,10 +554,16 @@ class TaylorProfiler {
 		$output = '<pre style="margin: 0; padding: 0;">'.
 			$time.' diff: '.($diff >= 0 ? ' ' : '').$diff.' '.
 			number_format($mem*100, 2).'% '.$trace.'</pre>';
-		if (Request::isCLI()) {
-			$output = strip_tags($output);
+
+		if ($this->tickTo == 'html') {
+			if (Request::isCLI()) {
+				$output = strip_tags($output);
+			}
+			echo $output . "\n";
+		} elseif ($this->tickTo) {
+			$pad = str_pad($time, 6, '0', STR_PAD_LEFT);
+			header('X-Tick-'.$pad.': '.strip_tags($output));
 		}
-		echo $output."\n";
 		$prev = $mem;
 	}
 
