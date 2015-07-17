@@ -480,16 +480,17 @@ class Collection {
 	}
 
     /**
+     * TODO: remove blacklist in ORS
      * @param array $blackList Contains IDs that should be filtered out from options
      * @return array
      */
-    function getOptions($blackList = array()) {
+    function getOptions(/*$blackList = array()*/) {
 		$options = array();
 		//debug(get_class($this), $this->titleColumn);
 		foreach ($this->getData() as $row) {
-            if ( !in_array($row[$this->idField], $blackList) ) {
+            //if ( !in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
-            }
+            //}
 		}
 		return $options;
 	}
@@ -532,6 +533,7 @@ class Collection {
 		if ($this->getCount()) {
 			foreach ($this->getData() as $id => $row) {
 				if ($this->thes) {
+					$row = $this->prepareRenderRow($row);   // add link
 					$item = '';
 					foreach ($this->thes as $key => $_) {
 						$item .= $row[$key] . ' ';
@@ -539,7 +541,12 @@ class Collection {
 					$list[$id] = $item;
 				} elseif ($this->itemClassName) {
 					/** @var OODBase $obj */
-					$obj = new $this->itemClassName($row);
+					$class = $this->itemClassName;
+					if (method_exists($class, 'getInstance')) {
+						$obj = $class::getInstance($row);
+					} else {
+						$obj = new $class($row);
+					}
 					if (method_exists($obj, 'getSingleLink')) {
 						$list[$id] = new HTMLTag('a', array(
 							'href' => $obj->getsingleLink(),
@@ -551,8 +558,9 @@ class Collection {
 					$list[$id] = $row[$this->titleColumn];
 				}
 			}
+			return new UL($list);
 		}
-		return new UL($list);
+		return NULL;
 	}
 
 	/**
