@@ -105,15 +105,16 @@ class SQLSearch {
 
 	function getSearchWhere($word, $prefix = '') {
 		if ($word{0} == '!') {
-			$like = 'NOT LIKE';
+			$like = 'NOT '.$this->likeOperator;
 			$or = "\n\t\tAND";
 		} else {
-			$like = 'LIKE';
+			$like = $this->likeOperator;
 			$or = "\n\t\tOR";
 		}
 
 		$prefix = $prefix ? $prefix.'.' : '';
 
+		$part = array();
 		foreach ($this->searchableFields as $field) {
 			$part[] = "{$prefix}{$field} {$like} '%$1%'";
 		}
@@ -123,7 +124,7 @@ class SQLSearch {
 
 		// test if it's a date
 		$date1 = strtotime($word);
-		if ($date1 > 0) {
+		if ($date1 > 0 && in_array('ctime', $this->searchableFields)) {
 			$date2 = strtotime('+1 day', $date1);
 			$date1 = date('Y-m-d', $date1);
 			$date2 = date('Y-m-d', $date2);
