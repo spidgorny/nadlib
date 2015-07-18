@@ -177,6 +177,14 @@ class View {
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
 
+	function e($str) {
+		return $this->escape($str);
+	}
+
+	function data($key) {
+		return $this->e($this->data[$key]);
+	}
+
 	function __toString() {
 		//debug_pre_print_backtrace();
 		return $this->render().'';
