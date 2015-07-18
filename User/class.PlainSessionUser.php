@@ -4,6 +4,7 @@
  * Class PlainSessionUser
  * extends User in order to have a dependency on the application
  */
+debug_pre_print_backtrace();
 class PlainSessionUser extends User {
 
 	/**
