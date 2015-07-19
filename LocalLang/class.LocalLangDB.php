@@ -87,7 +87,7 @@ class LocalLangDB extends LocalLang {
 				$this->codeID[$code] = $this->db->lastInsertID($res);
 				//debug($this->db->lastQuery);
 			} catch (Exception $e) {
-				Index::getInstance()->log(__METHOD__, $e->getMessage());
+				Index::getInstance()->log(__METHOD__, array('error' => $e->getMessage()));
 			}
 		}
 	}

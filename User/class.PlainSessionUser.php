@@ -4,14 +4,16 @@
  * Class PlainSessionUser
  * extends User in order to have a dependency on the application
  */
-debug_pre_print_backtrace();
-class PlainSessionUser extends User {
+class PlainSessionUser extends UserBase {
 
 	/**
 	 * @var PlainSessionUser
 	 */
 	static protected $instance;
 
+	/**
+	 * @param int $id
+	 */
 	function __construct($id = NULL) {
 		if (!Request::isCLI()) {
 			//debug('session_start');
@@ -22,6 +24,10 @@ class PlainSessionUser extends User {
 		parent::__construct($id);
 	}
 
+	/**
+	 * @param $name
+	 * @return mixed
+	 */
 	function getPref($name) {
 		return ifsetor($_SESSION[$name]);
 	}

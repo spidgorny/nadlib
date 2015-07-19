@@ -90,8 +90,8 @@ class HTMLForm {
 		return $a;
 	}
 
-	function getNameField($name) {
-		return $this->getName($name, '', true);
+	function getNameField($name, $namePlus = '', $onlyValue = FALSE) {
+		return $this->getName($name, $namePlus, $onlyValue);
 	}
 
 	function getNameTag($name) {
