@@ -16,7 +16,9 @@ class AlterTable extends AlterIndex {
 		$class = get_class($this->db);
 		if ($class == 'dbLayerPDO') {
 			$class = $this->db->getScheme();
-			if ($class == 'sqlite') $class = 'dbLayerSQLite';
+			if ($class == 'sqlite') {
+				$class = 'dbLayerSQLite';
+			}
 		}
 		$func = 'renderTableStruct'.$class;
 		$content[] = '<h5>'.$func.'</h5>';
