@@ -49,7 +49,7 @@ class OODBase {
 	 * Returns $this
 	 *
 	 * @param array $data
-	 * @return unknown
+	 * @return self
 	 */
 	function insert(array $data) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -66,6 +66,7 @@ class OODBase {
 	 * Returns nothing!!!
 	 *
 	 * @param array $data
+	 * @return resource
 	 */
 	function update(array $data) {
 		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
