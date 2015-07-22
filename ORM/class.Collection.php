@@ -625,6 +625,7 @@ class Collection implements IteratorAggregate {
 	 * @return object[]|OODBase[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
+		$this->members = array();   // somehow necessary
 		$class = $class ? $class : $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->getData() as $row) {
@@ -956,4 +957,5 @@ class Collection implements IteratorAggregate {
 	public function getIterator() {
 		return new ArrayPlus($this->objectify());
 	}
+
 }
