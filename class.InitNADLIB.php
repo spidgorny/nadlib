@@ -71,9 +71,9 @@ class InitNADLIB {
 		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 			/* @var $profiler TaylorProfiler */
-			if (class_exists('Config')) {
+			if (class_exists('Config') && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
-				@set_time_limit(Config::getInstance()->timeLimit
+				set_time_limit(Config::getInstance()->timeLimit
 					? Config::getInstance()->timeLimit
 					: 5);	// small enough to notice if the site is having perf. problems
 			}

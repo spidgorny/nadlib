@@ -27,7 +27,7 @@ class HTMLFormMonthYear extends HTMLFormType {
 		}
 		$fieldStringM = $this->form->getNameField(array_merge($this->field, array('month')), '', true);
 		$fieldStringY = $this->form->getNameField(array_merge($this->field, array('year')), '', true);
-		$content[] = '<table><tr><td>';
+		$content[] = '<table class="'.__CLASS__.'"><tr><td>';
 		$content[] = '<select name="'.$fieldStringM.'" class="form-control">';
 		$content[] = $this->showMonthOptions();
 		$content[] = '</select>';

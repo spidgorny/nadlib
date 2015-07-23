@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class PlainSessionUser
+ * extends User in order to have a dependency on the application
+ */
 class PlainSessionUser extends UserBase {
 
 	/**
@@ -7,6 +11,9 @@ class PlainSessionUser extends UserBase {
 	 */
 	static protected $instance;
 
+	/**
+	 * @param int $id
+	 */
 	function __construct($id = NULL) {
 		if (!Request::isCLI()) {
 			//debug('session_start');
@@ -17,6 +24,10 @@ class PlainSessionUser extends UserBase {
 		parent::__construct($id);
 	}
 
+	/**
+	 * @param $name
+	 * @return mixed
+	 */
 	function getPref($name) {
 		return ifsetor($_SESSION[$name]);
 	}
