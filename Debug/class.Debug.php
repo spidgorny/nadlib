@@ -122,7 +122,9 @@ class Debug {
 		return $content;
 	}
 
-
+	/**
+	 * Main entry point.
+	 */
 	function debug($params) {
 		$content = '';
 		if ($this->renderer) {

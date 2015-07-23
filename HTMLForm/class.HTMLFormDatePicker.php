@@ -40,7 +40,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 		$this->form->input($this->field, $val, array(
 			'format' => $this->jsFormat
 		) + $this->jsParams,
-		$this->inputType, 'datepicker');
+		$this->inputType, $this->desc['class'] . ' datepicker');
 	}
 
 	/**

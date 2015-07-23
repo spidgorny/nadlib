@@ -111,7 +111,7 @@ class Request {
 		$value = strip_tags($value);
 		$value = trim($value);
 		if (!$value) {
-			throw new Exception('Parameter '.$name.' is required.');
+			throw new InvalidArgumentException('Parameter '.$name.' is required.');
 		}
 		return $value;
 	}

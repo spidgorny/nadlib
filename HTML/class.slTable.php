@@ -231,9 +231,7 @@ class slTable {
 		$this->sortBy = $by;
 		$this->sortOrder = $or;
 		if (!$this->sortBy) {
-			$old = error_reporting(0);	// undefined offset 0
 			list($this->sortBy) = first($this->thes);
-			error_reporting($old);
 		}
 	}
 

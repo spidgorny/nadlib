@@ -292,7 +292,11 @@ abstract class Controller {
 			$link = '<a class="header-link" href="#'.$slug.'">
 				<i class="fa fa-link"></i>
 			</a>';
-			$content = '<'.$h.' id="'.$slug.'">'.$link.$caption.'</'.$h.'>'.$content;
+			$content = '<a name="'.URL::friendlyURL($caption).'"></a>
+			<'.$h.' id="'.$slug.'">'.
+				$link.$caption.
+				'</'.$h.'>'.
+				$content;
 		}
 		$more['class'] .= (ifsetor($more['class']) ? ' ' : '').get_class($this);
 		//debug_pre_print_backtrace();
@@ -340,7 +344,23 @@ abstract class Controller {
 			}
 
 			if (method_exists($proxy, $method)) {
-				$content = $proxy->$method();
+				$r = new ReflectionMethod($proxy, $method);
+				if ($r->getNumberOfParameters()) {
+					$assoc = array();
+					foreach ($r->getParameters() as $param) {
+						$name = $param->getName();
+						if ($this->request->is_set($name)) {
+							$assoc[$name] = $this->request->getTrim($name);
+						} elseif ($param->isDefaultValueAvailable()) {
+							$assoc[$name] = $param->getDefaultValue();
+						} else {
+							$assoc[$name] = NULL;
+						}
+					}
+					call_user_func_array(array($proxy, $method), $assoc);
+				} else {
+					$content = $proxy->$method();
+				}
 			} else {
 				// other classes except main controller may result in multiple messages
 				//Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
