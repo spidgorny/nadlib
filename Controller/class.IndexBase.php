@@ -257,7 +257,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->controller->title = $e->getMessage();
 		}
 		$message = $e->getMessage();
-		$message = $message instanceof htmlString
+		$message = ($message instanceof htmlString ||
+			$message[0] == '<')
 			? $message.''
 			: htmlspecialchars($message);
 		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
