@@ -230,8 +230,9 @@ class slTable {
 		// sortBy for th linking and sorting below
 		$this->sortBy = $by;
 		$this->sortOrder = $or;
-		if (!$this->sortBy) {
-			list($this->sortBy) = first($this->thes);
+		if (!$this->sortBy && $this->thes) {
+			@list($this->sortBy) =  // Undefined offset: 0
+				first($this->thes);
 		}
 	}
 
