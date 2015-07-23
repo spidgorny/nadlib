@@ -653,7 +653,7 @@ abstract class OODBase {
 	}
 
 	function getSingleLink() {
-		return get_class($this).'/'.$this->id;
+		return get_class($this) . '/' . $this->id;
 	}
 
 	function getNameLink() {
