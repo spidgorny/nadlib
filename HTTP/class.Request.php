@@ -470,7 +470,8 @@ class Request {
 			&& $this->canRedirect($controller)
 		) {
 			ob_start();
-			debug_print_backtrace();
+			debug_print_backtrace(defined('DEBUG_BACKTRACE_IGNORE_ARGS')
+				? DEBUG_BACKTRACE_IGNORE_ARGS : NULL);
 			$bt = trimExplode("\n", ob_get_clean());
 			header('Redirect-From: '.$bt[1]);
 
