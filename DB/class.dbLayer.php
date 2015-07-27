@@ -400,6 +400,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		}
 
 		return $res;
+	}
+
 	/**
 	 * @param result/query $result
 	 * @return array
