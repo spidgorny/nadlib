@@ -1,7 +1,5 @@
 <?php
 
-define('DEVELOPMENT', true);
-
 function __($a, $sub1, $sub2, $sub3) {
 	$a = str_replace('%1', $sub1, $a);
 	$a = str_replace('%2', $sub2, $a);
