@@ -74,6 +74,12 @@ class dbLayerBase implements DBInterface {
 	}
 
 	function __call($method, array $params) {
+		if (!$this->qb) {
+			$this->qb = Config::getInstance()->getQb();
+			if (!$this->qb) {
+				throw new DatabaseException(__CLASS__ . ' has no QB');
+			}
+		}
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
