@@ -153,7 +153,7 @@ if (!function_exists('nodebug')) {
 	function debug_pre_print_backtrace() {
 		if (DEVELOPMENT) {
 			print '<pre>';
-			if (phpversion() >= '5.3') {
+			if (phpversion() >= '5.3.6') {
 				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			} else {
 				debug_print_backtrace();
