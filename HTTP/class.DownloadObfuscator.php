@@ -154,6 +154,11 @@ if (ifsetor($_REQUEST['id']) == DownloadObfuscator::page && ifsetor($_REQUEST['t
 	if ($subid) {
 		require_once(t3lib_extMgm::extPath('submission').'/lib/config.php');
 		require_once(t3lib_extMgm::extPath('submission').'/lib/class.collection.php');
+		require_once(t3lib_extMgm::extPath('submission').'/lib/class.utilities.php');
+		require_once(t3lib_extMgm::extPath('submission').'/pi1/class.tx_submission_pi1.php');
+		$pi1 = new tx_submission_pi1();
+		$pi1->initNadlib();
+		$pi1->init();
 		$sub = new user_SubmissionUtils($subid);
 		$obfuscator = new DownloadObfuscator($sub, $_REQUEST['fileSuffix']);
 		if ($obfuscator->checkHash($_REQUEST['check'])) {
