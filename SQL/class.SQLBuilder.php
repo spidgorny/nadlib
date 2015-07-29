@@ -528,18 +528,11 @@ class SQLBuilder {
 		return call_user_func_array(array($this->getDB(), $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL) {
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id') {
 		$res = $this->runSelectQuery($table, $where, $order,
-			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
-			($idField
-				? $table.'*, '.$this->quoteKey($idField).' AS id_field'
-				: ''));
-		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
-		if ($idField) {
-			$data = $this->fetchAll($res, 'id_field');
-		} else {
-			$data = $this->fetchAll($res, 'title');
-		}
+			'DISTINCT   '.$table.'.'.$this->quoteKey($titleField).' AS title, '.
+			$table.'.*, '.$table.'.'.$this->quoteKey($idField).' AS id_field');
+		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
 		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
 		//d($keys, $values);
@@ -548,6 +541,7 @@ class SQLBuilder {
 		} else {
 			$options = array();
 		}
+		//debug($this->db->lastQuery, @$this->db->numRows($res), $titleField, $idField, $data, $options);
 		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
 	}

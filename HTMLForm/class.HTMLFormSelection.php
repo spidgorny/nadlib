@@ -27,7 +27,7 @@ class HTMLFormSelection extends HTMLFormType {
 	 */
 	var $desc = array();
 
-	function __construct($fieldName, array $options, $selected = NULL) {
+	function __construct($fieldName, array $options = NULL, $selected = NULL) {
 		$this->setField($fieldName);
 		$this->options = $options;
 		$this->value = $selected;
@@ -55,6 +55,9 @@ class HTMLFormSelection extends HTMLFormType {
 		}
 		$content[] = HTMLTag::renderAttr($more) . ">\n";
 
+		if (is_null($this->options)) {
+			$this->options = $this->fetchSelectionOptions($this->desc);
+		}
 		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc);
 		$content[] = "</select>\n";
 		return new MergedContent($content);
@@ -77,6 +80,7 @@ class HTMLFormSelection extends HTMLFormType {
 			if (ifsetor($desc['==='])) {
 				$selected = $default === $value;
 			} else {
+//				debug($value, $default);
 				if ((is_array($default) && in_array($value, $default))
 					|| (!is_array($default) && $default == $value)) {
 					$selected = true;
@@ -110,6 +114,38 @@ class HTMLFormSelection extends HTMLFormType {
 			}
 		}
 		return $content;
+	}
+
+	/**
+	 * Retrieves data from DB
+	 * Provide either 'options' assoc array
+	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
+	 * @param array $desc
+	 * @return array
+	 */
+	function fetchSelectionOptions(array $desc) {
+		if (ifsetor($desc['from']) && $desc['title']) {
+			/** @var dbLayerBase $db */
+			$db = Config::getInstance()->getDB();
+			$options = $db->getTableOptions($desc['from'],
+				$desc['title'],
+				isset($desc['where']) 	? $desc['where'] : array(),
+				isset($desc['order']) 	? $desc['order'] : '',
+				isset($desc['idField']) ? $desc['idField'] : 'id'
+			//$desc['noDeleted']
+			);
+			//debug($db->lastQuery, $options);
+		} else {
+			$options = array();
+		}
+		if (isset($desc['options'])) {
+			$options += $desc['options'];
+		}
+		if (isset($desc['null'])) {
+			$options = array(NULL => "---") + $options;
+		}
+		//Debug::debug_args($options, $desc['options']);
+		return $options;
 	}
 
 }
