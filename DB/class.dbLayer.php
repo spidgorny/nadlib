@@ -487,36 +487,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $lv;
 	}
 
-	/**
-	 * Check why this override is necessary.
-	 * Probably it is not.
-	 * @param $table
-	 * @param array $fields
-	 * @param array $where
-	 * @param array $createPlus
-	 * @return null
-	 * @throws Exception
-	 */
-	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
-		TaylorProfiler::start(__METHOD__);
-		$this->transaction();
-		$res = $this->runSelectQuery($table, $where);
-		$this->found = $this->fetchAssoc($res);
-		if ($this->found) {
-			$query = $this->getUpdateQuery($table, $fields, $where);
-			$this->perform($query);
-			$inserted = $this->found['id'];
-		} else {
-			$query = $this->getInsertQuery($table, $fields + $createPlus);
-			$res = $this->perform($query);
-			$inserted = $this->getLastInsertID($res, $table);
-			//$inserted = $this->lastval(); should not be used directly
-		}
-		$this->commit();
-		TaylorProfiler::stop(__METHOD__);
-		return $inserted;
-	}
-
 	function getComment($table, $column) {
 		$query = 'select
      a.attname  as "colname"
