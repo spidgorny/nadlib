@@ -385,17 +385,18 @@ class SQLBuilder {
 		TaylorProfiler::start(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
+		$this->found = $this->fetchAssoc($res);
 		if ($this->db->numRows($res)) {
 			$query = $this->getUpdateQuery($table, $fields, $where);
-			$inserted = 2;
+			$this->perform($query);
+			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $where + $insert);
 			// array('ctime' => NULL) #TODO: make it manually now
-			$inserted = TRUE;
+			$res = $this->perform($query);
+			$inserted = $this->db->lastInsertID($res, $table);
 		}
 		//debug($query);
-		$this->found = $this->db->fetchAssoc($res);
-		$this->db->perform($query);
 		$this->db->commit();
 		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
