@@ -119,21 +119,23 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
     function performWithParams($query, $params) {
-		$prof = new Profiler();
-		$this->lastQuery = $query;
-		$this->LAST_PERFORM_RESULT = pg_query_params($this->CONNECTION, $query, $params);
-		if (!$this->LAST_PERFORM_RESULT) {
-			debug($query);
-			debug_pre_print_backtrace();
-			throw new Exception(pg_errormessage($this->CONNECTION));
-		} else {
-			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed());
-			}
-		}
-		$this->queryCount++;
-		return $this->LAST_PERFORM_RESULT;
+	    $prof = new Profiler();
+	    $this->lastQuery = $query;
+	    $this->LAST_PERFORM_RESULT = pg_query_params($this->CONNECTION, $query, $params);
+	    if (!$this->LAST_PERFORM_RESULT) {
+		    debug($query);
+		    debug_pre_print_backtrace();
+		    throw new Exception(pg_errormessage($this->CONNECTION));
+	    } else {
+		    $this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+		    if ($this->queryLog) {
+			    $this->queryLog->log($query, $prof->elapsed());
+		    }
+	    }
+	    $this->queryCount++;
+	    return $this->LAST_PERFORM_RESULT;
+    }
+
 	/**
 	 * Return one dimensional array
 	 * @param $table
@@ -206,7 +208,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 
 	function getTableDataEx($table, $where = "", $what = "*") {
 		$query = "select ".$what." from $table";
-		if (!empty($where)) $query .= " where $where";
+		if (!empty($where)) {
+			$query .= " where $where";
+		}
 		$result = $this->fetchAll($query);
 		return $result;
 	}
@@ -398,6 +402,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		}
 
 		return $res;
+	}
+
 	/**
 	 * @param result/query $result
 	 * @return array

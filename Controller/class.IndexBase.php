@@ -218,6 +218,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
+	function s($content) {
+		return $this->mergeStringArrayRecursive($content);
+	}
+
 	/**
 	 * @param string|string[] $render
 	 * @return string
