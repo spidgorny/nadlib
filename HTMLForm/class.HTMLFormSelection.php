@@ -80,7 +80,9 @@ class HTMLFormSelection extends HTMLFormType {
 			if (ifsetor($desc['==='])) {
 				$selected = $default === $value;
 			} else {
-//				debug($value, $default);
+				if ($this->field == 'relcoordinator') {
+					//debug($value, $default);
+				}
 				if ((is_array($default) && in_array($value, $default))
 					|| (!is_array($default) && $default == $value)) {
 					$selected = true;
