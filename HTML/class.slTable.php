@@ -176,7 +176,7 @@ class slTable {
 		$bb = $b[$by];
 
 		// get $aa && $bb
-		$type = ifsetor($this->thes[$by]);
+		$type = isset($this->thes[$by]) ? ifsetor($this->thes[$by]) : NULL;
 		if (is_array($type)) {
 			$type = ifsetor($type['type']);
 		}
@@ -223,16 +223,18 @@ class slTable {
 			$by = ifsetor($_REQUEST['slTable']['sortBy']);
 			$or = ifsetor($_REQUEST['slTable']['sortOrder']);
 			//debug(array($by, $or));
-		} else if (is_array($by)) {
+		} elseif (is_array($by)) {
 			list($by, $or) = $by;
 		}
 
 		// sortBy for th linking and sorting below
 		$this->sortBy = $by;
 		$this->sortOrder = $or;
-		if (!$this->sortBy && $this->thes) {
-			@list($this->sortBy) =  // Undefined offset: 0
-				first($this->thes);
+		if (!$this->sortBy) {
+			$this->generateThes();
+			$old = error_reporting(0);	// undefined offset 0
+			list($this->sortBy) = first($this->thes);
+			error_reporting($old);
 		}
 	}
 

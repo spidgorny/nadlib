@@ -215,6 +215,18 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $result;
 	}
 
+	/**
+	 * @param $table
+	 * @param $column
+	 * @param string $where
+	 * @param null $order
+	 * @param string $key
+	 * @return array
+	 * @throws Exception
+	 * @throws MustBeStringException
+	 * @deprecated
+	 * @see SQLBuilder::getTableOptions
+	 *
 	function getTableOptions($table, $column, $where = "", $order = NULL, $key = 'id') {
 		$tableName = $this->getFirstWord($table);
 		if (is_array($where) && $where) {
@@ -240,6 +252,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		}
 		return $b;
 	}
+	/**/
 
 	/**
 	 * fetchAll() equivalent with $key and $val properties
@@ -481,36 +494,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$row = $this->fetchAssoc($res);
 		$lv = $row['lastval'];
 		return $lv;
-	}
-
-	/**
-	 * Check why this override is necessary.
-	 * Probably it is not.
-	 * @param $table
-	 * @param array $fields
-	 * @param array $where
-	 * @param array $createPlus
-	 * @return null
-	 * @throws Exception
-	 */
-	function runInsertUpdateQuery($table, $fields, $where, $createPlus = array()) {
-		TaylorProfiler::start(__METHOD__);
-		$this->transaction();
-		$res = $this->runSelectQuery($table, $where);
-		$this->found = $this->fetchAssoc($res);
-		if ($this->found) {
-			$query = $this->getUpdateQuery($table, $fields, $where);
-			$this->perform($query);
-			$inserted = $this->found['id'];
-		} else {
-			$query = $this->getInsertQuery($table, $fields + $createPlus);
-			$res = $this->perform($query);
-			$inserted = $this->getLastInsertID($res, $table);
-			//$inserted = $this->lastval(); should not be used directly
-		}
-		$this->commit();
-		TaylorProfiler::stop(__METHOD__);
-		return $inserted;
 	}
 
 	function getComment($table, $column) {
