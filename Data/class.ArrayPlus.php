@@ -354,6 +354,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		foreach ($this->getData() as $key => $_) {
 			$this[$key]['__key__'] = $key;
 		}
+		return $this;
 	}
 
 	/**
@@ -367,6 +368,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 			$new[$key] = $row;
 		}
 		$this->setData($new);
+		return $this;
 	}
 
 	function transpose() {
