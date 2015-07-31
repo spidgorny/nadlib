@@ -1,6 +1,6 @@
 <?php
 
-class SQLQuery extends PHPSQLParser\PHPSQLParser {
+class SQLQuery extends \PHPSQL\Parser {
 
 	public $parsed;
 
@@ -9,7 +9,7 @@ class SQLQuery extends PHPSQLParser\PHPSQLParser {
 	}
 
 	function __toString() {
-		$psc = new \PHPSQLParser\PHPSQLCreator($this->parsed);
+		$psc = new \PHPSQL\Creator($this->parsed);
 		return $psc->created.'';
 	}
 
