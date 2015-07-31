@@ -192,7 +192,10 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			TaylorProfiler::start(__METHOD__);
-			Index::getInstance()->log(get_called_class().'::'.__FUNCTION__.'('.$this->id.')', $data);
+			if (class_exists('Index')) {
+				$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
+				Index::getInstance()->log($action, $data);
+			}
 			$where = array();
 			if (is_array($this->idField)) {
 				foreach ($this->idField as $field) {
@@ -229,7 +232,9 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $where);
+		if (class_exists('Index')) {
+			Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $where);
+		}
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		$this->lastQuery = $query;
 		return $this->db->perform($query);
