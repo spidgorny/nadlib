@@ -387,7 +387,7 @@ class Menu /*extends Controller*/ {
 
 			if ($path && $this->useControllerSlug) {
 				if ($this->recursive) {
-					$link = $this->basePath . '/' . implode('/', $path);
+					$link = cap($this->basePath) . implode('/', $path);
 				} else {
 					$link = $this->basePath;
 					$link->replaceController($path);
