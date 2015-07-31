@@ -214,11 +214,12 @@ abstract class Controller {
 		$static = get_called_class();
 		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
 		$isset = isset(self::$instance[$static]);
+		//debug(array_keys(self::$instance), $static, $isset);
 		if ($isset) {
 			$result = self::$instance[$static];
 		} else {
 			$index = Index::getInstance();
-			if ($index->controller) {
+			if ($index->controller instanceof $static) {
 				$result = $index->getController();
 			} else {
 				$result = new $static;
