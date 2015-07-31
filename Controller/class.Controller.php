@@ -117,7 +117,7 @@ abstract class Controller {
 	 * @protected
 	 * @use getURL()
 	 */
-	protected function makeURL($params, $prefix = NULL) {
+	protected function makeURL(array $params, $prefix = NULL) {
 		// shortcut for link to a controller
 		if (!is_array($params) && !$prefix) {
 			$class = $params;
