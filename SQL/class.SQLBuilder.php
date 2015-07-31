@@ -400,17 +400,18 @@ class SQLBuilder {
 		TaylorProfiler::start(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
+		$this->found = $this->fetchAssoc($res);
 		if ($this->db->numRows($res)) {
 			$query = $this->getUpdateQuery($table, $fields, $where);
-			$inserted = 2;
+			$this->perform($query);
+			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $where + $insert);
 			// array('ctime' => NULL) #TODO: make it manually now
-			$inserted = TRUE;
+			$res = $this->perform($query);
+			$inserted = $this->db->lastInsertID($res, $table);
 		}
 		//debug($query);
-		$this->found = $this->db->fetchAssoc($res);
-		$this->db->perform($query);
 		$this->db->commit();
 		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
@@ -551,18 +552,11 @@ class SQLBuilder {
 		return call_user_func_array(array($this->getDB(), $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL) {
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id') {
 		$res = $this->runSelectQuery($table, $where, $order,
-			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
-			($idField
-				? $table.'*, '.$this->quoteKey($idField).' AS id_field'
-				: ''));
-		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
-		if ($idField) {
-			$data = $this->fetchAll($res, 'id_field');
-		} else {
-			$data = $this->fetchAll($res, 'title');
-		}
+			'DISTINCT   '.$table.'.'.$this->quoteKey($titleField).' AS title, '.
+			$table.'.*, '.$table.'.'.$this->quoteKey($idField).' AS id_field');
+		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
 		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
 		//d($keys, $values);
@@ -571,6 +565,7 @@ class SQLBuilder {
 		} else {
 			$options = array();
 		}
+		//debug($this->db->lastQuery, @$this->db->numRows($res), $titleField, $idField, $data, $options);
 		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
 	}

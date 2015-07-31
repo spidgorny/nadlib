@@ -184,8 +184,10 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	 * @param string $what
 	 * @param bool $whatExclusive
 	 * @return array
+	 * @deprecated
 	 */
 	function fetchSelectQuery($table, $where = array(), $orderBy = '', $what = '', $whatExclusive = false) {
+		die(__METHOD__);
 		$result = $this->runSelectQuery($table, $where, $orderBy, $what, $whatExclusive);
 /*		if ($this->numRows($result)) {
 			$row = $this->fetchAssoc($result);

@@ -182,8 +182,7 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "select":
 				case "selection":
-					$options = $this->fetchSelectionOptions($desc);
-					$this->selection($fieldName, $options,
+					$this->selection($fieldName, NULL,
 						ifsetor($fieldValue, ifsetor($desc['default'])),
 						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
 						array(),    // more
@@ -691,35 +690,6 @@ class HTMLFormTable extends HTMLForm {
 				$this->hidden($key, $val);
 			}
 		}
-	}
-
-	/**
-	 * Retrieves data from DB
-	 * Provide either 'options' assoc array
-	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
-	 * @param array $desc
-	 * @return array
-	 */
-	static function fetchSelectionOptions(array $desc) {
-		if (ifsetor($desc['from']) && $desc['title']) {
-			$options = Config::getInstance()->getDB()->getTableOptions($desc['from'],
-				$desc['title'],
-				isset($desc['where']) 	? $desc['where'] : array(),
-				isset($desc['order']) 	? $desc['order'] : '',
-				isset($desc['idField']) ? $desc['idField'] : 'id'
-				//$desc['noDeleted']
-			);
-		} else {
-			$options = array();
-		}
-		if (isset($desc['options'])) {
-			$options += $desc['options'];
-		}
-		if (isset($desc['null'])) {
-			$options = array(NULL => "---") + $options;
-		}
-		//Debug::debug_args($options, $desc['options']);
-		return $options;
 	}
 
 	function validate() {
