@@ -69,9 +69,12 @@ class URL {
 				//debug(substr($request->getLocation(), 0, -1).$url);
 				$callStack = debug_backtrace();
 				foreach ($callStack as &$call) {
-					$call = $call['class'].$call['type'].$call['function'];
+					$call = $call['class'] . $call['type'] . $call['function'];
 				}
-				print_r($callStack); ob_end_flush();
+				if ($_COOKIE['d']) {
+					print_r($callStack);
+					ob_end_flush();
+				}
 				// prevent infinite loop
 				if (!in_array('Request::getLocation', $callStack) &&
 					!in_array('Request->getLocation', $callStack)
@@ -733,6 +736,18 @@ class URL {
 		foreach ($queryString as $pair) {
 			$this->setParam($pair->name, $pair->value);
 		}
+	}
+
+	public function replaceController($newController) {
+		if (is_array($newController)) {
+			$newController = implode('/', $newController);
+		}
+		$path = $this->getPath();
+		$diff = str_replace($this->documentRoot, '', $path);
+		//debug($path, $this->documentRoot, $diff);
+		$path = str_replace($diff, $newController, $path);
+		$this->setPath($path);
+		return $this;
 	}
 
 }
