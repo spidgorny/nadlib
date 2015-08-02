@@ -32,8 +32,7 @@ if (!function_exists('debug')) {
 if (!function_exists('nodebug')) {
 
 	/**
-	 * @param $a,...
-	 * @param $a,...
+	 * @param ...$a
 	 */
 	function nodebug($a) {
 	}
@@ -42,6 +41,10 @@ if (!function_exists('nodebug')) {
 		$params = func_get_args();
 		$debug = Debug::getInstance();
 		$content = $debug::printStyles();
+		if ($params[1] == Debug::LEVELS) {
+			$levels = $params[2];
+			$params[1] = $levels;
+		}
 		$content .= call_user_func_array(array($debug, 'view_array'), $params);
 		return $content;
 	}
