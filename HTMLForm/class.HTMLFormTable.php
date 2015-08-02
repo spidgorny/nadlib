@@ -97,7 +97,8 @@ class HTMLFormTable extends HTMLForm {
 	function importValues(Request $form) {
 		//$this->desc = $this->fillValues($this->desc, $form);
 		foreach ($this->desc as $key => &$desc) {
-			$type = ifsetor($desc['type']);
+			// can be HTMLFormTable (@see HTMLFormValidate)
+			$type = is_array($desc) ? ifsetor($desc['type']) : get_class($desc);
 			if ($desc instanceof HTMLFormTable) {
 				$prefix_1 = $desc->prefix;
 				array_shift($prefix_1);

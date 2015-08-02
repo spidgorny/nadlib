@@ -247,17 +247,13 @@ abstract class Controller {
 		$reflector = new ReflectionClass(get_class($this));
 		$classDir = dirname($reflector->getFileName());
 		if (file_exists('template/'.$filePHTML)) {
-			$view = new View($filePHTML, $this);
-			$content = $view->render();
+			$content = new View($filePHTML, $this);
 		} elseif (file_exists('template/'.$fileMD)) {
-			$view = new MarkdownView($fileMD, $this);
-			$content = $view->render();
+			$content = new MarkdownView($fileMD, $this);
 		} elseif (file_exists($classDir.'/'.$filePHTML)) {
-			$view = new View($classDir.'/'.$filePHTML, $this);
-			$content = $view->render();
+			$content = new View($classDir.'/'.$filePHTML, $this);
 		} elseif (file_exists($classDir.'/'.$fileMD)) {
-			$view = new MarkdownView($classDir.'/'.$fileMD, $this);
-			$content = $view->render();
+			$content = new MarkdownView($classDir.'/'.$fileMD, $this);
 		} else {
 			$content = '';
 		}
