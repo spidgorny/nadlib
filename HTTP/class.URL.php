@@ -69,9 +69,9 @@ class URL {
 				//debug(substr($request->getLocation(), 0, -1).$url);
 				$callStack = debug_backtrace();
 				foreach ($callStack as &$call) {
-					$call = $call['class'] . $call['type'] . $call['function'];
+					$call = ifsetor($call['class']) . ifsetor($call['type']) . $call['function'];
 				}
-				if ($_COOKIE['d']) {
+				if (ifsetor($_COOKIE['d'])) {
 					print_r($callStack);
 					ob_end_flush();
 				}
