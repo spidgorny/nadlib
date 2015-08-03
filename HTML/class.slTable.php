@@ -725,6 +725,13 @@ class slTable {
 		$this->generateThes();
 		$widthMax = array();
 		$widthAvg = array();
+		// thes should fit into a columns as well
+		foreach ($this->thes as $field => $name) {
+			$widthMax[$field] = is_array($name)
+				? mb_strlen($name['name'])
+				: (mb_strlen($name) ?: mb_strlen($field));
+		}
+		//print_r($widthMax);
 		foreach ($this->data as $row) {
 			foreach ($this->thes as $field => $name) {
 				$value = $row[$field];
@@ -743,8 +750,12 @@ class slTable {
 				$widthMax[$field] = max(8, 1+$avgLen);
 			}
 		}
+		//print_r($widthMax);
 
-		$dataWithHeader = array_merge(array($this->getThesNames()), $this->data, array($this->footer));
+		$dataWithHeader = array_merge(
+			array($this->getThesNames()),
+			$this->data,
+			array($this->footer));
 
 		$content = "\n";
 		foreach ($dataWithHeader as $row) {
