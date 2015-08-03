@@ -60,7 +60,7 @@ class FlexiTable extends OODBase {
 			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		}
 		$user = Config::getInstance()->getUser();
-		if (!ifsetor($row['muser']) && $user->id) {
+		if (!ifsetor($row['muser']) && is_object($user) && $user->id) {
 			$row['muser'] = $user->id;
 		}
 		if ($this->doCheck) {

@@ -62,7 +62,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	function column_coalesce($col1, $col2) {
 		$return = array();
 		foreach ((array)$this as $key => $row) {
-			$return[$key] = $row[$col1] ? $row[$col1] : $row[$col2];
+			$return[$key] = ifsetor($row[$col1]) ? $row[$col1] : $row[$col2];
 		}
 		return $return;
 	}
