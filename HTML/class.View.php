@@ -31,6 +31,12 @@ class View {
 	 */
 	public $index;
 
+	/**
+	 * Store something here and then @use $this->data('asd') to access it with escaping
+	 * @var array
+	 */
+	public $data = array();
+
 	function __construct($file, $copyObject = NULL) {
 		TaylorProfiler::start(__METHOD__.' ('.$file.')');
 		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
