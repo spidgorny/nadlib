@@ -66,8 +66,23 @@ class Syndicator {
 			$this->url = $url;
 			$this->isCaching = $caching;
 			$this->recodeUTF8 = $recodeUTF8;
+			$this->detectProxy();
 		}
 		TaylorProfiler::stop(__METHOD__);
+	}
+
+	function detectProxy() {
+		$proxy = NULL;
+		if (startsWith($this->url, 'https')) {
+			$proxy = getenv('https_proxy');
+			$proxy = $proxy ?: getenv('http_proxy');
+		} elseif (startsWith($this->url, 'http')) {
+			$proxy = getenv('http_proxy');
+		}
+		if ($proxy) {
+			$this->useProxy = new Proxy();
+			$this->useProxy->setProxy($proxy);
+		}
 	}
 
 	/**
@@ -107,9 +122,9 @@ class Syndicator {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'JSON';
 		$s->html = $s->retrieveFile();
-		Index::getInstance()->controller->log('Downloaded', __METHOD__);
+		$s->log(__METHOD__, 'Downloaded');
 		$s->json = json_decode($s->html);
-		Index::getInstance()->controller->log('JSON decoded', __METHOD__);
+		$s->log(__METHOD__, 'JSON decoded');
 		return $s;
 	}
 
@@ -120,9 +135,9 @@ class Syndicator {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$this->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
+				$this->log(__METHOD__, '<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html));
 			} else {
-				$this->log('No cache. Download File.');
+				$this->log(__METHOD__, 'No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
 				if (is_callable($this->validateDownload)) {
 					$ok = call_user_func($this->validateDownload, $html);
@@ -152,7 +167,7 @@ class Syndicator {
 	function proxyOK() {
 		if ($this->useProxy && $this->useProxy instanceof Proxy) {
 			$c = Controller::getInstance();
-			$c->log('Using proxy: '.$this->useProxy.': OK', __CLASS__);
+			$c->log(__METHOD__, 'Using proxy: '.$this->useProxy.': OK');
 			$this->useProxy->ok();
 		}
 	}
@@ -160,16 +175,16 @@ class Syndicator {
 	function proxyFail() {
 		if ($this->useProxy && $this->useProxy instanceof Proxy) {
 			$c = Controller::getInstance();
-			$c->log('Using proxy: '.$this->useProxy.': OK', __CLASS__);
+			$c->log(__METHOD__, 'Using proxy: '.$this->useProxy.': OK');
 			$this->useProxy->fail();
 		}
 	}
 
-	function log($msg) {
+	function log($method, $msg) {
 		$this->log[] = $msg;
 		if (class_exists('Index')) {
 			$c = Index::getInstance()->controller;
-			$c->log($msg);
+			$c->log($method, $msg);
 		} else {
 			echo $msg.BR;
 		}
@@ -177,7 +192,7 @@ class Syndicator {
 
 	function downloadFile($href, $retries = 1) {
 		if (startsWith($href, 'http')) {
-			$ug = new URLGet($href);
+			$ug = new URLGet($href, $this);
 			$ug->timeout = 10;
 			$ug->fetch($this->useProxy, $retries);
 			return $ug->getContent();
@@ -332,33 +347,18 @@ class Syndicator {
 
 	function getXML($recode) {
 		TaylorProfiler::start(__METHOD__);
-		try {
-			if ($recode{0} == '<') {
-				$xml = new SimpleXMLElement($recode);
-				//$xml['xmlns'] = '';
-				$namespaces = $xml->getNamespaces(true);
-				//debug($namespaces, 'Namespaces');
-				//Register them with their prefixes
-				foreach ($namespaces as $prefix => $ns) {
-					$xml->registerXPathNamespace('default', $ns);
-					break;
-				}
-			} else {
-				$xml = new SimpleXMLElement('');
+		if (strlen($recode) && $recode{0} == '<') {
+			$xml = new SimpleXMLElement($recode);
+			//$xml['xmlns'] = '';
+			$namespaces = $xml->getNamespaces(true);
+			//debug($namespaces, 'Namespaces');
+			//Register them with their prefixes
+			foreach ($namespaces as $prefix => $ns) {
+				$xml->registerXPathNamespace('default', $ns);
+				break;
 			}
-		} catch (Exception $e) {
-			//debug($recode);
-//			$qb = new SQLBuilder();
-/*			$query = $qb->getInsertQuery('error_log', array(
-				'type' => 'Parse XML',
-				'method' => __METHOD__,
-				'line' => __LINE__,
-				'exception' => $e,
-				//'trace' => substr(print_r(debug_backtrace(), TRUE), 0, 1024*8),
-			));
-			debug($e, 'getXML');
-			$db->perform($query);
-*/
+		} else {
+			$xml = NULL;
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $xml;
@@ -366,6 +366,7 @@ class Syndicator {
 
 	function getElements($xpath) {
 		TaylorProfiler::start(__METHOD__);
+		$target = NULL;
 		if ($this->xml) {
 			//debug($this->xml);
 			$this->xpath = $xpath;
@@ -377,11 +378,12 @@ class Syndicator {
 
 	/**
 	 *
-	 * @param type $xpath
-	 * @return simple_xml_element
+	 * @param string $xpath
+	 * @return SimpleXMLElement
 	 */
 	function getElement($xpath) {
 		TaylorProfiler::start(__METHOD__);
+		$first = NULL;
 		$res = $this->getElements($xpath);
 		if ($res) {
 			reset($res);
@@ -394,8 +396,8 @@ class Syndicator {
 	/**
 	 * No XPATH
 	 *
-	 * @param unknown_type $xml
-	 * @return unknown
+	 * @param string $xml
+	 * @return SimpleXMLElement
 	 */
 	function getSXML($xml) {
 		$xml_parser = new sxml();
@@ -459,6 +461,19 @@ class Syndicator {
 		$xpath = CssSelector::toXPath($selector);
 		//debug($xpath);
 		return $this->getElements($xpath);
+	}
+
+	public function get($string) {
+		$elements = $this->getElements($string);
+		foreach ($elements as &$e) {
+			$e = trim($e);
+		}
+		$elements = array_filter($elements);
+		if (sizeof($elements) == 1) {
+			return $elements[0];
+		} else {
+			return $elements;
+		}
 	}
 
 }
