@@ -13,13 +13,15 @@ class Lesser extends AppController {
 	public static $public = true;
 
 	function __construct() {
-		if (!$_REQUEST['d']) {
+		if (!ifsetor($_REQUEST['d'])) {
 			unset($_COOKIE['debug']);
+		} else {
+			$_COOKIE['debug'] = 1;
 		}
 		parent::__construct();
 		$this->output = Path::make(AutoLoad::getInstance()->appRoot)->appendString($this->output);
 		$cacheDir = dirname($this->output);
-		nodebug(array(
+		debug(array(
 			'lessc' => class_exists('lessc'),
 			'appRoot' => AutoLoad::getInstance()->appRoot,
 			'output' => $this->output,
@@ -39,6 +41,7 @@ class Lesser extends AppController {
 	}
 
 	function render() {
+		session_write_close();
 		//$less->importDir[] = '../../';
 		$cssFile = $this->request->getFilePathName('css');
 		if (!$cssFile) {
@@ -66,7 +69,7 @@ class Lesser extends AppController {
 			require_once 'vendor/oyejorge/less.php/lessc.inc.php';
 			$less = new lessc();
 			if (is_writable($this->output)) {
-				if ($this->request->isRefresh()) {
+				if ($this->request->isCtrlRefresh()) {
 					$less->compileFile($cssFile, $this->output);
 				} else {
 					$less->checkedCompile($cssFile, $this->output);

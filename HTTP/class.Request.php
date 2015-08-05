@@ -869,6 +869,11 @@ class Request {
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
+	function isCtrlRefresh() {
+		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
+			$_SERVER['HTTP_CACHE_CONTROL'] === 'no-cache';
+	}
+
 	public function getIntArray($name) {
 		$array = $this->getArray($name);
 		$array = array_map('intval', $array);
