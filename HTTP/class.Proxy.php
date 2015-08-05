@@ -19,10 +19,13 @@ class Proxy extends OODBase {
 	function __construct($row = NULL) {
 		parent::__construct($row);
 		$this->db = Config::getInstance()->getDB();
-		$this->ratio = $this->data['ok']/max(1, $this->data['fail']);
+		if ($this->data) {
+			$this->ratio = $this->data['ok'] / max(1, $this->data['fail']);
+		}
 	}
 
 	static function getRandomOrBest($percentRandom = 50) {
+		$proxy = NULL;
 		$db = Config::getInstance()->getDB();
 		/** @var AppController $c */
 		$c = Index::getInstance()->controller;
@@ -31,9 +34,9 @@ class Proxy extends OODBase {
 				'ORDER BY rand() LIMIT 1');
 			if ($row[0]) {
 				$proxy = new Proxy($row[0]);
-				$c->log('Random proxy: '.$proxy.' (ratio: '.$proxy->ratio.')', __METHOD__, 0);
+				$c->log(__METHOD__, 'Random proxy: '.$proxy.' (ratio: '.$proxy->ratio.')');
 			} else {
-				$c->log('No proxy', __METHOD__);
+				$c->log(__METHOD__, 'No proxy');
 			}
 		} else {
 			$best = self::getBest();
@@ -42,6 +45,10 @@ class Proxy extends OODBase {
 			$c->log('Best proxy ('.$idx.'): '.$proxy.' (ratio: '.$proxy->ratio.')', __METHOD__);
 		}
 		return $proxy;
+	}
+
+	function setProxy($proxy) {
+		$this->data['proxy'] = $proxy;
 	}
 
 	function __toString() {
@@ -88,11 +95,15 @@ class Proxy extends OODBase {
 	}
 
 	function fail() {
-		$this->update(array('fail' => $this->data['fail']+1));
+		if ($this->id) {
+			$this->update(array('fail' => $this->data['fail'] + 1));
+		}
 	}
 
 	function ok() {
-		$this->update(array('ok' => $this->data['ok']+1));
+		if ($this->id) {
+			$this->update(array('ok' => $this->data['ok'] + 1));
+		}
 	}
 
 }
