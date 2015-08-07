@@ -571,7 +571,7 @@ abstract class OODBase {
 	 * @return static
 	 * @throws Exception
 	 */
-	static function createRecord($insert, $class = NULL) {
+	static function createRecord(array $insert, $class = NULL) {
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
