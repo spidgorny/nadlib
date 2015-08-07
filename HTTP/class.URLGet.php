@@ -42,10 +42,11 @@ class URLGet {
 	/**
 	 *
 	 * @param string $url
+	 * @param $logger object with method log()
 	 */
-	public function __construct($url) {
+	public function __construct($url, $logger) {
 		$this->url = $url;
-		$this->logger = Index::getInstance();
+		$this->logger = $logger;
 		$this->context = array(
 			'http' => array(
 				'timeout' => $this->timeout,
@@ -78,7 +79,7 @@ class URLGet {
 						if (!($this->proxy instanceof Proxy)) {
 							$this->proxy = Proxy::getRandomOrBest();
 						}
-						$curlParams[CURLOPT_PROXY] = $this->proxy;
+						$curlParams[CURLOPT_PROXY] = $this->proxy.'';
 					} else {
 						$this->logger->log(__METHOD__, 'No Proxy');
 					}
@@ -88,14 +89,14 @@ class URLGet {
 					$html = $this->fetchFOpen();
 				}
 			} catch (Exception $e) {
-				$this->logger->log($e->getMessage(), __METHOD__);
+				$this->logger->log(__METHOD__, $e->getMessage());
 			}
 			if ($html) {
 				$this->logger->log(__METHOD__, 'Download successful. Data size: '.strlen($html).' bytes');
 				break;
 			}
 		}
-		$this->logger->log($this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)', __METHOD__);
+		$this->logger->log(__METHOD__, $this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)');
 		$this->html = $html;
 	}
 
@@ -110,7 +111,7 @@ class URLGet {
 	}
 
 	public function fetchCURL(array $options = array()) {
-		$this->logger->log($this->url, __METHOD__);
+		$this->logger->log(__METHOD__, $this->url);
 		$process = curl_init($this->url);
 		$headers = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		$headers = trimExplode("\r\n", $headers);
