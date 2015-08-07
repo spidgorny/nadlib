@@ -262,7 +262,7 @@ abstract class Controller {
 	}
 
 	function __toString() {
-		return $this->render().'';
+		return $this->s($this->render());
 	}
 
 	function encloseIn($title, $content) {

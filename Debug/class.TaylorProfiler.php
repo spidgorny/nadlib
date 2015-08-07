@@ -43,6 +43,11 @@ class TaylorProfiler {
 	static $instance;
 
 	/**
+	 * @var string "html" or "" for X-Tick header
+	 */
+	public $tickTo;
+
+	/**
     * Initialise the timer. with the current micro time
     */
     function TaylorProfiler( $output_enabled=false, $trace_enabled=false) {
@@ -216,6 +221,7 @@ class TaylorProfiler {
 
             uasort($together, array($this, 'sort'));
 
+			$table = array();
 			$i = 0;
 			foreach ($together as $key => $row) {
 			    $desc = $row['desc'];
@@ -526,7 +532,7 @@ class TaylorProfiler {
 		declare(ticks=1000);
 	}
 
-	static function tick() {
+	function tick() {
 		static $prev = 0;
 		$bt = debug_backtrace();
 		$list = array();

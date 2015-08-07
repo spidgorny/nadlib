@@ -41,8 +41,8 @@ if (!function_exists('nodebug')) {
 		$params = func_get_args();
 		$debug = Debug::getInstance();
 		$content = $debug::printStyles();
-		if ($params[1] == Debug::LEVELS) {
-			$levels = $params[2];
+		if (ifsetor($params[1]) == Debug::LEVELS) {
+			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
 		$content .= call_user_func_array(array($debug, 'view_array'), $params);

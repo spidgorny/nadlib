@@ -98,7 +98,7 @@ abstract class UserBase extends FlexiTable {
 	}
 
 	function getPref($key) {
-		return $this->prefs[$key];
+		return ifsetor($this->prefs[$key]);
 	}
 
 	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {
