@@ -347,7 +347,7 @@ class HTMLFormTable extends HTMLForm {
 				}
 
 				$tmp = $this->stdout;
-				$elementID = $this->switchType($fieldName, $fieldValue, $desc);
+				$elementID = $this->switchType($fieldName, $fieldValue, $desc);	//			<<== HERE contente generated
 				$newContent = substr($this->stdout, strlen($tmp));
 				$this->stdout = $tmp;
 
@@ -367,8 +367,10 @@ class HTMLFormTable extends HTMLForm {
 				}
 
 				$this->stdout .= (isset($desc['prepend']) ? $desc['prepend'] : '')
-					.$newContent.
+					.$newContent.												//			<<== USED content here
 					(isset($desc['append']) ? $desc['append'] : '');
+
+				$this->stdout .= ifsetor($desc['afterLabel']);
 
 				if (ifsetor($desc['cursor'])) {
 					$this->stdout .= "<script>
