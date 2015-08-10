@@ -469,11 +469,16 @@ class HTMLForm {
 	 */
 	function radioset($name, $value, array $desc) {
 		$between = ifsetor($desc['between'], '<br />');
+		$keys = array_keys($desc['options']);
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
-			// if you need to compare intvals, do it separately
+			// if you need to compare intval's, do it separately
+			$this->stdout .= $desc['beforeItem'];
 			$this->radioLabel($name, $key, $value == $key, $val, ifsetor($desc['more']));
-			$this->text($between);
+			$this->stdout .= $desc['afterItem'];
+			if ($key != end($keys)) {
+				$this->text($between);
+			}
 		}
 	}
 
