@@ -345,15 +345,18 @@ class Menu /*extends Controller*/ {
 			//debug($parts, $class);
 			if (end($parts) == $class) {
 				$ret = true;
+			} else {
+				$ret = NULL;
 			}
 		} elseif ($subMenu) {
 			$combined = implode('/', $subMenu).'/'.$class;
 			$ret = ($this->current == $class)
 				|| ($combined == $this->current);
-            if($level > 0 && !$ret) {
+            if ($level > 0 && !$ret) {
                 $ret = ($subMenu[($level -1)] == $this->current && $class == $this->current);
+            } else {
+	            $ret = NULL;
             }
-
 		} else {
 			$ret = $this->current == $class;
 		}
@@ -386,7 +389,7 @@ class Menu /*extends Controller*/ {
 			}
 
 			if ($path && $this->useControllerSlug) {
-				if ($this->recursive) {
+				if ($this->useRecursiveURL) {
 					$link = cap($this->basePath) . implode('/', $path);
 				} else {
 					$link = $this->basePath;

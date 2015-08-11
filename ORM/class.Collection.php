@@ -966,4 +966,8 @@ class Collection implements IteratorAggregate {
 		return new ArrayPlus($this->objectify());
 	}
 
+	function get($id) {
+		return $this->objectify()[$id];
+	}
+
 }
