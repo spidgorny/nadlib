@@ -92,8 +92,8 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	/**
 	 * Callback = function ($value, [$index]) {}
 	 *
-	 * @param unknown_type $callback
-	 * @return unknown
+	 * @param callable $callback
+	 * @return static
 	 */
 	function each($callback) {
 		foreach ($this->data as $i => &$el) {
@@ -106,10 +106,11 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	/**
 	 * Callback = function ($value, [$index]) {}
 	 *
-	 * @param unknown_type $callback
-	 * @return unknown
+	 * @param callable $callback
+	 * @return string
 	 */
 	function eachCollect($callback) {
+		$content = '';
 		foreach ($this->data as $i => $el) {
 			$plus = $callback($el, $i);
 			$content .= $plus;
@@ -173,25 +174,4 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 function AP(array $a = array()) {
 	return ArrayPlus::create($a);
-}
-
-class ArrayPlusReference extends ArrayPlus {
-
-	function __construct(array &$a = array()) {
-		$this->data =& $a;
-	}
-
-    static function create(array &$data = array()) {
-    	$self = new self($data);
-    	return $self;
-    }
-
-	function &getData() {
-		return $this->data;
-	}
-
-}
-
-function APR(array &$a = array()) {
-	return ArrayPlusReference::create($a);
 }
