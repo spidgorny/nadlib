@@ -736,6 +736,14 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $result;
 	}
 
+	public function toStringEach() {
+		$new = array();
+		foreach ($this->getData() as $i => $mixed) {
+			$new[$i] = (string)$mixed;
+		}
+		return $new;
+	}
+
 }
 
 function AP(array $a = array()) {

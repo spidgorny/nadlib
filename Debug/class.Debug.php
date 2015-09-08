@@ -245,7 +245,7 @@ class Debug {
 					<a href="javascript: void(0);" onclick="
 						var a = this.nextSibling.nextSibling;
 						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
-					">Trace: </a>
+					">'.Debug::getBackLog(6, 7, '<br />').'</a>
 					<div style="display: none;">'.$trace.'</div>
 				</div>
 				'.Debug::view_array($a, $levels > 0 ? $levels : 5).'
@@ -381,24 +381,27 @@ class Debug {
 
 	/**
 	 * Returns a string with multiple methods chain
-	 * @param int $limit
+	 * @param int    $limit
+	 * @param int    $cut
+	 * @param string $join
 	 * @return string
 	 */
-	static function getBackLog($limit = 5) {
+	static function getBackLog($limit = 5, $cut = 7, $join = ' // ') {
 		$debug = debug_backtrace();
-		array_shift($debug);
+		for ($i = 0; $i < $cut; $i++) {
+			array_shift($debug);
+		}
 		$content = array();
-		$i = $limit;
 		foreach ($debug as $debugLine) {
 			$file = basename(ifsetor($debugLine['file']));
 			$file = str_replace('class.', '', $file);
 			$file = str_replace('.php', '', $file);
 			$content[] = $file.'::'.$debugLine['function'].':'.ifsetor($debugLine['line']);
-			if (!$i--) {
+			if (!--$limit) {
 				break;
 			}
 		}
-		$content = implode(' // ', $content);
+		$content = implode($join, $content);
 		return $content;
 	}
 
