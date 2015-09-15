@@ -22,7 +22,7 @@ class SQLLike extends SQLWherePart {
 	 */
 	public $wrap = '|';
 
-	function __construct($string, $caseInsensitive = false) {
+	function __construct($string, $caseInsensitive = true) {
 		parent::__construct();
         $this->caseInsensitive = $caseInsensitive;
 		$this->string = $string;

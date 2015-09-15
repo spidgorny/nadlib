@@ -136,7 +136,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
 			unset($_SESSION['AutoLoad']);
 			TaylorProfiler::stop(__METHOD__);
-			throw new Exception($exception);
+			throw new Exception404($exception);
 		}
 		TaylorProfiler::stop(__METHOD__);
 	}
