@@ -522,17 +522,13 @@ class Request {
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
+			if (!$docRoot) {
+				$docRoot = self::getDocumentRoot();
+			}
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 		}
 		//pre_print_r($docRoot);
-
-		false && pre_print_r(array(
-			get_class($c),
-			$docRoot . '',
-			$_SERVER['PHP_SELF'],
-			$_SERVER,
-		));
 
 		if (!startsWith($docRoot, '/')) {
 			$docRoot = '/'.$docRoot;
@@ -540,7 +536,15 @@ class Request {
 
 		$host = self::getHost($isUTF8);
 		$url = Request::getRequestType().'://'.$host.$docRoot;
-		//debug($url);
+		false && pre_print_r(array(
+				'c' => get_class($c),
+				'docRoot' => $docRoot . '',
+				'PHP_SELF' => $_SERVER['PHP_SELF'],
+				'cwd' => getcwd(),
+				$_SERVER,
+				'url' => $url,
+		));
+
 		$url = new URL($url);
 		return $url;
 	}
@@ -660,11 +664,10 @@ class Request {
 		return isset($path[$level]) ? $path[$level] : NULL;
 	}
 
-	/**
-	 * @return array
-	 */
-	function getURLLevels() {
-		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
+	function getPathAfterDocRoot() {
+		$config = class_exists('Config')
+				? Config::getInstance()
+				: new stdClass();
 		$al = AutoLoad::getInstance();
 
 		if (!$this->isWindows()) {	// linux
@@ -685,6 +688,14 @@ class Request {
 				$path->remove(clone $config->documentRoot);
 			}
 		}
+		return $path;
+	}
+
+	/**
+	 * @return array
+	 */
+	function getURLLevels() {
+		$path = $this->getPathAfterDocRoot();
 		//$path = $path->getURL();
 		if (strlen($path) > 1) {	// "/"
 			$levels = trimExplode('/', $path);
@@ -695,8 +706,8 @@ class Request {
 			$levels = array();
 		}
 		nodebug(array(
-			'cwd' => $cwd.'',
-			'url' => $url.'',
+			'cwd' => getcwd(),
+			//'url' => $url.'',
 			'path' => $path.'',
 			'getURL()' => $path->getURL().'',
 			'levels' => $levels));

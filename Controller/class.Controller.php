@@ -302,12 +302,13 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInToggle($content, $title, $height = '', $isOpen = NULL, $tag = 'h3') {
+	function encloseInToggle($content, $title, $height = 'auto', $isOpen = NULL, $tag = 'h3') {
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
+			$nadlibPath = AutoLoad::getInstance()->nadlibFromDocRoot;
 			$this->index->addJQuery();
-			$this->index->addJS('nadlib/js/showHide.js');
-			$this->index->addJS('nadlib/js/encloseInToggle.js');
+			$this->index->addJS($nadlibPath.'/js/showHide.js');
+			$this->index->addJS($nadlibPath.'/js/encloseInToggle.js');
 			$id = uniqid();
 
 			$content = '<div class="encloseIn">
