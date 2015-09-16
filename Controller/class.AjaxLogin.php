@@ -404,9 +404,9 @@ class AjaxLogin extends AppController {
 			'href' => get_class($this).'?action=logout',
 			'class' => 'btn btn-default',
 		), __('Logout'));
-		$content = '<form class="navbar-form pull-right">
-			<div class="form-group">'.$a.'</div>
-		</form>';
+		$content = '
+			<div class="navbar-text">'.$a.'</div>
+		';
 		return $content;
 	}
 
