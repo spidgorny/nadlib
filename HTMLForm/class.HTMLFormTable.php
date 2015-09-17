@@ -124,7 +124,9 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function switchType($fieldName, $fieldValue, array $desc) {
+	function switchType($fieldName, $fieldValue, array $descIn) {
+		$desc = new HTMLFormField($descIn);
+
 		if (isset($desc['prefix']) && $desc['prefix']) {
 			$this->text($desc['prefix']);
 		}
@@ -173,13 +175,13 @@ class HTMLFormTable extends HTMLForm {
 				break;
 				case "date":
 					//t3lib_div::debug(array($fieldName, $fieldValue));
-					$this->date($fieldName, $fieldValue, $desc);
+					$this->date($fieldName, $fieldValue, $desc->getArray());
 				break;
 				case "datepopup":
 					$this->datepopup($fieldName, $fieldValue);
 				break;
 				case "money":
-					$this->money($fieldName, $fieldValue, $desc);
+					$this->money($fieldName, $fieldValue, $desc->getArray());
 				break;
 				case "select":
 				case "selection":
@@ -188,13 +190,13 @@ class HTMLFormTable extends HTMLForm {
 						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
 						array(),    // more
 						isset($desc['multiple']) ? $desc['multiple'] : NULL,
-						$desc);
+						$desc->getArray());
 				break;
 				case "file":
-					$this->file($fieldName, $desc);
+					$this->file($fieldName, $desc->getArray());
 				break;
 				case "password":
-					$this->password($fieldName, $fieldValue, $desc);
+					$this->password($fieldName, $fieldValue, $desc->getArray());
 				break;
 				case "check":
 				case "checkbox":
@@ -227,19 +229,19 @@ class HTMLFormTable extends HTMLForm {
 					$this->tree($fieldName, $desc['tree'], $fieldValue);
 				break;
 				case 'popuptree':
-					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc);
+					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc->getArray());
 				break;
 				case 'submit':
 					$desc['name'] = ifsetor($desc['name'], $fieldName);
 					//debug($desc);
-					$this->submit($desc['value'], $desc);
+					$this->submit($desc['value'], $desc->getArray());
 				break;
 				case 'ajaxTreeInput':
 					//debug($this->getName($fieldName, '', TRUE));
-					$this->ajaxTreeInput($fieldName, $desc['value'], $desc);
+					$this->ajaxTreeInput($fieldName, $desc['value'], $desc->getArray());
 				break;
 				case 'captcha':
-					$this->captcha($fieldName, $fieldValue, $desc);
+					$this->captcha($fieldName, $fieldValue, $desc->getArray());
 				break;
 				case 'recaptcha':
 					$this->recaptcha($desc + array('name' => $this->getName($fieldName, '', TRUE)));
@@ -251,25 +253,25 @@ class HTMLFormTable extends HTMLForm {
 					$this->datatable($fieldName, $fieldValue, $desc, FALSE, $doDiv = TRUE, 'htmlftable');
 				break;
 				case 'ajaxSingleChoice':
-					$this->ajaxSingleChoice($fieldName, $fieldValue, $desc);
+					$this->ajaxSingleChoice($fieldName, $fieldValue, $desc->getArray());
 				break;
 				case 'set':
-					$this->set($fieldName, $fieldValue, $desc);
+					$this->set($fieldName, $fieldValue, $desc->getArray());
 				break;
 				case 'checkarray':
 					if (!is_array($fieldValue)) {
-						debug($fieldName, $fieldValue, $desc);
+						debug($fieldName, $fieldValue, $desc->getArray());
 					}
-					$this->checkarray($fieldName, $desc['set'], $fieldValue, $desc);
+					$this->checkarray($fieldName, $desc['set'], $fieldValue, $desc->getArray());
 				break;
 				case 'radioset':
-					$this->radioset($fieldName, $fieldValue, $desc);
+					$this->radioset($fieldName, $fieldValue, $desc->getArray());
 				break;
 				case 'radiolist':
-					$this->radioArray($fieldName, $desc['options'], $fieldValue, $desc);
+					$this->radioArray($fieldName, $desc['options'], $fieldValue, $desc->getArray());
 				break;
 				case 'combo':
-					$this->combo($fieldName, $desc);
+					$this->combo($fieldName, $desc->getArray());
 				break;
 				case 'button':
 					$this->button($desc['innerHTML'], $desc['more'] ?: array());
@@ -311,6 +313,7 @@ class HTMLFormTable extends HTMLForm {
 	//					($desc['cursor'] ? " id='$elementID'" : "") .
 						(isset($desc['readonly']) ? ' readonly="readonly"' : '').
 						(isset($desc['disabled']) ? ' disabled="1"' : '').
+						($desc->isObligatory() ? ' required="1"' : '').
 						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
 						, $type,
 						ifsetor($desc['class'])
@@ -400,8 +403,8 @@ class HTMLFormTable extends HTMLForm {
 			$label = $desc['label'];
 			if (!$withBR) {
 				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
-				if (!ifsetor($desc['optional']) &&
-					!in_array($type, array('check', 'checkbox', 'submit'))) {
+				$desc = new HTMLFormField($desc);
+				if ($desc->isOptional()) {
 					if ($this->noStarUseBold) {
 						$label = '<b title="Obligatory">'.$label.'</b>';
 					} else {
