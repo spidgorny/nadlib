@@ -133,7 +133,8 @@ class HTMLFormSelection extends HTMLFormType {
 				$desc['title'],
 				isset($desc['where']) 	? $desc['where'] : array(),
 				isset($desc['order']) 	? $desc['order'] : '',
-				isset($desc['idField']) ? $desc['idField'] : 'id'
+				isset($desc['idField']) ? $desc['idField'] : 'id',
+				ifsetor($desc['prefix'])
 			//$desc['noDeleted']
 			);
 			//debug($db->lastQuery, $options);

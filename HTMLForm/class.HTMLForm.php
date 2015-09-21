@@ -482,21 +482,20 @@ class HTMLForm {
 		}
 	}
 
-	function jsCal2($fieldName, $fieldValue) {
+	function jsCal2($fieldName, $fieldValue, $location = 'js/JSCal2/') {
 		if (is_string($fieldValue)) {
 			$fieldValue = strtotime($fieldValue);
 		}
-		//$GLOBALS['HTMLHEADER']['JSCal2'] = '
-		$content = '
-		<link rel="stylesheet" type="text/css" href="JSCal2/css/jscal2.css" />
-    <link rel="stylesheet" type="text/css" href="JSCal2/css/border-radius.css" />
-    <link rel="stylesheet" type="text/css" href="JSCal2/css/gold/gold.css" />
-    <script type="text/javascript" src="JSCal2/js/jscal2.js"></script>
-    <script type="text/javascript" src="JSCal2/js/lang/en.js"></script>';
+		$index = Index::getInstance();
+		$index->addCSS($location . "css/jscal2.css");
+		$index->addCSS($location . "css/border-radius.css");
+		$index->addCSS($location . "css/gold/gold.css");
+		$index->addJS($location .  "js/jscal2.js");
+		$index->addJS($location .  "js/lang/en.js");
 		$content .= '<input id="calendar-'.$fieldName.'" name="'.$this->getName($fieldName).'" value="'.
 			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
-		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>
-<script>
+		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>';
+		$index->footer['jsCal2-'.$fieldName] = '<script>
     Calendar.setup({
         trigger    	: "calendar-trigger-'.$fieldName.'",
         inputField 	: "calendar-'.$fieldName.'",
@@ -507,8 +506,7 @@ class HTMLForm {
         date        : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
         onSelect   	: function() { this.hide() }
     });
-</script>
-';
+</script>';
 		return $content;
 	}
 

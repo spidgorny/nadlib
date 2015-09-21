@@ -43,6 +43,11 @@ abstract class Controller {
 	 */
 	public $title;
 
+	/**
+	 * Will be set according to mod_rewrite
+	 * Override in __construct()
+	 * @var bool
+	 */
 	protected $useRouter = false;
 
 	/**
@@ -124,8 +129,7 @@ abstract class Controller {
 		} else {
 			$class = NULL;
 		}
-		if ($this->useRouter
-			&& $this->request->apacheModuleRewrite()) {
+		if ($this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
 			unset($params['c']);    // RealURL
 			if ($class && !$prefix) {
@@ -136,7 +140,8 @@ abstract class Controller {
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		if ($class && $this->request->apacheModuleRewrite()) {
+		//debug($this->useRouter, $class);
+		if ($this->useRouter &&	$class) {
 			$path->setFile($class);
 		}
 		$path->setAsFile();
@@ -302,12 +307,13 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInToggle($content, $title, $height = '', $isOpen = NULL, $tag = 'h3') {
+	function encloseInToggle($content, $title, $height = 'auto', $isOpen = NULL, $tag = 'h3') {
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
+			$nadlibPath = AutoLoad::getInstance()->nadlibFromDocRoot;
 			$this->index->addJQuery();
-			$this->index->addJS('nadlib/js/showHide.js');
-			$this->index->addJS('nadlib/js/encloseInToggle.js');
+			$this->index->addJS($nadlibPath.'/js/showHide.js');
+			$this->index->addJS($nadlibPath.'/js/encloseInToggle.js');
 			$id = uniqid();
 
 			$content = '<div class="encloseIn">

@@ -31,6 +31,8 @@ class SQLSearch {
 	 */
 	protected $db;
 
+	public $idField = 'id';
+
 	function __construct($table, $sword) {
 		//debug(array($table, $sword));
 		$this->table = $table;
@@ -77,13 +79,16 @@ class SQLSearch {
 				//$query .= '( '.$this->getSearchSubquery($word).')';
 				//$query .= ' AS score_'.$i;
 			} else {
+				$tableID = $this->table . '.' . $this->idField;
 				if ($word{0} == '!') {
 					$word = substr($word, 1);
-					$where[] = $this->table.'.id NOT IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
+					$where[] = $tableID .
+							' NOT IN ( '.$this->getSearchSubquery($word, $tableID).') ';
 				} else {
 					//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
 					// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
-					$where[] = $this->table.'.id IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
+					$where[] = $tableID .
+							' IN ( '.$this->getSearchSubquery($word, $tableID).') ';
 				}
 			}
 		}
