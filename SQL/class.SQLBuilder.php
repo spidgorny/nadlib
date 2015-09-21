@@ -552,10 +552,13 @@ class SQLBuilder {
 		return call_user_func_array(array($this->getDB(), $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id') {
-		$res = $this->runSelectQuery($table, $where, $order,
-			'DISTINCT   '.$table.'.'.$this->quoteKey($titleField).' AS title, '.
-			$table.'.*, '.$table.'.'.$this->quoteKey($idField).' AS id_field');
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id', $prefix = NULL) {
+		$prefix = $prefix ?: $table.'.';
+		$query = $this->getSelectQuery($table, $where, $order,
+			'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, '.
+			$prefix.'*, '.$prefix.$this->quoteKey($idField).' AS id_field');
+		//debug('Query', $query);
+		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
 		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
