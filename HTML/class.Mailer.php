@@ -114,7 +114,7 @@ class Mailer {
      * @throws Exception
      * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
      */
-    public static function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
+    public function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
     {
         if (!class_exists('Swift_Mailer')) {
             throw new Exception('SwiftMailer not installed!');
@@ -170,6 +170,7 @@ class Mailer {
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
         $failedRecipients = array();
+
         $sent = $mailer->send($message, $failedRecipients);
 
         return !empty($failedRecipients) ? $failedRecipients : $sent;
