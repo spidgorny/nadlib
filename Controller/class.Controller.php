@@ -43,6 +43,11 @@ abstract class Controller {
 	 */
 	public $title;
 
+	/**
+	 * Will be set according to mod_rewrite
+	 * Override in __construct()
+	 * @var bool
+	 */
 	protected $useRouter = false;
 
 	/**
@@ -124,8 +129,7 @@ abstract class Controller {
 		} else {
 			$class = NULL;
 		}
-		if ($this->useRouter
-			&& $this->request->apacheModuleRewrite()) {
+		if ($this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
 			unset($params['c']);    // RealURL
 			if ($class && !$prefix) {
@@ -136,7 +140,8 @@ abstract class Controller {
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		if ($class && $this->request->apacheModuleRewrite()) {
+		//debug($this->useRouter, $class);
+		if ($this->useRouter &&	$class) {
 			$path->setFile($class);
 		}
 		$path->setAsFile();
