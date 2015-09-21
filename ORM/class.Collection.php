@@ -423,7 +423,10 @@ class Collection implements IteratorAggregate {
 		if (class_exists('Index')) {
 			$s->setSortBy(ifsetor(Index::getInstance()->controller->sortBy));	// UGLY
 			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL(NULL, Index::getInstance()->controller->linkVars ? Index::getInstance()->controller->linkVars : array());
+			$s->sortLinkPrefix = new URL(NULL,
+					ifsetor(Index::getInstance()->controller->linkVars)
+					? Index::getInstance()->controller->linkVars
+					: array());
 		}
 		return $s;
 	}
