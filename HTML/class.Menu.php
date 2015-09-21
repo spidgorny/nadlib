@@ -354,8 +354,6 @@ class Menu /*extends Controller*/ {
 				|| ($combined == $this->current);
             if ($level > 0 && !$ret) {
                 $ret = ($subMenu[($level -1)] == $this->current && $class == $this->current);
-            } else {
-	            $ret = NULL;
             }
 		} else {
 			$ret = $this->current == $class;
@@ -363,6 +361,7 @@ class Menu /*extends Controller*/ {
 		if ($this->level === 1) {
 			nodebug(array(
 				'class' => $class,
+				'class{0}' => $class{0},
 				'subMenu' => $subMenu,
 				'combined' => $combined,
 				'current' => $this->current,
