@@ -544,7 +544,7 @@ class SQLBuilder {
 
 	function runDeleteQuery($table, array $where) {
 		$delete = $this->getDeleteQuery($table, $where);
-		debug($delete);
+		//debug($delete);
 		return $this->db->perform($delete);
 	}
 
