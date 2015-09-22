@@ -1,6 +1,6 @@
 <?php
 
-class MemcacheFile {
+class MemcacheFile implements MemcacheInterface {
 
 	/**
 	 * @used in ClearCache
