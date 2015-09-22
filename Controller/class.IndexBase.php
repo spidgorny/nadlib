@@ -51,6 +51,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	public $keywords = '';
 
+	public $bodyClasses = array();
+
 	/**
 	 * @var Config
 	 */
@@ -548,6 +550,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content = implode("\n", $this->footer);
 		}
 		return $content;
+	}
+
+	function addBodyClass($name) {
+		$this->bodyClasses[$name] = $name;
 	}
 
 }
