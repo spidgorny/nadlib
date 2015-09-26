@@ -226,7 +226,10 @@ class Collection implements IteratorAggregate {
 	 * @requires PHP 5.3
 	 */
 	function retrieveDataFromMySQL($allowMerge = false, $preprocess = true) {
-		TaylorProfiler::start(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		$taylorKey = __METHOD__." (".$this->table.':'.(is_array($this->parentID)
+						? json_encode($this->parentID)
+						: $this->parentID).")";
+		TaylorProfiler::start($taylorKey);
 		$query = $this->getQuery();
 		if (class_exists('PHPSQL\Parser') && false) {
 			$sql = new SQLQuery($query);
@@ -273,7 +276,7 @@ class Collection implements IteratorAggregate {
 			$this->db->free($res);
 			$this->preprocessData();
 		}
-		TaylorProfiler::stop(__METHOD__." (".$this->table.':'.$this->parentID.")");
+		TaylorProfiler::stop($taylorKey);
 	}
 
 	/**

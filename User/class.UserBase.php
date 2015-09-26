@@ -85,6 +85,7 @@ abstract class UserBase extends FlexiTable {
 
 	function insertNoUserCheck(array $data) {
 		$data['ctime'] = new SQLDateTime();
+		$data['email'] = ifsetor($data['email']) ? $data['email'] : NULL;		/// will set '' to NULL IMPORTANT!
 		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
