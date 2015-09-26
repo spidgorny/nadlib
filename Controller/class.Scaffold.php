@@ -344,7 +344,7 @@ abstract class Scaffold extends AppController {
 		foreach ($this->thes as $key => &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);
-			} else if (is_array($trans) && $trans['name']) {
+			} else if (is_array($trans) && ifsetor($trans['name'])) {
 				$trans['name'] = __($trans['name']);
 			}
 		}

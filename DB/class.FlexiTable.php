@@ -45,7 +45,7 @@ class FlexiTable extends OODBase {
 		}
 		if (!ifsetor($row['cuser'])) {
 			$user = Config::getInstance()->getUser();
-			$row['cuser'] = $user->id;
+			$row['cuser'] = ifsetor($user->id) ? $user->id : NULL;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
