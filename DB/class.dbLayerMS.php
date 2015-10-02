@@ -95,6 +95,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 			$res = $this->perform($res);
 		} if (!is_resource($res)) {
 			debug($res);
+			throw new InvalidArgumentException(__METHOD__.' received a '.gettype($res).' as an argument instead of a resource.');
 		}
 		return mssql_fetch_assoc($res);
 	}
