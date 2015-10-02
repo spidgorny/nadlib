@@ -24,7 +24,9 @@ class HTMLFormTimeRange extends HTMLFormType {
 	function __construct($field, array $value) {
 		parent::__construct();
 		$this->field = $field;
-		list($this->start, $this->end) = $value;
+		if (is_array($value) && sizeof($value) == 2) {
+			list($this->start, $this->end) = $value;
+		}
 		$this->div = uniqid();
 
 		// to load libs in the NON-AJAX page request
