@@ -53,7 +53,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	function column($col) {
 		$return = array();
 		foreach ((array)$this as $key => $row) {
-			$return[$key] = $row[$col];
+			$return[$key] = ifsetor($row[$col]);
 		}
 		$ap = new ArrayPlus($return);
 		return $ap;
