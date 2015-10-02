@@ -97,4 +97,8 @@ class Recursive {
 		return $this;
 	}
 
+	public function getName() {
+		return $this->value;
+	}
+
 }

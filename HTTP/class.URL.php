@@ -171,17 +171,24 @@ class URL {
 		return $path;
 	}
 
+	/**
+	 * @param $path
+	 * @return $this
+	 */
 	function setPath($path) {
 		$this->components['path'] = $path instanceof Path ? $path : new Path($path);
 		$this->path = $this->components['path'];
+		return $this;
 	}
 
 	/**
 	 * Defines the filename in the URL
 	 * @param $name
+	 * @return $this
 	 */
 	function setBasename($name) {
 		$this->path->setFile($name);
+		return $this;
 	}
 
 	function getBasename() {
@@ -207,10 +214,12 @@ class URL {
 	function setDocumentRoot($root) {
 		$this->documentRoot = $root;
 		//debug($this);
+		return $this;
 	}
 
 	function setFragment($name) {
 		$this->components['fragment'] = $name;
+		return $this;
 	}
 
 	function buildQuery() {
