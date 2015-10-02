@@ -229,6 +229,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return string
 	 */
 	static function mergeStringArrayRecursive($render) {
+		TaylorProfiler::start(__METHOD__);
 		if (is_array($render)) {
 			$combined = '';
 			/*array_walk_recursive($render,
@@ -247,6 +248,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//debug(get_class($render));
 			$render = $render.'';
 		}
+		TaylorProfiler::stop(__METHOD__);
 		return $render;
 	}
 
