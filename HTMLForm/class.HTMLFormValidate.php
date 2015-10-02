@@ -28,7 +28,7 @@ class HTMLFormValidate {
 				$error = $error || !$validateResult;
 				//$d->desc = $v2->getDesc();
 				//debug('updateDesc', $d->getFieldset());
-			} elseif ($d['type'] instanceof HTMLFormType) {
+			} elseif (ifsetor($d['type']) instanceof HTMLFormType) {
 				$d['type']->setValue(ifsetor($d['value']));
 				$error = $d['type']->validate();
 				if ($error) {

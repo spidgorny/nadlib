@@ -263,7 +263,7 @@ class HTMLForm {
 	 * @param array $desc
 	 */
 	function date($name, $value, array $desc = array()) {
-		$format = $desc['format'] ? $desc['format'] : 'd.m.Y';
+		$format = ifsetor($desc['format']) ? $desc['format'] : 'd.m.Y';
 		if (is_numeric($value)) {
 			$value = date($format, $value);
 		} elseif (!$value) {
@@ -473,9 +473,9 @@ class HTMLForm {
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
 			// if you need to compare intval's, do it separately
-			$this->stdout .= $desc['beforeItem'];
+			$this->stdout .= ifsetor($desc['beforeItem']);
 			$this->radioLabel($name, $key, $value == $key, $val, ifsetor($desc['more']));
-			$this->stdout .= $desc['afterItem'];
+			$this->stdout .= ifsetor($desc['afterItem']);
 			if ($key != end($keys)) {
 				$this->text($between);
 			}
