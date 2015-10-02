@@ -18,6 +18,7 @@ abstract class Grid extends AppController {
 	public $filter = array();
 
 	/**
+	 * Defines which columns are visible in a table
 	 * @var array
 	 */
 	public $columns;

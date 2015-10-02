@@ -177,12 +177,16 @@ abstract class FullGrid extends Grid {
 		return $res;
 	}
 
+	function getGridColumns() {
+		return ArrayPlus::create($this->collection->thes)->column('name')->getData();
+	}
+
 	function getColumnsForm() {
 		$desc = array(
 			'columns' => array(
-				'label' => __('Visible').'<br />',
+				'label' => '<h2>'.__('Visible').'</h2>',
 				'type' => 'set',
-				'options' => ArrayPlus::create($this->collection->thes)->column('name')->getData(),
+				'options' => $this->getGridColumns(),
 				'value' => $this->columns,
 				'between' => '',
 			),
