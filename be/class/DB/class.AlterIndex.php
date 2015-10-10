@@ -35,6 +35,13 @@ class AlterIndex extends AppControllerBE {
 			$content[] = $ap->sidebar();
 		}
 
+		$content[] = $this->showDBInfo();
+		$content[] = $this->listFiles();
+
+		return $content;
+	}
+
+	function showDBInfo() {
 		$content[] = 'Schema: '.$this->db->getScheme().BR;
 		$content[] = 'Wrapper: '.get_class($this->db).BR;
 		$content[] = 'DB: '.$this->db->database.BR;
@@ -42,7 +49,10 @@ class AlterIndex extends AppControllerBE {
 		if ($this->db->database) {
 			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', NULL, array(), 'btn btn-info');
 		}
+		return $content;
+	}
 
+	function listFiles() {
 		$li = array();
 		$files = new ListFilesIn($this->config->appRoot.'/sql/');
 		foreach ($files as $file) {
@@ -56,7 +66,6 @@ class AlterIndex extends AppControllerBE {
 		}
 		$ul = new UL($li);
 		$content[] = $ul;
-
 		return $content;
 	}
 

@@ -12,6 +12,13 @@ class AlterTable extends AlterIndex {
 	var $same = 0;
 	var $missing = 0;
 
+	function sidebar() {
+		$content = array();
+		$content[] = $this->showDBInfo();
+		$content[] = $this->listFiles();
+		return $content;
+	}
+
 	function renderTableStruct(array $struct, array $local) {
 		$class = get_class($this->db);
 		if ($class == 'dbLayerPDO') {
