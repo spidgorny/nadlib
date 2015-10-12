@@ -3,10 +3,22 @@
 /**
  * Class IteratorMemberCollection
  * @deprecated
+ * Fatal error: Class IteratorCollection cannot implement both Iterator and IteratorAggregate at the same time
  */
-abstract class IteratorMemberCollection /*extends Collection*/ implements Iterator, Countable {
+class CollectionMock {
 
-	var $data = array();
+	var $members;
+
+	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
+
+	}
+
+	function objectify() {
+
+	}
+
+}
+abstract class IteratorMemberCollection extends CollectionMock implements Iterator, Countable {
 
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		parent::__construct($pid, $where, $order);
