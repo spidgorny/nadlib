@@ -68,7 +68,7 @@ class Collection implements IteratorAggregate {
 	 * objectify() without parameters will try this class name
 	 * @var string
 	 */
-	protected $itemClassName;
+	protected $itemClassName = 'itemClassNameNotExists';
 
 	/**
 	 * SQL part
@@ -487,17 +487,29 @@ class Collection implements IteratorAggregate {
 	}
 
     /**
-     * TODO: remove blacklist in ORS
-     * @param array $blackList Contains IDs that should be filtered out from options
      * @return array
      */
-    function getOptions(/*$blackList = array()*/) {
+    function getOptions() {
 		$options = array();
 		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
 		foreach ($this->getData() as $row) {
             //if ( !in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
             //}
+		}
+		return $options;
+	}
+
+    /**
+     * @return array
+     */
+    function getLinks() {
+		$options = array();
+		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
+		//debug($this->itemClassName, $this->idField, $this->titleColumn, sizeof($this->members), first($this->getData()->getData()));
+		foreach ($this->objectify() as $obj) {
+			//debug($obj->id, $obj->getName());
+            $options[$obj->id] = $obj->getNameLink();
 		}
 		return $options;
 	}
