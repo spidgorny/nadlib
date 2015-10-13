@@ -424,12 +424,16 @@ class Collection implements IteratorAggregate {
 		$s->ID = get_class($this);
 		$s->sortable = $this->useSorting;
 		if (class_exists('Index')) {
-			$s->setSortBy(ifsetor(Index::getInstance()->controller->sortBy));	// UGLY
-			//debug(Index::getInstance()->controller);
-			$s->sortLinkPrefix = new URL(NULL,
-					ifsetor(Index::getInstance()->controller->linkVars)
-					? Index::getInstance()->controller->linkVars
-					: array());
+			$index = Index::getInstance();
+			$controller = $index->controller;
+			if ($sort = $controller->sort) {
+				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));	// UGLY
+				//debug(Index::getInstance()->controller);
+				$s->sortLinkPrefix = new URL(NULL,
+						ifsetor($controller->linkVars)
+								? $controller->linkVars
+								: array());
+			}
 		}
 		return $s;
 	}

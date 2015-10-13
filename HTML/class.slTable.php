@@ -335,9 +335,16 @@ class slTable {
 				$thMore[$thk]['align'] = $thv['align'];
 			}
 			if ($this->sortable) {
-				if ((isset($thv['dbField']) && $thv['dbField']) || !isset($thv['dbField'])) {
+				if (
+					((isset($thv['dbField'])
+								&& $thv['dbField']
+					) || !isset($thv['dbField']))
+					&& ifsetor($thv['sortable']) !== false
+				) {
 					$sortField = ifsetor($thv['dbField'], $thk);	// set to null - don't sort
-					$sortOrder = $this->sortBy == $sortField ? !$this->sortOrder : $this->sortOrder;
+					$sortOrder = $this->sortBy == $sortField
+							? !$this->sortOrder
+							: $this->sortOrder;
 					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
 						'sortBy' => $sortField,
 						'sortOrder' => $sortOrder,

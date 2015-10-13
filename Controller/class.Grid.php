@@ -24,7 +24,7 @@ abstract class Grid extends AppController {
 	public $columns;
 
 	/**
-	 * @var array
+	 * @var array ['sortBy'], ['sortOrder']
 	 */
 	public $sort;
 
@@ -114,7 +114,9 @@ abstract class Grid extends AppController {
 		 */
 		if ($this->request->getTrim('action') == 'clearFilter' && $allowEdit) {
 		} else {
-			$this->filter = $allowEdit ? $this->request->getArray('filter') : array();
+			$this->filter = $allowEdit
+					? $this->request->getArray('filter')
+					: array();
 			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
 			if (method_exists($this->user, 'getPref')) {
 				$this->filter = $this->filter
@@ -136,6 +138,8 @@ abstract class Grid extends AppController {
 				$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
 			}
 		}
+
+		// SORTING
 		$sortRequest = $this->request->getArray('slTable');
 		if (method_exists($this->user, 'getPref')) {
 			$this->sort = $sortRequest
@@ -146,6 +150,7 @@ abstract class Grid extends AppController {
 				);
 		}
 
+		// PAGE SIZE
 		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
 	}
 
