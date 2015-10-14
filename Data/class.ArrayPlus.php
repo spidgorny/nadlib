@@ -744,6 +744,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $new;
 	}
 
+	public function combineSelf() {
+		return $this->setData(array_combine($this->getData(), $this->getData()));
+	}
+
 }
 
 function AP(array $a = array()) {
