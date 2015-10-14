@@ -409,7 +409,7 @@ class TaylorProfiler {
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		if ($db->queryLog) {
-			$dbTime = array_sum($db->QUERIES);
+			$dbTime = $db->queryLog->getDBTime();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		if ($db->queryTime) {
@@ -453,7 +453,7 @@ class TaylorProfiler {
 						<td>PHP+DB:</td>
 						<td>'.$totalTime.'s</td>
 						<td>'.$totalBar.'</td>
-						<td>'.$totalMax.'s</td>
+						<td id="totalMax">'.$totalMax.'s</td>
 					</tr>
 					<tr>
 						<td>DB:</td>
@@ -467,10 +467,29 @@ class TaylorProfiler {
 						<td>'.$memBar.'</td>
 						<td>'.ini_get('memory_limit').'</td>
 					</tr>
+					<tr>
+						<td>Total:</td>
+						<td id="page_load_time">'.$peakMem.'MB</td>
+						<td><div id="page_load_time_bar">
+							<div></div>
+						</div></td>
+						<td></td>
+					</tr>
 				</table>
 			</div>
 		</div>
 		<div style="clear:both"></div>
+		<script>
+			var now = new Date().getTime();
+			var page_load_time = now - performance.timing.navigationStart;
+			page_load_time = (page_load_time/1000).toFixed(3);
+			console.log("User-perceived page loading time: " + page_load_time);
+			document.querySelector("#page_load_time").innerHTML = page_load_time;
+			var totalMax = parseFloat(document.querySelector("#totalMax").innerHTML);
+			var width = Math.round(page_load_time/totalMax*100);
+			console.log(totalMax, width)
+			document.querySelector("#page_load_time_bar div").style.width = width;
+  		</script>
 		';
 		$content .= '<style>'.file_get_contents(
 				dirname(__FILE__).'/../CSS/TaylorProfiler.less'
