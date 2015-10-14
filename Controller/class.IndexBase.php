@@ -450,7 +450,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$fileName .= '?' . $mtime;
 			}
 		}
-		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'"></script>';
+		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" defer="true"></script>';
 		return $this;
 	}
 
