@@ -191,7 +191,8 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getGridColumns() {
-		return ArrayPlus::create($this->collection->thes)->column('name')->getData();
+		return ArrayPlus::create($this->collection->thes)
+		->column('name')->combineSelf()->getData();
 	}
 
 	function getColumnsForm() {
