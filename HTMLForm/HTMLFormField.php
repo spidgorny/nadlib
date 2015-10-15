@@ -12,7 +12,7 @@ class HTMLFormField implements ArrayAccess {
 		return isset($this->data[$offset]);
 	}
 
-	public function offsetGet($offset) {
+	public function &offsetGet($offset) {
 		return $this->data[$offset];
 	}
 
