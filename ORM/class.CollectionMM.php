@@ -70,8 +70,10 @@ class CollectionMM extends Collection {
      * @return object[]
      */
     function objectify($class = '', $byInstance = false) {
+		$this->members = array();   // somehow necessary
+		$class = $class ? $class : $this->itemClassName;
         if (!$this->members) {
-            foreach ($this->data as $row) {
+            foreach ($this->getData() as $row) {
                 $key = $row[$this->idField];
                 if ($byInstance) {
                     $this->members[$key] = call_user_func($class.'::getInstance', $key);

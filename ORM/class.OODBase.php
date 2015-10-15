@@ -478,7 +478,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return self
+	 * @return static
 	 */
 	static function getInstance($id) {
 		return self::getInstanceByID($id);
@@ -537,8 +537,8 @@ abstract class OODBase {
 	/**
 	 * Is cached in instances
 	 * @param string $name
-	 * @param null $field
-	 * @return static
+	 * @param null   $field
+	 * @return self
 	 */
 	static function getInstanceByName($name, $field = NULL) {
 		$self = get_called_class();

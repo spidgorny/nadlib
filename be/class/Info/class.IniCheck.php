@@ -17,6 +17,7 @@ class IniCheck extends AppControllerBE {
 	}
 
 	function showSection(array $iniData) {
+		$table = array();
 		foreach ($iniData as $key => $val) {
 			if ($key == 'extension' && is_array($val)) {
 				foreach ($val as $ex) {
@@ -41,7 +42,7 @@ class IniCheck extends AppControllerBE {
 				);
 			}
 		}
-		$content[] = new slTable($table, 'class="table table-striped"');
+		$content[] = new slTable($table, 'class="table table-striped niceTable nospacing" width="100%"');
 		return $content;
 	}
 
