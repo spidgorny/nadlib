@@ -83,13 +83,6 @@ abstract class Controller {
 	 */
 	public $config;
 
-	/**
-	 * Used by Collection to get the current sorting method.
-	 * Ugly, please reprogram.
-	 * @var
-	 */
-	public $sortBy;
-
 	protected $al;
 
 	function __construct() {
