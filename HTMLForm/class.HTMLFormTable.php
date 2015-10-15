@@ -318,6 +318,7 @@ class HTMLFormTable extends HTMLForm {
 						, $type,
 						ifsetor($desc['class'])
 					);
+					//debug($desc, $desc->isObligatory(), $desc->getTypeString());
 				break;
 			}
 		}
@@ -404,7 +405,7 @@ class HTMLFormTable extends HTMLForm {
 			if (!$withBR) {
 				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
 				$desc = new HTMLFormField($desc);
-				if ($desc->isOptional()) {
+				if ($desc->isObligatory()) {
 					if ($this->noStarUseBold) {
 						$label = '<b title="Obligatory">'.$label.'</b>';
 					} else {
