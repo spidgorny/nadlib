@@ -46,9 +46,10 @@ abstract class Controller {
 	/**
 	 * Will be set according to mod_rewrite
 	 * Override in __construct()
+	 * @public to be accessed from Menu
 	 * @var bool
 	 */
-	protected $useRouter = false;
+	public $useRouter = false;
 
 	/**
 	 * @var User|Client|userMan|LoginUser
