@@ -312,8 +312,8 @@ abstract class Controller {
 			// buggy: prevents all clicks on the page in KA.de
 			$nadlibPath = AutoLoad::getInstance()->nadlibFromDocRoot;
 			$this->index->addJQuery();
-			$this->index->addJS($nadlibPath.'/js/showHide.js');
-			$this->index->addJS($nadlibPath.'/js/encloseInToggle.js');
+			$this->index->addJS($nadlibPath.'js/showHide.js');
+			$this->index->addJS($nadlibPath.'js/encloseInToggle.js');
 			$id = uniqid();
 
 			$content = '<div class="encloseIn">

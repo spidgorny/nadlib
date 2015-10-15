@@ -23,7 +23,7 @@ class HTMLFormSelection extends HTMLFormType {
 	var $more = array();
 
 	/**
-	 * @var array
+	 * @var HTMLFormField
 	 */
 	var $desc = array();
 
@@ -31,6 +31,10 @@ class HTMLFormSelection extends HTMLFormType {
 		$this->setField($fieldName);
 		$this->options = $options;
 		$this->value = $selected;
+	}
+
+	function setDesc(array $desc) {
+		$this->desc = new HTMLFormField($desc);
 	}
 
 	function render() {
@@ -48,6 +52,8 @@ class HTMLFormSelection extends HTMLFormType {
 			? array('size' => $this->desc['size']) : array());
 		$more += (isset($this->desc['id'])
 			? array('id' => $this->desc['id']) : array());
+		$more += $this->desc->isObligatory()
+				? array('required' => true) : [];
 		if (isset($this->desc['more'])) {
 			$more += is_array($this->desc['more'])
 				? $this->desc['more']
@@ -56,9 +62,9 @@ class HTMLFormSelection extends HTMLFormType {
 		$content[] = HTMLTag::renderAttr($more) . ">\n";
 
 		if (is_null($this->options)) {
-			$this->options = $this->fetchSelectionOptions($this->desc);
+			$this->options = $this->fetchSelectionOptions($this->desc->getArray());
 		}
-		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc);
+		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc->getArray());
 		$content[] = "</select>\n";
 		return new MergedContent($content);
 	}
