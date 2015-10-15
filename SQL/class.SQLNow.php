@@ -8,7 +8,7 @@ class SQLNow extends AsIs {
 
     function __toString() {
         $map = array(
-            'sqlite' => "datetime('now')",
+            'sqlite' => "datetime('now')", 
             'mysql' => 'now()',
             'ms' => 'GetDate()',
             'postgresql' => 'now()',
