@@ -14,7 +14,8 @@ class AlterIndex extends AppControllerBE {
 
 	function __construct() {
 		parent::__construct();
-		$filename = $this->request->getFilename('file') ?: $this->db->database.'.json';
+		$host = gethostname() ?: $_SERVER['SERVER_NAME'];
+		$filename = $this->request->getFilename('file') ?: $host .'-'. $this->db->database.'.json';
 		$this->jsonFile = $this->config->appRoot.'/sql/'.$filename;
 
 		if (false) {
@@ -100,6 +101,9 @@ class AlterIndex extends AppControllerBE {
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
 			$struct = json_decode($struct, true);
+			if (!$struct) {
+				throw new Exception('JSON file reading error');
+			}
 
 			$local = $this->getDBStruct();
 
