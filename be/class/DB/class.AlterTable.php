@@ -82,7 +82,7 @@ class AlterTable extends AlterIndex {
 	function compareTables($table, array $fromFile, array $fromDatabase) {
 		$indexCompare = array();
 		foreach ($fromFile as $i => $index) {
-			$localIndex = $fromDatabase[$i];
+			$localIndex = ifsetor($fromDatabase[$i]);
 			$fileField = TableField::init($index);
 			if ($localIndex) {
 				$localField = TableField::init($localIndex);
@@ -95,7 +95,7 @@ class AlterTable extends AlterIndex {
 						'action' => new HTMLTag('td', array(
 							'colspan' => 10,
 							'class'   => 'sql',
-						), $this->handler->getAlterQuery($table, $localIndex['Field'], $index))
+						), $this->handler->getAlterQuery($table, $localIndex['Field'], $fileField))
 					];
 				} else {
 					$indexCompare[] = [
@@ -114,7 +114,7 @@ class AlterTable extends AlterIndex {
 					'action' => new HTMLTag('td', array(
 						'colspan' => 10,
 						'class'   => 'sql',
-					), $this->handler->getAddQuery($table, $index))
+					), $this->handler->getAddQuery($table, $fileField))
 				);
 			}
 		}
@@ -228,14 +228,6 @@ class AlterTable extends AlterIndex {
 			$content .= $s;
 		}
 		return $content;
-	}
-
-	function unQuote($string) {
-		$first = $string[0];
-		if ($first == '"' || $first == "'") {
-			$string = str_replace($first, '', $string);
-		}
-		return $string;
 	}
 
 	function runSQLAction() {

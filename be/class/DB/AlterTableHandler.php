@@ -22,7 +22,7 @@ class AlterTableHandler {
 	}
 
 	function sameTypeString($t1, $t2) {
-		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int');
+		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)');
 		$text = array('text', 'varchar(255)', 'tinytext');
 		$time = array('numeric', 'timestamp', 'datetime');
 		$real = array('real', 'double', 'float');
