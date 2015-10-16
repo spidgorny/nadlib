@@ -6,17 +6,23 @@ class TableField {
 
 	var $type;
 
+	var $collation;
+
 	var $isNull;
 
 	var $key;
 
 	var $default;
 
+	var $comment;
+
 	var $extra = array();
 
 	static function init(array $row) {
 		//debug($row); exit();
-		if (isset($row['Field'])) {
+		if (isset($row['cid']) || isset($row['pk'])) {
+			$self = self::initSQLite($row);
+		} elseif (isset($row['Field'])) {
 			$self = self::initMySQL($row);
 		} else {
 			throw new Exception(__METHOD__.' Unable to identify DB type');
@@ -45,24 +51,36 @@ class TableField {
 		return $self;
 	}
 
-	function convertFromOtherDB(array $desc) {
-		if (isset($desc['cid']) || isset($desc['pk'])) {    // MySQL???
-			//$original = $desc;
-			unset($desc['cid']);
-			$desc['Field'] = $desc['name'];
-			unset($desc['name']);
-			$desc['Type'] = $desc['type'];
-			unset($desc['type']);
-			$desc['Null'] = $desc['notnull'] ? 'NO' : 'YES';
-			unset($desc['notnull']);
-			$desc['Default'] = $desc['dflt_value'];
-			$desc['Default'] = $this->unQuote($desc['Default']);
-			unset($desc['dflt_value']);
-			$desc['Extra'] = $desc['pk'] ? 'PRIMARY_KEY' : '';
-			unset($desc['pk']);
-			//debug($original, $desc); exit();
+	/**
+	cid 	string[1] 	0
+	name 	string[2] 	id
+	type 	string[7] 	integer
+	notnull 	string[1] 	1
+	dflt_value 	NULL
+	pk 	string[1] 	1
+	Field 	string[2] 	id
+	Type 	string[7] 	integer
+	Null 	string[2] 	NO
+	 * @param array $desc
+	 * @return TableField
+	 */
+	static function initSQLite(array $desc) {
+		$self = new self();
+		$self->field = $desc['name'];
+		$self->type = $desc['type'];
+		$self->isNull = $desc['notnull'] ? false : true;
+		$self->default = self::unQuote($desc['dflt_value']);
+		$self->key = $desc['pk'] ? 'PRIMARY_KEY' : '';
+		//debug($desc, $self); exit();
+		return $self;
+	}
+
+	static function unQuote($string) {
+		$first = $string[0];
+		if ($first == '"' || $first == "'") {
+			$string = str_replace($first, '', $string);
 		}
-		return $desc;
+		return $string;
 	}
 
 	function __toString() {
