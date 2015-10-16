@@ -12,6 +12,11 @@ class AlterTable extends AlterIndex {
 	var $same = 0;
 	var $missing = 0;
 
+	/**
+	 * @var AlterTableMySQL|AlterTablePostgres
+	 */
+	var $handler;
+
 	function sidebar() {
 		$content = array();
 		$content[] = $this->showDBInfo();
@@ -27,6 +32,13 @@ class AlterTable extends AlterIndex {
 				$class = 'dbLayerSQLite';
 			}
 		}
+		if ($class == 'mysql') {
+			$this->handler = new AlterTableMySQL($this->db);
+		} elseif ($class == 'dbLayer') {
+			$this->handler = new AlterTablePostgres($this->db);
+		} else {
+			throw new Exception('Undefined AlterTable handler');
+		}
 		$func = 'renderTableStruct'.$class;
 		$content[] = '<h5>'.$func.'</h5>';
 		$content[] = call_user_func(array($this, $func), $struct, $local);
@@ -39,178 +51,74 @@ class AlterTable extends AlterIndex {
 			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
 			//$content .= '<pre>'.json_encode($desc['columns'], JSON_PRETTY_PRINT).'</pre>';
 
-			$indexCompare = array();
-			foreach ($desc['columns'] as $i => $index) {
-				if (isset($local[$table])) {
-					$localIndex = $local[$table]['columns'][$i];
-					if ($localIndex) {
-						unset($index['Cardinality'], $localIndex['Cardinality']);
-						if (!$this->sameType($index, $localIndex)) {
-							//$content .= getDebug($index, $localIndex);
-							$line = array(
-									'same'          => 'diff',
-									'###TR_MORE###' => 'style="background: pink"',
-								) + $index;
-							$line['Type'] .= ' (local: ' . $localIndex['Type'] . ')';
-							$indexCompare[] = $line;
-							$indexCompare[] = array(
-								'Field' => new HTMLTag('td', array(
-									'colspan' => 10,
-									'class'   => 'sql',
-								), $this->getAlterQuery($table, $localIndex['Field'], $index)
-								),
-							);
-						} else {
-							//$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
-							$index['same'] = 'same';
-							$index['###TR_MORE###'] = 'style="background: yellow"';
-							$indexCompare[] = $index;
-						}
-					} else {
-						$indexCompare[] = 							$line = array(
-							'same'          => 'new',
-							'###TR_MORE###' => 'style="background: red"',
-						) +	$index;
-						$indexCompare[] = array(
-							'Field' => new HTMLTag('td', array(
-								'colspan' => 10,
-								'class'   => 'sql',
-							), $this->getAddQuery($table, $index)
-							),
-						);
-					}
-				} else {
-					$indexCompare[] = array(
-						'Field' => new HTMLTag('td', array(
-							'colspan' => 10,
-							'class' => 'sql',
-						), $this->getCreateQuery($table, $desc['columns'])
-						),
-					);
-					break;
-				}
+			if (isset($local[$table])) {
+				$indexCompare = $this->compareTables($table, $desc['columns'], $local[$table]['columns']);
+			} else {
+				$indexCompare[] = array(
+					'Field' => new HTMLTag('td', array(
+						'colspan' => 10,
+						'class' => 'sql',
+					), $this->handler->getCreateQuery($table, $desc['columns'])
+					),
+				);
 			}
 			$s = new slTable($indexCompare, 'class="table" width="100%"', array (
-				'same' =>				array (
+				'same' => array (
 					'name' => 'same',
 				),
-				'Field' =>				array (
-					'name' => 'Field',
+				'fromFile' => array (
+					'name' => 'From File',
 				),
-				'Type' =>				array (
-					'name' => 'Type',
+				'fromDB' =>	array (
+					'name' => 'From DB',
 				),
-				'Collation' =>			array (
-					'name' => 'Collation',
-				),
-				'Null' =>				array (
-					'name' => 'Null',
-				),
-				'Key' =>				array (
-					'name' => 'Key',
-				),
-				'Default' =>				array (
-					'name' => 'Default',
-				),
-				'Extra' =>				array (
-					'name' => 'Extra',
-				),
-/*				'Privileges' =>				array (
-					'name' => 'Privileges',
-				),
-*/				'Comment' =>				array (
-					'name' => 'Comment',
-				),
+				'action' => 'Action',
 			));
 			$content .= $s;
 		}
 		return $content;
 	}
 
-	function getAlterQuery($table, $oldName, array $index) {
-		$query = 'ALTER TABLE '.$table.' MODIFY COLUMN '.$oldName.' '.$index['Field'].
-		' '.$index['Type'].
-		' '.(($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL').
-		' '.($index['Collation'] ? 'COLLATE '.$index['Collation'] : '').
-		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
-		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
-		' '.$index['Extra'];
-		$link = $this->a($this->makeURL(array(
-			'c' => get_class($this),
-			'file' => basename($this->jsonFile),
-			'action' => 'runSQL',
-			'table' => $table,
-			'sql' => $query,
-		)), $query);
-		return $link;
-	}
-
-	function getAddQuery($table, array $index) {
-		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
-		' '.$index['Type'].$this->getFieldParams($index);
-		$link = $this->a($this->makeURL(array(
-			'c' => get_class($this),
-			'file' => basename($this->jsonFile),
-			'action' => 'runSQL',
-			'table' => $table,
-			'sql' => $query,
-		)), $query);
-		return $link;
-	}
-
-	function getFieldParams(array $index) {
-		$default = $index['Default']
-			? (in_array($index['Default'], $this->db->getReserved())
-				? $index['Default']
-				: $this->db->quoteSQL($index['Default']))
-			: '';
-		return ' '.trim(
-			(($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL').
-		' '.($index['Collation'] ? 'COLLATE '.$index['Collation'] : '').
-		' '.($index['Default'] ? "DEFAULT ".$default : '').		// must not be quoted for CURRENT_TIMESTAMP
-		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
-		' '.(($index['Key'] == 'PRI') ? "PRIMARY KEY" : '').
-		' '.$index['Extra']);
-	}
-
-	function getCreateQueryMySQL($table, array $columns) {
-		$set = array();
-		foreach ($columns as $col) {
-			$set[] = $this->db->quoteKey($col['Field']).' '.$col['Type'].$this->getFieldParams($col);
+	function compareTables($table, array $fromFile, array $fromDatabase) {
+		$indexCompare = array();
+		foreach ($fromFile as $i => $index) {
+			$localIndex = $fromDatabase[$i];
+			$fileField = TableField::init($index);
+			if ($localIndex) {
+				$localField = TableField::init($localIndex);
+				if (!$this->handler->sameFieldType($fileField, $localField)) {
+					$indexCompare[] = [
+						'same'          => 'diff',
+						'###TR_MORE###' => 'style="background: pink"',
+						'fromFile' => $fileField.'',
+						'fromDB' => $localField.'',
+						'action' => new HTMLTag('td', array(
+							'colspan' => 10,
+							'class'   => 'sql',
+						), $this->handler->getAlterQuery($table, $localIndex['Field'], $index))
+					];
+				} else {
+					$indexCompare[] = [
+						'same' => 'same',
+						'###TR_MORE###' => 'style="background: yellow"',
+						'fromFile' => $fileField.'',
+						'fromDB' => $localField.'',
+					];
+				}
+			} else {
+				$indexCompare[] = array(
+					'same'          => 'new',
+					'###TR_MORE###' => 'style="background: red"',
+					'fromFile' => $fileField.'',
+					'fromDB' => '-',
+					'action' => new HTMLTag('td', array(
+						'colspan' => 10,
+						'class'   => 'sql',
+					), $this->handler->getAddQuery($table, $index))
+				);
+			}
 		}
-		//debug($col);
-		return 'CREATE TABLE '.$table.' ('.implode(",\n", $set).');';
-	}
-
-	function getCreateQueryDBLayer($table, array $columns) {
-		$set = array();
-		foreach ($columns as $col) {
-			$set[] = $col['name'].' '.$col['type'].' '.($col['notnull'] ? 'NOT NULL' : 'NULL');
-		}
-		//debug($col);
-		return 'CREATE TABLE '.$table.' ('.implode(",\n", $set).');';
-	}
-
-	function sameType($index1, $index2) {
-		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int');
-		$text = array('text', 'varchar(255)', 'tinytext');
-		$time = array('numeric', 'timestamp', 'datetime');
-		$real = array('real', 'double', 'float');
-		$t1 = $index1['Type'];
-		$t2 = $index2['Type'];
-		if ($t1 == $t2) {
-			return true;
-		} elseif (in_array($t1, $int) && in_array($t2, $int)) {
-			return true;
-		} elseif (in_array($t1, $text) && in_array($t2, $text)) {
-			return true;
-		} elseif (in_array($t1, $time) && in_array($t2, $time)) {
-			return true;
-		} elseif (in_array($t1, $real) && in_array($t2, $real)) {
-			return true;
-		} else {
-			return false;
-		}
+		return $indexCompare;
 	}
 
 	function renderTableStructdbLayerBL(array $struct, array $local) {
@@ -245,8 +153,8 @@ class AlterTable extends AlterIndex {
 						'type' => new HTMLTag('td', array(
 							'colspan' => 5,
 						), $localIndex['type']
-							? $this->getChangeQueryDBLayer($table, $index)
-							: $this->getAlterQueryDBLayer($table, $index)
+							? $this->handler->getChangeQuery($table, $index)
+							: $this->handler->getAlterQuery($table, $index)
 						)
 					);
 				}
@@ -258,22 +166,6 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function getAlterQueryDBLayer($table, array $index) {
-		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
-			' '.$index['Type'].
-			' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
-			' '.($index['not null'] ? 'NOT NULL' : 'NULL');
-		return $query;
-	}
-
-	function getChangeQueryDBLayer($table, array $index) {
-		$query = 'ALTER TABLE '.$table.' ALTER COLUMN '.$index['Field'].' '.$index['Field'].
-			' '.$index['Type'].
-			' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
-			' '.($index['not null'] ? 'NOT NULL' : 'NULL');
-		return $query;
-	}
-
 	function renderTableStructdbLayerSQLite(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -281,10 +173,10 @@ class AlterTable extends AlterIndex {
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
-				$index = $this->convertFromOtherDB($index);
+				$index = $this->convertFromOtherDB($index);	// TODO: make it TableField
 				$localIndex = $local[$table]['columns'][$i];
 				if ($localIndex) {
-					$localIndex = $this->convertFromOtherDB($localIndex);
+					$localIndex = $this->convertFromOtherDB($localIndex);	// TODO: make it TableField
 
 					$index['Field'] = $i;
 					$localIndex['Field'] = $i;
@@ -309,8 +201,8 @@ class AlterTable extends AlterIndex {
 							'Type' => new HTMLTag('td', array(
 								'colspan' => 5,
 							), $localIndex['Type']
-								? $this->getChangeQueryDBLayer($table, $index)
-								: $this->getAlterQueryDBLayer($table, $index)
+								? $this->handler->getChangeQuery($table, $index)
+								: $this->handler->getAlterQuery($table, $index)
 							)
 						);
 						$this->different++;
@@ -323,7 +215,7 @@ class AlterTable extends AlterIndex {
 						'same' => 'missing',
 						'Type' => new HTMLTag('td', array(
 							'colspan' => 5,
-						), $this->getAddQuery($table, $index)
+						), $this->handler->getAddQuery($table, $index)
 						),
 					);
 					$this->missing++;
@@ -336,26 +228,6 @@ class AlterTable extends AlterIndex {
 			$content .= $s;
 		}
 		return $content;
-	}
-
-	function convertFromOtherDB(array $desc) {
-		if (isset($desc['cid']) || isset($desc['pk'])) {    // MySQL
-			$original = $desc;
-			unset($desc['cid']);
-			$desc['Field'] = $desc['name'];
-			unset($desc['name']);
-			$desc['Type'] = $desc['type'];
-			unset($desc['type']);
-			$desc['Null'] = $desc['notnull'] ? 'NO' : 'YES';
-			unset($desc['notnull']);
-			$desc['Default'] = $desc['dflt_value'];
-			$desc['Default'] = $this->unQuote($desc['Default']);
-			unset($desc['dflt_value']);
-			$desc['Extra'] = $desc['pk'] ? 'PRIMARY_KEY' : '';
-			unset($desc['pk']);
-			//debug($original, $desc); exit();
-		}
-		return $desc;
 	}
 
 	function unQuote($string) {

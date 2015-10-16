@@ -45,8 +45,12 @@ class AppControllerBE extends AppController {
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 	}
 
-	function log($a) {
-		echo $a.'<br />'."\n";
+	function log($class, $message) {
+		//echo $class, ' ', print_r($message, true), BR;
+		Debug::getInstance()->consoleLog([
+				'class' => $class,
+				'message' => $message
+		]);
 	}
 
 	public function getURL(array $params, $prefix = '?') {
