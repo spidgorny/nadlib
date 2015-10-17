@@ -26,6 +26,7 @@ class AlterTableHandler {
 		$text = array('text', 'varchar(255)', 'tinytext');
 		$time = array('numeric', 'timestamp', 'datetime');
 		$real = array('real', 'double', 'float');
+		$bool = array('binary(1)', 'bool', 'boolean');
 		if ($t1 == $t2) {
 			return true;
 		} elseif (in_array($t1, $int) && in_array($t2, $int)) {
@@ -35,6 +36,8 @@ class AlterTableHandler {
 		} elseif (in_array($t1, $time) && in_array($t2, $time)) {
 			return true;
 		} elseif (in_array($t1, $real) && in_array($t2, $real)) {
+			return true;
+		} elseif (in_array($t1, $bool) && in_array($t2, $bool)) {
 			return true;
 		} else {
 			return false;
