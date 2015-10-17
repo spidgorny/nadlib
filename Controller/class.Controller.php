@@ -46,9 +46,10 @@ abstract class Controller {
 	/**
 	 * Will be set according to mod_rewrite
 	 * Override in __construct()
+	 * @public to be accessed from Menu
 	 * @var bool
 	 */
-	protected $useRouter = false;
+	public $useRouter = false;
 
 	/**
 	 * @var User|Client|userMan|LoginUser
@@ -82,13 +83,6 @@ abstract class Controller {
 	 * @var Config
 	 */
 	public $config;
-
-	/**
-	 * Used by Collection to get the current sorting method.
-	 * Ugly, please reprogram.
-	 * @var
-	 */
-	public $sortBy;
 
 	protected $al;
 
@@ -312,8 +306,8 @@ abstract class Controller {
 			// buggy: prevents all clicks on the page in KA.de
 			$nadlibPath = AutoLoad::getInstance()->nadlibFromDocRoot;
 			$this->index->addJQuery();
-			$this->index->addJS($nadlibPath.'/js/showHide.js');
-			$this->index->addJS($nadlibPath.'/js/encloseInToggle.js');
+			$this->index->addJS($nadlibPath.'js/showHide.js');
+			$this->index->addJS($nadlibPath.'js/encloseInToggle.js');
 			$id = uniqid();
 
 			$content = '<div class="encloseIn">

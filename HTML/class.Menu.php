@@ -79,9 +79,18 @@ class Menu /*extends Controller*/ {
 		$this->request = Request::getInstance();
 		//$this->tryInstance();
 		if (class_exists('Config')) {
-			$this->user = Config::getInstance()->getUser();
+			$config = Config::getInstance();
+			$this->user = $config->getUser();
+
+			$index = Index::getInstance();
+			$controller = ifsetor($index->controller);
+			if ($controller && isset($controller->useRouter)) {
+				$this->useControllerSlug = $controller->useRouter;
+			} else {
+				//debug(get_class($controller));
+				$this->useControllerSlug = $this->request->apacheModuleRewrite();
+			}
 		}
-		$this->useControllerSlug = $this->request->apacheModuleRewrite();
 		$this->setCurrent($level);
 		$this->setBasePath();
 	}

@@ -251,7 +251,7 @@ class HTMLForm {
 		$sel->autoSubmit = $autoSubmit;
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
 		$sel->multiple = $multiple;
-		$sel->desc = $desc;
+		$sel->setDesc($desc);
 		$sel->setForm($this);
 		$this->stdout .= $sel->render();
 	}
@@ -447,7 +447,7 @@ class HTMLForm {
 		$this->class = 'submit';
 		$between = ifsetor($desc['between'], ', ');
 		foreach ((array)$desc['options'] as $key => $val) {
-			$this->text('<nobr><label>');
+			$this->text('<nobr><label title="'.$key.'">');
 			$checked = in_array($key, $value);
 			//debug($key, $value, $checked);
 			$this->check($newName, $key, $checked);
@@ -492,7 +492,7 @@ class HTMLForm {
 		$index->addCSS($location . "css/gold/gold.css");
 		$index->addJS($location .  "js/jscal2.js");
 		$index->addJS($location .  "js/lang/en.js");
-		$content .= '<input id="calendar-'.$fieldName.'" name="'.$this->getName($fieldName).'" value="'.
+		$content = '<input id="calendar-'.$fieldName.'" name="'.$this->getName($fieldName).'" value="'.
 			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
 		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>';
 		$index->footer['jsCal2-'.$fieldName] = '<script>
