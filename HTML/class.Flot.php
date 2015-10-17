@@ -264,11 +264,11 @@ class Flot extends AppController {
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
 			src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript"
+    	<script language="javascript" type="text/javascript" defer="1"
     	    src="'.$this->flotPath.'jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript"
+    	<script language="javascript" type="text/javascript" defer="1"
     	    src="'.$this->flotPath.'jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript"
+    	<script language="javascript" type="text/javascript" defer="1"
     	    src="'.$this->flotPath.'jquery.flot.time.js"></script>';
 
 		$content = '<div id="'.$divID.'" style="
@@ -320,13 +320,22 @@ class Flot extends AppController {
 		}
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
-jQuery("document").ready(function ($) {
-	'.implode("\n", $charts).'
-	'.implode("\n", $cumulative).'
-    $.plot($("#'.$divID.'"), [
-    	'.implode(", ", $dKeys).',
-    	'.implode(", ", $cKeys).'
-    ], '.$config.');
+function defer(method) {
+	if (window.jQuery) {
+		method();
+	} else {
+		setTimeout(function() { defer(method) }, 50);
+	}
+}
+defer(function () {
+	jQuery("document").ready(function ($) {
+		' . implode("\n", $charts) . '
+		' . implode("\n", $cumulative) . '
+		$.plot($("#' . $divID . '"), [
+			' . implode(", ", $dKeys) . ',
+			' . implode(", ", $cKeys) . '
+		], ' . $config . ');
+	});
 });
 </script>';
 		return $content;

@@ -41,6 +41,19 @@ abstract class FullGrid extends Grid {
 			ifsetor($this->model->thes[$sortBy]['source'])) {
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
+		if ($this->collection &&
+			$this->collection->thes) {
+			$desc = ifsetor($this->collection->thes[$sortBy]);
+			//debug(array_keys($this->collection->thes), $desc);
+			if (is_array($desc) &&
+				ifsetor($desc['source']) &&
+				ifsetor($desc['sortable']) !== false) {
+				$sortBy = $desc['source'];
+			}
+			if (ifsetor($desc['sortable']) === false) {
+				$sortBy = NULL;
+			}
+		}
 		$sortBy = $sortBy ? $sortBy : ifsetor($this->model->idField);
 		if ($sortBy) {
 			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.
@@ -178,7 +191,8 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getGridColumns() {
-		return ArrayPlus::create($this->collection->thes)->column('name')->getData();
+		return ArrayPlus::create($this->collection->thes)
+		->column('name')->combineSelf()->getData();
 	}
 
 	function getColumnsForm() {
