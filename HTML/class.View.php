@@ -37,6 +37,11 @@ class View extends stdClass {
 	 */
 	public $data = array();
 
+	/**
+	 * @var AppController
+	 */
+	public $controller;
+
 	function __construct($file, $copyObject = NULL) {
 		TaylorProfiler::start(__METHOD__.' ('.$file.')');
 		$config = class_exists('Config') ? Config::getInstance() : new stdClass();

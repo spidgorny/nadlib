@@ -148,7 +148,7 @@ class SQLBuilder {
 	function quoteWhere(array $where) {
 		$set = array();
 		foreach ($where as $key => $val) {
-			if ($key{strlen($key)-1} != '.') {
+			if (!strlen($key) || (strlen($key) && $key{strlen($key)-1} != '.')) {
 				$key = $this->quoteKey($key);
 				if (false) {
 
