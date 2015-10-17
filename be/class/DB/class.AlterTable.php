@@ -39,6 +39,7 @@ class AlterTable extends AlterIndex {
 		} else {
 			throw new Exception('Undefined AlterTable handler');
 		}
+
 		$func = 'renderTableStruct'.$class;
 		$content[] = '<h5>'.$func.'</h5>';
 		$content[] = call_user_func(array($this, $func), $struct, $local);
@@ -47,6 +48,7 @@ class AlterTable extends AlterIndex {
 
 	function renderTableStructMySQL(array $struct, array $local) {
 		$content = '';
+		//debug(array_keys($local));
 		foreach ($struct as $table => $desc) {
 			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
 			//$content .= '<pre>'.json_encode($desc['columns'], JSON_PRETTY_PRINT).'</pre>';
@@ -54,13 +56,13 @@ class AlterTable extends AlterIndex {
 			if (isset($local[$table])) {
 				$indexCompare = $this->compareTables($table, $desc['columns'], $local[$table]['columns']);
 			} else {
-				$indexCompare[] = array(
-					'Field' => new HTMLTag('td', array(
+				$indexCompare = [array(
+					'action' => new HTMLTag('td', array(
 						'colspan' => 10,
 						'class' => 'sql',
-					), $this->handler->getCreateQuery($table, $desc['columns'])
+					), $this->click($table, $this->handler->getCreateQuery($table, $desc['columns']))
 					),
-				);
+				)];
 			}
 			$s = new slTable($indexCompare, 'class="table" width="100%"', array (
 				'same' => array (
@@ -95,7 +97,7 @@ class AlterTable extends AlterIndex {
 						'action' => new HTMLTag('td', array(
 							'colspan' => 10,
 							'class'   => 'sql',
-						), $this->handler->getAlterQuery($table, $localIndex['Field'], $fileField))
+						), $this->click($table, $this->handler->getAlterQuery($table, $localIndex['Field'], $fileField)))
 					];
 				} else {
 					$indexCompare[] = [
@@ -114,11 +116,22 @@ class AlterTable extends AlterIndex {
 					'action' => new HTMLTag('td', array(
 						'colspan' => 10,
 						'class'   => 'sql',
-					), $this->handler->getAddQuery($table, $fileField))
+					), $this->click($table, $this->handler->getAddQuery($table, $fileField)))
 				);
 			}
 		}
 		return $indexCompare;
+	}
+
+	function click($table, $query) {
+		$link = $this->a($this->getURL(array(
+				'c' => get_class($this),
+				'file' => basename($this->jsonFile),
+				'action' => 'runSQL',
+				'table' => $table,
+				'sql' => $query,
+		)), $query);
+		return $link;
 	}
 
 	function renderTableStructdbLayerBL(array $struct, array $local) {

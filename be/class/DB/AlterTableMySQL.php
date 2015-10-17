@@ -2,8 +2,6 @@
 
 class AlterTableMySQL extends AlterTableHandler {
 
-	var $jsonFile;
-
 	/**
 	 * @param $table
 	 * @param array[] $columns
@@ -35,7 +33,6 @@ class AlterTableMySQL extends AlterTableHandler {
 	}
 
 	function getAlterQuery($table, $oldName, TableField $index) {
-		$controller = Index::getInstance()->controller;
 		$query = 'ALTER TABLE '.$table.' MODIFY COLUMN '.$oldName.' '.$index->field.
 			' '.$index->type.
 			' '.(($index->isNull == 'NO') ? 'NOT NULL' : 'NULL').
@@ -43,28 +40,13 @@ class AlterTableMySQL extends AlterTableHandler {
 			' '.($index->default ? "DEFAULT '".$index->default."'" : '').
 			' '.($index->comment ? "COMMENT '".$index->comment."'" : '').
 			' '.implode(' ', $index->extra);
-		$link = $controller->a($controller->getURL(array(
-			'c' => get_class($this),
-			'file' => basename($this->jsonFile),
-			'action' => 'runSQL',
-			'table' => $table,
-			'sql' => $query,
-		)), $query);
-		return $link;
+		return $query;
 	}
 
 	function getAddQuery($table, TableField $index) {
-		$controller = Index::getInstance()->controller;
 		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index->field.
 			' '.$index->type.$this->getFieldParams($index);
-		$link = $controller->a($controller->getURL(array(
-			'c' => get_class($this),
-			'file' => basename($this->jsonFile),
-			'action' => 'runSQL',
-			'table' => $table,
-			'sql' => $query,
-		)), $query);
-		return $link;
+		return $query;
 	}
 
 }
