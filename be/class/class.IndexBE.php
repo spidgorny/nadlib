@@ -158,7 +158,7 @@ class IndexBE extends IndexBase {
 				$this->content.
 				$loginForm->render()
 			);
-			$this->content = '';
+			$this->content->clear();
 			/*throw new LoginException('
 				Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
 			*/

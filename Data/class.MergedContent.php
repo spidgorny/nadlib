@@ -93,4 +93,7 @@ class MergedContent implements ArrayAccess {
 		unset($this->content[$key]);
 	}
 
+	public function clear() {
+		$this->content = [];
+	}
 }

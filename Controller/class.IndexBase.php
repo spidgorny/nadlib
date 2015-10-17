@@ -21,7 +21,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string|array
+	 * @var string|array|\nadlib\HTML\Messages
 	 */
 	public $content;
 
@@ -76,7 +76,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			session_start();
 		}
 
-		$this->restoreMessages();
+		$this->content = new nadlib\HTML\Messages();
+		$this->content->restoreMessages();
 		TaylorProfiler::stop(__METHOD__);
 	}
 
@@ -158,9 +159,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($this->controller) {
 				$content .= $this->renderController();
 			} else {
-				$content .= is_array($this->content)
-					? implode("\n", $this->content)
-					: $this->content;	// display Exception
+				$content .= $this->content;	// display Exception
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
@@ -179,15 +178,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderTemplateIfNotAjax($content) {
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			$contentOut .= is_array($this->content)
-				? implode("\n", $this->content)
-				: $this->content;	// display Exception
+			$contentOut .= $this->content;	// display Exception
 			$contentOut .= $content;
 			$contentOut = $this->renderTemplate($contentOut)->render();
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut .= $content;
-			$this->content = '';		// clear for the next output. May affect saveMessages()
+			$this->content->clear();		// clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;
 	}
@@ -311,32 +308,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function message($text) {
-		$msg = '<div class="message alert alert-info ui-state-message alert alert-notice padding">'.$text.'</div>';
-		if (is_array($this->content)) {
-			$this->content[] = $msg;
-		} else {
-			$this->content .= $msg;
-		}
+		$this->content->message($text);
 	}
 
 	function error($text) {
-		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
-		if (is_array($this->content)) {
-			$this->content[] = $msg;
-		} else {
-			$this->content .= $msg;
-		}
+		$this->content->error($text);
 	}
 
-	function saveMessages() {
-		$_SESSION[__CLASS__]['messages'] = $this->content;
+	function success($text) {
+		$this->content->success($text);
 	}
 
-	function restoreMessages() {
-		if (isset($_SESSION[__CLASS__])) {
-			$this->content .= $_SESSION[__CLASS__]['messages'];
-			$_SESSION[__CLASS__]['messages'] = '';
-		}
+	function info($text) {
+		$this->content->info($text);
 	}
 
 	/**
