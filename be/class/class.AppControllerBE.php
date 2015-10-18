@@ -14,6 +14,9 @@ class AppControllerBE extends AppController {
 	 */
 	var $forceCronjob = false;
 
+	/**
+	 * @var string
+	 */
 	var $nadlibFromDocRoot;
 
 	/**
@@ -54,6 +57,7 @@ class AppControllerBE extends AppController {
 	}
 
 	public function getURL(array $params, $prefix = '?') {
+		debug(__METHOD__);
 		$url = parent::getURL($params, $this->nadlibFromDocRoot.'be/?');
 		return $url;
 	}

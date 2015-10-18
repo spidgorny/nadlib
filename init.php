@@ -49,6 +49,9 @@ if (!function_exists('nodebug')) {
 		return $content;
 	}
 
+	/**
+	 * @param ..$a
+	 */
 	function pre_print_r($a) {
 		echo '<pre style="white-space: pre-wrap;">';
 		print_r(func_num_args() == 1 ? $a : func_get_args());
