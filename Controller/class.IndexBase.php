@@ -420,9 +420,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @param $source
+	 * @param bool $defer
 	 * @return Index
 	 */
-	function addJS($source) {
+	function addJS($source, $defer = true) {
 		$called = Debug::getCaller();
 		$fileName = $source;
 		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
@@ -434,7 +435,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$fileName .= '?' . $mtime;
 			}
 		}
-		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" defer="true"></script>';
+		$defer = $defer ? 'defer="true"' : '';
+		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" '.$defer.'></script>';
 		return $this;
 	}
 
