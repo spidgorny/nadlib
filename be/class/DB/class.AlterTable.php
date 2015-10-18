@@ -134,6 +134,12 @@ class AlterTable extends AlterIndex {
 		return $link;
 	}
 
+	/**
+	 *
+	 * @param array $struct
+	 * @param array $local
+	 * @return string
+	 */
 	function renderTableStructdbLayerBL(array $struct, array $local) {
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -252,7 +258,7 @@ class AlterTable extends AlterIndex {
 			throw new AccessDeniedException('Destructing query detected');
 		} else {
 			$this->db->perform($sql);
-			$this->request->redirect(get_class().
+			$this->request->redirect(get_class($this).
 				'?file='.$this->request->getTrimRequired('file').'#table-'.$table);
 		}
 	}

@@ -165,6 +165,7 @@ class ConfigBase {
 	}
 
 	function getDB() {
+		//debug_pre_print_backtrace();
 		if ($this->db) return $this->db;
 
 		if ($this->db_database) {

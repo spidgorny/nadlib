@@ -516,6 +516,7 @@ class Request {
 
 	/**
 	 * Returns the full URL to the document root of the current site
+	 * @param bool $isUTF8
 	 * @return URL
 	 */
 	static function getLocation($isUTF8 = false) {

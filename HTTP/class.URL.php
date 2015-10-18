@@ -60,6 +60,9 @@ class URL {
 		}
 	}
 
+	/**
+	 * @param $url string
+	 */
 	function parseURL($url) {
 		$this->components = @parse_url($url);
 		//pre_print_r($this->components);
@@ -89,6 +92,9 @@ class URL {
 		if (isset($this->components['path'])) {
 			$this->path = new Path($this->components['path']);
 			$this->components['path'] = $this->path;
+			//pre_print_r([__METHOD__, $this->components, get_class($this->path)]);
+		} else {
+			$this->path = new Path('/');
 		}
 		if (isset($this->components['query'])) {
 			parse_str($this->components['query'], $this->params);
@@ -163,11 +169,21 @@ class URL {
 	 */
 	function getPath() {
 		$path = $this->path;
+		if (get_class($path) != 'Path') {
+			debug(gettype($path), get_class($path), get_object_vars($path));
+			debug_pre_print_backtrace();
+		}
+		assert(get_class($path) == 'Path');
 		if ($this->documentRoot != '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 			$path = new Path($path);
 		}
-		//debug($this->path.'', $this->documentRoot, $path.'');
+		nodebug([
+			'class($this->path)' => get_class($this->path),
+			'$this->path' => $this->path.'',
+			'documentRoot' => $this->documentRoot.'',
+			'class($path)' => get_class($path),
+			'path' => $path.'']);
 		return $path;
 	}
 
@@ -737,7 +753,7 @@ class URL {
 	function getHash() {
 		return $this->components['fragment'];
 	}
-	
+
 	/**
 	 * @param array $queryString - array of objects with (->name, ->value)
 	 */
