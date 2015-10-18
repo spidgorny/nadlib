@@ -378,13 +378,13 @@ abstract class Controller {
 	function inColumns() {
 		$elements = func_get_args();
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
-		$content = '';
+/*		$content = '';
 		foreach ($elements as $html) {
 			$html = IndexBase::mergeStringArrayRecursive($html);
 			$content .= '<div style="float: left;">'.$html.'</div>';
 		}
 		$content = $content.'<div style="clear: both"></div>';
-		return $content;
+		return $content;*/
 	}
 
 	function inColumnsHTML5() {
