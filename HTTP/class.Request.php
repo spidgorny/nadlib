@@ -672,6 +672,7 @@ class Request {
 		$al = AutoLoad::getInstance();
 
 		if (!$this->isWindows()) {	// linux
+			//debug(getcwd(), $al->documentRoot.'');
 			$cwd = new Path(getcwd());
 			$url = clone $al->documentRoot;
 			$url->append($this->url->getPath());
