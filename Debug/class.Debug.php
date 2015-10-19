@@ -132,6 +132,8 @@ class Debug {
 			if (method_exists($this, $method)) {
 				$content = $this->$method($params);
 			}
+		} else {
+			pre_print_r($params);
 		}
 		return $content;
 	}

@@ -519,4 +519,15 @@ class AutoLoad {
 		$instance->postInit();
 	}
 
+	function addFolder($path) {
+		if ($path[0] != '/') {
+			$path = getcwd().'/'.$path;
+		}
+		$this->folders[] = realpath($path);
+		$sub = glob($path.'/*', GLOB_ONLYDIR);
+		foreach ($sub as $s) {
+			$this->addFolder($s);
+		}
+	}
+
 }
