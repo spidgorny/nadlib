@@ -1,6 +1,6 @@
 <?php
 
-class About extends AppControllerBE {
+class AboutNadlib extends AppControllerBE {
 
 	var $file = 'index.md';
 

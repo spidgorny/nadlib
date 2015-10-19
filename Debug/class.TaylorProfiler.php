@@ -408,11 +408,11 @@ class TaylorProfiler {
 			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if ($db->queryLog) {
+		if (isset($db->queryLog)) {
 			$dbTime = $db->queryLog->getDBTime();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
-		if ($db->queryTime) {
+		if (isset($db->queryTime)) {
 			$dbTime = $db->queryTime;
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}

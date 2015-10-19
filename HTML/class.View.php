@@ -45,7 +45,8 @@ class View extends stdClass {
 	function __construct($file, $copyObject = NULL) {
 		TaylorProfiler::start(__METHOD__.' ('.$file.')');
 		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
-		$this->folder = ($config->appRoot ? cap($config->appRoot, '/') : '').'template/';
+		$this->folder = (ifsetor($config->appRoot) ? cap($config->appRoot, '/') : '')
+				.'template/';
 		if (class_exists('Config') && ifsetor($config->config[__CLASS__]['folder'])) {
 			$this->folder = dirname(__FILE__).'/'.$config->config[__CLASS__]['folder'];
 		}
