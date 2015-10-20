@@ -17,7 +17,7 @@ class Debug {
 	 * no debug unless $_COOKIE['debug']
 	 * @var string
 	 */
-	var $renderer = '';
+	var $renderer = 'HTML';
 
 	/**
 	 * @param $index Index|IndexBE
@@ -30,12 +30,10 @@ class Debug {
 			if (ifsetor($c->debugRenderer)) {
 				$this->renderer = $c->debugRenderer;
 			} else {
-				$this->renderer = $this->canCLI() ? 'CLI'
-					: ($this->canFirebug() ? 'Firebug'
-					: ($this->canDebugster() ? 'Debugster'
-					: ($this->canHTML() ? 'HTML'
-					: '')));
+				$this->renderer = $this->detectRenderer();
 			}
+		} else {
+			$this->renderer = $this->detectRenderer();
 		}
 		//var_dump($_COOKIE);
 		if (false && $_COOKIE['debug']) {
@@ -49,6 +47,14 @@ class Debug {
 			));
 			echo '</pre>';
 		}
+	}
+
+	function detectRenderer() {
+		return $this->canCLI() ? 'CLI'
+				: ($this->canFirebug() ? 'Firebug'
+						: ($this->canDebugster() ? 'Debugster'
+								: ($this->canHTML() ? 'HTML'
+										: '')));
 	}
 
 	static function getInstance() {
@@ -124,6 +130,8 @@ class Debug {
 
 	/**
 	 * Main entry point.
+	 * @param $params
+	 * @return string
 	 */
 	function debug($params) {
 		$content = '';
@@ -479,10 +487,12 @@ class Debug {
 		return false;
 	}
 
-	public function consoleLog(array $debugAccess) {
+	/**
+	 * @param $debugAccess mixed
+	 */
+	public function consoleLog($debugAccess) {
 		$json = htmlspecialchars(json_encode($debugAccess), ENT_QUOTES);
-		$index = Index::getInstance();
-		$index->footer[] = '<script type="text/javascript">
+		$script = '<script type="text/javascript">
 		setTimeout(function () {
 			var json = "'.$json.'";
 			json = json.replace(/&quot;/g, \'"\');
@@ -491,6 +501,12 @@ class Debug {
 			console.log(obj);
 		}, 1);
 		</script>';
+		if (false && class_exists('Index', false)) {
+			$index = Index::getInstance();
+			$index->footer[] = $script;
+		} else {
+			echo $script;
+		}
 	}
 
 	static function peek($row) {

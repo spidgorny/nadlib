@@ -64,6 +64,12 @@ if (!function_exists('nodebug')) {
 		'</pre>';
 	}
 
+	function pre_var_dump($a) {
+		echo '<pre style="white-space: pre-wrap; font-size: 8pt;">';
+		var_dump(func_num_args() == 1 ? $a : func_get_args());
+		echo '</pre>';
+	}
+
 	function debug_once() {
 		static $used = array();
 		$trace = debug_backtrace();
@@ -158,7 +164,12 @@ if (!function_exists('nodebug')) {
 
 	function debug_pre_print_backtrace() {
 		if (DEVELOPMENT) {
-			print '<pre>';
+			print '<pre style="
+			white-space: pre-wrap;
+			background: #eeeeee;
+			border-radius: 5px;
+			padding: 0.5em;
+			">';
 			if (phpversion() >= '5.3.6') {
 				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			} else {
@@ -355,6 +366,29 @@ if (!function_exists('nodebug')) {
 		foreach($level_names as $level=>$name)
 			if(($value&$level)==$level) $levels[]=$name;
 		return implode(' | ',$levels);
+	}
+
+	/**
+	 * http://php.net/manual/en/function.array-unique.php#116302
+	 * @param $array
+	 * @return array
+	 */
+	function unique_multidim_array(array $matriz){
+		$aux_ini=array();
+		foreach ($matriz as $n => $source)
+		{
+			$aux_ini[$n]=serialize($source);
+		}
+
+		$mat=array_unique($aux_ini);
+
+		$entrega=array();
+		foreach ($mat as $n => $serial)
+		{
+			$entrega[$n]=unserialize($serial);
+
+		}
+		return $entrega;
 	}
 
 }
