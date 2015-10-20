@@ -65,7 +65,7 @@ class AutoLoadBE extends AutoLoad {
 require_once 'class/class.IndexBE.php';	            // force this Index class
 $n = new InitNADLIB();
 $n->al = AutoLoadBE::getInstance();
-$n->al->debug = true;
+//$n->al->debug = true;
 $n->init();
 
 require_once 'class/class.IndexBE.php';	// force this Index class

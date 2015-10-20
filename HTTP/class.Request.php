@@ -327,28 +327,9 @@ class Request {
 			$this->data += $this->parseParameters();
 			//debug($this->data);
 		} else {
-			$controller = $this->getTrim('c');
-			if ($controller) {
-				// to simplify URL it first searches for the corresponding controller
-				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
-				$tmp = $ptr;
-				$ptr = false;
-				if ($controller && class_exists($controller.'Controller')) {
-					$controller = $controller.'Controller';
-				}
-				$ptr = $tmp;
-
-				$Scontroller = new Path($controller);
-				if ($Scontroller->length() > 1) {	// in case it's with sub-folder
-					$dir = dirname($Scontroller);
-					$parts = trimExplode('/', $controller);
-					//debug($dir, $parts, file_exists($dir));
-					if (file_exists($dir)) {
-						$controller = end($parts);
-					} else {
-						$controller = first($parts);
-					}
-				}
+			$c = $this->getTrim('c');
+			if ($c) {
+				$controller = $this->getControllerByC($c);
 			} else {
 				$controller = $this->getControllerByPath($returnDefault);
 			}
@@ -362,6 +343,32 @@ class Request {
 				? Config::getInstance()->defaultController
 				: NULL,
 			'data' => $this->data));
+		return $controller;
+	}
+
+	function getControllerByC($controller) {
+		// to simplify URL it first searches for the corresponding controller
+		$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
+		$tmp = $ptr;
+		$ptr = false;
+		if ($controller && class_exists($controller.'Controller')) {
+			$controller = $controller.'Controller';
+		}
+		$ptr = $tmp;
+
+		$Scontroller = new Path($controller);
+		if ($Scontroller->length() > 1) {	// in case it's with sub-folder
+			$dir = dirname($Scontroller);
+			$parts = trimExplode('/', $controller);
+			//debug($dir, $parts, file_exists($dir));
+			if (file_exists($dir)) {
+				$controller = end($parts);
+			} else {
+				$controller = first($parts);
+			}
+		} else {
+			die(__METHOD__);
+		}
 		return $controller;
 	}
 
@@ -385,7 +392,7 @@ class Request {
 					$last = $class;
 					break;
 				}
-			}
+			}	// foreach
 			if ($last) {
 				$controller = $last;
 			} elseif ($returnDefault && class_exists('Config')) {
