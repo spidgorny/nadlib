@@ -289,11 +289,11 @@ class AutoLoad {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
 					if ($tp) $tp->stop(__METHOD__);
-					throw new Exception('Class '.$class.' ('.$file.') not found.');
+					throw new Exception('Class '.$class.' ('.$file.') not found.'.BR);
 				}
 			} else {
 				//debug_pre_print_backtrace();
-				$this->log(__METHOD__.': '.$class.' not found');
+				$this->log(__METHOD__.': '.$class.' not found'.BR);
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
 		} else {
@@ -315,6 +315,7 @@ class AutoLoad {
 
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
+		//pre_print_r($class, $file, $file2);
 		if ($file && file_exists($file)) {
 			/** @noinspection PhpIncludeInspection */
 			include_once $file;
@@ -324,11 +325,16 @@ class AutoLoad {
 			include_once $file2;
 			$this->stat['loadFile2']++;
 		} else {
+			$ns = $subFolders ?:
+					(sizeof($namespaces) > 1)
+							? first($namespaces)
+							: NULL;
 			$this->folders->collectDebug = [];
-			$file = $this->folders->findInFolders($classFile, $subFolders);
-			$this->classFileMap[$classFile] = $file;
+
+			$file = $this->folders->findInFolders($classFile, $ns);
+			$this->classFileMap[$class] = $file;
 			if ($file) {
-				if ($this->debug) {
+				if ($this->debug && class_exists('AppController', false)) {
 					$subject = 'Class ['.$class.'] loaded from ['.$classFile.']';
 					//$this->log($subject);
 					$c = new AppController();
@@ -374,8 +380,8 @@ class AutoLoad {
 		}
 	}
 
-	function addFolder($path) {
-		$this->folders->addFolder($path);
+	function addFolder($path, $namespace = NULL) {
+		$this->folders->addFolder($path, $namespace);
 	}
 
 }
