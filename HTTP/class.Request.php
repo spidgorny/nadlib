@@ -367,7 +367,9 @@ class Request {
 				$controller = first($parts);
 			}
 		} else {
-			die(__METHOD__);
+			//debug($controller);
+			//die(__METHOD__);
+			$controller = $controller . '';	// OK
 		}
 		return $controller;
 	}
