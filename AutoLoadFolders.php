@@ -17,30 +17,43 @@ class AutoLoadFolders {
 
 	public $al;
 
+	/**
+	 * @var Debug
+	 */
+	protected $debugger;
+
 	function __construct(AutoLoad $al) {
 		$this->al = $al;
+		require_once __DIR__.'/Debug/class.Debug.php';
+		$this->debugger = Debug::getInstance();
 		//if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
-		$this->folders = $this->getFolders();
-		if (false) {
+		$this->folders = $this->getFoldersFromSession();
+		if ($this->folders) {
+			$this->al->stat['folders'] = 'fromSession';
+		} else {
+			$this->al->stat['folders'] = 'fromConfig';
+			$this->folders[NULL] = $this->getFolders();
+		}
+		$this->folders = unique_multidim_array($this->folders);
+		if (0) {
 			print '<pre>';
-			print_r($_SESSION[__CLASS__]);
+			//print_r($_SESSION[__CLASS__]);
 			print_r($this->folders);
 			print '</pre>';
 		}
 	}
 
-	function getFolders() {
-		require_once __DIR__ . '/HTTP/class.Request.php';
+	function getFoldersFromSession() {
 		$folders = array();
 		if (!Request::isCLI()) {
 			if ($this->al->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
-				session_set_cookie_params(0, '');	// current folder
+				//session_set_cookie_params(0, '');	// current folder
 				if ((phpversion() < 5.4 || (
-							phpversion() >= 5.4
-							&& session_status() != PHP_SESSION_ACTIVE
-						)
-					) && !headers_sent() && $this->al->useCookies) {
+										phpversion() >= 5.4
+										&& session_status() != PHP_SESSION_ACTIVE
+								)
+						) && !headers_sent() && $this->al->useCookies) {
 					//echo '$this->useCookies', $this->useCookies, BR;
 					//echo 'session_start ', __METHOD__, BR;
 					//debug_pre_print_backtrace();
@@ -49,26 +62,25 @@ class AutoLoadFolders {
 
 				if (isset($_SESSION[__CLASS__])) {
 					$folders = isset($_SESSION[__CLASS__]['folders'])
-						? $_SESSION[__CLASS__]['folders']
-						: array();
+							? $_SESSION[__CLASS__]['folders']
+							: array();
 				}
 			}
 		}
+		return $folders;
+	}
 
-		if ($folders) {
-			$this->al->stat['folders'] = 'fromSession';
-		} else {
-			$this->al->stat['folders'] = 'fromConfig';
-			$folders = array();
+	function getFolders() {
+		require_once __DIR__ . '/HTTP/class.Request.php';
+		$folders = array();
 
-			$plus = $this->getFoldersFromConfig();
-			$this->al->stat['folders'] .= ', '.sizeof($plus);
-			$folders = array_merge($folders, $plus);		// should come first to override /be/
+		$plus = $this->getFoldersFromConfig();
+		$this->al->stat['folders'] .= ', '.sizeof($plus);
+		$folders = array_merge($folders, $plus);		// should come first to override /be/
 
-			$plus = $this->getFoldersFromConfigBase();
-			$this->al->stat['folders'] .= ', '.sizeof($plus);
-			$folders = array_merge($folders, $plus);
-		}
+		$plus = $this->getFoldersFromConfigBase();
+		$this->al->stat['folders'] .= ', '.sizeof($plus);
+		$folders = array_merge($folders, $plus);
 		//debug($folders);
 		//debug($this->classFileMap, $_SESSION[__CLASS__]);
 
@@ -140,37 +152,48 @@ class AutoLoadFolders {
 		$_SESSION[__CLASS__]['folders'] = $this->folders;
 	}
 
-	function addFolder($path) {
+	function addFolder($path, $namespace = NULL) {
 		if ($path[0] != '/') {
 			$path = getcwd().'/'.$path;
 		}
-		$this->folders[] = realpath($path);
+		$this->folders[$namespace][] = realpath($path);
 		$sub = glob($path.'/*', GLOB_ONLYDIR);
 		//debug($path, $sub);
 		foreach ($sub as $s) {
-			$this->addFolder($s);
+			$this->addFolder($s, $namespace);
 		}
+		$this->folders = unique_multidim_array($this->folders);
 	}
 
 	/**
 	 * @param $classFile
-	 * @param $subFolders
+	 * @param $namespace
 	 * @return string
 	 */
-	function findInFolders($classFile, $subFolders) {
+	function findInFolders($classFile, $namespace) {
+		//pre_var_dump($classFile, $namespace);
 		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
-		foreach ($this->folders as $path) {
+		//foreach ($this->folders as $namespace => $map) {
+		$map = ifsetor(
+				$this->folders[$namespace],
+				$this->folders[NULL]
+		);
+		assert(sizeof($map));
+		//pre_print_r(array_keys($this->folders), array_keys($map), sizeof($map));
+		foreach ($map as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
 				//dirname($_SERVER['SCRIPT_FILENAME']).DIRECTORY_SEPARATOR.
 				//$this->nadlibRoot.
 				$path.DIRECTORY_SEPARATOR.
-				$subFolders.//DIRECTORY_SEPARATOR.
+				//cap($namespace).//DIRECTORY_SEPARATOR.
 				'class.'.$classFile.'.php';
-
+			$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
+			if ($namespace) {
+				//pre_print_r($file, $file2);
+			}
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
-				$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
 				if (file_exists($file2)
 					&& !(
 						basename($file2) == 'Index.php'
@@ -186,6 +209,7 @@ class AutoLoadFolders {
 			if (file_exists($file)) {
 				$this->log($classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
 				$this->log($classFile.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
+				//pre_var_dump('Found', $file);
 				return $file;
 			} else {
 				$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");

@@ -49,8 +49,16 @@ class InitNADLIB {
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
 			// htaccess may not work
-			ini_set('error_prepend_string', '<pre>');
-			ini_set('error_append_string', '</pre>');
+			if (!ini_get('error_prepend_string')) {
+				ini_set('error_prepend_string', '<pre style="
+white-space: pre-wrap;
+color: deeppink;
+background: lightyellow;
+padding: 1em;
+border-radius: 5px;">');
+				ini_set('error_append_string', '</pre>');
+				ini_set('html_errors', false);
+			}
 		} else {
 			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
@@ -64,14 +72,15 @@ class InitNADLIB {
 			$this->al->register();
 		}
 
-		if (class_exists('Config')) {
+		// leads to problems when there are multiple Config classes
+		if (class_exists('Config', false)) {
 			Config::getInstance();
 		}
 
 		if (DEVELOPMENT) {
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 			/* @var $profiler TaylorProfiler */
-			if (class_exists('Config') && !Request::isCLI()) {
+			if (class_exists('Config', false) && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
 				// set_time_limit() has been disabled for security reasons
 				@set_time_limit(Config::getInstance()->timeLimit
