@@ -424,7 +424,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addJS($source, $defer = true) {
-		$called = Debug::getCaller();
+		if (class_exists('Debug')) {
+			$called = Debug::getCaller();
+		} else {
+			$called = '';
+		}
 		$fileName = $source;
 		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 			$mtime = @filemtime($source);

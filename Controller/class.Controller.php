@@ -292,7 +292,8 @@ abstract class Controller {
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
-			Index::getInstance()->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/header-link.less');
+			$al = AutoLoad::getInstance();
+			Index::getInstance()->addCSS($al->nadlibFromDocRoot.'CSS/header-link.less');
 			$slug = URL::friendlyURL($caption);
 			$link = '<a class="header-link" href="#'.$slug.'">
 				<i class="fa fa-link"></i>
