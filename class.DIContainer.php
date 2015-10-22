@@ -25,8 +25,8 @@ class DIContainer {
 			'object' => is_object($v),
 		)); echo BR;*/
 
-		return is_callable($v) && is_object($v)
-			? $v($this)
+		return is_callable($v) //&& is_object($v)
+			? $this->values[$id] = $v($this)
 			: $v;
 	}
 
