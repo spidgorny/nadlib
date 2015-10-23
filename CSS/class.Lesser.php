@@ -21,7 +21,7 @@ class Lesser extends AppController {
 		parent::__construct();
 		$this->output = Path::make(AutoLoad::getInstance()->appRoot)->appendString($this->output);
 		$cacheDir = dirname($this->output);
-		debug(array(
+		nodebug(array(
 			'lessc' => class_exists('lessc'),
 			'appRoot' => AutoLoad::getInstance()->appRoot,
 			'output' => $this->output,
