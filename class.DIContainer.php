@@ -9,11 +9,15 @@ class DIContainer {
 	protected $values = array();
 
 	function __set($id, $value) {
+		//echo __METHOD__, ' ('.$id.')', BR;
 		$this->values[$id] = $value;
 	}
 
 	function __get($id) {
-		if (!isset($this->values[$id])) {
+		//echo __METHOD__, ' ('.$id.')', BR;
+		// we check for is_null() because sometimes ['user'] is not logged-in
+		if (!isset($this->values[$id]) && !is_null($this->values[$id])) {
+			debug(array_keys($this->values));
 			throw new InvalidArgumentException(sprintf(
 				__METHOD__.': value "%s" is not defined.', $id));
 		}
