@@ -52,4 +52,37 @@ class QueryLog {
 		return $sumtime;
 	}
 
+	function dumpQueriesBijou($log, $totalTime) {
+		foreach ($log as &$row) {
+			if (str::beginsWith($row['query'], 'UPDATE preference SET value')) {
+				$row['query'] = 'UPDATE preferences...';
+			}
+			if ($row['results'] >= 1000) {
+				$row['results'] = new htmlString('<font color="red">'.$row['results'].'</font>');
+			}
+			if ($row['count'] >= 3) {
+				$row['count'] = new htmlString('<font color="red">'.$row['count'].'</font>');
+			}
+		}
+		$s = new slTable(NULL, 'width="100%"');
+		$s->thes(array(
+				'query' => array(
+						'label' => 'Query',
+						'no_hsc' => true,
+						'wrap' => new Wrap('<small>|</small>'),
+				),
+				'function' => 'Function',
+				'line' => 'Line',
+				'results' => 'Rows',
+				'elapsed' => 'Elapsed',
+				'count' => 'Count',
+				'total' => $totalTime,
+				'percent' => '100%'));
+		$s->data = $log;
+		$s->isOddEven = TRUE;
+		$s->more = 'class="nospacing"';
+		$content = $s->getContent();
+		return $content;
+	}
+
 }
