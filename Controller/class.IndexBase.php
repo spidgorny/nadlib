@@ -111,6 +111,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$slug = $this->request->getControllerString();
 		if ($slug) {
 			$this->loadController($slug);
+			$this->bodyClasses[] = get_class($this->controller);
 		} else {
 			throw new Exception404($slug);
 		}
