@@ -488,10 +488,13 @@ class Debug {
 	}
 
 	/**
-	 * @param $debugAccess mixed
+	 * @param $debugAccess...
 	 */
 	public function consoleLog($debugAccess) {
 		if (Request::getInstance()->isAjax()) return;
+		if (func_num_args() > 1) {
+			$debugAccess = func_get_args();
+		}
 		$json = htmlspecialchars(json_encode($debugAccess), ENT_QUOTES);
 		$script = '<script type="text/javascript">
 		setTimeout(function () {

@@ -481,8 +481,12 @@ class Request {
 			ob_start();
 			debug_print_backtrace(defined('DEBUG_BACKTRACE_IGNORE_ARGS')
 				? DEBUG_BACKTRACE_IGNORE_ARGS : NULL);
-			$bt = trimExplode("\n", ob_get_clean());
-			header('Redirect-From: '.$bt[1]);
+			$bt = ob_get_clean();
+			$bt = trimExplode("\n", $bt);
+			foreach ($bt as $i => $line) {
+				$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
+				header('Redirect-From-'.$ii.': ' . $line);
+			}
 
 			header('Location: '.$controller);
 			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>';
