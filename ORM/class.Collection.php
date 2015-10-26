@@ -913,6 +913,10 @@ class Collection implements IteratorAggregate {
 		return $lazy;
 	}
 
+	/**
+	 * @param null $class
+	 * @return LazyMemberIterator|$class[]
+	 */
 	function getLazyMemberIterator($class = NULL) {
 		if (!$class) {
 			$class = $this->itemClassName;
