@@ -595,7 +595,11 @@ class Collection implements IteratorAggregate {
 		//debug(sizeof($this->members));
 		if ($this->objectify()) {
 			$content[] = '<div class="'.get_class($this).'">';
-			foreach ($this->objectify() as $key => $obj) {
+			/**
+			 * @var int $key
+			 * @var OODBase $obj
+			 */
+			foreach ($this->members as $key => $obj) {
 			//debug($i++, (strlen($content)/1024/1024).'M');
 				if (is_object($obj)) {
 					$content[] = $obj->render();
