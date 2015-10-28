@@ -59,6 +59,14 @@ border-radius: 5px;">');
 				ini_set('error_append_string', '</pre>');
 				ini_set('html_errors', false);
 			}
+			ini_set('xdebug.file_link_format', 'phpstorm://open?file=%f&line=%l');
+			if (false) {
+				trigger_error('test');
+				$file = __FILE__;
+				$line = __LINE__;
+				$link = 'idea://open?file=' . $file . '&line=' . $line;
+				echo '<pre>Error in <a href="' . $link . '">' . $file . '#' . $line . '</a></pre>';
+			}
 		} else {
 			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);

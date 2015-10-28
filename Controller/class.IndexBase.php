@@ -78,6 +78,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
+
+		header('X-Frame-Options: SAMEORIGIN');
+		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+		header('X-Content-Security-Policy: yes');
+		ini_set('session.use_only_cookies', true);
+		ini_set('session.httponly', true);
+		ini_set('session.hash_bits_per_character', 6);
 		TaylorProfiler::stop(__METHOD__);
 	}
 
