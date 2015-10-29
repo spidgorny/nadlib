@@ -495,14 +495,11 @@ class Debug {
 		if (func_num_args() > 1) {
 			$debugAccess = func_get_args();
 		}
-		$json = htmlspecialchars(json_encode($debugAccess), ENT_QUOTES);
+		$json = json_encode($debugAccess);
 		$script = '<script type="text/javascript">
 		setTimeout(function () {
-			var json = "'.$json.'";
-			json = json.replace(/&quot;/g, \'"\');
-			json = json.replace(/&gt;/g, \'>\');
-			var obj = JSON.parse(json);
-			console.log(obj);
+			var json = '.$json.';
+			console.log(json);
 		}, 1);
 		</script>';
 		if (false && class_exists('Index', false)) {
