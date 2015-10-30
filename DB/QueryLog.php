@@ -4,7 +4,7 @@ class QueryLog {
 
 	var $queryLog = array();
 
-	function log($query, $diffTime) {
+	public function log($query, $diffTime) {
 		$key = md5($query);
 		$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
 		$this->queryLog[$key]['query'] = $query;
@@ -17,16 +17,18 @@ class QueryLog {
 	 * @return string
 	 */
 	function dumpQueries() {
-		$q = $this->QUERIES;
+		$q = $this->queryLog;
 		arsort($q);
-		foreach ($q as $query => &$time) {
-			$times = $this->QUERYMAL[$query];
-			$time = array(
+		foreach ($q as &$row) {
+			$query = $row['query'];
+			$time = $row['sumtime'];
+			$times = $row['times'];
+			$row = array(
 				'times' => $times,
 				'query' => $query,
 				'time' => number_format($time, 3),
 				'time/1' => number_format($time/$times, 3),
-				'func' => $this->QUERYFUNC[$query],
+				//'func' => $this->QUERYFUNC[$query],
 			);
 		}
 		$q = new slTable($q, 'class="view_array" width="1024"', array(
@@ -52,7 +54,7 @@ class QueryLog {
 		return $sumtime;
 	}
 
-	function dumpQueriesBijou($log, $totalTime) {
+	function dumpQueriesBijou(array $log, $totalTime) {
 		foreach ($log as &$row) {
 			if (str::beginsWith($row['query'], 'UPDATE preference SET value')) {
 				$row['query'] = 'UPDATE preferences...';
@@ -83,6 +85,48 @@ class QueryLog {
 		$s->more = 'class="nospacing"';
 		$content = $s->getContent();
 		return $content;
+	}
+
+	function dumpQueriesTP() {
+		$queryLog = ArrayPlus::create($this->queryLog);
+		//debug($queryLog);
+		array_multisort($queryLog->column('sumtime')->getData(), SORT_DESC, $queryLog);
+		$log = array();
+		$pb = new ProgressBar();
+		$pb->destruct100 = false;
+		$sumTime = $queryLog->column('sumtime')->sum();
+		foreach ($queryLog as $set) {
+			$query = $set['query'];
+			$time = $set['time'];
+			$log[] = array(
+					'times' => $set['times'],
+					'query' => '<small>'.htmlspecialchars($query).'</small>',
+					'sumtime' => number_format($set['sumtime'], 3, '.', '').'s',
+					'time' => number_format($time, 3, '.', '').'s',
+					'%' => $pb->getImage($set['sumtime']/$sumTime*100),
+			);
+		}
+		$s = new slTable($log, '', array(
+				'times' => 'times',
+				'query' => array(
+						'name' => 'query',
+						'no_hsc' => true,
+				),
+				'sumtime' => array(
+						'name' => 'sumtime ('.number_format($sumTime, 3).')',
+						'align' => 'right',
+				),
+				'time' => array(
+						'name' => 'time',
+						'align' => 'right',
+				),
+				'%' => array(
+						'name' => '%',
+						'align' => 'right',
+						'no_hsc' => true,
+				),
+		));
+		return $s;
 	}
 
 }
