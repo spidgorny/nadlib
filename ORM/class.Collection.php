@@ -655,9 +655,9 @@ class Collection implements IteratorAggregate {
 	 * @return object[]|OODBase[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
-		$this->members = array();   // somehow necessary
 		$class = $class ? $class : $this->itemClassName;
 		if (!$this->members) {
+			$this->members = array();   // somehow necessary
 			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];
 				if ($byInstance) {
@@ -906,6 +906,7 @@ class Collection implements IteratorAggregate {
 
 	function getLazyIterator() {
 		$query = $this->getQuery();
+		//debug($query);
 
 		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
 		$lazy->perform($query);
@@ -991,6 +992,11 @@ class Collection implements IteratorAggregate {
 	function get($id) {
 		$members = $this->objectify();
 		return $members[$id];
+	}
+
+	public function setMembers(array $countries) {
+		$this->members = $countries;
+		$this->count = sizeof($this->members);
 	}
 
 }
