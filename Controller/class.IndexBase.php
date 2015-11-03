@@ -72,13 +72,44 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug('session_start');
 
 		// only use session if not run from command line
-		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/ && !headers_sent()) {
-			session_start();
-		}
+		$this->initSession();
 
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
+
+		header('X-Frame-Options: SAMEORIGIN');
+		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+		header('X-Content-Security-Policy: yes');
 		TaylorProfiler::stop(__METHOD__);
+	}
+
+	function initSession() {
+		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/ && !headers_sent()) {
+			ini_set('session.use_trans_sid', false);
+			ini_set('session.use_only_cookies', true);
+			ini_set('session.cookie_httponly', true);
+			ini_set('session.hash_bits_per_character', 6);
+			ini_set('session.hash_function', 'sha512');
+			session_start();
+		}
+		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
+			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+				session_regenerate_id(true);
+				throw new AccessDeniedException('Session hijacking detected. Please try again');
+			}
+		} else {
+			$_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+		}
+		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
+			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+				session_regenerate_id(true);
+				throw new AccessDeniedException('Session hijacking detected. Please try again');
+			}
+		} else {
+			$_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+		}
+//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
+//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
 
 	/**
@@ -111,6 +142,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$slug = $this->request->getControllerString();
 		if ($slug) {
 			$this->loadController($slug);
+			$this->bodyClasses[] = get_class($this->controller);
 		} else {
 			throw new Exception404($slug);
 		}
@@ -424,7 +456,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @return Index
 	 */
 	function addJS($source, $defer = true) {
-		$called = Debug::getCaller();
+		if (class_exists('Debug')) {
+			$called = Debug::getCaller();
+		} else {
+			$called = '';
+		}
 		$fileName = $source;
 		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
 			$mtime = @filemtime($source);

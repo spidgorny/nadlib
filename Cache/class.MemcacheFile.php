@@ -86,7 +86,10 @@ class MemcacheFile implements MemcacheInterface {
 		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
 			if ($val) {
-				$val = unserialize($val);
+				$try = @unserialize($val);
+				if ($try) {
+					$val = $try;
+				}
 			}
 		}
 		TaylorProfiler::stop(__METHOD__);

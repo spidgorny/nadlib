@@ -98,6 +98,8 @@ class ConfigBase {
 	 */
 	var $ll;
 
+	var $isCron = false;
+
 	protected function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
@@ -136,13 +138,14 @@ class ConfigBase {
 			$this->config = json_decode(file_get_contents($configJSON), true);
 			$this->mergeConfig($this);
 		}
+		$this->isCron = Request::isCron();
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 	}
 
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
-	 * @return Config - not ConfigBase
+	 * @return static
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {

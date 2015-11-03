@@ -277,7 +277,8 @@ class slTable {
 			if ($thes) {
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
-					if ($i{strlen($i)-1} != '.') {
+					if (!strlen($i)
+							|| (strlen($i) && $i{strlen($i)-1} != '.')) {
 						$th = array('name' => $th);
 					} else {
 						unset($thes[$i]);

@@ -106,6 +106,7 @@ abstract class Scaffold extends AppController {
 		}
 		//debug($this->data);
 		$this->form->desc = $this->getDesc($this->data);
+		//debug($this->form->desc);
 		nodebug(array(
 			'id' => $this->id,
 			'isSubmit' => $this->request->isSubmit(),
