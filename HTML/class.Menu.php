@@ -361,6 +361,7 @@ class Menu /*extends Controller*/ {
      * @return bool
      */
 	function isCurrent($class, array $subMenu = array(), $level) {
+		$ret = false;
 		$combined = NULL;
 		if ($class{0} == '?') {	// hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);

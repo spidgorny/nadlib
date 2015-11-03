@@ -12,6 +12,11 @@ class Timeline2 /*extends AppController */{
 	 */
 	var $end;
 
+	/**
+	 * @var Time
+	 */
+	var $duration;
+
 	var $width;
 
 	var $height;
@@ -144,7 +149,8 @@ class Timeline2 /*extends AppController */{
 
 	function weekTicks() {
 		$content = '';
-		for ($date = clone $this->start/* @var $date Date */;
+		$firstWeek = new Date(strtotime('monday', $this->start->getTimestamp()));
+		for ($date = $firstWeek/* @var $date Date */;
 			 $date->earlier($this->end);
 			 $date->add(new Duration('1 week'))) {
 			$x = $this->date2x($date);
@@ -153,9 +159,9 @@ class Timeline2 /*extends AppController */{
 				x2="'.$x.'"
 				y2="'.($this->height_20).'"
 				style="stroke:'.$this->textColor.';stroke-width:1"/>';
-			/*$content .= '<text
+/*			$content .= '<text
 				x="'.($x+1).'"
-				y="'.($height_20 + 13).'"
+				y="'.($this->height_20 + 13).'"
 				fill="'.$this->textColor.'">'.$date->format('W').'</text>';*/
 		}
 		return $content;
@@ -238,6 +244,16 @@ class Timeline2 /*extends AppController */{
 				'.HTMLTag::renderAttr($more).'
 				/>';
 		return $id;
+	}
+
+	function renderCircle(Time $from, $radius, $style = 'fill: #0088CC; stroke-width:1; stroke:rgb(0,0,0)') {
+		$x = $this->date2xTime($from);
+		$this->rangeContent[] = '<circle
+				cx="'.$x.'"
+				cy="'.(20).'"
+				r="'.$radius.'"
+				style="'.$style.'"
+				/>';
 	}
 
 	function __toString() {

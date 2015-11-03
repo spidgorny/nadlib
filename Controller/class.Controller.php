@@ -137,18 +137,19 @@ abstract class Controller {
 			: $this->request->getLocation(), $params);
 		nodebug(get_class($url->getPath()), $url->getPath().'');
 		$path = $url->getPath();
-		nodebug([
-				'useRouter' => $this->useRouter,
-				'class' => $class,
-				'class($url)' => get_class($url),
-				'class($path)' => get_class($path),
-		]);
 		if ($this->useRouter &&	$class) {
 			$path->setFile($class);
 		}
 		//debug($prefix, get_class($path));
 		$path->setAsFile();
 		$url->setPath($path);
+		nodebug([
+			'useRouter' => $this->useRouter,
+			'class' => $class,
+			'class($url)' => get_class($url),
+			'class($path)' => get_class($path),
+			'return' => $url.'',
+		]);
 		return $url;
 	}
 
@@ -292,7 +293,8 @@ abstract class Controller {
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
-			Index::getInstance()->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/header-link.less');
+			$al = AutoLoad::getInstance();
+			Index::getInstance()->addCSS($al->nadlibFromDocRoot.'CSS/header-link.less');
 			$slug = URL::friendlyURL($caption);
 			$link = '<a class="header-link" href="#'.$slug.'">
 				<i class="fa fa-link"></i>
@@ -552,12 +554,13 @@ abstract class Controller {
 	 * @param string|URL $href
 	 * @param string|htmlString $text
 	 * @param bool $isHTML
+	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false) {
+	function a($href, $text = '', $isHTML = false, array $more = array()) {
 		return new HTMLTag('a', array(
 			'href' => $href,
-		), $text ?: $href, $isHTML);
+		) + $more, $text ?: $href, $isHTML);
 	}
 
 }

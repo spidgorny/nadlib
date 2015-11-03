@@ -14,6 +14,13 @@ class HTMLFormField implements ArrayAccess {
 
 	public function &offsetGet($offset) {
 		return $this->data[$offset];
+		if (isset($this->data[$offset])) {
+			$result =& $this->data[$offset];
+		} else {
+			$null = null;
+			$result = &$null;
+		}
+		return $result;
 	}
 
 	public function offsetSet($offset, $value) {

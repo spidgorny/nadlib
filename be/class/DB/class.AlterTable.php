@@ -36,17 +36,20 @@ class AlterTable extends AlterIndex {
 			$this->handler = new AlterTableMySQL($this->db);
 		} elseif ($class == 'dbLayer') {
 			$this->handler = new AlterTablePostgres($this->db);
+		} elseif ($class == 'dbLayerSQLite') {
+			$this->handler = new AlterTableSQLite($this->db);
 		} else {
 			throw new Exception('Undefined AlterTable handler');
 		}
 
-		$func = 'renderTableStruct'.$class;
-		$content[] = '<h5>'.$func.'</h5>';
+		$func = 'renderTableStruct';
+		$func = 'compareStruct';
+		$content[] = '<h5>'.$func.' ('.$class.')</h5>';
 		$content[] = call_user_func(array($this, $func), $struct, $local);
 		return $content;
 	}
 
-	function renderTableStructMySQL(array $struct, array $local) {
+	function compareStruct(array $struct, array $local) {
 		$content = '';
 		//debug(array_keys($local));
 		foreach ($struct as $table => $desc) {
@@ -97,7 +100,7 @@ class AlterTable extends AlterIndex {
 						'action' => new HTMLTag('td', array(
 							'colspan' => 10,
 							'class'   => 'sql',
-						), $this->click($table, $this->handler->getAlterQuery($table, $localIndex['Field'], $fileField)))
+						), $this->click($table, $this->handler->getAlterQuery($table, $fileField)))
 					];
 				} else {
 					$indexCompare[] = [
