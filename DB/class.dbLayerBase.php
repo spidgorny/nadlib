@@ -165,6 +165,10 @@ class dbLayerBase implements DBInterface {
 		return $key;
 	}
 
+	function escape($string) {
+		throw new Exception('Implement '.__METHOD__);
+	}
+
 	function escapeBool($value) {
 		return $value;
 	}

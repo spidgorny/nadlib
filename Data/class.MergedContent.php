@@ -17,7 +17,12 @@ class MergedContent implements ArrayAccess {
 		$this->content = $parts;
 	}
 
+	function render() {
+		return IndexBase::mergeStringArrayRecursive($this->content);
+	}
+
 	function __toString() {
+		debug_pre_print_backtrace();
 		return IndexBase::mergeStringArrayRecursive($this->content);
 	}
 
