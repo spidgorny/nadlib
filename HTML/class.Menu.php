@@ -400,7 +400,7 @@ class Menu /*extends Controller*/ {
 	 * @return string
 	 */
 	function getClassPath($class, array $root) {
-		if (startsWith($class, 'http')) {
+		if (str_startsWith($class, 'http')) {
 			return $class;
 		} else {
 			if ($this->useRecursiveURL) {

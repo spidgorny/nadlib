@@ -85,4 +85,9 @@ class dbPlacebo extends dbLayerBase implements DBInterface {
 	function getIndexesFrom($table) {
 		// TODO: Implement getIndexesFrom() method.
 	}
+
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
+		return array();
+	}
+
 }
