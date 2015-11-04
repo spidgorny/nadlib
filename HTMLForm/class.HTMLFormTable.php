@@ -316,7 +316,7 @@ class HTMLFormTable extends HTMLForm {
 						($desc->isObligatory() ? ' required="1"' : '').
 						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
 						, $type,
-						ifsetor($desc['class'])
+						ifsetor($desc['class'], ifsetor($desc['more']['class']))
 					);
 					//debug($desc, $desc->isObligatory(), $desc->getTypeString());
 				break;

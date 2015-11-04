@@ -66,7 +66,9 @@ class HTMLFormSelection extends HTMLFormType {
 		}
 		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc->getArray());
 		$content[] = "</select>\n";
-		return new MergedContent($content);
+
+		$mc = new MergedContent($content);
+		return $mc->render();
 	}
 
 	/**
