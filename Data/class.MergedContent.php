@@ -17,13 +17,13 @@ class MergedContent implements ArrayAccess {
 		$this->content = $parts;
 	}
 
-	function render() {
+	function getContent() {
 		return IndexBase::mergeStringArrayRecursive($this->content);
 	}
 
 	function __toString() {
-		debug_pre_print_backtrace();
-		return IndexBase::mergeStringArrayRecursive($this->content);
+//		debug_pre_print_backtrace();
+		return $this->getContent();
 	}
 
 	public function offsetExists($offset) {
@@ -99,6 +99,7 @@ class MergedContent implements ArrayAccess {
 	}
 
 	public function clear() {
-		$this->content = [];
+		$this->content = array();
 	}
+
 }

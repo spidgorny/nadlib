@@ -143,13 +143,13 @@ abstract class Controller {
 		//debug($prefix, get_class($path));
 		$path->setAsFile();
 		$url->setPath($path);
-		nodebug([
+		nodebug(array(
 			'useRouter' => $this->useRouter,
 			'class' => $class,
 			'class($url)' => get_class($url),
 			'class($path)' => get_class($path),
 			'return' => $url.'',
-		]);
+		));
 		return $url;
 	}
 

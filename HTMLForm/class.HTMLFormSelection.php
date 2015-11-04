@@ -53,7 +53,7 @@ class HTMLFormSelection extends HTMLFormType {
 		$more += (isset($this->desc['id'])
 			? array('id' => $this->desc['id']) : array());
 		$more += $this->desc->isObligatory()
-				? array('required' => true) : [];
+				? array('required' => true) : array();
 		if (isset($this->desc['more'])) {
 			$more += is_array($this->desc['more'])
 				? $this->desc['more']
@@ -68,7 +68,7 @@ class HTMLFormSelection extends HTMLFormType {
 		$content[] = "</select>\n";
 
 		$mc = new MergedContent($content);
-		return $mc->render();
+		return $mc->getContent();
 	}
 
 	/**

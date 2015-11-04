@@ -106,10 +106,6 @@ class HTMLTableBuf extends MergedContent {
 		print($this->getContent());
 	}
 
-	function getContent() {
-		return $this.'';
-	}
-
 	function tag(HTMLTag $tag) {
 		$this->addSub('tbody', $tag.'');
 	}

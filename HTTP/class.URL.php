@@ -178,12 +178,13 @@ class URL {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 			$path = new Path($path);
 		}
-		nodebug([
+		nodebug(array(
 			'class($this->path)' => get_class($this->path),
 			'$this->path' => $this->path.'',
 			'documentRoot' => $this->documentRoot.'',
 			'class($path)' => get_class($path),
-			'path' => $path.'']);
+			'path' => $path.''
+		));
 		return $path;
 	}
 

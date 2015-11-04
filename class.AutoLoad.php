@@ -329,7 +329,7 @@ class AutoLoad {
 					(sizeof($namespaces) > 1)
 							? first($namespaces)
 							: NULL;
-			$this->folders->collectDebug = [];
+			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);
 			$this->classFileMap[$class] = $file;
