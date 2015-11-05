@@ -403,7 +403,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		//debug($this->numRows($result));
 		$res = pg_fetch_all($result);
 		pg_free_result($result);
-		if ($_REQUEST['d'] == 'q') {
+		if (ifsetor($_REQUEST['d']) == 'q') {
 			debug($this->lastQuery, sizeof($res));
 		}
 		if (!$res) {

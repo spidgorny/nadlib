@@ -405,7 +405,7 @@ class URL {
 	        //debug($scriptWithPath);
 	        // this below may not work since __FILE__ is class.URL.php and not index.php
 	        // but this our last chance for CLI/Cron
-	        if (!$scriptWithPath || !startsWith($scriptWithPath, '/')) {    // relative not OK
+	        if (!$scriptWithPath || !str_startsWith($scriptWithPath, '/')) {    // relative not OK
 		        if (basename(__FILE__) == __FILE__) {	// index.php
 					$scriptWithPath = getcwd().'/'.__FILE__;
 				} else {
