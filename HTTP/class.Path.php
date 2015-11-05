@@ -14,7 +14,7 @@ class Path {
 
 	function __construct($sPath) {
 		$this->sPath = $sPath.'';
-		$this->isAbsolute = startsWith($this->sPath, '/') || (isset($this->sPath[1]) && $this->sPath[1] == ':');
+		$this->isAbsolute = str_startsWith($this->sPath, '/') || (isset($this->sPath[1]) && $this->sPath[1] == ':');
 		$this->isDir = endsWith($this->sPath, '/');
 		$this->isFile = !$this->isDir;
 		$this->explode();

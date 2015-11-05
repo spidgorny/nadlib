@@ -45,7 +45,7 @@ class MemcacheMemory extends Memcache {
 	function getKeysStarting($begin) {
 		$keys = $this->getKeys();
 		foreach ($keys as $key => $_) {
-			if (!startsWith($key, $begin)) {
+			if (!str_startsWith($key, $begin)) {
 				unset($keys[$key]);
 			}
 		}
