@@ -221,6 +221,7 @@ class View extends stdClass {
 	}
 
 	function &__get($var) {
+		d($var);
 		return $this->caller->$var;
 	}
 
