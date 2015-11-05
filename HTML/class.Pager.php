@@ -260,7 +260,7 @@ class Pager {
 		);
 	}
 
-	function renderPager() {
+	function renderPageSize() {
 		$this->pageSize->setURL(new URL(NULL, array()));
 		$this->pageSize->selected = $this->itemsPerPage;
 		$content = '<div class="pageSize pull-right floatRight">'.
@@ -268,7 +268,7 @@ class Pager {
 		return $content;
 	}
 
-	protected function showSearchBrowser() {
+	public function showSearchBrowser() {
 		$content = '';
 		$maxpage = $this->getMaxPage();
  		$pages = $this->getPagesAround($this->currentPage, $maxpage);
