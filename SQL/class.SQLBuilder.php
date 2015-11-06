@@ -651,4 +651,9 @@ class SQLBuilder {
 		return $rows;
 	}
 
+	function getWhereString(array $where) {
+		$set = $this->quoteWhere($where);
+		return implode(' AND ', $set);
+	}
+
 }

@@ -59,6 +59,7 @@ class Pager {
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
 		Config::getInstance()->mergeConfig($this);
+		$this->url = new URL();	// just in case
 	}
 
 	/**
@@ -213,7 +214,9 @@ class Pager {
 
 	function renderPageSelectors(URL $url = NULL) {
 		$content = '';
-		$this->url = $url;
+		if ($url) {
+			$this->url = $url;
+		}
 
 		if (!self::$cssOutput) {
 			$al = AutoLoad::getInstance();
@@ -232,7 +235,7 @@ class Pager {
 		$content .= '<div class="paginationControl">';
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
-			$content .= $this->renderPager();	// will render UL inside
+			$content .= $this->renderPageSize();	// will render UL inside
 		}
 		$content .= '</div>';
 		return $content;
