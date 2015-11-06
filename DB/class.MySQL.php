@@ -309,7 +309,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 				'OODBase::fetchFromDB',
 			)));
 			$profilerKey = __METHOD__." (".$caller.")";
-			$GLOBALS['profiler']->startTimer($profilerKey);
+			TaylorProfiler::start($profilerKey);
 		}
 		if ($this->logToLog) {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
@@ -323,7 +323,10 @@ class MySQL extends dbLayerBase implements DBInterface {
 			$this->queryLog->log($query, $diffTime);
 		}
 		$this->lastQuery = $query;
-		TaylorProfiler::stop($profilerKey);
+
+		if ($withProfiler && isset($profilerKey)) {
+			TaylorProfiler::stop($profilerKey);
+		}
 		if (!$res || mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				debug(array(
@@ -339,7 +342,9 @@ class MySQL extends dbLayerBase implements DBInterface {
 			$e->setQuery($this->lastQuery);
 			throw $e;
 		}
-		if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
+		if ($withProfiler && isset($profilerKey)) {
+			TaylorProfiler::stop($profilerKey);
+		}
 		return $res;
 	}
 
