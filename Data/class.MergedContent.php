@@ -18,7 +18,7 @@ class MergedContent implements ArrayAccess {
 	}
 
 	function getContent() {
-		return IndexBase::mergeStringArrayRecursive($this->content);
+		return $this->mergeStringArrayRecursive($this->content);
 	}
 
 	function __toString() {
@@ -100,6 +100,42 @@ class MergedContent implements ArrayAccess {
 
 	public function clear() {
 		$this->content = array();
+	}
+
+	/**
+	 * @param string|string[] $render
+	 * @return string
+	 */
+	static function mergeStringArrayRecursive($render) {
+		TaylorProfiler::start(__METHOD__);
+		if (is_array($render)) {
+			$combined = '';
+			/*array_walk_recursive($render,
+				array('IndexBase', 'walkMerge'),
+				$combined); // must have &
+			*/
+
+			//$combined = array_merge_recursive($render);
+			//$combined = implode('', $combined);
+
+			$combinedA = new ArrayObject();
+			array_walk_recursive($render, array(__CLASS__, 'walkMergeArray'), $combinedA);
+			$combined = implode('', $combinedA->getArrayCopy());
+			$render = $combined;
+		} else if (is_object($render)) {
+			//debug(get_class($render));
+			$render = $render.'';
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $render;
+	}
+
+	protected static function walkMerge($value, $key, &$combined = '') {
+		$combined .= $value."\n";
+	}
+
+	protected static function walkMergeArray($value, $key, $combined) {
+		$combined[] = $value;
 	}
 
 }

@@ -237,7 +237,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderController() {
 		TaylorProfiler::start(__METHOD__);
 		$render = $this->controller->render();
-		$render = $this->mergeStringArrayRecursive($render);
+		$render = MergedContent::mergeStringArrayRecursive($render);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
@@ -250,43 +250,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function s($content) {
-		return $this->mergeStringArrayRecursive($content);
-	}
-
-	/**
-	 * @param string|string[] $render
-	 * @return string
-	 */
-	static function mergeStringArrayRecursive($render) {
-		TaylorProfiler::start(__METHOD__);
-		if (is_array($render)) {
-			$combined = '';
-			/*array_walk_recursive($render,
-				array('IndexBase', 'walkMerge'),
-				$combined); // must have &
-			*/
-
-			//$combined = array_merge_recursive($render);
-			//$combined = implode('', $combined);
-
-			$combinedA = new ArrayObject();
-			array_walk_recursive($render, array('IndexBase', 'walkMergeArray'), $combinedA);
-			$combined = implode('', $combinedA->getArrayCopy());
-			$render = $combined;
-		} else if (is_object($render)) {
-			//debug(get_class($render));
-			$render = $render.'';
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $render;
-	}
-
-	protected static function walkMerge($value, $key, &$combined = '') {
-		$combined .= $value."\n";
-	}
-
-	protected static function walkMergeArray($value, $key, $combined) {
-		$combined[] = $value;
+		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
@@ -512,7 +476,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
-			$content = $this->mergeStringArrayRecursive($content);
+			$content = MergedContent::mergeStringArrayRecursive($content);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
