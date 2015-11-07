@@ -43,7 +43,6 @@ class Uploader {
 	 * @param array|null $allowed If provided this will override allowed extensions
 	 */
 	function __construct($allowed = array()) {
-
 		if (!empty($allowed)) {
 			$this->allowed = $allowed;
 		}
@@ -62,18 +61,20 @@ class Uploader {
 	}
 
 	/**
-		Usage:
-		$uf = new Uploader();
-		$f = $uf->getUploadForm()
-		// add custom hidden fields to upload form (e.g. Loan[id])
-		if (!empty($hiddenFields)) {
-			foreach ($hiddenFields as $name => $value) {
-				$f->hidden($name, $value);
-			}
-		}
-		@param  string - input field name - usually 'file'
-		@return HTMLForm
-	*/
+	 * Usage:
+	 * $uf = new Uploader();
+	 * $f = $uf->getUploadForm()
+	 * // add custom hidden fields to upload form (e.g. Loan[id])
+	 * if (!empty($hiddenFields)) {
+	 * foreach ($hiddenFields as $name => $value) {
+	 * $f->hidden($name, $value);
+	 * }
+	 * }
+	 * @param  string - input field name - usually 'file'
+	 * @return HTMLForm
+	 * @param string $fieldName
+	 * @return HTMLForm
+	 */
 	public function getUploadForm($fieldName = 'file') {
 		$f = new HTMLForm();
 		$f->file($fieldName);
@@ -96,12 +97,13 @@ class Uploader {
 		';
 	}
 
-    /**
-     * @param string|array $from - usually 'file' - the same name as in getUploadForm()
-     * @param string $to - directory
-     * @param bool $overwriteExistingFile
-     * @throws Exception
-     */
+	/**
+	 * @param string|array $from - usually 'file' - the same name as in getUploadForm()
+	 * @param string $to - directory
+	 * @param bool $overwriteExistingFile
+	 * @return bool
+	 * @throws Exception
+	 */
 	public function moveUpload($from, $to, $overwriteExistingFile = true) {
 		if (is_array($from)) {
 			$uf = $from;            // $_FILES['whatever']
@@ -122,7 +124,11 @@ class Uploader {
             // if you don't want existing files to be overwritten,
             // new file will be renamed to *_n,
             // where n is the number of existing files
-            $fileName = $to.$uf['name'];
+			if (is_dir($to)) {
+				$fileName = $to . $uf['name'];
+			} else {
+				$fileName = $to;
+			}
             if (!$overwriteExistingFile && file_exists($fileName)) {
                 $actualName = pathinfo($fileName, PATHINFO_FILENAME);
                 $originalName = $actualName;
@@ -145,6 +151,7 @@ class Uploader {
 				throw new Exception($error['message']);
 			}
 		}
+		return $ok;
 	}
 
 	function checkError(array $uf) {
@@ -162,7 +169,7 @@ class Uploader {
 			$filename = $uf['name'];
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
 			$uf['ext'] = $ext;
-			debug($uf);
+			//debug($uf);
 			return in_array(strtolower($ext), $this->allowed);
 		} else {
 			return true;

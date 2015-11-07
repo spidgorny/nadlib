@@ -19,6 +19,10 @@ class HTMLTag {
 	}
 
 	function __toString() {
+		return $this->render();
+	}
+
+	function render() {
 		$xmlClose = $this->closingTag ? '' : '/';
 		$content = ($this->isHTML
 			|| $this->content instanceof HTMLTag

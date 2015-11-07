@@ -571,4 +571,20 @@ abstract class Controller {
 		return '<div class="alert alert-info">'.$this->s($content).'</div>';
 	}
 
+	function error($content) {
+		return '<div class="alert alert-danger">'.$this->s($content).'</div>';
+	}
+
+	function success($content) {
+		return '<div class="alert alert-success">'.$this->s($content).'</div>';
+	}
+
+	function message($content) {
+		return '<div class="alert alert-warning">'.$this->s($content).'</div>';
+	}
+
+	function h1($content) {
+		return '<h1>'.$this->s($content).'</h1>';
+	}
+
 }
