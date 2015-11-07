@@ -587,4 +587,15 @@ abstract class Controller {
 		return '<h1>'.$this->s($content).'</h1>';
 	}
 
+	function progress($percent) {
+		$percent = intval($percent);
+		return '<div class="progress">
+		  <div class="progress-bar" role="progressbar"
+		  	aria-valuenow="'.$percent.'" aria-valuemin="0" aria-valuemax="100"
+		  	style="width: '.$percent.'%;">
+			'.$percent.'%
+		  </div>
+		</div>';
+	}
+
 }
