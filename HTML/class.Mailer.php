@@ -120,13 +120,18 @@ class Mailer {
             throw new Exception('SwiftMailer not installed!');
         }
 
+		if ($_SERVER['HTTP_USER_AGENT'] == 'Detectify') {
+			return NULL;
+		}
+
+		$index = Index::getInstance();
         /** @var Swift_Message $message */
         $message = Swift_Message::newInstance()
             ->setSubject($subject)
             ->setBody($message)
         ;
 
-        $message->setFrom(Index::getInstance()->mailFromSwiftMailer);
+        $message->setFrom($index->mailFromSwiftMailer);
         if (!empty($additionalSenders)) {
             foreach ($additionalSenders as $address) {
                 empty($address)
