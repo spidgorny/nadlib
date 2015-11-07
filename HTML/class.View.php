@@ -221,7 +221,6 @@ class View extends stdClass {
 	}
 
 	function &__get($var) {
-		d($var);
 		return $this->caller->$var;
 	}
 
@@ -366,7 +365,7 @@ class View extends stdClass {
 	}
 
 	function s($a) {
-		return IndexBase::mergeStringArrayRecursive($a);
+		return MergedContent::mergeStringArrayRecursive($a);
 	}
 
 	static function markdown($text) {

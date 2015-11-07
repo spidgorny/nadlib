@@ -526,7 +526,7 @@ abstract class Controller {
 		$x = round(12 / $size);
 		$content = '<div class="row">';
 		foreach ($parts as $c) {
-			$c = IndexBase::mergeStringArrayRecursive($c);
+			$c = $this->s($c);
 			$content .= '<div class="col-md-'.$x.'">'.$c.'</div>';
 		}
 		$content .= '</div>';
@@ -547,7 +547,7 @@ abstract class Controller {
 	}
 
 	function s($something) {
-		return IndexBase::mergeStringArrayRecursive($something);
+		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
 	/**
@@ -561,6 +561,14 @@ abstract class Controller {
 		return new HTMLTag('a', array(
 			'href' => $href,
 		) + $more, $text ?: $href, $isHTML);
+	}
+
+	function div($class, $content) {
+		return '<div class="'.$class.'">'.$this->s($content).'</div>';
+	}
+
+	function info($content) {
+		return '<div class="alert alert-info">'.$this->s($content).'</div>';
 	}
 
 }
