@@ -54,4 +54,14 @@ class AccessRights {
 		return new UL($this->arCache);
 	}
 
+	function __sleep() {
+		$vars = get_object_vars($this);
+		$keys = array_keys($vars);
+		$keys = array_combine($keys, $keys);
+		$types = array_map('gettype2', $vars);
+		unset($keys['db'], $types['db']);
+		//debug(array_combine($keys, $types));
+		return $keys;
+	}
+
 }
