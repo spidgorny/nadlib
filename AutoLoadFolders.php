@@ -132,6 +132,7 @@ class AutoLoadFolders {
 	}
 
 	function getFoldersFromConfigBase() {
+		require_once __DIR__ . '/class.ConfigBase.php';
 		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 		// append $this->nadlibRoot before each
 		//if (basename(getcwd()) != 'be') {
