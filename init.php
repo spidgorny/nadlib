@@ -392,3 +392,11 @@ if (!function_exists('nodebug')) {
 	}
 
 }
+
+function gettype2($something) {
+	$type = gettype($something);
+	if ($type == 'object') {
+		$type = get_class($something);
+	}
+	return $type;
+}
