@@ -22,6 +22,16 @@
 
 class Duration extends Time {
 
+	var $periods = array (
+		'years'     => 31556926,
+		'months'    => 2629743,
+		'weeks'     => 604800,
+		'days'      => 86400,
+		'hours'     => 3600,
+		'minutes'   => 60,
+		'seconds'   => 1
+	);
+
 	function  __construct($input = NULL) {
 		if ($input instanceof Time) {
 			$this->time = $input->time;
@@ -142,13 +152,12 @@ class Duration extends Time {
 	/**
 	 * All in one method
 	 *
-	 * @param null $periods
 	 * @param int $perCount
 	 * @return  string
 	 */
-    function toString($periods = null, $perCount = 2) {
+    function toString($perCount = 2) {
 		$content = '';
-        $duration = $this->int2array($periods);
+        $duration = $this->int2array();
         //debug($duration);
 
         if (is_array($duration)) {
@@ -170,27 +179,13 @@ class Duration extends Time {
 	 * Return an array of date segments.
 	 * Must be public for Trip
 	 *
-	 * @param null $periods
 	 * @internal param int $seconds Number of seconds to be parsed
 	 * @return       mixed An array containing named segments
 	 */
-    public function int2array($periods = NULL) {
-        // Define time periods
-        if (!is_array($periods)) {
-            $periods = array (
-				'years'     => 31556926,
-				'months'    => 2629743,
-				'weeks'     => 604800,
-				'days'      => 86400,
-				'hours'     => 3600,
-				'minutes'   => 60,
-				'seconds'   => 1
-			);
-        }
-
+    public function int2array() {
         // Loop
         $seconds = (float) abs($this->time);
-        foreach ($periods as $period => $value) {
+        foreach ($this->periods as $period => $value) {
             $count = floor($seconds / $value);
 
             if ($count == 0) {
@@ -224,8 +219,8 @@ class Duration extends Time {
 
 	    $array = array();
         foreach ($duration as $key => $value) {
-            $segment_name = substr($key, 0, -1);
-            $segment = abs($value) . ' ' . $segment_name;	// otherwise -1 years, -1 months ago
+            $segment = abs($value) . ' ' . $key;
+			// otherwise -1 years, -1 months ago
 
             // Plural
             if ($value != 1) {
