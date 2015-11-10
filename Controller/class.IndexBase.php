@@ -211,7 +211,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			$contentOut .= $this->content;	// display Exception
-			$contentOut .= $content;
+			$contentOut .= $this->s($content);
 			$contentOut = $this->renderTemplate($contentOut)->render();
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
@@ -237,7 +237,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderController() {
 		TaylorProfiler::start(__METHOD__);
 		$render = $this->controller->render();
-		$render = MergedContent::mergeStringArrayRecursive($render);
+		$render = $this->s($render);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
@@ -476,7 +476,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
-			$content = MergedContent::mergeStringArrayRecursive($content);
+			$content = $this->s($content);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;

@@ -276,7 +276,7 @@ abstract class Controller {
 
 	function encloseIn($title, $content) {
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
-		$content = IndexBase::mergeStringArrayRecursive($content);
+		$content = $this->s($content);
 		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
@@ -391,7 +391,7 @@ abstract class Controller {
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
 /*		$content = '';
 		foreach ($elements as $html) {
-			$html = IndexBase::mergeStringArrayRecursive($html);
+			$html = $this->s($html);
 			$content .= '<div style="float: left;">'.$html.'</div>';
 		}
 		$content = $content.'<div style="clear: both"></div>';
@@ -403,7 +403,7 @@ abstract class Controller {
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
-			$html = IndexBase::mergeStringArrayRecursive($html);
+			$html = $this->s($html);
 			$content .= '<div class="flex-box">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
@@ -426,7 +426,7 @@ abstract class Controller {
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';
-			$content[] = IndexBase::mergeStringArrayRecursive($info);
+			$content[] = $this->s($info);
 			$content[] = '</td>';
 		}
 		$content[] = '</tr>';
@@ -440,7 +440,7 @@ abstract class Controller {
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
 			if (!$el instanceof HTMLTag) {
-				$el = IndexBase::mergeStringArrayRecursive($el);
+				$el = $this->s($el);
 				$el = new HTMLTag('div', array(
 					'class' => 'column',
 				), $el, true);
