@@ -158,12 +158,13 @@ class AutoLoadFolders {
 			$path = getcwd().'/'.$path;
 		}
 		$this->folders[$namespace][] = realpath($path);
-		$sub = glob($path.'/*', GLOB_ONLYDIR);
+		$sub = glob(cap($path).'*', GLOB_ONLYDIR);
 		//debug($path, $sub);
 		foreach ($sub as $s) {
 			$this->addFolder($s, $namespace);
 		}
 		$this->folders = unique_multidim_array($this->folders);
+		//pre_print_r($path, $namespace, $this->folders);
 	}
 
 	/**

@@ -108,15 +108,17 @@ class AutoLoad {
 	 * While loading Config, we need to make sure nadlib libraries can be loaded
 	 */
 	function postInit() {
-		$this->folders = new AutoLoadFolders($this);
-		$this->folders->loadConfig();
-		if (class_exists('Config')) {
-			self::$instance->config = Config::getInstance();
-		}
-		if (isset($_SESSION[__CLASS__])) {
-			$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
-					? $_SESSION[__CLASS__]['classFileMap']
-					: array();
+		if (!$this->folders) {
+			$this->folders = new AutoLoadFolders($this);
+			$this->folders->loadConfig();
+			if (class_exists('Config')) {
+				self::$instance->config = Config::getInstance();
+			}
+			if (isset($_SESSION[__CLASS__])) {
+				$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
+						? $_SESSION[__CLASS__]['classFileMap']
+						: array();
+			}
 		}
 	}
 
@@ -293,6 +295,7 @@ class AutoLoad {
 				}
 			} else {
 				//debug_pre_print_backtrace();
+				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
 				$this->log(__METHOD__.': '.$class.' not found'.BR);
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';

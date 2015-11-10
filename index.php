@@ -9,6 +9,11 @@ function __($a, $sub1, $sub2, $sub3) {
 
 class NadlibIndex {
 
+	/**
+	 * @var Request
+	 */
+	var $request;
+
 	function __construct() {
 		if (file_exists('vendor/autoload.php')) {
 			require_once 'vendor/autoload.php';
@@ -72,7 +77,7 @@ class NadlibIndex {
 			$i->initController();
 			$content[] = $i->render();
 		}
-		$content = IndexBase::mergeStringArrayRecursive($content);
+		$content = $this->s($content);
 		return $content;
 	}
 
@@ -92,6 +97,10 @@ class NadlibIndex {
 
 	function initAction() {
 		return 'initAction';
+	}
+
+	function s($content) {
+		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
 }
