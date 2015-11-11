@@ -745,7 +745,18 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	public function combineSelf() {
-		return $this->setData(array_combine($this->getData(), $this->getData()));
+		return $this->setData(array_combine(
+				$this->getData(),
+				$this->getData()));
+	}
+
+	function stringArray() {
+		$new = array();
+		foreach ($this->getData() as $i => $mixed) {
+			$new[$i] = MergedContent::mergeStringArrayRecursive($mixed);
+		}
+		$this->setData($new);
+		return $this;
 	}
 
 }
