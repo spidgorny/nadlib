@@ -352,15 +352,18 @@ class TaylorProfiler {
     	return $ret;
     }
 
-	static function getMemoryUsage($returnString = false) {
+	static function getMemoryUsage() {
 		static $max;
-		$max = $max ? $max : self::return_bytes(ini_get('memory_limit'));
+		$max = $max ? $max
+				: self::return_bytes(ini_get('memory_limit'));
+		$max = number_format($max/1024/1024, 3, '.', '');
 		$cur = memory_get_usage(true);
-		if ($returnString) {
-			$content = str_pad(number_format($cur, 0, '.', ''), 4, ' ', STR_PAD_LEFT).'/'.$max.'MB '.number_format($cur/$max*100, 3, '.', '').'% ';
-		} else {
-			$content = number_format($cur/$max, 3, '.', '');
-		}
+		$used = number_format($cur/1024/1024, 3, '.', '');
+		$percent = number_format($cur/$max*100, 3, '.', '');
+		$content = str_pad(
+			$used, 4, ' ', STR_PAD_LEFT)
+			.'/'.$max.'MB '
+			.$percent.'% ';
 		return $content;
 	}
 

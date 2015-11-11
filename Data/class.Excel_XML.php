@@ -100,25 +100,20 @@ class Excel_XML {
 	 * @param array 1-dimensional array
 	 * @todo Row-creation should be done by $this->addArray
 	 */
-	private function addRow ($array)
-	{
-
+	public function addRow ($array) {
 		// initialize all cells for this row
 		$cells = "";
 
 		// foreach key -> write value into cells
-		foreach ($array as $k => $v):
+		foreach ($array as $k => $v) {
 			$dataType = "String";
 			if (is_numeric($v)) {
 				$dataType = 'Number';
 			}
 			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . htmlspecialchars($v) . "</Data></Cell>\n";
-
-		endforeach;
-
+		}
 		// transform $cells content into one row
 		$this->lines[] = "<Row>\n" . $cells . "</Row>\n";
-
 	}
 
 	/**
@@ -133,12 +128,10 @@ class Excel_XML {
 	 */
 	public function addArray ($array)
 	{
-
 		// run through the array and add them into rows
-		foreach ($array as $k => $v):
-			$this->addRow ($v);
-		endforeach;
-
+		foreach ($array as $k => $v) {
+			$this->addRow($v);
+		}
 	}
 
 	/**
