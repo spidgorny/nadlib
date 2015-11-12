@@ -253,6 +253,15 @@ if (!function_exists('nodebug')) {
 	}
 
 	/**
+	 * Complements the built-in end() function
+	 * @param array $list
+	 * @return array|mixed
+	 */
+	function last(array $list) {
+		return end($list);
+	}
+
+	/**
 	 * This is equal to return next(each($list))
 	 *
 	 * @param array $list

@@ -152,12 +152,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
 	 * Will call postInit() of the controller if available.
-	 * @param $slug
+	 * @param $class
 	 * @throws Exception
 	 */
-	protected function loadController($slug) {
+	protected function loadController($class) {
 		TaylorProfiler::start(__METHOD__);
-		$slugParts = explode('/', $slug);
+		$slugParts = explode('/', $class);
 		$class = end($slugParts);	// again, because __autoload need the full path
 		//debug(__METHOD__, $slug, $class, class_exists($class));
 		if (class_exists($class)) {
@@ -195,8 +195,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
-			//$this->content .= $e;
-			throw $e;
+			$this->content .= $e->getMessage();
 		} catch (Exception $e) {
 			$content = $this->renderException($e);
 		}

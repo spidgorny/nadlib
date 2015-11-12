@@ -1005,4 +1005,14 @@ class Request {
 		return $this->getRequestType() == 'https';
 	}
 
+	public function getNamelessID() {
+		$nameless = $this->getURLLevels();
+		foreach ($nameless as $n) {
+			if (is_numeric($n)) {
+				return $n;
+			}
+		}
+		return NULL;
+	}
+
 }
