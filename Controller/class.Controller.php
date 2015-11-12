@@ -340,7 +340,8 @@ abstract class Controller {
 	function performAction($action = NULL) {
 		$content = '';
 		$reqAction = $this->request->getTrim('action');
-		$method = $action ? $action : (!empty($reqAction) ? $reqAction : 'index');
+		$method = $action ? $action
+				: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
@@ -403,7 +404,7 @@ abstract class Controller {
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
-			$html = IndexBase::mergeStringArrayRecursive($html);
+			$html = MergedContent::mergeStringArrayRecursive($html);
 			$content .= '<div class="flex-box">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
@@ -426,7 +427,7 @@ abstract class Controller {
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';
-			$content[] = IndexBase::mergeStringArrayRecursive($info);
+			$content[] = MergedContent::mergeStringArrayRecursive($info);
 			$content[] = '</td>';
 		}
 		$content[] = '</tr>';
@@ -440,7 +441,7 @@ abstract class Controller {
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
 			if (!$el instanceof HTMLTag) {
-				$el = IndexBase::mergeStringArrayRecursive($el);
+				$el = MergedContent::mergeStringArrayRecursive($el);
 				$el = new HTMLTag('div', array(
 					'class' => 'column',
 				), $el, true);
