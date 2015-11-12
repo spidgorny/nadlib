@@ -96,14 +96,19 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return true;
 	}
 
-	function perform($query) {
+	function perform($query, array $params = array()) {
 		$prof = new Profiler();
 		$this->lastQuery = $query;
 		if (!is_resource($this->CONNECTION)) {
 			debug($query);
 			debug_pre_print_backtrace();
 		}
-		$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
+		if ($params) {
+			pg_prepare($this->CONNECTION, '', $query);
+			$this->LAST_PERFORM_RESULT = pg_execute($this->CONNECTION, '', $params);
+		} else {
+			$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
+		}
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
 			debug_pre_print_backtrace();
