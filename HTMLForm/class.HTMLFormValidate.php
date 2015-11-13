@@ -51,6 +51,7 @@ class HTMLFormValidate {
 					'select',
 				));
 				$d = $this->validateField($field, $d, $type, $isCheckbox);
+				//debug($field, $d['error']);
 				$error = $error || ifsetor($d['error']);
 			}
 		}
@@ -99,6 +100,10 @@ class HTMLFormValidate {
 			$d['error'] = __('Value "%1" must be date', $label);
 		} elseif (ifsetor($d['validate']) == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
 			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $label, implode(', ', $inValid));
+		} elseif (ifsetor($d['mustMatch'])
+				&& $value != $d['mustMatch']) {
+			//debug($value, $d['mustMatch']);
+			$d['error'] = __('Value does not match');
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
