@@ -282,7 +282,7 @@ class AutoLoad {
 			if (isset($_SESSION)) {
 				//debug('clear folder as '.$class.' is not found');
 				//$this->folders = array();				// @see __destruct(), commented as it's too global
-				unset($_SESSION[__CLASS__]['folders']); // just in case
+				$this->folders->clearCache();
 				//debug($_SESSION[__CLASS__]['folders']);
 				$this->useCookies = false;				// prevent __destruct saving data to the session
 			}

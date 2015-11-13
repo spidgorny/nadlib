@@ -22,6 +22,11 @@ class AutoLoadFolders {
 	 */
 	protected $debugger;
 
+	/**
+	 * @var boolean
+	 */
+	protected $saveFolders = true;
+
 	function __construct(AutoLoad $al) {
 		$this->al = $al;
 		require_once __DIR__.'/Debug/class.Debug.php';
@@ -36,10 +41,7 @@ class AutoLoadFolders {
 		}
 		$this->folders = unique_multidim_array($this->folders);
 		if (0) {
-			print '<pre>';
-			//print_r($_SESSION[__CLASS__]);
-			print_r($this->folders);
-			print '</pre>';
+			pre_print_r([$this->folders, $this->al->stat]);
 		}
 	}
 
@@ -149,10 +151,6 @@ class AutoLoadFolders {
 		return $folders;
 	}
 
-	function __destruct() {
-		$_SESSION[__CLASS__]['folders'] = $this->folders;
-	}
-
 	function addFolder($path, $namespace = NULL) {
 		if ($path[0] != '/') {
 			$path = getcwd().'/'.$path;
@@ -230,6 +228,19 @@ class AutoLoadFolders {
 			} else {
 				echo $debugLine;
 			}
+		}
+	}
+
+	public function clearCache() {
+		// __destruct will overwrite
+		$this->saveFolders = false;
+	}
+
+	function __destruct() {
+		if ($this->saveFolders) {
+			$_SESSION[__CLASS__]['folders'] = $this->folders;
+		} else {
+			$_SESSION[__CLASS__]['folders'] = NULL;
 		}
 	}
 
