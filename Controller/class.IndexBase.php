@@ -98,7 +98,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				throw new AccessDeniedException('Session hijacking detected. Please try again');
 			}
 		} else {
-			$_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
 		}
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
 			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
@@ -106,7 +106,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				throw new AccessDeniedException('Session hijacking detected. Please try again');
 			}
 		} else {
-			$_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
 		}
 //		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
 //		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
