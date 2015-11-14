@@ -30,7 +30,7 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	protected $validated = false;
 
-	protected $ajax = true;
+	public $ajax = true;
 
 	protected $submitButton = '';
 

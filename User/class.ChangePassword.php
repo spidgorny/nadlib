@@ -7,6 +7,10 @@ class ChangePassword extends HTMLFormProcessor {
 
 	function getDesc() {
 		$desc = array();
+		$desc['action'] = array(
+			'type' => 'hidden',
+			'value' => 'changePassword',
+		);
 		$desc['password']['label'] = __('Password');
 		$desc['password']['append'] = __('Min: %s chars.', $this->minLength);
 		$desc['password']['type'] = 'password';

@@ -111,7 +111,9 @@ class Menu /*extends Controller*/ {
 		$rootpath = $this->request->getURLLevels();
 
 		if ($useRouter) {
-			$this->current = $rootpath[$level] ? $rootpath[$level] : $this->request->getControllerString();
+			$this->current = $rootpath[$level]
+					? $rootpath[$level]
+					: $this->request->getControllerString();
 		} else if ($this->useControllerSlug) {
 			if ($rootpath) {
 				$this->current = implode('/', $rootpath);

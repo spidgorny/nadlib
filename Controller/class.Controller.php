@@ -340,7 +340,8 @@ abstract class Controller {
 	function performAction($action = NULL) {
 		$content = '';
 		$reqAction = $this->request->getTrim('action');
-		$method = $action ? $action : (!empty($reqAction) ? $reqAction : 'index');
+		$method = $action ? $action
+				: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
