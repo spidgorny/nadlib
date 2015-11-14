@@ -771,4 +771,8 @@ class HTMLFormTable extends HTMLForm {
 		return $desc2;
 	}
 
+	public function undo() {
+		$this->stdout = '';
+	}
+
 }
