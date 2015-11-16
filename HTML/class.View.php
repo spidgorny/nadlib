@@ -194,7 +194,7 @@ class View extends stdClass {
 	}
 
 	function data($key) {
-		return $this->e($this->data[$key]);
+		return $this->e($this->caller->data[$key]);
 	}
 
 	function __toString() {
