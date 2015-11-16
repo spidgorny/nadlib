@@ -58,6 +58,36 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	var $config;
 
+	var $csp = array(
+		"default-src" => array(
+			"'self'",
+			"'unsafe-inline'",
+			'http://maps.google.com/',
+			'http://csi.gstatic.com/',
+			'http://maps.googleapis.com',
+			'http://fonts.googleapis.com/',
+			'http://maps.gstatic.com/',
+			'http://fonts.gstatic.com/',
+			'http://mt0.googleapis.com/',
+			'http://mt1.googleapis.com/',
+		),
+		"img-src" => array(
+			"'self'",
+			'http://maps.google.com/',
+			'http://csi.gstatic.com/',
+			'http://maps.googleapis.com',
+			'http://fonts.googleapis.com/',
+			'http://maps.gstatic.com/',
+			'http://mt0.googleapis.com/',
+			'http://mt1.googleapis.com/',
+			'http://whc.unesco.org/',
+			'data:',
+		),
+		"connect-src" => array(
+			"'self'",
+		),
+	);
+
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
@@ -79,7 +109,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		header('X-Frame-Options: SAMEORIGIN');
 		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-		header('X-Content-Security-Policy: yes');
+		foreach ($this->csp as $key => &$val) {
+			$val = $key . ' ' . implode(' ', $val);
+		}
+		header('Content-Security-Policy: '.implode('; ', $this->csp));
+		header('X-Content-Security-Policy: '.implode('; ', $this->csp));
 		TaylorProfiler::stop(__METHOD__);
 	}
 
