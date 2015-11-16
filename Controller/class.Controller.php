@@ -522,12 +522,19 @@ abstract class Controller {
 		return $f;
 	}
 
-	function inTable(array $parts) {
+	/**
+	 * Returns content wrapped in bootstrap .row .col-md-3/4/5 columns
+	 * @param array $parts
+	 * @param array $widths
+	 * @return string
+	 */
+	function inTable(array $parts, array $widths = array()) {
 		$size = sizeof($parts);
-		$x = round(12 / $size);
+		$equal = round(12 / $size);
 		$content = '<div class="row">';
-		foreach ($parts as $c) {
+		foreach ($parts as $i => $c) {
 			$c = $this->s($c);
+			$x = ifsetor($widths[$i], $equal);
 			$content .= '<div class="col-md-'.$x.'">'.$c.'</div>';
 		}
 		$content .= '</div>';

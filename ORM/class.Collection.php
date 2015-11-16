@@ -609,7 +609,7 @@ class Collection implements IteratorAggregate {
 				}
 			}
 			$content[] = '</div>';
-		} else {
+		} elseif ($this->noDataMessage) {
 			//Index::getInstance()->ll->debug = true;
 			$content[] = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
 		}
