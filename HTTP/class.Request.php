@@ -1015,4 +1015,8 @@ class Request {
 		return NULL;
 	}
 
+	public function getKeys() {
+		return array_keys($this->data);
+	}
+
 }
