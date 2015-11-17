@@ -294,7 +294,7 @@ class AutoLoad {
 					throw new Exception('Class '.$class.' ('.$file.') not found.'.BR);
 				}
 			} else {
-				//debug_pre_print_backtrace();
+				debug_pre_print_backtrace();
 				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
 				$this->log(__METHOD__.': '.$class.' not found'.BR);
 			}
