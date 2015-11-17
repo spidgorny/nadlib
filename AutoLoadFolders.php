@@ -206,6 +206,7 @@ class AutoLoadFolders {
 				$file2 = NULL;
 			}
 
+			//echo $file, ': ', file_exists($file) ? 'YES' : '-', BR;
 			if (file_exists($file)) {
 				$this->log($classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
 				$this->log($classFile.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
