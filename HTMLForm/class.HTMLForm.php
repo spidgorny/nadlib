@@ -663,7 +663,7 @@ class HTMLForm {
 	 * @param array $attr
 	 * @return string
 	 */
-	function getAttrHTML(array $attr = NULL) {
+	static function getAttrHTML(array $attr = NULL) {
 		$part = array();
 		if ($attr) foreach ($attr as $key => $val) {
 			if (is_array($val)) {
@@ -811,6 +811,53 @@ class HTMLForm {
 
 	public function endLabel() {
 		$this->stdout .= '</label>';
+	}
+
+	/**
+	 * TODO
+	 * @param       $fieldName
+	 * @param       $fieldValue
+	 * @param array $params
+	 */
+	function captcha($fieldName, $fieldValue, array $params) {
+
+	}
+
+	/**
+	 * TODO
+	 * @param           $fieldName
+	 * @param           $fieldValue
+	 * @param           $desc
+	 * @param           $bool
+	 * @param bool|TRUE $doDiv
+	 * @param string    $class
+	 */
+	function datatable($fieldName, $fieldValue, $desc, $bool, $doDiv = TRUE, $class = 'htmlftable') {
+
+	}
+
+	function ajaxSingleChoice($fieldName, $fieldValue, array $desc) {
+
+	}
+
+	/**
+	 * TODO
+	 * @param $fieldName
+	 * @param $fieldValue
+	 * @param $isUnlimited
+	 */
+	function time($fieldName, $fieldValue, $isUnlimited) {
+
+	}
+
+	/**
+	 * TODO
+	 * @param $fieldName
+	 * @param $tree
+	 * @param $fieldValue
+	 */
+	function tree($fieldName, $tree, $fieldValue) {
+
 	}
 
 }

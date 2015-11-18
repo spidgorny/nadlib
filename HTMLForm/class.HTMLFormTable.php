@@ -125,205 +125,12 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function switchType($fieldName, $fieldValue, array $descIn) {
-		$desc = new HTMLFormField($descIn);
-
-		if (isset($desc['prefix']) && $desc['prefix']) {
-			$this->text($desc['prefix']);
-		}
-		if (empty($desc['id'])) {
-			$elementID = uniqid('id_');
-			$desc['id'] = $elementID;
-		} else {
-			$elementID = $desc['id'];
-		}
-		$type = ifsetor($desc['type']);
-		if ($type instanceof HTMLFormType) {
-			/* @var $type HTMLFormType */
-			$type->setField($fieldName);
-			$type->setForm($this);
-			if (ifsetor($desc['value'])) {
-				$type->setValue($desc['value']);
-			}
-			if (ifsetor($desc['jsParams'])) {
-				$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
-			}
-			$type->desc = $desc;
-			$index = Index::getInstance();
-			$this->stdout .= $index->s($type->render());
-		} else if ($type instanceof Collection) {
-			/** @var $type Collection */
-			$type->setField($fieldName);
-			$type->setForm($this);
-			$type->setValue($desc['value']);
-			$type->desc = $desc;
-			$this->stdout .= $type->renderHTMLForm();
-		} else {
-			switch($type) {
-				case "text":
-				case "string":
-					$this->text($fieldValue);
-				break;
-				case "textarea":
-					$this->textarea($fieldName, $fieldValue,
-						(is_array(ifsetor($desc['more']))
-							? HTMLForm::getAttrHTML($desc['more'])
-							: $desc['more']
-						).
-						($desc['id'] ? ' id="'.$desc['id'].'"' : '').
-						(ifsetor($desc['disabled']) ? ' disabled="1"' : '').
-						(ifsetor($desc['class']) ? ' class="'.htmlspecialchars($desc['class'], ENT_QUOTES).'"' : '')
-					);
-				break;
-				case "date":
-					//t3lib_div::debug(array($fieldName, $fieldValue));
-					$this->date($fieldName, $fieldValue, $desc->getArray());
-				break;
-				case "datepopup":
-					$this->datepopup($fieldName, $fieldValue);
-				break;
-				case "money":
-					$this->money($fieldName, $fieldValue, $desc->getArray());
-				break;
-				case "select":
-				case "selection":
-					$this->selection($fieldName, NULL,
-						ifsetor($fieldValue, ifsetor($desc['default'])),
-						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
-						array(),    // more
-						isset($desc['multiple']) ? $desc['multiple'] : NULL,
-						$desc->getArray());
-				break;
-				case "file":
-					$this->file($fieldName, $desc->getArray());
-				break;
-				case "password":
-					$this->password($fieldName, $fieldValue, $desc->getArray());
-				break;
-				case "check":
-				case "checkbox":
-					if (ifsetor($desc['set0'])) {
-						$this->hidden($fieldName, 0);
-					}
-					$more = is_array(ifsetor($desc['more']))
-						? $desc['more'] + array('id' => $elementID)
-						: $desc['more'] . ' id="'.$elementID.'"';
-					if (ifsetor($desc['postgresql'])) {
-						$fieldValue = $fieldValue == 't';
-					}
-					$this->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/ $more);
-				break;
-				case "time":
-					$this->time($fieldName, $fieldValue, $desc['unlimited']);
-				break;
-				case "hidden":
-				case "hide":
-					$this->hidden($fieldName, $fieldValue, ($desc['id'] ? ' id="'.$desc['id'].'"' : ''));
-				break;
-				case 'hiddenArray':
-					$name = is_array($fieldName) ? end($fieldName) : $fieldName;
-					$this->formHideArray(array($name => $fieldValue));
-				break;
-				case 'html':
-					$this->text($desc['code']);
-				break;
-				case 'tree':
-					$this->tree($fieldName, $desc['tree'], $fieldValue);
-				break;
-				case 'popuptree':
-					$this->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc->getArray());
-				break;
-				case 'submit':
-					$desc['name'] = ifsetor($desc['name'], $fieldName);
-					//debug($desc);
-					$this->submit($desc['value'], $desc->getArray());
-				break;
-				case 'ajaxTreeInput':
-					//debug($this->getName($fieldName, '', TRUE));
-					$this->ajaxTreeInput($fieldName, $desc['value'], $desc->getArray());
-				break;
-				case 'captcha':
-					$this->captcha($fieldName, $fieldValue, $desc->getArray());
-				break;
-				case 'recaptcha':
-					$this->recaptcha($desc + array('name' => $this->getName($fieldName, '', TRUE)));
-				break;
-				case 'recaptchaAjax':
-					$this->recaptchaAjax($desc + array('name' => $this->getName($fieldName, '', TRUE)));
-				break;
-				case 'datatable':
-					$this->datatable($fieldName, $fieldValue, $desc, FALSE, $doDiv = TRUE, 'htmlftable');
-				break;
-				case 'ajaxSingleChoice':
-					$this->ajaxSingleChoice($fieldName, $fieldValue, $desc->getArray());
-				break;
-				case 'set':
-					$this->set($fieldName, $fieldValue, $desc->getArray());
-				break;
-				case 'checkarray':
-					if (!is_array($fieldValue)) {
-						debug($fieldName, $fieldValue, $desc->getArray());
-					}
-					$this->checkarray($fieldName, $desc['set'], $fieldValue, $desc->getArray());
-				break;
-				case 'radioset':
-					$this->radioset($fieldName, $fieldValue, $desc->getArray());
-				break;
-				case 'radiolist':
-					$this->radioArray($fieldName, $desc['options'], $fieldValue, $desc->getArray());
-				break;
-				case 'combo':
-					$this->combo($fieldName, $desc->getArray());
-				break;
-				case 'button':
-					$this->button($desc['innerHTML'], $desc['more'] ?: array());
-				break;
-				case 'fieldset':
-					//$this->fieldset($desc['label']);	// it only sets the global fieldset name
-					$this->stdout .= '<fieldset><legend>'.htmlspecialchars($desc['label']).'</legend>';
-				break;
-				case '/fieldset':
-					$this->stdout .= '</fieldset>';
-				break;
-				case 'tfieldset':
-					if (!$desc['close']) {
-						$this->stdout .= '</td></tr></table>
-						<fieldset><legend>'.$desc['legend'].'</legend>
-						<table><tr><td>';
-					} else {
-						$this->stdout .= '</td></tr></table>
-						</fieldset>
-						<table><tr><td>';
-					}
-					break;
-				case 'email':
-					$type = 'email';
-				//break;	// intentional
-				case "input":
-				default:
-					$type = isset($type) ? $type : 'text';
-					//$this->text(htmlspecialchars($desc['more']));
-					$this->input($fieldName, $fieldValue,
-						(is_array(ifsetor($desc['more']))
-							? HTMLForm::getAttrHTML($desc['more'])
-							: '') .
-						(($desc['more'] && !is_array($desc['more']))
-							? $desc['more']
-							: '') .
-						($desc['id'] ? ' id="'.$desc['id'].'"' : '') .
-						(isset($desc['size']) ? ' size="'.$desc['size'].'"' : '') .
-	//					($desc['cursor'] ? " id='$elementID'" : "") .
-						(isset($desc['readonly']) ? ' readonly="readonly"' : '').
-						(isset($desc['disabled']) ? ' disabled="1"' : '').
-						($desc->isObligatory() ? ' required="1"' : '').
-						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
-						, $type,
-						ifsetor($desc['class'], ifsetor($desc['more']['class']))
-					);
-					//debug($desc, $desc->isObligatory(), $desc->getTypeString());
-				break;
-			}
-		}
-		return $elementID;
+		$field = new HTMLFormField($descIn, $fieldName);
+		$field->form = clone $this;
+		$field->form->stdout = '';
+		$field['value'] = $fieldValue;
+		$field->switchType();
+		return $field;
 	}
 
 	function showCell($fieldName, array $desc) {
@@ -350,12 +157,19 @@ class HTMLFormTable extends HTMLForm {
 					$fieldName[] = 'value';
 				}
 
-				$tmp = $this->stdout;
-				$elementID = $this->switchType($fieldName, $fieldValue, $desc);	//			<<== HERE contente generated
-				$newContent = substr($this->stdout, strlen($tmp));
-				$this->stdout = $tmp;
+				$fieldObj = $this->switchType($fieldName, $fieldValue, $desc);
+				//			<<== HERE content generated
+				$newContent = $fieldObj->getContent();
+//				$newContent = '['.$newContent.']';
 
-				$this->showLabel($desc, $type, $fieldName, $elementID);
+				// checkboxes are shown in front of the label
+				if ($type == 'checkbox') {
+					//$this->stdout .= $newContent;
+					$fieldObj['label'] = $newContent . ' '
+							. $fieldObj['label'];
+					$newContent = '';
+				}
+				$this->showLabel($fieldObj, $fieldName);
 
 				if (isset($desc['error'])) {
 					//debug($fieldName, $desc);
@@ -376,14 +190,6 @@ class HTMLFormTable extends HTMLForm {
 
 				$this->stdout .= ifsetor($desc['afterLabel']);
 
-				if (ifsetor($desc['cursor'])) {
-					$this->stdout .= "<script>
-						<!--
-							var obj = document.getElementById('{$elementID}');
-							if (obj) obj.focus();
-						-->
-					</script>";
-				}
 				if (ifsetor($desc['error'])) {
 					$this->stdout .= '<div id="errorContainer['.$this->getName($fieldName, '', TRUE).']"
 					class="error ui-state-error alert-error alert-danger">';
@@ -399,13 +205,14 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function showLabel(array $desc, $type, $fieldName, $elementID) {
+	function showLabel(HTMLFormField $desc, $fieldName) {
+//		debug($desc->getArray());
+		$elementID = $desc['elementID'];
 		$withBR = (ifsetor($desc['br']) === NULL && $this->defaultBR) || $desc['br'];
 		if (isset($desc['label'])) {
 			$label = $desc['label'];
 			if (!$withBR) {
 				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
-				$desc = new HTMLFormField($desc);
 				if ($desc->isObligatory()) {
 					if ($this->noStarUseBold) {
 						$label = '<b title="Obligatory">'.$label.'</b>';
@@ -625,9 +432,11 @@ class HTMLFormTable extends HTMLForm {
 					$desc[$key]['value'] = $val;
 				}
 
-				$sType = is_object(ifsetor($descKey['type']))
-					? get_class($descKey['type'])
-					: $descKey['type'];
+				/** @var HTMLFormType|HTMLFormDatePicker $type */
+				$type = ifsetor($descKey['type']);
+				$sType = is_object($type)
+					? get_class($type)
+					: $type;
 				switch ($sType) {
 					case 'date':
 						if (is_numeric($descKey['value']) && $descKey['value']) {
@@ -635,8 +444,8 @@ class HTMLFormTable extends HTMLForm {
 						}
 					break;
 				}
-				if (is_object(ifsetor($descKey['type']))) {
-					$descKey['type']->setValue($val);
+				if (is_object($type)) {
+					$type->setValue($val);
 				}
 
 				if (ifsetor($descKey['dependant'])) {
