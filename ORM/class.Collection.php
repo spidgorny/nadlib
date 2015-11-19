@@ -208,7 +208,7 @@ class Collection {
 			return;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." (".$this->table.':'.$this->parentID.")");
-		$this->query = $this->getQueryWithLimit($this->where);
+		$this->query = $this->getQueryWithLimit();
 		$res = $this->db->perform($this->query);
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;

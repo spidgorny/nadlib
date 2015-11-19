@@ -66,6 +66,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		foreach ($arguments as $ar) {
 			$query = str_replace('?', $ar, $query);
 		}
+		//$query = $this->fixQuery($query);
 		$profiler = new Profiler();
 		$res = mssql_query($query, $this->connection);
 		$msg = mssql_get_last_message();
@@ -93,6 +94,28 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		}
 		$this->lastQuery = $query;
 		return $res;
+	}
+
+	/**
+	 * Remove space from WHERE SUBSTRING(GameCode,1,3) = N 'CTR')
+	 * @param $original
+	 * @return SQLQuery|string
+	 */
+	function fixQuery($original) {
+		$query = new SQLQuery($original);
+		if (isset($query->parsed['WHERE'])) {
+			foreach ($query->parsed['WHERE'] as $i => $part) {
+				if ($part['expr_type'] == 'colref'
+					&& $part['base_expr'] == 'N'
+				) {
+					unset($query->parsed['WHERE'][$i]);
+					$query->parsed['WHERE'][$i + 1]['base_expr'] = 'N' . $query->parsed['WHERE'][$i + 1]['base_expr'];
+				}
+			}
+		}
+		$fixed = $query->getQuery();
+		//debug(gettype($original), $original, $query->parsed['WHERE'], $fixed);
+		return $fixed;
 	}
 
 	function fetchAssoc($res) {
@@ -304,50 +327,55 @@ AND name = '?')", array($table));
 		$query->parsed['SELECT'][$lastIndex]['delim'] = ',';
 		$query->parsed['SELECT'] = array_merge(
 			$query->parsed['SELECT'], [
-			$querySelect->parsed['SELECT'][0]
+			$querySelect->parsed['SELECT'][0] // ROW_NUMBER()...
 		]);
 		//debug($query->parsed['SELECT']);
+		$query = $this->fixQuery($query);
 
-		$outside = new SQLQuery('SELECT * FROM ('.$query.') AS zxc');
+		$outside = new SQLQuery('SELECT * FROM (subquery123) AS zxc');
 		$outside->parsed['WHERE'] = array_merge(
-			ifsetor($query->parsed['WHERE'], array()), [
-			array (
-				'expr_type' => 'colref',
-				'base_expr' => 'RowNumber',
-				'no_quotes' =>
-					array (
-						'delim' => false,
-						'parts' =>
-							array (
-								0 => 'RowNumber',
-							),
-					),
-				'sub_tree' => false,
-			),
-			array (
-				'expr_type' => 'operator',
-				'base_expr' => 'BETWEEN',
-				'sub_tree' => false,
-			),
-			array (
-				'expr_type' => 'const',
-				'base_expr' => $startingFrom,
-				'sub_tree' => false,
-			),
-			array (
-				'expr_type' => 'operator',
-				'base_expr' => 'AND',
-				'sub_tree' => false,
-			),
-			array (
-				'expr_type' => 'const',
-				'base_expr' => $startingFrom + $howMany,
-				'sub_tree' => false,
-			),
-		]);
+			//ifsetor($query->parsed['WHERE'], array()),
+			array(),
+			[
+				array (
+					'expr_type' => 'colref',
+					'base_expr' => 'RowNumber',
+					'no_quotes' =>
+						array (
+							'delim' => false,
+							'parts' =>
+								array (
+									0 => 'RowNumber',
+								),
+						),
+					'sub_tree' => false,
+				),
+				array (
+					'expr_type' => 'operator',
+					'base_expr' => 'BETWEEN',
+					'sub_tree' => false,
+				),
+				array (
+					'expr_type' => 'const',
+					'base_expr' => $startingFrom,
+					'sub_tree' => false,
+				),
+				array (
+					'expr_type' => 'operator',
+					'base_expr' => 'AND',
+					'sub_tree' => false,
+				),
+				array (
+					'expr_type' => 'const',
+					'base_expr' => $startingFrom + $howMany,
+					'sub_tree' => false,
+				),
+			]
+		);
 		//debug($query->parsed['WHERE']);
-		$query = $outside->getQuery();
-		return $query;
+		$outside = $outside->getQuery();
+		$outside = str_replace('subquery123', $query, $outside);
+		return $outside;
 	}
 
 }

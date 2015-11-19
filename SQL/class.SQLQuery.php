@@ -5,7 +5,11 @@ class SQLQuery extends PHPSQLParser\PHPSQLParser {
 	public $parsed;
 
 	public function __construct($sql = false, $calcPositions = false) {
-		parent::__construct($sql, $calcPositions);
+		if ($sql instanceof SQLQuery) {
+			$this->parsed = $sql->parsed;
+		} else {
+			parent::__construct($sql, $calcPositions);
+		}
 	}
 
 	function __toString() {
