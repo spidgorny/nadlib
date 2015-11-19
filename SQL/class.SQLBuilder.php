@@ -54,33 +54,35 @@ class SQLBuilder {
 		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
 			return $value->__toString();
-		} else if ($value instanceof AsIs) {
+		} elseif ($value instanceof AsIs) {
 			$value->injectDB($this->db);
 			return $value->__toString();
-		} else if ($value instanceof SQLOr) {
+		} elseif ($value instanceof SQLOr) {
 			return $value->__toString();
-		} else if ($value instanceof Time) {
+		} elseif ($value instanceof Time) {
 			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value instanceof SQLDate) {
+		} elseif ($value instanceof SQLDate) {
 			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value instanceof SimpleXMLElement) {
+		} elseif ($value instanceof SimpleXMLElement) {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
-		} else if (is_object($value)) {
+		} elseif (is_object($value)) {
 			return "'".$this->db->escape($value)."'";
-		} else if ($value === NULL) {
+		} elseif ($value === NULL) {
 			return "NULL";
-		} else if (is_numeric($value) && !$this->isExp($value)) {
+		} elseif (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
-		} else if (is_bool($value)) {
+		} elseif (is_bool($value)) {
 			return $this->db->escapeBool($value);
-		} else {
-			if (is_scalar($value)) {
-				return "'".$this->db->escape($value)."'";
-			} else {
-				debug($value);
-				throw new Exception('Must be string.');
+		} elseif (is_scalar($value)) {
+			$sql = "'".$this->db->escape($value)."'";
+			if ($this->db->getScheme() == 'ms') {
+				$sql = 'N'.$sql;	// UTF-8 encoding
 			}
+			return $sql;
+		} else {
+			debug($value);
+			throw new Exception('Must be string.');
 		}
 	}
 
@@ -131,41 +133,41 @@ class SQLBuilder {
 				} elseif ($val instanceof AsIsOp) {
 					$val->injectDB($this->db);
 					$set[] = $key . ' = ' . $val;
-				} else if ($val instanceof SQLBetween) {
+				} elseif ($val instanceof SQLBetween) {
 					$val->injectQB($this);
 					$val->injectField($key);
 					$set[] = $val->toString($key);
-				} else if ($val instanceof SQLWherePart) {
+				} elseif ($val instanceof SQLWherePart) {
 					$val->injectQB($this);
 					$val->injectField($key);
 					$set[] = $val->__toString();
-				} else if ($val instanceof SimpleXMLElement) {
+				} elseif ($val instanceof SimpleXMLElement) {
 					$set[] = $val->asXML();
 				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 				//	$set[] = $val.'';
-				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
+				} elseif (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
 					if (strpos($val, '###FIELD###') !== FALSE) {
 						$val = str_replace('###FIELD###', $key, $val);
 						$set[] = $val;
 					} else {
 						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
 					}
-				} else if ($val === NULL) {
+				} elseif ($val === NULL) {
 					$set[] = "$key IS NULL";
-				} else if ($val === 'NOTNULL') {
+				} elseif ($val === 'NOTNULL') {
 					$set[] = "$key IS NOT NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
+				} elseif (in_array($key{strlen($key)-1}, array('>', '<'))
                     || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign '$val'";
-				} else if (is_bool($val)) {
+				} elseif (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {		// KEY!!!
+				} elseif (is_numeric($key)) {		// KEY!!!
 					$set[] = $val;
-				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
+				} elseif (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
-				} else if (is_array($val) && $where[$key.'.']['makeOR']) {
+				} elseif (is_array($val) && $where[$key.'.']['makeOR']) {
 					foreach ($val as &$row) {
 						if (is_null($row)) {
 							$row = $key .' IS NULL';

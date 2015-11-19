@@ -44,6 +44,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	}
 
 	function  __construct($server, $database, $user, $password) {
+		ini_set('mssql.charset', 'UTF-8');
 		$this->server = $server;
 		$this->database = $database;
 		$this->user = $user;
@@ -81,7 +82,10 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		}
 		if ($msg && !in_array($msg, $this->ignoreMessages)) {
 			//debug($msg, $query);
-			$msg2 = mssql_fetch_assoc(mssql_query('SELECT @@ERROR AS ErrorCode', $this->connection))['ErrorCode'];
+			$msg2 = mssql_fetch_assoc(
+				mssql_query(
+					'SELECT @@ERROR AS ErrorCode',
+					$this->connection))['ErrorCode'];
 			$this->close();
 			$this->connect();
 			debug($msg2, $msg, $query);
@@ -128,7 +132,8 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	 * @return array ('name' => ...)
 	 */
 	function getTables() {
-		$res = $this->perform("select * from sysobjects where xtype = 'U'");
+		$res = $this->perform("select * from sysobjects
+		where xtype = 'U'");
 		$tables = $this->fetchAll($res);
 		return $tables;
 	}
@@ -171,8 +176,9 @@ AND name = '?')", array($table));
             '/\x0c/',                   // 12
             '/[\x0e-\x1f]/'             // 14-31
         );
-        foreach ( $non_displayables as $regex )
-            $data = preg_replace( $regex, '', $data );
+        foreach ( $non_displayables as $regex ) {
+			$data = preg_replace($regex, '', $data);
+		}
         $data = str_replace("'", "''", $data );
         return $data;
     }
