@@ -88,9 +88,14 @@ class Pager {
 		$key = __METHOD__.' ('.substr($query, 0, 300).')';
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$query = new SQLQuery($query);
+		// not allowed or makes no sense
 		unset($query->parsed['ORDER']);
-//		debug($query->parsed);
-		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
+		if ($this->db instanceof dbLayerMS) {
+			$query = $this->db->fixQuery($query);
+		}
+		//debug($query->parsed['WHERE']);
+		$query = "SELECT count(*) AS count
+		FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();

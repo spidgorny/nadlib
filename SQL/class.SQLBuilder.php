@@ -104,7 +104,7 @@ class SQLBuilder {
 	function quoteValues(array $a) {
 		$c = array();
 		foreach($a as $key => $b) {
-			$c[] = SQLBuilder::quoteSQL($b, $key);
+			$c[] = SQLBuilder::quoteSQL($b);
 		}
 		return $c;
 	}
@@ -185,6 +185,7 @@ class SQLBuilder {
 				}
 			}
 		}
+		//debug($set);
 		return $set;
 
 	}
