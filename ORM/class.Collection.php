@@ -372,7 +372,8 @@ class Collection implements IteratorAggregate {
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
-			$query .= $this->pager->getSQLLimit();
+			$query = $this->pager->getSQLLimit($query);
+			//debug($query.''); exit();
 		}
 		//debug($query);
 		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
