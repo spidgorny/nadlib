@@ -67,16 +67,16 @@ class SQLBuilder {
 			$value->injectField($key);
 			$result = $value->__toString();
 			return $result;
-		} else if ($value instanceof AsIs) {
+		} elseif ($value instanceof AsIs) {
 			$value->injectDB($this->db);
 			$value->injectQB($this);
 			$value->injectField($key);
 			return $value->__toString();
-		} else if ($value instanceof SQLOr) {
+		} elseif ($value instanceof SQLOr) {
 			return $value->__toString();
 		} elseif ($value instanceof IndTime) {
 			return $this->quoteSQL($value->getMySQL(), $key);
-		} else if ($value instanceof SQLDate) {							// before Time
+		} elseif ($value instanceof SQLDate) {
 			$content = "'".$this->db->escape($value->__toString())."'";
 			//debug($content, $value);
 			return $content;
@@ -86,22 +86,24 @@ class SQLBuilder {
 			return $content;
 		} else if ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
-		} else if (is_object($value)) {
+		} elseif (is_object($value)) {
 			return "'".$this->db->escape($value)."'";
-		} else if ($value === NULL) {
+		} elseif ($value === NULL) {
 			return "NULL";
-		} else if (is_numeric($value) && !$this->isExp($value)) {
+		} elseif (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."' /* numeric */";		// quoting will not hurt, but will keep leading zeroes if necessary
-		} else if (is_bool($value)) {
+		} elseif (is_bool($value)) {
 			return $this->db->escapeBool($value);
-		} else {
-			if (is_scalar($value)) {
-				return "'".$this->db->escape($value)."'";
-			} else {
-				debug($key, $value);
-				throw new MustBeStringException('Must be string.');
+		} elseif (is_scalar($value)) {
+			$sql = "'".$this->db->escape($value)."'";
+			if ($this->db->getScheme() == 'ms') {
+				$sql = 'N'.$sql;	// UTF-8 encoding
 			}
+			return $sql;
+		} else {
+			debug($key, $value);
+			throw new MustBeStringException('Must be string.');
 		}
 	}
 
@@ -165,43 +167,43 @@ class SQLBuilder {
 					$val->injectQB($this);
 					$val->injectField($key);
 					$set[] = $key . ' = ' . $val;
-				} else if ($val instanceof SQLBetween) {
+				} elseif ($val instanceof SQLBetween) {
 					$val->injectQB($this);
 					$val->injectField($key);
 					$set[] = $val->toString($key);
-				} else if ($val instanceof SQLWherePart) {
+				} elseif ($val instanceof SQLWherePart) {
 					$val->injectQB($this);
 					if (!is_numeric($key)) {
 						$val->injectField($key);
 					}
 					$set[] = $val->__toString();
-				} else if ($val instanceof SimpleXMLElement) {
+				} elseif ($val instanceof SimpleXMLElement) {
 					$set[] = $val->asXML();
 				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 				//	$set[] = $val.'';
-				} else if (isset($where[$key.'.']) && ifsetor($where[$key.'.']['asis'])) {
+				} elseif (isset($where[$key.'.']) && ifsetor($where[$key.'.']['asis'])) {
 					if (strpos($val, '###FIELD###') !== FALSE) {
 						$val = str_replace('###FIELD###', $key, $val);
 						$set[] = $val;
 					} else {
 						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
 					}
-				} else if ($val === NULL) {
+				} elseif ($val === NULL) {
 					$set[] = "$key IS NULL";
-				} else if ($val === 'NOTNULL') {
+				} elseif ($val === 'NOTNULL') {
 					$set[] = "$key IS NOT NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
+				} elseif (in_array($key{strlen($key)-1}, array('>', '<'))
                     || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign '$val'";
-				} else if (is_bool($val)) {
+				} elseif (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {		// KEY!!!
+				} elseif (is_numeric($key)) {		// KEY!!!
 					$set[] = $val;
-				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
+				} elseif (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
-				} else if (is_array($val) && $where[$key.'.']['makeOR']) {
+				} elseif (is_array($val) && $where[$key.'.']['makeOR']) {
 					foreach ($val as &$row) {
 						if (is_null($row)) {
 							$row = $key .' IS NULL';
@@ -224,6 +226,7 @@ class SQLBuilder {
 				}
 			}
 		}
+		//debug($set);
 		return $set;
 
 	}
@@ -581,12 +584,12 @@ class SQLBuilder {
 	function fetchAll($res, $key = NULL) {
 		TaylorProfiler::start(__METHOD__);
 		if (is_string($res)) {
-			$res = $this->perform($res);
+			$res = $this->db->perform($res);
 		}
 
 		$data = array();
 		do {
-			$row = $this->fetchAssoc($res);
+			$row = $this->db->fetchAssoc($res);
 			if ($row === FALSE || $row == array()) {
 				break;
 			}
@@ -598,7 +601,7 @@ class SQLBuilder {
 		} while (true);
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		$this->free($res);
+		$this->db->free($res);
 		TaylorProfiler::stop(__METHOD__);
 		return $data;
 	}
@@ -620,14 +623,14 @@ class SQLBuilder {
 
 	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
-		$res = $this->perform($query);
-		$data = $this->fetchAssoc($res);
+		$res = $this->db->perform($query);
+		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}
 
 	function runUpdateInsert($table, $set, $where) {
 		$found = $this->runSelectQuery($table, $where);
-		if ($this->numRows($found)) {
+		if ($this->db->numRows($found)) {
 			$res = 'update';
 			$this->runUpdateQuery($table, $set, $where);
 		} else {
