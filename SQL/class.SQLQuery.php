@@ -9,8 +9,30 @@ class SQLQuery extends PHPSQLParser\PHPSQLParser {
 	}
 
 	function __toString() {
+		return $this->getQuery();
+	}
+
+	function getQuery() {
 		$psc = new \PHPSQLParser\PHPSQLCreator($this->parsed);
-		return $psc->created.'';
+		$query = $psc->created.'';
+		$query = str_replace([
+			'SELECT',
+			'FROM',
+			'WHERE',
+			'GROUP',
+			'HAVING',
+			'ORDER',
+			'LIMIT',
+		], [
+			"SELECT",
+			"\nFROM",
+			"\nWHERE",
+			"\nGROUP",
+			"\nHAVING",
+			"\nORDER",
+			"\nLIMIT",
+		], $query);
+		return $query;
 	}
 
 }
