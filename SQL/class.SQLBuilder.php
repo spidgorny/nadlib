@@ -492,11 +492,11 @@ class SQLBuilder {
 	function fetchAll($res, $key = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (is_string($res)) {
-			$res = $this->perform($res);
+			$res = $this->db->perform($res);
 		}
 
 		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+		while (($row = $this->db->fetchAssoc($res)) !== FALSE) {
 			if ($key) {
 				$data[$row[$key]] = $row;
 			} else {
@@ -505,7 +505,7 @@ class SQLBuilder {
 		}
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		$this->free($res);
+		$this->db->free($res);
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $data;
 	}
@@ -529,14 +529,14 @@ class SQLBuilder {
 
 	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
-		$res = $this->perform($query);
-		$data = $this->fetchAssoc($res);
+		$res = $this->db->perform($query);
+		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}
 
 	function runUpdateInsert($table, $set, $where) {
 		$found = $this->runSelectQuery($table, $where);
-		if ($this->numRows($found)) {
+		if ($this->db->numRows($found)) {
 			$res = 'update';
 			$this->runUpdateQuery($table, $set, $where);
 		} else {

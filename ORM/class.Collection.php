@@ -346,7 +346,8 @@ class Collection {
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
-			$query .= $this->pager->getSQLLimit();
+			$query = $this->pager->getSQLLimit($query);
+			//debug($query.''); exit();
 		}
 		return $query;
 	}

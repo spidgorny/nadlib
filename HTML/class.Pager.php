@@ -47,12 +47,13 @@ class Pager {
 		}
 		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
-		$this->db = Config::getInstance()->db;
+		$config = Config::getInstance();
+		$this->db = $config->getDB();
 		$this->request = Request::getInstance();
-		$this->setUser(Config::getInstance()->user);
+		$this->setUser($config->user);
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
-		Config::getInstance()->mergeConfig($this);
+		$config->mergeConfig($this);
 	}
 
 	/**
@@ -86,6 +87,9 @@ class Pager {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($query, 0, 300).')';
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		$query = new SQLQuery($query);
+		unset($query->parsed['ORDER']);
+//		debug($query->parsed);
 		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
@@ -136,9 +140,16 @@ class Pager {
 		//debug($this);
 	}
 
-	function getSQLLimit() {
-		$limit = " LIMIT {$this->itemsPerPage} offset " . $this->startingRecord;
-		return $limit;
+	function getSQLLimit($query) {
+		$scheme = $this->db->getScheme();
+		if ($scheme == 'ms') {
+			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
+		} else {
+			$limit = "\nLIMIT ".$this->itemsPerPage.
+			"\nOFFSET " . $this->startingRecord;
+			$query .= $limit;
+		}
+		return $query;
 	}
 
 	function getStart() {
@@ -383,7 +394,7 @@ class Pager {
 	}
 
     /**
-     * @param \LoginUser $user
+     * @param User|\LoginUser $user
      */
     public function setUser($user)
     {
@@ -391,7 +402,7 @@ class Pager {
     }
 
     /**
-     * @return \LoginUser
+     * @return User|\LoginUser
      */
     public function getUser()
     {

@@ -26,7 +26,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	 * Will output every query
 	 * @var bool
 	 */
-	public $debug = false;
+	public $debug = true;
 
 	/**
 	 * In MSSQL mssql_select_db() is returning the following as error messages
@@ -61,13 +61,14 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query, array $arguments = array()) {
+		//if (date('s') == '00') return false;    // debug
 		foreach ($arguments as $ar) {
 			$query = str_replace('?', $ar, $query);
 		}
 		$profiler = new Profiler();
-		$res = @mssql_query($query, $this->connection);
+		$res = mssql_query($query, $this->connection);
 		$msg = mssql_get_last_message();
-		if ($this->debug) {
+		if (!$res && $this->debug) {
 			debug(array(
 				'method' => __METHOD__,
 				'query' => $query,
@@ -93,8 +94,10 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	function fetchAssoc($res) {
 		if (is_string($res)) {
 			$res = $this->perform($res);
-		} if (!is_resource($res)) {
-			debug($res);
+		}
+		if (!is_resource($res)) {
+			debug(__METHOD__, 'InvalidArgumentException', $res, $this->lastQuery);
+			throw new InvalidArgumentException(__METHOD__.' received a '.gettype($res).' as an argument instead of a resource.');
 		}
 		return mssql_fetch_assoc($res);
 	}
@@ -246,6 +249,99 @@ AND name = '?')", array($table));
 	function switchDB($name) {
 		mssql_select_db($name);
 		$this->database = $name;
+	}
+
+	public function disconnect() {
+		mssql_close($this->connection);
+	}
+
+	function addLimit($query, $howMany, $startingFrom) {
+		$version = first($this->fetchAssoc('SELECT @@VERSION'));
+		if ($version >= 'Microsoft SQL Server 2012') {
+			$query .= ' OFFSET '.$startingFrom.' ROWS
+    			FETCH NEXT '.$howMany.' ROWS ONLY';
+		} else {
+			$query = $this->addLimitOldVersion($query, $howMany, $startingFrom);
+		}
+		return $query;
+	}
+
+	/**
+	 * Will
+	 * * extract ORDER BY xxx
+	 * * remove it from the original query
+	 * (The ORDER BY clause is invalid in subqueries)
+	 * * Create query array for SELECT ROW_NUMBER()
+	 * * Append this to the existing query SELECT
+	 * * Wrap everything in outside SELECT FROM ()
+	 * * Add append WHERE RowNumber BETWEEN
+	 * @param $query
+	 * @param $howMany
+	 * @param $startingFrom
+	 * @return mixed|SQLQuery|string
+	 */
+	function addLimitOldVersion($query, $howMany, $startingFrom) {
+		$query = new SQLQuery($query);
+		$builder = new \PHPSQLParser\builders\OrderByBuilder();
+		$orderBy = $builder->build($query->parsed['ORDER']);
+		unset($query->parsed['ORDER']);
+
+		//$query .= ' WHERE a BETWEEN 10 AND 10 AND isok';
+		$querySelect = new SQLQuery('SELECT
+		ROW_NUMBER() OVER (
+			'.$orderBy.'
+		) AS RowNumber
+		FROM asd');
+		//debug($querySelect->parsed);
+
+		$lastIndex = sizeof($query->parsed['SELECT'])-1;
+		$query->parsed['SELECT'][$lastIndex]['delim'] = ',';
+		$query->parsed['SELECT'] = array_merge(
+			$query->parsed['SELECT'], [
+			$querySelect->parsed['SELECT'][0]
+		]);
+		//debug($query->parsed['SELECT']);
+
+		$outside = new SQLQuery('SELECT * FROM ('.$query.') AS zxc');
+		$outside->parsed['WHERE'] = array_merge(
+			ifsetor($query->parsed['WHERE'], array()), [
+			array (
+				'expr_type' => 'colref',
+				'base_expr' => 'RowNumber',
+				'no_quotes' =>
+					array (
+						'delim' => false,
+						'parts' =>
+							array (
+								0 => 'RowNumber',
+							),
+					),
+				'sub_tree' => false,
+			),
+			array (
+				'expr_type' => 'operator',
+				'base_expr' => 'BETWEEN',
+				'sub_tree' => false,
+			),
+			array (
+				'expr_type' => 'const',
+				'base_expr' => $startingFrom,
+				'sub_tree' => false,
+			),
+			array (
+				'expr_type' => 'operator',
+				'base_expr' => 'AND',
+				'sub_tree' => false,
+			),
+			array (
+				'expr_type' => 'const',
+				'base_expr' => $startingFrom + $howMany,
+				'sub_tree' => false,
+			),
+		]);
+		//debug($query->parsed['WHERE']);
+		$query = $outside->getQuery();
+		return $query;
 	}
 
 }
