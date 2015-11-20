@@ -30,7 +30,7 @@ class AutoLoadFolders {
 	function __construct(AutoLoad $al) {
 		$this->al = $al;
 		require_once __DIR__.'/Debug/class.Debug.php';
-		$this->debugger = Debug::getInstance();
+		//$this->debugger = Debug::getInstance();
 		//if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFoldersFromSession();
 		if ($this->folders) {
