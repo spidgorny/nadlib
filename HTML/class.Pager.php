@@ -308,6 +308,8 @@ class Pager {
 					style='width: 2em; margin: 0' />
 				<input type='submit' value='Page' class='submit' />
 			</form>";
+		} else {
+			$form = '';
 		}
  		//debug($term);
 		$content = '<ul class="pagination">'.$content.'&nbsp;'.'</ul>'.$form;
@@ -332,6 +334,7 @@ class Pager {
 	function getPagesAround($current, $max) {
 		$size = $this->pagesAround;
 		$pages = array();
+		$k = 0;
 		for ($i = 0; $i < $size; $i++) {
 			$k = $i;
 			if ($k >= 0 && $k < $max) {
