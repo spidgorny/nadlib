@@ -207,7 +207,7 @@ class slTableValue {
 			break;
 			case "singleton":
 				if ($val) {
-					if ($k['csv']) {
+					if (ifsetor($k['csv'])) {
 						$parts = trimExplode(',', $val);
 						$obj = array();
 						foreach ($parts as $id) {
