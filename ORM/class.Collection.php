@@ -352,17 +352,22 @@ class Collection implements IteratorAggregate {
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
 		if ($where instanceof SQLWhere) {
-			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
+			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select);
 		} else {
 			//debug_pre_print_backtrace();
 			$query = $this->db->getSelectQuery(
 				$this->table.' '.$this->join,
 				$where,
 				$this->orderBy,
-				$this->select,
-				TRUE);
+				$this->select);
 		}
-		//debug($query);
+		if (DEVELOPMENT) {
+//			$index = Index::getInstance();
+//			$controllerCollection = ifsetor($index->controller->collection);
+//			if ($this == $controllerCollection) {
+//				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
+//			}
+		}
 		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $query;
 	}
@@ -1005,6 +1010,15 @@ class Collection implements IteratorAggregate {
 	public function setMembers(array $countries) {
 		$this->members = $countries;
 		$this->count = sizeof($this->members);
+	}
+
+	/**
+	 * Make sure we re-query data from DB
+	 */
+	public function reset() {
+		$this->count = NULL;
+		$this->query = NULL;
+		$this->data = NULL;
 	}
 
 }
