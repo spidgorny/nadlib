@@ -610,4 +610,12 @@ abstract class Controller {
 		return '<p>'.$this->s($content).'</p>';
 	}
 
+	function img($src) {
+		return '<img src="'.$this->e($src).'" />';
+	}
+
+	function e($content) {
+		return htmlspecialchars($content, ENT_QUOTES);
+	}
+
 }
