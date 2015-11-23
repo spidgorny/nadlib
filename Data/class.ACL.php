@@ -64,7 +64,7 @@ class ACL {
 	}
 
 	function getAND() {
-		if ($_REQUEST['acl']) {
+		if (ifsetor($_REQUEST['acl'])) {
 			$this->debug();
 		}
 		$and = true;
