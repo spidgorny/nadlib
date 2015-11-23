@@ -53,12 +53,13 @@ class Pager {
 		}
 		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
-		$this->db = Config::getInstance()->getDB();
+		$config = Config::getInstance();
+		$this->db = $config->getDB();
 		$this->request = Request::getInstance();
-		$this->setUser(Config::getInstance()->getUser());
+		$this->setUser($config->getUser());
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
-		Config::getInstance()->mergeConfig($this);
+		$config->mergeConfig($this);
 		$this->url = new URL();	// just in case
 	}
 
@@ -93,7 +94,15 @@ class Pager {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($query, 0, 300).')';
 		TaylorProfiler::start($key);
-		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
+		$query = new SQLQuery($query);
+		// not allowed or makes no sense
+		unset($query->parsed['ORDER']);
+		if ($this->db instanceof dbLayerMS) {
+			$query = $this->db->fixQuery($query);
+		}
+		//debug($query->parsed['WHERE']);
+		$query = "SELECT count(*) AS count
+		FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();
@@ -143,9 +152,16 @@ class Pager {
 		//debug($this);
 	}
 
-	function getSQLLimit() {
-		$limit = " LIMIT {$this->itemsPerPage} offset " . $this->startingRecord;
-		return $limit;
+	function getSQLLimit($query) {
+		$scheme = $this->db->getScheme();
+		if ($scheme == 'ms') {
+			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
+		} else {
+			$limit = "\nLIMIT ".$this->itemsPerPage.
+			"\nOFFSET " . $this->startingRecord;
+			$query .= $limit;
+		}
+		return $query;
 	}
 
 	function getStart() {
@@ -414,7 +430,7 @@ class Pager {
     }
 
     /**
-     * @return \LoginUser
+     * @return User|\LoginUser
      */
     public function getUser()
     {
