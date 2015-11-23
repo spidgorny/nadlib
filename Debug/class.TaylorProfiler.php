@@ -549,6 +549,7 @@ class TaylorProfiler {
 		$tp = self::getInstance();
 		register_tick_function(array($tp, 'tick'));
 		declare(ticks=1000);
+		return $tp;
 	}
 
 	function tick() {
@@ -593,9 +594,11 @@ class TaylorProfiler {
 				pre_print_r($list);
 				throw new Exception('Infinite loop detected');
 			}
-		} elseif ($this->tickTo) {
+		} elseif ($this->tickTo == 'header') {
 			$pad = str_pad($time, 6, '0', STR_PAD_LEFT);
 			header('X-Tick-'.$pad.': '.strip_tags($output));
+		} elseif ($this->tickTo == 'errorlog') {
+			error_log(strip_tags($output));
 		}
 		$prev = $mem;
 	}
