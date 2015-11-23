@@ -373,7 +373,11 @@ class View extends stdClass {
 		return $my_html;
 	}
 
-	public function set(...$variables) {
+	/**
+	 * PHP 5.5
+	 * @param array ...$variables
+	 */
+/*	public function set(...$variables) {
 		// returns just ['variables']
 /*		$ReflectionMethod =  new \ReflectionMethod(__CLASS__, __FUNCTION__);
 		$params = $ReflectionMethod->getParameters();
@@ -381,7 +385,7 @@ class View extends stdClass {
 			/** @var $item ReflectionParameter */
 /*			return $item->getName();
 		}, $params);*/
-
+/*
 		$bt = debug_backtrace();
 		$caller = $bt[0];
 //		debug($caller);
@@ -398,5 +402,5 @@ class View extends stdClass {
 			$this->$key = $val;
 		}
 	}
-
+*/
 }

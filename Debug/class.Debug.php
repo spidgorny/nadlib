@@ -514,7 +514,7 @@ class Debug {
 
 	static function peek($row) {
 		pre_print_r(array_combine(array_keys($row), array_map(function ($a) {
-			return gettype($a);
+			return gettype2($a);
 		}, $row)));
 	}
 
