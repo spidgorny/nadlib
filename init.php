@@ -25,6 +25,7 @@ if (!function_exists('debug')) {
 				$dump = htmlspecialchars($dump);
 			}
 			echo '<pre>'.$dump.'</pre>';
+			debug_pre_print_backtrace();
 		}
 	}
 }

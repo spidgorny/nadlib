@@ -139,9 +139,13 @@ class Debug {
 			$method = 'debugWith' . $this->renderer;
 			if (method_exists($this, $method)) {
 				$content = $this->$method($params);
+			} else {
+				pre_print_r($params);
+				debug_pre_print_backtrace();
 			}
 		} else {
 			pre_print_r($params);
+			debug_pre_print_backtrace();
 		}
 		return $content;
 	}

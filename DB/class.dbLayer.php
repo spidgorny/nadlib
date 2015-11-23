@@ -110,8 +110,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		}
 		if (!$this->LAST_PERFORM_RESULT) {
-			debug($query);
 			debug_pre_print_backtrace();
+			debug($query);
 			throw new DatabaseException(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
