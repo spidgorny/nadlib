@@ -358,7 +358,7 @@ class AutoLoad {
 	}
 
 	function log($debugLine) {
-		if ($this->debug && $_COOKIE['debug']) {
+		if ($this->debug && ifsetor($_COOKIE['debug'])) {
 			if (Request::isCLI()) {
 				echo strip_tags($debugLine);
 			} else {
