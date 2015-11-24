@@ -161,9 +161,11 @@ class TaylorProfiler {
         return($oaTime);
     }//end start_time
 
-    /**
-    * Print out a log of all the timers that were registered
-    */
+	/**
+	 * Print out a log of all the timers that were registered
+	 * @param bool $enabled
+	 * @return null|string
+	 */
     function printTimers($enabled=false) {
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
@@ -176,7 +178,7 @@ class TaylorProfiler {
             	$row = array();
             	$row['desc'] = $val;
                 $row['time'] = $this->elapsedTime($key);
-                $row['total'] = $this->running[$key];
+                $row['total'] = ifsetor($this->running[$key]);
                 $row['count'] = $this->count[$key];
                 $row['avg'] = $row['total']*1000/$row['count'];
                 $row['perc'] = ($row['total']/$oaTime)*100;
