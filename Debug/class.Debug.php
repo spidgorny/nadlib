@@ -198,7 +198,7 @@ class Debug {
 	}
 
 	function debugWithHTML(array $params) {
-		$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+		$content = call_user_func(array('Debug', 'debug_args'), $params);
 		if (!is_null($content)) {
 			print($content);
 		}
@@ -250,7 +250,8 @@ class Debug {
 		$pb->destruct100 = false;
 		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent).' of '.ini_get('memory_limit');
 		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
-		$props[] = '<span class="debug_prop">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
+		$elapsed = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
+		$props[] = '<span class="debug_prop">Elapsed:</span> '.$elapsed.BR;
 
 		$content = '
 			<div class="debug">
@@ -326,10 +327,7 @@ class Debug {
 		if (is_array($a)) {	// not else if so it also works for objects
 			$content = '<table class="view_array">';
 			foreach ($a as $i => $r) {
-				$type = gettype($r);
-				$type = $type == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
-				$type = $type == 'string' ? gettype($r).'['.strlen($r).']' : $type;
-				$type = $type == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
+				$type = gettype2($r);
 				$content .= '<tr>
 					<td class="view_array">'.$i.'</td>
 					<td class="view_array">'.$type.'</td>
