@@ -10,15 +10,13 @@ if (!function_exists('debug')) {
 	 * @param ...$a mixed
 	 */
 	function debug($a) {
-	    $params = func_get_args();
+	    $params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
 		} else {
 			ob_start();
-			var_dump(
-				func_num_args() == 1 ? $a : $params
-			);
+			var_dump($params);
 			$dump = ob_get_clean();
 			$dump = str_replace("=>\n", ' =>', $dump);
 			if (!function_exists('xdebug_break')) {
