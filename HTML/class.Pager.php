@@ -24,7 +24,7 @@ class Pager {
 	protected $prefix;
 
 	/**
-	 * @var User|LoginUser|blUser|grUser
+	 * @var User|LoginUser|blUser|grUser|NadlibUser
 	 */
 	protected $user;
 
@@ -105,6 +105,7 @@ class Pager {
 		FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
+		//debug($query, $res);
 		$this->detectCurrentPage();
 		TaylorProfiler::stop($key);
 	}
