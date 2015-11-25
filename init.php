@@ -378,11 +378,12 @@ if (!function_exists('nodebug')) {
 
 	/**
 	 * http://php.net/manual/en/function.array-unique.php#116302
-	 * @param $array
+	 * @param array $matriz
 	 * @return array
+	 * @internal param $array
 	 */
-	function unique_multidim_array(array $matriz){
-		$aux_ini=array();
+	function unique_multidim_array(array $matriz) {
+		$aux_ini = array();
 		foreach ($matriz as $n => $source)
 		{
 			$aux_ini[$n]=serialize($source);
@@ -404,7 +405,15 @@ if (!function_exists('nodebug')) {
 function gettype2($something) {
 	$type = gettype($something);
 	if ($type == 'object') {
-		$type = get_class($something);
+		$hash = md5(spl_object_hash($something));
+		$hash = substr($hash, 0, 6);
+		$type .= '['.get_class($something).'#'.$hash.']';
+	}
+	if ($type == 'string') {
+		$type .= '[' . strlen($something) . ']';
+	}
+	if ($type == 'array') {
+		$type .= '[' . sizeof($something) . ']';
 	}
 	return $type;
 }
