@@ -197,7 +197,10 @@ class Debug {
 		return ifsetor($_COOKIE['debug']);
 	}
 
-	function debugWithHTML(array $params) {
+	/**
+	 * @param mixed $params - any type
+	 */
+	function debugWithHTML($params) {
 		$content = call_user_func(array('Debug', 'debug_args'), $params);
 		if (!is_null($content)) {
 			print($content);
