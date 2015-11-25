@@ -18,7 +18,12 @@ class HTMLForm {
 
 	protected $fieldset;
 	protected $fieldsetMore = array();
+
+	/**
+	 * @var string
+	 */
 	var $formMore = '';
+
 	public $debug = false;
 
 	function __construct($action = '') {
