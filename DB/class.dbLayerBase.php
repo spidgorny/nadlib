@@ -193,4 +193,8 @@ class dbLayerBase implements DBInterface {
 		return !!$this->connection;
 	}
 
+	function getTableColumns($table) {
+
+	}
+
 }
