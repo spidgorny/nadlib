@@ -975,7 +975,7 @@ class Collection implements IteratorAggregate {
 	}
 
 	function reload() {
-		$this->query = NULL;
+		$this->reset();
 		$this->retrieveDataFromDB();
 	}
 
