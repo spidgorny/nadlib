@@ -10,6 +10,7 @@ class Pager {
 	 * @var URL
 	 */
 	var $url;
+
 	var $pagesAround = 3;
 
 	/**
@@ -57,6 +58,7 @@ class Pager {
 		$this->db = $config->getDB();
 		$this->request = Request::getInstance();
 		$this->setUser($config->getUser());
+		$this->url = new URL();
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
 		$config->mergeConfig($this);
@@ -237,9 +239,10 @@ class Pager {
 
 		if (!self::$cssOutput) {
 			$al = AutoLoad::getInstance();
-			if (class_exists('Index') && $this->request->apacheModuleRewrite()) {
+			$index = class_exists('Index') ? Index::getInstance() : NULL;
+			if ($index && $this->request->apacheModuleRewrite()) {
 				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-				Index::getInstance()->addCSS($al->nadlibFromDocRoot.'CSS/PaginationControl.less');
+				$index->addCSS($al->nadlibFromDocRoot . 'CSS/PaginationControl.less');
 			} elseif (false && $GLOBALS['HTMLHEADER']) {
 				$GLOBALS['HTMLHEADER']['PaginationControl.less']
 					= '<link rel="stylesheet" href="'.$al->nadlibFromDocRoot.'CSS/PaginationControl.less" />';
