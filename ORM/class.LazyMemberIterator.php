@@ -1,6 +1,6 @@
 <?php
 
-class LazyMemberIterator extends IteratorIterator {
+class LazyMemberIterator extends IteratorIterator implements Countable {
 
 	/**
 	 * @var string
@@ -14,13 +14,12 @@ class LazyMemberIterator extends IteratorIterator {
 	var $count;
 
 	/**
-	 * @param array $array
-	 * @param int $flags
-	 * @param string $class
+	 * @param Traversable $iterator $array
+	 * @param string      $class
 	 */
-	public function __construct($array = array(), $flags = 0, $class) {
-		//debug($array, $array->count());
-		parent::__construct($array);
+	public function __construct(Traversable $iterator, $class) {
+		//debug($iterator, sizeof($iterator));
+		parent::__construct($iterator);
 		$this->class = $class;
 	}
 
@@ -44,7 +43,11 @@ class LazyMemberIterator extends IteratorIterator {
 	 * @return mixed|null
 	 */
 	public function current() {
-		$array = parent::current();
+		$inner = $this->getInnerIterator();
+		//debug($inner);
+		//$array = parent::current();
+		$array = $inner->current();
+		//debug($array);
 		if ($array) {
 			$obj = new $this->class($array);
 			return $obj;
@@ -53,12 +56,21 @@ class LazyMemberIterator extends IteratorIterator {
 		}
 	}
 
-	public function valid() {
-		return !!$this->current();
+//	public function valid() {
+//		return !!$this->current();
+//	}
+//
+	function count() {
+		return $this->getInnerIterator()->count();
 	}
 
-	function count() {
-		return $this->count;
+	function rewind() {
+		$this->getInnerIterator()->rewind();
+	}
+
+	function next() {
+		//return $this->getInnerIterator()->next();
+		return parent::next();
 	}
 
 }

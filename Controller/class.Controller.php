@@ -610,8 +610,10 @@ abstract class Controller {
 		return '<p>'.$this->s($content).'</p>';
 	}
 
-	function img($src) {
-		return '<img src="'.$this->e($src).'" />';
+	function img($src, array $attrib = array()) {
+		return new HTMLTag('img', [
+			'src' => $this->e($src),
+		] + $attrib);
 	}
 
 	function e($content) {
