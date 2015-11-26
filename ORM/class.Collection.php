@@ -933,7 +933,7 @@ class Collection implements IteratorAggregate {
 			$class = $this->itemClassName;
 		}
 		$arrayIterator = $this->getLazyIterator();
-		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
+		$memberIterator = new LazyMemberIterator($arrayIterator, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
 	}
@@ -1020,6 +1020,7 @@ class Collection implements IteratorAggregate {
 		$this->count = NULL;
 		$this->query = NULL;
 		$this->data = NULL;
+		$this->members = NULL;
 	}
 
 }
