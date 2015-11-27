@@ -47,7 +47,7 @@ class PageSize extends Controller {
 
 	function userHasPreferences() {
 		$user = Config::getInstance()->getUser();
-		return $user && $user->id && method_exists($user, 'getPref');
+		return $user && ifsetor($user->id) && method_exists($user, 'getPref');
 	}
 
 	function setURL(URL $url) {

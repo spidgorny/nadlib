@@ -205,7 +205,12 @@ class Path {
 	public function relativeFromDocRoot() {
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
-		$new = array_diff($this->aPath, $al->documentRoot->aPath);
+
+		// will cut duplicates
+		//$new = array_diff($this->aPath, $al->documentRoot->aPath);
+		$new = $this->cutArrayFromArray($this->aPath, $al->documentRoot->aPath);
+
+		//debug($this->aPath, $al->documentRoot->aPath, $new);
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;
@@ -218,7 +223,8 @@ class Path {
 	public function relativeFromAppRoot() {
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
-		$new = array_diff($this->aPath, $al->appRoot->aPath);
+		//$new = array_diff($this->aPath, $al->appRoot->aPath);
+		$new = $this->cutArrayFromArray($this->aPath, $al->documentRoot->aPath);
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;
@@ -232,8 +238,8 @@ class Path {
 			//debug($prefix);
 			$prefix->append($this);
 			$this->aPath = $prefix->aPath;
-			$this->implode();
 			$this->isAbsolute = true;
+			$this->implode();
 			$this->checkFileDir();
 		}
 	}
@@ -304,6 +310,27 @@ class Path {
 
 	public function getNameless($i) {
 		return $this->aPath[$i];
+	}
+
+	/**
+	 * @param array $long
+	 * @param array $short
+	 * @return array
+	 * @internal param $al
+	 */
+	private function cutArrayFromArray(array $long, array $short) {
+		$new = [];
+		$different = false;
+		foreach ($long as $key => $value) {
+			$other = ifsetor($short[$key]);
+			if ($value != $other) {
+				$different = true;
+			}
+			if ($different) {
+				$new[] = $value;
+			}
+		}
+		return $new;
 	}
 
 }

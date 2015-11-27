@@ -638,4 +638,13 @@ order by a.attnum';
 		return 'postgresql';
 	}
 
+	function getResultFields($res) {
+		$fields = [];
+		for ($f = 0; $f < pg_num_fields($res); $f++) {
+			$newField = pg_fieldname($res, $f);
+			$fields[$newField] = pg_field_type($res, $f);
+		};
+		return $fields;
+	}
+
 }

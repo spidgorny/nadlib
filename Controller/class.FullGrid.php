@@ -15,7 +15,9 @@ abstract class FullGrid extends Grid {
 			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
 		if ($collection) {
-			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
+			$this->collection = new $collection(-1, [], $this->getOrderBy());
+			// after construct because we need to modify join
+			$this->collection->where = $this->getFilterWhere();
 			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
 		}
