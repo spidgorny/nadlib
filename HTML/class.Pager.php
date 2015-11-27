@@ -271,7 +271,7 @@ class Pager {
 			'floatPages' => $this->numberOfRecords/$this->itemsPerPage,
 			'getMaxPage()' => $this->getMaxPage(),
 			'startingRecord' => $this->startingRecord,
-			'getSQLLimit()' => $this->getSQLLimit(),
+			//'getSQLLimit()' => $this->getSQLLimit(),
 			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
 			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
 			'getPagesAround()' => $pages = $this->getPagesAround($this->currentPage, $this->getMaxPage()),
