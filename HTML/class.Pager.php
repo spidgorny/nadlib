@@ -25,7 +25,7 @@ class Pager {
 	protected $prefix;
 
 	/**
-	 * @var User|LoginUser|blUser|grUser
+	 * @var User|LoginUser|blUser|grUser|NadlibUser
 	 */
 	protected $user;
 
@@ -107,6 +107,7 @@ class Pager {
 		FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
+		//debug($query, $res);
 		$this->detectCurrentPage();
 		TaylorProfiler::stop($key);
 	}
@@ -270,7 +271,7 @@ class Pager {
 			'floatPages' => $this->numberOfRecords/$this->itemsPerPage,
 			'getMaxPage()' => $this->getMaxPage(),
 			'startingRecord' => $this->startingRecord,
-			'getSQLLimit()' => $this->getSQLLimit(),
+			//'getSQLLimit()' => $this->getSQLLimit(),
 			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
 			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
 			'getPagesAround()' => $pages = $this->getPagesAround($this->currentPage, $this->getMaxPage()),
