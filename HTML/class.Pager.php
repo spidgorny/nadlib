@@ -10,6 +10,7 @@ class Pager {
 	 * @var URL
 	 */
 	var $url;
+
 	var $pagesAround = 3;
 
 	/**
@@ -24,7 +25,7 @@ class Pager {
 	protected $prefix;
 
 	/**
-	 * @var User|LoginUser|blUser|grUser
+	 * @var User|LoginUser|blUser|grUser|NadlibUser
 	 */
 	protected $user;
 
@@ -53,12 +54,14 @@ class Pager {
 		}
 		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
-		$this->db = Config::getInstance()->getDB();
+		$config = Config::getInstance();
+		$this->db = $config->getDB();
 		$this->request = Request::getInstance();
-		$this->setUser(Config::getInstance()->getUser());
+		$this->setUser($config->getUser());
+		$this->url = new URL();
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
-		Config::getInstance()->mergeConfig($this);
+		$config->mergeConfig($this);
 		$this->url = new URL();	// just in case
 	}
 
@@ -93,9 +96,18 @@ class Pager {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($query, 0, 300).')';
 		TaylorProfiler::start($key);
-		$query = "SELECT count(*) AS count FROM (".$query.") AS counted";
+		$query = new SQLQuery($query);
+		// not allowed or makes no sense
+		unset($query->parsed['ORDER']);
+		if ($this->db instanceof dbLayerMS) {
+			$query = $this->db->fixQuery($query);
+		}
+		//debug($query->parsed['WHERE']);
+		$query = "SELECT count(*) AS count
+		FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
+		//debug($query, $res);
 		$this->detectCurrentPage();
 		TaylorProfiler::stop($key);
 	}
@@ -143,9 +155,16 @@ class Pager {
 		//debug($this);
 	}
 
-	function getSQLLimit() {
-		$limit = " LIMIT {$this->itemsPerPage} offset " . $this->startingRecord;
-		return $limit;
+	function getSQLLimit($query) {
+		$scheme = $this->db->getScheme();
+		if ($scheme == 'ms') {
+			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
+		} else {
+			$limit = "\nLIMIT ".$this->itemsPerPage.
+			"\nOFFSET " . $this->startingRecord;
+			$query .= $limit;
+		}
+		return $query;
 	}
 
 	function getStart() {
@@ -220,9 +239,10 @@ class Pager {
 
 		if (!self::$cssOutput) {
 			$al = AutoLoad::getInstance();
-			if (class_exists('Index') && $this->request->apacheModuleRewrite()) {
+			$index = class_exists('Index') ? Index::getInstance() : NULL;
+			if ($index && $this->request->apacheModuleRewrite()) {
 				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-				Index::getInstance()->addCSS($al->nadlibFromDocRoot.'CSS/PaginationControl.less');
+				$index->addCSS($al->nadlibFromDocRoot . 'CSS/PaginationControl.less');
 			} elseif (false && $GLOBALS['HTMLHEADER']) {
 				$GLOBALS['HTMLHEADER']['PaginationControl.less']
 					= '<link rel="stylesheet" href="'.$al->nadlibFromDocRoot.'CSS/PaginationControl.less" />';
@@ -251,7 +271,7 @@ class Pager {
 			'floatPages' => $this->numberOfRecords/$this->itemsPerPage,
 			'getMaxPage()' => $this->getMaxPage(),
 			'startingRecord' => $this->startingRecord,
-			'getSQLLimit()' => $this->getSQLLimit(),
+			//'getSQLLimit()' => $this->getSQLLimit(),
 			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
 			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
 			'getPagesAround()' => $pages = $this->getPagesAround($this->currentPage, $this->getMaxPage()),
@@ -308,6 +328,8 @@ class Pager {
 					style='width: 2em; margin: 0' />
 				<input type='submit' value='Page' class='submit' />
 			</form>";
+		} else {
+			$form = '';
 		}
  		//debug($term);
 		$content = '<ul class="pagination">'.$content.'&nbsp;'.'</ul>'.$form;
@@ -332,6 +354,7 @@ class Pager {
 	function getPagesAround($current, $max) {
 		$size = $this->pagesAround;
 		$pages = array();
+		$k = 0;
 		for ($i = 0; $i < $size; $i++) {
 			$k = $i;
 			if ($k >= 0 && $k < $max) {
@@ -411,7 +434,7 @@ class Pager {
     }
 
     /**
-     * @return \LoginUser
+     * @return User|\LoginUser
      */
     public function getUser()
     {

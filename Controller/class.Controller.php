@@ -571,7 +571,7 @@ abstract class Controller {
 		) + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($class, $content) {
+	function div($content, $class = '') {
 		return '<div class="'.$class.'">'.$this->s($content).'</div>';
 	}
 
@@ -604,6 +604,20 @@ abstract class Controller {
 			'.$percent.'%
 		  </div>
 		</div>';
+	}
+
+	function p($content) {
+		return '<p>'.$this->s($content).'</p>';
+	}
+
+	function img($src, array $attrib = array()) {
+		return new HTMLTag('img', [
+			'src' => $this->e($src),
+		] + $attrib);
+	}
+
+	function e($content) {
+		return htmlspecialchars($content, ENT_QUOTES);
 	}
 
 }

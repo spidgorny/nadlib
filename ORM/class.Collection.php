@@ -352,17 +352,22 @@ class Collection implements IteratorAggregate {
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
 		if ($where instanceof SQLWhere) {
-			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select, TRUE);
+			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select);
 		} else {
 			//debug_pre_print_backtrace();
 			$query = $this->db->getSelectQuery(
 				$this->table.' '.$this->join,
 				$where,
 				$this->orderBy,
-				$this->select,
-				TRUE);
+				$this->select);
 		}
-		//debug($query);
+		if (DEVELOPMENT) {
+//			$index = Index::getInstance();
+//			$controllerCollection = ifsetor($index->controller->collection);
+//			if ($this == $controllerCollection) {
+//				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
+//			}
+		}
 		TaylorProfiler::stop(__METHOD__." ({$this->table})");
 		return $query;
 	}
@@ -372,7 +377,8 @@ class Collection implements IteratorAggregate {
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
 			$this->pager->initByQuery($query);
-			$query .= $this->pager->getSQLLimit();
+			$query = $this->pager->getSQLLimit($query);
+			//debug($query.''); exit();
 		}
 		//debug($query);
 		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
@@ -927,7 +933,7 @@ class Collection implements IteratorAggregate {
 			$class = $this->itemClassName;
 		}
 		$arrayIterator = $this->getLazyIterator();
-		$memberIterator = new LazyMemberIterator($arrayIterator, 0, $class);
+		$memberIterator = new LazyMemberIterator($arrayIterator, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
 	}
@@ -1005,6 +1011,16 @@ class Collection implements IteratorAggregate {
 	public function setMembers(array $countries) {
 		$this->members = $countries;
 		$this->count = sizeof($this->members);
+	}
+
+	/**
+	 * Make sure we re-query data from DB
+	 */
+	public function reset() {
+		$this->count = NULL;
+		$this->query = NULL;
+		$this->data = NULL;
+		$this->members = NULL;
 	}
 
 }
