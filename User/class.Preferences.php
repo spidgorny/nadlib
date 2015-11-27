@@ -3,8 +3,6 @@
 class Preferences {
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var User
 	 */
 	protected $user;

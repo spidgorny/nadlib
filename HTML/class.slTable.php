@@ -588,8 +588,11 @@ class slTable {
 		return $content;
 	}
 
+	/**
+	 * @param $table
+	 */
 	function getData($table) {
-		/** @var dbLayerBase $db */
+		/** @var dbLayerBase|dbLayerBL $db */
 		$db = Config::getInstance()->getDB();
 		$cols = $db->getTableColumns($table);
 		$data = $db->getTableDataEx($table, "deleted = 0");

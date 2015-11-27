@@ -7,7 +7,6 @@
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"flot/flot": "dev-master",
 		"soundintheory/php-sql-parser": "*",
 		"GerHobbelt/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
@@ -21,10 +20,8 @@
 		"phpunit/phpunit-mock-objects": "*",
 		"phpunit/phpunit": "*"
     },
-    "require_bak": {
-		"pdepend/pdepend": "1.1.0",
-		"fabpot/twittee": "dev-master",
-		"sharom/twitter-bootstrap": "dev-master"
+    "suggest": {
+        "flot/flot": "dev-master"
     },
 	"autoload": {
 		"classmap": [
@@ -55,12 +52,6 @@
 			"vendor/GerHobbelt/HTMLawed/htmLawed.php"
 		]
 	},
-	"repositories_bak": [
-		{
-		"type": "vcs",
-		"url": "https://github.com/michelf/php-markdown/"
-		}
-	],
 	"repositories": [
 		{
 			"type": "package",

@@ -161,9 +161,11 @@ class TaylorProfiler {
         return($oaTime);
     }//end start_time
 
-    /**
-    * Print out a log of all the timers that were registered
-    */
+	/**
+	 * Print out a log of all the timers that were registered
+	 * @param bool $enabled
+	 * @return null|string
+	 */
     function printTimers($enabled=false) {
 		if ($this->output_enabled||$enabled) {
 			$this->stopTimer('unprofiled');
@@ -176,7 +178,7 @@ class TaylorProfiler {
             	$row = array();
             	$row['desc'] = $val;
                 $row['time'] = $this->elapsedTime($key);
-                $row['total'] = $this->running[$key];
+                $row['total'] = ifsetor($this->running[$key]);
                 $row['count'] = $this->count[$key];
                 $row['avg'] = $row['total']*1000/$row['count'];
                 $row['perc'] = ($row['total']/$oaTime)*100;
@@ -358,15 +360,18 @@ class TaylorProfiler {
     	return $ret;
     }
 
-	static function getMemoryUsage($returnString = false) {
+	static function getMemoryUsage() {
 		static $max;
-		$max = $max ? $max : self::return_bytes(ini_get('memory_limit'));
+		$max = $max ? $max
+				: self::return_bytes(ini_get('memory_limit'));
+		$max = number_format($max/1024/1024, 3, '.', '');
 		$cur = memory_get_usage(true);
-		if ($returnString) {
-			$content = str_pad(number_format($cur, 0, '.', ''), 4, ' ', STR_PAD_LEFT).'/'.$max.'MB '.number_format($cur/$max*100, 3, '.', '').'% ';
-		} else {
-			$content = number_format($cur/$max, 3, '.', '');
-		}
+		$used = number_format($cur/1024/1024, 3, '.', '');
+		$percent = number_format($cur/$max*100, 3, '.', '');
+		$content = str_pad(
+			$used, 4, ' ', STR_PAD_LEFT)
+			.'/'.$max.'MB '
+			.$percent.'% ';
 		return $content;
 	}
 
@@ -549,6 +554,7 @@ class TaylorProfiler {
 		$tp = self::getInstance();
 		register_tick_function(array($tp, 'tick'));
 		declare(ticks=1000);
+		return $tp;
 	}
 
 	function tick() {
@@ -593,9 +599,11 @@ class TaylorProfiler {
 				pre_print_r($list);
 				throw new Exception('Infinite loop detected');
 			}
-		} elseif ($this->tickTo) {
+		} elseif ($this->tickTo == 'header') {
 			$pad = str_pad($time, 6, '0', STR_PAD_LEFT);
 			header('X-Tick-'.$pad.': '.strip_tags($output));
+		} elseif ($this->tickTo == 'errorlog') {
+			error_log(strip_tags($output));
 		}
 		$prev = $mem;
 	}

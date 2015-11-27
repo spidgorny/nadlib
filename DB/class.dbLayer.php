@@ -110,8 +110,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
 		}
 		if (!$this->LAST_PERFORM_RESULT) {
-			debug($query);
 			debug_pre_print_backtrace();
+			debug($query);
 			throw new DatabaseException(pg_errormessage($this->CONNECTION));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
@@ -636,6 +636,15 @@ order by a.attnum';
 
 	public function getScheme() {
 		return 'postgresql';
+	}
+
+	function getResultFields($res) {
+		$fields = [];
+		for ($f = 0; $f < pg_num_fields($res); $f++) {
+			$newField = pg_fieldname($res, $f);
+			$fields[$newField] = pg_field_type($res, $f);
+		};
+		return $fields;
 	}
 
 }

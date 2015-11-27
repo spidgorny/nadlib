@@ -490,7 +490,9 @@ class Request {
 
 			header('Location: '.$controller);
 			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>';
-			exit();
+			if (!$this->isPHPUnit()) {
+				exit();
+			}
 		} else {
 			$this->redirectJS($controller, DEVELOPMENT ? 5000 : 0);
 		}
@@ -510,7 +512,6 @@ class Request {
 					document.location = "'.$controller.'";
 				}, '.$delay.');
 			</script>';
-		//exit();
 	}
 
 	function redirectFromAjax($relative) {
