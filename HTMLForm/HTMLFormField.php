@@ -277,6 +277,7 @@ class HTMLFormField implements ArrayAccess {
 			default:
 				$type = isset($type) ? $type : 'text';
 				//$this->text(htmlspecialchars($desc['more']));
+//				debug($desc);
 				$this->form->input($fieldName, $fieldValue,
 						(is_array(ifsetor($desc['more']))
 								? HTMLForm::getAttrHTML($desc['more'])
