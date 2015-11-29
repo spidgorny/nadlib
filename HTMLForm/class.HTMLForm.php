@@ -113,6 +113,7 @@ class HTMLForm {
 	 * @return string
 	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
+//		debug($type, $name, $value, $more, $extraClass, $namePlus);
 		$a = '';
 		$moreClass = is_array($more) ? ifsetor($more['class']) : '';
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.' '.$moreClass.'"';
@@ -170,6 +171,7 @@ class HTMLForm {
 	}
 
 	function hidden($name, $value, $more = "") {
+//		debug(__METHOD__, $name, $value);
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
 		$this->stdout .= $this->getInput("hidden", $name, $value, $more);
@@ -268,6 +270,7 @@ class HTMLForm {
 	 * @param array $desc
 	 */
 	function date($name, $value, array $desc = array()) {
+//		debug($value);
 		$format = ifsetor($desc['format']) ? $desc['format'] : 'd.m.Y';
 		if (is_numeric($value)) {
 			$value = date($format, $value);

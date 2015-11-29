@@ -125,18 +125,17 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function switchType($fieldName, $fieldValue, array $descIn) {
+//		debug($descIn);
 		$field = new HTMLFormField($descIn, $fieldName);
 		$field->form = clone $this;
 		$field->form->stdout = '';
 		$field['value'] = $fieldValue;
 		$field->switchType();
 		return $field;
-							? ifsetor($desc['more']['class'])
-							: NULL)
 	}
 
 	function showCell($fieldName, array $desc) {
-		//t3lib_div::debug(array($fieldName, $desc));
+//		debug(array($fieldName, $desc));
 		$desc['TDmore'] = (isset($desc['TDmore']) && is_array($desc['TDmore']))
 			? $desc['TDmore']
 			: array();
@@ -203,7 +202,8 @@ class HTMLFormTable extends HTMLForm {
 				}
 			}
 		} else {
-			$this->switchType($fieldName, $fieldValue, $desc);
+			$field = $this->switchType($fieldName, $fieldValue, $desc);
+			$this->stdout .= $field->getContent();
 		}
 	}
 
@@ -441,7 +441,7 @@ class HTMLFormTable extends HTMLForm {
 					: $type;
 				switch ($sType) {
 					case 'date':
-						if (is_numeric($descKey['value']) && $descKey['value']) {
+						if (is_numeric(ifsetor($descKey['value'])) && $descKey['value']) {
 							$desc[$key]['value'] = $this->formatDate($descKey['value'], $descKey);
 						}
 					break;

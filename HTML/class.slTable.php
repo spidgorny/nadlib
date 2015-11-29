@@ -335,7 +335,7 @@ class slTable {
 				$thMore = array('' => $thMore);
 			}
 			if (isset($thv['align']) && $thv['align']) {
-				$thMore[$thk]['align'] = $thv['align'];
+				$thMore[$thk]['style'] = 'text-align: '.$thv['align'];
 			}
 			if ($this->sortable) {
 				if (
@@ -661,7 +661,11 @@ class slTable {
 
 	protected function is_time($val) {
 		$parts = explode(':', $val);
-		return (is_numeric($parts[0]) && is_numeric($parts[1]) && strlen($parts[0]) == 2 && strlen($parts[1]) == 2);
+		return (sizeof($parts) == 2
+			&& is_numeric($parts[0])
+			&& is_numeric($parts[1])
+			&& strlen($parts[0]) == 2
+			&& strlen($parts[1]) == 2);
 	}
 
 	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false) {
