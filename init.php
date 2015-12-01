@@ -70,7 +70,10 @@ if (!function_exists('nodebug')) {
 	}
 
 	function debug_once() {
-		static $used = array();
+		static $used = NULL;
+		if (is_null($used)) {
+			$used = array();
+		}
 		$trace = debug_backtrace();
 		array_shift($trace); // debug_once itself
 		$first = array_shift($trace);
@@ -416,4 +419,10 @@ function gettype2($something) {
 		$type .= '[' . sizeof($something) . ']';
 	}
 	return $type;
+}
+
+if (!function_exists('boolval')) {
+	function boolval($val) {
+		return (bool) $val;
+	}
 }
