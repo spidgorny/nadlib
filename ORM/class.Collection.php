@@ -946,10 +946,11 @@ class Collection implements IteratorAggregate {
 	public function getCount() {
 		if (is_null($this->count)) {
 			$query = $this->getQueryWithLimit();
-			//debug($query);
+//			debug($query);
 			if ($this->pager) {
 				$this->count = $this->pager->numberOfRecords;
 			} else {
+//				debug(gettype2($this->db));
 				$res = $this->db->perform($query);
 				$this->count = $this->db->numRows($res);
 			}
@@ -975,7 +976,7 @@ class Collection implements IteratorAggregate {
 	}
 
 	function reload() {
-		$this->query = NULL;
+		$this->reset();
 		$this->retrieveDataFromDB();
 	}
 
