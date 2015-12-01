@@ -481,10 +481,9 @@ class HTMLFormTable extends HTMLForm {
 		return $f->getBuffer();
 	}
 
-	static function getSingle($fieldName, array $desc) {
-		$f = new self();
-		$f->switchType($fieldName, ifsetor($desc['value']), $desc);
-		return $f->getBuffer();
+	function getSingle($fieldName, array $desc) {
+		$field = $this->switchType($fieldName, ifsetor($desc['value']), $desc);
+		return $field->getContent();
 	}
 
 	function repostRequest(Request $r, array $prefixes = array()) {
