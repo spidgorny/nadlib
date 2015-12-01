@@ -634,6 +634,12 @@ class Request {
 		return $date;
 	}
 
+	function getDateFromY_M_D($name) {
+		$date = $this->getTrim($name);
+		$date = strtotime($date);
+		return $date;
+	}
+
 	/**
 	 * http://www.zen-cart.com/forum/showthread.php?t=164174
 	 */

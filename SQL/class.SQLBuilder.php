@@ -152,6 +152,7 @@ class SQLBuilder {
 		foreach ($where as $key => $val) {
 			if (!strlen($key) || (strlen($key) && $key{strlen($key)-1} != '.')) {
 				$key = $this->quoteKey($key);
+//				debug($key);
 				if (false) {
 
 				} elseif ($val instanceof AsIsOp) {       // check subclass first
