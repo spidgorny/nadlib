@@ -1,6 +1,6 @@
 <?php
 
-class SQLQuery extends PHPSQL\Parser {
+class SQLQuery extends PHPSQLParser\PHPSQLParser {
 
 	public $parsed;
 
@@ -17,7 +17,7 @@ class SQLQuery extends PHPSQL\Parser {
 	}
 
 	function getQuery() {
-		$psc = new \PHPSQL\Creator($this->parsed);
+		$psc = new PHPSQLParser\PHPSQLCreator($this->parsed);
 		$query = $psc->created.'';
 		$query = str_replace([
 			'SELECT',
@@ -37,6 +37,20 @@ class SQLQuery extends PHPSQL\Parser {
 			"\nLIMIT",
 		], $query);
 		return $query;
+	}
+
+	public function appendCalcRows() {
+		//debug($sql->parsed['SELECT']);
+		array_unshift($this->parsed['SELECT'], array(
+			'expr_type' => 'reserved',
+			'base_expr' => 'SQL_CALC_FOUND_ROWS',
+			'delim'     => ' ',
+		));
+		//debug($sql->parsed);
+		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
+			$this->parsed['ORDER'][0]['expr_type'] = 'colref';
+		}
+		//debug($sql->parsed);
 	}
 
 }
