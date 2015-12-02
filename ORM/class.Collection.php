@@ -149,7 +149,8 @@ class Collection implements IteratorAggregate {
 		TaylorProfiler::start(__METHOD__." ({$this->table})");
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
-		$this->select = $this->select ?: 'DISTINCT '.$this->db->getFirstWord($this->table).'.*';
+		$this->select = $this->select
+			?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
@@ -233,17 +234,7 @@ class Collection implements IteratorAggregate {
 		$query = $this->getQuery();
 		if (class_exists('PHPSQL\Parser') && false) {
 			$sql = new SQLQuery($query);
-			//debug($sql->parsed['SELECT']);
-			array_unshift($sql->parsed['SELECT'], array(
-				'expr_type' => 'reserved',
-				'base_expr' => 'SQL_CALC_FOUND_ROWS',
-				'delim'     => ' ',
-			));
-			//debug($sql->parsed);
-			if ($sql->parsed['ORDER'] && $sql->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
-				$sql->parsed['ORDER'][0]['expr_type'] = 'colref';
-			}
-			//debug($sql->parsed);
+			$sql->appendCalcRows();
 			$this->query = $sql->__toString();
 		} else {
 			//$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);	// subquery problem
@@ -262,7 +253,8 @@ class Collection implements IteratorAggregate {
 		//debug($sql.'', $start, $limit);
 		$data = $this->db->fetchPartition($res, $start, $limit);
 
-		$countRow = $this->db->fetchAssoc($this->db->perform('SELECT FOUND_ROWS() AS count'));
+		$resFoundRows = $this->db->perform('SELECT FOUND_ROWS() AS count');
+		$countRow = $this->db->fetchAssoc($resFoundRows);
 		$this->count = $countRow['count'];
 
 		if ($this->pager) {
