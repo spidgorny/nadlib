@@ -503,8 +503,9 @@ class Request {
 		return $absURL.'' != $to.'';
 	}
 
-	function redirectJS($controller, $delay = 0) {
-		echo __('Redirecting to').' <a href="'.$controller.'">'.$controller.'</a>
+	function redirectJS($controller, $delay = 0, $message =
+		'Redirecting to %1') {
+		echo __($message, '<a href="'.$controller.'">'.$controller.'</a>').'
 			<script>
 				setTimeout(function () {
 					document.location = "'.$controller.'";
