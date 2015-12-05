@@ -382,7 +382,7 @@ if (!function_exists('nodebug')) {
 	 * @param $array
 	 * @return array
 	 */
-	function unique_multidim_array(array $matriz){
+	function unique_multidim_array(array $matriz) {
 		$aux_ini=array();
 		foreach ($matriz as $n => $source)
 		{
