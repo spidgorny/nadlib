@@ -80,11 +80,11 @@ class Uploader {
 		$f->file($fieldName);
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
-		$f->text($this->getLimits());
+		$f->text($this->getLimitsDiv());
 		return $f;
 	}
 
-	function getLimits() {
+	function getLimitsDiv() {
 		return '
 		<div class="message">
 		    <table style="width: 250px">
@@ -95,6 +95,14 @@ class Uploader {
 		    </table>
 		</div>
 		';
+	}
+
+	function getLimits() {
+		return array(
+			'upload_max_filesize' => ini_get('upload_max_filesize'),
+			'post_max_size' => ini_get('post_max_size'),
+			'disk_free_space' => round(disk_free_space('.')/1024/1024).'MB',
+		);
 	}
 
 	/**
