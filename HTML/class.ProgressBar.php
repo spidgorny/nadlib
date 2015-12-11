@@ -1,12 +1,16 @@
 <?php
 
 class ProgressBar {
+
 	var $percentDone = 0;
+
 	var $pbid;
 	var $pbarid;
 	var $tbarid;
 	var $textid;
+
 	var $decimals = 1;
+
 	protected $color = '#43b6df';
 
 	/**
@@ -40,6 +44,8 @@ class ProgressBar {
      * @var bool
      */
     var $useIndexCss = true;
+
+	var $cssFile = 'ProgressBarSimple.less';
 
 	/**
 	 * @ param #2 $color = '#43b6df'
@@ -91,13 +97,13 @@ class ProgressBar {
 	 * @return string
 	 */
 	function getCSS() {
-		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/ProgressBar.less';
+		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/'.$this->cssFile;
 		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
 			return ifsetor(Index::getInstance()->header[$less]);
 		} elseif (ifsetor($GLOBALS['HTMLHEADER'])) {
-			$GLOBALS['HTMLHEADER']['ProgressBar.less']
+			$GLOBALS['HTMLHEADER'][basename($this->cssFile)]
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
 		} else if (class_exists('lessc')) {
 			$l = new lessc();
@@ -133,7 +139,8 @@ class ProgressBar {
 
 	function setProgressBarProgress($percentDone, $text = '') {
 		$this->percentDone = $percentDone;
-		$text = $text ? $text : number_format($this->percentDone, $this->decimals, '.', '').'%';
+		$text = $text
+			?: number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
 			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserve errors
 		} else {
@@ -282,6 +289,37 @@ class ProgressBar {
 			array(exec('tput cols'), exec('tput lines'))
 		);
 		return $size;
+	}
+
+	public function startSSE($url) {
+		Index::getInstance()->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'js/sse.js');
+		return '<div class="sse" id="sseTarget"
+		href="'.htmlspecialchars($url).'">'.$this->getContent().'</div>';
+	}
+
+	public function setIndexSSE($index) {
+		if (!headers_sent()) {
+			if (true || Request::getInstance()->isAjax()) {
+				header('Content-Type: text/event-stream');
+				header('Cache-Control: no-cache');
+			} else {    // debug
+				header('Content-Type: text/plain');
+				header('Cache-Control: no-cache');
+			}
+		}
+		//echo 'event: status', "\n\n";
+		echo 'data: '.json_encode([
+				'current' => $index,
+				'total' => $this->count,
+			]), "\n\n";
+		if (ob_get_status()) {
+			ob_end_flush();
+		}
+		flush();
+	}
+
+	function done($content) {
+		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
 	}
 
 }
