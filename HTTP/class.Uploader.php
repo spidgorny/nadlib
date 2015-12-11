@@ -86,7 +86,7 @@ class Uploader {
 	}
 
 	function getLimitsDiv() {
-		$tmpDir = ini_get('upload_tmp_dir');
+		$tmpDir = ini_get('upload_tmp_dir') ?: sys_get_temp_dir();
 		if (is_writable($tmpDir)) {
 			$tmpDir .= ' [OK]';
 		} else {
@@ -95,12 +95,23 @@ class Uploader {
 		return '
 		<div class="message">
 		    <table style="width: 250px">
-		        <tr><td><nobr>Max size:</nobr></td><td>'.ini_get('upload_max_filesize').'</td></tr>
-		        <tr><td><nobr>Max post:</nobr></td><td>'.ini_get('post_max_size').'</td></tr>
-		        <tr><td><nobr>Free space:</nobr></td><td>'.number_format(disk_free_space('.')/1024/1024, 0, '.', '').'M</td></tr>
-		        <tr><td><nobr>Allowed:</nobr></td><td>'.implode(', ', $this->allowed).'</td></tr>
-		        <tr><td><nobr>Uploads enabled:</nobr></td><td>'.ini_get('file_uploads').'</td></tr>
-		        <tr><td><nobr>Temp folder:</nobr></td><td>'. $tmpDir .'</td></tr>
+		        <tr><td><nobr>Uploads enabled:</nobr></td>
+		        <td>'.ini_get('file_uploads').'</td></tr>
+
+		        <tr><td><nobr>Max size:</nobr></td>
+		        <td>'.ini_get('upload_max_filesize').'</td></tr>
+
+		        <tr><td><nobr>Max post:</nobr></td>
+		        <td>'.ini_get('post_max_size').'</td></tr>
+
+		        <tr><td><nobr>Free space:</nobr></td>
+		        <td>'.number_format(disk_free_space('.')/1024/1024, 0, '.', '').'M</td></tr>
+
+		        <tr><td><nobr>Allowed:</nobr></td>
+		        <td>'.implode(', ', $this->allowed).'</td></tr>
+
+		        <tr><td><nobr>Temp folder:</nobr></td>
+		        <td>'. $tmpDir .'</td></tr>
 		    </table>
 		</div>
 		';
