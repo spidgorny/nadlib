@@ -294,7 +294,11 @@ class HTMLFormField implements ArrayAccess {
 						($desc->isObligatory() ? ' required="1"' : '') .
 						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
 						, $type,
-						ifsetor($desc['class'], ifsetor($desc['more']['class']))
+					ifsetor($desc['class'],
+						is_array(ifsetor($desc['more']))
+							? ifsetor($desc['more']['class'])
+							: NULL
+					)
 				);
 				//debug($desc, $desc->isObligatory(), $desc->getTypeString());
 				break;
