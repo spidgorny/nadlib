@@ -44,7 +44,7 @@ class Uploader {
 	 */
 	function __construct($allowed = array()) {
 
-		if(!empty($allowed)) {
+		if (!empty($allowed)) {
 			$this->allowed = $allowed;
 		}
 
