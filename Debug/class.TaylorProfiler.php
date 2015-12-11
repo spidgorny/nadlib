@@ -48,8 +48,10 @@ class TaylorProfiler {
 	public $tickTo;
 
 	/**
-    * Initialise the timer. with the current micro time
-    */
+	 * Initialise the timer. with the current micro time
+	 * @param bool $output_enabled
+	 * @param bool $trace_enabled
+	 */
     function TaylorProfiler( $output_enabled=false, $trace_enabled=false) {
         $this->description = array();
         $this->startTime = array();
@@ -135,11 +137,13 @@ class TaylorProfiler {
     	}
     }
 
-    /**
-    *   measure the elapsed time of a timer without stoping the timer if
-    *   it is still running
-    */
-    function elapsedTime($name){
+	/**
+	 *   measure the elapsed time of a timer without stoping the timer if
+	 *   it is still running
+	 * @param $name
+	 * @return int|mixed
+	 */
+    function elapsedTime($name) {
         // This shouldn't happen, but it does once.
         if (!array_key_exists($name,$this->startTime))
             return 0;
@@ -456,7 +460,7 @@ class TaylorProfiler {
 				<table>
 					<tr>
 						<td>PHP+DB:</td>
-						<td>'.$totalTime.'s</td>
+						<td id="total">'.$totalTime.'s</td>
 						<td>'.$totalBar.'</td>
 						<td id="totalMax">'.$totalMax.'s</td>
 					</tr>
@@ -474,11 +478,11 @@ class TaylorProfiler {
 					</tr>
 					<tr>
 						<td>Total:</td>
-						<td id="page_load_time">'.$peakMem.'MB</td>
+						<td>'.$totalTime.'s</td>
 						<td><div id="page_load_time_bar">
 							<div></div>
 						</div></td>
-						<td></td>
+						<td id="page_load_time"></td>
 					</tr>
 				</table>
 			</div>
@@ -490,10 +494,10 @@ class TaylorProfiler {
 			page_load_time = (page_load_time/1000).toFixed(3);
 			//console.log("User-perceived page loading time: " + page_load_time);
 			document.querySelector("#page_load_time").innerHTML = page_load_time;
-			var totalMax = parseFloat(document.querySelector("#totalMax").innerHTML);
-			var width = Math.round(page_load_time/totalMax*100);
-			//console.log(totalMax, width)
-			document.querySelector("#page_load_time_bar div").style.width = width;
+			var total = parseFloat(document.querySelector("#total").innerHTML);
+			var width = Math.round(total / page_load_time * 100);
+			//console.log(total, page_load_time, width);
+			document.querySelector("#page_load_time_bar div").style.width = width + "%";
   		</script>
 		';
 		$content .= '<style>'.file_get_contents(
