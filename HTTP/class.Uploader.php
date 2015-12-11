@@ -81,10 +81,17 @@ class Uploader {
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$f->text($this->getLimitsDiv());
+
 		return $f;
 	}
 
 	function getLimitsDiv() {
+		$tmpDir = ini_get('upload_tmp_dir');
+		if (is_writable($tmpDir)) {
+			$tmpDir .= ' [OK]';
+		} else {
+			$tmpDir .= ' [Not writable]';
+		}
 		return '
 		<div class="message">
 		    <table style="width: 250px">
@@ -92,6 +99,8 @@ class Uploader {
 		        <tr><td><nobr>Max post:</nobr></td><td>'.ini_get('post_max_size').'</td></tr>
 		        <tr><td><nobr>Free space:</nobr></td><td>'.number_format(disk_free_space('.')/1024/1024, 0, '.', '').'M</td></tr>
 		        <tr><td><nobr>Allowed:</nobr></td><td>'.implode(', ', $this->allowed).'</td></tr>
+		        <tr><td><nobr>Uploads enabled:</nobr></td><td>'.ini_get('file_uploads').'</td></tr>
+		        <tr><td><nobr>Temp folder:</nobr></td><td>'. $tmpDir .'</td></tr>
 		    </table>
 		</div>
 		';
