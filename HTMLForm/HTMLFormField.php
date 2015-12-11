@@ -253,7 +253,8 @@ class HTMLFormField implements ArrayAccess {
 				break;
 			case 'fieldset':
 				//$this->fieldset($desc['label']);	// it only sets the global fieldset name
-				$this->form->stdout .= '<fieldset><legend>' . htmlspecialchars($desc['label']) . '</legend>';
+				$this->form->stdout .= '<fieldset>
+					<legend>' . htmlspecialchars($desc['label']) . '</legend>';
 				break;
 			case '/fieldset':
 				$this->form->stdout .= '</fieldset>';
