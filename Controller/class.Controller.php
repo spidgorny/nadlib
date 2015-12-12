@@ -571,8 +571,9 @@ abstract class Controller {
 		) + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '') {
-		return '<div class="'.$class.'">'.$this->s($content).'</div>';
+	function div($content, $class = '', array $more = array()) {
+		$more = HTMLTag::renderAttr($more);
+		return '<div class="'.$class.'" '.$more.'>'.$this->s($content).'</div>';
 	}
 
 	function info($content) {
