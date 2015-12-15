@@ -688,4 +688,8 @@ class Time {
 		$this->updateDebug();
 	}
 
+	public function getAge() {
+		return new Duration(time() - $this->getTimestamp());
+	}
+
 }
