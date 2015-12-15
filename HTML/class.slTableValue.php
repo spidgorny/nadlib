@@ -285,6 +285,8 @@ class slTableValue {
 							$out = $val->$k['call']();
 						} elseif (method_exists($val, 'getName')) {
 							$out = $val->getName();
+						} elseif (method_exists($val, '__toString')) {
+							$out = $val->__toString();
 						} else {
 							$out = '['.get_class($val).']';
 						}
