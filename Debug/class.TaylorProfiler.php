@@ -115,7 +115,19 @@ class TaylorProfiler {
     	}
     }
 
-    /**
+	public function clearMemory() {
+		$this->description = array();
+		$this->startTime = array();
+		$this->endTime = array();
+		$this->cur_timer = "";
+		$this->stack = array();
+		$this->trail = "";
+		$this->trace = array();
+		$this->count = array();
+		$this->running = array();
+	}
+
+	/**
     *   Stop an individual timer
     *   Restart the timer that was running before this one
     *   @param string $name name of the timer
@@ -650,6 +662,31 @@ class TaylorProfiler {
 	static function stop($method) {
 		$tp = TaylorProfiler::getInstance();
 		$tp ? $tp->stopTimer($method) : NULL;
+	}
+
+	public static function dumpMemory($var, $path = array()) {
+		if (is_array($var)) {
+			$log = implode('', [implode('', $path), '[', sizeof($var), ']', BR]);
+			error_log($log);
+			echo $log;
+			foreach ($var as $key => $val) {
+				if (!is_scalar($val) && $key != 'GLOBALS') {
+					$newPath = array_merge($path, array('.'.$key));
+					self::dumpMemory($val, $newPath);
+				}
+			}
+		} elseif (is_object($var)) {
+			$objVars = get_object_vars($var);
+			$log = implode('', [implode('', $path), '{', sizeof($objVars), '}', BR]);
+			error_log($log);
+			echo $log;
+			foreach ($objVars as $key => $val) {
+				if (!is_scalar($val)) {
+					$newPath = array_merge($path, array('->'.$key));
+					self::dumpMemory($val, $newPath);
+				}
+			}
+		}
 	}
 
 }
