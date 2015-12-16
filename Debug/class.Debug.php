@@ -447,7 +447,8 @@ class Debug {
 		foreach ($tmpArray as $key => $row) {
 			$size[$key] = strlen(serialize($row));
 		}
-		debug(array_sum($size), $size);
+//		debug(array_sum($size), $size);
+		return array_sum($size);
 	}
 
 	static function printStyles() {
