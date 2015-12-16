@@ -107,13 +107,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
 
-		header('X-Frame-Options: SAMEORIGIN');
-		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-		foreach ($this->csp as $key => &$val) {
-			$val = $key . ' ' . implode(' ', $val);
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
 		}
-		header('Content-Security-Policy: '.implode('; ', $this->csp));
-		header('X-Content-Security-Policy: '.implode('; ', $this->csp));
 		TaylorProfiler::stop(__METHOD__);
 	}
 

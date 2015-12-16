@@ -84,7 +84,7 @@ class URL {
 				) {
 					$this->components = parse_url(substr($request->getLocation(), 0, -1) . $url);
 				} else {
-					debug($this->components);
+					//debug($this->components);
 				}
 			}
 		}

@@ -77,14 +77,18 @@ class HTMLTag {
 	 */
 	static function parse($str) {
 		$str = trim($str);
-		if ($str{0} != '<') return NULL;
+		if (strlen($str) && $str{0} != '<') return NULL;
 		$parts = trimExplode(' ', $str);
-		$tag = substr($parts[0], 1, -1);
-		$attributes = str_replace('<'.$tag.'>', '', $str);
-		$attributes = str_replace('</'.$tag.'>', '', $attributes);
-		$obj = new HTMLTag($tag);
-		$obj->attr = self::parseAttributes($attributes);
-		$obj->content = strip_tags($str);
+		if ($parts) {
+			$tag = substr($parts[0], 1, -1);
+			$attributes = str_replace('<' . $tag . '>', '', $str);
+			$attributes = str_replace('</' . $tag . '>', '', $attributes);
+			$obj = new HTMLTag($tag);
+			$obj->attr = self::parseAttributes($attributes);
+			$obj->content = strip_tags($str);
+		} else {
+			$obj = NULL;
+		}
 		return $obj;
 	}
 

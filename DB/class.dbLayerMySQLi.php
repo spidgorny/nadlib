@@ -29,10 +29,16 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	/**
 	 * @param $query
 	 * @return bool|mysqli_result
+	 * @throws DatabaseException
 	 */
 	function perform($query) {
 		$this->lastQuery = $query;
-		return $this->connection->query($query);
+		$ok = $this->connection->query($query);
+		if (!$ok) {
+			debug($query);
+			throw new DatabaseException($this->connection->error, $this->connection->errno);
+		}
+		return $ok;
 	}
 
 	/**
@@ -53,6 +59,23 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 
 	function escape($string) {
 		return $this->connection->escape_string($string);
+	}
+
+	/**
+	 * @param $res mysqli_result
+	 * @param null $table
+	 * @return mixed
+	 */
+	function lastInsertID($res, $table = NULL) {
+		return $this->connection->insert_id;
+	}
+
+	/**
+	 * @param mysqli_result $res
+	 * @return mixed
+	 */
+	function numRows($res = NULL) {
+		return $res->num_rows;
 	}
 
 }

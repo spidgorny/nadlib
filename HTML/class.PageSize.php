@@ -1,6 +1,6 @@
 <?php
 
-class PageSize extends AppController {
+class PageSize extends Controller {
 
 	/**
 	 * Public to allow apps to adjust the amount

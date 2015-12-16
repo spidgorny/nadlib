@@ -178,7 +178,7 @@ abstract class OODBase {
 		if ($id) {
 			$this->init($id ? $id : $this->id);
 		} else {
-			throw new Exception('OODBase for '.$this->table.' no insert id after insert');
+			throw new DatabaseException('OODBase for '.$this->table.' no insert id after insert');
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $this;
