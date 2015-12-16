@@ -139,7 +139,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
 			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
 				session_regenerate_id(true);
-				throw new AccessDeniedException('Session hijacking detected. Please try again');
+				throw new AccessDeniedException('Session hijacking detected. Please try again.');
 			}
 		} else {
 			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
