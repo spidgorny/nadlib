@@ -1020,6 +1020,7 @@ class Collection implements IteratorAggregate {
 		$this->count = NULL;
 		$this->query = NULL;
 		$this->data = NULL;
+		$this->members = NULL;
 	}
 
 }
