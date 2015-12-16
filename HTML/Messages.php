@@ -46,8 +46,8 @@ class Messages extends \MergedContent {
 
 	function restoreMessages() {
 		if (isset($_SESSION[__CLASS__])) {
-			$this->content .= $_SESSION[__CLASS__]['messages'];
-			$_SESSION[__CLASS__]['messages'] = '';
+			$this->content = $_SESSION[__CLASS__]['messages'];
+			$_SESSION[__CLASS__]['messages'] = [];
 		}
 	}
 

@@ -14,10 +14,12 @@ interface HTMLFormCollection {
 
 	function setField($field);
 
-	function setForm(HTMLFormTable $form);
+	function setForm(HTMLForm $form);
 
 	function setValue($value);
 
 	function renderHTMLForm();
+
+	function setDesc($desc);
 
 }

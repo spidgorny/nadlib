@@ -92,11 +92,11 @@ class Pager {
 		}
 	}
 
-	function initByQuery($query) {
+	function initByQuery($originalSQL) {
 		//debug_pre_print_backtrace();
-		$key = __METHOD__.' ('.substr($query, 0, 300).')';
+		$key = __METHOD__.' ('.substr($originalSQL, 0, 300).')';
 		TaylorProfiler::start($key);
-		$query = new SQLQuery($query);
+		$query = new SQLQuery($originalSQL);
 		// not allowed or makes no sense
 		unset($query->parsed['ORDER']);
 		if ($this->db instanceof dbLayerMS) {
@@ -107,7 +107,7 @@ class Pager {
 		FROM (".$query.") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
-		//debug($query, $res);
+		//debug($originalSQL, $query, $res);
 		$this->detectCurrentPage();
 		TaylorProfiler::stop($key);
 	}
@@ -271,7 +271,7 @@ class Pager {
 			'floatPages' => $this->numberOfRecords/$this->itemsPerPage,
 			'getMaxPage()' => $this->getMaxPage(),
 			'startingRecord' => $this->startingRecord,
-			'getSQLLimit()' => $this->getSQLLimit(),
+			//'getSQLLimit()' => $this->getSQLLimit(),
 			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
 			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
 			'getPagesAround()' => $pages = $this->getPagesAround($this->currentPage, $this->getMaxPage()),

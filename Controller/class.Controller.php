@@ -305,9 +305,10 @@ abstract class Controller {
 				'</'.$h.'>'.
 				$content;
 		}
-		$more['class'] .= (ifsetor($more['class']) ? ' ' : '').get_class($this);
+		$more['class'] = ifsetor($more['class'], 'padding clearfix');
+		$more['class'] .= ' '.get_class($this);
 		//debug_pre_print_backtrace();
-		$content = '<section class="padding clearfix '.ifsetor($more['class']).'"
+		$content = '<section class="'.ifsetor($more['class']).'"
 			style="position: relative;">'.$content.'</section>';
 		return $content;
 	}
@@ -366,7 +367,8 @@ abstract class Controller {
 							$assoc[$name] = NULL;
 						}
 					}
-					call_user_func_array(array($proxy, $method), $assoc);
+					//debug($assoc);
+					$content = call_user_func_array(array($proxy, $method), $assoc);
 				} else {
 					$content = $proxy->$method();
 				}
@@ -610,8 +612,10 @@ abstract class Controller {
 		return '<p>'.$this->s($content).'</p>';
 	}
 
-	function img($src) {
-		return '<img src="'.$this->e($src).'" />';
+	function img($src, array $attrib = array()) {
+		return new HTMLTag('img', [
+			'src' => $this->e($src),
+		] + $attrib);
 	}
 
 	function e($content) {

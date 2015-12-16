@@ -107,6 +107,17 @@ class slTableValue {
 					$out = '';
 				}
 			break;
+			case "gmdate":
+				if ($val !== NULL) {
+					$out = gmdate($k['format'], $val);
+				} else {
+					$out = '';
+				}
+				//$out .= '-'.var_export($val, TRUE);
+			break;
+			case 'hours':
+				$out = $this->getHours($val);
+			break;
 			case "sqltime":
 				if ($val) {
 					$val = strtotime(substr($val, 0, 16)); // cut milliseconds
@@ -129,6 +140,9 @@ class slTableValue {
 				), $val);
 			break;
 			case "money":
+				if (!is_numeric($val)) {
+					debug($col, $val);
+				}
 				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
 			break;
 			case "delete":
@@ -271,6 +285,8 @@ class slTableValue {
 							$out = $val->$k['call']();
 						} elseif (method_exists($val, 'getName')) {
 							$out = $val->getName();
+						} elseif (method_exists($val, '__toString')) {
+							$out = $val->__toString();
 						} else {
 							$out = '['.get_class($val).']';
 						}
@@ -306,6 +322,19 @@ class slTableValue {
 			$out = number_format($out, $k['round'], '.', '');
 		}
 		return $out;
+	}
+
+	function getHours($timestamp) {
+		if ($timestamp) {
+			//return gmdate('H:i', $timestamp);
+			$whole = floor($timestamp/(60*60));
+			$whole = str_pad($whole, 2, '0', STR_PAD_LEFT);
+
+			$rest = ($timestamp/60)%60;
+			$rest = str_pad($rest, 2, '0', STR_PAD_LEFT);
+			return $whole.':'.$rest;
+		}
+		return NULL;
 	}
 
 }
