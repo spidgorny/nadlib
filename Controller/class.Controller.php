@@ -622,4 +622,12 @@ abstract class Controller {
 		return htmlspecialchars($content, ENT_QUOTES);
 	}
 
+	/**
+	 * http://stackoverflow.com/questions/19901850/how-do-i-get-an-objects-unqualified-short-class-name
+	 * @return string
+	 */
+	function self() {
+		return substr(strrchr(get_class($this), '\\'), 1);
+	}
+
 }
