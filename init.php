@@ -75,7 +75,7 @@ if (!function_exists('nodebug')) {
 		array_shift($trace); // debug_once itself
 		$first = array_shift($trace);
 		$key = $first['file'] . '.' . $first['line'];
-		if (!$used[$key]) {
+		if (!ifsetor($used[$key])) {
 			$v = func_get_args();
 			//$v[] = $key;
 			call_user_func_array('debug', $v);
