@@ -96,15 +96,15 @@ class Pager {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($query, 0, 300).')';
 		TaylorProfiler::start($key);
-		$query = new SQLQuery($query);
+		$queryObj = new SQLQuery($query);
 		// not allowed or makes no sense
-		unset($query->parsed['ORDER']);
+		unset($queryObj->parsed['ORDER']);
 		if ($this->db instanceof dbLayerMS) {
-			$query = $this->db->fixQuery($query);
+			$queryObj = $this->db->fixQuery($queryObj);
 		}
 		//debug($query->parsed['WHERE']);
 		$query = "SELECT count(*) AS count
-		FROM (".$query.") AS counted";
+		FROM (".$queryObj->getQuery().") AS counted";
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		//debug($query, $res);

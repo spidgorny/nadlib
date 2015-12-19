@@ -15,8 +15,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @var User|LoginUser
+	 * @public for template.phtml
 	 */
-	protected $user;
+	public $user;
 
 	/**
 	 * For any error messages during initialization.
