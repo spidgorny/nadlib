@@ -321,7 +321,6 @@ abstract class Scaffold extends AppController {
 	 * Default is add action, override to update
 	 *
 	 * @param string $action
-	 * @internal param array $desc
 	 * @return HTMLFormTable
 	 */
 	protected function getForm($action = 'add') {
