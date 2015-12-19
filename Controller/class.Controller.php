@@ -489,6 +489,8 @@ abstract class Controller {
 	}
 
 	/**
+	 * There is no $formMore parameter because you get the whole form returned.
+	 * You can modify it after returning as you like.
 	 * @param $name string|htmlString - if object then will be used as is
 	 * @param string|null $action
 	 * @param $formAction
@@ -619,6 +621,10 @@ abstract class Controller {
 
 	function e($content) {
 		return htmlspecialchars($content, ENT_QUOTES);
+	}
+
+	public function noRender() {
+		$this->noRender = true;
 	}
 
 }
