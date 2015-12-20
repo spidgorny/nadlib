@@ -52,7 +52,7 @@ class TaylorProfiler {
 	 * @param bool $output_enabled
 	 * @param bool $trace_enabled
 	 */
-    function TaylorProfiler( $output_enabled=false, $trace_enabled=false) {
+    function __construct( $output_enabled=false, $trace_enabled=false) {
         $this->description = array();
         $this->startTime = array();
         $this->endTime = array();
