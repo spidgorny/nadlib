@@ -134,7 +134,7 @@ class AjaxLogin extends AppController {
 			}
 			$content = array('<div id="AjaxLogin" '.($this->openable ? 'rel="toggle"' : '').'>', $content, '</div>');
 		} catch (Exception $e) {
-			$content = '<div class="error_top alert alert-danger">'.__($e->getMessage()).'</div>';
+			$content[] = '<div class="error_top alert alert-danger">'.__($e->getMessage()).'</div>';
 			if (DEVELOPMENT) {
 				$content[] = $e->getTraceAsString();
 			}

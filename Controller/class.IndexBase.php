@@ -15,8 +15,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @var User|LoginUser
+	 * @public for template.phtml
 	 */
-	protected $user;
+	public $user;
 
 	/**
 	 * For any error messages during initialization.
@@ -101,9 +102,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->request = Request::getInstance();
 		//debug('session_start');
 
-		// only use session if not run from command line
-		$this->initSession();
-
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
 
@@ -131,6 +129,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
 				session_regenerate_id(true);
+				unset($_SESSION['HTTP_USER_AGENT']);
 				throw new AccessDeniedException('Session hijacking detected. Please try again');
 			}
 		} else {
@@ -139,6 +138,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
 			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
 				session_regenerate_id(true);
+				unset($_SESSION['REMOTE_ADDR']);
 				throw new AccessDeniedException('Session hijacking detected. Please try again.');
 			}
 		} else {
@@ -223,6 +223,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		try {
+			// only use session if not run from command line
+			$this->initSession();
+
 			$this->initController();
 			if ($this->controller) {
 				$content .= $this->renderController();
