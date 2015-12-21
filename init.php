@@ -166,18 +166,27 @@ if (!function_exists('nodebug')) {
 
 	function debug_pre_print_backtrace() {
 		if (DEVELOPMENT) {
-			print '<pre style="
-			white-space: pre-wrap;
-			background: #eeeeee;
-			border-radius: 5px;
-			padding: 0.5em;
-			">';
+			if (!Request::isCLI()) {
+				print '<pre style="
+				white-space: pre-wrap;
+				background: #eeeeee;
+				border-radius: 5px;
+				padding: 0.5em;
+				">';
+			}
+			ob_start();
 			if (phpversion() >= '5.3.6') {
 				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			} else {
 				debug_print_backtrace();
 			}
-			print '</pre>';
+			$content = ob_get_clean();
+			$content = str_replace(dirname(getcwd()), '', $content);
+			$content = str_replace('C:\\Users\\'.getenv('USERNAME').'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
+			echo $content;
+			if (!Request::isCLI()) {
+				print '</pre>';
+			}
 		}
 	}
 
