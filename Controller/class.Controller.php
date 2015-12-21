@@ -89,8 +89,9 @@ abstract class Controller {
 	protected $al;
 
 	function __construct() {
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
-		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
+		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
+		$this->index = class_exists('Index')
+			? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->al = AutoLoad::getInstance();
@@ -342,7 +343,12 @@ abstract class Controller {
 
 	function performAction($action = NULL) {
 		$content = '';
-		$reqAction = $this->request->getTrim('action');
+		if ($this->request->isCLI()) {
+			//debug($_SERVER['argv']);
+			$reqAction = ifsetor($_SERVER['argv'][1]);
+		} else {
+			$reqAction = $this->request->getTrim('action');
+		}
 		$method = $action ? $action
 				: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
