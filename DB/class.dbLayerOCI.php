@@ -1,7 +1,7 @@
 <?php
 
 class dbLayerOCI extends dbLayer {
-	var $CONNECTION = NULL;
+	var $connection = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LOG;
@@ -26,20 +26,20 @@ class dbLayerOCI extends dbLayer {
 	 * @return bool|null|resource
 	 */
 	function connect($tns, $user, $pass, $host = 'localhost') {
-		$this->CONNECTION = oci_connect($user, $pass, $tns);
-		if (!$this->CONNECTION) {
-			print('Error in Oracle library: connection failed. Reason: '.getDebug(oci_error($this->CONNECTION)).BR);
+		$this->connection = oci_connect($user, $pass, $tns);
+		if (!$this->connection) {
+			print('Error in Oracle library: connection failed. Reason: '.getDebug(oci_error($this->connection)).BR);
 			return NULL;
 		}
-		return $this->CONNECTION;
+		return $this->connection;
 	}
 
 	function getConnection() {
-		return $this->CONNECTION;
+		return $this->connection;
 	}
 
 	function disconnect() {
-		oci_close($this->CONNECTION);
+		oci_close($this->connection);
 	}
 
 	function insertFields() {
@@ -51,7 +51,7 @@ class dbLayerOCI extends dbLayer {
 	}
 
 	function perform($query, $canprint = TRUE, $try = FALSE) {
-		if (!$this->CONNECTION) {
+		if (!$this->connection) {
 			print('Error in Oracle library: no connection. Query: '.$query.BR);
 			return NULL;
 		}
@@ -63,7 +63,7 @@ class dbLayerOCI extends dbLayer {
 		list($time1['usec'], $time1['sec']) = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
-		$this->LAST_PERFORM_RESULT = oci_parse($this->CONNECTION, $query);
+		$this->LAST_PERFORM_RESULT = oci_parse($this->connection, $query);
 		$error = oci_error();
 		if ($error) {
 			print('Oracle error '.$error['code'].': '.$error['message'].' while doing '.$query.BR);
@@ -142,7 +142,7 @@ class dbLayerOCI extends dbLayer {
 	}
 */
 	function commit() {
-		ocicommit($this->CONNECTION);
+		ocicommit($this->connection);
 	}
 /*
 	function rollback() {
