@@ -5,7 +5,7 @@
  * There's not even a documentation on the php.net.
  */
 class dbLayerORA extends dbLayer {
-	var $CONNECTION = NULL;
+	var $connection = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
 	var $LOG;
@@ -17,17 +17,17 @@ class dbLayerORA extends dbLayer {
 	}
 
 	function connect($tns, $user, $pass, $host = 'localhost') {
-		$this->CONNECTION = ora_logon($tns, $pass);
-		ora_commiton($this->CONNECTION);
-		return $this->CONNECTION;
+		$this->connection = ora_logon($tns, $pass);
+		ora_commiton($this->connection);
+		return $this->connection;
 	}
 
 	function getConnection() {
-		return $this->CONNECTION;
+		return $this->connection;
 	}
 
 	function disconnect() {
-		ora_logoff($this->CONNECTION);
+		ora_logoff($this->connection);
 	}
 
 	function perform($query, $canprint = TRUE) {
@@ -39,7 +39,7 @@ class dbLayerORA extends dbLayer {
 		list($time1['usec'], $time1['sec']) = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
-		$this->LAST_PERFORM_RESULT = ora_open($this->CONNECTION);
+		$this->LAST_PERFORM_RESULT = ora_open($this->connection);
 		ora_parse($cursor, $query, TRUE) or	$canprint ? my_print_backtrace($query) : '';
 		ora_exec($this->LAST_PERFORM_RESULT);
 
@@ -97,16 +97,16 @@ class dbLayerORA extends dbLayer {
 
 	function transaction($serializable = false) {
 		// everything is a transaction in oracle
-		ora_commitoff($this->CONNECTION);
+		ora_commitoff($this->connection);
 	}
 
 	function commit() {
-		ora_commit($this->CONNECTION);
-		ora_commiton($this->CONNECTION);
+		ora_commit($this->connection);
+		ora_commiton($this->connection);
 	}
 
 	function rollback() {
-		ora_rollback($this->CONNECTION);
+		ora_rollback($this->connection);
 	}
 
 	function quoteSQL($value) {
