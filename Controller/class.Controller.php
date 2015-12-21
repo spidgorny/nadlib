@@ -15,6 +15,8 @@
 
 abstract class Controller {
 
+	use HTMLHelper;
+
 	/**
 	 * @var Index
 	 */
