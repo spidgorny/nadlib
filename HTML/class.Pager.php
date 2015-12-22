@@ -96,7 +96,7 @@ class Pager {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($originalSQL, 0, 300).')';
 		TaylorProfiler::start($key);
-		$query = new SQLQuery($originalSQL);
+		$queryObj = new SQLQuery($originalSQL);
 		// not allowed or makes no sense
 		unset($query->parsed['ORDER']);
 		if ($this->db instanceof dbLayerMS) {

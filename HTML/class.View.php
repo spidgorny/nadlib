@@ -405,4 +405,11 @@ class View extends stdClass {
 		}
 	}
 */
+
+	function setSome(array $some) {
+		foreach ($some as $key => $val) {
+			$this->key = $val;
+		}
+	}
+
 }

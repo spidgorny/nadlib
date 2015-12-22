@@ -92,7 +92,8 @@ class SQLBuilder {
 			return "NULL";
 		} elseif (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
-			return "'".$value."' /* numeric */";		// quoting will not hurt, but will keep leading zeroes if necessary
+			return "'".$value."'";	// quoting will not hurt, but will keep leading zeroes if necessary
+			// /* numeric */";		// this makes SQLQuery not work
 		} elseif (is_bool($value)) {
 			return $this->db->escapeBool($value);
 		} elseif (is_scalar($value)) {

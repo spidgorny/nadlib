@@ -20,6 +20,11 @@ class Debug {
 	var $renderer = 'HTML';
 
 	/**
+	 * @var Request
+	 */
+	var $request;
+
+	/**
 	 * @param $index Index|IndexBE
 	 */
 	function __construct($index) {
@@ -47,6 +52,7 @@ class Debug {
 			));
 			echo '</pre>';
 		}
+		$this->request = Request::getInstance();
 	}
 
 	function detectRenderer() {
@@ -372,7 +378,8 @@ class Debug {
 		} else if (isset($first['class']) && $first['class']) {
 			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
 		} else {
-			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
+			$file = ifsetor($first['file']);
+			$function = basename(dirname($file)).'/'.basename($file).'#'.ifsetor($first['line']);
 		}
 		return $function;
 	}
@@ -498,7 +505,7 @@ class Debug {
 	 * @param $debugAccess...
 	 */
 	public function consoleLog($debugAccess) {
-		if (Request::getInstance()->isAjax()) return;
+		if ($this->request->isAjax()) return;
 		if (func_num_args() > 1) {
 			$debugAccess = func_get_args();
 		}

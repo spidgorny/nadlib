@@ -368,7 +368,9 @@ class Collection implements IteratorAggregate {
 		$query = $this->getQuery();
 		if ($this->pager) {
 			//debug($this->pager->getObjectInfo());
+//			debug($query);
 			$this->pager->initByQuery($query);
+//			debug($query, $this->query);
 			$query = $this->pager->getSQLLimit($query);
 			//debug($query.''); exit();
 		}
@@ -1014,6 +1016,10 @@ class Collection implements IteratorAggregate {
 		$this->query = NULL;
 		$this->data = NULL;
 		$this->members = NULL;
+	}
+
+	public function getIDs() {
+		return $this->getData()->getKeys();
 	}
 
 }

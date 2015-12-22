@@ -32,9 +32,11 @@ class FlexiTable extends OODBase {
 		$config = ifsetor(Config::getInstance()->config);
 		if (is_array($config)) {
 			//debug(ifsetor($config[__CLASS__]));
-			$this->doCheck = ifsetor($config[__CLASS__]['doCheck']);
-			if ($this->doCheck) {
-				$this->checkCreateTable();
+			if (isset($config[__CLASS__]['doCheck'])) {
+				$this->doCheck = ifsetor($config[__CLASS__]['doCheck']);
+				if ($this->doCheck) {
+					$this->checkCreateTable();
+				}
 			}
 		}
 	}
