@@ -162,7 +162,7 @@ class ProgressBar {
 	}
 
 	static function flush($ob_flush = false) {
-		print str_pad('', intval(ini_get('output_buffering')))."\n";
+		print str_pad('', intval(ini_get('output_buffering')), ' ')."\n";
 		if ($ob_flush) {
 			ob_end_flush();
 		}
