@@ -2,6 +2,8 @@
 
 class View extends stdClass {
 
+	use HTMLHelper;
+
 	/**
 	 * @var string
 	 */

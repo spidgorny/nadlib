@@ -222,11 +222,6 @@ class Duration extends Time {
             $segment = abs($value) . ' ' . $key;
 			// otherwise -1 years, -1 months ago
 
-            // Plural
-            if ($value != 1) {
-                $segment .= 's';
-            }
-
             $array[] = $segment;
         }
 

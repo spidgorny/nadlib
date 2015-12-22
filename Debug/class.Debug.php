@@ -246,8 +246,7 @@ class Debug {
 		}
 		$props = array(
 			'<span class="debug_prop">Function:</span> '.$function,
-			'<span class="debug_prop">Type:</span> '.gettype($a).
-				(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
+			'<span class="debug_prop">Type:</span> '.gettype2($a)
 		);
 		if (is_array($a)) {
 			$props[] = '<span class="debug_prop">Size:</span> '.sizeof($a);
