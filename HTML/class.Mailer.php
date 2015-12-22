@@ -135,7 +135,7 @@ class Mailer {
         if (!empty($additionalSenders)) {
             foreach ($additionalSenders as $address) {
                 empty($address)
-	                ? $address
+	                ? NULL
 	                : $message->addFrom(key($address));
             }
         }
@@ -143,7 +143,7 @@ class Mailer {
         if (!empty($to)) {
             foreach ($to as $address) {
                 empty($address)
-	                ? $address
+	                ? NULL
 	                : $message->addTo(trim($address));
             }
         }
@@ -151,7 +151,7 @@ class Mailer {
         if (!empty($cc)) {
             foreach ($cc as $address) {
                 empty($address)
-	                ? $address
+	                ? NULL
 	                : $message->addCc($address);
             }
         }
@@ -159,16 +159,19 @@ class Mailer {
         if (!empty($bcc)) {
             foreach ($bcc as $address) {
                 empty($address)
-	                ? $address
+	                ? NULL
 	                : $message->addBcc($address);
             }
         }
 
         if (!empty($attachments)) {
             foreach ($attachments as $attachment) {
-                empty($attachment)
-	                ? $attachment
-	                : $message->attach(Swift_Attachment::fromPath($attachment));
+				if (!empty($attachment)) {
+					$smAttachment = Swift_Attachment::fromPath($attachment);
+					$shortFile = $this->getShortFilename($attachment);
+					$smAttachment->setFilename($shortFile);
+					$message->attach($smAttachment);
+				}
             }
         }
 
@@ -180,5 +183,18 @@ class Mailer {
 
         return !empty($failedRecipients) ? $failedRecipients : $sent;
     }
+
+	/**
+	 * @param $attachment
+	 * @return string
+	 */
+	public function getShortFilename($attachment) {
+		$pathinfo = pathinfo($attachment);
+		$ext = $pathinfo['extension'];
+		$extLen = 1 + strlen($ext);
+		$shortFile = substr($pathinfo['filename'], 0, 63 - $extLen)
+			. '.' . $ext;
+		return $shortFile;
+	}
 
 }

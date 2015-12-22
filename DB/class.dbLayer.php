@@ -11,7 +11,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
     /**
      * @var resource
      */
-    protected $CONNECTION = NULL;
+    public $connection = NULL;
 
 	var $LAST_PERFORM_RESULT;
 	var $LAST_PERFORM_QUERY;
@@ -77,7 +77,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @return bool
 	 */
 	function isConnected() {
-		return !!$this->CONNECTION;
+		return !!$this->connection;
 	}
 
 	function connect($dbse, $user, $pass, $host = "localhost") {
@@ -85,34 +85,34 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
-		$this->CONNECTION = pg_connect($string);
-		if (!$this->CONNECTION) {
+		$this->connection = pg_connect($string);
+		if (!$this->connection) {
 			throw new Exception("No postgre connection.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		}
-		//print(pg_client_encoding($this->CONNECTION));
+		//print(pg_client_encoding($this->connection));
 		return true;
 	}
 
 	function perform($query, array $params = array()) {
 		$prof = new Profiler();
 		$this->lastQuery = $query;
-		if (!is_resource($this->CONNECTION)) {
+		if (!is_resource($this->connection)) {
 			debug($query);
 			debug_pre_print_backtrace();
 		}
 		if ($params) {
-			pg_prepare($this->CONNECTION, '', $query);
-			$this->LAST_PERFORM_RESULT = pg_execute($this->CONNECTION, '', $params);
+			pg_prepare($this->connection, '', $query);
+			$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 		} else {
-			$this->LAST_PERFORM_RESULT = pg_query($this->CONNECTION, $query);
+			$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
 		}
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug_pre_print_backtrace();
 			debug($query);
-			throw new DatabaseException(pg_errormessage($this->CONNECTION));
+			throw new DatabaseException(pg_errormessage($this->connection));
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
@@ -126,11 +126,11 @@ class dbLayer extends dbLayerBase implements DBInterface {
     function performWithParams($query, $params) {
 	    $prof = new Profiler();
 	    $this->lastQuery = $query;
-	    $this->LAST_PERFORM_RESULT = pg_query_params($this->CONNECTION, $query, $params);
+	    $this->LAST_PERFORM_RESULT = pg_query_params($this->connection, $query, $params);
 	    if (!$this->LAST_PERFORM_RESULT) {
 		    debug($query);
 		    debug_pre_print_backtrace();
-		    throw new Exception(pg_errormessage($this->CONNECTION));
+		    throw new Exception(pg_errormessage($this->connection));
 	    } else {
 		    $this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 		    if ($this->queryLog) {
@@ -150,7 +150,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (!$table) {
 			debug_pre_print_backtrace();
 		}
-		$meta = pg_meta_data($this->CONNECTION, $table);
+		$meta = pg_meta_data($this->connection, $table);
 		if (is_array($meta)) {
 			return array_keys($meta);
 		} else {
@@ -160,7 +160,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	function getTableColumnsEx($table) {
-		$meta = pg_meta_data($this->CONNECTION, $table);
+		$meta = pg_meta_data($this->connection, $table);
 		return $meta;
 	}
 
@@ -174,7 +174,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		//debug($cache); exit;
 
 		if (!$cache[$table]) {
-			$meta = pg_meta_data($this->CONNECTION, $table);
+			$meta = pg_meta_data($this->connection, $table);
 			if (is_array($meta)) {
 				$cache[$table] = array_keys($meta);
 			} else {
@@ -198,7 +198,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	function getColumnTypes($table) {
-		$meta = pg_meta_data($this->CONNECTION, $table);
+		$meta = pg_meta_data($this->connection, $table);
 		if (is_array($meta)) {
 			$return = array();
 			foreach ($meta as $col => $m) {
@@ -321,10 +321,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			}
 		}
 		return ArrayPlus::create($data)->IDalize('column_name')->getData();
-	}
-
-	function amountOf($table, $where = "1 = 1") {
-		return $this->sqlFind("count(*)", $table, $where);
 	}
 
 	function dataSeek($res, $number) {
