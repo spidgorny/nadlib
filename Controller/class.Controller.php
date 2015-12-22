@@ -499,6 +499,8 @@ abstract class Controller {
 	}
 
 	/**
+	 * There is no $formMore parameter because you get the whole form returned.
+	 * You can modify it after returning as you like.
 	 * @param $name string|htmlString - if object then will be used as is
 	 * @param string|null $action
 	 * @param $formAction
@@ -581,8 +583,9 @@ abstract class Controller {
 		) + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '') {
-		return '<div class="'.$class.'">'.$this->s($content).'</div>';
+	function div($content, $class = '', array $more = array()) {
+		$more = HTMLTag::renderAttr($more);
+		return '<div class="'.$class.'" '.$more.'>'.$this->s($content).'</div>';
 	}
 
 	function info($content) {
@@ -628,6 +631,10 @@ abstract class Controller {
 
 	function e($content) {
 		return htmlspecialchars($content, ENT_QUOTES);
+	}
+
+	public function noRender() {
+		$this->noRender = true;
 	}
 
 }

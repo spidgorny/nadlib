@@ -380,19 +380,24 @@ class Menu /*extends Controller*/ {
             if ($level > 0 && !$ret) {
                 $ret = ($subMenu[($level -1)] == $this->current && $class == $this->current);
             }
+		} elseif (contains($class, '/')) {
+			$classWithoutSlash = trimExplode('/', $class);
+			$classWithoutSlash = $classWithoutSlash[0];
+			$ret = $this->current == $classWithoutSlash;
 		} else {
 			$ret = $this->current == $class;
 		}
-		if ($this->level === 1) {
+		//if ($this->level === 0) {
 			nodebug(array(
 				'class' => $class,
 				'class{0}' => $class{0},
 				'subMenu' => $subMenu,
 				'combined' => $combined,
 				'current' => $this->current,
+				'contains /' => contains($class, '/'),
 				'ret' => $ret,
 			));
-		}
+		//}
 		return $ret;
 	}
 

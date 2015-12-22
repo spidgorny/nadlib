@@ -1,6 +1,6 @@
 <?php
 
-class Image extends HTMLTag {
+class HTMLImage extends HTMLTag {
 
 	/**
 	 * @var string
@@ -13,18 +13,31 @@ class Image extends HTMLTag {
 	}
 
 	function getTag() {
-		$this->setAttr('src', $this->getImageLink());
 		return $this->render();
 	}
 
+	function render() {
+		$this->setAttr('src', $this->getImageLink());
+		//debug($this->attr);
+		return parent::render();
+	}
+
 	function getImageLink() {
-		$documentRoot = Autoload::getInstance()->appRoot;
-		$documentRoot = str_replace('\\', '/', $documentRoot);
-		$realpath = realpath($this->filename);
-		$realpath = str_replace('\\', '/', $realpath);
-		$fileLink = str_replace($documentRoot, '', $realpath);
-		//debug($documentRoot, $realpath, $fileLink);
+		if ($this->isLocalFile()) {
+			$documentRoot = Autoload::getInstance()->appRoot;
+			$documentRoot = str_replace('\\', '/', $documentRoot);
+			$realpath = realpath($this->filename);
+			$realpath = str_replace('\\', '/', $realpath);
+			$fileLink = str_replace($documentRoot, '', $realpath);
+			//debug($documentRoot, $realpath, $fileLink);
+		} else {
+			$fileLink = $this->filename;
+		}
 		return $fileLink;
+	}
+
+	function isLocalFile() {
+		return !contains($this->filename, '://');
 	}
 
 	function getBaseName() {
