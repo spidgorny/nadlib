@@ -125,6 +125,8 @@ class TaylorProfiler {
 		$this->trace = array();
 		$this->count = array();
 		$this->running = array();
+		$this->trace_enabled = false;
+		$this->output_enabled = false;
 	}
 
 	/**
@@ -378,16 +380,24 @@ class TaylorProfiler {
 
 	static function getMemoryUsage() {
 		static $max;
-		$max = $max ? $max
-				: self::return_bytes(ini_get('memory_limit'));
-		$max = number_format($max/1024/1024, 3, '.', '');
+		static $previous;
+		$max = $max ?: self::return_bytes(ini_get('memory_limit'));
+		$maxMB = number_format($max/1024/1024, 0, '.', '');
 		$cur = memory_get_usage(true);
-		$used = number_format($cur/1024/1024, 3, '.', '');
-		$percent = number_format($cur/$max*100, 3, '.', '');
+		$usedMB = number_format($cur/1024/1024, 3, '.', '');
+		$percent = $maxMB != 0
+			? number_format($usedMB/$maxMB*100, 3, '.', '')
+			: '';
 		$content = str_pad(
-			$used, 4, ' ', STR_PAD_LEFT)
-			.'/'.$max.'MB '
+			$usedMB, 4, ' ', STR_PAD_LEFT)
+			.'/'.$maxMB.'MB '
 			.$percent.'% ';
+		if ($previous) {
+			$increase = $usedMB - $previous;
+			$sign = $increase > 0 ? '+' : '';
+			$content .= ' ('.$sign.number_format($increase, 3, '.', '').' MB)';
+		}
+		$previous = $usedMB;
 		return $content;
 	}
 
