@@ -1,6 +1,6 @@
 <?php
 
-class SQLQuery extends PHPSQLParser\PHPSQLParser {
+class SQLQuery extends PHPSQL\Parser {
 
 	public $parsed;
 
@@ -17,7 +17,7 @@ class SQLQuery extends PHPSQLParser\PHPSQLParser {
 	}
 
 	function getQuery() {
-		$psc = new PHPSQLParser\PHPSQLCreator($this->parsed);
+		$psc = new PHPSQL\Creator($this->parsed);
 		$query = $psc->created.'';
 		$query = str_replace([
 			'SELECT',

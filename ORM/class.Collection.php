@@ -95,22 +95,11 @@ class Collection implements IteratorAggregate {
 	protected $request;
 
 	/**
-	 * Indication to slTable
-	 * @var bool
-	 */
-	public $useSorting = true;
-
-	/**
 	 * Lists columns for the SQL query
 	 * @var string
 	 * @default "DISTINCT table.*"
 	 */
 	public $select;
-
-	public $tableMore = array(
-		'class' => "nospacing",
-		'width' => "100%",
-	);
 
 	public $prevText = '&#x25C4;';
 	public $nextText = '&#x25BA;';
@@ -132,8 +121,6 @@ class Collection implements IteratorAggregate {
 	 * @var array
 	 */
 	var $desc = array();
-
-	var $noDataMessage = 'No data';
 
 	var $filter = array();
 
@@ -396,56 +383,8 @@ class Collection implements IteratorAggregate {
 	 * @return slTable|string - returns the slTable if not using Pager
 	 */
 	function render() {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
-		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->getData();
-		if ($this->count) {
-			$this->prepareRender();
-			//debug($this->tableMore);
-			$s = $this->getDataTable();
-			if ($this->pager) {
-				$url = new URL();
-				$pages = $this->pager->renderPageSelectors($url);
-				$content = $pages . $s->getContent(get_class($this)) . $pages;
-			} else {
-				$content = $s;
-			}
-		} else {
-			$content = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
-		}
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
-		return $content;
-	}
-
-	function getDataTable() {
-		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$s = new slTable($this->getData(), HTMLTag::renderAttr($this->tableMore));
-		$s->thes($this->thes);
-		$s->ID = get_class($this);
-		$s->sortable = $this->useSorting;
-		if (class_exists('Index')) {
-			$index = Index::getInstance();
-			$controller = $index->controller;
-			if ($sort = ifsetor($controller->sort)) {
-				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));	// UGLY
-				//debug(Index::getInstance()->controller);
-				$s->sortLinkPrefix = new URL(NULL,
-						ifsetor($controller->linkVars)
-								? $controller->linkVars
-								: array());
-			}
-		}
-		return $s;
-	}
-
-	function prepareRender() {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
-		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->getData();
-		foreach ($this->data as &$row) { // Iterator by reference
-			$row = $this->prepareRenderRow($row);
-		}
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		$view = new CollectionView($this);
+		return $view->renderTable();
 	}
 
 	/**
@@ -586,40 +525,18 @@ class Collection implements IteratorAggregate {
 		return NULL;
 	}
 
+	function getView() {
+		$view = new CollectionView($this);
+		return $view;
+	}
+
 	/**
 	 * Calls __toString on each member
 	 * @return string
 	 */
 	function renderMembers() {
-		$content = array();
-		//debug(sizeof($this->members));
-		if ($this->objectify()) {
-			$content[] = '<div class="'.get_class($this).'">';
-			/**
-			 * @var int $key
-			 * @var OODBase $obj
-			 */
-			foreach ($this->members as $key => $obj) {
-			//debug($i++, (strlen($content)/1024/1024).'M');
-				if (is_object($obj)) {
-					$content[] = $obj->render();
-					$content[] = "\n";
-				} else {
-					$content[] = getDebug(__METHOD__, $key, $obj);
-				}
-			}
-			$content[] = '</div>';
-		} elseif ($this->noDataMessage) {
-			//Index::getInstance()->ll->debug = true;
-			$content[] = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
-		}
-		if ($this->pager) {
-			//$this->pager->debug();
-			$url = new URL();
-			$pages = $this->pager->renderPageSelectors($url);
-			$content = array($pages, $content, $pages);
-		}
-		return $content;
+		$view = new CollectionView($this);
+		return $view->renderMembers();
 	}
 
 	function translateThes() {
