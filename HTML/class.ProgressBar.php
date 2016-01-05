@@ -12,6 +12,7 @@ class ProgressBar {
 	var $decimals = 1;
 
 	protected $color = '#43b6df';
+	public $cliBR = "\r";
 
 	/**
 	 * @var bool
@@ -142,22 +143,9 @@ class ProgressBar {
 		$text = $text
 			?: number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo "\r". $text  . "\t".$this->getCLIbar(); // \r first to preserve errors
+			echo $this->cliBR . $text  . "\t".$this->getCLIbar(); // \r first to preserve errors
 		} else {
-			print('
-			<script type="text/javascript">
-			if (document.getElementById("'.$this->pbarid.'")) {
-				document.getElementById("'.$this->pbarid.'").style.width = "'.$percentDone.'%";'."\n");
-			if ($percentDone == 100) {
-				print('document.getElementById("'.$this->tbarid.'").style.display = "none";'."\n");
-			} else {
-				print('document.getElementById("'.$this->tbarid.'").style.width = "'.(100-$percentDone).'%";'."\n");
-			}
-			if ($text) {
-				print('document.getElementById("'.$this->textid.'").innerHTML = "'.htmlspecialchars(str_replace("\n", '\n', $text)).'";'."\n");
-			}
-			print('}</script>'."\n");
-			$this->flush();
+			$this->setProgressBarJS($percentDone, $text);
 		}
 	}
 
@@ -168,11 +156,13 @@ class ProgressBar {
 			if ($every < 1 || !($i % $every) || $always) {
 				$this->setProgressBarProgress($percent);
 			}
+		} else {
+			throw new InvalidArgumentException(__CLASS__.'->count is not set');
 		}
 	}
 
 	static function flush($ob_flush = false) {
-		print str_pad('', intval(ini_get('output_buffering')))."\n";
+		print str_pad('', intval(ini_get('output_buffering')), ' ')."\n";
 		if ($ob_flush) {
 			ob_end_flush();
 		}
@@ -320,6 +310,27 @@ class ProgressBar {
 
 	function done($content) {
 		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
+	}
+
+	/**
+	 * @param $percentDone
+	 * @param $text
+	 */
+	private function setProgressBarJS($percentDone, $text) {
+		print('
+			<script type="text/javascript">
+			if (document.getElementById("' . $this->pbarid . '")) {
+				document.getElementById("' . $this->pbarid . '").style.width = "' . $percentDone . '%";' . "\n");
+		if ($percentDone == 100) {
+			print('document.getElementById("' . $this->tbarid . '").style.display = "none";' . "\n");
+		} else {
+			print('document.getElementById("' . $this->tbarid . '").style.width = "' . (100 - $percentDone) . '%";' . "\n");
+		}
+		if ($text) {
+			print('document.getElementById("' . $this->textid . '").innerHTML = "' . htmlspecialchars(str_replace("\n", '\n', $text)) . '";' . "\n");
+		}
+		print('}</script>' . "\n");
+		$this->flush();
 	}
 
 }

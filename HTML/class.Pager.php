@@ -98,9 +98,11 @@ class Pager {
 		TaylorProfiler::start($key);
 		$queryObj = new SQLQuery($originalSQL);
 		// not allowed or makes no sense
-		unset($query->parsed['ORDER']);
+		unset($queryObj->parsed['ORDER']);
 		if ($this->db instanceof dbLayerMS) {
-			$query = $this->db->fixQuery($query);
+			$query = $this->db->fixQuery($queryObj);
+		} else {
+			$query = $queryObj->getQuery();
 		}
 		//debug($query->parsed['WHERE']);
 		$query = "SELECT count(*) AS count

@@ -530,6 +530,11 @@ abstract class OODBase {
 		gc_collect_cycles();
 	}
 
+	static function clearAllInstances() {
+		self::$instances = array();
+		gc_collect_cycles();
+	}
+
 	function getObjectInfo() {
 		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' #'.spl_object_hash($this).')';
 	}

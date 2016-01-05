@@ -470,7 +470,7 @@ class Request {
 		return $ok ? $referer : NULL;
 	}
 
-	function redirect($controller) {
+	function redirect($controller, $exit = true) {
 		if (class_exists('Index')
 			&& Index::getInstance()
 			&& method_exists(Index::getInstance(), '__destruct')) {
@@ -492,7 +492,7 @@ class Request {
 
 			header('Location: '.$controller);
 			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>';
-			if (!$this->isPHPUnit()) {
+			if ($exit && !$this->isPHPUnit()) {
 				exit();
 			}
 		} else {
