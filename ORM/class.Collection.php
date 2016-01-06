@@ -502,20 +502,7 @@ class Collection implements IteratorAggregate {
 					}
 					$list[$id] = $item;
 				} elseif ($this->itemClassName) {
-					/** @var OODBase $obj */
-					$class = $this->itemClassName;
-					if (method_exists($class, 'getInstance')) {
-						$obj = $class::getInstance($row);
-					} else {
-						$obj = new $class($row);
-					}
-					if (method_exists($obj, 'getSingleLink')) {
-						$list[$id] = new HTMLTag('a', array(
-							'href' => $obj->getsingleLink(),
-						), $obj->getName());
-					} else {
-						$list[$id] = $obj->getName();
-					}
+					$list[$id] = $this->renderListItem($row);
 				} else {
 					$list[$id] = $row[$this->titleColumn];
 				}
@@ -523,6 +510,26 @@ class Collection implements IteratorAggregate {
 			return new UL($list);
 		}
 		return NULL;
+	}
+
+	function renderListItem(array $row) {
+		/** @var OODBase $obj */
+		$class = $this->itemClassName;
+		if (method_exists($class, 'getInstance')) {
+			$obj = $class::getInstance($row);
+		} else {
+			$obj = new $class($row);
+		}
+		if (method_exists($obj, 'render')) {
+			$content = $obj->render();
+		} elseif (method_exists($obj, 'getSingleLink')) {
+			$content = new HTMLTag('a', array(
+					'href' => $obj->getsingleLink(),
+			), $obj->getName());
+		} else {
+			$content = $obj->getName();
+		}
+		return $content;
 	}
 
 	function getView() {
@@ -812,6 +819,12 @@ class Collection implements IteratorAggregate {
 		return $content;
 	}
 
+	/**
+	 * @param $prev
+	 * @param $model OODBase
+	 * @param $next
+	 * @return string
+	 */
 	protected function renderPrevNext($prev, $model, $next) {
 		return $prev.' '.$model->getName().' '.$next;
 	}
@@ -923,6 +936,11 @@ class Collection implements IteratorAggregate {
 	public function setMembers(array $countries) {
 		$this->members = $countries;
 		$this->count = sizeof($this->members);
+		$this->data = array();
+		$this->query = __METHOD__;
+		foreach ($this->members as $obj) {
+			$this->data[$obj->id] = $obj->data;
+		}
 	}
 
 	/**
@@ -937,6 +955,10 @@ class Collection implements IteratorAggregate {
 
 	public function getIDs() {
 		return $this->getData()->getKeys();
+	}
+
+	function first() {
+		return first($this->objectify());
 	}
 
 }
