@@ -66,9 +66,10 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * objectify() without parameters will try this class name
+	 * Default is NULL in order to check whether it's set or not.
 	 * @var string
 	 */
-	protected $itemClassName = 'itemClassNameNotExists';
+	protected $itemClassName;
 
 	/**
 	 * SQL part
