@@ -73,10 +73,10 @@ class Syndicator {
 
 	function detectProxy() {
 		$proxy = NULL;
-		if (startsWith($this->url, 'https')) {
+		if (str_startsWith($this->url, 'https')) {
 			$proxy = getenv('https_proxy');
 			$proxy = $proxy ?: getenv('http_proxy');
-		} elseif (startsWith($this->url, 'http')) {
+		} elseif (str_startsWith($this->url, 'http')) {
 			$proxy = getenv('http_proxy');
 		}
 		if ($proxy) {
@@ -191,7 +191,7 @@ class Syndicator {
 	}
 
 	function downloadFile($href, $retries = 1) {
-		if (startsWith($href, 'http')) {
+		if (str_startsWith($href, 'http')) {
 			$ug = new URLGet($href, $this);
 			$ug->timeout = 10;
 			$ug->fetch($this->useProxy, $retries);

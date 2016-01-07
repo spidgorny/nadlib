@@ -105,14 +105,14 @@ if (!function_exists('nodebug')) {
 		debug($assoc);
 	}
 
-	if (!function_exists('startsWith')) {
+	if (!function_exists('str_startsWith')) {
 		/**
 		 * Whether string starts with some chars
 		 * @param $haystack
 		 * @param string|string[] $needle
 		 * @return bool
 		 */
-		function startsWith($haystack, $needle) {
+		function str_startsWith($haystack, $needle) {
 			if (!is_array($needle)) {
 				$needle = array($needle);
 			}
