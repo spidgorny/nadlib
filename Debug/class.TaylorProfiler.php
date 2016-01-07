@@ -40,6 +40,9 @@ class TaylorProfiler {
 	 */
 	static $sos;
 
+	/**
+	 * @var TaylorProfiler
+	 */
 	static $instance;
 
 	/**

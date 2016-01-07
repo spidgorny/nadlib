@@ -646,7 +646,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	public function getKeys() {
-		return array_keys($this->getData());
+		return new self(array_keys($this->getData()));
 	}
 
 	public function replaceKeys(array $visibleFields) {
@@ -746,6 +746,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	public function combineSelf() {
 		return $this->setData(array_combine($this->getData(), $this->getData()));
+	}
+
+	public function contains($string) {
+		return in_array($string, $this->getData());
 	}
 
 }
