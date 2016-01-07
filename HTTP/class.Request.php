@@ -514,7 +514,7 @@ class Request {
 	}
 
 	function redirectFromAjax($relative) {
-		if (startsWith($relative, 'http')) {
+		if (str_startsWith($relative, 'http')) {
 			$link = $relative;
 		} else {
 			$link = $this->getLocation() . $relative;
@@ -544,7 +544,7 @@ class Request {
 		}
 		//pre_print_r($docRoot);
 
-		if (!startsWith($docRoot, '/')) {
+		if (!str_startsWith($docRoot, '/')) {
 			$docRoot = '/'.$docRoot;
 		}
 
@@ -928,7 +928,7 @@ class Request {
 		));
 
 		if ($_SERVER['DOCUMENT_ROOT'] &&
-			startsWith($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) &&
+			str_startsWith($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) &&
 			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
 			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
 		} else {	//~depidsvy/something

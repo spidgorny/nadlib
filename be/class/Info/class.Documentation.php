@@ -98,7 +98,7 @@ class Documentation extends AppControllerBE {
 		foreach ($it as $file) { /** @var $file SplFileInfo */
 			if ($file->isFile()) {
 				$filename = $file->getFilename();
-				if (startsWith($filename, 'class.')) {
+				if (str_startsWith($filename, 'class.')) {
 					$files[$file->getPathname()] = $file->getFilename();
 				}
 			}
