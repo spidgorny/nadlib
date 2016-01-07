@@ -169,10 +169,18 @@ class Timeline2 /*extends AppController */{
 
 	function monthTicks() {
 		$content = '';
-		for ($date = clone $this->start/* @var $date Date */;
+		for ($date = clone $this->start
+			/* @var $date Date */;
 			 $date->earlier($this->end);
-			 $date->add(new Duration('1 month'))) {
+			 $date->add(new Duration('next month'))) {
+			// Fix, because it jumps to 2015-03-04
+			//debug($date);
+			// gmdate() and GMT are very important here
+			// otherwise infinite loop due to the DST
+			$gmDate = gmdate('Y-m-01', $date->getTimestamp());
+			$date->setTime(strtotime($gmDate . 'GMT'));
 			$x = $this->date2x($date);
+			//debug($this->start, $date->getISODate(), $x, $this->end);
 			$content .= '<line x1="'.($x+0).'" y1="'.$this->height_10.'"
 				x2="'.($x+0).'" y2="'.($this->height_30).'"
 				style="stroke:'.$this->textColor.';stroke-width:1"/>';
@@ -192,7 +200,8 @@ class Timeline2 /*extends AppController */{
 		$content = '';
 		//debug($dayWidth, ($dayWidth * 30), $fontSize, ($fontSize*3));
 		if (($this->dayWidth * 30) < ($this->fontSize*3)) {	// 3 letters in Jan
-			for ($date = clone $this->start/* @var $date Date */;
+			for ($date = clone $this->start
+				 /* @var $date Date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 year'))) {
 				$x = $this->date2x($date);
