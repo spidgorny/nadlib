@@ -91,9 +91,12 @@ class CollectionView {
 	function prepareRender() {
 		TaylorProfiler::start(__METHOD__." ({$this->collection->table})");
 		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
-		foreach ($this->collection->getData() as &$row) { // Iterator by reference
+		$data = $this->collection->getData();
+		foreach ($data as $i => $row) { // Iterator by reference (PHP 5.4.15 crash)
 			$row = $this->collection->prepareRenderRow($row);
+			$data[$i] = $row;
 		}
+		$this->collection->setData($data);
 		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
 	}
 
