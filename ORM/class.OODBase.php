@@ -660,6 +660,9 @@ abstract class OODBase {
 		return $obj;
 	}
 
+	/**
+	 * @return Collection
+	 */
 	function getChildren() {
 		$collection = get_class($this).'Collection';
 		return new $collection($this->id);

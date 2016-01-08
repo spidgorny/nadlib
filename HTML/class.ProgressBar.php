@@ -298,10 +298,10 @@ class ProgressBar {
 			}
 		}
 		//echo 'event: status', "\n\n";
-		echo 'data: '.json_encode([
+		echo 'data: '.json_encode(array(
 				'current' => $index,
 				'total' => $this->count,
-			]), "\n\n";
+		)), "\n\n";
 		if (ob_get_status()) {
 			ob_end_flush();
 		}
@@ -309,7 +309,7 @@ class ProgressBar {
 	}
 
 	function done($content) {
-		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
+		echo 'data: ', json_encode(array('complete' => $content)), "\n\n";
 	}
 
 	/**
