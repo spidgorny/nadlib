@@ -635,7 +635,7 @@ order by a.attnum';
 	}
 
 	function getResultFields($res) {
-		$fields = [];
+		$fields = array();
 		for ($f = 0; $f < pg_num_fields($res); $f++) {
 			$newField = pg_fieldname($res, $f);
 			$fields[$newField] = pg_field_type($res, $f);

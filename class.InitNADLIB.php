@@ -50,7 +50,7 @@ class InitNADLIB {
 			ini_set('html_error', TRUE);
 			// htaccess may not work
 			$error_prepend_string = ini_get('error_prepend_string');
-			if (!$error_prepend_string) {
+			if (!$error_prepend_string && !Request::isCLI()) {
 				ini_set('error_prepend_string', '<pre style="
 white-space: pre-wrap;
 color: deeppink;

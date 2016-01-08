@@ -41,7 +41,9 @@ class AutoLoadFolders {
 		}
 		$this->folders = unique_multidim_array($this->folders);
 		if (0) {
-			pre_print_r([$this->folders, $this->al->stat]);
+			pre_print_r(array(
+				$this->folders, $this->al->stat
+			));
 		}
 	}
 
