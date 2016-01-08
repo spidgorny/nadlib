@@ -492,11 +492,11 @@ class Request {
 
 			header('Location: '.$controller);
 			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>';
-			if ($exit && !$this->isPHPUnit()) {
-				exit();
-			}
 		} else {
 			$this->redirectJS($controller, DEVELOPMENT ? 5000 : 0);
+		}
+		if ($exit && !$this->isPHPUnit()) {
+			exit();
 		}
 	}
 

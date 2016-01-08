@@ -14,7 +14,10 @@ class MailerTest extends PHPUnit_Framework_TestCase {
 		$sut = new Mailer('spidgorny@gmail.com', 'test', 'test');
 		$filename = './request/97777/RP Nintendo EA3P40 The Legend of Zelda Tri Force Heroes Checklists.zip';
 		$short = $sut->getShortFilename($filename);
-		$this->assertEquals('RP Nintendo EA3P40 The Legend of Zelda Tri Force.zip', $short);
+		$this->assertEquals('RP Nintendo EA3P40 The Legend of Zelda Tri Force Heroes Che.zip', $short);
 	}
 
 }
+
+$mt = new MailerTest();
+$mt->test_getShortFilename();

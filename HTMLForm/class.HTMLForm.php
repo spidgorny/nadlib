@@ -253,7 +253,9 @@ class HTMLForm {
 	 * @param array $desc
 	 * @see renderSelectionOptions
 	 */
-	function selection($name, array $aOptions = NULL, $default, $autoSubmit = FALSE, $more = array(), $multiple = false, array $desc = array()) {
+	function selection($name, array $aOptions = NULL, $default,
+					   $autoSubmit = FALSE, $more = array(),
+					   $multiple = false, array $desc = array()) {
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
