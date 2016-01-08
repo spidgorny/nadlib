@@ -782,13 +782,14 @@ class HTMLForm {
 			));
 	}
 
-	function ajaxTreeInput($fieldName, $fieldValue, array $desc) {
+	function ajaxTreeInput($fieldName, $fieldValue, array $desc = array()) {
 		$desc['more'] = isset($desc['more']) ? $desc['more'] : NULL;
 		$desc['size'] = isset($desc['size']) ? $desc['size'] : NULL;
 		$desc['cursor'] = isset($desc['cursor']) ? $desc['cursor'] : NULL;
 		$desc['readonly'] = isset($desc['readonly']) ? $desc['readonly'] : NULL;
 		$this->text('<nobr>');
-		$this->hidden($fieldName, $fieldValue, 'id="'.$desc['selectID'].'"');
+		$this->hidden($fieldName, $fieldValue,
+			'id="'.ifsetor($desc['selectID']).'"');
 		$fieldName[sizeof($fieldName)-1] = end($fieldName).'_name';
 		$this->input($fieldName, $desc['valueName'],
 			'style="width: '.$desc['size'].'"
