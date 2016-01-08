@@ -239,7 +239,10 @@ abstract class OODBase {
 		}
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		$this->lastQuery = $query;
-		return $this->db->perform($query);
+		$res = $this->db->perform($query);
+		$this->data = NULL;
+		$this->id = NULL;
+		return $res;
 	}
 
 	/**
