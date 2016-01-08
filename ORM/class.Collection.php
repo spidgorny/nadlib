@@ -967,4 +967,8 @@ class Collection implements IteratorAggregate {
 		return first($this->objectify());
 	}
 
+	function containsID($id) {
+		return in_array($id, $this->getIDs());
+	}
+
 }
