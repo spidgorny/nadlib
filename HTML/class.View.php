@@ -2,7 +2,7 @@
 
 class View extends stdClass {
 
-	use HTMLHelper;
+	//use HTMLHelper;
 
 	/**
 	 * @var string
@@ -406,6 +406,9 @@ class View extends stdClass {
 	}
 */
 
+	/**
+	 * @param array $some
+	 */
 	function setSome(array $some) {
 		foreach ($some as $key => $val) {
 			$this->key = $val;
