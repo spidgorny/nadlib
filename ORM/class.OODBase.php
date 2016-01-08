@@ -652,6 +652,11 @@ abstract class OODBase {
 		return $obj;
 	}
 
+	function getChildren() {
+		$collection = get_class($this).'Collection';
+		return new $collection($this->id);
+	}
+
 	function getJson() {
 		return array(
 			'class' => get_class($this),
