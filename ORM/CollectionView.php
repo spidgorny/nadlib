@@ -48,9 +48,11 @@ class CollectionView {
 				}
 			}
 			if ($this->wrapTag) {
-				$content = ['<'.$this->wrapTag.' class="' . get_class($this) . '">',
+				$content = array(
+					'<'.$this->wrapTag.' class="' . get_class($this) . '">',
 					$content,
-					'</'.$this->wrapTag.'>'];
+					'</'.$this->wrapTag.'>'
+				);
 			}
 		} elseif ($this->noDataMessage) {
 			//Index::getInstance()->ll->debug = true;

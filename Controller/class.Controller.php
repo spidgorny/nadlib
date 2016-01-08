@@ -15,7 +15,7 @@
 
 abstract class Controller {
 
-	use HTMLHelper;
+	//use HTMLHelper;	// bijou is PHP 5.4
 
 	/**
 	 * @var Index
@@ -624,9 +624,9 @@ abstract class Controller {
 	}
 
 	function img($src, array $attrib = array()) {
-		return new HTMLTag('img', [
+		return new HTMLTag('img', array(
 			'src' => $this->e($src),
-		] + $attrib);
+		) + $attrib);
 	}
 
 	function e($content) {
@@ -635,6 +635,12 @@ abstract class Controller {
 
 	public function noRender() {
 		$this->noRender = true;
+	}
+
+	function script($file) {
+		$mtime = filemtime($file);
+		$file .= '?'.$mtime;
+		return '<script src="'.$file.'" type="text/javascript"></script>';
 	}
 
 }

@@ -319,7 +319,7 @@ class Path {
 	 * @internal param $al
 	 */
 	private function cutArrayFromArray(array $long, array $short) {
-		$new = [];
+		$new = array();
 		$different = false;
 		foreach ($long as $key => $value) {
 			$other = ifsetor($short[$key]);

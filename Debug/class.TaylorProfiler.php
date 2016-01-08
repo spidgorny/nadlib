@@ -679,7 +679,9 @@ class TaylorProfiler {
 
 	public static function dumpMemory($var, $path = array()) {
 		if (is_array($var)) {
-			$log = implode('', [implode('', $path), '[', sizeof($var), ']', BR]);
+			$log = implode('', array(
+				implode('', $path), '[', sizeof($var), ']', BR
+			));
 			error_log($log);
 			echo $log;
 			foreach ($var as $key => $val) {
@@ -690,7 +692,9 @@ class TaylorProfiler {
 			}
 		} elseif (is_object($var)) {
 			$objVars = get_object_vars($var);
-			$log = implode('', [implode('', $path), '{', sizeof($objVars), '}', BR]);
+			$log = implode('', array(
+				implode('', $path), '{', sizeof($objVars), '}', BR
+			));
 			error_log($log);
 			echo $log;
 			foreach ($objVars as $key => $val) {
