@@ -619,11 +619,16 @@ class Collection implements IteratorAggregate {
                 'no_hsc' => true,
             )) + $this->thes;
         $class = get_class($this);
-        foreach ($this->data as &$row) {
+		$data = $this->getData();
+        foreach ($data as &$row) {
             $id = !empty($idFieldName) ? $row[$idFieldName] : $row[$this->idField];
-            $checked = ifsetor($_SESSION[$class][$id]) ? 'checked="checked"' : '';
-            $row['checked'] = '<form method="POST"><input type="checkbox" name="'.$class.'['.$id.']" value="'.$id.'" '.$checked.' /></form>';
-        }
+            $checked = ifsetor($_SESSION[$class][$id])
+				? 'checked="checked"' : '';
+            $row['checked'] = '
+			<input type="checkbox" name="'.$class.'['.$id.']"
+			value="'.$id.'" '.$checked.' />';
+        } // <form method="POST">
+		$this->setData($data);
     }
 
 	function showFilter() {
