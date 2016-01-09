@@ -434,7 +434,7 @@ class TaylorProfiler {
 		return $totalTime;
 	}
 
-	static function renderFloat() {
+	static function renderFloat($withCSS = true) {
 		$totalTime = self::getElapsedTime();
 		$dbTime = 0;
 		$db = class_exists('Config') ? Config::getInstance()->getDB() : NULL;
@@ -525,9 +525,11 @@ class TaylorProfiler {
 			document.querySelector("#page_load_time_bar div").style.width = width + "%";
   		</script>
 		';
-		$content .= '<style>'.file_get_contents(
-				dirname(__FILE__).'/../CSS/TaylorProfiler.less'
-		).'</style>';
+		if ($withCSS) {
+			$content .= '<style>' . file_get_contents(
+							dirname(__FILE__) . '/../CSS/TaylorProfiler.less'
+					) . '</style>';
+		}
 		return $content;
 	}
 
