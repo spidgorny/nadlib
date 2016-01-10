@@ -960,10 +960,11 @@ class Collection implements IteratorAggregate {
 	}
 
 	public function getIDs() {
-		return $this->getData()->getKeys();
+		return $this->getData()->getKeys()->getData();
 	}
 
 	function first() {
+		//debug($this->getQuery());
 		return first($this->objectify());
 	}
 
