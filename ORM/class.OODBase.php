@@ -175,9 +175,14 @@ abstract class OODBase {
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
 		$id = $this->db->lastInsertID($res, $this->table);
+		if (!$id) {
+			$id = $data[$this->idField];	// GUID column
+		}
+
 		if ($id) {
 			$this->init($id ? $id : $this->id);
 		} else {
+			//debug($this->lastQuery, $this->db->lastQuery);
 			throw new DatabaseException('OODBase for '.$this->table.' no insert id after insert');
 		}
 		TaylorProfiler::stop(__METHOD__);
