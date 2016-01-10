@@ -120,6 +120,7 @@ class URL {
 
 	function unsetParam($param) {
 		unset($this->params[$param]);
+		return $this;
 	}
 
 	function getParam($param) {
