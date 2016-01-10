@@ -459,7 +459,8 @@ class Menu /*extends Controller*/ {
 
 	function renderBreadcrumbs() {
 		$ul = new UL($this->items->getData());
-		$ul->links = $this->items->getKeys();
+		$ul->links = $this->items->getKeys()->getData();
+		$ul->links = array_combine($ul->links, $ul->links);
 		$ul->linkWrap = '<a href="###LINK###">|</a>';
 		$ul->before = '<ol class="breadcrumb">';
 		return $ul;
