@@ -789,7 +789,7 @@ class slTable {
 		foreach ($dataWithHeader as $row) {
 			$padRow = array();
 			foreach ($this->thes as $field => $name) {
-				$value = $row[$field];
+				$value = ifsetor($row[$field]);
 				$value = is_array($value)
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);
