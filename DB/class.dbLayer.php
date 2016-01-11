@@ -103,16 +103,28 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			debug($query);
 			debug_pre_print_backtrace();
 		}
-		if ($params) {
-			pg_prepare($this->connection, '', $query);
-			$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
-		} else {
-			$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+		try {
+			if ($params) {
+				pg_prepare($this->connection, '', $query);
+				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
+			} else {
+				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+			}
+		} catch (Exception $e) {
+			debug($query);
+			$e = new DatabaseException(
+				'['.$e->getCode().'] '.$e->getMessage().BR.
+				pg_errormessage($this->connection).BR.
+				$query);
+			$e->setQuery($query);
+			throw $e;
 		}
 		if (!$this->LAST_PERFORM_RESULT) {
-			debug_pre_print_backtrace();
+			//debug_pre_print_backtrace();
 			debug($query);
-			throw new DatabaseException(pg_errormessage($this->connection));
+			$e = new DatabaseException(pg_errormessage($this->connection).BR.$query);
+			$e->setQuery($query);
+			throw $e;
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
@@ -130,7 +142,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	    if (!$this->LAST_PERFORM_RESULT) {
 		    debug($query);
 		    debug_pre_print_backtrace();
-		    throw new Exception(pg_errormessage($this->connection));
+		    throw new Exception(pg_errormessage($this->connection).BR.$query);
 	    } else {
 		    $this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 		    if ($this->queryLog) {
