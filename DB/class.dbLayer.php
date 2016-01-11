@@ -115,7 +115,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			$e = new DatabaseException(
 				'['.$e->getCode().'] '.$e->getMessage().BR.
 				pg_errormessage($this->connection).BR.
-				$query);
+				$query, $e->getCode());
 			$e->setQuery($query);
 			throw $e;
 		}
