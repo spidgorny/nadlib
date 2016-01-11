@@ -427,6 +427,12 @@ function gettype2($something) {
 	if ($type == 'object') {
 		$hash = md5(spl_object_hash($something));
 		$hash = substr($hash, 0, 6);
+		require_once __DIR__.'/HTML/Color.php';
+		$color = new Color('#'.$hash);
+		$complement = $color->getComplement();
+		$hash = new HTMLTag('span', [
+			'style' => 'background: '.$color.'; color: '.$complement,
+		], $hash);
 		$type .= '['.get_class($something).'#'.$hash.']';
 	}
 	if ($type == 'string') {
