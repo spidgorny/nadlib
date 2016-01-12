@@ -345,7 +345,7 @@ abstract class Controller {
 		$content = '';
 		if ($this->request->isCLI()) {
 			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][1]);
+			$reqAction = ifsetor($_SERVER['argv'][2]);	// it was 1
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
@@ -362,23 +362,28 @@ abstract class Controller {
 			}
 
 			if (method_exists($proxy, $method)) {
-				$r = new ReflectionMethod($proxy, $method);
-				if ($r->getNumberOfParameters()) {
-					$assoc = array();
-					foreach ($r->getParameters() as $param) {
-						$name = $param->getName();
-						if ($this->request->is_set($name)) {
-							$assoc[$name] = $this->request->getTrim($name);
-						} elseif ($param->isDefaultValueAvailable()) {
-							$assoc[$name] = $param->getDefaultValue();
-						} else {
-							$assoc[$name] = NULL;
-						}
-					}
-					//debug($assoc);
+				if ($this->request->isCLI()) {
+					$assoc = array_slice($_SERVER['argv'], 3);
 					$content = call_user_func_array(array($proxy, $method), $assoc);
 				} else {
-					$content = $proxy->$method();
+					$r = new ReflectionMethod($proxy, $method);
+					if ($r->getNumberOfParameters()) {
+						$assoc = array();
+						foreach ($r->getParameters() as $param) {
+							$name = $param->getName();
+							if ($this->request->is_set($name)) {
+								$assoc[$name] = $this->request->getTrim($name);
+							} elseif ($param->isDefaultValueAvailable()) {
+								$assoc[$name] = $param->getDefaultValue();
+							} else {
+								$assoc[$name] = NULL;
+							}
+						}
+						//debug($assoc);
+						$content = call_user_func_array(array($proxy, $method), $assoc);
+					} else {
+						$content = $proxy->$method();
+					}
 				}
 			} else {
 				// other classes except main controller may result in multiple messages
