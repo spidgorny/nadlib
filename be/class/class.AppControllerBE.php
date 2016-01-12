@@ -49,7 +49,7 @@ class AppControllerBE extends AppController {
 		echo $a.'<br />'."\n";
 	}
 
-	public function getURL(array $params, $prefix = '?') {
+	public function getURL(array $params = array(), $prefix = '?') {
 		$url = parent::getURL($params, $this->nadlibFromDocRoot.'be/?');
 		return $url;
 	}
