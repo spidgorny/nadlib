@@ -92,7 +92,7 @@ class TaylorProfiler {
 				'time' => time(),
 				'function' => $name." {",
 				'memory' => memory_get_usage()
-		);
+			);
     	}
 		if ($this->output_enabled) {
 	        $n=array_push( $this->stack, $this->cur_timer );
@@ -105,6 +105,12 @@ class TaylorProfiler {
 	        } else {
 	            $this->count[$name]++;
 	        }
+			if (false) {
+				$hash = md5($name);
+				$hash = substr($hash, 0, 6);
+				echo '<span style="background: #' . $hash . '">', $name,
+				' START', '</span>', BR;
+			}
     	}
     }
 
@@ -127,6 +133,12 @@ class TaylorProfiler {
 	        }
 	        $this->cur_timer=array_pop($this->stack);
 	        $this->__resumeTimer($this->cur_timer);
+			if (false) {
+				$hash = md5($name);
+				$hash = substr($hash, 0, 6);
+				echo '<span style="background: #' . $hash . '">', $name,
+				' STOP', '</span>', BR;
+			}
     	}
     }
 
@@ -356,13 +368,13 @@ class TaylorProfiler {
 		static $max;
 		$max = $max ? $max
 				: self::return_bytes(ini_get('memory_limit'));
-		$max = number_format($max/1024/1024, 3, '.', '');
+		$maxNice = number_format($max/1024/1024, 3, '.', '');
 		$cur = memory_get_usage(true);
 		$used = number_format($cur/1024/1024, 3, '.', '');
 		$percent = number_format($cur/$max*100, 3, '.', '');
 		$content = str_pad(
 			$used, 4, ' ', STR_PAD_LEFT)
-			.'/'.$max.'MB '
+			.'/'.$maxNice.'MB '
 			.$percent.'% ';
 		return $content;
 	}

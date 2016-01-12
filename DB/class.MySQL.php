@@ -323,7 +323,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 			$this->queryLog->log($query, $diffTime);
 		}
 		$this->lastQuery = $query;
-		TaylorProfiler::stop($profilerKey);
 		if (!$res || mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
 				debug(array(
@@ -337,6 +336,8 @@ class MySQL extends dbLayerBase implements DBInterface {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 			$e->setQuery($this->lastQuery);
+
+			if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 			throw $e;
 		}
 		if ($withProfiler && isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
