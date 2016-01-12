@@ -105,4 +105,15 @@ class UL {
 		return $ul;
 	}
 
+	function cli() {
+		foreach ($this->items as $class => $li) {
+			echo '* ', strip_tags($li);
+			if (!is_numeric($class)) {
+				echo ' [', $class, ']', BR;
+			} else {
+				echo BR;
+			}
+		}
+	}
+
 }
