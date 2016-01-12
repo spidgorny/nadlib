@@ -119,43 +119,7 @@ class AlterIndex extends AppControllerBE {
 		foreach ($struct as $table => $desc) {
 			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
 
-			$indexCompare = array();
-			foreach ($desc['indexes'] as $i => $index) {
-				$index = $this->convertFromOtherDB($index);
-				$localIndex = $local[$table]['indexes'][$i];
-				$localIndex = $this->convertFromOtherDB($localIndex);
-				//debug($index, $localIndex);
-
-				unset($index['Cardinality'], $localIndex['Cardinality']);	// changes over time
-				if ($index != $localIndex) {
-					//$content .= getDebug($index, $localIndex);
-					if (is_array($index)) {
-						$indexCompare[] = array('same' => 'sql file',
-							'###TR_MORE###' => 'style="background: pink"',
-							) + $index;
-					}
-					if (is_array($localIndex)) {
-						$indexCompare[] = array('same' => 'database',
-							'###TR_MORE###' => 'style="background: pink"',
-						) + $localIndex;
-					} else {
-						$indexCompare[] = array(
-							'Table' => new HTMLTag('td', array(
-									'colspan' => 10,
-								), 'CREATE '.($index['Non_unique'] ? '' : 'UNIQUE' ).
-								' INDEX '.$index['Key_name'].
-								' ON '.$index['Table'].' ('.$index['Key_name'].')'
-							),
-						);
-					}
-				} else {
-					//$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
-					$index['same'] = 'same';
-					$index['###TR_MORE###'] = 'style="background: lightyellow"';
-					$indexCompare[] = $index;
-					//debug($index); exit();
-				}
-			}
+			$indexCompare = $this->compareTable($table, $local, $desc);
 			$content .= new slTable($indexCompare, 'class="nospacing table table-striped"', array(
 				'same' => 'Same',
 				'Table' => 'Table',
@@ -189,6 +153,55 @@ class AlterIndex extends AppControllerBE {
 			unset($desc['sql']);
 		}
 		return $desc;
+	}
+
+	/**
+	 * @param $table
+	 * @param array $local
+	 * @param $desc
+	 * @return array
+	 */
+	protected function compareTable($table, array $local, $desc) {
+		$indexCompare = array();
+		foreach ($desc['indexes'] as $i => $index) {
+			$index = $this->convertFromOtherDB($index);
+			$localIndex = $local[$table]['indexes'][$i];
+			$localIndex = $this->convertFromOtherDB($localIndex);
+			//debug($index, $localIndex);
+
+			unset($index['Cardinality'], $localIndex['Cardinality']);    // changes over time
+			if ($index != $localIndex) {
+				//$content .= getDebug($index, $localIndex);
+				if (is_array($index)) {
+					$indexCompare[] = array(
+					'same'          => 'sql file',
+					'###TR_MORE###' => 'style="background: pink"',
+					) + $index;
+				}
+				if (is_array($localIndex)) {
+					$indexCompare[] = array(
+					'same'          => 'database',
+					'###TR_MORE###' => 'style="background: pink"',
+					) + $localIndex;
+				} else {
+					$indexCompare[] = array(
+					'Table' => new HTMLTag('td', array(
+					'colspan' => 10,
+					), 'CREATE ' . ($index['Non_unique'] ? '' : 'UNIQUE') .
+					' INDEX ' . $index['Key_name'] .
+					' ON ' . $index['Table'] . ' (' . $index['Key_name'] . ')'
+					),
+					);
+				}
+			} else {
+				//$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
+				$index['same'] = 'same';
+				$index['###TR_MORE###'] = 'style="background: lightyellow"';
+				$indexCompare[] = $index;
+				//debug($index); exit();
+			}
+		}
+		return $indexCompare;
 	}
 
 }
