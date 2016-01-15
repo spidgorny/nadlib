@@ -586,4 +586,10 @@ class HTMLFormTable extends HTMLForm {
 		$this->stdout = '';
 	}
 
+	public function setAllOptional() {
+		foreach ($this->desc as &$desc) {
+			$desc['optional'] = true;
+		}
+	}
+
 }

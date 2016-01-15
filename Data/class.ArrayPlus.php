@@ -762,6 +762,21 @@ class ArrayPlus extends ArrayObject implements Countable {
 	public function contains($string) {
 		return in_array($string, $this->getData());
 	}
+	
+	public function makeTable($string) {
+		$copy = [];
+		foreach ($this->getData() as $key => $row) {
+			if (is_array($row)) {
+				$copy[$key] = $row;
+			} else {
+				$copy[$key] = [
+					$string => $row,
+				];
+			}
+		}
+		$this->setData($copy);
+		return $this;
+	}
 
 }
 
