@@ -126,6 +126,11 @@ class Collection implements IteratorAggregate {
 	var $filter = array();
 
 	/**
+	 * @var CollectionView
+	 */
+	protected $view;
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -318,7 +323,7 @@ class Collection implements IteratorAggregate {
 		if (!$where) {
 			$where = $this->where;
 		}
-		if ($this->parentID > 0) {
+		if (!empty($this->parentID)) {	// > 0 will fail on string ID
 			if ($this->parentID instanceof Date) {
 				$where[$this->parentField] = $this->parentID->getMySQL();
 			} elseif ($this->parentID instanceof OODBase) {
@@ -525,7 +530,7 @@ class Collection implements IteratorAggregate {
 			$content = $obj->render();
 		} elseif (method_exists($obj, 'getSingleLink')) {
 			$content = new HTMLTag('a', array(
-					'href' => $obj->getsingleLink(),
+				'href' => $obj->getsingleLink(),
 			), $obj->getName());
 		} else {
 			$content = $obj->getName();
@@ -534,8 +539,10 @@ class Collection implements IteratorAggregate {
 	}
 
 	function getView() {
-		$view = new CollectionView($this);
-		return $view;
+		if (!$this->view) {
+			$this->view = new CollectionView($this);
+		}
+		return $this->view;
 	}
 
 	/**
@@ -543,7 +550,7 @@ class Collection implements IteratorAggregate {
 	 * @return string
 	 */
 	function renderMembers() {
-		$view = new CollectionView($this);
+		$view = $this->getView();
 		return $view->renderMembers();
 	}
 
