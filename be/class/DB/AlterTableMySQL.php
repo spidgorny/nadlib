@@ -1,6 +1,6 @@
 <?php
 
-class AlterTableMySQL extends AlterTableHandler {
+class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface {
 
 	/**
 	 * @param $table
@@ -51,7 +51,8 @@ class AlterTableMySQL extends AlterTableHandler {
 
 	function getAddQuery($table, TableField $index) {
 		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index->field.
-			' '.$index->type.$this->getFieldParams($index);
+			' '.$index->type.
+				$this->getFieldParams($index);
 		return $query;
 	}
 
