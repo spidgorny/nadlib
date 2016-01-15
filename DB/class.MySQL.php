@@ -342,9 +342,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 			$e->setQuery($this->lastQuery);
 			throw $e;
 		}
-		if ($withProfiler && isset($profilerKey)) {
-			TaylorProfiler::stop($profilerKey);
-		}
 		return $res;
 	}
 
