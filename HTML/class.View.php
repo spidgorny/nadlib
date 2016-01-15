@@ -200,7 +200,7 @@ class View extends stdClass {
 	}
 
 	function __toString() {
-		//debug_pre_print_backtrace();
+//		debug_pre_print_backtrace(); die();
 		return $this->render().'';
 	}
 

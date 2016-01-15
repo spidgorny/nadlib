@@ -14,12 +14,14 @@ abstract class FullGrid extends Grid {
 		if ($this->request->getControllerString() == get_class($this)) {
 			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
-		if ($collection) {
+		if (is_string($collection)) {
 			$this->collection = new $collection(-1, [], $this->getOrderBy());
 			// after construct because we need to modify join
 			$this->collection->where = $this->getFilterWhere();
 			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+		} else {
+			$this->collection = $collection;
 		}
 	}
 
@@ -100,12 +102,13 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getFilterForm(array $fields = NULL) {
-		$f = new HTMLFormTable();
+		$f = new HTMLFormTable($this->getFilterDesc($fields));
+		$f->setAllOptional();
 		$f->method('GET');
 		$f->defaultBR = true;
 		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
-		$f->showForm($this->getFilterDesc($fields));
+		$f->showForm();
 		$f->prefix(NULL);
 		$f->submit(__('Filter'));
 		return $f;
@@ -127,13 +130,17 @@ abstract class FullGrid extends Grid {
 		//debug($this->filter);
 		$desc = array();
 		foreach ($fields as $key => $k) {
-			if (!ifsetor($k['noFilter'])) {
+			if (!is_array($k) ||
+				(is_array($k) && !ifsetor($k['noFilter']))
+			) {
 				$autoClass = ucfirst(str_replace('id_', '', $key)).'Collection';
 				if (class_exists($autoClass) &&
 					in_array('HTMLFormCollection', class_implements($autoClass))) {
 					$type = new $autoClass();
 					$options = NULL;
-				} elseif (ifsetor($k['tf'])) {	// boolean
+				} elseif (!is_array($k) ||
+					(is_array($k) && ifsetor($k['tf']))
+				) {	// boolean
 					$type = 'select';
 					$stv = new slTableValue('', array());
 					$options = array(
@@ -156,7 +163,7 @@ abstract class FullGrid extends Grid {
 					//debug($options);
 				}
 				$desc[$key] = array(
-					'label' => $k['name'],
+					'label' => is_array($k) ? $k['name'] : $k,
 					'type' => $type,
 					'options' => $options,
 					'null' => true,
@@ -179,6 +186,7 @@ abstract class FullGrid extends Grid {
 
 			if ($count) {
 				foreach ($res as &$val) {
+					/** @var Collection $copy */
 					$copy = clone $this->collection;
 					$copy->where[$key] = $val;
 					$copy->retrieveDataFromDB();
@@ -194,7 +202,10 @@ abstract class FullGrid extends Grid {
 
 	function getGridColumns() {
 		return ArrayPlus::create($this->collection->thes)
-		->column('name')->combineSelf()->getData();
+			->makeTable('name')
+			->column('name')
+			->combineSelf()
+			->getData();
 	}
 
 	function getColumnsForm() {
