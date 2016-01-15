@@ -74,7 +74,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 		$this->row = $this->retrieveRow();
 		if (is_array($this->row)) {
 			if ($this->defaultKey) {
-				$this->key = igorw\get_in($this->row, array($this->defaultKey));
+				$this->key = ifsetor($this->row[$this->defaultKey]);
 			} else {
 				$this->key++;
 			}

@@ -102,7 +102,7 @@ class TaylorProfiler {
 				'time' => time(),
 				'function' => $name." {",
 				'memory' => memory_get_usage()
-		);
+			);
     	}
 		if ($this->output_enabled) {
 	        $n=array_push( $this->stack, $this->cur_timer );
@@ -115,6 +115,12 @@ class TaylorProfiler {
 	        } else {
 	            $this->count[$name]++;
 	        }
+			if (false) {
+				$hash = md5($name);
+				$hash = substr($hash, 0, 6);
+				echo '<span style="background: #' . $hash . '">', $name,
+				' START', '</span>', BR;
+			}
     	}
     }
 
@@ -151,6 +157,12 @@ class TaylorProfiler {
 	        }
 	        $this->cur_timer=array_pop($this->stack);
 	        $this->__resumeTimer($this->cur_timer);
+			if (false) {
+				$hash = md5($name);
+				$hash = substr($hash, 0, 6);
+				echo '<span style="background: #' . $hash . '">', $name,
+				' STOP', '</span>', BR;
+			}
     	}
     }
 
