@@ -5,11 +5,19 @@ class QueryLog {
 	var $queryLog = array();
 
 	public function log($query, $diffTime) {
-		$key = md5($query);
-		$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
-		$this->queryLog[$key]['query'] = $query;
-		$this->queryLog[$key]['sumtime'] += $diffTime;
-		$this->queryLog[$key]['times']++;
+		$key = md5(trim($query));
+//		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
+		if (isset($this->queryLog[$key])) {
+			$old = $this->queryLog[$key];
+		} else {
+			$old = array();
+		}
+		$this->queryLog[$key] = array(
+			'query' => $query,
+			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
+			'times' => ifsetor($old['times'])+1,
+		);
+//		debug($key, $this->queryLog);
 	}
 
 	/**
@@ -51,12 +59,14 @@ class QueryLog {
 
 	function getDBTime() {
 		$sumtime = ArrayPlus::create($this->queryLog)->column('sumtime')->sum();
+		//debug(sizeof($this->queryLog), $sumtime);
 		return $sumtime;
 	}
 
 	function dumpQueriesBijou(array $log, $totalTime) {
 		foreach ($log as &$row) {
-			if (str::beginsWith($row['query'], 'UPDATE preference SET value')) {
+			if (str_startsWith($row['query'], /** @lang text */
+				'UPDATE preference SET value')) {
 				$row['query'] = 'UPDATE preferences...';
 			}
 			if ($row['results'] >= 1000) {
@@ -90,14 +100,16 @@ class QueryLog {
 	function dumpQueriesTP() {
 		$queryLog = ArrayPlus::create($this->queryLog);
 		//debug($queryLog);
-		array_multisort($queryLog->column('sumtime')->getData(), SORT_DESC, $queryLog);
-		$log = array();
+		$sumTimeCol = $queryLog->column('sumtime');
+		$sumTime = $sumTimeCol->sum();
+		$queryLog->sortBy('sumtime')->reverse();
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$sumTime = $queryLog->column('sumtime')->sum();
+		//debug($queryLog->getData()); exit();
+		$log = array();
 		foreach ($queryLog as $set) {
 			$query = $set['query'];
-			$time = $set['time'];
+			$time = ifsetor($set['time'], $set['sumtime'] / $set['times']);
 			$log[] = array(
 					'times' => $set['times'],
 					'query' => '<small>'.htmlspecialchars($query).'</small>',

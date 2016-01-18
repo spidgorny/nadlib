@@ -262,6 +262,9 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if ($this->database) {
 			$this->connect($host, $login, $password);
 		}
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 		TaylorProfiler::stop(__METHOD__);
 	}
 
