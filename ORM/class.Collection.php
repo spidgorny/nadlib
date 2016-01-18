@@ -303,12 +303,15 @@ class Collection implements IteratorAggregate {
 		}
 	}
 
-	function log($msg) {
-		$time = (string)microtime(true);
-		if (isset($this->log[$time])) {
-			$time .= '.'.uniqid();
-		}
-		$this->log[$time] = $msg;
+	function log($action, $data = NULL) {
+		$this->log[] = new LogEntry($action, $data);
+	}
+	function getLog() {
+		return [
+		'<div class="debug" style="font-family: monospace">',
+		$this->log,
+		'</div>',
+		];
 	}
 
 	/**
@@ -591,6 +594,7 @@ class Collection implements IteratorAggregate {
 	 * @return object[]|OODBase[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
+		$this->log(__METHOD__, $class);
 		$class = $class ? $class : $this->itemClassName;
 		if (!$this->members) {
 			$this->members = array();   // somehow necessary
@@ -670,9 +674,9 @@ class Collection implements IteratorAggregate {
 	 * @param Collection $c2
 	 */
 	function mergeData(Collection $c2) {
-		$before = array_keys($this->data);
+		$before = array_keys($this->getData()->getData());
 		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
-		$this->data = $this->data + $c2->data;
+		$this->data = $this->getData()->merge_recursive_overwrite($c2->getData());
 		$this->members = $this->members + $c2->members;
 		$this->count = sizeof($this->data);
 		//debug($before, array_keys($c2->data), array_keys($this->data));
