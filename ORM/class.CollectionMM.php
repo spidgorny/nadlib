@@ -50,7 +50,7 @@ class CollectionMM extends Collection {
 	public function getField1Values($id) {
 		$this->idField = $this->field1;
 		$this->where[$this->field2] = $id;
-		$this->retrieveDataFromDB();
+		$this->retrieveData();
 	}
 
 	/**
@@ -59,7 +59,7 @@ class CollectionMM extends Collection {
 	public function getField2Values($id) {
 		$this->idField = $this->field2;
 		$this->where[$this->field1] = $id;
-		$this->retrieveDataFromDB();
+		$this->retrieveData();
 	}
 
     /**
