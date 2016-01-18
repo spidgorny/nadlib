@@ -27,10 +27,15 @@ class InitNADLIB {
 
 		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
-			define('DEVELOPMENT', Request::isCLI()
-				? (Request::isWindows() || (isset($_COOKIE['debug']) && $_COOKIE['debug']))
-				: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
-			);
+			if (Request::isCLI()) {
+				define('DEVELOPMENT',
+					 Request::isWindows()
+					 || ifsetor($_COOKIE['debug'])
+				 );
+				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
+			} else {
+				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
+			}
 		}
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
