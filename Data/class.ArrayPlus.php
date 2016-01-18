@@ -778,6 +778,24 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	function sortByValue() {
+		$data = $this->getData();
+		asort($data);
+		$this->setData($data);
+		return $this;
+	}
+
+	function sortByKey() {
+		$data = $this->getData();
+		ksort($data);
+		$this->setData($data);
+		return $this;
+	}
+
+	function reverse() {
+		$this->setData(array_reverse($this->getData()));
+	}
+
 }
 
 function AP(array $a = array()) {

@@ -532,14 +532,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			/** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				if (!$this->request->isCLI()) {
-					$content = $profiler->renderFloat();
-					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true).'</div>';
+					$ft = new FloatTime(true);
+					$content = $ft->render();
+					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true);
 					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
-					if (ifsetor($this->db->queryLog)) {
-						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
-					}
 					$content .= TaylorProfiler::dumpQueries();
+					$content .= '</div>';
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {
 				$content = TaylorProfiler::renderFloat();

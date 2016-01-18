@@ -71,6 +71,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		        $this->reserved = array_map('strtoupper', $this->reserved); // important
 	        }
 		}
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 	}
 
 	/**

@@ -36,6 +36,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
 		}
 
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 		//$this->setQB(); // must be injected outside (inf loop)
 //		debug_pre_print_backtrace();
 	}
