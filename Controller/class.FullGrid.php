@@ -189,7 +189,7 @@ abstract class FullGrid extends Grid {
 					/** @var Collection $copy */
 					$copy = clone $this->collection;
 					$copy->where[$key] = $val;
-					$copy->retrieveDataFromDB();
+					$copy->retrieveData();
 					$val .= ' (' . sizeof($copy->getData()) . ')';
 				}
 			}
