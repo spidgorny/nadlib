@@ -798,7 +798,11 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 }
 
-function AP(array $a = array()) {
-	return ArrayPlus::create($a);
+function AP($a = array()) {
+	if ($a instanceof ArrayPlus) {
+		return $a;
+	} else {
+		return ArrayPlus::create($a);
+	}
 }
 
