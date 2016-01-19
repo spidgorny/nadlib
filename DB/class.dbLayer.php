@@ -577,7 +577,7 @@ order by a.attnum';
 			'perform',
 			'fetchFromDB',
 			'findInDB',
-			'retrieveDataFromDB',
+			'retrieveData',
 			'init',
 			'__construct',
 			'getInstance',
