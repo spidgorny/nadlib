@@ -41,7 +41,7 @@ class Debug {
 			$this->renderer = $this->detectRenderer();
 		}
 		//var_dump($_COOKIE);
-		if (false && $_COOKIE['debug']) {
+		if (false && ifsetor($_COOKIE['debug'])) {
 			echo 'Renderer: ' . $this->renderer;
 			echo '<pre>';
 			var_dump(array(

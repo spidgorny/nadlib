@@ -6,6 +6,7 @@ require_once __DIR__.'/class.InitNADLIB.php';
  * May already be defined in TYPO3
  */
 if (!function_exists('debug')) {
+
 	/**
 	 * @param ...$a mixed
 	 */
@@ -14,7 +15,7 @@ if (!function_exists('debug')) {
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
-		} else {
+		} elseif (ifsetor($_COOKIE['debug'])) {
 			ob_start();
 			var_dump($params);
 			$dump = ob_get_clean();

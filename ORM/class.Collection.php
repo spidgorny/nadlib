@@ -433,9 +433,10 @@ class Collection implements IteratorAggregate {
 		// PROBLEM! This is supposed to be the total amount
 		// Don't uncomment
         //$this->count = count($this->data);
+		$this->count = true;	// we need to disable getCount()
 
 		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
-		$this->query = true;
+		$this->query = __METHOD__;
     }
 
 	function prepareRenderRow(array $row) {
@@ -754,7 +755,7 @@ class Collection implements IteratorAggregate {
 				$prevData = array();
 			}
 
-			$pageKeys = array_keys($this->data);
+			$pageKeys = AP($this->data)->getKeys();
 			if ($this->pager->currentPage < $this->pager->getMaxPage() &&
 				end($pageKeys) == $model->id	// last element on the page
 			) {
@@ -823,7 +824,7 @@ class Collection implements IteratorAggregate {
 		if ($prev['singleLink']) {
 			$content = new HTMLTag('a', array(
 					'href' => $prev['singleLink'],
-					'title' => $prev['name'],
+					'title' => ifsetor($prev['name']),
 				),
 				//'&lt;',			// <
 				//'&#x21E6;',			// ⇦

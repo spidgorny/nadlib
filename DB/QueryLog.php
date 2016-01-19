@@ -120,21 +120,21 @@ class QueryLog {
 		}
 		$s = new slTable($log, '', array(
 				'times' => 'times',
-				'query' => array(
-						'name' => 'query',
-						'no_hsc' => true,
-				),
 				'sumtime' => array(
-						'name' => 'sumtime ('.number_format($sumTime, 3).')',
-						'align' => 'right',
+					'name' => 'sumtime ('.number_format($sumTime, 3).')',
+					'align' => 'right',
 				),
 				'time' => array(
-						'name' => 'time',
-						'align' => 'right',
+					'name' => 'time',
+					'align' => 'right',
 				),
 				'%' => array(
-						'name' => '%',
-						'align' => 'right',
+					'name' => '%',
+					'align' => 'right',
+					'no_hsc' => true,
+				),
+				'query' => array(
+						'name' => 'query',
 						'no_hsc' => true,
 				),
 		));
