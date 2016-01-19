@@ -126,6 +126,11 @@ class Collection implements IteratorAggregate {
 	var $filter = array();
 
 	/**
+	 * @var CollectionView
+	 */
+	protected $view;
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -301,12 +306,15 @@ class Collection implements IteratorAggregate {
 		}
 	}
 
-	function log($msg) {
-		$time = (string)microtime(true);
-		if (isset($this->log[$time])) {
-			$time .= '.'.uniqid();
-		}
-		$this->log[$time] = $msg;
+	function log($action, $data = NULL) {
+		$this->log[] = new LogEntry($action, $data);
+	}
+	function getLog() {
+		return [
+		'<div class="debug" style="font-family: monospace">',
+		$this->log,
+		'</div>',
+		];
 	}
 
 	/**
@@ -321,7 +329,7 @@ class Collection implements IteratorAggregate {
 		if (!$where) {
 			$where = $this->where;
 		}
-		if ($this->parentID > 0) {
+		if (!empty($this->parentID)) {	// > 0 will fail on string ID
 			if ($this->parentID instanceof Date) {
 				$where[$this->parentField] = $this->parentID->getMySQL();
 			} elseif ($this->parentID instanceof OODBase) {
@@ -537,7 +545,7 @@ class Collection implements IteratorAggregate {
 			$content = $obj->render();
 		} elseif (method_exists($obj, 'getSingleLink')) {
 			$content = new HTMLTag('a', array(
-					'href' => $obj->getsingleLink(),
+				'href' => $obj->getsingleLink(),
 			), $obj->getName());
 		} else {
 			$content = $obj->getName();
@@ -546,8 +554,10 @@ class Collection implements IteratorAggregate {
 	}
 
 	function getView() {
-		$view = new CollectionView($this);
-		return $view;
+		if (!$this->view) {
+			$this->view = new CollectionView($this);
+		}
+		return $this->view;
 	}
 
 	/**
@@ -555,7 +565,7 @@ class Collection implements IteratorAggregate {
 	 * @return string
 	 */
 	function renderMembers() {
-		$view = new CollectionView($this);
+		$view = $this->getView();
 		return $view->renderMembers();
 	}
 
@@ -596,6 +606,7 @@ class Collection implements IteratorAggregate {
 	 * @return object[]|OODBase[]
 	 */
 	function objectify($class = NULL, $byInstance = false) {
+		$this->log(__METHOD__, $class);
 		$class = $class ? $class : $this->itemClassName;
 		if (!$this->members) {
 			$this->members = array();   // somehow necessary
@@ -675,9 +686,9 @@ class Collection implements IteratorAggregate {
 	 * @param Collection $c2
 	 */
 	function mergeData(Collection $c2) {
-		$before = array_keys($this->data);
+		$before = array_keys($this->getData()->getData());
 		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
-		$this->data = $this->data + $c2->data;
+		$this->data = $this->getData()->merge_recursive_overwrite($c2->getData());
 		$this->members = $this->members + $c2->members;
 		$this->count += $c2->count;
 		//debug($before, array_keys($c2->data), array_keys($this->data));
