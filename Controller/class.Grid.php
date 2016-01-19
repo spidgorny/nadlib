@@ -104,9 +104,11 @@ abstract class Grid extends AppController {
 		}
 		if (!$this->columns && ifsetor($this->model->thes)) {
 			$this->columns = array_keys($this->model->thes);
+			$this->log('Columns set from model');
 		}
 		if (!$this->columns && $this->collection->thes) {
 			$this->columns = array_keys($this->collection->thes);
+			$this->log('Columns set from collection '.gettype2($this->collection).': '.json_encode($this->columns));
 		}
 
 		/**

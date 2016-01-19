@@ -88,6 +88,8 @@ abstract class Controller {
 
 	protected $al;
 
+	var $log = [];
+
 	function __construct() {
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index')
@@ -646,6 +648,10 @@ abstract class Controller {
 		$mtime = filemtime($file);
 		$file .= '?'.$mtime;
 		return '<script src="'.$file.'" type="text/javascript"></script>';
+	}
+
+	function log($action, $data = NULL) {
+		$this->log[] = new LogEvent($action, $data);
 	}
 
 }
