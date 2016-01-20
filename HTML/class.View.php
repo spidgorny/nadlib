@@ -333,7 +333,7 @@ class View extends stdClass {
 		//$comment = $v->autolink($comment);
 		$config = HTMLPurifier_Config::createDefault();
 		//debug($config);
-		$cc = new CommentCollection(-1);
+		$cc = new CommentCollection();
 		$config->set('HTML.Allowed', $cc->allowedTags);
 		$config->set('Attr.AllowedFrameTargets', array('_blank'));
 		$config->set('Attr.AllowedRel', array('nofollow'));

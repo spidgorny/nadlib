@@ -588,7 +588,7 @@ class Collection implements IteratorAggregate {
 	 * @return Collection
 	 */
 	static function createForTable($table, array $where = array(), $orderBy = '') {
-		$c = new self(-1);
+		$c = new self();
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
