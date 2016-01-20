@@ -268,7 +268,7 @@ class Debug {
 					<a href="javascript: void(0);" onclick="
 						var a = this.nextSibling.nextSibling;
 						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
-					">'.Debug::getBackLog(6, 6, BR).'</a>
+					">'.Debug::getBackLog(15, 6).'</a>
 					<div style="display: none;">'.$trace.'</div>
 				</div>
 				'.Debug::view_array($a, $levels > 0 ? $levels : 5).'
