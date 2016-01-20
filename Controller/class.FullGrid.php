@@ -17,7 +17,7 @@ abstract class FullGrid extends Grid {
 		if (is_string($collection)) {
 			/** @var Collection collection */
 			$this->log(__METHOD__.' new collection', $collection);
-			$this->collection = new $collection(-1, [], $this->getOrderBy());
+			$this->collection = new $collection(NULL, [], $this->getOrderBy());
 			// after construct because we need to modify join
 			$this->collection->where = $this->getFilterWhere();
 			$this->collection->postInit();
