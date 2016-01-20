@@ -444,6 +444,14 @@ function gettype2($something) {
 	return $type;
 }
 
+function gettypes(array $something) {
+	$types = [];
+	foreach ($something as $element) {
+		$types[] = strip_tags(gettype2($element));
+	}
+	return json_encode($types, JSON_PRETTY_PRINT);
+}
+
 if (!function_exists('boolval')) {
 	function boolval($val) {
 		return (bool) $val;
