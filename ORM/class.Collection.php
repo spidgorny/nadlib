@@ -307,7 +307,7 @@ class Collection implements IteratorAggregate {
 	}
 
 	function log($action, $data = NULL) {
-		$this->log[] = new LogEntry($action, $data);
+		$this->log[] = new LogEvent($action, $data);
 	}
 	function getLog() {
 		return [

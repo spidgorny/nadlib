@@ -114,7 +114,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
-			debug($query);
+			debug($e->getMessage(), $query);
 			$e = new DatabaseException(
 				'['.$e->getCode().'] '.$e->getMessage().BR.
 				pg_errormessage($this->connection).BR.

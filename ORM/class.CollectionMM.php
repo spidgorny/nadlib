@@ -8,6 +8,7 @@
  */
 
 class CollectionMM extends Collection {
+
 	/**
 	 * cross-reference table name
 	 *
@@ -41,7 +42,7 @@ class CollectionMM extends Collection {
 		$this->field1	= $field1;
 		$this->field2	= $field2;
 
-		parent::__construct(-1);
+		parent::__construct();
 	}
 
 	/**
