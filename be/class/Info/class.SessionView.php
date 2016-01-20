@@ -1,6 +1,6 @@
 <?php
 
-class Session extends AppControllerBE {
+class SessionView extends AppControllerBE {
 
 	function __construct() {
 		parent::__construct();
@@ -32,7 +32,7 @@ class Session extends AppControllerBE {
 		$del = $this->request->getTrim('del');
 		unset($_SESSION[$del]);
 		$this->index->message('Deleted '.$del);
-		$this->index->saveMessages();
+		$this->index->content->saveMessages();
 		$this->request->redirect('?c='.$this->request->getRefererController());
 	}
 

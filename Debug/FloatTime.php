@@ -11,8 +11,7 @@ class FloatTime {
 	function render() {
 		$totalTime = TaylorProfiler::getElapsedTime();
 		$dbTime = $this->getDBTime();
-		if (function_exists('session_status')
-			&& session_status() == PHP_SESSION_ACTIVE) {
+		if (Session::isActive()) {
 			// total
 			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
 			if ($totalMax > 0) {
@@ -33,19 +32,22 @@ class FloatTime {
 			}
 			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
 		} else {
-			$totalBar = '';
+			$totalBar = 'no session';
 			$totalMax = '';
 			$dbTime = '';
-			$dbBar = '';
+			$dbBar = 'no session';
 			$dbMax = '';
 		}
 
 		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
 		$maxMem = (new Bytes(ini_get('memory_limit')))->getBytes();
-		$memBar = '<img src="'.ProgressBar::getBar(memory_get_peak_usage()/$maxMem*100).'" />';
+		$memUsage = memory_get_peak_usage() / $maxMem * 100;
+		$memBar = '<img src="'.ProgressBar::getBar($memUsage).'" />';
+
 		ob_start();
 		require(__DIR__.'/FloatTime.phtml');
 		$content = ob_get_clean();
+
 		if ($this->withCSS) {
 			$content .= '<style>' . file_get_contents(
 					dirname(__FILE__) . '/../CSS/TaylorProfiler.less'
