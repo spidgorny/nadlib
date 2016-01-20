@@ -30,7 +30,7 @@ abstract class FullGrid extends Grid {
 	function postInit() {
 		if ($this->collection) {
 			// commented to do it in a lazy way
-			//$this->collection->retrieveDataFromDB();
+			//$this->collection->retrieveData();
 		}
 	}
 

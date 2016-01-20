@@ -27,7 +27,9 @@ class FloatTime {
 			if ($dbMax > 0) {
 				$dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
 			} else {
-				$dbBar = '<img src="'.ProgressBar::getBar(0).'" />';
+				$db = class_exists('Config') ? Config::getInstance()->getDB() : NULL;
+				$ql = $db ? $db->getQueryLog() : NULL;
+				$dbBar = $ql ? sizeof($ql->queryLog) : gettype2($ql);
 			}
 			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
 		} else {
