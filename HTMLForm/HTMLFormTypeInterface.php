@@ -28,10 +28,10 @@ interface HTMLFormTypeInterface {
 
 	/**
 	 * Inject form for additional function calls
-	 * @param HTMLFormTable $form
+	 * @param HTMLForm $form
 	 * @return mixed
 	 */
-	function setForm(HTMLFormTable $form);
+	function setForm(HTMLForm $form);
 
 	/**
 	 * Set current field value

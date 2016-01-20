@@ -33,7 +33,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface {
 		$this->field = $field;
 	}
 
-	function setForm(HTMLFormTable $f) {
+	function setForm(HTMLForm $f) {
 		$this->form = $f;
 		$this->fullname = $this->form->getName($this->field, '', TRUE);
 	}
