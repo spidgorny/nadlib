@@ -311,8 +311,8 @@ abstract class Controller {
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' '.get_class($this);
 		//debug_pre_print_backtrace();
-		$content = '<section class="'.ifsetor($more['class']).'"
-			style="position: relative;">'.$content.'</section>';
+		//$more['style'] = "position: relative;";	// project specific
+		$content = new HTMLTag('section', $more, $content, true);
 		return $content;
 	}
 
