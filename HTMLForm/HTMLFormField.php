@@ -83,7 +83,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		$this->fieldName = $fieldName;
 	}
 
-	public function setForm(HTMLFormTable $form) {
+	public function setForm(HTMLForm $form) {
 		$this->form = $form;
 	}
 
