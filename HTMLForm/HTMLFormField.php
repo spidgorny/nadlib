@@ -6,7 +6,9 @@
 class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 
 	/**
-	 * All different desc parameters for the form element
+	 * All different desc parameters for the form element.
+	 * Temporary solution while we transition from array assoc
+	 * to the HTMLFormField with specific members
 	 * @var array
 	 */
 	var $data = array();
@@ -23,7 +25,9 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 
 	function __construct(array $desc, $fieldName = NULL) {
 		$this->data = $desc;
-		$this->setField($fieldName);
+		if ($fieldName) {
+			$this->setField($fieldName);
+		}
 		$this->form = new HTMLForm();
 	}
 

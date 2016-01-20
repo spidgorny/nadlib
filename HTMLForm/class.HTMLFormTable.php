@@ -173,7 +173,7 @@ class HTMLFormTable extends HTMLForm {
 	 * @return $this
 	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '') {
-		echo json_encode(array_keys($this->desc)), BR;
+//		echo json_encode(array_keys($this->desc)), BR;
 		$this->tableMore['class'] .= $this->defaultBR ? ' defaultBR' : '';
 		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
 		return $this;
@@ -212,7 +212,7 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function renderFormRows(array $formData, array $prefix = array()) {
-		echo json_encode(array_keys($formData)), BR;
+//		echo json_encode(array_keys($formData)), BR;
 		$tmp = $this->stdout;
 		$this->stdout = '';
 		foreach ($formData as $fieldName => $fieldDesc) {
@@ -233,6 +233,7 @@ class HTMLFormTable extends HTMLForm {
 			$sType = is_object($sType)
 				? get_class($sType)
 				: $sType;
+			//pre_print_r([$sType, is_array($fieldDesc)]);
 			if ($sType == 'HTMLFormTable') {
 				/** @var $subForm HTMLFormTable */
 				$subForm = $fieldDesc;
@@ -240,39 +241,67 @@ class HTMLFormTable extends HTMLForm {
 				$this->stdout .= '<tr><td colspan="2">'.
 					$subForm->getBuffer().
 				'</td></tr>';
-			} elseif (is_array($fieldDesc) && !in_array($sType, array('hidden', 'hiddenArray'))) {
-				if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
-					$this->stdout .= "<tr ".$this->getAttrHTML(isset($fieldDesc['TRmore']) ? $fieldDesc['TRmore'] : NULL).">";
-				}
-
-				if (isset($fieldDesc['table'])) {
-					$this->stdout .= '<td>';
-					$this->showForm($fieldDesc, $path, FALSE);
-					$this->stdout .= "</td>";
-				}
-				if (isset($fieldDesc['dependant'])) {
-					$fieldDesc['prepend'] = '<fieldset class="expandable"><legend>';
-					$fieldDesc['append'] .= '</legend>'.
-						$this->getForm($fieldDesc['dependant'], $prefix, FALSE) // $path
-					.'</fieldset>';
+			} elseif ($fieldDesc instanceof HTMLFormTypeInterface) {
+				// this is not so good idea because we miss all the surrounding
+				// information about the 'label', cell, formatting
+				// even unrelated to the rendering of the form field itself
+				$this->stdout .= '<tr class="'.$sType.'">';
+				$copy = clone $this;
+				$copy->stdout = '';
+				$fieldDesc->setField($fieldName);
+				$fieldDesc->setForm($copy);
+				//$fieldDesc->setValue();	// value is inside the object
+				$this->stdout .= $fieldDesc->render();
+				$this->stdout .= '</tr>';
+			} elseif (is_array($fieldDesc)
+				|| $fieldDesc instanceof HTMLFormFieldInterface) {
+				if (in_array($sType, array('hidden', 'hiddenArray'))) {
+					// hidden are shown without table cells
+					//debug(array($formData, $path, $fieldDesc));
 					$this->showCell($path, $fieldDesc);
-				} elseif (isset($fieldDesc['horisontal'])) {
-					$this->showRow($path, $fieldDesc);
 				} else {
-					$this->showCell($path, $fieldDesc);
+					$this->showTR($prefix, $fieldDesc, $path);
 				}
-
-				if (!ifsetor($fieldDesc['horisontal'])) {
-					$this->stdout .= "</tr>";
-				}
-			} else if (in_array($sType, array('hidden', 'hiddenArray'))) { // hidden
-				//debug(array($formData, $path, $fieldDesc));
-				$this->showCell($path, $fieldDesc);
+			} else {
+				die(__METHOD__.'#'.__LINE__);
 			}
 		}
 		$part = $this->stdout;
 		$this->stdout = $tmp;
 		return $part;
+	}
+
+	/**
+	 * @param array $prefix
+	 * @param       $fieldDesc
+	 * @param       $path
+	 */
+	public function showTR(array $prefix, $fieldDesc, $path) {
+		//debug($fieldDesc);
+		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
+			$this->stdout .= "<tr " . $this->getAttrHTML(isset($fieldDesc['TRmore']) ? $fieldDesc['TRmore'] : NULL) . ">";
+		}
+
+		if (isset($fieldDesc['table'])) {
+			$this->stdout .= '<td>';
+			$this->showForm($fieldDesc, $path, FALSE);
+			$this->stdout .= "</td>";
+		}
+		if (isset($fieldDesc['dependant'])) {
+			$fieldDesc['prepend'] = '<fieldset class="expandable"><legend>';
+			$fieldDesc['append'] .= '</legend>' .
+				$this->getForm($fieldDesc['dependant'], $prefix, FALSE) // $path
+				. '</fieldset>';
+			$this->showCell($path, $fieldDesc);
+		} elseif (isset($fieldDesc['horisontal'])) {
+			$this->showRow($path, $fieldDesc);
+		} else {
+			$this->showCell($path, $fieldDesc);
+		}
+
+		if (!ifsetor($fieldDesc['horisontal'])) {
+			$this->stdout .= "</tr>";
+		}
 	}
 
 	function showRow($fieldName, array $desc2) {
@@ -287,8 +316,12 @@ class HTMLFormTable extends HTMLForm {
 		//}
 	}
 
-	function showCell($fieldName, array $desc) {
-		echo __METHOD__, ' ', json_encode($fieldName), BR;
+	/**
+	 * @param string $fieldName
+	 * @param array|HTMLFormFieldInterface $desc
+	 */
+	function showCell($fieldName, $desc) {
+//		echo __METHOD__, ' ', json_encode($fieldName), BR;
 		//debug(array($fieldName, $desc));
 		$desc['TDmore'] = (isset($desc['TDmore']) && is_array($desc['TDmore']))
 			? $desc['TDmore']
@@ -361,9 +394,20 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
-	function switchType($fieldName, $fieldValue, array $descIn) {
+	/**
+	 * @param       						$fieldName
+	 * @param       						$fieldValue
+	 * @param array|HTMLFormFieldInterface 	$descIn
+	 * @return HTMLFormField
+	 */
+	function switchType($fieldName, $fieldValue, $descIn) {
 //		debug($descIn);
-		$field = new HTMLFormField($descIn, $fieldName);
+		if (!($descIn instanceof HTMLFormFieldInterface)) {
+			$field = new HTMLFormField($descIn, $fieldName);
+		} else {
+			$field = $descIn;
+			$field->setField($fieldName);
+		}
 		$field->form = clone $this;
 		$field->form->stdout = '';
 		$field['value'] = $fieldValue;
