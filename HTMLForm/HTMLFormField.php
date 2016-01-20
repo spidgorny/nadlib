@@ -3,8 +3,12 @@
 /**
  * Class HTMLFormField
  */
-class HTMLFormField implements ArrayAccess {
+class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 
+	/**
+	 * All different desc parameters for the form element
+	 * @var array
+	 */
 	var $data = array();
 
 	/**
@@ -19,7 +23,7 @@ class HTMLFormField implements ArrayAccess {
 
 	function __construct(array $desc, $fieldName = NULL) {
 		$this->data = $desc;
-		$this->setFieldName($fieldName);
+		$this->setField($fieldName);
 		$this->form = new HTMLForm();
 	}
 
@@ -71,11 +75,19 @@ class HTMLFormField implements ArrayAccess {
 		return !$this->isObligatory();
 	}
 
-	public function setFieldName($fieldName) {
+	public function setField($fieldName) {
 		$this->fieldName = $fieldName;
 	}
 
-	function switchType() {
+	public function setForm(HTMLFormTable $form) {
+		$this->form = $form;
+	}
+
+	public function setValue($value) {
+		$this->data['value'] = $value;
+	}
+
+	function render() {
 		$fieldName = $this->fieldName;
 		$desc = $this;
 		$fieldValue = $this['value'];
@@ -114,6 +126,7 @@ class HTMLFormField implements ArrayAccess {
 		} else {
 			$this->switchTypeRaw($type, $fieldValue, $fieldName);
 		}
+		return $this->getContent();
 	}
 
 	function getContent() {

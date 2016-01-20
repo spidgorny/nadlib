@@ -226,7 +226,7 @@ class Time {
 	 * @return string
 	 */
 	function getHumanDateTime() {
-		return date('d.m.Y H:i', $this->time);
+		return date('Y-m-d H:i', $this->time);
 	}
 
 	/**
