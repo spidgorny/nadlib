@@ -460,36 +460,7 @@ class Debug {
 	static function printStyles() {
 		$content = '';
 		if (!self::$stylesPrinted) {
-			$content = '
-			<style>
-				div.debug {
-					color: black;
-					background: #EEEEEE;
-					border: solid 1px silver;
-					display: inline-block;
-					font-size: 12px;
-					font-family: verdana;
-					vertical-align: top;
-				}
-				div.debug a {
-					color: black;
-				}
-				div.debug .caption {
-					background-color: #EEEEEE;
-				}
-				td.view_array {
-					border: dotted 1px #555;
-					font-size: 12px;
-					vertical-align: top;
-					border-collapse: collapse;
-					color: black;
-					margin: 2px;
-				}
-				.debug_prop {
-					display: inline-block;
-					width: 5em;
-				}
-			</style>';
+			$content = '<style>'.file_get_contents(__DIR__.'/Debug.css').'</style>';
 			self::$stylesPrinted = true;
 		} else {
 			$content .= '<!-- styles printed -->';

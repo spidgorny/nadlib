@@ -690,7 +690,7 @@ class Collection implements IteratorAggregate {
 		$before = array_keys($this->getData()->getData());
 		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
 		$this->data = $this->getData()->merge_recursive_overwrite($c2->getData());
-		$this->members = $this->members + $c2->members;
+		$this->members = $this->members + $c2->objectify();
 		$this->count += $c2->count;
 		//debug($before, array_keys($c2->data), array_keys($this->data));
 	}

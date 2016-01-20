@@ -53,6 +53,10 @@ class View extends stdClass {
 			$this->folder = dirname(__FILE__).'/'.$config->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
+		if (!is_readable($this->folder.$this->file)) {
+			//debug(filesize($this->folder.$this->file));
+			//throw new Exception('File not readable '.$this->file);
+		}
 		/*nodebug(
 			$config->appRoot,
 			$config->config[__CLASS__],
@@ -87,6 +91,7 @@ class View extends stdClass {
 		ob_start();
 
 		//debug(getcwd(), $file);
+		/** @noinspection PhpIncludeInspection */
 		require($file);
 
 		if (!$content) {
