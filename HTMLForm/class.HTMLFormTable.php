@@ -408,10 +408,13 @@ class HTMLFormTable extends HTMLForm {
 			$field = $descIn;
 			$field->setField($fieldName);
 		}
-		$field->form = clone $this;
-		$field->form->stdout = '';
 		$field['value'] = $fieldValue;
+
+		$field->form = $this;	// don't clone, because we may want to influence the original form
+		$tmp = $this->stdout;
+		$field->form->stdout = '';
 		$field->render();
+		$this->stdout = $tmp;
 		return $field;
 	}
 

@@ -23,6 +23,12 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 	 */
 	public $form;
 
+	/**
+	 * Filled when render()
+	 * @var string
+	 */
+	protected $content;
+
 	function __construct(array $desc, $fieldName = NULL) {
 		$this->data = $desc;
 		if ($fieldName) {
@@ -130,11 +136,12 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		} else {
 			$this->switchTypeRaw($type, $fieldValue, $fieldName);
 		}
-		return $this->getContent();
+		$this->content = $this->form->stdout;
+		return $this->content;
 	}
 
 	function getContent() {
-		return $this->form->stdout;
+		return $this->content;
 	}
 
 	/**
