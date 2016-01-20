@@ -306,11 +306,11 @@ class AjaxLogin extends AppController {
 
 	function profileAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
-			//function (res) { jQuery(\'#profileForm\').html(res); }
-			target: \'#profileForm\',
-			//url: \'buch.php\'
-			}); return false;"';
+		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
+			//function (res) { jQuery('#profileForm').html(res); }
+			target: '#profileForm',
+			//url: 'buch.php'
+			}); return false;";
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getProfileDesc();
@@ -355,11 +355,11 @@ class AjaxLogin extends AppController {
 
 	function passwordAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
-			//function (res) { jQuery(\'#passwordForm\').html(res); }
-			target: \'#passwordForm\',
-			//url: \'buch.php\'
-			}); return false;"';
+		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
+			//function (res) { jQuery('#passwordForm').html(res); }
+			target: '#passwordForm',
+			//url: 'buch.php'
+			}); return false;";
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getPasswordDesc();
@@ -454,11 +454,11 @@ class AjaxLogin extends AppController {
 
 	function registerAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
-			//function (res) { jQuery(\'#registerForm\').html(res); }
-			target: \'#registerForm\',
-			//url: \'buch.php\'
-			}); return false;"';
+		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
+			//function (res) { jQuery('#registerForm').html(res); }
+			target: '#registerForm',
+			//url: 'buch.php'
+			}); return false;";
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getRegisterDesc();
