@@ -386,7 +386,11 @@ class HTMLForm {
 	}
 
 	function getFormTag() {
-		$attributes = $this->formMore;
+		if (is_string($this->formMore)) {
+			$attributes = HTMLTag::parseAttributes($this->formMore);
+		} else {
+			$attributes = $this->formMore;
+		}
 		$attributes += [
 			'action' => $this->action,
 			'method' => $this->method,
