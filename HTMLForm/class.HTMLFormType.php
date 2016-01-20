@@ -5,7 +5,7 @@
  *
  */
 
-abstract class HTMLFormType {
+abstract class HTMLFormType implements HTMLFormFieldInterface {
 
 	/**
 	 * @var HTMLForm
@@ -33,13 +33,14 @@ abstract class HTMLFormType {
 		$this->field = $field;
 	}
 
-	function setForm(HTMLForm $f) {
+	function setForm(HTMLFormTable $f) {
 		$this->form = $f;
 		$this->fullname = $this->form->getName($this->field, '', TRUE);
 	}
 
 	/**
 	 * @param string $value
+	 * @return mixed|void
 	 */
 	function setValue($value) {
 		$this->value = $value;

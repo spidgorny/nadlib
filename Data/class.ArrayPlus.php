@@ -796,6 +796,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		$this->setData(array_reverse($this->getData()));
 	}
 
+	function getSlice($from = 0, $length = NULL) {
+		return array_slice($this->getData(), $from, $length, TRUE);
+	}
+
 }
 
 function AP($a = array()) {
