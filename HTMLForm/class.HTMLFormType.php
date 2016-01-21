@@ -53,7 +53,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface {
 	abstract function render();
 
 	function __toString() {
-		return MergedContent::mergeStringArrayRecursive($this->render());
+		return MergedContent::mergeStringArrayRecursive($this->render()).'';
 	}
 
 	/**
