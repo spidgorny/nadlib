@@ -26,8 +26,12 @@ abstract class HTMLFormType implements HTMLFormFieldInterface {
 	 */
 	public $desc;
 
-	function __construct() {
-	}
+	/**
+	 * Feel free to create any constructor you like
+	 * HTMLFormType constructor.
+	 */
+//	function __construct() {
+//	}
 
 	function setField($field) {
 		$this->field = $field;

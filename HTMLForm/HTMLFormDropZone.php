@@ -7,7 +7,9 @@ class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 	 * @return mixed
 	 */
 	function render() {
-		$this->form->action(new URL());
+		$this->form->action(new URL(NULL, [
+			'action' => 'upload',
+		]));
 		$this->form->formMore['class'] .= ' dropzone';
 		$index = Index::getInstance();
 		$index->addJS('vendor/enyo/dropzone/dist/min/dropzone.min.js');

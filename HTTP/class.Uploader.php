@@ -170,13 +170,15 @@ class Uploader {
                 }
             }
 
-			$ok = @move_uploaded_file($uf['tmp_name'], $fileName);
+			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
 				//debug($error);
 				throw new Exception($error['message']);
 			}
+		} else {
+			$ok = false;
 		}
 		return $ok;
 	}
