@@ -19,7 +19,11 @@ abstract class FullGrid extends Grid {
 				$this->log(__METHOD__ . ' new collection', $collection);
 				$this->collection = new $collection(NULL, [], $this->getOrderBy());
 				// after construct because we need to modify join
-				$this->collection->where += $this->getFilterWhere();
+				$this->collection->where = array_merge(
+					$this->collection->where,
+					$this->getFilterWhere()
+				);
+				//debug($this->collection->where);
 				$this->collection->postInit();
 				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
 			} else {
@@ -233,6 +237,16 @@ abstract class FullGrid extends Grid {
 		$f->showForm($desc);
 		$f->submit(__('Set'));
 		return $f;
+	}
+
+	function injectCollection() {
+		parent::injectCollection();
+		debug($this->collection->where,
+			$this->getFilterWhere());
+		$this->collection->where = array_merge(
+			$this->collection->where,
+			$this->getFilterWhere()
+		);
 	}
 
 }
