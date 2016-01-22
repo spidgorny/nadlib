@@ -123,8 +123,6 @@ class Collection implements IteratorAggregate {
 	 */
 	var $desc = array();
 
-	var $filter = array();
-
 	/**
 	 * @var CollectionView
 	 */

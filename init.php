@@ -128,14 +128,14 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
-	if (!function_exists('endsWith')) {
+	if (!function_exists('str_endsWith')) {
 		/**
 		 * Whether string ends with some chars
 		 * @param $haystack
 		 * @param $needle
 		 * @return bool
 		 */
-		function endsWith($haystack, $needle) {
+		function str_endsWith($haystack, $needle) {
 			return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 		}
 	}

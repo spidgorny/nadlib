@@ -473,7 +473,8 @@ class TaylorProfiler {
 	static function getMemDiff() {
 		static $prev = 0;
 		$cur = memory_get_usage();
-		$return = number_format(($cur-$prev)/1024/1024, 3, '.', '').'M';
+		$diff = ($cur - $prev) / 1024 / 1024;
+		$return = ($diff > 0 ? '+' : '').number_format($diff, 3, '.', '').'M';
 		$prev = $cur;
 		return $return;
 	}

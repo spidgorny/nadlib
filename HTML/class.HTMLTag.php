@@ -73,23 +73,37 @@ class HTMLTag {
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str
-	 * @return null|HTMLTag
+	 * @param bool   $recursive
+	 * @return HTMLTag|null
 	 */
-	static function parse($str) {
+	static function parse($str, $recursive = false) {
 		$str = trim($str);
 		if (strlen($str) && $str{0} != '<') return NULL;
 		$parts = trimExplode(' ', $str);
 		if ($parts) {
-			$tag = substr($parts[0], 1, -1);
+			$tag = substr($parts[0], 1);
+			if (str_endsWith($tag, '>')) {
+				$tag = substr($tag, 0, -1);
+			}
 			$attributes = str_replace('<' . $tag . '>', '', $str);
 			$attributes = str_replace('</' . $tag . '>', '', $attributes);
 			$obj = new HTMLTag($tag);
 			$obj->attr = self::parseAttributes($attributes);
-			$obj->content = strip_tags($str);
+			if ($recursive) {
+				// http://stackoverflow.com/a/28671566/417153
+				$innerHTML = preg_replace('/<[^>]*>([\s\S]*)<\/[^>]*>/', '$1', $str);
+				$obj->content = self::parseDOM($innerHTML);
+			} else {
+				$obj->content = strip_tags($str);
+			}
 		} else {
 			$obj = NULL;
 		}
 		return $obj;
+	}
+
+	function parseDOM($html) {
+		return new HTMLTag($html, true);
 	}
 
 	/**

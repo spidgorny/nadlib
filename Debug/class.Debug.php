@@ -79,7 +79,8 @@ class Debug {
 				$coming->$key = $debug->getSimpleType($val);
 			}
 		}
-		$debug->debug_args($coming);
+		$dh = new DebugHTML($debug);
+		$dh->render($coming);
 	}
 
 	function getSimpleType($val) {
@@ -160,10 +161,12 @@ class Debug {
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 		$trace = array();
-		foreach ($db as $row) {
-			$trace[] = self::getMethod($row);
+		$i = 0;
+		foreach ($db as $i => $row) {
+			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1]));
+			if (++$i > 7) break;
 		}
-		echo '---' . implode(' // ', $trace) . "\n";
+		echo '---' . implode(BR, $trace) . "\n";
 
 		$args = func_get_args();
 		if (is_object($args)) {
@@ -231,14 +234,25 @@ class Debug {
 		return $trace;
 	}
 
-	static function getMethod(array $first) {
+	static function getMethod(array $first, array $next = array()) {
+		$curFunc = ifsetor($next['function']);
+		$nextFunc = ifsetor($first['function']);
+		$line = ifsetor($first['line']);
 		if (isset($first['object']) && $first['object']) {
-			$function = get_class($first['object']).'::'.$first['function'].'#'.ifsetor($first['line']);
-		} else if (isset($first['class']) && $first['class']) {
-			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
+			$function = get_class($first['object']).
+				'->'.$curFunc.
+				'#'.$line.
+				'->'.$nextFunc;
+		} elseif (ifsetor($first['class'])) {
+			$function = $first['class'].
+				'->'.$curFunc.
+				'#'.$line.
+				'->'.$nextFunc;
 		} else {
 			$file = ifsetor($first['file']);
-			$function = basename(dirname($file)).'/'.basename($file).'#'.ifsetor($first['line']);
+			$function = basename(dirname($file)).'/'.basename($file).
+				'#'.$line.
+				'->'.$nextFunc;
 		}
 		return $function;
 	}
