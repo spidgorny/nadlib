@@ -177,6 +177,8 @@ class URL {
 		assert(get_class($path) == 'Path');
 		if ($this->documentRoot != '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
+		}
+		if (!$path instanceof Path) {
 			$path = new Path($path);
 		}
 		nodebug(array(
