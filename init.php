@@ -434,7 +434,7 @@ function gettype2($something) {
 		$hash = new HTMLTag('span', [
 			'style' => 'background: '.$color.'; color: '.$complement,
 		], $hash);
-		$type .= '['.get_class($something).'#'.$hash.']';
+		$type = get_class($something).'#'.$hash;
 	}
 	if ($type == 'string') {
 		$type .= '[' . strlen($something) . ']';
