@@ -767,7 +767,7 @@ class slTable {
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);
 				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
-				$widthAvg[$field] += mb_strlen($value);
+				$widthAvg[$field] = ifsetor($widthAvg[$field]) + mb_strlen($value);
 			}
 		}
 		if ($useAvg) {
