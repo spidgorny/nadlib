@@ -23,13 +23,18 @@ class HTMLTag {
 	}
 
 	function render() {
+		if (is_array($this->content) || $this->content instanceof MergedContent) {
+			$content = MergedContent::mergeStringArrayRecursive($this->content);
+		} else {
+			$content = ($this->isHTML
+				|| $this->content instanceof HTMLTag
+				|| $this->content instanceof htmlString)
+				? $this->content
+				: htmlspecialchars($this->content, ENT_QUOTES);
+		}
+		$attribs = $this->renderAttr($this->attr);
 		$xmlClose = $this->closingTag ? '' : '/';
-		$content = ($this->isHTML
-			|| $this->content instanceof HTMLTag
-			|| $this->content instanceof htmlString)
-			? $this->content
-			: htmlspecialchars($this->content, ENT_QUOTES);
-		$tag = '<'.trim($this->tag.' '.$this->renderAttr($this->attr)).$xmlClose.'>';
+		$tag = '<'.trim($this->tag.' '. $attribs).$xmlClose.'>';
 		$tag .= $content;
 		if ($this->closingTag) {
 			$tag .= '</' . $this->tag . '>';
@@ -73,23 +78,80 @@ class HTMLTag {
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str
-	 * @return null|HTMLTag
+	 * @param bool   $recursive
+	 * @return HTMLTag|null
 	 */
-	static function parse($str) {
+	static function parse($str, $recursive = false) {
 		$str = trim($str);
 		if (strlen($str) && $str{0} != '<') return NULL;
-		$parts = trimExplode(' ', $str);
-		if ($parts) {
-			$tag = substr($parts[0], 1, -1);
-			$attributes = str_replace('<' . $tag . '>', '', $str);
-			$attributes = str_replace('</' . $tag . '>', '', $attributes);
-			$obj = new HTMLTag($tag);
-			$obj->attr = self::parseAttributes($attributes);
-			$obj->content = strip_tags($str);
+		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/', $str, $matches);
+
+		$tagAndAttributes = trimExplode(' ', $matches[1]);
+		$tag = first($tagAndAttributes);
+//		echo $tag, BR;
+		//$attributes = trimExplode(' ', $matches[1]);	// rest of the string
+		$attributes = implode(' ', array_slice($tagAndAttributes, 1));
+		$tag = substr($tag, 1);
+		if (str_endsWith($tag, '>')) {
+			$tag = substr($tag, 0, -1);
+		}
+//		echo $tag, BR;
+		$obj = new HTMLTag($tag);
+		$obj->attr = self::parseAttributes($attributes);
+		if ($recursive) {
+			// http://stackoverflow.com/a/28671566/417153
+			//$innerHTML = preg_replace('/<[^>]*>([\s\S]*)<\/[^>]*>/', '$1', $str);
+			$innerHTML = $matches[2];
+			$obj->content = self::parseDOM($innerHTML);
 		} else {
-			$obj = NULL;
+			$obj->content = strip_tags($str);
 		}
 		return $obj;
+	}
+
+	static function parseDOM($html) {
+		$content = [];
+		if (is_string($html)) {
+			$doc = new DOMDocument();
+			$doc->loadHTML($html);
+			$doc = $doc->getElementsByTagName('body')->item(0);
+		} else {
+			$doc = $html;
+		}
+		/** @var DOMElement $child */
+		foreach ($doc->childNodes as $child) {
+			echo gettype2($child), BR;
+			if ($child instanceof DOMElement) {
+				$attributes = [];
+				foreach ($child->attributes as $attribute_name => $attribute_node) {
+					/** @var  DOMNode    $attribute_node */
+					echo $attribute_name, ': ', gettype2($attribute_node), BR;
+					$attributes[$attribute_name] = $attribute_node->nodeValue;
+				}
+
+				//$hasChildNodes = $child->hasChildNodes();	// incl Text
+				$hasChildNodes = 0;
+				foreach ($child->childNodes as $node) {
+					if (!($node instanceof \DomText)) {
+						$hasChildNodes++;
+					}
+				}
+
+				if ($hasChildNodes) {
+					$content[] = new HTMLTag(
+						$child->tagName,
+						$attributes,
+						self::parseDOM($child));
+				} else {
+					$content[] = new HTMLTag(
+						$child->tagName,
+						$attributes,
+						$child->textContent
+					);
+				}
+			}
+		}
+		return $content;
 	}
 
 	/**

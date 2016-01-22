@@ -123,8 +123,6 @@ class Collection implements IteratorAggregate {
 	 */
 	var $desc = array();
 
-	var $filter = array();
-
 	/**
 	 * @var CollectionView
 	 */
@@ -408,8 +406,8 @@ class Collection implements IteratorAggregate {
 	 */
 	function getData() {
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->log('query: '.!!$this->query);
-		$this->log('data: '.!!$this->data);
+		$this->log('query: '.(!!$this->query ? 'Set' : '-'));
+		$this->log('data: '.(!!$this->data ? 'Set' : '-'));
 		$this->log('data->count: '.count($this->data));
 		if (!$this->query
 			|| is_null($this->data)
@@ -433,6 +431,8 @@ class Collection implements IteratorAggregate {
 	 */
     function setData($data) {
 	    $this->log(get_class($this).'::'.__FUNCTION__.'()');
+		//debug_pre_print_backtrace();
+		//$this->log(__METHOD__, get_call_stack());
 	    if ($data instanceof ArrayPlus) {
 		    $this->data = $data;    // preserve sorting
 	    } else {
@@ -444,7 +444,7 @@ class Collection implements IteratorAggregate {
 		$this->count = true;	// we need to disable getCount()
 
 		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
-		$this->query = __METHOD__;
+		$this->query = $this->query ?: __METHOD__;
     }
 
 	function prepareRenderRow(array $row) {
