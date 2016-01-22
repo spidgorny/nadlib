@@ -99,6 +99,13 @@ class Debug {
 			&& !Request::isCLI()
 			&& !headers_sent()
 			&& ifsetor($_COOKIE['debug']);
+
+		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
+		if (!class_exists('FirePHP') && file_exists($require)) {
+			require_once $require;
+		}
+		$can = $can && class_exists('FirePHP');
+
 		if ($can) {
 			$fb = FirePHP::getInstance(true);
 			$can = $fb->detectClientExtension();
@@ -108,10 +115,7 @@ class Debug {
 
 	function debugWithFirebug(array $params, $title = '') {
 		$content = '';
-		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
-		if (!class_exists('FirePHP') && file_exists($require)) {
-			require_once $require;
-		}
+		debug_pre_print_backtrace();
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
 			$fp->setOption('includeLineNumbers', true);
