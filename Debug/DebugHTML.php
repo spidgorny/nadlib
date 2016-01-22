@@ -67,20 +67,31 @@ class DebugHTML {
 			'<span class="debug_prop">Function:</span> '.$function,
 			'<span class="debug_prop">Type:</span> '.gettype2($a)
 		);
-		if (is_array($a)) {
-			$props[] = '<span class="debug_prop">Size:</span> '.sizeof($a);
-		} elseif (!is_object($a) && !is_resource($a)) {
+		if (!is_array($a) && !is_object($a) && !is_resource($a)) {
 			$props[] = '<span class="debug_prop">Length:</span> '.strlen($a);
 		}
+
 		require_once __DIR__.'/class.TaylorProfiler.php';
 		$memPercent = TaylorProfiler::getMemUsage()*100;
 		require_once __DIR__.'/../HTML/class.ProgressBar.php';
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent).' of '.ini_get('memory_limit');
-		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
+		$props[] = '<span class="debug_prop">Mem:</span>
+ 			'.number_format(memory_get_usage(true)/1024/1024, 3, '.', '').'M '.
+			$pb->getImage($memPercent).' of '.ini_get('memory_limit');
+
+		$memDiff = TaylorProfiler::getMemDiff();
+		$memDiff = $memDiff[0] == '+'
+			? '<span style="color: green">'.$memDiff.'</span>'
+			: '<span style="color: red">'.$memDiff.'</span>';
+		$props[] = '<span class="debug_prop">Mem ±:</span> '. $memDiff;
+
+		static $lastElepsed;
 		$elapsed = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
-		$props[] = '<span class="debug_prop">Elapsed:</span> '.$elapsed.BR;
+		$elapsedDiff = '+'.number_format($elapsed - $lastElepsed, 3, '.', '');
+		$props[] = '<span class="debug_prop">Elapsed:</span> '.
+			$elapsed.' (<span style="color: green">'.$elapsedDiff.')'.BR;
+		$lastElepsed = $elapsed;
 
 		$backlog = '<ul><li>'.Debug::getBackLog(15, 6, '<li>').'</ul>';
 
