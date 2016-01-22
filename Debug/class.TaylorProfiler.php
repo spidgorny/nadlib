@@ -457,6 +457,7 @@ class TaylorProfiler {
 	 * @return float
 	 */
 	static function getMemUsage() {
+		require_once __DIR__.'/../HTML/Bytes.php';
 		$max = (new Bytes(ini_get('memory_limit')))->getBytes();
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 3, '.', '');
