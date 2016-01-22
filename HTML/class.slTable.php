@@ -258,7 +258,9 @@ class slTable {
 				} else {
 					$th = &$this->thes[$this->sortBy];
 				}
-				if ($th && !endsWith($th, $this->arrowAsc) && !endsWith($th, $this->arrowDesc)) {
+				if ($th
+					&& !str_endsWith($th, $this->arrowAsc)
+					&& !str_endsWith($th, $this->arrowDesc)) {
 					$th .= $this->sortOrder ? $this->arrowDesc : $this->arrowAsc;
 				}
 			}
