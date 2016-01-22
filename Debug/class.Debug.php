@@ -253,7 +253,9 @@ class Debug {
 		} elseif (!is_object($a) && !is_resource($a)) {
 			$props[] = '<span class="debug_prop">Length:</span> '.strlen($a);
 		}
+		require_once __DIR__.'/class.TaylorProfiler.php';
 		$memPercent = TaylorProfiler::getMemUsage()*100;
+		require_once __DIR__.'/../HTML/class.ProgressBar.php';
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
 		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent).' of '.ini_get('memory_limit');

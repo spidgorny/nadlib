@@ -14,16 +14,17 @@ abstract class FullGrid extends Grid {
 		if ($this->request->getControllerString() == get_class($this)) {
 			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
-		if (is_string($collection)) {
-			/** @var Collection collection */
-			$this->log(__METHOD__.' new collection', $collection);
-			$this->collection = new $collection(NULL, [], $this->getOrderBy());
-			// after construct because we need to modify join
-			$this->collection->where = $this->getFilterWhere();
-			$this->collection->postInit();
-			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
-		} else {
-			$this->collection = $collection;
+		if (!$this->collection) {
+			if (is_string($collection)) {
+				$this->log(__METHOD__ . ' new collection', $collection);
+				$this->collection = new $collection(NULL, [], $this->getOrderBy());
+				// after construct because we need to modify join
+				$this->collection->where += $this->getFilterWhere();
+				$this->collection->postInit();
+				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+			} else {
+				$this->collection = $collection;
+			}
 		}
 	}
 

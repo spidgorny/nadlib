@@ -817,7 +817,7 @@ class Request {
 	 * @return bool
 	 */
 	static function isCron() {
-		return !isset($_SERVER['TERM']);
+		return self::isCLI() && !isset($_SERVER['TERM']);
 	}
 
 	function debug() {
