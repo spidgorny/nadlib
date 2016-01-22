@@ -40,12 +40,13 @@ if (!function_exists('nodebug')) {
 	function getDebug()	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
-		$content = $debug::printStyles();
-		if (ifsetor($params[1]) == Debug::LEVELS) {
+		$dh = new DebugHTML($debug);
+		$content = $dh->printStyles();
+		if (ifsetor($params[1]) == DebugHTML::LEVELS) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array(array($debug, 'view_array'), $params);
+		$content .= call_user_func_array(array($dh, 'view_array'), $params);
 		return $content;
 	}
 
@@ -339,7 +340,7 @@ if (!function_exists('nodebug')) {
 	}
 
 	function cap($string, $with = '/') {
-		if (!endsWith($string, $with)) {
+		if (!str_endsWith($string, $with)) {
 			$string .= $with;
 		}
 		return $string;
