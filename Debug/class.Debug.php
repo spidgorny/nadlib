@@ -2,10 +2,6 @@
 
 class Debug {
 
-	const LEVELS = 'LEVELS';
-
-	static $stylesPrinted = false;
-
 	var $index;
 
 	/**
@@ -170,7 +166,6 @@ class Debug {
 		echo '---' . implode(' // ', $trace) . "\n";
 
 		$args = func_get_args();
-		$this->getLevels($args);
 		if (is_object($args)) {
 			$args = get_object_vars($args);   // prevent private vars
 		}
@@ -182,23 +177,6 @@ class Debug {
 		echo $dump, "\n";
 	}
 
-	function getLevels(array &$args) {
-		if (sizeof($args) == 1) {
-			$a = $args[0];
-			$levels = /*NULL*/3;
-		} else {
-			$a = $args;
-			if ($a[1] === self::LEVELS) {
-				$levels = $a[2];
-				$a = $a[0];
-			} else {
-				$levels = NULL;
-			}
-		}
-		$args = $a;
-		return $levels;
-	}
-
 	function canHTML() {
 		return ifsetor($_COOKIE['debug']);
 	}
@@ -207,75 +185,14 @@ class Debug {
 	 * @param mixed $params - any type
 	 */
 	function debugWithHTML($params) {
-		$content = call_user_func(array('Debug', 'debug_args'), $params);
+		$debugHTML = new DebugHTML($this);
+		$content = call_user_func(array($debugHTML, 'render'), $params);
 		if (!is_null($content)) {
 			print($content);
 		}
 		if (ob_get_level() == 0) {
 			flush();
 		}
-	}
-
-	function debug_args() {
-		$args = func_get_args();
-		$levels = $this->getLevels($args);
-
-		$db = debug_backtrace();
-		$db = array_slice($db, 3, sizeof($db));
-
-		$content = self::renderHTMLView($db, $args, $levels);
-		$content .= self::printStyles();
-		if (!headers_sent()) {
-			if (method_exists($this->index, 'renderHead')) {
-				$this->index->renderHead();
-			} else {
-				$content = '<!DOCTYPE html><html>' . $content;
-			}
-		}
-		return $content;
-	}
-
-	static function renderHTMLView($db, $a, $levels) {
-		$trace = Debug::getTraceTable($db);
-
-		$first = $db[1];
-		if ($first) {
-			$function = self::getMethod($first);
-		} else {
-			$function = '';
-		}
-		$props = array(
-			'<span class="debug_prop">Function:</span> '.$function,
-			'<span class="debug_prop">Type:</span> '.gettype2($a)
-		);
-		if (is_array($a)) {
-			$props[] = '<span class="debug_prop">Size:</span> '.sizeof($a);
-		} elseif (!is_object($a) && !is_resource($a)) {
-			$props[] = '<span class="debug_prop">Length:</span> '.strlen($a);
-		}
-		require_once __DIR__.'/class.TaylorProfiler.php';
-		$memPercent = TaylorProfiler::getMemUsage()*100;
-		require_once __DIR__.'/../HTML/class.ProgressBar.php';
-		$pb = new ProgressBar();
-		$pb->destruct100 = false;
-		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent).' of '.ini_get('memory_limit');
-		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
-		$elapsed = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
-		$props[] = '<span class="debug_prop">Elapsed:</span> '.$elapsed.BR;
-
-		$content = '
-			<div class="debug">
-				<div class="caption">
-					'.implode(BR, $props).'
-					<a href="javascript: void(0);" onclick="
-						var a = this.nextSibling.nextSibling;
-						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
-					">'.Debug::getBackLog(15, 6).'</a>
-					<div style="display: none;">'.$trace.'</div>
-				</div>
-				'.Debug::view_array($a, $levels > 0 ? $levels : 5).'
-			</div>';
-		return $content;
 	}
 
 	static function getSimpleTrace($db = NULL) {
@@ -314,66 +231,6 @@ class Debug {
 		return $trace;
 	}
 
-	/**
-	 * @param $a
-	 * @param $levels
-	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
-	 */
-	static function view_array($a, $levels = 1) {
-		if (is_object($a)) {
-			if (method_exists($a, 'debug')) {
-				$a = $a->debug();
-			//} elseif (method_exists($a, '__toString')) {    // commenting this often leads to out of memory
-			//	$a = $a->__toString();
-			//} elseif (method_exists($a, 'getName')) {
-			//	$a = $a->getName();	-- not enough info
-			} elseif ($a instanceof htmlString) {
-				$a = $a; // will take care below
-			} else {
-				$a = get_object_vars($a);
-			}
-		}
-
-		if (is_array($a)) {	// not else if so it also works for objects
-			$content = '<table class="view_array">';
-			foreach ($a as $i => $r) {
-				$type = gettype2($r);
-				$content .= '<tr>
-					<td class="view_array">'.$i.'</td>
-					<td class="view_array">'.$type.'</td>
-					<td class="view_array">';
-
-				//var_dump($levels); echo '<br/>'."\n";
-				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
-				//debug_pre_print_backtrace(); flush();
-				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
-					$content .= Debug::view_array($r,
-						is_null($levels) ? NULL : $levels-1);
-				} else {
-					$content .= '<i>Too deep, $level: '.$levels.'</i>';
-				}
-				//$content = print_r($r, true);
-				$content .= '</td></tr>';
-			}
-			$content .= '</table>';
-		} else if (is_object($a)) {
-			if ($a instanceof htmlString) {
-				$content = $a.'';
-			} else {
-				$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
-			}
-		} else if (is_resource($a)) {
-			$content = $a;
-		} else if (is_string($a) && strstr($a, "\n")) {
-			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
-		} else if ($a instanceof __PHP_Incomplete_Class) {
-			$content = '__PHP_Incomplete_Class';
-		} else {
-			$content = htmlspecialchars($a.'');
-		}
-		return $content;
-	}
-
 	static function getMethod(array $first) {
 		if (isset($first['object']) && $first['object']) {
 			$function = get_class($first['object']).'::'.$first['function'].'#'.ifsetor($first['line']);
@@ -394,6 +251,7 @@ class Debug {
 	static function getCaller($stepBack = 2) {
 		$btl = debug_backtrace();
 		reset($btl);
+		$bt = current($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
 			$bt = next($btl);
 		}
@@ -417,11 +275,17 @@ class Debug {
 			array_shift($debug);
 		}
 		$content = array();
-		foreach ($debug as $debugLine) {
-			$file = basename(ifsetor($debugLine['file']));
-			$file = str_replace('class.', '', $file);
-			$file = str_replace('.php', '', $file);
-			$content[] = $file.'::'.$debugLine['function'].':'.ifsetor($debugLine['line']);
+		foreach ($debug as $i => $debugLine) {
+			if (ifsetor($debugLine['object'])) {
+				$file = gettype2($debugLine['object']);
+			} else {
+				$file = basename(ifsetor($debugLine['file']));
+				$file = str_replace('class.', '', $file);
+				$file = str_replace('.php', '', $file);
+			}
+			$nextFunc = ifsetor($debug[$i+1]['function']);
+			$line = ifsetor($debugLine['line']);
+			$content[] = $file.'::'.$nextFunc.':'.$line.'->'.$debugLine['function'];
 			if (!--$limit) {
 				break;
 			}
@@ -457,17 +321,6 @@ class Debug {
 		}
 //		debug(array_sum($size), $size);
 		return array_sum($size);
-	}
-
-	static function printStyles() {
-		$content = '';
-		if (!self::$stylesPrinted) {
-			$content = '<style>'.file_get_contents(__DIR__.'/Debug.css').'</style>';
-			self::$stylesPrinted = true;
-		} else {
-			$content .= '<!-- styles printed -->';
-		}
-		return $content;
 	}
 
 	function canDebugster() {
