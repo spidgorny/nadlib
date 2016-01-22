@@ -651,7 +651,7 @@ abstract class Controller {
 	}
 
 	function log($action, $data = NULL) {
-		$this->log[] = new LogEvent($action, $data);
+		$this->log[] = new LogEntry($action, $data);
 	}
 
 }

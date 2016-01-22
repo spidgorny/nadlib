@@ -40,12 +40,13 @@ if (!function_exists('nodebug')) {
 	function getDebug()	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
-		$content = $debug::printStyles();
-		if (ifsetor($params[1]) == Debug::LEVELS) {
+		$dh = new DebugHTML($debug);
+		$content = $dh->printStyles();
+		if (ifsetor($params[1]) == DebugHTML::LEVELS) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array(array($debug, 'view_array'), $params);
+		$content .= call_user_func_array(array($dh, 'view_array'), $params);
 		return $content;
 	}
 
@@ -128,14 +129,14 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
-	if (!function_exists('endsWith')) {
+	if (!function_exists('str_endsWith')) {
 		/**
 		 * Whether string ends with some chars
 		 * @param $haystack
 		 * @param $needle
 		 * @return bool
 		 */
-		function endsWith($haystack, $needle) {
+		function str_endsWith($haystack, $needle) {
 			return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 		}
 	}
@@ -339,7 +340,7 @@ if (!function_exists('nodebug')) {
 	}
 
 	function cap($string, $with = '/') {
-		if (!endsWith($string, $with)) {
+		if (!str_endsWith($string, $with)) {
 			$string .= $with;
 		}
 		return $string;
@@ -428,13 +429,16 @@ function gettype2($something) {
 	if ($type == 'object') {
 		$hash = md5(spl_object_hash($something));
 		$hash = substr($hash, 0, 6);
-		require_once __DIR__.'/HTML/Color.php';
-		$color = new Color('#'.$hash);
-		$complement = $color->getComplement();
-		$hash = new HTMLTag('span', [
-			'style' => 'background: '.$color.'; color: '.$complement,
-		], $hash);
-		$type .= '['.get_class($something).'#'.$hash.']';
+		require_once __DIR__.'/HTTP/class.Request.php';
+		if (!Request::isCLI()) {
+			require_once __DIR__ . '/HTML/Color.php';
+			$color = new Color('#' . $hash);
+			$complement = $color->getComplement();
+			$hash = new HTMLTag('span', [
+				'style' => 'background: ' . $color . '; color: ' . $complement,
+			], $hash);
+		}
+		$type = get_class($something).'#'.$hash;
 	}
 	if ($type == 'string') {
 		$type .= '[' . strlen($something) . ']';

@@ -82,8 +82,10 @@ abstract class Grid extends AppController {
 	 * or it should be called after $this->collection is initialized
 	 */
 	function saveFilterColumnsSort($cn = NULL) {
+		// why do we inject collection
+		// before we have detected the filter (=where)?
 		if (!$this->collection) {
-			$this->injectCollection();
+			//$this->injectCollection();
 		}
 		$cn = $cn ? $cn : get_class($this->collection);
 		//debug($cn);
@@ -91,43 +93,10 @@ abstract class Grid extends AppController {
 
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 
-		if ($this->request->is_set('columns') && $allowEdit) {
-			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
-		}
-		$this->columns = $allowEdit
-			? $this->request->getArray('columns')
-			: array();
-		if (method_exists($this->user, 'getPref')) {
-			$this->columns = $this->columns
-				? $this->columns
-				: $this->user->getPref('Columns.'.$cn);
-		}
-		if (!$this->columns && ifsetor($this->model->thes)) {
-			$this->columns = array_keys($this->model->thes);
-			$this->log('Columns set from model');
-		}
-		if (!$this->columns && $this->collection->thes) {
-			$this->columns = array_keys($this->collection->thes);
-			$this->log('Columns set from collection '.gettype2($this->collection).': '.json_encode($this->columns));
-		}
+		$this->setColumns($cn, $allowEdit);
+		$this->setFilter($cn, $allowEdit);
 
-		/**
-		 * Only get filter if it's not need to be cleared
-		 */
-		if ($this->request->getTrim('action') == 'clearFilter' && $allowEdit) {
-		} else {
-			$this->filter = $allowEdit
-					? $this->request->getArray('filter')
-					: array();
-			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
-			if (method_exists($this->user, 'getPref')) {
-				$this->filter = $this->filter
-					? $this->filter
-					: $this->user->getPref('Filter.'.$cn);
-			}
-			$this->filter = $this->filter ? $this->filter : array();
-			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		}
+
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
 
@@ -193,6 +162,57 @@ abstract class Grid extends AppController {
 	function sidebar() {
 		$content = $this->collection->showFilter();
 		return $content;
+	}
+
+	/**
+	 * Only get filter if it's not need to be cleared
+	 * @param $cn
+	 * @param $allowEdit
+	 * @throws LoginException
+	 */
+	public function setFilter($cn, $allowEdit) {
+		if ($this->request->getTrim('action') == 'clearFilter' && $allowEdit) {
+		} else {
+			$this->filter = $allowEdit
+				? $this->request->getArray('filter')
+				: array();
+			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
+			if (method_exists($this->user, 'getPref')) {
+				$this->filter = $this->filter
+					? $this->filter
+					: $this->user->getPref('Filter.' . $cn);
+			}
+			$this->filter = $this->filter ? $this->filter : array();
+			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		}
+		//debug($this->filter);
+	}
+
+	/**
+	 * @param $cn
+	 * @param $allowEdit
+	 * @throws LoginException
+	 */
+	public function setColumns($cn, $allowEdit) {
+		if ($this->request->is_set('columns') && $allowEdit) {
+			$this->user->setPref('Columns.' . $cn, $this->request->getArray('columns'));
+		}
+		$this->columns = $allowEdit
+			? $this->request->getArray('columns')
+			: array();
+		if (method_exists($this->user, 'getPref')) {
+			$this->columns = $this->columns
+				? $this->columns
+				: $this->user->getPref('Columns.' . $cn);
+		}
+		if (!$this->columns && ifsetor($this->model->thes)) {
+			$this->columns = array_keys($this->model->thes);
+			$this->log('Columns set from model');
+		}
+		if (!$this->columns && $this->collection && $this->collection->thes) {
+			$this->columns = array_keys($this->collection->thes);
+			$this->log('Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
+		}
 	}
 
 }
