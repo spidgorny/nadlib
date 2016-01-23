@@ -49,8 +49,12 @@ class HTMLTag {
 	static function renderAttr(array $attr) {
 		$set = array();
 		foreach ($attr as $key => $val) {
-			if (is_array($val)) {
-				$val = implode(' ', $val);	// for class="a b c"
+			if (is_array($val) && $key == 'style') {
+				$style = ArrayPlus::create($val);
+				$style = $style->getHeaders(': ');
+				$val = $style; 				   	// for style="a: b; c: d"
+			} elseif (is_array($val)) {
+				$val = implode(' ', $val);		// for class="a b c"
 			}
 			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
 		}

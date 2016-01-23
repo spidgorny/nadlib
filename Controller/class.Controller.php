@@ -639,8 +639,9 @@ abstract class Controller {
 		</div>';
 	}
 
-	function p($content) {
-		return '<p>'.$this->s($content).'</p>';
+	function p($content, array $attr = array()) {
+		$more = HTMLTag::renderAttr($attr);
+		return '<p '.$more.'>'.$this->s($content).'</p>';
 	}
 
 	function img($src, array $attr = array()) {

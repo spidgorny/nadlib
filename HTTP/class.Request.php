@@ -1043,7 +1043,7 @@ class Request {
 		$session = new Session(__CLASS__);
 		$json = $session->get(__METHOD__);
 		if (!$json) {
-			$url = 'http://ipinfo.io/json' . $this->getIP();		// 166ms
+			$url = 'http://ipinfo.io/json/' . $this->getIP();		// 166ms
 			$info = file_get_contents($url);
 			if ($info) {
 				$json = json_decode($info);
