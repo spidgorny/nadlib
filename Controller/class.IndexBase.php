@@ -472,6 +472,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($mtime) {
 				$fileName .= '?' . $mtime;
 			}
+			$docRoot = AutoLoad::getInstance()->appRoot;
+			debug($docRoot.'', $fileName);
+			$fn = new Path($fileName);
+			$fileName = $fn->relativeFromAppRoot();
+			debug($fileName);
 		}
 		$defer = $defer ? 'defer="true"' : '';
 		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" '.$defer.'></script>';
