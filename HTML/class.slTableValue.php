@@ -19,6 +19,11 @@ class slTableValue {
 	 */
 	var $db;
 
+	/**
+	 * @var slTable
+	 */
+	var $caller;
+
 	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
 	public $SLTABLE_IMG_CHECK = '☑';
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
