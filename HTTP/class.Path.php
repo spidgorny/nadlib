@@ -224,7 +224,7 @@ class Path {
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
 		//$new = array_diff($this->aPath, $al->appRoot->aPath);
-		$new = $this->cutArrayFromArray($this->aPath, $al->documentRoot->aPath);
+		$new = $this->cutArrayFromArray($this->aPath, $al->appRoot->aPath);
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;
