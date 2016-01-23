@@ -71,6 +71,7 @@ class TaylorProfiler {
         $this->output_enabled = $output_enabled;
         $this->trace_enabled = $trace_enabled;
         $this->startTimer('unprofiled');
+		self::$instance = $this;
     }
 
     // Public Methods
