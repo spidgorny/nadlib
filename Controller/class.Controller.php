@@ -591,8 +591,9 @@ abstract class Controller {
 	}
 
 	function div($content, $class = '', array $more = array()) {
+		$more['class'] = ifsetor($more['class']) .' '.$class;
 		$more = HTMLTag::renderAttr($more);
-		return '<div class="'.$class.'" '.$more.'>'.$this->s($content).'</div>';
+		return '<div '.$more.'>'.$this->s($content).'</div>';
 	}
 
 	function info($content) {
@@ -642,10 +643,10 @@ abstract class Controller {
 		return '<p>'.$this->s($content).'</p>';
 	}
 
-	function img($src, array $attrib = array()) {
+	function img($src, array $attr = array()) {
 		return new HTMLTag('img', array(
 			'src' => $this->e($src),
-		) + $attrib);
+		) + $attr);
 	}
 
 	function e($content) {
@@ -664,6 +665,18 @@ abstract class Controller {
 
 	function log($action, $data = NULL) {
 		$this->log[] = new LogEntry($action, $data);
+	}
+
+	static function link($text = NULL) {
+		$self = get_called_class();
+		return new HTMLTag('a', [
+			'href' => $self::href()
+		], $text ?: $self);
+	}
+
+	static function href() {
+		$self = get_called_class();
+		return $self;
 	}
 
 }
