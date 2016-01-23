@@ -226,7 +226,7 @@ class Collection implements IteratorAggregate {
 	 * @return array
 	 */
 	function retrieveDataFromMySQL() {
-		$taylorKey = __METHOD__." (".$this->table.':'.(is_array($this->parentID)
+		$taylorKey = get_class($this).'::'.__FUNCTION__." (".$this->table.':'.(is_array($this->parentID)
 						? json_encode($this->parentID)
 						: $this->parentID).")";
 		TaylorProfiler::start($taylorKey);
@@ -307,6 +307,7 @@ class Collection implements IteratorAggregate {
 	function log($action, $data = NULL) {
 		$this->log[] = new LogEntry($action, $data);
 	}
+
 	function getLog() {
 		return [
 		'<div class="debug" style="font-family: monospace">',

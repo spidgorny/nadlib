@@ -265,7 +265,7 @@ class TaylorProfiler {
                 $TimedTotal += $total;
 	            $perc = $row['perc'];
 	            $tot_perc += $perc;
-				$htmlKey = htmlspecialchars($key);
+				$htmlKey = /*htmlspecialchars*/($key);
 				if (ifsetor($row['bold'])) {
 					$htmlKey = '<b>'.$htmlKey.'</b>';
 				}
@@ -282,7 +282,7 @@ class TaylorProfiler {
 	            );
 		   }
 
-            $s = new slTable($table, 'class="nospacing no-print" width="100%"');
+            $s = new slTable($table, 'class="nospacing no-print table" width="100%"');
             $s->thes(array(
             	'nr' => 'nr',
             	'count' => array(

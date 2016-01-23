@@ -330,9 +330,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * Move it to the MRBS
 	 * @param string $action
-	 * @param array $data
+	 * @param mixed $data
 	 */
-	function log($action, array $data) {
+	function log($action, $data) {
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
