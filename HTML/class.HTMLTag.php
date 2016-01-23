@@ -37,7 +37,7 @@ class HTMLTag {
 		$tag = '<'.trim($this->tag.' '. $attribs).$xmlClose.'>';
 		$tag .= $content;
 		if ($this->closingTag) {
-			$tag .= '</' . $this->tag . '>';
+			$tag .= '</' . $this->tag . '>'."\n";
 		}
 		return $tag;
 	}
