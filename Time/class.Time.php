@@ -682,7 +682,7 @@ class Time {
 	public function getSince() {
 		return new Duration($this->getTimestamp() - time());
 	}
-	
+
 	function setHis($H, $i = 0, $s = 0) {
 		$this->time = strtotime(date('Y-m-d').' '.$H.':'.$i.':'.$s);
 		$this->updateDebug();
@@ -690,6 +690,18 @@ class Time {
 
 	public function getAge() {
 		return new Duration(time() - $this->getTimestamp());
+	}
+
+	public function getHumanDateOrTime() {
+		if ($this->isToday()) {
+			return $this->getHumanTime();
+		} else {
+			return $this->getHumanDate();
+		}
+	}
+
+	function isToday() {
+		return date('Y-m-d', $this->getTimestamp()) == date('Y-m-d');
 	}
 
 }
