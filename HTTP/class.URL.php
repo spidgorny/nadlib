@@ -32,6 +32,11 @@ class URL {
 	protected $path;
 
 	/**
+	 * @var array
+	 */
+	var $log = array();
+
+	/**
 	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
@@ -459,6 +464,7 @@ class URL {
 	/**
 	 * http://www.php.net/manual/en/function.realpath.php#71334
 	 * @param $address
+	 * @return array|mixed|string
 	 */
 	function canonicalize($address) {
 		$address = explode('/', $address);
@@ -471,6 +477,15 @@ class URL {
 
 		$address = implode('/', $address);
 		$address = str_replace('./', '', $address);
+		return $address;
+	}
+
+	protected function log($action, $data = NULL) {
+		$this->log[] = new LogEntry($action, $data);
+	}
+
+	public function resolve($relativeURL) {
+		return $this->url_to_absolute($this->__toString(), $relativeURL);
 	}
 
 	/**
@@ -479,12 +494,13 @@ class URL {
 	 * @param $relativeUrl
 	 * @return mixed
 	 */
-	function url_to_absolute( $baseUrl, $relativeUrl )
-	{
+	private function url_to_absolute( $baseUrl, $relativeUrl ) {
 		// If relative URL has a scheme, clean path and return.
 		$r = $this->split_url( $relativeUrl );
-		if ( $r === FALSE )
+		if ( $r === FALSE ) {
+			$this->log('Unable to split', $relativeUrl);
 			return FALSE;
+		}
 		if ( !empty( $r['scheme'] ) )
 		{
 			if ( !empty( $r['path'] ) && $r['path'][0] == '/' )
@@ -494,8 +510,10 @@ class URL {
 
 		// Make sure the base URL is absolute.
 		$b = $this->split_url( $baseUrl );
-		if ( $b === FALSE || empty( $b['scheme'] ) || empty( $b['host'] ) )
+		if ( $b === FALSE || empty( $b['scheme'] ) || empty( $b['host'] ) ) {
+			$this->log('unable to split', $baseUrl);
 			return FALSE;
+		}
 		$r['scheme'] = $b['scheme'];
 
 		// If relative URL has an authority, clean path and return.
@@ -570,6 +588,7 @@ class URL {
 	 */
 	function split_url( $url, $decode=TRUE )
 	{
+		$parts = [];
 		$xunressub     = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
 		$xpchar        = $xunressub . ':@%';
 

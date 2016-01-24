@@ -308,14 +308,6 @@ class Collection implements IteratorAggregate {
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	function getLog() {
-		return [
-		'<div class="debug" style="font-family: monospace">',
-		$this->log,
-		'</div>',
-		];
-	}
-
 	/**
 	 * @param array/SQLWhere $where
 	 * @return string

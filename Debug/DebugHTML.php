@@ -125,6 +125,8 @@ class DebugHTML {
 				//	$a = $a->getName();	-- not enough info
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
+			} elseif ($a instanceof SimpleXMLElement) {
+				$a = $a->asXML();
 			} else {
 				$a = get_object_vars($a);
 			}
