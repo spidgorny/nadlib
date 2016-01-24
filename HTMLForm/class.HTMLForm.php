@@ -58,7 +58,7 @@ class HTMLForm {
 	}
 
 	function text($a) {
-		$this->stdout .= $a;
+		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
 	function prefix($p) {

@@ -15,9 +15,7 @@ class LogEntry {
 		$this->action = $action;
 		$this->data = $data;
 		if (self::$log2file) {
-			$sData = is_scalar($data)
-				? $data
-				: substr(json_encode($data), 0, 100);
+			$sData = $this->shorten($data);
 			error_log($action . ' ' . $sData);
 		}
 	}
@@ -25,11 +23,40 @@ class LogEntry {
 	function __toString() {
 		$floating = substr($this->time - floor($this->time), 2);	// cut 0 from 0.1
 		$floating = substr($floating, 0, 4);
+		$sData = $this->shorten($this->data);
 		return implode("\t", [
 			date('H:i:s', $this->time).'.'.$floating,
 			$this->action,
-			$this->data ? substr(json_encode($this->data), 0, 100) : NULL
+			$this->data ? $sData : NULL
 		]).BR;
 	}
+
+	static function getLogFrom(array $log) {
+		return [
+			'<div class="debug" style="font-family: monospace">',
+			$log,
+			'</div>',
+		];
+	}
+
+	/**
+	 * @param $data
+	 * @return bool|float|int|string
+	 */
+	public function shorten($data) {
+		if (is_scalar($data)) {
+			$sData = $data;
+		} else {
+			$sData = json_encode($data);
+		}
+
+		if (contains($sData, '<')) {
+			$sData = htmlspecialchars($sData);	// no tags
+		} else {
+			$sData = substr($sData, 0, 100);
+		}
+		return $sData;
+	}
+
 
 }

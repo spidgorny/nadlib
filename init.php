@@ -147,6 +147,25 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
+	function containsAny($haystack, array $needle) {
+		foreach ($needle as $n) {
+			if (contains($haystack, $n)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function parseFloat($str) {
+		preg_match_all('!\d+(?:\.\d+)?!', $str, $matches);
+		$floats = array_map('floatval', $matches[0]);
+		return ifsetor($floats[0]);
+	}
+
+	function parseFloat2($str) {
+		return (float) filter_var( $str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
+	}
+
 	/**
 	 * Does string splitting with cleanup.
 	 * @param $sep
@@ -461,4 +480,12 @@ if (!function_exists('boolval')) {
 	function boolval($val) {
 		return (bool) $val;
 	}
+}
+
+function unquote ($value) {
+	if (!$value) return $value;
+	if (!is_string($value)) return $value;
+	if ($value[0] == '\'') return trim($value, '\'');
+	if ($value[0] == '"') return trim($value, '"');
+	return $value;
 }

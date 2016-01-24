@@ -204,7 +204,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				if (ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue == 't';
 				}
-				$this->form->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
+				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
 						$more);
 				break;
 			case "time":
