@@ -12,7 +12,11 @@ class PathTest extends PHPUnit_Framework_TestCase {
 		$source = 'components/jquery/jquery.js?1453328048';
 		$path = new Path($source);
 		$relative = $path->relativeFromAppRoot();
-		$this->assertEquals('nadlib/tests/'.$source, $relative.'');
+		//debug($relative.'');
+		$this->assertTrue(in_array($relative.'', [
+			'nadlib/'.$source,
+			'vendor/spidgorny/nadlib/'.$source,
+		]));
 	}
 
 }
