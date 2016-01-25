@@ -472,7 +472,7 @@ class Syndicator {
 		if (sizeof($elements) == 0) {
 			return NULL;
 		} elseif (sizeof($elements) == 1) {
-			return $elements[0];
+			return first($elements);
 		} else {
 			return $elements;
 		}
