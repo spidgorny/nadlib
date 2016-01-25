@@ -1,3 +1,3 @@
 cd ..
-phpunit --bootstrap tests\init.php tests\
+call phpunit --bootstrap tests\bootstrap.php tests\
 cd tests
