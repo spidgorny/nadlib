@@ -137,7 +137,7 @@ class Collection implements IteratorAggregate {
 	 * @param string $order	- appended to the SQL
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select
@@ -161,7 +161,7 @@ class Collection implements IteratorAggregate {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->translateThes();
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop($profiler);
 	}
 
 	function postInit() {
@@ -204,7 +204,7 @@ class Collection implements IteratorAggregate {
 		$tableParent = " (" . $this->table . ':' . (is_array($this->parentID)
 				? implode(', ', $this->parentID)
 				: $this->parentID) . ")";
-		TaylorProfiler::start(__METHOD__ . " ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
 		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
@@ -216,7 +216,7 @@ class Collection implements IteratorAggregate {
 
 		$data = $this->db->fetchAll($res);
 		$this->db->free($res);
-		TaylorProfiler::stop(__METHOD__ . " ({$this->table})");
+		TaylorProfiler::stop($profiler);
 		return $data;
 	}
 
@@ -313,7 +313,7 @@ class Collection implements IteratorAggregate {
 	 * @return string
 	 */
 	function getQuery($where = array()) {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
 		if (!$this->db) {
 			debug_pre_print_backtrace();
 		}
@@ -350,7 +350,7 @@ class Collection implements IteratorAggregate {
 //				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
 //			}
 		}
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop($profiler);
 		return $query;
 	}
 
@@ -374,12 +374,12 @@ class Collection implements IteratorAggregate {
 	}
 
 	function preprocessData() {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".sizeof($this->data));
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop($profiler);
 	}
 
 	function preprocessRow(array $row) {

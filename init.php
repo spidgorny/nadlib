@@ -443,21 +443,25 @@ if (!function_exists('nodebug')) {
 
 }
 
-function gettype2($something) {
+function gettype2($something, $withHash = true) {
 	$type = gettype($something);
 	if ($type == 'object') {
-		$hash = md5(spl_object_hash($something));
-		$hash = substr($hash, 0, 6);
-		require_once __DIR__.'/HTTP/class.Request.php';
-		if (!Request::isCLI()) {
-			require_once __DIR__ . '/HTML/Color.php';
-			$color = new Color('#' . $hash);
-			$complement = $color->getComplement();
-			$hash = new HTMLTag('span', [
-				'style' => 'background: ' . $color . '; color: ' . $complement,
-			], $hash);
+		if ($withHash) {
+			$hash = md5(spl_object_hash($something));
+			$hash = substr($hash, 0, 6);
+			require_once __DIR__ . '/HTTP/class.Request.php';
+			if (!Request::isCLI()) {
+				require_once __DIR__ . '/HTML/Color.php';
+				$color = new Color('#' . $hash);
+				$complement = $color->getComplement();
+				$hash = new HTMLTag('span', [
+					'style' => 'background: ' . $color . '; color: ' . $complement,
+				], $hash);
+			}
+			$type = get_class($something) . '#' . $hash;
+		} else {
+			$type = get_class($something);
 		}
-		$type = get_class($something).'#'.$hash;
 	}
 	if ($type == 'string') {
 		$type .= '[' . strlen($something) . ']';
