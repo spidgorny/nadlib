@@ -98,6 +98,12 @@ abstract class OODBase {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->init($id);
+
+		$class = get_class($this);
+		if ($this->id && isset(self::$instances[$class][$this->id])) {
+			$from = Debug::getCaller();
+			debug('made new existing instance of '.$class.' from '.$from);
+		}
 	}
 
 	/**
@@ -258,7 +264,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		TaylorProfiler::start($taylorKey = __METHOD__.' ('.$this->table.') // '.Debug::getBackLog(8));
+		TaylorProfiler::start($taylorKey = Debug::getBackLog(20, 0, BR, false));
 		if (!$this->db) {
 			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
 		}
@@ -666,6 +672,7 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Override if collection name is different
 	 * @return Collection
 	 */
 	function getChildren() {

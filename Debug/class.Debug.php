@@ -284,9 +284,10 @@ class Debug {
 	 * @param int    $limit
 	 * @param int    $cut
 	 * @param string $join
+	 * @param bool   $withHash
 	 * @return string
 	 */
-	static function getBackLog($limit = 5, $cut = 7, $join = ' // ') {
+	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true) {
 		$debug = debug_backtrace();
 		for ($i = 0; $i < $cut; $i++) {
 			array_shift($debug);
@@ -294,7 +295,7 @@ class Debug {
 		$content = array();
 		foreach ($debug as $i => $debugLine) {
 			if (ifsetor($debugLine['object'])) {
-				$file = gettype2($debugLine['object']);
+				$file = gettype2($debugLine['object'], $withHash);
 			} else {
 				$file = basename(ifsetor($debugLine['file']));
 				$file = str_replace('class.', '', $file);
