@@ -131,7 +131,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed());
+				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 			}
 		}
 		$this->queryCount++;
@@ -149,7 +149,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	    } else {
 		    $this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 		    if ($this->queryLog) {
-			    $this->queryLog->log($query, $prof->elapsed());
+			    $this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 		    }
 	    }
 	    $this->queryCount++;
