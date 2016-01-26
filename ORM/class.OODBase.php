@@ -702,4 +702,36 @@ abstract class OODBase {
 		return new ArrayPlus($ids);
 	}
 
+	public static function getCacheStats() {
+		$stats = [];
+		foreach (self::$instances as $class => $list) {
+			$stats[$class] = sizeof($list);
+		}
+		return $stats;
+	}
+
+	public static function getCacheStatsTable() {
+		$stats = OODBase::getCacheStats();
+		$stats = ArrayPlus::create($stats)
+			->makeTable('count')
+			->insertKeyAsColumn('class')
+		;
+		$max = $stats->column('count')->max();
+		if ($max != 0) {
+			//debug((array)$stats); exit();
+			$stats->addColumn('bar', function ($row, $i) use ($max) {
+				return ProgressBar::getImage($row['count'] / $max * 100);
+			});
+		}
+		$stats = $stats->getData();
+		$content[] = new slTable($stats, 'class="table"', [
+			'class' => 'Class',
+			'count' => 'Count',
+			'bar' => [
+				'no_hsc' => true,
+			],
+		]);
+		return $content;
+	}
+
 }
