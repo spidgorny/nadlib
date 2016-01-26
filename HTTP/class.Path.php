@@ -14,11 +14,16 @@ class Path {
 
 	function __construct($sPath) {
 		$this->sPath = $sPath.'';
-		$this->isAbsolute = str_startsWith($this->sPath, '/') || (isset($this->sPath[1]) && $this->sPath[1] == ':');
+		$this->isAbsolute = self::isAbsolute($this->sPath);
 		$this->isDir = str_endsWith($this->sPath, '/');
 		$this->isFile = !$this->isDir;
 		$this->explode();
 		$this->implode();   // to prevent '//'
+	}
+
+	static function isAbsolute($sPath) {
+		return str_startsWith($sPath, '/')
+			|| (isset($sPath[1]) && $sPath[1] == ':');
 	}
 
 	/**

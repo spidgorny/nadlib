@@ -24,6 +24,9 @@ require_once __DIR__.'/../class.InitNADLIB.php';
 $n = new InitNADLIB();
 $n->init();
 
+$al = AutoLoad::getInstance();
+$al->addFolder(__DIR__);
+
 $path = trimExplode('/', str_replace('\\', '/', getcwd()));
 //debug($path);
 foreach (range(sizeof($path), 0, -1) as $i) {
@@ -39,3 +42,5 @@ foreach (range(sizeof($path), 0, -1) as $i) {
 }
 
 //debug(spl_autoload_functions());
+
+echo 'bootstrap.php done', BR;
