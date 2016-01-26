@@ -524,8 +524,10 @@ abstract class Controller {
 			$f->hidden('c', get_class($this));
 		}
 		$f->formHideArray($hidden);
-		if ($id = $this->request->getInt('id')) {
-			$f->hidden('id', $id);
+		if (false) {    // this is too specific, not and API
+//			if ($id = $this->request->getInt('id')) {
+//				$f->hidden('id', $id);
+//			}
 		}
 		$f->hidden('action', $action);
 		if ($name instanceof htmlString) {
