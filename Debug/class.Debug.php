@@ -295,15 +295,17 @@ class Debug {
 		$content = array();
 		foreach ($debug as $i => $debugLine) {
 			if (ifsetor($debugLine['object'])) {
-				$file = gettype2($debugLine['object'], $withHash);
+				$object = gettype2($debugLine['object'], $withHash);
 			} else {
-				$file = basename(ifsetor($debugLine['file']));
-				$file = str_replace('class.', '', $file);
-				$file = str_replace('.php', '', $file);
+				$object = '';
 			}
+			$file = basename(ifsetor($debugLine['file']));
+			$file = str_replace('class.', '', $file);
+			$file = str_replace('.php', '', $file);
 			$nextFunc = ifsetor($debug[$i+1]['function']);
 			$line = ifsetor($debugLine['line']);
-			$content[] = $file.'::'.$nextFunc.':'.$line.'->'.$debugLine['function'];
+			$content[] = $file.'::'.$nextFunc.'#'.$line.':'.
+				$object.'->'.$debugLine['function'];
 			if (!--$limit) {
 				break;
 			}
