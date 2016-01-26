@@ -264,7 +264,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		TaylorProfiler::start($taylorKey = Debug::getBackLog(20, 0, BR, false));
+		TaylorProfiler::start($taylorKey = Debug::getBackLog(15, 0, BR, false));
 		if (!$this->db) {
 			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
 		}
@@ -518,15 +518,10 @@ abstract class OODBase {
 			$inst = ifsetor(self::$instances[$static][$id]);
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
-				if (false) {
-					$inst = new $static($id);	// VersionInfo needs it like this
-				} else {
-												// NewRequest needs it like this
-					/** @var OODBase $inst */
-					$inst = new $static();		// don't put anything else here
-					self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
-					$inst->init($id);			// separate call to avoid infinite loop in ORS
-				}
+				/** @var OODBase $inst */
+				$inst = new $static();		// don't put anything else here
+				self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
+				$inst->init($id);			// separate call to avoid infinite loop in ORS
 			}
 		} else {
 			/** @var OODBase $inst */
