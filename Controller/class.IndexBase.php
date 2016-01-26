@@ -253,7 +253,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$contentOut = $this->renderTemplate($contentOut)->render();
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
-			$contentOut .= $content;
+			$contentOut .= $this->s($content);
 			$this->content->clear();		// clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;
