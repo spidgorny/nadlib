@@ -76,6 +76,7 @@ class Mailer {
 		} else {
 			throw new Exception('Invalid email address');
 		}
+		return $res;
 	}
 
 	function getSubject() {
