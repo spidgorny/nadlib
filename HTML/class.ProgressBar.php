@@ -99,6 +99,7 @@ class ProgressBar {
 	 */
 	function getCSS() {
 		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/'.$this->cssFile;
+		$cssFile = str_replace('.less', '.css', $less);
 		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
@@ -106,10 +107,12 @@ class ProgressBar {
 		} elseif (ifsetor($GLOBALS['HTMLHEADER'])) {
 			$GLOBALS['HTMLHEADER'][basename($this->cssFile)]
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
-		} else if (class_exists('lessc')) {
+		} elseif (class_exists('lessc')) {
 			$l = new lessc();
 			$css = $l->compileFile($less);
 			return '<style>' . $css . '</style>';
+		} elseif (file_exists($cssFile)) {
+			Index::getInstance()->addCSS($cssFile);
 		} else {
 			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do
 		}
