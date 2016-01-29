@@ -183,7 +183,8 @@ class Collection implements IteratorAggregate {
 		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
-			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')
+			|| ($this->db instanceof dbLayerPDO
+				&& $this->db->getScheme() == 'mysql')
 		)) {
 			$this->log(__METHOD__);
 			$data = $this->retrieveDataFromMySQL();
@@ -399,9 +400,9 @@ class Collection implements IteratorAggregate {
 	 */
 	function getData() {
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->log('query: '.(!!$this->query ? 'Set' : '-'));
-		$this->log('data: '.(!!$this->data ? 'Set' : '-'));
-		$this->log('data->count: '.count($this->data));
+		$this->log('getData() query: '.(!!$this->query ? 'Set' : '-'));
+		$this->log('getData() data: '.(!!$this->data ? 'Set' : '-'));
+		$this->log('getData() data->count: '.count($this->data));
 		if (!$this->query
 			|| is_null($this->data)
 			//|| !$this->data->count())) {
@@ -626,6 +627,7 @@ class Collection implements IteratorAggregate {
      * @param string $idFieldName Optional param to define a different ID field to use as checkbox value
      */
     function addCheckboxes($idFieldName = '') {
+		$this->log(get_class($this).'::'.__FUNCTION__);
         $this->thes = array('checked' => array(
                 'name' => '<a href="javascript:void(0)">
 					<input type="checkbox"
@@ -637,7 +639,8 @@ class Collection implements IteratorAggregate {
             )) + $this->thes;
         $class = get_class($this);
 		$data = $this->getData();
-        foreach ($data as &$row) {
+		$count = $this->getCount();
+		foreach ($data as &$row) {
             $id = !empty($idFieldName) ? $row[$idFieldName] : $row[$this->idField];
             $checked = ifsetor($_SESSION[$class][$id])
 				? 'checked="checked"' : '';
@@ -646,34 +649,8 @@ class Collection implements IteratorAggregate {
 			value="'.$id.'" '.$checked.' />';
         } // <form method="POST">
 		$this->setData($data);
+		$this->count = $count;
     }
-
-	function showFilter() {
-		$content = array();
-		if ($this->filter) {
-			$f = new HTMLFormTable();
-			$f->method('GET');
-			$f->defaultBR = true;
-			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
-			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn btn-primary'));
-			$content[] = $f->getContent();
-		}
-		return $content;
-	}
-
-	function getFilterWhere() {
-		$where = array();
-		if ($this->filter) {
-			foreach ($this->filter as $field => $desc) {
-				$value = $this->request->getTrim($field);
-				if ($value) {
-					$where[$field] = $value;
-				}
-			}
-		}
-		return $where;
-	}
 
 	/**
 	 * Uses array_merge to prevent duplicates
@@ -891,16 +868,20 @@ class Collection implements IteratorAggregate {
 	 * @return int
 	 */
 	public function getCount() {
+		$this->log(get_class($this).'::'.__FUNCTION__, $this->count);
 		if (is_null($this->count)) {
 			if ($this->pager) {
 				$this->getQueryWithLimit();	 // will init pager
 				// and set $this->count
 			} else {
-				$query = $this->getQuery();
-				$res = $this->db->perform($query);
-				$this->count = $this->db->numRows($res);
+				// this is the same query as $this->retrieveData() !
+//				$query = $this->getQuery();
+//				$res = $this->db->perform($query);
+//				$this->count = $this->db->numRows($res);
+				$this->retrieveData();	// will set the count
 			}
 		}
+		$this->log(get_class($this).'::'.__FUNCTION__, $this->count);
 		return $this->count;
 	}
 
