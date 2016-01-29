@@ -141,9 +141,13 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
+	function str_contains($haystack, $needle) {
+		return FALSE !== strpos($haystack, $needle);
+	}
+
 	if (!function_exists('contains')) {
 		function contains($haystack, $needle) {
-			return FALSE !== strpos($haystack, $needle);
+			return str_contains($haystack, $needle);
 		}
 	}
 
