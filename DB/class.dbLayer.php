@@ -591,7 +591,7 @@ order by a.attnum';
 	}
 
 	function quoteKey($key) {
-		$key = '"'.$key.'"';
+		$key = pg_escape_identifier($key);
 		return $key;
 	}
 
