@@ -48,16 +48,14 @@ class UL {
 		}
 	}
 
+	function makeClickable($urlPrefix = '') {
+		$this->linkWrap = '<a href="'.$urlPrefix.'###LINK###">|</a>';
+	}
+
 	function render() {
 		$out = array();
 		foreach ($this->items as $class => $li) {
-			if ($this->links) {
-				$link = $this->links[$class];
-			} elseif ($this->linkFunc) {
-				$link = call_user_func($this->linkFunc, $class, $li);
-			} else {
-				$link = $class;
-			}
+			$link = $this->getLinkFor($class, $li);
 
 			// maybe we need to wrap after $this->links
 			if ($this->linkWrap) {
@@ -114,6 +112,22 @@ class UL {
 				echo BR;
 			}
 		}
+	}
+
+	/**
+	 * @param $class
+	 * @param $li
+	 * @return mixed
+	 */
+	public function getLinkFor($class, $li) {
+		if ($this->links) {
+			$link = $this->links[$class];
+		} elseif ($this->linkFunc) {
+			$link = call_user_func($this->linkFunc, $class, $li);
+		} else {
+			$link = $class;
+		}
+		return $link;
 	}
 
 }

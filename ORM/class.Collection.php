@@ -754,12 +754,12 @@ class Collection implements IteratorAggregate {
 				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
 				$copy->retrieveDataFromCache();
 				$copy->preprocessData();
-				$prevData = $copy->data;
+				$prevData = $copy->getData()->getData();
 			} else {
 				$prevData = array();
 			}
 
-			$pageKeys = AP($this->data)->getKeys();
+			$pageKeys = AP($this->data)->getKeys()->getData();
 			if ($this->pager->currentPage < $this->pager->getMaxPage() &&
 				end($pageKeys) == $model->id	// last element on the page
 			) {
@@ -767,7 +767,7 @@ class Collection implements IteratorAggregate {
 				$copy->pager->setCurrentPage($copy->pager->currentPage+1);
 				$copy->retrieveData();
 				$copy->preprocessData();
-				$nextData = $copy->data;
+				$nextData = $copy->getData()->getData();
 			} else {
 				$nextData = array();
 			}
@@ -781,9 +781,9 @@ class Collection implements IteratorAggregate {
 		;
 
 		nodebug($model->id,
-			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$prevData))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$this->data))),
-			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$nextData)))
 		);
 		$data = $prevData + $central + $nextData; // not array_merge which will reindex
 		$ap = ArrayPlus::create($data);
