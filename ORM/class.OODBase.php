@@ -102,7 +102,7 @@ abstract class OODBase {
 		$class = get_class($this);
 		if ($this->id && isset(self::$instances[$class][$this->id])) {
 			$from = Debug::getCaller();
-			debug('made new existing instance of '.$class.' from '.$from);
+			//debug('made new existing instance of '.$class.' from '.$from);
 		}
 	}
 
