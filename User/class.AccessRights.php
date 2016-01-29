@@ -45,7 +45,11 @@ class AccessRights {
 
 	function can($what) {
 		//debug($what, $this->arCache);
-		return isset($this->arCache[$what]) ? $this->arCache[$what] : NULL;
+		if (isset($this->arCache[$what])) {
+			return $this->arCache[$what];
+		} else {
+			throw new AccessDeniedException('Checking non-existing access-right: '.$what);
+		}
 	}
 
 	function getList() {
