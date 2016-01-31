@@ -662,6 +662,7 @@ abstract class Controller {
 
 	public function noRender() {
 		$this->noRender = true;
+		$this->request->set('ajax', 1);
 	}
 
 	function script($file) {
