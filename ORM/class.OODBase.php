@@ -120,16 +120,20 @@ abstract class OODBase {
 					$this->id = NULL;
 				}
 			}
-		} else if ($id instanceof SQLWhere) {
+		} elseif ($id instanceof SQLWhere) {
 			$where = $id->getAsArray();
 			$this->findInDB($where);
-		} else if (is_scalar($id)) {
+		} elseif (is_scalar($id)) {
 			$this->id = $id;
-			$this->findInDB(array($this->idField => $this->id));
+			if (is_array($this->idField)) {
+				// TODO
+			} else {
+				$this->findInDB(array($this->idField => $this->id));
+			}
 			if (!$this->data) {
 				$this->id = NULL;
 			}
-		} else if (!is_null($id)) {
+		} elseif (!is_null($id)) {
 			debug($id);
 			TaylorProfiler::stop(__METHOD__);
 			throw new Exception(__METHOD__);
@@ -700,6 +704,13 @@ abstract class OODBase {
 			$id = static::getInstance($id);
 		}
 		return new ArrayPlus($ids);
+	}
+
+	function ensure(array $where) {
+		$this->findInDB($where);
+		if (!$this->id) {
+			$this->insert($where);
+		}
 	}
 
 }
