@@ -181,7 +181,10 @@ class AutoLoadFolders {
 				$this->folders[NULL]
 		);
 		assert(sizeof($map));
-		//pre_print_r(array_keys($this->folders), array_keys($map), sizeof($map));
+//		pre_print_r(
+//			array_keys($this->folders),
+//			$map,
+//			sizeof($map));
 		foreach ($map as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
