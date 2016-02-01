@@ -33,4 +33,16 @@ class NoUser extends UserBase {
 		return NULL;
 	}
 
+	function getAllSettings() {
+		return [];
+	}
+
+	function getSelfAndBackupID() {
+		return [$this->id];
+	}
+
+	function getAllSubordinates() {
+		return [];
+	}
+
 }
