@@ -123,7 +123,7 @@ border-radius: 5px;">');
 		//echo 'SN: ', $standaloneNadlib, BR;
 		if (!$standaloneNadlib
 			&& file_exists($vendor_autoload_php)) {
-			echo $vendor_autoload_php, BR;
+			//echo $vendor_autoload_php, BR;
 			/** @noinspection PhpIncludeInspection */
 			require_once $vendor_autoload_php;
 		}
