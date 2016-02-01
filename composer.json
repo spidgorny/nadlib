@@ -7,11 +7,11 @@
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"soundintheory/php-sql-parser": "*",
+		"greenlion/PHP-SQL-Parser": "*",
 		"GerHobbelt/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1",
-        "phpauth/phpauth": "v1.1"
+        "phpauth/phpauth": "v1.1",
         "gnat/nc-cms": "*"
 	},
 	"require-dev": {
@@ -131,18 +131,6 @@
                     "url":"https://github.com/mustangostang/spyc",
                     "type":"git",
                     "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package": {
-                "version":"dev-master",
-                "name":"php-sql-parser",
-                "source": {
-                    "url":"http://php-sql-parser.googlecode.com/svn/",
-                    "type":"svn",
-                    "reference":"trunk"
                 }
             }
         },
