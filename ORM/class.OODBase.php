@@ -439,6 +439,7 @@ abstract class OODBase {
 	/**
 	 * Only works when $this->thes is defined or provided
 	 * @param array $thes
+	 * @param null  $title
 	 * @return string
 	 */
 	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name'), $title = NULL) {
@@ -448,15 +449,20 @@ abstract class OODBase {
 		$assoc = array();
 		foreach ($thes as $key => $name) {
 			$val = $this->data[$key];
-			if (is_array($name) && ifsetor($name['reference'])) {  // class name
-				$class = $name['reference'];
-				$obj = $class::getInstance($val);
-				if (method_exists($obj, 'getNameLink')) {
-					$val = $obj->getNameLink();
-				} elseif (method_exists($obj, 'getName')) {
-					$val = $obj->getName();
-				} else {
-					$val = $obj->__toString();
+			if (is_array($name)) {
+				if (ifsetor($name['reference'])) {
+					// class name
+					$class = $name['reference'];
+					$obj = $class::getInstance($val);
+					if (method_exists($obj, 'getNameLink')) {
+						$val = new htmlString($obj->getNameLink());
+					} elseif (method_exists($obj, 'getName')) {
+						$val = $obj->getName();
+					} else {
+						$val = $obj->__toString();
+					}
+				} elseif (ifsetor($name['bool'])) {
+					$val = $name['bool'][$val];	// yes/no
 				}
 			}
 			$niceName = is_array($name) ? $name['name'] : $name;
