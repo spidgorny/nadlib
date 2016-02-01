@@ -23,13 +23,13 @@
 class Duration extends Time {
 
 	var $periods = array (
-		'years'     => 31556926,
-		'months'    => 2629743,
-		'weeks'     => 604800,
-		'days'      => 86400,
-		'hours'     => 3600,
-		'minutes'   => 60,
-		'seconds'   => 1
+		'year'     => 31556926,
+		'month'    => 2629743,
+		'week'     => 604800,
+		'day'      => 86400,
+		'hour'     => 3600,
+		'minute'   => 60,
+		'second'   => 1
 	);
 
 	function  __construct($input = NULL) {
@@ -57,6 +57,9 @@ class Duration extends Time {
 
 	function nice() {
 		return $this->toString();
+	}
+
+	function short() {
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = array();
@@ -192,6 +195,9 @@ class Duration extends Time {
                 continue;
             }
 
+			if ($count > 1) {
+				$period .= 's';
+			}
             $values[$period] = $count;
             $seconds = $seconds % $value;
         }

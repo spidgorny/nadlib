@@ -69,7 +69,7 @@ class Collection implements IteratorAggregate {
 	 * Default is NULL in order to check whether it's set or not.
 	 * @var string
 	 */
-	public $itemClassName = 'itemClassNameNotExists';
+	public $itemClassName;
 
 	/**
 	 * SQL part
@@ -137,7 +137,7 @@ class Collection implements IteratorAggregate {
 	 * @param string $order	- appended to the SQL
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select
@@ -148,7 +148,7 @@ class Collection implements IteratorAggregate {
             // array_merge should be use instead of array union,
             // in order to prevent existing entries with numeric keys being ignored in $where
 			$this->where = array_merge($this->where, $where);
-		} else if ($where instanceof SQLWhere) {
+		} elseif ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
 
@@ -161,7 +161,7 @@ class Collection implements IteratorAggregate {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->translateThes();
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop($profiler);
 	}
 
 	function postInit() {
@@ -183,7 +183,8 @@ class Collection implements IteratorAggregate {
 		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
-			|| ($this->db instanceof dbLayerPDO && $this->db->getScheme() == 'mysql')
+			|| ($this->db instanceof dbLayerPDO
+				&& $this->db->getScheme() == 'mysql')
 		)) {
 			$this->log(__METHOD__);
 			$data = $this->retrieveDataFromMySQL();
@@ -204,7 +205,7 @@ class Collection implements IteratorAggregate {
 		$tableParent = " (" . $this->table . ':' . (is_array($this->parentID)
 				? implode(', ', $this->parentID)
 				: $this->parentID) . ")";
-		TaylorProfiler::start(__METHOD__ . " ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
 		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
@@ -216,7 +217,7 @@ class Collection implements IteratorAggregate {
 
 		$data = $this->db->fetchAll($res);
 		$this->db->free($res);
-		TaylorProfiler::stop(__METHOD__ . " ({$this->table})");
+		TaylorProfiler::stop($profiler);
 		return $data;
 	}
 
@@ -313,7 +314,7 @@ class Collection implements IteratorAggregate {
 	 * @return string
 	 */
 	function getQuery($where = array()) {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
 		if (!$this->db) {
 			debug_pre_print_backtrace();
 		}
@@ -350,7 +351,7 @@ class Collection implements IteratorAggregate {
 //				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
 //			}
 		}
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop($profiler);
 		return $query;
 	}
 
@@ -374,12 +375,12 @@ class Collection implements IteratorAggregate {
 	}
 
 	function preprocessData() {
-		TaylorProfiler::start(__METHOD__." ({$this->table})");
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".sizeof($this->data));
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
-		TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		TaylorProfiler::stop($profiler);
 	}
 
 	function preprocessRow(array $row) {
@@ -399,9 +400,9 @@ class Collection implements IteratorAggregate {
 	 */
 	function getData() {
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->log('query: '.(!!$this->query ? 'Set' : '-'));
-		$this->log('data: '.(!!$this->data ? 'Set' : '-'));
-		$this->log('data->count: '.count($this->data));
+		$this->log('getData() query: '.(!!$this->query ? 'Set' : '-'));
+		$this->log('getData() data: '.(!!$this->data ? 'Set' : '-'));
+		$this->log('getData() data->count: '.count($this->data));
 		if (!$this->query
 			|| is_null($this->data)
 			//|| !$this->data->count())) {
@@ -434,7 +435,7 @@ class Collection implements IteratorAggregate {
 		// PROBLEM! This is supposed to be the total amount
 		// Don't uncomment
         //$this->count = count($this->data);
-		$this->count = true;	// we need to disable getCount()
+		$this->count = __METHOD__;	// we need to disable getCount()
 
 		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
 		$this->query = $this->query ?: __METHOD__;
@@ -626,6 +627,7 @@ class Collection implements IteratorAggregate {
      * @param string $idFieldName Optional param to define a different ID field to use as checkbox value
      */
     function addCheckboxes($idFieldName = '') {
+		$this->log(get_class($this).'::'.__FUNCTION__);
         $this->thes = array('checked' => array(
                 'name' => '<a href="javascript:void(0)">
 					<input type="checkbox"
@@ -637,7 +639,8 @@ class Collection implements IteratorAggregate {
             )) + $this->thes;
         $class = get_class($this);
 		$data = $this->getData();
-        foreach ($data as &$row) {
+		$count = $this->getCount();
+		foreach ($data as &$row) {
             $id = !empty($idFieldName) ? $row[$idFieldName] : $row[$this->idField];
             $checked = ifsetor($_SESSION[$class][$id])
 				? 'checked="checked"' : '';
@@ -646,34 +649,8 @@ class Collection implements IteratorAggregate {
 			value="'.$id.'" '.$checked.' />';
         } // <form method="POST">
 		$this->setData($data);
+		$this->count = $count;
     }
-
-	function showFilter() {
-		$content = array();
-		if ($this->filter) {
-			$f = new HTMLFormTable();
-			$f->method('GET');
-			$f->defaultBR = true;
-			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
-			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn btn-primary'));
-			$content[] = $f->getContent();
-		}
-		return $content;
-	}
-
-	function getFilterWhere() {
-		$where = array();
-		if ($this->filter) {
-			foreach ($this->filter as $field => $desc) {
-				$value = $this->request->getTrim($field);
-				if ($value) {
-					$where[$field] = $value;
-				}
-			}
-		}
-		return $where;
-	}
 
 	/**
 	 * Uses array_merge to prevent duplicates
@@ -754,12 +731,12 @@ class Collection implements IteratorAggregate {
 				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
 				$copy->retrieveDataFromCache();
 				$copy->preprocessData();
-				$prevData = $copy->data;
+				$prevData = $copy->getData()->getData();
 			} else {
 				$prevData = array();
 			}
 
-			$pageKeys = AP($this->data)->getKeys();
+			$pageKeys = AP($this->data)->getKeys()->getData();
 			if ($this->pager->currentPage < $this->pager->getMaxPage() &&
 				end($pageKeys) == $model->id	// last element on the page
 			) {
@@ -767,7 +744,7 @@ class Collection implements IteratorAggregate {
 				$copy->pager->setCurrentPage($copy->pager->currentPage+1);
 				$copy->retrieveData();
 				$copy->preprocessData();
-				$nextData = $copy->data;
+				$nextData = $copy->getData()->getData();
 			} else {
 				$nextData = array();
 			}
@@ -781,9 +758,9 @@ class Collection implements IteratorAggregate {
 		;
 
 		nodebug($model->id,
-			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($prevData))),
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$prevData))),
 			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$this->data))),
-			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys($nextData)))
+			str_replace($model->id, '*'.$model->id.'*', implode(', ', array_keys((array)$nextData)))
 		);
 		$data = $prevData + $central + $nextData; // not array_merge which will reindex
 		$ap = ArrayPlus::create($data);
@@ -891,16 +868,20 @@ class Collection implements IteratorAggregate {
 	 * @return int
 	 */
 	public function getCount() {
+		$this->log(get_class($this).'::'.__FUNCTION__, $this->count);
 		if (is_null($this->count)) {
 			if ($this->pager) {
 				$this->getQueryWithLimit();	 // will init pager
 				// and set $this->count
 			} else {
-				$query = $this->getQuery();
-				$res = $this->db->perform($query);
-				$this->count = $this->db->numRows($res);
+				// this is the same query as $this->retrieveData() !
+//				$query = $this->getQuery();
+//				$res = $this->db->perform($query);
+//				$this->count = $this->db->numRows($res);
+				$this->retrieveData();	// will set the count
 			}
 		}
+		$this->log(get_class($this).'::'.__FUNCTION__, $this->count);
 		return $this->count;
 	}
 

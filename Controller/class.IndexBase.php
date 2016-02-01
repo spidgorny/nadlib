@@ -253,7 +253,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$contentOut = $this->renderTemplate($contentOut)->render();
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
-			$contentOut .= $content;
+			$contentOut .= $this->s($content);
 			$this->content->clear();		// clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;
@@ -525,25 +525,26 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderProfiler() {
 		$content = '';
 		if (DEVELOPMENT &&
-			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
 			//!$this->request->isCLI() &&
 			!in_array(get_class($this->controller), array('Lesser')))
 		{
-			$profiler = $GLOBALS['profiler'];
-			/** @var $profiler TaylorProfiler */
-			if ($profiler) {
-				if (!$this->request->isCLI()) {
-					$ft = new FloatTime(true);
-					$content = $ft->render();
-					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true);
-					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
-					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
+			if (!$this->request->isCLI()) {
+				$ft = new FloatTime(true);
+				$content .= $ft->render();
+				$content .= '<div class="profiler noprint">';
+				$content .= $this->s(OODBase::getCacheStatsTable());
+
+				/** @var $profiler TaylorProfiler */
+				$profiler = TaylorProfiler::getInstance();
+				if ($profiler) {
+					$content .= $profiler->printTimers(true);
 					$content .= TaylorProfiler::dumpQueries();
-					$content .= '</div>';
+					//$content .= $profiler->printTrace(true);
+					//$content .= $profiler->analyzeTraceForLeak();
 				}
-			} else if (DEVELOPMENT && !$this->request->isCLI()) {
-				$content = TaylorProfiler::renderFloat();
+
+				$content .= '</div>';
 			}
 		}
 		return $content;

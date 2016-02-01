@@ -372,7 +372,7 @@ class AutoLoad {
 
 	static function register() {
 		$instance = self::getInstance();
-		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
+		$result = spl_autoload_register(array($instance, 'load'), true, false);    // before composer
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
 		} else {

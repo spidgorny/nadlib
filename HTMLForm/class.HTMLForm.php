@@ -685,20 +685,11 @@ class HTMLForm {
 	 * @return string
 	 */
 	static function getAttrHTML(array $attr = NULL) {
-		$part = array();
-		if ($attr) foreach ($attr as $key => $val) {
-			if (is_array($val)) {
-				$val = implode(' ', $val);
-			}
-			if (is_scalar($val)) {
-				$part[] = $key.'="'.htmlspecialchars($val).'"';
-			} else {
-				//debug($attr);
-				//throw new Exception(__METHOD__);
-			}
+		if ($attr) {
+			return HTMLTag::renderAttr($attr);
+		} else {
+			return '';
 		}
-		$html = implode(' ', $part);
-		return $html;
 	}
 
 	function formColorSelector($name, $default) {

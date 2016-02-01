@@ -161,18 +161,17 @@ class Debug {
 		return Request::isCLI();
 	}
 
-	function debugWithCLI() {
+	function debugWithCLI($args) {
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 		$trace = array();
 		$i = 0;
 		foreach ($db as $i => $row) {
-			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1]));
+			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1], []));
 			if (++$i > 7) break;
 		}
 		echo '---' . implode(BR, $trace) . "\n";
 
-		$args = func_get_args();
 		if (is_object($args)) {
 			$args = get_object_vars($args);   // prevent private vars
 		}
@@ -285,9 +284,10 @@ class Debug {
 	 * @param int    $limit
 	 * @param int    $cut
 	 * @param string $join
+	 * @param bool   $withHash
 	 * @return string
 	 */
-	static function getBackLog($limit = 5, $cut = 7, $join = ' // ') {
+	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true) {
 		$debug = debug_backtrace();
 		for ($i = 0; $i < $cut; $i++) {
 			array_shift($debug);
@@ -295,15 +295,17 @@ class Debug {
 		$content = array();
 		foreach ($debug as $i => $debugLine) {
 			if (ifsetor($debugLine['object'])) {
-				$file = gettype2($debugLine['object']);
+				$object = gettype2($debugLine['object'], $withHash);
 			} else {
-				$file = basename(ifsetor($debugLine['file']));
-				$file = str_replace('class.', '', $file);
-				$file = str_replace('.php', '', $file);
+				$object = '';
 			}
+			$file = basename(ifsetor($debugLine['file']));
+			$file = str_replace('class.', '', $file);
+			$file = str_replace('.php', '', $file);
 			$nextFunc = ifsetor($debug[$i+1]['function']);
 			$line = ifsetor($debugLine['line']);
-			$content[] = $file.'::'.$nextFunc.':'.$line.'->'.$debugLine['function'];
+			$content[] = $file.'::'.$nextFunc.'#'.$line.':'.
+				$object.'->'.$debugLine['function'];
 			if (!--$limit) {
 				break;
 			}
