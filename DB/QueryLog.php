@@ -2,9 +2,17 @@
 
 class QueryLog {
 
+	/**
+	 * @var array[
+	 * 'query'
+	 * 'sumtime',
+	 * 'times'
+	 * 'results'
+	 * ]
+	 */
 	var $queryLog = array();
 
-	public function log($query, $diffTime) {
+	public function log($query, $diffTime, $results = NULL) {
 		$key = md5(trim($query));
 //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
 		if (isset($this->queryLog[$key])) {
@@ -16,6 +24,7 @@ class QueryLog {
 			'query' => $query,
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
 			'times' => ifsetor($old['times'])+1,
+			'results' => $results,
 		);
 //		debug($key, $this->queryLog);
 	}
@@ -116,6 +125,7 @@ class QueryLog {
 					'sumtime' => number_format($set['sumtime'], 3, '.', '').'s',
 					'time' => number_format($time, 3, '.', '').'s',
 					'%' => $pb->getImage($set['sumtime']/$sumTime*100),
+					'results' => $set['results'],
 			);
 		}
 		$s = new slTable($log, '', array(
@@ -134,9 +144,12 @@ class QueryLog {
 					'no_hsc' => true,
 				),
 				'query' => array(
-						'name' => 'query',
-						'no_hsc' => true,
+					'name' => 'query',
+					'no_hsc' => true,
 				),
+				'results' => [
+					'name' => 'Results',
+				]
 		));
 		return $s;
 	}

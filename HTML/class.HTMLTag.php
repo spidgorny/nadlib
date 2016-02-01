@@ -88,9 +88,10 @@ class HTMLTag {
 	static function parse($str, $recursive = false) {
 		$str = trim($str);
 		if (strlen($str) && $str{0} != '<') return NULL;
-		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/', $str, $matches);
+		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
+		//debug($matches);
 
-		$tagAndAttributes = trimExplode(' ', $matches[1]);
+		$tagAndAttributes = trimExplode(' ', ifsetor($matches[1]));
 		$tag = first($tagAndAttributes);
 //		echo $tag, BR;
 		//$attributes = trimExplode(' ', $matches[1]);	// rest of the string
@@ -105,8 +106,11 @@ class HTMLTag {
 		if ($recursive) {
 			// http://stackoverflow.com/a/28671566/417153
 			//$innerHTML = preg_replace('/<[^>]*>([\s\S]*)<\/[^>]*>/', '$1', $str);
-			$innerHTML = $matches[2];
-			$obj->content = self::parseDOM($innerHTML);
+			//debug($matches, []);
+			$innerHTML = ifsetor($matches[2]);
+			if ($innerHTML) {
+				$obj->content = self::parseDOM($innerHTML);
+			}
 		} else {
 			$obj->content = strip_tags($str);
 		}
@@ -119,12 +123,15 @@ class HTMLTag {
 			$doc = new DOMDocument();
 			$doc->loadHTML($html);
 			$doc = $doc->getElementsByTagName('body')->item(0);
-		} else {
+		} elseif ($html instanceof DOMElement) {
 			$doc = $html;
+		} else {
+			debug($html);
+			return $content;
 		}
 		/** @var DOMElement $child */
 		foreach ($doc->childNodes as $child) {
-			echo gettype2($child), BR;
+			//echo gettype2($child), BR;
 			if ($child instanceof DOMElement) {
 				$attributes = [];
 				foreach ($child->attributes as $attribute_name => $attribute_node) {

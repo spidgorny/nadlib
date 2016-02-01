@@ -116,7 +116,8 @@ class SQLSelectQuery {
 
 	static function sqlSH($sql) {
 		$res = '';
-		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON');
+		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL');
+		$breakAfter = array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN', 'NATURAL');
 		$sql = str_replace("(", " ( ", $sql);
 		$sql = str_replace(")", " ) ", $sql);
 		$level = 0;
@@ -148,7 +149,10 @@ class SQLSelectQuery {
 			} else if (in_array(strtoupper($tok), $words)) {
 				$br = strlen($res) ? '<br>' : '';
 				$strange = $tok == 'SELECT' ? '' : ' ';
-				$res .= (!in_array($tok, array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN')) ? ' ' . $br . str_repeat("&nbsp;", $level*4) : $strange) . '<font color="blue">' . strtoupper($tok) . '</font>';
+				$res .= (!in_array($tok, $breakAfter)
+						? ' ' . $br . str_repeat("&nbsp;", $level*4)
+						: $strange);
+				$res .= '<font color="blue">' . strtoupper($tok) . '</font>';
 			} else {
 				$res .= " " . $tok;
 			}

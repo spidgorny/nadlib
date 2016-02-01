@@ -35,8 +35,9 @@
   padding: 1em;
   color: white !important;
 }
-.profiler th,
+.profiler table th,
 .profiler td {
+  vertical-align: top;
   color: white;
   margin-top: 50px;
   /* footer */

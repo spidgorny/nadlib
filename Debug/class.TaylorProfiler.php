@@ -237,7 +237,7 @@ class TaylorProfiler {
 	            'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
             	'count' => 0,
-            	'perc' => number_format($perc, 2, '.', '').'%',
+            	'perc' => number_format($perc, 2, '.', ''),
             );
 
 			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
@@ -250,8 +250,8 @@ class TaylorProfiler {
 					'bold'  => true,
 					'time'  => number_format($startup, 2, '.', ''),
 					'total' => number_format($startup, 2, '.', ''),
-					'count' => 0,
-					'perc'  => number_format($startup / $oaTime * 100, 2, '.', '') . '%',
+					'count' => 1,
+					'perc'  => number_format($startup / $oaTime * 100, 2, '.', ''),
 				);
 			}
 
@@ -278,6 +278,9 @@ class TaylorProfiler {
 	               	'percent' => is_numeric($perc)
 						? number_format($perc, 2, '.', '').'%'
 						: $perc,
+					'bar' => is_numeric($perc)
+						? ProgressBar::getImage($perc)
+						: NULL,
 	                'routine' => '<span title="'.htmlspecialchars($desc).'">'.$htmlKey.'</span>',
 	            );
 		   }
@@ -301,6 +304,9 @@ class TaylorProfiler {
 					'name' => 'percent',
 					'align' => 'right'
 				),
+				'bar' => [
+					'no_hsc' => true,
+				],
             	'routine' => array(
 					'name' => 'routine',
 					'no_hsc' => true,
@@ -435,7 +441,7 @@ class TaylorProfiler {
 	}
 
 	static function getElapsedTime() {
-		$profiler = $GLOBALS['profiler'];
+		$profiler = self::getInstance();
 		if ($profiler) {
 			$since = $profiler->initTime;
 		} else {
