@@ -69,7 +69,7 @@ class Collection implements IteratorAggregate {
 	 * Default is NULL in order to check whether it's set or not.
 	 * @var string
 	 */
-	public $itemClassName = 'itemClassNameNotExists';
+	public $itemClassName;
 
 	/**
 	 * SQL part
