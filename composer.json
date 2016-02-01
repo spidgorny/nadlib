@@ -12,6 +12,7 @@
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1",
         "phpauth/phpauth": "v1.1"
+        "gnat/nc-cms": "*"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
@@ -60,6 +61,18 @@
 				"version": "master",
 				"source": {
 					"url": "https://github.com/michelf/php-markdown",
+					"type": "git",
+					"reference": "master"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "gnat/nc-cms",
+				"version": "master",
+				"source": {
+					"url": "https://github.com/gnat/nc-cms",
 					"type": "git",
 					"reference": "master"
 				}
