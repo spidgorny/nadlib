@@ -43,4 +43,6 @@ foreach (range(sizeof($path), 0, -1) as $i) {
 
 //debug(spl_autoload_functions());
 
+Config::getInstance()->postInit();
+
 echo 'bootstrap.php done', BR;

@@ -163,6 +163,15 @@ abstract class OODBase {
 		}
 	}
 
+	function log($action, $data = NULL) {
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			if ($index) {
+				$index->log($action, $data);
+			}
+		}
+	}
+
 	/**
 	 * Returns $this
 	 *
@@ -172,9 +181,7 @@ abstract class OODBase {
 	 */
 	function insert(array $data) {
 		TaylorProfiler::start(__METHOD__);
-		if (class_exists('Index')) {
-			Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $data);
-		}
+		$this->log(get_called_class() . '::' . __FUNCTION__, $data);
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -205,10 +212,8 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			TaylorProfiler::start(__METHOD__);
-			if (class_exists('Index')) {
-				$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
-				Index::getInstance()->log($action, $data);
-			}
+			$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
+			$this->log($action, $data);
 			$where = array();
 			if (is_array($this->idField)) {
 				foreach ($this->idField as $field) {
@@ -245,9 +250,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		if (class_exists('Index')) {
-			Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $where);
-		}
+		$this->log(get_called_class() . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		$this->lastQuery = $query;
 		$res = $this->db->perform($query);
