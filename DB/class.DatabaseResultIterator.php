@@ -3,8 +3,16 @@
  * This class is a replacement for fetchAll - foreach combination and should be used to reduce the memory
  * requirements of the script. It's ment to mimic Iterator classes in PHP5, but doesn't inherit the interface
  * completely. (wrong!?)
+ *
+ * The correct order is
+ * rewind()
+ *
+ * [
+ * 	next()
+ * 	valid()
+ * 	current()
+ * ]
  */
-
 class DatabaseResultIterator implements Iterator, Countable {
 
 	/**
@@ -51,18 +59,20 @@ class DatabaseResultIterator implements Iterator, Countable {
 	function perform($query) {
 		$this->dbResultResource = $this->db->perform($query);
 		$this->rows = $this->count();
-		$this->rewind();
+		//$this->rewind();
 	}
 
 	function rewind() {
+		//echo __METHOD__, BR;
 		if ($this->rows) {
+			$this->key = 0;
 			$this->db->dataSeek($this->dbResultResource, 0);
 			$this->next();
-			$this->key = 0;
 		}
 	}
 
 	function current() {
+		//echo __METHOD__, BR;
 		return $this->row;
 	}
 
@@ -71,6 +81,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function next() {
+		//echo __METHOD__, BR;
 		$this->row = $this->retrieveRow();
 		if (is_array($this->row)) {
 			if ($this->defaultKey) {
@@ -79,7 +90,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 				$this->key++;
 			}
 		}
-		return $this->row;
+		//debug($this->key, $this->row);
 	}
 
 	function retrieveRow() {
@@ -88,6 +99,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function valid() {
+		//echo __METHOD__, BR;
 		return $this->row !== FALSE;
 	}
 
