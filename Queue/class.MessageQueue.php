@@ -7,7 +7,6 @@
  * To change this template use File | Settings | File Templates.
  */
 
-
 class MessageQueue extends OODBase {
 	const CLASS_POSTFIX = 'Task';
 
@@ -43,6 +42,7 @@ class MessageQueue extends OODBase {
 	}
 
 	/**
+	 * TODO: move this into MessageQueueCollection
 	 * Get next task available
 	 * @return object
 	 * @throws Exception
@@ -81,6 +81,7 @@ class MessageQueue extends OODBase {
 	 * @return bool
 	 */
 	private function fetchNextTask($type) {
+		$this->db->transaction();
 		$where = array(
 			'status' 	=> self::STATUS_NEW,
 			'type'		=> $type
@@ -89,16 +90,26 @@ class MessageQueue extends OODBase {
 		$orderBy = 'ORDER BY id ASC';
 
 		$this->findInDB($where, $orderBy);
-		debug($this->db->lastQuery, $this->data);
+		//debug($this->db->lastQuery, $this->data);
 
 		if (!empty($this->data['id'])) {
 			// Set the status to "IN PROGRESS"
 			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
-
+			$this->db->commit();
 			return true;
 		}
 
+		$this->db->commit();
 		return false;
+	}
+
+	function count() {
+		$where = array(
+			'status' 	=> self::STATUS_NEW,
+			'type'		=> $this->type,
+		);
+		$res = $this->db->runSelectQuery($this->table, $where);
+		return $this->db->numRows($res);
 	}
 
 	/**
@@ -151,6 +162,10 @@ class MessageQueue extends OODBase {
 			$data['cuser'] = $userId;
 		}
 		return $this->insert($data);
+	}
+
+	public function getStatus() {
+		return $this->data['status'];
 	}
 }
 
