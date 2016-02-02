@@ -84,7 +84,7 @@ class uTestBase extends AppControllerBE {
 		}
 		//$row['file'] = basename($db1['file']);
 		$row['function'] = $db['function'];
-		$file = $dbt[2]['file'] ? file($dbt[2]['file']) : NULL;
+		$file = ifsetor($dbt[2]['file']) ? file($dbt[2]['file']) : NULL;
 		$line = ifsetor($dbt[1]['line']);
 		$row['line'] = ifsetor($file[$line]);
 
