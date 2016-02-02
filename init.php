@@ -15,7 +15,7 @@ if (!function_exists('debug')) {
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
-		} elseif (ifsetor($_COOKIE['debug'])) {
+		} elseif (DEVELOPMENT) {
 			ob_start();
 			var_dump($params);
 			$dump = ob_get_clean();
