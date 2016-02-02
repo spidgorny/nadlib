@@ -51,13 +51,32 @@ class MessageQueue extends OODBase {
 		// need to delete previous record, otherwise infinite loop
 		$this->id = NULL;
 		$this->data = array();
-		if ($this->fetchNextTask($this->type)) {
+		$this->db->transaction();
+		$newTaskOK = $this->fetchNextTask($this->type);
+		if ($newTaskOK) {
+			// Set the status to "IN PROGRESS"
+			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
+			$this->db->commit();
 			// set task data retrieved from DB
 			$this->setTaskData($this->data['data']);
 
-			$className = $this->getClassName($this->type);
-			return new $className($this);
-		};
+			try {
+				$className = $this->getClassName($this->type);
+				echo 'className: ', $className, BR;
+				if (class_exists($className)) {
+					$obj = new $className($this);
+				} else {
+					echo 'Class '.$className.' does not exist', BR;
+					$obj = false;
+				}
+			} catch (Exception $e) {
+				echo $e->getMessage(), BR;
+				$obj = false;
+			}
+			return $obj;
+		} else {
+			$this->db->commit();	// tried to get new task
+		}
 
 		// if there is no next task return false
 		return false;
@@ -81,7 +100,6 @@ class MessageQueue extends OODBase {
 	 * @return bool
 	 */
 	private function fetchNextTask($type) {
-		$this->db->transaction();
 		$where = array(
 			'status' 	=> self::STATUS_NEW,
 			'type'		=> $type
@@ -93,14 +111,10 @@ class MessageQueue extends OODBase {
 		//debug($this->db->lastQuery, $this->data);
 
 		if (!empty($this->data['id'])) {
-			// Set the status to "IN PROGRESS"
-			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
-			$this->db->commit();
 			return true;
+		} else {
+			return false;
 		}
-
-		$this->db->commit();
-		return false;
 	}
 
 	function count() {
@@ -167,5 +181,11 @@ class MessageQueue extends OODBase {
 	public function getStatus() {
 		return $this->data['status'];
 	}
+
+	function update(array $data) {
+		$data['mtime'] = new SQLNow();
+		return parent::update($data);
+	}
+
 }
 
