@@ -105,15 +105,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
 
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
+		$this->setSecurityHeaders();
 		TaylorProfiler::stop(__METHOD__);
 	}
 
@@ -582,6 +574,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addBodyClass($name) {
 		$this->bodyClasses[$name] = $name;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function setSecurityHeaders() {
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
 	}
 
 }
