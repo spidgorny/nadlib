@@ -77,9 +77,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
 
-		header('X-Frame-Options: SAMEORIGIN');
-		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-		header('X-Content-Security-Policy: yes');
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			header('X-Content-Security-Policy: yes');
+		}
 		TaylorProfiler::stop(__METHOD__);
 	}
 
@@ -98,7 +100,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				throw new AccessDeniedException('Session hijacking detected. Please try again');
 			}
 		} else {
-			$_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
 		}
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
 			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
@@ -106,7 +108,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				throw new AccessDeniedException('Session hijacking detected. Please try again');
 			}
 		} else {
-			$_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
 		}
 //		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
 //		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);

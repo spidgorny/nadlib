@@ -107,11 +107,19 @@ class slTableValue {
 			break;
 			case "date":
 				if ($val) {
-					$out = date($k['format'] ? $k['format'] : 'Y-m-d H:i:s', $val);
+					$out = date($k['format'] ?: 'Y-m-d H:i:s', $val);
 				} else {
 					$out = '';
 				}
 			break;
+			case "gmdate":
+				if ($val !== NULL) {
+					$out = gmdate($k['format'] ?: 'Y-m-d', $val);
+				} else {
+					$out = '';
+				}
+				//$out .= '-'.var_export($val, TRUE);
+				break;
 			case "sqltime":
 				if ($val) {
 					$val = strtotime(substr($val, 0, 16)); // cut milliseconds
