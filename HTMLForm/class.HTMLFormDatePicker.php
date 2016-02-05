@@ -79,7 +79,7 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface {
 	}
 
 	function setValue($value) {
-		debug(__METHOD__, $this->field, $value);
+		//debug(__METHOD__, $this->field, $value);
 		parent::setValue($value);
 	}
 
