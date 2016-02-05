@@ -49,7 +49,7 @@ class CollectionView {
 			}
 			if ($this->wrapTag) {
 				$content = array(
-					'<'.$this->wrapTag.' class="' . get_class($this) . '">',
+					'<'.$this->wrapTag.' class="' . get_class($this->collection) . '">',
 					$content,
 					'</'.$this->wrapTag.'>'
 				);

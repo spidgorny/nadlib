@@ -250,7 +250,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			$contentOut .= $this->content;	// display Exception
 			$contentOut .= $this->s($content);
-			$contentOut = $this->renderTemplate($contentOut)->render();
+			$view = $this->renderTemplate($contentOut);
+			//echo gettype2($view), BR;
+			if ($view instanceof View) {
+				$contentOut = $view->render();
+			} else {
+				$contentOut = $view;
+			}
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut .= $this->s($content);

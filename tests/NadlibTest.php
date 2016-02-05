@@ -7,6 +7,7 @@ class NadlibTest extends PHPUnit_Framework_TestCase {
 		$skip = array(
 			'MemcacheMemory',
 			'DBInterface',
+			'SQLQuery',
 		);
 		require_once 'AppController4Test.php';
 		class_alias('AppController4Test', 'AppController');

@@ -1,3 +1,4 @@
+@echo off
 cd ..
-call phpunit --bootstrap tests\bootstrap.php tests\
+call phpunit --bootstrap bootstrap.php tests\
 cd tests

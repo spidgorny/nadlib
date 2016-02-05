@@ -116,8 +116,16 @@ border-radius: 5px;">');
 		Request::removeCookiesFromRequest();
 
 		// in DCI for example, we don't use composer (yet!?)
-		if (file_exists('vendor/autoload.php')) {
-			require_once 'vendor/autoload.php';
+		$vendor_autoload_php = 'vendor/autoload.php';
+		$vendor_autoload_php = realpath($vendor_autoload_php);
+		// nadlib/vendor has files loaded from composer.json
+		$standaloneNadlib = str_contains($vendor_autoload_php, 'nadlib\vendor');
+		//echo 'SN: ', $standaloneNadlib, BR;
+		if (!$standaloneNadlib
+			&& file_exists($vendor_autoload_php)) {
+			//echo $vendor_autoload_php, BR;
+			/** @noinspection PhpIncludeInspection */
+			require_once $vendor_autoload_php;
 		}
 	}
 

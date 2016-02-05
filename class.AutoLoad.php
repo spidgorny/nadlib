@@ -160,6 +160,8 @@ class AutoLoad {
 
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
 
+		$this->nadlibRoot = cap($this->nadlibRoot);
+
 		$this->setComponentsPath();
 
 		if (0) {
@@ -286,7 +288,7 @@ class AutoLoad {
 				//debug('clear folder as '.$class.' is not found');
 				//$this->folders = array();				// @see __destruct(), commented as it's too global
 				$this->folders->clearCache();
-				//debug($_SESSION[__CLASS__]['folders']);
+				//debug($_SESSION['AutoLoadFolders']['folders']);
 				$this->useCookies = false;				// prevent __destruct saving data to the session
 			}
 			//debug($this->folders);
