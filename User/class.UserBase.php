@@ -134,7 +134,7 @@ abstract class UserBase extends FlexiTable {
 	}
 
 	function getGravatarURL($gravatarSize = 50) {
-		return 'http://www.gravatar.com/avatar/'.md5(
+		return '//www.gravatar.com/avatar/'.md5(
 			strtolower(
 				trim(
 					ifsetor($this->data['email'])
