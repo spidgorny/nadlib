@@ -500,6 +500,8 @@ class HTMLFormTable extends HTMLForm {
 						}
 					break;
 				}
+
+				debug($key, $sType);
 				if (is_object($type)) {
 					$type->setValue($val);
 				}
