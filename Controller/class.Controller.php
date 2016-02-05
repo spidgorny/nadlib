@@ -591,6 +591,12 @@ abstract class Controller {
 		return '<div '.$more.'>'.$this->s($content).'</div>';
 	}
 
+	function span($content, $class = '', array $more = array()) {
+		$more['class'] = ifsetor($more['class']) .' '.$class;
+		$more = HTMLTag::renderAttr($more);
+		return '<span '.$more.'>'.$this->s($content).'</span>';
+	}
+
 	function info($content) {
 		return '<div class="alert alert-info">'.$this->s($content).'</div>';
 	}
@@ -651,6 +657,7 @@ abstract class Controller {
 
 	public function noRender() {
 		$this->noRender = true;
+		$this->request->set('ajax', 1);
 	}
 
 	function script($file) {

@@ -7,11 +7,13 @@
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"soundintheory/php-sql-parser": "*",
+		"greenlion/PHP-SQL-Parser": "*",
 		"GerHobbelt/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1",
-        "phpauth/phpauth": "v1.1"
+        "phpauth/phpauth": "v1.1",
+        "gnat/nc-cms": "*",
+        "robloach/component-installer": "^0.2.3"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
@@ -60,6 +62,18 @@
 				"version": "master",
 				"source": {
 					"url": "https://github.com/michelf/php-markdown",
+					"type": "git",
+					"reference": "master"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "gnat/nc-cms",
+				"version": "master",
+				"source": {
+					"url": "https://github.com/gnat/nc-cms",
 					"type": "git",
 					"reference": "master"
 				}
@@ -118,18 +132,6 @@
                     "url":"https://github.com/mustangostang/spyc",
                     "type":"git",
                     "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package": {
-                "version":"dev-master",
-                "name":"php-sql-parser",
-                "source": {
-                    "url":"http://php-sql-parser.googlecode.com/svn/",
-                    "type":"svn",
-                    "reference":"trunk"
                 }
             }
         },
