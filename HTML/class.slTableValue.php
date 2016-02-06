@@ -136,6 +136,9 @@ class slTableValue {
 					$out = '';
 				}
 			break;
+			case 'hours':
+				$out = $this->getHours($val);
+				break;
 			case "file":
 				$out = new HTMLTag('a', array(
 					'href' => $GLOBALS['uploadURL'].$val,
@@ -319,6 +322,19 @@ class slTableValue {
 			$out = number_format($out, $k['round'], '.', '');
 		}
 		return $out;
+	}
+
+	static function getHours($timestamp) {
+		if ($timestamp) {
+			//return gmdate('H:i', $timestamp);
+			$whole = floor($timestamp/(60*60));
+			$whole = str_pad($whole, 2, '0', STR_PAD_LEFT);
+
+			$rest = ($timestamp/60)%60;
+			$rest = str_pad($rest, 2, '0', STR_PAD_LEFT);
+			return $whole.':'.$rest;
+		}
+		return '';
 	}
 
 }
