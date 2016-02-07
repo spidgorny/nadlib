@@ -24,12 +24,16 @@ class HTMLImage extends HTMLTag {
 
 	function getImageLink() {
 		if ($this->isLocalFile()) {
-			$documentRoot = Autoload::getInstance()->appRoot;
-			$documentRoot = str_replace('\\', '/', $documentRoot);
-			$realpath = realpath($this->filename);
-			$realpath = str_replace('\\', '/', $realpath);
-			$fileLink = str_replace($documentRoot, '', $realpath);
-			//debug($documentRoot, $realpath, $fileLink);
+			if ($this->filename[0] == '/') {
+				$documentRoot = Autoload::getInstance()->appRoot;
+				$documentRoot = str_replace('\\', '/', $documentRoot);
+				$realpath = realpath($this->filename);
+				$realpath = str_replace('\\', '/', $realpath);
+				$fileLink = str_replace($documentRoot, '', $realpath);
+				//debug($documentRoot, $realpath, $fileLink);
+			} else {
+				$fileLink = $this->filename;
+			}
 		} else {
 			$fileLink = $this->filename;
 		}
