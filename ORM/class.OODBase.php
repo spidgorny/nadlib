@@ -442,10 +442,15 @@ abstract class OODBase {
 	 * @param null  $title
 	 * @return string
 	 */
-	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name'), $title = NULL) {
+	function showAssoc(array $thes = array(
+			'id' => 'ID',
+			'name' => 'Name'
+		), $title = NULL) {
 		TaylorProfiler::start(__METHOD__);
-		$content = '<div class="showAssoc">
-		<h3>'.($title ?: get_class($this)).':</h3>';
+		$content[] = '<div class="showAssoc">';
+		if ($title !== '') {
+			$content[] = '<h3>' . ($title ?: get_class($this)) . ':</h3>';
+		}
 		$assoc = array();
 		foreach ($thes as $key => $name) {
 			$val = $this->data[$key];
@@ -468,8 +473,8 @@ abstract class OODBase {
 			$niceName = is_array($name) ? $name['name'] : $name;
 			$assoc[$niceName] = $val;
 		}
-		$content .= UL::DL($assoc);
-		$content .= '</div>';
+		$content[] = UL::DL($assoc);
+		$content[] = '</div>';
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
