@@ -482,6 +482,7 @@ class HTMLFormTable extends HTMLForm {
 			//$descKey = ifsetor($desc[$key]);		// CREATES $key => NULL INDEXES
 
 			$descKey = isset($desc[$key]) ? $desc[$key] : NULL;
+			if (!$descKey) continue;
 
 			// calc $val
 			if (is_array($val) && $this->withValue) {
