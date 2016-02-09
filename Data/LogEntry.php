@@ -8,7 +8,11 @@ class LogEntry {
 
 	var $data;
 
-	static $log2file = true;
+	static $log2file;
+
+	static function initLogging() {
+		self::$log2file = DEVELOPMENT;
+	}
 
 	function __construct($action, $data) {
 		$this->time = microtime(true);
@@ -57,6 +61,5 @@ class LogEntry {
 		}
 		return $sData;
 	}
-
 
 }
