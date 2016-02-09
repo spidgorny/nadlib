@@ -10,13 +10,18 @@ class LogEntry {
 
 	static $log2file = true;
 
+	static function initLogging() {
+		self::$log2file = DEVELOPMENT;
+	}
+
 	function __construct($action, $data) {
 		$this->time = microtime(true);
 		$this->action = $action;
 		$this->data = $data;
 		if (self::$log2file) {
 			$sData = $this->shorten($data);
-			error_log($action . ' ' . $sData);
+			$ip = Request::getIP();
+			error_log($ip.' '.$action . ' ' . $sData);
 		}
 	}
 
