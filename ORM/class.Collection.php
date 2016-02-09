@@ -137,7 +137,9 @@ class Collection implements IteratorAggregate {
 	 * @param string $order	- appended to the SQL
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
-		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
+		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
+		$taylorKey = Debug::getBackLog(15, 0, BR, false);
+		TaylorProfiler::start($taylorKey);
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select
@@ -161,7 +163,7 @@ class Collection implements IteratorAggregate {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->translateThes();
-		TaylorProfiler::stop($profiler);
+		TaylorProfiler::stop($taylorKey);
 	}
 
 	function postInit() {
@@ -205,7 +207,10 @@ class Collection implements IteratorAggregate {
 		$tableParent = " (" . $this->table . ':' . (is_array($this->parentID)
 				? implode(', ', $this->parentID)
 				: $this->parentID) . ")";
-		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
+		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
+		$taylorKey = Debug::getBackLog(15, 0, BR, false);
+		TaylorProfiler::start($taylorKey);
+
 		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 		$res = $this->db->perform($this->query);
@@ -217,7 +222,7 @@ class Collection implements IteratorAggregate {
 
 		$data = $this->db->fetchAll($res);
 		$this->db->free($res);
-		TaylorProfiler::stop($profiler);
+		TaylorProfiler::stop($taylorKey);
 		return $data;
 	}
 
