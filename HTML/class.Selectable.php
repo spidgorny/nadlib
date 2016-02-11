@@ -77,6 +77,10 @@ class Selectable {
 	}
 
 	function getName() {
+		if (!isset($this->data[$this->selected])) {
+			debug($this->data);
+			debug_pre_print_backtrace();
+		}
 		return $this->data[$this->selected];
 	}
 
