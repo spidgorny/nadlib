@@ -5,7 +5,7 @@ class Selectable {
 	public $name;
 
 	/**
-	 * Assoc
+	 * Assoc [14 => 'Koopa']
 	 * @var array
 	 */
 	public $data = array();
@@ -25,17 +25,19 @@ class Selectable {
 			$this->data[$selected['id']] = $selected['title'];
 			$this->selected = $selected['id'];
 		} else {
-			// it's called AFTER subclass initialized $this->data
-			//debug($selected, array_keys($this->data));
-			if (in_array($selected, array_keys($this->data))) {
-				$this->selected = $selected;
-			} else {
-				/*throw new Exception('Invalid selected ('.$selected.') in '.get_class($this).'<br>
-					<li>'.implode('<li>', array_keys($this->data)));
-				 *
-				 */
-				$this->selected = current(array_keys($this->data));
-			}
+			$this->selected = $selected;
+		}
+	}
+
+	function validateSelected() {
+		// it's called AFTER subclass initialized $this->data
+		//debug($selected, array_keys($this->data));
+		if (!in_array($this->selected, array_keys($this->data))) {
+			/*throw new Exception('Invalid selected ('.$selected.') in '.get_class($this).'<br>
+				<li>'.implode('<li>', array_keys($this->data)));
+			 *
+			 */
+			$this->selected = current(array_keys($this->data));
 		}
 	}
 

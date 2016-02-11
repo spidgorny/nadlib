@@ -6,8 +6,18 @@
 
 class NoUser extends UserBase {
 
+	/**
+	 * @var Preferences|MockPreferences
+	 */
+	public $prefs;
+
+	/**
+	 * @var AccessRights
+	 */
+	public $access;
+
 	function __construct() {
-		parent::__construct(NULL);
+		//parent::__construct(NULL);	// does nothing anyway
 	}
 
 	function can() {

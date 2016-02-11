@@ -473,7 +473,7 @@ abstract class OODBase {
 			$niceName = is_array($name) ? $name['name'] : $name;
 			$assoc[$niceName] = $val;
 		}
-		$content[] = UL::DL($assoc);
+		$content[] = UL::DL($assoc)->render();
 		$content[] = '</div>';
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
