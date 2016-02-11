@@ -79,6 +79,14 @@ class HTMLTag {
 		$this->attr[$name] = $value;
 	}
 
+	function hasAttr($name) {
+		return isset($this->attr[$name]);
+	}
+
+	function getAttr($name) {
+		return ifsetor($this->attr[$name]);
+	}
+
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str
