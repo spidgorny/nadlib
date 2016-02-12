@@ -248,12 +248,15 @@ class AutoLoad {
 			$appRoot = dirname($appRoot);
 		}
 
-		if (!$appRoot || $appRoot == '/') {  // nothing is found by previous method
+		if (!$appRoot || Path::isAbsolute($appRoot)) {  // nothing is found by previous method
 			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
 			//debug($appRoot, URL::getScriptWithPath());
 			$appRoot->upIf('nadlib');
 			$appRoot->upIf('spidgorny');
 			$appRoot->upIf('vendor');
+			if (!$appRoot->hasFile('index.php')) {
+				$appRoot->up();
+			}
 		}
 
 		// always add trailing slash!

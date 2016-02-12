@@ -703,7 +703,7 @@ abstract class OODBase {
 	}
 	
 	public static function getCacheStats() {
-		$stats = [];
+		$stats = array();
 		foreach (self::$instances as $class => $list) {
 			$stats[$class] = sizeof($list);
 		}
@@ -724,13 +724,13 @@ abstract class OODBase {
 			});
 		}
 		$stats = $stats->getData();
-		$content[] = new slTable($stats, 'class="table"', [
+		$content[] = new slTable($stats, 'class="table"', array(
 			'class' => 'Class',
 			'count' => 'Count',
-			'bar' => [
+			'bar' => array(
 				'no_hsc' => true,
-			],
-		]);
+			),
+		));
 		return $content;
 	}
 

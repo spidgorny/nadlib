@@ -22,9 +22,9 @@ class HTMLForm {
 	/**
 	 * @var array
 	 */
-	var $formMore = [
+	var $formMore = array(
 		'class' => '',
-	];
+	);
 
 	public $debug = false;
 
@@ -391,10 +391,10 @@ class HTMLForm {
 		} else {
 			$attributes = $this->formMore;
 		}
-		$attributes += [
+		$attributes += array(
 			'action' => $this->action,
 			'method' => $this->method,
-		];
+		);
 		if ($this->enctype) {
 			$attributes["enctype"] = $this->enctype;
 		}

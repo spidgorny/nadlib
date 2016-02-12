@@ -126,7 +126,7 @@ class HTMLTag {
 	}
 
 	static function parseDOM($html) {
-		$content = [];
+		$content = array();
 		if (is_string($html)) {
 			$doc = new DOMDocument();
 			$doc->loadHTML($html);
@@ -141,7 +141,7 @@ class HTMLTag {
 		foreach ($doc->childNodes as $child) {
 			//echo gettype2($child), BR;
 			if ($child instanceof DOMElement) {
-				$attributes = [];
+				$attributes = array();
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
 					/** @var  DOMNode    $attribute_node */
 					echo $attribute_name, ': ', gettype2($attribute_node), BR;

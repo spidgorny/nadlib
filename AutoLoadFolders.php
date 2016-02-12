@@ -154,7 +154,7 @@ class AutoLoadFolders {
 	}
 
 	function addFolder($path, $namespace = NULL) {
-		if (Path::isAbsolute($path[0])) {
+		if (!Path::isAbsolute($path)) {
 			$path = getcwd().'/'.$path;
 		}
 		$this->folders[$namespace][] = realpath($path);

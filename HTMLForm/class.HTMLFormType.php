@@ -33,6 +33,10 @@ abstract class HTMLFormType implements HTMLFormFieldInterface {
 //	function __construct() {
 //	}
 
+	/**
+	 * @param $field
+	 * @return mixed|void
+	 */
 	function setField($field) {
 		$this->field = $field;
 	}
@@ -50,7 +54,12 @@ abstract class HTMLFormType implements HTMLFormFieldInterface {
 		$this->value = $value;
 	}
 
-	abstract function render();
+	/**
+	 * Can't inherit abstract function HTMLFormFieldInterface::render() (previously declared abstract in HTMLFormType)
+	 */
+	function render() {
+		die(__METHOD__.' is abstract');
+	}
 
 	function __toString() {
 		return MergedContent::mergeStringArrayRecursive($this->render()).'';

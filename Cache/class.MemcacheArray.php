@@ -64,6 +64,9 @@ class MemcacheArray implements ArrayAccess {
 		$this->expire = $expire instanceof Duration ? $expire->getTimestamp() : $expire;
 		$this->fc = new MemcacheFile();
 		$this->data = $this->fc->get($this->file, $this->expire);
+		if (!is_array($this->data)) {
+			$this->data = array();
+		}
 		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);
 		if (self::$debug) {
@@ -121,7 +124,7 @@ class MemcacheArray implements ArrayAccess {
 	}
 
 	function get($key) {
-		return $this->data[$key];
+		return isset($this->data[$key]) ? $this->data[$key] : NULL;
 	}
 
 	/**

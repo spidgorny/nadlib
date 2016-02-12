@@ -4,14 +4,14 @@ class Bytes {
 
 	var $value;
 
-	var $suffix = [
+	var $suffix = array(
 		'b' => 'b',
 		'k' => 'kb',
 		'm' => 'mb',
 		'g' => 'gb',
 		't' => 'tb',
 		'p' => 'pb',
-	];
+	);
 
 	var $precision = 3;
 
