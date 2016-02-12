@@ -304,6 +304,9 @@ class AutoLoad {
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
 		} else {
 			//echo $classFile.' ';
+			if ($this->debug) {
+				echo __METHOD__.': '.$class.' OK', BR;
+			}
 		}
 		if ($tp) $tp->stop(__METHOD__);
 	}
@@ -344,7 +347,8 @@ class AutoLoad {
 					$subject = 'Class ['.$class.'] loaded from ['.$classFile.']';
 					//$this->log($subject);
 					$c = new AppController();
-					echo $c->encloseInToggle(implode("\n", $this->folders->collectDebug), $subject);
+					echo $c->encloseInToggle(
+						implode("\n", $this->folders->collectDebug), $subject);
 				}
 
 				/** @noinspection PhpIncludeInspection */
@@ -364,7 +368,9 @@ class AutoLoad {
 	function log($debugLine) {
 		if ($this->debug && ifsetor($_COOKIE['debug'])) {
 			if (Request::isCLI()) {
-				echo strip_tags($debugLine);
+				//echo strip_tags($debugLine);
+				$STDERR = fopen('php://stderr', 'w+');
+				fwrite($STDERR, strip_tags($debugLine));
 			} else {
 				echo $debugLine;
 			}

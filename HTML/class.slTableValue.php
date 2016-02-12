@@ -19,6 +19,11 @@ class slTableValue {
 	 */
 	var $db;
 
+	/**
+	 * @var slTable
+	 */
+	var $caller;
+
 	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
 	public $SLTABLE_IMG_CHECK = '☑';
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
@@ -102,19 +107,19 @@ class slTableValue {
 			break;
 			case "date":
 				if ($val) {
-					$out = date($k['format'] ? $k['format'] : 'Y-m-d H:i:s', $val);
+					$out = date($k['format'] ?: 'Y-m-d H:i:s', $val);
 				} else {
 					$out = '';
 				}
 			break;
 			case "gmdate":
 				if ($val !== NULL) {
-					$out = gmdate($k['format'], $val);
+					$out = gmdate($k['format'] ?: 'Y-m-d', $val);
 				} else {
 					$out = '';
 				}
 				//$out .= '-'.var_export($val, TRUE);
-			break;
+				break;
 			case 'hours':
 				$out = $this->getHours($val);
 			break;
@@ -134,6 +139,9 @@ class slTableValue {
 					$out = '';
 				}
 			break;
+			case 'hours':
+				$out = $this->getHours($val);
+				break;
 			case "file":
 				$out = new HTMLTag('a', array(
 					'href' => $GLOBALS['uploadURL'].$val,
@@ -324,7 +332,7 @@ class slTableValue {
 		return $out;
 	}
 
-	function getHours($timestamp) {
+	static function getHours($timestamp) {
 		if ($timestamp) {
 			//return gmdate('H:i', $timestamp);
 			$whole = floor($timestamp/(60*60));
