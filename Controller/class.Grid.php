@@ -160,8 +160,35 @@ abstract class Grid extends AppController {
 	}*/
 
 	function sidebar() {
-		$content = $this->collection->showFilter();
+		$content = $this->showFilter();
 		return $content;
+	}
+
+	function showFilter() {
+		$content = array();
+		if ($this->filter) {
+			$f = new HTMLFormTable();
+			$f->method('GET');
+			$f->defaultBR = true;
+			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
+			$f->showForm($this->filter);
+			$f->submit('Filter', array('class' => 'btn btn-primary'));
+			$content[] = $f->getContent();
+		}
+		return $content;
+	}
+
+	function getFilterWhere() {
+		$where = array();
+		if ($this->filter) {
+			foreach ($this->filter as $field => $desc) {
+				$value = $this->request->getTrim($field);
+				if ($value) {
+					$where[$field] = $value;
+				}
+			}
+		}
+		return $where;
 	}
 
 	/**

@@ -98,6 +98,12 @@ abstract class OODBase {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
 		$this->init($id);
+
+		$class = get_class($this);
+		if ($this->id && isset(self::$instances[$class][$this->id])) {
+			$from = Debug::getCaller();
+			//debug('made new existing instance of '.$class.' from '.$from);
+		}
 	}
 
 	/**
@@ -161,6 +167,15 @@ abstract class OODBase {
 		}
 	}
 
+	function log($action, $data = NULL) {
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			if ($index) {
+				$index->log($action, $data);
+			}
+		}
+	}
+
 	/**
 	 * Returns $this
 	 *
@@ -170,9 +185,7 @@ abstract class OODBase {
 	 */
 	function insert(array $data) {
 		TaylorProfiler::start(__METHOD__);
-		if (class_exists('Index')) {
-			Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $data);
-		}
+		$this->log(get_called_class() . '::' . __FUNCTION__, $data);
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -203,10 +216,8 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			TaylorProfiler::start(__METHOD__);
-			if (class_exists('Index')) {
-				$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
-				Index::getInstance()->log($action, $data);
-			}
+			$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
+			$this->log($action, $data);
 			$where = array();
 			if (is_array($this->idField)) {
 				foreach ($this->idField as $field) {
@@ -243,9 +254,7 @@ abstract class OODBase {
 		if (!$where) {
 			$where = array($this->idField => $this->id);
 		}
-		if (class_exists('Index')) {
-			Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $where);
-		}
+		$this->log(get_called_class() . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		$this->lastQuery = $query;
 		$res = $this->db->perform($query);
@@ -262,7 +271,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
-		TaylorProfiler::start($taylorKey = __METHOD__.' ('.$this->table.') // '.Debug::getBackLog(8));
+		TaylorProfiler::start($taylorKey = Debug::getBackLog(15, 0, BR, false));
 		if (!$this->db) {
 			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
 		}
@@ -433,6 +442,7 @@ abstract class OODBase {
 	/**
 	 * Only works when $this->thes is defined or provided
 	 * @param array $thes
+	 * @param null  $title
 	 * @return string
 	 */
 	function showAssoc(array $thes = array('id' => 'ID', 'name' => 'Name'), $title = NULL) {
@@ -442,15 +452,20 @@ abstract class OODBase {
 		$assoc = array();
 		foreach ($thes as $key => $name) {
 			$val = $this->data[$key];
-			if (is_array($name) && ifsetor($name['reference'])) {  // class name
-				$class = $name['reference'];
-				$obj = $class::getInstance($val);
-				if (method_exists($obj, 'getNameLink')) {
-					$val = $obj->getNameLink();
-				} elseif (method_exists($obj, 'getName')) {
-					$val = $obj->getName();
-				} else {
-					$val = $obj->__toString();
+			if (is_array($name)) {
+				if (ifsetor($name['reference'])) {
+					// class name
+					$class = $name['reference'];
+					$obj = $class::getInstance($val);
+					if (method_exists($obj, 'getNameLink')) {
+						$val = new htmlString($obj->getNameLink());
+					} elseif (method_exists($obj, 'getName')) {
+						$val = $obj->getName();
+					} else {
+						$val = $obj->__toString();
+					}
+				} elseif (ifsetor($name['bool'])) {
+					$val = $name['bool'][$val];	// yes/no
 				}
 			}
 			$niceName = is_array($name) ? $name['name'] : $name;
@@ -516,15 +531,10 @@ abstract class OODBase {
 			$inst = ifsetor(self::$instances[$static][$id]);
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
-				if (false) {
-					$inst = new $static($id);	// VersionInfo needs it like this
-				} else {
-												// NewRequest needs it like this
-					/** @var OODBase $inst */
-					$inst = new $static();		// don't put anything else here
-					self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
-					$inst->init($id);			// separate call to avoid infinite loop in ORS
-				}
+				/** @var OODBase $inst */
+				$inst = new $static();		// don't put anything else here
+				self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
+				$inst->init($id);			// separate call to avoid infinite loop in ORS
 			}
 		} else {
 			/** @var OODBase $inst */
@@ -670,6 +680,7 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Override if collection name is different
 	 * @return Collection
 	 */
 	function getChildren() {
@@ -711,6 +722,38 @@ abstract class OODBase {
 		if (!$this->id) {
 			$this->insert($where);
 		}
+	}
+	
+	public static function getCacheStats() {
+		$stats = [];
+		foreach (self::$instances as $class => $list) {
+			$stats[$class] = sizeof($list);
+		}
+		return $stats;
+	}
+
+	public static function getCacheStatsTable() {
+		$stats = OODBase::getCacheStats();
+		$stats = ArrayPlus::create($stats)
+			->makeTable('count')
+			->insertKeyAsColumn('class')
+		;
+		$max = $stats->column('count')->max();
+		if ($max != 0) {
+			//debug((array)$stats); exit();
+			$stats->addColumn('bar', function ($row, $i) use ($max) {
+				return ProgressBar::getImage($row['count'] / $max * 100);
+			});
+		}
+		$stats = $stats->getData();
+		$content[] = new slTable($stats, 'class="table"', [
+			'class' => 'Class',
+			'count' => 'Count',
+			'bar' => [
+				'no_hsc' => true,
+			],
+		]);
+		return $content;
 	}
 
 }

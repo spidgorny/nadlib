@@ -1,7 +1,5 @@
 <?php
 
-require_once 'tests/IteratorArrayAccessTest.php';
-
 class ArrayPlusTest extends IteratorArrayAccessTest {
 
 	/**
@@ -43,5 +41,26 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
             'slawa' => 'test'
         ), $this->ai->getData());
     }
+
+	function test_addColumn() {
+		$this->ai->makeTable('col1');
+		$this->ai->addColumn('nr', function ($row, $i) {
+			return $i;
+		});
+		$this->assertEquals([
+			[
+				'col1' => 'a',
+				'nr' => 0,
+			],
+			[
+				'col1' => 'b',
+				'nr' => 1,
+			],
+			'slawa' => [
+				'col1' => 'test',
+				'nr' => 'slawa',
+			]
+		], (array)$this->ai);
+	}
 
 }

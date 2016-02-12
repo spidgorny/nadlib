@@ -298,17 +298,10 @@ abstract class Controller {
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
-			$al = AutoLoad::getInstance();
-			Index::getInstance()->addCSS($al->nadlibFromDocRoot.'CSS/header-link.less');
-			$slug = URL::friendlyURL($caption);
-			$link = '<a class="header-link" href="#'.$slug.'">
-				<i class="fa fa-link"></i>
-			</a>';
-			$content = '<a name="'.URL::friendlyURL($caption).'"></a>
-			<'.$h.' id="'.$slug.'">'.
-				$link.$caption.
-				'</'.$h.'>'.
-				$content;
+			$content = [
+				'caption' => $this->getCaption($caption, $h),
+				$content
+			];
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' '.get_class($this);
@@ -524,8 +517,10 @@ abstract class Controller {
 			$f->hidden('c', get_class($this));
 		}
 		$f->formHideArray($hidden);
-		if ($id = $this->request->getInt('id')) {
-			$f->hidden('id', $id);
+		if (false) {    // this is too specific, not and API
+//			if ($id = $this->request->getInt('id')) {
+//				$f->hidden('id', $id);
+//			}
 		}
 		$f->hidden('action', $action);
 		if ($name instanceof htmlString) {
@@ -685,6 +680,25 @@ abstract class Controller {
 	static function href() {
 		$self = get_called_class();
 		return $self;
+	}
+
+	/**
+	 * @param $caption
+	 * @param $h
+	 * @return string
+	 */
+	public function getCaption($caption, $h) {
+		$al = AutoLoad::getInstance();
+		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
+		$slug = URL::friendlyURL($caption);
+		$link = '<a class="header-link" href="#' . $slug . '">
+				<i class="fa fa-link"></i>
+			</a>';
+		$content = '<a name="' . URL::friendlyURL($caption) . '"></a>
+			<' . $h . ' id="' . $slug . '">' .
+			$link . $caption .
+			'</' . $h . '>';
+		return $content;
 	}
 
 }
