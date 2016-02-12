@@ -1029,7 +1029,7 @@ class Request {
 		return array_keys($this->data);
 	}
 
-	function getIP() {
+	static function getIP() {
 		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
 		if (!$ip || in_array($ip, [
 				'127.0.0.1',
