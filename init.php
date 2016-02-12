@@ -15,7 +15,7 @@ if (!function_exists('debug')) {
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
-		} elseif (ifsetor($_COOKIE['debug'])) {
+		} elseif (DEVELOPMENT) {
 			ob_start();
 			var_dump($params);
 			$dump = ob_get_clean();
@@ -141,9 +141,13 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
+	function str_contains($haystack, $needle) {
+		return FALSE !== strpos($haystack, $needle);
+	}
+
 	if (!function_exists('contains')) {
 		function contains($haystack, $needle) {
-			return FALSE !== strpos($haystack, $needle);
+			return str_contains($haystack, $needle);
 		}
 	}
 
@@ -443,21 +447,25 @@ if (!function_exists('nodebug')) {
 
 }
 
-function gettype2($something) {
+function gettype2($something, $withHash = true) {
 	$type = gettype($something);
 	if ($type == 'object') {
-		$hash = md5(spl_object_hash($something));
-		$hash = substr($hash, 0, 6);
-		require_once __DIR__.'/HTTP/class.Request.php';
-		if (!Request::isCLI()) {
-			require_once __DIR__ . '/HTML/Color.php';
-			$color = new Color('#' . $hash);
-			$complement = $color->getComplement();
-			$hash = new HTMLTag('span', [
-				'style' => 'background: ' . $color . '; color: ' . $complement,
-			], $hash);
+		if ($withHash) {
+			$hash = md5(spl_object_hash($something));
+			$hash = substr($hash, 0, 6);
+			require_once __DIR__ . '/HTTP/class.Request.php';
+			if (!Request::isCLI()) {
+				require_once __DIR__ . '/HTML/Color.php';
+				$color = new Color('#' . $hash);
+				$complement = $color->getComplement();
+				$hash = new HTMLTag('span', [
+					'style' => 'background: ' . $color . '; color: ' . $complement,
+				], $hash);
+			}
+			$type = get_class($something) . '#' . $hash;
+		} else {
+			$type = get_class($something);
 		}
-		$type = get_class($something).'#'.$hash;
 	}
 	if ($type == 'string') {
 		$type .= '[' . strlen($something) . ']';

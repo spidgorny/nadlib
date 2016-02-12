@@ -41,17 +41,17 @@ class HTMLTagTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('a', $tag->tag);
 		$this->assertEquals('http://asd.com/', $tag->attr['href']);
 		$this->assertInternalType('array', $tag->content);
-		pre_print_r($tag);
+		//pre_print_r($tag);
 	}
 
 	public function test_parse_recursive_back() {
-		$str = '<a href="http://asd.com/"><b>Text</b></a>';
+		$str = "<a href=\"http://asd.com/\"><b>Text</b>\n</a>\n";
 		$tag = HTMLTag::parse($str, true);
 		$this->assertEquals('a', $tag->tag);
 		$this->assertEquals('http://asd.com/', $tag->attr['href']);
 		$this->assertInternalType('array', $tag->content);
 		$back = $tag->__toString();
-		pre_print_r($str, $back);
+		//pre_print_r($str, $back);
 		$this->assertEquals($str, $back);
 	}
 

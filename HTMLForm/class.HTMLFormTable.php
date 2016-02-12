@@ -480,26 +480,33 @@ class HTMLFormTable extends HTMLForm {
 	function fillValues(array $desc, array $assoc = NULL, $forceInsert = false) {
 		foreach ($assoc as $key => $val) {
 			//$descKey = ifsetor($desc[$key]);		// CREATES $key => NULL INDEXES
-			$descKey = isset($desc[$key]) ? $desc[$key] : NULL;
-			if (is_array($descKey) || $forceInsert) {
-				if (is_array($val) && $this->withValue) {
-					$desc[$key]['value'] = $val['value'];
-				} else {
-					$desc[$key]['value'] = $val;
-				}
 
-				/** @var HTMLFormType|HTMLFormDatePicker $type */
-				$type = ifsetor($descKey['type']);
-				$sType = is_object($type)
-					? get_class($type)
-					: $type;
-				switch ($sType) {
-					case 'date':
-						if (is_numeric(ifsetor($descKey['value'])) && $descKey['value']) {
-							$desc[$key]['value'] = $this->formatDate($descKey['value'], $descKey);
-						}
+			$descKey = isset($desc[$key]) ? $desc[$key] : NULL;
+			if (!$descKey) continue;
+
+			// calc $val
+			if (is_array($val) && $this->withValue) {
+				$desc[$key]['value'] = $val['value'];
+			} else {
+				$desc[$key]['value'] = $val;
+			}
+
+			/** @var HTMLFormType|HTMLFormDatePicker $type */
+			$type = ifsetor($descKey['type']);
+			$sType = is_object($type)
+				? get_class($type)
+				: $type;
+			switch ($sType) {
+				case 'date':
+					if (is_numeric(ifsetor($descKey['value'])) && $descKey['value']) {
+						$desc[$key]['value'] = $this->formatDate($descKey['value'], $descKey);
+					}
 					break;
-				}
+			}
+
+			// set $val
+			if (is_array($descKey) || $forceInsert) {
+				//debug($key, gettype2($sType), is_object($type));
 				if (is_object($type)) {
 					$type->setValue($val);
 				}
@@ -508,6 +515,9 @@ class HTMLFormTable extends HTMLForm {
 					$desc[$key]['dependant'] = $this->fillValues($descKey['dependant'], $assoc);
 					//t3lib_div::debug($desc[$key]['dependant']);
 				}
+			} elseif ($descKey instanceof HTMLFormField) {
+				//debug($key, gettype2($sType), is_object($type));
+				$descKey->setValue($val);
 			}
 		}
 		return $desc;

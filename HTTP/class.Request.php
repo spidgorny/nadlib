@@ -323,7 +323,7 @@ class Request {
 
 	function getControllerString($returnDefault = true) {
 		if ($this->isCLI()) {
-			$controller = $_SERVER['argv'][1];
+			$controller = ifsetor($_SERVER['argv'][1]);
 			$this->data += $this->parseParameters();
 			//debug($this->data);
 		} else {

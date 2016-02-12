@@ -154,7 +154,7 @@ class AutoLoadFolders {
 	}
 
 	function addFolder($path, $namespace = NULL) {
-		if ($path[0] != '/') {
+		if (Path::isAbsolute($path[0])) {
 			$path = getcwd().'/'.$path;
 		}
 		$this->folders[$namespace][] = realpath($path);
@@ -181,7 +181,10 @@ class AutoLoadFolders {
 				$this->folders[NULL]
 		);
 		assert(sizeof($map));
-		//pre_print_r(array_keys($this->folders), array_keys($map), sizeof($map));
+//		pre_print_r(
+//			array_keys($this->folders),
+//			$map,
+//			sizeof($map));
 		foreach ($map as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.

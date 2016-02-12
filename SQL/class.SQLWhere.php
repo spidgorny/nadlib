@@ -7,27 +7,41 @@ class SQLWhere {
 	function __construct($where = NULL) {
 		if (is_array($where)) {
 			$this->parts = $where;
-		} else if ($where) {
+		} elseif ($where) {
 			$this->add($where);
 		}
 	}
 
-	function add($where) {
-		$this->parts[] = $where;
+	function add($where, $key = NULL) {
+		if (is_array($where)) {
+			//debug($where);
+			throw new InvalidArgumentException(__METHOD__);
+		}
+		if (!$key || is_numeric($key)) {
+			$this->parts[] = $where;
+		} else {
+			$this->parts[$key] = $where;
+		}
 	}
 
 	function addArray(array $where) {
-		foreach ($where as $el) {
-			$this->add($el);
+		foreach ($where as $key => $el) {
+			$this->add($el, $key);
 		}
 		return $this;
 	}
 
 	function __toString() {
 		if ($this->parts) {
-			foreach ($this->parts as $field => $p) {
+			foreach ($this->parts as $field => &$p) {
 				if ($p instanceof SQLWherePart && !is_numeric($field)) {
 					$p->injectField($field);
+				} else {
+					$db = Config::getInstance()->getDB();
+					$where = $db->quoteWhere([
+						$field => $p,
+					]);
+					$p = first($where);
 				}
 			}
 			return " WHERE\n\t".implode("\n\tAND ", $this->parts);	// __toString()

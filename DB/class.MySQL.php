@@ -323,7 +323,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		$res = $this->lastResult = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
-			$this->queryLog->log($query, $diffTime);
+			$this->queryLog->log($query, $diffTime, $this->numRows($res));
 		}
 		$this->lastQuery = $query;
 

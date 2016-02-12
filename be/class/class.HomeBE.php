@@ -4,6 +4,10 @@ class HomeBE extends AppControllerBE {
 
 	static public $public = true;
 
+	function __construct() {
+		parent::__construct();
+	}
+
 	function render() {
 		$content = '';
 		$content .= new MarkdownView('Home.md');

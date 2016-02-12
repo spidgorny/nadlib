@@ -114,7 +114,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
-			debug($e->getMessage(), $query);
+			//debug($e->getMessage(), $query);
 			$e = new DatabaseException(
 				'['.$e->getCode().'] '.$e->getMessage().BR.
 				pg_errormessage($this->connection).BR.
@@ -131,7 +131,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed());
+				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 			}
 		}
 		$this->queryCount++;
@@ -149,7 +149,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	    } else {
 		    $this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 		    if ($this->queryLog) {
-			    $this->queryLog->log($query, $prof->elapsed());
+			    $this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 		    }
 	    }
 	    $this->queryCount++;
@@ -320,6 +320,33 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
 		return ArrayPlus::create($return)->column('relname')->getData();
+	}
+
+	/**
+	 * Returns a list of tables in the current database
+	 * @return string[]
+	 */
+	function getViews() {
+		$query = "select relname
+		from pg_class
+		where not relname ~ 'pg_.*'
+		and not relname ~ 'sql_.*'
+		and relkind = 'v'
+		ORDER BY relname";
+		$result = $this->perform($query);
+		$return = pg_fetch_all($result);
+		pg_free_result($result);
+		return ArrayPlus::create($return)->column('relname')->getData();
+	}
+
+	function describeView($viewName) {
+		return first(
+			$this->fetchAssoc(
+				$this->perform("select pg_get_viewdef($1, true)", [
+					$viewName
+				])
+			)
+		);
 	}
 
 	function getColumnDefault($table) {
@@ -564,7 +591,7 @@ order by a.attnum';
 	}
 
 	function quoteKey($key) {
-		$key = '"'.$key.'"';
+		$key = pg_escape_identifier($key);
 		return $key;
 	}
 

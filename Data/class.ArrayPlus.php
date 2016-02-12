@@ -349,10 +349,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	/**
 	 * Enters array key as ['__key__']
+	 * @param string $keyColumnName
+	 * @return $this
 	 */
-	function insertKeyAsColumn() {
+	function insertKeyAsColumn($keyColumnName = '__key__') {
 		foreach ($this->getData() as $key => $_) {
-			$this[$key]['__key__'] = $key;
+			$this[$key][$keyColumnName] = $key;
 		}
 		return $this;
 	}
@@ -763,14 +765,14 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return in_array($string, $this->getData());
 	}
 	
-	public function makeTable($string) {
+	public function makeTable($newKey) {
 		$copy = [];
 		foreach ($this->getData() as $key => $row) {
 			if (is_array($row)) {
 				$copy[$key] = $row;
 			} else {
 				$copy[$key] = [
-					$string => $row,
+					$newKey => $row,
 				];
 			}
 		}
@@ -794,10 +796,19 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function reverse() {
 		$this->setData(array_reverse($this->getData()));
+		return $this;
 	}
 
 	function getSlice($from = 0, $length = NULL) {
 		return array_slice($this->getData(), $from, $length, TRUE);
+	}
+
+	function addColumn($columnName, $callback) {
+		$copy = $this->getData();
+		foreach ($copy as $i => $row) {
+			$this[$i][$columnName] = call_user_func($callback, $row, $i);
+		}
+		return $this;
 	}
 
 }

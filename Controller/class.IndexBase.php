@@ -105,15 +105,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
 
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
+		$this->setSecurityHeaders();
 		TaylorProfiler::stop(__METHOD__);
 	}
 
@@ -250,10 +242,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			$contentOut .= $this->content;	// display Exception
 			$contentOut .= $this->s($content);
-			$contentOut = $this->renderTemplate($contentOut)->render();
+			$view = $this->renderTemplate($contentOut);
+			//echo gettype2($view), BR;
+			if ($view instanceof View) {
+				$contentOut = $view->render();
+			} else {
+				$contentOut = $view;
+			}
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
-			$contentOut .= $content;
+			$contentOut .= $this->s($content);
 			$this->content->clear();		// clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;
@@ -525,25 +523,26 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderProfiler() {
 		$content = '';
 		if (DEVELOPMENT &&
-			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
 			//!$this->request->isCLI() &&
 			!in_array(get_class($this->controller), array('Lesser')))
 		{
-			$profiler = $GLOBALS['profiler'];
-			/** @var $profiler TaylorProfiler */
-			if ($profiler) {
-				if (!$this->request->isCLI()) {
-					$ft = new FloatTime(true);
-					$content = $ft->render();
-					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true);
-					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
-					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
+			if (!$this->request->isCLI()) {
+				$ft = new FloatTime(true);
+				$content .= $ft->render();
+				$content .= '<div class="profiler noprint">';
+				$content .= $this->s(OODBase::getCacheStatsTable());
+
+				/** @var $profiler TaylorProfiler */
+				$profiler = TaylorProfiler::getInstance();
+				if ($profiler) {
+					$content .= $profiler->printTimers(true);
 					$content .= TaylorProfiler::dumpQueries();
-					$content .= '</div>';
+					//$content .= $profiler->printTrace(true);
+					//$content .= $profiler->analyzeTraceForLeak();
 				}
-			} else if (DEVELOPMENT && !$this->request->isCLI()) {
-				$content = TaylorProfiler::renderFloat();
+
+				$content .= '</div>';
 			}
 		}
 		return $content;
@@ -581,6 +580,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addBodyClass($name) {
 		$this->bodyClasses[$name] = $name;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function setSecurityHeaders() {
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
 	}
 
 }
