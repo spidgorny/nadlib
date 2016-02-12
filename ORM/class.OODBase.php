@@ -446,37 +446,10 @@ abstract class OODBase {
 			'id' => 'ID',
 			'name' => 'Name'
 		), $title = NULL) {
-		TaylorProfiler::start(__METHOD__);
-		$content[] = '<div class="showAssoc">';
-		if ($title !== '') {
-			$content[] = '<h3>' . ($title ?: get_class($this)) . ':</h3>';
-		}
-		$assoc = array();
-		foreach ($thes as $key => $name) {
-			$val = $this->data[$key];
-			if (is_array($name)) {
-				if (ifsetor($name['reference'])) {
-					// class name
-					$class = $name['reference'];
-					$obj = $class::getInstance($val);
-					if (method_exists($obj, 'getNameLink')) {
-						$val = new htmlString($obj->getNameLink());
-					} elseif (method_exists($obj, 'getName')) {
-						$val = $obj->getName();
-					} else {
-						$val = $obj->__toString();
-					}
-				} elseif (ifsetor($name['bool'])) {
-					$val = $name['bool'][$val];	// yes/no
-				}
-			}
-			$niceName = is_array($name) ? $name['name'] : $name;
-			$assoc[$niceName] = $val;
-		}
-		$content[] = UL::DL($assoc)->render();
-		$content[] = '</div>';
-		TaylorProfiler::stop(__METHOD__);
-		return $content;
+		$ss = new ShowAssoc($this->data);
+		$ss->setThes($thes);
+		$ss->setTitle($title ?: get_class($this));
+		return $ss;
 	}
 
 	/**
