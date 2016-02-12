@@ -457,7 +457,8 @@ class slTable {
 			$t->tablee();
 			$this->generation = $t;
 		} else {
-			$this->generation->text('<div class="message">'.__('No Data').'</div>');
+			$this->generation->text('<div class="message">'.
+				__('No Data').'</div>');
 		}
 		TaylorProfiler::stop(__METHOD__." ({$caller})");
 	}
@@ -469,7 +470,9 @@ class slTable {
 			$class[] = 'footer';
 			$tr = 'class="'.implode(' ', $class).'"';
 			$this->generation->ftr($tr);
+			$this->generation->curPart = 'tfoot';
 			$this->genRow($this->generation, $this->footer);
+			$this->generation->curPart = 'tbody';
 			$this->generation->ftre();
 			$this->generation->tfoot('</tfoot>');
 		}
