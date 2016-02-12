@@ -766,14 +766,14 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 	
 	public function makeTable($newKey) {
-		$copy = [];
+		$copy = array();
 		foreach ($this->getData() as $key => $row) {
 			if (is_array($row)) {
 				$copy[$key] = $row;
 			} else {
-				$copy[$key] = [
+				$copy[$key] = array(
 					$newKey => $row,
-				];
+				);
 			}
 		}
 		$this->setData($copy);

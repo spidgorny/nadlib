@@ -304,9 +304,9 @@ class TaylorProfiler {
 					'name' => 'percent',
 					'align' => 'right'
 				),
-				'bar' => [
+				'bar' => array(
 					'no_hsc' => true,
-				],
+				),
             	'routine' => array(
 					'name' => 'routine',
 					'no_hsc' => true,
@@ -403,8 +403,8 @@ class TaylorProfiler {
 	static function getMemoryUsage() {
 		static $max;
 		static $previous;
-		$max = $max ?:
-			(new Bytes(ini_get('memory_limit')))->getBytes();
+		$memLimit = new Bytes(ini_get('memory_limit'));
+		$max = $max ?: $memLimit->getBytes();
 		$maxMB = number_format($max/1024/1024, 0, '.', '');
 		$cur = memory_get_usage(true);
 		$usedMB = number_format($cur/1024/1024, 3, '.', '');
@@ -465,7 +465,8 @@ class TaylorProfiler {
 	 */
 	static function getMemUsage() {
 		require_once __DIR__.'/../HTML/Bytes.php';
-		$max = (new Bytes(ini_get('memory_limit')))->getBytes();
+		$memLimit = new Bytes(ini_get('memory_limit'));
+		$max = $memLimit->getBytes();
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 3, '.', '');
 	}

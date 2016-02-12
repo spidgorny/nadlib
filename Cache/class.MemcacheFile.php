@@ -26,7 +26,11 @@ class MemcacheFile implements MemcacheInterface {
 		$sub = cap(AutoLoad::getInstance()->appRoot);
 
 		if (!file_exists($sub.$this->folder)) {
-			debug('unable to access cache folder', __METHOD__, $sub, $this->folder);
+			debug(array(
+				'unable to access cache folder',
+				'method' => __METHOD__,
+				'appRoot' => $sub,
+				'folder' => $this->folder));
 			die();
 		} else {
 			$this->folder = $sub . $this->folder;

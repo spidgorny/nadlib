@@ -374,4 +374,14 @@ class Path {
 		return implode('/', $parts);
 	}
 
+	function getFiles() {
+		$files = glob(cap($this->sPath).'*');
+		return $files;
+	}
+
+	function hasFile($file) {
+		$files = $this->getFiles();
+		return !!ifsetor($files[$file]);
+	}
+
 }

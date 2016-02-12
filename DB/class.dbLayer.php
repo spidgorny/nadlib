@@ -342,9 +342,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	function describeView($viewName) {
 		return first(
 			$this->fetchAssoc(
-				$this->perform("select pg_get_viewdef($1, true)", [
+				$this->perform("select pg_get_viewdef($1, true)", array(
 					$viewName
-				])
+				))
 			)
 		);
 	}
@@ -591,7 +591,11 @@ order by a.attnum';
 	}
 
 	function quoteKey($key) {
-		$key = pg_escape_identifier($key);
+		if (function_exists('pg_escape_identifier')) {
+			$key = pg_escape_identifier($key);
+		} else {
+			$key = '"' . $key . '"';
+		}
 		return $key;
 	}
 

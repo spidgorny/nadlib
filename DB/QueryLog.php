@@ -147,9 +147,9 @@ class QueryLog {
 					'name' => 'query',
 					'no_hsc' => true,
 				),
-				'results' => [
+				'results' => array(
 					'name' => 'Results',
-				]
+				)
 		));
 		return $s;
 	}

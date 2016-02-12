@@ -413,7 +413,7 @@ class URL {
 	        //debug($scriptWithPath);
 	        // this below may not work since __FILE__ is class.URL.php and not index.php
 	        // but this our last chance for CLI/Cron
-	        if (!$scriptWithPath || !str_startsWith($scriptWithPath, '/')) {    // relative not OK
+	        if (!$scriptWithPath || !Path::isAbsolute($scriptWithPath)) {    // relative not OK
 		        if (basename(__FILE__) == __FILE__) {	// index.php
 					$scriptWithPath = getcwd().'/'.__FILE__;
 				} else {
@@ -588,7 +588,7 @@ class URL {
 	 */
 	function split_url( $url, $decode=TRUE )
 	{
-		$parts = [];
+		$parts = array();
 		$xunressub     = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
 		$xpchar        = $xunressub . ':@%';
 

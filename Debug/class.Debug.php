@@ -167,7 +167,7 @@ class Debug {
 		$trace = array();
 		$i = 0;
 		foreach ($db as $i => $row) {
-			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1], []));
+			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1], array()));
 			if (++$i > 7) break;
 		}
 		echo '---' . implode(BR, $trace) . "\n";
@@ -388,7 +388,7 @@ class Debug {
 		static $recursive;
 		if (!$spaces) {
 			echo '<pre class="debug">';
-			$recursive = [];
+			$recursive = array();
 		}
 		if (is_object($row)) {
 			$hash = spl_object_hash($row);
@@ -438,10 +438,10 @@ class Debug {
 		}
 	}
 
-	static function findObject($struct, $type, $path = []) {
+	static function findObject($struct, $type, $path = array()) {
 		static $recursive;
 		if (!$path) {
-			$recursive = [];
+			$recursive = array();
 		}
 		if (is_object($struct)) {
 			$hash = spl_object_hash($struct);

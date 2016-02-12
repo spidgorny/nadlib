@@ -1031,9 +1031,9 @@ class Request {
 
 	static function getIP() {
 		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
-		if (!$ip || in_array($ip, [
+		if (!$ip || in_array($ip, array(
 				'127.0.0.1',
-			])) {
+			))) {
 			$ip = file_get_contents('http://ipecho.net/plain');
 		}
 		return $ip;

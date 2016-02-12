@@ -88,7 +88,7 @@ abstract class Controller {
 
 	protected $al;
 
-	var $log = [];
+	var $log = array();
 
 	function __construct() {
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
@@ -298,10 +298,10 @@ abstract class Controller {
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
-			$content = [
+			$content = array(
 				'caption' => $this->getCaption($caption, $h),
 				$content
-			];
+			);
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' '.get_class($this);
@@ -674,9 +674,9 @@ abstract class Controller {
 
 	static function link($text = NULL) {
 		$self = get_called_class();
-		return new HTMLTag('a', [
+		return new HTMLTag('a', array(
 			'href' => $self::href()
-		], $text ?: $self);
+		), $text ?: $self);
 	}
 
 	static function href() {

@@ -71,7 +71,7 @@ class Color {
 	}
 
 	function __toString() {
-		return $this->getCSS([$this->r, $this->g, $this->b]);
+		return $this->getCSS(array($this->r, $this->g, $this->b));
 	}
 
 	function getCSS($rgb) {
@@ -202,7 +202,10 @@ class Color {
 	}
 
 	public function getComplement255() {
-		$c = new self([255-$this->r, 255-$this->g, 255-$this->b]);
+		$c = new self(array(
+			255-$this->r,
+			255-$this->g,
+			255-$this->b));
 		return $c;
 	}
 

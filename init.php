@@ -461,9 +461,9 @@ function gettype2($something, $withHash = true) {
 				require_once __DIR__ . '/HTML/Color.php';
 				$color = new Color('#' . $hash);
 				$complement = $color->getComplement();
-				$hash = new HTMLTag('span', [
+				$hash = new HTMLTag('span', array(
 					'style' => 'background: ' . $color . '; color: ' . $complement,
-				], $hash);
+				), $hash);
 			}
 			$type = get_class($something) . '#' . $hash;
 		} else {
@@ -480,7 +480,7 @@ function gettype2($something, $withHash = true) {
 }
 
 function gettypes(array $something) {
-	$types = [];
+	$types = array();
 	foreach ($something as $element) {
 		$types[] = strip_tags(gettype2($element));
 	}
