@@ -93,6 +93,11 @@ class SQLSelectQuery {
 		$this->limit = $limit;
 	}
 
+	public static function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude') {
+		return "( 6371 * acos( cos( radians($lat) ) * cos( radians( $latitude ) )
+		* cos( radians( $longitude ) - radians($lon) ) + sin( radians($lat) ) * sin(radians($latitude)) ) ) AS distance";
+	}
+
 	function getQuery() {
 		$query = "SELECT
 		$this->select

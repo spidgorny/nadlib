@@ -69,13 +69,17 @@ class Pager {
 	 * To be called only after setNumberOfRecords()
 	 */
 	function detectCurrentPage() {
-		if (($pagerData = ifsetor($_REQUEST['Pager_'.$this->prefix]))) {
+		$pagerData = ifsetor($_REQUEST['Pager.'.$this->prefix],
+			ifsetor($_REQUEST['Pager_'.$this->prefix]));
+		//debug($pagerData);
+		if ($pagerData) {
 			if (ifsetor($pagerData['startingRecord'])) {
 				$this->startingRecord = (int)($pagerData['startingRecord']);
 				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
 			} else {
-				if ($this->request->getMethod() == 'POST') {
-				//Debug::debug_args($pagerData);
+				// when typing page number in [input] box
+				if (!$this->request->isAjax() && $this->request->isPOST()) {
+					//Debug::debug_args($pagerData);
 					$pagerData['page']--;
 				}
 				$this->setCurrentPage($pagerData['page']);
@@ -442,4 +446,22 @@ class Pager {
     {
         return $this->user;
     }
+
+	function loadMoreButton($controller) {
+		$content = '';
+		//debug($pager->currentPage, $pager->getMaxPage());
+		if ($this->currentPage < $this->getMaxPage()) {
+			$loadPage = $this->currentPage+1;
+			$f = new HTMLForm();
+			$f->hidden('c', $controller);
+			$f->hidden('action', 'loadMore');
+			$f->hidden('Pager.[page]', $loadPage);
+			$f->formHideArray(array($this->prefix => $this->request->getArray($this->prefix)));
+			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
+			$f->submit(__('Load more'), array('class' => 'btn'));
+			$content .= '<div id="loadMorePage'.$loadPage.'">'.$f.'</div>';
+		}
+		return $content;
+	}
+
 }

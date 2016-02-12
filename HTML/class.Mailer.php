@@ -12,6 +12,10 @@ class Mailer {
 	 */
 	var $to;
 
+	var $cc;
+
+	var $bcc;
+
 	/**
 	 * @var string
 	 */

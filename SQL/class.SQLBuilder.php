@@ -332,8 +332,15 @@ class SQLBuilder {
 		return $q;
 	}
 
+	/**
+	 * @param $table
+	 * @param array $where
+	 * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
+	 * @return string
+	 * @throws MustBeStringException
+	 */
 	function getDeleteQuery($table, $where = array(), $what = '') {
-		$q = "DELETE ".$what." FROM $table ";
+		$q = "DELETE ".$what." FROM ".$this->db->quoteKey($table)." ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);

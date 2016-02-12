@@ -1,6 +1,6 @@
 <?php
 
-class AlterTableSQLite extends AlterTableHandler {
+class AlterTableSQLite extends AlterTableHandler implements AlterTableInterface {
 
 	function getCreateQuery($table, array $columns) {
 		$set = array();
@@ -28,25 +28,17 @@ class AlterTableSQLite extends AlterTableHandler {
 				' '.implode(' ', $index->extra));
 	}
 
-	function getAlterQuery($table, TableField $index) {
-		//' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
-		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index->field.
+	function getAlterQuery($table, $oldName, TableField $index) {
+		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$oldName.' '.$index->field.
 			' '.$index->type.
-			' '.($index->isNull ? 'NULL' : 'NOT NULL');
-		return $query;
-	}
-
-	function getChangeQuery($table, array $index) {
-		$query = 'ALTER TABLE '.$table.' ALTER COLUMN '.$index['Field'].' '.$index['Field'].
-			' '.$index['Type'].
-			' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
-			' '.($index['not null'] ? 'NOT NULL' : 'NULL');
+			$this->getFieldParams($index);
 		return $query;
 	}
 
 	function getAddQuery($table, TableField $index) {
 		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index->field.
-				' '.$index->type.$this->getFieldParams($index);
+				' '.$index->type.
+				$this->getFieldParams($index);
 		return $query;
 	}
 

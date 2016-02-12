@@ -93,6 +93,7 @@ class Syndicator {
 	 */
 	static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'HTML';
 		$s->html = $s->retrieveFile();
 		$s->xml = $s->processFile($s->html);
 		return $s;
@@ -181,20 +182,14 @@ class Syndicator {
 	}
 
 	function log($method, $msg) {
-		$this->log[] = $msg;
-		if (class_exists('Index')) {
-			$c = Index::getInstance()->controller;
-			$c->log($method, $msg);
-		} else {
-			echo $msg.BR;
-		}
+		$this->log[] = new LogEntry($method, $msg);
 	}
 
 	function downloadFile($href, $retries = 1) {
 		if (str_startsWith($href, 'http')) {
 			$ug = new URLGet($href, $this);
 			$ug->timeout = 10;
-			$ug->fetch($this->useProxy, $retries);
+			$ug->fetch($retries);
 			return $ug->getContent();
 		} else {
 			return file_get_contents($href);
@@ -248,16 +243,16 @@ class Syndicator {
 	function processFile($html) {
 		TaylorProfiler::start(__METHOD__);
 		//debug(substr($html, 0, 1000));
-		if ($this->input == 'HTML') {
-			$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8);
+		if ($this->input == 'HTML' && $this->recodeUTF8 != 'pass') {
+			$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8 === TRUE ? NULL : $this->recodeUTF8);
 		}
 
 		if ($this->recodeUTF8) {
 			$detect = mb_detect_encoding($html, $this->recodeUTF8 === TRUE ? NULL : $this->recodeUTF8);
-			//debug($detect, "mb_detect_encoding($this->recodeUTF8)");
+			$this->log("mb_detect_encoding($this->recodeUTF8)", $detect);
 			if (!$detect) {
 				$detect = $this->detect_cyr_charset($html);
-				debug($detect, "detect_cyr_charset");
+				$this->log("detect_cyr_charset", $detect);
 			}
 			$utf8 = mb_convert_encoding($html, 'UTF-8', $this->recodeUTF8 === TRUE ? 'Windows-1251' : $detect);
 			//$utf8 = str_replace(0x20, ' ', $utf8);
@@ -364,6 +359,10 @@ class Syndicator {
 		return $xml;
 	}
 
+	/**
+	 * @param $xpath
+	 * @return null|SimpleXMLElement[]
+	 */
 	function getElements($xpath) {
 		TaylorProfiler::start(__METHOD__);
 		$target = NULL;
@@ -465,15 +464,34 @@ class Syndicator {
 
 	public function get($string) {
 		$elements = $this->getElements($string);
+		//debug($string, $elements);
 		foreach ($elements as &$e) {
 			$e = trim($e);
 		}
 		$elements = array_filter($elements);
-		if (sizeof($elements) == 1) {
-			return $elements[0];
+		if (sizeof($elements) == 0) {
+			return NULL;
+		} elseif (sizeof($elements) == 1) {
+			return first($elements);
 		} else {
 			return $elements;
 		}
+	}
+
+	public function getEncoding() {
+		$ct = $this->get('//meta[@http-equiv="Content-Type"]/@content');
+		$ctParts = trimExplode('=', $ct);	// text/html; charset=windows-1251
+		$ct = ifsetor($ctParts[1]);
+		if ($ct) {
+			$list = mb_list_encodings();
+			foreach ($list as $option) {
+				if (!strcasecmp($ct, $option)) {
+					$ct = $option;
+					break;
+				}
+			}
+		}
+		return $ct;
 	}
 
 }

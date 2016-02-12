@@ -88,6 +88,8 @@ abstract class Controller {
 
 	protected $al;
 
+	var $log = [];
+
 	function __construct() {
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index')
@@ -311,8 +313,8 @@ abstract class Controller {
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' '.get_class($this);
 		//debug_pre_print_backtrace();
-		$content = '<section class="'.ifsetor($more['class']).'"
-			style="position: relative;">'.$content.'</section>';
+		//$more['style'] = "position: relative;";	// project specific
+		$content = new HTMLTag('section', $more, $content, true);
 		return $content;
 	}
 
@@ -345,7 +347,7 @@ abstract class Controller {
 		$content = '';
 		if ($this->request->isCLI()) {
 			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][1]);
+			$reqAction = ifsetor($_SERVER['argv'][2]);	// it was 1
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
@@ -362,23 +364,28 @@ abstract class Controller {
 			}
 
 			if (method_exists($proxy, $method)) {
-				$r = new ReflectionMethod($proxy, $method);
-				if ($r->getNumberOfParameters()) {
-					$assoc = array();
-					foreach ($r->getParameters() as $param) {
-						$name = $param->getName();
-						if ($this->request->is_set($name)) {
-							$assoc[$name] = $this->request->getTrim($name);
-						} elseif ($param->isDefaultValueAvailable()) {
-							$assoc[$name] = $param->getDefaultValue();
-						} else {
-							$assoc[$name] = NULL;
-						}
-					}
-					//debug($assoc);
+				if ($this->request->isCLI()) {
+					$assoc = array_slice($_SERVER['argv'], 3);
 					$content = call_user_func_array(array($proxy, $method), $assoc);
 				} else {
-					$content = $proxy->$method();
+					$r = new ReflectionMethod($proxy, $method);
+					if ($r->getNumberOfParameters()) {
+						$assoc = array();
+						foreach ($r->getParameters() as $param) {
+							$name = $param->getName();
+							if ($this->request->is_set($name)) {
+								$assoc[$name] = $this->request->getTrim($name);
+							} elseif ($param->isDefaultValueAvailable()) {
+								$assoc[$name] = $param->getDefaultValue();
+							} else {
+								$assoc[$name] = NULL;
+							}
+						}
+						//debug($assoc);
+						$content = call_user_func_array(array($proxy, $method), $assoc);
+					} else {
+						$content = $proxy->$method();
+					}
 				}
 			} else {
 				// other classes except main controller may result in multiple messages
@@ -584,8 +591,15 @@ abstract class Controller {
 	}
 
 	function div($content, $class = '', array $more = array()) {
+		$more['class'] = ifsetor($more['class']) .' '.$class;
 		$more = HTMLTag::renderAttr($more);
-		return '<div class="'.$class.'" '.$more.'>'.$this->s($content).'</div>';
+		return '<div '.$more.'>'.$this->s($content).'</div>';
+	}
+
+	function span($content, $class = '', array $more = array()) {
+		$more['class'] = ifsetor($more['class']) .' '.$class;
+		$more = HTMLTag::renderAttr($more);
+		return '<span '.$more.'>'.$this->s($content).'</span>';
 	}
 
 	function info($content) {
@@ -608,6 +622,18 @@ abstract class Controller {
 		return '<h1>'.$this->s($content).'</h1>';
 	}
 
+	function h2($content) {
+		return '<h2>'.$this->s($content).'</h2>';
+	}
+
+	function h3($content) {
+		return '<h3>'.$this->s($content).'</h3>';
+	}
+
+	function h4($content) {
+		return '<h4>'.$this->s($content).'</h4>';
+	}
+
 	function progress($percent) {
 		$percent = intval($percent);
 		return '<div class="progress">
@@ -619,14 +645,15 @@ abstract class Controller {
 		</div>';
 	}
 
-	function p($content) {
-		return '<p>'.$this->s($content).'</p>';
+	function p($content, array $attr = array()) {
+		$more = HTMLTag::renderAttr($attr);
+		return '<p '.$more.'>'.$this->s($content).'</p>';
 	}
 
-	function img($src, array $attrib = array()) {
+	function img($src, array $attr = array()) {
 		return new HTMLTag('img', array(
-			'src' => $this->e($src),
-		) + $attrib);
+			'src' => /*$this->e*/($src),	// encoding is not necessary for &amp; in URL
+		) + $attr);
 	}
 
 	function e($content) {
@@ -635,12 +662,29 @@ abstract class Controller {
 
 	public function noRender() {
 		$this->noRender = true;
+		$this->request->set('ajax', 1);
 	}
 
 	function script($file) {
 		$mtime = filemtime($file);
 		$file .= '?'.$mtime;
 		return '<script src="'.$file.'" type="text/javascript"></script>';
+	}
+
+	function log($action, $data = NULL) {
+		$this->log[] = new LogEntry($action, $data);
+	}
+
+	static function link($text = NULL) {
+		$self = get_called_class();
+		return new HTMLTag('a', [
+			'href' => $self::href()
+		], $text ?: $self);
+	}
+
+	static function href() {
+		$self = get_called_class();
+		return $self;
 	}
 
 }

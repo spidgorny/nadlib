@@ -53,6 +53,10 @@ class View extends stdClass {
 			$this->folder = dirname(__FILE__).'/'.$config->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
+		if (!is_readable($this->folder.$this->file)) {
+			//debug(filesize($this->folder.$this->file));
+			//throw new Exception('File not readable '.$this->file);
+		}
 		/*nodebug(
 			$config->appRoot,
 			$config->config[__CLASS__],
@@ -87,6 +91,7 @@ class View extends stdClass {
 		ob_start();
 
 		//debug(getcwd(), $file);
+		/** @noinspection PhpIncludeInspection */
 		require($file);
 
 		if (!$content) {
@@ -200,7 +205,8 @@ class View extends stdClass {
 	}
 
 	function __toString() {
-		//debug_pre_print_backtrace();
+//		debug($this->file);
+//		debug_pre_print_backtrace(); die();
 		return $this->render().'';
 	}
 
@@ -217,7 +223,7 @@ class View extends stdClass {
 		$method = array($this->caller, $func);
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			//$method = array($this->caller, end(explode('::', $func)));
-			throw new Exception('View: Method ('.implode(', ', $method).') doesn\'t exists.');
+			throw new Exception('View: Method '.$func.' ('.implode(', ', $method).') doesn\'t exists.');
 		}
 		return call_user_func_array($method, $args);
 	}
@@ -332,7 +338,7 @@ class View extends stdClass {
 		//$comment = $v->autolink($comment);
 		$config = HTMLPurifier_Config::createDefault();
 		//debug($config);
-		$cc = new CommentCollection(-1);
+		$cc = new CommentCollection();
 		$config->set('HTML.Allowed', $cc->allowedTags);
 		$config->set('Attr.AllowedFrameTargets', array('_blank'));
 		$config->set('Attr.AllowedRel', array('nofollow'));

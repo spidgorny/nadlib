@@ -36,6 +36,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
 		}
 
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 		//$this->setQB(); // must be injected outside (inf loop)
 //		debug_pre_print_backtrace();
 	}
@@ -117,7 +120,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			try {
 				$ok = $this->lastResult->execute($params);
 			} catch (PDOException $e) {
-				//debug($query, $params, $e->getMessage());
+				debug($query, $params, $e->getMessage());
 				throw $e;
 			}
 			$this->queryTime += $profiler->elapsed();

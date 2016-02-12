@@ -258,7 +258,9 @@ class slTable {
 				} else {
 					$th = &$this->thes[$this->sortBy];
 				}
-				if ($th && !endsWith($th, $this->arrowAsc) && !endsWith($th, $this->arrowDesc)) {
+				if ($th
+					&& !str_endsWith($th, $this->arrowAsc)
+					&& !str_endsWith($th, $this->arrowDesc)) {
 					$th .= $this->sortOrder ? $this->arrowDesc : $this->arrowAsc;
 				}
 			}
@@ -692,7 +694,7 @@ class slTable {
 				if (!$no_hsc) {
 					if (mb_strpos($val, "\n") !== FALSE) {
 						$val = htmlspecialchars($val);
-					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
+					$val = new htmlString('<pre style="white-space: pre-wrap;">'.htmlspecialchars($val).'</pre>');
 					} else {
 					$val = htmlspecialchars($val, ENT_NOQUOTES);
 					}
@@ -767,7 +769,7 @@ class slTable {
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);
 				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
-				$widthAvg[$field] += mb_strlen($value);
+				$widthAvg[$field] = ifsetor($widthAvg[$field]) + mb_strlen($value);
 			}
 		}
 		if ($useAvg) {
@@ -789,7 +791,7 @@ class slTable {
 		foreach ($dataWithHeader as $row) {
 			$padRow = array();
 			foreach ($this->thes as $field => $name) {
-				$value = $row[$field];
+				$value = ifsetor($row[$field]);
 				$value = is_array($value)
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);

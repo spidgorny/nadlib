@@ -817,7 +817,7 @@ class Request {
 	 * @return bool
 	 */
 	static function isCron() {
-		return !isset($_SERVER['TERM']);
+		return !self::isPHPUnit() && self::isCLI() && !isset($_SERVER['TERM']);
 	}
 
 	function debug() {
@@ -1027,6 +1027,41 @@ class Request {
 
 	public function getKeys() {
 		return array_keys($this->data);
+	}
+
+	function getIP() {
+		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
+		if (!$ip || in_array($ip, [
+				'127.0.0.1',
+			])) {
+			$ip = file_get_contents('http://ipecho.net/plain');
+		}
+		return $ip;
+	}
+
+	public function getGeoIP() {
+		$session = new Session(__CLASS__);
+		$json = $session->get(__METHOD__);
+		if (!$json) {
+			$url = 'http://ipinfo.io/json/' . $this->getIP();		// 166ms
+			$info = file_get_contents($url);
+			if ($info) {
+				$json = json_decode($info);
+				$session->save(__METHOD__, $json);
+			} else {
+				$url = 'http://freegeoip.net/json/'.$this->getIP();	// 521ms
+				$info = file_get_contents($url);
+				$json = json_decode($info);
+				$json->loc = $json->latitude.','.$json->longitude;	// compatibility hack
+				$session->save(__METHOD__, $json);
+			}
+		}
+		return $json;
+	}
+
+	public function getGeoLocation() {
+		$info = $this->getGeoIP();
+		return trimExplode(',', $info->loc);
 	}
 
 }
