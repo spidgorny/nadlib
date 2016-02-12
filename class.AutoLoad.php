@@ -351,6 +351,7 @@ class AutoLoad {
 			} elseif ($this->debug) {
 				//debug($this->stat['folders'], $this->stat['configPath']);
 				//debug($this->folders);
+				//echo 'AL ', $class, ' not in ', $file, BR;
 			}
 			$this->folders->collectDebug = null;
 		}
@@ -369,6 +370,9 @@ class AutoLoad {
 
 	static function register() {
 		$instance = self::getInstance();
+		if (!$instance->folders) {
+			$instance->postInit();
+		}
 		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
@@ -381,10 +385,15 @@ class AutoLoad {
 				$instance->load($class);
 			}
 		}
+		return $instance;
 	}
 
 	function addFolder($path, $namespace = NULL) {
+		if (!$this->folders) {
+			$this->postInit();
+		}
 		$this->folders->addFolder($path, $namespace);
+		return $this;
 	}
 
 }
