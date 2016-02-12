@@ -67,7 +67,7 @@ class Uploader {
 	 * // add custom hidden fields to upload form (e.g. Loan[id])
 	 * if (!empty($hiddenFields)) {
 	 * foreach ($hiddenFields as $name => $value) {
-	 * $f->hidden($name, $value);
+	 * 		$f->hidden($name, $value);
 	 * }
 	 * }
 	 * @param  string - input field name - usually 'file'
@@ -81,7 +81,6 @@ class Uploader {
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$f->text($this->getLimitsDiv());
-
 		return $f;
 	}
 
@@ -171,13 +170,15 @@ class Uploader {
                 }
             }
 
-			$ok = @move_uploaded_file($uf['tmp_name'], $fileName);
+			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
 				//debug($error);
 				throw new Exception($error['message']);
 			}
+		} else {
+			$ok = false;
 		}
 		return $ok;
 	}
@@ -283,6 +284,7 @@ class Uploader {
 				return file_get_contents($uf['tmp_name']);
 			}
 		}
+		return NULL;
 	}
 
 	public function getTempFile($fieldName = 'file') {

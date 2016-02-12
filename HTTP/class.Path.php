@@ -15,7 +15,7 @@ class Path {
 	function __construct($sPath) {
 		$this->sPath = $sPath.'';
 		$this->isAbsolute = str_startsWith($this->sPath, '/') || (isset($this->sPath[1]) && $this->sPath[1] == ':');
-		$this->isDir = endsWith($this->sPath, '/');
+		$this->isDir = str_endsWith($this->sPath, '/');
 		$this->isFile = !$this->isDir;
 		$this->explode();
 		$this->implode();   // to prevent '//'
@@ -224,7 +224,7 @@ class Path {
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
 		//$new = array_diff($this->aPath, $al->appRoot->aPath);
-		$new = $this->cutArrayFromArray($this->aPath, $al->documentRoot->aPath);
+		$new = $this->cutArrayFromArray($this->aPath, $al->appRoot->aPath);
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;

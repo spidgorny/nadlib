@@ -188,7 +188,9 @@ class ProgressBar {
 		$prefix = Request::getInstance()->getLocation() . $prefix;
 		return '<img src="'.$prefix.'bar.php?rating='.round($p).$append.'"
 		style="vertical-align: middle;"
-		title="'.number_format($p, 2).'%" />';
+		title="'.number_format($p, 2).'%"
+		width="100"
+		height="15" />';
 	}
 
 	static function getBar($p, $append = '') {

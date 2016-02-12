@@ -20,9 +20,11 @@ class HTMLForm {
 	protected $fieldsetMore = array();
 
 	/**
-	 * @var string
+	 * @var array
 	 */
-	var $formMore = '';
+	var $formMore = [
+		'class' => '',
+	];
 
 	public $debug = false;
 
@@ -56,7 +58,7 @@ class HTMLForm {
 	}
 
 	function text($a) {
-		$this->stdout .= $a;
+		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
 	function prefix($p) {
@@ -384,13 +386,22 @@ class HTMLForm {
 	}
 
 	function getFormTag() {
-		$a = "<form
-			action=\"{$this->action}\"
-			method=\"{$this->method}\" " .
-			($this->enctype?" enctype=\"".$this->enctype.'"':"") .
-			$this->formMore .
-			($this->target ? ' target="'.$this->target.'" ' : '').
-		">\n";
+		if (is_string($this->formMore)) {
+			$attributes = HTMLTag::parseAttributes($this->formMore);
+		} else {
+			$attributes = $this->formMore;
+		}
+		$attributes += [
+			'action' => $this->action,
+			'method' => $this->method,
+		];
+		if ($this->enctype) {
+			$attributes["enctype"] = $this->enctype;
+		}
+		if ($this->target) {
+			$attributes['target'] = $this->target;
+		}
+		$a = "<form ".HTMLTag::renderAttr($attributes).">\n";
 		if ($this->fieldset) {
 			$a .= "<fieldset ".$this->getAttrHTML($this->fieldsetMore)."><legend>".$this->fieldset."</legend>";
 			$a .= is_array($this->fieldsetMore) ? implode(' ', $this->fieldsetMore) : $this->fieldsetMore;

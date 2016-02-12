@@ -48,7 +48,7 @@ class AppControllerBE extends AppController {
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 	}
 
-	function log($class, $message) {
+	function log($class, $message = NULL) {
 		//echo $class, ' ', print_r($message, true), BR;
 		Debug::getInstance()->consoleLog([
 				'class' => $class,
@@ -56,7 +56,7 @@ class AppControllerBE extends AppController {
 		]);
 	}
 
-	public function getURL(array $params, $prefix = '?') {
+	public function getURL(array $params = array(), $prefix = '?') {
 		$url = parent::getURL($params, $this->nadlibFromDocRoot.'be/?');
 		return $url;
 	}

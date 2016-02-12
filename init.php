@@ -6,6 +6,7 @@ require_once __DIR__.'/class.InitNADLIB.php';
  * May already be defined in TYPO3
  */
 if (!function_exists('debug')) {
+
 	/**
 	 * @param ...$a mixed
 	 */
@@ -14,7 +15,7 @@ if (!function_exists('debug')) {
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
-		} else {
+		} elseif (ifsetor($_COOKIE['debug'])) {
 			ob_start();
 			var_dump($params);
 			$dump = ob_get_clean();
@@ -39,12 +40,13 @@ if (!function_exists('nodebug')) {
 	function getDebug()	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
-		$content = $debug::printStyles();
-		if (ifsetor($params[1]) == Debug::LEVELS) {
+		$dh = new DebugHTML($debug);
+		$content = $dh->printStyles();
+		if (ifsetor($params[1]) == DebugHTML::LEVELS) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array(array($debug, 'view_array'), $params);
+		$content .= call_user_func_array(array($dh, 'view_array'), $params);
 		return $content;
 	}
 
@@ -127,14 +129,14 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
-	if (!function_exists('endsWith')) {
+	if (!function_exists('str_endsWith')) {
 		/**
 		 * Whether string ends with some chars
 		 * @param $haystack
 		 * @param $needle
 		 * @return bool
 		 */
-		function endsWith($haystack, $needle) {
+		function str_endsWith($haystack, $needle) {
 			return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 		}
 	}
@@ -143,6 +145,25 @@ if (!function_exists('nodebug')) {
 		function contains($haystack, $needle) {
 			return FALSE !== strpos($haystack, $needle);
 		}
+	}
+
+	function containsAny($haystack, array $needle) {
+		foreach ($needle as $n) {
+			if (contains($haystack, $n)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function parseFloat($str) {
+		preg_match_all('!\d+(?:\.\d+)?!', $str, $matches);
+		$floats = array_map('floatval', $matches[0]);
+		return ifsetor($floats[0]);
+	}
+
+	function parseFloat2($str) {
+		return (float) filter_var( $str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
 	}
 
 	/**
@@ -338,7 +359,7 @@ if (!function_exists('nodebug')) {
 	}
 
 	function cap($string, $with = '/') {
-		if (!endsWith($string, $with)) {
+		if (!str_endsWith($string, $with)) {
 			$string .= $with;
 		}
 		return $string;
@@ -427,7 +448,16 @@ function gettype2($something) {
 	if ($type == 'object') {
 		$hash = md5(spl_object_hash($something));
 		$hash = substr($hash, 0, 6);
-		$type .= '['.get_class($something).'#'.$hash.']';
+		require_once __DIR__.'/HTTP/class.Request.php';
+		if (!Request::isCLI()) {
+			require_once __DIR__ . '/HTML/Color.php';
+			$color = new Color('#' . $hash);
+			$complement = $color->getComplement();
+			$hash = new HTMLTag('span', [
+				'style' => 'background: ' . $color . '; color: ' . $complement,
+			], $hash);
+		}
+		$type = get_class($something).'#'.$hash;
 	}
 	if ($type == 'string') {
 		$type .= '[' . strlen($something) . ']';
@@ -438,8 +468,24 @@ function gettype2($something) {
 	return $type;
 }
 
+function gettypes(array $something) {
+	$types = [];
+	foreach ($something as $element) {
+		$types[] = strip_tags(gettype2($element));
+	}
+	return json_encode($types, JSON_PRETTY_PRINT);
+}
+
 if (!function_exists('boolval')) {
 	function boolval($val) {
 		return (bool) $val;
 	}
+}
+
+function unquote ($value) {
+	if (!$value) return $value;
+	if (!is_string($value)) return $value;
+	if ($value[0] == '\'') return trim($value, '\'');
+	if ($value[0] == '"') return trim($value, '"');
+	return $value;
 }

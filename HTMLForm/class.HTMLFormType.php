@@ -5,7 +5,7 @@
  *
  */
 
-abstract class HTMLFormType {
+abstract class HTMLFormType implements HTMLFormFieldInterface {
 
 	/**
 	 * @var HTMLForm
@@ -17,7 +17,7 @@ abstract class HTMLFormType {
 	 */
 	public $field;
 
-	public $fullname;
+	public $fullName;
 
 	public $value;
 
@@ -26,8 +26,12 @@ abstract class HTMLFormType {
 	 */
 	public $desc;
 
-	function __construct() {
-	}
+	/**
+	 * Feel free to create any constructor you like
+	 * HTMLFormType constructor.
+	 */
+//	function __construct() {
+//	}
 
 	function setField($field) {
 		$this->field = $field;
@@ -35,11 +39,12 @@ abstract class HTMLFormType {
 
 	function setForm(HTMLForm $f) {
 		$this->form = $f;
-		$this->fullname = $this->form->getName($this->field, '', TRUE);
+		$this->fullName = $this->form->getName($this->field, '', TRUE);
 	}
 
 	/**
 	 * @param string $value
+	 * @return mixed|void
 	 */
 	function setValue($value) {
 		$this->value = $value;
@@ -48,7 +53,7 @@ abstract class HTMLFormType {
 	abstract function render();
 
 	function __toString() {
-		return $this->render().'';
+		return MergedContent::mergeStringArrayRecursive($this->render()).'';
 	}
 
 	/**

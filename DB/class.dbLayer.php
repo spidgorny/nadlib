@@ -71,6 +71,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		        $this->reserved = array_map('strtoupper', $this->reserved); // important
 	        }
 		}
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 	}
 
 	/**
@@ -111,7 +114,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
-			debug($query);
+			debug($e->getMessage(), $query);
 			$e = new DatabaseException(
 				'['.$e->getCode().'] '.$e->getMessage().BR.
 				pg_errormessage($this->connection).BR.
@@ -574,7 +577,7 @@ order by a.attnum';
 			'perform',
 			'fetchFromDB',
 			'findInDB',
-			'retrieveDataFromDB',
+			'retrieveData',
 			'init',
 			'__construct',
 			'getInstance',

@@ -23,7 +23,8 @@ class AutoLoad {
 	private static $instance;
 
 	/**
-	 * @var Path
+	 * @var Path from the root of the OS to the application root
+	 * Z:/web/have-you-been-here/
 	 */
 	public $appRoot;
 
@@ -45,7 +46,9 @@ class AutoLoad {
 	public $count = 0;
 
 	/**
-	 * @var Path
+	 * @var Path from the root of the domain to the application root.
+	 * Used as a prefix for JS/CSS files.
+	 * http://localhost:8080/[have-you-been-here]/index.php
 	 */
 	public $documentRoot;
 

@@ -3,8 +3,14 @@
 /**
  * Class HTMLFormField
  */
-class HTMLFormField implements ArrayAccess {
+class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 
+	/**
+	 * All different desc parameters for the form element.
+	 * Temporary solution while we transition from array assoc
+	 * to the HTMLFormField with specific members
+	 * @var array
+	 */
 	var $data = array();
 
 	/**
@@ -17,9 +23,17 @@ class HTMLFormField implements ArrayAccess {
 	 */
 	public $form;
 
+	/**
+	 * Filled when render()
+	 * @var string
+	 */
+	protected $content;
+
 	function __construct(array $desc, $fieldName = NULL) {
 		$this->data = $desc;
-		$this->setFieldName($fieldName);
+		if ($fieldName) {
+			$this->setField($fieldName);
+		}
 		$this->form = new HTMLForm();
 	}
 
@@ -71,11 +85,19 @@ class HTMLFormField implements ArrayAccess {
 		return !$this->isObligatory();
 	}
 
-	public function setFieldName($fieldName) {
+	public function setField($fieldName) {
 		$this->fieldName = $fieldName;
 	}
 
-	function switchType() {
+	public function setForm(HTMLForm $form) {
+		$this->form = $form;
+	}
+
+	public function setValue($value) {
+		$this->data['value'] = $value;
+	}
+
+	function render() {
 		$fieldName = $this->fieldName;
 		$desc = $this;
 		$fieldValue = $this['value'];
@@ -114,10 +136,12 @@ class HTMLFormField implements ArrayAccess {
 		} else {
 			$this->switchTypeRaw($type, $fieldValue, $fieldName);
 		}
+		$this->content = $this->form->stdout;
+		return $this->content;
 	}
 
 	function getContent() {
-		return $this->form->stdout;
+		return $this->content;
 	}
 
 	/**
@@ -180,7 +204,7 @@ class HTMLFormField implements ArrayAccess {
 				if (ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue == 't';
 				}
-				$this->form->check($fieldName, 1, $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
+				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
 						$more);
 				break;
 			case "time":

@@ -198,7 +198,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug(__METHOD__, $slug, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->controller = new $class();
-			//debug(get_class($this->controller));
+//			debug($class, get_class($this->controller));
 			if (method_exists($this->controller, 'postInit')) {
 				$this->controller->postInit();
 			}
@@ -330,9 +330,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * Move it to the MRBS
 	 * @param string $action
-	 * @param array $data
+	 * @param mixed $data
 	 */
-	function log($action, array $data) {
+	function log($action, $data) {
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
@@ -472,6 +472,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($mtime) {
 				$fileName .= '?' . $mtime;
 			}
+			$fn = new Path($fileName);
+			$fileName = $fn->relativeFromAppRoot();
 		}
 		$defer = $defer ? 'defer="true"' : '';
 		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" '.$defer.'></script>';
@@ -532,14 +534,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			/** @var $profiler TaylorProfiler */
 			if ($profiler) {
 				if (!$this->request->isCLI()) {
-					$content = $profiler->renderFloat();
-					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true).'</div>';
+					$ft = new FloatTime(true);
+					$content = $ft->render();
+					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true);
 					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
 					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
-					if (ifsetor($this->db->queryLog)) {
-						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
-					}
 					$content .= TaylorProfiler::dumpQueries();
+					$content .= '</div>';
 				}
 			} else if (DEVELOPMENT && !$this->request->isCLI()) {
 				$content = TaylorProfiler::renderFloat();

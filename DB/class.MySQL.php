@@ -262,6 +262,9 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if ($this->database) {
 			$this->connect($host, $login, $password);
 		}
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 		TaylorProfiler::stop(__METHOD__);
 	}
 
@@ -341,9 +344,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 			, mysql_errno($this->connection));
 			$e->setQuery($this->lastQuery);
 			throw $e;
-		}
-		if ($withProfiler && isset($profilerKey)) {
-			TaylorProfiler::stop($profilerKey);
 		}
 		return $res;
 	}
