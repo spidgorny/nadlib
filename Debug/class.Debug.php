@@ -371,9 +371,102 @@ class Debug {
 	}
 
 	static function peek($row) {
+		if (is_object($row)) {
+			$row = get_object_vars($row);
+		}
 		pre_print_r(array_combine(array_keys($row), array_map(function ($a) {
 			return gettype2($a);
 		}, $row)));
+	}
+
+	/**
+	 * This is like peek() but recursive
+	 * @param     $row
+	 * @param int $spaces
+	 */
+	static function dumpStruct($row, $spaces = 0) {
+		static $recursive;
+		if (!$spaces) {
+			echo '<pre class="debug">';
+			$recursive = [];
+		}
+		if (is_object($row)) {
+			$hash = spl_object_hash($row);
+			if (!ifsetor($recursive[$hash])) {
+				$sleep = method_exists($row, '__sleep')
+					? $row->__sleep() : NULL;
+				$recursive[$hash] = gettype2($row);	// before it's array
+				$row = get_object_vars($row);
+				if ($sleep) {
+					$sleep = array_combine($sleep, $sleep);
+					// del properties removed by sleep
+					$row = array_intersect_key($row, $sleep);
+				}
+			} else {
+				$row = '*RECURSIVE* '.$recursive[$hash];
+			}
+		}
+		if (is_array($row)) {
+			foreach ($row as $key => $el) {
+				echo str_repeat(' ', $spaces), $key, '->',
+				cap(gettype2($el), "\n");
+				self::dumpStruct($el, $spaces+4);
+			}
+		} else {
+			echo str_repeat(' ', $spaces);
+			switch (gettype($row)) {
+				case 'string':
+					$len = mb_strlen($row);
+					if ($len > 32) {
+						$row = substr($row, 0, 32) . '...';
+					}
+					echo '"', htmlspecialchars($row), '"';
+					break;
+				case 'null':
+					echo 'NULL';
+					break;
+				case 'boolean':
+					echo $row ? 'TRUE' : 'FALSE';
+					break;
+				default:
+					echo $row;
+			}
+			echo BR;
+		}
+		if (!$spaces) {
+			echo '</pre>';
+		}
+	}
+
+	static function findObject($struct, $type, $path = []) {
+		static $recursive;
+		if (!$path) {
+			$recursive = [];
+		}
+		if (is_object($struct)) {
+			$hash = spl_object_hash($struct);
+			if (!ifsetor($recursive[$hash])) {
+				$sleep = method_exists($struct, '__sleep1')
+					? $struct->__sleep() : NULL;
+				$recursive[$hash] = gettype2($struct);	// before it's array
+				$struct = get_object_vars($struct);
+				if ($sleep) {
+					$sleep = array_combine($sleep, $sleep);
+					// del properties removed by sleep
+					$struct = array_intersect_key($struct, $sleep);
+				}
+			}
+		}
+		if (is_array($struct)) {
+			foreach ($struct as $key => $el) {
+				$pathPlus1 = $path;
+				$pathPlus1[] = $key.'('.gettype2($el).')';
+				if ($el instanceof $type) {
+					echo implode('->', $pathPlus1), '->', gettype2($el), BR;
+				}
+				self::findObject($el, $type, $pathPlus1);
+			}
+		}
 	}
 
 }

@@ -4,8 +4,11 @@
  * @property  table
  * @property  thead
  * @property  tbody
+ * @property  tfoot
  */
 class HTMLTableBuf extends MergedContent {
+
+	var $curPart = 'tbody';
 
 	function __construct() {
 		parent::__construct(array(
@@ -56,11 +59,11 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function td($more = "") {
-		$this->addSub('tbody', "<td".rtrim(' '.$more).">");
+		$this->addSub($this->curPart, "<td".rtrim(' '.$more).">");
 	}
 
 	function tde() {
-		$this->addSub('tbody', "</td>\n");
+		$this->addSub($this->curPart, "</td>\n");
 	}
 
 	function addTHead($text) {
@@ -68,7 +71,7 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function text($text) {
-		$this->addSub('tbody', $text);
+		$this->addSub($this->curPart, $text);
 	}
 
 	function tfoot($text) {
@@ -107,7 +110,7 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function tag(HTMLTag $tag) {
-		$this->addSub('tbody', $tag.'');
+		$this->addSub($this->curPart, $tag.'');
 	}
 
 	function isDone() {

@@ -20,7 +20,7 @@ class Preferences {
 
 	function get($key) {
 		//debug(__METHOD__, $key);
-		return $this->prefs[$key];
+		return ifsetor($this->prefs[$key]);
 	}
 
 	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {

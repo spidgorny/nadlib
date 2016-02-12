@@ -61,6 +61,9 @@ class UL {
 			if ($this->linkWrap) {
 				$wrap = Wrap::make($this->linkWrap);
 				// don't translate __() because the values may come from DB
+				if (is_array($li)) {
+					$li = MergedContent::mergeStringArrayRecursive($li);
+				}
 				$li = $wrap->wrap($li);
 			} else {
 				$link = NULL;

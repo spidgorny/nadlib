@@ -522,7 +522,9 @@ abstract class Controller {
 //				$f->hidden('id', $id);
 //			}
 		}
-		$f->hidden('action', $action);
+		if (!is_null($action)) {
+			$f->hidden('action', $action);
+		}
 		if ($name instanceof htmlString) {
 			$f->button($name, array(
 				'type' => "submit",
