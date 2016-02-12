@@ -704,4 +704,8 @@ class Time {
 		return date('Y-m-d', $this->getTimestamp()) == date('Y-m-d');
 	}
 
+	public function getDay() {
+		return $this->format('d');
+	}
+
 }

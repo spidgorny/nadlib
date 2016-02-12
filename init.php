@@ -142,6 +142,9 @@ if (!function_exists('nodebug')) {
 	}
 
 	function str_contains($haystack, $needle) {
+		if (is_array($haystack)) {
+			debug_pre_print_backtrace();
+		}
 		return FALSE !== strpos($haystack, $needle);
 	}
 
