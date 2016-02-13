@@ -108,9 +108,13 @@ class AutoLoadFolders {
 	}
 
 	function loadConfig() {
-		nodebug(array(
+		(array(
 			dirname($_SERVER['SCRIPT_FILENAME']),
 			getcwd(),
+			file_exists(getcwd()),
+			$this->al->appRoot.'',
+			file_exists($this->al->appRoot),
+			file_exists($this->al->appRoot.'class'),
 		));
 		if (!class_exists('ConfigBase')) {
 			require_once 'class.ConfigBase.php';
@@ -120,7 +124,9 @@ class AutoLoadFolders {
 			$configPath1 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
 			$configPath2 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.      'Config.php';
 			$this->al->stat['configPath'] = $configPath1;
-			//debug($configPath, file_exists($configPath)); exit();
+//			pre_print_r($configPath1, file_exists($configPath1));
+//			pre_print_r($configPath2, file_exists($configPath2));
+//			exit();
 			if (file_exists($configPath1)) {
 				/** @noinspection PhpIncludeInspection */
 				include_once $configPath1;

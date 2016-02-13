@@ -376,11 +376,16 @@ class Path {
 
 	function getFiles() {
 		$files = glob(cap($this->sPath).'*');
+		$basenames = array_map(function ($file) {
+			return basename($file);
+		}, $files);
+		$files = array_combine($basenames, $files);
 		return $files;
 	}
 
 	function hasFile($file) {
 		$files = $this->getFiles();
+		//debug($files);
 		return !!ifsetor($files[$file]);
 	}
 

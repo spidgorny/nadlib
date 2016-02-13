@@ -14,10 +14,6 @@ class LogEntry {
 		self::$log2file = DEVELOPMENT;
 	}
 
-	static function initLogging() {
-		self::$log2file = DEVELOPMENT;
-	}
-
 	function __construct($action, $data) {
 		$this->time = microtime(true);
 		$this->action = $action;
