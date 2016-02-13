@@ -254,7 +254,9 @@ class AutoLoad {
 			$appRoot->upIf('nadlib');
 			$appRoot->upIf('spidgorny');
 			$appRoot->upIf('vendor');
-			if (!$appRoot->hasFile('index.php')) {
+			$hasIndex = $appRoot->hasFile('index.php');
+			//pre_print_r($appRoot.'', $hasIndex);
+			if (!$hasIndex) {
 				$appRoot->up();
 			}
 		}

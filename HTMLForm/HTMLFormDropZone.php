@@ -2,11 +2,14 @@
 
 class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 
+	var $makeFallback = true;
+
 	/**
 	 * Shows the form element in the form
 	 * @return mixed
 	 */
 	function render() {
+		$content = [];
 		$this->form->action(new URL(NULL, [
 			'action' => 'upload',
 		]));
@@ -15,13 +18,15 @@ class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 		$index->addJS('vendor/enyo/dropzone/dist/min/dropzone.min.js');
 		$index->addCSS('vendor/enyo/dropzone/dist/min/dropzone.min.css');
 
-		//$u = new Uploader();
-		//$form = $u->getUploadForm();
-		$form = new HTMLForm();
-		$form->text('<div class="fallback">');
-		$form->file('file');
-		$form->text('</div>');
-		$content[] = $form->getBuffer();
+		if ($this->makeFallback) {
+			//$u = new Uploader();
+			//$form = $u->getUploadForm();
+			$form = new HTMLForm();
+			$form->text('<div class="fallback">');
+			$form->file('file');
+			$form->text('</div>');
+			$content[] = $form->getBuffer();
+		}
 		return $content;
 	}
 

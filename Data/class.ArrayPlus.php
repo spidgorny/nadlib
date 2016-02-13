@@ -584,12 +584,12 @@ class ArrayPlus extends ArrayObject implements Countable {
     }
 
 	/**
-	 * @param $ar2
+	 * @param array $ar2
 	 * @return static
 	 */
 	function merge_recursive_overwrite($ar2) {
 		foreach ($ar2 as $key2 => $val2) {
-			if (isset($this[$key2])) {
+			if (isset($this[$key2]) && is_array($this[$key2])) {
 				$tmp = AP($this[$key2]);
 				$tmp->merge_recursive_overwrite($val2);
 				$this[$key2] = $tmp->getData();
@@ -657,7 +657,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * http://php.net/manual/en/function.array-splice.php#111204
 	 * @param $input
@@ -764,7 +764,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	public function contains($string) {
 		return in_array($string, $this->getData());
 	}
-	
+
 	public function makeTable($newKey) {
 		$copy = array();
 		foreach ($this->getData() as $key => $row) {
@@ -816,8 +816,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 function AP($a = array()) {
 	if ($a instanceof ArrayPlus) {
 		return $a;
-	} else {
+	} elseif (is_array($a)) {
 		return ArrayPlus::create($a);
+	} else {
+		throw new InvalidArgumentException(__METHOD__.' accepts array');
 	}
 }
 
