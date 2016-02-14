@@ -54,18 +54,21 @@ class SecurityCheck extends AppControllerBE {
 		$constructor = $rc->getConstructor();
 		if ($constructor) {
 			$content[] = $this->checkMethod($constructor);
-			$content[] = BR;
 
-			$pc = $rc->getParentClass();
-			if ($pc && $pc->getName() != $rc->getName()) {
-				$constructor = $pc->getConstructor();
-				if ($constructor) {
-					$contentParent = $this->checkMethod($constructor);
-					$content[] = $pc->getName().'::'.$constructor->getName().': ';
-					$content[] = ifsetor($contentParent[1]['checks']);
-					$content[] = ifsetor($contentParent[1]['throws']);
+			do {
+				$pc = $rc->getParentClass();
+				if ($pc && $pc->getName() != $rc->getName()) {
+					$constructor = $pc->getConstructor();
+					if ($constructor) {
+						$contentParent = $this->checkMethod($constructor);
+						$content[] = BR;
+						$content[] = $pc->getName() . '::' . $constructor->getName() . ': ';
+						$content[] = ifsetor($contentParent[1]['checks']);
+						$content[] = ifsetor($contentParent[1]['throws']);
+					}
 				}
-			}
+				$rc = $pc;
+			} while ($pc);
 		}
 		return $content;
 	}
