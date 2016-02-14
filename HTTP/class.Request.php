@@ -64,7 +64,7 @@ class Request {
 	 * @return mixed
 	 */
 	function get($key) {
-		return $this->data[$key];
+		return ifsetor($this->data[$key]);
 	}
 
 	/**
