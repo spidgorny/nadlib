@@ -654,6 +654,9 @@ abstract class Controller {
 	}
 
 	function e($content) {
+		if (is_array($content)) {
+			$content = MergedContent::mergeStringArrayRecursive($content);
+		}
 		return htmlspecialchars($content, ENT_QUOTES);
 	}
 
