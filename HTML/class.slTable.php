@@ -768,7 +768,7 @@ class slTable {
 		//print_r($widthMax);
 		foreach ($this->data as $row) {
 			foreach ($this->thes as $field => $name) {
-				$value = $row[$field];
+				$value = ifsetor($row[$field]);
 				$value = is_array($value)
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);
