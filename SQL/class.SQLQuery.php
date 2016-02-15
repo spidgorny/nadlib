@@ -19,7 +19,7 @@ class SQLQuery extends \PHPSQLParser\PHPSQLParser {
 	function getQuery() {
 		$psc = new PHPSQLParser\PHPSQLCreator($this->parsed);
 		$query = $psc->created.'';
-		$query = str_replace([
+		$query = str_replace(array(
 			'SELECT',
 			'FROM',
 			'WHERE',
@@ -27,7 +27,7 @@ class SQLQuery extends \PHPSQLParser\PHPSQLParser {
 			'HAVING',
 			'ORDER',
 			'LIMIT',
-		], [
+		), array(
 			"SELECT",
 			"\nFROM",
 			"\nWHERE",
@@ -35,7 +35,7 @@ class SQLQuery extends \PHPSQLParser\PHPSQLParser {
 			"\nHAVING",
 			"\nORDER",
 			"\nLIMIT",
-		], $query);
+		), $query);
 		return $query;
 	}
 
