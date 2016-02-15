@@ -34,4 +34,12 @@ class Session {
 		}
 	}
 
+	function __get($name) {
+		return $this->get($name);
+	}
+
+	function __set($name, $value) {
+		$this->save($name, $value);
+	}
+
 }
