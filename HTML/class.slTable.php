@@ -114,7 +114,7 @@ class slTable {
 		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
 			$this->ID = md5(microtime());
-		} else if ($id) {
+		} elseif ($id) {
 			$this->ID = $id;
 		} else {
 			$this->ID = md5(microtime());
