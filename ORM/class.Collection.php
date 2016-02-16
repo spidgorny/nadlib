@@ -884,7 +884,11 @@ class Collection implements IteratorAggregate {
 //				$query = $this->getQuery();
 //				$res = $this->db->perform($query);
 //				$this->count = $this->db->numRows($res);
-				$this->retrieveData();	// will set the count
+				$this->retrieveData(false, false);	// will set the count
+				// we do not preProcessData()
+				// because it's irrelevant for the count
+				// but can make the processing too slow
+				// like in QueueEPES
 			}
 		}
 		$this->log(get_class($this).'::'.__FUNCTION__, $this->count);
