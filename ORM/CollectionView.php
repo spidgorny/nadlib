@@ -105,7 +105,8 @@ class CollectionView {
 
 	function getDataTable() {
 		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
-		$s = new slTable($this->collection->getData(), HTMLTag::renderAttr($this->tableMore));
+		$s = new slTable($this->collection->getData()->getData(),
+			HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->collection->thes);
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
