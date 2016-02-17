@@ -151,8 +151,9 @@ class Debug {
 				debug_pre_print_backtrace();
 			}
 		} else {
-			pre_print_r($params);
-			debug_pre_print_backtrace();
+			// don't show anything to the users who are not DEVELOPMENT
+			//pre_print_r($params);
+			//debug_pre_print_backtrace();
 		}
 		return $content;
 	}

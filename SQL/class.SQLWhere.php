@@ -38,9 +38,9 @@ class SQLWhere {
 					$p->injectField($field);
 				} else {
 					$db = Config::getInstance()->getDB();
-					$where = $db->quoteWhere([
+					$where = $db->quoteWhere(array(
 						$field => $p,
-					]);
+					));
 					$p = first($where);
 				}
 			}
