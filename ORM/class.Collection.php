@@ -544,9 +544,14 @@ class Collection implements IteratorAggregate {
 		if (method_exists($obj, 'render')) {
 			$content = $obj->render();
 		} elseif (method_exists($obj, 'getSingleLink')) {
-			$content = new HTMLTag('a', array(
-				'href' => $obj->getsingleLink(),
-			), $obj->getName());
+			$link = $obj->getSingleLink();
+			if ($link) {
+				$content = new HTMLTag('a', array(
+					'href' => $link,
+				), $obj->getName());
+			} else {
+				$content = $obj->getName();
+			}
 		} else {
 			$content = $obj->getName();
 		}
