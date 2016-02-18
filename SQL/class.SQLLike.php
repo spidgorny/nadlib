@@ -42,7 +42,7 @@ class SQLLike extends SQLWherePart {
 	}
 
 	static function make($string, $caseInsensitive = false) {
-		return new self($string, $caseInsensitive);
+		return new static($string, $caseInsensitive);
 	}
 
 }
