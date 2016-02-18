@@ -513,9 +513,9 @@ class slTable {
 						$val = new slTableValue($val, $k);
 					}
 
-					$out = (isset($k['before']) ? $k['before'] : '').
-						   $val->render($col, $row) .
-						   (isset($k['after']) ? $k['after'] : '');
+					$out = (isset($k['before']) ? $k['before'] : '');
+					$out .= MergedContent::mergeStringArrayRecursive($val->render($col, $row));
+					$out .= (isset($k['after']) ? $k['after'] : '');
 
 					if (isset($k['colspan']) && $k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
