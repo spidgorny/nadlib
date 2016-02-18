@@ -4,7 +4,7 @@
  * Class PlainSessionUser
  * extends User in order to have a dependency on the application
  */
-class PlainSessionUser extends UserBase {
+class PlainSessionUser extends User {
 
 	/**
 	 * @var PlainSessionUser

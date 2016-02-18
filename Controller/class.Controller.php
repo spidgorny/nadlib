@@ -336,7 +336,7 @@ abstract class Controller {
 				<div id="'.$id.'"
 					class="toggleDiv"
 					style="max-height: '.$height.'; overflow: auto;
-					'.($isOpen ? '' : 'display: none;').'">'.$content.'</div>
+					'.($isOpen ? '' : 'display: none;').'">'.$this->s($content).'</div>
 			</div>';
 		}
 		return $content;

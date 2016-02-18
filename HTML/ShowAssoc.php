@@ -23,7 +23,7 @@ class ShowAssoc {
 	function render() {
 		TaylorProfiler::start(__METHOD__);
 		$content[] = '<div class="showAssoc">';
-		if ($this->title !== '') {
+		if ($this->title) {
 			$content[] = '<h3>' . ($this->title) . ':</h3>';
 		}
 		$assoc = array();

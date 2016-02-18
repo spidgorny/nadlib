@@ -443,7 +443,7 @@ abstract class OODBase {
 	 * Only works when $this->thes is defined or provided
 	 * @param array $thes
 	 * @param null  $title
-	 * @return string
+	 * @return ShowAssoc
 	 */
 	function showAssoc(array $thes = array(
 			'id' => 'ID',
