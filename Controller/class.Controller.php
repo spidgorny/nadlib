@@ -520,7 +520,8 @@ abstract class Controller {
 		if ($formAction) {
 			$f->action($formAction);
 		} else {
-			$f->hidden('c', get_class($this));
+			$f->hidden('c', ifsetor($hidden['c'], get_class($this)));
+			unset($hidden['c']);
 		}
 		$f->formHideArray($hidden);
 		if (false) {    // this is too specific, not and API
