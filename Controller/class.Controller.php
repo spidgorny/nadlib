@@ -96,7 +96,7 @@ abstract class Controller {
 	var $html;
 
 	function __construct() {
-		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
+		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).'::'.__METHOD__.BR;
 		$this->index = class_exists('Index')
 			? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
