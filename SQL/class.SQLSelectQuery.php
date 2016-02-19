@@ -1,48 +1,61 @@
 <?php
 
 class SQLSelectQuery {
+
+	/**
+	 * @var dbLayerBase|dbLayer
+	 */
+	var $db;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var SQLSelect
 	 */
 	protected $select;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var SQLFrom
 	 */
 	protected $from;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var SQLJoin
 	 */
 	public $join;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var SQLWhere
 	 */
 	public $where;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var  SQLGroup
 	 */
 	protected $group;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var SQLHaving
 	 */
 	protected $having;
+
 	/**
 	 * Enter description here...
 	 *
 	 * @var SQLOrder
 	 */
 	protected $order;
+
 	/**
 	 * Enter description here...
 	 *
@@ -54,7 +67,8 @@ class SQLSelectQuery {
 		if ($select) 	$this->setSelect($select);
 		if ($from) 		$this->setFrom($from);
 		if ($where) 	$this->setWhere($where);
-		if ($join) 		$this->setJoin($join);		else $this->join = new SQLJoin();
+		if ($join) 		$this->setJoin($join);
+			else 		$this->join = new SQLJoin();
 		if ($group) 	$this->setGroup($group);
 		if ($having) 	$this->setHaving($having);
 		if ($order) 	$this->setOrder($order);
@@ -100,13 +114,14 @@ class SQLSelectQuery {
 
 	function getQuery() {
 		$query = "SELECT
-		$this->select
-		FROM $this->from
-		$this->join
-		$this->where
-		$this->group
-		$this->having
-		$this->limit";
+{$this->select}
+FROM {$this->from}
+{$this->join}
+{$this->where}
+{$this->group}
+{$this->having}
+{$this->order}
+{$this->limit}";
 		return $query;
 	}
 
@@ -161,6 +176,17 @@ class SQLSelectQuery {
 		}
 		$res = trim($res);
 		return new htmlString($res);
+	}
+
+	function getParameters() {
+		return $this->where->getParameters();
+	}
+
+	/**
+	 * A way to perform a query with parameter without making a SQL
+	 */
+	function perform() {
+		$this->db->perform($this->getQuery(), $this->getParameters());
 	}
 
 }

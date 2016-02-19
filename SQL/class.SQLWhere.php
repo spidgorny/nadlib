@@ -2,6 +2,8 @@
 
 class SQLWhere {
 
+	var $db;
+
 	protected $parts = array();
 
 	function __construct($where = NULL) {
@@ -66,6 +68,20 @@ class SQLWhere {
 			$val = new SQLWhereEqual($key, $val);
 		}
 		return new SQLWhere($where);
+	}
+
+	function getParameters() {
+		$parameters = array();
+		foreach ($this->parts as $part) {
+			if ($part instanceof SQLWherePart) {
+				$plus = $part->getParameter();
+				if ($plus) {
+					//$parameters = array_merge($parameters, $plus);
+					$parameters[] =$plus;
+				}
+			}
+		}
+		return $parameters;
 	}
 
 }
