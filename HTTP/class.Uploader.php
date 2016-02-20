@@ -291,12 +291,14 @@ class Uploader {
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['tmp_name'];
 		}
+		return NULL;
 	}
 
 	public function getBasename($fieldName = 'file') {
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['name'];
 		}
+		return NULL;
 	}
 
 	/**
