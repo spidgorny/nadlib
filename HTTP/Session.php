@@ -42,4 +42,8 @@ class Session {
 		$this->save($name, $value);
 	}
 
+	public function clearAll() {
+		unset($_SESSION[$this->prefix]);
+	}
+
 }
