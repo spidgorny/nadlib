@@ -12,7 +12,7 @@ abstract class OODBase {
 	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS|dbLayerPG|dbLayerBase|dbLayerSQLite
 	 * public to allow unset($o->db); before debugging
 	 */
-	public $db;
+	protected $db;
 
 	/**
 	 * database table name for referencing everywhere. MUST BE OVERRIDEN IN SUBCLASS!
@@ -701,7 +701,7 @@ abstract class OODBase {
 			$this->insert($where);
 		}
 	}
-	
+
 	public static function getCacheStats() {
 		$stats = array();
 		foreach (self::$instances as $class => $list) {
