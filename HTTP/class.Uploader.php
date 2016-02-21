@@ -162,7 +162,7 @@ class Uploader {
                 $extension = pathinfo($fileName, PATHINFO_EXTENSION);
 
                 $i = 1;
-                while(file_exists($to.$actualName.".".$extension))
+                while (file_exists($to.$actualName.".".$extension))
                 {
                     $actualName = (string) $originalName.'_'.$i;
                     $fileName = $to.$actualName.".".$extension;
@@ -170,6 +170,7 @@ class Uploader {
                 }
             }
 
+			@mkdir(dirname($fileName), 0777, true);
 			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty

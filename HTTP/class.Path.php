@@ -389,4 +389,17 @@ class Path {
 		return !!ifsetor($files[$file]);
 	}
 
+	public function debugPathExists() {
+		$debug = [];
+		$sPath = $this->isAbsolute ? '/' : '';
+		foreach ($this->aPath as $i => $section) {
+			$sPath .= $section;
+			if ($i < sizeof($this->aPath)) {
+				$sPath .= '/';
+			}
+			$debug[$sPath] = file_exists($sPath);
+		}
+		debug($debug);
+	}
+
 }
