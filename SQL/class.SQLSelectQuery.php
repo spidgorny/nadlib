@@ -97,7 +97,7 @@ class SQLSelectQuery {
 	}
 
 	function getQuery() {
-		$query = "SELECT
+		$query = trim("SELECT
 {$this->select}
 FROM {$this->from}
 {$this->join}
@@ -105,7 +105,7 @@ FROM {$this->from}
 {$this->group}
 {$this->having}
 {$this->order}
-{$this->limit}";
+{$this->limit}");
 		return $query;
 	}
 

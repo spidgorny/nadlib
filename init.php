@@ -500,3 +500,21 @@ function unquote ($value) {
 	if ($value[0] == '"') return trim($value, '"');
 	return $value;
 }
+
+/**
+ * http://php.net/manual/en/function.str-replace.php#86177
+ * @param $search
+ * @param $replace
+ * @param $subject
+ * @return string
+ */
+function str_replace_once($search, $replace, $subject) {
+	$firstChar = strpos($subject, $search);
+	if ($firstChar !== false) {
+		$beforeStr = substr($subject,0,$firstChar);
+		$afterStr = substr($subject, $firstChar + strlen($search));
+		return $beforeStr.$replace.$afterStr;
+	} else {
+		return $subject;
+	}
+}

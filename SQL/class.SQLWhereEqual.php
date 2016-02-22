@@ -14,7 +14,7 @@ class SQLWhereEqual extends SQLWherePart {
 
 	/**
 	 *
-	 * @var dbLayerPG
+	 * @var dbLayer|dbLayerBase
 	 */
 	protected $db;
 
