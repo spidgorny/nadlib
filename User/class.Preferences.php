@@ -24,7 +24,7 @@ class Preferences {
 	}
 
 	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {
-		$prio2 = $this->getPref($key);
+		$prio2 = $this->get($key);
 		if ($prio1 != NULL) {
 			$val = $prio1;
 		} else if ($prio2 != NULL) {
@@ -38,7 +38,7 @@ class Preferences {
 			$prio3,
 			$val,
 		));
-*/		$this->setPref($key, $val);
+*/		$this->set($key, $val);
 		return $val;
 	}
 
