@@ -8,57 +8,41 @@ class SQLSelectQuery {
 	var $db;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLSelect
 	 */
 	protected $select;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLFrom
 	 */
 	protected $from;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLJoin
 	 */
 	public $join;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLWhere
 	 */
 	public $where;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var  SQLGroup
 	 */
 	protected $group;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLHaving
 	 */
 	protected $having;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLOrder
 	 */
 	protected $order;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLLimit
 	 */
 	protected $limit;
@@ -179,14 +163,38 @@ FROM {$this->from}
 	}
 
 	function getParameters() {
-		return $this->where->getParameters();
+		if ($this->where) {
+			$params = $this->where->getParameters();
+		} else {
+			$params = array();
+		}
+		if ($this->from instanceof SQLSubquery) {
+			$params += $this->from->getParameters();
+		}
+		return $params;
 	}
 
 	/**
 	 * A way to perform a query with parameter without making a SQL
 	 */
 	function perform() {
-		$this->db->perform($this->getQuery(), $this->getParameters());
+		return $this->db->perform($this->getQuery(), $this->getParameters());
+	}
+
+	function fetchAssoc() {
+		return $this->db->fetchAssoc($this->perform());
+	}
+
+	function fetchAll() {
+		return $this->db->fetchAll($this->perform());
+	}
+
+	public function unsetOrder() {
+		$this->order = NULL;
+	}
+
+	public function injectDB($db) {
+		$this->db = $db;
 	}
 
 }

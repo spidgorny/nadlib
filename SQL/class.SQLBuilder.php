@@ -348,7 +348,7 @@ class SQLBuilder {
 		$from->db = $this->db;
 		$where = new SQLWhere($where);
 		$where->db = $this->db;
-		$order = new SQLORder($order);
+		$order = new SQLOrder($order);
 		$order->db = $this->db;
 		$sq = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, $order);
 		$sq->db = $this->db;
