@@ -24,7 +24,7 @@ class AsIs extends SQLWherePart {
 	function __toString() {
 		$content = '';
 		if ($this->field) {
-			$content .= $this->field. ' ';
+			$content .= $this->db->quoteKey($this->field). ' ';
 		}
 		$content .= $this->value.'';
 		return $content;
