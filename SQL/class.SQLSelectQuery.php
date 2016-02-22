@@ -1,51 +1,48 @@
 <?php
 
 class SQLSelectQuery {
+
 	/**
-	 * Enter description here...
-	 *
+	 * @var dbLayerBase|dbLayer
+	 */
+	var $db;
+
+	/**
 	 * @var SQLSelect
 	 */
 	protected $select;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLFrom
 	 */
 	protected $from;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLJoin
 	 */
 	public $join;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLWhere
 	 */
 	public $where;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var  SQLGroup
 	 */
 	protected $group;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLHaving
 	 */
 	protected $having;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLOrder
 	 */
 	protected $order;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLLimit
 	 */
 	protected $limit;
@@ -54,7 +51,8 @@ class SQLSelectQuery {
 		if ($select) 	$this->setSelect($select);
 		if ($from) 		$this->setFrom($from);
 		if ($where) 	$this->setWhere($where);
-		if ($join) 		$this->setJoin($join);		else $this->join = new SQLJoin();
+		if ($join) 		$this->setJoin($join);
+			else 		$this->join = new SQLJoin();
 		if ($group) 	$this->setGroup($group);
 		if ($having) 	$this->setHaving($having);
 		if ($order) 	$this->setOrder($order);
@@ -99,19 +97,26 @@ class SQLSelectQuery {
 	}
 
 	function getQuery() {
-		$query = "SELECT
-		$this->select
-		FROM $this->from
-		$this->join
-		$this->where
-		$this->group
-		$this->having
-		$this->limit";
+		$query = trim("SELECT
+{$this->select}
+FROM {$this->from}
+{$this->join}
+{$this->where}
+{$this->group}
+{$this->having}
+{$this->order}
+{$this->limit}");
 		return $query;
 	}
 
 	function __toString() {
-		return $this->getQuery();
+		try {
+			return $this->getQuery();
+		} catch (Exception $e) {
+			echo '<strong>', $e->getMessage(), '</strong>', BR;
+			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
+			pre_print_r($e->getTraceAsString());
+		}
 	}
 
 	static function sqlSH($sql) {
@@ -161,6 +166,41 @@ class SQLSelectQuery {
 		}
 		$res = trim($res);
 		return new htmlString($res);
+	}
+
+	function getParameters() {
+		if ($this->where) {
+			$params = $this->where->getParameters();
+		} else {
+			$params = array();
+		}
+		if ($this->from instanceof SQLSubquery) {
+			$params += $this->from->getParameters();
+		}
+		return $params;
+	}
+
+	/**
+	 * A way to perform a query with parameter without making a SQL
+	 */
+	function perform() {
+		return $this->db->perform($this->getQuery(), $this->getParameters());
+	}
+
+	function fetchAssoc() {
+		return $this->db->fetchAssoc($this->perform());
+	}
+
+	function fetchAll() {
+		return $this->db->fetchAll($this->perform());
+	}
+
+	public function unsetOrder() {
+		$this->order = NULL;
+	}
+
+	public function injectDB($db) {
+		$this->db = $db;
 	}
 
 }

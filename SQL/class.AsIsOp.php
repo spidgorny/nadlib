@@ -19,10 +19,6 @@ class AsIsOp extends AsIs {
 		$this->value = $val;
 	}
 
-	function __toString() {
-		return $this->value.'';
-	}
-
 	function debug() {
 		return array(
 			'field' => $this->field,

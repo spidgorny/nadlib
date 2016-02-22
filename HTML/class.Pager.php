@@ -97,6 +97,16 @@ class Pager {
 	}
 
 	function initByQuery($originalSQL) {
+		if (is_string($originalSQL)) {
+			$this->initByStringQuery($originalSQL);
+		} elseif ($originalSQL instanceof SQLSelectQuery) {
+			$this->initBySelectQuery($originalSQL);
+		} else {
+			throw new InvalidArgumentException(__METHOD__);
+		}
+	}
+
+	function initByStringQuery($originalSQL) {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($originalSQL, 0, 300).')';
 		TaylorProfiler::start($key);
@@ -114,6 +124,23 @@ class Pager {
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		//debug($originalSQL, $query, $res);
+		$this->detectCurrentPage();
+		TaylorProfiler::stop($key);
+	}
+
+	function initBySelectQuery(SQLSelectQuery $originalSQL) {
+		$key = __METHOD__.' ('.substr($originalSQL, 0, 300).')';
+		TaylorProfiler::start($key);
+		$queryWithoutOrder = clone $originalSQL;
+		$queryWithoutOrder->unsetOrder();
+
+		$query = new SQLSelectQuery(
+			new SQLSelect('count(*) AS count'),
+			new SQLSubquery($queryWithoutOrder, 'counted'));
+		$query->injectDB($this->db);
+
+		$res = $query->fetchAssoc();
+		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();
 		TaylorProfiler::stop($key);
 	}
@@ -167,6 +194,8 @@ class Pager {
 		$scheme = $this->db->getScheme();
 		if ($scheme == 'ms') {
 			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
+		} elseif ($query instanceof SQLSelectQuery) {
+			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->startingRecord));
 		} else {
 			$limit = "\nLIMIT ".$this->itemsPerPage.
 			"\nOFFSET " . $this->startingRecord;
