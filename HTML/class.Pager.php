@@ -194,6 +194,8 @@ class Pager {
 		$scheme = $this->db->getScheme();
 		if ($scheme == 'ms') {
 			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
+		} elseif ($query instanceof SQLSelectQuery) {
+			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->startingRecord));
 		} else {
 			$limit = "\nLIMIT ".$this->itemsPerPage.
 			"\nOFFSET " . $this->startingRecord;

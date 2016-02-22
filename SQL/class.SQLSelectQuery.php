@@ -110,7 +110,13 @@ FROM {$this->from}
 	}
 
 	function __toString() {
-		return $this->getQuery();
+		try {
+			return $this->getQuery();
+		} catch (Exception $e) {
+			echo '<strong>', $e->getMessage(), '</strong>', BR;
+			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
+			pre_print_r($e->getTraceAsString());
+		}
 	}
 
 	static function sqlSH($sql) {
