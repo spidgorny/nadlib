@@ -162,7 +162,7 @@ class SQLBuilder {
 					if (is_numeric($key)) {
 						$set[] = $val;
 					} else {
-						$set[] = $key . ' ' . $val;
+						$set[] = /*$key . ' ' .*/ $val;	// inject field
 					}
 				} elseif ($val instanceof AsIs) {
 					$val->injectDB($this->db);
