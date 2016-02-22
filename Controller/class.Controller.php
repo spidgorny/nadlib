@@ -438,8 +438,11 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInTableHTML3(array $cells) {
-		$content[] = '<table class="encloseInTable">';
+	function encloseInTableHTML3(array $cells, array $more = array()) {
+		if (!$more) {
+			$more['class'] = "encloseInTable";
+		}
+		$content[] = '<table '.HTMLTag::renderAttr($more).'>';
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';
