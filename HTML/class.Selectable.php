@@ -78,8 +78,9 @@ class Selectable {
 
 	function getName() {
 		if (!isset($this->data[$this->selected])) {
-			debug($this->data);
-			debug_pre_print_backtrace();
+			//debug($this->data);
+			//debug_pre_print_backtrace();
+			return 'Unknown room/location #'.$this->selected;
 		}
 		return $this->data[$this->selected];
 	}
