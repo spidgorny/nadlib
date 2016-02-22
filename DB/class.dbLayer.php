@@ -106,6 +106,12 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			debug($query);
 			debug_pre_print_backtrace();
 		}
+
+		if ($query instanceof SQLSelectQuery) {
+			$params = $query->getParameters();
+			$query = $query->__toString();
+		}
+
 		try {
 			if ($params) {
 				pg_prepare($this->connection, '', $query);
