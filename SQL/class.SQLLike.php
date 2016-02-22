@@ -32,7 +32,7 @@ class SQLLike extends SQLWherePart {
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
 		$w = explode('|', $this->wrap);
 		if (true) {
-			$escape = '$1';
+			$escape = '$0$';
 		} else {
 			$escape = $this->db->escape($this->string);
 			$escape = str_replace('\\"', '"', $escape);
