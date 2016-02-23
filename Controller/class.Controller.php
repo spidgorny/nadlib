@@ -686,15 +686,16 @@ abstract class Controller {
 	}
 
 	static function link($text = NULL) {
+		/** @var Controller $self */
 		$self = get_called_class();
 		return new HTMLTag('a', array(
 			'href' => $self::href()
 		), $text ?: $self);
 	}
 
-	static function href() {
+	static function href(array $params = array()) {
 		$self = get_called_class();
-		return $self;
+		return $self.'?'.http_build_query($params);
 	}
 
 	/**
