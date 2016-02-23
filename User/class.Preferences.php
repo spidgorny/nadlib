@@ -23,6 +23,10 @@ class Preferences {
 		return ifsetor($this->prefs[$key]);
 	}
 
+	function un_set($key) {
+		unset($this->prefs[$key]);
+	}
+
 	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {
 		$prio2 = $this->get($key);
 		if ($prio1 != NULL) {

@@ -510,9 +510,12 @@ abstract class OODBase {
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
-				$inst = new $static();		// don't put anything else here
-				self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
-				$inst->init($id);			// separate call to avoid infinite loop in ORS
+				// don't put anything else here
+				$inst = new $static();
+				// BEFORE init() to avoid loop
+				self::storeInstance($inst);
+				// separate call to avoid infinite loop in ORS
+				$inst->init($id);
 			}
 		} else {
 			/** @var OODBase $inst */
@@ -523,6 +526,12 @@ abstract class OODBase {
 			}
 		}
 		return $inst;
+	}
+
+	static function storeInstance($inst) {
+		$static = get_called_class();
+		$id = $inst->id;
+		self::$instances[$static][$id] = $inst;
 	}
 
 	static function clearInstances() {
