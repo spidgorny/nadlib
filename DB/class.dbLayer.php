@@ -597,11 +597,13 @@ order by a.attnum';
 	}
 
 	function quoteKey($key) {
-		if (function_exists('pg_escape_identifier')) {
-			$key = pg_escape_identifier($key);
-		} else {
-			$key = '"' . $key . '"';
-		}
+		if (ctype_alpha($key)) {
+			if (function_exists('pg_escape_identifier')) {
+				$key = pg_escape_identifier($key);
+			} else {
+				$key = '"' . $key . '"';
+			}
+		} // else it can be functions(of something)
 		return $key;
 	}
 
