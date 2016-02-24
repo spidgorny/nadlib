@@ -382,6 +382,7 @@ class Collection implements IteratorAggregate {
 	function preprocessData() {
 		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".sizeof($this->data));
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		$this->getData();
 		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
