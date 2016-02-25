@@ -84,12 +84,12 @@ class DocCommentParser {
 	 * @return array The tag's values
 	 */
 	public function getTagValues($tagName) {
-		return $this->tags[$tagName];
+		return ifsetor($this->tags[$tagName]);
 	}
 
 	public function getFirstTagValue($tagName) {
 		$values = $this->getTagValues($tagName);
-		return $values[0];
+		return ifsetor($values[0]);
 	}
 
 }

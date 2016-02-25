@@ -60,6 +60,7 @@ class MergedContent implements ArrayAccess {
 	 *
 	 * @param string $key The key data to retrieve
 	 * @access public
+	 * @return mixed
 	 */
 	public function &__get ($key) {
 		return $this->content[$key];
