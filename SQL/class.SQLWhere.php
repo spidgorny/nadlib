@@ -91,9 +91,10 @@ class SQLWhere {
 		foreach ($this->parts as $part) {
 			if ($part instanceof SQLWherePart) {
 				$plus = $part->getParameter();
-				if ($plus) {
-					//$parameters = array_merge($parameters, $plus);
-					$parameters[] =$plus;
+				if (is_array($plus)) {
+					$parameters = array_merge($parameters, $plus);
+				} elseif ($plus) {
+					$parameters[] = $plus;
 				}
 			}
 		}
