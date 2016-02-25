@@ -86,4 +86,17 @@ class SQLOr extends SQLWherePart {
 		return array($this->field => $this->or);
 	}
 
+	function getParameter() {
+		$params = array();
+		foreach ($this->or as $sub) {
+			if ($sub instanceof SQLWherePart) {
+				$plus = $sub->getParameter();
+				if ($plus) {
+					$params[] = $plus;
+				}
+			}
+		}
+		return $params;
+	}
+
 }

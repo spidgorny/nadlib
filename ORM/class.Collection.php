@@ -316,7 +316,7 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * @param array/SQLWhere $where
-	 * @return string
+	 * @return string|SQLSelectQuery
 	 */
 	function getQuery($where = array()) {
 		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
