@@ -513,7 +513,7 @@ abstract class OODBase {
 				// don't put anything else here
 				$inst = new $static();
 				// BEFORE init() to avoid loop
-				self::storeInstance($inst);
+				self::storeInstance($inst, $id);
 				// separate call to avoid infinite loop in ORS
 				$inst->init($id);
 			}
@@ -528,9 +528,9 @@ abstract class OODBase {
 		return $inst;
 	}
 
-	static function storeInstance($inst) {
+	static function storeInstance($inst, $newID) {
 		$static = get_called_class();
-		$id = $inst->id;
+		$id = $inst->id ?: $newID;
 		self::$instances[$static][$id] = $inst;
 	}
 
