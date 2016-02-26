@@ -481,10 +481,11 @@ function gettype2($something, $withHash = true) {
 
 function gettypes(array $something) {
 	$types = array();
-	foreach ($something as $element) {
-		$types[] = strip_tags(gettype2($element));
+	foreach ($something as $key => $element) {
+		$types[$key] = strip_tags(gettype2($element));
 	}
-	return json_encode($types, JSON_PRETTY_PRINT);
+	return $types;
+	//return json_encode($types, JSON_PRETTY_PRINT);
 }
 
 if (!function_exists('boolval')) {
