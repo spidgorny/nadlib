@@ -351,7 +351,7 @@ class SQLBuilder {
 		$order = new SQLOrder($order);
 		$order->db = $this->db;
 		$sq = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, $order);
-		$sq->db = $this->db;
+		$sq->injectDB($this->db);
 		return $sq;
 	}
 
