@@ -5,7 +5,7 @@ class SQLSelectQuery {
 	/**
 	 * @var dbLayerBase|dbLayer
 	 */
-	var $db;
+	protected $db;
 
 	/**
 	 * @var SQLSelect
@@ -57,6 +57,10 @@ class SQLSelectQuery {
 		if ($having) 	$this->setHaving($having);
 		if ($order) 	$this->setOrder($order);
 		if ($limit) 	$this->setLimit($limit);
+	}
+
+	function injectDB($db) {
+		$this->db = $db;
 	}
 
 	function setSelect(SQLSelect $select) {
@@ -198,9 +202,5 @@ FROM {$this->from}
 	public function unsetOrder() {
 		$this->order = NULL;
 	}
-
-	public function injectDB($db) {
-		$this->db = $db;
-	}
-
+	
 }
