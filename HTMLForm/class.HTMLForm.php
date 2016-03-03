@@ -518,7 +518,7 @@ class HTMLForm {
 		$content = '<input id="calendar-'.$fieldName.'" name="'.$this->getName($fieldName).'" value="'.
 			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
 		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>';
-		$index->footer['jsCal2-'.$fieldName] = '<script>
+		$index->footer['jsCal2-'.$fieldName] = '<script defer="true"> 
     Calendar.setup({
         trigger    	: "calendar-trigger-'.$fieldName.'",
         inputField 	: "calendar-'.$fieldName.'",
