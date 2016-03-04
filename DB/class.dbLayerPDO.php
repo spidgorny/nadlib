@@ -31,9 +31,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	protected $dataSeek = NULL;
 
-	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL, $port = 3306) {
+	function __construct($user = NULL, $password = NULL,
+						 $scheme = NULL, $driver = NULL,
+						 $host = NULL, $db = NULL,
+						 $port = 3306) {
 		if ($user) {
-			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
+			$this->connect($user, $password,
+				$scheme, $driver,
+				$host, $db, $port);
 		}
 
 		if (DEVELOPMENT) {
