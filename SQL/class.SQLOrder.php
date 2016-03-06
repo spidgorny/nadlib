@@ -15,6 +15,8 @@ class SQLOrder {
 	function __toString() {
 		if ($this->parts) {
 			return 'ORDER BY '.implode(' ', $this->parts);
+		} else {
+			return '';
 		}
 	}
 

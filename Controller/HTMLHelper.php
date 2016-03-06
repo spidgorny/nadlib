@@ -98,4 +98,8 @@ trait HTMLHelper {
 		return '<script src="'.$file.'" type="text/javascript"></script>';
 	}
 
+	function url($page, array $params = array()) {
+		return $page.'?'.http_build_query($params);
+	}
+
 }
