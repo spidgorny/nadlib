@@ -190,7 +190,7 @@ class AjaxLogin extends AppController {
 			));
 			$content = '<form class="navbar-form navbar-right pull-right" method="POST">
 			<div class="form-group">
-				<p class="navbar-text" style="display: inline-block;">'.$this->user->getName().'</p>
+				<p class="navbar-text" style="display: inline-block;">'.$this->user->getNameHTML().'</p>
 				<a href="'.$linkLogout.'" class="ajax btn btn-default">'.__('Logout').'</a>
 			</div>
 			</form>';
@@ -292,7 +292,7 @@ class AjaxLogin extends AppController {
 			<a href="http://de.gravatar.com/" class="gravatar">
 				<img src="'.$this->user->getGravatarURL(25).'" align="left" border="0">
 			</a>'.
-			$this->user->getName().'
+			$this->user->getNameHTML().'
 			<br clear="all">
 			<ul>
 				<li><a href="'.$linkEdit.'" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
