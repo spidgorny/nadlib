@@ -396,8 +396,13 @@ class slTable {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
 			if (is_array($dummy)) {
-				$key = trim($key . ' ' . ifsetor($dummy['colClass']));
+				$colClass = ifsetor($dummy['colClass']);
+			} elseif ($dummy instanceof ArrayAccess) {	// HTMLTag('td')
+				$colClass = $dummy->offsetGet('colClass');
+			} else {
+				$colClass = '';
 			}
+			$key = trim($key . ' ' . $colClass);
 			$colgroup .= '<col class="col_'.$key.'" />'."\n";
 		}
 		$colgroup .= '</colgroup>';
