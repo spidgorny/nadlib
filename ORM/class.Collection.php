@@ -397,7 +397,7 @@ class Collection implements IteratorAggregate {
 	 * @return slTable|string - returns the slTable if not using Pager
 	 */
 	function render() {
-		$view = new CollectionView($this);
+		$view = $this->getView();
 		return $view->renderTable();
 	}
 
