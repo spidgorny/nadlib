@@ -81,4 +81,11 @@ class TimeTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($destin->getSystem(), '1970-01-01 00:35:00');
 	}
 
+	function test_addTime() {
+		$t = new Time('2016-03-08 15:05');
+		$sTime = '01:12:34';
+		$t->addTime($sTime);
+		$this->assertEquals('2016-03-08 16:17:34', $t->getISODateTime());
+	}
+
 }
