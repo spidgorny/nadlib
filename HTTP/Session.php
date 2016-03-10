@@ -4,7 +4,7 @@ class Session {
 
 	var $prefix;
 
-	function __construct($prefix) {
+	function __construct($prefix = NULL) {
 		$this->prefix = $prefix;
 	}
 
