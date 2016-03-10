@@ -47,6 +47,10 @@ class Duration extends Time {
 		$this->updateDebug();
 	}
 
+	public static function fromSeconds($ini_get) {
+		return new Duration($ini_get);
+	}
+
 	function format($rules) {
 		die(__METHOD__.' - don\'t use.');
 	}
