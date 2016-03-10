@@ -384,7 +384,7 @@ class AutoLoad {
 		}
 	}
 
-	static function register() {
+	static function register() { 
 		$instance = self::getInstance();
 		if (!$instance->folders) {
 			$instance->postInit();
