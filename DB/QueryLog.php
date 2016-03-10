@@ -73,10 +73,14 @@ class QueryLog {
 	}
 
 	function dumpQueriesBijou(array $log, $totalTime) {
+		//debug(trim(first($log)['query']));
 		foreach ($log as &$row) {
-			if (str_startsWith($row['query'], /** @lang text */
-				'UPDATE preference SET value')) {
-				$row['query'] = 'UPDATE preferences...';
+			$sQuery = trim(strip_tags($row['query']));
+			if (str_startsWith($sQuery, /** @lang text */
+				"UPDATE")) {
+				$row['query'] = 'UPDATE ...';
+			} else {
+				$row['query'] = substr($row['query'], 0, 100);
 			}
 			if ($row['results'] >= 1000) {
 				$row['results'] = new htmlString('<font color="red">'.$row['results'].'</font>');
