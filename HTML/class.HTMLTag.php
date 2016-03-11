@@ -4,7 +4,7 @@
  * General HTML Tag representation.
  */
 
-class HTMLTag {
+class HTMLTag implements ArrayAccess {
 	public $tag;
 	public $attr = array();
 	public $content;
@@ -199,4 +199,19 @@ class HTMLTag {
 		return $attributes;
 	}
 
+	public function offsetExists($offset) {
+		return isset($this->attr[$offset]);
+	}
+
+	public function offsetGet($offset) {
+		return $this->getAttr($offset);
+	}
+
+	public function offsetSet($offset, $value) {
+		$this->setAttr($offset, $value);
+	}
+
+	public function offsetUnset($offset) {
+		unset($this->attr[$offset]);
+	}
 }

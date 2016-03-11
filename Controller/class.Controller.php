@@ -641,6 +641,14 @@ abstract class Controller {
 		return '<h4>'.$this->s($content).'</h4>';
 	}
 
+	function h5($content) {
+		return '<h5>'.$this->s($content).'</h5>';
+	}
+
+	function h6($content) {
+		return '<h6>'.$this->s($content).'</h6>';
+	}
+
 	function progress($percent) {
 		$percent = intval($percent);
 		return '<div class="progress">
