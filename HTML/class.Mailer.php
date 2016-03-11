@@ -80,7 +80,7 @@ class Mailer {
 				throw new Exception('Email sending to '.$this->to.' failed');
 			}
 		} else {
-			throw new Exception('Invalid email address');
+			throw new Exception('Invalid email address: '.$this->to);
 		}
 		return $res;
 	}

@@ -316,7 +316,7 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * @param array/SQLWhere $where
-	 * @return string
+	 * @return string|SQLSelectQuery
 	 */
 	function getQuery($where = array()) {
 		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table})");
@@ -382,6 +382,7 @@ class Collection implements IteratorAggregate {
 	function preprocessData() {
 		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".sizeof($this->data));
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
+		$this->getData();
 		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
@@ -396,7 +397,7 @@ class Collection implements IteratorAggregate {
 	 * @return slTable|string - returns the slTable if not using Pager
 	 */
 	function render() {
-		$view = new CollectionView($this);
+		$view = $this->getView();
 		return $view->renderTable();
 	}
 
@@ -544,9 +545,14 @@ class Collection implements IteratorAggregate {
 		if (method_exists($obj, 'render')) {
 			$content = $obj->render();
 		} elseif (method_exists($obj, 'getSingleLink')) {
-			$content = new HTMLTag('a', array(
-				'href' => $obj->getsingleLink(),
-			), $obj->getName());
+			$link = $obj->getSingleLink();
+			if ($link) {
+				$content = new HTMLTag('a', array(
+					'href' => $link,
+				), $obj->getName());
+			} else {
+				$content = $obj->getName();
+			}
 		} else {
 			$content = $obj->getName();
 		}
@@ -664,9 +670,10 @@ class Collection implements IteratorAggregate {
 	function mergeData(Collection $c2) {
 		$before = array_keys($this->getData()->getData());
 		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
+		$myObjects = $this->objectify();
 		$data2 = $c2->getData()->getData();
 		$this->data = $this->getData()->merge_recursive_overwrite($data2);
-		$this->members = $this->members + $c2->objectify();
+		$this->members = $myObjects + $c2->objectify();
 		$this->count += $c2->count;
 		//debug($before, array_keys($c2->data), array_keys($this->data));
 	}

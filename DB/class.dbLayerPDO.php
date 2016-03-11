@@ -90,7 +90,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
 		$this->dsn = $dsn;
-		$this->connection = new PDO($this->dsn, $user, $password);
+		$this->connection = new PDO($this->dsn, $user, $password, array(
+			PDO::ATTR_PERSISTENT => false,
+			PDO::ATTR_ERRMODE    => PDO::ERRMODE_EXCEPTION
+		));
 		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
 

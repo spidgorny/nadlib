@@ -31,17 +31,26 @@ class SQLLike extends SQLWherePart {
 	function __toString() {
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
 		$w = explode('|', $this->wrap);
-		$escape = $this->db->escape($this->string);
-		$escape = str_replace('%', '\\%', $escape);
-		$escape = str_replace('_', '\\_', $escape);
-		$wrap = $w[0] . $escape . $w[1];
-		$sql = $this->field ." ". $like ." /**/'".$wrap."'/**/";
+		if (true) {
+			$escape = '$0$';
+		} else {
+			$escape = $this->db->escape($this->string);
+			$escape = str_replace('\\"', '"', $escape);
+			$escape = str_replace('%', '\\%', $escape);
+			$escape = str_replace('_', '\\_', $escape);
+		}
+		$sql = $this->field ." ". $like .
+			" '".$w[0]."' || ".$escape . " || '". $w[1]."'";
 		//debug($this->string, $escape, $wrap, $sql); exit();
 		return $sql;
 	}
 
 	static function make($string, $caseInsensitive = false) {
-		return new self($string, $caseInsensitive);
+		return new static($string, $caseInsensitive);
+	}
+
+	function getParameter() {
+		return $this->string;
 	}
 
 }

@@ -121,7 +121,9 @@ class HTMLForm {
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.' '.$moreClass.'"';
 		$a .= $this->getName($name, $namePlus);
 		if ($value || $value === 0) {
-			if (!($value instanceof htmlString)) {
+			$isHTML = $value instanceof htmlString;
+			//debug($value, $isHTML);
+			if (!$isHTML) {
 				$value = htmlspecialchars($value, ENT_QUOTES);
 			} else {
 				$value = str_replace('"', '&quot;', $value);

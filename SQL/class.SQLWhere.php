@@ -2,6 +2,11 @@
 
 class SQLWhere {
 
+	/**
+	 * @var dbLayer
+	 */
+	var $db;
+
 	protected $parts = array();
 
 	function __construct($where = NULL) {
@@ -34,17 +39,30 @@ class SQLWhere {
 	function __toString() {
 		if ($this->parts) {
 			foreach ($this->parts as $field => &$p) {
-				if ($p instanceof SQLWherePart && !is_numeric($field)) {
-					$p->injectField($field);
+				if ($p instanceof SQLWherePart) {
+					if (!is_numeric($field)) {
+						$p->injectField($field);
+					}
 				} else {
-					$db = Config::getInstance()->getDB();
-					$where = $db->quoteWhere(array(
+					// bad: party = 'party = ''1'''
+/*					$where = $this->db->quoteWhere(array(
 						$field => $p,
 					));
 					$p = first($where);
+*/
+					$p = new SQLWhereEqual($field, $p);
+					$p->injectDB($this->db);
 				}
 			}
-			return " WHERE\n\t".implode("\n\tAND ", $this->parts);	// __toString()
+			$sWhere = " WHERE\n\t".implode("\n\tAND ", $this->parts);	// __toString()
+
+			// replace $1, $1, $1 with $1, $2, $3
+			$params = $this->getParameters();
+			//debug($sWhere, $params);
+			foreach ($params as $i => $name) {
+				$sWhere = str_replace_once('$0$', '$'.($i+1), $sWhere);
+			}
+			return $sWhere;
 		} else {
 			return '';
 		}
@@ -66,6 +84,21 @@ class SQLWhere {
 			$val = new SQLWhereEqual($key, $val);
 		}
 		return new SQLWhere($where);
+	}
+
+	function getParameters() {
+		$parameters = array();
+		foreach ($this->parts as $part) {
+			if ($part instanceof SQLWherePart) {
+				$plus = $part->getParameter();
+				if (is_array($plus)) {
+					$parameters = array_merge($parameters, $plus);
+				} elseif ($plus) {
+					$parameters[] = $plus;
+				}
+			}
+		}
+		return $parameters;
 	}
 
 }

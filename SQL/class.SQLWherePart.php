@@ -7,7 +7,7 @@
 class SQLWherePart {
 
 	/**
-	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO
+	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO|dbLayer
 	 */
 	protected $db;
 
@@ -17,6 +17,10 @@ class SQLWherePart {
 	protected $qb;
 
 	protected $sql = '';
+
+	/**
+	 * @var string
+	 */
 	protected $field;
 
 	function __construct($sql = '') {
@@ -50,6 +54,14 @@ class SQLWherePart {
 
 	function debug() {
 		return $this->__toString();
+	}
+
+	/**
+	 * Sub-classes should return their parameters
+	 * @return null
+	 */
+	function getParameter() {
+		return NULL;
 	}
 
 }

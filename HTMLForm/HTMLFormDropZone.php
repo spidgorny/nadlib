@@ -4,6 +4,8 @@ class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 
 	var $makeFallback = true;
 
+	var $class = 'dropzone';
+
 	/**
 	 * Shows the form element in the form
 	 * @return mixed
@@ -13,7 +15,7 @@ class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 		$this->form->action(new URL(NULL, [
 			'action' => 'upload',
 		]));
-		$this->form->formMore['class'] .= ' dropzone';
+		$this->form->formMore['class'] .= ' '.$this->class;
 		$index = Index::getInstance();
 		$index->addJS('vendor/enyo/dropzone/dist/min/dropzone.min.js');
 		$index->addCSS('vendor/enyo/dropzone/dist/min/dropzone.min.css');

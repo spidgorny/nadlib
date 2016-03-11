@@ -12,7 +12,7 @@ abstract class OODBase {
 	 * @var MySQL|dbLayer|dbLayerDB|dbLayerPDO|dbLayerMS|dbLayerPG|dbLayerBase|dbLayerSQLite
 	 * public to allow unset($o->db); before debugging
 	 */
-	public $db;
+	protected $db;
 
 	/**
 	 * database table name for referencing everywhere. MUST BE OVERRIDEN IN SUBCLASS!
@@ -443,7 +443,7 @@ abstract class OODBase {
 	 * Only works when $this->thes is defined or provided
 	 * @param array $thes
 	 * @param null  $title
-	 * @return string
+	 * @return ShowAssoc
 	 */
 	function showAssoc(array $thes = array(
 			'id' => 'ID',
@@ -510,9 +510,12 @@ abstract class OODBase {
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
-				$inst = new $static();		// don't put anything else here
-				self::$instances[$static][$id] = $inst; // BEFORE init() to avoid loop
-				$inst->init($id);			// separate call to avoid infinite loop in ORS
+				// don't put anything else here
+				$inst = new $static();
+				// BEFORE init() to avoid loop
+				self::storeInstance($inst, $id);
+				// separate call to avoid infinite loop in ORS
+				$inst->init($id);
 			}
 		} else {
 			/** @var OODBase $inst */
@@ -523,6 +526,12 @@ abstract class OODBase {
 			}
 		}
 		return $inst;
+	}
+
+	static function storeInstance($inst, $newID) {
+		$static = get_called_class();
+		$id = $inst->id ?: $newID;
+		self::$instances[$static][$id] = $inst;
 	}
 
 	static function clearInstances() {
@@ -553,10 +562,12 @@ abstract class OODBase {
 		// first search instances
 		if (is_array(ifsetor(self::$instances[$self]))) {
 			foreach (self::$instances[$self] as $inst) {
-				$field = $field ? $field : $inst->titleColumn;
-				if ($inst->data[$field] == $name) {
-					$c = $inst;
-					break;
+				if ($inst instanceof OODBase) {
+					$field = $field ? $field : $inst->titleColumn;
+					if ($inst->data[$field] == $name) {
+						$c = $inst;
+						break;
+					}
 				}
 			}
 		}
@@ -701,7 +712,7 @@ abstract class OODBase {
 			$this->insert($where);
 		}
 	}
-	
+
 	public static function getCacheStats() {
 		$stats = array();
 		foreach (self::$instances as $class => $list) {

@@ -16,11 +16,7 @@ class AsIsOp extends AsIs {
 	protected $value;
 
 	function __construct($val) {
-		$this->value = $val;
-	}
-
-	function __toString() {
-		return $this->value.'';
+		parent::__construct($val);
 	}
 
 	function debug() {

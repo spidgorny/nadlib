@@ -9,7 +9,12 @@ class InitNADLIB {
 	 */
 	var $al;
 
+	var $startTime;
+
+	var $endTime;
+
 	function __construct() {
+		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/class.AutoLoad.php';
 		require_once dirname(__FILE__) . '/HTTP/class.Request.php';
 		if (!defined('BR')) {
@@ -92,7 +97,7 @@ border-radius: 5px;">');
 		}
 
 		if (DEVELOPMENT) {
-			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
+			TaylorProfiler::getInstance(!ifsetor($_REQUEST['fast']));	// usually true
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config', false) && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
@@ -127,6 +132,8 @@ border-radius: 5px;">');
 			/** @noinspection PhpIncludeInspection */
 			require_once $vendor_autoload_php;
 		}
+
+		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
 	function initWhoops() {

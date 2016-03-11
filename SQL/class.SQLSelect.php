@@ -1,6 +1,9 @@
 <?php
 
 class SQLSelect {
+
+	var $db;
+
 	protected $parts = array();
 
 	function __construct($parts) {

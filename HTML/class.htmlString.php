@@ -5,6 +5,7 @@
  * Update: use htmlString:hsc($content)
  */
 class htmlString {
+
 	protected $value = '';
 
 	function __construct($input) {
