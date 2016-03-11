@@ -90,10 +90,16 @@ class LazyMemberIterator extends IteratorIterator implements Countable {
 	 * @return bool
 	 */
 	function valid() {
-		//echo __METHOD__, BR;
 		/** @var DatabaseResultIteratorAssoc $iterator */
 		$iterator = $this->getInnerIterator();
-		return $iterator->valid();
+		$valid = $iterator->valid();
+		$current = $this->getInnerIterator()->current();
+		if (!$current) {
+			//debug($current);
+			//echo __METHOD__, ': ', $valid, ' - ', $current['title'], BR;
+			$valid = false;
+		}
+		return $valid;
 	}
 
 }
