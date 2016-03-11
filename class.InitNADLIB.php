@@ -126,6 +126,7 @@ border-radius: 5px;">');
 		// nadlib/vendor has files loaded from composer.json
 		$standaloneNadlib = str_contains($vendor_autoload_php, 'nadlib\vendor');
 		//echo 'SN: ', $standaloneNadlib, BR;
+		//echo $vendor_autoload_php, ': ', file_exists($vendor_autoload_php), BR;
 		if (!$standaloneNadlib
 			&& file_exists($vendor_autoload_php)) {
 			//echo $vendor_autoload_php, BR;
