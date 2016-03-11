@@ -53,7 +53,7 @@ class SQLOr extends SQLWherePart {
 					);
 					$ors[] = implode('', $tmp);
 				}
-            } elseif(!is_int($this->field)) {
+            } elseif (!is_int($this->field)) {
                 $ors = array();
                 foreach ($this->or as $field => $or) {
                     $tmp = $this->qb->quoteWhere(
@@ -84,6 +84,19 @@ class SQLOr extends SQLWherePart {
 
 	function debug() {
 		return array($this->field => $this->or);
+	}
+
+	function getParameter() {
+		$params = array();
+		foreach ($this->or as $sub) {
+			if ($sub instanceof SQLWherePart) {
+				$plus = $sub->getParameter();
+				if ($plus) {
+					$params[] = $plus;
+				}
+			}
+		}
+		return $params;
 	}
 
 }

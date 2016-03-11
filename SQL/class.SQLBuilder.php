@@ -162,7 +162,7 @@ class SQLBuilder {
 					if (is_numeric($key)) {
 						$set[] = $val;
 					} else {
-						$set[] = $key . ' ' . $val;
+						$set[] = /*$key . ' ' .*/ $val;	// inject field
 					}
 				} elseif ($val instanceof AsIs) {
 					$val->injectDB($this->db);
@@ -306,7 +306,7 @@ class SQLBuilder {
 		return $table0;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
+	function getSelectQueryString($table, array $where = array(), $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {
 			$from = $this->db->quoteKey($table);    // table name always quoted
@@ -321,6 +321,38 @@ class SQLBuilder {
 		}
 		$q .= "\n".$order;
 		return $q;
+	}
+
+	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL) {
+		return $this->getSelectQueryP($table, $where, $order, $addSelect);
+	}
+
+	/**
+	 * @param        $table
+	 * @param array  $where
+	 * @param string $order
+	 * @param null   $addSelect
+	 * @return SQLSelectQuery
+	 */
+	function getSelectQueryP($table, array $where = array(), $order = '', $addSelect = NULL) {
+		$table1 = $this->getFirstWord($table);
+		if ($table == $table1) {
+			$from = $this->db->quoteKey($table);    // table name always quoted
+		} else {
+			$from = $table; // not quoted
+		}
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = new SQLSelect($select);
+		$select->db = $this->db;
+		$from = new SQLFrom($from);
+		$from->db = $this->db;
+		$where = new SQLWhere($where);
+		$where->db = $this->db;
+		$order = new SQLOrder($order);
+		$order->db = $this->db;
+		$sq = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, $order);
+		$sq->db = $this->db;
+		return $sq;
 	}
 
 	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {

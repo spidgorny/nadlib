@@ -481,10 +481,11 @@ function gettype2($something, $withHash = true) {
 
 function gettypes(array $something) {
 	$types = array();
-	foreach ($something as $element) {
-		$types[] = strip_tags(gettype2($element));
+	foreach ($something as $key => $element) {
+		$types[$key] = strip_tags(gettype2($element));
 	}
-	return json_encode($types, JSON_PRETTY_PRINT);
+	return $types;
+	//return json_encode($types, JSON_PRETTY_PRINT);
 }
 
 if (!function_exists('boolval')) {
@@ -499,4 +500,22 @@ function unquote ($value) {
 	if ($value[0] == '\'') return trim($value, '\'');
 	if ($value[0] == '"') return trim($value, '"');
 	return $value;
+}
+
+/**
+ * http://php.net/manual/en/function.str-replace.php#86177
+ * @param $search
+ * @param $replace
+ * @param $subject
+ * @return string
+ */
+function str_replace_once($search, $replace, $subject) {
+	$firstChar = strpos($subject, $search);
+	if ($firstChar !== false) {
+		$beforeStr = substr($subject,0,$firstChar);
+		$afterStr = substr($subject, $firstChar + strlen($search));
+		return $beforeStr.$replace.$afterStr;
+	} else {
+		return $subject;
+	}
 }

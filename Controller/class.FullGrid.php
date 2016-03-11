@@ -23,7 +23,11 @@ abstract class FullGrid extends Grid {
 					$this->collection->where,
 					$this->getFilterWhere()
 				);
+
 				//debug($this->collection->where);
+				//file_put_contents('tests/Fixture/SoftwareGridApostrophe.serial', serialize($this->collection->where));
+				//debug($this->collection->getQuery());
+
 				$this->collection->postInit();
 				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
 			} else {

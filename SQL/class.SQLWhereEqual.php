@@ -12,21 +12,18 @@ class SQLWhereEqual extends SQLWherePart {
 	 */
 	protected $val;
 
-	/**
-	 *
-	 * @var dbLayerPG
-	 */
-	protected $db;
-
 	function __construct($field, $val) {
+		parent::__construct();
 		$this->field = $field;
 		$this->val = $val;
-		$this->db = Config::getInstance()->getDB();
 	}
 
 	function __toString() {
 		if (is_numeric($this->val)) {	// leading 0 leads to problems
-			$sql = "({$this->field} = ".$this->val." OR {$this->field} = '".$this->val."')";
+			$field = $this->db->quoteKey($this->field);
+			//$sql = "({$field} = ".$this->val."
+			//OR {$field} = '".$this->val."')";
+			$sql = "{$field} = '".$this->val."'";
 		} elseif (is_null($this->val)) {
 			$sql = $this->field . ' IS NULL';
 		} else {

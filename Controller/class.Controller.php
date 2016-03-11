@@ -336,7 +336,7 @@ abstract class Controller {
 				<div id="'.$id.'"
 					class="toggleDiv"
 					style="max-height: '.$height.'; overflow: auto;
-					'.($isOpen ? '' : 'display: none;').'">'.$content.'</div>
+					'.($isOpen ? '' : 'display: none;').'">'.$this->s($content).'</div>
 			</div>';
 		}
 		return $content;
@@ -438,8 +438,11 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInTableHTML3(array $cells) {
-		$content[] = '<table class="encloseInTable">';
+	function encloseInTableHTML3(array $cells, array $more = array()) {
+		if (!$more) {
+			$more['class'] = "encloseInTable";
+		}
+		$content[] = '<table '.HTMLTag::renderAttr($more).'>';
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';
@@ -520,7 +523,8 @@ abstract class Controller {
 		if ($formAction) {
 			$f->action($formAction);
 		} else {
-			$f->hidden('c', get_class($this));
+			$f->hidden('c', ifsetor($hidden['c'], get_class($this)));
+			unset($hidden['c']);
 		}
 		$f->formHideArray($hidden);
 		if (false) {    // this is too specific, not and API
@@ -682,15 +686,16 @@ abstract class Controller {
 	}
 
 	static function link($text = NULL) {
+		/** @var Controller $self */
 		$self = get_called_class();
 		return new HTMLTag('a', array(
 			'href' => $self::href()
 		), $text ?: $self);
 	}
 
-	static function href() {
+	static function href(array $params = array()) {
 		$self = get_called_class();
-		return $self;
+		return $self.'?'.http_build_query($params);
 	}
 
 	/**

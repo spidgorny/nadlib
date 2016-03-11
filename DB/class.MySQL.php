@@ -493,7 +493,10 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return $key = '`'.trim($key).'`';
+		if (in_array($key, $this->reserved)) {
+			$key = '`' . trim($key) . '`';
+		}
+		return $key;
 	}
 
 	function switchDB($db) {

@@ -106,6 +106,12 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			debug($query);
 			debug_pre_print_backtrace();
 		}
+
+		if ($query instanceof SQLSelectQuery) {
+			$params = $query->getParameters();
+			$query = $query->__toString();
+		}
+
 		try {
 			if ($params) {
 				pg_prepare($this->connection, '', $query);
@@ -591,11 +597,13 @@ order by a.attnum';
 	}
 
 	function quoteKey($key) {
-		if (function_exists('pg_escape_identifier')) {
-			$key = pg_escape_identifier($key);
-		} else {
-			$key = '"' . $key . '"';
-		}
+		if (ctype_alpha($key)) {
+			if (function_exists('pg_escape_identifier')) {
+				$key = pg_escape_identifier($key);
+			} else {
+				$key = '"' . $key . '"';
+			}
+		} // else it can be functions(of something)
 		return $key;
 	}
 
