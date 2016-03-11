@@ -39,8 +39,14 @@ class SQLLike extends SQLWherePart {
 			$escape = str_replace('%', '\\%', $escape);
 			$escape = str_replace('_', '\\_', $escape);
 		}
-		$sql = $this->field ." ". $like .
-			" '".$w[0]."' || ".$escape . " || '". $w[1]."'";
+
+		$type = $this->db->getScheme();
+		if ($type == 'mysqli') {
+			$sql = "{$this->field} LIKE concat('{$w[0]}', {$escape}, '{$w[1]}')";
+		} else {
+			$sql = $this->field . " " . $like .
+				" '" . $w[0] . "' || " . $escape . " || '" . $w[1] . "'";
+		}
 		//debug($this->string, $escape, $wrap, $sql); exit();
 		return $sql;
 	}

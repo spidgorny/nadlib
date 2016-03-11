@@ -27,18 +27,35 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	}
 
 	/**
-	 * @param $query
+	 * @param       $query
+	 * @param array $params
 	 * @return bool|mysqli_result
 	 * @throws DatabaseException
 	 */
-	function perform($query) {
+	function perform($query, array $params = array()) {
 		$this->lastQuery = $query;
-		$ok = $this->connection->query($query);
+
+		if ($params) {
+			$stmt = $this->prepare($query);
+			foreach ($params as $k => $v) {
+				$stmt->bind_param('s', $v);
+			}
+			$stmt->execute();
+			$ok = $stmt->get_result();
+			//debug($query, $params, $stmt->num_rows);
+		} else {
+			$ok = $this->connection->query($query);
+		}
+		
 		if (!$ok) {
-			debug($query);
+			debug($query.'', $params);
 			throw new DatabaseException($this->connection->error, $this->connection->errno);
 		}
 		return $ok;
+	}
+
+	function prepare($sql) {
+		return mysqli_prepare($this->connection, $sql);
 	}
 
 	/**
@@ -75,6 +92,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	 * @return mixed
 	 */
 	function numRows($res = NULL) {
+		//debug($res->num_rows);
 		return $res->num_rows;
 	}
 

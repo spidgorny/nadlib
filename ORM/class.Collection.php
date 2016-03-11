@@ -11,8 +11,10 @@ class Collection implements IteratorAggregate {
 	/**
 	 * In case of MSSQL it needs to be set from outside
 	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO|dbLayerSQLite
+	 * @protected because it's visible in debug
+	 * use injection if you need to modify it
 	 */
-	public $db;
+	protected $db;
 
 	/**
 	 * @var string
@@ -218,7 +220,7 @@ class Collection implements IteratorAggregate {
 
 		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
-		$res = $this->db->perform($this->query);
+		$res = $this->query->perform();
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
@@ -250,7 +252,7 @@ class Collection implements IteratorAggregate {
 			//$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);	// subquery problem
 			$this->query = preg_replace('/SELECT /', 'SELECT SQL_CALC_FOUND_ROWS ', $query, 1);
 		}
-		$res = $this->db->perform($this->query);
+		$res = $this->query->perform();
 
 		if ($this->pager) {
 			$this->pager->setNumberOfRecords(PHP_INT_MAX);
@@ -906,7 +908,7 @@ class Collection implements IteratorAggregate {
 				} else {
 					// this is the same query as $this->retrieveData() !
 					$query = $this->getQuery();
-					$res = $this->db->perform($query);
+					$res = $query->perform();
 					$this->count = $this->db->numRows($res);
 				}
 			}

@@ -295,8 +295,8 @@ class MySQL extends dbLayerBase implements DBInterface {
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function perform($query, $withProfiler = true) {
-		if ($withProfiler && isset($GLOBALS['profiler'])) {
+	function perform($query, array $params = array()) {
+		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
 				$caller = Debug::getCaller($c);
@@ -320,14 +320,20 @@ class MySQL extends dbLayerBase implements DBInterface {
 		}
 
 		$start = microtime(true);
+
+		if ($params) {
+			die(__METHOD__.' does not support parameters');
+		}
 		$res = $this->lastResult = @mysql_query($query, $this->connection);
+
+
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
 			$this->queryLog->log($query, $diffTime, $this->numRows($res));
 		}
 		$this->lastQuery = $query;
 
-		if ($withProfiler && isset($profilerKey)) {
+		if (isset($profilerKey)) {
 			TaylorProfiler::stop($profilerKey);
 		}
 		if (!$res || mysql_errno($this->connection)) {

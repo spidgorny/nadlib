@@ -365,7 +365,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
 		}
-		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
+		if ($this->loadJSfromGoogle) {
+			$jQueryPath = 'components/jquery/jquery.min.js';
+			$this->footer['jquery.js'] = '
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+			<script>window.jQuery || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>
+			';
+		} else {
 			$jQueryPath = 'jquery/jquery.min.js';
 			$al = AutoLoad::getInstance();
 			nodebug(array(
@@ -398,13 +404,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} else {
 				$jQueryPath = 'components/jquery/jquery.min.js';
 			}
-		} else {
-			$jQueryPath = 'components/jquery/jquery.min.js';
+			$this->addJS($jQueryPath);
 		}
-		$this->footer['jquery.js'] = '
-			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-			<script>window.jQuery || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>
-			';
 		return $this;
 	}
 
