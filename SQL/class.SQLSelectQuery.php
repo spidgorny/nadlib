@@ -1,6 +1,6 @@
 <?php
 
-class SQLSelectQuery {
+class SQLSelectQuery extends SQLWherePart {
 
 	/**
 	 * @var dbLayerBase|dbLayer|MySQL
@@ -59,7 +59,7 @@ class SQLSelectQuery {
 		if ($limit) 	$this->setLimit($limit);
 	}
 
-	function injectDB($db) {
+	function injectDB(dbLayerBase $db) {
 		$this->db = $db;
 	}
 

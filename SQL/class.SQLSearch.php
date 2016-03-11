@@ -1,6 +1,6 @@
 <?php
 
-class SQLSearch {
+class SQLSearch extends SQLWherePart {
 	protected $table;
 	protected $sword;
 	protected $words = array();
@@ -100,11 +100,15 @@ class SQLSearch {
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
 		$where = new SQLWhere(array());
-		$query = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, new SQLOrder('id'));
+		$query = new SQLSelectQuery($select, $from, $where,
+			NULL, NULL, NULL, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
 
 		//$query->where->add($this->getSearchWhere($word, $i ? 'score_'.$i : $table));
-		$query->where->add($this->getSearchWhere($word)); // please put the table prefix into $this->searchableFields
+		// please put the table prefix into $this->searchableFields
+		$where = $this->getSearchWhere($word);
+		$where = new SQLWherePart($where);
+		$query->where->add($where);
 		return $query;
 	}
 
