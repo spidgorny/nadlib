@@ -1064,7 +1064,7 @@ class Request {
 		return trimExplode(',', $info->loc);
 	}
 
-	public function goBack() { 
+	public function goBack() {
 		$ref = $this->getReferer();
 		if ($ref) {
 			$this->redirect($ref);
