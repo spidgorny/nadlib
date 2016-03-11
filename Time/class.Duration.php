@@ -275,4 +275,16 @@ class Duration extends Time {
 		return $this->time / 60 / 60 / 24;
 	}
 
+	public function getRemHours() {
+		return floor($this->time / 60 / 60);
+	}
+
+	public function getRemMinutes() {
+		return floor($this->time % (60*60) / 60);
+	}
+
+	public function getRemSeconds() {
+		return $this->time % (60);
+	}
+
 }

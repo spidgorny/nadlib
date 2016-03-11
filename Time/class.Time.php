@@ -667,16 +667,16 @@ class Time {
 	}
 
 	public function makeGMT() {
-		$this->setTime(strtotime(gmdate('Y-m-d H:i:s', $this->time). ' GMT', 0));
+		$this->setTimestamp(strtotime(gmdate('Y-m-d H:i:s', $this->time). ' GMT', 0));
 	}
 
-	function setTime($time) {
+	function setTimestamp($time) {
 		$this->time = $time;
 		$this->updateDebug();
 	}
 
 	function addDate(Date $date) {
-		$this->setTime(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
+		$this->setTimestamp(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
 	}
 
 	public function getSince() {
@@ -706,6 +706,27 @@ class Time {
 
 	public function getDay() {
 		return $this->format('d');
+	}
+
+	public function isFuture() {
+		return $this->time > time();
+	}
+
+	public function isPast() {
+		return $this->time < time();
+	}
+
+	function addTime($sTime) {
+		$duration = new Duration($sTime);
+		nodebug($duration->getRemHours(),
+				$duration->getRemMinutes(),
+				$duration->getRemSeconds());
+		$base = $this->getTimestamp();
+		$time = strtotime(' + ' . $duration->getRemHours() . ' hours', $base);
+		$time = strtotime(' + ' . $duration->getRemMinutes() . ' minutes', $time);
+		$time = strtotime(' + ' . $duration->getRemSeconds() . ' seconds', $time);
+		$this->setTimestamp($time);
+		return $this;
 	}
 
 }

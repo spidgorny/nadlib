@@ -129,6 +129,11 @@ class Collection implements IteratorAggregate {
 	protected $view;
 
 	/**
+	 * @var callable
+	 */
+	public $prepareRenderRow;
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -448,6 +453,10 @@ class Collection implements IteratorAggregate {
     }
 
 	function prepareRenderRow(array $row) {
+		if (is_callable($this->prepareRenderRow)) {
+			$closure = $this->prepareRenderRow;
+			$row = $closure($row);
+		}
 		return $row;
 	}
 

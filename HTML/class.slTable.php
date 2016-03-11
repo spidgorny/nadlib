@@ -368,7 +368,7 @@ class slTable {
 			}
 		}
 
-		$this->generation->thead['colgroup'] = $this->getColGroup($thes2);
+		$this->generation->thead['colgroup'] = $this->getColGroup($thes);
 		$this->generation->addTHead('<thead>');
 		//debug($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
@@ -386,14 +386,23 @@ class slTable {
 		$this->generation->addTHead('</thead>');
 	}
 
-	function getColGroup(array $thes2) {
+	function getColGroup(array $thes) {
 		$colgroup = '<colgroup>';
 		$i = 0;
-		foreach ($thes2 as $key => $dummy) {
+		foreach ($thes as $key => $dummy) {
 			$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
+			$key = URL::getSlug($key);	// special cars and spaces
 			if ($this->isAlternatingColumns) {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
+			if (is_array($dummy)) {
+				$colClass = ifsetor($dummy['colClass']);
+			} elseif ($dummy instanceof ArrayAccess) {	// HTMLTag('td')
+				$colClass = $dummy->offsetGet('colClass');
+			} else {
+				$colClass = '';
+			}
+			$key = trim($key . ' ' . $colClass);
 			$colgroup .= '<col class="col_'.$key.'" />'."\n";
 		}
 		$colgroup .= '</colgroup>';
