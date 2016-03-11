@@ -222,11 +222,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($this->controller) {
 				$content .= $this->renderController();
 			} else {
-				$content .= $this->content;	// display Exception
+				// display Exception
+				$content .= $this->content->getContent();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
-			$this->content .= $e->getMessage();
+			$this->content[] = $e->getMessage();
 		} catch (Exception $e) {
 			$content = $this->renderException($e);
 		}
@@ -240,7 +241,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderTemplateIfNotAjax($content) {
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			$contentOut .= $this->content;	// display Exception
+			// display Exception
+			$contentOut .= $this->content->getContent();
 			$contentOut .= $this->s($content);
 			$view = $this->renderTemplate($contentOut);
 			//echo gettype2($view), BR;

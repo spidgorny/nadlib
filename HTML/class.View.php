@@ -90,7 +90,7 @@ class View extends stdClass {
 		$content = '';
 		ob_start();
 
-		//debug(getcwd(), $file);
+		//debug($file);
 		/** @noinspection PhpIncludeInspection */
 		require($file);
 
