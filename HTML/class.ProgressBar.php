@@ -153,11 +153,13 @@ class ProgressBar {
 	}
 
 	function setIndex($i, $always = false) {
+		static $last;
 		if ($this->count) {
 			$percent = $i / $this->count * 100;
 			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
-			if ($every < 1 || !($i % $every) || $always) {
+			if ($every < 1 || !($i % $every) || $always || (($last + $every) > $i)) {
 				$this->setProgressBarProgress($percent);
+				$last = $i;  
 			}
 		} else {
 			throw new InvalidArgumentException(__CLASS__.'->count is not set');
