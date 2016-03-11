@@ -3,7 +3,7 @@
 class SQLSelectQuery {
 
 	/**
-	 * @var dbLayerBase|dbLayer
+	 * @var dbLayerBase|dbLayer|MySQL
 	 */
 	protected $db;
 

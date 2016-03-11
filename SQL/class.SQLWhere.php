@@ -56,16 +56,26 @@ class SQLWhere {
 			}
 			$sWhere = " WHERE\n\t".implode("\n\tAND ", $this->parts);	// __toString()
 
-			// replace $1, $1, $1 with $1, $2, $3
-			$params = $this->getParameters();
-			//debug($sWhere, $params);
-			foreach ($params as $i => $name) {
-				$sWhere = str_replace_once('$0$', '$'.($i+1), $sWhere);
-			}
+			$sWhere = $this->replaceParams($sWhere);
 			return $sWhere;
 		} else {
 			return '';
 		}
+	}
+
+	function replaceParams($sWhere) {
+		// replace $1, $1, $1 with $1, $2, $3
+		$params = $this->getParameters();
+		//debug($sWhere, $params);
+		$type = $this->db->getScheme();
+		foreach ($params as $i => $name) {
+			if ($type == 'mysqli') {
+				$sWhere = str_replace_once('$0$', '?', $sWhere);
+			} else {
+				$sWhere = str_replace_once('$0$', '$' . ($i + 1), $sWhere);
+			}
+		}
+		return $sWhere;
 	}
 
 	/**
