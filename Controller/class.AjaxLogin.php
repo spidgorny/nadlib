@@ -158,6 +158,11 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
+	/**
+	 * Full screen - not for navbar 
+	 * @param array|NULL $desc
+	 * @return HTMLFormTable
+	 */
 	function getLoginForm(array $desc = NULL) {
 		$f = new HTMLFormTable();
 		$f->action('');     // specify action otherwise will logout
@@ -180,6 +185,7 @@ class AjaxLogin extends AppController {
 
 	/**
 	 * It's called "mode" for historical reasons, but it's good so that it's not overlapping with the possible "action"
+	 * Both Login and Password fields - not used
 	 * @return string
 	 */
 	function inlineFormAction() {
@@ -399,14 +405,20 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
+	function navbarLoginForm() {
+		return '<a href="Login" class="btn btn-primary navbar-btn">Login</a>';
+	}
+	
 	function logoutForm() {
 		$a = new HTMLTag('a', array(
 			'href' => get_class($this).'?action=logout',
 			'class' => 'btn btn-default',
 		), __('Logout'));
-		$content = '
-			<div class="navbar-form">'.$a.'</div>
-		';
+
+		$content = $a;
+//		$content = '
+//			<div class="navbar-form">'.$a.'</div>
+//		';
 		return $content;
 	}
 

@@ -51,7 +51,7 @@ class HTMLImage extends HTMLTag {
 	function getExif() {
 		$exif = NULL;
 		if (file_exists($this->filename)
-			&& endsWith($this->filename, '.jpeg')
+			&& str_endsWith($this->filename, '.jpeg')
 			&& function_exists('exif_read_data')
 		) {
 			$exif = exif_read_data($this->filename); // warning if PNG

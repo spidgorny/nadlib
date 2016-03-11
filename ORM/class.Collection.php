@@ -896,15 +896,19 @@ class Collection implements IteratorAggregate {
 				$this->getQueryWithLimit();	 // will init pager
 				// and set $this->count
 			} else {
-				// this is the same query as $this->retrieveData() !
-//				$query = $this->getQuery();
-//				$res = $this->db->perform($query);
-//				$this->count = $this->db->numRows($res);
-				$this->retrieveData(false, false);	// will set the count
-				// we do not preProcessData()
-				// because it's irrelevant for the count
-				// but can make the processing too slow
-				// like in QueueEPES
+				if (contains($this->getQueryWithLimit(), 'LIMIT')) {    // no pager - no limit
+					// we do not preProcessData()
+					// because it's irrelevant for the count
+					// but can make the processing too slow
+					// like in QueueEPES
+					$this->retrieveData(false, false);
+					// will set the count
+				} else {
+					// this is the same query as $this->retrieveData() !
+					$query = $this->getQuery();
+					$res = $this->db->perform($query);
+					$this->count = $this->db->numRows($res);
+				}
 			}
 		}
 		$this->log(get_class($this).'::'.__FUNCTION__, $this->count);
