@@ -127,19 +127,17 @@ abstract class Controller {
 	 * @use getURL()
 	 */
 	protected function makeURL(array $params, $prefix = NULL) {
-		// shortcut for link to a controller
-		if (!is_array($params) && !$prefix) {
-			$class = $params;
-			$params = array('c' => $class);
+		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
+			$class = ifsetor($params['c']);
+			if ($class && !$prefix) {
+				unset($params['c']);    // RealURL
+				$prefix = $class;
+			} else {
+				$class = NULL;
+			}
 		} else {
 			$class = NULL;
-		}
-		if ($this->useRouter) { // default value is = mod_rewrite
-			$class = ifsetor($params['c']);
-			unset($params['c']);    // RealURL
-			if ($class && !$prefix) {
-				$prefix = $class;
-			}
+			unset($params['c']);
 		}
 
 		nodebug(__METHOD__, $params);
@@ -159,6 +157,7 @@ abstract class Controller {
 			'class' => $class,
 			'class($url)' => get_class($url),
 			'class($path)' => get_class($path),
+			'$this->linkVars' => $this->linkVars,
 			'return' => $url.'',
 		));
 		return $url;
