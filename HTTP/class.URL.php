@@ -798,4 +798,8 @@ class URL {
 		return $this;
 	}
 
+	public function getParams() {
+		return $this->params;
+	}
+
 }
