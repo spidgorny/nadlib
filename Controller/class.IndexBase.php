@@ -494,23 +494,29 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$sourceCSS = str_replace('.less', '.css', $source);
 				if (file_exists($sourceCSS)){
 					$source = $sourceCSS;
+					$source = $this->addMtime($source);
 				} else {
 					$source = 'css/?c=Lesser&css=' . $source;
 				}
 			}
 		} else {
-			if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
-				$mtime = @filemtime($source);
-				if (!$mtime) {
-					$mtime = @filemtime('public/'.$source);
-				}
-				if ($mtime) {
-					$source .= '?' . $mtime;
-				}
-			}
+			$source = $this->addMtime($source);
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;
+	}
+
+	function addMtime($source) {
+		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
+			$mtime = @filemtime($source);
+			if (!$mtime) {
+				$mtime = @filemtime('public/'.$source);
+			}
+			if ($mtime) {
+				$source .= '?' . $mtime;
+			}
+		}
+		return $source;
 	}
 
 	function showSidebar() {

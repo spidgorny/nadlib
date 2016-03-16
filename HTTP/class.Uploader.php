@@ -319,7 +319,7 @@ class Uploader {
 		//print_r(array($uh, $done, $json));
 		if (is_object($json)) {
 			$data = get_object_vars($json->file[0]);
-			if (!$data['error']) {
+			if (!ifsetor($data['error'])) {
 				$redirect = $callback($data);
 				$json->file[0]->redirect = $redirect;
 				$request = Request::getInstance();
