@@ -188,7 +188,10 @@ FROM {$this->from}
 	 * A way to perform a query with parameter without making a SQL
 	 */
 	function perform() {
-		return $this->db->perform($this->getQuery(), $this->getParameters());
+		$sQuery = $this->getQuery();
+		$aParams = $this->getParameters();
+		//debug($sQuery, $aParams);
+		return $this->db->perform($sQuery, $aParams);
 	}
 
 	function fetchAssoc() {
