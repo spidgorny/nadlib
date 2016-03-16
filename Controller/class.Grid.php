@@ -222,24 +222,38 @@ abstract class Grid extends AppController {
 	 */
 	public function setColumns($cn, $allowEdit) {
 		if ($this->request->is_set('columns') && $allowEdit) {
-			$this->user->setPref('Columns.' . $cn, $this->request->getArray('columns'));
 		}
-		$this->columns = $allowEdit
-			? $this->request->getArray('columns')
-			: array();
-		if (method_exists($this->user, 'getPref')) {
-			$this->columns = $this->columns
-				? $this->columns
-				: $this->user->getPref('Columns.' . $cn);
+
+		// request
+		if ($this->request->is_set('columns') && $allowEdit) {
+			$this->columns = $this->request->getArray('columns');
+			$this->user->setPref('Columns.' . $cn, $this->columns);
+			$this->log('Columns set from URL');
+		} elseif (!$this->columns && method_exists($this->user, 'getPref')) {
+			$this->columns = $this->user->getPref('Columns.' . $cn);
+			$this->log('Columns set from getPref');
+		} else {
+			// default
+			$this->columns = array_keys($this->getGridColumns());
+			$this->log('Columns set from getGridColumns');
+			if (!$this->columns && ifsetor($this->model->thes)) {
+				$this->columns = array_keys($this->model->thes);
+				$this->log('Columns set from model');
+			}
+			if (!$this->columns && $this->collection && $this->collection->thes) {
+				$this->columns = array_keys($this->collection->thes);
+				$this->log('Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
+			}
 		}
-		if (!$this->columns && ifsetor($this->model->thes)) {
-			$this->columns = array_keys($this->model->thes);
-			$this->log('Columns set from model');
-		}
-		if (!$this->columns && $this->collection && $this->collection->thes) {
-			$this->columns = array_keys($this->collection->thes);
-			$this->log('Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
-		}
+		//debug($this->columns, $this->log);
+	}
+
+	function getGridColumns() {
+		return ArrayPlus::create($this->collection->thes)
+			->makeTable('name')
+			->column('name')
+			//->combineSelf() ?!? WTF
+			->getData();
 	}
 
 }

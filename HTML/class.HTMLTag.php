@@ -19,7 +19,12 @@ class HTMLTag implements ArrayAccess {
 	}
 
 	function __toString() {
-		return $this->render();
+		try {
+			return $this->render();
+		} catch (Exception $e) {
+			debug_pre_print_backtrace();
+			die($e->getMessage());
+		}
 	}
 
 	function render() {

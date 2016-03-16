@@ -338,7 +338,13 @@ abstract class OODBase {
 	}
 
 	function __toString() {
-		return $this->getName().'';
+		try {
+			return $this->getName() . '';
+		} catch (Exception $e) {
+			debug_pre_print_backtrace();
+			echo $e->getFile().'#'.$e->getLine(), BR;
+			die($e->getMessage());
+		}
 	}
 
 	/**

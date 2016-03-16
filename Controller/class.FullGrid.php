@@ -10,8 +10,8 @@ abstract class FullGrid extends Grid {
 
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
-		//if (get_class($this->index->controller) == get_class($this)) {// unreliable
-		if ($this->request->getControllerString() == get_class($this)) {
+		$allowEdit = $this->request->getControllerString() == get_class($this);
+		if ($allowEdit && $collection) {
 			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
 		if (!$this->collection) {
@@ -78,6 +78,12 @@ abstract class FullGrid extends Grid {
 	}
 
 	function render() {
+		$this->setVisibleColumns();
+		//$this->collection->pageSize = $this->pageSize;
+		return parent::render();
+	}
+
+	function setVisibleColumns() {
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
 				if (!in_array($cn, $this->columns)) {
@@ -86,8 +92,6 @@ abstract class FullGrid extends Grid {
 				}
 			}
 		}
-		//$this->collection->pageSize = $this->pageSize;
-		return parent::render();
 	}
 
 	/**
@@ -125,8 +129,8 @@ abstract class FullGrid extends Grid {
 	}
 
 	function sidebar() {
-		$content = $this->getFilterForm();
-		$content .= $this->getColumnsForm();
+		$content[] = $this->getFilterForm();
+		$content[] = $this->getColumnsForm();
 		return $content;
 	}
 
@@ -192,14 +196,6 @@ abstract class FullGrid extends Grid {
 		}
 
 		return $res;
-	}
-
-	function getGridColumns() {
-		return ArrayPlus::create($this->collection->thes)
-			->makeTable('name')
-			->column('name')
-			->combineSelf()
-			->getData();
 	}
 
 	function getColumnsForm() {
