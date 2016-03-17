@@ -232,7 +232,8 @@ abstract class Grid extends AppController {
 		} elseif (!$this->columns && method_exists($this->user, 'getPref')) {
 			$this->columns = $this->user->getPref('Columns.' . $cn);
 			$this->log('Columns set from getPref');
-		} else {
+		}
+		if (!$this->columns) {
 			// default
 			$this->columns = array_keys($this->getGridColumns());
 			$this->log('Columns set from getGridColumns');
@@ -245,15 +246,19 @@ abstract class Grid extends AppController {
 				$this->log('Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
 			}
 		}
-		//debug($this->columns, $this->log);
+		//debug($cn, $this->columns, $this->log);
 	}
 
 	function getGridColumns() {
-		return ArrayPlus::create($this->collection->thes)
-			->makeTable('name')
-			->column('name')
-			//->combineSelf() ?!? WTF
-			->getData();
+		if ($this->collection) {
+			return ArrayPlus::create($this->collection->thes)
+				->makeTable('name')
+				->column('name')
+				//->combineSelf() ?!? WTF
+				->getData();
+		} else {
+			return [];
+		}
 	}
 
 }
