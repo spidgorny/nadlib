@@ -1044,16 +1044,18 @@ class Request {
 		$json = $session->get(__METHOD__);
 		if (!$json) {
 			$url = 'http://ipinfo.io/' . $this->getIP();		// 166ms
-			$info = file_get_contents($url);
+			$info = @file_get_contents($url);
 			if ($info) {
 				$json = json_decode($info);
 				$session->save(__METHOD__, $json);
 			} else {
 				$url = 'http://freegeoip.net/json/'.$this->getIP();	// 521ms
-				$info = file_get_contents($url);
-				$json = json_decode($info);
-				$json->loc = $json->latitude.','.$json->longitude;	// compatibility hack
-				$session->save(__METHOD__, $json);
+				$info = @file_get_contents($url);
+				if ($info) {
+					$json = json_decode($info);
+					$json->loc = $json->latitude . ',' . $json->longitude;    // compatibility hack
+					$session->save(__METHOD__, $json);
+				}
 			}
 		}
 		return $json;
