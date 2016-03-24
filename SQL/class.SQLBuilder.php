@@ -70,7 +70,7 @@ class SQLBuilder {
 		} elseif ($value instanceof AsIs) {
 			$value->injectDB($this->db);
 			$value->injectQB($this);
-			$value->injectField($key);
+			//$value->injectField($key); not needed as it will make the field name twice
 			return $value->__toString();
 		} elseif ($value instanceof SQLOr) {
 			return $value->__toString();
@@ -167,7 +167,8 @@ class SQLBuilder {
 				} elseif ($val instanceof AsIs) {
 					$val->injectDB($this->db);
 					$val->injectQB($this);
-					$val->injectField($key);
+					//$val->injectField($key); // not needed as it will repeat the field name
+					$val->injectField(NULL);
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof SQLBetween) {
 					$val->injectQB($this);
@@ -348,9 +349,26 @@ class SQLBuilder {
 		$from->db = $this->db;
 		$where = new SQLWhere($where);
 		$where->db = $this->db;
-		$order = new SQLOrder($order);
-		$order->db = $this->db;
-		$sq = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, $order);
+		if (str_startsWith($order, 'ORDER BY')) {
+			$order = new SQLOrder($order);
+			$order->db = $this->db;
+			$group = NULL;
+		} elseif (str_startsWith($order, 'GROUP BY')) {
+			$parts = trimExplode('ORDER BY', $order);
+			$group = new SQLGroup($parts[0]);
+			$group->db = $this->db;
+			if (ifsetor($parts[1])) {
+				$order = new SQLOrder($parts[1]);
+				$order->db = $this->db;
+			} else {
+				$order = NULL;
+			}
+		} elseif ($order) {
+			throw new InvalidArgumentException(__METHOD__);
+		} else {
+			$group = NULL;
+		}
+		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order);
 		$sq->injectDB($this->db);
 		return $sq;
 	}
