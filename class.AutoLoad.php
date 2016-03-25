@@ -122,6 +122,13 @@ class AutoLoad {
 						? $_SESSION[__CLASS__]['classFileMap']
 						: array();
 			}
+			if (ifsetor($_SERVER['argc'])) {
+				if (in_array('-al', $_SERVER['argv'])) {
+					echo 'AutoLoad, debug mode', BR;
+					$this->debug = true;
+					$this->folders->debug = true;
+				}
+			}
 		}
 	}
 
