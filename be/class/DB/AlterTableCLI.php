@@ -77,6 +77,7 @@ class AlterTableCLI extends AlterTableHYBH {
 			}
 		} else {
 			echo 'Choose file on the left', BR;
+			$this->listAction();
 		}
 	}
 
@@ -85,7 +86,7 @@ class AlterTableCLI extends AlterTableHYBH {
 		foreach ($indexCompare as $row) {
 			if (ifsetor($row['same']) != 'same') {
 				$sql = $row['action']->content->content;
-				echo $sql, endsWith($sql, ';') ? '' : ';';
+				echo $sql, str_endsWith($sql, ';') ? '' : ';';
 				if (ifsetor($row['fromDB']).'') {
 					echo ' /* ', $row['fromDB'], ' */';
 				}
