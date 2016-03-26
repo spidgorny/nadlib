@@ -128,7 +128,7 @@ class QueryLog {
 					'query' => '<small>'.htmlspecialchars($query).'</small>',
 					'sumtime' => number_format($set['sumtime'], 3, '.', '').'s',
 					'time' => number_format($time, 3, '.', '').'s',
-					'%' => $pb->getImage($set['sumtime']/$sumTime*100),
+					'%' => $sumTime != 0 ? $pb->getImage($set['sumtime']/$sumTime*100) : '',
 					'results' => $set['results'],
 			);
 		}
