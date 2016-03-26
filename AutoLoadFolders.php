@@ -174,11 +174,11 @@ class AutoLoadFolders {
 	}
 
 	/**
-	 * @param $classFile
+	 * @param $className
 	 * @param $namespace
 	 * @return string
 	 */
-	function findInFolders($classFile, $namespace) {
+	function findInFolders($className, $namespace) {
 		//pre_var_dump($classFile, $namespace);
 		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		//foreach ($this->folders as $namespace => $map) {
@@ -198,10 +198,10 @@ class AutoLoadFolders {
 				//$this->nadlibRoot.
 				$path.DIRECTORY_SEPARATOR.
 				//cap($namespace).//DIRECTORY_SEPARATOR.
-				'class.'.$classFile.'.php';
+				'class.'.$className.'.php';
 			$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
-			if ($namespace) {
-				//pre_print_r($file, $file2);
+			if ($className == 'HT ML') {
+				pre_print_r($file, $file2, file_exists($file), file_exists($file2));
 			}
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
@@ -212,6 +212,8 @@ class AutoLoadFolders {
 					)
 				) {	// on windows exclude index.php
 					$file = $file2;
+				} else {
+					//$file = $file;
 				}
 			} else {
 				$file2 = NULL;
@@ -219,13 +221,13 @@ class AutoLoadFolders {
 
 			//echo $file, ': ', file_exists($file) ? 'YES' : '-', BR;
 			if (file_exists($file)) {
-				$this->log($classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
-				$this->log($classFile.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
+				$this->log($className.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
+				$this->log($className.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
 				//pre_var_dump('Found', $file);
 				return $file;
 			} else {
-				$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
-				$this->log($classFile.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
+				$this->log($className.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
+				$this->log($className.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
 			}
 		}
 		return NULL;

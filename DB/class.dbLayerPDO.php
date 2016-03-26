@@ -132,6 +132,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 				throw $e;
 			}
 			$this->queryTime += $profiler->elapsed();
+			if (!is_null($this->queryLog)) {
+				$diffTime = $profiler->elapsed();
+				$this->queryLog->log($query, $diffTime, $this->lastResult->rowCount());
+			}
 			if (!$ok) {
 				debug(array(
 					'class' => get_class($this),
@@ -398,6 +402,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function getIndexesFrom($table) {
 		return array();
+	}
+
+	/**
+	 * @return PDO
+	 */
+	function getConnection() {
+		return $this->connection;
 	}
 
 }

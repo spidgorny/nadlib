@@ -54,9 +54,13 @@ if (!function_exists('nodebug')) {
 	 * @param ..$a
 	 */
 	function pre_print_r($a) {
-		echo '<pre style="white-space: pre-wrap;">';
-		print_r(func_num_args() == 1 ? $a : func_get_args());
-		echo '</pre>';
+		if (php_sapi_name() !== 'cli') {
+			echo '<pre style="white-space: pre-wrap;">';
+			print_r(func_num_args() == 1 ? $a : func_get_args());
+			echo '</pre>';
+		} else {
+			print_r(func_num_args() == 1 ? $a : func_get_args());
+		}
 	}
 
 	function get_print_r($a) {
