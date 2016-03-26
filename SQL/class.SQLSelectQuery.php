@@ -3,7 +3,7 @@
 class SQLSelectQuery extends SQLWherePart {
 
 	/**
-	 * @var dbLayerBase|dbLayer|MySQL
+	 * @var dbLayerBase|dbLayer|MySQL|dbLayerPDO
 	 * @protected to prevent debug output
 	 */
 	protected $db;
@@ -96,9 +96,16 @@ class SQLSelectQuery extends SQLWherePart {
 		$this->limit = $limit;
 	}
 
-	public static function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude') {
-		return "( 6371 * acos( cos( radians($lat) ) * cos( radians( $latitude ) )
-		* cos( radians( $longitude ) - radians($lon) ) + sin( radians($lat) ) * sin(radians($latitude)) ) ) AS distance";
+	public function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude') {
+		if ($this->db->isSQLite()) {
+			$this->db->getConnection()->sqliteCreateFunction('sqrt', function ($a) {
+				return sqrt($a);
+			}, 1);
+			return "sqrt(($latitude - ($lat))*($latitude - ($lat)) + ($longitude - ($lon))*($longitude - ($lon))) AS distance";
+		} else {
+			return "( 6371 * acos( cos( radians($lat) ) * cos( radians( $latitude ) )
+			* cos( radians( $longitude ) - radians($lon) ) + sin( radians($lat) ) * sin(radians($latitude)) ) ) AS distance";
+		}
 	}
 
 	function getQuery() {
