@@ -534,10 +534,12 @@ abstract class OODBase {
 		return $inst;
 	}
 
-	static function storeInstance($inst, $newID) {
+	static function storeInstance($inst, $newID = NULL) {
 		$static = get_called_class();
 		$id = $inst->id ?: $newID;
-		self::$instances[$static][$id] = $inst;
+		if ($id) {
+			self::$instances[$static][$id] = $inst;
+		}
 	}
 
 	static function clearInstances() {

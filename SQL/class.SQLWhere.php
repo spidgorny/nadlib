@@ -18,6 +18,10 @@ class SQLWhere {
 		$this->db = Config::getInstance()->getDB();
 	}
 
+	function injectDB(dbLayerBase $db) {
+		$this->db = $db;
+	}
+
 	function add($where, $key = NULL) {
 		if (is_array($where)) {
 			//debug($where);
@@ -72,7 +76,7 @@ class SQLWhere {
 		//debug($sWhere, $params);
 		$type = $this->db->getScheme();
 		foreach ($params as $i => $name) {
-			if ($type == 'mysqli') {
+			if (in_array($type, ['mysqli', 'mysql'])) {
 				$sWhere = str_replace_once('$0$', '?', $sWhere);
 			} else {
 				$sWhere = str_replace_once('$0$', '$' . ($i + 1), $sWhere);
