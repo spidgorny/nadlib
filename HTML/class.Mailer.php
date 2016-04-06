@@ -70,17 +70,22 @@ class Mailer {
 	}
 
 	function send() {
-		if (HTMLFormValidate::validEmail($this->to)) {
+		$emails = trimExplode(',', $this->to);
+		$validEmails = 0;
+		foreach ($emails as $e) {
+			$validEmails += HTMLFormValidate::validEmail($e);
+		}
+		if ($validEmails == sizeof($emails)) {
 			$res = mail($this->to,
 				$this->getSubject(),
 				$this->getBodyText(),
 				implode("\n", $this->headers)."\n",
 				implode(' ', $this->params));
 			if (!$res) {
-				throw new Exception('Email sending to '.$this->to.' failed');
+				throw new MailerException('Email sending to '.$this->to.' failed');
 			}
 		} else {
-			throw new Exception('Invalid email address: '.$this->to);
+			throw new MailerException('Invalid email address: '.$this->to);
 		}
 		return $res;
 	}
