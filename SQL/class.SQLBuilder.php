@@ -152,7 +152,7 @@ class SQLBuilder {
 		$set = array();
 		foreach ($where as $key => $val) {
 			if (!strlen($key) || (strlen($key) && $key{strlen($key)-1} != '.')) {
-				$key = $this->quoteKey($key);
+				$key = $this->quoteKey(trim($key));
 //				debug($key);
 				if (false) {
 

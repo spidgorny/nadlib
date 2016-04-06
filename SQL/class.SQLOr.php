@@ -46,7 +46,7 @@ class SQLOr extends SQLWherePart {
 				$ors = array();
 				foreach ($this->or as $field => $or) {
 					$tmp = $this->db->quoteWhere(
-                        array($field => $or)
+                        array(trim($field) => $or)
 						//array($this->field => $or)    //  commented and replaced with line above due to problem
                                                         //  with query creation for software management .. deklesoe 20130514
 						//$or
@@ -57,7 +57,7 @@ class SQLOr extends SQLWherePart {
                 $ors = array();
                 foreach ($this->or as $field => $or) {
                     $tmp = $this->qb->quoteWhere(
-                        array($this->field => $or)
+                        array(trim($this->field) => $or)
                         //$or
                     );
                     $ors[] = implode('', $tmp);
@@ -70,7 +70,7 @@ class SQLOr extends SQLWherePart {
 				}
 				$ors = $this->db->quoteWhere($this->or);
 			}
-		} else {										// MySQL
+		} else {						// MySQL
 			$ors = $this->db->quoteWhere($this->or);
 		}
 		if ($ors) {
@@ -88,6 +88,10 @@ class SQLOr extends SQLWherePart {
 
 	function getParameter() {
 		$params = array();
+		/**
+		 * @var string $field
+		 * @var SQLLike $sub
+		 */
 		foreach ($this->or as $sub) {
 			if ($sub instanceof SQLWherePart) {
 				$plus = $sub->getParameter();
