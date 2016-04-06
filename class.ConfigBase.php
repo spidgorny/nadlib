@@ -170,7 +170,7 @@ class ConfigBase {
 		return $this;
 	}
 
-	function getDB() {
+	public function getDB() {
 		//debug_pre_print_backtrace();
 		if ($this->db) return $this->db;
 

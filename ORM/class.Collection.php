@@ -12,7 +12,7 @@ class Collection implements IteratorAggregate {
 	 * In case of MSSQL it needs to be set from outside
 	 * @var dbLayer|MySQL|BijouDBConnector|dbLayerMS|dbLayerPDO|dbLayerSQLite
 	 */
-	public $db;
+	protected $db;
 
 	/**
 	 * @var string
@@ -241,6 +241,7 @@ class Collection implements IteratorAggregate {
 						? json_encode($this->parentID)
 						: $this->parentID).")";
 		TaylorProfiler::start($taylorKey);
+		/** @var SQLSelectQuery $query */
 		$query = $this->getQuery();
 		if (class_exists('PHPSQL\Parser') && false) {
 			$sql = new SQLQuery($query);
@@ -250,7 +251,14 @@ class Collection implements IteratorAggregate {
 			//$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);	// subquery problem
 			$this->query = preg_replace('/SELECT /', 'SELECT SQL_CALC_FOUND_ROWS ', $query, 1);
 		}
-		$res = $this->db->perform($this->query);
+		if (str_contains($query, 'valid_from')) {
+			$params = $query->getParameters();
+			Debug::getInstance()->debugWithHTML([
+				$query, $query.'', $params]);
+			die;
+		}
+		$params = $query->getParameters();
+		$res = $this->db->perform($this->query, $params);
 
 		if ($this->pager) {
 			$this->pager->setNumberOfRecords(PHP_INT_MAX);
