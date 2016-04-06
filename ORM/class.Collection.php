@@ -193,7 +193,7 @@ class Collection implements IteratorAggregate {
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
 			|| ($this->db instanceof dbLayerPDO
-				&& $this->db->getScheme() == 'mysql')
+				&& $this->db->isMySQL())
 		)) {
 			$this->log(__METHOD__);
 			$data = $this->retrieveDataFromMySQL();
