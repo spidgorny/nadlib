@@ -137,7 +137,8 @@ abstract class Controller {
 			}
 		} else {
 			$class = NULL;
-			unset($params['c']);
+			// this is the only way to supply controller
+			//unset($params['c']);
 		}
 
 		nodebug(__METHOD__, $params);
