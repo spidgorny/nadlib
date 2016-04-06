@@ -3,9 +3,9 @@
 class SQLWhere {
 
 	/**
-	 * @var dbLayer
+	 * @var dbLayer|dbLayerPDO
 	 */
-	var $db;
+	protected $db;
 
 	protected $parts = array();
 

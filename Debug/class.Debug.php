@@ -113,9 +113,10 @@ class Debug {
 		return $can;
 	}
 
-	function debugWithFirebug(array $params, $title = '') {
+	function debugWithFirebug($params, $title = '') {
 		$content = '';
-		debug_pre_print_backtrace();
+		$params = is_array($params) ? $params : [$params];
+		//debug_pre_print_backtrace();
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
 			$fp->setOption('includeLineNumbers', true);
