@@ -3,9 +3,9 @@
 class SQLWhere {
 
 	/**
-	 * @var dbLayer
+	 * @var dbLayer|dbLayerPDO
 	 */
-	var $db;
+	protected $db;
 
 	protected $parts = array();
 
@@ -93,7 +93,7 @@ class SQLWhere {
 				$plus = $part->getParameter();
 				if ($plus) {
 					//$parameters = array_merge($parameters, $plus);
-					$parameters[] =$plus;
+					$parameters = array_merge($parameters, $plus);
 				}
 			}
 		}

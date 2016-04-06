@@ -107,13 +107,17 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query, array $params = array()) {
+		debug($params);
 		$this->lastQuery = $query;
+		
+		$driver_options = [];
 		if ($this->getScheme() == 'mysql') {
-			$params[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
+			$driver_options[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
+		
 		$profiler = new Profiler();
 		try {
-			$this->lastResult = $this->connection->prepare($query, $params);
+			$this->lastResult = $this->connection->prepare($query, $driver_options);
 		} catch (PDOException $e) {
 			debug($query, $params, $e->getMessage());
 			throw $e;
