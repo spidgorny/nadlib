@@ -74,9 +74,8 @@ class SQLWhere {
 		// replace $1, $1, $1 with $1, $2, $3
 		$params = $this->getParameters();
 		//debug($sWhere, $params);
-		$type = $this->db->getScheme();
 		foreach ($params as $i => $name) {
-			if (in_array($type, ['mysqli', 'mysql'])) {
+			if ($this->db->isMySQL()) {
 				$sWhere = str_replace_once('$0$', '?', $sWhere);
 			} else {
 				$sWhere = str_replace_once('$0$', '$' . ($i + 1), $sWhere);

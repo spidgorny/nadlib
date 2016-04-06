@@ -206,7 +206,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function isMySQL() {
-		return $this->getScheme() == 'mysql';
+		return in_array(
+			$this->getScheme(),
+			['mysql', 'mysqli']);
 	}
 
 	function isPostgres() {
@@ -232,7 +234,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function getTablesEx() {
 		$tables = array();
 		$scheme = $this->getScheme();
-		if ($scheme == 'mysql') {
+		if ($this->isMySQL()) {
 			$res = $this->perform('show tables');
 			$tables = $res->fetchAll();
 			$tables = ArrayPlus::create($tables)->column('0')->getData(); // "Tables_is_DBname"
@@ -255,6 +257,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			} catch (Exception $e) {
 				throw $e;
 			}
+		} else {
+			throw new InvalidArgumentException(__METHOD__);
 		}
 		return $tables;
 	}
@@ -305,6 +309,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function getTableColumnsEx($table) {
 		switch ($this->getScheme()) {
 			case 'mysql':
+			case 'mysqli':
 				$this->perform('show columns from '.$this->quoteKey($table));
 				$tableInfo = $this->fetchAll($this->lastResult, 'Field');
 				break;
@@ -318,6 +323,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 				}
 				//debug($tableInfo);
 				break;
+			default:
+				throw new InvalidArgumentException(__METHOD__);
 		}
 		return $tableInfo;
 	}

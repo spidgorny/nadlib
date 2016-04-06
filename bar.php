@@ -20,9 +20,9 @@
 
 require_once 'init.php';
 
-class Bar {
+class BarImage {
 
-	var $expires = 60*60*24*365;	// days
+	var $expires = 31536000; //60*60*24*365;	// days
 
 	var $width;
 
@@ -59,29 +59,29 @@ class Bar {
 		$image = imagecreate($this->width, $this->height);
 
 		$backColor = $this->backColor;
-		$back = ImageColorAllocate($image, $backColor[0], $backColor[1], $backColor[2]);
-		$border = ImageColorAllocate($image, 127, 127, 127);
-		ImageFilledRectangle($image, 0, 0, $this->width - 1, $this->height - 1, $back);
+		$back = imagecolorallocate($image, $backColor[0], $backColor[1], $backColor[2]);
+		$border = imagecolorallocate($image, 127, 127, 127);
+		imagefilledrectangle($image, 0, 0, $this->width - 1, $this->height - 1, $back);
 
 		if (!ifsetor($_GET['!border'])) {
-			ImageRectangle($image, 0, 0, $this->width - 1, $this->height - 1, $border);
+			imagerectangle($image, 0, 0, $this->width - 1, $this->height - 1, $border);
 		} else {
 			$ratingbar += 2;
 			$barDX = 0;
 		}
 
 		$color = $this->color;
-		$fill = ImageColorAllocate($image, $color[0], $color[1], $color[2]);
+		$fill = imagecolorallocate($image, $color[0], $color[1], $color[2]);
 		//if ($rating > 49) { $fill = ImageColorAllocate($image,255,255,0); }
 		//if ($rating > 74) { $fill = ImageColorAllocate($image,255,128,0); }
 		//if ($rating > 89) { $fill = ImageColorAllocate($image,255,0,0); }
 		if ($this->symmetric) {
 			$middle = $this->width / 2;
-			ImageFilledRectangle($image, $middle + $barDX, $barDX, $middle + $barDX + $ratingbar/2, $this->height - $barDX - 1, $fill);
+			imagefilledrectangle($image, $middle + $barDX, $barDX, $middle + $barDX + $ratingbar/2, $this->height - $barDX - 1, $fill);
 		} else {
-			ImageFilledRectangle($image, $barDX, $barDX, $barDX + $ratingbar, $this->height - $barDX - 1, $fill);
+			imagefilledrectangle($image, $barDX, $barDX, $barDX + $ratingbar, $this->height - $barDX - 1, $fill);
 		}
-		imagePNG($image);
+		imagepng($image);
 		imagedestroy($image);
 	}
 
@@ -113,7 +113,7 @@ if (!function_exists('imagecreate')) {
 	echo 'PHP: '.phpversion().'<br />';
 	echo 'GD not installed';
 } else {
-	$bar = new Bar();
+	$bar = new BarImage();
 	$bar->setHeaders();
-	$bar->drawRating(min(100, intval($_GET['rating'])));
+	$bar->drawRating(min(100, ifsetor($_GET['rating'])));
 }
