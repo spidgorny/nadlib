@@ -348,7 +348,7 @@ class SQLBuilder {
 		$from = new SQLFrom($from);
 		$from->db = $this->db;
 		$where = new SQLWhere($where);
-		$where->db = $this->db;
+		$where->injectDB($this->db);
 		if (str_startsWith($order, 'ORDER BY')) {
 			$order = new SQLOrder($order);
 			$order->db = $this->db;

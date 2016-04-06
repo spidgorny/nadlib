@@ -107,7 +107,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query, array $params = array()) {
-		debug($params);
+		//debug($params);
 		$this->lastQuery = $query;
 		
 		$driver_options = [];
