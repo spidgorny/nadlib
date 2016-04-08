@@ -8,6 +8,14 @@
  */
 class CollectionTest extends PHPUnit_Framework_TestCase {
 
+
+	protected function setUp()
+	{
+		$this->markTestSkipped(
+			'This test in a wrong place after discussion with Slava.'
+		);
+	}
+
 	function test_lazyMemeberIterator() {
 		$rc = new RequestCollection();
 		$rc->orderBy = 'ORDER BY ctime DESC LIMIT 10';
