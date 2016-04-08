@@ -771,7 +771,7 @@ class slTable {
 		// thes should fit into a columns as well
 		foreach ($this->thes as $field => $name) {
 			$widthMax[$field] = is_array($name)
-				? mb_strlen($name['name'])
+				? mb_strlen(ifsetor($name['name']))
 				: (mb_strlen($name) ?: mb_strlen($field));
 		}
 		//print_r($widthMax);
