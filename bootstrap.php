@@ -16,7 +16,7 @@ class Bootstrap {
 		$globalAutoload = getenv('USERPROFILE') . DS . 'AppData' . DS . 'Roaming' . DS . 'Composer' . DS . 'vendor' . DS . 'autoload.php';
 		echo $globalAutoload, BR;
 		/** @noinspection PhpIncludeInspection */
-		require_once $globalAutoload;
+		@include_once $globalAutoload;
 
 		require_once __DIR__ . '/class.ConfigBase.php';
 		//require_once 'TestConfig.php';
@@ -55,7 +55,14 @@ class Bootstrap {
 	}
 
 }
+if (class_exists('Config', false)) {
+	Config::getInstance()->postInit();
+}
 
-Config::getInstance()->postInit();
+if (!function_exists('__')) {
+	function __($a) {
+		return $a;
+	}
+}
 
 (new Bootstrap())->bootstrap();
