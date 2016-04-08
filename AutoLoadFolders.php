@@ -120,6 +120,9 @@ class AutoLoadFolders {
 			require_once 'class.ConfigBase.php';
 		}
 		if (!class_exists('Config', false)) {
+			if ($this->debug) {
+				echo __METHOD__.': Config class is found', BR;
+			}
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
 			$configPath1 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
 			$configPath2 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.      'Config.php';
@@ -130,13 +133,27 @@ class AutoLoadFolders {
 			if (file_exists($configPath1)) {
 				/** @noinspection PhpIncludeInspection */
 				include_once $configPath1;
+				if ($this->debug) {
+					echo __METHOD__.': Config in '.$configPath1, BR;
+				}
 			} elseif (file_exists($configPath2)) {
 				/** @noinspection PhpIncludeInspection */
 				include_once $configPath2;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
+				if ($this->debug) {
+					echo __METHOD__.': Config in '.$configPath2, BR;
+				}
 			} else {
 				// some projects don't need Config
 				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				if ($this->debug) {
+					echo __METHOD__.': Config class is found but file is unknown ', BR;
+					debug($configPath1, $configPath2);
+				}
+			}
+		} else {
+			if ($this->debug) {
+				echo __METHOD__.': Config class not found', BR;
 			}
 		}
 	}
@@ -200,8 +217,8 @@ class AutoLoadFolders {
 				//cap($namespace).//DIRECTORY_SEPARATOR.
 				'class.'.$className.'.php';
 			$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
-			if ($className == 'HT ML') {
-				pre_print_r($file, $file2, file_exists($file), file_exists($file2));
+			if ($className == 'User') {
+				//pre_print_r($file, $file2, file_exists($file), file_exists($file2));
 			}
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {

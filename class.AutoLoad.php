@@ -113,6 +113,7 @@ class AutoLoad {
 	function postInit() {
 		if (!$this->folders) {
 			$this->folders = new AutoLoadFolders($this);
+			$this->folders->debug = $this->debug;
 			$this->folders->loadConfig();
 			if (class_exists('Config')) {
 				self::$instance->config = Config::getInstance();
@@ -169,6 +170,9 @@ class AutoLoad {
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
 
 		$this->nadlibRoot = cap($this->nadlibRoot);
+		if ($this->debug) {
+			echo __METHOD__, ' ', $this->nadlibRoot, BR;
+		}
 
 		$this->setComponentsPath();
 
@@ -243,20 +247,29 @@ class AutoLoad {
 		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
 			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
 		) {
-			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'class.Config.php');
+			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php';
+			$config2 = $appRoot . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'Config.php';
+			$exists1 = file_exists($config1);
+			$exists2 = file_exists($config2);
+			if ($this->debug) {
+				echo __METHOD__, ' ', $config1, ': ', $exists1, BR;
+				echo __METHOD__, ' ', $config2, ': ', $exists2, BR;
+			}
 			//debug($appRoot, strlen($appRoot), $exists);
-			if ($exists) {
+			if ($exists1) {
 				break;
 			}
-			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'Config.php');
 			//debug($appRoot, strlen($appRoot), $exists);
-			if ($exists) {
+			if ($exists2) {
 				break;
 			}
 			$appRoot = dirname($appRoot);
 		}
 
-		if (!$appRoot || Path::isAbsolute($appRoot)) {  // nothing is found by previous method
+		if (!$appRoot || $appRoot == '/') {  // nothing is found by previous method
+			if ($this->debug) {
+				echo __METHOD__, ' Alternative way of app root detection', BR;
+			}
 			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
 			//debug($appRoot, URL::getScriptWithPath());
 			$appRoot->upIf('nadlib');
@@ -269,6 +282,9 @@ class AutoLoad {
 			}
 		}
 
+		if ($this->debug) {
+			echo __METHOD__, ' ', $appRoot, BR;
+		}
 		// always add trailing slash!
 	    $appRoot = cap($appRoot, '/');
 		$appRoot = new Path($appRoot);
