@@ -32,7 +32,7 @@ class Duration extends Time {
 		'second'   => 1
 	);
 
-	function  __construct($input = NULL) {
+	public function  __construct($input = NULL) {
 		if ($input instanceof Time) {
 			$this->time = $input->time;
 		} elseif (is_string($input)) {
@@ -47,23 +47,37 @@ class Duration extends Time {
 		$this->updateDebug();
 	}
 
+	/**
+	 * @param $ini_get
+	 * @return Duration
+	 */
 	public static function fromSeconds($ini_get) {
 		return new Duration($ini_get);
 	}
 
-	function format($rules) {
+	public function format($rules) {
 		die(__METHOD__.' - don\'t use.');
 	}
 
-	function getTime($format = 'H:i:s') {
+	/**
+	 * @param string $format
+	 * @return string
+	 */
+	public function getTime($format = 'H:i:s') {
 		return gmdate($format, $this->time);
 	}
 
-	function nice() {
+	/**
+	 * @return string
+	 */
+	public function nice() {
 		return $this->toString();
 	}
 
-	function short() {
+	/**
+	 * @return array|string
+	 */
+	public function short() {
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = array();
@@ -84,7 +98,7 @@ class Duration extends Time {
 	 * @param string $string
 	 * @return \Duration
 	 */
-	static function fromHuman($string) {
+	public static function fromHuman($string) {
 		$total = 0;
 		$parts = trimExplode(' ', $string);
 		foreach ($parts as $p) {
@@ -162,10 +176,9 @@ class Duration extends Time {
 	 * @param int $perCount
 	 * @return  string
 	 */
-    function toString($perCount = 2) {
+    public function toString($perCount = 2) {
 		$content = '';
         $duration = $this->int2array();
-        //debug($duration);
 
         if (is_array($duration)) {
 	        $duration = array_slice($duration, 0, $perCount, TRUE);
@@ -239,11 +252,19 @@ class Duration extends Time {
         return $str;
     }
 
-	function getTimestamp() {
+	/**
+	 * @return null
+	 */
+	public function getTimestamp() {
 		return $this->time;
 	}
 
-	function less($sDuration) {
+	/**
+	 * @param $sDuration
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function less($sDuration) {
 		if (is_string($sDuration)) {
 			return $this->time < strtotime($sDuration, 0);
 		} else if ($sDuration instanceof Time) {
@@ -253,7 +274,12 @@ class Duration extends Time {
 		}
 	}
 
-	function more($sDuration) {
+	/**
+	 * @param $sDuration
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function more($sDuration) {
 		if (is_string($sDuration)) {
 			return $this->time > strtotime($sDuration, 0);
 		} else if ($sDuration instanceof Time) {
@@ -263,26 +289,44 @@ class Duration extends Time {
 		}
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getMinutes() {
 		return $this->time / 60;
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getHours() {
 		return $this->time / 60 / 60;
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getDays() {
 		return $this->time / 60 / 60 / 24;
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getRemHours() {
 		return floor($this->time / 60 / 60);
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getRemMinutes() {
 		return floor($this->time % (60*60) / 60);
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getRemSeconds() {
 		return $this->time % (60);
 	}
