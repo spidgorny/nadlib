@@ -45,7 +45,9 @@ class SQLWhere {
 		if ($this->parts) {
 			//debug($this->parts);
 			foreach ($this->parts as $field => &$p) {
-				//debug($field, gettype2($p), $p instanceof SQLWherePart);
+				if ($field == 'read') {
+					//debug($field, gettype2($p), $p instanceof SQLWherePart);
+				}
 				if ($p instanceof SQLWherePart) {
 					if (!is_numeric($field)) {
 						$p->injectField($field);
