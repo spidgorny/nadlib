@@ -358,7 +358,7 @@ class Collection implements IteratorAggregate {
 		if ($where instanceof SQLWhere) {
 			$query = $this->db->getSelectQuerySW($this->table.' '.$this->join, $where, $this->orderBy, $this->select);
 		} else {
-			//debug_pre_print_backtrace();
+			//debug($where);
 			$query = $this->db->getSelectQuery(
 				$this->table.' '.$this->join,
 				$where,

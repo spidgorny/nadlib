@@ -29,8 +29,16 @@ class SQLWherePart {
 		$this->qb = Config::getInstance()->getQb();
 	}
 
+	/**
+	 * Not used directly
+	 * @see SQLWhereEqual
+	 * @return string
+	 */
 	function __toString() {
 		if ($this->field && !is_numeric($this->field)) {
+			if ($this->field == 'read') {
+				//debug($this->field, $this->sql);
+			}
 			$part1 = $this->db->quoteWhere(
 				array($this->field => $this->sql)
 			);
