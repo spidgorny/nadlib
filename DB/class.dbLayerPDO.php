@@ -275,7 +275,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return '`'.$key.'`';
+		if ($key[0] != '`') {
+			return '`' . $key . '`';
+		} else {
+			return $key;
+		}
 	}
 
 	function escapeBool($value) {
@@ -420,6 +424,19 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	function getConnection() {
 		return $this->connection;
+	}
+
+	function setQB(SQLBuilder $qb = NULL) {
+		parent::setQB($qb);
+	}
+
+	public function getQb() {
+		if(!isset($this->qb)) {
+			$db = Config::getInstance()->getDB();
+			$this->setQB(new SQLBuilder($db));
+		}
+
+		return $this->qb;
 	}
 
 }
