@@ -356,7 +356,6 @@ class ClassTimeTest extends PHPUnit_Framework_TestCase
 		$this->assertContains('year', $result);
 		$this->assertContains('month', $result);
 		$this->assertContains('week', $result);
-		$this->assertContains('day', $result);
 	}
 
 
