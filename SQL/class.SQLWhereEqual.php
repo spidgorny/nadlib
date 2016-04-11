@@ -37,7 +37,7 @@ class SQLWhereEqual extends SQLWherePart {
 	function getWhereItem($key, $val) {
 		$set = [];
 		$key = $this->db->quoteKey(trim($key));
-//				debug($key);
+//		debug($key);
 		if (false) {
 
 		} elseif ($val instanceof AsIsOp) {       // check subclass first
