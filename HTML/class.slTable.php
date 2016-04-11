@@ -759,7 +759,7 @@ class slTable {
 
 	/**
 	 * Separation by "\t" is too stupid. We count how many chars are there in each column
-	 * and then padd it accordingly
+	 * and then pad it accordingly
 	 * @param bool $cutTooLong
 	 * @param bool $useAvg
 	 * @return string
