@@ -102,9 +102,12 @@ class View extends stdClass {
 
 		$content = $this->s($content);
 
-		preg_match_all('/__([^_]+)__/', $content, $matches);
+		preg_match_all('/__([^ _]+)__/', $content, $matches);
 		foreach ($matches[1] as $ll) {
-			$content = str_replace('__'.$ll.'__', __($ll), $content);
+			if ($ll) {
+				//debug('__' . $ll . '__', __($ll));
+				$content = str_replace('__' . $ll . '__', __($ll), $content);
+			}
 		}
 
 		if (DEVELOPMENT) {
