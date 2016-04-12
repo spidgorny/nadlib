@@ -95,4 +95,8 @@ class Selectable {
 		return $this->options[$this->selected];
 	}
 
+	function getID() {
+		return $this->selected;
+	}
+	
 }
