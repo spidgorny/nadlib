@@ -133,8 +133,10 @@ abstract class OODBase {
 			$this->id = $id;
 			if (is_array($this->idField)) {
 				// TODO
+				throw new InvalidArgumentException(__METHOD__);
 			} else {
 				$this->findInDB(array($this->idField => $this->id));
+				// will do $this->init()
 			}
 			if (!$this->data) {
 				$this->id = NULL;
@@ -523,13 +525,23 @@ abstract class OODBase {
 				// separate call to avoid infinite loop in ORS
 				$inst->init($id);
 			}
+		} elseif (is_array($id)) {
+			/** @var OODBase $inst */
+			$inst = new $static();
+			$intID = $id[$inst->idField];
+			//debug($static, $intID, $id);
+			$inst = ifsetor(self::$instances[$static][$intID]);
+			if (!$inst) {
+				$inst = new $static();
+				self::storeInstance($inst, $intID);	// int id
+				$inst->init($id);	// array
+			}
 		} else {
+			debug($static, $id);
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
-			if ($inst->id) {
-				self::$instances[$static][$inst->id] = $inst;
-			}
+			self::storeInstance($inst, $inst->id);
 		}
 		return $inst;
 	}
