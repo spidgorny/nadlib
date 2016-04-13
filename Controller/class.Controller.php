@@ -109,6 +109,8 @@ abstract class Controller {
 			//debug($this->user);
 			$this->config->mergeConfig($this);
 		} else {
+			/** @var Config config */
+			$this->config = NULL;
 			//$this->user = new UserBase();
 		}
 		$this->linkVars['c'] = get_class($this);
