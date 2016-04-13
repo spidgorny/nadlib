@@ -84,7 +84,7 @@ class HTMLFormValidate {
 		} elseif (ifsetor($d['max']) && ($value > $d['max'])) {
 			$d['error'] = __('Value in field "%1" is too large. Maximum: %2', $label, $d['max']);
 		} elseif (ifsetor($d['minlen']) && strlen($value) < $d['minlen']) {
-			$d['error'] = __('Value in field "%" is too short. Minimum: %2. Actual: %3', $label, $d['minlen'], strlen($value));
+			$d['error'] = __('Value in field "%1" is too short. Minimum: %2. Actual: %3', $label, $d['minlen'], strlen($value));
 		} elseif (ifsetor($d['maxlen']) && strlen($value) > $d['maxlen']) {
 			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $label, $d['maxlen'], strlen($value));
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
