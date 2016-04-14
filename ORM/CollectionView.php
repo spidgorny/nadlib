@@ -16,7 +16,7 @@ class CollectionView {
 	public $useSorting = true;
 
 	public $tableMore = array(
-		'class' => "nospacing",
+		'class' => "nospacing table table-striped",
 		'width' => "100%",
 	);
 
