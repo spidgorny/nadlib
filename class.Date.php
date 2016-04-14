@@ -36,7 +36,7 @@ class Date extends Time {
 	 * @param string $formula
 	 * @return Time
 	 */
-	function math($formula) {
+	function math($formula) { 
 		return new self(strtotime($formula, $this->time));
 	}
 
