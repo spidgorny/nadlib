@@ -863,7 +863,7 @@ class HTMLForm {
 	 * @param $isUnlimited
 	 */
 	function time($fieldName, $fieldValue, $isUnlimited) {
-
+		$this->input($fieldName, $fieldValue, '', 'time');
 	}
 
 	/**
