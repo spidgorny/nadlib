@@ -2,6 +2,21 @@
 
 class RestController extends AppController {
 
+	function loginBasic() {
+		$this->request->set('ajax', true);
+		$login = ifsetor($_SERVER['PHP_AUTH_USER']);
+		$password = ifsetor($_SERVER['PHP_AUTH_PW']);
+		$auth = Config::getInstance()->getAuth();
+		$status = $auth->login($login, $password);
+		//pre_print_r($status);
+		if ($status['error']) {
+			throw new AccessDeniedException();
+		} else {
+			$_COOKIE[$auth->config->cookie_name] = $status['hash'];
+			$this->user->login();	// again
+		}
+	}
+
 	function render() {
 		$this->request->set('ajax', true);
 		$verb = $this->request->getMethod();
@@ -51,7 +66,9 @@ class RestController extends AppController {
 			}
 			$content = json_encode($content, JSON_PRETTY_PRINT);
 		} else {
-			throw new HttpInvalidParamException('Unknown method/action');
+			//pre_print_r($this->request->getURLLevels(), $id, $data);
+			//throw new HttpInvalidParamException('Unknown method/action');
+			$content = $content . '';
 		}
 
 		return $content;
