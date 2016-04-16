@@ -15,13 +15,19 @@ class RestController extends AppController {
 		}
 
 		if (method_exists($this, $method)) {
-			$content = $this->$method($id, $data);
+			if ($id) {
+				$content = $this->$method($id, $data);
+			} else {
+				$content = $this->$method($data);
+			}
 		} else {
 			throw new HttpInvalidParamException('Method '.$verb.' not found');
 		}
 
 		if (is_array($content)) {
-			header('Content-Type: application/json; charset=UTF-8');
+			if (!headers_sent()) {
+				header('Content-Type: application/json; charset=UTF-8');
+			}
 			$content = json_encode($content, JSON_PRETTY_PRINT);
 		} elseif ($content instanceof OODBase) {
 			$content = [
@@ -29,7 +35,9 @@ class RestController extends AppController {
 				'type' => get_class($content),
 				'data' => $content->data,
 			];
-			header('Content-Type: application/json; charset=UTF-8');
+			if (!headers_sent()) {
+				header('Content-Type: application/json; charset=UTF-8');
+			}
 			$content = json_encode($content, JSON_PRETTY_PRINT);
 		} elseif ($content instanceof Collection) {
 			$content = [
@@ -38,7 +46,9 @@ class RestController extends AppController {
 				'count' => $content->getCount(),
 				'data' => $content->getData(),
 			];
-			header('Content-Type: application/json; charset=UTF-8');
+			if (!headers_sent()) {
+				header('Content-Type: application/json; charset=UTF-8');
+			}
 			$content = json_encode($content, JSON_PRETTY_PRINT);
 		}
 
