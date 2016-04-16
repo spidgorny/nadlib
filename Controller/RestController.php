@@ -50,6 +50,8 @@ class RestController extends AppController {
 				header('Content-Type: application/json; charset=UTF-8');
 			}
 			$content = json_encode($content, JSON_PRETTY_PRINT);
+		} else {
+			throw new HttpInvalidParamException('Unknown method/action');
 		}
 
 		return $content;
