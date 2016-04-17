@@ -74,4 +74,27 @@ class RestController extends AppController {
 		return $content;
 	}
 
+	/**
+	 * Returns documentation - what can be done by this end-point
+	 * @return array
+	 */
+	function OPTIONS() {
+		$allows = [];
+		$about = [];
+		$rc = new ReflectionClass($this);
+		foreach ($rc->getMethods() as $method) {
+			if ($method->getName() == strtoupper($method->getName())) {
+				$allows[] = str_replace('1', '', $method->getName());
+				$dc = new DocCommentParser();
+				$dc->parseDocComment($method->getDocComment());
+				$about[$method->getName()] = [
+					'description' => $dc->getDescription(),
+					'parameters' => $method->getParameters(),
+				];
+			}
+		}
+		header('Allow: '.implode(', ', $allows));
+		return $about;
+	}
+
 }
