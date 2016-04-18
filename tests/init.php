@@ -20,4 +20,6 @@ define('DS', DIRECTORY_SEPARATOR);
 /** @noinspection PhpIncludeInspection */
 $globalAutoload = getenv('USERPROFILE') . DS . 'AppData' . DS . 'Roaming' . DS . 'Composer' . DS . 'vendor' . DS . 'autoload.php';
 echo $globalAutoload, BR;
+
+/** @noinspection PhpIncludeInspection */
 require_once $globalAutoload;

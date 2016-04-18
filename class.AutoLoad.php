@@ -267,6 +267,7 @@ class AutoLoad {
 	/**
 	 * Main __autoload() function
 	 * @param $class
+	 * @return bool
 	 * @throws Exception
 	 */
 	function load($class) {
@@ -299,10 +300,13 @@ class AutoLoad {
 				$this->log(__METHOD__.': '.$class.' not found'.BR);
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
+			if ($tp) $tp->stop(__METHOD__);
+			return false;
 		} else {
 			//echo $classFile.' ';
+			if ($tp) $tp->stop(__METHOD__);
+			return true;
 		}
-		if ($tp) $tp->stop(__METHOD__);
 	}
 
 	function loadFileForClass($class) {

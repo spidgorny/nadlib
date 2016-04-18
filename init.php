@@ -338,6 +338,7 @@ if (!function_exists('nodebug')) {
 	}
 
 	function cap($string, $with = '/') {
+		$string .= '';
 		if (!endsWith($string, $with)) {
 			$string .= $with;
 		}
@@ -420,26 +421,26 @@ if (!function_exists('nodebug')) {
 		return $entrega;
 	}
 
-}
+	function gettype2($something) {
+		$type = gettype($something);
+		if ($type == 'object') {
+			$hash = md5(spl_object_hash($something));
+			$hash = substr($hash, 0, 6);
+			$type .= '['.get_class($something).'#'.$hash.']';
+		}
+		if ($type == 'string') {
+			$type .= '[' . strlen($something) . ']';
+		}
+		if ($type == 'array') {
+			$type .= '[' . sizeof($something) . ']';
+		}
+		return $type;
+	}
 
-function gettype2($something) {
-	$type = gettype($something);
-	if ($type == 'object') {
-		$hash = md5(spl_object_hash($something));
-		$hash = substr($hash, 0, 6);
-		$type .= '['.get_class($something).'#'.$hash.']';
+	if (!function_exists('boolval')) {
+		function boolval($val) {
+			return (bool) $val;
+		}
 	}
-	if ($type == 'string') {
-		$type .= '[' . strlen($something) . ']';
-	}
-	if ($type == 'array') {
-		$type .= '[' . sizeof($something) . ']';
-	}
-	return $type;
-}
 
-if (!function_exists('boolval')) {
-	function boolval($val) {
-		return (bool) $val;
-	}
 }
