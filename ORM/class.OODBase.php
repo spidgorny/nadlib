@@ -537,7 +537,7 @@ abstract class OODBase {
 				$inst->init($id);	// array
 			}
 		} else {
-			debug($static, $id);
+			//debug($static, $id);
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);

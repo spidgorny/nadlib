@@ -220,7 +220,13 @@ class Collection implements IteratorAggregate {
 
 		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
-		$res = $this->query->perform();
+
+		if ($this->query instanceof SQLSelectQuery) {
+			$res = $this->query->perform();
+		} else {
+			$res = $this->db->perform($this->query);
+		}
+
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
