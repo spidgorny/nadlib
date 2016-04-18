@@ -762,12 +762,12 @@ class slTable {
 		//print_r($widthMax);
 		foreach ($this->data as $row) {
 			foreach ($this->thes as $field => $name) {
-				$value = $row[$field];
+				$value = ifsetor($row[$field]);
 				$value = is_array($value)
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);
 				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
-				$widthAvg[$field] += mb_strlen($value);
+				@$widthAvg[$field] += mb_strlen($value);
 			}
 		}
 		if ($useAvg) {
@@ -789,7 +789,7 @@ class slTable {
 		foreach ($dataWithHeader as $row) {
 			$padRow = array();
 			foreach ($this->thes as $field => $name) {
-				$value = $row[$field];
+				$value = ifsetor($row[$field]);
 				$value = is_array($value)
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);
