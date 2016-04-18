@@ -87,6 +87,7 @@ class View extends stdClass {
 		ob_start();
 
 		//debug(getcwd(), $file);
+		/** @noinspection PhpIncludeInspection */
 		require($file);
 
 		if (!$content) {
