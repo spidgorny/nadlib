@@ -15,7 +15,7 @@ class AutoLoad {
 	/**
 	 * @var boolean
 	 */
-	public $debug = false;
+	public $debug = 0;
 
 	/**
 	 * @var AutoLoad
@@ -240,7 +240,11 @@ class AutoLoad {
 	 * Since it's not 100% that it exists we just take the REQUEST_URL
 	 */
 	function detectAppRoot() {
-		$appRoot = dirname(URL::getScriptWithPath());
+		if (Request::isPHPUnit()) {
+			$appRoot = getcwd();
+		} else {
+			$appRoot = dirname(URL::getScriptWithPath());
+		}
 		$appRoot = realpath($appRoot);
 		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
@@ -415,7 +419,7 @@ class AutoLoad {
 		}
 	}
 
-	static function register() { 
+	static function register() {
 		$instance = self::getInstance();
 		if (!$instance->folders) {
 			$instance->postInit();
