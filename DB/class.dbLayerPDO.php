@@ -205,20 +205,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $scheme;
 	}
 
-	function isMySQL() {
-		return in_array(
-			$this->getScheme(),
-			['mysql', 'mysqli']);
-	}
-
-	function isPostgres() {
-		return $this->getScheme() == 'psql';
-	}
-
-	function isSQLite() {
-		return $this->getScheme() == 'sqlite';
-	}
-
 	function getTables() {
 		$tables = $this->getTablesEx();
 		$names = array_keys($tables);
