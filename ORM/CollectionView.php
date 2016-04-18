@@ -112,7 +112,7 @@ class CollectionView {
 		$s->sortable = $this->useSorting;
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
-			$controller = $index->controller;
+			$controller = $index->getController();
 			if ($sort = ifsetor($controller->sort)) {
 				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));	// UGLY
 				//debug(Index::getInstance()->controller);
