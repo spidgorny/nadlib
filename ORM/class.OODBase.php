@@ -155,16 +155,21 @@ abstract class OODBase {
 
 	function initByRow(array $row) {
 		$this->data = $row;
-		if (is_array($this->idField)) {
+		$idField = $this->idField;
+		$parts = trimExplode('.', $idField);
+		if (sizeof($parts) == 2) {	//table.id
+			$idField = $parts[1];
+		}
+		if (is_array($idField)) {
 			$this->id = array();
-			foreach ($this->idField as $field) {
+			foreach ($idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
 		//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
-		} else if (isset($this->data[$this->idField]) && $this->data[$this->idField]) {
-			$this->id = $this->data[$this->idField];
+		} else if (isset($this->data[$idField]) && $this->data[$idField]) {
+			$this->id = $this->data[$idField];
 		} else {
-			debug(gettype($row), $this->idField, $this->data);
+			debug(gettype($row), $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}

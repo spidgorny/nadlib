@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class HTMLFormTable
+ * @ses HTMLFormField
+ */
 class HTMLFormTable extends HTMLForm {
 	/**
 	 * If set then each field gets ['value'] appended to it's name
