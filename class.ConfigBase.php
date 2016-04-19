@@ -109,6 +109,9 @@ class ConfigBase {
 		} else {
 			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
 			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
+			AutoLoad::getInstance()->documentRoot = new Path(
+				str_replace('/kunden', '', AutoLoad::getInstance()->documentRoot)
+			); // 1und1.de
 		}
 
 		//debug_print_backtrace();
@@ -167,7 +170,7 @@ class ConfigBase {
 		return $this;
 	}
 
-	function getDB() {
+	public function getDB() {
 		//debug_pre_print_backtrace();
 		if ($this->db) return $this->db;
 

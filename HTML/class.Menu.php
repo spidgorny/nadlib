@@ -457,4 +457,18 @@ class Menu /*extends Controller*/ {
 		}
 	}
 
+	function renderBreadcrumbs() {
+		$ul = new UL($this->items->getData());
+		$ul->links = $this->items->getKeys()->getData();
+		$ul->links = array_combine($ul->links, $ul->links);
+		$ul->linkWrap = '<a href="###LINK###">|</a>';
+		$ul->before = '<ol class="breadcrumb">';
+		$ul->after = '</ol>';
+		if ($ul->links) {
+			return $ul;
+		} else {
+			return NULL;
+		}
+	}
+
 }

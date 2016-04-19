@@ -24,12 +24,16 @@ class HTMLImage extends HTMLTag {
 
 	function getImageLink() {
 		if ($this->isLocalFile()) {
-			$documentRoot = Autoload::getInstance()->appRoot;
-			$documentRoot = str_replace('\\', '/', $documentRoot);
-			$realpath = realpath($this->filename);
-			$realpath = str_replace('\\', '/', $realpath);
-			$fileLink = str_replace($documentRoot, '', $realpath);
-			//debug($documentRoot, $realpath, $fileLink);
+			if ($this->filename[0] == '/') {
+				$documentRoot = Autoload::getInstance()->appRoot;
+				$documentRoot = str_replace('\\', '/', $documentRoot);
+				$realpath = realpath($this->filename);
+				$realpath = str_replace('\\', '/', $realpath);
+				$fileLink = str_replace($documentRoot, '', $realpath);
+				//debug($documentRoot, $realpath, $fileLink);
+			} else {
+				$fileLink = $this->filename;
+			}
 		} else {
 			$fileLink = $this->filename;
 		}
@@ -47,7 +51,7 @@ class HTMLImage extends HTMLTag {
 	function getExif() {
 		$exif = NULL;
 		if (file_exists($this->filename)
-			&& endsWith($this->filename, '.jpeg')
+			&& str_endsWith($this->filename, '.jpeg')
 			&& function_exists('exif_read_data')
 		) {
 			$exif = exif_read_data($this->filename); // warning if PNG

@@ -24,7 +24,7 @@ class SQLBuilder {
 	public $found;
 
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayer|dbLayerBase|dbLayerPG
 	 */
 	public $db;
 
@@ -70,7 +70,7 @@ class SQLBuilder {
 		} elseif ($value instanceof AsIs) {
 			$value->injectDB($this->db);
 			$value->injectQB($this);
-			$value->injectField($key);
+			//$value->injectField($key); not needed as it will make the field name twice
 			return $value->__toString();
 		} elseif ($value instanceof SQLOr) {
 			return $value->__toString();
@@ -152,80 +152,8 @@ class SQLBuilder {
 		$set = array();
 		foreach ($where as $key => $val) {
 			if (!strlen($key) || (strlen($key) && $key{strlen($key)-1} != '.')) {
-				$key = $this->quoteKey($key);
-//				debug($key);
-				if (false) {
-
-				} elseif ($val instanceof AsIsOp) {       // check subclass first
-					$val->injectDB($this->db);
-					$val->injectField($key);
-					if (is_numeric($key)) {
-						$set[] = $val;
-					} else {
-						$set[] = $key . ' ' . $val;
-					}
-				} elseif ($val instanceof AsIs) {
-					$val->injectDB($this->db);
-					$val->injectQB($this);
-					$val->injectField($key);
-					$set[] = $key . ' = ' . $val;
-				} elseif ($val instanceof SQLBetween) {
-					$val->injectQB($this);
-					$val->injectField($key);
-					$set[] = $val->toString($key);
-				} elseif ($val instanceof SQLWherePart) {
-					$val->injectQB($this);
-					if (!is_numeric($key)) {
-						$val->injectField($key);
-					}
-					$set[] = $val->__toString();
-				} elseif ($val instanceof SimpleXMLElement) {
-					$set[] = $val->asXML();
-				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
-				//	$set[] = $val.'';
-				} elseif (isset($where[$key.'.']) && ifsetor($where[$key.'.']['asis'])) {
-					if (strpos($val, '###FIELD###') !== FALSE) {
-						$val = str_replace('###FIELD###', $key, $val);
-						$set[] = $val;
-					} else {
-						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
-					}
-				} elseif ($val === NULL) {
-					$set[] = "$key IS NULL";
-				} elseif ($val === 'NOTNULL') {
-					$set[] = "$key IS NOT NULL";
-				} elseif (in_array($key{strlen($key)-1}, array('>', '<'))
-                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
-					list($key, $sign) = explode(' ', $key); // need to quote separately
-					$key = $this->quoteKey($key);
-					$set[] = "$key $sign '$val'";
-				} elseif (is_bool($val)) {
-					$set[] = ($val ? "" : "NOT ") . $key;
-				} elseif (is_numeric($key)) {		// KEY!!!
-					$set[] = $val;
-				} elseif (is_array($val) && $where[$key.'.']['makeIN']) {
-					$set[] = $key." IN ('".implode("', '", $val)."')";
-				} elseif (is_array($val) && $where[$key.'.']['makeOR']) {
-					foreach ($val as &$row) {
-						if (is_null($row)) {
-							$row = $key .' IS NULL';
-						} else {
-							$row = $key . " = '" . $row . "'";
-						}
-					}
-					$or = new SQLOr($val);
-					$or->injectQB($this);
-					$set[] = $or;
-				} else {
-					//debug_pre_print_backtrace();
-					try {
-						$val = SQLBuilder::quoteSQL($val);
-					} catch (MustBeStringException $e) {
-						debug($key);
-						throw $e;
-					}
-					$set[] = "$key = $val";
-				}
+				$equal = new SQLWhereEqual($key, $val);
+				$set[] = $equal->__toString();
 			}
 		}
 		//debug($set);
@@ -306,7 +234,7 @@ class SQLBuilder {
 		return $table0;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
+	function getSelectQueryString($table, array $where = array(), $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {
 			$from = $this->db->quoteKey($table);    // table name always quoted
@@ -323,6 +251,55 @@ class SQLBuilder {
 		return $q;
 	}
 
+	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL) {
+		return $this->getSelectQueryP($table, $where, $order, $addSelect);
+	}
+
+	/**
+	 * @param        $table
+	 * @param array  $where
+	 * @param string $order
+	 * @param null   $addSelect
+	 * @return SQLSelectQuery
+	 */
+	function getSelectQueryP($table, array $where = array(), $order = '', $addSelect = NULL) {
+		$table1 = $this->getFirstWord($table);
+		if ($table == $table1) {
+			$from = $this->db->quoteKey($table);    // table name always quoted
+		} else {
+			$from = $table; // not quoted
+		}
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = new SQLSelect($select);
+		$select->db = $this->db;
+		$from = new SQLFrom($from);
+		$from->db = $this->db;
+		$where = new SQLWhere($where);
+		$where->injectDB($this->db);
+		if (str_startsWith($order, 'ORDER BY')) {
+			$order = new SQLOrder($order);
+			$order->db = $this->db;
+			$group = NULL;
+		} elseif (str_startsWith($order, 'GROUP BY')) {
+			$parts = trimExplode('ORDER BY', $order);
+			$group = new SQLGroup($parts[0]);
+			$group->db = $this->db;
+			if (ifsetor($parts[1])) {
+				$order = new SQLOrder($parts[1]);
+				$order->db = $this->db;
+			} else {
+				$order = NULL;
+			}
+		} elseif ($order) {
+			throw new InvalidArgumentException(__METHOD__);
+		} else {
+			$group = NULL;
+		}
+		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order);
+		$sq->injectDB($this->db);
+		return $sq;
+	}
+
 	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
 		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
@@ -332,8 +309,15 @@ class SQLBuilder {
 		return $q;
 	}
 
+	/**
+	 * @param $table
+	 * @param array $where
+	 * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
+	 * @return string
+	 * @throws MustBeStringException
+	 */
 	function getDeleteQuery($table, $where = array(), $what = '') {
-		$q = "DELETE ".$what." FROM $table ";
+		$q = "DELETE ".$what." FROM ".$this->db->quoteKey($table)." ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);

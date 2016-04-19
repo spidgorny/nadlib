@@ -7,7 +7,7 @@
 class SQLWherePart {
 
 	/**
-	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO
+	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO|dbLayer
 	 */
 	protected $db;
 
@@ -17,6 +17,10 @@ class SQLWherePart {
 	protected $qb;
 
 	protected $sql = '';
+
+	/**
+	 * @var string
+	 */
 	protected $field;
 
 	function __construct($sql = '') {
@@ -25,8 +29,16 @@ class SQLWherePart {
 		$this->qb = Config::getInstance()->getQb();
 	}
 
+	/**
+	 * Not used directly
+	 * @see SQLWhereEqual
+	 * @return string
+	 */
 	function __toString() {
 		if ($this->field && !is_numeric($this->field)) {
+			if ($this->field == 'read') {
+				//debug($this->field, $this->sql);
+			}
 			$part1 = $this->db->quoteWhere(
 				array($this->field => $this->sql)
 			);
@@ -50,6 +62,14 @@ class SQLWherePart {
 
 	function debug() {
 		return $this->__toString();
+	}
+
+	/**
+	 * Sub-classes should return their parameters
+	 * @return null
+	 */
+	function getParameter() {
+		return NULL;
 	}
 
 }

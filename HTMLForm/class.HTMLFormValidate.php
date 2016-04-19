@@ -149,10 +149,10 @@ class HTMLFormValidate {
 	//}
 
 	/**
-	Validate an email address.
-	Provide email address (raw input)
-	Returns true if the email address has the email
-	address format and the domain exists.
+	 * Validate an email address.
+	 * Provide email address (raw input)
+	 * Returns true if the email address has the email
+	 * address format and the domain exists.
 	 * http://www.linuxjournal.com/article/9585?page=0,3
 	 */
 	static function validEmail($email)	{

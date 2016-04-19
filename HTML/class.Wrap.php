@@ -21,6 +21,7 @@ class Wrap {
 	}
 
 	function wrap($str) {
+		$str = MergedContent::mergeStringArrayRecursive($str);
 		return $this->wrap1.$str.$this->wrap2;
 	}
 

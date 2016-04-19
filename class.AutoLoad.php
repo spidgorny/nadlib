@@ -23,7 +23,8 @@ class AutoLoad {
 	private static $instance;
 
 	/**
-	 * @var Path
+	 * @var Path from the root of the OS to the application root
+	 * Z:/web/have-you-been-here/
 	 */
 	public $appRoot;
 
@@ -45,7 +46,9 @@ class AutoLoad {
 	public $count = 0;
 
 	/**
-	 * @var Path
+	 * @var Path from the root of the domain to the application root.
+	 * Used as a prefix for JS/CSS files.
+	 * http://localhost:8080/[have-you-been-here]/index.php
 	 */
 	public $documentRoot;
 
@@ -110,6 +113,7 @@ class AutoLoad {
 	function postInit() {
 		if (!$this->folders) {
 			$this->folders = new AutoLoadFolders($this);
+			$this->folders->debug = $this->debug;
 			$this->folders->loadConfig();
 			if (class_exists('Config')) {
 				self::$instance->config = Config::getInstance();
@@ -118,6 +122,14 @@ class AutoLoad {
 				$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
 						? $_SESSION[__CLASS__]['classFileMap']
 						: array();
+			}
+			if (ifsetor($_SERVER['argc'])) {
+				if (in_array('-al', $_SERVER['argv'])) {
+					echo 'AutoLoad, debug mode', BR;
+					$this->debug = true;
+					$this->folders->debug = true;
+					$this->folders->collectDebug = [];
+				}
 			}
 		}
 	}
@@ -156,6 +168,11 @@ class AutoLoad {
 //		echo 'documentRoot: ', $this->documentRoot, BR;
 
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
+
+		$this->nadlibRoot = cap($this->nadlibRoot);
+		if ($this->debug) {
+			echo __METHOD__, ' ', $this->nadlibRoot, BR;
+		}
 
 		$this->setComponentsPath();
 
@@ -230,27 +247,44 @@ class AutoLoad {
 		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
 			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
 		) {
-			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'class.Config.php');
+			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php';
+			$config2 = $appRoot . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'Config.php';
+			$exists1 = file_exists($config1);
+			$exists2 = file_exists($config2);
+			if ($this->debug) {
+				echo __METHOD__, ' ', $config1, ': ', $exists1, BR;
+				echo __METHOD__, ' ', $config2, ': ', $exists2, BR;
+			}
 			//debug($appRoot, strlen($appRoot), $exists);
-			if ($exists) {
+			if ($exists1) {
 				break;
 			}
-			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'Config.php');
 			//debug($appRoot, strlen($appRoot), $exists);
-			if ($exists) {
+			if ($exists2) {
 				break;
 			}
 			$appRoot = dirname($appRoot);
 		}
 
 		if (!$appRoot || $appRoot == '/') {  // nothing is found by previous method
+			if ($this->debug) {
+				echo __METHOD__, ' Alternative way of app root detection', BR;
+			}
 			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
 			//debug($appRoot, URL::getScriptWithPath());
 			$appRoot->upIf('nadlib');
 			$appRoot->upIf('spidgorny');
 			$appRoot->upIf('vendor');
+			$hasIndex = $appRoot->hasFile('index.php');
+			//pre_print_r($appRoot.'', $hasIndex);
+			if (!$hasIndex) {
+				$appRoot->up();
+			}
 		}
 
+		if ($this->debug) {
+			echo __METHOD__, ' ', $appRoot, BR;
+		}
 		// always add trailing slash!
 	    $appRoot = cap($appRoot, '/');
 		$appRoot = new Path($appRoot);
@@ -284,26 +318,36 @@ class AutoLoad {
 				//debug('clear folder as '.$class.' is not found');
 				//$this->folders = array();				// @see __destruct(), commented as it's too global
 				$this->folders->clearCache();
-				//debug($_SESSION[__CLASS__]['folders']);
+				//debug($_SESSION['AutoLoadFolders']['folders']);
 				$this->useCookies = false;				// prevent __destruct saving data to the session
 			}
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
 				$config = Config::getInstance();
-				if ($config->config['autoload']['notFoundException']) {
-					if ($tp) $tp->stop(__METHOD__);
-					throw new Exception('Class '.$class.' ('.$file.') not found.'.BR);
-				}
+				$notFoundException = $config->config['autoload']['notFoundException'];
+			} else {
+				$notFoundException = false;
+			}
+
+			if ($notFoundException) {
+				if ($tp) $tp->stop(__METHOD__);
+				throw new Exception('Class '.$class.' ('.$file.') not found.'.BR);
 			} else {
 				//debug_pre_print_backtrace();
 				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
 				$this->log(__METHOD__.': '.$class.' not found'.BR);
+				if ($this->debug) {
+					echo (__METHOD__.': '.$class.' not found'.BR);
+				}
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
 			if ($tp) $tp->stop(__METHOD__);
 			return false;
 		} else {
 			//echo $classFile.' ';
+			if ($this->debug) {
+				echo __METHOD__.': '.$class.' OK', BR;
+			}
 			if ($tp) $tp->stop(__METHOD__);
 			return true;
 		}
@@ -341,11 +385,12 @@ class AutoLoad {
 			$file = $this->folders->findInFolders($classFile, $ns);
 			$this->classFileMap[$class] = $file;
 			if ($file) {
-				if ($this->debug && class_exists('AppController', false)) {
+				if ($this->debug && class_exists('AppController', false) && !Request::isCLI()) {
 					$subject = 'Class ['.$class.'] loaded from ['.$classFile.']';
 					//$this->log($subject);
 					$c = new AppController();
-					echo $c->encloseInToggle(implode("\n", $this->folders->collectDebug), $subject);
+					echo $c->encloseInToggle(
+						implode("\n", $this->folders->collectDebug), $subject);
 				}
 
 				/** @noinspection PhpIncludeInspection */
@@ -355,24 +400,30 @@ class AutoLoad {
 			} elseif ($this->debug) {
 				//debug($this->stat['folders'], $this->stat['configPath']);
 				//debug($this->folders);
+				echo 'AL ', $class, ' not in ', $file, BR;
 			}
-			$this->folders->collectDebug = null;
+			//$this->folders->collectDebug = null;
 		}
 		return $file;
 	}
 
 	function log($debugLine) {
-		if ($this->debug && ifsetor($_COOKIE['debug'])) {
+		if ($this->debug) {
 			if (Request::isCLI()) {
-				echo strip_tags($debugLine);
+				//echo strip_tags($debugLine);
+				$STDERR = fopen('php://stderr', 'w+');
+				fwrite($STDERR, strip_tags($debugLine));
 			} else {
 				echo $debugLine;
 			}
 		}
 	}
 
-	static function register() {
+	static function register() { 
 		$instance = self::getInstance();
+		if (!$instance->folders) {
+			$instance->postInit();
+		}
 		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
@@ -385,10 +436,15 @@ class AutoLoad {
 				$instance->load($class);
 			}
 		}
+		return $instance;
 	}
 
 	function addFolder($path, $namespace = NULL) {
+		if (!$this->folders) {
+			$this->postInit();
+		}
 		$this->folders->addFolder($path, $namespace);
+		return $this;
 	}
 
 }

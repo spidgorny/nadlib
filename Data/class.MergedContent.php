@@ -60,6 +60,7 @@ class MergedContent implements ArrayAccess {
 	 *
 	 * @param string $key The key data to retrieve
 	 * @access public
+	 * @return mixed
 	 */
 	public function &__get ($key) {
 		return $this->content[$key];
@@ -122,7 +123,7 @@ class MergedContent implements ArrayAccess {
 			array_walk_recursive($render, array(__CLASS__, 'walkMergeArray'), $combinedA);
 			$combined = implode('', $combinedA->getArrayCopy());
 			$render = $combined;
-		} else if (is_object($render)) {
+		} elseif (is_object($render)) {
 			//debug(get_class($render));
 			$render = $render.'';
 		}

@@ -12,6 +12,10 @@ class Mailer {
 	 */
 	var $to;
 
+	var $cc;
+
+	var $bcc;
+
 	/**
 	 * @var string
 	 */
@@ -50,32 +54,40 @@ class Mailer {
 			$this->headers['Content-Type'] = 'Content-Type: text/plain; charset=utf-8';
 		}
 		$this->headers['Content-Transfer-Encoding'] = 'Content-Transfer-Encoding: 8bit';
-		if ($mailFrom = ifsetor(Config::getInstance()->mailFrom)) {
-			$this->headers['From'] = 'From: '.$mailFrom;
-			// get only the pure email from "Somebody <sb@somecompany.de>"
-            $arMailFrom = explode('<', $mailFrom);
-            $mailFromOnly =	(strpos($this->bodytext, '<') !== FALSE)
-				? substr(next($arMailFrom), 0, -1)
-				: ''; //$mailFrom;
-			if ($mailFromOnly) {
-				$this->params['-f'] = '-f'.$mailFromOnly;	// no space
+		if (class_exists('Config')) {
+			if ($mailFrom = ifsetor(Config::getInstance()->mailFrom)) {
+				$this->headers['From'] = 'From: ' . $mailFrom;
+				// get only the pure email from "Somebody <sb@somecompany.de>"
+				$arMailFrom = explode('<', $mailFrom);
+				$mailFromOnly = (strpos($this->bodytext, '<') !== FALSE)
+					? substr(next($arMailFrom), 0, -1)
+					: ''; //$mailFrom;
+				if ($mailFromOnly) {
+					$this->params['-f'] = '-f' . $mailFromOnly;    // no space
+				}
 			}
 		}
 	}
 
 	function send() {
-		if (HTMLFormValidate::validEmail($this->to)) {
+		$emails = trimExplode(',', $this->to);
+		$validEmails = 0;
+		foreach ($emails as $e) {
+			$validEmails += HTMLFormValidate::validEmail($e);
+		}
+		if ($validEmails == sizeof($emails)) {
 			$res = mail($this->to,
 				$this->getSubject(),
 				$this->getBodyText(),
 				implode("\n", $this->headers)."\n",
 				implode(' ', $this->params));
 			if (!$res) {
-				throw new Exception('Email sending to '.$this->to.' failed');
+				throw new MailerException('Email sending to '.$this->to.' failed');
 			}
 		} else {
-			throw new Exception('Invalid email address');
+			throw new MailerException('Invalid email address: '.$this->to);
 		}
+		return $res;
 	}
 
 	function getSubject() {
@@ -185,14 +197,21 @@ class Mailer {
     }
 
 	/**
-	 * @param $attachment
+	 * http://stackoverflow.com/questions/8781911/remove-non-ascii-characters-from-string-in-php
+	 * @param string $attachment
 	 * @return string
 	 */
 	public function getShortFilename($attachment) {
 		$pathinfo = pathinfo($attachment);
 		$ext = $pathinfo['extension'];
+
+		$filename = $pathinfo['filename'];
+		$filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+		$filename = preg_replace('/([\s])\1+/', ' ', $filename);
+		$filename = str_replace(' ', '_', $filename);
+
 		$extLen = 1 + strlen($ext);
-		$shortFile = substr($pathinfo['filename'], 0, 63 - $extLen)
+		$shortFile = substr($filename, 0, 63 - $extLen)
 			. '.' . $ext;
 		return $shortFile;
 	}

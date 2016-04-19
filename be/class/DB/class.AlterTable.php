@@ -17,21 +17,13 @@ class AlterTable extends AlterIndex {
 	 */
 	var $handler;
 
-	function sidebar() {
-		$content = array();
-		$content[] = $this->showDBInfo();
-		$content[] = $this->listFiles();
-		return $content;
+	function __construct() {
+		parent::__construct();
+		$this->setHandler();
 	}
 
-	function renderTableStruct(array $struct, array $local) {
-		$class = get_class($this->db);
-		if ($class == 'dbLayerPDO') {
-			$class = $this->db->getScheme();
-			if ($class == 'sqlite') {
-				$class = 'dbLayerSQLite';
-			}
-		}
+	function setHandler() {
+		$class = $this->getDBclass();
 		if ($class == 'mysql') {
 			$this->handler = new AlterTableMySQL($this->db);
 		} elseif ($class == 'dbLayer') {
@@ -41,7 +33,17 @@ class AlterTable extends AlterIndex {
 		} else {
 			throw new Exception('Undefined AlterTable handler');
 		}
+	}
 
+	function sidebar() {
+		$content = array();
+		$content[] = $this->showDBInfo();
+		$content[] = $this->listFiles();
+		return $content;
+	}
+
+	function renderTableStruct(array $struct, array $local) {
+		$class = $this->getDBclass();
 		$func = 'renderTableStruct';
 		$func = 'compareStruct';
 		$content[] = '<h5>'.$func.' ('.$class.')</h5>';
@@ -92,6 +94,7 @@ class AlterTable extends AlterIndex {
 			if ($localIndex) {
 				$localField = TableField::init($localIndex);
 				if (!$this->handler->sameFieldType($fileField, $localField)) {
+					$alterQuery = $this->handler->getAlterQuery($table, $localField->field, $fileField);
 					$indexCompare[] = [
 						'same'          => 'diff',
 						'###TR_MORE###' => 'style="background: pink"',
@@ -100,7 +103,7 @@ class AlterTable extends AlterIndex {
 						'action' => new HTMLTag('td', array(
 							'colspan' => 10,
 							'class'   => 'sql',
-						), $this->click($table, $this->handler->getAlterQuery($table, $fileField)))
+						), $this->click($table, $alterQuery))
 					];
 				} else {
 					$indexCompare[] = [
@@ -264,6 +267,22 @@ class AlterTable extends AlterIndex {
 			$this->request->redirect(get_class($this).
 				'?file='.$this->request->getTrimRequired('file').'#table-'.$table);
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDBclass() {
+		$class = get_class($this->db);
+		if ($class == 'dbLayerPDO') {
+			$class = $this->db->getScheme();
+			if ($class == 'sqlite') {
+				$class = 'dbLayerSQLite';
+				return $class;
+			}
+			return $class;
+		}
+		return $class;
 	}
 
 }

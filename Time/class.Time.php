@@ -226,7 +226,7 @@ class Time {
 	 * @return string
 	 */
 	function getHumanDateTime() {
-		return date('d.m.Y H:i', $this->time);
+		return date('Y-m-d H:i', $this->time);
 	}
 
 	/**
@@ -667,22 +667,22 @@ class Time {
 	}
 
 	public function makeGMT() {
-		$this->setTime(strtotime(gmdate('Y-m-d H:i:s', $this->time). ' GMT', 0));
+		$this->setTimestamp(strtotime(gmdate('Y-m-d H:i:s', $this->time). ' GMT', 0));
 	}
 
-	function setTime($time) {
+	function setTimestamp($time) {
 		$this->time = $time;
 		$this->updateDebug();
 	}
 
 	function addDate(Date $date) {
-		$this->setTime(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
+		$this->setTimestamp(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
 	}
 
 	public function getSince() {
 		return new Duration($this->getTimestamp() - time());
 	}
-	
+
 	function setHis($H, $i = 0, $s = 0) {
 		$this->time = strtotime(date('Y-m-d').' '.$H.':'.$i.':'.$s);
 		$this->updateDebug();
@@ -690,6 +690,43 @@ class Time {
 
 	public function getAge() {
 		return new Duration(time() - $this->getTimestamp());
+	}
+
+	public function getHumanDateOrTime() {
+		if ($this->isToday()) {
+			return $this->getHumanTime();
+		} else {
+			return $this->getHumanDate();
+		}
+	}
+
+	function isToday() {
+		return date('Y-m-d', $this->getTimestamp()) == date('Y-m-d');
+	}
+
+	public function getDay() {
+		return $this->format('d');
+	}
+
+	public function isFuture() {
+		return $this->time > time();
+	}
+
+	public function isPast() {
+		return $this->time < time();
+	}
+
+	function addTime($sTime) {
+		$duration = new Duration($sTime);
+		nodebug($duration->getRemHours(),
+				$duration->getRemMinutes(),
+				$duration->getRemSeconds());
+		$base = $this->getTimestamp();
+		$time = strtotime(' + ' . $duration->getRemHours() . ' hours', $base);
+		$time = strtotime(' + ' . $duration->getRemMinutes() . ' minutes', $time);
+		$time = strtotime(' + ' . $duration->getRemSeconds() . ' seconds', $time);
+		$this->setTimestamp($time);
+		return $this;
 	}
 
 }

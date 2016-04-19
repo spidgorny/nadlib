@@ -114,7 +114,7 @@ class slTable {
 		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
 			$this->ID = md5(microtime());
-		} else if ($id) {
+		} elseif ($id) {
 			$this->ID = $id;
 		} else {
 			$this->ID = md5(microtime());
@@ -258,7 +258,9 @@ class slTable {
 				} else {
 					$th = &$this->thes[$this->sortBy];
 				}
-				if ($th && !endsWith($th, $this->arrowAsc) && !endsWith($th, $this->arrowDesc)) {
+				if ($th
+					&& !str_endsWith($th, $this->arrowAsc)
+					&& !str_endsWith($th, $this->arrowDesc)) {
 					$th .= $this->sortOrder ? $this->arrowDesc : $this->arrowAsc;
 				}
 			}
@@ -366,7 +368,7 @@ class slTable {
 			}
 		}
 
-		$this->generation->thead['colgroup'] = $this->getColGroup($thes2);
+		$this->generation->thead['colgroup'] = $this->getColGroup($thes);
 		$this->generation->addTHead('<thead>');
 		//debug($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
@@ -384,14 +386,23 @@ class slTable {
 		$this->generation->addTHead('</thead>');
 	}
 
-	function getColGroup(array $thes2) {
+	function getColGroup(array $thes) {
 		$colgroup = '<colgroup>';
 		$i = 0;
-		foreach ($thes2 as $key => $dummy) {
+		foreach ($thes as $key => $dummy) {
 			$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
+			$key = URL::getSlug($key);	// special cars and spaces
 			if ($this->isAlternatingColumns) {
 				$key .= ' '.(++$i%2?'even':'odd');
 			}
+			if (is_array($dummy)) {
+				$colClass = ifsetor($dummy['colClass']);
+			} elseif ($dummy instanceof ArrayAccess) {	// HTMLTag('td')
+				$colClass = $dummy->offsetGet('colClass');
+			} else {
+				$colClass = '';
+			}
+			$key = trim($key . ' ' . $colClass);
 			$colgroup .= '<col class="col_'.$key.'" />'."\n";
 		}
 		$colgroup .= '</colgroup>';
@@ -455,7 +466,8 @@ class slTable {
 			$t->tablee();
 			$this->generation = $t;
 		} else {
-			$this->generation->text('<div class="message">'.__('No Data').'</div>');
+			$this->generation->text('<div class="message">'.
+				__('No Data').'</div>');
 		}
 		TaylorProfiler::stop(__METHOD__." ({$caller})");
 	}
@@ -467,7 +479,9 @@ class slTable {
 			$class[] = 'footer';
 			$tr = 'class="'.implode(' ', $class).'"';
 			$this->generation->ftr($tr);
+			$this->generation->curPart = 'tfoot';
 			$this->genRow($this->generation, $this->footer);
+			$this->generation->curPart = 'tbody';
 			$this->generation->ftre();
 			$this->generation->tfoot('</tfoot>');
 		}
@@ -508,9 +522,9 @@ class slTable {
 						$val = new slTableValue($val, $k);
 					}
 
-					$out = (isset($k['before']) ? $k['before'] : '').
-						   $val->render($col, $row) .
-						   (isset($k['after']) ? $k['after'] : '');
+					$out = (isset($k['before']) ? $k['before'] : '');
+					$out .= MergedContent::mergeStringArrayRecursive($val->render($col, $row));
+					$out .= (isset($k['after']) ? $k['after'] : '');
 
 					if (isset($k['colspan']) && $k['colspan']) {
 						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
@@ -692,10 +706,11 @@ class slTable {
 				if (!$no_hsc) {
 					if (mb_strpos($val, "\n") !== FALSE) {
 						$val = htmlspecialchars($val);
-					$val = new htmlString('<pre>'.htmlspecialchars($val).'</pre>');
+						$val = new htmlString('<pre style="white-space: pre-wrap;">'.htmlspecialchars($val).'</pre>');
 					} else {
-					$val = htmlspecialchars($val, ENT_NOQUOTES);
+						$val = htmlspecialchars($val, ENT_NOQUOTES);
 					}
+					$no_hsc = true;
 				}
 			}
 
@@ -744,7 +759,7 @@ class slTable {
 
 	/**
 	 * Separation by "\t" is too stupid. We count how many chars are there in each column
-	 * and then padd it accordingly
+	 * and then pad it accordingly
 	 * @param bool $cutTooLong
 	 * @param bool $useAvg
 	 * @return string
@@ -767,7 +782,7 @@ class slTable {
 					? json_encode($value, JSON_PRETTY_PRINT)
 					: strip_tags($value);
 				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
-				@$widthAvg[$field] += mb_strlen($value);
+				$widthAvg[$field] = ifsetor($widthAvg[$field]) + mb_strlen($value);
 			}
 		}
 		if ($useAvg) {

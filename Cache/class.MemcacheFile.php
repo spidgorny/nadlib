@@ -26,9 +26,12 @@ class MemcacheFile implements MemcacheInterface {
 		$sub = cap(AutoLoad::getInstance()->appRoot.'');
 
 		if (!file_exists($sub.$this->folder)) {
-			debug('unable to access cache folder',
+			debug(array(
+				'unable to access cache folder',
 				$sub.$this->folder,
-				__METHOD__, $sub, $this->folder);
+				'method' => __METHOD__,
+				'appRoot' => $sub,
+				'folder' => $this->folder));
 			die();
 		} else {
 			$this->folder = $sub . $this->folder;
@@ -54,6 +57,11 @@ class MemcacheFile implements MemcacheInterface {
 		return $file;
 	}
 
+	/**
+	 * @param $key	- can be provided in the constructor, but repeated here for BWC
+	 * @param $val
+	 * @throws Exception
+	 */
 	function set($key, $val) {
 		TaylorProfiler::start(__METHOD__);
 		$file = $this->map($key);
@@ -79,6 +87,11 @@ class MemcacheFile implements MemcacheInterface {
 		return /*!$expire ||*/ $bigger;
 	}
 
+	/**
+	 * @param null $key	- can be NULL to be used from the constructor
+	 * @param int  $expire
+	 * @return mixed|null|string
+	 */
 	function get($key = NULL, $expire = 0) {
 		TaylorProfiler::start(__METHOD__);
 		$val = NULL;

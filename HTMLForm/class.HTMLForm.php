@@ -20,9 +20,11 @@ class HTMLForm {
 	protected $fieldsetMore = array();
 
 	/**
-	 * @var string
+	 * @var array
 	 */
-	var $formMore = '';
+	var $formMore = array(
+		'class' => '',
+	);
 
 	public $debug = false;
 
@@ -56,7 +58,7 @@ class HTMLForm {
 	}
 
 	function text($a) {
-		$this->stdout .= $a;
+		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
 	function prefix($p) {
@@ -119,7 +121,9 @@ class HTMLForm {
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.' '.$moreClass.'"';
 		$a .= $this->getName($name, $namePlus);
 		if ($value || $value === 0) {
-			if (!($value instanceof htmlString)) {
+			$isHTML = $value instanceof htmlString;
+			//debug($value, $isHTML);
+			if (!$isHTML) {
 				$value = htmlspecialchars($value, ENT_QUOTES);
 			} else {
 				$value = str_replace('"', '&quot;', $value);
@@ -384,13 +388,22 @@ class HTMLForm {
 	}
 
 	function getFormTag() {
-		$a = "<form
-			action=\"{$this->action}\"
-			method=\"{$this->method}\" " .
-			($this->enctype?" enctype=\"".$this->enctype.'"':"") .
-			$this->formMore .
-			($this->target ? ' target="'.$this->target.'" ' : '').
-		">\n";
+		if (is_string($this->formMore)) {
+			$attributes = HTMLTag::parseAttributes($this->formMore);
+		} else {
+			$attributes = $this->formMore;
+		}
+		$attributes += array(
+			'action' => $this->action,
+			'method' => $this->method,
+		);
+		if ($this->enctype) {
+			$attributes["enctype"] = $this->enctype;
+		}
+		if ($this->target) {
+			$attributes['target'] = $this->target;
+		}
+		$a = "<form ".HTMLTag::renderAttr($attributes).">\n";
 		if ($this->fieldset) {
 			$a .= "<fieldset ".$this->getAttrHTML($this->fieldsetMore)."><legend>".$this->fieldset."</legend>";
 			$a .= is_array($this->fieldsetMore) ? implode(' ', $this->fieldsetMore) : $this->fieldsetMore;
@@ -674,20 +687,11 @@ class HTMLForm {
 	 * @return string
 	 */
 	static function getAttrHTML(array $attr = NULL) {
-		$part = array();
-		if ($attr) foreach ($attr as $key => $val) {
-			if (is_array($val)) {
-				$val = implode(' ', $val);
-			}
-			if (is_scalar($val)) {
-				$part[] = $key.'="'.htmlspecialchars($val).'"';
-			} else {
-				//debug($attr);
-				//throw new Exception(__METHOD__);
-			}
+		if ($attr) {
+			return HTMLTag::renderAttr($attr);
+		} else {
+			return '';
 		}
-		$html = implode(' ', $part);
-		return $html;
 	}
 
 	function formColorSelector($name, $default) {

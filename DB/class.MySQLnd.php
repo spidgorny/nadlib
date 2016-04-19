@@ -2,7 +2,8 @@
 
 /**
  * Class MySQLnd
- * Wrong approach
+ * Wrong approach - MySQLnd is NOT an API
+ * @deprecated
  */
 class MySQLnd {
 
@@ -14,7 +15,7 @@ class MySQLnd {
 	}
 
 	function connect($host, $login, $password) {
-		$this->connection = @mysqlnd_pconnect($host, $login, $password);
+		$this->connection = @mysqlnd_connect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());
 		}

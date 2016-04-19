@@ -6,8 +6,18 @@
 
 class NoUser extends UserBase {
 
+	/**
+	 * @var Preferences|MockPreferences
+	 */
+	public $prefs;
+
+	/**
+	 * @var AccessRights
+	 */
+	public $access;
+
 	function __construct() {
-		parent::__construct(NULL);
+		//parent::__construct(NULL);	// does nothing anyway
 	}
 
 	function can() {
@@ -31,6 +41,18 @@ class NoUser extends UserBase {
 	 */
 	function getUnreadMessages() {
 		return NULL;
+	}
+
+	function getAllSettings() {
+		return [];
+	}
+
+	function getSelfAndBackupID() {
+		return [$this->id];
+	}
+
+	function getAllSubordinates() {
+		return [];
 	}
 
 }

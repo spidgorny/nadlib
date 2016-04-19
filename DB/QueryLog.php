@@ -2,14 +2,31 @@
 
 class QueryLog {
 
+	/**
+	 * @var array[
+	 * 'query'
+	 * 'sumtime',
+	 * 'times'
+	 * 'results'
+	 * ]
+	 */
 	var $queryLog = array();
 
-	public function log($query, $diffTime) {
-		$key = md5($query);
-		$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
-		$this->queryLog[$key]['query'] = $query;
-		$this->queryLog[$key]['sumtime'] += $diffTime;
-		$this->queryLog[$key]['times']++;
+	public function log($query, $diffTime, $results = NULL) {
+		$key = md5(trim($query));
+//		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
+		if (isset($this->queryLog[$key])) {
+			$old = $this->queryLog[$key];
+		} else {
+			$old = array();
+		}
+		$this->queryLog[$key] = array(
+			'query' => $query,
+			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
+			'times' => ifsetor($old['times'])+1,
+			'results' => $results,
+		);
+//		debug($key, $this->queryLog);
 	}
 
 	/**
@@ -51,13 +68,19 @@ class QueryLog {
 
 	function getDBTime() {
 		$sumtime = ArrayPlus::create($this->queryLog)->column('sumtime')->sum();
+		//debug(sizeof($this->queryLog), $sumtime);
 		return $sumtime;
 	}
 
 	function dumpQueriesBijou(array $log, $totalTime) {
+		//debug(trim(first($log)['query']));
 		foreach ($log as &$row) {
-			if (str::beginsWith($row['query'], 'UPDATE preference SET value')) {
-				$row['query'] = 'UPDATE preferences...';
+			$sQuery = trim(strip_tags($row['query']));
+			if (str_startsWith($sQuery, /** @lang text */
+				"UPDATE")) {
+				$row['query'] = 'UPDATE ...';
+			} else {
+				$row['query'] = substr($row['query'], 0, 100);
 			}
 			if ($row['results'] >= 1000) {
 				$row['results'] = new htmlString('<font color="red">'.$row['results'].'</font>');
@@ -90,41 +113,47 @@ class QueryLog {
 	function dumpQueriesTP() {
 		$queryLog = ArrayPlus::create($this->queryLog);
 		//debug($queryLog);
-		array_multisort($queryLog->column('sumtime')->getData(), SORT_DESC, $queryLog);
-		$log = array();
+		$sumTimeCol = $queryLog->column('sumtime');
+		$sumTime = $sumTimeCol->sum();
+		$queryLog->sortBy('sumtime')->reverse();
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$sumTime = $queryLog->column('sumtime')->sum();
+		//debug($queryLog->getData()); exit();
+		$log = array();
 		foreach ($queryLog as $set) {
 			$query = $set['query'];
-			$time = $set['time'];
+			$time = ifsetor($set['time'], $set['sumtime'] / $set['times']);
 			$log[] = array(
 					'times' => $set['times'],
 					'query' => '<small>'.htmlspecialchars($query).'</small>',
 					'sumtime' => number_format($set['sumtime'], 3, '.', '').'s',
 					'time' => number_format($time, 3, '.', '').'s',
-					'%' => $pb->getImage($set['sumtime']/$sumTime*100),
+					'%' => $sumTime != 0 ? $pb->getImage($set['sumtime']/$sumTime*100) : '',
+					'results' => $set['results'],
 			);
 		}
 		$s = new slTable($log, '', array(
 				'times' => 'times',
-				'query' => array(
-						'name' => 'query',
-						'no_hsc' => true,
-				),
 				'sumtime' => array(
-						'name' => 'sumtime ('.number_format($sumTime, 3).')',
-						'align' => 'right',
+					'name' => 'sumtime ('.number_format($sumTime, 3).')',
+					'align' => 'right',
 				),
 				'time' => array(
-						'name' => 'time',
-						'align' => 'right',
+					'name' => 'time',
+					'align' => 'right',
 				),
 				'%' => array(
-						'name' => '%',
-						'align' => 'right',
-						'no_hsc' => true,
+					'name' => '%',
+					'align' => 'right',
+					'no_hsc' => true,
 				),
+				'query' => array(
+					'name' => 'query',
+					'no_hsc' => true,
+				),
+				'results' => array(
+					'name' => 'Results',
+				)
 		));
 		return $s;
 	}

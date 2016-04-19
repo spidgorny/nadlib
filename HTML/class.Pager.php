@@ -69,13 +69,17 @@ class Pager {
 	 * To be called only after setNumberOfRecords()
 	 */
 	function detectCurrentPage() {
-		if (($pagerData = ifsetor($_REQUEST['Pager_'.$this->prefix]))) {
+		$pagerData = ifsetor($_REQUEST['Pager.'.$this->prefix],
+			ifsetor($_REQUEST['Pager_'.$this->prefix]));
+		//debug($pagerData);
+		if ($pagerData) {
 			if (ifsetor($pagerData['startingRecord'])) {
 				$this->startingRecord = (int)($pagerData['startingRecord']);
 				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
 			} else {
-				if ($this->request->getMethod() == 'POST') {
-				//Debug::debug_args($pagerData);
+				// when typing page number in [input] box
+				if (!$this->request->isAjax() && $this->request->isPOST()) {
+					//Debug::debug_args($pagerData);
 					$pagerData['page']--;
 				}
 				$this->setCurrentPage($pagerData['page']);
@@ -93,6 +97,16 @@ class Pager {
 	}
 
 	function initByQuery($originalSQL) {
+		if (is_string($originalSQL)) {
+			$this->initByStringQuery($originalSQL);
+		} elseif ($originalSQL instanceof SQLSelectQuery) {
+			$this->initBySelectQuery($originalSQL);
+		} else {
+			throw new InvalidArgumentException(__METHOD__);
+		}
+	}
+
+	function initByStringQuery($originalSQL) {
 		//debug_pre_print_backtrace();
 		$key = __METHOD__.' ('.substr($originalSQL, 0, 300).')';
 		TaylorProfiler::start($key);
@@ -110,6 +124,23 @@ class Pager {
 		$res = $this->db->fetchAssoc($this->db->perform($query));
 		$this->setNumberOfRecords($res['count']);
 		//debug($originalSQL, $query, $res);
+		$this->detectCurrentPage();
+		TaylorProfiler::stop($key);
+	}
+
+	function initBySelectQuery(SQLSelectQuery $originalSQL) {
+		$key = __METHOD__.' ('.substr($originalSQL, 0, 300).')';
+		TaylorProfiler::start($key);
+		$queryWithoutOrder = clone $originalSQL;
+		$queryWithoutOrder->unsetOrder();
+
+		$query = new SQLSelectQuery(
+			new SQLSelect('count(*) AS count'),
+			new SQLSubquery($queryWithoutOrder, 'counted'));
+		$query->injectDB($this->db);
+
+		$res = $query->fetchAssoc();
+		$this->setNumberOfRecords($res['count']);
 		$this->detectCurrentPage();
 		TaylorProfiler::stop($key);
 	}
@@ -140,8 +171,10 @@ class Pager {
 
 	function saveCurrentPage() {
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
-		if ($this->user) {
-			$this->user->setPref('Pager.'.$this->prefix, array('page' => $this->currentPage));
+		if ($this->user instanceof UserWithPreferences) {
+			$this->user->setPref('Pager.'.$this->prefix, array(
+				'page' => $this->currentPage
+			));
 		}
 	}
 
@@ -161,6 +194,8 @@ class Pager {
 		$scheme = $this->db->getScheme();
 		if ($scheme == 'ms') {
 			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
+		} elseif ($query instanceof SQLSelectQuery) {
+			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->startingRecord));
 		} else {
 			$limit = "\nLIMIT ".$this->itemsPerPage.
 			"\nOFFSET " . $this->startingRecord;
@@ -442,4 +477,22 @@ class Pager {
     {
         return $this->user;
     }
+
+	function loadMoreButton($controller) {
+		$content = '';
+		//debug($pager->currentPage, $pager->getMaxPage());
+		if ($this->currentPage < $this->getMaxPage()) {
+			$loadPage = $this->currentPage+1;
+			$f = new HTMLForm();
+			$f->hidden('c', $controller);
+			$f->hidden('action', 'loadMore');
+			$f->hidden('Pager.[page]', $loadPage);
+			$f->formHideArray(array($this->prefix => $this->request->getArray($this->prefix)));
+			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
+			$f->submit(__('Load more'), array('class' => 'btn'));
+			$content .= '<div id="loadMorePage'.$loadPage.'">'.$f.'</div>';
+		}
+		return $content;
+	}
+
 }

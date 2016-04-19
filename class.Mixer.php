@@ -27,8 +27,9 @@ class Mixer {
 	private function copyInternals($from, $to) {
 		$properties = get_object_vars($from);
 		$target = new ReflectionClass(get_class($to));
-		foreach($properties as $name => $value) {
-			if(!$target->hasProperty($name) || !$target->getProperty($name)->isPrivate()) {
+		foreach ($properties as $name => $value) {
+			if (!$target->hasProperty($name) 
+				|| !$target->getProperty($name)->isPrivate()) {
 				$to->$name = $value;
 			}
 		}

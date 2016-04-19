@@ -108,29 +108,52 @@ class AutoLoadFolders {
 	}
 
 	function loadConfig() {
-		nodebug(array(
+		(array(
 			dirname($_SERVER['SCRIPT_FILENAME']),
 			getcwd(),
+			file_exists(getcwd()),
+			$this->al->appRoot.'',
+			file_exists($this->al->appRoot),
+			file_exists($this->al->appRoot.'class'),
 		));
 		if (!class_exists('ConfigBase')) {
 			require_once 'class.ConfigBase.php';
 		}
 		if (!class_exists('Config', false)) {
+			if ($this->debug) {
+				echo __METHOD__.': Config class is found', BR;
+			}
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
 			$configPath1 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
 			$configPath2 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.      'Config.php';
 			$this->al->stat['configPath'] = $configPath1;
-			//debug($configPath, file_exists($configPath)); exit();
+//			pre_print_r($configPath1, file_exists($configPath1));
+//			pre_print_r($configPath2, file_exists($configPath2));
+//			exit();
 			if (file_exists($configPath1)) {
 				/** @noinspection PhpIncludeInspection */
 				include_once $configPath1;
+				if ($this->debug) {
+					echo __METHOD__.': Config in '.$configPath1, BR;
+				}
 			} elseif (file_exists($configPath2)) {
 				/** @noinspection PhpIncludeInspection */
 				include_once $configPath2;
 				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
+				if ($this->debug) {
+					echo __METHOD__.': Config in '.$configPath2, BR;
+				}
 			} else {
 				// some projects don't need Config
 				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				if ($this->debug) {
+					echo __METHOD__.': Config class is found but file is unknown ', BR;
+					debug($configPath1, $configPath2);
+				}
+			}
+		} else {
+			if ($this->debug) {
+				echo __METHOD__.': Config class not found', BR;
 			}
 		}
 	}
@@ -154,12 +177,12 @@ class AutoLoadFolders {
 	}
 
 	function addFolder($path, $namespace = NULL) {
-		if ($path[0] != '/') {
+		if (!Path::isAbsolute($path)) {
 			$path = getcwd().'/'.$path;
 		}
 		$this->folders[$namespace][] = realpath($path);
 		$sub = glob(cap($path).'*', GLOB_ONLYDIR);
-		//debug($path, $sub);
+		//debug($this->folders, $path, $sub);
 		foreach ($sub as $s) {
 			$this->addFolder($s, $namespace);
 		}
@@ -168,11 +191,11 @@ class AutoLoadFolders {
 	}
 
 	/**
-	 * @param $classFile
+	 * @param $className
 	 * @param $namespace
 	 * @return string
 	 */
-	function findInFolders($classFile, $namespace) {
+	function findInFolders($className, $namespace) {
 		//pre_var_dump($classFile, $namespace);
 		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		//foreach ($this->folders as $namespace => $map) {
@@ -181,7 +204,10 @@ class AutoLoadFolders {
 				$this->folders[NULL]
 		);
 		assert(sizeof($map));
-		//pre_print_r(array_keys($this->folders), array_keys($map), sizeof($map));
+//		pre_print_r(
+//			array_keys($this->folders),
+//			$map,
+//			sizeof($map));
 		foreach ($map as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
@@ -189,10 +215,10 @@ class AutoLoadFolders {
 				//$this->nadlibRoot.
 				$path.DIRECTORY_SEPARATOR.
 				//cap($namespace).//DIRECTORY_SEPARATOR.
-				'class.'.$classFile.'.php';
+				'class.'.$className.'.php';
 			$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
-			if ($namespace) {
-				//pre_print_r($file, $file2);
+			if ($className == 'User') {
+				//pre_print_r($file, $file2, file_exists($file), file_exists($file2));
 			}
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
@@ -203,6 +229,8 @@ class AutoLoadFolders {
 					)
 				) {	// on windows exclude index.php
 					$file = $file2;
+				} else {
+					//$file = $file;
 				}
 			} else {
 				$file2 = NULL;
@@ -210,13 +238,13 @@ class AutoLoadFolders {
 
 			//echo $file, ': ', file_exists($file) ? 'YES' : '-', BR;
 			if (file_exists($file)) {
-				$this->log($classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
-				$this->log($classFile.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
+				$this->log($className.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
+				$this->log($className.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
 				//pre_var_dump('Found', $file);
 				return $file;
 			} else {
-				$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
-				$this->log($classFile.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
+				$this->log($className.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
+				$this->log($className.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
 			}
 		}
 		return NULL;

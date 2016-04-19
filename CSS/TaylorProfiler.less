@@ -5,7 +5,12 @@
 	opacity: 0.75;
 	z-index: 100;
 	overflow: hidden;
-	color: white;
+	transition: opacity .25s ease-in-out;
+	-moz-transition: opacity .25s ease-in-out;
+	-webkit-transition: opacity .25s ease-in-out;
+}
+.floatTimeContainer:hover {
+	opacity: 0;
 }
 .floatTime {
     border-top-left-radius: 5px;
@@ -13,7 +18,6 @@
     -webkit-border-top-left-radius: 5px;
 
     background-color: #22221F;
-    color: #FFF4A7;
     width: auto;
     padding: 0.5em;
 }
@@ -22,6 +26,7 @@
 	border-spacing: 2px;
 }
 .floatTime table td {
+	color: #FFF4A7;
 }
 
 
@@ -33,7 +38,8 @@
 	padding: 1em;
 	color: white !important;
 }
-.profiler th, .profiler td {
+.profiler table th, .profiler td {
+	vertical-align: top;
 	color: white;
 	margin-top: 50px;   /* footer */
 	border: none;

@@ -71,6 +71,7 @@ class TaylorProfiler {
         $this->output_enabled = $output_enabled;
         $this->trace_enabled = $trace_enabled;
         $this->startTimer('unprofiled');
+		self::$instance = $this;
     }
 
     // Public Methods
@@ -236,7 +237,7 @@ class TaylorProfiler {
 	            'time' => number_format($missed, 2, '.', ''),
             	'total' => number_format($missed, 2, '.', ''),
             	'count' => 0,
-            	'perc' => number_format($perc, 2, '.', '').'%',
+            	'perc' => number_format($perc, 2, '.', ''),
             );
 
 			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
@@ -249,8 +250,8 @@ class TaylorProfiler {
 					'bold'  => true,
 					'time'  => number_format($startup, 2, '.', ''),
 					'total' => number_format($startup, 2, '.', ''),
-					'count' => 0,
-					'perc'  => number_format($startup / $oaTime * 100, 2, '.', '') . '%',
+					'count' => 1,
+					'perc'  => number_format($startup / $oaTime * 100, 2, '.', ''),
 				);
 			}
 
@@ -264,7 +265,7 @@ class TaylorProfiler {
                 $TimedTotal += $total;
 	            $perc = $row['perc'];
 	            $tot_perc += $perc;
-				$htmlKey = htmlspecialchars($key);
+				$htmlKey = /*htmlspecialchars*/($key);
 				if (ifsetor($row['bold'])) {
 					$htmlKey = '<b>'.$htmlKey.'</b>';
 				}
@@ -277,11 +278,14 @@ class TaylorProfiler {
 	               	'percent' => is_numeric($perc)
 						? number_format($perc, 2, '.', '').'%'
 						: $perc,
+					'bar' => is_numeric($perc)
+						? ProgressBar::getImage($perc)
+						: NULL,
 	                'routine' => '<span title="'.htmlspecialchars($desc).'">'.$htmlKey.'</span>',
 	            );
 		   }
 
-            $s = new slTable($table, 'class="nospacing no-print" width="100%"');
+            $s = new slTable($table, 'class="nospacing no-print table" width="100%"');
             $s->thes(array(
             	'nr' => 'nr',
             	'count' => array(
@@ -299,6 +303,9 @@ class TaylorProfiler {
             	'percent' => array(
 					'name' => 'percent',
 					'align' => 'right'
+				),
+				'bar' => array(
+					'no_hsc' => true,
 				),
             	'routine' => array(
 					'name' => 'routine',
@@ -396,7 +403,8 @@ class TaylorProfiler {
 	static function getMemoryUsage() {
 		static $max;
 		static $previous;
-		$max = $max ?: self::return_bytes(ini_get('memory_limit'));
+		$memLimit = new Bytes(ini_get('memory_limit'));
+		$max = $max ?: $memLimit->getBytes();
 		$maxMB = number_format($max/1024/1024, 0, '.', '');
 		$cur = memory_get_usage(true);
 		$usedMB = number_format($cur/1024/1024, 3, '.', '');
@@ -433,7 +441,7 @@ class TaylorProfiler {
 	}
 
 	static function getElapsedTime() {
-		$profiler = $GLOBALS['profiler'];
+		$profiler = self::getInstance();
 		if ($profiler) {
 			$since = $profiler->initTime;
 		} else {
@@ -446,132 +454,19 @@ class TaylorProfiler {
 		return $totalTime;
 	}
 
-	static function renderFloat() {
-		$totalTime = self::getElapsedTime();
-		$dbTime = 0;
-		$db = class_exists('Config') ? Config::getInstance()->getDB() : NULL;
-		if ($db && $db->queryLog) {
-			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
-			$dbTime = number_format($dbTime, 3, '.', '');
-		}
-		if (isset($db->queryLog) && is_object($db->queryLog)) {
-			$dbTime = $db->queryLog->getDBTime();
-			$dbTime = number_format($dbTime, 3, '.', '');
-		}
-		if (isset($db->queryTime)) {
-			$dbTime = $db->queryTime;
-			$dbTime = number_format($dbTime, 3, '.', '');
-		}
-		if (function_exists('session_status')
-			&& session_status() == PHP_SESSION_ACTIVE) {
-            // total
-			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
-            if ($totalMax > 0) {
-				$totalBar = '<img src="' . ProgressBar::getBar($totalTime / $totalMax * 100) . '" />';
-			} else {
-				$totalBar = '<img src="'.ProgressBar::getBar(0).'" />';
-			}
-            $_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
-
-            // db
-            $dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
-            if ($dbMax > 0) {
-                $dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
-            } else {
-				$dbBar = '<img src="'.ProgressBar::getBar(0).'" />';
-			}
-			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
-		} else {
-			$totalBar = '';
-			$totalMax = '';
-			$dbTime = '';
-			$dbBar = '';
-			$dbMax = '';
-		}
-
-		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
-		$maxMem = self::return_bytes(ini_get('memory_limit'));
-		$memBar = '<img src="'.ProgressBar::getBar(memory_get_peak_usage()/$maxMem*100).'" />';
-		$content = '<div class="floatTimeContainer noprint">
-			<div class="floatTime">
-				<table>
-					<tr>
-						<td>PHP+DB:</td>
-						<td id="total">'.$totalTime.'s</td>
-						<td>'.$totalBar.'</td>
-						<td id="totalMax">'.$totalMax.'s</td>
-					</tr>
-					<tr>
-						<td>DB:</td>
-						<td>'.$dbTime.'s</td>
-						<td>'.$dbBar.'</td>
-						<td>'.$dbMax.'</td>
-					</tr>
-					<tr>
-						<td>Mem:</td>
-						<td>'.$peakMem.'MB</td>
-						<td>'.$memBar.'</td>
-						<td>'.ini_get('memory_limit').'</td>
-					</tr>
-					<tr>
-						<td>Total:</td>
-						<td>'.$totalTime.'s</td>
-						<td><div id="page_load_time_bar">
-							<div></div>
-						</div></td>
-						<td id="page_load_time"></td>
-					</tr>
-				</table>
-			</div>
-		</div>
-		<div style="clear:both"></div>
-		<script>
-			var now = new Date().getTime();
-			var page_load_time = now - performance.timing.navigationStart;
-			page_load_time = (page_load_time/1000).toFixed(3);
-			//console.log("User-perceived page loading time: " + page_load_time);
-			document.querySelector("#page_load_time").innerHTML = page_load_time;
-			var total = parseFloat(document.querySelector("#total").innerHTML);
-			var width = Math.round(total / page_load_time * 100);
-			//console.log(total, page_load_time, width);
-			document.querySelector("#page_load_time_bar div").style.width = width + "%";
-  		</script>
-		';
-		$content .= '<style>'.file_get_contents(
-				dirname(__FILE__).'/../CSS/TaylorProfiler.less'
-		).'</style>';
+	static function renderFloat($withCSS = true) {
+		$ft = new FloatTime($withCSS);
+		$content = $ft->render();
 		return $content;
-	}
-
-	/**
-	 * http://stackoverflow.com/a/1336624
-	 * @param $val
-	 * @return int|string
-	 */
-	static function return_bytes($val) {
-		$val = trim($val);
-		$last = strtolower($val[strlen($val)-1]);
-		switch($last) {
-			// The 'G' modifier is available since PHP 5.1.0
-			case 'g':
-				$val *= 1024*1024*1024;
-				break;
-			case 'm':
-				$val *= 1024*1024;
-				break;
-			case 'k':
-				$val *= 1024;
-				break;
-		}
-
-		return $val;
 	}
 
 	/**
 	 * @return float
 	 */
 	static function getMemUsage() {
-		$max = self::return_bytes(ini_get('memory_limit'));
+		require_once __DIR__.'/../HTML/Bytes.php';
+		$memLimit = new Bytes(ini_get('memory_limit'));
+		$max = $memLimit->getBytes();
 		$cur = memory_get_usage();
 		return number_format($cur/$max, 3, '.', '');
 	}
@@ -586,7 +481,8 @@ class TaylorProfiler {
 	static function getMemDiff() {
 		static $prev = 0;
 		$cur = memory_get_usage();
-		$return = number_format(($cur-$prev)/1024/1024, 3, '.', '').'M';
+		$diff = ($cur - $prev) / 1024 / 1024;
+		$return = ($diff > 0 ? '+' : '').number_format($diff, 3, '.', '').'M';
 		$prev = $cur;
 		return $return;
 	}
@@ -670,7 +566,7 @@ class TaylorProfiler {
 	static function dumpQueries() {
 		$queryLog = class_exists('Config', false)
 			? (Config::getInstance()->getDB()
-				? Config::getInstance()->getDB()->queryLog
+				? Config::getInstance()->getDB()->getQueryLog()
 				: NULL)
 			: NULL;
 		if (DEVELOPMENT && $queryLog) {

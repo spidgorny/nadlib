@@ -178,7 +178,7 @@ class Timeline2 /*extends AppController */{
 			// gmdate() and GMT are very important here
 			// otherwise infinite loop due to the DST
 			$gmDate = gmdate('Y-m-01', $date->getTimestamp());
-			$date->setTime(strtotime($gmDate . 'GMT'));
+			$date->setTimestamp(strtotime($gmDate . 'GMT'));
 			$x = $this->date2x($date);
 			//debug($this->start, $date->getISODate(), $x, $this->end);
 			$content .= '<line x1="'.($x+0).'" y1="'.$this->height_10.'"

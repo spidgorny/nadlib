@@ -158,6 +158,11 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
+	/**
+	 * Full screen - not for navbar 
+	 * @param array|NULL $desc
+	 * @return HTMLFormTable
+	 */
 	function getLoginForm(array $desc = NULL) {
 		$f = new HTMLFormTable();
 		$f->action('');     // specify action otherwise will logout
@@ -180,6 +185,7 @@ class AjaxLogin extends AppController {
 
 	/**
 	 * It's called "mode" for historical reasons, but it's good so that it's not overlapping with the possible "action"
+	 * Both Login and Password fields - not used
 	 * @return string
 	 */
 	function inlineFormAction() {
@@ -190,7 +196,7 @@ class AjaxLogin extends AppController {
 			));
 			$content = '<form class="navbar-form navbar-right pull-right" method="POST">
 			<div class="form-group">
-				<p class="navbar-text" style="display: inline-block;">'.$this->user->getName().'</p>
+				<p class="navbar-text" style="display: inline-block;">'.$this->user->getNameHTML().'</p>
 				<a href="'.$linkLogout.'" class="ajax btn btn-default">'.__('Logout').'</a>
 			</div>
 			</form>';
@@ -292,7 +298,7 @@ class AjaxLogin extends AppController {
 			<a href="http://de.gravatar.com/" class="gravatar">
 				<img src="'.$this->user->getGravatarURL(25).'" align="left" border="0">
 			</a>'.
-			$this->user->getName().'
+			$this->user->getNameHTML().'
 			<br clear="all">
 			<ul>
 				<li><a href="'.$linkEdit.'" class="ajax">'.__('Edit Profile').'</a><div id="profileForm"></div></li>
@@ -306,11 +312,11 @@ class AjaxLogin extends AppController {
 
 	function profileAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
-			//function (res) { jQuery(\'#profileForm\').html(res); }
-			target: \'#profileForm\',
-			//url: \'buch.php\'
-			}); return false;"';
+		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
+			//function (res) { jQuery('#profileForm').html(res); }
+			target: '#profileForm',
+			//url: 'buch.php'
+			}); return false;";
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getProfileDesc();
@@ -355,11 +361,11 @@ class AjaxLogin extends AppController {
 
 	function passwordAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
-			//function (res) { jQuery(\'#passwordForm\').html(res); }
-			target: \'#passwordForm\',
-			//url: \'buch.php\'
-			}); return false;"';
+		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
+			//function (res) { jQuery('#passwordForm').html(res); }
+			target: '#passwordForm',
+			//url: 'buch.php'
+			}); return false;";
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getPasswordDesc();
@@ -399,14 +405,20 @@ class AjaxLogin extends AppController {
 		return $content;
 	}
 
+	function navbarLoginForm() {
+		return '<a href="Login" class="btn btn-primary navbar-btn">Login</a>';
+	}
+	
 	function logoutForm() {
 		$a = new HTMLTag('a', array(
 			'href' => get_class($this).'?action=logout',
 			'class' => 'btn btn-default',
 		), __('Logout'));
-		$content = '
-			<div class="navbar-form">'.$a.'</div>
-		';
+
+		$content = $a;
+//		$content = '
+//			<div class="navbar-form">'.$a.'</div>
+//		';
 		return $content;
 	}
 
@@ -454,11 +466,11 @@ class AjaxLogin extends AppController {
 
 	function registerAction(array $desc = NULL) {
 		$f = new HTMLFormTable();
-		$f->formMore = 'onsubmit="jQuery(this).ajaxSubmit({
-			//function (res) { jQuery(\'#registerForm\').html(res); }
-			target: \'#registerForm\',
-			//url: \'buch.php\'
-			}); return false;"';
+		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
+			//function (res) { jQuery('#registerForm').html(res); }
+			target: '#registerForm',
+			//url: 'buch.php'
+			}); return false;";
 		$f->defaultBR = true;
 		if (!$desc) {
 			$desc = $this->getRegisterDesc();

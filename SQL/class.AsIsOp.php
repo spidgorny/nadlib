@@ -13,14 +13,11 @@
  * Well, it's clever enough to use "=" sign for WHERE and UPDATE queries and nothing in INSERT.
  */
 class AsIsOp extends AsIs {
+	
 	protected $value;
 
 	function __construct($val) {
-		$this->value = $val;
-	}
-
-	function __toString() {
-		return $this->value.'';
+		parent::__construct($val);
 	}
 
 	function debug() {

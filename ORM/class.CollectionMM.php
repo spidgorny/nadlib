@@ -8,6 +8,7 @@
  */
 
 class CollectionMM extends Collection {
+
 	/**
 	 * cross-reference table name
 	 *
@@ -41,7 +42,7 @@ class CollectionMM extends Collection {
 		$this->field1	= $field1;
 		$this->field2	= $field2;
 
-		parent::__construct(-1);
+		parent::__construct();
 	}
 
 	/**
@@ -50,7 +51,7 @@ class CollectionMM extends Collection {
 	public function getField1Values($id) {
 		$this->idField = $this->field1;
 		$this->where[$this->field2] = $id;
-		$this->retrieveDataFromDB();
+		$this->retrieveData();
 	}
 
 	/**
@@ -59,7 +60,7 @@ class CollectionMM extends Collection {
 	public function getField2Values($id) {
 		$this->idField = $this->field2;
 		$this->where[$this->field1] = $id;
-		$this->retrieveDataFromDB();
+		$this->retrieveData();
 	}
 
     /**

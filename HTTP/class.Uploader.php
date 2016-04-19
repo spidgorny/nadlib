@@ -67,7 +67,7 @@ class Uploader {
 	 * // add custom hidden fields to upload form (e.g. Loan[id])
 	 * if (!empty($hiddenFields)) {
 	 * foreach ($hiddenFields as $name => $value) {
-	 * $f->hidden($name, $value);
+	 * 		$f->hidden($name, $value);
 	 * }
 	 * }
 	 * @param  string - input field name - usually 'file'
@@ -81,7 +81,6 @@ class Uploader {
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
 		$f->text($this->getLimitsDiv());
-
 		return $f;
 	}
 
@@ -163,7 +162,7 @@ class Uploader {
                 $extension = pathinfo($fileName, PATHINFO_EXTENSION);
 
                 $i = 1;
-                while(file_exists($to.$actualName.".".$extension))
+                while (file_exists($to.$actualName.".".$extension))
                 {
                     $actualName = (string) $originalName.'_'.$i;
                     $fileName = $to.$actualName.".".$extension;
@@ -171,13 +170,16 @@ class Uploader {
                 }
             }
 
-			$ok = @move_uploaded_file($uf['tmp_name'], $fileName);
+			@mkdir(dirname($fileName), 0777, true);
+			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
 				//debug($error);
 				throw new Exception($error['message']);
 			}
+		} else {
+			$ok = false;
 		}
 		return $ok;
 	}
@@ -283,18 +285,21 @@ class Uploader {
 				return file_get_contents($uf['tmp_name']);
 			}
 		}
+		return NULL;
 	}
 
 	public function getTempFile($fieldName = 'file') {
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['tmp_name'];
 		}
+		return NULL;
 	}
 
 	public function getBasename($fieldName = 'file') {
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['name'];
 		}
+		return NULL;
 	}
 
 	/**
@@ -314,7 +319,7 @@ class Uploader {
 		//print_r(array($uh, $done, $json));
 		if (is_object($json)) {
 			$data = get_object_vars($json->file[0]);
-			if (!$data['error']) {
+			if (!ifsetor($data['error'])) {
 				$redirect = $callback($data);
 				$json->file[0]->redirect = $redirect;
 				$request = Request::getInstance();
