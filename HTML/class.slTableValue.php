@@ -275,7 +275,7 @@ class slTableValue {
 						$val = trimExplode($k['explode'], $val);
 					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
-						$val = nl2br($val);
+						$val = nl2br(htmlspecialchars($val));	// escape it (!)
 						$k['no_hsc'] = true; 	// for below
 					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
