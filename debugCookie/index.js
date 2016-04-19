@@ -22,6 +22,7 @@ function main() {
 function handleClick(state) {
 	console.log(state.label +  " checked state: " + state.checked);
 	var isDebug = checkCookie(tabs.activeTab.url);
+	console.log('isDebug: ', isDebug);
 
 	if (isDebug) {
 		updateIcon(0);
@@ -34,6 +35,7 @@ function handleClick(state) {
 	}
 
 	var newDebug = checkCookie(tabs.activeTab.url);
+	console.log('newDebug: ', newDebug);
 	updateIcon(newDebug);
 	button.checked = newDebug;
 }
@@ -62,7 +64,7 @@ function logURL(tab) {
 	updateIcon(isDebug);
 }
 
-var getCookieManager = function (hostWithoutWWW) {
+var getCookieManager = function () {
 	var cookieManager = Cc["@mozilla.org/cookiemanager;1"].getService(Ci.nsICookieManager2);
 	return cookieManager;
 };
@@ -70,12 +72,14 @@ var getCookieManager = function (hostWithoutWWW) {
 function checkCookie(sUrl) {
 	var hostWithoutWWW = getHost(sUrl);
 
-	var cookieManager = getCookieManager(hostWithoutWWW);
+	var cookieManager = getCookieManager();
 	var iterator = cookieManager.getCookiesFromHost(hostWithoutWWW);
 	while (iterator.hasMoreElements()) {
 		var cookie = iterator.getNext().QueryInterface(Ci.nsICookie2);
-		//dump(cookie.host + ";" + cookie.name + "=" + cookie.value + "\n");
-		if (cookie.name == 'debug' && cookie.value == 1) {
+		dump(cookie.host + ";" + cookie.name + "=" + cookie.value + "\n");
+		dump(cookie);
+		if (cookie.name == 'debug' && cookie.value == "1") {
+			console.log('Debug cookie found');
 			return true;
 		}
 	}
@@ -93,26 +97,52 @@ function checkCookie(sUrl) {
 
 var getHost = function (sUrl) {
 	var url = urls.URL(sUrl);
-	var hostWithoutWWW = url.host.replace('www.', '');
-	console.log(hostWithoutWWW);
-	return hostWithoutWWW;
+	if (url.host) {
+		var hostWithoutWWW = url.host.replace('www.', '');
+		console.log('hostWithoutWWW: ', hostWithoutWWW);
+		return hostWithoutWWW;
+	} else {
+		return null;
+	}
 };
 
 function setDebug(value) {
 	var sUrl = tabs.activeTab.url;
 	var hostWithoutWWW = getHost(sUrl);
 
-	var cookieManager = getCookieManager(hostWithoutWWW);
-	cookieManager.add(
-		hostWithoutWWW,
-		'/',
-		'debug',
-		value,
-		false,
-		false,
-		false,
-		Date.now()+1000*24*60*60 * 100 //days
-	);
+	if (hostWithoutWWW) {
+		var expiresSeconds = new Date().getTime() + 1000 * 24 * 60 * 60 * 100; //days
+		var expires = new Date();
+		expires.setTime(expiresSeconds);
+
+		if (false) {
+			var cookieManager = getCookieManager();
+			cookieManager.add(
+			'.' + hostWithoutWWW,
+			'/',
+			'debug',
+			value,
+			false,
+			false,
+			false,
+			expires
+			);
+		} else {
+			var cookieSvc = Cc["@mozilla.org/cookieService;1"].getService(Ci.nsICookieService);
+			var cookieConfig = "debug=" + value;
+			cookieConfig += ";domain=." + hostWithoutWWW;
+			cookieConfig += ";expires=" + expires.toUTCString();
+			console.log(cookieConfig);
+
+			var ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+			var cookieUri = ios.newURI("http://"+hostWithoutWWW, null, null);
+			cookieSvc.setCookieString(cookieUri, null, cookieConfig, null);
+		}
+	} else {
+		console.log('Strange url: ', sUrl);
+	}
 }
 
 main();
+tabs.open('http://google.de/');
+//setDebug(1);
