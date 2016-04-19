@@ -49,7 +49,7 @@ class CollectionView {
 			}
 			if ($this->wrapTag) {
 				$content = array(
-					'<'.$this->wrapTag.' class="' . get_class($this) . '">',
+					'<'.$this->wrapTag.' class="' . get_class($this->collection) . '">',
 					$content,
 					'</'.$this->wrapTag.'>'
 				);
@@ -92,19 +92,23 @@ class CollectionView {
 		TaylorProfiler::start(__METHOD__." ({$this->collection->table})");
 		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
 		$data = $this->collection->getData();
-		foreach ($data as $i => $row) { // Iterator by reference (PHP 5.4.15 crash)
+		$count = $this->collection->getCount();
+		// Iterator by reference (PHP 5.4.15 crash)
+		foreach ($data as $i => $row) {
 			$row = $this->collection->prepareRenderRow($row);
 			$data[$i] = $row;
 		}
 		$this->collection->setData($data);
+		$this->collection->count = $count;
 		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
 	}
 
 	function getDataTable() {
 		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
-		$s = new slTable($this->collection->getData(), HTMLTag::renderAttr($this->tableMore));
+		$s = new slTable($this->collection->getData()->getData(),
+			HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->collection->thes);
-		$s->ID = get_class($this);
+		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
 		if (class_exists('Index')) {
 			$index = Index::getInstance();

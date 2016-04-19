@@ -19,8 +19,10 @@ class AccessRights {
 	protected $db;
 
 	function __construct($idGroup) {
+		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
 		$this->db = Config::getInstance()->getDB();
 		$this->init($this->groupID = $idGroup);
+		TaylorProfiler::stop($profiler);
 	}
 
 	function init($idGroup) {
@@ -43,7 +45,11 @@ class AccessRights {
 
 	function can($what) {
 		//debug($what, $this->arCache);
-		return isset($this->arCache[$what]) ? $this->arCache[$what] : NULL;
+		if (isset($this->arCache[$what])) {
+			return $this->arCache[$what];
+		} else {
+			throw new AccessDeniedException('Checking non-existing access-right: '.$what);
+		}
 	}
 
 	function getList() {

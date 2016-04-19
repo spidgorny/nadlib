@@ -71,6 +71,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		        $this->reserved = array_map('strtoupper', $this->reserved); // important
 	        }
 		}
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 	}
 
 	/**
@@ -103,6 +106,12 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			debug($query);
 			debug_pre_print_backtrace();
 		}
+
+		if ($query instanceof SQLSelectQuery) {
+			$params = $query->getParameters();
+			$query = $query->__toString();
+		}
+
 		try {
 			if ($params) {
 				pg_prepare($this->connection, '', $query);
@@ -116,7 +125,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
-			debug($query);
+			//debug($e->getMessage(), $query);
 			$e = new DatabaseException(
 				'['.$e->getCode().'] '.$e->getMessage().BR.
 				//pg_errormessage($this->connection).BR.
@@ -134,7 +143,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed());
+				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 			}
 		}
 		$this->queryCount++;
@@ -152,7 +161,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	    } else {
 		    $this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 		    if ($this->queryLog) {
-			    $this->queryLog->log($query, $prof->elapsed());
+			    $this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 		    }
 	    }
 	    $this->queryCount++;
@@ -323,6 +332,33 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$return = pg_fetch_all($result);
 		pg_free_result($result);
 		return ArrayPlus::create($return)->column('relname')->getData();
+	}
+
+	/**
+	 * Returns a list of tables in the current database
+	 * @return string[]
+	 */
+	function getViews() {
+		$query = "select relname
+		from pg_class
+		where not relname ~ 'pg_.*'
+		and not relname ~ 'sql_.*'
+		and relkind = 'v'
+		ORDER BY relname";
+		$result = $this->perform($query);
+		$return = pg_fetch_all($result);
+		pg_free_result($result);
+		return ArrayPlus::create($return)->column('relname')->getData();
+	}
+
+	function describeView($viewName) {
+		return first(
+			$this->fetchAssoc(
+				$this->perform("select pg_get_viewdef($1, true)", array(
+					$viewName
+				))
+			)
+		);
 	}
 
 	function getColumnDefault($table) {
@@ -569,7 +605,13 @@ order by a.attnum';
 	}
 
 	function quoteKey($key) {
-		$key = '"'.$key.'"';
+		if (ctype_alpha($key)) {
+			if (function_exists('pg_escape_identifier')) {
+				$key = pg_escape_identifier($key);
+			} else {
+				$key = '"' . $key . '"';
+			}
+		} // else it can be functions(of something)
 		return $key;
 	}
 
@@ -582,7 +624,7 @@ order by a.attnum';
 			'perform',
 			'fetchFromDB',
 			'findInDB',
-			'retrieveDataFromDB',
+			'retrieveData',
 			'init',
 			'__construct',
 			'getInstance',

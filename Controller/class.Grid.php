@@ -82,8 +82,10 @@ abstract class Grid extends AppController {
 	 * or it should be called after $this->collection is initialized
 	 */
 	function saveFilterColumnsSort($cn = NULL) {
+		// why do we inject collection
+		// before we have detected the filter (=where)?
 		if (!$this->collection) {
-			$this->injectCollection();
+			//$this->injectCollection();
 		}
 		$cn = $cn ? $cn : get_class($this->collection);
 		//debug($cn);
@@ -91,41 +93,10 @@ abstract class Grid extends AppController {
 
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 
-		if ($this->request->is_set('columns') && $allowEdit) {
-			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
-		}
-		$this->columns = $allowEdit
-			? $this->request->getArray('columns')
-			: array();
-		if (method_exists($this->user, 'getPref')) {
-			$this->columns = $this->columns
-				? $this->columns
-				: $this->user->getPref('Columns.'.$cn);
-		}
-		if (!$this->columns && ifsetor($this->model->thes)) {
-			$this->columns = array_keys($this->model->thes);
-		}
-		if (!$this->columns && $this->collection->thes) {
-			$this->columns = array_keys($this->collection->thes);
-		}
+		$this->setColumns($cn, $allowEdit);
+		$this->setFilter($cn, $allowEdit);
 
-		/**
-		 * Only get filter if it's not need to be cleared
-		 */
-		if ($this->request->getTrim('action') == 'clearFilter' && $allowEdit) {
-		} else {
-			$this->filter = $allowEdit
-					? $this->request->getArray('filter')
-					: array();
-			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
-			if (method_exists($this->user, 'getPref')) {
-				$this->filter = $this->filter
-					? $this->filter
-					: $this->user->getPref('Filter.'.$cn);
-			}
-			$this->filter = $this->filter ? $this->filter : array();
-			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		}
+
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
 
@@ -189,8 +160,105 @@ abstract class Grid extends AppController {
 	}*/
 
 	function sidebar() {
-		$content = $this->collection->showFilter();
+		$content = $this->showFilter();
 		return $content;
+	}
+
+	function showFilter() {
+		$content = array();
+		if ($this->filter) {
+			$f = new HTMLFormTable();
+			$f->method('GET');
+			$f->defaultBR = true;
+			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
+			$f->showForm($this->filter);
+			$f->submit('Filter', array('class' => 'btn btn-primary'));
+			$content[] = $f->getContent();
+		}
+		return $content;
+	}
+
+	function getFilterWhere() {
+		$where = array();
+		if ($this->filter) {
+			foreach ($this->filter as $field => $desc) {
+				$value = $this->request->getTrim($field);
+				if ($value) {
+					$where[$field] = $value;
+				}
+			}
+		}
+		return $where;
+	}
+
+	/**
+	 * Only get filter if it's not need to be cleared
+	 * @param $cn
+	 * @param $allowEdit
+	 * @throws LoginException
+	 */
+	public function setFilter($cn, $allowEdit) {
+		if ($this->request->getTrim('action') == 'clearFilter' && $allowEdit) {
+		} else {
+			$this->filter = $allowEdit
+				? $this->request->getArray('filter')
+				: array();
+			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
+			if (method_exists($this->user, 'getPref')) {
+				$this->filter = $this->filter
+					? $this->filter
+					: $this->user->getPref('Filter.' . $cn);
+			}
+			$this->filter = $this->filter ? $this->filter : array();
+			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		}
+		//debug($this->filter);
+	}
+
+	/**
+	 * @param $cn
+	 * @param $allowEdit
+	 * @throws LoginException
+	 */
+	public function setColumns($cn, $allowEdit) {
+		if ($this->request->is_set('columns') && $allowEdit) {
+		}
+
+		// request
+		if ($this->request->is_set('columns') && $allowEdit) {
+			$this->columns = $this->request->getArray('columns');
+			$this->user->setPref('Columns.' . $cn, $this->columns);
+			$this->log('Columns set from URL');
+		} elseif (!$this->columns && method_exists($this->user, 'getPref')) {
+			$this->columns = $this->user->getPref('Columns.' . $cn);
+			$this->log('Columns set from getPref');
+		}
+		if (!$this->columns) {
+			// default
+			$this->columns = array_keys($this->getGridColumns());
+			$this->log('Columns set from getGridColumns');
+			if (!$this->columns && ifsetor($this->model->thes)) {
+				$this->columns = array_keys($this->model->thes);
+				$this->log('Columns set from model');
+			}
+			if (!$this->columns && $this->collection && $this->collection->thes) {
+				$this->columns = array_keys($this->collection->thes);
+				$this->log('Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
+			}
+		}
+		//debug($cn, $this->columns, $this->log);
+	}
+
+	function getGridColumns() {
+		if ($this->collection) {
+			return ArrayPlus::create($this->collection->thes)
+				->makeTable('name')
+				->column('name')
+				//->combineSelf() ?!? WTF
+				->getData();
+		} else {
+			return [];
+		}
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-class HTMLFormDatePicker extends HTMLFormType {
+class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface {
 	/**
 	 * PHP Format
 	 * @var string
@@ -17,31 +17,41 @@ class HTMLFormDatePicker extends HTMLFormType {
 
 	public $inputType = 'date';
 
+	var $content;
+
 	/**
-	 * @internal param string $name
-	 * @internal param array $value - array of minutes
+	 *
 	 */
 	function __construct() {
-		Index::getInstance()->addJQueryUI();	// for the picker
-		Index::getInstance()->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'js/HTMLFormDatePicker.js');
+		$index = Index::getInstance();
+		$index->addJQueryUI();    // for the picker
+		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');
 	}
 
 	function render() {
+		$tmp = $this->form->stdout;
+		$this->form->stdout = '';
+//
+//		echo __METHOD__, BR;
 		//debug($this->field, $this->value);
 		if ($this->value && $this->value != '0000-00-00') {
 			if (is_integer($this->value) || is_numeric($this->value)) {
 				$val = date($this->format, $this->value);
 			} else {
-				$val = strtotime($this->value);	// hope for Y-m-d
+				$val = strtotime($this->value);    // hope for Y-m-d
 				$val = date($this->format, $val);
 			}
 		} else {
 			$val = '';
 		}
 		$this->form->input($this->field, $val, array(
-			'format' => $this->jsFormat
-		) + $this->jsParams,
-		$this->inputType, ifsetor($this->desc['class']) . ' datepicker');
+				'format' => $this->jsFormat
+			) + $this->jsParams,
+			$this->inputType, ifsetor($this->desc['class']) . ' datepicker');
+
+		$this->content = $this->form->stdout;
+		$this->form->stdout = $tmp;
+		return $this->content;
 	}
 
 	/**
@@ -62,7 +72,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 			$val = $value;
 			$val = strtotime($val);
 		} else {
-			$val = NULL;	// time();
+			$val = NULL;    // time();
 		}
 		//debug($this->jsFormat, $value, $val);
 		return $val;
@@ -71,6 +81,11 @@ class HTMLFormDatePicker extends HTMLFormType {
 	function setValue($value) {
 		//debug(__METHOD__, $this->field, $value);
 		parent::setValue($value);
+	}
+
+	function getContent() {
+//		echo __METHOD__, BR;
+		return $this->render();
 	}
 
 }

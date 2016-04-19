@@ -129,4 +129,18 @@ class Date extends Time {
 		return $this->getHTMLDate();
 	}
 
+	function addTime($sTime) {
+		$time = new Time($this->getTimestamp());
+		$time->addTime($sTime);
+		return $time;
+	}
+
+	function isFuture() {
+		return $this->getISODate() > date('Y-m-d');
+	}
+	
+	function isPast() {
+		return $this->getISODate() < date('Y-m-d');
+	}
+
 }

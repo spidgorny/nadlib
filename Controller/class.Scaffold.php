@@ -70,7 +70,7 @@ abstract class Scaffold extends AppController {
 	 * Either from the <FORM> or default from DB?
 	 * @var array
 	 */
-	public $data;
+	public $data = [];
 
 	protected $editIcon = '<img src="../../img/stock-edit-16.png" alt="Edit"/>';
 
@@ -104,8 +104,8 @@ abstract class Scaffold extends AppController {
 		} else {
 			$this->data = $this->model->data;
 		}
-		//debug($this->data);
-		$this->form->desc = $this->getDesc($this->data);
+//		debug($this->data);
+		$this->form->desc = $this->getDesc((array)$this->data);
 		//debug($this->form->desc);
 		nodebug(array(
 			'id' => $this->id,

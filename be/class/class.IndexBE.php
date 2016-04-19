@@ -45,16 +45,20 @@ class IndexBE extends IndexBase {
 		//$this->config->appRoot = str_replace('/nadlib/be', '', $this->config->appRoot);
 
 		$this->al = AutoLoad::getInstance();
-		$this->nadlibFromDocRoot = $this->al->nadlibFromDocRoot;
+		$this->nadlibFromDocRoot = $this->al->nadlibFromDocRoot.'../';
+		$this->al->nadlibFromDocRoot = $this->nadlibFromDocRoot;
 		$this->nadlibFromCWD = $this->al->nadlibFromCWD;
 
-		//debug($this->al->componentsPath, $this->al->appRoot, $this->al->componentsPath->getURL());
-		$this->header['modernizr.js'] = '<script src="'.$this->al->componentsPath->getURL().'modernizr/modernizr.js"></script>';  // Must be header and not footer
-		$this->addCSS($this->al->componentsPath->getURL().'bootstrap/css/bootstrap.min.css');
+		//$this->al->componentsPath = new Path('components/');
+		$componentsURL = $this->al->componentsPath->getURL();
+		$componentsURL = 'components/';
+		//debug($this->al->componentsPath, $this->al->appRoot, $componentsURL);
+		$this->header['modernizr.js'] = '<script src="'. $componentsURL .'modernizr/modernizr.js"></script>';  // Must be header and not footer
+		$this->addCSS($componentsURL .'bootstrap/css/bootstrap.min.css');
 		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
-		$this->addCSS($this->nadlibFromCWD . 'CSS/TaylorProfiler.less');
+		$this->addCSS($this->nadlibFromDocRoot . 'CSS/TaylorProfiler.less');
 		$this->addJQuery();
-		$this->addJS($this->al->componentsPath->getURL().'bootstrap/js/bootstrap.js');
+		$this->addJS($componentsURL .'bootstrap/js/bootstrap.js');
 		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
 
 		$this->user = new BEUser();
@@ -141,7 +145,6 @@ class IndexBE extends IndexBase {
 	}
 
 	function renderController() {
-		$this->initController();
 		$c = get_class($this->controller);
 		/** @var $c Controller */
 		//$public = $c::$public;	// Parse error:  syntax error, unexpected T_PAAMAYIM_NEKUDOTAYIM
@@ -169,7 +172,9 @@ class IndexBE extends IndexBase {
 	function renderTemplate($content) {
 		$v = new View($this->template, $this);
 		$v->content = $this->content . $content;
-		$v->title = strip_tags($this->controller->title);
+		$v->title = $this->controller
+			? strip_tags($this->controller->title)
+			: NULL;
 		$v->sidebar = $this->showSidebar();
 		$v->version = @file_get_contents('VERSION');
 		$lf = new LoginForm('inlineForm');	// too specific - in subclass

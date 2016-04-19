@@ -32,6 +32,11 @@ class URL {
 	protected $path;
 
 	/**
+	 * @var array
+	 */
+	var $log = array();
+
+	/**
 	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
@@ -120,6 +125,7 @@ class URL {
 
 	function unsetParam($param) {
 		unset($this->params[$param]);
+		return $this;
 	}
 
 	function getParam($param) {
@@ -176,6 +182,8 @@ class URL {
 		assert(get_class($path) == 'Path');
 		if ($this->documentRoot != '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
+		}
+		if (!$path instanceof Path) {
 			$path = new Path($path);
 		}
 		nodebug(array(
@@ -405,7 +413,7 @@ class URL {
 	        //debug($scriptWithPath);
 	        // this below may not work since __FILE__ is class.URL.php and not index.php
 	        // but this our last chance for CLI/Cron
-	        if (!$scriptWithPath || !str_startsWith($scriptWithPath, '/')) {    // relative not OK
+	        if (!$scriptWithPath || !Path::isAbsolute($scriptWithPath)) {    // relative not OK
 		        if (basename(__FILE__) == __FILE__) {	// index.php
 					$scriptWithPath = getcwd().'/'.__FILE__;
 				} else {
@@ -456,6 +464,7 @@ class URL {
 	/**
 	 * http://www.php.net/manual/en/function.realpath.php#71334
 	 * @param $address
+	 * @return array|mixed|string
 	 */
 	function canonicalize($address) {
 		$address = explode('/', $address);
@@ -468,6 +477,15 @@ class URL {
 
 		$address = implode('/', $address);
 		$address = str_replace('./', '', $address);
+		return $address;
+	}
+
+	protected function log($action, $data = NULL) {
+		$this->log[] = new LogEntry($action, $data);
+	}
+
+	public function resolve($relativeURL) {
+		return $this->url_to_absolute($this->__toString(), $relativeURL);
 	}
 
 	/**
@@ -476,12 +494,13 @@ class URL {
 	 * @param $relativeUrl
 	 * @return mixed
 	 */
-	function url_to_absolute( $baseUrl, $relativeUrl )
-	{
+	private function url_to_absolute( $baseUrl, $relativeUrl ) {
 		// If relative URL has a scheme, clean path and return.
 		$r = $this->split_url( $relativeUrl );
-		if ( $r === FALSE )
+		if ( $r === FALSE ) {
+			$this->log('Unable to split', $relativeUrl);
 			return FALSE;
+		}
 		if ( !empty( $r['scheme'] ) )
 		{
 			if ( !empty( $r['path'] ) && $r['path'][0] == '/' )
@@ -491,8 +510,10 @@ class URL {
 
 		// Make sure the base URL is absolute.
 		$b = $this->split_url( $baseUrl );
-		if ( $b === FALSE || empty( $b['scheme'] ) || empty( $b['host'] ) )
+		if ( $b === FALSE || empty( $b['scheme'] ) || empty( $b['host'] ) ) {
+			$this->log('unable to split', $baseUrl);
 			return FALSE;
+		}
 		$r['scheme'] = $b['scheme'];
 
 		// If relative URL has an authority, clean path and return.
@@ -567,6 +588,7 @@ class URL {
 	 */
 	function split_url( $url, $decode=TRUE )
 	{
+		$parts = array();
 		$xunressub     = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
 		$xpchar        = $xunressub . ':@%';
 
@@ -774,6 +796,10 @@ class URL {
 		$path = str_replace($diff, $newController, $path);
 		$this->setPath($path);
 		return $this;
+	}
+
+	public function getParams() {
+		return $this->params;
 	}
 
 }

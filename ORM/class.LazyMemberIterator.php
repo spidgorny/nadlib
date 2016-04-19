@@ -18,6 +18,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable {
 	 * @param string      $class
 	 */
 	public function __construct(Traversable $iterator, $class) {
+		//echo __METHOD__, BR;
 		//debug($iterator, sizeof($iterator));
 		parent::__construct($iterator);
 		$this->class = $class;
@@ -43,10 +44,14 @@ class LazyMemberIterator extends IteratorIterator implements Countable {
 	 * @return mixed|null
 	 */
 	public function current() {
+		//echo __METHOD__, BR;
+		/** @var DatabaseResultIteratorAssoc $inner */
 		$inner = $this->getInnerIterator();
+		//echo gettype2($inner), BR;
 		//debug($inner);
 		//$array = parent::current();
 		$array = $inner->current();
+		//debug($array);
 		//debug($array);
 		if ($array) {
 			$obj = new $this->class($array);
@@ -61,16 +66,40 @@ class LazyMemberIterator extends IteratorIterator implements Countable {
 //	}
 //
 	function count() {
-		return $this->getInnerIterator()->count();
+		//echo __METHOD__, BR;
+		/** @var DatabaseResultIteratorAssoc $iterator */
+		$iterator = $this->getInnerIterator();
+		return $iterator->count();
 	}
 
 	function rewind() {
-		$this->getInnerIterator()->rewind();
+		//echo __METHOD__, BR;
+		/** @var DatabaseResultIteratorAssoc $iterator */
+		$iterator = $this->getInnerIterator();
+		$iterator->rewind();
 	}
 
 	function next() {
+		//echo __METHOD__, BR;
 		//return $this->getInnerIterator()->next();
-		return parent::next();
+		parent::next();
+	}
+
+	/**
+	 * This was fucking missing(!) without any warnings
+	 * @return bool
+	 */
+	function valid() {
+		/** @var DatabaseResultIteratorAssoc $iterator */
+		$iterator = $this->getInnerIterator();
+		$valid = $iterator->valid();
+		$current = $this->getInnerIterator()->current();
+		if (!$current) {
+			//debug($current);
+			//echo __METHOD__, ': ', $valid, ' - ', $current['title'], BR;
+			$valid = false;
+		}
+		return $valid;
 	}
 
 }

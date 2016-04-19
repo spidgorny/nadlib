@@ -9,9 +9,11 @@
 class ViewTest extends PHPUnit_Framework_TestCase {
 
 	function test_cleanComment() {
-		$v = new View();
-		$clean = $v->cleanComment('Some shit');
-		$this->assertNotEmpty($clean);
+		if (class_exists('HTMLPurifier_Config')) {
+			$v = new View('whatever');
+			$clean = $v->cleanComment('Some shit');
+			$this->assertNotEmpty($clean);
+		}
 	}
 
 }

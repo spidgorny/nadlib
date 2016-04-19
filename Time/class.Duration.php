@@ -23,13 +23,13 @@
 class Duration extends Time {
 
 	var $periods = array (
-		'years'     => 31556926,
-		'months'    => 2629743,
-		'weeks'     => 604800,
-		'days'      => 86400,
-		'hours'     => 3600,
-		'minutes'   => 60,
-		'seconds'   => 1
+		'year'     => 31556926,
+		'month'    => 2629743,
+		'week'     => 604800,
+		'day'      => 86400,
+		'hour'     => 3600,
+		'minute'   => 60,
+		'second'   => 1
 	);
 
 	function  __construct($input = NULL) {
@@ -47,6 +47,10 @@ class Duration extends Time {
 		$this->updateDebug();
 	}
 
+	public static function fromSeconds($ini_get) {
+		return new Duration($ini_get);
+	}
+
 	function format($rules) {
 		die(__METHOD__.' - don\'t use.');
 	}
@@ -57,6 +61,9 @@ class Duration extends Time {
 
 	function nice() {
 		return $this->toString();
+	}
+
+	function short() {
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = array();
@@ -192,6 +199,9 @@ class Duration extends Time {
                 continue;
             }
 
+			if ($count > 1) {
+				$period .= 's';
+			}
             $values[$period] = $count;
             $seconds = $seconds % $value;
         }
@@ -263,6 +273,18 @@ class Duration extends Time {
 
 	public function getDays() {
 		return $this->time / 60 / 60 / 24;
+	}
+
+	public function getRemHours() {
+		return floor($this->time / 60 / 60);
+	}
+
+	public function getRemMinutes() {
+		return floor($this->time % (60*60) / 60);
+	}
+
+	public function getRemSeconds() {
+		return $this->time % (60);
 	}
 
 }

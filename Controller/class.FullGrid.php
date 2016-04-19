@@ -10,23 +10,36 @@ abstract class FullGrid extends Grid {
 
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
-		//if (get_class($this->index->controller) == get_class($this)) {// unreliable
-		if ($this->request->getControllerString() == get_class($this)) {
+		$allowEdit = $this->request->getControllerString() == get_class($this);
+		if ($allowEdit && $collection) {
 			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
 		}
-		if ($collection) {
-			$this->collection = new $collection(-1, [], $this->getOrderBy());
-			// after construct because we need to modify join
-			$this->collection->where = $this->getFilterWhere();
-			$this->collection->postInit();
-			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+		if (!$this->collection) {
+			if (is_string($collection)) {
+				$this->log(__METHOD__ . ' new collection', $collection);
+				$this->collection = new $collection(NULL, [], $this->getOrderBy());
+				// after construct because we need to modify join
+				$this->collection->where = array_merge(
+					$this->collection->where,
+					$this->getFilterWhere()
+				);
+
+				//debug($this->collection->where);
+				//file_put_contents('tests/Fixture/SoftwareGridApostrophe.serial', serialize($this->collection->where));
+				//debug($this->collection->getQuery());
+
+				$this->collection->postInit();
+				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+			} else {
+				$this->collection = $collection;
+			}
 		}
 	}
 
 	function postInit() {
 		if ($this->collection) {
 			// commented to do it in a lazy way
-			//$this->collection->retrieveDataFromDB();
+			//$this->collection->retrieveData();
 		}
 	}
 
@@ -65,6 +78,12 @@ abstract class FullGrid extends Grid {
 	}
 
 	function render() {
+		$this->setVisibleColumns();
+		//$this->collection->pageSize = $this->pageSize;
+		return parent::render();
+	}
+
+	function setVisibleColumns() {
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
 				if (!in_array($cn, $this->columns)) {
@@ -73,8 +92,6 @@ abstract class FullGrid extends Grid {
 				}
 			}
 		}
-		//$this->collection->pageSize = $this->pageSize;
-		return parent::render();
 	}
 
 	/**
@@ -84,28 +101,48 @@ abstract class FullGrid extends Grid {
 	function getFilterWhere() {
 		$where = array();
 
+		$desc = $this->getFilterDesc();
+		//debug($desc);
 		foreach ($this->filter as $key => $val) {
 			if ($val) {
-				$where[$key] = $val;
+				$type = ifsetor($desc[$key]['type']);
+				list($field, $parameter) = $this->getFilterWherePair($key, $val, $type);
+				$where[$field] = $parameter;
 			}
 		}
 
 		return $where;
 	}
 
+	function getFilterWherePair($key, $val, $type) {
+		$where = [];
+		switch ($type) {
+			case 'like':
+				$like = new SQLLikeContains($val);
+				$where[$key] = $like;
+				break;
+			default:
+				$where[$key] = $val;
+				break;
+		}
+		return [$key, $val];
+	}
+
 	function sidebar() {
-		$content = $this->getFilterForm();
-		$content .= $this->getColumnsForm();
+		$content[] = $this->getFilterForm();
+		$content[] = $this->getColumnsForm();
 		return $content;
 	}
 
 	function getFilterForm(array $fields = NULL) {
-		$f = new HTMLFormTable();
+		$desc = $this->getFilterDesc($fields);
+		$f = new HTMLFormTable($desc);
+		$f->setAllOptional();
 		$f->method('GET');
 		$f->defaultBR = true;
 		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
-		$f->showForm($this->getFilterDesc($fields));
+		$f->showForm();
 		$f->prefix(NULL);
 		$f->submit(__('Filter'));
 		return $f;
@@ -121,49 +158,17 @@ abstract class FullGrid extends Grid {
 	 */
 	function getFilterDesc(array $fields = NULL) {
 		$fields = ifsetor($fields, ifsetor($this->model->thes));
-		$fields = $fields ? $fields : $this->collection->thes;
+		$fields = $fields ?: $this->collection->thes;
 		$fields = is_array($fields) ? $fields : array();
 
 		//debug($this->filter);
 		$desc = array();
 		foreach ($fields as $key => $k) {
+			if (!is_array($k)) {
+				$k = ['name' => $k];
+			}
 			if (!ifsetor($k['noFilter'])) {
-				$autoClass = ucfirst(str_replace('id_', '', $key)).'Collection';
-				if (class_exists($autoClass) &&
-					in_array('HTMLFormCollection', class_implements($autoClass))) {
-					$type = new $autoClass();
-					$options = NULL;
-				} elseif (ifsetor($k['tf'])) {	// boolean
-					$type = 'select';
-					$stv = new slTableValue('', array());
-					$options = array(
-						't' => $stv->SLTABLE_IMG_CHECK,
-						'f' => $stv->SLTABLE_IMG_CROSS,
-					);
-					//debug($key, $this->filter[$key]);
-				} else {
-					$type = 'select';
-					if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
-						$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
-						// convert to string for === operation
-						$options = ArrayPlus::create($options)->trim()->getData();
-					} else {
-						$options = $k['options'];
-					}
-					//debug($options);
-					// will only work for strings, ID to other table needs to avoid it
-					$options = array_combine_stringkey($options, $options);
-					//debug($options);
-				}
-				$desc[$key] = array(
-					'label' => $k['name'],
-					'type' => $type,
-					'options' => $options,
-					'null' => true,
-					'value' => ifsetor($this->filter[$key]),
-					'more' => 'class="input-medium"',
-					'===' => true,
-				);
+				$desc[$key] = $this->getFieldFilter($k, $key);
 			}
 		}
 		//debug($fields, $desc);
@@ -179,9 +184,10 @@ abstract class FullGrid extends Grid {
 
 			if ($count) {
 				foreach ($res as &$val) {
+					/** @var Collection $copy */
 					$copy = clone $this->collection;
 					$copy->where[$key] = $val;
-					$copy->retrieveDataFromDB();
+					$copy->retrieveData();
 					$val .= ' (' . sizeof($copy->getData()) . ')';
 				}
 			}
@@ -192,18 +198,13 @@ abstract class FullGrid extends Grid {
 		return $res;
 	}
 
-	function getGridColumns() {
-		return ArrayPlus::create($this->collection->thes)
-		->column('name')->combineSelf()->getData();
-	}
-
 	function getColumnsForm() {
 		$desc = array(
 			'columns' => array(
 				'label' => '<h2>'.__('Visible').'</h2>',
 				'type' => 'set',
 				'options' => $this->getGridColumns(),
-				'value' => $this->columns,
+				'value' => array_keys($this->columns),
 				'between' => '',
 			),
 			'collectionName' => array(
@@ -219,6 +220,66 @@ abstract class FullGrid extends Grid {
 		$f->showForm($desc);
 		$f->submit(__('Set'));
 		return $f;
+	}
+
+	function injectCollection() {
+		parent::injectCollection();
+		debug($this->collection->where,
+			$this->getFilterWhere());
+		$this->collection->where = array_merge(
+			$this->collection->where,
+			$this->getFilterWhere()
+		);
+	}
+
+	/**
+	 * @param $k
+	 * @param $key
+	 * @return array
+	 */
+	public function getFieldFilter($k, $key) {
+		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
+		if (class_exists($autoClass) &&
+			in_array('HTMLFormCollection', class_implements($autoClass))
+		) {
+			$k['type'] = new $autoClass();
+			$options = NULL;
+		} elseif (ifsetor($k['tf'])) {    // boolean
+			$k['type'] = 'select';
+			$stv = new slTableValue('', array());
+			$options = array(
+				't' => $stv->SLTABLE_IMG_CHECK,
+				'f' => $stv->SLTABLE_IMG_CROSS,
+			);
+			//debug($key, $this->filter[$key]);
+		} elseif (ifsetor($k['type']) == 'select') {
+			if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
+				$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
+				// convert to string for === operation
+				$options = ArrayPlus::create($options)->trim()->getData();
+			} else {
+				$options = $k['options'];
+			}
+			//debug($options);
+			// will only work for strings, ID to other table needs to avoid it
+			$options = array_combine_stringkey($options, $options);
+			//debug($options);
+		} elseif (ifsetor($k['type']) == 'like') {
+			// this is handled in getFilterWhere
+			$options = NULL;
+		} else {
+			$k['type'] = $k['type'] ?: 'input';
+			$options = NULL;
+		}
+		return array(
+			'label'   => $k['name'],
+			'type'    => $k['type'],
+			'options' => $options,
+			'null'    => true,
+			'value'   => ifsetor($this->filter[$key]),
+			'more'    => 'class="input-medium"',
+			'==='     => true,
+		);
 	}
 
 }

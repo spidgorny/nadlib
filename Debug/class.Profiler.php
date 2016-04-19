@@ -43,6 +43,13 @@ class Profiler {
 		return number_format($out, 5, '.', '');
 	}
 
+	function elapsedNext() {
+		$since = $this->elapsed();
+		$this->startTime = microtime(true);
+		$this->endTime = NULL;
+		return $since;
+	}
+
 	function Done($isReturn = FALSE) {
 		$out = number_format($this->elapsed(), 3);
 		$content = "Done in $out seconds." . BR;
@@ -62,7 +69,7 @@ class Profiler {
 	}
 
 	function __toString() {
-		return $this->elapsed();
+		return $this->elapsed().'';
 	}
 
 }

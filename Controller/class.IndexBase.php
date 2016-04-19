@@ -105,15 +105,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->content = new nadlib\HTML\Messages();
 		$this->content->restoreMessages();
 
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
+		$this->setSecurityHeaders();
 		TaylorProfiler::stop(__METHOD__);
 	}
 
@@ -198,7 +190,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//debug(__METHOD__, $slug, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->controller = new $class();
-			//debug(get_class($this->controller));
+//			debug($class, get_class($this->controller));
 			if (method_exists($this->controller, 'postInit')) {
 				$this->controller->postInit();
 			}
@@ -230,11 +222,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($this->controller) {
 				$content .= $this->renderController();
 			} else {
-				$content .= $this->content;	// display Exception
+				// display Exception
+				$content .= $this->content->getContent();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
-			$this->content .= $e->getMessage();
+			$this->content[] = $e->getMessage();
 		} catch (Exception $e) {
 			$content = $this->renderException($e);
 		}
@@ -248,12 +241,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderTemplateIfNotAjax($content) {
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			$contentOut .= $this->content;	// display Exception
+			// display Exception
+			$contentOut .= $this->content->getContent();
 			$contentOut .= $this->s($content);
-			$contentOut = $this->renderTemplate($contentOut)->render();
+			$view = $this->renderTemplate($contentOut);
+			//echo gettype2($view), BR;
+			if ($view instanceof View) {
+				$contentOut = $view->render();
+			} else {
+				$contentOut = $view;
+			}
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
-			$contentOut .= $content;
+			$contentOut .= $this->s($content);
 			$this->content->clear();		// clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;
@@ -323,16 +323,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function __destruct() {
 		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
-			$this->user->__destruct();
+			// called automatically(!)
+			//$this->user->__destruct();
 		}
 	}
 
 	/**
 	 * Move it to the MRBS
 	 * @param string $action
-	 * @param array $data
+	 * @param mixed $data
 	 */
-	function log($action, array $data) {
+	function log($action, $data) {
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
@@ -364,7 +365,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
 		}
-		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
+		if ($this->loadJSfromGoogle) {
+			$jQueryPath = 'components/jquery/jquery.min.js';
+			$this->footer['jquery.js'] = '
+			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+			<script>window.jQuery || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>
+			';
+		} else {
 			$jQueryPath = 'jquery/jquery.min.js';
 			$al = AutoLoad::getInstance();
 			nodebug(array(
@@ -397,13 +404,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} else {
 				$jQueryPath = 'components/jquery/jquery.min.js';
 			}
-		} else {
-			$jQueryPath = 'components/jquery/jquery.min.js';
+			$this->addJS($jQueryPath);
 		}
-		$this->footer['jquery.js'] = '
-			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-			<script>window.jQuery || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>
-			';
 		return $this;
 	}
 
@@ -472,6 +474,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			if ($mtime) {
 				$fileName .= '?' . $mtime;
 			}
+			$fn = new Path($fileName);
+			$fileName = $fn->relativeFromAppRoot();
 		}
 		$defer = $defer ? 'defer="true"' : '';
 		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" '.$defer.'></script>';
@@ -490,23 +494,29 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$sourceCSS = str_replace('.less', '.css', $source);
 				if (file_exists($sourceCSS)){
 					$source = $sourceCSS;
+					$source = $this->addMtime($source);
 				} else {
 					$source = 'css/?c=Lesser&css=' . $source;
 				}
 			}
 		} else {
-			if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
-				$mtime = @filemtime($source);
-				if (!$mtime) {
-					$mtime = @filemtime('public/'.$source);
-				}
-				if ($mtime) {
-					$source .= '?' . $mtime;
-				}
-			}
+			$source = $this->addMtime($source);
 		}
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
 		return $this;
+	}
+
+	function addMtime($source) {
+		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
+			$mtime = @filemtime($source);
+			if (!$mtime) {
+				$mtime = @filemtime('public/'.$source);
+			}
+			if ($mtime) {
+				$source .= '?' . $mtime;
+			}
+		}
+		return $source;
 	}
 
 	function showSidebar() {
@@ -523,26 +533,26 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function renderProfiler() {
 		$content = '';
 		if (DEVELOPMENT &&
-			isset($GLOBALS['profiler']) &&
 			!$this->request->isAjax() &&
 			//!$this->request->isCLI() &&
 			!in_array(get_class($this->controller), array('Lesser')))
 		{
-			$profiler = $GLOBALS['profiler'];
-			/** @var $profiler TaylorProfiler */
-			if ($profiler) {
-				if (!$this->request->isCLI()) {
-					$content = $profiler->renderFloat();
-					$content .= '<div class="profiler noprint">'.$profiler->printTimers(true).'</div>';
-					//$content .= '<div class="profiler">'.$profiler->printTrace(true).'</div>';
-					//$content .= '<div class="profiler">'.$profiler->analyzeTraceForLeak().'</div>';
-					if (ifsetor($this->db->queryLog)) {
-						$content .= '<div class="profiler">'.TaylorProfiler::dumpQueries().'</div>';
-					}
+			if (!$this->request->isCLI()) {
+				$ft = new FloatTime(true);
+				$content .= $ft->render();
+				$content .= '<div class="profiler noprint">';
+				$content .= $this->s(OODBase::getCacheStatsTable());
+
+				/** @var $profiler TaylorProfiler */
+				$profiler = TaylorProfiler::getInstance();
+				if ($profiler) {
+					$content .= $profiler->printTimers(true);
 					$content .= TaylorProfiler::dumpQueries();
+					//$content .= $profiler->printTrace(true);
+					//$content .= $profiler->analyzeTraceForLeak();
 				}
-			} else if (DEVELOPMENT && !$this->request->isCLI()) {
-				$content = TaylorProfiler::renderFloat();
+
+				$content .= '</div>';
 			}
 		}
 		return $content;
@@ -580,6 +590,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function addBodyClass($name) {
 		$this->bodyClasses[$name] = $name;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function setSecurityHeaders() {
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
 	}
 
 }

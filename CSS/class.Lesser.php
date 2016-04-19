@@ -29,7 +29,7 @@ class Lesser extends AppController {
 			'file_exists()' => file_exists($cacheDir),
 			'is_dir()' => is_dir($cacheDir),
 			'is_writable()' => is_writable($cacheDir)
-		), Debug::LEVELS, 5);
+		), DebugHTML::LEVELS, 5);
 		if (!is_dir($cacheDir)) {
 			echo '#mkdir(', $cacheDir, ');'."\n";
 			$ok = mkdir($cacheDir);

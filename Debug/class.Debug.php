@@ -2,10 +2,6 @@
 
 class Debug {
 
-	const LEVELS = 'LEVELS';
-
-	static $stylesPrinted = false;
-
 	var $index;
 
 	/**
@@ -41,7 +37,7 @@ class Debug {
 			$this->renderer = $this->detectRenderer();
 		}
 		//var_dump($_COOKIE);
-		if (false && $_COOKIE['debug']) {
+		if (false && ifsetor($_COOKIE['debug'])) {
 			echo 'Renderer: ' . $this->renderer;
 			echo '<pre>';
 			var_dump(array(
@@ -83,7 +79,8 @@ class Debug {
 				$coming->$key = $debug->getSimpleType($val);
 			}
 		}
-		$debug->debug_args($coming);
+		$dh = new DebugHTML($debug);
+		$dh->render($coming);
 	}
 
 	function getSimpleType($val) {
@@ -102,6 +99,13 @@ class Debug {
 			&& !Request::isCLI()
 			&& !headers_sent()
 			&& ifsetor($_COOKIE['debug']);
+
+		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
+		if (!class_exists('FirePHP') && file_exists($require)) {
+			require_once $require;
+		}
+		$can = $can && class_exists('FirePHP');
+
 		if ($can) {
 			$fb = FirePHP::getInstance(true);
 			$can = $fb->detectClientExtension();
@@ -109,12 +113,10 @@ class Debug {
 		return $can;
 	}
 
-	function debugWithFirebug(array $params, $title = '') {
+	function debugWithFirebug($params, $title = '') {
 		$content = '';
-		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
-		if (!class_exists('FirePHP') && file_exists($require)) {
-			require_once $require;
-		}
+		$params = is_array($params) ? $params : [$params];
+		//debug_pre_print_backtrace();
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
 			$fp->setOption('includeLineNumbers', true);
@@ -150,8 +152,9 @@ class Debug {
 				debug_pre_print_backtrace();
 			}
 		} else {
-			pre_print_r($params);
-			debug_pre_print_backtrace();
+			// don't show anything to the users who are not DEVELOPMENT
+			//pre_print_r($params);
+			//debug_pre_print_backtrace();
 		}
 		return $content;
 	}
@@ -160,17 +163,17 @@ class Debug {
 		return Request::isCLI();
 	}
 
-	function debugWithCLI() {
+	function debugWithCLI($args) {
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 		$trace = array();
-		foreach ($db as $row) {
-			$trace[] = self::getMethod($row);
+		$i = 0;
+		foreach ($db as $i => $row) {
+			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1], array()));
+			if (++$i > 7) break;
 		}
-		echo '---' . implode(' // ', $trace) . "\n";
+		echo '---' . implode(BR, $trace) . "\n";
 
-		$args = func_get_args();
-		$this->getLevels($args);
 		if (is_object($args)) {
 			$args = get_object_vars($args);   // prevent private vars
 		}
@@ -182,23 +185,6 @@ class Debug {
 		echo $dump, "\n";
 	}
 
-	function getLevels(array &$args) {
-		if (sizeof($args) == 1) {
-			$a = $args[0];
-			$levels = /*NULL*/3;
-		} else {
-			$a = $args;
-			if ($a[1] === self::LEVELS) {
-				$levels = $a[2];
-				$a = $a[0];
-			} else {
-				$levels = NULL;
-			}
-		}
-		$args = $a;
-		return $levels;
-	}
-
 	function canHTML() {
 		return ifsetor($_COOKIE['debug']);
 	}
@@ -207,73 +193,14 @@ class Debug {
 	 * @param mixed $params - any type
 	 */
 	function debugWithHTML($params) {
-		$content = call_user_func(array('Debug', 'debug_args'), $params);
+		$debugHTML = new DebugHTML($this);
+		$content = call_user_func(array($debugHTML, 'render'), $params);
 		if (!is_null($content)) {
 			print($content);
 		}
 		if (ob_get_level() == 0) {
 			flush();
 		}
-	}
-
-	function debug_args() {
-		$args = func_get_args();
-		$levels = $this->getLevels($args);
-
-		$db = debug_backtrace();
-		$db = array_slice($db, 3, sizeof($db));
-
-		$content = self::renderHTMLView($db, $args, $levels);
-		$content .= self::printStyles();
-		if (!headers_sent()) {
-			if (method_exists($this->index, 'renderHead')) {
-				$this->index->renderHead();
-			} else {
-				$content = '<!DOCTYPE html><html>' . $content;
-			}
-		}
-		return $content;
-	}
-
-	static function renderHTMLView($db, $a, $levels) {
-		$trace = Debug::getTraceTable($db);
-
-		$first = $db[1];
-		if ($first) {
-			$function = self::getMethod($first);
-		} else {
-			$function = '';
-		}
-		$props = array(
-			'<span class="debug_prop">Function:</span> '.$function,
-			'<span class="debug_prop">Type:</span> '.gettype2($a)
-		);
-		if (is_array($a)) {
-			$props[] = '<span class="debug_prop">Size:</span> '.sizeof($a);
-		} elseif (!is_object($a) && !is_resource($a)) {
-			$props[] = '<span class="debug_prop">Length:</span> '.strlen($a);
-		}
-		$memPercent = TaylorProfiler::getMemUsage()*100;
-		$pb = new ProgressBar();
-		$pb->destruct100 = false;
-		$props[] = '<span class="debug_prop">Mem:</span> '.$pb->getImage($memPercent).' of '.ini_get('memory_limit');
-		$props[] = '<span class="debug_prop">Mem ±:</span> '.TaylorProfiler::getMemDiff();
-		$elapsed = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
-		$props[] = '<span class="debug_prop">Elapsed:</span> '.$elapsed.BR;
-
-		$content = '
-			<div class="debug">
-				<div class="caption">
-					'.implode(BR, $props).'
-					<a href="javascript: void(0);" onclick="
-						var a = this.nextSibling.nextSibling;
-						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
-					">'.Debug::getBackLog(6, 6, BR).'</a>
-					<div style="display: none;">'.$trace.'</div>
-				</div>
-				'.Debug::view_array($a, $levels > 0 ? $levels : 5).'
-			</div>';
-		return $content;
 	}
 
 	static function getSimpleTrace($db = NULL) {
@@ -312,74 +239,25 @@ class Debug {
 		return $trace;
 	}
 
-	/**
-	 * @param $a
-	 * @param $levels
-	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
-	 */
-	static function view_array($a, $levels = 1) {
-		if (is_object($a)) {
-			if (method_exists($a, 'debug')) {
-				$a = $a->debug();
-			//} elseif (method_exists($a, '__toString')) {    // commenting this often leads to out of memory
-			//	$a = $a->__toString();
-			//} elseif (method_exists($a, 'getName')) {
-			//	$a = $a->getName();	-- not enough info
-			} elseif ($a instanceof htmlString) {
-				$a = $a; // will take care below
-			} else {
-				$a = get_object_vars($a);
-			}
-		}
-
-		if (is_array($a)) {	// not else if so it also works for objects
-			$content = '<table class="view_array">';
-			foreach ($a as $i => $r) {
-				$type = gettype2($r);
-				$content .= '<tr>
-					<td class="view_array">'.$i.'</td>
-					<td class="view_array">'.$type.'</td>
-					<td class="view_array">';
-
-				//var_dump($levels); echo '<br/>'."\n";
-				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
-				//debug_pre_print_backtrace(); flush();
-				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
-					$content .= Debug::view_array($r,
-						is_null($levels) ? NULL : $levels-1);
-				} else {
-					$content .= '<i>Too deep, $level: '.$levels.'</i>';
-				}
-				//$content = print_r($r, true);
-				$content .= '</td></tr>';
-			}
-			$content .= '</table>';
-		} else if (is_object($a)) {
-			if ($a instanceof htmlString) {
-				$content = $a.'';
-			} else {
-				$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
-			}
-		} else if (is_resource($a)) {
-			$content = $a;
-		} else if (is_string($a) && strstr($a, "\n")) {
-			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
-		} else if ($a instanceof __PHP_Incomplete_Class) {
-			$content = '__PHP_Incomplete_Class';
-		} else {
-			$content = htmlspecialchars($a.'');
-		}
-		return $content;
-	}
-
-	static function getMethod(array $first) {
+	static function getMethod(array $first, array $next = array()) {
+		$curFunc = ifsetor($next['function']);
+		$nextFunc = ifsetor($first['function']);
+		$line = ifsetor($first['line']);
 		if (isset($first['object']) && $first['object']) {
-			$function = get_class($first['object']).'::'.$first['function'].'#'.ifsetor($first['line']);
-		} else if (isset($first['class']) && $first['class']) {
-			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
+			$function = get_class($first['object']).
+				'->'.$curFunc.
+				'#'.$line.
+				'->'.$nextFunc;
+		} elseif (ifsetor($first['class'])) {
+			$function = $first['class'].
+				'->'.$curFunc.
+				'#'.$line.
+				'->'.$nextFunc;
 		} else {
 			$file = ifsetor($first['file']);
-			$function = basename(dirname($file)).'/'.basename($file).'#'.ifsetor($first['line']);
+			$function = basename(dirname($file)).'/'.basename($file).
+				'#'.$line.
+				'->'.$nextFunc;
 		}
 		return $function;
 	}
@@ -392,6 +270,7 @@ class Debug {
 	static function getCaller($stepBack = 2) {
 		$btl = debug_backtrace();
 		reset($btl);
+		$bt = current($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
 			$bt = next($btl);
 		}
@@ -407,19 +286,28 @@ class Debug {
 	 * @param int    $limit
 	 * @param int    $cut
 	 * @param string $join
+	 * @param bool   $withHash
 	 * @return string
 	 */
-	static function getBackLog($limit = 5, $cut = 7, $join = ' // ') {
+	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true) {
 		$debug = debug_backtrace();
 		for ($i = 0; $i < $cut; $i++) {
 			array_shift($debug);
 		}
 		$content = array();
-		foreach ($debug as $debugLine) {
+		foreach ($debug as $i => $debugLine) {
+			if (ifsetor($debugLine['object'])) {
+				$object = gettype2($debugLine['object'], $withHash);
+			} else {
+				$object = '';
+			}
 			$file = basename(ifsetor($debugLine['file']));
 			$file = str_replace('class.', '', $file);
 			$file = str_replace('.php', '', $file);
-			$content[] = $file.'::'.$debugLine['function'].':'.ifsetor($debugLine['line']);
+			$nextFunc = ifsetor($debug[$i+1]['function']);
+			$line = ifsetor($debugLine['line']);
+			$content[] = $file.'::'.$nextFunc.'#'.$line.':'.
+				$object.'->'.$debugLine['function'];
 			if (!--$limit) {
 				break;
 			}
@@ -457,46 +345,6 @@ class Debug {
 		return array_sum($size);
 	}
 
-	static function printStyles() {
-		$content = '';
-		if (!self::$stylesPrinted) {
-			$content = '
-			<style>
-				div.debug {
-					color: black;
-					background: #EEEEEE;
-					border: solid 1px silver;
-					display: inline-block;
-					font-size: 12px;
-					font-family: verdana;
-					vertical-align: top;
-				}
-				div.debug a {
-					color: black;
-				}
-				div.debug .caption {
-					background-color: #EEEEEE;
-				}
-				td.view_array {
-					border: dotted 1px #555;
-					font-size: 12px;
-					vertical-align: top;
-					border-collapse: collapse;
-					color: black;
-					margin: 2px;
-				}
-				.debug_prop {
-					display: inline-block;
-					width: 5em;
-				}
-			</style>';
-			self::$stylesPrinted = true;
-		} else {
-			$content .= '<!-- styles printed -->';
-		}
-		return $content;
-	}
-
 	function canDebugster() {
 		return false;
 	}
@@ -525,9 +373,102 @@ class Debug {
 	}
 
 	static function peek($row) {
+		if (is_object($row)) {
+			$row = get_object_vars($row);
+		}
 		pre_print_r(array_combine(array_keys($row), array_map(function ($a) {
 			return gettype2($a);
 		}, $row)));
+	}
+
+	/**
+	 * This is like peek() but recursive
+	 * @param     $row
+	 * @param int $spaces
+	 */
+	static function dumpStruct($row, $spaces = 0) {
+		static $recursive;
+		if (!$spaces) {
+			echo '<pre class="debug">';
+			$recursive = array();
+		}
+		if (is_object($row)) {
+			$hash = spl_object_hash($row);
+			if (!ifsetor($recursive[$hash])) {
+				$sleep = method_exists($row, '__sleep')
+					? $row->__sleep() : NULL;
+				$recursive[$hash] = gettype2($row);	// before it's array
+				$row = get_object_vars($row);
+				if ($sleep) {
+					$sleep = array_combine($sleep, $sleep);
+					// del properties removed by sleep
+					$row = array_intersect_key($row, $sleep);
+				}
+			} else {
+				$row = '*RECURSIVE* '.$recursive[$hash];
+			}
+		}
+		if (is_array($row)) {
+			foreach ($row as $key => $el) {
+				echo str_repeat(' ', $spaces), $key, '->',
+				cap(gettype2($el), "\n");
+				self::dumpStruct($el, $spaces+4);
+			}
+		} else {
+			echo str_repeat(' ', $spaces);
+			switch (gettype($row)) {
+				case 'string':
+					$len = mb_strlen($row);
+					if ($len > 32) {
+						$row = substr($row, 0, 32) . '...';
+					}
+					echo '"', htmlspecialchars($row), '"';
+					break;
+				case 'null':
+					echo 'NULL';
+					break;
+				case 'boolean':
+					echo $row ? 'TRUE' : 'FALSE';
+					break;
+				default:
+					echo $row;
+			}
+			echo BR;
+		}
+		if (!$spaces) {
+			echo '</pre>';
+		}
+	}
+
+	static function findObject($struct, $type, $path = array()) {
+		static $recursive;
+		if (!$path) {
+			$recursive = array();
+		}
+		if (is_object($struct)) {
+			$hash = spl_object_hash($struct);
+			if (!ifsetor($recursive[$hash])) {
+				$sleep = method_exists($struct, '__sleep1')
+					? $struct->__sleep() : NULL;
+				$recursive[$hash] = gettype2($struct);	// before it's array
+				$struct = get_object_vars($struct);
+				if ($sleep) {
+					$sleep = array_combine($sleep, $sleep);
+					// del properties removed by sleep
+					$struct = array_intersect_key($struct, $sleep);
+				}
+			}
+		}
+		if (is_array($struct)) {
+			foreach ($struct as $key => $el) {
+				$pathPlus1 = $path;
+				$pathPlus1[] = $key.'('.gettype2($el).')';
+				if ($el instanceof $type) {
+					echo implode('->', $pathPlus1), '->', gettype2($el), BR;
+				}
+				self::findObject($el, $type, $pathPlus1);
+			}
+		}
 	}
 
 }

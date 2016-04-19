@@ -64,7 +64,7 @@ class Request {
 	 * @return mixed
 	 */
 	function get($key) {
-		return $this->data[$key];
+		return ifsetor($this->data[$key]);
 	}
 
 	/**
@@ -323,7 +323,7 @@ class Request {
 
 	function getControllerString($returnDefault = true) {
 		if ($this->isCLI()) {
-			$controller = $_SERVER['argv'][1];
+			$controller = ifsetor($_SERVER['argv'][1]);
 			$this->data += $this->parseParameters();
 			//debug($this->data);
 		} else {
@@ -493,7 +493,7 @@ class Request {
 			header('Location: '.$controller);
 			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>';
 		} else {
-			$this->redirectJS($controller, DEVELOPMENT ? 5000 : 0);
+			$this->redirectJS($controller, DEVELOPMENT ? 0 : 0);
 		}
 		if ($exit && !$this->isPHPUnit()) {
 			exit();
@@ -817,7 +817,7 @@ class Request {
 	 * @return bool
 	 */
 	static function isCron() {
-		return !isset($_SERVER['TERM']);
+		return !self::isPHPUnit() && self::isCLI() && !isset($_SERVER['TERM']);
 	}
 
 	function debug() {
@@ -866,7 +866,7 @@ class Request {
 	function parseParameters($noopt = array()) {
 		$result = array();
 		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
-		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
+		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
 			if ($p{0} == '-') {
@@ -1027,6 +1027,50 @@ class Request {
 
 	public function getKeys() {
 		return array_keys($this->data);
+	}
+
+	static function getIP() {
+		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
+		if (!$ip || in_array($ip, array(
+				'127.0.0.1',
+			))) {
+			$ip = file_get_contents('http://ipecho.net/plain');
+		}
+		return $ip;
+	}
+
+	public function getGeoIP() {
+		$session = new Session(__CLASS__);
+		$json = $session->get(__METHOD__);
+		if (!$json) {
+			$url = 'http://ipinfo.io/' . $this->getIP();		// 166ms
+			$info = @file_get_contents($url);
+			if ($info) {
+				$json = json_decode($info);
+				$session->save(__METHOD__, $json);
+			} else {
+				$url = 'http://freegeoip.net/json/'.$this->getIP();	// 521ms
+				$info = @file_get_contents($url);
+				if ($info) {
+					$json = json_decode($info);
+					$json->loc = $json->latitude . ',' . $json->longitude;    // compatibility hack
+					$session->save(__METHOD__, $json);
+				}
+			}
+		}
+		return $json;
+	}
+
+	public function getGeoLocation() {
+		$info = $this->getGeoIP();
+		return trimExplode(',', $info->loc);
+	}
+
+	public function goBack() {
+		$ref = $this->getReferer();
+		if ($ref) {
+			$this->redirect($ref);
+		}
 	}
 
 }

@@ -2,6 +2,9 @@
 
 class Color {
 
+	/**
+	 * @var int
+	 */
 	var $r, $g, $b;
 
 	function __construct($init) {
@@ -39,6 +42,12 @@ class Color {
 		return $this->getCSS(array($r, $g, $b));
 	}
 
+	/**
+	 * @param int $deltaHue [0..360]
+	 * @param int $deltaSaturation [0..100]
+	 * @param int $deltaLightness [0..100]
+	 * @return string
+	 */
 	function alter_color($deltaHue = 0, $deltaSaturation = 0, $deltaLightness = 0) {
 		$hsv = $this->RGB_TO_HSV($this->r, $this->g, $this->b);
 		$hsl = $this->hsv_to_hsl($hsv['H'], $hsv['S'], $hsv['V']);
@@ -61,9 +70,16 @@ class Color {
 		return $this->getCSS($rgb);
 	}
 
+	function __toString() {
+		return $this->getCSS(array($this->r, $this->g, $this->b));
+	}
+
 	function getCSS($rgb) {
 		$rgb = array_values($rgb);
-		return '#'.dechex($rgb[0]).dechex($rgb[1]).dechex($rgb[2]);
+		return '#'.
+			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT).
+			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT).
+			str_pad(dechex($rgb[2]), 2, '0', STR_PAD_LEFT);
 	}
 
 	/**
@@ -122,6 +138,8 @@ class Color {
 	 */
 	function HSVtoRGB(array $hsv) {
 		list($H,$S,$V) = $hsv;
+		//0
+		$H = $H - floor($H);	// not bigger than 360 grad
 		//1
 		$H *= 6;
 		//2
@@ -152,6 +170,8 @@ class Color {
 			case 6: //for when $H=1 is given
 				list($R,$G,$B) = array($V,$M,$N);
 				break;
+			default:
+				die(__METHOD__.'#'.__LINE__.' '.$I.' '.$H);
 		}
 		return array($R*255, $G*255, $B*255);
 	}
@@ -179,6 +199,19 @@ class Color {
 		$v = ($ll + $ss) / 2;
 		$s = (2 * $ss) / ($ll + $ss);
 		return array($h, $s, $v);
+	}
+
+	public function getComplement255() {
+		$c = new self(array(
+			255-$this->r,
+			255-$this->g,
+			255-$this->b));
+		return $c;
+	}
+
+	public function getComplement() {
+		$c = $this->alter_color(180, 0, 0);
+		return $c;
 	}
 
 }

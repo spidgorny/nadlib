@@ -52,6 +52,8 @@ class HTMLFormSelection extends HTMLFormType {
 			? array('size' => $this->desc['size']) : array());
 		$more += (isset($this->desc['id'])
 			? array('id' => $this->desc['id']) : array());
+
+		//debug($this->desc); exit();
 		$more += $this->desc->isObligatory()
 				? array('required' => true) : array();
 		if (isset($this->desc['more'])) {

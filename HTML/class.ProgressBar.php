@@ -99,6 +99,7 @@ class ProgressBar {
 	 */
 	function getCSS() {
 		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/'.$this->cssFile;
+		$cssFile = str_replace('.less', '.css', $less);
 		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 			Index::getInstance()->addCSS($less);
@@ -106,10 +107,12 @@ class ProgressBar {
 		} elseif (ifsetor($GLOBALS['HTMLHEADER'])) {
 			$GLOBALS['HTMLHEADER'][basename($this->cssFile)]
 				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
-		} else if (class_exists('lessc')) {
+		} elseif (class_exists('lessc')) {
 			$l = new lessc();
 			$css = $l->compileFile($less);
 			return '<style>' . $css . '</style>';
+		} elseif (file_exists($cssFile)) {
+			Index::getInstance()->addCSS($cssFile);
 		} else {
 			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do
 		}
@@ -150,11 +153,13 @@ class ProgressBar {
 	}
 
 	function setIndex($i, $always = false) {
+		static $last;
 		if ($this->count) {
 			$percent = $i / $this->count * 100;
 			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
-			if ($every < 1 || !($i % $every) || $always) {
+			if ($every < 1 || !($i % $every) || $always || (($last + $every) > $i)) {
 				$this->setProgressBarProgress($percent);
+				$last = $i;  
 			}
 		} else {
 			throw new InvalidArgumentException(__CLASS__.'->count is not set');
@@ -188,7 +193,9 @@ class ProgressBar {
 		$prefix = Request::getInstance()->getLocation() . $prefix;
 		return '<img src="'.$prefix.'bar.php?rating='.round($p).$append.'"
 		style="vertical-align: middle;"
-		title="'.number_format($p, 2).'%" />';
+		title="'.number_format($p, 2).'%"
+		width="100"
+		height="15" />';
 	}
 
 	static function getBar($p, $append = '') {

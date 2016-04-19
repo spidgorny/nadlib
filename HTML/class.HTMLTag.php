@@ -4,7 +4,7 @@
  * General HTML Tag representation.
  */
 
-class HTMLTag {
+class HTMLTag implements ArrayAccess {
 	public $tag;
 	public $attr = array();
 	public $content;
@@ -19,20 +19,30 @@ class HTMLTag {
 	}
 
 	function __toString() {
-		return $this->render();
+		try {
+			return $this->render();
+		} catch (Exception $e) {
+			debug_pre_print_backtrace();
+			die($e->getMessage());
+		}
 	}
 
 	function render() {
+		if (is_array($this->content) || $this->content instanceof MergedContent) {
+			$content = MergedContent::mergeStringArrayRecursive($this->content);
+		} else {
+			$content = ($this->isHTML
+				|| $this->content instanceof HTMLTag
+				|| $this->content instanceof htmlString)
+				? $this->content
+				: htmlspecialchars($this->content, ENT_QUOTES);
+		}
+		$attribs = $this->renderAttr($this->attr);
 		$xmlClose = $this->closingTag ? '' : '/';
-		$content = ($this->isHTML
-			|| $this->content instanceof HTMLTag
-			|| $this->content instanceof htmlString)
-			? $this->content
-			: htmlspecialchars($this->content, ENT_QUOTES);
-		$tag = '<'.trim($this->tag.' '.$this->renderAttr($this->attr)).$xmlClose.'>';
+		$tag = '<'.trim($this->tag.' '. $attribs).$xmlClose.'>';
 		$tag .= $content;
 		if ($this->closingTag) {
-			$tag .= '</' . $this->tag . '>';
+			$tag .= '</' . $this->tag . '>'."\n";
 		}
 		return $tag;
 	}
@@ -44,8 +54,12 @@ class HTMLTag {
 	static function renderAttr(array $attr) {
 		$set = array();
 		foreach ($attr as $key => $val) {
-			if (is_array($val)) {
-				$val = implode(' ', $val);	// for class="a b c"
+			if (is_array($val) && $key == 'style') {
+				$style = ArrayPlus::create($val);
+				$style = $style->getHeaders(': ');
+				$val = $style; 				   	// for style="a: b; c: d"
+			} elseif (is_array($val)) {
+				$val = implode(' ', $val);		// for class="a b c"
 			}
 			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
 		}
@@ -70,26 +84,98 @@ class HTMLTag {
 		$this->attr[$name] = $value;
 	}
 
+	function hasAttr($name) {
+		return isset($this->attr[$name]);
+	}
+
+	function getAttr($name) {
+		return ifsetor($this->attr[$name]);
+	}
+
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str
-	 * @return null|HTMLTag
+	 * @param bool   $recursive
+	 * @return HTMLTag|null
 	 */
-	static function parse($str) {
+	static function parse($str, $recursive = false) {
 		$str = trim($str);
 		if (strlen($str) && $str{0} != '<') return NULL;
-		$parts = trimExplode(' ', $str);
-		if ($parts) {
-			$tag = substr($parts[0], 1, -1);
-			$attributes = str_replace('<' . $tag . '>', '', $str);
-			$attributes = str_replace('</' . $tag . '>', '', $attributes);
-			$obj = new HTMLTag($tag);
-			$obj->attr = self::parseAttributes($attributes);
-			$obj->content = strip_tags($str);
+		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
+		//debug($matches);
+
+		$tagAndAttributes = trimExplode(' ', ifsetor($matches[1]));
+		$tag = first($tagAndAttributes);
+//		echo $tag, BR;
+		//$attributes = trimExplode(' ', $matches[1]);	// rest of the string
+		$attributes = implode(' ', array_slice($tagAndAttributes, 1));
+		$tag = substr($tag, 1);
+		if (str_endsWith($tag, '>')) {
+			$tag = substr($tag, 0, -1);
+		}
+//		echo $tag, BR;
+		$obj = new HTMLTag($tag);
+		$obj->attr = self::parseAttributes($attributes);
+		if ($recursive) {
+			// http://stackoverflow.com/a/28671566/417153
+			//$innerHTML = preg_replace('/<[^>]*>([\s\S]*)<\/[^>]*>/', '$1', $str);
+			//debug($matches, []);
+			$innerHTML = ifsetor($matches[2]);
+			if ($innerHTML) {
+				$obj->content = self::parseDOM($innerHTML);
+			}
 		} else {
-			$obj = NULL;
+			$obj->content = strip_tags($str);
 		}
 		return $obj;
+	}
+
+	static function parseDOM($html) {
+		$content = array();
+		if (is_string($html)) {
+			$doc = new DOMDocument();
+			$doc->loadHTML($html);
+			$doc = $doc->getElementsByTagName('body')->item(0);
+		} elseif ($html instanceof DOMElement) {
+			$doc = $html;
+		} else {
+			debug($html);
+			return $content;
+		}
+		/** @var DOMElement $child */
+		foreach ($doc->childNodes as $child) {
+			//echo gettype2($child), BR;
+			if ($child instanceof DOMElement) {
+				$attributes = array();
+				foreach ($child->attributes as $attribute_name => $attribute_node) {
+					/** @var  DOMNode    $attribute_node */
+					echo $attribute_name, ': ', gettype2($attribute_node), BR;
+					$attributes[$attribute_name] = $attribute_node->nodeValue;
+				}
+
+				//$hasChildNodes = $child->hasChildNodes();	// incl Text
+				$hasChildNodes = 0;
+				foreach ($child->childNodes as $node) {
+					if (!($node instanceof \DomText)) {
+						$hasChildNodes++;
+					}
+				}
+
+				if ($hasChildNodes) {
+					$content[] = new HTMLTag(
+						$child->tagName,
+						$attributes,
+						self::parseDOM($child));
+				} else {
+					$content[] = new HTMLTag(
+						$child->tagName,
+						$attributes,
+						$child->textContent
+					);
+				}
+			}
+		}
+		return $content;
 	}
 
 	/**
@@ -118,4 +204,19 @@ class HTMLTag {
 		return $attributes;
 	}
 
+	public function offsetExists($offset) {
+		return isset($this->attr[$offset]);
+	}
+
+	public function offsetGet($offset) {
+		return $this->getAttr($offset);
+	}
+
+	public function offsetSet($offset, $value) {
+		$this->setAttr($offset, $value);
+	}
+
+	public function offsetUnset($offset) {
+		unset($this->attr[$offset]);
+	}
 }

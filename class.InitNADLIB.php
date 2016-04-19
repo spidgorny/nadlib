@@ -9,7 +9,12 @@ class InitNADLIB {
 	 */
 	var $al;
 
+	var $startTime;
+
+	var $endTime;
+
 	function __construct() {
+		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/class.AutoLoad.php';
 		require_once dirname(__FILE__) . '/HTTP/class.Request.php';
 		if (!defined('BR')) {
@@ -27,10 +32,15 @@ class InitNADLIB {
 
 		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
-			define('DEVELOPMENT', Request::isCLI()
-				? (Request::isWindows() || (isset($_COOKIE['debug']) && $_COOKIE['debug']))
-				: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
-			);
+			if (Request::isCLI()) {
+				define('DEVELOPMENT',
+					 Request::isWindows()
+					 || ifsetor($_COOKIE['debug'])
+				 );
+				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
+			} else {
+				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
+			}
 		}
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
@@ -87,7 +97,7 @@ border-radius: 5px;">');
 		}
 
 		if (DEVELOPMENT) {
-			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
+			TaylorProfiler::getInstance(!ifsetor($_REQUEST['fast']));	// usually true
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config', false) && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
@@ -111,9 +121,20 @@ border-radius: 5px;">');
 		Request::removeCookiesFromRequest();
 
 		// in DCI for example, we don't use composer (yet!?)
-		if (file_exists('vendor/autoload.php')) {
-			require_once 'vendor/autoload.php';
+		$vendor_autoload_php = 'vendor/autoload.php';
+		$vendor_autoload_php = realpath($vendor_autoload_php);
+		// nadlib/vendor has files loaded from composer.json
+		$standaloneNadlib = str_contains($vendor_autoload_php, 'nadlib\vendor');
+		//echo 'SN: ', $standaloneNadlib, BR;
+		//echo $vendor_autoload_php, ': ', file_exists($vendor_autoload_php), BR;
+		if (!$standaloneNadlib
+			&& file_exists($vendor_autoload_php)) {
+			//echo $vendor_autoload_php, BR;
+			/** @noinspection PhpIncludeInspection */
+			require_once $vendor_autoload_php;
 		}
+
+		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
 	function initWhoops() {

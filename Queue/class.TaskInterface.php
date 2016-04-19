@@ -8,5 +8,14 @@
  */
 
 interface TaskInterface {
+
+	/**
+	 * Based on the $data it's doing something.
+	 * Return value is only displayed on the command live.
+	 * To indicate a failure - throw Exception
+	 * @param array $data
+	 * @return boolean - success or not?
+	 */
 	public function process(array $data);
+
 }

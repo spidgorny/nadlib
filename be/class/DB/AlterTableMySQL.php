@@ -1,6 +1,6 @@
 <?php
 
-class AlterTableMySQL extends AlterTableHandler {
+class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface {
 
 	/**
 	 * @param $table
@@ -32,8 +32,14 @@ class AlterTableMySQL extends AlterTableHandler {
 			' '.implode(' ', $index->extra));
 	}
 
+	/**
+	 * @param string $table
+	 * @param string $oldName
+	 * @param TableField $index
+	 * @return string
+	 */
 	function getAlterQuery($table, $oldName, TableField $index) {
-		$query = 'ALTER TABLE '.$table.' MODIFY COLUMN '.$oldName.' '.$index->field.
+		$query = 'ALTER TABLE '.$table.' CHANGE '.$oldName.' '.$index->field.
 			' '.$index->type.
 			' '.(($index->isNull == 'NO') ? 'NOT NULL' : 'NULL').
 			' '.($index->collation ? 'COLLATE '.$index->collation : '').
@@ -45,7 +51,8 @@ class AlterTableMySQL extends AlterTableHandler {
 
 	function getAddQuery($table, TableField $index) {
 		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index->field.
-			' '.$index->type.$this->getFieldParams($index);
+			' '.$index->type.
+				$this->getFieldParams($index);
 		return $query;
 	}
 

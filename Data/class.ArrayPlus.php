@@ -349,10 +349,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	/**
 	 * Enters array key as ['__key__']
+	 * @param string $keyColumnName
+	 * @return $this
 	 */
-	function insertKeyAsColumn() {
+	function insertKeyAsColumn($keyColumnName = '__key__') {
 		foreach ($this->getData() as $key => $_) {
-			$this[$key]['__key__'] = $key;
+			$this[$key][$keyColumnName] = $key;
 		}
 		return $this;
 	}
@@ -582,12 +584,12 @@ class ArrayPlus extends ArrayObject implements Countable {
     }
 
 	/**
-	 * @param $ar2
+	 * @param array $ar2
 	 * @return static
 	 */
 	function merge_recursive_overwrite($ar2) {
 		foreach ($ar2 as $key2 => $val2) {
-			if (isset($this[$key2])) {
+			if (isset($this[$key2]) && is_array($this[$key2])) {
 				$tmp = AP($this[$key2]);
 				$tmp->merge_recursive_overwrite($val2);
 				$this[$key2] = $tmp->getData();
@@ -655,7 +657,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * http://php.net/manual/en/function.array-splice.php#111204
 	 * @param $input
@@ -763,9 +765,61 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return in_array($string, $this->getData());
 	}
 
+	public function makeTable($newKey) {
+		$copy = array();
+		foreach ($this->getData() as $key => $row) {
+			if (is_array($row)) {
+				$copy[$key] = $row;
+			} else {
+				$copy[$key] = array(
+					$newKey => $row,
+				);
+			}
+		}
+		$this->setData($copy);
+		return $this;
+	}
+
+	function sortByValue() {
+		$data = $this->getData();
+		asort($data);
+		$this->setData($data);
+		return $this;
+	}
+
+	function sortByKey() {
+		$data = $this->getData();
+		ksort($data);
+		$this->setData($data);
+		return $this;
+	}
+
+	function reverse() {
+		$this->setData(array_reverse($this->getData()));
+		return $this;
+	}
+
+	function getSlice($from = 0, $length = NULL) {
+		return array_slice($this->getData(), $from, $length, TRUE);
+	}
+
+	function addColumn($columnName, $callback) {
+		$copy = $this->getData();
+		foreach ($copy as $i => $row) {
+			$this[$i][$columnName] = call_user_func($callback, $row, $i);
+		}
+		return $this;
+	}
+
 }
 
-function AP(array $a = array()) {
-	return ArrayPlus::create($a);
+function AP($a = array()) {
+	if ($a instanceof ArrayPlus) {
+		return $a;
+	} elseif (is_array($a)) {
+		return ArrayPlus::create($a);
+	} else {
+		throw new InvalidArgumentException(__METHOD__.' accepts array');
+	}
 }
 

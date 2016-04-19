@@ -4,8 +4,11 @@
  * @property  table
  * @property  thead
  * @property  tbody
+ * @property  tfoot
  */
 class HTMLTableBuf extends MergedContent {
+
+	var $curPart = 'tbody';
 
 	function __construct() {
 		parent::__construct(array(
@@ -56,11 +59,11 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function td($more = "") {
-		$this->addSub('tbody', "<td".rtrim(' '.$more).">");
+		$this->addSub($this->curPart, "<td".rtrim(' '.$more).">");
 	}
 
 	function tde() {
-		$this->addSub('tbody', "</td>\n");
+		$this->addSub($this->curPart, "</td>\n");
 	}
 
 	function addTHead($text) {
@@ -68,7 +71,7 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function text($text) {
-		$this->addSub('tbody', $text);
+		$this->addSub($this->curPart, $text);
 	}
 
 	function tfoot($text) {
@@ -88,15 +91,19 @@ class HTMLTableBuf extends MergedContent {
 	 */
 	function thes(array $aCaption, $thmore = array(), $trmore = '') {
 		$this->htr($trmore);
-		foreach($aCaption as $i => $caption) {
-			if (is_string($thmore[$i])) {
-				debug($i, $thmore[$i]);
+		foreach ($aCaption as $i => $caption) {
+			if ($caption instanceof HTMLTag) {
+				$this->thead[] .= $caption;
+			} else {
+				if (is_string($thmore[$i])) {
+					debug($i, $thmore[$i]);
+				}
+				$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
+				if (is_array($more)) {
+					$more = HTMLTag::renderAttr($more);
+				}
+				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>';
 			}
-			$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
-			if (is_array($more)) {
-				$more = HTMLTag::renderAttr($more);
-			}
-			$this->thead[] .= '<th' . rtrim(' '.$more). '>' . $caption . '</th>';
 		}
 		$this->htre();
 		//debug($this);
@@ -107,7 +114,7 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function tag(HTMLTag $tag) {
-		$this->addSub('tbody', $tag.'');
+		$this->addSub($this->curPart, $tag.'');
 	}
 
 	function isDone() {

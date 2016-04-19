@@ -1,6 +1,6 @@
 <?php
 
-function __($a, $sub1, $sub2, $sub3) {
+function __($a, $sub1 = NULL, $sub2 = NULL, $sub3 = NULL) {
 	$a = str_replace('%1', $sub1, $a);
 	$a = str_replace('%2', $sub2, $a);
 	$a = str_replace('%3', $sub3, $a);
@@ -32,7 +32,7 @@ class NadlibIndex {
 		$this->dic = new DIContainer();
 		$this->dic->index = function ($c) {
 			require_once 'be/class/class.IndexBE.php';
-			$indexBE = IndexBE::getInstance();
+			$indexBE = IndexBE::getInstance(true);
 			return $indexBE;
 		};
 		$this->dic->debug = function ($c) {
@@ -49,8 +49,9 @@ class NadlibIndex {
 			require_once 'be/class/class.ConfigBE.php';
 			class_alias('ConfigBE', 'Config');
 		}
-		if (!class_exists('AppController')) {
-			class_alias('AppControllerBE', 'AppController');
+		if (!class_exists('AppController', false)) {
+			class_alias('Controller', 'AppController');
+			class_alias('AppController', 'AppControllerME');
 		}
 		if (!class_exists('Index')) {
 			class_alias('IndexBE', 'Index');
@@ -71,10 +72,10 @@ class NadlibIndex {
 			//echo ($this->dic->autoload->nadlibFromCWD);
 			//$this->dic->autoload->nadlibFromCWD = '../'.$this->dic->autoload->nadlibFromCWD;
 			//echo ($this->dic->autoload->nadlibFromCWD);
+
 			$i = $this->dic->index;
 			/** @var $i IndexBE */
 			//echo get_class($i), BR, class_exists('Index'), BR, get_class(Index::getInstance());
-			$i->initController();
 			$content[] = $i->render();
 		}
 		$content = $this->s($content);

@@ -31,11 +31,19 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	protected $dataSeek = NULL;
 
-	function __construct($user = NULL, $password = NULL, $scheme = NULL, $driver = NULL, $host = NULL, $db = NULL, $port = 3306) {
+	function __construct($user = NULL, $password = NULL,
+						 $scheme = NULL, $driver = NULL,
+						 $host = NULL, $db = NULL,
+						 $port = 3306) {
 		if ($user) {
-			$this->connect($user, $password, $scheme, $driver, $host, $db, $port);
+			$this->connect($user, $password,
+				$scheme, $driver,
+				$host, $db, $port);
 		}
 
+		if (DEVELOPMENT) {
+			$this->queryLog = new QueryLog();
+		}
 		//$this->setQB(); // must be injected outside (inf loop)
 //		debug_pre_print_backtrace();
 	}
@@ -87,7 +95,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
 		$this->dsn = $dsn;
-		$this->connection = new PDO($this->dsn, $user, $password);
+		$this->connection = new PDO($this->dsn, $user, $password, array(
+			PDO::ATTR_PERSISTENT => false,
+			PDO::ATTR_ERRMODE    => PDO::ERRMODE_EXCEPTION
+		));
 		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
 
@@ -96,13 +107,17 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query, array $params = array()) {
+		//debug($params);
 		$this->lastQuery = $query;
+		
+		$driver_options = [];
 		if ($this->getScheme() == 'mysql') {
-			$params[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
+			$driver_options[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
+		
 		$profiler = new Profiler();
 		try {
-			$this->lastResult = $this->connection->prepare($query, $params);
+			$this->lastResult = $this->connection->prepare($query, $driver_options);
 		} catch (PDOException $e) {
 			debug($query, $params, $e->getMessage());
 			throw $e;
@@ -117,10 +132,14 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			try {
 				$ok = $this->lastResult->execute($params);
 			} catch (PDOException $e) {
-				//debug($query, $params, $e->getMessage());
+				debug($query, $params, $e->getMessage());
 				throw $e;
 			}
 			$this->queryTime += $profiler->elapsed();
+			if (!is_null($this->queryLog)) {
+				$diffTime = $profiler->elapsed();
+				$this->queryLog->log($query, $diffTime, $this->lastResult->rowCount());
+			}
 			if (!$ok) {
 				debug(array(
 					'class' => get_class($this),
@@ -186,18 +205,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $scheme;
 	}
 
-	function isMySQL() {
-		return $this->getScheme() == 'mysql';
-	}
-
-	function isPostgres() {
-		return $this->getScheme() == 'psql';
-	}
-
-	function isSQLite() {
-		return $this->getScheme() == 'sqlite';
-	}
-
 	function getTables() {
 		$tables = $this->getTablesEx();
 		$names = array_keys($tables);
@@ -213,7 +220,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function getTablesEx() {
 		$tables = array();
 		$scheme = $this->getScheme();
-		if ($scheme == 'mysql') {
+		if ($this->isMySQL()) {
 			$res = $this->perform('show tables');
 			$tables = $res->fetchAll();
 			$tables = ArrayPlus::create($tables)->column('0')->getData(); // "Tables_is_DBname"
@@ -236,6 +243,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			} catch (Exception $e) {
 				throw $e;
 			}
+		} else {
+			throw new InvalidArgumentException(__METHOD__);
 		}
 		return $tables;
 	}
@@ -252,7 +261,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return '`'.$key.'`';
+		if ($key[0] != '`') {
+			return '`' . $key . '`';
+		} else {
+			return $key;
+		}
 	}
 
 	function escapeBool($value) {
@@ -286,6 +299,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function getTableColumnsEx($table) {
 		switch ($this->getScheme()) {
 			case 'mysql':
+			case 'mysqli':
 				$this->perform('show columns from '.$this->quoteKey($table));
 				$tableInfo = $this->fetchAll($this->lastResult, 'Field');
 				break;
@@ -299,6 +313,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 				}
 				//debug($tableInfo);
 				break;
+			default:
+				throw new InvalidArgumentException(__METHOD__);
 		}
 		return $tableInfo;
 	}
@@ -387,6 +403,26 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function getIndexesFrom($table) {
 		return array();
+	}
+
+	/**
+	 * @return PDO
+	 */
+	function getConnection() {
+		return $this->connection;
+	}
+
+	function setQB(SQLBuilder $qb = NULL) {
+		parent::setQB($qb);
+	}
+
+	public function getQb() {
+		if(!isset($this->qb)) {
+			$db = Config::getInstance()->getDB();
+			$this->setQB(new SQLBuilder($db));
+		}
+
+		return $this->qb;
 	}
 
 }

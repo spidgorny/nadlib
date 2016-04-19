@@ -42,7 +42,7 @@ class dbLayerBase implements DBInterface {
 	 * set to NULL for disabling
 	 * @var QueryLog
 	 */
-	public $queryLog;
+	protected $queryLog;
 
 	/**
 	 * @var bool Allows logging every query to the error.log.
@@ -195,6 +195,24 @@ class dbLayerBase implements DBInterface {
 
 	function getTableColumns($table) {
 
+	}
+
+	function getQueryLog() {
+		return $this->queryLog;
+	}
+
+	function isMySQL() {
+		return in_array(
+			$this->getScheme(),
+			['mysql', 'mysqli']);
+	}
+
+	function isPostgres() {
+		return $this->getScheme() == 'psql';
+	}
+
+	function isSQLite() {
+		return $this->getScheme() == 'sqlite';
 	}
 
 }
