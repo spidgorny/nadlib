@@ -204,7 +204,7 @@ class dbLayerBase implements DBInterface {
 	function isMySQL() {
 		return in_array(
 			$this->getScheme(),
-			['mysql', 'mysqli']);
+			array('mysql', 'mysqli'));
 	}
 
 	function isPostgres() {

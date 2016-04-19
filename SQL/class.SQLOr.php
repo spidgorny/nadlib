@@ -48,7 +48,7 @@ class SQLOr extends SQLWherePart {
 
 	function bijouStyle() {
 		// bijou
-		$ors = [];
+		$ors = array();
 		foreach ($this->or as $key => $or) {
 			if (is_main($key)) {
 				$ors[] = $this->db->getWherePart(array(
