@@ -262,8 +262,9 @@ class Collection implements IteratorAggregate {
 
 		if (str_contains($query, 'valid_from--')) {
 			$params = $query->getParameters();
-			Debug::getInstance()->debugWithHTML([
-				$query, $query.'', $params]);
+			Debug::getInstance()->debugWithHTML(array(
+				$query, $query.'', $params
+			));
 			die;
 		}
 		$params = $query->getParameters();

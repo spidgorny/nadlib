@@ -128,7 +128,7 @@ class AutoLoad {
 					echo 'AutoLoad, debug mode', BR;
 					$this->debug = true;
 					$this->folders->debug = true;
-					$this->folders->collectDebug = [];
+					$this->folders->collectDebug = array();
 				}
 			}
 		}

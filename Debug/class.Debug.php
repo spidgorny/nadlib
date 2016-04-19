@@ -115,7 +115,7 @@ class Debug {
 
 	function debugWithFirebug($params, $title = '') {
 		$content = '';
-		$params = is_array($params) ? $params : [$params];
+		$params = is_array($params) ? $params : array($params);
 		//debug_pre_print_backtrace();
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
