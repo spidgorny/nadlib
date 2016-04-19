@@ -1,7 +1,7 @@
 {
   "title": "Debug Cookie",
   "name": "debugcookie",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Button which toggles debug=1/0 cookie on the current domain when clicked",
   "main": "index.js",
   "author": "Slawa",
