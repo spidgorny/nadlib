@@ -36,7 +36,9 @@ abstract class UserBase extends FlexiTable {
 		//debug($this->db);
 		//debug($this->id);
 		if ($this->db && $this->db->isConnected() && $this->id && $this->prefs) {
-			$this->update(array('prefs' => serialize($this->prefs)));
+
+			// this is just an example - move it to the app class
+			//$this->update(array('prefs' => serialize($this->prefs)));
 		}
 	}
 
@@ -100,6 +102,10 @@ abstract class UserBase extends FlexiTable {
 
 	function getPref($key) {
 		return ifsetor($this->prefs[$key]);
+	}
+	
+	function getAllPrefs() {
+		return $this->prefs;
 	}
 
 	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {

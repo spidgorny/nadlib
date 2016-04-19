@@ -109,6 +109,8 @@ abstract class Controller {
 			//debug($this->user);
 			$this->config->mergeConfig($this);
 		} else {
+			/** @var Config config */
+			$this->config = NULL;
 			//$this->user = new UserBase();
 		}
 		$this->linkVars['c'] = get_class($this);
@@ -367,24 +369,7 @@ abstract class Controller {
 					$assoc = array_slice($_SERVER['argv'], 3);
 					$content = call_user_func_array(array($proxy, $method), $assoc);
 				} else {
-					$r = new ReflectionMethod($proxy, $method);
-					if ($r->getNumberOfParameters()) {
-						$assoc = array();
-						foreach ($r->getParameters() as $param) {
-							$name = $param->getName();
-							if ($this->request->is_set($name)) {
-								$assoc[$name] = $this->request->getTrim($name);
-							} elseif ($param->isDefaultValueAvailable()) {
-								$assoc[$name] = $param->getDefaultValue();
-							} else {
-								$assoc[$name] = NULL;
-							}
-						}
-						//debug($assoc);
-						$content = call_user_func_array(array($proxy, $method), $assoc);
-					} else {
-						$content = $proxy->$method();
-					}
+					$content = $this->callMethodByReflection($proxy, $method);
 				}
 			} else {
 				// other classes except main controller may result in multiple messages
@@ -728,6 +713,38 @@ abstract class Controller {
 		$obj = new $className();
 		$title = $obj->title;
 		return $this->a($className, $title);
+	}
+
+	/**
+	 * @param $proxy
+	 * @param $method
+	 * @return mixed
+	 */
+	private function callMethodByReflection($proxy, $method) {
+		$r = new ReflectionMethod($proxy, $method);
+		if ($r->getNumberOfParameters()) {
+			$assoc = array();
+			foreach ($r->getParameters() as $param) {
+				$name = $param->getName();
+				if ($this->request->is_set($name)) {
+					if ($param->isArray()) {
+						$assoc[$name] = $this->request->getArray($name);
+					} else {
+						$assoc[$name] = $this->request->getTrim($name);
+					}
+				} elseif ($param->isDefaultValueAvailable()) {
+					$assoc[$name] = $param->getDefaultValue();
+				} else {
+					$assoc[$name] = NULL;
+				}
+			}
+			//debug($assoc);
+			$content = call_user_func_array(array($proxy, $method), $assoc);
+			return $content;
+		} else {
+			$content = $proxy->$method();
+			return $content;
+		}
 	}
 
 }

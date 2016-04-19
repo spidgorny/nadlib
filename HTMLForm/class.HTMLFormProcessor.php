@@ -127,7 +127,7 @@ abstract class HTMLFormProcessor extends AppController {
 				$content .= '<div class="error alert alert-error ui-state-error padding">'.
 					__('The form is not complete. Please check the comments next to each field below.').'</div>';
 			}
-			$content .= $this->showForm();
+			$content .= $this->s($this->showForm());
 		}
 		$content = $this->encloseInAA($content, $this->title);
 		TaylorProfiler::stop(__METHOD__);
