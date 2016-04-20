@@ -565,7 +565,16 @@ abstract class OODBase {
 	}
 
 	function getObjectInfo() {
-		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' #'.spl_object_hash($this).')';
+		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' '.$this->getHash().')';
+	}
+	
+	function getHash($length = null) {
+		$hash = spl_object_hash($this);
+		if ($length) {
+			$hash = sha1($hash);
+			$hash = substr($hash, 0, $length);
+		}
+		return '#'.$hash;
 	}
 
 	/**
