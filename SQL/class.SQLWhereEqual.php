@@ -35,7 +35,7 @@ class SQLWhereEqual extends SQLWherePart {
 	}
 
 	function getWhereItem($key, $val) {
-		$set = [];
+		$set = array();
 		$key = $this->db->quoteKey(trim($key));
 //		debug($key);
 		if (false) {

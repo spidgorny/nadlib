@@ -24,7 +24,7 @@ class SQLBuilder {
 	public $found;
 
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayer|dbLayerBase|dbLayerPG
 	 */
 	public $db;
 

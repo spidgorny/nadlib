@@ -117,13 +117,19 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				pg_prepare($this->connection, '', $query);
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
+				if (!is_resource($this->connection)) {
+					debug_pre_print_backtrace();
+					debug($this->connection);
+					die();
+				}
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
 			$e = new DatabaseException(
 				'['.$e->getCode().'] '.$e->getMessage().BR.
-				pg_errormessage($this->connection).BR.
+				//pg_errormessage($this->connection).BR.
+				pg_result_error($this->LAST_PERFORM_RESULT).BR.
 				$query, $e->getCode());
 			$e->setQuery($query);
 			throw $e;
@@ -364,8 +370,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		foreach ($data as &$row) {
 			if (contains($row['column_default'], 'nextval')) {
 				$parts = trimExplode("'", $row['column_default']);
-				$row['sequence'] = $parts[1];
-				$row['sequence'] = str_replace('"', '', $row['sequence']);  // can be quoted
+				if (sizeof($parts) >= 2) {
+					$row['sequence'] = $parts[1];
+					$row['sequence'] = str_replace('"', '', $row['sequence']);  // can be quoted
+				}
 			}
 		}
 		return ArrayPlus::create($data)->IDalize('column_name')->getData();
