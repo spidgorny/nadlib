@@ -63,13 +63,10 @@ class View extends stdClass {
 			$config->config[__CLASS__]['folder'],
 			$this->folder,
 			$this->file);*/
-		if ($copyObject) {
+		if (is_object($copyObject)) {
 			$this->caller = $copyObject;
-			/*$vars = get_object_vars($copyObject);
-			if ($vars) foreach ($vars as $prop => $val) {
-				$this->$prop = $val;
-			}
-			*/
+		} elseif (is_array($copyObject)) {
+			$this->caller = (object)$copyObject;
 		}
 		$this->ll = (class_exists('Config') && Config::getInstance()->getLL())
 			? Config::getInstance()->getLL() : NULL;
