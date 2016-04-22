@@ -44,7 +44,9 @@ class InitNADLIB {
 		}
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
-		mb_internal_encoding ( 'UTF-8' );
+		if (function_exists('mb_internal_encoding')) {
+			mb_internal_encoding('UTF-8');
+		}
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {

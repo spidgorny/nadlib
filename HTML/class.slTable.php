@@ -1,5 +1,11 @@
 <?php
 
+if (!function_exists('mb_strlen')) {
+	function mb_strlen($a) {
+		return strlen($a);
+	}
+}
+
 /**
  * Class slTable - renders the whole table array into HTML.
  * Has powerful configuration options.
