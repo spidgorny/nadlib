@@ -123,14 +123,16 @@ class KDCalendar {
 			//$weekend = ($weekday == 5 || $weekday == 6) ? 'class="weekend"' : '';
 			$weekend = '';
 			if (isset($this->days[$day]) and is_array($this->days[$day])) {
-				@list($link, $classes, $content) = $this->days[$day];
+				@list($link, $classes, $content, $linkClass) = $this->days[$day];
 				if (is_null($content)) $content = $day;
 				$calendar .= '<td' .
 					($classes
 						? ' class="' . htmlspecialchars($classes) . '"'
 						: ' ' . $weekend) . '>' .
 					($link
-						? '<a href="' . htmlspecialchars($link) . '">' . $content . '</a>'
+						? '<a 
+							href="' . htmlspecialchars($link) . '" 
+							class="'.$linkClass.'">' . $content . '</a>'
 						: $content) . '</td>';
 			} else {
 				$calendar .= "<td {$weekend}>$day</td>";
