@@ -272,6 +272,7 @@ abstract class OODBase {
 
 	/**
 	 * Retrieves a record from the DB and calls $this->init()
+	 * But it's rarely called directly.
 	 * @param array $where
 	 * @param string $orderByLimit
 	 * @return bool of the found record
