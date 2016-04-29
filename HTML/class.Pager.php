@@ -1,9 +1,29 @@
 <?php
 
 class Pager {
+
+	/**
+	 * Total amount of rows in database (with WHERE)
+	 * @var int
+	 */
 	var $numberOfRecords = 0;
+
+	/**
+	 * Page size
+	 * @var int
+	 */
 	var $itemsPerPage = 20;
+
+	/**
+	 * Offset in SQL
+	 * @var int
+	 */
 	var $startingRecord = 0;
+
+	/**
+	 * Current Page (0+)
+	 * @var int
+	 */
 	var $currentPage = 0;
 
 	/**
