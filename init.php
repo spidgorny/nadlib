@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/class.InitNADLIB.php';
+require_once __DIR__.'/InitNADLIB.php';
 
 /**
  * May already be defined in TYPO3
@@ -461,7 +461,7 @@ function gettype2($something, $withHash = true) {
 		if ($withHash) {
 			$hash = md5(spl_object_hash($something));
 			$hash = substr($hash, 0, 6);
-			require_once __DIR__ . '/HTTP/class.Request.php';
+			require_once __DIR__ . '/HTTP/Request.php';
 			if (!Request::isCLI()) {
 				require_once __DIR__ . '/HTML/Color.php';
 				$color = new Color('#' . $hash);
