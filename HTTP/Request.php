@@ -957,7 +957,7 @@ class Request {
 		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
 
 		//debug_pre_print_backtrace();
-		require_once __DIR__ . '/class.Path.php'; // needed if called early
+		require_once __DIR__ . '/Path.php'; // needed if called early
 		$docRoot = new Path($docRoot);
 		return $docRoot;
 	}
