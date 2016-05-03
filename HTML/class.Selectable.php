@@ -31,9 +31,12 @@ class Selectable {
 	function __construct($selected) {
 		$this->name = get_class($this);
 		if (is_array($selected)) {
-			$this->rows[$selected['id']] = $selected;
-			$this->options[$selected['id']] = $selected['title'];
-			$this->selected = $selected['id'];
+			$id = $selected['id'];
+			if ($id) {
+				$this->rows[$id] = $selected;
+				$this->options[$id] = $selected['title'];
+				$this->selected = $id;
+			}
 		} else {
 			$this->selected = $selected;
 		}
@@ -95,4 +98,8 @@ class Selectable {
 		return $this->options[$this->selected];
 	}
 
+	function getID() {
+		return $this->selected;
+	}
+	
 }
