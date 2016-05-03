@@ -121,14 +121,30 @@ class MergedContent implements ArrayAccess {
 
 			$combinedA = new ArrayObject();
 			array_walk_recursive($render, array(__CLASS__, 'walkMergeArray'), $combinedA);
-			$combined = implode('', $combinedA->getArrayCopy());
+			$arrayOfObjects = $combinedA->getArrayCopy();
+			$sureStrings = self::stringify($arrayOfObjects);
+			$combined = implode('', $sureStrings);
 			$render = $combined;
 		} elseif (is_object($render)) {
 			//debug(get_class($render));
 			$render = $render.'';
+		} else {
+			$render = $render.'';	// just in case
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $render;
+	}
+
+	static function stringify(array $objects) {
+		foreach ($objects as &$element) {
+			$debug = '-= '.gettype2($element).' =-'.BR;
+			//echo $debug;
+			//$content .= $debug;
+			$element = is_object($element)
+				? $element.''
+				: $element;
+		}
+		return $objects;
 	}
 
 	protected static function walkMerge($value, $key, &$combined = '') {
