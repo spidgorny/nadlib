@@ -39,7 +39,9 @@ class slTable {
 	 * Appended to <table> tag
 	 * @var string
 	 */
-	var $more = 'class="nospacing"';
+	var $more = array(
+		'class' => "nospacing"
+	);
 
 	/**
 	 * @var HTMLTableBuf
@@ -110,7 +112,7 @@ class slTable {
 	 */
 	protected $db;
 
-	function __construct($id = NULL, $more="", array $thes = array()) {
+	function __construct($id = NULL, $more = "", array $thes = array()) {
 		if (is_array($id) || is_object($id)) {	// Iterator object
 			$this->data = $id;
 			$this->ID = md5(microtime());
@@ -119,7 +121,11 @@ class slTable {
 		} else {
 			$this->ID = md5(microtime());
 		}
-		$this->more = $more ? $more : $this->more;
+		$this->more = $more ? HTMLTag::parseAttributes($more) 
+			: $this->more;
+		if (isset($this->more['id'])) {
+			$this->ID = $this->more['id'];
+		}
 		$this->thes($thes);
 		$this->db = class_exists('Config', false)
 				? Config::getInstance()->getDB()
@@ -292,7 +298,9 @@ class slTable {
 				$this->isOddEven = TRUE;
 				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
 				if (!$this->more) {
-					$this->more = 'class="nospacing"';
+					$this->more = array(
+						'class' => "nospacing"
+					);
 				}
 			}
 		}
@@ -372,10 +380,7 @@ class slTable {
 		$this->generation->addTHead('<thead>');
 		//debug($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
-			$more = is_array($this->more)
-				? HTMLTag::renderAttr($this->more['thesMore'])
-				: '';
-			$this->generation->thes($thes2, $thMore, $this->thesMore . $more);
+			$this->generation->thes($thes2, $thMore, $this->thesMore);
 			// $t is not $this // sorting must be done before
 		}
 
@@ -393,7 +398,7 @@ class slTable {
 			$key = strip_tags($key);	// <col class="col_E-manual<img src="design/manual.gif">" />
 			$key = URL::getSlug($key);	// special cars and spaces
 			if ($this->isAlternatingColumns) {
-				$key .= ' '.(++$i%2?'even':'odd');
+				$key .= ' '.(++$i %2 ? 'even' : 'odd');
 			}
 			if (is_array($dummy)) {
 				$colClass = ifsetor($dummy['colClass']);
@@ -418,9 +423,9 @@ class slTable {
 			$this->sort();
 
 			$t = $this->generation;
-			$t->table('id="'.$this->ID.'" '.(is_string($this->more)
-					? $this->more
-					: $this->more['tableMore']));
+			$t->table(HTMLTag::renderAttr(array(
+				'id' => $this->ID,
+			) + HTMLTag::parseAttributes($this->more)));
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -443,7 +448,7 @@ class slTable {
 				} else {
 					// only when not manually defined
 					if ($this->isOddEven) {
-						$class[] = ($i%2?' even':' odd');
+						$class[] = $i % 2 ? 'odd' : 'even';
 					}
 				}
 					if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {

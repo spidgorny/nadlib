@@ -220,7 +220,7 @@ class Debug {
 	 */
 	static function getTraceTable(array $db) {
 		$db = self::getSimpleTrace($db);
-		require_once __DIR__.'/../Data/class.ArrayPlus.php';
+		require_once __DIR__.'/../Data/ArrayPlus.php';
 		$traceObj = ArrayPlus::create($db)->column('object')->getData();
 		if (!array_search('slTable', $traceObj) && class_exists('slTable', false)) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
