@@ -780,4 +780,12 @@ abstract class OODBase {
 		return $content;
 	}
 
+	public function getCollection(array $where, $orderBy = NULL) {
+		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
+		foreach ($data as &$row) {
+			$row = static::getInstance($row);
+		}
+		return $data;
+	}
+
 }

@@ -75,7 +75,7 @@ class AutoLoadFolders {
 	}
 
 	function getFolders() {
-		require_once __DIR__ . '/HTTP/class.Request.php';
+		require_once __DIR__ . '/HTTP/Request.php';
 		$folders = array();
 
 		$plus = $this->getFoldersFromConfig();
@@ -117,7 +117,7 @@ class AutoLoadFolders {
 			'exists(appRoot.class)' => file_exists($this->al->appRoot.'class'),
 		));
 		if (!class_exists('ConfigBase')) {
-			require_once 'class.ConfigBase.php';
+			require_once __DIR__.'/ConfigBase.php';
 		}
 		if (!class_exists('Config', false)) {
 			if ($this->debug) {
@@ -159,7 +159,7 @@ class AutoLoadFolders {
 	}
 
 	function getFoldersFromConfigBase() {
-		require_once __DIR__ . '/class.ConfigBase.php';
+		require_once __DIR__ . '/ConfigBase.php';
 		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 		// append $this->nadlibRoot before each
 		//if (basename(getcwd()) != 'be') {

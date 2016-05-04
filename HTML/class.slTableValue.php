@@ -134,7 +134,15 @@ class slTableValue {
 			case "sqldate":
 				if ($val) {
 					$val = new Date($val);
-					$out = $val->format($k['format']);	// hours will not work
+					$out = $val->format(ifsetor($k['format'], 'Y-m-d'));	// hours will not work
+				} else {
+					$out = '';
+				}
+			break;
+			case "sqldatetime":
+				if ($val) {
+					$val = new Time($val);
+					$out = $val->format(ifsetor($k['format'], 'Y-m-d H:i'));
 				} else {
 					$out = '';
 				}
