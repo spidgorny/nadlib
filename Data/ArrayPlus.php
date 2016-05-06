@@ -481,8 +481,8 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $linear;
 	}
 
-	function filter() {
-		$this->setData(array_filter((array) $this));
+	function filter($callback = NULL) {
+		$this->setData(array_filter((array) $this, $callback));
 		return $this;
 	}
 
@@ -699,7 +699,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * If we store array of objects, we can retrieve a specific property of all objects
 	 * @param $name
-	 * @return array
+	 * @return ArrayPlus
 	 */
 	function getProperty($name) {
 		$result = array();
@@ -708,7 +708,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 				$result[$i] = $object->$name;
 			}
 		}
-		return $result;
+		return new ArrayPlus($result);
 	}
 
 	function call($method) {
@@ -808,6 +808,11 @@ class ArrayPlus extends ArrayObject implements Countable {
 		foreach ($copy as $i => $row) {
 			$this[$i][$columnName] = call_user_func($callback, $row, $i);
 		}
+		return $this;
+	}
+	
+	function values() {
+		$this->setData(array_values($this->getData()));
 		return $this;
 	}
 
