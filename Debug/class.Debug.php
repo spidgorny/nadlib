@@ -376,9 +376,12 @@ class Debug {
 		if (is_object($row)) {
 			$row = get_object_vars($row);
 		}
-		pre_print_r(array_combine(array_keys($row), array_map(function ($a) {
-			return gettype2($a);
-		}, $row)));
+		if (!is_null($row)) {
+			$types = array_map(function ($a) {
+				return gettype2($a);
+			}, $row);
+			pre_print_r(array_combine(array_keys($row), $types));
+		}
 	}
 
 	/**
