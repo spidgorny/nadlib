@@ -316,9 +316,30 @@ class Request {
 		return $this;
 	}
 
+	/**
+	 * Returns item identified by $a or an alternative value
+	 * @param $a
+	 * @param $value
+	 * @return string
+	 */
 	function getCoalesce($a, $value) {
 		$a = $this->getTrim($a);
 		return $a ? $a : $value;
+	}
+
+	/**
+	 * List getCoalesce() but reacts on attempt to unset the value
+	 * @param $a		string
+	 * @param $default	string
+	 * @return string
+	 */
+	function ifsetor($a, $default) {
+		if ($this->is_set($a)) {
+			$value = $this->getTrim($a);
+			return $value;	// returns even if empty
+		} else {
+			return $default;
+		}
 	}
 
 	function getControllerString($returnDefault = true) {
