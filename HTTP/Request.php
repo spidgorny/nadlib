@@ -522,10 +522,14 @@ class Request {
 	}
 
 	function canRedirect($to) {
-		$absURL = $this->getURL();
-		$absURL->makeAbsolute();
-		//debug($absURL.'', $to.''); exit();
-		return $absURL.'' != $to.'';
+		if ($this->isGET()) {
+			$absURL = $this->getURL();
+			$absURL->makeAbsolute();
+			//debug($absURL.'', $to.''); exit();
+			return $absURL . '' != $to . '';
+		} else {
+			return true;
+		}
 	}
 
 	function redirectJS($controller, $delay = 0, $message =
@@ -680,6 +684,10 @@ class Request {
 			ifsetor($_SERVER['FAKE_HTTPS'])
 			? 'https' : 'http';
 		return $request_type;
+	}
+
+	function isGET() {
+		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') == 'GET';
 	}
 
 	function isPOST() {
