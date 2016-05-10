@@ -482,7 +482,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	function filter($callback = NULL) {
-		$this->setData(array_filter((array) $this, $callback));
+		if ($callback /*is_callable($callback)*/) {
+			$new = array_filter($this->getData(), $callback);
+		} else {
+			$new = array_filter($this->getData());
+		}
+		$this->setData($new);
 		return $this;
 	}
 
@@ -814,6 +819,17 @@ class ArrayPlus extends ArrayObject implements Countable {
 	function values() {
 		$this->setData(array_values($this->getData()));
 		return $this;
+	}
+
+	/**
+	 * @param $ap ArrayPlus|array
+	 * @return ArrayPlus
+	 */
+	function diff($ap) {
+		$new = clone($this);
+		$ap = $ap instanceof ArrayPlus ? $ap->getData() : $ap;
+		$new->setData(array_diff($new->getData(), $ap));
+		return $new;
 	}
 
 }
