@@ -169,12 +169,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	public function initController() {
 		TaylorProfiler::start(__METHOD__);
-		$slug = $this->request->getControllerString();
-		if ($slug) {
-			$this->loadController($slug);
-			$this->bodyClasses[] = get_class($this->controller);
-		} else {
-			throw new Exception404($slug);
+		if (!$this->controller) {
+			$slug = $this->request->getControllerString();
+			if ($slug) {
+				$this->loadController($slug);
+				$this->bodyClasses[] = get_class($this->controller);
+			} else {
+				throw new Exception404($slug);
+			}
 		}
 		TaylorProfiler::stop(__METHOD__);
 	}
