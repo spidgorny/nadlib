@@ -88,7 +88,11 @@ if (!function_exists('first')) {
 	 */
 	function array_to_string(array $a) {
 		foreach ($a as &$val) {
-			$val = $val.'';
+			if (is_array($val)) {
+				$val = array_to_string($val);
+			} else {
+				$val = $val . '';
+			}
 		}
 		return $a;
 	}
