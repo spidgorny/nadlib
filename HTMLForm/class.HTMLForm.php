@@ -375,6 +375,7 @@ class HTMLForm {
 	}
 
 	function image($value = NULL, $more = "", $desc = array()) {
+		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=image
 		".$this->getName('imgSubmit')."
