@@ -406,7 +406,7 @@ class AjaxLogin extends AppController {
 	}
 
 	function navbarLoginForm() {
-		return '<a href="Login" class="btn btn-primary navbar-btn">Login</a>';
+		return '<a href="'.Login::class.'" class="btn btn-primary navbar-btn">Login</a>';
 	}
 	
 	function logoutForm() {
