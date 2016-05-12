@@ -1102,4 +1102,14 @@ class Request {
 		}
 	}
 
+	public function getBase64($string) {
+		$base = $this->getTrim($string);
+		return base64_decode($base);
+	}
+
+	public function getZipped($string) {
+		$base = $this->getBase64($string);
+		return gzuncompress($base);
+	}
+
 }
