@@ -4,8 +4,9 @@ class SQLSelectQuery {
 
 	/**
 	 * @var dbLayerBase|dbLayer
+	 * @protected to hide from debug
 	 */
-	var $db;
+	protected $db;
 
 	/**
 	 * @var SQLSelect
