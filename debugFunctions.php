@@ -197,12 +197,20 @@ if (!function_exists('debug')) {
 		return $type;
 	}
 
-	function gettypes(array $something) {
-		$types = array();
-		foreach ($something as $key => $element) {
-			$types[$key] = strip_tags(gettype2($element));
+	/**
+	 * @param $something array
+	 * @return array
+	 */
+	function gettypes($something) {
+		if (is_array($something)) {
+			$types = array();
+			foreach ($something as $key => $element) {
+				$types[$key] = strip_tags(gettype2($element));
+			}
+			return $types;
+		} else {
+			return gettype2($something);
 		}
-		return $types;
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}
 

@@ -520,7 +520,9 @@ abstract class OODBase {
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = ifsetor(self::$instances[$static][$id]);
+			$inst = isset(self::$instances[$static][$id])
+				? self::$instances[$static][$id]
+				: NULL;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
