@@ -542,12 +542,14 @@ abstract class OODBase {
 				self::storeInstance($inst, $intID);	// int id
 				$inst->init($id);	// array
 			}
-		} else {
+		} elseif ($id) {
 			//debug($static, $id);
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
 			self::storeInstance($inst, $inst->id);
+		} else {
+			throw new InvalidArgumentException(__METHOD__);
 		}
 		return $inst;
 	}

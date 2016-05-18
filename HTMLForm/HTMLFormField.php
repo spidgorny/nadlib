@@ -105,7 +105,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			$this->form->text($desc['prefix']);
 		}
 		if (empty($desc['id'])) {
-			$elementID = uniqid('id_');
+			$elementID = $this->getID($this->fieldName);
 			$desc['id'] = $elementID;
 		} else {
 			$elementID = $desc['id'];
@@ -138,6 +138,18 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		}
 		$this->content = $this->form->stdout;
 		return $this->content;
+	}
+
+	function getID($from) {
+		if (is_array($from)) {
+			$elementID = 'id-'.implode('-', $from);
+		} else {
+			$elementID = 'id-'.$from;
+		}
+		if (!$elementID) {
+			$elementID = uniqid('id-');
+		}
+		return $elementID;
 	}
 
 	function getContent() {
@@ -230,7 +242,11 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			case 'submit':
 				$desc['name'] = ifsetor($desc['name'], $fieldName);
 				//debug($desc);
-				$this->form->submit($desc['value'], $desc->getArray());
+				$more = (is_array($desc->data['more'])
+						? $desc->data['more'] : array()) + [
+					'id' => $desc->data['id']
+				];
+				$this->form->submit($desc['value'], $more);
 				break;
 			case 'ajaxTreeInput':
 				//debug($this->getName($fieldName, '', TRUE));
