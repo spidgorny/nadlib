@@ -792,4 +792,14 @@ abstract class OODBase {
 		return $data;
 	}
 
+	static function tryGetInstance($id) {
+		try {
+			$obj = self::getInstance($id);
+		} catch (InvalidArgumentException $e) {
+			$class = get_called_class();
+			$obj = new $class();
+		}
+		return $obj;
+	}
+
 }
