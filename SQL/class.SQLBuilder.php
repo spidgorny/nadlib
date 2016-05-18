@@ -546,7 +546,7 @@ class SQLBuilder {
 		$query = $this->getSelectQuery($table, $where, $order,
 			'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, '.
 			$prefix.'*, '.$prefix.$this->quoteKey($idField).' AS id_field');
-		//debug('Query', $query);
+		//debug('Query', $query.''); exit();
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
