@@ -213,7 +213,7 @@ class HTMLFormTable extends HTMLForm {
 
 	function renderFormRows(array $formData, array $prefix = array()) {
 //		echo json_encode(array_keys($formData)), BR;
-		$tmp = $this->stdout;
+		$tmp = $this->stdout; 
 		$this->stdout = '';
 		foreach ($formData as $fieldName => $fieldDesc) {
 			$path = is_array($prefix) ? $prefix : ($prefix ? $prefix : NULL);
