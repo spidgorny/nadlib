@@ -517,13 +517,15 @@ abstract class OODBase {
 				// separate call to avoid infinite loop in ORS
 				$inst->init($id);
 			}
-		} else {
+		} elseif ($id) {
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
 			if ($inst->id) {
 				self::$instances[$static][$inst->id] = $inst;
 			}
+		} else {
+			throw new InvalidArgumentException(__METHOD__);
 		}
 		return $inst;
 	}
