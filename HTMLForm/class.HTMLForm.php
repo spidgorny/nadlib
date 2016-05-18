@@ -1,11 +1,17 @@
 <?php
 
 class HTMLForm {
+
 	protected $action = "";
+
 	protected $method = "POST";
+
 	protected $prefix = array();
+
 	var $stdout = "";
+
 	var $enctype = "";
+
 	var $target = "";
 
 	/**
@@ -17,6 +23,7 @@ class HTMLForm {
 	var $class = "";
 
 	protected $fieldset;
+
 	protected $fieldsetMore = array();
 
 	/**
@@ -363,6 +370,7 @@ class HTMLForm {
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		// this.form.submit() will not work
+		//debug('submit', $params);
 		$content = $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 		$this->stdout .= $content;
 		return $content;
