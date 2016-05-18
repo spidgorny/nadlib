@@ -242,7 +242,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			case 'submit':
 				$desc['name'] = ifsetor($desc['name'], $fieldName);
 				//debug($desc);
-				$more = (is_array($desc->data['more']) ?: array()) + [
+				$more = (is_array($desc->data['more'])
+						? $desc->data['more'] : array()) + [
 					'id' => $desc->data['id']
 				];
 				$this->form->submit($desc['value'], $more);

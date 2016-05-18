@@ -18,8 +18,11 @@ class Collection implements IteratorAggregate {
 	 * @var string
 	 */
 	public $table = __CLASS__;
+
 	var $idField = 'uid';
+
 	var $parentID = NULL;
+
 	protected $parentField = 'pid';
 
 	/**
