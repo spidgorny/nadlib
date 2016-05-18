@@ -516,7 +516,7 @@ class SQLBuilder {
 		$i = 0;
 		$in = false;
 		foreach ($words as $word) {
-			$word = new String($word);
+			$word = new StringPlus($word);
 			if ($word->contains('[')) {
 				++$i;
 				$in = true;
