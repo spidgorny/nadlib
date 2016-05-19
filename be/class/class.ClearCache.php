@@ -31,21 +31,8 @@ class ClearCache extends AppControllerBE {
 	}
 
 	function getFiles() {
-		$files = scandir($this->dir);
-		//debug(sizeof($files));
-		foreach ($files as $f => $file) {
-			if ($file{0} != '.') {
-				$files[$f] = array(
-					'file' => $file,
-					'filelink' => '<a href="../../../../cache/'.$file.'">'.$file.'</a>',
-					'size' => filesize($this->dir.$file),
-					'date' => filemtime($this->dir.$file),
-				);
-			} else {
-				unset($files[$f]);
-			}
-		}
-		return $files;
+		$ccs = new ClearCacheService();
+		return $ccs->getFiles($this->dir);
 	}
 
 	function sidebar() {
@@ -53,16 +40,8 @@ class ClearCache extends AppControllerBE {
 	}
 
 	function clearAction() {
-		$files = $this->getFiles();
-		foreach ($files as $file) {
-			$ext = pathinfo($this->dir.$file, PATHINFO_EXTENSION);
-			if (in_array($ext, array('', 'cache'))) {
-				unlink($this->dir.$file['file']);
-				//echo $file, "\n";
-				//echo '.';
-			}
-		}
-		//echo "\n";
+		$ccs = new ClearCacheService();
+		$ccs->clearCacheIn($this->dir);
 	}
 
 }
