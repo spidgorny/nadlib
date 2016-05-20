@@ -20,6 +20,11 @@ class LazyFetchAssoc implements ArrayAccess {
 	protected $db;
 
 	/**
+	 * @var string
+	 */
+	protected $table;
+	
+	/**
 	 * cache
 	 * @var array
 	 */

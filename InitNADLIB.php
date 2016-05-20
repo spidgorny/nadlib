@@ -24,6 +24,9 @@ class InitNADLIB {
 				define('BR', "<br />\n");
 			}
 		}
+		if (!defined('TAB')) {
+			define('TAB', "\t");
+		}
 		$this->al = AutoLoad::getInstance();
 	}
 
