@@ -267,6 +267,9 @@ class slTableValue {
 					$out = $val->format($k['type']->format);
 				}
 			break;
+			case "default":
+				$out = isset($k['text']) ? $k['text'] : 'Provide text property';
+				break;
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case "textarea":
 				$val = nl2br($val);
