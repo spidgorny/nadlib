@@ -83,6 +83,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return !!$this->connection;
 	}
 
+	function getConnection() {
+		return $this->connection;
+	}
+
 	function connect($dbse, $user, $pass, $host = "localhost") {
 		$this->database = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
@@ -103,8 +107,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$prof = new Profiler();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
+			debug($this->connection);
 			debug($query);
-			debug_pre_print_backtrace();
 		}
 
 		if ($query instanceof SQLSelectQuery) {
