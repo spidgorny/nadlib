@@ -593,17 +593,32 @@ class SQLBuilder {
 	}
 
 	/**
-	 * @var string $query
-	 * @return resource
+	 * @param string $query
+	 * @param null   $className	- if provided it will return DatabaseInstanceIterator
+	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 */
-	function getIterator($query) {
-		if ($this->db instanceof dbLayerPDO) {
+	function getIterator($query, $className = NULL) {
+		if ($className) {
+			$f = new DatabaseInstanceIterator($this->db, $className);
+			if (is_string($query)) {
+				$f->perform($query);
+			} else {
+				$f->setResult($query);
+			}
+			return $f;
+		} elseif ($this->db instanceof dbLayerPDO) {
 			$res = $this->db->perform($query);
 			return $res;
-		} else {
+		} elseif (is_string($query)) {
 			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->perform($query);
 			return $f;
+		} elseif (is_resource($query)) {
+			$f = new DatabaseResultIteratorAssoc($this->db);
+			$f->setResult($query);
+			return $f;
+		} else {
+			throw new InvalidArgumentException($query);
 		}
 	}
 

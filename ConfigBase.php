@@ -49,6 +49,8 @@ class ConfigBase {
 		'CSS',
 		'Data',
 		'DB',
+		'DB/Driver',
+		'DB/Iterator',
 		'Debug',
 		'HTML',
 		'js',
