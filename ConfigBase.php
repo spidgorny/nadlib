@@ -148,7 +148,7 @@ class ConfigBase {
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
-	 * @return static
+	 * @return Config
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {
