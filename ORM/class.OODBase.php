@@ -234,6 +234,7 @@ abstract class OODBase {
 				$where[$this->idField] = $this->id;
 			}
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
+			//debug($query); exit;
 			$this->lastQuery = $query;
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);

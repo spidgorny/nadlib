@@ -44,14 +44,6 @@ class SQLBuilder {
 		return $this->db = $this->db ?: $this->config->getDB();
 	}
 
-	function quoteKey($key) {
-		$reserved = $this->getReserved();
-		if (in_array(strtoupper($key), $reserved)) {
-			$key = $this->db->quoteKey($key);
-		}
-		return $key;
-	}
-
 	/**
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
