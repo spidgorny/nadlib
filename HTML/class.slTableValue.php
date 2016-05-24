@@ -114,7 +114,11 @@ class slTableValue {
 			break;
 			case "gmdate":
 				if ($val !== NULL) {
-					$out = gmdate($k['format'] ?: 'Y-m-d', $val);
+					if (is_numeric($val)) {
+						$out = gmdate($k['format'] ?: 'Y-m-d', $val);
+					} else {
+						debug($col, 'is not long', $row);
+					}
 				} else {
 					$out = '';
 				}
