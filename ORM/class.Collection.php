@@ -153,7 +153,9 @@ class Collection implements IteratorAggregate {
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select
-			?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
+			// DISTINCT is 100 times slower, add it manualy if needed
+			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
+			?: $this->db->getFirstWord($this->table).'.*';
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
