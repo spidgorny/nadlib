@@ -253,7 +253,7 @@ abstract class OODBase {
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
-			throw new Exception(__('Updating '.$this->table.' is not possible as there is no ID defined.'));
+			throw new Exception(__('Updating ['.$this->table.'] is not possible as there is no ID defined. idField: '.$this->idField));
 		}
 		return $res;
 	}
