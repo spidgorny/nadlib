@@ -441,22 +441,6 @@ class Pager {
 		return $pages;
 	}
 
-	/**
-	 * Converts the dbEdit init query into count(*) query by getCountQuery() method and runs it. Old style.
-	 *
-	 * @param dbEdit $dbEdit
-	 * @return int
-	 */
-	function getCountedRows($dbEdit) {
-		global $dbLayer;
-		$queryCount = $dbEdit->getCountQuery();
-		$res = $dbLayer->perform($queryCount);
-		$row = pg_fetch_array($res);
-		//debug($row, $queryCount);
-		list($countedRows) = $row;
-		return $countedRows;
-	}
-
 	function __toString() {
 		$properties = get_object_vars($this);
 		unset($properties['graphics']);
