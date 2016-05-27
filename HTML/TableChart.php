@@ -1,15 +1,29 @@
 <?php
 
+/**
+ * Class TableChart - renders an HTML table with cell heights corresponding to data in %
+ */
 class TableChart {
 
 	var $rows;
 	var $y;
 	var $x;
 
+	/**
+	 * @var HTML
+	 */
+	var $html;
+
+	/**
+	 * @var callable
+	 */
+	var $linkGenerator;
+
 	function __construct(array $rows, $y, $x = NULL) {
 		$this->rows = $rows;
 		$this->y = $y;
 		$this->x = $x;
+		$this->html = new HTML();
 	}
 
 	function render() {
@@ -21,8 +35,12 @@ class TableChart {
 		$content = [];
 		foreach ($this->rows as $row) {
 			$h = number_format($row[$this->y]/$max*300, 2);
+			$div = '<div style="background: lightblue; height: '.$h.'px"></div>';
+			if ($this->linkGenerator) {
+				$div = call_user_func($this->linkGenerator, $row, $h, $div);
+			}
 			$content[] = '<td style="border: solid 1px silver; vertical-align: bottom">
-				<div style="background: lightblue; height: '.$h.'px"></div>
+				'.$div.'
 			</td>';
 		}
 		$content = [
@@ -31,6 +49,10 @@ class TableChart {
 			'</table>',
 		];
 		return $content;
+	}
+
+	function __toString() {
+		return $this->html->s($this->render());
 	}
 
 }
