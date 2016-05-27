@@ -122,7 +122,7 @@ class slTable {
 		$this->more = $more ? $more : $this->more;
 		$this->thes($thes);
 		$this->db = class_exists('Config', false)
-				? Config::getInstance()->getDB()
+				? Config::getInstance()->db ? Config::getInstance()->getDB() : NULL
 				: NULL;
 		if (!file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
