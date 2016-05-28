@@ -95,7 +95,7 @@ class Debug {
 	}
 
 	function canFirebug() {
-		$can = class_exists('FirePHP')
+		$can = class_exists('FirePHP', false)
 			&& !Request::isCLI()
 			&& !headers_sent()
 			&& ifsetor($_COOKIE['debug']);
