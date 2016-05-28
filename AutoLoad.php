@@ -326,7 +326,7 @@ class AutoLoad {
 				$this->useCookies = false;				// prevent __destruct saving data to the session
 			}
 			//debug($this->folders);
-			if (false && class_exists('Config')) {
+			if (class_exists('Config')) {
 				$config = Config::getInstance();
 				$notFoundException = $config->config['autoload']['notFoundException'];
 			} else {
@@ -335,6 +335,7 @@ class AutoLoad {
 
 			if ($notFoundException) {
 				if ($tp) $tp->stop(__METHOD__);
+				debug($this->folders->folders); 
 				throw new Exception('Class '.$class.' ('.$file.') not found.'.BR);
 			} else {
 				//debug_pre_print_backtrace();
