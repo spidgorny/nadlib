@@ -1022,4 +1022,13 @@ class Collection implements IteratorAggregate {
 		return in_array($id, $this->getIDs());
 	}
 
+	function containsName($name) {
+		foreach ($this->getData() as $row) {
+			if ($row[$this->titleColumn] == $name) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
