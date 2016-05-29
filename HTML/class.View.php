@@ -223,7 +223,8 @@ class View extends stdClass {
 		$method = array($this->caller, $func);
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			//$method = array($this->caller, end(explode('::', $func)));
-			throw new Exception('View: Method '.$func.' ('.implode(', ', $method).') doesn\'t exists.');
+			$methodName = get_class($this->caller).'::'.$func;
+			throw new Exception('View: Method '.$func.' ('.$methodName.') doesn\'t exists.');
 		}
 		return call_user_func_array($method, $args);
 	}
