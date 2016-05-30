@@ -83,6 +83,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return !!$this->connection;
 	}
 
+	function getConnection() {
+		return $this->connection;
+	}
+
 	function connect($dbse, $user, $pass, $host = "localhost") {
 		$this->database = $dbse;
 		$string = "host=$host dbname=$dbse user=$user password=$pass";
@@ -103,8 +107,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$prof = new Profiler();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
+			debug($this->connection);
 			debug($query);
-			debug_pre_print_backtrace();
 		}
 
 		if ($query instanceof SQLSelectQuery) {
@@ -126,10 +130,13 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			}
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
+			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
+				? pg_result_error($this->LAST_PERFORM_RESULT)
+				: '';
 			$e = new DatabaseException(
 				'['.$e->getCode().'] '.$e->getMessage().BR.
 				//pg_errormessage($this->connection).BR.
-				pg_result_error($this->LAST_PERFORM_RESULT).BR.
+				'Error'.$errorMessage.BR.
 				$query, $e->getCode());
 			$e->setQuery($query);
 			throw $e;

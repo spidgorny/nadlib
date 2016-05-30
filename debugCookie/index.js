@@ -144,5 +144,5 @@ function setDebug(value) {
 }
 
 main();
-tabs.open('http://google.de/');
+//tabs.open('http://google.de/');
 //setDebug(1);

@@ -20,8 +20,11 @@ class Collection implements IteratorAggregate {
 	 * @var string
 	 */
 	public $table = __CLASS__;
+
 	var $idField = 'uid';
+
 	var $parentID = NULL;
+
 	protected $parentField = 'pid';
 
 	/**
@@ -150,7 +153,9 @@ class Collection implements IteratorAggregate {
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
 		$this->select = $this->select
-			?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
+			// DISTINCT is 100 times slower, add it manualy if needed
+			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
+			?: $this->db->getFirstWord($this->table).'.*';
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
@@ -1015,6 +1020,15 @@ class Collection implements IteratorAggregate {
 
 	function containsID($id) {
 		return in_array($id, $this->getIDs());
+	}
+
+	function containsName($name) {
+		foreach ($this->getData() as $row) {
+			if ($row[$this->titleColumn] == $name) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

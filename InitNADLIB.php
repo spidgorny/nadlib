@@ -15,14 +15,17 @@ class InitNADLIB {
 
 	function __construct() {
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
-		require_once dirname(__FILE__) . '/class.AutoLoad.php';
-		require_once dirname(__FILE__) . '/HTTP/class.Request.php';
+		require_once dirname(__FILE__) . '/AutoLoad.php';
+		require_once dirname(__FILE__) . '/HTTP/Request.php';
 		if (!defined('BR')) {
 			if (Request::isCLI()) {
 				define('BR', "\n");
 			} else {
 				define('BR', "<br />\n");
 			}
+		}
+		if (!defined('TAB')) {
+			define('TAB', "\t");
 		}
 		$this->al = AutoLoad::getInstance();
 	}

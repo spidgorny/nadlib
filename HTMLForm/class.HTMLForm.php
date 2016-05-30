@@ -1,11 +1,17 @@
 <?php
 
 class HTMLForm {
+
 	protected $action = "";
+
 	protected $method = "POST";
+
 	protected $prefix = array();
+
 	var $stdout = "";
+
 	var $enctype = "";
+
 	var $target = "";
 
 	/**
@@ -17,6 +23,7 @@ class HTMLForm {
 	var $class = "";
 
 	protected $fieldset;
+
 	protected $fieldsetMore = array();
 
 	/**
@@ -364,6 +371,7 @@ class HTMLForm {
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		// this.form.submit() will not work
+		//debug('submit', $params);
 		$content = $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 		$this->stdout .= $content;
 		return $content;
@@ -375,6 +383,7 @@ class HTMLForm {
 	}
 
 	function image($value = NULL, $more = "", $desc = array()) {
+		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=image
 		".$this->getName('imgSubmit')."
@@ -519,7 +528,7 @@ class HTMLForm {
 		$content = '<input id="calendar-'.$fieldName.'" name="'.$this->getName($fieldName).'" value="'.
 			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
 		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>';
-		$index->footer['jsCal2-'.$fieldName] = '<script>
+		$index->footer['jsCal2-'.$fieldName] = '<script defer="true"> 
     Calendar.setup({
         trigger    	: "calendar-trigger-'.$fieldName.'",
         inputField 	: "calendar-'.$fieldName.'",

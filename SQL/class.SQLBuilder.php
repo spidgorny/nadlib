@@ -44,14 +44,6 @@ class SQLBuilder {
 		return $this->db = $this->db ?: $this->config->getDB();
 	}
 
-	function quoteKey($key) {
-		$reserved = $this->getReserved();
-		if (in_array(strtoupper($key), $reserved)) {
-			$key = $this->db->quoteKey($key);
-		}
-		return $key;
-	}
-
 	/**
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
@@ -516,7 +508,7 @@ class SQLBuilder {
 		$i = 0;
 		$in = false;
 		foreach ($words as $word) {
-			$word = new String($word);
+			$word = new StringPlus($word);
 			if ($word->contains('[')) {
 				++$i;
 				$in = true;
@@ -546,7 +538,7 @@ class SQLBuilder {
 		$query = $this->getSelectQuery($table, $where, $order,
 			'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, '.
 			$prefix.'*, '.$prefix.$this->quoteKey($idField).' AS id_field');
-		//debug('Query', $query);
+		//debug('Query', $query.''); exit();
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
@@ -593,17 +585,32 @@ class SQLBuilder {
 	}
 
 	/**
-	 * @var string $query
-	 * @return resource
+	 * @param string $query
+	 * @param null   $className	- if provided it will return DatabaseInstanceIterator
+	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 */
-	function getIterator($query) {
-		if ($this->db instanceof dbLayerPDO) {
+	function getIterator($query, $className = NULL) {
+		if ($className) {
+			$f = new DatabaseInstanceIterator($this->db, $className);
+			if (is_string($query)) {
+				$f->perform($query);
+			} else {
+				$f->setResult($query);
+			}
+			return $f;
+		} elseif ($this->db instanceof dbLayerPDO) {
 			$res = $this->db->perform($query);
 			return $res;
-		} else {
+		} elseif (is_string($query)) {
 			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->perform($query);
 			return $f;
+		} elseif (is_resource($query)) {
+			$f = new DatabaseResultIteratorAssoc($this->db);
+			$f->setResult($query);
+			return $f;
+		} else {
+			throw new InvalidArgumentException($query);
 		}
 	}
 

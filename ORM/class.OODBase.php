@@ -234,6 +234,7 @@ abstract class OODBase {
 				$where[$this->idField] = $this->id;
 			}
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
+			//debug($query); exit;
 			$this->lastQuery = $query;
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);
@@ -252,7 +253,7 @@ abstract class OODBase {
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
-			throw new Exception(__('Updating '.$this->table.' is not possible as there is no ID defined.'));
+			throw new Exception(__('Updating ['.$this->table.'] is not possible as there is no ID defined. idField: '.$this->idField));
 		}
 		return $res;
 	}
@@ -272,6 +273,7 @@ abstract class OODBase {
 
 	/**
 	 * Retrieves a record from the DB and calls $this->init()
+	 * But it's rarely called directly.
 	 * @param array $where
 	 * @param string $orderByLimit
 	 * @return bool of the found record
@@ -519,7 +521,9 @@ abstract class OODBase {
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = ifsetor(self::$instances[$static][$id]);
+			$inst = isset(self::$instances[$static][$id])
+				? self::$instances[$static][$id]
+				: NULL;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
@@ -541,12 +545,14 @@ abstract class OODBase {
 				self::storeInstance($inst, $intID);	// int id
 				$inst->init($id);	// array
 			}
-		} else {
+		} elseif ($id) {
 			//debug($static, $id);
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
 			self::storeInstance($inst, $inst->id);
+		} else {
+			throw new InvalidArgumentException(__METHOD__);
 		}
 		return $inst;
 	}
@@ -777,6 +783,24 @@ abstract class OODBase {
 			),
 		));
 		return $content;
+	}
+
+	public function getCollection(array $where, $orderBy = NULL) {
+		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
+		foreach ($data as &$row) {
+			$row = static::getInstance($row);
+		}
+		return $data;
+	}
+
+	static function tryGetInstance($id) {
+		try {
+			$obj = self::getInstance($id);
+		} catch (InvalidArgumentException $e) {
+			$class = get_called_class();
+			$obj = new $class();
+		}
+		return $obj;
 	}
 
 }

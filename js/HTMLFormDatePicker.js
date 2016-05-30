@@ -17,7 +17,8 @@ jQuery(document).ready(function ($) {
 			maxDate: self.attr('maxDate'),
 			firstDay: self.attr('firstDay'),
 			changeMonth: true,
-			changeYear: true
+			changeYear: true,
+			firstDay: 1
 		};
 		//console.log(self, 'datepicker', options);
 		self.datepicker(options);

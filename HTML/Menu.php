@@ -41,6 +41,8 @@ class Menu /*extends Controller*/ {
 	 */
 	public $renderOnlyCurrent = true;
 
+	public $menuTag = 'ul';
+
 	public $ulClass = 'nav nav-list nav-pills nav-stacked menu csc-menu list-group';
 
 	/**
@@ -350,7 +352,7 @@ class Menu /*extends Controller*/ {
 			}
 		}
 		//debug($this->current);
-		$content = '<ul class="'.($ulClass ? $ulClass : $this->ulClass).'">'.$content.'</ul>';
+		$content = '<'.$this->menuTag.' class="'.($ulClass ? $ulClass : $this->ulClass).'">'.$content.'</'.$this->menuTag.'>';
 		return $content;
 	}
 

@@ -38,7 +38,7 @@ class slTableValue {
 		$this->value = $value;
 		$this->desc += (array)$desc;
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->getDB();
+			$this->db = Config::getInstance()->db ? Config::getInstance()->getDB() : NULL;
 		}
 	}
 
@@ -114,7 +114,11 @@ class slTableValue {
 			break;
 			case "gmdate":
 				if ($val !== NULL) {
-					$out = gmdate($k['format'] ?: 'Y-m-d', $val);
+					if (is_numeric($val)) {
+						$out = gmdate($k['format'] ?: 'Y-m-d', $val);
+					} else {
+						debug($col, 'is not long', $row);
+					}
 				} else {
 					$out = '';
 				}
@@ -134,7 +138,15 @@ class slTableValue {
 			case "sqldate":
 				if ($val) {
 					$val = new Date($val);
-					$out = $val->format($k['format']);	// hours will not work
+					$out = $val->format(ifsetor($k['format'], 'Y-m-d'));	// hours will not work
+				} else {
+					$out = '';
+				}
+			break;
+			case "sqldatetime":
+				if ($val) {
+					$val = new Time($val);
+					$out = $val->format(ifsetor($k['format'], 'Y-m-d H:i'));
 				} else {
 					$out = '';
 				}
@@ -259,6 +271,9 @@ class slTableValue {
 					$out = $val->format($k['type']->format);
 				}
 			break;
+			case "default":
+				$out = isset($k['text']) ? $k['text'] : 'Provide text property';
+				break;
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case "textarea":
 				$val = nl2br($val);
