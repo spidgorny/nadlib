@@ -71,6 +71,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			'http://fonts.gstatic.com/',
 			'http://mt0.googleapis.com/',
 			'http://mt1.googleapis.com/',
+			'http://maxcdn.bootstrapcdn.com/',
+			'http://ajax.googleapis.com/',
 		),
 		"img-src" => array(
 			"'self'",

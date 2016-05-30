@@ -133,8 +133,10 @@ abstract class OODBase {
 			$this->id = $id;
 			if (is_array($this->idField)) {
 				// TODO
+				throw new InvalidArgumentException(__METHOD__);
 			} else {
 				$this->findInDB(array($this->idField => $this->id));
+				// will do $this->init()
 			}
 			if (!$this->data) {
 				$this->id = NULL;
@@ -153,16 +155,21 @@ abstract class OODBase {
 
 	function initByRow(array $row) {
 		$this->data = $row;
-		if (is_array($this->idField)) {
+		$idField = $this->idField;
+		$parts = trimExplode('.', $idField);
+		if (sizeof($parts) == 2) {	//table.id
+			$idField = $parts[1];
+		}
+		if (is_array($idField)) {
 			$this->id = array();
-			foreach ($this->idField as $field) {
+			foreach ($idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
 		//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
-		} else if (isset($this->data[$this->idField]) && $this->data[$this->idField]) {
-			$this->id = $this->data[$this->idField];
+		} else if (isset($this->data[$idField]) && $this->data[$idField]) {
+			$this->id = $this->data[$idField];
 		} else {
-			debug(gettype($row), $this->idField, $this->data);
+			debug(gettype($row), $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
@@ -523,13 +530,23 @@ abstract class OODBase {
 				// separate call to avoid infinite loop in ORS
 				$inst->init($id);
 			}
+		} elseif (is_array($id)) {
+			/** @var OODBase $inst */
+			$inst = new $static();
+			$intID = $id[$inst->idField];
+			//debug($static, $intID, $id);
+			$inst = ifsetor(self::$instances[$static][$intID]);
+			if (!$inst) {
+				$inst = new $static();
+				self::storeInstance($inst, $intID);	// int id
+				$inst->init($id);	// array
+			}
 		} else {
+			//debug($static, $id);
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
-			if ($inst->id) {
-				self::$instances[$static][$inst->id] = $inst;
-			}
+			self::storeInstance($inst, $inst->id);
 		}
 		return $inst;
 	}
@@ -553,7 +570,16 @@ abstract class OODBase {
 	}
 
 	function getObjectInfo() {
-		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' #'.spl_object_hash($this).')';
+		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' '.$this->getHash().')';
+	}
+	
+	function getHash($length = null) {
+		$hash = spl_object_hash($this);
+		if ($length) {
+			$hash = sha1($hash);
+			$hash = substr($hash, 0, $length);
+		}
+		return '#'.$hash;
 	}
 
 	/**

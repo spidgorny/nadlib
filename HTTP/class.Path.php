@@ -390,7 +390,7 @@ class Path {
 	}
 
 	public function debugPathExists() {
-		$debug = [];
+		$debug = array();
 		$sPath = $this->isAbsolute ? '/' : '';
 		foreach ($this->aPath as $i => $section) {
 			$sPath .= $section;

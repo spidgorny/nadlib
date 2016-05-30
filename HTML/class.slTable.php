@@ -759,7 +759,7 @@ class slTable {
 
 	/**
 	 * Separation by "\t" is too stupid. We count how many chars are there in each column
-	 * and then padd it accordingly
+	 * and then pad it accordingly
 	 * @param bool $cutTooLong
 	 * @param bool $useAvg
 	 * @return string
@@ -771,7 +771,7 @@ class slTable {
 		// thes should fit into a columns as well
 		foreach ($this->thes as $field => $name) {
 			$widthMax[$field] = is_array($name)
-				? mb_strlen($name['name'])
+				? mb_strlen(ifsetor($name['name']))
 				: (mb_strlen($name) ?: mb_strlen($field));
 		}
 		//print_r($widthMax);

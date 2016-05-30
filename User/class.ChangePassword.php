@@ -1,8 +1,11 @@
 <?php
 
 class ChangePassword extends HTMLFormProcessor {
+	
 	protected $minLength = 8;
+	
 	protected $submitButton = 'Change';
+	
 	public $title = 'Change Password';
 
 	function getDesc() {
@@ -11,6 +14,10 @@ class ChangePassword extends HTMLFormProcessor {
 			'type' => 'hidden',
 			'value' => 'changePassword',
 		);
+		$desc['current'] = [
+			'label' => 'Current password',
+			'type' => 'password',
+		];
 		$desc['password']['label'] = __('Password');
 		$desc['password']['append'] = __('Min: %s chars.', $this->minLength);
 		$desc['password']['type'] = 'password';
@@ -24,8 +31,12 @@ class ChangePassword extends HTMLFormProcessor {
 		$content = '';
 		if (strlen($data['password']) >= $this->minLength) {
 			if ($data['password'] == $data['repeat']) {
-				$this->user->updatePassword($data['password']);
-				$content .= '<div class="message">'.__('Password changed.').'</div>';
+				$ok = $this->user->updatePassword($data['current'], $data['password']);
+				if (!$ok['error']) {
+					$content .= $this->success(__('Password changed.'));
+				} else {
+					$content .= $this->error($ok['message']);
+				}
 			} else {
 				throw new Exception(__('Passwords mismatch. Please try again.'));
 			}

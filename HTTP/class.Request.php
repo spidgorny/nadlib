@@ -610,7 +610,7 @@ class Request {
 
 	function getHeader($name) {
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
-		return $headers[$name];
+		return ifsetor($headers[$name]);
 	}
 
 	function getJson($name, $array = true) {

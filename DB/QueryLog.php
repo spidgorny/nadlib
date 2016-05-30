@@ -48,7 +48,7 @@ class QueryLog {
 				//'func' => $this->QUERYFUNC[$query],
 			);
 		}
-		$q = new slTable($q, 'class="view_array" width="1024"', array(
+		$q = new slTable($q, 'class="view_array table" width="1024"', array(
 			'times' => 'Times',
 			'time' => array(
 				'name' => 'Time',
@@ -89,7 +89,7 @@ class QueryLog {
 				$row['count'] = new htmlString('<font color="red">'.$row['count'].'</font>');
 			}
 		}
-		$s = new slTable(NULL, 'width="100%"');
+		$s = new slTable(NULL, 'width="100%" class="table"');
 		$s->thes(array(
 				'query' => array(
 						'label' => 'Query',
@@ -132,7 +132,7 @@ class QueryLog {
 					'results' => $set['results'],
 			);
 		}
-		$s = new slTable($log, '', array(
+		$s = new slTable($log, 'class="table"', array(
 				'times' => 'times',
 				'sumtime' => array(
 					'name' => 'sumtime ('.number_format($sumTime, 3).')',

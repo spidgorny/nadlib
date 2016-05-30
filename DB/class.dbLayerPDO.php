@@ -109,12 +109,12 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function perform($query, array $params = array()) {
 		//debug($params);
 		$this->lastQuery = $query;
-		
+
 		$driver_options = [];
 		if ($this->getScheme() == 'mysql') {
 			$driver_options[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
-		
+
 		$profiler = new Profiler();
 		try {
 			$this->lastResult = $this->connection->prepare($query, $driver_options);
@@ -205,20 +205,6 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		return $scheme;
 	}
 
-	function isMySQL() {
-		return in_array(
-			$this->getScheme(),
-			['mysql', 'mysqli']);
-	}
-
-	function isPostgres() {
-		return $this->getScheme() == 'psql';
-	}
-
-	function isSQLite() {
-		return $this->getScheme() == 'sqlite';
-	}
-
 	function getTables() {
 		$tables = $this->getTablesEx();
 		$names = array_keys($tables);
@@ -275,7 +261,17 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		return '`'.$key.'`';
+		if ($key[0] != '`') {
+			$parts = trimExplode('.', $key);	// may contain table name
+			if (sizeof($parts) == 2) {
+				$content = $parts[0].'.`'.$parts[1].'`';
+			} else {
+				$content = '`' . $key . '`';
+			}
+		} else {
+			return $key;
+		}
+		return $content;
 	}
 
 	function escapeBool($value) {
@@ -420,6 +416,19 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	function getConnection() {
 		return $this->connection;
+	}
+
+	function setQB(SQLBuilder $qb = NULL) {
+		parent::setQB($qb);
+	}
+
+	public function getQb() {
+		if(!isset($this->qb)) {
+			$db = Config::getInstance()->getDB();
+			$this->setQB(new SQLBuilder($db));
+		}
+
+		return $this->qb;
 	}
 
 }

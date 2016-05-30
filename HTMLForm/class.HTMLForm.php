@@ -285,7 +285,8 @@ class HTMLForm {
 		}
 		$this->input($name, $value,
 			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
-			(isset($desc['more']) ? HTMLTag::renderAttr($desc['more']) : '')
+			(isset($desc['more']) ? HTMLTag::renderAttr($desc['more']) : ''),
+			'date'
 		);
 	}
 
@@ -862,7 +863,7 @@ class HTMLForm {
 	 * @param $isUnlimited
 	 */
 	function time($fieldName, $fieldValue, $isUnlimited) {
-
+		$this->input($fieldName, $fieldValue, '', 'time');
 	}
 
 	/**
