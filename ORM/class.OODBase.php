@@ -198,7 +198,15 @@ abstract class OODBase {
 		//debug($query);
 		$res = $this->db->perform($query);
 		$this->lastQuery = $this->db->lastQuery;	// save before commit
-		$id = $this->db->lastInsertID($res, $this->table);
+
+		// this needs to be checked first,
+		// because SQLite will give some kind of ID
+		// even if you provide your own
+		if (ifsetor($data[$this->idField])) {
+			$id = $data[$this->idField];
+		} else {
+			$id = $this->db->lastInsertID($res, $this->table);
+		}
 		if (!$id) {
 			$id = $data[$this->idField];	// GUID column
 		}
@@ -406,7 +414,12 @@ abstract class OODBase {
 			//debug($this->id, $this->data);
 			$this->insert($fields + $where + $insert);
 			//debug($where, $this->id, $this->data, $fields + $where + $insert, $this->lastQuery);
-			$op = 'INSERT '.$this->id;
+			if ($this->id) {
+				$op = 'INSERT ' . $this->id;
+			} else {
+				debug($this->lastQuery);
+				$op = $this->db->lastQuery;	// for debug
+			}
 			//debug($this->id, $this->data, $op, $this->db->lastQuery);
 		}
 		$this->db->commit();
