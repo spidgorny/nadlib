@@ -318,9 +318,30 @@ class Request {
 		return $this;
 	}
 
+	/**
+	 * Returns item identified by $a or an alternative value
+	 * @param $a
+	 * @param $value
+	 * @return string
+	 */
 	function getCoalesce($a, $value) {
 		$a = $this->getTrim($a);
 		return $a ? $a : $value;
+	}
+
+	/**
+	 * List getCoalesce() but reacts on attempt to unset the value
+	 * @param $a		string
+	 * @param $default	string
+	 * @return string
+	 */
+	function ifsetor($a, $default) {
+		if ($this->is_set($a)) {
+			$value = $this->getTrim($a);
+			return $value;	// returns even if empty
+		} else {
+			return $default;
+		}
 	}
 
 	function getControllerString($returnDefault = true) {
@@ -503,10 +524,14 @@ class Request {
 	}
 
 	function canRedirect($to) {
-		$absURL = $this->getURL();
-		$absURL->makeAbsolute();
-		//debug($absURL.'', $to.''); exit();
-		return $absURL.'' != $to.'';
+		if ($this->isGET()) {
+			$absURL = $this->getURL();
+			$absURL->makeAbsolute();
+			//debug($absURL.'', $to.''); exit();
+			return $absURL . '' != $to . '';
+		} else {
+			return true;
+		}
 	}
 
 	function redirectJS($controller, $delay = 0, $message =
@@ -661,6 +686,10 @@ class Request {
 			ifsetor($_SERVER['FAKE_HTTPS'])
 			? 'https' : 'http';
 		return $request_type;
+	}
+
+	function isGET() {
+		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') == 'GET';
 	}
 
 	function isPOST() {
@@ -959,7 +988,7 @@ class Request {
 		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
 
 		//debug_pre_print_backtrace();
-		require_once __DIR__ . '/class.Path.php'; // needed if called early
+		require_once __DIR__ . '/Path.php'; // needed if called early
 		$docRoot = new Path($docRoot);
 		return $docRoot;
 	}
@@ -1093,6 +1122,14 @@ class Request {
 
 	public function setProxy($proxy) {
 		$this->proxy = $proxy;
+	public function getBase64($string) {
+		$base = $this->getTrim($string);
+		return base64_decode($base);
+	}
+
+	public function getZipped($string) {
+		$base = $this->getBase64($string);
+		return gzuncompress($base);
 	}
 
 }

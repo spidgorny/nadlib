@@ -65,6 +65,10 @@ class HTML {
 		return '<h4>'.$this->s($content).'</h4>';
 	}
 
+	function h5($content, array $more = array()) {
+		return '<h5 '.HTMLTag::renderAttr($more).'>'.$this->s($content).'</h5>';
+	}
+
 	function progress($percent) {
 		$percent = intval($percent);
 		return '<div class="progress">
@@ -102,6 +106,10 @@ class HTML {
 
 	function url($page, array $params = array()) {
 		return $page.'?'.http_build_query($params);
+	}
+	
+	function pre($text) {
+		return '<pre>'.$this->e($text).'</pre>';
 	}
 
 }

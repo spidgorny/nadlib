@@ -162,6 +162,10 @@ class dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
+		$reserved = $this->getReserved();
+		if (in_array(strtoupper($key), $reserved)) {
+			$key = $this->db->quoteKey($key);
+		}
 		return $key;
 	}
 

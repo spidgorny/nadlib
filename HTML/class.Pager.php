@@ -1,9 +1,29 @@
 <?php
 
 class Pager {
+
+	/**
+	 * Total amount of rows in database (with WHERE)
+	 * @var int
+	 */
 	var $numberOfRecords = 0;
+
+	/**
+	 * Page size
+	 * @var int
+	 */
 	var $itemsPerPage = 20;
+
+	/**
+	 * Offset in SQL
+	 * @var int
+	 */
 	var $startingRecord = 0;
+
+	/**
+	 * Current Page (0+)
+	 * @var int
+	 */
 	var $currentPage = 0;
 
 	/**
@@ -419,22 +439,6 @@ class Pager {
 		$pages = array_unique($pages);
 
 		return $pages;
-	}
-
-	/**
-	 * Converts the dbEdit init query into count(*) query by getCountQuery() method and runs it. Old style.
-	 *
-	 * @param dbEdit $dbEdit
-	 * @return int
-	 */
-	function getCountedRows($dbEdit) {
-		global $dbLayer;
-		$queryCount = $dbEdit->getCountQuery();
-		$res = $dbLayer->perform($queryCount);
-		$row = pg_fetch_array($res);
-		//debug($row, $queryCount);
-		list($countedRows) = $row;
-		return $countedRows;
 	}
 
 	function __toString() {

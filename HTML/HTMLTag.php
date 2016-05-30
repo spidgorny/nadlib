@@ -184,6 +184,9 @@ class HTMLTag implements ArrayAccess {
 	 * @return array
 	 */
 	static function parseAttributes($text) {
+		if (is_array($text)) {
+			return $text;
+		}
 		$attributes = array();
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)

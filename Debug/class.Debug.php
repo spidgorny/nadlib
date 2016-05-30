@@ -95,7 +95,7 @@ class Debug {
 	}
 
 	function canFirebug() {
-		$can = class_exists('FirePHP')
+		$can = class_exists('FirePHP', false)
 			&& !Request::isCLI()
 			&& !headers_sent()
 			&& ifsetor($_COOKIE['debug']);
@@ -220,7 +220,7 @@ class Debug {
 	 */
 	static function getTraceTable(array $db) {
 		$db = self::getSimpleTrace($db);
-		require_once __DIR__.'/../Data/class.ArrayPlus.php';
+		require_once __DIR__.'/../Data/ArrayPlus.php';
 		$traceObj = ArrayPlus::create($db)->column('object')->getData();
 		if (!array_search('slTable', $traceObj) && class_exists('slTable', false)) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
@@ -376,9 +376,12 @@ class Debug {
 		if (is_object($row)) {
 			$row = get_object_vars($row);
 		}
-		pre_print_r(array_combine(array_keys($row), array_map(function ($a) {
-			return gettype2($a);
-		}, $row)));
+		if (!is_null($row)) {
+			$types = array_map(function ($a) {
+				return gettype2($a);
+			}, $row);
+			pre_print_r(array_combine(array_keys($row), $types));
+		}
 	}
 
 	/**
