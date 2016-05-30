@@ -19,6 +19,8 @@ class Request {
 	 */
 	static protected $instance;
 
+	protected $proxy;
+
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
 		if (ini_get('magic_quotes_gpc')) {
@@ -1029,28 +1031,44 @@ class Request {
 		return array_keys($this->data);
 	}
 
-	static function getIP() {
+	function getClientIP() {
 		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
 		if (!$ip || in_array($ip, array(
 				'127.0.0.1',
+				'::1'
 			))) {
-			$ip = file_get_contents('http://ipecho.net/plain');
+			$ip = $this->fetch('http://ipecho.net/plain');
 		}
 		return $ip;
+	}
+
+	function fetch($url) {
+		if ($this->proxy) {
+			$context = stream_context_create([
+				'http' => [
+					'proxy' => $this->proxy,
+					'timeout' => 1,
+				]
+			]);
+			$data = file_get_contents($url, NULL, $context);
+		} else {
+			$data = file_get_contents($url);
+		}
+		return $data;
 	}
 
 	public function getGeoIP() {
 		$session = new Session(__CLASS__);
 		$json = $session->get(__METHOD__);
 		if (!$json) {
-			$url = 'http://ipinfo.io/' . $this->getIP();		// 166ms
-			$info = @file_get_contents($url);
+			$url = 'http://ipinfo.io/' . $this->getClientIP();		// 166ms
+			$info = $this->fetch($url);
 			if ($info) {
 				$json = json_decode($info);
 				$session->save(__METHOD__, $json);
 			} else {
-				$url = 'http://freegeoip.net/json/'.$this->getIP();	// 521ms
-				$info = @file_get_contents($url);
+				$url = 'http://freegeoip.net/json/'.$this->getClientIP();	// 521ms
+				$info = $this->fetch($url);
 				if ($info) {
 					$json = json_decode($info);
 					$json->loc = $json->latitude . ',' . $json->longitude;    // compatibility hack
@@ -1071,6 +1089,10 @@ class Request {
 		if ($ref) {
 			$this->redirect($ref);
 		}
+	}
+
+	public function setProxy($proxy) {
+		$this->proxy = $proxy;
 	}
 
 }
