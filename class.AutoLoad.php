@@ -15,7 +15,7 @@ class AutoLoad {
 	/**
 	 * @var boolean
 	 */
-	public $debug = false;
+	public $debug = 0;
 
 	/**
 	 * @var AutoLoad
@@ -128,7 +128,7 @@ class AutoLoad {
 					echo 'AutoLoad, debug mode', BR;
 					$this->debug = true;
 					$this->folders->debug = true;
-					$this->folders->collectDebug = [];
+					$this->folders->collectDebug = array();
 				}
 			}
 		}
@@ -240,7 +240,11 @@ class AutoLoad {
 	 * Since it's not 100% that it exists we just take the REQUEST_URL
 	 */
 	function detectAppRoot() {
-		$appRoot = dirname(URL::getScriptWithPath());
+		if (Request::isPHPUnit()) {
+			$appRoot = getcwd();
+		} else {
+			$appRoot = dirname(URL::getScriptWithPath());
+		}
 		$appRoot = realpath($appRoot);
 		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
@@ -301,6 +305,7 @@ class AutoLoad {
 	/**
 	 * Main __autoload() function
 	 * @param $class
+	 * @return bool
 	 * @throws Exception
 	 */
 	function load($class) {
@@ -340,13 +345,16 @@ class AutoLoad {
 				}
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
+			if ($tp) $tp->stop(__METHOD__);
+			return false;
 		} else {
 			//echo $classFile.' ';
 			if ($this->debug) {
 				echo __METHOD__.': '.$class.' OK', BR;
 			}
+			if ($tp) $tp->stop(__METHOD__);
+			return true;
 		}
-		if ($tp) $tp->stop(__METHOD__);
 	}
 
 	function loadFileForClass($class) {
@@ -415,7 +423,7 @@ class AutoLoad {
 		}
 	}
 
-	static function register() { 
+	static function register() {
 		$instance = self::getInstance();
 		if (!$instance->folders) {
 			$instance->postInit();

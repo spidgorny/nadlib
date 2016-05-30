@@ -370,6 +370,7 @@ if (!function_exists('nodebug')) {
 	}
 
 	function cap($string, $with = '/') {
+		$string .= '';
 		if (!str_endsWith($string, $with)) {
 			$string .= $with;
 		}
@@ -492,11 +493,11 @@ function gettypes(array $something) {
 	//return json_encode($types, JSON_PRETTY_PRINT);
 }
 
-if (!function_exists('boolval')) {
-	function boolval($val) {
-		return (bool) $val;
+	if (!function_exists('boolval')) {
+		function boolval($val) {
+			return (bool) $val;
+		}
 	}
-}
 
 function unquote ($value) {
 	if (!$value) return $value;

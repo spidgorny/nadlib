@@ -108,13 +108,13 @@ class AutoLoadFolders {
 	}
 
 	function loadConfig() {
-		(array(
-			dirname($_SERVER['SCRIPT_FILENAME']),
-			getcwd(),
-			file_exists(getcwd()),
-			$this->al->appRoot.'',
-			file_exists($this->al->appRoot),
-			file_exists($this->al->appRoot.'class'),
+		nodebug(array(
+			'SCRIPT_FILENAME' => dirname($_SERVER['SCRIPT_FILENAME']),
+			'getcwd' => getcwd(),
+			'exists(cwd)' => file_exists(getcwd()),
+			'appRoot' => $this->al->appRoot.'',
+			'exists(appRoot)' => file_exists($this->al->appRoot),
+			'exists(appRoot.class)' => file_exists($this->al->appRoot.'class'),
 		));
 		if (!class_exists('ConfigBase')) {
 			require_once 'class.ConfigBase.php';
@@ -217,9 +217,9 @@ class AutoLoadFolders {
 				//cap($namespace).//DIRECTORY_SEPARATOR.
 				'class.'.$className.'.php';
 			$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
-			if ($className == 'User') {
-				//pre_print_r($file, $file2, file_exists($file), file_exists($file2));
-			}
+
+			//pre_print_r($file, $file2, file_exists($file), file_exists($file2));
+
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
 				if (file_exists($file2)

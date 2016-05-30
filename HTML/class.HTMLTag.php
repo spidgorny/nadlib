@@ -219,4 +219,22 @@ class HTMLTag implements ArrayAccess {
 	public function offsetUnset($offset) {
 		unset($this->attr[$offset]);
 	}
+
+	static function __set_state(array $properties) {
+		$a = new static($properties['tag']);
+		foreach ($properties as $key => $val) {
+			$a->$key = $val;
+		}
+		return $a;
+	}
+
+	function getHash($length = null) {
+		$hash = spl_object_hash($this);
+		if ($length) {
+			$hash = sha1($hash);
+			$hash = substr($hash, 0, $length);
+		}
+		return '#'.$hash;
+	}
+
 }
