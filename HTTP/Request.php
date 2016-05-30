@@ -1122,6 +1122,8 @@ class Request {
 
 	public function setProxy($proxy) {
 		$this->proxy = $proxy;
+	}
+
 	public function getBase64($string) {
 		$base = $this->getTrim($string);
 		return base64_decode($base);
