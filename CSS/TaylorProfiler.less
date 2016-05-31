@@ -57,6 +57,15 @@
 .profiler table.nospacing {
 	border: none;
 }
+.profiler table td small {
+	max-height: 1.25em;
+	overflow: hidden;
+	transition: max-height 1s ease-out;
+	&:hover {
+		max-height: 999px;
+		transition: max-height 1s ease-in;
+	}
+}
 
 .floatTime #page_load_time_bar {
 	height: 15px;
