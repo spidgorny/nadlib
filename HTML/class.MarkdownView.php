@@ -8,10 +8,7 @@ class MarkdownView extends View {
 	 */
 	var $content;
 
-	function render() {
-		if ($this->content) {
-			return $this->content;
-		}
+	function loadTemplace() {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
@@ -25,7 +22,14 @@ class MarkdownView extends View {
 			$this->index->error('Markdown class in not installed');
 			$html = $contents;
 		}
-		return $html;
+		$this->content = $html;
+	}
+
+	function render() {
+		if (!$this->content) {
+			$this->loadTemplace();
+		}
+		return $this->content;
 	}
 
 	public function processIncludes() {
@@ -36,4 +40,10 @@ class MarkdownView extends View {
 		$this->content = $content;
 	}
 
+	function twig($placeholder, $content) {
+		$this->render();	// load template first
+		$this->content = str_replace('{{'.$placeholder.'}}', $this->s($content), $this->content);
+		return $this;
+	}
+	
 }
