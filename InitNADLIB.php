@@ -47,7 +47,14 @@ class InitNADLIB {
 		}
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
-		mb_internal_encoding ( 'UTF-8' );
+		if (extension_loaded('mbstring')) {
+			mb_internal_encoding('UTF-8');
+		} else {
+//			echo 'PHP: ', phpversion(), BR;
+//			pre_print_r(get_loaded_extensions());
+//			echo 'Ini file: ', php_ini_loaded_file(), BR;
+//			phpinfo();
+		}
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
