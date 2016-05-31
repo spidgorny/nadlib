@@ -590,7 +590,7 @@ abstract class Controller {
 	function span($content, $class = '', array $more = array()) {
 		$more['class'] = ifsetor($more['class']) .' '.$class;
 		$more = HTMLTag::renderAttr($more);
-		return '<span '.$more.'>'.$this->s($content).'</span>';
+		return new htmlString('<span '.$more.'>'.$this->s($content).'</span>');
 	}
 
 	function info($content) {
