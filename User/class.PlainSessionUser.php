@@ -45,7 +45,8 @@ class PlainSessionUser extends User {
 	}
 
 	function __toString() {
-		return session_id();
+		$default = parent::__toString();
+		return ifsetor($default, session_id());
 	}
 
 	function try2login() {
