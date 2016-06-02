@@ -453,19 +453,22 @@ class HTMLFormTable extends HTMLForm {
 	/**
 	 * Returns the $form parameter with minimal modifications only for the special data types like time in seconds.
 	 *
-	 * @param array $desc
+	 * @param array $desc array from $_REQUEST.
 	 * @param array $form Structure of the form.
-	 * @internal param \Values $array from $_REQUEST.
 	 * @return array    Processed $form.
 	 */
 	function acquireValues(array $desc, $form = array()) {
 		foreach ($desc as $field => $params) {
-			if ($params['type'] == 'datepopup')	{
+			$type = ifsetor($params['type']);
+			if ($type == 'datepopup')	{
 				$date = strtotime($form[$field]);
 				debug(__METHOD__, $field, $form[$field], $date);
 				if ($date) {
 					$form[$field] = $date;
 				}
+			} elseif (in_array($type, array('check', 'checkbox'))) {
+				$form[$field] = strtolower($form[$field]) == 'on'
+					|| ($form[$field] ? true : false);
 			}
 		}
 		return $form;
