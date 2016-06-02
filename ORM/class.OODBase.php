@@ -564,7 +564,7 @@ abstract class OODBase {
 			foreach (self::$instances[$self] as $inst) {
 				if ($inst instanceof OODBase) {
 					$field = $field ? $field : $inst->titleColumn;
-					if ($inst->data[$field] == $name) {
+					if (ifsetor($inst->data[$field]) == $name) {
 						$c = $inst;
 						break;
 					}
