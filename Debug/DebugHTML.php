@@ -126,7 +126,7 @@ class DebugHTML {
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
 			} elseif ($a instanceof SimpleXMLElement) {
-				$a = $a->asXML();
+				$a = 'XML['.$a->asXML().']';
 			} else {
 				$a = get_object_vars($a);
 			}
@@ -156,9 +156,10 @@ class DebugHTML {
 			$content .= '</table>';
 		} else if (is_object($a)) {
 			if ($a instanceof htmlString) {
-				$content = $a.'';
+				$content = 'html['.$a.']';
 			} else {
-				$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
+				$content = '<pre style="font-size: 12px;">'.
+					htmlspecialchars(print_r($a, TRUE)).'</pre>';
 			}
 		} else if (is_resource($a)) {
 			$content = $a;

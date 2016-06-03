@@ -10,6 +10,7 @@ class SQLNow extends AsIs {
         $map = array(
             'sqlite' => "datetime('now')", 
             'mysql' => 'now()',
+            'mysqli' => 'now()',
             'ms' => 'GetDate()',
             'postgresql' => 'now()',
             'pg' => 'now()',
