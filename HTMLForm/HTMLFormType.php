@@ -17,8 +17,14 @@ abstract class HTMLFormType implements HTMLFormFieldInterface {
 	 */
 	public $field;
 
+	/**
+	 * @var string like prefix[p2][asd]
+	 */
 	public $fullName;
 
+	/**
+	 * @var mixed
+	 */
 	public $value;
 
 	/**

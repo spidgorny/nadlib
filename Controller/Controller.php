@@ -747,4 +747,12 @@ abstract class Controller {
 		}
 	}
 
+	function makeNewOf($className, $id) {
+		return new $className($id);
+	}
+
+	function getInstanceOf($className, $id) {
+		return $className::getInstance($id);
+	}
+
 }

@@ -2,6 +2,8 @@
 
 /**
  * Class HTMLFormField
+ * This represents an element of HTMLFormTable desc array
+ * Do not confuse it with HTMLFormType and it's descendants.
  */
 class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 

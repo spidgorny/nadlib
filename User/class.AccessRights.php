@@ -70,4 +70,13 @@ class AccessRights {
 		return $keys;
 	}
 
+	function getAllRights() {
+		$accessRights = $this->db->fetchAll("
+		SELECT * FROM {$this->accessTable} ORDER BY name");
+		$accessRights = new ArrayPlus($accessRights);
+		$accessRights = $accessRights->IDalize('id');
+		$accessRights = $accessRights->convertTo('AccessRightModel');
+		return $accessRights;
+	}
+
 }
