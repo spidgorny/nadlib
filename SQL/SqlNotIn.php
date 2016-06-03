@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class SQLNotIn
+ * Class SQLNotIn *
  */
 class SQLNotIn extends SQLWherePart
 {
