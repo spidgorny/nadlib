@@ -223,14 +223,11 @@ class HTMLForm {
 	}
 
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
-		$this->stdout .= $this->getInput("checkbox", $name, $value,
-			($checked?'checked="checked"':"").' '.
-			($autoSubmit ? "onchange=this.form.submit()" : '').' '.
-			(is_array($more) ? $this->getAttrHTML($more) : $more),
-			is_array($more) ? ifsetor($more['class']) : ''
-		);
+		$desc = [];
+		$desc['more'] = $more;
+		$desc['autoSubmit'] = $autoSubmit;
+		$desc['value'] = $value;
+		$this->stdout .= new HTMLFormCheckbox($name, $checked, $desc);
 	}
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $autoSubmit = false, $label = '') {
