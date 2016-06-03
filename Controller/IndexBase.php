@@ -567,7 +567,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		foreach ($this->header as $key => $script) {
 			$content[] = '<!--'.$key.'-->'."\n".$script;
 		}
-		return implode("\n", $content);
+		return implode("\n", $content)."\n";
 	}
 
 	function implodeJS() {
@@ -587,7 +587,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
 			$content .= implode("\n", $include);
 		} else {
-			$content = implode("\n", $this->footer);
+			$content = implode("\n", $this->footer)."\n";
 		}
 		return $content;
 	}
