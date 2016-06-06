@@ -451,7 +451,7 @@ class TaylorProfiler {
 		$dbTime = 0;
 		$db = class_exists('Config') ? Config::getInstance()->getDB() : NULL;
 		if ($db && $db->queryLog) {
-			$dbTime = ArrayPlus::create($db->queryLog)->column('sumtime')->sum();
+			$dbTime = ArrayPlus::create($db->queryLog->queryLog)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
 		if (isset($db->queryLog) && is_object($db->queryLog)) {
