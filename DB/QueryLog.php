@@ -6,10 +6,11 @@ class QueryLog {
 
 	public function log($query, $diffTime) {
 		$key = md5($query);
-		$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
+		$this->queryLog[$key] = is_array(ifsetor($this->queryLog[$key]))
+			? $this->queryLog[$key] : array();
 		$this->queryLog[$key]['query'] = $query;
-		$this->queryLog[$key]['sumtime'] += $diffTime;
-		$this->queryLog[$key]['times']++;
+		$this->queryLog[$key]['sumtime'] = ifsetor($this->queryLog[$key]['sumtime']) + $diffTime;
+		$this->queryLog[$key]['times'] = ifsetor($this->queryLog[$key]['times']) + 1;
 	}
 
 	/**
