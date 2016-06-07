@@ -3,7 +3,7 @@
 class SQLWhere {
 
 	/**
-	 * @var dbLayer|dbLayerPDO
+	 * @var DBInterface
 	 */
 	protected $db;
 
@@ -18,7 +18,8 @@ class SQLWhere {
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function injectDB(dbLayerBase $db) {
+	function injectDB(DBInterface $db) {
+		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
@@ -49,6 +50,7 @@ class SQLWhere {
 					//debug($field, gettype2($p), $p instanceof SQLWherePart);
 				}
 				if ($p instanceof SQLWherePart) {
+					$p->injectDB($this->db);
 					if (!is_numeric($field)) {
 						$p->injectField($field);
 					}

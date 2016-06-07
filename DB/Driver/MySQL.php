@@ -30,7 +30,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 	 * Reserved MySQL words
 	 * @var array
 	 */
-	public $reserved = array (
+	protected $reserved = array (
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
 		2 => 'ALL',
@@ -260,7 +260,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		TaylorProfiler::start(__METHOD__);
 		$this->database = $db;
 		if ($this->database) {
-			$this->connect($host, $login, $password);
+			$this->connect($host, $login, $password, true);
 		}
 		if (DEVELOPMENT) {
 			$this->queryLog = new QueryLog();

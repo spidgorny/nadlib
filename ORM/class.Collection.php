@@ -1031,4 +1031,8 @@ class Collection implements IteratorAggregate {
 		return false;
 	}
 
+	public function setDB(DBInterface $ms) {
+		$this->db = $ms;
+	}
+
 }

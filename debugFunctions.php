@@ -194,7 +194,7 @@ if (!function_exists('debug')) {
 		if ($type == 'array') {
 			$type .= '[' . sizeof($something) . ']';
 		}
-		return $type;
+		return new htmlString($type);
 	}
 
 	/**

@@ -7,7 +7,7 @@
 class SQLWherePart {
 
 	/**
-	 * @var dbLayerBase|DBInterface|MySQL|dbLayerPDO|dbLayer
+	 * @var DBInterface
 	 */
 	protected $db;
 
@@ -35,6 +35,7 @@ class SQLWherePart {
 	 * @return string
 	 */
 	function __toString() {
+		debug(__METHOD__, gettype2($this->db));
 		if ($this->field && !is_numeric($this->field)) {
 			if ($this->field == 'read') {
 				//debug($this->field, $this->sql);
@@ -48,7 +49,8 @@ class SQLWherePart {
 		}
 	}
 
-	function injectDB(dbLayerBase $db) {
+	function injectDB(DBInterface $db) {
+		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 

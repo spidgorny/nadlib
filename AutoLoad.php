@@ -114,7 +114,7 @@ class AutoLoad {
 		if (!$this->folders) {
 			$this->folders = new AutoLoadFolders($this);
 			$this->folders->debug = $this->debug;
-			$this->folders->loadConfig();
+			//$this->folders->loadConfig();	// called already
 			if (class_exists('Config')) {
 				self::$instance->config = Config::getInstance();
 			}
@@ -328,7 +328,7 @@ class AutoLoad {
 			//debug($this->folders);
 			if (class_exists('Config')) {
 				$config = Config::getInstance();
-				$notFoundException = $config->config['autoload']['notFoundException'];
+				$notFoundException = ifsetor($config->config['autoload']['notFoundException']);
 			} else {
 				$notFoundException = false;
 			}
@@ -340,19 +340,14 @@ class AutoLoad {
 			} else {
 				//debug_pre_print_backtrace();
 				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
-				$this->log(__METHOD__.': '.$class.' not found'.BR);
-				if ($this->debug) {
-					echo (__METHOD__.': '.$class.' not found'.BR);
-				}
+				$this->logError($class.' not found');
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
 			if ($tp) $tp->stop(__METHOD__);
 			return false;
 		} else {
 			//echo $classFile.' ';
-			if ($this->debug) {
-				echo __METHOD__.': '.$class.' OK', BR;
-			}
+			$this->logSuccess($class.' OK');
 			if ($tp) $tp->stop(__METHOD__);
 			return true;
 		}
@@ -366,20 +361,10 @@ class AutoLoad {
 		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
 		$subFolders = implode('/', $subFolders);	// Download
 
-		$file = isset($this->classFileMap[$class]) ? $this->classFileMap[$class] : NULL;
-		$file2 = str_replace('class.', '', $file);
-
-		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
-
-		//pre_print_r($class, $file, $file2);
-		if ($file && file_exists($file)) {
+		$file = $this->getFileFromMap($class);
+		if ($file) {
 			/** @noinspection PhpIncludeInspection */
 			include_once $file;
-			$this->stat['loadFile1']++;
-		} elseif ($file2 && file_exists($file2)) {
-			/** @noinspection PhpIncludeInspection */
-			include_once $file2;
-			$this->stat['loadFile2']++;
 		} else {
 			$ns = $subFolders ?:
 					(sizeof($namespaces) > 1)
@@ -390,7 +375,11 @@ class AutoLoad {
 			$file = $this->folders->findInFolders($classFile, $ns);
 			$this->classFileMap[$class] = $file;
 			if ($file) {
-				if ($this->debug && class_exists('AppController', false) && !Request::isCLI()) {
+				$this->logSuccess($class . ' found in '. $file);
+				if (false
+					&& $this->debug
+					&& class_exists('AppController', false)
+					&& !Request::isCLI()) {
 					$subject = 'Class ['.$class.'] loaded from ['.$classFile.']';
 					//$this->log($subject);
 					$c = new AppController();
@@ -402,12 +391,36 @@ class AutoLoad {
 				include_once $file;
 				$this->classFileMap[$class] = $file;
 				$this->stat['findInFolders']++;
+
+				$this->logSuccess($class.' exists: '.class_exists($class));
 			} elseif ($this->debug) {
 				//debug($this->stat['folders'], $this->stat['configPath']);
 				//debug($this->folders);
-				echo 'AL ', $class, ' not in ', $file, BR;
+				$this->logError($class. ' not in ' .$file);
 			}
 			//$this->folders->collectDebug = null;
+		}
+		return $file;
+	}
+
+	function getFileFromMap($class) {
+		$file = isset($this->classFileMap[$class]) ? $this->classFileMap[$class] : NULL;
+
+		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
+
+		//pre_print_r($class, $file, $file2);
+		if ($file && file_exists($file)) {
+			$this->stat['loadFile1']++;
+		} else {
+			$file2 = str_replace('class.', '', $file);
+			if ($file2 && file_exists($file2)) {
+				$this->stat['loadFile2']++;
+				$file = $file2;
+			} else {
+				$this->logError($class.' not found in classFileMap');
+				//pre_print_r($this->classFileMap);
+				$file = NULL;
+			}
 		}
 		return $file;
 	}
@@ -419,9 +432,38 @@ class AutoLoad {
 				$STDERR = fopen('php://stderr', 'w+');
 				fwrite($STDERR, strip_tags($debugLine));
 			} else {
-				echo $debugLine;
+				echo $debugLine, BR;
 			}
 		}
+	}
+
+	function logError($debugLine) {
+		if ($this->debug) {
+			$this->dumpCSS();
+			echo '<span class="debug error">'.$debugLine.'</span>', BR;
+		}
+	}
+
+	function logSuccess($debugLine) {
+		if ($this->debug) {
+			$this->dumpCSS();
+			echo '<span class="debug success">'.$debugLine.'</span>', BR;
+		}
+	}
+
+	function dumpCSS() {
+		static $once = 0;
+		echo '<style>
+			.debug.error {
+				background: lightpink;
+				color: red;
+			}
+			.debug.success {
+				background: lightgreen;
+				color: green;
+			}
+		</style>';
+		$once = 1;
 	}
 
 	static function register() {
@@ -450,6 +492,11 @@ class AutoLoad {
 		}
 		$this->folders->addFolder($path, $namespace);
 		return $this;
+	}
+
+	public function setDebug() {
+		$this->debug = true;
+		$this->folders->debug = true;
 	}
 
 }

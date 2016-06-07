@@ -100,6 +100,10 @@ class AutoLoadFolders {
 			foreach ($folders as &$el) {
 				$el = $this->al->appRoot . $el;
 			}
+			if ($this->debug) {
+				echo __METHOD__.': Added folders', BR;
+				pre_print_r($folders);
+			}
 		} else {
 			// that's ok. relax. be quiet.
 			//echo 'Config not found'.BR;
@@ -108,14 +112,17 @@ class AutoLoadFolders {
 	}
 
 	function loadConfig() {
-		nodebug(array(
-			'SCRIPT_FILENAME' => dirname($_SERVER['SCRIPT_FILENAME']),
-			'getcwd' => getcwd(),
-			'exists(cwd)' => file_exists(getcwd()),
-			'appRoot' => $this->al->appRoot.'',
-			'exists(appRoot)' => file_exists($this->al->appRoot),
-			'exists(appRoot.class)' => file_exists($this->al->appRoot.'class'),
-		));
+		if ($this->debug) {
+			debug_pre_print_backtrace();
+			pre_print_r(array(
+				'SCRIPT_FILENAME'       => dirname($_SERVER['SCRIPT_FILENAME']),
+				'getcwd'                => getcwd(),
+				'exists(cwd)'           => file_exists(getcwd()),
+				'appRoot'               => $this->al->appRoot . '',
+				'exists(appRoot)'       => file_exists($this->al->appRoot),
+				'exists(appRoot.class)' => file_exists($this->al->appRoot . 'class'),
+			));
+		}
 		if (!class_exists('ConfigBase')) {
 			require_once __DIR__.'/ConfigBase.php';
 		}
@@ -153,7 +160,9 @@ class AutoLoadFolders {
 			}
 		} else {
 			if ($this->debug) {
-				echo __METHOD__.': Config class not found', BR;
+				echo __METHOD__.': Config class is found', BR;
+				$rc = new ReflectionClass('Config');
+				echo __METHOD__.': '.$rc->getFileName(), BR;
 			}
 		}
 	}
@@ -246,6 +255,9 @@ class AutoLoadFolders {
 				$this->log($className.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
 				$this->log($className.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
 			}
+		}
+		if ($this->debug) {
+			echo __METHOD__.': Attempt to find '.$namespace.'\\'.$className.' failed', BR;
 		}
 		return NULL;
 	}
