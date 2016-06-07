@@ -60,7 +60,8 @@ class SQLSelectQuery extends SQLWherePart {
 		if ($limit) 	$this->setLimit($limit);
 	}
 
-	function injectDB(dbLayerBase $db) {
+	function injectDB(DBInterface $db) {
+		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 

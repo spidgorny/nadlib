@@ -16,7 +16,7 @@ class dbLayerBase implements DBInterface {
 	 * which can't be used as field names and must be quoted
 	 * @var array
 	 */
-	var $reserved = array();
+	protected $reserved = array();
 
 	/**
 	 * @var resource

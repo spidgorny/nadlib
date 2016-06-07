@@ -74,11 +74,14 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 			debug(array(
 				'method' => __METHOD__,
 				'query' => $query,
-				is_resource($res)
+				'numRows' => is_resource($res)
 					? $this->numRows($res)
 					: ($res ? 'TRUE' : 'FALSE'),
 				'elapsed' => $profiler->elapsed(),
 				'msg' => $msg,
+				'this' => gettype2($this),
+				'this->qb' => gettype2($this->qb),
+				'this->qb->db' => gettype2($this->qb->db),
 			));
 		}
 		if ($msg && !in_array($msg, $this->ignoreMessages)) {
@@ -242,7 +245,10 @@ AND name = '?')", array($table));
 	}
 
 	function quoteKey($key) {
-		return '['.$key.']';
+		if (!str_contains($key, '(')) {	// functions
+			$key = '[' . $key . ']';
+		}
+		return $key;
 	}
 
 	function lastInsertID($res, $table = NULL) {

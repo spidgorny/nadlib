@@ -47,13 +47,13 @@ class DatabaseResultIterator implements Iterator, Countable {
 	var $key = 0;
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerODBC|dbLayerPDO
+	 * @var DBInterface
 	 */
 	var $db;
 
-	function __construct(dbLayerBase $db, $defaultKey = NULL) { // 'uid'
-		$this->defaultKey = $defaultKey;
+	function __construct(DBInterface $db, $defaultKey = NULL) { // 'uid'
 		$this->db = $db;
+		$this->defaultKey = $defaultKey;
 	}
 
 	function setResult($res) {

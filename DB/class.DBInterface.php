@@ -39,4 +39,8 @@ interface DBInterface {
 
 	function getIndexesFrom($table);
 
+	function dataSeek($resource, $index);
+
+	function escape($string);
+	
 }

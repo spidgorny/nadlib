@@ -156,17 +156,22 @@ abstract class OODBase {
 	function initByRow(array $row) {
 		$this->data = $row;
 		$idField = $this->idField;
-		$parts = trimExplode('.', $idField);
-		if (sizeof($parts) == 2) {	//table.id
-			$idField = $parts[1];
+
+		if (!is_array($idField)) {
+			$parts = trimExplode('.', $idField);
+			if (sizeof($parts) == 2) {    //table.id
+				$idField = $parts[1];
+			}
 		}
+
 		if (is_array($idField)) {
 			$this->id = array();
 			foreach ($idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
 		//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
-		} else if (isset($this->data[$idField]) && $this->data[$idField]) {
+		} elseif (isset($this->data[$idField])
+			&& $this->data[$idField]) {
 			$this->id = $this->data[$idField];
 		} else {
 			debug(gettype($row), $idField, $this->data);
@@ -442,10 +447,10 @@ abstract class OODBase {
 			$assoc = array();
 			foreach ($this->thes as $key => $desc) {
 				$desc = is_array($desc) ? $desc : array('name' => $desc);
-				if ($desc['showSingle'] !== false) {
+				if (ifsetor($desc['showSingle']) !== false) {
 					$assoc[$key] = array(
 						0 => $desc['name'],
-						'' => $this->data[$key],
+						'' => ifsetor($this->data[$key]),
 						'.' => $desc,
 					);
 				}

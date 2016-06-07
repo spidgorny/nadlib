@@ -54,12 +54,15 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * Does string splitting with cleanup.
-	 * @param $sep
-	 * @param $str
+	 * @param $sep string
+	 * @param $str string
 	 * @param null $max
 	 * @return array
 	 */
 	function trimExplode($sep, $str, $max = NULL) {
+		if (!is_string($str)) {
+			debug_pre_print_backtrace();
+		}
 		if ($max) {
 			$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
 		} else {
