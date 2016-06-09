@@ -131,12 +131,14 @@ class HTMLFormTable extends HTMLForm {
 
 	function showLabel(HTMLFormField $desc, $fieldName) {
 //		debug($desc->getArray());
-		$elementID = $desc['elementID'];
+		$elementID = $desc->elementID;
 		$withBR = (ifsetor($desc['br']) === NULL && $this->defaultBR) || $desc['br'];
 		if (isset($desc['label'])) {
 			$label = $desc['label'];
 			if (!$withBR) {
-				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
+				if (!$desc->isCheckbox()) {
+					$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
+				}
 				if ($desc->isObligatory()) {
 					if ($this->noStarUseBold) {
 						$label = '<b title="Obligatory">'.$label.'</b>';
