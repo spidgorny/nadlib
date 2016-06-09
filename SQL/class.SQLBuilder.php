@@ -158,7 +158,7 @@ class SQLBuilder {
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @return string
 	 */
-	function getInsertQuery($table, $columns) {
+	function getInsertQuery($table, array $columns) {
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);

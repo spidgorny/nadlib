@@ -755,4 +755,8 @@ abstract class Controller {
 		return $className::getInstance($id);
 	}
 
+	function setDB(DBInterface $db) {
+		$this->db = $db;
+	}
+	
 }
