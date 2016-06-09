@@ -108,7 +108,7 @@ class Collection implements IteratorAggregate {
 	public $select;
 
 	public $tableMore = array(
-		'class' => "nospacing",
+		'class' => "table nospacing",
 		'width' => "100%",
 	);
 
