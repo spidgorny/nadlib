@@ -20,7 +20,8 @@ class LogEntry {
 		$this->data = $data;
 		if (self::$log2file) {
 			$sData = $this->shorten($data);
-			$ip = Request::getIP();
+			$r = Request::getInstance();
+			$ip = $r->getClientIP();
 			error_log($ip.' '.$action . ' ' . $sData);
 		}
 	}

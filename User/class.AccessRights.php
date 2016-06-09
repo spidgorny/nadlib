@@ -21,8 +21,13 @@ class AccessRights {
 	function __construct($idGroup) {
 		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
 		$this->db = Config::getInstance()->getDB();
-		$this->init($this->groupID = $idGroup);
+		$this->groupID = $idGroup;
+		$this->reload();
 		TaylorProfiler::stop($profiler);
+	}
+
+	function reload() {
+		$this->init($this->groupID);
 	}
 
 	function init($idGroup) {
