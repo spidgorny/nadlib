@@ -227,7 +227,9 @@ class HTMLForm {
 		$desc['more'] = $more;
 		$desc['autoSubmit'] = $autoSubmit;
 		$desc['value'] = $value;
-		$this->stdout .= new HTMLFormCheckbox($name, $checked, $desc);
+		$box = new HTMLFormCheckbox($name, $checked, $desc);
+		$box->form = $this;	// for prefix to work
+		$this->stdout .= $box;
 	}
 
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $autoSubmit = false, $label = '') {
