@@ -60,7 +60,12 @@ if (!function_exists('str_startsWith')) {
 	 * @return array
 	 */
 	function trimExplode($sep, $str, $max = NULL) {
-		if (!is_string($str)) {
+		if (is_object($str)) {
+			$is_string = method_exists($str, '__toString');
+		} else {
+			$is_string = is_string($str);
+		}
+		if (!$is_string) {
 			debug_pre_print_backtrace();
 		}
 		if ($max) {

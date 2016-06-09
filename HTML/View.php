@@ -110,8 +110,7 @@ class View extends stdClass {
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-			$content = '<!-- View template: '.$this->folder.$this->file.' -->'."\n".
-				$content;
+			$content .= '<!-- View template: '.$this->file.' -->'."\n";
 		}
 		TaylorProfiler::stop($key);
 		return $content;
