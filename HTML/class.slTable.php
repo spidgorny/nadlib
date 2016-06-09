@@ -715,7 +715,9 @@ class slTable {
 				//return '['.implode(', ', $val).']';
 			} else {
 				if (!$no_hsc) {
-					if (mb_strpos($val, "\n") !== FALSE) {
+					if (is_object($val)) {
+						$val = '['.get_class($val).']';
+					} elseif (mb_strpos($val, "\n") !== FALSE) {
 						$val = htmlspecialchars($val);
 						$val = new htmlString('<pre style="white-space: pre-wrap;">'.htmlspecialchars($val).'</pre>');
 					} else {
