@@ -111,7 +111,7 @@ class ProgressBar {
 			$l = new lessc();
 			$css = $l->compileFile($less);
 			return '<style>' . $css . '</style>';
-		} elseif (file_exists($cssFile)) {
+		} elseif (file_exists($cssFile) && class_exists('Index')) {
 			Index::getInstance()->addCSS($cssFile);
 		} else {
 			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do

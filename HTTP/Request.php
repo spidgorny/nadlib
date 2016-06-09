@@ -360,7 +360,7 @@ class Request {
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
-			'levels' => $this->getURLLevels(),
+			//'levels' => $this->getURLLevels(),
 			'last' => isset($last) ? $last : NULL,
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
@@ -753,6 +753,7 @@ class Request {
 	function getURLLevels() {
 		$path = $this->getPathAfterDocRoot();
 		//$path = $path->getURL();
+		//debug($path);
 		if (strlen($path) > 1) {	// "/"
 			$levels = trimExplode('/', $path);
 			if ($levels[0] == 'index.php') {
