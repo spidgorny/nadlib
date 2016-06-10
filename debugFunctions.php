@@ -26,6 +26,20 @@ if (!function_exists('debug')) {
 		}
 	}
 
+	function d($a) {
+		$params = func_num_args() == 1 ? $a : func_get_args();
+		if (DEVELOPMENT) {
+			ob_start();
+			var_dump($params);
+			$dump = ob_get_clean();
+			$dump = str_replace("=>\n", ' =>', $dump);
+			if (!function_exists('xdebug_break')) {
+				$dump = htmlspecialchars($dump);
+			}
+			echo '<pre>'.$dump.'</pre>';
+		}
+	}
+
 	/**
 	 * @param ...$a
 	 */

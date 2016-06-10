@@ -724,6 +724,9 @@ class slTable {
 						$val = htmlspecialchars($val, ENT_NOQUOTES);
 					}
 					$no_hsc = true;
+				} else {
+					// will be done by slTable
+					//$val = htmlspecialchars($val);
 				}
 			}
 
