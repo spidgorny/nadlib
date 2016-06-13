@@ -232,7 +232,11 @@ class Uploader {
 			$fi = new finfo();
 			$mime = $fi->file($filename);
 			$this->mimeMethod = 'finfo';
-		} else if (function_exists('mime_content_type')) {
+		} elseif (function_exists('finfo_open')) {
+			$fi = finfo_open(FILEINFO_MIME_TYPE);
+			$mime = finfo_file($fi, $filename);
+			$this->mimeMethod = 'finfo_open';
+		} elseif (function_exists('mime_content_type')) {
 			$mime = mime_content_type($filename);
 			$this->mimeMethod = 'mime_content_type';
 		} else {

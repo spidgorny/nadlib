@@ -29,4 +29,10 @@ class htmlString {
 		}
 	}
 
+	function replace($one, $two) {
+		$new = new htmlString(
+			str_replace($one, $two, $this->value));
+		return $new;
+	}
+
 }
