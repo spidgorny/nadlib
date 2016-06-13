@@ -4,6 +4,7 @@
  * Class HTMLFormField
  * This represents an element of HTMLFormTable desc array
  * Do not confuse it with HTMLFormType and it's descendants.
+ * @property $elementID string
  */
 class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 
@@ -68,6 +69,10 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		unset($this->data[$offset]);
 	}
 
+	public function __get($name) {
+		return $this->data[$name];
+	}
+
 	public function getArray() {
 		return $this->data;
 	}
@@ -106,11 +111,13 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		if ($desc['prefix']) {
 			$this->form->text($desc['prefix']);
 		}
-		if (empty($desc['id'])) {
+		if (!empty($desc['id'])) {
+			$elementID = $desc['id'];
+		} elseif (!empty($desc['more']['id'])) {
+			$elementID = $desc['more']['id'];
+		} else {
 			$elementID = $this->getID($this->fieldName);
 			$desc['id'] = $elementID;
-		} else {
-			$elementID = $desc['id'];
 		}
 		$this['elementID'] = $elementID;
 
@@ -345,6 +352,10 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				//debug($desc, $desc->isObligatory(), $desc->getTypeString());
 				break;
 		}
+	}
+
+	function isCheckbox() {
+		return $this->getTypeString() == 'checkbox';
 	}
 
 }
