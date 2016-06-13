@@ -44,7 +44,7 @@ class SQLWhere {
 
 	function __toString() {
 		if ($this->parts) {
-			//debug($this->parts);
+//			debug($this->parts);
 			foreach ($this->parts as $field => &$p) {
 				if ($field == 'read') {
 					//debug($field, gettype2($p), $p instanceof SQLWherePart);
