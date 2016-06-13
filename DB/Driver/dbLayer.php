@@ -426,7 +426,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $this->perform("rollback");
 	}
 
-	function quoteSQL($value) {
+	function quoteSQL($value, $key = NULL) {
 		if ($value === NULL) {
 			return "NULL";
 		} else if ($value === FALSE) {
@@ -439,8 +439,11 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			return $value ? "'t'" : "'f'";
 		} else if ($value instanceof SQLParam) {
 			return $value;
-		} else {
+		} elseif (is_scalar($value)) {
 			return "'".$this->escape($value)."'";
+		} else {
+			debug($key, $value);
+			throw new MustBeStringException('Must be string.');
 		}
 	}
 

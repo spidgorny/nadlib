@@ -88,9 +88,9 @@ class SQLWhereEqual extends SQLWherePart {
 			$set[] = ($val ? "" : "NOT ") . $key;
 		} elseif (is_numeric($key)) {		// KEY!!!
 			$set[] = $val;
-		} elseif (is_array($val) && $where[$key.'.']['makeIN']) {
+		} elseif (is_array($val) && ifsetor($where[$key.'.']['makeIN'])) {
 			$set[] = $key." IN ('".implode("', '", $val)."')";
-		} elseif (is_array($val) && $where[$key.'.']['makeOR']) {
+		} elseif (is_array($val) && ifsetor($where[$key.'.']['makeOR'])) {
 			foreach ($val as &$row) {
 				if (is_null($row)) {
 					$row = $key .' IS NULL';
@@ -106,7 +106,7 @@ class SQLWhereEqual extends SQLWherePart {
 			try {
 				$val = $this->db->quoteSQL($val);
 			} catch (MustBeStringException $e) {
-				debug($key);
+				debug(__METHOD__, $key, $val);
 				throw $e;
 			}
 			$set[] = "$key = $val";
