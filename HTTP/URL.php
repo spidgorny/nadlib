@@ -739,6 +739,8 @@ class URL {
 	static function getSlug($string) {
 		$string = mb_strtolower($string);
 		$string = preg_replace("` +`", "-", $string);
+		$string = str_replace('/', '-', $string);
+		$string = str_replace('\\', '-', $string);
 		$string = trim($string);
 		return $string;
 	}
