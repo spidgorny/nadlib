@@ -116,4 +116,8 @@ class HTML {
 		return '<pre>'.$this->e($text).'</pre>';
 	}
 
+	function hr() {
+		return '<hr />';
+	}
+
 }
