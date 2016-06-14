@@ -491,6 +491,31 @@ class HTMLForm {
 		$this->class = $tmp;
 	}
 
+	function keyset($name, $value = array(), array $desc) {
+		if ($value) {
+			if (!is_array($value)) {
+				$value = explode(',', $value);
+			}
+		} else {
+			$value = array();
+		}
+		$tmp = $this->class;
+		$this->class = 'submit';
+		$between = ifsetor($desc['between'], ', ');
+//		debug($desc['options']);
+		foreach ((array)$desc['options'] as $key => $val) {
+			$this->text('<nobr><label title="'.$key.'">');
+			$checked = isset($value[$key]);
+			$newName = array_merge($name, [$key]);
+			$this->check($newName, $key, $checked);
+			$this->text(' '.$val.'</label></nobr>');
+			if ($val != end($desc['options'])) {
+				$this->text($between);
+			}
+		}
+		$this->class = $tmp;
+	}
+
 	/**
 	 * A set of radio.
 	 *
