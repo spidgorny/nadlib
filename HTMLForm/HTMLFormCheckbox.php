@@ -17,7 +17,7 @@ class HTMLFormCheckbox extends HTMLFormType implements HTMLFormTypeInterface {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
 		$more = $this->desc['more'];
-		if ($this->desc['elementID']) {
+		if (ifsetor($this->desc['elementID'])) {
 			//$more['id'] = $this->desc['elementID'];
 		}
 		//debug($this->desc);
