@@ -126,7 +126,7 @@ class View extends stdClass {
 	function wikify($text, $linkCallback = null) {
 		$inUL = false;
 		$lines2 = array();
-		$lines = trimExplode("\n", $text);
+		$lines = trimExplode("\n", ''.$text);
 		foreach ($lines as $line) {
 			if ($line{0} == '*' || $line{0} == '-') {
 				if (!$inUL) {
