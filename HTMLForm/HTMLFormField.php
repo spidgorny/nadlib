@@ -282,6 +282,9 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			case 'set':
 				$this->form->set($fieldName, $fieldValue, $desc->getArray());
 				break;
+			case 'keyset':
+				$this->form->keyset($fieldName, $fieldValue, $desc->getArray());
+				break;
 			case 'checkarray':
 				if (!is_array($fieldValue)) {
 					debug($fieldName, $fieldValue, $desc->getArray());
