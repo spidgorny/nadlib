@@ -3,10 +3,16 @@
 class MemcacheFile implements MemcacheInterface {
 
 	/**
+	 * Can be set statically in the bootstrap to influence all instances
+	 * @var string
+	 */
+	static $defaultFolder = 'cache/';
+
+	/**
 	 * @used in ClearCache
 	 * @var string
 	 */
-	public $folder = 'cache/';
+	public $folder;
 
 	public $key;
 
@@ -21,9 +27,15 @@ class MemcacheFile implements MemcacheInterface {
 	 */
 	function __construct($key = NULL, $expire = 0) {
 		if (MemcacheArray::$debug) {
-			echo __METHOD__.'('.$key.')'.BR;
+			echo __METHOD__ . '(' . $key . ')' . BR;
 		}
-		$sub = cap(AutoLoad::getInstance()->appRoot.'');
+		$this->folder = self::$defaultFolder;
+		if (!str_startsWith($this->folder, '/')) {
+			// if relative, add current app
+			$sub = cap(AutoLoad::getInstance()->appRoot . '');
+		} else {
+			$sub = '';
+		}
 
 		if (!file_exists($sub.$this->folder)) {
 			debug(array(
