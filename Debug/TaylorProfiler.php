@@ -320,13 +320,23 @@ class TaylorProfiler {
             	'percent' => number_format($tot_perc, 2, '.', '').'%',
             	'routine' => "OVERALL TIME (".number_format(memory_get_peak_usage()/1024/1024, 3, '.', '')."MB)",
             );
-            $out = Request::isCLI()
+            $content = Request::isCLI()
 				? $s->getCLITable(true)
 				: $s->getContent();
-            return $out;
+            return $content;
         }
 		return NULL;
     }
+
+    function getCSS() {
+    	$content = '';
+		if (!Request::isCLI()) {
+			$content .= '<style>' . file_get_contents(
+					dirname(__FILE__) . '/../CSS/TaylorProfiler.css'
+				) . '</style>';
+		}
+		return $content;
+	}
 
     function sort($a, $b) {
     	$a = $a['perc'];
