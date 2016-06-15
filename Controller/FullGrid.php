@@ -204,7 +204,8 @@ abstract class FullGrid extends Grid {
 				'label' => '<h2>'.__('Visible').'</h2>',
 				'type' => 'set',
 				'options' => $this->getGridColumns(),
-				'value' => array_keys($this->columns),
+				'value' => $this->columns
+					? array_keys($this->columns) : [],
 				'between' => '',
 			),
 			'collectionName' => array(

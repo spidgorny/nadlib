@@ -250,11 +250,11 @@ class SQLBuilder {
 	/**
 	 * @param        $table
 	 * @param array  $where
-	 * @param string $order
+	 * @param string $sOrder
 	 * @param null   $addSelect
 	 * @return SQLSelectQuery
 	 */
-	function getSelectQueryP($table, array $where = array(), $order = '', $addSelect = NULL) {
+	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL) {
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {
 			$from = $this->db->quoteKey($table);    // table name always quoted
@@ -268,26 +268,29 @@ class SQLBuilder {
 		$from->db = $this->db;
 		$where = new SQLWhere($where);
 		$where->injectDB($this->db);
-		if (str_startsWith($order, 'ORDER BY')) {
-			$order = new SQLOrder($order);
+
+		$group = NULL;
+		$limit = NULL;
+		$order = NULL;
+		if (str_startsWith($sOrder, 'ORDER BY')) {
+			$order = new SQLOrder($sOrder);
 			$order->db = $this->db;
 			$group = NULL;
-		} elseif (str_startsWith($order, 'GROUP BY')) {
-			$parts = trimExplode('ORDER BY', $order);
+		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
+			$parts = trimExplode('ORDER BY', $sOrder);
 			$group = new SQLGroup($parts[0]);
 			$group->db = $this->db;
 			if (ifsetor($parts[1])) {
 				$order = new SQLOrder($parts[1]);
 				$order->db = $this->db;
-			} else {
-				$order = NULL;
 			}
-		} elseif ($order) {
+		} elseif (str_startsWith($sOrder, 'LIMIT')) {
+			$parts = trimExplode('LIMIT', $sOrder);
+			$limit = new SQLLimit($parts[0]);
+		} elseif ($sOrder) {
 			throw new InvalidArgumentException(__METHOD__);
-		} else {
-			$group = NULL;
 		}
-		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order);
+		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order, $limit);
 		$sq->injectDB($this->db);
 		return $sq;
 	}
