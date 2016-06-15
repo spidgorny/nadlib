@@ -96,7 +96,6 @@ abstract class Grid extends AppController {
 		$this->setColumns($cn, $allowEdit);
 		$this->setFilter($cn, $allowEdit);
 
-
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
 
@@ -203,12 +202,14 @@ abstract class Grid extends AppController {
 			$this->filter = $allowEdit
 				? $this->request->getArray('filter')
 				: array();
-			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
-			if (method_exists($this->user, 'getPref')) {
-				$this->filter = $this->filter
-					? $this->filter
-					: $this->user->getPref('Filter.' . $cn);
+//			d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
+			if (!$this->filter && method_exists($this->user, 'getPref')) {
+				$this->filter = $this->user->getPref('Filter.' . $cn);
 			}
+//			d($cn, $this->filter,
+//				array_keys($_SESSION), gettypes($_SESSION),
+//				$_SESSION
+//			);
 			$this->filter = $this->filter ? $this->filter : array();
 			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
 		}

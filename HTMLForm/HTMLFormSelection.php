@@ -39,7 +39,8 @@ class HTMLFormSelection extends HTMLFormType {
 
 	function render() {
 		$this->form = $this->form ?: new HTMLForm();
-		$content[] = "<select ".$this->form->getName($this->field, $this->multiple ? '[]' : '');
+		$content[] = "<select ".
+			$this->form->getName($this->field, $this->multiple ? '[]' : '');
 		if ($this->autoSubmit) {
 			$content[] = " onchange='this.form.submit()' ";
 		}
@@ -83,18 +84,21 @@ class HTMLFormSelection extends HTMLFormType {
 	 * @return string
 	 */
 	function getSelectionOptions(array $aOptions, $default, array $desc = array()) {
-		//Debug::debug_args($aOptions);
 		$content = '';
+		//Debug::debug_args($aOptions);
 		/** PHP feature gettype($value) is integer even if it's string in an array!!! */
+		//debug($this->field);
 		foreach ($aOptions as $value => $option) {
 			if (ifsetor($desc['==='])) {
 				$selected = $default === $value;
 			} else {
-				if ($this->field == 'relcoordinator') {
-					//debug($value, $default);
+				$arrayContains = is_array($default) && in_array($value, $default);
+				// === is required to not match 0:int with any other string
+				$justEquals = !is_array($default) && $default === $value;
+				if ($this->field[0] == 'queue') {
+					//debug($value, $default, $arrayContains, $justEquals);
 				}
-				if ((is_array($default) && in_array($value, $default))
-					|| (!is_array($default) && $default == $value)) {
+				if ($arrayContains || $justEquals) {
 					$selected = true;
 				} else {
 					$selected = false;
