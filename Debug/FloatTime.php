@@ -50,7 +50,7 @@ class FloatTime {
 
 		if ($this->withCSS) {
 			$content .= '<style>' . file_get_contents(
-					dirname(__FILE__) . '/../CSS/TaylorProfiler.less'
+					dirname(__FILE__) . '/../CSS/TaylorProfiler.css'
 				) . '</style>';
 		}
 		return $content;

@@ -257,7 +257,7 @@ class AutoLoadFolders {
 			}
 		}
 		if ($this->debug) {
-			debug($className, $namespace, $map);
+			//debug($className, $namespace, $map);
 			echo __METHOD__.': Attempt to find '.$namespace.'\\'.$className.' failed', BR;
 		}
 		return NULL;
