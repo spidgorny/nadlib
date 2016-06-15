@@ -1134,5 +1134,13 @@ class Request {
 		$base = $this->getBase64($string);
 		return gzuncompress($base);
 	}
+	
+	public static function isCalledScript($__FILE__) {
+		if (ifsetor($_SERVER['SCRIPT_FILENAME'])) {
+			return $__FILE__ == $_SERVER['SCRIPT_FILENAME'];
+		} else {
+			throw new Exception(__METHOD__);
+		}
+	}
 
 }
