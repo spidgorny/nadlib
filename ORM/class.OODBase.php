@@ -557,7 +557,9 @@ abstract class OODBase {
 			$inst = new $static();
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
-			$inst = ifsetor(self::$instances[$static][$intID]);
+			$inst = isset(self::$instances[$static][$intID])
+				? self::$instances[$static][$intID]
+				: NULL;
 			if (!$inst) {
 				$inst = new $static();
 				self::storeInstance($inst, $intID);	// int id
@@ -707,7 +709,9 @@ abstract class OODBase {
 		if (is_array($data)) {
 			$className = get_called_class();
 			$id = $data[$this->idField];
-			self::$instances[$className][$id] = $this;   //!!!
+			if ($id) {
+				self::$instances[$className][$id] = $this;   //!!!
+			}
 			nodebug(__METHOD__, $className, $id,
 				sizeof(self::$instances[$className]),
 				isset(self::$instances[$className][$id]));
