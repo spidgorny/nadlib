@@ -87,15 +87,17 @@ class HTMLFormSelection extends HTMLFormType {
 		$content = '';
 		//Debug::debug_args($aOptions);
 		/** PHP feature gettype($value) is integer even if it's string in an array!!! */
-		//debug($this->field);
+		//debug($this->field, $this->value);
 		foreach ($aOptions as $value => $option) {
 			if (ifsetor($desc['==='])) {
 				$selected = $default === $value;
 			} else {
 				$arrayContains = is_array($default) && in_array($value, $default);
 				// === is required to not match 0:int with any other string
-				$justEquals = !is_array($default) && $default === $value;
-				if ($this->field[0] == 'queue') {
+				// === does not prevent NULL from being selected
+				// ==  does better compare POST value with DB value
+				$justEquals = !is_array($default) && $default == $value;
+				if ($this->field[0] == 'id_person' && $value == 327) {
 					//debug($value, $default, $arrayContains, $justEquals);
 				}
 				if ($arrayContains || $justEquals) {
