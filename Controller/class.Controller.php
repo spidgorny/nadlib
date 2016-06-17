@@ -549,10 +549,10 @@ abstract class Controller {
 	 * @param bool $isHTML
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false) {
+	function a($href, $text = '', $isHTML = false, array $params = []) {
 		return new HTMLTag('a', array(
 			'href' => $href,
-		), $text ?: $href, $isHTML);
+		) + $params, $text ?: $href, $isHTML);
 	}
 
 }
