@@ -237,7 +237,11 @@ class slTableValue {
 			break;
 			case "instance":
 				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
-				$out = $obj.'';
+				if (ifsetor($k['method']) && method_exists($obj, $k['method'])) {
+					$out = call_user_func([$obj, $k['method']]);
+				} else {
+					$out = $obj . '';
+				}
 			break;
 			case "singleton":
 				if ($val) {
