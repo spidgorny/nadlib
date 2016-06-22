@@ -148,7 +148,7 @@ class Collection implements IteratorAggregate {
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
-		$taylorKey = Debug::getBackLog(15, 0, BR, false);
+		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -216,11 +216,8 @@ class Collection implements IteratorAggregate {
 	 * @throws Exception
 	 */
 	private function retrieveDataFromDB() {
-		$tableParent = " (" . $this->table . ':' . (is_array($this->parentID)
-				? implode(', ', $this->parentID)
-				: $this->parentID) . ")";
-		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
-		$taylorKey = Debug::getBackLog(15, 0, BR, false);
+		$taylorKey = get_class($this).'::'.__FUNCTION__.'#'.__LINE__.BR.
+			Debug::getBackLog(15, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
 
 		$this->query = $this->getQueryWithLimit();
