@@ -139,6 +139,11 @@ class Collection implements IteratorAggregate {
 	public $prepareRenderRow;
 
 	/**
+	 * @var bool - if preprocessData() is called
+	 */
+	protected $processed = false;
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -411,6 +416,7 @@ class Collection implements IteratorAggregate {
 		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
+		$this->processed = true;
 		TaylorProfiler::stop($profiler);
 	}
 
@@ -438,7 +444,7 @@ class Collection implements IteratorAggregate {
 			|| is_null($this->data)
 			//|| !$this->data->count())) {
 		) {
-			$this->retrieveData();
+			$this->retrieveData(false, false);
 		}
 		if (!($this->data instanceof ArrayPlus)) {
 			$this->data = ArrayPlus::create($this->data);
@@ -448,6 +454,19 @@ class Collection implements IteratorAggregate {
 			//$this->count = sizeof($this->data);
 		}
 		return $this->data;
+	}
+
+	function getProcessedData() {
+		if ($this->processed) {
+			return $this->data;
+		} elseif ($this->data) {
+			$this->preprocessData();
+			return $this->data;
+		} else {
+			$this->getData();
+			$this->preprocessData();
+			return $this->data;
+		}
 	}
 
 	/**
