@@ -55,6 +55,7 @@
   border: none;
 }
 .profiler table td small {
+  display: block;
   max-height: 1.25em;
   overflow: hidden;
   transition: max-height 1s ease-out;
