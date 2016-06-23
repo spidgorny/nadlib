@@ -505,7 +505,7 @@ class Collection implements IteratorAggregate {
     function getOptions() {
 		$options = array();
 		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
-		foreach ($this->getData() as $row) {
+		foreach ($this->getProcessedData() as $row) {
             //if ( !in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
             //}
@@ -563,7 +563,7 @@ class Collection implements IteratorAggregate {
 	function renderList() {
 		$list = array();
 		if ($this->getCount()) {
-			foreach ($this->getData() as $id => $row) {
+			foreach ($this->getProcessedData() as $id => $row) {
 				if ($this->thes) {
 					$row = $this->prepareRenderRow($row);   // add link
 					$item = '';

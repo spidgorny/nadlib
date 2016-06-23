@@ -144,7 +144,7 @@ abstract class OODBase {
 		} elseif (!is_null($id)) {
 			debug($id);
 			TaylorProfiler::stop(__METHOD__);
-			throw new Exception(__METHOD__);
+			throw new Exception(get_class($this).'::'.__FUNCTION__);
 		}
 		TaylorProfiler::stop(__METHOD__);
 	}
