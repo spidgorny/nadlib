@@ -2,6 +2,11 @@
 
 class ClosureCache {
 
+	static $closures;
+
+	/**
+	 * @var callable
+	 */
 	var $function;
 
 	var $result;
@@ -19,6 +24,21 @@ class ClosureCache {
 
 	function __toString() {
 		return $this->get().'';
+	}
+
+	function __invoke() {
+		return $this->get();
+	}
+
+	static function getInstance($key, callable $function) {
+		$hash = md5(json_encode($key));
+		if (isset(self::$closures[$hash])) {
+			return self::$closures[$hash];
+		} else {
+			$new = new self($function);
+			self::$closures[$hash] = $new;
+			return $new;
+		}
 	}
 
 }
