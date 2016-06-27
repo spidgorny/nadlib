@@ -87,6 +87,8 @@ abstract class Controller {
 
 	protected $al;
 
+	var $html;
+
 	function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
@@ -105,6 +107,7 @@ abstract class Controller {
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
 		$this->title = $this->title ? __($this->title) : $this->title;
+		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
 	}
 
@@ -358,7 +361,7 @@ abstract class Controller {
 							$assoc[$name] = NULL;
 						}
 					}
-					call_user_func_array(array($proxy, $method), $assoc);
+					$content = call_user_func_array(array($proxy, $method), $assoc);
 				} else {
 					$content = $proxy->$method();
 				}
