@@ -21,6 +21,10 @@ class MergedContent implements ArrayAccess {
 		return IndexBase::mergeStringArrayRecursive($this->content);
 	}
 
+	static function mergeStringArrayRecursive($s) {
+		return IndexBase::mergeStringArrayRecursive($s);
+	}
+
 	public function offsetExists($offset) {
 		return isset($this->content[$offset]);
 	}
