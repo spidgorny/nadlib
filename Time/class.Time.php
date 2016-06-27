@@ -729,4 +729,16 @@ class Time {
 		return $this;
 	}
 
+	function getYear() {
+		return date('Y', $this->time);
+	}
+
+	function getMonth() {
+		return date('m', $this->time);
+	}
+
+	function getWeek() {
+		return date('W', $this->time);
+	}
+
 }

@@ -720,6 +720,9 @@ abstract class OODBase {
 		return $data;
 	}
 
+	/**
+	 * @return OODBase|LazyPrefs
+	 */
 	function getParent() {
 		$id = ifsetor($this->data[$this->parentField]);
 		if ($id) {

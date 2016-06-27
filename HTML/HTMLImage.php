@@ -135,4 +135,12 @@ class HTMLImage extends HTMLTag {
 		return $newExt;
 	}
 
+	function resize($width, $height = NULL) {
+		if (!$height) {
+			$height = $width;
+		}
+		$this->attr('width', $width);
+		$this->attr('height', $height);
+	}
+
 }
