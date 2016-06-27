@@ -139,6 +139,11 @@ class Collection implements IteratorAggregate {
 	public $prepareRenderRow;
 
 	/**
+	 * @var bool - if preprocessData() is called
+	 */
+	protected $processed = false;
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -148,7 +153,7 @@ class Collection implements IteratorAggregate {
 	 */
 	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
-		$taylorKey = Debug::getBackLog(15, 0, BR, false);
+		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
 		$this->db = Config::getInstance()->getDB();
 		$this->table = Config::getInstance()->prefixTable($this->table);
@@ -216,11 +221,8 @@ class Collection implements IteratorAggregate {
 	 * @throws Exception
 	 */
 	private function retrieveDataFromDB() {
-		$tableParent = " (" . $this->table . ':' . (is_array($this->parentID)
-				? implode(', ', $this->parentID)
-				: $this->parentID) . ")";
-		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
-		$taylorKey = Debug::getBackLog(15, 0, BR, false);
+		$taylorKey = get_class($this).'::'.__FUNCTION__.'#'.__LINE__.BR.
+			Debug::getBackLog(15, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
 
 		$this->query = $this->getQueryWithLimit();
@@ -414,6 +416,7 @@ class Collection implements IteratorAggregate {
 		foreach ($this->data as $i => &$row) { // Iterator by reference
 			$row = $this->preprocessRow($row);
 		}
+		$this->processed = true;
 		TaylorProfiler::stop($profiler);
 	}
 
@@ -441,7 +444,7 @@ class Collection implements IteratorAggregate {
 			|| is_null($this->data)
 			//|| !$this->data->count())) {
 		) {
-			$this->retrieveData();
+			$this->retrieveData(false, false);
 		}
 		if (!($this->data instanceof ArrayPlus)) {
 			$this->data = ArrayPlus::create($this->data);
@@ -451,6 +454,19 @@ class Collection implements IteratorAggregate {
 			//$this->count = sizeof($this->data);
 		}
 		return $this->data;
+	}
+
+	function getProcessedData() {
+		if ($this->processed) {
+			return $this->data;
+		} elseif ($this->data) {
+			$this->preprocessData();
+			return $this->data;
+		} else {
+			$this->getData();
+			$this->preprocessData();
+			return $this->data;
+		}
 	}
 
 	/**
@@ -489,7 +505,7 @@ class Collection implements IteratorAggregate {
     function getOptions() {
 		$options = array();
 		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
-		foreach ($this->getData() as $row) {
+		foreach ($this->getProcessedData() as $row) {
             //if ( !in_array($row[$this->idField], $blackList) ) {
                 $options[$row[$this->idField]] = $row[$this->titleColumn];
             //}
@@ -547,7 +563,7 @@ class Collection implements IteratorAggregate {
 	function renderList() {
 		$list = array();
 		if ($this->getCount()) {
-			foreach ($this->getData() as $id => $row) {
+			foreach ($this->getProcessedData() as $id => $row) {
 				if ($this->thes) {
 					$row = $this->prepareRenderRow($row);   // add link
 					$item = '';

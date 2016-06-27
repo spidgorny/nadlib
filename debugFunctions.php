@@ -228,4 +228,9 @@ if (!function_exists('debug')) {
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}
 
+	function ddie($something) {
+		debug($something);
+		die(__METHOD__);
+	}
+
 }
