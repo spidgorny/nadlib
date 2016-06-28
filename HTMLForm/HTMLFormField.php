@@ -195,6 +195,9 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			case "datepopup":
 				$this->form->datepopup($fieldName, $fieldValue);
 				break;
+			case "datepopup2":
+				$this->form->datepopup2($fieldName, $fieldValue, ifsetor($desc['plusConfig']), $desc->getArray());
+				break;
 			case "money":
 				$this->form->money($fieldName, $fieldValue, $desc->getArray());
 				break;
@@ -257,9 +260,24 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				];
 				$this->form->submit($desc['value'], $more);
 				break;
-			case 'ajaxTreeInput':
+			case 'ajaxTreeInputOld':
 				//debug($this->getName($fieldName, '', TRUE));
 				$tree = new AjaxTreeOld($fieldName, $desc['value'], $desc->getArray());
+				$this->form->stdout .= $tree->render();
+				break;
+			case 'ajaxTreeInput':
+				//debug($this->getName($fieldName, '', TRUE));
+				$tree = new AjaxTree($desc['tree']);
+//				$tree->setForm($this);
+				$tree->form->prefix($this->form->getPrefix());
+				$tree->setField($fieldName);
+				$this->form->stdout .= $tree->render();
+				break;
+			case 'jqueryFileTree':
+				$tree = new JQueryFileTree($desc['tree']);
+				$tree->setField($fieldName);
+//				$tree->setForm($this);
+				$tree->form->prefix($this->form->getPrefix());
 				$this->form->stdout .= $tree->render();
 				break;
 			case 'captcha':
