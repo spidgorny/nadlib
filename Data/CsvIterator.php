@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class CsvIterator
+ * http://de2.php.net/fgetcsv#57802
+ */
 class CsvIterator implements Iterator
 {
 	const ROW_SIZE = 4096*1024;
@@ -8,7 +12,8 @@ class CsvIterator implements Iterator
 	 * @var resource
 	 * @access private
 	 */
-	private $filePointer = null;
+	public $filePointer = null;
+
 	/**
 	 * The current element, which will
 	 * be returned on each iteration.
@@ -16,12 +21,14 @@ class CsvIterator implements Iterator
 	 * @access private
 	 */
 	protected $currentElement = null;
+
 	/**
 	 * The row counter.
 	 * @var int
 	 * @access private
 	 */
-	private $rowCounter = null;
+	private $rowCounter = 0;
+
 	/**
 	 * The delimiter for the csv file.
 	 * @var str
@@ -42,6 +49,7 @@ class CsvIterator implements Iterator
 	public function __construct($file, $delimiter=',')
 	{
 		try {
+			ini_set('auto_detect_line_endings',TRUE);
 			$this->filePointer = $this->fopen_utf8($file, 'r');
 			$this->delimiter = $delimiter;
 		}
@@ -81,8 +89,7 @@ class CsvIterator implements Iterator
 	 * @return array The current csv row as a 2 dimensional array
 	 */
 	public function current() {
-		$this->currentElement = fgetcsv($this->filePointer, self::ROW_SIZE, $this->delimiter);
-		$this->rowCounter++;
+		$this->read();
 		return $this->currentElement;
 	}
 
@@ -103,6 +110,8 @@ class CsvIterator implements Iterator
 	 * @return boolean Returns true on EOF reached, false otherwise.
 	 */
 	public function next() {
+		$this->rowCounter++;
+		$this->read();
 		return !feof($this->filePointer);
 	}
 
@@ -118,6 +127,15 @@ class CsvIterator implements Iterator
 			return false;
 		}
 		return true;
+	}
+
+	function read() {
+		static $last = -1; // != 0
+		if ($this->rowCounter != $last) {
+			$this->currentElement = fgetcsv($this->filePointer, self::ROW_SIZE,
+				$this->delimiter);
+			$last = $this->rowCounter;
+		}
 	}
 
 }
