@@ -11,8 +11,7 @@ class JQueryFileTree extends HTMLFormType {
 	 * @param string/array $fieldName
 	 * @param LazyTreeOptions $tree
 	 */
-	function __construct($fieldName, LazyTreeOptions $tree) {
-		$this->setField($fieldName);
+	function __construct(LazyTreeOptions $tree) {
 		$this->setTree($tree);
 		$this->setForm(new HTMLForm());
 	}
@@ -51,29 +50,32 @@ class JQueryFileTree extends HTMLFormType {
 
 		/* @var $specificTree LazyTreeBase */
 		$this->form->text('
-			<div class="jqueryFileTreeExtra">
+			<div class="jqueryFileTreeExtra" 
+			containerID="'.$tree->containerID.'"
+			receptorID="'.$tree->receptorID.'"
+			strField="'.$strField.'"
+			>
 				<div>
-					<img src="skin/default/img/down.gif" class="trigger">
-					<input id="'.$tree->receptorID.'_title" value="'.$specificTree->getNameFor($tree->selectedNode).'">
+					<img src="skin/default/img/down.gif" class="trigger" />
+					<input id="'.$tree->receptorID.'_title" 
+					value="'.$specificTree->getNameFor($tree->selectedNode).'" 
+					placeholder="Search starts after three letters"
+					title="Search starts after three letters"
+					/>
 				</div>
-				<div id="'.$tree->containerID.'" class="jqueryFileTreeContainer"></div>
-				<script>
-					jQuery(document).ready(function () {
-						jqueryFileTreeStart("'.$tree->containerID.'", "'.$tree->receptorID.'", "'.$strField.'");
-					});
-				</script>
+				<div id="'.$tree->containerID.'" 
+				class="jqueryFileTreeContainer"></div>
 			</div>
 		');
 
 		//unset($GLOBALS['HTMLHEADER']['prototype']);
 		//unset($GLOBALS['HTMLHEADER']['scriptaculous']);
-		Index::getInstance()->addJQuery();
-		$GLOBALS['HTMLHEADER']['jQueryReady'] = '<script src="script/jQueryReady.js"></script>';
-		$GLOBALS['HTMLHEADER']['jQueryFileTree'] = '
-			<link type="text/css" href="lib/jqueryFileTree/jqueryFileTree.css" rel="stylesheet" />
-			<script src="lib/jqueryFileTree/jqueryFileTree.js"></script>
-		';
-		$GLOBALS['HTMLHEADER']['jqueryFileTreeStart'] = '<script src="lib/jqueryFileTree/jqueryFileTreeStart.js"></script>';
+		Index::getInstance()
+			->addJQuery()
+			->addJS('script/jQueryReady.js')
+			->addCSS("lib/jqueryFileTree/jqueryFileTree.css")
+			->addJS("lib/jqueryFileTree/jqueryFileTree.js")
+			->addJS('lib/jqueryFileTree/jqueryFileTreeStart.js');
 		//debug($tree->openTreeNodes);
 
 		$content = $this->form->stdout;

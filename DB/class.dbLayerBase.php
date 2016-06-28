@@ -219,4 +219,8 @@ class dbLayerBase implements DBInterface {
 		return $this->getScheme() == 'sqlite';
 	}
 
+	function clearQueryLog() {
+		$this->queryLog = NULL;
+	}
+
 }
