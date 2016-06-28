@@ -343,6 +343,15 @@ class HTMLForm {
 		$index->footer['init_cal_'.$id] = $script;
 	}
 
+	function datepopup2($name, $value = NULL, $plusConfig = '', array $desc = array()) {
+		$dp2 = new HTMLFormDatePopup2($this, $name, $value, $desc + array(
+				'plusConfig' => $plusConfig,
+				'phpFormat' => 'Y-m-d',
+			));
+		$this->stdout .= $dp2.'';
+		return $dp2->id;
+	}
+
 	function money($name, $value, array $desc) {
 		if (!$value) {
 			$value = "0.00";

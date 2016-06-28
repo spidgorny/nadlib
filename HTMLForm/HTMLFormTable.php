@@ -2,7 +2,7 @@
 
 /**
  * Class HTMLFormTable
- * @ses HTMLFormField
+ * @see HTMLFormField
  */
 class HTMLFormTable extends HTMLForm {
 	/**
