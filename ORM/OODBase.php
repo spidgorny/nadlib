@@ -644,6 +644,7 @@ abstract class OODBase {
 	}
 
 	/**
+	 * Used by bijou.
 	 * @param $insert
 	 * @param $class
 	 * @return static
