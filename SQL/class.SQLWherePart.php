@@ -35,7 +35,7 @@ class SQLWherePart {
 	 * @return string
 	 */
 	function __toString() {
-		debug(__METHOD__, gettype2($this->db));
+		//debug(__METHOD__, gettype2($this->db));
 		if ($this->field && !is_numeric($this->field)) {
 			if ($this->field == 'read') {
 				//debug($this->field, $this->sql);
@@ -72,6 +72,10 @@ class SQLWherePart {
 	 */
 	function getParameter() {
 		return NULL;
+	}
+
+	function perform() {
+		return $this->db->perform($this->__toString());
 	}
 
 }
