@@ -451,11 +451,11 @@ class HTMLForm {
 	}
 
 	function combo($fieldName, array $desc) {
-		if ($desc['table']) {
+		if ($desc['from']) {
 			// TODO: replace with SQLBuilder->getTableOptions()
 			$db = Config::getInstance()->getDB();
 			$options = $db->fetchAll('SELECT DISTINCT '.$desc['title'].' AS value
-			FROM '.$desc['table'].'
+			FROM '.$desc['from'].'
 			WHERE NOT hidden AND NOT deleted
 			ORDER BY value');
 			$options = $db->IDalize($options, 'value', 'value');

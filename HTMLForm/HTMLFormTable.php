@@ -269,9 +269,11 @@ class HTMLFormTable extends HTMLForm {
 					$this->showTR($prefix, $fieldDesc, $path);
 				}
 			} else {
-				debug($fieldName);
-				debug($fieldDesc);
-				die(__METHOD__.'#'.__LINE__);
+				debug([
+					'fieldName' => $fieldName,
+					'fieldDesc' => $fieldDesc,
+				]);
+				throw new InvalidArgumentException(__METHOD__.'#'.__LINE__.' has wrong parameter');
 			}
 		}
 		$part = $this->stdout;
