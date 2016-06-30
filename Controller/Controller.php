@@ -86,6 +86,9 @@ abstract class Controller {
 	 */
 	public $config;
 
+	/**
+	 * @var AutoLoad
+	 */
 	protected $al;
 
 	var $log = array();
@@ -151,9 +154,9 @@ abstract class Controller {
 		$path = $url->getPath();
 		if ($this->useRouter &&	$class) {
 			$path->setFile($class);
+			$path->setAsFile();
 		}
 		//debug($prefix, get_class($path));
-		$path->setAsFile();
 		$url->setPath($path);
 		nodebug(array(
 			'useRouter' => $this->useRouter,
