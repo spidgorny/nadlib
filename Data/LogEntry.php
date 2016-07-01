@@ -58,8 +58,10 @@ class LogEntry {
 
 		if (contains($sData, '<')) {
 			$sData = htmlspecialchars($sData);	// no tags
+		} elseif (contains($sData, "\n")) {
+			$sData = '<pre>'.substr($sData, 0, 1000).'</pre>';
 		} else {
-			$sData = substr($sData, 0, 100);
+			$sData = substr($sData, 0, 1000);
 		}
 		return $sData;
 	}
