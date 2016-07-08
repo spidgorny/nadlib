@@ -271,6 +271,7 @@ class HTMLForm {
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
 		$sel->multiple = $multiple;
 		$sel->setDesc($desc);
+		//debug($name, $desc);
 		$sel->setForm($this);
 		$this->stdout .= $sel->render();
 	}
@@ -463,7 +464,7 @@ class HTMLForm {
 			$options = $desc['options'];
 		}
 		Index::getInstance()->addJQuery();
-		$this->selection($fieldName, $options, $desc['value'], FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"');
+		$this->selection($fieldName, $options, $desc['value'], FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"', false, $desc);
 		$this->input($fieldName, $desc['value']);
 	}
 
