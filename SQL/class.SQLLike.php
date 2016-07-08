@@ -40,10 +40,12 @@ class SQLLike extends SQLWherePart {
 			$escape = str_replace('_', '\\_', $escape);
 		}
 
+		$field = $this->db->quoteKey($this->field);
+
 		if ($this->db->isMySQL()) {
-			$sql = "{$this->field} LIKE concat('{$w[0]}', {$escape}, '{$w[1]}')";
+			$sql = "$field LIKE concat('{$w[0]}', {$escape}, '{$w[1]}')";
 		} else {
-			$sql = $this->field . " " . $like .
+			$sql = $field . " " . $like .
 				" '" . $w[0] . "' || " . $escape . " || '" . $w[1] . "'";
 		}
 		//debug($this->string, $escape, $wrap, $sql); exit();

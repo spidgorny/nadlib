@@ -49,7 +49,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	var $db;
 
     var $reserved = array(
-        'SELECT', 'LIKE',
+        'SELECT', 'LIKE', 'TO',
     );
 
 	/**
