@@ -246,6 +246,12 @@ abstract class OODBase {
 			} else {
 				$where[$this->idField] = $this->id;
 			}
+
+			if (!$this->db) {
+				debug_pre_print_backtrace();
+				debug($this);
+			}
+
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
 			//debug($query); exit;
 			$this->lastQuery = $query;
