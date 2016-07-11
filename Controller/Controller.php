@@ -95,6 +95,17 @@ abstract class Controller {
 	 */
 	var $html;
 
+	/**
+	 * Used by Collection to get the current sorting method.
+	 * Ugly, please reprogram.
+	 * @var
+	 */
+	public $sortBy;
+
+	protected $al;
+
+	var $html;
+
 	function __construct() {
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).'::'.__METHOD__.BR;
 		$this->index = class_exists('Index')
@@ -575,10 +586,10 @@ abstract class Controller {
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false, array $more = array()) {
+	function a($href, $text = '', $isHTML = false) {
 		return new HTMLTag('a', array(
 			'href' => $href,
-		) + $more, $text ?: $href, $isHTML);
+		), $text ?: $href, $isHTML);
 	}
 
 	function div($content, $class = '', array $more = array()) {

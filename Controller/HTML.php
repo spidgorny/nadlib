@@ -111,9 +111,13 @@ class HTML {
 	function url($page, array $params = array()) {
 		return $page.'?'.http_build_query($params);
 	}
-	
+
 	function pre($text) {
 		return '<pre>'.$this->e($text).'</pre>';
+	}
+
+	function hr() {
+		return '<hr />';
 	}
 
 }

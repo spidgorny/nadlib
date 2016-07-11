@@ -49,7 +49,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	protected $db;
 
 	function __construct(DBInterface $db, $defaultKey = NULL) { // 'uid'
 		$this->db = $db;
