@@ -105,7 +105,7 @@ abstract class Controller {
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->al = AutoLoad::getInstance();
-		if (class_exists('Config')) {
+		if (!is_object($this->config) && class_exists('Config')) {
 			$this->config = Config::getInstance();
 			$this->db = $this->config->getDB();
 			$this->user = $this->config->getUser();
@@ -113,7 +113,7 @@ abstract class Controller {
 			$this->config->mergeConfig($this);
 		} else {
 			/** @var Config config */
-			$this->config = NULL;
+			// $this->config = NULL;
 			//$this->user = new UserBase();
 		}
 		$this->linkVars['c'] = get_class($this);
