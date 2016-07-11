@@ -86,11 +86,7 @@ abstract class OODBase {
 	function __construct($id = NULL) {
 		//debug(get_called_class(), __FUNCTION__, $id);
 		if (class_exists('Config')) {
-			if (is_object($this->config)) {
-				$config = $this->config; // phpunit mock comes here
-			} else {
-				$config = Config::getInstance();
-			}
+			$config = Config::getInstance();
 			$this->table = $config->prefixTable($this->table);
 			if (!$this->db) {
 				$this->db = $config->getDB();
