@@ -450,6 +450,9 @@ class TaylorProfiler {
 		return $table;
 	}
 
+	/**
+	 * @return float
+	 */
 	static function getElapsedTime() {
 		$profiler = self::getInstance();
 		if ($profiler) {
