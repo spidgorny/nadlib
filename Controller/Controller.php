@@ -86,6 +86,9 @@ abstract class Controller {
 	 */
 	public $config;
 
+	/**
+	 * @var AutoLoad
+	 */
 	protected $al;
 
 	var $log = array();
@@ -101,10 +104,6 @@ abstract class Controller {
 	 * @var
 	 */
 	public $sortBy;
-
-	protected $al;
-
-	var $html;
 
 	function __construct() {
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).'::'.__METHOD__.BR;
@@ -727,6 +726,7 @@ abstract class Controller {
 	}
 
 	/**
+	 * Will detect parameter types and call getInstance() or new $class
 	 * @param $proxy
 	 * @param $method
 	 * @return mixed
@@ -738,11 +738,7 @@ abstract class Controller {
 			foreach ($r->getParameters() as $param) {
 				$name = $param->getName();
 				if ($this->request->is_set($name)) {
-					if ($param->isArray()) {
-						$assoc[$name] = $this->request->getArray($name);
-					} else {
-						$assoc[$name] = $this->request->getTrim($name);
-					}
+					$assoc[$name] = $this->getParameterByReflection($param);
 				} elseif ($param->isDefaultValueAvailable()) {
 					$assoc[$name] = $param->getDefaultValue();
 				} else {
@@ -756,6 +752,30 @@ abstract class Controller {
 			$content = $proxy->$method();
 			return $content;
 		}
+	}
+
+	function getParameterByReflection(ReflectionParameter $param) {
+		$name = $param->getName();
+		if ($param->isArray()) {
+			$return = $this->request->getArray($name);
+		} else {
+			$return = $this->request->getTrim($name);
+			$paramClassRef = $param->getClass();
+			//debug($param->getPosition(), $paramClassRef, $paramClassRef->getName());
+			if ($paramClassRef && class_exists($paramClassRef->getName())) {
+				$paramClass = $paramClassRef->getName();
+//				debug($param->getPosition(), $paramClass,
+//				method_exists($paramClass, 'getInstance'));
+				if (method_exists($paramClass, 'getInstance')) {
+					$obj = $paramClass::getInstance($return);
+					$return = $obj;
+				} else {
+					$obj = new $paramClass($assoc[$name]);
+					$return = $obj;
+				}
+			}
+		}
+		return $return;
 	}
 
 	function makeNewOf($className, $id) {
