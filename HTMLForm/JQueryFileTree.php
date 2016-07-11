@@ -25,8 +25,6 @@ class JQueryFileTree extends HTMLFormType {
 		$this->form->stdout = '';
 
 		$fieldName = $this->field;
-		$tree = $this->tree;
-		$textName = $this->form->getName($fieldName, '', TRUE);
 
 		$fullPath = array_merge(
 			$this->form->getPrefix(),
@@ -34,36 +32,40 @@ class JQueryFileTree extends HTMLFormType {
 		);
 		$strField = implode('_', $fullPath);
 
-		$tree->sessionID = $strField;
-		$tree->receptorID = 'treeNodeClickValue_'.$strField;
-		$tree->containerID = 'treeNodeClickTree_'.$strField;
-		$_SESSION['jqueryFileTree'][$strField] = clone $tree; // will be garbage collected
+		$this->tree->sessionID = $strField;
+		$this->tree->receptorID = 'treeNodeClickValue_'.$strField;
+		$this->tree->containerID = 'treeNodeClickTree_'.$strField;
 
-		$this->form->hidden($fieldName, $tree->selectedNode, 'id="'.$tree->receptorID.'"');
-		if (is_array($tree->rootID)) {
+//		debug($this->tree, $this->tree->getTreeInstance());
+
+		$_SESSION['jqueryFileTree'][$strField] = clone $this->tree; // will be garbage collected
+
+		$this->form->hidden($fieldName, $this->tree->selectedNode, 'id="'.$this->tree->receptorID.'"');
+		if (is_array($this->tree->rootID)) {
 			$start = NULL;
 		} else {
-			$start = $tree->rootID;
+			$start = $this->tree->rootID;
 		}
-		$specificTree = new $tree->class($start, $tree);
-		$specificTree->id = $tree->rootID;  // array
+		$this->tree->requestRoot = $start;
+		$specificTree = $this->tree->getTreeInstance();
+		$specificTree->id = $this->tree->rootID;  // array
 
 		/* @var $specificTree LazyTreeBase */
 		$this->form->text('
 			<div class="jqueryFileTreeExtra" 
-			containerID="'.$tree->containerID.'"
-			receptorID="'.$tree->receptorID.'"
+			containerID="'.$this->tree->containerID.'"
+			receptorID="'.$this->tree->receptorID.'"
 			strField="'.$strField.'"
 			>
 				<div>
 					<img src="skin/default/img/down.gif" class="trigger" />
-					<input id="'.$tree->receptorID.'_title" 
-					value="'.$specificTree->getNameFor($tree->selectedNode).'" 
+					<input id="'.$this->tree->receptorID.'_title" 
+					value="'.$specificTree->getNameFor($this->tree->selectedNode).'" 
 					placeholder="Search starts after three letters"
 					title="Search starts after three letters"
 					/>
 				</div>
-				<div id="'.$tree->containerID.'" 
+				<div id="'.$this->tree->containerID.'" 
 				class="jqueryFileTreeContainer"></div>
 			</div>
 		');

@@ -523,7 +523,7 @@ abstract class OODBase {
 	 * @return static
 	 */
 	static function getInstance($id) {
-		return self::getInstanceByID($id);
+		return static::getInstanceByID($id);
 	}
 
 	/**
