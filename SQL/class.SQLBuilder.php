@@ -283,6 +283,7 @@ class SQLBuilder {
 				$order = NULL;
 			}
 		} elseif ($order) {
+			debug($order);
 			throw new InvalidArgumentException(__METHOD__);
 		} else {
 			$group = NULL;
@@ -650,6 +651,25 @@ class SQLBuilder {
 	function getWhereString(array $where) {
 		$set = $this->quoteWhere($where);
 		return implode(' AND ', $set);
+	}
+
+	/**
+	 * The query is supposed to return two columns only
+	 * @param $query
+	 * @return array
+	 */
+	function fetchOptions($query) {
+		$data = array();
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		while (($row = $this->fetchAssoc($result)) != FALSE) {
+			list($key, $val) = $row;
+			$data[$key] = $val;
+		}
+		return $data;
 	}
 
 }

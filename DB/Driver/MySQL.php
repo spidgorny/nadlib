@@ -510,20 +510,6 @@ class MySQL extends dbLayerBase implements DBInterface {
 		mysql_select_db($this->database);
 	}
 
-	function fetchOptions($query) {
-		$data = array();
-		if (is_string($query)) {
-			$result = $this->perform($query);
-		} else {
-			$result = $query;
-		}
-		while (($row = mysql_fetch_row($result)) != FALSE) {
-			list($key, $val) = $row;
-			$data[$key] = $val;
-		}
-		return $data;
-	}
-
 	function affectedRows($res = NULL) {
 		return mysql_affected_rows();
 	}
