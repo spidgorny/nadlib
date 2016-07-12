@@ -119,6 +119,8 @@ FROM {$this->from}
 {$this->having}
 {$this->order}
 {$this->limit}");
+		// http://stackoverflow.com/a/709684
+		$query = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $query);
 		return $query;
 	}
 
