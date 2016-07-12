@@ -94,6 +94,7 @@ abstract class OODBase {
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
+		//echo get_class($this).'::'.__FUNCTION__, ' ', gettype2($this->db), BR;
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
@@ -249,7 +250,7 @@ abstract class OODBase {
 
 			if (!$this->db) {
 				debug_pre_print_backtrace();
-				debug($this);
+				debug(gettypes(get_object_vars($this)));
 			}
 
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);

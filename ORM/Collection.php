@@ -677,6 +677,10 @@ class Collection implements IteratorAggregate {
 		return $this->members;
 	}
 
+	function objectifyAsPlus() {
+		return ArrayPlus::create($this->objectify());
+	}
+
 	function __toString() {
 		return $this->render().'';
 	}
