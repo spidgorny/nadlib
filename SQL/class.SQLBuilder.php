@@ -288,6 +288,7 @@ class SQLBuilder {
 			$parts = trimExplode('LIMIT', $sOrder);
 			$limit = new SQLLimit($parts[0]);
 		} elseif ($sOrder) {
+			debug($order);
 			throw new InvalidArgumentException(__METHOD__);
 		}
 		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order, $limit);
@@ -564,7 +565,7 @@ class SQLBuilder {
 	 */
 	function fetchAll($res, $key = NULL) {
 		TaylorProfiler::start(__METHOD__);
-		if (is_string($res)) {
+		if (is_string($res) || $res instanceof SQLSelectQuery) {
 			$res = $this->db->perform($res);
 		}
 
@@ -653,6 +654,28 @@ class SQLBuilder {
 	function getWhereString(array $where) {
 		$set = $this->quoteWhere($where);
 		return implode(' AND ', $set);
+	}
+
+	/**
+	 * The query is supposed to return two columns only
+	 * @param $query
+	 * @return array
+	 */
+	function fetchOptions($query) {
+		$data = array();
+		if (is_string($query) || $query instanceof SQLSelectQuery) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		$row = $this->fetchAssoc($result);
+		while ($row != FALSE && $row != NULL) {
+			list($key, $val) = array_values($row);
+			$data[$key] = $val;
+
+			$row = $this->fetchAssoc($result);
+		}
+		return $data;
 	}
 
 }
