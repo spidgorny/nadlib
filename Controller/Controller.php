@@ -312,7 +312,7 @@ abstract class Controller {
 	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = NULL, array $more = array()) {
+	function encloseInAA($content, $caption = '', $h = NULL, $more = array()) {
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
