@@ -65,8 +65,15 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	function fetchAssoc($res) {
 		if ($res instanceof mysqli_result) {
 			return $res->fetch_assoc();
+		} elseif (is_string($res)) {
+			$res = $this->perform($res);
+			return $res->fetch_assoc();
+		} elseif ($res instanceof SQLSelectQuery) {
+			$res = $this->perform($res.'');
+			return $res->fetch_assoc();
 		} else {
-			return NULL;
+			debug(gettype2($res));
+			throw new InvalidArgumentException(__METHOD__);
 		}
 	}
 
