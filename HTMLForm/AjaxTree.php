@@ -80,7 +80,10 @@ class AjaxTree extends HTMLFormType implements HTMLFormTypeInterface {
 
 		new treeArrayLoad(); // to include the corresponding javascript or the tree for use in ajax.
 		$onclick = 'startAjaxTree(\''.$id.'\', \''.$textName.'\', \''.$caller.'\', \'&jsCallbackFunction=treeNodeClick_Input\'); return false;';
-		$this->form->stdout .= str::ahref('<img src="skin/default/img/browsefolder.png" id="'.$caller.'" width="16" height="16">', '', FALSE, NULL, 'onclick="'.$onclick.'"');
+		$this->form->stdout .= new HTMLTag('a', [
+			'href' => '',
+			'onclick' => $onclick,
+		], '<img src="skin/default/img/browsefolder.png" id="'.$caller.'" width="16" height="16">', true);
 
 		// next three lines are commented, because they moved to bijouTreeXML.php?do=ajaxTreeStart
 //		$t = new treeArrayLoad();
@@ -90,7 +93,7 @@ class AjaxTree extends HTMLFormType implements HTMLFormTypeInterface {
 		$renderTree = '<img src="skin/default/img/progressBarShort.gif">';
 
 		$this->form->stdout .= '<div id="'.$id.'" class="htmlFormAjaxTree" style="display: none;">';
-		$e = new Extension();
+		$e = new AppController();
 		$this->form->stdout .= $e->encloseIn('Select an element', $renderTree, TRUE, array(
 			'closeButton' => $id,
 			'innerStyle' => 'height: 400px; overflow: scroll;',
