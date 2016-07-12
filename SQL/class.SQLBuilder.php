@@ -562,7 +562,7 @@ class SQLBuilder {
 	 */
 	function fetchAll($res, $key = NULL) {
 		TaylorProfiler::start(__METHOD__);
-		if (is_string($res)) {
+		if (is_string($res) || $res instanceof SQLSelectQuery) {
 			$res = $this->db->perform($res);
 		}
 
@@ -660,14 +660,17 @@ class SQLBuilder {
 	 */
 	function fetchOptions($query) {
 		$data = array();
-		if (is_string($query)) {
+		if (is_string($query) || $query instanceof SQLSelectQuery) {
 			$result = $this->perform($query);
 		} else {
 			$result = $query;
 		}
-		while (($row = $this->fetchAssoc($result)) != FALSE) {
-			list($key, $val) = $row;
+		$row = $this->fetchAssoc($result);
+		while ($row != FALSE && $row != NULL) {
+			list($key, $val) = array_values($row);
 			$data[$key] = $val;
+
+			$row = $this->fetchAssoc($result);
 		}
 		return $data;
 	}
