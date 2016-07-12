@@ -381,4 +381,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		return $this->getTypeString() == 'checkbox';
 	}
 
+	function setOptional($is = true) {
+		$this->data['optional'] = $is;
+	}
+
 }

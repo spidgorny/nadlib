@@ -89,6 +89,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		"connect-src" => array(
 			"'self'",
 		),
+		"script-src" => [
+			"'self'",
+			"'unsafe-inline'",
+			"'unsafe-eval'",
+		],
 	);
 
 	public function __construct() {
