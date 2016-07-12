@@ -263,6 +263,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			case 'ajaxTreeInputOld':
 				//debug($this->getName($fieldName, '', TRUE));
 				$tree = new AjaxTreeOld($fieldName, $desc['value'], $desc->getArray());
+				$tree->setForm($this->form);
 				$this->form->stdout .= $tree->render();
 				break;
 			case 'ajaxTreeInput':

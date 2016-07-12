@@ -24,7 +24,7 @@ class SQLBuilder {
 	public $found;
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerBase|dbLayerPG
+	 * @var DBInterface
 	 */
 	public $db;
 
@@ -288,7 +288,7 @@ class SQLBuilder {
 			$parts = trimExplode('LIMIT', $sOrder);
 			$limit = new SQLLimit($parts[0]);
 		} elseif ($sOrder) {
-			debug($order);
+			debug(['sOrder' => $sOrder, 'order' => $order]);
 			throw new InvalidArgumentException(__METHOD__);
 		}
 		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order, $limit);
@@ -572,7 +572,7 @@ class SQLBuilder {
 		$data = array();
 		do {
 			$row = $this->db->fetchAssoc($res);
-			if ($row === FALSE || $row == array()) {
+			if ($row === FALSE || $row == array() || $row === NULL) {
 				break;
 			}
 			if ($key) {

@@ -6,6 +6,7 @@ class AjaxTreeOld extends HTMLFormType {
 		$this->setField($field);
 		$this->setValue($value);
 		$this->desc = $desc;
+		$this->setForm(new HTMLForm());
 	}
 
 	/**
@@ -16,7 +17,7 @@ class AjaxTreeOld extends HTMLFormType {
 	 * $desc['tableTitle'] - SELECT id, tableTitle FROM ...
 	 * $desc['paddedID'] - paddedID.innerHTML = tree.toString()
 	 */
-	function render() {
+	function getOpenButton() {
 		$desc = $this->desc;
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
@@ -63,25 +64,36 @@ class AjaxTreeOld extends HTMLFormType {
 				'paddedStyle' => 'height: 640px; overflow: auto;',
 				'titleMore' => 'onmousedown="dragStart(event, \''.$desc['treeDivID'].'\')" style="cursor: move;"',
 			));
+		return $this->stdout;
 	}
 
-	function ajaxTreeInput($fieldName, $fieldValue, array $desc = array()) {
+	function render() {
+		$tmp = $this->form->stdout;
+		$this->form->stdout = '';
+
+		$fieldName = $this->field;
+		$fieldValue = $this->value;
+		$desc = $this->desc;
 		$desc['more'] = isset($desc['more']) ? $desc['more'] : NULL;
 		$desc['size'] = isset($desc['size']) ? $desc['size'] : NULL;
 		$desc['cursor'] = isset($desc['cursor']) ? $desc['cursor'] : NULL;
 		$desc['readonly'] = isset($desc['readonly']) ? $desc['readonly'] : NULL;
-		$this->text('<nobr>');
-		$this->hidden($fieldName, $fieldValue,
+		$this->form->text('<nobr>');
+		$this->form->hidden($fieldName, $fieldValue,
 			'id="'.ifsetor($desc['selectID']).'"');
 		$fieldName[sizeof($fieldName)-1] = end($fieldName).'_name';
-		$this->input($fieldName, $desc['valueName'],
+		$this->form->input($fieldName, $desc['valueName'],
 			'style="width: '.$desc['size'].'"
 			readonly
 			id="'.$desc['selectID'].'_name" '.
 			$desc['more']);
-		$this->text('</td><td>');
-		$this->ajaxTree($desc);
-		$this->text('</nobr>');
+		$this->form->text('</td><td>');
+		$this->form->text($this->getOpenButton());
+		$this->form->text('</nobr>');
+
+		$content = $this->form->stdout;
+		$this->form->stdout = $tmp;
+		return $content;
 	}
 
 }
