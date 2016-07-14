@@ -104,14 +104,16 @@ class slTableValue {
 				} else {
 					$out = "";
 				}
-			break;
+				break;
+
 			case "date":
 				if ($val) {
 					$out = date($k['format'] ?: 'Y-m-d H:i:s', $val);
 				} else {
 					$out = '';
 				}
-			break;
+				break;
+
 			case "gmdate":
 				if ($val !== NULL) {
 					if (is_numeric($val)) {
@@ -124,9 +126,11 @@ class slTableValue {
 				}
 				//$out .= '-'.var_export($val, TRUE);
 				break;
+
 			case 'hours':
 				$out = $this->getHours($val);
-			break;
+				break;
+
 			case "sqltime":
 				if ($val) {
 					$val = strtotime(substr($val, 0, 16)); // cut milliseconds
@@ -134,7 +138,8 @@ class slTableValue {
 				} else {
 					$out = '';
 				}
-			break;
+				break;
+
 			case "sqldate":
 				if ($val) {
 					$val = new Date($val);
@@ -142,7 +147,8 @@ class slTableValue {
 				} else {
 					$out = '';
 				}
-			break;
+				break;
+
 			case "sqldatetime":
 				if ($val) {
 					$val = new Time($val);
@@ -150,26 +156,27 @@ class slTableValue {
 				} else {
 					$out = '';
 				}
-			break;
-			case 'hours':
-				$out = $this->getHours($val);
 				break;
+
 			case "file":
 				$out = new HTMLTag('a', array(
 					'href' => $GLOBALS['uploadURL'].$val,
 				), $val);
-			break;
+				break;
+
 			case "money":
 				if (!is_numeric($val)) {
 					debug($col, $val);
 				}
 				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
-			break;
+				break;
+
 			case "delete":
 				$out = new HTMLTag('a', array(
 					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'],
 				), "Del");
-			break;
+				break;
+
 			case "datatable":
 				//$out .= t3lib_utility_Debug::viewArray(array('col' => $col, 'val' => $val, 'desc' => $k));
 				$out = $k['prefix'];
@@ -177,13 +184,16 @@ class slTableValue {
 				$f->prefix($this->prefixId);
 				$out .= $f->datatable($col, $val, $k, $details = TRUE, $doDiv = TRUE, 'sltable', $data = 'test');
 				$out .= $k['append'];
-			break;
+				break;
+
 			case 'link':
 				$out = '<a href="'.$val.'" target="'.$k['target'].'">'.($k['text'] ? $k['text'] : $val).'</a>';
-			break;
+				break;
+
 			case 'image':
 				$out = '<img src="'.$k['prefix'].$val.'" />';
-			break;
+				break;
+
 			case "checkbox":
 				if (ifsetor($k['tf'])) {
 					$val = $val == 't';
@@ -200,7 +210,8 @@ class slTableValue {
 				} else {
 					$out = $img;
 				}
-			break;
+				break;
+
 			case "bool":
 			case "boolean":
 				if (intval($val)) {
@@ -209,19 +220,23 @@ class slTableValue {
 					$out = ifsetor($k['false'], $this->SLTABLE_IMG_CROSS);
 				}
 				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
-			break;
+				break;
+
 			case "excel":
 				$out = str_replace(',', '.', $val); // from excel?
 				$out = number_format($out, 2, ',', '.');
-			break;
+				break;
+
 			case 'check':
 				$out = '<div style="text-align: center;">
 					<input class="check" type="checkbox" disabled="" '.($val ? 'checked' : '').' />
 				</div>';
-			break;
+				break;
+
 			case "percent":
 				$out = number_format($val*100, 2, '.', '').'&nbsp;%';
-			break;
+				break;
+
 			case "bar":
 				if (!is_null($val)) {
 					$pb = new ProgressBar();
@@ -231,10 +246,12 @@ class slTableValue {
 						$out = $pb->getImage($val*100);
 					}
 				}
-			break;
+				break;
+
 			case "callback":
 				$out = call_user_func($k['callback'], $val, $k, $row);
-			break;
+				break;
+
 			case "instance":
 				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
 				if (ifsetor($k['method']) && method_exists($obj, $k['method'])) {
@@ -242,7 +259,8 @@ class slTableValue {
 				} else {
 					$out = $obj . '';
 				}
-			break;
+				break;
+
 			case "singleton":
 				if ($val) {
 					if (ifsetor($k['csv'])) {
@@ -261,12 +279,14 @@ class slTableValue {
 						$out = $obj . '';
 					}
 				}
-			break;
+				break;
+
 			case "singleLink":
 				$out = new HTMLTag('a', array(
 					'href' => new URL($k['link'].$row[$k['idField']]),
 				), $val ?: $k['text']);
-			break;
+				break;
+
 			case 'HTMLFormDatePicker':
 				//$val = strtotime($val);
 				//$out = date($k['type']->format, $val);
@@ -274,7 +294,8 @@ class slTableValue {
 					$val = new Date($val);
 					$out = $val->format($k['type']->format);
 				}
-			break;
+				break;
+
 			case "default":
 				$out = isset($k['text']) ? $k['text'] : 'Provide text property';
 				break;
