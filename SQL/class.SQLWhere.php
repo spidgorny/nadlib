@@ -101,9 +101,11 @@ class SQLWhere {
 
 	static function genFromArray(array $where) {
 		foreach ($where as $key => &$val) {
-			$val = new SQLWhereEqual($key, $val);
+			if (!($val instanceof SQLWherePart)) {
+				$val = new SQLWhereEqual($key, $val);
+			}
 		}
-		return new SQLWhere($where);
+		return new self($where);
 	}
 
 	function getParameters() {
