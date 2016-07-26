@@ -73,16 +73,11 @@ class TaylorProfiler {
         $this->startTimer('unprofiled');
     }
 
-    // Public Methods
-
-	function getName() {
-		if (class_exists('MySQL') && method_exists('MySQL', 'getCaller')) {
-			$name = MySQL::getCaller();
-		} elseif (class_exists('Debug') && method_exists('Debug', 'getCaller')) {
-			$name = Debug::getCaller();
-		} else if (class_exists('dbLayerPG')) {
-			$i = 3;
-			$name = dbLayerPG::getCaller($i, 2);
+	static function getName() {
+		if (class_exists('Debug') && method_exists('Debug', 'getCaller')) {
+			$name = Debug::getCaller(3);	// three is best
+		} elseif (class_exists('dbLayerPG')) {
+			$name = dbLayerPG::getCaller(3, 2);
 		} else {
 			$name = 'noname';
 		}
@@ -679,12 +674,14 @@ class TaylorProfiler {
 		return NULL;
 	}
 
-	static function start($method) {
+	static function start($method = NULL) {
+		$method = $method ?: self::getName();
 		$tp = TaylorProfiler::getInstance();
 		$tp ? $tp->startTimer($method) : NULL;
 	}
 
-	static function stop($method) {
+	static function stop($method = NULL) {
+		$method = $method ?: self::getName();
 		$tp = TaylorProfiler::getInstance();
 		$tp ? $tp->stopTimer($method) : NULL;
 	}

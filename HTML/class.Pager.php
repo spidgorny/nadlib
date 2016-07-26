@@ -353,6 +353,11 @@ class Pager {
 		return $content;
 	}
 
+	/**
+	 * @param $current
+	 * @param $max
+	 * @return array
+	 */
 	function getPagesAround($current, $max) {
 		$size = $this->pagesAround;
 		$pages = array();
@@ -384,6 +389,10 @@ class Pager {
 		$pages = array_unique($pages);
 
 		return $pages;
+	}
+
+	function getVisiblePages() {
+		return $this->getPagesAround($this->currentPage, $this->getMaxPage());
 	}
 
 	/**
