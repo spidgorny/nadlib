@@ -23,6 +23,11 @@ class Profiler {
 		$this->startTime = $startTime ? $startTime : microtime(true);
 	}
 
+	function restart() {
+		$this->startTime = microtime(true);
+		$this->endTime = NULL;
+	}
+
 	function stop() {
 		$this->endTime = microtime(true);
 	}
@@ -45,8 +50,7 @@ class Profiler {
 
 	function elapsedNext() {
 		$since = $this->elapsed();
-		$this->startTime = microtime(true);
-		$this->endTime = NULL;
+		$this->restart();
 		return $since;
 	}
 
