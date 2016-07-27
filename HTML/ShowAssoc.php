@@ -18,6 +18,7 @@ class ShowAssoc {
 
 	function setTitle($title) {
 		$this->title = $title;
+		return $this;
 	}
 
 	function render() {
@@ -45,7 +46,7 @@ class ShowAssoc {
 		if (ifsetor($desc['reference'])) {
 			// class name
 			$class = $desc['reference'];
-			$obj = $class::getInstance($val);
+			$obj = $class::tryGetInstance($val);
 			if (method_exists($obj, 'getNameLink')) {
 				$val = new htmlString($obj->getNameLink());
 			} elseif (method_exists($obj, 'getName')) {
@@ -54,6 +55,9 @@ class ShowAssoc {
 				$val = $obj->__toString();
 			}
 		} elseif (ifsetor($desc['bool'])) {
+			if (ifsetor($desc['t/f'])) {
+				$val = $val == 't';
+			}
 			$val = $desc['bool'][$val];	// yes/no
 		} elseif (is_callable(ifsetor($desc['render']))) {
 			$val = call_user_func($desc['render'], $this->data);
