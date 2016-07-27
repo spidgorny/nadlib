@@ -16,3 +16,4 @@ composer.lock
 docs/
 tests/reports/
 debugCookie/
+/VERSION
