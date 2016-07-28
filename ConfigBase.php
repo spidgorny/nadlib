@@ -27,13 +27,13 @@ class ConfigBase {
 	 *
 	 * @var SQLBuilder
 	 */
-	public $qb;
+	protected $qb;
 
 	/**
 	 *
 	 * @var MySQL|dbLayer|dbLayerSQLite|dbLayerMS|dbLayerPDO
 	 */
-	public $db;
+	protected $db;
 
 	public $defaultController = 'Overview';
 
@@ -85,7 +85,7 @@ class ConfigBase {
 	/**
 	 * @var User|LoginUser
 	 */
-	public $user;
+	protected $user;
 
 	/**
 	 * @var string

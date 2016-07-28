@@ -266,7 +266,17 @@ abstract class Controller {
 		}
 	}*/
 
-	function render() {
+	function render()
+	{
+		$content[] = $this->performAction();
+		if (!$this->noRender) {
+			$content[] = $this->indexAction();
+		}
+
+		return $content;
+	}
+
+	function indexAction() {
 		$filePHTML = get_class($this).'.phtml';
 		$fileMD = get_class($this).'.md';
 
@@ -283,6 +293,8 @@ abstract class Controller {
 		} else {
 			$content = '';
 		}
+
+		$content = $this->div($content, get_class($this));
 		return $content;
 	}
 
@@ -305,7 +317,7 @@ abstract class Controller {
 	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = NULL, $more = array()) {
+	function encloseInAA($content, $caption = '', $h = NULL, array $more = array()) {
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
@@ -356,7 +368,7 @@ abstract class Controller {
 			$reqAction = $this->request->getTrim('action');
 		}
 		$method = $action ? $action
-				: (!empty($reqAction) ? $reqAction : 'index');
+				: (!empty($reqAction) ? $reqAction : NULL);
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
