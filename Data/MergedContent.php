@@ -126,8 +126,13 @@ class MergedContent implements ArrayAccess {
 			$combined = implode('', $sureStrings);
 			$render = $combined;
 		} elseif (is_object($render)) {
-			//debug(get_class($render));
-			$render = $render.'';
+			try {
+				$render = $render . '';
+			} catch (ErrorException $e) {
+				debug_pre_print_backtrace();
+				debug('Object of class ', get_class($render), 'could not be converted to string');
+				debug($render);
+			}
 		} else {
 			$render = $render.'';	// just in case
 		}
