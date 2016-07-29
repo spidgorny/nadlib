@@ -132,4 +132,13 @@ class DatabaseResultIterator implements Iterator, Countable {
 		$this->db->free($this->dbResultResource);
 	}
 
+	function skip($rows) {
+		while ($rows) {
+			$this->next();
+			$rows--;
+		}
+		$this->key += $rows;
+		return $this;
+	}
+
 }
