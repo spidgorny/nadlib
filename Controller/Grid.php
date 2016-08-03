@@ -222,9 +222,6 @@ abstract class Grid extends AppController {
 	 * @throws LoginException
 	 */
 	public function setColumns($cn, $allowEdit) {
-		if ($this->request->is_set('columns') && $allowEdit) {
-		}
-
 		// request
 		if ($this->request->is_set('columns') && $allowEdit) {
 			$this->columns = $this->request->getArray('columns');
