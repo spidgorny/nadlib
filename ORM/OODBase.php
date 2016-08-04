@@ -818,12 +818,25 @@ abstract class OODBase {
 		return $content;
 	}
 
-	public function getCollection(array $where, $orderBy = NULL) {
+	/**
+	 * It was called getCollection in the past
+	 * @param array $where
+	 * @param null  $orderBy
+	 * @return mixed
+	 */
+	public function queryInstances(array $where, $orderBy = NULL) {
 		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
 		foreach ($data as &$row) {
 			$row = static::getInstance($row);
 		}
 		return $data;
+	}
+
+	public function getCollection(array $where, $orderBy = NULL) {
+		$collection = Collection::createForTable($this->table, $where, $orderBy);
+		$collection->idField = $this->idField;
+		$collection->itemClassName = static::class;
+		return $collection;
 	}
 
 	static function tryGetInstance($id) {
