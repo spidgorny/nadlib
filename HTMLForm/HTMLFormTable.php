@@ -69,7 +69,7 @@ class HTMLFormTable extends HTMLForm {
 
 	function __construct(array $desc = array(), $prefix = array(), $fieldset = '') {
 		parent::__construct();
-		$this->desc = $desc;
+		$this->setDesc($desc);
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
 		if ($this->desc) {
@@ -88,8 +88,17 @@ class HTMLFormTable extends HTMLForm {
 		$this->tableMore['class'] = 'htmlFormTable';
 	}
 
+	/**
+	 * Makes sure each element is an array
+	 * @param array $desc
+	 */
 	function setDesc(array $desc) {
 		$this->desc = $desc;
+		foreach ($this->desc as &$sub) {
+			if (!is_array($sub)) {
+				$sub = ['label' => $sub];
+			}
+		}
 	}
 
 	/**
