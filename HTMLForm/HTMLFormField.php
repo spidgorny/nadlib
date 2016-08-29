@@ -108,6 +108,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		$fieldName = $this->fieldName;
 		$desc = $this;
 		$fieldValue = $this['value'];
+//		debug($fieldValue);
 		if ($desc['prefix']) {
 			$this->form->text($desc['prefix']);
 		}
