@@ -310,6 +310,7 @@ class slTable {
 				}
 			}
 		}
+		return $this->thes;
 	}
 
 	function getThesNames() {
