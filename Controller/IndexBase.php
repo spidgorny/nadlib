@@ -17,7 +17,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @var User|LoginUser
 	 * @public for template.phtml
 	 */
-	public $user;
+	protected $user;
 
 	/**
 	 * For any error messages during initialization.
@@ -100,10 +100,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		if (class_exists('Config')) {
-			$this->config = Config::getInstance();
-			$this->db = $this->config->db;
-			$this->user = $this->config->user;
-			$this->ll = $this->config->getLL();
+			try {
+				$this->config = Config::getInstance();
+				$this->db = $this->config->getDB();
+				$this->user = $this->config->getUser();
+				$this->ll = $this->config->getLL();
+			} catch (Exception $e) {
+				$this->content[] = $this->renderException($e);
+			}
 		}
 
 		$this->request = Request::getInstance();
