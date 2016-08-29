@@ -598,10 +598,10 @@ abstract class Controller {
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false) {
+	function a($href, $text = '', $isHTML = false, array $more = array()) {
 		return new HTMLTag('a', array(
 			'href' => $href,
-		), $text ?: $href, $isHTML);
+		) + $more, $text ?: $href, $isHTML);
 	}
 
 	function div($content, $class = '', array $more = array()) {
