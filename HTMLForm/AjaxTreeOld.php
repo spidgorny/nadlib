@@ -81,7 +81,11 @@ class AjaxTreeOld extends HTMLFormType {
 		$this->form->text('<nobr>');
 		$this->form->hidden($fieldName, $fieldValue,
 			'id="'.ifsetor($desc['selectID']).'"');
-		$fieldName[sizeof($fieldName)-1] = end($fieldName).'_name';
+		if (is_array($fieldName)) {
+			$fieldName[sizeof($fieldName) - 1] = end($fieldName) . '_name';
+		} else {
+			$fieldName .= '_name';
+		}
 		$this->form->input($fieldName, $desc['valueName'],
 			'style="width: '.$desc['size'].'"
 			readonly

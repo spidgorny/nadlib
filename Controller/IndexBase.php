@@ -370,7 +370,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * @return $this
 	 */
-	function addJQuery() {
+	function addJQuery($defer = true) {
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
 		}
@@ -397,7 +397,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			));
 			if (file_exists($al->componentsPath . $jQueryPath)) {
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
-				$this->addJS($al->componentsPath->getURL().$jQueryPath);
+				$this->addJS($al->componentsPath->getURL().$jQueryPath, $defer);
 				return $this;
 			} elseif (file_exists($al->appRoot . $jQueryPath)) {
                 // does not work if both paths are the same!!
@@ -405,15 +405,15 @@ class IndexBase /*extends Controller*/ {	// infinite loop
                 $rel = Path::make(Config::getInstance()->documentRoot)->remove($al->appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
-				$this->addJS($rel . $jQueryPath);
+				$this->addJS($rel . $jQueryPath, $defer);
 				return $this;
 			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
-				$this->addJS($al->nadlibFromDocRoot . $jQueryPath);
+				$this->addJS($al->nadlibFromDocRoot . $jQueryPath, $defer);
 				return $this;
 			} else {
 				$jQueryPath = 'components/jquery/jquery.min.js';
 			}
-			$this->addJS($jQueryPath);
+			$this->addJS($jQueryPath, $defer);
 		}
 		return $this;
 	}
@@ -576,7 +576,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeJS() {
-		if (file_exists('vendor/minify/min/index.php')) {
+		if (!DEVELOPMENT && file_exists('vendor/minify/min/index.php')) {
 			$include = array(); // some files can't be found
 			$files = array_keys($this->footer);
 			foreach ($files as $f => &$file) {
