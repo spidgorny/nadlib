@@ -321,7 +321,7 @@ class Flot extends AppController {
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
 function defer(method) {
-	if (window.jQuery) {
+	if (window.jQuery && $.plot) {
 		method();
 	} else {
 		setTimeout(function() { defer(method) }, 50);
