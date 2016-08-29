@@ -128,6 +128,11 @@ class Menu /*extends Controller*/ {
 		//debug($useRouter, $this->useControllerSlug, $rootpath, $level, $this->current);
 	}
 
+	function setControllerVarName($c) {
+		$this->controllerVarName = $c;
+		$this->setBasePath();
+	}
+	
 	/**
 	 * Called by the constructor
 	 */
