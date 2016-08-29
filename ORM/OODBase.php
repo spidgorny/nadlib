@@ -94,6 +94,7 @@ abstract class OODBase {
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
+		//echo get_class($this).'::'.__FUNCTION__, ' ', gettype2($this->db), BR;
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
@@ -246,6 +247,12 @@ abstract class OODBase {
 			} else {
 				$where[$this->idField] = $this->id;
 			}
+
+			if (!$this->db) {
+				debug_pre_print_backtrace();
+				debug(gettypes(get_object_vars($this)));
+			}
+
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
 			//debug($query); exit;
 			$this->lastQuery = $query;
@@ -811,12 +818,25 @@ abstract class OODBase {
 		return $content;
 	}
 
-	public function getCollection(array $where, $orderBy = NULL) {
+	/**
+	 * It was called getCollection in the past
+	 * @param array $where
+	 * @param null  $orderBy
+	 * @return mixed
+	 */
+	public function queryInstances(array $where, $orderBy = NULL) {
 		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
 		foreach ($data as &$row) {
 			$row = static::getInstance($row);
 		}
 		return $data;
+	}
+
+	public function getCollection(array $where, $orderBy = NULL) {
+		$collection = Collection::createForTable($this->table, $where, $orderBy);
+		$collection->idField = $this->idField;
+		$collection->itemClassName = static::class;
+		return $collection;
 	}
 
 	static function tryGetInstance($id) {

@@ -199,13 +199,14 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getColumnsForm() {
+//		debug($this->columns);
 		$desc = array(
 			'columns' => array(
 				'label' => '<h2>'.__('Visible').'</h2>',
 				'type' => 'set',
 				'options' => $this->getGridColumns(),
 				'value' => $this->columns
-					? array_keys($this->columns) : [],
+					? $this->columns : [],
 				'between' => '',
 			),
 			'collectionName' => array(
