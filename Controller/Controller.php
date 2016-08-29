@@ -153,11 +153,9 @@ abstract class Controller {
 			//unset($params['c']);
 		}
 
-		nodebug(__METHOD__, $params);
 		$url = new URL($prefix
 			? $prefix
 			: $this->request->getLocation(), $params);
-		nodebug(get_class($url->getPath()), $url->getPath().'');
 		$path = $url->getPath();
 		if ($this->useRouter &&	$class) {
 			$path->setFile($class);
@@ -166,6 +164,9 @@ abstract class Controller {
 		//debug($prefix, get_class($path));
 		$url->setPath($path);
 		nodebug(array(
+			'method' => __METHOD__,
+			'params' => $params,
+			'prefix' => $prefix,
 			'useRouter' => $this->useRouter,
 			'class' => $class,
 			'class($url)' => get_class($url),
