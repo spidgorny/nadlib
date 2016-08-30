@@ -24,7 +24,7 @@ class LDAPLogin {
 	/**
 	 * @var LDAPUser or a descendant
 	 */
-	public $userClass;
+	public $userClass = LDAPUser::class;
 
     public function __construct($host, $base) {
 		$this->LDAP_HOST = $host;
@@ -47,14 +47,25 @@ class LDAPLogin {
 		ldap_set_option($this->_ldapconn, LDAP_OPT_REFERRALS, 0);
 	}
 
+	/**
+	 * What if the password contains special characters?
+	 * @param $string
+	 * @return string
+	 */
     private function _sanitizeLdap($string) {
         return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
     }
 
+    public function bind($loginDN, $password) {
+    	$this->_connectLdap();
+    	return ldap_bind($this->_ldapconn, $loginDN, $password);
+	}
+
 	/**
 	 * @param $username
 	 * @param $password
-	 * @return bool|void|LDAPUser
+	 * @return bool|LDAPUser|void
+	 * @throws LoginException
 	 */
 	public function authLdap($username, $password) {
         $this->_connectLdap();
@@ -69,28 +80,33 @@ class LDAPLogin {
 	        //echo $filter;
 			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
 
+//			debug($this->_ldapconn, $this->LDAP_BASEDN, $filter);
 			$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $filter/*, $attributes*/);
-			$info = ldap_get_entries($this->_ldapconn, $search);
-	        //echo getDebug($info);
+			if ($search) {
+				$info = ldap_get_entries($this->_ldapconn, $search);
+				//echo getDebug($info);
 
-			if ($info['count'] == 0) {
-				$this->error = "User not found";
-				return false;
-			}
-
-			for ($i = 0; $i < $info['count']; $i++) {
-				$this->reconnect();
-				// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
-				$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $this->_sanitizeLdap($password));
-
-				if ($ldapbind) {
-					$this->userClass->initLDAP($info[$i]);
-					return $this->userClass;
-				} else {
-					$this->error = "LDAP login failed.";
-					//echo getDebug($ldapbind);
+				if ($info['count'] == 0) {
+					$this->error = "User not found";
 					return false;
 				}
+
+				for ($i = 0; $i < $info['count']; $i++) {
+					//$this->reconnect();
+					// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
+					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $this->_sanitizeLdap($password));
+
+					if ($ldapbind) {
+						$this->userClass->initLDAP($info[$i]);
+						return $this->userClass;
+					} else {
+						$this->error = "LDAP login failed.";
+						//echo getDebug($ldapbind);
+						return false;
+					}
+				}
+			} else {
+				throw new LoginException(error_get_last());
 			}
         }
         return false;
