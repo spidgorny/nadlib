@@ -76,7 +76,7 @@ class LDAPLogin {
         }
 
         if ($this->_ldapconn) {
-			$filter = "(cn=" . $this->_sanitizeLdap($username) . ")";
+			$filter = "(&(objectClass=user)(objectCategory=person)(cn=" . $this->_sanitizeLdap($username) . "))";
 	        //echo $filter;
 			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
 
