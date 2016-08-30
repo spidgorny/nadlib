@@ -78,4 +78,12 @@ class LDAPUser extends UserBase {
 		return $simpleData;
 	}
 
+	function getEmail() {
+		return $this->data['mail'][0];
+	}
+
+	function getPasswordHash() {
+		return $this->data['lastlogontimestamp'][0];
+	}
+
 }
