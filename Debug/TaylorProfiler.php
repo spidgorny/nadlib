@@ -367,26 +367,25 @@ class TaylorProfiler {
     /// Internal Use Only Functions
 
     /**
-    * Get the current time as accuratly as possible
-    *
+    * Get the current time as accurately as possible
     */
     function getMicroTime() {
 		return microtime(true);
     }
 
-    /**
-    * resume  an individual timer
-    *
-    */
+	/**
+	 * resume  an individual timer
+	 * @param $name
+	 */
     function __resumeTimer($name){
         $this->trace[] = array('time' => time(), 'function' => "$name {...", 'memory' => memory_get_usage());
         $this->startTime[$name] = $this->getMicroTime();
     }
 
-    /**
-    *   suspend  an individual timer
-    *
-    */
+	/**
+	 * suspend  an individual timer
+	 * @param $name
+	 */
     function __suspendTimer($name){
         $this->trace[] = array('time' => time(), 'function' => "$name }...", 'memory' => memory_get_usage());
         $this->endTime[$name] = $this->getMicroTime();
@@ -416,15 +415,18 @@ class TaylorProfiler {
 		$percent = $maxMB != 0
 			? number_format($usedMB/$maxMB*100, 3, '.', '')
 			: '';
-		$content = str_pad(
-			$usedMB, 4, ' ', STR_PAD_LEFT)
+		$content = str_pad($usedMB, 8, ' ', STR_PAD_LEFT)
 			.'/'.$maxMB.'MB '
-			.$percent.'% ';
-		if ($previous) {
-			$increase = $usedMB - $previous;
-			$sign = $increase > 0 ? '+' : '';
-			$content .= ' ('.$sign.number_format($increase, 3, '.', '').' MB)';
-		}
+			.str_pad($percent, 8, ' ', STR_PAD_LEFT).'% ';
+
+		$content .= '['.str_repeat('=',      $percent / 4).
+			str_repeat('-', 25 - $percent / 4).
+			']';
+
+		$increase = $usedMB - $previous;
+		$sign = $increase > 0 ? '+' : ' ';
+		$content .= ' ('.$sign.number_format($increase, 3, '.', '').' MB)';
+
 		$previous = $usedMB;
 		return $content;
 	}
