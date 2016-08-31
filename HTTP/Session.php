@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @property null simulateUser
+ */
 class Session {
 
 	var $prefix;
