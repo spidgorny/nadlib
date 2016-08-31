@@ -596,6 +596,7 @@ class TaylorProfiler {
 	}
 
 	public static function dumpMemory($var, $path = array()) {
+		static $visited = [];
 		if (is_array($var)) {
 			$log = implode('', array(
 				implode('', $path), '[', sizeof($var), ']', BR
@@ -609,16 +610,25 @@ class TaylorProfiler {
 				}
 			}
 		} elseif (is_object($var)) {
-			$objVars = get_object_vars($var);
-			$log = implode('', array(
-				implode('', $path), '{', sizeof($objVars), '}', BR
-			));
-			error_log($log);
-			echo $log;
-			foreach ($objVars as $key => $val) {
-				if (!is_scalar($val)) {
-					$newPath = array_merge($path, array('->'.$key));
-					self::dumpMemory($val, $newPath);
+			if (in_array(spl_object_hash($var), $visited)) {
+				echo implode('', $path), ' *RECURSION*', PHP_EOL;
+			} else {
+				$visited[] = spl_object_hash($var);
+				$objVars = get_object_vars($var);
+				$log = implode('', array(
+					implode('', $path),
+					'{',
+					sizeof($objVars),
+					'}',
+					BR
+				));
+				error_log($log);
+				echo $log;
+				foreach ($objVars as $key => $val) {
+					if (!is_scalar($val)) {
+						$newPath = array_merge($path, array('->' . $key));
+						self::dumpMemory($val, $newPath);
+					}
 				}
 			}
 		}
