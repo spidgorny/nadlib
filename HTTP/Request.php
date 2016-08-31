@@ -1073,17 +1073,13 @@ class Request {
 	}
 
 	function fetch($url) {
-		if ($this->proxy) {
-			$context = stream_context_create([
-				'http' => [
-					'proxy' => $this->proxy,
-					'timeout' => 1,
-				]
-			]);
-			$data = file_get_contents($url, NULL, $context);
-		} else {
-			$data = file_get_contents($url);
-		}
+		$context = stream_context_create([
+			'http' => [
+				'proxy' => $this->proxy,
+				'timeout' => 1,
+			]
+		]);
+		$data = file_get_contents($url, NULL, $context);
 		return $data;
 	}
 
