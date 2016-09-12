@@ -477,7 +477,7 @@ abstract class Controller {
 	 * @return URL
 	 */
 	function adjustURL(array $params) {
-		return URL::getCurrent()->setParams(array(
+		return URL::getCurrent()->addParams(array(
 			'c' => get_class(Index::getInstance()->controller),
 		)+$params);
 	}
@@ -680,11 +680,11 @@ abstract class Controller {
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	static function link($text = NULL) {
+	static function link($text = NULL, array $params = []) {
 		/** @var Controller $self */
 		$self = get_called_class();
 		return new HTMLTag('a', array(
-			'href' => $self::href()
+			'href' => $self::href($params)
 		), $text ?: $self);
 	}
 
