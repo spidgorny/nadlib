@@ -85,6 +85,10 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 		return $this->connection->escape_string($string);
 	}
 
+	function escapeBool($value) {
+		return intval(!!$value);
+	}
+
 	/**
 	 * @param $res mysqli_result
 	 * @param null $table

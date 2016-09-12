@@ -87,7 +87,9 @@ class SQLBuilder {
 			return "'".$value."'";	// quoting will not hurt, but will keep leading zeroes if necessary
 			// /* numeric */";		// this makes SQLQuery not work
 		} elseif (is_bool($value)) {
-			return $this->db->escapeBool($value);
+			$res = $this->db->escapeBool($value);
+			//debug($value, $key, get_class($this->db), $res);
+			return $res;
 		} elseif (is_scalar($value)) {
 			$sql = "'".$this->db->escape($value)."'";
 			if ($this->db->getScheme() == 'ms') {
