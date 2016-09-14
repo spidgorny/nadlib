@@ -839,6 +839,10 @@ abstract class OODBase {
 		return $collection;
 	}
 
+	/**
+	 * @param $id
+	 * @return self|this
+	 */
 	static function tryGetInstance($id) {
 		try {
 			$obj = self::getInstance($id);
