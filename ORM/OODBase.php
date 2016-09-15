@@ -91,6 +91,7 @@ abstract class OODBase {
 			if (!$this->db) {
 				$this->db = $config->getDB();
 			}
+			//debug(get_class($this), $this->table, gettype2($this->db));
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
@@ -302,7 +303,8 @@ abstract class OODBase {
 	function findInDB(array $where, $orderByLimit = '') {
 		TaylorProfiler::start($taylorKey = Debug::getBackLog(15, 0, BR, false));
 		if (!$this->db) {
-			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
+			//debug($this->db, $this->db->fetchAssoc('SELECT database()'));
+			//debug($this);
 		}
 		//debug(get_class($this->db));
 		$rows = $this->db->fetchOneSelectQuery($this->table,

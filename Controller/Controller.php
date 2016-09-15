@@ -125,6 +125,7 @@ abstract class Controller {
 		}
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
+		//debug_pre_print_backtrace();
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
