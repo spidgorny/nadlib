@@ -63,6 +63,8 @@ class JQueryFileTree extends HTMLFormType {
 					value="'.$specificTree->getNameFor($this->tree->selectedNode).'" 
 					placeholder="Search starts after three letters"
 					title="Search starts after three letters"
+					onclick="jQuery(this).select()"
+					type="search"
 					/>
 				</div>
 				<div id="'.$this->tree->containerID.'" 
