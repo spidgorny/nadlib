@@ -125,8 +125,12 @@ class MemcacheFile implements MemcacheInterface {
 		return $val;
 	}
 
-	function clearCache($key) {
-		$file = $this->map($key);
+	function setValue($value) {
+		$this->set($this->key, $value);
+	}
+
+	function clearCache($key = NULL) {
+		$file = $this->map($key ?: $this->key);
 		if (file_exists($file)) {
 			//echo '<font color="green">Deleting '.$file.'</font>', BR;
 			unlink($file);

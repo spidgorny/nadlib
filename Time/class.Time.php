@@ -479,7 +479,7 @@ class Time {
 	}
 
 	function getDiff(Time $t2) {
-		return $this->time - $t2->time;
+		return new Duration($this->time - $t2->time);
 	}
 
 	/**

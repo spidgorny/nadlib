@@ -849,7 +849,11 @@ class Request {
 	 * @return bool
 	 */
 	static function isCron() {
-		return !self::isPHPUnit() && self::isCLI() && !isset($_SERVER['TERM']);
+		return !self::isPHPUnit()
+			&& self::isCLI()
+			&& !isset($_SERVER['TERM'])
+			&& !self::isWindows()
+			;
 	}
 
 	function debug() {
@@ -1073,13 +1077,22 @@ class Request {
 	}
 
 	function fetch($url) {
-		$context = stream_context_create([
-			'http' => [
-				'proxy' => $this->proxy,
-				'timeout' => 1,
-			]
-		]);
-		$data = file_get_contents($url, NULL, $context);
+		if ($this->proxy) {
+			$context = stream_context_create([
+				'http' => [
+					'proxy' => $this->proxy,
+					'timeout' => 1,
+				]
+			]);
+			$data = file_get_contents($url, NULL, $context);
+		} else {
+			$context = stream_context_create([
+				'http' => [
+					'timeout' => 1,
+				]
+			]);
+			$data = file_get_contents($url, NULL, $context);
+		}
 		return $data;
 	}
 
@@ -1137,6 +1150,10 @@ class Request {
 		} else {
 			throw new Exception(__METHOD__);
 		}
+	}
+
+	public function getBrowserIP() {
+		return $_SERVER['REMOTE_ADDR'];
 	}
 
 }
