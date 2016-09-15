@@ -100,14 +100,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		if (class_exists('Config')) {
-			try {
+//			try {
 				$this->config = Config::getInstance();
 				$this->db = $this->config->getDB();
 				$this->user = $this->config->getUser();
 				$this->ll = $this->config->getLL();
-			} catch (Exception $e) {
-				$this->content[] = $this->renderException($e);
-			}
+//			} catch (Exception $e) {
+			// should not catch exceptions here, let subclass do it
+//				echo get_class($e), BR;
+//				$this->content[] = $this->renderException($e);
+//			}
 		}
 
 		$this->request = Request::getInstance();
@@ -159,7 +161,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
-			: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
+			: NULL;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
 			$instance = new $static();
