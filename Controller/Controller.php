@@ -278,10 +278,6 @@ abstract class Controller {
 	function render()
 	{
 		$content[] = $this->performAction();
-		if (!$this->noRender) {
-			$content[] = $this->indexAction();
-		}
-
 		return $content;
 	}
 
@@ -376,8 +372,8 @@ abstract class Controller {
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
-		$method = $action ? $action
-				: (!empty($reqAction) ? $reqAction : NULL);
+		$method = $action
+				?: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
