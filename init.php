@@ -25,6 +25,7 @@ class InitNADLIB {
 			ini_set('display_errors', TRUE);
 			ini_set('html_error', TRUE);
 
+			require_once __DIR__.'/Debug/class.TaylorProfiler.php';
 			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config')) {
