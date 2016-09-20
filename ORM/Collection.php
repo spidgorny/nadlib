@@ -144,6 +144,13 @@ class Collection implements IteratorAggregate {
 	protected $processed = false;
 
 	/**
+	 * Gives warnings if 'id' column in the data is not set.
+	 * Potentially saves you from trouble futher down the processing.
+	 * @var bool
+	 */
+	public $allowMerge = false;
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -197,8 +204,8 @@ class Collection implements IteratorAggregate {
 	 * @param bool $allowMerge
 	 * @param bool $preprocess
 	 */
-	function retrieveData($allowMerge = false, $preprocess = true) {
-		$this->log(get_class($this).'::'.__FUNCTION__.'('.$allowMerge.', '.$preprocess.')');
+	function retrieveData($preprocess = true) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'('.$this->allowMerge.', '.$preprocess.')');
 		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
@@ -210,7 +217,7 @@ class Collection implements IteratorAggregate {
 		} else {
 			$data = $this->retrieveDataFromDB();
 		}
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
+		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $this->allowMerge);
 		if ($preprocess) {
 			$this->preprocessData();
 		}
