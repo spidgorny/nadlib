@@ -6,6 +6,12 @@ class IniCheck extends AppControllerBE {
 		$content = array();
 		$iniFile = AutoLoad::getInstance()->appRoot.'php.ini';
 		$iniData = parse_ini_file($iniFile, true);  // sections
+
+		$htaccess = AutoLoad::getInstance()->appRoot.'.htaccess';
+		if (file_exists($htaccess)) {
+			$iniData['htaccess'] = $this->parseHtAccess($htaccess);
+		}
+
 		foreach ($iniData as $section => $subSection) {
 			$content[] = '<h1>' . $section . '</h1>';
 			if (is_array($subSection)) {
@@ -44,6 +50,23 @@ class IniCheck extends AppControllerBE {
 		}
 		$content[] = new slTable($table, 'class="table table-striped niceTable nospacing" width="100%"');
 		return $content;
+	}
+
+	function parseHtAccess($htaccess) {
+		$ini = [];
+		$lines = file($htaccess);
+		foreach ($lines as $line) {
+			$line = str_replace("\t", ' ', $line);
+			$parts = trimExplode(' ', $line);
+			if ($parts) {
+				if ($parts[0] == 'php_value') {
+					$ini[$parts[1]] = $parts[2];
+				} elseif ($parts[0] == 'php_flag') {
+					$ini[$parts[1]] = strtolower($parts[2]) == 'on';
+				}
+			}
+		}
+		return $ini;
 	}
 
 }
