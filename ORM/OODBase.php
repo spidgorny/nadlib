@@ -568,11 +568,10 @@ abstract class OODBase {
 			//debug($static, $intID, $id);
 			$inst = isset(self::$instances[$static][$intID])
 				? self::$instances[$static][$intID]
-				: NULL;
-			if (!$inst) {
-				$inst = new $static();
-				self::storeInstance($inst, $intID);	// int id
+				: $inst;
+			if (!$inst->id) {
 				$inst->init($id);	// array
+				self::storeInstance($inst, $intID);	// int id
 			}
 		} elseif ($id) {
 			//debug($static, $id);
