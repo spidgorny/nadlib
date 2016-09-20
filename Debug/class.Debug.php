@@ -193,6 +193,9 @@ class Debug {
 	 * @param mixed $params - any type
 	 */
 	function debugWithHTML($params) {
+		if (!class_exists('DebugHTML')) {
+			debug_pre_print_backtrace();
+		}
 		$debugHTML = new DebugHTML($this);
 		$content = call_user_func(array($debugHTML, 'render'), $params);
 		if (!is_null($content)) {
