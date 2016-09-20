@@ -105,6 +105,7 @@ class ConfigBase {
 	protected function __construct() {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
+//		debug($this->documentRoot);
 
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
@@ -117,7 +118,7 @@ class ConfigBase {
 		}
 
 		//debug_print_backtrace();
-		nodebug(array(
+		(array(
 			'Config->documentRoot' => $this->documentRoot,
 			'Config->appRoot' => $this->appRoot,
 		));
