@@ -49,7 +49,11 @@ class Time {
 				Config::getInstance()->log(__CLASS__.'#'.__LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		} else {
-			$this->time = time();
+			if ($relativeTo === NULL) {
+				$this->time = time();
+			} else {
+				$this->time = $relativeTo;
+			}
 		}
 		$this->updateDebug();
 		//TaylorProfiler::stop(__METHOD__.' ('.MySQL::getCaller().')');
@@ -739,6 +743,14 @@ class Time {
 
 	function getWeek() {
 		return date('W', $this->time);
+	}
+
+	function olderThan($seconds) {
+		return $this->getTimestamp() < (time() - $seconds);
+	}
+
+	function youngerThan($seconds) {
+		return $this->getTimestamp() > (time() - $seconds);
 	}
 
 }
