@@ -1062,4 +1062,10 @@ class Collection implements IteratorAggregate {
 		$this->db = $ms;
 	}
 
+	public function unobjectify() {
+		foreach ($this->objectify() as $i => $el) {
+			$this->data[$i] = $el->data;
+		}
+	}
+
 }
