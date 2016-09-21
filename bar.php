@@ -28,11 +28,19 @@ class BarImage {
 
 	var $height;
 
+	/**
+	 * @var array
+	 */
 	var $color;
 
+	/**
+	 * @var array
+	 */
 	var $backColor;
 
 	var $symmetric = false;
+
+	var $withBorder = true;
 
 	function __construct() {
 		$this->width = isset($_GET['width']) ? $_GET['width'] : 100;
@@ -42,6 +50,7 @@ class BarImage {
 		$bg = isset($_GET['bg']) ? $_GET['bg'] : NULL;
 		$this->backColor = $bg ? $this->html2rgb($bg) : array(0xFF, 0xFF, 0xFF);
 		$this->symmetric = ifsetor($_REQUEST['symmetric']);
+		$this->withBorder = !ifsetor($_GET['!border']);
 	}
 
 	function setHeaders() {
@@ -63,7 +72,7 @@ class BarImage {
 		$border = imagecolorallocate($image, 127, 127, 127);
 		imagefilledrectangle($image, 0, 0, $this->width - 1, $this->height - 1, $back);
 
-		if (!ifsetor($_GET['!border'])) {
+		if ($this->withBorder) {
 			imagerectangle($image, 0, 0, $this->width - 1, $this->height - 1, $border);
 		} else {
 			$ratingbar += 2;
@@ -86,8 +95,9 @@ class BarImage {
 	}
 
 	function html2rgb($color) {
-		if ($color[0] == '#')
+		if ($color[0] == '#') {
 			$color = substr($color, 1);
+		}
 
 		if (strlen($color) == 6)
 			list($r, $g, $b) = array($color[0] . $color[1],
