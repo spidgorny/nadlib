@@ -75,6 +75,7 @@ class HTMLTag implements ArrayAccess {
 	function attr($name, $value = NULL) {
 		if ($value) {
 			$this->attr[$name] = $value;
+			return $this;
 		} else {
 			return ifsetor($this->attr[$name]);
 		}
@@ -82,6 +83,7 @@ class HTMLTag implements ArrayAccess {
 
 	function setAttr($name, $value) {
 		$this->attr[$name] = $value;
+		return $this;
 	}
 
 	function hasAttr($name) {
