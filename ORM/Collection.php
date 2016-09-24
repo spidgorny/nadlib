@@ -1051,4 +1051,19 @@ class Collection implements IteratorAggregate {
 		$this->db = $ms;
 	}
 
+	public static function hydrate($source) {
+		$class = $source->class;
+		/** @var Collection $object */
+		$object = new $class();
+		$object->count = $source->count;
+		$memberClass = $object->itemClassName;
+		foreach ($source->members as $id => $m) {
+			$child = new $memberClass();
+			$child->id = $id;
+			$child->data = (array)$m->data;
+			$object->members[$id] = $child;
+		}
+		return $object;
+	}
+
 }

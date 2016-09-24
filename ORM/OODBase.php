@@ -598,7 +598,7 @@ abstract class OODBase {
 	function getObjectInfo() {
 		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' '.$this->getHash().')';
 	}
-	
+
 	function getHash($length = null) {
 		$hash = spl_object_hash($this);
 		if ($length) {
@@ -827,6 +827,19 @@ abstract class OODBase {
 			$obj = new $class();
 		}
 		return $obj;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/8707235/how-to-create-new-property-dynamically
+	 * @param $name
+	 * @param $value
+	 */
+	public function createProperty($name, $value = NULL) {
+		if (isset($this->{$name}) && $value === NULL) {
+			//$this->{$name} = $this->{$name};
+		} else {
+			$this->{$name} = $value;
+		}
 	}
 
 }
