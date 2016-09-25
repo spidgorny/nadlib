@@ -799,5 +799,5 @@ abstract class Controller {
 	function setDB(DBInterface $db) {
 		$this->db = $db;
 	}
-	
+
 }
