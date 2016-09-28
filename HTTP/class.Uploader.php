@@ -95,7 +95,7 @@ class Uploader {
 		$post_max_size = ini_get('post_max_size');
 		return '
 		<div class="message">
-		    <table style="width: 250px">
+		    <table>
 		        <tr><td><nobr>Uploads enabled:</nobr></td>
 		        <td>'.(ini_get('file_uploads')?'Yes':'No').'</td></tr>
 
