@@ -570,4 +570,8 @@ order by a.attnum';
 		return $debug;
 	}
 
+	function affectedRows($res) {
+		return pg_affected_rows($res);
+	}
+
 }
