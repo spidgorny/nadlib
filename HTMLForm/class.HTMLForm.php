@@ -207,13 +207,14 @@ class HTMLForm {
 	 * @see renderSelectionOptions
 	 */
 	function selection($name, array $aOptions, $default, $autoSubmit = FALSE, $more = '', $multiple = false, array $desc = array()) {
-		$this->stdout .= "<select ".$this->getName($name, $multiple ? '[]' : '');
+		$tag = $desc['tag'] ?: 'select';
+		$this->stdout .= "<$tag ".$this->getName($name, $multiple ? '[]' : '');
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
 		$this->stdout .= $more . ">\n";
 		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
-		$this->stdout .= "</select>\n";
+		$this->stdout .= "</$tag>\n";
 	}
 
 	/**
