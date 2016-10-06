@@ -888,6 +888,16 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * http://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
+	 * @param array $array
+	 * @return bool
+	 * @static because it's used in the constructor of VisibleColumns
+	 */
+	static function has_string_keys(array $array) {
+		return count(array_filter(array_keys($array), 'is_string')) > 0;
+	}
+
 }
 
 function AP($a = array()) {

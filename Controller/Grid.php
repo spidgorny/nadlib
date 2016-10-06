@@ -19,7 +19,7 @@ abstract class Grid extends AppController {
 
 	/**
 	 * Defines which columns are visible in a table
-	 * @var array
+	 * @var VisibleColumns
 	 */
 	public $columns;
 
@@ -78,10 +78,10 @@ abstract class Grid extends AppController {
 	}
 
 	/**
-	 * @param null $cn Supply get_class($this) to the function
+	 * @param null $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
 	 */
-	function saveFilterColumnsSort($cn = NULL) {
+	function saveFilterAndSort($cn = NULL) {
 		// why do we inject collection
 		// before we have detected the filter (=where)?
 		if (!$this->collection) {
@@ -93,7 +93,6 @@ abstract class Grid extends AppController {
 
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 
-		$this->setColumns($cn, $allowEdit);
 		$this->setFilter($cn, $allowEdit);
 
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
@@ -130,7 +129,9 @@ abstract class Grid extends AppController {
 		}
 		$content = $this->collection->render();
 		$content .= '<hr />';
-		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this), $this->encloseTag);
+		$content = $this->encloseInAA($content,
+			$this->title = $this->title ?: get_class($this),
+			$this->encloseTag);
 		return $content;
 	}
 
@@ -224,37 +225,50 @@ abstract class Grid extends AppController {
 	public function setColumns($cn, $allowEdit) {
 		// request
 		if ($this->request->is_set('columns') && $allowEdit) {
-			$this->columns = $this->request->getArray('columns');
-			$this->user->setPref('Columns.' . $cn, $this->columns);
-			$this->log('Columns set from URL');
+			$urlColumns = $this->request->getArray('columns');
+			$this->columns = new VisibleColumns($urlColumns);
+			$this->user->setPref('Columns.' . $cn, $this->columns->getData());
+			$this->log(__METHOD__, 'Columns set from URL');
 		} elseif (!$this->columns && method_exists($this->user, 'getPref')) {
-			$this->columns = $this->user->getPref('Columns.' . $cn);
-			$this->log('Columns set from getPref');
+			$prefs = $this->user->getPref('Columns.' . $cn);
+			if ($prefs) {
+				$this->columns = new VisibleColumns($prefs);
+				$this->log(__METHOD__, 'Columns set from getPref');
+			}
 		}
 		if (!$this->columns) {
 			// default
-			$this->columns = array_keys($this->getGridColumns());
-			$this->log('Columns set from getGridColumns');
-			if (!$this->columns && ifsetor($this->model->thes)) {
-				$this->columns = array_keys($this->model->thes);
-				$this->log('Columns set from model');
-			}
-			if (!$this->columns && $this->collection && $this->collection->thes) {
-				$this->columns = array_keys($this->collection->thes);
-				$this->log('Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
+			$gridColumns = array_keys($this->getGridColumns());
+			$this->log(__METHOD__, ['getGridColumns' => $gridColumns]);
+			if ($gridColumns) {
+				$this->columns = new VisibleColumns($gridColumns);
+				$this->log(__METHOD__, 'Columns set from getGridColumns');
 			}
 		}
-		//debug($cn, $this->columns, $this->log);
+		if (!$this->columns && ifsetor($this->model->thes)) {
+			$this->columns = array_keys($this->model->thes);
+			$this->log(__METHOD__, 'Columns set from model');
+		}
+		if (!$this->columns && $this->collection && $this->collection->thes) {
+			$keysOfThes = array_keys($this->collection->thes);
+			$this->columns = new VisibleColumns($keysOfThes);
+			$this->log(__METHOD__, 'Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
+		} elseif (!$this->columns) {
+			$this->columns = new VisibleColumns();
+		}
+		$this->log(__METHOD__, $this->columns->getData());
 	}
 
 	function getGridColumns() {
 		if ($this->collection) {
+			$this->log(__METHOD__, 'Collection exists');
 			return ArrayPlus::create($this->collection->thes)
 				->makeTable('name')
 				->column('name')
 				//->combineSelf() ?!? WTF
 				->getData();
 		} else {
+			$this->log(__METHOD__, 'No collection');
 			return [];
 		}
 	}
