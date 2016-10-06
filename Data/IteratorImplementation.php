@@ -1,7 +1,9 @@
 <?php
 
 class IteratorImplementation {
+
 	var $data = array();
+
 	private $position = 0;
 
     function rewind() {
