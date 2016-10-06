@@ -67,6 +67,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $return;
 	}
 
+	function pluck($key) {
+		return $this->column($key);
+	}
+
 	function column_assoc($key, $val) {
 		$data = array();
 		foreach ((array)$this as $row) {
