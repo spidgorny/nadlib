@@ -205,21 +205,26 @@ class Collection implements IteratorAggregate {
 	 * @param bool $preprocess
 	 */
 	function retrieveData($preprocess = true) {
-		$this->log(get_class($this).'::'.__FUNCTION__.'('.$this->allowMerge.', '.$preprocess.')');
+		$this->log(get_class($this).'::'.__FUNCTION__.'(allowMerge: '.($this->allowMerge?1:0).', preprocess: '.($preprocess?1:0).')');
 		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
 			|| ($this->db instanceof dbLayerPDO
 				&& $this->db->isMySQL())
 		)) {
-			$this->log(__METHOD__);
 			$data = $this->retrieveDataFromMySQL();
 		} else {
 			$data = $this->retrieveDataFromDB();
 		}
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $this->allowMerge);
+		$this->log(__METHOD__, 'rows: '.sizeof($data));
+		$this->log(__METHOD__, 'idealize by '.$this->idField);
+		$this->data = ArrayPlus::create($data);
+		//$this->log(__METHOD__, $this->data->pluck('id'));
+		$this->data->IDalize($this->idField, $this->allowMerge);
+		$this->log(__METHOD__, 'rows: '.sizeof($this->data));
 		if ($preprocess) {
 			$this->preprocessData();
+			$this->log(__METHOD__, 'rows: '.sizeof($this->data));
 		}
 	}
 
@@ -417,12 +422,13 @@ class Collection implements IteratorAggregate {
 	}
 
 	function preprocessData() {
-		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".sizeof($this->data));
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".$this->getCount());
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->getData();
-		foreach ($this->data as $i => &$row) { // Iterator by reference
+		// Iterator by reference
+		foreach ($this->getData() as $i => &$row) {
 			$row = $this->preprocessRow($row);
 		}
+		$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
 		$this->processed = true;
 		TaylorProfiler::stop($profiler);
 	}
@@ -444,8 +450,12 @@ class Collection implements IteratorAggregate {
 	 */
 	function getData() {
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->log('getData() query: '.(!!$this->query ? 'Set' : '-'));
-		$this->log('getData() data: '.(!!$this->data ? 'Set' : '-'));
+		$this->log('getData() query: '.($this->query
+				? substr($this->query, 0, 10).'...'
+				: '-'));
+		$this->log('getData() data: '.($this->data
+				? sizeof($this->data)
+				: '-'));
 		$this->log('getData() data->count: '.count($this->data));
 		if (!$this->query
 			|| is_null($this->data)
