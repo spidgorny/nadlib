@@ -97,7 +97,11 @@ class SQLBuilder {
 			}
 			return $sql;
 		} else {
-			debug($key, $value);
+			debug([
+				'key' => $key,
+				'value' => $value,
+				'problem' => MustBeStringException::class,
+			]);
 			throw new MustBeStringException('Must be string.');
 		}
 	}
@@ -118,6 +122,7 @@ class SQLBuilder {
 	 * @return array
 	 */
 	function quoteValues(array $a) {
+//		debug(__METHOD__, $a);
 		$c = array();
 		foreach ($a as $key => $b) {
 			$c[] = SQLBuilder::quoteSQL($b, $key);
