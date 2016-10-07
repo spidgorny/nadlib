@@ -447,14 +447,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function quoteValues($a) {
-		$c = array();
-		foreach ($a as $b) {
-			$c[] = $this->quoteSQL($b);
-		}
-		return $c;
-	}
-
 	/**
 	 * Overrides because of pg_fetch_all
 	 * @param resource|string $result
