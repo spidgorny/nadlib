@@ -55,8 +55,6 @@ class DebugHTML {
 	}
 
 	function renderHTMLView($db, $a, $levels) {
-		$trace = Debug::getTraceTable($db);
-
 		$first = $db[1];
 		if ($first) {
 			$function = $this->helper->getMethod($first);
@@ -90,10 +88,12 @@ class DebugHTML {
 		$elapsed = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
 		$elapsedDiff = '+'.number_format($elapsed - $lastElepsed, 3, '.', '');
 		$props[] = '<span class="debug_prop">Elapsed:</span> '.
-			$elapsed.' (<span style="color: green">'.$elapsedDiff.')'.BR;
+			$elapsed.' (<span style="color: green">'.$elapsedDiff.'</span>)'.BR;
 		$lastElepsed = $elapsed;
 
-		$backlog = '<ul><li>'.Debug::getBackLog(15, 6, '<li>').'</ul>';
+		//$trace = Debug::getTraceTable($db);
+		$backlog = Debug::getBackLog(1, 6);
+		$trace = '<ul><li>'.Debug::getBackLog(20, 6, '<li>').'</ul>';
 
 		$content = '
 			<div class="debug">
