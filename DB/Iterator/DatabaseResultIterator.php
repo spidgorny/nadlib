@@ -53,6 +53,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 
 	public $query;
 
+	public $debug = false;
+
 	function __construct(DBInterface $db, $defaultKey = NULL) { // 'uid'
 		$this->db = $db;
 		$this->defaultKey = $defaultKey;
@@ -64,6 +66,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function perform($query) {
+		$this->log(__METHOD__);
 		$this->query = $query;
 		$this->dbResultResource = $this->db->perform($query);
 		$this->rows = $this->count();
@@ -71,7 +74,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function rewind() {
-		//echo __METHOD__, BR;
+		$this->log(__METHOD__);
 		if ($this->rows) {
 			$this->key = 0;
 			$this->db->dataSeek($this->dbResultResource, 0);
@@ -80,7 +83,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function current() {
-		//echo __METHOD__, BR;
+		$this->log(__METHOD__);
 		return $this->row;
 	}
 
@@ -89,7 +92,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function next() {
-		//echo __METHOD__, BR;
+		$this->log(__METHOD__);
 		$this->row = $this->retrieveRow();
 		if (is_array($this->row)) {
 			if ($this->defaultKey) {
@@ -102,17 +105,19 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function retrieveRow() {
+		$this->log(__METHOD__);
 		$row = $this->db->fetchRow($this->dbResultResource);
 //		debug(__METHOD__, $row);
 		return $row;
 	}
 
 	function valid() {
-		//echo __METHOD__, BR;
+		$this->log(__METHOD__);
 		return $this->row !== NULL && $this->row !== FALSE;
 	}
 
 	function count() {
+		$this->log(__METHOD__);
 		return $this->db->numRows($this->dbResultResource);
 	}
 
@@ -121,6 +126,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 	 * @return array
 	 */
 	function fetchAll() {
+		$this->log(__METHOD__);
 		$data = array();
 		foreach ($this as $row) {
 			$data[] = $row;
@@ -129,16 +135,28 @@ class DatabaseResultIterator implements Iterator, Countable {
 	}
 
 	function __destruct() {
+		$this->log(__METHOD__);
 		$this->db->free($this->dbResultResource);
 	}
 
 	function skip($rows) {
+		$this->log(__METHOD__, $rows);
 		while ($rows) {
 			$this->next();
 			$rows--;
 		}
 		$this->key += $rows;
 		return $this;
+	}
+
+	function log($method, $data = NULL) {
+		if ($this->debug) {
+			if ($data) {
+				debug($method, $data);
+			} else {
+				debug($method);
+			}
+		}
 	}
 
 }
