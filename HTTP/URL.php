@@ -125,6 +125,7 @@ class URL {
 
 	function unsetParam($param) {
 		unset($this->params[$param]);
+		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 

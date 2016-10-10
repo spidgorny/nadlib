@@ -59,9 +59,7 @@ class CollectionView {
 			$content[] = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
 		}
 		if ($this->collection->pager) {
-			//$this->pager->debug();
-			$url = new URL();
-			$pages = $this->collection->pager->renderPageSelectors($url);
+			$pages = $this->collection->pager->renderPageSelectors();
 			$content = array($pages, $content, $pages);
 		}
 		return $content;
@@ -75,8 +73,7 @@ class CollectionView {
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
 			if ($this->collection->pager) {
-				$url = new URL();
-				$pages = $this->collection->pager->renderPageSelectors($url);
+				$pages = $this->collection->pager->renderPageSelectors();
 				$content = $pages . $s->getContent(get_class($this)) . $pages;
 			} else {
 				$content = $s;

@@ -11,7 +11,7 @@ class ClosureCache {
 
 	var $result;
 
-	function __construct(callable $function) {
+	protected function __construct(callable $function) {
 		$this->function = $function;
 	}
 

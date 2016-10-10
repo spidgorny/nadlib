@@ -67,6 +67,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $return;
 	}
 
+	function pluck($key) {
+		return $this->column($key);
+	}
+
 	function column_assoc($key, $val) {
 		$data = array();
 		foreach ((array)$this as $row) {
@@ -523,7 +527,13 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $count;
 	}
 
-	function count_if_sub($k1s, $k2) {
+	/**
+	 * Searches table for specific columns and counts where $k2 is true
+	 * @param array $k1s
+	 * @param       $k2
+	 * @return int
+	 */
+	function count_if_sub(array $k1s, $k2) {
 		$count = 0;
 		foreach ($this as $val) {
 			foreach ($val as $key2 => $val2) {
@@ -842,6 +852,50 @@ class ArrayPlus extends ArrayObject implements Countable {
 		$ap = $ap instanceof ArrayPlus ? $ap->getData() : $ap;
 		$new->setData(array_diff($new->getData(), $ap));
 		return $new;
+	}
+
+	/**
+	 * Filter rows where $key = $value
+	 * @param $key
+	 * @param $value
+	 * @return $this
+	 */
+	function where($key, $value) {
+		$copy = $this->getData();
+		foreach ($copy as $i => $row) {
+			if ($row[$key] != $value) {
+				unset($copy[$i]);
+			}
+		}
+		// no setData() here
+		return new self($copy);
+	}
+
+	/**
+	 * Filter rows where $key = $value
+	 * @param $key
+	 * @param $value
+	 * @return $this
+	 */
+	function filterWhere($key, $value) {
+		$copy = $this->getData();
+		foreach ($copy as $i => $row) {
+			if ($row[$key] != $value) {
+				unset($copy[$i]);
+			}
+		}
+		$this->setData($copy);
+		return $this;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
+	 * @param array $array
+	 * @return bool
+	 * @static because it's used in the constructor of VisibleColumns
+	 */
+	static function has_string_keys(array $array) {
+		return count(array_filter(array_keys($array), 'is_string')) > 0;
 	}
 
 }

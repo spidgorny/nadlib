@@ -12,7 +12,7 @@ abstract class FullGrid extends Grid {
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 		if ($allowEdit && $collection) {
-			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
+			$this->saveFilterAndSort($collection ?: get_class($this));
 		}
 		if (!$this->collection) {
 			if (is_string($collection)) {
@@ -34,6 +34,8 @@ abstract class FullGrid extends Grid {
 				$this->collection = $collection;
 			}
 		}
+		// after collection is made, to run getGridColumns
+		$this->setColumns(get_class($this->collection), $allowEdit);
 	}
 
 	function postInit() {
@@ -86,7 +88,7 @@ abstract class FullGrid extends Grid {
 	function setVisibleColumns() {
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
-				if (!in_array($cn, $this->columns)) {
+				if (!$this->columns->isVisible($cn)) {
 					//unset($this->collection->thes[$cn]);
 					$this->collection->thes[$cn]['!show'] = true;
 				}
@@ -199,14 +201,14 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getColumnsForm() {
-//		debug($this->columns);
+//		debug($this->getGridColumns());
+//		debug($this->columns->getData());
 		$desc = array(
 			'columns' => array(
 				'label' => '<h2>'.__('Visible').'</h2>',
-				'type' => 'set',
+				'type' => 'keyset',
 				'options' => $this->getGridColumns(),
-				'value' => $this->columns
-					? $this->columns : [],
+				'value' => $this->columns->getData(),
 				'between' => '',
 			),
 			'collectionName' => array(
@@ -218,9 +220,8 @@ abstract class FullGrid extends Grid {
 		$f->method('GET');
 		$f->defaultBR = true;
 		$f->formHideArray($this->linkVars);
-		//$f->prefix('columns');
 		$f->showForm($desc);
-		$f->submit(__('Set'));
+		$f->submit(__('Set Visible Columns'));
 		return $f;
 	}
 

@@ -125,6 +125,7 @@ abstract class Controller {
 		}
 		$this->linkVars['c'] = get_class($this);
 		$this->title = $this->title ? $this->title : get_class($this);
+		//debug_pre_print_backtrace();
 		$this->title = $this->title ? __($this->title) : $this->title;
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
@@ -277,10 +278,6 @@ abstract class Controller {
 	function render()
 	{
 		$content[] = $this->performAction();
-		if (!$this->noRender) {
-			$content[] = $this->indexAction();
-		}
-
 		return $content;
 	}
 
@@ -375,8 +372,8 @@ abstract class Controller {
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
-		$method = $action ? $action
-				: (!empty($reqAction) ? $reqAction : NULL);
+		$method = $action
+				?: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
 			//debug($method, method_exists($this, $method));
@@ -497,7 +494,7 @@ abstract class Controller {
 	 * @return URL
 	 */
 	function adjustURL(array $params) {
-		return URL::getCurrent()->setParams(array(
+		return URL::getCurrent()->addParams(array(
 			'c' => get_class(Index::getInstance()->controller),
 		)+$params);
 	}
@@ -700,11 +697,11 @@ abstract class Controller {
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	static function link($text = NULL) {
+	static function link($text = NULL, array $params = []) {
 		/** @var Controller $self */
 		$self = get_called_class();
 		return new HTMLTag('a', array(
-			'href' => $self::href()
+			'href' => $self::href($params)
 		), $text ?: $self);
 	}
 

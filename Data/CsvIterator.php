@@ -4,9 +4,13 @@
  * Class CsvIterator
  * http://de2.php.net/fgetcsv#57802
  */
-class CsvIterator implements Iterator
+class CsvIterator implements Iterator, Countable
 {
-	const ROW_SIZE = 4096*1024;
+
+	var $filename;
+
+	const ROW_SIZE = 4194304; // 4096*1024;
+
 	/**
 	 * The pointer to the cvs file.
 	 * @var resource
@@ -23,6 +27,11 @@ class CsvIterator implements Iterator
 	protected $currentElement = null;
 
 	/**
+	 * @var integer - cached amount of rows in a file
+	 */
+	protected $numRows;
+
+	/**
 	 * The row counter.
 	 * @var int
 	 * @access private
@@ -36,30 +45,36 @@ class CsvIterator implements Iterator
 	 */
 	private $delimiter = null;
 
+	public $doConvertToUTF8 = false;
+
 	/**
 	 * This is the constructor.It try to open the csv file.The method throws an exception
 	 * on failure.
 	 *
 	 * @access public
-	 * @param string $file The csv file.
+	 * @param string $filename The csv file.
 	 * @param string $delimiter The delimiter.
 	 *
 	 * @throws Exception
 	 */
-	public function __construct($file, $delimiter=',')
+	public function __construct($filename, $delimiter=',')
 	{
+		$this->filename = $filename;
+		ini_set('auto_detect_line_endings', TRUE);
+		$this->delimiter = $delimiter;
 		try {
-			ini_set('auto_detect_line_endings',TRUE);
-			$this->filePointer = $this->fopen_utf8($file, 'r');
-			$this->delimiter = $delimiter;
+			$this->filePointer = $this->fopen_utf8($filename, 'r');
 		}
 		catch (Exception $e) {
-			throw new Exception('The file "'.$file.'" cannot be read.');
+			throw new Exception('The file "'.$filename.'" cannot be read because '.$e->getMessage());
 		}
 	}
 
 	/**
 	 * Reads past the UTF-8 bom if it is there.
+	 * @param $filename
+	 * @param $mode
+	 * @return resource
 	 */
 	function fopen_utf8 ($filename, $mode) {
 		$file = @fopen($filename, $mode);
@@ -68,6 +83,9 @@ class CsvIterator implements Iterator
 			rewind($file);
 		} else {
 			//echo "bom found!\n";
+		}
+		if (pathinfo($filename, PATHINFO_EXTENSION) == 'bz2') {
+			stream_filter_prepend($file, 'bzip2.decompress', STREAM_FILTER_READ);
 		}
 		return $file;
 	}
@@ -79,7 +97,14 @@ class CsvIterator implements Iterator
 	 */
 	public function rewind() {
 		$this->rowCounter = 0;
-		rewind($this->filePointer);
+		// feof() is stuck in true after rewind somehow
+		if (pathinfo($this->filename, PATHINFO_EXTENSION) == 'bz2') {
+			$this->filePointer = $this->fopen_utf8($this->filename, 'r');
+		} else {
+			rewind($this->filePointer);
+		}
+		assert(ftell($this->filePointer) == 0);
+		assert(!$this->feof());
 	}
 
 	/**
@@ -103,16 +128,22 @@ class CsvIterator implements Iterator
 		return $this->rowCounter;
 	}
 
+	public function feof() {
+		return feof($this->filePointer);
+	}
+
 	/**
-	 * This method checks if the end of file is reached.
-	 *
 	 * @access public
-	 * @return boolean Returns true on EOF reached, false otherwise.
+	 * @inheritdoc Returns the array value in the next place that's pointed to by the internal array pointer, or FALSE if there are no more elements.
+	 * @return array|boolean Returns FALSE on EOF reached, VALUE otherwise.
 	 */
 	public function next() {
 		$this->rowCounter++;
 		$this->read();
-		return !feof($this->filePointer);
+		if (!$this->currentElement) {
+			//debug($this->feof(), ftell($this->filePointer));
+		}
+		return $this->currentElement;
 	}
 
 	/**
@@ -122,20 +153,60 @@ class CsvIterator implements Iterator
 	 * @return boolean If the next row is a valid row.
 	 */
 	public function valid() {
-		if (!$this->next()) {
-			fclose($this->filePointer);
-			return false;
-		}
-		return true;
+		return !$this->feof();
 	}
 
+	/**
+	 * If called multiple times should return the same value
+	 * until next() is called
+	 */
 	function read() {
+		//debug_pre_print_backtrace();
 		static $last = -1; // != 0
 		if ($this->rowCounter != $last) {
 			$this->currentElement = fgetcsv($this->filePointer, self::ROW_SIZE,
 				$this->delimiter);
+
+			if ($this->currentElement && $this->doConvertToUTF8) {
+				$this->currentElement = array_map('utf8_encode', $this->currentElement);
+			}
+
+			//debug($this->currentElement);
 			$last = $this->rowCounter;
 		}
+	}
+
+	/**
+	 * TODO: this is working, but will crash the rest of the reading!
+	 * Count elements of an object
+	 * @link http://php.net/manual/en/countable.count.php
+	 * @return int The custom count as an integer.
+	 * </p>
+	 * <p>
+	 * The return value is cast to an integer.
+	 * @since 5.1.0
+	 */
+	public function count() {
+		if ($this->numRows) {
+			return $this->numRows;
+		}
+//		$save = ftell($this->filePointer);
+//		$saveRow = $this->rowCounter;
+
+		$count = 0;
+		while ($this->valid()) {
+			$this->next();
+			$count++;
+		}
+		$this->numRows = $count;
+
+//		$fail = fseek($this->filePointer, $save);
+//		debug('fseek', $fail, $save);
+		$this->rewind();
+//		debug('fseek', ftell($this->filePointer), $this->feof());
+		//$this->rowCounter = $saveRow;
+
+		return $this->numRows;
 	}
 
 }

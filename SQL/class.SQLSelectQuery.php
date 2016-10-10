@@ -180,6 +180,8 @@ FROM {$this->from}
 			$tok = strtok(" \n\t");
 		}
 		$res = trim($res);
+		$res = str_replace("(<br><br>)", '()', $res);
+		$res = str_replace("(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)", '()', $res);
 		return new htmlString($res);
 	}
 

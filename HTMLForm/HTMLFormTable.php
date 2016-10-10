@@ -95,7 +95,7 @@ class HTMLFormTable extends HTMLForm {
 	function setDesc(array $desc) {
 		$this->desc = $desc;
 		foreach ($this->desc as &$sub) {
-			if (!is_array($sub)) {
+			if (is_string($sub)) {
 				$sub = ['label' => $sub];
 			}
 		}
@@ -111,8 +111,9 @@ class HTMLFormTable extends HTMLForm {
 		//$this->desc = $this->fillValues($this->desc, $form);
 		foreach ($this->desc as $key => &$desc) {
 			// can be HTMLFormTable (@see HTMLFormValidate)
-			$type = is_array($desc) ? ifsetor($desc['type'])
-					: (is_object($desc) ? get_class($desc) : 'text');
+			$type = is_array($desc)
+				? ifsetor($desc['type'])
+				: (is_object($desc) ? get_class($desc) : 'text');
 			if ($desc instanceof HTMLFormTable) {
 				$prefix_1 = $desc->prefix;
 				array_shift($prefix_1);
@@ -139,7 +140,7 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function showLabel(HTMLFormField $desc, $fieldName) {
-//		debug($desc->getArray());
+		//debug($desc->getArray());
 		$elementID = $desc->elementID;
 		$withBR = (ifsetor($desc['br']) === NULL && $this->defaultBR) || $desc['br'];
 		if (isset($desc['label'])) {
@@ -165,6 +166,8 @@ class HTMLFormTable extends HTMLForm {
 					: '';
 			}
 			$this->stdout .= ifsetor($desc['beforeLabel']);
+			//debug($label);
+			assert(is_string($label));
 			$this->stdout .= '<label for="'.$elementID.'">'.$label.'</label>';
 			if (!$withBR) {
 				$this->stdout .= '</td><td>';
@@ -275,6 +278,7 @@ class HTMLFormTable extends HTMLForm {
 					//debug(array($formData, $path, $fieldDesc));
 					$this->showCell($path, $fieldDesc);
 				} else {
+					//debug($prefix, $fieldDesc, $path);
 					$this->showTR($prefix, $fieldDesc, $path);
 				}
 			} else {
@@ -420,12 +424,15 @@ class HTMLFormTable extends HTMLForm {
 	 * @return HTMLFormField
 	 */
 	function switchType($fieldName, $fieldValue, $descIn) {
-//		debug($descIn);
-		if (!($descIn instanceof HTMLFormFieldInterface)) {
-			$field = new HTMLFormField($descIn, $fieldName);
-		} else {
+//		debug($fieldName, $fieldValue, gettype2($descIn),
+//			$descIn instanceof HTMLFormFieldInterface);
+		if ($descIn instanceof HTMLFormFieldInterface) {
 			$field = $descIn;
 			$field->setField($fieldName);
+			//debug($field);
+		} else {
+			//debug($fieldName, $descIn);
+			$field = new HTMLFormField($descIn, $fieldName);
 		}
 		$field['value'] = $fieldValue;
 
