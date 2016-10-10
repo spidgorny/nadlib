@@ -28,6 +28,7 @@ class InitNADLIB {
 			define('TAB', "\t");
 		}
 		$this->al = AutoLoad::getInstance();
+		$this->al->useCookies = $this->useCookies;
 	}
 
 	function init() {

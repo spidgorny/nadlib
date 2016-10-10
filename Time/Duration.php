@@ -153,7 +153,7 @@ class Duration extends Time {
 	 */
 	function __toString() {
 		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
-		return $this->toString($this->time);
+		return $this->toString();
 	}
 
 	/**
@@ -285,6 +285,14 @@ class Duration extends Time {
 
 	public function getRemSeconds() {
 		return $this->time % (60);
+	}
+
+	public function biggerThan(Duration $d2) {
+		return abs($this->time) > abs($d2->getTimestamp());
+	}
+
+	public function smallerThan(Duration $d2) {
+		return abs($this->time) < abs($d2->getTimestamp());
 	}
 
 }

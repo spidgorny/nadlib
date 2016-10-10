@@ -30,23 +30,25 @@ class MemcacheFile implements MemcacheInterface {
 			echo __METHOD__ . '(' . $key . ')' . BR;
 		}
 		$this->folder = self::$defaultFolder;
-		if (!str_startsWith($this->folder, '/')) {
+		if (!Path::isAbsolute($this->folder)) {
 			// if relative, add current app
 			$sub = cap(AutoLoad::getInstance()->appRoot . '');
 		} else {
 			$sub = '';
 		}
 
-		if (!file_exists($sub.$this->folder)) {
+		$finalCachePath = realpath($sub . $this->folder);
+		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
 			debug(array(
 				'unable to access cache folder',
-				$sub.$this->folder,
 				'method' => __METHOD__,
-				'appRoot' => $sub,
-				'folder' => $this->folder));
+				'sub' => $sub,
+				'folder' => $this->folder,
+				'finalCachePath' => $finalCachePath,
+			));
 			die();
 		} else {
-			$this->folder = $sub . $this->folder;
+			$this->folder = cap($finalCachePath);	// important as we concat
 		}
 
 		if ($key) {
@@ -123,8 +125,12 @@ class MemcacheFile implements MemcacheInterface {
 		return $val;
 	}
 
-	function clearCache($key) {
-		$file = $this->map($key);
+	function setValue($value) {
+		$this->set($this->key, $value);
+	}
+
+	function clearCache($key = NULL) {
+		$file = $this->map($key ?: $this->key);
 		if (file_exists($file)) {
 			//echo '<font color="green">Deleting '.$file.'</font>', BR;
 			unlink($file);

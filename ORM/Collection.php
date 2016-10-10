@@ -144,6 +144,13 @@ class Collection implements IteratorAggregate {
 	protected $processed = false;
 
 	/**
+	 * Gives warnings if 'id' column in the data is not set.
+	 * Potentially saves you from trouble futher down the processing.
+	 * @var bool
+	 */
+	public $allowMerge = false;
+
+	/**
 	 * @param integer/-1 $pid
 	 * 		if -1 - will not retrieve data from DB
 	 * 		if 00 - will retrieve all data
@@ -197,22 +204,27 @@ class Collection implements IteratorAggregate {
 	 * @param bool $allowMerge
 	 * @param bool $preprocess
 	 */
-	function retrieveData($allowMerge = false, $preprocess = true) {
-		$this->log(get_class($this).'::'.__FUNCTION__.'('.$allowMerge.', '.$preprocess.')');
+	function retrieveData($preprocess = true) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'(allowMerge: '.($this->allowMerge?1:0).', preprocess: '.($preprocess?1:0).')');
 		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
 			|| ($this->db instanceof dbLayerPDO
 				&& $this->db->isMySQL())
 		)) {
-			$this->log(__METHOD__);
 			$data = $this->retrieveDataFromMySQL();
 		} else {
 			$data = $this->retrieveDataFromDB();
 		}
-		$this->data = ArrayPlus::create($data)->IDalize($this->idField, $allowMerge);//->getData();
+		$this->log(__METHOD__, 'rows: '.sizeof($data));
+		$this->log(__METHOD__, 'idealize by '.$this->idField);
+		$this->data = ArrayPlus::create($data);
+		//$this->log(__METHOD__, $this->data->pluck('id'));
+		$this->data->IDalize($this->idField, $this->allowMerge);
+		$this->log(__METHOD__, 'rows: '.sizeof($this->data));
 		if ($preprocess) {
 			$this->preprocessData();
+			$this->log(__METHOD__, 'rows: '.sizeof($this->data));
 		}
 	}
 
@@ -410,12 +422,13 @@ class Collection implements IteratorAggregate {
 	}
 
 	function preprocessData() {
-		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".sizeof($this->data));
+		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".$this->getCount());
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->getData();
-		foreach ($this->data as $i => &$row) { // Iterator by reference
+		// Iterator by reference
+		foreach ($this->getData() as $i => &$row) {
 			$row = $this->preprocessRow($row);
 		}
+		$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
 		$this->processed = true;
 		TaylorProfiler::stop($profiler);
 	}
@@ -437,8 +450,12 @@ class Collection implements IteratorAggregate {
 	 */
 	function getData() {
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		$this->log('getData() query: '.(!!$this->query ? 'Set' : '-'));
-		$this->log('getData() data: '.(!!$this->data ? 'Set' : '-'));
+		$this->log('getData() query: '.($this->query
+				? substr($this->query, 0, 10).'...'
+				: '-'));
+		$this->log('getData() data: '.($this->data
+				? sizeof($this->data)
+				: '-'));
 		$this->log('getData() data->count: '.count($this->data));
 		if (!$this->query
 			|| is_null($this->data)
@@ -1053,6 +1070,12 @@ class Collection implements IteratorAggregate {
 
 	public function setDB(DBInterface $ms) {
 		$this->db = $ms;
+	}
+
+	public function unobjectify() {
+		foreach ($this->objectify() as $i => $el) {
+			$this->data[$i] = $el->data;
+		}
 	}
 
 }

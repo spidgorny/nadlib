@@ -347,7 +347,7 @@ class slTableValue {
 							$out = '['.implode(', ', $val).']';
 						}
 						$out = htmlspecialchars($out);
-					} elseif ($out == '' && $k['default']) {
+					} elseif ($out == '' && ifsetor($k['default'])) {
 						$out = htmlspecialchars($k['default']);
 					} else {
 						$out = htmlspecialchars($val);

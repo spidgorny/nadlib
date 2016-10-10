@@ -17,15 +17,20 @@ class DocCommentParser {
 	 */
 	protected $tags = array();
 
+	function __construct($text = NULL) {
+		$this->text = $text;
+	}
+
 	/**
 	 * Parses the given doc comment and saves the result (description and
 	 * tags) in the parser's object. They can be retrieved by the
 	 * getTags() getTagValues() and getDescription() methods.
 	 *
 	 * @param string $docComment A doc comment as returned by the reflection getDocComment() method
-	 * @return void
+	 * @return DocCommentParser
 	 */
-	public function parseDocComment($docComment) {
+	public function parseDocComment($docComment = NULL) {
+		$docComment = $docComment ?: $this->text;
 		$this->description = '';
 		$this->tags = array();
 		$lines = explode(chr(10), $docComment);
@@ -41,6 +46,7 @@ class DocCommentParser {
 			}
 		}
 		$this->description = trim($this->description);
+		return $this;
 	}
 
 	/**

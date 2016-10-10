@@ -91,6 +91,7 @@ abstract class OODBase {
 			if (!$this->db) {
 				$this->db = $config->getDB();
 			}
+			//debug(get_class($this), $this->table, gettype2($this->db));
 		} else {
 			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
 		}
@@ -302,7 +303,8 @@ abstract class OODBase {
 	function findInDB(array $where, $orderByLimit = '') {
 		TaylorProfiler::start($taylorKey = Debug::getBackLog(15, 0, BR, false));
 		if (!$this->db) {
-			//debug($this->db->db, $this->db->fetchAssoc('SELECT database()'));
+			//debug($this->db, $this->db->fetchAssoc('SELECT database()'));
+			//debug($this);
 		}
 		//debug(get_class($this->db));
 		$rows = $this->db->fetchOneSelectQuery($this->table,
@@ -523,7 +525,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return static
+	 * @return self|$this
 	 */
 	static function getInstance($id) {
 		return static::getInstanceByID($id);
@@ -532,7 +534,7 @@ abstract class OODBase {
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id|array int
-	 * @return static|self
+	 * @return $this
 	 */
 	public static function getInstanceByID($id) {
 		$static = get_called_class();
@@ -566,11 +568,10 @@ abstract class OODBase {
 			//debug($static, $intID, $id);
 			$inst = isset(self::$instances[$static][$intID])
 				? self::$instances[$static][$intID]
-				: NULL;
-			if (!$inst) {
-				$inst = new $static();
-				self::storeInstance($inst, $intID);	// int id
+				: $inst;
+			if (!$inst->id) {
 				$inst->init($id);	// array
+				self::storeInstance($inst, $intID);	// int id
 			}
 		} elseif ($id) {
 			//debug($static, $id);
@@ -840,6 +841,10 @@ abstract class OODBase {
 		return $collection;
 	}
 
+	/**
+	 * @param $id
+	 * @return self|this
+	 */
 	static function tryGetInstance($id) {
 		try {
 			$obj = self::getInstance($id);

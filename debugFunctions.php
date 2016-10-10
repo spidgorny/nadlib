@@ -26,6 +26,11 @@ if (!function_exists('debug')) {
 		}
 	}
 
+	function ddie() {
+		debug(func_get_args());
+		die(__FUNCTION__.'#'.__LINE__);
+	}
+
 	function d($a) {
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (DEVELOPMENT) {
@@ -226,11 +231,6 @@ if (!function_exists('debug')) {
 			return gettype2($something);
 		}
 		//return json_encode($types, JSON_PRETTY_PRINT);
-	}
-
-	function ddie($something) {
-		debug($something);
-		die(__METHOD__);
 	}
 
 }

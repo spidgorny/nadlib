@@ -78,7 +78,6 @@ class Pager {
 		$this->db = $config->getDB();
 		$this->request = Request::getInstance();
 		$this->setUser($config->getUser());
-		$this->url = new URL();
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
 		$config->mergeConfig($this);
