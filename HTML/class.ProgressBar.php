@@ -191,13 +191,20 @@ class ProgressBar {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		// absolute URL to work even before <base href> is defined
 		$prefix = Request::getInstance()->getLocation() . $prefix;
-		return '<img src="'.$prefix.'bar.php?rating='.round($p).$append.'"
+		$imageURL = $prefix.'bar.php?rating='.round($p).htmlspecialchars($append);
+		return '<img src="'.$imageURL.'"
 		style="vertical-align: middle;"
 		title="'.number_format($p, 2).'%"
 		width="100"
 		height="15" />';
 	}
 
+	/**
+	 * Return only URL
+	 * @param        $p
+	 * @param string $append
+	 * @return string
+	 */
 	static function getBar($p, $append = '') {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return $prefix . 'bar.php?rating=' . round($p) . $append;
