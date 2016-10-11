@@ -128,4 +128,8 @@ class HTML {
 		return '<hr />';
 	}
 
+	function badge($count) {
+		return '<span class="badge">'.htmlspecialchars($count).'</span>';
+	}
+
 }
