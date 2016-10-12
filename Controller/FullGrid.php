@@ -140,7 +140,7 @@ abstract class FullGrid extends Grid {
 		$desc = $this->getFilterDesc($fields);
 		$f = new HTMLFormTable($desc);
 		$f->setAllOptional();
-		$f->method('GET');
+		$f->method('POST');
 		$f->defaultBR = true;
 		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
