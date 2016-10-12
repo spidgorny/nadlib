@@ -71,7 +71,7 @@ class AjaxTree extends HTMLFormType implements HTMLFormTypeInterface {
 	 *
 	 * @param       $fieldName
 	 * @param TTree $tree
-	 * @return AjaxTree div id of the windows which is hidden originally, this is used to hide it again after selecting an element
+	 * @return integer div id of the windows which is hidden originally, this is used to hide it again after selecting an element
 	 */
 	function renderAjaxTreeToggle($fieldName, TTree $tree) {
 		$textName = $this->form->getName($fieldName, '', TRUE);
