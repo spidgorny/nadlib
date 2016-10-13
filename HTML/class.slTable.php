@@ -292,7 +292,7 @@ class slTable {
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
 					if (!strlen($i)
-							|| (strlen($i) && $i{strlen($i)-1} != '.')) {
+						|| (strlen($i) && $i{strlen($i)-1} != '.')) {
 						$th = array('name' => $th);
 					} else {
 						unset($thes[$i]);
@@ -348,11 +348,12 @@ class slTable {
 			$thMore[$thk] = isset($thv['thmore'])
 				? $thv['thmore']
 				: (isset($thv['more']) ? $thv['more'] : NULL);
+			$this->thesMore[$thk] = $thv['thmore'];
 			if (!is_array($thMore)) {
 				$thMore = array('' => $thMore);
 			}
 			if (isset($thv['align']) && $thv['align']) {
-				$thMore[$thk]['style'] = 'text-align: '.$thv['align'];
+				$thMore[$thk]['style'] .= '; text-align: '.$thv['align'];
 			}
 			if ($this->sortable) {
 				if (
@@ -387,6 +388,7 @@ class slTable {
 		$this->generation->addTHead('<thead>');
 		//debug($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
+//			debug($thMore, $this->thesMore);
 			$this->generation->thes($thes2, $thMore, $this->thesMore);
 			// $t is not $this // sorting must be done before
 		}
