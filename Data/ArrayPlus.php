@@ -888,6 +888,33 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	function filterBy(array $where) {
+//		debug($where, sizeof($this->events));
+		$this->setData(
+			array_filter($this->getData(), function ($row) use ($where) {
+//			$same = array_intersect_key((array)$row, $where);
+
+			$okList = [];
+			foreach ($where as $k => $v) {
+				if (is_object($v)) {
+//					var_dump($v);
+				}
+				if ($v instanceof \FilterBetween) {
+					$ok = $v->apply($row->$k);
+				} elseif (is_array($v)) {
+					$ok = in_array($row->$k, $v);
+				} else {
+					$ok = $v == $row->$k;
+				}
+				$okList[$k] = $ok;
+			}
+			$okList = array_filter($okList);
+//			debug($where, $okList);
+			return sizeof($okList) == sizeof($where);
+		}));
+		return $this;
+	}
+
 	/**
 	 * http://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
 	 * @param array $array
