@@ -99,14 +99,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
-		if (class_exists('Config')) {
+		if (class_exists('Config', false)) {
 //			try {
 				$this->config = Config::getInstance();
 				$this->db = $this->config->getDB();
 				$this->user = $this->config->getUser();
 				$this->ll = $this->config->getLL();
 //			} catch (Exception $e) {
-			// should not catch exceptions here, let subclass do it
+				// should not catch exceptions here, let subclass do it
 //				echo get_class($e), BR;
 //				$this->content[] = $this->renderException($e);
 //			}
