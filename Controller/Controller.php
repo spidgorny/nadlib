@@ -107,7 +107,7 @@ abstract class Controller {
 
 	function __construct() {
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).'::'.__METHOD__.BR;
-		$this->index = class_exists('Index')
+		$this->index = class_exists('Index', false)
 			? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
