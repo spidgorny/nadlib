@@ -348,12 +348,13 @@ class slTable {
 			$thMore[$thk] = isset($thv['thmore'])
 				? $thv['thmore']
 				: (isset($thv['more']) ? $thv['more'] : NULL);
-			$this->thesMore[$thk] = $thv['thmore'];
+			$this->thesMore[$thk] = ifsetor($thv['thmore']);
 			if (!is_array($thMore)) {
 				$thMore = array('' => $thMore);
 			}
 			if (isset($thv['align']) && $thv['align']) {
-				$thMore[$thk]['style'] .= '; text-align: '.$thv['align'];
+				$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
+					. '; text-align: '.$thv['align'];
 			}
 			if ($this->sortable) {
 				if (

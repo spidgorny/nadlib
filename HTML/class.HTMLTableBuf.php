@@ -27,7 +27,7 @@ class HTMLTableBuf extends MergedContent {
 	}
 
 	function htr($more = "") {
-		$this->addSub('thead', "<tr".rtrim(' '.$more).">\n");
+		$this->addSub('thead', "<tr ".HTMLTag::renderAttr($more).">\n");
 	}
 
 	function htre() {
