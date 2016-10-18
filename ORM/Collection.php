@@ -192,7 +192,7 @@ class Collection implements IteratorAggregate {
 
 	function postInit() {
 		//$this->pager = new Pager();
-		if (class_exists('Index')) {
+		if (class_exists('Index', false)) {
 			$index = Index::getInstance();
 			$this->controller = &$index->controller;
 		}
@@ -201,7 +201,6 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * -1 will prevent data retrieval
-	 * @param bool $allowMerge
 	 * @param bool $preprocess
 	 */
 	function retrieveData($preprocess = true) {
