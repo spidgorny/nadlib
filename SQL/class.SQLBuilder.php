@@ -214,6 +214,7 @@ class SQLBuilder {
 	 */
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
+		$table = $this->quoteKey($table);
 		$q = "UPDATE $table\nSET ";
 		$set = $this->quoteLike($columns, '$key = $val');
 		$q .= implode(",\n", $set);

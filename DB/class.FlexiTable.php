@@ -27,6 +27,26 @@ class FlexiTable extends OODBase {
 	 */
 	static protected $tableColumns = array();
 
+	/**
+	 * @var string 'ctime'
+	 */
+	var $ctimeField;
+
+	/**
+	 * @var string 'cuser'
+	 */
+	var $cuserField;
+
+	/**
+	 * @var string 'mtime'
+	 */
+	var $mtimeField;
+
+	/**
+	 * @var string 'muser'
+	 */
+	var $muserField;
+
 	function __construct($id = NULL) {
 		parent::__construct($id);
 		$config = ifsetor(Config::getInstance()->config);
@@ -42,12 +62,12 @@ class FlexiTable extends OODBase {
 	}
 
 	function insert(array $row) {
-		if (!ifsetor($row['ctime'])) {
-			$row['ctime'] = new SQLDateTime();
+		if ($this->ctimeField && !ifsetor($row[$this->ctimeField])) {
+			$row[$this->ctimeField] = new SQLDateTime();
 		}
-		if (!ifsetor($row['cuser'])) {
+		if ($this->cuserField && !ifsetor($row[$this->cuserField])) {
 			$user = Config::getInstance()->getUser();
-			$row['cuser'] = ifsetor($user->id) ? $user->id : NULL;
+			$row[$this->cuserField] = ifsetor($user->id) ? $user->id : NULL;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
@@ -57,18 +77,21 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		if (!ifsetor($row['mtime'])) {
+		if ($this->mtimeField && !ifsetor($row[$this->mtimeField])) {
 			$mtime = new Time();
-			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
+			$row[$this->mtimeField] = $mtime->format('Y-m-d H:i:s');
 		}
 		$user = Config::getInstance()->getUser();
-		if (!ifsetor($row['muser']) && is_object($user) && $user->id) {
-			$row['muser'] = $user->id;
+		if ($this->mtimeField
+			&& !ifsetor($row[$this->mtimeField])
+			&& is_object($user)
+			&& $user->id) {
+			$row[$this->mtimeField] = $user->id;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
 		}
-		$tempMtime = $this->data['mtime'];
+//		$tempMtime = $this->data[$this->mtimeField];
 		$res = parent::update($row);	// calls $this->init($id) to update data
 		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
 		return $res;
