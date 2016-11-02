@@ -167,7 +167,8 @@ class Collection implements IteratorAggregate {
 		$this->select = $this->select
 			// DISTINCT is 100 times slower, add it manualy if needed
 			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
-			?: $this->db->getFirstWord($this->table).'.*';
+			?: $this->db->quoteKey(
+				$this->db->getFirstWord($this->table)).'.*';
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
@@ -664,6 +665,7 @@ class Collection implements IteratorAggregate {
 		/** @var dbLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$firstWord = $db->getFirstWord($c->table);
+		$firstWord = $db->quoteKey($firstWord);
 		$c->select = ' '.$firstWord.'.*';
 		return $c;
 	}

@@ -21,6 +21,8 @@ interface DBInterface {
 
 	function quoteKey($key);
 
+	function quoteKeys(array $keys);
+
 	function escapeBool($value);
 
 	function fetchAssoc($res);
