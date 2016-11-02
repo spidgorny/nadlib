@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class MongoDB
+ * @deprecated
+ */
 class MongoDB {
 
 	/**
