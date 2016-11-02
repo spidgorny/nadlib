@@ -130,14 +130,6 @@ class SQLBuilder {
 		return $c;
 	}
 
-	function quoteKeys($a) {
-		$c = array();
-		foreach ($a as $b) {
-			$c[] = $this->quoteKey($b);
-		}
-		return $c;
-	}
-
 	/**
 	 * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
 	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'

@@ -223,4 +223,12 @@ class dbLayerBase implements DBInterface {
 		$this->queryLog = NULL;
 	}
 
+	function quoteKeys(array $a) {
+		$c = array();
+		foreach ($a as $b) {
+			$c[] = $this->quoteKey($b);
+		}
+		return $c;
+	}
+
 }
