@@ -32,6 +32,7 @@ class InitNADLIB {
 	}
 
 	function init() {
+		$this->al->postInit();
 		//print_r($_SERVER);
 
 		//debug($_COOKIE);
@@ -60,7 +61,8 @@ class InitNADLIB {
 
 		if (DEVELOPMENT) {
 			if (headers_sent($file, $line) && $file && $line && !Request::isPHPUnit() && !Request::isCLI()) {
-				debug('Output has started', $file, $line);
+				// debug() not loaded yet
+				pre_print_r('Output has started', $file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
 			error_reporting(-1);
