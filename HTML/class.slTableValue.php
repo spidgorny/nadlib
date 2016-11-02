@@ -191,7 +191,9 @@ class slTableValue {
 				break;
 
 			case 'image':
-				$out = '<img src="'.$k['prefix'].$val.'" />';
+				$out = new HTMLTag('img', [
+					'src' => $k['prefix'].$val,
+				] + $k['more']);
 				break;
 
 			case "checkbox":
