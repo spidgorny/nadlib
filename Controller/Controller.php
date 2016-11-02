@@ -73,7 +73,7 @@ abstract class Controller {
 
 	public $linkVars = array();
 
-	public $encloseTag = 'h4';
+	public $encloseTag = 'h2';
 
 	/**
 	 * accessible without login
