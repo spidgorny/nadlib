@@ -242,4 +242,63 @@ class Debug {
 		return $content;
 	}
 
+	/**
+	 * This is like peek() but recursive
+	 * @param     $row
+	 * @param int $spaces
+	 */
+	static function dumpStruct($row, $spaces = 0) {
+		static $recursive;
+		if (!$spaces) {
+			echo '<pre class="debug">';
+			$recursive = array();
+		}
+		if (is_object($row)) {
+			$hash = spl_object_hash($row);
+			if (!ifsetor($recursive[$hash])) {
+				$sleep = method_exists($row, '__sleep')
+					? $row->__sleep() : NULL;
+				$recursive[$hash] = gettype2($row);	// before it's array
+				$row = get_object_vars($row);
+				if ($sleep) {
+					$sleep = array_combine($sleep, $sleep);
+					// del properties removed by sleep
+					$row = array_intersect_key($row, $sleep);
+				}
+			} else {
+				$row = '*RECURSIVE* '.$recursive[$hash];
+			}
+		}
+		if (is_array($row)) {
+			foreach ($row as $key => $el) {
+				echo str_repeat(' ', $spaces), $key, '->',
+				cap(gettype2($el), "\n");
+				self::dumpStruct($el, $spaces+4);
+			}
+		} else {
+			echo str_repeat(' ', $spaces);
+			switch (gettype($row)) {
+				case 'string':
+					$len = mb_strlen($row);
+					if ($len > 32) {
+						$row = substr($row, 0, 32) . '...';
+					}
+					echo '"', htmlspecialchars($row), '"';
+					break;
+				case 'null':
+					echo 'NULL';
+					break;
+				case 'boolean':
+					echo $row ? 'TRUE' : 'FALSE';
+					break;
+				default:
+					echo $row;
+			}
+			echo BR;
+		}
+		if (!$spaces) {
+			echo '</pre>';
+		}
+	}
+
 }

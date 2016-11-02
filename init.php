@@ -374,3 +374,112 @@ function get_overriden_methods($class) {
 function is_assoc($arr) {
 	return array_keys($arr) !== range(0, count($arr) - 1);
 }
+
+/**
+ * Shortcut for
+ * isset($variable) ? $variable : $default
+ * BUT, it creates a NULL elements with the multidimensional arrays!!!
+ * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
+ * @param $variable
+ * @param null $default
+ * @return null
+ * @see https://wiki.php.net/rfc/ifsetor
+ */
+function ifsetor(&$variable, $default = null) {
+	if (isset($variable)) {
+		$tmp = $variable;
+	} else {
+		$tmp = $default;
+	}
+	return $tmp;
+}
+
+function gettype2($something, $withHash = true) {
+	$type = gettype($something);
+	if ($type == 'object') {
+		if ($withHash) {
+			$hash = md5(spl_object_hash($something));
+			$hash = substr($hash, 0, 6);
+			require_once __DIR__ . '/HTTP/class.Request.php';
+			if (!Request::isCLI()) {
+				require_once __DIR__ . '/HTML/Color.php';
+				$color = new Color('#' . $hash);
+				$complement = $color->getComplement();
+				$hash = new HTMLTag('span', array(
+					'style' => 'background: ' . $color . '; color: ' . $complement,
+				), $hash);
+			}
+			$type = get_class($something) . '#' . $hash;
+		} else {
+			$type = get_class($something);
+		}
+	}
+	if ($type == 'string') {
+		$type .= '[' . strlen($something) . ']';
+	}
+	if ($type == 'array') {
+		$type .= '[' . sizeof($something) . ']';
+	}
+	return new htmlString($type);
+}
+
+/**
+ * @param $something array
+ * @return array
+ */
+function gettypes($something) {
+	if (is_array($something)) {
+		$types = array();
+		foreach ($something as $key => $element) {
+			$types[$key] = strip_tags(gettype2($element));
+		}
+		return $types;
+	} else {
+		return gettype2($something);
+	}
+	//return json_encode($types, JSON_PRETTY_PRINT);
+}
+
+function cap($string, $with = '/') {
+	$string .= '';
+	if (!str_endsWith($string, $with)) {
+		$string .= $with;
+	}
+	return $string;
+}
+
+/**
+ * Whether string starts with some chars
+ * @param                 $haystack
+ * @param string|string[] $needle
+ * @return bool
+ */
+function str_startsWith($haystack, $needle) {
+	if (!is_array($needle)) {
+		$needle = array($needle);
+	}
+	foreach ($needle as $need) {
+		if (strpos($haystack, $need) === 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Whether string ends with some chars
+ * @param $haystack
+ * @param $needle
+ * @return bool
+ */
+function str_endsWith($haystack, $needle) {
+	return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
+}
+
+function str_contains($haystack, $needle) {
+	if (is_array($haystack)) {
+		debug_pre_print_backtrace();
+	}
+	return FALSE !== strpos($haystack, $needle);
+}
+
