@@ -53,7 +53,7 @@ class DebugPanel {
 		}
 	}
 
-	function getInstance() {
+	static function getInstance() {
 		if (!self::$instance) {
 			self::$instance = new self();
 		}

@@ -1,46 +1,59 @@
 {
     "name": "spidgorny/nadlib",
+	"minimum-stability": "dev",
     "require": {
 		"php": ">=5.3.8",
-		"michelf/php-markdown": "*",
+		"michelf/php-markdown": "~1.4",
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"flot/flot": "dev-master",
-		"php-sql-parser": "dev-master",
-		"GerHobbelt/HTMLawed": "dev-master",
-		"leafo/lessphp": "0.4.0"
+		"greenlion/PHP-SQL-Parser": "*",
+		"HTMLawed/HTMLawed": "dev-master",
+		"leafo/lessphp": "0.4.0",
+	    "danielstjules/stringy": ">=1.5.1",
+        "phpauth/phpauth": "v1.1",
+        "gnat/nc-cms": "*",
+        "robloach/component-installer": "^0.2.3"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
-		"phpunit/php-code-coverage": "2.1.*@dev",
-		"phpunit/phpunit-mock-objects": "2.1.*@dev",
-		"phpunit/phpunit": "dev-master"
+		"sebastian/comparator": "*",
+		"phpunit/php-code-coverage": "*",
+		"phpunit/phpunit-mock-objects": "*",
+		"phpunit/phpunit": "*"
     },
-    "require_bak": {
-		"pdepend/pdepend": "1.1.0",
-		"fabpot/twittee": "dev-master",
-		"sharom/twitter-bootstrap": "dev-master"
+    "suggest": {
+        "flot/flot": "dev-master"
     },
-	"_autoloadddd": {
-		"_classmap_": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
-		"_files": [
-			"init.php"
+	"autoload": {
+		"classmap": [
+			"Cache/",
+			"Controller/",
+			"CSS/",
+			"Data/",
+			"DB/",
+			"Debug/",
+			"HTML/",
+			"HTMLForm/",
+			"HTTP/",
+			"LocalLang/",
+			"ORM/",
+			"SQL/",
+			"Time/",
+			"User/"
 		],
 		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
-			"vendor/php-sql-parser/src/PHPSQLParser.php"
+			"init.php"
 		],
 		"psr-0": {
 			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
 		}
 	},
-	"repositories_bak": [
-		{
-		"type": "vcs",
-		"url": "https://github.com/michelf/php-markdown/"
-		}
-	],
+	"autoload-dev": {
+		"files": [
+			"vendor/GerHobbelt/HTMLawed/htmLawed.php"
+		]
+	},
 	"repositories": [
 		{
 			"type": "package",
@@ -49,6 +62,18 @@
 				"version": "master",
 				"source": {
 					"url": "https://github.com/michelf/php-markdown",
+					"type": "git",
+					"reference": "master"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "gnat/nc-cms",
+				"version": "master",
+				"source": {
+					"url": "https://github.com/gnat/nc-cms",
 					"type": "git",
 					"reference": "master"
 				}
@@ -107,18 +132,6 @@
                     "url":"https://github.com/mustangostang/spyc",
                     "type":"git",
                     "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package": {
-                "version":"dev-master",
-                "name":"php-sql-parser",
-                "source": {
-                    "url":"http://php-sql-parser.googlecode.com/svn/",
-                    "type":"svn",
-                    "reference":"trunk"
                 }
             }
         },

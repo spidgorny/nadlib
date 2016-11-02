@@ -22,7 +22,7 @@ class PayPalPDT {
 	function validate() {
 		$url = 'www.'.$this->sandbox.'paypal.com';
 		// post back to PayPal system to validate
-		$header .= "POST /cgi-bin/webscr HTTP/1.0\r\n";
+		$header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
 		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
 		$header .= "Content-Length: " . strlen($this->req) . "\r\n\r\n";
 		$fp = fsockopen ($url, 80, $errno, $errstr, 30);

@@ -19,6 +19,11 @@ class slTableValue {
 	 */
 	var $db;
 
+	/**
+	 * @var slTable
+	 */
+	var $caller;
+
 	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
 	public $SLTABLE_IMG_CHECK = '☑';
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
@@ -33,7 +38,7 @@ class slTableValue {
 		$this->value = $value;
 		$this->desc += (array)$desc;
 		if (class_exists('Config')) {
-			$this->db = Config::getInstance()->db;
+			$this->db = Config::getInstance()->getDB();
 		}
 	}
 
@@ -59,7 +64,8 @@ class slTableValue {
 		return $this->render();
 	}
 
-	function getCell($col, $val, $k, array $row) {
+	function getCell($col, $val, array $k, array $row) {
+		$out = '';
 		$type = isset($k['type']) ? $k['type'] : NULL;
 		if (is_object($type)) {
 			$type = get_class($type);
@@ -70,8 +76,8 @@ class slTableValue {
 			case "selection":
 				//debug($k + array('val' => $val));
 				if ($val) {
-					$what = $k['title'] ? $k['title'] : $col;
-					$id = $k['idField'] ? $k['idField'] : 'id';
+					$what = ifsetor($k['title'], $col);
+					$id = ifsetor($k['idField'], 'id');
 					if (!isset($k['options'])) {
 						if ($k['set']) {
 							$list = trimExplode(',', $val);
@@ -84,7 +90,7 @@ class slTableValue {
 							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'].'.*, '.$what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
-							$whatAs = $whatAs[1] ?: $what;
+							$whatAs = $whatAs[1] ? $whatAs[1] : $what;
 							$options = ArrayPlus::create($options)
 								->IDalize($id, true)
 								->column($whatAs)
@@ -98,14 +104,33 @@ class slTableValue {
 				} else {
 					$out = "";
 				}
-			break;
+				break;
+
 			case "date":
 				if ($val) {
-					$out = date($k['format'] ? $k['format'] : 'Y-m-d H:i:s', $val);
+					$out = date($k['format'] ?: 'Y-m-d H:i:s', $val);
 				} else {
 					$out = '';
 				}
-			break;
+				break;
+
+			case "gmdate":
+				if ($val !== NULL) {
+					if (is_numeric($val)) {
+						$out = gmdate($k['format'] ?: 'Y-m-d', $val);
+					} else {
+						debug($col, 'is not long', $row);
+					}
+				} else {
+					$out = '';
+				}
+				//$out .= '-'.var_export($val, TRUE);
+				break;
+
+			case 'hours':
+				$out = $this->getHours($val);
+				break;
+
 			case "sqltime":
 				if ($val) {
 					$val = strtotime(substr($val, 0, 16)); // cut milliseconds
@@ -113,28 +138,45 @@ class slTableValue {
 				} else {
 					$out = '';
 				}
-			break;
+				break;
+
 			case "sqldate":
 				if ($val) {
 					$val = new Date($val);
-					$out = $val->format($k['format']);	// hours will not work
+					$out = $val->format(ifsetor($k['format'], 'Y-m-d'));	// hours will not work
 				} else {
 					$out = '';
 				}
-			break;
+				break;
+
+			case "sqldatetime":
+				if ($val) {
+					$val = new Time($val);
+					$out = $val->format(ifsetor($k['format'], 'Y-m-d H:i'));
+				} else {
+					$out = '';
+				}
+				break;
+
 			case "file":
 				$out = new HTMLTag('a', array(
 					'href' => $GLOBALS['uploadURL'].$val,
 				), $val);
-			break;
+				break;
+
 			case "money":
+				if (!is_numeric($val)) {
+					debug($col, $val);
+				}
 				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
-			break;
+				break;
+
 			case "delete":
 				$out = new HTMLTag('a', array(
 					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'],
 				), "Del");
-			break;
+				break;
+
 			case "datatable":
 				//$out .= t3lib_utility_Debug::viewArray(array('col' => $col, 'val' => $val, 'desc' => $k));
 				$out = $k['prefix'];
@@ -142,15 +184,20 @@ class slTableValue {
 				$f->prefix($this->prefixId);
 				$out .= $f->datatable($col, $val, $k, $details = TRUE, $doDiv = TRUE, 'sltable', $data = 'test');
 				$out .= $k['append'];
-			break;
+				break;
+
 			case 'link':
 				$out = '<a href="'.$val.'" target="'.$k['target'].'">'.($k['text'] ? $k['text'] : $val).'</a>';
-			break;
+				break;
+
 			case 'image':
-				$out = '<img src="'.$k['prefix'].$val.'" />';
-			break;
+				$out = new HTMLTag('img', [
+					'src' => $k['prefix'].$val,
+				] + $k['more']);
+				break;
+
 			case "checkbox":
-				if ($k['tf']) {
+				if (ifsetor($k['tf'])) {
 					$val = $val == 't';
 				}
 				if ($val) {
@@ -158,35 +205,40 @@ class slTableValue {
 				} else {
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
-				if ($row[$col.'.link']) {
+				if (ifsetor($row[$col.'.link'])) {
 					$out = new HTMLTag('a', array(
 						'href' => $row[$col.'.link'],
-					), $img);
+					), $img, $k['no_hsc']);
 				} else {
 					$out = $img;
 				}
-			break;
+				break;
+
 			case "bool":
 			case "boolean":
 				if (intval($val)) {
-					$out = $k['true'] ?: $this->SLTABLE_IMG_CHECK;
+					$out = ifsetor($k['true'], $this->SLTABLE_IMG_CHECK);
 				} else {
-					$out = $k['false'] ?: $this->SLTABLE_IMG_CROSS;
+					$out = ifsetor($k['false'], $this->SLTABLE_IMG_CROSS);
 				}
 				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
-			break;
+				break;
+
 			case "excel":
 				$out = str_replace(',', '.', $val); // from excel?
 				$out = number_format($out, 2, ',', '.');
-			break;
+				break;
+
 			case 'check':
-				$out = '<div style="align: center;">
+				$out = '<div style="text-align: center;">
 					<input class="check" type="checkbox" disabled="" '.($val ? 'checked' : '').' />
 				</div>';
-			break;
+				break;
+
 			case "percent":
 				$out = number_format($val*100, 2, '.', '').'&nbsp;%';
-			break;
+				break;
+
 			case "bar":
 				if (!is_null($val)) {
 					$pb = new ProgressBar();
@@ -196,19 +248,47 @@ class slTableValue {
 						$out = $pb->getImage($val*100);
 					}
 				}
-			break;
+				break;
+
 			case "callback":
 				$out = call_user_func($k['callback'], $val, $k, $row);
-			break;
+				break;
+
 			case "instance":
 				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
-				$out = $obj.'';
-			break;
+				if (ifsetor($k['method']) && method_exists($obj, $k['method'])) {
+					$out = call_user_func([$obj, $k['method']]);
+				} else {
+					$out = $obj . '';
+				}
+				break;
+
+			case "singleton":
+				if ($val) {
+					if (ifsetor($k['csv'])) {
+						$parts = trimExplode(',', $val);
+						$obj = array();
+						foreach ($parts as $id) {
+							$obj[] = is_object($k['class'])
+								? $k['class']
+								: $k['class']::getInstance($id);
+						}
+						$out = implode(', ', $obj);
+					} else {
+						$obj = is_object($k['class'])
+							? $k['class']
+							: $k['class']::getInstance($val);
+						$out = $obj . '';
+					}
+				}
+				break;
+
 			case "singleLink":
 				$out = new HTMLTag('a', array(
 					'href' => new URL($k['link'].$row[$k['idField']]),
-				), $val);
-			break;
+				), $val ?: $k['text']);
+				break;
+
 			case 'HTMLFormDatePicker':
 				//$val = strtotime($val);
 				//$out = date($k['type']->format, $val);
@@ -216,7 +296,12 @@ class slTableValue {
 					$val = new Date($val);
 					$out = $val->format($k['type']->format);
 				}
-			break;
+				break;
+
+			case "default":
+				$out = isset($k['text']) ? $k['text'] : 'Provide text property';
+				break;
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case "textarea":
 				$val = nl2br($val);
 			//break; // FALL DOWN!
@@ -225,19 +310,17 @@ class slTableValue {
 					$out = $val->render();
 				} else {
 					//t3lib_div::debug($k);
-					if (isset($k['hsc']) && $k['hsc']) {
+					if (isset($k['hsc']) && $k['hsc'] && !($val instanceof htmlString)) {
 						$val = htmlspecialchars($val);
 					}
+					if (ifsetor($k['explode'])) {
+						$val = trimExplode($k['explode'], $val);
+					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
-						$val = nl2br($val);
+						$val = nl2br(htmlspecialchars($val));	// escape it (!)
 						$k['no_hsc'] = true; 	// for below
 					}
-					if (is_object($val)) {
-						if (method_exists($val, 'getName')) {
-							$val = $val->getName();
-						}
-					}
-					if ($k['no_hsc']) {
+					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
 					} else if ($val instanceof htmlString) {
 						$out = $val.'';
@@ -245,30 +328,69 @@ class slTableValue {
 						$out = $val.'';
 					} else if ($val instanceof HTMLDate) {
 						$out = $val.'';
+					} else if ($val instanceof HTMLForm) {
+						$out = $val->getContent().'';   // to avoid calling getName()
+					} elseif (is_object($val)) {
+						if (ifsetor($k['call'])) {
+							$out = $val->$k['call']();
+						} elseif (method_exists($val, 'getName')) {
+							$out = $val->getName();
+						} elseif (method_exists($val, '__toString')) {
+							$out = $val->__toString();
+						} else {
+							$out = '['.get_class($val).']';
+						}
 					} elseif (is_array($val)) {
 						if (is_assoc($val)) {
-							$out = json_encode($val, JSON_PRETTY_PRINT);
+							$out = json_encode($val, defined('JSON_PRETTY_PRINT')
+								? JSON_PRETTY_PRINT
+								: NULL);
 						} else {
 							$out = '['.implode(', ', $val).']';
 						}
 						$out = htmlspecialchars($out);
+					} elseif ($out == '' && ifsetor($k['default'])) {
+						$out = htmlspecialchars($k['default']);
 					} else {
 						$out = htmlspecialchars($val);
 					}
 				}
 			break;
 		}
-		if ($k['wrap']) {
+		if (isset($k['wrap']) && $k['wrap']) {
 			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
 			$out = $wrap->wrap($out);
 		}
-		if ($k['link']) {
-			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+		if (isset($k['link']) && $k['link']) {
+			$link = $k['link'];
+			foreach ($row as $key => $rowVal) {
+				$link = str_replace('###'.strtoupper($key).'###', $rowVal, $link);
+				$link = str_replace('{{'.strtolower($key).'}}', $rowVal, $link);
+				$link = str_replace('%7B%7B'.strtolower($key).'%7D%7D', $rowVal, $link);
+			}
+			if (isset($k['value'])) {
+				$link = str_replace('###VALUE###', $val ?: $k['value'], $link);
+			}
+			$link = str_replace('###ID###', $out, $link);
+			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');
 		}
 		return $out;
+	}
+
+	static function getHours($timestamp) {
+		if ($timestamp) {
+			//return gmdate('H:i', $timestamp);
+			$whole = floor($timestamp/(60*60));
+			$whole = str_pad($whole, 2, '0', STR_PAD_LEFT);
+
+			$rest = ($timestamp/60)%60;
+			$rest = str_pad($rest, 2, '0', STR_PAD_LEFT);
+			return $whole.':'.$rest;
+		}
+		return NULL;
 	}
 
 }

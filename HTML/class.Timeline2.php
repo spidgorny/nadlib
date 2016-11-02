@@ -12,6 +12,11 @@ class Timeline2 /*extends AppController */{
 	 */
 	var $end;
 
+	/**
+	 * @var Time
+	 */
+	var $duration;
+
 	var $width;
 
 	var $height;
@@ -24,122 +29,27 @@ class Timeline2 /*extends AppController */{
 
 	var $textColor = 'rgb(100,100,100)';
 
+	var $rangeContent = array();
+
+	var $height_10;
+	var $height_20;
+	var $height_30;
+	var $fontSize;
+	var $dayWidth;
+
 	function __construct($width, $height, Date $start, Date $end) {
 		$this->width = $width;
 		$this->height = $height;
 		$this->start = $start;
 		$this->end = $end;
 		$this->duration = $this->end->minus($this->start);
-	}
-
-	function render(Date $from, Date $till) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if ($this->duration->getTimestamp()) {
-			$content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="'.$this->width.'" height="'.$this->height.'">'."\n";
-			$height_10 = $this->height / 3;
-			$height_20 = $this->height / 3 * 2;
-			$height_30 = $this->height;
-			$fontSize = $this->height / 4.0;
-
-			$nextDay = clone $this->start;
-			$nextDay = $nextDay->math('+1 day');
-			$dayWidth = $this->date2x($nextDay);
-
-			// fill 100%
-			$content .= '<rect
-				x="'.(0).'"
-				y="'.(0).'"
-				width="'.$this->width.'"
-				height="'.$height_30.'"
-				style="fill:'.$this->fillBottomColor.';stroke-width:0" />'."\n";
-
-			// date ticks
-			for ($date = clone $this->start/* @var $date Date */;
-				 $date->earlier($this->end);
-				 $date->add(new Duration('1 day'))) {
-				$x = $this->date2x($date);
-				if ($dayWidth > 2) {	// px
-					$content .= '<line x1="'.$x.'" y1="'.($height_10).'" x2="'.$x.'" y2="'.($height_10+$height_10/2).'"
-					style="stroke:'.$this->textColor.';stroke-width:1"/>';
-				}
-				// if enough space for dates
-				if ($dayWidth > ($fontSize*1.5)) {
-					$content .= '<text
-					x="'.($x+1).'"
-					y="'.($height_10 + $fontSize*0.8).'"
-					fill="'.$this->textColor.'"
-					font-size="'.$fontSize.'"
-					>'.$date->format('d').'</text>';
-				}
-			}
-
-			// week ticks
-			for ($date = clone $this->start/* @var $date Date */;
-				 $date->earlier($this->end);
-				 $date->add(new Duration('1 week'))) {
-				$x = $this->date2x($date);
-				$content .= '<line x1="'.$x.'" y1="'.$height_10.'" x2="'.$x.'" y2="'.($height_20).'"
-					style="stroke:'.$this->textColor.';stroke-width:1"/>';
-				/*$content .= '<text
-					x="'.($x+1).'"
-					y="'.($height_20 + 13).'"
-					fill="'.$this->textColor.'">'.$date->format('W').'</text>';*/
-			}
-
-			// month ticks and labels
-			for ($date = clone $this->start/* @var $date Date */;
-				 $date->earlier($this->end);
-				 $date->add(new Duration('1 month'))) {
-				$x = $this->date2x($date);
-				$content .= '<line x1="'.($x+0).'" y1="'.$height_10.'" x2="'.($x+0).'" y2="'.($height_30).'"
-					style="stroke:'.$this->textColor.';stroke-width:1"/>';
-				if (($dayWidth * 30) > ($fontSize*3)) {	// 3 letters in Jan
-					$content .= '<text
-					x="'.($x+1).'"
-					y="'.($height_20 + $fontSize*0.9).'"
-					fill="'.$this->textColor.'"
-					font-size="'.$fontSize.'"
-					>'.$date->format('M').'</text>';
-				}
-			}
-
-			// year labels
-			//debug($dayWidth, ($dayWidth * 30), $fontSize, ($fontSize*3));
-			if (($dayWidth * 30) < ($fontSize*3)) {	// 3 letters in Jan
-				for ($date = clone $this->start/* @var $date Date */;
-					 $date->earlier($this->end);
-					 $date->add(new Duration('1 year'))) {
-					$x = $this->date2x($date);
-					$content .= '<text
-						x="'.($x+1).'"
-						y="'.($height_20 + $fontSize*0.9).'"
-						fill="'.$this->textColor.'"
-						font-size="'.$fontSize.'"
-						>'.$date->format('Y').'</text>';
-
-				}
-			}
-
-			// fill top background
-			$content .= '<rect
-				x="'.(0).'"
-				y="'.(0).'"
-				width="'.$this->width.'"
-				height="'.($this->height-$height_20).'"
-				style="fill:'.$this->fillTopColor.'" />'."\n";
-
-			$x = $this->date2x($from);
-			$width = $this->date2x($till) - $x;
-			$content .= '<rect
-				x="'.$x.'"
-				y="'.(0).'"
-				width="'.$width.'"
-				height="'.($this->height-$height_20).'"
-				style="fill:'.$this->rangeColor.'; stroke-width:0; stroke:rgb(0,0,0)" />'."\n";
-			$content .= '</svg>';
-		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $content;
+		$this->height_10 = round($this->height / 3, 2);
+		$this->height_20 = round($this->height / 3 * 2, 2);
+		$this->height_30 = round($this->height, 2);
+		$this->fontSize = round($this->height / 4.0, 2);
+		$nextDay = clone $this->start;
+		$nextDay = $nextDay->math('+1 day');
+		$this->dayWidth = $this->date2x($nextDay);
 	}
 
 	function date2x(Date $date) {
@@ -150,6 +60,213 @@ class Timeline2 /*extends AppController */{
 		$percent = round($percent * $rc) / $rc;
 		//debug($date->getTimestamp(), $this->start->getTimestamp(), $sinceStart->getTimestamp(), $this->duration->getTimestamp(), $percent);
 		return round($percent * $this->width, 2);
+	}
+
+	function render() {
+		TaylorProfiler::start(__METHOD__);
+		if ($this->duration->getTimestamp()) {
+			$content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="'.$this->width.'" height="'.$this->height.'">'."\n";
+			// fill 100%
+			$content .= '<rect
+				x="'.(0).'"
+				y="'.(0).'"
+				width="'.$this->width.'"
+				height="'.$this->height_30.'"
+				style="fill:'.$this->fillBottomColor.';stroke-width:0" />'."\n";
+
+			$content .= $this->hourTicks();
+			$content .= $this->dateTicks();
+			$content .= $this->weekTicks();
+			$content .= $this->monthTicks();
+			$content .= $this->yearLabels();
+
+			// fill top background
+			$content .= '<rect
+				x="'.(0).'"
+				y="'.(0).'"
+				width="'.$this->width.'"
+				height="'.($this->height - $this->height_20).'"
+				style="fill:'.$this->fillTopColor.'" />'."\n";
+
+			$content .= implode("\n", $this->rangeContent);
+			$content .= '</svg>';
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $content;
+	}
+
+	function hourTicks() {
+		$content = '';
+		$every = $this->dayWidth / 24 / 3 / $this->fontSize; // 3 chars for "22h"
+		$i = 0;
+		/* @var $date Time */
+		for ($date = new Time($this->start);
+		     $date->earlier($this->end);
+		     $date->add(new Duration('1 hour'))) {
+			$x = $this->date2xTime($date);
+			if ($this->dayWidth > 24 * 2) {	// 24h * 2 pixels
+				$content .= '<line x1="'.$x.'" y1="'.($this->height_10).'" x2="'.$x.'"
+					y2="'.($this-> height_10 + $this->height_10/2).'"
+					style="stroke:'.$this->textColor.';stroke-width:1"/>';
+			}
+			// if enough space for dates
+			//if ($this->dayWidth > (48 * 3 * $this->fontSize*1.5)) {
+			if ($every > 1 && !($i++ % $every)) {
+				$content .= '<text
+					x="'.($x-($this->fontSize/1.5/2)).'"
+					y="'.($this->height_10 + $this->fontSize*1.3).'"
+					fill="'.$this->textColor.'"
+					font-size="'.($this->fontSize/1.5).'"
+					>'.$date->format('H\h').'</text>';
+			}
+		}
+		return $content;
+	}
+
+	function dateTicks() {
+		$content = '';
+		for ($date = clone $this->start/* @var $date Date */;
+			 $date->earlier($this->end);
+			 $date->add(new Duration('1 day'))) {
+			$x = $this->date2x($date);
+			if ($this->dayWidth > 2) {	// px
+				$content .= '<line x1="'.$x.'" y1="'.($this->height_10).'" x2="'.$x.'"
+					y2="'.($this-> height_10 + $this->height_10/2).'"
+					style="stroke:'.$this->textColor.';stroke-width:1"/>';
+			}
+			// if enough space for dates
+			if ($this->dayWidth > ($this->fontSize*1.5)) {
+				$content .= '<text
+					x="'.($x+1).'"
+					y="'.($this->height_10 + $this->fontSize*0.8).'"
+					fill="'.$this->textColor.'"
+					font-size="'.$this->fontSize.'"
+					>'.$date->format('d').'</text>';
+			}
+		}
+		return $content;
+	}
+
+	function weekTicks() {
+		$content = '';
+		$firstWeek = new Date(strtotime('monday', $this->start->getTimestamp()));
+		for ($date = $firstWeek/* @var $date Date */;
+			 $date->earlier($this->end);
+			 $date->add(new Duration('1 week'))) {
+			$x = $this->date2x($date);
+			$content .= '<line x1="'.$x.'"
+				y1="'.$this->height_10.'"
+				x2="'.$x.'"
+				y2="'.($this->height_20).'"
+				style="stroke:'.$this->textColor.';stroke-width:1"/>';
+/*			$content .= '<text
+				x="'.($x+1).'"
+				y="'.($this->height_20 + 13).'"
+				fill="'.$this->textColor.'">'.$date->format('W').'</text>';*/
+		}
+		return $content;
+	}
+
+	function monthTicks() {
+		$content = '';
+		for ($date = clone $this->start
+			/* @var $date Date */;
+			 $date->earlier($this->end);
+			 $date->add(new Duration('next month'))) {
+			// Fix, because it jumps to 2015-03-04
+			//debug($date);
+			// gmdate() and GMT are very important here
+			// otherwise infinite loop due to the DST
+			$gmDate = gmdate('Y-m-01', $date->getTimestamp());
+			$date->setTimestamp(strtotime($gmDate . 'GMT'));
+			$x = $this->date2x($date);
+			//debug($this->start, $date->getISODate(), $x, $this->end);
+			$content .= '<line x1="'.($x+0).'" y1="'.$this->height_10.'"
+				x2="'.($x+0).'" y2="'.($this->height_30).'"
+				style="stroke:'.$this->textColor.';stroke-width:1"/>';
+			if (($this->dayWidth * 30) > ($this->fontSize*3)) {	// 3 letters in Jan
+				$content .= '<text
+					x="'.($x+1).'"
+					y="'.($this->height_20 + $this->fontSize*0.9).'"
+					fill="'.$this->textColor.'"
+					font-size="'.$this->fontSize.'"
+					>'.$date->format('M').'</text>';
+			}
+		}
+		return $content;
+	}
+
+	function yearLabels() {
+		$content = '';
+		//debug($dayWidth, ($dayWidth * 30), $fontSize, ($fontSize*3));
+		if (($this->dayWidth * 30) < ($this->fontSize*3)) {	// 3 letters in Jan
+			for ($date = clone $this->start
+				 /* @var $date Date */;
+				 $date->earlier($this->end);
+				 $date->add(new Duration('1 year'))) {
+				$x = $this->date2x($date);
+				$content .= '<text
+						x="'.($x+1).'"
+						y="'.($this->height_20 + $this->fontSize*0.9).'"
+						fill="'.$this->textColor.'"
+						font-size="'.$this->fontSize.'"
+						>'.$date->format('Y').'</text>';
+
+			}
+		}
+		return $content;
+	}
+
+	function renderRange(Date $from, Date $till) {
+		$x = $this->date2x($from);
+		$width = $this->date2x($till) - $x;
+		$this->rangeContent[] = '<rect
+				x="'.$x.'"
+				y="'.(0).'"
+				width="'.$width.'"
+				height="'.($this->height - $this->height_20).'"
+				style="fill:'.$this->rangeColor.'; stroke-width:0; stroke:rgb(0,0,0)" />';
+	}
+
+	function date2xTime(Time $time) {
+		$sinceStart = $time->minus($this->start);
+		//$tillEnd = $this->end->minus($date);
+		$percent = $sinceStart->getTimestamp() / ($this->duration->getTimestamp());
+		return round($percent * $this->width, 2);
+	}
+
+	function renderTimeRange(Time $from, Time $till,
+		$style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
+		$more = array()) {
+		$x = $this->date2xTime($from);
+		$width = $this->date2xTime($till) - $x;
+		$id = uniqid('rect_');
+		$this->rangeContent[] = '<rect
+				id="'.$id.'"
+				x="'.$x.'"
+				y="'.(0).'"
+				width="'.$width.'"
+				height="'.($this->height - $this->height_20).'"
+				style="'.$style.'"
+				startTime="'.$from->getDateTime().'"
+				endTime="'.$till->getDateTime().'"
+				'.HTMLTag::renderAttr($more).'
+				/>';
+		return $id;
+	}
+
+	function renderCircle(Time $from, $radius, $style = 'fill: #0088CC; stroke-width:1; stroke:rgb(0,0,0)') {
+		$x = $this->date2xTime($from);
+		$this->rangeContent[] = '<circle
+				cx="'.$x.'"
+				cy="'.(20).'"
+				r="'.$radius.'"
+				style="'.$style.'"
+				/>';
+	}
+
+	function __toString() {
+		return $this->render().'';
 	}
 
 }

@@ -1,0 +1,43 @@
+<?php
+
+class CsvIteratorWithHeader extends CsvIterator {
+
+	/**
+	 * @var array
+	 */
+	var $columns;
+
+	public function __construct($filename, $delimiter = ',', $convertUTF8 = false) {
+		parent::__construct($filename, $delimiter);
+		$this->doConvertToUTF8 = $convertUTF8;
+		$this->columns = parent::current();	// first line
+		$this->next();
+		//print_r($this->columns);
+	}
+
+	public function current() {
+		parent::current();
+		//debug($this->columns, $this->currentElement);
+		if ($this->currentElement) {
+			$this->currentElement = array_combine($this->columns, $this->currentElement);
+		}
+		return $this->currentElement;
+	}
+
+	public function next() {
+		$return = parent::next();
+		//debug($this->columns, $this->currentElement);
+		if ($return !== false && $this->currentElement) {
+			$this->currentElement = array_combine($this->columns, $this->currentElement);
+			return $this->currentElement;
+		} else {
+			return false;
+		}
+	}
+
+	public function rewind() {
+		parent::rewind();
+		$this->next();	// skip header row again
+	}
+
+}

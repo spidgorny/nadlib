@@ -7,7 +7,6 @@
  * To change this template use File | Settings | File Templates.
  */
 
-
 class MessageQueue extends OODBase {
 	const CLASS_POSTFIX = 'Task';
 
@@ -43,18 +42,41 @@ class MessageQueue extends OODBase {
 	}
 
 	/**
+	 * TODO: move this into MessageQueueCollection
+	 * Get next task available
 	 * @return object
 	 * @throws Exception
 	 */
 	public function getTaskObject() {
-		// get next task available
-		if($this->fetchNextTask($this->type)) {
+		// need to delete previous record, otherwise infinite loop
+		$this->id = NULL;
+		$this->data = array();
+		$this->db->transaction();
+		$newTaskOK = $this->fetchNextTask($this->type);
+		if ($newTaskOK) {
+			// Set the status to "IN PROGRESS"
+			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
+			$this->db->commit();
 			// set task data retrieved from DB
 			$this->setTaskData($this->data['data']);
 
-			$className = $this->getClassName($this->type);
-			return new $className($this);
-		};
+			try {
+				$className = $this->getClassName($this->type);
+				echo 'className: ', $className, BR;
+				if (class_exists($className)) {
+					$obj = new $className($this);
+				} else {
+					echo 'Class '.$className.' does not exist', BR;
+					$obj = false;
+				}
+			} catch (Exception $e) {
+				echo $e->getMessage(), BR;
+				$obj = false;
+			}
+			return $obj;
+		} else {
+			$this->db->commit();	// tried to get new task
+		}
 
 		// if there is no next task return false
 		return false;
@@ -86,15 +108,22 @@ class MessageQueue extends OODBase {
 		$orderBy = 'ORDER BY id ASC';
 
 		$this->findInDB($where, $orderBy);
+		//debug($this->db->lastQuery, $this->data);
 
-		if(!empty($this->data['id'])) {
-			// Set the status to "IN PROGRESS"
-			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
-
+		if (!empty($this->data['id'])) {
 			return true;
+		} else {
+			return false;
 		}
+	}
 
-		return false;
+	function count() {
+		$where = array(
+			'status' 	=> self::STATUS_NEW,
+			'type'		=> $this->type,
+		);
+		$res = $this->db->runSelectQuery($this->table, $where);
+		return $this->db->numRows($res);
 	}
 
 	/**
@@ -137,16 +166,26 @@ class MessageQueue extends OODBase {
 	 */
 	public function push($taskData, $userId = null) {
 		$data = array(
-			'ctime' 	=> 'NOW()',
+			'ctime' 	=> new SQLNow(),
 			'type'		=> $this->type,
 			'status' 	=> self::STATUS_NEW,
 			'data'		=> json_encode($taskData)
 		);
 
-		if(!empty($userId)) {
+		if (!empty($userId)) {
 			$data['cuser'] = $userId;
 		}
 		return $this->insert($data);
 	}
+
+	public function getStatus() {
+		return $this->data['status'];
+	}
+
+	function update(array $data) {
+		$data['mtime'] = new SQLNow();
+		return parent::update($data);
+	}
+
 }
 

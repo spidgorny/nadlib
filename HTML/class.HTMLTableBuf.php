@@ -1,47 +1,86 @@
 <?php
 
-class HTMLTableBuf {
-	var $stdout = "";
+/**
+ * @property  table
+ * @property  thead
+ * @property  tbody
+ * @property  tfoot
+ */
+class HTMLTableBuf extends MergedContent {
 
-	function text($text) {
-		$this->stdout .= $text;
+	var $curPart = 'tbody';
+
+	function __construct() {
+		parent::__construct(array(
+			'table' => '',
+			'thead' => '',
+			'tbody' => '',
+		));
 	}
 
 	function table($more = "") {
-		$this->stdout .= "<table $more>\n";
+		$this['table'] = "<table $more>\n";
 	}
 
 	function tablee() {
-		$this->stdout .= "</table>\n";
+		$this['/table'] = "</table>\n";
+	}
+
+	function htr($more = "") {
+		$this->addSub('thead', "<tr ".HTMLTag::renderAttr($more).">\n");
+	}
+
+	function htre() {
+		$this->addSub('thead', "</tr>\n");
 	}
 
 	function tr($more = "") {
-		$this->stdout .= "<tr ".$more.">\n";
+		$this->addSub('tbody', "<tr".rtrim(' '.$more).">\n");
 	}
 
 	function tre() {
-		$this->stdout .= "</tr>\n";
+		$this->addSub('tbody', "</tr>\n");
+	}
+
+	function ftr($more = "") {
+		$this->addSub('tfoot', "<tr ".$more.">\n");
+	}
+
+	function ftre() {
+		$this->addSub('tfoot', "</tr>\n");
 	}
 
 	function th($more = '') {
-		$this->stdout .= "<th ".$more.">\n";
+		$this->addSub('thead', "<th".rtrim(' '.$more).">\n");
 	}
 
 	function the() {
-		$this->stdout .= "</th>\n";
+		$this->addSub('thead', "</th>\n");
 	}
 
 	function td($more = "") {
-		$this->stdout .= "<td $more>";
+		$this->addSub($this->curPart, "<td".rtrim(' '.$more).">");
 	}
 
 	function tde() {
-		$this->stdout .= "</td>\n";
+		$this->addSub($this->curPart, "</td>\n");
+	}
+
+	function addTHead($text) {
+		$this->addSub('thead', $text);
+	}
+
+	function text($text) {
+		$this->addSub($this->curPart, $text);
+	}
+
+	function tfoot($text) {
+		$this->addSub('tfoot', $text);
 	}
 
 	function cell($a, array $more = array()) {
 		$this->td(HTMLTag::renderAttr($more));
-		$this->stdout .= $a;
+		$this->text($a);
 		$this->tde();
 	}
 
@@ -51,31 +90,35 @@ class HTMLTableBuf {
 	 * @param string $trmore	- more on the whole row
 	 */
 	function thes(array $aCaption, $thmore = array(), $trmore = '') {
-		$this->stdout .= '<thead>';
-		$this->tr($trmore);
-			foreach($aCaption as $i => $caption) {
+		$this->htr($trmore);
+		foreach ($aCaption as $i => $caption) {
+			if ($caption instanceof HTMLTag) {
+				$this->thead[] .= $caption;
+			} else {
+				if (is_string($thmore[$i])) {
+					debug($i, $thmore[$i]);
+				}
 				$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
 				if (is_array($more)) {
 					$more = HTMLTag::renderAttr($more);
 				}
-				$this->th($more);
-					$this->stdout .= $caption;
-				$this->the();
+				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>';
 			}
-		$this->tre();
-		$this->stdout .= '</thead>';
+		}
+		$this->htre();
+		//debug($this);
 	}
 
 	function render() {
 		print($this->getContent());
 	}
 
-	function getContent() {
-		return $this->stdout;
+	function tag(HTMLTag $tag) {
+		$this->addSub($this->curPart, $tag.'');
 	}
 
-	function tag(HTMLTag $tag) {
-		$this->stdout .= $tag.'';
+	function isDone() {
+		return isset($this['/table']);
 	}
 
 }

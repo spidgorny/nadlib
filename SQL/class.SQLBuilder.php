@@ -13,6 +13,7 @@
  *
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
+ * @mixin dbLayerBase
  */
 class SQLBuilder {
 
@@ -23,294 +24,85 @@ class SQLBuilder {
 	public $found;
 
 	/**
-	 * Reserved MySQL words
-	 * @var array
-	 */
-	protected $reserved = array (
-		0 => 'ACCESSIBLE',
-		1 => 'ADD',
-		2 => 'ALL',
-		3 => 'ANALYZE',
-		4 => 'AND',
-		5 => 'AS',
-		6 => 'ASC',
-		7 => 'ASENSITIVE',
-		8 => 'BEFORE',
-		9 => 'BETWEEN',
-		10 => 'BIGINT',
-		11 => 'BINARY',
-		12 => 'BLOB',
-		13 => 'BOTH',
-		14 => 'CALL',
-		15 => 'CASCADE',
-		16 => 'CASE',
-		17 => 'CHANGE',
-		18 => 'CHAR',
-		19 => 'CHARACTER',
-		20 => 'CHECK',
-		21 => 'COLLATE',
-		22 => 'COLUMN',
-		23 => 'CONDITION',
-		24 => 'CONSTRAINT',
-		25 => 'CONVERT',
-		26 => 'CREATE',
-		27 => 'CROSS',
-		28 => 'CURRENT_DATE',
-		29 => 'CURRENT_TIME',
-		30 => 'CURRENT_TIMESTAMP',
-		31 => 'CURRENT_USER',
-		32 => 'CURSOR',
-		33 => 'DATABASES',
-		34 => 'DAY_HOUR',
-		35 => 'DAY_MICROSECOND',
-		36 => 'DAY_MINUTE',
-		37 => 'DAY_SECOND',
-		38 => 'DEC',
-		39 => 'DECIMAL',
-		40 => 'DECLARE',
-		41 => 'DELAYED',
-		42 => 'DELETE',
-		43 => 'DESC',
-		44 => 'DESCRIBE',
-		45 => 'DETERMINISTIC',
-		46 => 'DISTINCT',
-		47 => 'DISTINCTROW',
-		48 => 'DIV',
-		49 => 'DROP',
-		50 => 'DUAL',
-		51 => 'EACH',
-		52 => 'ELSE',
-		53 => 'ELSEIF',
-		54 => 'ENCLOSED',
-		55 => 'ESCAPED',
-		56 => 'EXISTS',
-		57 => 'EXPLAIN',
-		58 => 'FALSE',
-		59 => 'FETCH',
-		60 => 'FLOAT',
-		61 => 'FLOAT4',
-		62 => 'FLOAT8',
-		63 => 'FOR',
-		64 => 'FORCE',
-		65 => 'FOREIGN',
-		66 => 'FROM',
-		67 => 'FULLTEXT',
-		68 => 'GROUP',
-		69 => 'HAVING',
-		70 => 'HIGH_PRIORITY',
-		71 => 'HOUR_MICROSECOND',
-		72 => 'HOUR_MINUTE',
-		73 => 'HOUR_SECOND',
-		74 => 'IF',
-		75 => 'IGNORE',
-		76 => 'INDEX',
-		77 => 'INFILE',
-		78 => 'INNER',
-		79 => 'INOUT',
-		80 => 'INSENSITIVE',
-		81 => 'INSERT',
-		82 => 'INT',
-		83 => 'INT1',
-		84 => 'INT2',
-		85 => 'INT3',
-		86 => 'INT4',
-		87 => 'INTEGER',
-		88 => 'INTERVAL',
-		89 => 'INTO',
-		90 => 'IS',
-		91 => 'ITERATE',
-		92 => 'JOIN',
-		93 => 'KEY',
-		94 => 'KEYS',
-		95 => 'KILL',
-		96 => 'LEADING',
-		97 => 'LEAVE',
-		98 => 'LIKE',
-		99 => 'LIMIT',
-		100 => 'LINEAR',
-		101 => 'LINES',
-		102 => 'LOAD',
-		103 => 'LOCALTIME',
-		104 => 'LOCALTIMESTAMP',
-		105 => 'LOCK',
-		106 => 'LONG',
-		107 => 'LONGBLOB',
-		108 => 'LONGTEXT',
-		109 => 'LOW_PRIORITY',
-		110 => 'MASTER_SSL_VERIFY_SERVER_CERT',
-		111 => 'MATCH',
-		112 => 'MEDIUMBLOB',
-		113 => 'MEDIUMINT',
-		114 => 'MIDDLEINT',
-		115 => 'MINUTE_MICROSECOND',
-		116 => 'MINUTE_SECOND',
-		117 => 'MOD',
-		118 => 'MODIFIES',
-		119 => 'NATURAL',
-		120 => 'NOT',
-		121 => 'NO_WRITE_TO_BINLOG',
-		122 => 'NUMERIC',
-		123 => 'ON',
-		124 => 'OPTIMIZE',
-		125 => 'OPTION',
-		126 => 'OPTIONALLY',
-		127 => 'OR',
-		128 => 'ORDER',
-		129 => 'OUT',
-		130 => 'OUTER',
-		131 => 'OUTFILE',
-		132 => 'PRECISION',
-		133 => 'PROCEDURE',
-		134 => 'PURGE',
-		135 => 'RANGE',
-		136 => 'READ',
-		137 => 'READS',
-		138 => 'READ_WRITE',
-		139 => 'REAL',
-		140 => 'REFERENCES',
-		141 => 'REGEXP',
-		142 => 'RELEASE',
-		143 => 'RENAME',
-		144 => 'REPLACE',
-		145 => 'REQUIRE',
-		146 => 'RESTRICT',
-		147 => 'RETURN',
-		148 => 'REVOKE',
-		149 => 'RIGHT',
-		150 => 'RLIKE',
-		151 => 'SCHEMA',
-		152 => 'SCHEMAS',
-		153 => 'SECOND_MICROSECOND',
-		154 => 'SELECT',
-		155 => 'SEPARATOR',
-		156 => 'SET',
-		157 => 'SHOW',
-		158 => 'SMALLINT',
-		159 => 'SPATIAL',
-		160 => 'SPECIFIC',
-		161 => 'SQL',
-		162 => 'SQLEXCEPTION',
-		163 => 'SQLWARNING',
-		164 => 'SQL_BIG_RESULT',
-		165 => 'SQL_CALC_FOUND_ROWS',
-		166 => 'SQL_SMALL_RESULT',
-		167 => 'SSL',
-		168 => 'STARTING',
-		169 => 'STRAIGHT_JOIN',
-		170 => 'TABLE',
-		171 => 'THEN',
-		172 => 'TINYBLOB',
-		173 => 'TINYINT',
-		174 => 'TINYTEXT',
-		175 => 'TO',
-		176 => 'TRAILING',
-		177 => 'TRIGGER',
-		178 => 'TRUE',
-		179 => 'UNION',
-		180 => 'UNIQUE',
-		181 => 'UNLOCK',
-		182 => 'UNSIGNED',
-		183 => 'UPDATE',
-		184 => 'USAGE',
-		185 => 'USE',
-		186 => 'USING',
-		187 => 'UTC_DATE',
-		188 => 'UTC_TIME',
-		189 => 'UTC_TIMESTAMP',
-		190 => 'VARBINARY',
-		191 => 'VARCHAR',
-		192 => 'VARCHARACTER',
-		193 => 'VARYING',
-		194 => 'WHEN',
-		195 => 'WHERE',
-		196 => 'WHILE',
-		197 => 'WITH',
-		198 => 'WRITE',
-		199 => 'XOR',
-		200 => 'YEAR_MONTH',
-		201 => 'ZEROFILL',
-		'ALTER',
-		'BY',
-		'CONTINUE',
-		'DATABASE',
-		'DEFAULT',
-		'DOUBLE',
-		'EXIT',
-		'GRANT',
-		'IN',
-		'INT8',
-		'LEFT',
-		'LOOP',
-		'MEDIUMTEXT',
-		'NULL',
-		'PRIMARY',
-		'REPEAT',
-		'SENSITIVE',
-		'SQLSTATE',
-		'TERMINATED',
-		'UNDO',
-		'VALUES',
-	);
-
-	/**
-	 * @var MySQL
+	 * @var DBInterface
 	 */
 	public $db;
 
-	function __construct(DIContainer $di) {
-		if ($di instanceof DIContainer && $di->db) {
-			$this->db = $di->db;
-		} else {
-			$this->db = Config::getInstance()->db;
+	/**
+	 * @var Config
+	 */
+	public $config;
+
+	function __construct(dbLayerBase $db) {
+		if (class_exists('Config')) {
+			$this->config = Config::getInstance();
 		}
+		$this->db = $db;
 	}
 
-	function quoteKey($key) {
-		if (in_array(strtoupper($key), $this->reserved)) {
-			$key = $this->db->quoteKey($key);
-		}
-		return $key;
+	function getDB() {
+		return $this->db = $this->db ?: $this->config->getDB();
 	}
 
 	/**
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
 	 * @param $value
-	 * @throws Exception
-	 * @internal param $key
+	 * @param null $key
+	 * @throws MustBeStringException
 	 * @return string
 	 */
-	function quoteSQL($value) {
-		if ($value instanceof AsIs) {
+	function quoteSQL($value, $key = NULL) {
+		if ($value instanceof AsIsOp) {     // check subclass first
+			$value->injectDB($this->db);
+			$value->injectQB($this);
+			$value->injectField($key);
+			$result = $value->__toString();
+			return $result;
+		} elseif ($value instanceof AsIs) {
+			$value->injectDB($this->db);
+			$value->injectQB($this);
+			//$value->injectField($key); not needed as it will make the field name twice
 			return $value->__toString();
-		} else if ($value instanceof AsIsOp) {
+		} elseif ($value instanceof SQLOr) {
 			return $value->__toString();
-		} else if ($value instanceof SQLOr) {
-			return $value->__toString();
+		} elseif ($value instanceof IndTime) {
+			return $this->quoteSQL($value->getMySQL(), $key);
+		} elseif ($value instanceof SQLDate) {
+			$content = "'".$this->db->escape($value->__toString())."'";
+			//debug($content, $value);
+			return $content;
 		} else if ($value instanceof Time) {
-			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value instanceof SQLDate) {
-			return "'".$this->db->escape($value->__toString())."'";
-		} else if ($value instanceof AsIs) {
-			return $value.'';
-		} else if ($value instanceof SimpleXMLElement) {
+			$content = "'".$this->db->escape($value->toSQL())."'";
+			//debug($content);
+			return $content;
+		} else if ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
-		} else if (is_object($value)) {
+		} elseif (is_object($value)) {
 			return "'".$this->db->escape($value)."'";
-		} else if ($value === NULL) {
+		} elseif ($value === NULL) {
 			return "NULL";
-		} else if (is_numeric($value) && !$this->isExp($value)) {
+		} elseif (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
-			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
-		} else if (is_bool($value)) {
-			return $this->db->escapeBool($value);
-		} else {
-			if (is_scalar($value)) {
-				return "'".$this->db->escape($value)."'";
-			} else {
-				debug($value);
-				throw new Exception('Must be string.');
+			return "'".$value."'";	// quoting will not hurt, but will keep leading zeroes if necessary
+			// /* numeric */";		// this makes SQLQuery not work
+		} elseif (is_bool($value)) {
+			$res = $this->db->escapeBool($value);
+			//debug($value, $key, get_class($this->db), $res);
+			return $res;
+		} elseif (is_scalar($value)) {
+			$sql = "'".$this->db->escape($value)."'";
+			if ($this->db->getScheme() == 'ms') {
+				$sql = 'N'.$sql;	// UTF-8 encoding
 			}
+			return $sql;
+		} else {
+			debug([
+				'key' => $key,
+				'value' => $value,
+				'problem' => MustBeStringException::class,
+			]);
+			throw new MustBeStringException('Must be string.');
 		}
 	}
 
@@ -330,102 +122,77 @@ class SQLBuilder {
 	 * @return array
 	 */
 	function quoteValues(array $a) {
+//		debug(__METHOD__, $a);
 		$c = array();
-		foreach($a as $key => $b) {
+		foreach ($a as $key => $b) {
 			$c[] = SQLBuilder::quoteSQL($b, $key);
+		}
+		return $c;
+	}
+
+	function quoteKeys($a) {
+		$c = array();
+		foreach ($a as $b) {
+			$c[] = $this->quoteKey($b);
 		}
 		return $c;
 	}
 
 	/**
 	 * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
-	 * In other words, it takes care of col = 'NULL' situation and makes it col IS NULL
+	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
 	 *
 	 * @param array $where
+	 * @throws Exception
+	 * @throws MustBeStringException
 	 * @return array
 	 */
 	function quoteWhere(array $where) {
 		$set = array();
 		foreach ($where as $key => $val) {
-			if ($key{strlen($key)-1} != '.') {
-				$key = $this->quoteKey($key);
-				if ($val instanceof AsIs) {
-					$set[] = $key . ' = ' . $val;
-				} elseif ($val instanceof AsIsOp) {
-					if (is_numeric($key)) {
-						$set[] = $val;
-					} else {
-						$set[] = $key . ' ' . $val;
-					}
-				} else if ($val instanceof SQLBetween) {
-					$val->injectQB($this);
-					$val->injectField($key);
-					$set[] = $val->toString($key);
-				} else if ($val instanceof SQLWherePart) {
-					$val->injectQB($this);
-					$val->injectField($key);
-					$set[] = $val->__toString();
-				} else if ($val instanceof SimpleXMLElement) {
-					$set[] = $val->asXML();
-				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
-				//	$set[] = $val.'';
-				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
-					if (strpos($val, '###FIELD###') !== FALSE) {
-						$val = str_replace('###FIELD###', $key, $val);
-						$set[] = $val;
-					} else {
-						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
-					}
-				} else if ($val === NULL) {
-					$set[] = "$key IS NULL";
-				} else if ($val === 'NOTNULL') {
-					$set[] = "$key IS NOT NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
-                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
-					list($key, $sign) = explode(' ', $key); // need to quote separately
-					$key = $this->quoteKey($key);
-					$set[] = "$key $sign '$val'";
-				} else if (is_bool($val)) {
-					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {		// KEY!!!
-					$set[] = $val;
-				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
-					$set[] = $key." IN ('".implode("', '", $val)."')";
-				} else if (is_array($val) && $where[$key.'.']['makeOR']) {
-					foreach ($val as &$row) {
-						if (is_null($row)) {
-							$row = $key .' IS NULL';
-						} else {
-							$row = $key . " = '" . $row . "'";
-						}
-					}
-					$or = new SQLOr($val);
-					$or->injectQB($this);
-					$set[] = $or;
-				} else {
-					//debug_pre_print_backtrace();
-					$val = SQLBuilder::quoteSQL($val);
-					$set[] = "$key = $val";
-				}
+			if (!strlen($key) || (strlen($key) && $key{strlen($key)-1} != '.')) {
+				$equal = new SQLWhereEqual($key, $val);
+				$set[] = $equal->__toString();
 			}
 		}
+		//debug($set);
 		return $set;
 
 	}
 
+	/**
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @return string
+	 */
 	function getInsertQuery($table, array $columns) {
-		$set = $this->quoteLike($columns, '$key');
-		$set = implode(", ", $set);
-
-		//$values = $this->quoteLike($columns, '$val');
-		$values = array_values($columns);
-		$values = $this->quoteValues($values);
-		$values = implode(", ", $values);
-
-		$q = "INSERT INTO ".$this->quoteKey($table)."\n($set)\nVALUES ($values)";
+		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
+		$values = implode(", ", $this->quoteValues(array_values($columns)));
+		$table = $this->quoteKey($table);
+		$q = "INSERT INTO {$table} ({$fields}) VALUES ({$values})";
 		return $q;
 	}
 
+	/**
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @return string
+	 */
+	function getReplaceQuery($table, $columns) {
+		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
+		$values = implode(", ", $this->quoteValues(array_values($columns)));
+		$table = $this->quoteKey($table);
+		$q = "REPLACE INTO {$table} ({$fields}) VALUES ({$values})";
+		return $q;
+	}
+
+	/**
+	 *
+	 * @param $columns  [a => b, c => d]
+	 * @param $like     "$key ILIKE '%$val%'"
+	 * @return array    [a ILIKE '%b%', c ILIKE '%d%']
+	 * @throws MustBeStringException
+	 */
 	function quoteLike($columns, $like) {
 		$set = array();
 		foreach ($columns as $key => $val) {
@@ -439,6 +206,12 @@ class SQLBuilder {
 		return $set;
 	}
 
+	/**
+	 * @param string $table
+	 * @param array $columns
+	 * @param array $where
+	 * @return string
+	 */
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$q = "UPDATE $table\nSET ";
@@ -450,22 +223,84 @@ class SQLBuilder {
 	}
 
 	function getFirstWord($table) {
-		$table1 = explode(' ', $table);
+		$table1 = trimExplode(' ', $table);
+		$table0 = $table1[0];
+		$table1 = trimExplode("\t", $table0);
+		$table0 = $table1[0];
+		$table1 = trimExplode("\n", $table0);
 		$table0 = $table1[0];
 		//debug($table, $table1, $table0);
 		return $table0;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
+	function getSelectQueryString($table, array $where = array(), $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
+		if ($table == $table1) {
+			$from = $this->db->quoteKey($table);    // table name always quoted
+		} else {
+			$from = $table; // not quoted
+		}
 		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
-		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
+		$q = "SELECT $select\nFROM " . $from;
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE\n" . implode("\nAND ", $set);
 		}
 		$q .= "\n".$order;
 		return $q;
+	}
+
+	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL) {
+		return $this->getSelectQueryP($table, $where, $order, $addSelect);
+	}
+
+	/**
+	 * @param        $table
+	 * @param array  $where
+	 * @param string $sOrder
+	 * @param null   $addSelect
+	 * @return SQLSelectQuery
+	 */
+	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL) {
+		$table1 = $this->getFirstWord($table);
+		if ($table == $table1) {
+			$from = $this->db->quoteKey($table);    // table name always quoted
+		} else {
+			$from = $table; // not quoted
+		}
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = new SQLSelect($select);
+		$select->db = $this->db;
+		$from = new SQLFrom($from);
+		$from->db = $this->db;
+		$where = new SQLWhere($where);
+		$where->injectDB($this->db);
+
+		$group = NULL;
+		$limit = NULL;
+		$order = NULL;
+		if (str_startsWith($sOrder, 'ORDER BY')) {
+			$order = new SQLOrder($sOrder);
+			$order->db = $this->db;
+			$group = NULL;
+		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
+			$parts = trimExplode('ORDER BY', $sOrder);
+			$group = new SQLGroup($parts[0]);
+			$group->db = $this->db;
+			if (ifsetor($parts[1])) {
+				$order = new SQLOrder($parts[1]);
+				$order->db = $this->db;
+			}
+		} elseif (str_startsWith($sOrder, 'LIMIT')) {
+			$parts = trimExplode('LIMIT', $sOrder);
+			$limit = new SQLLimit($parts[0]);
+		} elseif ($sOrder) {
+			debug(['sOrder' => $sOrder, 'order' => $order]);
+			throw new InvalidArgumentException(__METHOD__);
+		}
+		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order, $limit);
+		$sq->injectDB($this->db);
+		return $sq;
 	}
 
 	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
@@ -477,8 +312,15 @@ class SQLBuilder {
 		return $q;
 	}
 
+	/**
+	 * @param $table
+	 * @param array $where
+	 * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
+	 * @return string
+	 * @throws MustBeStringException
+	 */
 	function getDeleteQuery($table, $where = array(), $what = '') {
-		$q = "DELETE ".$what." FROM $table ";
+		$q = "DELETE ".$what." FROM ".$this->db->quoteKey($table)." ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);
@@ -493,7 +335,12 @@ class SQLBuilder {
 	}
 
 	/**
-	 * 2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	 * 2010/09/12: modified according to mantis request 0001812    - 4th argument added
+	 * @param $array
+	 * @param $field
+	 * @param string $joiner
+	 * @param string $conditioner
+	 * @return string
 	 */
 	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
@@ -542,22 +389,23 @@ class SQLBuilder {
 	 * @return bool|int
 	 */
 	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
+		$this->found = $this->fetchAssoc($res);
 		if ($this->db->numRows($res)) {
 			$query = $this->getUpdateQuery($table, $fields, $where);
-			$inserted = 2;
+			$this->perform($query);
+			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $where + $insert);
 			// array('ctime' => NULL) #TODO: make it manually now
-			$inserted = TRUE;
+			$res = $this->perform($query);
+			$inserted = $this->db->lastInsertID($res, $table);
 		}
 		//debug($query);
-		$this->found = $this->db->fetchAssoc($res);
-		$this->db->perform($query);
 		$this->db->commit();
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
 	}
 
@@ -567,37 +415,66 @@ class SQLBuilder {
 	 * @param $table
 	 * @param array $fields
 	 * @param array $insert
+	 * @throws Exception
 	 * @return resource
 	 */
 	function runInsertNew($table, array $fields, array $insert = array()) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
+		$resInsert = NULL;
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
 			$query = $this->getInsertQuery($table, $fields + $insert);
 			//debug($query);
 			$resInsert = $this->db->perform($query);
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $resInsert;
 	}
 
 	function runInsertQuery($table, array $columns) {
+		TaylorProfiler::start(__METHOD__.'('.$table.')');
 		$query = $this->getInsertQuery($table, $columns);
-		return $this->db->perform($query);
+		$ret = $this->db->perform($query);
+		TaylorProfiler::stop(__METHOD__.'('.$table.')');
+		return $ret;
+	}
+
+	function runReplaceQuery($table, array $columns) {
+		TaylorProfiler::start(__METHOD__.'('.$table.')');
+		$query = $this->getReplaceQuery($table, $columns);
+		$ret = $this->db->perform($query);
+		TaylorProfiler::stop(__METHOD__.'('.$table.')');
+		return $ret;
 	}
 
 	function getFoundOrLastID($inserted) {
 		if ($inserted) {
-			$authorID = $this->db->lastInsertID();
+			$authorID = $this->db->lastInsertID($inserted);
 		} else {
 			$authorID = $this->found['id'];
 		}
 		return $authorID;
 	}
 
-	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '') {
-		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
-		$data = $this->db->fetchAll($this->db->perform($query));
+	/**
+	 * Return ALL rows
+	 * This used to retrieve a single row !!!
+	 * @param string $table
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addFields
+	 * @param string $idField   - will return data as assoc indexed by this column
+	 * @return array <type>
+	 */
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = NULL) {
+		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields);
+
+		//debug($query); if ($_COOKIE['debug']) { exit(); }
+
+		$res = $this->perform($query);
+		$data = $this->fetchAll($res, $idField);
 		return $data;
 	}
 
@@ -608,7 +485,7 @@ class SQLBuilder {
 
 	/**
 	 * Originates from BBMM
-	 * @param type $sword
+	 * @param string $sword
 	 * @param array $fields
 	 * @return AsIs
 	 */
@@ -618,9 +495,9 @@ class SQLBuilder {
 		foreach ($words as $word) {
 			$like = array();
 			foreach ($fields as $field) {
-				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
+				$like[] = $field . " LIKE '%".$this->db->escape($word)."%'";
 			}
-			$where['0'] = new AsIsOp(' = 0 AND ('.implode(' OR ', $like).')');
+			$where[] = new AsIsOp(' ('.implode(' OR ', $like).')');
 		}
 		//debug($where);
 		return $where;
@@ -640,8 +517,9 @@ class SQLBuilder {
 	function combineSplitTags($words) {
 		$new = array();
 		$i = 0;
+		$in = false;
 		foreach ($words as $word) {
-			$word = new String($word);
+			$word = new StringPlus($word);
 			if ($word->contains('[')) {
 				++$i;
 				$in = true;
@@ -657,24 +535,23 @@ class SQLBuilder {
 	}
 
 	function runDeleteQuery($table, array $where) {
-		return $this->db->perform($this->getDeleteQuery($table, $where));
+		$delete = $this->getDeleteQuery($table, $where);
+		//debug($delete);
+		return $this->db->perform($delete);
 	}
 
 	function __call($method, array $params) {
-		return call_user_func_array(array($this->db, $method), $params);
+		return call_user_func_array(array($this->getDB(), $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL) {
-		$res = $this->runSelectQuery($table, $where, $order,
-			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
-			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
-			true);
-		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
-		if ($idField) {
-			$data = $this->fetchAll($res, 'id_field');
-		} else {
-			$data = $this->fetchAll($res, 'title');
-		}
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id', $prefix = NULL) {
+		$prefix = $prefix ?: $table.'.';
+		$query = $this->getSelectQuery($table, $where, $order,
+			'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, '.
+			$prefix.'*, '.$prefix.$this->quoteKey($idField).' AS id_field');
+		//debug('Query', $query.''); exit();
+		$res = $this->perform($query);
+		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
 		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
 		//d($keys, $values);
@@ -683,6 +560,7 @@ class SQLBuilder {
 		} else {
 			$options = array();
 		}
+		//debug($this->db->lastQuery, @$this->db->numRows($res), $titleField, $idField, $data, $options);
 		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
 	}
@@ -693,41 +571,118 @@ class SQLBuilder {
 	 * @return array
 	 */
 	function fetchAll($res, $key = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if (is_string($res)) {
-			$res = $this->perform($res);
+		TaylorProfiler::start(__METHOD__);
+		if (is_string($res) || $res instanceof SQLSelectQuery) {
+			$res = $this->db->perform($res);
 		}
 
 		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+		do {
+			$row = $this->db->fetchAssoc($res);
+			if ($row === FALSE || $row == array() || $row === NULL) {
+				break;
+			}
 			if ($key) {
 				$data[$row[$key]] = $row;
 			} else {
 				$data[] = $row;
 			}
-		}
+		} while (true);
 		//debug($this->lastQuery, sizeof($data));
 		//debug_pre_print_backtrace();
-		$this->free($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		$this->db->free($res);
+		TaylorProfiler::stop(__METHOD__);
 		return $data;
 	}
 
 	/**
-	 * @var string $query
-	 * @return resource
+	 * @param string $query
+	 * @param null   $className	- if provided it will return DatabaseInstanceIterator
+	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 */
-	function getIterator($query) {
-		if ($this->db instanceof dbLayerPDO) {
+	function getIterator($query, $className = NULL) {
+		if ($className) {
+			$f = new DatabaseInstanceIterator($this->db, $className);
+			if (is_string($query)) {
+				$f->perform($query);
+			} else {
+				$f->setResult($query);
+			}
+			return $f;
+		} elseif ($this->db instanceof dbLayerPDO) {
 			$res = $this->db->perform($query);
 			return $res;
-		} else {
-			$di = new DIContainer();
-			$di->db = $this->db;
-			$f = new DatabaseResultIteratorAssoc($di);
+		} elseif (is_string($query)) {
+			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->perform($query);
 			return $f;
+		} elseif (is_resource($query)) {
+			$f = new DatabaseResultIteratorAssoc($this->db);
+			$f->setResult($query);
+			return $f;
+		} else {
+			throw new InvalidArgumentException($query);
 		}
+	}
+
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
+		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		$res = $this->db->perform($query);
+		$data = $this->db->fetchAssoc($res);
+		return $data;
+	}
+
+	function runUpdateInsert($table, $set, $where) {
+		$found = $this->runSelectQuery($table, $where);
+		if ($this->db->numRows($found)) {
+			$res = 'update';
+			$this->runUpdateQuery($table, $set, $where);
+		} else {
+			$res = 'insert';
+			$this->runInsertQuery($table, $set + $where);
+		}
+		return $res;
+	}
+
+	/**
+	 * @param string $table
+	 * @param array $where
+	 * @param string $order
+	 * @param string $selectPlus
+	 * @param $key
+	 * @return array[]
+	 */
+	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
+		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
+		$rows = $this->db->fetchAll($res, $key);
+		return $rows;
+	}
+
+	function getWhereString(array $where) {
+		$set = $this->quoteWhere($where);
+		return implode(' AND ', $set);
+	}
+
+	/**
+	 * The query is supposed to return two columns only
+	 * @param $query
+	 * @return array
+	 */
+	function fetchOptions($query) {
+		$data = array();
+		if (is_string($query) || $query instanceof SQLSelectQuery) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		$row = $this->fetchAssoc($result);
+		while ($row != FALSE && $row != NULL) {
+			list($key, $val) = array_values($row);
+			$data[$key] = $val;
+
+			$row = $this->fetchAssoc($result);
+		}
+		return $data;
 	}
 
 }

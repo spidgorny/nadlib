@@ -5,6 +5,7 @@
  * Update: use htmlString:hsc($content)
  */
 class htmlString {
+
 	protected $value = '';
 
 	function __construct($input) {
@@ -18,6 +19,7 @@ class htmlString {
 	/**
 	 * htmlspecialchars which knows about htmlString()
 	 * @param $string
+	 * @return string
 	 */
 	static function hsc($string) {
 		if ($string instanceof htmlString) {
@@ -25,6 +27,12 @@ class htmlString {
 		} else {
 			return htmlspecialchars($string);
 		}
+	}
+
+	function replace($one, $two) {
+		$new = new htmlString(
+			str_replace($one, $two, $this->value));
+		return $new;
 	}
 
 }

@@ -1,51 +1,49 @@
 <?php
 
-class SQLSelectQuery {
+class SQLSelectQuery extends SQLWherePart {
+
 	/**
-	 * Enter description here...
-	 *
+	 * @var dbLayerBase|dbLayer|MySQL|dbLayerPDO
+	 * @protected to prevent debug output
+	 */
+	protected $db;
+
+	/**
 	 * @var SQLSelect
 	 */
 	protected $select;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLFrom
 	 */
 	protected $from;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLJoin
 	 */
 	public $join;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLWhere
 	 */
 	public $where;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var  SQLGroup
 	 */
 	protected $group;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLHaving
 	 */
 	protected $having;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLOrder
 	 */
 	protected $order;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var SQLLimit
 	 */
 	protected $limit;
@@ -54,11 +52,17 @@ class SQLSelectQuery {
 		if ($select) 	$this->setSelect($select);
 		if ($from) 		$this->setFrom($from);
 		if ($where) 	$this->setWhere($where);
-		if ($join) 		$this->setJoin($join);		else $this->join = new SQLJoin();
+		if ($join) 		$this->setJoin($join);
+			else 		$this->join = new SQLJoin();
 		if ($group) 	$this->setGroup($group);
 		if ($having) 	$this->setHaving($having);
 		if ($order) 	$this->setOrder($order);
 		if ($limit) 	$this->setLimit($limit);
+	}
+
+	function injectDB(DBInterface $db) {
+		//debug(__METHOD__, gettype2($db));
+		$this->db = $db;
 	}
 
 	function setSelect(SQLSelect $select) {
@@ -93,25 +97,47 @@ class SQLSelectQuery {
 		$this->limit = $limit;
 	}
 
+	public function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude') {
+		if ($this->db->isSQLite()) {
+			$this->db->getConnection()->sqliteCreateFunction('sqrt', function ($a) {
+				return sqrt($a);
+			}, 1);
+			return "sqrt(($latitude - ($lat))*($latitude - ($lat)) + ($longitude - ($lon))*($longitude - ($lon))) AS distance";
+		} else {
+			return "( 6371 * acos( cos( radians($lat) ) * cos( radians( $latitude ) )
+			* cos( radians( $longitude ) - radians($lon) ) + sin( radians($lat) ) * sin(radians($latitude)) ) ) AS distance";
+		}
+	}
+
 	function getQuery() {
-		$query = "SELECT
-	$this->select
-FROM $this->from
-$this->join
-$this->where
-$this->group
-$this->having
-$this->limit";
+		$query = trim("SELECT
+{$this->select}
+FROM {$this->from}
+{$this->join}
+{$this->where}
+{$this->group}
+{$this->having}
+{$this->order}
+{$this->limit}");
+		// http://stackoverflow.com/a/709684
+		$query = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $query);
 		return $query;
 	}
 
 	function __toString() {
-		return $this->getQuery();
+		try {
+			return $this->getQuery();
+		} catch (Exception $e) {
+			echo '<strong>', $e->getMessage(), '</strong>', BR;
+			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
+			pre_print_r($e->getTraceAsString());
+		}
 	}
 
 	static function sqlSH($sql) {
 		$res = '';
-		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON');
+		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL');
+		$breakAfter = array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN', 'NATURAL');
 		$sql = str_replace("(", " ( ", $sql);
 		$sql = str_replace(")", " ) ", $sql);
 		$level = 0;
@@ -127,7 +153,7 @@ $this->limit";
 					$level--;
 				}
 				$res .= "<br>" . str_repeat("&nbsp;", $level*4) . ") ";
-			} else if ($tok{0} == "'" || $tok{strlen($tok)-1} == "'" || $tok == "'") {
+			} elseif ($tok && ($tok{0} == "'" || $tok{strlen($tok)-1} == "'" || $tok == "'")) {
 				$res .= " ";
 				if ($tok{0} == "'" && !$open) {
 					$res .= '<font color="green">';
@@ -143,7 +169,10 @@ $this->limit";
 			} else if (in_array(strtoupper($tok), $words)) {
 				$br = strlen($res) ? '<br>' : '';
 				$strange = $tok == 'SELECT' ? '' : ' ';
-				$res .= (!in_array($tok, array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN')) ? ' ' . $br . str_repeat("&nbsp;", $level*4) : $strange) . '<font color="blue">' . strtoupper($tok) . '</font>';
+				$res .= (!in_array($tok, $breakAfter)
+						? ' ' . $br . str_repeat("&nbsp;", $level*4)
+						: $strange);
+				$res .= '<font color="blue">' . strtoupper($tok) . '</font>';
 			} else {
 				$res .= " " . $tok;
 			}
@@ -151,7 +180,43 @@ $this->limit";
 			$tok = strtok(" \n\t");
 		}
 		$res = trim($res);
-		return BR.$res.BR;
+		$res = str_replace("(<br><br>)", '()', $res);
+		$res = str_replace("(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)", '()', $res);
+		return new htmlString($res);
 	}
 
+	function getParameters() {
+		if ($this->where) {
+			$params = $this->where->getParameters();
+		} else {
+			$params = array();
+		}
+		if ($this->from instanceof SQLSubquery) {
+			$params += $this->from->getParameters();
+		}
+		return $params;
+	}
+
+	/**
+	 * A way to perform a query with parameter without making a SQL
+	 */
+	function perform() {
+		$sQuery = $this->getQuery();
+		$aParams = $this->getParameters();
+		//debug($sQuery, $aParams);
+		return $this->db->perform($sQuery, $aParams);
+	}
+
+	function fetchAssoc() {
+		return $this->db->fetchAssoc($this->perform());
+	}
+
+	function fetchAll() {
+		return $this->db->fetchAll($this->perform());
+	}
+
+	public function unsetOrder() {
+		$this->order = NULL;
+	}
+	
 }
