@@ -564,14 +564,13 @@ class Request {
 	 * @return URL
 	 */
 	static function getLocation($isUTF8 = false) {
+		$docRoot = NULL;
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
-			if (!$docRoot) {
-				$docRoot = self::getDocumentRoot();
-			}
-		} else {
-			$docRoot = dirname($_SERVER['PHP_SELF']);
+		}
+		if (!$docRoot) {
+			$docRoot = self::getDocumentRoot();
 		}
 		//pre_print_r($docRoot);
 
@@ -977,6 +976,7 @@ class Request {
 			str_startsWith($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) &&
 			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
 			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+			//pre_print_r($docRoot);
 		} else {	//~depidsvy/something
 			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
 			if ($pos !== FALSE) {
@@ -995,6 +995,7 @@ class Request {
 		//debug_pre_print_backtrace();
 		require_once __DIR__ . '/Path.php'; // needed if called early
 		$docRoot = new Path($docRoot);
+		//pre_print_r($docRoot, $docRoot.'');
 		return $docRoot;
 	}
 
