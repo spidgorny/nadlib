@@ -2,6 +2,8 @@
 
 class SQLFrom {
 
+	var $db;
+
 	protected $parts = array();
 
 	function __construct($from) {

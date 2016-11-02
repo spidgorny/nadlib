@@ -7,8 +7,16 @@ class PGArray {
 	 */
 	var $db;
 
+	var $standard_conforming_strings;
+
 	function __construct(dbLayer $db) {
 		$this->db = $db;
+
+		$query = "SHOW standard_conforming_strings;";
+		$result = $this->db->perform($query);
+		$return = pg_fetch_assoc($result);
+		pg_free_result($result);
+		$this->standard_conforming_strings = first($return);
 	}
 
 	/**
@@ -52,7 +60,7 @@ class PGArray {
 	 * @return array
 	 */
 	function getPGArray($input) {
-		if ($input{0} == '{') {	// array inside
+		if (strlen($input) && $input{0} == '{') {	// array inside
 			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
 			return $this->getPGArray($input);
 		} else {
@@ -80,7 +88,7 @@ class PGArray {
 			$r[] = array_map('stripslashes', $data);
 		}
 		fclose($temp);
-		return $r[0];
+		return ifsetor($r[0]);
 	}
 
 	/**
@@ -188,6 +196,11 @@ class PGArray {
 				$el = $this->setPGArray($el);
 			} else {
 				$el = pg_escape_string($el);
+
+				if (strtolower($this->standard_conforming_strings) == 'on') {
+					$el = addslashes($el); // changed after postgres version updated to 9.4
+				}
+
 				$el = '"'.str_replace(array(
 						'"',
 					), array(

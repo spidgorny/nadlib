@@ -333,7 +333,6 @@ FileETag None
   Options +FollowSymlinks
 # Options +SymLinksIfOwnerMatch
   RewriteEngine On
-  RewriteBase /kreuzfahrt-auswahl.de
   RewriteCond  %{REQUEST_FILENAME}  !-f
   RewriteCond  %{REQUEST_FILENAME}  !-l
   RewriteCond  %{REQUEST_FILENAME}  !-d
@@ -543,7 +542,6 @@ php_value output_buffering 0
 php_flag allow_url_fopen on
 php_flag short_open_tag on
 php_flag display_errors on
-php_flag html_errors on
 php_flag ignore_user_abort off
 php_value variables_order EGPCS
 </IfModule>

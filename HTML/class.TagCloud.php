@@ -6,8 +6,8 @@ class TagCloud extends AppController {
 
 	function __construct() {
 		parent::__construct();
-		$words = $GLOBALS['i']->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
-		$words = $GLOBALS['i']->db->fetchAll($words);
+		$words = $this->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
+		$words = $this->db->fetchAll($words);
 		$words = ArrayPlus::create($words)->each(array($this, 'parseWords'))->getData();
 		//debug($words);
 		$this->words = $words;
@@ -58,7 +58,7 @@ class TagCloud extends AppController {
 	function renderHTMLandFlash() {
 		$this->index->addCSS('css/wordcloud.css');
 		$this->index->addJS('lib/wp-cumulus/swfobject.js');
-		$this->index->addJS('nadlib/js/tagCloud.js');
+		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'js/tagCloud.js');
 		return '
 		<div id="flashcontent">
 			'.$this->renderHTML().'

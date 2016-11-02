@@ -124,36 +124,45 @@ class DownloadObfuscator {
 		}
 	}
 
-	function fileExists() {
-		$file = $this->getFileNameWithSuffix($this->file);
-		$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
+	function fileExists($file) {
+		//$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
+		//$file = escapeshellcmd($file);
+		// FIX http://ors.nintendo.de/dev/QueueEPES/QueueEPES/RequestInfoEPES?id=97311
+		$file = str_replace("''", "'", $file);	// who escaped it?!?
 		return file_exists($file) && is_readable($file);
 	}
 
 	function streamFile() {
 		$file = $this->getFileNameWithSuffix($this->file);
-		$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
-		//debug($file); exit();
-		if ($this->fileExists()) {
+		//$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
+		$exists = $this->fileExists($file);
+		//debug($file, $exists, glob(dirname($file).'/*')); exit();
+		if ($exists) {
 			//if ($GLOBALS['TSFE']->fe_user->user['uid']) {
-			header('Content-Disposition: attachment; filename="'.urlencode(basename($file)).'"');
+			// urlencode makes is ugly
+			header('Content-Disposition: attachment; filename="'./*urlencode*/(basename($file)).'"');
 			header('Content-type: application/force-download');
 			header('Content-type: application/octet-stream');
 			//header('Content-type: application/x-msdownload'); // Excel?!?
 			readfile($file);
 			exit();
 		} else {
-			throw new Exception(__('File does not exists.'));
+			throw new Exception(__('File does not exist.'));
 		}
 	}
 
 }
 
-if ($_REQUEST['id'] == DownloadObfuscator::page && $_REQUEST['type'] == DownloadObfuscator::type) {
+if (ifsetor($_REQUEST['id']) == DownloadObfuscator::page && ifsetor($_REQUEST['type']) == DownloadObfuscator::type) {
 	$subid = intval($_REQUEST['subid']);
 	if ($subid) {
 		require_once(t3lib_extMgm::extPath('submission').'/lib/config.php');
 		require_once(t3lib_extMgm::extPath('submission').'/lib/class.collection.php');
+		require_once(t3lib_extMgm::extPath('submission').'/lib/class.utilities.php');
+		require_once(t3lib_extMgm::extPath('submission').'/pi1/class.tx_submission_pi1.php');
+		$pi1 = new tx_submission_pi1();
+		$pi1->initNadlib();
+		$pi1->init();
 		$sub = new user_SubmissionUtils($subid);
 		$obfuscator = new DownloadObfuscator($sub, $_REQUEST['fileSuffix']);
 		if ($obfuscator->checkHash($_REQUEST['check'])) {

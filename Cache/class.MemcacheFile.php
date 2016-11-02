@@ -1,21 +1,61 @@
 <?php
 
-class MemcacheFile {
+class MemcacheFile implements MemcacheInterface {
+
+	/**
+	 * Can be set statically in the bootstrap to influence all instances
+	 * @var string
+	 */
+	static $defaultFolder = 'cache/';
 
 	/**
 	 * @used in ClearCache
 	 * @var string
 	 */
-	public $folder = 'cache/';
+	public $folder;
 
-	function __construct() {
-		$sub = Config::getInstance()->appRoot;
+	public $key;
 
-		if (!file_exists($sub.$this->folder)) {
-			debug(__METHOD__, $sub.$this->folder);
+	public $expire = 0;
+
+	/**
+	 * If you define $key and $expire in the constructor
+	 * you don't need to define it in each method below.
+	 * Otherwise, please specify.
+	 * @param null $key
+	 * @param int $expire
+	 */
+	function __construct($key = NULL, $expire = 0) {
+		if (MemcacheArray::$debug) {
+			echo __METHOD__ . '(' . $key . ')' . BR;
+		}
+		$this->folder = self::$defaultFolder;
+		if (!Path::isAbsolute($this->folder)) {
+			// if relative, add current app
+			$sub = cap(AutoLoad::getInstance()->appRoot . '');
+		} else {
+			$sub = '';
+		}
+
+		$finalCachePath = realpath($sub . $this->folder);
+		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
+			debug(array(
+				'unable to access cache folder',
+				'method' => __METHOD__,
+				'sub' => $sub,
+				'folder' => $this->folder,
+				'finalCachePath' => $finalCachePath,
+			));
 			die();
 		} else {
-			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
+			$this->folder = cap($finalCachePath);	// important as we concat
+		}
+
+		if ($key) {
+			$this->key = $key;
+		}
+		if ($expire) {
+			$this->expire = $expire;
 		}
 	}
 
@@ -31,42 +71,71 @@ class MemcacheFile {
 		return $file;
 	}
 
+	/**
+	 * @param $key	- can be provided in the constructor, but repeated here for BWC
+	 * @param $val
+	 * @throws Exception
+	 */
 	function set($key, $val) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		TaylorProfiler::start(__METHOD__);
 		$file = $this->map($key);
 		if (is_writable($this->folder)) {
 			file_put_contents($file, serialize($val));
 			@chmod($file, 0777);	// needed for cronjob accessing cache files
 		} else {
-			if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+			TaylorProfiler::stop(__METHOD__);
 			throw new Exception($file.' write access denied.');
 		}
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function isValid($key, $expire = 0) {
+	function isValid($key = NULL, $expire = 0) {
+		$key = $key ?: $this->key;
+		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
-		return !$expire || (@filemtime($file) > (time() - $expire));
+		$mtime = @filemtime($file);
+		$bigger = ($mtime > (time() - $expire));
+		if ($this->key == 'OvertimeChart::getStatsCached') {
+//			debug($this->key, $file, $mtime, $expire, $bigger);
+		}
+		return /*!$expire ||*/ $bigger;
 	}
 
-	function get($key, $expire = 0) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+	/**
+	 * @param null $key	- can be NULL to be used from the constructor
+	 * @param int  $expire
+	 * @return mixed|null|string
+	 */
+	function get($key = NULL, $expire = 0) {
+		TaylorProfiler::start(__METHOD__);
+		$val = NULL;
+		$key = $key ?: $this->key;
+		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
 		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
 			if ($val) {
-				$val = unserialize($val);
+				$try = @unserialize($val);
+				if ($try) {
+					$val = $try;
+				}
 			}
 		}
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		TaylorProfiler::stop(__METHOD__);
 		return $val;
 	}
 
-	function clearCache($key) {
-		$file = $this->map($key);
+	function setValue($value) {
+		$this->set($this->key, $value);
+	}
+
+	function clearCache($key = NULL) {
+		$file = $this->map($key ?: $this->key);
 		if (file_exists($file)) {
-			//debug('<font color="green">Deleting '.$file.'</font>');
+			//echo '<font color="green">Deleting '.$file.'</font>', BR;
 			unlink($file);
+		} else {
+			//echo '<font color="orange">Cache file'.$file.' does not exist.</font>', BR;
 		}
 	}
 

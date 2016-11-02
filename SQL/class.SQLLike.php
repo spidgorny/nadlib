@@ -16,9 +16,13 @@ class SQLLike extends SQLWherePart {
 
 	public $ilike = 'ILIKE';
 
-	public $wrap = '%|%';
+	/**
+	 * Replace with "%|%" if you like
+	 * @var string
+	 */
+	public $wrap = '|';
 
-	function __construct($string, $caseInsensitive = false) {
+	function __construct($string, $caseInsensitive = true) {
 		parent::__construct();
         $this->caseInsensitive = $caseInsensitive;
 		$this->string = $string;
@@ -27,8 +31,33 @@ class SQLLike extends SQLWherePart {
 	function __toString() {
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
 		$w = explode('|', $this->wrap);
-		$wrap = $w[0] . $this->qb->db->escape($this->string) . $w[1];
-		return $this->field ." ". $like ." '".$wrap."'";
+		if (true) {
+			$escape = '$0$';
+		} else {
+			$escape = $this->db->escape($this->string);
+			$escape = str_replace('\\"', '"', $escape);
+			$escape = str_replace('%', '\\%', $escape);
+			$escape = str_replace('_', '\\_', $escape);
+		}
+
+		$field = $this->db->quoteKey($this->field);
+
+		if ($this->db->isMySQL()) {
+			$sql = "$field LIKE concat('{$w[0]}', {$escape}, '{$w[1]}')";
+		} else {
+			$sql = $field . " " . $like .
+				" '" . $w[0] . "' || " . $escape . " || '" . $w[1] . "'";
+		}
+		//debug($this->string, $escape, $wrap, $sql); exit();
+		return $sql;
+	}
+
+	static function make($string, $caseInsensitive = false) {
+		return new static($string, $caseInsensitive);
+	}
+
+	function getParameter() {
+		return $this->string;
 	}
 
 }

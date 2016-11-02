@@ -1,0 +1,14 @@
+{
+    ".": {
+        "path": ".",
+        "hash": "d6a278c08fac",
+        "nr": "614",
+        "tag": "tip"
+    },
+    "vendor\\spidgorny\\nadlib": {
+        "path": "vendor\\spidgorny\\nadlib",
+        "hash": "e9a1b5c24b29",
+        "nr": "2741",
+        "tag": "tip"
+    }
+}

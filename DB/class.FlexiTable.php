@@ -29,19 +29,25 @@ class FlexiTable extends OODBase {
 
 	function __construct($id = NULL) {
 		parent::__construct($id);
-		//debug(Config::getInstance()->config[__CLASS__]);
-		$this->doCheck = Config::getInstance()->config[__CLASS__]['doCheck'];
-		if ($this->doCheck) {
-			$this->checkCreateTable();
+		$config = ifsetor(Config::getInstance()->config);
+		if (is_array($config)) {
+			//debug(ifsetor($config[__CLASS__]));
+			if (isset($config[__CLASS__]['doCheck'])) {
+				$this->doCheck = ifsetor($config[__CLASS__]['doCheck']);
+				if ($this->doCheck) {
+					$this->checkCreateTable();
+				}
+			}
 		}
 	}
 
 	function insert(array $row) {
-		if (!$row['ctime']) {
-			$row['ctime'] = new AsIs('now()');
+		if (!ifsetor($row['ctime'])) {
+			$row['ctime'] = new SQLDateTime();
 		}
-		if (!$row['cuser']) {
-			$row['cuser'] = Config::getInstance()->user->id;
+		if (!ifsetor($row['cuser'])) {
+			$user = Config::getInstance()->getUser();
+			$row['cuser'] = ifsetor($user->id) ? $user->id : NULL;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
@@ -51,12 +57,13 @@ class FlexiTable extends OODBase {
 	}
 
 	function update(array $row) {
-		if (!$row['mtime']) {
+		if (!ifsetor($row['mtime'])) {
 			$mtime = new Time();
 			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
 		}
-		if (!$row['muser'] && Config::getInstance()->user->id) {
-			$row['muser'] = Config::getInstance()->user->id;
+		$user = Config::getInstance()->getUser();
+		if (!ifsetor($row['muser']) && is_object($user) && $user->id) {
+			$row['muser'] = $user->id;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
@@ -84,15 +91,15 @@ class FlexiTable extends OODBase {
 	}
 
 	function fetchColumns($force = false) {
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		//TaylorProfiler::start(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		$table = str_replace('`', '', $this->table);
 		$table = str_replace("'", '', $table);
-		if (!self::$tableColumns[$table] || $force) {
+		if (!ifsetor(self::$tableColumns[$table]) || $force) {
 			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
 		}
 		$this->columns = self::$tableColumns[$table];
 		//debug($table, sizeof($this->columns), array_keys(self::$tableColumns), $this->db->lastQuery);
-		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		//TaylorProfiler::stop(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
 	function checkCreateTable() {
@@ -105,10 +112,10 @@ class FlexiTable extends OODBase {
 
 	function checkCreateField($field, $value) {
 		//debug($this->columns);
-		$qb = Config::getInstance()->qb;
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
-			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$qb->quoteKey($field).' '.$this->getType($value));
+			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).
+				' ADD COLUMN '.$this->db->quoteKey($field).' '.$this->getType($value));
 			$this->fetchColumns(true);
 		}
 	}

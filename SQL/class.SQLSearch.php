@@ -1,17 +1,37 @@
 <?php
 
-class SQLSearch {
+class SQLSearch extends SQLWherePart {
 	protected $table;
 	protected $sword;
 	protected $words = array();
+
+	/**
+	 * Update it from outside to search different columns
+	 * @var array
+	 */
 	public $searchableFields = array(
 		'title',
 	);
 
 	/**
+	 * Not used
+	 * @var string
+	 */
+	public $queryJoins = '';
+
+	/**
+	 * Replace with ILIKE if necessary
+	 * @var string
+	 */
+	public $likeOperator = 'LIKE';
+
+
+	/**
 	 * @var DBInterface
 	 */
 	protected $db;
+
+	public $idField = 'id';
 
 	function __construct($table, $sword) {
 		//debug(array($table, $sword));
@@ -19,12 +39,12 @@ class SQLSearch {
 		$this->sword = $sword;
 		$this->words = $this->getSplitWords($this->sword);
 		//debug($this->words);
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	function getSplitWords($sword) {
 		$sword = trim($sword);
-		$words = explode(' ', $sword . ' ' . $GLOBALS['i']->user->data['searchAppend']);
+		$words = explode(' ', $sword . ' ' . ifsetor(Config::getInstance()->user->data['searchAppend']));
 		$words = array_map('trim', $words);
 		$words = array_filter($words);
 		$words = array_unique($words);
@@ -38,7 +58,7 @@ class SQLSearch {
 		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		$query = '';
 		if ($where) {
-			$whereString = $this->qb->quoteWhere($where);
+			$whereString = $this->db->quoteWhere($where);
 			$query .= implode(' AND ', $whereString);
 		}
 		return $query;
@@ -47,7 +67,7 @@ class SQLSearch {
 	/**
 	 * @return array
 	 */
-	public function getWhere() {
+	function getWhere() {
 		$query = '';
 		$where = array();
 		$words = $this->words;
@@ -59,13 +79,16 @@ class SQLSearch {
 				//$query .= '( '.$this->getSearchSubquery($word).')';
 				//$query .= ' AS score_'.$i;
 			} else {
+				$tableID = $this->table . '.' . $this->idField;
 				if ($word{0} == '!') {
 					$word = substr($word, 1);
-					$where[] = $this->table.'.id NOT IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
+					$where[] = $tableID .
+							' NOT IN ( '.$this->getSearchSubquery($word, $tableID).') ';
 				} else {
 					//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
 					// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
-					$where[] = $this->table.'.id IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
+					$where[] = $tableID .
+							' IN ( '.$this->getSearchSubquery($word, $tableID).') ';
 				}
 			}
 		}
@@ -77,25 +100,30 @@ class SQLSearch {
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
 		$where = new SQLWhere(array());
-		$query = new SQLSelectQuery($select, $from, $where, NULL, NULL, NULL, new SQLOrder('id'));
+		$query = new SQLSelectQuery($select, $from, $where,
+			NULL, NULL, NULL, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
 
 		//$query->where->add($this->getSearchWhere($word, $i ? 'score_'.$i : $table));
-		$query->where->add($this->getSearchWhere($word)); // please put the table prefix into $this->searchableFields
+		// please put the table prefix into $this->searchableFields
+		$where = $this->getSearchWhere($word);
+		$where = new SQLWherePart($where);
+		$query->where->add($where);
 		return $query;
 	}
 
 	function getSearchWhere($word, $prefix = '') {
 		if ($word{0} == '!') {
-			$like = 'NOT LIKE';
+			$like = 'NOT '.$this->likeOperator;
 			$or = "\n\t\tAND";
 		} else {
-			$like = 'LIKE';
+			$like = $this->likeOperator;
 			$or = "\n\t\tOR";
 		}
 
 		$prefix = $prefix ? $prefix.'.' : '';
 
+		$part = array();
 		foreach ($this->searchableFields as $field) {
 			$part[] = "{$prefix}{$field} {$like} '%$1%'";
 		}
@@ -105,7 +133,7 @@ class SQLSearch {
 
 		// test if it's a date
 		$date1 = strtotime($word);
-		if ($date1 > 0) {
+		if (strlen($word) == 10 && $date1 > 0 && in_array('ctime', $this->searchableFields)) {
 			$date2 = strtotime('+1 day', $date1);
 			$date1 = date('Y-m-d', $date1);
 			$date2 = date('Y-m-d', $date2);

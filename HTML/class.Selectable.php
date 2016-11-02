@@ -5,12 +5,25 @@ class Selectable {
 	public $name;
 
 	/**
-	 * Assoc
-	 * @var type
+	 * Assoc [14 => 'Koopa']
+	 * @var array
 	 */
-	public $data = array();
+	public $options = array();
 
+	/**
+	 * @var int
+	 */
 	public $selected;
+
+	/**
+	 * @var array of all possible data from DB
+	 */
+	protected $rows;
+
+	/**
+	 * @var array of a single record from $this->rows
+	 */
+	var $data;
 
 	/**
 	 * @param $selected - id / array row
@@ -18,21 +31,26 @@ class Selectable {
 	function __construct($selected) {
 		$this->name = get_class($this);
 		if (is_array($selected)) {
-			$this->rows[$selected['id']] = $selected;
-			$this->data[$selected['id']] = $selected['title'];
-			$this->selected = $selected['id'];
-		} else {
-			// it's called AFTER subclass initialized $this->data
-			//debug($selected, array_keys($this->data));
-			if (in_array($selected, array_keys($this->data))) {
-				$this->selected = $selected;
-			} else {
-				/*throw new Exception('Invalid selected ('.$selected.') in '.get_class($this).'<br>
-					<li>'.implode('<li>', array_keys($this->data)));
-				 *
-				 */
-				$this->selected = current(array_keys($this->data));
+			$id = $selected['id'];
+			if ($id) {
+				$this->rows[$id] = $selected;
+				$this->options[$id] = $selected['title'];
+				$this->selected = $id;
 			}
+		} else {
+			$this->selected = $selected;
+		}
+	}
+
+	function validateSelected() {
+		// it's called AFTER subclass initialized $this->data
+		//debug($selected, array_keys($this->data));
+		if (!in_array($this->selected, array_keys($this->options))) {
+			/*throw new Exception('Invalid selected ('.$selected.') in '.get_class($this).'<br>
+				<li>'.implode('<li>', array_keys($this->data)));
+			 *
+			 */
+			$this->selected = current(array_keys($this->options));
 		}
 	}
 
@@ -63,12 +81,25 @@ class Selectable {
 			}
 		}
 
-		$f->selection($this->name, $this->data, $this->selected, TRUE);
+		$f->selection($this->name, $this->options, $this->selected, TRUE);
 		return $f->getContent();
 	}
 
-	function getName() {
-		return $this->data[$this->selected];
+	function getOptions() {
+		return $this->options;
 	}
 
+	function getName() {
+		if (!isset($this->options[$this->selected])) {
+			//debug($this->data);
+			//debug_pre_print_backtrace();
+			return 'Unknown room/location #'.$this->selected;
+		}
+		return $this->options[$this->selected];
+	}
+
+	function getID() {
+		return $this->selected;
+	}
+	
 }
