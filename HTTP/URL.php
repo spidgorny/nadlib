@@ -779,7 +779,7 @@ class URL {
 	}
 
 	function getHash() {
-		return $this->components['fragment'];
+		return ifsetor($this->components['fragment']);
 	}
 
 	/**
