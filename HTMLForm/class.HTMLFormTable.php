@@ -113,7 +113,9 @@ class HTMLFormTable extends HTMLForm {
 			$this->text($desc['prefix']);
 		}
 		if (!$desc['id']) {
-			$elementID = uniqid('id_');
+			//$elementID = uniqid('id_');
+			$elementID = implode('_', (array)$this->prefix)
+				.'_'.implode('_', (array)$fieldName);
 			$desc['id'] = $elementID;
 		} else {
 			$elementID = $desc['id'];
