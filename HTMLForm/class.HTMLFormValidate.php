@@ -50,9 +50,10 @@ class HTMLFormValidate {
 
 	function validateField($field, array $d, $type, $isCheckbox) {
 		$value = $d['value'];
+		$isHidden = $type == 'hidden';
 		if (!$d['optional'] && (
 			!($value) || (!$d['allow0'] && !isset($d['value'])))
-			&& !$isCheckbox) {
+			&& !$isCheckbox && !$isHidden) {
 			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
