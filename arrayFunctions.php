@@ -34,6 +34,7 @@ if (!function_exists('first')) {
 	}
 
 	/**
+	 * Array_combine only works when both arrays are indexed by numbers
 	 * @used FullGrid
 	 * @param array $a
 	 * @param array $b
@@ -95,6 +96,16 @@ if (!function_exists('first')) {
 			}
 		}
 		return $a;
+	}
+
+	function without(array $source, $remove) {
+		return array_filter($source, function ($el, $key) use ($remove) {
+			if (is_array($remove)) {
+				return !in_array($key, $remove);
+			} else {
+				return $key != $remove;
+			}
+		}, ARRAY_FILTER_USE_BOTH);
 	}
 
 }
