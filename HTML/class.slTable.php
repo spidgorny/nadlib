@@ -500,15 +500,10 @@ class slTable {
 		return $more;
 	}
 
-	function show() {
-		if (!$this->generation) {
-			$this->generate();
-		}
-		$this->generation->render();
-	}
-
 	function render() {
-		$this->show();
+		echo Request::isCLI()
+			? $this->getCLITable()
+			: $this->getContent();
 	}
 
 	function getContent($caller = '') {

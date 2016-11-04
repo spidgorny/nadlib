@@ -60,6 +60,9 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	}
 
 	function fetchRow($res) {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		return $this->t3db->sql_fetch_row($res);
 	}
 

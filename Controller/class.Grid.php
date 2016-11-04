@@ -90,10 +90,14 @@ abstract class Grid extends AppController {
 		if ($this->request->is_set('columns') && $allowEdit) {
 			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
 		}
-		$this->columns = $allowEdit ? $this->request->getArray('columns') : array();
-		$this->columns = $this->columns
-			? $this->columns
-			: $this->user->getPref('Columns.'.$cn);
+		$this->columns = $allowEdit
+			? $this->request->getArray('columns')
+			: array();
+		if (method_exists($this->user, 'getPref')) {
+			$this->columns = $this->columns
+				? $this->columns
+				: $this->user->getPref('Columns.'.$cn);
+		}
 		if (!$this->columns && $this->model->thes) {
 			$this->columns = array_keys($this->model->thes);
 		}
@@ -108,28 +112,35 @@ abstract class Grid extends AppController {
 		} else {
 			$this->filter = $allowEdit ? $this->request->getArray('filter') : array();
 			//d($this->request->getControllerString(), get_class($this), $allowEdit, $this->filter);
-			$this->filter = $this->filter
-				? $this->filter
-				: $this->user->getPref('Filter.'.$cn);
+			if (method_exists($this->user, 'getPref')) {
+				$this->filter = $this->filter
+					? $this->filter
+					: $this->user->getPref('Filter.'.$cn);
+			}
 			$this->filter = $this->filter ? $this->filter : array();
 			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
 		}
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
-		if ($allowEdit) {
-			$this->user->setPref('Filter.'.$cn, $this->filter);
-		}
 
-		if ($this->request->is_set('slTable') && $allowEdit) {
-			$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+		if (method_exists($this->user, 'setPref')) {
+			if ($allowEdit) {
+				$this->user->setPref('Filter.'.$cn, $this->filter);
+			}
+
+			if ($this->request->is_set('slTable') && $allowEdit) {
+				$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+			}
 		}
 		$sortRequest = $this->request->getArray('slTable');
-		$this->sort = $sortRequest
-			? $sortRequest
-			: ($this->user->getPref('Sort.'.$cn)
-				? $this->user->getPref('Sort.'.$cn)
-				: $this->sort
-			);
+		if (method_exists($this->user, 'getPref')) {
+			$this->sort = $sortRequest
+				? $sortRequest
+				: ($this->user->getPref('Sort.'.$cn)
+					? $this->user->getPref('Sort.'.$cn)
+					: $this->sort
+				);
+		}
 
 		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
 	}
