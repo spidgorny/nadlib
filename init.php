@@ -177,32 +177,35 @@ function debug_size($a) {
 	debug($assoc);
 }
 
-/**
- * Whether string starts with some chars
- * @param $haystack
- * @param string|string[] $needle
- * @return bool
- */
-function startsWith($haystack, $needle) {
-	if (!is_array($needle)) {
-		$needle = array($needle);
-	}
-	foreach ($needle as $need) {
-		if (strpos($haystack, $need) === 0) {
-			return true;
+if (!function_exists('startsWith')) {
+	/**
+	 * Whether string starts with some chars
+	 * @param $haystack
+	 * @param string|string[] $needle
+	 * @return bool
+	 */
+	function startsWith($haystack, $needle) {
+		if (!is_array($needle)) {
+			$needle = array($needle);
 		}
+		foreach ($needle as $need) {
+			if (strpos($haystack, $need) === 0) {
+				return true;
+			}
+		}
+		return false;
 	}
-	return false;
-}
 
-/**
- * Whether string ends with some chars
- * @param $haystack
- * @param $needle
- * @return bool
- */
-function endsWith($haystack, $needle) {
-	return strrpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+	/**
+	 * Whether string ends with some chars
+	 * @param $haystack
+	 * @param $needle
+	 * @return bool
+	 */
+	function endsWith($haystack, $needle) {
+		return strrpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+	}
+
 }
 
 /**

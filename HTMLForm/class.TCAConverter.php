@@ -56,6 +56,9 @@ class TCAConverter {
 	function convertTCA_input(array $desc, array $config) {
 		$desc['size'] = $config['size'];
 		//$desc['type'] = 'text';
+		if ($config['eval'] == 'int,nospace') {
+			$desc['type'] = 'number';
+		}
 		return $desc;
 	}
 
