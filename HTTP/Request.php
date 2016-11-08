@@ -1156,4 +1156,12 @@ class Request {
 		return $_SERVER['REMOTE_ADDR'];
 	}
 
+	public function getID($idName = 'id') {
+		$nameless1 = $this->getURLLevel(1);
+		if (!$nameless1) {
+			$nameless1 = $this->getIntRequired($idName);
+		}
+		return $nameless1;
+	}
+
 }
