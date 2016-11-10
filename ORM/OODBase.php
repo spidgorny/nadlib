@@ -868,4 +868,20 @@ abstract class OODBase {
 		}
 	}
 
+	public function save() {
+		if ($this->id) {
+			$ret = $this->insertUpdate($this->data, [
+				'id' => $this->id,
+			], $this->data, $this->data);
+			$ret = 'UPD';
+		} else {
+			$ret = $this->insertUpdate($this->data,
+				$this->data,
+				$this->data,
+				$this->data);
+			$ret = 'INS';
+		}
+		return $ret;
+	}
+
 }
