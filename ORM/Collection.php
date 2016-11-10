@@ -927,6 +927,7 @@ class Collection implements IteratorAggregate {
 
 		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
 		$lazy->perform($query);
+		$this->query = $lazy->query;
 
 		return $lazy;
 	}
