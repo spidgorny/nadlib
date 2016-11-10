@@ -136,7 +136,8 @@ class FlexiTable extends OODBase {
 	function checkCreateField($field, $value) {
 		//debug($this->columns);
 		$field = strtolower($field);
-		if (strtolower($this->columns[$field]['Field']) != $field) {
+		$existingField = ifsetor($this->columns[$field]['Field']);
+		if (strtolower($existingField) != $field) {
 			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).
 				' ADD COLUMN '.$this->db->quoteKey($field).' '.$this->getType($value));
 			$this->fetchColumns(true);
