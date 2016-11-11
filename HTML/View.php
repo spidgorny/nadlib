@@ -77,27 +77,38 @@ class View extends stdClass {
 
 /*	Add as many public properties as you like and use them in the PHTML file. */
 
-	function render() {
-		$key = __METHOD__.' ('.basename($this->file).')';
-		TaylorProfiler::start($key);
+	function getFile() {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
 		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
+		return $file;
+	}
+
+	function getContent($file) {
 		$content = '';
 		ob_start();
 
 		//debug($file);
 		/** @noinspection PhpIncludeInspection */
-		require($file);
+		$content = require($file);
 
-		if (!$content) {
+		if (!$content || $content === 1) {
 			$content = ob_get_clean();
 		} else {
 			ob_end_clean();
 		}
 
 		$content = $this->s($content);
+		return $content;
+	}
+
+	function render() {
+		$key = __METHOD__.' ('.basename($this->file).')';
+		TaylorProfiler::start($key);
+
+		$file = $this->getFile();
+		$content = $this->getContent($file);
 
 		preg_match_all('/__([^ _]+)__/', $content, $matches);
 		foreach ($matches[1] as $ll) {
@@ -419,6 +430,15 @@ class View extends stdClass {
 		foreach ($some as $key => $val) {
 			$this->key = $val;
 		}
+	}
+
+	function replace(array $map) {
+		$file = $this->getFile();
+		$content = $this->getContent($file);
+		return str_replace(
+			array_keys($map),
+			array_values($map),
+			$content);
 	}
 
 }

@@ -7,6 +7,9 @@ class PGArray {
 	 */
 	var $db;
 
+	/**
+	 * @var bool
+	 */
 	var $standard_conforming_strings;
 
 	function __construct(dbLayer $db) {
@@ -17,6 +20,8 @@ class PGArray {
 		$return = pg_fetch_assoc($result);
 		pg_free_result($result);
 		$this->standard_conforming_strings = first($return);
+		$this->standard_conforming_strings =
+			strtolower($this->standard_conforming_strings) == 'on';
 	}
 
 	/**
@@ -190,6 +195,11 @@ class PGArray {
 				while( $limit > $offset );
 		}
 	*/
+
+	/**
+	 * @param array $data
+	 * @return string
+	 */
 	function setPGArray(array $data) {
 		foreach ($data as &$el) {
 			if (is_array($el)) {
@@ -197,8 +207,8 @@ class PGArray {
 			} else {
 				$el = pg_escape_string($el);
 
-				if (strtolower($this->standard_conforming_strings) == 'on') {
-					$el = addslashes($el); // changed after postgres version updated to 9.4
+				if ($this->standard_conforming_strings) {
+//					$el = addslashes($el); // changed after postgres version updated to 9.4
 				}
 
 				$el = '"'.str_replace(array(
