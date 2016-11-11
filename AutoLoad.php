@@ -124,7 +124,7 @@ class AutoLoad {
 						: array();
 			}
 			if (ifsetor($_SERVER['argc'])) {
-				if (in_array('-al', $_SERVER['argv'])) {
+				if (in_array('-al', (array)ifsetor($_SERVER['argv']))) {
 					echo 'AutoLoad, debug mode', BR;
 					$this->debug = true;
 					$this->folders->debug = true;
@@ -326,7 +326,7 @@ class AutoLoad {
 				$this->useCookies = false;				// prevent __destruct saving data to the session
 			}
 			//debug($this->folders);
-			if (class_exists('Config')) {
+			if (class_exists('Config', false)) {
 				$config = Config::getInstance();
 				$notFoundException = ifsetor($config->config['autoload']['notFoundException']);
 			} else {
