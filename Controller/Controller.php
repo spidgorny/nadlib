@@ -386,7 +386,7 @@ abstract class Controller {
 
 			if (method_exists($proxy, $method)) {
 				if ($this->request->isCLI()) {
-					$assoc = array_slice($_SERVER['argv'], 3);
+					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
 					$content = call_user_func_array(array($proxy, $method), $assoc);
 				} else {
 					$content = $this->callMethodByReflection($proxy, $method);
