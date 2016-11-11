@@ -1,17 +1,27 @@
 <?php
 
 class TCAConverter {
-	public $table;
+
 	/**
-	 * Enter description here...
-	 *
+	 * @var string
+	 */
+	public $table;
+
+	/**
 	 * @var tx_ninpbl_pi1
 	 */
 	public $pi1;
+
 	public $skipFields = array('hidden');
 
-	function __construct(tslib_piBase $pi1) {
+	/**
+	 * @var \TYPO3\CMS\Core\Database\DatabaseConnection
+	 */
+	protected $t3db;
+
+	function __construct(\TYPO3\CMS\Frontend\Plugin\AbstractPlugin $pi1) {
 		$this->pi1 = $pi1;
+		$this->t3db = $GLOBALS['TYPO3_DB'];
 	}
 
 	function convertTCA(array $fields) {
@@ -56,9 +66,9 @@ class TCAConverter {
 			//t3lib_div::debug($GLOBALS['TCA'][$config['foreign_table']]['ctrl']);
 			$where = '1=1 '.$this->pi1->cObj->enableFields($config['foreign_table']).' '.$config['foreign_table_where'];
 			$where = str_replace('###CURRENT_PID###', $this->pi1->tsfe->id, $where);
-			$query = $GLOBALS['TYPO3_DB']->SELECTquery('uid, '.$name, $config['foreign_table'], $where); // may contain ONLY ORDER BY!
+			$query = $this->t3db->SELECTquery('uid, '.$name, $config['foreign_table'], $where); // may contain ONLY ORDER BY!
 			//debug($query);
-			$res = $GLOBALS['TYPO3_DB']->sql_query($query);
+			$res = $this->t3db->sql_query($query);
 			$desc['options'] = $this->fetchAll($res);
 			//t3lib_div::debug($GLOBALS['TYPO3_DB']->sql_num_rows($res));
 			//t3lib_div::debug($desc['options']);
@@ -112,9 +122,11 @@ class TCAConverter {
 	 * @param <type> $res
 	 * @return array
 	 */
-	function fetchAll($res) {
+	static function fetchAll($res) {
 		$rows = array();
-		while (($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) !== FALSE) {
+		/** @var \TYPO3\CMS\Core\Database\DatabaseConnection $db */
+		$db = $GLOBALS['TYPO3_DB'];
+		while (($row = $db->sql_fetch_assoc($res)) !== FALSE) {
 			$rows[$row['uid']] = $row;
 		}
 		return $rows;
