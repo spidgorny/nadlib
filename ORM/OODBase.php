@@ -606,7 +606,7 @@ abstract class OODBase {
 	function getObjectInfo() {
 		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' '.$this->getHash().')';
 	}
-	
+
 	function getHash($length = null) {
 		$hash = spl_object_hash($this);
 		if ($length) {
@@ -833,7 +833,7 @@ abstract class OODBase {
 		return $data;
 	}
 
-	public function getCollection(array $where, $orderBy = NULL) {
+	public function getCollection(array $where = [], $orderBy = NULL) {
 		$collection = Collection::createForTable($this->table, $where, $orderBy);
 		$collection->idField = $this->idField;
 		$static = get_called_class();
@@ -853,6 +853,35 @@ abstract class OODBase {
 			$obj = new $class();
 		}
 		return $obj;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/8707235/how-to-create-new-property-dynamically
+	 * @param $name
+	 * @param $value
+	 */
+	public function createProperty($name, $value = NULL) {
+		if (isset($this->{$name}) && $value === NULL) {
+			//$this->{$name} = $this->{$name};
+		} else {
+			$this->{$name} = $value;
+		}
+	}
+
+	public function save() {
+		if ($this->id) {
+			$ret = $this->insertUpdate($this->data, [
+				'id' => $this->id,
+			], $this->data, $this->data);
+			$ret = 'UPD';
+		} else {
+			$ret = $this->insertUpdate($this->data,
+				$this->data,
+				$this->data,
+				$this->data);
+			$ret = 'INS';
+		}
+		return $ret;
 	}
 
 }

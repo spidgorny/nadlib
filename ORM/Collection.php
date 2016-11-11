@@ -167,7 +167,8 @@ class Collection implements IteratorAggregate {
 		$this->select = $this->select
 			// DISTINCT is 100 times slower, add it manualy if needed
 			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
-			?: $this->db->getFirstWord($this->table).'.*';
+			?: $this->db->quoteKey(
+				$this->db->getFirstWord($this->table)).'.*';
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
@@ -664,6 +665,7 @@ class Collection implements IteratorAggregate {
 		/** @var dbLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$firstWord = $db->getFirstWord($c->table);
+		$firstWord = $db->quoteKey($firstWord);
 		$c->select = ' '.$firstWord.'.*';
 		return $c;
 	}
@@ -925,6 +927,7 @@ class Collection implements IteratorAggregate {
 
 		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
 		$lazy->perform($query);
+		$this->query = $lazy->query;
 
 		return $lazy;
 	}
@@ -1071,10 +1074,27 @@ class Collection implements IteratorAggregate {
 		$this->db = $ms;
 	}
 
+	public static function hydrate($source) {
+		$class = $source->class;
+		/** @var Collection $object */
+		$object = new $class();
+		$object->count = $source->count;
+		$memberClass = $object->itemClassName;
+		foreach ($source->members as $id => $m) {
+			$child = new $memberClass();
+			$child->id = $id;
+			$child->data = (array)$m->data;
+			$object->members[$id] = $child;
+		}
+		return $object;
+	}
+	
 	public function unobjectify() {
 		foreach ($this->objectify() as $i => $el) {
 			$this->data[$i] = $el->data;
 		}
 	}
+
+
 
 }

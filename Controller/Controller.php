@@ -73,7 +73,7 @@ abstract class Controller {
 
 	public $linkVars = array();
 
-	public $encloseTag = 'h4';
+	public $encloseTag = 'h2';
 
 	/**
 	 * accessible without login
@@ -665,6 +665,21 @@ abstract class Controller {
 		</div>';
 	}
 
+	function linkToAction($action = '', array $params = array(), $controller = NULL) {
+		if (!$controller) {
+			$controller = get_class($this);
+		}
+		$params += [
+			'c' => $controller,
+		];
+		if ($action) {
+			$params += [
+				'action' => $action,
+			];
+		}
+		return $this->makeURL($params);
+	}
+
 	function p($content, array $attr = array()) {
 		$more = HTMLTag::renderAttr($attr);
 		return '<p '.$more.'>'.$this->s($content).'</p>';
@@ -672,8 +687,9 @@ abstract class Controller {
 
 	function img($src, array $attr = array()) {
 		return new HTMLTag('img', array(
-			'src' => /*$this->e*/($src),	// encoding is not necessary for &amp; in URL
-		) + $attr);
+				'src' => /*$this->e*/
+					($src),    // encoding is not necessary for &amp; in URL
+			) + $attr);
 	}
 
 	function e($content) {
@@ -747,5 +763,5 @@ abstract class Controller {
 	function setDB(DBInterface $db) {
 		$this->db = $db;
 	}
-	
+
 }

@@ -15,15 +15,15 @@ if (!function_exists('parseFloat')) {
 	}
 
 	function parseFloat2($str) {
-		return (float) filter_var( $str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
+		return (float)filter_var($str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 	}
 
 	/**
-     * Shortcut for
-     * isset($variable) ? $variable : $default
+	 * Shortcut for
+	 * isset($variable) ? $variable : $default
 	 * BUT, it creates a NULL elements with the multidimensional arrays!!!
 	 * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
-	 * @param $variable
+	 * @param      $variable
 	 * @param null $default
 	 * @return null
 	 * @see https://wiki.php.net/rfc/ifsetor
@@ -39,7 +39,7 @@ if (!function_exists('parseFloat')) {
 
 	if (!function_exists('boolval')) {
 		function boolval($val) {
-			return (bool) $val;
+			return (bool)$val;
 		}
 	}
 
