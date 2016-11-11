@@ -40,11 +40,10 @@ class MarshalParams {
 			}
 			//debug($assoc);
 			$content = call_user_func_array(array($proxy, $method), $assoc);
-			return $content;
 		} else {
 			$content = $proxy->$method();
-			return $content;
 		}
+		return $content;
 	}
 
 	function getParameterByReflection(ReflectionParameter $param) {
