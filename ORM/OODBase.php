@@ -175,6 +175,7 @@ abstract class OODBase {
 		} elseif (isset($this->data[$idField])
 			&& $this->data[$idField]) {
 			$this->id = $this->data[$idField];
+			assert($this->id);
 		} else {
 			debug(gettype2($row), $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
@@ -311,10 +312,10 @@ abstract class OODBase {
 			$this->where + $where, $orderByLimit);
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
-		//debug($rows, $this->lastSelectQuery);
+//		debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
-			$this->init($data, true);
+			$this->initByRow($data);
 		} else {
 			$data = array();
 			if ($this->forceInit) {
@@ -413,7 +414,7 @@ abstract class OODBase {
 		if ($where) {
 			$this->findInDB($where);
 		}
-		//debug($this->id, $this->data); exit();
+//		debug($this->id, $this->data); exit();
 		if ($this->id) { // found
 			$left = array_intersect_key($this->data, $fields);		// keys need to have same capitalization
 			$right = array_intersect_key($fields, $this->data);
@@ -866,6 +867,16 @@ abstract class OODBase {
 		} else {
 			$this->{$name} = $value;
 		}
+	}
+
+	function save($where = NULL) {
+		if ($this->id) {
+			$res = $this->update($this->data);
+		} else {
+			// this 99.9% insert
+			$res = $this->insertUpdate($this->data, $where ?: $this->data, $this->data, $this->data);
+		}
+		return $res;
 	}
 
 }
