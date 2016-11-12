@@ -10,7 +10,7 @@ class NadlibTest extends PHPUnit_Framework_TestCase {
 			'SQLQuery',
 		);
 		require_once 'AppController4Test.php';
-		class_alias('AppController4Test', 'AppController');
+//		class_alias('AppController4Test', 'AppController');
 
 		$files = glob('**/*');
 		foreach ($files as $file) {
