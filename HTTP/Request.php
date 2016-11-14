@@ -1144,7 +1144,7 @@ class Request {
 		$base = $this->getBase64($string);
 		return gzuncompress($base);
 	}
-	
+
 	public static function isCalledScript($__FILE__) {
 		if (ifsetor($_SERVER['SCRIPT_FILENAME'])) {
 			return $__FILE__ == $_SERVER['SCRIPT_FILENAME'];
@@ -1155,6 +1155,12 @@ class Request {
 
 	public function getBrowserIP() {
 		return $_SERVER['REMOTE_ADDR'];
+	}
+
+	public function getID() {
+		return $this->getNamelessID()
+			?: $this->getInt('id')
+			?: $this->getNameless(2);
 	}
 
 }

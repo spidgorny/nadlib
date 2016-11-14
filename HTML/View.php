@@ -421,4 +421,15 @@ class View extends stdClass {
 		}
 	}
 
+	function curly() {
+		$template = $this->render();
+		preg_match_all('/\{([^}]+)\}/m', $template, $matches);
+//		debug($matches);
+		foreach ($matches[1] as $i => $m) {
+			$val = eval(' return ' . $m . ';');
+			$template = str_replace('{' . $m . '}', $val, $template);
+		}
+		return $template;
+	}
+
 }
