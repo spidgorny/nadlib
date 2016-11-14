@@ -105,7 +105,7 @@ class InitNADLIB {
 			//trigger_error(str_repeat('*', 20));	// log file separator
 
 			ini_set('display_errors', TRUE);
-			ini_set('html_error', TRUE);
+			ini_set('html_errors', TRUE);
 			// htaccess may not work
 			$error_prepend_string = ini_get('error_prepend_string');
 			if (!$error_prepend_string && !Request::isCLI()) {
@@ -116,7 +116,6 @@ background: lightyellow;
 padding: 1em;
 border-radius: 5px;">');
 				ini_set('error_append_string', '</pre>');
-				ini_set('html_errors', false);
 			}
 			ini_set('xdebug.file_link_format', 'phpstorm://open?file=%f&line=%l');
 			if (false) {
