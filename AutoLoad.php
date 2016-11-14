@@ -128,7 +128,7 @@ class AutoLoad {
 					echo 'AutoLoad, debug mode', BR;
 					$this->debug = true;
 					$this->folders->debug = true;
-					$this->folders->collectDebug = array();
+//					$this->folders->collectDebug = array();
 				}
 			}
 		}
@@ -340,7 +340,7 @@ class AutoLoad {
 			} else {
 				//debug_pre_print_backtrace();
 				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
-				$this->logError($class.' not found');
+				$this->logError($class.' not found by AutoLoad');
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
 			if ($tp) $tp->stop(__METHOD__);
@@ -370,11 +370,11 @@ class AutoLoad {
 					(sizeof($namespaces) > 1)
 							? first($namespaces)
 							: NULL;
-			$this->folders->collectDebug = array();
+//			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);
-			$this->classFileMap[$class] = $file;
 			if ($file) {
+				$this->classFileMap[$class] = $file;	// save
 				$this->logSuccess($class . ' found in '. $file);
 				if (false
 					&& $this->debug
@@ -396,7 +396,8 @@ class AutoLoad {
 			} elseif ($this->debug) {
 				//debug($this->stat['folders'], $this->stat['configPath']);
 				//debug($this->folders);
-				$this->logError($class. ' not in ' .$file);
+				$this->logError($class. ' not in folders ['.sizeof($this->folders->folders['']).']');
+				//pre_print_r($this->classFileMap);
 			}
 			//$this->folders->collectDebug = null;
 		}
@@ -417,7 +418,7 @@ class AutoLoad {
 				$this->stat['loadFile2']++;
 				$file = $file2;
 			} else {
-				$this->logError($class.' not found in classFileMap');
+				$this->logError($class.' not found in classFileMap['.sizeof($this->classFileMap).']');
 				//pre_print_r($this->classFileMap);
 				$file = NULL;
 			}
