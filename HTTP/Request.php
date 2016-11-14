@@ -1161,8 +1161,6 @@ class Request {
 		return $this->getNamelessID()
 			?: $this->getInt('id')
 			?: $this->getNameless(2);
-		}
-		return $nameless1;
 	}
 
 }

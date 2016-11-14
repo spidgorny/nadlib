@@ -872,15 +872,9 @@ abstract class OODBase {
 	function save($where = NULL) {
 		if ($this->id) {
 			$res = $this->update($this->data);
-				'id' => $this->id,
-			], $this->data, $this->data);
-			$ret = 'UPD';
 		} else {
 			// this 99.9% insert
 			$res = $this->insertUpdate($this->data, $where ?: $this->data, $this->data, $this->data);
-				$this->data,
-				$this->data);
-			$ret = 'INS';
 		}
 		return $res;
 	}

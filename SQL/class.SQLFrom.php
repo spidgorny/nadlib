@@ -1,6 +1,6 @@
 <?php
 
-class SQLFrom {
+class SQLFrom extends SQLWherePart {
 
 	/**
 	 * @var DBInterface
@@ -10,6 +10,7 @@ class SQLFrom {
 	protected $parts = array();
 
 	function __construct($from) {
+		parent::__construct();
 		$this->parts[] = trim($from);
 	}
 
