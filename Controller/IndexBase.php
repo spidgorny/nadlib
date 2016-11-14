@@ -202,7 +202,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
 		$class = end($slugParts);	// again, because __autoload need the full path
-		//debug(__METHOD__, $slug, $class, class_exists($class));
+//		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->controller = new $class();
 //			debug($class, get_class($this->controller));
@@ -223,6 +223,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$this->controller) {
 			$this->initController();
 		}
+		//debug(get_class($this->controller));
 		return $this->controller;
 	}
 

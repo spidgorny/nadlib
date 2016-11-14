@@ -439,6 +439,15 @@ class View extends stdClass {
 			array_keys($map),
 			array_values($map),
 			$content);
+	function curly() {
+		$template = $this->render();
+		preg_match_all('/\{([^}]+)\}/m', $template, $matches);
+//		debug($matches);
+		foreach ($matches[1] as $i => $m) {
+			$val = eval(' return ' . $m . ';');
+			$template = str_replace('{' . $m . '}', $val, $template);
+		}
+		return $template;
 	}
 
 }
