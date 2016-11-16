@@ -1,6 +1,6 @@
 <?php
 
-class PGArray {
+class PGArray extends AsIs {
 
 	/**
 	 * @var dbLayer
@@ -12,7 +12,7 @@ class PGArray {
 	 */
 	var $standard_conforming_strings;
 
-	function __construct(dbLayer $db) {
+	function __construct(dbLayer $db, array $data = NULL) {
 		$this->db = $db;
 
 		$query = "SHOW standard_conforming_strings;";
@@ -22,6 +22,24 @@ class PGArray {
 		$this->standard_conforming_strings = first($return);
 		$this->standard_conforming_strings =
 			strtolower($this->standard_conforming_strings) == 'on';
+
+		if ($data) {
+			$this->data = $data;
+		}
+	}
+
+	function set(array $data) {
+		$this->data = $data;
+	}
+
+	/**
+	 * New better syntax for using it in SQL which does not
+	 * require tripple escaping of backslashes
+	 * @return string
+	 */
+	function __toString() {
+		$quoted = $this->db->quoteValues($this->data);
+		return 'ARRAY['.implode(', ', $quoted).']';
 	}
 
 	/**
@@ -90,7 +108,13 @@ class PGArray {
 		fseek($temp, 0);
 		$r = array();
 		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
-			$r[] = array_map('stripslashes', $data);
+//			$data = array_map('stripcslashes', $data);
+			$data = array_map(function ($str) {
+				// exactly opposite to setPGArray()
+				return str_replace('\"', '"', $str);
+				return str_replace('\\\\', '\\', $str);
+			}, $data);
+			$r[] = $data;
 		}
 		fclose($temp);
 		return ifsetor($r[0]);
@@ -206,6 +230,7 @@ class PGArray {
 				$el = $this->setPGArray($el);
 			} else {
 				$el = pg_escape_string($el);
+//				$el = addslashes($el);
 
 				if ($this->standard_conforming_strings) {
 //					$el = addslashes($el); // changed after postgres version updated to 9.4
@@ -218,7 +243,8 @@ class PGArray {
 					), $el).'"';
 			}
 		}
-		return '{'.implode(',', $data).'}';
+		$pgArray = '{'.implode(',', $data).'}';
+		return $pgArray;
 	}
 
 }
