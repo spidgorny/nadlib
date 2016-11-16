@@ -1158,9 +1158,10 @@ class Request {
 	}
 
 	public function getID() {
+//		debug($this->getNamelessID(), $this->getInt('id'), $this->getNameless(1));
 		return $this->getNamelessID()
 			?: $this->getInt('id')
-			?: $this->getNameless(2);
+			?: $this->getNameless(1);
 	}
 
 }
