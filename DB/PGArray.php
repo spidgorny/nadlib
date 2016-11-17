@@ -12,6 +12,11 @@ class PGArray extends AsIs {
 	 */
 	var $standard_conforming_strings;
 
+	/**
+	 * @var array
+	 */
+	var $data;
+
 	function __construct(dbLayer $db, array $data = NULL) {
 		$this->db = $db;
 
@@ -40,6 +45,10 @@ class PGArray extends AsIs {
 	function __toString() {
 		$quoted = $this->db->quoteValues($this->data);
 		return 'ARRAY['.implode(', ', $quoted).']';
+	}
+
+	function encodeInString() {
+		return $this->setPGArray($this->data);
 	}
 
 	/**
