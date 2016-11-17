@@ -120,8 +120,15 @@ class PGArray extends AsIs {
 //			$data = array_map('stripcslashes', $data);
 			$data = array_map(function ($str) {
 				// exactly opposite to setPGArray()
-				return str_replace('\"', '"', $str);
-				return str_replace('\\\\', '\\', $str);
+				$str = str_replace('\"', '"', $str);
+				// this is needed because even with
+				// $standard_conforming_strings = on
+				// PostgreSQL is escaping backslashes
+				// inside arrays (not in normal strings)
+				// select 'a
+				// b', ARRAY['slawa', '{"a":"multi\nline"}']
+				$str = str_replace('\\\\', '\\', $str);
+				return $str;
 			}, $data);
 			$r[] = $data;
 		}
