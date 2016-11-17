@@ -28,7 +28,7 @@ class HTMLFormValidate {
 				$error = $error || !$validateResult;
 				//$d->desc = $v2->getDesc();
 				//debug('updateDesc', $d->getFieldset());
-			} else {
+			} elseif (is_array($d)) {
 				if ($d['mustBint']) {
 					$d['value'] = intval($d['value']);
 				}
@@ -43,6 +43,9 @@ class HTMLFormValidate {
 				));
 				$d = $this->validateField($field, $d, $type, $isCheckbox);
 				$error = $error || $d['error'];
+			} else {
+				d($this->desc);
+				throw new InvalidArgumentException(__METHOD__);
 			}
 		}
 		return !$error;
