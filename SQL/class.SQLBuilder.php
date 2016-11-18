@@ -256,16 +256,21 @@ class SQLBuilder {
 	 */
 	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL) {
 		$table1 = $this->getFirstWord($table);
-		if ($table == $table1) {
-			$from = $this->db->quoteKey($table);    // table name always quoted
-		} else {
-			$from = $table; // not quoted
+		if ($table == $table1) {	// NO JOIN
+			$from = $this->db->quoteKey($table1);    // table name always quoted
+			$join = NULL;
+		} else {					// JOIN
+			$join = substr($table, strlen($table1));
+			$from = $table1; // not quoted
 		}
 		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
 		$select = new SQLSelect($select);
 		$select->db = $this->db;
 		$from = new SQLFrom($from);
 		$from->db = $this->db;
+		if ($join) {
+			$join = new SQLJoin($join);
+		}
 		$where = new SQLWhere($where);
 		$where->injectDB($this->db);
 
@@ -291,7 +296,7 @@ class SQLBuilder {
 			debug(['sOrder' => $sOrder, 'order' => $order]);
 			throw new InvalidArgumentException(__METHOD__);
 		}
-		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order, $limit);
+		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
 		$sq->injectDB($this->db);
 		return $sq;
 	}
