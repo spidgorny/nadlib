@@ -95,7 +95,8 @@ class InitNADLIB {
 	private function setErrorReporting()
 	{
 		if (DEVELOPMENT) {
-			if (headers_sent($file, $line) && $file && $line && !Request::isPHPUnit() && !Request::isCLI()) {
+			$isCLI = Request::isCLI();
+			if (headers_sent($file, $line) && $file && $line && !Request::isPHPUnit() && !$isCLI) {
 				// debug() not loaded yet
 				pre_print_r('Output has started', $file, $line);
 			}
@@ -104,11 +105,11 @@ class InitNADLIB {
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
 
-			ini_set('display_errors', TRUE);
-			ini_set('html_errors', TRUE);
+			ini_set('display_errors', true);
+			ini_set('html_errors', !$isCLI);
 			// htaccess may not work
 			$error_prepend_string = ini_get('error_prepend_string');
-			if (!$error_prepend_string && !Request::isCLI()) {
+			if (!$error_prepend_string && !$isCLI) {
 				ini_set('error_prepend_string', '<pre style="
 white-space: pre-wrap;
 color: deeppink;
