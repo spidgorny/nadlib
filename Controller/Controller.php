@@ -543,10 +543,12 @@ abstract class Controller {
 		if ($name instanceof htmlString) {
 			$f->button($name, array(
 				'type' => "submit",
+				'id' => 'button-action-'.$action,
 				'class' => $submitClass,
 				) + $submitParams);
 		} else {
 			$f->submit($name, array(
+				'id' => 'button-action-'.$action,
 				'class' => $submitClass,
 			) + $submitParams);
 		}
