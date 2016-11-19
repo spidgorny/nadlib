@@ -68,7 +68,9 @@ class CollectionView {
 	function renderTable() {
 		TaylorProfiler::start(__METHOD__." ({$this->collection->table})");
 		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
-		if ($this->collection->getCount()) {
+//		$count = $this->collection->getCount();
+		$count = $this->collection->getData()->count();
+		if ($count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
