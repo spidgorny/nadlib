@@ -128,7 +128,7 @@ class ProgressBar {
 		$percentDone = number_format($percentDone, $this->decimals, '.', '') .'%';
 		//debug($this->percentDone, $percentDone);
 		$content = '<div id="'.$this->pbid.'" class="pb_container">
-			<div id="'.$this->textid.'" class="'.$this->textid.'">'.
+			<div id="'.$this->textid.'" class="pb_text">'.
 			$percentDone.'</div>
 			<div class="pb_bar">
 				<div id="'.$this->pbarid.'" class="pb_before"
@@ -159,7 +159,7 @@ class ProgressBar {
 			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
 			if ($every < 1 || !($i % $every) || $always || (($last + $every) > $i)) {
 				$this->setProgressBarProgress($percent);
-				$last = $i;  
+				$last = $i;
 			}
 		} else {
 			throw new InvalidArgumentException(__CLASS__.'->count is not set');
