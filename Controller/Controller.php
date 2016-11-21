@@ -186,19 +186,29 @@ abstract class Controller {
 	 * @return URL
 	 */
 	function makeRelURL(array $params = array(), $page = NULL) {
-		return $this->makeURL($params + $this->linkVars, $page);
+		return $this->makeURL(
+			$params							// 1st priority
+			+ $this->getURL()->getParams()
+			+ $this->linkVars, $page);
 	}
 
 	/**
 	 * Combines params with $this->linkVars
+	 * Use makeURL() for old functionality
 	 * @param array $params
 	 * @param string $prefix
 	 * @return URL
 	 */
 	public function getURL(array $params = [], $prefix = NULL) {
-		$params = $params + $this->linkVars;
-		//debug($params);
-		return $this->makeURL($params, $prefix);
+		if ($params || $prefix) {
+			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
+		}
+//		$params = $params + $this->linkVars;
+//		debug($params);
+//		return $this->makeURL($params, $prefix);
+		return ClosureCache::getInstance(spl_object_hash($this), function () {
+			return new URL();
+		})->get();
 	}
 
 	/**
