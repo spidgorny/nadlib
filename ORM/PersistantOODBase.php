@@ -65,6 +65,7 @@ class PersistantOODBase extends OODBase {
 			$ret = parent::insert($data);
 		} catch (Exception $e) {
 			//debug('LastInsertID() failed but it\'s OK');
+			$ret = NULL;
 		}
 		//debug($this->db->lastQuery);
 		$this->originalData = $this->data;
@@ -91,7 +92,7 @@ class PersistantOODBase extends OODBase {
 		return $ret;
 	}
 
-	function save() {
+	function save($where = NULL) {
 		if ($this->getStateHash() != $this->stateHash) {
 			nodebug(array(
 				$this->stateHash => $this->originalData,

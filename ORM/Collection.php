@@ -426,9 +426,11 @@ class Collection implements IteratorAggregate {
 		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".$this->getCount());
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
 		// Iterator by reference
-		foreach ($this->getData() as $i => &$row) {
+		$data = $this->getData();
+		foreach ($data as $i => &$row) {
 			$row = $this->preprocessRow($row);
 		}
+		$this->setData($data);
 		$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
 		$this->processed = true;
 		TaylorProfiler::stop($profiler);

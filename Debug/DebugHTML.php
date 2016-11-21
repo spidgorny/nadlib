@@ -71,7 +71,7 @@ class DebugHTML {
 
 		require_once __DIR__.'/TaylorProfiler.php';
 		$memPercent = TaylorProfiler::getMemUsage()*100;
-		require_once __DIR__.'/../HTML/class.ProgressBar.php';
+		require_once __DIR__.'/../HTML/ProgressBar.php';
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
 		$props[] = '<span class="debug_prop">Mem:</span>
