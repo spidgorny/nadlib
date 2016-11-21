@@ -152,6 +152,15 @@ abstract class OODBase {
 	}
 
 	function getName() {
+		if (is_array($this->titleColumn)) {
+			$names = array_reduce($this->titleColumn, function ($initial, $key) {
+				return ($initial
+					? $initial . ' - '
+					: '')
+				. ifsetor($this->data[$key]);
+			}, '');
+			return $names;
+		}
 		return ifsetor($this->data[$this->titleColumn], $this->id);
 	}
 
@@ -526,7 +535,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return self|$this
+	 * @return self|$this|static
 	 */
 	static function getInstance($id) {
 		return static::getInstanceByID($id);
