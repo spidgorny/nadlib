@@ -221,6 +221,8 @@ class dbLayerBase implements DBInterface {
 
 	function clearQueryLog() {
 		$this->queryLog = NULL;
+	function fetchAll($res_or_query, $index_by_key = NULL) {
+		// TODO: Implement fetchAll() method.
 	}
 
 	function quoteKeys(array $a) {

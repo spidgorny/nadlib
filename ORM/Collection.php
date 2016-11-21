@@ -253,7 +253,8 @@ class Collection implements IteratorAggregate {
 		}
 
 		$data = $this->db->fetchAll($res);
-		$this->db->free($res);
+		// fetchAll does implement free()
+//		$this->db->free($res);
 		TaylorProfiler::stop($taylorKey);
 		return $data;
 	}
