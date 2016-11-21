@@ -78,7 +78,7 @@ class AutoLoadFolders {
 		require_once __DIR__ . '/HTTP/Request.php';
 
 		$this->getFoldersFromConfig();
-		$folders = $this->folders[''];	// modified by the line above
+		$folders = (array)ifsetor($this->folders['']);	// modified by the line above
 		//pre_print_r($this->folders);
 		//$this->al->stat['folders'] .= ', '.sizeof($plus);
 		//$folders = array_merge($folders, $plus);		// should come first to override /be/
