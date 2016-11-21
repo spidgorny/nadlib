@@ -24,7 +24,7 @@ class SQLBuilder {
 	public $found;
 
 	/**
-	 * @var MySQL|dbLayer|dbLayerBase|dbLayerPG
+	 * @var DBInterface
 	 */
 	public $db;
 
@@ -33,7 +33,7 @@ class SQLBuilder {
 	 */
 	public $config;
 
-	function __construct(dbLayerBase $db) {
+	function __construct(DBInterface $db) {
 		if (class_exists('Config')) {
 			$this->config = Config::getInstance();
 		}
@@ -72,11 +72,11 @@ class SQLBuilder {
 			$content = "'".$this->db->escape($value->__toString())."'";
 			//debug($content, $value);
 			return $content;
-		} else if ($value instanceof Time) {
+		} elseif ($value instanceof Time) {
 			$content = "'".$this->db->escape($value->toSQL())."'";
 			//debug($content);
 			return $content;
-		} else if ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
+		} elseif ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} elseif (is_object($value)) {
 			return "'".$this->db->escape($value)."'";
@@ -283,6 +283,7 @@ class SQLBuilder {
 				$order = NULL;
 			}
 		} elseif ($order) {
+			debug($table, $where, $order, $addSelect);
 			throw new InvalidArgumentException(__METHOD__);
 		} else {
 			$group = NULL;
@@ -476,7 +477,7 @@ class SQLBuilder {
 	 * Originates from BBMM
 	 * @param string $sword
 	 * @param array $fields
-	 * @return AsIs
+	 * @return array
 	 */
 	function getSearchWhere($sword, array $fields) {
 		$where = array();
@@ -572,7 +573,11 @@ class SQLBuilder {
 				break;
 			}
 			if ($key) {
-				$data[$row[$key]] = $row;
+				if (!isset($row[$key])) {
+					debug($key, $row);
+				}
+				$keyValue = $row[$key];
+				$data[$keyValue] = $row;
 			} else {
 				$data[] = $row;
 			}
