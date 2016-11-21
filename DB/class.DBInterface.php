@@ -42,5 +42,7 @@ interface DBInterface {
 	function dataSeek($resource, $index);
 
 	function escape($string);
+
+	function fetchAll($res_or_query, $index_by_key = NULL);
 	
 }

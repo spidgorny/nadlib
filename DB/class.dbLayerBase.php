@@ -219,4 +219,7 @@ class dbLayerBase implements DBInterface {
 		return $this->getScheme() == 'sqlite';
 	}
 
+	function fetchAll($res_or_query, $index_by_key = NULL) {
+		// TODO: Implement fetchAll() method.
+	}
 }

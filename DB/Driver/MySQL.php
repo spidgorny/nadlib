@@ -569,4 +569,8 @@ class MySQL extends dbLayerBase implements DBInterface {
 		return strtolower(get_class($this));
 	}
 
+	function unsetQueryLog() {
+		$this->queryLog = NULL;
+	}
+
 }
