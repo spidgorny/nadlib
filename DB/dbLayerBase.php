@@ -56,7 +56,7 @@ class dbLayerBase implements DBInterface {
 	public $database;
 
 	function setQB(SQLBuilder $qb = NULL) {
-		$this->qb = $qb ?: Config::getInstance()->getQb();
+		$this->qb = $qb;
 	}
 
 	function getDSN(array $params) {
@@ -75,7 +75,6 @@ class dbLayerBase implements DBInterface {
 
 	function __call($method, array $params) {
 		if (!$this->qb) {
-			$this->qb = Config::getInstance()->getQb();
 			if (!$this->qb) {
 				throw new DatabaseException(__CLASS__ . ' has no QB');
 			}

@@ -40,7 +40,7 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * Basic where SQL params to be included in every SQL by default
-	 * @var $this|array
+	 * @var array
 	 */
 	public $where = array();
 
@@ -151,19 +151,21 @@ class Collection implements IteratorAggregate {
 	public $allowMerge = false;
 
 	/**
-	 * @param integer/-1 $pid
-	 * 		if -1 - will not retrieve data from DB
-	 * 		if 00 - will retrieve all data
-	 * 		if >0 - will retrieve data where PID = $pid
+	 * @param                integer /-1 $pid
+	 *        if -1 - will not retrieve data from DB
+	 *        if 00 - will retrieve all data
+	 *        if >0 - will retrieve data where PID = $pid
 	 * @param array|SQLWhere $where
-	 * @param string $order	- appended to the SQL
+	 * @param string         $order - appended to the SQL
+	 * @param DBInterface    $db
 	 */
-	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
+	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '', DBInterface $db = NULL) {
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
-		$this->db = Config::getInstance()->getDB();
-		$this->table = Config::getInstance()->prefixTable($this->table);
+		$config = Config::getInstance();
+		$this->db = $db ?: $config->getDB();
+		$this->table = $config->prefixTable($this->table);
 		$this->select = $this->select
 			// DISTINCT is 100 times slower, add it manualy if needed
 			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
@@ -202,10 +204,10 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * -1 will prevent data retrieval
-	 * @param bool $preprocess
+	 * @param bool $preProcess
 	 */
-	function retrieveData($preprocess = true) {
-		$this->log(get_class($this).'::'.__FUNCTION__.'(allowMerge: '.($this->allowMerge?1:0).', preprocess: '.($preprocess?1:0).')');
+	function retrieveData($preProcess = true) {
+		$this->log(get_class($this).'::'.__FUNCTION__.'(allowMerge: '.($this->allowMerge?1:0).', preprocess: '.($preProcess?1:0).')');
 		//debug(__METHOD__, $allowMerge, $preprocess);
 		if (phpversion() > 5.3 && (
 			$this->db instanceof MySQL
@@ -222,7 +224,7 @@ class Collection implements IteratorAggregate {
 		//$this->log(__METHOD__, $this->data->pluck('id'));
 		$this->data->IDalize($this->idField, $this->allowMerge);
 		$this->log(__METHOD__, 'rows: '.sizeof($this->data));
-		if ($preprocess) {
+		if ($preProcess) {
 			$this->preprocessData();
 			$this->log(__METHOD__, 'rows: '.sizeof($this->data));
 		}
@@ -1097,7 +1099,5 @@ class Collection implements IteratorAggregate {
 			$this->data[$i] = $el->data;
 		}
 	}
-
-
 
 }

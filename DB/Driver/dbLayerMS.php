@@ -246,6 +246,7 @@ AND name = '?')", array($table));
 
 	function quoteKey($key) {
 		if (!str_contains($key, '(')) {	// functions
+//			debug($key);
 			$key = '[' . $key . ']';
 		}
 		return $key;

@@ -55,13 +55,11 @@ class SQLBuilder {
 	function quoteSQL($value, $key = NULL) {
 		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
-			$value->injectQB($this);
 			$value->injectField($key);
 			$result = $value->__toString();
 			return $result;
 		} elseif ($value instanceof AsIs) {
 			$value->injectDB($this->db);
-			$value->injectQB($this);
 			//$value->injectField($key); not needed as it will make the field name twice
 			return $value->__toString();
 		} elseif ($value instanceof SQLOr) {
@@ -257,20 +255,25 @@ class SQLBuilder {
 	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL) {
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {	// NO JOIN
-			$from = $this->db->quoteKey($table1);    // table name always quoted
+			$from = /*$this->db->quoteKey*/($table1);    // table name always quoted
 			$join = NULL;
 		} else {					// JOIN
 			$join = substr($table, strlen($table1));
 			$from = $table1; // not quoted
 		}
-		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = $addSelect
+			? $addSelect
+			: /*$this->quoteKey*/($table1).".*";
 		$select = new SQLSelect($select);
-		$select->db = $this->db;
+		$select->injectDB($this->db);
+
 		$from = new SQLFrom($from);
-		$from->db = $this->db;
+		$from->injectDB($this->db);
+
 		if ($join) {
 			$join = new SQLJoin($join);
 		}
+
 		$where = new SQLWhere($where);
 		$where->injectDB($this->db);
 
