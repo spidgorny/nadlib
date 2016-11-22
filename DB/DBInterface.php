@@ -7,7 +7,7 @@ interface DBInterface {
 	// parameters are different
 	//function connect();
 
-	function perform($query);
+	function perform($query, array $params = []);
 
 	function numRows($res = NULL);
 

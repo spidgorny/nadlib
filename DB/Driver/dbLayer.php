@@ -723,4 +723,8 @@ FROM
 WHERE ccu.table_name='".$table."'");
 	}
 
+	function getPlaceholder() {
+		return '$0$';
+	}
+
 }

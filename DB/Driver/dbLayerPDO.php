@@ -31,9 +31,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	protected $dataSeek = NULL;
 
-	function __construct($user = NULL, $password = NULL,
-						 $scheme = NULL, $driver = NULL,
-						 $host = NULL, $db = NULL,
+	function __construct($db = NULL, $host = NULL,
+						 $user = NULL, $password = NULL,
+						 $scheme = 'mysql', $driver = NULL,
 						 $port = 3306) {
 		if ($user) {
 			$this->connect($user, $password,
@@ -67,16 +67,21 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$this->dsn = $scheme.':'.$db;
 			$this->database = basename($db);
 		} else {
-			$this->dsn = $scheme . ':' . $this->getDSN(array(
+			$aDSN = array(
+				'DATABASE' => $db,
+				'host' => $host,
+				'SYSTEM' => $host,
+				'dbname' => $db,
+				'HOSTNAME' => $host,
+				'PORT' => $port,
+				'PROTOCOL' => 'TCPIP',
+			);
+			if ($driver) {
+				$aDSN += [
 					'DRIVER' => '{' . $driver . '}',
-					'DATABASE' => $db,
-					'host' => $host,
-					'SYSTEM' => $host,
-					'dbname' => $db,
-					'HOSTNAME' => $host,
-					'PORT' => $port,
-					'PROTOCOL' => 'TCPIP',
-				));
+				];
+			}
+			$this->dsn = $scheme . ':' . $this->getDSN($aDSN);
 			$this->database = $db;
 		}
 		//debug($this->dsn);
@@ -266,7 +271,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			if (sizeof($parts) == 2) {
 				$content = $parts[0].'.`'.$parts[1].'`';
 			} else {
-				$content = '`' . $key . '`';
+				$sameLength = strlen(trim($key)) == strlen($key);
+				$brackets = contains($key, '(');
+				if ($sameLength && !$brackets) {
+					$content = '`' . $key . '`';
+				} else {
+					$content = $key;	// has spaces before or after
+				}
 			}
 		} else {
 			return $key;
@@ -423,12 +434,16 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	public function getQb() {
-		if(!isset($this->qb)) {
+		if (!isset($this->qb)) {
 			$db = Config::getInstance()->getDB();
 			$this->setQB(new SQLBuilder($db));
 		}
 
 		return $this->qb;
+	}
+
+	function getPlaceholder() {
+		return '?';
 	}
 
 }

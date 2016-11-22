@@ -68,4 +68,8 @@ class SQLWherePart {
 		return $this->db->perform($this->__toString());
 	}
 
+	function getField() {
+		return $this->field;
+	}
+
 }

@@ -68,7 +68,12 @@ class DatabaseResultIterator implements Iterator, Countable {
 	function perform($query) {
 		$this->log(__METHOD__);
 		$this->query = $query;
-		$this->dbResultResource = $this->db->perform($query);
+		$params = [];
+		if ($query instanceof SQLSelectQuery) {
+			$params = $query->getParameters();
+//			debug($query, $params);
+		}
+		$this->dbResultResource = $this->db->perform($query, $params);
 		$this->rows = $this->count();
 		//$this->rewind();
 	}
