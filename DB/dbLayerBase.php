@@ -124,7 +124,7 @@ class dbLayerBase implements DBInterface {
 		return $this->reserved;
 	}
 
-	function perform($query) {
+	function perform($query, array $params = []) {
 		return NULL;
 	}
 
