@@ -25,12 +25,6 @@ class ConfigBase {
 
 	/**
 	 *
-	 * @var SQLBuilder
-	 */
-	protected $qb;
-
-	/**
-	 *
 	 * @var MySQL|dbLayer|dbLayerSQLite|dbLayerMS|dbLayerPDO
 	 */
 	protected $db;
@@ -195,7 +189,7 @@ class ConfigBase {
 					$this->db_user,
 					$this->db_password);
 			}
-			$this->db->setQB($this->getQb());
+			$this->db->setQb(new SQLBuilder($this->db));
 		}
 		return $this->db;
 	}
@@ -229,25 +223,6 @@ class ConfigBase {
 				}
 			}
 		}
-	}
-
-	/**
-	 * @return \SQLBuilder
-	 */
-	public function getQb() {
-		if (!isset($this->qb)) {
-			$db = Config::getInstance()->getDB();
-			$this->setQb(new SQLBuilder($db));
-		}
-
-		return $this->qb;
-	}
-
-	/**
-	 * @param \SQLBuilder $qb
-	 */
-	public function setQb(SQLBuilder $qb) {
-		$this->qb = $qb;
 	}
 
 	function getUser() {

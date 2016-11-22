@@ -11,11 +11,6 @@ class SQLWherePart {
 	 */
 	protected $db;
 
-	/**
-	 * @var SQLBuilder
-	 */
-	protected $qb;
-
 	protected $sql = '';
 
 	/**
@@ -26,7 +21,6 @@ class SQLWherePart {
 	function __construct($sql = '') {
 		$this->sql = $sql;
 		$this->db = Config::getInstance()->getDB();
-		$this->qb = Config::getInstance()->getQb();
 	}
 
 	/**
@@ -52,10 +46,6 @@ class SQLWherePart {
 	function injectDB(DBInterface $db) {
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
-	}
-
-	function injectQB(SQLBuilder $qb) {
-		$this->qb = $qb;
 	}
 
 	function injectField($field) {
