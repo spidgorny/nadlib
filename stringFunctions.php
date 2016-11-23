@@ -98,6 +98,19 @@ if (!function_exists('str_startsWith')) {
 		return str_replace("\t", $tabSpaces, $text);
 	}
 
+	function tabify(array $fields) {
+		static $lengths = [];
+		foreach ($fields as $i => $f) {
+			$len = mb_strlen($f);
+			$lengths[$i] = max(ifsetor($lengths[$i]), $len);
+		}
+		foreach ($fields as $i => &$f) {
+			$f = str_pad($f, $lengths[$i], ' ', STR_PAD_RIGHT);
+		}
+		$str = implode(TAB, $fields);
+		return $str;
+	}
+
 	function cap($string, $with = '/') {
 		$string .= '';
 		if (!str_endsWith($string, $with)) {
