@@ -859,7 +859,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return self|this
+	 * @return self
 	 */
 	static function tryGetInstance($id) {
 		try {
@@ -892,6 +892,10 @@ abstract class OODBase {
 			$res = $this->insertUpdate($this->data, $where ?: $this->data, $this->data, $this->data);
 		}
 		return $res;
+	}
+
+	function get($name) {
+		return ifsetor($this->data[$name]);
 	}
 
 }
