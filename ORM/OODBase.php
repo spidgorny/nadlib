@@ -184,9 +184,9 @@ abstract class OODBase {
 		} elseif (isset($this->data[$idField])
 			&& $this->data[$idField]) {
 			$this->id = $this->data[$idField];
-			assert($this->id);
+//			assert($this->id);
 		} else {
-			debug(gettype2($row), $idField, $this->data);
+			//debug(gettype2($row), $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}

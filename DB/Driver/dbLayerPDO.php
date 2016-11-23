@@ -100,10 +100,15 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
 		$this->dsn = $dsn;
-		$this->connection = new PDO($this->dsn, $user, $password, array(
+		$options = array(
 			PDO::ATTR_PERSISTENT => false,
 			PDO::ATTR_ERRMODE    => PDO::ERRMODE_EXCEPTION
-		));
+		);
+		if ($this->isMySQL()) {
+			$this->dsn .= ';charset=utf8';
+			$options += [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"];
+		}
+		$this->connection = new PDO($this->dsn, $user, $password, $options);
 		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
 
@@ -444,6 +449,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function getPlaceholder() {
 		return '?';
+	}
+
+	function unsetQueryLog() {
+		$this->queryLog = NULL;
 	}
 
 }

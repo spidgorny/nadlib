@@ -320,7 +320,7 @@ AND name = '?')", array($table));
 	 * @return mixed|SQLQuery|string
 	 */
 	function addLimitOldVersion($query, $howMany, $startingFrom) {
-		$query = new SQLQuery($query);
+		$query = new SQLQuery($query.'');
 		$builder = new \PHPSQLParser\builders\OrderByBuilder();
 		$orderBy = $builder->build($query->parsed['ORDER']);
 		unset($query->parsed['ORDER']);

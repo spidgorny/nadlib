@@ -199,7 +199,7 @@ class AutoLoadFolders {
 		foreach ($sub as $s) {
 			$this->addFolder($s, $namespace);
 		}
-		$this->folders = unique_multidim_array($this->folders);
+		$this->folders = unique_multidim_array_thru($this->folders);
 		//pre_print_r($path, $namespace, $this->folders);
 	}
 
@@ -222,6 +222,7 @@ class AutoLoadFolders {
 //			$map,
 //			sizeof($map));
 		$this->log('Searching for '.$className.' ['.$namespace.'] between '.sizeof($map).' folders');
+//		pre_print_r($map);
 		foreach ($map as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.

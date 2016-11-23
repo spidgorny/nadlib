@@ -308,7 +308,7 @@ class Pager {
 			self::$cssOutput = true;
 		}
 
-		$content .= '<div class="paginationControl">';
+		$content .= '<div class="paginationControl pagination">';
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
 			$content .= $this->renderPageSize();	// will render UL inside
