@@ -129,6 +129,7 @@ if (!function_exists('debug')) {
 
 	function debug_pre_print_backtrace() {
 		if (DEVELOPMENT) {
+			require_once __DIR__.'/HTTP/Request.php';
 			if (!Request::isCLI()) {
 				print '<pre style="
 				white-space: pre-wrap;
