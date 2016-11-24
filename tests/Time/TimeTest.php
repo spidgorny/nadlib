@@ -48,37 +48,37 @@ class TimeTest extends PHPUnit_Framework_TestCase {
 		$source = '1970-01-01 00:45:00';
 		$sourceTS = strtotime($source);
 		$this->assertEquals(date('Y-m-d H:i:s', $sourceTS).'~'.$sourceTS, $source.'~-900');
-		$destin = strtotime('+ 0 years 0 months 0 days 00 hours 15 minutes 00 seconds', $sourceTS);
-		$this->assertEquals(date('Y-m-d H:i:s', $destin).'~'.$destin, '1970-01-01 01:00:00~0');
+		$target = strtotime('+ 0 years 0 months 0 days 00 hours 15 minutes 00 seconds', $sourceTS);
+		$this->assertEquals(date('Y-m-d H:i:s', $target).'~'.$target, '1970-01-01 01:00:00~0');
 	}
 
 	function test_Time_addErrorTime() {
 		$source = '1970-01-01 00:45:00';
 		$sourceT = new Time($source);
-		$destin = $sourceT->plus(new Time('1970-01-01 00:14:00 GMT'), true);
-		$this->assertEquals($destin->getSystem(), '1970-01-01 00:59:00');
-		$destin = $sourceT->plus(new Time('1970-01-01 00:15:00 GMT'));
-		$this->assertEquals($destin->getSystem(), '1970-01-01 01:00:00');
+		$target = $sourceT->plus(new Time('1970-01-01 00:14:00 GMT'), true);
+		$this->assertEquals($target->getSystem(), '1970-01-01 00:59:00');
+		$target = $sourceT->plus(new Time('1970-01-01 00:15:00 GMT'));
+		$this->assertEquals($target->getSystem(), '1970-01-01 01:00:00');
 	}
 
 	function test_Time_addRelative() {
 		$source = '1970-01-01 00:45:00';
 		$sourceT = new Time($source);
-		$destin = $sourceT->plus(new Time('00:10:00 GMT', 0));
-		$this->assertEquals($destin->getSystem(), '1970-01-01 00:55:00');
-		$destin = $sourceT->plus(new Time(10*60));
-		$this->assertEquals($destin->getSystem(), '1970-01-01 00:55:00');
-		$destin = new Time('00:55:00', 0);
-		$this->assertEquals($destin->getSystem(), '1970-01-01 00:55:00');
+		$target = $sourceT->plus(new Time('00:10:00 GMT', 0));
+		$this->assertEquals($target->getSystem(), '1970-01-01 00:55:00');
+		$target = $sourceT->plus(new Time(10*60));
+		$this->assertEquals($target->getSystem(), '1970-01-01 00:55:00');
+		$target = new Time('00:55:00', 0);
+		$this->assertEquals($target->getSystem(), '1970-01-01 00:55:00');
 	}
 
 	function test_Time_minus() {
 		$source = '1970-01-01 00:45:00';
 		$sourceT = new Time($source);
-		$destin = $sourceT->minus(new Time('00:10:00 GMT', 0));
-		$this->assertEquals($destin->getSystem(), '1970-01-01 00:35:00');
-		$destin = $sourceT->minus2(new Time('00:10:00 GMT', 0));
-		$this->assertEquals($destin->getSystem(), '1970-01-01 00:35:00');
+		$target = $sourceT->minus(new Time('00:10:00 GMT', 0));
+		$this->assertEquals($target->getSystem(), '1970-01-01 00:35:00');
+		$target = $sourceT->minus2(new Time('00:10:00 GMT', 0));
+		$this->assertEquals($target->getSystem(), '1970-01-01 00:35:00');
 	}
 
 	function test_addTime() {
@@ -86,6 +86,22 @@ class TimeTest extends PHPUnit_Framework_TestCase {
 		$sTime = '01:12:34';
 		$t->addTime($sTime);
 		$this->assertEquals('2016-03-08 16:17:34', $t->getISODateTime());
+	}
+
+	function test_getAge1() {
+		$t = new Time('2016-03-08 15:05');
+		$age = $t->getAge();
+		$olderThan30 = $age->biggerThan(Duration::fromHuman('30d'));
+//		debug($t, $age, $olderThan30);
+		$this->assertTrue($olderThan30);
+	}
+
+	function test_getAge2() {
+		$t = new Time('2016-03-08 15:05');
+		$age = $t->getAge();
+		$olderThan30 = $age->biggerThan(Duration::fromHuman('10y'));
+//		debug($t, $age, $olderThan30);
+		$this->assertFalse($olderThan30);
 	}
 
 }

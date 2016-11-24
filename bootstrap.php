@@ -2,7 +2,7 @@
 
 class Bootstrap {
 
-	function bootstrap() {
+	function boot() {
 		debug_print_backtrace();
 		echo 'cwd: ', basename(getcwd()), "\n";
 		if (basename(getcwd()) == 'tests') {
@@ -18,13 +18,13 @@ class Bootstrap {
 		/** @noinspection PhpIncludeInspection */
 		require_once $globalAutoload;
 
-		require_once __DIR__ . '/class.ConfigBase.php';
+		require_once __DIR__ . '/ConfigBase.php';
 		//require_once 'TestConfig.php';
 		//class_alias('TestConfig', 'Config');
 
 		$_COOKIE['debug'] = 1;
 
-		require_once __DIR__ . '/class.InitNADLIB.php';
+		require_once __DIR__ . '/InitNADLIB.php';
 		$n = new InitNADLIB();
 		$n->init();
 
@@ -56,6 +56,7 @@ class Bootstrap {
 
 }
 
-Config::getInstance()->postInit();
+// run this after bootstrapping
+//Config::getInstance()->postInit();
 
-(new Bootstrap())->bootstrap();
+(new Bootstrap())->boot();
