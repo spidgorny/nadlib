@@ -3,7 +3,6 @@
 class Bootstrap {
 
 	function boot() {
-		debug_print_backtrace();
 		echo 'cwd: ', basename(getcwd()), "\n";
 		if (basename(getcwd()) == 'tests') {
 		}
