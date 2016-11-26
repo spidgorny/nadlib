@@ -55,7 +55,7 @@ class DebugHTML {
 	}
 
 	function renderHTMLView($db, $a, $levels) {
-		$first = $db[1];
+		$first = ifsetor($db[1]);
 		if ($first) {
 			$function = $this->helper->getMethod($first);
 		} else {

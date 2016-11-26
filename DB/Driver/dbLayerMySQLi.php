@@ -24,7 +24,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	}
 
 	function connect($host, $login, $password) {
-		$this->connection = new MySQLi($host, $login, $password, $this->database);
+		$this->connection = new mysqli($host, $login, $password, $this->database);
 		if (!$this->connection) {
 			throw new Exception(mysqli_error($this->connection), mysqli_errno($this->connection));
 		}
@@ -74,7 +74,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 		} else {
 			$stmt = $this->connection->query($query);
 		}
-		
+
 		if (!$stmt) {
 			debug($query.'', $params);
 			throw new DatabaseException($this->connection->error, $this->connection->errno);
