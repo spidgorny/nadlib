@@ -53,15 +53,15 @@ class dbLayer extends dbLayerBase implements DBInterface {
     );
 
 	/**
-	 * @param string $dbse
+	 * @param string $dbName
 	 * @param string $user
 	 * @param string $pass
 	 * @param string $host
 	 * @throws Exception
 	 */
-	function __construct($dbse, $user, $pass, $host = "localhost") {
-        if ($dbse) {
-			$this->connect($dbse, $user, $pass, $host);
+	function __construct($dbName = NULL, $user = NULL, $pass = NULL, $host = "localhost") {
+        if ($dbName) {
+			$this->connect($dbName, $user, $pass, $host);
 	        //debug(pg_version()); exit();
 	        $version = pg_version();
 	        if ($version['server'] >= 8.4) {
@@ -87,14 +87,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $this->connection;
 	}
 
-	function connect($dbse, $user, $pass, $host = "localhost") {
-		$this->database = $dbse;
-		$string = "host=$host dbname=$dbse user=$user password=$pass";
+	function connect($dbName, $user, $pass, $host = "localhost") {
+		$this->database = $dbName;
+		$string = "host=$host dbname=$dbName user=$user password=$pass";
 		#debug($string);
 		#debug_print_backtrace();
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No postgre connection.");
+			throw new Exception("No PostgreSQL connection.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -104,6 +104,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	}
 
 	function perform($query, array $params = array()) {
+//		echo $query, BR;
 		$prof = new Profiler();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
