@@ -127,7 +127,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 					debug($this->connection);
 					die();
 				}
-				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
@@ -144,7 +144,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		}
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
-			debug($query);
+			//debug($query);
 			$e = new DatabaseException(pg_errormessage($this->connection).BR.$query);
 			$e->setQuery($query);
 			throw $e;
@@ -726,6 +726,10 @@ WHERE ccu.table_name='".$table."'");
 
 	function getPlaceholder() {
 		return '$0$';
+	}
+
+	function isPostgres() {
+		return true;
 	}
 
 }
