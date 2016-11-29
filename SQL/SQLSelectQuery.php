@@ -110,9 +110,10 @@ class SQLSelectQuery extends SQLWherePart {
 	}
 
 	function getQuery() {
+		$from = ($this->from);
 		$query = trim("SELECT
 {$this->select}
-FROM {$this->from}
+FROM {$from}
 {$this->join}
 {$this->where}
 {$this->group}

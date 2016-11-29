@@ -113,13 +113,16 @@ class SQLWhere {
 		foreach ($this->parts as $part) {
 			if ($part instanceof SQLWherePart) {
 				$plus = $part->getParameter();
+//				debug(gettype2($part), $part->getField(), $plus);
 				if (is_array($plus)) {
 					$parameters = array_merge($parameters, $plus);
-				} elseif ($plus) {
+				} elseif (!is_null($plus)) {
+					// add even if empty string or 0
 					$parameters[] = $plus;
 				}
 			}
 		}
+//		debug($parameters);
 		return $parameters;
 	}
 

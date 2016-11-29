@@ -16,6 +16,10 @@ class SQLSelect {
 		}
 	}
 
+	function injectDB(DBInterface $db) {
+		$this->db = $db;
+	}
+
 	function __toString() {
 		return implode(', ', $this->parts);
 	}

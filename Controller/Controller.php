@@ -73,7 +73,7 @@ abstract class Controller {
 
 	public $linkVars = array();
 
-	public $encloseTag = 'h4';
+	public $encloseTag = 'h2';
 
 	/**
 	 * accessible without login
@@ -107,7 +107,7 @@ abstract class Controller {
 
 	function __construct() {
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).'::'.__METHOD__.BR;
-		$this->index = class_exists('Index')
+		$this->index = class_exists('Index', false)
 			? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
@@ -186,19 +186,29 @@ abstract class Controller {
 	 * @return URL
 	 */
 	function makeRelURL(array $params = array(), $page = NULL) {
-		return $this->makeURL($params + $this->linkVars, $page);
+		return $this->makeURL(
+			$params							// 1st priority
+			+ $this->getURL()->getParams()
+			+ $this->linkVars, $page);
 	}
 
 	/**
 	 * Combines params with $this->linkVars
+	 * Use makeURL() for old functionality
 	 * @param array $params
 	 * @param string $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params, $prefix = NULL) {
-		$params = $params + $this->linkVars;
-		//debug($params);
-		return $this->makeURL($params, $prefix);
+	public function getURL(array $params = [], $prefix = NULL) {
+		if ($params || $prefix) {
+			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
+		}
+//		$params = $params + $this->linkVars;
+//		debug($params);
+//		return $this->makeURL($params, $prefix);
+		return ClosureCache::getInstance(spl_object_hash($this), function () {
+			return new URL();
+		})->get();
 	}
 
 	/**
@@ -386,10 +396,11 @@ abstract class Controller {
 
 			if (method_exists($proxy, $method)) {
 				if ($this->request->isCLI()) {
-					$assoc = array_slice($_SERVER['argv'], 3);
+					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
 					$content = call_user_func_array(array($proxy, $method), $assoc);
 				} else {
-					$content = $this->callMethodByReflection($proxy, $method);
+					$caller = new MarshalParams($proxy);
+					$content = $caller->call($method);
 				}
 			} else {
 				// other classes except main controller may result in multiple messages
@@ -542,10 +553,12 @@ abstract class Controller {
 		if ($name instanceof htmlString) {
 			$f->button($name, array(
 				'type' => "submit",
+				'id' => 'button-action-'.$action,
 				'class' => $submitClass,
 				) + $submitParams);
 		} else {
 			$f->submit($name, array(
+				'id' => 'button-action-'.$action,
 				'class' => $submitClass,
 			) + $submitParams);
 		}
@@ -664,6 +677,21 @@ abstract class Controller {
 		</div>';
 	}
 
+	function linkToAction($action = '', array $params = array(), $controller = NULL) {
+		if (!$controller) {
+			$controller = get_class($this);
+		}
+		$params += [
+			'c' => $controller,
+		];
+		if ($action) {
+			$params += [
+				'action' => $action,
+			];
+		}
+		return $this->makeURL($params);
+	}
+
 	function p($content, array $attr = array()) {
 		$more = HTMLTag::renderAttr($attr);
 		return '<p '.$more.'>'.$this->s($content).'</p>';
@@ -671,8 +699,9 @@ abstract class Controller {
 
 	function img($src, array $attr = array()) {
 		return new HTMLTag('img', array(
-			'src' => /*$this->e*/($src),	// encoding is not necessary for &amp; in URL
-		) + $attr);
+				'src' => /*$this->e*/
+					($src),    // encoding is not necessary for &amp; in URL
+			) + $attr);
 	}
 
 	function e($content) {
@@ -735,59 +764,6 @@ abstract class Controller {
 		return $this->a($className, $title);
 	}
 
-	/**
-	 * Will detect parameter types and call getInstance() or new $class
-	 * @param $proxy
-	 * @param $method
-	 * @return mixed
-	 */
-	private function callMethodByReflection($proxy, $method) {
-		$r = new ReflectionMethod($proxy, $method);
-		if ($r->getNumberOfParameters()) {
-			$assoc = array();
-			foreach ($r->getParameters() as $param) {
-				$name = $param->getName();
-				if ($this->request->is_set($name)) {
-					$assoc[$name] = $this->getParameterByReflection($param);
-				} elseif ($param->isDefaultValueAvailable()) {
-					$assoc[$name] = $param->getDefaultValue();
-				} else {
-					$assoc[$name] = NULL;
-				}
-			}
-			//debug($assoc);
-			$content = call_user_func_array(array($proxy, $method), $assoc);
-			return $content;
-		} else {
-			$content = $proxy->$method();
-			return $content;
-		}
-	}
-
-	function getParameterByReflection(ReflectionParameter $param) {
-		$name = $param->getName();
-		if ($param->isArray()) {
-			$return = $this->request->getArray($name);
-		} else {
-			$return = $this->request->getTrim($name);
-			$paramClassRef = $param->getClass();
-			//debug($param->getPosition(), $paramClassRef, $paramClassRef->getName());
-			if ($paramClassRef && class_exists($paramClassRef->getName())) {
-				$paramClass = $paramClassRef->getName();
-//				debug($param->getPosition(), $paramClass,
-//				method_exists($paramClass, 'getInstance'));
-				if (method_exists($paramClass, 'getInstance')) {
-					$obj = $paramClass::getInstance($return);
-					$return = $obj;
-				} else {
-					$obj = new $paramClass($assoc[$name]);
-					$return = $obj;
-				}
-			}
-		}
-		return $return;
-	}
-
 	function makeNewOf($className, $id) {
 		return new $className($id);
 	}
@@ -799,5 +775,5 @@ abstract class Controller {
 	function setDB(DBInterface $db) {
 		$this->db = $db;
 	}
-	
+
 }

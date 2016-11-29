@@ -67,6 +67,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $return;
 	}
 
+	function pluck($key) {
+		return $this->column($key);
+	}
+
 	function column_assoc($key, $val) {
 		$data = array();
 		foreach ((array)$this as $row) {
@@ -103,7 +107,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 					'error' => $error,
 					'key' => $key,
 					'row' => $row,
-					'data' => $this->data,
+					'data' => $this->getData(),
 				));
 				throw new Exception($error);
 			}
@@ -775,7 +779,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	public function contains($string) {
 		return in_array($string, $this->getData());
 	}
-	
+
 	function convertTo($className) {
 		foreach ($this as $key => $row) {
 			if (method_exists($className, 'getInstance')) {
@@ -833,7 +837,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		}
 		return $this;
 	}
-	
+
 	function values() {
 		$this->setData(array_values($this->getData()));
 		return $this;
@@ -882,6 +886,43 @@ class ArrayPlus extends ArrayObject implements Countable {
 		}
 		$this->setData($copy);
 		return $this;
+	}
+
+	function filterBy(array $where) {
+//		debug($where, sizeof($this->events));
+		$this->setData(
+			array_filter($this->getData(), function ($row) use ($where) {
+//			$same = array_intersect_key((array)$row, $where);
+
+			$okList = [];
+			foreach ($where as $k => $v) {
+				if (is_object($v)) {
+//					var_dump($v);
+				}
+				if ($v instanceof \FilterBetween) {
+					$ok = $v->apply($row->$k);
+				} elseif (is_array($v)) {
+					$ok = in_array($row->$k, $v);
+				} else {
+					$ok = $v == $row->$k;
+				}
+				$okList[$k] = $ok;
+			}
+			$okList = array_filter($okList);
+//			debug($where, $okList);
+			return sizeof($okList) == sizeof($where);
+		}));
+		return $this;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
+	 * @param array $array
+	 * @return bool
+	 * @static because it's used in the constructor of VisibleColumns
+	 */
+	static function has_string_keys(array $array) {
+		return count(array_filter(array_keys($array), 'is_string')) > 0;
 	}
 
 }

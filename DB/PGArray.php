@@ -1,15 +1,23 @@
 <?php
 
-class PGArray {
+class PGArray extends AsIs {
 
 	/**
 	 * @var dbLayer
 	 */
 	var $db;
 
+	/**
+	 * @var bool
+	 */
 	var $standard_conforming_strings;
 
-	function __construct(dbLayer $db) {
+	/**
+	 * @var array
+	 */
+	var $data;
+
+	function __construct(dbLayer $db, array $data = NULL) {
 		$this->db = $db;
 
 		$query = "SHOW standard_conforming_strings;";
@@ -17,6 +25,30 @@ class PGArray {
 		$return = pg_fetch_assoc($result);
 		pg_free_result($result);
 		$this->standard_conforming_strings = first($return);
+		$this->standard_conforming_strings =
+			strtolower($this->standard_conforming_strings) == 'on';
+
+		if ($data) {
+			$this->data = $data;
+		}
+	}
+
+	function set(array $data) {
+		$this->data = $data;
+	}
+
+	/**
+	 * New better syntax for using it in SQL which does not
+	 * require tripple escaping of backslashes
+	 * @return string
+	 */
+	function __toString() {
+		$quoted = $this->db->quoteValues($this->data);
+		return 'ARRAY['.implode(', ', $quoted).']';
+	}
+
+	function encodeInString() {
+		return $this->setPGArray($this->data);
 	}
 
 	/**
@@ -85,7 +117,20 @@ class PGArray {
 		fseek($temp, 0);
 		$r = array();
 		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
-			$r[] = array_map('stripslashes', $data);
+//			$data = array_map('stripcslashes', $data);
+			$data = array_map(function ($str) {
+				// exactly opposite to setPGArray()
+				$str = str_replace('\"', '"', $str);
+				// this is needed because even with
+				// $standard_conforming_strings = on
+				// PostgreSQL is escaping backslashes
+				// inside arrays (not in normal strings)
+				// select 'a
+				// b', ARRAY['slawa', '{"a":"multi\nline"}']
+				$str = str_replace('\\\\', '\\', $str);
+				return $str;
+			}, $data);
+			$r[] = $data;
 		}
 		fclose($temp);
 		return ifsetor($r[0]);
@@ -190,15 +235,21 @@ class PGArray {
 				while( $limit > $offset );
 		}
 	*/
+
+	/**
+	 * @param array $data
+	 * @return string
+	 */
 	function setPGArray(array $data) {
 		foreach ($data as &$el) {
 			if (is_array($el)) {
 				$el = $this->setPGArray($el);
 			} else {
 				$el = pg_escape_string($el);
+//				$el = addslashes($el);
 
-				if (strtolower($this->standard_conforming_strings) == 'on') {
-					$el = addslashes($el); // changed after postgres version updated to 9.4
+				if ($this->standard_conforming_strings) {
+//					$el = addslashes($el); // changed after postgres version updated to 9.4
 				}
 
 				$el = '"'.str_replace(array(
@@ -208,7 +259,8 @@ class PGArray {
 					), $el).'"';
 			}
 		}
-		return '{'.implode(',', $data).'}';
+		$pgArray = '{'.implode(',', $data).'}';
+		return $pgArray;
 	}
 
 }

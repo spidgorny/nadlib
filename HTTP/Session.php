@@ -49,4 +49,8 @@ class Session {
 		unset($_SESSION[$this->prefix]);
 	}
 
+	public function has($key) {
+		return isset($_SESSION[$this->prefix][$key]);
+	}
+
 }
