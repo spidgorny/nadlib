@@ -29,7 +29,7 @@ class AutoLoadFolders {
 
 	function __construct(AutoLoad $al) {
 		$this->al = $al;
-		require_once __DIR__.'/Debug/class.Debug.php';
+		require_once __DIR__.'/Debug/Debug.php';
 		//$this->debugger = Debug::getInstance();
 		//if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFoldersFromSession();
@@ -76,11 +76,12 @@ class AutoLoadFolders {
 
 	function getFolders() {
 		require_once __DIR__ . '/HTTP/Request.php';
-		$folders = array();
 
-		$plus = $this->getFoldersFromConfig();
-		$this->al->stat['folders'] .= ', '.sizeof($plus);
-		$folders = array_merge($folders, $plus);		// should come first to override /be/
+		$this->getFoldersFromConfig();
+		$folders = (array)ifsetor($this->folders['']);	// modified by the line above
+		//pre_print_r($this->folders);
+		//$this->al->stat['folders'] .= ', '.sizeof($plus);
+		//$folders = array_merge($folders, $plus);		// should come first to override /be/
 
 		$plus = $this->getFoldersFromConfigBase();
 		$this->al->stat['folders'] .= ', '.sizeof($plus);
@@ -91,16 +92,20 @@ class AutoLoadFolders {
 		return $folders;
 	}
 
+	/**
+	 * Will not return a list like before
+	 * but will actively add the folders listed
+	 */
 	function getFoldersFromConfig() {
 		$this->loadConfig();    // make sure (again)
-		$folders = array();
 		if (class_exists('Config') && Config::$includeFolders) {
 			$folders = Config::$includeFolders;
 			// append $this->appRoot before each
 			foreach ($folders as &$el) {
-				$el = $this->al->appRoot . $el;
+				$this->addFolder($el);
 			}
 			if ($this->debug) {
+//				pre_print_r($folders, $this->folders);
 				echo __METHOD__.': Added folders', BR;
 				pre_print_r($folders);
 			}
@@ -108,7 +113,6 @@ class AutoLoadFolders {
 			// that's ok. relax. be quiet.
 			//echo 'Config not found'.BR;
 		}
-		return $folders;
 	}
 
 	function loadConfig() {
@@ -195,7 +199,7 @@ class AutoLoadFolders {
 		foreach ($sub as $s) {
 			$this->addFolder($s, $namespace);
 		}
-		$this->folders = unique_multidim_array($this->folders);
+		$this->folders = unique_multidim_array_thru($this->folders);
 		//pre_print_r($path, $namespace, $this->folders);
 	}
 
@@ -217,6 +221,8 @@ class AutoLoadFolders {
 //			array_keys($this->folders),
 //			$map,
 //			sizeof($map));
+		$this->log('Searching for '.$className.' ['.$namespace.'] between '.sizeof($map).' folders');
+//		pre_print_r($map);
 		foreach ($map as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
@@ -247,18 +253,18 @@ class AutoLoadFolders {
 
 			//echo $file, ': ', file_exists($file) ? 'YES' : '-', BR;
 			if (file_exists($file)) {
-				$this->log($className.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
-				$this->log($className.' <span style="color: green;">'.$file2.'</span>: YES<br />'."\n");
+				$this->logSuccess($className.' '.$file.': YES');
+				$this->logSuccess($className.' '.$file2.': YES');
 				//pre_var_dump('Found', $file);
 				return $file;
 			} else {
-				$this->log($className.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
-				$this->log($className.' <span style="color: red;">'.$file2.'</span>: no<br />'."\n");
+				$this->logError($className.' '.$file.': no');
+				$this->logError($className.' '.$file2.': no');
 			}
 		}
 		if ($this->debug) {
 			//debug($className, $namespace, $map);
-			echo __METHOD__.': Attempt to find '.$namespace.'\\'.$className.' failed', BR;
+			$this->log(__METHOD__.': Attempt to find '.$namespace.'\\'.$className.' failed');
 		}
 		return NULL;
 	}
@@ -266,13 +272,23 @@ class AutoLoadFolders {
 	function log($debugLine) {
 		if ($this->collectDebug !== null) {
 			$this->collectDebug[] = $debugLine;
-		} elseif ($this->debug && $_COOKIE['debug']) {
+		} elseif ($this->debug) {
 			if (Request::isCLI()) {
-				echo strip_tags($debugLine);
+				echo strip_tags($debugLine), BR;
 			} else {
-				echo $debugLine;
+				echo $debugLine, BR;
 			}
 		}
+	}
+
+	function logSuccess($message) {
+		$message = '<span style="color: red;">'.$message.'</span>';
+		$this->log($message);
+	}
+
+	function logError($message) {
+		$message = '<span style="color: red;">'.$message.'</span>';
+		$this->log($message);
 	}
 
 	public function clearCache() {

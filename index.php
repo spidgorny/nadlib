@@ -47,14 +47,14 @@ class NadlibIndex {
 
 		if (!class_exists('Config')) {
 			require_once 'be/class/class.ConfigBE.php';
-			class_alias('ConfigBE', 'Config');
+//			class_alias('ConfigBE', 'Config');
 		}
 		if (!class_exists('AppController', false)) {
 //			class_alias('Controller', 'AppController');
 			class_alias('AppController', 'AppControllerME');
 		}
 		if (!class_exists('Index')) {
-			class_alias('IndexBE', 'Index');
+//			class_alias('IndexBE', 'Index');
 		}
 
 		if (!file_exists('vendor/autoload.php')) {

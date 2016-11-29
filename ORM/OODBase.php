@@ -152,6 +152,15 @@ abstract class OODBase {
 	}
 
 	function getName() {
+		if (is_array($this->titleColumn)) {
+			$names = array_reduce($this->titleColumn, function ($initial, $key) {
+				return ($initial
+					? $initial . ' - '
+					: '')
+				. ifsetor($this->data[$key]);
+			}, '');
+			return $names;
+		}
 		return ifsetor($this->data[$this->titleColumn], $this->id);
 	}
 
@@ -175,8 +184,9 @@ abstract class OODBase {
 		} elseif (isset($this->data[$idField])
 			&& $this->data[$idField]) {
 			$this->id = $this->data[$idField];
+//			assert($this->id);
 		} else {
-			debug(gettype2($row), $idField, $this->data);
+			//debug(gettype2($row), $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
@@ -311,10 +321,10 @@ abstract class OODBase {
 			$this->where + $where, $orderByLimit);
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
-		//debug($rows, $this->lastSelectQuery);
+//		debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
-			$this->init($data, true);
+			$this->initByRow($data);
 		} else {
 			$data = array();
 			if ($this->forceInit) {
@@ -413,7 +423,7 @@ abstract class OODBase {
 		if ($where) {
 			$this->findInDB($where);
 		}
-		//debug($this->id, $this->data); exit();
+//		debug($this->id, $this->data); exit();
 		if ($this->id) { // found
 			$left = array_intersect_key($this->data, $fields);		// keys need to have same capitalization
 			$right = array_intersect_key($fields, $this->data);
@@ -525,7 +535,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return self|$this
+	 * @return self|$this|static
 	 */
 	static function getInstance($id) {
 		return static::getInstanceByID($id);
@@ -606,7 +616,7 @@ abstract class OODBase {
 	function getObjectInfo() {
 		return get_class($this).': "'.$this->getName().'" (id:'.$this->id.' '.$this->getHash().')';
 	}
-	
+
 	function getHash($length = null) {
 		$hash = spl_object_hash($this);
 		if ($length) {
@@ -644,9 +654,15 @@ abstract class OODBase {
 			$c = new $self();
 			/** @var $c OODBase */
 			$field = $field ? $field : $c->titleColumn;
-			$c->findInDBsetInstance(array(
-				$field => $name,
-			));
+			if (is_string($field)) {
+				$c->findInDBsetInstance(array(
+					$field => $name,
+				));
+			} elseif ($field instanceof AsIs) {
+				$c->findInDBsetInstance([
+					$field
+				]);
+			}
 		}
 		return $c;
 	}
@@ -833,7 +849,7 @@ abstract class OODBase {
 		return $data;
 	}
 
-	public function getCollection(array $where, $orderBy = NULL) {
+	public function getCollection(array $where = [], $orderBy = NULL) {
 		$collection = Collection::createForTable($this->table, $where, $orderBy);
 		$collection->idField = $this->idField;
 		$static = get_called_class();
@@ -843,7 +859,7 @@ abstract class OODBase {
 
 	/**
 	 * @param $id
-	 * @return self|this
+	 * @return self
 	 */
 	static function tryGetInstance($id) {
 		try {
@@ -853,6 +869,33 @@ abstract class OODBase {
 			$obj = new $class();
 		}
 		return $obj;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/8707235/how-to-create-new-property-dynamically
+	 * @param $name
+	 * @param $value
+	 */
+	public function createProperty($name, $value = NULL) {
+		if (isset($this->{$name}) && $value === NULL) {
+			//$this->{$name} = $this->{$name};
+		} else {
+			$this->{$name} = $value;
+		}
+	}
+
+	function save($where = NULL) {
+		if ($this->id) {
+			$res = $this->update($this->data);
+		} else {
+			// this 99.9% insert
+			$res = $this->insertUpdate($this->data, $where ?: $this->data, $this->data, $this->data);
+		}
+		return $res;
+	}
+
+	function get($name) {
+		return ifsetor($this->data[$name]);
 	}
 
 }

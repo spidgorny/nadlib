@@ -25,6 +25,7 @@
 }
 .column1-4 {
   width: 25%;
+  min-width: 100px;
 }
 .column3-4 {
   width: 75%;

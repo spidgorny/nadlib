@@ -34,6 +34,7 @@ if (!function_exists('first')) {
 	}
 
 	/**
+	 * Array_combine only works when both arrays are indexed by numbers
 	 * @used FullGrid
 	 * @param array $a
 	 * @param array $b
@@ -59,6 +60,7 @@ if (!function_exists('first')) {
 	}
 
 	/**
+	 * Makes it unique on a first level only
 	 * http://php.net/manual/en/function.array-unique.php#116302
 	 * @param array $matriz
 	 * @return array
@@ -67,18 +69,30 @@ if (!function_exists('first')) {
 		$aux_ini = array();
 		foreach ($matriz as $n => $source)
 		{
-			$aux_ini[$n]=serialize($source);
+			$aux_ini[$n] = serialize($source);
 		}
 
-		$mat=array_unique($aux_ini);
+		$mat = array_unique($aux_ini);
 
-		$entrega=array();
+		$entrega = array();
 		foreach ($mat as $n => $serial)
 		{
-			$entrega[$n]=unserialize($serial);
+			$entrega[$n] = unserialize($serial);
 
 		}
 		return $entrega;
+	}
+
+	function unique_multidim_array_thru(array $matriz) {
+		foreach ($matriz as $n => &$source)
+		{
+			if (is_array($source)) {
+				$source = unique_multidim_array_thru($source);
+			}
+		}
+
+		$matriz = unique_multidim_array($matriz);
+		return $matriz;
 	}
 
 	/**
@@ -95,6 +109,16 @@ if (!function_exists('first')) {
 			}
 		}
 		return $a;
+	}
+
+	function without(array $source, $remove) {
+		return array_filter($source, function ($el, $key) use ($remove) {
+			if (is_array($remove)) {
+				return !in_array($key, $remove);
+			} else {
+				return $key != $remove;
+			}
+		}, ARRAY_FILTER_USE_BOTH);
 	}
 
 }

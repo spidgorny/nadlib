@@ -33,7 +33,7 @@ class SQLBuilder {
 	 */
 	public $config;
 
-	function __construct(dbLayerBase $db) {
+	function __construct(DBInterface $db) {
 		if (class_exists('Config')) {
 			$this->config = Config::getInstance();
 		}
@@ -55,13 +55,11 @@ class SQLBuilder {
 	function quoteSQL($value, $key = NULL) {
 		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
-			$value->injectQB($this);
 			$value->injectField($key);
 			$result = $value->__toString();
 			return $result;
 		} elseif ($value instanceof AsIs) {
 			$value->injectDB($this->db);
-			$value->injectQB($this);
 			//$value->injectField($key); not needed as it will make the field name twice
 			return $value->__toString();
 		} elseif ($value instanceof SQLOr) {
@@ -72,11 +70,11 @@ class SQLBuilder {
 			$content = "'".$this->db->escape($value->__toString())."'";
 			//debug($content, $value);
 			return $content;
-		} else if ($value instanceof Time) {
+		} elseif ($value instanceof Time) {
 			$content = "'".$this->db->escape($value->toSQL())."'";
 			//debug($content);
 			return $content;
-		} else if ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
+		} elseif ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} elseif (is_object($value)) {
 			return "'".$this->db->escape($value)."'";
@@ -97,7 +95,11 @@ class SQLBuilder {
 			}
 			return $sql;
 		} else {
-			debug($key, $value);
+			debug([
+				'key' => $key,
+				'value' => $value,
+				'problem' => 'MustBeStringException',
+			]);
 			throw new MustBeStringException('Must be string.');
 		}
 	}
@@ -118,17 +120,10 @@ class SQLBuilder {
 	 * @return array
 	 */
 	function quoteValues(array $a) {
+//		debug(__METHOD__, $a);
 		$c = array();
 		foreach ($a as $key => $b) {
 			$c[] = SQLBuilder::quoteSQL($b, $key);
-		}
-		return $c;
-	}
-
-	function quoteKeys($a) {
-		$c = array();
-		foreach ($a as $b) {
-			$c[] = $this->quoteKey($b);
 		}
 		return $c;
 	}
@@ -209,6 +204,7 @@ class SQLBuilder {
 	 */
 	function getUpdateQuery($table, $columns, $where) {
 		//$columns['mtime'] = date('Y-m-d H:i:s');
+		$table = $this->quoteKey($table);
 		$q = "UPDATE $table\nSET ";
 		$set = $this->quoteLike($columns, '$key = $val');
 		$q .= implode(",\n", $set);
@@ -258,16 +254,26 @@ class SQLBuilder {
 	 */
 	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL) {
 		$table1 = $this->getFirstWord($table);
-		if ($table == $table1) {
-			$from = $this->db->quoteKey($table);    // table name always quoted
-		} else {
-			$from = $table; // not quoted
+		if ($table == $table1) {	// NO JOIN
+			$from = /*$this->db->quoteKey*/($table1);    // table name always quoted
+			$join = NULL;
+		} else {					// JOIN
+			$join = substr($table, strlen($table1));
+			$from = $table1; // not quoted
 		}
-		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = $addSelect
+			? $addSelect
+			: /*$this->quoteKey*/($table1).".*";
 		$select = new SQLSelect($select);
-		$select->db = $this->db;
+		$select->injectDB($this->db);
+
 		$from = new SQLFrom($from);
-		$from->db = $this->db;
+		$from->injectDB($this->db);
+
+		if ($join) {
+			$join = new SQLJoin($join);
+		}
+
 		$where = new SQLWhere($where);
 		$where->injectDB($this->db);
 
@@ -293,7 +299,7 @@ class SQLBuilder {
 			debug(['sOrder' => $sOrder, 'order' => $order]);
 			throw new InvalidArgumentException(__METHOD__);
 		}
-		$sq = new SQLSelectQuery($select, $from, $where, NULL, $group, NULL, $order, $limit);
+		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
 		$sq->injectDB($this->db);
 		return $sq;
 	}
@@ -482,7 +488,7 @@ class SQLBuilder {
 	 * Originates from BBMM
 	 * @param string $sword
 	 * @param array $fields
-	 * @return AsIs
+	 * @return array
 	 */
 	function getSearchWhere($sword, array $fields) {
 		$where = array();
@@ -578,7 +584,11 @@ class SQLBuilder {
 				break;
 			}
 			if ($key) {
-				$data[$row[$key]] = $row;
+				if (!isset($row[$key])) {
+					debug($key, $row);
+				}
+				$keyValue = $row[$key];
+				$data[$keyValue] = $row;
 			} else {
 				$data[] = $row;
 			}

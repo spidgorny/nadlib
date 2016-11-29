@@ -2,7 +2,7 @@
 
 /**
  * Class MySQLi
- * Wrong approach
+ * Should work but it doesn't get num_rows() after store_result().
  */
 class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 
@@ -10,6 +10,11 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	 * @var MySQLi
 	 */
 	var $connection;
+
+	/**
+	 * @var array
+	 */
+	var $columns = [];
 
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
 		$this->database = $db;
@@ -19,7 +24,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	}
 
 	function connect($host, $login, $password) {
-		$this->connection = new MySQLi($host, $login, $password, $this->database);
+		$this->connection = new mysqli($host, $login, $password, $this->database);
 		if (!$this->connection) {
 			throw new Exception(mysqli_error($this->connection), mysqli_errno($this->connection));
 		}
@@ -37,25 +42,57 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 
 		if ($params) {
 			$stmt = $this->prepare($query);
-			foreach ($params as $k => $v) {
-				$stmt->bind_param('s', $v);
+			if ($stmt) {
+				$types = str_repeat('s', sizeof($params));
+				//			debug($types, $params, $query.'');
+				call_user_func_array([$stmt, 'bind_param'],
+					array_merge([$types],
+						$this->makeValuesReferenced($params)));
+				$stmt->execute();
+				$stmt->store_result();
+				debug($stmt);
+				if (method_exists($stmt, 'get_result')) {
+					$ok = $stmt->get_result();
+				} else {
+					$meta = $stmt->result_metadata();
+					$data = [];
+					while ($field = $meta->fetch_field()) {
+//						debug($field);
+						$this->columns[$field->name] = &$data[$field->name];
+						// pass by reference
+					}
+					//debug($data, $meta, $field, $this->columns);
+					$ok = call_user_func_array(array($stmt, 'bind_result'), $this->columns);
+				}
+				if (!$ok) {
+					throw new DatabaseException(mysqli_error($this->connection));
+				}
+			} else {
+				throw new DatabaseException(mysqli_error($this->connection));
 			}
-			$stmt->execute();
-			$ok = $stmt->get_result();
 			//debug($query, $params, $stmt->num_rows);
 		} else {
-			$ok = $this->connection->query($query);
+			$stmt = $this->connection->query($query);
 		}
-		
-		if (!$ok) {
+
+		if (!$stmt) {
 			debug($query.'', $params);
 			throw new DatabaseException($this->connection->error, $this->connection->errno);
 		}
-		return $ok;
+		return $stmt;
 	}
 
 	function prepare($sql) {
 		return mysqli_prepare($this->connection, $sql);
+	}
+
+	private function makeValuesReferenced(array $arr){
+		$refs = array();
+		foreach ($arr as $key => $value) {
+			$refs[$key] = &$arr[$key];
+		}
+		return $refs;
+
 	}
 
 	/**
@@ -71,6 +108,9 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 		} elseif ($res instanceof SQLSelectQuery) {
 			$res = $this->perform($res.'');
 			return $res->fetch_assoc();
+		} elseif ($res instanceof mysqli_stmt) {
+			$res->fetch();
+			return $this->columns;
 		} else {
 			debug(gettype2($res));
 			throw new InvalidArgumentException(__METHOD__);
@@ -105,6 +145,13 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	function numRows($res = NULL) {
 		//debug($res->num_rows);
 		return $res->num_rows;
+	}
+
+	function getPlaceholder($field) {
+//		$slug = URL::getSlug($field);
+//		$slug = str_replace('-', '_', $slug);
+//		return '@'.$slug;
+		return '?';
 	}
 
 }

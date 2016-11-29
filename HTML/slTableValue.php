@@ -191,7 +191,9 @@ class slTableValue {
 				break;
 
 			case 'image':
-				$out = '<img src="'.$k['prefix'].$val.'" />';
+				$out = new HTMLTag('img', [
+					'src' => $k['prefix'].$val,
+				] + $k['more']);
 				break;
 
 			case "checkbox":
@@ -366,7 +368,9 @@ class slTableValue {
 				$link = str_replace('{{'.strtolower($key).'}}', $rowVal, $link);
 				$link = str_replace('%7B%7B'.strtolower($key).'%7D%7D', $rowVal, $link);
 			}
-			$link = str_replace('###VALUE###', $val ?: $k['value'], $link);
+			if (isset($k['value'])) {
+				$link = str_replace('###VALUE###', $val ?: $k['value'], $link);
+			}
 			$link = str_replace('###ID###', $out, $link);
 			$out = '<a href="'.$link.'">'.$out.'</a>';
 		}

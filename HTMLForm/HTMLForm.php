@@ -484,7 +484,7 @@ class HTMLForm {
 		} else {
 			$value = array();
 		}
-		$newName = array_merge($name, array(''));
+		$newName = array_merge($name, array(''));	// []
 		$tmp = $this->class;
 		$this->class = 'submit';
 		$between = ifsetor($desc['between'], ', ');

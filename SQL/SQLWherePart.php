@@ -11,11 +11,6 @@ class SQLWherePart {
 	 */
 	protected $db;
 
-	/**
-	 * @var SQLBuilder
-	 */
-	protected $qb;
-
 	protected $sql = '';
 
 	/**
@@ -26,7 +21,6 @@ class SQLWherePart {
 	function __construct($sql = '') {
 		$this->sql = $sql;
 		$this->db = Config::getInstance()->getDB();
-		$this->qb = Config::getInstance()->getQb();
 	}
 
 	/**
@@ -54,10 +48,6 @@ class SQLWherePart {
 		$this->db = $db;
 	}
 
-	function injectQB(SQLBuilder $qb) {
-		$this->qb = $qb;
-	}
-
 	function injectField($field) {
 		$this->field = $field;
 	}
@@ -76,6 +66,10 @@ class SQLWherePart {
 
 	function perform() {
 		return $this->db->perform($this->__toString());
+	}
+
+	function getField() {
+		return $this->field;
 	}
 
 }

@@ -246,6 +246,7 @@ AND name = '?')", array($table));
 
 	function quoteKey($key) {
 		if (!str_contains($key, '(')) {	// functions
+//			debug($key);
 			$key = '[' . $key . ']';
 		}
 		return $key;
@@ -271,6 +272,9 @@ AND name = '?')", array($table));
 
 	function free($res) {
 		mssql_free_result($res);
+		if (error_get_last()) {
+			debug_pre_print_backtrace();
+		}
 	}
 
 	function escapeBool($value) {
@@ -316,7 +320,7 @@ AND name = '?')", array($table));
 	 * @return mixed|SQLQuery|string
 	 */
 	function addLimitOldVersion($query, $howMany, $startingFrom) {
-		$query = new SQLQuery($query);
+		$query = new SQLQuery($query.'');
 		$builder = new \PHPSQLParser\builders\OrderByBuilder();
 		$orderBy = $builder->build($query->parsed['ORDER']);
 		unset($query->parsed['ORDER']);

@@ -7,6 +7,11 @@ class SQLIn extends SQLWherePart {
 	function __construct(array $list) {
 		parent::__construct();
 		$this->list = $list;
+		foreach ($this->list as $el) {
+			if (is_array($el)) {
+				throw new InvalidArgumentException(__METHOD__.' need to have flat array');
+			}
+		}
 	}
 
 	function __toString() {
@@ -20,6 +25,7 @@ class SQLIn extends SQLWherePart {
 		if (!$field) {
 			//debug_pre_print_backtrace();
 		}
+//		debug(__METHOD__, $this->list);
 		$content = $field ." IN (".implode(", ", $this->db->quoteValues($this->list)).")";
 		return $content;
 	}

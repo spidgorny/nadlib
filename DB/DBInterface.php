@@ -7,7 +7,7 @@ interface DBInterface {
 	// parameters are different
 	//function connect();
 
-	function perform($query);
+	function perform($query, array $params = []);
 
 	function numRows($res = NULL);
 
@@ -20,6 +20,8 @@ interface DBInterface {
 	function free($res);
 
 	function quoteKey($key);
+
+	function quoteKeys(array $keys);
 
 	function escapeBool($value);
 
@@ -42,5 +44,7 @@ interface DBInterface {
 	function dataSeek($resource, $index);
 
 	function escape($string);
+
+	function fetchAll($res_or_query, $index_by_key = NULL);
 	
 }

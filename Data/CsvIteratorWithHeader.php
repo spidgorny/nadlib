@@ -11,6 +11,7 @@ class CsvIteratorWithHeader extends CsvIterator {
 		parent::__construct($filename, $delimiter);
 		$this->doConvertToUTF8 = $convertUTF8;
 		$this->columns = parent::current();	// first line
+//		$this->current();	// this should not be next();
 		$this->next();
 		//print_r($this->columns);
 	}
@@ -38,6 +39,12 @@ class CsvIteratorWithHeader extends CsvIterator {
 	public function rewind() {
 		parent::rewind();
 		$this->next();	// skip header row again
+		$this->next();	// jump to the next row
+//		debug(__METHOD__, $this->current());
+	}
+
+	function ftell() {
+		return ftell($this->filePointer);
 	}
 
 }
