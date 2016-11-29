@@ -90,6 +90,34 @@ class Mailer {
 		return $res;
 	}
 
+	function appendPlainText() {
+		$htmlMail = $this->bodytext;
+		$mailText = $this->getPlainText();
+		//create a boundary for the email. This
+		$boundary = uniqid('np');
+
+		//headers - specify your from email address and name here
+		//and specify the boundary for the email
+		$this->headers["MIME-Version"] = '1.0';
+		$this->headers['Content-Type'] = "multipart/alternative;boundary=" . $boundary;
+
+		//here is the content body
+		$message = "This is a MIME encoded message.";
+		$message .= "\r\n\r\n--" . $boundary . "\r\n";
+		$message .= "Content-type: text/plain;charset=utf-8\r\n\r\n";
+
+		//Plain text body
+		$message .= $mailText;
+		$message .= "\r\n\r\n--" . $boundary . "\r\n";
+		$message .= "Content-type: text/html;charset=utf-8\r\n\r\n";
+
+		//Html body
+		$message .= $htmlMail;
+		$message .= "\r\n\r\n--" . $boundary . "--";
+		$this->bodytext = $message;
+		return $res;
+	}
+
 	function getSubject() {
 		$subject = '=?utf-8?B?'.base64_encode($this->subject).'?=';
 		return $subject;
@@ -116,8 +144,6 @@ class Mailer {
      *
      * Uses sendmail to deliver messages.
      *
-     * @param string $subject
-     * @param string $message
      * @param mixed $to
      * @param mixed $cc
      * @param mixed $bcc
@@ -126,7 +152,9 @@ class Mailer {
      * @throws Exception
      * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
      */
-    public function sendSwiftMailerEmail($subject, $message, $to, $cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
+    public function sendSwiftMailerEmail(
+    	array $to, array $cc = null, array $bcc = null,
+		array $attachments = array(), array $additionalSenders = array())
     {
         if (!class_exists('Swift_Mailer')) {
             throw new Exception('SwiftMailer not installed!');
@@ -136,21 +164,22 @@ class Mailer {
 			return NULL;
 		}
 
-		$index = Index::getInstance();
+		$messageHTML = $this->bodytext;
+        $messageText = $this->getPlainText();
+
         /** @var Swift_Message $message */
         $message = Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setBody($message)
+            ->setSubject($this->subject)
+            ->setBody($messageHTML, 'text/html')
+			->addPart($messageText, 'text/plain')
         ;
 
-        $message->setFrom($index->mailFromSwiftMailer);
-        if (!empty($additionalSenders)) {
-            foreach ($additionalSenders as $address) {
-                empty($address)
-	                ? NULL
-	                : $message->addFrom(key($address));
-            }
-        }
+		$index = Index::getInstance();
+//		$r = new ReflectionClass(Index::class);
+//		debug($r->getFileName(),
+//			array_keys(get_object_vars($index)),
+//		$index->mailFromSwiftMailer);
+		$message->setFrom($index->mailFromSwiftMailer);
 
         if (!empty($to)) {
             foreach ($to as $address) {
@@ -178,16 +207,28 @@ class Mailer {
 
         if (!empty($attachments)) {
             foreach ($attachments as $attachment) {
-				if (!empty($attachment)) {
+				if (is_string($attachment)) {
 					$smAttachment = Swift_Attachment::fromPath($attachment);
 					$shortFile = $this->getShortFilename($attachment);
 					$smAttachment->setFilename($shortFile);
 					$message->attach($smAttachment);
+				} else {
+					$message->attach($attachment);
 				}
             }
         }
 
-        $transport = Swift_SendmailTransport::newInstance();
+		if (!empty($additionalSenders)) {
+			foreach ($additionalSenders as $address => $name) {
+				empty($address)
+					? NULL
+					: $message->addFrom($address, $name);
+			}
+		}
+
+//		debug($message->getFrom()); die;
+
+		$transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
         $failedRecipients = array();
 
@@ -214,6 +255,23 @@ class Mailer {
 		$shortFile = substr($filename, 0, 63 - $extLen)
 			. '.' . $ext;
 		return $shortFile;
+	}
+
+	function getPlainText() {
+		if (class_exists('HTMLPurifier_Config')) {
+			$config = HTMLPurifier_Config::createDefault();
+			$config->set('HTML.Allowed', '');
+			$purifier = new HTMLPurifier($config);
+			$mailText = $purifier->purify($this->bodytext);
+//			$mailText = str_replace("\n\n", "\n", $mailText);
+//			$mailText = str_replace("\r\n\r\n", "\r\n", $mailText);
+			$mailText = explode(PHP_EOL, $mailText);	// keep blank lines
+			$mailText = array_map('trim', $mailText);
+			$mailText = implode(PHP_EOL, $mailText);
+		} else {
+			$mailText = strip_tags($this->bodytext);
+		}
+		return $mailText;
 	}
 
 }
