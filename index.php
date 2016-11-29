@@ -50,7 +50,7 @@ class NadlibIndex {
 			class_alias('ConfigBE', 'Config');
 		}
 		if (!class_exists('AppController', false)) {
-			class_alias('Controller', 'AppController');
+//			class_alias('Controller', 'AppController');
 			class_alias('AppController', 'AppControllerME');
 		}
 		if (!class_exists('Index')) {
