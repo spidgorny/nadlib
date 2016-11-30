@@ -141,24 +141,25 @@ class ProgressBar {
 		return $content;
 	}
 
-	function setProgressBarProgress($percentDone, $text = '') {
+	function setProgressBarProgress($percentDone, $text = '', $after = '') {
 		$this->percentDone = $percentDone;
 		$text = $text
 			?: number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			echo $this->cliBR . $text  . "\t".$this->getCLIbar(); // \r first to preserve errors
+			// \r first to preserve errors
+			echo $this->cliBR . $text  . "\t".$this->getCLIbar() . ' ' . $after;
 		} else {
 			$this->setProgressBarJS($percentDone, $text);
 		}
 	}
 
-	function setIndex($i, $always = false) {
+	function setIndex($i, $always = false, $text = '', $after = '') {
 		static $last;
 		if ($this->count) {
 			$percent = $i / $this->count * 100;
 			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
 			if ($every < 1 || !($i % $every) || $always || (($last + $every) > $i)) {
-				$this->setProgressBarProgress($percent);
+				$this->setProgressBarProgress($percent, $text, $after);
 				$last = $i;  
 			}
 		} else {
