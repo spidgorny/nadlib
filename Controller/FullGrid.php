@@ -131,29 +131,6 @@ abstract class FullGrid extends Grid {
 		return $this->filterController->getFilterDesc($fields);
 	}
 
-	function getTableFieldOptions($key, $count = false) {
-		if ($this->model instanceof OODBase) {
-			$res = $this->db->getTableOptions($this->model->table
-				? $this->model->table
-				: $this->collection->table,
-				$key, array(), 'ORDER BY title', $this->model->idField);
-
-			if ($count) {
-				foreach ($res as &$val) {
-					/** @var Collection $copy */
-					$copy = clone $this->collection;
-					$copy->where[$key] = $val;
-					$copy->retrieveData();
-					$val .= ' (' . sizeof($copy->getData()) . ')';
-				}
-			}
-		} else {
-			$res = [];
-		}
-
-		return $res;
-	}
-
 	function getColumnsForm() {
 //		debug($this->getGridColumns());
 //		debug($this->columns->getData());
