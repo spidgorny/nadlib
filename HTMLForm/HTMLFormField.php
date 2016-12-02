@@ -112,6 +112,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		if ($desc['prefix']) {
 			$this->form->text($desc['prefix']);
 		}
+
+//		debug($desc['id']);
 		if (!empty($desc['id'])) {
 			$elementID = $desc['id'];
 		} elseif (!empty($desc['more']['id'])) {
@@ -121,6 +123,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			$desc['id'] = $elementID;
 		}
 		$this['elementID'] = $elementID;
+//		debug($elementID);
 
 		$type = ifsetor($desc['type']);
 		if ($type instanceof HTMLFormType) {

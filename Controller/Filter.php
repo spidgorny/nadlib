@@ -41,4 +41,9 @@ class Filter extends ArrayObject {
 		return $this->_request + $this->_preferences + $this->_default;
 	}
 
+	function getIterator()
+	{
+		return new ArrayIterator($this->getArrayCopy());
+	}
+
 }
