@@ -3,10 +3,17 @@
 abstract class FullGrid extends Grid {
 
 	/**
+	 * @var FilterController
+	 */
+	var $filterController;
+
+	/**
 	 * @param string $collection
 	 */
 	function __construct($collection = NULL) {
 		parent::__construct();
+
+		$this->filterController = new FilterController();
 
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
@@ -96,38 +103,9 @@ abstract class FullGrid extends Grid {
 		}
 	}
 
-	/**
-	 * Converts $this->filter data from URL into SQL where parameters
-	 * @return array
-	 */
-	function getFilterWhere() {
-		$where = array();
-
-		$desc = $this->getFilterDesc();
-		//debug($desc);
-		foreach ($this->filter as $key => $val) {
-			if ($val) {
-				$type = ifsetor($desc[$key]['type']);
-				list($field, $parameter) = $this->getFilterWherePair($key, $val, $type);
-				$where[$field] = $parameter;
-			}
-		}
-
-		return $where;
-	}
-
-	function getFilterWherePair($key, $val, $type) {
-		$where = [];
-		switch ($type) {
-			case 'like':
-				$like = new SQLLikeContains($val);
-				$where[$key] = $like;
-				break;
-			default:
-				$where[$key] = $val;
-				break;
-		}
-		return [$key, $val];
+	function getFilterWhere()
+	{
+		return $this->filterController->getFilterWhere();
 	}
 
 	function sidebar() {
@@ -137,17 +115,8 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getFilterForm(array $fields = NULL) {
-		$desc = $this->getFilterDesc($fields);
-		$f = new HTMLFormTable($desc);
-		$f->setAllOptional();
-		$f->method('POST');
-		$f->defaultBR = true;
-		$f->formHideArray($this->linkVars);
-		$f->prefix('filter');
-		$f->showForm();
-		$f->prefix(NULL);
-		$f->submit(__('Filter'));
-		return $f;
+		$this->filterController->setFields($fields);
+		return $this->filterController->render();
 	}
 
 	/**
@@ -159,22 +128,7 @@ abstract class FullGrid extends Grid {
 	 * @return array
 	 */
 	function getFilterDesc(array $fields = NULL) {
-		$fields = ifsetor($fields, ifsetor($this->model->thes));
-		$fields = $fields ?: $this->collection->thes;
-		$fields = is_array($fields) ? $fields : array();
-
-		//debug($this->filter);
-		$desc = array();
-		foreach ($fields as $key => $k) {
-			if (!is_array($k)) {
-				$k = ['name' => $k];
-			}
-			if (!ifsetor($k['noFilter'])) {
-				$desc[$key] = $this->getFieldFilter($k, $key);
-			}
-		}
-		//debug($fields, $desc);
-		return $desc;
+		return $this->filterController->getFilterDesc($fields);
 	}
 
 	function getTableFieldOptions($key, $count = false) {
@@ -232,56 +186,6 @@ abstract class FullGrid extends Grid {
 		$this->collection->where = array_merge(
 			$this->collection->where,
 			$this->getFilterWhere()
-		);
-	}
-
-	/**
-	 * @param $k
-	 * @param $key
-	 * @return array
-	 */
-	public function getFieldFilter($k, $key) {
-		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
-		if (class_exists($autoClass) &&
-			in_array('HTMLFormCollection', class_implements($autoClass))
-		) {
-			$k['type'] = new $autoClass();
-			$options = NULL;
-		} elseif (ifsetor($k['tf'])) {    // boolean
-			$k['type'] = 'select';
-			$stv = new slTableValue('', array());
-			$options = array(
-				't' => $stv->SLTABLE_IMG_CHECK,
-				'f' => $stv->SLTABLE_IMG_CROSS,
-			);
-			//debug($key, $this->filter[$key]);
-		} elseif (ifsetor($k['type']) == 'select') {
-			if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
-				$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
-				// convert to string for === operation
-				$options = ArrayPlus::create($options)->trim()->getData();
-			} else {
-				$options = $k['options'];
-			}
-			//debug($options);
-			// will only work for strings, ID to other table needs to avoid it
-			$options = array_combine_stringkey($options, $options);
-			//debug($options);
-		} elseif (ifsetor($k['type']) == 'like') {
-			// this is handled in getFilterWhere
-			$options = NULL;
-		} else {
-			$k['type'] = $k['type'] ?: 'input';
-			$options = NULL;
-		}
-		return array(
-			'label'   => $k['name'],
-			'type'    => $k['type'],
-			'options' => $options,
-			'null'    => true,
-			'value'   => ifsetor($this->filter[$key]),
-			'more'    => 'class="input-medium"',
-			'==='     => true,
 		);
 	}
 
