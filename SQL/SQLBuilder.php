@@ -299,6 +299,7 @@ class SQLBuilder {
 			debug(['sOrder' => $sOrder, 'order' => $order]);
 			throw new InvalidArgumentException(__METHOD__);
 		}
+//		debug(__METHOD__, $table, $where, $where->getParameters());
 		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
 		$sq->injectDB($this->db);
 		return $sq;
