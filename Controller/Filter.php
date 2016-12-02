@@ -29,7 +29,7 @@ class Filter extends ArrayObject {
 
 	public function offsetSet($index, $newval)
 	{
-		debug(__METHOD__, $index, $newval);
+//		debug(__METHOD__, $index, $newval);
 		$this->_set[$index] = $newval;
 	}
 
