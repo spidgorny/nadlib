@@ -107,7 +107,7 @@ class FilterController extends AppController {
 				'options' => $options,
 				'null'    => true,
 				'value'   => ifsetor($this->filter[$key], $k['value']),
-				'more'    => 'class="input-medium"',
+				'more'    => ['class' => "input-medium"],
 				'==='     => true,
 			) + $k;
 //		debug(without($k, 'options'));

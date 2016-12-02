@@ -290,6 +290,14 @@ class HTMLForm {
 		} elseif (!$value) {
 			//$value = date('d.m.Y');
 		}
+
+		if ($desc['more'] && !is_array($desc['more'])) {
+			debug($name, $desc);
+			debug_pre_print_backtrace();
+			exit();
+			throw new InvalidArgumentException(__METHOD__.' $desc[more] is not array');
+		}
+
 		$this->input($name, $value,
 			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
 			(isset($desc['more']) ? HTMLTag::renderAttr($desc['more']) : ''),
