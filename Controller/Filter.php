@@ -2,9 +2,11 @@
 
 class Filter extends ArrayObject {
 
-	protected $_preferences = [];
+	protected $_set = [];
 
 	protected $_request = [];
+
+	protected $_preferences = [];
 
 	protected $_default = [];
 
@@ -25,8 +27,16 @@ class Filter extends ArrayObject {
 		$this->_default = $_default;
 	}
 
+	public function offsetSet($index, $newval)
+	{
+		debug(__METHOD__, $index, $newval);
+		$this->_set[$index] = $newval;
+	}
+
 	function offsetGet($index) {
-		if (isset($this->_request[$index])) {
+		if (isset($this->_set[$index])) {
+			return $this->_set[$index];
+		} elseif (isset($this->_request[$index])) {
 			return $this->_request[$index];
 		} elseif (isset($this->_preferences[$index])) {
 			return $this->_preferences[$index];
@@ -38,7 +48,10 @@ class Filter extends ArrayObject {
 
 	function getArrayCopy() {
 		// first array has priority (only append new)
-		return $this->_request + $this->_preferences + $this->_default;
+		return $this->_set +
+			$this->_request +
+			$this->_preferences +
+			$this->_default;
 	}
 
 	function getIterator()

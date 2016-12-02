@@ -9,6 +9,11 @@ class FilterController extends AppController {
 	 */
 	var $filter;
 
+	/**
+	 * @var OODBase - used to retrieve options for a specific db field
+	 */
+	public $model;
+
 	function setFields(array $fields) {
 		$this->fields = $fields;
 	}
@@ -96,15 +101,41 @@ class FilterController extends AppController {
 			$k['type'] = $k['type'] ?: 'input';
 			$options = NULL;
 		}
-		return array(
-			'label'   => $k['name'],
-			'type'    => $k['type'],
-			'options' => $options,
-			'null'    => true,
-			'value'   => ifsetor($this->filter[$key], $k['value']),
-			'more'    => 'class="input-medium"',
-			'==='     => true,
-		) + $k;
+		$k = array(
+				'label'   => $k['name'],
+				'type'    => $k['type'],
+				'options' => $options,
+				'null'    => true,
+				'value'   => ifsetor($this->filter[$key], $k['value']),
+				'more'    => 'class="input-medium"',
+				'==='     => true,
+			) + $k;
+//		debug(without($k, 'options'));
+		return $k;
+	}
+
+	function getTableFieldOptions($key, $count = false) {
+		if ($this->model instanceof OODBase) {
+			$res = $this->db->getTableOptions($this->model->table
+				? $this->model->table
+				: $this->collection->table,
+				$key, array(), 'ORDER BY '.$key, $this->model->idField);
+
+			if ($count) {
+				foreach ($res as &$val) {
+					/** @var Collection $copy */
+					$copy = clone $this->collection;
+					$copy->where[$key] = $val;
+					$copy->retrieveData();
+					$val .= ' (' . sizeof($copy->getData()) . ')';
+				}
+			}
+		} else {
+			$res = [];
+		}
+//		debug(__METHOD__, $res, )
+
+		return $res;
 	}
 
 	/**
