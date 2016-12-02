@@ -122,6 +122,7 @@ FROM {$from}
 {$this->limit}");
 		// http://stackoverflow.com/a/709684
 		$query = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $query);
+//		debug($this->where, $query, $this->getParameters());
 		return $query;
 	}
 
