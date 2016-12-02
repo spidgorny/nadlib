@@ -84,4 +84,8 @@ class AccessRights {
 		return $accessRights;
 	}
 
+	function setAccess($name, $value) {
+		$this->arCache[$name] = $value;
+	}
+
 }
