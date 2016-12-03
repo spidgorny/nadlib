@@ -229,6 +229,18 @@ class ConfigBase {
 		return NULL;
 	}
 
+	/**
+	 * Convenience function example how to use Login
+	 * @return LoginUser|User
+	 */
+	function _getLoginUser() {
+		if (!$this->user) {
+			$this->user = new LoginUser();
+			$this->user->try2login();
+		}
+		return $this->user;
+	}
+
 	function getLL() {
 		if (!$this->ll) {
 			$this->ll = new LocalLangDummy();
