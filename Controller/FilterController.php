@@ -14,6 +14,12 @@ class FilterController extends AppController {
 	 */
 	public $model;
 
+	/**
+	 * Alternative function to getFilterDesc()
+	 * @var callable
+	 */
+	public $injectFilterDesc;
+
 	function setFields(array $fields) {
 		$this->fields = $fields;
 	}
@@ -45,8 +51,11 @@ class FilterController extends AppController {
 	 * @return array
 	 */
 	function getFilterDesc(array $fields = NULL) {
+//		if (is_callable($this->injectFilterDesc)) {
+//			return call_user_func($this->injectFilterDesc);
+//		}
 		$fields = ifsetor($fields, ifsetor($this->model->thes));
-		$fields = is_array($fields) ? $fields : array();
+		$fields = is_array($fields) ? $fields : $this->fields;
 
 		//debug($this->filter);
 		$desc = array();
@@ -105,7 +114,7 @@ class FilterController extends AppController {
 				'type'    => $k['type'] ?: 'text',
 				'options' => $options,
 				'null'    => true,
-				'value'   => ifsetor($this->filter[$key], ifsetor($k['value'])),
+				'value'   => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
 				'more'    => ['class' => "text input-medium"],
 				'==='     => true,
 			) + $k;
@@ -141,12 +150,12 @@ class FilterController extends AppController {
 	 * Converts $this->filter data from URL into SQL where parameters
 	 * @return array
 	 */
-	function getFilterWhere() {
+	function getFilterWhere(array $desc) {
 		$where = array();
 
-		$desc = $this->getFilterDesc();
 		$filterList = $this->filter->getIterator();
-//		debug($filterList, $desc); exit();
+//		debug(gettype2($this->injectFilterDesc), count($desc),
+//			$this->filter->getArrayCopy(), $filterList->getArrayCopy()); exit();
 		foreach ($filterList as $key => $val) {
 //			debug($key, $val);
 			if ($val) {
