@@ -46,7 +46,6 @@ class FilterController extends AppController {
 	 */
 	function getFilterDesc(array $fields = NULL) {
 		$fields = ifsetor($fields, ifsetor($this->model->thes));
-		$fields = $fields ?: $this->collection->thes;
 		$fields = is_array($fields) ? $fields : array();
 
 		//debug($this->filter);
@@ -103,11 +102,11 @@ class FilterController extends AppController {
 		}
 		$k = array(
 				'label'   => $k['name'],
-				'type'    => $k['type'],
+				'type'    => $k['type'] ?: 'text',
 				'options' => $options,
 				'null'    => true,
-				'value'   => ifsetor($this->filter[$key], $k['value']),
-				'more'    => ['class' => "input-medium"],
+				'value'   => ifsetor($this->filter[$key], ifsetor($k['value'])),
+				'more'    => ['class' => "text input-medium"],
 				'==='     => true,
 			) + $k;
 //		debug(without($k, 'options'));

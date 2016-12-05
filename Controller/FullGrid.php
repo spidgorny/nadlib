@@ -114,7 +114,8 @@ abstract class FullGrid extends Grid {
 		return $content;
 	}
 
-	function getFilterForm(array $fields = NULL) {
+	function getFilterForm(array $fields = []) {
+		$fields = $fields ?: $this->collection->thes;
 		$this->filterController->setFields($fields);
 		return $this->filterController->render();
 	}
