@@ -119,7 +119,7 @@ class FilterController extends AppController {
 			$res = $this->db->getTableOptions($this->model->table
 				? $this->model->table
 				: $this->collection->table,
-				$key, array(), 'ORDER BY '.$key, $this->model->idField);
+				$key, array(), 'ORDER BY '.$key, $key);	// NOT 'id' (DISTINCT!)
 
 			if ($count) {
 				foreach ($res as &$val) {
