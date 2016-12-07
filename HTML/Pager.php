@@ -119,7 +119,7 @@ class Pager {
 		if (is_string($originalSQL)) {
 			$this->initByStringQuery($originalSQL);
 		} elseif ($originalSQL instanceof SQLSelectQuery) {
-			$this->initBySelectQuery($originalSQL);
+			$this->initBySelectQuery($originalSQL, $originalSQL->getParameters());
 		} else {
 			throw new InvalidArgumentException(__METHOD__);
 		}
@@ -138,24 +138,31 @@ class Pager {
 			$query = $queryObj->getQuery();
 		}
 		//debug($query->parsed['WHERE']);
-		$query = "SELECT count(*) AS count
+		$countQuery = "SELECT count(*) AS count
 		FROM (".$query.") AS counted";
-		$res = $this->db->fetchAssoc($this->db->perform($query));
+//		debug($query.'', $query->getParameters(), $countQuery);
+//		exit();
+		$res = $this->db->fetchAssoc(
+			$this->db->perform($countQuery));
+			// , $query->getParameters()
 		$this->setNumberOfRecords($res['count']);
 		//debug($originalSQL, $query, $res);
 		$this->detectCurrentPage();
 		TaylorProfiler::stop($key);
 	}
 
-	function initBySelectQuery(SQLSelectQuery $originalSQL) {
+	function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = []) {
 		$key = __METHOD__.' ('.substr($originalSQL, 0, 300).')';
 		TaylorProfiler::start($key);
 		$queryWithoutOrder = clone $originalSQL;
 		$queryWithoutOrder->unsetOrder();
 
+		$subquery = new SQLSubquery($queryWithoutOrder, 'counted');
+		$subquery->parameters = $parameters;
+
 		$query = new SQLSelectQuery(
 			new SQLSelect('count(*) AS count'),
-			new SQLSubquery($queryWithoutOrder, 'counted'));
+			$subquery);
 		$query->injectDB($this->db);
 
 		$res = $query->fetchAssoc();

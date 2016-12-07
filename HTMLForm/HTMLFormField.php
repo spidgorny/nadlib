@@ -369,7 +369,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 						(isset($desc['disabled']) ? ' disabled="1"' : '') .
 						($desc->isObligatory() ? ' required="1"' : '') .
 						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
-						, $type,
+						, $type == 'input' ? 'text' : $type,
 					ifsetor($desc['class'],
 						is_array(ifsetor($desc['more']))
 							? ifsetor($desc['more']['class'])

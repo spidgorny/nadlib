@@ -50,16 +50,13 @@ class SQLWhereEqual extends SQLWherePart {
 			}
 		} elseif ($val instanceof AsIs) {
 			$val->injectDB($this->db);
-			$val->injectQB($this->db->getQb());
 			//$val->injectField($key); // not needed as it will repeat the field name
 			$val->injectField(NULL);
 			$set[] = $key . ' = ' . $val;
 		} elseif ($val instanceof SQLBetween) {
-			$val->injectQB($this->db->getQb());
 			$val->injectField($key);
 			$set[] = $val->toString($key);
 		} elseif ($val instanceof SQLWherePart) {
-			$val->injectQB($this->db->getQb());
 			if (!is_numeric($key)) {
 				$val->injectField($key);
 			}

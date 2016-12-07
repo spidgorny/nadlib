@@ -13,7 +13,7 @@ abstract class Grid extends AppController {
 	public $model;
 
 	/**
-	 * @var array
+	 * @var Filter|array
 	 */
 	public $filter = array();
 
@@ -213,6 +213,9 @@ abstract class Grid extends AppController {
 //			);
 			$this->filter = $this->filter ? $this->filter : array();
 			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		}
+		if (!($this->filter instanceof Filter)) {
+			$this->filter = new Filter($this->filter);
 		}
 		//debug($this->filter);
 	}

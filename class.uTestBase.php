@@ -18,20 +18,10 @@ class uTestBase extends AppControllerBE {
 	);
 
 	function render() {
+		$this->index->bodyClasses[] = 'fullScreen';
 		$content = '<style>
 	body, td {
 		/*font-size: 9pt;*/
-	}
-	.contentContainer .contentLeft {
-		display: none;
-	}
-	.contentContainer .content {
-		float: none;
-		width: auto;
-	}
-	.contentContainer .widthFix {
-		width: auto;
-		overflow: visible;
 	}
 </style>';
 		$content .= '
