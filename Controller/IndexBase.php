@@ -558,7 +558,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$content = '';
 		if (DEVELOPMENT &&
 			!$this->request->isAjax() &&
-			//!$this->request->isCLI() &&
 			!in_array(get_class($this->controller), array('Lesser')))
 		{
 			if (!$this->request->isCLI()) {

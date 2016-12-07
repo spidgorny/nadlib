@@ -75,7 +75,7 @@ class SQLWhere {
 	}
 
 	function replaceParams($sWhere) {
-		// replace $1, $1, $1 with $1, $2, $3
+		// replace $0$, $0$, $0$ with $1, $2, $3
 		$params = $this->getParameters();
 		//debug($sWhere, $params);
 		foreach ($params as $i => $name) {

@@ -37,12 +37,28 @@
 	margin: 1em 0;
 	padding: 1em;
 	color: white !important;
-}
-.profiler table th, .profiler td {
-	vertical-align: top;
-	color: white;
-	margin-top: 50px;   /* footer */
-	border: none;
+	table {
+		&.table {
+			border: none;
+		}
+		background-color: #22221F;
+		tr.odd {
+			background-color: #22221F;
+		}
+		tr.even {
+			background-color: #22221F;
+		}
+		&.table th {
+			background-color: #474744;
+		}
+		th, td {
+			background-color: #22221F;
+			vertical-align: top;
+			color: white;
+			margin-top: 50px;   /* footer */
+			border: none;
+		}
+	}
 }
 
 .profiler .nospacing tr.even,

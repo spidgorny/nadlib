@@ -954,6 +954,7 @@ class Collection implements IteratorAggregate {
 	/**
 	 * Don't update $this->query otherwise getData() will think we have
 	 * retrieved nothing.
+	 * TODO: Create a new class called SQLCountQuery() and use it here to transform SQL to count(*)
 	 * @return int
 	 */
 	public function getCount() {
@@ -963,16 +964,30 @@ class Collection implements IteratorAggregate {
 				$this->getQueryWithLimit();	 // will init pager
 				// and set $this->count
 			} else {
-				if (contains($this->getQueryWithLimit(), 'LIMIT')) {    // no pager - no limit
+				$queryWithLimit = $this->getQueryWithLimit();
+//				debug(__METHOD__, $queryWithLimit.'');
+				if (contains($queryWithLimit, 'LIMIT')) {    // no pager - no limit
 					// we do not preProcessData()
 					// because it's irrelevant for the count
 					// but can make the processing too slow
 					// like in QueueEPES
-					$this->retrieveData(false, false);
+					$this->retrieveData(false);
 					// will set the count
+				} elseif ($queryWithLimit instanceof SQLSelectQuery) {
+					$queryWithoutOrder = clone $queryWithLimit;
+					$queryWithoutOrder->unsetOrder();
+
+					$query = new SQLSelectQuery(
+						new SQLSelect('count(*) AS count'),
+						new SQLSubquery($queryWithoutOrder, 'counted'));
+					$query->injectDB($this->db);
+
+					$res = $query->fetchAssoc();
+					$this->count = $res['count'];
 				} else {
 					// this is the same query as $this->retrieveData() !
 					$query = $this->getQuery();
+					debug('performing', $query);
 					$res = $query->perform();
 					$this->count = $this->db->numRows($res);
 				}
@@ -1093,7 +1108,7 @@ class Collection implements IteratorAggregate {
 		}
 		return $object;
 	}
-	
+
 	public function unobjectify() {
 		foreach ($this->objectify() as $i => $el) {
 			$this->data[$i] = $el->data;
