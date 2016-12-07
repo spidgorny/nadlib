@@ -119,14 +119,28 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 		//$url = parse_url($this->dsn);
 		//$this->database = basename($url['path']);
+
+		if (0) {
+			$res = $this->perform("SET NAMES 'utf8'");
+			if ($res) {
+				$res->closeCursor();
+			}
+		}
 	}
 
 	function perform($query, array $params = array()) {
+//		echo $query, BR;
 		//debug($params);
 		$this->lastQuery = $query;
 
 		$driver_options = [];
-		if ($this->getScheme() == 'mysql') {
+		if ($this->isMySQL()) {
+			// save memory
+			if ($this->lastResult) {
+//				$this->lastResult->fetchAll();
+//				$this->lastResult->closeCursor();
+			}
+//			$this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 			$driver_options[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
 
@@ -272,7 +286,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @param PDOStatement $res
 	 */
 	function free($res) {
-		$res->closeCursor();
+		if ($res) {
+			$res->closeCursor();
+		}
 	}
 
 	function quoteKey($key) {

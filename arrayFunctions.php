@@ -112,13 +112,18 @@ if (!function_exists('first')) {
 	}
 
 	function without(array $source, $remove) {
-		return array_filter($source, function ($el, $key) use ($remove) {
-			if (is_array($remove)) {
-				return !in_array($key, $remove);
-			} else {
-				return $key != $remove;
-			}
-		}, ARRAY_FILTER_USE_BOTH);
+		if (phpversion() > 5.6) {
+			return array_filter($source, function ($el, $key) use ($remove) {
+				if (is_array($remove)) {
+					return !in_array($key, $remove);
+				} else {
+					return $key != $remove;
+				}
+			}, ARRAY_FILTER_USE_BOTH);
+		} else {
+			return array_diff_key( $source,
+				array_flip( (array)$remove) );
+		}
 	}
 
 }

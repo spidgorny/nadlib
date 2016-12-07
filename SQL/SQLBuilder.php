@@ -299,6 +299,7 @@ class SQLBuilder {
 			debug(['sOrder' => $sOrder, 'order' => $order]);
 			throw new InvalidArgumentException(__METHOD__);
 		}
+//		debug(__METHOD__, $table, $where, $where->getParameters());
 		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
 		$sq->injectDB($this->db);
 		return $sq;
@@ -549,7 +550,10 @@ class SQLBuilder {
 		$prefix = $prefix ?: $table.'.';
 		$query = $this->getSelectQuery($table, $where, $order,
 			'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, '.
-			$prefix.'*, '.$prefix.$this->quoteKey($idField).' AS id_field');
+					      $prefix.$this->quoteKey($idField).' AS id_field');
+
+		// $prefix.'*, is not selected as DISTINCT will not work
+
 		//debug('Query', $query.''); exit();
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');

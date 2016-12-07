@@ -112,6 +112,7 @@ class MemcacheFile implements MemcacheInterface {
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
+		//debug($file);
 		if ($this->isValid($key, $expire)) {
 			$val = @file_get_contents($file);
 			if ($val) {
