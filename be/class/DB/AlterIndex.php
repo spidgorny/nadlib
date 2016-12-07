@@ -22,8 +22,8 @@ class AlterIndex extends AppControllerBE {
 			require_once $this->config->appRoot.'/constants.php';
 			$GLOBALS['dbLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
 			$this->db = $GLOBALS['dbLayer'];
-			$this->config->db = $GLOBALS['dbLayer'];
-			$this->config->qb->db = $GLOBALS['dbLayer'];
+//			$this->config->db = $GLOBALS['dbLayer'];
+//			$this->config->qb->db = $GLOBALS['dbLayer'];
 			$this->jsonFile = $this->config->appRoot.'/sql/buglog_dev.json';
 		}
 
@@ -59,7 +59,8 @@ class AlterIndex extends AppControllerBE {
 		foreach ($files as $file) {
 			/** @var $file SplFileInfo */
 			if ($file->getExtension() == 'json') {
-				$li[] = $this->a(new URL(get_class($this), array(
+				$li[] = $this->a(new URL(NULL, array(
+						'c' => get_class($this),
 						'file' => basename($file),
 					)), basename($file)) .
 					'<div style="float: right;">[' . date('Y-m-d H:i', $file->getCTime()) . ']</div>';

@@ -261,9 +261,15 @@ class SQLBuilder {
 			$join = substr($table, strlen($table1));
 			$from = $table1; // not quoted
 		}
+
+
+		// must be quoted for SELECT user.* ... because "user" is reserved
 		$select = $addSelect
 			? $addSelect
-			: /*$this->quoteKey*/($table1).".*";
+			: $this->quoteKey($table1).".*";
+
+
+
 		$select = new SQLSelect($select);
 		$select->injectDB($this->db);
 
