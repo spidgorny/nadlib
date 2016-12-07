@@ -10,6 +10,8 @@ class SQLSubquery extends SQLFrom {
 
 	var $alias;
 
+	var $parameters = [];
+
 	function __construct(SQLSelectQuery $selectQuery, $alias) {
 		parent::__construct($selectQuery);
 		$this->alias = $alias;
@@ -25,7 +27,7 @@ class SQLSubquery extends SQLFrom {
 		if (is_object($selectQuery)) {
 			return $selectQuery->getParameters();
 		} else {
-			return [];
+			return $this->parameters;
 		}
 	}
 

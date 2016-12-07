@@ -10,17 +10,26 @@ abstract class FullGrid extends Grid {
 	/**
 	 * @param string $collection
 	 */
-	function __construct($collection = NULL) {
+	function __construct() {
 		parent::__construct();
-
-		$this->filterController = new FilterController();
 
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		$allowEdit = $this->request->getControllerString() == get_class($this);
-		if ($allowEdit && $collection) {
-			$this->saveFilterAndSort($collection ?: get_class($this));
+		if ($allowEdit /*&& $collection*/) {
+			$this->saveFilterAndSort(/*$collection ?: */get_class($this));
 		}
+
+		if (!($this->filter instanceof Filter)) {
+			$this->filter = new Filter($this->filter);
+//			debug(gettype2($this->filter));
+		}
+
+		$this->filterController = new FilterController();
+		$this->filterController->setFilter($this->filter);
+	}
+
+	function postInit($collection = NULL) {
 		if (!$this->collection) {
 			if (is_string($collection)) {
 				$this->log(__METHOD__ . ' new collection', $collection);
@@ -42,14 +51,8 @@ abstract class FullGrid extends Grid {
 			}
 		}
 		// after collection is made, to run getGridColumns
+		$allowEdit = $this->request->getControllerString() == get_class($this);
 		$this->setColumns(get_class($this->collection), $allowEdit);
-	}
-
-	function postInit() {
-		if ($this->collection) {
-			// commented to do it in a lazy way
-			//$this->collection->retrieveData();
-		}
 	}
 
 	/**
@@ -105,7 +108,8 @@ abstract class FullGrid extends Grid {
 
 	function getFilterWhere()
 	{
-		return $this->filterController->getFilterWhere();
+		return $this->filterController->getFilterWhere(
+			$this->getFilterDesc());
 	}
 
 	function sidebar() {
@@ -114,7 +118,8 @@ abstract class FullGrid extends Grid {
 		return $content;
 	}
 
-	function getFilterForm(array $fields = NULL) {
+	function getFilterForm(array $fields = []) {
+		$fields = $fields ?: $this->collection->thes;
 		$this->filterController->setFields($fields);
 		return $this->filterController->render();
 	}
