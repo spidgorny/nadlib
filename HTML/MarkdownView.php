@@ -8,7 +8,7 @@ class MarkdownView extends View {
 	 */
 	var $content;
 
-	function loadTemplace() {
+	function loadTemplate() {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
@@ -27,7 +27,7 @@ class MarkdownView extends View {
 
 	function render() {
 		if (!$this->content) {
-			$this->loadTemplace();
+			$this->loadTemplate();
 		}
 		return $this->content;
 	}
@@ -45,5 +45,5 @@ class MarkdownView extends View {
 		$this->content = str_replace('{{'.$placeholder.'}}', $this->s($content), $this->content);
 		return $this;
 	}
-	
+
 }

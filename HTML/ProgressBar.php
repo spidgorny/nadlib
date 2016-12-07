@@ -64,7 +64,7 @@ class ProgressBar {
 	}
 
 	/**
-	 * AJAX request need to reaccess the main page ProgressBar
+	 * AJAX request need to re-access the main page ProgressBar
 	 * @param $pbid
 	 */
 	public function setID($pbid) {
@@ -83,8 +83,7 @@ class ProgressBar {
 			$index = Index::getInstance();
 			if (method_exists($index, 'renderHead')) {
 				$index->renderHead();
-			}
-			if (!headers_sent()) {
+			} elseif (!headers_sent()) {
 				echo '<!DOCTYPE html>';
 			}
             print($this->getCSS());
@@ -116,6 +115,7 @@ class ProgressBar {
 		} else {
 			return '<style>' . file_get_contents($less) . '</style>';  // wrong, but best we can do
 		}
+		return '';
 	}
 
 	function __toString() {
