@@ -107,4 +107,14 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 		return $res->num_rows;
 	}
 
+	function getInfo() {
+		return [
+			$this->connection->host_info,
+			$this->connection->server_info,
+			$this->connection->client_info,
+//			$this->connection->get_connection_stats(),
+			$this->connection->get_charset(),
+		];
+	}
+
 }
