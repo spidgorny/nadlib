@@ -204,6 +204,19 @@ class Path {
 		}
 	}
 
+	public function resolveLinks() {
+		foreach ($this->aPath as $i => $part) {
+			$assembled = '/' . implode('/', array_slice($this->aPath, 0, $i));
+//			debug($assembled, is_link($assembled));
+			if (is_link($assembled)) {
+				$this->sPath = readlink($assembled);
+				$this->explode();
+				$this->resolveLinks();
+				break;
+			}
+		}
+	}
+
 	/**
 	 * @return Path
 	 */
@@ -400,6 +413,20 @@ class Path {
 			$debug[$sPath] = file_exists($sPath);
 		}
 		debug($debug);
+	}
+
+	public function normalizeHomePage() {
+		//debug(__METHOD__, $this->sPath, $this->aPath);
+		$this->resolveLinks();		// important to avoid differences
+		foreach ($this->aPath as $i => $el) {
+			if ($el[0] == '~') {
+				$username = str_replace('~', '', $el);
+				array_splice($this->aPath, $i, 1, [$username, 'public_html']);
+//				debug($el, $username, $this->aPath);
+			}
+		}
+		$this->implode();
+		return $this;
 	}
 
 }
