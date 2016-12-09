@@ -209,17 +209,20 @@ class Collection implements IteratorAggregate {
 	function retrieveData($preProcess = true) {
 		$this->log(get_class($this).'::'.__FUNCTION__.'(allowMerge: '.($this->allowMerge?1:0).', preprocess: '.($preProcess?1:0).')');
 		//debug(__METHOD__, $allowMerge, $preprocess);
-		if (phpversion() > 5.3 && (
-			$this->db instanceof MySQL
-			|| ($this->db instanceof dbLayerPDO
-				&& $this->db->isMySQL())
-		)) {
+		$isMySQL = phpversion() > 5.3 && (
+				$this->db instanceof MySQL
+				|| ($this->db instanceof dbLayerPDO
+					&& $this->db->isMySQL())
+			);
+		if ($isMySQL) {
 			$data = $this->retrieveDataFromMySQL();
 		} else {
 			$data = $this->retrieveDataFromDB();
 		}
 		$this->log(__METHOD__, 'rows: '.sizeof($data));
 		$this->log(__METHOD__, 'idealize by '.$this->idField);
+//		debug_pre_print_backtrace();
+//		debug(get_class($this->db), $isMySQL, $this->query, $data, $this->log);
 		$this->data = ArrayPlus::create($data);
 		//$this->log(__METHOD__, $this->data->pluck('id'));
 		$this->data->IDalize($this->idField, $this->allowMerge);
@@ -247,6 +250,7 @@ class Collection implements IteratorAggregate {
 		} else {
 			$res = $this->db->perform($this->query);
 		}
+
 
 		if ($this->pager) {
 			$this->count = $this->pager->numberOfRecords;
@@ -977,9 +981,11 @@ class Collection implements IteratorAggregate {
 					$queryWithoutOrder = clone $queryWithLimit;
 					$queryWithoutOrder->unsetOrder();
 
+					$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
+					$subQuery->setParameters($queryWithLimit->getParameters());
 					$query = new SQLSelectQuery(
 						new SQLSelect('count(*) AS count'),
-						new SQLSubquery($queryWithoutOrder, 'counted'));
+						$subQuery);
 					$query->injectDB($this->db);
 
 					$res = $query->fetchAssoc();

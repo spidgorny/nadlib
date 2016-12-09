@@ -557,6 +557,8 @@ class MySQL extends dbLayerBase implements DBInterface {
 
 	function unsetQueryLog() {
 		$this->queryLog = NULL;
+	}
+
 	function getInfo() {
 		return mysql_info($this->connection);
 	}

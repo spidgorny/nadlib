@@ -31,4 +31,8 @@ class SQLSubquery extends SQLFrom {
 		}
 	}
 
+	function setParameters(array $p) {
+		$this->parameters = $p;
+	}
+
 }
