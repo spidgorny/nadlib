@@ -727,11 +727,17 @@ class Request {
 
 		if (!$this->isWindows()) {	// linux
 			//debug(getcwd(), $al->documentRoot.'');
-			$cwd = new Path(getcwd());
 			$url = clone $al->documentRoot;
 			$url->append($this->url->getPath());
+			$url->normalizeHomePage();
+
+			$cwd = new Path(getcwd());
+			$cwd->normalizeHomePage();
+
 			$path = new Path($url);
 			$path->remove($cwd);
+
+			//debug($url.'', $cwd.'', $path.'');
 		} else {	// windows
 			$cwd = NULL;
 			$url = new Path('');
