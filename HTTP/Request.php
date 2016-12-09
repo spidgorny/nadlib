@@ -971,18 +971,21 @@ class Request {
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
-		false && pre_print_r(array(
+		0 && pre_print_r(array(
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
+			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
+			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
+			'getDocumentRootByScript' => self::getDocumentRootByScript(),
 		));
 
 		$docRoot = self::getDocumentRootByRequest();
-		if (!$docRoot) {
+		if (!$docRoot || $docRoot == '/') {
 			$docRoot = self::getDocumentRootByDocRoot();
 		}
-		if (!$docRoot) {
+		if (!$docRoot || $docRoot == '/') {
 			$docRoot = self::getDocumentRootByScript();
 		}
 		$before = $docRoot;
@@ -1017,6 +1020,7 @@ class Request {
 	}
 
 	static function getDocumentRootByDocRoot() {
+		$docRoot = NULL;
 		$script = $_SERVER['SCRIPT_FILENAME'];
 		$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
 		if ($docRootRaw

@@ -292,6 +292,12 @@ abstract class Controller {
 	}
 
 	function indexAction() {
+		$content = $this->renderTemplate();
+		$content = $this->div($content, get_class($this));
+		return $content;
+	}
+
+	function renderTemplate() {
 		$filePHTML = get_class($this).'.phtml';
 		$fileMD = get_class($this).'.md';
 
@@ -308,8 +314,6 @@ abstract class Controller {
 		} else {
 			$content = '';
 		}
-
-		$content = $this->div($content, get_class($this));
 		return $content;
 	}
 

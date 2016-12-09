@@ -194,7 +194,9 @@ FROM {$from}
 			$params = array();
 		}
 		if ($this->from instanceof SQLSubquery) {
-			$params += $this->from->getParameters();
+			$subParams = $this->from->getParameters();
+//			debug($subParams);
+			$params += $subParams;
 		}
 		return $params;
 	}
@@ -205,7 +207,7 @@ FROM {$from}
 	function perform() {
 		$sQuery = $this->getQuery();
 		$aParams = $this->getParameters();
-		//debug($sQuery, $aParams);
+//		debug(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
 		return $this->db->perform($sQuery, $aParams);
 	}
 

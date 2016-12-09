@@ -73,6 +73,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 			//debug($query, $params, $stmt->num_rows);
 		} else {
 			$stmt = $this->connection->query($query);
+//			$stmt->fetch_assoc();
 		}
 
 		if (!$stmt) {
@@ -100,13 +101,16 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	 * @return array|false
 	 */
 	function fetchAssoc($res) {
+//		debug(gettype2($res));
 		if ($res instanceof mysqli_result) {
-			return $res->fetch_assoc();
+			$data = (array)$res->fetch_assoc();
+//			debug(gettype2($res), $data);
+			return $data;
 		} elseif (is_string($res)) {
 			$res = $this->perform($res);
 			return $res->fetch_assoc();
 		} elseif ($res instanceof SQLSelectQuery) {
-			$res = $this->perform($res.'');
+			$res = $this->perform($res.'', $res->getParameters());
 			return $res->fetch_assoc();
 		} elseif ($res instanceof mysqli_stmt) {
 			$res->fetch();
@@ -152,6 +156,8 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 //		$slug = str_replace('-', '_', $slug);
 //		return '@'.$slug;
 		return '?';
+	}
+
 	function getInfo() {
 		return [
 			$this->connection->host_info,

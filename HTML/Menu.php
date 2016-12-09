@@ -155,14 +155,15 @@ class Menu /*extends Controller*/ {
 			$config = new stdClass();
 			$useRouter = false;
 		}
+		$autoLoad = AutoLoad::getInstance();
 		if ($useRouter) {   // not finished
 			$path = new URL();
 			$path->clearParams();
 		} elseif ($this->useControllerSlug) {
 			$path = new URL();
-			if (basename(AutoLoad::getInstance()->appRoot) == 'be') {
+			if (basename($autoLoad->appRoot) == 'be') {
 				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
-				$appRoot = AutoLoad::getInstance()->appRoot;
+				$appRoot = $autoLoad->appRoot;
 				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
 				$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
 				$path->setParams();
@@ -178,7 +179,7 @@ class Menu /*extends Controller*/ {
 			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
 		}
 		$this->basePath = $path;
-		nodebug(array(
+		0 && debug(array(
 			'class_exists(Config)' => class_exists('Config'),
 			'Config::getInstance()->config[Controller]' => (class_exists('Config') && isset($config->config['Controller']))
 				? $config->config['Controller']
@@ -186,11 +187,11 @@ class Menu /*extends Controller*/ {
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,
-			'appRoot' => AutoLoad::getInstance()->appRoot,
-			'nadlibRoot' => AutoLoad::getInstance()->nadlibRoot,
-			'nadlibRootFromDocRoot' => AutoLoad::getInstance()->nadlibFromDocRoot,
+			'appRoot' => $autoLoad->appRoot.'',
+			'nadlibRoot' => $autoLoad->nadlibRoot,
+			'nadlibRootFromDocRoot' => $autoLoad->nadlibFromDocRoot,
 			'current' => $this->current,
-			'basePath' => $this->basePath,
+			'basePath' => $this->basePath.'',
 		));
 	}
 
