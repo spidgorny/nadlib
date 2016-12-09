@@ -972,19 +972,12 @@ class Request {
 			'cwd' => getcwd(),
 		));
 
-		if ($_SERVER['DOCUMENT_ROOT'] &&
-			str_startsWith($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) &&
-			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
-			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
-			//pre_print_r($docRoot);
-		} else {	//~depidsvy/something
-			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
-			if ($pos !== FALSE) {
-				$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
-				$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
-			} else {
-				$docRoot = dirname($_SERVER['PHP_SELF']);
-			}
+		$docRoot = self::getDocumentRootByRequest();
+		if (!$docRoot) {
+			$docRoot = self::getDocumentRootByDocRoot();
+		}
+		if (!$docRoot) {
+			$docRoot = self::getDocumentRootByScript();
 		}
 		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
@@ -997,6 +990,53 @@ class Request {
 		$docRoot = new Path($docRoot);
 		//pre_print_r($docRoot, $docRoot.'');
 		return $docRoot;
+	}
+
+	/**
+	 * Works well with RewriteRule
+	 *
+	 */
+	static function getDocumentRootByRequest() {
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$request = dirname($_SERVER['REQUEST_URI']);
+//		exit();
+		if ($request != '/' && strpos($script, $request) !== false) {
+			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
+			$docRoot = str_replace($docRootRaw, '', dirname($script));
+		} else {
+			$docRoot = '/';
+		}
+//		pre_print_r($script, $request, strpos($script, $request), $docRoot);
+		return $docRoot;
+	}
+
+	static function getDocumentRootByDocRoot() {
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
+		if ($docRootRaw
+			&& str_startsWith($script, $docRootRaw)
+			&& strpos($script, $docRootRaw) !== false) {
+			$docRoot = str_replace($docRootRaw, '', dirname($script));
+			//pre_print_r($docRoot);
+		}
+		return $docRoot;
+	}
+
+	/**
+	 * @return mixed|string
+	 * //~depidsvy/something
+	 */
+	private static function getDocumentRootByScript() {
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$pos = strpos($script, '/public_html');
+		if ($pos !== FALSE) {
+			$docRoot = substr(dirname($script), $pos);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+			return $docRoot;
+		} else {
+			$docRoot = dirname($_SERVER['PHP_SELF']);
+			return $docRoot;
+		}
 	}
 
 	/**
