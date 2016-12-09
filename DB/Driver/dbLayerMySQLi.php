@@ -152,6 +152,14 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 //		$slug = str_replace('-', '_', $slug);
 //		return '@'.$slug;
 		return '?';
+	function getInfo() {
+		return [
+			$this->connection->host_info,
+			$this->connection->server_info,
+			$this->connection->client_info,
+//			$this->connection->get_connection_stats(),
+			$this->connection->get_charset(),
+		];
 	}
 
 }
