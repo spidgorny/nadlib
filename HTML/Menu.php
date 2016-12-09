@@ -125,7 +125,16 @@ class Menu /*extends Controller*/ {
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
-		//debug($useRouter, $this->useControllerSlug, $rootpath, $level, $this->current);
+		nodebug([
+			'cwd' => getcwd(),
+			'docRoot' => $this->request->getDocumentRoot(),
+			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot(),
+			'useRouter' => $useRouter,
+			'useControllerSlug' => $this->useControllerSlug,
+			'rootpath' => $rootpath,
+			'level' => $level,
+			'current' => $this->current
+		]);
 	}
 
 	/**
