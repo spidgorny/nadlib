@@ -346,9 +346,8 @@ class Request {
 
 	function getControllerString($returnDefault = true) {
 		if ($this->isCLI()) {
-			$controller = ifsetor($_SERVER['argv'][1]);
-			$this->data += $this->parseParameters();
-			//debug($this->data);
+			$resolver = new CLIResolver();
+			$controller = $resolver->getController();
 		} else {
 			$c = $this->getTrim('c');
 			if ($c) {
@@ -641,7 +640,7 @@ class Request {
 	}
 
 	/**
-	 * Will overwrite.
+	 * Will overwrite one by one.
 	 * @param array $plus
 	 */
 	function setArray(array $plus) {
@@ -944,9 +943,9 @@ class Request {
 	 */
 	static function getDocumentRootByRequest() {
 		$script = $_SERVER['SCRIPT_FILENAME'];
-		$request = dirname($_SERVER['REQUEST_URI']);
+		$request = dirname(ifsetor($_SERVER['REQUEST_URI']));
 //		exit();
-		if ($request != '/' && strpos($script, $request) !== false) {
+		if ($request && $request != '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
 			$docRoot = str_replace($docRootRaw, '', dirname($script));
 		} else {
