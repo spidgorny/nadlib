@@ -242,4 +242,8 @@ class HTMLTag implements ArrayAccess {
 		return '#'.$hash;
 	}
 
+	static function a($href, $name) {
+		return new self('a', ['href' => $href], $name);
+	}
+
 }
