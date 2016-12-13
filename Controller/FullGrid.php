@@ -119,8 +119,12 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getFilterForm(array $fields = []) {
-		$fields = $fields ?: $this->collection->thes;
-		$this->filterController->setFields($fields);
+		if (method_exists($this, 'getFilterDesc')) {
+			$this->filterController->desc = $this->getFilterDesc();
+		} else {
+			$fields = $fields ?: $this->collection->thes;
+			$this->filterController->setFields($fields);
+		}
 		return $this->filterController->render();
 	}
 

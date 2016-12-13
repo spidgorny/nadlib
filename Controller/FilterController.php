@@ -20,8 +20,14 @@ class FilterController extends AppController {
 	 */
 	public $injectFilterDesc;
 
+	/**
+	 * @var array
+	 */
+	public $desc;
+
 	function setFields(array $fields) {
 		$this->fields = $fields;
+		$this->desc = $this->getFilterDesc($this->fields);
 	}
 
 	function setFilter(Filter $filter) {
@@ -29,8 +35,7 @@ class FilterController extends AppController {
 	}
 
 	function render() {
-		$desc = $this->getFilterDesc($this->fields);
-		$f = new HTMLFormTable($desc);
+		$f = new HTMLFormTable($this->desc);
 		$f->setAllOptional();
 		$f->method('POST');
 		$f->defaultBR = true;

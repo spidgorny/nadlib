@@ -352,9 +352,11 @@ class Request {
 		} else {
 			$c = $this->getTrim('c');
 			if ($c) {
-				$controller = $this->getControllerByC($c);
+				$resolver = new CResolver($c);
+				$controller = $resolver->getController();
 			} else {
-				$controller = $this->getControllerByPath($returnDefault);
+				$resolver = new PathResolver();
+				$controller = $resolver->getController($returnDefault);
 			}
 		}   // cli
 		nodebug(array(
@@ -366,71 +368,6 @@ class Request {
 				? Config::getInstance()->defaultController
 				: NULL,
 			'data' => $this->data));
-		return $controller;
-	}
-
-	function getControllerByC($controller) {
-		// to simplify URL it first searches for the corresponding controller
-		$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
-		$tmp = $ptr;
-		$ptr = false;
-		if ($controller && class_exists($controller.'Controller')) {
-			$controller = $controller.'Controller';
-		}
-		$ptr = $tmp;
-
-		$Scontroller = new Path($controller);
-		if ($Scontroller->length() > 1) {	// in case it's with sub-folder
-			$dir = dirname($Scontroller);
-			$parts = trimExplode('/', $controller);
-			//debug($dir, $parts, file_exists($dir));
-			if (file_exists($dir)) {
-				$controller = end($parts);
-			} else {
-				$controller = first($parts);
-			}
-		} else {
-			//debug($controller);
-			//die(__METHOD__);
-			$controller = $controller . '';	// OK
-		}
-		return $controller;
-	}
-
-	function getControllerByPath($returnDefault = true) {
-		$levels = $this->getURLLevels();
-		if ($levels) {
-			$levels = array_reverse($levels);
-			$last = NULL;
-			foreach ($levels as $class) {
-				// RewriteRule should not contain "?c="
-				nodebug(
-					$class,
-					class_exists($class.'Controller'),
-					class_exists($class));
-				// to simplify URL it first searches for the corresponding controller
-				if ($class && class_exists($class.'Controller')) {	// this is untested
-					$last = $class.'Controller';
-					break;
-				}
-				if (class_exists($class)) {
-					$last = $class;
-					break;
-				}
-			}	// foreach
-			if ($last) {
-				$controller = $last;
-			} elseif ($returnDefault && class_exists('Config')) {
-				// not good as we never get 404
-				$controller = Config::getInstance()->defaultController;
-			} else {
-				$controller = NULL;
-			}
-		} elseif ($returnDefault && class_exists('Config')) {
-			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
-		} else {
-			$controller = NULL;
-		}
 		return $controller;
 	}
 
