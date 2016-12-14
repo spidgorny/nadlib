@@ -15,6 +15,8 @@ class HTMLFormRange extends HTMLFormType {
 	 */
 	var $al;
 
+	var $jsFile;
+
 	/**
 	 * @param string $field
 	 * @param integer $value
@@ -24,9 +26,6 @@ class HTMLFormRange extends HTMLFormType {
 		$this->field = $field;
 		$this->setValue($value);
 		$this->al = AutoLoad::getInstance();
-		$index = Index::getInstance();
-		$index->addJQuery();
-		$index->addJS($this->al->nadlibFromDocRoot.'HTMLForm/HTMLFormRange.js');
 	}
 
 	/**
@@ -37,6 +36,11 @@ class HTMLFormRange extends HTMLFormType {
 	}
 
 	function render() {
+		$index = Index::getInstance();
+		$index->addJQuery();
+		$index->addJS($this->jsFile
+			?: $this->al->nadlibFromDocRoot.'HTMLForm/HTMLFormRange.js');
+
 		$content = new View($this->al->nadlibRoot.'HTMLForm/HTMLFormRange.phtml', $this);
 		$fieldString = $this->form->getName($this->field, '', true);
 		$fieldString = str_replace('[', '\\[', $fieldString);

@@ -59,4 +59,11 @@ class Filter extends ArrayObject {
 		return new ArrayIterator($this->getArrayCopy());
 	}
 
+	function clear() {
+		$this->_set = [];
+		$this->_request = [];
+		$this->_preferences = [];
+		$this->_default = [];	// maybe it should remain?
+	}
+
 }

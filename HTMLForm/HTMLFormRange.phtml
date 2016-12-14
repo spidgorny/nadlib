@@ -11,7 +11,8 @@
 		id="<?= $this->form->getName($this->field, '', true) ?>"
 		value="<?= $this->value ?>"
 		style="width: 100%;"
-		onchange="outputUpdate(this)"
+		oninput="outputUpdate(this)"
+		onchange="outputChanged(this)"
 	>
 	<output><?= $this->value ?></output>
 </div>
