@@ -167,5 +167,18 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 			$this->connection->get_charset(),
 		];
 	}
+	
+	/**
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @return string
+	 */
+	function getReplaceQuery($table, $columns) {
+		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
+		$values = implode(", ", $this->quoteValues(array_values($columns)));
+		$table = $this->quoteKey($table);
+		$q = "REPLACE INTO {$table} ({$fields}) VALUES ({$values})";
+		return $q;
+	}
 
 }
