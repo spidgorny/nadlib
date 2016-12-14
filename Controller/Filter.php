@@ -46,6 +46,10 @@ class Filter extends ArrayObject {
 		return NULL;
 	}
 
+	function offsetExists($index) {
+		return $this->offsetGet($index) != '';
+	}
+
 	function getArrayCopy() {
 		// first array has priority (only append new)
 		return $this->_set +
@@ -64,6 +68,19 @@ class Filter extends ArrayObject {
 		$this->_request = [];
 		$this->_preferences = [];
 		$this->_default = [];	// maybe it should remain?
+	}
+
+	function getDebug() {
+		return [
+			'set' => $this->_set,
+			'request' => $this->_request,
+			'preferences' => $this->_preferences,
+			'default' => $this->_default,
+		];
+	}
+
+	function __debugInfo() {
+		return $this->getDebug();
 	}
 
 }
