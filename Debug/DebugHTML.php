@@ -123,6 +123,8 @@ class DebugHTML {
 				//	$a = $a->__toString();
 				//} elseif (method_exists($a, 'getName')) {
 				//	$a = $a->getName();	-- not enough info
+			} elseif (method_exists($a, '__debugInfo')) {
+					$a = $a->__debugInfo();
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
 			} elseif ($a instanceof SimpleXMLElement) {
@@ -137,7 +139,7 @@ class DebugHTML {
 			foreach ($a as $i => $r) {
 				$type = gettype2($r);
 				$content .= '<tr>
-					<td class="view_array">'.$i.'</td>
+					<td class="view_array">'.htmlspecialchars($i).'</td>
 					<td class="view_array">'.$type.'</td>
 					<td class="view_array">';
 

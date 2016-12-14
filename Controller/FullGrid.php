@@ -21,7 +21,7 @@ abstract class FullGrid extends Grid {
 		}
 
 		if (!($this->filter instanceof Filter)) {
-			$this->filter = new Filter();
+			$this->filter = new Filter($this->filter);
 //			debug(gettype2($this->filter));
 		}
 
@@ -125,6 +125,7 @@ abstract class FullGrid extends Grid {
 			$fields = $fields ?: $this->collection->thes;
 			$this->filterController->setFields($fields);
 		}
+		$this->filterController->linkVars['c'] = get_class($this);
 		return $this->filterController->render();
 	}
 
