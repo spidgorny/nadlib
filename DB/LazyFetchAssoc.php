@@ -6,7 +6,7 @@
  * Scenarios:
  * 1. Stupid. Run SELECT * FROM x WHERE id = <new id>. PHP 3.
  *      $projectRow = $this->db->fetchOneSelectQuery('project', array('id' => x));
- * 2. Preloading. Too greedy. Run SELECT * FROM x into the indexed array. PHP 4.
+ * 2. Pre-loading. Too greedy. Run SELECT * FROM x into the indexed array. PHP 4.
  * 		$this->projects = $GLOBALS['db']->rqfaid('project');
  * 3. Retrieve with invisible caching. This class.
 		$this->projects = new LazyFetchAssoc('project');
@@ -15,7 +15,7 @@
 class LazyFetchAssoc implements ArrayAccess {
 
 	/**
-	 * @var $db dbLayerPG
+	 * @var $db dbLayer
 	 */
 	protected $db;
 
@@ -23,7 +23,7 @@ class LazyFetchAssoc implements ArrayAccess {
 	 * @var string
 	 */
 	protected $table;
-	
+
 	/**
 	 * cache
 	 * @var array
