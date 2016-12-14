@@ -210,9 +210,9 @@ abstract class Grid extends AppController {
 //				$_SESSION
 //			);
 			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-			if (method_exists($this->user, 'setPref')) {
-				$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
-			}
+		}
+		if (method_exists($this->user, 'setPref')) {
+			$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
 		}
 		0 && debug([
 			'controller' => $this->request->getControllerString(),
