@@ -5,7 +5,6 @@
  * It contain all the information from the database related to the project as well as methods to manipulate it.
  *
  */
-
 abstract class OODBase {
 
 	/**

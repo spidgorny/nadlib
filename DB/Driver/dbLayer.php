@@ -63,8 +63,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
         if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
 	        //debug(pg_version()); exit();
-	        $version = pg_version();
-	        if ($version['server'] >= 8.4) {
+
+	        if ($this->getVersion() >= 8.4) {
 		        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
 		        $words = $this->fetchAll($query, 'word');
 		        $this->reserved = array_keys($words);
@@ -74,6 +74,11 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (DEVELOPMENT) {
 			$this->queryLog = new QueryLog();
 		}
+	}
+
+	function getVersion() {
+		$version = pg_version();
+		return $version['server'];
 	}
 
 	/**
@@ -731,6 +736,41 @@ WHERE ccu.table_name='".$table."'");
 
 	function isPostgres() {
 		return true;
+	}
+
+	function getReplaceQuery($table, array $columns) {
+		if ($this->getVersion() < 9.5) throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
+		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
+		$values = implode(", ", $this->quoteValues(array_values($columns)));
+		$table = $this->quoteKey($table);
+		$q = "INSERT INTO {$table} ({$fields}) VALUES ({$values}) 
+			ON CONFLICT UPDATE SET ";
+		return $q;
+	}
+
+	/**
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @param array $primaryKey ['id', 'id_profile']
+	 * @return string
+	 */
+	function runReplaceQuery($table, array $columns, $primaryKey = []) {
+		if ($this->getVersion() >= 9.5) {
+			$q = $this->getReplaceQuery($table, $columns);
+			return $this->perform($q);
+		} else {
+			$this->transaction();
+			$key_key = array_combine($primaryKey, $primaryKey);
+			$where = array_intersect_key($columns, $key_key);
+			$find = $this->runSelectQuery($table, $columns);
+			$rows = $this->numRows($find);
+			if ($rows) {
+				$this->runUpdateQuery($table, $columns, $where);
+			} else {
+				$this->runInsertQuery($table, $columns);
+			}
+			return $this->commit();
+		}
 	}
 
 }
