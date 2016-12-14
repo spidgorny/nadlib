@@ -21,7 +21,7 @@ abstract class FullGrid extends Grid {
 		}
 
 		if (!($this->filter instanceof Filter)) {
-			$this->filter = new Filter($this->filter);
+			$this->filter = new Filter();
 //			debug(gettype2($this->filter));
 		}
 
