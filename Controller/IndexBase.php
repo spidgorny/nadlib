@@ -258,9 +258,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			// display Exception
-			$contentOut .= $this->content->getContent();
-			$contentOut .= $this->s($content);
-			$view = $this->renderTemplate($contentOut);
+			$view = $this->renderTemplate($content);
 			//echo gettype2($view), BR;
 			if ($view instanceof View) {
 				$contentOut = $view->render();
@@ -277,8 +275,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderTemplate($content) {
 		TaylorProfiler::start(__METHOD__);
+		$contentOut = $this->content->getContent();
+		$contentOut .= $this->s($content);
 		$v = new View($this->template, $this);
-		$v->content = $content;
+		$v->content = $contentOut;
 		$v->title = strip_tags(ifsetor($this->controller->title));
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
