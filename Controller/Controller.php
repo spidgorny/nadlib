@@ -293,7 +293,7 @@ abstract class Controller {
 
 	function indexAction() {
 		$content = $this->renderTemplate();
-		$content = $this->div($content, get_class($this));
+		$content = $this->div($content, str_replace('\\', '-', get_class($this)));
 		return $content;
 	}
 
@@ -390,7 +390,7 @@ abstract class Controller {
 				?: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
 			$method .= 'Action';		// ZendFramework style
-			//debug($method, method_exists($this, $method));
+//			debug($method, method_exists($this, $method));
 
 			if ($proxy = $this->request->getTrim('proxy')) {
 				$proxy = new $proxy($this);
