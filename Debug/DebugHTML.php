@@ -11,6 +11,8 @@ class DebugHTML {
 	 */
 	var $helper;
 
+	var $htmlProlorSent = false;
+
 	function __construct(Debug $helper) {
 		$this->helper = $helper;
 	}
@@ -27,11 +29,12 @@ class DebugHTML {
 		if (!headers_sent()) {
 			if (method_exists($this->helper->index, 'renderHead')) {
 				$this->helper->index->renderHead();
-			} else {
+			} elseif (!headers_sent() && !$this->htmlProlorSent) {
 				$content = '<!DOCTYPE html>
 				<html>
 				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 				' . $content;
+				$this->htmlProlorSent = true;
 			}
 		}
 		return $content;
