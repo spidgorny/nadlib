@@ -77,7 +77,10 @@ class SQLBuilder {
 		} elseif ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
 			return "COMPRESS('".$this->db->escape($value->asXML())."')";
 		} elseif (is_object($value)) {
-			return "'".$this->db->escape($value)."'";
+			if ($value instanceof stdClass) {
+				debug($value);
+			}
+			return "'".$this->db->escape((string)$value)."'";
 		} elseif ($value === NULL) {
 			return "NULL";
 		} elseif (is_numeric($value) && !$this->isExp($value)) {
