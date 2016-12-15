@@ -203,7 +203,9 @@ abstract class Grid extends AppController {
 			if (method_exists($this->user, 'getPref')) {
 				$prefFilter = $this->user->getPref('Filter.' . $cn);
 //				debug($prefFilter);
-				$this->filter->setPreferences($prefFilter);
+				if ($prefFilter) {
+					$this->filter->setPreferences($prefFilter);
+				}
 			}
 //			d($cn, $this->filter,
 //				array_keys($_SESSION), gettypes($_SESSION),
