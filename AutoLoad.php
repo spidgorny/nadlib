@@ -366,6 +366,7 @@ class AutoLoad {
 //			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);
+//			echo $classFile, TAB, $file, BR;
 			if ($file) {
 				$this->classFileMap[$class] = $file;	// save
 				$this->logSuccess($class . ' found in '. $file);
