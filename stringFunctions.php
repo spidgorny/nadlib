@@ -145,4 +145,12 @@ if (!function_exists('str_startsWith')) {
 		}
 	}
 
+	function toCamelCase($string){
+		$string = str_replace('-', ' ', $string);
+		$string = str_replace('_', ' ', $string);
+		$string = ucwords(strtolower($string));
+		$string = str_replace(' ', '', $string);
+		return $string;
+	}
+
 }
