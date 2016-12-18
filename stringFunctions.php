@@ -145,4 +145,21 @@ if (!function_exists('str_startsWith')) {
 		}
 	}
 
+	/**
+	 * Convert string to in camel-case, useful for class name patterns.
+	 *
+	 * @param $string
+	 *   Target string.
+	 *
+	 * @return string
+	 *   Camel-case string.
+	 */
+	function toCamelCase($string) {
+		$string = str_replace('-', ' ', $string);
+		$string = str_replace('_', ' ', $string);
+		$string = ucwords(strtolower($string));
+		$string = str_replace(' ', '', $string);
+		return $string;
+	}
+
 }
