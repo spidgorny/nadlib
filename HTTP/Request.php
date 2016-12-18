@@ -918,10 +918,10 @@ class Request {
 		));
 
 		$docRoot = self::getDocumentRootByRequest();
-		if (!$docRoot || $docRoot == '/') {
+		if (!$docRoot) {
 			$docRoot = self::getDocumentRootByDocRoot();
 		}
-		if (!$docRoot || $docRoot == '/') {
+		if (!$docRoot) {
 			$docRoot = self::getDocumentRootByScript();
 		}
 		$before = $docRoot;
@@ -943,7 +943,7 @@ class Request {
 	 */
 	static function getDocumentRootByRequest() {
 		$script = $_SERVER['SCRIPT_FILENAME'];
-		$request = dirname(ifsetor($_SERVER['REQUEST_URI']));
+		$request = dirname($_SERVER['REQUEST_URI']);
 //		exit();
 		if ($request && $request != '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
@@ -956,7 +956,6 @@ class Request {
 	}
 
 	static function getDocumentRootByDocRoot() {
-		$docRoot = NULL;
 		$script = $_SERVER['SCRIPT_FILENAME'];
 		$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
 		if ($docRootRaw
