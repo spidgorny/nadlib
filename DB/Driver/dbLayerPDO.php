@@ -476,4 +476,18 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 		$this->queryLog = NULL;
 	}
 
+	function getReplaceQuery($table, array $columns) {
+		if ($this->isMySQL()) {
+			$m = new dbLayerMySQLi();
+			$m->qb = $this->qb;
+			return $m->getReplaceQuery($table, $columns);
+		} elseif ($this->isPostgres()) {
+			$p = new dbLayer();
+			$p->qb = $this->qb;
+			return $p->getReplaceQuery($table, $columns);
+		} else {
+			throw new DatabaseException(__METHOD__.' is not implemented for '.get_class($this));
+		}
+	}
+
 }
