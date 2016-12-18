@@ -244,6 +244,7 @@ class URL {
 	}
 
 	function setFragment($name) {
+		if ($name[0] == '#') $name = substr($name, 1);
 		$this->components['fragment'] = $name;
 		return $this;
 	}
