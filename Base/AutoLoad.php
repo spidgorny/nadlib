@@ -87,9 +87,9 @@ class AutoLoad {
 		if (phpversion() < 5.3 && !defined('__DIR__')) {
 			define('__DIR__', dirname(__FILE__));
 		}
-		require_once __DIR__ . '/HTTP/URL.php';
-		require_once __DIR__ . '/HTTP/Request.php';
-		require_once __DIR__ . '/HTTP/Path.php';
+		require_once __DIR__ . '/../HTTP/URL.php';
+		require_once __DIR__ . '/../HTTP/Request.php';
+		require_once __DIR__ . '/../HTTP/Path.php';
 		require_once __DIR__ . '/AutoLoadFolders.php';
 	}
 
@@ -243,6 +243,7 @@ class AutoLoad {
 	}
 
 	function detectAppRoot() {
+		require_once __DIR__.'/AppRootDetector.php';
 		$ard = new AppRootDetector();
 		return $ard->get();
 	}

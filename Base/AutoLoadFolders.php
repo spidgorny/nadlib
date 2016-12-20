@@ -29,7 +29,7 @@ class AutoLoadFolders {
 
 	function __construct(AutoLoad $al) {
 		$this->al = $al;
-		require_once __DIR__.'/Debug/Debug.php';
+		require_once __DIR__.'/../Debug/Debug.php';
 		//$this->debugger = Debug::getInstance();
 		//if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFoldersFromSession();
@@ -75,7 +75,7 @@ class AutoLoadFolders {
 	}
 
 	function getFolders() {
-		require_once __DIR__ . '/HTTP/Request.php';
+		require_once __DIR__ . '/../HTTP/Request.php';
 
 		$this->getFoldersFromConfig();
 		$folders = (array)ifsetor($this->folders['']);	// modified by the line above
@@ -128,15 +128,15 @@ class AutoLoadFolders {
 			));
 		}
 		if (!class_exists('ConfigBase')) {
-			require_once __DIR__.'/ConfigBase.php';
+			require_once __DIR__.'/../ConfigBase.php';
 		}
 		if (!class_exists('Config', false)) {
 			if ($this->debug) {
 				echo __METHOD__.': Config class is found', BR;
 			}
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath1 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
-			$configPath2 = $this->al->appRoot.'class'.DIRECTORY_SEPARATOR.      'Config.php';
+			$configPath1 = $this->al->getAppRoot().'class'.DIRECTORY_SEPARATOR.'class.Config.php';
+			$configPath2 = $this->al->getAppRoot().'class'.DIRECTORY_SEPARATOR.      'Config.php';
 			$this->al->stat['configPath'] = $configPath1;
 //			pre_print_r($configPath1, file_exists($configPath1));
 //			pre_print_r($configPath2, file_exists($configPath2));
@@ -172,7 +172,7 @@ class AutoLoadFolders {
 	}
 
 	function getFoldersFromConfigBase() {
-		require_once __DIR__ . '/ConfigBase.php';
+		require_once __DIR__ . '/../ConfigBase.php';
 		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 		// append $this->nadlibRoot before each
 		//if (basename(getcwd()) != 'be') {
