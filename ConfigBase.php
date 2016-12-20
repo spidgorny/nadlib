@@ -38,6 +38,7 @@ class ConfigBase {
 
 	public static $includeFolders = array(
 		'.',
+		'Base',
 		'Cache',
 		'Controller',
 		'CSS',
@@ -81,12 +82,6 @@ class ConfigBase {
 	 */
 	protected $user;
 
-	/**
-	 * @var string
-	 * @deprecated
-	 */
-	public $appRoot;
-
 	var $mailFrom = '';
 
 	/**
@@ -101,38 +96,22 @@ class ConfigBase {
 		$this->documentRoot = Request::getDocumentRoot();
 //		debug($this->documentRoot);
 
-		if (Request::isCLI()) {
-			$this->appRoot = getcwd();
-		} else {
-			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
-			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
-			AutoLoad::getInstance()->documentRoot = new Path(
-				str_replace('/kunden', '', AutoLoad::getInstance()->documentRoot)
-			); // 1und1.de
-		}
-
-		//debug_print_backtrace();
-		(array(
+		$appRoot = AutoLoad::getInstance()->getAppRoot();
+		0 && pre_print_r(array(
 			'Config->documentRoot' => $this->documentRoot,
-			'Config->appRoot' => $this->appRoot,
+			'Config->appRoot' => $appRoot,
 		));
 		//debug_pre_print_backtrace();
 
-		//$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
-		//$appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $appRoot);
-
-		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
-		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
-
 		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));
-		$configYAML = AutoLoad::getInstance()->appRoot.'class/config.yaml';
+		$configYAML = $appRoot .'class/config.yaml';
 		//print_r(array($configYAML, file_exists($configYAML)));
 		if (file_exists($configYAML) && class_exists('Spyc')) {
 			$this->config = Spyc::YAMLLoad($configYAML);
 		}
 		$this->mergeConfig($this);
 
-		$configJSON = AutoLoad::getInstance()->appRoot.'class/config.json';
+		$configJSON = $appRoot .'class/config.json';
 		//print_r(array($configJSON, file_exists($configJSON)));
 		if (file_exists($configJSON)) {
 			$this->config = json_decode(file_get_contents($configJSON), true);

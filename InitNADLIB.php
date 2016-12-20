@@ -15,7 +15,7 @@ class InitNADLIB {
 
 	function __construct() {
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
-		require_once dirname(__FILE__) . '/AutoLoad.php';
+		require_once dirname(__FILE__) . '/Base/AutoLoad.php';
 		require_once dirname(__FILE__) . '/HTTP/Request.php';
 		require_once dirname(__FILE__) . '/Debug/TaylorProfiler.php';
 		if (!defined('BR')) {

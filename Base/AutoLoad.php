@@ -26,7 +26,7 @@ class AutoLoad {
 	 * @var Path from the root of the OS to the application root
 	 * Z:/web/have-you-been-here/
 	 */
-	public $appRoot;
+	protected $appRoot;
 
 	/**
 	 * Session stored map of each class to a file.
@@ -87,9 +87,9 @@ class AutoLoad {
 		if (phpversion() < 5.3 && !defined('__DIR__')) {
 			define('__DIR__', dirname(__FILE__));
 		}
-		require_once __DIR__ . '/HTTP/URL.php';
-		require_once __DIR__ . '/HTTP/Request.php';
-		require_once __DIR__ . '/HTTP/Path.php';
+		require_once __DIR__ . '/../HTTP/URL.php';
+		require_once __DIR__ . '/../HTTP/Request.php';
+		require_once __DIR__ . '/../HTTP/Path.php';
 		require_once __DIR__ . '/AutoLoadFolders.php';
 	}
 
@@ -105,6 +105,13 @@ class AutoLoad {
 			//self::$instance->initFolders();
 		}
 		return self::$instance;
+	}
+
+	function getAppRoot() {
+		if (!$this->appRoot) {
+			$this->appRoot = $this->detectAppRoot();
+		}
+		return $this->appRoot;
 	}
 
 	/**
@@ -137,6 +144,9 @@ class AutoLoad {
 	function detectNadlibRoot() {
 		$this->documentRoot = new Path($_SERVER['DOCUMENT_ROOT']);
 		$this->documentRoot->resolveLink();
+		$this->documentRoot = new Path(
+			str_replace('/kunden', '', $this->documentRoot)
+		); // 1und1.de
 
 		$scriptWithPath = URL::getScriptWithPath();
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
@@ -232,60 +242,10 @@ class AutoLoad {
 		}
 	}
 
-	/**
-	 * Original idea was to remove vendor/s/nadlib/be from the CWD
-	 * but since $this->nadlibRoot is relative "../" it's impossible.
-	 * Now we go back one folder until we find "class/class.Config.php" which MUST exist
-	 *
-	 * Since it's not 100% that it exists we just take the REQUEST_URL
-	 */
 	function detectAppRoot() {
-		if (Request::isPHPUnit()) {
-			$appRoot = getcwd();
-		} else {
-			$appRoot = dirname(URL::getScriptWithPath());
-		}
-		$appRoot = realpath($appRoot);
-		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
-		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
-		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
-			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
-		) {
-			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'index.php';
-			$exists1 = file_exists($config1);
-			if ($this->debug) {
-				echo __METHOD__, ' ', $config1, ': ', $exists1, BR;
-			}
-			//debug($appRoot, strlen($appRoot), $exists);
-			if ($exists1) {
-				break;
-			}
-			$appRoot = dirname($appRoot);
-		}
-
-		if (!$appRoot || $appRoot == '/') {  // nothing is found by previous method
-			if ($this->debug) {
-				echo __METHOD__, ' Alternative way of app root detection', BR;
-			}
-			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
-			//debug($appRoot, URL::getScriptWithPath());
-			$appRoot->upIf('nadlib');
-			$appRoot->upIf('spidgorny');
-			$appRoot->upIf('vendor');
-			$hasIndex = $appRoot->hasFile('index.php');
-			//pre_print_r($appRoot.'', $hasIndex);
-			if (!$hasIndex) {
-				$appRoot->up();
-			}
-		}
-
-		if ($this->debug) {
-			echo __METHOD__, ' ', $appRoot, BR;
-		}
-		// always add trailing slash!
-	    $appRoot = cap($appRoot, '/');
-		$appRoot = new Path($appRoot);
-		return $appRoot;
+		require_once __DIR__.'/AppRootDetector.php';
+		$ard = new AppRootDetector();
+		return $ard->get();
 	}
 
 	function __destruct() {
