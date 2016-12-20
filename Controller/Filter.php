@@ -15,8 +15,10 @@ class Filter extends ArrayObject {
 		$this->setRequest($input);
 	}
 
-	function setPreferences(array $_preferences) {
-		$this->_preferences = $_preferences;
+	function setPreferences(array $_preferences = NULL) {
+		if ($_preferences) {
+			$this->_preferences = $_preferences;
+		}
 	}
 
 	function setRequest(array $_request) {
@@ -25,6 +27,10 @@ class Filter extends ArrayObject {
 
 	function setDefault(array $_default) {
 		$this->_default = $_default;
+	}
+
+	function set($index, $newval) {
+		$this->offsetSet($index, $newval);
 	}
 
 	public function offsetSet($index, $newval)
@@ -81,6 +87,14 @@ class Filter extends ArrayObject {
 
 	function __debugInfo() {
 		return $this->getDebug();
+	}
+
+	function ensure($field, array $allowedOptions, $default = NULL) {
+		$value = $this[$field];
+		if (!ifsetor($allowedOptions[$value])) {
+			$default = $default ?: first(array_keys($allowedOptions));
+			$this->set($field, $default);
+		}
 	}
 
 }
