@@ -141,7 +141,7 @@ class Menu /*extends Controller*/ {
 		$this->controllerVarName = $c;
 		$this->setBasePath();
 	}
-	
+
 	/**
 	 * Called by the constructor
 	 */
@@ -176,7 +176,9 @@ class Menu /*extends Controller*/ {
 		} else {
 			$path = new URL();
 			$path->clearParams();
-			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
+			if ($this->controllerVarName) {
+				$path->setParam($this->controllerVarName, '');    // forces a link with "?c="
+			}
 		}
 		$this->basePath = $path;
 		0 && debug(array(
@@ -442,10 +444,14 @@ class Menu /*extends Controller*/ {
 					$link->replaceController($path);
 				}
 			} else {
-				$link = $this->basePath->setParam($this->controllerVarName, $class);
+				if ($class[0] == '#') {
+					$link = $this->basePath->setFragment($class);
+				} else {
+					$link = $this->basePath->setParam($this->controllerVarName, $class);
+				}
 			}
 		}
-		nodebug(array(
+		0 && debug(array(
 			'class' => $class,
 			'root' => $root,
 			'path' => $path,

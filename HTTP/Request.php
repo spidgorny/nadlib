@@ -918,12 +918,15 @@ class Request {
 		));
 
 		$docRoot = self::getDocumentRootByRequest();
-		if (!$docRoot || $docRoot == '/') {
+		if (!$docRoot || ('/' == $docRoot)) {
 			$docRoot = self::getDocumentRootByDocRoot();
 		}
-		if (!$docRoot || $docRoot == '/') {
-			$docRoot = self::getDocumentRootByScript();
-		}
+
+		// this is not working right
+//		if (!$docRoot || ('/' == $docRoot)) {
+//			$docRoot = self::getDocumentRootByScript();
+//		}
+
 		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
 		$docRoot = cap($docRoot, '/');
@@ -943,7 +946,7 @@ class Request {
 	 */
 	static function getDocumentRootByRequest() {
 		$script = $_SERVER['SCRIPT_FILENAME'];
-		$request = dirname(ifsetor($_SERVER['REQUEST_URI']));
+		$request = dirname($_SERVER['REQUEST_URI']);
 //		exit();
 		if ($request && $request != '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
@@ -1144,10 +1147,11 @@ class Request {
 	}
 
 	public function getID() {
-//		debug($this->getNamelessID(), $this->getInt('id'), $this->getNameless(1));
+//		debug($this->getNamelessID(), $this->getInt('id'), $this->getURLLevels());
+		$last = sizeof($this->getURLLevels()) - 1;
 		return $this->getNamelessID()
 			?: $this->getInt('id')
-			?: $this->getNameless(1);
+			?: $this->getNameless($last);
 	}
 
 }
