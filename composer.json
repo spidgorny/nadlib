@@ -26,7 +26,8 @@
         "flot/flot": "dev-master"
     },
 	"autoload": {
-		"classmap": [
+		"classhmap": [
+			"./",
 			"Cache/",
 			"Controller/",
 			"CSS/",
@@ -46,7 +47,7 @@
 			"init.php"
 		],
 		"psr-0": {
-			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
+			"": "src/"
 		}
 	},
 	"autoload-dev": {

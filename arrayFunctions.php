@@ -126,4 +126,13 @@ if (!function_exists('first')) {
 		}
 	}
 
+	function array_map_keys($callback, $array) {
+		$keys = array_keys($array);
+		$temp = array_map($callback, $keys, $array);	// return ['key', 'value']
+		$keys = array_column($temp, 0);
+		$values = array_column($temp, 1);
+		$result = array_combine($keys, $values);
+		return $result;
+	}
+
 }
