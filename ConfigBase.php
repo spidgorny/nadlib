@@ -38,6 +38,7 @@ class ConfigBase {
 
 	public static $includeFolders = array(
 		'.',
+		'Base',
 		'Cache',
 		'Controller',
 		'CSS',
