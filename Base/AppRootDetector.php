@@ -4,6 +4,8 @@ class AppRootDetector {
 
 	protected $appRoot;
 
+	var $debug = false;
+
 	/**
 	 * Original idea was to remove vendor/s/nadlib/be from the CWD
 	 * but since $this->nadlibRoot is relative "../" it's impossible.
@@ -14,7 +16,7 @@ class AppRootDetector {
 	function __construct()
 	{
 		if (Request::isCLI()) {
-			$appRoot = getcwd();
+			$appRoot = dirname(dirname(getcwd()));
 			return new Path(cap($appRoot));
 		} elseif (Request::isPHPUnit()) {
 			$appRoot = getcwd();
