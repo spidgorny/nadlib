@@ -154,7 +154,7 @@ class AutoLoad {
 		if (class_exists('Config')) {
 			//$config = Config::getInstance();	// can't do until autoload is registered
 		}
-		$this->nadlibRoot = dirname(__FILE__) . '/';
+		$this->nadlibRoot = dirname(dirname(__FILE__)) . '/';
 		$this->appRoot = $this->detectAppRoot();
 //		echo 'appRoot: ', $this->appRoot, BR;
 
@@ -288,7 +288,7 @@ class AutoLoad {
 
 			if ($notFoundException) {
 				if ($tp) $tp->stop(__METHOD__);
-				debug($this->folders->folders); 
+				debug($this->folders->folders);
 				throw new Exception('Class '.$class.' ('.$file.') not found.'.BR);
 			} else {
 				//debug_pre_print_backtrace();

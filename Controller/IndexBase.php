@@ -481,7 +481,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * @param $source
 	 * @param bool $defer
-	 * @return Index
+	 * @return Index|IndexBase
 	 */
 	function addJS($source, $defer = true) {
 		if (class_exists('Debug')) {
@@ -508,7 +508,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @param $source
-	 * @return Index
+	 * @return Index|IndexBase
 	 */
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
@@ -564,6 +564,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$ft = new FloatTime(true);
 				$content .= $ft->render();
 				$content .= '<div class="profiler noprint">';
+				$url = $this->request->getLocation().$this->request->getURL();
+				$content .= '<a href="'. $url .'">'. $url .'</a>'.BR;
 				$content .= $this->s(OODBase::getCacheStatsTable());
 
 				/** @var $profiler TaylorProfiler */

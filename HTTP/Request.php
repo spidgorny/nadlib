@@ -942,7 +942,6 @@ class Request {
 
 	/**
 	 * Works well with RewriteRule
-	 *
 	 */
 	static function getDocumentRootByRequest() {
 		$script = $_SERVER['SCRIPT_FILENAME'];

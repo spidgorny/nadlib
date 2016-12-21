@@ -122,9 +122,9 @@ class AutoLoadFolders {
 				'SCRIPT_FILENAME'       => dirname($_SERVER['SCRIPT_FILENAME']),
 				'getcwd'                => getcwd(),
 				'exists(cwd)'           => file_exists(getcwd()),
-				'appRoot'               => $this->al->appRoot . '',
-				'exists(appRoot)'       => file_exists($this->al->appRoot),
-				'exists(appRoot.class)' => file_exists($this->al->appRoot . 'class'),
+				'appRoot'               => $this->al->getAppRoot() . '',
+				'exists(appRoot)'       => file_exists($this->al->getAppRoot()),
+				'exists(appRoot.class)' => file_exists($this->al->getAppRoot() . 'class'),
 			));
 		}
 		if (!class_exists('ConfigBase')) {

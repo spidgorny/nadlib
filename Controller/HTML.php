@@ -132,4 +132,8 @@ class HTML {
 		return '<span class="badge">'.htmlspecialchars($count).'</span>';
 	}
 
+	public function blockquote($getDescription) {
+		return '<blockquote>'.$this->e($getDescription).'</blockquote>';
+	}
+
 }
