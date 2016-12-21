@@ -150,13 +150,12 @@ class AutoLoad {
 
 		$scriptWithPath = URL::getScriptWithPath();
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
-		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
-		if (class_exists('Config')) {
-			//$config = Config::getInstance();	// can't do until autoload is registered
-		}
-		$this->nadlibRoot = dirname(__FILE__) . '/';
+		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(dirname(__FILE__)));
+
+		$this->nadlibRoot = dirname(dirname(__FILE__)) . '/';
+//		pre_print_r('nadlibRoot: ', $this->nadlibRoot);
 		$this->appRoot = $this->detectAppRoot();
-//		echo 'appRoot: ', $this->appRoot, BR;
+//		pre_print_r('appRoot: ', $this->appRoot.'');
 
 		if ((strlen($this->appRoot) > 1) && !$this->appRoot->isAbsolute) { // '/', 'w:\\'
 			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
@@ -173,16 +172,15 @@ class AutoLoad {
 				$appRootIsRoot = '$relToNadlibPU';
 			}
 		}
-		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
+		$this->nadlibFromDocRoot = str_replace(
+			dirname($_SERVER['SCRIPT_FILENAME']), '',
+			$this->nadlibFromDocRoot);
 		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
-//		echo 'documentRoot: ', $this->documentRoot, BR;
+//		pre_print_r('nadlibFromDocRoot', $this->nadlibFromDocRoot);
 
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
-
-		$this->nadlibRoot = cap($this->nadlibRoot);
-		if ($this->debug) {
-			echo __METHOD__, ' ', $this->nadlibRoot, BR;
-		}
+//		pre_print_r('nadlibFromCWD', $this->nadlibFromCWD);
+//		pre_print_r('$appRootIsRoot', $appRootIsRoot);
 
 		$this->setComponentsPath();
 
