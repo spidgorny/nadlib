@@ -137,9 +137,9 @@ class DebugHTML {
 			foreach ($a as $i => $r) {
 				$type = gettype2($r);
 				$content .= '<tr>
-					<td class="view_array">'.$i.'</td>
-					<td class="view_array">'.$type.'</td>
-					<td class="view_array">';
+					<td>'.$i.'</td>
+					<td>'.$type.'</td>
+					<td>';
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
