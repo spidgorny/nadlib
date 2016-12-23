@@ -833,8 +833,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 	function addColumn($columnName, $callback) {
 		$copy = $this->getData();
 		foreach ($copy as $i => $row) {
-			$this[$i][$columnName] = call_user_func($callback, $row, $i);
+			$copy[$i][$columnName] = call_user_func($callback, $row, $i);
 		}
+		$this->setData($copy);
 		return $this;
 	}
 

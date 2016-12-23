@@ -25,7 +25,7 @@ class IndexBE extends IndexBase {
 	function __construct() {
 		//debug_pre_print_backtrace();
 		if (!class_exists('Config')) {
-			require_once 'class.ConfigBE.php';
+			require_once 'ConfigBE.php';
 			$this->config = ConfigBE::getInstance();
 		}
 		parent::__construct();
@@ -41,7 +41,7 @@ class IndexBE extends IndexBase {
 		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
 		//base href will be fixed manually below
 
-		$this->config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->appRoot);
+//		$this->config->appRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->appRoot);
 		//$this->config->appRoot = str_replace('/nadlib/be', '', $this->config->appRoot);
 
 		$this->al = AutoLoad::getInstance();
@@ -64,7 +64,6 @@ class IndexBE extends IndexBase {
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
 		$this->user->try2login();
-		$this->config->user = $this->user; // for consistency
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);

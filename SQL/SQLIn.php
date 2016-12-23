@@ -4,7 +4,7 @@ class SQLIn extends SQLWherePart {
 
 	public $list = array();
 
-	function __construct(array $list) {
+	function __construct(array $list, $field = NULL) {
 		parent::__construct();
 		$this->list = $list;
 		foreach ($this->list as $el) {
@@ -12,6 +12,7 @@ class SQLIn extends SQLWherePart {
 				throw new InvalidArgumentException(__METHOD__.' need to have flat array');
 			}
 		}
+		$this->injectField($field);
 	}
 
 	function __toString() {

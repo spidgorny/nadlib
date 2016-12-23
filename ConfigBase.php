@@ -128,7 +128,7 @@ class ConfigBase {
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {
-			self::$instance = new Config();
+			self::$instance = new static();
 			//self::$instance->postInit();	// will try to connect to the DB before autoload
 			// must be called outside
 		}
