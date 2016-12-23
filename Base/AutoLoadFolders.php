@@ -128,7 +128,7 @@ class AutoLoadFolders {
 			));
 		}
 		if (!class_exists('ConfigBase')) {
-			require_once __DIR__ . '/../ConfigBase.php';
+			require_once __DIR__ . '/ConfigBase.php';
 		}
 		if (!class_exists('Config', false)) {
 			if ($this->debug) {

@@ -681,8 +681,8 @@ class Request {
 
 			if (false) {    // doesn't work in ORS
 				$path->remove(clone $al->documentRoot);
-			} elseif ($config->documentRoot instanceof Path) {        // works in ORS
-				$path->remove(clone $config->documentRoot);
+			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
+				$path->remove(clone $al->documentRoot);
 			}
 		}
 		return $path;
