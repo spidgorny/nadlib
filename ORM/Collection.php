@@ -1051,7 +1051,7 @@ class Collection implements IteratorAggregate {
 
 	function get($id) {
 		$members = $this->objectify();
-		return $members[$id];
+		return ifsetor($members[$id]);
 	}
 
 	public function setMembers(array $countries) {
