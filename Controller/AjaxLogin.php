@@ -50,7 +50,8 @@ class AjaxLogin extends AppController {
 
 	function __construct($action = NULL) {
 		parent::__construct();
-		Config::getInstance()->mergeConfig($this);
+		$config = NadlibIndex::$instance->dic->config;
+		$config->mergeConfig($this);
 		$action = $action ? $action : $this->request->getTrim('action');	// don't reverse this line as it will call mode=login twice
 		if ($action) {
 			$this->action = $action;
@@ -60,7 +61,7 @@ class AjaxLogin extends AppController {
 	}
 
 	function createDB() {
-		$GLOBALS['index']->db->perform("CREATE TABLE IF NOT EXISTS `user` (
+		$this->db->perform("CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL auto_increment,
   `username` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,

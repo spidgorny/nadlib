@@ -161,9 +161,9 @@ class Menu /*extends Controller*/ {
 			$path->clearParams();
 		} elseif ($this->useControllerSlug) {
 			$path = new URL();
-			if (basename($autoLoad->appRoot) == 'be') {
+			$appRoot = $autoLoad->getAppRoot();
+			if (basename($appRoot) == 'be') {
 				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
-				$appRoot = $autoLoad->appRoot;
 				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
 				$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
 				$path->setParams();
@@ -189,7 +189,7 @@ class Menu /*extends Controller*/ {
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,
-			'appRoot' => $autoLoad->appRoot.'',
+			'appRoot' => $appRoot.'',
 			'nadlibRoot' => $autoLoad->nadlibRoot,
 			'nadlibRootFromDocRoot' => $autoLoad->nadlibFromDocRoot,
 			'current' => $this->current,

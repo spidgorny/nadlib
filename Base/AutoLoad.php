@@ -154,7 +154,7 @@ class AutoLoad {
 		if (class_exists('Config')) {
 			//$config = Config::getInstance();	// can't do until autoload is registered
 		}
-		$this->nadlibRoot = dirname(dirname(__FILE__)) . '/';
+		$this->nadlibRoot = dirname(__FILE__) . '/';
 		$this->appRoot = $this->detectAppRoot();
 //		echo 'appRoot: ', $this->appRoot, BR;
 

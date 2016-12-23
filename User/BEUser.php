@@ -46,4 +46,20 @@ class BEUser extends UserBase {
 	function __destruct() {
 		// do nothing
 	}
+
+	function isAdmin()
+	{
+		return true;
+	}
+
+	function getLogin()
+	{
+		return 'Nadlib Admin';
+	}
+
+	function getAvatarURL()
+	{
+		return NULL;
+	}
+
 }
