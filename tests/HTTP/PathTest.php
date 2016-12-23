@@ -8,6 +8,13 @@
  */
 class PathTest extends PHPUnit_Framework_TestCase {
 
+	function test_isAbsolute() {
+		$path = new Path('asd/qwe');
+		$this->assertFalse($path->isAbsolute());
+		$path = new Path('dev-jobz/Topic/hyperledger');
+		$this->assertFalse($path->isAbsolute());
+	}
+
 	function test_relativeFromAppRoot() {
 		//$source = 'components/jquery/jquery.js?1453328048';
 		$source = 'components/bootstrap/less/bootstrap.js?1453328048';

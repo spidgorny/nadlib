@@ -398,12 +398,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			$jQueryPath = 'jquery/jquery.min.js';
 			$al = AutoLoad::getInstance();
+			$appRoot = $al->getAppRoot();
 			nodebug(array(
 				'jQueryPath' => $jQueryPath,
-				'appRoot' => $al->appRoot,
+				'appRoot' => $appRoot,
 				'componentsPath' => $al->componentsPath,
 				'fe(jQueryPath)' => file_exists($jQueryPath),
-				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(appRoot)' => file_exists($appRoot . $jQueryPath),
 				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
 				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -414,10 +415,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
 				$this->addJS($al->componentsPath->getURL().$jQueryPath, $defer);
 				return $this;
-			} elseif (file_exists($al->appRoot . $jQueryPath)) {
+			} elseif (file_exists($appRoot . $jQueryPath)) {
                 // does not work if both paths are the same!!
 //				$rel = Path::make(getcwd())->remove($al->appRoot);
-                $rel = Path::make(Config::getInstance()->documentRoot)->remove($al->appRoot);
+                $rel = Path::make(Config::getInstance()->documentRoot)->remove($appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
 				$this->addJS($rel . $jQueryPath, $defer);
@@ -442,13 +443,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
+		$appRoot = $al->getAppRoot();
 		nodebug(array(
 			'jQueryPath' => $jQueryPath,
 			'jQueryPath->exists()' => $jQueryPath->exists(),
-			'appRoot' => $al->appRoot,
+			'appRoot' => $appRoot,
 			'componentsPath' => $al->componentsPath,
 			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
-			'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath->getUncapped()),
+			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
 			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
 			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -564,8 +566,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$ft = new FloatTime(true);
 				$content .= $ft->render();
 				$content .= '<div class="profiler noprint">';
-				$url = $this->request->getLocation().$this->request->getURL();
-				$content .= '<a href="'. $url .'">'. $url .'</a>'.BR;
+				$url = $this->request->getURL();
+				$url->makeRelative();
+				$fullURL = $this->request->getLocation(). $url;
+				$urlText = $this->request->getLocation().' '. $url;
+				$content .= '<a href="'. $fullURL .'">'. $urlText .'</a>'.BR;
 				$content .= $this->s(OODBase::getCacheStatsTable());
 
 				/** @var $profiler TaylorProfiler */

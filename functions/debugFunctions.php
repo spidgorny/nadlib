@@ -129,7 +129,7 @@ if (!function_exists('debug')) {
 
 	function debug_pre_print_backtrace() {
 		if (DEVELOPMENT) {
-			require_once __DIR__.'/HTTP/Request.php';
+			require_once __DIR__ . '/../HTTP/Request.php';
 			if (!Request::isCLI()) {
 				print '<pre style="
 				white-space: pre-wrap;
@@ -194,9 +194,9 @@ if (!function_exists('debug')) {
 			if ($withHash) {
 				$hash = md5(spl_object_hash($something));
 				$hash = substr($hash, 0, 6);
-				require_once __DIR__ . '/HTTP/Request.php';
+				require_once __DIR__ . '/../HTTP/Request.php';
 				if (!Request::isCLI()) {
-					require_once __DIR__ . '/HTML/Color.php';
+					require_once __DIR__ . '/../HTML/Color.php';
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
 					$hash = new HTMLTag('span', array(
