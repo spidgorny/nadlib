@@ -128,7 +128,7 @@ class AutoLoadFolders {
 			));
 		}
 		if (!class_exists('ConfigBase')) {
-			require_once __DIR__.'/../ConfigBase.php';
+			require_once __DIR__ . '/../ConfigBase.php';
 		}
 		if (!class_exists('Config', false)) {
 			if ($this->debug) {
@@ -172,7 +172,7 @@ class AutoLoadFolders {
 	}
 
 	function getFoldersFromConfigBase() {
-		require_once __DIR__ . '/../ConfigBase.php';
+		require_once __DIR__ . '/ConfigBase.php';
 		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 		// append $this->nadlibRoot before each
 		//if (basename(getcwd()) != 'be') {
@@ -190,7 +190,7 @@ class AutoLoadFolders {
 	}
 
 	function addFolder($path, $namespace = NULL) {
-		if (!Path::isAbsolute($path)) {
+		if (!Path::isItAbsolute($path)) {
 			$path = getcwd().'/'.$path;
 		}
 		$this->folders[$namespace][] = realpath($path);

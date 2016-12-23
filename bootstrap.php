@@ -17,13 +17,13 @@ class Bootstrap {
 		/** @noinspection PhpIncludeInspection */
 		require_once $globalAutoload;
 
-		require_once __DIR__ . '/ConfigBase.php';
+		require_once __DIR__ . '/Base/ConfigBase.php';
 		//require_once 'TestConfig.php';
 		//class_alias('TestConfig', 'Config');
 
 		$_COOKIE['debug'] = 1;
 
-		require_once __DIR__ . '/InitNADLIB.php';
+		require_once __DIR__ . '/Base/InitNADLIB.php';
 		$n = new InitNADLIB();
 		$n->init();
 

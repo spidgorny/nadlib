@@ -415,7 +415,7 @@ class URL {
 	        //debug($scriptWithPath);
 	        // this below may not work since __FILE__ is class.URL.php and not index.php
 	        // but this our last chance for CLI/Cron
-	        if (!$scriptWithPath || !Path::isAbsolute($scriptWithPath)) {    // relative not OK
+	        if (!$scriptWithPath || !Path::isItAbsolute($scriptWithPath)) {    // relative not OK
 		        if (basename(__FILE__) == __FILE__) {	// index.php
 					$scriptWithPath = getcwd().'/'.__FILE__;
 				} else {
@@ -806,6 +806,19 @@ class URL {
 
 	public function getParams() {
 		return $this->params;
+	}
+
+	public function makeRelative() {
+		$path = $this->getPath();
+//		debug($path.'', $path->isAbsolute());
+		if ($path->isAbsolute()) {
+			$this->setPath($path->relativeFromAppRoot());
+		} else {
+			$al = AutoLoad::getInstance();
+			$new = array_diff($path->aPath, $al->getAppRoot()->aPath);
+			$this->setPath(new Path(implode('/', $new)));
+		}
+		return $this;
 	}
 
 }

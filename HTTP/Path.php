@@ -6,24 +6,25 @@ class Path {
 
 	var $aPath;
 
-	var $isAbsolute = false;
-
 	var $isDir = true;
 
 	var $isFile = false;
 
 	function __construct($sPath) {
 		$this->sPath = $sPath.'';
-		$this->isAbsolute = self::isAbsolute($this->sPath);
 		$this->isDir = str_endsWith($this->sPath, '/');
 		$this->isFile = !$this->isDir;
 		$this->explode();
 		$this->implode();   // to prevent '//'
 	}
 
-	static function isAbsolute($sPath) {
+	static function isItAbsolute($sPath) {
 		return str_startsWith($sPath, '/')
 			|| (isset($sPath[1]) && $sPath[1] == ':');
+	}
+
+	function isAbsolute() {
+		return self::isItAbsolute($this->sPath);
 	}
 
 	/**
@@ -48,7 +49,7 @@ class Path {
 	 */
 	function implode() {
 		$notSlash = $this->aPath != array('/');
-		$this->sPath = ((!Request::isWindows() && $this->isAbsolute && $notSlash) ? '/' : '').
+		$this->sPath = ((!Request::isWindows() && $this->isAbsolute() && $notSlash) ? '/' : '').
 			implode('/', $this->aPath);
 	}
 
@@ -180,7 +181,6 @@ class Path {
 		foreach ($minus->aPath as $i => $sub) {
 			if (ifsetor($this->aPath[0]) == $sub) {  // 0 because shift
 				array_shift($this->aPath);
-				$this->isAbsolute = false;
 			} else {
 				break;
 			}
@@ -190,7 +190,7 @@ class Path {
 	}
 
 	function reverse() {
-		if (!$this->isAbsolute && !empty($this->aPath)) {
+		if (!$this->isAbsolute() && !empty($this->aPath)) {
             $this->aPath = array_fill(0, sizeof($this->aPath), '..');
 			$this->implode();
 		}
@@ -241,8 +241,8 @@ class Path {
 	public function relativeFromAppRoot() {
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
-		//$new = array_diff($this->aPath, $al->appRoot->aPath);
 		$new = $this->cutArrayFromArray($this->aPath, $al->getAppRoot()->aPath);
+//		debug($this->aPath, $al->getAppRoot()->aPath, $new);
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;
@@ -250,13 +250,12 @@ class Path {
 	}
 
 	function makeAbsolute() {
-		if (!$this->isAbsolute) {
+		if (!$this->isAbsolute()) {
 			//debug(getcwd(), $this);
 			$prefix = new Path(getcwd());
 			//debug($prefix);
 			$prefix->append($this);
 			$this->aPath = $prefix->aPath;
-			$this->isAbsolute = true;
 			$this->implode();
 			$this->checkFileDir();
 		}
@@ -315,7 +314,7 @@ class Path {
 		return array(
 			'sPath' => $this->sPath,
 			'aPath' => $this->aPath,
-			'isAbsolute' => $this->isAbsolute,
+			'isAbsolute' => $this->isAbsolute(),
 			'isDir' => $this->isDir,
 			'isFile' => $this->isFile,
 			'exists' => $this->exists(),
@@ -404,7 +403,7 @@ class Path {
 
 	public function debugPathExists() {
 		$debug = array();
-		$sPath = $this->isAbsolute ? '/' : '';
+		$sPath = $this->isAbsolute() ? '/' : '';
 		foreach ($this->aPath as $i => $section) {
 			$sPath .= $section;
 			if ($i < sizeof($this->aPath)) {
