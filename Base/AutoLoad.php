@@ -17,6 +17,8 @@ class AutoLoad {
 	 */
 	public $debug = 0;
 
+	public $debugStartup = 0;
+
 	/**
 	 * @var AutoLoad
 	 */
@@ -149,11 +151,14 @@ class AutoLoad {
 		); // 1und1.de
 
 		$scriptWithPath = URL::getScriptWithPath();
+		if ($this->debugStartup) {
+			echo 'scriptWithPath: ', $scriptWithPath, BR;
+		}
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
-		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
+		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__DIR__));
 		$this->nadlibRoot = dirname(__DIR__) . '/';
 		$this->appRoot = $this->detectAppRoot();
-		if ($this->debug) {
+		if ($this->debugStartup) {
 			echo 'appRoot: ', $this->appRoot, BR;
 		}
 
@@ -174,14 +179,19 @@ class AutoLoad {
 		}
 		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
 		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
-		if ($this->debug) {
+		if ($this->debugStartup) {
 			echo 'documentRoot: ', $this->documentRoot, BR;
+			echo 'nadlibFromDocRoot: ', $this->nadlibFromDocRoot, BR;
+			echo 'appRootIsRoot: ', $appRootIsRoot, BR;
 		}
 
 		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
+		if ($this->debugStartup) {
+			echo 'nadlibFromCWD: ', $this->nadlibFromCWD, BR;
+		}
 
 		$this->nadlibRoot = cap($this->nadlibRoot);
-		if ($this->debug) {
+		if ($this->debugStartup) {
 			echo __METHOD__, ' ', $this->nadlibRoot, BR;
 		}
 
