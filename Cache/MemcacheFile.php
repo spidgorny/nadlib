@@ -32,7 +32,8 @@ class MemcacheFile implements MemcacheInterface {
 		$this->folder = self::$defaultFolder;
 		if (!Path::isAbsolute($this->folder)) {
 			// if relative, add current app
-			$sub = cap(AutoLoad::getInstance()->appRoot . '');
+			$appRoot = AutoLoad::getInstance()->getAppRoot();
+			$sub = cap($appRoot . '');
 		} else {
 			$sub = '';
 		}
