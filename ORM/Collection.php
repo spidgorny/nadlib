@@ -271,7 +271,7 @@ class Collection implements IteratorAggregate {
 	 * @return array
 	 */
 	function retrieveDataFromMySQL() {
-		$taylorKey = get_class($this).'::'.__FUNCTION__." (".$this->table.':'.(is_array($this->parentID)
+		$taylorKey = get_class($this).'::'.__FUNCTION__." (".$this->parentField.':'.(is_array($this->parentID)
 						? json_encode($this->parentID)
 						: $this->parentID).")";
 		TaylorProfiler::start($taylorKey);
@@ -1057,8 +1057,9 @@ class Collection implements IteratorAggregate {
 	public function setMembers(array $countries) {
 		$this->members = $countries;
 		$this->count = sizeof($this->members);
-		$this->data = array();
 		$this->query = __METHOD__;
+
+		$this->data = [];
 		foreach ($this->members as $obj) {
 			$this->data[$obj->id] = $obj->data;
 		}
