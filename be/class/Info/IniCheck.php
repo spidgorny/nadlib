@@ -48,7 +48,7 @@ class IniCheck extends AppControllerBE {
 				);
 			}
 		}
-		$content[] = new slTable($table, 'class="table table-striped niceTable nospacing" width="100%"');
+		$content[] = new slTable($table, 'class="table niceTable nospacing" width="100%"');
 		return $content;
 	}
 
@@ -60,7 +60,7 @@ class IniCheck extends AppControllerBE {
 			$parts = trimExplode(' ', $line);
 			if ($parts) {
 				if ($parts[0] == 'php_value') {
-					$ini[$parts[1]] = $parts[2];
+					$ini[$parts[1]] = unquote($parts[2]);
 				} elseif ($parts[0] == 'php_flag') {
 					$ini[$parts[1]] = strtolower($parts[2]) == 'on';
 				}
