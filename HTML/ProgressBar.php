@@ -156,7 +156,7 @@ class ProgressBar {
 	function setIndex($i, $always = false, $text = '', $after = '') {
 		static $last;
 		if ($this->count) {
-			$percent = $i / $this->count * 100;
+			$percent = $this->getProgress($i);
 			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
 			if ($every < 1 || !($i % $every) || $always || (($last + $every) > $i)) {
 				$this->setProgressBarProgress($percent, $text, $after);
@@ -165,6 +165,11 @@ class ProgressBar {
 		} else {
 			throw new InvalidArgumentException(__CLASS__.'->count is not set');
 		}
+	}
+
+	public function getProgress($i) {
+		$percent = $i / $this->count * 100;
+		return $percent;
 	}
 
 	static function flush($ob_flush = false) {
