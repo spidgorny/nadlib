@@ -571,16 +571,18 @@ class HTMLForm {
 			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
 		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>';
 		$index->footer['jsCal2-'.$fieldName] = '<script defer="true"> 
+document.observe("dom:loaded", () => {
     Calendar.setup({
-        trigger    	: "calendar-trigger-'.$fieldName.'",
-        inputField 	: "calendar-'.$fieldName.'",
-        min			: '.date('Ymd').',
-/*      selection	: Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
-        date        : Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
-*/      selection   : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
-        date        : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
+        trigger    	: "calendar-trigger-' . $fieldName . '",
+        inputField 	: "calendar-' . $fieldName . '",
+        min			: ' . date('Ymd') . ',
+/*      selection	: Calendar.dateToInt(new Date(\'' . date('Y-m-d', $fieldValue) . '\')),
+        date        : Calendar.dateToInt(new Date(\'' . date('Y-m-d', $fieldValue) . '\')),
+*/      selection   : Calendar.dateToInt(new Date(' . (1000 * $fieldValue) . ')),
+        date        : Calendar.dateToInt(new Date(' . (1000 * $fieldValue) . ')),
         onSelect   	: function() { this.hide() }
     });
+});
 </script>';
 		return $content;
 	}

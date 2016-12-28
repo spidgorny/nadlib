@@ -809,12 +809,12 @@ class URL {
 	}
 
 	public function makeRelative() {
+		$al = AutoLoad::getInstance();
 		$path = $this->getPath();
-//		debug($path.'', $path->isAbsolute());
-		if ($path->isAbsolute()) {
+//		debug($path.'', $path->isAbsolute(), $al->getAppRoot().'');
+		if ($path->isAbsolute() && $path->exists()) {
 			$this->setPath($path->relativeFromAppRoot());
 		} else {
-			$al = AutoLoad::getInstance();
 			$new = array_diff($path->aPath, $al->getAppRoot()->aPath);
 			$this->setPath(new Path(implode('/', $new)));
 		}

@@ -557,34 +557,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderProfiler() {
-		$content = '';
-		if (DEVELOPMENT &&
-			!$this->request->isAjax() &&
-			!in_array(get_class($this->controller), array('Lesser')))
-		{
-			if (!$this->request->isCLI()) {
-				$ft = new FloatTime(true);
-				$content .= $ft->render();
-				$content .= '<div class="profiler noprint">';
-				$url = $this->request->getURL();
-				$url->makeRelative();
-				$fullURL = $this->request->getLocation(). $url;
-				$urlText = $this->request->getLocation().' '. $url;
-				$content .= '<a href="'. $fullURL .'">'. $urlText .'</a>'.BR;
-				$content .= $this->s(OODBase::getCacheStatsTable());
-
-				/** @var $profiler TaylorProfiler */
-				$profiler = TaylorProfiler::getInstance();
-				if ($profiler) {
-					$content .= $profiler->printTimers(true);
-					$content .= TaylorProfiler::dumpQueries();
-					//$content .= $profiler->printTrace(true);
-					//$content .= $profiler->analyzeTraceForLeak();
-				}
-
-				$content .= '</div>';
-			}
-		}
+		$pp = new PageProfiler();
+		$content = $pp->render();
 		return $content;
 	}
 
