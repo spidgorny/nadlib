@@ -39,7 +39,11 @@ class RunnerTask {
 
 	function reserve() {
 		$this->db->runUpdateQuery($this->table,
-			['status' => 'working'],
+			[
+				'status' => 'working',
+				'progress' => 0,
+				'pid' => posix_getpid(),
+			],
 			['id' => $this->id()]);
 		$this->db->commit();
 	}
@@ -158,22 +162,43 @@ class RunnerTask {
 		return $this->data['progress'];
 	}
 
+	function isDone() {
+		return $this->getStatus() == 'done';
+	}
+
+	function get($name) {
+		return ifsetor($this->data[$name]);
+	}
+
 	public function getInfoBox() {
 		$content = ['<div class="message">',
 				'<h3>', $this->getName(), ' <small>#', $this->id(), '</small>', '</h3>',
 				'<p>Status: ', $this->getStatus() ?: 'On Queue', '</p>',
 			];
-		if ($this->getStatus()) {
-			$content[] = [
-				'<p>Started: ', $this->getTime(), '</p>',
-				'<p>Progress: ', $this->getProgress(), '</p>',
-				'</div>',
-			];
+		if (!$this->isDone()) {
+			if ($this->getStatus()) {
+				$content[] = [
+					'<p>Started: ',
+					$this->getTime(),
+					'</p>',
+					'<p>Progress: ',
+					$this->getProgress(),
+					'</p>',
+					'<p>PID: ',
+					$this->get('pid'),
+					'</p>',
+					'</div>',
+				];
+			} else {
+				$content[] = [
+					'<p>Queue position: ',
+					$this->getQueuePosition(),
+					'</p>',
+					'</div>',
+				];
+			}
 		} else {
-			$content[] = [
-				'<p>Queue position: ', $this->getQueuePosition(), '</p>',
-				'</div>',
-			];
+			$content[] = '</div>';
 		}
 		return $content;
 	}

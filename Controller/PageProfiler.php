@@ -20,9 +20,10 @@ class PageProfiler {
 
 	function render() {
 		$content = '';
+		$index = Index::getInstance();
 		if (DEVELOPMENT &&
 			!$this->request->isAjax() &&
-			!in_array(get_class($this->controller), array('Lesser')))
+			!in_array(get_class($index->controller), array('Lesser')))
 		{
 			if (!$this->request->isCLI()) {
 				$content .= '<div class="profiler noprint">';

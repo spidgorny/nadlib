@@ -53,6 +53,7 @@ class ConfigBase {
 		'HTTP',
 		'LocalLang',
 		'ORM',
+		'Runner',
 		'SQL',
 		'Time',
 		'User',
