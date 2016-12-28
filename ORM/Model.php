@@ -10,6 +10,15 @@ class Model {
 
 	var $itemClassName = '?';
 
+	/**
+	 * @var DBInterface|SQLBuilder
+	 */
+	var $db;
+
+	function __construct(DBInterface $db) {
+		$this->db = $db;
+	}
+
 	function getCollection() {
 		$col = Collection::createForTable($this->table);
 		return $col;
