@@ -461,12 +461,12 @@ class slTable {
 						$class[] = $i % 2 ? 'odd' : 'even';
 					}
 				}
-					if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
+				if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
 					$class[] = $this->dataClass[$key];
 				}
 				$tr = 'class="'.implode(' ', $class).'"';
 					if (is_array($row) && isset($row['###TR_MORE###'])) {
-					$tr .= ' '.$row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					$tr .= ' '.$row['###TR_MORE###']; // used in Loan.php	// don't use for "class"
 					}
 					$rowID = (is_array($row) && isset($row['id']))
 						? $row['id']
