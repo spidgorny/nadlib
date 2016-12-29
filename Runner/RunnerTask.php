@@ -38,11 +38,13 @@ class RunnerTask {
 	}
 
 	function reserve() {
+		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table,
 			[
 				'status' => 'working',
 				'progress' => 0,
-				'pid' => posix_getpid(),
+//				'pid' => posix_getpid(),
+				'pid' => getmypid(),
 			],
 			['id' => $this->id()]);
 		$this->db->commit();
@@ -83,6 +85,7 @@ class RunnerTask {
 		$this->db->runUpdateQuery($this->table,
 			['status' => 'done'],
 			['id' => $this->id()]);
+		echo __METHOD__, BR;
 	}
 
 	private function failed(Exception $e) {
