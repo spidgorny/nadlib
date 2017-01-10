@@ -89,9 +89,16 @@ class RunnerTask {
 	}
 
 	private function failed(Exception $e) {
-		$this->db->runUpdateQuery($this->table,
-			['status' => 'failed'],
-			['meta' => json_encode($e)]);
+		$this->db->runUpdateQuery($this->table, [
+			'status' => 'failed',
+			'meta' => json_encode($e),
+		], ['id' => $this->id()]);
+	}
+
+	public function kill() {
+		$this->db->runUpdateQuery($this->table, [
+			'status' => 'killed',
+		], ['id' => $this->id()]);
 	}
 
 	/**
@@ -173,8 +180,10 @@ class RunnerTask {
 		return ifsetor($this->data[$name]);
 	}
 
-	public function getInfoBox() {
+	public function getInfoBox($controller = '') {
 		$content = ['<div class="message">',
+				'<a href="'.$controller.'?action=kill&id='.$this->id().'">',
+				'<span class="octicon octicon-x flash-close js-flash-close"></span></a>',
 				'<p style="float: right;">PID: ',
 				$this->get('pid'),
 				'</p>',
