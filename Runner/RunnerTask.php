@@ -69,7 +69,7 @@ class RunnerTask {
 
 	function __invoke() {
 		try {
-			echo '>> ' . get_class($this->obj), '->', $this->method, BR;
+			echo '#'.$this->id().' >> ' . get_class($this->obj), '->', $this->method, BR;
 			$command = [$this->obj, $this->method];
 			$params = json_decode($this->data['params']);
 			call_user_func_array($command, $params);
@@ -175,20 +175,22 @@ class RunnerTask {
 
 	public function getInfoBox() {
 		$content = ['<div class="message">',
+				'<p style="float: right;">PID: ',
+				$this->get('pid'),
+				'</p>',
 				'<h3>', $this->getName(), ' <small>#', $this->id(), '</small>', '</h3>',
 				'<p>Status: ', $this->getStatus() ?: 'On Queue', '</p>',
 			];
 		if (!$this->isDone()) {
 			if ($this->getStatus()) {
+				$pb = new ProgressBar($this->getProgress());
 				$content[] = [
-					'<p>Started: ',
+					'<p style="float: right;">Started: ',
 					$this->getTime(),
 					'</p>',
 					'<p>Progress: ',
-					$this->getProgress(),
-					'</p>',
-					'<p>PID: ',
-					$this->get('pid'),
+					number_format($this->getProgress(), 3).'%',
+					$pb->getContent(),
 					'</p>',
 					'</div>',
 				];
