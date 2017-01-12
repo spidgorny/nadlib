@@ -346,15 +346,16 @@ class Request {
 
 	function getControllerString($returnDefault = true) {
 		if ($this->isCLI()) {
-			$controller = ifsetor($_SERVER['argv'][1]);
-			$this->data += $this->parseParameters();
-			//debug($this->data);
+			$resolver = new CLIResolver();
+			$controller = $resolver->getController();
 		} else {
 			$c = $this->getTrim('c');
 			if ($c) {
-				$controller = $this->getControllerByC($c);
+				$resolver = new CResolver($c);
+				$controller = $resolver->getController();
 			} else {
-				$controller = $this->getControllerByPath($returnDefault);
+				$resolver = new PathResolver();
+				$controller = $resolver->getController($returnDefault);
 			}
 		}   // cli
 		nodebug(array(
@@ -366,71 +367,6 @@ class Request {
 				? Config::getInstance()->defaultController
 				: NULL,
 			'data' => $this->data));
-		return $controller;
-	}
-
-	function getControllerByC($controller) {
-		// to simplify URL it first searches for the corresponding controller
-		$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
-		$tmp = $ptr;
-		$ptr = false;
-		if ($controller && class_exists($controller.'Controller')) {
-			$controller = $controller.'Controller';
-		}
-		$ptr = $tmp;
-
-		$Scontroller = new Path($controller);
-		if ($Scontroller->length() > 1) {	// in case it's with sub-folder
-			$dir = dirname($Scontroller);
-			$parts = trimExplode('/', $controller);
-			//debug($dir, $parts, file_exists($dir));
-			if (file_exists($dir)) {
-				$controller = end($parts);
-			} else {
-				$controller = first($parts);
-			}
-		} else {
-			//debug($controller);
-			//die(__METHOD__);
-			$controller = $controller . '';	// OK
-		}
-		return $controller;
-	}
-
-	function getControllerByPath($returnDefault = true) {
-		$levels = $this->getURLLevels();
-		if ($levels) {
-			$levels = array_reverse($levels);
-			$last = NULL;
-			foreach ($levels as $class) {
-				// RewriteRule should not contain "?c="
-				nodebug(
-					$class,
-					class_exists($class.'Controller'),
-					class_exists($class));
-				// to simplify URL it first searches for the corresponding controller
-				if ($class && class_exists($class.'Controller')) {	// this is untested
-					$last = $class.'Controller';
-					break;
-				}
-				if (class_exists($class)) {
-					$last = $class;
-					break;
-				}
-			}	// foreach
-			if ($last) {
-				$controller = $last;
-			} elseif ($returnDefault && class_exists('Config')) {
-				// not good as we never get 404
-				$controller = Config::getInstance()->defaultController;
-			} else {
-				$controller = NULL;
-			}
-		} elseif ($returnDefault && class_exists('Config')) {
-			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
-		} else {
-			$controller = NULL;
-		}
 		return $controller;
 	}
 
@@ -564,14 +500,13 @@ class Request {
 	 * @return URL
 	 */
 	static function getLocation($isUTF8 = false) {
+		$docRoot = NULL;
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
-			if (!$docRoot) {
-				$docRoot = self::getDocumentRoot();
-			}
-		} else {
-			$docRoot = dirname($_SERVER['PHP_SELF']);
+		}
+		if (!$docRoot) {
+			$docRoot = self::getDocumentRoot();
 		}
 		//pre_print_r($docRoot);
 
@@ -705,7 +640,7 @@ class Request {
 	}
 
 	/**
-	 * Will overwrite.
+	 * Will overwrite one by one.
 	 * @param array $plus
 	 */
 	function setArray(array $plus) {
@@ -727,11 +662,17 @@ class Request {
 
 		if (!$this->isWindows()) {	// linux
 			//debug(getcwd(), $al->documentRoot.'');
-			$cwd = new Path(getcwd());
 			$url = clone $al->documentRoot;
 			$url->append($this->url->getPath());
+			$url->normalizeHomePage();
+
+			$cwd = new Path(getcwd());
+			$cwd->normalizeHomePage();
+
 			$path = new Path($url);
 			$path->remove($cwd);
+
+			//debug($url.'', $cwd.'', $path.'');
 		} else {	// windows
 			$cwd = NULL;
 			$url = new Path('');
@@ -740,8 +681,8 @@ class Request {
 
 			if (false) {    // doesn't work in ORS
 				$path->remove(clone $al->documentRoot);
-			} elseif ($config->documentRoot instanceof Path) {        // works in ORS
-				$path->remove(clone $config->documentRoot);
+			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
+				$path->remove(clone $al->documentRoot);
 			}
 		}
 		return $path;
@@ -849,7 +790,11 @@ class Request {
 	 * @return bool
 	 */
 	static function isCron() {
-		return !self::isPHPUnit() && self::isCLI() && !isset($_SERVER['TERM']);
+		return !self::isPHPUnit()
+			&& self::isCLI()
+			&& !isset($_SERVER['TERM'])
+			&& !self::isWindows()
+			;
 	}
 
 	function debug() {
@@ -897,7 +842,7 @@ class Request {
 	 */
 	function parseParameters($noopt = array()) {
 		$result = array();
-		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
+		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
@@ -962,26 +907,26 @@ class Request {
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
-		false && pre_print_r(array(
+		0 && pre_print_r(array(
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
+			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
+			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
+			'getDocumentRootByScript' => self::getDocumentRootByScript(),
 		));
 
-		if ($_SERVER['DOCUMENT_ROOT'] &&
-			str_startsWith($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) &&
-			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
-			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
-		} else {	//~depidsvy/something
-			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
-			if ($pos !== FALSE) {
-				$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
-				$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
-			} else {
-				$docRoot = dirname($_SERVER['PHP_SELF']);
-			}
+		$docRoot = self::getDocumentRootByRequest();
+		if (!$docRoot || ('/' == $docRoot)) {
+			$docRoot = self::getDocumentRootByDocRoot();
 		}
+
+		// this is not working right
+//		if (!$docRoot || ('/' == $docRoot)) {
+//			$docRoot = self::getDocumentRootByScript();
+//		}
+
 		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
 		$docRoot = cap($docRoot, '/');
@@ -991,7 +936,55 @@ class Request {
 		//debug_pre_print_backtrace();
 		require_once __DIR__ . '/Path.php'; // needed if called early
 		$docRoot = new Path($docRoot);
+		//pre_print_r($docRoot, $docRoot.'');
 		return $docRoot;
+	}
+
+	/**
+	 * Works well with RewriteRule
+	 */
+	static function getDocumentRootByRequest() {
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$request = dirname(ifsetor($_SERVER['REQUEST_URI']));
+//		exit();
+		if ($request && $request != '/' && strpos($script, $request) !== false) {
+			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
+			$docRoot = str_replace($docRootRaw, '', dirname($script));
+		} else {
+			$docRoot = '/';
+		}
+//		pre_print_r($script, $request, strpos($script, $request), $docRoot);
+		return $docRoot;
+	}
+
+	static function getDocumentRootByDocRoot() {
+		$docRoot = NULL;
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
+		if ($docRootRaw
+			&& str_startsWith($script, $docRootRaw)
+			&& strpos($script, $docRootRaw) !== false) {
+			$docRoot = str_replace($docRootRaw, '', dirname($script));
+			//pre_print_r($docRoot);
+		}
+		return $docRoot;
+	}
+
+	/**
+	 * @return mixed|string
+	 * //~depidsvy/something
+	 */
+	private static function getDocumentRootByScript() {
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$pos = strpos($script, '/public_html');
+		if ($pos !== FALSE) {
+			$docRoot = substr(dirname($script), $pos);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+			return $docRoot;
+		} else {
+			$docRoot = dirname($_SERVER['PHP_SELF']);
+			return $docRoot;
+		}
 	}
 
 	/**
@@ -1073,13 +1066,22 @@ class Request {
 	}
 
 	function fetch($url) {
-		$context = stream_context_create([
-			'http' => [
-				'proxy' => $this->proxy,
-				'timeout' => 1,
-			]
-		]);
-		$data = file_get_contents($url, NULL, $context);
+		if ($this->proxy) {
+			$context = stream_context_create([
+				'http' => [
+					'proxy' => $this->proxy,
+					'timeout' => 1,
+				]
+			]);
+			$data = file_get_contents($url, NULL, $context);
+		} else {
+			$context = stream_context_create([
+				'http' => [
+					'timeout' => 1,
+				]
+			]);
+			$data = file_get_contents($url, NULL, $context);
+		}
 		return $data;
 	}
 
@@ -1130,13 +1132,25 @@ class Request {
 		$base = $this->getBase64($string);
 		return gzuncompress($base);
 	}
-	
+
 	public static function isCalledScript($__FILE__) {
 		if (ifsetor($_SERVER['SCRIPT_FILENAME'])) {
 			return $__FILE__ == $_SERVER['SCRIPT_FILENAME'];
 		} else {
 			throw new Exception(__METHOD__);
 		}
+	}
+
+	public function getBrowserIP() {
+		return $_SERVER['REMOTE_ADDR'];
+	}
+
+	public function getID() {
+//		debug($this->getNamelessID(), $this->getInt('id'), $this->getURLLevels());
+		$last = sizeof($this->getURLLevels()) - 1;
+		return $this->getNamelessID()
+			?: $this->getInt('id')
+			?: $this->getNameless($last);
 	}
 
 }

@@ -125,6 +125,7 @@ class URL {
 
 	function unsetParam($param) {
 		unset($this->params[$param]);
+		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
@@ -243,6 +244,7 @@ class URL {
 	}
 
 	function setFragment($name) {
+		if ($name[0] == '#') $name = substr($name, 1);
 		$this->components['fragment'] = $name;
 		return $this;
 	}
@@ -413,7 +415,7 @@ class URL {
 	        //debug($scriptWithPath);
 	        // this below may not work since __FILE__ is class.URL.php and not index.php
 	        // but this our last chance for CLI/Cron
-	        if (!$scriptWithPath || !Path::isAbsolute($scriptWithPath)) {    // relative not OK
+	        if (!$scriptWithPath || !Path::isItAbsolute($scriptWithPath)) {    // relative not OK
 		        if (basename(__FILE__) == __FILE__) {	// index.php
 					$scriptWithPath = getcwd().'/'.__FILE__;
 				} else {
@@ -778,7 +780,7 @@ class URL {
 	}
 
 	function getHash() {
-		return $this->components['fragment'];
+		return ifsetor($this->components['fragment']);
 	}
 
 	/**
@@ -804,6 +806,19 @@ class URL {
 
 	public function getParams() {
 		return $this->params;
+	}
+
+	public function makeRelative() {
+		$al = AutoLoad::getInstance();
+		$path = $this->getPath();
+//		debug($path.'', $path->isAbsolute(), $al->getAppRoot().'');
+		if ($path->isAbsolute() && $path->exists()) {
+			$this->setPath($path->relativeFromAppRoot());
+		} else {
+			$new = array_diff($path->aPath, $al->getAppRoot()->aPath);
+			$this->setPath(new Path(implode('/', $new)));
+		}
+		return $this;
 	}
 
 }

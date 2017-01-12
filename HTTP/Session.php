@@ -1,8 +1,5 @@
 <?php
 
-/**
- * @property null simulateUser
- */
 class Session {
 
 	var $prefix;
@@ -47,6 +44,14 @@ class Session {
 
 	public function clearAll() {
 		unset($_SESSION[$this->prefix]);
+	}
+
+	public function has($key) {
+		return isset($_SESSION[$this->prefix][$key]);
+	}
+
+	public function append($key, $val) {
+		$_SESSION[$this->prefix][$key][] = $val;
 	}
 
 }

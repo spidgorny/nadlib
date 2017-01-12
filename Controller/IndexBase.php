@@ -99,15 +99,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
-		if (class_exists('Config')) {
-			try {
+		if (class_exists('Config', false)) {
+//			try {
 				$this->config = Config::getInstance();
 				$this->db = $this->config->getDB();
 				$this->user = $this->config->getUser();
 				$this->ll = $this->config->getLL();
-			} catch (Exception $e) {
-				$this->content[] = $this->renderException($e);
-			}
+//			} catch (Exception $e) {
+				// should not catch exceptions here, let subclass do it
+//				echo get_class($e), BR;
+//				$this->content[] = $this->renderException($e);
+//			}
 		}
 
 		$this->request = Request::getInstance();
@@ -159,7 +161,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
-			: (isset($GLOBALS['i']) ? $GLOBALS['i'] : NULL);	// to read IndexBE instance
+			: NULL;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
 			$instance = new $static();
@@ -200,7 +202,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
 		$class = end($slugParts);	// again, because __autoload need the full path
-		//debug(__METHOD__, $slug, $class, class_exists($class));
+//		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->controller = new $class();
 //			debug($class, get_class($this->controller));
@@ -221,6 +223,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$this->controller) {
 			$this->initController();
 		}
+		//debug(get_class($this->controller));
 		return $this->controller;
 	}
 
@@ -255,9 +258,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			// display Exception
-			$contentOut .= $this->content->getContent();
-			$contentOut .= $this->s($content);
-			$view = $this->renderTemplate($contentOut);
+			$view = $this->renderTemplate($content);
 			//echo gettype2($view), BR;
 			if ($view instanceof View) {
 				$contentOut = $view->render();
@@ -274,8 +275,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderTemplate($content) {
 		TaylorProfiler::start(__METHOD__);
+		$contentOut = $this->content->getContent();
+		$contentOut .= $this->s($content);
 		$v = new View($this->template, $this);
-		$v->content = $content;
+		$v->content = $contentOut;
 		$v->title = strip_tags(ifsetor($this->controller->title));
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
@@ -305,30 +308,38 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderException(Exception $e, $wrapClass = '') {
-		if ($this->controller) {
-			$this->controller->title = $e->getMessage();
-		}
-		$message = $e->getMessage();
-		$message = ($message instanceof htmlString ||
-			$message[0] == '<')
-			? $message.''
-			: htmlspecialchars($message);
-		$content = '<div class="'.$wrapClass.' ui-state-error alert alert-error alert-danger padding">
-			'.get_class($e).' ('.$e->getCode().')'.BR.
-			nl2br($message);
-		if (DEVELOPMENT) {
-			$content .= BR.BR.'<div style="text-align: left">'.
-				nl2br($e->getTraceAsString()).'</div>';
-			//$content .= getDebug($e);
-		}
-		$content .= '</div>';
-		$content .= '<div class="headerMargin"></div>';
-		if ($e instanceof LoginException) {
-			// catch this exception in your app Index class, it can't know what to do with all different apps
-			//$lf = new LoginForm();
-			//$content .= $lf;
-		} elseif ($e instanceof Exception404) {
-			$e->sendHeader();
+		if ($this->request->isCLI()) {
+			echo get_class($e),
+			' #', $e->getCode(),
+			': ', $e->getMessage(), BR;
+			$content = '';
+		} else {
+			if ($this->controller) {
+				$this->controller->title = $e->getMessage();
+			}
+
+			$message = $e->getMessage();
+			$message = ($message instanceof htmlString ||
+				$message[0] == '<')
+				? $message . ''
+				: htmlspecialchars($message);
+			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding">
+				' . get_class($e) . ' (' . $e->getCode() . ')' . BR .
+				nl2br($message);
+			if (DEVELOPMENT) {
+				$content .= BR . BR . '<div style="text-align: left">' .
+					nl2br($e->getTraceAsString()) . '</div>';
+				//$content .= getDebug($e);
+			}
+			$content .= '</div>';
+			$content .= '<div class="headerMargin"></div>';
+			if ($e instanceof LoginException) {
+				// catch this exception in your app Index class, it can't know what to do with all different apps
+				//$lf = new LoginForm();
+				//$content .= $lf;
+			} elseif ($e instanceof Exception404) {
+				$e->sendHeader();
+			}
 		}
 
 		return $content;
@@ -387,12 +398,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			$jQueryPath = 'jquery/jquery.min.js';
 			$al = AutoLoad::getInstance();
+			$appRoot = $al->getAppRoot();
 			nodebug(array(
 				'jQueryPath' => $jQueryPath,
-				'appRoot' => $al->appRoot,
+				'appRoot' => $appRoot,
 				'componentsPath' => $al->componentsPath,
 				'fe(jQueryPath)' => file_exists($jQueryPath),
-				'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath),
+				'fe(appRoot)' => file_exists($appRoot . $jQueryPath),
 				'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
 				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -403,10 +415,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
 				$this->addJS($al->componentsPath->getURL().$jQueryPath, $defer);
 				return $this;
-			} elseif (file_exists($al->appRoot . $jQueryPath)) {
+			} elseif (file_exists($appRoot . $jQueryPath)) {
                 // does not work if both paths are the same!!
 //				$rel = Path::make(getcwd())->remove($al->appRoot);
-                $rel = Path::make(Config::getInstance()->documentRoot)->remove($al->appRoot);
+                $rel = Path::make(Config::getInstance()->documentRoot)->remove($appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
 				$this->addJS($rel . $jQueryPath, $defer);
@@ -431,13 +443,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
+		$appRoot = $al->getAppRoot();
 		nodebug(array(
 			'jQueryPath' => $jQueryPath,
 			'jQueryPath->exists()' => $jQueryPath->exists(),
-			'appRoot' => $al->appRoot,
+			'appRoot' => $appRoot,
 			'componentsPath' => $al->componentsPath,
 			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
-			'fe(appRoot)' => file_exists($al->appRoot . $jQueryPath->getUncapped()),
+			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
 			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
 			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -470,7 +483,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * @param $source
 	 * @param bool $defer
-	 * @return Index
+	 * @return Index|IndexBase
 	 */
 	function addJS($source, $defer = true) {
 		if (class_exists('Debug')) {
@@ -497,7 +510,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @param $source
-	 * @return Index
+	 * @return Index|IndexBase
 	 */
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
@@ -544,30 +557,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function renderProfiler() {
-		$content = '';
-		if (DEVELOPMENT &&
-			!$this->request->isAjax() &&
-			//!$this->request->isCLI() &&
-			!in_array(get_class($this->controller), array('Lesser')))
-		{
-			if (!$this->request->isCLI()) {
-				$ft = new FloatTime(true);
-				$content .= $ft->render();
-				$content .= '<div class="profiler noprint">';
-				$content .= $this->s(OODBase::getCacheStatsTable());
-
-				/** @var $profiler TaylorProfiler */
-				$profiler = TaylorProfiler::getInstance();
-				if ($profiler) {
-					$content .= $profiler->printTimers(true);
-					$content .= TaylorProfiler::dumpQueries();
-					//$content .= $profiler->printTrace(true);
-					//$content .= $profiler->analyzeTraceForLeak();
-				}
-
-				$content .= '</div>';
-			}
-		}
+		$pp = new PageProfiler();
+		$content = $pp->render();
 		return $content;
 	}
 

@@ -116,8 +116,24 @@ class HTML {
 		return '<pre>'.$this->e($text).'</pre>';
 	}
 
+	function strong($text) {
+		return '<strong>'.$this->e($text).'</strong>';
+	}
+
+	function em($text) {
+		return '<em>'.$this->e($text).'</em>';
+	}
+
 	function hr() {
 		return '<hr />';
+	}
+
+	function badge($count) {
+		return '<span class="badge">'.htmlspecialchars($count).'</span>';
+	}
+
+	public function blockquote($getDescription) {
+		return '<blockquote>'.$this->e($getDescription).'</blockquote>';
 	}
 
 }
