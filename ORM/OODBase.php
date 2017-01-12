@@ -218,10 +218,14 @@ abstract class OODBase {
 		// this needs to be checked first,
 		// because SQLite will give some kind of ID
 		// even if you provide your own
-		if (ifsetor($data[$this->idField])) {
-			$id = $data[$this->idField];
-		} else {
+		if (is_array($this->idField)) {
 			$id = $this->db->lastInsertID($res, $this->table);
+		} else {
+			if (ifsetor($data[$this->idField])) {
+				$id = $data[$this->idField];
+			} else {
+				$id = $this->db->lastInsertID($res, $this->table);
+			}
 		}
 		if (!$id) {
 			$id = $data[$this->idField];	// GUID column
