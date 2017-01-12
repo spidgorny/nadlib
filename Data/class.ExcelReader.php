@@ -25,7 +25,7 @@ class ExcelReader {
 	}
 
 	function readPersistant() {
-		//return false;
+		$data = [];
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
 				$data = file_get_contents($this->filename);
@@ -43,6 +43,7 @@ class ExcelReader {
 	}
 
 	function readExcel() {
+		$data = array();
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
 			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
@@ -87,6 +88,8 @@ class ExcelReader {
 			}
 			$key++;
 		}
+		//t3lib_div::debug($data); exit();
+		//t3lib_utility_Debug::debugRows($data); exit();
 		return $data;
 	}
 
