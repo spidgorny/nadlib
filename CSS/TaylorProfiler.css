@@ -35,8 +35,24 @@
   padding: 1em;
   color: white !important;
 }
+.profiler table {
+  background-color: #22221F;
+}
+.profiler table.table {
+  border: none;
+}
+.profiler table tr.odd {
+  background-color: #22221F;
+}
+.profiler table tr.even {
+  background-color: #22221F;
+}
+.profiler table.table th {
+  background-color: #474744;
+}
 .profiler table th,
-.profiler td {
+.profiler table td {
+  background-color: #22221F;
   vertical-align: top;
   color: white;
   margin-top: 50px;

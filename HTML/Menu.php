@@ -125,14 +125,23 @@ class Menu /*extends Controller*/ {
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
-		//debug($useRouter, $this->useControllerSlug, $rootpath, $level, $this->current);
+		nodebug([
+			'cwd' => getcwd(),
+			'docRoot' => $this->request->getDocumentRoot(),
+			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot(),
+			'useRouter' => $useRouter,
+			'useControllerSlug' => $this->useControllerSlug,
+			'rootpath' => $rootpath,
+			'level' => $level,
+			'current' => $this->current
+		]);
 	}
 
 	function setControllerVarName($c) {
 		$this->controllerVarName = $c;
 		$this->setBasePath();
 	}
-	
+
 	/**
 	 * Called by the constructor
 	 */
@@ -146,14 +155,15 @@ class Menu /*extends Controller*/ {
 			$config = new stdClass();
 			$useRouter = false;
 		}
+		$autoLoad = AutoLoad::getInstance();
 		if ($useRouter) {   // not finished
 			$path = new URL();
 			$path->clearParams();
 		} elseif ($this->useControllerSlug) {
 			$path = new URL();
-			if (basename(AutoLoad::getInstance()->appRoot) == 'be') {
+			$appRoot = $autoLoad->getAppRoot();
+			if (basename($appRoot) == 'be') {
 				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
-				$appRoot = AutoLoad::getInstance()->appRoot;
 				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
 				$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
 				$path->setParams();
@@ -166,10 +176,12 @@ class Menu /*extends Controller*/ {
 		} else {
 			$path = new URL();
 			$path->clearParams();
-			$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
+			if ($this->controllerVarName) {
+				$path->setParam($this->controllerVarName, '');    // forces a link with "?c="
+			}
 		}
 		$this->basePath = $path;
-		nodebug(array(
+		0 && debug(array(
 			'class_exists(Config)' => class_exists('Config'),
 			'Config::getInstance()->config[Controller]' => (class_exists('Config') && isset($config->config['Controller']))
 				? $config->config['Controller']
@@ -177,11 +189,11 @@ class Menu /*extends Controller*/ {
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
 			'documentRoot' => $path->documentRoot,
-			'appRoot' => AutoLoad::getInstance()->appRoot,
-			'nadlibRoot' => AutoLoad::getInstance()->nadlibRoot,
-			'nadlibRootFromDocRoot' => AutoLoad::getInstance()->nadlibFromDocRoot,
+			'appRoot' => $appRoot.'',
+			'nadlibRoot' => $autoLoad->nadlibRoot,
+			'nadlibRootFromDocRoot' => $autoLoad->nadlibFromDocRoot,
 			'current' => $this->current,
-			'basePath' => $this->basePath,
+			'basePath' => $this->basePath.'',
 		));
 	}
 
@@ -432,10 +444,14 @@ class Menu /*extends Controller*/ {
 					$link->replaceController($path);
 				}
 			} else {
-				$link = $this->basePath->setParam($this->controllerVarName, $class);
+				if ($class[0] == '#') {
+					$link = $this->basePath->setFragment($class);
+				} else {
+					$link = $this->basePath->setParam($this->controllerVarName, $class);
+				}
 			}
 		}
-		nodebug(array(
+		0 && debug(array(
 			'class' => $class,
 			'root' => $root,
 			'path' => $path,

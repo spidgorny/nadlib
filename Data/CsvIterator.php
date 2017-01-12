@@ -36,16 +36,18 @@ class CsvIterator implements Iterator, Countable
 	 * @var int
 	 * @access private
 	 */
-	private $rowCounter = 0;
+	public $rowCounter = 0;
 
 	/**
 	 * The delimiter for the csv file.
-	 * @var str
+	 * @var string
 	 * @access private
 	 */
 	private $delimiter = null;
 
 	public $doConvertToUTF8 = false;
+
+	protected $lastRead = -1; // != 0
 
 	/**
 	 * This is the constructor.It try to open the csv file.The method throws an exception
@@ -77,7 +79,10 @@ class CsvIterator implements Iterator, Countable
 	 * @return resource
 	 */
 	function fopen_utf8 ($filename, $mode) {
-		$file = @fopen($filename, $mode);
+		$file = fopen($filename, $mode);
+		if (!$file) {
+			throw new InvalidArgumentException($filename.' is not found in '.getcwd());
+		}
 		$bom = fread($file, 3);
 		if ($bom != b"\xEF\xBB\xBF") {
 			rewind($file);
@@ -105,6 +110,7 @@ class CsvIterator implements Iterator, Countable
 		}
 		assert(ftell($this->filePointer) == 0);
 		assert(!$this->feof());
+		$this->lastRead = -1;
 	}
 
 	/**
@@ -138,7 +144,7 @@ class CsvIterator implements Iterator, Countable
 	 * @return array|boolean Returns FALSE on EOF reached, VALUE otherwise.
 	 */
 	public function next() {
-		$this->rowCounter++;
+		$this->rowCounter++;	// this make read() to read next row
 		$this->read();
 		if (!$this->currentElement) {
 			//debug($this->feof(), ftell($this->filePointer));
@@ -162,8 +168,7 @@ class CsvIterator implements Iterator, Countable
 	 */
 	function read() {
 		//debug_pre_print_backtrace();
-		static $last = -1; // != 0
-		if ($this->rowCounter != $last) {
+		if ($this->rowCounter != $this->lastRead) {
 			$this->currentElement = fgetcsv($this->filePointer, self::ROW_SIZE,
 				$this->delimiter);
 
@@ -172,7 +177,8 @@ class CsvIterator implements Iterator, Countable
 			}
 
 			//debug($this->currentElement);
-			$last = $this->rowCounter;
+			$this->lastRead = $this->rowCounter;
+//			debug(__METHOD__, $this->rowCounter, $this->lastRead, first($this->currentElement));
 		}
 	}
 

@@ -322,7 +322,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 		$start = microtime(true);
 
 		if ($params) {
-			die(__METHOD__.' does not support parameters');
+			die('Old MySQL PHP extension does not support parameters');
 		}
 		$res = $this->lastResult = @mysql_query($query, $this->connection);
 
@@ -553,6 +553,25 @@ class MySQL extends dbLayerBase implements DBInterface {
 
 	function getScheme() {
 		return strtolower(get_class($this));
+	}
+
+	function unsetQueryLog() {
+		$this->queryLog = NULL;
+	}
+
+	function getInfo() {
+		return mysql_info($this->connection);
+	}
+
+	/**
+	 * @param $field
+	 * @return string
+	 * @deprecated not supported by MySQL PHP extension
+	 */
+	function getPlaceholder($field) {
+		$slug = URL::getSlug($field);
+		$slug = str_replace('-', '_', $slug);
+		return '@'.$slug;
 	}
 
 }

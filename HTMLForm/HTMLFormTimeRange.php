@@ -22,7 +22,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 	 * @param array $value				- array of minutes
 	 */
 	function __construct($field, array $value) {
-		parent::__construct();
+//		parent::__construct();
 		$this->field = $field;
 		if (is_array($value) && sizeof($value) == 2) {
 			list($this->start, $this->end) = $value;

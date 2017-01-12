@@ -1,6 +1,6 @@
 <?php
 
-abstract class UserBase extends FlexiTable {
+abstract class UserBase extends OODBase implements UserModelInterface {
 
 	public $table = 'user';
 
@@ -35,7 +35,7 @@ abstract class UserBase extends FlexiTable {
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
-		if ($this->db && $this->db->isConnected() && $this->id && $this->prefs) {
+		if (isset($this->db) && $this->db->isConnected() && $this->id && $this->prefs) {
 
 			// this is just an example - move it to the app class
 			//$this->update(array('prefs' => serialize($this->prefs)));
@@ -68,21 +68,21 @@ abstract class UserBase extends FlexiTable {
 	 * @throws Exception
 	 * @return void
 	 */
-	function insert(array $data) {
-        //debug($data);
-        if ($data['email']) {
-            $this->findInDB(array('email' => $data['email']));
-            if ($this->id) {
-                throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
-            } else {
-                //$data['password'] = md5($data['password']);
-                $this->insertNoUserCheck($data);
-            }
-        } else {
-            $index = Index::getInstance();
+	function insertUniqEmail(array $data) {
+		//debug($data);
+		if ($data['email']) {
+			$this->findInDB(array('email' => $data['email']));
+			if ($this->id) {
+				throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
+			} else {
+				//$data['password'] = md5($data['password']);
+				$this->insertNoUserCheck($data);
+			}
+		} else {
+			$index = Index::getInstance();
 			debug(__METHOD__);
-            $index->error('No email provided.');
-        }
+			$index->error('No email provided.');
+		}
 	}
 
 	function insertNoUserCheck(array $data) {
@@ -103,7 +103,7 @@ abstract class UserBase extends FlexiTable {
 	function getPref($key) {
 		return ifsetor($this->prefs[$key]);
 	}
-	
+
 	function getAllPrefs() {
 		return $this->prefs;
 	}

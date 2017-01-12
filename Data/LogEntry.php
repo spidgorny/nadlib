@@ -21,7 +21,8 @@ class LogEntry {
 		if (self::$log2file) {
 			$sData = $this->shorten($data);
 			$r = Request::getInstance();
-			$ip = $r->getClientIP();
+			//$ip = $r->getClientIP();	// this is very expensive
+			$ip = $r->getBrowserIP();
 			error_log($ip.' '.$action . ' ' . $sData);
 		}
 	}

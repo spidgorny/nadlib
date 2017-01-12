@@ -31,9 +31,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 */
 	protected $dataSeek = NULL;
 
-	function __construct($user = NULL, $password = NULL,
-						 $scheme = NULL, $driver = NULL,
-						 $host = NULL, $db = NULL,
+	function __construct($db = NULL, $host = NULL,
+						 $user = NULL, $password = NULL,
+						 $scheme = 'mysql', $driver = NULL,
 						 $port = 3306) {
 		if ($user) {
 			$this->connect($user, $password,
@@ -67,16 +67,21 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$this->dsn = $scheme.':'.$db;
 			$this->database = basename($db);
 		} else {
-			$this->dsn = $scheme . ':' . $this->getDSN(array(
+			$aDSN = array(
+				'DATABASE' => $db,
+				'host' => $host,
+				'SYSTEM' => $host,
+				'dbname' => $db,
+				'HOSTNAME' => $host,
+				'PORT' => $port,
+				'PROTOCOL' => 'TCPIP',
+			);
+			if ($driver) {
+				$aDSN += [
 					'DRIVER' => '{' . $driver . '}',
-					'DATABASE' => $db,
-					'host' => $host,
-					'SYSTEM' => $host,
-					'dbname' => $db,
-					'HOSTNAME' => $host,
-					'PORT' => $port,
-					'PROTOCOL' => 'TCPIP',
-				));
+				];
+			}
+			$this->dsn = $scheme . ':' . $this->getDSN($aDSN);
 			$this->database = $db;
 		}
 		//debug($this->dsn);
@@ -95,23 +100,47 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {
 		$this->dsn = $dsn;
-		$this->connection = new PDO($this->dsn, $user, $password, array(
+		$options = array(
 			PDO::ATTR_PERSISTENT => false,
 			PDO::ATTR_ERRMODE    => PDO::ERRMODE_EXCEPTION
-		));
-		$this->connection->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		);
+		if ($this->isMySQL()) {
+			$this->dsn .= ';charset=utf8';
+			$options += [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"];
+		}
+		try {
+			$this->connection = new PDO($this->dsn, $user, $password, $options);
+			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		} catch (PDOException $e) {
+			debug($this->dsn, get_loaded_extensions());
+			throw $e;
+		}
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
 
 		//$url = parse_url($this->dsn);
 		//$this->database = basename($url['path']);
+
+		if (0) {
+			$res = $this->perform("SET NAMES 'utf8'");
+			if ($res) {
+				$res->closeCursor();
+			}
+		}
 	}
 
 	function perform($query, array $params = array()) {
+//		echo $query, BR;
 		//debug($params);
 		$this->lastQuery = $query;
 
 		$driver_options = [];
-		if ($this->getScheme() == 'mysql') {
+		if ($this->isMySQL()) {
+			// save memory
+			if ($this->lastResult) {
+//				$this->lastResult->fetchAll();
+//				$this->lastResult->closeCursor();
+			}
+//			$this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 			$driver_options[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;
 		}
 
@@ -132,7 +161,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			try {
 				$ok = $this->lastResult->execute($params);
 			} catch (PDOException $e) {
-				debug($query, $params, $e->getMessage());
+				debug($query.'', $params, $e->getMessage());
 				throw $e;
 			}
 			$this->queryTime += $profiler->elapsed();
@@ -257,7 +286,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	 * @param PDOStatement $res
 	 */
 	function free($res) {
-		$res->closeCursor();
+		if ($res) {
+			$res->closeCursor();
+		}
 	}
 
 	function quoteKey($key) {
@@ -266,7 +297,13 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			if (sizeof($parts) == 2) {
 				$content = $parts[0].'.`'.$parts[1].'`';
 			} else {
-				$content = '`' . $key . '`';
+				$sameLength = strlen(trim($key)) == strlen($key);
+				$brackets = contains($key, '(');
+				if ($sameLength && !$brackets) {
+					$content = '`' . $key . '`';
+				} else {
+					$content = $key;	// has spaces before or after
+				}
 			}
 		} else {
 			return $key;
@@ -423,12 +460,34 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	public function getQb() {
-		if(!isset($this->qb)) {
+		if (!isset($this->qb)) {
 			$db = Config::getInstance()->getDB();
 			$this->setQB(new SQLBuilder($db));
 		}
 
 		return $this->qb;
+	}
+
+	function getPlaceholder() {
+		return '?';
+	}
+
+	function unsetQueryLog() {
+		$this->queryLog = NULL;
+	}
+
+	function getReplaceQuery($table, array $columns) {
+		if ($this->isMySQL()) {
+			$m = new dbLayerMySQLi();
+			$m->qb = $this->qb;
+			return $m->getReplaceQuery($table, $columns);
+		} elseif ($this->isPostgres()) {
+			$p = new dbLayer();
+			$p->qb = $this->qb;
+			return $p->getReplaceQuery($table, $columns);
+		} else {
+			throw new DatabaseException(__METHOD__.' is not implemented for '.get_class($this));
+		}
 	}
 
 }

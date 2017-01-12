@@ -290,6 +290,14 @@ class HTMLForm {
 		} elseif (!$value) {
 			//$value = date('d.m.Y');
 		}
+
+		if ($desc['more'] && !is_array($desc['more'])) {
+			debug($name, $desc);
+			debug_pre_print_backtrace();
+			exit();
+			throw new InvalidArgumentException(__METHOD__.' $desc[more] is not array');
+		}
+
 		$this->input($name, $value,
 			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
 			(isset($desc['more']) ? HTMLTag::renderAttr($desc['more']) : ''),
@@ -484,7 +492,7 @@ class HTMLForm {
 		} else {
 			$value = array();
 		}
-		$newName = array_merge($name, array(''));
+		$newName = array_merge($name, array(''));	// []
 		$tmp = $this->class;
 		$this->class = 'submit';
 		$between = ifsetor($desc['between'], ', ');
@@ -563,16 +571,18 @@ class HTMLForm {
 			($fieldValue ? date('Y-m-d', $fieldValue) : '').'"/>
 		<button id="calendar-trigger-'.$fieldName.'" onclick="return false;">...</button>';
 		$index->footer['jsCal2-'.$fieldName] = '<script defer="true"> 
+document.observe("dom:loaded", () => {
     Calendar.setup({
-        trigger    	: "calendar-trigger-'.$fieldName.'",
-        inputField 	: "calendar-'.$fieldName.'",
-        min			: '.date('Ymd').',
-/*      selection	: Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
-        date        : Calendar.dateToInt(new Date(\''.date('Y-m-d', $fieldValue).'\')),
-*/      selection   : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
-        date        : Calendar.dateToInt(new Date('.(1000*$fieldValue).')),
+        trigger    	: "calendar-trigger-' . $fieldName . '",
+        inputField 	: "calendar-' . $fieldName . '",
+        min			: ' . date('Ymd') . ',
+/*      selection	: Calendar.dateToInt(new Date(\'' . date('Y-m-d', $fieldValue) . '\')),
+        date        : Calendar.dateToInt(new Date(\'' . date('Y-m-d', $fieldValue) . '\')),
+*/      selection   : Calendar.dateToInt(new Date(' . (1000 * $fieldValue) . ')),
+        date        : Calendar.dateToInt(new Date(' . (1000 * $fieldValue) . ')),
         onSelect   	: function() { this.hide() }
     });
+});
 </script>';
 		return $content;
 	}

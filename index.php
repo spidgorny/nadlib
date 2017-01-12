@@ -14,6 +14,11 @@ class NadlibIndex {
 	 */
 	var $request;
 
+	/**
+	 * @var NadlibIndex
+	 */
+	static $instance;
+
 	function __construct() {
 		if (file_exists('vendor/autoload.php')) {
 			require_once 'vendor/autoload.php';
@@ -31,7 +36,7 @@ class NadlibIndex {
 
 		$this->dic = new DIContainer();
 		$this->dic->index = function ($c) {
-			require_once 'be/class/class.IndexBE.php';
+			require_once 'be/class/IndexBE.php';
 			$indexBE = IndexBE::getInstance(true);
 			return $indexBE;
 		};
@@ -39,22 +44,24 @@ class NadlibIndex {
 			return new Debug($c->index);
 		};
 		$this->dic->config = function ($c) {
-			return Config::getInstance();
+			return ConfigBE::getInstance();
 		};
 		$this->dic->autoload = function ($c) {
 			return AutoLoad::getInstance();
 		};
 
 		if (!class_exists('Config')) {
-			require_once 'be/class/class.ConfigBE.php';
-			class_alias('ConfigBE', 'Config');
+			require_once 'be/class/ConfigBE.php';
+//			class_alias('ConfigBE', 'Config');
 		}
 		if (!class_exists('AppController', false)) {
-			class_alias('Controller', 'AppController');
-			class_alias('AppController', 'AppControllerME');
+			if (!class_exists('AppController')) {
+				class_alias('Controller', 'AppController');
+			}
+//			class_alias('AppController', 'AppControllerME');
 		}
 		if (!class_exists('Index')) {
-			class_alias('IndexBE', 'Index');
+//			class_alias('IndexBE', 'Index');
 		}
 
 		if (!file_exists('vendor/autoload.php')) {
@@ -62,6 +69,7 @@ class NadlibIndex {
 		}
 		$this->dic->config->defaultController = 'HomeBE';
 
+		self::$instance = $this;
 	}
 
 	function render() {

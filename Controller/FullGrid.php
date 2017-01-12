@@ -3,17 +3,33 @@
 abstract class FullGrid extends Grid {
 
 	/**
+	 * @var FilterController
+	 */
+	var $filterController;
+
+	/**
 	 * @param string $collection
 	 */
-	function __construct($collection = NULL) {
+	function __construct() {
 		parent::__construct();
 
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		$allowEdit = $this->request->getControllerString() == get_class($this);
-		if ($allowEdit && $collection) {
-			$this->saveFilterColumnsSort($collection ? $collection : get_class($this));
+		if ($allowEdit /*&& $collection*/) {
+			$this->saveFilterAndSort(/*$collection ?: */get_class($this));
 		}
+
+		if (!($this->filter instanceof Filter)) {
+			$this->filter = new Filter($this->filter);
+//			debug(gettype2($this->filter));
+		}
+
+		$this->filterController = new FilterController();
+		$this->filterController->setFilter($this->filter);
+	}
+
+	function postInit($collection = NULL) {
 		if (!$this->collection) {
 			if (is_string($collection)) {
 				$this->log(__METHOD__ . ' new collection', $collection);
@@ -34,13 +50,9 @@ abstract class FullGrid extends Grid {
 				$this->collection = $collection;
 			}
 		}
-	}
-
-	function postInit() {
-		if ($this->collection) {
-			// commented to do it in a lazy way
-			//$this->collection->retrieveData();
-		}
+		// after collection is made, to run getGridColumns
+		$allowEdit = $this->request->getControllerString() == get_class($this);
+		$this->setColumns(get_class($this->collection), $allowEdit);
 	}
 
 	/**
@@ -86,7 +98,7 @@ abstract class FullGrid extends Grid {
 	function setVisibleColumns() {
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
-				if (!in_array($cn, $this->columns)) {
+				if (!$this->columns->isVisible($cn)) {
 					//unset($this->collection->thes[$cn]);
 					$this->collection->thes[$cn]['!show'] = true;
 				}
@@ -94,38 +106,10 @@ abstract class FullGrid extends Grid {
 		}
 	}
 
-	/**
-	 * Converts $this->filter data from URL into SQL where parameters
-	 * @return array
-	 */
-	function getFilterWhere() {
-		$where = array();
-
-		$desc = $this->getFilterDesc();
-		//debug($desc);
-		foreach ($this->filter as $key => $val) {
-			if ($val) {
-				$type = ifsetor($desc[$key]['type']);
-				list($field, $parameter) = $this->getFilterWherePair($key, $val, $type);
-				$where[$field] = $parameter;
-			}
-		}
-
-		return $where;
-	}
-
-	function getFilterWherePair($key, $val, $type) {
-		$where = [];
-		switch ($type) {
-			case 'like':
-				$like = new SQLLikeContains($val);
-				$where[$key] = $like;
-				break;
-			default:
-				$where[$key] = $val;
-				break;
-		}
-		return [$key, $val];
+	function getFilterWhere()
+	{
+		return $this->filterController->getFilterWhere(
+			$this->getFilterDesc());
 	}
 
 	function sidebar() {
@@ -134,18 +118,15 @@ abstract class FullGrid extends Grid {
 		return $content;
 	}
 
-	function getFilterForm(array $fields = NULL) {
-		$desc = $this->getFilterDesc($fields);
-		$f = new HTMLFormTable($desc);
-		$f->setAllOptional();
-		$f->method('GET');
-		$f->defaultBR = true;
-		$f->formHideArray($this->linkVars);
-		$f->prefix('filter');
-		$f->showForm();
-		$f->prefix(NULL);
-		$f->submit(__('Filter'));
-		return $f;
+	function getFilterForm(array $fields = []) {
+		if (method_exists($this, 'getFilterDesc')) {
+			$this->filterController->desc = $this->getFilterDesc();
+		} else {
+			$fields = $fields ?: $this->collection->thes;
+			$this->filterController->setFields($fields);
+		}
+		$this->filterController->linkVars['c'] = get_class($this);
+		return $this->filterController->render();
 	}
 
 	/**
@@ -157,56 +138,18 @@ abstract class FullGrid extends Grid {
 	 * @return array
 	 */
 	function getFilterDesc(array $fields = NULL) {
-		$fields = ifsetor($fields, ifsetor($this->model->thes));
-		$fields = $fields ?: $this->collection->thes;
-		$fields = is_array($fields) ? $fields : array();
-
-		//debug($this->filter);
-		$desc = array();
-		foreach ($fields as $key => $k) {
-			if (!is_array($k)) {
-				$k = ['name' => $k];
-			}
-			if (!ifsetor($k['noFilter'])) {
-				$desc[$key] = $this->getFieldFilter($k, $key);
-			}
-		}
-		//debug($fields, $desc);
-		return $desc;
-	}
-
-	function getTableFieldOptions($key, $count = false) {
-		if ($this->model instanceof OODBase) {
-			$res = $this->db->getTableOptions($this->model->table
-				? $this->model->table
-				: $this->collection->table,
-				$key, array(), 'ORDER BY title', $this->model->idField);
-
-			if ($count) {
-				foreach ($res as &$val) {
-					/** @var Collection $copy */
-					$copy = clone $this->collection;
-					$copy->where[$key] = $val;
-					$copy->retrieveData();
-					$val .= ' (' . sizeof($copy->getData()) . ')';
-				}
-			}
-		} else {
-			$res = [];
-		}
-
-		return $res;
+		return $this->filterController->getFilterDesc($fields);
 	}
 
 	function getColumnsForm() {
-//		debug($this->columns);
+//		debug($this->getGridColumns());
+//		debug($this->columns->getData());
 		$desc = array(
 			'columns' => array(
 				'label' => '<h2>'.__('Visible').'</h2>',
-				'type' => 'set',
+				'type' => 'keyset',
 				'options' => $this->getGridColumns(),
-				'value' => $this->columns
-					? $this->columns : [],
+				'value' => $this->columns->getData(),
 				'between' => '',
 			),
 			'collectionName' => array(
@@ -218,9 +161,8 @@ abstract class FullGrid extends Grid {
 		$f->method('GET');
 		$f->defaultBR = true;
 		$f->formHideArray($this->linkVars);
-		//$f->prefix('columns');
 		$f->showForm($desc);
-		$f->submit(__('Set'));
+		$f->submit(__('Set Visible Columns'));
 		return $f;
 	}
 
@@ -231,56 +173,6 @@ abstract class FullGrid extends Grid {
 		$this->collection->where = array_merge(
 			$this->collection->where,
 			$this->getFilterWhere()
-		);
-	}
-
-	/**
-	 * @param $k
-	 * @param $key
-	 * @return array
-	 */
-	public function getFieldFilter($k, $key) {
-		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
-		if (class_exists($autoClass) &&
-			in_array('HTMLFormCollection', class_implements($autoClass))
-		) {
-			$k['type'] = new $autoClass();
-			$options = NULL;
-		} elseif (ifsetor($k['tf'])) {    // boolean
-			$k['type'] = 'select';
-			$stv = new slTableValue('', array());
-			$options = array(
-				't' => $stv->SLTABLE_IMG_CHECK,
-				'f' => $stv->SLTABLE_IMG_CROSS,
-			);
-			//debug($key, $this->filter[$key]);
-		} elseif (ifsetor($k['type']) == 'select') {
-			if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
-				$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
-				// convert to string for === operation
-				$options = ArrayPlus::create($options)->trim()->getData();
-			} else {
-				$options = $k['options'];
-			}
-			//debug($options);
-			// will only work for strings, ID to other table needs to avoid it
-			$options = array_combine_stringkey($options, $options);
-			//debug($options);
-		} elseif (ifsetor($k['type']) == 'like') {
-			// this is handled in getFilterWhere
-			$options = NULL;
-		} else {
-			$k['type'] = $k['type'] ?: 'input';
-			$options = NULL;
-		}
-		return array(
-			'label'   => $k['name'],
-			'type'    => $k['type'],
-			'options' => $options,
-			'null'    => true,
-			'value'   => ifsetor($this->filter[$key]),
-			'more'    => 'class="input-medium"',
-			'==='     => true,
 		);
 	}
 

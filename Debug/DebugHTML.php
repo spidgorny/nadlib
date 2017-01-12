@@ -11,6 +11,8 @@ class DebugHTML {
 	 */
 	var $helper;
 
+	var $htmlProlorSent = false;
+
 	function __construct(Debug $helper) {
 		$this->helper = $helper;
 	}
@@ -27,11 +29,12 @@ class DebugHTML {
 		if (!headers_sent()) {
 			if (method_exists($this->helper->index, 'renderHead')) {
 				$this->helper->index->renderHead();
-			} else {
+			} elseif (!headers_sent() && !$this->htmlProlorSent) {
 				$content = '<!DOCTYPE html>
 				<html>
 				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 				' . $content;
+				$this->htmlProlorSent = true;
 			}
 		}
 		return $content;
@@ -55,9 +58,7 @@ class DebugHTML {
 	}
 
 	function renderHTMLView($db, $a, $levels) {
-		$trace = Debug::getTraceTable($db);
-
-		$first = $db[1];
+		$first = ifsetor($db[1]);
 		if ($first) {
 			$function = $this->helper->getMethod($first);
 		} else {
@@ -73,7 +74,7 @@ class DebugHTML {
 
 		require_once __DIR__.'/TaylorProfiler.php';
 		$memPercent = TaylorProfiler::getMemUsage()*100;
-		require_once __DIR__.'/../HTML/class.ProgressBar.php';
+		require_once __DIR__.'/../HTML/ProgressBar.php';
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
 		$props[] = '<span class="debug_prop">Mem:</span>
@@ -90,10 +91,12 @@ class DebugHTML {
 		$elapsed = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
 		$elapsedDiff = '+'.number_format($elapsed - $lastElepsed, 3, '.', '');
 		$props[] = '<span class="debug_prop">Elapsed:</span> '.
-			$elapsed.' (<span style="color: green">'.$elapsedDiff.')'.BR;
+			$elapsed.' (<span style="color: green">'.$elapsedDiff.'</span>)'.BR;
 		$lastElepsed = $elapsed;
 
-		$backlog = '<ul><li>'.Debug::getBackLog(15, 6, '<li>').'</ul>';
+		//$trace = Debug::getTraceTable($db);
+		$backlog = Debug::getBackLog(1, 6);
+		$trace = '<ul><li>'.Debug::getBackLog(20, 6, '<li>').'</ul>';
 
 		$content = '
 			<div class="debug">
@@ -123,6 +126,8 @@ class DebugHTML {
 				//	$a = $a->__toString();
 				//} elseif (method_exists($a, 'getName')) {
 				//	$a = $a->getName();	-- not enough info
+			} elseif (method_exists($a, '__debugInfo')) {
+					$a = $a->__debugInfo();
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
 			} elseif ($a instanceof SimpleXMLElement) {
@@ -137,9 +142,9 @@ class DebugHTML {
 			foreach ($a as $i => $r) {
 				$type = gettype2($r);
 				$content .= '<tr>
-					<td class="view_array">'.$i.'</td>
-					<td class="view_array">'.$type.'</td>
-					<td class="view_array">';
+					<td>'.htmlspecialchars($i).'</td>
+					<td>'.$type.'</td>
+					<td>';
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo '"', $levels, '": null: '.is_null($levels), ' ', gettype($r), BR;
