@@ -8,7 +8,6 @@ abstract class FullGrid extends Grid {
 	var $filterController;
 
 	/**
-	 * @param string $collection
 	 */
 	function __construct() {
 		parent::__construct();
@@ -113,14 +112,15 @@ abstract class FullGrid extends Grid {
 	}
 
 	function sidebar() {
-		$content[] = $this->getFilterForm();
+		$fields = $this->collection->thes;
+		$content[] = $this->getFilterForm($fields);
 		$content[] = $this->getColumnsForm();
 		return $content;
 	}
 
 	function getFilterForm(array $fields = []) {
 		if (method_exists($this, 'getFilterDesc')) {
-			$this->filterController->desc = $this->getFilterDesc();
+			$this->filterController->desc = $this->getFilterDesc($fields);
 		} else {
 			$fields = $fields ?: $this->collection->thes;
 			$this->filterController->setFields($fields);
