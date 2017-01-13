@@ -38,11 +38,13 @@ class RunnerTask {
 	}
 
 	function reserve() {
+		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table,
 			[
 				'status' => 'working',
 				'progress' => 0,
-				'pid' => posix_getpid(),
+//				'pid' => posix_getpid(),
+				'pid' => getmypid(),
 			],
 			['id' => $this->id()]);
 		$this->db->commit();
@@ -67,7 +69,7 @@ class RunnerTask {
 
 	function __invoke() {
 		try {
-			echo '>> ' . get_class($this->obj), '->', $this->method, BR;
+			echo '#'.$this->id().' >> ' . get_class($this->obj), '->', $this->method, BR;
 			$command = [$this->obj, $this->method];
 			$params = json_decode($this->data['params']);
 			call_user_func_array($command, $params);
@@ -83,12 +85,20 @@ class RunnerTask {
 		$this->db->runUpdateQuery($this->table,
 			['status' => 'done'],
 			['id' => $this->id()]);
+		echo __METHOD__, BR;
 	}
 
 	private function failed(Exception $e) {
-		$this->db->runUpdateQuery($this->table,
-			['status' => 'failed'],
-			['meta' => json_encode($e)]);
+		$this->db->runUpdateQuery($this->table, [
+			'status' => 'failed',
+			'meta' => json_encode($e),
+		], ['id' => $this->id()]);
+	}
+
+	public function kill() {
+		$this->db->runUpdateQuery($this->table, [
+			'status' => 'killed',
+		], ['id' => $this->id()]);
 	}
 
 	/**
@@ -170,22 +180,26 @@ class RunnerTask {
 		return ifsetor($this->data[$name]);
 	}
 
-	public function getInfoBox() {
+	public function getInfoBox($controller = '') {
 		$content = ['<div class="message">',
+				'<a href="'.$controller.'?action=kill&id='.$this->id().'">',
+				'<span class="octicon octicon-x flash-close js-flash-close"></span></a>',
+				'<p style="float: right;">PID: ',
+				$this->get('pid'),
+				'</p>',
 				'<h3>', $this->getName(), ' <small>#', $this->id(), '</small>', '</h3>',
 				'<p>Status: ', $this->getStatus() ?: 'On Queue', '</p>',
 			];
 		if (!$this->isDone()) {
 			if ($this->getStatus()) {
+				$pb = new ProgressBar($this->getProgress());
 				$content[] = [
-					'<p>Started: ',
+					'<p style="float: right;">Started: ',
 					$this->getTime(),
 					'</p>',
 					'<p>Progress: ',
-					$this->getProgress(),
-					'</p>',
-					'<p>PID: ',
-					$this->get('pid'),
+					number_format($this->getProgress(), 3).'%',
+					$pb->getContent(),
 					'</p>',
 					'</div>',
 				];

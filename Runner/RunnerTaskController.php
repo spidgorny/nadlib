@@ -1,6 +1,6 @@
 <?php
 
-abstract class RunnerTaskController extends AppController {
+class RunnerTaskController extends AppController {
 
 	/**
 	 * @var RunnerTask

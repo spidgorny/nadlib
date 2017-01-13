@@ -660,6 +660,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 			array_splice($ar, $index, 1);
 			$this->setData($ar);
 		}
+		return $this;
 	}
 
 	public function getKeys() {

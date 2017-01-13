@@ -17,12 +17,14 @@ class Runner {
 	}
 
 	function run() {
+		sleep(1);
 		while (true) {
 			$command = $this->getNextCommand();
 			if ($command) {
 				$command();
 			}
 			sleep(1);
+			break;	// restart
 		}
 	}
 
