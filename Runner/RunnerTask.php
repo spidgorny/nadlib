@@ -160,7 +160,7 @@ class RunnerTask {
 	}
 
 	public function getName() {
-		return get_class($this->obj).'->'.$this->method;
+		return get_class($this->obj).' -> '.$this->method;
 	}
 
 	public function setProgress($p) {
@@ -190,9 +190,9 @@ class RunnerTask {
 				'<p style="float: right;">PID: ',
 				$this->get('pid'),
 				'</p>',
-				'<h3>', $this->getName(),
+				'<h5>', $this->getName(),
 				'('.implode(', ', $this->getParams()).')',
-				' <small>#', $this->id(), '</small>', '</h3>',
+				' <small>#', $this->id(), '</small>', '</h5>',
 				'<p>Status: ', $this->getStatus() ?: 'On Queue', '</p>',
 			];
 		if (!$this->isDone()) {
