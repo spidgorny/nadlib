@@ -685,9 +685,9 @@ abstract class Controller {
 		if (!$controller) {
 			$controller = get_class($this);
 		}
-		$params += [
+		$params = [
 			'c' => $controller,
-		];
+		] + $params;
 		if ($action) {
 			$params += [
 				'action' => $action,
