@@ -181,6 +181,8 @@ class RunnerTask {
 	}
 
 	public function getInfoBox($controller = '') {
+		$pb = new ProgressBar();
+		$pb->getCSS();
 		$content = ['<div class="message">',
 				'<a href="'.$controller.'?action=kill&id='.$this->id().'">',
 				'<span class="octicon octicon-x flash-close js-flash-close"></span></a>',
