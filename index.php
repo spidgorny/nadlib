@@ -56,7 +56,7 @@ class NadlibIndex {
 		}
 		if (!class_exists('AppController', false)) {
 			if (!class_exists('AppController')) {
-				class_alias('Controller', 'AppController');
+//				class_alias('Controller', 'AppController');
 			}
 //			class_alias('AppController', 'AppControllerME');
 		}
