@@ -94,7 +94,7 @@ class PersistantOODBase extends OODBase {
 
 	function save($where = NULL) {
 		if ($this->getStateHash() != $this->stateHash) {
-			nodebug(array(
+			0 && debug(array(
 				$this->stateHash => $this->originalData,
 				$this->getStateHash() => $this->data,
 				$this->table => $this->id,
