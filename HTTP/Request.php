@@ -263,6 +263,7 @@ class Request {
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
 		}
+		return NULL;
 	}
 
 	/**
@@ -501,6 +502,7 @@ class Request {
 	 */
 	static function getLocation($isUTF8 = false) {
 		$docRoot = NULL;
+		$c = NULL;
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
@@ -616,15 +618,15 @@ class Request {
 		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
 		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
 		$request_type =
-			(((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
+			((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
 			(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
-			(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false) ||
-			(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
+			(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
+			(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
 			(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
 			(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
 			(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
 			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')) ||
+			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
 			ifsetor($_SERVER['FAKE_HTTPS'])
 			? 'https' : 'http';
 		return $request_type;
@@ -662,9 +664,6 @@ class Request {
 	}
 
 	function getPathAfterDocRoot() {
-		$config = class_exists('Config')
-				? Config::getInstance()
-				: new stdClass();
 		$al = AutoLoad::getInstance();
 
 		if (!$this->isWindows()) {	// linux
@@ -934,7 +933,7 @@ class Request {
 //			$docRoot = self::getDocumentRootByScript();
 //		}
 
-		$before = $docRoot;
+//		$before = $docRoot;
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
 		$docRoot = cap($docRoot, '/');
 		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
