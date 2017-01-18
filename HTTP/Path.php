@@ -173,6 +173,17 @@ class Path {
 	}
 
 	/**
+	 * @param $that
+	 * @return self
+	 */
+	public function upIfNot($that) {
+		if (end($this->aPath) != $that) {
+			return $this->up();
+		}
+		return $this;
+	}
+
+	/**
 	 * @param $minus
 	 * @return $this
 	 */

@@ -45,11 +45,17 @@ class Menu /*extends Controller*/ {
 
 	public $ulClass = 'nav nav-list nav-pills nav-stacked menu csc-menu list-group';
 
+	public $itemTag = 'li';
+
 	/**
 	 * list-group-item for bootstrap 1/2
 	 * @var string
 	 */
 	public $liClass = '';
+
+	public $normalAClass = '';
+
+	public $activeAClass = 'act';
 
 	/**
 	 * @var URL
@@ -335,7 +341,7 @@ class Menu /*extends Controller*/ {
 					&& $name->getChildren();
 				$cur = $this->isCurrent($class, $root, $level);
 				$activeLIclass = $this->liClass . ($cur	? ' active' : '');
-				$activeAclass  = $cur 	? 'act' : '';
+				$activeAclass  = $cur ? $this->activeAClass : $this->normalAClass;
 				if ($name instanceof HTMLTag) {
 					$aTag = $name.'';
 				} else {
@@ -363,9 +369,13 @@ class Menu /*extends Controller*/ {
 				} else {
 					$contentSubMenu = '';
 				}
-				$content .= new HTMLTag('li', array(
-					'class' => $activeLIclass,
-				), $aTag.$contentSubMenu, true)."\n";
+				if ($this->itemTag) {
+					$content .= new HTMLTag($this->itemTag, array(
+						'class' => $activeLIclass,
+					), $aTag . $contentSubMenu, true) . "\n";
+				} else {
+					$content .= $aTag . $contentSubMenu;
+				}
 			}
 		}
 		//debug($this->current);
