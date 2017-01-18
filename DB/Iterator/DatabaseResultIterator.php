@@ -34,10 +34,10 @@ class DatabaseResultIterator implements Iterator, Countable {
 	var $row = FALSE;
 
 	/**
-	 * Amount
+	 * Amount. Must be NULL for the first time.
 	 * @var int
 	 */
-	var $rows = 0;
+	var $rows = NULL;
 
 	/**
 	 * Will return the value of the current row corresponding to $this->defaultKey
@@ -74,8 +74,20 @@ class DatabaseResultIterator implements Iterator, Countable {
 //			debug($query, $params);
 		}
 		$this->dbResultResource = $this->db->perform($query, $params);
+		$this->log(__METHOD__, ['dbResultResource' => $this->dbResultResource]);
 		$this->rows = $this->count();
 		//$this->rewind();
+	}
+
+	function count() {
+		$this->log(__METHOD__);
+		if (is_null($this->rows)) {
+			$numRows = $this->db->numRows($this->dbResultResource);
+			$this->log(__METHOD__, ['numRows' => $numRows]);
+			return $numRows;
+		} else {
+			return $this->rows;
+		}
 	}
 
 	function rewind() {
@@ -119,11 +131,6 @@ class DatabaseResultIterator implements Iterator, Countable {
 	function valid() {
 		$this->log(__METHOD__);
 		return $this->row !== NULL && $this->row !== FALSE;
-	}
-
-	function count() {
-		$this->log(__METHOD__);
-		return $this->db->numRows($this->dbResultResource);
 	}
 
 	/**

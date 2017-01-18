@@ -773,4 +773,16 @@ WHERE ccu.table_name='".$table."'");
 		}
 	}
 
+	function getInfo() {
+		return pg_version($this->connection) + [
+			'options' => pg_options($this->connection),
+			'busy' => pg_connection_busy($this->connection),
+			'status' => pg_connection_status($this->connection),
+			'transaction' => pg_transaction_status($this->connection),
+			'client_encoding' => pg_client_encoding($this->connection),
+			'host' => pg_host($this->connection),
+			'port' => pg_port($this->connection),
+		];
+	}
+
 }

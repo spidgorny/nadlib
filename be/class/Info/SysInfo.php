@@ -25,6 +25,8 @@ class SysInfo extends AppControllerME {
 		$content[] = $this->encloseInAA(slTable::showAssoc($_POST), '$_POST');
 		$content[] = $this->encloseInAA(slTable::showAssoc($_COOKIE), '$_COOKIE');
 		$content[] = $this->encloseInAA(slTable::showAssoc($_ENV), '$_ENV');
+		ksort($_SERVER);
+		$content[] = $this->encloseInAA(slTable::showAssoc($_SERVER), '$_SERVER');
 		return $content;
 	}
 
