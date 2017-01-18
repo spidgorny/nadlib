@@ -4,6 +4,7 @@ define('LOWERCASE',3);
 define('UPPERCASE',1);
 
 use Symfony\Component\CssSelector\CssSelector;
+use Symfony\Component\CssSelector\CssSelectorConverter;
 
 class Syndicator {
 
@@ -460,6 +461,18 @@ class Syndicator {
 		$xpath = CssSelector::toXPath($selector);
 		//debug($xpath);
 		return $this->getElements($xpath);
+	}
+
+	/**
+	 * composer require symfony/css-selector
+	 * @param $selector
+	 * @return SimpleXMLElement
+	 */
+	function select($selector) {
+		$converter = new CssSelectorConverter();
+		$xpath = $converter->toXPath($selector);
+		//debug($xpath);
+		return $this->getElement($xpath);
 	}
 
 	public function get($string) {

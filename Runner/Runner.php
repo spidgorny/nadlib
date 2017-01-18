@@ -17,14 +17,12 @@ class Runner {
 	}
 
 	function run() {
-		sleep(1);
 		while (true) {
 			$command = $this->getNextCommand();
 			if ($command) {
 				$command();
+				break;	// restart is task is found
 			}
-			sleep(1);
-			break;	// restart
 		}
 	}
 
