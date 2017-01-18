@@ -71,7 +71,8 @@ class RunnerTask {
 		try {
 			echo '#'.$this->id().' >> ' . get_class($this->obj), '->', $this->method, BR;
 			$command = [$this->obj, $this->method];
-			$params = json_decode($this->data['params']);
+			$params = $this->getParams();
+			TaylorProfiler::getInstance()->clearMemory();
 			call_user_func_array($command, $params);
 			$this->done();
 		} catch (Exception $e) {
@@ -159,7 +160,7 @@ class RunnerTask {
 	}
 
 	public function getName() {
-		return get_class($this->obj).'->'.$this->method;
+		return get_class($this->obj).' -> '.$this->method;
 	}
 
 	public function setProgress($p) {
@@ -181,13 +182,17 @@ class RunnerTask {
 	}
 
 	public function getInfoBox($controller = '') {
+		$pb = new ProgressBar();
+		$pb->getCSS();
 		$content = ['<div class="message">',
 				'<a href="'.$controller.'?action=kill&id='.$this->id().'">',
 				'<span class="octicon octicon-x flash-close js-flash-close"></span></a>',
 				'<p style="float: right;">PID: ',
 				$this->get('pid'),
 				'</p>',
-				'<h3>', $this->getName(), ' <small>#', $this->id(), '</small>', '</h3>',
+				'<h5>', $this->getName(),
+				'('.implode(', ', $this->getParams()).')',
+				' <small>#', $this->id(), '</small>', '</h5>',
 				'<p>Status: ', $this->getStatus() ?: 'On Queue', '</p>',
 			];
 		if (!$this->isDone()) {
@@ -222,6 +227,17 @@ class RunnerTask {
 			'status' => '',
 			'ctime' => new AsIsOp("< '".$this->getTime()."'"),
 		], '', 'count(*) as count')['count'];
+	}
+
+	/**
+	 * @return mixed
+	 */
+	private function getParams() {
+		return json_decode($this->data['params']);
+	}
+
+	public function isKilled() {
+		return $this->getStatus() == 'killed';
 	}
 
 }
