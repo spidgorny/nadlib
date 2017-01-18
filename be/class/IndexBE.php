@@ -68,42 +68,9 @@ class IndexBE extends IndexBase {
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
 
-		$menu = array(
-			'HomeBE' => 'Home',
-			'ServerStat' => new Recursive('Info', array(
-				'ServerStat' => 'Server Stat',
-				'ServerData' => 'Server Data',
-				'Session' => 'Session',
-				'Cookies' => 'Cookies',
-				'ConfigView' => 'config.yaml',
-				'PHPInfo' => 'phpinfo()',
-				'About' => 'About',
-				'Documentation' => 'Documentation',
-				'IniCheck' => 'php.ini Check',
-				'TimeTrack' => 'Time Track',
-				'Issues' => 'Issues',
-			)),
-			'UnitTestReport' => new Recursive('Test', array(
-				'UnitTestReport' => 'Unit Test Report',
-				'ValidatorCheck' => 'Validator Check',
-				'TestQueue' => 'Test Queue',
-			)),
-			'ExplainQuery' => new Recursive('DB', array(
-				'AlterDB' => 'Alter DB',
-				'AlterCharset' => 'Alter Charset',
-				'AlterTable' => 'Alter Table',
-				'AlterIndex' => 'Alter Indexes',
-				'OptimizeDB' => 'Optimize DB',
-				'ExplainQuery' => 'Explain Query',
-				'Localize' => 'Localize',
-			)),
-			'ClearCache' => new Recursive('FE', array(
-				'ClearCache' => 'Clear Cache',
-				'JumpFrontend' => '<- Frontend',
-			)),
-		);
-		$menu = $this->loadBEmenu($menu);
-		$this->menu = new Menu($menu, 0);
+		$menuItems = $this->getMenu();
+		$menu = $this->loadBEmenu($menuItems);
+		$this->menu = new Menu($menuItems, 0);
 		$this->menu->ulClass = 'nav navbar-nav';
 		$this->menu->liClass = '';
 		$this->menu->recursive = false;
@@ -200,6 +167,47 @@ class IndexBE extends IndexBase {
 		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getMenu(): array {
+		$menu = array(
+			'HomeBE'         => 'Home',
+			'ServerStat'     => new Recursive('Info', array(
+				'ServerStat'    => 'Server Stat',
+				'ServerData'    => 'Server Data',
+				'Session'       => 'Session',
+				'Cookies'       => 'Cookies',
+				'ConfigView'    => 'config.yaml',
+				'PHPInfo'       => 'phpinfo()',
+				'About'         => 'About',
+				'Documentation' => 'Documentation',
+				'IniCheck'      => 'php.ini Check',
+				'TimeTrack'     => 'Time Track',
+				'Issues'        => 'Issues',
+			)),
+			'UnitTestReport' => new Recursive('Test', array(
+				'UnitTestReport' => 'Unit Test Report',
+				'ValidatorCheck' => 'Validator Check',
+				'TestQueue'      => 'Test Queue',
+			)),
+			'ExplainQuery'   => new Recursive('DB', array(
+				'AlterDB'      => 'Alter DB',
+				'AlterCharset' => 'Alter Charset',
+				'AlterTable'   => 'Alter Table',
+				'AlterIndex'   => 'Alter Indexes',
+				'OptimizeDB'   => 'Optimize DB',
+				'ExplainQuery' => 'Explain Query',
+				'Localize'     => 'Localize',
+			)),
+			'ClearCache'     => new Recursive('FE', array(
+				'ClearCache'   => 'Clear Cache',
+				'JumpFrontend' => '<- Frontend',
+			)),
+		);
+		return $menu;
 	}
 
 }
