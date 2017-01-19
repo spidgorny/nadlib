@@ -262,32 +262,33 @@ class Menu /*extends Controller*/ {
 	function render() {
 		$content = '';
 		if (!is_null($this->level)) {
-			$rootpath = $this->getRootpath();
-			$itemsOnLevel = $this->getItemsOnLevel($rootpath);
+			$rootPath = $this->getRootpath();
+			$itemsOnLevel = $this->getItemsOnLevel($rootPath);
 			if ($this->level === 1) {
 				nodebug(array(
 					'current' => $this->current,
-					'sizeof($rootpath)' => sizeof($rootpath),
+					'sizeof($rootPath)' => sizeof($rootPath),
 					'level' => $this->level,
-					'rootpath' => $rootpath,
+					'rootPath' => $rootPath,
 					'itemsOnLevel' => $itemsOnLevel,
 				));
 			}
-			$content .= $this->renderLevel($itemsOnLevel, $rootpath, $this->level);
+			$content .= $this->renderLevel($itemsOnLevel, $rootPath, $this->level);
 		} else {
-			$content .= $this->renderLevel($this->items->getData(), array(), 0);
+			$items = $this->items instanceof ArrayPlus ? $this->items->getData() : $this->items;
+			$content .= $this->renderLevel($items, array(), 0);
 		}
 		return $content;
 	}
 
 	/**
 	 * Will retrieve the sub-elements on the specified path
-	 * @param array $rootpath
+	 * @param array $rootPath
 	 * @return array
 	 */
-	protected function getItemsOnLevel(array $rootpath) {
+	protected function getItemsOnLevel(array $rootPath) {
 		$fullRecursive = new Recursive(NULL, $this->items->getData());
-		$sub = $fullRecursive->findPath($rootpath);
+		$sub = $fullRecursive->findPath($rootPath);
 		if ($sub instanceof Recursive) {
 			$items = $sub->getChildren();
 		} else {
@@ -313,7 +314,7 @@ class Menu /*extends Controller*/ {
 
 		if (-1 == $this->level) debug(array(
 			'level' => $this->level,
-			'rootpath' => $rootpath,
+			'rootpath' => $rootPath,
 			'sub' => $sub,
 			'items' => $items
 		));
