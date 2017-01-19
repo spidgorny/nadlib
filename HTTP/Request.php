@@ -1159,4 +1159,14 @@ class Request {
 			?: $this->getNameless($last);
 	}
 
+	public function getHidden() {
+		$hidden = array_reduce(array_keys($this->data), function ($total, $key) {
+			$item = $this->data[$key];
+			return array_merge($total, [
+				'<input type="hidden" name="'.$key.'" value="'.$item.'" />',
+			]);
+		}, []);
+		return $hidden;
+	}
+
 }
