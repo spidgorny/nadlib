@@ -79,7 +79,7 @@ class AjaxTree extends HTMLFormType implements HTMLFormTypeInterface {
 		$id = /*uniqid*/('div_'.$textName); // to be reused in ajaxTreeInput onSuccess
 
 		new treeArrayLoad(); // to include the corresponding javascript or the tree for use in ajax.
-		$onclick = 'startAjaxTree(\''.$id.'\', \''.$textName.'\', \''.$caller.'\', \'&jsCallbackFunction=treeNodeClick_Input\'); return false;';
+		$onclick = "return startAjaxTree('".$id."', '".$textName."', '".$caller."', '&jsCallbackFunction=treeNodeClick_Input')";
 		$this->form->stdout .= new HTMLTag('a', [
 			'href' => '',
 			'onclick' => $onclick,
@@ -90,7 +90,7 @@ class AjaxTree extends HTMLFormType implements HTMLFormTypeInterface {
 //		$t->buildTFromSession($this->getName($fieldName, '', TRUE), $tree);
 //		$renderTree .= $t->getContent();
 		//$renderTree .= view_array($tree->tree);
-		$renderTree = '<img src="skin/default/img/progressBarShort.gif">';
+		$renderTree = '<img src="skin/default/img/progressBarShort.gif" />';
 
 		$this->form->stdout .= '<div id="'.$id.'" class="htmlFormAjaxTree" style="display: none;">';
 		$e = new AppController();
