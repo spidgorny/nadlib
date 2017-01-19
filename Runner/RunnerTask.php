@@ -135,8 +135,12 @@ class RunnerTask {
 		$task = new RunnerTask([]);
 		$task->db->transaction();
 		$row = $task->db->fetchOneSelectQuery('runner', [
-			'status' => '',
+			'status' => new SQLOr([
+				'status' => '',
+				'status ' => NULL,
+			]),
 		], 'ORDER BY ctime');
+//		echo str_replace("\n", ' ', $task->db->lastQuery), BR;
 		if ($row) {
 			$task->data = $row;
 			return $task;
