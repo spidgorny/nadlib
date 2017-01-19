@@ -252,11 +252,16 @@ class Path {
 	public function relativeFromAppRoot() {
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
-		$new = $this->cutArrayFromArray($this->aPath, $al->getAppRoot()->aPath);
-//		debug($this->aPath, $al->getAppRoot()->aPath, $new);
-		$relative = Path::fromArray($new);
-		$relative->isFile = $this->isFile;
-		$relative->isDir = $this->isDir;
+		$appRoot = $al->getAppRoot();
+		if ($appRoot) {
+			$new = $this->cutArrayFromArray($this->aPath, $appRoot->aPath);
+			//		debug($this->aPath, $al->getAppRoot()->aPath, $new);
+			$relative = Path::fromArray($new);
+			$relative->isFile = $this->isFile;
+			$relative->isDir = $this->isDir;
+		} else {
+			$relative = $this;
+		}
 		return $relative;
 	}
 

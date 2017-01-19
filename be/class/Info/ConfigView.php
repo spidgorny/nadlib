@@ -10,6 +10,8 @@ class ConfigView extends AppControllerBE {
 		'integer' => 'input',
 	);
 
+	var $file;
+
 	function __construct() {
 		parent::__construct();
 		$this->file = dirname(__FILE__).'/../../../class/config.yaml';
@@ -17,6 +19,7 @@ class ConfigView extends AppControllerBE {
 	}
 
 	function render() {
+		$content = '';
 		if (file_exists($this->file)) {
 			$this->performAction();
 			$data = Spyc::YAMLLoad($this->file);
