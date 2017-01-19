@@ -17,12 +17,16 @@ class Runner {
 	}
 
 	function run() {
+		echo 'Ready...', BR;
 		while (true) {
 			$command = $this->getNextCommand();
 			if ($command) {
 				$command();
 				break;	// restart is task is found
+			} else {
+				echo 'Nothing to do for '.TaylorProfiler::getElapsedTime().' :-(', BR;
 			}
+			sleep(1);
 		}
 	}
 
