@@ -294,7 +294,11 @@ abstract class OODBase {
 
 	function delete(array $where = NULL) {
 		if (!$where) {
-			$where = array($this->idField => $this->id);
+			if ($this->id) {
+				$where = array($this->idField => $this->id);
+			} else {
+				return NULL;
+			}
 		}
 		$this->log(get_called_class() . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
