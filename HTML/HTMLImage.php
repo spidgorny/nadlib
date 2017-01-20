@@ -25,7 +25,7 @@ class HTMLImage extends HTMLTag {
 	function getImageLink() {
 		if ($this->isLocalFile()) {
 			if ($this->filename[0] == '/') {
-				$documentRoot = Autoload::getInstance()->appRoot;
+				$documentRoot = Autoload::getInstance()->getAppRoot();
 				$documentRoot = str_replace('\\', '/', $documentRoot);
 				$realpath = realpath($this->filename);
 				$realpath = str_replace('\\', '/', $realpath);
