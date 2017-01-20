@@ -119,11 +119,21 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
-	function unquote ($value) {
+	function unquote ($value, $start = ['\'', '"'], $end = ['\'', '"']) {
+		if (is_string($start)) $start = [$start];
+		if (is_string($end)) $end = [$end];
 		if (!$value) return $value;
 		if (!is_string($value)) return $value;
-		if ($value[0] == '\'') return trim($value, '\'');
-		if ($value[0] == '"') return trim($value, '"');
+		foreach ($start as $s) {
+			if ($value[0] == $s) {
+				$value = trim($value, $s);
+			}
+		}
+		foreach ($end as $e) {
+			if ($value[strlen($value)-1] == $e) {
+				$value = trim($value, $e);
+			}
+		}
 		return $value;
 	}
 
