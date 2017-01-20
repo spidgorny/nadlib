@@ -227,9 +227,6 @@ abstract class OODBase {
 				$id = $this->db->lastInsertID($res, $this->table);
 			}
 		}
-		if (!$id) {
-			$id = $data[$this->idField];	// GUID column
-		}
 
 		if ($id) {
 			$this->init($id ? $id : $this->id);
