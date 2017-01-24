@@ -42,4 +42,14 @@ class Runner {
 		return NULL;
 	}
 
+	public function getPendingTasks() {
+		$rows = $this->db->fetchAllSelectQuery('runner', [
+			'status' => new SQLOr([
+				'status' => new SQLNotIn(['done', 'failed', 'killed']),
+				'status ' => NULL,
+			]),
+		], 'ORDER BY ctime');
+		return $rows;
+	}
+
 }
