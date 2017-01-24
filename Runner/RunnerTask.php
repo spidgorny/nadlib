@@ -45,6 +45,7 @@ class RunnerTask {
 				'progress' => 0,
 //				'pid' => posix_getpid(),
 				'pid' => getmypid(),
+				'mtime' => new SQLNow(),
 			],
 			['id' => $this->id()]);
 		$this->db->commit();
@@ -84,7 +85,10 @@ class RunnerTask {
 
 	private function done() {
 		$this->db->runUpdateQuery($this->table,
-			['status' => 'done'],
+			[
+				'status' => 'done',
+				'mtime' => new SQLNow(),
+			],
 			['id' => $this->id()]);
 		echo __METHOD__, BR;
 	}
@@ -93,12 +97,14 @@ class RunnerTask {
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'failed',
 			'meta' => json_encode($e),
+			'mtime' => new SQLNow(),
 		], ['id' => $this->id()]);
 	}
 
 	public function kill() {
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'killed',
+			'mtime' => new SQLNow(),
 		], ['id' => $this->id()]);
 	}
 
@@ -169,7 +175,10 @@ class RunnerTask {
 
 	public function setProgress($p) {
 		$this->db->runUpdateQuery($this->table,
-			['progress' => $p],
+			[
+				'progress' => $p,
+				'mtime' => new SQLNow(),
+			],
 			['id' => $this->id()]);
 	}
 
