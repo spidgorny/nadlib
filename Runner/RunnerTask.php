@@ -84,16 +84,17 @@ class RunnerTask {
 	}
 
 	private function done() {
+		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table,
 			[
 				'status' => 'done',
 				'mtime' => new SQLNow(),
 			],
 			['id' => $this->id()]);
-		echo __METHOD__, BR;
 	}
 
-	private function failed(Exception $e) {
+	function failed(Exception $e) {
+		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'failed',
 			'meta' => json_encode($e),
@@ -102,6 +103,7 @@ class RunnerTask {
 	}
 
 	public function kill() {
+		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'killed',
 			'mtime' => new SQLNow(),
@@ -164,6 +166,10 @@ class RunnerTask {
 		return $this->data['ctime'];
 	}
 
+	function getMTime() {
+		return new Time($this->data['mtime']);
+	}
+
 	public function render() {
 		return '<div class="message '.__CLASS__.'">'.
 			'Task #'.$this->id().' is '.$this->getStatus().' since '.$this->getTime().'.</div>';
@@ -206,14 +212,17 @@ class RunnerTask {
 				'<h5>', $this->getName(),
 				'('.implode(', ', $this->getParams()).')',
 				' <small>#', $this->id(), '</small>', '</h5>',
+				'<p style="float: right;">Started: ',
+				$this->getTime(),
+				'</p>',
 				'<p>Status: ', $this->getStatus() ?: 'On Queue', '</p>',
 			];
 		if (!$this->isDone()) {
 			if ($this->getStatus()) {
 				$pb = new ProgressBar($this->getProgress());
 				$content[] = [
-					'<p style="float: right;">Started: ',
-					$this->getTime(),
+					'<p style="float: right;">Updated: ',
+					$this->getMTime()->getSince()->nice(),
 					'</p>',
 					'<p>Progress: ',
 					number_format($this->getProgress(), 3).'%',

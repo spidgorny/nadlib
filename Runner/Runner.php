@@ -37,6 +37,9 @@ class Runner {
 			$this->currentTask = $task;
 			if ($task->isValid()) {
 				return $task;
+			} else {
+				$e = new BadMethodCallException('Method '.$task->getName().' is not found.');
+				$task->failed($e);
 			}
 		}
 		return NULL;
