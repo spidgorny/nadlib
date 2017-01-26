@@ -1,6 +1,6 @@
 <?php
 
-class LDAPUser extends UserBase implements UserModelInterface {
+abstract class LDAPUser extends UserBase implements UserModelInterface {
 
 	public $UserID;
 	public $UserName;
