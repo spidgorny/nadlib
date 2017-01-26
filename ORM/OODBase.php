@@ -265,7 +265,8 @@ abstract class OODBase {
 			}
 
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
-			//debug($query); exit;
+			//debug($query);
+			//echo $query, BR;
 			$this->lastQuery = $query;
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);
@@ -423,11 +424,12 @@ abstract class OODBase {
 						  array $update = array()
 	) {
 		TaylorProfiler::start(__METHOD__);
+		//echo get_class($this), '::', __FUNCTION__, ' begin', BR;
 		$this->db->transaction();
 		if ($where) {
 			$this->findInDB($where);
 		}
-//		debug($this->id, $this->data); exit();
+		//debug($this->id, $this->data);
 		if ($this->id) { // found
 			$left = array_intersect_key($this->data, $fields);		// keys need to have same capitalization
 			$right = array_intersect_key($fields, $this->data);
@@ -451,6 +453,7 @@ abstract class OODBase {
 			//debug($this->id, $this->data, $op, $this->db->lastQuery);
 		}
 		$this->db->commit();
+		//echo get_class($this), '::', __FUNCTION__, ' commit', BR;
 		TaylorProfiler::stop(__METHOD__);
 		return $op;
 	}
