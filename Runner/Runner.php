@@ -37,9 +37,22 @@ class Runner {
 			$this->currentTask = $task;
 			if ($task->isValid()) {
 				return $task;
+			} else {
+				$e = new BadMethodCallException('Method '.$task->getName().' is not found.');
+				$task->failed($e);
 			}
 		}
 		return NULL;
+	}
+
+	public function getPendingTasks() {
+		$rows = $this->db->fetchAllSelectQuery('runner', [
+			'status' => new SQLOr([
+				'status' => new SQLNotIn(['done', 'failed', 'killed']),
+				'status ' => NULL,
+			]),
+		], 'ORDER BY ctime');
+		return $rows;
 	}
 
 }
