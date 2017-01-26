@@ -159,6 +159,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			if ($this->queryLog) {
 				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 			}
+			if ($this->logToLog) {
+				$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
+				error_log($runTime.' '.str_replace("\n", ' ', $query));
+			}
 		}
 		$this->queryCount++;
 		return $this->LAST_PERFORM_RESULT;
