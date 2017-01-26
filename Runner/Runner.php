@@ -19,6 +19,7 @@ class Runner {
 	function run() {
 		echo 'Ready...', BR;
 		while (true) {
+			/** @var RunnerTask $command */
 			$command = $this->getNextCommand();
 			if ($command) {
 				$command();
@@ -49,6 +50,16 @@ class Runner {
 		$rows = $this->db->fetchAllSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => new SQLNotIn(['done', 'failed', 'killed']),
+				'status ' => NULL,
+			]),
+		], 'ORDER BY ctime');
+		return $rows;
+	}
+
+	public function getTaskQueue() {
+		$rows = $this->db->fetchAllSelectQuery('runner', [
+			'status' => new SQLOr([
+				'status' => '',
 				'status ' => NULL,
 			]),
 		], 'ORDER BY ctime');
