@@ -163,6 +163,9 @@ class HTMLFormSelection extends HTMLFormType {
 		if (isset($desc['null'])) {
 			$options = array(NULL => "---") + $options;
 		}
+		if (isset($desc['map'])) {
+			$options = array_map($desc['map'], $options);
+		}
 		//Debug::debug_args($options, $desc['options']);
 		return $options;
 	}
