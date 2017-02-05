@@ -607,7 +607,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
-	 * @return string
 	 */
 	public function setSecurityHeaders() {
 		if (!headers_sent()) {
