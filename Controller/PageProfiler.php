@@ -27,17 +27,11 @@ class PageProfiler {
 		{
 			if (!$this->request->isCLI()) {
 				$content .= '<div class="profiler noprint">';
-				$url = $this->request->getURL();
-				$url->makeRelative();
-				$params = $url->getParams();
-				$url->clearParams();
-				$fullURL = $this->request->getLocation(). $url;
-				$urlText = $this->request->getLocation().' '. $url;
-				$content .= '<a href="'. $fullURL .'">'. $urlText .'</a>'.BR;
-				if ($params) {
-					$content .= $this->html->pre(json_encode($params, JSON_PRETTY_PRINT));
-				}
-
+				$content .= $this->getURL();
+				$content .= $this->getGET();
+				$content .= $this->getPOST();
+				$content .= $this->getHeader();
+				$content .= $this->getFooter();
 				$content .= $this->html->s(OODBase::getCacheStatsTable());
 
 				/** @var $profiler TaylorProfiler */
@@ -48,13 +42,70 @@ class PageProfiler {
 					//$content .= $profiler->printTrace(true);
 					//$content .= $profiler->analyzeTraceForLeak();
 				}
-
 				$content .= '</div>';
 
 				$ft = new FloatTime(true);
 				$content .= $ft->render();
 			}
 		}
+		return $content;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getURL() {
+		$url = clone $this->request->getURL();
+		$url->makeRelative();
+		$params = $url->getParams();
+		$url->clearParams();
+		$fullURL = $this->request->getLocation() . $url;
+		$urlText = $this->request->getLocation() . ' ' . $url;
+		$content = '<a href="' . $fullURL . '">' . $urlText . '</a>' . BR;
+		return $content;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getGET() {
+		$url = $this->request->getURL();
+		$params = $url->getParams();
+		$content .= $this->html->h4('GET');
+		$content .= $this->html->pre(json_encode($params, JSON_PRETTY_PRINT));
+		return $content;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getPOST() {
+		$content .= $this->html->h4('POST');
+		$content .= $this->html->pre(json_encode($_POST, JSON_PRETTY_PRINT));
+		return $content;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getHeader() {
+		$index = Index::getInstance();
+		$content .= $this->html->h4('Header');
+		$header = json_encode($index->header, JSON_PRETTY_PRINT);
+		$header = str_replace('\/', '/', $header);
+		$content .= $this->html->pre($header);
+		return $content;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getFooter() {
+		$index = Index::getInstance();
+		$content .= $this->html->h4('Footer');
+		$footer = json_encode($index->footer, JSON_PRETTY_PRINT);
+		$footer = str_replace('\/', '/', $footer);
+		$content .= $this->html->pre($footer);
 		return $content;
 	}
 

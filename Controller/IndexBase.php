@@ -503,7 +503,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$fn = new Path($fileName);
 			$fileName = $fn->relativeFromAppRoot();
 		}
-		$defer = $defer ? 'defer="true"' : '';
+		$defer = $defer ? 'defer="defer"' : '';
 		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" '.$defer.'></script>';
 		return $this;
 	}
