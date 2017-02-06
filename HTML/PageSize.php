@@ -69,7 +69,7 @@ class PageSize extends Controller {
 	function render() {
 		$content = '';
 		foreach ($this->options as $o) {
-			$content .= '<option '.($this->selected == $o ? 'selected' : '').'>'.$o.'</option>';
+			$content .= '<option '.($this->selected == $o ? 'selected' : '').'>'.$o.'</option>'."\n";
 		}
 		$this->url->unsetParam('pageSize');
 		$this->url->setParam('pageSize', '');	// will end with pageSize=
