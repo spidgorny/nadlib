@@ -472,7 +472,9 @@ class HTMLForm {
 			$options = $desc['options'];
 		}
 		Index::getInstance()->addJQuery();
-		$this->selection($fieldName, $options, $desc['value'], FALSE, 'onchange="$(this).nextAll(\'input\').val($(this).val());"', false, $desc);
+		$this->selection($fieldName, $options, $desc['value'], FALSE, 'onchange="jQuery(this).nextAll(\'input\').val(
+			jQuery(this).val()
+		);"', false, $desc);
 		$this->input($fieldName, $desc['value']);
 	}
 
