@@ -204,10 +204,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$class = end($slugParts);	// again, because __autoload need the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
-			$this->controller = new $class();
-//			debug($class, get_class($this->controller));
-			if (method_exists($this->controller, 'postInit')) {
-				$this->controller->postInit();
+			try {
+				$this->controller = new $class();
+				//			debug($class, get_class($this->controller));
+				if (method_exists($this->controller, 'postInit')) {
+					$this->controller->postInit();
+				}
+			} catch (AccessDeniedException $e) {
+				$this->error($e->getMessage());
 			}
 		} else {
 			//debug($_SESSION['autoloadCache']);
@@ -240,6 +244,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} else {
 				// display Exception
 				$content .= $this->content->getContent();
+				$this->content->clear();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
@@ -252,40 +257,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::stop(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
-	}
-
-	function renderTemplateIfNotAjax($content) {
-		$contentOut = '';
-		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			// display Exception
-			$view = $this->renderTemplate($content);
-			//echo gettype2($view), BR;
-			if ($view instanceof View) {
-				$contentOut = $view->render();
-			} else {
-				$contentOut = $view;
-			}
-		} else {
-			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
-			$contentOut .= $this->s($content);
-			$this->content->clear();		// clear for the next output. May affect saveMessages()
-		}
-		return $contentOut;
-	}
-
-	function renderTemplate($content) {
-		TaylorProfiler::start(__METHOD__);
-		$contentOut = $this->content->getContent();
-		$contentOut .= $this->s($content);
-		$v = new View($this->template, $this);
-		$v->content = $contentOut;
-		$v->title = strip_tags(ifsetor($this->controller->title));
-		$v->sidebar = $this->sidebar;
-		$v->baseHref = $this->request->getLocation();
-		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
-		//$v->loginForm = $lf->dispatchAjax();
-		TaylorProfiler::stop(__METHOD__);
-		return $v;
 	}
 
 	function renderController() {
@@ -311,6 +282,41 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $render;
+	}
+
+	function renderTemplateIfNotAjax($content) {
+		$contentOut = '';
+		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+			// display Exception
+			$view = $this->renderTemplate($content);
+			//echo gettype2($view), BR;
+			if ($view instanceof View) {
+				$contentOut = $view->render();
+			} else {
+				$contentOut = $view;
+			}
+		} else {
+			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
+			$contentOut .= $this->s($content);
+			$this->content->clear();		// clear for the next output. May affect saveMessages()
+		}
+		return $contentOut;
+	}
+
+	function renderTemplate($content) {
+		TaylorProfiler::start(__METHOD__);
+		$contentOut = '';
+		$contentOut .= $this->content->getContent();	// this is already output
+		$contentOut .= $this->s($content);
+		$v = new View($this->template, $this);
+		$v->content = $contentOut;
+		$v->title = strip_tags(ifsetor($this->controller->title));
+		$v->sidebar = $this->sidebar;
+		$v->baseHref = $this->request->getLocation();
+		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
+		//$v->loginForm = $lf->dispatchAjax();
+		TaylorProfiler::stop(__METHOD__);
+		return $v;
 	}
 
 	function s($content) {
@@ -393,6 +399,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * @param bool $defer
 	 * @return $this
 	 */
 	function addJQuery($defer = true) {
