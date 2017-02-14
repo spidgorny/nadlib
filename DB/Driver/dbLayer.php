@@ -151,13 +151,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
 			//debug($query);
+			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(pg_errormessage($this->connection).BR.$query);
 			$e->setQuery($query);
 			throw $e;
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
+				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
 			}
 			if ($this->logToLog) {
 				$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
