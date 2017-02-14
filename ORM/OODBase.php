@@ -450,7 +450,8 @@ abstract class OODBase {
 				debug($this->lastQuery);
 				$op = $this->db->lastQuery;	// for debug
 			}
-			//debug($this->id, $this->data, $op, $this->db->lastQuery);
+//			debug($this->id, $this->data, $op, $this->db->lastQuery);
+//			exit();
 		}
 		$this->db->commit();
 		//echo get_class($this), '::', __FUNCTION__, ' commit', BR;
