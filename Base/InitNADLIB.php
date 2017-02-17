@@ -83,11 +83,12 @@ class InitNADLIB {
 				define('DEVELOPMENT',
 					Request::isWindows()
 					|| ifsetor($_COOKIE['debug'])
+					|| ini_get('debug')
+					|| getenv('NADLIB')
 				);
 				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {
-				define('DEVELOPMENT', ifsetor($_COOKIE['debug'])
-					|| ini_get('debug'));
+				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
 			}
 		}
 
