@@ -77,7 +77,7 @@ class InitNADLIB {
 
 	private function setDefaults()
 	{
-//debug($_COOKIE);
+		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
 			if (Request::isCLI()) {
 				define('DEVELOPMENT',
@@ -86,7 +86,8 @@ class InitNADLIB {
 				);
 				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {
-				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
+				define('DEVELOPMENT', ifsetor($_COOKIE['debug'])
+					|| ini_get('debug'));
 			}
 		}
 
