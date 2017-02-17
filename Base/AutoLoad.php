@@ -419,6 +419,7 @@ class AutoLoad {
 
 	function dumpCSS() {
 		static $once = 0;
+		if (Request::isCLI()) return;
 		echo '<style>
 			.debug.error {
 				background: lightpink;
