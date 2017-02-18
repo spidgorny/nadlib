@@ -833,13 +833,14 @@ abstract class OODBase {
 			});
 		}
 		$stats = $stats->getData();
-		$content[] = new slTable($stats, 'class="table"', array(
+		$s = new slTable($stats, 'class="table"', array(
 			'class' => 'Class',
 			'count' => 'Count',
 			'bar' => array(
 				'no_hsc' => true,
 			),
 		));
+		$content[] = $s->getContent();
 		return $content;
 	}
 

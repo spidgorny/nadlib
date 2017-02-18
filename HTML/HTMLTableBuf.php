@@ -121,4 +121,16 @@ class HTMLTableBuf extends MergedContent {
 		return isset($this['/table']);
 	}
 
+	function &__get($key) {
+//		echo __METHOD__, '(', $key, ')', BR;
+		if (!isset($this[$key])) {
+			$this->offsetSet($key, []);
+		}
+		return $this->content[$key];
+	}
+
+	public function offsetGet($offset) {
+		return ifsetor($this->content[$offset], []);
+	}
+
 }
