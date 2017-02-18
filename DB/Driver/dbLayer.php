@@ -412,7 +412,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if ($serializable) {
 			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
 		}
-		print('[[BEGIN]]'.BR);
+//		print('[[BEGIN]]'.BR);
 		return $this->perform("BEGIN");
 	}
 
@@ -423,7 +423,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			//debug_pre_print_backtrace();
 			return true;
 		}
-		print('[[COMMIT]]'.BR);
+//		print('[[COMMIT]]'.BR);
 		//debug_pre_print_backtrace();
 		return $this->perform("commit");
 	}
@@ -434,7 +434,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			//error('ROLLBACK inTransaction: '.$this->inTransaction);
 			return true;
 		}
-		print('[[ROLLBACK]]'.BR);
+//		print('[[ROLLBACK]]'.BR);
 		return $this->perform("rollback");
 	}
 

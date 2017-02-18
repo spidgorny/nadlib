@@ -48,6 +48,9 @@ class MergedContent implements ArrayAccess {
 	}
 
 	public function addSub($key, $value) {
+		if (isset($this->content[$key]) && is_string($this->content[$key])) {
+			$this->content[$key] = [$this->content[$key]];
+		}
 		$this->content[$key][] = $value;
 	}
 

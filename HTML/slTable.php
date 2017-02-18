@@ -127,7 +127,7 @@ class slTable {
 		} else {
 			$this->ID = md5(microtime());
 		}
-		$this->more = $more ? HTMLTag::parseAttributes($more) 
+		$this->more = $more ? HTMLTag::parseAttributes($more)
 			: $this->more;
 		if (isset($this->more['id'])) {
 			$this->ID = $this->more['id'];
@@ -385,7 +385,8 @@ class slTable {
 			}
 		}
 
-		$this->generation->thead['colgroup'] = $this->getColGroup($thes);
+		$this->generation->content['thead'] = [];
+		$this->generation->content['thead']['colgroup'] = $this->getColGroup($thes);
 		$this->generation->addTHead('<thead>');
 		//debug($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
