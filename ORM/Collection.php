@@ -364,8 +364,11 @@ class Collection implements IteratorAggregate {
 		}
 	}
 
-	function log($action, $data = NULL) {
+	function log($action, $data = []) {
 		if ($this->logger) {
+			if (!is_array($data)) {
+				$data = ['data' => $data];
+			}
 			$this->logger->info($action, $data);
 		} else {
 			$this->log[] = new LogEntry($action, $data);
