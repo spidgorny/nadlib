@@ -1,4 +1,5 @@
 <?php
+use Psr\Log\LoggerInterface;
 
 /**
  * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
@@ -73,6 +74,11 @@ abstract class OODBase {
 	 * @var ?
 	 */
 	public $forceInit;
+
+	/**
+	 * @var LoggerInterface
+	 */
+	protected $logger;
 
 	/**
 	 * Constructor should be given the ID of the existing record in DB.
@@ -191,10 +197,14 @@ abstract class OODBase {
 	}
 
 	function log($action, $data = NULL) {
-		if (class_exists('Index')) {
-			$index = Index::getInstance();
-			if ($index) {
-				$index->log($action, $data);
+		if ($this->logger) {
+			$this->logger->info($action, $data);
+		} else {
+			if (class_exists('Index')) {
+				$index = Index::getInstance();
+				if ($index) {
+					$index->log($action, $data);
+				}
 			}
 		}
 	}
@@ -326,6 +336,7 @@ abstract class OODBase {
 			$this->where + $where, $orderByLimit);
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
+		$this->log($this->lastSelectQuery, ['method' => __METHOD__]);
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
@@ -905,6 +916,10 @@ abstract class OODBase {
 
 	function get($name) {
 		return ifsetor($this->data[$name]);
+	}
+
+	public function setLogger($log) {
+		$this->logger = $log;
 	}
 
 }

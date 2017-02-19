@@ -99,6 +99,7 @@ class FlexiTable extends OODBase {
 
 	function findInDB(array $where, $orderby = '') {
 		if ($this->doCheck) {
+			$this->log('Checking columns exist');
 			$this->checkAllFields($where);
 		}
 		parent::findInDB($where, $orderby);
