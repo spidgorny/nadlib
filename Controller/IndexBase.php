@@ -290,7 +290,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderController() {
 		TaylorProfiler::start(__METHOD__);
-		$render = $this->controller->render();
+		debug($_SERVER['argv']);
+		$method = ifsetor($_SERVER['argv'][2]);
+		if ($method && method_exists($this->controller, $method)) {
+			echo 'Method: ', $method, BR;
+			$this->request->importCLIparams();
+			$marshall = new MarshalParams($this->controller);
+			$render = $marshall->call($method);
+		} else {
+			$render = $this->controller->render();
+		}
 		$render = $this->s($render);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap

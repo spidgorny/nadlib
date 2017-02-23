@@ -52,7 +52,7 @@ class LDAPLogin {
 	 * @param $string
 	 * @return string
 	 */
-    private function _sanitizeLdap($string) {
+    function _sanitizeLdap($string) {
         return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
     }
 
@@ -130,8 +130,9 @@ class LDAPLogin {
 		$search = ldap_search($this->_ldapconn, $group, $query);
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
+		$userClass = get_class($this->userClass);
 		foreach ($info as &$user) {
-			$user = new LDAPUser($user);
+			$user = new $userClass($user);
 		}
 		return $info;
 	}
@@ -146,8 +147,9 @@ class LDAPLogin {
 		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, array(), null, 50);
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
+		$userClass = get_class($this->userClass);
 		foreach ($info as &$user) {
-			$user = new LDAPUser($user);
+			$user = new $userClass($user);
 		}
 		return $info;
 	}

@@ -9,7 +9,7 @@ class ProgressBar {
 	var $tbarid;
 	var $textid;
 
-	var $decimals = 1;
+	var $decimals = 2;
 
 	protected $color = '#43b6df';
 	public $cliBR = "\r";
