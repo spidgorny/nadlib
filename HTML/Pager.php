@@ -66,6 +66,11 @@ class Pager {
 	 */
 	var $pageTitles = array();
 
+	/**
+	 * @var Iterator
+	 */
+	var $iterator;
+
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
@@ -512,6 +517,31 @@ class Pager {
 			$content .= '<div id="loadMorePage'.$loadPage.'">'.$f.'</div>';
 		}
 		return $content;
+	}
+
+	function setIterator(Iterator $iterator) {
+		$this->iterator = $iterator;
+		$this->setNumberOfRecords($iterator->count());
+		$this->detectCurrentPage();
+	}
+
+	function getPageData() {
+		$data = [];
+
+		$start = $this->getStart();
+		for ($i = 0; $i < $start; $i++) {
+			$this->iterator->next();
+		}
+
+		$size = $this->itemsPerPage;
+		for ($i = 0; $i < $size; $i++) {
+			if ($this->iterator->valid()) {
+				$data[] = $this->iterator->current();
+				$this->iterator->next();
+			}
+		}
+
+		return $data;
 	}
 
 }
