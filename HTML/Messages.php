@@ -20,6 +20,7 @@ class Messages extends \MergedContent {
 		} else {
 			$this->content .= $msg;
 		}
+//		debug($this->content);
 	}
 
 	function success($text) {

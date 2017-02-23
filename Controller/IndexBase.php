@@ -204,10 +204,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$class = end($slugParts);	// again, because __autoload need the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
-			$this->controller = new $class();
-//			debug($class, get_class($this->controller));
-			if (method_exists($this->controller, 'postInit')) {
-				$this->controller->postInit();
+			try {
+				$this->controller = new $class();
+				//			debug($class, get_class($this->controller));
+				if (method_exists($this->controller, 'postInit')) {
+					$this->controller->postInit();
+				}
+			} catch (AccessDeniedException $e) {
+				$this->error($e->getMessage());
 			}
 		} else {
 			//debug($_SESSION['autoloadCache']);
@@ -240,6 +244,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} else {
 				// display Exception
 				$content .= $this->content->getContent();
+				$this->content->clear();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
 		} catch (LoginException $e) {
@@ -252,6 +257,31 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::stop(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
+	}
+
+	function renderController() {
+		TaylorProfiler::start(__METHOD__);
+		$method = ifsetor($_SERVER['argv'][2]);
+		if ($method && method_exists($this->controller, $method)) {
+			echo 'Method: ', $method, BR;
+			//$params = array_slice($_SERVER['argv'], 3);
+			//debug($this->request->getAll());
+			$marshal = new MarshalParams($this->controller);
+			$render = $marshal->call($method);
+			//$render = $this->controller->$method();
+		} else {
+			$render = $this->controller->render();
+		}
+		$render = $this->s($render);
+		$this->sidebar = $this->showSidebar();
+		if ($this->controller->layout instanceof Wrap
+			&& !$this->request->isAjax()) {
+			/** @var $this->controller->layout Wrap */
+			$render = $this->controller->layout->wrap($render);
+			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $render;
 	}
 
 	function renderTemplateIfNotAjax($content) {
@@ -275,7 +305,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderTemplate($content) {
 		TaylorProfiler::start(__METHOD__);
-		$contentOut = $this->content->getContent();
+		$contentOut = '';
+		$contentOut .= $this->content->getContent();	// this is already output
 		$contentOut .= $this->s($content);
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
@@ -288,29 +319,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $v;
 	}
 
-	function renderController() {
-		TaylorProfiler::start(__METHOD__);
-		debug($_SERVER['argv']);
-		$method = ifsetor($_SERVER['argv'][2]);
-		if ($method && method_exists($this->controller, $method)) {
-			echo 'Method: ', $method, BR;
-			$this->request->importCLIparams();
-			$marshall = new MarshalParams($this->controller);
-			$render = $marshall->call($method);
-		} else {
-			$render = $this->controller->render();
-		}
-		$render = $this->s($render);
-		$this->sidebar = $this->showSidebar();
-		if ($this->controller->layout instanceof Wrap
-			&& !$this->request->isAjax()) {
-			/** @var $this->controller->layout Wrap */
-			$render = $this->controller->layout->wrap($render);
-			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $render;
-	}
 
 	function s($content) {
 		return MergedContent::mergeStringArrayRecursive($content);
@@ -392,6 +400,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * @param bool $defer
 	 * @return $this
 	 */
 	function addJQuery($defer = true) {
@@ -606,7 +615,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
-	 * @return string
 	 */
 	public function setSecurityHeaders() {
 		if (!headers_sent()) {

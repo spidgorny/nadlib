@@ -1,4 +1,5 @@
 <?php
+use Psr\Log\LoggerInterface;
 
 /**
  * Base class for storing datasets or datarows or tabular data or set
@@ -149,6 +150,11 @@ class Collection implements IteratorAggregate {
 	 * @var bool
 	 */
 	public $allowMerge = false;
+
+	/**
+	 * @var LoggerInterface
+	 */
+	protected $logger;
 
 	/**
 	 * @param                integer /-1 $pid
@@ -323,9 +329,8 @@ class Collection implements IteratorAggregate {
 	/**
 	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
 	 * @param bool $allowMerge
-	 * @param bool $preprocess
 	 */
-	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
+	function retrieveDataFromCache($allowMerge = false) {
 		if (!$this->data) {													// memory cache
 			$this->query = $this->getQuery();
 			if ($this->doCache) {
@@ -346,12 +351,12 @@ class Collection implements IteratorAggregate {
 					}
 					$this->log('found in cache, age: '.$fc->getAge());
 				} else{
-					$this->retrieveData($allowMerge, $preprocess);	// getQueryWithLimit() inside
+					$this->retrieveData($allowMerge);	// getQueryWithLimit() inside
 					$fc->set(array($this->count, $this->data));
 					$this->log('no cache, retrieve, store');
 				}
 			} else {
-				$this->retrieveData($allowMerge, $preprocess);
+				$this->retrieveData($allowMerge);
 			}
 			if ($_REQUEST['d']) {
 				//debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
@@ -359,8 +364,15 @@ class Collection implements IteratorAggregate {
 		}
 	}
 
-	function log($action, $data = NULL) {
-		$this->log[] = new LogEntry($action, $data);
+	function log($action, $data = []) {
+		if ($this->logger) {
+			if (!is_array($data)) {
+				$data = ['data' => $data];
+			}
+			$this->logger->info($action, $data);
+		} else {
+			$this->log[] = new LogEntry($action, $data);
+		}
 	}
 
 	/**
@@ -1120,6 +1132,10 @@ class Collection implements IteratorAggregate {
 		foreach ($this->objectify() as $i => $el) {
 			$this->data[$i] = $el->data;
 		}
+	}
+
+	public function setLogger($log) {
+		$this->logger = $log;
 	}
 
 }
