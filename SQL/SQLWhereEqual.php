@@ -19,6 +19,10 @@ class SQLWhereEqual extends SQLWherePart {
 	}
 
 	function __toString() {
+		if (0) {
+			debug(__METHOD__, $this->field, $this->val);
+//			die;
+		}
 		if (is_numeric($this->val)) {	// leading 0 leads to problems
 			$field = $this->db->quoteKey($this->field);
 			//$sql = "({$field} = ".$this->val."

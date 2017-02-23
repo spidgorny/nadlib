@@ -45,6 +45,7 @@ class RunnerTask {
 				'progress' => 0,
 //				'pid' => posix_getpid(),
 				'pid' => getmypid(),
+				'mtime' => new SQLNow(),
 			],
 			['id' => $this->id()]);
 		$this->db->commit();
@@ -83,22 +84,30 @@ class RunnerTask {
 	}
 
 	private function done() {
-		$this->db->runUpdateQuery($this->table,
-			['status' => 'done'],
-			['id' => $this->id()]);
 		echo __METHOD__, BR;
+		$this->db->runUpdateQuery($this->table,
+			[
+				'status' => 'done',
+				'mtime' => new SQLNow(),
+			],
+			['id' => $this->id()]);
 	}
 
-	private function failed(Exception $e) {
+	function failed(Exception $e) {
+		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'failed',
 			'meta' => json_encode($e),
+			'mtime' => new SQLNow(),
 		], ['id' => $this->id()]);
+		$this->db->commit();
 	}
 
 	public function kill() {
+		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'killed',
+			'mtime' => new SQLNow(),
 		], ['id' => $this->id()]);
 	}
 
@@ -158,18 +167,28 @@ class RunnerTask {
 		return $this->data['ctime'];
 	}
 
+	function getMTime() {
+		return new Time($this->data['mtime']);
+	}
+
 	public function render() {
 		return '<div class="message '.__CLASS__.'">'.
 			'Task #'.$this->id().' is '.$this->getStatus().' since '.$this->getTime().'.</div>';
 	}
 
 	public function getName() {
-		return get_class($this->obj).' -> '.$this->method;
+		$command = json_decode($this->get('command'));
+		$class = $this->obj ? get_class($this->obj) : $command[0];
+		$method = $this->method ? $this->method : $command[1];
+		return $class.' -> '.$method;
 	}
 
 	public function setProgress($p) {
 		$this->db->runUpdateQuery($this->table,
-			['progress' => $p],
+			[
+				'progress' => $p,
+				'mtime' => new SQLNow(),
+			],
 			['id' => $this->id()]);
 	}
 
@@ -197,14 +216,17 @@ class RunnerTask {
 				'<h5>', $this->getName(),
 				'('.implode(', ', $this->getParams()).')',
 				' <small>#', $this->id(), '</small>', '</h5>',
+				'<p style="float: right;">Started: ',
+				$this->getTime(),
+				'</p>',
 				'<p>Status: ', $this->getStatus() ?: 'On Queue', '</p>',
 			];
 		if (!$this->isDone()) {
 			if ($this->getStatus()) {
 				$pb = new ProgressBar($this->getProgress());
 				$content[] = [
-					'<p style="float: right;">Started: ',
-					$this->getTime(),
+					'<p style="float: right;">Updated: ',
+					$this->getMTime()->getSince()->nice(),
 					'</p>',
 					'<p>Progress: ',
 					number_format($this->getProgress(), 3).'%',
@@ -236,12 +258,17 @@ class RunnerTask {
 	/**
 	 * @return mixed
 	 */
-	private function getParams() {
+	function getParams() {
 		return json_decode($this->data['params']);
 	}
 
 	public function isKilled() {
 		return $this->getStatus() == 'killed';
+	}
+
+	public function getPID() {
+		$this->fetch($this->id());
+		return $this->get('pid');
 	}
 
 }
