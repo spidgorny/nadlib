@@ -538,8 +538,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				if (file_exists($sourceCSS)){
 					$source = $sourceCSS;
 					$source = $this->addMtime($source);
-				} else {
+				} elseif (class_exists('lessc')) {
 					$source = 'css/?c=Lesser&css=' . $source;
+				} else {
+					$source = $this->addMtime($source);
 				}
 			}
 		} else {
