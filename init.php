@@ -37,6 +37,21 @@ if (!function_exists('parseFloat')) {
 		return $tmp;
 	}
 
+	/**
+	 * Makes sure the value is not empty even if it is set
+	 * @param $variable
+	 * @param null $default
+	 * @return null
+	 */
+	function ifvalor(&$variable, $default = null) {
+		if (isset($variable) && $variable) {
+			$tmp = $variable;
+		} else {
+			$tmp = $default;
+		}
+		return $tmp;
+	}
+
 	if (!function_exists('boolval')) {
 		function boolval($val) {
 			return (bool)$val;

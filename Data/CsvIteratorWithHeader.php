@@ -29,8 +29,12 @@ class CsvIteratorWithHeader extends CsvIterator {
 		$return = parent::next();
 		//debug($this->columns, $this->currentElement);
 		if ($return !== false && $this->currentElement) {
-			$this->currentElement = array_combine($this->columns, $this->currentElement);
-			return $this->currentElement;
+			if (sizeof($this->currentElement) == sizeof($this->columns)) {
+				$this->currentElement = array_combine($this->columns, $this->currentElement);
+				return $this->currentElement;
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}

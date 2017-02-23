@@ -1162,9 +1162,14 @@ class Request {
 	public function getHidden() {
 		$hidden = array_reduce(array_keys($this->data), function ($total, $key) {
 			$item = $this->data[$key];
-			return array_merge($total, [
-				'<input type="hidden" name="'.$key.'" value="'.$item.'" />',
-			]);
+			if (is_array($item)) {
+				$item = $this->getSubRequest($key)->getHidden();
+			} else {
+				$item = [
+					'<input type="hidden" name="' . $key . '" value="' . $item . '" />',
+				];
+			}
+			return array_merge($total, $item);
 		}, []);
 		return $hidden;
 	}
