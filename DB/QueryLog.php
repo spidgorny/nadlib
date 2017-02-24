@@ -12,7 +12,7 @@ class QueryLog {
 	 */
 	var $queryLog = array();
 
-	public function log($query, $diffTime, $results = NULL) {
+	public function log($query, $diffTime, $results = NULL, $ok = NULL) {
 		$key = md5(trim($query));
 //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
 		if (isset($this->queryLog[$key])) {
@@ -25,6 +25,7 @@ class QueryLog {
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
 			'times' => ifsetor($old['times'])+1,
 			'results' => $results,
+			'ok' => $ok,
 		);
 //		debug($key, $this->queryLog);
 	}
