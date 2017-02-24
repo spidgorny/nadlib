@@ -319,21 +319,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $v;
 	}
 
-	function renderController() {
-		TaylorProfiler::start(__METHOD__);
-		$render = $this->controller->render();
-		$render = $this->s($render);
-		$this->sidebar = $this->showSidebar();
-		if ($this->controller->layout instanceof Wrap
-			&& !$this->request->isAjax()) {
-			/** @var $this->controller->layout Wrap */
-			$render = $this->controller->layout->wrap($render);
-			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $render;
-	}
-
 	function s($content) {
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
