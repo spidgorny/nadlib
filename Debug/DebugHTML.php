@@ -179,6 +179,7 @@ class DebugHTML {
 	}
 
 	static function printStyles() {
+		if (Request::isCLI()) return;
 		$content = '';
 		if (!self::$stylesPrinted) {
 			$content = '<style>'.file_get_contents(__DIR__.'/Debug.css').'</style>';

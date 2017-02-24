@@ -176,6 +176,7 @@ class IndexBE extends IndexBase {
 		$menu = array(
 			'HomeBE'         => 'Home',
 			'ServerStat'     => new Recursive('Info', array(
+				SysInfo::class  => 'Sys Info',
 				'ServerStat'    => 'Server Stat',
 				'ServerData'    => 'Server Data',
 				'SessionView'   => 'Session',

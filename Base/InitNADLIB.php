@@ -57,6 +57,17 @@ class InitNADLIB {
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
+	/**
+	 * Autoloading done by composer only
+	 */
+	function initWithComposer() {
+		$this->setDefaults();
+		$this->setErrorReporting();
+		$this->setCache();
+		Request::removeCookiesFromRequest();
+		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
+	}
+
 	function initWhoops() {
 		$run     = new Whoops\Run;
 		$handler = new Whoops\Handler\PrettyPageHandler;
@@ -66,12 +77,14 @@ class InitNADLIB {
 
 	private function setDefaults()
 	{
-//debug($_COOKIE);
+		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
 			if (Request::isCLI()) {
 				define('DEVELOPMENT',
 					Request::isWindows()
 					|| ifsetor($_COOKIE['debug'])
+					|| ini_get('debug')
+					|| getenv('NADLIB')
 				);
 				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {

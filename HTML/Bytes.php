@@ -30,7 +30,7 @@ class Bytes {
 	 * @return int|string
 	 */
 	static function return_bytes($val) {
-		$val = trim($val);
+		$val = intval(trim($val));
 		if (strlen($val)) {
 			$last = strtolower($val[strlen($val) - 1]);
 			switch ($last) {
