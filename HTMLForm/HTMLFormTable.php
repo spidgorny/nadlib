@@ -176,11 +176,11 @@ class HTMLFormTable extends HTMLForm {
 	}
 
 	function mainFormStart() {
-		$this->stdout .= '<table class="htmlFormDiv"><tr><td>';
+		$this->stdout .= '<table class="htmlFormDiv"><tr><td>'."\n";
 	}
 
 	function mainFormEnd() {
-		$this->stdout .= "</td></tr></table>";
+		$this->stdout .= "</td></tr></table>\n";
 	}
 
 	/**
@@ -258,7 +258,7 @@ class HTMLFormTable extends HTMLForm {
 				$subForm->showForm();
 				$this->stdout .= '<tr><td colspan="2">'.
 					$subForm->getBuffer().
-				'</td></tr>';
+				'</td></tr>'."\n";
 			} elseif ($fieldDesc instanceof HTMLFormTypeInterface) {
 				// this is not so good idea because we miss all the surrounding
 				// information about the 'label', cell, formatting
@@ -270,7 +270,7 @@ class HTMLFormTable extends HTMLForm {
 				$fieldDesc->setForm($copy);
 				//$fieldDesc->setValue();	// value is inside the object
 				$this->stdout .= $fieldDesc->render();
-				$this->stdout .= '</tr>';
+				$this->stdout .= '</tr>'."\n";
 			} elseif (is_array($fieldDesc)
 				|| $fieldDesc instanceof HTMLFormFieldInterface) {
 				if (in_array($sType, array('hidden', 'hiddenArray'))) {
@@ -323,7 +323,7 @@ class HTMLFormTable extends HTMLForm {
 		}
 
 		if (!ifsetor($fieldDesc['horisontal'])) {
-			$this->stdout .= "</tr>";
+			$this->stdout .= "</tr>\n";
 		}
 	}
 
@@ -351,7 +351,7 @@ class HTMLFormTable extends HTMLForm {
 			: array();
 		if (isset($desc['newTD'])) {
 			$this->stdout .= '</tr></table></td>
-			<td '.$desc['TDmore'].'><table '.HTMLForm::getAttrHTML($this->tableMore).'><tr>';
+			<td '.$desc['TDmore'].'><table '.HTMLForm::getAttrHTML($this->tableMore).'><tr>'."\n";
 		}
 		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
 		$type = isset($desc['type']) ? $desc['type'] : NULL;

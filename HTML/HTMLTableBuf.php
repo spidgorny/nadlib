@@ -102,7 +102,7 @@ class HTMLTableBuf extends MergedContent {
 				if (is_array($more)) {
 					$more = HTMLTag::renderAttr($more);
 				}
-				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>';
+				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>'."\n";
 			}
 		}
 		$this->htre();
