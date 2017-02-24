@@ -320,7 +320,7 @@ class Pager {
 			self::$cssOutput = true;
 		}
 
-		$content .= '<div class="paginationControl pagination">';
+		$content .= '<div class="paginationControl pagination">'."\n";
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
 			$content .= $this->renderPageSize();	// will render UL inside
@@ -375,16 +375,16 @@ class Pager {
  			if ($k === 'gap1' || $k === 'gap2') {
  				$content .= '<li class="disabled">
  					<span class="page"> &hellip; </span>
- 				</li>';
+ 				</li>'."\n";
  			} else {
 				$content .= $this->getSinglePageLink($k, $k+1);
  			}
 		}
  		if ($this->currentPage < $maxpage) {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage+1));
-			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>';
+			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>'."\n";
  		} else {
-	 		$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>';
+	 		$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>'."\n";
  		}
 		if ($this->showPageJump) {
 			$form = "<form action='".$this->url."' method='POST' class='anyPageForm'>

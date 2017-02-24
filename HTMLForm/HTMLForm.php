@@ -40,7 +40,7 @@ class HTMLForm {
 	}
 
 	function formHideArray(array $ar) {
-		foreach($ar as $k => $a) {
+		foreach ($ar as $k => $a) {
 			if (is_array($a)) {
 				$this->prefix[] = $k;
 				$this->formHideArray($a);
