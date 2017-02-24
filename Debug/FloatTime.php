@@ -9,6 +9,7 @@ class FloatTime {
 	}
 
 	function render() {
+		if (Request::isCLI()) return '';
 		$totalTime = TaylorProfiler::getElapsedTime();
 		$dbTime = $this->getDBTime();
 		if (Session::isActive()) {
