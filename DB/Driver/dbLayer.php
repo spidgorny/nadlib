@@ -113,8 +113,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$prof = new Profiler();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
-			debug($this->connection);
-			debug($query);
+			//debug('no connection', $this->connection, $query);
+			throw new DatabaseException('No connection');
 		}
 
 		if ($query instanceof SQLSelectQuery) {
@@ -128,11 +128,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				pg_prepare($this->connection, '', $query);
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
-				if (!is_resource($this->connection)) {
-					debug_pre_print_backtrace();
-					debug($this->connection);
-					die();
-				}
 				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
