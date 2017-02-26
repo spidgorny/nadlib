@@ -339,7 +339,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$message[0] == '<')
 				? $message . ''
 				: htmlspecialchars($message);
-			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding">
+			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error">
 				' . get_class($e) . ' (' . $e->getCode() . ')' . BR .
 				nl2br($message);
 			if (DEVELOPMENT) {
