@@ -328,6 +328,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			echo get_class($e),
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
 			$content = '';
 		} else {
 			if ($this->controller) {

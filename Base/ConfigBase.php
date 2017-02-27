@@ -25,7 +25,7 @@ class ConfigBase {
 
 	/**
 	 *
-	 * @var MySQL|dbLayer|dbLayerSQLite|dbLayerMS|dbLayerPDO
+	 * @var DBInterface
 	 */
 	protected $db;
 
