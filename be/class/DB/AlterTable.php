@@ -130,7 +130,7 @@ class AlterTable extends AlterIndex {
 	}
 
 	function click($table, $query) {
-		$link = $this->a($this->getURL(array(
+		$link = $this->a($this->makeURL(array(
 				'c' => get_class($this),
 				'file' => basename($this->jsonFile),
 				'action' => 'runSQL',
