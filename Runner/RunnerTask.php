@@ -100,6 +100,7 @@ class RunnerTask {
 			'meta' => json_encode($e),
 			'mtime' => new SQLNow(),
 		], ['id' => $this->id()]);
+		$this->db->commit();
 	}
 
 	public function kill() {
@@ -176,7 +177,10 @@ class RunnerTask {
 	}
 
 	public function getName() {
-		return get_class($this->obj).' -> '.$this->method;
+		$command = json_decode($this->get('command'));
+		$class = $this->obj ? get_class($this->obj) : $command[0];
+		$method = $this->method ? $this->method : $command[1];
+		return $class.' -> '.$method;
 	}
 
 	public function setProgress($p) {
@@ -254,12 +258,17 @@ class RunnerTask {
 	/**
 	 * @return mixed
 	 */
-	private function getParams() {
+	function getParams() {
 		return json_decode($this->data['params']);
 	}
 
 	public function isKilled() {
 		return $this->getStatus() == 'killed';
+	}
+
+	public function getPID() {
+		$this->fetch($this->id());
+		return $this->get('pid');
 	}
 
 }

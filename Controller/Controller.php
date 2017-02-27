@@ -751,7 +751,7 @@ abstract class Controller {
 	public function getCaption($caption, $h) {
 		$al = AutoLoad::getInstance();
 		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
-		$slug = URL::friendlyURL($caption);
+		$slug = $this->request->getURL().URL::friendlyURL($caption);
 		$link = '<a class="header-link" href="#' . $slug . '">
 				<i class="fa fa-link"></i>
 			</a>';
@@ -778,6 +778,14 @@ abstract class Controller {
 
 	function setDB(DBInterface $db) {
 		$this->db = $db;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/19901850/how-do-i-get-an-objects-unqualified-short-class-name
+	 * @return string
+	 */
+	function self() {
+		return substr(strrchr(get_class($this), '\\'), 1);
 	}
 
 }

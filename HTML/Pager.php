@@ -66,6 +66,11 @@ class Pager {
 	 */
 	var $pageTitles = array();
 
+	/**
+	 * @var Iterator
+	 */
+	var $iterator;
+
 	function __construct($itemsPerPage = NULL, $prefix = '') {
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
@@ -315,7 +320,7 @@ class Pager {
 			self::$cssOutput = true;
 		}
 
-		$content .= '<div class="paginationControl pagination">';
+		$content .= '<div class="paginationControl pagination">'."\n";
 		$content .= $this->showSearchBrowser();
 		if ($this->showPager) {
 			$content .= $this->renderPageSize();	// will render UL inside
@@ -370,16 +375,16 @@ class Pager {
  			if ($k === 'gap1' || $k === 'gap2') {
  				$content .= '<li class="disabled">
  					<span class="page"> &hellip; </span>
- 				</li>';
+ 				</li>'."\n";
  			} else {
 				$content .= $this->getSinglePageLink($k, $k+1);
  			}
 		}
  		if ($this->currentPage < $maxpage) {
 			$link = $this->url->setParam('Pager_'.$this->prefix, array('page' => $this->currentPage+1));
-			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>';
+			$content .= '<li><a href="'.$link.'" rel="next">&gt;</a></li>'."\n";
  		} else {
-	 		$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>';
+	 		$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>'."\n";
  		}
 		if ($this->showPageJump) {
 			$form = "<form action='".$this->url."' method='POST' class='anyPageForm'>
@@ -512,6 +517,31 @@ class Pager {
 			$content .= '<div id="loadMorePage'.$loadPage.'">'.$f.'</div>';
 		}
 		return $content;
+	}
+
+	function setIterator(Iterator $iterator) {
+		$this->iterator = $iterator;
+		$this->setNumberOfRecords($iterator->count());
+		$this->detectCurrentPage();
+	}
+
+	function getPageData() {
+		$data = [];
+
+		$start = $this->getStart();
+		for ($i = 0; $i < $start; $i++) {
+			$this->iterator->next();
+		}
+
+		$size = $this->itemsPerPage;
+		for ($i = 0; $i < $size; $i++) {
+			if ($this->iterator->valid()) {
+				$data[] = $this->iterator->current();
+				$this->iterator->next();
+			}
+		}
+
+		return $data;
 	}
 
 }
