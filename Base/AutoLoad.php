@@ -116,6 +116,10 @@ class AutoLoad {
 		return $this->appRoot;
 	}
 
+	function setAppRoot($path) {
+		$this->appRoot = $path;
+	}
+
 	/**
 	 * While loading Config, we need to make sure nadlib libraries can be loaded
 	 */
