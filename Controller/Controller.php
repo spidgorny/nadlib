@@ -132,14 +132,13 @@ abstract class Controller {
 	}
 
 	/**
-	 * Why protected?
 	 * @param array|string 	$params
 	 * @param null 			$prefix
 	 * @return URL
-	 * @protected
+	 * @public for View::link
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL) {
+	function makeURL(array $params, $prefix = NULL) {
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
 			if ($class && !$prefix) {
