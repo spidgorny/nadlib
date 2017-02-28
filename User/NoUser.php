@@ -3,7 +3,6 @@
 /**
  * Some places require a user object which does nothing if you're not logged-in
  */
-
 class NoUser extends UserBase {
 
 	/**
@@ -53,6 +52,26 @@ class NoUser extends UserBase {
 
 	function getAllSubordinates() {
 		return [];
+	}
+
+	function try2login()
+	{
+
+	}
+
+	function isAdmin()
+	{
+		return false;
+	}
+
+	function getLogin()
+	{
+		return 'somebody';
+	}
+
+	function getAvatarURL()
+	{
+		return 'http://avatar.com/';
 	}
 
 }

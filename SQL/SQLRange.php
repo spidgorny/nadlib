@@ -13,23 +13,18 @@ class SQLRange extends SQLWherePart {
 	public $till;
 
 	/**
-	 * @var SQLBuilder
-	 */
-	protected $qb;
-
-	/**
 	 * @ param string $field @ deprecated
 	 * @param string $from
 	 * @param null $till
 	 */
 	function __construct($from, $till = NULL) {
+		parent::__construct();
 		$this->from = $from;
 		$this->till = $till;
-		$this->qb = Config::getInstance()->getQb();
 	}
 
 	function __toString() {
-		$field = $this->qb->quoteKey($this->field);
+		$field = $this->db->quoteKey($this->field);
 		$sql = "($field >= '$this->from'";
 		if ($this->till) {
 			$sql .= " AND $field < '$this->till'";
