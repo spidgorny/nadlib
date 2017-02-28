@@ -193,7 +193,7 @@ class ProgressBar {
 		</div>');
 	}
 
-	static function getImage($p, $append = '') {
+	static function getImage($p, $append = '', $imgAttributes = []) {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		// absolute URL to work even before <base href> is defined
 		$prefix = Request::getInstance()->getLocation() . $prefix;
@@ -202,7 +202,7 @@ class ProgressBar {
 		style="vertical-align: middle;"
 		title="'.number_format($p, 2).'%"
 		width="100"
-		height="15" />';
+		height="15" '. HTMLTag::renderAttr($imgAttributes) .'/>';
 	}
 
 	/**

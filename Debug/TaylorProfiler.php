@@ -46,11 +46,6 @@ class TaylorProfiler {
 	static $instance;
 
 	/**
-	 * @var string "html" or "" for X-Tick header
-	 */
-	public $tickTo;
-
-	/**
 	 * Initialise the timer. with the current micro time
 	 * @param bool $output_enabled
 	 * @param bool $trace_enabled
@@ -471,13 +466,15 @@ class TaylorProfiler {
 	}
 
 	/**
-	 * @return float
+	 * @return float [0.0 .. 1.0]
 	 */
 	static function getMemUsage() {
 		require_once __DIR__.'/../HTML/Bytes.php';
-		$memLimit = new Bytes(ini_get('memory_limit'));
+		$memory_limit = ini_get('memory_limit');
+		$memLimit = new Bytes($memory_limit);
 		$max = $memLimit->getBytes();
 		$cur = memory_get_usage();
+		//echo $cur, '/', $max, TAB, $memory_limit, TAB, $memLimit, BR;
 		return number_format($cur/$max, 3, '.', '');
 	}
 
@@ -495,68 +492,6 @@ class TaylorProfiler {
 		$return = ($diff > 0 ? '+' : '').number_format($diff, 3, '.', '').'M';
 		$prev = $cur;
 		return $return;
-	}
-
-	static function enableTick($ticker = 1000) {
-		$tp = self::getInstance();
-		register_tick_function(array($tp, 'tick'));
-		declare(ticks=1000);
-		return $tp;
-	}
-
-	function tick() {
-		static $prev = 0;
-		$bt = debug_backtrace();
-		$list = array();
-		$prow = array();
-		foreach ($bt as $row) {
-			$list[] = basename(ifsetor($row['file'])).
-				((isset($row['object'])
-					&& ifsetor($row['file']) != 'class.'.get_class($row['object']).'.php')
-					? ('['.get_class($row['object']).']')
-					: ifsetor($row['class'])
-				).'::'.$row['function'].
-				'#'.ifsetor($prow['line']);
-			$prow = $row;
-		}
-		$list = array_reverse($list);
-		$list = array_slice($list, 0, -1);	// cut TaylorProfiler::tick
-		//$list = array_slice($list, 3);
-		$mem = self::getMemUsage();
-		$diff = number_format(100*($mem - $prev), 2);
-		$diff = $diff >= 0
-			? '<font color="green"> '.$diff.'</font>'
-			: '<font color="red">'.$diff.'</font>';
-		$trace = implode(' -> ', $list);
-		$trace = substr($trace, -500);
-
-		$start = ifsetor($_SERVER['REQUEST_TIME_FLOAT'], $_SERVER['REQUEST_TIME']);
-		$time = number_format(microtime(true) - $start, 3, '.', '');
-
-		$output = '<pre style="margin: 0; padding: 0;">'.
-			$time.' diff: '.($diff >= 0 ? ' ' : '').$diff.' '.
-			number_format($mem*100, 2).'% '.implode(' -> ', $list).'</pre>';
-
-		if ($this->tickTo == 'html') {
-			if (Request::isCLI()) {
-				$output = strip_tags($output);
-			}
-			echo $output . "\n";
-			if (sizeof($list) > 100) {
-				pre_print_r($list);
-				throw new Exception('Infinite loop detected');
-			}
-		} elseif ($this->tickTo == 'header') {
-			$pad = str_pad($time, 6, '0', STR_PAD_LEFT);
-			header('X-Tick-'.$pad.': '.strip_tags($output));
-		} elseif ($this->tickTo == 'errorlog') {
-			error_log(strip_tags($output));
-		}
-		$prev = $mem;
-	}
-
-	static function disableTick() {
-		unregister_tick_function(array(__CLASS__, 'tick'));
 	}
 
 	/**
