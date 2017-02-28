@@ -79,7 +79,7 @@ class ConfigBase {
 	public $config;
 
 	/**
-	 * @var User|LoginUser
+	 * @var User|LoginUser|UserModelInterface
 	 */
 	protected $user;
 
@@ -125,13 +125,14 @@ class ConfigBase {
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
-	 * @return Config
+	 * @return Config|ConfigBase
 	 */
 	public static function getInstance() {
 		if (!self::$instance) {
 			self::$instance = new static();
 			//self::$instance->postInit();	// will try to connect to the DB before autoload
 			// must be called outside
+			assert(self::$instance instanceof ConfigBase);
 		}
 		return self::$instance;
 	}
