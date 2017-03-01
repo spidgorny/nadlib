@@ -83,7 +83,7 @@ class Ticker {
 	 * @return self
 	 */
 	public static function getInstance() {
-		return self::$instance ?: self::$instance = new self();
+		return self::$instance ?: self::$instance = new static();
 	}
 
 	static function enableTick($ticker = 1000) {
