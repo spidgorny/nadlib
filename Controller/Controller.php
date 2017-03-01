@@ -473,6 +473,11 @@ abstract class Controller {
 		return $content;
 	}
 
+	/**
+	 * Wraps all elements in <div class="column">|</div>
+	 * Use HTMLTag to do manual wrapping
+	 * @return string
+	 */
 	function encloseInTable() {
 		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/columnContainer.less');
 		$elements = func_get_args();

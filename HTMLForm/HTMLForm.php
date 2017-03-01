@@ -306,7 +306,8 @@ class HTMLForm {
 	}
 
 	/**
-	 * Make sure to include the JSCal2 JS in advance
+	 * Make sure to include the JSCal2 JS in advance.
+	 * And set defer=false
 	 * @param $name
 	 * @param null $value
 	 * @param string $type
@@ -328,6 +329,8 @@ class HTMLForm {
 			'.($activator ? $activator : '<button type="button"
 			 id="id_button_'.$id.'"
 			 style="width: auto">...</button>');
+
+		// this will be appended to the footer
 		$script = '
 	<script type="text/javascript">
 		var setobj = {
