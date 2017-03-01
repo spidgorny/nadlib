@@ -52,7 +52,7 @@ class PageProfiler {
 	}
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	private function getURL() {
 		$url = clone $this->request->getURL();
@@ -69,6 +69,7 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getGET() {
+		$content = '';
 		$url = $this->request->getURL();
 		$params = $url->getParams();
 		$content .= $this->html->h4('GET');
@@ -80,6 +81,7 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getPOST() {
+		$content = '';
 		$content .= $this->html->h4('POST');
 		$content .= $this->html->pre(json_encode($_POST, JSON_PRETTY_PRINT));
 		return $content;
@@ -89,6 +91,7 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getHeader() {
+		$content = '';
 		$index = Index::getInstance();
 		$content .= $this->html->h4('Header');
 		$header = json_encode($index->header, JSON_PRETTY_PRINT);
@@ -101,6 +104,7 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getFooter() {
+		$content = '';
 		$index = Index::getInstance();
 		$content .= $this->html->h4('Footer');
 		$footer = json_encode($index->footer, JSON_PRETTY_PRINT);
