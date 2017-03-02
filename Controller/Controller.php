@@ -290,6 +290,11 @@ abstract class Controller {
 		return $content;
 	}
 
+	/**
+	 * This function prevents performAction() from doing nothing
+	 * if there is a __CLASS__.phtml file in the same folder
+	 * @return MarkdownView|string|View
+	 */
 	function indexAction() {
 		$content = $this->renderTemplate();
 		$content = $this->div($content, str_replace('\\', '-', get_class($this)));
