@@ -12,7 +12,8 @@ class Session {
 		//debug(session_id(), !!session_id(), session_status(), $_SESSION['FloatTime']);
 		if (function_exists('session_status')) {
 			// somehow PHP_SESSION_NONE is the status when $_SESSION var exists
-			return in_array(session_status(), [PHP_SESSION_ACTIVE, PHP_SESSION_NONE]);
+			// PHP_SESSION_NONE removed as it's a major problem
+			return in_array(session_status(), [PHP_SESSION_ACTIVE]);
 		} else {
 			return !!session_id() && isset($_SESSION);
 		}
