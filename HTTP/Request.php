@@ -1175,4 +1175,12 @@ class Request {
 		return $hidden;
 	}
 
+	function json(array $data) {
+		header('Content-Type: application/json');
+		$json = json_encode($data, JSON_PRETTY_PRINT);
+		header('Content-Length: '.strlen($json));
+		echo $json;
+		die;
+	}
+
 }
