@@ -53,6 +53,7 @@ class Runner {
 				'status ' => NULL,
 			]),
 		], 'ORDER BY ctime');
+		debug($this->db->lastQuery);
 		return $rows;
 	}
 
