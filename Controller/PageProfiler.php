@@ -32,6 +32,7 @@ class PageProfiler {
 				$content .= $this->getPOST();
 				$content .= $this->getHeader();
 				$content .= $this->getFooter();
+				$content .= $this->getSession();
 				$content .= $this->html->s(OODBase::getCacheStatsTable());
 
 				/** @var $profiler TaylorProfiler */
@@ -52,7 +53,7 @@ class PageProfiler {
 	}
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	private function getURL() {
 		$url = clone $this->request->getURL();
@@ -69,6 +70,7 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getGET() {
+		$content = '';
 		$url = $this->request->getURL();
 		$params = $url->getParams();
 		$content .= $this->html->h4('GET');
@@ -80,6 +82,7 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getPOST() {
+		$content = '';
 		$content .= $this->html->h4('POST');
 		$content .= $this->html->pre(json_encode($_POST, JSON_PRETTY_PRINT));
 		return $content;
@@ -89,10 +92,12 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getHeader() {
+		$content = '';
 		$index = Index::getInstance();
 		$content .= $this->html->h4('Header');
 		$header = json_encode($index->header, JSON_PRETTY_PRINT);
 		$header = str_replace('\/', '/', $header);
+		$header = str_replace('\"', '"', $header);
 		$content .= $this->html->pre($header);
 		return $content;
 	}
@@ -101,11 +106,25 @@ class PageProfiler {
 	 * @return string
 	 */
 	private function getFooter() {
+		$content = '';
 		$index = Index::getInstance();
 		$content .= $this->html->h4('Footer');
 		$footer = json_encode($index->footer, JSON_PRETTY_PRINT);
 		$footer = str_replace('\/', '/', $footer);
+		$footer = str_replace('\"', '"', $footer);
 		$content .= $this->html->pre($footer);
+		return $content;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getSession() {
+		$content = '';
+		$content .= $this->html->h4('Session');
+		$session = json_encode($_SESSION, JSON_PRETTY_PRINT);
+		$session = str_replace('\/', '/', $session);
+		$content .= $this->html->pre($session);
 		return $content;
 	}
 

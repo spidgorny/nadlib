@@ -13,7 +13,7 @@ class Selectable {
 	/**
 	 * @var int
 	 */
-	public $selected;
+	protected $selected;
 
 	/**
 	 * @var array of all possible data from DB
@@ -101,5 +101,5 @@ class Selectable {
 	function getID() {
 		return $this->selected;
 	}
-	
+
 }

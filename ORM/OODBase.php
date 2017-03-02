@@ -922,4 +922,8 @@ abstract class OODBase {
 		$this->logger = $log;
 	}
 
+	function getID() {
+		return $this->id;
+	}
+
 }

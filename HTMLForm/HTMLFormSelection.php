@@ -62,7 +62,7 @@ class HTMLFormSelection extends HTMLFormType {
 				? $this->desc['more']
 				: HTMLTag::parseAttributes($this->desc['more']);
 		}
-		$content[] = HTMLTag::renderAttr($more) . ">\n";
+		$content[] = ' '.HTMLTag::renderAttr($more) . ">\n";
 
 		if (is_null($this->options)) {
 			$this->options = $this->fetchSelectionOptions($this->desc->getArray());

@@ -46,5 +46,7 @@ interface DBInterface {
 	function escape($string);
 
 	function fetchAll($res_or_query, $index_by_key = NULL);
-	
+
+	function isConnected();
+
 }

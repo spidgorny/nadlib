@@ -227,7 +227,7 @@ class View extends stdClass {
 	 * @return URL
 	 */
 	function link(array $params) {
-		return Index::getInstance()->controller->getURL($params);
+		return Index::getInstance()->controller->makeURL($params);
 	}
 
 	function __call($func, array $args) {

@@ -30,6 +30,7 @@ class HTMLFormRange extends HTMLFormType {
 
 	/**
 	 * @param int $value
+	 * @return mixed|void
 	 */
 	function setValue($value) {
 		$this->value = $value;

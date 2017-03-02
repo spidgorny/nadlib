@@ -877,6 +877,7 @@ class Request {
 
 	function importCLIparams($noopt = array()) {
 		$this->data += $this->parseParameters($noopt);
+		return $this;
 	}
 
 	/**

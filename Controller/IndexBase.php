@@ -123,13 +123,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function initSession() {
-		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/ && !headers_sent()) {
+//		debug('is session started', session_id(), session_status());
+		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
 			ini_set('session.use_trans_sid', false);
 			ini_set('session.use_only_cookies', true);
 			ini_set('session.cookie_httponly', true);
 			ini_set('session.hash_bits_per_character', 6);
 			ini_set('session.hash_function', 'sha512');
-			session_start();
+			$ok = session_start();
+			if (!$ok) {
+				throw new RuntimeException('session_start() failed');
+			} else {
+				//debug('session_start', session_id());
+			}
+		} else {
+//			debug('session already started', session_id(), session_status());
 		}
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
@@ -328,6 +336,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			echo get_class($e),
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
 			$content = '';
 		} else {
 			if ($this->controller) {
@@ -339,7 +348,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$message[0] == '<')
 				? $message . ''
 				: htmlspecialchars($message);
-			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding">
+			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error">
 				' . get_class($e) . ' (' . $e->getCode() . ')' . BR .
 				nl2br($message);
 			if (DEVELOPMENT) {
