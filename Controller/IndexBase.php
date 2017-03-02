@@ -541,22 +541,22 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
-				//$source = $source;	// rewrite inside css folder
+				$fileName = $source;	// rewrite inside css folder
 			} else {
 				$sourceCSS = str_replace('.less', '.css', $source);
 				if (file_exists($sourceCSS)){
-					$source = $sourceCSS;
-					$source = $this->addMtime($source);
-				} elseif (class_exists('lessc')) {
-					$source = 'css/?c=Lesser&css=' . $source;
+					$fileName = $sourceCSS;
+					$fileName = $this->addMtime($source);
 				} else {
-					$source = $this->addMtime($source);
+					$fileName = 'css/?c=Lesser&css=' . $source;
 				}
 			}
 		} else {
-			$source = $this->addMtime($source);
+			$fn = new Path($source);
+			$fileName = $fn->relativeFromAppRoot();
+			$fileName = $this->addMtime($fileName);
 		}
-		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
+		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$fileName.'" />';
 		return $this;
 	}
 

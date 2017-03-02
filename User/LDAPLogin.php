@@ -64,7 +64,7 @@ class LDAPLogin {
 	/**
 	 * @param $username
 	 * @param $password
-	 * @return bool|LDAPUser|void
+	 * @return bool|LDAPUser
 	 * @throws LoginException
 	 */
 	public function authLdap($username, $password) {
@@ -76,7 +76,8 @@ class LDAPLogin {
         }
 
         if ($this->_ldapconn) {
-			$filter = "(&(objectClass=user)(objectCategory=person)(cn=" . $this->_sanitizeLdap($username) . "))";
+			//$filter = "(&(objectClass=user)(objectCategory=person)(cn=" . $this->_sanitizeLdap($username) . "))";
+			$filter = "(&(objectClass=user)(cn=" . $this->_sanitizeLdap($username) . "))";
 	        //echo $filter;
 			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
 
@@ -84,7 +85,7 @@ class LDAPLogin {
 			$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $filter/*, $attributes*/);
 			if ($search) {
 				$info = ldap_get_entries($this->_ldapconn, $search);
-				//echo getDebug($info);
+				//debug($info);
 
 				if ($info['count'] == 0) {
 					$this->error = "User not found";
@@ -94,11 +95,13 @@ class LDAPLogin {
 				for ($i = 0; $i < $info['count']; $i++) {
 					//$this->reconnect();
 					// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
-					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $this->_sanitizeLdap($password));
+					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], /*$this->_sanitizeLdap*/($password));
 
 					if ($ldapbind) {
-						$this->userClass->initLDAP($info[$i]);
-						return $this->userClass;
+						/** @var LDAPUser $user */
+						$user = new $this->userClass;
+						$user->initLDAP($info[$i]);
+						return $user;
 					} else {
 						$this->error = "LDAP login failed.";
 						//echo getDebug($ldapbind);
