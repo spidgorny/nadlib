@@ -132,14 +132,13 @@ abstract class Controller {
 	}
 
 	/**
-	 * Why protected?
 	 * @param array|string 	$params
 	 * @param null 			$prefix
 	 * @return URL
-	 * @protected
+	 * @public for View::link
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL) {
+	function makeURL(array $params, $prefix = NULL) {
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
 			if ($class && !$prefix) {
@@ -474,6 +473,11 @@ abstract class Controller {
 		return $content;
 	}
 
+	/**
+	 * Wraps all elements in <div class="column">|</div>
+	 * Use HTMLTag to do manual wrapping
+	 * @return string
+	 */
 	function encloseInTable() {
 		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/columnContainer.less');
 		$elements = func_get_args();
