@@ -69,7 +69,7 @@ if (!function_exists('debug')) {
 	 */
 	function pre_print_r($a) {
 		if (php_sapi_name() !== 'cli') {
-			echo '<pre style="white-space: pre-wrap;">';
+			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
 			print_r(func_num_args() == 1 ? $a : func_get_args());
 			echo '</pre>';
 		} else {
@@ -78,13 +78,13 @@ if (!function_exists('debug')) {
 	}
 
 	function get_print_r($a) {
-		return '<pre style="white-space: pre-wrap;">'.
+		return '<pre class="pre_print_r" style="white-space: pre-wrap;">'.
 		print_r($a, true).
 		'</pre>';
 	}
 
 	function pre_var_dump($a) {
-		echo '<pre style="white-space: pre-wrap; font-size: 8pt;">';
+		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
 		var_dump(func_num_args() == 1 ? $a : func_get_args());
 		echo '</pre>';
 	}
