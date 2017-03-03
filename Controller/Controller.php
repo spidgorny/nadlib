@@ -390,6 +390,7 @@ abstract class Controller {
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
+//		debug($reqAction);
 		$method = $action
 				?: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {

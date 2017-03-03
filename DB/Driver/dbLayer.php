@@ -160,6 +160,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				error_log($runTime.' '.str_replace("\n", ' ', $query));
 			}
 		}
+		$this->lastQuery = $query;
+		$this->queryTime = $prof->elapsed();
 		$this->queryCount++;
 		return $this->LAST_PERFORM_RESULT;
 	}
