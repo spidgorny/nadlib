@@ -34,7 +34,7 @@ class ShowAssoc {
 				$val = $this->getValue($name, $val);
 			}
 			$niceName = is_array($name) ? $name['name'] : $name;
-			$assoc[$niceName] = $val;
+			$assoc[(string)$niceName] = $val;
 		}
 		$content[] = UL::DL($assoc)->render();
 		$content[] = '</div>';
