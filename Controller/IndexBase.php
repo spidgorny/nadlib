@@ -103,7 +103,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 //			try {
 				$this->config = Config::getInstance();
 				$this->db = $this->config->getDB();
+
+				// you need a session if you want to try2login()
+				$this->initSession();
 				$this->user = $this->config->getUser();
+
 				$this->ll = $this->config->getLL();
 //			} catch (Exception $e) {
 				// should not catch exceptions here, let subclass do it
