@@ -60,7 +60,7 @@ class ShowAssoc {
 			}
 			$val = $desc['bool'][$val];	// yes/no
 		} elseif (is_callable(ifsetor($desc['render']))) {
-			$val = call_user_func($desc['render'], $this->data);
+			$val = call_user_func($desc['render'], $this->data, $val);
 		}
 		return $val;
 	}
