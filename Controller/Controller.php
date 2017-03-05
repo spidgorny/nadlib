@@ -750,7 +750,11 @@ abstract class Controller {
 
 	static function href(array $params = array()) {
 		$self = get_called_class();
-		return $self.'?'.http_build_query($params);
+		$url = $self;
+		if ($params) {
+			$url .= '?'.http_build_query($params);
+		}
+		return $url;
 	}
 
 	/**
