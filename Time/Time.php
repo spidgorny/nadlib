@@ -753,4 +753,8 @@ class Time {
 		return $this->getTimestamp() > (time() - $seconds);
 	}
 
+	function isMultipleOf($seconds) {
+		return ($this->getTimestamp() % $seconds) == 0;
+	}
+
 }
