@@ -545,7 +545,24 @@ class Request {
 		return $host;
 	}
 
-	/**
+	static function getOnlyHost()
+	{
+		$host = self::getHost();
+		$host = first(trimExplode(':', $host));    // localhost:8081
+		return $host;
+	}
+
+	static function getPort()
+	{
+		$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
+			? $_SERVER['HTTP_X_FORWARDED_HOST']
+			: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL);
+		$host = trimExplode(':', $host);    // localhost:8081
+		$port = $host[1];
+		return $port;
+	}
+
+		/**
 	 * Returns the current page URL as is. Similar to $_SERVER['REQUEST_URI'].
 	 *
 	 * @return URL

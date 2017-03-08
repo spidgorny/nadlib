@@ -927,6 +927,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return count(array_filter(array_keys($array), 'is_string')) > 0;
 	}
 
+	function has($el) {
+		return in_array($el, $this->getArrayCopy());
+	}
+
 }
 
 function AP($a = array()) {

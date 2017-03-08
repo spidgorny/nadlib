@@ -102,6 +102,7 @@ class Debug {
 
 		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
 		if (!class_exists('FirePHP') && file_exists($require)) {
+			/** @noinspection PhpIncludeInspection */
 			require_once $require;
 		}
 		$can = $can && class_exists('FirePHP');
@@ -111,6 +112,17 @@ class Debug {
 			$can = $fb->detectClientExtension();
 		}
 		return $can;
+	}
+
+	public static function header($url)
+	{
+		if (!headers_sent()) {
+			static $i = 0;
+			$diff = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+			$diff = round($diff, 3);
+			header('X-nadlib-debug-' . $i . ': ' . $url . ' (+' . $diff . ')');
+			$i++;
+		}
 	}
 
 	function debugWithFirebug($params, $title = '') {
