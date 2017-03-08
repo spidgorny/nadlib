@@ -76,7 +76,12 @@ class View extends stdClass {
 		TaylorProfiler::stop(__METHOD__.' ('.$file.')');
 	}
 
-/*	Add as many public properties as you like and use them in the PHTML file. */
+	public static function getInstance($file, $copyObject = NULL)
+	{
+		return new self($file, $copyObject);
+	}
+
+	/*	Add as many public properties as you like and use them in the PHTML file. */
 
 	function getFile() {
 		$file = dirname($this->file) != '.'
@@ -215,10 +220,17 @@ class View extends stdClass {
 		return $this->e(ifsetor($this->caller->data[$key]));
 	}
 
+	/**
+	 * Using this often leads to error
+	 * Method View::__toString() must not throw an exception
+	 * which prevents seeing the trace of where the problem happened.
+	 * Please call ->render() everywhere manually.
+	 */
 	function __toString() {
-//		debug($this->file);
-//		debug_pre_print_backtrace(); die();
-		return $this->render().'';
+		debug($this->file, get_class($this->caller));
+		debug_pre_print_backtrace(); die();
+//		return $this->render().'';
+		return '';
 	}
 
 	/**
@@ -227,7 +239,7 @@ class View extends stdClass {
 	 * @return URL
 	 */
 	function link(array $params) {
-		return Index::getInstance()->controller->makeURL($params);
+		return Index::getInstance()->getController()->makeURL($params);
 	}
 
 	function __call($func, array $args) {

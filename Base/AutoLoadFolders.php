@@ -61,7 +61,12 @@ class AutoLoadFolders {
 					//echo '$this->useCookies', $this->useCookies, BR;
 					//echo 'session_start ', __METHOD__, BR;
 					//debug_pre_print_backtrace();
-					session_start();
+					$ok = session_start();
+					if (!$ok) {
+						throw new RuntimeException('session_start() failed');
+					} else {
+						//debug('session_start', session_id());
+					}
 				}
 
 				if (isset($_SESSION[__CLASS__])) {
