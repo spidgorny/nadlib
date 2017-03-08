@@ -24,7 +24,11 @@ class LocalLangJson extends LocalLangDummy {
 	}
 
 	function __destruct() {
-		file_put_contents($this->langFolder.'ll-'.$this->lang.'.json', json_encode($this->ll, JSON_PRETTY_PRINT));
+		$jsonEncode = json_encode($this->ll, JSON_PRETTY_PRINT);
+		$file = $this->langFolder.'ll-'.$this->lang.'.json';
+		if (filesize($file) < mb_strlen($jsonEncode)) {
+			file_put_contents($file, $jsonEncode);
+		}
 	}
 
 	function saveMissingMessage($text) {
