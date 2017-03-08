@@ -6,6 +6,8 @@
  */
 class dbPlacebo extends dbLayerBase implements DBInterface {
 
+	var $lastQuery;
+
 	function __construct() {
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
