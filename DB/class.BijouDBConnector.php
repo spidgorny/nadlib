@@ -1,4 +1,5 @@
 <?php
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 /**
  * Class BijouDBConnector
@@ -7,16 +8,16 @@
 class BijouDBConnector extends dbLayerBase implements DBInterface {
 
 	/**
-	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
+	 * @var DatabaseConnection
 	 */
 	protected $t3db;
 
 	public $lastError;
 	
 	/**
-	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
+	 * @param DatabaseConnection $t3lib_DB
 	 */
-	function __construct(t3lib_DB $t3lib_DB = NULL) {
+	function __construct(DatabaseConnection $t3lib_DB = NULL) {
 		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
 		$this->setQB();
 	}

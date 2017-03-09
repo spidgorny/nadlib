@@ -41,9 +41,11 @@ class TaylorProfiler {
 	static $sos;
 
 	/**
-    * Initialise the timer. with the current micro time
-    */
-    function TaylorProfiler( $output_enabled=false, $trace_enabled=false) {
+	 * Initialise the timer. with the current micro time
+	 * @param bool $output_enabled
+	 * @param bool $trace_enabled
+	 */
+    function __construct( $output_enabled=false, $trace_enabled=false) {
         $this->description = array();
         $this->startTime = array();
         $this->endTime = array();
