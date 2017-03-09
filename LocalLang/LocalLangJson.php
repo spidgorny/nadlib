@@ -13,8 +13,16 @@ class LocalLangJson extends LocalLangDummy {
 		$this->langFolder = $langFolder;
 	}
 
+	function areThereTranslationsFor($lang) {
+		$this->lang = $lang;	// temporary
+		$file = $this->getFilename();
+		$ok = is_file($file);
+		//debug($lang, $file, $ok);
+		return $ok;
+	}
+
 	function readDB() {
-		$file = file_get_contents($this->langFolder.'ll-'.$this->lang.'.json');
+		$file = file_get_contents($this->getFilename());
 		$this->ll = json_decode($file, true);
 		//debug($file, $this->ll);
 	}
@@ -25,7 +33,7 @@ class LocalLangJson extends LocalLangDummy {
 
 	function __destruct() {
 		$jsonEncode = json_encode($this->ll, JSON_PRETTY_PRINT);
-		$file = $this->langFolder.'ll-'.$this->lang.'.json';
+		$file = $this->getFilename();
 		if (filesize($file) < mb_strlen($jsonEncode)) {
 			file_put_contents($file, $jsonEncode);
 		}
@@ -46,6 +54,13 @@ class LocalLangJson extends LocalLangDummy {
 			$trans = $text;
 		}
 		return $trans;
+	}
+
+	/**
+	 * @return string
+	 */
+	function getFilename() {
+		return $this->langFolder . 'll-' . $this->lang . '.json';
 	}
 
 }
