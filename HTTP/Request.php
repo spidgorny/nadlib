@@ -634,6 +634,7 @@ class Request {
 		$HTTP_X_FORWARDED_SSL = ifsetor($_SERVER['HTTP_X_FORWARDED_SSL']);
 		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
 		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
+		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
 		$request_type =
 			((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
 			(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
@@ -644,7 +645,8 @@ class Request {
 			(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
 			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
 			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
-			ifsetor($_SERVER['FAKE_HTTPS'])
+			ifsetor($_SERVER['FAKE_HTTPS']) ||
+			($HTTP_X_FORWARDED_SERVER == 'sslproxy001')	// BlueMix
 			? 'https' : 'http';
 		return $request_type;
 	}

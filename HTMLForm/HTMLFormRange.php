@@ -42,12 +42,12 @@ class HTMLFormRange extends HTMLFormType {
 		$index->addJS($this->jsFile
 			?: $this->al->nadlibFromDocRoot.'HTMLForm/HTMLFormRange.js');
 
-		$content = new View($this->al->nadlibRoot.'HTMLForm/HTMLFormRange.phtml', $this);
+		$view = View::getInstance($this->al->nadlibRoot.'HTMLForm/HTMLFormRange.phtml', $this);
 		$fieldString = $this->form->getName($this->field, '', true);
 		$fieldString = str_replace('[', '\\[', $fieldString);
 		$fieldString = str_replace(']', '\\]', $fieldString);
-		$content->fieldEscaped = $fieldString;
-		return $content;
+		$view->fieldEscaped = $fieldString;
+		return $view->render();
 	}
 
 }
