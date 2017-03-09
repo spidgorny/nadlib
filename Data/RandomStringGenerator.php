@@ -102,6 +102,11 @@ class RandomStringGenerator
 		return $parts;
 	}
 
+	static function likeYouTube() {
+		$gen = new self();
+		return $gen->generate(10);
+	}
+
 	/**
 	 * http://www.anyexample.com/programming/php/php__password_generation.xml
 	 * @param int $syllables

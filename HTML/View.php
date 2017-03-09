@@ -116,13 +116,8 @@ class View extends stdClass {
 		$file = $this->getFile();
 		$content = $this->getContent($file);
 
-		preg_match_all('/__([^ _]+)__/', $content, $matches);
-		foreach ($matches[1] as $ll) {
-			if ($ll) {
-				//debug('__' . $ll . '__', __($ll));
-				$content = str_replace('__' . $ll . '__', __($ll), $content);
-			}
-		}
+		// Locallang replacement
+		$content = $this->localize($content);
 
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
@@ -130,6 +125,21 @@ class View extends stdClass {
 			$content .= '<!-- View template: '.$this->file.' -->'."\n";
 		}
 		TaylorProfiler::stop($key);
+		return $content;
+	}
+
+	function localize($content) {
+		preg_match_all('/__([^ _]+)__/', $content, $matches1);
+		preg_match_all('/__\{(.+)\}__/', $content, $matches2);
+//		debug($matches1, $matches2); die;
+		$localizeList = array_merge($matches1[1], $matches2[1]);
+		foreach ($localizeList as $ll) {
+			if ($ll) {
+				//debug('__' . $ll . '__', __($ll));
+				$content = str_replace('__' . $ll . '__', __($ll), $content);
+				$content = str_replace('__{' . $ll . '}__', __($ll), $content);
+			}
+		}
 		return $content;
 	}
 
