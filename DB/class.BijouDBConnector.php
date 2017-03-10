@@ -19,7 +19,8 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 	 */
 	function __construct(DatabaseConnection $t3lib_DB = NULL) {
 		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
-		$this->setQB();
+		$qb = new SQLBuilder($this);
+		$this->setQB($qb);
 	}
 	
 	function perform($query) {

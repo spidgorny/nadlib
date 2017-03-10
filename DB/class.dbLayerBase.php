@@ -26,10 +26,7 @@ class dbLayerBase {
 	 */
 	var $queryTime = 0;
 
-	function setQB() {
-		$di = new DIContainer();
-		$di->db = $this;
-		$qb = new SQLBuilder($di);
+	public function setQB(SQLBuilder $qb) {
 		$this->qb = $qb;
 	}
 

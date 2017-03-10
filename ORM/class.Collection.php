@@ -788,10 +788,7 @@ class Collection {
 	function getLazyIterator() {
 		$query = $this->getQuery();
 
-		$di = new DIContainer();
-		$di->db = $this->db;
-
-		$lazy = new DatabaseResultIteratorAssoc($di, $this->idField);
+		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
 		$lazy->perform($query);
 
 		return $lazy;

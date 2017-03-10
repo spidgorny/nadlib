@@ -4,7 +4,7 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer {
+class dbLayer extends dbLayerBase {
 	var $RETURN_NULL = TRUE;
 
     /**
@@ -733,15 +733,9 @@ order by a.attnum';
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb($qb) {
-        $this->qb = $qb;
-    }
-
     public function getQb() {
         if(!isset($this->qb)) {
-            $di = new DIContainer();
-            $di->db = Config::getInstance()->db;
-            $this->setQb(new SQLBuilder($di));
+            $this->setQb(new SQLBuilder(Config::getInstance()->db));
         }
 
         return $this->qb;

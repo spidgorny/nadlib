@@ -253,16 +253,12 @@ class SQLBuilder {
 	);
 
 	/**
-	 * @var MySQL
+	 * @var MySQL|dbLayerBase
 	 */
 	public $db;
 
-	function __construct(DIContainer $di) {
-		if ($di instanceof DIContainer && $di->db) {
-			$this->db = $di->db;
-		} else {
-			$this->db = Config::getInstance()->db;
-		}
+	function __construct(dbLayerBase $db) {
+		$this->db = $db;
 	}
 
 	function quoteKey($key) {
@@ -722,9 +718,7 @@ class SQLBuilder {
 			$res = $this->db->perform($query);
 			return $res;
 		} else {
-			$di = new DIContainer();
-			$di->db = $this->db;
-			$f = new DatabaseResultIteratorAssoc($di);
+			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->perform($query);
 			return $f;
 		}

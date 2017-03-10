@@ -5,6 +5,7 @@ if (php_sapi_name() == 'cli') {
 } else {
 	define('BR', "<br />\n");
 }
+define('TAB', "\t");
 
 class InitNADLIB {
 

@@ -32,26 +32,28 @@ class DatabaseResultIterator implements Iterator, Countable {
 	var $rows = 0;
 
 	/**
-	 * Will return the value of the current row corresponding to $this->defaulKey
+	 * Will return the value of the current row corresponding to $this->defaultKey
 	 * or number 0, 1, 2, 3, ... otherwise
 	 * @var int
+	 * First ++ will set it to 0
 	 */
-	var $key = 0;
+	var $key = -1;
 
 	/**
 	 * @var MySQL|dbLayer|dbLayerODBC|dbLayerPDO
 	 */
 	var $db;
 
-	function __construct(DIContainer $di, $defaultKey = NULL) { // 'uid'
+	function __construct(dbLayerBase $db, $defaultKey = NULL) { // 'uid'
 		$this->defaultKey = $defaultKey;
 		//$this->db = Config::getInstance()->db;
-		$this->db = $di->db;
+		$this->db = $db;
 	}
 
 	function perform($query) {
 		$this->dbResultResource = $this->db->perform($query);
 		$this->rows = $this->count();
+		debug($this->rows);
 		$this->rewind();
 	}
 
@@ -75,7 +77,7 @@ class DatabaseResultIterator implements Iterator, Countable {
 		if ($this->defaultKey) {
 			$this->key = $this->row[$this->defaultKey];
 		} else {
-			$this->key++;
+			++$this->key;
 		}
 		return $this->row;
 	}
