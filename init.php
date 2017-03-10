@@ -1,6 +1,10 @@
 <?php
 
-define('BR', "<br />\n");
+if (php_sapi_name() == 'cli') {
+	define('BR', PHP_EOL);
+} else {
+	define('BR', "<br />\n");
+}
 
 class InitNADLIB {
 
