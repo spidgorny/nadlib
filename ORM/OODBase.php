@@ -926,4 +926,18 @@ abstract class OODBase {
 		return $this->id;
 	}
 
+	function getBool($value) {
+		//debug($value, $this->lastSelectQuery);
+		if (is_integer($value)) {
+			return $value !== 0;
+		} elseif (is_numeric($value)) {
+			return intval($value) !== 0;
+		} elseif (is_string($value)) {
+			return $value && $value[0] === 't';
+		} else {
+//			throw new InvalidArgumentException(__METHOD__.' ['.$value.']');
+			return false;
+		}
+	}
+
 }

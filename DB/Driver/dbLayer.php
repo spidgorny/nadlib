@@ -52,6 +52,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
         'SELECT', 'LIKE', 'TO',
     );
 
+    protected $dbName;
+
+    protected $user;
+
+    protected $pass;
+
+    protected $host;
+
 	/**
 	 * @param string $dbName
 	 * @param string $user
@@ -60,6 +68,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function __construct($dbName = NULL, $user = NULL, $pass = NULL, $host = "localhost") {
+		$this->dbName = $dbName;
+		$this->user = $user;
+		$this->pass = $pass;
+		$this->host = $host;
         if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
 	        //debug(pg_version()); exit();
@@ -90,6 +102,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 
 	function getConnection() {
 		return $this->connection;
+	}
+
+	function reconnect() {
+		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
 	}
 
 	function connect($dbName, $user, $pass, $host = "localhost") {
