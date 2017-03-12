@@ -318,7 +318,9 @@ abstract class Controller {
 		} else {
 			$content = '';
 		}
-		return $content;
+		return is_object($content)
+			? $content->render()
+			: $content;
 	}
 
 	function __toString() {
