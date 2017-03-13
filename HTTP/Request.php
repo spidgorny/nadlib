@@ -645,8 +645,8 @@ class Request {
 			(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
 			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
 			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
-			ifsetor($_SERVER['FAKE_HTTPS']) ||
-			($HTTP_X_FORWARDED_SERVER == 'sslproxy001')	// BlueMix
+			ifsetor($_SERVER['FAKE_HTTPS'])
+			|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))	// BlueMix
 			? 'https' : 'http';
 		return $request_type;
 	}

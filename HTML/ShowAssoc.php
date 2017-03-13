@@ -29,7 +29,7 @@ class ShowAssoc {
 		}
 		$assoc = array();
 		foreach ($this->thes as $key => $name) {
-			$val = $this->data[$key];
+			$val = ifsetor($this->data[$key]);
 			if (is_array($name)) {
 				$val = $this->getValue($name, $val);
 			}
