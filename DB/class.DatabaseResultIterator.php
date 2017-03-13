@@ -87,8 +87,12 @@ class DatabaseResultIterator implements Iterator, Countable {
 		return $row;
 	}
 
+	/**
+	 * dbLayer returns [] if pg_fetch_assoc() returns FALSE
+	 * @return bool
+	 */
 	function valid() {
-		return $this->row !== FALSE;
+		return $this->row !== FALSE && $this->row !== [];
 	}
 
 	function count() {

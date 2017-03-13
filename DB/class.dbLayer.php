@@ -312,7 +312,11 @@ class dbLayer extends dbLayerBase {
 	}
 
 	function dataSeek($res, $number) {
-		return pg_result_seek($res, $number);
+		$ok = pg_result_seek($res, $number);
+		if (!$ok) {
+			throw new DatabaseException('pg_result_seek failed');
+		}
+		return $ok;
 	}
 
 	function transaction($serializable = false) {
