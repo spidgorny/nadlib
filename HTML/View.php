@@ -129,8 +129,8 @@ class View extends stdClass {
 	}
 
 	function localize($content) {
-		preg_match_all('/__([^ _]+)__/', $content, $matches1);
-		preg_match_all('/__\{(.+)\}__/', $content, $matches2);
+		preg_match_all('/__([^ _\n\r]+?)__/', $content, $matches1);
+		preg_match_all('/__\{([^\n\r}]+?)\}__/', $content, $matches2);
 //		debug($matches1, $matches2); die;
 		$localizeList = array_merge($matches1[1], $matches2[1]);
 		foreach ($localizeList as $ll) {
