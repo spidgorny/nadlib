@@ -30,6 +30,13 @@ class PersistantOODBase extends OODBase {
 	}
 
 	function getStateHash() {
+		$isNull = array_reduce($this->data, function ($acc, $el) {
+			return is_null($acc) && is_null($el) ? null : 'not null';
+		}, null);
+		//debug($this->data, $isNull); die;
+		if (is_null($isNull)) {
+			$this->data = [];
+		}
 		return md5(serialize($this->data));
 	}
 
@@ -95,9 +102,12 @@ class PersistantOODBase extends OODBase {
 	function save($where = NULL) {
 		if ($this->getStateHash() != $this->stateHash) {
 			0 && debug(array(
-				$this->stateHash => $this->originalData,
-				$this->getStateHash() => $this->data,
-				$this->table => $this->id,
+				'stateHash' => $this->stateHash,
+				'originalData' => $this->originalData,
+				'getStateHash' => $this->getStateHash(),
+				'data' => $this->data,
+				'table' => $this->table,
+				'id' => $this->id,
 			));
 			$idDefined = is_array($this->id)
 				? trim(implode('', $this->id))
@@ -133,4 +143,5 @@ class PersistantOODBase extends OODBase {
 		$this->stateHash = $this->getStateHash();
 		return $ret;
 	}
+
 }
