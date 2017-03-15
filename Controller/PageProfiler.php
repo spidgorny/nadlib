@@ -21,33 +21,37 @@ class PageProfiler {
 	function render() {
 		$content = '';
 		$index = Index::getInstance();
-		if (DEVELOPMENT &&
-			!$this->request->isAjax() &&
-			!in_array(get_class($index->controller), array('Lesser')))
-		{
-			if (!$this->request->isCLI()) {
-				$content .= '<div class="profiler noprint">';
-				$content .= $this->getURL();
-				$content .= $this->getGET();
-				$content .= $this->getPOST();
-				$content .= $this->getHeader();
-				$content .= $this->getFooter();
-				$content .= $this->getSession();
-				$content .= $this->html->s(OODBase::getCacheStatsTable());
+		$exceptions = in_array(get_class($index->controller), array('Lesser'));
+		$debug_page = isset($_COOKIE['debug_page'])
+			? $_COOKIE['debug_page']
+			: ifsetor($_COOKIE['debug']);
+		if (DEVELOPMENT
+			&& !$this->request->isAjax()
+			&& !$exceptions
+			&& !$this->request->isCLI()
+			&& $debug_page
+		) {
+			$content .= '<div class="profiler noprint">';
+			$content .= $this->getURL();
+			$content .= $this->getGET();
+			$content .= $this->getPOST();
+			$content .= $this->getHeader();
+			$content .= $this->getFooter();
+			$content .= $this->getSession();
+			$content .= $this->html->s(OODBase::getCacheStatsTable());
 
-				/** @var $profiler TaylorProfiler */
-				$profiler = TaylorProfiler::getInstance();
-				if ($profiler) {
-					$content .= $profiler->printTimers(true);
-					$content .= TaylorProfiler::dumpQueries();
-					//$content .= $profiler->printTrace(true);
-					//$content .= $profiler->analyzeTraceForLeak();
-				}
-				$content .= '</div>';
-
-				$ft = new FloatTime(true);
-				$content .= $ft->render();
+			/** @var $profiler TaylorProfiler */
+			$profiler = TaylorProfiler::getInstance();
+			if ($profiler) {
+				$content .= $profiler->printTimers(true);
+				$content .= TaylorProfiler::dumpQueries();
+				//$content .= $profiler->printTrace(true);
+				//$content .= $profiler->analyzeTraceForLeak();
 			}
+			$content .= '</div>';
+
+			$ft = new FloatTime(true);
+			$content .= $ft->render();
 		}
 		return $content;
 	}

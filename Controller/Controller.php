@@ -714,10 +714,12 @@ abstract class Controller {
 	}
 
 	function img($src, array $attr = array()) {
-		return new HTMLTag('img', array(
+		$html = new HTMLTag('img', array(
 				'src' => /*$this->e*/
 					($src),    // encoding is not necessary for &amp; in URL
 			) + $attr);
+		$html->closingTag = false;
+		return $html;
 	}
 
 	function e($content) {
