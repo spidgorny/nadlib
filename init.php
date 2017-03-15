@@ -24,9 +24,10 @@ class InitNADLIB {
 	function init() {
 		//print_r($_SERVER);
 
+		$debug = ifsetor($_COOKIE['debug']);
 		define('DEVELOPMENT', Request::isCLI()
-			? (Request::isWindows() || $_COOKIE['debug']) // at home
-			: (isset($_COOKIE['debug']) ? $_COOKIE['debug'] : false)
+			? (Request::isWindows() || $debug) // at home
+			: ($debug)
 		);
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()

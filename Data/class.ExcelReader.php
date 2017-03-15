@@ -19,7 +19,7 @@ class ExcelReader {
 		//$this->xml = $this->readPersistant();
 		if (!$this->xml) {
 			$this->readExcel();
-			$this->savePersistant($this->xml);
+			//$this->savePersistant($this->xml);
 		}
 		$this->ll = $this->getSheet(0);
 	}
@@ -38,12 +38,12 @@ class ExcelReader {
 	}
 
 	function savePersistant($data) {
+		print_r($data);
 		$data = serialize($data);
 		file_put_contents($this->filename, $data);
 	}
 
 	function readExcel() {
-		$data = array();
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
 			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
@@ -69,27 +69,31 @@ class ExcelReader {
 	function getSheet($sheet = 0) {
 		$data = array();
 		$s = $this->xml->Worksheet[$sheet]->Table;
+//		echo __METHOD__, BR;
 		$key = 0;
-		foreach ($s->Row as $row) {
-			foreach ($row->Cell as $cell) {
-				$cellText = $cell->Data;
-				if (!$cellText) {
-					$cellText = $cell->asXML();
-					$cellText = strip_tags($cellText);
+		if ($s->Row) {
+			foreach ($s->Row as $row) {
+				foreach ($row->Cell as $cell) {
+					$cellText = $cell->Data;
+					if (!$cellText) {
+						$cellText = $cell->asXML();
+						$cellText = strip_tags($cellText);
+					}
+					$cellText = trim($cellText);
+					$attr = $cell->attributes('ss', true);
+					if (intval($attr['Index'])) {
+						$cellIndex = intval($attr['Index']) - 1;
+						$data[$key][$cellIndex] = $cellText;
+					} else {
+						$data[$key][] = $cellText;
+					}
 				}
-				$cellText = trim($cellText);
-				$attr = $cell->attributes('ss', true);
-				if (intval($attr['Index'])) {
-					$cellIndex = intval($attr['Index'])-1;
-					$data[$key][$cellIndex] = $cellText;
-				} else {
-					$data[$key][] = $cellText;
-				}
+				$key++;
 			}
-			$key++;
 		}
 		//t3lib_div::debug($data); exit();
 		//t3lib_utility_Debug::debugRows($data); exit();
+//		echo sizeof($data), BR;
 		return $data;
 	}
 
