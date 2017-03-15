@@ -603,7 +603,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeJS() {
-		if (!DEVELOPMENT && file_exists('vendor/minify/min/index.php')) {
+		// composer require mrclay/minify
+		$path = 'vendor/mrclay/minify/min/';
+		if (
+			true
+			// && !DEVELOPMENT
+			&& file_exists($path.'index.php')) {
 			$include = array(); // some files can't be found
 			$files = array_keys($this->footer);
 			foreach ($files as $f => &$file) {
@@ -616,7 +621,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 			$files = implode(",", $files);
 			//$files .= DEVELOPMENT ? '&debug' : '';
-			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
+			$content = '<script src="'.$path.'?f='.$files.'"></script>';
 			$content .= implode("\n", $include);
 		} else {
 			$content = implode("\n", $this->footer)."\n";
