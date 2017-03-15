@@ -271,9 +271,15 @@ AND name = '?')", array($table));
 	}
 
 	function free($res) {
+		@trigger_error('OK');
+		//error_clear_last();		// PHP 7.0
+
 		mssql_free_result($res);
-		if (error_get_last()) {
-			//debug_pre_print_backtrace();
+
+		$error = error_get_last();
+		if ($error && $error['message'] != 'OK') {
+			debug(error_get_last());
+			debug_pre_print_backtrace();
 		}
 	}
 
