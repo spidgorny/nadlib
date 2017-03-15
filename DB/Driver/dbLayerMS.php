@@ -273,7 +273,7 @@ AND name = '?')", array($table));
 	function free($res) {
 		mssql_free_result($res);
 		if (error_get_last()) {
-			debug_pre_print_backtrace();
+			//debug_pre_print_backtrace();
 		}
 	}
 
