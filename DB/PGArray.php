@@ -249,18 +249,24 @@ class PGArray extends AsIs {
 //				$el = addslashes($el);
 
 				if ($this->standard_conforming_strings) {
-//					$el = addslashes($el); // changed after postgres version updated to 9.4
+					//$el = addslashes($el); // changed after postgres version updated to 9.4
+					//$el = str_replace('\\', '\\\\', $el);
+					$el = str_replace("'", "''", $el);
+					$el = "'".$el."'";
+				} else {
+					$el = str_replace('"', '\\"', $el);
+					$el = '"'.$el.'"';
 				}
-
-				$el = '"'.str_replace(array(
-						'"',
-					), array(
-						'\\"',
-					), $el).'"';
 			}
 		}
-		$pgArray = '{'.implode(',', $data).'}';
-		return $pgArray;
+		//$result = '{'.implode(',', $data).'}';
+		$result = new AsIs('ARRAY['.implode(',', $data).']');
+		debug($result.'', $this->standard_conforming_strings, $el, $data);
+		return $result;
+	}
+
+	function __toString() {
+		return $this->setPGArray($this->data);
 	}
 
 }
