@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 abstract class OODBase {
 
 	/**
-	 * @var DBInterface
+	 * @var DBInterface|SQLBuilder
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
