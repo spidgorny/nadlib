@@ -7,9 +7,14 @@ class PGArray {
 	 */
 	var $db;
 
+	/**
+	 * @var bool
+	 */
 	var $standard_conforming_strings;
 
-	function __construct(dbLayer $db) {
+	var $data;
+
+	function __construct(dbLayer $db, array $data = []) {
 		$this->db = $db;
 
 		$query = "SHOW standard_conforming_strings;";
@@ -17,6 +22,10 @@ class PGArray {
 		$return = pg_fetch_assoc($result);
 		pg_free_result($result);
 		$this->standard_conforming_strings = first($return);
+		$this->standard_conforming_strings =
+			strtolower($this->standard_conforming_strings) == 'on';
+
+		$this->data = $data;
 	}
 
 	/**
@@ -190,6 +199,11 @@ class PGArray {
 				while( $limit > $offset );
 		}
 	*/
+
+	/**
+	 * @param array $data
+	 * @return string
+	 */
 	function setPGArray(array $data) {
 		foreach ($data as &$el) {
 			if (is_array($el)) {
@@ -197,18 +211,25 @@ class PGArray {
 			} else {
 				$el = pg_escape_string($el);
 
-				if (strtolower($this->standard_conforming_strings) == 'on') {
-					$el = addslashes($el); // changed after postgres version updated to 9.4
+				if ($this->standard_conforming_strings) {
+					//$el = addslashes($el); // changed after postgres version updated to 9.4
+					//$el = str_replace('\\', '\\\\', $el);
+					$el = str_replace("'", "''", $el);
+					$el = "'".$el."'";
+				} else {
+					$el = str_replace('"', '\\"', $el);
+					$el = '"'.$el.'"';
 				}
-
-				$el = '"'.str_replace(array(
-						'"',
-					), array(
-						'\\"',
-					), $el).'"';
 			}
 		}
-		return '{'.implode(',', $data).'}';
+		//$result = '{'.implode(',', $data).'}';
+		$result = new AsIs('ARRAY['.implode(',', $data).']');
+		debug($result.'', $this->standard_conforming_strings, $el, $data);
+		return $result;
+	}
+
+	function __toString() {
+		return $this->setPGArray($this->data);
 	}
 
 }
