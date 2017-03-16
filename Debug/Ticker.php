@@ -15,7 +15,7 @@ class Ticker {
 	 * or "header" for X-Tick header
 	 * or "errorlog" or "echo"
 	 */
-	public $tickTo;
+	public $tickTo = 'html';
 
 	/**
 	 * Ticks between output
