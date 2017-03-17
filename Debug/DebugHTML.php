@@ -21,8 +21,10 @@ class DebugHTML {
 
 	function render() {
 		$args = func_get_args();
-		$levels = $this->getLevels($args);
-		$args['levels'] = $levels;
+		if (is_array($args)) {
+			$levels = $this->getLevels($args) ?: self::$defaultLevels;
+			//$args['levels'] = $levels;
+		}
 
 		$db = debug_backtrace();
 		$db = array_slice($db, 3, sizeof($db));
