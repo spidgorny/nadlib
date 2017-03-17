@@ -37,6 +37,13 @@ class PGArray extends AsIs {
 		$this->data = $data;
 	}
 
+	function __sleep() {
+		$props = get_object_vars($this);
+		$props = array_keys($props);
+		unset($props['db']);
+		return $props;
+	}
+
 	/**
 	 * New better syntax for using it in SQL which does not
 	 * require tripple escaping of backslashes
@@ -261,11 +268,11 @@ class PGArray extends AsIs {
 		}
 		//$result = '{'.implode(',', $data).'}';
 		$result = new AsIs('ARRAY['.implode(',', $data).']');
-		debug($result.'', $this->standard_conforming_strings, $el, $data);
+		//debug($result.'', $this->standard_conforming_strings, $el, $data);
 		return $result;
 	}
 
-	function __toString() {
+	function __toString2() {
 		return $this->setPGArray($this->data);
 	}
 
