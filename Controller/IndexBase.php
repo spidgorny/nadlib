@@ -290,7 +290,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderController() {
 		TaylorProfiler::start(__METHOD__);
-		debug($_SERVER['argv']);
 		$method = ifsetor($_SERVER['argv'][2]);
 		if ($method && method_exists($this->controller, $method)) {
 			echo 'Method: ', $method, BR;
