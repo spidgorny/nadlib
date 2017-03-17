@@ -201,6 +201,9 @@ class dbLayerBase implements DBInterface {
 	}
 
 	function getQueryLog() {
+		if (!$this->queryLog) {
+			$this->queryLog = new QueryLog();
+		}
 		return $this->queryLog;
 	}
 

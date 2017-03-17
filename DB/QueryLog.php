@@ -21,11 +21,11 @@ class QueryLog {
 			$old = array();
 		}
 		$this->queryLog[$key] = array(
-			'query' => $query,
+			'query' => $query.'',
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
 			'times' => ifsetor($old['times'])+1,
 			'results' => $results,
-			'ok' => $ok,
+			'ok' => (string)$ok,
 		);
 //		debug($key, $this->queryLog);
 	}
