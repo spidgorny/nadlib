@@ -997,9 +997,14 @@ class Request {
 	static function getDocumentRootByDocRoot() {
 		$docRoot = NULL;
 		$script = $_SERVER['SCRIPT_FILENAME'];
-		$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
-		$beginTheSame = str_startsWith($script, $docRootRaw);
-		$contains = strpos($script, $docRootRaw) !== false;
+		$docRootRaw = ifsetor($_SERVER['DOCUMENT_ROOT']);
+		if (!empty($docRootRaw)) {
+			$beginTheSame = str_startsWith($script, $docRootRaw);
+			$contains = strpos($script, $docRootRaw) !== false;
+		} else {
+			$beginTheSame = false;
+			$contains = false;
+		}
 		if ($docRootRaw
 			&& $beginTheSame
 			&& $contains
