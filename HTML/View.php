@@ -494,11 +494,17 @@ class View extends stdClass {
 		$dom = new AdvancedHtmlDom($html);
 		$scripts = $dom->find('script');
 		$scripts->remove();
-		if ($this->index) {
-			//$this->index->addJS($scripts);
-		}
 		$this->processed = $dom->body->innerhtml();
 		return $scripts->__toString();
+	}
+
+	public function extractImages() {
+		$html = $this->render();
+		$dom = new AdvancedHtmlDom($html);
+		$scripts = $dom->find('img');
+		$scripts->remove();
+		$this->processed = $dom->body->innerhtml();
+		return $scripts;
 	}
 
 }
