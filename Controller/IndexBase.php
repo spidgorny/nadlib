@@ -355,7 +355,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error">
 				' . get_class($e) . ' (' . $e->getCode() . ')' . BR .
 				nl2br($message);
-			if (DEVELOPMENT) {
+			if (DEVELOPMENT || 0) {
 				$content .= BR . BR . '<div style="text-align: left">' .
 					nl2br($e->getTraceAsString()) . '</div>';
 				//$content .= getDebug($e);
