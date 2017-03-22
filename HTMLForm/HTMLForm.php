@@ -458,8 +458,12 @@ class HTMLForm {
 		return $this->stdout;
 	}
 
+	/**
+	 * It was doing echo() since 2002 - in 2017 it's doing return
+	 * @return string
+	 */
 	function render() {
-		print($this->getContent());
+		return $this->getContent();
 	}
 
 	function combo($fieldName, array $desc) {
