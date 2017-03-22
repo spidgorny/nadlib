@@ -21,7 +21,7 @@ class HTMLFormRange extends HTMLFormType {
 	 * @param string $field
 	 * @param integer $value
 	 */
-	function __construct($field, $value) {
+	function __construct($field, $value = 0) {
 //		parent::__construct();
 		$this->field = $field;
 		$this->setValue($value);

@@ -488,20 +488,22 @@ class HTMLForm {
 	/**
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
-	 * @param string $name
-	 * @param array/string $value - CSV or array
+	 * @param string|array $name
+	 * @param array /string $value - CSV or array
 	 * @param array $desc
-	 * 		'between' - text that separates checkboxes (default ", ")
+	 *        'between' - text that separates checkboxes (default ", ")
+	 * @return $this
 	 */
 	function set($name, $value = array(), array $desc) {
 		if ($value) {
 			if (!is_array($value)) {
-				$value = explode(',', $value);
+				$value = trimExplode(',', $value);
 			}
 		} else {
 			$value = array();
 		}
-		$newName = array_merge($name, array(''));	// []
+		$aName = is_array($name) ? $name : [$name];
+		$newName = array_merge($aName, array(''));	// []
 		$tmp = $this->class;
 		$this->class = 'submit';
 		$between = ifsetor($desc['between'], ', ');
@@ -516,8 +518,15 @@ class HTMLForm {
 			}
 		}
 		$this->class = $tmp;
+		return $this;
 	}
 
+	/**
+	 * This is checking using isset()
+	 * @param $name
+	 * @param array $value
+	 * @param array $desc
+	 */
 	function keyset($name, $value = array(), array $desc) {
 		if ($value) {
 			if (!is_array($value)) {
