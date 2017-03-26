@@ -757,7 +757,9 @@ WHERE ccu.table_name='".$table."'");
 	}
 
 	function getReplaceQuery($table, array $columns) {
-		if ($this->getVersion() < 9.5) throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
+		if ($this->getVersion() < 9.5) {
+			throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
+		}
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
@@ -769,16 +771,16 @@ WHERE ccu.table_name='".$table."'");
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-	 * @param array $primaryKey ['id', 'id_profile']
+	 * @param array $primaryKeys ['id', 'id_profile']
 	 * @return string
 	 */
-	function runReplaceQuery($table, array $columns, $primaryKey = []) {
+	function runReplaceQuery($table, array $columns, array $primaryKeys = []) {
 		if ($this->getVersion() >= 9.5) {
 			$q = $this->getReplaceQuery($table, $columns);
 			return $this->perform($q);
 		} else {
 			$this->transaction();
-			$key_key = array_combine($primaryKey, $primaryKey);
+			$key_key = array_combine($primaryKeys, $primaryKeys);
 			$where = array_intersect_key($columns, $key_key);
 			$find = $this->runSelectQuery($table, $columns);
 			$rows = $this->numRows($find);
