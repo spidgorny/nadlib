@@ -498,6 +498,12 @@ class View extends stdClass {
 		return $scripts->__toString();
 	}
 
+	public function withoutScripts() {
+		$scripts = $this->extractScripts();
+		$this->index->footer[basename($this->file)] = $scripts;
+		return $this;
+	}
+
 	public function extractImages() {
 		$html = $this->render();
 		$dom = new AdvancedHtmlDom($html);

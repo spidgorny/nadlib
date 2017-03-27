@@ -1206,7 +1206,7 @@ class Request {
 			?: $this->getNameless($last);
 	}
 
-	public function getHidden() {
+	public function getHidden(array $limit = []) {
 		$hidden = array_reduce(array_keys($this->data), function ($total, $key) {
 			$item = $this->data[$key];
 			if (is_array($item)) {
