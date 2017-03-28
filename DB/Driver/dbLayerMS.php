@@ -54,6 +54,9 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 
 	function connect() {
 		$this->connection = mssql_connect($this->server, $this->user, $this->password);
+		if (!$this->connection) {
+			throw new DatabaseException('Unable to connect to DB on '.$this->server);
+		}
 		mssql_select_db($this->database);
 	}
 
@@ -93,7 +96,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 			$this->close();
 			$this->connect();
 			debug($msg2, $msg, $query);
-			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
+			throw new DatabaseException(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
 		return $res;
