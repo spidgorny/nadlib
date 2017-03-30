@@ -931,6 +931,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return in_array($el, $this->getArrayCopy());
 	}
 
+	function apply(callable $fn) {
+		$this->map($fn);
+	}
+
 }
 
 function AP($a = array()) {
