@@ -154,7 +154,8 @@ class Mailer {
      */
     public function sendSwiftMailerEmail(
     	array $to, array $cc = null, array $bcc = null,
-		array $attachments = array(), array $additionalSenders = array())
+		array $attachments = array(),
+		array $additionalSenders = array())
     {
         if (!class_exists('Swift_Mailer')) {
             throw new Exception('SwiftMailer not installed!');
@@ -164,7 +165,7 @@ class Mailer {
 			return NULL;
 		}
 
-		$messageHTML = $this->bodytext;
+		$messageHTML = $this->getBodyText();
         $messageText = $this->getPlainText();
 
         /** @var Swift_Message $message */
