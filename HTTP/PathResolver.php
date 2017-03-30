@@ -34,14 +34,19 @@ class PathResolver implements ResolverInterface {
 			}	// foreach
 			if ($last) {
 				$controller = $last;
-			} elseif ($returnDefault && class_exists('Config')) {
-				// not good as we never get 404
-				$controller = Config::getInstance()->defaultController;
 			} else {
-				$controller = NULL;
+				$controller = $this->getDefault($returnDefault);
 			}
-		} elseif ($returnDefault && class_exists('Config')) {
-			$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+		} else {
+			$controller = $this->getDefault($returnDefault);
+		}
+		return $controller;
+	}
+
+	function getDefault($returnDefault) {
+		if ($returnDefault && class_exists('Config')) {
+			// not good as we never get 404
+			$controller = Config::getInstance()->defaultController;
 		} else {
 			$controller = NULL;
 		}
