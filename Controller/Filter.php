@@ -29,6 +29,16 @@ class Filter extends ArrayObject {
 		$this->_default = $_default;
 	}
 
+	function get($index) {
+		return $this->offsetGet($index);
+	}
+
+	function getArray($index) {
+		$value = $this->offsetGet($index);
+		$value = (array)$value;
+		return $value;
+	}
+
 	function set($index, $newval) {
 		$this->offsetSet($index, $newval);
 	}
