@@ -437,10 +437,9 @@ class SQLBuilder {
 		return $ret;
 	}
 
-	function runReplaceQuery($table, array $columns) {
+	function runReplaceQuery($table, array $columns, array $primaryKeys) {
 		TaylorProfiler::start(__METHOD__.'('.$table.')');
-		$query = $this->getReplaceQuery($table, $columns);
-		$ret = $this->db->perform($query);
+		$ret = $this->db->runReplaceQuery($table, $columns, $primaryKeys);
 		TaylorProfiler::stop(__METHOD__.'('.$table.')');
 		return $ret;
 	}
