@@ -36,9 +36,9 @@ class HTMLFormSlicer {
 	 * @param array $values
 	 */
 	function fillValues(array $values) {
-		$f = new HTMLFormTable();
 		foreach ($this->slices as &$slice) {
-			$slice['desc'] = $f->fillValues($slice['desc'], $values);
+			$f = new HTMLFormTable($slice['desc']);
+			$slice['desc'] = $f->fill($values);
 		}
 	}
 
