@@ -16,4 +16,21 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		}
 	}
 
+	function test_extractScripts() {
+		$html = '<html><h1>bla</h1>
+<script>
+alert("xss");
+</script>
+<div>bla</div></html>';
+		$view = new View('');
+		$view->setHTML($html);
+		$scripts = $view->extractScripts();
+		//debug($scripts);
+		$this->assertEquals("<h1>bla</h1>
+<div>bla</div>", $view->render());
+		$this->assertEquals('<script>
+alert("xss");
+</script>', $scripts);
+	}
+
 }

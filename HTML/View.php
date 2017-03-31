@@ -44,6 +44,8 @@ class View extends stdClass {
 	 */
 	public $controller;
 
+	public $processed;
+
 	function __construct($file, $copyObject = NULL) {
 		TaylorProfiler::start(__METHOD__.' ('.$file.')');
 		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
@@ -113,19 +115,22 @@ class View extends stdClass {
 		$key = __METHOD__.' ('.basename($this->file).')';
 		TaylorProfiler::start($key);
 
-		$file = $this->getFile();
-		$content = $this->getContent($file);
+		if (!$this->processed) {
+			$file = $this->getFile();
+			$content = $this->getContent($file);
 
-		// Locallang replacement
-		$content = $this->localize($content);
+			// Locallang replacement
+			$content = $this->localize($content);
 
-		if (DEVELOPMENT) {
-			// not allowed in MRBS as some templates return OBJECT(!)
-			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-			$content .= '<!-- View template: '.$this->file.' -->'."\n";
+			if (DEVELOPMENT) {
+				// not allowed in MRBS as some templates return OBJECT(!)
+				//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
+				$content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
+			}
+			$this->processed = $content;
 		}
 		TaylorProfiler::stop($key);
-		return $content;
+		return $this->processed;
 	}
 
 	function localize($content) {
@@ -475,6 +480,37 @@ class View extends stdClass {
 			$template = str_replace('{' . $m . '}', $val, $template);
 		}
 		return $template;
+	}
+
+	function setHTML($html) {
+		$this->processed = $html;
+	}
+
+	/**
+	 * composer require hrmatching/advanced_html_dom
+	 */
+	public function extractScripts() {
+		$html = $this->render();
+		$dom = new AdvancedHtmlDom($html);
+		$scripts = $dom->find('script');
+		$scripts->remove();
+		$this->processed = $dom->body->innerhtml();
+		return $scripts->__toString();
+	}
+
+	public function withoutScripts() {
+		$scripts = $this->extractScripts();
+		$this->index->footer[basename($this->file)] = $scripts;
+		return $this;
+	}
+
+	public function extractImages() {
+		$html = $this->render();
+		$dom = new AdvancedHtmlDom($html);
+		$scripts = $dom->find('img');
+		$scripts->remove();
+		$this->processed = $dom->body->innerhtml();
+		return $scripts;
 	}
 
 }

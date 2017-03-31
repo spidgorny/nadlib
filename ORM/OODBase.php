@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 abstract class OODBase {
 
 	/**
-	 * @var DBInterface
+	 * @var DBInterface|SQLBuilder
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -191,7 +191,7 @@ abstract class OODBase {
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			//debug(gettype2($row), $idField, $this->data);
+			debug(gettype2($row), $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
