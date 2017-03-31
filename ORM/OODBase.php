@@ -137,6 +137,7 @@ abstract class OODBase {
 			$where = $id->getAsArray();
 			$this->findInDB($where);
 		} elseif (is_scalar($id)) {
+//			debug('set id', $id);
 			$this->id = $id;
 			if (is_array($this->idField)) {
 				// TODO
@@ -145,6 +146,7 @@ abstract class OODBase {
 				$this->findInDB(array($this->idField => $this->id));
 				// will do $this->init()
 			}
+//			debug('data set', $this->data);
 			if (!$this->data) {
 				$this->id = NULL;
 			}
