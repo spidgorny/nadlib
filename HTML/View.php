@@ -242,8 +242,10 @@ class View extends stdClass {
 	 * Please call ->render() everywhere manually.
 	 */
 	function __toString() {
-		debug($this->file, get_class($this->caller));
-		debug_pre_print_backtrace(); die();
+		if (DEVELOPMENT) {
+			debug($this->file, get_class($this->caller));
+			debug_pre_print_backtrace();
+		}
 //		return $this->render().'';
 		return '';
 	}
