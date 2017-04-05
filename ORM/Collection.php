@@ -1138,4 +1138,8 @@ class Collection implements IteratorAggregate {
 		$this->logger = $log;
 	}
 
+	public function getLogger() {
+		return $this->logger;
+	}
+
 }
