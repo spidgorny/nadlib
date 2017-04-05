@@ -145,7 +145,7 @@ class ProgressBar {
 		$this->percentDone = $percentDone;
 		$text = $text
 			?: number_format($this->percentDone, $this->decimals, '.', '').'%';
-		if ($this->cli) {
+		if ($this->cli && !Request::isCron()) {
 			// \r first to preserve errors
 			echo $this->cliBR . $text  . "\t".$this->getCLIbar() . ' ' . $after;
 		} else {
