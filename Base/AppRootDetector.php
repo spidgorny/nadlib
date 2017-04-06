@@ -2,6 +2,9 @@
 
 class AppRootDetector {
 
+	/**
+	 * @var Path
+	 */
 	protected $appRoot;
 
 	var $debug = false;
@@ -15,11 +18,12 @@ class AppRootDetector {
 	 */
 	function __construct()
 	{
-		if (Request::isCLI()) {
-			$appRoot = dirname(dirname(getcwd()));
-			return new Path(cap($appRoot));
-		} elseif (Request::isPHPUnit()) {
+		if (Request::isPHPUnit()) {
 			$appRoot = getcwd();
+		} elseif (Request::isCLI()) {
+//			echo TAB, __METHOD__, ': ', getcwd(), BR;
+			$appRoot = getcwd();
+			$appRoot = new Path(cap($appRoot));
 		} else {
 			$appRoot = dirname(URL::getScriptWithPath());
 			$appRoot = str_replace('/kunden', '', $appRoot); // 1und1.de

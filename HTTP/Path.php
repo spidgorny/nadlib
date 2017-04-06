@@ -10,10 +10,13 @@ class Path {
 
 	var $isFile = false;
 
+	var $isAbsolute;
+
 	function __construct($sPath) {
 		$this->sPath = $sPath.'';
 		$this->isDir = str_endsWith($this->sPath, '/');
 		$this->isFile = !$this->isDir;
+		$this->isAbsolute = $this->isAbsolute();
 		$this->explode();
 		$this->implode();   // to prevent '//'
 	}
@@ -49,8 +52,24 @@ class Path {
 	 */
 	function implode() {
 		$notSlash = $this->aPath != array('/');
-		$this->sPath = ((!Request::isWindows() && $this->isAbsolute() && $notSlash) ? '/' : '').
-			implode('/', $this->aPath);
+		if ($this->isWindows()) {
+			$prefix = '';
+		} else {
+			$prefix = (($this->isAbsolute && $notSlash) ? '/' : '');
+		}
+		$this->sPath = $prefix.implode('/', $this->aPath);
+		if ($this->isDir) {
+			$this->sPath .= '/';
+		}
+		return $this->sPath;
+	}
+
+	/**
+	 * Check for ":" in C:...
+	 * @return bool
+	 */
+	function isWindows() {
+		return (isset($this->aPath[0][1]) && $this->aPath[0][1] == ':');
 	}
 
 	function __toString() {
@@ -70,7 +89,20 @@ class Path {
 	 * @return $this
 	 */
 	function append(Path $plus) {
-		$this->aPath = array_merge($this->aPath, $plus->aPath);
+		if (defined('DEVELOPMENT') && DEVELOPMENT) {
+			//debug($this->aPath, $plus->aPath);
+		}
+		foreach ($plus->aPath as $name) {
+			if ($name == '.') {
+				continue;
+			} elseif ($name == '..') {
+				array_pop($this->aPath);
+			} else {
+				$this->aPath[] = $name;
+			}
+		}
+		$this->isDir = $plus->isDir;
+		$this->isFile = $plus->isFile;
 		$this->implode();
 		return $this;
 	}
@@ -255,7 +287,7 @@ class Path {
 		$appRoot = $al->getAppRoot();
 		if ($appRoot) {
 			$new = $this->cutArrayFromArray($this->aPath, $appRoot->aPath);
-			//		debug($this->aPath, $al->getAppRoot()->aPath, $new);
+//			debug(json_encode($this->aPath), json_encode($al->getAppRoot()->aPath), json_encode($new));
 			$relative = Path::fromArray($new);
 			$relative->isFile = $this->isFile;
 			$relative->isDir = $this->isDir;
@@ -277,6 +309,11 @@ class Path {
 		}
 	}
 
+	/**
+	 * This may not be isFile() and isDir() functions
+	 * because we can force it to be a file or dir
+	 * with setAsFile() and setAsDir().
+	 */
 	function checkFileDir() {
 		$this->isFile = is_file($this->sPath);
 		$this->isDir = is_dir($this->sPath);
