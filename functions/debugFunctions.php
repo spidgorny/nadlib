@@ -218,7 +218,7 @@ if (!function_exists('debug')) {
 	}
 
 	/**
-	 * @param $something array
+	 * @param $something array|mixed
 	 * @return array
 	 */
 	function gettypes($something) {
