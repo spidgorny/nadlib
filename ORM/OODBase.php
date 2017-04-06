@@ -260,7 +260,7 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			TaylorProfiler::start(__METHOD__);
-			$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
+			$action = get_called_class() . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id) . ')';
 			$this->log($action, $data);
 			$where = array();
 			if (is_array($this->idField)) {
