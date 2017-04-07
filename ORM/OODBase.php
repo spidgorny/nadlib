@@ -277,9 +277,18 @@ abstract class OODBase {
 			// may lead to infinite loop
 			//$this->init($this->id);
 			// will call init($fromFindInDB = true)
-			$this->findInDB(array(
-				$this->idField => $this->id,
-			));
+			if (is_array($this->idField)) {
+				if (is_array($this->id)) {
+					$this->findInDB($this->id);
+				} else {
+					debug_pre_print_backtrace();
+					throw new RuntimeException(__METHOD__.':'.__LINE__);
+				}
+			} else {
+				$this->findInDB(array(
+					$this->idField => $this->id,
+				));
+			}
 			TaylorProfiler::stop(__METHOD__);
 		} else {
 			//$this->db->rollback();
