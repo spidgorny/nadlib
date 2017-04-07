@@ -26,6 +26,15 @@ if (!function_exists('debug')) {
 		}
 	}
 
+	function debugList(array $a, $name = NULL) {
+		$debug = Debug::getInstance();
+		$debug->name = $name;
+		foreach ($a as &$b) {
+			$b = $b.'';
+		}
+		debug($a);
+	}
+
 	function ddie() {
 		debug(func_get_args());
 		die(__FUNCTION__.'#'.__LINE__);
