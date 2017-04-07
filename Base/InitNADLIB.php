@@ -13,6 +13,11 @@ class InitNADLIB {
 
 	var $endTime;
 
+	/**
+	 * @var \Composer\Autoload\ClassLoader
+	 */
+	public $composer;
+
 	function __construct() {
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/AutoLoad.php';
@@ -186,7 +191,7 @@ border-radius: 5px;">');
 		) {
 			//echo $vendor_autoload_php, BR;
 			/** @noinspection PhpIncludeInspection */
-			require_once $vendor_autoload_php;
+			$this->composer = require_once $vendor_autoload_php;
 		}
 	}
 
