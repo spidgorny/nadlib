@@ -69,8 +69,15 @@ class DebugHTML {
 		} else {
 			$function = '';
 		}
+
+		$file = ifsetor($first['file']);
+		$file = basename(dirname($file)).'/'.basename($file);
+		$file .= '#'.$first['line'];
+
 		$props = array(
-			'<span class="debug_prop">Function:</span> '.$function,
+			'<span class="debug_prop">Name:</span> '.$this->helper->name,
+			'<span class="debug_prop">Function:</span> '.$first['function'],
+			'<span class="debug_prop">File:</span> '.$file,
 			'<span class="debug_prop">Type:</span> '.gettype2($a)
 		);
 		if (!is_array($a) && !is_object($a) && !is_resource($a)) {
