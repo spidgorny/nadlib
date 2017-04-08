@@ -246,4 +246,8 @@ class HTMLTag implements ArrayAccess {
 		return new self('a', ['href' => $href], $name);
 	}
 
+	static function img($src, $params = []) {
+		return new self('img', ['src' => $src] + $params);
+	}
+
 }
