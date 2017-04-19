@@ -2,9 +2,13 @@
 
 class HTMLForm {
 
+	const METHOD_GET = 'GET';
+
+	const METHOD_POST = 'POST';
+
 	protected $action = "";
 
-	protected $method = "POST";
+	protected $method = self::METHOD_POST;
 
 	protected $prefix = array();
 
