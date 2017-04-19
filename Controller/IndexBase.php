@@ -259,9 +259,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$this->content->clear();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} catch (LoginException $e) {
-			$this->content[] = $e->getMessage();
-		} catch (Exception $e) {
+		} catch (Exception $e) {	// handles ALL exceptions
 			$content = $this->renderException($e);
 		}
 
@@ -335,7 +333,13 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
-	function renderException(Exception $e, $wrapClass = '') {
+	/**
+	 * Does not catch LoginException - show your login form in Index
+	 * @param Exception $e
+	 * @param string $wrapClass
+	 * @return string
+	 */
+	function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error') {
 		if ($this->request->isCLI()) {
 			echo get_class($e),
 			' #', $e->getCode(),
@@ -344,7 +348,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$content = '';
 		} else {
 			if ($this->controller) {
-				$this->controller->title = $e->getMessage();
+				$this->controller->title = get_class($this->controller);
 			}
 
 			$message = $e->getMessage();
@@ -352,8 +356,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$message[0] == '<')
 				? $message . ''
 				: htmlspecialchars($message);
-			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error">
-				' . get_class($e) . ' (' . $e->getCode() . ')' . BR .
+			$content = '<div class="' . $wrapClass . '">
+				' . get_class($e) .
+				($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
 				nl2br($message);
 			if (DEVELOPMENT || 0) {
 				$content .= BR . BR . '<div style="text-align: left">' .
@@ -361,7 +366,6 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				//$content .= getDebug($e);
 			}
 			$content .= '</div>';
-			$content .= '<div class="headerMargin"></div>';
 			if ($e instanceof LoginException) {
 				// catch this exception in your app Index class, it can't know what to do with all different apps
 				//$lf = new LoginForm();
