@@ -52,7 +52,7 @@ class InitNADLIB {
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
 
-		$this->setupComposer();
+//		$this->setupComposer();
 
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
