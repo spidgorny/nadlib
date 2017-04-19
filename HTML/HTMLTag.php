@@ -57,8 +57,11 @@ class HTMLTag implements ArrayAccess {
 			if (is_array($val) && $key == 'style') {
 				$style = ArrayPlus::create($val);
 				$style = $style->getHeaders(': ');
-				$val = $style; 				   	// for style="a: b; c: d"
+				$val = $style; 				  	 	// for style="a: b; c: d"
 			} elseif (is_array($val)) {
+				if (ArrayPlus::isRecursive($val)) {
+					debug($val);
+				}
 				$val = implode(' ', $val);		// for class="a b c"
 			}
 			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';

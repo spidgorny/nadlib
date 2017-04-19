@@ -935,6 +935,15 @@ class ArrayPlus extends ArrayObject implements Countable {
 		$this->map($fn);
 	}
 
+	static function isRecursive(array $array) {
+		foreach ($array as $item) {
+			if (is_array($item)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
 
 function AP($a = array()) {
