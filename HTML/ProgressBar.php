@@ -353,4 +353,9 @@ class ProgressBar {
 		$this->flush();
 	}
 
+	static function getCounter($r, $size) {
+		$r = str_pad($r, strlen($size), ' ', STR_PAD_LEFT);
+		return '['.$r.'/'.$size.']';
+	}
+
 }
