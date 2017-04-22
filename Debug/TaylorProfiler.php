@@ -456,6 +456,8 @@ class TaylorProfiler {
 		}
 		$oaTime = microtime(true) - $since;
 		$totalTime = number_format($oaTime, 3, '.', '');
+		list($seconds, $ms) = explode('.', $totalTime);
+		$totalTime = gmdate('H:i:s', $seconds).'.'.$ms;
 		return $totalTime;
 	}
 
