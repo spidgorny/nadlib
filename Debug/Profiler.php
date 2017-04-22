@@ -33,6 +33,7 @@ class Profiler {
 	}
 
 	/**
+	 * Stops the timer so the elapsed value is preserved.
 	 * @return float
 	 */
 	function elapsed() {
@@ -43,11 +44,19 @@ class Profiler {
 		return number_format($out, 5, '.', '');
 	}
 
+	/**
+	 * Returns elapsed time without stopping the timer. Can be checked in a loop.
+	 * @return string
+	 */
 	function elapsedCont() {
 		$out = microtime(true) - $this->startTime;
 		return number_format($out, 5, '.', '');
 	}
 
+	/**
+	 * Restarts the timer, useful for something similar to setTimeout()
+	 * @return float
+	 */
 	function elapsedNext() {
 		$since = $this->elapsed();
 		$this->restart();
