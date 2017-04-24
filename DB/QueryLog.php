@@ -12,11 +12,15 @@ class QueryLog {
 		$this->queryLog[$key]['times']++;
 	}
 
+	function dumpQueries() {
+
+	}
+
 	/**
 	 * Renders the list of queries accumulated
 	 * @return string
 	 */
-	function dumpQueries() {
+	function dumpQueriesTP() {
 		$q = $this->QUERIES;
 		arsort($q);
 		foreach ($q as $query => &$time) {
