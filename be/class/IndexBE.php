@@ -172,7 +172,7 @@ class IndexBE extends IndexBase {
 	/**
 	 * @return array
 	 */
-	public static function getMenu(): array {
+	public static function getMenu() {
 		$menu = array(
 			'HomeBE'         => 'Home',
 			'ServerStat'     => new Recursive('Info', array(
