@@ -207,14 +207,15 @@ class RunnerTask {
 	}
 
 	public function getInfoBoxCLI() {
-		$content[] = 'PID: '.$this->get('pid').BR;
-		$content[] = 'Name: '.$this->getName().BR;
-		$content[] = 'Params: ('.implode(', ', $this->getParams()).')'.BR;
-		$content[] = 'Status: '. $this->getStatus().BR;
-		$content[] = 'Started: '.$this->getTime().BR;
-		$content[] = 'Modified: '.$this->getMTime().BR;
-		$content[] = 'Progress: '.$this->getProgress().BR;
-		$content[] = 'Position: '.$this->getQueuePosition().BR;
+		$content[] = 'ID: '.TAB.TAB.$this->id().BR;
+		$content[] = 'Name: '.TAB.TAB.$this->getName().BR;
+		$content[] = 'Params: '.TAB.'('.implode(', ', $this->getParams()).')'.BR;
+		$content[] = 'Status: '.TAB.$this->getStatus().BR;
+		$content[] = 'Started: '.TAB.$this->getTime().BR;
+		$content[] = 'Modified: '.TAB.$this->getMTime().BR;
+		$content[] = 'PID: '.TAB.TAB.$this->get('pid').BR;
+		$content[] = 'Progress: '.TAB.$this->getProgress().BR;
+		$content[] = 'Position: '.TAB.$this->getQueuePosition().BR;
 		return $content;
 	}
 
