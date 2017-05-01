@@ -211,7 +211,7 @@ abstract class LocalLang {
 	}
 
 	function log($method, $data) {
-		error_log('['.$method.'] '. (is_scalar($data) ? $data : json_encode($data)));
+//		error_log('['.$method.'] '. (is_scalar($data) ? $data : json_encode($data)));
 	}
 
 }
