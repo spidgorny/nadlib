@@ -55,4 +55,24 @@ class NoUser extends UserBase {
 		return [];
 	}
 
+	function try2login() {
+
+	}
+
+	function isAdmin() {
+		return false;
+	}
+
+	function getLogin() {
+		return 'nouser';
+	}
+
+	function getAvatarURL() {
+		return 'avatar.png';
+	}
+
+	function getGroupProperty() {
+		return NULL;
+	}
+
 }
