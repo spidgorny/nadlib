@@ -312,6 +312,9 @@ abstract class Controller {
 		} else {
 			$content = '';
 		}
+
+//		debug($filePHTML, $fileMD);
+
 		return is_object($content)
 			? $content->render()
 			: $content;
