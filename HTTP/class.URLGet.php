@@ -44,7 +44,7 @@ class URLGet {
 	 * @param string $url
 	 * @param $logger object with method log()
 	 */
-	public function __construct($url, $logger) {
+	public function __construct($url, $logger = NULL) {
 		$this->url = $url;
 		$this->logger = $logger;
 		$this->context = array(
@@ -52,6 +52,16 @@ class URLGet {
 				'timeout' => $this->timeout,
 			)
 		);
+	}
+
+	function log($method, $message) {
+		if ($this->logger) {
+			$this->logger->log($method, $message);
+		}
+	}
+
+	function getURL() {
+		return $this->url;
 	}
 
 	function setProxy($host, $username, $password) {
@@ -68,36 +78,43 @@ class URLGet {
 	 */
 	public function fetch($retries = 1) {
 		$start = microtime(true);
-		$this->logger->log(__METHOD__, '<a href="'.$this->url.'">'.$this->url.'</a>');
+		$this->log(__METHOD__, '<a href="'.$this->url.'">'.$this->url.'</a>');
 		$html = NULL;
 		for ($i = 0; $i < $retries; $i++) {
 			try {
-				if (function_exists('curl_init')) {
-					$this->logger->log(__METHOD__, 'CURL is enabled');
-					if ($this->proxy) {
-						$this->logger->log(__METHOD__, 'Proxy is defined');
-						if (!($this->proxy instanceof Proxy)) {
-							$this->proxy = Proxy::getRandomOrBest();
-						}
-						$curlParams[CURLOPT_PROXY] = $this->proxy.'';
-					} else {
-						$this->logger->log(__METHOD__, 'No Proxy');
-					}
-					$html = $this->fetchCURL($this->curlParams);
-				} else {
-					$this->logger->log(__METHOD__, 'CURL is disabled');
-					$html = $this->fetchFOpen();
-				}
+				$html = $this->fetchAny();
 			} catch (Exception $e) {
-				$this->logger->log(__METHOD__, $e->getMessage());
+				$this->log(__METHOD__, $e->getMessage());
 			}
+
 			if ($html) {
-				$this->logger->log(__METHOD__, 'Download successful. Data size: '.strlen($html).' bytes');
+				$this->log(__METHOD__, 'Download successful. Data size: '.strlen($html).' bytes');
 				break;
 			}
 		}
-		$this->logger->log(__METHOD__, $this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)');
+		$this->log(__METHOD__, $this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)');
 		$this->html = $html;
+		return $this->html;
+	}
+
+	function fetchAny() {
+		if (function_exists('curl_init')) {
+			$this->log(__METHOD__, 'CURL is enabled');
+			if ($this->proxy) {
+				$this->log(__METHOD__, 'Proxy is defined');
+				if (!($this->proxy instanceof Proxy)) {
+					$this->proxy = Proxy::getRandomOrBest();
+				}
+				$curlParams[CURLOPT_PROXY] = $this->proxy.'';
+			} else {
+				$this->log(__METHOD__, 'No Proxy');
+			}
+			$html = $this->fetchCURL($this->curlParams);
+		} else {
+			$this->log(__METHOD__, 'CURL is disabled');
+			$html = $this->fetchFOpen();
+		}
+		return $html;
 	}
 
 	public function fetchFOpen() {
@@ -107,11 +124,12 @@ class URLGet {
 		//debug($this->context);
 		$ctx = stream_context_create($this->context);
 		$html = file_get_contents($this->url, 0, $ctx);
+		$this->info = $http_response_header;
 		return $html;
 	}
 
 	public function fetchCURL(array $options = array()) {
-		$this->logger->log(__METHOD__, $this->url);
+		$this->log(__METHOD__, $this->url);
 		$process = curl_init($this->url);
 		$headers = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		$headers = trimExplode("\r\n", $headers);
@@ -134,17 +152,19 @@ class URLGet {
 		$headers = substr($response, 0, $header_size);
 		$headlines = explode("\n", $headers);
 		$headlines = array_map('trim', $headlines); // empty line
-		if (array_search("", $headlines)) {
+		if (array_search("sorry, untested", $headlines)) {
 			$header_size += strlen($headlines[0]);  // Proxy response
 			$headers = substr($response, 0, $header_size);
 		}
+		//pre_print_r($headlines);
+
 		$html = substr($response, $header_size);
 
 		$this->info = curl_getinfo($process);
-		$this->logger->log(__METHOD__, 'URLGet Info: '.json_encode($this->info, defined('JSON_PRETTY_PRINT') ? JSON_PRETTY_PRINT : NULL));
-		$this->logger->log(__METHOD__, 'URLGet Errno: '.curl_errno($process));
-		$this->logger->log(__METHOD__, 'URLGet HTTP code: '.$this->info['http_code']);
-		$this->logger->log(__METHOD__, 'URLGet Headers: '.$headers);
+		$this->log(__METHOD__, 'URLGet Info: '.json_encode($this->info, defined('JSON_PRETTY_PRINT') ? JSON_PRETTY_PRINT : NULL));
+		$this->log(__METHOD__, 'URLGet Errno: '.curl_errno($process));
+		$this->log(__METHOD__, 'URLGet HTTP code: '.$this->info['http_code']);
+		$this->log(__METHOD__, 'URLGet Headers: '.$headers);
 		//debug($this->info);
 		if (curl_errno($process)){
 			debug('Curl error: ' . curl_error($process));

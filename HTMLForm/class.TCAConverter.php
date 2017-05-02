@@ -1,16 +1,17 @@
 <?php
 
 class TCAConverter {
+
 	public $table;
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var tx_ninpbl_pi1
 	 */
 	public $pi1;
+
 	public $skipFields = array('hidden');
 
-	function __construct(tslib_piBase $pi1) {
+	function __construct(\TYPO3\CMS\Frontend\Plugin\AbstractPlugin $pi1) {
 		$this->pi1 = $pi1;
 	}
 
