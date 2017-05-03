@@ -17,7 +17,7 @@ class NoUser extends UserBase {
 	public $access;
 
 	function __construct() {
-		//parent::__construct(NULL);	// does nothing anyway
+		$this->prefs = new MockPreferences($this);
 	}
 
 	function can() {
@@ -69,10 +69,6 @@ class NoUser extends UserBase {
 
 	function getAvatarURL() {
 		return 'avatar.png';
-	}
-
-	function getGroupProperty() {
-		return NULL;
 	}
 
 }
