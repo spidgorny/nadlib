@@ -341,7 +341,7 @@ class AutoLoad {
 //			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);
-//			echo $classFile, TAB, $file, BR;
+//			echo __METHOD__, TAB, $class, TAB, $ns, TAB, $classFile, TAB, $file, BR;
 			if ($file) {
 				$this->classFileMap[$class] = $file;	// save
 				$this->logSuccess($class . ' found in '. $file);
@@ -374,7 +374,8 @@ class AutoLoad {
 	}
 
 	function getFileFromMap($class) {
-		$file = isset($this->classFileMap[$class]) ? $this->classFileMap[$class] : NULL;
+		$file = isset($this->classFileMap[$class])
+			? $this->classFileMap[$class] : NULL;
 
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
