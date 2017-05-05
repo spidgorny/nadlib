@@ -258,6 +258,14 @@ class AutoLoadFolders {
 				$file2 = NULL;
 			}
 
+			// Index != index.php on Windows
+			if ($className == 'Index') {
+//				pre_print_r([$className, $file, basename($file)]);
+				if (basename(realpath($file)) != ($className.'.php')) {
+					$file = NULL;
+				}
+			}
+
 			//echo $file, ': ', file_exists($file) ? 'YES' : '-', BR;
 			if (file_exists($file)) {
 				$this->logSuccess($className.' '.$file.': YES');
