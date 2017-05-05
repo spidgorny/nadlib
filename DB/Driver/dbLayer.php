@@ -480,6 +480,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function fetchAll($result, $key = NULL) {
+		if ($result instanceof SQLSelectQuery) {
+			$result = $result->getQuery();
+		}
 		if (is_string($result)) {
 			//debug($result);
 			$result = $this->perform($result);
