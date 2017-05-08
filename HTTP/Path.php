@@ -216,6 +216,7 @@ class Path {
 	}
 
 	/**
+	 * Removes path elements from the BEGINNING of the path
 	 * @param $minus
 	 * @return $this
 	 */
