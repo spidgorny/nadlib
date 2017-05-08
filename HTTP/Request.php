@@ -717,7 +717,26 @@ class Request {
 			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $al->documentRoot);
 			}
+//			debug($url.'', $path.'', $al->documentRoot.'');
 		}
+		return $path;
+	}
+
+	/**
+	 * Full URL is docRoot + appRoot + controller/action
+	 */
+	function getPathAfterAppRoot() {
+		$al = AutoLoad::getInstance();
+		$appRoot = $al->getAppRoot();
+		$docRoot = $al->documentRoot;
+
+		$pathWithoutDocRoot = clone $appRoot;
+		$pathWithoutDocRoot->remove($docRoot);
+		//d($pathWithoutDocRoot.'');
+
+		$path = clone $this->url->getPath();
+		$path->remove($pathWithoutDocRoot);
+
 		return $path;
 	}
 

@@ -548,13 +548,13 @@ class SQLBuilder {
 		$prefix = $prefix ?: $table.'.';
 
 		if (!str_contains($titleField, ' AS ')) {
-			$addSelect = 'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, ';
+			$addSelect = 'DISTINCT '.$prefix.$this->quoteKey($titleField).' AS title,';
 		} else {
 			$addSelect = $titleField;
 		}
 
 		$query = $this->getSelectQuery($table, $where, $order,
-			$addSelect .
+			$addSelect . ' ' .
 			$this->quoteKey($prefix.$idField).' AS id_field');
 
 		// $prefix.'*, is not selected as DISTINCT will not work
