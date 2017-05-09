@@ -9,7 +9,6 @@
 	RewriteRule ^(.*)$ %2index.php [QSA,L]
 </IfModule>
 
-
 #php_flag engine on
 #AddType application/x-httpd-php .php
 #AddHandler application/x-httpd-php .php
