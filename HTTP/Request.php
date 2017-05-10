@@ -736,6 +736,7 @@ class Request {
 
 		$path = clone $this->url->getPath();
 		$path->remove($pathWithoutDocRoot);
+		$path->normalize();
 
 		return $path;
 	}
