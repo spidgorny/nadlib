@@ -80,6 +80,7 @@ class AutoLoadFolders {
 	}
 
 	function getFolders() {
+		TaylorProfiler::start(__METHOD__);
 		require_once __DIR__ . '/../HTTP/Request.php';
 
 		$this->getFoldersFromConfig();
@@ -94,6 +95,7 @@ class AutoLoadFolders {
 		//debug($folders);
 		//debug($this->classFileMap, $_SESSION[__CLASS__]);
 
+		TaylorProfiler::stop(__METHOD__);
 		return $folders;
 	}
 
@@ -102,6 +104,7 @@ class AutoLoadFolders {
 	 * but will actively add the folders listed
 	 */
 	function getFoldersFromConfig() {
+		TaylorProfiler::start(__METHOD__);
 		$this->loadConfig();    // make sure (again)
 		if (class_exists('Config') && Config::$includeFolders) {
 			$folders = Config::$includeFolders;
@@ -118,6 +121,7 @@ class AutoLoadFolders {
 			// that's ok. relax. be quiet.
 			//echo 'Config not found'.BR;
 		}
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	function loadConfig() {
@@ -177,6 +181,7 @@ class AutoLoadFolders {
 	}
 
 	function getFoldersFromConfigBase() {
+		TaylorProfiler::start(__METHOD__);
 		require_once __DIR__ . '/ConfigBase.php';
 		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
 		// append $this->nadlibRoot before each
@@ -191,10 +196,12 @@ class AutoLoadFolders {
 			$folders[] = '../../../../class';	  // include Config from nadlib/be
 			$folders[] = '../../../../model';	  // include User from nadlib/be
 		}*/
+		TaylorProfiler::stop(__METHOD__);
 		return $folders;
 	}
 
 	function addFolder($path, $namespace = NULL) {
+		TaylorProfiler::start(__METHOD__);
 		if (!Path::isItAbsolute($path)) {
 			$path = getcwd().'/'.$path;
 		}
@@ -208,6 +215,7 @@ class AutoLoadFolders {
 		}
 		$this->folders = unique_multidim_array_thru($this->folders);
 		//pre_print_r($path, $namespace, $this->folders);
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -216,6 +224,7 @@ class AutoLoadFolders {
 	 * @return string
 	 */
 	function findInFolders($className, $namespace) {
+		TaylorProfiler::start(__METHOD__);
 		//pre_var_dump($classFile, $namespace);
 		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		//foreach ($this->folders as $namespace => $map) {
@@ -281,6 +290,7 @@ class AutoLoadFolders {
 			//debug($className, $namespace, $map);
 			$this->log(__METHOD__.': Attempt to find '.$namespace.'\\'.$className.' failed');
 		}
+		TaylorProfiler::stop(__METHOD__);
 		return NULL;
 	}
 
