@@ -828,6 +828,10 @@ class Request {
 		$levels = array_values($levels);	// reindex
 		/* } */
 
+		if ($index < 0) {
+			$index = sizeof($levels) + $index;	// negative index
+		}
+
 		return ifsetor($levels[$index])
 			? urldecode($levels[$index])    // if it contains spaces
 			: $this->getTrim($alternative);
