@@ -58,7 +58,7 @@ class Path {
 			$prefix = (($this->isAbsolute && $notSlash) ? '/' : '');
 		}
 		$this->sPath = $prefix.implode('/', $this->aPath);
-		if ($this->isDir) {
+		if ($this->isDir && sizeof($this->aPath)) {	// avoid "//"
 			$this->sPath .= '/';
 		}
 		return $this->sPath;
@@ -165,11 +165,14 @@ class Path {
 	}
 
 	function getUncapped() {
-		return $this->sPath;
+		return $this->implode();
 	}
 
 	function getCapped() {
-		return cap($this->sPath);
+		if (!sizeof($this->aPath) && $this->isAbsolute()) {
+			return $this->implode();	// absolute empty has slash already
+		}
+		return cap($this->implode());
 	}
 
 	/**
