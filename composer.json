@@ -27,14 +27,24 @@
     },
 	"autoload": {
 		"classmap": [
-          "classmap"
+          "Cache/",
+          "Controller/",
+          "CSS/",
+          "Data/",
+          "DB/",
+          "Debug/",
+          "HTML/",
+          "HTMLForm/",
+          "HTTP/",
+          "LocalLang/",
+          "ORM/",
+          "SQL/",
+          "Time/",
+          "User/"
 		],
 		"files": [
 			"init.php"
-		],
-		"psr-0": {
-			"": "src/"
-		}
+		]
 	},
 	"autoload-dev": {
 		"files": [
