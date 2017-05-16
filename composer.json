@@ -26,10 +26,25 @@
         "flot/flot": "dev-master"
     },
 	"autoload": {
-        "classmap": ["User/", "Time/"],
+        "classmap": [
+          "./",
+          "Cache/",
+          "Controller/",
+          "CSS/",
+          "Data/",
+          "DB/",
+          "Debug/",
+          "HTML/",
+          "HTMLForm/",
+          "HTTP/",
+          "LocalLang/",
+          "ORM/",
+          "SQL/",
+          "Time/",
+          "User/"
+        ],
 		"files": [
-			"init.php",
-            "User/AccessRights.php"
+			"init.php"
 		]
 	},
 	"autoload-dev": {
