@@ -27,21 +27,7 @@
     },
 	"autoload": {
 		"classmap": [
-			"./",
-			"Cache/",
-			"Controller/",
-			"CSS/",
-			"Data/",
-			"DB/",
-			"Debug/",
-			"HTML/",
-			"HTMLForm/",
-			"HTTP/",
-			"LocalLang/",
-			"ORM/",
-			"SQL/",
-			"Time/",
-			"User/"
+          "classmap"
 		],
 		"files": [
 			"init.php"
