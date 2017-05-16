@@ -26,22 +26,7 @@
         "flot/flot": "dev-master"
     },
 	"autoload": {
-		"classmap": [
-          "Cache/",
-          "Controller/",
-          "CSS/",
-          "Data/",
-          "DB/",
-          "Debug/",
-          "HTML/",
-          "HTMLForm/",
-          "HTTP/",
-          "LocalLang/",
-          "ORM/",
-          "SQL/",
-          "Time/",
-          "User/"
-		],
+        "psr-0": { "User/": "" },
 		"files": [
 			"init.php"
 		]
