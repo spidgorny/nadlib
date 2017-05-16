@@ -28,7 +28,8 @@
 	"autoload": {
         "classmap": ["User/", "Time/"],
 		"files": [
-			"init.php"
+			"init.php",
+            "User/AccessRights.php"
 		]
 	},
 	"autoload-dev": {
