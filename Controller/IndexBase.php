@@ -103,7 +103,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 //			try {
 				$this->config = Config::getInstance();
 				$this->db = $this->config->getDB();
+
+				// you need a session if you want to try2login()
+				$this->initSession();
 				$this->user = $this->config->getUser();
+
 				$this->ll = $this->config->getLL();
 //			} catch (Exception $e) {
 				// should not catch exceptions here, let subclass do it
@@ -123,13 +127,21 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function initSession() {
-		if (!Request::isCLI() && !session_id() /*&& session_status() == PHP_SESSION_NONE*/ && !headers_sent()) {
+//		debug('is session started', session_id(), session_status());
+		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
 			ini_set('session.use_trans_sid', false);
 			ini_set('session.use_only_cookies', true);
 			ini_set('session.cookie_httponly', true);
 			ini_set('session.hash_bits_per_character', 6);
 			ini_set('session.hash_function', 'sha512');
-			session_start();
+			$ok = session_start();
+			if (!$ok) {
+				throw new RuntimeException('session_start() failed');
+			} else {
+				//debug('session_start', session_id());
+			}
+		} else {
+//			debug('session already started', session_id(), session_status());
 		}
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
@@ -204,10 +216,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$class = end($slugParts);	// again, because __autoload need the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
-			$this->controller = new $class();
-//			debug($class, get_class($this->controller));
-			if (method_exists($this->controller, 'postInit')) {
-				$this->controller->postInit();
+			try {
+				$this->controller = new $class();
+				//			debug($class, get_class($this->controller));
+				if (method_exists($this->controller, 'postInit')) {
+					$this->controller->postInit();
+				}
+			} catch (AccessDeniedException $e) {
+				$this->error($e->getMessage());
 			}
 		} else {
 			//debug($_SESSION['autoloadCache']);
@@ -240,11 +256,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			} else {
 				// display Exception
 				$content .= $this->content->getContent();
+				$this->content->clear();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} catch (LoginException $e) {
-			$this->content[] = $e->getMessage();
-		} catch (Exception $e) {
+		} catch (Exception $e) {	// handles ALL exceptions
 			$content = $this->renderException($e);
 		}
 
@@ -252,6 +267,31 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::stop(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
+	}
+
+	function renderController() {
+		TaylorProfiler::start(__METHOD__);
+		$method = ifsetor($_SERVER['argv'][2]);
+		if ($method && method_exists($this->controller, $method)) {
+			echo 'Method: ', $method, BR;
+			//$params = array_slice($_SERVER['argv'], 3);
+			//debug($this->request->getAll());
+			$marshal = new MarshalParams($this->controller);
+			$render = $marshal->call($method);
+			//$render = $this->controller->$method();
+		} else {
+			$render = $this->controller->render();
+		}
+		$render = $this->s($render);
+		$this->sidebar = $this->showSidebar();
+		if ($this->controller->layout instanceof Wrap
+			&& !$this->request->isAjax()) {
+			/** @var $this->controller->layout Wrap */
+			$render = $this->controller->layout->wrap($render);
+			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $render;
 	}
 
 	function renderTemplateIfNotAjax($content) {
@@ -275,7 +315,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderTemplate($content) {
 		TaylorProfiler::start(__METHOD__);
-		$contentOut = $this->content->getContent();
+		$contentOut = '';
+		$contentOut .= $this->content->getContent();	// this is already output
 		$contentOut .= $this->s($content);
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
@@ -288,34 +329,26 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $v;
 	}
 
-	function renderController() {
-		TaylorProfiler::start(__METHOD__);
-		$render = $this->controller->render();
-		$render = $this->s($render);
-		$this->sidebar = $this->showSidebar();
-		if ($this->controller->layout instanceof Wrap
-			&& !$this->request->isAjax()) {
-			/** @var $this->controller->layout Wrap */
-			$render = $this->controller->layout->wrap($render);
-			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $render;
-	}
-
 	function s($content) {
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
-	function renderException(Exception $e, $wrapClass = '') {
+	/**
+	 * Does not catch LoginException - show your login form in Index
+	 * @param Exception $e
+	 * @param string $wrapClass
+	 * @return string
+	 */
+	function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error') {
 		if ($this->request->isCLI()) {
 			echo get_class($e),
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
 			$content = '';
 		} else {
 			if ($this->controller) {
-				$this->controller->title = $e->getMessage();
+				$this->controller->title = get_class($this->controller);
 			}
 
 			$message = $e->getMessage();
@@ -323,16 +356,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$message[0] == '<')
 				? $message . ''
 				: htmlspecialchars($message);
-			$content = '<div class="' . $wrapClass . ' ui-state-error alert alert-error alert-danger padding">
-				' . get_class($e) . ' (' . $e->getCode() . ')' . BR .
+			$content = '<div class="' . $wrapClass . '">
+				' . get_class($e) .
+				($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
 				nl2br($message);
-			if (DEVELOPMENT) {
+			if (DEVELOPMENT || 0) {
 				$content .= BR . BR . '<div style="text-align: left">' .
 					nl2br($e->getTraceAsString()) . '</div>';
 				//$content .= getDebug($e);
 			}
 			$content .= '</div>';
-			$content .= '<div class="headerMargin"></div>';
 			if ($e instanceof LoginException) {
 				// catch this exception in your app Index class, it can't know what to do with all different apps
 				//$lf = new LoginForm();
@@ -383,6 +416,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	/**
+	 * @param bool $defer
 	 * @return $this
 	 */
 	function addJQuery($defer = true) {
@@ -503,7 +537,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$fn = new Path($fileName);
 			$fileName = $fn->relativeFromAppRoot();
 		}
-		$defer = $defer ? 'defer="true"' : '';
+		$defer = $defer ? 'defer="defer"' : '';
 		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" '.$defer.'></script>';
 		return $this;
 	}
@@ -515,20 +549,22 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
-				//$source = $source;	// rewrite inside css folder
+				$fileName = $source;	// rewrite inside css folder
 			} else {
 				$sourceCSS = str_replace('.less', '.css', $source);
 				if (file_exists($sourceCSS)){
-					$source = $sourceCSS;
-					$source = $this->addMtime($source);
+					$fileName = $sourceCSS;
+					$fileName = $this->addMtime($source);
 				} else {
-					$source = 'css/?c=Lesser&css=' . $source;
+					$fileName = 'css/?c=Lesser&css=' . $source;
 				}
 			}
 		} else {
-			$source = $this->addMtime($source);
+			$fn = new Path($source);
+			$fileName = $fn->relativeFromAppRoot();
+			$fileName = $this->addMtime($fileName);
 		}
-		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
+		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$fileName.'" />';
 		return $this;
 	}
 
@@ -571,7 +607,12 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	}
 
 	function implodeJS() {
-		if (!DEVELOPMENT && file_exists('vendor/minify/min/index.php')) {
+		// composer require mrclay/minify
+		$path = 'vendor/mrclay/minify/min/';
+		if (
+			true
+			// && !DEVELOPMENT
+			&& file_exists($path.'index.php')) {
 			$include = array(); // some files can't be found
 			$files = array_keys($this->footer);
 			foreach ($files as $f => &$file) {
@@ -584,7 +625,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 			$files = implode(",", $files);
 			//$files .= DEVELOPMENT ? '&debug' : '';
-			$content = '<script src="vendor/minify/min/?f='.$files.'"></script>';
+			$content = '<script src="'.$path.'?f='.$files.'"></script>';
 			$content .= implode("\n", $include);
 		} else {
 			$content = implode("\n", $this->footer)."\n";

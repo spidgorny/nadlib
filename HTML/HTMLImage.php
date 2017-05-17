@@ -7,8 +7,8 @@ class HTMLImage extends HTMLTag {
 	 */
 	var $filename;
 
-	function __construct($filename) {
-		parent::__construct('img');
+	function __construct($filename, array $attr = []) {
+		parent::__construct('img', $attr);
 		$this->filename = $filename;
 	}
 

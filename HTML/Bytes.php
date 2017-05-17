@@ -16,8 +16,10 @@ class Bytes {
 	var $precision = 3;
 
 	function __construct($bytes) {
-		$sBytes = (string)(int)$bytes;
-		if ($sBytes === (string)$bytes) {
+		$iBytes = (string)(int)$bytes;
+		$sBytes = (string)$bytes;
+		//echo $bytes, TAB, $iBytes, TAB, $sBytes, BR, $sBytes === $iBytes, BR;
+		if ($sBytes === $iBytes) {
 			$this->value = $bytes;
 		} else {
 			$this->value = $this->return_bytes($bytes);
@@ -33,6 +35,7 @@ class Bytes {
 		$val = trim($val);
 		if (strlen($val)) {
 			$last = strtolower($val[strlen($val) - 1]);
+			$val = intval($val);
 			switch ($last) {
 				// The 'G' modifier is available since PHP 5.1.0
 				case 'g':

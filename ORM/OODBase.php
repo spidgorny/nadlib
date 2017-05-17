@@ -1,4 +1,5 @@
 <?php
+use Psr\Log\LoggerInterface;
 
 /**
  * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
@@ -8,7 +9,7 @@
 abstract class OODBase {
 
 	/**
-	 * @var DBInterface
+	 * @var DBInterface|SQLBuilder
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -75,6 +76,11 @@ abstract class OODBase {
 	public $forceInit;
 
 	/**
+	 * @var LoggerInterface
+	 */
+	protected $logger;
+
+	/**
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
@@ -131,6 +137,7 @@ abstract class OODBase {
 			$where = $id->getAsArray();
 			$this->findInDB($where);
 		} elseif (is_scalar($id)) {
+//			debug('set id', $id);
 			$this->id = $id;
 			if (is_array($this->idField)) {
 				// TODO
@@ -139,6 +146,7 @@ abstract class OODBase {
 				$this->findInDB(array($this->idField => $this->id));
 				// will do $this->init()
 			}
+//			debug('data set', $this->data);
 			if (!$this->data) {
 				$this->id = NULL;
 			}
@@ -191,10 +199,14 @@ abstract class OODBase {
 	}
 
 	function log($action, $data = NULL) {
-		if (class_exists('Index')) {
-			$index = Index::getInstance();
-			if ($index) {
-				$index->log($action, $data);
+		if ($this->logger) {
+			$this->logger->info($action, $data);
+		} else {
+			if (class_exists('Index')) {
+				$index = Index::getInstance();
+				if ($index) {
+					$index->log($action, $data);
+				}
 			}
 		}
 	}
@@ -248,7 +260,7 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			TaylorProfiler::start(__METHOD__);
-			$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
+			$action = get_called_class() . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id) . ')';
 			$this->log($action, $data);
 			$where = array();
 			if (is_array($this->idField)) {
@@ -265,7 +277,8 @@ abstract class OODBase {
 			}
 
 			$query = $this->db->getUpdateQuery($this->table, $data, $where);
-			//debug($query); exit;
+			//debug($query);
+			//echo $query, BR;
 			$this->lastQuery = $query;
 			$res = $this->db->perform($query);
 			//debug($query, $res, $this->db->lastQuery, $this->id);
@@ -277,9 +290,18 @@ abstract class OODBase {
 			// may lead to infinite loop
 			//$this->init($this->id);
 			// will call init($fromFindInDB = true)
-			$this->findInDB(array(
-				$this->idField => $this->id,
-			));
+			if (is_array($this->idField)) {
+				if (is_array($this->id)) {
+					$this->findInDB($this->id);
+				} else {
+					debug_pre_print_backtrace();
+					throw new RuntimeException(__METHOD__.':'.__LINE__);
+				}
+			} else {
+				$this->findInDB(array(
+					$this->idField => $this->id,
+				));
+			}
 			TaylorProfiler::stop(__METHOD__);
 		} else {
 			//$this->db->rollback();
@@ -291,7 +313,11 @@ abstract class OODBase {
 
 	function delete(array $where = NULL) {
 		if (!$where) {
-			$where = array($this->idField => $this->id);
+			if ($this->id) {
+				$where = array($this->idField => $this->id);
+			} else {
+				return NULL;
+			}
 		}
 		$this->log(get_called_class() . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
@@ -321,6 +347,7 @@ abstract class OODBase {
 			$this->where + $where, $orderByLimit);
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
+		$this->log($this->lastSelectQuery, ['method' => __METHOD__]);
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
@@ -419,11 +446,12 @@ abstract class OODBase {
 						  array $update = array()
 	) {
 		TaylorProfiler::start(__METHOD__);
+		//echo get_class($this), '::', __FUNCTION__, ' begin', BR;
 		$this->db->transaction();
 		if ($where) {
 			$this->findInDB($where);
 		}
-//		debug($this->id, $this->data); exit();
+		//debug($this->id, $this->data);
 		if ($this->id) { // found
 			$left = array_intersect_key($this->data, $fields);		// keys need to have same capitalization
 			$right = array_intersect_key($fields, $this->data);
@@ -444,9 +472,11 @@ abstract class OODBase {
 				debug($this->lastQuery);
 				$op = $this->db->lastQuery;	// for debug
 			}
-			//debug($this->id, $this->data, $op, $this->db->lastQuery);
+//			debug($this->id, $this->data, $op, $this->db->lastQuery);
+//			exit();
 		}
 		$this->db->commit();
+		//echo get_class($this), '::', __FUNCTION__, ' commit', BR;
 		TaylorProfiler::stop(__METHOD__);
 		return $op;
 	}
@@ -826,13 +856,14 @@ abstract class OODBase {
 			});
 		}
 		$stats = $stats->getData();
-		$content[] = new slTable($stats, 'class="table"', array(
+		$s = new slTable($stats, 'class="table"', array(
 			'class' => 'Class',
 			'count' => 'Count',
 			'bar' => array(
 				'no_hsc' => true,
 			),
 		));
+		$content[] = $s->getContent();
 		return $content;
 	}
 
@@ -897,6 +928,28 @@ abstract class OODBase {
 
 	function get($name) {
 		return ifsetor($this->data[$name]);
+	}
+
+	public function setLogger($log) {
+		$this->logger = $log;
+	}
+
+	function getID() {
+		return $this->id;
+	}
+
+	function getBool($value) {
+		//debug($value, $this->lastSelectQuery);
+		if (is_integer($value)) {
+			return $value !== 0;
+		} elseif (is_numeric($value)) {
+			return intval($value) !== 0;
+		} elseif (is_string($value)) {
+			return $value && $value[0] === 't';
+		} else {
+//			throw new InvalidArgumentException(__METHOD__.' ['.$value.']');
+			return false;
+		}
 	}
 
 }

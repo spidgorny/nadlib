@@ -501,8 +501,15 @@ class Request {
 	 * @return URL
 	 */
 	static function getLocation($isUTF8 = false) {
+		$docRoot = self::getDocRoot();
+		$host = self::getHost($isUTF8);
+		$url = Request::getRequestType().'://'.$host.$docRoot;
+		$url = new URL($url);
+		return $url;
+	}
+
+	static function getDocRoot() {
 		$docRoot = NULL;
-		$c = NULL;
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
@@ -516,19 +523,20 @@ class Request {
 			$docRoot = '/'.$docRoot;
 		}
 
-		$host = self::getHost($isUTF8);
-		$url = Request::getRequestType().'://'.$host.$docRoot;
-		false && pre_print_r(array(
-				'c' => get_class($c),
-				'docRoot' => $docRoot . '',
-				'PHP_SELF' => $_SERVER['PHP_SELF'],
-				'cwd' => getcwd(),
-				$_SERVER,
-				'url' => $url,
-		));
+		return $docRoot;
+	}
 
-		$url = new URL($url);
-		return $url;
+	static function getLocationDebug() {
+		$c = NULL;
+		$docRoot = self::getDocRoot();
+		pre_print_r(array(
+			'c' => get_class($c),
+			'docRoot' => $docRoot . '',
+			'PHP_SELF' => $_SERVER['PHP_SELF'],
+			'cwd' => getcwd(),
+			'url' => self::getLocation().'',
+			'server' => $_SERVER,
+		));
 	}
 
 	static function getHost($isUTF8 = false) {
@@ -545,7 +553,24 @@ class Request {
 		return $host;
 	}
 
-	/**
+	static function getOnlyHost()
+	{
+		$host = self::getHost();
+		$host = first(trimExplode(':', $host));    // localhost:8081
+		return $host;
+	}
+
+	static function getPort()
+	{
+		$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
+			? $_SERVER['HTTP_X_FORWARDED_HOST']
+			: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL);
+		$host = trimExplode(':', $host);    // localhost:8081
+		$port = $host[1];
+		return $port;
+	}
+
+		/**
 	 * Returns the current page URL as is. Similar to $_SERVER['REQUEST_URI'].
 	 *
 	 * @return URL
@@ -617,6 +642,7 @@ class Request {
 		$HTTP_X_FORWARDED_SSL = ifsetor($_SERVER['HTTP_X_FORWARDED_SSL']);
 		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
 		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
+		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
 		$request_type =
 			((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
 			(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
@@ -628,6 +654,7 @@ class Request {
 			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
 			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
 			ifsetor($_SERVER['FAKE_HTTPS'])
+			|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))	// BlueMix
 			? 'https' : 'http';
 		return $request_type;
 	}
@@ -690,7 +717,27 @@ class Request {
 			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $al->documentRoot);
 			}
+//			debug($url.'', $path.'', $al->documentRoot.'');
 		}
+		return $path;
+	}
+
+	/**
+	 * Full URL is docRoot + appRoot + controller/action
+	 */
+	function getPathAfterAppRoot() {
+		$al = AutoLoad::getInstance();
+		$appRoot = $al->getAppRoot();
+		$docRoot = $al->documentRoot;
+
+		$pathWithoutDocRoot = clone $appRoot;
+		$pathWithoutDocRoot->remove($docRoot);
+		//d($pathWithoutDocRoot.'');
+
+		$path = clone $this->url->getPath();
+		$path->remove($pathWithoutDocRoot);
+		$path->normalize();
+
 		return $path;
 	}
 
@@ -703,7 +750,7 @@ class Request {
 		//debug($path);
 		if (strlen($path) > 1) {	// "/"
 			$levels = trimExplode('/', $path);
-			if ($levels[0] == 'index.php') {
+			if ($levels && $levels[0] == 'index.php') {
 				array_shift($levels);
 			}
 		} else {
@@ -780,6 +827,10 @@ class Request {
 		}
 		$levels = array_values($levels);	// reindex
 		/* } */
+
+		if ($index < 0) {
+			$index = sizeof($levels) + $index;	// negative index
+		}
 
 		return ifsetor($levels[$index])
 			? urldecode($levels[$index])    // if it contains spaces
@@ -877,6 +928,7 @@ class Request {
 
 	function importCLIparams($noopt = array()) {
 		$this->data += $this->parseParameters($noopt);
+		return $this;
 	}
 
 	/**
@@ -913,16 +965,6 @@ class Request {
 	static function getDocumentRoot() {
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
-		0 && pre_print_r(array(
-			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
-			'PHP_SELF' => $_SERVER['PHP_SELF'],
-			'cwd' => getcwd(),
-			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
-			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
-			'getDocumentRootByScript' => self::getDocumentRootByScript(),
-		));
-
 		$docRoot = self::getDocumentRootByRequest();
 		if (!$docRoot || ('/' == $docRoot)) {
 			$docRoot = self::getDocumentRootByDocRoot();
@@ -946,6 +988,19 @@ class Request {
 		return $docRoot;
 	}
 
+	static function getDocumentRootDebug() {
+		pre_print_r(array(
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+			'PHP_SELF' => $_SERVER['PHP_SELF'],
+			'cwd' => getcwd(),
+			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
+			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
+			'getDocumentRootByScript' => self::getDocumentRootByScript(),
+			'getDocumentRoot' => self::getDocumentRoot().'',
+		));
+	}
+
 	/**
 	 * Works well with RewriteRule
 	 */
@@ -966,13 +1021,29 @@ class Request {
 	static function getDocumentRootByDocRoot() {
 		$docRoot = NULL;
 		$script = $_SERVER['SCRIPT_FILENAME'];
-		$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
+		$docRootRaw = ifsetor($_SERVER['DOCUMENT_ROOT']);
+		if (!empty($docRootRaw)) {
+			$beginTheSame = str_startsWith($script, $docRootRaw);
+			$contains = strpos($script, $docRootRaw) !== false;
+		} else {
+			$beginTheSame = false;
+			$contains = false;
+		}
 		if ($docRootRaw
-			&& str_startsWith($script, $docRootRaw)
-			&& strpos($script, $docRootRaw) !== false) {
-			$docRoot = str_replace($docRootRaw, '', dirname($script));
+			&& $beginTheSame
+			&& $contains
+		) {
+			$docRoot = str_replace($docRootRaw, '', dirname($script).'/');	// slash is important
 			//pre_print_r($docRoot);
 		}
+		0 && pre_print_r([
+			'script' => $script,
+			'docRootRaw' => $docRootRaw,
+			'beginTheSame' => $beginTheSame,
+			'contains' => $contains,
+			'replaceFrom' => dirname($script),
+			'docRoot' => $docRoot,
+		]);
 		return $docRoot;
 	}
 
@@ -1159,12 +1230,17 @@ class Request {
 			?: $this->getNameless($last);
 	}
 
-	public function getHidden() {
+	public function getHidden(array $limit = []) {
 		$hidden = array_reduce(array_keys($this->data), function ($total, $key) {
 			$item = $this->data[$key];
-			return array_merge($total, [
-				'<input type="hidden" name="'.$key.'" value="'.$item.'" />',
-			]);
+			if (is_array($item)) {
+				$item = $this->getSubRequest($key)->getHidden();
+			} else {
+				$item = [
+					'<input type="hidden" name="' . $key . '" value="' . $item . '" />',
+				];
+			}
+			return array_merge($total, $item);
 		}, []);
 		return $hidden;
 	}

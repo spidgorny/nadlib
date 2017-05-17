@@ -9,7 +9,7 @@ class ProgressBar {
 	var $tbarid;
 	var $textid;
 
-	var $decimals = 1;
+	var $decimals = 2;
 
 	protected $color = '#43b6df';
 	public $cliBR = "\r";
@@ -146,8 +146,10 @@ class ProgressBar {
 		$text = $text
 			?: number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			// \r first to preserve errors
-			echo $this->cliBR . $text  . "\t".$this->getCLIbar() . ' ' . $after;
+			if (!Request::isCron()) {
+				// \r first to preserve errors
+				echo $this->cliBR . $text . "\t" . $this->getCLIbar() . ' ' . $after;
+			} // else nothing
 		} else {
 			$this->setProgressBarJS($percentDone, $text);
 		}
@@ -193,7 +195,7 @@ class ProgressBar {
 		</div>');
 	}
 
-	static function getImage($p, $append = '') {
+	static function getImage($p, $append = '', $imgAttributes = []) {
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		// absolute URL to work even before <base href> is defined
 		$prefix = Request::getInstance()->getLocation() . $prefix;
@@ -202,7 +204,7 @@ class ProgressBar {
 		style="vertical-align: middle;"
 		title="'.number_format($p, 2).'%"
 		width="100"
-		height="15" />';
+		height="15" '. HTMLTag::renderAttr($imgAttributes) .'/>';
 	}
 
 	/**

@@ -123,7 +123,9 @@ abstract class Controller {
 			// $this->config = NULL;
 			//$this->user = new UserBase();
 		}
-		$this->linkVars['c'] = get_class($this);
+		if (!$this->useRouter) {
+			$this->linkVars['c'] = get_class($this);
+		}
 		$this->title = $this->title ? $this->title : get_class($this);
 		//debug_pre_print_backtrace();
 		$this->title = $this->title ? __($this->title) : $this->title;
@@ -132,14 +134,13 @@ abstract class Controller {
 	}
 
 	/**
-	 * Why protected?
 	 * @param array|string 	$params
 	 * @param null 			$prefix
 	 * @return URL
-	 * @protected
+	 * @public for View::link
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL) {
+	function makeURL(array $params, $prefix = NULL) {
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
 			if ($class && !$prefix) {
@@ -188,24 +189,16 @@ abstract class Controller {
 	function makeRelURL(array $params = array(), $page = NULL) {
 		return $this->makeURL(
 			$params							// 1st priority
-			+ $this->getURL()->getParams()
-			+ $this->linkVars, $page);
+			+ $this->getURL()->getParams()			// 2nd priority
+			+ $this->linkVars, $page);				// 3rd priority
 	}
 
 	/**
 	 * Combines params with $this->linkVars
 	 * Use makeURL() for old functionality
-	 * @param array $params
-	 * @param string $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = NULL) {
-		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
-		}
-//		$params = $params + $this->linkVars;
-//		debug($params);
-//		return $this->makeURL($params, $prefix);
+	public function getURL() {
 		return ClosureCache::getInstance(spl_object_hash($this), function () {
 			return new URL();
 		})->get();
@@ -291,6 +284,11 @@ abstract class Controller {
 		return $content;
 	}
 
+	/**
+	 * This function prevents performAction() from doing nothing
+	 * if there is a __CLASS__.phtml file in the same folder
+	 * @return MarkdownView|string|View
+	 */
 	function indexAction() {
 		$content = $this->renderTemplate();
 		$content = $this->div($content, str_replace('\\', '-', get_class($this)));
@@ -314,7 +312,9 @@ abstract class Controller {
 		} else {
 			$content = '';
 		}
-		return $content;
+		return is_object($content)
+			? $content->render()
+			: $content;
 	}
 
 	function __toString() {
@@ -386,6 +386,7 @@ abstract class Controller {
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
+//		debug($reqAction);
 		$method = $action
 				?: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
@@ -474,6 +475,11 @@ abstract class Controller {
 		return $content;
 	}
 
+	/**
+	 * Wraps all elements in <div class="column">|</div>
+	 * Use HTMLTag to do manual wrapping
+	 * @return string
+	 */
 	function encloseInTable() {
 		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/columnContainer.less');
 		$elements = func_get_args();
@@ -702,10 +708,12 @@ abstract class Controller {
 	}
 
 	function img($src, array $attr = array()) {
-		return new HTMLTag('img', array(
+		$html = new HTMLTag('img', array(
 				'src' => /*$this->e*/
 					($src),    // encoding is not necessary for &amp; in URL
 			) + $attr);
+		$html->closingTag = false;
+		return $html;
 	}
 
 	function e($content) {
@@ -740,7 +748,11 @@ abstract class Controller {
 
 	static function href(array $params = array()) {
 		$self = get_called_class();
-		return $self.'?'.http_build_query($params);
+		$url = $self;
+		if ($params) {
+			$url .= '?'.http_build_query($params);
+		}
+		return $url;
 	}
 
 	/**
@@ -751,7 +763,7 @@ abstract class Controller {
 	public function getCaption($caption, $h) {
 		$al = AutoLoad::getInstance();
 		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
-		$slug = URL::friendlyURL($caption);
+		$slug = $this->request->getURL().URL::friendlyURL($caption);
 		$link = '<a class="header-link" href="#' . $slug . '">
 				<i class="fa fa-link"></i>
 			</a>';
@@ -778,6 +790,14 @@ abstract class Controller {
 
 	function setDB(DBInterface $db) {
 		$this->db = $db;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/19901850/how-do-i-get-an-objects-unqualified-short-class-name
+	 * @return string
+	 */
+	function self() {
+		return substr(strrchr(get_class($this), '\\'), 1);
 	}
 
 }

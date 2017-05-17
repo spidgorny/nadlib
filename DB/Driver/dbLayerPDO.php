@@ -95,7 +95,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function isConnected() {
-		return !!$this->connection;
+		return !!$this->connection
+			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
 	}
 
 	function connectDSN($dsn, $user = NULL, $password = NULL) {

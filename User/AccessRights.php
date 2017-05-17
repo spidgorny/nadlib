@@ -18,6 +18,8 @@ class AccessRights {
 	 */
 	protected $db;
 
+	protected $query;
+
 	function __construct($idGroup) {
 		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
 		$this->db = Config::getInstance()->getDB();
@@ -38,6 +40,7 @@ class AccessRights {
 			array(), 'ORDER BY '.$this->accessTable.'.name',
 			$this->accessTable.'.*, '.$this->groupAccessTable.'.id as affirmative');
 		$data = $this->db->fetchAll($res);
+		$this->query = $this->db->lastQuery;
 		//debug($data);
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();
@@ -59,6 +62,10 @@ class AccessRights {
 
 	function getList() {
 		return $this->arCache;
+	}
+
+	function getQuery() {
+		return $this->query;
 	}
 
 	function render() {

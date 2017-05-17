@@ -251,7 +251,7 @@ class Timeline2 /*extends AppController */{
 				startTime="'.$from->getDateTime().'"
 				endTime="'.$till->getDateTime().'"
 				'.HTMLTag::renderAttr($more).'
-				/>';
+				><title>'.htmlspecialchars($more['title']).'</title></rect>';
 		return $id;
 	}
 

@@ -8,7 +8,12 @@ class Wrap {
 			$this->wrap1 = $strWrap;
 			$this->wrap2 = $arrWrap2;
 		} else {
-			@list($this->wrap1, $this->wrap2) = explode('|', $strWrap);
+			$parts = explode('|', $strWrap);
+			if (sizeof($parts) == 2) {
+				list($this->wrap1, $this->wrap2) = $parts;
+			} else {
+				throw new InvalidArgumentException(__METHOD__);
+			}
 		}
 	}
 

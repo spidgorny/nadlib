@@ -1,4 +1,5 @@
 <?php
+use Psr\Log\LoggerInterface;
 
 /**
  * Base class for storing datasets or datarows or tabular data or set
@@ -149,6 +150,11 @@ class Collection implements IteratorAggregate {
 	 * @var bool
 	 */
 	public $allowMerge = false;
+
+	/**
+	 * @var LoggerInterface
+	 */
+	protected $logger;
 
 	/**
 	 * @param                integer /-1 $pid
@@ -323,9 +329,8 @@ class Collection implements IteratorAggregate {
 	/**
 	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
 	 * @param bool $allowMerge
-	 * @param bool $preprocess
 	 */
-	function retrieveDataFromCache($allowMerge = false, $preprocess = true) {
+	function retrieveDataFromCache($allowMerge = false) {
 		if (!$this->data) {													// memory cache
 			$this->query = $this->getQuery();
 			if ($this->doCache) {
@@ -346,12 +351,12 @@ class Collection implements IteratorAggregate {
 					}
 					$this->log('found in cache, age: '.$fc->getAge());
 				} else{
-					$this->retrieveData($allowMerge, $preprocess);	// getQueryWithLimit() inside
+					$this->retrieveData($allowMerge);	// getQueryWithLimit() inside
 					$fc->set(array($this->count, $this->data));
 					$this->log('no cache, retrieve, store');
 				}
 			} else {
-				$this->retrieveData($allowMerge, $preprocess);
+				$this->retrieveData($allowMerge);
 			}
 			if ($_REQUEST['d']) {
 				//debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
@@ -359,8 +364,15 @@ class Collection implements IteratorAggregate {
 		}
 	}
 
-	function log($action, $data = NULL) {
-		$this->log[] = new LogEntry($action, $data);
+	function log($action, $data = []) {
+		if ($this->logger) {
+			if (!is_array($data)) {
+				$data = ['data' => $data];
+			}
+			$this->logger->info($action, $data);
+		} else {
+			$this->log[] = new LogEntry($action, $data);
+		}
 	}
 
 	/**
@@ -431,14 +443,19 @@ class Collection implements IteratorAggregate {
 	function preprocessData() {
 		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".$this->getCount());
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		// Iterator by reference
-		$data = $this->getData();
-		foreach ($data as $i => &$row) {
-			$row = $this->preprocessRow($row);
+		if (!$this->processed) {
+			$count = $this->getCount();
+			// Iterator by reference
+			$data = $this->getData();
+			foreach ($data as $i => &$row) {
+				$row = $this->preprocessRow($row);
+			}
+			$this->setData($data);
+			$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
+			$this->processed = true;
+			$this->count = $count;
 		}
-		$this->setData($data);
-		$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
-		$this->processed = true;
+		$this->log(get_class($this).'::'.__FUNCTION__.'() done');
 		TaylorProfiler::stop($profiler);
 	}
 
@@ -497,10 +514,10 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * A function to fake the data as if it was retrieved from DB
-	 * @param $data
+	 * @param $data array|ArrayPlus
 	 */
     function setData($data) {
-	    $this->log(get_class($this).'::'.__FUNCTION__.'()');
+	    $this->log(get_class($this).'::'.__FUNCTION__.'('.sizeof($data).')');
 		//debug_pre_print_backtrace();
 		//$this->log(__METHOD__, get_call_stack());
 	    if ($data instanceof ArrayPlus) {
@@ -740,6 +757,7 @@ class Collection implements IteratorAggregate {
         } // <form method="POST">
 		$this->setData($data);
 		$this->count = $count;
+		$this->log(get_class($this).'::'.__FUNCTION__.' done');
     }
 
 	/**
@@ -1120,6 +1138,14 @@ class Collection implements IteratorAggregate {
 		foreach ($this->objectify() as $i => $el) {
 			$this->data[$i] = $el->data;
 		}
+	}
+
+	public function setLogger($log) {
+		$this->logger = $log;
+	}
+
+	public function getLogger() {
+		return $this->logger;
 	}
 
 }

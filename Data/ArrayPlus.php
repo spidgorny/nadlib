@@ -927,6 +927,23 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return count(array_filter(array_keys($array), 'is_string')) > 0;
 	}
 
+	function has($el) {
+		return in_array($el, $this->getArrayCopy());
+	}
+
+	function apply(callable $fn) {
+		$this->map($fn);
+	}
+
+	static function isRecursive(array $array) {
+		foreach ($array as $item) {
+			if (is_array($item)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
 
 function AP($a = array()) {

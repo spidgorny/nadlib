@@ -1,5 +1,7 @@
 <?php
 
+namespace nadlib\DB\Driver;
+
 /**
  * Class MongoDB
  * @deprecated

@@ -20,6 +20,8 @@ class Debug {
 	 */
 	var $request;
 
+	var $name;
+
 	/**
 	 * @param $index Index|IndexBE
 	 */
@@ -102,6 +104,7 @@ class Debug {
 
 		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
 		if (!class_exists('FirePHP') && file_exists($require)) {
+			/** @noinspection PhpIncludeInspection */
 			require_once $require;
 		}
 		$can = $can && class_exists('FirePHP');
@@ -111,6 +114,17 @@ class Debug {
 			$can = $fb->detectClientExtension();
 		}
 		return $can;
+	}
+
+	public static function header($url)
+	{
+		if (!headers_sent()) {
+			static $i = 0;
+			$diff = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+			$diff = round($diff, 3);
+			header('X-nadlib-debug-' . $i . ': ' . $url . ' (+' . $diff . ')');
+			$i++;
+		}
 	}
 
 	function debugWithFirebug($params, $title = '') {
@@ -172,7 +186,8 @@ class Debug {
 			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1], array()));
 			if (++$i > 7) break;
 		}
-		echo '---' . implode(BR, $trace) . "\n";
+		echo '--- ' . $this->name . ' ---'. BR .
+			implode(BR, $trace) . "\n";
 
 		if (is_object($args)) {
 			$args = get_object_vars($args);   // prevent private vars
@@ -182,7 +197,9 @@ class Debug {
 		var_dump($args);
 		$dump = ob_get_clean();
 		$dump = str_replace("=>\n", ' =>', $dump);
-		echo $dump, "\n";
+		echo $dump;
+		echo '--- '.$this->name.' ---', BR;
+		$this->name = NULL;
 	}
 
 	function canHTML() {

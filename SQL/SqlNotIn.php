@@ -33,6 +33,7 @@ class SQLNotIn extends SQLWherePart
 			//debug_pre_print_backtrace();
 		}
 		$content = $field ." NOT IN (".implode(", ", $this->db->quoteValues($this->list)).")";
+//		debug($content); die;
 		return $content;
 	}
 
