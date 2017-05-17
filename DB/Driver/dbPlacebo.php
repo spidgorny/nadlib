@@ -6,12 +6,14 @@
  */
 class dbPlacebo extends dbLayerBase implements DBInterface {
 
+	var $lastQuery;
+
 	function __construct() {
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
 	}
 
-	function perform($query) {
+	function perform($query, array $params = []) {
 		return '';
 	}
 
@@ -19,7 +21,7 @@ class dbPlacebo extends dbLayerBase implements DBInterface {
 		return '';
 	}
 
-	function fetchAll() {
+	function fetchAll($res_or_query, $index_by_key = NULL) {
 		return array();
 	}
 

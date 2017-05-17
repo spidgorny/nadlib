@@ -86,10 +86,10 @@ class HTMLTableBuf extends MergedContent {
 
 	/**
 	 * @param array  $aCaption	- array of names
-	 * @param array  $thMore		- more on each column TH
-	 * @param string $trMore	- more on the whole row
+	 * @param array  $thMore	- more on each column TH
+	 * @param array  $trMore	- more on the whole row
 	 */
-	function thes(array $aCaption, $thMore = array(), $trMore = '') {
+	function thes(array $aCaption, $thMore = array(), $trMore = []) {
 		$this->htr($trMore);
 		foreach ($aCaption as $i => $caption) {
 			if ($caption instanceof HTMLTag) {
@@ -102,7 +102,7 @@ class HTMLTableBuf extends MergedContent {
 				if (is_array($more)) {
 					$more = HTMLTag::renderAttr($more);
 				}
-				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>';
+				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>'."\n";
 			}
 		}
 		$this->htre();
@@ -119,6 +119,18 @@ class HTMLTableBuf extends MergedContent {
 
 	function isDone() {
 		return isset($this['/table']);
+	}
+
+	function &__get($key) {
+//		echo __METHOD__, '(', $key, ')', BR;
+		if (!isset($this[$key])) {
+			$this->offsetSet($key, []);
+		}
+		return $this->content[$key];
+	}
+
+	public function offsetGet($offset) {
+		return ifsetor($this->content[$offset], []);
 	}
 
 }

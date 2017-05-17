@@ -52,6 +52,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
         'SELECT', 'LIKE', 'TO',
     );
 
+    protected $dbName;
+
+    protected $user;
+
+    protected $pass;
+
+    protected $host;
+
 	/**
 	 * @param string $dbName
 	 * @param string $user
@@ -60,6 +68,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function __construct($dbName = NULL, $user = NULL, $pass = NULL, $host = "localhost") {
+		$this->dbName = $dbName;
+		$this->user = $user;
+		$this->pass = $pass;
+		$this->host = $host;
         if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
 	        //debug(pg_version()); exit();
@@ -92,6 +104,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		return $this->connection;
 	}
 
+	function reconnect() {
+		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
+	}
+
 	function connect($dbName, $user, $pass, $host = "localhost") {
 		$this->database = $dbName;
 		$string = "host=$host dbname=$dbName user=$user password=$pass";
@@ -113,8 +129,8 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		$prof = new Profiler();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
-			debug($this->connection);
-			debug($query);
+			//debug('no connection', $this->connection, $query);
+			throw new DatabaseException('No connection');
 		}
 
 		if ($query instanceof SQLSelectQuery) {
@@ -128,11 +144,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
 				pg_prepare($this->connection, '', $query);
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
-				if (!is_resource($this->connection)) {
-					debug_pre_print_backtrace();
-					debug($this->connection);
-					die();
-				}
 				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
@@ -151,15 +162,22 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
 			//debug($query);
+			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(pg_errormessage($this->connection).BR.$query);
 			$e->setQuery($query);
 			throw $e;
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
+				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
+			}
+			if ($this->logToLog) {
+				$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
+				error_log($runTime.' '.str_replace("\n", ' ', $query));
 			}
 		}
+		$this->lastQuery = $query;
+		$this->queryTime = $prof->elapsed();
 		$this->queryCount++;
 		return $this->LAST_PERFORM_RESULT;
 	}
@@ -407,7 +425,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 		if ($serializable) {
 			$this->perform('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
 		}
-		//error('BEGIN');
+//		print('[[BEGIN]]'.BR);
 		return $this->perform("BEGIN");
 	}
 
@@ -418,7 +436,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			//debug_pre_print_backtrace();
 			return true;
 		}
-		//error('COMMIT');
+//		print('[[COMMIT]]'.BR);
 		//debug_pre_print_backtrace();
 		return $this->perform("commit");
 	}
@@ -429,7 +447,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 			//error('ROLLBACK inTransaction: '.$this->inTransaction);
 			return true;
 		}
-		//error('ROLLBACK');
+//		print('[[ROLLBACK]]'.BR);
 		return $this->perform("rollback");
 	}
 
@@ -462,6 +480,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function fetchAll($result, $key = NULL) {
+		if ($result instanceof SQLSelectQuery) {
+			$result = $result->getQuery();
+		}
 		if (is_string($result)) {
 			//debug($result);
 			$result = $this->perform($result);
@@ -739,7 +760,9 @@ WHERE ccu.table_name='".$table."'");
 	}
 
 	function getReplaceQuery($table, array $columns) {
-		if ($this->getVersion() < 9.5) throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
+		if ($this->getVersion() < 9.5) {
+			throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
+		}
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
@@ -751,26 +774,36 @@ WHERE ccu.table_name='".$table."'");
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-	 * @param array $primaryKey ['id', 'id_profile']
+	 * @param array $primaryKeys ['id', 'id_profile']
 	 * @return string
 	 */
-	function runReplaceQuery($table, array $columns, $primaryKey = []) {
+	function runReplaceQuery($table, array $columns, array $primaryKeys = []) {
+//		debug($table, $columns, $primaryKeys, $this->getVersion(), $this->getVersion() >= 9.5);
 		if ($this->getVersion() >= 9.5) {
 			$q = $this->getReplaceQuery($table, $columns);
+			die($q);
 			return $this->perform($q);
 		} else {
-			$this->transaction();
-			$key_key = array_combine($primaryKey, $primaryKey);
+//			debug($this->isTransaction());
+			//$this->transaction();
+//			debug($this->isTransaction());
+			$key_key = array_combine($primaryKeys, $primaryKeys);
 			$where = array_intersect_key($columns, $key_key);
-			$find = $this->runSelectQuery($table, $columns);
+			$find = $this->runSelectQuery($table, $where);
 			$rows = $this->numRows($find);
+//			debug($rows, $table, $columns, $where);
+//			exit;
 			if ($rows) {
 				$this->runUpdateQuery($table, $columns, $where);
 			} else {
 				$this->runInsertQuery($table, $columns);
 			}
-			return $this->commit();
+			//return $this->commit();
 		}
+	}
+
+	function isTransaction() {
+		return pg_transaction_status($this->connection) == PGSQL_TRANSACTION_INTRANS;
 	}
 
 	function getInfo() {

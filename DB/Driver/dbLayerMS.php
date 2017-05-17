@@ -54,6 +54,9 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 
 	function connect() {
 		$this->connection = mssql_connect($this->server, $this->user, $this->password);
+		if (!$this->connection) {
+			throw new DatabaseException('Unable to connect to DB on '.$this->server);
+		}
 		mssql_select_db($this->database);
 	}
 
@@ -93,7 +96,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 			$this->close();
 			$this->connect();
 			debug($msg2, $msg, $query);
-			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
+			throw new DatabaseException(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
 		return $res;
@@ -271,8 +274,14 @@ AND name = '?')", array($table));
 	}
 
 	function free($res) {
+		@trigger_error('OK');
+		//error_clear_last();		// PHP 7.0
+
 		mssql_free_result($res);
-		if (error_get_last()) {
+
+		$error = error_get_last();
+		if ($error && $error['message'] != 'OK') {
+			debug(error_get_last());
 			debug_pre_print_backtrace();
 		}
 	}

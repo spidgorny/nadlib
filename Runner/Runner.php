@@ -19,6 +19,7 @@ class Runner {
 	function run() {
 		echo 'Ready...', BR;
 		while (true) {
+			/** @var RunnerTask $command */
 			$command = $this->getNextCommand();
 			if ($command) {
 				$command();
@@ -37,9 +38,33 @@ class Runner {
 			$this->currentTask = $task;
 			if ($task->isValid()) {
 				return $task;
+			} else {
+				$e = new BadMethodCallException('Method '.$task->getName().' is not found.');
+				$task->failed($e);
 			}
 		}
 		return NULL;
+	}
+
+	public function getPendingTasks() {
+		$rows = $this->db->fetchAllSelectQuery('runner', [
+			'status' => new SQLOr([
+				'status' => new SQLNotIn(['done', 'failed', 'killed']),
+				'status ' => NULL,
+			]),
+		], 'ORDER BY ctime');
+		//debug($this->db->lastQuery);
+		return $rows;
+	}
+
+	public function getTaskQueue() {
+		$rows = $this->db->fetchAllSelectQuery('runner', [
+			'status' => new SQLOr([
+				'status' => '',
+				'status ' => NULL,
+			]),
+		], 'ORDER BY ctime');
+		return $rows;
 	}
 
 }

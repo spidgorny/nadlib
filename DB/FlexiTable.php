@@ -82,11 +82,11 @@ class FlexiTable extends OODBase {
 			$row[$this->mtimeField] = $mtime->format('Y-m-d H:i:s');
 		}
 		$user = Config::getInstance()->getUser();
-		if ($this->mtimeField
-			&& !ifsetor($row[$this->mtimeField])
+		if ($this->muserField
+			&& !ifsetor($row[$this->muserField])
 			&& is_object($user)
 			&& $user->id) {
-			$row[$this->mtimeField] = $user->id;
+			$row[$this->muserField] = $user->id;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
@@ -99,6 +99,7 @@ class FlexiTable extends OODBase {
 
 	function findInDB(array $where, $orderby = '') {
 		if ($this->doCheck) {
+			$this->log('Checking columns exist');
 			$this->checkAllFields($where);
 		}
 		parent::findInDB($where, $orderby);

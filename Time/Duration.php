@@ -295,4 +295,8 @@ class Duration extends Time {
 		return abs($this->time) < abs($d2->getTimestamp());
 	}
 
+	function getSeconds() {
+    	return $this->getTimestamp();
+	}
+
 }

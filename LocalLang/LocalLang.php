@@ -69,12 +69,11 @@ abstract class LocalLang {
 
 	function detectLang() {
 		$l = new LanguageDetect();
-		//debug($this->ll);
-		//debug($l->languages);
+//		debug($this->ll);
+//		debug($l->languages);
 		$replace = false;
 		foreach ($l->languages as $lang) {
-			//debug(array($lang => isset($this->ll[$lang])));
-			if (isset($this->ll[$lang])) {
+			if ($this->areThereTranslationsFor($lang)) {
 				//debug($lang.' - '.sizeof($this->ll));
 				$this->lang = $lang;
 				$replace = TRUE;
@@ -90,6 +89,10 @@ abstract class LocalLang {
 			//debug('firstKey: '.$firstKey);
 		}
 		//debug($this->ll);
+	}
+
+	function areThereTranslationsFor($lang) {
+		return isset($this->ll[$lang]);
 	}
 
 	static function getInstance() {

@@ -13,6 +13,11 @@ class InitNADLIB {
 
 	var $endTime;
 
+	/**
+	 * @var \Composer\Autoload\ClassLoader
+	 */
+	public $composer;
+
 	function __construct() {
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/AutoLoad.php';
@@ -52,8 +57,19 @@ class InitNADLIB {
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
 
-		$this->setupComposer();
+//		$this->setupComposer();
 
+		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
+	}
+
+	/**
+	 * Autoloading done by composer only
+	 */
+	function initWithComposer() {
+		$this->setDefaults();
+		$this->setErrorReporting();
+		$this->setCache();
+		Request::removeCookiesFromRequest();
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
@@ -66,12 +82,14 @@ class InitNADLIB {
 
 	private function setDefaults()
 	{
-//debug($_COOKIE);
+		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
 			if (Request::isCLI()) {
 				define('DEVELOPMENT',
 					Request::isWindows()
 					|| ifsetor($_COOKIE['debug'])
+					|| ini_get('debug')
+					|| getenv('NADLIB')
 				);
 				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {
@@ -173,7 +191,7 @@ border-radius: 5px;">');
 		) {
 			//echo $vendor_autoload_php, BR;
 			/** @noinspection PhpIncludeInspection */
-			require_once $vendor_autoload_php;
+			$this->composer = require_once $vendor_autoload_php;
 		}
 	}
 

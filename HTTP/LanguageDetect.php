@@ -1,6 +1,7 @@
 <?php
 
 class LanguageDetect {
+
 	public $languages = array();
 
 	function __construct() {

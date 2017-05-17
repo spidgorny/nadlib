@@ -437,10 +437,9 @@ class SQLBuilder {
 		return $ret;
 	}
 
-	function runReplaceQuery($table, array $columns) {
+	function runReplaceQuery($table, array $columns, array $primaryKeys) {
 		TaylorProfiler::start(__METHOD__.'('.$table.')');
-		$query = $this->getReplaceQuery($table, $columns);
-		$ret = $this->db->perform($query);
+		$ret = $this->db->runReplaceQuery($table, $columns, $primaryKeys);
 		TaylorProfiler::stop(__METHOD__.'('.$table.')');
 		return $ret;
 	}
@@ -547,9 +546,16 @@ class SQLBuilder {
 
 	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id', $prefix = NULL) {
 		$prefix = $prefix ?: $table.'.';
+
+		if (!str_contains($titleField, ' AS ')) {
+			$addSelect = 'DISTINCT '.$prefix.$this->quoteKey($titleField).' AS title,';
+		} else {
+			$addSelect = $titleField;
+		}
+
 		$query = $this->getSelectQuery($table, $where, $order,
-			'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, '.
-					      $prefix.$this->quoteKey($idField).' AS id_field');
+			$addSelect . ' ' .
+			$this->quoteKey($prefix.$idField).' AS id_field');
 
 		// $prefix.'*, is not selected as DISTINCT will not work
 
