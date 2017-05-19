@@ -118,7 +118,7 @@ class MemcacheFile implements MemcacheInterface {
 			$val = @file_get_contents($file);
 			if ($val) {
 				$try = @unserialize($val);
-				if ($try) {
+				if ($try !== false) {
 					$val = $try;
 				}
 			}
