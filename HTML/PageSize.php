@@ -28,19 +28,26 @@ class PageSize extends Controller {
 	function __construct($selected = NULL) {
 		parent::__construct();
 		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;
-		$user = Config::getInstance()->getUser();
-		if (!$this->selected && $this->userHasPreferences()) {
-			$this->selected = $user->getPref('pageSize');
+
+		$user = null;
+		if (class_exists('Config')) {
+			$user = Config::getInstance()->getUser();
+			if (!$this->selected && $this->userHasPreferences()) {
+				$this->selected = $user->getPref('pageSize');
+			}
 		}
+
 		if (!$this->selected) {
 			$this->selected = $selected;
 		}
 		if (!$this->selected) {
 			$this->selected = self::$default;
 		}
-		if ($this->userHasPreferences()) {
+
+		if ($user && $this->userHasPreferences()) {
 			$user->setPref('pageSize', $this->selected);
 		}
+
 		$this->options = array_combine($this->options, $this->options);
 		$this->url = new URL(); 	// some default to avoid fatal error
 	}

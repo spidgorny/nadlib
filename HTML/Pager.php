@@ -79,13 +79,15 @@ class Pager {
 		}
 		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 		$this->prefix = $prefix;
-		$config = Config::getInstance();
-		$this->db = $config->getDB();
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			$this->db = $config->getDB();
+			$this->setUser($config->getUser());
+			$config->mergeConfig($this);
+		}
 		$this->request = Request::getInstance();
-		$this->setUser($config->getUser());
 		// Inject dependencies, this breaks all projects which don't have DCI class
         //if (!$this->user) $this->user = DCI::getInstance()->user;
-		$config->mergeConfig($this);
 		$this->url = new URL();	// just in case
 	}
 
@@ -244,11 +246,11 @@ class Pager {
 	}
 
 	function getPageFirstItem($page) {
-		return $page*$this->itemsPerPage;
+		return $page * $this->itemsPerPage;
 	}
 
 	function getPageLastItem($page) {
-		return min($this->numberOfRecords, $page*$this->itemsPerPage + $this->itemsPerPage);
+		return min($this->numberOfRecords, $page * $this->itemsPerPage + $this->itemsPerPage);
 	}
 
 	function isInPage($i) {
@@ -542,6 +544,12 @@ class Pager {
 		}
 
 		return $data;
+	}
+
+	function slice(array $data) {
+    	$this->setNumberOfRecords(sizeof($data));
+    	return array_slice($data,
+			$this->getStart(), $this->pageSize->get(), true);
 	}
 
 }
