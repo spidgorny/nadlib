@@ -123,16 +123,7 @@ abstract class OODBase {
 	function init($id, $fromFindInDB = false) {
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($id)) {
-			if (is_scalar($this->idField) || $fromFindInDB) {
-				$this->initByRow($id);
-			} else {
-				$this->id = $id;
-				//debug($id, $fromFindInDB, $this->id);
-				$this->findInDB($this->id);	// will call init()
-				if (!$this->data) {
-					$this->id = NULL;
-				}
-			}
+			$this->initByRow($id);
 		} elseif ($id instanceof SQLWhere) {
 			$where = $id->getAsArray();
 			$this->findInDB($where);
@@ -916,7 +907,7 @@ abstract class OODBase {
 		}
 	}
 
-	function save($where = NULL) {
+	function save(array $where = NULL) {
 		if ($this->id) {
 			$res = $this->update($this->data);
 		} else {
