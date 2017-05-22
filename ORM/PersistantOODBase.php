@@ -59,7 +59,7 @@ class PersistantOODBase extends OODBase {
 	 * Insert updates state hash so that destruct will not try to insert again
 	 *
 	 * @param array $data
-	 * @return resource
+	 * @return OODBase
 	 */
 	function insert(array $data) {
 		$ret = NULL;
