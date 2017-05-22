@@ -548,6 +548,7 @@ class Pager {
 
 	function slice(array $data) {
     	$this->setNumberOfRecords(sizeof($data));
+    	$this->detectCurrentPage();
     	return array_slice($data,
 			$this->getStart(), $this->pageSize->get(), true);
 	}
