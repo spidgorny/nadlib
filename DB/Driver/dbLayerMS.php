@@ -73,29 +73,28 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		$profiler = new Profiler();
 		$res = mssql_query($query, $this->connection);
 		$msg = mssql_get_last_message();
-		if (!$res && $this->debug) {
-			debug(array(
-				'method' => __METHOD__,
-				'query' => $query,
-				'numRows' => is_resource($res)
-					? $this->numRows($res)
-					: ($res ? 'TRUE' : 'FALSE'),
-				'elapsed' => $profiler->elapsed(),
-				'msg' => $msg,
-				'this' => gettype2($this),
-				'this->qb' => gettype2($this->qb),
-				'this->qb->db' => gettype2($this->qb->db),
-			));
-		}
-		if ($msg && !in_array($msg, $this->ignoreMessages)) {
-			//debug($msg, $query);
-			$msg2 = mssql_fetch_assoc(
-				mssql_query(
-					'SELECT @@ERROR AS ErrorCode',
-					$this->connection))['ErrorCode'];
+		if ((!$res || $msg) && !in_array($msg, $this->ignoreMessages)) {
+			if ($this->debug) {
+				$msg2 = mssql_fetch_assoc(
+							mssql_query(
+								'SELECT @@ERROR AS ErrorCode',
+								$this->connection))['ErrorCode'];
+				debug(array(
+					'method' => __METHOD__,
+					'query' => $query.'',
+					'numRows' => is_resource($res)
+						? $this->numRows($res)
+						: ($res ? 'TRUE' : 'FALSE'),
+					'elapsed' => $profiler->elapsed(),
+					'msg' => $msg,
+					'msg2' => $msg2,
+					'this' => gettype2($this).'',
+					'this->qb' => gettype2($this->qb).'',
+					'this->qb->db' => gettype2($this->qb->db).'',
+				));
+			}
 			$this->close();
 			$this->connect();
-			debug($msg2, $msg, $query);
 			throw new DatabaseException(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
