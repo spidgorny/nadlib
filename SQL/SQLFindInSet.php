@@ -17,7 +17,7 @@ class SQLFindInSet extends SQLWherePart {
 				STRING_TO_ARRAY(".$this->field.", ',')
 			";
 		} else {
-			return "COALESCE(".$this->db->quoteSQL($this->value, $this->field)." = ANY(STRING_TO_ARRAY(".$this->field.", ',')), FALSE)";
+			return "COALESCE(".$this->db->quoteSQL($this->value, $this->field)."::varchar = ANY(STRING_TO_ARRAY(".$this->field.", ',')), FALSE)";
 		}
 	}
 

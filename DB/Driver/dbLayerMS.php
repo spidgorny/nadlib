@@ -54,6 +54,9 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 
 	function connect() {
 		$this->connection = mssql_connect($this->server, $this->user, $this->password);
+		if (!$this->connection) {
+			throw new DatabaseException('Unable to connect to DB on '.$this->server);
+		}
 		mssql_select_db($this->database);
 	}
 
@@ -70,30 +73,29 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		$profiler = new Profiler();
 		$res = mssql_query($query, $this->connection);
 		$msg = mssql_get_last_message();
-		if (!$res && $this->debug) {
-			debug(array(
-				'method' => __METHOD__,
-				'query' => $query,
-				'numRows' => is_resource($res)
-					? $this->numRows($res)
-					: ($res ? 'TRUE' : 'FALSE'),
-				'elapsed' => $profiler->elapsed(),
-				'msg' => $msg,
-				'this' => gettype2($this),
-				'this->qb' => gettype2($this->qb),
-				'this->qb->db' => gettype2($this->qb->db),
-			));
-		}
-		if ($msg && !in_array($msg, $this->ignoreMessages)) {
-			//debug($msg, $query);
-			$msg2 = mssql_fetch_assoc(
-				mssql_query(
-					'SELECT @@ERROR AS ErrorCode',
-					$this->connection))['ErrorCode'];
+		if ((!$res || $msg) && !in_array($msg, $this->ignoreMessages)) {
+			if ($this->debug) {
+				$msg2 = mssql_fetch_assoc(
+							mssql_query(
+								'SELECT @@ERROR AS ErrorCode',
+								$this->connection))['ErrorCode'];
+				debug(array(
+					'method' => __METHOD__,
+					'query' => $query.'',
+					'numRows' => is_resource($res)
+						? $this->numRows($res)
+						: ($res ? 'TRUE' : 'FALSE'),
+					'elapsed' => $profiler->elapsed(),
+					'msg' => $msg,
+					'msg2' => $msg2,
+					'this' => gettype2($this).'',
+					'this->qb' => gettype2($this->qb).'',
+					'this->qb->db' => gettype2($this->qb->db).'',
+				));
+			}
 			$this->close();
 			$this->connect();
-			debug($msg2, $msg, $query);
-			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
+			throw new DatabaseException(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
 		}
 		$this->lastQuery = $query;
 		return $res;
@@ -271,8 +273,14 @@ AND name = '?')", array($table));
 	}
 
 	function free($res) {
+		@trigger_error('OK');
+		//error_clear_last();		// PHP 7.0
+
 		mssql_free_result($res);
-		if (error_get_last()) {
+
+		$error = error_get_last();
+		if ($error && $error['message'] != 'OK') {
+			debug(error_get_last());
 			debug_pre_print_backtrace();
 		}
 	}

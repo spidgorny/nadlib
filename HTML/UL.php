@@ -91,7 +91,7 @@ class UL {
 		$ul = new UL($assoc);
 		$links = array_keys($assoc);
 		$ul->links = array_combine($links, $links);
-		$ul->wrap = '<dt>###CLASS###</dt>';
+		$ul->wrap = '<dt>###CLASS###</dt>|';
 		$ul->linkWrap = '<dd>|</dd>';
 		$ul->before = '<dl class="dl-horizontal">';
 		$ul->after = '</dl>';

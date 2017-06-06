@@ -2,9 +2,13 @@
 
 class HTMLForm {
 
+	const METHOD_GET = 'GET';
+
+	const METHOD_POST = 'POST';
+
 	protected $action = "";
 
-	protected $method = "POST";
+	protected $method = self::METHOD_POST;
 
 	protected $prefix = array();
 
@@ -351,8 +355,12 @@ class HTMLForm {
 	    var cal_'.$id.' = Calendar.setup(setobj);
 	</script>
 ';
-		$index = Index::getInstance();
-		$index->footer['init_cal_'.$id] = $script;
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$index->footer['init_cal_' . $id] = $script;
+		} else {
+			return $script;
+		}
 	}
 
 	function datepopup2($name, $value = NULL, $plusConfig = '', array $desc = array()) {
@@ -458,8 +466,12 @@ class HTMLForm {
 		return $this->stdout;
 	}
 
+	/**
+	 * It was doing echo() since 2002 - in 2017 it's doing return
+	 * @return string
+	 */
 	function render() {
-		print($this->getContent());
+		return $this->getContent();
 	}
 
 	function combo($fieldName, array $desc) {
@@ -484,20 +496,22 @@ class HTMLForm {
 	/**
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
-	 * @param string $name
-	 * @param array/string $value - CSV or array
+	 * @param string|array $name
+	 * @param array /string $value - CSV or array
 	 * @param array $desc
-	 * 		'between' - text that separates checkboxes (default ", ")
+	 *        'between' - text that separates checkboxes (default ", ")
+	 * @return $this
 	 */
 	function set($name, $value = array(), array $desc) {
 		if ($value) {
 			if (!is_array($value)) {
-				$value = explode(',', $value);
+				$value = trimExplode(',', $value);
 			}
 		} else {
 			$value = array();
 		}
-		$newName = array_merge($name, array(''));	// []
+		$aName = is_array($name) ? $name : [$name];
+		$newName = array_merge($aName, array(''));	// []
 		$tmp = $this->class;
 		$this->class = 'submit';
 		$between = ifsetor($desc['between'], ', ');
@@ -512,8 +526,15 @@ class HTMLForm {
 			}
 		}
 		$this->class = $tmp;
+		return $this;
 	}
 
+	/**
+	 * This is checking using isset()
+	 * @param $name
+	 * @param array $value
+	 * @param array $desc
+	 */
 	function keyset($name, $value = array(), array $desc) {
 		if ($value) {
 			if (!is_array($value)) {

@@ -13,13 +13,18 @@ class DebugHTML {
 
 	var $htmlProlorSent = false;
 
+	static $defaultLevels = 4;
+
 	function __construct(Debug $helper) {
 		$this->helper = $helper;
 	}
 
 	function render() {
 		$args = func_get_args();
-		$levels = $this->getLevels($args);
+		if (is_array($args)) {
+			$levels = $this->getLevels($args) ?: self::$defaultLevels;
+			//$args['levels'] = $levels;
+		}
 
 		$db = debug_backtrace();
 		$db = array_slice($db, 3, sizeof($db));
@@ -43,14 +48,14 @@ class DebugHTML {
 	function getLevels(array &$args) {
 		if (sizeof($args) == 1) {
 			$a = $args[0];
-			$levels = /*NULL*/3;
+			$levels = self::$defaultLevels;
 		} else {
 			$a = $args;
 			if ($a[1] === self::LEVELS) {
-				$levels = $a[2];
+				$levels = intval($a[2]);
 				$a = $a[0];
 			} else {
-				$levels = NULL;
+				$levels = self::$defaultLevels;
 			}
 		}
 		$args = $a;
@@ -64,8 +69,15 @@ class DebugHTML {
 		} else {
 			$function = '';
 		}
+
+		$file = ifsetor($first['file']);
+		$file = basename(dirname($file)).'/'.basename($file);
+		$file .= '#'.$first['line'];
+
 		$props = array(
-			'<span class="debug_prop">Function:</span> '.$function,
+			'<span class="debug_prop">Name:</span> '.$this->helper->name,
+			'<span class="debug_prop">Function:</span> '.$first['function'],
+			'<span class="debug_prop">File:</span> '.$file,
 			'<span class="debug_prop">Type:</span> '.gettype2($a)
 		);
 		if (!is_array($a) && !is_object($a) && !is_resource($a)) {
@@ -108,7 +120,7 @@ class DebugHTML {
 					">'.$backlog.'</a>
 					<div style="display: none;">'.$trace.'</div>
 				</div>
-				'.self::view_array($a, $levels > 0 ? $levels : 5).'
+				'.self::view_array($a, $levels).'
 			</div>';
 		return $content;
 	}

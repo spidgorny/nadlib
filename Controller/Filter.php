@@ -29,6 +29,16 @@ class Filter extends ArrayObject {
 		$this->_default = $_default;
 	}
 
+	function get($index) {
+		return $this->offsetGet($index);
+	}
+
+	function getArray($index) {
+		$value = $this->offsetGet($index);
+		$value = (array)$value;
+		return $value;
+	}
+
 	function set($index, $newval) {
 		$this->offsetSet($index, $newval);
 	}
@@ -91,7 +101,13 @@ class Filter extends ArrayObject {
 
 	function ensure($field, array $allowedOptions, $default = NULL) {
 		$value = $this[$field];
-		if (!ifsetor($allowedOptions[$value])) {
+		if ($value) {
+			if (!ifsetor($allowedOptions[$value])) {
+				$default = $default ?: first(array_keys($allowedOptions));
+				$this->set($field, $default);
+			}
+		} else {
+			// if it's not set then fill default anyway
 			$default = $default ?: first(array_keys($allowedOptions));
 			$this->set($field, $default);
 		}

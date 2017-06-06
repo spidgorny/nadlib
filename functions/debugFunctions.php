@@ -26,6 +26,15 @@ if (!function_exists('debug')) {
 		}
 	}
 
+	function debugList(array $a, $name = NULL) {
+		$debug = Debug::getInstance();
+		$debug->name = $name;
+		foreach ($a as &$b) {
+			$b = $b.'';
+		}
+		debug($a);
+	}
+
 	function ddie() {
 		debug(func_get_args());
 		die(__FUNCTION__.'#'.__LINE__);
@@ -116,11 +125,12 @@ if (!function_exists('debug')) {
 		}
 		$assoc = array();
 		foreach ($keys as $key) {
-			if ($vals[$key] instanceof SimpleXMLElement) {
-				$vals[$key] = $vals[$key]->asXML();
+			$sxe = $vals[$key];
+			if ($sxe instanceof SimpleXMLElement) {
+				$sxe = $sxe->asXML();
 			}
 			//$len = strlen(serialize($vals[$key]));
-			$len = strlen(json_encode($vals[$key]));
+			$len = strlen(json_encode($sxe));
 			//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
 			$assoc[$key] = $len;
 		}
@@ -218,8 +228,8 @@ if (!function_exists('debug')) {
 	}
 
 	/**
-	 * @param $something array
-	 * @return array
+	 * @param $something array|mixed
+	 * @return array|htmlString
 	 */
 	function gettypes($something) {
 		if (is_array($something)) {

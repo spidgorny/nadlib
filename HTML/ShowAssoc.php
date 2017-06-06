@@ -29,12 +29,12 @@ class ShowAssoc {
 		}
 		$assoc = array();
 		foreach ($this->thes as $key => $name) {
-			$val = $this->data[$key];
+			$val = ifsetor($this->data[$key]);
 			if (is_array($name)) {
 				$val = $this->getValue($name, $val);
 			}
 			$niceName = is_array($name) ? $name['name'] : $name;
-			$assoc[(string)$niceName] = $val;
+			$assoc[(string)$niceName] = $val ?: '&nbsp;';
 		}
 		$content[] = UL::DL($assoc)->render();
 		$content[] = '</div>';
@@ -61,6 +61,8 @@ class ShowAssoc {
 			$val = $desc['bool'][$val];	// yes/no
 		} elseif (is_callable(ifsetor($desc['render']))) {
 			$val = call_user_func($desc['render'], $this->data, $val);
+		} else {
+//			$val = $val;
 		}
 		return $val;
 	}

@@ -146,8 +146,10 @@ class ProgressBar {
 		$text = $text
 			?: number_format($this->percentDone, $this->decimals, '.', '').'%';
 		if ($this->cli) {
-			// \r first to preserve errors
-			echo $this->cliBR . $text  . "\t".$this->getCLIbar() . ' ' . $after;
+			if (!Request::isCron()) {
+				// \r first to preserve errors
+				echo $this->cliBR . $text . "\t" . $this->getCLIbar() . ' ' . $after;
+			} // else nothing
 		} else {
 			$this->setProgressBarJS($percentDone, $text);
 		}

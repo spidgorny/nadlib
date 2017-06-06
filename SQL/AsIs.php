@@ -34,4 +34,8 @@ class AsIs extends SQLWherePart {
 		return $this->value;
 	}
 
+	function setValue($value) {
+		$this->value = $value;
+	}
+
 }

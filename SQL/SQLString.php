@@ -10,7 +10,7 @@ class SQLString extends SQLWherePart {
 	}
 
 	function __toString() {
-		return $this->field ." = '".$this->qb->db->escape($this->value)."'";
+		return $this->field ." = '".$this->db->escape($this->value)."'";
 	}
 
 }

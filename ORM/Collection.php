@@ -443,14 +443,19 @@ class Collection implements IteratorAggregate {
 	function preprocessData() {
 		TaylorProfiler::start($profiler = get_class($this).'::'.__FUNCTION__." ({$this->table}): ".$this->getCount());
 		$this->log(get_class($this).'::'.__FUNCTION__.'()');
-		// Iterator by reference
-		$data = $this->getData();
-		foreach ($data as $i => &$row) {
-			$row = $this->preprocessRow($row);
+		if (!$this->processed) {
+			$count = $this->getCount();
+			// Iterator by reference
+			$data = $this->getData();
+			foreach ($data as $i => &$row) {
+				$row = $this->preprocessRow($row);
+			}
+			$this->setData($data);
+			$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
+			$this->processed = true;
+			$this->count = $count;
 		}
-		$this->setData($data);
-		$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
-		$this->processed = true;
+		$this->log(get_class($this).'::'.__FUNCTION__.'() done');
 		TaylorProfiler::stop($profiler);
 	}
 
@@ -509,10 +514,10 @@ class Collection implements IteratorAggregate {
 
 	/**
 	 * A function to fake the data as if it was retrieved from DB
-	 * @param $data
+	 * @param $data array|ArrayPlus
 	 */
     function setData($data) {
-	    $this->log(get_class($this).'::'.__FUNCTION__.'()');
+	    $this->log(get_class($this).'::'.__FUNCTION__.'('.sizeof($data).')');
 		//debug_pre_print_backtrace();
 		//$this->log(__METHOD__, get_call_stack());
 	    if ($data instanceof ArrayPlus) {
@@ -752,6 +757,7 @@ class Collection implements IteratorAggregate {
         } // <form method="POST">
 		$this->setData($data);
 		$this->count = $count;
+		$this->log(get_class($this).'::'.__FUNCTION__.' done');
     }
 
 	/**
@@ -1136,6 +1142,10 @@ class Collection implements IteratorAggregate {
 
 	public function setLogger($log) {
 		$this->logger = $log;
+	}
+
+	public function getLogger() {
+		return $this->logger;
 	}
 
 }
