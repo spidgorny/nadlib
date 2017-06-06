@@ -165,10 +165,10 @@ abstract class Grid extends AppController {
 	function showFilter() {
 		$content = array();
 		if ($this->filter) {
-			$f = new HTMLFormTable();
+			$f = new HTMLFormTable($this->filter);
 			$f->method('GET');
 			$f->defaultBR = true;
-			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
+			$this->filter = $f->fill($this->request->getAll());
 			$f->showForm($this->filter);
 			$f->submit('Filter', array('class' => 'btn btn-primary'));
 			$content[] = $f->getContent();

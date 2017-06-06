@@ -52,6 +52,14 @@ class dbLayer extends dbLayerBase implements DBInterface {
         'SELECT', 'LIKE', 'TO',
     );
 
+    protected $dbName;
+
+    protected $user;
+
+    protected $pass;
+
+    protected $host;
+
 	/**
 	 * @param string $dbName
 	 * @param string $user
@@ -60,6 +68,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function __construct($dbName = NULL, $user = NULL, $pass = NULL, $host = "localhost") {
+		$this->dbName = $dbName;
+		$this->user = $user;
+		$this->pass = $pass;
+		$this->host = $host;
         if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
 	        //debug(pg_version()); exit();
@@ -90,6 +102,10 @@ class dbLayer extends dbLayerBase implements DBInterface {
 
 	function getConnection() {
 		return $this->connection;
+	}
+
+	function reconnect() {
+		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
 	}
 
 	function connect($dbName, $user, $pass, $host = "localhost") {
@@ -464,6 +480,9 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function fetchAll($result, $key = NULL) {
+		if ($result instanceof SQLSelectQuery) {
+			$result = $result->getQuery();
+		}
 		if (is_string($result)) {
 			//debug($result);
 			$result = $this->perform($result);
@@ -741,7 +760,9 @@ WHERE ccu.table_name='".$table."'");
 	}
 
 	function getReplaceQuery($table, array $columns) {
-		if ($this->getVersion() < 9.5) throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
+		if ($this->getVersion() < 9.5) {
+			throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
+		}
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
@@ -753,26 +774,36 @@ WHERE ccu.table_name='".$table."'");
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-	 * @param array $primaryKey ['id', 'id_profile']
+	 * @param array $primaryKeys ['id', 'id_profile']
 	 * @return string
 	 */
-	function runReplaceQuery($table, array $columns, $primaryKey = []) {
+	function runReplaceQuery($table, array $columns, array $primaryKeys = []) {
+//		debug($table, $columns, $primaryKeys, $this->getVersion(), $this->getVersion() >= 9.5);
 		if ($this->getVersion() >= 9.5) {
 			$q = $this->getReplaceQuery($table, $columns);
+			die($q);
 			return $this->perform($q);
 		} else {
-			$this->transaction();
-			$key_key = array_combine($primaryKey, $primaryKey);
+//			debug($this->isTransaction());
+			//$this->transaction();
+//			debug($this->isTransaction());
+			$key_key = array_combine($primaryKeys, $primaryKeys);
 			$where = array_intersect_key($columns, $key_key);
-			$find = $this->runSelectQuery($table, $columns);
+			$find = $this->runSelectQuery($table, $where);
 			$rows = $this->numRows($find);
+//			debug($rows, $table, $columns, $where);
+//			exit;
 			if ($rows) {
 				$this->runUpdateQuery($table, $columns, $where);
 			} else {
 				$this->runInsertQuery($table, $columns);
 			}
-			return $this->commit();
+			//return $this->commit();
 		}
+	}
+
+	function isTransaction() {
+		return pg_transaction_status($this->connection) == PGSQL_TRANSACTION_INTRANS;
 	}
 
 	function getInfo() {

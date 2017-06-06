@@ -231,7 +231,7 @@ class HTMLFormTable extends HTMLForm {
 
 	function renderFormRows(array $formData, array $prefix = array()) {
 //		echo json_encode(array_keys($formData)), BR;
-		$tmp = $this->stdout; 
+		$tmp = $this->stdout;
 		$this->stdout = '';
 		foreach ($formData as $fieldName => $fieldDesc) {
 			$path = is_array($prefix) ? $prefix : ($prefix ? $prefix : NULL);
@@ -282,10 +282,11 @@ class HTMLFormTable extends HTMLForm {
 					$this->showTR($prefix, $fieldDesc, $path);
 				}
 			} else {
-				debug([
+				pre_print_r([
 					'fieldName' => $fieldName,
 					'fieldDesc' => $fieldDesc,
 				]);
+				pre_print_r($formData);
 				throw new InvalidArgumentException(__METHOD__.'#'.__LINE__.' has wrong parameter');
 			}
 		}
@@ -457,8 +458,8 @@ class HTMLFormTable extends HTMLForm {
 		$res = array();
 		if (is_array($arr)) {
 			foreach ($arr as $key => $ar) {
-				if (is_array($ar) && !$ar['disabled']) {
-					if ($ar['type'] instanceof HTMLFormDatePicker) {
+				if (is_array($ar) && !ifsetor($ar['disabled'])) {
+					if (ifsetor($ar['type']) instanceof HTMLFormDatePicker) {
 						$res[$key] = $ar['type']->getISODate($ar[$col]);
 					} else {
 						$res[$key] = $ar[$col];
@@ -504,17 +505,19 @@ class HTMLFormTable extends HTMLForm {
 	 * @param	array	$assoc - Values in one of the supported formats.
 	 * @param	boolean	??? what's for?
 	 * @return	array	HTMLFormTable structure.
-	 * @deprecated in favor of fill()
 	 */
-	function fillValues(array $desc, array $assoc = NULL, $forceInsert = false) {
+	protected function fillValues(array $desc, array $assoc = NULL, $forceInsert = false) {
 		foreach ($assoc as $key => $val) {
 			//$descKey = ifsetor($desc[$key]);		// CREATES $key => NULL INDEXES
 
 			$descKey = isset($desc[$key]) ? $desc[$key] : NULL;
 			if (!$descKey) continue;
 
+			// convert to array
+			$descKey = is_array($descKey) ? $descKey : ['name' => $descKey];
+
 			// calc $val
-			if (is_array($val) && $this->withValue) {
+			if ($this->withValue) {
 				$desc[$key]['value'] = $val['value'];
 			} else {
 				$desc[$key]['value'] = $val;
@@ -534,6 +537,7 @@ class HTMLFormTable extends HTMLForm {
 			}
 
 			// set $val
+			// this code is never executed due to 'continue' above
 			if (is_array($descKey) || $forceInsert) {
 				//debug($key, gettype2($sType), is_object($type));
 				if (is_object($type)) {
@@ -559,7 +563,7 @@ class HTMLFormTable extends HTMLForm {
 	 */
 	function fill(array $assoc, $forceInsert = false) {
 		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
-		return $this->debug;
+		return $this->desc;
 	}
 
 	/**

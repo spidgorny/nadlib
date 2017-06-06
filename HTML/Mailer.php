@@ -115,7 +115,6 @@ class Mailer {
 		$message .= $htmlMail;
 		$message .= "\r\n\r\n--" . $boundary . "--";
 		$this->bodytext = $message;
-		return $res;
 	}
 
 	function getSubject() {
@@ -154,7 +153,8 @@ class Mailer {
      */
     public function sendSwiftMailerEmail(
     	array $to, array $cc = null, array $bcc = null,
-		array $attachments = array(), array $additionalSenders = array())
+		array $attachments = array(),
+		array $additionalSenders = array())
     {
         if (!class_exists('Swift_Mailer')) {
             throw new Exception('SwiftMailer not installed!');
@@ -164,7 +164,7 @@ class Mailer {
 			return NULL;
 		}
 
-		$messageHTML = $this->bodytext;
+		$messageHTML = $this->getBodyText();
         $messageText = $this->getPlainText();
 
         /** @var Swift_Message $message */
@@ -272,6 +272,23 @@ class Mailer {
 			$mailText = strip_tags($this->bodytext);
 		}
 		return $mailText;
+	}
+
+	/**
+	 * @return \SendGrid\Response
+	 */
+	function sendGrid() {
+		$config = Config::getInstance();
+		$from = new SendGrid\Email(null, $config->mailFrom);
+		$to = new SendGrid\Email(null, $this->to);
+		$content = new SendGrid\Content("text/plain", $this->getPlainText());
+		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
+
+		$sg = $config->getSendGrid();
+
+		/** @var $response \SendGrid\Response */
+		$response = $sg->client->mail()->send()->post($mail);
+		return $response;
 	}
 
 }

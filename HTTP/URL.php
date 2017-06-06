@@ -1,6 +1,7 @@
 <?php
 
-class URL {
+class URL
+{
 
 	/**
 	 * @var string
@@ -12,13 +13,13 @@ class URL {
 	 *
 	 * @var array
 	 */
-	public $components = array();
+	public $components = [];
 
 	/**
 	 * $this->components['query'] decomposed into an array
 	 * @var array
 	 */
-	public $params = array();
+	public $params = [];
 
 	/**
 	 * @var string
@@ -34,13 +35,19 @@ class URL {
 	/**
 	 * @var array
 	 */
-	var $log = array();
+	var $log = [];
 
 	/**
-	 * @param null $url - if not specified then the current page URL is reconstructed
+	 * @var array
+	 */
+	var $cookies = [];
+
+	/**
+	 * @param null  $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
-	function __construct($url = NULL, array $params = array()) {
+	function __construct($url = null, array $params = [])
+	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
 		}
@@ -58,7 +65,7 @@ class URL {
 			$this->parseURL($url);
 		}
 		if ($params) {
-			$this->addParams($params);	// setParams was deleting all filters from the URL
+			$this->addParams($params);    // setParams was deleting all filters from the URL
 		}
 		if (class_exists('Config')) {
 			$this->setDocumentRoot(Config::getInstance()->documentRoot);
@@ -68,10 +75,11 @@ class URL {
 	/**
 	 * @param $url string
 	 */
-	function parseURL($url) {
+	function parseURL($url)
+	{
 		$this->components = @parse_url($url);
 		//pre_print_r($this->components);
-		if (!$this->components) {	//  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
+		if (!$this->components) {    //  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
 			$request = Request::getExistingInstance();
 			if ($request) {
 				//debug(substr($request->getLocation(), 0, -1).$url);
@@ -106,7 +114,8 @@ class URL {
 		}
 	}
 
-	static function make(array $params = array()) {
+	static function make(array $params = [])
+	{
 		$url = new self();
 		$url->setParams($params);
 		return $url;
@@ -117,19 +126,22 @@ class URL {
 	 * @param $value
 	 * @return static
 	 */
-	public function setParam($param, $value) {
+	public function setParam($param, $value)
+	{
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function unsetParam($param) {
+	function unsetParam($param)
+	{
 		unset($this->params[$param]);
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function getParam($param) {
+	function getParam($param)
+	{
 		return ifsetor($this->params[$param]);
 	}
 
@@ -138,7 +150,8 @@ class URL {
 	 * @param array $params
 	 * @return $this
 	 */
-	function setParams(array $params = array()) {
+	function setParams(array $params = [])
+	{
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
@@ -149,24 +162,28 @@ class URL {
 	 * @param array $params
 	 * @return $this
 	 */
-	function addParams(array $params = array()) {
+	function addParams(array $params = [])
+	{
 		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function forceParams(array $params = array()) {
-		$this->params = array_merge($this->params, $params);	// keep default order but overwrite
+	function forceParams(array $params = [])
+	{
+		$this->params = array_merge($this->params, $params);    // keep default order but overwrite
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function clearParams() {
-		$this->setParams(array());
+	function clearParams()
+	{
+		$this->setParams([]);
 		return $this;
 	}
 
-	function appendParams(array $params) {
+	function appendParams(array $params)
+	{
 		$this->params += $params;
 		$this->components['query'] = $this->buildQuery();
 	}
@@ -174,7 +191,8 @@ class URL {
 	/**
 	 * @return Path
 	 */
-	function getPath() {
+	function getPath()
+	{
 		$path = $this->path;
 		if (get_class($path) != 'Path') {
 			debug(gettype($path), get_class($path), get_object_vars($path));
@@ -187,13 +205,13 @@ class URL {
 		if (!$path instanceof Path) {
 			$path = new Path($path);
 		}
-		nodebug(array(
+		nodebug([
 			'class($this->path)' => get_class($this->path),
-			'$this->path' => $this->path.'',
-			'documentRoot' => $this->documentRoot.'',
-			'class($path)' => get_class($path),
-			'path' => $path.''
-		));
+			'$this->path'        => $this->path . '',
+			'documentRoot'       => $this->documentRoot . '',
+			'class($path)'       => get_class($path),
+			'path'               => $path . '',
+		]);
 		return $path;
 	}
 
@@ -201,7 +219,8 @@ class URL {
 	 * @param $path
 	 * @return $this
 	 */
-	function setPath($path) {
+	function setPath($path)
+	{
 		$this->components['path'] = $path instanceof Path ? $path : new Path($path);
 		$this->path = $this->components['path'];
 		return $this;
@@ -212,16 +231,19 @@ class URL {
 	 * @param $name
 	 * @return $this
 	 */
-	function setBasename($name) {
+	function setBasename($name)
+	{
 		$this->path->setFile($name);
 		return $this;
 	}
 
-	function getBasename() {
+	function getBasename()
+	{
 		return basename($this->getPath());
 	}
 
-	function getExtension() {
+	function getExtension()
+	{
 		$basename = $this->getBasename();
 		$ext = pathinfo($basename, PATHINFO_EXTENSION);
 		return $ext;
@@ -231,25 +253,29 @@ class URL {
 	 * Lowercase guaranteed
 	 * @return mixed|string
 	 */
-	function getExtensionLC() {
+	function getExtensionLC()
+	{
 		$ext = $this->getExtension();
 		$ext = mb_strtolower($ext);
 		return $ext;
 	}
 
-	function setDocumentRoot($root) {
+	function setDocumentRoot($root)
+	{
 		$this->documentRoot = $root;
 		//debug($this);
 		return $this;
 	}
 
-	function setFragment($name) {
+	function setFragment($name)
+	{
 		if ($name[0] == '#') $name = substr($name, 1);
 		$this->components['fragment'] = $name;
 		return $this;
 	}
 
-	function buildQuery() {
+	function buildQuery()
+	{
 		$queryString = http_build_query($this->params, '_');
 		$queryString = str_replace('#', '%23', $queryString);
 		//parse_str($queryString, $queryStringTest);
@@ -263,41 +289,45 @@ class URL {
 	 * @param null $parsed
 	 * @return string
 	 */
-	function buildURL($parsed = NULL) {
+	function buildURL($parsed = null)
+	{
 		if (!$parsed) {
 			$this->components['query'] = $this->buildQuery(); // to make sure manual manipulations are not possible (although it's already protected?)
 			$parsed = $this->components;
 		}
-	    if (!is_array($parsed)) {
-	        return false;
-	    }
+		if (!is_array($parsed)) {
+			return false;
+		}
 
-	    $uri = isset($parsed['scheme'])
-			? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
+		$uri = isset($parsed['scheme'])
+			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
 			: '';
-	    $uri .= isset($parsed['user']) ? $parsed['user'].(isset($parsed['pass']) ? ':'.$parsed['pass'] : '').'@' : '';
-	    $uri .= isset($parsed['host']) ? $parsed['host'] : '';
-	    $uri .= isset($parsed['port']) ? ':'.$parsed['port'] : '';
+		$uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
+		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
-	    if (isset($parsed['path'])) {
-	        $uri .= (substr($parsed['path'], 0, 1) == '/') ?
-	            $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
-	    }
+		if (isset($parsed['path'])) {
+			$uri .= (substr($parsed['path'], 0, 1) == '/') ?
+				$parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
+		}
 
-	    $uri .= /*isset*/($parsed['query']) ? '?'.$parsed['query'] : '';
-	    $uri .= isset($parsed['fragment']) ? '#'.$parsed['fragment'] : '';
+		$uri .= /*isset*/
+			($parsed['query']) ? '?' . $parsed['query'] : '';
+		$uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
 
-	    return $uri;
+		return $uri;
 	}
 
-	public function __toString() {
+	public function __toString()
+	{
 		$url = $this->buildURL();
 		//debug($this->components, $url);
-		return $url.'';
+		return $url . '';
 	}
 
-	public function getRequest() {
-		$r = new Request($this->params ? $this->params : array());
+	public function getRequest()
+	{
+		$r = new Request($this->params ? $this->params : []);
 		$r->url = $this;
 		return $r;
 	}
@@ -306,25 +336,29 @@ class URL {
 	 * @static
 	 * @return URL
 	 */
-	static function getCurrent() {
+	static function getCurrent()
+	{
 		return new URL();
 	}
 
-	function GET() {
+	function GET()
+	{
 		return file_get_contents($this->buildURL());
 	}
 
-	function POST($login = NULL, $password = NULL) {
+	function POST($login = null, $password = null)
+	{
+		$auth = NULL;
 		if ($login) {
-			$auth = "Authorization: Basic ".base64_encode($login.':'.$password) . PHP_EOL;
+			$auth = "Authorization: Basic " . base64_encode($login . ':' . $password) . PHP_EOL;
 		}
-		$stream = array(
-			'http' => array(
-				'method' => 'POST',
-				'header' => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL . $auth,
+		$stream = [
+			'http' => [
+				'method'  => 'POST',
+				'header'  => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL . $auth,
 				'content' => $this->components['query'],
-			),
-		);
+			],
+		];
 		$context = stream_context_create($stream);
 
 		$noQuery = $this->components;
@@ -333,16 +367,23 @@ class URL {
 		return file_get_contents($url, false, $context);
 	}
 
-	function getCURL() {
+	function getCURL()
+	{
 		$process = curl_init($this->__toString());
 		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
 		curl_setopt($process, CURLOPT_HEADER, 1);
 		curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
-		if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
-		if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEJAR, $this->cookie_file);
+		if ($this->cookies == true) {
+			curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
+		}
+		if ($this->cookies == true) {
+			curl_setopt($process, CURLOPT_COOKIEJAR, $this->cookie_file);
+		}
 		curl_setopt($process, CURLOPT_ENCODING, $this->compression);
 		curl_setopt($process, CURLOPT_TIMEOUT, 30);
-		if ($this->proxy) curl_setopt($process, CURLOPT_PROXY, $this->proxy);
+		if ($this->proxy) {
+			curl_setopt($process, CURLOPT_PROXY, $this->proxy);
+		}
 		curl_setopt($process, CURLOPT_POSTFIELDS, $this->buildQuery());
 		curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);
@@ -350,18 +391,21 @@ class URL {
 		return $process;
 	}
 
-	function CURL() {
+	function CURL()
+	{
 		$process = $this->getCURL();
 		$return = curl_exec($process);
 		curl_close($process);
 		return $return;
 	}
 
-	function getURLGet() {
+	function getURLGet()
+	{
 		return new URLGet($this->__toString());
 	}
 
-	function exists() {
+	function exists()
+	{
 		$AgetHeaders = @get_headers($this->buildURL());
 		return preg_match("|200|", $AgetHeaders[0]);
 	}
@@ -374,11 +418,12 @@ class URL {
 	 * @param string $to
 	 * @return string
 	 */
-	static function getRelativePath($from, $to) {
+	static function getRelativePath($from, $to)
+	{
 		// some compatibility fixes for Windows paths
 		$from = self::getPathFolders($from);
 		$to = self::getPathFolders($to);
-		$relPath  = $to;
+		$relPath = $to;
 
 		foreach ($from as $depth => $dir) {
 			// find first non-matching dir
@@ -394,7 +439,7 @@ class URL {
 					$padLength = (count($relPath) + $remaining - 1) * -1;
 					$relPath = array_pad($relPath, $padLength, '..');
 					break;
-				} else if (is_array($relPath) && isset($relPath[0])) {
+				} elseif (is_array($relPath) && isset($relPath[0])) {
 					$relPath[0] = './' . $relPath[0];
 				}
 			}
@@ -403,25 +448,26 @@ class URL {
 		return implode('/', $relPath);
 	}
 
-	static function getScriptWithPath() {
+	static function getScriptWithPath()
+	{
 		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
 		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
-        // C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
-        if (Request::isCLI()) {
-	        $scriptWithPath = isset($_SERVER['SCRIPT_FILENAME'])
-		        ? $_SERVER['SCRIPT_FILENAME']
-		        : $_SERVER['PHP_SELF']; // can be relative!!!
+		// C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
+		if (Request::isCLI()) {
+			$scriptWithPath = isset($_SERVER['SCRIPT_FILENAME'])
+				? $_SERVER['SCRIPT_FILENAME']
+				: $_SERVER['PHP_SELF']; // can be relative!!!
 
-	        //debug($scriptWithPath);
-	        // this below may not work since __FILE__ is class.URL.php and not index.php
-	        // but this our last chance for CLI/Cron
-	        if (!$scriptWithPath || !Path::isItAbsolute($scriptWithPath)) {    // relative not OK
-		        if (basename(__FILE__) == __FILE__) {	// index.php
-					$scriptWithPath = getcwd().'/'.__FILE__;
+			//debug($scriptWithPath);
+			// this below may not work since __FILE__ is class.URL.php and not index.php
+			// but this our last chance for CLI/Cron
+			if (!$scriptWithPath || !Path::isItAbsolute($scriptWithPath)) {    // relative not OK
+				if (basename(__FILE__) == __FILE__) {    // index.php
+					$scriptWithPath = getcwd() . '/' . __FILE__;
 				} else {
 					$scriptWithPath = __FILE__;
 				}
-	        }
+			}
 		} else {
 			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
 			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de
@@ -432,7 +478,8 @@ class URL {
 	/**
 	 * @return string
 	 */
-	function getDomain() {
+	function getDomain()
+	{
 		return $this->components['host'];
 	}
 
@@ -442,7 +489,8 @@ class URL {
 	 * @param $from
 	 * @return array
 	 */
-	static function getPathFolders($from) {
+	static function getPathFolders($from)
+	{
 		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
 		$from = str_replace('\\', '/', $from);
 		$from = explode('/', $from);
@@ -453,9 +501,10 @@ class URL {
 	/**
 	 * @param string $path1
 	 * @param string $path2
-	 * @return string
+	 * @return array
 	 */
-	static function getCommonRoot($path1, $path2) {
+	static function getCommonRoot($path1, $path2)
+	{
 		$path1 = self::getPathFolders($path1);
 		$path2 = self::getPathFolders($path2);
 		$common = array_intersect($path1, $path2);
@@ -468,12 +517,12 @@ class URL {
 	 * @param $address
 	 * @return array|mixed|string
 	 */
-	function canonicalize($address) {
+	function canonicalize($address)
+	{
 		$address = explode('/', $address);
 		$keys = array_keys($address, '..');
 
-		foreach($keys AS $keypos => $key)
-		{
+		foreach ($keys AS $keypos => $key) {
 			array_splice($address, $key - ($keypos * 2 + 1), 2);
 		}
 
@@ -482,11 +531,13 @@ class URL {
 		return $address;
 	}
 
-	protected function log($action, $data = NULL) {
+	protected function log($action, $data = null)
+	{
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	public function resolve($relativeURL) {
+	public function resolve($relativeURL)
+	{
 		return $this->url_to_absolute($this->__toString(), $relativeURL);
 	}
 
@@ -496,249 +547,252 @@ class URL {
 	 * @param $relativeUrl
 	 * @return mixed
 	 */
-	private function url_to_absolute( $baseUrl, $relativeUrl ) {
+	private function url_to_absolute($baseUrl, $relativeUrl)
+	{
 		// If relative URL has a scheme, clean path and return.
-		$r = $this->split_url( $relativeUrl );
-		if ( $r === FALSE ) {
+		$r = $this->split_url($relativeUrl);
+		if ($r === false) {
 			$this->log('Unable to split', $relativeUrl);
-			return FALSE;
+			return false;
 		}
-		if ( !empty( $r['scheme'] ) )
-		{
-			if ( !empty( $r['path'] ) && $r['path'][0] == '/' )
-				$r['path'] = $this->url_remove_dot_segments( $r['path'] );
-			return $this->join_url( $r );
+		if (!empty($r['scheme'])) {
+			if (!empty($r['path']) && $r['path'][0] == '/')
+				$r['path'] = $this->url_remove_dot_segments($r['path']);
+			return $this->join_url($r);
 		}
 
 		// Make sure the base URL is absolute.
-		$b = $this->split_url( $baseUrl );
-		if ( $b === FALSE || empty( $b['scheme'] ) || empty( $b['host'] ) ) {
+		$b = $this->split_url($baseUrl);
+		if ($b === false || empty($b['scheme']) || empty($b['host'])) {
 			$this->log('unable to split', $baseUrl);
-			return FALSE;
+			return false;
 		}
 		$r['scheme'] = $b['scheme'];
 
 		// If relative URL has an authority, clean path and return.
-		if ( isset( $r['host'] ) )
-		{
-			if ( !empty( $r['path'] ) )
-				$r['path'] = $this->url_remove_dot_segments( $r['path'] );
-			return $this->join_url( $r );
+		if (isset($r['host'])) {
+			if (!empty($r['path']))
+				$r['path'] = $this->url_remove_dot_segments($r['path']);
+			return $this->join_url($r);
 		}
-		unset( $r['port'] );
-		unset( $r['user'] );
-		unset( $r['pass'] );
+		unset($r['port']);
+		unset($r['user']);
+		unset($r['pass']);
 
 		// Copy base authority.
 		$r['host'] = $b['host'];
-		if ( isset( $b['port'] ) ) $r['port'] = $b['port'];
-		if ( isset( $b['user'] ) ) $r['user'] = $b['user'];
-		if ( isset( $b['pass'] ) ) $r['pass'] = $b['pass'];
+		if (isset($b['port'])) $r['port'] = $b['port'];
+		if (isset($b['user'])) $r['user'] = $b['user'];
+		if (isset($b['pass'])) $r['pass'] = $b['pass'];
 
 		// If relative URL has no path, use base path
-		if ( empty( $r['path'] ) )
-		{
-			if ( !empty( $b['path'] ) )
+		if (empty($r['path'])) {
+			if (!empty($b['path']))
 				$r['path'] = $b['path'];
-			if ( !isset( $r['query'] ) && isset( $b['query'] ) )
+			if (!isset($r['query']) && isset($b['query']))
 				$r['query'] = $b['query'];
-			return $this->join_url( $r );
+			return $this->join_url($r);
 		}
 
 		//debug($relativeUrl, $relativeUrl.'', $r);
 		// If relative URL path doesn't start with /, merge with base path
-		if ( $r['path'][0] != '/' )
-		{
-			$base = mb_strrchr( $b['path'], '/', TRUE, 'UTF-8' );
-			if ( $base === FALSE ) $base = '';
+		if ($r['path'][0] != '/') {
+			$base = mb_strrchr($b['path'], '/', true, 'UTF-8');
+			if ($base === false) $base = '';
 			$r['path'] = $base . '/' . $r['path'];
 		}
-		$r['path'] = $this->url_remove_dot_segments( $r['path'] );
-		return $this->join_url( $r );
+		$r['path'] = $this->url_remove_dot_segments($r['path']);
+		return $this->join_url($r);
 	}
 
-	function url_remove_dot_segments( $path )
+	function url_remove_dot_segments($path)
 	{
 		// multi-byte character explode
-		$inSegs  = preg_split( '!/!u', $path );
-		$outSegs = array( );
-		foreach ( $inSegs as $seg )
-		{
-			if ( $seg == '' || $seg == '.')
+		$inSegs = preg_split('!/!u', $path);
+		$outSegs = [];
+		foreach ($inSegs as $seg) {
+			if ($seg == '' || $seg == '.')
 				continue;
-			if ( $seg == '..' )
-				array_pop( $outSegs );
+			if ($seg == '..')
+				array_pop($outSegs);
 			else
-				array_push( $outSegs, $seg );
+				array_push($outSegs, $seg);
 		}
-		$outPath = implode( '/', $outSegs );
-		if ( $path[0] == '/' )
+		$outPath = implode('/', $outSegs);
+		if ($path[0] == '/')
 			$outPath = '/' . $outPath;
 		// compare last multi-byte character against '/'
-		if ( $outPath != '/' &&
-			(mb_strlen($path)-1) == mb_strrpos( $path, '/', 'UTF-8' ) )
+		if ($outPath != '/' &&
+			(mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
+		)
 			$outPath .= '/';
 		return $outPath;
 	}
 
 	/**
-	 * PHP's standard parse_url( ) looks useful. It splits apart a URL and returns an associative array containing the scheme, host, path, and so on. It works well on simple URLs like "http://example.com/index.htm". However, it has problems parsing complex URLs, like "http://example.com/redirect?url=http://elsewhere.com". It is confused by some relative URLs, such as "//example.com/index.htm". And it doesn't properly handle URLs using IPv6 addresses. The parser also is not as strict as it should be and will allow illegal characters and invalid URL structure. This makes it hard to use parse_url( ) reliably for validating links in link checkers and other tools.
+	 * PHP's standard parse_url( ) looks useful. It splits apart a URL and returns an associative array containing the
+	 * scheme, host, path, and so on. It works well on simple URLs like "http://example.com/index.htm". However, it has
+	 * problems parsing complex URLs, like "http://example.com/redirect?url=http://elsewhere.com". It is confused by
+	 * some relative URLs, such as "//example.com/index.htm". And it doesn't properly handle URLs using IPv6 addresses.
+	 * The parser also is not as strict as it should be and will allow illegal characters and invalid URL structure.
+	 * This makes it hard to use parse_url( ) reliably for validating links in link checkers and other tools.
 	 * http://nadeausoftware.com/articles/2008/05/php_tip_how_parse_and_build_urls
-	 * @param $url
+	 * @param      $url
 	 * @param bool $decode
 	 * @return mixed
 	 */
-	function split_url( $url, $decode=TRUE )
+	function split_url($url, $decode = true)
 	{
-		$parts = array();
-		$xunressub     = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
-		$xpchar        = $xunressub . ':@%';
+		$parts = [];
+		$xunressub = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
+		$xpchar = $xunressub . ':@%';
 
-		$xscheme       = '([a-zA-Z][a-zA-Z\d+-.]*)';
+		$xscheme = '([a-zA-Z][a-zA-Z\d+-.]*)';
 
-		$xuserinfo     = '((['  . $xunressub . '%]*)' .
+		$xuserinfo = '(([' . $xunressub . '%]*)' .
 			'(:([' . $xunressub . ':%]*))?)';
 
-		$xipv4         = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})';
+		$xipv4 = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})';
 
-		$xipv6         = '(\[([a-fA-F\d.:]+)\])';
+		$xipv6 = '(\[([a-fA-F\d.:]+)\])';
 
-		$xhost_name    = '([a-zA-Z\d-.%]+)';
+		$xhost_name = '([a-zA-Z\d-.%]+)';
 
-		$xhost         = '(' . $xhost_name . '|' . $xipv4 . '|' . $xipv6 . ')';
-		$xport         = '(\d*)';
-		$xauthority    = '((' . $xuserinfo . '@)?' . $xhost .
+		$xhost = '(' . $xhost_name . '|' . $xipv4 . '|' . $xipv6 . ')';
+		$xport = '(\d*)';
+		$xauthority = '((' . $xuserinfo . '@)?' . $xhost .
 			'?(:' . $xport . ')?)';
 
-		$xslash_seg    = '(/[' . $xpchar . ']*)';
+		$xslash_seg = '(/[' . $xpchar . ']*)';
 		$xpath_authabs = '((//' . $xauthority . ')((/[' . $xpchar . ']*)*))';
-		$xpath_rel     = '([' . $xpchar . ']+' . $xslash_seg . '*)';
-		$xpath_abs     = '(/(' . $xpath_rel . ')?)';
-		$xapath        = '(' . $xpath_authabs . '|' . $xpath_abs .
+		$xpath_rel = '([' . $xpchar . ']+' . $xslash_seg . '*)';
+		$xpath_abs = '(/(' . $xpath_rel . ')?)';
+		$xapath = '(' . $xpath_authabs . '|' . $xpath_abs .
 			'|' . $xpath_rel . ')';
 
-		$xqueryfrag    = '([' . $xpchar . '/?' . ']*)';
+		$xqueryfrag = '([' . $xpchar . '/?' . ']*)';
 
-		$xurl          = '^(' . $xscheme . ':)?' .  $xapath . '?' .
+		$xurl = '^(' . $xscheme . ':)?' . $xapath . '?' .
 			'(\?' . $xqueryfrag . ')?(#' . $xqueryfrag . ')?$';
 
 
 		// Split the URL into components.
-		if ( !preg_match( '!' . $xurl . '!', $url, $m ) )
-			return FALSE;
+		if (!preg_match('!' . $xurl . '!', $url, $m))
+			return false;
 
-		if ( !empty($m[2]) )        $parts['scheme']  = strtolower($m[2]);
+		if (!empty($m[2])) $parts['scheme'] = strtolower($m[2]);
 
-		if ( !empty($m[7]) ) {
-			if ( isset( $m[9] ) )   $parts['user']    = $m[9];
-			else            $parts['user']    = '';
+		if (!empty($m[7])) {
+			if (isset($m[9])) $parts['user'] = $m[9];
+			else            $parts['user'] = '';
 		}
-		if ( !empty($m[10]) )       $parts['pass']    = $m[11];
+		if (!empty($m[10])) $parts['pass'] = $m[11];
 
-		if ( !empty($m[13]) )       $h=$parts['host'] = $m[13];
-		else if ( !empty($m[14]) )  $parts['host']    = $m[14];
-		else if ( !empty($m[16]) )  $parts['host']    = $m[16];
-		else if ( !empty( $m[5] ) ) $parts['host']    = '';
-		if ( !empty($m[17]) )       $parts['port']    = $m[18];
+		if (!empty($m[13])) $h = $parts['host'] = $m[13];
+		elseif (!empty($m[14])) $parts['host'] = $m[14];
+		elseif (!empty($m[16])) $parts['host'] = $m[16];
+		elseif (!empty($m[5])) $parts['host'] = '';
+		if (!empty($m[17])) $parts['port'] = $m[18];
 
-		if ( !empty($m[19]) )       $parts['path']    = $m[19];
-		else if ( !empty($m[21]) )  $parts['path']    = $m[21];
-		else if ( !empty($m[25]) )  $parts['path']    = $m[25];
+		if (!empty($m[19])) $parts['path'] = $m[19];
+		elseif (!empty($m[21])) $parts['path'] = $m[21];
+		elseif (!empty($m[25])) $parts['path'] = $m[25];
 
-		if ( !empty($m[27]) )       $parts['query']   = $m[28];
-		if ( !empty($m[29]) )       $parts['fragment']= $m[30];
+		if (!empty($m[27])) $parts['query'] = $m[28];
+		if (!empty($m[29])) $parts['fragment'] = $m[30];
 
-		if ( !$decode )
+		if (!$decode)
 			return $parts;
-		if ( !empty($parts['user']) )
-			$parts['user']     = rawurldecode( $parts['user'] );
-		if ( !empty($parts['pass']) )
-			$parts['pass']     = rawurldecode( $parts['pass'] );
-		if ( !empty($parts['path']) )
-			$parts['path']     = rawurldecode( $parts['path'] );
-		if ( isset($h) )
-			$parts['host']     = rawurldecode( $parts['host'] );
-		if ( !empty($parts['query']) )
-			$parts['query']    = rawurldecode( $parts['query'] );
-		if ( !empty($parts['fragment']) )
-			$parts['fragment'] = rawurldecode( $parts['fragment'] );
+		if (!empty($parts['user']))
+			$parts['user'] = rawurldecode($parts['user']);
+		if (!empty($parts['pass']))
+			$parts['pass'] = rawurldecode($parts['pass']);
+		if (!empty($parts['path']))
+			$parts['path'] = rawurldecode($parts['path']);
+		if (isset($h))
+			$parts['host'] = rawurldecode($parts['host']);
+		if (!empty($parts['query']))
+			$parts['query'] = rawurldecode($parts['query']);
+		if (!empty($parts['fragment']))
+			$parts['fragment'] = rawurldecode($parts['fragment']);
 		return $parts;
 	}
 
-	function join_url( $parts, $encode=TRUE )
+	function join_url($parts, $encode = true)
 	{
-		if ( $encode )
-		{
-			if ( isset( $parts['user'] ) )
-				$parts['user']     = rawurlencode( $parts['user'] );
-			if ( isset( $parts['pass'] ) )
-				$parts['pass']     = rawurlencode( $parts['pass'] );
-			if ( isset( $parts['host'] ) &&
-				!preg_match( '!^(\[[\da-f.:]+\]])|([\da-f.:]+)$!ui', $parts['host'] ) )
-				$parts['host']     = rawurlencode( $parts['host'] );
-			if ( !empty( $parts['path'] ) )
-				$parts['path']     = preg_replace( '!%2F!ui', '/',
-					rawurlencode( $parts['path'] ) );
-			if ( isset( $parts['query'] ) )
-				$parts['query']    = rawurlencode( $parts['query'] );
-			if ( isset( $parts['fragment'] ) )
-				$parts['fragment'] = rawurlencode( $parts['fragment'] );
+		if ($encode) {
+			if (isset($parts['user']))
+				$parts['user'] = rawurlencode($parts['user']);
+			if (isset($parts['pass']))
+				$parts['pass'] = rawurlencode($parts['pass']);
+			if (isset($parts['host']) &&
+				!preg_match('!^(\[[\da-f.:]+\]])|([\da-f.:]+)$!ui', $parts['host'])
+			)
+				$parts['host'] = rawurlencode($parts['host']);
+			if (!empty($parts['path']))
+				$parts['path'] = preg_replace('!%2F!ui', '/',
+					rawurlencode($parts['path']));
+			if (isset($parts['query']))
+				$parts['query'] = rawurlencode($parts['query']);
+			if (isset($parts['fragment']))
+				$parts['fragment'] = rawurlencode($parts['fragment']);
 		}
 
 		$url = '';
-		if ( !empty( $parts['scheme'] ) )
+		if (!empty($parts['scheme']))
 			$url .= $parts['scheme'] . ':';
-		if ( isset( $parts['host'] ) )
-		{
+		if (isset($parts['host'])) {
 			$url .= '//';
-			if ( isset( $parts['user'] ) )
-			{
+			if (isset($parts['user'])) {
 				$url .= $parts['user'];
-				if ( isset( $parts['pass'] ) )
+				if (isset($parts['pass']))
 					$url .= ':' . $parts['pass'];
 				$url .= '@';
 			}
-			if ( preg_match( '!^[\da-f]*:[\da-f.:]+$!ui', $parts['host'] ) )
+			if (preg_match('!^[\da-f]*:[\da-f.:]+$!ui', $parts['host']))
 				$url .= '[' . $parts['host'] . ']'; // IPv6
 			else
 				$url .= $parts['host'];             // IPv4 or name
-			if ( isset( $parts['port'] ) )
+			if (isset($parts['port']))
 				$url .= ':' . $parts['port'];
-			if ( !empty( $parts['path'] ) && $parts['path'][0] != '/' )
+			if (!empty($parts['path']) && $parts['path'][0] != '/')
 				$url .= '/';
 		}
-		if ( !empty( $parts['path'] ) )
+		if (!empty($parts['path']))
 			$url .= $parts['path'];
-		if ( isset( $parts['query'] ) )
+		if (isset($parts['query']))
 			$url .= '?' . $parts['query'];
-		if ( isset( $parts['fragment'] ) )
+		if (isset($parts['fragment']))
 			$url .= '#' . $parts['fragment'];
 		return $url;
 	}
 
-	function setRelativePath($pathPlus) {
+	function setRelativePath($pathPlus)
+	{
 		$newPath = $this->url_to_absolute($this->__toString(), $pathPlus);
 		//debug($this->__toString(), $pathPlus, $newPath);
 		$this->parseURL($newPath);
 	}
 
 	/**
-	 * @param string $string		- source page name
-	 * @param bool $preserveSpaces	- leaves spaces
-	 * @return string				- converted to URL friendly name
+	 * @param string $string - source page name
+	 * @param bool   $preserveSpaces - leaves spaces
+	 * @return string                - converted to URL friendly name
 	 */
-	static function friendlyURL($string, $preserveSpaces = false) {
+	static function friendlyURL($string, $preserveSpaces = false)
+	{
 		$string = preg_replace("`\[.*\]`U", "", $string);
-		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i','-',$string);
+		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i', '-', $string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
-		$string = preg_replace( "`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i","\\1", $string );
+		$string = preg_replace("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i", "\\1", $string);
 		if (!$preserveSpaces) {
-			$string = preg_replace( array("`[^a-z0-9]`i", "`[-]+`") , "-", $string);
+			$string = preg_replace(["`[^a-z0-9]`i", "`[-]+`"], "-", $string);
 		}
 		return strtolower(trim($string, '-'));
 	}
 
-	static function getSlug($string) {
+	static function getSlug($string)
+	{
 		$string = mb_strtolower($string);
 		$string = preg_replace("` +`", "-", $string);
 		$string = str_replace('/', '-', $string);
@@ -749,7 +803,8 @@ class URL {
 		return $string;
 	}
 
-	public function makeAbsolute() {
+	public function makeAbsolute()
+	{
 		if (!ifsetor($this->components['scheme'])) {
 			$this->components['scheme'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on'
 				? 'https'
@@ -763,36 +818,43 @@ class URL {
 		}
 	}
 
-	function getHost() {
+	function getHost()
+	{
 		return $this->components['host'];
 	}
 
-	function getPort() {
+	function getPort()
+	{
 		return $this->components['port'];
 	}
 
-	function getUser() {
+	function getUser()
+	{
 		return $this->components['user'];
 	}
 
-	function getPass() {
+	function getPass()
+	{
 		return $this->components['pass'];
 	}
 
-	function getHash() {
+	function getHash()
+	{
 		return ifsetor($this->components['fragment']);
 	}
 
 	/**
 	 * @param array $queryString - array of objects with (->name, ->value)
 	 */
-	public function setParamsFromHAR($queryString) {
+	public function setParamsFromHAR($queryString)
+	{
 		foreach ($queryString as $pair) {
 			$this->setParam($pair->name, $pair->value);
 		}
 	}
 
-	public function replaceController($newController) {
+	public function replaceController($newController)
+	{
 		if (is_array($newController)) {
 			$newController = implode('/', $newController);
 		}
@@ -804,11 +866,13 @@ class URL {
 		return $this;
 	}
 
-	public function getParams() {
+	public function getParams()
+	{
 		return $this->params;
 	}
 
-	public function makeRelative() {
+	public function makeRelative()
+	{
 		$al = AutoLoad::getInstance();
 		$path = $this->getPath();
 //		debug($path.'', $path->isAbsolute(), $al->getAppRoot().'');

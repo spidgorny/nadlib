@@ -23,7 +23,7 @@ class DBLayerLogger extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function perform($query) {
+	function perform($query, array $params = []) {
 		$this->log($query);
 		return '';
 	}
@@ -33,7 +33,7 @@ class DBLayerLogger extends dbLayerBase implements DBInterface {
 		return '';
 	}
 
-	function fetchAll() {
+	function fetchAll($res_or_query, $index_by_key = NULL) {
 		$this->log(__METHOD__);
 		return array();
 	}
