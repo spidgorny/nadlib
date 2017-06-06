@@ -48,7 +48,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * Returns an array of the elements in a specific column.
 	 * @param $col
-	 * @return static
+	 * @return ArrayPlus
 	 */
 	function column($col) {
 		$return = array();
@@ -495,6 +495,22 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	function filterBoth($callback = NULL) {
+		if ($callback /*is_callable($callback)*/) {
+			$new = array_filter($this->getData(), $callback, ARRAY_FILTER_USE_BOTH);
+		} else {
+			$new = array_filter($this->getData());
+		}
+		$this->setData($new);
+		return $this;
+	}
+
+	function filterContains($needle) {
+		return $this->filter(function ($el) use ($needle) {
+			return str_contains($el, $needle);
+		});
+	}
+
 	function implode($sep = "\n") {
 		return implode($sep, $this->getData());
 	}
@@ -754,6 +770,11 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $result;
 	}
 
+	function __toString()
+	{
+		return json_encode($this->getArrayCopy(), JSON_PRETTY_PRINT);
+	}
+
 	public function toStringEach() {
 		$new = array();
 		foreach ($this->getData() as $i => $mixed) {
@@ -808,6 +829,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * @return ArrayPlus
+	 */
 	function sortByValue() {
 		$data = $this->getData();
 		asort($data);
@@ -840,6 +864,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * @return ArrayPlus
+	 */
 	function values() {
 		$this->setData(array_values($this->getData()));
 		return $this;
