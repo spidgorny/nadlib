@@ -274,15 +274,21 @@ class Mailer {
 		return $mailText;
 	}
 
-	/**
-	 * @return \SendGrid\Response
-	 */
-	function sendGrid() {
+	function getSendGridMail() {
 		$config = Config::getInstance();
 		$from = new SendGrid\Email(null, $config->mailFrom);
 		$to = new SendGrid\Email(null, $this->to);
 		$content = new SendGrid\Content("text/plain", $this->getPlainText());
 		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
+		return $mail;
+	}
+
+	/**
+	 * @return \SendGrid\Response
+	 */
+	function sendGrid() {
+		$config = Config::getInstance();
+		$mail = $this->getSendGridMail();
 
 		$sg = $config->getSendGrid();
 
