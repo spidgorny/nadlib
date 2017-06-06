@@ -96,6 +96,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		],
 	);
 
+	/**
+	 * @var Request
+	 */
+	protected $request;
+
 	public function __construct() {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
