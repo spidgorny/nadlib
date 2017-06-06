@@ -48,7 +48,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function perform($query) {
+	function perform($query, array $params = []) {
 		if (!$this->connection) {
 			debug_pre_print_backtrace();
 		}
