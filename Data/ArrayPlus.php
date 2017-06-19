@@ -677,11 +677,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * http://php.net/manual/en/function.array-splice.php#111204
 	 * @param $input
-	 * @param $offset       - key of the element to insert BEFORE(!)
+	 * @param $offset - key of the element to insert BEFORE(!)
 	 * @param $length
 	 * @param $replacement
+	 * @return array
 	 */
-	static function array_splice_assoc(&$input, $offset, $length, $replacement) {
+	static function array_splice_assoc(&$input, $offset, $length, $replacement = []) {
 		$replacement = (array) $replacement;
 		$key_indices = array_flip(array_keys($input));
 		if (isset($input[$offset]) && is_string($offset)) {
@@ -691,9 +692,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 			$length = $key_indices[$length] - $offset;
 		}
 
+		$extract = array_slice($input, $offset, $length, true);
+
 		$input = array_slice($input, 0, $offset, TRUE)
 			+ $replacement
 			+ array_slice($input, $offset + $length, NULL, TRUE);
+		return $extract;
 	}
 
 	/**
