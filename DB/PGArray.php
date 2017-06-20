@@ -99,6 +99,7 @@ class PGArray extends AsIs {
 	 * @return array
 	 */
 	function getPGArray($input) {
+		$input = (string)$input;
 		if (strlen($input) && $input{0} == '{') {	// array inside
 			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
 			return $this->getPGArray($input);
