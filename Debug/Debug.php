@@ -204,7 +204,12 @@ class Debug
 			implode(BR, $trace) . "\n";
 
 		if (is_object($args)) {
-			$args = get_object_vars($args);   // prevent private vars
+			echo 'Object: ', get_class($args), BR;
+			if (method_exists($args, '__debugInfo')) {
+				$args = $args->__debugInfo();
+			} else {
+				$args = get_object_vars($args);   // prevent private vars
+			}
 		}
 
 		ob_start();
