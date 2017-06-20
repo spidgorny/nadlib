@@ -71,7 +71,7 @@ abstract class OODBase {
 	public $parentField = 'pid';
 
 	/**
-	 * @var ?
+	 * @var findInDB() will call init
 	 */
 	public $forceInit;
 
