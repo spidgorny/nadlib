@@ -8,7 +8,8 @@ if (!function_exists('debug')) {
 	/**
 	 * @param ...$a mixed
 	 */
-	function debug($a) {
+	function debug($a)
+	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
@@ -21,10 +22,13 @@ if (!function_exists('debug')) {
 			if (!function_exists('xdebug_break')) {
 				$dump = htmlspecialchars($dump);
 			}
-			echo '<pre>'.$dump.'</pre>';
+			echo '<pre>' . $dump . '</pre>';
 			debug_pre_print_backtrace();
 		}
 	}
+}
+
+if (!function_exists('debugList')) {
 
 	function debugList(array $a, $name = NULL) {
 		$debug = Debug::getInstance();

@@ -610,6 +610,8 @@ abstract class OODBase {
 			$inst = new $static();
 			$inst->init($id);
 			self::storeInstance($inst, $inst->id);
+		} elseif (is_null($id)) {
+			$inst = new $static();
 		} else {
 			debug($id);
 			throw new InvalidArgumentException($static.'->'.__METHOD__);

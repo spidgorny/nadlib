@@ -192,6 +192,7 @@ class Debug
 
 	function debugWithCLI($args)
 	{
+		if (!DEVELOPMENT) return;
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 		$trace = [];
