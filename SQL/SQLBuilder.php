@@ -203,7 +203,7 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getFirstWord($table) {
+	static function getFirstWord($table) {
 		$table1 = trimExplode(' ', $table);
 		$table0 = $table1[0];
 		$table1 = trimExplode("\t", $table0);
@@ -232,73 +232,7 @@ class SQLBuilder {
 	}
 
 	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL) {
-		return $this->getSelectQueryP($table, $where, $order, $addSelect);
-	}
-
-	/**
-	 * @param        $table
-	 * @param array  $where
-	 * @param string $sOrder
-	 * @param null   $addSelect
-	 * @return SQLSelectQuery
-	 */
-	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL) {
-		$table1 = $this->getFirstWord($table);
-		if ($table == $table1) {	// NO JOIN
-			$from = /*$this->db->quoteKey*/($table1);    // table name always quoted
-			$join = NULL;
-		} else {					// JOIN
-			$join = substr($table, strlen($table1));
-			$from = $table1; // not quoted
-		}
-
-
-		// must be quoted for SELECT user.* ... because "user" is reserved
-		$select = $addSelect
-			? $addSelect
-			: $this->quoteKey($table1).".*";
-
-
-
-		$select = new SQLSelect($select);
-		$select->injectDB($this->db);
-
-		$from = new SQLFrom($from);
-		$from->injectDB($this->db);
-
-		if ($join) {
-			$join = new SQLJoin($join);
-		}
-
-		$where = new SQLWhere($where);
-		$where->injectDB($this->db);
-
-		$group = NULL;
-		$limit = NULL;
-		$order = NULL;
-		if (str_startsWith($sOrder, 'ORDER BY')) {
-			$order = new SQLOrder($sOrder);
-			$order->db = $this->db;
-			$group = NULL;
-		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
-			$parts = trimExplode('ORDER BY', $sOrder);
-			$group = new SQLGroup($parts[0]);
-			$group->db = $this->db;
-			if (ifsetor($parts[1])) {
-				$order = new SQLOrder($parts[1]);
-				$order->db = $this->db;
-			}
-		} elseif (str_startsWith($sOrder, 'LIMIT')) {
-			$parts = trimExplode('LIMIT', $sOrder);
-			$limit = new SQLLimit($parts[0]);
-		} elseif ($sOrder) {
-			debug(['sOrder' => $sOrder, 'order' => $order]);
-			throw new InvalidArgumentException(__METHOD__);
-		}
-//		debug(__METHOD__, $table, $where, $where->getParameters());
-		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
-		$sq->injectDB($this->db);
-		return $sq;
+		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
 
 	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {

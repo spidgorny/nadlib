@@ -500,8 +500,25 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		if (in_array($key, $this->reserved)) {
-			$key = '`' . trim($key) . '`';
+		if ($key[0] != '`') {
+			if (in_array($key, $this->reserved)) {
+				$key = '`' . trim($key) . '`';
+			} else {
+				$parts = trimExplode('.', $key);    // may contain table name
+				if (sizeof($parts) == 2) {
+					$content = $parts[0] . '.`' . $parts[1] . '`';
+				} else {
+					$sameLength = strlen(trim($key)) == strlen($key);
+					$brackets = contains($key, '(');
+					if ($sameLength && !$brackets) {
+						$content = '`' . $key . '`';
+					} else {
+						$content = $key;    // has spaces before or after
+					}
+				}
+			}
+		} else {
+			return $key;
 		}
 		return $key;
 	}
