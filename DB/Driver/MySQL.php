@@ -3,6 +3,7 @@
 /**
  * Class MySQL
  * @mixin SQLBuilder
+ * @deprecated
  */
 class MySQL extends dbLayerBase implements DBInterface {
 
@@ -508,6 +509,7 @@ class MySQL extends dbLayerBase implements DBInterface {
 	function switchDB($db) {
 		$this->database= $db;
 		mysql_select_db($this->database);
+		return $this;
 	}
 
 	function affectedRows($res = NULL) {
