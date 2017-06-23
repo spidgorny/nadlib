@@ -222,5 +222,76 @@ FROM {$from}
 	public function unsetOrder() {
 		$this->order = NULL;
 	}
-	
+
+	/**
+	 * @param $db DBInterface
+	 * @param        $table
+	 * @param array  $where
+	 * @param string $sOrder
+	 * @param null   $addSelect
+	 * @return SQLSelectQuery
+	 */
+	static function getSelectQueryP(
+		DBInterface $db, $table,
+		array $where = array(),
+	 	$sOrder = '',
+		$addSelect = NULL) {
+		$table1 = SQLBuilder::getFirstWord($table);
+		if ($table == $table1) {	// NO JOIN
+			$from = /*$this->db->quoteKey*/($table1);    // table name always quoted
+			$join = NULL;
+		} else {					// JOIN
+			$join = substr($table, strlen($table1));
+			$from = $table1; // not quoted
+		}
+
+
+		// must be quoted for SELECT user.* ... because "user" is reserved
+		$select = $addSelect
+			? $addSelect
+			: $db->quoteKey($table1).".*";
+
+
+
+		$select = new SQLSelect($select);
+		$select->injectDB($db);
+
+		$from = new SQLFrom($from);
+		$from->injectDB($db);
+
+		if ($join) {
+			$join = new SQLJoin($join);
+		}
+
+		$where = new SQLWhere($where);
+		$where->injectDB($db);
+
+		$group = NULL;
+		$limit = NULL;
+		$order = NULL;
+		if (str_startsWith($sOrder, 'ORDER BY')) {
+			$order = new SQLOrder($sOrder);
+			$order->db = $db;
+			$group = NULL;
+		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
+			$parts = trimExplode('ORDER BY', $sOrder);
+			$group = new SQLGroup($parts[0]);
+			$group->db = $db;
+			if (ifsetor($parts[1])) {
+				$order = new SQLOrder($parts[1]);
+				$order->db = $db;
+			}
+		} elseif (str_startsWith($sOrder, 'LIMIT')) {
+			$parts = trimExplode('LIMIT', $sOrder);
+			$limit = new SQLLimit($parts[0]);
+		} elseif ($sOrder) {
+			debug(['sOrder' => $sOrder, 'order' => $order]);
+			throw new InvalidArgumentException(__METHOD__);
+		}
+//		debug(__METHOD__, $table, $where, $where->getParameters());
+		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
+		$sq->injectDB($db);
+		return $sq;
+	}
+
 }

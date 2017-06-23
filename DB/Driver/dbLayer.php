@@ -636,7 +636,8 @@ order by a.attnum';
 
 	function quoteKey($key) {
 		if (ctype_alpha($key)) {
-			if (function_exists('pg_escape_identifier')) {
+			$isFunc = function_exists('pg_escape_identifier');
+			if ($isFunc && $this->isConnected()) {
 				$key = pg_escape_identifier($key);
 			} else {
 				$key = '"' . $key . '"';

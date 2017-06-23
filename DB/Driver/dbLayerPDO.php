@@ -286,23 +286,24 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		if ($key[0] != '`') {
-			$parts = trimExplode('.', $key);	// may contain table name
-			if (sizeof($parts) == 2) {
-				$content = $parts[0].'.`'.$parts[1].'`';
-			} else {
-				$sameLength = strlen(trim($key)) == strlen($key);
-				$brackets = contains($key, '(');
-				if ($sameLength && !$brackets) {
-					$content = '`' . $key . '`';
-				} else {
-					$content = $key;	// has spaces before or after
-				}
-			}
-		} else {
-			return $key;
-		}
+		$driver = $this->getDriver();
+		$content = $driver->quoteKey($key);
 		return $content;
+	}
+
+	function getDriver() {
+		$driverMap = [
+			'mysql' => 'MySQL',
+			'pgsql' => 'dbLayer',
+			'sqlite' => 'dbLayerSQLite',
+			'mssql' => 'dbLayerMS',
+		];
+		$scheme = $this->getScheme();
+		if (isset($driverMap[$scheme])) {
+			return new $driverMap[$scheme];
+		} else {
+			throw new InvalidArgumentException(__METHOD__.' not implemented for ['.$scheme.']');
+		}
 	}
 
 	function escapeBool($value) {
