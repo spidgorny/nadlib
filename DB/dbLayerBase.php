@@ -59,13 +59,6 @@ class dbLayerBase implements DBInterface {
 		$this->qb = $qb;
 	}
 
-	function getDSN(array $params) {
-		$url = http_build_query($params, NULL, ';', PHP_QUERY_RFC3986);
-		$url = str_replace('%20', ' ', $url);	// back convert
-		$url = urldecode($url);
-		return $url;
-	}
-
 	/**
 	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
 	 */
