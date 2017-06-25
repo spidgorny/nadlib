@@ -116,6 +116,9 @@ abstract class LocalLang {
 	 * @return string translated message
 	 */
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
+		if (!is_scalar($text)) {
+			throw new InvalidArgumentException('[' . $text . ']');
+		}
 		if (isset($this->ll[$text])) {
 			$trans = ifsetor($this->ll[$text], $text);
 			$trans = $this->Tp($trans, $replace, $s2, $s3);
@@ -205,6 +208,10 @@ abstract class LocalLang {
 		Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
 		//Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
 		return $content;
+	}
+
+	function log($method, $data) {
+//		error_log('['.$method.'] '. (is_scalar($data) ? $data : json_encode($data)));
 	}
 
 }
