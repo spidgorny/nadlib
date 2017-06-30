@@ -9,11 +9,16 @@
 class ClosureCacheTest extends PHPUnit_Framework_TestCase {
 
 	function test_it() {
+		/*
 		$cc = new ClosureCache(
 			function () {
 				return rand(0, PHP_INT_MAX);
 			}
-		);
+		);*/
+
+		$cc = ClosureCache::getInstance('test', function () {
+			return rand(0, PHP_INT_MAX);
+		});
 		$first = $cc->get();
 		$second = $cc->get();
 		$this->assertEquals($first, $second);
