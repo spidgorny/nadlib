@@ -13,7 +13,8 @@
     "danielstjules/stringy": ">=1.5.1",
     "phpauth/phpauth": "v1.1",
     "gnat/nc-cms": "*",
-    "robloach/component-installer": "^0.2.3"
+    "robloach/component-installer": "^0.2.3",
+    "hrmatching/advanced_html_dom": "dev-master"
   },
   "require-dev": {
     "sebastian/environment": "1.0.*@dev",
@@ -53,7 +54,6 @@
   },
   "autoload-dev": {
     "files": [
-      "vendor/GerHobbelt/HTMLawed/htmLawed.php"
     ]
   },
   "repositories": [
