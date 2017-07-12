@@ -168,11 +168,12 @@ class Mailer {
         $messageText = $this->getPlainText();
 
         /** @var Swift_Message $message */
-        $message = Swift_Message::newInstance()
-            ->setSubject($this->subject)
-            ->setBody($messageHTML, 'text/html')
+        // $message = Swift_Message::newInstance() ->  newInstance is not supported anymore (ORS problem send by Ruben)
+		$message = new Swift_Message();
+		$message->setSubject($this->subject)
+			->setBody($messageHTML, 'text/html')
 			->addPart($messageText, 'text/plain')
-        ;
+		;
 
 		$index = Index::getInstance();
 //		$r = new ReflectionClass(Index::class);
@@ -228,8 +229,12 @@ class Mailer {
 
 //		debug($message->getFrom()); die;
 
-		$transport = Swift_SendmailTransport::newInstance();
-        $mailer = Swift_Mailer::newInstance($transport);
+		//$transport = Swift_SendmailTransport::newInstance();
+        //$mailer = Swift_Mailer::newInstance($transport);
+		// newInstance is not supported anymore (ORS problem send by Ruben)
+		$transport = new Swift_SendmailTransport();
+		$mailer = new Swift_Mailer($transport);
+
         $failedRecipients = array();
 
         $sent = $mailer->send($message, $failedRecipients);
