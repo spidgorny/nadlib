@@ -1,6 +1,8 @@
 <?php
 
-define('DEVELOPMENT', true);
+if (!defined('DEVELOPMENT')) {
+	define('DEVELOPMENT', true);
+}
 
 /**
  * Created by PhpStorm.
