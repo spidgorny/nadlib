@@ -569,7 +569,7 @@ class SQLBuilder {
 			$f->setResult($query);
 			return $f;
 		} else {
-			throw new InvalidArgumentException($query);
+			throw new InvalidArgumentException(__METHOD__.' __/(:-)\__ '.$query);
 		}
 	}
 
