@@ -15,7 +15,9 @@ class Bootstrap {
 		$globalAutoload = getenv('USERPROFILE') . DS . 'AppData' . DS . 'Roaming' . DS . 'Composer' . DS . 'vendor' . DS . 'autoload.php';
 		echo $globalAutoload, BR;
 		/** @noinspection PhpIncludeInspection */
-		require_once $globalAutoload;
+		if (is_file($globalAutoload)) {
+			include_once $globalAutoload;
+		}
 
 		require_once __DIR__ . '/Base/ConfigBase.php';
 		//require_once 'TestConfig.php';
