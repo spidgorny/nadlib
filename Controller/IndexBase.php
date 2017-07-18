@@ -11,7 +11,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
-	protected $ll;
+	public $ll;
 
 	/**
 	 * @var User|LoginUser
