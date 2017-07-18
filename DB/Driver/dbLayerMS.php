@@ -1,6 +1,6 @@
 <?php
 
-class dbLayerMS extends dbLayerBase implements DBInterface {
+class DBLayerMS extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -18,7 +18,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	public $connection;
 
 	/**
-	 * @var dbLayerMS
+	 * @var DBLayerMS
 	 */
 	protected static $instance;
 

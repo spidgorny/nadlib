@@ -13,7 +13,7 @@
  *
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
- * @mixin dbLayerBase
+ * @mixin DBLayerBase
  */
 class SQLBuilder {
 
@@ -557,7 +557,7 @@ class SQLBuilder {
 				$f->setResult($query);
 			}
 			return $f;
-		} elseif ($this->db instanceof dbLayerPDO) {
+		} elseif ($this->db instanceof DBLayerPDO) {
 			$res = $this->db->perform($query);
 			return $res;
 		} elseif (is_string($query)) {

@@ -15,7 +15,7 @@ class slTableValue {
 	);
 
 	/**
-	 * @var MySQL|dbLayer
+	 * @var MySQL|DBLayer
 	 */
 	var $db;
 

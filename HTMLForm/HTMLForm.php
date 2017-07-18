@@ -402,7 +402,7 @@ class HTMLForm {
 		//debug('submit', $params);
 		$content = $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
 		$this->stdout .= $content;
-		return $content;
+		return $this;
 	}
 
 	function button($innerHTML = NULL, array $more = array()) {

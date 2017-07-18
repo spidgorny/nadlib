@@ -278,6 +278,8 @@ class AutoLoad {
 	 */
 	function load($class) {
 		/** @var TaylorProfiler $tp */
+		//echo TaylorProfiler::getElapsedTimeString().' '.$class.BR;
+
 		//$tp = TaylorProfiler::getInstance();
 		$tp = NULL;
 		if ($tp) $tp->start(__METHOD__);

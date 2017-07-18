@@ -3,7 +3,7 @@
 class PGArray extends AsIs {
 
 	/**
-	 * @var dbLayer
+	 * @var DBLayer
 	 */
 	var $db;
 
@@ -17,7 +17,7 @@ class PGArray extends AsIs {
 	 */
 	var $data;
 
-	function __construct(dbLayer $db, array $data = NULL) {
+	function __construct(DBLayer $db, array $data = NULL) {
 		$this->db = $db;
 
 		$query = "SHOW standard_conforming_strings;";

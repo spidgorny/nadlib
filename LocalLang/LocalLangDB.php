@@ -8,7 +8,7 @@ class LocalLangDB extends LocalLang {
 	public $table = 'interface';
 
 	/**
-	 * @var MySQL|dbLayerBase
+	 * @var MySQL|DBLayerBase
 	 */
 	protected $db;
 

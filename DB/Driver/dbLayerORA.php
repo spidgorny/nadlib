@@ -4,7 +4,7 @@
  * Class dbLayerORA is completely deprecated.
  * There's not even a documentation on the php.net.
  */
-class dbLayerORA extends dbLayer {
+class DBLayerORA extends DBLayer implements DBInterface {
 	var $connection = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -12,7 +12,7 @@ class dbLayerORA extends dbLayer {
 	var $debug = FALSE;
 	var $debugOnce = FALSE;
 
-	function dbLayerORA($tns, $pass) {
+	function __construct($tns, $pass) {
 		$this->connect($tns, '', $pass);
 	}
 
@@ -30,7 +30,7 @@ class dbLayerORA extends dbLayer {
 		ora_logoff($this->connection);
 	}
 
-	function perform($query, $canprint = TRUE) {
+	function performORA($query, $canprint = TRUE) {
 		$this->COUNTQUERIES++;
 		if ($this->debugOnce || $this->debug) {
 			//debug($query);
@@ -39,6 +39,7 @@ class dbLayerORA extends dbLayer {
 		list($time1['usec'], $time1['sec']) = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
+		$cursor = NULL;
 		$this->LAST_PERFORM_RESULT = ora_open($this->connection);
 		ora_parse($cursor, $query, TRUE) or	$canprint ? my_print_backtrace($query) : '';
 		ora_exec($this->LAST_PERFORM_RESULT);
@@ -134,6 +135,7 @@ class dbLayerORA extends dbLayer {
 	}
 
 	function fetchAssoc($result) {
+		$array = [];
 		$res = ora_fetch_into($result, $array, ORA_FETCHINTO_NULLS|ORA_FETCHINTO_ASSOC);
 		if ($res) {
 			return $array;

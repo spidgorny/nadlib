@@ -4,7 +4,7 @@
  * Class dbLayerPDO
  * @mixin SQLBuilder
  */
-class dbLayerPDO extends dbLayerBase implements DBInterface {
+class DBLayerPDO extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var PDO
@@ -259,7 +259,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			try {
 				$file = $this->dsn;
 				$file = str_replace('sqlite:', '', $file);
-				$db2 = new dbLayerSQLite($file);
+				$db2 = new DBLayerSQLite($file);
 				$db2->connect();
 				$db2->setQB(new SQLBuilder($db2)); // different DB inside
 				$tables = $db2->getTablesEx();
@@ -294,9 +294,9 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function getDriver() {
 		$driverMap = [
 			'mysql' => 'MySQL',
-			'pgsql' => 'dbLayer',
-			'sqlite' => 'dbLayerSQLite',
-			'mssql' => 'dbLayerMS',
+			'pgsql' => 'DBLayer',
+			'sqlite' => 'DBLayerSQLite',
+			'mssql' => 'DBLayerMS',
 		];
 		$scheme = $this->getScheme();
 		if (isset($driverMap[$scheme])) {
@@ -473,11 +473,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function getReplaceQuery($table, array $columns) {
 		if ($this->isMySQL()) {
-			$m = new dbLayerMySQLi();
+			$m = new DBLayerMySQLi();
 			$m->qb = $this->qb;
 			return $m->getReplaceQuery($table, $columns);
 		} elseif ($this->isPostgres()) {
-			$p = new dbLayer();
+			$p = new DBLayer();
 			$p->qb = $this->qb;
 			return $p->getReplaceQuery($table, $columns);
 		} else {

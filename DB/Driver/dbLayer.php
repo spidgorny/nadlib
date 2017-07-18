@@ -4,7 +4,7 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer extends dbLayerBase implements DBInterface {
+class DBLayer extends DBLayerBase implements DBInterface {
 
 	var $RETURN_NULL = TRUE;
 
