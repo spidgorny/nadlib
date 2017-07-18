@@ -97,6 +97,7 @@ class TCAConverter {
 
 	function convertTCA_radio(array $desc, array $config) {
 		$desc['options'] = $this->convertTYPO3items2options($config['items']);
+		$desc['value'] = $config['default'];
 		return $desc;
 	}
 

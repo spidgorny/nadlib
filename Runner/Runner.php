@@ -24,7 +24,7 @@ class Runner {
 			if ($command) {
 				$command();
 			} else {
-				echo 'Nothing to do for '.TaylorProfiler::getElapsedTime().' :-(', BR;
+				echo 'Nothing to do for '.TaylorProfiler::getElapsedTimeString().' :-(', BR;
 			}
 			sleep(1);
 		}
