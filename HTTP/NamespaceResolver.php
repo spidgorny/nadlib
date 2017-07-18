@@ -1,38 +1,31 @@
 <?php
 
-class PathResolver implements ResolverInterface {
+class NamespaceResolver implements ResolverInterface
+{
 
 	/**
 	 * @var Request
 	 */
 	var $request;
 
-	function __construct() {
+	function __construct(array $tryNS = [])
+	{
 		$this->request = Request::getInstance();
+		$this->ns = $tryNS;
 	}
 
-	function getController($returnDefault = true) {
+	function getController($returnDefault = true)
+	{
 		$levels = $this->request->getURLLevels();
-//		debug($levels);
 		if ($levels) {
 			$levels = array_reverse($levels);
-			$last = NULL;
+			$last = null;
 			foreach ($levels as $class) {
-				// RewriteRule should not contain "?c="
-				nodebug(
-					$class,
-					class_exists($class.'Controller'),
-					class_exists($class));
-				// to simplify URL it first searches for the corresponding controller
-				if ($class && class_exists($class.'Controller')) {	// this is untested
-					$last = $class.'Controller';
+				$last = $this->tryNamespaces($class);
+				if ($last) {
 					break;
 				}
-				if (class_exists($class)) {
-					$last = $class;
-					break;
-				}
-			}	// foreach
+			}
 			if ($last) {
 				$controller = $last;
 			} else {
@@ -44,14 +37,28 @@ class PathResolver implements ResolverInterface {
 		return $controller;
 	}
 
-	function getDefault($returnDefault) {
+	function getDefault($returnDefault)
+	{
 		if ($returnDefault && class_exists('Config')) {
 			// not good as we never get 404
 			$controller = Config::getInstance()->defaultController;
 		} else {
-			$controller = NULL;
+			$controller = null;
 		}
 		return $controller;
+	}
+
+	function tryNamespaces($class)
+	{
+		$last = null;
+		foreach ($this->ns as $prefix) {
+			$classWithNS = $prefix . $class;
+			if (class_exists($classWithNS)) {
+				$last = $classWithNS;
+				break;
+			}
+		}
+		return $last;
 	}
 
 }
