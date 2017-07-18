@@ -1,4 +1,4 @@
-phpunit^
+phpunit^a
 	-v^
 	--debug^
 	--no-configuration^
