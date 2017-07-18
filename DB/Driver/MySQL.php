@@ -5,7 +5,7 @@
  * @mixin SQLBuilder
  * @deprecated
  */
-class MySQL extends dbLayerBase implements DBInterface {
+class MySQL extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var string

@@ -16,7 +16,7 @@ class SQLBetween extends SQLWherePart {
 	public $end;
 
 	/**
-	 * @var DBInterface|dbLayerBase
+	 * @var DBInterface|DBLayerBase
 	 */
 	protected $db;
 

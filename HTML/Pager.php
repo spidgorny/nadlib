@@ -139,7 +139,7 @@ class Pager {
 		$queryObj = new SQLQuery($originalSQL);
 		// not allowed or makes no sense
 		unset($queryObj->parsed['ORDER']);
-		if ($this->db instanceof dbLayerMS) {
+		if ($this->db instanceof DBLayerMS) {
 			$query = $this->db->fixQuery($queryObj);
 		} else {
 			$query = $queryObj->getQuery();

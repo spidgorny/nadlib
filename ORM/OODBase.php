@@ -704,7 +704,7 @@ abstract class OODBase {
 		//debug($insert);
 		$class = $class ?: get_called_class();
 
-		/** @var dbLayerBase $db */
+		/** @var DBLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);

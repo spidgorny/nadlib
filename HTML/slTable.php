@@ -658,7 +658,7 @@ class slTable
 	 */
 	function getData($table)
 	{
-		/** @var dbLayerBase|dbLayerBL $db */
+		/** @var DBLayerBase|dbLayerBL $db */
 		$db = Config::getInstance()->getDB();
 		$cols = $db->getTableColumns($table);
 		$data = $db->getTableDataEx($table, "deleted = 0");

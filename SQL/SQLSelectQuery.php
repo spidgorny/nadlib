@@ -3,7 +3,7 @@
 class SQLSelectQuery extends SQLWherePart {
 
 	/**
-	 * @var dbLayerBase|dbLayer|MySQL|dbLayerPDO
+	 * @var DBLayerBase|DBLayer|MySQL|DBLayerPDO
 	 * @protected to prevent debug output
 	 */
 	protected $db;

@@ -4,7 +4,7 @@
  * Class MySQLi
  * Should work but it doesn't get num_rows() after store_result().
  */
-class dbLayerMySQLi extends dbLayerBase implements DBInterface {
+class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var MySQLi

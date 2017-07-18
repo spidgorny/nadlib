@@ -154,7 +154,7 @@ class ConfigBase {
 
 		if ($this->db_database) {
 			if (extension_loaded('pdo_mysql')) {
-				$this->db = new dbLayerPDO(
+				$this->db = new DBLayerPDO(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
