@@ -8,9 +8,9 @@ class ConfigBase {
 	protected static $instance;
 
 	public $db_server = '127.0.0.1';
-	public $db_database = '';
 	public $db_user = 'root';
-	public $db_password = 'root';
+	protected $db_password = 'root';
+	public $db_database = '';
 
 	/**
 	 * @var int
@@ -35,24 +35,27 @@ class ConfigBase {
 	public $documentRoot = '';
 
 	public static $includeFolders = array(
-		'vendor/spidgorny/nadlib',
-		'vendor/spidgorny/nadlib/Cache',
-		'vendor/spidgorny/nadlib/Controller',
-		'vendor/spidgorny/nadlib/CSS',
-		'vendor/spidgorny/nadlib/Data',
-		'vendor/spidgorny/nadlib/DB',
-		'vendor/spidgorny/nadlib/Debug',
-		'vendor/spidgorny/nadlib/HTML',
-		'vendor/spidgorny/nadlib/HTMLForm',
-		'vendor/spidgorny/nadlib/HTTP',
-		'vendor/spidgorny/nadlib/LocalLang',
-		'vendor/spidgorny/nadlib/ORM',
-		'vendor/spidgorny/nadlib/SQL',
-		'vendor/spidgorny/nadlib/Time',
-		'vendor/spidgorny/nadlib/User',
-		'class',	// to load the Config of the main project
-		'model',
-		'vendor/spidgorny/nadlib/be/class',
+		'.',
+		'Cache',
+		'Controller',
+		'CSS',
+		'Data',
+		'DB',
+		'Debug',
+		'HTML',
+		'js',
+		'HTMLForm',
+		'HTTP',
+		'LocalLang',
+		'ORM',
+		'SQL',
+		'Time',
+		'User',
+		'be/class',
+		'be/class/DB',
+		'be/class/Info',
+		'be/class/Test',
+        'Queue',
 	);
 
 	/**
@@ -65,43 +68,41 @@ class ConfigBase {
 
 	public $config;
 
-	/**
-	 * Default is that nadlib/ is in the root folder
-	 * @var string
-	 */
-	public $appRoot;
-
 	protected function __construct() {
-		try {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				$this->db_password);
-		} catch (Exception $e) {
-			$this->db = new MySQL(
-				$this->db_database, 
-				$this->db_server, 
-				$this->db_user, 
-				'');
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+		$this->documentRoot = Request::getDocumentRoot();
+		if (Request::isCLI()) {
+			$this->appRoot = getcwd();
+		} else {
+			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
+			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
 		}
-		$di = new DIContainer();
-		$di->db = $this->db;
-		$this->qb = new SQLBuilder($di);
-		$this->documentRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
-		//$this->appRoot = dirname(__FILE__).'/..';
-		$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
-		//debug(__FILE__, $this->appRoot);
+
+		//debug_print_backtrace();
+		nodebug(array(
+			'Config->documentRoot' => $this->documentRoot,
+			'Config->appRoot' => $this->appRoot,
+		));
+		//debug_pre_print_backtrace();
+
+		//$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
+		//$appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $appRoot);
+
+		//$this->appRoot = str_replace('vendor/spidgorny/nadlib/be', '', $this->appRoot);
+		//d(__FILE__, $this->documentRoot, $this->appRoot, $_SERVER['SCRIPT_FILENAME']);
 
 		//print_r(array(getcwd(), 'class/config.yaml', file_exists('class/config.yaml')));
 		if (file_exists('class/config.yaml')) {
+			require_once 'vendor/mustangostang/spyc/Spyc.php';
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
 	}
 
 	/**
-	 *
+	 * For compatibility with PHPUnit you need to call
+	 * Config::getInstance()->postInit() manually
 	 * @return Config
 	 */
 	public static function getInstance() {
@@ -112,9 +113,41 @@ class ConfigBase {
 		return self::$instance;
 	}
 
+	/**
+	 * Does heavy operations during bootstraping
+	 * @return $this
+	 */
 	public function postInit() {
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		if ($this->db_database) {
+			$di = new DIContainer();
+			if (extension_loaded('mysqlnd')) {
+				$di->db_class = 'dbLayerPDO';
+				$this->db = new $di->db_class(
+					$this->db_user,
+					$this->db_password,
+					'mysql',
+					'',
+					$this->db_server,
+					$this->db_database
+				);
+				$this->db->perform('set names utf8');
+			} else {
+				$di->db_class = 'MySQL';
+				$this->db = new $di->db_class(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					$this->db_password);
+			}
+			$di->db = $this->db;
+			$this->qb = new SQLBuilder($di->db);
+		}
+
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		return $this;
 	}
 
 	public function prefixTable($a) {
@@ -143,5 +176,25 @@ class ConfigBase {
 			}
 		}
 	}
+
+    /**
+     * @return \SQLBuilder
+     */
+    public function getQb()
+    {
+        if(!isset($this->qb)) {
+            $this->setQb(new SQLBuilder(Config::getInstance()->db));
+        }
+
+        return $this->qb;
+    }
+
+    /**
+     * @param \SQLBuilder $qb
+     */
+    public function setQb($qb)
+    {
+        $this->qb = $qb;
+    }
 
 }

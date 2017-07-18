@@ -34,12 +34,23 @@ class Flot extends AppController {
 	/**
 	 * @var array - these are line charts, multiple series as well
 	 */
-	public $cumulative;
+	public $cumulative = array();
 
 	/**
 	 * @var int - max value for cumulative (max of max possible)
 	 */
 	public $max;
+
+	public $width = '950px';
+
+	public $height = '600px';
+
+	public $barWidth = '24*60*60*1000*25';
+
+	/**
+	 * @var string
+	 */
+	var $flotPath = 'components/flot/flot/';
 
 	/**
 	 * @param array $data	- source data
@@ -48,34 +59,54 @@ class Flot extends AppController {
 	 * @param $amountKey	- value (numeric) field
 	 */
 	function __construct(array $data, $keyKey, $timeKey, $amountKey) {
+		parent::__construct();
 		$this->data = $data;
 		$this->keyKey = $keyKey;
 		$this->timeKey = $timeKey;
 		$this->amountKey = $amountKey;
 		$this->chart = $this->getChartTable($this->data);
-		$this->cumulative = $this->getChartCumulative($this->chart);
-		$this->max = $this->getChartMax($this->cumulative);
+		$this->max = $this->getChartMax($this->chart);
+
+		// add this manually before rendering if needed
+		//$this->cumulative = $this->getChartCumulative($this->chart);
+		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function render() {
-		$content = '';
-		$content .= $this->showChart('chart1', $this->chart, $this->cumulative, $this->max);
-		return $content;
+	function setFlot($path) {
+		$this->flotPath = $path;
 	}
 
 	/**
 	 * Fixed for Posa Cards
 	 *
-	 * @param array $data
+	 * @internal param array $data
+	 * @param string $divID
 	 * @return array
 	 * array[19]
-	1309471200 	array[2]
-	0 	integer 	1309471200000
-	1 	integer 	0
-	1314828000 	array[2]
-	0 	integer 	1314828000000
-	1 	integer 	39
+	 * 1309471200    array[2]
+	 * 0    integer    1309471200000
+	 * 1    integer    0
+	 * 1314828000    array[2]
+	 * 0    integer    1314828000000
+	 * 1    integer    39
 	 */
+	function render($divID = 'chart1') {
+		$content = '';
+		$chart = $this->getChartTable($this->data);
+		$max = $this->getChartMax($chart);
+		$content .= $this->showChart($divID, $chart, $this->cumulative, $max);
+		return $content;
+	}
+
+	function renderCumulative($divID = 'chart1') {
+		$content = '';
+		$chart = $this->getChartTable($this->data);
+		$this->cumulative = $this->getChartCumulative($chart);
+		$max = $this->getChartMax($this->cumulative);
+		$content .= $this->showChart($divID, $chart, $this->cumulative, $max);
+		return $content;
+	}
+
 	function appendCumulative(array $data) {
 		//debug($this->cumulative, $data);
 		$cumulative2 = array();
@@ -99,6 +130,7 @@ class Flot extends AppController {
 	/**
 	 * Return a multitude of rows which are extracted by the $keyKey.
 	 * Each row is an assoc array with $timeKey keys and $amountKey values.
+	 * Uses strtotime() so the $timeKey values should be PHP parsable
 	 *
 	 * @param array $rows
 	 * @internal param string $keyKey
@@ -112,7 +144,7 @@ class Flot extends AppController {
 			$key = $row[$this->keyKey];
 			$time = $row[$this->timeKey];
 			if ($time) {
-				$time = strtotime($time);
+				$time = is_string($time) ? strtotime($time) : $time;
 				$chart[$key][$time] = array($time*1000, $row[$this->amountKey]);
 			} else {
 				unset($rows[$i]);
@@ -123,6 +155,7 @@ class Flot extends AppController {
 
 	function getChartCumulative(array $chart) {
 		foreach ($chart as &$sub) {
+			ksort($sub);
 			$sum = 0;
 			foreach ($sub as &$val) {
 				$sum += $val[1];
@@ -133,7 +166,7 @@ class Flot extends AppController {
 		return $chart;
 	}
 
-	function getChartMax(array $chart) {
+	static function getChartMax(array $chart) {
 		$max = 0;
 		foreach ($chart as $series) {
 			foreach ($series as $pair) {
@@ -144,14 +177,21 @@ class Flot extends AppController {
 	}
 
 	function showChart($divID, array $charts, array $cumulative, $max) {
-		Index::getInstance()->addJQuery();
-		Index::getInstance()->footer['flot'] = '
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.time.js"></script>';
+		$this->index->addJQuery();
+		$this->index->footer['flot'] = '
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
+			src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.stack.js"></script>
+    	<script language="javascript" type="text/javascript"
+    	    src="'.$this->flotPath.'jquery.flot.time.js"></script>';
 
-		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: none 0px silver;"></div>';
+		$content = '<div id="'.$divID.'" style="
+			width: '.$this->width.';
+			height: '.$this->height.';
+			border: none 0px silver;"></div>';
 
 		$dKeys = array();
 		foreach ($charts as $key => &$rows) {
@@ -165,7 +205,7 @@ class Flot extends AppController {
 				stack: true,
 				bars: {
 					show: true,
-					barWidth: 24*60*60*1000*25,
+					barWidth: 24*60*60*1000*0.75,
 					align: "center"
 				}
 			};';
@@ -188,9 +228,9 @@ class Flot extends AppController {
 		}
 		//$max *= 2;
 
-		Index::getInstance()->footer[$divID] = '
+		$this->index->footer[$divID] = '
     	<script type="text/javascript">
-$(function () {
+jQuery("document").ready(function ($) {
 	'.implode("\n", $charts).'
 	'.implode("\n", $cumulative).'
     $.plot($("#'.$divID.'"), [

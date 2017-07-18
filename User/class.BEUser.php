@@ -16,11 +16,10 @@ class BEUser extends UserBase {
 	function __construct($id = NULL) {
 		parent::__construct($id);
 		Config::getInstance()->mergeConfig($this);
-		$this->try2login();
 	}
 
 	function try2login() {
-		debug('session_start');
+		//debug('session_start');
 		session_start();
 	}
 
@@ -28,16 +27,19 @@ class BEUser extends UserBase {
 		return $this->acl[$something];
 	}
 
-	function saveLogin($username, $passwordHash) {
-		$_SESSION[__CLASS__]['login'] = $username;
+	function saveLogin() {
+		$_SESSION[__CLASS__]['login'] = $this->id;
 	}
 
 	function isAuth() {
-		return !!$_SESSION[__CLASS__]['login'];
+		return $_SESSION[__CLASS__]['login'] && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
 	function logout() {
 		unset($_SESSION[__CLASS__]['login']);
 	}
 
+	function __destruct() {
+		// do nothing
+	}
 }

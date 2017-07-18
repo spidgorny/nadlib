@@ -1,6 +1,10 @@
 <?php
 
 class View {
+
+	/**
+	 * @var string
+	 */
 	protected $file;
 
 	/**
@@ -9,15 +13,11 @@ class View {
 	public $caller;
 
 	/**
-	 * Enter description here...
-	 *
 	 * @var LocalLang
 	 */
 	protected $ll;
-	
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var Request
 	 */
 	protected $request;
@@ -33,12 +33,18 @@ class View {
 
 	function __construct($file, $copyObject = NULL) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
-		$this->folder = Config::getInstance()->appRoot.'/template/';
-		if (class_exists('Config') && Config::getInstance()->config[__CLASS__]['folder']) {
-			$this->folder = dirname(__FILE__).'/'.Config::getInstance()->config[__CLASS__]['folder'];
+		$config = Config::getInstance();
+		$this->folder = $config->appRoot.'/template/';
+		if (class_exists('Config') && $config->config[__CLASS__]['folder']) {
+			$this->folder = dirname(__FILE__).'/'.$config->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
-		//debug($this->folder, $this->file);
+		nodebug(
+			$config->appRoot,
+			$config->config[__CLASS__],
+			$config->config[__CLASS__]['folder'],
+			$this->folder,
+			$this->file);
 		if ($copyObject) {
 			$this->caller = $copyObject;
 			/*$vars = get_object_vars($copyObject);
@@ -61,9 +67,13 @@ class View {
 		$file = dirname($this->file) != '.'
 			? $this->file
 			: $this->folder.$this->file;
+		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
+
+		//debug(getcwd(), $file);
 		require($file);
+
 		if (!$content) {
 			$content = ob_get_clean();
 		} else {
@@ -72,7 +82,8 @@ class View {
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-			$content = '<!-- View template: '.$this->folder.$this->file.' -->'.$content;
+			$content = '<!-- View template: '.$this->folder.$this->file.' -->'."\n".
+				$content;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;
@@ -141,6 +152,11 @@ class View {
 		return eval('?>'.$this->parts[$i]);
 	}
 
+	/**
+	 * Uses htmlspecialchars()
+	 * @param $str
+	 * @return string
+	 */
 	function escape($str) {
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
@@ -192,13 +208,16 @@ class View {
 		$urls = $this->_autolink_find_URLS($text);
 		if (!empty($urls)) // i.e. there were some URLS found in the text
 		{
-			array_walk($urls, array($this, '_autolink_create_html_tags'), array('target' => $target, 'nofollow' => $nofollow));
+			array_walk($urls, array($this, '_autolink_create_html_tags'), array(
+				'target' => $target,
+				'nofollow' => $nofollow,
+			));
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
 		return $text;
 	}
 
-	function _autolink_find_URLS( $text ) {
+	static function _autolink_find_URLS( $text ) {
 		// build the patterns
 		$scheme = '(http:\/\/|https:\/\/)';
 		$www = 'www\.';
@@ -245,9 +264,17 @@ class View {
 		return $money;
 	}
 
-	static function bar($percent) {
+	static function bar($percent, array $params = array(), $attr = array()) {
 		$percent = round($percent);
-		return '<img src="nadlib/bar.php?rating='.$percent.'&color=6DC5B4" alt="'.$percent.'%" />';
+		$src = 'vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
+			'rating' => $percent,
+			'color' => '6DC5B4',
+		));
+		$attr += array(
+			'src' => $src,
+			'alt' => $percent.'%',
+		);
+		return new HTMLTag('img', $attr, NULL);
 	}
 
 }

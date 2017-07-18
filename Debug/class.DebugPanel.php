@@ -36,6 +36,7 @@ class DebugPanel {
 	protected $name = 'DebugPanel';
 	protected $content = '';
 	protected $panels = array();
+	public $header = 'h6';
 
 	protected function __construct($name = NULL, $content = NULL) {
 		if ($name) {
@@ -60,7 +61,7 @@ class DebugPanel {
 	}
 
 	function getHeader() {
-		$content .= '<link rel="stylesheet" type="text/css" href="css/debugPanel.css">';
+		$content = '<link rel="stylesheet" type="text/css" href="css/debugPanel.css">';
 		//$content .= '<script src="js/jquery-1.3.2.min.js"></script>';
 		//$content .= '<script src="js/jquery-ui-1.7.2.custom.min.js"></script>';
 		//$content .= '<script src="js/jquery.cookie.js"></script>';
@@ -70,13 +71,15 @@ class DebugPanel {
 	}
 
 	function render() {
-		$content .= $this->getHeader();
-		$content .= '<div class="DebugPanel">'.$this->__toString('h5').'</div>';
+		$content = $this->getHeader();
+		$this->header = 'h5';
+		$content .= '<div class="DebugPanel">'.$this->__toString().'</div>';
 		return $content;
 	}
 
-	function __toString($h6 = 'h6') {
-		$content .= '<div class="panel">
+	function __toString() {
+		$h6 = $this->header;
+		$content = '<div class="panel">
 		<'.$h6.' class="'.gettype($this->content).'">'.$this->name.'</'.$h6.'>';
 		if ($this->content || $this->panels) {
 			$content .= '<div class="content">';

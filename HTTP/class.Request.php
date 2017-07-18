@@ -1,24 +1,33 @@
 <?php
 
 class Request {
+
+	/**
+	 * Assoc array of URL parameters
+	 * @var array
+	 */
 	protected $data = array();
-	public $defaultController;
 
 	/**
 	 * @var URL
 	 */
 	public $url;
 
+	/**
+	 * Singleton
+	 * @var Request
+	 */
 	static protected $instance;
 
 	function __construct(array $array = NULL) {
 		$this->data = !is_null($array) ? $array : $_REQUEST;
-		$this->defaultController = class_exists('Config') ? Config::getInstance()->defaultController : '';
 		if (ini_get('magic_quotes_gpc')) {
 			$this->data = $this->deQuote($this->data);
 		}
 
-		$this->url = new URL(isset($_SERVER['SCRIPT_URL']) ? $_SERVER['SCRIPT_URL'] : $_SERVER['REQUEST_URI']);
+		$this->url = new URL(isset($_SERVER['SCRIPT_URL'])
+			? $_SERVER['SCRIPT_URL']
+			: $_SERVER['REQUEST_URI']);
 	}
 
 	function deQuote(array $request) {
@@ -40,6 +49,11 @@ class Request {
 		return self::$instance;
 	}
 
+	/**
+	 * Will overwrite
+	 * @param $var
+	 * @param $val
+	 */
 	function set($var, $val) {
 		$this->data[$var] = $val;
 	}
@@ -56,8 +70,32 @@ class Request {
 		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
 	}
 
+	/**
+	 * General filtering function
+	 * @param $name
+	 * @return string
+	 */
 	function getTrim($name) {
-		return trim($this->getString($name));
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		return $value;
+	}
+
+	/**
+	 * Will strip tags
+	 * @param $name
+	 * @return string
+	 * @throws Exception
+	 */
+	function getTrimRequired($name) {
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		if (!$value) {
+			throw new Exception('Parameter '.$name.' is required.');
+		}
+		return $value;
 	}
 
 	/**
@@ -70,7 +108,7 @@ class Request {
 	function getOneOf($name, array $options) {
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
-			debug($value, $options);
+			//debug($value, $options);
 			throw new Exception(__METHOD__.' is throwing an exception.');
 		}
 		return $value;
@@ -92,8 +130,8 @@ class Request {
 	 * Checks for keys, not values
 	 *
 	 * @param $name
-	 * @param array $assoc
-	 * @return null
+	 * @param array $assoc	- only array keys are used in search
+	 * @return int|null
 	 */
 	function getIntIn($name, array $assoc) {
 		$id = $this->getIntOrNULL($name);
@@ -155,7 +193,9 @@ class Request {
 
 	function getTrimArray($name) {
 		$list = $this->getArray($name);
-		$list = array_map('trim', $list);
+		if ($list) {
+			$list = array_map('trim', $list);
+		}
 		return $list;
 	}
 
@@ -196,7 +236,7 @@ class Request {
 	 * @return Time
 	 */
 	function getTime($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
 		}
 	}
@@ -209,7 +249,7 @@ class Request {
 	 * @return Date
 	 */
 	function getDate($name, $rel = NULL) {
-		if ($this->is_set($name)) {
+		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
 	}
@@ -231,8 +271,26 @@ class Request {
 		return $files;
 	}
 
+	/**
+	 * Similar to getArray() but the result is an object of a Request
+	 * @param $name
+	 * @return Request
+	 */
 	function getSubRequest($name) {
 		return new Request($this->getArray($name));
+	}
+
+	/**
+	 * Opposite of getSubRequest. It's a way to reimplement a subrequest
+	 * @param $name
+	 * @param Request $subrequest
+	 * @return $this
+	 */
+	function import($name, Request $subrequest) {
+		foreach ($subrequest->data as $key => $val) {
+			$this->data[$name][$key] = $val;
+		}
+		return $this;
 	}
 
 	function getCoalesce($a, $b) {
@@ -247,45 +305,49 @@ class Request {
 			//debug($this->data);
 		} else {
 			$controller = $this->getTrim('c');
-			// to simplofy URL it first searches for the corresponding controller
-			$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
-			$tmp = $ptr;
-			$ptr = false;
-			if ($controller && class_exists($controller.'Controller')) {
-				$controller = $controller.'Controller';
-			}
-			$ptr = $tmp;
-			//$controller = end(explode('/', $controller)); // in case it's with subfolder
-			// ^ commented as subfolders need be used for BEmenu
-			if (!$controller) {
-				$levels = $this->getURLLevels();
-				//debug($levels);
-				$levels = array_reverse($levels);
-				foreach ($levels as $class) {
-					//debug($class, class_exists($class.'Controller'), class_exists($class));
-					// to simplofy URL it first searches for the corresponding controller
-					if ($class && class_exists($class.'Controller')) {	// this is untested
-						$last = $class.'Controller';
-						break;
-					}
-					if (class_exists($class)) {
-						$last = $class;
-						break;
-					}
+			if ($controller) {
+				// to simplofy URL it first searches for the corresponding controller
+				$ptr = &Config::getInstance()->config['autoload']['notFoundException'];
+				$tmp = $ptr;
+				$ptr = false;
+				if ($controller && class_exists($controller.'Controller')) {
+					$controller = $controller.'Controller';
 				}
-				$controller = $last;
+				$ptr = $tmp;
+				//$controller = end(explode('/', $controller)); // in case it's with subfolder
+				// ^ commented as subfolders need be used for BEmenu
+			} else {
+				$levels = $this->getURLLevels();
+				if ($levels) {
+					$levels = array_reverse($levels);
+					foreach ($levels as $class) {
+						// RewriteRule should not contain "?c="
+						nodebug(
+							$class,
+							class_exists($class.'Controller'),
+							class_exists($class));
+						// to simplify URL it first searches for the corresponding controller
+						if ($class && class_exists($class.'Controller')) {	// this is untested
+							$last = $class.'Controller';
+							break;
+						}
+						if (class_exists($class)) {
+							$last = $class;
+							break;
+						}
+					}
+					$controller = $last;
+				} else {
+					$controller = Config::getInstance()->defaultController;	// not good as we never get 404
+				}
 			}
 		}   // cli
-        if (!$controller) {
-            $controller = $this->defaultController;
-			//debug('Using default controller', $controller);
-        }
 		nodebug(array(
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			'levels' => $this->getURLLevels(),
 			'last' => $last,
-			'default' => $this->defaultController,
+			'default' => Config::getInstance()->defaultController,
 			'data' => $this->data));
 		return $controller;
 	}
@@ -298,6 +360,9 @@ class Request {
 	 */
 	function getController() {
 		$c = $this->getControllerString();
+		if (!$c) {
+			$c = $GLOBALS['i']->controller; // default
+		}
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
@@ -312,12 +377,16 @@ class Request {
 		$this->data['c'] = $class;
 	}
 
+	function getReferer() {
+		return new URL($_SERVER['HTTP_REFERER']);
+	}
+
 	function getRefererController() {
-		$url = new URL($_SERVER['HTTP_REFERER']);
+		$url = $this->getReferer();
 		$rr = $url->getRequest();
 		$return = $rr->getControllerString();
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
-		return $return ? $return : $this->defaultController;
+		return $return ? $return : Config::getInstance()->defaultController;
 	}
 
 	function redirect($controller) {
@@ -328,12 +397,17 @@ class Request {
 //			|| DEVELOPMENT
 		) {
 			header('Location: '.$controller);
+			exit();
 		} else {
-			echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
+			$this->redirectJS($controller);
+		}
+	}
+
+	function redirectJS($controller) {
+		echo 'Redirecting to <a href="'.$controller.'">'.$controller.'</a>
 			<script>
 				document.location = "'.$controller.'";
 			</script>';
-		}
 		exit();
 	}
 
@@ -354,7 +428,9 @@ class Request {
 			$docRoot .= '/';
 		}
 		$url = Request::getRequestType().'://'.(
-			$_SERVER['HTTP_X_FORWARDED_HOST'] ?: $_SERVER['HTTP_HOST']
+			$_SERVER['HTTP_X_FORWARDED_HOST']
+				? $_SERVER['HTTP_X_FORWARDED_HOST']
+				: $_SERVER['HTTP_HOST']
 		).$docRoot;
 		//$GLOBALS['i']->content .= $url;
 		//debug($url);
@@ -380,8 +456,12 @@ class Request {
 		return $headers[$name];
 	}
 
-	function getJson($name) {
-		return json_decode($this->getTrim($name), true);
+	function getJson($name, $array = true) {
+		return json_decode($this->getTrim($name), $array);
+	}
+
+	function getJSONObject($name) {
+		return json_decode($this->getTrim($name));
 	}
 
 	function isSubmit() {
@@ -452,6 +532,9 @@ class Request {
 		$path = $this->url->getPath();
 		if (strlen($path) > 1) {	// "/"
 			$path = trimExplode('/', $path);
+			if ($path[0] == 'index.php') {
+				array_shift($path);
+			}
 			//debug($this->url->getPath(), $path);
 		} else {
 			$path = array();
@@ -462,21 +545,29 @@ class Request {
 	/**
 	 * Overwriting - no
 	 * @param array $plus
+	 * @return Request
 	 */
 	function append(array $plus) {
 		$this->data += $plus;
+		return $this;
 	}
 
 	/**
 	 * Overwriting - yes
 	 * @param array $plus
+	 * @return Request
 	 */
 	function overwrite(array $plus) {
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
 		}
+		return $this;
 	}
 
+	/**
+	 * http://christian.roy.name/blog/detecting-modrewrite-using-php
+	 * @return bool
+	 */
 	function apacheModuleRewrite() {
 		if (function_exists('apache_get_modules')) {
 			$modules = apache_get_modules();
@@ -524,14 +615,15 @@ class Request {
 	}
 
 	static function isCLI() {
-		return isset($_SERVER['argc']);
+		//return isset($_SERVER['argc']);
+		return php_sapi_name() == 'cli';
 	}
 
 	/**
 	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
 	 * @return bool
 	 */
-	function isCron() {
+	static function isCron() {
 		return !isset($_SERVER['TERM']);
 	}
 
@@ -539,6 +631,11 @@ class Request {
 		return get_object_vars($this);
 	}
 
+	/**
+	 * Uses realpath() to make sure file exists
+	 * @param $name
+	 * @return string
+	 */
 	function getFilePathName($name) {
 		$filename = $this->getTrim($name);
 		//debug(getcwd(), $filename, realpath($filename));
@@ -546,10 +643,15 @@ class Request {
 		return $filename;
 	}
 
+	/**
+	 * Just cuts the folders with basename()
+	 * @param $name
+	 * @return string
+	 */
 	function getFilename($name) {
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
-		$filename = basename($filename);	// optionally use realpath()
+		$filename = basename($filename);
 		return $filename;
 	}
 
@@ -570,7 +672,7 @@ class Request {
 	 */
 	function parseParameters($noopt = array()) {
 		$result = array();
-		$params = $GLOBALS['argv'];
+		$params = $GLOBALS['argv'] ? $GLOBALS['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
@@ -597,6 +699,10 @@ class Request {
 		return $result;
 	}
 
+	function importCLIparams($noopt = array()) {
+		$this->data += $this->parseParameters($noopt);
+	}
+
 	/**
 	 * http://stackoverflow.com/a/6127748/417153
 	 * @return bool
@@ -604,6 +710,60 @@ class Request {
 	function isRefresh() {
 		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
+	}
+
+	public function getIntArray($name) {
+		$array = $this->getArray($name);
+		$array = array_map('intval', $array);
+		return $array;
+	}
+
+	function clear() {
+		$this->data = array();
+	}
+
+	static function getDocumentRoot() {
+		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
+		if ($_SERVER['DOCUMENT_ROOT'] &&
+			strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) !== false) {
+			$docRoot = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+		} else {	//~depidsvy/something
+			$pos = strpos($_SERVER['SCRIPT_FILENAME'], '/public_html');
+			$docRoot = substr(dirname($_SERVER['SCRIPT_FILENAME']), $pos);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+		}
+		$before = $docRoot;
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
+		return $docRoot;
+	}
+
+	function setCacheable($age = 60) {
+		header('Pragma: cache');
+		header('Expires: '.date('D, d M Y H:i:s', time()+$age) . ' GMT');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+		header('Cache-Control: max-age='.$age);
+	}
+
+	/**
+	 * getNameless(1) doesn't provide validation.
+	 * Use importNameless() to associate parameters 1, 2, 3, with their names
+	 * @param array $keys
+	 */
+	public function importNameless(array $keys) {
+		foreach ($keys as $k => $val) {
+			$this->data[$val] = $this->getNameless($k);
+		}
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	static function isWindows() {
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 	}
 
 }

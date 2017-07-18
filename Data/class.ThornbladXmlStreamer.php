@@ -17,11 +17,19 @@ abstract class ThornbladXmlStreamer {
 	private $customRootNode;
 
 	/**
-	* @param $mixed				Path to XML file OR file handle
-	* @param $chunkSize			Bytes to read per cycle (Optional, default is 16 KiB)
-	* @param $customRootNode	Specific root node to use (Optional)
-	* @param $totalBytes		Xml file size - Required if supplied file handle
-	*/
+	 * To see the amount of processed records
+	 * @var int
+	 */
+	public $counter = 0;
+
+	/**
+	 * @param string $mixed                Path to XML file OR file handle
+	 * @param \Bytes|int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
+	 * @param $customRootNode    Specific root node to use (Optional)
+	 * @param $totalBytes        Xml file size - Required if supplied file handle
+	 * @param null $customChildNode
+	 * @throws Exception
+	 */
 	public function __construct($mixed, $chunkSize = 16384, $customRootNode = null, $totalBytes = null, $customChildNode = null) {
 		if (is_string($mixed)) {
 			$this->handle = fopen($mixed, "r");
@@ -228,14 +236,12 @@ abstract class ThornbladXmlStreamer {
 				}
 			}
 		}
+		$this->counter = $counter;
 		return isset($this->rootNode);
 		fclose($this->handle);
 	}
 
-
-
 	private function readNextChunk() {
-
 		$this->chunk .= fread($this->handle, $this->chunkSize);
 		$this->readBytes += $this->chunkSize;
 		if ($this->readBytes >= $this->totalBytes) {
@@ -244,6 +250,5 @@ abstract class ThornbladXmlStreamer {
 		}
 		return true;
 	}
-
 
 }

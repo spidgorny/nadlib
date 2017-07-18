@@ -30,18 +30,28 @@ class SQLWhere {
 					$p->injectField($field);
 				}
 			}
-			return " WHERE\n\t".implode("\n\tAND ", $this->parts);
+			return " WHERE\n\t".implode("\n\tAND ", $this->parts);	// __toString()
 		} else {
 			return '';
 		}
 	}
 
+	/**
+	 * @return array
+	 */
 	function getAsArray() {
 		return $this->parts;
 	}
 
 	function debug() {
 		return $this->parts;
+	}
+
+	static function genFromArray(array $where) {
+		foreach ($where as $key => &$val) {
+			$val = new SQLWhereEqual($key, $val);
+		}
+		return new SQLWhere($where);
 	}
 
 }

@@ -93,7 +93,7 @@ class MiniIndex extends AppController {
 	}
 
 	function error($text) {
-		return '<div class="ui-state-error alert alert-error padding">'.$text.'</div>';
+		return '<div class="ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
 	}
 
 	function addJQuery() {

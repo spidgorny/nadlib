@@ -6,7 +6,7 @@ class HomeBE extends AppControllerBE {
 
 	function render() {
 		$content = '';
-		$content .= new Markdown('Home.text');
+		$content .= new MarkdownView('Home.md');
 
 		//$connection = ssh2_connect('kreuzfahrt-auswahl.de', 22);
 		//$auth_methods = ssh2_auth_none($connection, 'ec2-user');
@@ -15,6 +15,11 @@ class HomeBE extends AppControllerBE {
 		$cmd = 'hg log -l1';
 		exec($cmd, $output);
 		$content .= implode('<br />', $output);
+
+		$content .= getDebug(AutoLoad::getInstance()->debug());
+		$content .= SysInfo::getInstance()->render();
+
+		$content .= getDebug($_ENV);
 
 		return $content;
 	}

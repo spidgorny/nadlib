@@ -23,6 +23,7 @@ class Selectable {
 			$this->selected = $selected['id'];
 		} else {
 			// it's called AFTER subclass initialized $this->data
+			//debug($selected, array_keys($this->data));
 			if (in_array($selected, array_keys($this->data))) {
 				$this->selected = $selected;
 			} else {
@@ -35,19 +36,31 @@ class Selectable {
 		}
 	}
 
+	/**
+	 * It's not more convenient to have it in a toString()
+	 * @return string
+	 */
 	function __toString() {
+		return $this->getDropdown();
+	}
+
+	function getDropdown() {
 		$request = Request::getInstance();
 
 		$f = new HTMLForm();
 		$f->method('GET');
 
-		if (in_array($request->getControllerString(), array(
-			'RoomView',
-			'EditRoomDescription',
-		))) {
-			$f->hidden('c', 'RoomView');
-		} else {
-			$f->hidden('c', $request->getControllerString());
+		$nameless = $request->getURLLevel(0);
+		//debug($nameless);
+		if (!$nameless) {
+			if (in_array($request->getControllerString(), array(
+				'RoomView',
+				'EditRoomDescription',
+			))) {
+				$f->hidden('c', 'RoomView');
+			} else {
+				$f->hidden('c', $request->getControllerString());
+			}
 		}
 
 		$f->selection($this->name, $this->data, $this->selected, TRUE);

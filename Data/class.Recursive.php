@@ -8,7 +8,10 @@
 
 class Recursive {
 
-	protected $value;
+	/**
+	 * @var string
+	 */
+	public $value;
 
 	public $elements = array();
 
@@ -17,8 +20,12 @@ class Recursive {
 		$this->elements = $elements;
 	}
 
+	function setValue($value) {
+		$this->value = $value;
+	}
+
 	function __toString() {
-		return $this->value;
+		return strval(strip_tags($this->value));
 	}
 
 	function getChildren() {
@@ -65,13 +72,15 @@ class Recursive {
 	 *
 	 * @param callable $callback
 	 * @param int $level
-	 * @return array (!)
+	 * @return Recursive
 	 */
 	function eachRecursiveKey($callback, $level = 0) {
 		$new = array();
 		foreach ($this->elements as $i => $el) {
 			if ($el instanceof Recursive) {
 				$val = $el->eachRecursiveKey($callback, $level+1);
+			} else {
+				$val = NULL;
 			}
 			$res = call_user_func($callback, $val, $i);
 			if (!is_null($res)) {
@@ -80,7 +89,8 @@ class Recursive {
 			} else {
 				// unset
 			}
-		} unset($el);
+			unset($el);
+		}
 		//debug(__METHOD__, $level, $this->elements, $new);
 		$this->elements = $new;
 		return $this;

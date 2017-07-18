@@ -1,6 +1,10 @@
 <?php
 
-class MySQL {
+/**
+ * Class MySQL
+ * @mixin SQLBuilder
+ */
+class MySQL extends dbLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -15,6 +19,11 @@ class MySQL {
 	/**
 	 * @var resource
 	 */
+	public $lastResult;
+
+	/**
+	 * @var resource
+	 */
 	protected $connection;
 
 	/**
@@ -23,9 +32,10 @@ class MySQL {
 	protected static $instance;
 
 	/**
+	 * set to NULL for disabling
 	 * @var array
 	 */
-	public $queryLog = array();		// set to NULL for disabling
+	public $queryLog = array();
 
 	/**
 	 * @var bool Allows logging every query to the error.log.
@@ -48,14 +58,17 @@ class MySQL {
 		//ini_set('mysql.connect_timeout', 3);
 		$this->connection = @mysql_pconnect($host, $login, $password);
 		if (!$this->connection) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_select_db($this->db, $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		$res = mysql_set_charset('utf8', $this->connection);
 		if (!$res) {
+			if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 			throw new Exception(mysql_error(), mysql_errno());
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -64,16 +77,20 @@ class MySQL {
 	function perform($query) {
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
+			$btl = debug_backtrace();
 			do {
-				$caller = Debug::getCaller($c);
+				$bt = $btl[$c];
+				$caller = "{$bt['class']}::{$bt['function']}";
 				$c++;
 			} while (in_array($caller, array(
 				'MySQL::fetchSelectQuery',
 				'MySQL::runSelectQuery',
-				//'OODBase::findInDB',
+				'OODBase::findInDB',
 				'MySQL::fetchAll',
-				//'FlexiTable::findInDB',
+				'FlexiTable::findInDB',
 				'MySQL::getTableColumns',
+				'MySQL::perform',
+				'OODBase::fetchFromDB',
 			)));
 			$profilerKey = __METHOD__." (".$caller.")";
 			$GLOBALS['profiler']->startTimer($profilerKey);
@@ -82,8 +99,9 @@ class MySQL {
 			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
 			error_log($runTime.' '.$query);
 		}
+
 		$start = microtime(true);
-		$res = @mysql_query($query, $this->connection);
+		$res = $this->lastResult = @mysql_query($query, $this->connection);
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
 			$key = md5($query);
@@ -94,9 +112,10 @@ class MySQL {
 			$this->queryLog[$key]['times']++;
 		}
 		$this->lastQuery = $query;
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		if (mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				nodebug(array(
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
@@ -106,13 +125,12 @@ class MySQL {
 				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
 			, mysql_errno($this->connection));
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($profilerKey);
 		return $res;
 	}
 
 	function fetchAssoc($res) {
 		$key = __METHOD__.' ('.$this->lastQuery.')';
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -123,8 +141,12 @@ class MySQL {
 			debug_pre_print_backtrace();
 			exit();
 		}
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
+		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $row;
+	}
+
+	function fetchAssocSeek($res) {
+		return $this->fetchAssoc($res);
 	}
 
 	function fetchRow($res) {
@@ -137,42 +159,16 @@ class MySQL {
 		return $row;
 	}
 
-	/**
-	 * Enter description here...
-	 *
-	 * @param resource $res
-	 * @param string $key can be set to NULL to avoid assoc array
-	 * @return array
-	 */
-	function fetchAll($res, $key = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		if (is_string($res)) {
-			$res = $this->perform($res);
+	function free($res) {
+		if (is_resource($res)) {
+			mysql_free_result($res);
 		}
-
-		// temp
-		if (mysql_errno()) {
-			debug(array(mysql_errno($this->connection) => mysql_error($this->connection)));
-			exit();
-		}
-
-		$data = array();
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
-			if ($key) {
-				$data[$row[$key]] = $row;
-			} else {
-				$data[] = $row;
-			}
-		}
-		//debug($this->lastQuery, sizeof($data));
-		//debug_pre_print_backtrace();
-		mysql_free_result($res);
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-		return $data;
 	}
 
-	function numRows($res) {
-		return mysql_num_rows($res);
+	function numRows($res = NULL) {
+		if (is_resource($res ?: $this->lastResult)) {
+			return mysql_num_rows($res ?: $this->lastResult);
+		}
 	}
 
 	function dataSeek($res, $number) {
@@ -184,15 +180,15 @@ class MySQL {
 	}
 
 	function transaction() {
-		$this->perform('BEGIN');
+		return $this->perform('BEGIN');
 	}
 
 	function commit() {
-		$this->perform('COMMIT');
+		return $this->perform('COMMIT');
 	}
 
 	function rollback() {
-		$this->perform('ROLLBACK');
+		return $this->perform('ROLLBACK');
 	}
 
 	function escape($string) {
@@ -209,29 +205,28 @@ class MySQL {
 	 * @param array $where
 	 * @param string $order
 	 * @param string $addFields
-	 * @param bool $exclusive
 	 * @return array <type>
 	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $exclusive = false) {
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '') {
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
-		//$res = $this->runSelectQuery($table, $where, $order, $addFields, $exclusive);
-		$query = $this->getSelectQuery($table, $where, $order, $addFields, $exclusive);
+		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
+		$query = $this->getSelectQuery($table, $where, $order, $addFields);
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res);
 		return $data;
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '', $only = FALSE) {
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus, $only);
+		$query = $qb->getSelectQuery($table, $where, $order, $selectPlus);
 		$res = $this->perform($query);
 		$data = $this->fetchAssoc($res);
 		return $data;
 	}
 
-	function runSelectQuery($table, array $where, $order = '', $selectPlus = '', $only = FALSE) {
+	function runSelectQuery($table, array $where, $order = '', $selectPlus = '') {
 		$qb = Config::getInstance()->qb;
-		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus, $only);
+		$res = $qb->runSelectQuery($table, $where, $order, $selectPlus);
 		return $res;
 	}
 
@@ -266,16 +261,21 @@ class MySQL {
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
     	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
 		WHERE CCSA.collation_name = T.table_collation
-  		/*AND T.table_schema = 'schemaname'*/
-  		AND T.table_name = '".$table."'";
+		/*AND T.table_schema = 'schemaname'*/
+		AND T.table_name = '".$table."'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
 
-	function getTableColumns($table) {
+	/**
+	 * Return a 2D array
+	 * @param $table
+	 * @return array
+	 */
+	function getTableColumnsEx($table) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$table})".Debug::getCaller());
 		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW FULL COLUMNS FROM ".$this->escape($table);
+			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
@@ -286,18 +286,11 @@ class MySQL {
 	}
 
 	function __call($method, array $params) {
-		$qb = Config::getInstance()->qb;
-		//debug_pre_print_backtrace();
-		//debug($method, $params);
-		if (method_exists($qb, $method)) {
-			return call_user_func_array(array($qb, $method), $params);
+		if (method_exists($this->qb, $method)) {
+			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in MySQL and SQLBuilder');
+			throw new Exception($method.'() not found in '.get_class($this).' and SQLBuilder');
 		}
-	}
-
-	function uncompress($value) {
-		return @gzuncompress(substr($value, 4));
 	}
 
 	function quoteKey($key) {
@@ -329,6 +322,14 @@ class MySQL {
 
 	function getIndexesFrom($table) {
 		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
+	}
+
+	function escapeBool($value) {
+		return intval(!!$value);
+	}
+
+	function getScheme() {
+		return get_class($this);
 	}
 
 }

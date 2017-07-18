@@ -5,7 +5,7 @@
  */
 
 class SQLWherePart {
-
+	
 	/**
 	 * @var SQLBuilder
 	 */
@@ -16,7 +16,7 @@ class SQLWherePart {
 
 	function __construct($sql = '') {
 		$this->sql = $sql;
-		$this->qb = Config::getInstance()->qb;
+		$this->qb = Config::getInstance()->getQb();
 	}
 
 	function __toString() {

@@ -15,7 +15,7 @@ class FlotArea {
 	/**
 	 * @var string
 	 */
-	var $flotPath;
+	var $flotPath = 'components/flot/flot/';
 
 	function __construct(array $data, array $series) {
 		$this->data = $data;
@@ -62,12 +62,12 @@ class FlotArea {
 		$series = $this->getJSON($series);
 
 		$content = '
-<script type="text/javascript" language="javascript" src="'.$this->flotPath.'/jquery.js"></script>
-<script type="text/javascript" language="javascript" src="'.$this->flotPath.'/jquery.flot.js"></script>
-<script type="text/javascript" language="javascript" src="'.$this->flotPath.'/jquery.flot.time.js"></script>';
+<script type="text/javascript" language="javascript" src="'.$this->flotPath.'jquery.js"></script>
+<script type="text/javascript" language="javascript" src="'.$this->flotPath.'jquery.flot.js"></script>
+<script type="text/javascript" language="javascript" src="'.$this->flotPath.'jquery.flot.time.js"></script>';
 		$content .= '<div id="placeholder" style="width: 768px; height: 480px;"></div>';
 		$content .= "<script type=\"text/javascript\">
-$(document).ready(function () {
+$(document).ready(function ($) {
     var d1 = ".$series[$this->series[0]].";
     var d2 = ".$series[$this->series[1]].";
  

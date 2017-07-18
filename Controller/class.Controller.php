@@ -14,15 +14,13 @@
  */
 
 abstract class Controller {
+
 	/**
-	 * Enter description here...
-	 *
 	 * @var Index
 	 */
 	public $index;
 
 	/**
-	 *
 	 * @var Request
 	 */
 	public $request;
@@ -35,8 +33,7 @@ abstract class Controller {
 	public $noRender = false;
 
 	/**
-	 *
-	 * @var MySQL|dbLayer
+	 * @var MySQL|dbLayer|dbLayerMS|dbLayerPDO
 	 */
 	protected $db;
 
@@ -49,7 +46,6 @@ abstract class Controller {
 	protected $useRouter = false;
 
 	/**
-	 *
 	 * @var User|Client|userMan|LoginUser
 	 */
 	public $user;
@@ -80,11 +76,8 @@ abstract class Controller {
 	function __construct() {
 		if ($_REQUEST['d'] == 'log') echo get_class($this).' '.__METHOD__."<br />\n";
 		$this->index = class_exists('Index') ? Index::getInstance(false) : NULL;
-		//debug(get_class($this->index));
-		$this->index = class_exists('IndexBE') ? IndexBE::getInstance(false) : $this->index;
-		//debug(get_class($this->index));
 		$this->request = Request::getInstance();
-		$this->useRouter = $this->request->apacheModuleRewrite();
+		//$this->useRouter = $this->request->apacheModuleRewrite(); // set only when needed
 		if (class_exists('Config')) {
 			$this->db = Config::getInstance()->db;
 			$this->user = Config::getInstance()->user;
@@ -97,15 +90,28 @@ abstract class Controller {
 	}
 
 	protected function makeURL(array $params, $forceSimple = FALSE, $prefix = '?') {
-		if ($this->useRouter && !$forceSimple && file_exists('class/class.Router.php')) {
-			$r = new Router();
-			$url = $r->makeURL($params, $prefix);
+		if ($this->useRouter && !$forceSimple) {
+			if (file_exists('class/class.Router.php')) {
+				$r = new Router();
+				$url = $r->makeURL($params, $prefix);
+			} else {
+				$class = $params['c'];
+				unset($params['c']);
+				$url = new URL($prefix != '?'
+					? $prefix
+					: $this->request->getLocation(), $params);
+				$url->components['path'] .= $class;
+			}
 		} else {
 			if (isset($params['c']) && !$params['c']) {
 				unset($params['c']); // don't supply empty controller
 			}
-			$url = new URL($prefix != '?' ? $prefix : $this->request->getLocation(), $params);
-			$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+			$url = new URL($prefix != '?'
+				? $prefix
+				: $this->request->getLocation(), $params);
+			//debug($prefix, $url);
+			//$url->setPath($url->documentRoot.'/'.($prefix != '?' ? $prefix : ''));
+
 			//debug($url->documentRoot, $prefix, $url.'');
 			/*foreach ($params as &$val) {
 				$val = str_replace('#', '%23', $val);
@@ -121,10 +127,11 @@ abstract class Controller {
 	 * Only appends $this->linkVars to the URL.
 	 * Use this one if your linkVars is defined.
 	 * @param array $params
+	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array()) {
-		return $this->makeURL($params + $this->linkVars);
+	function makeRelURL(array $params = array(), $page = '?') {
+		return $this->makeURL($params + $this->linkVars, $page);
 	}
 
 	/**
@@ -235,11 +242,13 @@ abstract class Controller {
 	}
 
 	function encloseIn($title, $content) {
-		return '<fieldset><legend>'.htmlspecialchars($title).'</legend>'.$content.'</fieldset>';
+		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
 	}
 
 	function encloseInAA($content, $caption = '', $h = NULL) {
 		$h = $h ? $h : $this->encloseTag;
+		$content = IndexBase::mergeStringArrayRecursive($content);
 		if ($caption) {
 			$content = '<'.$h.'>'.$caption.'</'.$h.'>'.$content;
 		}
@@ -250,6 +259,7 @@ abstract class Controller {
 
 	function encloseInToggle($content, $title, $height = '', $isOpen = NULL, $tag = 'h3') {
 		if ($content) {
+			// buggy: prevents all clicks on the page in KA.de
 			$this->index->addJQuery();
 			$this->index->addJS('nadlib/js/showHide.js');
 			$this->index->addJS('nadlib/js/encloseInToggle.js');
@@ -290,6 +300,11 @@ abstract class Controller {
 		$this->noRender = true;
 	}
 
+	/**
+	 * Uses float: left;
+	 * @params array[string]
+	 * @return mixed|string
+	 */
 	function inColumns() {
 		$elements = func_get_args();
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
@@ -309,6 +324,17 @@ abstract class Controller {
 			$content .= '<div class="flex-box">'.$html.'</div>';
 		}
 		$content = '<div class="display-box">'.$content.'</div>';
+		return $content;
+	}
+
+	function inEqualColumnsHTML5() {
+		$this->index->addCSS('vendor/spidgorny/nadlib/CSS/display-box.css');
+		$elements = func_get_args();
+		$content = '';
+		foreach ($elements as $html) {
+			$content .= '<div class="flex-box flex-equal">'.$html.'</div>';
+		}
+		$content = '<div class="display-box equal">'.$content.'</div>';
 		return $content;
 	}
 
@@ -339,23 +365,26 @@ abstract class Controller {
 	 * Just appends $this->linkVars
 	 * @param $text
 	 * @param array $params
+	 * @param string $page
 	 * @return HTMLTag
 	 */
-	function makeRelLink($text, array $params) {
+	function makeRelLink($text, array $params, $page = '?') {
 		return new HTMLTag('a', array(
-			'href' => $this->makeRelURL($params)
+			'href' => $this->makeRelURL($params, $page)
 		), $text);
 	}
 
 	/**
 	 * @param $name string|htmlString - if object then will be used as is
-	 * @param $formAction
 	 * @param string|null $action
+	 * @param $formAction
 	 * @param array $hidden
+	 * @param string $submitClass
+	 * @param array $submitParams
 	 * @internal param null $class
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array()) {
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = 'likeText', array $submitParams = array()) {
 		$f = new HTMLForm();
 		if ($formAction) {
 			$f->action($formAction);
@@ -368,11 +397,25 @@ abstract class Controller {
 		}
 		$f->hidden('action', $action);
 		if ($name instanceof htmlString) {
-			$f->button($name, 'type="submit" class="likeText"');
+			$f->button($name, 'type="submit" class="'.$submitClass.'"');
 		} else {
-			$f->submit($name);
+			$f->submit($name, array(
+				'class' => $submitClass,
+			) + $submitParams);
 		}
 		return $f;
+	}
+
+	function inTable(array $parts) {
+		$size = sizeof($parts);
+		$x = round(12 / $size);
+		$content = '<div class="row">';
+		foreach ($parts as $c) {
+			$c = IndexBase::mergeStringArrayRecursive($c);
+			$content .= '<div class="col-md-'.$x.'">'.$c.'</div>';
+		}
+		$content .= '</div>';
+		return $content;
 	}
 
 }

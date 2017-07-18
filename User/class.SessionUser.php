@@ -25,7 +25,7 @@ class SessionUser extends PlainSessionUser {
 	function autoCreate($email) {
 		// we go here only if not logged in
 		// if not a new email and no password we need to ask for password
-		$u = User::getInstance(); // not to mess-up with current object
+		$u = new User(); // not to mess-up with current object
 		$u->findInDB(array('email' => $email));
 		if ($u->id) {
 			throw new Exception(__('Your e-mail is known to the system. Please enter a password.<br>
@@ -56,6 +56,7 @@ class SessionUser extends PlainSessionUser {
 	 *
 	 * @param unknown_type $email
 	 * @param unknown_type $password - hash
+	 * @throws Exception
 	 */
 	function saveLogin($email, $password) {
 		if (strlen($password) != 32) {
@@ -75,7 +76,7 @@ class SessionUser extends PlainSessionUser {
 		unset($_SESSION[__CLASS__]);
 		User::unsetInstance($GLOBALS['i']->user->id);
 		unset($GLOBALS['i']->user);
-		$GLOBALS['i']->user = User::getInstance(); // make new anonymous user - does it work?
+		$GLOBALS['i']->user = new User(); // make new anonymous user - does it work?
 	}
 
 }

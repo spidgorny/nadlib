@@ -7,7 +7,15 @@ class HTMLForm {
 	var $stdout = "";
 	var $enctype = "";
 	var $target = "";
+
+	/**
+	 * Deprecated use for maybe XSS class in some form fields.
+	 * Now it's the class name (or just a unique identifier of the form) to be used
+	 * with XSRF protection.
+	 * @var string
+	 */
 	var $class = "";
+
 	protected $fieldset;
 	protected $fieldsetMore = array();
 	var $formMore = '';
@@ -58,10 +66,6 @@ class HTMLForm {
 		}
 	}
 
-	function cssClass($c) {
-		$this->class = $c;
-	}
-
 	function fieldset($name, $more = array()) {
 		$this->fieldset = $name;
 		$this->fieldsetMore = $more;
@@ -88,6 +92,15 @@ class HTMLForm {
 		return $a;
 	}
 
+	/**
+	 * @param $type
+	 * @param $name
+	 * @param null $value
+	 * @param string/array $more - may be array
+	 * @param string $extraClass
+	 * @param string $namePlus
+	 * @return string
+	 */
 	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '') {
 		$a = '';
 		$a .= '<input type="'.$type.'" class="'.$type.' '.$extraClass.'"';
@@ -97,12 +110,19 @@ class HTMLForm {
 			$a .= ' value="'.$value.'"';
 		}
 		if ($more) {
-			$a .= " " . $more;
+			$a .= " " . (is_array($more) ? $this->getAttrHTML($more) : $more);
 		}
 		$a .= ">\n";
 		return $a;
 	}
 
+	/**
+	 * @param $name
+	 * @param string $value
+	 * @param string/array $more - may be array
+	 * @param string $type
+	 * @param string $extraClass
+	 */
 	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '') {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
@@ -127,10 +147,10 @@ class HTMLForm {
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "", $more = '') {
+	function password($name, $value = "", array $desc = array()) {
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
-		$this->stdout .= $this->getInput("password", $name, $value, $more);
+		$this->stdout .= $this->getInput("password", $name, $value, '', $desc['class']);
 	}
 
 	function hidden($name, $value, $more = "") {
@@ -160,9 +180,17 @@ class HTMLForm {
 	 */
 	function radioLabel($name, $value, $checked, $label = "", $more = '') {
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$id = $this->prefix."_".$name."_".$value;
-		$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($checked ? "checked" : "")." id='".$id."' {$more}> ";
-		$this->stdout .= "<label for=$id>".$this->hsc($label)."</label>";
+		$aName = is_array($name) ? $name : array();
+		$id = implode('_', array_merge($this->prefix, $aName))."_".$value;
+		$this->stdout .= '<label class="radio" for="'.$id.'">
+		<input
+			type="radio"
+			'.$this->getName($name).'
+			value="'.htmlspecialchars($value, ENT_QUOTES).'" '.
+			($checked ? "checked" : "").'
+			id="'.$id.'"
+			'.$more.'> ';
+		$this->stdout .= $this->hsc($label)."</label>";
 	}
 
 	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false) {
@@ -191,7 +219,7 @@ class HTMLForm {
 
 	function file($name, array $desc = array()) {
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout .= $this->getInput("file", $name, '', $desc['more']);
+		$this->stdout .= $this->getInput("file", $name, '', $desc['more'], $desc['class']);
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
@@ -212,6 +240,13 @@ class HTMLForm {
 		if ($autoSubmit) {
 			$this->stdout .= " onchange='this.form.submit()' ";
 		}
+		if ($multiple) {
+			$this->stdout .= ' multiple="1"';
+		}
+		$more .=
+		(isset($desc['size']) ? ' size="'.$desc['size'].'"' : '') .
+		(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
+		(isset($desc['more']) ? $desc['more'] : '');
 		$this->stdout .= $more . ">\n";
 		$this->stdout .= $this->getSelectionOptions($aOptions, $default, $desc);
 		$this->stdout .= "</$tag>\n";
@@ -231,15 +266,17 @@ class HTMLForm {
 		foreach ($aOptions as $value => $option) {	/** PHP feature gettype($value) is integer even if it's string in an array!!! */
 			if ($desc['===']) {
 				$selected = $default === $value;
-				if (sizeof($aOptions) == -3) {
-					Debug::debug_args(array(
+				if (sizeof($aOptions) == 14) {
+					debug(array(
 						'default' => $default,
 						'value' => $value,
 						'selected' => $selected,
 					));
 				}
 			} else {
-				if ((is_array($default) && in_array($value, $default)) || (!is_array($default) && $default == $value)) {
+				//debug($default, $value);
+				if ((is_array($default) && in_array($value, $default))
+				|| (!is_array($default) && $default == $value)) {
 					$selected = true;
 				} else {
 					$selected = false;
@@ -259,17 +296,32 @@ class HTMLForm {
 				if (isset($desc['classAsValuePrefix'])) {
 					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
 				}
+                if (isset($desc['useTitle']) && $desc['useTitle'] == true) {
+                    $content .= ' title="'.strip_tags($option).'"';
+                }
 				$content .= ">$option</option>\n";
 			}
 		}
 		return $content;
 	}
 
-	function date($name, $value) {
-		if (!$value) {
-			$value = date('d.m.Y');
+	/**
+	 * Default value is no longer "today"
+	 * @param $name
+	 * @param $value
+	 * @param array $desc
+	 */
+	function date($name, $value, array $desc = array()) {
+		$format = $desc['format'] ?: 'd.m.Y';
+		if (is_numeric($value)) {
+			$value = date($format, $value);
+		} elseif (!$value) {
+			//$value = date('d.m.Y');
 		}
-		$this->input($name, $value);
+		$this->input($name, $value,
+			(isset($desc['id']) ? ' id="'.$desc['id'].'"' : '').
+			(isset($desc['more']) ? $desc['more'] : '')
+		);
 	}
 
 	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
@@ -304,16 +356,19 @@ class HTMLForm {
 ';
 	}
 
-	function money($name, $value) {
+	function money($name, $value, array $desc) {
 		if (!$value) {
 			$value = "0.00";
 		}
-		$this->input($name, $value);
+		$this->input($name, $value, $desc['more']);
 		$this->text("&euro;");
 	}
 
 	function textarea($name, $value = NULL, $more = '') {
-		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".htmlspecialchars($value)."</textarea>";
+		$more = is_array($more) ? HTMLForm::getAttrHTML($more) : $more;
+		$this->stdout .= "<textarea ".$this->getName($name)." {$more}>".
+			htmlspecialchars($value).
+		"</textarea>";
 	}
 
 	/**
@@ -323,7 +378,7 @@ class HTMLForm {
 	 */
 	function submit($value = NULL, array $params = array()) {
 		$params['class'] = $params['class'] ? $params['class'] : 'submit btn';
-		//$params['name'] = $params['name'] ? $params['name'] : 'submit';	// obtrusive
+		$params['name'] = $params['name'] ? $params['name'] : 'submit';
 		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		$this->stdout .= $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
@@ -333,9 +388,9 @@ class HTMLForm {
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
-	function image($src, $more = array()) {
-		$this->stdout .= "<input type=image ".$this->getName('submit')."
-			src=".$src." class='submitbutton' " . $this->getAttrHTML($more) . ">\n";
+	function image($value = NULL, $more = "", $desc = array()) {
+		$value = htmlspecialchars($value, ENT_QUOTES);
+		$this->stdout .= "<input type=image ".$this->getName('submit')." src=".$desc['src']." class='submitbutton' " . ($value?"value=\"$value\"":"") . " $more>\n";
 	}
 
 	function reset($value = NULL, $more = "") {
@@ -414,9 +469,9 @@ class HTMLForm {
 		$this->class = 'submit';
 		$between = $desc['between'] ? $desc['between'] : ', ';
 		foreach ((array)$desc['options'] as $key => $val) {
-			$this->text('<nobr>');
-			$this->check($newName, $key, in_array($key, $value), 'id="lang_'.$key.'"');
-			$this->text('&nbsp;<label for="lang_'.$key.'">'.$val.'</label></nobr>');
+			$this->text('<nobr><label>');
+			$this->check($newName, $key, in_array($key, $value));
+			$this->text(' '.$val.'</label></nobr>');
 			if ($val != end($desc['options'])) {
 				$this->text($between);
 			}
@@ -471,7 +526,7 @@ class HTMLForm {
 		return $content;
 	}
 
-	function dropSelect($fieldName, array $options) {
+	static function dropSelect($fieldName, array $options) {
 		$content = '
 			<input type="hidden" name="'.$fieldName.'" id="'.$fieldName.'">
 			<input type="text" name="'.$fieldName.'_name" id="'.$fieldName.'_name" onchange="setDropSelectValue(this.value, this.value);">
@@ -533,7 +588,7 @@ class HTMLForm {
 	 * @see set()
 	 */
 	function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
 		$this->stdout .= '<div style="width: '.$width.'; height: '.$height.'; overflow: auto;" class="checkarray '.$sName.'">';
@@ -549,7 +604,7 @@ class HTMLForm {
 			$this->stdout .= '</label>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	/**
@@ -560,8 +615,8 @@ class HTMLForm {
 	 * @see $this->radioset()
 	 */
 	function radioArray($name, array $options, $selected) {
-		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
-		$this->stdout .= '<div style="width: 350px; max-height: 700px; overflow: auto; border: solid 1px silver;">';
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->startTimer(__METHOD__);
+		$this->stdout .= '<div class="radioArray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
@@ -570,7 +625,7 @@ class HTMLForm {
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
-		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if ($GLOBALS['profiler']) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
 	function __toString() {
@@ -583,7 +638,6 @@ class HTMLForm {
 	 * @return string
 	 */
 	function getAttrHTML(array $attr = NULL) {
-		//debug_pre_print_backtrace();
 		$part = array();
 		if ($attr) foreach ($attr as $key => $val) {
 			if (is_array($val)) {
@@ -649,7 +703,9 @@ class HTMLForm {
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$this->stdout .= AppController::ahref('<img src="img/tb_folder.gif" title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
+		$this->stdout .= AppController::ahref('<img
+			src="img/tb_folder.gif"
+			title="'.$desc['ButtonTitle'].'">', '#', '', 'onclick="ajaxTreeOpen(
 			\''.$desc['selectID'].'\',
 			\''.$desc['treeDivID'].'\',
 			\''.$desc['tableName'].'\',
@@ -661,9 +717,18 @@ class HTMLForm {
 			'.$desc['onclickMore'].'
 			return false;
 		"');
-		$style = 'display: none; position: absolute; left: 0; top: 0; width: 404px; height: auto; border: solid 3px #8FBC8F; margin: 3px; background-color: white; az-index: 98;';
+		$style = 'display: none;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 480px;
+		height: auto;
+		border: solid 3px #8FBC8F;
+		margin: 3px;
+		background-color: white;
+		az-index: 98;';
 		//$this->stdout .= '<div id="'.$desc['treeDivID'].'" style="'.$style.'"></div>';
-		$this->stdout .= AppController::enclose('Tree-Element Selector', '',
+		$this->stdout .= AppController::encloseOld('Tree-Element Selector', '',
 			array(
 				'outerStyle' => $style,
 				'foldable' => FALSE,
@@ -671,7 +736,7 @@ class HTMLForm {
 				'paddedID' => (isset($desc['paddedID'])?$desc['paddedID']:''),
 				'closable' => TRUE,
 				'absolute' => TRUE,
-				'paddedStyle' => 'height: 350px; overflow: auto;',
+				'paddedStyle' => 'height: 640px; overflow: auto;',
 				'titleMore' => 'onmousedown="dragStart(event, \''.$desc['treeDivID'].'\')" style="cursor: move;"',
 			));
 	}
@@ -685,8 +750,11 @@ class HTMLForm {
 		$this->hidden($fieldName, $fieldValue, 'id="'.$desc['selectID'].'"');
 		$fieldName[sizeof($fieldName)-1] = end($fieldName).'_name';
 		$this->input($fieldName, $desc['valueName'],
-			'style="width: '.$desc['size'].'" readonly id="'.$desc['selectID'].'_name" '.$desc['more']);
-		$this->text('&nbsp;');
+			'style="width: '.$desc['size'].'"
+			readonly
+			id="'.$desc['selectID'].'_name" '.
+			$desc['more']);
+		$this->text('</td><td>');
 		$this->ajaxTree($desc);
 		$this->text('</nobr>');
 	}

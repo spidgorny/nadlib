@@ -7,6 +7,7 @@
 		white-space: nowrap;
 		display: inline-block;
 		vertical-align: top;
+		box-shadow: none;
 		li {
 			display: inline;
 			margin: 0;
@@ -16,11 +17,14 @@
 		display: inline-block;
 	}
 }
-.paginationControl a, .paginationControl span.disabled, .paginationControl span.active {
-	border:1px solid #DDDDDD;
-	cursor:pointer;
+.paginationControl a,
+.paginationControl span.page,
+.paginationControl span.disabled,
+.paginationControl span.active {
+	padding: 0 10px !important; // against bootstrap
+	border: 1px solid #DDDDDD;
+	cursor: pointer;
 	display: inline-block;
-	height: 19px;
 	margin-top:1px;
 	margin-bottom:1px;
 	margin-right:3px;
@@ -28,15 +32,16 @@
 	text-align:center;
 	text-decoration:none;
 	vertical-align:baseline;
-	min-width: 20px;
+	min-width: 15px;
+	line-height: 30px !important;
 	color: black;
 	background: #EEEEEE;
-	font-size: 10pt;
 }
 .paginationControl span.disabled {
 	cursor: default;
 }
-.paginationControl span.active {
+.paginationControl span.active,
+.paginationControl a.active {
 	background: #72BDE5;
 	color: white;
 	border: solid 1px #72BDE5;

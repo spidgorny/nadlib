@@ -6,7 +6,7 @@ class Proxy extends OODBase {
 
 	static $best = array();
 
-	protected static $maxFail = 12;
+	protected static $maxFail = 15;
 	protected static $maxFailBest = 200;
 
 	/**

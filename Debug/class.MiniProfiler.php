@@ -5,7 +5,6 @@ class MiniProfiler {
 	protected $lastName = array();
 
 	function startTimer($name) {
-		//if ($this->lastName) $this->stopTimer($this->lastName);
 		$this->timer[$name]['start'] = microtime(true);
 		//$this->lastName[] = $name;
 	}

@@ -18,6 +18,11 @@ abstract class FullGrid extends Grid {
 			$this->collection = new $collection(-1, $this->getFilterWhere(), $this->getOrderBy());
 			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+		}
+	}
+
+	function postInit() {
+		if ($this->collection) {
 			$this->collection->retrieveDataFromDB();
 		}
 	}
@@ -138,7 +143,9 @@ abstract class FullGrid extends Grid {
 	}
 
 	function getTableFieldOptions($key, $count = false) {
-		$res = Config::getInstance()->qb->getTableOptions($this->model->table ? $this->model->table : $this->collection->table,
+		$res = $this->db->getTableOptions($this->model->table
+			? $this->model->table
+			: $this->collection->table,
 		$key, array(), 'ORDER BY title', $this->model->idField);
 
 		if ($count) {

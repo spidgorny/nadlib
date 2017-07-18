@@ -20,15 +20,19 @@
  * 		'row2' => 'val4',
  * );
  *
+ * class ArrayPlus
+ * Rules:
+ * 1. Don't access $this->data, use $this as an array
+ * 2. Don't access by reference - data is not updated.
+ * http://stackoverflow.com/questions/8685186/arrayaccess-in-php-assigning-to-offset-by-reference
+ * 3. Don't set $this->data = $new, use $this->setData($new)
  */
 
-$tmp = error_reporting();
-error_reporting(error_reporting() & ~E_STRICT);	// Strict Standards</b>:  Declaration of ArrayPlusReference::create() should be compatible with ArrayPlus::create(array $data = Array)
-
-class ArrayPlus extends IteratorArrayAccess implements Countable {
+class ArrayPlus extends ArrayObject implements Countable {
 
 	function __construct(array $array = array()) {
-		$this->data = $array;
+		parent::__construct($array);
+		$this->setData($array);
 	}
 
 	/**
@@ -42,22 +46,22 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	}
 
 	/**
-	 * Returns an array of the elements in a specific column
+	 * Returns an array of the elements in a specific column.
 	 * @param $col
 	 * @return $this
 	 */
 	function column($col) {
 		$return = array();
-		foreach ($this->data as $key => $row) {
+		foreach ((array)$this as $key => $row) {
 			$return[$key] = $row[$col];
 		}
-		$this->data = $return;
-		return $this;
+		$ap = new ArrayPlus($return);
+		return $ap;
 	}
 
 	function column_coalesce($col1, $col2) {
 		$return = array();
-		foreach ($this->data as $key => $row) {
+		foreach ((array)$this as $key => $row) {
 			$return[$key] = $row[$col1] ? $row[$col1] : $row[$col2];
 		}
 		return $return;
@@ -65,10 +69,10 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 
 	function column_assoc($key, $val) {
 		$data = array();
-		foreach ($this->data as $row) {
+		foreach ((array)$this as $row) {
 			$data[$row[$key]] = $row[$val];
 		}
-		$this->data = $data;
+		$this->setData($data);
 		return $this;
 	}
 
@@ -81,23 +85,29 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 */
 	function IDalize($key = 'id', $allowMerge = false) {
 		$data = array();
-		foreach ($this->data as $row) {
+		foreach ($this as $row) {
 			$keyValue = $row[$key];
 			if (!$keyValue && !$allowMerge) {
-				debug($this->data, $key, $row);
-				throw new Exception(__METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.');
+				$error = __METHOD__.'#'.__LINE__.' You may need to specify $this->idField in your model.';
+				debug(array(
+					'error' => $error,
+					'key' => $key,
+					'row' => $row,
+					'data' => $this->data,
+				));
+				throw new Exception($error);
 			}
 			$data[$keyValue] = $row;
 		}
-		$this->data = $data;
+		$this->setData($data);
 		return $this;
 	}
 
 	function append($value, $key = NULL) {
 		if (!is_null($key)) {
-			$this->data[$key] = $value;
+			$this[$key] = $value;
 		} else {
-			$this->data[] = $value;
+			$this[] = $value;
 		}
 		return $this;
 	}
@@ -106,13 +116,14 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 * Callback = function ($value, [$index]) {}
 	 *
 	 * @param callable $callback
-	 * @return unknown
+	 * @return static
 	 */
 	function each($callback) {
-		foreach ($this->data as $i => &$el) {
+		foreach ($this as $i => $el) {
 			//$el = $callback($el, $i);
 			$el = call_user_func($callback, $el, $i);
-		} unset($el);
+			$this[$i] = $el;
+		}
 		return $this;
 	}
 
@@ -124,7 +135,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 */
 	function eachCollect($callback) {
 		$content = '';
-		foreach ($this->data as $i => $el) {
+		foreach ($this as $i => $el) {
 			$plus = $callback($el, $i);
 			$content .= $plus;
 		}
@@ -132,17 +143,18 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	}
 
     function ksort() {
-    	ksort($this->data);
+    	ksort($this);
     	return $this;
     }
 
-    function count() {
-	    //debug(__METHOD__, sizeof($this->data));
-    	return sizeof($this->data);
-    }
-
-    function searchColumn($key, $val) {
-    	foreach ($this->data as $row) {
+	/**
+	 * Returns the first found row
+	 * @param $key
+	 * @param $val
+	 * @return mixed
+	 */
+	function searchColumn($key, $val) {
+    	foreach ($this as $row) {
     		if ($row[$key] == $val) {
     			return $row;
     		}
@@ -153,41 +165,52 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
      * Chainable
      *
      * @param array $data
-     * @return unknown
+     * @return static
      */
     function setData(array $data) {
-    	$this->data = $data;
+	    $this->exchangeArray($data);
     	return $this;
     }
 
+	/**
+	 * @return array
+	 */
 	function getData() {
-		return $this->data;
+		return (array)$this;
 	}
 
 	function getAssoc($key, $val) {
 		$ret = array();
-		foreach ($this->data as $row) {
+		foreach ($this as $row) {
 			$ret[$row[$key]] = $row[$val];
 		}
 		return $ret;
 	}
 
+	/**
+	 * @return static
+	 */
 	public function trim() {
-		foreach ($this->data as &$value) {
-			$value = trim($value);
+		foreach ($this as $i => $value) {
+			$this[$i] = trim($value);
 		}
 		return $this;
 	}
 
 	public function map($callback) {
-		return array_map($callback, $this->data);
+		return array_map($callback, $this);
 	}
 
+	/**
+	 * @param $a
+	 * @param $b
+	 * @return array
+	 */
 	public function wrap($a, $b) {
-		foreach ($this->data as &$value) {
-			$value = $a.$value.$b;
+		foreach ($this as $i => $value) {
+			$this[$i] = $a.$value.$b;
 		}
-		return $this->data;
+		return $this->getData();
 	}
 
 	/**
@@ -198,14 +221,14 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 */
 	function getPrevNext($key) {
 		$row = $this->findInData(array('id' => $key));
-		$row2 = $this->data[$key];	// works, but how to get next?
+		$row2 = $this[$key];	// works, but how to get next?
 		# http://stackoverflow.com/questions/4792673/php-get-previous-array-element-knowing-current-array-key
 		# http://www.php.net/manual/en/arrayiterator.seek.php
-		$arrayobject = new ArrayObject($this->data);
+		$arrayobject = new ArrayObject($this);
 		$iterator = $arrayobject->getIterator();
 
 		if ($iterator->valid()) {
-			$iterator->seek(array_search($key, array_keys($this->data)));
+			$iterator->seek(array_search($key, array_keys((array) $this)));
 			$row3 = $iterator->current();
 			$iterator->next();
 			$next = $iterator->current();
@@ -222,7 +245,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 * @return bool
 	 */
 	function getPrevKey($key) {
-		$keys = array_keys($this->data);
+		$keys = array_keys($this->getData());
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $found_index === 0)
 			return false;
@@ -235,7 +258,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 * @return bool
 	 */
 	function getNextKey($key) {
-		$keys = array_keys($this->data);
+		$keys = array_keys($this->getData());
 		$found_index = array_search($key, $keys);
 		if ($found_index === false || $key == end($keys))
 			return false;
@@ -243,7 +266,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	}
 
 	function find($needle) {
-		foreach ($this->data as $key => $val) {
+		foreach ($this as $key => $val) {
 			//debug($needle, $key, $val);
 			if ($val instanceof Recursive) {
 				$sub = new ArrayPlus($val->getChildren());
@@ -264,49 +287,88 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	}
 
 	function first() {
-		reset($this->data);
-		return current($this->data);
+		reset($this);
+		return current($this);
 	}
 
+	/**
+	 * Bug. Only one element per sorted field is allowed.
+	 * @param $column
+	 * @return $this
+	 */
 	function sortBy($column) {
-		foreach ($this->data as $key => &$row) {
-			$row['__key__'] = $key;
-		}
-		$this->IDalize($column, true);	// allow merge
-		$this->ksort();
+		$this->insertKeyAsColumn();
+		// buggy
+		//$this->IDalize($column, true);	// allow merge
+		//$this->ksort();
 
+		// correct
+		$copy = clone $this;
+		$sortCol = $copy->column($column)->getData();
+		$aCopy = $this->getData();
+		array_multisort($sortCol, $aCopy);		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		$this->exchangeArray($aCopy);
+		$this->extractKeyFromColumn();
+		return $this;
+	}
+
+	function insertKeyAsColumn() {
+		foreach ($this->getData() as $key => $_) {
+			$this[$key]['__key__'] = $key;
+		}
+	}
+
+	function extractKeyFromColumn() {
 		$new = array();
-		foreach ($this->data as $row) {
+		foreach ($this as $row) {
 			$key = $row['__key__'];
 			unset($row['__key__']);
 			$new[$key] = $row;
 		}
-		$this->data = $new;
-		return $this;
+		$this->setData($new);
 	}
 
 	function transpose() {
 		$out = array();
-		foreach ($this->data as $key => $subarr) {
+		foreach ($this as $key => $subarr) {
 			foreach ($subarr as $subkey => $subvalue) {
 				$out[$subkey][$key] = $subvalue;
 			}
 		}
-		$this->data = $out;
+		$this->setData($out);
 		return $this;
 	}
 
+	/**
+	 * @param array $column
+	 * @return static
+	 */
 	function unshift(array $column) {
 		reset($column);
-		foreach ($this->data as &$row) {
-			$row = array(current($column)) + $row;
+		foreach ($this as $i => $row) {
+			$this[$i] = array(current($column)) + $row;
 			next($column);
 		}
 		return $this;
 	}
 
 	function sum() {
-		return array_sum($this->data);
+		return array_sum($this->getData());
+	}
+
+	function min() {
+		return min($this->getData());
+	}
+
+	function max() {
+		return max($this->getData());
+	}
+
+	function avg() {
+		$count = $this->count();
+		if ($count != 0) {
+			return $this->sum() / $count;
+		}
 	}
 
 	/**
@@ -315,7 +377,7 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	 * @return ArrayPlus
 	 */
 	function object2array(array $data = NULL) {
-		$this->data = $this->objectToArray($this->data);
+		$this->setData($this->objectToArray($this));
 		return $this;
 	}
 
@@ -345,8 +407,16 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		}
 	}
 
+	/**
+	 *	$tree = AP(array('a' => array('b' => array('c' => 'd'))));
+		$linear = $tree->linearize();
+		return slTable::showAssoc($linear, true, true);
+		== "c": "d"
+	 * @param array $data
+	 * @return array
+	 */
 	function linearize(array $data = NULL) {
-		$data = $data ? $data : $this->data;
+		$data = $data ? $data : $this;
 		$linear = array();
 		foreach ($data as $key => $val) {
 			if (is_array($val) && $val) {
@@ -359,17 +429,17 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 	}
 
 	function filter() {
-		$this->data = array_filter($this->data);
+		$this->setData(array_filter((array) $this));
 		return $this;
 	}
 
 	function implode($sep) {
-		return implode($sep, $this->data);
+		return implode($sep, (array) $this);
 	}
 
 	function typoscript($prefix = '') {
 		$replace = array();
-		foreach ($this->data as $key => $val) {
+		foreach ($this as $key => $val) {
 			$prefixKey = $prefix ? $prefix.'.'.$key : $key;
 			if (is_array($val)) {
 				$plus = AP($val)->typoscript($prefixKey);
@@ -381,31 +451,101 @@ class ArrayPlus extends IteratorArrayAccess implements Countable {
 		return $replace;
 	}
 
+	function count_if($k) {
+		$count = 0;
+		foreach ($this as $val) {
+			if ($val[$k]) {
+				$count++;
+			}
+		}
+		return $count;
+	}
+
+	function count_if_sub($k1s, $k2) {
+		$count = 0;
+		foreach ($this as $val) {
+			foreach ($val as $key2 => $val2) {
+				if (in_array($key2, $k1s) && $val2[$k2]) {
+					$count++;
+					break;
+				}
+			}
+		}
+		return $count;
+	}
+
+	/**
+	 * Chainable
+	 *
+	 * @param $i
+	 * @param $val
+	 * @return $this
+	 */
+	function set($i, $val) {
+		$this->offsetSet($i, $val);
+		return $this;
+	}
+
+	/**
+	 * Chainable
+	 *
+	 * @param mixed $i
+	 * @return static
+	 */
+	function un_set($i) {
+		$this->offsetUnset($i);
+		return $this;
+	}
+
+	function get($i, $subkey = NULL) {
+		$element = $this->offsetGet($i);
+		if ($subkey) {
+			$element = $element[$subkey];
+		}
+		return $element;
+	}
+
+	function debug() {
+		return array(
+			'count' => $this->count(),
+		);
+	}
+	
+    /**
+     * @param $oldKey
+     * @param $newKey
+     * @return array
+     * @throws Exception
+     */
+    function replace_key($oldKey, $newKey) {
+        $keys = array_keys((array) $this);
+        if (false === $index = array_search($oldKey, $keys)) {
+            throw new Exception(sprintf('Key "%s" does not exit', $oldKey));
+        }
+        $keys[$index] = $newKey;
+        $this->exchangeArray(array_combine($keys, array_values((array) $this)));
+    }
+	
+	/**
+	 * @param $ar2
+	 * @return static
+	 */
+	function merge_recursive_overwrite($ar2) {
+		foreach ($ar2 as $key2 => $val2) {
+			if (isset($this[$key2])) {
+				$tmp = AP($this[$key2]);
+				$tmp->merge_recursive_overwrite($subindex, $val2);
+				$this[$key2] = $tmp->getData();
+			} else {
+				$this[$key2] = $val2;
+			}
+		}
+		return $this;
+	}
+
 }
 
 function AP(array $a = array()) {
 	return ArrayPlus::create($a);
 }
 
-class ArrayPlusReference extends ArrayPlus {
-
-	function __construct(array &$a = array()) {
-		$this->data =& $a;
-	}
-
-    static function create(array &$data = array()) {
-    	$self = new self($data);
-    	return $self;
-    }
-
-	function &getData() {
-		return $this->data;
-	}
-
-}
-
-function APR(array &$a = array()) {
-	return ArrayPlusReference::create($a);
-}
-
-error_reporting($tmp);

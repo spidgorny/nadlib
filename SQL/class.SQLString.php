@@ -9,7 +9,7 @@ class SQLString extends SQLWherePart {
 	}
 
 	function __toString() {
-		return $this->field ." = '".Config::getInstance()->qb->db->escape($this->value)."'";
+		return $this->field ." = '".$this->qb->db->escape($this->value)."'";
 	}
 
 }

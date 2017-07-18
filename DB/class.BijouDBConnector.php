@@ -1,12 +1,35 @@
 <?php
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 
-class BijouDBConnector {
-	var $lastQuery;
+/**
+ * Class BijouDBConnector
+ * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
+ */
+class BijouDBConnector extends dbLayerBase implements DBInterface {
 
+	/**
+	 * @var DatabaseConnection
+	 */
+	protected $t3db;
+
+	public $lastError;
+	
+	/**
+	 * @param DatabaseConnection $t3lib_DB
+	 */
+	function __construct(DatabaseConnection $t3lib_DB = NULL) {
+		$this->t3db = $t3lib_DB ?: $GLOBALS['TYPO3_DB'];
+		$qb = new SQLBuilder($this);
+		$this->setQB($qb);
+	}
+	
 	function perform($query) {
 		$this->lastQuery = $query;
 		$start = array_sum(explode(' ', microtime()));
-		$res = $GLOBALS['TYPO3_DB']->sql_query($query);
+		$res = $this->t3db->sql_query($query);
+		if (!$res) {
+			$this->lastError = $this->t3db->sql_error();
+		}
 		$elapsed = array_sum(explode(' ', microtime())) - $start;
 		$this->saveQueryLog($query, $elapsed);
 		return $res;
@@ -33,16 +56,22 @@ class BijouDBConnector {
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
-		$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+		$row = $this->t3db->sql_fetch_assoc($res);
 		//d($res, $row);
 		return $row;
 	}
 
 	function fetchRow($res) {
-		return $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		return $this->t3db->sql_fetch_row($res);
 	}
 
 	function fetchAll($res, $key = 'uid') {
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
 		$data = array();
 		while (($row = $this->fetchAssoc($res)) !== FALSE) {
 			$data[$row[$key]] = $row;
@@ -85,7 +114,11 @@ class BijouDBConnector {
 	}
 
 	function getLastInsertID($res = NULL) {
-		return $GLOBALS['TYPO3_DB']->sql_insert_id($res);
+		return $this->t3db->sql_insert_id($res);
+	}
+
+	function lastInsertID($res = NULL) {
+		return $this->getLastInsertID($res);
 	}
 
 	function quoteSQL($value, $desc) {
@@ -101,16 +134,16 @@ class BijouDBConnector {
 		} else if ($desc['asis']) {
 			return /*$this->escapeString(*/$value/*)*/;
 		} else {
-			return "'".$this->escapeString($value)."'";
+			return $this->escapeString($value);
 		}
 	}
 
 	function numRows($res) {
-		return $GLOBALS['TYPO3_DB']->sql_num_rows($res);
+		return $this->t3db->sql_num_rows($res);
 	}
 
 	function escapeString($value) {
-		return mysql_real_escape_string($value);
+		return $this->t3db->fullQuoteStr($value, '');
 	}
 
 	function getDefaultInsertFields() {
@@ -118,33 +151,32 @@ class BijouDBConnector {
 			'pid' => $this->caller->generalStoragePID,
 			'crdate' => time(),
 			'tstamp' => time(),
-			'cruser_id' => $GLOBALS['TSFE']->fe_user->user['uid'] ? $GLOBALS['TSFE']->fe_user->user['uid'] : 0,
+			'cruser_id' => $GLOBALS['TSFE']->fe_user->user['uid']
+				? $GLOBALS['TSFE']->fe_user->user['uid'] : 0,
 		);
 		//debugster($set);
 		return $set;
 	}
 
 	function transaction() {
-		$GLOBALS['TYPO3_DB']->sql_query('BEGIN');
+		$this->t3db->sql_query('BEGIN');
 	}
 
 	function commit() {
-		$GLOBALS['TYPO3_DB']->sql_query('COMMIT');
+		$this->t3db->sql_query('COMMIT');
 	}
 
 	function rollback() {
-		$GLOBALS['TYPO3_DB']->sql_query('ROLLBACK');
+		$this->t3db->sql_query('ROLLBACK');
 	}
 
 	function lockTables($table) {
-		$GLOBALS['TYPO3_DB']->sql_query('LOCK TABLES '.$table);
+		$this->t3db->sql_query('LOCK TABLES '.$table);
 	}
 
 	function unlockTables() {
-		$GLOBALS['TYPO3_DB']->sql_query('UNLOCK TABLES');
+		$this->t3db->sql_query('UNLOCK TABLES');
 	}
-
-	function saveQueryLog() {}
 
 	/**
 	 * Returns THE ONE FIRST result.
@@ -173,23 +205,42 @@ class BijouDBConnector {
 		if ($filterFields) {
 			//$where += $this->filterFields(NULL, NULL, $this->getFirstWord($table));
 		}
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($table, $where, $orderBy, $what, $whatExclusive);
+		$qb = Config::getInstance()->getQb();
+		$query = $qb->getSelectQuery($table, $where, $orderBy, $what);
 		//debug($query);
 		$result = $this->perform($query);
 		return $result;
 	}
 
 	function escape($str) {
-		return mysql_real_escape_string($str);
+		return $this->t3db->quoteStr($str, '');
+	}
+
+	function escapeBool($io) {
+		return intval(!!$io);
 	}
 
 	function quoteKey($key) {
-		return MySQL::quoteKey($key);
+		return $key = '`'.$key.'`';
 	}
 
 	function getTableColumns($table) {
-		return $GLOBALS['TYPO3_DB']->admin_get_fields($table);
+		return $this->t3db->admin_get_fields($table);
 	}
 
+	function dataSeek($res, $i) {
+		return $this->t3db->sql_data_seek($res, $i);
+	}
+
+	function free($res) {
+		return $this->t3db->sql_free_result($res);
+	}
+
+	function affectedRows() {
+		// TODO: Implement affectedRows() method.
+	}
+
+	function getTables() {
+		// TODO: Implement getTables() method.
+	}
 }

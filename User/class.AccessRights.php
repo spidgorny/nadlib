@@ -10,19 +10,24 @@ class AccessRights {
 
 	protected $arCache = array();
 
+	/**
+	 * @var DBInterface
+	 */
+	protected $db;
+
 	function __construct($idGroup) {
+		$this->db = Config::getInstance()->db;
 		$this->init($this->groupID = $idGroup);
 	}
 
 	function init($idGroup) {
-		$qb = Config::getInstance()->qb;
-		$res = $qb->runSelectQuery($this->accessTable.' /**/
+		$res = $this->db->runSelectQuery($this->accessTable.' /**/
 			LEFT OUTER JOIN '.$this->groupAccessTable.' ON (
 				'.$this->accessTable.'.id = '.$this->groupAccessTable.'.'.$this->id_useraccess.'
 				AND '.$this->id_usergroup.' = '.$idGroup.')',
 			array(), 'ORDER BY '.$this->accessTable.'.name',
 			$this->accessTable.'.*, '.$this->groupAccessTable.'.id as affirmative');
-		$data = Config::getInstance()->db->fetchAll($res);
+		$data = $this->db->fetchAll($res);
 		//debug($GLOBALS['i']->db->lastQuery);
 		//debug($data);
 		$data = new ArrayPlus($data);
@@ -37,6 +42,10 @@ class AccessRights {
 	function can($what) {
 		//debug($what, $this->arCache);
 		return isset($this->arCache[$what]) ? $this->arCache[$what] : NULL;
+	}
+
+	function getList() {
+		return $this->arCache;
 	}
 
 }

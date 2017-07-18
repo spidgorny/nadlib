@@ -1,7 +1,15 @@
 <?php
 
 class slTableValue {
+
+	/**
+	 * @var mixed
+	 */
 	var $value = NULL;
+
+	/**
+	 * @var array
+	 */
 	var $desc = array(
 //		'hsc' => TRUE,
 	);
@@ -16,7 +24,7 @@ class slTableValue {
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
 	public $SLTABLE_IMG_CROSS = '☐';
 
-	function __construct($value, $desc = array()) {
+	function __construct($value, array $desc = array()) {
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
 			//debugster(array($value, $value->desc, '+', $desc, '=', (array)$value->desc + $desc));
@@ -32,7 +40,7 @@ class slTableValue {
 /*	function render() {
 		$value = $this->value;
 		if (is_array($value)) {
-			$value = t3lib_div::view_array($value);
+			$value = t3lib_utility_Debug::viewArray($value);
 		} else {
 			if ($this->desc['hsc']) {
 				$value = htmlspecialchars($value);
@@ -73,8 +81,14 @@ class slTableValue {
 							}
 							$out = implode(', ', $out);
 						} else if ($k['from']) {
-							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val));
-							$options = ArrayPlus::create($options)->IDalize($id)->column($what)->getData();
+							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'].'.*, '.$what);
+							//debug($options, $k); exit();
+							$whatAs = trimExplode('AS', $what);
+							$whatAs = $whatAs[1] ?: $what;
+							$options = ArrayPlus::create($options)
+								->IDalize($id, true)
+								->column($whatAs)
+								->getData();
 							$out = $options[$val];
 						}
 					} else {
@@ -94,7 +108,7 @@ class slTableValue {
 			break;
 			case "sqltime":
 				if ($val) {
-					$val = strtotime(substr($val, 0, 15)); // cut milliseconds
+					$val = strtotime(substr($val, 0, 16)); // cut milliseconds
 					$out = date($k['format'], $val);
 				} else {
 					$out = '';
@@ -109,16 +123,20 @@ class slTableValue {
 				}
 			break;
 			case "file":
-				$out = str::ahref($val, $GLOBALS['uploadURL'].$val, FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => $GLOBALS['uploadURL'].$val,
+				), $val);
 			break;
 			case "money":
 				$out = number_format($val, 2, '.', '') . "&nbsp;&euro;";
 			break;
 			case "delete":
-				$out = str::ahref("Del", "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'], FALSE);
+				$out = new HTMLTag('a', array(
+					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'],
+				), "Del");
 			break;
 			case "datatable":
-				//$out .= t3lib_div::view_array(array('col' => $col, 'val' => $val, 'desc' => $k));
+				//$out .= t3lib_utility_Debug::viewArray(array('col' => $col, 'val' => $val, 'desc' => $k));
 				$out = $k['prefix'];
 				$f = $this->caller->makeInstance('HTMLForm');
 				$f->prefix($this->prefixId);
@@ -141,18 +159,21 @@ class slTableValue {
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
 				if ($row[$col.'.link']) {
-					$out = str::ahref($img, $row[$col.'.link'], FALSE);
+					$out = new HTMLTag('a', array(
+						'href' => $row[$col.'.link'],
+					), $img);
 				} else {
 					$out = $img;
 				}
 			break;
 			case "bool":
+			case "boolean":
 				if (intval($val)) {
-					$out = $k['true'];
+					$out = $k['true'] ?: $this->SLTABLE_IMG_CHECK;
 				} else {
-					$out = $k['false'];
+					$out = $k['false'] ?: $this->SLTABLE_IMG_CROSS;
 				}
-				//$out .= t3lib_div::view_array(array('val' => $val, 'k' => $k, 'out' => $out));
+				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
 			break;
 			case "excel":
 				$out = str_replace(',', '.', $val); // from excel?
@@ -165,6 +186,16 @@ class slTableValue {
 			break;
 			case "percent":
 				$out = number_format($val*100, 2, '.', '').'&nbsp;%';
+			break;
+			case "bar":
+				if (!is_null($val)) {
+					$pb = new ProgressBar();
+					if (isset($k['css'])) {
+						$out = $pb->getImage($val*100, $k['css']);
+					} else {
+						$out = $pb->getImage($val*100);
+					}
+				}
 			break;
 			case "callback":
 				$out = call_user_func($k['callback'], $val, $k, $row);
@@ -208,6 +239,19 @@ class slTableValue {
 					}
 					if ($k['no_hsc']) {
 						$out = $val;
+					} else if ($val instanceof htmlString) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLTag) {
+						$out = $val.'';
+					} else if ($val instanceof HTMLDate) {
+						$out = $val.'';
+					} elseif (is_array($val)) {
+						if (is_assoc($val)) {
+							$out = json_encode($val, JSON_PRETTY_PRINT);
+						} else {
+							$out = '['.implode(', ', $val).']';
+						}
+						$out = htmlspecialchars($out);
 					} else {
 						$out = htmlspecialchars($val);
 					}
@@ -215,7 +259,14 @@ class slTableValue {
 			break;
 		}
 		if ($k['wrap']) {
-			$out = str_replace('|', $out, $k['wrap']);
+			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
+			$out = $wrap->wrap($out);
+		}
+		if ($k['link']) {
+			$out = '<a href="'.$k['link'].'">'.$out.'</a>';
+		}
+		if (isset($k['round']) && $out) {
+			$out = number_format($out, $k['round'], '.', '');
 		}
 		return $out;
 	}

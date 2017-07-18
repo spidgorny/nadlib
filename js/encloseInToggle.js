@@ -1,7 +1,10 @@
 $(document).ready(function () {
-	$('.show_hide').showHide({
-		showText: '&#x25BA;',
-		hideText: '&#x25BC;',
-		changeText: true
-	});
+	var showHide = $('.show_hide');
+	if (showHide.length) {
+		showHide.showHide({
+			showText: '&#x25BA;',
+			hideText: '&#x25BC;',
+			changeText: true
+		});
+	}
 });

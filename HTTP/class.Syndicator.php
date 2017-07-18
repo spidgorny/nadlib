@@ -4,12 +4,36 @@ define('LOWERCASE',3);
 define('UPPERCASE',1);
 
 class Syndicator {
+
+	/**
+	 * @var string
+	 */
 	var $url;
+
+	/**
+	 * @var bool
+	 */
 	var $isCaching = FALSE;
+
+	/**
+	 * @var string
+	 */
 	var $html;
+
 	var $tidy;
+
+	/**
+	 * @var SimpleXMLElement
+	 */
 	var $xml;
+
+	/**
+	 * @var array
+	 */
+	public $json;
+
 	var $xpath;	// last used, for what?
+
 	var $recodeUTF8;
 
 	/**
@@ -19,11 +43,16 @@ class Syndicator {
 	var $cache;
 
 	/**
-	 * @var Proxy
+	 * @var Proxy|bool
 	 */
 	public $useProxy = NULL;
 
 	public $input = 'HTML';
+
+	/**
+	 * @var array
+	 */
+	public $log = array();
 
 	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
@@ -35,6 +64,12 @@ class Syndicator {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
 	static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->html = $s->retrieveFile();
@@ -42,6 +77,12 @@ class Syndicator {
 		return $s;
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
 	static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8') {
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'XML';
@@ -50,15 +91,31 @@ class Syndicator {
 		return $s;
 	}
 
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
+	static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8') {
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'JSON';
+		$s->html = $s->retrieveFile();
+		Index::getInstance()->controller->log('Downloaded', __METHOD__);
+		$s->json = json_decode($s->html);
+		Index::getInstance()->controller->log('JSON decoded', __METHOD__);
+		return $s;
+	}
+
 	function retrieveFile($retries = 1) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$c = Index::getInstance()->controller;
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$c->log($this->cache->map($this->url).' Size: '.strlen($html), __CLASS__);
+				$this->log('<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html), __CLASS__);
 			} else {
+				$this->log('No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
 				$this->cache->set($this->url, $html);
 				//debug($cache->map($this->url).' Size: '.strlen($html), 'Set cache');
@@ -70,12 +127,32 @@ class Syndicator {
 		return $html;
 	}
 
-	function downloadFile($href, $retries) {
-		$ug = new URLGet($href);
-		$ug->fetch($this->useProxy, $retries);
-		return $ug->getContent();
+	function log($msg) {
+		$this->log[] = $msg;
+		if (class_exists('Index')) {
+			$c = Index::getInstance()->controller;
+			$c->log($msg);
+		} else {
+			echo $msg.BR;
+		}
 	}
 
+	function downloadFile($href, $retries = 1) {
+		if (startsWith($href, 'http')) {
+			$ug = new URLGet($href);
+			$ug->timeout = 10;
+			$ug->fetch($this->useProxy, $retries);
+			return $ug->getContent();
+		} else {
+			return file_get_contents($href);
+		}
+	}
+
+	/**
+	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
+	 * @param $str
+	 * @return mixed
+	 */
 	function detect_cyr_charset($str) {
 	    $charsets = Array(
 	                      'koi8-r' => 0,
@@ -161,32 +238,33 @@ class Syndicator {
 	function tidy($html) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		//debug(extension_loaded('tidy'));
-		if (extension_loaded('tidy')) {
-			$config = array(
-				'clean'         	=> true,
-				'indent'        	=> true,
-				'output-xhtml'  	=> true,
-				//'output-html'		=> true,
-				//'output-xml' 		=> true,
-				'wrap'         		=> 1000,
-				'numeric-entities'	=> true,
-				'char-encoding' 	=> 'raw',
-				'input-encoding' 	=> 'raw',
-				'output-encoding' 	=> 'raw',
+		if ($this->input == 'HTML') {
+			if (extension_loaded('tidy')) {
+				$config = array(
+					'clean'         	=> true,
+					'indent'        	=> true,
+					'output-xhtml'  	=> true,
+					//'output-html'		=> true,
+					//'output-xml' 		=> true,
+					'wrap'         		=> 1000,
+					'numeric-entities'	=> true,
+					'char-encoding' 	=> 'raw',
+					'input-encoding' 	=> 'raw',
+					'output-encoding' 	=> 'raw',
 
-			);
-			$tidy = new tidy;
-			$tidy->parseString($html, $config);
-			$tidy->cleanRepair();
-			//$out = tidy_get_output($tidy);
-			$out = $tidy->value;
-		} else if ($this->input == 'HTML') {
-			require_once 'nadlib/HTML/htmLawed.php';
-			$out = htmLawed($html, array(
-				'valid_xhtml' => 1,
-				'tidy' => 1,
-			));
-		} else if ($this->input == 'XML') {
+				);
+				$tidy = new tidy;
+				$tidy->parseString($html, $config);
+				$tidy->cleanRepair();
+				//$out = tidy_get_output($tidy);
+				$out = $tidy->value;
+			} else {
+				$out = htmLawed($html, array(
+					'valid_xhtml' => 1,
+					'tidy' => 1,
+				));
+			}
+		} elseif ($this->input == 'XML') {
 			$out = $html;	// hope that XML is valid
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
@@ -216,14 +294,18 @@ class Syndicator {
 	function getXML($recode) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		try {
-			$xml = new SimpleXMLElement($recode);
-			//$xml['xmlns'] = '';
-			$namespaces = $xml->getNamespaces(true);
-			//debug($namespaces, 'Namespaces');
-			//Register them with their prefixes
-			foreach ($namespaces as $prefix => $ns) {
-			    $xml->registerXPathNamespace('default', $ns);
-			    break;
+			if ($recode{0} == '<') {
+				$xml = new SimpleXMLElement($recode);
+				//$xml['xmlns'] = '';
+				$namespaces = $xml->getNamespaces(true);
+				//debug($namespaces, 'Namespaces');
+				//Register them with their prefixes
+				foreach ($namespaces as $prefix => $ns) {
+					$xml->registerXPathNamespace('default', $ns);
+					break;
+				}
+			} else {
+				$xml = new SimpleXMLElement('');
 			}
 		} catch (Exception $e) {
 			//debug($recode);

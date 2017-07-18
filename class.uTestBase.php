@@ -5,8 +5,24 @@ class uTestBase extends AppControllerBE {
 	protected $stat = array();			// true/false counter
 
 	function render() {
-		$content = '
-		<table class="nospacing">
+		$content = '<style>
+	body, td {
+		/*font-size: 9pt;*/
+	}
+	.contentContainer .contentLeft {
+		display: none;
+	}
+	.contentContainer .content {
+		float: none;
+		width: auto;
+	}
+	.contentContainer .widthFix {
+		width: auto;
+		overflow: visible;
+	}
+</style>';
+		$content .= '
+		<table class="nospacing table">
 		<tr>
 			<!--th>File</th-->
 			<th>Function</th>
@@ -32,7 +48,7 @@ class uTestBase extends AppControllerBE {
 		}
 		$content .= '</table>';
 		//$content .= getDebug($this->stat);
-		$content = $this->encloseIn('&mu;Test', $content, true);
+		$content = $this->encloseIn(new htmlString('&mu;Test'), $content, true);
 		if ($GLOBALS['prof']) $content .= $GLOBALS['prof']->printTimers(1);
 		return $content;
 	}
@@ -96,21 +112,3 @@ class uTestBase extends AppControllerBE {
 	}
 
 }
-
-?>
-<style>
-	body, td {
-		font-size: 9pt;
-	}
-	.contentContainer .contentLeft {
-		display: none;
-	}
-	.contentContainer .content {
-		float: none;
-		width: auto;
-	}
-	.contentContainer .widthFix {
-		width: auto;
-		overflow: visible;
-	}
-</style>

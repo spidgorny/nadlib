@@ -1,15 +1,20 @@
 <?php
 
 abstract class UserBase extends OODBase {
+
 	public $table = 'user';
+
+	var $idField = 'id';
+
 	protected $prefs = array();
+
 	public static $instances = array();
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
 	 * protected will not work because OODBase::__construct is public
 	 *
-	 * @param unknown_type $id
+	 * @param int $id
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);
@@ -55,13 +60,12 @@ abstract class UserBase extends OODBase {
 
 	/**
 	 *
-	 * @param unknown_type $login
-	 * @param unknown_type $password - plain text password (no, it's md5'ed already)
-	 * @return unknown
+	 * @param string $login
+	 * @param string $password - plain text password (no, it's md5'ed already)
+	 * @return boolean
 	 */
 	function checkPassword($login, $password) {
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getSelectQuery($this->table, array('email' => $login));
+		$query = $this->db->getSelectQuery($this->table, array('email' => $login));
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
 		//debug(array($login, $password, $row['password']));
@@ -77,6 +81,7 @@ abstract class UserBase extends OODBase {
 	 * Will NOT md5 password inside as Client is UserBased.
 	 *
 	 * @param array $data
+	 * @throws Exception
 	 * @return unknown
 	 */
 	function insert(array $data) {
@@ -90,15 +95,15 @@ abstract class UserBase extends OODBase {
                 return $this->insertNoUserCheck($data);
             }
         } else {
-            //$index = Index::getInstance();
-            //$index->notice('No email provided.');
+            $index = Index::getInstance();
+            $index->error('No email provided.');
         }
+		return NULL;
 	}
 
 	function insertNoUserCheck(array $data) {
 		$data['ctime'] = new AsIs('NOW()');
-		$qb = Config::getInstance()->qb;
-		$query = $qb->getInsertQuery($this->table, $data);
+		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
 		unset($data['ctime']);
@@ -133,7 +138,7 @@ abstract class UserBase extends OODBase {
 	}
 
 	function isAuth() {
-		return $this->id ? true : false;
+		return !!$this->id;
 	}
 
 	function getHTML() {

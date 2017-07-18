@@ -1,7 +1,31 @@
 <?php
 
+/**
+ * Class SQLBuilder - contains database unspecific (general) SQL functions.
+ * It has $this->db a database specific (PostgreSQL, MySQL, SQLite, Oracle, PDO) class
+ * which is performing the actual queries.
+ * This $db class has a back reference to this as $this->db->qb == $this.
+ * Usage in controllers/models:
+ * $this->db = new MySQL();
+ * $this->db->qb = new SQLBuilder();
+ * $this->db->qb->db = $this->db;
+ * $this->db->fetchSelectQuery(...);
+ *
+ * Note that the creation of objects above is handled by DIContainer
+ * but it's not shown above for comprehensibility.
+ */
 class SQLBuilder {
+
+	/**
+	 * Update/Insert is storing the found row for debugging
+	 * @var mixed
+	 */
 	public $found;
+
+	/**
+	 * Reserved MySQL words
+	 * @var array
+	 */
 	protected $reserved = array (
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
@@ -229,18 +253,12 @@ class SQLBuilder {
 	);
 
 	/**
-	 * Enter description here...
-	 *
-	 * @var MySQL
+	 * @var MySQL|dbLayerBase
 	 */
 	public $db;
 
-	function __construct(DIContainer $di) {
-		if ($di instanceof DIContainer && $di->db) {
-			$this->db = $di->db;
-		} else {
-			$this->db = Config::getInstance()->db;
-		}
+	function __construct(dbLayerBase $db) {
+		$this->db = $db;
 	}
 
 	function quoteKey($key) {
@@ -278,10 +296,10 @@ class SQLBuilder {
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
+			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
-			return $value ? 'true' : 'false';
-			return intval($value); // MySQL specific
+			return $this->db->escapeBool($value);
 		} else {
 			if (is_scalar($value)) {
 				return "'".$this->db->escape($value)."'";
@@ -330,8 +348,14 @@ class SQLBuilder {
 				if ($val instanceof AsIs) {
 					$set[] = $key . ' = ' . $val;
 				} elseif ($val instanceof AsIsOp) {
-					$set[] = $key . ' ' . $val;
+					if (is_numeric($key)) {
+						$set[] = $val;
+					} else {
+						$set[] = $key . ' ' . $val;
+					}
 				} else if ($val instanceof SQLBetween) {
+					$val->injectQB($this);
+					$val->injectField($key);
 					$set[] = $val->toString($key);
 				} else if ($val instanceof SQLWherePart) {
 					$val->injectQB($this);
@@ -350,13 +374,16 @@ class SQLBuilder {
 					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<', '<>', '!=', '<=', '>='))) { // TODO: double chars not working
+				} else if ($val === 'NOTNULL') {
+					$set[] = "$key IS NOT NULL";
+				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
+                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
-					$set[] = "$key $sign $val";
+					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {
+				} else if (is_numeric($key)) {		// KEY!!!
 					$set[] = $val;
 				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
 					$set[] = $key." IN ('".implode("', '", $val)."')";
@@ -372,6 +399,7 @@ class SQLBuilder {
 					$or->injectQB($this);
 					$set[] = $or;
 				} else {
+					//debug_pre_print_backtrace();
 					$val = SQLBuilder::quoteSQL($val);
 					$set[] = "$key = $val";
 				}
@@ -445,8 +473,8 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array()) {
-		$q = "DELETE FROM $table ";
+	function getDeleteQuery($table, $where = array(), $what = '') {
+		$q = "DELETE ".$what." FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);
@@ -460,8 +488,10 @@ class SQLBuilder {
 		return array();
 	}
 
-	//2010/09/12: modified according to mantis request 0001812	- 4th argument added
-	function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
+	/**
+	 * 2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	 */
+	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
 
@@ -497,7 +527,17 @@ class SQLBuilder {
 		return $res;
 	}
 
-	function runInsertUpdateQuery($table, array $fields, array $where) {
+	/**
+	 * Will search for $where and then either
+	 * - update $fields + $where or
+	 * - insert $fields + $where + $insert
+	 * @param $table
+	 * @param array $fields
+	 * @param array $where
+	 * @param array $insert
+	 * @return bool|int
+	 */
+	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
@@ -505,12 +545,13 @@ class SQLBuilder {
 			$query = $this->getUpdateQuery($table, $fields, $where);
 			$inserted = 2;
 		} else {
-			$query = $this->getInsertQuery($table, $fields + array('ctime' => NULL));
+			$query = $this->getInsertQuery($table, $fields + $where + $insert);
+			// array('ctime' => NULL) #TODO: make it manually now
 			$inserted = TRUE;
 		}
 		//debug($query);
 		$this->found = $this->db->fetchAssoc($res);
-		$res = $this->db->perform($query);
+		$this->db->perform($query);
 		$this->db->commit();
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 		return $inserted;
@@ -521,13 +562,14 @@ class SQLBuilder {
 	 *
 	 * @param $table
 	 * @param array $fields
+	 * @param array $insert
 	 * @return resource
 	 */
-	function runInsertNew($table, array $fields) {
+	function runInsertNew($table, array $fields, array $insert = array()) {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
-			$query = $this->getInsertQuery($table, $fields);
+			$query = $this->getInsertQuery($table, $fields + $insert);
 			//debug($query);
 			$resInsert = $this->db->perform($query);
 		}
@@ -639,6 +681,47 @@ class SQLBuilder {
 		}
 		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
 		return $options;
+	}
+
+	/**
+	 * @param resource|string $res
+	 * @param string $key can be set to NULL to avoid assoc array
+	 * @return array
+	 */
+	function fetchAll($res, $key = NULL) {
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+
+		$data = array();
+		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+			if ($key) {
+				$data[$row[$key]] = $row;
+			} else {
+				$data[] = $row;
+			}
+		}
+		//debug($this->lastQuery, sizeof($data));
+		//debug_pre_print_backtrace();
+		$this->free($res);
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
+		return $data;
+	}
+
+	/**
+	 * @var string $query
+	 * @return resource
+	 */
+	function getIterator($query) {
+		if ($this->db instanceof dbLayerPDO) {
+			$res = $this->db->perform($query);
+			return $res;
+		} else {
+			$f = new DatabaseResultIteratorAssoc($this->db);
+			$f->perform($query);
+			return $f;
+		}
 	}
 
 }
