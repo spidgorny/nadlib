@@ -128,7 +128,7 @@ abstract class Controller {
 		}
 		$this->title = $this->title ? $this->title : get_class($this);
 		//debug_pre_print_backtrace();
-		if ($this->index->ll) {
+		if ($this->config->ll) {
 			$this->title = $this->title ? __($this->title) : $this->title;
 		}
 		$this->html = new HTML();
