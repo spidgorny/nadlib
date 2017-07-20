@@ -129,6 +129,10 @@ class HTMLTableBuf extends MergedContent {
 		return $this->content[$key];
 	}
 
+	/**
+	 * @param mixed $offset
+	 * @return null
+	 */
 	public function offsetGet($offset) {
 		return ifsetor($this->content[$offset], []);
 	}
