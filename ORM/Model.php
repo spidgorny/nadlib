@@ -65,4 +65,25 @@ class Model {
 		return $instance;
 	}
 
+	function getFormFromModel()
+	{
+		$desc = [];
+		foreach (get_object_vars($this) as $fieldName => $_) {
+			$field = new ReflectionProperty(get_class($this), $fieldName);
+			$sComment = $field->getDocComment();
+			if ($sComment) {
+				$dc = new DocCommentParser($sComment);
+				//debug($field->getName(), $sComment, $dc->getAll());
+				if ($dc->is_set('column')) {
+					$desc[$field->getName()] = [
+						'label' => $dc->get('label') ?: $dc->getDescription(),
+						'type' => $dc->get('type') ?: 'text',
+						'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
+					];
+				}
+			}
+		}
+		return $desc;
+	}
+
 }
