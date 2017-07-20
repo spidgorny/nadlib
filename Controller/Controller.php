@@ -159,9 +159,10 @@ abstract class Controller {
 			//unset($params['c']);
 		}
 
+		$location = $this->request->getLocation();
 		$url = new URL($prefix
-			? $prefix
-			: $this->request->getLocation(), $params);
+			? $location.$prefix
+			: $location, $params);
 		$path = $url->getPath();
 		if ($this->useRouter && $class) {
 			$path->setFile($class);
@@ -179,6 +180,7 @@ abstract class Controller {
 			'class($path)' => get_class($path),
 			'$this->linkVars' => $this->linkVars,
 			'return' => $url . '',
+			'location' => $location .'',
 		));
 		return $url;
 	}

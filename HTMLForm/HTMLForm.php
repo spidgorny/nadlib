@@ -72,7 +72,12 @@ class HTMLForm {
 		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
-	function prefix($p) {
+	/**
+	 * Set empty to unset prefix
+	 * @param string $p
+	 * @return $this
+	 */
+	function prefix($p = '') {
 		if (is_array($p)) {
 			$this->prefix = $p;
 		} else if ($p) {
@@ -80,6 +85,7 @@ class HTMLForm {
 		} else {
 			$this->prefix = array();
 		}
+		return $this;
 	}
 
 	function fieldset($name, $more = array()) {

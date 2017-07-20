@@ -272,6 +272,13 @@ class View extends stdClass {
 		return $this->getController()->makeURL($params);
 	}
 
+	function ahref($text, $href)
+	{
+		return new HTMLTag('a', [
+			'href' => $href,
+		], $text);
+	}
+
 	function getController()
 	{
 		if (!$this->controller) {

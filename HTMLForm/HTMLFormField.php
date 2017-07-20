@@ -177,7 +177,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 	private function switchTypeRaw($type, $fieldValue, $fieldName) {
 		$desc = $this;
 		switch ($type) {
-			case "text":
 			case "string":
 				$this->form->text($fieldValue);
 				break;
@@ -351,6 +350,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				$type = 'email';
 			//break;	// intentional
 			case "input":
+			case "text":
 			default:
 				$type = isset($type) ? $type : 'text';
 				//$this->text(htmlspecialchars($desc['more']));
