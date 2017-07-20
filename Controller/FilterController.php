@@ -155,7 +155,7 @@ class FilterController extends AppController {
 	 * Converts $this->filter data from URL into SQL where parameters
 	 * @return array
 	 */
-	function getFilterWhere(array $desc) {
+	function getFilterWhere() {
 		$where = array();
 
 		$filterList = $this->filter->getIterator();
@@ -164,7 +164,7 @@ class FilterController extends AppController {
 		foreach ($filterList as $key => $val) {
 //			debug($key, $val);
 			if ($val) {
-				$type = ifsetor($desc[$key]['type']);
+				$type = ifsetor($this->desc[$key]['type']);
 				list($field, $parameter) = $this->getFilterWherePair($key, $val, $type);
 				$where[$field] = $parameter;
 			}
