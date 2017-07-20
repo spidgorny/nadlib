@@ -60,8 +60,8 @@ class Model {
 		$found = $this->getCollection()->findInData([
 			$this->idField => $id,
 		]);
-		$instance = $this->itemClassName;
-		$instance = $instance::getInstance($found);
+		$className = $this->itemClassName;
+		$instance = $className::getInstance($found);
 		return $instance;
 	}
 
@@ -78,7 +78,7 @@ class Model {
 					$desc[$field->getName()] = [
 						'label' => $dc->get('label') ?: $dc->getDescription(),
 						'type' => $dc->get('type') ?: 'text',
-						'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
+						'optional' => $dc->is_set('optional') && !$dc->is_set('required'),
 					];
 				}
 			}
