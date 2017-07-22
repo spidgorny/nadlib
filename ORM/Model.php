@@ -78,7 +78,8 @@ class Model {
 					$desc[$field->getName()] = [
 						'label' => $dc->get('label') ?: $dc->getDescription(),
 						'type' => $dc->get('type') ?: 'text',
-						'optional' => $dc->is_set('optional') && !$dc->is_set('required'),
+						// optional is true by default
+						'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
 					];
 				}
 			}
