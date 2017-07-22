@@ -38,9 +38,8 @@ class Model {
 
 	function renderList()
 	{
-		$content = [];
 		$col = $this->getCollection();
-		$content[] = $col->renderList();
+		$content = $col->renderList();
 		return $content;
 	}
 
