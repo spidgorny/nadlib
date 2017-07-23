@@ -26,7 +26,7 @@ class Model {
 		$col->idField = $this->idField;
 		$col->itemClassName = $this->itemClassName;
 		// because it will try to run query on DBLayerJSON
-		$col->count = $this->getCount();
+//		$col->count = $this->getCount();
 		return $col;
 	}
 
@@ -51,7 +51,7 @@ class Model {
 
 	function getCount()
 	{
-		return $this->db->numRows($res = null);
+		return $this->getCollection()->getCount();
 	}
 
 	function getByID($id)
