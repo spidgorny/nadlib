@@ -13,18 +13,28 @@ class Model {
 	/**
 	 * @var DBInterface|SQLBuilder
 	 */
-	var $db;
+	protected $db;
 
-	function __construct(DBInterface $db)
+	function __construct(DBInterface $db = null)
 	{
 		$this->db = $db;
 	}
 
-	function getCollection()
+	public function setDB(DBInterface $db)
+	{
+		$this->db = $db;
+	}
+
+	function getCollection(array $where = [], $orderBy = null)
 	{
 		$col = Collection::createForTable($this->table);
 		$col->idField = $this->idField;
 		$col->itemClassName = $this->itemClassName;
+		$col->objectifyByInstance = method_exists($this->itemClassName, 'getInstance');
+		$col->where = $where;
+		if ($orderBy) {
+			$col->orderBy = $orderBy;
+		}
 		// because it will try to run query on DBLayerJSON
 //		$col->count = $this->getCount();
 		return $col;
@@ -84,6 +94,21 @@ class Model {
 			}
 		}
 		return $desc;
+	}
+
+	static function getInstance(array $data)
+	{
+		$obj = new self(null);
+		$obj->setDB(Config::getInstance()->getDB());
+		$obj->setData($data);
+		return $obj;
+	}
+
+	function setData(array $data)
+	{
+		foreach ($data as $key => $val) {
+			$this->$key = $val;
+		}
 	}
 
 }
