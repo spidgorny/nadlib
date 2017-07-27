@@ -16,25 +16,37 @@ class StaticMapOSM {
 
 	var $size = '640x480';
 
-	function __construct($location, $lat = NULL, $lon = NULL) {
+	function __construct($location, $lat = NULL, $lon = NULL)
+	{
 		$this->location = $location;
 		$this->lat = $lat;
 		$this->lon = $lon;
 	}
 
-	function render() {
+	function render()
+	{
+		list($width, $height) = explode('x', $this->size);
 		if ($this->lat && $this->lon) {
 			$content = '<figure>
-			<img src="http://staticmap.openstreetmap.de/staticmap.php?center=' . $this->lat . ',' . $this->lon . '&zoom=11&size='.$this->size.'" />
-			<figcaption>'.$this->location.'</figcaption>
+			<img src="' . $this->getImagePath() . '" width="' . $width . '" height="' . $height . '"/>
+			<figcaption>' . $this->location . '</figcaption>
 		</figure>';
 		} else {
 			$content = '<figure>
-			<img src="http://staticmap.openstreetmap.de/staticmap.php?center=' . $this->location . '&zoom=11&size='.$this->size.'" />
-			<figcaption>'.$this->location.'</figcaption>
+			<img src="' . $this->getImagePath() . '" />
+			<figcaption>' . $this->location . '</figcaption>
 		</figure>';
 		}
 		return $content;
+	}
+
+	public function getImagePath()
+	{
+		if ($this->lat && $this->lon) {
+			return 'http://staticmap.openstreetmap.de/staticmap.php?center=' . $this->lat . ',' . $this->lon . '&zoom=11&size=' . $this->size;
+		} else {
+			return 'http://staticmap.openstreetmap.de/staticmap.php?center=' . $this->location . '&zoom=11&size=' . $this->size;
+		}
 	}
 
 }
