@@ -1053,7 +1053,7 @@ class Collection implements IteratorAggregate {
 				} else {
 					// this is the same query as $this->retrieveData() !
 					$query = $this->getQuery();
-					debug('performing', $query);
+					//debug('performing', $query);
 					$res = $query->perform();
 					$this->count = $this->db->numRows($res);
 				}
