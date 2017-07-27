@@ -52,7 +52,7 @@ class Model {
 
 	function getCount()
 	{
-		return $this->db->numRows($res = null);
+		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
 	}
 
 	function getByID($id)

@@ -2,65 +2,122 @@
 
 class DBLayerJSON extends DBLayerBase implements DBInterface {
 
-	var $filename;
+	var $folderName;
 
-	var $data = [];
+	var $tables = [];
 
-	function __construct($filename)
+	var $currentQuery;
+
+	function __construct($folderName)
 	{
-		$this->filename = $filename;
-		if (is_file($this->filename)) {
-			$json = file_get_contents($this->filename);
-			$this->data = json_decode($json, true);
-		} else {
-			file_put_contents($this->filename, '[]');
-		}
+		$this->folderName = $folderName;
 	}
 
-	function __destruct()
+	/**
+	 * @param $name
+	 * @return DBLayerJSONTable
+	 */
+	function getTable($name)
 	{
-		file_put_contents($this->filename,
-			json_encode($this->data, JSON_PRETTY_PRINT));
+		if (!isset($this->tables[$name])) {
+			$this->tables[$name] = new DBLayerJSONTable(cap($this->folderName).$name.'.json');
+		}
+		return $this->tables[$name];
 	}
 
 	function fetchAll($res_or_query, $index_by_key = NULL)
 	{
-		return $this->data;
+		if ($res_or_query instanceof DBLayerJSONTable) {
+			return $res_or_query->fetchAll($res_or_query, $index_by_key);
+		} else {
+			debug($res_or_query, $this->currentQuery);
+			$table = $this->extractTable($res_or_query ?: $this->currentQuery);
+			if ($table) {
+				$t = $this->getTable($table);
+				return $t->fetchAll($res_or_query, $index_by_key);
+			} else {
+				debug($res_or_query);
+				throw new InvalidArgumentException('Unable to find table name after FROM in SQL');
+			}
+		}
+	}
+
+	function extractTable($res_or_query)
+	{
+		$del = " \n\t";
+		$tokens = [];
+		for ($tok = strtok($res_or_query, $del); $tok !== false; $tok = strtok($del)) {
+			$tokens[] = $tok;
+		}
+		$iFROM = array_search('FROM', $tokens);
+		$table = ifsetor($tokens[$iFROM+1]);
+		return $table;
 	}
 
 	function fetchAssoc($res)
 	{
-		return current($this->data);
-	}
-
-	function runInsertQuery($table, array $data)
-	{
-		$this->data[] = $data;
+		if ($res instanceof DBLayerJSONTable) {
+			return $res->fetchAssoc($res);
+		} else {
+			throw new InvalidArgumentException('fetchAssoc needs to have reference to the DBLayerJSONTable');
+		}
 	}
 
 	function numRows($res = NULL)
 	{
-		return sizeof($this->data);
+		//debug(gettype2($res));
+		if (!($res instanceof DBLayerJSONTable)) {
+			$table = $this->extractTable($res);
+			if ($table) {
+				$t = $this->getTable($table);
+			} else {
+				throw new InvalidArgumentException(__METHOD__);
+			}
+		} else {
+			/** @var DBLayerJSONTable $t */
+			$t = $res;
+		}
+		return $t->numRows($res);
+	}
+
+	function runInsertQuery($table, array $data)
+	{
+		$t = $this->getTable($table);
+		return $t->runInsertQuery($table, $data);
 	}
 
 	function runUpdateQuery($table, array $data, array $where)
 	{
-		foreach ($this->data as &$row) {
-			if ($this->matchWhere($row, $where)) {
-				$row = array_merge($row, $data);
-			}
-		}
+		$t = $this->getTable($table);
+		return $t->runUpdateQuery($table, $data, $where);
 	}
 
-	static function matchWhere(array $row, array $where)
+	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL)
 	{
-		foreach ($where as $key => $val) {
-			$matchOne = $row[$key] == $val;
-			if (!$matchOne) {
-				return false;
-			}
-		}
-		return true;
+		$query = parent::getSelectQuery($table, $where, $order, $addSelect);
+		$this->currentQuery = $query;
+		return $query;
+	}
+
+	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
+	{
+		$res = parent::runSelectQuery($table, $where, $order, $addSelect);
+		$t = $this->getTable($table);
+		return $t;
+	}
+
+	function __call($method, array $params)
+	{
+//		echo $method, BR;
+		return parent::__call($method, $params);
+	}
+
+	function perform($query, array $params = [])
+	{
+		$this->currentQuery = $query;
+		parent::perform($query, $params);
+		$table = $this->extractTable($query);
+		return $this->getTable($table);
 	}
 
 }
