@@ -106,4 +106,9 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 		return $this;
 	}
 
+	function perform($query = null, array $params = [])
+	{
+		return $this;
+	}
+
 }

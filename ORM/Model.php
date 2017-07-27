@@ -36,7 +36,7 @@ class Model {
 			$col->orderBy = $orderBy;
 		}
 		// because it will try to run query on DBLayerJSON
-//		$col->count = $this->getCount();
+		$col->count = $this->getCount();
 		return $col;
 	}
 
@@ -61,7 +61,7 @@ class Model {
 
 	function getCount()
 	{
-		return $this->getCollection()->getCount();
+		//return $this->getCollection()->getCount();
 		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
 	}
 
