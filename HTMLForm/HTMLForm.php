@@ -301,7 +301,7 @@ class HTMLForm {
 			//$value = date('d.m.Y');
 		}
 
-		if ($desc['more'] && !is_array($desc['more'])) {
+		if (ifsetor($desc['more']) && !is_array($desc['more'])) {
 			debug($name, $desc);
 			debug_pre_print_backtrace();
 			exit();
