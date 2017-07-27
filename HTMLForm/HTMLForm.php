@@ -324,6 +324,7 @@ class HTMLForm {
 	 * @param null $activator
 	 * @param null $id
 	 * @param array $params
+	 * @return string
 	 */
 	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array()) {
 		$id = $id ? $id : uniqid('datepopup');
