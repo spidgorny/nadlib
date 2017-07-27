@@ -157,6 +157,8 @@ class Collection implements IteratorAggregate {
 	 */
 	protected $logger;
 
+	public $objectifyByInstance = false;
+
 	/**
 	 * @param                integer /-1 $pid
 	 *        if -1 - will not retrieve data from DB
@@ -728,7 +730,7 @@ class Collection implements IteratorAggregate {
 	 * Will detect double-call and do nothing.
 	 *
 	 * @param string $class - required, but is supplied by the subclasses
-	 * @param bool $byInstance
+	 * @param bool $byInstance - will call getInstance() instead of "new"
 	 * @return object[]|OODBase[]
 	 */
 	function objectify($class = NULL, $byInstance = false)
@@ -752,7 +754,7 @@ class Collection implements IteratorAggregate {
 
 	function objectifyAsPlus()
 	{
-		return ArrayPlus::create($this->objectify());
+		return ArrayPlus::create($this->objectify($this->itemClassName, $this->objectifyByInstance));
 	}
 
 	function __toString()
@@ -1109,7 +1111,7 @@ class Collection implements IteratorAggregate {
 	 */
 	public function getIterator()
 	{
-		return new ArrayPlus($this->objectify());
+		return new ArrayPlus($this->objectify($this->itemClassName, $this->objectifyByInstance));
 	}
 
 	function get($id)
