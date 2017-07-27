@@ -19,6 +19,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 	 */
 	function getTable($name)
 	{
+		$name = trim($name);
 		if (!isset($this->tables[$name])) {
 			$this->tables[$name] = new DBLayerJSONTable(cap($this->folderName).$name.'.json');
 		}
@@ -96,14 +97,17 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 	{
 		$query = parent::getSelectQuery($table, $where, $order, $addSelect);
 		$this->currentQuery = $query;
-		return $query;
+
+		$t = $this->getTable($table);
+		$t->where = $where;
+		return $t;
 	}
 
 	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
 	{
-		$res = parent::runSelectQuery($table, $where, $order, $addSelect);
 		$t = $this->getTable($table);
-		return $t;
+		$res = $t->runSelectQuery($table, $where, $order, $addSelect);
+		return $res;
 	}
 
 	function __call($method, array $params)
@@ -116,8 +120,13 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 	{
 		$this->currentQuery = $query;
 		parent::perform($query, $params);
-		$table = $this->extractTable($query);
-		return $this->getTable($table);
+		if (!($query instanceof DBLayerJSONTable)) {
+			$table = $this->extractTable($query);
+			$t = $this->getTable($table);
+		} else {
+			$t = $query;
+		}
+		return $t;
 	}
 
 }
