@@ -12,9 +12,11 @@ class GeoCoder {
 	public function queryFirst($address)
 	{
 		$json = $this->query($address);
+//		debug($json);
 		if ($json->status == 'OK') {
 			return $json->results[0];
 		}
+		return null;
 	}
 
 }
