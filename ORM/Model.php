@@ -13,20 +13,30 @@ class Model {
 	/**
 	 * @var DBInterface|SQLBuilder
 	 */
-	var $db;
+	protected $db;
 
-	function __construct(DBInterface $db)
+	function __construct(DBInterface $db = null)
 	{
 		$this->db = $db;
 	}
 
-	function getCollection()
+	public function setDB(DBInterface $db)
+	{
+		$this->db = $db;
+	}
+
+	function getCollection(array $where = [], $orderBy = null)
 	{
 		$col = Collection::createForTable($this->table);
 		$col->idField = $this->idField;
 		$col->itemClassName = $this->itemClassName;
+		$col->objectifyByInstance = method_exists($this->itemClassName, 'getInstance');
+		$col->where = $where;
+		if ($orderBy) {
+			$col->orderBy = $orderBy;
+		}
 		// because it will try to run query on DBLayerJSON
-		$col->count = $this->getCount();
+//		$col->count = $this->getCount();
 		return $col;
 	}
 
@@ -38,9 +48,8 @@ class Model {
 
 	function renderList()
 	{
-		$content = [];
 		$col = $this->getCollection();
-		$content[] = $col->renderList();
+		$content = $col->renderList();
 		return $content;
 	}
 
@@ -52,6 +61,7 @@ class Model {
 
 	function getCount()
 	{
+		return $this->getCollection()->getCount();
 		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
 	}
 
@@ -78,12 +88,28 @@ class Model {
 					$desc[$field->getName()] = [
 						'label' => $dc->get('label') ?: $dc->getDescription(),
 						'type' => $dc->get('type') ?: 'text',
-						'optional' => $dc->is_set('optional') && !$dc->is_set('required'),
+						// optional is true by default
+						'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
 					];
 				}
 			}
 		}
 		return $desc;
+	}
+
+	static function getInstance(array $data)
+	{
+		$obj = new self(null);
+		$obj->setDB(Config::getInstance()->getDB());
+		$obj->setData($data);
+		return $obj;
+	}
+
+	function setData(array $data)
+	{
+		foreach ($data as $key => $val) {
+			$this->$key = $val;
+		}
 	}
 
 }
