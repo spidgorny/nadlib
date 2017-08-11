@@ -53,6 +53,38 @@ class Model {
 		return $content;
 	}
 
+	function renderTable()
+	{
+		$col = $this->getCollection();
+		$col->thes = [
+			'company_img' => [
+				'type' => 'callback',
+				'callback' => function ($val, $k, array $row) {
+					return new HTMLTag('img', [
+						'src' => $row['company_logo'],
+						'class' => 'responsive-img circle',
+						'style' => 'height: 32px'
+					]);
+				},
+			],
+			'name' => [
+				'name' => 'Name',
+				'type' => 'callback',
+				'callback' => function ($val, $k, array $row) {
+					return new HTMLTag('a', [
+						'href' => 'ApplicationInfo?id=' . $row['id']
+					], $val);
+				},
+			],
+			'company' => 'Company',
+			'city' => 'City',
+			'type' => 'Type',
+		];
+		$col->getView()->tableMore = ['class' => "bordered"];
+		$content = $col->render();
+		return $content;
+	}
+
 	function insert(array $data)
 	{
 		$data[$this->idField] = RandomStringGenerator::likeYouTube();
