@@ -72,7 +72,7 @@ class DebugHTML {
 
 		$file = ifsetor($first['file']);
 		$file = basename(dirname($file)).'/'.basename($file);
-		$file .= '#'.$first['line'];
+		$file .= '#'.ifsetor($first['line']);
 
 		$props = array(
 			'<span class="debug_prop">Name:</span> '.$this->helper->name,
