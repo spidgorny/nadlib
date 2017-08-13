@@ -81,4 +81,10 @@ class PathTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('/var/ftp', $path.'');
 	}
 
+	function test_remove() {
+		$path = new Path('/var/www/htdocs/');
+		$path->remove('/var/www');
+		$this->assertEquals('htdocs', $path.'');
+	}
+
 }

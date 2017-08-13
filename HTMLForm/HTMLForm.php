@@ -355,8 +355,12 @@ class HTMLForm {
 	    var cal_'.$id.' = Calendar.setup(setobj);
 	</script>
 ';
-		$index = Index::getInstance();
-		$index->footer['init_cal_'.$id] = $script;
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$index->footer['init_cal_' . $id] = $script;
+		} else {
+			return $script;
+		}
 	}
 
 	function datepopup2($name, $value = NULL, $plusConfig = '', array $desc = array()) {
