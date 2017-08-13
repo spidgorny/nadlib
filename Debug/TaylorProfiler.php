@@ -459,6 +459,16 @@ class TaylorProfiler {
 		return $totalTime;
 	}
 
+	/**
+	 * @return string
+	 */
+	static function getElapsedTimeString() {
+		$totalTime = self::getElapsedTime();
+		list($seconds, $ms) = explode('.', $totalTime);
+		$totalTime = gmdate('H:i:s', $seconds).'.'.$ms;
+		return $totalTime;
+	}
+
 	static function renderFloat($withCSS = true) {
 		$ft = new FloatTime($withCSS);
 		$content = $ft->render();

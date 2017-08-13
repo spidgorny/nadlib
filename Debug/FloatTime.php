@@ -14,7 +14,7 @@ class FloatTime {
 		$dbTime = $this->getDBTime();
 		if (Session::isActive()) {
 			// total
-			$totalMax = ifsetor($_SESSION[__CLASS__]['totalMax']);
+			$totalMax = intval(ifsetor($_SESSION[__CLASS__]['totalMax'], 0));
 			if ($totalMax > 0) {
 				$totalBar = '<img src="' . ProgressBar::getBar($totalTime / $totalMax * 100) . '" />';
 			} else {
