@@ -123,7 +123,9 @@ abstract class Controller {
 			// $this->config = NULL;
 			//$this->user = new UserBase();
 		}
-		$this->linkVars['c'] = get_class($this);
+		if (!$this->useRouter) {
+			$this->linkVars['c'] = get_class($this);
+		}
 		$this->title = $this->title ? $this->title : get_class($this);
 		//debug_pre_print_backtrace();
 		if ($this->index->ll) {
@@ -189,24 +191,16 @@ abstract class Controller {
 	function makeRelURL(array $params = array(), $page = NULL) {
 		return $this->makeURL(
 			$params							// 1st priority
-			+ $this->getURL()->getParams()
-			+ $this->linkVars, $page);
+			+ $this->getURL()->getParams()			// 2nd priority
+			+ $this->linkVars, $page);				// 3rd priority
 	}
 
 	/**
 	 * Combines params with $this->linkVars
 	 * Use makeURL() for old functionality
-	 * @param array $params
-	 * @param string $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = NULL) {
-		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
-		}
-//		$params = $params + $this->linkVars;
-//		debug($params);
-//		return $this->makeURL($params, $prefix);
+	public function getURL() {
 		return ClosureCache::getInstance(spl_object_hash($this), function () {
 			return new URL();
 		})->get();
@@ -320,6 +314,9 @@ abstract class Controller {
 		} else {
 			$content = '';
 		}
+
+//		debug($filePHTML, $fileMD);
+
 		return is_object($content)
 			? $content->render()
 			: $content;
