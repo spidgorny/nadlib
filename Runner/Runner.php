@@ -23,9 +23,8 @@ class Runner {
 			$command = $this->getNextCommand();
 			if ($command) {
 				$command();
-				break;	// restart is task is found
 			} else {
-				echo 'Nothing to do for '.TaylorProfiler::getElapsedTime().' :-(', BR;
+				echo 'Nothing to do for '.TaylorProfiler::getElapsedTimeString().' :-(', BR;
 			}
 			sleep(1);
 		}
