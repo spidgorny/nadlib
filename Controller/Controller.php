@@ -205,8 +205,13 @@ abstract class Controller {
 	 * Use makeURL() for old functionality
 	 * @return URL
 	 */
-	public function getURL()
-	{
+	public function getURL(array $params = [], $prefix = NULL) {
+		if ($params || $prefix) {
+			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
+		}
+//		$params = $params + $this->linkVars;
+//		debug($params);
+//		return $this->makeURL($params, $prefix);
 		return ClosureCache::getInstance(spl_object_hash($this), function () {
 			return new URL();
 		})->get();

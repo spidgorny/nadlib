@@ -491,9 +491,4 @@ class Path {
 		return $this;
 	}
 
-	public function basename()
-	{
-		return end($this->aPath);
-	}
-
 }
