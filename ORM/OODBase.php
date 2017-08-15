@@ -945,4 +945,9 @@ abstract class OODBase {
 		}
 	}
 
+	public function setDB(DBInterface $db)
+	{
+		$this->db = $db;
+	}
+
 }

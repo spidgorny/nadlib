@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * Class Model - this is a replacement class for OODBase and Collection.
+ * It's inconvenient to have two classes representing the same database table.
+ * It's inconvenient to configure output of these two classes separately.
+ * Control sorting and other things separately.
+ * It's been written to represent a single source of truth for the whole model.
+ * It was trying to use OODBase and Collection classes and convert to them.
+ * But due to the missing Dependency Injection in these classed
+ * we need to redesign the whole concept and deal with the data here.
+ *
+ * Principles:
+ * - a Model represents a single entry
+ * - a collection of Models of the same type are represented by ArrayPlus
+ * - don't put collection methods directly into the Model - try to use ArrayPlus
+ * - or add Traits that deal with multiple rows
+ */
 class Model {
 
 	var $table;
@@ -35,8 +51,10 @@ class Model {
 		if ($orderBy) {
 			$col->orderBy = $orderBy;
 		}
+
 		// because it will try to run query on DBLayerJSON
-		$col->count = $this->getCount();
+		// that's OK because we don't use DBLayerJSON anymore
+//		$col->count = $this->getCount();
 		return $col;
 	}
 
@@ -67,8 +85,8 @@ class Model {
 	function getCount()
 	{
 		// don't uncomment as this leads to recursive calls to $this->getCollection()
-//		return $this->getCollection()->getCount();
-		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
+		return $this->getCollection()->getCount();
+//		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
 	}
 
 	function getByID($id)
@@ -77,7 +95,9 @@ class Model {
 			$this->idField => $id,
 		]);
 		$className = $this->itemClassName;
+		/** @var OODBase $instance */
 		$instance = $className::getInstance($found);
+		$instance->setDB($this->db);
 		return $instance;
 	}
 
