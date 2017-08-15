@@ -554,16 +554,20 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	function addCSS($source) {
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
-				$fileName = $source;	// rewrite inside css folder
+				$fileName = $source;    // rewrite inside css folder
 			} else {
 				$sourceCSS = str_replace('.less', '.css', $source);
-				if (file_exists($sourceCSS)){
+				if (file_exists($sourceCSS)) {
 					$fileName = $sourceCSS;
 					$fileName = $this->addMtime($source);
 				} else {
 					$fileName = 'css/?c=Lesser&css=' . $source;
 				}
 			}
+		} elseif (str_startsWith($source, [
+			'http://', 'https://', '//',
+		])) {
+			$fileName = $source;
 		} else {
 			$fn = new Path($source);
 			$fileName = $fn->relativeFromAppRoot();
