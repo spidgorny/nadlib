@@ -633,4 +633,21 @@ class SQLBuilder {
 		return $data;
 	}
 
+	function getCount(SQLSelectQuery $query)
+	{
+		$queryWithoutOrder = clone $query;
+		$queryWithoutOrder->unsetOrder();
+
+		$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
+		$subQuery->setParameters($query->getParameters());
+		$query = new SQLSelectQuery(
+			new SQLSelect('count(*) AS count'),
+			$subQuery);
+		$query->injectDB($this->db);
+
+		$res = $query->fetchAssoc();
+		$count = $res['count'];
+		return $count;
+	}
+
 }

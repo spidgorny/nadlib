@@ -875,7 +875,7 @@ abstract class OODBase {
 	}
 
 	public function getCollection(array $where = [], $orderBy = NULL) {
-		$collection = Collection::createForTable($this->table, $where, $orderBy);
+		$collection = Collection::createForTable($this->db, $this->table, $where, $orderBy);
 		$collection->idField = $this->idField;
 		$static = get_called_class();
 		$collection->itemClassName = $static;
