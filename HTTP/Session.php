@@ -6,6 +6,9 @@ class Session {
 
 	function __construct($prefix = NULL) {
 		$this->prefix = $prefix;
+		if (!self::isActive()) {
+			session_start();
+		}
 	}
 
 	static function isActive() {
@@ -53,6 +56,11 @@ class Session {
 
 	public function append($key, $val) {
 		$_SESSION[$this->prefix][$key][] = $val;
+	}
+
+	public function getAll()
+	{
+		return $_SESSION[$this->prefix];
 	}
 
 }
