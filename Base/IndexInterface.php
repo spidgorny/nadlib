@@ -8,4 +8,6 @@ interface IndexInterface {
 
 	function render();
 
+	function addJS($source);
+
 }
