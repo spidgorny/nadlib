@@ -17,7 +17,7 @@ class Model {
 
 	function __construct(DBInterface $db = null)
 	{
-		$this->db = $db;
+		$this->setDB($db);
 	}
 
 	public function setDB(DBInterface $db)
@@ -27,7 +27,7 @@ class Model {
 
 	function getCollection(array $where = [], $orderBy = null)
 	{
-		$col = Collection::createForTable($this->table);
+		$col = Collection::createForTable($this->db, $this->table);
 		$col->idField = $this->idField;
 		$col->itemClassName = $this->itemClassName;
 		$col->objectifyByInstance = method_exists($this->itemClassName, 'getInstance');
@@ -59,9 +59,15 @@ class Model {
 		return $this->db->runInsertQuery($this->table, $data);
 	}
 
+	/**
+	 * TODO: implement numRows in a way to get the amount of data from the query
+	 * object.
+	 * @return int
+	 */
 	function getCount()
 	{
-		//return $this->getCollection()->getCount();
+		// don't uncomment as this leads to recursive calls to $this->getCollection()
+//		return $this->getCollection()->getCount();
 		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
 	}
 

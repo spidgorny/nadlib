@@ -259,20 +259,26 @@ class Collection implements IteratorAggregate {
 		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
 
-		if ($this->query instanceof SQLSelectQuery) {
-			$res = $this->query->perform();
+		// in most cases we don't need to rasterize the query to SQL
+		if ($most_cases = true) {
+			$data = $this->db->fetchAll($this->query);
 		} else {
-			$res = $this->db->perform($this->query);
+			// legacy case - need SQL string
+			if ($this->query instanceof SQLSelectQuery) {
+				$res = $this->query->perform();
+			} else {
+				$res = $this->db->perform($this->query);
+			}
+
+
+			if ($this->pager) {
+				$this->count = $this->pager->numberOfRecords;
+			} else {
+				$this->count = $this->db->numRows($res);
+			}
+
+			$data = $this->db->fetchAll($res);
 		}
-
-
-		if ($this->pager) {
-			$this->count = $this->pager->numberOfRecords;
-		} else {
-			$this->count = $this->db->numRows($res);
-		}
-
-		$data = $this->db->fetchAll($res);
 		// fetchAll does implement free()
 //		$this->db->free($res);
 		TaylorProfiler::stop($taylorKey);
@@ -416,11 +422,20 @@ class Collection implements IteratorAggregate {
 			$query = $this->db->getSelectQuerySW($this->table . ' ' . $this->join, $where, $this->orderBy, $this->select);
 		} else {
 			//debug($where);
-			$query = $this->db->getSelectQuery(
-				$this->table . ' ' . $this->join,
-				$where,
-				$this->orderBy,
-				$this->select);
+			if ($this->join) {
+				$query = $this->db->getSelectQuery(
+					$this->table . ' ' . $this->join,
+					$where,
+					$this->orderBy,
+					$this->select);
+			} else {
+				// joins are not implemented yet (IMHO)
+				$query = $this->db->getSelectQuerySW(
+					$this->table,
+					$where instanceof SQLWhere ? $where : new SQLWhere($where),
+					$this->orderBy,
+					$this->select);
+			}
 		}
 		if (DEVELOPMENT) {
 //			$index = Index::getInstance();
@@ -707,22 +722,25 @@ class Collection implements IteratorAggregate {
 	}
 
 	/**
+	 * @param DBInterface $db
 	 * @param string $table
 	 * @param array $where
 	 * @param string $orderBy
 	 * @return Collection
 	 */
-	static function createForTable($table, array $where = array(), $orderBy = '')
+	static function createForTable(DBInterface $db, $table, array $where = array(), $orderBy = '')
 	{
 		$c = new self();
+		$c->db = $db;
 		$c->table = $table;
 		$c->where = $where;
 		$c->orderBy = $orderBy;
 		/** @var DBLayerBase $db */
-		$db = Config::getInstance()->getDB();
-		$firstWord = $db->getFirstWord($c->table);
+		//$db = Config::getInstance()->getDB();
+		$firstWord = SQLBuilder::getFirstWord($c->table);
 		$firstWord = $db->quoteKey($firstWord);
 		$c->select = ' ' . $firstWord . '.*';
+		assert($db === $c->db);
 		return $c;
 	}
 
@@ -1038,18 +1056,7 @@ class Collection implements IteratorAggregate {
 					$this->retrieveData(false);
 					// will set the count
 				} elseif ($queryWithLimit instanceof SQLSelectQuery) {
-					$queryWithoutOrder = clone $queryWithLimit;
-					$queryWithoutOrder->unsetOrder();
-
-					$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
-					$subQuery->setParameters($queryWithLimit->getParameters());
-					$query = new SQLSelectQuery(
-						new SQLSelect('count(*) AS count'),
-						$subQuery);
-					$query->injectDB($this->db);
-
-					$res = $query->fetchAssoc();
-					$this->count = $res['count'];
+					$this->count = $this->db->getCount($queryWithLimit);
 				} else {
 					// this is the same query as $this->retrieveData() !
 					$query = $this->getQuery();
