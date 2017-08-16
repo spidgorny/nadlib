@@ -60,7 +60,7 @@ class Session {
 
 	public function getAll()
 	{
-		return $_SESSION[$this->prefix];
+		return ifsetor($_SESSION[$this->prefix], []);
 	}
 
 }

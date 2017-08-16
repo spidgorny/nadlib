@@ -14,7 +14,7 @@ class SessionDatabase implements \DBInterface {
 	/**
 	 * @var array
 	 */
-	public $data;
+	public $data = [];
 
 	static function initialize()
 	{
@@ -175,6 +175,23 @@ class SessionDatabase implements \DBInterface {
 			//throw new NotImplementedException(__METHOD__);
 		}
 		return count($this->data[$table]);
+	}
+
+	function fetchOneSelectQuery($table, array $where)
+	{
+		$data = \ArrayPlus::create($this->data[$table]);
+		$data->filterBy($where);
+		return $data->count() ? $data->first() : null;
+	}
+
+	function createTable($table)
+	{
+		$this->data[$table] = [];
+	}
+
+	public function getRowsIn($table)
+	{
+		return count(ifsetor($this->data[$table], []));
 	}
 
 }
