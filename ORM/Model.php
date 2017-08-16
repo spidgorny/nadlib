@@ -91,19 +91,35 @@ class Model {
 
 	function getByID($id)
 	{
-		$found = $this->getCollection()->findInData([
+		$found = $this->db->fetchOneSelectQuery($this->table, [
 			$this->idField => $id,
 		]);
-		$className = $this->itemClassName;
-		/** @var OODBase $instance */
-		$instance = $className::getInstance($found);
-		$instance->setDB($this->db);
-		return $instance;
+		if ($found) {
+			$this->setData($found);
+		} else {
+			$this->unsetData();
+		}
+		return $this;
 	}
 
 	function getFormFromModel()
 	{
 		$desc = [];
+		$fields = $this->getFields();
+		foreach ($fields as $field => $dc) {
+			$desc[$field] = [
+				'label' => $dc->get('label') ?: $dc->getDescription(),
+				'type' => $dc->get('type') ?: 'text',
+				// optional is true by default
+				'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
+			];
+		}
+		return $desc;
+	}
+
+	function getFields()
+	{
+		$fields = [];
 		foreach (get_object_vars($this) as $fieldName => $_) {
 			$field = new ReflectionProperty(get_class($this), $fieldName);
 			$sComment = $field->getDocComment();
@@ -111,16 +127,11 @@ class Model {
 				$dc = new DocCommentParser($sComment);
 				//debug($field->getName(), $sComment, $dc->getAll());
 				if ($dc->is_set('column')) {
-					$desc[$field->getName()] = [
-						'label' => $dc->get('label') ?: $dc->getDescription(),
-						'type' => $dc->get('type') ?: 'text',
-						// optional is true by default
-						'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
-					];
+					$fields[$fieldName] = $dc;
 				}
 			}
 		}
-		return $desc;
+		return $fields;
 	}
 
 	static function getInstance(array $data)
@@ -131,10 +142,22 @@ class Model {
 		return $obj;
 	}
 
+	/**
+	 * Different models may extend this to covert between
+	 * different data types in DB and in runtime.
+	 * @param array $data
+	 */
 	function setData(array $data)
 	{
 		foreach ($data as $key => $val) {
 			$this->$key = $val;
+		}
+	}
+
+	public function unsetData()
+	{
+		foreach ($this->getFields() as $field => $dc) {
+			$this->$field = null;
 		}
 	}
 
