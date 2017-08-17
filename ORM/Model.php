@@ -73,7 +73,9 @@ class Model {
 
 	function insert(array $data)
 	{
-		$data[$this->idField] = RandomStringGenerator::likeYouTube();
+		if (!isset($data[$this->idField])) {
+			$data[$this->idField] = RandomStringGenerator::likeYouTube();
+		}
 		return $this->db->runInsertQuery($this->table, $data);
 	}
 
@@ -134,6 +136,11 @@ class Model {
 		return $fields;
 	}
 
+	function getVisibleFields()
+	{
+		// TODO
+	}
+
 	static function getInstance(array $data)
 	{
 		$obj = new self(null);
@@ -159,6 +166,16 @@ class Model {
 		foreach ($this->getFields() as $field => $dc) {
 			$this->$field = null;
 		}
+	}
+
+	function id()
+	{
+		return $this->idField;
+	}
+
+	function get($field)
+	{
+		return ifsetor($this->$field);
 	}
 
 }
