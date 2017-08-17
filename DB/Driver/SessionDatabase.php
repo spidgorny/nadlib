@@ -157,6 +157,15 @@ class SessionDatabase implements \DBInterface {
 		$this->data[$table][] = $data;
 	}
 
+	function runUpdateQuery($table, array $set, array $where)
+	{
+		$data = \ArrayPlus::create($this->data[$table]);
+		$data->filterBy($where);
+		foreach ($data as $key => $row) {
+			$this->data[$table][$key] = array_merge($this->data[$table][$key], $set);
+		}
+	}
+
 	function getSelectQuery($table, array $where, $orderBy = null)
 	{
 		return \SQLSelectQuery::getSelectQueryP($this, $table, $where, $orderBy);
