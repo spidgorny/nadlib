@@ -41,6 +41,12 @@ class Model {
 		$this->db = $db;
 	}
 
+	/**
+	 * @param array $where
+	 * @param null $orderBy
+	 * @return Collection
+	 * @deprecated
+	 */
 	function getCollection(array $where = [], $orderBy = null)
 	{
 		$col = Collection::createForTable($this->db, $this->table);
@@ -58,17 +64,59 @@ class Model {
 		return $col;
 	}
 
+	/**
+	 * @param $id
+	 * @return mixed
+	 * @deprecated
+	 */
 	function getModel($id)
 	{
 		$model = call_user_func([$this->itemClassName, 'getInstance'], $id);
 		return $model;
 	}
 
+	public function getName()
+	{
+		// override this
+		return null;
+	}
+
+	/**
+	 * @return ArrayPlus
+	 */
+	public function getData()
+	{
+		$data = $this->db->fetchAllSelectQuery($this->table, []);
+		if (!($data instanceof ArrayPlus)) {
+			$data = new ArrayPlus($data);
+		}
+		return $data;
+	}
+
 	function renderList()
 	{
-		$col = $this->getCollection();
-		$content = $col->renderList();
-		return $content;
+		$list = array();
+		if ($this->getCount()) {
+			foreach ($this->getData() as $id => $row) {
+				if (method_exists($this, 'render')) {
+					$content = $this->render();
+				} elseif (method_exists($this, 'getSingleLink')) {
+					$link = $this->getSingleLink();
+					if ($link) {
+						$content = new HTMLTag('a', array(
+							'href' => $link,
+						), $this->getName());
+					} else {
+						$content = $this->getName();
+					}
+				} else {
+					$content = $this->getName();
+				}
+				$list[$id] = $content;
+			}
+			return new UL($list);
+		}
+		return null;
 	}
 
 	function insert(array $data)
@@ -176,6 +224,12 @@ class Model {
 	function get($field)
 	{
 		return ifsetor($this->$field);
+	}
+
+	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
+	{
+		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
+		return $data;
 	}
 
 }

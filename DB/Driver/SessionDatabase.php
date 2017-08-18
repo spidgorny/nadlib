@@ -193,6 +193,13 @@ class SessionDatabase implements \DBInterface {
 		return $data->count() ? $data->first() : null;
 	}
 
+	function fetchAllSelectQuery($table, array $where)
+	{
+		$data = \ArrayPlus::create($this->data[$table]);
+		$data->filterBy($where);
+		return $data;
+	}
+
 	function createTable($table)
 	{
 		$this->data[$table] = [];
