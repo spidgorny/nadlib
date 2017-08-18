@@ -939,7 +939,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 				} else {
 					$value = is_object($row)
 						? $row->$k
-						: $row[$k];
+						: ifsetor($row[$k]);
 					$ok = $v == $value;
 				}
 				$okList[$k] = $ok;
