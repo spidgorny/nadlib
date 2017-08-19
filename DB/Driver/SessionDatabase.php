@@ -154,7 +154,9 @@ class SessionDatabase implements \DBInterface {
 
 	function runInsertQuery($table, array $data)
 	{
+		debug('runInsertQuery', sizeof($this->data[$table]));
 		$this->data[$table][] = $data;
+		debug('runInsertQuery', sizeof($this->data[$table]));
 	}
 
 	function runUpdateQuery($table, array $set, array $where)
@@ -202,7 +204,9 @@ class SessionDatabase implements \DBInterface {
 
 	function createTable($table)
 	{
-		$this->data[$table] = [];
+		if (!isset($this->data[$table])) {
+			$this->data[$table] = [];
+		}
 	}
 
 	public function getRowsIn($table)
