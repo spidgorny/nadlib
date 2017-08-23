@@ -98,6 +98,7 @@ class Model {
 		$list = array();
 		if ($this->getCount()) {
 			foreach ($this->getData() as $id => $row) {
+				$this->setData($row);
 				if (method_exists($this, 'render')) {
 					$content = $this->render();
 				} elseif (method_exists($this, 'getSingleLink')) {

@@ -88,7 +88,9 @@ class View extends stdClass {
 
 	function getFile()
 	{
-		$file = dirname($this->file) != '.'
+		$path = new Path($this->file);
+//		debug($path, $path->isAbsolute());
+		$file = $path->isAbsolute()
 			? $this->file
 			: $this->folder . $this->file;
 		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
@@ -209,7 +211,7 @@ class View extends stdClass {
 	 */
 	function splitBy($sep)
 	{
-		$file = 'template/' . $this->file;
+		$file = $this->getFile();
 		$content = file_get_contents($file);
 		$this->parts = explode($sep, $content);
 	}
