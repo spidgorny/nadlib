@@ -178,7 +178,7 @@ class Collection implements IteratorAggregate {
 		$this->db = $db ?: $config->getDB();
 		$this->table = $config->prefixTable($this->table);
 		$this->select = $this->select
-			// DISTINCT is 100 times slower, add it manualy if needed
+			// DISTINCT is 100 times slower, add it manually if needed
 			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
 			?: $this->db->quoteKey(
 				$this->db->getFirstWord($this->table)) . '.*';

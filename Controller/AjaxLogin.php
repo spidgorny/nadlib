@@ -50,7 +50,7 @@ class AjaxLogin extends AppController {
 
 	function __construct($action = NULL) {
 		parent::__construct();
-		$config = NadlibIndex::$instance->dic->config;
+		$config = Config::getInstance();
 		$config->mergeConfig($this);
 		$action = $action ? $action : $this->request->getTrim('action');	// don't reverse this line as it will call mode=login twice
 		if ($action) {
@@ -160,7 +160,7 @@ class AjaxLogin extends AppController {
 	}
 
 	/**
-	 * Full screen - not for navbar 
+	 * Full screen - not for navbar
 	 * @param array|NULL $desc
 	 * @return HTMLFormTable
 	 */
@@ -410,7 +410,7 @@ class AjaxLogin extends AppController {
 	function navbarLoginForm() {
 		return '<a href="'.LoginService::class.'" class="btn btn-primary navbar-btn">Login</a>';
 	}
-	
+
 	function logoutForm() {
 		$a = new HTMLTag('a', array(
 			'href' => get_class($this).'?action=logout',
