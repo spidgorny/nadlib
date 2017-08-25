@@ -114,7 +114,8 @@ class Model {
 		$fields = $this->getFields();
 		foreach ($fields as $field => $dc) {
 			$desc[$field] = [
-				'label' => $dc->get('label') ?: $dc->getDescription(),
+				'label' => $dc->get('label')
+					?: $dc->getDescription(),
 				'type' => $dc->get('type') ?: 'text',
 				// optional is true by default
 				'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
@@ -127,14 +128,18 @@ class Model {
 	{
 		$fields = [];
 		foreach (get_object_vars($this) as $fieldName => $_) {
-			$field = new ReflectionProperty(get_class($this), $fieldName);
-			$sComment = $field->getDocComment();
-			if ($sComment) {
-				$dc = new DocCommentParser($sComment);
-				//debug($field->getName(), $sComment, $dc->getAll());
-				if ($dc->is_set('label')) {
-					$fields[$fieldName] = $dc;
+			try {
+				$field = new ReflectionProperty(get_class($this), $fieldName);
+				$sComment = $field->getDocComment();
+				if ($sComment) {
+					$dc = new DocCommentParser($sComment);
+					//debug($field->getName(), $sComment, $dc->getAll());
+					if ($dc->is_set('label')) {
+						$fields[$fieldName] = $dc;
+					}
 				}
+			} catch (ReflectionException $e) {
+				// skip
 			}
 		}
 		return $fields;
