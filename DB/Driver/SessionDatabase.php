@@ -16,10 +16,17 @@ class SessionDatabase implements \DBInterface {
 	 */
 	public $data = [];
 
+	/**
+	 * @var static
+	 */
+	static protected $instance;
+
 	static function initialize()
 	{
-		$sdb = new SessionDatabase();
-		return $sdb;
+		if (!self::$instance) {
+			self::$instance = new static();
+		}
+		return self::$instance;
 	}
 
 	function __construct()
@@ -221,9 +228,15 @@ class SessionDatabase implements \DBInterface {
 
 	function hasData()
 	{
-		return sizeof($this->data);
+		$totalRows = array_reduce($this->data, function ($acc, array $rows) {
+			return $acc + sizeof($rows);
+		}, 0);
+		return $totalRows;
 	}
 
+	/**
+	 * Don't set the whole data to [] because in this case session will not be updated.
+	 */
 	public function clearAll()
 	{
 		foreach ($this->data as $table => $_) {
