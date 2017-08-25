@@ -6,15 +6,12 @@
  */
 class DBLayer extends DBLayerBase implements DBInterface {
 
-	var $RETURN_NULL = TRUE;
-
     /**
      * @var resource
      */
     public $connection = NULL;
 
 	var $LAST_PERFORM_RESULT;
-	var $LAST_PERFORM_QUERY;
 
     /**
      * todo: use setter & getter method
@@ -35,7 +32,7 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	/**
 	 * @var string
 	 */
-	var $lastQuery;
+	public $lastQuery;
 
 	/**
 	 * Transaction count because three are no nested transactions

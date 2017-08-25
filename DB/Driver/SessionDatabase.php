@@ -58,7 +58,7 @@ class SessionDatabase implements \DBInterface {
 
 	function getTables()
 	{
-		debug(__METHOD__);
+		return array_keys($this->data);
 	}
 
 	function lastInsertID($res, $table = NULL)
@@ -154,9 +154,9 @@ class SessionDatabase implements \DBInterface {
 
 	function runInsertQuery($table, array $data)
 	{
-		debug('runInsertQuery', sizeof($this->data[$table]));
+//		debug('runInsertQuery', sizeof($this->data[$table]));
 		$this->data[$table][] = $data;
-		debug('runInsertQuery', sizeof($this->data[$table]));
+//		debug('runInsertQuery', sizeof($this->data[$table]));
 	}
 
 	function runUpdateQuery($table, array $set, array $where)
@@ -195,9 +195,14 @@ class SessionDatabase implements \DBInterface {
 		return $data->count() ? $data->first() : null;
 	}
 
-	function fetchAllSelectQuery($table, array $where)
+	function fetchAllSelectQuery($table, array $where = [])
 	{
-		$data = \ArrayPlus::create($this->data[$table]);
+		$rows = $this->data[$table];
+//		debug($table, $rows);
+		if (!is_array($rows)) {
+			$rows = [];
+		}
+		$data = \ArrayPlus::create($rows);
 		$data->filterBy($where);
 		return $data;
 	}
@@ -212,6 +217,18 @@ class SessionDatabase implements \DBInterface {
 	public function getRowsIn($table)
 	{
 		return count(ifsetor($this->data[$table], []));
+	}
+
+	function hasData()
+	{
+		return sizeof($this->data);
+	}
+
+	public function clearAll()
+	{
+		foreach ($this->data as $table => $_) {
+			$this->data[$table] = [];
+		}
 	}
 
 }

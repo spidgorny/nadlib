@@ -24,8 +24,6 @@ class Model {
 
 	var $titleColumn = 'name';
 
-	var $itemClassName = '?';
-
 	/**
 	 * @var DBInterface|SQLBuilder
 	 */
@@ -42,40 +40,6 @@ class Model {
 	public function setDB(DBInterface $db)
 	{
 		$this->db = $db;
-	}
-
-	/**
-	 * @param array $where
-	 * @param null $orderBy
-	 * @return Collection
-	 * @deprecated
-	 */
-	function getCollection(array $where = [], $orderBy = null)
-	{
-		$col = Collection::createForTable($this->db, $this->table);
-		$col->idField = $this->idField;
-		$col->itemClassName = $this->itemClassName;
-		$col->objectifyByInstance = method_exists($this->itemClassName, 'getInstance');
-		$col->where = $where;
-		if ($orderBy) {
-			$col->orderBy = $orderBy;
-		}
-
-		// because it will try to run query on DBLayerJSON
-		// that's OK because we don't use DBLayerJSON anymore
-//		$col->count = $this->getCount();
-		return $col;
-	}
-
-	/**
-	 * @param $id
-	 * @return mixed
-	 * @deprecated
-	 */
-	function getModel($id)
-	{
-		$model = call_user_func([$this->itemClassName, 'getInstance'], $id);
-		return $model;
 	}
 
 	public function getName()
@@ -99,7 +63,7 @@ class Model {
 	function renderList()
 	{
 		$list = array();
-		if ($this->getCount()) {
+		if ($this->getData()->count()) {
 			foreach ($this->getData() as $id => $row) {
 				$this->setData($row);
 				if (method_exists($this, 'render')) {
@@ -129,18 +93,6 @@ class Model {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
 		return $this->db->runInsertQuery($this->table, $data);
-	}
-
-	/**
-	 * TODO: implement numRows in a way to get the amount of data from the query
-	 * object.
-	 * @return int
-	 */
-	function getCount()
-	{
-		// don't uncomment as this leads to recursive calls to $this->getCollection()
-		return $this->getCollection()->getCount();
-//		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
 	}
 
 	function getByID($id)
@@ -254,6 +206,16 @@ class Model {
 			$list->append(new static($this->db, $row));
 		}
 		return $list;
+	}
+
+	public function asArray()
+	{
+		$data = get_object_vars($this);
+		unset($data['table']);
+		unset($data['idField']);
+		unset($data['titleColumn']);
+		unset($data['db']);
+		return $data;
 	}
 
 }
