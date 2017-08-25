@@ -55,6 +55,7 @@ class InitNADLIB {
 			$this->al->useCookies = $this->useCookies;
 			$this->al->postInit();
 			$this->al->register();
+			//debug($this->al->folders);
 		}
 
 		// leads to problems when there are multiple Config classes
@@ -66,6 +67,7 @@ class InitNADLIB {
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
+		return $this;
 	}
 
 	/**
