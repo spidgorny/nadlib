@@ -31,9 +31,12 @@ class Model {
 	 */
 	protected $db;
 
-	function __construct(DBInterface $db = null)
+	public $id;
+
+	function __construct(DBInterface $db = null, array $data = [])
 	{
 		$this->setDB($db);
+		$this->setData($data);
 	}
 
 	public function setDB(DBInterface $db)
@@ -98,6 +101,7 @@ class Model {
 		$list = array();
 		if ($this->getCount()) {
 			foreach ($this->getData() as $id => $row) {
+				$this->setData($row);
 				if (method_exists($this, 'render')) {
 					$content = $this->render();
 				} elseif (method_exists($this, 'getSingleLink')) {
@@ -218,7 +222,7 @@ class Model {
 
 	function id()
 	{
-		return $this->idField;
+		return $this->id;
 	}
 
 	function get($field)
@@ -226,10 +230,30 @@ class Model {
 		return ifsetor($this->$field);
 	}
 
+	/**
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return array[]
+	 */
 	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
 		return $data;
+	}
+
+	/**
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return ArrayPlus
+	 */
+	public function queryObjects(array $where, $orderBy = 'ORDER BY id DESC')
+	{
+		$data = $this->queryData($where, $orderBy);
+		$list = new ArrayPlus();
+		foreach ($data as $row) {
+			$list->append(new static($this->db, $row));
+		}
+		return $list;
 	}
 
 }
