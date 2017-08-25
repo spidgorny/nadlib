@@ -95,11 +95,11 @@ abstract class LocalLang {
 		return isset($this->ll[$lang]);
 	}
 
-	static function getInstance() {
-		debug_pre_print_backtrace();
+	static function getInstance($forceLang = NULL, $filename = NULL) {
+		//debug_pre_print_backtrace();
 		static $instance = NULL;
 		if (!$instance) {
-			//$instance = new static(); // PHP 5.2
+			$instance = new static($forceLang, $filename);
 		}
 		return $instance;
 	}
