@@ -134,7 +134,7 @@ class Model {
 				if ($sComment) {
 					$dc = new DocCommentParser($sComment);
 					//debug($field->getName(), $sComment, $dc->getAll());
-					if ($dc->is_set('label')) {
+					if ($dc->is_set('label') || $dc->is_set('field')) {
 						$fields[$fieldName] = $dc;
 					}
 				}
