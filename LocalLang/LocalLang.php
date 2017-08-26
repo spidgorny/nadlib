@@ -49,9 +49,6 @@ abstract class LocalLang {
 			$this->lang = $forceLang;
 		} else {
 			$this->detectLang();
-			$this->lang = isset($_COOKIE['lang']) && $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
-				? $_COOKIE['lang']
-				: $this->lang;
 		}
 
 		if (class_exists('Config')) {
@@ -89,6 +86,11 @@ abstract class LocalLang {
 			//debug('firstKey: '.$firstKey);
 		}
 		//debug($this->ll);
+
+		// allow to force a language by cookie
+		$this->lang = isset($_COOKIE['lang']) && $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
+			? $_COOKIE['lang']
+			: $this->lang;
 	}
 
 	function areThereTranslationsFor($lang) {
@@ -107,7 +109,8 @@ abstract class LocalLang {
 	/**
 	 *
 	 * @param $text
-	 * @param null $replace
+	 * @param string|array $replace can be a simple %1 replacement, but can also
+	 * be an array of alternative translations
 	 * @param null $s2
 	 * @param null $s3
 	 * @internal param $ <type> $text
@@ -119,17 +122,22 @@ abstract class LocalLang {
 		if (!is_scalar($text)) {
 			throw new InvalidArgumentException('[' . $text . ']');
 		}
-		if (isset($this->ll[$text])) {
-			$trans = ifsetor($this->ll[$text], $text);
-			$trans = $this->Tp($trans, $replace, $s2, $s3);
-			$trans = $this->getEditLinkMaybe($trans, $text, '');
-			//if ($text == 'Search') { debug($text, $trans); }
+		if (is_array($replace)) {
+			$trans = ifsetor($replace[$this->lang]);
+			$trans = $this->Tp($trans, $s2, $s3);
 		} else {
-			//debug($this->ll);
-			//debug($text, $this->ll[$text], spl_object_hash($this));
-			$this->saveMissingMessage($text);
-			$trans = $this->Tp($text, $replace, $s2, $s3);
-			$trans = $this->getEditLinkMaybe($trans);
+			if (isset($this->ll[$text])) {
+				$trans = ifsetor($this->ll[$text], $text);
+				$trans = $this->Tp($trans, $replace, $s2, $s3);
+				$trans = $this->getEditLinkMaybe($trans, $text, '');
+				//if ($text == 'Search') { debug($text, $trans); }
+			} else {
+				//debug($this->ll);
+				//debug($text, $this->ll[$text], spl_object_hash($this));
+				$this->saveMissingMessage($text);
+				$trans = $this->Tp($text, $replace, $s2, $s3);
+				$trans = $this->getEditLinkMaybe($trans);
+			}
 		}
 		if ($this->debug = $text == 'asd') {
 			debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
