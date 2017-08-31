@@ -46,6 +46,11 @@ class InitNADLIB {
 			|| getenv('NADLIB');
 	}
 
+	function disableAutoload() {
+		$this->al = null;
+		return $this;
+	}
+
 	function init() {
 		//print_r($_SERVER);
 		$this->setDefaults();
@@ -94,7 +99,7 @@ class InitNADLIB {
 		if (!defined('DEVELOPMENT')) {
 			if (Request::isCLI()) {
 				define('DEVELOPMENT', $this->development);
-				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
+				//echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {
 				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
 			}
