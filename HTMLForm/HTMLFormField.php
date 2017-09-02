@@ -288,13 +288,15 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				$this->form->captcha($fieldName, $fieldValue, $desc->getArray());
 				break;
 			case 'recaptcha':
-				$this->form->recaptcha($desc + array(
-					'name' => $this->form->getName($fieldName, '', TRUE)));
+				$this->form->recaptcha($desc->getArray() + [
+					'name' => $this->form->getName($fieldName, '', TRUE)
+					]);
 				break;
 			case 'recaptchaAjax':
 				$this->form->recaptchaAjax(
-						$desc->getArray() + array(
-								'name' => $this->form->getName($fieldName, '', TRUE)));
+						$desc->getArray() + [
+								'name' => $this->form->getName($fieldName, '', TRUE)
+						]);
 				break;
 			case 'datatable':
 				$this->form->datatable($fieldName, $fieldValue, $desc, FALSE, $doDiv = TRUE, 'htmlftable');
