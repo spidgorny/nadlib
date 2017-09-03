@@ -114,7 +114,7 @@ class AjaxLogin extends AppController {
 
 	/**
 	 * $this->user->try2login() should been called already
-	 * @return string
+	 * @return array
 	 */
 	function render() {
 		$content = [];
@@ -123,9 +123,9 @@ class AjaxLogin extends AppController {
 			$contentPlus = $this->performAction($this->action);
 			if ($contentPlus) {
 				$content[] = $contentPlus;
-			} else if ($this->user && $this->user->isAuth()) {
+			} elseif ($this->user && $this->user->isAuth()) {
 				$content[] = $this->menuAction();
-			} else if ($this->action == 'activate') {
+			} elseif ($this->action == 'activate') {
 				$content[] = $this->activateActionReal();
 			} else {
 				$content[] = $this->formAction();
