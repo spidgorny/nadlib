@@ -246,7 +246,9 @@ class slTable
 		if (!$this->sortBy) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
-			list($this->sortBy) = first($this->thes);
+			if (sizeof($this->thes)) {
+				list( $this->sortBy ) = first( $this->thes );
+			}
 			error_reporting($old);
 		}
 	}
