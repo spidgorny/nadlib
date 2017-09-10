@@ -26,8 +26,9 @@
         "flot/flot": "dev-master"
     },
 	"autoload": {
-		"classhmap": [
+		"classmap": [
 			"./",
+			"Base/",
 			"Cache/",
 			"Controller/",
 			"CSS/",
@@ -39,6 +40,9 @@
 			"HTTP/",
 			"LocalLang/",
 			"ORM/",
+			"SQL/",
+			"Queue/",
+			"Runner/",
 			"SQL/",
 			"Time/",
 			"User/"
