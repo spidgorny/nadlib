@@ -101,25 +101,17 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	protected $request;
 
-	public function __construct() {
+	public function __construct(Config $config) {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
-		if (class_exists('Config', false)) {
-//			try {
-				$this->config = Config::getInstance();
-				$this->db = $this->config->getDB();
+		$this->config = $config;
+		$this->db = $this->config->getDB();
 
-				// you need a session if you want to try2login()
-				$this->initSession();
-				$this->user = $this->config->getUser();
+		// you need a session if you want to try2login()
+		$this->initSession();
+		$this->user = $this->config->getUser();
 
-				$this->ll = $this->config->getLL();
-//			} catch (Exception $e) {
-				// should not catch exceptions here, let subclass do it
-//				echo get_class($e), BR;
-//				$this->content[] = $this->renderException($e);
-//			}
-		}
+		$this->ll = $this->config->getLL();
 
 		$this->request = Request::getInstance();
 		//debug('session_start');
@@ -172,16 +164,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @param bool $createNew - must be false
+	 * @param Config|null $config
+	 *
 	 * @return Index|IndexBE
 	 */
-	static function getInstance($createNew = false) {
+	static function getInstance($createNew = false, Config $config = null) {
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
 			: NULL;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
-			$instance = new $static();
+			$instance = new $static($config);
 			self::$instance = $instance;
 		}
 		TaylorProfiler::stop(__METHOD__);
@@ -221,15 +215,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$class = end($slugParts);	// again, because __autoload need the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
-			try {
-				$this->controller = new $class();
-				//			debug($class, get_class($this->controller));
-				if (method_exists($this->controller, 'postInit')) {
-					$this->controller->postInit();
-				}
-			} catch (AccessDeniedException $e) {
-				$this->error($e->getMessage());
-			}
+			$this->makeController($class);
 		} else {
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
@@ -238,6 +224,19 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			throw new Exception404($exception);
 		}
 		TaylorProfiler::stop(__METHOD__);
+	}
+
+	function makeController($class)
+	{
+		try {
+			$this->controller = new $class();
+			// debug($class, get_class($this->controller));
+			if (method_exists($this->controller, 'postInit')) {
+				$this->controller->postInit();
+			}
+		} catch (AccessDeniedException $e) {
+			$this->error($e->getMessage());
+		}
 	}
 
 	function getController() {

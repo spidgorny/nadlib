@@ -13,6 +13,10 @@ class FloatTime {
 		$totalTime = TaylorProfiler::getElapsedTime();
 		$dbTime = $this->getDBTime();
 		if (Session::isActive()) {
+			$_SESSION[__CLASS__] = ifsetor($_SESSION[__CLASS__], []);
+			if (is_scalar($_SESSION[__CLASS__])) {
+				$_SESSION[__CLASS__] = [];
+			}
 			// total
 			$totalMax = intval(ifsetor($_SESSION[__CLASS__]['totalMax'], 0));
 			if ($totalMax > 0) {
@@ -20,7 +24,7 @@ class FloatTime {
 			} else {
 				$totalBar = '<img src="'.ProgressBar::getBar(0).'" />';
 			}
-			$_SESSION[__CLASS__]['totalMax'] = max($_SESSION[__CLASS__]['totalMax'], $totalTime);
+			$_SESSION[__CLASS__]['totalMax'] = max(ifsetor($_SESSION[__CLASS__]['totalMax']), $totalTime);
 
 			// db
 			$dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
@@ -31,7 +35,7 @@ class FloatTime {
 				$ql = $db ? $db->getQueryLog() : NULL;
 				$dbBar = $ql ? sizeof($ql->queryLog) : gettype2($ql);
 			}
-			$_SESSION[__CLASS__]['dbMax'] = max($_SESSION[__CLASS__]['dbMax'], $dbTime);
+			$_SESSION[__CLASS__]['dbMax'] = max(ifsetor($_SESSION[__CLASS__]['dbMax']), $dbTime);
 		} else {
 			$totalBar = 'no session';
 			$totalMax = '';
