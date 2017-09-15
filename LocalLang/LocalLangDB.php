@@ -39,10 +39,10 @@ class LocalLangDB extends LocalLang {
 		}
 	}
 
-	static function getInstance() {
+	static function getInstance($forceLang = NULL, $filename = NULL) {
 		static $instance = NULL;
 		if (!$instance) {
-			$instance = new static();
+			$instance = new static($forceLang);
 			$instance->init();
 		}
 		return $instance;

@@ -650,4 +650,18 @@ class SQLBuilder {
 		return $count;
 	}
 
+	function getReserved() {
+		if ($this->db instanceof DBLayerPDO) {
+			if ($this->db->isMySQL()) {
+				return (new MySQL())->getReserved();
+			} elseif ($this->db->isPostgres()) {
+				return (new DBLayer())->getReserved();
+			} else {
+				return [];
+			}
+		} else {
+			return [];
+		}
+	}
+
 }
