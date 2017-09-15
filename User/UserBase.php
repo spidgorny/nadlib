@@ -96,6 +96,12 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 		$this->findInDB($data);
 	}
 
+	/**
+	 * These preferences are supposed to be stored in DB
+	 * But UserBase is NOT doing it.
+	 * @param $key
+	 * @param $val
+	 */
 	function setPref($key, $val) {
 		$this->prefs[$key] = $val;
 	}

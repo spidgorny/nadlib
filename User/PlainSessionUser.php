@@ -36,6 +36,10 @@ class PlainSessionUser extends User {
 		$_SESSION[$name] = $value;
 	}
 
+	function getAllPrefs() {
+		return $_SESSION;
+	}
+
 	function isAuth() {
 		if (phpversion() >= 5.4) {
 			return session_status() == PHP_SESSION_ACTIVE;	// PHP 5.4
