@@ -41,6 +41,9 @@
       "HTTP/",
       "LocalLang/",
       "ORM/",
+			"SQL/",
+			"Queue/",
+			"Runner/",
       "SQL/",
       "Time/",
       "User/"
