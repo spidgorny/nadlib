@@ -70,4 +70,26 @@ class MarshalParams {
 		return $return;
 	}
 
+	static function makeInstanceWithInjection($class, $container)
+	{
+		$init = []; // parameter values to the constructor
+		$cr = new ReflectionClass($class);
+		$constructor = $cr->getConstructor();
+		$params = $constructor->getParameters();
+		foreach ($params as $param) {
+			$type = $param->getType();
+			if ($type->isBuiltin()) {
+				$init[] = $param->getDefaultValue();
+			} else {
+				$typeClass = method_exists($type, 'getName')
+					? $type->getName()
+					: $type->__toString();
+//					debug($typeClass);
+				$init[] = call_user_func([$container, 'get'.$typeClass]);
+			}
+		}
+		$instance = new $class(...$init);
+		return $instance;
+	}
+
 }
