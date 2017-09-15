@@ -134,6 +134,7 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	}
 
 	function isAuth() {
+		//debug($this);
 		return !!$this->id;
 	}
 
