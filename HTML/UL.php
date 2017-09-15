@@ -59,6 +59,13 @@ class UL {
 
 	function render()
 	{
+		$out = $this->withoutUL();
+		$content = $this->before . implode("\n", $out) . $this->after;
+		return $content;
+	}
+
+	function withoutUL()
+	{
 		$out = array();
 		foreach ($this->items as $class => $li) {
 			$link = $this->getLinkFor($class, $li);
@@ -83,8 +90,7 @@ class UL {
 			$line = str_replace('###ACTIVE###', $class == $this->activeClass ? $this->active : '', $line);
 			$out[] = $line;
 		}
-		$content = $this->before . implode("\n", $out) . $this->after;
-		return $content;
+		return $out;
 	}
 
 	function __toString()
