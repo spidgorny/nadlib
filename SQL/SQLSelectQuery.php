@@ -335,4 +335,16 @@ FROM {$from}
 		return $this->where;
 	}
 
+	public function join($table, $on)
+	{
+		$this->join = new SQLJoin('LEFT OUTER JOIN '.$table.' ON ('.$on.')');
+		return $this;
+	}
+
+	public function select($what)
+	{
+		$this->select = new SQLSelect($what);
+		return $this;
+	}
+
 }

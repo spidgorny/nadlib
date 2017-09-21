@@ -140,7 +140,7 @@ abstract class LocalLang {
 			}
 		}
 		if ($this->debug = $text == 'asd') {
-			debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
+			//debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
 		}
 		return $trans;
 	}

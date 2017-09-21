@@ -204,6 +204,11 @@ class Model {
 		return ifsetor($this->$field);
 	}
 
+	function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
+	{
+		return SQLSelectQuery::getSelectQueryP($this->db, $this->table, $where, $orderBy);
+	}
+
 	/**
 	 * @param array $where
 	 * @param string $orderBy
