@@ -265,8 +265,7 @@ class AutoLoad {
 
 	function __destruct() {
 		if ($this->useCookies) {
-			$_SESSION[__CLASS__] = is_array($_SESSION[__CLASS__])
-				? $_SESSION[__CLASS__] : [];
+			$_SESSION[__CLASS__] = ifsetor($_SESSION[__CLASS__], []);
 			$_SESSION[__CLASS__]['classFileMap'] = $this->classFileMap;
 		}
 		//debug($this->stat, $this->classFileMap, $this->folders);
