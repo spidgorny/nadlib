@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class MarkdownView
+ * composer require michelf/php-markdown
+ */
 class MarkdownView extends View {
 
 	/**

@@ -120,9 +120,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->content->restoreMessages();
 
 		$this->setSecurityHeaders();
+
+		$this->controller = (object)[
+			'layout' => null,
+		];
 		TaylorProfiler::stop(__METHOD__);
 	}
 
+	/**
+	 * @throws AccessDeniedException
+	 */
 	function initSession() {
 //		debug('is session started', session_id(), session_status());
 		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
@@ -191,7 +198,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	public function initController() {
 		TaylorProfiler::start(__METHOD__);
-		if (!$this->controller) {
+		if (!$this->controller instanceof Controller) {
 			$slug = $this->request->getControllerString();
 			if ($slug) {
 				$this->loadController($slug);
@@ -255,7 +262,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$this->initSession();
 
 			$this->initController();
-			if ($this->controller) {
+			if ($this->controller instanceof Controller) {
 				$content .= $this->renderController();
 			} else {
 				// display Exception
@@ -275,16 +282,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	function renderController() {
 		TaylorProfiler::start(__METHOD__);
-		$method = ifsetor($_SERVER['argv'][2]);
+		$method = ifsetor($_SERVER['argv'][2], 'render');
 		if ($method && method_exists($this->controller, $method)) {
-			echo 'Method: ', $method, BR;
+			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
 			//debug($this->request->getAll());
 			$marshal = new MarshalParams($this->controller);
 			$render = $marshal->call($method);
 			//$render = $this->controller->$method();
 		} else {
-			$render = $this->controller->render();
+			$render = $this->renderException(new InvalidArgumentException('Method '.$method.' is not callable on '.get_class($this->controller)));
 		}
 		$render = $this->s($render);
 		$this->sidebar = $this->showSidebar();
