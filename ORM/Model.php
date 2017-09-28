@@ -92,7 +92,24 @@ class Model {
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
-		return $this->db->runInsertQuery($this->table, $data);
+		$res = $this->db->runInsertQuery($this->table, $data);
+		$this->setData($data);
+		return $res;
+	}
+
+	/**
+	 * Original runs getUpdateQuery() which is not supported
+	 * by DBLayerJSON
+	 * @param array $data
+	 * @return resource
+	 */
+	function update(array $data)
+	{
+		$res = $this->db->runUpdateQuery($this->table, $data, [
+			$this->idField => $this->id,
+		]);
+		$this->setData($data);
+		return $res;
 	}
 
 	function getByID($id)
@@ -185,6 +202,11 @@ class Model {
 	function get($field)
 	{
 		return ifsetor($this->$field);
+	}
+
+	function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
+	{
+		return SQLSelectQuery::getSelectQueryP($this->db, $this->table, $where, $orderBy);
 	}
 
 	/**
