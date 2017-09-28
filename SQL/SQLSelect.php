@@ -2,14 +2,22 @@
 
 class SQLSelect {
 
+	/**
+	 * @var DBInterface
+	 */
 	var $db;
 
 	protected $parts = array();
 
+	/**
+	 * SQLSelect constructor.
+	 *
+	 * @param $parts array|string
+	 */
 	function __construct($parts) {
 		if (is_array($parts)) {
 			$this->parts = $parts;
-		} else if ($parts) {
+		} elseif ($parts) {
 			$this->parts[] = $parts;
 		} else {
 			$this->parts[] = '*';
