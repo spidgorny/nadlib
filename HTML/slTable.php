@@ -627,6 +627,9 @@ class slTable
 		return $more;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function show()
 	{
 		if (!$this->generation->isDone()) {
@@ -635,6 +638,9 @@ class slTable
 		$this->generation->render();
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function render()
 	{
 		echo Request::isCLI()
@@ -642,6 +648,12 @@ class slTable
 			: $this->getContent();
 	}
 
+	/**
+	 * @param string $caller
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
 	function getContent($caller = '')
 	{
 		if (!$this->generation->isDone()) {
@@ -903,6 +915,23 @@ class slTable
 			//debug($col, $numeric);
 			if ($numeric) {
 				$this->thes[$key]['more']['align'] = "right";
+			}
+		}
+	}
+
+	function hideEmptyColumns()
+	{
+		$visible = [];
+		foreach ($this->data as $row) {
+			foreach ($this->thes as $th => $desc) {
+				if ($row[$th]) {
+					$visible[$th] = true;
+				}
+			}
+		}
+		foreach ($this->thes as $th => $desc) {
+			if (!ifsetor($visible[$th])) {
+				unset($this->thes[$th]);
 			}
 		}
 	}
