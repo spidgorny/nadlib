@@ -71,7 +71,7 @@ class UL {
 			$link = $this->getLinkFor($class, $li);
 
 			// maybe we need to wrap after $this->links
-			if ($this->linkWrap) {
+			if ($this->linkWrap && !is_numeric($class)) {
 				$wrap = Wrap::make($this->linkWrap);
 				// don't translate __() because the values may come from DB
 				if (is_array($li)) {
