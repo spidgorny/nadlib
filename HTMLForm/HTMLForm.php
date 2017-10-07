@@ -34,7 +34,7 @@ class HTMLForm {
 	 * @var array
 	 */
 	var $formMore = array(
-		'class' => '',
+		//'class' => '',
 	);
 
 	public $debug = false;
@@ -42,7 +42,9 @@ class HTMLForm {
 	function __construct($action = '', $id = NULL)
 	{
 		$this->action = $action;
-		$this->formMore['id'] = $id;
+		if ($id) {
+			$this->formMore['id'] = $id;
+		}
 	}
 
 	function formHideArray(array $ar)
@@ -149,13 +151,13 @@ class HTMLForm {
 	 *
 	 * @return string
 	 */
-	function getInput($type, $name, $value = NULL, $more = NULL, $extraClass = '', $namePlus = '')
+	function getInput($type, $name, $value = NULL, array $more = [], $extraClass = '', $namePlus = '')
 	{
 //		debug($type, $name, $value, $more, $extraClass, $namePlus);
-		$a         = '';
-		$moreClass = is_array($more) ? ifsetor($more['class']) : '';
-		$a         .= '<input type="' . $type . '" class="' . $type . ' ' . $extraClass . ' ' . $moreClass . '"';
-		$a         .= $this->getName($name, $namePlus);
+		$attrs = [];
+		$attrs['type']  = $type;
+		$attrs['class'] = trim($type . ' ' . $extraClass . ' ' . ifsetor($more['class']));
+		$attrs['name']  = $this->getName($name, $namePlus, true);
 		if ($value || $value === 0) {
 			$isHTML = $value instanceof htmlString;
 			//debug($value, $isHTML);
@@ -164,13 +166,10 @@ class HTMLForm {
 			} else {
 				$value = str_replace('"', '&quot;', $value);
 			}
-			$a .= ' value="' . $value . '"';
+			$attrs['value'] = $value;
 		}
-		if ($more) {
-			$a .= " " . (is_array($more) ? $this->getAttrHTML($more) : $more);
-		}
-		$a .= ">\n";
-
+		$attrs += $more;
+		$a = "<input " . $this->getAttrHTML($attrs) . " />\n";
 		return $a;
 	}
 
@@ -227,7 +226,7 @@ class HTMLForm {
 	/**
 	 * @param string $name
 	 * @param string $value
-	 * @param strting $checked - must be value
+	 * @param string $checked - must be value
 	 * @param string $more
 	 */
 	function radio($name, $value, $checked, $more = "")
@@ -260,7 +259,7 @@ class HTMLForm {
 		$this->stdout .= $this->hsc($label) . "</label>";
 	}
 
-	function check($name, $value = 1, $checked = false, $more = "", $autoSubmit = false)
+	function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false)
 	{
 		$desc               = [];
 		$desc['more']       = $more;
@@ -271,12 +270,31 @@ class HTMLForm {
 		$this->stdout       .= $box;
 	}
 
-	function checkLabel($name, $value = 1, $checked = false, $more = "", $autoSubmit = false, $label = '')
+	function labelCheck($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, $label = '')
 	{
 		$this->stdout .= '<label>';
 		$this->check($name, $value, $checked, $more, $autoSubmit);
-		$this->stdout .= ' ' ./*htmlspecialchars*/
-		                 ($label) . '</label>';
+		$this->stdout .= ' ' . ($label) . '</label>';
+	}
+
+	function checkLabel($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, $label = '')
+	{
+		$this->stdout .= '<div>';
+		$id = $this->getID($this->getPrefix()+[$name]);
+		$this->check($name, $value, $checked, $more + ['id' => $id], $autoSubmit);
+		$this->stdout .= ' <label for="'.$id.'">' . ($label) . '</label></div>';
+	}
+
+	function getID($from) {
+		if (is_array($from)) {
+			$elementID = 'id-'.implode('-', $from);
+		} else {
+			$elementID = 'id-'.$from;
+		}
+		if (!$elementID) {
+			$elementID = uniqid('id-');
+		}
+		return $elementID;
 	}
 
 	function hsc($label)
@@ -343,7 +361,7 @@ class HTMLForm {
 			debug($name, $desc);
 			debug_pre_print_backtrace();
 			exit();
-			throw new InvalidArgumentException(__METHOD__ . ' $desc[more] is not array');
+			//throw new InvalidArgumentException(__METHOD__ . ' $desc[more] is not array');
 		}
 
 		$this->input($name, $value,
@@ -445,7 +463,7 @@ class HTMLForm {
 	 * @param null $value
 	 * @param array $params
 	 *
-	 * @return string
+	 * @return HTMLForm
 	 */
 	function submit($value = NULL, array $params = array())
 	{
@@ -491,10 +509,16 @@ class HTMLForm {
 		} else {
 			$attributes = $this->formMore;
 		}
-		$attributes += array(
-			'action' => $this->action,
-			'method' => $this->method,
-		);
+		if ($this->action) {
+			$attributes += array(
+				'action' => $this->action,
+			);
+		}
+		if ($this->method) {
+			$attributes += array(
+				'method' => $this->method,
+			);
+		}
 		if ($this->enctype) {
 			$attributes["enctype"] = $this->enctype;
 		}
@@ -503,7 +527,8 @@ class HTMLForm {
 		}
 		$a = "<form " . HTMLTag::renderAttr($attributes) . ">\n";
 		if ($this->fieldset) {
-			$a .= "<fieldset " . $this->getAttrHTML($this->fieldsetMore) . "><legend>" . $this->fieldset . "</legend>";
+			$a .= "<fieldset " . $this->getAttrHTML($this->fieldsetMore) . ">".
+			"<legend>" . $this->fieldset . "</legend>";
 			$a .= is_array($this->fieldsetMore) ? implode(' ', $this->fieldsetMore) : $this->fieldsetMore;
 		}
 
@@ -565,7 +590,7 @@ class HTMLForm {
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
 	 * @param string|array $name
-	 * @param array /string $value - CSV or array
+	 * @param array|string $value - CSV or array
 	 * @param array $desc
 	 *        'between' - text that separates checkboxes (default ", ")
 	 *
@@ -989,6 +1014,9 @@ document.observe("dom:loaded", () => {
 
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getPrefix()
 	{
 		return $this->prefix;
