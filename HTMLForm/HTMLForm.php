@@ -145,7 +145,7 @@ class HTMLForm {
 	 * @param $type
 	 * @param $name
 	 * @param null $value
-	 * @param string /array $more - may be array
+	 * @param array $more - may be array
 	 * @param string $extraClass
 	 * @param string $namePlus
 	 *
@@ -176,11 +176,11 @@ class HTMLForm {
 	/**
 	 * @param $name
 	 * @param string $value
-	 * @param string /array $more - may be array
+	 * @param array $more - may be array
 	 * @param string $type
 	 * @param string $extraClass
 	 */
-	function input($name, $value = "", $more = '', $type = 'text', $extraClass = '')
+	function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
 	{
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
@@ -199,9 +199,9 @@ class HTMLForm {
 	 * @param string $text
 	 * @param string $name
 	 * @param string $value
-	 * @param string $more
+	 * @param array $more
 	 */
-	function tinput($text, $name, $value = "", $more = '')
+	function tinput($text, $name, $value = "", array $more = [])
 	{
 		$this->text('<tr><td>' . $text . '</td><td>');
 		$this->input($name, $value, $more);
@@ -215,7 +215,7 @@ class HTMLForm {
 		$this->stdout .= $this->getInput("password", $name, $value, $desc, ifsetor($desc['class']));
 	}
 
-	function hidden($name, $value, $more = "")
+	function hidden($name, $value, array $more = [])
 	{
 //		debug(__METHOD__, $name, $value);
 		//$value = htmlspecialchars($value, ENT_QUOTES);
@@ -227,13 +227,13 @@ class HTMLForm {
 	 * @param string $name
 	 * @param string $value
 	 * @param string $checked - must be value
-	 * @param string $more
+	 * @param array $more
 	 */
-	function radio($name, $value, $checked, $more = "")
+	function radio($name, $value, $checked, array $more = [])
 	{
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." $more>";
-		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? "checked" : "") . ' ' . $more);
+		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? ["checked" => 'checked'] : []) + $more);
 	}
 
 	/**
@@ -365,8 +365,8 @@ class HTMLForm {
 		}
 
 		$this->input($name, $value,
-			(isset($desc['id']) ? ' id="' . $desc['id'] . '"' : '') .
-			(isset($desc['more']) ? HTMLTag::renderAttr($desc['more']) : ''),
+			(isset($desc['id']) ? ['id' => $desc['id']] : []) +
+			ifsetor($desc['more'], []),
 			'date'
 		);
 	}
@@ -473,7 +473,7 @@ class HTMLForm {
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		// this.form.submit() will not work
 		//debug('submit', $params);
-		$content      = $this->getInput("submit", $params['name'], $value, $this->getAttrHTML($params), $params['class']);
+		$content      = $this->getInput("submit", $params['name'], $value, $params, $params['class']);
 		$this->stdout .= $content;
 
 		return $this;
@@ -847,7 +847,11 @@ document.observe("dom:loaded", () => {
 		$functionName = 'accept_' . $desc['table'] . '_' . $desc['titleColumn'] . '_' . (++ $GLOBALS['popuptreeCall']);
 		$this->hidden($name, $valueID, 'style="width: 5em" readonly id="' . $id1 . '"'); // hidden
 		$this->text(NL);
-		$this->input('dummy', $valueName, 'style="width: 30em" readonly id="' . $id2 . '"');
+		$this->input('dummy', $valueName, [
+			'style' => "width: 30em",
+			'readonly' => 'readonly',
+			'id' => $id2
+		]);
 		$this->text(NL);
 		$this->popupLink($desc['self'], $desc['table'], $desc['titleColumn'], $valueID, $desc['pid'], $desc['leaves'], $id1, $id2, $functionName, $desc['selectRoot']);
 	}
@@ -999,7 +1003,7 @@ document.observe("dom:loaded", () => {
 	 */
 	function time($fieldName, $fieldValue, $isUnlimited)
 	{
-		$this->input($fieldName, $fieldValue, '', 'time');
+		$this->input($fieldName, $fieldValue, [], 'time');
 	}
 
 	/**
