@@ -372,7 +372,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
 				nl2br($message);
 			if (DEVELOPMENT || 0) {
-				$content .= BR . BR . '<div style="text-align: left">' .
+				$content .= BR . '<hr />' . '<div style="text-align: left">' .
 					nl2br($e->getTraceAsString()) . '</div>';
 				//$content .= getDebug($e);
 			}
