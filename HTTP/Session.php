@@ -1,6 +1,6 @@
 <?php
 
-class Session {
+class Session implements SessionInterface {
 
 	var $prefix;
 
