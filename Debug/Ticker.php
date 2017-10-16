@@ -113,6 +113,9 @@ class Ticker {
 		return 'Collected output length: '. strlen($output). BR;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function tick()
 	{
 		$bt = debug_backtrace();
