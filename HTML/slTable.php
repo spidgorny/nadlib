@@ -120,7 +120,12 @@ class slTable
 	 */
 	protected $db;
 
-	function __construct($id = null, $more = "", array $thes = [])
+	/**
+	 * @var Request
+	 */
+	protected $request;
+
+	function __construct($id = null, $more = "", array $thes = [], Request $request = null)
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;
@@ -145,7 +150,13 @@ class slTable
 		}
 		$this->sortLinkPrefix = new URL();
 		$this->generation = new HTMLTableBuf();
+		$this->setRequest($request ?: Request::getInstance());
 		$this->detectSortBy();
+	}
+
+	function setRequest(Request $request)
+	{
+		$this->request = $request;
 	}
 
 	/**
@@ -238,8 +249,9 @@ class slTable
 	}
 
 	public function detectSortBy() {
-		$by = ifsetor($_REQUEST['slTable']['sortBy']);
-		$or = ifsetor($_REQUEST['slTable']['sortOrder']);
+		$aRequest = $this->request->getArray('slTable');
+		$by = ifsetor($aRequest['sortBy']);
+		$or = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
 		$this->sortBy = $by;
 		$this->sortOrder = $or;
