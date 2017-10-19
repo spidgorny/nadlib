@@ -35,6 +35,11 @@ abstract class LocalLang {
 	public $saveMissingMessages = true;
 
 	/**
+	 * @var LocalLang|LocalLangJsonPerController
+	 */
+	public static $instance;
+
+	/**
 	 * Will detect the language by the cookie or browser sniffing
 	 * @param null $forceLang
 	 */
@@ -98,12 +103,10 @@ abstract class LocalLang {
 	}
 
 	static function getInstance($forceLang = NULL, $filename = NULL) {
-		//debug_pre_print_backtrace();
-		static $instance = NULL;
-		if (!$instance) {
-			$instance = new static($forceLang, $filename);
+		if (!self::$instance) {
+			self::$instance = new static($forceLang, $filename);
 		}
-		return $instance;
+		return self::$instance;
 	}
 
 	/**
