@@ -67,8 +67,8 @@ class HTMLFormTable extends HTMLForm {
      */
     public $isValid = false;
 
-	function __construct(array $desc = array(), $prefix = array(), $fieldset = '') {
-		parent::__construct();
+	function __construct(array $desc = array(), $prefix = array(), $fieldset = '', $id = NULL) {
+		parent::__construct('', $id);
 		$this->setDesc($desc);
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
