@@ -688,4 +688,19 @@ class HTMLFormTable extends HTMLForm {
 		}
 	}
 
+	/**
+	 * Make sure only fields in the $desc are saved into the DB
+	 * @param array $userData
+	 *
+	 * @return array
+	 */
+	public function filterData(array $userData)
+	{
+		$data = [];
+		foreach ($this->desc as $field => $_) {
+			$data[$field] = ifsetor($userData[$field]);
+		}
+		return $data;
+	}
+
 }
