@@ -245,4 +245,9 @@ class Model {
 		return $data;
 	}
 
+	public function getNameLink()
+	{
+		return HTMLTag::a($this->getSingleLink(), $this->getName());
+	}
+
 }
