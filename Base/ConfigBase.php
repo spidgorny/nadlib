@@ -218,8 +218,14 @@ class ConfigBase {
 	 */
 	function _getLoginUser() {
 		if (!$this->user) {
-			$this->user = new LoginUser();
-			$this->user->try2login();
+			$db = $this->getDB();
+//			debug(get_class($db));
+			$this->user = new LoginUser($db);
+			try {
+				$this->user->try2login();
+			} catch (Exception $e) {
+				// failed to login - no problem
+			}
 		}
 		return $this->user;
 	}

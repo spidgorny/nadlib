@@ -15,6 +15,8 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 * protected will not work because OODBase::__construct is public
 	 *
 	 * @param int|array $id
+	 *
+	 * @throws Exception
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);
