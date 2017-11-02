@@ -84,32 +84,44 @@ abstract class OODBase {
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
-	 * @param integer|array|SQLWhere $id - can be ID in the database or the whole records
+	 * @param integer|array|SQLWhere|DBInterface $id - can be ID in the database or the whole records
 	 * as associative array
-	 * @return OODBase
+	 *
+	 * @throws Exception
 	 */
 	function __construct($id = NULL) {
 		//debug(get_called_class(), __FUNCTION__, $id);
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			$this->table = $config->prefixTable($this->table);
-			if (!$this->db) {
-				$this->db = $config->getDB();
-			}
-			//debug(get_class($this), $this->table, gettype2($this->db));
-		} else {
-			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
-		}
+		$this->guessDB($id);
 		//echo get_class($this).'::'.__FUNCTION__, ' ', gettype2($this->db), BR;
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
-		$this->init($id);
+		if (!($id instanceof DBInterface)) {
+			$this->init($id);
+		}
 
-		$class = get_class($this);
-		if ($this->id && isset(self::$instances[$class][$this->id])) {
-			$from = Debug::getCaller();
+//		$class = get_class($this);
+//		if ($this->id && isset(self::$instances[$class][$this->id])) {
+//			$from = Debug::getCaller();
 			//debug('made new existing instance of '.$class.' from '.$from);
+//		}
+	}
+
+	function guessDB($id)
+	{
+		if ($id instanceof DBInterface) {
+			$this->db = $id;
+		} else {
+			if (class_exists('Config')) {
+				$config      = Config::getInstance();
+				$this->table = $config->prefixTable($this->table);
+				if ( ! $this->db) {
+					$this->db = $config->getDB();
+				}
+				//debug(get_class($this), $this->table, gettype2($this->db));
+			} else {
+				$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
+			}
 		}
 	}
 
@@ -322,9 +334,11 @@ abstract class OODBase {
 	/**
 	 * Retrieves a record from the DB and calls $this->init()
 	 * But it's rarely called directly.
+	 *
 	 * @param array $where
 	 * @param string $orderByLimit
-	 * @return bool of the found record
+	 *
+	 * @return array of the found record
 	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
