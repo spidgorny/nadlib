@@ -11,7 +11,7 @@ class DebugHTML {
 	 */
 	var $helper;
 
-	var $htmlProlorSent = false;
+	var $htmlPrologSent = false;
 
 	static $defaultLevels = 4;
 
@@ -20,6 +20,7 @@ class DebugHTML {
 	}
 
 	function render() {
+		$levels = self::$defaultLevels;
 		$args = func_get_args();
 		if (is_array($args)) {
 			$levels = $this->getLevels($args) ?: self::$defaultLevels;
@@ -34,7 +35,7 @@ class DebugHTML {
 		if (!headers_sent()) {
 			if (method_exists($this->helper->index, 'renderHead')) {
 				$this->helper->index->renderHead();
-			} elseif (!headers_sent() && !$this->htmlProlorSent) {
+			} elseif (!headers_sent() && !$this->htmlPrologSent) {
 				$content = '<!DOCTYPE html>
 				<html>
 				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -76,7 +77,7 @@ class DebugHTML {
 
 		$props = array(
 			'<span class="debug_prop">Name:</span> '.$this->helper->name,
-			'<span class="debug_prop">Function:</span> '.$first['function'],
+			'<span class="debug_prop">Function:</span> '.ifsetor($first['function']),
 			'<span class="debug_prop">File:</span> '.$file,
 			'<span class="debug_prop">Type:</span> '.gettype2($a)
 		);
@@ -191,7 +192,7 @@ class DebugHTML {
 	}
 
 	static function printStyles() {
-		if (Request::isCLI()) return;
+		if (Request::isCLI()) return '';
 		$content = '';
 		if (!self::$stylesPrinted) {
 			$content = '<style>'.file_get_contents(__DIR__.'/Debug.css').'</style>';
