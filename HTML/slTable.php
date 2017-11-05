@@ -259,7 +259,8 @@ class slTable
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {
-				list( $this->sortBy ) = first( $this->thes );
+//				list( $this->sortBy ) = first( $this->thes );
+				$this->sortBy = current(array_values( $this->thes ));
 			}
 			error_reporting($old);
 		}
