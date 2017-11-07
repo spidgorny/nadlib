@@ -48,7 +48,9 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 *
 	 * @param string $login
 	 * @param string $password - plain text password (no, it's md5'ed already)
+	 *
 	 * @return boolean
+	 * @throws Exception
 	 */
 	function checkPassword($login, $password) {
 		$query = $this->db->getSelectQuery($this->table, array($this->idField => $login));
