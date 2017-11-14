@@ -23,7 +23,7 @@ class ACLCheckerTest extends \PHPUnit_Framework_TestCase
 		$okNothing = $ac->compareACL(NULL);
 		$okNull = $ac->compareACL('null');
 		$okUser = $ac->compareACL('user');
-		debug(gettype2($controller->user), $okNothing, $okNull, $okUser);
+		debug(typ($controller->user), $okNothing, $okNull, $okUser);
 	}
 
 	public function test_compareACLUser()
@@ -38,7 +38,7 @@ class ACLCheckerTest extends \PHPUnit_Framework_TestCase
 		$okNothing = $ac->compareACL(NULL);
 		$okNull = $ac->compareACL('null');
 		$okUser = $ac->compareACL('user');
-		debug(gettype2($controller->user), $okNothing, $okNull, $okUser);
+		debug(typ($controller->user), $okNothing, $okNull, $okUser);
 	}
 
 }

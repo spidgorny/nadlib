@@ -19,7 +19,7 @@ class AlterTableCLI extends AlterTableHYBH {
 	}
 
 	function render() {
-		echo 'DB Class: ', gettype2($this->db), BR;
+		echo 'DB Class: ', typ($this->db), BR;
 		echo 'DB Scheme: ', $this->db->getScheme(), BR;
 		$action = $this->request->getTrim('action');
 		$action = $action ?: ifsetor($_SERVER['argv'][2]);
