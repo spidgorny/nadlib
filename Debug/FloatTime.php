@@ -33,7 +33,7 @@ class FloatTime {
 			} else {
 				$db = class_exists('Config') ? Config::getInstance()->getDB() : NULL;
 				$ql = $db ? $db->getQueryLog() : NULL;
-				$dbBar = $ql ? sizeof($ql->queryLog) : gettype2($ql);
+				$dbBar = $ql ? sizeof($ql->queryLog) : typ($ql);
 			}
 			$_SESSION[__CLASS__]['dbMax'] = max(ifsetor($_SESSION[__CLASS__]['dbMax']), $dbTime);
 		} else {

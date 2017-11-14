@@ -196,7 +196,7 @@ abstract class OODBase {
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			debug(gettype2($row).'', $this->idField, $idField, $this->data);
+			debug(typ($row) . '', $this->idField, $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}

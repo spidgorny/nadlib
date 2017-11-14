@@ -33,7 +33,9 @@ class Model {
 
 	function __construct(DBInterface $db = null, array $data = [])
 	{
-		$this->setDB($db);
+		if ($db) {
+			$this->setDB($db);
+		}
 		$this->setData($data);
 	}
 
@@ -167,10 +169,17 @@ class Model {
 		// TODO
 	}
 
-	static function getInstance(array $data)
+	/**
+	 * @param array $data
+	 *
+	 * @param DBInterface $db
+	 *
+	 * @return static
+	 */
+	static function getInstance(array $data, DBInterface $db = null)
 	{
-		$obj = new self(null);
-		$obj->setDB(Config::getInstance()->getDB());
+		$obj = new static(null);
+		$obj->setDB($db ?: Config::getInstance()->getDB());
 		$obj->setData($data);
 		return $obj;
 	}
@@ -248,6 +257,11 @@ class Model {
 	public function getNameLink()
 	{
 		return HTMLTag::a($this->getSingleLink(), $this->getName());
+	}
+
+	public function getSingleLink()
+	{
+		return 'Controller?id='.$this->id();
 	}
 
 }

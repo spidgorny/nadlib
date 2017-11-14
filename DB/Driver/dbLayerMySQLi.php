@@ -116,7 +116,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 			$res->fetch();
 			return $this->columns;
 		} else {
-			debug(gettype2($res));
+			debug(typ($res));
 			throw new InvalidArgumentException(__METHOD__);
 		}
 	}
@@ -167,7 +167,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 			$this->connection->get_charset(),
 		];
 	}
-	
+
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
