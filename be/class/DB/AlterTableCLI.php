@@ -1,6 +1,6 @@
 <?php
 
-class AlterTableCLI extends AlterTableHYBH {
+class AlterTableCLI extends AlterTable {
 
 	function __construct() {
 		if (!Request::isCLI()) {
@@ -13,7 +13,7 @@ class AlterTableCLI extends AlterTableHYBH {
 		$user = new User(1);
 		$user->saveLogin();
 
-		Config::getInstance()->user = $user;
+		$this->config->setUser($user);
 
 		parent::__construct();
 	}
