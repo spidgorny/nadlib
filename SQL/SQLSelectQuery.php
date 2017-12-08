@@ -256,14 +256,14 @@ FROM {$from}
 	/**
 	 * @param $db DBInterface
 	 * @param        $table
-	 * @param array $where
+	 * @param array|SQLWhere $where
 	 * @param string $sOrder
 	 * @param null $addSelect
 	 * @return SQLSelectQuery
 	 */
 	static function getSelectQueryP(
 		DBInterface $db, $table,
-		array $where = array(),
+		$where = array(),
 		$sOrder = '',
 		$addSelect = NULL)
 	{
@@ -294,7 +294,9 @@ FROM {$from}
 			$join = new SQLJoin($join);
 		}
 
-		$where = new SQLWhere($where);
+		if (is_array($where)) {
+			$where = new SQLWhere($where);
+		}
 		$where->injectDB($db);
 
 		$group = NULL;

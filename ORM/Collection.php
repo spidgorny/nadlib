@@ -298,6 +298,7 @@ class Collection implements IteratorAggregate {
 		TaylorProfiler::start($taylorKey);
 		/** @var SQLSelectQuery $query */
 		$query = $this->getQuery();
+		assert($query instanceof SQLSelectQuery);
 		if (class_exists('PHPSQL\Parser') && false) {
 			$sql = new SQLQuery($query);
 			$sql->appendCalcRows();

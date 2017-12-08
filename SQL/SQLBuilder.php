@@ -235,12 +235,14 @@ class SQLBuilder {
 		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
 
+
 	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
 		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
-		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
-		$q .= $where->__toString();
-		$q .= "\n".$order;
+//		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
+//		$q .= $where->__toString();
+//		$q .= "\n".$order;
+		$q = SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 		return $q;
 	}
 
