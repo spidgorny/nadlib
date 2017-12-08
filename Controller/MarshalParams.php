@@ -93,7 +93,10 @@ class MarshalParams {
 					$init[] = null;
 				}
 			}
-			$instance = new $class(...$init);
+			// PHP 7
+			//$instance = new $class(...$init);
+			$reflector = new ReflectionClass($class);
+			$instance = $reflector->newInstanceArgs($init);
 		} else {
 			$instance = new $class();
 		}
