@@ -120,7 +120,12 @@ class slTable
 	 */
 	protected $db;
 
-	function __construct($id = null, $more = "", array $thes = [])
+	/**
+	 * @var Request
+	 */
+	protected $request;
+
+	function __construct($id = null, $more = "", array $thes = [], Request $request = null)
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;
@@ -145,7 +150,13 @@ class slTable
 		}
 		$this->sortLinkPrefix = new URL();
 		$this->generation = new HTMLTableBuf();
+		$this->setRequest($request ?: Request::getInstance());
 		$this->detectSortBy();
+	}
+
+	function setRequest(Request $request)
+	{
+		$this->request = $request;
 	}
 
 	/**
@@ -238,15 +249,19 @@ class slTable
 	}
 
 	public function detectSortBy() {
-		$by = ifsetor($_REQUEST['slTable']['sortBy']);
-		$or = ifsetor($_REQUEST['slTable']['sortOrder']);
+		$aRequest = $this->request->getArray('slTable');
+		$by = ifsetor($aRequest['sortBy']);
+		$or = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
 		$this->sortBy = $by;
 		$this->sortOrder = $or;
 		if (!$this->sortBy) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
-			list($this->sortBy) = first($this->thes);
+			if (sizeof($this->thes)) {
+//				list( $this->sortBy ) = first( $this->thes );
+				$this->sortBy = current(array_values( $this->thes ));
+			}
 			error_reporting($old);
 		}
 	}
@@ -614,8 +629,8 @@ class slTable
 		if (isset($k['align'])) {
 			$more['align'] = $k['align'];
 		}
-		if (isset($width[$iCol])) {
-			$more['width'] = $width[$iCol];
+		if (isset($k['width'])) {
+			$more['width'] = $k['width'];
 		}
 		if (ifsetor($k['title'])) {
 			$more['title'] = $k['title'] == '###SELF###'
@@ -625,6 +640,9 @@ class slTable
 		return $more;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function show()
 	{
 		if (!$this->generation->isDone()) {
@@ -633,6 +651,9 @@ class slTable
 		$this->generation->render();
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function render()
 	{
 		echo Request::isCLI()
@@ -640,6 +661,12 @@ class slTable
 			: $this->getContent();
 	}
 
+	/**
+	 * @param string $caller
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
 	function getContent($caller = '')
 	{
 		if (!$this->generation->isDone()) {
@@ -658,7 +685,7 @@ class slTable
 	 */
 	function getData($table)
 	{
-		/** @var dbLayerBase|dbLayerBL $db */
+		/** @var DBLayerBase|dbLayerBL $db */
 		$db = Config::getInstance()->getDB();
 		$cols = $db->getTableColumns($table);
 		$data = $db->getTableDataEx($table, "deleted = 0");
@@ -901,6 +928,23 @@ class slTable
 			//debug($col, $numeric);
 			if ($numeric) {
 				$this->thes[$key]['more']['align'] = "right";
+			}
+		}
+	}
+
+	function hideEmptyColumns()
+	{
+		$visible = [];
+		foreach ($this->data as $row) {
+			foreach ($this->thes as $th => $desc) {
+				if ($row[$th]) {
+					$visible[$th] = true;
+				}
+			}
+		}
+		foreach ($this->thes as $th => $desc) {
+			if (!ifsetor($visible[$th])) {
+				unset($this->thes[$th]);
 			}
 		}
 	}

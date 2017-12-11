@@ -4,10 +4,14 @@ class DSNBuilder {
 
 	public static function make($scheme, $host, $user, $pass, $db, $port) {
 		$classMap = [
-			'mysql' => DSNBuilderMySQL::class,
-			'pgsql' => DSNBuilderPostgreSQL::class,
-			'sqlite' => DSNBuilderSQLite::class,
-			'mssql' => DSNBuilderMSSQL::class,
+//			'mysql' => DSNBuilderMySQL::class,
+			'mysql' => 'DSNBuilderMySQL',
+//			'pgsql' => DSNBuilderPostgreSQL::class,
+			'pgsql' => 'DSNBuilderPostgreSQL',
+//			'sqlite' => DSNBuilderSQLite::class,
+			'sqlite' => 'DSNBuilderSQLite',
+//			'mssql' => DSNBuilderMSSQL::class,
+			'mssql' => 'DSNBuilderMSSQL',
 		];
 		$dsnClass = $classMap[$scheme];
 		$builder = new $dsnClass($host, $user, $pass, $db, $port);

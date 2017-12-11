@@ -540,9 +540,12 @@ class Request {
 	}
 
 	static function getHost($isUTF8 = false) {
-		$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
-			? $_SERVER['HTTP_X_FORWARDED_HOST']
-			: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL);
+		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
+		if (!$host) {
+			$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
+				? $_SERVER['HTTP_X_FORWARDED_HOST']
+				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : NULL);
+		}
 		if (function_exists('idn_to_utf8') && $isUTF8) {
 			$try = idn_to_utf8($host);
 			//debug($host, $try);
@@ -712,6 +715,7 @@ class Request {
 			$url->append($this->url->getPath());
 			$path = new Path($url);
 
+//			debug($al->documentRoot);
 			if (false) {    // doesn't work in ORS
 				$path->remove(clone $al->documentRoot);
 			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
@@ -746,6 +750,7 @@ class Request {
 	 */
 	function getURLLevels() {
 		$path = $this->getPathAfterDocRoot();
+//		debug($path);
 		//$path = $path->getURL();
 		//debug($path);
 		if (strlen($path) > 1) {	// "/"

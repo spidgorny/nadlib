@@ -21,11 +21,8 @@ class DSNBuilderPostgreSQL extends DSNBuilder {
 	{
 		$aDSN = array(
 			'host' => $this->host,
-			'SYSTEM' => $this->host,
 			'dbname' => $this->db,
-			'HOSTNAME' => $this->host,
-			'PORT' => $this->port,
-			'PROTOCOL' => 'TCPIP',
+			'port' => $this->port,
 		);
 		return 'pgsql:'.$this->getDSN($aDSN);
 	}

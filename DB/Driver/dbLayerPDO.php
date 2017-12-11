@@ -4,7 +4,7 @@
  * Class dbLayerPDO
  * @mixin SQLBuilder
  */
-class dbLayerPDO extends dbLayerBase implements DBInterface {
+class DBLayerPDO extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var PDO
@@ -259,7 +259,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			try {
 				$file = $this->dsn;
 				$file = str_replace('sqlite:', '', $file);
-				$db2 = new dbLayerSQLite($file);
+				$db2 = new DBLayerSQLite($file);
 				$db2->connect();
 				$db2->setQB(new SQLBuilder($db2)); // different DB inside
 				$tables = $db2->getTablesEx();
@@ -286,23 +286,24 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		if ($key[0] != '`') {
-			$parts = trimExplode('.', $key);	// may contain table name
-			if (sizeof($parts) == 2) {
-				$content = $parts[0].'.`'.$parts[1].'`';
-			} else {
-				$sameLength = strlen(trim($key)) == strlen($key);
-				$brackets = contains($key, '(');
-				if ($sameLength && !$brackets) {
-					$content = '`' . $key . '`';
-				} else {
-					$content = $key;	// has spaces before or after
-				}
-			}
-		} else {
-			return $key;
-		}
+		$driver = $this->getDriver();
+		$content = $driver->quoteKey($key);
 		return $content;
+	}
+
+	function getDriver() {
+		$driverMap = [
+			'mysql' => 'MySQL',
+			'pgsql' => 'DBLayer',
+			'sqlite' => 'DBLayerSQLite',
+			'mssql' => 'DBLayerMS',
+		];
+		$scheme = $this->getScheme();
+		if (isset($driverMap[$scheme])) {
+			return new $driverMap[$scheme];
+		} else {
+			throw new InvalidArgumentException(__METHOD__.' not implemented for ['.$scheme.']');
+		}
 	}
 
 	function escapeBool($value) {
@@ -472,11 +473,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function getReplaceQuery($table, array $columns) {
 		if ($this->isMySQL()) {
-			$m = new dbLayerMySQLi();
+			$m = new DBLayerMySQLi();
 			$m->qb = $this->qb;
 			return $m->getReplaceQuery($table, $columns);
 		} elseif ($this->isPostgres()) {
-			$p = new dbLayer();
+			$p = new DBLayer();
 			$p->qb = $this->qb;
 			return $p->getReplaceQuery($table, $columns);
 		} else {

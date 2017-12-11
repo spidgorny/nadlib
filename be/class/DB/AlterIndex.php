@@ -8,7 +8,7 @@ class AlterIndex extends AppControllerBE {
 	var $jsonFile;
 
 	/**
-	 * @var dbLayerBase
+	 * @var DBLayerBase
 	 */
 	var $db;
 
@@ -20,8 +20,8 @@ class AlterIndex extends AppControllerBE {
 
 		if (false) {
 			require_once $this->config->appRoot.'/constants.php';
-			$GLOBALS['dbLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
-			$this->db = $GLOBALS['dbLayer'];
+			$GLOBALS['DBLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
+			$this->db = $GLOBALS['DBLayer'];
 //			$this->config->db = $GLOBALS['dbLayer'];
 //			$this->config->qb->db = $GLOBALS['dbLayer'];
 			$this->jsonFile = $this->config->appRoot.'/sql/buglog_dev.json';

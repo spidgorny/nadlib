@@ -15,7 +15,7 @@ class slTableValue {
 	);
 
 	/**
-	 * @var MySQL|dbLayer
+	 * @var MySQL|DBLayer
 	 */
 	var $db;
 
@@ -187,7 +187,7 @@ class slTableValue {
 				break;
 
 			case 'link':
-				$out = '<a href="'.$val.'" target="'.$k['target'].'">'.($k['text'] ? $k['text'] : $val).'</a>';
+				$out = '<a href="'.$val.'" target="'.ifsetor($k['target']).'">'.ifsetor($k['text'], $val).'</a>';
 				break;
 
 			case 'image':

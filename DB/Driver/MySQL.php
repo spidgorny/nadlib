@@ -5,7 +5,7 @@
  * @mixin SQLBuilder
  * @deprecated
  */
-class MySQL extends dbLayerBase implements DBInterface {
+class MySQL extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -500,8 +500,25 @@ class MySQL extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		if (in_array($key, $this->reserved)) {
-			$key = '`' . trim($key) . '`';
+		if ($key[0] != '`') {
+			if (in_array(strtoupper($key), $this->reserved)) {
+				$key = '`' . trim($key) . '`';
+			} else {
+				$parts = trimExplode('.', $key);    // may contain table name
+				if (sizeof($parts) == 2) {
+					$content = $parts[0] . '.`' . $parts[1] . '`';
+				} else {
+					$sameLength = strlen(trim($key)) == strlen($key);
+					$brackets = contains($key, '(');
+					if ($sameLength && !$brackets) {
+						$content = '`' . $key . '`';
+					} else {
+						$content = $key;    // has spaces before or after
+					}
+				}
+			}
+		} else {
+			return $key;
 		}
 		return $key;
 	}
@@ -574,6 +591,14 @@ class MySQL extends dbLayerBase implements DBInterface {
 		$slug = URL::getSlug($field);
 		$slug = str_replace('-', '_', $slug);
 		return '@'.$slug;
+	}
+
+	/**
+	 * Overridden because $this->reserved is protected
+	 * @return array
+	 */
+	function getReserved() {
+		return $this->reserved;
 	}
 
 }
