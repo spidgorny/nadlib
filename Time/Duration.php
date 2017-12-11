@@ -59,8 +59,8 @@ class Duration extends Time {
 		return gmdate($format, $this->time);
 	}
 
-	function nice() {
-		return $this->toString();
+	function nice($perCount = 2) {
+		return $this->toString($perCount);
 	}
 
 	function short() {

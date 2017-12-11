@@ -15,7 +15,7 @@
 class LazyFetchAssoc implements ArrayAccess {
 
 	/**
-	 * @var $db dbLayer
+	 * @var $db DBLayer
 	 */
 	protected $db;
 

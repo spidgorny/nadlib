@@ -4,9 +4,7 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer extends dbLayerBase implements DBInterface {
-
-	var $RETURN_NULL = TRUE;
+class DBLayer extends DBLayerBase implements DBInterface {
 
     /**
      * @var resource
@@ -14,7 +12,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
     public $connection = NULL;
 
 	var $LAST_PERFORM_RESULT;
-	var $LAST_PERFORM_QUERY;
 
     /**
      * todo: use setter & getter method
@@ -35,7 +32,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	/**
 	 * @var string
 	 */
-	var $lastQuery;
+	public $lastQuery;
 
 	/**
 	 * Transaction count because three are no nested transactions
@@ -636,7 +633,8 @@ order by a.attnum';
 
 	function quoteKey($key) {
 		if (ctype_alpha($key)) {
-			if (function_exists('pg_escape_identifier')) {
+			$isFunc = function_exists('pg_escape_identifier');
+			if ($isFunc && $this->isConnected()) {
 				$key = pg_escape_identifier($key);
 			} else {
 				$key = '"' . $key . '"';

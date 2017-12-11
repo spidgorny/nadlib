@@ -1,6 +1,6 @@
 <?php
 
-class dbLayerMS extends dbLayerBase implements DBInterface {
+class DBLayerMS extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -18,7 +18,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	public $connection;
 
 	/**
-	 * @var dbLayerMS
+	 * @var DBLayerMS
 	 */
 	protected static $instance;
 
@@ -88,9 +88,9 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 					'elapsed' => $profiler->elapsed(),
 					'msg' => $msg,
 					'msg2' => $msg2,
-					'this' => gettype2($this).'',
-					'this->qb' => gettype2($this->qb).'',
-					'this->qb->db' => gettype2($this->qb->db).'',
+					'this' => typ($this) . '',
+					'this->qb' => typ($this->qb) . '',
+					'this->qb->db' => typ($this->qb->db) . '',
 				));
 			}
 			$this->close();

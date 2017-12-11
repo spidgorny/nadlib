@@ -202,7 +202,14 @@ if (!function_exists('debugList')) {
 		return implode(' | ',$levels);
 	}
 
-	function gettype2($something, $withHash = true) {
+	/**
+	 * similar to gettype() but return more information depending on data type in HTML
+	 * @param $something
+	 * @param bool $withHash
+	 *
+	 * @return htmlString
+	 */
+	function typ($something, $withHash = true) {
 		$type = gettype($something);
 		if ($type == 'object') {
 			if ($withHash) {
@@ -239,11 +246,11 @@ if (!function_exists('debugList')) {
 		if (is_array($something)) {
 			$types = array();
 			foreach ($something as $key => $element) {
-				$types[$key] = strip_tags(gettype2($element));
+				$types[$key] = strip_tags(typ($element));
 			}
 			return $types;
 		} else {
-			return gettype2($something);
+			return typ($something);
 		}
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}

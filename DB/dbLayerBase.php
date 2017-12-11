@@ -4,7 +4,7 @@
  * Class dbLayerBase
  * @mixin SQLBuilder
  */
-class dbLayerBase implements DBInterface {
+class DBLayerBase implements DBInterface {
 
 	/**
 	 * @var SQLBuilder
@@ -63,7 +63,7 @@ class dbLayerBase implements DBInterface {
 	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
 	 */
 	function getScheme() {
-		return strtolower(str_replace('dbLayer', '', get_class($this)));
+		return strtolower(str_replace('DBLayer', '', get_class($this)));
 	}
 
 	function __call($method, array $params) {

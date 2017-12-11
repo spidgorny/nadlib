@@ -139,7 +139,7 @@ class Pager {
 		$queryObj = new SQLQuery($originalSQL);
 		// not allowed or makes no sense
 		unset($queryObj->parsed['ORDER']);
-		if ($this->db instanceof dbLayerMS) {
+		if ($this->db instanceof DBLayerMS) {
 			$query = $this->db->fixQuery($queryObj);
 		} else {
 			$query = $queryObj->getQuery();
@@ -548,6 +548,7 @@ class Pager {
 
 	function slice(array $data) {
     	$this->setNumberOfRecords(sizeof($data));
+    	$this->detectCurrentPage();
     	return array_slice($data,
 			$this->getStart(), $this->pageSize->get(), true);
 	}

@@ -108,23 +108,16 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			$useRouter = isset($config->config['Controller'])
-					? ifsetor($config->config['Controller']['useRouter'])
-					: NULL;
-		} else {
-			$useRouter = NULL;
-		}
-		$rootpath = $this->request->getURLLevels();
+		$appRootPath = $this->request->getPathAfterAppRoot();
+		$rootPath = $appRootPath->getLevels();
+//		debug($rootPath);
 
-		if ($useRouter) {
-			$this->current = $rootpath[$level]
-					? $rootpath[$level]
-					: $this->request->getControllerString();
-		} else if ($this->useControllerSlug) {
-			if ($rootpath) {
-				$this->current = implode('/', $rootpath);
+		if ($this->useRouter()) {
+			$this->current = $rootPath[$level]
+					?: $this->request->getControllerString();
+		} elseif ($this->useControllerSlug) {
+			if ($rootPath) {
+				$this->current = implode('/', $rootPath);
 			} else {
 				$this->current = $this->request->getControllerString();
 			}
@@ -135,9 +128,9 @@ class Menu /*extends Controller*/ {
 			'cwd' => getcwd(),
 			'docRoot' => $this->request->getDocumentRoot(),
 			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot(),
-			'useRouter' => $useRouter,
+			'useRouter' => $this->useRouter(),
 			'useControllerSlug' => $this->useControllerSlug,
-			'rootpath' => $rootpath,
+			'rootPath' => $rootPath,
 			'level' => $level,
 			'current' => $this->current
 		]);
@@ -161,32 +154,13 @@ class Menu /*extends Controller*/ {
 			$config = new stdClass();
 			$useRouter = false;
 		}
-		$autoLoad = AutoLoad::getInstance();
-		if ($useRouter) {   // not finished
-			$path = new URL();
-			$path->clearParams();
+		if ($useRouter) {
+			$this->setBasePathFromRouter();
 		} elseif ($this->useControllerSlug) {
-			$path = new URL();
-			$appRoot = $autoLoad->getAppRoot();
-			if (basename($appRoot) == 'be') {
-				$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
-				//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
-				$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
-				$path->setParams();
-			} else {
-				$path->setPath(cap($path->documentRoot));
-				$path->setParams();
-			}
-			// commented when using the slug
-			//$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
+			$this->setBasePathFromSlug();
 		} else {
-			$path = new URL();
-			$path->clearParams();
-			if ($this->controllerVarName) {
-				$path->setParam($this->controllerVarName, '');    // forces a link with "?c="
-			}
+			$this->setBasePathFromClass();
 		}
-		$this->basePath = $path;
 		0 && debug(array(
 			'class_exists(Config)' => class_exists('Config'),
 			'Config::getInstance()->config[Controller]' => (class_exists('Config') && isset($config->config['Controller']))
@@ -194,13 +168,53 @@ class Menu /*extends Controller*/ {
 				: NULL,
 			'useRouter' => $useRouter,
 			'useControllerSlug' => $this->useControllerSlug,
-			'documentRoot' => $path->documentRoot,
-			'appRoot' => $appRoot.'',
-			'nadlibRoot' => $autoLoad->nadlibRoot,
-			'nadlibRootFromDocRoot' => $autoLoad->nadlibFromDocRoot,
+			'documentRoot' => $this->basePath->documentRoot,
+			'appRoot' => AutoLoad::getInstance()->getAppRoot().'',
+			'nadlibRoot' => AutoLoad::getInstance()->nadlibRoot,
+			'nadlibRootFromDocRoot' => AutoLoad::getInstance()->nadlibFromDocRoot,
 			'current' => $this->current,
 			'basePath' => $this->basePath.'',
 		));
+	}
+
+	/**
+	 * not finished
+	 */
+	function setBasePathFromRouter()
+	{
+		$path = new URL();
+		$path->clearParams();
+		$this->basePath = $path;
+	}
+
+	function setBasePathFromSlug()
+	{
+		$path = new URL();
+		$autoLoad = AutoLoad::getInstance();
+		$appRoot = $autoLoad->getAppRoot();
+		if (basename($appRoot) == 'be') {
+			$docRoot = $_SERVER['DOCUMENT_ROOT'].$path->documentRoot;
+			//$commonRoot = URL::getCommonRoot($docRoot, $appRoot);
+			$path->setPath(cap($path->documentRoot . '/' . URL::getRelativePath($docRoot, $appRoot)));
+			$path->setParams();
+		} else {
+			//debug($path->documentRoot);
+			$path->setPath(cap($path->documentRoot));
+			$path->setParams();
+		}
+		// commented when using the slug
+		//$path->setParam($this->controllerVarName, '');	// forces a link with "?c="
+		$this->basePath = $path;
+	}
+
+	function setBasePathFromClass()
+	{
+		$path = new URL();
+		$path->clearParams();
+		if ($this->controllerVarName) {
+			$path->setParam($this->controllerVarName, '');    // forces a link with "?c="
+		}
+		$this->basePath = $path;
 	}
 
 	/**
@@ -503,6 +517,22 @@ class Menu /*extends Controller*/ {
 		} else {
 			return NULL;
 		}
+	}
+
+	/**
+	 * @return null
+	 */
+	public function useRouter()
+	{
+		if (class_exists('Config')) {
+			$config = Config::getInstance();
+			$useRouter = isset($config->config['Controller'])
+				? ifsetor($config->config['Controller']['useRouter'])
+				: NULL;
+		} else {
+			$useRouter = NULL;
+		}
+		return $useRouter;
 	}
 
 }

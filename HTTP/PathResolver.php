@@ -13,6 +13,7 @@ class PathResolver implements ResolverInterface {
 
 	function getController($returnDefault = true) {
 		$levels = $this->request->getURLLevels();
+//		debug($levels);
 		if ($levels) {
 			$levels = array_reverse($levels);
 			$last = NULL;

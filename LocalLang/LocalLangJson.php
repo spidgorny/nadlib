@@ -11,6 +11,11 @@ class LocalLangJson extends LocalLangDummy {
 	function __construct($langFolder = 'class/') {
 		parent::__construct();
 		$this->langFolder = $langFolder;
+//		$this->log(__METHOD__, $this->langFolder);
+//		ob_start();
+//		debug_print_backtrace();
+//		$bt = ob_get_clean();
+//		$this->log(__METHOD__, $bt);
 	}
 
 	function areThereTranslationsFor($lang) {
@@ -22,6 +27,7 @@ class LocalLangJson extends LocalLangDummy {
 	}
 
 	function readDB() {
+//		$this->log(__METHOD__, $this->getFilename());
 		$file = file_get_contents($this->getFilename());
 		$this->ll = json_decode($file, true);
 		//debug($file, $this->ll);
