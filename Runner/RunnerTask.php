@@ -95,6 +95,8 @@ class RunnerTask {
 
 	function failed(Exception $e) {
 		echo __METHOD__, BR;
+		echo '[', get_class($e), '] ', $e->getMessage(), BR;
+		echo $e->getTraceAsString();
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'failed',
 			'meta' => json_encode($e),
@@ -202,6 +204,19 @@ class RunnerTask {
 
 	function get($name) {
 		return ifsetor($this->data[$name]);
+	}
+
+	public function getInfoBoxCLI() {
+		$content[] = 'ID: '.TAB.TAB.$this->id().BR;
+		$content[] = 'Name: '.TAB.TAB.$this->getName().BR;
+		$content[] = 'Params: '.TAB.'('.implode(', ', $this->getParams()).')'.BR;
+		$content[] = 'Status: '.TAB.$this->getStatus().BR;
+		$content[] = 'Started: '.TAB.$this->getTime().BR;
+		$content[] = 'Modified: '.TAB.$this->getMTime().BR;
+		$content[] = 'PID: '.TAB.TAB.$this->get('pid').BR;
+		$content[] = 'Progress: '.TAB.$this->getProgress().BR;
+		$content[] = 'Position: '.TAB.$this->getQueuePosition().BR;
+		return $content;
 	}
 
 	public function getInfoBox($controller = '') {

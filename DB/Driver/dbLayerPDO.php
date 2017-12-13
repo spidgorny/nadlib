@@ -4,7 +4,7 @@
  * Class dbLayerPDO
  * @mixin SQLBuilder
  */
-class dbLayerPDO extends dbLayerBase implements DBInterface {
+class DBLayerPDO extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var PDO
@@ -64,26 +64,16 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306) {
 		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
 		if ($scheme == 'sqlite') {
-			$this->dsn = $scheme.':'.$db;
 			$this->database = basename($db);
 		} else {
-			$aDSN = array(
-				'DATABASE' => $db,
-				'host' => $host,
-				'SYSTEM' => $host,
-				'dbname' => $db,
-				'HOSTNAME' => $host,
-				'PORT' => $port,
-				'PROTOCOL' => 'TCPIP',
-			);
-			if ($driver) {
-				$aDSN += [
-					'DRIVER' => '{' . $driver . '}',
-				];
-			}
-			$this->dsn = $scheme . ':' . $this->getDSN($aDSN);
 			$this->database = $db;
 		}
+
+		$builder = DSNBuilder::make($scheme, $host, $user, $password, $db, $port);
+		if ($driver) {
+			$builder->setDriver($driver);
+		}
+		$this->dsn = $builder->__toString();
 		//debug($this->dsn);
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
@@ -113,7 +103,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			$this->connection = new PDO($this->dsn, $user, $password, $options);
 			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
-			debug($this->dsn, get_loaded_extensions());
+			debug([
+				'dsn' => $this->dsn,
+				'extensions' => json_encode(get_loaded_extensions())
+			]);
 			throw $e;
 		}
 		//$this->connection->setAttribute( PDO::ATTR_EMULATE_PREPARES, false);
@@ -266,7 +259,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 			try {
 				$file = $this->dsn;
 				$file = str_replace('sqlite:', '', $file);
-				$db2 = new dbLayerSQLite($file);
+				$db2 = new DBLayerSQLite($file);
 				$db2->connect();
 				$db2->setQB(new SQLBuilder($db2)); // different DB inside
 				$tables = $db2->getTablesEx();
@@ -293,23 +286,24 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 	}
 
 	function quoteKey($key) {
-		if ($key[0] != '`') {
-			$parts = trimExplode('.', $key);	// may contain table name
-			if (sizeof($parts) == 2) {
-				$content = $parts[0].'.`'.$parts[1].'`';
-			} else {
-				$sameLength = strlen(trim($key)) == strlen($key);
-				$brackets = contains($key, '(');
-				if ($sameLength && !$brackets) {
-					$content = '`' . $key . '`';
-				} else {
-					$content = $key;	// has spaces before or after
-				}
-			}
-		} else {
-			return $key;
-		}
+		$driver = $this->getDriver();
+		$content = $driver->quoteKey($key);
 		return $content;
+	}
+
+	function getDriver() {
+		$driverMap = [
+			'mysql' => 'MySQL',
+			'pgsql' => 'DBLayer',
+			'sqlite' => 'DBLayerSQLite',
+			'mssql' => 'DBLayerMS',
+		];
+		$scheme = $this->getScheme();
+		if (isset($driverMap[$scheme])) {
+			return new $driverMap[$scheme];
+		} else {
+			throw new InvalidArgumentException(__METHOD__.' not implemented for ['.$scheme.']');
+		}
 	}
 
 	function escapeBool($value) {
@@ -479,11 +473,11 @@ class dbLayerPDO extends dbLayerBase implements DBInterface {
 
 	function getReplaceQuery($table, array $columns) {
 		if ($this->isMySQL()) {
-			$m = new dbLayerMySQLi();
+			$m = new DBLayerMySQLi();
 			$m->qb = $this->qb;
 			return $m->getReplaceQuery($table, $columns);
 		} elseif ($this->isPostgres()) {
-			$p = new dbLayer();
+			$p = new DBLayer();
 			$p->qb = $this->qb;
 			return $p->getReplaceQuery($table, $columns);
 		} else {

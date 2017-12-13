@@ -71,7 +71,7 @@ abstract class OODBase {
 	public $parentField = 'pid';
 
 	/**
-	 * @var ?
+	 * @var findInDB() will call init
 	 */
 	public $forceInit;
 
@@ -84,32 +84,44 @@ abstract class OODBase {
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
-	 * @param integer|array|SQLWhere $id - can be ID in the database or the whole records
+	 * @param integer|array|SQLWhere|DBInterface $id - can be ID in the database or the whole records
 	 * as associative array
-	 * @return OODBase
+	 *
+	 * @throws Exception
 	 */
 	function __construct($id = NULL) {
 		//debug(get_called_class(), __FUNCTION__, $id);
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			$this->table = $config->prefixTable($this->table);
-			if (!$this->db) {
-				$this->db = $config->getDB();
-			}
-			//debug(get_class($this), $this->table, gettype2($this->db));
-		} else {
-			$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
-		}
+		$this->guessDB($id);
 		//echo get_class($this).'::'.__FUNCTION__, ' ', gettype2($this->db), BR;
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : array('name' => $val);
 		}
-		$this->init($id);
+		if (!($id instanceof DBInterface)) {
+			$this->init($id);
+		}
 
-		$class = get_class($this);
-		if ($this->id && isset(self::$instances[$class][$this->id])) {
-			$from = Debug::getCaller();
+//		$class = get_class($this);
+//		if ($this->id && isset(self::$instances[$class][$this->id])) {
+//			$from = Debug::getCaller();
 			//debug('made new existing instance of '.$class.' from '.$from);
+//		}
+	}
+
+	function guessDB($id)
+	{
+		if ($id instanceof DBInterface) {
+			$this->db = $id;
+		} else {
+			if (class_exists('Config')) {
+				$config      = Config::getInstance();
+				$this->table = $config->prefixTable($this->table);
+				if ( ! $this->db) {
+					$this->db = $config->getDB();
+				}
+				//debug(get_class($this), $this->table, gettype2($this->db));
+			} else {
+				$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
+			}
 		}
 	}
 
@@ -123,16 +135,7 @@ abstract class OODBase {
 	function init($id, $fromFindInDB = false) {
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($id)) {
-			if (is_scalar($this->idField) || $fromFindInDB) {
-				$this->initByRow($id);
-			} else {
-				$this->id = $id;
-				//debug($id, $fromFindInDB, $this->id);
-				$this->findInDB($this->id);	// will call init()
-				if (!$this->data) {
-					$this->id = NULL;
-				}
-			}
+			$this->initByRow($id);
 		} elseif ($id instanceof SQLWhere) {
 			$where = $id->getAsArray();
 			$this->findInDB($where);
@@ -193,7 +196,7 @@ abstract class OODBase {
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			debug(gettype2($row), $idField, $this->data);
+			debug(typ($row) . '', $this->idField, $idField, $this->data);
 			throw new InvalidArgumentException(get_class($this).'::'.__METHOD__);
 		}
 	}
@@ -260,7 +263,7 @@ abstract class OODBase {
 	function update(array $data) {
 		if ($this->id) {
 			TaylorProfiler::start(__METHOD__);
-			$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
+			$action = get_called_class() . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id) . ')';
 			$this->log($action, $data);
 			$where = array();
 			if (is_array($this->idField)) {
@@ -290,9 +293,18 @@ abstract class OODBase {
 			// may lead to infinite loop
 			//$this->init($this->id);
 			// will call init($fromFindInDB = true)
-			$this->findInDB(array(
-				$this->idField => $this->id,
-			));
+			if (is_array($this->idField)) {
+				if (is_array($this->id)) {
+					$this->findInDB($this->id);
+				} else {
+					debug_pre_print_backtrace();
+					throw new RuntimeException(__METHOD__.':'.__LINE__);
+				}
+			} else {
+				$this->findInDB(array(
+					$this->idField => $this->id,
+				));
+			}
 			TaylorProfiler::stop(__METHOD__);
 		} else {
 			//$this->db->rollback();
@@ -322,9 +334,11 @@ abstract class OODBase {
 	/**
 	 * Retrieves a record from the DB and calls $this->init()
 	 * But it's rarely called directly.
+	 *
 	 * @param array $where
 	 * @param string $orderByLimit
-	 * @return bool of the found record
+	 *
+	 * @return array of the found record
 	 * @throws Exception
 	 */
 	function findInDB(array $where, $orderByLimit = '') {
@@ -610,7 +624,10 @@ abstract class OODBase {
 			$inst = new $static();
 			$inst->init($id);
 			self::storeInstance($inst, $inst->id);
+		} elseif (is_null($id)) {
+			$inst = new $static();
 		} else {
+			debug($id);
 			throw new InvalidArgumentException($static.'->'.__METHOD__);
 		}
 		return $inst;
@@ -701,7 +718,7 @@ abstract class OODBase {
 		//debug($insert);
 		$class = $class ?: get_called_class();
 
-		/** @var dbLayerBase $db */
+		/** @var DBLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$query = $db->getInsertQuery(constant($class.'::table'), $insert);
 		//t3lib_div::debug($query);
@@ -872,7 +889,7 @@ abstract class OODBase {
 	}
 
 	public function getCollection(array $where = [], $orderBy = NULL) {
-		$collection = Collection::createForTable($this->table, $where, $orderBy);
+		$collection = Collection::createForTable($this->db, $this->table, $where, $orderBy);
 		$collection->idField = $this->idField;
 		$static = get_called_class();
 		$collection->itemClassName = $static;
@@ -906,7 +923,7 @@ abstract class OODBase {
 		}
 	}
 
-	function save($where = NULL) {
+	function save(array $where = NULL) {
 		if ($this->id) {
 			$res = $this->update($this->data);
 		} else {
@@ -940,6 +957,11 @@ abstract class OODBase {
 //			throw new InvalidArgumentException(__METHOD__.' ['.$value.']');
 			return false;
 		}
+	}
+
+	public function setDB(DBInterface $db)
+	{
+		$this->db = $db;
 	}
 
 }

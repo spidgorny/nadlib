@@ -26,9 +26,9 @@ class AlterTable extends AlterIndex {
 		$class = $this->getDBclass();
 		if ($class == 'mysql') {
 			$this->handler = new AlterTableMySQL($this->db);
-		} elseif ($class == 'dbLayer') {
+		} elseif ($class == 'DBLayer') {
 			$this->handler = new AlterTablePostgres($this->db);
-		} elseif ($class == 'dbLayerSQLite') {
+		} elseif ($class == 'DBLayerSQLite') {
 			$this->handler = new AlterTableSQLite($this->db);
 		} else {
 			throw new Exception('Undefined AlterTable handler');
@@ -274,10 +274,10 @@ class AlterTable extends AlterIndex {
 	 */
 	protected function getDBclass() {
 		$class = get_class($this->db);
-		if ($class == 'dbLayerPDO') {
+		if ($class == 'DBLayerPDO') {
 			$class = $this->db->getScheme();
 			if ($class == 'sqlite') {
-				$class = 'dbLayerSQLite';
+				$class = 'DBLayerSQLite';
 				return $class;
 			}
 			return $class;

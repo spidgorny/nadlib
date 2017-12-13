@@ -9,11 +9,15 @@
 class PathTest extends PHPUnit_Framework_TestCase {
 
 	function test_Windows() {
-		$p = new Path(getcwd());
+		//$p = new Path(getcwd());
+		$p = new Path("C:\\folderone\\two\\three");
+
 		//debug($p->aPath, $p->sPath);
 		$this->assertGreaterThan(3, sizeof($p->aPath));
 		$this->assertEquals('C:', $p->aPath[0]);
 		$this->assertStringStartsWith('C:/', $p.'');
+
+
 	}
 
 	function test_cap_Windows() {
@@ -39,6 +43,11 @@ class PathTest extends PHPUnit_Framework_TestCase {
 	}
 
 	function test_relativeFromAppRoot() {
+
+		$this->markTestIncomplete(
+			'Cannot work from nadlib as a standalone.'
+		);
+
 		//$source = 'components/jquery/jquery.js?1453328048';
 		$source = 'components/bootstrap/less/bootstrap.js?1453328048';
 		$path = new Path($source);
@@ -79,6 +88,12 @@ class PathTest extends PHPUnit_Framework_TestCase {
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('../../ftp'));
 		$this->assertEquals('/var/ftp', $path.'');
+	}
+
+	function test_remove() {
+		$path = new Path('/var/www/htdocs/');
+		$path->remove('/var/www');
+		$this->assertEquals('/htdocs/', $path.'');
 	}
 
 }
