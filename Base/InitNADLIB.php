@@ -13,6 +13,16 @@ class InitNADLIB {
 
 	var $endTime;
 
+	/**
+	 * @var \Composer\Autoload\ClassLoader
+	 */
+	public $composer;
+
+	/**
+	 * @var bool set in the constructor, but DEVELOPMENT is set later
+	 */
+	public $development;
+
 	function __construct() {
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/AutoLoad.php';
@@ -30,6 +40,15 @@ class InitNADLIB {
 		}
 		$this->al = AutoLoad::getInstance();
 		$this->al->useCookies = $this->useCookies;
+		$this->development = Request::isWindows()
+			|| ifsetor($_COOKIE['debug'])
+			|| ini_get('debug')
+			|| getenv('NADLIB');
+	}
+
+	function disableAutoload() {
+		$this->al = null;
+		return $this;
 	}
 
 	function init() {
@@ -41,6 +60,7 @@ class InitNADLIB {
 			$this->al->useCookies = $this->useCookies;
 			$this->al->postInit();
 			$this->al->register();
+			//debug($this->al->folders);
 		}
 
 		// leads to problems when there are multiple Config classes
@@ -51,10 +71,8 @@ class InitNADLIB {
 		$this->setCache();
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
-
-		$this->setupComposer();
-
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
+		return $this;
 	}
 
 	/**
@@ -80,13 +98,8 @@ class InitNADLIB {
 		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
 			if (Request::isCLI()) {
-				define('DEVELOPMENT',
-					Request::isWindows()
-					|| ifsetor($_COOKIE['debug'])
-					|| ini_get('debug')
-					|| getenv('NADLIB')
-				);
-				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
+				define('DEVELOPMENT', $this->development);
+				//echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {
 				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
 			}
@@ -186,7 +199,7 @@ border-radius: 5px;">');
 		) {
 			//echo $vendor_autoload_php, BR;
 			/** @noinspection PhpIncludeInspection */
-			require_once $vendor_autoload_php;
+			$this->composer = require_once $vendor_autoload_php;
 		}
 	}
 

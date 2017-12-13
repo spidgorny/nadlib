@@ -1,6 +1,6 @@
 <?php
 
-class dbLayerOCI extends dbLayer {
+class DBLayerOCI extends DBLayer implements DBInterface {
 	var $connection = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -9,7 +9,7 @@ class dbLayerOCI extends dbLayer {
 	var $debugOnce = FALSE;
 	var $is_connected = FALSE;
 
-	function dbLayerOCI($tns, $user, $pass) {
+	function __construct($tns, $user, $pass) {
 		$this->connect($tns, $user, $pass);
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
@@ -50,7 +50,7 @@ class dbLayerOCI extends dbLayer {
 		return array();
 	}
 
-	function perform($query, $canprint = TRUE, $try = FALSE) {
+	function performOCI($query, $canprint = TRUE, $try = FALSE) {
 		if (!$this->connection) {
 			print('Error in Oracle library: no connection. Query: '.$query.BR);
 			return NULL;
@@ -86,7 +86,7 @@ class dbLayerOCI extends dbLayer {
 		list($time2['usec'], $time2['sec']) = explode(" ", microtime());
 		$time2['float'] = (float)$time2['usec'] + (float)$time2['sec'];
 
-		//$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
+		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
 		if ($this->debugOnce || $this->debug) {
 			debug(array($query));
 			$this->debugOnce = FALSE;

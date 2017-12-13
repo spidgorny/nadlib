@@ -58,7 +58,7 @@ class Path {
 			$prefix = (($this->isAbsolute && $notSlash) ? '/' : '');
 		}
 		$this->sPath = $prefix.implode('/', $this->aPath);
-		if ($this->isDir) {
+		if ($this->isDir && sizeof($this->aPath)) {	// avoid "//"
 			$this->sPath .= '/';
 		}
 		return $this->sPath;
@@ -165,11 +165,14 @@ class Path {
 	}
 
 	function getUncapped() {
-		return $this->sPath;
+		return $this->implode();
 	}
 
 	function getCapped() {
-		return cap($this->sPath);
+		if (!sizeof($this->aPath) && $this->isAbsolute()) {
+			return $this->implode();	// absolute empty has slash already
+		}
+		return cap($this->implode());
 	}
 
 	/**
@@ -216,6 +219,7 @@ class Path {
 	}
 
 	/**
+	 * Removes path elements from the BEGINNING of the path
 	 * @param $minus
 	 * @return $this
 	 */
@@ -407,7 +411,7 @@ class Path {
 	 * http://php.net/manual/en/function.realpath.php#112367
 	 * @return string
 	 */
-	function normalize() {
+	function getNormalized() {
 		$path = $this->__toString();
 		$parts = array();// Array to build a new path from the good parts
 		$path = str_replace('\\', '/', $path);// Replace backslashes with forwardslashes
@@ -436,7 +440,13 @@ class Path {
 				}
 			}
 		}
-		return implode('/', $parts);
+		$parts = array_filter($parts);	// avoid "//"
+		$prefix = $this->isAbsolute() ? '/' : '';
+		return $prefix . implode('/', $parts);
+	}
+
+	function normalize() {
+		$this->__construct($this->getNormalized());
 	}
 
 	function getFiles() {
@@ -479,6 +489,11 @@ class Path {
 		}
 		$this->implode();
 		return $this;
+	}
+
+	public function basename()
+	{
+		return end($this->aPath);
 	}
 
 }

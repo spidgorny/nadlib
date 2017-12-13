@@ -12,13 +12,16 @@ if (!function_exists('first')) {
 		return current($list);
 	}
 
-	/**
-	 * Complements the built-in end() function
-	 * @param array $list
-	 * @return array|mixed
-	 */
-	function last(array $list) {
-		return end($list);
+	if (!function_exists('last')) {
+		/**
+		 * Complements the built-in end() function
+		 * @param array $list
+		 * @return array|mixed
+		 */
+		function last(array $list)
+		{
+			return end($list);
+		}
 	}
 
 	/**

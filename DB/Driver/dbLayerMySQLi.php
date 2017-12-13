@@ -4,7 +4,7 @@
  * Class MySQLi
  * Should work but it doesn't get num_rows() after store_result().
  */
-class dbLayerMySQLi extends dbLayerBase implements DBInterface {
+class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var MySQLi
@@ -116,7 +116,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 			$res->fetch();
 			return $this->columns;
 		} else {
-			debug(gettype2($res));
+			debug(typ($res));
 			throw new InvalidArgumentException(__METHOD__);
 		}
 	}
@@ -167,7 +167,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 			$this->connection->get_charset(),
 		];
 	}
-	
+
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
