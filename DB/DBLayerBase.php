@@ -1,7 +1,6 @@
 <?php
 
 /**
- * filename changed to uppercase
  * Class DBLayerBase
  * @mixin SQLBuilder
  */
