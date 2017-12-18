@@ -21,9 +21,16 @@ class LocalLangJsonPerController extends LocalLangJson {
 		$this->controller = $controller;
 		$this->general = $general ?: new LocalLangJson($this->langFolder);
 		//debug($this->lang);
+		if ($this->controller) {
+			$this->detectLang();
+			$this->readDB();
+		}
+		$this->log(__METHOD__, $this->controller);
+		LocalLang::$instance = $this;
 	}
 
 	function setController($class) {
+		$this->log(__METHOD__, $class);
 		//debug(__METHOD__, $class);
 		$this->controller = $class;
 		$this->detectLang();
@@ -31,10 +38,12 @@ class LocalLangJsonPerController extends LocalLangJson {
 	}
 
 	function readDB() {
+		$this->log(__METHOD__, $this->getFilename());
 		$file = $this->getFilename();
 		if (is_file($file)) {
 			$file = file_get_contents($file);
 			$this->ll = json_decode($file, true);
+			$this->log(__METHOD__, sizeof($this->ll));
 		}
 	}
 

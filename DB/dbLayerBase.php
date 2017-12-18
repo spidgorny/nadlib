@@ -4,7 +4,7 @@
  * Class dbLayerBase
  * @mixin SQLBuilder
  */
-class dbLayerBase implements DBInterface {
+class DBLayerBase implements DBInterface {
 
 	/**
 	 * @var SQLBuilder
@@ -59,18 +59,11 @@ class dbLayerBase implements DBInterface {
 		$this->qb = $qb;
 	}
 
-	function getDSN(array $params) {
-		$url = http_build_query($params, NULL, ';', PHP_QUERY_RFC3986);
-		$url = str_replace('%20', ' ', $url);	// back convert
-		$url = urldecode($url);
-		return $url;
-	}
-
 	/**
 	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
 	 */
 	function getScheme() {
-		return strtolower(str_replace('dbLayer', '', get_class($this)));
+		return strtolower(str_replace('DBLayer', '', get_class($this)));
 	}
 
 	function __call($method, array $params) {

@@ -4,7 +4,7 @@
  * Class dbLayerSQLite
  * @mixin SQLBuilder
  */
-class dbLayerSQLite extends dbLayerBase implements DBInterface {
+class DBLayerSQLite extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var string
@@ -48,7 +48,7 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function perform($query) {
+	function perform($query, array $params = []) {
 		if (!$this->connection) {
 			debug_pre_print_backtrace();
 		}

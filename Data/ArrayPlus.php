@@ -48,7 +48,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * Returns an array of the elements in a specific column.
 	 * @param $col
-	 * @return static
+	 * @return ArrayPlus
 	 */
 	function column($col) {
 		$return = array();
@@ -495,6 +495,22 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	function filterBoth($callback = NULL) {
+		if ($callback /*is_callable($callback)*/) {
+			$new = array_filter($this->getData(), $callback, ARRAY_FILTER_USE_BOTH);
+		} else {
+			$new = array_filter($this->getData());
+		}
+		$this->setData($new);
+		return $this;
+	}
+
+	function filterContains($needle) {
+		return $this->filter(function ($el) use ($needle) {
+			return str_contains($el, $needle);
+		});
+	}
+
 	function implode($sep = "\n") {
 		return implode($sep, $this->getData());
 	}
@@ -677,11 +693,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * http://php.net/manual/en/function.array-splice.php#111204
 	 * @param $input
-	 * @param $offset       - key of the element to insert BEFORE(!)
+	 * @param $offset - key of the element to insert BEFORE(!)
 	 * @param $length
 	 * @param $replacement
+	 * @return array
 	 */
-	static function array_splice_assoc(&$input, $offset, $length, $replacement) {
+	static function array_splice_assoc(&$input, $offset, $length, $replacement = []) {
 		$replacement = (array) $replacement;
 		$key_indices = array_flip(array_keys($input));
 		if (isset($input[$offset]) && is_string($offset)) {
@@ -691,9 +708,12 @@ class ArrayPlus extends ArrayObject implements Countable {
 			$length = $key_indices[$length] - $offset;
 		}
 
+		$extract = array_slice($input, $offset, $length, true);
+
 		$input = array_slice($input, 0, $offset, TRUE)
 			+ $replacement
 			+ array_slice($input, $offset + $length, NULL, TRUE);
+		return $extract;
 	}
 
 	/**
@@ -754,6 +774,11 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $result;
 	}
 
+	function __toString()
+	{
+		return json_encode($this->getArrayCopy(), JSON_PRETTY_PRINT);
+	}
+
 	public function toStringEach() {
 		$new = array();
 		foreach ($this->getData() as $i => $mixed) {
@@ -808,6 +833,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * @return ArrayPlus
+	 */
 	function sortByValue() {
 		$data = $this->getData();
 		asort($data);
@@ -840,6 +868,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * @return ArrayPlus
+	 */
 	function values() {
 		$this->setData(array_values($this->getData()));
 		return $this;
@@ -906,7 +937,10 @@ class ArrayPlus extends ArrayObject implements Countable {
 				} elseif (is_array($v)) {
 					$ok = in_array($row->$k, $v);
 				} else {
-					$ok = $v == $row->$k;
+					$value = is_object($row)
+						? $row->$k
+						: ifsetor($row[$k]);
+					$ok = $v == $value;
 				}
 				$okList[$k] = $ok;
 			}
@@ -933,6 +967,15 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function apply(callable $fn) {
 		$this->map($fn);
+	}
+
+	static function isRecursive(array $array) {
+		foreach ($array as $item) {
+			if (is_array($item)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

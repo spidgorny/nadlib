@@ -6,7 +6,7 @@
  * Date: 16.11.2016
  * Time: 15:30
  */
-class PGArrayTest extends PHPUnit_Framework_TestCase {
+class PGArrayTestDb extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @var DBInterface

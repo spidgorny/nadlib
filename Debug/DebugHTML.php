@@ -11,7 +11,7 @@ class DebugHTML {
 	 */
 	var $helper;
 
-	var $htmlProlorSent = false;
+	var $htmlPrologSent = false;
 
 	static $defaultLevels = 4;
 
@@ -20,6 +20,7 @@ class DebugHTML {
 	}
 
 	function render() {
+		$levels = self::$defaultLevels;
 		$args = func_get_args();
 		if (is_array($args)) {
 			$levels = $this->getLevels($args) ?: self::$defaultLevels;
@@ -34,7 +35,7 @@ class DebugHTML {
 		if (!headers_sent()) {
 			if (method_exists($this->helper->index, 'renderHead')) {
 				$this->helper->index->renderHead();
-			} elseif (!headers_sent() && !$this->htmlProlorSent) {
+			} elseif (!headers_sent() && !$this->htmlPrologSent) {
 				$content = '<!DOCTYPE html>
 				<html>
 				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -72,13 +73,13 @@ class DebugHTML {
 
 		$file = ifsetor($first['file']);
 		$file = basename(dirname($file)).'/'.basename($file);
-		$file .= '#'.$first['line'];
+		$file .= '#'.ifsetor($first['line']);
 
 		$props = array(
 			'<span class="debug_prop">Name:</span> '.$this->helper->name,
-			'<span class="debug_prop">Function:</span> '.$first['function'],
+			'<span class="debug_prop">Function:</span> '.ifsetor($first['function']),
 			'<span class="debug_prop">File:</span> '.$file,
-			'<span class="debug_prop">Type:</span> '.gettype2($a)
+			'<span class="debug_prop">Type:</span> ' . typ($a)
 		);
 		if (!is_array($a) && !is_object($a) && !is_resource($a)) {
 			$props[] = '<span class="debug_prop">Length:</span> '.strlen($a);
@@ -152,7 +153,7 @@ class DebugHTML {
 		if (is_array($a)) {	// not else if so it also works for objects
 			$content = '<table class="view_array">';
 			foreach ($a as $i => $r) {
-				$type = gettype2($r);
+				$type = typ($r);
 				$content .= '<tr>
 					<td>'.htmlspecialchars($i).'</td>
 					<td>'.$type.'</td>
@@ -191,7 +192,7 @@ class DebugHTML {
 	}
 
 	static function printStyles() {
-		if (Request::isCLI()) return;
+		if (Request::isCLI()) return '';
 		$content = '';
 		if (!self::$stylesPrinted) {
 			$content = '<style>'.file_get_contents(__DIR__.'/Debug.css').'</style>';

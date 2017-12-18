@@ -30,11 +30,14 @@ if (!function_exists('str_startsWith')) {
 		return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 	}
 
-	function str_contains($haystack, $needle) {
-		if (is_array($haystack)) {
-			debug_pre_print_backtrace();
+	if (!function_exists('str_contains')) {
+		function str_contains($haystack, $needle)
+		{
+			if (is_array($haystack)) {
+				debug_pre_print_backtrace();
+			}
+			return FALSE !== strpos($haystack, $needle);
 		}
-		return FALSE !== strpos($haystack, $needle);
 	}
 
 	function str_icontains($haystack, $needle) {
@@ -73,6 +76,7 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str);
 		}
 		if (!$is_string) {
+			debug(typ($str));
 			debug_pre_print_backtrace();
 		}
 		if ($max) {

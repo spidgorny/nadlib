@@ -96,6 +96,12 @@ class HTML {
 	}
 
 	function e($content) {
+		if ($content instanceof HTMLTag) {
+			return $content;
+		}
+		if ($content instanceof htmlString) {
+			return $content;
+		}
 		if (is_array($content)) {
 			$content = MergedContent::mergeStringArrayRecursive($content);
 		}
@@ -134,6 +140,10 @@ class HTML {
 
 	public function blockquote($getDescription) {
 		return '<blockquote>'.$this->e($getDescription).'</blockquote>';
+	}
+
+	function li($text) {
+		return '<li>'.$this->e($text).'</li>';
 	}
 
 }

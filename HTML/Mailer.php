@@ -38,14 +38,14 @@ class Mailer {
 	 */
 	var $params = array();
 
-	function __construct($to, $subject, $bodytext) {
+	function __construct($to, $subject, $bodyText) {
 		if (is_array($to)) {
 			$this->to = implode(', ', $to);
 		} else {
 			$this->to = trim($to);
 		}
 		$this->subject = trim($subject);
-		$this->bodytext = $bodytext;
+		$this->bodytext = $bodyText;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
 		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
 		if (strpos($this->bodytext, '<') !== FALSE) {
@@ -115,7 +115,6 @@ class Mailer {
 		$message .= $htmlMail;
 		$message .= "\r\n\r\n--" . $boundary . "--";
 		$this->bodytext = $message;
-		return $res;
 	}
 
 	function getSubject() {
@@ -124,15 +123,15 @@ class Mailer {
 	}
 
 	function getBodyText() {
-		$bodytext = str_replace("\n.", "\n..", $this->bodytext);
-		return $bodytext;
+		$bodyText = str_replace("\n.", "\n..", $this->bodytext);
+		return $bodyText;
 	}
 
 	function debug() {
 		$assoc = array();
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
-		$assoc['bodytext'] = $this->getBodyText();
+		$assoc['bodyText'] = $this->getBodyText();
 		$assoc['headers'] = new htmlString(implode("<br />", $this->headers));
 		$assoc['params'] = implode(' ', $this->params);
 		return slTable::showAssoc($assoc);
@@ -169,11 +168,12 @@ class Mailer {
         $messageText = $this->getPlainText();
 
         /** @var Swift_Message $message */
-        $message = Swift_Message::newInstance()
-            ->setSubject($this->subject)
-            ->setBody($messageHTML, 'text/html')
+        // $message = Swift_Message::newInstance() ->  newInstance is not supported anymore (ORS problem send by Ruben)
+		$message = new Swift_Message();
+		$message->setSubject($this->subject)
+			->setBody($messageHTML, 'text/html')
 			->addPart($messageText, 'text/plain')
-        ;
+		;
 
 		$index = Index::getInstance();
 //		$r = new ReflectionClass(Index::class);
@@ -229,8 +229,12 @@ class Mailer {
 
 //		debug($message->getFrom()); die;
 
-		$transport = Swift_SendmailTransport::newInstance();
-        $mailer = Swift_Mailer::newInstance($transport);
+		//$transport = Swift_SendmailTransport::newInstance();
+        //$mailer = Swift_Mailer::newInstance($transport);
+		// newInstance is not supported anymore (ORS problem send by Ruben)
+		$transport = new Swift_SendmailTransport();
+		$mailer = new Swift_Mailer($transport);
+
         $failedRecipients = array();
 
         $sent = $mailer->send($message, $failedRecipients);
@@ -244,10 +248,10 @@ class Mailer {
 	 * @return string
 	 */
 	public function getShortFilename($attachment) {
-		$pathinfo = pathinfo($attachment);
-		$ext = $pathinfo['extension'];
+		$pathInfo = pathinfo($attachment);
+		$ext = $pathInfo['extension'];
 
-		$filename = $pathinfo['filename'];
+		$filename = $pathInfo['filename'];
 		$filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
 		$filename = preg_replace('/([\s])\1+/', ' ', $filename);
 		$filename = str_replace(' ', '_', $filename);
@@ -273,6 +277,29 @@ class Mailer {
 			$mailText = strip_tags($this->bodytext);
 		}
 		return $mailText;
+	}
+
+	function getSendGridMail() {
+		$config = Config::getInstance();
+		$from = new SendGrid\Email(null, $config->mailFrom);
+		$to = new SendGrid\Email(null, $this->to);
+		$content = new SendGrid\Content("text/plain", $this->getPlainText());
+		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
+		return $mail;
+	}
+
+	/**
+	 * @return \SendGrid\Response
+	 */
+	function sendGrid() {
+		$config = Config::getInstance();
+		$mail = $this->getSendGridMail();
+
+		$sg = $config->getSendGrid();
+
+		/** @var $response \SendGrid\Response */
+		$response = $sg->client->mail()->send()->post($mail);
+		return $response;
 	}
 
 }

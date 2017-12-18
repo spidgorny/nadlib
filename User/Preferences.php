@@ -9,7 +9,11 @@ class Preferences {
 
 	public $prefs = array();	// for debug
 
-	function __construct(User $user) {
+	/**
+	 * Preferences constructor.
+	 * @param $user User|NoUser
+	 */
+	function __construct($user) {
 		$this->user = $user;
 		$this->prefs = unserialize($this->user->data['prefs']);
 	}

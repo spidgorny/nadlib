@@ -20,8 +20,12 @@ class PageProfiler {
 
 	function render() {
 		$content = '';
-		$index = Index::getInstance();
-		$exceptions = in_array(get_class($index->controller), array('Lesser'));
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$exceptions = in_array(get_class($index->controller), array('Lesser'));
+		} else {
+			$exceptions = false;
+		}
 		$debug_page = isset($_COOKIE['debug_page'])
 			? $_COOKIE['debug_page']
 			: ifsetor($_COOKIE['debug']);
@@ -97,7 +101,9 @@ class PageProfiler {
 	 */
 	private function getHeader() {
 		$content = '';
-		$index = Index::getInstance();
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+		}
 		$content .= $this->html->h4('Header');
 		$header = json_encode($index->header, JSON_PRETTY_PRINT);
 		$header = str_replace('\/', '/', $header);

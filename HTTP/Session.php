@@ -1,11 +1,14 @@
 <?php
 
-class Session {
+class Session implements SessionInterface {
 
 	var $prefix;
 
 	function __construct($prefix = NULL) {
 		$this->prefix = $prefix;
+		if (!self::isActive()) {
+			session_start();
+		}
 	}
 
 	static function isActive() {
@@ -52,7 +55,25 @@ class Session {
 	}
 
 	public function append($key, $val) {
-		$_SESSION[$this->prefix][$key][] = $val;
+		if ($this->prefix) {
+			$_SESSION[$this->prefix][$key][] = $val;
+		} else {
+			$_SESSION[$key][] = $val;
+		}
+	}
+
+	public function getAll()
+	{
+		return ifsetor($_SESSION[$this->prefix], []);
+	}
+
+	public function delete($string)
+	{
+		if ($this->prefix) {
+			unset($_SESSION[$this->prefix][$string]);
+		} else {
+			unset($_SESSION[ $string ]);
+		}
 	}
 
 }

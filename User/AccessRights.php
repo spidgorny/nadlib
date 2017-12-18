@@ -76,7 +76,7 @@ class AccessRights {
 		$vars = get_object_vars($this);
 		$keys = array_keys($vars);
 		$keys = array_combine($keys, $keys);
-		$types = array_map('gettype2', $vars);
+		$types = array_map('typ', $vars);
 		unset($keys['db'], $types['db']);
 		//debug(array_combine($keys, $types));
 		return $keys;

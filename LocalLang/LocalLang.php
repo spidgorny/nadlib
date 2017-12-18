@@ -35,6 +35,11 @@ abstract class LocalLang {
 	public $saveMissingMessages = true;
 
 	/**
+	 * @var LocalLang|LocalLangJsonPerController
+	 */
+	public static $instance;
+
+	/**
 	 * Will detect the language by the cookie or browser sniffing
 	 * @param null $forceLang
 	 */
@@ -49,9 +54,6 @@ abstract class LocalLang {
 			$this->lang = $forceLang;
 		} else {
 			$this->detectLang();
-			$this->lang = isset($_COOKIE['lang']) && $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
-				? $_COOKIE['lang']
-				: $this->lang;
 		}
 
 		if (class_exists('Config')) {
@@ -89,25 +91,29 @@ abstract class LocalLang {
 			//debug('firstKey: '.$firstKey);
 		}
 		//debug($this->ll);
+
+		// allow to force a language by cookie
+		$this->lang = isset($_COOKIE['lang']) && $_COOKIE['lang'] && in_array($_COOKIE['lang'], $this->possibleLangs)
+			? $_COOKIE['lang']
+			: $this->lang;
 	}
 
 	function areThereTranslationsFor($lang) {
 		return isset($this->ll[$lang]);
 	}
 
-	static function getInstance() {
-		debug_pre_print_backtrace();
-		static $instance = NULL;
-		if (!$instance) {
-			//$instance = new static(); // PHP 5.2
+	static function getInstance($forceLang = NULL, $filename = NULL) {
+		if (!self::$instance) {
+			self::$instance = new static($forceLang, $filename);
 		}
-		return $instance;
+		return self::$instance;
 	}
 
 	/**
 	 *
 	 * @param $text
-	 * @param null $replace
+	 * @param string|array $replace can be a simple %1 replacement, but can also
+	 * be an array of alternative translations
 	 * @param null $s2
 	 * @param null $s3
 	 * @internal param $ <type> $text
@@ -116,20 +122,28 @@ abstract class LocalLang {
 	 * @return string translated message
 	 */
 	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
-		if (isset($this->ll[$text])) {
-			$trans = ifsetor($this->ll[$text], $text);
-			$trans = $this->Tp($trans, $replace, $s2, $s3);
-			$trans = $this->getEditLinkMaybe($trans, $text, '');
-			//if ($text == 'Search') { debug($text, $trans); }
+		if (!is_scalar($text)) {
+			throw new InvalidArgumentException('[' . $text . ']');
+		}
+		if (is_array($replace)) {
+			$trans = ifsetor($replace[$this->lang]);
+			$trans = $this->Tp($trans, $s2, $s3);
 		} else {
-			//debug($this->ll);
-			//debug($text, $this->ll[$text], spl_object_hash($this));
-			$this->saveMissingMessage($text);
-			$trans = $this->Tp($text, $replace, $s2, $s3);
-			$trans = $this->getEditLinkMaybe($trans);
+			if (isset($this->ll[$text])) {
+				$trans = ifsetor($this->ll[$text], $text);
+				$trans = $this->Tp($trans, $replace, $s2, $s3);
+				$trans = $this->getEditLinkMaybe($trans, $text, '');
+				//if ($text == 'Search') { debug($text, $trans); }
+			} else {
+				//debug($this->ll);
+				//debug($text, $this->ll[$text], spl_object_hash($this));
+				$this->saveMissingMessage($text);
+				$trans = $this->Tp($text, $replace, $s2, $s3);
+				$trans = $this->getEditLinkMaybe($trans);
+			}
 		}
 		if ($this->debug = $text == 'asd') {
-			debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
+			//debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
 		}
 		return $trans;
 	}
@@ -207,49 +221,8 @@ abstract class LocalLang {
 		return $content;
 	}
 
-}
-
-if (!function_exists('__')) {	// conflict with cakePHP
-
-	function __($code, $r1 = null, $r2 = null, $r3 = null) {
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-		} else {
-			$config = NULL;
-		}
-		nodebug($code, !!$config,
-			is_object($config) ? get_class($config) : gettype($config),
-			!!$config->getLL());
-		if (!empty($config) && $config->getLL()) {
-			$text = $config->getLL()->T($code, $r1, $r2, $r3);
-			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
-			return $text;
-		} else {
-			$code = LocalLang::Tp($code, $r1, $r2, $r3);
-			return $code;
-		}
-	}
-
-	/**
-	 * Same as __(), but calls only str_replace() without translating
-	 * @param $code
-	 * @param null $r1
-	 * @param null $r2
-	 * @param null $r3
-	 * @return mixed|null
-	 */
-	function __p($code, $r1 = null, $r2 = null, $r3 = null) {
-		if (class_exists('Config')) {
-			$index = Config::getInstance();
-		}
-		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
-		if ($index && $index->getLL()) {
-			$text = $index->getLL()->Tp($code, $r1, $r2, $r3);
-			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
-			return $text;
-		} else {
-			return $code;
-		}
+	function log($method, $data) {
+//		error_log('['.$method.'] '. (is_scalar($data) ? $data : json_encode($data)));
 	}
 
 }
