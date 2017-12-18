@@ -15,6 +15,8 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 * protected will not work because OODBase::__construct is public
 	 *
 	 * @param int|array $id
+	 *
+	 * @throws Exception
 	 */
 	public function __construct($id = NULL) {
 		parent::__construct($id);
@@ -46,7 +48,9 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 *
 	 * @param string $login
 	 * @param string $password - plain text password (no, it's md5'ed already)
+	 *
 	 * @return boolean
+	 * @throws Exception
 	 */
 	function checkPassword($login, $password) {
 		$query = $this->db->getSelectQuery($this->table, array($this->idField => $login));
@@ -96,6 +100,12 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 		$this->findInDB($data);
 	}
 
+	/**
+	 * These preferences are supposed to be stored in DB
+	 * But UserBase is NOT doing it.
+	 * @param $key
+	 * @param $val
+	 */
 	function setPref($key, $val) {
 		$this->prefs[$key] = $val;
 	}
@@ -128,6 +138,7 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	}
 
 	function isAuth() {
+		//debug($this);
 		return !!$this->id;
 	}
 

@@ -4,7 +4,8 @@
  * https://gist.github.com/bpiel/1555855
  * Class LazyLoader
  */
-class LazyLoader{
+class LazyLoader {
+
 	private $providerOrValue;
 	private $evaluated = false;
 

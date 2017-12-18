@@ -101,7 +101,13 @@ class Filter extends ArrayObject {
 
 	function ensure($field, array $allowedOptions, $default = NULL) {
 		$value = $this[$field];
-		if (!ifsetor($allowedOptions[$value])) {
+		if ($value) {
+			if (!ifsetor($allowedOptions[$value])) {
+				$default = $default ?: first(array_keys($allowedOptions));
+				$this->set($field, $default);
+			}
+		} else {
+			// if it's not set then fill default anyway
 			$default = $default ?: first(array_keys($allowedOptions));
 			$this->set($field, $default);
 		}

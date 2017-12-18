@@ -86,10 +86,10 @@ class HTMLTableBuf extends MergedContent {
 
 	/**
 	 * @param array  $aCaption	- array of names
-	 * @param array  $thMore		- more on each column TH
-	 * @param string $trMore	- more on the whole row
+	 * @param array  $thMore	- more on each column TH
+	 * @param array  $trMore	- more on the whole row
 	 */
-	function thes(array $aCaption, $thMore = array(), $trMore = '') {
+	function thes(array $aCaption, $thMore = array(), $trMore = []) {
 		$this->htr($trMore);
 		foreach ($aCaption as $i => $caption) {
 			if ($caption instanceof HTMLTag) {
@@ -129,6 +129,10 @@ class HTMLTableBuf extends MergedContent {
 		return $this->content[$key];
 	}
 
+	/**
+	 * @param mixed $offset
+	 * @return null
+	 */
 	public function offsetGet($offset) {
 		return ifsetor($this->content[$offset], []);
 	}
