@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class dbLayerBase
+ * Class DBLayerBase
  * @mixin SQLBuilder
  */
 class DBLayerBase implements DBInterface {
