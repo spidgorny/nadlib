@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Class dbLayerBase
+ * filename changed to uppercase
+ * Class DBLayerBase
  * @mixin SQLBuilder
  */
 class DBLayerBase implements DBInterface {
