@@ -668,9 +668,13 @@ class Request {
 		$al = AutoLoad::getInstance();
 
 		if (!$this->isWindows()) {	// linux
+//			debug('__DIR__', __DIR__);
 			$cwd = new Path(getcwd());
+//			debug('cwd', $cwd);
 			$url = clone $al->documentRoot;
+//			debug('documentRoot', $url);
 			$url->append($this->url->getPath());
+//			debug($url);
 			$path = new Path($url);
 			$path->remove($cwd);
 		} else {	// windows
@@ -977,6 +981,15 @@ class Request {
 
 	public function isHTTPS() {
 		return $this->getRequestType() == 'https';
+	}
+
+	public function getAction()
+	{
+		$action = $this->getTrim('action');
+		if (!$action) {
+			$action = $this->getURLLevel(1);
+		}
+		return $action;
 	}
 
 }
