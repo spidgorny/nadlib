@@ -389,6 +389,10 @@ class URL {
 		} else {
 			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
 			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de
+
+			// add /data001/ to /data001/srv/www/htdocs
+			// in virtual environments (symlink)
+			$scriptWithPath = realpath($scriptWithPath);
 		}
 		return $scriptWithPath;
 	}
