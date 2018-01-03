@@ -384,11 +384,6 @@ class AutoLoad {
 		//$tp = TaylorProfiler::getInstance();
 		$tp = NULL;
 		if ($tp) $tp->start(__METHOD__);
-		if ($class == 'AdminPage') {
-			$this->debug = false;
-		} else {
-			$this->debug = false;
-		}
 		$this->count++;
 
 		$namespaces = explode('\\', $class);
