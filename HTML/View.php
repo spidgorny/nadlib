@@ -131,7 +131,7 @@ class View extends stdClass {
 
 			if (DEVELOPMENT) {
 				// not allowed in MRBS as some templates return OBJECT(!)
-				//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
+//				$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
 				$content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
 			}
 			$this->processed = $content;
@@ -460,6 +460,9 @@ class View extends stdClass {
 
 	function s($a)
 	{
+//		echo typ($a), BR;
+//		debug_pre_print_backtrace();
+//		echo '<hr />';
 		return MergedContent::mergeStringArrayRecursive($a);
 	}
 
