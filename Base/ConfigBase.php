@@ -94,8 +94,9 @@ class ConfigBase {
 
 	var $isCron = false;
 
-	protected function __construct() {
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+	protected function __construct()
+	{
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . "<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
 //		debug($this->documentRoot);
 
@@ -107,21 +108,21 @@ class ConfigBase {
 		//debug_pre_print_backtrace();
 
 		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));
-		$configYAML = $appRoot .'class/config.yaml';
+		$configYAML = $appRoot . 'class/config.yaml';
 		//print_r(array($configYAML, file_exists($configYAML)));
 		if (file_exists($configYAML) && class_exists('Spyc')) {
 			$this->config = Spyc::YAMLLoad($configYAML);
 		}
 		$this->mergeConfig($this);
 
-		$configJSON = $appRoot .'class/config.json';
+		$configJSON = $appRoot . 'class/config.json';
 		//print_r(array($configJSON, file_exists($configJSON)));
 		if (file_exists($configJSON)) {
 			$this->config = json_decode(file_get_contents($configJSON), true);
 			$this->mergeConfig($this);
 		}
 		$this->isCron = Request::isCron();
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . BR;
 	}
 
 	/**
@@ -129,7 +130,8 @@ class ConfigBase {
 	 * Config::getInstance()->postInit() manually
 	 * @return Config|ConfigBase
 	 */
-	public static function getInstance() {
+	public static function getInstance()
+	{
 		if (!self::$instance) {
 			self::$instance = new static();
 			//self::$instance->postInit();	// will try to connect to the DB before autoload
@@ -143,14 +145,16 @@ class ConfigBase {
 	 * Does heavy operations during bootstrapping
 	 * @return $this
 	 */
-	public function postInit() {
+	public function postInit()
+	{
 		//$this->getDB();
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
 		return $this;
 	}
 
-	public function getDB() {
+	public function getDB()
+	{
 		//debug_pre_print_backtrace();
 		if ($this->db) return $this->db;
 
@@ -177,7 +181,8 @@ class ConfigBase {
 		return $this->db;
 	}
 
-	public function prefixTable($a) {
+	public function prefixTable($a)
+	{
 		return $a;
 	}
 
@@ -187,16 +192,18 @@ class ConfigBase {
 	 * @param $message
 	 * @throws Exception
 	 */
-	function log($class, $message) {
+	function log($class, $message)
+	{
 		if (DEVELOPMENT) {
-			throw new Exception($class.' '.$message);
+			throw new Exception($class . ' ' . $message);
 		}
 	}
 
 	/**
 	 * @param $obj object
 	 */
-	function mergeConfig($obj) {
+	function mergeConfig($obj)
+	{
 		$class = get_class($obj);
 		if (isset($this->config[$class]) && is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
@@ -208,7 +215,8 @@ class ConfigBase {
 		}
 	}
 
-	function getUser() {
+	function getUser()
+	{
 		return NULL;
 	}
 
@@ -216,7 +224,8 @@ class ConfigBase {
 	 * Convenience function example how to use Login
 	 * @return LoginUser|User
 	 */
-	function _getLoginUser() {
+	function _getLoginUser()
+	{
 		if (!$this->user) {
 			$db = $this->getDB();
 //			debug(get_class($db));
@@ -230,11 +239,17 @@ class ConfigBase {
 		return $this->user;
 	}
 
-	function getLL() {
+	function getLL()
+	{
 		if (!$this->ll) {
 			$this->ll = new LocalLangDummy();
 		}
 		return $this->ll;
+	}
+
+	function getRequest()
+	{
+		return Request::getInstance();
 	}
 
 }
