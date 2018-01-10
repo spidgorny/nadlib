@@ -113,7 +113,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		$this->ll = $this->config->getLL();
 
-		$this->request = Request::getInstance();
+		$this->request = $this->config->getRequest();
 		//debug('session_start');
 
 		$this->content = new nadlib\HTML\Messages();
