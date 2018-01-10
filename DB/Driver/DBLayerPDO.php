@@ -105,7 +105,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		} catch (PDOException $e) {
 			debug([
 				'dsn' => $this->dsn,
-				'extensions' => json_encode(get_loaded_extensions())
+				'extensions' => get_loaded_extensions(),
 			]);
 			throw $e;
 		}
