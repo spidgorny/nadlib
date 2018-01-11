@@ -477,12 +477,16 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function fetchAll($result, $key = NULL) {
+		$params = [];
 		if ($result instanceof SQLSelectQuery) {
-			$result = $result->getQuery();
+			/** @var SQLSelectQuery $queryObj */
+			$queryObj = $result;
+			$result = $queryObj->getQuery();
+			$params = $queryObj->getParameters();
 		}
 		if (is_string($result)) {
 			//debug($result);
-			$result = $this->perform($result);
+			$result = $this->perform($result, $params);
 		}
 		//debug($this->numRows($result));
 		$res = pg_fetch_all($result);
