@@ -248,19 +248,22 @@ class slTable
 		}
 	}
 
-	public function detectSortBy() {
+	public function detectSortBy()
+	{
 		$aRequest = $this->request->getArray('slTable');
 		$by = ifsetor($aRequest['sortBy']);
 		$or = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
-		$this->sortBy = $by;
-		$this->sortOrder = $or;
+
 		if (!$this->sortBy) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {
-//				list( $this->sortBy ) = first( $this->thes );
-				$this->sortBy = current(array_values( $this->thes ));
+				$firstElementFromThes = current(array_values( $this->thes ));
+				if (is_array($firstElementFromThes)) {
+					$firstElementFromThes = current(array_values($firstElementFromThes));
+				}
+				$this->sortBy = $firstElementFromThes;
 			}
 			error_reporting($old);
 		}
