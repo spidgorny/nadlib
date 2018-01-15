@@ -309,7 +309,7 @@ class HTMLForm {
 	function file($name, array $desc = array())
 	{
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout  .= $this->getInput("file", $name, '', ifsetor($desc['more']), ifsetor($desc['class']));
+		$this->stdout  .= $this->getInput("file", $name, '', ifsetor($desc['more'], []), ifsetor($desc['class']));
 		$this->method  = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
