@@ -189,6 +189,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
+	public static function makeInstance(Config $config = null)
+	{
+		return static::getInstance(true, $config);
+	}
+
 	/**
 	 * Called by index.php explicitly,
 	 * therefore processes exceptions.
