@@ -491,6 +491,9 @@ class URL
 	 */
 	static function getPathFolders($from)
 	{
+//		ob_start();
+//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+//		error_log(ob_get_clean());
 		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
 		$from = str_replace('\\', '/', $from);
 		$from = explode('/', $from);

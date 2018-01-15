@@ -371,7 +371,7 @@ class Menu /*extends Controller*/ {
 				nodebug(array(
 					'class' => $class,
 					'$this->renderOnlyCurrent' => $this->renderOnlyCurrent,
-					'getURLLevels()' => $this->request->getURLLevels(),
+//					'getURLLevels()' => $this->request->getURLLevels(),
 					'$this->current' => $this->current,
 					'$renderOnlyCurrentSubMenu' => $renderOnlyCurrentSubMenu,
 					'$this->recursive' => $this->recursive,
