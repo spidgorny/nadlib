@@ -773,8 +773,9 @@ class Request {
 
 			$path = new Path($url);
 			$path->remove($cwd);
+			$path->normalize();
 
-			//debug($url.'', $cwd.'', $path.'');
+//			debug($url.'', $cwd.'', $path.'');
 		} else {    // windows
 			$cwd = NULL;
 			$url = new Path('');
