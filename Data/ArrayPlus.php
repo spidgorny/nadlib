@@ -228,6 +228,14 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	public function stripTags()
+	{
+		foreach ($this as $i => $value) {
+			$this[$i] = strip_tags($value);
+		}
+		return $this;
+	}
+
 	/**
 	 * @param $callback
 	 * @return static
