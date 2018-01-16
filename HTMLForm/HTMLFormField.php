@@ -225,9 +225,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 					$this->form->hidden($fieldName, 0);
 				}
 				$elementID = $this['elementID'];
-				$more = is_array(ifsetor($desc['more']))
-						? $desc['more'] + array('id' => $elementID)
-						: $desc['more'] . ' id="' . $elementID . '"';
+				$more = ifsetor($desc['more'], []) + array('id' => $elementID);
 				if (ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue == 't';
 				}
