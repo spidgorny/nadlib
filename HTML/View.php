@@ -258,7 +258,7 @@ class View extends stdClass {
 	function __toString()
 	{
 		if (DEVELOPMENT) {
-			debug($this->file, get_class($this->caller));
+			debug('Do not call View::__toString() as it will prevent you from obtaining a valid backtrace in case of an error.', $this->file, get_class($this->caller));
 			debug_pre_print_backtrace();
 		}
 //		return $this->render().'';
