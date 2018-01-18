@@ -99,8 +99,8 @@ class Menu /*extends Controller*/ {
 				$this->useControllerSlug = $this->request->apacheModuleRewrite();
 			}
 		}
-		$this->setCurrent($level);
 		$this->setBasePath();
+		$this->setCurrent($level);
 	}
 
 	/**
@@ -108,7 +108,8 @@ class Menu /*extends Controller*/ {
 	 * @param $level
 	 */
 	function setCurrent($level) {
-		$appRootPath = $this->request->getPathAfterAppRoot();
+//		$appRootPath = $this->request->getPathAfterAppRoot();
+		$appRootPath = $this->basePath->getPath();
 		$rootPath = $appRootPath->getLevels();
 //		debug($rootPath);
 
@@ -124,13 +125,14 @@ class Menu /*extends Controller*/ {
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
-		nodebug([
+		00 && debug([
 			'cwd' => getcwd(),
-			'docRoot' => $this->request->getDocumentRoot(),
-			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot(),
+			'docRoot' => $this->request->getDocumentRoot().'',
+			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot().'',
 			'useRouter' => $this->useRouter(),
 			'useControllerSlug' => $this->useControllerSlug,
 			'rootPath' => $rootPath,
+			'getControllerString' => $this->request->getControllerString(),
 			'level' => $level,
 			'current' => $this->current
 		]);
