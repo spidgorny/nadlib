@@ -226,6 +226,10 @@ class URL
 		return $this;
 	}
 
+	public function reset() {
+		$this->components['path'] = $this->documentRoot;
+	}
+
 	/**
 	 * Defines the filename in the URL
 	 * @param $name
