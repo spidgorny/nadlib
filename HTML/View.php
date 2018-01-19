@@ -246,7 +246,7 @@ class View extends stdClass {
 
 	function data($key)
 	{
-		return $this->e(ifsetor($this->caller->data[$key]));
+		return $this->e(ifsetor($this->caller->get($key)));
 	}
 
 	/**
