@@ -14,6 +14,39 @@ class MarshalParams {
 		$this->request = Request::getInstance();
 	}
 
+	/**
+	 * @param $container
+	 * @param $constructor
+	 * @return array
+	 */
+	public static function getFunctionArguments($container, ReflectionMethod $constructor)
+	{
+		$init = []; // parameter values to the constructor
+		$params = $constructor->getParameters();
+		foreach ($params as $param) {
+			$name = $param->getName();
+			if ($param->isArray() || $param->isDefaultValueAvailable()) {
+				$init[$name] = $param->getDefaultValue();
+			} else {
+				$type = $param->getType();
+				if ($type) {
+					if ($type->isBuiltin()) {
+						$init[$name] = $param->getDefaultValue();
+					} else {
+						$typeClass = method_exists($type, 'getName')
+							? $type->getName()
+							: $type->__toString();
+						//					debug($typeClass);
+						$init[$name] = call_user_func([$container, 'get' . $typeClass]);
+					}
+				} else {
+					$init[$name] = null;
+				}
+			}
+		}
+		return $init;
+	}
+
 	function call($method) {
 		return $this->callMethodByReflection($this->object, $method);
 	}
@@ -72,27 +105,11 @@ class MarshalParams {
 
 	static function makeInstanceWithInjection($class, $container)
 	{
-		$init = []; // parameter values to the constructor
 		$cr = new ReflectionClass($class);
 		$constructor = $cr->getConstructor();
 		if ($constructor) {
-			$params = $constructor->getParameters();
-			foreach ($params as $param) {
-				$type = $param->getType();
-				if ($type) {
-					if ($type->isBuiltin()) {
-						$init[] = $param->getDefaultValue();
-					} else {
-						$typeClass = method_exists($type, 'getName')
-							? $type->getName()
-							: $type->__toString();
-						//					debug($typeClass);
-						$init[] = call_user_func([$container, 'get' . $typeClass]);
-					}
-				} else {
-					$init[] = null;
-				}
-			}
+			$init = self::getFunctionArguments($container, $constructor);
+//			debug($class, $constructor->getName(), $init);
 			// PHP 7
 			//$instance = new $class(...$init);
 			$reflector = new ReflectionClass($class);
