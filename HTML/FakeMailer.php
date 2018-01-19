@@ -17,7 +17,7 @@ class FakeMailer {
 
 	function send()
 	{
-		echo 'Sending mail to '.$this->emails.' "'.$this->subject.'"', BR;
+		echo 'Sending mail "'.$this->subject.'" to ['.$this->emails.']', BR;
 	}
 
 }
