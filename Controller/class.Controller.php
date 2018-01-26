@@ -23,7 +23,7 @@ abstract class Controller {
 	/**
 	 * @var Request
 	 */
-	public $request;
+	protected $request;
 
 	/**
 	 * @var boolean
