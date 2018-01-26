@@ -83,16 +83,16 @@ class HTMLTableBuf extends MergedContent {
 
 	/**
 	 * @param array $aCaption	- array of names
-	 * @param array $thmore		- more on each column TH
-	 * @param string $trmore	- more on the whole row
+	 * @param array $thMore		- more on each column TH
+	 * @param string $trMore	- more on the whole row
 	 */
-	function thes(array $aCaption, $thmore = array(), $trmore = '') {
-		$this->htr($trmore);
+	function thes(array $aCaption, $thMore = array(), $trMore = '') {
+		$this->htr($trMore);
 		foreach($aCaption as $i => $caption) {
-			if (is_string($thmore[$i])) {
-				debug($i, $thmore[$i]);
+			if (is_string($thMore[$i])) {
+				debug($i, $thMore[$i]);
 			}
-			$more = isset($thmore[$i]) ? HTMLTag::renderAttr($thmore[$i]) : '';
+			$more = isset($thMore[$i]) ? HTMLTag::renderAttr($thMore[$i]) : '';
 			if (is_array($more)) {
 				$more = HTMLTag::renderAttr($more);
 			}
