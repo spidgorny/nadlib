@@ -160,6 +160,8 @@ class Mailer {
 
 		/** @var Swift_Message $message */
 		$message = new Swift_Message($this->subject, $this->bodytext);
+//		$message->setContentType('"Content-Type: text/html; charset=UTF-8"');
+		$message->setCharset('utf-8');
 
 		$message->setFrom($this->from, $this->fromName);
 
