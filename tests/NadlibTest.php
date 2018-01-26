@@ -8,7 +8,7 @@ class NadlibTest extends PHPUnit_Framework_TestCase {
 			'MemcacheMemory',
 		);
 		require_once 'class.AppController4Test.php';
-		class_alias('AppController4Test', 'AppController');
+//		class_alias('AppController4Test', 'AppController');
 
 		$files = glob('**/*');
 		foreach ($files as $file) {

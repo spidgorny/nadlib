@@ -45,10 +45,10 @@ class NadlibIndex {
 			class_alias('ConfigBE', 'Config');
 		}
 		if (!class_exists('AppController')) {
-			class_alias('AppControllerBE', 'AppController');
+//			class_alias('AppControllerBE', 'AppController');
 		}
 		if (!class_exists('Index')) {
-			class_alias('IndexBE', 'Index');
+//			class_alias('IndexBE', 'Index');
 		}
 
 		if (!file_exists('vendor/autoload.php')) {
