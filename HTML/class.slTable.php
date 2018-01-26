@@ -705,7 +705,7 @@ class slTable {
 	}
 
 	/**
-	 * TODO: use getThesNames()
+	 * @see TableXML
 	 */
 	function prepare4XLS() {
 		$this->generateThes();
