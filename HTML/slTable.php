@@ -255,7 +255,7 @@ class slTable
 		$or = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
 
-		if (!$this->sortBy) {
+		if (!$this->sortBy && false !== $this->sortable) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {
