@@ -7,6 +7,8 @@
 class Metric
 {
 
+	protected $metricLog;
+
 	protected $save;
 
 	protected $thresholds = [
@@ -23,7 +25,8 @@ class Metric
 
 	public function __construct()
 	{
-//		$this->testPercentage();
+		$this->metricLog = getcwd() . '/metric.log';
+		//		$this->testPercentage();
 	}
 
 	public function render()
@@ -33,18 +36,24 @@ class Metric
 		$attr = $this->readAttrFromFile();
 		$props = $this->computeProportions($attr);
 
-		$last = $this->readLast($attr + $props);
+		$last = $this->readLast($attr + $props) ?: [];
 
 		$this->renderTable($attr + $props, $last);
 
 		if ($last) {
 			$p1 = $this->showTotalProgress($last);
-			echo 'Metric from prev. run: ', $p1, PHP_EOL;
+			echo 'Metric from prev. run:   ', $p1, PHP_EOL;
 		}
 		$p2 = $this->showTotalProgress($props);
-		echo 'Single quality metric: ', $p2, PHP_EOL;
+		echo 'Single quality metric:   ', $p2, PHP_EOL;
 		if ($last) {
-			echo 'Improvement: ', ($p1 - $p2), '%', PHP_EOL;
+			echo 'Improvement:             ', ($p1 - $p2), '%', PHP_EOL;
+		}
+		$first = $this->readFirst();
+		if ($first) {
+			$p0 = $this->showTotalProgress($first);
+			echo '                  Day 1: ', $p0, '%', PHP_EOL;
+			echo 'Improvement since day 1: ', ($p0 - $p2), '%', PHP_EOL;
 		}
 
 //		debug($last['generated'], $attr['generated']);
@@ -69,16 +78,32 @@ class Metric
 
 	protected function readLast(array $combined)
 	{
-		$logLines = file(getcwd() . '/metric.log');
-		$last = end($logLines);
-		if ($last) {
-			$last = json_decode($last, true);
+		$last = null;
+		if (is_file($this->metricLog)) {
+			$logLines = file($this->metricLog);
+			$last = end($logLines);
+			if ($last) {
+				$last = json_decode($last, true);
+			}
+			if ($last == $combined) {
+				$last = $logLines[sizeof($logLines) - 2];    // prev last
+				$last = json_decode($last, true);
+				$this->save = false;
+				echo 'Saving is disabled', PHP_EOL;
+			}
 		}
-		if ($last == $combined) {
-			$last = $logLines[sizeof($logLines)-2];	// prev last
-			$last = json_decode($last, true);
-			$this->save = false;
-			echo 'Saving is disabled', PHP_EOL;
+		return $last;
+	}
+
+	protected function readFirst()
+	{
+		$last = null;
+		if (is_file($this->metricLog)) {
+			$logLines = file(getcwd() . '/metric.log');
+			$last = current($logLines);
+			if ($last) {
+				$last = json_decode($last, true);
+			}
 		}
 		return $last;
 	}
@@ -105,7 +130,7 @@ class Metric
 			}
 			echo tabify([$name,
 						 $limits ? '['.$limits[0].'..'.$limits[2].']'
-							 : TAB.TAB,
+							 : TAB.TAB.TAB,
 						 $lastTime, $value, $warning]), PHP_EOL;
 		}
 	}
