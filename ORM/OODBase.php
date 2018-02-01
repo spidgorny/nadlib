@@ -175,7 +175,8 @@ abstract class OODBase {
 	}
 
 	function initByRow(array $row) {
-		$this->data = $row;
+		// to prevent $this->>update() to loose all fields calculated
+		$this->data = array_merge($this->data, $row);
 		$idField = $this->idField;
 
 		if (!is_array($idField)) {

@@ -106,15 +106,20 @@ class CollectionView {
 
 	function getDataTable() {
 		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
-		$s = new slTable($this->collection->getData()->getData(),
-			HTMLTag::renderAttr($this->tableMore));
+		$data = $this->collection->getData()->getData();
+		$s = new slTable($data, HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->collection->thes);
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 			$controller = $index->getController();
-			if ($sort = ifsetor($controller->sort)) {
+			$sort = ifsetor($controller->sort);
+//			debug($sort);
+			foreach ($data as $row) {
+//				pre_print_r(array_keys($row));
+			}
+			if ($sort) {
 				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));	// UGLY
 				//debug(Index::getInstance()->controller);
 				$s->sortLinkPrefix = new URL(NULL,
