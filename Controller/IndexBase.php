@@ -101,7 +101,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	protected $request;
 
-	public function __construct(Config $config) {
+	public function __construct(ConfigInterface $config) {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		$this->config = $config;
@@ -171,11 +171,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @param bool $createNew - must be false
-	 * @param Config|null $config
-	 *
+	 * @param ConfigInterface|null $config
 	 * @return Index|IndexBE
 	 */
-	static function getInstance($createNew = false, Config $config = null) {
+	static function getInstance($createNew = false, ConfigInterface $config = null) {
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
