@@ -90,7 +90,7 @@ abstract class OODBase {
 	 * @throws Exception
 	 */
 	function __construct($id = NULL) {
-		//debug(get_called_class(), __FUNCTION__, $id);
+//		debug(get_called_class(), __FUNCTION__, $id);
 		$this->guessDB($id);
 		//echo get_class($this).'::'.__FUNCTION__, ' ', gettype2($this->db), BR;
 		foreach ($this->thes as &$val) {
