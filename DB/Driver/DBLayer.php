@@ -4,9 +4,7 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class dbLayer extends dbLayerBase implements DBInterface {
-
-	var $RETURN_NULL = TRUE;
+class DBLayer extends DBLayerBase implements DBInterface {
 
     /**
      * @var resource
@@ -14,7 +12,6 @@ class dbLayer extends dbLayerBase implements DBInterface {
     public $connection = NULL;
 
 	var $LAST_PERFORM_RESULT;
-	var $LAST_PERFORM_QUERY;
 
     /**
      * todo: use setter & getter method
@@ -35,7 +32,7 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	/**
 	 * @var string
 	 */
-	var $lastQuery;
+	public $lastQuery;
 
 	/**
 	 * Transaction count because three are no nested transactions
@@ -480,12 +477,16 @@ class dbLayer extends dbLayerBase implements DBInterface {
 	 * @throws Exception
 	 */
 	function fetchAll($result, $key = NULL) {
+		$params = [];
 		if ($result instanceof SQLSelectQuery) {
-			$result = $result->getQuery();
+			/** @var SQLSelectQuery $queryObj */
+			$queryObj = $result;
+			$result = $queryObj->getQuery();
+			$params = $queryObj->getParameters();
 		}
 		if (is_string($result)) {
 			//debug($result);
-			$result = $this->perform($result);
+			$result = $this->perform($result, $params);
 		}
 		//debug($this->numRows($result));
 		$res = pg_fetch_all($result);

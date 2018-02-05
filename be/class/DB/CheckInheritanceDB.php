@@ -33,7 +33,7 @@ class CheckInheritanceDB extends AppController {
 			$row['class'] = $class;
 			if ($class) {
 				$rc = new ReflectionClass($class);
-				if ($class == 'dbLayerBase' || $rc->isSubclassOf('dbLayerBase')
+				if ($class == 'DBLayerBase' || $rc->isSubclassOf('DBLayerBase')
 				|| $class == 'SQLBuilder') {
 					$row['parent'] = $rc->getParentClass();
 					$this->basedOnBase[] = $class;
@@ -46,7 +46,7 @@ class CheckInheritanceDB extends AppController {
 	}
 
 	function getMethodOverview() {
-		$dbLayerBase = new ReflectionClass('dbLayerBase');
+		$dbLayerBase = new ReflectionClass('DBLayerBase');
 		$sqlBuilder = new ReflectionClass('SQLBuilder');
 
 		$table = array();
@@ -79,7 +79,7 @@ class CheckInheritanceDB extends AppController {
 		$s->sortable = true;
 		$s->sort();
 		$s->generateThes();
-		$s->thes['dbLayer']['more']['style'] = 'background: #AAAA00;';
+		$s->thes['DBLayer']['more']['style'] = 'background: #AAAA00;';
 		$content[] = $s;
 		return $content;
 	}

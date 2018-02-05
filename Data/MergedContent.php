@@ -146,7 +146,7 @@ class MergedContent implements ArrayAccess {
 
 	static function stringify(array $objects) {
 		foreach ($objects as &$element) {
-			$debug = '-= '.gettype2($element).' =-'.BR;
+			$debug = '-= ' . typ($element) . ' =-' . BR;
 			//echo $debug;
 			//$content .= $debug;
 			$element = is_object($element)

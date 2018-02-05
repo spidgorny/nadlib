@@ -13,7 +13,7 @@
  *
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
- * @mixin dbLayerBase
+ * @mixin DBLayerBase
  */
 class SQLBuilder {
 
@@ -235,12 +235,14 @@ class SQLBuilder {
 		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
 
+
 	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
 		$table1 = $this->getFirstWord($table);
 		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
-		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
-		$q .= $where->__toString();
-		$q .= "\n".$order;
+//		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
+//		$q .= $where->__toString();
+//		$q .= "\n".$order;
+		$q = SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 		return $q;
 	}
 
@@ -557,7 +559,7 @@ class SQLBuilder {
 				$f->setResult($query);
 			}
 			return $f;
-		} elseif ($this->db instanceof dbLayerPDO) {
+		} elseif ($this->db instanceof DBLayerPDO) {
 			$res = $this->db->perform($query);
 			return $res;
 		} elseif (is_string($query)) {
@@ -631,6 +633,37 @@ class SQLBuilder {
 			$row = $this->fetchAssoc($result);
 		}
 		return $data;
+	}
+
+	function getCount(SQLSelectQuery $query)
+	{
+		$queryWithoutOrder = clone $query;
+		$queryWithoutOrder->unsetOrder();
+
+		$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
+		$subQuery->setParameters($query->getParameters());
+		$query = new SQLSelectQuery(
+			new SQLSelect('count(*) AS count'),
+			$subQuery);
+		$query->injectDB($this->db);
+
+		$res = $query->fetchAssoc();
+		$count = $res['count'];
+		return $count;
+	}
+
+	function getReserved() {
+		if ($this->db instanceof DBLayerPDO) {
+			if ($this->db->isMySQL()) {
+				return (new MySQL())->getReserved();
+			} elseif ($this->db->isPostgres()) {
+				return (new DBLayer())->getReserved();
+			} else {
+				return [];
+			}
+		} else {
+			return [];
+		}
 	}
 
 }

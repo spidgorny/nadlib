@@ -154,7 +154,7 @@ class HTMLTag implements ArrayAccess {
 				$attributes = array();
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
 					/** @var  DOMNode    $attribute_node */
-					echo $attribute_name, ': ', gettype2($attribute_node), BR;
+					echo $attribute_name, ': ', typ($attribute_node), BR;
 					$attributes[$attribute_name] = $attribute_node->nodeValue;
 				}
 
@@ -245,11 +245,11 @@ class HTMLTag implements ArrayAccess {
 		return '#'.$hash;
 	}
 
-	static function a($href, $name) {
-		return new self('a', ['href' => $href], $name);
+	static function a($href, $name, array $more = []) {
+		return new self('a', ['href' => $href] + $more, $name);
 	}
 
-	static function img($src, $params = []) {
+	static function img($src, array $params = []) {
 		return new self('img', ['src' => $src] + $params);
 	}
 

@@ -4,7 +4,7 @@ class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc {
 
 	var $className;
 
-	function __construct(dbLayerBase $db, $className) {
+	function __construct(DBLayerBase $db, $className) {
 		parent::__construct($db);
 		$this->className = $className;
 	}

@@ -4,7 +4,7 @@
  * Class DBLayerLogger
  * @mixin SQLBuilder
  */
-class DBLayerLogger extends dbLayerBase implements DBInterface {
+class DBLayerLogger extends DBLayerBase implements DBInterface {
 
 	var $logger;
 

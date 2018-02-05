@@ -10,7 +10,7 @@ class SQLOr extends SQLWherePart {
 	protected $or = array();
 
 	/**
-	 * @var dbLayerPG|dbLayer
+	 * @var dbLayerPG|DBLayer
 	 */
 	protected $db;
 
@@ -32,7 +32,7 @@ class SQLOr extends SQLWherePart {
 		//debug(get_class($this->db));
 		if (false && $this->db instanceof dbLayerPG) {
 			$ors[] = $this->bijouStyle();
-		} elseif (false && $this->db instanceof dbLayer) {
+		} elseif (false && $this->db instanceof DBLayer) {
 			$ors[]  = $this->dciStyle();
 		} else {						// MySQL
 			$ors = $this->db->quoteWhere($this->or);

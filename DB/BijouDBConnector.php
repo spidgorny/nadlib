@@ -4,7 +4,7 @@
  * Class BijouDBConnector
  * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
  */
-class BijouDBConnector extends dbLayerBase implements DBInterface {
+class BijouDBConnector extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection

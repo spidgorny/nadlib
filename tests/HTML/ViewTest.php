@@ -8,6 +8,13 @@
  */
 class ViewTest extends PHPUnit_Framework_TestCase {
 
+	function test_render() {
+		$v = new View(__DIR__.'/ViewTemplate.phtml');
+		$v->content = 'asd';
+		$content = $v->render();
+		$this->assertContains('asd', $content);
+	}
+
 	function test_cleanComment() {
 		if (class_exists('HTMLPurifier_Config')) {
 			$v = new View('whatever');
@@ -17,6 +24,9 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	}
 
 	function test_extractScripts() {
+		if (!class_exists('AdvancedHtmlDom')) {
+			$this->markTestSkipped('AdvancedHtmlDom not installed');
+		}
 		$html = '<html><h1>bla</h1>
 <script>
 alert("xss");
