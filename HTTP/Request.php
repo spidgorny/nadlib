@@ -746,10 +746,14 @@ class Request {
 	}
 
 	/**
+	 * Should work from app root
+	 * When working from doc root it includes folders leading
+	 * to the app root, which breaks numbers when deployed to
+	 * a different server with a longer/shorter path.
 	 * @return array
 	 */
 	function getURLLevels() {
-		$path = $this->getPathAfterDocRoot();
+		$path = $this->getPathAfterAppRoot();
 //		debug($path);
 		//$path = $path->getURL();
 		//debug($path);
