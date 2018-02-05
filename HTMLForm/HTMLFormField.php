@@ -177,7 +177,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 	private function switchTypeRaw($type, $fieldValue, $fieldName) {
 		$desc = $this;
 		switch ($type) {
-			case "text":
 			case "string":
 				$this->form->text($fieldValue);
 				break;
@@ -226,9 +225,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 					$this->form->hidden($fieldName, 0);
 				}
 				$elementID = $this['elementID'];
-				$more = is_array(ifsetor($desc['more']))
-						? $desc['more'] + array('id' => $elementID)
-						: $desc['more'] . ' id="' . $elementID . '"';
+				$more = ifsetor($desc['more'], []) + array('id' => $elementID);
 				if (ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue == 't';
 				}
@@ -240,7 +237,9 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				break;
 			case "hidden":
 			case "hide":
-				$this->form->hidden($fieldName, $fieldValue, ($desc['id'] ? ' id="' . $desc['id'] . '"' : ''));
+				$this->form->hidden($fieldName, $fieldValue, $desc['id']
+					? ['id' => $desc['id']]
+					: []);
 				break;
 			case 'hiddenArray':
 				$name = is_array($fieldName) ? end($fieldName) : $fieldName;
@@ -289,13 +288,15 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				$this->form->captcha($fieldName, $fieldValue, $desc->getArray());
 				break;
 			case 'recaptcha':
-				$this->form->recaptcha($desc + array(
-					'name' => $this->form->getName($fieldName, '', TRUE)));
+				$this->form->recaptcha($desc->getArray() + [
+					'name' => $this->form->getName($fieldName, '', TRUE)
+					]);
 				break;
 			case 'recaptchaAjax':
 				$this->form->recaptchaAjax(
-						$desc->getArray() + array(
-								'name' => $this->form->getName($fieldName, '', TRUE)));
+						$desc->getArray() + [
+								'name' => $this->form->getName($fieldName, '', TRUE)
+						]);
 				break;
 			case 'datatable':
 				$this->form->datatable($fieldName, $fieldValue, $desc, FALSE, $doDiv = TRUE, 'htmlftable');
@@ -351,25 +352,34 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				$type = 'email';
 			//break;	// intentional
 			case "input":
+			case "text":
 			default:
 				$type = isset($type) ? $type : 'text';
 				//$this->text(htmlspecialchars($desc['more']));
 //				debug($desc);
-				$this->form->input($fieldName, $fieldValue,
-						(is_array(ifsetor($desc['more']))
-								? HTMLForm::getAttrHTML($desc['more'])
-								: '') .
-						(($desc['more'] && !is_array($desc['more']))
-								? $desc['more']
-								: '') .
-						($desc['id'] ? ' id="' . $desc['id'] . '"' : '') .
-						(isset($desc['size']) ? ' size="' . $desc['size'] . '"' : '') .
-						//					($desc['cursor'] ? " id='$elementID'" : "") .
-						(isset($desc['readonly']) ? ' readonly="readonly"' : '') .
-						(isset($desc['disabled']) ? ' disabled="1"' : '') .
-						($desc->isObligatory() ? ' required="1"' : '') .
-						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
-						, $type == 'input' ? 'text' : $type,
+				$more = ifsetor($desc['more']);
+				if (!is_array($more)) {
+					$more = HTMLTag::parseAttributes($more);
+				}
+				if (ifsetor($desc['id'])) {
+					$more['id'] = $desc['id'];
+				}
+				if (ifsetor($desc['size'])) {
+					$more['size'] = $desc['size'];
+				}
+				if (ifsetor($desc['readonly'])) {
+					$more['readonly'] = 'readonly';
+				}
+				if (ifsetor($desc['disabled'])) {
+					$more['disabled'] = 'disabled';
+				}
+				if ($desc->isObligatory()) {
+					$more['required'] = "required";
+				}
+				if (ifsetor($desc['autofocus'])) {
+					$more['autofocus'] = 'autofocus';
+				}
+				$this->form->input($fieldName, $fieldValue, $more, $type == 'input' ? 'text' : $type,
 					ifsetor($desc['class'],
 						is_array(ifsetor($desc['more']))
 							? ifsetor($desc['more']['class'])

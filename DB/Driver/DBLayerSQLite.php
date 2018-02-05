@@ -4,7 +4,7 @@
  * Class dbLayerSQLite
  * @mixin SQLBuilder
  */
-class dbLayerSQLite extends dbLayerBase implements DBInterface {
+class DBLayerSQLite extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var string

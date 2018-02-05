@@ -3,7 +3,7 @@
 class SQLTest extends PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var dbLayerBase|SQLBuilder
+	 * @var DBLayerBase|SQLBuilder
 	 */
 	var $db;
 

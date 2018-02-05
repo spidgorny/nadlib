@@ -345,7 +345,7 @@ class Debug
 		$content = [];
 		foreach ($debug as $i => $debugLine) {
 			if (ifsetor($debugLine['object'])) {
-				$object = gettype2($debugLine['object'], $withHash);
+				$object = typ($debugLine['object'], $withHash);
 			} else {
 				$object = '';
 			}
@@ -435,7 +435,7 @@ class Debug
 				if (is_scalar($a)) {
 					$val = $a;
 				}
-				return ['type' => gettype2($a).'', 'value' => $val];
+				return ['type' => typ($a) . '', 'value' => $val];
 			}, $row);
 			pre_print_r(array_combine(array_keys($row), $types));
 		}
@@ -458,7 +458,7 @@ class Debug
 			if (!ifsetor($recursive[$hash])) {
 				$sleep = method_exists($row, '__sleep')
 					? $row->__sleep() : null;
-				$recursive[$hash] = gettype2($row);    // before it's array
+				$recursive[$hash] = typ($row);    // before it's array
 				$row = get_object_vars($row);
 				if ($sleep) {
 					$sleep = array_combine($sleep, $sleep);
@@ -472,7 +472,7 @@ class Debug
 		if (is_array($row)) {
 			foreach ($row as $key => $el) {
 				echo str_repeat(' ', $spaces), $key, '->',
-				cap(gettype2($el), "\n");
+				cap(typ($el), "\n");
 				self::dumpStruct($el, $spaces + 4);
 			}
 		} else {
@@ -512,7 +512,7 @@ class Debug
 			if (!ifsetor($recursive[$hash])) {
 				$sleep = method_exists($struct, '__sleep1')
 					? $struct->__sleep() : null;
-				$recursive[$hash] = gettype2($struct);    // before it's array
+				$recursive[$hash] = typ($struct);    // before it's array
 				$struct = get_object_vars($struct);
 				if ($sleep) {
 					$sleep = array_combine($sleep, $sleep);
@@ -524,9 +524,9 @@ class Debug
 		if (is_array($struct)) {
 			foreach ($struct as $key => $el) {
 				$pathPlus1 = $path;
-				$pathPlus1[] = $key . '(' . gettype2($el) . ')';
+				$pathPlus1[] = $key . '(' . typ($el) . ')';
 				if ($el instanceof $type) {
-					echo implode('->', $pathPlus1), '->', gettype2($el), BR;
+					echo implode('->', $pathPlus1), '->', typ($el), BR;
 				}
 				self::findObject($el, $type, $pathPlus1);
 			}

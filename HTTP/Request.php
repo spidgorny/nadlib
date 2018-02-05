@@ -715,6 +715,7 @@ class Request {
 			$url->append($this->url->getPath());
 			$path = new Path($url);
 
+//			debug($al->documentRoot);
 			if (false) {    // doesn't work in ORS
 				$path->remove(clone $al->documentRoot);
 			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
@@ -749,6 +750,7 @@ class Request {
 	 */
 	function getURLLevels() {
 		$path = $this->getPathAfterDocRoot();
+//		debug($path);
 		//$path = $path->getURL();
 		//debug($path);
 		if (strlen($path) > 1) {	// "/"

@@ -4,7 +4,7 @@
  * Class dbLayerODBC
  * @mixin SQLBuilder
  */
-class dbLayerODBC extends dbLayerBase implements DBInterface {
+class DBLayerODBC extends DBLayerBase implements DBInterface {
 
 	/**
 	 * @var resource

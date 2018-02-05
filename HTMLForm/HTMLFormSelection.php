@@ -143,7 +143,7 @@ class HTMLFormSelection extends HTMLFormType {
 	 */
 	function fetchSelectionOptions(array $desc) {
 		if (ifsetor($desc['from']) && $desc['title']) {
-			/** @var dbLayerBase $db */
+			/** @var DBLayerBase $db */
 			$db = Config::getInstance()->getDB();
 			$options = $db->getTableOptions($desc['from'],
 				$desc['title'],

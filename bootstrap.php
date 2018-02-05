@@ -8,14 +8,15 @@ class Bootstrap {
 		}
 
 		require_once __DIR__ . '/init.php';
-		@define('BR', "\n");
+		@define('BR', Request::isWindows()
+			? "\r\n" : "\n");
 
 		// first in order to load phpunit classes
 		@define('DS', DIRECTORY_SEPARATOR);
 		$globalAutoload = getenv('USERPROFILE') . DS . 'AppData' . DS . 'Roaming' . DS . 'Composer' . DS . 'vendor' . DS . 'autoload.php';
 		echo $globalAutoload, BR;
-		/** @noinspection PhpIncludeInspection */
 		if (is_file($globalAutoload)) {
+			/** @noinspection PhpIncludeInspection */
 			include_once $globalAutoload;
 		}
 
@@ -27,12 +28,12 @@ class Bootstrap {
 
 		require_once __DIR__ . '/Base/InitNADLIB.php';
 		$n = new InitNADLIB();
-		$n->init();
+		//$n->init();
 
-		$al = AutoLoad::getInstance();
-		$al->addFolder(__DIR__);
+//		$al = AutoLoad::getInstance();
+//		$al->addFolder(__DIR__);
 
-		//$this->loadVendorAutoload();
+//		$this->loadVendorAutoload();
 
 		//debug(spl_autoload_functions());
 

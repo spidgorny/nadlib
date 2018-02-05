@@ -26,6 +26,7 @@ class LocalLangJsonPerController extends LocalLangJson {
 			$this->readDB();
 		}
 		$this->log(__METHOD__, $this->controller);
+		LocalLang::$instance = $this;
 	}
 
 	function setController($class) {

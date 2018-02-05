@@ -46,6 +46,11 @@ class InitNADLIB {
 			|| getenv('NADLIB');
 	}
 
+	function disableAutoload() {
+		$this->al = null;
+		return $this;
+	}
+
 	function init() {
 		//print_r($_SERVER);
 		$this->setDefaults();
@@ -55,6 +60,7 @@ class InitNADLIB {
 			$this->al->useCookies = $this->useCookies;
 			$this->al->postInit();
 			$this->al->register();
+			//debug($this->al->folders);
 		}
 
 		// leads to problems when there are multiple Config classes
@@ -65,10 +71,8 @@ class InitNADLIB {
 		$this->setCache();
 		//ini_set('short_open_tag', 1);	// not working
 		Request::removeCookiesFromRequest();
-
-//		$this->setupComposer();
-
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
+		return $this;
 	}
 
 	/**
@@ -95,7 +99,7 @@ class InitNADLIB {
 		if (!defined('DEVELOPMENT')) {
 			if (Request::isCLI()) {
 				define('DEVELOPMENT', $this->development);
-				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
+				//echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {
 				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
 			}
