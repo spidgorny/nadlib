@@ -448,6 +448,12 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		return $this->perform("rollback");
 	}
 
+	/**
+	 * @param $value
+	 * @param null $key
+	 * @return string
+	 * @throws MustBeStringException
+	 */
 	function quoteSQL($value, $key = NULL) {
 		if ($value === NULL) {
 			return "NULL";
@@ -627,6 +633,12 @@ order by a.attnum';
 		return pg_escape_string($str);
 	}
 
+	/**
+	 * @param $method
+	 * @param array $params
+	 * @return mixed
+	 * @throws Exception
+	 */
 	function __call($method, array $params) {
 		if (method_exists($this->getQb(), $method)) {
 			return call_user_func_array(array($this->getQb(), $method), $params);

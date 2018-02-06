@@ -71,6 +71,23 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this->column($key);
 	}
 
+	function pick($key) {
+		return $this->getMap(function ($el) use ($key) {
+//			debug($el, $key);
+			return $el->$key;
+		});
+	}
+
+	function pickAssoc($name, $key = 'id') {
+		$keys = $this->getMap(function ($el) use ($key) {
+			return $el->$key;
+		});
+		$names = $this->getMap(function ($el) use ($name) {
+			return $el->$name;
+		});
+		return array_combine($keys, $names);
+	}
+
 	function column_assoc($key, $val) {
 		$data = array();
 		foreach ((array)$this as $row) {
@@ -218,6 +235,14 @@ class ArrayPlus extends ArrayObject implements Countable {
 	public function map($callback) {
 		$this->setData(array_map($callback, $this->getData()));
 		return $this;
+	}
+
+	/**
+	 * @param $callback
+	 * @return array
+	 */
+	public function getMap($callback) {
+		return array_map($callback, $this->getData());
 	}
 
 	/**
