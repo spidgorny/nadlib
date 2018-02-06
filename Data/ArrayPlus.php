@@ -97,11 +97,32 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
+	/**
+	 * Use to filter input array to keep some data that fits the DB schema
+	 * @param array $keep
+	 * @return $this
+	 */
 	function keepColumns(array $keep) {
 		$data = array();
 		foreach ((array)$this as $i => $row) {
 			$row = array_intersect_key($row, array_combine($keep, $keep));
 			$data[$i] = $row;
+		}
+		$this->setData($data);
+		return $this;
+	}
+
+	/**
+	 * Use to filter a set of data into a different set of keys
+	 * @param array $keep ['new' => 'existing'] it's reversed, keys are what you want to have
+	 * @return $this
+	 */
+	function remap(array $keep) {
+		$data = array();
+		foreach ($keep as $i => $row) {
+			if (isset($this[$row])) {	// don't make empty SQL UPDATE SET a = NULL
+				$data[$i] = $this[$row];
+			}
 		}
 		$this->setData($data);
 		return $this;
