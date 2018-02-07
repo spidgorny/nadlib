@@ -703,6 +703,11 @@ order by a.attnum';
 		return $source;
 	}
 
+	/**
+	 * @param $table
+	 * @return array
+	 * @throws Exception
+	 */
 	function getIndexesFrom($table) {
 		return $this->fetchAll('select *, pg_get_indexdef(indexrelid)
 		from pg_index
@@ -773,6 +778,13 @@ WHERE ccu.table_name='".$table."'");
 		return true;
 	}
 
+	/**
+	 * @param $table
+	 * @param array $columns
+	 * @return string
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
 	function getReplaceQuery($table, array $columns) {
 		if ($this->getVersion() < 9.5) {
 			throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
@@ -790,6 +802,8 @@ WHERE ccu.table_name='".$table."'");
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @param array $primaryKeys ['id', 'id_profile']
 	 * @return string
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	function runReplaceQuery($table, array $columns, array $primaryKeys = []) {
 //		debug($table, $columns, $primaryKeys, $this->getVersion(), $this->getVersion() >= 9.5);

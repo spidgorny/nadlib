@@ -263,13 +263,43 @@ class DBLayerBase implements DBInterface {
 		return $c;
 	}
 
+	/**
+	 * @param $table
+	 * @return TableField[]
+	 * @throws Exception
+	 */
 	function getTableFields($table)
 	{
 		$fields = $this->getTableColumnsEx($table);
-		foreach ($fields as &$set) {
-			$set = TableField::init($set);
+		foreach ($fields as $field => &$set) {
+			$set = TableField::init($set + ['pg_field' => $field]);
 		}
 		return $fields;
+	}
+
+	/**
+	 * @param $table
+	 * @param array $set
+	 * @return array
+	 * @throws Exception
+	 */
+	public function fixDataTypes($table, array $set)
+	{
+		$tableDesc = $this->getTableFields($table);
+		foreach ($set as $key => &$val) {
+			/** @var TableField $desc */
+			$desc = ifsetor($tableDesc[$key]);
+			if ($desc && $desc->isBoolean()) {
+//				debug($desc);
+				$val = boolval($val);
+			} elseif ($desc && $desc->isInt()) {
+//				debug($desc);
+				$val = intval($val);
+			} elseif ($desc && $desc->isNull() && !$val) {
+				$val = null;
+			}
+		}
+		return $set;
 	}
 
 }
