@@ -80,11 +80,27 @@ class TableField {
 		return $self;
 	}
 
+	/**
+	 * array(8) {
+	'num'  =>  int(15)
+	'type'  =>  string(4) "int4"
+	'len'  =>  int(4)
+	'not null'  =>  bool(false)
+	'has default'  =>  bool(false)
+	'array dims'  =>  int(0)
+	'is enum'  =>  bool(false)
+	'pg_field'  =>  string(12) "id_publisher"
+	 * @param array $desc
+	 * @return TableField
+	 */
 	static function initPostgreSQL(array $desc)
 	{
 		$self = new self();
-		$self->field = $desc[''];
-		debug($desc);
+		$self->field = $desc['pg_field'];
+		$self->type = $desc['type'];
+		$self->isNull = !$desc['not null'];
+		$self->default = $desc['has default'] ? null : null;
+		$self->extra = $desc;
 		return $self;
 	}
 
@@ -104,6 +120,39 @@ class TableField {
 		$copy['default'] = $copy['default'] ? 'DEFAULT [' . $copy['default'] . ']' : '';
 		$copy['extra'] = implode(' ', $copy['extra']);
 		return implode(' ', $copy);
+	}
+
+	function isBoolean()
+	{
+		return in_array($this->type, ['bool', 'boolean', 'binary(1)']);
+	}
+
+	function isNull()
+	{
+		return $this->isNull;
+	}
+
+	public function isInt()
+	{
+		return in_array($this->type, [
+			'int', 'integer', 'INTEGER',
+			'int(4)', 'int4', 'int(11)',
+			'tinyint(1)', 'tinyint(4)']);
+	}
+
+	function isText()
+	{
+		return in_array($this->type, ['text', 'varchar(255)', 'tinytext']);
+	}
+
+	function isTime()
+	{
+		return in_array($this->type, ['numeric', 'timestamp', 'datetime']);
+	}
+
+	function isFloat()
+	{
+		return in_array($this->type, ['real', 'double', 'float']);
 	}
 
 }
