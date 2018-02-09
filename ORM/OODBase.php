@@ -541,6 +541,7 @@ abstract class OODBase {
 	 * Caching
 	 * @param $id
 	 * @return mixed
+	 * @throws Exception
 	 */
 	static function getInstanceCached($id) {
 		if (true) {
@@ -566,6 +567,7 @@ abstract class OODBase {
 	/**
 	 * @param $id
 	 * @return self|$this|static
+	 * @throws Exception
 	 */
 	static function getInstance($id) {
 		return static::getInstanceByID($id);
@@ -573,8 +575,9 @@ abstract class OODBase {
 
 	/**
 	 * // TODO: initialization by array should search in $instances as well
-	 * @param $id|array int
+	 * @param $id |array int
 	 * @return $this
+	 * @throws Exception
 	 */
 	public static function getInstanceByID($id) {
 		$static = get_called_class();
