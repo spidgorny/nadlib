@@ -263,21 +263,26 @@ class Debug {
 		$curFunc = ifsetor($next['function']);
 		$nextFunc = ifsetor($first['function']);
 		$line = ifsetor($first['line']);
+		$file = ifsetor($first['file']);
+		$path = basename(dirname(dirname($file))).
+			'/'.basename(dirname($file)).
+			'/'.basename($file);
 		if (isset($first['object']) && $first['object']) {
-			$function = get_class($first['object']).
-				'->'.$curFunc.
-				'#'.$line.
-				'->'.$nextFunc;
+			$function = $path.
+				':'.$line.
+				get_class($first['object']).
+				' -> '.$curFunc.
+				' -> '.$nextFunc;
 		} elseif (ifsetor($first['class'])) {
-			$function = $first['class'].
-				'->'.$curFunc.
-				'#'.$line.
-				'->'.$nextFunc;
+			$function = $path.
+				':'.$line.
+				$first['class'].
+				' -> '.$curFunc.
+				' -> '.$nextFunc;
 		} else {
-			$file = ifsetor($first['file']);
-			$function = basename(dirname($file)).'/'.basename($file).
-				'#'.$line.
-				'->'.$nextFunc;
+			$function = $path.
+				':'.$line.
+				' -> '.$nextFunc;
 		}
 		return $function;
 	}
