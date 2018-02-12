@@ -183,7 +183,7 @@ class Request {
 		$id = $this->getIntOrNULL($name);
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
 			debug($id, array_keys($assoc));
-			throw new Exception($name . ' is not part of allowed collection.');
+			throw new InvalidArgumentException($name . ' is not part of allowed collection.');
 		}
 		return $id;
 	}
@@ -192,7 +192,7 @@ class Request {
 	{
 		$id = $this->getIntOrNULL($name);
 		if (!$id) {
-			throw new Exception($name . ' parameter is required.');
+			throw new InvalidArgumentException($name . ' parameter is required.');
 		}
 		return $id;
 	}
@@ -1349,6 +1349,15 @@ class Request {
 		return $this->getNamelessID()
 			?: $this->getInt('id')
 				?: $this->getNameless($last);
+	}
+
+	public function getIDrequired()
+	{
+		$value = $this->getID();
+		if (!$value) {
+			throw new InvalidArgumentException('ID is required.');
+		}
+		return $value;
 	}
 
 	public function getHidden(array $limit = [])
