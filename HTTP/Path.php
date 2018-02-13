@@ -489,6 +489,7 @@ class Path {
 	function normalize()
 	{
 		$this->__construct($this->getNormalized());
+		return $this;
 	}
 
 	function getFiles()
