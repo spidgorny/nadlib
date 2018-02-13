@@ -477,6 +477,13 @@ class Path {
 		debug($debug);
 	}
 
+	function realPath()
+	{
+		$this->sPath = realpath($this->sPath);
+		$this->explode();
+		return $this;
+	}
+
 	public function normalizeHomePage() {
 		//debug(__METHOD__, $this->sPath, $this->aPath);
 		$this->resolveLinks();		// important to avoid differences

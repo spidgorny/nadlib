@@ -86,7 +86,7 @@ abstract class OODBase {
 	 *
 	 * @param integer|array|SQLWhere $id - can be ID in the database or the whole records
 	 * as associative array
-	 * @return OODBase
+	 * @throws Exception
 	 */
 	function __construct($id = NULL) {
 		//debug(get_called_class(), __FUNCTION__, $id);

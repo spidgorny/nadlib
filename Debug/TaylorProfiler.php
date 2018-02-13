@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  * \********************************************************************************/
+
 /// Enable multiple timers to aid profiling of performance over sections of code
 
-class TaylorProfiler
-{
+class TaylorProfiler {
 	var $description;
 	var $description2;
 	var $startTime;
@@ -93,9 +93,9 @@ class TaylorProfiler
 		$name = $name ? $name : $this->getName();
 		if ($this->trace_enabled) {
 			$this->trace[] = [
-				'time'     => time(),
+				'time' => time(),
 				'function' => $name . " {",
-				'memory'   => memory_get_usage(),
+				'memory' => memory_get_usage(),
 			];
 		}
 		if ($this->output_enabled) {
@@ -230,12 +230,12 @@ class TaylorProfiler
 			$perc = ($missed / $oaTime) * 100;
 			$tot_perc += $perc;
 			$together['Missed between the calls'] = [
-				'desc'  => 'Missed between the calls (' . $oaTime . '-' . $TimedTotal . '[' . sizeof($together) . '])',
-				'bold'  => true,
-				'time'  => number_format($missed, 2, '.', ''),
+				'desc' => 'Missed between the calls (' . $oaTime . '-' . $TimedTotal . '[' . sizeof($together) . '])',
+				'bold' => true,
+				'time' => number_format($missed, 2, '.', ''),
 				'total' => number_format($missed, 2, '.', ''),
 				'count' => 0,
-				'perc'  => number_format($perc, 2, '.', ''),
+				'perc' => number_format($perc, 2, '.', ''),
 			];
 
 			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
@@ -244,12 +244,12 @@ class TaylorProfiler
 					: $_SERVER['REQUEST_TIME'];
 				$startup = $this->initTime - $requestTime;
 				$together['Startup'] = [
-					'desc'  => 'Startup (REQUEST_TIME_FLOAT) (' . $this->initTime . '-' . $requestTime . ')',
-					'bold'  => true,
-					'time'  => number_format($startup, 2, '.', ''),
+					'desc' => 'Startup (REQUEST_TIME_FLOAT) (' . $this->initTime . '-' . $requestTime . ')',
+					'bold' => true,
+					'time' => number_format($startup, 2, '.', ''),
 					'total' => number_format($startup, 2, '.', ''),
 					'count' => 1,
-					'perc'  => number_format($startup / $oaTime * 100, 2, '.', ''),
+					'perc' => number_format($startup / $oaTime * 100, 2, '.', ''),
 				];
 			}
 
@@ -270,54 +270,54 @@ class TaylorProfiler
 				}
 				$desc = $this->description2[$key] ? $this->description2[$key] : $desc;
 				$table[] = [
-					'nr'       => ++$i,
-					'count'    => $row['count'],
+					'nr' => ++$i,
+					'count' => $row['count'],
 					'time, ms' => number_format($total * 1000, 2, '.', '') . '',
-					'avg/1'    => number_format(ifsetor($row['avg']), 2, '.', '') . '',
-					'percent'  => is_numeric($perc)
+					'avg/1' => number_format(ifsetor($row['avg']), 2, '.', '') . '',
+					'percent' => is_numeric($perc)
 						? number_format($perc, 2, '.', '') . '%'
 						: $perc,
-					'bar'      => is_numeric($perc)
+					'bar' => is_numeric($perc)
 						? ProgressBar::getImage($perc)
 						: null,
-					'routine'  => '<span title="' . htmlspecialchars($desc) . '">' . $htmlKey . '</span>',
+					'routine' => '<span title="' . htmlspecialchars($desc) . '">' . $htmlKey . '</span>',
 				];
 			}
 
 			$s = new slTable($table, 'class="nospacing no-print table" width="100%"');
 			$s->thes([
-				'nr'       => 'nr',
-				'count'    => [
-					'name'  => 'count',
+				'nr' => 'nr',
+				'count' => [
+					'name' => 'count',
 					'align' => 'right',
 				],
 				'time, ms' => [
-					'name'  => 'time, ms',
+					'name' => 'time, ms',
 					'align' => 'right',
 				],
-				'avg/1'    => [
-					'name'  => 'avg/1',
+				'avg/1' => [
+					'name' => 'avg/1',
 					'align' => 'right',
 				],
-				'percent'  => [
-					'name'  => 'percent',
+				'percent' => [
+					'name' => 'percent',
 					'align' => 'right',
 				],
-				'bar'      => [
+				'bar' => [
 					'no_hsc' => true,
 				],
-				'routine'  => [
-					'name'   => 'routine',
+				'routine' => [
+					'name' => 'routine',
 					'no_hsc' => true,
-					'wrap'   => new Wrap('<small>|</small>'),
+					'wrap' => new Wrap('<small>|</small>'),
 				],
 			]);
 			$s->isOddEven = true;
 			$s->footer = [
-				'nr'       => 'total',
+				'nr' => 'total',
 				'time, ms' => number_format($oaTime * 1000, 2, '.', ''),
-				'percent'  => number_format($tot_perc, 2, '.', '') . '%',
-				'routine'  => "OVERALL TIME (" . number_format(memory_get_peak_usage() / 1024 / 1024, 3, '.', '') . "MB)",
+				'percent' => number_format($tot_perc, 2, '.', '') . '%',
+				'routine' => "OVERALL TIME (" . number_format(memory_get_peak_usage() / 1024 / 1024, 3, '.', '') . "MB)",
 			];
 			$content = Request::isCLI()
 				? $s->getCLITable(true)
@@ -526,12 +526,19 @@ class TaylorProfiler
 	 */
 	public static function getInstance($output_enabled = false, $trace_enabled = false)
 	{
-		return ifsetor($GLOBALS['profiler']) instanceof self
-			? $GLOBALS['profiler']
-			: (
-			self::$instance
-				?: self::$instance = new self($output_enabled, $trace_enabled)
-			);
+		$profiler = ifsetor($GLOBALS['profiler']);
+		if ($profiler instanceof self) {
+			return $profiler;
+		} else {
+			return self::$instance
+				?: null;
+		}
+	}
+
+	static function make()
+	{
+		return self::$instance =
+			new self(true, false);
 	}
 
 	static function dumpQueries()

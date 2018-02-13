@@ -728,11 +728,13 @@ class Request {
 	function getPathAfterAppRoot() {
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot();
+		$appRoot->realPath();
 		$docRoot = $al->documentRoot;
+		$docRoot->realPath();
 
 		$pathWithoutDocRoot = clone $appRoot;
 		$pathWithoutDocRoot->remove($docRoot);
-		//d($pathWithoutDocRoot.'');
+//		d($pathWithoutDocRoot.'');
 
 		$path = clone $this->url->getPath();
 		$path->remove($pathWithoutDocRoot);
