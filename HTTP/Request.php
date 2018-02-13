@@ -48,12 +48,12 @@ class Request {
 
 	static function getInstance($cons = NULL)
 	{
-		return self::$instance = self::$instance ? self::$instance : new self($cons);
+		return static::$instance = static::$instance ? static::$instance : new static($cons);
 	}
 
 	static function getExistingInstance()
 	{
-		return self::$instance;
+		return static::$instance;
 	}
 
 	public static function isPHPUnit()
@@ -773,8 +773,9 @@ class Request {
 
 			$path = new Path($url);
 			$path->remove($cwd);
+			$path->normalize();
 
-			//debug($url.'', $cwd.'', $path.'');
+//			debug($url.'', $cwd.'', $path.'');
 		} else {    // windows
 			$cwd = NULL;
 			$url = new Path('');
@@ -811,6 +812,16 @@ class Request {
 		$path->normalize();
 
 		return $path;
+	}
+
+	public function setPath($path)
+	{
+		$this->url->setPath($path);
+	}
+
+	public function setBasename($path)
+	{
+		$this->url->setBasename($path);
 	}
 
 	/**
