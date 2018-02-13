@@ -527,6 +527,7 @@ class Path {
 	{
 		$this->sPath = realpath($this->sPath);
 		$this->explode();
+		return $this;
 	}
 
 	public function normalizeHomePage()
