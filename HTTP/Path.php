@@ -286,7 +286,7 @@ class Path {
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' . implode('/', array_slice($this->aPath, 0, $i));
 //			debug($assembled, is_link($assembled));
-			if (is_link($assembled)) {
+			if (@is_link($assembled)) {
 				$this->sPath = readlink($assembled);
 				$this->explode();
 				$this->resolveLinks();
@@ -523,8 +523,15 @@ class Path {
 		debug($debug);
 	}
 
+	function realPath()
+	{
+		$this->sPath = realpath($this->sPath);
+		$this->explode();
+	}
+
 	public function normalizeHomePage()
 	{
+		$this->realPath();
 		//debug(__METHOD__, $this->sPath, $this->aPath);
 		$this->resolveLinks();        // important to avoid differences
 		foreach ($this->aPath as $i => $el) {

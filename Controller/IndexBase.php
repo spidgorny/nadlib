@@ -113,7 +113,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		$this->ll = $this->config->getLL();
 
-		$this->request = Request::getInstance();
+		$this->request = $this->config->getRequest();
 		//debug('session_start');
 
 		$this->content = new nadlib\HTML\Messages();
@@ -186,6 +186,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $instance;
+	}
+
+	public static function makeInstance(Config $config = null)
+	{
+		return static::getInstance(true, $config);
 	}
 
 	/**
