@@ -7,7 +7,7 @@ class AppRootDetector {
 	 */
 	protected $appRoot;
 
-	var $debug = true;
+	var $debug = false;
 
 	public $nadlibRoot = 'vendor/spidgorny/nadlib/';
 
