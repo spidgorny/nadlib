@@ -492,15 +492,15 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInTableHTML3(array $cells, array $more = array())
+	function encloseInTableHTML3(array $cells, array $more = array(), array $colMore = [])
 	{
 		if (!$more) {
 			$more['class'] = "encloseInTable";
 		}
 		$content[] = '<table ' . HTMLTag::renderAttr($more) . '>';
 		$content[] = '<tr>';
-		foreach ($cells as $info) {
-			$content[] = '<td valign="top">';
+		foreach ($cells as $i => $info) {
+			$content[] = '<td valign="top" '.HTMLTag::renderAttr(ifsetor($colMore[$i], [])).'>';
 			$content[] = $this->s($info);
 			$content[] = '</td>';
 		}
