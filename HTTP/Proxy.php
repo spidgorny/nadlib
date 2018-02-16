@@ -3,7 +3,7 @@
 namespace nadlib;
 
 
-class Proxy extends OODBase {
+class Proxy extends \OODBase {
 
 	public $table = 'proxy';
 
@@ -31,9 +31,9 @@ class Proxy extends OODBase {
 
 	static function getRandomOrBest($percentRandom = 50) {
 		$proxy = NULL;
-		$db = Config::getInstance()->getDB();
+		$db = \Config::getInstance()->getDB();
 		/** @var AppController $c */
-		$c = Index::getInstance()->controller;
+		$c = \Index::getInstance()->controller;
 		if (rand(0, 100) < $percentRandom) { // 25%
 			$row = $db->fetchSelectQuery('proxy', array('fail' => new AsIs('< ').self::$maxFail),
 				'ORDER BY rand() LIMIT 1');
@@ -67,9 +67,9 @@ class Proxy extends OODBase {
 
 	static function getBest($limit = 100) {
 		if (!self::$best) {
-			$db = Config::getInstance()->getDB();
+			$db = \Config::getInstance()->getDB();
 			$rows = $db->fetchSelectQuery('proxy', array(
-					'fail' => new AsIsOp('< ' . self::$maxFailBest),
+					'fail' => new \AsIsOp('< ' . self::$maxFailBest),
 					//'ok' => new AsIs('> 0'),
 				), '
 			/*ORDER BY ok DESC, fail ASC*/
@@ -85,7 +85,7 @@ class Proxy extends OODBase {
 	 * @return array(342571/359601)
 	 */
 	static function getProxies() {
-		$db = Config::getInstance()->getDB();
+		$db = \Config::getInstance()->getDB();
 		$row = $db->fetchSelectQuery('proxy', array(), '', 'count(*)');	// total
 		$p = new Proxy();
 		$okProxy = $p->getOKcount();
@@ -94,7 +94,7 @@ class Proxy extends OODBase {
 
 	function getOKcount() {
 		$rowOK = $this->db->fetchSelectQuery('proxy', array(
-			'fail' => new AsIsOp('< '.self::$maxFail)
+			'fail' => new \AsIsOp('< '.self::$maxFail)
 		), '', 'count(*)');
 		return $rowOK[0]['count(*)'];
 	}
