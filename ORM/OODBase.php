@@ -192,7 +192,7 @@ abstract class OODBase {
 			foreach ($idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
-			//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
+		//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
 		} elseif (isset($this->data[$idField])
 			&& $this->data[$idField]) {
 			$this->id = $this->data[$idField];
@@ -346,7 +346,6 @@ abstract class OODBase {
 	/**
 	 * Retrieves a record from the DB and calls $this->init()
 	 * But it's rarely called directly.
-	 *
 	 * @param array $where
 	 * @param string $orderByLimit
 	 *
@@ -379,6 +378,31 @@ abstract class OODBase {
 		}
 		TaylorProfiler::stop($taylorKey);
 		return $data;
+	}
+
+	/**
+	 * Still searches in DB with findInDB, but makes a new object for you
+	 *
+	 * @param array $where
+	 * @param null $static
+	 * @return mixed
+	 * @throws Exception
+	 */
+	static function findInstance(array $where, $static = NULL) {
+		if (!$static) {
+			if (function_exists('get_called_class')) {
+				$static = get_called_class();
+			} else {
+				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
+			}
+		}
+		/** @var static $obj */
+		$obj = new $static();
+		$obj->findInDB($where);
+		if ($obj->id) {
+			self::$instances[$static][$obj->id] = $obj;
+		}
+		return $obj;
 	}
 
 	/**
