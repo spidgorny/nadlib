@@ -48,6 +48,7 @@ class PGArray extends AsIs {
 	 * New better syntax for using it in SQL which does not
 	 * require tripple escaping of backslashes
 	 * @return string
+	 * @throws MustBeStringException
 	 */
 	function __toString() {
 		$quoted = $this->db->quoteValues($this->data);
@@ -61,8 +62,8 @@ class PGArray extends AsIs {
 	/**
 	 * http://www.php.net/manual/en/ref.pgsql.php#57709
 	 *
-	 * @param unknown_type $pgArray
-	 * @return unknown
+	 * @param string $pgArray
+	 * @return array
 	 */
 	function PGArrayToPHPArray($pgArray) {
 		$ret = array();

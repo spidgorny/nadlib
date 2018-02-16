@@ -113,7 +113,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		$this->ll = $this->config->getLL();
 
-		$this->request = Request::getInstance();
+		$this->request = $this->config->getRequest();
 		//debug('session_start');
 
 		$this->content = new nadlib\HTML\Messages();
@@ -188,6 +188,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $instance;
 	}
 
+	public static function makeInstance(Config $config = null)
+	{
+		return static::getInstance(true, $config);
+	}
+
 	/**
 	 * Called by index.php explicitly,
 	 * therefore processes exceptions.
@@ -200,6 +205,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$this->controller instanceof Controller) {
 			$slug = $this->request->getControllerString();
 			if ($slug) {
+				if ($_REQUEST['d']) $this->log(__METHOD__, $slug);
 				$this->loadController($slug);
 				$this->bodyClasses[] = get_class($this->controller);
 			} else {
@@ -218,7 +224,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	protected function loadController($class) {
 		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
-		$class = end($slugParts);	// again, because __autoload need the full path
+		$class = end($slugParts);	// again, because __autoload needs the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->makeController($class);

@@ -1,5 +1,11 @@
 <?php
 
+namespace nadlib\Controller;
+
+
+use ArrayIterator;
+use ArrayObject;
+
 class Filter extends ArrayObject {
 
 	protected $_set = [];
