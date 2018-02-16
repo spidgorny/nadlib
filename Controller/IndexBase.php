@@ -200,6 +200,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$this->controller instanceof Controller) {
 			$slug = $this->request->getControllerString();
 			if ($slug) {
+				if ($_REQUEST['d']) $this->log(__METHOD__, $slug);
 				$this->loadController($slug);
 				$this->bodyClasses[] = get_class($this->controller);
 			} else {
@@ -218,7 +219,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	protected function loadController($class) {
 		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
-		$class = end($slugParts);	// again, because __autoload need the full path
+		$class = end($slugParts);	// again, because __autoload needs the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->makeController($class);
