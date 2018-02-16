@@ -208,10 +208,11 @@ abstract class OODBase {
 		if ($this->logger) {
 			$this->logger->info($action, $data);
 		} else {
+			// TODO: remove this completely?
 			if (class_exists('Index')) {
 				$index = Index::getInstance();
 				if ($index) {
-					$index->log($action, $data);
+//					$index->log($action, $data);
 				}
 			}
 		}
