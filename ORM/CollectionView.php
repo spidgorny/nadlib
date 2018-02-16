@@ -111,7 +111,7 @@ class CollectionView {
 		$s->thes($this->collection->thes);
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
-		if (class_exists('Index')) {
+		if (class_exists('Index') && Index::getInstance()) {
 			$index = Index::getInstance();
 			$controller = $index->getController();
 			if ($sort = ifsetor($controller->sort)) {
