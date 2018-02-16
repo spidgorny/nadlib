@@ -229,6 +229,7 @@ class Debug
 
 	function canHTML()
 	{
+//		pre_print_r(__METHOD__, $_COOKIE);
 		return ifsetor($_COOKIE['debug']);
 	}
 

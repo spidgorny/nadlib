@@ -19,8 +19,9 @@ abstract class FullGrid extends Grid {
 			$this->saveFilterAndSort(/*$collection ?: */get_class($this));
 		}
 
-		if (!($this->filter instanceof Filter)) {
-			$this->filter = new Filter($this->filter);
+		if (!($this->filter instanceof nadlib\Controller\Filter)) {
+//			debug($this->filter);
+			$this->filter = new nadlib\Controller\Filter($this->filter);
 //			debug(gettype2($this->filter));
 		}
 
