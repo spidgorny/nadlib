@@ -101,7 +101,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 */
 	protected $request;
 
-	public function __construct(Config $config) {
+	public function __construct(ConfigInterface $config) {
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		$this->config = $config;
@@ -113,7 +113,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 		$this->ll = $this->config->getLL();
 
-		$this->request = Request::getInstance();
+		$this->request = $this->config->getRequest();
 		//debug('session_start');
 
 		$this->content = new nadlib\HTML\Messages();
@@ -171,11 +171,10 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 
 	/**
 	 * @param bool $createNew - must be false
-	 * @param Config|null $config
-	 *
+	 * @param ConfigInterface|null $config
 	 * @return Index|IndexBE
 	 */
-	static function getInstance($createNew = false, Config $config = null) {
+	static function getInstance($createNew = false, ConfigInterface $config = null) {
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
@@ -187,6 +186,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $instance;
+	}
+
+	public static function makeInstance(Config $config = null)
+	{
+		return static::getInstance(true, $config);
 	}
 
 	/**
@@ -201,6 +205,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		if (!$this->controller instanceof Controller) {
 			$slug = $this->request->getControllerString();
 			if ($slug) {
+				if ($_REQUEST['d']) $this->log(__METHOD__, $slug);
 				$this->loadController($slug);
 				$this->bodyClasses[] = get_class($this->controller);
 			} else {
@@ -219,7 +224,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	protected function loadController($class) {
 		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
-		$class = end($slugParts);	// again, because __autoload need the full path
+		$class = end($slugParts);	// again, because __autoload needs the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->makeController($class);

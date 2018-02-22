@@ -34,6 +34,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface {
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
+			debug(typ($this->qb));
 			throw new Exception($method . ' not found in dbPlacebo and SQLBuilder');
 		}
 	}
@@ -65,7 +66,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface {
 
 	function quoteKey($key)
 	{
-		// TODO: Implement quoteKey() method.
+		return $key;
 	}
 
 	function escape($string)
@@ -121,6 +122,11 @@ class DBPlacebo extends DBLayerBase implements DBInterface {
 	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
 	{
 		return array();
+	}
+
+	function getPlaceholder()
+	{
+		return '?';
 	}
 
 }

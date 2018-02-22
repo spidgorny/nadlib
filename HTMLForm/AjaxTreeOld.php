@@ -86,11 +86,11 @@ class AjaxTreeOld extends HTMLFormType {
 		} else {
 			$fieldName .= '_name';
 		}
-		$this->form->input($fieldName, $desc['valueName'],
-			'style="width: '.$desc['size'].'"
-			readonly
-			id="'.$desc['selectID'].'_name" '.
-			$desc['more']);
+		$this->form->input($fieldName, $desc['valueName'], [
+			'style' => 'width: '.$desc['size'],
+			'readonly' => 'readonly',
+			'id' => $desc['selectID'].'_name'
+			] + $desc['more']);
 		$this->form->text('</td><td>');
 		$this->form->text($this->getOpenButton());
 		$this->form->text('</nobr>');

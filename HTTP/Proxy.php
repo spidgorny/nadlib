@@ -1,7 +1,12 @@
 <?php
 
+namespace nadlib;
+
+
 class Proxy extends OODBase {
+
 	public $table = 'proxy';
+
 	protected $titleColumn = 'proxy';
 
 	static $best = array();
