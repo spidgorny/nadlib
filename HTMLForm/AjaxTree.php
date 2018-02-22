@@ -36,9 +36,11 @@ class AjaxTree extends HTMLFormType implements HTMLFormTypeInterface {
 		$value = $tree->getNameFor($tree->selectedNode);
 		$this->form->input($fieldNameName,
 			$value . ' ('.$tree->selectedNode.')',
-			'style="width: '.ifsetor($desc['size'], '25em').'" 
-			readonly 
-			id="treeNodeClickName_'.$textName.'"');
+			[
+				'style' => 'width: '.ifsetor($desc['size'], '25em'),
+				'readonly' => 'readonly',
+				'id' => "treeNodeClickName_'.$textName.'"
+		]);
 		$this->form->text('&nbsp;');
 
 		$tree->sessionID = $textName;
