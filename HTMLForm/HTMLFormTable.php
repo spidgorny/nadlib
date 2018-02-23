@@ -67,8 +67,8 @@ class HTMLFormTable extends HTMLForm {
      */
     public $isValid = false;
 
-	function __construct(array $desc = array(), $prefix = array(), $fieldset = '') {
-		parent::__construct();
+	function __construct(array $desc = array(), $prefix = array(), $fieldset = '', $id = NULL) {
+		parent::__construct('', $id);
 		$this->setDesc($desc);
 		$this->prefix($prefix);
 		$this->request = Request::getInstance();
@@ -282,10 +282,11 @@ class HTMLFormTable extends HTMLForm {
 					$this->showTR($prefix, $fieldDesc, $path);
 				}
 			} else {
-				debug([
+				pre_print_r([
 					'fieldName' => $fieldName,
 					'fieldDesc' => $fieldDesc,
 				]);
+				pre_print_r($formData);
 				throw new InvalidArgumentException(__METHOD__.'#'.__LINE__.' has wrong parameter');
 			}
 		}
@@ -685,6 +686,21 @@ class HTMLFormTable extends HTMLForm {
 		foreach ($this->desc as &$desc) {
 			$desc['optional'] = true;
 		}
+	}
+
+	/**
+	 * Make sure only fields in the $desc are saved into the DB
+	 * @param array $userData
+	 *
+	 * @return array
+	 */
+	public function filterData(array $userData)
+	{
+		$data = [];
+		foreach ($this->desc as $field => $_) {
+			$data[$field] = ifsetor($userData[$field]);
+		}
+		return $data;
 	}
 
 }

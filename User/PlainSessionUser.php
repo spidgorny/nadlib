@@ -12,15 +12,22 @@ class PlainSessionUser extends User {
 	static protected $instance;
 
 	/**
-	 * @param int $id
+	 * @var Session
 	 */
-	function __construct($id = NULL) {
+	var $session;
+
+	/**
+	 * @param int $id
+	 * @param null $session
+	 */
+	function __construct($id = NULL, $session = null) {
 		if (!Request::isCLI()) {
 			//debug('session_start');
 			@session_start();
 		} else {
 			$_SESSION = array();
 		}
+		$this->session = $session ?: new Session(get_class($this));
 		parent::__construct($id);
 	}
 
@@ -29,11 +36,15 @@ class PlainSessionUser extends User {
 	 * @return mixed
 	 */
 	function getPref($name) {
-		return ifsetor($_SESSION[$name]);
+		return $this->session->get($name);
 	}
 
 	function setPref($name, $value) {
-		$_SESSION[$name] = $value;
+		$this->session->save($name, $value);
+	}
+
+	function getAllPrefs() {
+		return $this->session->getAll();
 	}
 
 	function isAuth() {
