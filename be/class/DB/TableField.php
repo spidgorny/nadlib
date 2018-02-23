@@ -18,14 +18,17 @@ class TableField {
 
 	var $extra = array();
 
-	static function init(array $row) {
+	static function init(array $row)
+	{
 		//debug($row); exit();
 		if (isset($row['cid']) || isset($row['pk'])) {
 			$self = self::initSQLite($row);
 		} elseif (isset($row['Field'])) {
 			$self = self::initMySQL($row);
+		} elseif (isset($row['array dims'])) {
+			$self = self::initPostgreSQL($row);
 		} else {
-			throw new Exception(__METHOD__.' Unable to identify DB type');
+			throw new Exception(__METHOD__ . ' Unable to identify DB type');
 		}
 		return $self;
 	}
@@ -40,7 +43,8 @@ class TableField {
 	 * @param array $row
 	 * @return TableField
 	 */
-	static function initMySQL(array $row) {
+	static function initMySQL(array $row)
+	{
 		$self = new self();
 		$self->field = $row['Field'];
 		$self->type = $row['Type'];
@@ -52,19 +56,20 @@ class TableField {
 	}
 
 	/**
-	cid 	string[1] 	0
-	name 	string[2] 	id
-	type 	string[7] 	integer
-	notnull 	string[1] 	1
-	dflt_value 	NULL
-	pk 	string[1] 	1
-	Field 	string[2] 	id
-	Type 	string[7] 	integer
-	Null 	string[2] 	NO
+	 * cid    string[1]    0
+	 * name    string[2]    id
+	 * type    string[7]    integer
+	 * notnull    string[1]    1
+	 * dflt_value    NULL
+	 * pk    string[1]    1
+	 * Field    string[2]    id
+	 * Type    string[7]    integer
+	 * Null    string[2]    NO
 	 * @param array $desc
 	 * @return TableField
 	 */
-	static function initSQLite(array $desc) {
+	static function initSQLite(array $desc)
+	{
 		$self = new self();
 		$self->field = $desc['name'];
 		$self->type = $desc['type'];
@@ -75,7 +80,32 @@ class TableField {
 		return $self;
 	}
 
-	static function unQuote($string) {
+	/**
+	 * array(8) {
+	'num'  =>  int(15)
+	'type'  =>  string(4) "int4"
+	'len'  =>  int(4)
+	'not null'  =>  bool(false)
+	'has default'  =>  bool(false)
+	'array dims'  =>  int(0)
+	'is enum'  =>  bool(false)
+	'pg_field'  =>  string(12) "id_publisher"
+	 * @param array $desc
+	 * @return TableField
+	 */
+	static function initPostgreSQL(array $desc)
+	{
+		$self = new self();
+		$self->field = $desc['pg_field'];
+		$self->type = $desc['type'];
+		$self->isNull = !$desc['not null'];
+		$self->default = $desc['has default'] ? null : null;
+		$self->extra = $desc;
+		return $self;
+	}
+
+	static function unQuote($string)
+	{
 		$first = $string[0];
 		if ($first == '"' || $first == "'") {
 			$string = str_replace($first, '', $string);
@@ -83,12 +113,46 @@ class TableField {
 		return $string;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		$copy = get_object_vars($this);
 		$copy['isNull'] = $copy['isNull'] ? 'is NULL' : 'NOT NULL';
-		$copy['default'] = $copy['default'] ? 'DEFAULT ['.$copy['default'].']' : '';
+		$copy['default'] = $copy['default'] ? 'DEFAULT [' . $copy['default'] . ']' : '';
 		$copy['extra'] = implode(' ', $copy['extra']);
 		return implode(' ', $copy);
+	}
+
+	function isBoolean()
+	{
+		return in_array($this->type, ['bool', 'boolean', 'binary(1)']);
+	}
+
+	function isNull()
+	{
+		return $this->isNull;
+	}
+
+	public function isInt()
+	{
+		return in_array($this->type, [
+			'int', 'integer', 'INTEGER',
+			'int(4)', 'int4', 'int(11)',
+			'tinyint(1)', 'tinyint(4)']);
+	}
+
+	function isText()
+	{
+		return in_array($this->type, ['text', 'varchar(255)', 'tinytext']);
+	}
+
+	function isTime()
+	{
+		return in_array($this->type, ['numeric', 'timestamp', 'datetime']);
+	}
+
+	function isFloat()
+	{
+		return in_array($this->type, ['real', 'double', 'float']);
 	}
 
 }

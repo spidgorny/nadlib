@@ -1,6 +1,7 @@
 <?php
 
-class Debug {
+class Debug
+{
 
 	var $index;
 
@@ -25,7 +26,8 @@ class Debug {
 	/**
 	 * @param $index Index|IndexBE
 	 */
-	function __construct($index) {
+	function __construct($index)
+	{
 		$this->index = $index;
 		self::$instance = $this;
 		if (class_exists('Config')) {
@@ -38,38 +40,45 @@ class Debug {
 		} else {
 			$this->renderer = $this->detectRenderer();
 		}
-		//var_dump($_COOKIE);
-		if (false && ifsetor($_COOKIE['debug'])) {
+
+//		var_dump($_COOKIE);
+		if (0 && ifsetor($_COOKIE['debug'])) {
 			echo 'Renderer: ' . $this->renderer;
 			echo '<pre>';
-			var_dump(array(
-				'canCLI' => $this->canCLI(),
-				'canFirebug' => $this->canFirebug(),
+			var_dump([
+				'canCLI'       => $this->canCLI(),
+				'canFirebug'   => $this->canFirebug(),
 				'canDebugster' => $this->canDebugster(),
-				'canHTML' => $this->canHTML(),
-			));
+				'canHTML'      => $this->canHTML(),
+			]);
 			echo '</pre>';
 		}
 		$this->request = Request::getInstance();
 	}
 
-	function detectRenderer() {
-		return $this->canCLI() ? 'CLI'
-				: ($this->canFirebug() ? 'Firebug'
-						: ($this->canDebugster() ? 'Debugster'
-								: ($this->canHTML() ? 'HTML'
-										: '')));
+	function detectRenderer()
+	{
+		return $this->canCLI()
+			? 'CLI'
+			: ($this->canFirebug()
+				? 'Firebug'
+				: ($this->canDebugster()
+					? 'Debugster'
+					: ($this->canHTML() ? 'HTML'
+						: '')));
 	}
 
-	static function getInstance() {
+	static function getInstance()
+	{
 		if (!self::$instance) {
-			$index = class_exists('Index', false) ? Index::getInstance() : NULL;
+			$index = class_exists('Index', false) ? Index::getInstance() : null;
 			self::$instance = new self($index);
 		}
 		return self::$instance;
 	}
 
-	public static function shallow($coming) {
+	public static function shallow($coming)
+	{
 		$debug = Debug::getInstance();
 		if (is_array($coming)) {
 			foreach ($coming as $key => &$val) {
@@ -85,18 +94,20 @@ class Debug {
 		$dh->render($coming);
 	}
 
-	function getSimpleType($val) {
+	function getSimpleType($val)
+	{
 		if (is_array($val)) {
-			$val = 'array['.sizeof($val).']';
+			$val = 'array[' . sizeof($val) . ']';
 		} elseif (is_object($val)) {
-			$val = 'object['.get_class($val).']';
+			$val = 'object[' . get_class($val) . ']';
 		} elseif (is_string($val) && strlen($val) > 100) {
-			$val = substr($val, 0, 100).'...';
+			$val = substr($val, 0, 100) . '...';
 		}
 		return $val;
 	}
 
-	function canFirebug() {
+	function canFirebug()
+	{
 		$can = class_exists('FirePHP', false)
 			&& !Request::isCLI()
 			&& !headers_sent()
@@ -127,9 +138,10 @@ class Debug {
 		}
 	}
 
-	function debugWithFirebug($params, $title = '') {
+	function debugWithFirebug($params, $title = '')
+	{
 		$content = '';
-		$params = is_array($params) ? $params : array($params);
+		$params = is_array($params) ? $params : [$params];
 		//debug_pre_print_backtrace();
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
@@ -145,7 +157,7 @@ class Debug {
 			}
 			$fp->log(1 == sizeof($params) ? first($params) : $params, $title);
 		} else {
-			$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+			$content = call_user_func_array(['Debug', 'debug_args'], $params);
 		}
 		return $content;
 	}
@@ -155,7 +167,8 @@ class Debug {
 	 * @param $params
 	 * @return string
 	 */
-	function debug($params) {
+	function debug($params)
+	{
 		$content = '';
 		if ($this->renderer) {
 			$method = 'debugWith' . $this->renderer;
@@ -173,21 +186,28 @@ class Debug {
 		return $content;
 	}
 
-	function canCLI() {
+	function canCLI()
+	{
 		return Request::isCLI();
 	}
 
-	function debugWithCLI($args) {
+	function debugWithCLI($args)
+	{
+		if (!DEVELOPMENT) return;
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
-		$trace = array();
+		$trace = [];
 		$i = 0;
 		foreach ($db as $i => $row) {
-			$trace[] = ' * '.self::getMethod($row, ifsetor($db[$i+1], array()));
+			$trace[] = ' * ' . self::getMethod($row, ifsetor($db[$i + 1], []));
 			if (++$i > 7) break;
 		}
-		echo '--- ' . $this->name . ' ---'. BR .
+		echo '--- ' . $this->name . ' ---' . BR .
 			implode(BR, $trace) . "\n";
+
+		if ($args instanceof htmlString) {
+			$args = strip_tags($args);
+		}
 
 		if (is_object($args)) {
 			echo 'Object: ', get_class($args), BR;
@@ -203,23 +223,26 @@ class Debug {
 		$dump = ob_get_clean();
 		$dump = str_replace("=>\n", ' =>', $dump);
 		echo $dump;
-		echo '--- '.$this->name.' ---', BR;
-		$this->name = NULL;
+		echo '--- ' . $this->name . ' ---', BR;
+		$this->name = null;
 	}
 
-	function canHTML() {
+	function canHTML()
+	{
+//		pre_print_r(__METHOD__, $_COOKIE);
 		return ifsetor($_COOKIE['debug']);
 	}
 
 	/**
 	 * @param mixed $params - any type
 	 */
-	function debugWithHTML($params) {
+	function debugWithHTML($params)
+	{
 		if (!class_exists('DebugHTML')) {
 			debug_pre_print_backtrace();
 		}
 		$debugHTML = new DebugHTML($this);
-		$content = call_user_func(array($debugHTML, 'render'), $params);
+		$content = call_user_func([$debugHTML, 'render'], $params);
 		if (!is_null($content)) {
 			print($content);
 		}
@@ -228,12 +251,13 @@ class Debug {
 		}
 	}
 
-	static function getSimpleTrace($db = NULL) {
+	static function getSimpleTrace($db = null)
+	{
 		$db = $db ? $db : debug_backtrace();
 		foreach ($db as &$row) {
 			$file = ifsetor($row['file']);
-			$row['file'] = basename(dirname($file)).'/'.basename($file);
-			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
+			$row['file'] = basename(dirname($file)) . '/' . basename($file);
+			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : null;
 			$row['args'] = sizeof($row['args']);
 		}
 		return $db;
@@ -243,46 +267,48 @@ class Debug {
 	 * @param array $db
 	 * @return string
 	 */
-	static function getTraceTable(array $db) {
+	static function getTraceTable(array $db)
+	{
 		$db = self::getSimpleTrace($db);
-		require_once __DIR__.'/../Data/ArrayPlus.php';
+		require_once __DIR__ . '/../Data/ArrayPlus.php';
 		$traceObj = ArrayPlus::create($db)->column('object')->getData();
 		if (!array_search('slTable', $traceObj) && class_exists('slTable', false)) {
-			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
-				new slTable($db, 'class="nospacing"', array(
-					'file' => 'file',
-					'line' => 'line',
-					'class' => 'class',
-					'object' => 'object',
-					'type' => 'type',
+			$trace = '<pre style="white-space: pre-wrap; margin: 0;">' .
+				new slTable($db, 'class="nospacing"', [
+					'file'     => 'file',
+					'line'     => 'line',
+					'class'    => 'class',
+					'object'   => 'object',
+					'type'     => 'type',
 					'function' => 'function',
-					'args' => 'args',
-				)).'</pre>';
+					'args'     => 'args',
+				]) . '</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';
 		}
 		return $trace;
 	}
 
-	static function getMethod(array $first, array $next = array()) {
+	static function getMethod(array $first, array $next = [])
+	{
 		$curFunc = ifsetor($next['function']);
 		$nextFunc = ifsetor($first['function']);
 		$line = ifsetor($first['line']);
 		if (isset($first['object']) && $first['object']) {
-			$function = get_class($first['object']).
-				'->'.$curFunc.
-				'#'.$line.
-				'->'.$nextFunc;
+			$function = get_class($first['object']) .
+				'->' . $curFunc .
+				'#' . $line .
+				'->' . $nextFunc;
 		} elseif (ifsetor($first['class'])) {
-			$function = $first['class'].
-				'->'.$curFunc.
-				'#'.$line.
-				'->'.$nextFunc;
+			$function = $first['class'] .
+				'->' . $curFunc .
+				'#' . $line .
+				'->' . $nextFunc;
 		} else {
 			$file = ifsetor($first['file']);
-			$function = basename(dirname($file)).'/'.basename($file).
-				'#'.$line.
-				'->'.$nextFunc;
+			$function = basename(dirname($file)) . '/' . basename($file) .
+				'#' . $line .
+				'->' . $nextFunc;
 		}
 		return $function;
 	}
@@ -292,7 +318,8 @@ class Debug {
 	 * @param int $stepBack
 	 * @return string
 	 */
-	static function getCaller($stepBack = 2) {
+	static function getCaller($stepBack = 2)
+	{
 		$btl = debug_backtrace();
 		reset($btl);
 		$bt = current($btl);
@@ -314,25 +341,26 @@ class Debug {
 	 * @param bool   $withHash
 	 * @return string
 	 */
-	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true) {
+	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true)
+	{
 		$debug = debug_backtrace();
 		for ($i = 0; $i < $cut; $i++) {
 			array_shift($debug);
 		}
-		$content = array();
+		$content = [];
 		foreach ($debug as $i => $debugLine) {
 			if (ifsetor($debugLine['object'])) {
-				$object = gettype2($debugLine['object'], $withHash);
+				$object = typ($debugLine['object'], $withHash);
 			} else {
 				$object = '';
 			}
 			$file = basename(ifsetor($debugLine['file']));
 			$file = str_replace('class.', '', $file);
 			$file = str_replace('.php', '', $file);
-			$nextFunc = ifsetor($debug[$i+1]['function']);
+			$nextFunc = ifsetor($debug[$i + 1]['function']);
 			$line = ifsetor($debugLine['line']);
-			$content[] = $file.'::'.$nextFunc.'#'.$line.':'.
-				$object.'->'.$debugLine['function'];
+			$content[] = $file . '::' . $nextFunc . '#' . $line . ':' .
+				$object . '->' . $debugLine['function'];
 			if (!--$limit) {
 				break;
 			}
@@ -343,12 +371,13 @@ class Debug {
 
 	/**
 	 * http://stackoverflow.com/a/2510459/417153
-	 * @param $bytes
+	 * @param     $bytes
 	 * @param int $precision
 	 * @return string
 	 */
-	static function formatBytes($bytes, $precision = 2) {
-		$units = array('B', 'KB', 'MB', 'GB', 'TB');
+	static function formatBytes($bytes, $precision = 2)
+	{
+		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
 		$bytes = max($bytes, 0);
 		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
@@ -361,8 +390,9 @@ class Debug {
 		return round($bytes, $precision) . ' ' . $units[$pow];
 	}
 
-	static function getArraySize(array $tmpArray) {
-		$size = array();
+	static function getArraySize(array $tmpArray)
+	{
+		$size = [];
 		foreach ($tmpArray as $key => $row) {
 			$size[$key] = strlen(serialize($row));
 		}
@@ -370,14 +400,16 @@ class Debug {
 		return array_sum($size);
 	}
 
-	function canDebugster() {
+	function canDebugster()
+	{
 		return false;
 	}
 
 	/**
-	 * @param $debugAccess...
+	 * @param $debugAccess ...
 	 */
-	public function consoleLog($debugAccess) {
+	public function consoleLog($debugAccess)
+	{
 		if ($this->request->isAjax()) return;
 		if (func_num_args() > 1) {
 			$debugAccess = func_get_args();
@@ -385,7 +417,7 @@ class Debug {
 		$json = json_encode($debugAccess);
 		$script = '<script type="text/javascript">
 		setTimeout(function () {
-			var json = '.$json.';
+			var json = ' . $json . ';
 			console.log(json);
 		}, 1);
 		</script>';
@@ -397,13 +429,18 @@ class Debug {
 		}
 	}
 
-	static function peek($row) {
+	static function peek($row)
+	{
 		if (is_object($row)) {
 			$row = get_object_vars($row);
 		}
 		if (!is_null($row)) {
 			$types = array_map(function ($a) {
-				return gettype2($a);
+				$val = null;
+				if (is_scalar($a)) {
+					$val = $a;
+				}
+				return ['type' => typ($a) . '', 'value' => $val];
 			}, $row);
 			pre_print_r(array_combine(array_keys($row), $types));
 		}
@@ -414,18 +451,19 @@ class Debug {
 	 * @param     $row
 	 * @param int $spaces
 	 */
-	static function dumpStruct($row, $spaces = 0) {
+	static function dumpStruct($row, $spaces = 0)
+	{
 		static $recursive;
 		if (!$spaces) {
 			echo '<pre class="debug">';
-			$recursive = array();
+			$recursive = [];
 		}
 		if (is_object($row)) {
 			$hash = spl_object_hash($row);
 			if (!ifsetor($recursive[$hash])) {
 				$sleep = method_exists($row, '__sleep')
-					? $row->__sleep() : NULL;
-				$recursive[$hash] = gettype2($row);	// before it's array
+					? $row->__sleep() : null;
+				$recursive[$hash] = typ($row);    // before it's array
 				$row = get_object_vars($row);
 				if ($sleep) {
 					$sleep = array_combine($sleep, $sleep);
@@ -433,14 +471,14 @@ class Debug {
 					$row = array_intersect_key($row, $sleep);
 				}
 			} else {
-				$row = '*RECURSIVE* '.$recursive[$hash];
+				$row = '*RECURSIVE* ' . $recursive[$hash];
 			}
 		}
 		if (is_array($row)) {
 			foreach ($row as $key => $el) {
 				echo str_repeat(' ', $spaces), $key, '->',
-				cap(gettype2($el), "\n");
-				self::dumpStruct($el, $spaces+4);
+				cap(typ($el), "\n");
+				self::dumpStruct($el, $spaces + 4);
 			}
 		} else {
 			echo str_repeat(' ', $spaces);
@@ -468,17 +506,18 @@ class Debug {
 		}
 	}
 
-	static function findObject($struct, $type, $path = array()) {
+	static function findObject($struct, $type, $path = [])
+	{
 		static $recursive;
 		if (!$path) {
-			$recursive = array();
+			$recursive = [];
 		}
 		if (is_object($struct)) {
 			$hash = spl_object_hash($struct);
 			if (!ifsetor($recursive[$hash])) {
 				$sleep = method_exists($struct, '__sleep1')
-					? $struct->__sleep() : NULL;
-				$recursive[$hash] = gettype2($struct);	// before it's array
+					? $struct->__sleep() : null;
+				$recursive[$hash] = typ($struct);    // before it's array
 				$struct = get_object_vars($struct);
 				if ($sleep) {
 					$sleep = array_combine($sleep, $sleep);
@@ -490,9 +529,9 @@ class Debug {
 		if (is_array($struct)) {
 			foreach ($struct as $key => $el) {
 				$pathPlus1 = $path;
-				$pathPlus1[] = $key.'('.gettype2($el).')';
+				$pathPlus1[] = $key . '(' . typ($el) . ')';
 				if ($el instanceof $type) {
-					echo implode('->', $pathPlus1), '->', gettype2($el), BR;
+					echo implode('->', $pathPlus1), '->', typ($el), BR;
 				}
 				self::findObject($el, $type, $pathPlus1);
 			}

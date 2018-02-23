@@ -83,6 +83,7 @@ class CollectionView {
 		} else {
 			$content = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
 		}
+		$this->collection->log(get_class($this).'::'.__FUNCTION__.'() done');
 		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
 		return $content;
 	}
@@ -99,6 +100,7 @@ class CollectionView {
 		}
 		$this->collection->setData($data);
 		$this->collection->count = $count;
+		$this->collection->log(get_class($this).'::'.__FUNCTION__.'() done');
 		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
 	}
 
@@ -109,7 +111,7 @@ class CollectionView {
 		$s->thes($this->collection->thes);
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
-		if (class_exists('Index')) {
+		if (class_exists('Index') && Index::getInstance()) {
 			$index = Index::getInstance();
 			$controller = $index->getController();
 			if ($sort = ifsetor($controller->sort)) {
@@ -121,6 +123,7 @@ class CollectionView {
 						: array());
 			}
 		}
+		$this->collection->log(get_class($this).'::'.__FUNCTION__.'() done');
 		return $s;
 	}
 

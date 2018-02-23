@@ -28,4 +28,9 @@ class SQLFrom extends SQLWherePart {
 		return implode(', ', $this->db->quoteKeys($this->parts));
 	}
 
+	function getAll()
+	{
+		return $this->parts;
+	}
+
 }

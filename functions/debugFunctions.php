@@ -8,7 +8,8 @@ if (!function_exists('debug')) {
 	/**
 	 * @param ...$a mixed
 	 */
-	function debug($a) {
+	function debug($a)
+	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
@@ -21,10 +22,13 @@ if (!function_exists('debug')) {
 			if (!function_exists('xdebug_break')) {
 				$dump = htmlspecialchars($dump);
 			}
-			echo '<pre>'.$dump.'</pre>';
+			echo '<pre>' . $dump . '</pre>';
 			debug_pre_print_backtrace();
 		}
 	}
+}
+
+if (!function_exists('debugList')) {
 
 	function debugList(array $a, $name = NULL) {
 		$debug = Debug::getInstance();
@@ -125,11 +129,12 @@ if (!function_exists('debug')) {
 		}
 		$assoc = array();
 		foreach ($keys as $key) {
-			if ($vals[$key] instanceof SimpleXMLElement) {
-				$vals[$key] = $vals[$key]->asXML();
+			$sxe = $vals[$key];
+			if ($sxe instanceof SimpleXMLElement) {
+				$sxe = $sxe->asXML();
 			}
 			//$len = strlen(serialize($vals[$key]));
-			$len = strlen(json_encode($vals[$key]));
+			$len = strlen(json_encode($sxe));
 			//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
 			$assoc[$key] = $len;
 		}
@@ -197,7 +202,14 @@ if (!function_exists('debug')) {
 		return implode(' | ',$levels);
 	}
 
-	function gettype2($something, $withHash = true) {
+	/**
+	 * similar to gettype() but return more information depending on data type in HTML
+	 * @param $something
+	 * @param bool $withHash
+	 *
+	 * @return htmlString
+	 */
+	function typ($something, $withHash = true) {
 		$type = gettype($something);
 		if ($type == 'object') {
 			if ($withHash) {
@@ -228,17 +240,17 @@ if (!function_exists('debug')) {
 
 	/**
 	 * @param $something array|mixed
-	 * @return array
+	 * @return array|htmlString
 	 */
 	function gettypes($something) {
 		if (is_array($something)) {
 			$types = array();
 			foreach ($something as $key => $element) {
-				$types[$key] = strip_tags(gettype2($element));
+				$types[$key] = strip_tags(typ($element));
 			}
 			return $types;
 		} else {
-			return gettype2($something);
+			return typ($something);
 		}
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}

@@ -1,8 +1,14 @@
 {
-    "name": "spidgorny/nadlib",
+	"name": "spidgorny/nadlib",
 	"minimum-stability": "dev",
-    "require": {
-		"php": ">=5.3.8",
+	"require": {
+		"php": ">=7"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^6"
+	},
+	"suggest": {
+		"flot/flot": "dev-master",
 		"michelf/php-markdown": "~1.4",
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
@@ -10,46 +16,43 @@
 		"greenlion/PHP-SQL-Parser": "*",
 		"HTMLawed/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
-	    "danielstjules/stringy": ">=1.5.1",
-        "phpauth/phpauth": "v1.1",
-        "gnat/nc-cms": "*",
-        "robloach/component-installer": "^0.2.3"
+		"danielstjules/stringy": ">=1.5.1",
+		"phpauth/phpauth": "dev-master",
+		"gnat/nc-cms": "*",
+		"robloach/component-installer": "^0.2.3",
+		"hrmatching/advanced_html_dom": "dev-master"
 	},
-	"require-dev": {
-		"sebastian/environment": "1.0.*@dev",
-		"sebastian/comparator": "*",
-		"phpunit/php-code-coverage": "*",
-		"phpunit/phpunit-mock-objects": "*",
-		"phpunit/phpunit": "*"
-    },
-    "suggest": {
-        "flot/flot": "dev-master"
-    },
 	"autoload": {
-        "classmap": [
-          "./",
-          "Cache/",
-          "Controller/",
-          "CSS/",
-          "Data/",
-          "DB/",
-          "Debug/",
-          "HTML/",
-          "HTMLForm/",
-          "HTTP/",
-          "LocalLang/",
-          "ORM/",
-          "SQL/",
-          "Time/",
-          "User/"
-        ],
+		"classmap": [
+			"./",
+			"Base/",
+			"Cache/",
+			"Controller/",
+			"CSS/",
+			"Data/",
+			"DB/",
+			"Debug/",
+			"HTML/",
+			"HTMLForm/",
+			"HTTP/",
+			"LocalLang/",
+			"ORM/",
+			"SQL/",
+			"Queue/",
+			"Runner/",
+			"SQL/",
+			"Time/",
+			"User/"
+		],
 		"files": [
 			"init.php"
-		]
+		],
+		"psr-0": {
+			"": "src/"
+		}
 	},
 	"autoload-dev": {
 		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php"
 		]
 	},
 	"repositories": [
@@ -78,72 +81,72 @@
 			}
 		},
 		{
-            "type": "package",
-            "package": {
-                "name": "twitter/bootstrap",
+			"type": "package",
+			"package": {
+				"name": "twitter/bootstrap",
 				"version": "master",
 				"source": {
-                    "url": "https://github.com/twitter/bootstrap",
-                    "type": "git",
-                    "reference": "master"
-                },
-                "dist": {
-                    "url": "https://github.com/twitter/bootstrap/zipball/master",
-                    "type": "zip"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package": {
-                "version":"dev-master",
-                "name":"thomas-mcdonald/bootstrap-sass",
-                "source": {
-                    "url":"https://github.com/thomas-mcdonald/bootstrap-sass.git",
-                    "type":"git",
-                    "reference":"master"
-                },
-                "dist": {
-                    "url":"https://github.com/thomas-mcdonald/bootstrap-sass/zipball/master",
-                    "type":"zip"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package": {
-                "version":"dev-master",
-                "name":"flot/flot",
-                "source": {
-                    "url":"https://github.com/flot/flot",
-                    "type":"git",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package": {
-                "version":"dev-master",
-                "name":"mustangostang/spyc",
-                "source": {
-                    "url":"https://github.com/mustangostang/spyc",
-                    "type":"git",
-                    "reference":"master"
-                }
-            }
-        },
-        {
-            "type":"package",
-            "package": {
-                "version":"dev-master",
-                "name":"GerHobbelt/HTMLawed",
-                "source": {
-                    "url":"https://github.com/GerHobbelt/HTMLawed",
-                    "type":"git",
-                    "reference":"master"
-                }
-            }
-        }
-    ]
+					"url": "https://github.com/twitter/bootstrap",
+					"type": "git",
+					"reference": "master"
+				},
+				"dist": {
+					"url": "https://github.com/twitter/bootstrap/zipball/master",
+					"type": "zip"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"version": "dev-master",
+				"name": "thomas-mcdonald/bootstrap-sass",
+				"source": {
+					"url": "https://github.com/thomas-mcdonald/bootstrap-sass.git",
+					"type": "git",
+					"reference": "master"
+				},
+				"dist": {
+					"url": "https://github.com/thomas-mcdonald/bootstrap-sass/zipball/master",
+					"type": "zip"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"version": "dev-master",
+				"name": "flot/flot",
+				"source": {
+					"url": "https://github.com/flot/flot",
+					"type": "git",
+					"reference": "master"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"version": "dev-master",
+				"name": "mustangostang/spyc",
+				"source": {
+					"url": "https://github.com/mustangostang/spyc",
+					"type": "git",
+					"reference": "master"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"version": "dev-master",
+				"name": "GerHobbelt/HTMLawed",
+				"source": {
+					"url": "https://github.com/GerHobbelt/HTMLawed",
+					"type": "git",
+					"reference": "master"
+				}
+			}
+		}
+	]
 }

@@ -13,7 +13,7 @@
  *
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
- * @mixin dbLayerBase
+ * @mixin DBLayerBase
  */
 class SQLBuilder {
 
@@ -33,14 +33,16 @@ class SQLBuilder {
 	 */
 	public $config;
 
-	function __construct(DBInterface $db) {
+	function __construct(DBInterface $db)
+	{
 		if (class_exists('Config')) {
 			$this->config = Config::getInstance();
 		}
 		$this->db = $db;
 	}
 
-	function getDB() {
+	function getDB()
+	{
 		return $this->db = $this->db ?: $this->config->getDB();
 	}
 
@@ -52,7 +54,8 @@ class SQLBuilder {
 	 * @throws MustBeStringException
 	 * @return string
 	 */
-	function quoteSQL($value, $key = NULL) {
+	function quoteSQL($value, $key = NULL)
+	{
 		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
 			$value->injectField($key);
@@ -67,34 +70,34 @@ class SQLBuilder {
 		} elseif ($value instanceof IndTime) {
 			return $this->quoteSQL($value->getMySQL(), $key);
 		} elseif ($value instanceof SQLDate) {
-			$content = "'".$this->db->escape($value->__toString())."'";
+			$content = "'" . $this->db->escape($value->__toString()) . "'";
 			//debug($content, $value);
 			return $content;
 		} elseif ($value instanceof Time) {
-			$content = "'".$this->db->escape($value->toSQL())."'";
+			$content = "'" . $this->db->escape($value->toSQL()) . "'";
 			//debug($content);
 			return $content;
 		} elseif ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
-			return "COMPRESS('".$this->db->escape($value->asXML())."')";
+			return "COMPRESS('" . $this->db->escape($value->asXML()) . "')";
 		} elseif (is_object($value)) {
 			if ($value instanceof stdClass) {
 				debug($value);
 			}
-			return "'".$this->db->escape((string)$value)."'";
+			return "'" . $this->db->escape((string)$value) . "'";
 		} elseif ($value === NULL) {
 			return "NULL";
 		} elseif (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
-			return "'".$value."'";	// quoting will not hurt, but will keep leading zeroes if necessary
+			return "'" . $value . "'";    // quoting will not hurt, but will keep leading zeroes if necessary
 			// /* numeric */";		// this makes SQLQuery not work
 		} elseif (is_bool($value)) {
 			$res = $this->db->escapeBool($value);
 			//debug($value, $key, get_class($this->db), $res);
 			return $res;
 		} elseif (is_scalar($value)) {
-			$sql = "'".$this->db->escape($value)."'";
+			$sql = "'" . $this->db->escape($value) . "'";
 			if ($this->db->getScheme() == 'ms') {
-				$sql = 'N'.$sql;	// UTF-8 encoding
+				$sql = 'N' . $sql;    // UTF-8 encoding
 			}
 			return $sql;
 		} else {
@@ -112,7 +115,8 @@ class SQLBuilder {
 	 * @param $number
 	 * @return bool
 	 */
-	function isExp($number) {
+	function isExp($number)
+	{
 		return is_numeric($number) && $number != number_format($number, 0, '', '');
 	}
 
@@ -121,8 +125,10 @@ class SQLBuilder {
 	 *
 	 * @param array $a
 	 * @return array
+	 * @throws MustBeStringException
 	 */
-	function quoteValues(array $a) {
+	function quoteValues(array $a)
+	{
 //		debug(__METHOD__, $a);
 		$c = array();
 		foreach ($a as $key => $b) {
@@ -140,10 +146,11 @@ class SQLBuilder {
 	 * @throws MustBeStringException
 	 * @return array
 	 */
-	function quoteWhere(array $where) {
+	function quoteWhere(array $where)
+	{
 		$set = array();
 		foreach ($where as $key => $val) {
-			if (!strlen($key) || (strlen($key) && $key{strlen($key)-1} != '.')) {
+			if (!strlen($key) || (strlen($key) && $key{strlen($key) - 1} != '.')) {
 				$equal = new SQLWhereEqual($key, $val);
 				$set[] = $equal->__toString();
 			}
@@ -158,7 +165,8 @@ class SQLBuilder {
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @return string
 	 */
-	function getInsertQuery($table, array $columns) {
+	function getInsertQuery($table, array $columns)
+	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
@@ -168,12 +176,13 @@ class SQLBuilder {
 
 	/**
 	 *
-	 * @param $columns  [a => b, c => d]
-	 * @param $like     "$key ILIKE '%$val%'"
+	 * @param $columns [a => b, c => d]
+	 * @param $like "$key ILIKE '%$val%'"
 	 * @return array    [a ILIKE '%b%', c ILIKE '%d%']
 	 * @throws MustBeStringException
 	 */
-	function quoteLike($columns, $like) {
+	function quoteLike($columns, $like)
+	{
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$key = $this->quoteKey($key);
@@ -191,8 +200,11 @@ class SQLBuilder {
 	 * @param array $columns
 	 * @param array $where
 	 * @return string
+	 * @throws Exception
+	 * @throws MustBeStringException
 	 */
-	function getUpdateQuery($table, $columns, $where) {
+	function getUpdateQuery($table, $columns, $where)
+	{
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$table = $this->quoteKey($table);
 		$q = "UPDATE $table\nSET ";
@@ -203,7 +215,8 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getFirstWord($table) {
+	static function getFirstWord($table)
+	{
 		$table1 = trimExplode(' ', $table);
 		$table0 = $table1[0];
 		$table1 = trimExplode("\t", $table0);
@@ -214,99 +227,45 @@ class SQLBuilder {
 		return $table0;
 	}
 
-	function getSelectQueryString($table, array $where = array(), $order = "", $addSelect = '') {
+	/**
+	 * @param $table
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addSelect
+	 * @return string
+	 * @throws Exception
+	 * @throws MustBeStringException
+	 */
+	function getSelectQueryString($table, array $where = array(), $order = "", $addSelect = '')
+	{
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {
 			$from = $this->db->quoteKey($table);    // table name always quoted
 		} else {
 			$from = $table; // not quoted
 		}
-		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1) . ".*";
 		$q = "SELECT $select\nFROM " . $from;
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE\n" . implode("\nAND ", $set);
 		}
-		$q .= "\n".$order;
+		$q .= "\n" . $order;
 		return $q;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL) {
-		return $this->getSelectQueryP($table, $where, $order, $addSelect);
+	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL)
+	{
+		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
 
-	/**
-	 * @param        $table
-	 * @param array  $where
-	 * @param string $sOrder
-	 * @param null   $addSelect
-	 * @return SQLSelectQuery
-	 */
-	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL) {
+
+	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
+	{
 		$table1 = $this->getFirstWord($table);
-		if ($table == $table1) {	// NO JOIN
-			$from = /*$this->db->quoteKey*/($table1);    // table name always quoted
-			$join = NULL;
-		} else {					// JOIN
-			$join = substr($table, strlen($table1));
-			$from = $table1; // not quoted
-		}
-
-
-		// must be quoted for SELECT user.* ... because "user" is reserved
-		$select = $addSelect
-			? $addSelect
-			: $this->quoteKey($table1).".*";
-
-
-
-		$select = new SQLSelect($select);
-		$select->injectDB($this->db);
-
-		$from = new SQLFrom($from);
-		$from->injectDB($this->db);
-
-		if ($join) {
-			$join = new SQLJoin($join);
-		}
-
-		$where = new SQLWhere($where);
-		$where->injectDB($this->db);
-
-		$group = NULL;
-		$limit = NULL;
-		$order = NULL;
-		if (str_startsWith($sOrder, 'ORDER BY')) {
-			$order = new SQLOrder($sOrder);
-			$order->db = $this->db;
-			$group = NULL;
-		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
-			$parts = trimExplode('ORDER BY', $sOrder);
-			$group = new SQLGroup($parts[0]);
-			$group->db = $this->db;
-			if (ifsetor($parts[1])) {
-				$order = new SQLOrder($parts[1]);
-				$order->db = $this->db;
-			}
-		} elseif (str_startsWith($sOrder, 'LIMIT')) {
-			$parts = trimExplode('LIMIT', $sOrder);
-			$limit = new SQLLimit($parts[0]);
-		} elseif ($sOrder) {
-			debug(['sOrder' => $sOrder, 'order' => $order]);
-			throw new InvalidArgumentException(__METHOD__);
-		}
-//		debug(__METHOD__, $table, $where, $where->getParameters());
-		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
-		$sq->injectDB($this->db);
-		return $sq;
-	}
-
-	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
-		$table1 = $this->getFirstWord($table);
-		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
-		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
-		$q .= $where->__toString();
-		$q .= "\n".$order;
+		$select = $addSelect ? $addSelect
+			: $this->quoteKey($table1) . ".*";
+		$q = SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $select);
 		return $q;
 	}
 
@@ -316,9 +275,11 @@ class SQLBuilder {
 	 * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
 	 * @return string
 	 * @throws MustBeStringException
+	 * @throws Exception
 	 */
-	function getDeleteQuery($table, $where = array(), $what = '') {
-		$q = "DELETE ".$what." FROM ".$this->db->quoteKey($table)." ";
+	function getDeleteQuery($table, $where = array(), $what = '')
+	{
+		$q = "DELETE " . $what . " FROM " . $this->db->quoteKey($table) . " ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);
@@ -328,7 +289,8 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDefaultInsertFields() {
+	function getDefaultInsertFields()
+	{
 		return array();
 	}
 
@@ -340,7 +302,8 @@ class SQLBuilder {
 	 * @param string $conditioner
 	 * @return string
 	 */
-	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
+	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY')
+	{
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
 
@@ -350,26 +313,28 @@ class SQLBuilder {
 			foreach ($array as $langID) {
 				//2010/09/12: modified according to mantis request 0001812	- if/else condition for 4th argument added
 				if ($conditioner == 'ANY') {
-					$or[] = "'" . $langID . "' = ANY(string_to_array(".$field.", ','))"; // this line is the original one
+					$or[] = "'" . $langID . "' = ANY(string_to_array(" . $field . ", ','))"; // this line is the original one
 				} else {
-					$or[] = "'" . $langID . "' = ".$field." ";
+					$or[] = "'" . $langID . "' = " . $field . " ";
 				}
 			}
-			$content = '('.implode(' '.$joiner.' ', $or).')';
+			$content = '(' . implode(' ' . $joiner . ' ', $or) . ')';
 		} else {
 			$content = ' 1 = 1 ';
 		}
 		return $content;
 	}
 
-	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '') {
+	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
+	{
 		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
 		return $res;
 	}
 
-	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '') {
+	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '')
+	{
 		$query = $this->getSelectQuerySW($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
@@ -386,7 +351,8 @@ class SQLBuilder {
 	 * @param array $insert
 	 * @return bool|int
 	 */
-	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
+	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array())
+	{
 		TaylorProfiler::start(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
@@ -416,7 +382,8 @@ class SQLBuilder {
 	 * @throws Exception
 	 * @return resource
 	 */
-	function runInsertNew($table, array $fields, array $insert = array()) {
+	function runInsertNew($table, array $fields, array $insert = array())
+	{
 		TaylorProfiler::start(__METHOD__);
 		$resInsert = NULL;
 		$res = $this->runSelectQuery($table, $fields);
@@ -429,22 +396,25 @@ class SQLBuilder {
 		return $resInsert;
 	}
 
-	function runInsertQuery($table, array $columns) {
-		TaylorProfiler::start(__METHOD__.'('.$table.')');
+	function runInsertQuery($table, array $columns)
+	{
+		TaylorProfiler::start(__METHOD__ . '(' . $table . ')');
 		$query = $this->getInsertQuery($table, $columns);
 		$ret = $this->db->perform($query);
-		TaylorProfiler::stop(__METHOD__.'('.$table.')');
+		TaylorProfiler::stop(__METHOD__ . '(' . $table . ')');
 		return $ret;
 	}
 
-	function runReplaceQuery($table, array $columns, array $primaryKeys) {
-		TaylorProfiler::start(__METHOD__.'('.$table.')');
+	function runReplaceQuery($table, array $columns, array $primaryKeys)
+	{
+		TaylorProfiler::start(__METHOD__ . '(' . $table . ')');
 		$ret = $this->db->runReplaceQuery($table, $columns, $primaryKeys);
-		TaylorProfiler::stop(__METHOD__.'('.$table.')');
+		TaylorProfiler::stop(__METHOD__ . '(' . $table . ')');
 		return $ret;
 	}
 
-	function getFoundOrLastID($inserted) {
+	function getFoundOrLastID($inserted)
+	{
 		if ($inserted) {
 			$authorID = $this->db->lastInsertID($inserted);
 		} else {
@@ -460,10 +430,11 @@ class SQLBuilder {
 	 * @param array $where
 	 * @param string $order
 	 * @param string $addFields
-	 * @param string $idField   - will return data as assoc indexed by this column
+	 * @param string $idField - will return data as assoc indexed by this column
 	 * @return array <type>
 	 */
-	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = NULL) {
+	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = NULL)
+	{
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
 		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
 		$query = $this->getSelectQuery($table, $where, $order, $addFields);
@@ -475,7 +446,8 @@ class SQLBuilder {
 		return $data;
 	}
 
-	function runUpdateQuery($table, array $columns, array $where) {
+	function runUpdateQuery($table, array $columns, array $where)
+	{
 		$query = $this->getUpdateQuery($table, $columns, $where);
 		return $this->db->perform($query);
 	}
@@ -486,21 +458,23 @@ class SQLBuilder {
 	 * @param array $fields
 	 * @return array
 	 */
-	function getSearchWhere($sword, array $fields) {
+	function getSearchWhere($sword, array $fields)
+	{
 		$where = array();
 		$words = $this->getSplitWords($sword);
 		foreach ($words as $word) {
 			$like = array();
 			foreach ($fields as $field) {
-				$like[] = $field . " LIKE '%".$this->db->escape($word)."%'";
+				$like[] = $field . " LIKE '%" . $this->db->escape($word) . "%'";
 			}
-			$where[] = new AsIsOp(' ('.implode(' OR ', $like).')');
+			$where[] = new AsIsOp(' (' . implode(' OR ', $like) . ')');
 		}
 		//debug($where);
 		return $where;
 	}
 
-	function getSplitWords($sword) {
+	function getSplitWords($sword)
+	{
 		$sword = trim($sword);
 		$words = explode(' ', $sword);
 		$words = array_map('trim', $words);
@@ -511,7 +485,8 @@ class SQLBuilder {
 		return $words;
 	}
 
-	function combineSplitTags($words) {
+	function combineSplitTags($words)
+	{
 		$new = array();
 		$i = 0;
 		$in = false;
@@ -521,7 +496,7 @@ class SQLBuilder {
 				++$i;
 				$in = true;
 			}
-			$new[$i] = $new[$i] ? $new[$i] . ' ' . $word : $word.'';
+			$new[$i] = $new[$i] ? $new[$i] . ' ' . $word : $word . '';
 			if (!$in || ($in && $word->contains(']'))) {
 				++$i;
 				$in = false;
@@ -531,7 +506,8 @@ class SQLBuilder {
 		return $new;
 	}
 
-	function runDeleteQuery($table, array $where) {
+	function runDeleteQuery($table, array $where)
+	{
 		$delete = $this->getDeleteQuery($table, $where);
 		$w = new SQLWhere($where);
 		$params = $w->getParameters();
@@ -540,15 +516,24 @@ class SQLBuilder {
 		return $this->db->perform($delete, $params);
 	}
 
-	function __call($method, array $params) {
+	function __call($method, array $params)
+	{
 		return call_user_func_array(array($this->getDB(), $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id', $prefix = NULL) {
-		$prefix = $prefix ?: $table.'.';
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id', $prefix = NULL)
+	{
+		$prefix = $prefix ?: $table . '.';
+
+		if (!str_contains($titleField, ' AS ')) {
+			$addSelect = 'DISTINCT ' . $prefix . $this->quoteKey($titleField) . ' AS title,';
+		} else {
+			$addSelect = $titleField;
+		}
+
 		$query = $this->getSelectQuery($table, $where, $order,
-			'DISTINCT   '.$prefix.$this->quoteKey($titleField).' AS title, '.
-					      $prefix.$this->quoteKey($idField).' AS id_field');
+			$addSelect . ' ' .
+			$this->quoteKey($prefix . $idField) . ' AS id_field');
 
 		// $prefix.'*, is not selected as DISTINCT will not work
 
@@ -573,7 +558,8 @@ class SQLBuilder {
 	 * @param string $key can be set to NULL to avoid assoc array
 	 * @return array
 	 */
-	function fetchAll($res, $key = NULL) {
+	function fetchAll($res, $key = NULL)
+	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_string($res) || $res instanceof SQLSelectQuery) {
 			$res = $this->db->perform($res);
@@ -604,10 +590,11 @@ class SQLBuilder {
 
 	/**
 	 * @param string $query
-	 * @param null   $className	- if provided it will return DatabaseInstanceIterator
+	 * @param null $className - if provided it will return DatabaseInstanceIterator
 	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 */
-	function getIterator($query, $className = NULL) {
+	function getIterator($query, $className = NULL)
+	{
 		if ($className) {
 			$f = new DatabaseInstanceIterator($this->db, $className);
 			if (is_string($query)) {
@@ -616,7 +603,7 @@ class SQLBuilder {
 				$f->setResult($query);
 			}
 			return $f;
-		} elseif ($this->db instanceof dbLayerPDO) {
+		} elseif ($this->db instanceof DBLayerPDO) {
 			$res = $this->db->perform($query);
 			return $res;
 		} elseif (is_string($query)) {
@@ -628,18 +615,20 @@ class SQLBuilder {
 			$f->setResult($query);
 			return $f;
 		} else {
-			throw new InvalidArgumentException($query);
+			throw new InvalidArgumentException(__METHOD__ . ' __/(:-)\__ ' . $query);
 		}
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
+	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		$res = $this->db->perform($query);
 		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}
 
-	function runUpdateInsert($table, $set, $where) {
+	function runUpdateInsert($table, $set, $where)
+	{
 		$found = $this->runSelectQuery($table, $where);
 		if ($this->db->numRows($found)) {
 			$res = 'update';
@@ -659,13 +648,15 @@ class SQLBuilder {
 	 * @param $key
 	 * @return array[]
 	 */
-	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL) {
+	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL)
+	{
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
 		$rows = $this->db->fetchAll($res, $key);
 		return $rows;
 	}
 
-	function getWhereString(array $where) {
+	function getWhereString(array $where)
+	{
 		$set = $this->quoteWhere($where);
 		return implode(' AND ', $set);
 	}
@@ -675,7 +666,8 @@ class SQLBuilder {
 	 * @param $query
 	 * @return array
 	 */
-	function fetchOptions($query) {
+	function fetchOptions($query)
+	{
 		$data = array();
 		if (is_string($query) || $query instanceof SQLSelectQuery) {
 			$result = $this->perform($query);
@@ -690,6 +682,38 @@ class SQLBuilder {
 			$row = $this->fetchAssoc($result);
 		}
 		return $data;
+	}
+
+	function getCount(SQLSelectQuery $query)
+	{
+		$queryWithoutOrder = clone $query;
+		$queryWithoutOrder->unsetOrder();
+
+		$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
+		$subQuery->setParameters($query->getParameters());
+		$query = new SQLSelectQuery(
+			new SQLSelect('count(*) AS count'),
+			$subQuery);
+		$query->injectDB($this->db);
+
+		$res = $query->fetchAssoc();
+		$count = $res['count'];
+		return $count;
+	}
+
+	function getReserved()
+	{
+		if ($this->db instanceof DBLayerPDO) {
+			if ($this->db->isMySQL()) {
+				return (new MySQL())->getReserved();
+			} elseif ($this->db->isPostgres()) {
+				return (new DBLayer())->getReserved();
+			} else {
+				return [];
+			}
+		} else {
+			return [];
+		}
 	}
 
 }

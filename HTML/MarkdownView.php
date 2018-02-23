@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class MarkdownView
+ * composer require michelf/php-markdown
+ */
 class MarkdownView extends View {
 
 	/**
@@ -35,7 +39,7 @@ class MarkdownView extends View {
 	public function processIncludes() {
 		$content = $this->render();
 		$content = preg_replace_callback('/{{(.+?)}}/', function ($matches) {
-			return new MarkdownView($matches[1]);
+			return (new MarkdownView($matches[1]))->render();
 		}, $content);
 		$this->content = $content;
 	}

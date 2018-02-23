@@ -195,7 +195,7 @@ abstract class Grid extends AppController {
 	 * @throws LoginException
 	 */
 	public function setFilter($cn) {
-		$this->filter = new Filter();
+		$this->filter = new \nadlib\Controller\Filter();
 		if ($this->request->getTrim('action') == 'clearFilter') {
 			$this->filter->clear();
 		} else {
@@ -260,7 +260,7 @@ abstract class Grid extends AppController {
 		if (!$this->columns && $this->collection && $this->collection->thes) {
 			$keysOfThes = array_keys($this->collection->thes);
 			$this->columns = new VisibleColumns($keysOfThes);
-			$this->log(__METHOD__, 'Columns set from collection ' . gettype2($this->collection) . ': ' . json_encode($this->columns));
+			$this->log(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns));
 		} elseif (!$this->columns) {
 			$this->columns = new VisibleColumns();
 		}

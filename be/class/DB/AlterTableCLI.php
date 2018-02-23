@@ -1,6 +1,6 @@
 <?php
 
-class AlterTableCLI extends AlterTableHYBH {
+class AlterTableCLI extends AlterTable {
 
 	function __construct() {
 		if (!Request::isCLI()) {
@@ -13,13 +13,13 @@ class AlterTableCLI extends AlterTableHYBH {
 		$user = new User(1);
 		$user->saveLogin();
 
-		Config::getInstance()->user = $user;
+		$this->config->setUser($user);
 
 		parent::__construct();
 	}
 
 	function render() {
-		echo 'DB Class: ', gettype2($this->db), BR;
+		echo 'DB Class: ', typ($this->db), BR;
 		echo 'DB Scheme: ', $this->db->getScheme(), BR;
 		$action = $this->request->getTrim('action');
 		$action = $action ?: ifsetor($_SERVER['argv'][2]);

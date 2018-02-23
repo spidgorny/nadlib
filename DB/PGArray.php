@@ -3,7 +3,7 @@
 class PGArray extends AsIs {
 
 	/**
-	 * @var dbLayer
+	 * @var DBLayer
 	 */
 	var $db;
 
@@ -17,7 +17,7 @@ class PGArray extends AsIs {
 	 */
 	var $data;
 
-	function __construct(dbLayer $db, array $data = NULL) {
+	function __construct(DBLayer $db, array $data = NULL) {
 		$this->db = $db;
 
 		$query = "SHOW standard_conforming_strings;";
@@ -48,6 +48,7 @@ class PGArray extends AsIs {
 	 * New better syntax for using it in SQL which does not
 	 * require tripple escaping of backslashes
 	 * @return string
+	 * @throws MustBeStringException
 	 */
 	function __toString() {
 		$quoted = $this->db->quoteValues($this->data);
@@ -61,8 +62,8 @@ class PGArray extends AsIs {
 	/**
 	 * http://www.php.net/manual/en/ref.pgsql.php#57709
 	 *
-	 * @param unknown_type $pgArray
-	 * @return unknown
+	 * @param string $pgArray
+	 * @return array
 	 */
 	function PGArrayToPHPArray($pgArray) {
 		$ret = array();
@@ -99,6 +100,7 @@ class PGArray extends AsIs {
 	 * @return array
 	 */
 	function getPGArray($input) {
+		$input = (string)$input;
 		if (strlen($input) && $input{0} == '{') {	// array inside
 			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
 			return $this->getPGArray($input);

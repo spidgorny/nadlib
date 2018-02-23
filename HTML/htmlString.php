@@ -35,4 +35,8 @@ class htmlString {
 		return $new;
 	}
 
+	function render() {
+		return $this->__toString();
+	}
+
 }
