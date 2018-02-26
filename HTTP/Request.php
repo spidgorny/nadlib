@@ -931,6 +931,12 @@ class Request {
 			: $this->getTrim($alternative);
 	}
 
+	static function isCURL()
+	{
+		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
+		return $isCURL;
+	}
+
 	static function isCLI()
 	{
 		//return isset($_SERVER['argc']);
