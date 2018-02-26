@@ -160,7 +160,8 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
-			$e = new DatabaseException(pg_errormessage($this->connection).BR.$query);
+			$e = new DatabaseException(
+				pg_errormessage($this->connection));
 			$e->setQuery($query);
 			throw $e;
 		} else {
