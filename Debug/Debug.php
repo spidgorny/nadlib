@@ -205,6 +205,10 @@ class Debug
 		echo '--- ' . $this->name . ' ---' . BR .
 			implode(BR, $trace) . "\n";
 
+		if ($args instanceof htmlString) {
+			$args = strip_tags($args);
+		}
+
 		if (is_object($args)) {
 			echo 'Object: ', get_class($args), BR;
 			if (method_exists($args, '__debugInfo')) {
@@ -225,6 +229,7 @@ class Debug
 
 	function canHTML()
 	{
+//		pre_print_r(__METHOD__, $_COOKIE);
 		return ifsetor($_COOKIE['debug']);
 	}
 

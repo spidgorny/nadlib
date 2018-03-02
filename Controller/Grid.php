@@ -195,7 +195,7 @@ abstract class Grid extends AppController {
 	 * @throws LoginException
 	 */
 	public function setFilter($cn) {
-		$this->filter = new Filter();
+		$this->filter = new \nadlib\Controller\Filter();
 		if ($this->request->getTrim('action') == 'clearFilter') {
 			$this->filter->clear();
 		} else {

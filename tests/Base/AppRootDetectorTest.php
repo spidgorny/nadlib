@@ -20,6 +20,7 @@ class AppRootDetectorTest extends \PHPUnit_Framework_TestCase {
 		echo 'dirname(dirname(cwd)): ', dirname(dirname(getcwd())), BR;
 		$ad = new AppRootDetector();
 		echo 'AppRoot: ', $ad->get().'', BR;
+		$this->assertContains('vendor/spidgorny/nadlib', $ad->get().'');
 	}
 
 }
