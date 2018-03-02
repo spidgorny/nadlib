@@ -89,12 +89,12 @@ class Model {
 		return null;
 	}
 
-	function insert(array $data)
+	function insert(array $data, array $where = [])
 	{
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
-		$res = $this->db->runInsertQuery($this->table, $data);
+		$res = $this->db->runInsertQuery($this->table, $data, $where);
 		$this->setData($data);
 		return $res;
 	}
