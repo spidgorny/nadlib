@@ -19,8 +19,9 @@ abstract class FullGrid extends Grid {
 			$this->saveFilterAndSort(/*$collection ?: */get_class($this));
 		}
 
-		if (!($this->filter instanceof Filter)) {
-			$this->filter = new Filter($this->filter);
+		if (!($this->filter instanceof nadlib\Controller\Filter)) {
+//			debug($this->filter);
+			$this->filter = new nadlib\Controller\Filter($this->filter);
 //			debug(gettype2($this->filter));
 		}
 
@@ -28,6 +29,10 @@ abstract class FullGrid extends Grid {
 		$this->filterController->setFilter($this->filter);
 	}
 
+	/**
+	 * @param null $collection
+	 * @throws LoginException
+	 */
 	function postInit($collection = NULL) {
 		if (!$this->collection) {
 			if (is_string($collection)) {
@@ -105,6 +110,10 @@ abstract class FullGrid extends Grid {
 		}
 	}
 
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
 	function getFilterWhere()
 	{
 		return $this->filterController->getFilterWhere(
@@ -118,6 +127,11 @@ abstract class FullGrid extends Grid {
 		return $content;
 	}
 
+	/**
+	 * @param array $fields
+	 * @return array|HTMLFormTable
+	 * @throws Exception
+	 */
 	function getFilterForm(array $fields = []) {
 		if (method_exists($this, 'getFilterDesc')) {
 			$this->filterController->desc = $this->getFilterDesc($fields);
@@ -166,6 +180,9 @@ abstract class FullGrid extends Grid {
 		return $f;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function injectCollection() {
 		parent::injectCollection();
 		debug($this->collection->where,

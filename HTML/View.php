@@ -98,10 +98,12 @@ class View extends stdClass {
 		return $file;
 	}
 
-	function getContent($file)
+	function getContent($file, array $variables = [])
 	{
 		$content = '';
 		ob_start();
+
+		extract($variables);
 
 		//debug($file);
 		/** @noinspection PhpIncludeInspection */
@@ -117,21 +119,21 @@ class View extends stdClass {
 		return $content;
 	}
 
-	function render()
+	function render(array $variables = [])
 	{
 		$key = __METHOD__ . ' (' . basename($this->file) . ')';
 		TaylorProfiler::start($key);
 
 		if (!$this->processed) {
 			$file = $this->getFile();
-			$content = $this->getContent($file);
+			$content = $this->getContent($file, $variables);
 
 			// Locallang replacement
 			$content = $this->localize($content);
 
 			if (DEVELOPMENT) {
 				// not allowed in MRBS as some templates return OBJECT(!)
-				//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
+//				$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
 				$content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
 			}
 			$this->processed = $content;
@@ -460,6 +462,9 @@ class View extends stdClass {
 
 	function s($a)
 	{
+//		echo typ($a), BR;
+//		debug_pre_print_backtrace();
+//		echo '<hr />';
 		return MergedContent::mergeStringArrayRecursive($a);
 	}
 

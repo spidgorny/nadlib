@@ -21,6 +21,12 @@ class AlterTableHandler {
 		return $this->sameTypeString($index1->type, $index2->type);
 	}
 
+	/**
+	 * @param $t1
+	 * @param $t2
+	 * @return bool
+	 * @todo compare using TableField
+	 */
 	function sameTypeString($t1, $t2) {
 		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)');
 		$text = array('text', 'varchar(255)', 'tinytext');

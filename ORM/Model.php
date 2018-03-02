@@ -31,6 +31,33 @@ class Model {
 
 	public $id;
 
+	/**
+	 * Not caching.
+	 * @param array $data
+	 * @param DBInterface $db
+	 * @return static
+	 */
+	static function getInstance(array $data, DBInterface $db = null)
+	{
+		$obj = new static(null);
+		$obj->setDB($db ?: Config::getInstance()->getDB());
+		$obj->setData($data);
+		return $obj;
+	}
+
+	/**
+	 * Not caching.
+	 * @param DBInterface $db
+	 * @param $id
+	 * @return static
+	 */
+	static function getInstanceByID(DBInterface $db, $id)
+	{
+		$obj = new static($db, []);
+		$obj->getByID($id);
+		return $obj;
+	}
+
 	function __construct(DBInterface $db = null, array $data = [])
 	{
 		if ($db) {
@@ -46,8 +73,8 @@ class Model {
 
 	public function getName()
 	{
-		// override this
-		return null;
+		$f = $this->titleColumn;
+		return $this->$f;
 	}
 
 	/**
@@ -170,21 +197,6 @@ class Model {
 	}
 
 	/**
-	 * @param array $data
-	 *
-	 * @param DBInterface $db
-	 *
-	 * @return static
-	 */
-	static function getInstance(array $data, DBInterface $db = null)
-	{
-		$obj = new static(null);
-		$obj->setDB($db ?: Config::getInstance()->getDB());
-		$obj->setData($data);
-		return $obj;
-	}
-
-	/**
 	 * Different models may extend this to covert between
 	 * different data types in DB and in runtime.
 	 * @param array $data
@@ -262,6 +274,11 @@ class Model {
 	public function getSingleLink()
 	{
 		return 'Controller?id='.$this->id();
+	}
+
+	public function __toString()
+	{
+		return $this->getName();
 	}
 
 }

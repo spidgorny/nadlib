@@ -262,7 +262,8 @@ FROM {$from}
 	 * @return SQLSelectQuery
 	 */
 	static function getSelectQueryP(
-		DBInterface $db, $table,
+		DBInterface $db,
+		$table,
 		$where = array(),
 		$sOrder = '',
 		$addSelect = NULL)
@@ -279,10 +280,7 @@ FROM {$from}
 
 
 		// must be quoted for SELECT user.* ... because "user" is reserved
-		$select = $addSelect
-			? $addSelect
-			: $db->quoteKey($table1) . ".*";
-
+		$select = $addSelect ?: $db->quoteKey($table1) . ".*";
 
 		$select = new SQLSelect($select);
 		$select->injectDB($db);
