@@ -697,6 +697,7 @@ class SQLBuilder {
 		$query->injectDB($this->db);
 
 		$res = $query->fetchAssoc();
+//		debug($res);
 		$count = $res['count'];
 		return $count;
 	}

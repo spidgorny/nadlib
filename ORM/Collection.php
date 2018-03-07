@@ -1056,6 +1056,8 @@ class Collection implements IteratorAggregate {
 					// like in QueueEPES
 					$this->retrieveData(false);
 					// will set the count
+					// actually it doesn't
+					$this->count = sizeof($this->data);
 				} elseif ($queryWithLimit instanceof SQLSelectQuery) {
 					$this->count = $this->db->getCount($queryWithLimit);
 				} else {
