@@ -157,7 +157,6 @@ class SQLBuilder {
 		}
 		//debug($set);
 		return $set;
-
 	}
 
 	/**
@@ -402,7 +401,7 @@ class SQLBuilder {
 		return $resInsert;
 	}
 
-	function runInsertQuery($table, array $columns, array $where = []) {
+	function runInsertQuery($table, array $columns, array $where = [])
 	{
 		TaylorProfiler::start(__METHOD__ . '(' . $table . ')');
 		$query = $this->getInsertQuery($table, $columns, $where);
