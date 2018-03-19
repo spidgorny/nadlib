@@ -225,37 +225,6 @@ class Model {
 		return ifsetor($this->$field);
 	}
 
-	function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
-	{
-		return SQLSelectQuery::getSelectQueryP($this->db, $this->table, $where, $orderBy);
-	}
-
-	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return array[]
-	 */
-	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
-	{
-		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
-		return $data;
-	}
-
-	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return ArrayPlus
-	 */
-	public function queryObjects(array $where, $orderBy = 'ORDER BY id DESC')
-	{
-		$data = $this->queryData($where, $orderBy);
-		$list = new ArrayPlus();
-		foreach ($data as $row) {
-			$list->append(new static($this->db, $row));
-		}
-		return $list;
-	}
-
 	public function asArray()
 	{
 		$data = get_object_vars($this);
