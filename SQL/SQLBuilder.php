@@ -203,7 +203,7 @@ class SQLBuilder {
 	 * @throws Exception
 	 * @throws MustBeStringException
 	 */
-	function getUpdateQuery($table, $columns, $where)
+	function getUpdateQuery($table, $columns, $where, $orderBy = '')
 	{
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$table = $this->quoteKey($table);
@@ -212,6 +212,7 @@ class SQLBuilder {
 		$q .= implode(",\n", $set);
 		$q .= "\nWHERE\n";
 		$q .= implode("\nAND ", $this->quoteWhere($where));
+		$q .= ' '.$orderBy;
 		return $q;
 	}
 
@@ -446,9 +447,9 @@ class SQLBuilder {
 		return $data;
 	}
 
-	function runUpdateQuery($table, array $columns, array $where)
+	function runUpdateQuery($table, array $columns, array $where, $orderBy = '')
 	{
-		$query = $this->getUpdateQuery($table, $columns, $where);
+		$query = $this->getUpdateQuery($table, $columns, $where, $orderBy);
 		return $this->db->perform($query);
 	}
 
