@@ -2,6 +2,8 @@
 
 use Psr\Log\LoggerInterface;
 
+require_once __DIR__.'/CachedGetInstance.php';
+
 /**
  * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
  * It contain all the information from the database related to the project as well as methods to manipulate it.

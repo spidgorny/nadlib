@@ -116,12 +116,12 @@ class Model {
 		return null;
 	}
 
-	function insert(array $data)
+	function insert(array $data, array $where = [])
 	{
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
-		$res = $this->db->runInsertQuery($this->table, $data);
+		$res = $this->db->runInsertQuery($this->table, $data, $where);
 		$this->setData($data);
 		return $res;
 	}
@@ -223,37 +223,6 @@ class Model {
 	function get($field)
 	{
 		return ifsetor($this->$field);
-	}
-
-	function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
-	{
-		return SQLSelectQuery::getSelectQueryP($this->db, $this->table, $where, $orderBy);
-	}
-
-	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return array[]
-	 */
-	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
-	{
-		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
-		return $data;
-	}
-
-	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return ArrayPlus
-	 */
-	public function queryObjects(array $where, $orderBy = 'ORDER BY id DESC')
-	{
-		$data = $this->queryData($where, $orderBy);
-		$list = new ArrayPlus();
-		foreach ($data as $row) {
-			$list->append(new static($this->db, $row));
-		}
-		return $list;
 	}
 
 	public function asArray()
