@@ -282,9 +282,11 @@ class ArrayPlus extends ArrayObject implements Countable {
 	{
 		$data = $this->getData();
 		$keys = $this->getKeys();
-		$this->setData(array_map(function ($key) use ($callback, $data) {
+		$mapped = array_map(function ($key) use ($callback, $data) {
 			return $callback($key, $data[$key]);
-		}, $keys->getData()));
+		}, $keys->getData());
+		$mapped = array_combine($keys->getData(), $mapped);
+		$this->setData($mapped);
 		return $this;
 	}
 
