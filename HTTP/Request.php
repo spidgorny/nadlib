@@ -1191,6 +1191,15 @@ class Request {
 		}
 	}
 
+	function noCache()
+	{
+		if (!headers_sent()) {
+			header('Pragma: no-cache');
+			header('Expires: 0');
+			header('Cache-Control: no-cache, no-store, must-revalidate');
+		}
+	}
+
 	/**
 	 * getNameless(1) doesn't provide validation.
 	 * Use importNameless() to associate parameters 1, 2, 3, with their names
