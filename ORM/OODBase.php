@@ -2,6 +2,8 @@
 
 use Psr\Log\LoggerInterface;
 
+require_once __DIR__.'/CachedGetInstance.php';
+
 /**
  * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
  * It contain all the information from the database related to the project as well as methods to manipulate it.
@@ -177,7 +179,8 @@ abstract class OODBase {
 
 	function initByRow(array $row)
 	{
-		$this->data = $row;
+		// to prevent $this->>update() to loose all fields calculated
+		$this->data = array_merge($this->data, $row);
 		$idField = $this->idField;
 
 		if (!is_array($idField)) {

@@ -26,7 +26,7 @@ class GroupSwitch extends AppController {
 	}
 
 	function canSwitchGroup() {
-		return in_array(ifsetor($this->user->data['login']), $this->allowedUsers);
+		return in_array($this->user->getLogin(), $this->allowedUsers);
 	}
 
 	function fetchGroups() {

@@ -1,5 +1,7 @@
 <?php
 
-interface ConfigInterface {
-
+interface ConfigInterface
+{
+	// empty for the time being
+	
 }

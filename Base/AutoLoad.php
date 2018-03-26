@@ -453,10 +453,6 @@ class AutoLoad {
 			//debug(phpversion());
 			//debug(error_get_last());
 			//debug(is_callable(array($instance, 'load')));
-			function __autoload($class) {
-				$instance = AutoLoad::getInstance();
-				$instance->load($class);
-			}
 		}
 		return $instance;
 	}
