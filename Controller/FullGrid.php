@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\Controller\Filter;
+
 abstract class FullGrid extends Grid {
 
 	/**
@@ -9,18 +11,25 @@ abstract class FullGrid extends Grid {
 
 	/**
 	 */
-	function __construct() {
-		parent::__construct();
+	function __construct()
+	{
+		parent::__construct();	// calls $this->initFilter();
+	}
 
+	public function initFilter()
+	{
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
+		parent::initFilter();
+
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 		if ($allowEdit /*&& $collection*/) {
 			$this->saveFilterAndSort(/*$collection ?: */get_class($this));
 		}
 
-		if (!($this->filter instanceof Filter)) {
-			$this->filter = new Filter($this->filter);
+		if (!($this->filter instanceof nadlib\Controller\Filter)) {
+//			debug($this->filter);
+			$this->filter = new nadlib\Controller\Filter($this->filter);
 //			debug(gettype2($this->filter));
 		}
 

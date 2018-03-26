@@ -1007,7 +1007,7 @@ class Request {
 		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
-		while (list($tmp, $p) = each($params)) {
+		foreach ($params as $tmp => $p) {
 			if ($p{0} == '-') {
 				$pname = substr($p, 1);
 				$value = true;
@@ -1194,6 +1194,15 @@ class Request {
 			header('Expires: ' . date('D, d M Y H:i:s', time() + $age) . ' GMT');
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 			header('Cache-Control: max-age=' . $age);
+		}
+	}
+
+	function noCache()
+	{
+		if (!headers_sent()) {
+			header('Pragma: no-cache');
+			header('Expires: 0');
+			header('Cache-Control: no-cache, no-store, must-revalidate');
 		}
 	}
 
