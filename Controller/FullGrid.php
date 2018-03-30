@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\Controller\Filter;
+
 abstract class FullGrid extends Grid {
 
 	/**

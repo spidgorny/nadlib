@@ -210,6 +210,12 @@ class slTable
 	{
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
+
+		if (!isset($a[$by])) {
+			debug('slTable', $this->sortable, $this->sortBy, $this->sortOrder,
+				array_keys($this->thes), $a);
+		}
+
 		$aa = $a[$by];
 		$bb = $b[$by];
 
