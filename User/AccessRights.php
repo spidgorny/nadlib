@@ -98,7 +98,7 @@ class AccessRights {
 		ORDER BY name");
 		$accessRights = new ArrayPlus($accessRights);
 		$accessRights = $accessRights->IDalize('id');
-		$accessRights = $accessRights->convertTo('AccessRightModel');
+		$accessRights = $accessRights->convertTo(AccessRightModel::class);
 		return $accessRights;
 	}
 
