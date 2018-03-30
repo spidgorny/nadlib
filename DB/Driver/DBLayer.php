@@ -135,6 +135,11 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			$query = $query->__toString();
 //			debug($query, $params);
 		}
+		if ($this->logToLog) {
+			error_log('... '.
+				preg_replace('/\s+/', ' ',
+					str_replace("\n", ' ', $query)));
+		}
 
 		try {
 			if ($params) {
@@ -160,7 +165,8 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
-			$e = new DatabaseException(pg_errormessage($this->connection).BR.$query);
+			$e = new DatabaseException(
+				pg_errormessage($this->connection));
 			$e->setQuery($query);
 			throw $e;
 		} else {
@@ -170,7 +176,9 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			}
 			if ($this->logToLog) {
 				$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
-				error_log($runTime.' '.str_replace("\n", ' ', $query));
+				error_log($runTime.' '.
+					preg_replace('/\s+/', ' ',
+						str_replace("\n", ' ', $query)));
 			}
 		}
 		$this->lastQuery = $query;

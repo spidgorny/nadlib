@@ -2,7 +2,7 @@
 
 use nadlib\Controller\Filter;
 
-class FilterController extends AppController {
+class FilterController extends Controller {
 
 	var $fields = [];
 
