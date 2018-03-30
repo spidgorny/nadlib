@@ -1187,7 +1187,7 @@ class Request {
 			header('Pragma: cache');
 			header('Expires: ' . date('D, d M Y H:i:s', time() + $age) . ' GMT');
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-			header('Cache-Control: max-age=' . $age);
+			header('Cache-Control: public, immutable, max-age=' . $age);
 		}
 	}
 
