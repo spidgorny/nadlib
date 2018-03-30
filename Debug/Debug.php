@@ -1,7 +1,6 @@
 <?php
 
-class Debug
-{
+class Debug {
 
 	var $index;
 
@@ -274,41 +273,61 @@ class Debug
 		$traceObj = ArrayPlus::create($db)->column('object')->getData();
 		if (!array_search('slTable', $traceObj) && class_exists('slTable', false)) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">' .
-				new slTable($db, 'class="nospacing"', [
-					'file'     => 'file',
-					'line'     => 'line',
-					'class'    => 'class',
-					'object'   => 'object',
-					'type'     => 'type',
+				new slTable($db, 'class="nospacing"', array(
+					'file' => 'file',
+					'line' => 'line',
+					'class' => 'class',
+					'object' => 'object',
+					'type' => 'type',
 					'function' => 'function',
-					'args'     => 'args',
-				]) . '</pre>';
+					'args' => 'args',
+				)) . '</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';
 		}
 		return $trace;
 	}
 
-	static function getMethod(array $first, array $next = [])
+	/**
+	 * @param array $first
+	 * @param array $next
+	 * @return string
+	 * @throws ReflectionException
+	 */
+	static function getMethod(array $first, array $next = array())
 	{
+//		pre_print_r($_SERVER);
+		$isPhpStorm = isset($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER'])
+			|| isset($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
 		$curFunc = ifsetor($next['function']);
 		$nextFunc = ifsetor($first['function']);
 		$line = ifsetor($first['line']);
-		if (isset($first['object']) && $first['object']) {
-			$function = get_class($first['object']) .
-				'->' . $curFunc .
-				'#' . $line .
-				'->' . $nextFunc;
-		} elseif (ifsetor($first['class'])) {
-			$function = $first['class'] .
-				'->' . $curFunc .
-				'#' . $line .
-				'->' . $nextFunc;
+		$file = ifsetor($first['file']);
+		if ($isPhpStorm) {
+			$path = $file;
 		} else {
-			$file = ifsetor($first['file']);
-			$function = basename(dirname($file)) . '/' . basename($file) .
-				'#' . $line .
-				'->' . $nextFunc;
+			$path = basename(dirname(dirname($file))) .
+				'/' . basename(dirname($file)) .
+				'/' . basename($file);
+		}
+		if (isset($first['object']) && $first['object']) {
+			$ref = new ReflectionClass($first['object']);
+			$path = $ref->getFileName();
+			$function = $path .
+				':' . $line . ' ' .
+				get_class($first['object']) .
+				' -> ' . $curFunc .
+				' -> ' . $nextFunc;
+		} elseif (ifsetor($first['class'])) {
+			$function = $path .
+				':' . $line . ' ' .
+				$first['class'] .
+				' -> ' . $curFunc .
+				' -> ' . $nextFunc;
+		} else {
+			$function = $path .
+				':' . $line .
+				' -> ' . $nextFunc;
 		}
 		return $function;
 	}
@@ -335,10 +354,10 @@ class Debug
 
 	/**
 	 * Returns a string with multiple methods chain
-	 * @param int    $limit
-	 * @param int    $cut
+	 * @param int $limit
+	 * @param int $cut
 	 * @param string $join
-	 * @param bool   $withHash
+	 * @param bool $withHash
 	 * @return string
 	 */
 	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true)
@@ -371,7 +390,7 @@ class Debug
 
 	/**
 	 * http://stackoverflow.com/a/2510459/417153
-	 * @param     $bytes
+	 * @param $bytes
 	 * @param int $precision
 	 * @return string
 	 */
