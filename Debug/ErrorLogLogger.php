@@ -1,6 +1,6 @@
 <?php
 
-class CLILogger
+class ErrorLogLogger
 {
 
 	function log($method, $data)
@@ -14,7 +14,7 @@ class CLILogger
 		} else {
 			$output = json_encode($data);
 		}
-		echo '[', $method, '] ', $output, BR;
+		error_log('[' . $method . '] ' . $output);
 	}
 
 	function info($method, $data)
