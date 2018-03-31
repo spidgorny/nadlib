@@ -354,10 +354,11 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		return $return;
 	}
 
-	/**
-	 * Returns a list of tables in the current database
-	 * @return string[]
-	 */
+    /**
+     * Returns a list of tables in the current database
+     * @return string[]
+     * @throws DatabaseException
+     */
 	function getTables() {
 		$query = "select relname
 		from pg_class
@@ -371,10 +372,11 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		return ArrayPlus::create($return)->column('relname')->getData();
 	}
 
-	/**
-	 * Returns a list of tables in the current database
-	 * @return string[]
-	 */
+    /**
+     * Returns a list of tables in the current database
+     * @return string[]
+     * @throws DatabaseException
+     */
 	function getViews() {
 		$query = "select relname
 		from pg_class
@@ -519,10 +521,11 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		return $res;
 	}
 
-	/**
-	 * @param result/query $result
-	 * @return array
-	 */
+    /**
+     * @param resource/query $result
+     * @return array
+     * @throws DatabaseException
+     */
 	function fetchAssoc($res) {
 		if (is_string($res)) {
 			$res = $this->perform($res);
