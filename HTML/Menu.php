@@ -342,7 +342,7 @@ class Menu /*extends Controller*/ {
      * @param null $ulClass
      * @return string
      */
-    function renderLevel(array $items, array $root = array(), $level, $ulClass = NULL) {
+    function renderLevelItems(array $items, array $root = array(), $level = 0, $ulClass = NULL) {
 		$content = '';
 		foreach ($items as $class => $name) {
 			if ($name) {	// empty menu items indicate menu location for a controller
@@ -393,6 +393,11 @@ class Menu /*extends Controller*/ {
 				}
 			}
 		}
+		return $content;
+	}
+
+	function renderLevel(array $items, array $root = array(), $level = 0, $ulClass = NULL) {
+		$content = $this->renderLevelItems($items, $root, $level, $ulClass);
 		//debug($this->current);
 		$content = '<'.$this->menuTag.' class="'.($ulClass ? $ulClass : $this->ulClass).'">'.$content.'</'.$this->menuTag.'>';
 		return $content;

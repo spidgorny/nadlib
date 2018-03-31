@@ -172,4 +172,5 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface {
 	public function getScheme() {
 		return 'sqlite';
 	}
+	
 }
