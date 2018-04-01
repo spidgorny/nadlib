@@ -173,6 +173,11 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	 */
 	function fetchAll($res_or_query, $index_by_key = NULL)
 	{
+		if (is_string($res_or_query)) {
+			$res_or_query = $this->perform($res_or_query);
+		} elseif ($res_or_query instanceof SQLSelectQuery) {
+			$res_or_query = $this->perform($res_or_query.'', $res_or_query->getParameters());
+		}
 		$data = [];
 		do {
 			$row = $res_or_query->fetchArray(SQLITE3_ASSOC);
