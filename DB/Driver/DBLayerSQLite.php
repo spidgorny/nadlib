@@ -46,11 +46,18 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	{
 		if (class_exists('SQLite3')) {
 			$this->connection = new SQLite3($this->file);
+			$this->connection->exec('PRAGMA journal_mode = wal;');
 		} else {
 			throw new Exception('SQLite3 extension is not enabled');
 		}
 	}
 
+	/**
+	 * @param $query
+	 * @param array $params
+	 * @return null|SQLite3Result|SQLiteResult
+	 * @throws DatabaseException
+	 */
 	function perform($query, array $params = [])
 	{
 		if (!$this->connection) {
@@ -62,8 +69,8 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		$this->queryTime += $profiler->elapsed();
 		$this->logQuery($query);
 		if (!$this->lastResult) {
-			debug($query, $this->connection->lastErrorMsg());
-			throw new Exception('DB query failed');
+			debug($this->lastResult, $query, $this->connection->lastErrorMsg());
+			throw new DatabaseException($this->connection->lastErrorMsg());
 		}
 		return $this->lastResult;
 	}
@@ -77,6 +84,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	{
 		$numRows = 0;
 		if ($res instanceof SQLite3Result) {
+			$res->reset();
 			//debug(get_class($res), get_class_methods($res));
 			//$all = $this->fetchAll($res);   // will free() inside
 			//$numRows = sizeof($all);
@@ -86,6 +94,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 			$res->reset();
 		} else {
 			debug($res);
+			throw new DatabaseException('invalid result');
 		}
 		return $numRows;
 	}
@@ -174,18 +183,29 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	function fetchAll($res_or_query, $index_by_key = NULL)
 	{
 		if (is_string($res_or_query)) {
-			$res_or_query = $this->perform($res_or_query);
+			$res = $this->perform($res_or_query);
 		} elseif ($res_or_query instanceof SQLSelectQuery) {
-			$res_or_query = $this->perform($res_or_query.'', $res_or_query->getParameters());
+			$res = $this->perform($res_or_query.'', $res_or_query->getParameters());
+		} elseif ($res_or_query instanceof SQLite3Result) {
+			$res = $res_or_query;
+		} else {
+//			error_log(typ($res_or_query));
+			throw new DatabaseException('res is not usable');
 		}
+//		debug($res_or_query.'');
+
 		$data = [];
 		do {
-			$row = $res_or_query->fetchArray(SQLITE3_ASSOC);
+			$row = $res->fetchArray(SQLITE3_ASSOC);
 			if ($row) {
 				$data[] = $row;
 			}
 		} while ($row);
-		$res_or_query->finalize();
+
+		if ($res instanceof SQLite3Result) {
+			$res->finalize();
+		}
+
 		if ($index_by_key) {
 			$data = ArrayPlus::create($data)->IDalize($index_by_key)->getData();
 		}
@@ -201,13 +221,23 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
-		}
-		if (!is_object($res)) {
+		} elseif ($res instanceof SQLSelectQuery) {
+			$res = $this->perform($res.'', $res->getParameters());
+		} elseif ($res instanceof SQLite3Result) {
+//			$res = $res;
+		} else {
 			debug($res);
 			debug_pre_print_backtrace();
+			throw new DatabaseException('unknown res');
 		}
+//		debug($this->lastQuery, typ($res));
+
 		$row = $res->fetchArray(SQLITE3_ASSOC);
-		$res->finalize();
+
+		// don't finalize as this may be used somewhere
+//		if ($res->numColumns() && $res->columnType(0) != SQLITE3_NULL) {
+//			$res->finalize();
+//		}
 		return $row;
 	}
 
