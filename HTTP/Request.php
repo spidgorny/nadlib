@@ -578,13 +578,16 @@ class Request {
 	{
 		$c = NULL;
 		$docRoot = self::getDocRoot();
+		ksort($_SERVER);
 		pre_print_r(array(
 			'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
 			'url' => self::getLocation() . '',
-			'server' => $_SERVER,
+			'server' => array_filter($_SERVER, function ($el) {
+				return strpos($el, '/') !== false;
+			}),
 		));
 	}
 
@@ -1128,7 +1131,7 @@ class Request {
 //		exit();
 		if ($request && $request != '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
-			$docRoot = str_replace($docRootRaw, '', dirname($script));
+			$docRoot = str_replace($docRootRaw, '', dirname($script)).'/';	// dirname() removes slash
 		} else {
 			$docRoot = '/';
 		}
@@ -1181,6 +1184,41 @@ class Request {
 		} else {
 			$docRoot = dirname($_SERVER['PHP_SELF']);
 			return $docRoot;
+		}
+	}
+
+	public static function getDocumentRootByIsDir()
+	{
+		return self::dir_of_file(
+			self::firstExistingDir(
+				ifsetor($_SERVER['REQUEST_URI'])
+			)
+		);
+	}
+
+	/**
+	 * dirname('/53/') = '/' which is a problem
+	 * @param $path
+	 * @return string
+	 */
+	static function dir_of_file($path)
+	{
+		if ($path[strlen($path)-1] == '/') {
+			return $path;
+		} else {
+			return dirname($path);
+		}
+	}
+
+	static function firstExistingDir($path)
+	{
+		$check = $_SERVER['DOCUMENT_ROOT'].$path;
+		if (is_dir($check)) {
+			return cap($path, '/');
+		} elseif ($path) {
+			return self::firstExistingDir(self::dir_of_file($path));
+		} else {
+			return '/';
 		}
 	}
 
