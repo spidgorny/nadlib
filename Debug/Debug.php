@@ -188,7 +188,8 @@ class Debug
 
 	function canCLI()
 	{
-		return Request::isCLI();
+		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
+		return Request::isCLI() || $isCURL;
 	}
 
 	function debugWithCLI($args)
