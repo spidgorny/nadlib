@@ -158,8 +158,8 @@ class AutoLoad {
 		if ($this->debugStartup) {
 			echo 'scriptWithPath: ', $scriptWithPath, BR;
 		}
-		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
-		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__DIR__));
+//		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
+//		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__DIR__));
 		$this->nadlibRoot = dirname(__DIR__) . '/';
 		$this->appRoot = $this->detectAppRoot();
 		if ($this->debugStartup) {
@@ -189,7 +189,7 @@ class AutoLoad {
 			echo 'appRootIsRoot: ', $appRootIsRoot, BR;
 		}
 
-		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
+//		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
 		if ($this->debugStartup) {
 			echo 'nadlibFromCWD: ', $this->nadlibFromCWD, BR;
 		}
