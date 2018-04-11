@@ -579,8 +579,9 @@ class HTMLForm {
 		} else {
 			$options = $desc['options'];
 		}
-		Index::getInstance()->addJQuery();
-		$this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
+		if (class_exists('Index')) {
+			Index::getInstance()->addJQuery();
+			$this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
 			jQuery(this).val()
 		);"', false, $desc);
 		$this->input($fieldName, $desc['value']);
