@@ -29,7 +29,10 @@ class MarkdownView extends View {
 		$this->content = $html;
 	}
 
-	function render() {
+	/**
+	 * $vars are not used
+	 */
+	function render(array $vars = []) {
 		if (!$this->content) {
 			$this->loadTemplate();
 		}
