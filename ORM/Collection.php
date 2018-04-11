@@ -648,6 +648,9 @@ class Collection implements IteratorAggregate {
 		$list = array();
 		if ($this->getCount()) {
 			foreach ($this->getProcessedData() as $id => $row) {
+				if ($this->itemClassName) {
+					$list[$id] = $this->renderListItem($row);
+				} else
 				if ($this->thes) {
 					$row = $this->prepareRenderRow($row);   // add link
 					$item = '';
@@ -655,8 +658,6 @@ class Collection implements IteratorAggregate {
 						$item .= $row[$key] . ' ';
 					}
 					$list[$id] = $item;
-				} elseif ($this->itemClassName) {
-					$list[$id] = $this->renderListItem($row);
 				} else {
 					$list[$id] = $row[$this->titleColumn];
 				}
@@ -675,6 +676,7 @@ class Collection implements IteratorAggregate {
 		} else {
 			$obj = new $class($row);
 		}
+
 		if (method_exists($obj, 'render')) {
 			$content = $obj->render();
 		} elseif (method_exists($obj, 'getSingleLink')) {

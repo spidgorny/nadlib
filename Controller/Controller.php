@@ -129,7 +129,8 @@ abstract class Controller {
 		if (!$this->useRouter) {
 			$this->linkVars['c'] = get_class($this);
 		}
-		$this->title = $this->title ? $this->title : get_class($this);
+		$this->title = $this->title ? $this->title
+			: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
 		if ($this->config->ll) {
 			$this->title = $this->title ? __($this->title) : $this->title;

@@ -90,10 +90,12 @@ class AccessRights {
 		return $keys;
 	}
 
-	function getAllRights()
+	function getAllRights($wherePlus = 'WHERE 1 = 1')
 	{
 		$accessRights = $this->db->fetchAll("
-		SELECT * FROM {$this->accessTable} ORDER BY name");
+		SELECT * FROM {$this->accessTable}
+		$wherePlus 
+		ORDER BY name");
 		$accessRights = new ArrayPlus($accessRights);
 		$accessRights = $accessRights->IDalize('id');
 		$accessRights = $accessRights->convertTo(AccessRightModel::class);
