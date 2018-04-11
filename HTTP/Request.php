@@ -764,7 +764,9 @@ class Request {
 
 		if (!$this->isWindows()) {    // linux
 			//debug(getcwd(), $al->documentRoot.'');
+//			debug('cwd', $cwd);
 			$url = clone $al->documentRoot;
+//			debug('documentRoot', $url);
 			$url->append($this->url->getPath());
 			$url->normalizeHomePage();
 
@@ -1394,4 +1396,13 @@ class Request {
 		return $hidden;
 	}
 
+	public function getAction()
+	{
+		$action = $this->getTrim('action');
+		if (!$action) {
+			$action = $this->getURLLevel(1);
+		}
+		return $action;
+	}
+	
 }
