@@ -297,6 +297,7 @@ FROM {$from}
 		}
 		$where->injectDB($db);
 
+		$sOrder = trim($sOrder);
 		$group = NULL;
 		$limit = NULL;
 		$order = NULL;
