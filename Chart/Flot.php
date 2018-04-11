@@ -3,7 +3,7 @@
 /**
  * Class Flot - is drawing a flot chart.
  */
-class Flot extends AppController {
+class Flot extends Controller {
 
 	public $colors = array(
 		'#edc240',
