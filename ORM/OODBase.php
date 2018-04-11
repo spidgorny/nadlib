@@ -231,7 +231,7 @@ abstract class OODBase {
 	function insert(array $data)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$this->log(get_called_class() . '::' . __FUNCTION__, $data);
+		$this->log(get_called_class() . '::' . __FUNCTION__, array_to_string($data));
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -368,7 +368,7 @@ abstract class OODBase {
 			$this->where + $where, $orderByLimit, $selectPlus);
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
-		$this->log($this->lastSelectQuery, ['method' => __METHOD__]);
+		$this->log(__METHOD__, $this->lastSelectQuery.'');
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
