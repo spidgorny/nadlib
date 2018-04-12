@@ -144,7 +144,7 @@ class slTable
 		$this->db = class_exists('Config', false)
 			? Config::getInstance()->getDB()
 			: null;
-		if (!file_exists('img/arrow_down.gif')) {
+		if (!@file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
 			$this->arrowAsc = '&#x25b2;';
 		}
