@@ -183,7 +183,7 @@ class Request {
 		$id = $this->getIntOrNULL($name);
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
 			debug($id, array_keys($assoc));
-			throw new Exception($name . ' is not part of allowed collection.');
+			throw new InvalidArgumentException($name . ' is not part of allowed collection.');
 		}
 		return $id;
 	}
@@ -192,7 +192,7 @@ class Request {
 	{
 		$id = $this->getIntOrNULL($name);
 		if (!$id) {
-			throw new Exception($name . ' parameter is required.');
+			throw new InvalidArgumentException($name . ' parameter is required.');
 		}
 		return $id;
 	}
@@ -764,7 +764,9 @@ class Request {
 
 		if (!$this->isWindows()) {    // linux
 			//debug(getcwd(), $al->documentRoot.'');
+//			debug('cwd', $cwd);
 			$url = clone $al->documentRoot;
+//			debug('documentRoot', $url);
 			$url->append($this->url->getPath());
 			$url->normalizeHomePage();
 
@@ -773,8 +775,9 @@ class Request {
 
 			$path = new Path($url);
 			$path->remove($cwd);
+			$path->normalize();
 
-			//debug($url.'', $cwd.'', $path.'');
+//			debug($url.'', $cwd.'', $path.'');
 		} else {    // windows
 			$cwd = NULL;
 			$url = new Path('');
@@ -798,14 +801,15 @@ class Request {
 	function getPathAfterAppRoot()
 	{
 		$al = AutoLoad::getInstance();
-		$appRoot = $al->getAppRoot();
-		$docRoot = $al->documentRoot;
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$docRoot = $al->documentRoot->normalize()->realPath();
+//		d($appRoot.'', $docRoot.'');
 
 		$pathWithoutDocRoot = clone $appRoot;
 		$pathWithoutDocRoot->remove($docRoot);
-		//d($pathWithoutDocRoot.'');
 
 		$path = clone $this->url->getPath();
+//		d('remove', $pathWithoutDocRoot.'', 'from', $path.'');
 		$path->remove($pathWithoutDocRoot);
 		$path->normalize();
 
@@ -823,11 +827,15 @@ class Request {
 	}
 
 	/**
+	 * Should work from app root
+	 * When working from doc root it includes folders leading
+	 * to the app root, which breaks numbers when deployed to
+	 * a different server with a longer/shorter path.
 	 * @return array
 	 */
 	function getURLLevels()
 	{
-		$path = $this->getPathAfterDocRoot();
+		$path = $this->getPathAfterAppRoot();
 //		debug($path);
 		//$path = $path->getURL();
 		//debug($path);
@@ -925,6 +933,12 @@ class Request {
 			: $this->getTrim($alternative);
 	}
 
+	static function isCURL()
+	{
+		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
+		return $isCURL;
+	}
+
 	static function isCLI()
 	{
 		//return isset($_SERVER['argc']);
@@ -995,7 +1009,7 @@ class Request {
 		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
-		while (list($tmp, $p) = each($params)) {
+		foreach ($params as $tmp => $p) {
 			if ($p{0} == '-') {
 				$pname = substr($p, 1);
 				$value = true;
@@ -1046,6 +1060,11 @@ class Request {
 		$array = $this->getArray($name);
 		$array = array_map('intval', $array);
 		return $array;
+	}
+
+	function getFields(array $desc)
+	{
+		return filter_var_array($this->data, $desc);
 	}
 
 	function clear()
@@ -1176,7 +1195,7 @@ class Request {
 			header('Pragma: cache');
 			header('Expires: ' . date('D, d M Y H:i:s', time() + $age) . ' GMT');
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-			header('Cache-Control: max-age=' . $age);
+			header('Cache-Control: public, immutable, max-age=' . $age);
 		}
 	}
 
@@ -1352,6 +1371,15 @@ class Request {
 				?: $this->getNameless($last);
 	}
 
+	public function getIDrequired()
+	{
+		$value = $this->getID();
+		if (!$value) {
+			throw new InvalidArgumentException('ID is required.');
+		}
+		return $value;
+	}
+
 	public function getHidden(array $limit = [])
 	{
 		$hidden = array_reduce(array_keys($this->data), function ($total, $key) {
@@ -1368,4 +1396,13 @@ class Request {
 		return $hidden;
 	}
 
+	public function getAction()
+	{
+		$action = $this->getTrim('action');
+		if (!$action) {
+			$action = $this->getURLLevel(1);
+		}
+		return $action;
+	}
+	
 }

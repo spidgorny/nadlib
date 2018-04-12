@@ -235,6 +235,15 @@ post_max_size: ' . $post_max_size . '">' .
 		}
 	}
 
+	function test_mime()
+	{
+		return [
+			'finfo' => class_exists('finfo'),
+			'finfo_open' => function_exists('finfo_open'),
+			'mime_content_type' => function_exists('mime_content_type'),
+		];
+	}
+
 	/**
 	 * Tries different methods
 	 * @param $filename
@@ -244,7 +253,7 @@ post_max_size: ' . $post_max_size . '">' .
 	{
 		if (class_exists('finfo')) {
 			$fi = new finfo();
-			$mime = $fi->file($filename);
+			$mime = $fi->file($filename, FILEINFO_MIME_TYPE);
 			$this->mimeMethod = 'finfo';
 		} elseif (function_exists('finfo_open')) {
 			$fi = finfo_open(FILEINFO_MIME_TYPE);
@@ -270,7 +279,7 @@ post_max_size: ' . $post_max_size . '">' .
 	function get_mime_type_system($filepath)
 	{
 		ob_start();
-		system("file -i -b {$filepath}");
+		system("file --mime-type -i --mime -b {$filepath}");
 		$output = ob_get_clean();
 		$output = explode("; ", $output);    // text/plain; charset=us-ascii
 		if (is_array($output)) {

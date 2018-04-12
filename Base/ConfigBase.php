@@ -4,7 +4,7 @@
  * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
  * Extend with a name Class and add any configuration parameters and factory calls.
  */
-class ConfigBase {
+class ConfigBase implements ConfigInterface {
 	/**
 	 * del: Public to allow Request to know if there's an instance
 	 * @var Config
@@ -128,7 +128,7 @@ class ConfigBase {
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
-	 * @return Config|ConfigBase
+	 * @return static
 	 */
 	public static function getInstance()
 	{
@@ -169,12 +169,14 @@ class ConfigBase {
 					''
 				);
 				$this->db->perform('set names utf8');
-			} else {
+			} elseif (extension_loaded('mysql')) {
 				$this->db = new MySQL(
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
 					$this->db_password);
+			} else {
+				throw new DatabaseException('Please enable PDO');
 			}
 			$this->db->setQb(new SQLBuilder($this->db));
 		}

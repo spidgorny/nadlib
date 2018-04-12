@@ -9,6 +9,8 @@ class AppRootDetector {
 
 	var $debug = false;
 
+	public $nadlibRoot = 'vendor/spidgorny/nadlib/';
+
 	/**
 	 * Original idea was to remove vendor/s/nadlib/be from the CWD
 	 * but since $this->nadlibRoot is relative "../" it's impossible.
@@ -18,6 +20,7 @@ class AppRootDetector {
 	 */
 	function __construct()
 	{
+		$this->log(Request::isPHPUnit(), Request::isCLI());
 		if (Request::isPHPUnit()) {
 			$appRoot = getcwd();
 		} elseif (Request::isCLI()) {
@@ -29,17 +32,15 @@ class AppRootDetector {
 			$appRoot = str_replace('/kunden', '', $appRoot); // 1und1.de
 		}
 		$appRoot = realpath($appRoot);
-		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
+		$this->log('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
-			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
+			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)    // u:\
 		) {
 			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'index.php';
 			$exists1 = file_exists($config1);
-			if ($this->debug) {
-				echo __METHOD__, ' ', $config1, ': ', $exists1, BR;
-			}
-			//debug($appRoot, strlen($appRoot), $exists);
+			$this->log(__METHOD__, ' ', $config1, ': ', $exists1);
+			$this->log($appRoot, strlen($appRoot), $exists1);
 			if ($exists1) {
 				break;
 			}
@@ -47,32 +48,40 @@ class AppRootDetector {
 		}
 
 		if (!$appRoot || $appRoot == '/') {  // nothing is found by previous method
-			if ($this->debug) {
-				echo __METHOD__, ' Alternative way of app root detection', BR;
-			}
+			$this->log(__METHOD__, ' Alternative way of app root detection');
 			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
-			//debug($appRoot, URL::getScriptWithPath());
+			$this->log($appRoot, URL::getScriptWithPath());
 			$appRoot->upIf('nadlib');
 			$appRoot->upIf('spidgorny');
 			$appRoot->upIf('vendor');
 			$hasIndex = $appRoot->hasFile('index.php');
-			//pre_print_r($appRoot.'', $hasIndex);
+			$this->log($appRoot.'', $hasIndex);
 			if (!$hasIndex) {
 				$appRoot->up();
 			}
 		}
 
-		if ($this->debug) {
-			echo __METHOD__, ' ', $appRoot, BR;
-		}
+		$this->log($appRoot);
 		// always add trailing slash!
 		$appRoot = cap($appRoot, '/');
 		$appRoot = new Path($appRoot);
 		$this->appRoot = $appRoot;
+
+		if ($this->debug && !Request::isCLI()) {
+//			exit;
+		}
 	}
 
-	function get() {
+	function get()
+	{
 		return $this->appRoot;
+	}
+
+	function log($a)
+	{
+		if ($this->debug) {
+			echo __METHOD__, ' ', implode(' ', func_get_args()), BR;
+		}
 	}
 
 }

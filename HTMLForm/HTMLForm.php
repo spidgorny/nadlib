@@ -309,7 +309,7 @@ class HTMLForm {
 	function file($name, array $desc = array())
 	{
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout  .= $this->getInput("file", $name, '', ifsetor($desc['more']), ifsetor($desc['class']));
+		$this->stdout  .= $this->getInput("file", $name, '', ifsetor($desc['more'], []), ifsetor($desc['class']));
 		$this->method  = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
@@ -579,8 +579,9 @@ class HTMLForm {
 		} else {
 			$options = $desc['options'];
 		}
-		Index::getInstance()->addJQuery();
-		$this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
+		if (class_exists('Index')) {
+			Index::getInstance()->addJQuery();
+			$this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
 			jQuery(this).val()
 		);"', false, $desc);
 		$this->input($fieldName, $desc['value']);

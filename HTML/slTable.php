@@ -210,6 +210,12 @@ class slTable
 	{
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
+
+		if (!isset($a[$by])) {
+			debug('slTable', $this->sortable, $this->sortBy, $this->sortOrder,
+				array_keys($this->thes), $a);
+		}
+
 		$aa = $a[$by];
 		$bb = $b[$by];
 
@@ -248,19 +254,22 @@ class slTable
 		}
 	}
 
-	public function detectSortBy() {
+	public function detectSortBy()
+	{
 		$aRequest = $this->request->getArray('slTable');
 		$by = ifsetor($aRequest['sortBy']);
 		$or = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
-		$this->sortBy = $by;
-		$this->sortOrder = $or;
-		if (!$this->sortBy) {
+
+		if (!$this->sortBy && false !== $this->sortable) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {
-//				list( $this->sortBy ) = first( $this->thes );
-				$this->sortBy = current(array_values( $this->thes ));
+				$firstElementFromThes = current(array_values( $this->thes ));
+				if (is_array($firstElementFromThes)) {
+					$firstElementFromThes = current(array_values($firstElementFromThes));
+				}
+				$this->sortBy = $firstElementFromThes;
 			}
 			error_reporting($old);
 		}

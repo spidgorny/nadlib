@@ -7,7 +7,8 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 	 */
 	protected $ai;
 
-	function setUp() {
+	function setUp()
+	{
 		$this->ai = new ArrayPlus(array(
 			0 => 'a',
 			1 => 'b',
@@ -15,7 +16,8 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		));
 	}
 
-	function test_typoscript() {
+	function test_typoscript()
+	{
 		$a = array(
 			'a' => 'b',
 			'c' => array(
@@ -34,15 +36,17 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		), $b);
 	}
 
-    function test_unset() {
-        unset($this->ai[1]);
-        $this->assertEquals(array(
-            0 => 'a',
-            'slawa' => 'test'
-        ), $this->ai->getData());
-    }
+	function test_unset()
+	{
+		unset($this->ai[1]);
+		$this->assertEquals(array(
+			0 => 'a',
+			'slawa' => 'test'
+		), $this->ai->getData());
+	}
 
-	function test_addColumn() {
+	function test_addColumn()
+	{
 		$this->ai->makeTable('col1');
 		$this->ai->addColumn('nr', function ($row, $i) {
 			return $i;
@@ -61,6 +65,21 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 				'nr' => 'slawa',
 			]
 		], (array)$this->ai);
+	}
+
+	function test_remap()
+	{
+		$a = ArrayPlus::create([
+			'a' => 'b',
+			'c' => 'd',
+		]);
+		$remap = $a->remap([
+			'A' => 'a',
+		]);
+//		debug($remap);
+		$this->assertEquals([
+			'A' => 'b',
+		], $remap->getData());
 	}
 
 }

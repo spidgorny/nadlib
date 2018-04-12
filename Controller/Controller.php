@@ -25,7 +25,7 @@ abstract class Controller {
 	/**
 	 * @var Request
 	 */
-	public $request;
+	protected $request;
 
 	/**
 	 * @var boolean
@@ -107,7 +107,9 @@ abstract class Controller {
 
 	function __construct()
 	{
-		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this) . '::' . __METHOD__ . BR;
+		if (ifsetor($_REQUEST['d']) == 'log') {
+			echo get_class($this) . '::' . __METHOD__ . BR;
+		}
 		$this->index = class_exists('Index', false)
 			? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
@@ -127,7 +129,8 @@ abstract class Controller {
 		if (!$this->useRouter) {
 			$this->linkVars['c'] = get_class($this);
 		}
-		$this->title = $this->title ? $this->title : get_class($this);
+		$this->title = $this->title ? $this->title
+			: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
 		if ($this->config->ll) {
 			$this->title = $this->title ? __($this->title) : $this->title;
@@ -490,15 +493,15 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInTableHTML3(array $cells, array $more = array())
+	function encloseInTableHTML3(array $cells, array $more = array(), array $colMore = [])
 	{
 		if (!$more) {
 			$more['class'] = "encloseInTable";
 		}
 		$content[] = '<table ' . HTMLTag::renderAttr($more) . '>';
 		$content[] = '<tr>';
-		foreach ($cells as $info) {
-			$content[] = '<td valign="top">';
+		foreach ($cells as $i => $info) {
+			$content[] = '<td valign="top" '.HTMLTag::renderAttr(ifsetor($colMore[$i], [])).'>';
 			$content[] = $this->s($info);
 			$content[] = '</td>';
 		}
