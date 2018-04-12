@@ -78,14 +78,18 @@ class MarshalParams {
 		if ($constructor) {
 			$params = $constructor->getParameters();
 			foreach ($params as $param) {
-				$type = $param->getType();
+				if (method_exists($param, 'getType')) {
+					$type = $param->getType();
+				} else {
+					$type = $param->getClass()->name;
+				}
 				if ($type) {
-					if ($type->isBuiltin()) {
+					if (!is_string($type) && $type->isBuiltin()) {
 						$init[] = $param->getDefaultValue();
 					} else {
 						$typeClass = method_exists($type, 'getName')
 							? $type->getName()
-							: $type->__toString();
+							: $type.'';
 						//					debug($typeClass);
 						$init[] = call_user_func([$container, 'get' . $typeClass]);
 					}
