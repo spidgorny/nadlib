@@ -31,6 +31,33 @@ class Model {
 
 	public $id;
 
+	/**
+	 * Not caching.
+	 * @param array $data
+	 * @param DBInterface $db
+	 * @return static
+	 */
+	static function getInstance(array $data, DBInterface $db = null)
+	{
+		$obj = new static(null);
+		$obj->setDB($db ?: Config::getInstance()->getDB());
+		$obj->setData($data);
+		return $obj;
+	}
+
+	/**
+	 * Not caching.
+	 * @param DBInterface $db
+	 * @param $id
+	 * @return static
+	 */
+	static function getInstanceByID(DBInterface $db, $id)
+	{
+		$obj = new static($db, []);
+		$obj->getByID($id);
+		return $obj;
+	}
+
 	function __construct(DBInterface $db = null, array $data = [])
 	{
 		if ($db) {
@@ -46,8 +73,8 @@ class Model {
 
 	public function getName()
 	{
-		// override this
-		return null;
+		$f = $this->titleColumn;
+		return $this->$f;
 	}
 
 	/**
@@ -89,12 +116,12 @@ class Model {
 		return null;
 	}
 
-	function insert(array $data)
+	function insert(array $data, array $where = [])
 	{
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
-		$res = $this->db->runInsertQuery($this->table, $data);
+		$res = $this->db->runInsertQuery($this->table, $data, $where);
 		$this->setData($data);
 		return $res;
 	}
@@ -170,21 +197,6 @@ class Model {
 	}
 
 	/**
-	 * @param array $data
-	 *
-	 * @param DBInterface $db
-	 *
-	 * @return static
-	 */
-	static function getInstance(array $data, DBInterface $db = null)
-	{
-		$obj = new static(null);
-		$obj->setDB($db ?: Config::getInstance()->getDB());
-		$obj->setData($data);
-		return $obj;
-	}
-
-	/**
 	 * Different models may extend this to covert between
 	 * different data types in DB and in runtime.
 	 * @param array $data
@@ -213,37 +225,6 @@ class Model {
 		return ifsetor($this->$field);
 	}
 
-	function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
-	{
-		return SQLSelectQuery::getSelectQueryP($this->db, $this->table, $where, $orderBy);
-	}
-
-	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return array[]
-	 */
-	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
-	{
-		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
-		return $data;
-	}
-
-	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return ArrayPlus
-	 */
-	public function queryObjects(array $where, $orderBy = 'ORDER BY id DESC')
-	{
-		$data = $this->queryData($where, $orderBy);
-		$list = new ArrayPlus();
-		foreach ($data as $row) {
-			$list->append(new static($this->db, $row));
-		}
-		return $list;
-	}
-
 	public function asArray()
 	{
 		$data = get_object_vars($this);
@@ -262,6 +243,11 @@ class Model {
 	public function getSingleLink()
 	{
 		return 'Controller?id='.$this->id();
+	}
+
+	public function __toString()
+	{
+		return $this->getName();
 	}
 
 }

@@ -76,8 +76,8 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str);
 		}
 		if (!$is_string) {
-			debug(typ($str));
-			debug_pre_print_backtrace();
+			debug('trimExplode', 'must be string', typ($str));
+//			debug_pre_print_backtrace();
 		}
 		if ($max) {
 			$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
