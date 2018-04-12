@@ -9,13 +9,15 @@ require_once __DIR__ . '/HTTP/Request.php';
 
 if (!function_exists('parseFloat')) {
 
-	function parseFloat($str) {
+	function parseFloat($str)
+	{
 		preg_match_all('!\d+(?:\.\d+)?!', $str, $matches);
 		$floats = array_map('floatval', $matches[0]);
 		return ifsetor($floats[0]);
 	}
 
-	function parseFloat2($str) {
+	function parseFloat2($str)
+	{
 		return (float)filter_var($str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 	}
 
@@ -29,7 +31,8 @@ if (!function_exists('parseFloat')) {
 	 * @return null
 	 * @see https://wiki.php.net/rfc/ifsetor
 	 */
-	function ifsetor(&$variable, $default = null) {
+	function ifsetor(&$variable, $default = null)
+	{
 		if (isset($variable)) {
 			$tmp = $variable;
 		} else {
@@ -44,7 +47,8 @@ if (!function_exists('parseFloat')) {
 	 * @param null $default
 	 * @return null
 	 */
-	function ifvalor(&$variable, $default = null) {
+	function ifvalor(&$variable, $default = null)
+	{
 		if (isset($variable) && $variable) {
 			$tmp = $variable;
 		} else {
@@ -54,7 +58,8 @@ if (!function_exists('parseFloat')) {
 	}
 
 	if (!function_exists('boolval')) {
-		function boolval($val) {
+		function boolval($val)
+		{
 			return (bool)$val;
 		}
 	}
