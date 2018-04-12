@@ -555,6 +555,9 @@ class Request {
 		return $url;
 	}
 
+	/**
+	 * @return Path
+	 */
 	static function getDocRoot()
 	{
 		$docRoot = NULL;
@@ -569,6 +572,10 @@ class Request {
 
 		if (!str_startsWith($docRoot, '/')) {
 			$docRoot = '/' . $docRoot;
+		}
+
+		if (!($docRoot instanceof Path)) {
+			$docRoot = new Path($docRoot);
 		}
 
 		return $docRoot;
