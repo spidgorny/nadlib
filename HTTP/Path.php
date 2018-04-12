@@ -169,7 +169,11 @@ class Path {
 	 */
 	function exists()
 	{
-		return is_dir($this->sPath) || file_exists($this->sPath);
+		if (ini_get('open_basedir')) {
+			return true;
+		} else {
+			return is_dir($this->sPath) || file_exists($this->sPath);
+		}
 	}
 
 	function trim()
