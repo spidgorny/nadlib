@@ -97,7 +97,7 @@ abstract class Grid extends AppController {
 	 */
 	function saveFilterAndSort($cn = NULL)
 	{
-		debug(__METHOD__, $cn);
+//		debug(__METHOD__, $cn);
 		// why do we inject collection
 		// before we have detected the filter (=where)?
 		if (!$this->collection) {
