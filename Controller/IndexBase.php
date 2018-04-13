@@ -647,7 +647,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			//$files .= DEVELOPMENT ? '&debug' : '';
 			$content = '<script src="'.$path.'?f='.$files.'"></script>';
 			$content .= implode("\n", $include);
+//			debug($content);
 		} else {
+//			debug('footer', sizeof($this->footer));
 			$content = implode("\n", $this->footer)."\n";
 		}
 		return $content;
