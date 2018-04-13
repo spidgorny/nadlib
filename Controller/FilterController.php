@@ -1,6 +1,8 @@
 <?php
 
-class FilterController extends AppController {
+use nadlib\Controller\Filter;
+
+class FilterController extends Controller {
 
 	var $fields = [];
 

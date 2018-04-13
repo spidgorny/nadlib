@@ -55,18 +55,21 @@ class DBLayerBase implements DBInterface {
 	 */
 	public $database;
 
-	function setQB(SQLBuilder $qb = NULL) {
+	function setQB(SQLBuilder $qb = NULL)
+	{
 		$this->qb = $qb;
 	}
 
 	/**
 	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
 	 */
-	function getScheme() {
+	function getScheme()
+	{
 		return strtolower(str_replace('DBLayer', '', get_class($this)));
 	}
 
-	function __call($method, array $params) {
+	function __call($method, array $params)
+	{
 		if (!$this->qb) {
 			if (!$this->qb) {
 				throw new DatabaseException(__CLASS__ . ' has no QB');
@@ -75,18 +78,30 @@ class DBLayerBase implements DBInterface {
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
+			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
 	}
 
-	function dataSeek($res, $i) {
+	function logQuery($query)
+    {
+        if ($this->logToLog) {
+            error_log('... '.
+                preg_replace('/\s+/', ' ',
+                    str_replace("\n", ' ', $query)).': '.$this->queryTime);
+        }
+    }
+
+	function dataSeek($res, $i)
+	{
 	}
 
-	function fetchAssocSeek($res) {
+	function fetchAssocSeek($res)
+	{
 		return NULL;
 	}
 
-	function fetchPartition($res, $start, $limit) {
+	function fetchPartition($res, $start, $limit)
+	{
 		if ($this->getScheme() == 'mysql') {
 			return $this->fetchPartitionMySQL($res, $start, $limit);
 		}
@@ -108,52 +123,64 @@ class DBLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function saveQueryLog($query, $time) {
+	function saveQueryLog($query, $time)
+	{
 		$this->queryCount++;
 		$this->queryTime += $time;
 	}
 
-	function getReserved() {
+	function getReserved()
+	{
 		return $this->reserved;
 	}
 
-	function perform($query, array $params = []) {
+	function perform($query, array $params = [])
+	{
 		return NULL;
 	}
 
-	function transaction() {
+	function transaction()
+	{
 		return $this->perform('BEGIN');
 	}
 
-	function commit() {
+	function commit()
+	{
 		return $this->perform('COMMIT');
 	}
 
-	function rollback() {
+	function rollback()
+	{
 		return $this->perform('ROLLBACK');
 	}
 
-	function numRows($res = NULL) {
+	function numRows($res = NULL)
+	{
 		return 0;
 	}
 
-	function affectedRows($res = NULL) {
+	function affectedRows($res = NULL)
+	{
 		return 0;
 	}
 
-	function getTables() {
+	function getTables()
+	{
 		return array();
 	}
 
-	function lastInsertID($res, $table = NULL) {
+	function lastInsertID($res, $table = NULL)
+	{
 		return 0;
 	}
 
-	function free($res) {
+	function free($res)
+	{
 		// TODO: Implement free() method.
 	}
 
-	function quoteKey($key) {
+	function quoteKey($key)
+	{
 		$reserved = $this->getReserved();
 		if (in_array(strtoupper($key), $reserved)) {
 			$key = $this->db->quoteKey($key);
@@ -161,73 +188,127 @@ class DBLayerBase implements DBInterface {
 		return $key;
 	}
 
-	function escape($string) {
-		throw new Exception('Implement '.__METHOD__);
+	function escape($string)
+	{
+		throw new Exception('Implement ' . __METHOD__);
 	}
 
-	function escapeBool($value) {
+	function escapeBool($value)
+	{
 		return $value;
 	}
 
-	function fetchAssoc($res) {
+	function fetchAssoc($res)
+	{
 		return array();
 	}
 
-	function getTablesEx() {
+	function getTablesEx()
+	{
 		return array();
 	}
 
-	function getTableColumnsEx($table) {
+	function getTableColumnsEx($table)
+	{
 		return array();
 	}
 
-	function getIndexesFrom($table) {
+	function getIndexesFrom($table)
+	{
 		return array();
 	}
 
-	function isConnected() {
+	function isConnected()
+	{
 		return !!$this->connection;
 	}
 
-	function getTableColumns($table) {
+	function getTableColumns($table)
+	{
 
 	}
 
-	function getQueryLog() {
+	function getQueryLog()
+	{
 		if (!$this->queryLog) {
 			$this->queryLog = new QueryLog();
 		}
 		return $this->queryLog;
 	}
 
-	function isMySQL() {
+	function isMySQL()
+	{
 		return in_array(
 			$this->getScheme(),
 			array('mysql', 'mysqli'));
 	}
 
-	function isPostgres() {
+	function isPostgres()
+	{
 		return $this->getScheme() == 'psql';
 	}
 
-	function isSQLite() {
+	function isSQLite()
+	{
 		return $this->getScheme() == 'sqlite';
 	}
 
-	function clearQueryLog() {
+	function clearQueryLog()
+	{
 		$this->queryLog = NULL;
 	}
 
-	function fetchAll($res_or_query, $index_by_key = NULL) {
+	function fetchAll($res_or_query, $index_by_key = NULL)
+	{
 		// TODO: Implement fetchAll() method.
 	}
 
-	function quoteKeys(array $a) {
+	function quoteKeys(array $a)
+	{
 		$c = array();
 		foreach ($a as $b) {
 			$c[] = $this->quoteKey($b);
 		}
 		return $c;
+	}
+
+	/**
+	 * @param $table
+	 * @return TableField[]
+	 * @throws Exception
+	 */
+	function getTableFields($table)
+	{
+		$fields = $this->getTableColumnsEx($table);
+		foreach ($fields as $field => &$set) {
+			$set = TableField::init($set + ['pg_field' => $field]);
+		}
+		return $fields;
+	}
+
+	/**
+	 * @param $table
+	 * @param array $set
+	 * @return array
+	 * @throws Exception
+	 */
+	public function fixDataTypes($table, array $set)
+	{
+		$tableDesc = $this->getTableFields($table);
+		foreach ($set as $key => &$val) {
+			/** @var TableField $desc */
+			$desc = ifsetor($tableDesc[$key]);
+			if ($desc && $desc->isBoolean()) {
+//				debug($desc);
+				$val = boolval($val);
+			} elseif ($desc && $desc->isInt()) {
+//				debug($desc);
+				$val = intval($val);
+			} elseif ($desc && $desc->isNull() && !$val) {
+				$val = null;
+			}
+		}
+		return $set;
 	}
 
 }

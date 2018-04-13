@@ -6,21 +6,21 @@
  */
 class DBLayer extends DBLayerBase implements DBInterface {
 
-    /**
-     * @var resource
-     */
-    public $connection = NULL;
+	/**
+	 * @var resource
+	 */
+	public $connection = NULL;
 
 	var $LAST_PERFORM_RESULT;
 
-    /**
-     * todo: use setter & getter method
-     *
-     * contains query builder class used as mixin.
-     *
-     * @var null
-     */
-    public $qb = null;
+	/**
+	 * todo: use setter & getter method
+	 *
+	 * contains query builder class used as mixin.
+	 *
+	 * @var null
+	 */
+	public $qb = null;
 
 	var $AFFECTED_ROWS = NULL;
 
@@ -45,17 +45,17 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	 */
 	var $db;
 
-    var $reserved = array(
-        'SELECT', 'LIKE', 'TO',
-    );
+	var $reserved = array(
+		'SELECT', 'LIKE', 'TO',
+	);
 
-    protected $dbName;
+	protected $dbName;
 
-    protected $user;
+	protected $user;
 
-    protected $pass;
+	protected $pass;
 
-    protected $host;
+	protected $host;
 
 	/**
 	 * @param string $dbName
@@ -69,16 +69,16 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		$this->user = $user;
 		$this->pass = $pass;
 		$this->host = $host;
-        if ($dbName) {
+		if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
-	        //debug(pg_version()); exit();
+			//debug(pg_version()); exit();
 
-	        if ($this->getVersion() >= 8.4) {
-		        $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
-		        $words = $this->fetchAll($query, 'word');
-		        $this->reserved = array_keys($words);
-		        $this->reserved = array_map('strtoupper', $this->reserved); // important
-	        }
+			if ($this->getVersion() >= 8.4) {
+				$query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+				$words = $this->fetchAll($query, 'word');
+				$this->reserved = array_keys($words);
+				$this->reserved = array_map('strtoupper', $this->reserved); // important
+			}
 		}
 		if (DEVELOPMENT) {
 			$this->queryLog = new QueryLog();
@@ -135,6 +135,7 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			$query = $query->__toString();
 //			debug($query, $params);
 		}
+		$this->logQuery($query);
 
 		try {
 			if ($params) {
@@ -160,7 +161,8 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
-			$e = new DatabaseException(pg_errormessage($this->connection).BR.$query);
+			$e = new DatabaseException(
+				pg_errormessage($this->connection));
 			$e->setQuery($query);
 			throw $e;
 		} else {
@@ -170,7 +172,9 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			}
 			if ($this->logToLog) {
 				$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
-				error_log($runTime.' '.str_replace("\n", ' ', $query));
+				error_log($runTime.' '.
+					preg_replace('/\s+/', ' ',
+						str_replace("\n", ' ', $query)));
 			}
 		}
 		$this->lastQuery = $query;
@@ -179,23 +183,23 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-    function performWithParams($query, $params) {
-	    $prof = new Profiler();
-	    $this->lastQuery = $query;
-	    $this->LAST_PERFORM_RESULT = pg_query_params($this->connection, $query, $params);
-	    if (!$this->LAST_PERFORM_RESULT) {
-		    debug($query);
-		    debug_pre_print_backtrace();
-		    throw new Exception(pg_errormessage($this->connection).BR.$query);
-	    } else {
-		    $this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-		    if ($this->queryLog) {
-			    $this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
-		    }
-	    }
-	    $this->queryCount++;
-	    return $this->LAST_PERFORM_RESULT;
-    }
+	function performWithParams($query, $params) {
+		$prof = new Profiler();
+		$this->lastQuery = $query;
+		$this->LAST_PERFORM_RESULT = pg_query_params($this->connection, $query, $params);
+		if (!$this->LAST_PERFORM_RESULT) {
+			debug($query);
+			debug_pre_print_backtrace();
+			throw new Exception(pg_errormessage($this->connection).BR.$query);
+		} else {
+			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+			if ($this->queryLog) {
+				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
+			}
+		}
+		$this->queryCount++;
+		return $this->LAST_PERFORM_RESULT;
+	}
 
 	/**
 	 * Return one dimensional array
@@ -349,6 +353,7 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	/**
 	 * Returns a list of tables in the current database
 	 * @return string[]
+	 * @throws DatabaseException
 	 */
 	function getTables() {
 		$query = "select relname
@@ -366,6 +371,7 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	/**
 	 * Returns a list of tables in the current database
 	 * @return string[]
+	 * @throws DatabaseException
 	 */
 	function getViews() {
 		$query = "select relname
@@ -448,6 +454,12 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		return $this->perform("rollback");
 	}
 
+	/**
+	 * @param $value
+	 * @param null $key
+	 * @return string
+	 * @throws MustBeStringException
+	 */
 	function quoteSQL($value, $key = NULL) {
 		if ($value === NULL) {
 			return "NULL";
@@ -506,8 +518,9 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	}
 
 	/**
-	 * @param result/query $result
+	 * @param resource/query $result
 	 * @return array
+	 * @throws DatabaseException
 	 */
 	function fetchAssoc($res) {
 		if (is_string($res)) {
@@ -577,7 +590,7 @@ class DBLayer extends DBLayerBase implements DBInterface {
 		return $this->getLastInsertID($res, $table);
 	}
 
- 	protected function lastval() {
+	protected function lastval() {
 		$res = $this->perform('SELECT LASTVAL() AS lastval');
 		$row = $this->fetchAssoc($res);
 		$lv = $row['lastval'];
@@ -586,18 +599,18 @@ class DBLayer extends DBLayerBase implements DBInterface {
 
 	function getComment($table, $column) {
 		$query = 'select
-     a.attname  as "colname"
-    ,a.attrelid as "tableoid"
-    ,a.attnum   as "columnoid"
+	 a.attname  as "colname"
+	,a.attrelid as "tableoid"
+	,a.attnum   as "columnoid"
 	,col_description(a.attrelid, a.attnum) as "comment"
 from
-    pg_catalog.pg_attribute a
-    inner join pg_catalog.pg_class c on a.attrelid = c.oid
+	pg_catalog.pg_attribute a
+	inner join pg_catalog.pg_class c on a.attrelid = c.oid
 where
-        c.relname = '.$this->quoteSQL($table).'
-    and a.attnum > 0
-    and a.attisdropped is false
-    and pg_catalog.pg_table_is_visible(c.oid)
+		c.relname = '.$this->quoteSQL($table).'
+	and a.attnum > 0
+	and a.attisdropped is false
+	and pg_catalog.pg_table_is_visible(c.oid)
 order by a.attnum';
 		$rows = $this->fetchAll($query);
 		$assoc = ArrayPlus::create($rows)->column_assoc('colname', 'comment')->getData();
@@ -627,6 +640,12 @@ order by a.attnum';
 		return pg_escape_string($str);
 	}
 
+	/**
+	 * @param $method
+	 * @param array $params
+	 * @return mixed
+	 * @throws Exception
+	 */
 	function __call($method, array $params) {
 		if (method_exists($this->getQb(), $method)) {
 			return call_user_func_array(array($this->getQb(), $method), $params);
@@ -691,38 +710,43 @@ order by a.attnum';
 		return $source;
 	}
 
+	/**
+	 * @param $table
+	 * @return array
+	 * @throws Exception
+	 */
 	function getIndexesFrom($table) {
 		return $this->fetchAll('select *, pg_get_indexdef(indexrelid)
 		from pg_index
 		where indrelid = \''.$table.'\'::regclass');
 	}
 
-    function free($res) {
-        if (is_resource($res)) {
-            pg_free_result($res);
-        }
-    }
+	function free($res) {
+		if (is_resource($res)) {
+			pg_free_result($res);
+		}
+	}
 
 	function escapeBool($value) {
 		return $value ? 'true' : 'false';
 	}
 
-    public function setQb(SQLBuilder $qb = NULL) {
-        $this->qb = $qb;
-    }
+	public function setQb(SQLBuilder $qb = NULL) {
+		$this->qb = $qb;
+	}
 
-    public function getQb() {
-        if(!isset($this->qb)) {
-            $db = Config::getInstance()->getDB();
-            $this->setQb(new SQLBuilder($db));
-        }
+	public function getQb() {
+		if(!isset($this->qb)) {
+			$db = Config::getInstance()->getDB();
+			$this->setQb(new SQLBuilder($db));
+		}
 
-        return $this->qb;
-    }
+		return $this->qb;
+	}
 
-    function affectedRows($res = NULL) {
-        return pg_affected_rows($res);
-    }
+	function affectedRows($res = NULL) {
+		return pg_affected_rows($res);
+	}
 
 	public function getScheme() {
 		return 'postgresql';
@@ -740,16 +764,16 @@ order by a.attnum';
 	function getForeignKeys($table) {
 		return $this->fetchAll(
 			"SELECT
-    tc.constraint_name, tc.table_name, kcu.column_name, 
-    ccu.table_name AS foreign_table_name,
-    ccu.column_name AS foreign_column_name,
+	tc.constraint_name, tc.table_name, kcu.column_name, 
+	ccu.table_name AS foreign_table_name,
+	ccu.column_name AS foreign_column_name,
 	constraint_type
 FROM 
-    information_schema.table_constraints AS tc 
-    JOIN information_schema.key_column_usage AS kcu
-      ON tc.constraint_name = kcu.constraint_name
-    JOIN information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
+	information_schema.table_constraints AS tc 
+	JOIN information_schema.key_column_usage AS kcu
+	  ON tc.constraint_name = kcu.constraint_name
+	JOIN information_schema.constraint_column_usage AS ccu
+	  ON ccu.constraint_name = tc.constraint_name
 WHERE ccu.table_name='".$table."'");
 	}
 
@@ -761,6 +785,13 @@ WHERE ccu.table_name='".$table."'");
 		return true;
 	}
 
+	/**
+	 * @param $table
+	 * @param array $columns
+	 * @return string
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
 	function getReplaceQuery($table, array $columns) {
 		if ($this->getVersion() < 9.5) {
 			throw new DatabaseException(__METHOD__.' is not working in PG < 9.5. Use runReplaceQuery()');
@@ -778,6 +809,8 @@ WHERE ccu.table_name='".$table."'");
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @param array $primaryKeys ['id', 'id_profile']
 	 * @return string
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	function runReplaceQuery($table, array $columns, array $primaryKeys = []) {
 //		debug($table, $columns, $primaryKeys, $this->getVersion(), $this->getVersion() >= 9.5);

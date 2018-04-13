@@ -76,8 +76,24 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this->column($key);
 	}
 
-	function column_assoc($key, $val)
-	{
+	function pick($key) {
+		return $this->getMap(function ($el) use ($key) {
+//			debug($el, $key);
+			return $el->$key;
+		});
+	}
+
+	function pickAssoc($name, $key = 'id') {
+		$keys = $this->getMap(function ($el) use ($key) {
+			return $el->$key;
+		});
+		$names = $this->getMap(function ($el) use ($name) {
+			return $el->$name;
+		});
+		return array_combine($keys, $names);
+	}
+
+	function column_assoc($key, $val) {
 		$data = array();
 		foreach ((array)$this as $row) {
 			$data[$row[$key]] = $row[$val];
@@ -86,12 +102,32 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return $this;
 	}
 
-	function keepColumns(array $keep)
-	{
+	/**
+	 * Use to filter input array to keep some data that fits the DB schema
+	 * @param array $keep
+	 * @return $this
+	 */
+	function keepColumns(array $keep) {
 		$data = array();
 		foreach ((array)$this as $i => $row) {
 			$row = array_intersect_key($row, array_combine($keep, $keep));
 			$data[$i] = $row;
+		}
+		$this->setData($data);
+		return $this;
+	}
+
+	/**
+	 * Use to filter a set of data into a different set of keys
+	 * @param array $keep ['new' => 'existing'] it's reversed, keys are what you want to have
+	 * @return $this
+	 */
+	function remap(array $keep) {
+		$data = array();
+		foreach ($keep as $i => $row) {
+			if (isset($this[$row])) {	// don't make empty SQL UPDATE SET a = NULL
+				$data[$i] = $this[$row];
+			}
 		}
 		$this->setData($data);
 		return $this;
@@ -244,6 +280,30 @@ class ArrayPlus extends ArrayObject implements Countable {
 	{
 		$this->setData(array_map($callback, $this->getData()));
 		return $this;
+	}
+
+	/**
+	 * @param $callback
+	 * @return static
+	 */
+	public function mapBoth($callback)
+	{
+		$data = $this->getData();
+		$keys = $this->getKeys();
+		$mapped = array_map(function ($key) use ($callback, $data) {
+			return $callback($key, $data[$key]);
+		}, $keys->getData());
+		$mapped = array_combine($keys->getData(), $mapped);
+		$this->setData($mapped);
+		return $this;
+	}
+
+	/**
+	 * @param $callback
+	 * @return array
+	 */
+	public function getMap($callback) {
+		return array_map($callback, $this->getData());
 	}
 
 	/**
