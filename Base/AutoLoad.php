@@ -159,7 +159,6 @@ class AutoLoad {
 			echo 'scriptWithPath: ', $scriptWithPath, BR;
 		}
 //		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
-//		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__DIR__));
 		$this->nadlibRoot = dirname(__DIR__) . '/';
 		$this->appRoot = $this->detectAppRoot();
 		if ($this->debugStartup) {
@@ -177,6 +176,7 @@ class AutoLoad {
 				$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
 				$appRootIsRoot = 'DocumentRoot without /be';
 			} else {
+				$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__DIR__));
 				$this->nadlibFromDocRoot = $relToNadlibPU;
 				$appRootIsRoot = '$relToNadlibPU';
 			}
