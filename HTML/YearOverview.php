@@ -1,6 +1,6 @@
 <?php
 
-class YearOverview extends AppController {
+class YearOverview extends Controller {
 
 	var $year;
 

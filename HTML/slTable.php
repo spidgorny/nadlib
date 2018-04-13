@@ -210,6 +210,12 @@ class slTable
 	{
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
+
+		if (!isset($a[$by])) {
+			debug('slTable', $this->sortable, $this->sortBy, $this->sortOrder,
+				array_keys($this->thes), $a);
+		}
+
 		$aa = $a[$by];
 		$bb = $b[$by];
 
@@ -255,7 +261,7 @@ class slTable
 		$or = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
 
-		if (!$this->sortBy) {
+		if (!$this->sortBy && false !== $this->sortable) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {

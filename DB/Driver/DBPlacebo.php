@@ -66,7 +66,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface {
 
 	function quoteKey($key)
 	{
-		// TODO: Implement quoteKey() method.
+		return $key;
 	}
 
 	function escape($string)

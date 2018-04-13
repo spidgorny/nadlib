@@ -12,6 +12,11 @@ class Path {
 
 	var $isAbsolute;
 
+	static function slash($path)
+	{
+		return str_replace('\\', '/', $path);
+	}
+
 	function __construct($sPath)
 	{
 		$this->sPath = $sPath . '';
@@ -274,6 +279,7 @@ class Path {
 			$this->sPath = readlink($this->sPath);
 			$this->explode();
 		}
+		$this->realPath();
 	}
 
 	public function resolveLinks()
@@ -484,6 +490,7 @@ class Path {
 	function normalize()
 	{
 		$this->__construct($this->getNormalized());
+		return $this;
 	}
 
 	function getFiles()
@@ -521,6 +528,7 @@ class Path {
 	{
 		$this->sPath = realpath($this->sPath);
 		$this->explode();
+		return $this;
 	}
 
 	public function normalizeHomePage()
