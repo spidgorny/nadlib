@@ -296,7 +296,15 @@ class IndexBase /*extends Controller*/
 	function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
-		$method = ifsetor($_SERVER['argv'][2], 'render');
+		$notOptions = array_filter(
+			array_slice(
+				ifsetor($_SERVER['argv'], []), 1),
+			function ($el) {
+			return $el[0] != '-';	// --options
+		});
+//		debug($notOptions); exit;
+		// $notOptions[0] is the controller
+		$method = ifsetor($notOptions[1], 'render');
 		if ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
