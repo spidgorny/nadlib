@@ -268,6 +268,36 @@ class Path {
 		return $this;
 	}
 
+	/**
+	 * Removes path elements from the BEGINNING of the path.
+	 * Symlinks are considered identical.
+	 * @param $minus
+	 * @return $this
+	 */
+	function removeWithLinks($minus)
+	{
+		$minus = $minus instanceof Path ? $minus : new Path($minus);
+		foreach ($minus->aPath as $i => $sub) {
+			$sameName = ifsetor($this->aPath[0]) == $sub;
+			d($this->sPath);
+			if (is_link($this->sPath)) {
+				$linkTarget = readlink($this->sPath);
+			} else {
+				$linkTarget = $this->sPath;
+			}
+			d(__METHOD__, $linkTarget, $minus->sPath);
+			$sameLink = $linkTarget == $minus->sPath;
+			if ($sameName || $sameLink) {
+				array_shift($this->aPath);
+				$this->implode();
+			} else {
+				break;
+			}
+		}
+		$this->implode();
+		return $this;
+	}
+
 	function reverse()
 	{
 		if (!$this->isAbsolute() && !empty($this->aPath)) {
@@ -285,6 +315,10 @@ class Path {
 		}
 	}
 
+	/**
+	 * Recursive. For no reason?
+	 * @return $this
+	 */
 	public function resolveLinks()
 	{
 		foreach ($this->aPath as $i => $part) {
@@ -297,6 +331,36 @@ class Path {
 				break;
 			}
 		}
+		return $this;
+	}
+
+	public function resolveLinksSimple()
+	{
+		foreach ($this->aPath as $i => $part) {
+			$assembled = '/' .
+				implode('/', array_slice($this->aPath, 0, $i));
+//			debug($assembled, is_link($assembled));
+			if (@is_link($assembled)) {
+				$this->aPath[$i-1] = trim(readlink($assembled),'/');
+			}
+		}
+		$this->aPath = array_filter($this->aPath);
+		$this->implode();
+		return $this;
+	}
+
+	function onlyExisting()
+	{
+		foreach ($this->aPath as $i => $part) {
+			$assembled = '/' .
+				implode('/', array_slice($this->aPath, 0, $i+1));
+			if (!is_dir($assembled)) {
+				break;
+			}
+		}
+		$this->__construct($assembled);
+		$this->up();
+		return $this;
 	}
 
 	/**
