@@ -814,14 +814,36 @@ class Request {
 //		d($appRoot.'', $docRoot.'');
 
 		$pathWithoutDocRoot = clone $appRoot;
-		$pathWithoutDocRoot->remove($docRoot);
+//		$pathWithoutDocRoot->remove($docRoot);
 
-		$path = clone $this->url->getPath();
+		$path = clone $this->url->getPath()->resolveLinks();
 //		d('remove', $pathWithoutDocRoot.'', 'from', $path.'');
 		$path->remove($pathWithoutDocRoot);
 		$path->normalize();
 
 		return $path;
+	}
+
+	function getPathAfterAppRootByPath()
+	{
+		$al = AutoLoad::getInstance();
+		$docRoot = clone $al->documentRoot;
+		$docRoot->normalize()->realPath()->resolveLinks();
+
+		$path = $this->url->getPath();
+		$fullPath = clone $docRoot;
+		$fullPath->append($path);
+
+//		d($docRoot.'', $path.'', $fullPath.'');
+//		exit();
+		$fullPath->resolveLinksSimple();
+//		$fullPath->onlyExisting();
+//		d($fullPath.'');
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$fullPath->remove($appRoot);
+//		$path->normalize();
+
+		return $fullPath;
 	}
 
 	public function setPath($path)
@@ -843,7 +865,7 @@ class Request {
 	 */
 	function getURLLevels()
 	{
-		$path = $this->getPathAfterAppRoot();
+		$path = $this->getPathAfterAppRootByPath();
 //		debug($path);
 		//$path = $path->getURL();
 		//debug($path);
