@@ -851,7 +851,7 @@ class Request {
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
-			'getURL()' => $path->getURL() . '',
+			//'getURL()' => $path->getURL() . '',
 			'levels' => $levels));
 		return $levels;
 	}
