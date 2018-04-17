@@ -1,4 +1,5 @@
 function showSliders() {
+	console.log('.time-scale', $(".time-scale").length);
 	$(".time-scale").each(function () {
 		var $slider = $(this);
 		$slider.slider({
