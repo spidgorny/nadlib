@@ -439,7 +439,7 @@ abstract class Controller {
 				}
 			} else {
 				// other classes except main controller may result in multiple messages
-				//Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
+//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			}
 		}
 		return $content;
