@@ -248,7 +248,10 @@ class View extends stdClass {
 
 	function data($key)
 	{
-		return $this->e(ifsetor($this->caller->get($key)));
+		if ($this->caller != null) {
+			return $this->e($this->caller->get($key));
+		}
+		return null;
 	}
 
 	/**

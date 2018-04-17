@@ -28,14 +28,18 @@ class MarshalParams {
 			if ($param->isArray() || $param->isDefaultValueAvailable()) {
 				$init[$name] = $param->getDefaultValue();
 			} else {
-				$type = $param->getType();
+				if (method_exists($param, 'getType')) {
+					$type = $param->getType();
+				} else {
+					$type = $param->getClass()->name;
+				}
 				if ($type) {
-					if ($type->isBuiltin()) {
+					if (!is_string($type) && $type->isBuiltin()) {
 						$init[$name] = $param->getDefaultValue();
 					} else {
 						$typeClass = method_exists($type, 'getName')
 							? $type->getName()
-							: $type->__toString();
+							: $type.'';
 						//					debug($typeClass);
 						$init[$name] = call_user_func([$container, 'get' . $typeClass]);
 					}
