@@ -198,7 +198,7 @@ abstract class Controller {
 	function makeRelURL(array $params = array(), $page = NULL)
 	{
 		return $this->makeURL(
-			$params                            // 1st priority
+			$params                           // 1st priority
 			+ $this->getURL()->getParams()            // 2nd priority
 			+ $this->linkVars, $page);                // 3rd priority
 	}

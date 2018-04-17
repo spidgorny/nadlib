@@ -279,13 +279,7 @@ class Path {
 			$this->sPath = readlink($this->sPath);
 			$this->explode();
 		}
-		$this->realpath();
-	}
-
-	public function realpath()
-	{
-		$this->sPath = realpath($this->sPath);
-		$this->explode();
+		$this->realPath();
 	}
 
 	public function resolveLinks()

@@ -1,7 +1,6 @@
 <?php
 
-class URL
-{
+class URL {
 
 	/**
 	 * @var string
@@ -43,7 +42,7 @@ class URL
 	var $cookies = [];
 
 	/**
-	 * @param null  $url - if not specified then the current page URL is reconstructed
+	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
 	function __construct($url = null, array $params = [])
@@ -207,10 +206,10 @@ class URL
 		}
 		nodebug([
 			'class($this->path)' => get_class($this->path),
-			'$this->path'        => $this->path . '',
-			'documentRoot'       => $this->documentRoot . '',
-			'class($path)'       => get_class($path),
-			'path'               => $path . '',
+			'$this->path' => $this->path . '',
+			'documentRoot' => $this->documentRoot . '',
+			'class($path)' => get_class($path),
+			'path' => $path . '',
 		]);
 		return $path;
 	}
@@ -224,6 +223,11 @@ class URL
 		$this->components['path'] = $path instanceof Path ? $path : new Path($path);
 		$this->path = $this->components['path'];
 		return $this;
+	}
+
+	public function reset()
+	{
+		$this->components['path'] = $this->documentRoot;
 	}
 
 	/**
@@ -354,8 +358,8 @@ class URL
 		}
 		$stream = [
 			'http' => [
-				'method'  => 'POST',
-				'header'  => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL . $auth,
+				'method' => 'POST',
+				'header' => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL . $auth,
 				'content' => $this->components['query'],
 			],
 		];
@@ -495,6 +499,9 @@ class URL
 	 */
 	static function getPathFolders($from)
 	{
+//		ob_start();
+//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+//		error_log(ob_get_clean());
 		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
 		$from = str_replace('\\', '/', $from);
 		$from = explode('/', $from);
@@ -780,7 +787,7 @@ class URL
 
 	/**
 	 * @param string $string - source page name
-	 * @param bool   $preserveSpaces - leaves spaces
+	 * @param bool $preserveSpaces - leaves spaces
 	 * @return string                - converted to URL friendly name
 	 */
 	static function friendlyURL($string, $preserveSpaces = false)
