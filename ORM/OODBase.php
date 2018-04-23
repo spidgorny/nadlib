@@ -845,7 +845,9 @@ abstract class OODBase {
 	function getBool($value)
 	{
 		//debug($value, $this->lastSelectQuery);
-		if (is_integer($value)) {
+		if (is_bool($value)) {
+			return $value;
+		} elseif (is_integer($value)) {
 			return $value !== 0;
 		} elseif (is_numeric($value)) {
 			return intval($value) !== 0;
