@@ -279,7 +279,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param $filepath
 	 * @return string
 	 */
-	function get_mime_type_system($filepath)
+	protected function get_mime_type_system($filepath)
 	{
 		ob_start();
 		system("file --mime-type -i --mime -b {$filepath}");
