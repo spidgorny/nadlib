@@ -1053,7 +1053,9 @@ class Request {
 				}
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
-				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') {
+					$value = next($params);
+				}
 				$result[$pname] = $value;
 			} else {
 				// param doesn't belong to any option
