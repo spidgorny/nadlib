@@ -881,14 +881,14 @@ abstract class Controller {
 		return strip_tags($a);
 	}
 
-	function makeActionURL($action = '', array $params = [])
+	function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-				'c' => get_class($this),
-				'action' => $action,
-			] + $params;
+			'c' => get_class($this),
+			'action' => $action,
+		] + $params;
 		$urlParams = array_filter($urlParams);
-		return $this->makeURL($urlParams);
+		return $this->makeURL($urlParams, $path);
 	}
 
 }
