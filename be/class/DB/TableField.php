@@ -18,6 +18,8 @@ class TableField {
 
 	var $extra = array();
 
+	var $references;
+
 	static function init(array $row)
 	{
 		//debug($row); exit();
@@ -142,7 +144,7 @@ class TableField {
 
 	function isText()
 	{
-		return in_array($this->type, ['text', 'varchar(255)', 'tinytext']);
+		return in_array($this->type, ['text', 'varchar(255)', 'tinytext', 'string']);
 	}
 
 	function isTime()
@@ -153,6 +155,16 @@ class TableField {
 	function isFloat()
 	{
 		return in_array($this->type, ['real', 'double', 'float']);
+	}
+
+	public function fromPHP($type)
+	{
+		$map = [
+			'string' => 'varchar',
+			'int' => 'int',
+			'float' => 'float',
+		];
+		return ifsetor($map[$type], $type);
 	}
 
 }
