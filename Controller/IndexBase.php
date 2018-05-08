@@ -658,6 +658,18 @@ class IndexBase /*extends Controller*/
 		foreach ($this->header as $key => $script) {
 			$content[] = '<!--' . $key . '-->' . "\n" . $script;
 		}
+
+		foreach ($this->footer as $key => $script) {
+			$script = strip_tags($script, '<script>');
+			$script = HTMLTag::parse($script);
+			if ($script && $script->tag == 'script') {
+				$url = $script->getAttr('src');
+				if ($url) {
+					$content[] = '<!--' . $key . '-->' . "\n" . '<link rel="prefetch" href="' . $url . '">';
+				}
+			}
+		}
+
 		return implode("\n", $content) . "\n";
 	}
 
