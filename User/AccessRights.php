@@ -90,6 +90,11 @@ class AccessRights {
 		return $keys;
 	}
 
+	/**
+	 * @param string $wherePlus
+	 * @return AccessRightModel[]|ArrayPlus
+	 * @throws Exception
+	 */
 	function getAllRights($wherePlus = 'WHERE 1 = 1')
 	{
 		$accessRights = $this->db->fetchAll("

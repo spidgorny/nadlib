@@ -720,10 +720,16 @@ abstract class OODBase {
 	 * Override if collection name is different
 	 * @return Collection
 	 */
-	function getChildren()
+	function getChildren(array $where = [])
 	{
 		$collection = get_class($this) . 'Collection';
-		return new $collection($this->id);
+		if (class_exists($collection)) {
+			return new $collection($this->id, $where);
+		} else {
+			$iterator = new DatabaseResultIteratorAssoc($this->db, $this->idField);
+			$iterator->perform($this->db->getSelectQuery($this->table, $where));
+			return $iterator;
+		}
 	}
 
 	function getJson()
