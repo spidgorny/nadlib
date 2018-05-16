@@ -15,20 +15,24 @@ class Recursive {
 
 	public $elements = array();
 
-	function __construct($value, array $elements = array()) {
+	function __construct($value, array $elements = array())
+	{
 		$this->value = $value;
 		$this->elements = $elements;
 	}
 
-	function setValue($value) {
+	function setValue($value)
+	{
 		$this->value = $value;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return strip_tags(strval($this->value));
 	}
 
-	function getChildren() {
+	function getChildren()
+	{
 		return $this->elements;
 	}
 
@@ -36,17 +40,18 @@ class Recursive {
 	 * @param array $path
 	 * @return Recursive
 	 */
-	function findPath(array $path) {
+	function findPath(array $path)
+	{
 		//debug($path);
 		if ($path) {
 			$current = array_shift($path);
 			/** @var Recursive $find */
-			$find = $this->elements[$current];
+			$find = ifsetor($this->elements[$current]);
 			if ($find && $path) {
 				$find = $find->findPath($path);
 			}
 		} else {
-			$find = $this;	// Recursive
+			$find = $this;    // Recursive
 		}
 		return $find;
 	}
@@ -57,14 +62,16 @@ class Recursive {
 	 * @param callable $callback
 	 * @return Recursive
 	 */
-	function eachRecursive($callback) {
+	function eachRecursive($callback)
+	{
 		foreach ($this->elements as $i => &$el) {
 			if ($el instanceof Recursive) {
 				$el = $el->eachRecursive($callback);
 			} else {
 				$el = call_user_func($callback, $el, $i);
 			}
-		} unset($el);
+		}
+		unset($el);
 		return $this;
 	}
 
@@ -75,11 +82,12 @@ class Recursive {
 	 * @param int $level
 	 * @return Recursive
 	 */
-	function eachRecursiveKey($callback, $level = 0) {
+	function eachRecursiveKey($callback, $level = 0)
+	{
 		$new = array();
 		foreach ($this->elements as $i => $el) {
 			if ($el instanceof Recursive) {
-				$val = $el->eachRecursiveKey($callback, $level+1);
+				$val = $el->eachRecursiveKey($callback, $level + 1);
 			} else {
 				$val = NULL;
 			}
@@ -97,7 +105,8 @@ class Recursive {
 		return $this;
 	}
 
-	public function getName() {
+	public function getName()
+	{
 		return $this->value;
 	}
 
