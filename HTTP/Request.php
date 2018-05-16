@@ -555,6 +555,9 @@ class Request {
 		return $url;
 	}
 
+	/**
+	 * @return Path
+	 */
 	static function getDocRoot()
 	{
 		$docRoot = NULL;
@@ -569,6 +572,10 @@ class Request {
 
 		if (!str_startsWith($docRoot, '/')) {
 			$docRoot = '/' . $docRoot;
+		}
+
+		if (!($docRoot instanceof Path)) {
+			$docRoot = new Path($docRoot);
 		}
 
 		return $docRoot;
@@ -807,14 +814,36 @@ class Request {
 //		d($appRoot.'', $docRoot.'');
 
 		$pathWithoutDocRoot = clone $appRoot;
-		$pathWithoutDocRoot->remove($docRoot);
+//		$pathWithoutDocRoot->remove($docRoot);
 
-		$path = clone $this->url->getPath();
+		$path = clone $this->url->getPath()->resolveLinks();
 //		d('remove', $pathWithoutDocRoot.'', 'from', $path.'');
 		$path->remove($pathWithoutDocRoot);
 		$path->normalize();
 
 		return $path;
+	}
+
+	function getPathAfterAppRootByPath()
+	{
+		$al = AutoLoad::getInstance();
+		$docRoot = clone $al->documentRoot;
+		$docRoot->normalize()->realPath()->resolveLinks();
+
+		$path = $this->url->getPath();
+		$fullPath = clone $docRoot;
+		$fullPath->append($path);
+
+//		d($docRoot.'', $path.'', $fullPath.'');
+//		exit();
+		$fullPath->resolveLinksSimple();
+//		$fullPath->onlyExisting();
+//		d($fullPath.'');
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$fullPath->remove($appRoot);
+//		$path->normalize();
+
+		return $fullPath;
 	}
 
 	public function setPath($path)
@@ -836,7 +865,7 @@ class Request {
 	 */
 	function getURLLevels()
 	{
-		$path = $this->getPathAfterAppRoot();
+		$path = $this->getPathAfterAppRootByPath();
 //		debug($path);
 		//$path = $path->getURL();
 		//debug($path);
@@ -1024,7 +1053,9 @@ class Request {
 				}
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
-				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') {
+					$value = next($params);
+				}
 				$result[$pname] = $value;
 			} else {
 				// param doesn't belong to any option

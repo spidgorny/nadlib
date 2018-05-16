@@ -170,6 +170,9 @@ class Model {
 		return $desc;
 	}
 
+	/**
+	 * @return DocCommentParser[]
+	 */
 	function getFields()
 	{
 		$fields = [];
@@ -242,12 +245,48 @@ class Model {
 
 	public function getSingleLink()
 	{
-		return 'Controller?id='.$this->id();
+		return 'Controller?id=' . $this->id();
 	}
 
 	public function __toString()
 	{
 		return $this->getName();
+	}
+
+	/**
+	 * CREATE TABLE x (...)
+	 * @return mixed|string
+	 * @throws AccessDeniedException
+	 * @throws LoginException
+	 * @throws ReflectionException
+	 */
+	public function createQuery()
+	{
+		$columns = [];
+		$fields = $this->getFields();
+		foreach ($fields as $field => $dc) {
+//			debug($field);
+			$f = new TableField();
+			$f->field = $field;
+			$f->comment = $dc->getDescription();
+			$f->type = $f->fromPHP($dc->get('var')) ?: 'varchar';
+			if (class_exists($f->type)) {
+				$re = new ReflectionClass($f->type);
+				$id = $re->getProperty('id');
+				$dc2 = new DocCommentParser($id->getDocComment());
+
+				$type = new $f->type;
+
+				$f->type = $dc2->get('var')
+					? first(trimExplode(' ', $dc2->get('var')))
+					: 'varchar';
+				$f->references = $type->table.'('.$type->idField.')';
+			}
+			$columns[] = $f;
+		}
+		$at = new AlterTable();
+		$handler = $at->handler;
+		return $handler->getCreateQuery($this->table, $columns);
 	}
 
 }
