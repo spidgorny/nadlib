@@ -555,6 +555,9 @@ class Request {
 		return $url;
 	}
 
+	/**
+	 * @return Path
+	 */
 	static function getDocRoot()
 	{
 		$docRoot = NULL;
@@ -571,6 +574,10 @@ class Request {
 			$docRoot = '/' . $docRoot;
 		}
 
+		if (!($docRoot instanceof Path)) {
+			$docRoot = new Path($docRoot);
+		}
+
 		return $docRoot;
 	}
 
@@ -578,13 +585,16 @@ class Request {
 	{
 		$c = NULL;
 		$docRoot = self::getDocRoot();
+		ksort($_SERVER);
 		pre_print_r(array(
 			'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
 			'url' => self::getLocation() . '',
-			'server' => $_SERVER,
+			'server' => array_filter($_SERVER, function ($el) {
+				return strpos($el, '/') !== false;
+			}),
 		));
 	}
 
@@ -806,14 +816,36 @@ class Request {
 //		d($appRoot.'', $docRoot.'');
 
 		$pathWithoutDocRoot = clone $appRoot;
-		$pathWithoutDocRoot->remove($docRoot);
+//		$pathWithoutDocRoot->remove($docRoot);
 
-		$path = clone $this->url->getPath();
+		$path = clone $this->url->getPath()->resolveLinks();
 //		d('remove', $pathWithoutDocRoot.'', 'from', $path.'');
 		$path->remove($pathWithoutDocRoot);
 		$path->normalize();
 
 		return $path;
+	}
+
+	function getPathAfterAppRootByPath()
+	{
+		$al = AutoLoad::getInstance();
+		$docRoot = clone $al->documentRoot;
+		$docRoot->normalize()->realPath()->resolveLinks();
+
+		$path = $this->url->getPath();
+		$fullPath = clone $docRoot;
+		$fullPath->append($path);
+
+//		d($docRoot.'', $path.'', $fullPath.'');
+//		exit();
+		$fullPath->resolveLinksSimple();
+//		$fullPath->onlyExisting();
+//		d($fullPath.'');
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$fullPath->remove($appRoot);
+//		$path->normalize();
+
+		return $fullPath;
 	}
 
 	public function setPath($path)
@@ -835,7 +867,7 @@ class Request {
 	 */
 	function getURLLevels()
 	{
-		$path = $this->getPathAfterAppRoot();
+		$path = $this->getPathAfterAppRootByPath();
 //		debug($path);
 		//$path = $path->getURL();
 		//debug($path);
@@ -1023,7 +1055,9 @@ class Request {
 				}
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
-				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') {
+					$value = next($params);
+				}
 				$result[$pname] = $value;
 			} else {
 				// param doesn't belong to any option
@@ -1130,7 +1164,7 @@ class Request {
 //		exit();
 		if ($request && $request != '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
-			$docRoot = str_replace($docRootRaw, '', dirname($script));
+			$docRoot = str_replace($docRootRaw, '', dirname($script)).'/';	// dirname() removes slash
 		} else {
 			$docRoot = '/';
 		}
@@ -1186,6 +1220,41 @@ class Request {
 		}
 	}
 
+	public static function getDocumentRootByIsDir()
+	{
+		return self::dir_of_file(
+			self::firstExistingDir(
+				ifsetor($_SERVER['REQUEST_URI'])
+			)
+		);
+	}
+
+	/**
+	 * dirname('/53/') = '/' which is a problem
+	 * @param $path
+	 * @return string
+	 */
+	static function dir_of_file($path)
+	{
+		if ($path[strlen($path)-1] == '/') {
+			return $path;
+		} else {
+			return dirname($path);
+		}
+	}
+
+	static function firstExistingDir($path)
+	{
+		$check = $_SERVER['DOCUMENT_ROOT'].$path;
+		if (is_dir($check)) {
+			return cap($path, '/');
+		} elseif ($path) {
+			return self::firstExistingDir(self::dir_of_file($path));
+		} else {
+			return '/';
+		}
+	}
+
 	/**
 	 * @param int $age - seconds
 	 */
@@ -1196,6 +1265,15 @@ class Request {
 			header('Expires: ' . date('D, d M Y H:i:s', time() + $age) . ' GMT');
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 			header('Cache-Control: public, immutable, max-age=' . $age);
+		}
+	}
+
+	function noCache()
+	{
+		if (!headers_sent()) {
+			header('Pragma: no-cache');
+			header('Expires: 0');
+			header('Cache-Control: no-cache, no-store, must-revalidate');
 		}
 	}
 
@@ -1396,6 +1474,14 @@ class Request {
 		return $hidden;
 	}
 
+	function json(array $data) {
+		header('Content-Type: application/json');
+		$json = json_encode($data, JSON_PRETTY_PRINT);
+		header('Content-Length: '.strlen($json));
+		echo $json;
+		die;
+	}
+	
 	public function getAction()
 	{
 		$action = $this->getTrim('action');

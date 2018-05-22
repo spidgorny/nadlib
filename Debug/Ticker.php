@@ -1,7 +1,7 @@
 <?php
 
 //declare(ticks=100);
-require_once __DIR__.'/TaylorProfiler.php';
+require_once __DIR__ . '/TaylorProfiler.php';
 
 /**
  * Class Ticker
@@ -82,13 +82,15 @@ class Ticker {
 	/**
 	 * @return self
 	 */
-	public static function getInstance() {
+	public static function getInstance()
+	{
 		return self::$instance ?: self::$instance = new static();
 	}
 
-	static function enableTick($ticker = 1000) {
+	static function enableTick($ticker = 1000, $func = null)
+	{
 		$tp = self::getInstance();
-		$ok = register_tick_function(array($tp, 'tick'));
+		$ok = register_tick_function($func ?: array($tp, 'tick'));
 		if ($ok) {
 			$tp->tickTime = $ticker;
 			//$tp->tick();
@@ -103,14 +105,16 @@ class Ticker {
 	 * This is not working reliably yet. Stops output forever
 	 * @deprecated
 	 */
-	function stopOutput() {
+	function stopOutput()
+	{
 		ob_start([$this, 'ob_end']);
 		$this->noOutput = true;
 	}
 
-	function ob_end($output) {
+	function ob_end($output)
+	{
 		// don't print
-		return 'Collected output length: '. strlen($output). BR;
+		return 'Collected output length: ' . strlen($output) . BR;
 	}
 
 	/**
@@ -173,7 +177,8 @@ class Ticker {
 		}
 	}
 
-	function render($output, $time) {
+	function render($output, $time)
+	{
 		if ($this->tickTo == 'html') {
 			if ($this->isCLI()) {
 				$output = strip_tags($output);
@@ -181,7 +186,7 @@ class Ticker {
 			echo $output . "\n";
 		} elseif ($this->tickTo == 'header') {
 			$pad = str_pad($time, 6, '0', STR_PAD_LEFT);
-			header('X-Tick-'.$pad.': '.strip_tags($output));
+			header('X-Tick-' . $pad . ': ' . strip_tags($output));
 		} elseif ($this->tickTo == 'errorlog') {
 			error_log(strip_tags($output));
 		} elseif ($this->tickTo == 'echo') {
@@ -198,7 +203,8 @@ class Ticker {
 		}
 	}
 
-	static function disableTick() {
+	static function disableTick()
+	{
 		echo __METHOD__, BR;
 		$tp = self::getInstance();
 		unregister_tick_function(array($tp, 'tick'));

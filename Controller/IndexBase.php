@@ -296,7 +296,15 @@ class IndexBase /*extends Controller*/
 	function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
-		$method = ifsetor($_SERVER['argv'][2], 'render');
+		$notOptions = array_filter(
+			array_slice(
+				ifsetor($_SERVER['argv'], []), 1),
+			function ($el) {
+			return $el[0] != '-';	// --options
+		});
+//		debug($notOptions); exit;
+		// $notOptions[0] is the controller
+		$method = ifsetor($notOptions[1], 'render');
 		if ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
@@ -650,6 +658,18 @@ class IndexBase /*extends Controller*/
 		foreach ($this->header as $key => $script) {
 			$content[] = '<!--' . $key . '-->' . "\n" . $script;
 		}
+
+		foreach ($this->footer as $key => $script) {
+			$script = strip_tags($script, '<script>');
+			$script = HTMLTag::parse($script);
+			if ($script && $script->tag == 'script') {
+				$url = $script->getAttr('src');
+				if ($url) {
+					$content[] = '<!--' . $key . '-->' . "\n" . '<link rel="prefetch" href="' . $url . '">';
+				}
+			}
+		}
+
 		return implode("\n", $content) . "\n";
 	}
 

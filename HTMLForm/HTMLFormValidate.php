@@ -14,12 +14,14 @@ class HTMLFormValidate {
 	 */
 	protected $desc;
 
-	function __construct(HTMLFormTable $form) {
+	function __construct(HTMLFormTable $form)
+	{
 		$this->form = $form;
 		$this->desc = &$this->form->desc;
 	}
 
-	function validate() {
+	function validate()
+	{
 		$error = false;
 		foreach ($this->desc as $field => &$d) {
 			if ($d instanceof HTMLFormTable) {
@@ -43,13 +45,13 @@ class HTMLFormValidate {
 					$type = get_class($type);
 				}
 				$isCheckbox = !is_object($type) && in_array($type, array(
-					'check',
-					'checkbox',
-					'captcha',
-					'recaptcha',
-					'recaptchaAjax',
-					'select',
-				));
+						'check',
+						'checkbox',
+						'captcha',
+						'recaptcha',
+						'recaptchaAjax',
+						'select',
+					));
 				$d = $this->validateField($field, $d, $type, $isCheckbox);
 				//debug($field, $d['error']);
 				$error = $error || ifsetor($d['error']);
@@ -58,18 +60,19 @@ class HTMLFormValidate {
 		return !$error;
 	}
 
-	function validateField($field, array $d, $type, $isCheckbox) {
+	function validateField($field, array $d, $type, $isCheckbox)
+	{
 		$value = ifsetor($d['value']);
 		$label = ifsetor($d['label'], $field);
 		$isHidden = in_array($type, ['hidden', 'html']);
 		if (!ifsetor($d['optional']) && (
-			!($value) || (!ifsetor($d['allow0']) && !isset($d['value'])))
+				!($value) || (!ifsetor($d['allow0']) && !isset($d['value'])))
 			&& !$isCheckbox && !$isHidden) {
 			$d['error'] = __('Field "%1" is obligatory.', $label);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
-		} elseif (ifsetor($d['mustBset']) && !isset($d['value'])) {	// must be before 'obligatory'
+		} elseif (ifsetor($d['mustBset']) && !isset($d['value'])) {    // must be before 'obligatory'
 			$d['error'] = __('Field "%1" must be set', $label);
 		} elseif (ifsetor($d['obligatory']) && !$value) {
 			$d['error'] = __('Field "%1" is obligatory', $label);
@@ -77,8 +80,8 @@ class HTMLFormValidate {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
 		} elseif ($field == 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
 			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
-        } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
-            $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
+		} elseif ($field == 'securePassword' && !$this->securePassword($value)) {
+			$d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif (ifsetor($d['min']) && ($value < $d['min'])) {
 			//debug(__METHOD__, $value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $label, $d['min']);
@@ -102,7 +105,7 @@ class HTMLFormValidate {
 		} elseif (ifsetor($d['validate']) == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
 			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $label, implode(', ', $inValid));
 		} elseif (ifsetor($d['mustMatch'])
-				&& $value != $d['mustMatch']) {
+			&& $value != $d['mustMatch']) {
 			//debug($value, $d['mustMatch']);
 			$d['error'] = __('Value does not match');
 		} else {
@@ -128,24 +131,26 @@ class HTMLFormValidate {
 		return $d;
 	}
 
-    function securePassword($value) {
-        /*
-        * REGEX used for password strength check
-        *  (?=.*\\d.*)      : at least one Digit
-        *  (?=.*[a-zA-Z].*) : any Letters
-        *  (?=.*[A-Z])      : at least one Uppercase
-        *  {8,}             : 8 Length
-        */
-        $passwordRegex = '/(?=.*\\d.*)(?=.*[a-zA-Z].*)(?=.*[A-Z]).{8,}/';
-        return(preg_match($passwordRegex, $value));
-    }
+	function securePassword($value)
+	{
+		/*
+		* REGEX used for password strength check
+		*  (?=.*\\d.*)      : at least one Digit
+		*  (?=.*[a-zA-Z].*) : any Letters
+		*  (?=.*[A-Z])      : at least one Uppercase
+		*  {8,}             : 8 Length
+		*/
+		$passwordRegex = '/(?=.*\\d.*)(?=.*[a-zA-Z].*)(?=.*[A-Z]).{8,}/';
+		return (preg_match($passwordRegex, $value));
+	}
 
-	function getDesc() {
+	function getDesc()
+	{
 		return $this->desc;
 	}
 
 	//static function validMail($email) {
-		//return preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b/i", $email);
+	//return preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b/i", $email);
 	//	return $this->validEmail()
 	//}
 
@@ -156,71 +161,55 @@ class HTMLFormValidate {
 	 * address format and the domain exists.
 	 * http://www.linuxjournal.com/article/9585?page=0,3
 	 */
-	static function validEmail($email)	{
+	static function validEmail($email)
+	{
 		$isValid = true;
 		$atIndex = strrpos($email, "@");
-		if (is_bool($atIndex) && !$atIndex)
-		{
+		if (is_bool($atIndex) && !$atIndex) {
 			$isValid = false;
-		}
-		else
-		{
-			$domain = substr($email, $atIndex+1);
+		} else {
+			$domain = substr($email, $atIndex + 1);
 			$local = substr($email, 0, $atIndex);
 			$localLen = strlen($local);
 			$domainLen = strlen($domain);
-			if ($localLen < 1 || $localLen > 64)
-			{
+			if ($localLen < 1 || $localLen > 64) {
 				// local part length exceeded
 				$isValid = false;
-			}
-			else if ($domainLen < 1 || $domainLen > 255)
-			{
+			} else if ($domainLen < 1 || $domainLen > 255) {
 				// domain part length exceeded
 				$isValid = false;
-			}
-			else if ($local[0] == '.' || $local[$localLen-1] == '.')
-			{
+			} else if ($local[0] == '.' || $local[$localLen - 1] == '.') {
 				// local part starts or ends with '.'
 				$isValid = false;
-			}
-			else if (preg_match('/\\.\\./', $local))
-			{
+			} else if (preg_match('/\\.\\./', $local)) {
 				// local part has two consecutive dots
 				$isValid = false;
-			}
-			else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
-			{
+			} else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
 				// character not valid in domain part
 				$isValid = false;
-			}
-			else if (preg_match('/\\.\\./', $domain))
-			{
+			} else if (preg_match('/\\.\\./', $domain)) {
 				// domain part has two consecutive dots
 				$isValid = false;
-			}
-			else if
+			} else if
 			(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
-				str_replace("\\\\","",$local)))
-			{
+				str_replace("\\\\", "", $local))) {
 				// character not valid in local part unless
 				// local part is quoted
 				if (!preg_match('/^"(\\\\"|[^"])+"$/',
-					str_replace("\\\\","",$local)))
-				{
+					str_replace("\\\\", "", $local))) {
 					$isValid = false;
 				}
 			}
-			if ($isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A")))
-	    	{
-    			// domain not found in DNS
+			if ($isValid && !(checkdnsrr($domain, "MX") || checkdnsrr($domain, "A"))) {
+				// domain not found in DNS
 				$isValid = false;
 			}
 		}
 		return $isValid;
 	}
 
-	function getErrorList() {
+	function getErrorList()
+	{
 		$list = array();
 		foreach ($this->desc as $key => $desc) {
 			if (ifsetor($desc['error'])) {
@@ -230,26 +219,27 @@ class HTMLFormValidate {
 		return $list;
 	}
 
-    /**
-     * If Swift_Mail is installed, Swift_Validate will be used
-     *
-     * @param mixed $value should contain multiple email addresses (comma separated)
-     * @param array $invalid contains invalid entries (pass by reference)
-     * @return bool
-     */
-    public static function validateEmailAddresses($value, &$invalid = array()) {
-        $value = trim($value);
-        if (empty($value)) {
-            return true;
-        }
+	/**
+	 * If Swift_Mail is installed, Swift_Validate will be used
+	 *
+	 * @param mixed $value should contain multiple email addresses (comma separated)
+	 * @param array $invalid contains invalid entries (pass by reference)
+	 * @return bool
+	 */
+	public static function validateEmailAddresses($value, &$invalid = array())
+	{
+		$value = trim($value);
+		if (empty($value)) {
+			return true;
+		}
 
-        $emailAddresses = preg_split('/\s*,\s*/', $value);
-        foreach ($emailAddresses as &$emailAddress) {
-            if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
-                !self::validEmail($emailAddress)) {
-                $invalid[] = $emailAddress;
-            }
-        }
-        return empty($invalid);
-    }
+		$emailAddresses = preg_split('/\s*,\s*/', $value);
+		foreach ($emailAddresses as &$emailAddress) {
+			if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
+				!self::validEmail($emailAddress)) {
+				$invalid[] = $emailAddress;
+			}
+		}
+		return empty($invalid);
+	}
 }
