@@ -11,11 +11,17 @@ abstract class FullGrid extends Grid {
 
 	/**
 	 */
-	function __construct() {
-		parent::__construct();
+	function __construct()
+	{
+		parent::__construct();	// calls $this->initFilter();
+	}
 
+	public function initFilter()
+	{
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
+		parent::initFilter();
+
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 		if ($allowEdit /*&& $collection*/) {
 			$this->saveFilterAndSort(/*$collection ?: */get_class($this));

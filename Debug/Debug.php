@@ -40,7 +40,7 @@ class Debug {
 			$this->renderer = $this->detectRenderer();
 		}
 
-//		var_dump($_COOKIE);
+//		pre_print_r($_COOKIE);
 		if (0 && ifsetor($_COOKIE['debug'])) {
 			echo 'Renderer: ' . $this->renderer;
 			echo '<pre>';

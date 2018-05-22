@@ -424,6 +424,13 @@ class URL {
 	 */
 	static function getRelativePath($from, $to)
 	{
+		0 && debug($_SERVER['DOCUMENT_ROOT'],
+			$from, $to,
+			__FILE__,
+			trimExplode(':', ini_get('open_basedir')),
+			$_SERVER
+		);
+//		exit;
 		// some compatibility fixes for Windows paths
 		$from = self::getPathFolders($from);
 		$to = self::getPathFolders($to);
@@ -501,8 +508,9 @@ class URL {
 	{
 //		ob_start();
 //		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-//		error_log(ob_get_clean());
-		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		if (!ini_get('open_basedir')) {
+			$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		}
 		$from = str_replace('\\', '/', $from);
 		$from = explode('/', $from);
 		$from = array_filter($from);
