@@ -864,4 +864,9 @@ abstract class OODBase {
 		$this->db = $db;
 	}
 
+	public function getDB()
+	{
+		return $this->db;
+	}
+
 }

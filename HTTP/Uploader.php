@@ -180,16 +180,19 @@ post_max_size: ' . $post_max_size . '">' .
 				}
 			}
 
-			@mkdir(dirname($fileName), 0777, true);
+			if (!is_dir(dirname($fileName))) {
+				@mkdir(dirname($fileName), 0777, true);
+			}
 			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
-				//debug($error);
+				pre_print_r(__METHOD__, $error);
 				throw new Exception($error['message']);
 			}
 		} else {
 			$ok = false;
+			throw new Exception("[{$from}] is not a valid $_FILES index");
 		}
 		return $ok;
 	}
@@ -276,7 +279,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param $filepath
 	 * @return string
 	 */
-	function get_mime_type_system($filepath)
+	protected function get_mime_type_system($filepath)
 	{
 		ob_start();
 		system("file --mime-type -i --mime -b {$filepath}");
