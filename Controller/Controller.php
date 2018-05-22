@@ -115,16 +115,20 @@ abstract class Controller {
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->al = AutoLoad::getInstance();
+
 		if (!is_object($this->config) && class_exists('Config')) {
 			$this->config = Config::getInstance();
 			$this->db = $this->config->getDB();
 			$this->user = $this->config->getUser();
-			//debug($this->user);
+//			pre_print_r('User ID', $this->user->getID());
 			$this->config->mergeConfig($this);
 		} else {
 			/** @var Config config */
 			// $this->config = NULL;
 			//$this->user = new UserBase();
+
+//			pre_print_r(is_object($this->config),
+//				class_exists('Config'));
 		}
 		if (!$this->useRouter) {
 			$this->linkVars['c'] = get_class($this);
@@ -439,7 +443,7 @@ abstract class Controller {
 				}
 			} else {
 				// other classes except main controller may result in multiple messages
-				//Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
+//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			}
 		}
 		return $content;
@@ -877,14 +881,14 @@ abstract class Controller {
 		return strip_tags($a);
 	}
 
-	function makeActionURL($action = '', array $params = [])
+	function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-				'c' => get_class($this),
-				'action' => $action,
-			] + $params;
+			'c' => get_class($this),
+			'action' => $action,
+		] + $params;
 		$urlParams = array_filter($urlParams);
-		return $this->makeURL($urlParams);
+		return $this->makeURL($urlParams, $path);
 	}
 
 }
