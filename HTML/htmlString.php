@@ -9,7 +9,7 @@ class htmlString {
 	protected $value = '';
 
 	function __construct($input) {
-		$this->value = $input;
+		$this->value = $input.'';
 	}
 
 	function __toString() {
