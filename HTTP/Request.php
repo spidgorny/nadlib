@@ -1316,9 +1316,9 @@ class Request {
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
 
-	public function isHTTPS()
+	public static function isHTTPS()
 	{
-		return $this->getRequestType() == 'https';
+		return self::getRequestType() == 'https';
 	}
 
 	public function getNamelessID()

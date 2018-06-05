@@ -825,6 +825,7 @@ class URL
 		if (!ifsetor($this->components['path'])) {
 			$this->components['path'] = $_SERVER['REQUEST_URI'];
 		}
+		return $this;
 	}
 
 	function getHost()
