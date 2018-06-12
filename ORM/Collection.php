@@ -487,6 +487,7 @@ class Collection implements IteratorAggregate {
 		}
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 		TaylorProfiler::stop($profiler);
+		return $this->data;	// return something else if you augment $this->data
 	}
 
 	function preprocessRow(array $row)
