@@ -1,6 +1,7 @@
 <?php
 
-class CollectionView {
+class CollectionView
+{
 
 	/**
 	 * @var Collection
@@ -22,15 +23,18 @@ class CollectionView {
 
 	public $wrapTag = 'div';
 
-	function __construct(Collection $col) {
+	function __construct(Collection $col)
+	{
 		$this->collection = $col;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return MergedContent::mergeStringArrayRecursive($this->renderMembers());
 	}
 
-	function renderMembers() {
+	function renderMembers()
+	{
 		$content = array();
 		//debug(sizeof($this->members));
 		if ($this->collection->objectify()) {
@@ -49,14 +53,14 @@ class CollectionView {
 			}
 			if ($this->wrapTag) {
 				$content = array(
-					'<'.$this->wrapTag.' class="' . get_class($this->collection) . '">',
+					'<' . $this->wrapTag . ' class="' . get_class($this->collection) . '">',
 					$content,
-					'</'.$this->wrapTag.'>'
+					'</' . $this->wrapTag . '>'
 				);
 			}
 		} elseif ($this->noDataMessage) {
 			//Index::getInstance()->ll->debug = true;
-			$content[] = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
+			$content[] = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();
@@ -65,9 +69,10 @@ class CollectionView {
 		return $content;
 	}
 
-	function renderTable() {
-		TaylorProfiler::start(__METHOD__." ({$this->collection->table})");
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
+	function renderTable()
+	{
+		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 //		$count = $this->collection->getCount();
 		$count = $this->collection->getData()->count();
 		if ($count) {
@@ -81,16 +86,17 @@ class CollectionView {
 				$content = $s;
 			}
 		} else {
-			$content = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
+			$content = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'() done');
-		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
+		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 		return $content;
 	}
 
-	function prepareRender() {
-		TaylorProfiler::start(__METHOD__." ({$this->collection->table})");
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
+	function prepareRender()
+	{
+		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getProcessedData();
 		$count = $this->collection->getCount();
 		// Iterator by reference (PHP 5.4.15 crash)
@@ -100,12 +106,13 @@ class CollectionView {
 		}
 		$this->collection->setData($data);
 		$this->collection->count = $count;
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'() done');
-		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
+		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 	}
 
-	function getDataTable() {
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
+	function getDataTable()
+	{
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getData()->getData();
 		$s = new slTable($data, HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->collection->thes);
@@ -120,7 +127,7 @@ class CollectionView {
 //				pre_print_r(array_keys($row));
 			}
 			if ($sort) {
-				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));	// UGLY
+				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));    // UGLY
 				//debug(Index::getInstance()->controller);
 				$s->sortLinkPrefix = new URL(NULL,
 					ifsetor($controller->linkVars)
@@ -128,7 +135,7 @@ class CollectionView {
 						: array());
 			}
 		}
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'() done');
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 		return $s;
 	}
 

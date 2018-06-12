@@ -221,21 +221,35 @@ if (!function_exists('debugList')) {
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
 					$hash = new HTMLTag('span', array(
+						'class' => 'tag',
 						'style' => 'background: ' . $color . '; color: ' . $complement,
 					), $hash);
 				}
-				$type = get_class($something) . '#' . $hash;
+				$typeName = get_class($something) . '#' . $hash;
 			} else {
-				$type = get_class($something);
+				$typeName = get_class($something);
 			}
+		} else {
+			$typeName = $type;
 		}
+
+		$class = [
+			'string' => 'is-primary',
+			'NULL' => 'is-danger',
+			'object' => 'is-warning',
+			'array' => 'is-link',
+			'boolean' => 'is-info',
+			'integer' => 'is-success',
+		][$type] . ' tag';
+
 		if ($type == 'string') {
-			$type .= '[' . strlen($something) . ']';
+			$typeName .= '[' . strlen($something) . ']';
 		}
 		if ($type == 'array') {
-			$type .= '[' . sizeof($something) . ']';
+			$typeName .= '[' . sizeof($something) . ']';
 		}
-		return new htmlString($type);
+
+		return new HTMLTag('span', ['class' => $class], $typeName, true);
 	}
 
 	/**
