@@ -30,21 +30,24 @@ if (!function_exists('debug')) {
 
 if (!function_exists('debugList')) {
 
-	function debugList(array $a, $name = NULL) {
+	function debugList(array $a, $name = NULL)
+	{
 		$debug = Debug::getInstance();
 		$debug->name = $name;
 		foreach ($a as &$b) {
-			$b = $b.'';
+			$b = $b . '';
 		}
 		debug($a);
 	}
 
-	function ddie() {
+	function ddie()
+	{
 		debug(func_get_args());
-		die(__FUNCTION__.'#'.__LINE__);
+		die(__FUNCTION__ . '#' . __LINE__);
 	}
 
-	function d($a) {
+	function d($a)
+	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (DEVELOPMENT) {
 			ob_start();
@@ -54,17 +57,19 @@ if (!function_exists('debugList')) {
 			if (!function_exists('xdebug_break')) {
 				$dump = htmlspecialchars($dump);
 			}
-			echo '<pre>'.$dump.'</pre>';
+			echo '<pre>' . $dump . '</pre>';
 		}
 	}
 
 	/**
 	 * @param ...$a
 	 */
-	function nodebug($a) {
+	function nodebug($a)
+	{
 	}
 
-	function getDebug()	{
+	function getDebug()
+	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
@@ -80,7 +85,8 @@ if (!function_exists('debugList')) {
 	/**
 	 * @param ..$a
 	 */
-	function pre_print_r($a) {
+	function pre_print_r($a)
+	{
 		if (php_sapi_name() !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
 			print_r(func_num_args() == 1 ? $a : func_get_args());
@@ -90,19 +96,22 @@ if (!function_exists('debugList')) {
 		}
 	}
 
-	function get_print_r($a) {
-		return '<pre class="pre_print_r" style="white-space: pre-wrap;">'.
-		print_r($a, true).
-		'</pre>';
+	function get_print_r($a)
+	{
+		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
+			print_r($a, true) .
+			'</pre>';
 	}
 
-	function pre_var_dump($a) {
+	function pre_var_dump($a)
+	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
 		var_dump(func_num_args() == 1 ? $a : func_get_args());
 		echo '</pre>';
 	}
 
-	function debug_once() {
+	function debug_once()
+	{
 		static $used = NULL;
 		if (is_null($used)) {
 			$used = array();
@@ -119,7 +128,8 @@ if (!function_exists('debugList')) {
 		}
 	}
 
-	function debug_size($a) {
+	function debug_size($a)
+	{
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
 			$keys = array_keys($vals);
@@ -141,7 +151,8 @@ if (!function_exists('debugList')) {
 		debug($assoc);
 	}
 
-	function debug_pre_print_backtrace() {
+	function debug_pre_print_backtrace()
+	{
 		if (DEVELOPMENT) {
 			require_once __DIR__ . '/../HTTP/Request.php';
 			if (!Request::isCLI()) {
@@ -160,7 +171,7 @@ if (!function_exists('debugList')) {
 			}
 			$content = ob_get_clean();
 			$content = str_replace(dirname(getcwd()), '', $content);
-			$content = str_replace('C:\\Users\\'.getenv('USERNAME').'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
+			$content = str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
 			echo $content;
 			if (!Request::isCLI()) {
 				print '</pre>';
@@ -173,7 +184,8 @@ if (!function_exists('debugList')) {
 	 * @param $value
 	 * @return string
 	 */
-	function error2string($value) {
+	function error2string($value)
+	{
 		$level_names = array(
 			E_ERROR => 'E_ERROR',
 			E_WARNING => 'E_WARNING',
@@ -185,7 +197,7 @@ if (!function_exists('debugList')) {
 			E_COMPILE_WARNING => 'E_COMPILE_WARNING',
 			E_USER_ERROR => 'E_USER_ERROR',
 			E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE => 'E_USER_NOTICE' );
+			E_USER_NOTICE => 'E_USER_NOTICE');
 		if (defined('E_STRICT')) {
 			$level_names[E_STRICT] = 'E_STRICT';
 		}
@@ -194,12 +206,12 @@ if (!function_exists('debugList')) {
 			$levels[] = 'E_ALL';
 			$value &= ~E_ALL;
 		}
-		foreach ($level_names as $level=>$name) {
+		foreach ($level_names as $level => $name) {
 			if (($value & $level) == $level) {
 				$levels[] = $name;
 			}
 		}
-		return implode(' | ',$levels);
+		return implode(' | ', $levels);
 	}
 
 	/**
@@ -209,7 +221,8 @@ if (!function_exists('debugList')) {
 	 *
 	 * @return htmlString
 	 */
-	function typ($something, $withHash = true) {
+	function typ($something, $withHash = true)
+	{
 		$type = gettype($something);
 		if ($type == 'object') {
 			if ($withHash) {
@@ -234,13 +247,14 @@ if (!function_exists('debugList')) {
 		}
 
 		$class = [
-			'string' => 'is-primary',
-			'NULL' => 'is-danger',
-			'object' => 'is-warning',
-			'array' => 'is-link',
-			'boolean' => 'is-info',
-			'integer' => 'is-success',
-		][$type] . ' tag';
+				'string' => 'is-primary',
+				'NULL' => 'is-danger',
+				'object' => 'is-warning',
+				'array' => 'is-link',
+				'boolean' => 'is-info',
+				'integer' => 'is-success',
+				'resource' => '',
+			][$type] . ' tag';
 
 		if ($type == 'string') {
 			$typeName .= '[' . strlen($something) . ']';
@@ -256,7 +270,8 @@ if (!function_exists('debugList')) {
 	 * @param $something array|mixed
 	 * @return array|htmlString
 	 */
-	function gettypes($something) {
+	function gettypes($something)
+	{
 		if (is_array($something)) {
 			$types = array();
 			foreach ($something as $key => $element) {
