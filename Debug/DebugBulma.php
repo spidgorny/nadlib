@@ -3,6 +3,16 @@
 class DebugBulma extends DebugHTML
 {
 
+	/**
+	 * @var Debug
+	 */
+	var $helper;
+
+	function __construct(Debug $helper)
+	{
+		$this->helper = $helper;
+	}
+
 	static function canBulma()
 	{
 		return true;
