@@ -79,6 +79,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 
 	public function getTypeString() {
 		$type = ifsetor($this->data['type']);
+		if (is_null($type)) return null;
 		return is_string($type) ? $type : get_class($type);
 	}
 
