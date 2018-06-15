@@ -246,15 +246,16 @@ if (!function_exists('debugList')) {
 			$typeName = $type;
 		}
 
-		$class = [
-				'string' => 'is-primary',
-				'NULL' => 'is-danger',
-				'object' => 'is-warning',
-				'array' => 'is-link',
-				'boolean' => 'is-info',
-				'integer' => 'is-success',
-				'resource' => '',
-			][$type] . ' tag';
+		$bulma = [
+			'string' => 'is-primary',
+			'NULL' => 'is-danger',
+			'object' => 'is-warning',
+			'array' => 'is-link',
+			'boolean' => 'is-info',
+			'integer' => 'is-success',
+			'resource' => '',
+		];
+		$class = ifsetor($bulma[$type]) . ' tag';
 
 		if ($type == 'string') {
 			$typeName .= '[' . strlen($something) . ']';
