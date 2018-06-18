@@ -123,9 +123,6 @@ class CollectionView
 			$controller = $index->getController();
 			$sort = ifsetor($controller->sort);
 //			debug($sort);
-			foreach ($data as $row) {
-//				pre_print_r(array_keys($row));
-			}
 			if ($sort) {
 				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));    // UGLY
 				//debug(Index::getInstance()->controller);
