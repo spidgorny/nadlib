@@ -516,7 +516,9 @@ class Collection implements IteratorAggregate {
 		$this->log('getData() data: ' . ($this->data
 				? sizeof($this->data)
 				: '-'));
-		$this->log('getData() data->count: ' . count($this->data));
+		if (!is_null($this->data)) {
+			$this->log('getData() data->count: ' . count($this->data));
+		}
 		if (!$this->query
 			|| is_null($this->data)
 			//|| !$this->data->count())) {
