@@ -71,6 +71,25 @@ class Model {
 		$this->db = $db;
 	}
 
+	/**
+	 * Different models may extend this to covert between
+	 * different data types in DB and in runtime.
+	 * @param array $data
+	 */
+	function setData(array $data)
+	{
+		foreach ($data as $key => $val) {
+			$this->$key = $val;
+		}
+	}
+
+	public function unsetData()
+	{
+		foreach ($this->getFields() as $field => $dc) {
+			$this->$field = null;
+		}
+	}
+
 	public function getName()
 	{
 		$f = $this->titleColumn;
@@ -79,13 +98,30 @@ class Model {
 
 	/**
 	 * @return ArrayPlus
+	 * @deprecated
 	 */
-	public function getData()
+	public function getData($where = [])
 	{
-		$data = $this->db->fetchAllSelectQuery($this->table, []);
+		$data = $this->db->fetchAllSelectQuery($this->table, $where);
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
+		return $data;
+	}
+
+	/**
+	 * @return ArrayPlus
+	 * @deprecated
+	 */
+	public function query($where = [])
+	{
+		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		if (!($data instanceof ArrayPlus)) {
+			$data = new ArrayPlus($data);
+		}
+		$data->map(function ($row) {
+			return new static($this->db, $row);
+		});
 		return $data;
 	}
 
@@ -197,25 +233,6 @@ class Model {
 	function getVisibleFields()
 	{
 		// TODO
-	}
-
-	/**
-	 * Different models may extend this to covert between
-	 * different data types in DB and in runtime.
-	 * @param array $data
-	 */
-	function setData(array $data)
-	{
-		foreach ($data as $key => $val) {
-			$this->$key = $val;
-		}
-	}
-
-	public function unsetData()
-	{
-		foreach ($this->getFields() as $field => $dc) {
-			$this->$field = null;
-		}
 	}
 
 	function id()
