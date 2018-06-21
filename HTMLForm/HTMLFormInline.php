@@ -75,7 +75,7 @@ class HTMLFormInline extends HTMLFormTable
 		return $content;
 	}
 
-	function showCell($fieldName, array $desc)
+	function showCell($fieldName, /*array*/ $desc)
 	{
 		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
 		$fieldObj = $this->switchType($fieldName, $fieldValue, $desc);
