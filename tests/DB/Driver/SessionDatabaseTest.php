@@ -8,7 +8,8 @@
 
 use nadlib\SessionDatabase;
 
-class SessionDatabaseTest extends PHPUnit_Framework_TestCase {
+class SessionDatabaseTest extends PHPUnit_Framework_TestCase
+{
 
 	function test_runInsertQuery()
 	{
@@ -17,7 +18,7 @@ class SessionDatabaseTest extends PHPUnit_Framework_TestCase {
 		$db->createTable($table);
 		$db->runInsertQuery($table, ['a' => 'b']);
 		$db->runInsertQuery($table, ['a' => 'b']);
-		$this->assertEquals(2, sizeof($db->getRowsIn($table)));
+		$this->assertEquals(2, $db->getRowsIn($table));
 	}
 
 }

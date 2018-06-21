@@ -1,37 +1,43 @@
 <?php
 
-class LazyObject extends ArrayObject {
+class LazyObject extends ArrayObject
+{
 
 }
 
-class LazyMemberIteratorTest extends PHPUnit_Framework_TestCase {
+class LazyMemberIteratorTest extends PHPUnit_Framework_TestCase
+{
 
 	/**
 	 * @var ArrayIterator
 	 */
-	var $list;
+	protected $list;
 
 	/**
 	 * @var LazyMemberIterator|Iterator
 	 */
-	var $sut;
+	protected $sut;
 
-	function setUp() {
+	public function setUp()
+	{
 		$set = [];
 		for ($i = 0; $i < 10; $i++) {
-			$set[] = range(10*$i+0, 10*$i+4);
+			$set[] = range(10 * $i + 0, 10 * $i + 4);
 		}
 		$this->list = new ArrayIterator($set);
 		$this->sut = new LazyMemberIterator(
-			$this->list, LazyObject::class
+			$this->list,
+			LazyObject::class
 		);
 	}
 
-	function test_count() {
+	public function test_count()
+	{
 		$this->assertEquals(10, $this->sut->count());
 	}
 
-	function test_current_function() {
+	public function test_current_function()
+	{
 		$list = new ArrayIterator(range(0, 4));
 		$curM = $list->current();
 		$curF = current($list);
@@ -39,7 +45,8 @@ class LazyMemberIteratorTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($curM, $curF);
 	}
 
-	function test_current_function_this_list() {
+	public function test_current_function_this_list()
+	{
 		$curM = $this->list->current();
 		$curF = current($this->list);
 		//debug($curM, $curF);
@@ -49,7 +56,8 @@ class LazyMemberIteratorTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @ignore
 	 */
-	function no_test_current_function_on_lazy() {
+	public function no_test_current_function_on_lazy()
+	{
 		$this->sut->rewind();
 		$curM = $this->sut->current();
 		$curF = current($this->sut);
@@ -57,18 +65,25 @@ class LazyMemberIteratorTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($curM, $curF);
 	}
 
-	function test_foreach_normal() {
+	public function test_foreach_normal()
+	{
 		foreach ($this->list as $i => $el) {
-			$this->assertEquals($el, range(10*$i+0, 10*$i+4));
+			$this->assertEquals($el, range(10 * $i + 0, 10 * $i + 4));
 		}
 	}
 
-	function test_foreach_lazy() {
+	public function test_foreach_lazy()
+	{
+//		debug(range(0, 4));
 		$this->sut->rewind();
 		//echo 'Count: ', $this->sut->count(), BR;
-		foreach ($this->sut as $el) {
+		/** @var LazyObject $el */
+		foreach ($this->sut as $i => $el) {
 			//debug($el);
-			$this->assertEquals($el, range(0, 4));
+			$this->assertEquals(
+				$el->getArrayCopy(),
+				range($i * 10, $i * 10 + 4)
+			);
 		}
 	}
 
