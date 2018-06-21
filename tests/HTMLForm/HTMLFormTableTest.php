@@ -6,16 +6,18 @@
  * Date: 2017-03-22
  * Time: 16:26
  */
-class HTMLFormTableTest extends PHPUnit_Framework_TestCase {
+class HTMLFormTableTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_fillValues() {
+	function test_fillValues()
+	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
 			'email' => 'E-mail',
 		]);
 		$fixture = [
-			'name'      => 'slawa',
-			'email'     => 'someshit',
+			'name' => 'slawa',
+			'email' => 'someshit',
 			'new_field' => 'new_values',
 		];
 		$f->fill($fixture);
@@ -25,14 +27,15 @@ class HTMLFormTableTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($fixture, $values);
 	}
 
-	function test_fillValues_with_force() {
+	function test_fillValues_with_force()
+	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
 			'email' => 'E-mail',
 		]);
 		$fixture = [
-			'name'      => 'slawa',
-			'email'     => 'someshit',
+			'name' => 'slawa',
+			'email' => 'someshit',
 			'new_field' => 'new_values',
 		];
 		$f->fill($fixture, true);
@@ -41,19 +44,20 @@ class HTMLFormTableTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($fixture, $values);
 	}
 
-	function test_fillValues_twice() {
+	function test_fillValues_twice()
+	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
 			'email' => 'E-mail',
 		]);
 		$fixture = [
-			'name'      => 'slawa',
-			'email'     => 'someshit',
+			'name' => 'slawa',
+			'email' => 'someshit',
 		];
 		$f->fill($fixture, true);
 		$fixture = [
-			'name'      => 'slawa 2',
-			'email'     => 'someshit ',
+			'name' => 'slawa 2',
+			'email' => 'someshit ',
 		];
 		$f->fill($fixture, true);
 		$values = $f->getValues();
