@@ -10,7 +10,23 @@
 class UploaderTest extends PHPUnit_Framework_TestCase
 {
 
-	function test_GetPostedFiles()
+	public function test_GetPostedFiles_single()
+	{
+		$source = [
+			'file' => [
+				'name' => 'pocketshare_windows.bat',
+				'type' => 'application/octet-stream',
+				'tmp_name' => 'C:\\wamp\\vdrive\\.tmp\\phpDF4C.tmp',
+				'error' => 0,
+				'size' => 255,
+			],
+		];
+		$u = new Uploader();
+		$result = $u->GetPostedFiles($source);
+		$this->assertEquals($source, $result);
+	}
+
+	public function test_GetPostedFiles()
 	{
 		$source = [
 			'files' => [
@@ -30,14 +46,13 @@ class UploaderTest extends PHPUnit_Framework_TestCase
 				],
 			],
 		];
-		$_FILES = $source;
 		$u = new Uploader();
-		$result = $u->GetPostedFiles();
-		var_export($result);
+		$result = $u->GetPostedFiles($source);
+//		debug($result);
 		$this->assertEquals($source, $result);
 	}
 
-	function test_GetPostedFiles_on_broken()
+	public function test_GetPostedFiles_on_broken()
 	{
 		$source = [
 			'files' => [
