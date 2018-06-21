@@ -356,7 +356,7 @@ class HTMLFormTable extends HTMLForm
 	 * @param string $fieldName
 	 * @param array|HTMLFormFieldInterface $desc
 	 */
-	function showCell($fieldName, array$desc)
+	function showCell($fieldName, /*array*/ $desc)
 	{
 //		echo __METHOD__, ' ', json_encode($fieldName), BR;
 		//debug(array($fieldName, $desc));
