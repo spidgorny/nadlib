@@ -25,7 +25,7 @@ WHERE
 \"a\" = 'b'
 ORDER BY c";
 		$must = str_replace("\r\n", "\n", $must);
-		debug($must, $query);
+//		debug($must, $query);
 		$this->assertEquals($must, $query);
 	}
 
@@ -42,7 +42,7 @@ ORDER BY c";
 		$must = $this->implodeSQL($must);
 		$sQuery = $query->getQuery();
 		$sQuery = $this->implodeSQL($sQuery);
-		debug($must, $sQuery, $query->getParameters());
+//		debug($must, $sQuery, $query->getParameters());
 		$this->assertEquals($must, $sQuery);
 	}
 
