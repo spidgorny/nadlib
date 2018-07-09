@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/class.InitNADLIB.php';
+require_once __DIR__ . '/class.InitNADLIB.php';
 
 /**
  * May already be defined in TYPO3
@@ -9,8 +9,9 @@ if (!function_exists('debug')) {
 	/**
 	 * @param ...$a mixed
 	 */
-	function debug($a) {
-	    $params = func_get_args();
+	function debug($a)
+	{
+		$params = func_get_args();
 		if (class_exists('Debug')) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
@@ -24,7 +25,7 @@ if (!function_exists('debug')) {
 			if (!function_exists('xdebug_break')) {
 				$dump = htmlspecialchars($dump);
 			}
-			echo '<pre>'.$dump.'</pre>';
+			echo '<pre>' . $dump . '</pre>';
 		}
 	}
 }
@@ -34,10 +35,12 @@ if (!function_exists('nodebug')) {
 	/**
 	 * @param ...$a
 	 */
-	function nodebug($a) {
+	function nodebug($a)
+	{
 	}
 
-	function getDebug()	{
+	function getDebug()
+	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
 		$content = $debug::printStyles();
@@ -49,19 +52,22 @@ if (!function_exists('nodebug')) {
 		return $content;
 	}
 
-	function pre_print_r($a) {
+	function pre_print_r($a)
+	{
 		echo '<pre style="white-space: pre-wrap;">';
 		print_r(func_num_args() == 1 ? $a : func_get_args());
 		echo '</pre>';
 	}
 
-	function get_print_r($a) {
-		return '<pre style="white-space: pre-wrap;">'.
-		print_r($a, true).
-		'</pre>';
+	function get_print_r($a)
+	{
+		return '<pre style="white-space: pre-wrap;">' .
+			print_r($a, true) .
+			'</pre>';
 	}
 
-	function debug_once() {
+	function debug_once()
+	{
 		static $used = array();
 		$trace = debug_backtrace();
 		array_shift($trace); // debug_once itself
@@ -75,7 +81,8 @@ if (!function_exists('nodebug')) {
 		}
 	}
 
-	function debug_size($a) {
+	function debug_size($a)
+	{
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
 			$keys = array_keys($vals);
@@ -103,7 +110,8 @@ if (!function_exists('nodebug')) {
 		 * @param string|string[] $needle
 		 * @return bool
 		 */
-		function startsWith($haystack, $needle) {
+		function startsWith($haystack, $needle)
+		{
 			if (!is_array($needle)) {
 				$needle = array($needle);
 			}
@@ -123,13 +131,15 @@ if (!function_exists('nodebug')) {
 		 * @param $needle
 		 * @return bool
 		 */
-		function endsWith($haystack, $needle) {
+		function endsWith($haystack, $needle)
+		{
 			return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 		}
 	}
 
 	if (!function_exists('contains')) {
-		function contains($haystack, $needle) {
+		function contains($haystack, $needle)
+		{
 			return FALSE !== strpos($haystack, $needle);
 		}
 	}
@@ -141,7 +151,8 @@ if (!function_exists('nodebug')) {
 	 * @param null $max
 	 * @return array
 	 */
-	function trimExplode($sep, $str, $max = NULL) {
+	function trimExplode($sep, $str, $max = NULL)
+	{
 		if ($max) {
 			$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
 		} else {
@@ -153,7 +164,8 @@ if (!function_exists('nodebug')) {
 		return $parts;
 	}
 
-	function debug_pre_print_backtrace() {
+	function debug_pre_print_backtrace()
+	{
 		if (DEVELOPMENT) {
 			print '<pre>';
 			if (phpversion() >= '5.3.6') {
@@ -172,7 +184,8 @@ if (!function_exists('nodebug')) {
 	 * @param int $tabDepth
 	 * @return mixed
 	 */
-	function tab2nbsp($text, $tabDepth = 4) {
+	function tab2nbsp($text, $tabDepth = 4)
+	{
 		$tabSpaces = str_repeat('&nbsp;', $tabDepth);
 		return str_replace("\t", $tabSpaces, $text);
 	}
@@ -181,7 +194,8 @@ if (!function_exists('nodebug')) {
 	 * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
 	 */
 	if (!function_exists('get_called_class')) {
-		function get_called_class($bt = false, $l = 1) {
+		function get_called_class($bt = false, $l = 1)
+		{
 			if (!$bt) $bt = debug_backtrace();
 			if (!isset($bt[$l])) throw new Exception("Cannot find called class -> stack level too deep.");
 			if (!isset($bt[$l]['type'])) {
@@ -233,7 +247,8 @@ if (!function_exists('nodebug')) {
 	 * @param array $list
 	 * @return array|mixed
 	 */
-	function first(array $list) {
+	function first(array $list)
+	{
 		reset($list);
 		return current($list);
 	}
@@ -244,7 +259,8 @@ if (!function_exists('nodebug')) {
 	 * @param array $list
 	 * @return mixed
 	 */
-	function eachv(array &$list) {
+	function eachv(array &$list)
+	{
 		$current = current($list);
 		next($list);
 		return $current;
@@ -256,7 +272,8 @@ if (!function_exists('nodebug')) {
 	 * @param array $b
 	 * @return array
 	 */
-	function array_combine_stringkey(array $a, array $b) {
+	function array_combine_stringkey(array $a, array $b)
+	{
 		$ret = array();
 		reset($b);
 		foreach ($a as $key) {
@@ -271,7 +288,8 @@ if (!function_exists('nodebug')) {
 	 * @param $class
 	 * @return array|null
 	 */
-	function get_overriden_methods($class) {
+	function get_overriden_methods($class)
+	{
 		$rClass = new ReflectionClass($class);
 		$array = NULL;
 
@@ -299,11 +317,13 @@ if (!function_exists('nodebug')) {
 	 * @param $arr
 	 * @return bool
 	 */
-	function is_assoc($arr)	{
+	function is_assoc($arr)
+	{
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
-	function cap($string, $with = '/') {
+	function cap($string, $with = '/')
+	{
 		if (!endsWith($string, $with)) {
 			$string .= $with;
 		}
@@ -311,8 +331,8 @@ if (!function_exists('nodebug')) {
 	}
 
 	/**
-     * Shortcut for
-     * isset($variable) ? $variable : $default
+	 * Shortcut for
+	 * isset($variable) ? $variable : $default
 	 * BUT, it creates a NULL elements with the multidimensional arrays!!!
 	 * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
 	 * @param $variable
@@ -320,7 +340,8 @@ if (!function_exists('nodebug')) {
 	 * @return null
 	 * @see https://wiki.php.net/rfc/ifsetor
 	 */
-	function ifsetor(&$variable, $default = null) {
+	function ifsetor(&$variable, $default = null)
+	{
 		if (isset($variable)) {
 			$tmp = $variable;
 		} else {
@@ -334,24 +355,24 @@ if (!function_exists('nodebug')) {
 	 * @param $value
 	 * @return string
 	 */
-	function error2string($value) {
+	function error2string($value)
+	{
 		$level_names = array(
 			E_ERROR => 'E_ERROR', E_WARNING => 'E_WARNING',
 			E_PARSE => 'E_PARSE', E_NOTICE => 'E_NOTICE',
 			E_CORE_ERROR => 'E_CORE_ERROR', E_CORE_WARNING => 'E_CORE_WARNING',
 			E_COMPILE_ERROR => 'E_COMPILE_ERROR', E_COMPILE_WARNING => 'E_COMPILE_WARNING',
 			E_USER_ERROR => 'E_USER_ERROR', E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE => 'E_USER_NOTICE' );
-		if(defined('E_STRICT')) $level_names[E_STRICT]='E_STRICT';
-		$levels=array();
-		if(($value&E_ALL)==E_ALL)
-		{
-			$levels[]='E_ALL';
-			$value&=~E_ALL;
+			E_USER_NOTICE => 'E_USER_NOTICE');
+		if (defined('E_STRICT')) $level_names[E_STRICT] = 'E_STRICT';
+		$levels = array();
+		if (($value & E_ALL) == E_ALL) {
+			$levels[] = 'E_ALL';
+			$value &= ~E_ALL;
 		}
-		foreach($level_names as $level=>$name)
-			if(($value&$level)==$level) $levels[]=$name;
-		return implode(' | ',$levels);
+		foreach ($level_names as $level => $name)
+			if (($value & $level) == $level) $levels[] = $name;
+		return implode(' | ', $levels);
 	}
 
 }
