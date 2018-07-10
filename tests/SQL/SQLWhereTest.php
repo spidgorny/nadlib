@@ -44,7 +44,7 @@ class SQLWhereTest extends PHPUnit_Framework_TestCase
 		$sql = str_replace("\t", ' ', $sql);
 		$sql = preg_replace('/ +/', ' ', $sql);
 		$sql = trim($sql);
-		echo $sql, BR;
+//		echo $sql, BR;
 		return $sql;
 	}
 
