@@ -65,6 +65,11 @@ class Request {
 		return $phar || $loader || $phpStorm;
 	}
 
+	public static function isJenkins()
+	{
+		return ifsetor($_SERVER['BUILD_NUMBER'], getenv('BUILD_NUMBER'));
+	}
+
 	/**
 	 * Returns raw data, don't use or use with care
 	 * @param $key

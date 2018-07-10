@@ -47,7 +47,6 @@ class PathTest extends PHPUnit_Framework_TestCase
 
 	public function test_relativeFromAppRoot()
 	{
-
 		$this->markTestIncomplete(
 			'Cannot work from nadlib as a standalone.'
 		);
