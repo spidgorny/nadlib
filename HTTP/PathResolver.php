@@ -51,6 +51,8 @@ class PathResolver implements ResolverInterface {
 		if ($returnDefault && class_exists('Config')) {
 			// not good as we never get 404
 			$controller = Config::getInstance()->defaultController;
+			// remove namespaces
+			$controller = last(trimExplode('\\', $controller));
 		} else {
 			$controller = NULL;
 		}
