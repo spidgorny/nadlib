@@ -4,9 +4,13 @@ class CLIResolver implements ResolverInterface {
 
 	function getController() {
 		$request = Request::getInstance();
-		$controller = ifsetor($_SERVER['argv'][1]);
-		if (DEVELOPMENT) {
-			echo 'Controller: ' . $controller, BR;
+		$argv = array_filter($_SERVER['argv'], function ($el) {
+			return !str_startsWith($el, '--');	// remove params
+		});
+		$controller = sizeof($argv) ? first($argv) : null;
+		if (DEVELOPMENT && $controller) {
+//			echo 'ArgV: ', implode(' ', $_SERVER['argv']);
+//			echo 'Controller: ' . $controller, BR;
 		}
 		$request->setArray($request->parseParameters());
 		return $controller;
