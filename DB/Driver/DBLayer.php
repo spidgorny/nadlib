@@ -149,7 +149,7 @@ class DBLayer extends DBLayerBase implements DBInterface {
 
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
-			//debug('no connection', $this->connection, $query);
+			debug('no connection', $this->connection, $query);
 			throw new DatabaseException('No connection');
 		}
 
