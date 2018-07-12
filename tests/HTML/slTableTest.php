@@ -90,12 +90,27 @@ class slTableTest extends PHPUnit_Framework_TestCase {
 		$request = new Request();
 		$request->clear();
 		$s->setRequest($request);
+		$s->sortable = true;		// required for detectSortBy()
 		$s->detectSortBy();
 		$this->assertEquals([
 			'a' => [
 				'name' => 'a',
 			],
 		], $s->thes);
+		$this->assertEquals('a', $s->sortBy);
+	}
+
+	function test_detectSortBy_no_request_no_sort()
+	{
+		$s = new slTable([
+			['a' => 1],
+		]);
+		$request = new Request();
+		$request->clear();
+		$s->setRequest($request);
+		$s->sortable = false;		// required for detectSortBy()
+		$s->detectSortBy();
+		$this->assertEquals([], $s->thes);
 		$this->assertEquals(null, $s->sortBy);
 	}
 

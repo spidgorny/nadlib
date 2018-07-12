@@ -65,6 +65,11 @@ class Request {
 		return $phar || $loader || $phpStorm;
 	}
 
+	public static function isJenkins()
+	{
+		return ifsetor($_SERVER['BUILD_NUMBER'], getenv('BUILD_NUMBER'));
+	}
+
 	/**
 	 * Returns raw data, don't use or use with care
 	 * @param $key
@@ -1244,8 +1249,9 @@ class Request {
 	static function firstExistingDir($path)
 	{
 		$check = $_SERVER['DOCUMENT_ROOT'].$path;
+//		error_log($check);
 		if (is_dir($check)) {
-			return cap($path, '/');
+			return cap(rtrim($path, '\\'), '/');
 		} elseif ($path) {
 			return self::firstExistingDir(self::dir_of_file($path));
 		} else {
@@ -1316,9 +1322,9 @@ class Request {
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
 
-	public function isHTTPS()
+	public static function isHTTPS()
 	{
-		return $this->getRequestType() == 'https';
+		return self::getRequestType() == 'https';
 	}
 
 	public function getNamelessID()
@@ -1478,6 +1484,19 @@ class Request {
 		header('Content-Length: '.strlen($json));
 		echo $json;
 		die;
+	}
+
+	public static function isLocalhost()
+	{
+		$host = self::getOnlyHost();
+		if (in_array($host, ['localhost', '127.0.0.1'])) {
+			return true;
+		}
+		$hostname = gethostname();
+		if ($host == $hostname) {
+			return true;
+		}
+		return false;
 	}
 
 }

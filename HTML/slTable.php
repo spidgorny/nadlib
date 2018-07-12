@@ -257,11 +257,12 @@ class slTable
 	public function detectSortBy()
 	{
 		$aRequest = $this->request->getArray('slTable');
-		$by = ifsetor($aRequest['sortBy']);
-		$or = ifsetor($aRequest['sortOrder']);
+		$this->sortBy = ifsetor($aRequest['sortBy']);
+		$this->sortOrder = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
 
-		if (!$this->sortBy && false !== $this->sortable) {
+		// make default softBy if not provided
+		if (!$this->sortBy && $this->sortable) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {
@@ -292,6 +293,7 @@ class slTable
 		// sortBy for th linking and sorting below
 		$this->sortBy = $by;
 		$this->sortOrder = $or;
+//		$this->sort();
 	}
 
 	function sort()

@@ -6,38 +6,44 @@
  * Time: 15:03
  */
 
-class RequestTest extends PHPUnit_Framework_TestCase {
+class RequestTest extends PHPUnit_Framework_TestCase
+{
 
 	/**
 	 * @var Request $r
 	 */
 	protected $r;
 
-	function setUp() {
+	public function setUp()
+	{
 		$this->r = Request::getInstance();
 	}
 
-	function test_set() {
+	public function test_set()
+	{
 		$this->r->set('a', 'b');
 		$this->assertEquals('b', $this->r->getTrim('a'));
 	}
 
-	function test_unset() {
+	public function test_unset()
+	{
 		//debug($this->r);
 		$this->r->set('a', 'b');
 		$this->r->un_set('a');
 		$this->assertEmpty($this->r->getTrim('a'));
 	}
 
-	function test_getTrim() {
-		$this->r->set('a', ' some words'."\n\t");
+	public function test_getTrim()
+	{
+		$this->r->set('a', ' some words' . "\n\t");
 		$this->assertEquals('some words', $this->r->getTrim('a'));
 	}
 
 	/**
 	 * @expectedException Exception
 	 */
-	function test_getTrimRequired() {
+	public function test_getTrimRequired()
+	{
 		$this->r->set('a', '  ');
 		$this->r->getTrimRequired('a');
 	}
@@ -45,26 +51,31 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @expectedException Exception
 	 */
-	function test_getOneOf() {
+	public function test_getOneOf()
+	{
 		$this->r->set('a', 'b');
 		$this->r->getOneOf('a', array('c'));
 	}
 
-	function test_getInt() {
+	public function test_getInt()
+	{
 		$this->r->set('i', '10');
 		$this->assertEquals(10, $this->r->getInt('i'));
 	}
 
-	function test_getInt0() {
+	public function test_getInt0()
+	{
 		$this->r->set('i', '10');
 		$this->assertEquals(0, $this->r->getInt('new'));
 	}
 
-	function test_getIntOrNULL() {
+	public function test_getIntOrNULL()
+	{
 		$this->assertNull($this->r->getIntOrNULL('new'));
 	}
 
-	function test_getIntIn() {
+	public function test_getIntIn()
+	{
 		$this->r->set('i', 10);
 		$this->assertEquals(10, $this->r->getIntIn('i', array(
 			9 => '',
@@ -73,7 +84,8 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		)));
 	}
 
-	function test_getIntIn0() {
+	public function test_getIntIn0()
+	{
 		$this->r->set('i', 10);
 		$this->assertNull($this->r->getIntIn('i', array(
 			9 => '',
@@ -81,11 +93,12 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		)));
 	}
 
-	function test_getLocation() {
+	public function test_getLocation()
+	{
 		$_SERVER['DOCUMENT_ROOT'] = 'Z:/web/dev-jobz/htdocs/';
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
 		$location = Request::getLocation();
-		debug($location.'');
+//		debug($location . '');
 	}
 
 }
