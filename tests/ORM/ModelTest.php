@@ -7,9 +7,10 @@
  */
 
 
-class ModelTest extends PHPUnit_Framework_TestCase {
+class ModelTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_getFormFromModel()
+	public function _test_getFormFromModel()
 	{
 		$cm = new CareerModel(new dbPlacebo());
 		$form = $cm->getFormFromModel();
@@ -17,25 +18,25 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals([
 			'name' => [
 				'label' => 'Career name',
-				'type'  => 'text',
+				'type' => 'text',
 				'optional' => false,
 			],
 			'note' => [
 				'label' => 'Note',
-				'type'  => 'textarea',
+				'type' => 'textarea',
 				'optional' => true,
 			],
 		], $form);
 	}
 
-	function test_isset_empty_array()
+	public function test_isset_empty_array()
 	{
-		$a['k'] = NULL;
+		$a['k'] = null;
 		$this->assertFalse(isset($a['k']));
 		$this->assertTrue(array_key_exists('k', $a));
 	}
 
-	function test_getFormFromModel2()
+	public function _test_getFormFromModel2()
 	{
 		$cm = new ApplicationModel(new dbPlacebo());
 		$form = $cm->getFormFromModel();
@@ -43,12 +44,12 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals([
 			'name' => [
 				'label' => 'Job Title',
-				'type'  => 'text',
+				'type' => 'text',
 				'optional' => false,
 			],
 			'note' => [
 				'label' => 'Notes',
-				'type'  => 'textarea',
+				'type' => 'textarea',
 				'optional' => true,
 			],
 			'url' => [

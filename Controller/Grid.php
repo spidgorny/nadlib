@@ -42,7 +42,7 @@ abstract class Grid extends AppController {
 	public function initFilter()
 	{
 		$cn = $this->request->getControllerString();
-		$allowEdit = $cn == get_class($this);
+		$allowEdit = $cn === get_class($this);
 
 		if ($allowEdit) {
 			$this->setFilter($cn);
@@ -251,6 +251,7 @@ abstract class Grid extends AppController {
 	 */
 	public function setColumns($cn, $allowEdit)
 	{
+		$this->log(__METHOD__, $cn);
 		// request
 		if ($this->request->is_set('columns') && $allowEdit) {
 			$urlColumns = $this->request->getArray('columns');
@@ -264,6 +265,7 @@ abstract class Grid extends AppController {
 				$this->log(__METHOD__, 'Columns set from getPref');
 			}
 		}
+
 		if (!$this->columns) {
 			// default
 			$gridColumns = array_keys($this->getGridColumns());
@@ -273,10 +275,12 @@ abstract class Grid extends AppController {
 				$this->log(__METHOD__, 'Columns set from getGridColumns');
 			}
 		}
+
 		if (!$this->columns && ifsetor($this->model->thes)) {
 			$this->columns = array_keys($this->model->thes);
 			$this->log(__METHOD__, 'Columns set from model');
 		}
+
 		if (!$this->columns && $this->collection && $this->collection->thes) {
 			$keysOfThes = array_keys($this->collection->thes);
 			$this->columns = new VisibleColumns($keysOfThes);
@@ -284,9 +288,14 @@ abstract class Grid extends AppController {
 		} elseif (!$this->columns) {
 			$this->columns = new VisibleColumns();
 		}
+
 		$this->log(__METHOD__, $this->columns->getData());
 	}
 
+	/**
+	 * Pluck $this->thes[*]['name']
+	 * @return array
+	 */
 	function getGridColumns()
 	{
 		if ($this->collection) {

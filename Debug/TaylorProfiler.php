@@ -206,7 +206,7 @@ class TaylorProfiler
 			$oaTime = $this->getMicroTime() - $this->initTime;
 
 			$together = [];
-			while (list ($key, $val) = each($this->description)) {
+			foreach ($this->description as $key => $val) {
 				$row = [];
 				$row['desc'] = $val;
 				$row['time'] = $this->elapsedTime($key);

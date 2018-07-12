@@ -1,6 +1,7 @@
 <?php
 
-class Debug {
+class Debug
+{
 
 	var $index;
 
@@ -45,10 +46,11 @@ class Debug {
 			echo 'Renderer: ' . $this->renderer;
 			echo '<pre>';
 			var_dump([
-				'canCLI'       => $this->canCLI(),
-				'canFirebug'   => $this->canFirebug(),
+				'canCLI' => DebugCLI::canCLI(),
+				'canFirebug' => DebugFirebug::canFirebug(),
 				'canDebugster' => $this->canDebugster(),
-				'canHTML'      => $this->canHTML(),
+				'canBulma' => DebugBulma::canBulma(),
+				'canHTML' => $this->canHTML(),
 			]);
 			echo '</pre>';
 		}
@@ -57,14 +59,21 @@ class Debug {
 
 	function detectRenderer()
 	{
-		return $this->canCLI()
-			? 'CLI'
-			: ($this->canFirebug()
-				? 'Firebug'
+		return DebugCLI::canCLI()
+			? DebugCLI::class
+			: (DebugFirebug::canFirebug()
+				? DebugFirebug::class
 				: ($this->canDebugster()
 					? 'Debugster'
-					: ($this->canHTML() ? 'HTML'
-						: '')));
+					: (DebugBulma::canBulma()
+						? DebugBulma::class
+						: ($this->canHTML()
+							? 'HTML'
+							: ''
+						)
+					)
+				)
+			);
 	}
 
 	static function getInstance()
@@ -105,27 +114,6 @@ class Debug {
 		return $val;
 	}
 
-	function canFirebug()
-	{
-		$can = class_exists('FirePHP', false)
-			&& !Request::isCLI()
-			&& !headers_sent()
-			&& ifsetor($_COOKIE['debug']);
-
-		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
-		if (!class_exists('FirePHP') && file_exists($require)) {
-			/** @noinspection PhpIncludeInspection */
-			require_once $require;
-		}
-		$can = $can && class_exists('FirePHP');
-
-		if ($can) {
-			$fb = FirePHP::getInstance(true);
-			$can = $fb->detectClientExtension();
-		}
-		return $can;
-	}
-
 	public static function header($url)
 	{
 		if (!headers_sent()) {
@@ -135,30 +123,6 @@ class Debug {
 			header('X-nadlib-debug-' . $i . ': ' . $url . ' (+' . $diff . ')');
 			$i++;
 		}
-	}
-
-	function debugWithFirebug($params, $title = '')
-	{
-		$content = '';
-		$params = is_array($params) ? $params : [$params];
-		//debug_pre_print_backtrace();
-		$fp = FirePHP::getInstance(true);
-		if ($fp->detectClientExtension()) {
-			$fp->setOption('includeLineNumbers', true);
-			$fp->setOption('maxArrayDepth', 10);
-			$fp->setOption('maxDepth', 20);
-			$trace = Debug::getSimpleTrace();
-			array_shift($trace);
-			array_shift($trace);
-			array_shift($trace);
-			if ($trace) {
-				$fp->table(implode(' ', first($trace)), $trace);
-			}
-			$fp->log(1 == sizeof($params) ? first($params) : $params, $title);
-		} else {
-			$content = call_user_func_array(['Debug', 'debug_args'], $params);
-		}
-		return $content;
 	}
 
 	/**
@@ -173,6 +137,10 @@ class Debug {
 			$method = 'debugWith' . $this->renderer;
 			if (method_exists($this, $method)) {
 				$content = $this->$method($params);
+			} elseif (class_exists($this->renderer)) {
+				$dgger = new $this->renderer($this);
+				$content = $dgger->debug($params);
+				echo $content;
 			} else {
 				pre_print_r($params);
 				debug_pre_print_backtrace();
@@ -183,48 +151,6 @@ class Debug {
 			//debug_pre_print_backtrace();
 		}
 		return $content;
-	}
-
-	function canCLI()
-	{
-		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
-		return Request::isCLI() || $isCURL;
-	}
-
-	function debugWithCLI($args)
-	{
-		if (!DEVELOPMENT) return;
-		$db = debug_backtrace();
-		$db = array_slice($db, 2, sizeof($db));
-		$trace = [];
-		$i = 0;
-		foreach ($db as $i => $row) {
-			$trace[] = ' * ' . self::getMethod($row, ifsetor($db[$i + 1], []));
-			if (++$i > 7) break;
-		}
-		echo '--- ' . $this->name . ' ---' . BR .
-			implode(BR, $trace) . "\n";
-
-		if ($args instanceof htmlString) {
-			$args = strip_tags($args);
-		}
-
-		if (is_object($args)) {
-			echo 'Object: ', get_class($args), BR;
-			if (method_exists($args, '__debugInfo')) {
-				$args = $args->__debugInfo();
-			} else {
-				$args = get_object_vars($args);   // prevent private vars
-			}
-		}
-
-		ob_start();
-		var_dump($args);
-		$dump = ob_get_clean();
-		$dump = str_replace("=>\n", ' =>', $dump);
-		echo $dump;
-		echo '--- ' . $this->name . ' ---', BR;
-		$this->name = null;
 	}
 
 	function canHTML()
@@ -287,6 +213,41 @@ class Debug {
 			$trace = 'No self-trace in slTable';
 		}
 		return $trace;
+	}
+
+	/**
+	 * @param array $db
+	 * @return string
+	 */
+	static function getTraceTable2(array $db)
+	{
+		$db = self::getSimpleTrace($db);
+		$thes = array(
+			'file' => 'file',
+			'line' => 'line',
+//			'class' => 'class',
+			'object' => 'object',
+//			'type' => 'type',
+			'function' => 'function',
+//			'args' => 'args',
+		);
+		$trace[] = '<table class="table">';
+		$trace[] = '<thead>';
+		foreach ($thes as $t) {
+			$trace[] = '<td>'.$t.'</td>';
+		}
+		$trace[] = '</thead>';
+		$trace[] = '<tbody>';
+		foreach ($db as $row) {
+			$trace[] = '<tr>';
+			foreach ($thes as $t => $_) {
+				$trace[] = '<td>'.ifsetor($row[$t]).'</td>';
+			}
+			$trace[] = '</tr>';
+		}
+		$trace[] = '</tbody>';
+		$trace[] = '</table>';
+		return implode(PHP_EOL, $trace);
 	}
 
 	/**

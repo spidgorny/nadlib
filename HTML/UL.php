@@ -38,7 +38,7 @@ class UL {
 	function __construct(array $items = array())
 	{
 		$this->items = $items;
-		$this->activeClass = each($this->items);
+		$this->activeClass = key($this->items);
 	}
 
 	public function add($value, $key = NULL)
