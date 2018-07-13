@@ -4,12 +4,13 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class DBLayer extends DBLayerBase implements DBInterface {
+class DBLayer extends DBLayerBase implements DBInterface
+{
 
 	/**
 	 * @var resource
 	 */
-	public $connection = NULL;
+	public $connection = null;
 
 	var $LAST_PERFORM_RESULT;
 
@@ -144,12 +145,12 @@ class DBLayer extends DBLayerBase implements DBInterface {
 			}, $this->lastBacktrace);
 			debug($this->lastBacktrace);
 			die(pg_errormessage($this->connection));
-			throw new DatabaseException('Last query has failed.'.PHP_EOL.$this->lastQuery.PHP_EOL.pg_errormessage($this->connection));
+			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
 		}
 
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
-			debug('no connection', $this->connection, $query);
+			debug('no connection', $this->connection, $query . '');
 			throw new DatabaseException('No connection');
 		}
 
