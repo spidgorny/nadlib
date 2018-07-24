@@ -417,7 +417,9 @@ class View extends stdClass {
 	 * @param string $comment
 	 * @return string
 	 */
-	function cleanComment($comment, array $allowedTags = [])
+	function cleanComment($comment, array $allowedTags = [
+		'a[href]'
+	])
 	{
 		//$v = new View('');
 		//$comment = $v->autolink($comment);
