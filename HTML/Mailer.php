@@ -58,16 +58,24 @@ class Mailer
 		$this->headers['Content-Transfer-Encoding'] = 'Content-Transfer-Encoding: 8bit';
 		if (class_exists('Config')) {
 			if ($mailFrom = ifsetor(Config::getInstance()->mailFrom)) {
-				$this->headers['From'] = 'From: ' . $mailFrom;
-				// get only the pure email from "Somebody <sb@somecompany.de>"
-				$arMailFrom = explode('<', $mailFrom);
-				$mailFromOnly = (strpos($this->bodytext, '<') !== FALSE)
-					? substr(next($arMailFrom), 0, -1)
-					: ''; //$mailFrom;
-				if ($mailFromOnly) {
-					$this->params['-f'] = '-f' . $mailFromOnly;    // no space
-				}
+				$this->from($mailFrom);
 			}
+		}
+	}
+
+	/**
+	 * @param $mailFrom string
+	 */
+	function from($mailFrom)
+	{
+		$this->headers['From'] = 'From: ' . $mailFrom;
+		// get only the pure email from "Somebody <sb@somecompany.de>"
+		$arMailFrom = explode('<', $mailFrom);
+		$mailFromOnly = (strpos($this->bodytext, '<') !== FALSE)
+			? substr(next($arMailFrom), 0, -1)
+			: ''; //$mailFrom;
+		if ($mailFromOnly) {
+			$this->params['-f'] = '-f' . $mailFromOnly;    // no space
 		}
 	}
 
