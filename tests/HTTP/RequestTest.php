@@ -101,4 +101,24 @@ class RequestTest extends PHPUnit_Framework_TestCase
 //		debug($location . '');
 	}
 
+	public function test_dir_of_file()
+	{
+		$set = [
+			'a' => '.',
+			'/a' => DIRECTORY_SEPARATOR,	// only case where Windows matter
+			'/a/b' => '/a',
+			'/a/b/c' => '/a/b',
+			'/a/b/c/' => '/a/b/c',
+		];
+		foreach ($set as $check => $must) {
+			$this->assertEquals($must, Request::dir_of_file($check));
+		}
+	}
+
+	public function test_getDocumentRootByIsDir()
+	{
+		$result = Request::getDocumentRootByIsDir();
+		$this->assertEquals('', $result);
+	}
+
 }

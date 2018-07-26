@@ -1225,11 +1225,12 @@ class Request {
 
 	public static function getDocumentRootByIsDir()
 	{
-		return self::dir_of_file(
+		$result = self::dir_of_file(
 			self::firstExistingDir(
 				ifsetor($_SERVER['REQUEST_URI'])
 			)
 		);
+		return $result;
 	}
 
 	/**
@@ -1240,7 +1241,7 @@ class Request {
 	static function dir_of_file($path)
 	{
 		if ($path[strlen($path)-1] == '/') {
-			return $path;
+			return substr($path, 0, -1);
 		} else {
 			return dirname($path);
 		}
@@ -1253,6 +1254,7 @@ class Request {
 		if (is_dir($check)) {
 			return cap(rtrim($path, '\\'), '/');
 		} elseif ($path) {
+			//echo $path, BR;
 			return self::firstExistingDir(self::dir_of_file($path));
 		} else {
 			return '/';
