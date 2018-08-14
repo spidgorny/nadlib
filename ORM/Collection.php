@@ -505,6 +505,13 @@ class Collection implements IteratorAggregate {
 		return $view->renderTable();
 	}
 
+	public function isFetched()
+	{
+		return $this->query && !is_null($this->data);
+		// we may have fetched only 0 rows
+				//|| !$this->data->count())) {
+	}
+
 	/**
 	 * @return ArrayPlus
 	 */
@@ -520,10 +527,7 @@ class Collection implements IteratorAggregate {
 		if (!is_null($this->data)) {
 			$this->log('getData() data->count: ' . count($this->data));
 		}
-		if (!$this->query
-			|| is_null($this->data)
-			//|| !$this->data->count())) {
-		) {
+		if (!$this->isFetched()) {
 			$this->retrieveData(false, false);
 		}
 		if (!($this->data instanceof ArrayPlus)) {
