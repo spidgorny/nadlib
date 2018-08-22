@@ -605,6 +605,9 @@ class Request {
 
 	static function getHost($isUTF8 = false)
 	{
+		if (self::isCLI()) {
+			return gethostname();
+		}
 		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
 		if (!$host) {
 			$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
@@ -624,7 +627,9 @@ class Request {
 	static function getOnlyHost()
 	{
 		$host = self::getHost();
-		$host = first(trimExplode(':', $host));    // localhost:8081
+		if (str_contains($host, ':')) {
+			$host = first(trimExplode(':', $host));    // localhost:8081
+		}
 		return $host;
 	}
 
