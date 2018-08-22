@@ -54,7 +54,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	public function test_getOneOf()
 	{
 		$this->r->set('a', 'b');
-		$this->r->getOneOf('a', array('c'));
+		$this->r->getOneOf('a', ['c']);
 	}
 
 	public function test_getInt()
@@ -77,20 +77,20 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	public function test_getIntIn()
 	{
 		$this->r->set('i', 10);
-		$this->assertEquals(10, $this->r->getIntIn('i', array(
+		$this->assertEquals(10, $this->r->getIntIn('i', [
 			9 => '',
 			10 => '',
 			11 => '',
-		)));
+		]));
 	}
 
 	public function test_getIntIn0()
 	{
 		$this->r->set('i', 10);
-		$this->assertNull($this->r->getIntIn('i', array(
+		$this->assertNull($this->r->getIntIn('i', [
 			9 => '',
 			11 => '',
-		)));
+		]));
 	}
 
 	public function test_getLocation()
@@ -119,6 +119,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	{
 		$result = Request::getDocumentRootByIsDir();
 		$this->assertEquals('', $result);
+	}
+
+	public function test_getOnlyHost()
+	{
+		$host = Request::getOnlyHost();
+		$this->assertEquals(gethostname(), $host);
 	}
 
 }
