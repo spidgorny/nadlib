@@ -22,7 +22,7 @@ class PageProfiler {
 		$content = '';
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
-			$exceptions = in_array(get_class($index->controller), array('Lesser'));
+			$exceptions = in_array($index->controller ? get_class($index->controller) : null, array('Lesser'));
 		} else {
 			$exceptions = false;
 		}
