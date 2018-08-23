@@ -320,7 +320,20 @@ class URL
 
 	public function __toString()
 	{
-		$url = $this->buildURL();
+		if ($this->components['host']) {
+			$url = $this->buildURL();
+		} else {
+			$url = '';
+			if ($this->components['path'] && $this->components['path'] != '/') {
+				$url = $this->components['path'];
+			}
+			if ($this->components['query']) {
+				$url .= '?'.$this->components['query'];
+			}
+			if (ifsetor($this->components['fragment'])) {
+				$url .= '#'.$this->components['fragment'];
+			}
+		}
 		//debug($this->components, $url);
 		return $url . '';
 	}
@@ -828,9 +841,14 @@ class URL
 		return $this;
 	}
 
-	function getHost()
+	public function getHost()
 	{
 		return $this->components['host'];
+	}
+
+	public function setHost($host)
+	{
+		$this->components['host'] = $host;
 	}
 
 	function getPort()
