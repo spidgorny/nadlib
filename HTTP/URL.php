@@ -320,7 +320,7 @@ class URL
 
 	public function __toString()
 	{
-		if ($this->components['host']) {
+		if (ifsetor($this->components['host'])) {
 			$url = $this->buildURL();
 		} else {
 			$url = '';
