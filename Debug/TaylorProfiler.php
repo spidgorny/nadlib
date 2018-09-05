@@ -258,17 +258,23 @@ class TaylorProfiler
 			$table = [];
 			$i = 0;
 			foreach ($together as $key => $row) {
-				$desc = $row['desc'];
 				$total = $row['total'];
 				$TimedTotal += $total;
 				$perc = $row['perc'];
 				$tot_perc += $perc;
-				$htmlKey = /*htmlspecialchars*/
-					($key);
-				if (ifsetor($row['bold'])) {
-					$htmlKey = '<b>' . $htmlKey . '</b>';
+
+				$htmlKey = $key;
+				if (!Request::isCLI() && ifsetor($row['bold'])) {
+					$htmlKey = '<b>' . $key . '</b>';
 				}
-				$desc = $this->description2[$key] ? $this->description2[$key] : $desc;
+				// used as mouseover
+				$desc = ifsetor($this->description2[$key], $row['desc']);
+				if (Request::isCLI()) {
+					$routine = $desc ?: $key;
+					$routine = first(trimExplode("\n", $routine));
+				} else {
+					$routine = '<span title="' . htmlspecialchars($desc, ENT_QUOTES) . '">' . $htmlKey . '</span>';
+				}
 				$table[] = [
 					'nr'       => ++$i,
 					'count'    => $row['count'],
@@ -280,7 +286,7 @@ class TaylorProfiler
 					'bar'      => is_numeric($perc)
 						? ProgressBar::getImage($perc)
 						: null,
-					'routine'  => '<span title="' . htmlspecialchars($desc) . '">' . $htmlKey . '</span>',
+					'routine'  => $routine,
 				];
 			}
 
