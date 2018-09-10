@@ -324,10 +324,11 @@ class URL
 			$url = $this->buildURL();
 		} else {
 			$url = '';
-			if ($this->components['path'] && $this->components['path'] != '/') {
+			if (ifsetor($this->components['path'])
+				&& $this->components['path'] != '/') {
 				$url = $this->components['path'];
 			}
-			if ($this->components['query']) {
+			if (ifsetor($this->components['query'])) {
 				$url .= '?'.$this->components['query'];
 			}
 			if (ifsetor($this->components['fragment'])) {
