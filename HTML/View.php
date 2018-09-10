@@ -417,14 +417,15 @@ class View extends stdClass {
 	 * @param string $comment
 	 * @return string
 	 */
-	function cleanComment($comment)
+	function cleanComment($comment, array $allowedTags = [
+		'a[href]'
+	])
 	{
 		//$v = new View('');
 		//$comment = $v->autolink($comment);
 		$config = HTMLPurifier_Config::createDefault();
 		//debug($config);
-		$cc = new CommentCollection();
-		$config->set('HTML.Allowed', $cc->allowedTags);
+		$config->set('HTML.Allowed', implode(',', $allowedTags));
 		$config->set('Attr.AllowedFrameTargets', array('_blank'));
 		$config->set('Attr.AllowedRel', array('nofollow'));
 		$config->set('AutoFormat.Linkify', true);
