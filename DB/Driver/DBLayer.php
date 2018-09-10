@@ -102,7 +102,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	function isConnected()
 	{
-		return !!$this->connection;
+		return !!$this->connection
+			&& pg_connection_status($this->conection) === PGSQL_CONNECTION_OK;
 	}
 
 	function getConnection()
@@ -919,6 +920,8 @@ WHERE ccu.table_name='" . $table . "'");
 				'options' => pg_options($this->connection),
 				'busy' => pg_connection_busy($this->connection),
 				'status' => pg_connection_status($this->connection),
+				'status_ok' => PGSQL_CONNECTION_OK,
+				'status_bad' => PGSQL_CONNECTION_BAD,
 				'transaction' => pg_transaction_status($this->connection),
 				'client_encoding' => pg_client_encoding($this->connection),
 				'host' => pg_host($this->connection),

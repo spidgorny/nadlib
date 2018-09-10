@@ -501,7 +501,7 @@ class Request {
 			header('Location: ' . $controller);
 			echo 'Redirecting to <a href="' . $controller . '">' . $controller . '</a>';
 		} else {
-			$this->redirectJS($controller, DEVELOPMENT ? 0 : 0);
+			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
 		if ($exit && !$this->isPHPUnit()) {
 			exit();
@@ -1143,7 +1143,7 @@ class Request {
 		return $docRoot;
 	}
 
-	static function getDocumentRootDebug()
+	static function printDocumentRootDebug()
 	{
 		pre_print_r(array(
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -1153,6 +1153,7 @@ class Request {
 			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
 			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
 			'getDocumentRootByScript' => self::getDocumentRootByScript(),
+			'getDocumentRootByIsDir' => self::getDocumentRootByIsDir(),
 			'getDocumentRoot' => self::getDocumentRoot() . '',
 		));
 	}
