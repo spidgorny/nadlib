@@ -96,7 +96,7 @@ abstract class Controller {
 	/**
 	 * @var HTML
 	 */
-	var $html;
+	protected $html;
 
 	/**
 	 * Used by Collection to get the current sorting method.

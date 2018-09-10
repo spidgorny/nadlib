@@ -6,16 +6,19 @@
  * Date: 10.12.2015
  * Time: 21:20
  */
-class ViewTest extends PHPUnit_Framework_TestCase {
+class ViewTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_render() {
-		$v = new View(__DIR__.'/ViewTemplate.phtml');
+	function test_render()
+	{
+		$v = new View(__DIR__ . '/ViewTemplate.phtml');
 		$v->content = 'asd';
 		$content = $v->render();
 		$this->assertContains('asd', $content);
 	}
 
-	function test_cleanComment() {
+	function test_cleanComment()
+	{
 		if (class_exists('HTMLPurifier_Config')) {
 			$v = new View('whatever');
 			$clean = $v->cleanComment('Some shit');
@@ -23,7 +26,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		}
 	}
 
-	function test_extractScripts() {
+	function test_extractScripts()
+	{
 		if (!class_exists('AdvancedHtmlDom')) {
 			$this->markTestSkipped('AdvancedHtmlDom not installed');
 		}
