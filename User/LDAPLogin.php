@@ -45,6 +45,7 @@ class LDAPLogin
 		if ($this->_ldapconn) {
 			ldap_unbind($this->_ldapconn);
 		}
+		ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
 		$this->_ldapconn = ldap_connect($this->LDAP_HOST)
 		or die("Couldn't connect to the LDAP server.");
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);

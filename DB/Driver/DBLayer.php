@@ -103,7 +103,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	function isConnected()
 	{
 		return !!$this->connection
-			&& pg_connection_status($this->conection) === PGSQL_CONNECTION_OK;
+			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
 	}
 
 	function getConnection()
