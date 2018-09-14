@@ -29,8 +29,8 @@ class Path {
 
 	static function isItAbsolute($sPath)
 	{
-		return str_startsWith($sPath, '/')
-			|| (isset($sPath[1]) && $sPath[1] == ':');
+		return str_startsWith($sPath, '/')		// Linux
+			|| (isset($sPath[1]) && $sPath[1] == ':');	// Windows c:
 	}
 
 	function isAbsolute()
