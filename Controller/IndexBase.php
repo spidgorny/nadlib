@@ -210,7 +210,9 @@ class IndexBase /*extends Controller*/
 		if (!$this->controller instanceof Controller) {
 			$slug = $this->request->getControllerString();
 			if ($slug) {
-				if ($_REQUEST['d']) $this->log(__METHOD__, $slug);
+				if ($_REQUEST['d']) {
+					$this->log(__METHOD__, $slug);
+				}
 				$this->loadController($slug);
 				$this->bodyClasses[] = get_class($this->controller);
 			} else {

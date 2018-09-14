@@ -59,6 +59,13 @@ abstract class FullGrid extends Grid {
 				$this->collection->postInit();
 				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
 			} else {
+				if (!$collection) {
+					$re = new ReflectionClass($this);
+					$reCol = $re->getProperty('collection');
+					$doc = new DocCommentParser($reCol->getDocComment());
+					$collectionName = $doc->getFirstTagValue('var');
+					$collection = new $collectionName();
+				}
 				$this->collection = $collection;
 			}
 		}

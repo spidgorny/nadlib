@@ -65,6 +65,11 @@ class Request {
 		return $phar || $loader || $phpStorm;
 	}
 
+	public static function isJenkins()
+	{
+		return ifsetor($_SERVER['BUILD_NUMBER'], getenv('BUILD_NUMBER'));
+	}
+
 	/**
 	 * Returns raw data, don't use or use with care
 	 * @param $key
@@ -496,7 +501,7 @@ class Request {
 			header('Location: ' . $controller);
 			echo 'Redirecting to <a href="' . $controller . '">' . $controller . '</a>';
 		} else {
-			$this->redirectJS($controller, DEVELOPMENT ? 0 : 0);
+			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
 		if ($exit && !$this->isPHPUnit()) {
 			exit();
@@ -600,6 +605,9 @@ class Request {
 
 	static function getHost($isUTF8 = false)
 	{
+		if (self::isCLI()) {
+			return gethostname();
+		}
 		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
 		if (!$host) {
 			$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
@@ -619,7 +627,9 @@ class Request {
 	static function getOnlyHost()
 	{
 		$host = self::getHost();
-		$host = first(trimExplode(':', $host));    // localhost:8081
+		if (str_contains($host, ':')) {
+			$host = first(trimExplode(':', $host));    // localhost:8081
+		}
 		return $host;
 	}
 
@@ -1140,7 +1150,7 @@ class Request {
 		return $docRoot;
 	}
 
-	static function getDocumentRootDebug()
+	static function printDocumentRootDebug()
 	{
 		pre_print_r(array(
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -1150,6 +1160,7 @@ class Request {
 			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
 			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
 			'getDocumentRootByScript' => self::getDocumentRootByScript(),
+			'getDocumentRootByIsDir' => self::getDocumentRootByIsDir(),
 			'getDocumentRoot' => self::getDocumentRoot() . '',
 		));
 	}
@@ -1222,11 +1233,12 @@ class Request {
 
 	public static function getDocumentRootByIsDir()
 	{
-		return self::dir_of_file(
+		$result = self::dir_of_file(
 			self::firstExistingDir(
 				ifsetor($_SERVER['REQUEST_URI'])
 			)
 		);
+		return $result;
 	}
 
 	/**
@@ -1237,7 +1249,7 @@ class Request {
 	static function dir_of_file($path)
 	{
 		if ($path[strlen($path)-1] == '/') {
-			return $path;
+			return substr($path, 0, -1);
 		} else {
 			return dirname($path);
 		}
@@ -1246,9 +1258,11 @@ class Request {
 	static function firstExistingDir($path)
 	{
 		$check = $_SERVER['DOCUMENT_ROOT'].$path;
+//		error_log($check);
 		if (is_dir($check)) {
-			return cap($path, '/');
+			return cap(rtrim($path, '\\'), '/');
 		} elseif ($path) {
+			//echo $path, BR;
 			return self::firstExistingDir(self::dir_of_file($path));
 		} else {
 			return '/';
@@ -1318,9 +1332,9 @@ class Request {
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
 
-	public function isHTTPS()
+	public static function isHTTPS()
 	{
-		return $this->getRequestType() == 'https';
+		return self::getRequestType() == 'https';
 	}
 
 	public function getNamelessID()
@@ -1480,6 +1494,19 @@ class Request {
 		header('Content-Length: '.strlen($json));
 		echo $json;
 		die;
+	}
+
+	public static function isLocalhost()
+	{
+		$host = self::getOnlyHost();
+		if (in_array($host, ['localhost', '127.0.0.1'])) {
+			return true;
+		}
+		$hostname = gethostname();
+		if ($host == $hostname) {
+			return true;
+		}
+		return false;
 	}
 	
 	public function getAction()

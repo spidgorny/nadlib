@@ -448,7 +448,9 @@ class AutoLoad {
 		if (!$instance->folders) {
 			$instance->postInit();
 		}
-		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
+		// before composer <- incorrect
+		// composer autoload is much faster and should be first
+		$result = spl_autoload_register(array($instance, 'load'), true, false);
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
 		} else {

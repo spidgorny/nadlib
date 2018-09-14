@@ -221,7 +221,9 @@ class HTMLForm
 //		debug(__METHOD__, $name, $value);
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
-		$this->stdout .= $this->getInput("hidden", $name, $value, $more);
+		$content = $this->getInput("hidden", $name, $value, $more);
+		$this->stdout .= $content;
+		return $content;
 	}
 
 	/**
