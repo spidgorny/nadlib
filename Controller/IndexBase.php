@@ -689,11 +689,14 @@ class IndexBase /*extends Controller*/
 			$include = array(); // some files can't be found
 			$files = array_keys($this->footer);
 
+			$docRoot = realpath($_SERVER['DOCUMENT_ROOT']);
+			$docRoot = str_replace('\\', '/', $docRoot);
+
 			// make absolute paths and check file exists
 			foreach ($files as $f => &$file) {
 				if (file_exists($file)) {
 					if (!Path::isItAbsolute($file)) {
-						$file = $this->request->getDocumentRoot() . $file;
+						$file = $docRoot . $file;
 					}
 					$file = realpath($file);
 					$file = str_replace('\\', '/', $file);	// fix windows
@@ -706,20 +709,19 @@ class IndexBase /*extends Controller*/
 
 			// remove common base folder
 			// "slawa/mrbs/"
-			debug($_SERVER);
-			$docRoot = realpath($this->request->getDocumentRoot().'');
-			$docRoot = str_replace('\\', '/', $docRoot);
+//			Request::printDocumentRootDebug();
+//			debug($_SERVER);
 			foreach ($files as $f => &$file) {
 				$file2 = substr(
 					$file,
 					strpos($file, $docRoot) + strlen($docRoot)
 				);
-				debug($docRoot, $file, $file2);
+//				debug($docRoot, $file, $file2);
 				$file = $file2;
 			}
 
 			$path .= '?' . http_build_query([
-				'b' => $docRoot,
+				//'b' => $docRoot,
 				'f' => implode(",", $files),
 			]);
 			$content = '<script src="' . $path . '"></script>'.PHP_EOL;
