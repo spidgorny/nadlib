@@ -418,6 +418,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function first()
 	{
+		if (!$this->count()) return null;
 		$var = $this->getData();
 		reset($var);
 		return current($var);

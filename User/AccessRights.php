@@ -3,7 +3,8 @@
 /**
  * Class AccessRights represents all the rights of a specific group
  */
-class AccessRights {
+class AccessRights
+{
 	protected $accessTable = 'access';
 	protected $groupAccessTable = 'department_access';
 	protected $id_usergroup = 'id_department';
@@ -44,6 +45,7 @@ class AccessRights {
 			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative');
 		$data = $this->db->fetchAll($res);
 		$this->query = $this->db->lastQuery;
+//		debug($this->query);
 		//debug($data);
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();
@@ -90,6 +92,11 @@ class AccessRights {
 		return $keys;
 	}
 
+	/**
+	 * @param string $wherePlus
+	 * @return AccessRightModel[]|ArrayPlus
+	 * @throws Exception
+	 */
 	function getAllRights($wherePlus = 'WHERE 1 = 1')
 	{
 		$accessRights = $this->db->fetchAll("

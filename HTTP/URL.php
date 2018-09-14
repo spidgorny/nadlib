@@ -307,6 +307,7 @@ class URL {
 			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
 			: '';
 		$uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+
 		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
 		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
@@ -324,7 +325,21 @@ class URL {
 
 	public function __toString()
 	{
-		$url = $this->buildURL();
+		if (ifsetor($this->components['host'])) {
+			$url = $this->buildURL();
+		} else {
+			$url = '';
+			if (ifsetor($this->components['path'])
+				&& $this->components['path'] != '/') {
+				$url = $this->components['path'];
+			}
+			if (ifsetor($this->components['query'])) {
+				$url .= '?'.$this->components['query'];
+			}
+			if (ifsetor($this->components['fragment'])) {
+				$url .= '#'.$this->components['fragment'];
+			}
+		}
 		//debug($this->components, $url);
 		return $url . '';
 	}
@@ -835,11 +850,17 @@ class URL {
 		if (!ifsetor($this->components['path'])) {
 			$this->components['path'] = $_SERVER['REQUEST_URI'];
 		}
+		return $this;
 	}
 
-	function getHost()
+	public function getHost()
 	{
 		return $this->components['host'];
+	}
+
+	public function setHost($host)
+	{
+		$this->components['host'] = $host;
 	}
 
 	function getPort()

@@ -5,7 +5,8 @@
  * mails. No attachments. Use SwiftMailer for anything more complicated. Takes care
  * of the UTF-8 in subjects.
  */
-class Mailer {
+class Mailer
+{
 
 	/**
 	 * @var string
@@ -38,7 +39,8 @@ class Mailer {
 	 */
 	var $params = array();
 
-	function __construct($to, $subject, $bodyText) {
+	function __construct($to, $subject, $bodyText)
+	{
 		if (is_array($to)) {
 			$this->to = implode(', ', $to);
 		} else {
@@ -56,78 +58,103 @@ class Mailer {
 		$this->headers['Content-Transfer-Encoding'] = 'Content-Transfer-Encoding: 8bit';
 		if (class_exists('Config')) {
 			if ($mailFrom = ifsetor(Config::getInstance()->mailFrom)) {
-				$this->headers['From'] = 'From: ' . $mailFrom;
-				// get only the pure email from "Somebody <sb@somecompany.de>"
-				$arMailFrom = explode('<', $mailFrom);
-				$mailFromOnly = (strpos($this->bodytext, '<') !== FALSE)
-					? substr(next($arMailFrom), 0, -1)
-					: ''; //$mailFrom;
-				if ($mailFromOnly) {
-					$this->params['-f'] = '-f' . $mailFromOnly;    // no space
-				}
+				$this->from($mailFrom);
 			}
 		}
 	}
 
-	function send() {
-		$emails = trimExplode(',', $this->to);
-		$validEmails = 0;
-		foreach ($emails as $e) {
-			$validEmails += HTMLFormValidate::validEmail($e);
+	/**
+	 * @param $mailFrom string
+	 */
+	function from($mailFrom)
+	{
+		$this->headers['From'] = 'From: ' . $mailFrom;
+		// get only the pure email from "Somebody <sb@somecompany.de>"
+		$arMailFrom = explode('<', $mailFrom);
+		$mailFromOnly = (strpos($this->bodytext, '<') !== FALSE)
+			? substr(next($arMailFrom), 0, -1)
+			: ''; //$mailFrom;
+		if ($mailFromOnly) {
+			$this->params['-f'] = '-f' . $mailFromOnly;    // no space
 		}
-		if ($validEmails == sizeof($emails)) {
-			$res = mail($this->to,
-				$this->getSubject(),
-				$this->getBodyText(),
-				implode("\n", $this->headers)."\n",
-				implode(' ', $this->params));
-			if (!$res) {
-				throw new MailerException('Email sending to '.$this->to.' failed');
-			}
-		} else {
-			throw new MailerException('Invalid email address: '.$this->to);
-		}
-		return $res;
 	}
 
-	function appendPlainText() {
+	function appendPlainText()
+	{
 		$htmlMail = $this->bodytext;
 		$mailText = $this->getPlainText();
+		$this->attach('text', 'text/plain', $mailText);
+		$this->attach('html', 'text/html', $htmlMail);
+		$this->rebuildMessage();
+	}
+
+	/**
+	 * Should not be called more than once since it corrupts
+	 * $this->bodytext
+	 */
+	public function rebuildMessage()
+	{
 		//create a boundary for the email. This
 		$boundary = uniqid('np');
 
 		//headers - specify your from email address and name here
 		//and specify the boundary for the email
-		$this->headers["MIME-Version"] = '1.0';
-		$this->headers['Content-Type'] = "multipart/alternative;boundary=" . $boundary;
+		$this->headers["MIME-Version"] = 'MIME-Version: 1.0';
+		$this->headers['Content-Type'] = "Content-Type: multipart/mixed; boundary=" . $boundary;
 
 		//here is the content body
-		$message = "This is a MIME encoded message.";
-		$message .= "\r\n\r\n--" . $boundary . "\r\n";
-		$message .= "Content-type: text/plain;charset=utf-8\r\n\r\n";
+		$message = "This is a MIME encoded message.\r\n";
+		$message .= "\r\n";
 
-		//Plain text body
-		$message .= $mailText;
-		$message .= "\r\n\r\n--" . $boundary . "\r\n";
-		$message .= "Content-type: text/html;charset=utf-8\r\n\r\n";
+		foreach ($this->attachments as $a) {
+			$message .= "--" . $boundary . "\r\n";
 
-		//Html body
-		$message .= $htmlMail;
+			//Plain text body
+			if (str_startsWith($a['mime'], 'text/plain')) {
+				$message .= "Content-Type: {$a['mime']};charset=utf-8\r\n";
+				$message .= "Content-Disposition: inline\r\n";
+				$message .= "\r\n";
+				$message .= $a['content'];
+				$message .= "\r\n";
+			} else {
+				$message .= "Content-transfer-encoding: base64\r\n";
+				$message .= "Content-Disposition: attachment; filename={$a['name']}\r\n";
+				$message .= "Content-Type: {$a['mime']}\r\n";
+				$message .= "\r\n";
+				$base64 = base64_encode($a['content']);
+				$base64 = chunk_split($base64);
+				$message .= $base64;
+				$message .= "\r\n";
+			}
+		}
+
 		$message .= "\r\n\r\n--" . $boundary . "--";
 		$this->bodytext = $message;
 	}
 
-	function getSubject() {
-		$subject = '=?utf-8?B?'.base64_encode($this->subject).'?=';
+	function attach($name, $mime, $content)
+	{
+		$this->attachments[] = [
+			'name' => $name,
+			'mime' => $mime,
+			'content' => $content,
+		];
+	}
+
+	function getSubject()
+	{
+		$subject = '=?utf-8?B?' . base64_encode($this->subject) . '?=';
 		return $subject;
 	}
 
-	function getBodyText() {
+	function getBodyText()
+	{
 		$bodyText = str_replace("\n.", "\n..", $this->bodytext);
 		return $bodyText;
 	}
 
-	function debug() {
+	function debug()
+	{
 		$assoc = array();
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
@@ -137,43 +164,64 @@ class Mailer {
 		return slTable::showAssoc($assoc);
 	}
 
-    /**
-     * Method to send emails via SwiftMailer.
-     * Throws an Exception if SwiftMailer is not installed.
-     *
-     * Uses sendmail to deliver messages.
-     *
-     * @param mixed $to
-     * @param mixed $cc
-     * @param mixed $bcc
-     * @param array $attachments
-     * @param array $additionalSenders This will be added to
-     * @throws Exception
-     * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
-     */
-    public function sendSwiftMailerEmail(
-    	array $to, array $cc = null, array $bcc = null,
+	function send()
+	{
+		$emails = trimExplode(',', $this->to);
+		$validEmails = 0;
+		foreach ($emails as $e) {
+			$validEmails += HTMLFormValidate::validEmail($e);
+		}
+		if ($validEmails == sizeof($emails)) {
+			$res = mail($this->to,
+				$this->getSubject(),
+				$this->getBodyText(),
+				implode("\n", $this->headers) . "\n",
+				implode(' ', $this->params));
+			if (!$res) {
+				throw new MailerException('Email sending to ' . $this->to . ' failed');
+			}
+		} else {
+			throw new MailerException('Invalid email address: ' . $this->to);
+		}
+		return $res;
+	}
+
+	/**
+	 * Method to send emails via SwiftMailer.
+	 * Throws an Exception if SwiftMailer is not installed.
+	 *
+	 * Uses sendmail to deliver messages.
+	 *
+	 * @param mixed $to
+	 * @param mixed $cc
+	 * @param mixed $bcc
+	 * @param array $attachments
+	 * @param array $additionalSenders This will be added to
+	 * @throws Exception
+	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
+	 */
+	public function sendSwiftMailerEmail(
+		array $to, array $cc = null, array $bcc = null,
 		array $attachments = array(),
 		array $additionalSenders = array())
-    {
-        if (!class_exists('Swift_Mailer')) {
-            throw new Exception('SwiftMailer not installed!');
-        }
+	{
+		if (!class_exists('Swift_Mailer')) {
+			throw new Exception('SwiftMailer not installed!');
+		}
 
 		if ($_SERVER['HTTP_USER_AGENT'] == 'Detectify') {
 			return NULL;
 		}
 
 		$messageHTML = $this->getBodyText();
-        $messageText = $this->getPlainText();
+		$messageText = $this->getPlainText();
 
-        /** @var Swift_Message $message */
-        // $message = Swift_Message::newInstance() ->  newInstance is not supported anymore (ORS problem send by Ruben)
+		/** @var Swift_Message $message */
+		// $message = Swift_Message::newInstance() ->  newInstance is not supported anymore (ORS problem send by Ruben)
 		$message = new Swift_Message();
 		$message->setSubject($this->subject)
 			->setBody($messageHTML, 'text/html')
-			->addPart($messageText, 'text/plain')
-		;
+			->addPart($messageText, 'text/plain');
 
 		$index = Index::getInstance();
 //		$r = new ReflectionClass(Index::class);
@@ -182,32 +230,32 @@ class Mailer {
 //		$index->mailFromSwiftMailer);
 		$message->setFrom($index->mailFromSwiftMailer);
 
-        if (!empty($to)) {
-            foreach ($to as $address) {
-                empty($address)
-	                ? NULL
-	                : $message->addTo(trim($address));
-            }
-        }
+		if (!empty($to)) {
+			foreach ($to as $address) {
+				empty($address)
+					? NULL
+					: $message->addTo(trim($address));
+			}
+		}
 
-        if (!empty($cc)) {
-            foreach ($cc as $address) {
-                empty($address)
-	                ? NULL
-	                : $message->addCc($address);
-            }
-        }
+		if (!empty($cc)) {
+			foreach ($cc as $address) {
+				empty($address)
+					? NULL
+					: $message->addCc($address);
+			}
+		}
 
-        if (!empty($bcc)) {
-            foreach ($bcc as $address) {
-                empty($address)
-	                ? NULL
-	                : $message->addBcc($address);
-            }
-        }
+		if (!empty($bcc)) {
+			foreach ($bcc as $address) {
+				empty($address)
+					? NULL
+					: $message->addBcc($address);
+			}
+		}
 
-        if (!empty($attachments)) {
-            foreach ($attachments as $attachment) {
+		if (!empty($attachments)) {
+			foreach ($attachments as $attachment) {
 				if (is_string($attachment)) {
 					$smAttachment = Swift_Attachment::fromPath($attachment);
 					$shortFile = $this->getShortFilename($attachment);
@@ -216,8 +264,8 @@ class Mailer {
 				} else {
 					$message->attach($attachment);
 				}
-            }
-        }
+			}
+		}
 
 		if (!empty($additionalSenders)) {
 			foreach ($additionalSenders as $address => $name) {
@@ -230,24 +278,25 @@ class Mailer {
 //		debug($message->getFrom()); die;
 
 		//$transport = Swift_SendmailTransport::newInstance();
-        //$mailer = Swift_Mailer::newInstance($transport);
+		//$mailer = Swift_Mailer::newInstance($transport);
 		// newInstance is not supported anymore (ORS problem send by Ruben)
 		$transport = new Swift_SendmailTransport();
 		$mailer = new Swift_Mailer($transport);
 
-        $failedRecipients = array();
+		$failedRecipients = array();
 
-        $sent = $mailer->send($message, $failedRecipients);
+		$sent = $mailer->send($message, $failedRecipients);
 
-        return !empty($failedRecipients) ? $failedRecipients : $sent;
-    }
+		return !empty($failedRecipients) ? $failedRecipients : $sent;
+	}
 
 	/**
 	 * http://stackoverflow.com/questions/8781911/remove-non-ascii-characters-from-string-in-php
 	 * @param string $attachment
 	 * @return string
 	 */
-	public function getShortFilename($attachment) {
+	public function getShortFilename($attachment)
+	{
 		$pathInfo = pathinfo($attachment);
 		$ext = $pathInfo['extension'];
 
@@ -262,7 +311,8 @@ class Mailer {
 		return $shortFile;
 	}
 
-	function getPlainText() {
+	function getPlainText()
+	{
 		if (class_exists('HTMLPurifier_Config')) {
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('HTML.Allowed', '');
@@ -270,7 +320,7 @@ class Mailer {
 			$mailText = $purifier->purify($this->bodytext);
 //			$mailText = str_replace("\n\n", "\n", $mailText);
 //			$mailText = str_replace("\r\n\r\n", "\r\n", $mailText);
-			$mailText = explode(PHP_EOL, $mailText);	// keep blank lines
+			$mailText = explode(PHP_EOL, $mailText);    // keep blank lines
 			$mailText = array_map('trim', $mailText);
 			$mailText = implode(PHP_EOL, $mailText);
 		} else {
@@ -279,7 +329,8 @@ class Mailer {
 		return $mailText;
 	}
 
-	function getSendGridMail() {
+	function getSendGridMail()
+	{
 		$config = Config::getInstance();
 		$from = new SendGrid\Email(null, $config->mailFrom);
 		$to = new SendGrid\Email(null, $this->to);
@@ -291,7 +342,8 @@ class Mailer {
 	/**
 	 * @return \SendGrid\Response
 	 */
-	function sendGrid() {
+	function sendGrid()
+	{
 		$config = Config::getInstance();
 		$mail = $this->getSendGridMail();
 

@@ -4,12 +4,13 @@
  * Class dbLayer
  * @mixin SQLBuilder
  */
-class DBLayer extends DBLayerBase implements DBInterface {
+class DBLayer extends DBLayerBase implements DBInterface
+{
 
 	/**
 	 * @var resource
 	 */
-	public $connection = NULL;
+	public $connection = null;
 
 	var $LAST_PERFORM_RESULT;
 
@@ -57,6 +58,8 @@ class DBLayer extends DBLayerBase implements DBInterface {
 
 	protected $host;
 
+	protected $lastBacktrace;
+
 	/**
 	 * @param string $dbName
 	 * @param string $user
@@ -99,7 +102,8 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	 */
 	function isConnected()
 	{
-		return !!$this->connection;
+		return !!$this->connection
+			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
 	}
 
 	function getConnection()
@@ -133,9 +137,21 @@ class DBLayer extends DBLayerBase implements DBInterface {
 	{
 //		echo $query, BR;
 		$prof = new Profiler();
+
+		if (false === $this->LAST_PERFORM_RESULT) {
+			$this->lastBacktrace = array_map(function ($el) {
+				unset($el['object']);
+				unset($el['args']);
+				return $el;
+			}, $this->lastBacktrace);
+			debug($this->lastBacktrace);
+			die(pg_errormessage($this->connection));
+			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
+		}
+
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
-			//debug('no connection', $this->connection, $query);
+			debug('no connection', $this->connection, $query . '');
 			throw new DatabaseException('No connection');
 		}
 
@@ -174,21 +190,22 @@ class DBLayer extends DBLayerBase implements DBInterface {
 				pg_errormessage($this->connection));
 			$e->setQuery($query);
 			throw $e;
-		} else {
-			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
-			}
-			if ($this->logToLog) {
-				$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
-				error_log($runTime . ' ' .
-					preg_replace('/\s+/', ' ',
-						str_replace("\n", ' ', $query)));
-			}
+		}
+
+		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+		if ($this->queryLog) {
+			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
+		}
+		if ($this->logToLog) {
+			$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime . ' ' .
+				preg_replace('/\s+/', ' ',
+					str_replace("\n", ' ', $query)));
 		}
 		$this->lastQuery = $query;
 		$this->queryTime = $prof->elapsed();
 		$this->queryCount++;
+		$this->lastBacktrace = debug_backtrace();
 		return $this->LAST_PERFORM_RESULT;
 	}
 
@@ -903,6 +920,8 @@ WHERE ccu.table_name='" . $table . "'");
 				'options' => pg_options($this->connection),
 				'busy' => pg_connection_busy($this->connection),
 				'status' => pg_connection_status($this->connection),
+				'status_ok' => PGSQL_CONNECTION_OK,
+				'status_bad' => PGSQL_CONNECTION_BAD,
 				'transaction' => pg_transaction_status($this->connection),
 				'client_encoding' => pg_client_encoding($this->connection),
 				'host' => pg_host($this->connection),
