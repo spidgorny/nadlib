@@ -697,8 +697,10 @@ class IndexBase /*extends Controller*/
 			//$files .= DEVELOPMENT ? '&debug' : '';
 			$content = '<script src="' . $path . '?f=' . $files . '"></script>';
 			$content .= implode("\n", $include);
+//			debug($content);
 		} else {
-			$content = implode("\n", $this->footer) . "\n";
+//			debug('footer', sizeof($this->footer));
+			$content = implode("\n", $this->footer)."\n";
 		}
 		return $content;
 	}
