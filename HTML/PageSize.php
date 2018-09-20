@@ -65,7 +65,15 @@ class PageSize extends Controller {
 		$this->selected = $this->get();
 	}
 
+	/**
+	 * Returns the $this->selected value making sure it's not too big
+	 * @return integer
+	 */
 	function get() {
+		return min($this->selected, max($this->options));
+	}
+
+	function getAllowed() {
 		if (in_array($this->selected, $this->options)) {
 			return $this->selected;
 		} else {

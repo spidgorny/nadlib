@@ -231,7 +231,9 @@ abstract class OODBase {
 	function insert(array $data)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$this->log(get_called_class() . '::' . __FUNCTION__, array_to_string($data));
+		if (class_exists('Index')) {
+			Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $data);
+		}
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
