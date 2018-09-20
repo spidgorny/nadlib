@@ -36,6 +36,7 @@ if (!function_exists('parseFloat')) {
 		if (isset($variable)) {
 			$tmp = $variable;
 		} else {
+			$variable = $default;	// prevent setting NULL
 			$tmp = $default;
 		}
 		return $tmp;
