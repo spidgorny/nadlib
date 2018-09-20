@@ -105,9 +105,14 @@ class HTMLTag implements ArrayAccess {
 	 */
 	static function parse($str, $recursive = false) {
 		$str = trim($str);
-		if (strlen($str) && $str{0} != '<') return NULL;
+		if (strlen($str) && $str{0} != '<') {
+			return NULL;
+		}
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
 		//debug($matches);
+		if (!isset($matches[1])) {
+			return NULL;
+		}
 
 		$tagAndAttributes = trimExplode(' ', ifsetor($matches[1]));
 		$tag = first($tagAndAttributes);

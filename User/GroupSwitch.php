@@ -8,13 +8,12 @@ class GroupSwitch extends AppController {
 	 * @see Index
 	 * @var array
 	 */
-	public $allowedUsers = array(
-	);
+	public $allowedUsers = array();
 
-	protected $groups = array(
-	);
+	protected $groups = array();
 
-	function render() {
+	function render()
+	{
 		//debug($this->user->data);
 		$content = '';
 		if ($this->canSwitchGroup()) {
@@ -25,34 +24,39 @@ class GroupSwitch extends AppController {
 		return $content;
 	}
 
-	function canSwitchGroup() {
-		return in_array(ifsetor($this->user->data['login']), $this->allowedUsers);
+	function canSwitchGroup()
+	{
+		return in_array($this->user->getLogin(), $this->allowedUsers);
 	}
 
-	function fetchGroups() {
+	function fetchGroups()
+	{
 		return $this->groups;
 	}
 
-	function isCurrentGroup($groupID) {
+	function isCurrentGroup($groupID)
+	{
 		return $this->user->rights->groupID == $groupID;
 	}
 
-	function setGroupAction() {
+	function setGroupAction()
+	{
 		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
 		$referer = new URL($_SERVER['HTTP_REFERER']);
 		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
 		$this->request->redirect($referer);
 	}
 
-	function renderGroups() {
+	function renderGroups()
+	{
 		$items = array();
 		foreach ($this->groups as $groupID => $groupName) {
 			$el = $this->makeLink($groupName, array(
 					'action' => 'setGroup',
 					'groupID' => $groupID,
-				), get_class($this)).' ';
+				), get_class($this)) . ' ';
 			if ($this->isCurrentGroup($groupID)) {
-				$el = '<b>'.$el.'</b>';
+				$el = '<b>' . $el . '</b>';
 			}
 			$items[] = $el;
 		}

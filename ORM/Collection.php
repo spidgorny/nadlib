@@ -187,7 +187,8 @@ class Collection implements IteratorAggregate {
 		if (is_array($where)) {
 			// array_merge should be use instead of array union,
 			// in order to prevent existing entries with numeric keys being ignored in $where
-			$this->where = array_merge($this->where, $where);
+			// simple array_merge will reoder numeric keys which is not good
+			$this->where = ArrayPlus::create($this->where)->merge_recursive_overwrite($where)->getData();
 		} elseif ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
 		}
@@ -487,6 +488,7 @@ class Collection implements IteratorAggregate {
 		}
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 		TaylorProfiler::stop($profiler);
+		return $this->data;	// return something else if you augment $this->data
 	}
 
 	function preprocessRow(array $row)
@@ -503,6 +505,13 @@ class Collection implements IteratorAggregate {
 		return $view->renderTable();
 	}
 
+	public function isFetched()
+	{
+		return $this->query && !is_null($this->data);
+		// we may have fetched only 0 rows
+				//|| !$this->data->count())) {
+	}
+
 	/**
 	 * @return ArrayPlus
 	 */
@@ -515,11 +524,10 @@ class Collection implements IteratorAggregate {
 		$this->log('getData() data: ' . ($this->data
 				? sizeof($this->data)
 				: '-'));
-		$this->log('getData() data->count: ' . count($this->data));
-		if (!$this->query
-			|| is_null($this->data)
-			//|| !$this->data->count())) {
-		) {
+		if (!is_null($this->data)) {
+			$this->log('getData() data->count: ' . count($this->data));
+		}
+		if (!$this->isFetched()) {
 			$this->retrieveData(false, false);
 		}
 		if (!($this->data instanceof ArrayPlus)) {

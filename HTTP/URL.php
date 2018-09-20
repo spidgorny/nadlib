@@ -303,6 +303,7 @@ class URL
 			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
 			: '';
 		$uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+
 		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
 		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
@@ -320,7 +321,21 @@ class URL
 
 	public function __toString()
 	{
-		$url = $this->buildURL();
+		if (ifsetor($this->components['host'])) {
+			$url = $this->buildURL();
+		} else {
+			$url = '';
+			if (ifsetor($this->components['path'])
+				&& $this->components['path'] != '/') {
+				$url = $this->components['path'];
+			}
+			if (ifsetor($this->components['query'])) {
+				$url .= '?'.$this->components['query'];
+			}
+			if (ifsetor($this->components['fragment'])) {
+				$url .= '#'.$this->components['fragment'];
+			}
+		}
 		//debug($this->components, $url);
 		return $url . '';
 	}
@@ -420,6 +435,13 @@ class URL
 	 */
 	static function getRelativePath($from, $to)
 	{
+		0 && debug($_SERVER['DOCUMENT_ROOT'],
+			$from, $to,
+			__FILE__,
+			trimExplode(':', ini_get('open_basedir')),
+			$_SERVER
+		);
+//		exit;
 		// some compatibility fixes for Windows paths
 		$from = self::getPathFolders($from);
 		$to = self::getPathFolders($to);
@@ -491,7 +513,9 @@ class URL
 	 */
 	static function getPathFolders($from)
 	{
-		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		if (!ini_get('open_basedir')) {
+			$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		}
 		$from = str_replace('\\', '/', $from);
 		$from = explode('/', $from);
 		$from = array_filter($from);
@@ -816,11 +840,17 @@ class URL
 		if (!ifsetor($this->components['path'])) {
 			$this->components['path'] = $_SERVER['REQUEST_URI'];
 		}
+		return $this;
 	}
 
-	function getHost()
+	public function getHost()
 	{
 		return $this->components['host'];
+	}
+
+	public function setHost($host)
+	{
+		$this->components['host'] = $host;
 	}
 
 	function getPort()

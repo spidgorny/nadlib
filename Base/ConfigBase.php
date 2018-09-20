@@ -125,6 +125,11 @@ class ConfigBase implements ConfigInterface {
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . BR;
 	}
 
+	public static function hasInstance()
+	{
+		return self::$instance;
+	}
+
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually

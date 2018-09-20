@@ -1,17 +1,20 @@
 <?php
 
-class Session implements SessionInterface {
+class Session implements SessionInterface
+{
 
 	var $prefix;
 
-	function __construct($prefix = NULL) {
+	function __construct($prefix = NULL)
+	{
 		$this->prefix = $prefix;
 		if (!self::isActive()) {
 			session_start();
 		}
 	}
 
-	static function isActive() {
+	static function isActive()
+	{
 		//debug(session_id(), !!session_id(), session_status(), $_SESSION['FloatTime']);
 		if (function_exists('session_status')) {
 			// somehow PHP_SESSION_NONE is the status when $_SESSION var exists
@@ -22,7 +25,8 @@ class Session implements SessionInterface {
 		}
 	}
 
-	function get($key) {
+	function get($key)
+	{
 		if ($this->prefix) {
 			return ifsetor($_SESSION[$this->prefix][$key]);
 		} else {
@@ -30,7 +34,8 @@ class Session implements SessionInterface {
 		}
 	}
 
-	function save($key, $val) {
+	function save($key, $val)
+	{
 		if ($this->prefix) {
 			$_SESSION[$this->prefix][$key] = $val;
 		} else {
@@ -38,23 +43,28 @@ class Session implements SessionInterface {
 		}
 	}
 
-	function __get($name) {
+	function __get($name)
+	{
 		return $this->get($name);
 	}
 
-	function __set($name, $value) {
+	function __set($name, $value)
+	{
 		$this->save($name, $value);
 	}
 
-	public function clearAll() {
+	public function clearAll()
+	{
 		unset($_SESSION[$this->prefix]);
 	}
 
-	public function has($key) {
+	public function has($key)
+	{
 		return isset($_SESSION[$this->prefix][$key]);
 	}
 
-	public function append($key, $val) {
+	public function append($key, $val)
+	{
 		if ($this->prefix) {
 			$_SESSION[$this->prefix][$key][] = $val;
 		} else {
@@ -72,7 +82,7 @@ class Session implements SessionInterface {
 		if ($this->prefix) {
 			unset($_SESSION[$this->prefix][$string]);
 		} else {
-			unset($_SESSION[ $string ]);
+			unset($_SESSION[$string]);
 		}
 	}
 
