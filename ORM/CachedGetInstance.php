@@ -110,6 +110,10 @@ trait CachedGetInstance {
 	public static function getCacheStats() {
 		$stats = array();
 		foreach (self::$instances as $class => $list) {
+			if (!is_array($list)) {
+				debug($list);
+				die;
+			}
 			$stats[$class] = sizeof($list);
 		}
 		return $stats;
@@ -182,7 +186,7 @@ trait CachedGetInstance {
 
 		$c = NULL;
 		// first search instances
-		if (is_array(ifsetor(self::$instances[$self]))) {
+		if (ifsetor(self::$instances[$self], [])) {
 			foreach (self::$instances[$self] as $inst) {
 				if ($inst instanceof OODBase) {
 					$field = $field ? $field : $inst->titleColumn;
@@ -200,7 +204,7 @@ trait CachedGetInstance {
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
 				$c->findInDBsetInstance(array(
-					$field => $name,
+					'trim('.$field.')' => $name,
 				));
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([
