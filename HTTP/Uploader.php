@@ -180,16 +180,19 @@ post_max_size: ' . $post_max_size . '">' .
 				}
 			}
 
-			@mkdir(dirname($fileName), 0777, true);
+			if (!is_dir(dirname($fileName))) {
+				@mkdir(dirname($fileName), 0777, true);
+			}
 			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
 				//throw new Exception($php_errormsg);	// empty
 				$error = error_get_last();
-				//debug($error);
+				pre_print_r(__METHOD__, $error);
 				throw new Exception($error['message']);
 			}
 		} else {
 			$ok = false;
+			throw new Exception("[{$from}] is not a valid $_FILES index");
 		}
 		return $ok;
 	}
@@ -276,7 +279,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param $filepath
 	 * @return string
 	 */
-	function get_mime_type_system($filepath)
+	protected function get_mime_type_system($filepath)
 	{
 		ob_start();
 		system("file --mime-type -i --mime -b {$filepath}");
@@ -382,7 +385,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @todo
 	 * @see  http://stackoverflow.com/questions/5444827/how-do-you-loop-through-files-array
 	 */
-	public static function GetPostedFiles()
+	public static function GetPostedFiles($source = null)
 	{
 		/* group the information together like this example
 		Array
@@ -420,21 +423,19 @@ post_max_size: ' . $post_max_size . '">' .
 		)
 		*/
 
+		$source = is_null($source) ? $_FILES : $source;
+
 		$Result = array();
-		$Name = array();
-		$Type = array();
-		$TmpName = array();
-		$Error = array();
-		$Size = array();
-		foreach ($_FILES as $Field => $Data) {
+
+		foreach ($source as $Field => $Data) {
 			foreach ($Data as $Key => $Val) {
 				$Result[$Field] = array();
 				if (!is_array($Val)) {
 					$Result[$Field] = $Data;
+				} elseif (isset($Data['name'])) {
+					$Result[$Field] = self::GPF_FilesFlip($Data);
 				} else {
-					$Res = array();
-					self::GPF_FilesFlip($Res, array(), $Data);
-					$Result[$Field] += $Res;
+					$Result[$Field] = $Data;
 				}
 			}
 		}
@@ -442,34 +443,16 @@ post_max_size: ' . $post_max_size . '">' .
 		return $Result;
 	}
 
-	private static function GPF_ArrayMergeRecursive($PaArray1, $PaArray2)
+	// helper method for GetPostedFiles
+	private static function GPF_FilesFlip(array $Value)
 	{
-		// helper method for GetPostedFiles
-		if (!is_array($PaArray1) or !is_array($PaArray2))
-			return $PaArray2;
-		foreach ($PaArray2 AS $SKey2 => $SValue2)
-			$PaArray1[$SKey2] = self::GPF_ArrayMergeRecursive(@$PaArray1[$SKey2], $SValue2);
-		return $PaArray1;
-	}
-
-	private static function GPF_FilesFlip(&$Result, $Keys, $Value)
-	{
-		// helper method for GetPostedFiles
-		if (is_array($Value)) {
-			foreach ($Value as $K => $V) {
-				$NewKeys = $Keys;
-				array_push($NewKeys, $K);
-				self::GPF_FilesFlip($Result, $NewKeys, $V);
+		$Result = [];
+		foreach ($Value['name'] as $K => $V) {
+			$Result[$K] = [];
+			foreach ($Value as $param => $set) {
+				$Result[$K][$param] = $set[$K];
 			}
-		} else {
-			$Res = $Value;
-			// move the innermost key to the outer spot
-			$First = array_shift($Keys);
-			array_push($Keys, $First);
-			foreach (array_reverse($Keys) as $K)
-				$Res = array($K => $Res); // you might think we'd say $Res[$K] = $Res, but $Res starts out not as an array
-			$Result = self::GPF_ArrayMergeRecursive($Result, $Res);
 		}
+		return $Result;
 	}
-
 }

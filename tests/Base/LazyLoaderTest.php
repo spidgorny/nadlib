@@ -39,7 +39,7 @@ class LazyLoaderTest extends \PHPUnit_Framework_TestCase
 		$v1 = $l1();
 		$v2 = $l1();
 		$duration = microtime(true) - $start;
-		echo __METHOD__, ': ', $duration, PHP_EOL;
+//		echo __METHOD__, ': ', $duration, PHP_EOL;
 		$this->assertLessThan(2, $duration);
 	}
 
