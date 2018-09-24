@@ -89,7 +89,7 @@ abstract class OODBase {
 	 *
 	 * @throws Exception
 	 */
-	function __construct($id = NULL)
+	function __construct($id = null)
 	{
 //		debug(get_called_class(), __FUNCTION__, $id);
 		$this->guessDB($id);
@@ -121,7 +121,7 @@ abstract class OODBase {
 				}
 				//debug(get_class($this), $this->table, gettype2($this->db));
 			} else {
-				$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : NULL;
+				$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : null;
 			}
 		}
 	}

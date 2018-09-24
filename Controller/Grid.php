@@ -15,7 +15,7 @@ abstract class Grid extends AppController {
 	/**
 	 * @var \nadlib\Controller\Filter
 	 */
-	public $filter = [];
+	public $filter;
 
 	/**
 	 * Defines which columns are visible in a table
@@ -95,7 +95,7 @@ abstract class Grid extends AppController {
 	 * @param null $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
 	 */
-	function saveFilterAndSort($cn = NULL)
+	function saveFilterAndSort($cn = null)
 	{
 //		debug(__METHOD__, $cn);
 		// why do we inject collection
@@ -117,7 +117,7 @@ abstract class Grid extends AppController {
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
 
 		if (method_exists($this->user, 'setPref')) {
-			if ($this->request->is_set('slTable') && $allowEdit) {
+			if ($this->request->is_set('slTable')) {
 				$this->user->setPref('Sort.' . $cn, $this->request->getArray('slTable'));
 			}
 		}
@@ -238,15 +238,15 @@ abstract class Grid extends AppController {
 		0 && debug([
 			'controller' => $this->request->getControllerString(),
 			'this' => get_class($this),
-			'allowEdit' => $allowEdit,
+			//'allowEdit' => $allowEdit,
 			'this->filter' => $this->filter,
 			'_REQUEST' => $_REQUEST,
 		]);
 	}
 
 	/**
-	 * @param $cn
-	 * @param $allowEdit
+	 * @param $cn string
+	 * @param $allowEdit boolean
 	 * @throws LoginException
 	 */
 	public function setColumns($cn, $allowEdit)

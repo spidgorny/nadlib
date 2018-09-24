@@ -212,8 +212,9 @@ class slTable
 		$so = $this->sortOrder;
 
 		if (!isset($a[$by])) {
-			debug('slTable', $this->sortable, $this->sortBy, $this->sortOrder,
-				array_keys($this->thes), $a);
+//			debug($this->sortable, $this->sortBy, $this->sortOrder,
+//				array_keys($this->thes), $a);
+			// throw new SortingException('field $by is not set');
 		}
 
 		$aa = $a[$by];
