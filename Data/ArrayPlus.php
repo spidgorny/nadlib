@@ -371,7 +371,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @param $needle
 	 * @return array|null
 	 */
-	function find($needle)
+	public function find($needle)
 	{
 		foreach ($this as $key => $val) {
 			//debug($needle, $key, $val);
@@ -385,7 +385,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 					//debug($find);
 				}
 			} else {
-				$find = ($key == $needle) ? array($key) : NULL;
+				$find = ($key == $needle) ? array($key) : null;
 			}
 			if ($find) {
 				return $find;
@@ -400,7 +400,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 			//$found = $rec->findPath($this->current);
 			if ($rec instanceof Recursive) {
 				$children = $rec->getChildren();
-				$found = isset($children[current]) ? $children[$current] : NULL;
+				$found = isset($children[current]) ? $children[$current] : null;
 				//debug($children, $found, $key, $this->current);
 				return $found;
 			}
