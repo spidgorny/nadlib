@@ -6,7 +6,7 @@ class CollectionView
 	/**
 	 * @var Collection
 	 */
-	var $collection;
+	protected $collection;
 
 	var $noDataMessage = 'No data';
 
@@ -23,17 +23,17 @@ class CollectionView
 
 	public $wrapTag = 'div';
 
-	function __construct(Collection $col)
+	public function __construct(Collection $col)
 	{
 		$this->collection = $col;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return MergedContent::mergeStringArrayRecursive($this->renderMembers());
 	}
 
-	function renderMembers()
+	public function renderMembers()
 	{
 		$content = array();
 		//debug(sizeof($this->members));
@@ -69,7 +69,7 @@ class CollectionView
 		return $content;
 	}
 
-	function renderTable()
+	public function renderTable()
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
@@ -93,7 +93,7 @@ class CollectionView
 		return $content;
 	}
 
-	function prepareRender()
+	public function prepareRender()
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
@@ -110,7 +110,7 @@ class CollectionView
 		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 	}
 
-	function getDataTable()
+	public function getDataTable()
 	{
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getData()->getData();
