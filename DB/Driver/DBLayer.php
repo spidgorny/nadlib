@@ -160,7 +160,6 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$query = $query->__toString();
 //			debug($query, $params);
 		}
-		$this->logQuery($query);
 
 		try {
 			if ($params) {
@@ -169,6 +168,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			} else {
 				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
 			}
+			$this->queryTime = $prof->elapsed();
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
 			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
@@ -182,6 +182,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$e->setQuery($query);
 			throw $e;
 		}
+
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
 			//debug($query);
@@ -196,14 +197,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 		if ($this->queryLog) {
 			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
 		}
-		if ($this->logToLog) {
-			$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime . ' ' .
-				preg_replace('/\s+/', ' ',
-					str_replace("\n", ' ', $query)));
-		}
+
+		$this->logQuery($query);	// uses $this->queryTime
+
 		$this->lastQuery = $query;
-		$this->queryTime = $prof->elapsed();
 		$this->queryCount++;
 		$this->lastBacktrace = debug_backtrace();
 		return $this->LAST_PERFORM_RESULT;

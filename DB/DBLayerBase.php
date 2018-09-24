@@ -85,9 +85,11 @@ class DBLayerBase implements DBInterface {
 	function logQuery($query)
     {
         if ($this->logToLog) {
-            error_log('... '.
-                preg_replace('/\s+/', ' ',
-                    str_replace("\n", ' ', $query)).': '.$this->queryTime);
+			$query = preg_replace('/\s+/', ' ',
+				str_replace("\n", ' ', $query));
+			error_log('['.get_class($this).']'.TAB.
+				'[' . $this->AFFECTED_ROWS . ' rows]'.TAB.
+				$query .': '.$this->queryTime);
         }
     }
 
