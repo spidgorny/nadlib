@@ -710,6 +710,12 @@ class Collection implements IteratorAggregate {
 		return $this->view;
 	}
 
+	public function setView($view)
+	{
+		$this->view = $view;
+		return $this;
+	}
+
 	/**
 	 * Calls __toString on each member
 	 * @return string
