@@ -5,7 +5,7 @@ class Percent
 
 	protected $top;
 
-	protected $i;
+	protected $i = 0;
 
 	public function __construct($top = 100)
 	{
