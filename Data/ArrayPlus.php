@@ -1135,6 +1135,25 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return false;
 	}
 
+	public function reindex(callable $keyGenerator)
+	{
+		$new = new ArrayPlus();
+		foreach ($this as $key => $val) {
+			$newKey = $keyGenerator($key, $val);
+			$new[$newKey][] = $val;
+		}
+		return $new;
+	}
+
+	public function countEach()
+	{
+		$set = [];
+		foreach ($this as $key => $val) {
+			$set[$key] = is_array($val) ? sizeof($val) : 1;
+		}
+		return $set;
+	}
+
 }
 
 function AP($a = array())
