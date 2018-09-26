@@ -4,7 +4,8 @@
  * Base class in order to check instanceof SQLWherePart
  */
 
-class SQLWherePart {
+class SQLWherePart
+{
 
 	/**
 	 * @var DBInterface
@@ -18,7 +19,8 @@ class SQLWherePart {
 	 */
 	protected $field;
 
-	function __construct($sql = '') {
+	function __construct($sql = '')
+	{
 		$this->sql = $sql;
 		$this->db = Config::getInstance()->getDB();
 	}
@@ -28,7 +30,8 @@ class SQLWherePart {
 	 * @see SQLWhereEqual
 	 * @return string
 	 */
-	function __toString() {
+	function __toString()
+	{
 		//debug(__METHOD__, gettype2($this->db));
 		if ($this->field && !is_numeric($this->field)) {
 			if ($this->field == 'read') {
@@ -39,20 +42,23 @@ class SQLWherePart {
 			);
 			return implode('', $part1);
 		} else {
-			return $this->sql.'';
+			return $this->sql . '';
 		}
 	}
 
-	function injectDB(DBInterface $db) {
+	function injectDB(DBInterface $db)
+	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function injectField($field) {
+	function injectField($field)
+	{
 		$this->field = $field;
 	}
 
-	function debug() {
+	function debug()
+	{
 		return $this->__toString();
 	}
 
@@ -60,15 +66,18 @@ class SQLWherePart {
 	 * Sub-classes should return their parameters
 	 * @return null
 	 */
-	function getParameter() {
+	function getParameter()
+	{
 		return NULL;
 	}
 
-	function perform() {
+	function perform()
+	{
 		return $this->db->perform($this->__toString());
 	}
 
-	function getField() {
+	function getField()
+	{
 		return $this->field;
 	}
 

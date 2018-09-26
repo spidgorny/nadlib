@@ -44,7 +44,7 @@ abstract class FullGrid extends Grid
 	 * @param null $collection
 	 * @throws LoginException
 	 */
-	function postInit($collection = NULL)
+	public function postInit($collection = null)
 	{
 		if (!$this->collection) {
 			if (is_string($collection)) {
@@ -105,11 +105,19 @@ abstract class FullGrid extends Grid
 				$sortBy = NULL;
 			}
 		}
-		$sortBy = $sortBy ? $sortBy : ifsetor($this->model->idField);
+		if (!$sortBy) {
+//			$sortBy = new SQLOrder($this->collection->orderBy);
+//			$sortBy = $sortBy->getField();
+			if (!$sortBy) {
+				// don't do default, because a Collection has it's own default
+				//$sortBy = ifsetor($this->model->idField);
+			}
+		}
 		if ($sortBy) {
 			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' .
 				(ifsetor($this->sort['sortOrder']) ? 'DESC' : 'ASC');
 		}
+		//debug($this->sort, $sortBy);
 		return $ret;
 	}
 
