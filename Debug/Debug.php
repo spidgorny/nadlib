@@ -265,16 +265,27 @@ class Debug
 		$nextFunc = ifsetor($first['function']);
 		$line = ifsetor($first['line']);
 		$file = ifsetor($first['file']);
+
+		$isPhpStorm = false; 	// don't like it
 		if ($isPhpStorm) {
 			$path = $file;
 		} else {
 			$path = basename(dirname(dirname($file))) .
 				'/' . basename(dirname($file)) .
 				'/' . basename($file);
+			if ($path[0] == 'C') {
+				var_dump($file, $path);
+				exit;
+			}
 		}
 		if (isset($first['object']) && $first['object']) {
 			$ref = new ReflectionClass($first['object']);
 			$path = $ref->getFileName();
+
+			$path = basename(dirname(dirname($file))) .
+				'/' . basename(dirname($file)) .
+				'/' . basename($file);
+
 			$function = $path .
 				':' . $line . ' ' .
 				get_class($first['object']) .

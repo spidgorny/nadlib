@@ -29,7 +29,7 @@ class DebugCLI {
 			$trace[] = ' * ' . Debug::getMethod($row, ifsetor($db[$i + 1], []));
 			if (++$i > 7) break;
 		}
-		echo '--- ' . $this->helper->name . ' ---' . BR .
+		echo '⎯⎯⎯⎯⎯⎯⎯ ¯\_(ツ)_/¯ ' . $this->helper->name . BR .
 			implode(BR, $trace) . "\n";
 
 		if ($args instanceof htmlString) {
@@ -50,7 +50,7 @@ class DebugCLI {
 		$dump = ob_get_clean();
 		$dump = str_replace("=>\n", ' =>', $dump);
 		echo $dump;
-		echo '--- ' . $this->helper->name . ' ---', BR;
+		echo str_repeat('⎯', 24), BR;
 		$this->name = null;
 	}
 
