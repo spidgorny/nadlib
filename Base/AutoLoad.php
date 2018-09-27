@@ -205,12 +205,14 @@ class AutoLoad {
 			echo '<pre>';
 			print_r(array(
 				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+				'rp(SCRIPT_FILENAME)' => realpath($_SERVER['SCRIPT_FILENAME']),
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'documentRoot' => $this->documentRoot.'',
 				'getcwd()' => getcwd(),
 				'__FILE__' => __FILE__,
 				'$scriptWithPath' => $scriptWithPath,
 				'dirname(__FILE__)' => dirname(__FILE__),
-				'baseHref' => Request::getLocation(),
+				'baseHref' => Request::getLocation().'',
 				'$relToNadlibCLI' => $relToNadlibCLI,
 				'$relToNadlibPU' => $relToNadlibPU,
 				'$this->nadlibRoot' => $this->nadlibRoot,
@@ -220,8 +222,8 @@ class AutoLoad {
 				'Config->appRoot' => isset($config) ? $config->appRoot : NULL,
 				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
 				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
-				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot(),
-				'request->getLocation()' => Request::getInstance()->getLocation(),
+				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot().'',
+				'request->getLocation()' => Request::getInstance()->getLocation().'',
 				'this->componentsPath' => $this->componentsPath.'',
 			));
 			echo '</pre>';
