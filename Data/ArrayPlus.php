@@ -418,7 +418,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return NULL;
 	}
 
-	function first()
+	public function first()
 	{
 		if (!$this->count()) return null;
 		$var = $this->getData();
@@ -1147,6 +1147,16 @@ class ArrayPlus extends ArrayObject implements Countable {
 		foreach ($this as $key => $val) {
 			$newKey = $keyGenerator($key, $val);
 			$new[$newKey][] = $val;
+		}
+		return $new;
+	}
+
+	public function reindexOne(callable $keyGenerator)
+	{
+		$new = new ArrayPlus();
+		foreach ($this as $key => $val) {
+			$newKey = $keyGenerator($key, $val);
+			$new[$newKey] = $val;
 		}
 		return $new;
 	}
