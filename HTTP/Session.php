@@ -34,6 +34,11 @@ class Session implements SessionInterface
 		}
 	}
 
+	function set($key, $val)
+	{
+		$this->save($key, $val);
+	}
+
 	function save($key, $val)
 	{
 		if ($this->prefix) {

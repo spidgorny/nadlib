@@ -784,7 +784,9 @@ class Request {
 
 		if (!$this->isWindows()) {    // linux
 			//debug(getcwd(), $al->documentRoot.'');
+//			debug('cwd', $cwd);
 			$url = clone $al->documentRoot;
+//			debug('documentRoot', $url);
 			$url->append($this->url->getPath());
 			$url->normalizeHomePage();
 
@@ -891,7 +893,7 @@ class Request {
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
-			'getURL()' => $path->getURL() . '',
+			//'getURL()' => $path->getURL() . '',
 			'levels' => $levels));
 		return $levels;
 	}
@@ -1506,5 +1508,14 @@ class Request {
 		}
 		return false;
 	}
-
+	
+	public function getAction()
+	{
+		$action = $this->getTrim('action');
+		if (!$action) {
+			$action = $this->getURLLevel(1);
+		}
+		return $action;
+	}
+	
 }
