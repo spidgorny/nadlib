@@ -4,7 +4,8 @@
  * Class Uploader
  * General validating uploader with error handling
  */
-class Uploader {
+class Uploader
+{
 
 	/**
 	 * Allowed extensions
@@ -129,8 +130,8 @@ post_max_size: ' . $post_max_size . '">' .
 	{
 		return array(
 			'upload_max_filesize' => ini_get('upload_max_filesize'),
-			'post_max_size'       => ini_get('post_max_size'),
-			'disk_free_space'     => round(disk_free_space('.') / 1024 / 1024) . 'MB',
+			'post_max_size' => ini_get('post_max_size'),
+			'disk_free_space' => round(disk_free_space('.') / 1024 / 1024) . 'MB',
 		);
 	}
 
@@ -148,51 +149,84 @@ post_max_size: ' . $post_max_size . '">' .
 		} else {
 			$uf = $_FILES[$from];   // string index
 		}
-		if ($uf) {
-			if (!$this->checkError($uf)) {
-				throw new Exception($this->errors[$uf['error']]);
-			}
-			if (!$this->checkExtension($uf)) {
-				throw new Exception('File extension is not allowed (' . $uf['ext'] . ')');
-			}
-			if (!$this->checkMime($uf)) {
-				throw new Exception('File mime-type is not allowed (' . $uf['mime'] . ')');
-			}
+		if (!$uf) {
+			throw new UploadException("[{$from}] is not a valid $_FILES index");
+		}
+		if (!$this->checkError($uf)) {
+			throw new UploadException($this->errors[$uf['error']]);
+		}
+		if (!$this->checkExtension($uf)) {
+			throw new UploadException('File extension is not allowed (' . $uf['ext'] . ')');
+		}
+		if (!$this->checkMime($uf)) {
+			throw new UploadException('File mime-type is not allowed (' . $uf['mime'] . ')');
+		}
 
-			// if you don't want existing files to be overwritten,
-			// new file will be renamed to *_n,
-			// where n is the number of existing files
-			if (is_dir($to)) {
-				$fileName = $to . $uf['name'];
-			} else {
-				$fileName = $to;
-			}
-			if (!$overwriteExistingFile && file_exists($fileName)) {
-				$actualName = pathinfo($fileName, PATHINFO_FILENAME);
-				$originalName = $actualName;
-				$extension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-				$i = 1;
-				while (file_exists($to . $actualName . "." . $extension)) {
-					$actualName = (string)$originalName . '_' . $i;
-					$fileName = $to . $actualName . "." . $extension;
-					$i++;
-				}
-			}
-
-			if (!is_dir(dirname($fileName))) {
-				@mkdir(dirname($fileName), 0777, true);
-			}
-			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
-			if (!$ok) {
-				//throw new Exception($php_errormsg);	// empty
-				$error = error_get_last();
-				pre_print_r(__METHOD__, $error);
-				throw new Exception($error['message']);
-			}
+		// if you don't want existing files to be overwritten,
+		// new file will be renamed to *_n,
+		// where n is the number of existing files
+		if (is_dir($to)) {
+			$fileName = $to . $uf['name'];
 		} else {
-			$ok = false;
-			throw new Exception("[{$from}] is not a valid $_FILES index");
+			$fileName = $to;
+		}
+		if (!$overwriteExistingFile && file_exists($fileName)) {
+			$actualName = pathinfo($fileName, PATHINFO_FILENAME);
+			$originalName = $actualName;
+			$extension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+			$i = 1;
+			while (file_exists($to . $actualName . "." . $extension)) {
+				$actualName = (string)$originalName . '_' . $i;
+				$fileName = $to . $actualName . "." . $extension;
+				$i++;
+			}
+		}
+
+		if (!is_dir(dirname($fileName))) {
+			@mkdir(dirname($fileName), 0777, true);
+		}
+		$ok = move_uploaded_file($uf['tmp_name'], $fileName);
+		if (!$ok) {
+			//throw new Exception($php_errormsg);	// empty
+			$error = error_get_last();
+			pre_print_r(__METHOD__, $error);
+			throw new UploadException($error['message']);
+		}
+		return $ok;
+	}
+
+	public function moveUploadFly($from, League\Flysystem\Filesystem $path, $fileName = null)
+	{
+		if (is_array($from)) {
+			$uf = $from;            // $_FILES['whatever']
+		} else {
+			$uf = $_FILES[$from];   // string index
+		}
+		if (!$uf) {
+			throw new UploadException("[{$from}] is not a valid $_FILES index");
+		}
+		if (!$this->checkError($uf)) {
+			throw new UploadException($this->errors[$uf['error']]);
+		}
+		if (!$this->checkExtension($uf)) {
+			throw new UploadException('File extension is not allowed (' . $uf['ext'] . ')');
+		}
+		if (!$this->checkMime($uf)) {
+			throw new UploadException('File mime-type is not allowed (' . $uf['mime'] . ')');
+		}
+
+		if (!$fileName) {
+			$fileName = basename($uf['name']);
+		}
+
+		$fp = fopen($uf['tmp_name'], 'r+');
+		$ok = $path->writeStream($fileName, $fp);
+		if (is_resource($fp)) {
+			fclose($fp);
+		}
+		if (!$ok) {
+			throw new UploadException($error['message']);
 		}
 		return $ok;
 	}

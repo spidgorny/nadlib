@@ -265,6 +265,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	/**
+	 * Keys are reindexed
 	 * @param $callback
 	 * @return static
 	 */
@@ -275,6 +276,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	/**
+	 * Will keep the assoc keys
 	 * @param $callback
 	 * @return static
 	 */
@@ -454,12 +456,14 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * Extracts key from array as ['__key__']
 	 */
-	function extractKeyFromColumn()
+	function extractKeyFromColumn($column = '__key__', $unset = true)
 	{
 		$new = array();
 		foreach ($this as $row) {
-			$key = $row['__key__'];
-			unset($row['__key__']);
+			$key = $row[$column];
+			if ($unset) {
+				unset($row[$column]);
+			}
 			$new[$key] = $row;
 		}
 		$this->setData($new);
@@ -1114,7 +1118,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function __debugInfo()
 	{
-		return ['count' => $this->count()];
+		return [
+			'count' => $this->count()
+		];
 	}
 
 	static function isRecursive(array $array)
