@@ -26,28 +26,32 @@ class PageSize extends Controller
 	/**
 	 * @param null $selected - default for this instance
 	 */
-	function __construct($selected = NULL)
+	public function __construct($selected = null)
 	{
 		parent::__construct();
-		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : NULL;
+		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : null;
 
 		$user = null;
 		if (class_exists('Config')) {
 			$user = Config::getInstance()->getUser();
 			if (!$this->selected && $this->userHasPreferences()) {
 				$this->selected = $user->getPref('pageSize');
+				$this->log[] = 'Prefs: '.$this->selected;
 			}
 		}
 
 		if (!$this->selected) {
 			$this->selected = $selected;
+			$this->log[] = 'Constructor: '.$this->selected;
 		}
 		if (!$this->selected) {
 			$this->selected = self::$default;
+			$this->log[] = 'Default: '.$this->selected;
 		}
 
 		if ($user && $this->userHasPreferences()) {
 			$user->setPref('pageSize', $this->selected);
+			$this->log[] = 'setPref: '.$this->selected;
 		}
 
 		$this->options = array_combine($this->options, $this->options);
@@ -74,11 +78,13 @@ class PageSize extends Controller
 	 * Returns the $this->selected value making sure it's not too big
 	 * @return integer
 	 */
-	function get() {
+	function get()
+	{
 		return min($this->selected, max($this->options));
 	}
 
-	function getAllowed() {
+	function getAllowed()
+	{
 		if (in_array($this->selected, $this->options)) {
 			return $this->selected;
 		} else {
