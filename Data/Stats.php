@@ -57,7 +57,7 @@ class Stats
 //		$mode = ($max - $min) / 2;
 
 		foreach ($set as $value) {
-			$key = $value / $max * $numBuckets;
+			$key = ($value - $min) / ($max - $min) * $numBuckets;
 			$buckets[$key] = $buckets[$key] + 1;
 		}
 
