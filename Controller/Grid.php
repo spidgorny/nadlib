@@ -134,7 +134,9 @@ abstract class Grid extends AppController {
 		}
 
 		// PAGE SIZE
-		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
+		$this->pageSize = $this->pageSize
+			? $this->pageSize
+			: new PageSize();
 	}
 
 	function render()
