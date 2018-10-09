@@ -69,12 +69,13 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * Does string splitting with cleanup.
+	 * Added array_pad() to prevent list() complaining about undefined index
 	 * @param $sep string
 	 * @param $str string
 	 * @param null $max
 	 * @return array
 	 */
-	function trimExplode($sep, $str, $max = NULL)
+	function trimExplode($sep, $str, $max = null)
 	{
 		if (is_object($str)) {
 			$is_string = method_exists($str, '__toString');
@@ -93,6 +94,7 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_map('trim', $parts);
 		$parts = array_filter($parts);
 		$parts = array_values($parts);
+		$parts = array_pad($parts, $max, null);
 		return $parts;
 	}
 
