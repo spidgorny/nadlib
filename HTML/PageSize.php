@@ -11,7 +11,7 @@ class PageSize extends Controller
 		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
 	);
 
-	public $selected;
+	protected $selected;
 
 	/**
 	 * @var URL
@@ -29,16 +29,8 @@ class PageSize extends Controller
 	public function __construct($selected = null)
 	{
 		parent::__construct();
-		$this->selected = $this->request->is_set('pageSize') ? $this->request->getInt('pageSize') : null;
-
-		$user = null;
-		if (class_exists('Config')) {
-			$user = Config::getInstance()->getUser();
-			if (!$this->selected && $this->userHasPreferences()) {
-				$this->selected = $user->getPref('pageSize');
-				$this->log[] = 'Prefs: '.$this->selected;
-			}
-		}
+		$this->selected = $this->request->is_set('pageSize')
+			? $this->request->getInt('pageSize') : null;
 
 		if (!$this->selected) {
 			$this->selected = $selected;
@@ -49,19 +41,8 @@ class PageSize extends Controller
 			$this->log[] = 'Default: '.$this->selected;
 		}
 
-		if ($user && $this->userHasPreferences()) {
-			$user->setPref('pageSize', $this->selected);
-			$this->log[] = 'setPref: '.$this->selected;
-		}
-
 		$this->options = array_combine($this->options, $this->options);
 		$this->url = new URL();    // some default to avoid fatal error
-	}
-
-	function userHasPreferences()
-	{
-		$user = Config::getInstance()->getUser();
-		return $user && ifsetor($user->id) && method_exists($user, 'getPref');
 	}
 
 	function setURL(URL $url)
@@ -72,6 +53,11 @@ class PageSize extends Controller
 	function update()
 	{
 		$this->selected = $this->get();
+	}
+
+	public function set($value)
+	{
+		$this->selected = $value;
 	}
 
 	/**

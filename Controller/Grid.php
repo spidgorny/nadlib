@@ -37,6 +37,7 @@ abstract class Grid extends AppController {
 	{
 		parent::__construct();
 		$this->initFilter();
+		$this->initPageSize();
 	}
 
 	public function initFilter()
@@ -47,6 +48,16 @@ abstract class Grid extends AppController {
 		if ($allowEdit) {
 			$this->setFilter($cn);
 		}
+	}
+
+	public function initPageSize()
+	{
+		// PAGE SIZE
+		$sizeFromPreferences = $this->user->getSetting(get_class($this) . '.pageSize');
+		$this->pageSize = $this->pageSize
+			? $this->pageSize
+			: new PageSize($sizeFromPreferences);
+		$this->user->setSetting(get_class($this).'.pageSize', $this->pageSize->get());
 	}
 
 	/**
@@ -132,11 +143,6 @@ abstract class Grid extends AppController {
 					: $this->sort
 				);
 		}
-
-		// PAGE SIZE
-		$this->pageSize = $this->pageSize
-			? $this->pageSize
-			: new PageSize();
 	}
 
 	function render()
