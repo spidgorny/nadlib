@@ -33,6 +33,19 @@ class CollectionView
 		return MergedContent::mergeStringArrayRecursive($this->renderMembers());
 	}
 
+	public function wrap($content)
+	{
+		if ($this->wrapTag) {
+			list($tag, $class) = trimExplode('.', $this->wrapTag, 2);
+			$content = array(
+				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '">',
+				$content,
+				'</' . $tag . '>'
+			);
+		}
+		return $content;
+	}
+
 	public function renderMembers()
 	{
 		$content = array();
@@ -51,13 +64,7 @@ class CollectionView
 					$content[] = getDebug(__METHOD__, $key, $obj);
 				}
 			}
-			if ($this->wrapTag) {
-				$content = array(
-					'<' . $this->wrapTag . ' class="' . get_class($this->collection) . '">',
-					$content,
-					'</' . $this->wrapTag . '>'
-				);
-			}
+			$content = $this->wrap($content);
 		} elseif ($this->noDataMessage) {
 			//Index::getInstance()->ll->debug = true;
 			$content[] = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
@@ -85,6 +92,7 @@ class CollectionView
 			} else {
 				$content = $s;
 			}
+			$content = $this->wrap($content);
 		} else {
 			$content = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}

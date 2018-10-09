@@ -54,7 +54,7 @@ abstract class FullGrid extends Grid
 		if (!$this->collection) {
 			if (is_string($collection)) {
 				$this->log(__METHOD__ . ' new collection', $collection);
-				$this->collection = new $collection(NULL, [], $this->getOrderBy());
+				$this->collection = new $collection(null, [], $this->getOrderBy());
 				// after construct because we need to modify join
 				$this->collection->where = array_merge(
 					$this->collection->where,
@@ -66,7 +66,7 @@ abstract class FullGrid extends Grid
 				//debug($this->collection->getQuery());
 
 				$this->collection->postInit();
-				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
 			} else {
 				if (!$collection) {
 					$re = new ReflectionClass($this);
