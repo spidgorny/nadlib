@@ -1,6 +1,7 @@
 <?php
 
-class AppControllerBE extends AppController {
+class AppControllerBE extends AppController
+{
 
 	/**
 	 * -forceDL in CLI will re-download and extract data
@@ -23,11 +24,12 @@ class AppControllerBE extends AppController {
 	 * Protect from unauthorized access
 	 * @var bool
 	 */
-	static $public = false;	// must be false at all times!
+	static $public = false;    // must be false at all times!
 
 	var $layout = '<div class="col-md-9">|</div>';
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		if (!static::$public) {
 			if (!$this->user) {
@@ -53,16 +55,18 @@ class AppControllerBE extends AppController {
 		$this->layout = new Wrap($this->layout);
 	}
 
-	function log($class, $message = NULL) {
+	function log($class, $message = NULL)
+	{
 		//echo $class, ' ', print_r($message, true), BR;
 		Debug::getInstance()->consoleLog([
-				'class' => $class,
-				'message' => $message
+			'class' => $class,
+			'message' => $message
 		]);
 	}
 
-	public function getURL(array $params = array(), $prefix = '?') {
-		$url = parent::getURL($params, $this->nadlibFromDocRoot.'be/?');
+	public function getURL(array $params = array(), $prefix = '?')
+	{
+		$url = parent::getURL($params, $this->nadlibFromDocRoot . 'be/?');
 		return $url;
 	}
 
