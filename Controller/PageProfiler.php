@@ -1,6 +1,7 @@
 <?php
 
-class PageProfiler {
+class PageProfiler
+{
 
 	/**
 	 * @var Request
@@ -18,11 +19,16 @@ class PageProfiler {
 		$this->html = new HTML();
 	}
 
-	function render() {
-		$content = '';
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	public function render()
+	{
+		$content = [];
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
-			$exceptions = in_array(get_class($index->controller), array('Lesser'));
+			$exceptions = in_array($index->controller ? get_class($index->controller) : null, array('Lesser'));
 		} else {
 			$exceptions = false;
 		}
@@ -35,27 +41,27 @@ class PageProfiler {
 			&& !$this->request->isCLI()
 			&& $debug_page
 		) {
-			$content .= '<div class="profiler noprint">';
-			$content .= $this->getURL();
-			$content .= $this->getGET();
-			$content .= $this->getPOST();
-			$content .= $this->getHeader();
-			$content .= $this->getFooter();
-			$content .= $this->getSession();
-			$content .= $this->html->s(OODBase::getCacheStatsTable());
+			$content[] = '<div class="profiler noprint">';
+			$content[] = $this->getURL();
+			$content[] = $this->getGET();
+			$content[] = $this->getPOST();
+			$content[] = $this->getHeader();
+			$content[] = $this->getFooter();
+			$content[] = $this->getSession();
+			$content[] = $this->html->s(OODBase::getCacheStatsTable());
 
 			/** @var $profiler TaylorProfiler */
 			$profiler = TaylorProfiler::getInstance();
 			if ($profiler) {
-				$content .= $profiler->printTimers(true);
-				$content .= TaylorProfiler::dumpQueries();
-				//$content .= $profiler->printTrace(true);
-				//$content .= $profiler->analyzeTraceForLeak();
+				$content[] = $profiler->printTimers(true);
+				$content[] = TaylorProfiler::dumpQueries();
+				//$content[] = $profiler->printTrace(true);
+				//$content[] = $profiler->analyzeTraceForLeak();
 			}
-			$content .= '</div>';
+			$content[] = '</div>';
 
 			$ft = new FloatTime(true);
-			$content .= $ft->render();
+			$content[] = $ft->render();
 		}
 		return $content;
 	}
@@ -63,7 +69,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getURL() {
+	private function getURL()
+	{
 		$url = clone $this->request->getURL();
 		$url->makeRelative();
 		$params = $url->getParams();
@@ -77,7 +84,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getGET() {
+	private function getGET()
+	{
 		$content = '';
 		$url = $this->request->getURL();
 		$params = $url->getParams();
@@ -89,7 +97,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getPOST() {
+	private function getPOST()
+	{
 		$content = '';
 		$content .= $this->html->h4('POST');
 		$content .= $this->html->pre(json_encode($_POST, JSON_PRETTY_PRINT));
@@ -99,7 +108,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getHeader() {
+	private function getHeader()
+	{
 		$content = '';
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
@@ -115,7 +125,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getFooter() {
+	private function getFooter()
+	{
 		$content = '';
 		$index = Index::getInstance();
 		$content .= $this->html->h4('Footer');
@@ -129,7 +140,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getSession() {
+	private function getSession()
+	{
 		$content = '';
 		$content .= $this->html->h4('Session');
 		$session = json_encode($_SESSION, JSON_PRETTY_PRINT);

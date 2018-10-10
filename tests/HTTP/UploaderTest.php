@@ -102,4 +102,23 @@ class UploaderTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($must, $result);
 	}
 
+	public function test_moveUploadFly()
+	{
+		$u = new Uploader();
+		$fly = new League\Flysystem\Filesystem(new League\Flysystem\Adapter\NullAdapter());
+		$_FILES['test'] = [
+			'name' => 'desktop.png',
+			'type' => 'application/octet-stream',
+			'tmp_name' => __FILE__,
+			'error' => 0,
+			'size' => 282,
+		];
+		try {
+			$result = $u->moveUploadFly('test', $fly, 'desktop.png');
+			$this->assertTrue($result);
+		} catch (UploadException $e) {
+			$this->fail($e->getMessage());
+		}
+	}
+
 }

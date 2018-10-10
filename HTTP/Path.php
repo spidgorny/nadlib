@@ -313,6 +313,7 @@ class Path {
 			$this->sPath = readlink($this->sPath);
 			$this->explode();
 		}
+		$this->realPath();
 	}
 
 	/**

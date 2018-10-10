@@ -71,7 +71,7 @@ class Pager {
 	 */
 	var $iterator;
 
-	function __construct($itemsPerPage = NULL, $prefix = '')
+	function __construct($itemsPerPage = null, $prefix = '')
 	{
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
@@ -79,6 +79,7 @@ class Pager {
 			$this->pageSize = new PageSize($itemsPerPage ?: $this->itemsPerPage);
 		}
 		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
+
 		$this->prefix = $prefix;
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
@@ -225,7 +226,7 @@ class Pager {
 	function setItemsPerPage($items)
 	{
 		if (!$items) {
-			$items = $this->pageSize->selected;
+			$items = $this->pageSize->get();
 		}
 		$this->itemsPerPage = $items;
 		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
@@ -359,7 +360,8 @@ class Pager {
 			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
-			'pageSize->selected' => $this->pageSize->selected,
+			'pageSize->get' => $this->pageSize->get(),
+			'pageSize->log' => $this->pageSize->log,
 			'currentPage [0..]' => $this->currentPage,
 			'floatPages' => $this->numberOfRecords / $this->itemsPerPage,
 			'getMaxPage()' => $this->getMaxPage(),
@@ -368,7 +370,7 @@ class Pager {
 			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
 			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
 			'getPagesAround()' => $pages = $this->getPagesAround($this->currentPage, $this->getMaxPage()),
-			'url' => $this->url,
+			'url' => $this->url.'',
 			'pagesAround' => $this->pagesAround,
 			'showPageJump' => $this->showPageJump,
 			'showPager' => $this->showPager,
@@ -379,7 +381,7 @@ class Pager {
 	function renderPageSize()
 	{
 		$this->pageSize->setURL(new URL(NULL, array()));
-		$this->pageSize->selected = $this->itemsPerPage;
+		$this->pageSize->set($this->itemsPerPage);
 		$content = '<div class="pageSize pull-right floatRight">' .
 			$this->pageSize->render() . '&nbsp;' . __('per page') . '</div>';
 		return $content;
@@ -393,7 +395,7 @@ class Pager {
 		//debug($pages, $maxpage);
 		if ($this->currentPage > 0) {
 			$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $this->currentPage - 1));
-			$link = $link->setParam('pageSize', $this->pageSize->selected);
+			$link = $link->setParam('pageSize', $this->pageSize->get());
 			$content .= '<li><a href="' . $link . '" rel="prev">&lt;</a></li>';
 		} else {
 			$content .= '<li class="disabled"><span class="disabled">&larr;</span></li>';

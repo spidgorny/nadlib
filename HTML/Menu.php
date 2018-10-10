@@ -101,8 +101,8 @@ class Menu /*extends Controller*/
 				$this->useControllerSlug = $this->request->apacheModuleRewrite();
 			}
 		}
-		$this->setCurrent($level);
 		$this->setBasePath();
+		$this->setCurrent($level);
 	}
 
 	/**
@@ -112,7 +112,8 @@ class Menu /*extends Controller*/
 	function setCurrent($level)
 	{
 		$level = intval($level);
-		$appRootPath = $this->request->getPathAfterAppRoot();
+//		$appRootPath = $this->request->getPathAfterAppRoot();
+		$appRootPath = $this->basePath->getPath();
 		$rootPath = $appRootPath->getLevels();
 //		debug($rootPath, $level);
 
@@ -128,13 +129,14 @@ class Menu /*extends Controller*/
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
-		nodebug([
+		00 && debug([
 			'cwd' => getcwd(),
-			'docRoot' => $this->request->getDocumentRoot(),
-			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot(),
+			'docRoot' => $this->request->getDocumentRoot().'',
+			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot().'',
 			'useRouter' => $this->useRouter(),
 			'useControllerSlug' => $this->useControllerSlug,
 			'rootPath' => $rootPath,
+			'getControllerString' => $this->request->getControllerString(),
 			'level' => $level,
 			'current' => $this->current
 		]);
@@ -258,11 +260,12 @@ class Menu /*extends Controller*/
 			if (sizeof($rootPath) < $this->level) { // URL contains only the sub-page without the path, search for it
 				$found = $this->items->find($this->current);
 				if ($found) {
-					$rootPath = array(
-						$found,
-						//$this->current,
-					);
-					$this->current = $found . '/' . $this->current;
+//					debug($found, $this->current); exit;
+					if (!in_array($this->current, $found)) {
+						//$found[] = $this->current;
+					}
+					$rootPath = $found;
+					$this->current = implode('/', $found);
 				}
 				//debug($rootpath);
 			}
@@ -384,7 +387,7 @@ class Menu /*extends Controller*/
 				nodebug(array(
 					'class' => $class,
 					'$this->renderOnlyCurrent' => $this->renderOnlyCurrent,
-					'getURLLevels()' => $this->request->getURLLevels(),
+//					'getURLLevels()' => $this->request->getURLLevels(),
 					'$this->current' => $this->current,
 					'$renderOnlyCurrentSubMenu' => $renderOnlyCurrentSubMenu,
 					'$this->recursive' => $this->recursive,

@@ -54,7 +54,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	public function test_getOneOf()
 	{
 		$this->r->set('a', 'b');
-		$this->r->getOneOf('a', array('c'));
+		$this->r->getOneOf('a', ['c']);
 	}
 
 	public function test_getInt()
@@ -77,20 +77,20 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	public function test_getIntIn()
 	{
 		$this->r->set('i', 10);
-		$this->assertEquals(10, $this->r->getIntIn('i', array(
+		$this->assertEquals(10, $this->r->getIntIn('i', [
 			9 => '',
 			10 => '',
 			11 => '',
-		)));
+		]));
 	}
 
 	public function test_getIntIn0()
 	{
 		$this->r->set('i', 10);
-		$this->assertNull($this->r->getIntIn('i', array(
+		$this->assertNull($this->r->getIntIn('i', [
 			9 => '',
 			11 => '',
-		)));
+		]));
 	}
 
 	public function test_getLocation()
@@ -99,6 +99,32 @@ class RequestTest extends PHPUnit_Framework_TestCase
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
 		$location = Request::getLocation();
 //		debug($location . '');
+	}
+
+	public function test_dir_of_file()
+	{
+		$set = [
+			'a' => '.',
+			'/a' => DIRECTORY_SEPARATOR,	// only case where Windows matter
+			'/a/b' => '/a',
+			'/a/b/c' => '/a/b',
+			'/a/b/c/' => '/a/b/c',
+		];
+		foreach ($set as $check => $must) {
+			$this->assertEquals($must, Request::dir_of_file($check));
+		}
+	}
+
+	public function test_getDocumentRootByIsDir()
+	{
+		$result = Request::getDocumentRootByIsDir();
+		$this->assertEquals('', $result);
+	}
+
+	public function test_getOnlyHost()
+	{
+		$host = Request::getOnlyHost();
+		$this->assertEquals(gethostname(), $host);
 	}
 
 }

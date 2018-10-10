@@ -6,7 +6,7 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param ...$a mixed|string
+	 * @param ...$a mixed|string|int
 	 */
 	function debug($a)
 	{
@@ -64,7 +64,7 @@ if (!function_exists('debugList')) {
 	/**
 	 * @param ...$a
 	 */
-	function nodebug($a)
+	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
 	{
 	}
 

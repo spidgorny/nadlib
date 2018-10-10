@@ -2,7 +2,13 @@
 
 use nadlib\Controller\Filter;
 
-abstract class FullGrid extends Grid {
+/**
+ * Class FullGrid
+ * handles sorting by columns, paging, filtering,
+ * selecting visible columns
+ */
+abstract class FullGrid extends Grid
+{
 
 	/**
 	 * @var FilterController
@@ -13,7 +19,8 @@ abstract class FullGrid extends Grid {
 	 */
 	function __construct()
 	{
-		parent::__construct();	// calls $this->initFilter();
+		parent::__construct();
+		// calls $this->initFilter();
 	}
 
 	public function initFilter()
@@ -23,13 +30,14 @@ abstract class FullGrid extends Grid {
 		parent::initFilter();
 
 		$allowEdit = $this->request->getControllerString() == get_class($this);
-		if ($allowEdit /*&& $collection*/) {
-			$this->saveFilterAndSort(/*$collection ?: */get_class($this));
+//		debug($allowEdit);
+		if ($allowEdit) {
+			$this->saveFilterAndSort(get_class($this));
 		}
 
 		if (!($this->filter instanceof nadlib\Controller\Filter)) {
 //			debug($this->filter);
-			$this->filter = new nadlib\Controller\Filter($this->filter);
+			$this->filter = new nadlib\Controller\Filter();
 //			debug(gettype2($this->filter));
 		}
 
@@ -41,11 +49,12 @@ abstract class FullGrid extends Grid {
 	 * @param null $collection
 	 * @throws LoginException
 	 */
-	function postInit($collection = NULL) {
+	public function postInit($collection = null)
+	{
 		if (!$this->collection) {
 			if (is_string($collection)) {
 				$this->log(__METHOD__ . ' new collection', $collection);
-				$this->collection = new $collection(NULL, [], $this->getOrderBy());
+				$this->collection = new $collection(null, [], $this->getOrderBy());
 				// after construct because we need to modify join
 				$this->collection->where = array_merge(
 					$this->collection->where,
@@ -57,7 +66,7 @@ abstract class FullGrid extends Grid {
 				//debug($this->collection->getQuery());
 
 				$this->collection->postInit();
-				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : NULL);
+				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
 			} else {
 				if (!$collection) {
 					$re = new ReflectionClass($this);
@@ -78,7 +87,8 @@ abstract class FullGrid extends Grid {
 	 * Can't use $this->collection at this point as this function is used to initialize the collection!
 	 * @return string
 	 */
-	function getOrderBy() {
+	public function getOrderBy()
+	{
 		$ret = '';
 		$sortBy = $this->sort['sortBy'];
 		if ($this->model &&
@@ -100,21 +110,31 @@ abstract class FullGrid extends Grid {
 				$sortBy = NULL;
 			}
 		}
-		$sortBy = $sortBy ? $sortBy : ifsetor($this->model->idField);
+		if (!$sortBy) {
+//			$sortBy = new SQLOrder($this->collection->orderBy);
+//			$sortBy = $sortBy->getField();
+			if (!$sortBy) {
+				// don't do default, because a Collection has it's own default
+				//$sortBy = ifsetor($this->model->idField);
+			}
+		}
 		if ($sortBy) {
-			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.
+			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' .
 				(ifsetor($this->sort['sortOrder']) ? 'DESC' : 'ASC');
 		}
+		//debug($this->sort, $sortBy);
 		return $ret;
 	}
 
-	function render() {
+	function render()
+	{
 		$this->setVisibleColumns();
 		//$this->collection->pageSize = $this->pageSize;
 		return parent::render();
 	}
 
-	function setVisibleColumns() {
+	function setVisibleColumns()
+	{
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
 				if (!$this->columns->isVisible($cn)) {
@@ -135,7 +155,8 @@ abstract class FullGrid extends Grid {
 			$this->getFilterDesc());
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$fields = $this->collection->thes;
 		$content[] = $this->getFilterForm($fields);
 		$content[] = $this->getColumnsForm();
@@ -147,7 +168,8 @@ abstract class FullGrid extends Grid {
 	 * @return array|HTMLFormTable
 	 * @throws Exception
 	 */
-	function getFilterForm(array $fields = []) {
+	function getFilterForm(array $fields = [])
+	{
 		if (method_exists($this, 'getFilterDesc')) {
 			$this->filterController->desc = $this->getFilterDesc($fields);
 		} else {
@@ -166,16 +188,18 @@ abstract class FullGrid extends Grid {
 	 * @throws Exception
 	 * @return array
 	 */
-	function getFilterDesc(array $fields = NULL) {
+	function getFilterDesc(array $fields = NULL)
+	{
 		return $this->filterController->getFilterDesc($fields);
 	}
 
-	function getColumnsForm() {
+	function getColumnsForm()
+	{
 //		debug($this->getGridColumns());
 //		debug($this->columns->getData());
 		$desc = array(
 			'columns' => array(
-				'label' => '<h2>'.__('Visible').'</h2>',
+				'label' => '<h2>' . __('Visible') . '</h2>',
 				'type' => 'keyset',
 				'options' => $this->getGridColumns(),
 				'value' => $this->columns->getData(),
@@ -198,7 +222,8 @@ abstract class FullGrid extends Grid {
 	/**
 	 * @throws Exception
 	 */
-	function injectCollection() {
+	function injectCollection()
+	{
 		parent::injectCollection();
 		debug($this->collection->where,
 			$this->getFilterWhere());
