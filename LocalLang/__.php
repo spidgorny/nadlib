@@ -1,8 +1,9 @@
 <?php
 
-if (!function_exists('__')) {	// conflict with cakePHP
+if (!function_exists('__')) {    // conflict with cakePHP
 
-	function __($code, $r1 = null, $r2 = null, $r3 = null) {
+	function __($code, $r1 = null, $r2 = null, $r3 = null)
+	{
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 		} else {
@@ -29,7 +30,8 @@ if (!function_exists('__')) {	// conflict with cakePHP
 	 * @param null $r3
 	 * @return mixed|null
 	 */
-	function __p($code, $r1 = null, $r2 = null, $r3 = null) {
+	function __p($code, $r1 = null, $r2 = null, $r3 = null)
+	{
 		if (class_exists('Config')) {
 			$index = Config::getInstance();
 		}

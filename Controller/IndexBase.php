@@ -109,9 +109,10 @@ class IndexBase /*extends Controller*/
 		$this->config = $config;
 		$this->db = $this->config->getDB();
 
+		// copy/paste this to class Index if your project requires login
 		// you need a session if you want to try2login()
-		$this->initSession();
-		$this->user = $this->config->getUser();
+//		$this->initSession();
+//		$this->user = $this->config->getUser();
 
 		$this->ll = $this->config->getLL();
 
@@ -123,9 +124,9 @@ class IndexBase /*extends Controller*/
 
 		$this->setSecurityHeaders();
 
-		$this->controller = (object)[
-			'layout' => null,
-		];
+//		$this->controller = (object)[
+//			'layout' => null,
+//		];
 		TaylorProfiler::stop(__METHOD__);
 	}
 
@@ -697,8 +698,10 @@ class IndexBase /*extends Controller*/
 			//$files .= DEVELOPMENT ? '&debug' : '';
 			$content = '<script src="' . $path . '?f=' . $files . '"></script>';
 			$content .= implode("\n", $include);
+//			debug($content);
 		} else {
-			$content = implode("\n", $this->footer) . "\n";
+//			debug('footer', sizeof($this->footer));
+			$content = implode("\n", $this->footer)."\n";
 		}
 		return $content;
 	}

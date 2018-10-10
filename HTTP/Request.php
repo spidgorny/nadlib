@@ -605,6 +605,9 @@ class Request {
 
 	static function getHost($isUTF8 = false)
 	{
+		if (self::isCLI()) {
+			return gethostname();
+		}
 		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
 		if (!$host) {
 			$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
@@ -624,7 +627,9 @@ class Request {
 	static function getOnlyHost()
 	{
 		$host = self::getHost();
-		$host = first(trimExplode(':', $host));    // localhost:8081
+		if (str_contains($host, ':')) {
+			$host = first(trimExplode(':', $host));    // localhost:8081
+		}
 		return $host;
 	}
 
@@ -779,7 +784,9 @@ class Request {
 
 		if (!$this->isWindows()) {    // linux
 			//debug(getcwd(), $al->documentRoot.'');
+//			debug('cwd', $cwd);
 			$url = clone $al->documentRoot;
+//			debug('documentRoot', $url);
 			$url->append($this->url->getPath());
 			$url->normalizeHomePage();
 
@@ -886,7 +893,7 @@ class Request {
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
-			'getURL()' => $path->getURL() . '',
+			//'getURL()' => $path->getURL() . '',
 			'levels' => $levels));
 		return $levels;
 	}
@@ -1226,11 +1233,12 @@ class Request {
 
 	public static function getDocumentRootByIsDir()
 	{
-		return self::dir_of_file(
+		$result = self::dir_of_file(
 			self::firstExistingDir(
 				ifsetor($_SERVER['REQUEST_URI'])
 			)
 		);
+		return $result;
 	}
 
 	/**
@@ -1241,7 +1249,7 @@ class Request {
 	static function dir_of_file($path)
 	{
 		if ($path[strlen($path)-1] == '/') {
-			return $path;
+			return substr($path, 0, -1);
 		} else {
 			return dirname($path);
 		}
@@ -1254,6 +1262,7 @@ class Request {
 		if (is_dir($check)) {
 			return cap(rtrim($path, '\\'), '/');
 		} elseif ($path) {
+			//echo $path, BR;
 			return self::firstExistingDir(self::dir_of_file($path));
 		} else {
 			return '/';
@@ -1499,5 +1508,14 @@ class Request {
 		}
 		return false;
 	}
-
+	
+	public function getAction()
+	{
+		$action = $this->getTrim('action');
+		if (!$action) {
+			$action = $this->getURLLevel(1);
+		}
+		return $action;
+	}
+	
 }

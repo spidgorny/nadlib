@@ -303,7 +303,7 @@ FROM {$from}
 		$order = NULL;
 		if (str_startsWith($sOrder, 'ORDER BY')) {
 			$order = new SQLOrder($sOrder);
-			$order->db = $db;
+			$order->injectDB($db);
 			$group = NULL;
 		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
 			$parts = trimExplode('ORDER BY', $sOrder);
