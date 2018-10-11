@@ -19,13 +19,8 @@ class PageProfiler
 		$this->html = new HTML();
 	}
 
-	/**
-	 * @return array
-	 * @throws Exception
-	 */
-	public function render()
+	public function canOutput()
 	{
-		$content = [];
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 			$exceptions = in_array($index->controller ? get_class($index->controller) : null, array('Lesser'));
@@ -35,12 +30,22 @@ class PageProfiler
 		$debug_page = isset($_COOKIE['debug_page'])
 			? $_COOKIE['debug_page']
 			: ifsetor($_COOKIE['debug']);
-		if (DEVELOPMENT
+
+		return DEVELOPMENT
 			&& !$this->request->isAjax()
 			&& !$exceptions
 			&& !$this->request->isCLI()
-			&& $debug_page
-		) {
+			&& $debug_page;
+	}
+
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	public function render()
+	{
+		$content = [];
+		if ($this->canOutput()) {
 			$content[] = '<div class="profiler noprint">';
 			$content[] = $this->getURL();
 			$content[] = $this->getGET();
@@ -49,15 +54,7 @@ class PageProfiler
 			$content[] = $this->getFooter();
 			$content[] = $this->getSession();
 			$content[] = $this->html->s(OODBase::getCacheStatsTable());
-
-			/** @var $profiler TaylorProfiler */
-			$profiler = TaylorProfiler::getInstance();
-			if ($profiler) {
-				$content[] = $profiler->printTimers(true);
-				$content[] = TaylorProfiler::dumpQueries();
-				//$content[] = $profiler->printTrace(true);
-				//$content[] = $profiler->analyzeTraceForLeak();
-			}
+			$content[] = $this->getTaylorProfiler();
 			$content[] = '</div>';
 
 			$ft = new FloatTime(true);
@@ -69,7 +66,7 @@ class PageProfiler
 	/**
 	 * @return string
 	 */
-	private function getURL()
+	protected function getURL()
 	{
 		$url = clone $this->request->getURL();
 		$url->makeRelative();
@@ -84,7 +81,7 @@ class PageProfiler
 	/**
 	 * @return string
 	 */
-	private function getGET()
+	protected function getGET()
 	{
 		$content = '';
 		$url = $this->request->getURL();
@@ -97,7 +94,7 @@ class PageProfiler
 	/**
 	 * @return string
 	 */
-	private function getPOST()
+	protected function getPOST()
 	{
 		$content = '';
 		$content .= $this->html->h4('POST');
@@ -108,7 +105,7 @@ class PageProfiler
 	/**
 	 * @return string
 	 */
-	private function getHeader()
+	protected function getHeader()
 	{
 		$content = '';
 		if (class_exists('Index')) {
@@ -125,7 +122,7 @@ class PageProfiler
 	/**
 	 * @return string
 	 */
-	private function getFooter()
+	protected function getFooter()
 	{
 		$content = '';
 		$index = Index::getInstance();
@@ -140,13 +137,27 @@ class PageProfiler
 	/**
 	 * @return string
 	 */
-	private function getSession()
+	protected function getSession()
 	{
 		$content = '';
 		$content .= $this->html->h4('Session');
 		$session = json_encode($_SESSION, JSON_PRETTY_PRINT);
 		$session = str_replace('\/', '/', $session);
 		$content .= $this->html->pre($session);
+		return $content;
+	}
+
+	protected function getTaylorProfiler()
+	{
+		$content = [];
+		/** @var $profiler TaylorProfiler */
+		$profiler = TaylorProfiler::getInstance();
+		if ($profiler) {
+			$content[] = $profiler->printTimers(true);
+			$content[] = TaylorProfiler::dumpQueries();
+			//$content[] = $profiler->printTrace(true);
+			//$content[] = $profiler->analyzeTraceForLeak();
+		}
 		return $content;
 	}
 
