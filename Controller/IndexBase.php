@@ -668,7 +668,8 @@ class IndexBase /*extends Controller*/
 			if ($script && $script->tag == 'script') {
 				$url = $script->getAttr('src');
 				if ($url) {
-					$content[] = '<!--' . $key . '-->' . "\n" . '<link rel="prefetch" href="' . $url . '">';
+					// not needed because we bundle all JS
+//					$content[] = '<!--' . $key . '-->' . "\n" . '<link rel="prefetch" href="' . $url . '">';
 				}
 			}
 		}
@@ -679,24 +680,52 @@ class IndexBase /*extends Controller*/
 	function implodeJS()
 	{
 		// composer require mrclay/minify
-		$path = 'vendor/mrclay/minify/min/';
+		$path = 'vendor/mrclay/minify/';
+		$index_php = __DIR__.'/../../../../'.$path . 'index.php';
+//		debug($index_php, file_exists($index_php));
 		if (
 			true
 			// && !DEVELOPMENT
-			&& file_exists($path . 'index.php')) {
+			&& file_exists($index_php)) {
 			$include = array(); // some files can't be found
 			$files = array_keys($this->footer);
+
+			$docRoot = realpath($_SERVER['DOCUMENT_ROOT']);
+			$docRoot = str_replace('\\', '/', $docRoot);
+
+			// make absolute paths and check file exists
 			foreach ($files as $f => &$file) {
 				if (file_exists($file)) {
-					$file = $this->request->getDocumentRoot() . $file;
+					if (!Path::isItAbsolute($file)) {
+						$file = $docRoot . $file;
+					}
+					$file = realpath($file);
+					$file = str_replace('\\', '/', $file);	// fix windows
+//					debug($file, file_exists($file), Path::isItAbsolute($file));
 				} else {
 					unset($files[$f]);
 					$include[$file] = $this->footer[$file];
 				}
 			}
-			$files = implode(",", $files);
-			//$files .= DEVELOPMENT ? '&debug' : '';
-			$content = '<script src="' . $path . '?f=' . $files . '"></script>';
+
+			// remove common base folder
+			// "slawa/mrbs/"
+//			Request::printDocumentRootDebug();
+//			debug($_SERVER);
+			foreach ($files as $f => &$file) {
+				$file2 = substr(
+					$file,
+					strpos($file, $docRoot) + strlen($docRoot)
+				);
+//				debug($docRoot, $file, $file2);
+				$file = $file2;
+			}
+
+			$path .= '?' . http_build_query([
+				//'b' => $docRoot,
+				'f' => implode(",", $files),
+			]);
+			$content = '<script src="' . $path . '"></script>'.PHP_EOL;
 			$content .= implode("\n", $include);
 //			debug($content);
 		} else {
