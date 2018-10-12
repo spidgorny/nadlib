@@ -59,4 +59,9 @@ class File
 		return $this->dir.'/'.$this->name;
 	}
 
+	public function md5()
+	{
+		return md5_file($this->getPathname());
+	}
+
 }

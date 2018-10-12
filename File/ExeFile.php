@@ -180,7 +180,9 @@ class ExeFile extends File
 			}
 		}
 
-		if (!$InfoFound) return FALSE;
+		if (!$InfoFound) {
+			return FALSE;
+		}
 
 		if (0)
 		{
