@@ -64,4 +64,10 @@ class File
 		return md5_file($this->getPathname());
 	}
 
+	public function getURL()
+	{
+		$path = new Path($this->getPathname());
+		return $path->getURL();
+	}
+
 }

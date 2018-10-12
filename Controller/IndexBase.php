@@ -494,7 +494,7 @@ class IndexBase /*extends Controller*/
 			));
 			if (file_exists($al->componentsPath . $jQueryPath)) {
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
-				$this->addJS($al->componentsPath->getURL() . $jQueryPath, $defer);
+				$this->addJS(cap($al->componentsPath->getURL()) . $jQueryPath, $defer);
 				return $this;
 			} elseif (file_exists($appRoot . $jQueryPath)) {
 				// does not work if both paths are the same!!
