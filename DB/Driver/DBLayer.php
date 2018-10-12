@@ -707,6 +707,12 @@ order by a.attnum';
 		}
 	}
 
+	/**
+	 * Will quote simple key names.
+	 * If the key contains special chars,
+	 * it thinks it's a function call like trim(field)
+	 * and quoting is not done.
+	 */
 	function quoteKey($key)
 	{
 		if (ctype_alpha($key)) {
@@ -716,7 +722,7 @@ order by a.attnum';
 			} else {
 				$key = '"' . $key . '"';
 			}
-		} // else it can be functions(of something)
+		} // else it can be functions (of something)
 		return $key;
 	}
 

@@ -1238,7 +1238,7 @@ class Request {
 				ifsetor($_SERVER['REQUEST_URI'])
 			)
 		);
-		return $result;
+		return cap($result);
 	}
 
 	/**

@@ -133,7 +133,7 @@ abstract class OODBase {
 	 * @param bool $fromFindInDB
 	 * @throws Exception
 	 */
-	function init($id, $fromFindInDB = false)
+	function init($id)
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($id)) {
@@ -148,12 +148,12 @@ abstract class OODBase {
 				// TODO
 				throw new InvalidArgumentException(__METHOD__);
 			} else {
-				$this->findInDB(array($this->idField => $this->id));
 				// will do $this->init()
+				$this->findByID($this->id);
 			}
 //			debug('data set', $this->data);
 			if (!$this->data) {
-				$this->id = NULL;
+				$this->id = null;
 			}
 		} elseif (!is_null($id)) {
 			debug($id);
@@ -360,7 +360,8 @@ abstract class OODBase {
 	 */
 	function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
-		TaylorProfiler::start($taylorKey = Debug::getBackLog(15, 0, BR, false));
+		$taylorKey = Debug::getBackLog(15, 0, BR, false);
+		TaylorProfiler::start($taylorKey);
 		if (!$this->db) {
 			//debug($this->db, $this->db->fetchAssoc('SELECT database()'));
 			//debug($this);
@@ -378,11 +379,18 @@ abstract class OODBase {
 		} else {
 			$data = array();
 			if ($this->forceInit) {
-				$this->init($data, true);
+				$this->init($data);
 			}
 		}
 		TaylorProfiler::stop($taylorKey);
 		return $data;
+	}
+
+	public function findByID($id)
+	{
+		$this->findInDB(array(
+			$this->idField => $id
+		));
 	}
 
 	/**
