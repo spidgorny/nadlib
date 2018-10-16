@@ -311,7 +311,7 @@ FROM {$from}
 			$group->db = $db;
 			if (ifsetor($parts[1])) {
 				$order = new SQLOrder($parts[1]);
-				$order->db = $db;
+				$order->injectDB($db);
 			}
 		} elseif (str_startsWith($sOrder, 'LIMIT')) {
 			$parts = trimExplode('LIMIT', $sOrder);
