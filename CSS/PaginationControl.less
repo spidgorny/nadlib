@@ -1,3 +1,12 @@
+@-webkit-keyframes page-loading {
+	0% {
+		background-color: #72BDE5;
+	}
+	100% {
+		background-color: #e5BD72;
+	}
+}
+
 .paginationControl {
 	margin-bottom: 1em;
 	margin-top: 1em;
@@ -9,28 +18,27 @@
 		vertical-align: top;
 		box-shadow: none;
 		li {
-			display: inline;
+			display: inline-block;
 			margin: 0;
+			padding: 0;
 		}
 	}
 	.pageSize {
 		display: inline-block;
 	}
 
-	.loading {
+	.page-loading a {
 		-webkit-animation: page-loading .2s infinite alternate;  /* Safari 4+ */
 		-moz-animation: page-loading .2s infinite alternate;  /* Fx 5+ */
 		-o-animation: page-loading .2s infinite alternate;  /* Opera 12+ */
 		animation: page-loading .2s infinite alternate;  /* IE 10+, Fx 29+ */
 	}
 
-	@-webkit-keyframes page-loading {
-		0% {
-			background-color: #72BDE5;
-		}
-		100% {
-			background-color: #e5BD72;
-		}
+	.page-loading {
+		-webkit-animation: page-loading .2s infinite alternate;  /* Safari 4+ */
+		-moz-animation: page-loading .2s infinite alternate;  /* Fx 5+ */
+		-o-animation: page-loading .2s infinite alternate;  /* Opera 12+ */
+		animation: page-loading .2s infinite alternate;  /* IE 10+, Fx 29+ */
 	}
 
 	a, span.page, span.disabled, span.active {
