@@ -36,9 +36,10 @@ class CollectionView
 	public function wrap($content)
 	{
 		if ($this->wrapTag) {
-			list($tag, $class) = trimExplode('.', $this->wrapTag, 2);
+			list($tagClass, $id) = trimExplode('#', $this->wrapTag, 2);
+			list($tag, $class) = trimExplode('.', $tagClass, 2);
 			$content = array(
-				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '">',
+				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="'.$id.'">',
 				$content,
 				'</' . $tag . '>'
 			);
@@ -76,6 +77,10 @@ class CollectionView
 		return $content;
 	}
 
+	/**
+	 * @return string
+	 * @throws Exception
+	 */
 	public function renderTable()
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
@@ -88,7 +93,12 @@ class CollectionView
 			$s = $this->getDataTable();
 			if ($this->collection->pager) {
 				$pages = $this->collection->pager->renderPageSelectors();
-				$content = $pages . $s->getContent(get_class($this)) . $pages;
+				$content = $pages .
+					'<div class="collection"
+					 id="'.get_class($this->collection).'">'.
+					$s->getContent(get_class($this)) .
+					'</div>'.
+					$pages;
 			} else {
 				$content = $s;
 			}
