@@ -26,7 +26,7 @@ class Uploader {
 	 */
 	public $mimeMethod;
 
-	protected $errors = array(
+	public $errors = array(
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
 		'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
 		'The uploaded file was only partially uploaded.',
@@ -461,6 +461,15 @@ post_max_size: ' . $post_max_size . '">' .
 				$Res = array($K => $Res); // you might think we'd say $Res[$K] = $Res, but $Res starts out not as an array
 			$Result = self::GPF_ArrayMergeRecursive($Result, $Res);
 		}
+	}
+
+	function getError($code)
+	{
+		$message = $this->errors[$code];
+		if ($code == 1) {
+			$message .= ' ['.ini_get('upload_max_filesize').']';
+		}
+		return $message;
 	}
 
 }
