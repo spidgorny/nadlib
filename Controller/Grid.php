@@ -106,7 +106,7 @@ abstract class Grid extends AppController {
 	 * @param null $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
 	 */
-	function saveFilterAndSort($cn = null)
+	public function saveFilterAndSort($cn = null)
 	{
 //		debug(__METHOD__, $cn);
 		// why do we inject collection
