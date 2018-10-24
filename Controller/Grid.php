@@ -150,7 +150,7 @@ abstract class Grid extends AppController {
 		if (!$this->collection) {
 			$this->injectCollection();
 		}
-		$content = $this->collection->render();
+		$content[] = $this->collection->render();
 		$content[] = '<hr />';
 		$content = $this->encloseInAA($content,
 			$this->title = $this->title ?: get_class($this),
