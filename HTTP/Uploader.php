@@ -426,6 +426,7 @@ post_max_size: ' . $post_max_size . '">' .
 			}
 		}
 		return $Result;
+	}
 
 	function getError($code)
 	{
