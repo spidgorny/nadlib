@@ -49,6 +49,10 @@ class CsvIterator implements Iterator, Countable
 
 	protected $lastRead = -1; // != 0
 
+	public $enclosure = '"';
+
+	public $escape = '\\';
+
 	/**
 	 * This is the constructor.It try to open the csv file.The method throws an exception
 	 * on failure.
@@ -170,7 +174,7 @@ class CsvIterator implements Iterator, Countable
 		//debug_pre_print_backtrace();
 		if ($this->rowCounter != $this->lastRead) {
 			$this->currentElement = fgetcsv($this->filePointer, self::ROW_SIZE,
-				$this->delimiter);
+				$this->delimiter, $this->enclosure, $this->escape);
 
 			if ($this->currentElement && $this->doConvertToUTF8) {
 				$this->currentElement = array_map('utf8_encode', $this->currentElement);

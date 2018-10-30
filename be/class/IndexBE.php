@@ -50,7 +50,7 @@ class IndexBE extends IndexBase {
 		$this->nadlibFromCWD = $this->al->nadlibFromCWD;
 
 		//$this->al->componentsPath = new Path('components/');
-		$componentsURL = $this->al->componentsPath->getURL();
+//		$componentsURL = $this->al->componentsPath->getURL();
 		$componentsURL = 'components/';
 		//debug($this->al->componentsPath, $this->al->appRoot, $componentsURL);
 		$this->header['modernizr.js'] = '<script src="'. $componentsURL .'modernizr/modernizr.js"></script>';  // Must be header and not footer
