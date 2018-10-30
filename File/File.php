@@ -15,19 +15,19 @@ class File
 
 	public static function fromLocal($file)
 	{
-		return new File($file);
+		return new static($file);
 	}
 
 	public static function fromSpl(SplFileInfo $info)
 	{
-		$file = new File($info->getPathname());
+		$file = new static($info->getPathname());
 		$file->spl = $info;
 		return $file;
 	}
 
 	public static function fromFly(League\Flysystem\Filesystem $fly, array $file)
 	{
-		$file = new File($file['path']);
+		$file = new static($file['path']);
 		$file->fly = $fly;
 		$file->meta = $file;
 		return $file;
@@ -57,6 +57,17 @@ class File
 	public function getPathname()
 	{
 		return $this->dir.'/'.$this->name;
+	}
+
+	public function md5()
+	{
+		return md5_file($this->getPathname());
+	}
+
+	public function getURL()
+	{
+		$path = new Path($this->getPathname());
+		return $path->getURL();
 	}
 
 }

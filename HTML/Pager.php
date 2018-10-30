@@ -58,6 +58,10 @@ class Pager {
 	 */
 	public $pageSize;
 
+	/**
+	 * Say yes, if you have PaginationControl CSS included in the header
+	 * @var bool
+	 */
 	static $cssOutput = false;
 
 	/**
@@ -323,13 +327,26 @@ class Pager {
 		}
 	}
 
-	function renderPageSelectors(URL $url = NULL)
+	function renderPageSelectors(URL $url = null)
 	{
 		$content = '';
 		if ($url) {
 			$this->url = $url;
 		}
 
+		$content .= '<div class="paginationControl pagination">' . "\n";
+		$content .= $this->getInlineCSS();
+		$content .= $this->showSearchBrowser();
+		if ($this->showPager) {
+			$content .= $this->renderPageSize();    // will render UL inside
+		}
+		$content .= '</div>';
+		return $content;
+	}
+
+	public function getInlineCSS()
+	{
+		$content = '';
 		if (!self::$cssOutput) {
 			$al = AutoLoad::getInstance();
 			$index = class_exists('Index') ? Index::getInstance() : NULL;
@@ -344,13 +361,6 @@ class Pager {
 			}
 			self::$cssOutput = true;
 		}
-
-		$content .= '<div class="paginationControl pagination">' . "\n";
-		$content .= $this->showSearchBrowser();
-		if ($this->showPager) {
-			$content .= $this->renderPageSize();    // will render UL inside
-		}
-		$content .= '</div>';
 		return $content;
 	}
 
