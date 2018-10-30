@@ -21,7 +21,7 @@ class Uploader
 	 */
 	public $allowedMime = array();
 
-	protected $errors = array(
+	public $errors = array(
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
 		'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
 		'The uploaded file was only partially uploaded.',
@@ -426,6 +426,14 @@ post_max_size: ' . $post_max_size . '">' .
 			}
 		}
 		return $Result;
+
+	function getError($code)
+	{
+		$message = $this->errors[$code];
+		if ($code == 1) {
+			$message .= ' ['.ini_get('upload_max_filesize').']';
+		}
+		return $message;
 	}
 
 }
