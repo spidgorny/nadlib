@@ -504,6 +504,7 @@ class Request {
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
 		if ($exit && !$this->isPHPUnit()) {
+			session_write_close();
 			exit();
 		}
 	}
