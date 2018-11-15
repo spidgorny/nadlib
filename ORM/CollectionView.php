@@ -6,7 +6,7 @@ class CollectionView
 	/**
 	 * @var Collection
 	 */
-	var $collection;
+	protected $collection;
 
 	var $noDataMessage = 'No data';
 
@@ -23,17 +23,31 @@ class CollectionView
 
 	public $wrapTag = 'div';
 
-	function __construct(Collection $col)
+	public function __construct(Collection $col)
 	{
 		$this->collection = $col;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return MergedContent::mergeStringArrayRecursive($this->renderMembers());
 	}
 
-	function renderMembers()
+	public function wrap($content)
+	{
+		if ($this->wrapTag) {
+			list($tagClass, $id) = trimExplode('#', $this->wrapTag, 2);
+			list($tag, $class) = trimExplode('.', $tagClass, 2);
+			$content = array(
+				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="'.$id.'">',
+				$content,
+				'</' . $tag . '>'
+			);
+		}
+		return $content;
+	}
+
+	public function renderMembers()
 	{
 		$content = array();
 		//debug(sizeof($this->members));
@@ -51,13 +65,7 @@ class CollectionView
 					$content[] = getDebug(__METHOD__, $key, $obj);
 				}
 			}
-			if ($this->wrapTag) {
-				$content = array(
-					'<' . $this->wrapTag . ' class="' . get_class($this->collection) . '">',
-					$content,
-					'</' . $this->wrapTag . '>'
-				);
-			}
+			$content = $this->wrap($content);
 		} elseif ($this->noDataMessage) {
 			//Index::getInstance()->ll->debug = true;
 			$content[] = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
@@ -69,7 +77,11 @@ class CollectionView
 		return $content;
 	}
 
-	function renderTable()
+	/**
+	 * @return string
+	 * @throws Exception
+	 */
+	public function renderTable()
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
@@ -81,10 +93,16 @@ class CollectionView
 			$s = $this->getDataTable();
 			if ($this->collection->pager) {
 				$pages = $this->collection->pager->renderPageSelectors();
-				$content = $pages . $s->getContent(get_class($this)) . $pages;
+				$content = $pages .
+					'<div class="collection"
+					 id="'.get_class($this->collection).'">'.
+					$s->getContent(get_class($this)) .
+					'</div>'.
+					$pages;
 			} else {
 				$content = $s;
 			}
+			$content = $this->wrap($content);
 		} else {
 			$content = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
@@ -93,7 +111,7 @@ class CollectionView
 		return $content;
 	}
 
-	function prepareRender()
+	public function prepareRender()
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
@@ -110,7 +128,7 @@ class CollectionView
 		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 	}
 
-	function getDataTable()
+	public function getDataTable()
 	{
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getData()->getData();

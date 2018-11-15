@@ -124,7 +124,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		#debug_print_backtrace();
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection.");
+			throw new Exception("No PostgreSQL connection to $host.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -160,7 +160,6 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$query = $query->__toString();
 //			debug($query, $params);
 		}
-		$this->logQuery($query);
 
 		try {
 			if ($params) {
@@ -169,6 +168,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			} else {
 				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
 			}
+			$this->queryTime = $prof->elapsed();
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
 			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
@@ -182,6 +182,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$e->setQuery($query);
 			throw $e;
 		}
+
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
 			//debug($query);
@@ -196,14 +197,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 		if ($this->queryLog) {
 			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
 		}
-		if ($this->logToLog) {
-			$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime . ' ' .
-				preg_replace('/\s+/', ' ',
-					str_replace("\n", ' ', $query)));
-		}
+
+		$this->logQuery($query);	// uses $this->queryTime
+
 		$this->lastQuery = $query;
-		$this->queryTime = $prof->elapsed();
 		$this->queryCount++;
 		$this->lastBacktrace = debug_backtrace();
 		return $this->LAST_PERFORM_RESULT;
@@ -710,6 +707,12 @@ order by a.attnum';
 		}
 	}
 
+	/**
+	 * Will quote simple key names.
+	 * If the key contains special chars,
+	 * it thinks it's a function call like trim(field)
+	 * and quoting is not done.
+	 */
 	function quoteKey($key)
 	{
 		if (ctype_alpha($key)) {
@@ -719,7 +722,7 @@ order by a.attnum';
 			} else {
 				$key = '"' . $key . '"';
 			}
-		} // else it can be functions(of something)
+		} // else it can be functions (of something)
 		return $key;
 	}
 

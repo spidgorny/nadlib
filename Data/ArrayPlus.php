@@ -273,6 +273,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	/**
+	 * Keys are reindexed
 	 * @param $callback
 	 * @return static
 	 */
@@ -283,6 +284,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	}
 
 	/**
+	 * Will keep the assoc keys
 	 * @param $callback
 	 * @return static
 	 */
@@ -379,7 +381,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @param $needle
 	 * @return array|null
 	 */
-	function find($needle)
+	public function find($needle)
 	{
 		foreach ($this as $key => $val) {
 			//debug($needle, $key, $val);
@@ -393,7 +395,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 					//debug($find);
 				}
 			} else {
-				$find = ($key == $needle) ? array($key) : NULL;
+				$find = ($key == $needle) ? array($key) : null;
 			}
 			if ($find) {
 				return $find;
@@ -408,7 +410,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 			//$found = $rec->findPath($this->current);
 			if ($rec instanceof Recursive) {
 				$children = $rec->getChildren();
-				$found = isset($children[current]) ? $children[$current] : NULL;
+				$found = isset($children[current]) ? $children[$current] : null;
 				//debug($children, $found, $key, $this->current);
 				return $found;
 			}
@@ -416,7 +418,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 		return NULL;
 	}
 
-	function first()
+	public function first()
 	{
 		if (!$this->count()) return null;
 		$var = $this->getData();
@@ -462,12 +464,14 @@ class ArrayPlus extends ArrayObject implements Countable {
 	/**
 	 * Extracts key from array as ['__key__']
 	 */
-	function extractKeyFromColumn()
+	function extractKeyFromColumn($column = '__key__', $unset = true)
 	{
 		$new = array();
 		foreach ($this as $row) {
-			$key = $row['__key__'];
-			unset($row['__key__']);
+			$key = $row[$column];
+			if ($unset) {
+				unset($row[$column]);
+			}
 			$new[$key] = $row;
 		}
 		$this->setData($new);
@@ -1122,7 +1126,9 @@ class ArrayPlus extends ArrayObject implements Countable {
 
 	function __debugInfo()
 	{
-		return ['count' => $this->count()];
+		return [
+			'count' => $this->count()
+		];
 	}
 
 	static function isRecursive(array $array)
@@ -1141,6 +1147,16 @@ class ArrayPlus extends ArrayObject implements Countable {
 		foreach ($this as $key => $val) {
 			$newKey = $keyGenerator($key, $val);
 			$new[$newKey][] = $val;
+		}
+		return $new;
+	}
+
+	public function reindexOne(callable $keyGenerator)
+	{
+		$new = new ArrayPlus();
+		foreach ($this as $key => $val) {
+			$newKey = $keyGenerator($key, $val);
+			$new[$newKey] = $val;
 		}
 		return $new;
 	}

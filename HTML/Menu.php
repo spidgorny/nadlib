@@ -260,11 +260,12 @@ class Menu /*extends Controller*/
 			if (sizeof($rootPath) < $this->level) { // URL contains only the sub-page without the path, search for it
 				$found = $this->items->find($this->current);
 				if ($found) {
-					$rootPath = array(
-						$found,
-						//$this->current,
-					);
-					$this->current = $found . '/' . $this->current;
+//					debug($found, $this->current); exit;
+					if (!in_array($this->current, $found)) {
+						//$found[] = $this->current;
+					}
+					$rootPath = $found;
+					$this->current = implode('/', $found);
 				}
 				//debug($rootpath);
 			}

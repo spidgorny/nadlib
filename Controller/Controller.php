@@ -24,8 +24,9 @@ abstract class Controller {
 
 	/**
 	 * @var Request
+	 * @public for injecting something in PHPUnit
 	 */
-	protected $request;
+	public $request;
 
 	/**
 	 * @var boolean

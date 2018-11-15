@@ -1,8 +1,10 @@
 <?php
 
-class ListFilesIn extends ArrayObject {
+class ListFilesIn extends ArrayObject
+{
 
-	function __construct($folder) {
+	function __construct($folder)
+	{
 		//parent::__construct();
 		$menu = array();
 		if (file_exists($folder)) {
@@ -20,7 +22,7 @@ class ListFilesIn extends ArrayObject {
 						$children = new self($folder . $filename);
 						$menu[$key] = new Recursive($key, $children->getArrayCopy());
 					} else {
-						$menu[$key] = $file;
+						$menu[$key] = File::fromSpl($file);
 					}
 				}
 			}
@@ -33,7 +35,8 @@ class ListFilesIn extends ArrayObject {
 	 * @param mixed $index
 	 * @return SplFileInfo[]
 	 */
-	public function offsetGet($index) {
+	public function offsetGet($index)
+	{
 		return parent::offsetGet($index);
 	}
 
