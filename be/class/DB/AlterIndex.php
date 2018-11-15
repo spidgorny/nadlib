@@ -1,6 +1,7 @@
 <?php
 
-class AlterIndex extends AppControllerBE {
+class AlterIndex extends AppControllerBE
+{
 
 	/**
 	 * @var string

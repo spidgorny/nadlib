@@ -29,8 +29,8 @@ class Path {
 
 	static function isItAbsolute($sPath)
 	{
-		return str_startsWith($sPath, '/')
-			|| (isset($sPath[1]) && $sPath[1] == ':');
+		return str_startsWith($sPath, '/')		// Linux
+			|| (isset($sPath[1]) && $sPath[1] == ':');	// Windows c:
 	}
 
 	function isAbsolute()
@@ -427,6 +427,10 @@ class Path {
 		$this->isDir = is_dir($this->sPath);
 	}
 
+	/**
+	 * It should not cap() the result, we don't know if it's a file or dir
+	 * @return Path|string
+	 */
 	public function getURL()
 	{
 		//$self = new Path(AutoLoad::getInstance()->appRoot);
@@ -434,10 +438,10 @@ class Path {
 		//debug($self, basename($this->sPath), $this->sPath);
 		if ($self->contains(basename($this->sPath))) {
 			$relative = new Path(URL::getRelativePath($self, $this));
-			$relative->setAsDir();
+//			$relative->setAsDir();
 			//debug(__METHOD__, $this . '', $self . '', $relative . '');
 		} else {
-			$relative = cap(URL::getRelativePath($self, $this->sPath));
+			$relative = URL::getRelativePath($self, $this->sPath);
 		}
 		return $relative;
 	}

@@ -118,7 +118,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	public function test_getDocumentRootByIsDir()
 	{
 		$result = Request::getDocumentRootByIsDir();
-		$this->assertEquals('', $result);
+		$this->assertEquals('/', $result);
 	}
 
 	public function test_getOnlyHost()

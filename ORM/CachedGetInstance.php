@@ -1,6 +1,7 @@
 <?php
 
-trait CachedGetInstance {
+trait CachedGetInstance
+{
 
 	/**
 	 * array[get_called_class()][$id]
@@ -12,7 +13,8 @@ trait CachedGetInstance {
 	 * @return self|$this|static
 	 * @throws Exception
 	 */
-	static function getInstance($id) {
+	static function getInstance($id)
+	{
 		return static::getInstanceByID($id);
 	}
 
@@ -22,7 +24,8 @@ trait CachedGetInstance {
 	 * @return $this
 	 * @throws Exception
 	 */
-	public static function getInstanceByID($id) {
+	public static function getInstanceByID($id)
+	{
 		$static = get_called_class();
 		/*nodebug(array(
 			__METHOD__,
@@ -56,8 +59,8 @@ trait CachedGetInstance {
 				? self::$instances[$static][$intID]
 				: $inst;
 			if (!$inst->id) {
-				$inst->init($id);	// array
-				self::storeInstance($inst, $intID);	// int id
+				$inst->init($id);    // array
+				self::storeInstance($inst, $intID);    // int id
 			}
 		} elseif ($id) {
 			//debug($static, $id);
@@ -69,12 +72,13 @@ trait CachedGetInstance {
 			$inst = new $static();
 		} else {
 			debug($id);
-			throw new InvalidArgumentException($static.'->'.__METHOD__);
+			throw new InvalidArgumentException($static . '->' . __METHOD__);
 		}
 		return $inst;
 	}
 
-	static function storeInstance($inst, $newID = NULL) {
+	static function storeInstance($inst, $newID = NULL)
+	{
 		$static = get_called_class();
 		$id = $inst->id ?: $newID;
 		if ($id) {
@@ -82,12 +86,14 @@ trait CachedGetInstance {
 		}
 	}
 
-	static function clearInstances() {
+	static function clearInstances()
+	{
 		self::$instances[get_called_class()] = array();
 		gc_collect_cycles();
 	}
 
-	static function clearAllInstances() {
+	static function clearAllInstances()
+	{
 		self::$instances = array();
 		gc_collect_cycles();
 	}
@@ -97,7 +103,8 @@ trait CachedGetInstance {
 	 * @return self
 	 * @throws Exception
 	 */
-	static function tryGetInstance($id) {
+	static function tryGetInstance($id)
+	{
 		try {
 			$obj = self::getInstance($id);
 		} catch (InvalidArgumentException $e) {
@@ -107,7 +114,8 @@ trait CachedGetInstance {
 		return $obj;
 	}
 
-	public static function getCacheStats() {
+	public static function getCacheStats()
+	{
 		$stats = array();
 		foreach (self::$instances as $class => $list) {
 			if (!is_array($list)) {
@@ -123,12 +131,12 @@ trait CachedGetInstance {
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function getCacheStatsTable() {
+	public static function getCacheStatsTable()
+	{
 		$stats = OODBase::getCacheStats();
 		$stats = ArrayPlus::create($stats)
 			->makeTable('count')
-			->insertKeyAsColumn('class')
-		;
+			->insertKeyAsColumn('class');
 		$max = $stats->column('count')->max();
 		if ($max != 0) {
 			//debug((array)$stats); exit();
@@ -156,7 +164,8 @@ trait CachedGetInstance {
 	 * @return mixed
 	 * @throws Exception
 	 */
-	static function findInstance(array $where, $static = NULL) {
+	static function findInstance(array $where, $static = NULL)
+	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
 				$static = get_called_class();
@@ -180,11 +189,12 @@ trait CachedGetInstance {
 	 * @return self|static
 	 * @throws Exception
 	 */
-	static function getInstanceByName($name, $field = NULL) {
+	static function getInstanceByName($name, $field = null)
+	{
 		$self = get_called_class();
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
-		$c = NULL;
+		$c = null;
 		// first search instances
 		if (ifsetor(self::$instances[$self], [])) {
 			foreach (self::$instances[$self] as $inst) {
@@ -204,7 +214,7 @@ trait CachedGetInstance {
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
 				$c->findInDBsetInstance(array(
-					'trim('.$field.')' => $name,
+					'trim(' . $field . ')' => $name,
 				));
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([
