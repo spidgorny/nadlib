@@ -144,7 +144,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 				unset($el['args']);
 				return $el;
 			}, $this->lastBacktrace);
-			debug($this->lastBacktrace);
+//			debug($this->lastBacktrace);
 			die(pg_errormessage($this->connection));
 			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
 		}
