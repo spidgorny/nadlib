@@ -39,6 +39,8 @@ class Mailer
 	 */
 	var $params = array();
 
+	public $attachments;
+
 	function __construct($to, $subject, $bodyText)
 	{
 		if (is_array($to)) {
@@ -50,7 +52,7 @@ class Mailer
 		$this->bodytext = $bodyText;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
 		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
-		if (strpos($this->bodytext, '<') !== FALSE) {
+		if (self::isHTML($this->bodytext)) {
 			$this->headers['Content-Type'] = 'Content-Type: text/html; charset=utf-8';
 		} else {
 			$this->headers['Content-Type'] = 'Content-Type: text/plain; charset=utf-8';
@@ -61,6 +63,12 @@ class Mailer
 				$this->from($mailFrom);
 			}
 		}
+	}
+
+	static function isHTML($bodyText)
+	{
+//		return strpos($bodyText, '<') !== FALSE;
+		return $bodyText[0] == '<';
 	}
 
 	/**
@@ -158,12 +166,17 @@ class Mailer
 		$assoc = array();
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
-		$assoc['bodyText'] = $this->getBodyText();
+		$assoc['isHTML'] = self::isHTML($this->bodytext);
 		$assoc['headers'] = new htmlString(implode("<br />", $this->headers));
 		$assoc['params'] = implode(' ', $this->params);
+		$assoc['bodyText'] = nl2br($this->getBodyText());
 		return slTable::showAssoc($assoc);
 	}
 
+	/**
+	 * @return bool
+	 * @throws MailerException
+	 */
 	function send()
 	{
 		$emails = trimExplode(',', $this->to);
