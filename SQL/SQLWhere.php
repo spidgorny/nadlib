@@ -1,6 +1,7 @@
 <?php
 
-class SQLWhere {
+class SQLWhere
+{
 
 	/**
 	 * @var DBInterface
@@ -9,7 +10,8 @@ class SQLWhere {
 
 	protected $parts = array();
 
-	function __construct($where = NULL) {
+	function __construct($where = null)
+	{
 		if (is_array($where)) {
 			$this->parts = $where;
 		} elseif ($where) {
@@ -18,12 +20,14 @@ class SQLWhere {
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function injectDB(DBInterface $db) {
+	function injectDB(DBInterface $db)
+	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function add($where, $key = NULL) {
+	function add($where, $key = null)
+	{
 		if (is_array($where)) {
 			//debug($where);
 			throw new InvalidArgumentException(__METHOD__);
@@ -35,37 +39,30 @@ class SQLWhere {
 		}
 	}
 
-	function addArray(array $where) {
+	function addArray(array $where)
+	{
 		foreach ($where as $key => $el) {
 			$this->add($el, $key);
 		}
 		return $this;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		if ($this->parts) {
 //			debug($this->parts);
 			foreach ($this->parts as $field => &$p) {
-				if ($field == 'read') {
-					//debug($field, gettype2($p), $p instanceof SQLWherePart);
-				}
 				if ($p instanceof SQLWherePart) {
 					$p->injectDB($this->db);
 					if (!is_numeric($field)) {
 						$p->injectField($field);
 					}
 				} else {
-					// bad: party = 'party = ''1'''
-/*					$where = $this->db->quoteWhere(array(
-						$field => $p,
-					));
-					$p = first($where);
-*/
 					$p = new SQLWhereEqual($field, $p);
 					$p->injectDB($this->db);
 				}
 			}
-			$sWhere = " WHERE\n\t".implode("\n\tAND ", $this->parts);	// __toString()
+			$sWhere = " WHERE\n\t" . implode("\n\tAND ", $this->parts);
 
 			$sWhere = $this->replaceParams($sWhere);
 			return $sWhere;
@@ -74,7 +71,8 @@ class SQLWhere {
 		}
 	}
 
-	function replaceParams($sWhere) {
+	function replaceParams($sWhere)
+	{
 		// replace $0$, $0$, $0$ with $1, $2, $3
 		$params = $this->getParameters();
 		//debug($sWhere, $params);
@@ -91,15 +89,18 @@ class SQLWhere {
 	/**
 	 * @return array
 	 */
-	function getAsArray() {
+	function getAsArray()
+	{
 		return $this->parts;
 	}
 
-	function debug() {
+	function debug()
+	{
 		return $this->parts;
 	}
 
-	static function genFromArray(array $where) {
+	static function genFromArray(array $where)
+	{
 		foreach ($where as $key => &$val) {
 			if (!($val instanceof SQLWherePart)) {
 				$val = new SQLWhereEqual($key, $val);
@@ -108,7 +109,8 @@ class SQLWhere {
 		return new self($where);
 	}
 
-	function getParameters() {
+	function getParameters()
+	{
 		$parameters = array();
 		foreach ($this->parts as $part) {
 			if ($part instanceof SQLWherePart) {
