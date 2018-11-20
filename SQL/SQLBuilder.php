@@ -162,7 +162,9 @@ class SQLBuilder {
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @param array $where
 	 * @return string
+	 * @throws MustBeStringException
 	 */
 	function getInsertQuery($table, array $columns, array $where = [])
 	{
