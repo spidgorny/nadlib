@@ -41,6 +41,10 @@ class Mailer
 
 	public $attachments;
 
+	var $from;
+
+	var $fromName;
+
 	function __construct($to, $subject, $bodyText)
 	{
 		if (is_array($to)) {
@@ -76,6 +80,12 @@ class Mailer
 	 */
 	function from($mailFrom)
 	{
+		// name <email@company.com>
+		$split = trimExplode('<', $mailFrom);
+		if (sizeof($split) == 2) {
+			$this->fromName = $split[0];
+			$this->from = str_replace('>', '', $split[1]);
+		}
 		$this->headers['From'] = 'From: ' . $mailFrom;
 		// get only the pure email from "Somebody <sb@somecompany.de>"
 		$arMailFrom = explode('<', $mailFrom);
@@ -205,7 +215,6 @@ class Mailer
 	 *
 	 * Uses sendmail to deliver messages.
 	 *
-	 * @param mixed $to
 	 * @param mixed $cc
 	 * @param mixed $bcc
 	 * @param array $attachments
@@ -213,57 +222,60 @@ class Mailer
 	 * @throws Exception
 	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
 	 */
-	public function sendSwiftMailerEmail(
-		array $to, array $cc = null, array $bcc = null,
-		array $attachments = array(),
-		array $additionalSenders = array())
+	function sendSwiftMailerEmail($cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
 	{
-		if (!class_exists('Swift_Mailer')) {
-			throw new Exception('SwiftMailer not installed!');
-		}
+		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 
-		if ($_SERVER['HTTP_USER_AGENT'] == 'Detectify') {
-			return NULL;
-		}
+		$transport = new Swift_SendmailTransport();
+		$mailer = new Swift_Mailer($transport);
+		$failedRecipients = array();
+		$sent = $mailer->send($message, $failedRecipients);
 
+		return !empty($failedRecipients) ? $failedRecipients : $sent;
+	}
+
+	/**
+	 * @param $cc
+	 * @param $bcc
+	 * @param $attachments
+	 * @param $additionalSenders
+	 * @return Swift_Message
+	 * @throws Exception
+	 */
+	public function getSwiftMessage($cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
+	{
 		$messageHTML = $this->getBodyText();
 		$messageText = $this->getPlainText();
 
 		/** @var Swift_Message $message */
-		// $message = Swift_Message::newInstance() ->  newInstance is not supported anymore (ORS problem send by Ruben)
 		$message = new Swift_Message();
 		$message->setSubject($this->subject)
 			->setBody($messageHTML, 'text/html')
 			->addPart($messageText, 'text/plain');
+		$message->setCharset('utf-8');
 
-		$index = Index::getInstance();
-//		$r = new ReflectionClass(Index::class);
-//		debug($r->getFileName(),
-//			array_keys(get_object_vars($index)),
-//		$index->mailFromSwiftMailer);
-		$message->setFrom($index->mailFromSwiftMailer);
+		$message->setFrom($this->from, $this->fromName);
 
-		if (!empty($to)) {
-			foreach ($to as $address) {
-				empty($address)
-					? NULL
-					: $message->addTo(trim($address));
+		if (!empty($additionalSenders)) {
+			foreach ($additionalSenders as $address) {
+				$message->addFrom(key($address));
 			}
+		}
+
+		$to = trimExplode(';', $this->to);
+		foreach ($to as $address) {
+			$message->addTo(trim($address));
 		}
 
 		if (!empty($cc)) {
 			foreach ($cc as $address) {
-				empty($address)
-					? NULL
-					: $message->addCc($address);
+				$message->addCc($address);
 			}
 		}
 
 		if (!empty($bcc)) {
 			foreach ($bcc as $address) {
-				empty($address)
-					? NULL
-					: $message->addBcc($address);
+				$message->addBcc($address);
 			}
 		}
 
@@ -288,19 +300,7 @@ class Mailer
 			}
 		}
 
-//		debug($message->getFrom()); die;
-
-		//$transport = Swift_SendmailTransport::newInstance();
-		//$mailer = Swift_Mailer::newInstance($transport);
-		// newInstance is not supported anymore (ORS problem send by Ruben)
-		$transport = new Swift_SendmailTransport();
-		$mailer = new Swift_Mailer($transport);
-
-		$failedRecipients = array();
-
-		$sent = $mailer->send($message, $failedRecipients);
-
-		return !empty($failedRecipients) ? $failedRecipients : $sent;
+		return $message;
 	}
 
 	/**
