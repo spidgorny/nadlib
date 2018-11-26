@@ -18,7 +18,8 @@
 		"sebastian/comparator": "*",
 		"phpunit/php-code-coverage": "*",
 		"phpunit/phpunit-mock-objects": "*",
-		"phpunit/phpunit": "*"
+		"phpunit/phpunit": "*",
+        "squizlabs/php_codesniffer": "^3.0@dev"
     },
     "require_bak": {
 		"pdepend/pdepend": "1.1.0",
