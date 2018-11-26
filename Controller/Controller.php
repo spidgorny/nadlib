@@ -119,18 +119,11 @@ abstract class Controller {
 
 		if (!is_object($this->config) && class_exists('Config')) {
 			$this->config = Config::getInstance();
-			$this->db = $this->config->getDB();
-			$this->user = $this->config->getUser();
-//			pre_print_r('User ID', $this->user->getID());
-			$this->config->mergeConfig($this);
-		} else {
-			/** @var Config config */
-			// $this->config = NULL;
-			//$this->user = new UserBase();
-
-//			pre_print_r(is_object($this->config),
-//				class_exists('Config'));
 		}
+
+		$this->db = $this->config->getDB();
+		$this->user = $this->config->getUser();
+		$this->config->mergeConfig($this);
 		if (!$this->useRouter) {
 			$this->linkVars['c'] = get_class($this);
 		}
@@ -211,9 +204,11 @@ abstract class Controller {
 	/**
 	 * Combines params with $this->linkVars
 	 * Use makeURL() for old functionality
+	 * @param array $params
+	 * @param null $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = NULL) {
+	public function getURL(array $params = [], $prefix = null) {
 		if ($params || $prefix) {
 			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
 		}

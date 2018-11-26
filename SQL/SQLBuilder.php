@@ -549,7 +549,9 @@ class SQLBuilder {
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
-		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
+		$values = array_map(function ($arr) {
+			return $arr["title"];
+		}, $data);
 		//d($keys, $values);
 		if ($keys && $values) {
 			$options = array_combine($keys, $values);
