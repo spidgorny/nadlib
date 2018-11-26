@@ -223,14 +223,23 @@ class ConfigBase implements ConfigInterface
 		}
 	}
 
+	/**
+	 * @return LoginUser|User|UserModelInterface
+	 * @throws LoginException
+	 */
 	function getUser()
 	{
-		return NULL;
+		if (is_object($this->user)) {
+			return $this->user;
+		} else {
+			throw new LoginException(__METHOD__);
+		}
 	}
 
 	/**
 	 * Convenience function example how to use Login
 	 * @return LoginUser|User
+	 * @throws DatabaseException
 	 */
 	function _getLoginUser()
 	{
