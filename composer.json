@@ -21,6 +21,8 @@
 		"gnat/nc-cms": "*",
 		"robloach/component-installer": "^0.2.3",
 		"hrmatching/advanced_html_dom": "dev-master"
+		"phpunit/phpunit": "*"
+        "squizlabs/php_codesniffer": "^3.0@dev"
 	},
 	"autoload": {
 		"classmap": [
