@@ -13,7 +13,8 @@
  * will call cronjobAction instead of default render()
  */
 
-abstract class Controller {
+abstract class Controller
+{
 
 	//use HTMLHelper;	// bijou is PHP 5.4
 
@@ -106,13 +107,13 @@ abstract class Controller {
 	 */
 	public $sortBy;
 
-	function __construct()
+	public function __construct()
 	{
 		if (ifsetor($_REQUEST['d']) == 'log') {
 			echo get_class($this) . '::' . __METHOD__ . BR;
 		}
 		$this->index = class_exists('Index', false)
-			? Index::getInstance(false) : NULL;
+			? Index::getInstance(false) : null;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->al = AutoLoad::getInstance();
@@ -144,7 +145,7 @@ abstract class Controller {
 	 * @public for View::link
 	 * @use getURL()
 	 */
-	function makeURL(array $params, $prefix = NULL)
+	public function makeURL(array $params, $prefix = null)
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
@@ -152,17 +153,17 @@ abstract class Controller {
 				unset($params['c']);    // RealURL
 				$prefix = $class;
 			} else {
-				$class = NULL;
+				$class = null;
 			}
 		} else {
-			$class = NULL;
+			$class = null;
 			// this is the only way to supply controller
 			//unset($params['c']);
 		}
 
 		$location = $this->request->getLocation();
 		$url = new URL($prefix
-			? $location.$prefix
+			? $location . $prefix
 			: $location, $params);
 		$path = $url->getPath();
 		if ($this->useRouter && $class) {
@@ -181,7 +182,7 @@ abstract class Controller {
 			'class($path)' => get_class($path),
 			'$this->linkVars' => $this->linkVars,
 			'return' => $url . '',
-			'location' => $location .'',
+			'location' => $location . '',
 		));
 		return $url;
 	}
@@ -208,9 +209,10 @@ abstract class Controller {
 	 * @param null $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = null) {
+	public function getURL(array $params = [], $prefix = null)
+	{
 		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
+			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
 		}
 //		$params = $params + $this->linkVars;
 //		debug($params);
@@ -501,7 +503,7 @@ abstract class Controller {
 		$content[] = '<table ' . HTMLTag::renderAttr($more) . '>';
 		$content[] = '<tr>';
 		foreach ($cells as $i => $info) {
-			$content[] = '<td valign="top" '.HTMLTag::renderAttr(ifsetor($colMore[$i], [])).'>';
+			$content[] = '<td valign="top" ' . HTMLTag::renderAttr(ifsetor($colMore[$i], [])) . '>';
 			$content[] = $this->s($info);
 			$content[] = '</td>';
 		}
@@ -880,9 +882,9 @@ abstract class Controller {
 	function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-			'c' => get_class($this),
-			'action' => $action,
-		] + $params;
+				'c' => get_class($this),
+				'action' => $action,
+			] + $params;
 		$urlParams = array_filter($urlParams);
 		return $this->makeURL($urlParams, $path);
 	}
