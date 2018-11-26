@@ -16,22 +16,22 @@
 class Profiler
 {
 
-	var $startTime;
+	public $startTime;
 
-	var $endTime;
+	public $endTime;
 
-	function __construct($startTime = null)
+	public function __construct($startTime = null)
 	{
 		$this->startTime = $startTime ? $startTime : microtime(true);
 	}
 
-	function restart()
+	public function restart()
 	{
 		$this->startTime = microtime(true);
 		$this->endTime = null;
 	}
 
-	function stop()
+	public function stop()
 	{
 		$this->endTime = microtime(true);
 	}
@@ -40,7 +40,7 @@ class Profiler
 	 * Stops the timer so the elapsed value is preserved.
 	 * @return float
 	 */
-	function elapsed()
+	public function elapsed()
 	{
 		if (!$this->endTime) {
 			$this->stop();
@@ -53,7 +53,7 @@ class Profiler
 	 * Returns elapsed time without stopping the timer. Can be checked in a loop.
 	 * @return string
 	 */
-	function elapsedCont()
+	public function elapsedCont()
 	{
 		$out = microtime(true) - $this->startTime;
 		return number_format($out, 5, '.', '');
@@ -63,14 +63,14 @@ class Profiler
 	 * Restarts the timer, useful for something similar to setTimeout()
 	 * @return float
 	 */
-	function elapsedNext()
+	public function elapsedNext()
 	{
 		$since = $this->elapsed();
 		$this->restart();
 		return $since;
 	}
 
-	function Done($isReturn = FALSE)
+	public function Done($isReturn = false)
 	{
 		$out = number_format($this->elapsed(), 3);
 		$content = "Done in $out seconds." . BR;
@@ -81,17 +81,17 @@ class Profiler
 		}
 	}
 
-	function startTimer($method)
+	public function startTimer($method)
 	{
 		TaylorProfiler::start($method);
 	}
 
-	function stopTimer($method)
+	public function stopTimer($method)
 	{
 		TaylorProfiler::stop($method);
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->elapsed() . '';
 	}

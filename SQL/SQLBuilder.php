@@ -166,7 +166,7 @@ class SQLBuilder {
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	function getInsertQuery($table, array $columns, array $where = [])
+	public function getInsertQuery($table, array $columns, array $where = [])
 	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
@@ -404,7 +404,7 @@ class SQLBuilder {
 		return $resInsert;
 	}
 
-	function runInsertQuery($table, array $columns, array $where = [])
+	public function runInsertQuery($table, array $columns, array $where = [])
 	{
 		TaylorProfiler::start(__METHOD__ . '(' . $table . ')');
 		$query = $this->getInsertQuery($table, $columns, $where);
