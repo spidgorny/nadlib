@@ -218,6 +218,10 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
+	/**
+	 * @param $string
+	 * @return string
+	 */
 	function toDatabaseKey($string)
 	{
 		if (strtoupper($string) == $string) return strtolower($string);
