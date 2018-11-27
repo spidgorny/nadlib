@@ -145,7 +145,11 @@ if (!function_exists('str_startsWith')) {
 		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
-		$string = ($isAbs ? $separator : '') . implode($separator, $parts);
+		$root = '';
+		if (!Request::isWindows()) {
+			$root = ($isAbs ? $separator : '');
+		}
+		$string = $root . implode($separator, $parts);
 		return $string;
 	}
 

@@ -29,14 +29,11 @@ class SQLWherePart
 	 * Not used directly
 	 * @see SQLWhereEqual
 	 * @return string
+	 * @throws MustBeStringException
 	 */
 	function __toString()
 	{
-		//debug(__METHOD__, gettype2($this->db));
 		if ($this->field && !is_numeric($this->field)) {
-			if ($this->field == 'read') {
-				//debug($this->field, $this->sql);
-			}
 			$part1 = $this->db->quoteWhere(
 				array($this->field => $this->sql)
 			);

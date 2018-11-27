@@ -162,9 +162,11 @@ class SQLBuilder {
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @param array $where
 	 * @return string
+	 * @throws MustBeStringException
 	 */
-	function getInsertQuery($table, array $columns, array $where = [])
+	public function getInsertQuery($table, array $columns, array $where = [])
 	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
@@ -402,7 +404,7 @@ class SQLBuilder {
 		return $resInsert;
 	}
 
-	function runInsertQuery($table, array $columns, array $where = [])
+	public function runInsertQuery($table, array $columns, array $where = [])
 	{
 		TaylorProfiler::start(__METHOD__ . '(' . $table . ')');
 		$query = $this->getInsertQuery($table, $columns, $where);
@@ -547,7 +549,9 @@ class SQLBuilder {
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
-		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
+		$values = array_map(function ($arr) {
+			return $arr["title"];
+		}, $data);
 		//d($keys, $values);
 		if ($keys && $values) {
 			$options = array_combine($keys, $values);

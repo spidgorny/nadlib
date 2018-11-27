@@ -25,6 +25,12 @@ class WordReader {
 
 	protected $structText = '';		// temp
 
+	protected $wasHeader;
+
+	protected $wasLabel;
+
+	protected $label;
+
 	public function  __construct($filename) {
 		$this->filename = $filename;
 		$this->inputNameWrap = new Wrap('|');

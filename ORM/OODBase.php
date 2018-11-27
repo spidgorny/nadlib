@@ -206,18 +206,10 @@ abstract class OODBase {
 		}
 	}
 
-	function log($action, $data = NULL)
+	public function log($action, $data = null)
 	{
 		if ($this->logger) {
 			$this->logger->info($action, $data);
-		} else {
-			// TODO: remove this completely?
-			if (class_exists('Index')) {
-				$index = Index::getInstance();
-				if ($index) {
-//					$index->log($action, $data);
-				}
-			}
 		}
 	}
 
@@ -231,9 +223,7 @@ abstract class OODBase {
 	function insert(array $data)
 	{
 		TaylorProfiler::start(__METHOD__);
-		if (class_exists('Index')) {
-			Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $data);
-		}
+		$this->log(get_called_class() . '::' . __FUNCTION__, $data);
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -625,6 +615,7 @@ abstract class OODBase {
 	 * @param array $insert
 	 * @param $class
 	 * @return int|null
+	 * @throws Exception
 	 */
 	static function createRecord(array $insert, $class = NULL)
 	{
