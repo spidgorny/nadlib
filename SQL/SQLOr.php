@@ -26,6 +26,7 @@ class SQLOr extends SQLWherePart {
 	 * Please make SQLOrBijou, SQLOrORS and so on classes.
 	 * This one should be just simple general.
 	 * @return string
+	 * @throws MustBeStringException
 	 */
 	function __toString() {
 		$ors = array();

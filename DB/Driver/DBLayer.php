@@ -124,7 +124,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		#debug_print_backtrace();
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection.");
+			throw new Exception("No PostgreSQL connection to $host.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -144,7 +144,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 				unset($el['args']);
 				return $el;
 			}, $this->lastBacktrace);
-			debug($this->lastBacktrace);
+//			debug($this->lastBacktrace);
 			die(pg_errormessage($this->connection));
 			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
 		}
