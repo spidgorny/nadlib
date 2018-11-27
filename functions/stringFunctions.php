@@ -146,7 +146,8 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
-		if (!Request::isWindows()) {
+//		if (!Request::isWindows()) {
+		if ($separator == '/') {	// not windows separator
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);
