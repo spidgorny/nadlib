@@ -368,7 +368,7 @@ abstract class Controller {
 	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = NULL, array $more = array())
+	function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
@@ -386,7 +386,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInToggle($content, $title, $height = 'auto', $isOpen = NULL, $tag = 'h3')
+	function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
 	{
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
