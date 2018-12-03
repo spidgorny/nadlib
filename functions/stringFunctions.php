@@ -146,7 +146,8 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
-		if (!Request::isWindows()) {
+//		if (!Request::isWindows()) {
+		if ($separator == '/') {	// not windows separator
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);
@@ -217,6 +218,10 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
+	/**
+	 * @param $string
+	 * @return string
+	 */
 	function toDatabaseKey($string)
 	{
 		if (strtoupper($string) == $string) return strtolower($string);
