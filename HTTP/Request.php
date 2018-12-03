@@ -506,6 +506,7 @@ class Request {
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
 		if ($exit && !$this->isPHPUnit()) {
+			session_write_close();
 			exit();
 		}
 	}
@@ -667,9 +668,11 @@ class Request {
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			);
 		}
-		return $this->getBool('ajax') || (
-				isset($headers['X-Requested-With'])
-				&& strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
+		$isXHR = false;
+		if (isset($headers['X-Requested-With'])) {
+			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
+		}
+		return $this->getBool('ajax') || $isXHR;
 	}
 
 	function getHeader($name)
