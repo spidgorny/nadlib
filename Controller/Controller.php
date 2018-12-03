@@ -93,7 +93,7 @@ abstract class Controller
 	 */
 	protected $al;
 
-	var $log = array();
+	public $log = array();
 
 	/**
 	 * @var HTML
