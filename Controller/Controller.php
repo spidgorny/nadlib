@@ -412,7 +412,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function performAction($action = NULL)
+	public function performAction($action = null)
 	{
 		$content = '';
 		if ($this->request->isCLI()) {
@@ -450,7 +450,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function preventDefault()
+	public function preventDefault()
 	{
 		$this->noRender = true;
 	}

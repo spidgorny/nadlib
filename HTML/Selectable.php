@@ -1,6 +1,7 @@
 <?php
 
-class Selectable {
+class Selectable
+{
 
 	public $name;
 
@@ -23,12 +24,13 @@ class Selectable {
 	/**
 	 * @var array of a single record from $this->rows
 	 */
-	var $data;
+	public $data;
 
 	/**
 	 * @param $selected - id / array row
 	 */
-	function __construct($selected) {
+	public function __construct($selected)
+	{
 		$this->name = get_class($this);
 		if (is_array($selected)) {
 			$id = $selected['id'];
@@ -42,7 +44,8 @@ class Selectable {
 		}
 	}
 
-	function validateSelected() {
+	public function validateSelected()
+	{
 		// it's called AFTER subclass initialized $this->data
 		//debug($selected, array_keys($this->data));
 		if (!in_array($this->selected, array_keys($this->options))) {
@@ -58,11 +61,13 @@ class Selectable {
 	 * It's not more convenient to have it in a toString()
 	 * @return string
 	 */
-	function __toString() {
+	public function __toString()
+	{
 		return $this->getDropdown();
 	}
 
-	function getDropdown() {
+	public function getDropdown()
+	{
 		$request = Request::getInstance();
 
 		$f = new HTMLForm();
@@ -81,24 +86,27 @@ class Selectable {
 			}
 		}
 
-		$f->selection($this->name, $this->options, $this->selected, TRUE);
+		$f->selection($this->name, $this->options, $this->selected, true);
 		return $f->getContent();
 	}
 
-	function getOptions() {
+	public function getOptions()
+	{
 		return $this->options;
 	}
 
-	function getName() {
+	public function getName()
+	{
 		if (!isset($this->options[$this->selected])) {
 			//debug($this->data);
 			//debug_pre_print_backtrace();
-			return 'Unknown room/location #'.$this->selected;
+			return 'Unknown room/location #' . $this->selected;
 		}
 		return $this->options[$this->selected];
 	}
 
-	function getID() {
+	public function getID()
+	{
 		return $this->selected;
 	}
 
