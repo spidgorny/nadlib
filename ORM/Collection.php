@@ -168,8 +168,8 @@ class Collection implements IteratorAggregate {
 	 * @param string $order - appended to the SQL
 	 * @param DBInterface $db
 	 */
-	function __construct($pid = NULL, /*array/SQLWhere*/
-						 $where = array(), $order = '', DBInterface $db = NULL)
+	function __construct($pid = null, /*array/SQLWhere*/
+						 $where = array(), $order = '', DBInterface $db = null)
 	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
@@ -205,7 +205,7 @@ class Collection implements IteratorAggregate {
 		TaylorProfiler::stop($taylorKey);
 	}
 
-	function postInit()
+	public function postInit()
 	{
 		//$this->pager = new Pager();
 		if (class_exists('Index', false)) {
@@ -218,8 +218,9 @@ class Collection implements IteratorAggregate {
 	/**
 	 * -1 will prevent data retrieval
 	 * @param bool $preProcess
+	 * @throws Exception
 	 */
-	function retrieveData($preProcess = true)
+	public function retrieveData($preProcess = true)
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '(allowMerge: ' . ($this->allowMerge ? 1 : 0) . ', preprocess: ' . ($preProcess ? 1 : 0) . ')');
 		//debug(__METHOD__, $allowMerge, $preprocess);

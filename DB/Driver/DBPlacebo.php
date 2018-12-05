@@ -4,32 +4,32 @@
  * Class dbPlacebo
  * @mixin SQLBuilder
  */
-class DBPlacebo extends DBLayerBase implements DBInterface {
+class DBPlacebo extends DBLayerBase implements DBInterface
+{
+	public $lastQuery;
 
-	var $lastQuery;
-
-	function __construct()
+	public function __construct()
 	{
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
 	}
 
-	function perform($query, array $params = [])
+	public function perform($query, array $params = [])
 	{
 		return '';
 	}
 
-	function fetchOptions($a)
+	public function fetchOptions($a)
 	{
 		return '';
 	}
 
-	function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = null)
 	{
 		return array();
 	}
 
-	function __call($method, array $params)
+	public function __call($method, array $params)
 	{
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
@@ -39,62 +39,62 @@ class DBPlacebo extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function numRows($res = NULL)
+	public function numRows($res = null)
 	{
 		// TODO: Implement numRows() method.
 	}
 
-	function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		// TODO: Implement affectedRows() method.
 	}
 
-	function getTables()
+	public function getTables()
 	{
 		// TODO: Implement getTables() method.
 	}
 
-	function lastInsertID($res = NULL, $table = NULL)
+	public function lastInsertID($res = null, $table = null)
 	{
 		// TODO: Implement lastInsertID() method.
 	}
 
-	function free($res)
+	public function free($res)
 	{
 		// TODO: Implement free() method.
 	}
 
-	function quoteKey($key)
+	public function quoteKey($key)
 	{
 		return $key;
 	}
 
-	function escape($string)
+	public function escape($string)
 	{
 		return $string;
 	}
 
-	function escapeBool($value)
+	public function escapeBool($value)
 	{
 		// TODO: Implement escapeBool() method.
 	}
 
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		// TODO: Implement fetchAssoc() method.
 	}
 
-	function transaction()
+	public function transaction()
 	{
 		// TODO: Implement transaction() method.
 	}
 
-	function commit()
+	public function commit()
 	{
 		// TODO: Implement commit() method.
 	}
 
-	function rollback()
+	public function rollback()
 	{
 		// TODO: Implement rollback() method.
 	}
@@ -104,29 +104,28 @@ class DBPlacebo extends DBLayerBase implements DBInterface {
 		// TODO: Implement getScheme() method.
 	}
 
-	function getTablesEx()
+	public function getTablesEx()
 	{
 		// TODO: Implement getTablesEx() method.
 	}
 
-	function getTableColumnsEx($table)
+	public function getTableColumnsEx($table)
 	{
 		// TODO: Implement getTableColumnsEx() method.
 	}
 
-	function getIndexesFrom($table)
+	public function getIndexesFrom($table)
 	{
 		// TODO: Implement getIndexesFrom() method.
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
+	public function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
 	{
 		return array();
 	}
 
-	function getPlaceholder()
+	public function getPlaceholder()
 	{
 		return '?';
 	}
-
 }
