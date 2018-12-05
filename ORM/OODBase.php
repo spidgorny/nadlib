@@ -207,7 +207,7 @@ abstract class OODBase
 		}
 	}
 
-	public function log($action, $data = NULL)
+	public function log($action, $data = null)
 	{
 		if ($this->logger) {
 			$this->logger->info($action, $data);
