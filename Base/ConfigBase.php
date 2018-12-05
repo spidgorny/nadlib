@@ -4,7 +4,8 @@
  * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
  * Extend with a name Class and add any configuration parameters and factory calls.
  */
-class ConfigBase implements ConfigInterface {
+class ConfigBase implements ConfigInterface
+{
 	/**
 	 * del: Public to allow Request to know if there's an instance
 	 * @var Config
