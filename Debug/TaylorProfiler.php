@@ -45,6 +45,8 @@ class TaylorProfiler
 	 */
 	static $instance;
 
+	public $isLog = false;
+
 	/**
 	 * Initialise the timer. with the current micro time
 	 * @param bool $output_enabled
@@ -567,7 +569,10 @@ class TaylorProfiler
 	{
 		$method = $method ?: self::getName();
 		$tp = TaylorProfiler::getInstance();
-		$tp ? $tp->startTimer($method) : null;
+		if ($tp->isLog) {
+			error_log(strip_tags($method));
+			$tp->startTimer($method);
+		}
 	}
 
 	static function stop($method = null)

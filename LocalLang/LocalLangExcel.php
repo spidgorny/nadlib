@@ -4,12 +4,14 @@
  * Singleton
  *
  */
-class LocalLangExcel extends LocalLang {
+class LocalLangExcel extends LocalLang
+{
 	protected $filename = 'lib/LocalLang.object';
 	protected $excel = 'lib/translation.xml';
 	protected $isCache = TRUE;
 
-	function __construct($forceLang = NULL) {
+	function __construct($forceLang = null)
+	{
 		parent::__construct($forceLang);
 		$this->ll = $this->readPersistant();
 		if (!$this->ll) {
@@ -21,8 +23,9 @@ class LocalLangExcel extends LocalLang {
 		$this->ll = $this->ll[$this->lang];
 	}
 
-	function readPersistant() {
-		return NULL; // temporary until this is rewritten to read data from DB
+	function readPersistant()
+	{
+		return null; // temporary until this is rewritten to read data from DB
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
 				$data = file_get_contents($this->filename);
@@ -32,13 +35,15 @@ class LocalLangExcel extends LocalLang {
 		return $data;
 	}
 
-	function savePersistant($data) {
+	function savePersistant($data)
+	{
 		$data = serialize($data);
 		$data = file_put_contents($this->filename, $data);
 		//debug('save');
 	}
 
-	function readExcel(array $keys) {
+	function readExcel(array $keys)
+	{
 		//debug($keys);
 		$data = array();
 		if (file_exists($this->excel)) {
@@ -70,7 +75,7 @@ class LocalLangExcel extends LocalLang {
 						}
 						//$cellText = mb_convert_encoding($cellText, 'Windows-1251', 'UTF-8');
 						$cellText = trim($cellText);
-						$cellIndex = $cell['ss:Index']+0;
+						$cellIndex = $cell['ss:Index'] + 0;
 						//debug($cell->attributes()->asXML(), $i);
 						if (!$cellIndex) {
 							$cellIndex = sizeof($data[$key]);
@@ -89,17 +94,17 @@ class LocalLangExcel extends LocalLang {
 				//$trans = array_unique($trans);
 				//debug(sizeof($trans));
 				$trans = array_slice($trans, 0, sizeof($data['code']));
-/*				debug(array(
-					'array_combine',
-					$data['code'],
-					$trans,
-				));
-*/
+				/*				debug(array(
+									'array_combine',
+									$data['code'],
+									$trans,
+								));
+				*/
 				if (sizeof($data['code']) == sizeof($trans)) {
 					$trans = array_combine($data['code'], $trans);
 				} else {
 					$diff = array_diff_key($data['code'], $trans);
-					debug($diff, 'Error in '.__METHOD__);
+					debug($diff, 'Error in ' . __METHOD__);
 				}
 			}
 		}
@@ -107,7 +112,8 @@ class LocalLangExcel extends LocalLang {
 		return $data;
 	}
 
-	static function getInstance() {
+	static function getInstance()
+	{
 		static $instance = NULL;
 		if (!$instance) {
 			$instance = new LocalLangExcel();
@@ -115,7 +121,8 @@ class LocalLangExcel extends LocalLang {
 		return $instance;
 	}
 
-	function saveMissingMessage($text) {
+	function saveMissingMessage($text)
+	{
 		if (DEVELOPMENT) {
 			$missingWords = array();
 			$fp = fopen('lib/missing.txt', 'r');
@@ -129,7 +136,7 @@ class LocalLangExcel extends LocalLang {
 
 			if (!isset($missingWords[$text])) {
 				$fp = fopen('lib/missing.txt', 'a');
-				fputs($fp, $text."\n");
+				fputs($fp, $text . "\n");
 				fclose($fp);
 			}
 		}

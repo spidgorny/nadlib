@@ -303,7 +303,7 @@ FROM {$from}
 		$order = NULL;
 		if (str_startsWith($sOrder, 'ORDER BY')) {
 			$order = new SQLOrder($sOrder);
-			$order->db = $db;
+			$order->injectDB($db);
 			$group = NULL;
 		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
 			$parts = trimExplode('ORDER BY', $sOrder);
@@ -311,7 +311,7 @@ FROM {$from}
 			$group->db = $db;
 			if (ifsetor($parts[1])) {
 				$order = new SQLOrder($parts[1]);
-				$order->db = $db;
+				$order->injectDB($db);
 			}
 		} elseif (str_startsWith($sOrder, 'LIMIT')) {
 			$parts = trimExplode('LIMIT', $sOrder);
