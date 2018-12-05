@@ -20,7 +20,7 @@ class Profiler
 
 	var $endTime;
 
-	function __construct($startTime = NULL)
+	function __construct($startTime = null)
 	{
 		$this->startTime = $startTime ? $startTime : microtime(true);
 	}
@@ -28,7 +28,7 @@ class Profiler
 	function restart()
 	{
 		$this->startTime = microtime(true);
-		$this->endTime = NULL;
+		$this->endTime = null;
 	}
 
 	function stop()

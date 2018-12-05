@@ -3,7 +3,7 @@
 class CLILogger
 {
 
-	function log($method, $data)
+	public function log($method, $data)
 	{
 		if (is_array($data)) {
 			$output = print_r($data, true);
@@ -17,7 +17,7 @@ class CLILogger
 		echo '[', $method, '] ', $output, BR;
 	}
 
-	function info($method, $data)
+	public function info($method, $data)
 	{
 		$this->log($method, $data);
 	}

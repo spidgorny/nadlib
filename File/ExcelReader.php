@@ -4,18 +4,20 @@
  * Class ExcelReader - only reads the XML file Excel
  * @see class SimpleXLSX
  */
-class ExcelReader {
+class ExcelReader
+{
 	protected $excel;
 	protected $isCache = TRUE;
 	protected $filename = 'cache/';
 	protected $xml;
 	public $ll;
 
-	function __construct($excelFile, $usePersistance = false) {
+	function __construct($excelFile, $usePersistance = false)
+	{
 		$this->excel = $excelFile{0} == '/'
 			? $excelFile
 			: $excelFile;
-		$this->filename .= basename($this->excel).'.serial';
+		$this->filename .= basename($this->excel) . '.serial';
 
 		// read from excel - SimpleXML can't be serialized
 		if ($usePersistance) {
@@ -30,7 +32,8 @@ class ExcelReader {
 		$this->ll = $this->getSheet(0);
 	}
 
-	function readPersistant() {
+	function readPersistant()
+	{
 		$data = NULL;
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
@@ -43,7 +46,8 @@ class ExcelReader {
 		return $data;
 	}
 
-	function savePersistant($data) {
+	function savePersistant($data)
+	{
 		//$data = serialize($data);   // Serialization of 'SimpleXMLElement' is not allowed
 		$data = json_encode($data, defined(JSON_PRETTY_PRINT)
 			? JSON_PRETTY_PRINT
@@ -51,7 +55,8 @@ class ExcelReader {
 		file_put_contents($this->filename, $data);
 	}
 
-	function readExcel() {
+	function readExcel()
+	{
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
 			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
@@ -61,11 +66,12 @@ class ExcelReader {
 				$this->xml->registerXPathNamespace($prefix, $ns);
 			}
 		} else {
-			throw new Exception('File '.$this->excel.' is not found');
+			throw new Exception('File ' . $this->excel . ' is not found');
 		}
 	}
 
-	function getSheets() {
+	function getSheets()
+	{
 		$list = array();
 		foreach ($this->xml->Worksheet as $sheet) {
 			$attr = $sheet->attributes('ss', true);
@@ -75,7 +81,8 @@ class ExcelReader {
 		return $list;
 	}
 
-	function getSheet($sheet = 0) {
+	function getSheet($sheet = 0)
+	{
 		$data = array();
 		$s = $this->xml->Worksheet[$sheet]->Table;
 		if ($this->xml->Worksheet[$sheet]) {
@@ -100,7 +107,7 @@ class ExcelReader {
 			}
 		} else {
 			//3debug(array_keys($this->xml->Worksheet));
-			throw new Exception('There is no sheet '.$sheet.' in the file '.$this->filename.' generated from '.$this->excel);
+			throw new Exception('There is no sheet ' . $sheet . ' in the file ' . $this->filename . ' generated from ' . $this->excel);
 		}
 		return $data;
 	}

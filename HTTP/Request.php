@@ -46,9 +46,11 @@ class Request {
 		return $request;
 	}
 
-	static function getInstance($cons = NULL)
+	public static function getInstance($cons = null)
 	{
-		return static::$instance = static::$instance ? static::$instance : new static($cons);
+		return static::$instance = static::$instance
+			? static::$instance
+			: new static($cons);
 	}
 
 	static function getExistingInstance()
@@ -464,7 +466,7 @@ class Request {
 		return $return;
 	}
 
-	function getRefererIfNotSelf()
+	public function getRefererIfNotSelf()
 	{
 		$referer = $this->getReferer();
 		$rController = $this->getRefererController();
@@ -477,28 +479,28 @@ class Request {
 		return $ok ? $referer : NULL;
 	}
 
-	function redirect($controller, $exit = true)
+	public function redirect($controller, $exit = true)
 	{
 		if (class_exists('Index')
 			&& Index::getInstance()
 			&& method_exists(Index::getInstance(), '__destruct')) {
 			Index::getInstance()->__destruct();
 		}
-		if (!headers_sent()
-//			|| DEVELOPMENT
-			&& $this->canRedirect($controller)
-		) {
-			ob_start();
-			debug_print_backtrace(defined('DEBUG_BACKTRACE_IGNORE_ARGS')
-				? DEBUG_BACKTRACE_IGNORE_ARGS : NULL);
-			$bt = ob_get_clean();
-			$bt = trimExplode("\n", $bt);
-			foreach ($bt as $i => $line) {
-				$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
-				header('Redirect-From-' . $ii . ': ' . $line);
-			}
+		if ($this->canRedirect($controller)) {
+			if (!headers_sent()) {
+				ob_start();
+				debug_print_backtrace(defined('DEBUG_BACKTRACE_IGNORE_ARGS')
+					? DEBUG_BACKTRACE_IGNORE_ARGS : NULL);
+				$bt = ob_get_clean();
+				$bt = trimExplode("\n", $bt);
+				foreach ($bt as $i => $line) {
+					$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
+					header('Redirect-From-' . $ii . ': ' . $line);
+				}
 
-			header('Location: ' . $controller);
+				header('Location: ' . $controller);
+			}
+			echo '<meta http-equiv="refresh" content="0; url=' . $controller . '">';
 			echo 'Redirecting to <a href="' . $controller . '">' . $controller . '</a>';
 		} else {
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
@@ -508,7 +510,7 @@ class Request {
 		}
 	}
 
-	function canRedirect($to)
+	public function canRedirect($to)
 	{
 		if ($this->isGET()) {
 			$absURL = $this->getURL();
@@ -1238,7 +1240,7 @@ class Request {
 				ifsetor($_SERVER['REQUEST_URI'])
 			)
 		);
-		return $result;
+		return cap($result);
 	}
 
 	/**

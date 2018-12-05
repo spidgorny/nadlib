@@ -14,7 +14,7 @@ class UploadedFile {
 		foreach ($data as $key => $val) {
 			$this->$key = $val;
 		}
-		$u = new Uploader();
+		$u = new MIME();
 		$this->mime = $u->get_mime_type($this->tmp_name);
 	}
 

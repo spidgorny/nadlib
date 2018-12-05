@@ -46,9 +46,9 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	var $db;
 
-	var $reserved = array(
+	var $reserved = [
 		'SELECT', 'LIKE', 'TO',
-	);
+	];
 
 	protected $dbName;
 
@@ -124,7 +124,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		#debug_print_backtrace();
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection.");
+			throw new Exception("No PostgreSQL connection to $host.");
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -133,7 +133,13 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return true;
 	}
 
-	function perform($query, array $params = array())
+	/**
+	 * @param $query
+	 * @param array $params
+	 * @return resource|null
+	 * @throws DatabaseException
+	 */
+	public function perform($query, array $params = [])
 	{
 //		echo $query, BR;
 		$prof = new Profiler();
@@ -145,7 +151,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 				return $el;
 			}, $this->lastBacktrace);
 			debug($this->lastBacktrace);
-			die(pg_errormessage($this->connection));
+//			die(pg_errormessage($this->connection));
 			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
 		}
 
@@ -160,7 +166,6 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$query = $query->__toString();
 //			debug($query, $params);
 		}
-		$this->logQuery($query);
 
 		try {
 			if ($params) {
@@ -169,6 +174,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			} else {
 				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
 			}
+			$this->queryTime = $prof->elapsed();
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
 			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
@@ -178,16 +184,20 @@ class DBLayer extends DBLayerBase implements DBInterface
 				'[' . $e->getCode() . '] ' . $e->getMessage() . BR .
 				//pg_errormessage($this->connection).BR.
 				'Error' . $errorMessage . BR .
-				$query, $e->getCode());
+				$query,
+				$e->getCode()
+			);
 			$e->setQuery($query);
 			throw $e;
 		}
+
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(
-				pg_errormessage($this->connection));
+				pg_errormessage($this->connection)
+			);
 			$e->setQuery($query);
 			throw $e;
 		}
@@ -196,20 +206,16 @@ class DBLayer extends DBLayerBase implements DBInterface
 		if ($this->queryLog) {
 			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
 		}
-		if ($this->logToLog) {
-			$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime . ' ' .
-				preg_replace('/\s+/', ' ',
-					str_replace("\n", ' ', $query)));
-		}
+
+		$this->logQuery($query);	// uses $this->queryTime
+
 		$this->lastQuery = $query;
-		$this->queryTime = $prof->elapsed();
 		$this->queryCount++;
 		$this->lastBacktrace = debug_backtrace();
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-	function performWithParams($query, $params)
+	public function performWithParams($query, $params)
 	{
 		$prof = new Profiler();
 		$this->lastQuery = $query;
@@ -233,7 +239,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param $table
 	 * @return array
 	 */
-	function getTableColumns($table)
+	public function getTableColumns($table)
 	{
 		if (!$table) {
 			debug_pre_print_backtrace();
@@ -247,13 +253,13 @@ class DBLayer extends DBLayerBase implements DBInterface
 		}
 	}
 
-	function getTableColumnsEx($table)
+	public function getTableColumnsEx($table)
 	{
 		$meta = pg_meta_data($this->connection, $table);
 		return $meta;
 	}
 
-	function getTableColumnsCached($table)
+	public function getTableColumnsCached($table)
 	{
 		//debug($table); exit;
 		TaylorProfiler::start(__METHOD__);
@@ -275,11 +281,11 @@ class DBLayer extends DBLayerBase implements DBInterface
 		$return = $cache[$table];
 		TaylorProfiler::stop(__METHOD__);
 		// used to only attach columns in bug list
-		$pageAttachCustom = array('BugLog', 'Filter');
+		$pageAttachCustom = ['BugLog', 'Filter'];
 		if (in_array($_REQUEST['pageType'], $pageAttachCustom)) {
 			$cO = CustomCatList::getInstance($_SESSION['sesProject']);
 			if (is_array($cO->customColumns)) {
-				foreach ($cO->customColumns AS $cname) {
+				foreach ($cO->customColumns as $cname) {
 					$return[] = $cname;
 				}
 			}
@@ -287,11 +293,11 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return $return;
 	}
 
-	function getColumnTypes($table)
+	public function getColumnTypes($table)
 	{
 		$meta = pg_meta_data($this->connection, $table);
 		if (is_array($meta)) {
-			$return = array();
+			$return = [];
 			foreach ($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
@@ -302,7 +308,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		}
 	}
 
-	function getTableDataEx($table, $where = "", $what = "*")
+	public function getTableDataEx($table, $where = "", $what = "*")
 	{
 		$query = "select " . $what . " from $table";
 		if (!empty($where)) {
@@ -357,15 +363,16 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param null $key
 	 * @param null $val
 	 * @return array
+	 * @throws DatabaseException
 	 */
-	function getTableDataSql($query, $key = NULL, $val = NULL)
+	public function getTableDataSql($query, $key = NULL, $val = null)
 	{
 		if (is_string($query)) {
 			$result = $this->perform($query);
 		} else {
 			$result = $query;
 		}
-		$return = array();
+		$return = [];
 		while ($row = pg_fetch_assoc($result)) {
 			if ($val) {
 				$value = $row[$val];
@@ -388,7 +395,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @return string[]
 	 * @throws DatabaseException
 	 */
-	function getTables()
+	public function getTables()
 	{
 		$query = "select relname
 		from pg_class
@@ -407,7 +414,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @return string[]
 	 * @throws DatabaseException
 	 */
-	function getViews()
+	public function getViews()
 	{
 		$query = "select relname
 		from pg_class
@@ -421,18 +428,18 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return ArrayPlus::create($return)->column('relname')->getData();
 	}
 
-	function describeView($viewName)
+	public function describeView($viewName)
 	{
 		return first(
 			$this->fetchAssoc(
-				$this->perform("select pg_get_viewdef($1, true)", array(
+				$this->perform("select pg_get_viewdef($1, true)", [
 					$viewName
-				))
+				])
 			)
 		);
 	}
 
-	function getColumnDefault($table)
+	public function getColumnDefault($table)
 	{
 		$query = "SELECT *
 		FROM information_schema.columns
@@ -451,12 +458,12 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return ArrayPlus::create($data)->IDalize('column_name')->getData();
 	}
 
-	function dataSeek($res, $number)
+	public function dataSeek($res, $number)
 	{
 		return pg_result_seek($res, $number);
 	}
 
-	function transaction($serializable = false)
+	public function transaction($serializable = false)
 	{
 		if ($this->inTransaction) {
 			//error('BEGIN inTransaction: '.$this->inTransaction.'+1');
@@ -471,7 +478,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return $this->perform("BEGIN");
 	}
 
-	function commit()
+	public function commit()
 	{
 		$this->inTransaction--;
 		if ($this->inTransaction) {
@@ -484,7 +491,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return $this->perform("commit");
 	}
 
-	function rollback()
+	public function rollback()
 	{
 		$this->inTransaction--;
 		if ($this->inTransaction) {
@@ -501,7 +508,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	function quoteSQL($value, $key = NULL)
+	public function quoteSQL($value, $key = NULL)
 	{
 		if ($value === NULL) {
 			return "NULL";
@@ -530,7 +537,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @return array
 	 * @throws Exception
 	 */
-	function fetchAll($result, $key = NULL)
+	public function fetchAll($result, $key = null)
 	{
 		$params = [];
 		if ($result instanceof SQLSelectQuery) {
@@ -550,7 +557,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			debug($this->lastQuery, sizeof($res));
 		}
 		if (!$res) {
-			$res = array();
+			$res = [];
 		} elseif ($key) {
 			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
 			//debug(sizeof($res), sizeof($ap));
@@ -565,7 +572,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @return array
 	 * @throws DatabaseException
 	 */
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
@@ -582,27 +589,28 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * Called after dataSeek()
 	 * @param $res
 	 * @return array
+	 * @throws DatabaseException
 	 */
-	function fetchAssocSeek($res)
+	public function fetchAssocSeek($res)
 	{
 		return $this->fetchAssoc($res);
 	}
 
-	function getAllRows($query)
+	public function getAllRows($query)
 	{
 		$result = $this->perform($query);
 		$data = $this->fetchAll($result);
 		return $data;
 	}
 
-	function getFirstRow($query)
+	public function getFirstRow($query)
 	{
 		$result = $this->perform($query);
 		$row = pg_fetch_assoc($result);
 		return $row;
 	}
 
-	function getFirstValue($query)
+	public function getFirstValue($query)
 	{
 		$result = $this->perform($query);
 		$row = pg_fetch_row($result);
@@ -610,7 +618,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return $value;
 	}
 
-	function numRows($query = NULL)
+	public function numRows($query = null)
 	{
 		if (is_string($query)) {
 			$query = $this->perform($query);
@@ -618,7 +626,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return pg_num_rows($query);
 	}
 
-	function getLastInsertID($res = NULL, $table = 'not required since 8.1')
+	public function getLastInsertID($res = null, $table = 'not required since 8.1')
 	{
 		$pgv = pg_version();
 		if ($pgv['server'] >= 8.1) {
@@ -636,7 +644,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param $table - optional
 	 * @return null
 	 */
-	function lastInsertID($res, $table = NULL)
+	public function lastInsertID($res, $table = null)
 	{
 		return $this->getLastInsertID($res, $table);
 	}
@@ -649,7 +657,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return $lv;
 	}
 
-	function getComment($table, $column)
+	public function getComment($table, $column)
 	{
 		$query = 'select
 	 a.attname  as "colname"
@@ -680,9 +688,9 @@ order by a.attnum';
 	 * @param string $field
 	 * @return string
 	 */
-	function getArrayIntersect(array $options, $field = 'list_next')
+	public function getArrayIntersect(array $options, $field = 'list_next')
 	{
-		$bigOR = array();
+		$bigOR = [];
 		foreach ($options as $n) {
 			$bigOR[] = "FIND_IN_SET('" . $n . "', {$field})";
 		}
@@ -690,7 +698,7 @@ order by a.attnum';
 		return $bigOR;
 	}
 
-	function escape($str)
+	public function escape($str)
 	{
 		return pg_escape_string($str);
 	}
@@ -701,16 +709,22 @@ order by a.attnum';
 	 * @return mixed
 	 * @throws Exception
 	 */
-	function __call($method, array $params)
+	public function __call($method, array $params)
 	{
 		if (method_exists($this->getQb(), $method)) {
-			return call_user_func_array(array($this->getQb(), $method), $params);
+			return call_user_func_array([$this->getQb(), $method], $params);
 		} else {
 			throw new Exception('Method ' . __CLASS__ . '::' . $method . ' doesn\'t exist.');
 		}
 	}
 
-	function quoteKey($key)
+	/**
+	 * Will quote simple key names.
+	 * If the key contains special chars,
+	 * it thinks it's a function call like trim(field)
+	 * and quoting is not done.
+	 */
+	public function quoteKey($key)
 	{
 		if (ctype_alpha($key)) {
 			$isFunc = function_exists('pg_escape_identifier');
@@ -719,13 +733,13 @@ order by a.attnum';
 			} else {
 				$key = '"' . $key . '"';
 			}
-		} // else it can be functions(of something)
+		} // else it can be functions (of something)
 		return $key;
 	}
 
-	function getCallerFunction()
+	public function getCallerFunction()
 	{
-		$skipFunctions = array(
+		$skipFunctions = [
 			'runSelectQuery',
 			'fetchSelectQuery',
 			'sqlFind',
@@ -737,14 +751,14 @@ order by a.attnum';
 			'init',
 			'__construct',
 			'getInstance',
-		);
+		];
 		$debug = debug_backtrace();
 		$prev = array_shift($debug);    // getCallerFunction
 		while (sizeof($debug) && in_array($debug[0]['function'], $skipFunctions)) {
 			$prev = array_shift($debug);
 		}
 		reset($debug);
-		$content = array();
+		$content = [];
 		/** @noinspection PhpUnusedLocalVariableInspection */
 		foreach (range(1, 2) as $_) {
 			$func = current($debug);
@@ -761,7 +775,7 @@ order by a.attnum';
 	 * @param string $source
 	 * @return float
 	 */
-	function getMoney($source = '$1,234.56')
+	public function getMoney($source = '$1,234.56')
 	{
 		$source = str_replace('$', '', $source);
 		$source = str_replace(',', '', $source);
@@ -774,26 +788,26 @@ order by a.attnum';
 	 * @return array
 	 * @throws Exception
 	 */
-	function getIndexesFrom($table)
+	public function getIndexesFrom($table)
 	{
 		return $this->fetchAll('select *, pg_get_indexdef(indexrelid)
 		from pg_index
 		where indrelid = \'' . $table . '\'::regclass');
 	}
 
-	function free($res)
+	public function free($res)
 	{
 		if (is_resource($res)) {
 			pg_free_result($res);
 		}
 	}
 
-	function escapeBool($value)
+	public function escapeBool($value)
 	{
 		return $value ? 'true' : 'false';
 	}
 
-	public function setQb(SQLBuilder $qb = NULL)
+	public function setQb(SQLBuilder $qb = null)
 	{
 		$this->qb = $qb;
 	}
@@ -808,7 +822,7 @@ order by a.attnum';
 		return $this->qb;
 	}
 
-	function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		return pg_affected_rows($res);
 	}
@@ -818,9 +832,9 @@ order by a.attnum';
 		return 'postgresql';
 	}
 
-	function getResultFields($res)
+	public function getResultFields($res)
 	{
-		$fields = array();
+		$fields = [];
 		for ($f = 0; $f < pg_num_fields($res); $f++) {
 			$newField = pg_fieldname($res, $f);
 			$fields[$newField] = pg_field_type($res, $f);
@@ -828,7 +842,7 @@ order by a.attnum';
 		return $fields;
 	}
 
-	function getForeignKeys($table)
+	public function getForeignKeys($table)
 	{
 		return $this->fetchAll(
 			"SELECT
@@ -845,12 +859,12 @@ FROM
 WHERE ccu.table_name='" . $table . "'");
 	}
 
-	function getPlaceholder()
+	public function getPlaceholder()
 	{
 		return '$0$';
 	}
 
-	function isPostgres()
+	public function isPostgres()
 	{
 		return true;
 	}
@@ -862,7 +876,7 @@ WHERE ccu.table_name='" . $table . "'");
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
-	function getReplaceQuery($table, array $columns)
+	public function getReplaceQuery($table, array $columns)
 	{
 		if ($this->getVersion() < 9.5) {
 			throw new DatabaseException(__METHOD__ . ' is not working in PG < 9.5. Use runReplaceQuery()');
@@ -883,7 +897,7 @@ WHERE ccu.table_name='" . $table . "'");
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
-	function runReplaceQuery($table, array $columns, array $primaryKeys = [])
+	public function runReplaceQuery($table, array $columns, array $primaryKeys = [])
 	{
 //		debug($table, $columns, $primaryKeys, $this->getVersion(), $this->getVersion() >= 9.5);
 		if ($this->getVersion() >= 9.5) {
@@ -909,12 +923,12 @@ WHERE ccu.table_name='" . $table . "'");
 		}
 	}
 
-	function isTransaction()
+	public function isTransaction()
 	{
 		return pg_transaction_status($this->connection) == PGSQL_TRANSACTION_INTRANS;
 	}
 
-	function getInfo()
+	public function getInfo()
 	{
 		return pg_version($this->connection) + [
 				'options' => pg_options($this->connection),
