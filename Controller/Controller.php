@@ -559,6 +559,7 @@ abstract class Controller
 	 * @see makeRelURL
 	 * @param array $params
 	 * @return URL
+	 * @throws Exception
 	 */
 	public function adjustURL(array $params)
 	{
