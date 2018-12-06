@@ -131,7 +131,6 @@ abstract class OODBase
 	 * Retrieves data from DB.
 	 *
 	 * @param int|array|SQLWhere $id
-	 * @param bool $fromFindInDB
 	 * @throws Exception
 	 */
 	public function init($id)
