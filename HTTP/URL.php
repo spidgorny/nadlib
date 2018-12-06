@@ -79,7 +79,9 @@ class URL
 	{
 		$this->components = @parse_url($url);
 		//pre_print_r($this->components);
-		if (!$this->components) {    //  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
+		if (!$this->components) {
+			//  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html)
+			// [function.parse-url]: Unable to parse URL
 			$request = Request::getExistingInstance();
 			if ($request) {
 				//debug(substr($request->getLocation(), 0, -1).$url);
@@ -299,7 +301,8 @@ class URL
 	public function buildURL($parsed = null)
 	{
 		if (!$parsed) {
-			$this->components['query'] = $this->buildQuery(); // to make sure manual manipulations are not possible (although it's already protected?)
+			// to make sure manual manipulations are not possible (although it's already protected?)
+			$this->components['query'] = $this->buildQuery();
 			$parsed = $this->components;
 		}
 		if (!is_array($parsed)) {
@@ -309,7 +312,9 @@ class URL
 		$uri = isset($parsed['scheme'])
 			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
 			: '';
-		$uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+		$uri .= isset($parsed['user'])
+			? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@'
+			: '';
 
 		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
 		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
@@ -730,93 +735,136 @@ class URL
 
 
 		// Split the URL into components.
-		if (!preg_match('!' . $xurl . '!', $url, $m))
+		if (!preg_match('!' . $xurl . '!', $url, $m)) {
 			return false;
+		}
 
-		if (!empty($m[2])) $parts['scheme'] = strtolower($m[2]);
+		if (!empty($m[2])) {
+			$parts['scheme'] = strtolower($m[2]);
+		}
 
 		if (!empty($m[7])) {
-			if (isset($m[9])) $parts['user'] = $m[9];
-			else            $parts['user'] = '';
+			if (isset($m[9])) {
+				$parts['user'] = $m[9];
+			} else {
+				$parts['user'] = '';
+			}
 		}
-		if (!empty($m[10])) $parts['pass'] = $m[11];
+		if (!empty($m[10])) {
+			$parts['pass'] = $m[11];
+		}
 
-		if (!empty($m[13])) $h = $parts['host'] = $m[13];
-		elseif (!empty($m[14])) $parts['host'] = $m[14];
-		elseif (!empty($m[16])) $parts['host'] = $m[16];
-		elseif (!empty($m[5])) $parts['host'] = '';
-		if (!empty($m[17])) $parts['port'] = $m[18];
+		if (!empty($m[13])) {
+			$h = $parts['host'] = $m[13];
+		} elseif (!empty($m[14])) {
+			$parts['host'] = $m[14];
+		} elseif (!empty($m[16])) {
+			$parts['host'] = $m[16];
+		} elseif (!empty($m[5])) {
+			$parts['host'] = '';
+		}
+		if (!empty($m[17])) {
+			$parts['port'] = $m[18];
+		}
 
-		if (!empty($m[19])) $parts['path'] = $m[19];
-		elseif (!empty($m[21])) $parts['path'] = $m[21];
-		elseif (!empty($m[25])) $parts['path'] = $m[25];
+		if (!empty($m[19])) {
+			$parts['path'] = $m[19];
+		} elseif (!empty($m[21])) {
+			$parts['path'] = $m[21];
+		} elseif (!empty($m[25])) {
+			$parts['path'] = $m[25];
+		}
 
-		if (!empty($m[27])) $parts['query'] = $m[28];
-		if (!empty($m[29])) $parts['fragment'] = $m[30];
+		if (!empty($m[27])) {
+			$parts['query'] = $m[28];
+		}
+		if (!empty($m[29])) {
+			$parts['fragment'] = $m[30];
+		}
 
-		if (!$decode)
+		if (!$decode) {
 			return $parts;
-		if (!empty($parts['user']))
+		}
+		if (!empty($parts['user'])) {
 			$parts['user'] = rawurldecode($parts['user']);
-		if (!empty($parts['pass']))
+		}
+		if (!empty($parts['pass'])) {
 			$parts['pass'] = rawurldecode($parts['pass']);
-		if (!empty($parts['path']))
+		}
+		if (!empty($parts['path'])) {
 			$parts['path'] = rawurldecode($parts['path']);
-		if (isset($h))
+		}
+		if (isset($h)) {
 			$parts['host'] = rawurldecode($parts['host']);
-		if (!empty($parts['query']))
+		}
+		if (!empty($parts['query'])) {
 			$parts['query'] = rawurldecode($parts['query']);
-		if (!empty($parts['fragment']))
+		}
+		if (!empty($parts['fragment'])) {
 			$parts['fragment'] = rawurldecode($parts['fragment']);
+		}
 		return $parts;
 	}
 
 	public function join_url($parts, $encode = true)
 	{
 		if ($encode) {
-			if (isset($parts['user']))
+			if (isset($parts['user'])) {
 				$parts['user'] = rawurlencode($parts['user']);
-			if (isset($parts['pass']))
+			}
+			if (isset($parts['pass'])) {
 				$parts['pass'] = rawurlencode($parts['pass']);
+			}
 			if (isset($parts['host']) &&
 				!preg_match('!^(\[[\da-f.:]+\]])|([\da-f.:]+)$!ui', $parts['host'])
-			)
+			) {
 				$parts['host'] = rawurlencode($parts['host']);
-			if (!empty($parts['path']))
-				$parts['path'] = preg_replace('!%2F!ui', '/',
-					rawurlencode($parts['path']));
-			if (isset($parts['query']))
+			}
+			if (!empty($parts['path'])) {
+				$parts['path'] = preg_replace('!%2F!ui', '/', rawurlencode($parts['path']));
+			}
+			if (isset($parts['query'])) {
 				$parts['query'] = rawurlencode($parts['query']);
-			if (isset($parts['fragment']))
+			}
+			if (isset($parts['fragment'])) {
 				$parts['fragment'] = rawurlencode($parts['fragment']);
+			}
 		}
 
 		$url = '';
-		if (!empty($parts['scheme']))
+		if (!empty($parts['scheme'])) {
 			$url .= $parts['scheme'] . ':';
+		}
 		if (isset($parts['host'])) {
 			$url .= '//';
 			if (isset($parts['user'])) {
 				$url .= $parts['user'];
-				if (isset($parts['pass']))
+				if (isset($parts['pass'])) {
 					$url .= ':' . $parts['pass'];
+				}
 				$url .= '@';
 			}
-			if (preg_match('!^[\da-f]*:[\da-f.:]+$!ui', $parts['host']))
+			if (preg_match('!^[\da-f]*:[\da-f.:]+$!ui', $parts['host'])) {
 				$url .= '[' . $parts['host'] . ']'; // IPv6
-			else
+			} else {
 				$url .= $parts['host'];             // IPv4 or name
-			if (isset($parts['port']))
+			}
+			if (isset($parts['port'])) {
 				$url .= ':' . $parts['port'];
-			if (!empty($parts['path']) && $parts['path'][0] != '/')
+			}
+			if (!empty($parts['path']) && $parts['path'][0] != '/') {
 				$url .= '/';
+			}
 		}
-		if (!empty($parts['path']))
+		if (!empty($parts['path'])) {
 			$url .= $parts['path'];
-		if (isset($parts['query']))
+		}
+		if (isset($parts['query'])) {
 			$url .= '?' . $parts['query'];
-		if (isset($parts['fragment']))
+		}
+		if (isset($parts['fragment'])) {
 			$url .= '#' . $parts['fragment'];
+		}
 		return $url;
 	}
 
@@ -882,22 +930,22 @@ class URL
 		$this->components['host'] = $host;
 	}
 
-	function getPort()
+	public function getPort()
 	{
 		return $this->components['port'];
 	}
 
-	function getUser()
+	public function getUser()
 	{
 		return $this->components['user'];
 	}
 
-	function getPass()
+	public function getPass()
 	{
 		return $this->components['pass'];
 	}
 
-	function getHash()
+	public function getHash()
 	{
 		return ifsetor($this->components['fragment']);
 	}

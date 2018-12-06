@@ -822,12 +822,13 @@ class Request
 
 	/**
 	 * Full URL is docRoot + appRoot + controller/action
+	 * @return Path
 	 */
 	public function getPathAfterAppRoot()
 	{
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot()->normalize()->realPath();
-		$docRoot = $al->documentRoot->normalize()->realPath();
+//		$docRoot = $al->documentRoot->normalize()->realPath();
 		//		d($appRoot.'', $docRoot.'');
 
 		$pathWithoutDocRoot = clone $appRoot;
