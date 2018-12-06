@@ -21,7 +21,7 @@ class NoUser extends UserBase
 		$this->prefs = new MockPreferences($this);
 	}
 
-	public function can()
+	public function can($name)
 	{
 		return false;
 	}
