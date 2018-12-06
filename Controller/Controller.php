@@ -19,7 +19,7 @@ abstract class Controller
 	//use HTMLHelper;	// bijou is PHP 5.4
 
 	/**
-	 * @var Index
+	 * @var Index|\nadlib\IndexInterface
 	 */
 	public $index;
 
