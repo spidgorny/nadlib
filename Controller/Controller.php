@@ -13,7 +13,8 @@
  * will call cronjobAction instead of default render()
  */
 
-abstract class Controller {
+abstract class Controller
+{
 
 	//use HTMLHelper;	// bijou is PHP 5.4
 
@@ -92,7 +93,7 @@ abstract class Controller {
 	 */
 	protected $al;
 
-	var $log = array();
+	public $log = array();
 
 	/**
 	 * @var HTML
@@ -106,13 +107,13 @@ abstract class Controller {
 	 */
 	public $sortBy;
 
-	function __construct()
+	public function __construct()
 	{
 		if (ifsetor($_REQUEST['d']) == 'log') {
 			echo get_class($this) . '::' . __METHOD__ . BR;
 		}
 		$this->index = class_exists('Index', false)
-			? Index::getInstance(false) : NULL;
+			? Index::getInstance(false) : null;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->al = AutoLoad::getInstance();
@@ -151,7 +152,7 @@ abstract class Controller {
 	 * @public for View::link
 	 * @use getURL()
 	 */
-	function makeURL(array $params, $prefix = NULL)
+	public function makeURL(array $params, $prefix = null)
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
@@ -159,17 +160,17 @@ abstract class Controller {
 				unset($params['c']);    // RealURL
 				$prefix = $class;
 			} else {
-				$class = NULL;
+				$class = null;
 			}
 		} else {
-			$class = NULL;
+			$class = null;
 			// this is the only way to supply controller
 			//unset($params['c']);
 		}
 
 		$location = $this->request->getLocation();
 		$url = new URL($prefix
-			? $location.$prefix
+			? $location . $prefix
 			: $location, $params);
 		$path = $url->getPath();
 		if ($this->useRouter && $class) {
@@ -188,7 +189,7 @@ abstract class Controller {
 			'class($path)' => get_class($path),
 			'$this->linkVars' => $this->linkVars,
 			'return' => $url . '',
-			'location' => $location .'',
+			'location' => $location . '',
 		));
 		return $url;
 	}
@@ -200,12 +201,14 @@ abstract class Controller {
 	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array(), $page = NULL)
+	public function makeRelURL(array $params = array(), $page = null)
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
 			+ $this->getURL()->getParams()            // 2nd priority
-			+ $this->linkVars, $page);                // 3rd priority
+			+ $this->linkVars,
+			$page
+		);                // 3rd priority
 	}
 
 	/**
@@ -213,9 +216,10 @@ abstract class Controller {
 	 * Use makeURL() for old functionality
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = NULL) {
+	public function getURL(array $params = [], $prefix = null)
+	{
 		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
+			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
 		}
 //		$params = $params + $this->linkVars;
 //		debug($params);
@@ -234,7 +238,7 @@ abstract class Controller {
 	 * @param bool $isHTML
 	 * @return HTMLTag
 	 */
-	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false)
+	public function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false)
 	{
 		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
@@ -243,7 +247,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array(), $prefix = '')
+	public function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array(), $prefix = '')
 	{
 		$url = $this->makeURL($params, $prefix);
 		$link = new HTMLTag('a', $aMore + array(
@@ -262,7 +266,7 @@ abstract class Controller {
 	 * @deprecated
 	 * @see slTable::showAssoc()
 	 */
-	function getAssocTable(array $data)
+	public function getAssocTable(array $data)
 	{
 		$table = array();
 		foreach ($data as $key => $val) {
@@ -271,7 +275,7 @@ abstract class Controller {
 		return $table;
 	}
 
-	static function getInstance()
+	public static function getInstance()
 	{
 		$static = get_called_class();
 		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
@@ -303,7 +307,7 @@ abstract class Controller {
 		}
 	}*/
 
-	function render()
+	public function render()
 	{
 		$content[] = $this->performAction();
 		return $content;
@@ -314,14 +318,14 @@ abstract class Controller {
 	 * if there is a __CLASS__.phtml file in the same folder
 	 * @return MarkdownView|string|View
 	 */
-	function indexAction()
+	public function indexAction()
 	{
 		$content = $this->renderTemplate();
 		$content = $this->div($content, str_replace('\\', '-', get_class($this)));
 		return $content;
 	}
 
-	function renderTemplate()
+	public function renderTemplate()
 	{
 		$filePHTML = get_class($this) . '.phtml';
 		$fileMD = get_class($this) . '.md';
@@ -347,12 +351,12 @@ abstract class Controller {
 			: $content;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->s($this->render());
 	}
 
-	function encloseIn($title, $content)
+	public function encloseIn($title, $content)
 	{
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
@@ -368,7 +372,7 @@ abstract class Controller {
 	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = null, array $more = [])
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
@@ -386,7 +390,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
+	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
 	{
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
@@ -460,7 +464,7 @@ abstract class Controller {
 	 * @params array[string]
 	 * @return mixed|string
 	 */
-	function inColumns()
+	public function inColumns()
 	{
 		$elements = func_get_args();
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
@@ -473,7 +477,7 @@ abstract class Controller {
 				return $content;*/
 	}
 
-	function inColumnsHTML5()
+	public function inColumnsHTML5()
 	{
 		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
@@ -486,7 +490,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function inEqualColumnsHTML5()
+	public function inEqualColumnsHTML5()
 	{
 		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
@@ -498,7 +502,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInTableHTML3(array $cells, array $more = array(), array $colMore = [])
+	public function encloseInTableHTML3(array $cells, array $more = array(), array $colMore = [])
 	{
 		if (!$more) {
 			$more['class'] = "encloseInTable";
@@ -506,7 +510,7 @@ abstract class Controller {
 		$content[] = '<table ' . HTMLTag::renderAttr($more) . '>';
 		$content[] = '<tr>';
 		foreach ($cells as $i => $info) {
-			$content[] = '<td valign="top" '.HTMLTag::renderAttr(ifsetor($colMore[$i], [])).'>';
+			$content[] = '<td valign="top" ' . HTMLTag::renderAttr(ifsetor($colMore[$i], [])) . '>';
 			$content[] = $this->s($info);
 			$content[] = '</td>';
 		}
@@ -520,7 +524,7 @@ abstract class Controller {
 	 * Use HTMLTag to do manual wrapping
 	 * @return string
 	 */
-	function encloseInTable()
+	public function encloseInTable()
 	{
 		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/columnContainer.less');
 		$elements = func_get_args();
@@ -546,7 +550,7 @@ abstract class Controller {
 	//	return '';
 	//}
 
-	function sidebar()
+	public function sidebar()
 	{
 		return '';
 	}
@@ -556,7 +560,7 @@ abstract class Controller {
 	 * @param array $params
 	 * @return URL
 	 */
-	function adjustURL(array $params)
+	public function adjustURL(array $params)
 	{
 		return URL::getCurrent()->addParams(array(
 				'c' => get_class(Index::getInstance()->controller),
@@ -570,7 +574,7 @@ abstract class Controller {
 	 * @param string $page
 	 * @return HTMLTag
 	 */
-	function makeRelLink($text, array $params, $page = '?')
+	public function makeRelLink($text, array $params, $page = '?')
 	{
 		return new HTMLTag('a', array(
 			'href' => $this->makeRelURL($params, $page)
@@ -588,7 +592,7 @@ abstract class Controller {
 	 * @param array $submitParams
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array())
+	public function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array())
 	{
 		$f = new HTMLForm();
 		if ($formAction) {
@@ -626,7 +630,7 @@ abstract class Controller {
 	 * @param array $widths
 	 * @return string
 	 */
-	function inTable(array $parts, array $widths = array())
+	public function inTable(array $parts, array $widths = array())
 	{
 		$size = sizeof($parts);
 		$equal = round(12 / $size);
@@ -640,7 +644,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function attr($s)
+	public function attr($s)
 	{
 		if (is_array($s)) {
 			$content = array();
@@ -654,7 +658,7 @@ abstract class Controller {
 		return $content;
 	}
 
-	function s($something)
+	public function s($something)
 	{
 		return MergedContent::mergeStringArrayRecursive($something);
 	}
@@ -666,78 +670,78 @@ abstract class Controller {
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false, array $more = array())
+	public function a($href, $text = '', $isHTML = false, array $more = array())
 	{
 		return new HTMLTag('a', array(
 				'href' => $href,
 			) + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '', array $more = array())
+	public function div($content, $class = '', array $more = array())
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
-	function span($content, $class = '', array $more = array())
+	public function span($content, $class = '', array $more = array())
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return new htmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
 	}
 
-	function info($content)
+	public function info($content)
 	{
 		return '<div class="alert alert-info">' . $this->s($content) . '</div>';
 	}
 
-	function error($content)
+	public function error($content)
 	{
 		return '<div class="alert alert-danger">' . $this->s($content) . '</div>';
 	}
 
-	function success($content)
+	public function success($content)
 	{
 		return '<div class="alert alert-success">' . $this->s($content) . '</div>';
 	}
 
-	function message($content)
+	public function message($content)
 	{
 		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
 	}
 
-	function h1($content)
+	public function h1($content)
 	{
 		return '<h1>' . $this->s($content) . '</h1>';
 	}
 
-	function h2($content)
+	public function h2($content)
 	{
 		return '<h2>' . $this->s($content) . '</h2>';
 	}
 
-	function h3($content)
+	public function h3($content)
 	{
 		return '<h3>' . $this->s($content) . '</h3>';
 	}
 
-	function h4($content)
+	public function h4($content)
 	{
 		return '<h4>' . $this->s($content) . '</h4>';
 	}
 
-	function h5($content)
+	public function h5($content)
 	{
 		return '<h5>' . $this->s($content) . '</h5>';
 	}
 
-	function h6($content)
+	public function h6($content)
 	{
 		return '<h6>' . $this->s($content) . '</h6>';
 	}
 
-	function progress($percent)
+	public function progress($percent)
 	{
 		$percent = intval($percent);
 		return '<div class="progress">
@@ -749,7 +753,7 @@ abstract class Controller {
 		</div>';
 	}
 
-	function linkToAction($action = '', array $params = array(), $controller = NULL)
+	public function linkToAction($action = '', array $params = array(), $controller = NULL)
 	{
 		if (!$controller) {
 			$controller = get_class($this);
@@ -765,13 +769,13 @@ abstract class Controller {
 		return $this->makeURL($params);
 	}
 
-	function p($content, array $attr = array())
+	public function p($content, array $attr = array())
 	{
 		$more = HTMLTag::renderAttr($attr);
 		return '<p ' . $more . '>' . $this->s($content) . '</p>';
 	}
 
-	function img($src, array $attr = array())
+	public function img($src, array $attr = array())
 	{
 		$html = new HTMLTag('img', array(
 				'src' => /*$this->e*/
@@ -781,7 +785,7 @@ abstract class Controller {
 		return $html;
 	}
 
-	function e($content)
+	public function e($content)
 	{
 		if (is_array($content)) {
 			$content = MergedContent::mergeStringArrayRecursive($content);
@@ -795,19 +799,19 @@ abstract class Controller {
 		$this->request->set('ajax', 1);
 	}
 
-	function script($file)
+	public function script($file)
 	{
 		$mtime = filemtime($file);
 		$file .= '?' . $mtime;
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	function log($action, $data = NULL)
+	public function log($action, $data = null)
 	{
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	static function link($text = NULL, array $params = [])
+	public static function link($text = null, array $params = [])
 	{
 		/** @var Controller $self */
 		$self = get_called_class();
@@ -816,7 +820,7 @@ abstract class Controller {
 		), $text ?: $self);
 	}
 
-	static function href(array $params = array())
+	public static function href(array $params = array())
 	{
 		$self = get_called_class();
 		$url = $self;
@@ -846,24 +850,24 @@ abstract class Controller {
 		return $content;
 	}
 
-	function linkPage($className)
+	public function linkPage($className)
 	{
 		$obj = new $className();
 		$title = $obj->title;
 		return $this->a($className, $title);
 	}
 
-	function makeNewOf($className, $id)
+	public function makeNewOf($className, $id)
 	{
 		return new $className($id);
 	}
 
-	function getInstanceOf($className, $id)
+	public function getInstanceOf($className, $id)
 	{
 		return $className::getInstance($id);
 	}
 
-	function setDB(DBInterface $db)
+	public function setDB(DBInterface $db)
 	{
 		$this->db = $db;
 	}
@@ -872,22 +876,22 @@ abstract class Controller {
 	 * http://stackoverflow.com/questions/19901850/how-do-i-get-an-objects-unqualified-short-class-name
 	 * @return string
 	 */
-	function self()
+	public function self()
 	{
 		return substr(strrchr(get_class($this), '\\'), 1);
 	}
 
-	function st($a)
+	public function st($a)
 	{
 		return strip_tags($a);
 	}
 
-	function makeActionURL($action = '', array $params = [], $path = '')
+	public function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-			'c' => get_class($this),
-			'action' => $action,
-		] + $params;
+				'c' => get_class($this),
+				'action' => $action,
+			] + $params;
 		$urlParams = array_filter($urlParams);
 		return $this->makeURL($urlParams, $path);
 	}

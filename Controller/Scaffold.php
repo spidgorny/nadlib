@@ -193,7 +193,7 @@ abstract class Scaffold extends Controller
 		$aTag = $this->makeLink($this->editIcon, array(
 			'c' => get_class($this),
 			'pageType' => get_class($this),
-			'ajax' => TRUE,
+			'ajax' => true,
 			'action' => 'showEdit',
 			$this->table . '.id' => $id,
 		), $this->formPrefix);
@@ -207,7 +207,7 @@ abstract class Scaffold extends Controller
 	{
 		$content = $this->makeAjaxLink('<button>' . $this->addButton . '</button>', array(
 			'c' => get_class($this),
-			'ajax' => TRUE,
+			'ajax' => true,
 			'action' => 'showForm',
 		), $this->formPrefix, '', array('class' => "button"));
 		return $content;
@@ -258,17 +258,11 @@ abstract class Scaffold extends Controller
 	 * $this->insertRecord should return nothing?!?
 	 *
 	 * @throws Exception
-	 * @return string
+	 * @return string[]
 	 */
 	public function showPerform()
 	{
 		$content = [];
-		//$userData = $this->request->getArray($this->formPrefix);
-		//debug($userData, $formPrefix);
-
-		//$desc = $this->getDesc($userData);
-		//$f = new HTMLFormTable();
-		//$desc = $f->fillValues($desc, $userData); // commented not to overwrite
 		$v = new HTMLFormValidate($this->form);
 		if ($v->validate()) {
 			try {
@@ -291,7 +285,17 @@ abstract class Scaffold extends Controller
 				debug($this->db->lastQuery);
 			}
 		} else {
-			//$desc = $v->getDesc();
+			$content[] = $this->showFormWithValidation();
+		}
+		return $content;
+	}
+
+	public function showFormWithValidation()
+	{
+		$v = new HTMLFormValidate($this->form);
+		if ($v->validate()) {
+			$content[] = $this->showForm();
+		} else {
 			$content[] = '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
 			$content[] = $v->getErrorList();
 			$content[] = $this->showForm();
