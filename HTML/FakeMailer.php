@@ -21,7 +21,7 @@ class FakeMailer
 		$emails = is_array($this->emails)
 			? implode('; ', $this->emails)
 			: $this->emails;
-		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
+//		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
 	}
 
 }
