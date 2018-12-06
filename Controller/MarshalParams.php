@@ -8,6 +8,11 @@
 class MarshalParams
 {
 
+	/**
+	 * @var object
+	 * This is an object with functions which require DI or
+	 * Container should have functions starting with 'get' and the class name
+	 */
 	public $object;
 
 	/**
@@ -19,6 +24,39 @@ class MarshalParams
 	{
 		$this->object = $object;
 		$this->request = Request::getInstance();
+	}
+
+	/**
+	 * @param $class
+	 * @return object
+	 * @throws ReflectionException
+	 */
+	public function make($class)
+	{
+		return self::makeInstanceWithInjection($class, $this->object);
+	}
+
+	/**
+	 * @param $class
+	 * @param $container
+	 * @return object
+	 * @throws ReflectionException
+	 */
+	public static function makeInstanceWithInjection($class, $container)
+	{
+		$cr = new ReflectionClass($class);
+		$constructor = $cr->getConstructor();
+		if ($constructor) {
+			$init = self::getFunctionArguments($container, $constructor);
+//			debug($class, $constructor->getName(), $init);
+			// PHP 7
+			//$instance = new $class(...$init);
+			$reflector = new ReflectionClass($class);
+			$instance = $reflector->newInstanceArgs($init);
+		} else {
+			$instance = new $class();
+		}
+		return $instance;
 	}
 
 	/**
@@ -48,8 +86,8 @@ class MarshalParams
 						$typeClass = method_exists($type, 'getName')
 							? $type->getName()
 							: $type . '';
-						//debug($typeClass);
 						$typeGenerator = 'get' . $typeClass;
+//						debug($typeClass, get_class($container), $typeGenerator);
 						if (method_exists($container, $typeGenerator)) {
 							$init[$name] = call_user_func([$container, $typeGenerator]);
 						} else {
@@ -128,29 +166,6 @@ class MarshalParams
 			}
 		}
 		return $return;
-	}
-
-	/**
-	 * @param $class
-	 * @param $container
-	 * @return object
-	 * @throws ReflectionException
-	 */
-	public static function makeInstanceWithInjection($class, $container)
-	{
-		$cr = new ReflectionClass($class);
-		$constructor = $cr->getConstructor();
-		if ($constructor) {
-			$init = self::getFunctionArguments($container, $constructor);
-//			debug($class, $constructor->getName(), $init);
-			// PHP 7
-			//$instance = new $class(...$init);
-			$reflector = new ReflectionClass($class);
-			$instance = $reflector->newInstanceArgs($init);
-		} else {
-			$instance = new $class();
-		}
-		return $instance;
 	}
 
 }

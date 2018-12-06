@@ -244,7 +244,7 @@ class IndexBase /*extends Controller*/
 		$class = end($slugParts);    // again, because __autoload needs the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
-			$this->makeController($class);
+			$this->controller = $this->makeController($class);
 		} else {
 			//debug($_SESSION['autoloadCache']);
 			$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
@@ -255,6 +255,10 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 	}
 
+	/**
+	 * @param $class
+	 * @return AppController
+	 */
 	public function makeController($class)
 	{
 		try {
@@ -266,6 +270,7 @@ class IndexBase /*extends Controller*/
 		} catch (AccessDeniedException $e) {
 			$this->error($e->getMessage());
 		}
+		return $this->controller;
 	}
 
 	/**
