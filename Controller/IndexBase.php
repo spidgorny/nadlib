@@ -177,13 +177,14 @@ class IndexBase /*extends Controller*/
 	 * @param bool $createNew - must be false
 	 * @param ConfigInterface|null $config
 	 * @return Index|IndexBE
+	 * @throws Exception
 	 */
-	static function getInstance($createNew = false, ConfigInterface $config = null)
+	public static function getInstance($createNew = false, ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
-			: NULL;
+			: null;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
 			$instance = new $static($config);
@@ -193,6 +194,13 @@ class IndexBase /*extends Controller*/
 		return $instance;
 	}
 
+	/**
+	 * TODO: Remove the boolean parameter from getInstance()
+	 * TODO: And force to use makeInstance() in case it was true
+	 * @param Config|null $config
+	 * @return Index|IndexBE
+	 * @throws Exception
+	 */
 	public static function makeInstance(Config $config = null)
 	{
 		return static::getInstance(true, $config);
@@ -247,7 +255,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function makeController($class)
+	public function makeController($class)
 	{
 		try {
 			$this->controller = new $class();
@@ -260,7 +268,11 @@ class IndexBase /*extends Controller*/
 		}
 	}
 
-	function getController()
+	/**
+	 * @return AppController
+	 * @throws Exception
+	 */
+	public function getController()
 	{
 		if (!$this->controller) {
 			$this->initController();
@@ -269,7 +281,7 @@ class IndexBase /*extends Controller*/
 		return $this->controller;
 	}
 
-	function render()
+	public function render()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
@@ -296,15 +308,18 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
-	function renderController()
+	public function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$notOptions = array_filter(
 			array_slice(
-				ifsetor($_SERVER['argv'], []), 1),
+				ifsetor($_SERVER['argv'], []),
+			1
+			),
 			function ($el) {
-			return $el[0] != '-';	// --options
-		});
+				return $el[0] != '-';	// --options
+			}
+		);
 //		debug($notOptions); exit;
 		// $notOptions[0] is the controller
 		$method = ifsetor($notOptions[1], 'render');
@@ -316,7 +331,9 @@ class IndexBase /*extends Controller*/
 			$render = $marshal->call($method);
 			//$render = $this->controller->$method();
 		} else {
-			$render = $this->renderException(new InvalidArgumentException('Method ' . $method . ' is not callable on ' . get_class($this->controller)));
+			$render = $this->renderException(
+				new InvalidArgumentException('Method ' . $method . ' is not callable on ' . get_class($this->controller))
+			);
 		}
 		$render = $this->s($render);
 		$this->sidebar = $this->showSidebar();
@@ -330,7 +347,7 @@ class IndexBase /*extends Controller*/
 		return $render;
 	}
 
-	function renderTemplateIfNotAjax($content)
+	public function renderTemplateIfNotAjax($content)
 	{
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
@@ -350,7 +367,7 @@ class IndexBase /*extends Controller*/
 		return $contentOut;
 	}
 
-	function renderTemplate($content)
+	public function renderTemplate($content)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
@@ -367,7 +384,7 @@ class IndexBase /*extends Controller*/
 		return $v;
 	}
 
-	function s($content)
+	public function s($content)
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
@@ -378,7 +395,7 @@ class IndexBase /*extends Controller*/
 	 * @param string $wrapClass
 	 * @return string
 	 */
-	function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
+	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
 	{
 		if ($this->request->isCLI()) {
 			echo get_class($e),
@@ -418,7 +435,7 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
 			// called automatically(!)
@@ -431,7 +448,7 @@ class IndexBase /*extends Controller*/
 	 * @param string $action
 	 * @param mixed $data
 	 */
-	function log($action, $data)
+	public function log($action, $data)
 	{
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
@@ -441,22 +458,22 @@ class IndexBase /*extends Controller*/
 		));*/
 	}
 
-	function message($text)
+	public function message($text)
 	{
 		$this->content->message($text);
 	}
 
-	function error($text)
+	public function error($text)
 	{
 		$this->content->error($text);
 	}
 
-	function success($text)
+	public function success($text)
 	{
 		$this->content->success($text);
 	}
 
-	function info($text)
+	public function info($text)
 	{
 		$this->content->info($text);
 	}
@@ -465,7 +482,7 @@ class IndexBase /*extends Controller*/
 	 * @param bool $defer
 	 * @return $this
 	 */
-	function addJQuery($defer = true)
+	public function addJQuery($defer = true)
 	{
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
@@ -515,7 +532,7 @@ class IndexBase /*extends Controller*/
 		return $this;
 	}
 
-	function addJQueryUI()
+	public function addJQueryUI()
 	{
 		$this->addJQuery();
 		if (ifsetor($this->footer['jqueryui.js'])) return $this;
@@ -567,7 +584,7 @@ class IndexBase /*extends Controller*/
 	 * @param bool $defer
 	 * @return Index|IndexBase
 	 */
-	function addJS($source, $defer = true)
+	public function addJS($source, $defer = true)
 	{
 		if (class_exists('Debug')) {
 			$called = Debug::getCaller();
@@ -595,7 +612,7 @@ class IndexBase /*extends Controller*/
 	 * @param $source
 	 * @return Index|IndexBase
 	 */
-	function addCSS($source)
+	public function addCSS($source)
 	{
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
@@ -636,7 +653,7 @@ class IndexBase /*extends Controller*/
 		return $source;
 	}
 
-	function showSidebar()
+	public function showSidebar()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
@@ -648,14 +665,14 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
-	function renderProfiler()
+	public function renderProfiler()
 	{
 		$pp = new PageProfiler();
 		$content = $pp->render();
 		return $content;
 	}
 
-	function implodeCSS()
+	public function implodeCSS()
 	{
 		$content = array();
 		foreach ($this->header as $key => $script) {
@@ -677,7 +694,7 @@ class IndexBase /*extends Controller*/
 		return implode("\n", $content) . "\n";
 	}
 
-	function implodeJS()
+	public function implodeJS()
 	{
 		// composer require mrclay/minify
 		$path = 'vendor/mrclay/minify/';
@@ -735,7 +752,7 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
-	function addBodyClass($name)
+	public function addBodyClass($name)
 	{
 		$this->bodyClasses[$name] = $name;
 	}
