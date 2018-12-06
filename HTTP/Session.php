@@ -3,17 +3,25 @@
 class Session implements SessionInterface
 {
 
-	var $prefix;
+	public $prefix;
 
-	function __construct($prefix = NULL)
+	public function __construct($prefix = null)
 	{
 		$this->prefix = $prefix;
 		if (!self::isActive()) {
+			$this->start();
+		}
+	}
+
+	public function start()
+	{
+		if (!Request::isPHPUnit()) {
+			// not using @ to see when session error happen
 			session_start();
 		}
 	}
 
-	static function isActive()
+	public static function isActive()
 	{
 		//debug(session_id(), !!session_id(), session_status(), $_SESSION['FloatTime']);
 		if (function_exists('session_status')) {
@@ -25,7 +33,7 @@ class Session implements SessionInterface
 		}
 	}
 
-	function get($key)
+	public function get($key)
 	{
 		if ($this->prefix) {
 			return ifsetor($_SESSION[$this->prefix][$key]);
@@ -34,12 +42,12 @@ class Session implements SessionInterface
 		}
 	}
 
-	function set($key, $val)
+	public function set($key, $val)
 	{
 		$this->save($key, $val);
 	}
 
-	function save($key, $val)
+	public function save($key, $val)
 	{
 		if ($this->prefix) {
 			$_SESSION[$this->prefix][$key] = $val;
@@ -48,12 +56,12 @@ class Session implements SessionInterface
 		}
 	}
 
-	function __get($name)
+	public function __get($name)
 	{
 		return $this->get($name);
 	}
 
-	function __set($name, $value)
+	public function __set($name, $value)
 	{
 		$this->save($name, $value);
 	}
