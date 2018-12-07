@@ -105,4 +105,18 @@ class PathTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('/htdocs/', $path . '');
 	}
 
+	public function test_setFile()
+	{
+		$path = new Path('xxx');
+		$path->setFile('yyy');
+		$this->assertEquals('yyy', $path . '');
+	}
+
+	public function test_setFile_empty()
+	{
+		$path = new Path('xxx');
+		$path->setFile('');
+		$this->assertEquals('', $path . '');
+	}
+
 }

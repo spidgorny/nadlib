@@ -1,26 +1,27 @@
 <?php
 
-class FakeMailer {
+class FakeMailer
+{
 
-	var $emails;
+	public $emails;
 
-	var $subject;
+	public $subject;
 
-	var $body;
+	public $body;
 
-	function __construct($emails, $subject, $body)
+	public function __construct($emails, $subject, $body)
 	{
 		$this->emails = $emails;
 		$this->subject = $subject;
 		$this->body = $body;
 	}
 
-	function send()
+	public function send()
 	{
 		$emails = is_array($this->emails)
 			? implode('; ', $this->emails)
-			: $emails;
-		echo 'Sending mail "'.$this->subject.'" to ['.$emails.']', BR;
+			: $this->emails;
+//		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
 	}
 
 }

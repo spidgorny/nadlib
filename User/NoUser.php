@@ -3,7 +3,8 @@
 /**
  * Some places require a user object which does nothing if you're not logged-in
  */
-class NoUser extends UserBase {
+class NoUser extends UserBase
+{
 
 	/**
 	 * @var Preferences|MockPreferences
@@ -15,61 +16,69 @@ class NoUser extends UserBase {
 	 */
 	public $access;
 
-	function __construct() {
+	public function __construct()
+	{
 		$this->prefs = new MockPreferences($this);
 	}
 
-	function can() {
+	public function can($name)
+	{
 		return false;
 	}
 
-	function renderMessages() {
+	public function renderMessages()
+	{
 		return '';
 	}
 
-	function getPref($key) {
-		return NULL;
+	public function getPref($key)
+	{
+		return null;
 	}
 
-	function setPref($key, $val) {
-		return NULL;
+	public function setPref($key, $val)
+	{
+		return null;
 	}
 
 	/**
 	 * @return null
 	 */
-	function getUnreadMessages() {
-		return NULL;
+	public function getUnreadMessages()
+	{
+		return null;
 	}
 
-	function getAllSettings() {
+	public function getAllSettings()
+	{
 		return [];
 	}
 
-	function getSelfAndBackupID() {
+	public function getSelfAndBackupID()
+	{
 		return [$this->id];
 	}
 
-	function getAllSubordinates() {
+	public function getAllSubordinates()
+	{
 		return [];
 	}
 
-	function try2login()
+	public function try2login()
 	{
-
 	}
 
-	function isAdmin()
+	public function isAdmin()
 	{
 		return false;
 	}
 
-	function getLogin()
+	public function getLogin()
 	{
 		return 'somebody';
 	}
 
-	function getAvatarURL()
+	public function getAvatarURL()
 	{
 		return 'http://avatar.com/';
 	}

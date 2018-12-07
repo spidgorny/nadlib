@@ -86,18 +86,20 @@ class ConfigBase implements ConfigInterface
 	 */
 	protected $user;
 
-	var $mailFrom = '';
+	public $mailFrom = '';
 
 	/**
 	 * @var LocalLang
 	 */
-	var $ll;
+	public $ll;
 
-	var $isCron = false;
+	public $isCron = false;
 
 	protected function __construct()
 	{
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . "<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
+			echo __METHOD__ . "<br />\n";
+		}
 		$this->documentRoot = Request::getDocumentRoot();
 //		debug($this->documentRoot);
 
@@ -123,7 +125,9 @@ class ConfigBase implements ConfigInterface
 			$this->mergeConfig($this);
 		}
 		$this->isCron = Request::isCron();
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
+			echo __METHOD__ . BR;
+		}
 	}
 
 	public static function hasInstance()
@@ -155,14 +159,16 @@ class ConfigBase implements ConfigInterface
 	{
 		//$this->getDB();
 		// init user here as he needs to access Config::getInstance()
-		$this->user = NULL;
+		$this->user = null;
 		return $this;
 	}
 
 	public function getDB()
 	{
 		//debug_pre_print_backtrace();
-		if ($this->db) return $this->db;
+		if ($this->db) {
+			return $this->db;
+		}
 
 		if ($this->db_database) {
 			if (extension_loaded('pdo_mysql')) {
@@ -180,7 +186,8 @@ class ConfigBase implements ConfigInterface
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
-					$this->db_password);
+					$this->db_password
+				);
 			} else {
 				throw new DatabaseException('Please enable PDO');
 			}
