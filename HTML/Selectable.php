@@ -13,8 +13,9 @@ class Selectable
 
 	/**
 	 * @var int
+	 * @public to be visible in debug
 	 */
-	protected $selected;
+	public $selected;
 
 	/**
 	 * @var array of all possible data from DB
