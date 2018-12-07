@@ -23,6 +23,7 @@ class Preferences
 	public function set($key, $val)
 	{
 		$this->prefs[$key] = $val;
+		//debug(__METHOD__, typ($this), $key, $val);
 	}
 
 	public function get($key, $default = null)
