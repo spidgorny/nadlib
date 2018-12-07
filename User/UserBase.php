@@ -1,6 +1,7 @@
 <?php
 
-abstract class UserBase extends OODBase implements UserModelInterface {
+abstract class UserBase extends OODBase implements UserModelInterface
+{
 
 	public $table = 'user';
 
@@ -18,11 +19,13 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 *
 	 * @throws Exception
 	 */
-	public function __construct($id = NULL) {
+	public function __construct($id = NULL)
+	{
 		parent::__construct($id);
 	}
 
-	public static function unsetInstance($id) {
+	public static function unsetInstance($id)
+	{
 		unset(self::$instances[$id]);
 		//debug(self::$instances);
 	}
@@ -33,7 +36,8 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 */
 	//abstract function autologin();
 
-	function __destruct() {
+	function __destruct()
+	{
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
@@ -52,7 +56,8 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 * @return boolean
 	 * @throws Exception
 	 */
-	function checkPassword($login, $password) {
+	function checkPassword($login, $password)
+	{
 		$query = $this->db->getSelectQuery($this->table, array($this->idField => $login));
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
@@ -72,7 +77,8 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 * @throws Exception
 	 * @return void
 	 */
-	function insertUniqEmail(array $data) {
+	function insertUniqEmail(array $data)
+	{
 		//debug($data);
 		if ($data['email']) {
 			$this->findInDB(array('email' => $data['email']));
@@ -89,10 +95,11 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 		}
 	}
 
-	function insertNoUserCheck(array $data) {
+	function insertNoUserCheck(array $data)
+	{
 		$data['ctime'] = new SQLDateTime();
-		$data['email'] = ifsetor($data['email']) ? $data['email'] : NULL;		/// will set '' to NULL IMPORTANT!
-		Index::getInstance()->log(get_called_class().'::'.__FUNCTION__, $data);
+		$data['email'] = ifsetor($data['email']) ? $data['email'] : NULL;        /// will set '' to NULL IMPORTANT!
+		Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $data);
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
@@ -106,58 +113,66 @@ abstract class UserBase extends OODBase implements UserModelInterface {
 	 * @param $key
 	 * @param $val
 	 */
-	function setPref($key, $val) {
+	function setPref($key, $val)
+	{
 		$this->prefs[$key] = $val;
 	}
 
-	function getPref($key) {
+	function getPref($key)
+	{
 		return ifsetor($this->prefs[$key]);
 	}
 
-	function getAllPrefs() {
+	function getAllPrefs()
+	{
 		return $this->prefs;
 	}
 
-	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {
+	public function getSetPref($key, $prio1 = null, $prio3 = null)
+	{
 		$prio2 = $this->getPref($key);
-		if ($prio1 != NULL) {
+		if ($prio1 != null) {
 			$val = $prio1;
-		} else if ($prio2 != NULL) {
+		} elseif ($prio2 != null) {
 			$val = $prio2;
 		} else {
 			$val = $prio3;
 		}
-/*		debug(array(
-			$prio1,
-			$prio2,
-			$prio3,
-			$val,
-		));
-*/		$this->setPref($key, $val);
+		/*		debug(array(
+					$prio1,
+					$prio2,
+					$prio3,
+					$val,
+				));
+		*/
+		$this->setPref($key, $val);
 		return $val;
 	}
 
-	function isAuth() {
+	public function isAuth()
+	{
 		//debug($this);
 		return !!$this->id;
 	}
 
-	function getHTML() {
+	public function getHTML()
+	{
 		$content = '<div class="user">
-			<img src="'.$this->getGravatarURL(24).'" class="gravatar24">'.
-			$this->getName().
+			<img src="' . $this->getGravatarURL(24) . '" class="gravatar24">' .
+			$this->getName() .
 			'</div>';
 		return $content;
 	}
 
-	function getGravatarURL($gravatarSize = 50) {
-		return '//www.gravatar.com/avatar/'.md5(
-			strtolower(
-				trim(
-					ifsetor($this->data['email'])
+	public function getGravatarURL($gravatarSize = 50)
+	{
+		return '//www.gravatar.com/avatar/' . md5(
+				strtolower(
+					trim(
+						ifsetor($this->data['email'])
+					)
 				)
-			)
-		).'?s='.intval($gravatarSize);
+			) . '?s=' . intval($gravatarSize);
 	}
 
 }

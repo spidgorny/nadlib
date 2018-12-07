@@ -6,12 +6,12 @@ class LDAPLogin
 	/**
 	 * @var string
 	 */
-	var $LDAP_HOST;
+	public $LDAP_HOST;
 
 	/**
 	 * @var string
 	 */
-	var $LDAP_BASEDN;
+	public $LDAP_BASEDN;
 
 	private $_ldapconn;
 
@@ -40,12 +40,12 @@ class LDAPLogin
 		}
 	}
 
-	function reconnect()
+	public function reconnect()
 	{
 		if ($this->_ldapconn) {
 			ldap_unbind($this->_ldapconn);
 		}
-		ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+		ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, 7);
 		$this->_ldapconn = ldap_connect($this->LDAP_HOST)
 		or die("Couldn't connect to the LDAP server.");
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -57,11 +57,17 @@ class LDAPLogin
 	 * @param $string
 	 * @return string
 	 */
-	function _sanitizeLdap($string)
+	public function _sanitizeLdap($string)
 	{
 		return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
 	}
 
+	/**
+	 * http://php.net/manual/en/function.ldap-bind.php
+	 * @param $loginDN
+	 * @param $password
+	 * @return mixed
+	 */
 	public function bind($loginDN, $password)
 	{
 		$this->_connectLdap();
@@ -89,7 +95,7 @@ class LDAPLogin
 			//echo $filter;
 			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
 
-//			debug($this->_ldapconn, $this->LDAP_BASEDN, $filter);
+			//			debug($this->_ldapconn, $this->LDAP_BASEDN, $filter);
 			$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $filter/*, $attributes*/);
 			if ($search) {
 				$info = ldap_get_entries($this->_ldapconn, $search);
@@ -167,5 +173,4 @@ class LDAPLogin
 		}
 		return $info;
 	}
-
 }

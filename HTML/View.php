@@ -47,10 +47,11 @@ class View extends stdClass {
 
 	public $processed;
 
-	function __construct($file, $copyObject = NULL)
+	public function __construct($file, $copyObject = null)
 	{
 		TaylorProfiler::start(__METHOD__ . ' (' . $file . ')');
-		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
+		$config = class_exists('Config')
+			? Config::getInstance() : new stdClass();
 		$appRoot = AutoLoad::getInstance()->getAppRoot();
 		$this->folder = (ifsetor($appRoot) ? cap($appRoot, '/') : '')
 			. 'template/';

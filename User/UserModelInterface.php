@@ -1,8 +1,9 @@
 <?php
 
-interface UserModelInterface {
+interface UserModelInterface
+{
 
-	function try2login();
+	public function try2login();
 
 	/**
 	 * Implementation may vary.
@@ -10,14 +11,14 @@ interface UserModelInterface {
 	 */
 	/*function saveLogin();*/
 
-	function isAuth();
+	public function isAuth();
 
-	function isAdmin();
+	public function isAdmin();
 
-	function getLogin();
+	public function getLogin();
 
-	function insert(array $data);
+	public function insert(array $data);
 
-	function getAvatarURL();
+	public function getAvatarURL();
 
 }
