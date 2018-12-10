@@ -66,4 +66,9 @@ class POPOBase {
 		return $value;
 	}
 
+	public function toJson()
+	{
+		return json_encode($this, JSON_PRETTY_PRINT);
+	}
+
 }
