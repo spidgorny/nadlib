@@ -1,6 +1,13 @@
 <?php
 
-class URL {
+namespace spidgorny\nadlib\HTTP;
+
+use Request;
+use Path;
+use AutoLoad;
+
+class URL
+{
 
 	/**
 	 * @var string
@@ -66,9 +73,9 @@ class URL {
 		if ($params) {
 			$this->addParams($params);    // setParams was deleting all filters from the URL
 		}
-		if (class_exists('Config')) {
-			$this->setDocumentRoot(Config::getInstance()->documentRoot);
-		}
+//		if (class_exists('Config')) {
+//			$this->setDocumentRoot(Config::getInstance()->documentRoot);
+//		}
 	}
 
 	/**
@@ -334,10 +341,10 @@ class URL {
 				$url = $this->components['path'];
 			}
 			if (ifsetor($this->components['query'])) {
-				$url .= '?'.$this->components['query'];
+				$url .= '?' . $this->components['query'];
 			}
 			if (ifsetor($this->components['fragment'])) {
-				$url .= '#'.$this->components['fragment'];
+				$url .= '#' . $this->components['fragment'];
 			}
 		}
 		//debug($this->components, $url);
