@@ -63,6 +63,11 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ...$a
+	 * @param null $b
+	 * @param null $c
+	 * @param null $d
+	 * @param null $e
+	 * @param null $f
 	 */
 	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
 	{
