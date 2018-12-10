@@ -13,6 +13,8 @@
  * will call cronjobAction instead of default render()
  */
 
+use spidgorny\nadlib\HTTP\URL;
+
 abstract class Controller
 {
 
@@ -119,11 +121,11 @@ abstract class Controller
 		$this->al = AutoLoad::getInstance();
 
 		if (!is_object($this->config) && class_exists('Config')) {
-			$this->config = Config::getInstance();
-			$this->db = $this->config->getDB();
-			$this->user = $this->config->getUser();
+//			$this->config = Config::getInstance();
+//			$this->db = $this->config->getDB();
+//			$this->user = $this->config->getUser();
 //			pre_print_r('User ID', $this->user->getID());
-			$this->config->mergeConfig($this);
+//			$this->config->mergeConfig($this);
 		} else {
 			/** @var Config config */
 			// $this->config = NULL;
@@ -138,9 +140,9 @@ abstract class Controller
 		$this->title = $this->title ? $this->title
 			: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
-		if ($this->config->ll) {
-			$this->title = $this->title ? __($this->title) : $this->title;
-		}
+//		if ($this->config->ll) {
+//			$this->title = $this->title ? __($this->title) : $this->title;
+//		}
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
 	}

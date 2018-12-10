@@ -1,5 +1,11 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
+use Request;
+use Path;
+use AutoLoad;
+
 class URL
 {
 
@@ -67,9 +73,9 @@ class URL
 		if ($params) {
 			$this->addParams($params);    // setParams was deleting all filters from the URL
 		}
-		if (class_exists('Config')) {
-			$this->setDocumentRoot(Config::getInstance()->documentRoot);
-		}
+//		if (class_exists('Config')) {
+//			$this->setDocumentRoot(Config::getInstance()->documentRoot);
+//		}
 	}
 
 	/**
