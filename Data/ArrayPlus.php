@@ -852,7 +852,7 @@ class ArrayPlus extends ArrayObject implements Countable {
 	 * @param null $joinWith
 	 * @return array|string
 	 */
-	public function getHeaders($joinWith = NULL)
+	public function getHeaders($joinWith = null)
 	{
 		$headers = array();
 		foreach ($this as $key => $val) {

@@ -1,5 +1,9 @@
 <?php
 
+require_once __DIR__.'/URL.php';
+
+use spidgorny\nadlib\HTTP\URL;
+
 class Request {
 
 	/**

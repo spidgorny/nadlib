@@ -13,7 +13,10 @@
  * will call cronjobAction instead of default render()
  */
 
-abstract class Controller {
+use spidgorny\nadlib\HTTP\URL;
+
+abstract class Controller
+{
 
 	//use HTMLHelper;	// bijou is PHP 5.4
 
@@ -118,11 +121,11 @@ abstract class Controller {
 		$this->al = AutoLoad::getInstance();
 
 		if (!is_object($this->config) && class_exists('Config')) {
-			$this->config = Config::getInstance();
-			$this->db = $this->config->getDB();
-			$this->user = $this->config->getUser();
+//			$this->config = Config::getInstance();
+//			$this->db = $this->config->getDB();
+//			$this->user = $this->config->getUser();
 //			pre_print_r('User ID', $this->user->getID());
-			$this->config->mergeConfig($this);
+//			$this->config->mergeConfig($this);
 		} else {
 			/** @var Config config */
 			// $this->config = NULL;
@@ -137,9 +140,9 @@ abstract class Controller {
 		$this->title = $this->title ? $this->title
 			: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
-		if ($this->config->ll) {
-			$this->title = $this->title ? __($this->title) : $this->title;
-		}
+//		if ($this->config->ll) {
+//			$this->title = $this->title ? __($this->title) : $this->title;
+//		}
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
 	}
@@ -151,7 +154,7 @@ abstract class Controller {
 	 * @public for View::link
 	 * @use getURL()
 	 */
-	function makeURL(array $params, $prefix = NULL)
+	function makeURL(array $params, $prefix = null)
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
@@ -169,7 +172,7 @@ abstract class Controller {
 
 		$location = $this->request->getLocation();
 		$url = new URL($prefix
-			? $location.$prefix
+			? $location . $prefix
 			: $location, $params);
 		$path = $url->getPath();
 		if ($this->useRouter && $class) {
@@ -188,7 +191,7 @@ abstract class Controller {
 			'class($path)' => get_class($path),
 			'$this->linkVars' => $this->linkVars,
 			'return' => $url . '',
-			'location' => $location .'',
+			'location' => $location . '',
 		));
 		return $url;
 	}
@@ -213,9 +216,10 @@ abstract class Controller {
 	 * Use makeURL() for old functionality
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = NULL) {
+	public function getURL(array $params = [], $prefix = NULL)
+	{
 		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
+			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
 		}
 //		$params = $params + $this->linkVars;
 //		debug($params);
@@ -506,7 +510,7 @@ abstract class Controller {
 		$content[] = '<table ' . HTMLTag::renderAttr($more) . '>';
 		$content[] = '<tr>';
 		foreach ($cells as $i => $info) {
-			$content[] = '<td valign="top" '.HTMLTag::renderAttr(ifsetor($colMore[$i], [])).'>';
+			$content[] = '<td valign="top" ' . HTMLTag::renderAttr(ifsetor($colMore[$i], [])) . '>';
 			$content[] = $this->s($info);
 			$content[] = '</td>';
 		}
@@ -885,9 +889,9 @@ abstract class Controller {
 	function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-			'c' => get_class($this),
-			'action' => $action,
-		] + $params;
+				'c' => get_class($this),
+				'action' => $action,
+			] + $params;
 		$urlParams = array_filter($urlParams);
 		return $this->makeURL($urlParams, $path);
 	}
