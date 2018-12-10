@@ -2,14 +2,15 @@
 
 namespace nadlib;
 
-class Service {
+class Service
+{
 
 	/**
 	 * @var IndexInterface
 	 */
-	var $index;
+	protected $index;
 
-	function __construct(IndexInterface $index)
+	public function __construct(IndexInterface $index)
 	{
 		$this->index = $index;
 	}

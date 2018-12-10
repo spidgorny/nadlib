@@ -13,13 +13,15 @@
  * will call cronjobAction instead of default render()
  */
 
+use spidgorny\nadlib\HTTP\URL;
+
 abstract class Controller
 {
 
 	//use HTMLHelper;	// bijou is PHP 5.4
 
 	/**
-	 * @var Index
+	 * @var Index|\nadlib\IndexInterface
 	 */
 	public $index;
 
@@ -119,7 +121,7 @@ abstract class Controller
 		$this->al = AutoLoad::getInstance();
 
 		if (!is_object($this->config) && class_exists('Config')) {
-			$this->config = Config::getInstance();
+//			$this->config = Config::getInstance();
 		}
 
 		$this->db = $this->config->getDB();
@@ -131,9 +133,9 @@ abstract class Controller
 		$this->title = $this->title ? $this->title
 			: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
-		if ($this->config->ll) {
-			$this->title = $this->title ? __($this->title) : $this->title;
-		}
+//		if ($this->config->ll) {
+//			$this->title = $this->title ? __($this->title) : $this->title;
+//		}
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
 	}
@@ -194,12 +196,14 @@ abstract class Controller
 	 * @param string $page
 	 * @return URL
 	 */
-	public function makeRelURL(array $params = array(), $page = NULL)
+	public function makeRelURL(array $params = array(), $page = null)
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
 			+ $this->getURL()->getParams()            // 2nd priority
-			+ $this->linkVars, $page);                // 3rd priority
+			+ $this->linkVars,
+			$page
+		);                // 3rd priority
 	}
 
 	/**
@@ -365,7 +369,7 @@ abstract class Controller
 	 * @param array $more
 	 * @return array|string
 	 */
-	public function encloseInAA($content, $caption = '', $h = NULL, array $more = array())
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
@@ -383,7 +387,7 @@ abstract class Controller
 		return $content;
 	}
 
-	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = NULL, $tag = 'h3')
+	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
 	{
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
@@ -409,7 +413,7 @@ abstract class Controller
 		return $content;
 	}
 
-	public function performAction($action = NULL)
+	public function performAction($action = null)
 	{
 		$content = '';
 		if ($this->request->isCLI()) {
@@ -552,6 +556,7 @@ abstract class Controller
 	 * @see makeRelURL
 	 * @param array $params
 	 * @return URL
+	 * @throws Exception
 	 */
 	public function adjustURL(array $params)
 	{
@@ -799,12 +804,12 @@ abstract class Controller
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	public function log($action, $data = NULL)
+	public function log($action, $data = null)
 	{
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	public static function link($text = NULL, array $params = [])
+	public static function link($text = null, array $params = [])
 	{
 		/** @var Controller $self */
 		$self = get_called_class();

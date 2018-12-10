@@ -6,14 +6,14 @@ trait CachedGetInstance
 	/**
 	 * array[get_called_class()][$id]
 	 */
-	static $instances = array();
+	public static $instances = array();
 
 	/**
 	 * @param $id
 	 * @return self|$this|static
 	 * @throws Exception
 	 */
-	static function getInstance($id)
+	public static function getInstance($id)
 	{
 		return static::getInstanceByID($id);
 	}
@@ -39,7 +39,7 @@ trait CachedGetInstance
 		if (is_scalar($id)) {
 			$inst = isset(self::$instances[$static][$id])
 				? self::$instances[$static][$id]
-				: NULL;
+				: null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
@@ -52,7 +52,7 @@ trait CachedGetInstance
 			}
 		} elseif (is_array($id)) {
 			/** @var OODBase $inst */
-			$inst = new $static();
+			$inst = new $static();	// only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
 			$inst = isset(self::$instances[$static][$intID])
@@ -77,7 +77,7 @@ trait CachedGetInstance
 		return $inst;
 	}
 
-	static function storeInstance($inst, $newID = NULL)
+	public static function storeInstance($inst, $newID = null)
 	{
 		$static = get_called_class();
 		$id = $inst->id ?: $newID;
@@ -86,13 +86,13 @@ trait CachedGetInstance
 		}
 	}
 
-	static function clearInstances()
+	public static function clearInstances()
 	{
 		self::$instances[get_called_class()] = array();
 		gc_collect_cycles();
 	}
 
-	static function clearAllInstances()
+	public static function clearAllInstances()
 	{
 		self::$instances = array();
 		gc_collect_cycles();
@@ -103,7 +103,7 @@ trait CachedGetInstance
 	 * @return self
 	 * @throws Exception
 	 */
-	static function tryGetInstance($id)
+	public static function tryGetInstance($id)
 	{
 		try {
 			$obj = self::getInstance($id);

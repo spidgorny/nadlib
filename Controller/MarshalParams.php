@@ -1,23 +1,69 @@
 <?php
 
-class MarshalParams {
+/**
+ * Class MarshalParams
+ * Poor programmers' dependency injection solution
+ * Will check the reflection of the class to see which parameters need to be injected
+ */
+class MarshalParams
+{
 
-	var $object;
+	/**
+	 * @var object
+	 * This is an object with functions which require DI or
+	 * Container should have functions starting with 'get' and the class name
+	 */
+	public $object;
 
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
-	function __construct($object) {
+	public function __construct($object)
+	{
 		$this->object = $object;
 		$this->request = Request::getInstance();
+	}
+
+	/**
+	 * @param $class
+	 * @return object
+	 * @throws ReflectionException
+	 */
+	public function make($class)
+	{
+		return self::makeInstanceWithInjection($class, $this->object);
+	}
+
+	/**
+	 * @param $class
+	 * @param $container
+	 * @return object
+	 * @throws ReflectionException
+	 */
+	public static function makeInstanceWithInjection($class, $container)
+	{
+		$cr = new ReflectionClass($class);
+		$constructor = $cr->getConstructor();
+		if ($constructor) {
+			$init = self::getFunctionArguments($container, $constructor);
+//			debug($class, $constructor->getName(), $init);
+			// PHP 7
+			//$instance = new $class(...$init);
+			$reflector = new ReflectionClass($class);
+			$instance = $reflector->newInstanceArgs($init);
+		} else {
+			$instance = new $class();
+		}
+		return $instance;
 	}
 
 	/**
 	 * @param $container
 	 * @param $constructor
 	 * @return array
+	 * @throws ReflectionException
 	 */
 	public static function getFunctionArguments($container, ReflectionMethod $constructor)
 	{
@@ -39,9 +85,15 @@ class MarshalParams {
 					} else {
 						$typeClass = method_exists($type, 'getName')
 							? $type->getName()
-							: $type.'';
-						//					debug($typeClass);
-						$init[$name] = call_user_func([$container, 'get' . $typeClass]);
+							: $type . '';
+						$typeGenerator = 'get' . $typeClass;
+//						debug($typeClass, get_class($container), $typeGenerator);
+						if (method_exists($container, $typeGenerator)) {
+							$init[$name] = call_user_func([$container, $typeGenerator]);
+						} else {
+							// build the dependency
+							$init[$name] = self::makeInstanceWithInjection($typeClass, $container);
+						}
 					}
 				} else {
 					$init[$name] = null;
@@ -51,7 +103,13 @@ class MarshalParams {
 		return $init;
 	}
 
-	function call($method) {
+	/**
+	 * @param $method
+	 * @return mixed
+	 * @throws ReflectionException
+	 */
+	public function call($method)
+	{
 		return $this->callMethodByReflection($this->object, $method);
 	}
 
@@ -60,8 +118,10 @@ class MarshalParams {
 	 * @param $proxy
 	 * @param $method
 	 * @return mixed
+	 * @throws ReflectionException
 	 */
-	private function callMethodByReflection($proxy, $method) {
+	private function callMethodByReflection($proxy, $method)
+	{
 		$r = new ReflectionMethod($proxy, $method);
 		if ($r->getNumberOfParameters()) {
 			$assoc = array();
@@ -72,7 +132,7 @@ class MarshalParams {
 				} elseif ($param->isDefaultValueAvailable()) {
 					$assoc[$name] = $param->getDefaultValue();
 				} else {
-					$assoc[$name] = NULL;
+					$assoc[$name] = null;
 				}
 			}
 			//debug($assoc);
@@ -83,7 +143,8 @@ class MarshalParams {
 		return $content;
 	}
 
-	function getParameterByReflection(ReflectionParameter $param) {
+	public function getParameterByReflection(ReflectionParameter $param)
+	{
 		$name = $param->getName();
 		if ($param->isArray()) {
 			$return = $this->request->getArray($name);
@@ -99,29 +160,12 @@ class MarshalParams {
 					$obj = $paramClass::getInstance($return);
 					$return = $obj;
 				} else {
-					$obj = new $paramClass($assoc[$name]);
+					$obj = new $paramClass(/*$assoc[$name]*/);
 					$return = $obj;
 				}
 			}
 		}
 		return $return;
-	}
-
-	static function makeInstanceWithInjection($class, $container)
-	{
-		$cr = new ReflectionClass($class);
-		$constructor = $cr->getConstructor();
-		if ($constructor) {
-			$init = self::getFunctionArguments($container, $constructor);
-//			debug($class, $constructor->getName(), $init);
-			// PHP 7
-			//$instance = new $class(...$init);
-			$reflector = new ReflectionClass($class);
-			$instance = $reflector->newInstanceArgs($init);
-		} else {
-			$instance = new $class();
-		}
-		return $instance;
 	}
 
 }
