@@ -342,7 +342,7 @@ class Path {
 				implode('/', array_slice($this->aPath, 0, $i));
 //			debug($assembled, is_link($assembled));
 			if (@is_link($assembled)) {
-				$this->aPath[$i-1] = trim(readlink($assembled),'/');
+				$this->aPath[$i-1] = trim(readlink($assembled), '/');
 			}
 		}
 		$this->aPath = array_filter($this->aPath);
@@ -350,7 +350,7 @@ class Path {
 		return $this;
 	}
 
-	function onlyExisting()
+	public function onlyExisting()
 	{
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' .
@@ -421,7 +421,7 @@ class Path {
 	 * because we can force it to be a file or dir
 	 * with setAsFile() and setAsDir().
 	 */
-	function checkFileDir()
+	public function checkFileDir()
 	{
 		$this->isFile = is_file($this->sPath);
 		$this->isDir = is_dir($this->sPath);
@@ -446,7 +446,7 @@ class Path {
 		return $relative;
 	}
 
-	static function fromArray(array $parts)
+	public static function fromArray(array $parts)
 	{
 		$path = new Path('');
 		$path->aPath = $parts;
