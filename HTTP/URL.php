@@ -79,7 +79,9 @@ class URL
 	{
 		$this->components = @parse_url($url);
 		//pre_print_r($this->components);
-		if (!$this->components) {    //  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
+		if (!$this->components) {
+			// parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html)
+			// [function.parse-url]: Unable to parse URL
 			$request = Request::getExistingInstance();
 			if ($request) {
 				//debug(substr($request->getLocation(), 0, -1).$url);
@@ -104,7 +106,8 @@ class URL
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
 		if (isset($this->components['path'])) {
 			$this->path = new Path($this->components['path']);
-			$this->components['path'] = $this->path;
+			// keep the original intact, just in case
+//			$this->components['path'] = $this->path;
 			//pre_print_r([__METHOD__, $this->components, get_class($this->path)]);
 		} else {
 			$this->path = new Path('/');
@@ -299,7 +302,8 @@ class URL
 	public function buildURL($parsed = null)
 	{
 		if (!$parsed) {
-			$this->components['query'] = $this->buildQuery(); // to make sure manual manipulations are not possible (although it's already protected?)
+			// to make sure manual manipulations are not possible (although it's already protected?)
+			$this->components['query'] = $this->buildQuery();
 			$parsed = $this->components;
 		}
 		if (!is_array($parsed)) {
@@ -332,10 +336,11 @@ class URL
 			$url = $this->buildURL();
 		} else {
 			$url = '';
-			if (ifsetor($this->components['path'])
-				&& $this->components['path'] != '/') {
-				$url = $this->components['path'];
-			}
+//			if (ifsetor($this->components['path'])
+//				&& $this->components['path'] != '/') {
+//				$url .= $this->components['path'];
+//			}
+			$url .= $this->path.'';
 			if (ifsetor($this->components['query'])) {
 				$url .= '?' . $this->components['query'];
 			}
