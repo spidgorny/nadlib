@@ -17,7 +17,7 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
 		$c->useRouter = false;
 		$link = $c->makeURL(['a' => 'b']);
 		$link->setHost(null);
-		$this->assertEquals('?a=b', $link . '');
+		$this->assertEquals('/?a=b', $link . '');
 	}
 
 	public function test_makeLinkSimpleWithPrefix()
@@ -53,7 +53,7 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
 		$c->useRouter = false;
 		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
-		$this->assertEquals('?a=b&c=Controller', $link . '');
+		$this->assertEquals('/?a=b&c=Controller', $link . '');
 	}
 
 	public function test_makeLinkCRouter()
