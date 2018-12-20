@@ -694,6 +694,7 @@ class slTable
 
 	/**
 	 * @param $table
+	 * @throws Exception
 	 */
 	function getData($table)
 	{
