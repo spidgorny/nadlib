@@ -129,7 +129,7 @@ class Pager {
 		}
 	}
 
-	function initByQuery($originalSQL)
+	public function initByQuery($originalSQL)
 	{
 		if (is_string($originalSQL)) {
 			$this->initByStringQuery($originalSQL);
@@ -140,26 +140,30 @@ class Pager {
 		}
 	}
 
-	function initByStringQuery($originalSQL)
+	public function initByStringQuery($originalSQL)
 	{
 		//debug_pre_print_backtrace();
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
-		$queryObj = new SQLQuery($originalSQL);
-		// not allowed or makes no sense
-		unset($queryObj->parsed['ORDER']);
-		if ($this->db instanceof DBLayerMS) {
-			$query = $this->db->fixQuery($queryObj);
+
+		if (!str_contains('count(*)', $originalSQL)) {
+			$queryObj = new SQLQuery($originalSQL);
+			// not allowed or makes no sense
+			unset($queryObj->parsed['ORDER']);
+			if ($this->db instanceof DBLayerMS) {
+				$query = $this->db->fixQuery($queryObj);
+			} else {
+				$query = $queryObj->getQuery();
+			}
+			//debug($query->parsed['WHERE']);
+			$countQuery = "SELECT count(*) AS count
+			FROM (" . $query . ") AS counted";
+			//		debug($query.'', $query->getParameters(), $countQuery);
+			//		exit();
 		} else {
-			$query = $queryObj->getQuery();
+			$countQuery = $originalSQL;
 		}
-		//debug($query->parsed['WHERE']);
-		$countQuery = "SELECT count(*) AS count
-		FROM (" . $query . ") AS counted";
-//		debug($query.'', $query->getParameters(), $countQuery);
-//		exit();
-		$res = $this->db->fetchAssoc(
-			$this->db->perform($countQuery));
+		$res = $this->db->fetchAssoc($this->db->perform($countQuery));
 		// , $query->getParameters()
 		$this->setNumberOfRecords($res['count']);
 		//debug($originalSQL, $query, $res);
@@ -167,19 +171,24 @@ class Pager {
 		TaylorProfiler::stop($key);
 	}
 
-	function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = [])
+	public function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = [])
 	{
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
-		$queryWithoutOrder = clone $originalSQL;
-		$queryWithoutOrder->unsetOrder();
+		if (!$originalSQL->getSelect()->contains('count(*)')) {
+			$queryWithoutOrder = clone $originalSQL;
+			$queryWithoutOrder->unsetOrder();
 
-		$subquery = new SQLSubquery($queryWithoutOrder, 'counted');
-		$subquery->parameters = $parameters;
+			$subquery = new SQLSubquery($queryWithoutOrder, 'counted');
+			$subquery->parameters = $parameters;
 
-		$query = new SQLSelectQuery(
-			new SQLSelect('count(*) AS count'),
-			$subquery);
+			$query = new SQLSelectQuery(
+				new SQLSelect('count(*) AS count'),
+				$subquery
+			);
+		} else {
+			$query = $originalSQL;
+		}
 		$query->injectDB($this->db);
 
 		$res = $query->fetchAssoc();
@@ -191,7 +200,7 @@ class Pager {
 	/**
 	 * @param $i
 	 */
-	function setNumberOfRecords($i)
+	public function setNumberOfRecords($i)
 	{
 		$this->numberOfRecords = $i;
 		if ($this->startingRecord > $this->numberOfRecords) {    // required
@@ -206,7 +215,7 @@ class Pager {
 	 * Make sure to setNumberOfRecords first(!)
 	 * @param $page
 	 */
-	function setCurrentPage($page)
+	public function setCurrentPage($page)
 	{
 		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
 		$page = min($page, $this->getMaxPage());
@@ -214,7 +223,7 @@ class Pager {
 		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 	}
 
-	function saveCurrentPage()
+	public function saveCurrentPage()
 	{
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
 		if ($this->user instanceof UserWithPreferences) {
@@ -227,7 +236,7 @@ class Pager {
 	/**
 	 * @param int $items
 	 */
-	function setItemsPerPage($items)
+	public function setItemsPerPage($items)
 	{
 		if (!$items) {
 			$items = $this->pageSize->get();
@@ -241,7 +250,7 @@ class Pager {
 	 * @param $query
 	 * @return string|SQLSelectQuery
 	 */
-	function getSQLLimit($query)
+	public function getSQLLimit($query)
 	{
 		$scheme = $this->db->getScheme();
 		if ($scheme == 'ms') {
@@ -256,27 +265,27 @@ class Pager {
 		return $query;
 	}
 
-	function getStart()
+	public function getStart()
 	{
 		return $this->startingRecord;
 	}
 
-	function getLimit()
+	public function getLimit()
 	{
 		return $this->itemsPerPage;
 	}
 
-	function getPageFirstItem($page)
+	public function getPageFirstItem($page)
 	{
 		return $page * $this->itemsPerPage;
 	}
 
-	function getPageLastItem($page)
+	public function getPageLastItem($page)
 	{
 		return min($this->numberOfRecords, $page * $this->itemsPerPage + $this->itemsPerPage);
 	}
 
-	function isInPage($i)
+	public function isInPage($i)
 	{
 		return $i >= $this->getPageFirstItem($this->currentPage) &&
 			$i < ($this->getPageFirstItem($this->currentPage) + $this->itemsPerPage);
@@ -287,7 +296,7 @@ class Pager {
 	 * Alternative maybe ceil($div)-1 ?
 	 * @return float
 	 */
-	function getMaxPage()
+	public function getMaxPage()
 	{
 		//$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
 		if ($this->itemsPerPage) {
@@ -316,7 +325,7 @@ class Pager {
 		return $maxpage;
 	}
 
-	function getCSS()
+	public function getCSS()
 	{
 		if (class_exists('lessc')) {
 			$l = new lessc();
@@ -327,7 +336,7 @@ class Pager {
 		}
 	}
 
-	function renderPageSelectors(URL $url = null)
+	public function renderPageSelectors(URL $url = null)
 	{
 		$content = '';
 		if ($url) {
