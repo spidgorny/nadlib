@@ -116,7 +116,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
 	}
 
-	function connect($dbName, $user, $pass, $host = "localhost")
+	public function connect($dbName, $user, $pass, $host = "localhost")
 	{
 		$this->database = $dbName;
 		$string = "host=$host dbname=$dbName user=$user password=$pass";
@@ -138,6 +138,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param array $params
 	 * @return resource|null
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function perform($query, array $params = [])
 	{
@@ -150,9 +151,13 @@ class DBLayer extends DBLayerBase implements DBInterface
 				unset($el['args']);
 				return $el;
 			}, $this->lastBacktrace);
-			debug($this->lastBacktrace);
+			debug($this->lastQuery.'', pg_errormessage($this->connection));
 //			die(pg_errormessage($this->connection));
-			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
+			throw new DatabaseException(
+				'Last query has failed.' . PHP_EOL .
+				$this->lastQuery . PHP_EOL .
+				pg_errormessage($this->connection)
+			);
 		}
 
 		$this->lastQuery = $query;

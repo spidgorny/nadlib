@@ -93,6 +93,7 @@ if (!function_exists('debugList')) {
 			echo '</pre>';
 		} else {
 			print_r(func_num_args() == 1 ? $a : func_get_args());
+			echo PHP_EOL;
 		}
 	}
 
@@ -112,7 +113,7 @@ if (!function_exists('debugList')) {
 
 	function debug_once()
 	{
-		static $used = NULL;
+		static $used = null;
 		if (is_null($used)) {
 			$used = array();
 		}
