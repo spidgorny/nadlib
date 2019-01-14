@@ -457,7 +457,8 @@ class ArrayPlus extends ArrayObject implements Countable
 		$copy = clone $this;
 		$sortCol = $copy->column($column)->getData();
 		$aCopy = $this->getData();
-		array_multisort($sortCol, $aCopy);        // Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+		array_multisort($sortCol, $aCopy);
+		// Associative (string) keys will be maintained, but numeric keys will be re-indexed.
 		$this->exchangeArray($aCopy);
 		$this->extractKeyFromColumn();
 		return $this;
@@ -1191,6 +1192,46 @@ class ArrayPlus extends ArrayObject implements Countable
 		}
 		return $set;
 	}
+
+	public function insertBefore($key, $content)
+	{
+		$indexes = array_keys($this->getArrayCopy());
+		$intPos = array_search($key, $indexes, true);
+		if ($intPos) {
+			$beforeKeys = array_slice($indexes, 0, $intPos);
+		} else {
+			$beforeKeys = [];
+		}
+		$values = array_values($this->getArrayCopy());
+		$before = array_combine($beforeKeys, array_slice($values, 0, $intPos));
+//		debug($indexes, $intPos, $beforeKeys, $before);
+		// insert
+		$before[] = $content;
+		// add remaining
+		$afterKeys = array_slice($indexes, $intPos);
+		$together = array_merge($before, array_combine($afterKeys, array_slice($values, $intPos)));
+		$this->setData($together);
+		return $this;
+	}
+
+	// untested from https://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
+	public function insertAfter($position, $insert)
+	{
+		if (is_int($position)) {
+			$copy = $this->getArrayCopy();
+			array_splice($copy, $position, 0, $insert);
+			$this->setData($copy);
+		} else {
+			$pos = array_search($position, array_keys($this->getArrayCopy()));
+			$array = array_merge(
+				array_slice($this->getArrayCopy(), 0, $pos),
+				$insert,
+				array_slice($this->getArrayCopy(), $pos)
+			);
+			$this->setData($array);
+		}
+	}
+
 }
 
 function AP($a = array())
