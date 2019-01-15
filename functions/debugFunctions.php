@@ -30,7 +30,7 @@ if (!function_exists('debug')) {
 
 if (!function_exists('debugList')) {
 
-	function debugList(array $a, $name = NULL)
+	function debugList(array $a, $name = null)
 	{
 		$debug = Debug::getInstance();
 		$debug->name = $name;

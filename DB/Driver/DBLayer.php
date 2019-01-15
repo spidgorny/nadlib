@@ -12,7 +12,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public $connection = null;
 
-	var $LAST_PERFORM_RESULT;
+	public $LAST_PERFORM_RESULT;
 
 	/**
 	 * todo: use setter & getter method
@@ -23,7 +23,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public $qb = null;
 
-	var $AFFECTED_ROWS = NULL;
+	public $AFFECTED_ROWS = null;
 
 	/**
 	 * @var MemcacheArray
@@ -44,13 +44,13 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @var string DB name
 	 */
-	var $db;
+	public $db;
 
-	var $reserved = [
+	public $reserved = [
 		'SELECT', 'LIKE', 'TO',
 	];
 
-	protected $dbName;
+	public $dbName;
 
 	protected $user;
 
@@ -67,7 +67,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param string $host
 	 * @throws Exception
 	 */
-	function __construct($dbName = NULL, $user = NULL, $pass = NULL, $host = "localhost")
+	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
 	{
 //		debug_pre_print_backtrace();
 		$this->dbName = $dbName;
