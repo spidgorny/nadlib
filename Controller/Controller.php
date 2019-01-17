@@ -432,7 +432,8 @@ abstract class Controller
 			$method .= 'Action';        // ZendFramework style
 			//			debug($method, method_exists($this, $method));
 
-			if ($proxy = $this->request->getTrim('proxy')) {
+			$proxy = $this->request->getTrim('proxy');
+			if ($proxy) {
 				$proxy = new $proxy($this);
 			} else {
 				$proxy = $this;
