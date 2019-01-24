@@ -523,6 +523,8 @@ class Collection implements IteratorAggregate
 
 	/**
 	 * @return ArrayPlus
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getData()
 	{
