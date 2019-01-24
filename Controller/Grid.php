@@ -204,7 +204,7 @@ abstract class Grid extends AppController {
 		return $content;
 	}
 
-	function getFilterWhere()
+	public function getFilterWhere()
 	{
 		$where = array();
 		if ($this->filter) {
