@@ -75,6 +75,12 @@ class Pager {
 	 */
 	var $iterator;
 
+	/**
+	 * for debugging
+	 * @var string
+	 */
+	public $countQuery;
+
 	function __construct($itemsPerPage = null, $prefix = '')
 	{
 		if ($itemsPerPage instanceof PageSize) {
@@ -163,6 +169,7 @@ class Pager {
 		} else {
 			$countQuery = $originalSQL;
 		}
+		$this->countQuery = $countQuery;
 		$res = $this->db->fetchAssoc($this->db->perform($countQuery));
 		// , $query->getParameters()
 		$this->setNumberOfRecords($res['count']);
@@ -189,6 +196,7 @@ class Pager {
 		} else {
 			$query = $originalSQL;
 		}
+		$this->countQuery = $query;
 		$query->injectDB($this->db);
 
 		$res = $query->fetchAssoc();
