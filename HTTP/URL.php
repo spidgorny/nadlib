@@ -5,6 +5,7 @@ namespace spidgorny\nadlib\HTTP;
 use Request;
 use Path;
 use AutoLoad;
+use URLGet;
 
 class URL
 {

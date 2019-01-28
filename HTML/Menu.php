@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Doesn't extend Controller as it makes an infinite loop as a menu is made in Controller::__construct
  */
