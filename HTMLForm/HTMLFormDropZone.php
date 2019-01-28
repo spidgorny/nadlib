@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 
 	var $makeFallback = true;
@@ -9,6 +11,7 @@ class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 	/**
 	 * Shows the form element in the form
 	 * @return mixed
+	 * @throws Exception
 	 */
 	function render() {
 		$content = [];
