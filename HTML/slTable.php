@@ -681,6 +681,7 @@ class slTable
 		return $content;
 	}
 
+	 * @throws Exception
 	function addRowWithMore($row)
 	{
 		$this->addRow();

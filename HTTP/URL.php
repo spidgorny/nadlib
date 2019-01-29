@@ -86,7 +86,7 @@ class URL
 		$this->components = @parse_url($url);
 		//pre_print_r($this->components);
 		if (!$this->components) {
-			//  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html)
+			// parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html)
 			// [function.parse-url]: Unable to parse URL
 			$request = Request::getExistingInstance();
 			if ($request) {
@@ -112,7 +112,8 @@ class URL
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
 		if (isset($this->components['path'])) {
 			$this->path = new Path($this->components['path']);
-			$this->components['path'] = $this->path;
+			// keep the original intact, just in case
+//			$this->components['path'] = $this->path;
 			//pre_print_r([__METHOD__, $this->components, get_class($this->path)]);
 		} else {
 			$this->path = new Path('/');
@@ -343,10 +344,11 @@ class URL
 			$url = $this->buildURL();
 		} else {
 			$url = '';
-			if (ifsetor($this->components['path'])
-				&& $this->components['path'] != '/') {
-				$url = $this->components['path'];
-			}
+//			if (ifsetor($this->components['path'])
+//				&& $this->components['path'] != '/') {
+//				$url .= $this->components['path'];
+//			}
+			$url .= $this->path.'';
 			if (ifsetor($this->components['query'])) {
 				$url .= '?' . $this->components['query'];
 			}
@@ -461,7 +463,7 @@ class URL
 			trimExplode(':', ini_get('open_basedir')),
 			$_SERVER
 		);
-//		exit;
+		//		exit;
 		// some compatibility fixes for Windows paths
 		$from = self::getPathFolders($from);
 		$to = self::getPathFolders($to);
@@ -537,8 +539,8 @@ class URL
 	 */
 	public static function getPathFolders($from)
 	{
-//		ob_start();
-//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		//		ob_start();
+		//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		if (!ini_get('open_basedir')) {
 			$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
 		}
@@ -688,6 +690,7 @@ class URL
 		}
 		// compare last multi-byte character against '/'
 		if ($outPath != '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')) {
+		) {
 			$outPath .= '/';
 		}
 		return $outPath;
@@ -827,7 +830,11 @@ class URL
 				$parts['host'] = rawurlencode($parts['host']);
 			}
 			if (!empty($parts['path'])) {
-				$parts['path'] = preg_replace('!%2F!ui', '/', rawurlencode($parts['path']));
+				$parts['path'] = preg_replace(
+					'!%2F!ui',
+					'/',
+					rawurlencode($parts['path'])
+				);
 			}
 			if (isset($parts['query'])) {
 				$parts['query'] = rawurlencode($parts['query']);
@@ -851,10 +858,11 @@ class URL
 				$url .= '@';
 			}
 			if (preg_match('!^[\da-f]*:[\da-f.:]+$!ui', $parts['host'])) {
-				$url .= '[' . $parts['host'] . ']'; // IPv6
-			} else {
-				$url .= $parts['host'];             // IPv4 or name
-			}
+				$url .= '[' . $parts['host'] . ']';
+			} // IPv6
+			else {
+				$url .= $parts['host'];
+			}             // IPv4 or name
 			if (isset($parts['port'])) {
 				$url .= ':' . $parts['port'];
 			}
@@ -988,7 +996,7 @@ class URL
 	{
 		$al = AutoLoad::getInstance();
 		$path = $this->getPath();
-//		debug($path.'', $path->isAbsolute(), $al->getAppRoot().'');
+		//		debug($path.'', $path->isAbsolute(), $al->getAppRoot().'');
 		if ($path->isAbsolute() && $path->exists()) {
 			$this->setPath($path->relativeFromAppRoot());
 		} else {
@@ -997,5 +1005,4 @@ class URL
 		}
 		return $this;
 	}
-
 }

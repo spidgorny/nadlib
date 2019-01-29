@@ -145,13 +145,13 @@ trait CachedGetInstance
 			});
 		}
 		$stats = $stats->getData();
-		$s = new slTable($stats, 'class="table"', array(
+		$s = new slTable($stats, 'class="table"', [
 			'class' => 'Class',
 			'count' => 'Count',
-			'bar' => array(
+			'bar' => [
 				'no_hsc' => true,
-			),
-		));
+			],
+		]);
 		$content[] = $s->getContent();
 		return $content;
 	}
@@ -164,7 +164,7 @@ trait CachedGetInstance
 	 * @return mixed
 	 * @throws Exception
 	 */
-	static function findInstance(array $where, $static = NULL)
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -189,7 +189,7 @@ trait CachedGetInstance
 	 * @return self|static
 	 * @throws Exception
 	 */
-	static function getInstanceByName($name, $field = null)
+	public static function getInstanceByName($name, $field = null)
 	{
 		$self = get_called_class();
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
@@ -213,9 +213,9 @@ trait CachedGetInstance
 			/** @var $c OODBase */
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
-				$c->findInDBsetInstance(array(
+				$c->findInDBsetInstance([
 					'trim(' . $field . ')' => $name,
-				));
+				]);
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([
 					$field

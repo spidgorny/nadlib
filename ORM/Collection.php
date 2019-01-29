@@ -8,7 +8,8 @@ use Psr\Log\LoggerInterface;
  *
  */
 /*abstract*/ // commented because of createForTable()
-class Collection implements IteratorAggregate {
+class Collection implements IteratorAggregate
+{
 
 	/**
 	 * In case of MSSQL it needs to be set from outside
@@ -167,6 +168,7 @@ class Collection implements IteratorAggregate {
 	 * @param array|SQLWhere $where
 	 * @param string $order - appended to the SQL
 	 * @param DBInterface $db
+	 * @throws Exception
 	 */
 	public function __construct($pid = null, /*array/SQLWhere*/
 						 $where = array(), $order = '', DBInterface $db = null)
@@ -218,7 +220,8 @@ class Collection implements IteratorAggregate {
 	/**
 	 * -1 will prevent data retrieval
 	 * @param bool $preProcess
-	 * @throws Exception
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function retrieveData($preProcess = true)
 	{
@@ -292,6 +295,7 @@ class Collection implements IteratorAggregate {
 	 * @requires PHP 5.3
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function retrieveDataFromMySQL()
 	{
@@ -432,14 +436,16 @@ class Collection implements IteratorAggregate {
 					$this->table . ' ' . $this->join,
 					$where,
 					$this->orderBy,
-					$this->select);
+					$this->select
+				);
 			} else {
 				// joins are not implemented yet (IMHO)
 				$query = $this->db->getSelectQuerySW(
 					$this->table,
 					$where instanceof SQLWhere ? $where : new SQLWhere($where),
 					$this->orderBy,
-					$this->select);
+					$this->select
+				);
 			}
 		}
 		if (DEVELOPMENT) {
@@ -491,7 +497,7 @@ class Collection implements IteratorAggregate {
 		}
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 		TaylorProfiler::stop($profiler);
-		return $this->data;	// return something else if you augment $this->data
+		return $this->data;    // return something else if you augment $this->data
 	}
 
 	public function preprocessRow(array $row)
@@ -513,12 +519,13 @@ class Collection implements IteratorAggregate {
 	{
 		return $this->query && !is_null($this->data);
 		// we may have fetched only 0 rows
-				//|| !$this->data->count())) {
+		//|| !$this->data->count())) {
 	}
 
 	/**
 	 * @return ArrayPlus
-	 * @throws Exception
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getData()
 	{
@@ -666,16 +673,16 @@ class Collection implements IteratorAggregate {
 				if ($this->itemClassName) {
 					$list[$id] = $this->renderListItem($row);
 				} else
-				if ($this->thes) {
-					$row = $this->prepareRenderRow($row);   // add link
-					$item = '';
-					foreach ($this->thes as $key => $_) {
-						$item .= $row[$key] . ' ';
+					if ($this->thes) {
+						$row = $this->prepareRenderRow($row);   // add link
+						$item = '';
+						foreach ($this->thes as $key => $_) {
+							$item .= $row[$key] . ' ';
+						}
+						$list[$id] = $item;
+					} else {
+						$list[$id] = $row[$this->titleColumn];
 					}
-					$list[$id] = $item;
-				} else {
-					$list[$id] = $row[$this->titleColumn];
-				}
 			}
 			return new UL($list);
 		}
@@ -1066,7 +1073,8 @@ class Collection implements IteratorAggregate {
 	 * retrieved nothing.
 	 * TODO: Create a new class called SQLCountQuery() and use it here to transform SQL to count(*)
 	 * @return int
-	 * @throws Exception
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getCount()
 	{
@@ -1158,7 +1166,7 @@ class Collection implements IteratorAggregate {
 		return new ArrayPlus($this->objectify($this->itemClassName, $this->objectifyByInstance));
 	}
 
-	function get($id)
+	public function get($id)
 	{
 		$members = $this->objectify();
 		return ifsetor($members[$id]);
@@ -1181,10 +1189,10 @@ class Collection implements IteratorAggregate {
 	 */
 	public function reset()
 	{
-		$this->count = NULL;
-		$this->query = NULL;
-		$this->data = NULL;
-		$this->members = NULL;
+		$this->count = null;
+		$this->query = null;
+		$this->data = null;
+		$this->members = null;
 	}
 
 	public function getIDs()
@@ -1192,18 +1200,18 @@ class Collection implements IteratorAggregate {
 		return $this->getData()->getKeys()->getData();
 	}
 
-	function first()
+	public function first()
 	{
 		//debug($this->getQuery());
 		return first($this->objectify());
 	}
 
-	function containsID($id)
+	public function containsID($id)
 	{
 		return in_array($id, $this->getIDs());
 	}
 
-	function containsName($name)
+	public function containsName($name)
 	{
 		foreach ($this->getData() as $row) {
 			if ($row[$this->titleColumn] == $name) {
