@@ -359,6 +359,7 @@ class SQLBuilder
 	 * @param array $where
 	 * @param array $insert
 	 * @return bool|int
+	 * @throws MustBeStringException
 	 */
 	public function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array())
 	{
@@ -607,6 +608,7 @@ class SQLBuilder
 	 * @param string $query
 	 * @param null $className - if provided it will return DatabaseInstanceIterator
 	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
+	 * @throws DatabaseException
 	 */
 	public function getIterator($query, $className = null)
 	{

@@ -4,13 +4,12 @@ require_once __DIR__.'/URL.php';
 
 use spidgorny\nadlib\HTTP\URL;
 
-class Request {
 
 	/**
 	 * Assoc array of URL parameters
 	 * @var array
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * @var URL
@@ -24,6 +23,14 @@ class Request {
 	protected static $instance;
 
 	protected $proxy;
+
+	public static function getInstance($cons = null)
+	{
+		if (!static::$instance) {
+			static::$instance = new static($cons);
+		}
+		return static::$instance;
+	}
 
 	public function __construct(array $array = null)
 	{
@@ -51,15 +58,9 @@ class Request {
 		return $request;
 	}
 
-	public static function getInstance($cons = null)
-	{
-		return static::$instance = static::$instance
-			? static::$instance
-			: new static($cons);
-	}
-
 	public static function getExistingInstance()
 	{
+	public static function getExistingInstance()
 		return static::$instance;
 	}
 
