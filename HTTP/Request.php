@@ -4,7 +4,8 @@ require_once __DIR__.'/URL.php';
 
 use spidgorny\nadlib\HTTP\URL;
 
-
+class Request
+{
 	/**
 	 * Assoc array of URL parameters
 	 * @var array
@@ -60,7 +61,6 @@ use spidgorny\nadlib\HTTP\URL;
 
 	public static function getExistingInstance()
 	{
-	public static function getExistingInstance()
 		return static::$instance;
 	}
 
