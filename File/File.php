@@ -54,6 +54,11 @@ class File
 		return pathinfo($this->getName(), PATHINFO_EXTENSION);
 	}
 
+	public function getBasename()
+	{
+		return $this->name;
+	}
+
 	public function getPathname()
 	{
 		return $this->dir.'/'.$this->name;
