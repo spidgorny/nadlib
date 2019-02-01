@@ -52,16 +52,12 @@ class SQLWhere implements ArrayAccess
 		if ($this->parts) {
 //			debug($this->parts);
 			foreach ($this->parts as $field => &$p) {
-				if ($field == 'read') {
-					//debug($field, gettype2($p), $p instanceof SQLWherePart);
-				}
 				if ($p instanceof SQLWherePart) {
 					$p->injectDB($this->db);
 					if (!is_numeric($field)) {
 						$p->injectField($field);
 					}
 				} else {
-					// bad: party = 'party = ''1'''
 					/*					$where = $this->db->quoteWhere(array(
 											$field => $p,
 										));

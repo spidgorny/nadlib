@@ -1,8 +1,11 @@
 <?php
 
+require_once __DIR__.'/URL.php';
+
+use spidgorny\nadlib\HTTP\URL;
+
 class Request
 {
-
 	/**
 	 * Assoc array of URL parameters
 	 * @var array
@@ -509,6 +512,7 @@ class Request
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
 		if ($exit && !$this->isPHPUnit()) {
+			session_write_close();
 			exit();
 		}
 	}
@@ -670,10 +674,11 @@ class Request
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			);
 		}
-		return $this->getBool('ajax') || (
-				isset($headers['X-Requested-With'])
-				&& strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest')
-			);
+		$isXHR = false;
+		if (isset($headers['X-Requested-With'])) {
+			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
+		}
+		return $this->getBool('ajax') || $isXHR;
 	}
 
 	public function getHeader($name)
@@ -823,12 +828,13 @@ class Request
 
 	/**
 	 * Full URL is docRoot + appRoot + controller/action
+	 * @return Path
 	 */
 	public function getPathAfterAppRoot()
 	{
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot()->normalize()->realPath();
-		$docRoot = $al->documentRoot->normalize()->realPath();
+//		$docRoot = $al->documentRoot->normalize()->realPath();
 		//		d($appRoot.'', $docRoot.'');
 
 		$pathWithoutDocRoot = clone $appRoot;

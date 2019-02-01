@@ -3,7 +3,7 @@
 /**
  * Class AccessRights represents all the rights of a specific group
  */
-class AccessRights
+class AccessRights implements AccessRightsInterface
 {
 	protected $accessTable = 'access';
 	protected $groupAccessTable = 'department_access';

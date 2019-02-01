@@ -1,11 +1,6 @@
 <?php
 
-if (!function_exists('mb_strlen')) {
-	function mb_strlen($a)
-	{
-		return strlen($a);
-	}
-}
+use spidgorny\nadlib\HTTP\URL;
 
 /**
  * Class slTable - renders the whole table array into HTML.
@@ -110,20 +105,16 @@ class slTable
 	 */
 	public $trmore;
 
-	/**
-	 * public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
-	 *
-	 * public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
-	 *
-	 * /**
-	 * @var BijouDBConnector
-	 */
-	protected $db;
+	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
+
+	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
 
 	/**
 	 * @var Request
 	 */
 	protected $request;
+
+	public $isCLI = false;
 
 	function __construct($id = null, $more = "", array $thes = [], Request $request = null)
 	{
@@ -141,9 +132,6 @@ class slTable
 			$this->ID = $this->more['id'];
 		}
 		$this->thes($thes);
-		$this->db = class_exists('Config', false)
-			? Config::getInstance()->getDB()
-			: null;
 		if (!@file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
 			$this->arrowAsc = '&#x25b2;';
@@ -152,6 +140,7 @@ class slTable
 		$this->generation = new HTMLTableBuf();
 		$this->setRequest($request ?: Request::getInstance());
 		$this->detectSortBy();
+		$this->isCLI = Request::isCLI();
 	}
 
 	function setRequest(Request $request)
@@ -684,7 +673,7 @@ class slTable
 		if (!$this->generation->isDone()) {
 			$this->generate($caller);
 		}
-		if (Request::isCLI()) {
+		if ($this->isCLI) {
 			$content = $this->getCLITable();
 		} else {
 			$content = $this->generation->getContent();
@@ -692,25 +681,9 @@ class slTable
 		return $content;
 	}
 
-	/**
-	 * @param $table
+	/*
 	 * @throws Exception
 	 */
-	function getData($table)
-	{
-		/** @var DBLayerBase|dbLayerBL $db */
-		$db = Config::getInstance()->getDB();
-		$cols = $db->getTableColumns($table);
-		$data = $db->getTableDataEx($table, "deleted = 0");
-		for ($i = 0; $i < sizeof($data); $i++) {
-			$this->addRow();
-			$iCol = 0;
-			foreach ($data[$i] as $val) {
-				$this->addVal($cols[$iCol++], $val);
-			}
-		}
-	}
-
 	function addRowWithMore($row)
 	{
 		$this->addRow();

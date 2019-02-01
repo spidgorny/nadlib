@@ -15,7 +15,8 @@
  * but it's not shown above for comprehensibility.
  * @mixin DBLayerBase
  */
-class SQLBuilder {
+class SQLBuilder
+{
 
 	/**
 	 * Update/Insert is storing the found row for debugging
@@ -33,7 +34,7 @@ class SQLBuilder {
 	 */
 	public $config;
 
-	function __construct(DBInterface $db)
+	public function __construct(DBInterface $db)
 	{
 		if (class_exists('Config')) {
 			$this->config = Config::getInstance();
@@ -41,7 +42,7 @@ class SQLBuilder {
 		$this->db = $db;
 	}
 
-	function getDB()
+	public function getDB()
 	{
 		return $this->db = $this->db ?: $this->config->getDB();
 	}
@@ -54,7 +55,7 @@ class SQLBuilder {
 	 * @throws MustBeStringException
 	 * @return string
 	 */
-	function quoteSQL($value, $key = NULL)
+	public function quoteSQL($value, $key = null)
 	{
 		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
@@ -84,7 +85,7 @@ class SQLBuilder {
 				debug($value);
 			}
 			return "'" . $this->db->escape((string)$value) . "'";
-		} elseif ($value === NULL) {
+		} elseif ($value === null) {
 			return "NULL";
 		} elseif (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
@@ -115,7 +116,7 @@ class SQLBuilder {
 	 * @param $number
 	 * @return bool
 	 */
-	function isExp($number)
+	public function isExp($number)
 	{
 		return is_numeric($number) && $number != number_format($number, 0, '', '');
 	}
@@ -127,9 +128,9 @@ class SQLBuilder {
 	 * @return array
 	 * @throws MustBeStringException
 	 */
-	function quoteValues(array $a)
+	public function quoteValues(array $a)
 	{
-//		debug(__METHOD__, $a);
+		//		debug(__METHOD__, $a);
 		$c = array();
 		foreach ($a as $key => $b) {
 			$c[] = SQLBuilder::quoteSQL($b, $key);
@@ -146,7 +147,7 @@ class SQLBuilder {
 	 * @throws MustBeStringException
 	 * @return array
 	 */
-	function quoteWhere(array $where)
+	public function quoteWhere(array $where)
 	{
 		$set = array();
 		foreach ($where as $key => $val) {
@@ -162,9 +163,11 @@ class SQLBuilder {
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @param array $where
 	 * @return string
+	 * @throws MustBeStringException
 	 */
-	function getInsertQuery($table, array $columns, array $where = [])
+	public function getInsertQuery($table, array $columns, array $where = [])
 	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
@@ -172,7 +175,7 @@ class SQLBuilder {
 		$q = "INSERT INTO {$table} ({$fields}) ";
 		if ($where) {
 			$q .= "SELECT $values ";
-			$q .= 'WHERE '.implode(' AND ', $this->quoteWhere($where));
+			$q .= 'WHERE ' . implode(' AND ', $this->quoteWhere($where));
 		} else {
 			$q .= "VALUES ({$values})";
 		}
@@ -186,7 +189,7 @@ class SQLBuilder {
 	 * @return array    [a ILIKE '%b%', c ILIKE '%d%']
 	 * @throws MustBeStringException
 	 */
-	function quoteLike($columns, $like)
+	public function quoteLike($columns, $like)
 	{
 		$set = array();
 		foreach ($columns as $key => $val) {
@@ -208,7 +211,7 @@ class SQLBuilder {
 	 * @throws Exception
 	 * @throws MustBeStringException
 	 */
-	function getUpdateQuery($table, $columns, $where, $orderBy = '')
+	public function getUpdateQuery($table, $columns, $where, $orderBy = '')
 	{
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$table = $this->quoteKey($table);
@@ -217,11 +220,11 @@ class SQLBuilder {
 		$q .= implode(",\n", $set);
 		$q .= "\nWHERE\n";
 		$q .= implode("\nAND ", $this->quoteWhere($where));
-		$q .= ' '.$orderBy;
+		$q .= ' ' . $orderBy;
 		return $q;
 	}
 
-	static function getFirstWord($table)
+	public static function getFirstWord($table)
 	{
 		$table1 = trimExplode(' ', $table);
 		$table0 = $table1[0];
@@ -242,7 +245,7 @@ class SQLBuilder {
 	 * @throws Exception
 	 * @throws MustBeStringException
 	 */
-	function getSelectQueryString($table, array $where = array(), $order = "", $addSelect = '')
+	public function getSelectQueryString($table, array $where = array(), $order = "", $addSelect = '')
 	{
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {
@@ -260,13 +263,13 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL)
+	public function getSelectQuery($table, array $where = array(), $order = '', $addSelect = null)
 	{
 		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
 
 
-	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
+	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
 	{
 		$table1 = $this->getFirstWord($table);
 		$select = $addSelect ? $addSelect
@@ -283,7 +286,7 @@ class SQLBuilder {
 	 * @throws MustBeStringException
 	 * @throws Exception
 	 */
-	function getDeleteQuery($table, $where = array(), $what = '')
+	public function getDeleteQuery($table, $where = array(), $what = '')
 	{
 		$q = "DELETE " . $what . " FROM " . $this->db->quoteKey($table) . " ";
 		$set = $this->quoteWhere($where);
@@ -295,7 +298,7 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDefaultInsertFields()
+	public function getDefaultInsertFields()
 	{
 		return array();
 	}
@@ -519,7 +522,7 @@ class SQLBuilder {
 		$w = new SQLWhere($where);
 		$params = $w->getParameters();
 		$delete = $w->replaceParams($delete);
-//		debug($delete, $params);
+		//		debug($delete, $params);
 		return $this->db->perform($delete, $params);
 	}
 
@@ -552,7 +555,9 @@ class SQLBuilder {
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
-		$values = array_map(create_function('$arr', 'return $arr["title"];'), $data);
+		$values = array_map(function ($arr) {
+			return $arr["title"];
+		}, $data);
 		//d($keys, $values);
 		if ($keys && $values) {
 			$options = array_combine($keys, $values);
@@ -710,7 +715,7 @@ class SQLBuilder {
 		$query->injectDB($this->db);
 
 		$res = $query->fetchAssoc();
-//		debug($res);
+		//		debug($res);
 		$count = $res['count'];
 		return $count;
 	}
@@ -729,5 +734,4 @@ class SQLBuilder {
 			return [];
 		}
 	}
-
 }

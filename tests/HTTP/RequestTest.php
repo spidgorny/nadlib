@@ -127,4 +127,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(gethostname(), $host);
 	}
 
+	public function test_isAjax()
+	{
+		$r = Request::getInstance();
+		$this->assertFalse($r->isAjax());
+		$r->set('ajax', true);
+		$this->assertTrue($r->isAjax());
+	}
+
 }

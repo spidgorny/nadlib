@@ -75,4 +75,20 @@ class File
 		return $path->getURL();
 	}
 
+	public function size()
+	{
+		return filesize($this->getPathname());
+	}
+
+	public function time()
+	{
+		return filemtime($this->getPathname());
+	}
+
+	public function mime()
+	{
+		$mime = new MIME();
+		return $mime->get_mime_type($this->getPathname());
+	}
+
 }

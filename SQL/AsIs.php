@@ -27,7 +27,7 @@ class AsIs extends SQLWherePart
 	{
 		$content = '';
 		if ($this->field) {
-			$content .= $this->db->quoteKey($this->field) . ' ';
+			$content .= $this->db->quoteKey($this->field) . ' = ';
 		}
 		$content .= $this->value . '';
 		return $content;

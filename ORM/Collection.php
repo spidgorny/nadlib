@@ -24,9 +24,9 @@ class Collection implements IteratorAggregate
 	 */
 	public $table = __CLASS__;
 
-	var $idField = 'uid';
+	public $idField = 'uid';
 
-	var $parentID = null;
+	public $parentID = null;
 
 	protected $parentField = 'pid';
 
@@ -39,7 +39,7 @@ class Collection implements IteratorAggregate
 
 	public $thes = array();
 
-	var $titleColumn = 'title';
+	public $titleColumn = 'title';
 
 	/**
 	 * Basic where SQL params to be included in every SQL by default
@@ -129,7 +129,7 @@ class Collection implements IteratorAggregate
 	 * HTMLFormTable
 	 * @var array
 	 */
-	var $desc = array();
+	public $desc = array();
 
 	/**
 	 * @var CollectionView
@@ -170,8 +170,8 @@ class Collection implements IteratorAggregate
 	 * @param DBInterface $db
 	 * @throws Exception
 	 */
-	function __construct($pid = NULL, /*array/SQLWhere*/
-						 $where = array(), $order = '', DBInterface $db = NULL)
+	public function __construct($pid = null, /*array/SQLWhere*/
+						 $where = array(), $order = '', DBInterface $db = null)
 	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
@@ -297,7 +297,7 @@ class Collection implements IteratorAggregate
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
-	function retrieveDataFromMySQL()
+	public function retrieveDataFromMySQL()
 	{
 		$taylorKey = get_class($this) . '::' . __FUNCTION__ . " (" . $this->parentField . ':' . (is_array($this->parentID)
 				? json_encode($this->parentID)
@@ -352,6 +352,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
 	 * @param bool $allowMerge
+	 * @throws Exception
 	 */
 	public function retrieveDataFromCache($allowMerge = false)
 	{
@@ -535,9 +536,8 @@ class Collection implements IteratorAggregate
 		$this->log('getData() data: ' . ($this->data
 				? sizeof($this->data)
 				: '-'));
-		if (!is_null($this->data)) {
-			$this->log('getData() data->count: ' . count($this->data));
-		}
+		$this->log('getData() data->count: ' .
+			is_null($this->data) ? 'NULL' :	count($this->data));
 		if (!$this->isFetched()) {
 			$this->retrieveData(false, false);
 		}
@@ -614,6 +614,7 @@ class Collection implements IteratorAggregate
 
 	/**
 	 * @return array
+	 * @throws Exception
 	 */
 	public function getLinks()
 	{
@@ -630,6 +631,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * @param array $where
 	 * @return mixed - single row
+	 * @throws Exception
 	 */
 	public function findInData(array $where)
 	{
@@ -648,6 +650,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * @param array $where
 	 * @return array - of matching rows
+	 * @throws Exception
 	 */
 	public function findAllInData(array $where)
 	{
@@ -683,7 +686,7 @@ class Collection implements IteratorAggregate
 			}
 			return new UL($list);
 		}
-		return NULL;
+		return null;
 	}
 
 	public function renderListItem(array $row)
@@ -739,9 +742,11 @@ class Collection implements IteratorAggregate
 
 	public function translateThes()
 	{
-		if (is_array($this->thes)) foreach ($this->thes as &$trans) {
-			if (is_string($trans) && $trans) {
-				$trans = __($trans);
+		if (is_array($this->thes)) {
+			foreach ($this->thes as &$trans) {
+				if (is_string($trans) && $trans) {
+					$trans = __($trans);
+				}
 			}
 		}
 		//debug_pre_print_backtrace();
@@ -778,8 +783,9 @@ class Collection implements IteratorAggregate
 	 * @param string $class - required, but is supplied by the subclasses
 	 * @param bool $byInstance - will call getInstance() instead of "new"
 	 * @return object[]|OODBase[]
+	 * @throws Exception
 	 */
-	public function objectify($class = NULL, $byInstance = false)
+	public function objectify($class = null, $byInstance = false)
 	{
 		$this->log(__METHOD__, $class);
 		$class = $class ? $class : $this->itemClassName;
@@ -811,6 +817,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * Wrap output in <form> manually if necessary
 	 * @param string $idFieldName Optional param to define a different ID field to use as checkbox value
+	 * @throws Exception
 	 */
 	public function addCheckboxes($idFieldName = '')
 	{
@@ -843,6 +850,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * Uses array_merge to prevent duplicates
 	 * @param Collection $c2
+	 * @throws Exception
 	 */
 	public function mergeData(Collection $c2)
 	{
@@ -1133,6 +1141,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * @param object $obj
 	 * @return bool
+	 * @throws Exception
 	 */
 	public function contains($obj)
 	{
@@ -1150,6 +1159,7 @@ class Collection implements IteratorAggregate
 	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
 	 * @return Traversable An instance of an object implementing <b>Iterator</b> or
 	 * <b>Traversable</b>
+	 * @throws Exception
 	 */
 	public function getIterator()
 	{

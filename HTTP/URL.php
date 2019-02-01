@@ -1,5 +1,11 @@
 <?php
 
+namespace spidgorny\nadlib\HTTP;
+
+use Request;
+use Path;
+use AutoLoad;
+
 class URL
 {
 
@@ -67,9 +73,9 @@ class URL
 		if ($params) {
 			$this->addParams($params);    // setParams was deleting all filters from the URL
 		}
-		if (class_exists('Config')) {
-			$this->setDocumentRoot(Config::getInstance()->documentRoot);
-		}
+//		if (class_exists('Config')) {
+//			$this->setDocumentRoot(Config::getInstance()->documentRoot);
+//		}
 	}
 
 	/**
@@ -313,7 +319,9 @@ class URL
 		$uri = isset($parsed['scheme'])
 			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
 			: '';
-		$uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+		$uri .= isset($parsed['user'])
+			? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@'
+			: '';
 
 		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
 		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
@@ -681,8 +689,7 @@ class URL
 			$outPath = '/' . $outPath;
 		}
 		// compare last multi-byte character against '/'
-		if ($outPath != '/' &&
-			(mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
+		if ($outPath != '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
 		) {
 			$outPath .= '/';
 		}
