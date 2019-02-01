@@ -778,4 +778,10 @@ class IndexBase /*extends Controller*/
 		}
 	}
 
+	/// to avoid Config::getInstance() if Index has a valid config
+	public function getConfig()
+	{
+		return $this->config;
+	}
+
 }

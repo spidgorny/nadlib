@@ -56,18 +56,22 @@ class StringFunctionsTest extends PHPUnit_Framework_TestCase
 
 	public function test_tab2nbsp()
 	{
+		$this->assertEquals("a&nbsp;&nbsp;b", tab2nbsp("a\tb", 2));
 	}
 
 	public function test_tabify()
 	{
+		$this->assertEquals("a\tb", tabify(['a', 'b']));
 	}
 
 	public function test_toCamelCase()
 	{
+		$this->assertEquals('Tocamelcase', toCamelCase('tocamelcase'));
 	}
 
 	public function test_toDatabaseKey()
 	{
+		$this->assertEquals('this_-should__be_key', toDatabaseKey('this-should_beKey'));
 	}
 
 	public function test_trimExplode()

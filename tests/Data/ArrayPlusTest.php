@@ -95,4 +95,11 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		], $b->getKeys()->getData());
 	}
 
+	public function test_insertBefore()
+	{
+		$a = ArrayPlus::create(['asd', 'split' => 'a', 'after']);
+		$a->insertBefore('split', 'someshit');
+		$this->assertEquals(['asd', 'someshit', 'split' => 'a', 'after'], $a->getData());
+	}
+
 }

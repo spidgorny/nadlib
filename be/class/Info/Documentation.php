@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class Documentation extends AppControllerBE {
 
 	protected $folder;

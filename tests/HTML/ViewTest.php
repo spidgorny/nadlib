@@ -9,7 +9,7 @@
 class ViewTest extends PHPUnit_Framework_TestCase
 {
 
-	function test_render()
+	public function test_render()
 	{
 		$v = new View(__DIR__ . '/ViewTemplate.phtml');
 		$v->content = 'asd';
@@ -17,16 +17,18 @@ class ViewTest extends PHPUnit_Framework_TestCase
 		$this->assertContains('asd', $content);
 	}
 
-	function test_cleanComment()
+	public function test_cleanComment()
 	{
 		if (class_exists('HTMLPurifier_Config')) {
 			$v = new View('whatever');
 			$clean = $v->cleanComment('Some shit');
 			$this->assertNotEmpty($clean);
+		} else {
+			$this->markTestSkipped('HTMLPurifier_Config');
 		}
 	}
 
-	function test_extractScripts()
+	public function test_extractScripts()
 	{
 		if (!class_exists('AdvancedHtmlDom')) {
 			$this->markTestSkipped('AdvancedHtmlDom not installed');
