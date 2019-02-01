@@ -50,7 +50,11 @@ class SQLWhereTest extends PHPUnit_Framework_TestCase
 
 	public function setExpectedException($exception)
 	{
-		$this->expectException($exception);
+		if (method_exists($this, 'expectException')) {
+			$this->expectException($exception);
+		} else {
+			parent::setExpectedException($exception);
+		}
 	}
 
 }
