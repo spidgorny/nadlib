@@ -122,6 +122,7 @@ abstract class Controller
 
 		if (!is_object($this->config) && class_exists('Config')) {
 //			$this->config = Config::getInstance();
+			$this->config = $this->index->getConfig();
 		}
 
 		if (!$this->config) {

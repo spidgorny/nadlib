@@ -99,6 +99,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
 		$location = Request::getLocation();
 //		debug($location . '');
+		$this->assertEquals('http://'.gethostname().'/', $location);
 	}
 
 	public function test_dir_of_file()

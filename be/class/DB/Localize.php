@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Localize
  *
@@ -210,7 +212,7 @@ class Localize extends AppControllerBE {
 		$id = $this->request->getTrim('id');
 		if ($id) {
 			$row = $this->save($id, $this->request->getTrim('value'));
-			$this->index->request->set('ajax', true);
+			$this->request->set('ajax', true);
 			echo htmlspecialchars($row['text']);
 		}
 		exit();
@@ -221,6 +223,7 @@ class Localize extends AppControllerBE {
 	 *                - can be string: Code of the original English element
 	 * @param $save
 	 * @return array
+	 * @throws DatabaseException
 	 */
 	function save($rel, $save) {
 		//$save = $this->request->getTrim('save');
