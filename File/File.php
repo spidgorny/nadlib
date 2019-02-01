@@ -80,6 +80,11 @@ class File
 		return filesize($this->getPathname());
 	}
 
+	public function getSize()
+	{
+		return $this->size();
+	}
+
 	public function time()
 	{
 		return filemtime($this->getPathname());
