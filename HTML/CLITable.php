@@ -9,10 +9,17 @@ class CLITable
 
 	public $footer = [];
 
-	public function __construct(array $data, array $thes)
+	public function __construct(array $data, array $thes = [])
 	{
 		$this->data = $data;
 		$this->thes = $thes;
+		if (!$this->thes) {
+			foreach ($this->data as $row) {
+				foreach ($row as $key => $val) {
+					$this->thes[$key] = $key;
+				}
+			}
+		}
 	}
 
 	public function render($cutTooLong = false, $useAvg = false)

@@ -106,10 +106,12 @@ class AutoLoadFolders
 	/**
 	 * Will not return a list like before
 	 * but will actively add the folders listed
+	 * @return array
 	 */
-	function getFoldersFromConfig()
+	public function getFoldersFromConfig()
 	{
 		TaylorProfiler::start(__METHOD__);
+		$folders = [];
 		$this->loadConfig();    // make sure (again)
 		if (class_exists('Config') && Config::$includeFolders) {
 			$folders = Config::$includeFolders;
@@ -127,9 +129,10 @@ class AutoLoadFolders
 			//echo 'Config not found'.BR;
 		}
 		TaylorProfiler::stop(__METHOD__);
+		return $folders;
 	}
 
-	function loadConfig()
+	public function loadConfig()
 	{
 		if ($this->debug) {
 			debug_pre_print_backtrace();

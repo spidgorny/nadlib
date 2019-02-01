@@ -131,7 +131,6 @@ abstract class OODBase
 	 * Retrieves data from DB.
 	 *
 	 * @param int|array|SQLWhere $id
-	 * @param bool $fromFindInDB
 	 * @throws Exception
 	 */
 	public function init($id)
@@ -207,18 +206,10 @@ abstract class OODBase
 		}
 	}
 
-	public function log($action, $data = NULL)
+	public function log($action, $data = null)
 	{
 		if ($this->logger) {
 			$this->logger->info($action, $data);
-		} else {
-			// TODO: remove this completely?
-			if (class_exists('Index')) {
-				$index = Index::getInstance();
-				if ($index) {
-//					$index->log($action, $data);
-				}
-			}
 		}
 	}
 
@@ -629,6 +620,7 @@ abstract class OODBase
 	 * @param array $insert
 	 * @param $class
 	 * @return int|null
+	 * @throws Exception
 	 */
 	public static function createRecord(array $insert, $class = NULL)
 	{
