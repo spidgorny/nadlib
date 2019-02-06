@@ -1,4 +1,7 @@
 <?php
+
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Created by JetBrains PhpStorm.
  * User: VirtualSlawa

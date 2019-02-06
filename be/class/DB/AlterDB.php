@@ -5,6 +5,8 @@
  * ALTER TABLE statements
  */
 
+use spidgorny\nadlib\HTTP\URL;
+
 define('TAB', "\t");
 define('CR', "\r");
 define('LF', "\n");

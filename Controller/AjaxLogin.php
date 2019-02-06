@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class AjaxLogin extends AppController {
 
 	public $action;

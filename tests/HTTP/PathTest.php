@@ -43,6 +43,8 @@ class PathTest extends PHPUnit_Framework_TestCase
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot();
 //		debug($appRoot . '');
+//		$this->assertEquals(dirname(dirname(dirname(__FILE__))), $appRoot.'');
+		$this->markTestSkipped();
 	}
 
 	public function test_relativeFromAppRoot()
