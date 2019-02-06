@@ -51,7 +51,12 @@ class POPOBase {
 						$value = floatval($value);
 						break;
 					case 'DateTime':
-						$value = new DateTime($value);
+					case '\DateTime':
+						if (is_object($value)) {
+							$value = new DateTime($value->date);
+						} else {
+							$value = new DateTime($value);
+						}
 						break;
 					default:
 						// inner subclasses
