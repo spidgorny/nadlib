@@ -28,8 +28,6 @@ class POPOBaseTest extends PHPUnit\Framework\TestCase
 
 	public function test__construct()
 	{
-		define('DEVELOPMENT', true);
-		define('BR', PHP_EOL);
 		$struct = [
 			'id' => '1',
 			'name' => '@slawa',

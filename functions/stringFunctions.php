@@ -224,7 +224,9 @@ if (!function_exists('str_startsWith')) {
 	 */
 	function toDatabaseKey($string)
 	{
-		if (strtoupper($string) == $string) return strtolower($string);
+		if (strtoupper($string) == $string) {
+			return strtolower($string);
+		}
 		$out = '';
 		$chars = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
 		foreach ($chars as $i => $ch) {
@@ -234,7 +236,7 @@ if (!function_exists('str_startsWith')) {
 				}
 			} elseif (strtoupper($ch) == $ch) {
 				if ($i) {
-					if ($out[-1] != '_') {
+					if (strlen($out) && $out[strlen($out)-1] != '_') {
 						$out .= '_';
 					}
 				}
