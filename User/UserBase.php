@@ -2,10 +2,9 @@
 
 abstract class UserBase extends OODBase implements UserModelInterface
 {
-
 	public $table = 'user';
 
-	var $idField = 'id';
+	public $idField = 'id';
 
 	protected $prefs = array();
 
@@ -19,7 +18,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 *
 	 * @throws Exception
 	 */
-	public function __construct($id = NULL)
+	public function __construct($id = null)
 	{
 		parent::__construct($id);
 	}
@@ -36,7 +35,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 */
 	//abstract function autologin();
 
-	function __destruct()
+	public function __destruct()
 	{
 		//debug($this->prefs);
 		//debug($this->db);
@@ -56,7 +55,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 * @return boolean
 	 * @throws Exception
 	 */
-	function checkPassword($login, $password)
+	public function checkPassword($login, $password)
 	{
 		$query = $this->db->getSelectQuery($this->table, array($this->idField => $login));
 		//debug($query);
@@ -77,7 +76,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 * @throws Exception
 	 * @return void
 	 */
-	function insertUniqEmail(array $data)
+	public function insertUniqEmail(array $data)
 	{
 		//debug($data);
 		if ($data['email']) {
@@ -95,10 +94,10 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		}
 	}
 
-	function insertNoUserCheck(array $data)
+	public function insertNoUserCheck(array $data)
 	{
 		$data['ctime'] = new SQLDateTime();
-		$data['email'] = ifsetor($data['email']) ? $data['email'] : NULL;        /// will set '' to NULL IMPORTANT!
+		$data['email'] = ifsetor($data['email']) ? $data['email'] : null;        /// will set '' to NULL IMPORTANT!
 		Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $data);
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -113,17 +112,17 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 * @param $key
 	 * @param $val
 	 */
-	function setPref($key, $val)
+	public function setPref($key, $val)
 	{
 		$this->prefs[$key] = $val;
 	}
 
-	function getPref($key)
+	public function getPref($key)
 	{
 		return ifsetor($this->prefs[$key]);
 	}
 
-	function getAllPrefs()
+	public function getAllPrefs()
 	{
 		return $this->prefs;
 	}
@@ -174,5 +173,4 @@ abstract class UserBase extends OODBase implements UserModelInterface
 				)
 			) . '?s=' . intval($gravatarSize);
 	}
-
 }

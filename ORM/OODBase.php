@@ -210,14 +210,6 @@ abstract class OODBase
 	{
 		if ($this->logger) {
 			$this->logger->info($action, $data);
-		} else {
-			// TODO: remove this completely?
-			if (class_exists('Index')) {
-				$index = Index::getInstance();
-				if ($index) {
-//					$index->log($action, $data);
-				}
-			}
 		}
 	}
 
@@ -628,6 +620,7 @@ abstract class OODBase
 	 * @param array $insert
 	 * @param $class
 	 * @return int|null
+	 * @throws Exception
 	 */
 	public static function createRecord(array $insert, $class = NULL)
 	{

@@ -1,13 +1,16 @@
 <?php
 
+require_once __DIR__.'/URL.php';
+
+use spidgorny\nadlib\HTTP\URL;
+
 class Request
 {
-
 	/**
 	 * Assoc array of URL parameters
 	 * @var array
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * @var URL
@@ -21,6 +24,14 @@ class Request
 	protected static $instance;
 
 	protected $proxy;
+
+	public static function getInstance($cons = null)
+	{
+		if (!static::$instance) {
+			static::$instance = new static($cons);
+		}
+		return static::$instance;
+	}
 
 	public function __construct(array $array = null)
 	{
@@ -46,13 +57,6 @@ class Request
 			}
 		}
 		return $request;
-	}
-
-	public static function getInstance($cons = null)
-	{
-		return static::$instance = static::$instance
-			? static::$instance
-			: new static($cons);
 	}
 
 	public static function getExistingInstance()
@@ -508,6 +512,7 @@ class Request
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
 		if ($exit && !$this->isPHPUnit()) {
+			session_write_close();
 			exit();
 		}
 	}
@@ -669,10 +674,11 @@ class Request
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			);
 		}
-		return $this->getBool('ajax') || (
-				isset($headers['X-Requested-With'])
-				&& strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest')
-			);
+		$isXHR = false;
+		if (isset($headers['X-Requested-With'])) {
+			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
+		}
+		return $this->getBool('ajax') || $isXHR;
 	}
 
 	public function getHeader($name)

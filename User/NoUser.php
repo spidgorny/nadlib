@@ -82,5 +82,4 @@ class NoUser extends UserBase
 	{
 		return 'http://avatar.com/';
 	}
-
 }

@@ -367,7 +367,6 @@ class IndexBase /*extends Controller*/
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut .= $this->s($content);
-			$this->content->clear();        // clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;
 	}
@@ -377,6 +376,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
 		$contentOut .= $this->content->getContent();    // this is already output
+//		$this->content->clear();        // clear for the next output. May affect saveMessages()
 		$contentOut .= $this->s($content);
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
@@ -776,6 +776,12 @@ class IndexBase /*extends Controller*/
 			header('Content-Security-Policy: ' . implode('; ', $this->csp));
 			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
 		}
+	}
+
+	/// to avoid Config::getInstance() if Index has a valid config
+	public function getConfig()
+	{
+		return $this->config;
 	}
 
 }

@@ -1,6 +1,8 @@
 <?php
 
-class PageSize extends Controller
+use spidgorny\nadlib\HTTP\URL;
+
+class PageSize extends AppController
 {
 
 	/**

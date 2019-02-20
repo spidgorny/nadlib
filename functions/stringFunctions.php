@@ -145,7 +145,12 @@ if (!function_exists('str_startsWith')) {
 		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
-		$string = ($isAbs ? $separator : '') . implode($separator, $parts);
+		$root = '';
+//		if (!Request::isWindows()) {
+		if ($separator == '/') {	// not windows separator
+			$root = ($isAbs ? $separator : '');
+		}
+		$string = $root . implode($separator, $parts);
 		return $string;
 	}
 
@@ -213,9 +218,15 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
+	/**
+	 * @param $string
+	 * @return string
+	 */
 	function toDatabaseKey($string)
 	{
-		if (strtoupper($string) == $string) return strtolower($string);
+		if (strtoupper($string) == $string) {
+			return strtolower($string);
+		}
 		$out = '';
 		$chars = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
 		foreach ($chars as $i => $ch) {
@@ -225,7 +236,7 @@ if (!function_exists('str_startsWith')) {
 				}
 			} elseif (strtoupper($ch) == $ch) {
 				if ($i) {
-					if ($out[-1] != '_') {
+					if (strlen($out) && $out[strlen($out)-1] != '_') {
 						$out .= '_';
 					}
 				}
