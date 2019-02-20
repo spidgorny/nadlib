@@ -3,16 +3,19 @@
 /**
  * SessionUser is stored in the database and has an ID even though the login is stored in the session.
  */
-class SessionUser extends PlainSessionUser {
+class SessionUser extends PlainSessionUser
+{
 
-	function __construct($id = NULL) {
+	public function __construct($id = null)
+	{
 		parent::__construct($id);
 		if (get_class($this) == 'LoginUser') {
 			$this->autologin(); // the main difference of SessionUser from PlainSessionUser
 		}
 	}
 
-	function autologin() {
+	public function autologin()
+	{
 		$class = get_called_class();
 		if (ifsetor($_SESSION[$class]) && ($login = $_SESSION[$class]['login'])) {
 			$inSession = $this->checkPassword($login, $_SESSION[$class]['password']);
@@ -25,7 +28,8 @@ class SessionUser extends PlainSessionUser {
 		}
 	}
 
-	function autoCreate($email) {
+	public function autoCreate($email)
+	{
 		// we go here only if not logged in
 		// if not a new email and no password we need to ask for password
 		$u = new User(); // not to mess-up with current object
@@ -36,7 +40,7 @@ class SessionUser extends PlainSessionUser {
 		} else {
 			$password = rand(1000000, 9999999);
 			if (DEVELOPMENT) {
-				print 'Generated password: '.$password;
+				print 'Generated password: ' . $password;
 			}
 			$this->insert(array(
 				'email' => $email,
@@ -48,7 +52,8 @@ class SessionUser extends PlainSessionUser {
 			$dataObj->password = $password;
 
 			$config = Config::getInstance();
-			mail($email, 'Account created', new View('emailNewAutoAccount.phtml', $dataObj), "From: ".$config->mailFrom);
+			$body = new View('emailNewAutoAccount.phtml', $dataObj);
+			mail($email, 'Account created', $body, "From: " . $config->mailFrom);
 
 			$this->saveLogin($email, md5($password));
 			//$this->autologin();
@@ -63,9 +68,10 @@ class SessionUser extends PlainSessionUser {
 	 * @param string $password - hash
 	 * @throws Exception
 	 */
-	function saveLogin($email = NULL, $password = NULL) {
+	public function saveLogin($email = null, $password = null)
+	{
 		if (strlen($password) != 32) {
-			throw new Exception(__METHOD__.': supplied password is not hash.');
+			throw new Exception(__METHOD__ . ': supplied password is not hash.');
 		} else {
 			if ($this->id) {
 				$class = get_called_class();
@@ -78,7 +84,8 @@ class SessionUser extends PlainSessionUser {
 		}
 	}
 
-	function logout() {
+	public function logout()
+	{
 		$class = get_called_class();
 		unset($_SESSION[$class]);
 		session_regenerate_id(true);
