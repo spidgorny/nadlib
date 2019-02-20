@@ -1,6 +1,9 @@
 <?php
 
-class AppRootDetector {
+use spidgorny\nadlib\HTTP\URL;
+
+class AppRootDetector
+{
 
 	/**
 	 * @var Path
@@ -55,7 +58,7 @@ class AppRootDetector {
 			$appRoot->upIf('spidgorny');
 			$appRoot->upIf('vendor');
 			$hasIndex = $appRoot->hasFile('index.php');
-			$this->log($appRoot.'', $hasIndex);
+			$this->log($appRoot . '', $hasIndex);
 			if (!$hasIndex) {
 				$appRoot->up();
 			}

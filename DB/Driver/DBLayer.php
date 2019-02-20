@@ -12,7 +12,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public $connection = null;
 
-	var $LAST_PERFORM_RESULT;
+	public $LAST_PERFORM_RESULT;
 
 	/**
 	 * todo: use setter & getter method
@@ -23,7 +23,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public $qb = null;
 
-	var $AFFECTED_ROWS = NULL;
+	public $AFFECTED_ROWS = null;
 
 	/**
 	 * @var MemcacheArray
@@ -44,13 +44,13 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @var string DB name
 	 */
-	var $db;
+	public $db;
 
-	var $reserved = [
+	public $reserved = [
 		'SELECT', 'LIKE', 'TO',
 	];
 
-	protected $dbName;
+	public $dbName;
 
 	protected $user;
 
@@ -67,7 +67,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param string $host
 	 * @throws Exception
 	 */
-	function __construct($dbName = NULL, $user = NULL, $pass = NULL, $host = "localhost")
+	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
 	{
 //		debug_pre_print_backtrace();
 		$this->dbName = $dbName;
@@ -116,7 +116,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
 	}
 
-	function connect($dbName, $user, $pass, $host = "localhost")
+	public function connect($dbName, $user, $pass, $host = "localhost")
 	{
 		$this->database = $dbName;
 		$string = "host=$host dbname=$dbName user=$user password=$pass";
@@ -138,6 +138,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param array $params
 	 * @return resource|null
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function perform($query, array $params = [])
 	{
@@ -145,14 +146,23 @@ class DBLayer extends DBLayerBase implements DBInterface
 		$prof = new Profiler();
 
 		if (false === $this->LAST_PERFORM_RESULT) {
-			$this->lastBacktrace = array_map(function ($el) {
+			$backtrace = array_map(function ($el) {
 				unset($el['object']);
 				unset($el['args']);
 				return $el;
 			}, $this->lastBacktrace);
-//			debug($this->lastBacktrace);
+			$backtrace = array_map(function (array $el) {
+				return ifsetor($el['class']).ifsetor($el['type']).ifsetor($el['function']).
+					' in '.basename(ifsetor($el['file'])).':'.ifsetor($el['line']);
+			}, $backtrace);
+			debug($this->lastQuery.'', pg_errormessage($this->connection));
 //			die(pg_errormessage($this->connection));
-			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
+			throw new DatabaseException(
+				'Last query has failed.' . PHP_EOL .
+				$this->lastQuery . PHP_EOL .
+				pg_errormessage($this->connection).PHP_EOL.
+				implode(PHP_EOL, $backtrace)
+			);
 		}
 
 		$this->lastQuery = $query;
@@ -172,7 +182,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 				pg_prepare($this->connection, '', $query);
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
-				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
+				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
 			}
 			$this->queryTime = $prof->elapsed();
 		} catch (Exception $e) {

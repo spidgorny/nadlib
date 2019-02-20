@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class AlterIndex extends AppControllerBE
 {
 

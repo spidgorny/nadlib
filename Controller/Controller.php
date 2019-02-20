@@ -13,6 +13,8 @@
  * will call cronjobAction instead of default render()
  */
 
+use spidgorny\nadlib\HTTP\URL;
+
 abstract class Controller
 {
 
@@ -64,7 +66,7 @@ abstract class Controller
 	 * Instance per class
 	 * @var Controller[]
 	 */
-	static protected $instance = array();
+	protected static $instance = [];
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -73,7 +75,7 @@ abstract class Controller
 	 */
 	public $layout;
 
-	public $linkVars = array();
+	public $linkVars = [];
 
 	public $encloseTag = 'h2';
 
@@ -81,7 +83,7 @@ abstract class Controller
 	 * accessible without login
 	 * @var bool
 	 */
-	static public $public = false;
+	public static $public = false;
 
 	/**
 	 * @var Config
@@ -93,7 +95,7 @@ abstract class Controller
 	 */
 	protected $al;
 
-	public $log = array();
+	public $log = [];
 
 	/**
 	 * @var HTML
@@ -119,28 +121,26 @@ abstract class Controller
 		$this->al = AutoLoad::getInstance();
 
 		if (!is_object($this->config) && class_exists('Config')) {
-			$this->config = Config::getInstance();
-			$this->db = $this->config->getDB();
-			$this->user = $this->config->getUser();
-//			pre_print_r('User ID', $this->user->getID());
-			$this->config->mergeConfig($this);
-		} else {
-			/** @var Config config */
-			// $this->config = NULL;
-			//$this->user = new UserBase();
-
-//			pre_print_r(is_object($this->config),
-//				class_exists('Config'));
+//			$this->config = Config::getInstance();
+			$this->config = $this->index->getConfig();
 		}
+
+		if (!$this->config) {
+			throw new RuntimeException('Controller need Config object');
+		}
+		$this->db = $this->config->getDB();
+		$this->user = $this->config->getUser();
+			//			pre_print_r('User ID', $this->user->getID());
+		$this->config->mergeConfig($this);
 		if (!$this->useRouter) {
 			$this->linkVars['c'] = get_class($this);
 		}
 		$this->title = $this->title ? $this->title
 			: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
-		if ($this->config->ll) {
-			$this->title = $this->title ? __($this->title) : $this->title;
-		}
+//		if ($this->config->ll) {
+//			$this->title = $this->title ? __($this->title) : $this->title;
+//		}
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
 	}
@@ -179,7 +179,7 @@ abstract class Controller
 		}
 		//debug($prefix, get_class($path));
 		$url->setPath($path);
-		nodebug(array(
+		nodebug([
 			'method' => __METHOD__,
 			'params' => $params,
 			'prefix' => $prefix,
@@ -190,7 +190,7 @@ abstract class Controller
 			'$this->linkVars' => $this->linkVars,
 			'return' => $url . '',
 			'location' => $location . '',
-		));
+		]);
 		return $url;
 	}
 
@@ -201,7 +201,7 @@ abstract class Controller
 	 * @param string $page
 	 * @return URL
 	 */
-	public function makeRelURL(array $params = array(), $page = null)
+	public function makeRelURL(array $params = [], $page = null)
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
@@ -214,6 +214,8 @@ abstract class Controller
 	/**
 	 * Combines params with $this->linkVars
 	 * Use makeURL() for old functionality
+	 * @param array $params
+	 * @param null $prefix
 	 * @return URL
 	 */
 	public function getURL(array $params = [], $prefix = null)
@@ -221,9 +223,9 @@ abstract class Controller
 		if ($params || $prefix) {
 			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
 		}
-//		$params = $params + $this->linkVars;
-//		debug($params);
-//		return $this->makeURL($params, $prefix);
+		//		$params = $params + $this->linkVars;
+		//		debug($params);
+		//		return $this->makeURL($params, $prefix);
 		return ClosureCache::getInstance(spl_object_hash($this), function () {
 			return new URL();
 		})->get();
@@ -238,25 +240,25 @@ abstract class Controller
 	 * @param bool $isHTML
 	 * @return HTMLTag
 	 */
-	public function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false)
+	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
 	{
 		//debug($text, $params, $page, $more, $isHTML);
-		$content = new HTMLTag('a', array(
+		$content = new HTMLTag('a', [
 				'href' => $this->makeURL($params, $page),
-			) + $more, $text, $isHTML);
+			] + $more, $text, $isHTML);
 		return $content;
 	}
 
-	public function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array(), $prefix = '')
+	public function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = [], $prefix = '')
 	{
 		$url = $this->makeURL($params, $prefix);
-		$link = new HTMLTag('a', $aMore + array(
+		$link = new HTMLTag('a', $aMore + [
 				'href' => $url,
 				'onclick' => '
 			jQuery(\'#' . $div . '\').load(\'' . $url . '\');
 			return false;
 			' . $jsPlus,
-			), $text, true);
+			], $text, true);
 		return $link;
 	}
 
@@ -268,9 +270,9 @@ abstract class Controller
 	 */
 	public function getAssocTable(array $data)
 	{
-		$table = array();
+		$table = [];
 		foreach ($data as $key => $val) {
-			$table[] = array('key' => $key, 'val' => $val);
+			$table[] = ['key' => $key, 'val' => $val];
 		}
 		return $table;
 	}
@@ -344,7 +346,7 @@ abstract class Controller
 			$content = '';
 		}
 
-//		debug($filePHTML, $fileMD);
+		//		debug($filePHTML, $fileMD);
 
 		return is_object($content)
 			? $content->render()
@@ -377,10 +379,10 @@ abstract class Controller
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
-			$content = array(
+			$content = [
 				'caption' => $this->getCaption($caption, $h),
 				$content
-			);
+			];
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);
@@ -425,14 +427,15 @@ abstract class Controller
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
-//		debug($reqAction);
+		//		debug($reqAction);
 		$method = $action
 			?: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
 			$method .= 'Action';        // ZendFramework style
-//			debug($method, method_exists($this, $method));
+			//			debug($method, method_exists($this, $method));
 
-			if ($proxy = $this->request->getTrim('proxy')) {
+			$proxy = $this->request->getTrim('proxy');
+			if ($proxy) {
 				$proxy = new $proxy($this);
 			} else {
 				$proxy = $this;
@@ -441,7 +444,7 @@ abstract class Controller
 			if (method_exists($proxy, $method)) {
 				if ($this->request->isCLI()) {
 					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array(array($proxy, $method), $assoc);
+					$content = call_user_func_array([$proxy, $method], $assoc);
 				} else {
 					$caller = new MarshalParams($proxy);
 					$content = $caller->call($method);
@@ -467,7 +470,7 @@ abstract class Controller
 	public function inColumns()
 	{
 		$elements = func_get_args();
-		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
+		return call_user_func_array([__CLASS__, 'inColumnsHTML5'], $elements);
 		/*		$content = '';
 				foreach ($elements as $html) {
 					$html = $this->s($html);
@@ -502,7 +505,7 @@ abstract class Controller
 		return $content;
 	}
 
-	public function encloseInTableHTML3(array $cells, array $more = array(), array $colMore = [])
+	public function encloseInTableHTML3(array $cells, array $more = [], array $colMore = [])
 	{
 		if (!$more) {
 			$more['class'] = "encloseInTable";
@@ -532,9 +535,9 @@ abstract class Controller
 		foreach ($elements as &$el) {
 			if (!$el instanceof HTMLTag) {
 				$el = $this->s($el);
-				$el = new HTMLTag('div', array(
+				$el = new HTMLTag('div', [
 					'class' => 'column',
-				), $el, true);
+				], $el, true);
 			}
 		}
 		$content .= implode("\n", $elements);
@@ -563,9 +566,9 @@ abstract class Controller
 	 */
 	public function adjustURL(array $params)
 	{
-		return URL::getCurrent()->addParams(array(
+		return URL::getCurrent()->addParams([
 				'c' => get_class(Index::getInstance()->controller),
-			) + $params);
+			] + $params);
 	}
 
 	/**
@@ -577,9 +580,9 @@ abstract class Controller
 	 */
 	public function makeRelLink($text, array $params, $page = '?')
 	{
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 			'href' => $this->makeRelURL($params, $page)
-		), $text);
+		], $text);
 	}
 
 	/**
@@ -593,7 +596,7 @@ abstract class Controller
 	 * @param array $submitParams
 	 * @return HTMLForm
 	 */
-	public function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array())
+	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
 	{
 		$f = new HTMLForm();
 		if ($formAction) {
@@ -611,16 +614,16 @@ abstract class Controller
 			$f->hidden('action', $action);
 		}
 		if ($name instanceof htmlString) {
-			$f->button($name, array(
+			$f->button($name, [
 					'type' => "submit",
 					'id' => 'button-action-' . $action,
 					'class' => $submitClass,
-				) + $submitParams);
+				] + $submitParams);
 		} else {
-			$f->submit($name, array(
+			$f->submit($name, [
 					'id' => 'button-action-' . $action,
 					'class' => $submitClass,
-				) + $submitParams);
+				] + $submitParams);
 		}
 		return $f;
 	}
@@ -631,7 +634,7 @@ abstract class Controller
 	 * @param array $widths
 	 * @return string
 	 */
-	public function inTable(array $parts, array $widths = array())
+	public function inTable(array $parts, array $widths = [])
 	{
 		$size = sizeof($parts);
 		$equal = round(12 / $size);
@@ -648,7 +651,7 @@ abstract class Controller
 	public function attr($s)
 	{
 		if (is_array($s)) {
-			$content = array();
+			$content = [];
 			foreach ($s as $k => $v) {
 				$content[] = $k . '="' . $this->attr($v) . '"';
 			}
@@ -671,21 +674,21 @@ abstract class Controller
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	public function a($href, $text = '', $isHTML = false, array $more = array())
+	public function a($href, $text = '', $isHTML = false, array $more = [])
 	{
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 				'href' => $href,
-			) + $more, $text ?: $href, $isHTML);
+			] + $more, $text ?: $href, $isHTML);
 	}
 
-	public function div($content, $class = '', array $more = array())
+	public function div($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
-	public function span($content, $class = '', array $more = array())
+	public function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
@@ -754,7 +757,7 @@ abstract class Controller
 		</div>';
 	}
 
-	public function linkToAction($action = '', array $params = array(), $controller = NULL)
+	public function linkToAction($action = '', array $params = [], $controller = null)
 	{
 		if (!$controller) {
 			$controller = get_class($this);
@@ -770,18 +773,18 @@ abstract class Controller
 		return $this->makeURL($params);
 	}
 
-	public function p($content, array $attr = array())
+	public function p($content, array $attr = [])
 	{
 		$more = HTMLTag::renderAttr($attr);
 		return '<p ' . $more . '>' . $this->s($content) . '</p>';
 	}
 
-	public function img($src, array $attr = array())
+	public function img($src, array $attr = [])
 	{
-		$html = new HTMLTag('img', array(
+		$html = new HTMLTag('img', [
 				'src' => /*$this->e*/
 					($src),    // encoding is not necessary for &amp; in URL
-			) + $attr);
+			] + $attr);
 		$html->closingTag = false;
 		return $html;
 	}
@@ -816,12 +819,12 @@ abstract class Controller
 	{
 		/** @var Controller $self */
 		$self = get_called_class();
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 			'href' => $self::href($params)
-		), $text ?: $self);
+		], $text ?: $self);
 	}
 
-	public static function href(array $params = array())
+	public static function href(array $params = [])
 	{
 		$self = get_called_class();
 		$url = $self;
@@ -896,5 +899,4 @@ abstract class Controller
 		$urlParams = array_filter($urlParams);
 		return $this->makeURL($urlParams, $path);
 	}
-
 }

@@ -99,6 +99,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
 		$location = Request::getLocation();
 //		debug($location . '');
+		$this->assertEquals('http://'.gethostname().'/', $location);
 	}
 
 	public function test_dir_of_file()
@@ -125,6 +126,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	{
 		$host = Request::getOnlyHost();
 		$this->assertEquals(gethostname(), $host);
+	}
+
+	public function test_isAjax()
+	{
+		$r = Request::getInstance();
+		$r->set('ajax', false);
+		$this->assertFalse($r->isAjax());
+		$r->set('ajax', true);
+		$this->assertTrue($r->isAjax());
+		$r->set('ajax', false);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->assertTrue($r->isAjax());
 	}
 
 }

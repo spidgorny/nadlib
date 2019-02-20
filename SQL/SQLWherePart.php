@@ -19,7 +19,7 @@ class SQLWherePart
 	 */
 	protected $field;
 
-	function __construct($sql = '')
+	public function __construct($sql = '')
 	{
 		$this->sql = $sql;
 		$this->db = Config::getInstance()->getDB();
@@ -29,14 +29,11 @@ class SQLWherePart
 	 * Not used directly
 	 * @see SQLWhereEqual
 	 * @return string
+	 * @throws MustBeStringException
 	 */
-	function __toString()
+	public function __toString()
 	{
-		//debug(__METHOD__, gettype2($this->db));
 		if ($this->field && !is_numeric($this->field)) {
-			if ($this->field == 'read') {
-				//debug($this->field, $this->sql);
-			}
 			$part1 = $this->db->quoteWhere(
 				array($this->field => $this->sql)
 			);
@@ -46,18 +43,18 @@ class SQLWherePart
 		}
 	}
 
-	function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db)
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function injectField($field)
+	public function injectField($field)
 	{
 		$this->field = $field;
 	}
 
-	function debug()
+	public function debug()
 	{
 		return $this->__toString();
 	}
@@ -66,17 +63,17 @@ class SQLWherePart
 	 * Sub-classes should return their parameters
 	 * @return null
 	 */
-	function getParameter()
+	public function getParameter()
 	{
-		return NULL;
+		return null;
 	}
 
-	function perform()
+	public function perform()
 	{
 		return $this->db->perform($this->__toString());
 	}
 
-	function getField()
+	public function getField()
 	{
 		return $this->field;
 	}

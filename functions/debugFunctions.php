@@ -30,7 +30,7 @@ if (!function_exists('debug')) {
 
 if (!function_exists('debugList')) {
 
-	function debugList(array $a, $name = NULL)
+	function debugList(array $a, $name = null)
 	{
 		$debug = Debug::getInstance();
 		$debug->name = $name;
@@ -63,6 +63,11 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ...$a
+	 * @param null $b
+	 * @param null $c
+	 * @param null $d
+	 * @param null $e
+	 * @param null $f
 	 */
 	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
 	{
@@ -93,6 +98,7 @@ if (!function_exists('debugList')) {
 			echo '</pre>';
 		} else {
 			print_r(func_num_args() == 1 ? $a : func_get_args());
+			echo PHP_EOL;
 		}
 	}
 
@@ -112,7 +118,7 @@ if (!function_exists('debugList')) {
 
 	function debug_once()
 	{
-		static $used = NULL;
+		static $used = null;
 		if (is_null($used)) {
 			$used = array();
 		}
