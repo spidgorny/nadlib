@@ -171,6 +171,27 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
+	/**
+	 * [
+	 * 	['a' => 'b'],
+	 *  ['a' => 'c']
+	 * ] ---> [
+	 *  ['a' => ['b', 'c']]
+	 * ]
+	 * @param string $key
+	 * @return $this
+	 */
+	public function combine($key = 'id')
+	{
+		$data = array();
+		foreach ($this as $row) {
+			$keyValue = $row[$key];
+			$data[$keyValue][] = $row;
+		}
+		$this->setData($data);
+		return $this;
+	}
+
 	public function append($value, $key = null)
 	{
 		if (!is_null($key)) {
