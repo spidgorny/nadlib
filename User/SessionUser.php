@@ -52,7 +52,7 @@ class SessionUser extends PlainSessionUser
 			$dataObj->password = $password;
 
 			$config = Config::getInstance();
-			$body = new View('emailNewAutoAccount.phtml', $dataObj);
+			$body = new View(__DIR__.'/emailNewAutoAccount.phtml', $dataObj);
 			mail($email, 'Account created', $body, "From: " . $config->mailFrom);
 
 			$this->saveLogin($email, md5($password));
