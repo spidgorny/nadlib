@@ -4,7 +4,7 @@
  * Class Scaffold
  * @deprecated - use HTMLFormProcessor if you only need the edit form
  */
-abstract class Scaffold extends Controller
+abstract class Scaffold extends AppController
 {
 
 	/**
