@@ -201,7 +201,12 @@ abstract class OODBase
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			debug(typ($row) . '', $this->idField, $idField, $this->data);
+			debug([
+				'class' => static::class,
+				'typ' => typ($row) . '',
+				'idField' => $this->idField,
+				'id' => $idField,
+				'data' => $this->data]);
 			throw new InvalidArgumentException(get_class($this) . '::' . __METHOD__);
 		}
 	}
@@ -380,9 +385,14 @@ abstract class OODBase
 		return $data;
 	}
 
+	/**
+	 * @param $id
+	 * @return array
+	 * @throws Exception
+	 */
 	public function findByID($id)
 	{
-		$this->findInDB([
+		return $this->findInDB([
 			$this->idField => $id
 		]);
 	}
