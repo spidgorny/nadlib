@@ -405,7 +405,7 @@ abstract class OODBase
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public static function findInstance(array $where, $static = NULL)
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
