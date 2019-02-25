@@ -110,6 +110,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
 			debug([
+				'exception' => $e->getMessage(),
 				'dsn' => $this->dsn,
 				'extensions' => get_loaded_extensions(),
 			]);
