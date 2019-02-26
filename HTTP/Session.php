@@ -16,8 +16,10 @@ class Session implements SessionInterface
 	public function start()
 	{
 		if (!Request::isPHPUnit() && !Request::isCLI()) {
-			// not using @ to see when session error happen
-			session_start();
+			if (!headers_sent()) {
+				// not using @ to see when session error happen
+				session_start();
+			}
 		}
 	}
 
