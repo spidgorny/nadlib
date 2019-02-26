@@ -1,6 +1,9 @@
 <?php
 
-class TYPO3Page extends OODBase {
+use spidgorny\nadlib\HTTP\URL;
+
+class TYPO3Page extends OODBase
+{
 	var $table = 'pages';
 	var $idField = 'uid';
 	var $titleColumn = 'title';
@@ -23,76 +26,90 @@ class TYPO3Page extends OODBase {
 	 */
 	public $colPos;
 
-	function fetchChildren() {
+	function fetchChildren()
+	{
 		if (!$this->children) {
 			$this->children = new TYPO3PageCollection($this->id);
 			//debug($this->children->query);
 		}
 	}
 
-	function getChildren() {
+	function getChildren()
+	{
 		if (is_null($this->children)) {
 			$this->fetchChildren();
 		}
 		return $this->children;
 	}
 
-	function fetchContent($colPos) {
+	function fetchContent($colPos)
+	{
 		// retrieve once for each colPos
 		if (!$this->content || $this->colPos != $colPos) {
 			$this->content = new TYPO3ContentCollection($this->id, array(
 				'colPos' => $colPos,
-				'sys_language_uid' => 0,	// default, getPageOverlay() for other langs
+				'sys_language_uid' => 0,    // default, getPageOverlay() for other langs
 			));
-			$this->content->objectify();	/* @var TYPO3Content */
+			$this->content->objectify();
+			/* @var TYPO3Content */
 			$this->colPos = $colPos;
 		}
 	}
 
-	function getContent($colPos = 0) {
+	function getContent($colPos = 0)
+	{
 		$this->fetchContent($colPos);
 		return $this->content->renderMembers();
 	}
 
-	function render() {
+	function render()
+	{
 		return $this->getContent(0);
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		return $this->getContent(1);
 	}
 
-	function getSlug() {
+	function getSlug()
+	{
 		return URL::friendlyURL($this->data['title']);
 	}
 
-	function findDeepChild(array $match) {
+	function findDeepChild(array $match)
+	{
 		$this->fetchChildren();
 		return $this->children->findDeepChild($match);
 	}
 
-	function insert(array $data) {
+	function insert(array $data)
+	{
 		$data['tstamp'] = time();
 		$data['crdate'] = time();
 		$data['doktype'] = $data['doktype'] ? $data['doktype'] : 1;
 		return parent::insert($data);
 	}
 
-	function update(array $data) {
+	function update(array $data)
+	{
 		$data['tstamp'] = time();
 		return parent::update($data);
 	}
 
-	function getAbstract() {
+	function getAbstract()
+	{
 		return $this->data['abstract'];
 	}
 
-	function getDescription() {
+	function getDescription()
+	{
 		//debug($this->data);
 		return $this->data['description'];
 	}
 
-	function getKeywords() {
+	function getKeywords()
+	{
 		return $this->data['keywords'];
 	}
 
@@ -100,7 +117,8 @@ class TYPO3Page extends OODBase {
 	 *
 	 * @return TYPO3PageOverlay|null
 	 */
-	function getPageOverlay() {
+	function getPageOverlay()
+	{
 		if (Config::getInstance()->langID) {
 			$po = new TYPO3PageOverlay();
 			$po->findInDB(array(
@@ -111,21 +129,23 @@ class TYPO3Page extends OODBase {
 		return $po->id ? $po : null;
 	}
 
-	function getParentPage() {
+	function getParentPage()
+	{
 		if ($this->data['pid']) {
 			$parent = TYPO3Page::getInstance($this->data['pid']);
 		}
 		return $parent;
 	}
 
-	function getLangAbstract() {
+	function getLangAbstract()
+	{
 		if (Config::getInstance()->langID) {
 			$overlay = $this->getPageOverlay();
 			if ($overlay) {
 				$content = $overlay->getAbstract();
 			}
 		} else {
-			$content = $this->getAbstract();		// default language
+			$content = $this->getAbstract();        // default language
 		}
 		if (!$content) {
 			$parent = $this->getParentPage();
@@ -136,14 +156,15 @@ class TYPO3Page extends OODBase {
 		return $content;
 	}
 
-	function getLangDescription() {
+	function getLangDescription()
+	{
 		if (Config::getInstance()->langID) {
 			$overlay = $this->getPageOverlay();
 			if ($overlay) {
 				$content = $overlay->getDescription();
 			}
 		} else {
-			$content = $this->getDescription();		// default language
+			$content = $this->getDescription();        // default language
 		}
 		if (!$content) {
 			$parent = $this->getParentPage();
@@ -154,14 +175,15 @@ class TYPO3Page extends OODBase {
 		return $content;
 	}
 
-	function getLangKeywords() {
+	function getLangKeywords()
+	{
 		if (Config::getInstance()->langID) {
 			$overlay = $this->getPageOverlay();
 			if ($overlay) {
 				$content = $overlay->getKeywords();
 			}
 		} else {
-			$content = $this->getKeywords();		// default language
+			$content = $this->getKeywords();        // default language
 		}
 		if (!$content) {
 			$parent = $this->getParentPage();

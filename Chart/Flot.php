@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Flot - is drawing a flot chart.
  */
@@ -24,7 +26,9 @@ class Flot extends Controller
 	 */
 	public $data;
 
-	protected $keyKey, $timeKey, $amountKey;
+	protected $keyKey;
+	protected $timeKey;
+	protected $amountKey;
 
 	/**
 	 * A source table pivoted (grouped by) $keyKey
@@ -59,9 +63,9 @@ class Flot extends Controller
 	/**
 	 * @var string
 	 */
-	var $flotPath = 'components/flot/flot/';
+	public $flotPath = 'components/flot/flot/';
 
-	var $jsConfig = array(
+	public $jsConfig = array(
 		'xaxis' => array(
 			'mode' => "time"
 		),
@@ -81,7 +85,7 @@ class Flot extends Controller
 	 * @param $timeKey - time field
 	 * @param $amountKey - value (numeric) field
 	 */
-	function __construct(array $data, $keyKey, $timeKey, $amountKey)
+	public function __construct(array $data, $keyKey, $timeKey, $amountKey)
 	{
 		parent::__construct();
 		$this->data = $data;
@@ -104,12 +108,12 @@ class Flot extends Controller
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function setFlotPath($path)
+	public function setFlotPath($path)
 	{
 		$this->flotPath = $path;
 	}
 
-	function setMinMax()
+	public function setMinMax()
 	{
 		$this->jsConfig['colors'] = $this->colors;
 
@@ -137,7 +141,7 @@ class Flot extends Controller
 	 * 0    integer    1314828000000
 	 * 1    integer    39
 	 */
-	function render($divID = 'chart1')
+	public function render($divID = 'chart1')
 	{
 		$content = '';
 		if (!is_dir($this->flotPath)) {
@@ -147,14 +151,14 @@ class Flot extends Controller
 		return $content;
 	}
 
-	function renderCumulative($divID = 'chart1')
+	public function renderCumulative($divID = 'chart1')
 	{
 		$content = '';
 		$content .= $this->showChart($divID, $this->chart, $this->cumulative);
 		return $content;
 	}
 
-	function appendCumulative(array $data)
+	public function appendCumulative(array $data)
 	{
 		//debug($this->cumulative, $data);
 		$cumulative2 = array();
@@ -179,7 +183,7 @@ class Flot extends Controller
 	 * http://bytes.com/topic/php/answers/747586-calculate-moving-average
 	 * @return string
 	 */
-	function renderMovingAverage()
+	public function renderMovingAverage()
 	{
 		$content = '';
 		$charts = $this->getChartTable($this->data);
@@ -188,7 +192,7 @@ class Flot extends Controller
 		return $content;
 	}
 
-	function getMovingAverage(array $charts)
+	public function getMovingAverage(array $charts)
 	{
 		foreach ($charts as $s => &$series) {
 			$res = array();
@@ -224,7 +228,7 @@ class Flot extends Controller
 	 * @internal param string $amountKey
 	 * @return array
 	 */
-	function getChartTable(array $rows)
+	public function getChartTable(array $rows)
 	{
 		$chart = array();
 		foreach ($rows as $i => $row) {
@@ -245,7 +249,7 @@ class Flot extends Controller
 		return $chart;
 	}
 
-	function getChartCumulative(array $chart)
+	public function getChartCumulative(array $chart)
 	{
 		foreach ($chart as &$sub) {
 			ksort($sub);
@@ -259,7 +263,7 @@ class Flot extends Controller
 		return $chart;
 	}
 
-	static function getChartMax(array $chart, $min = false)
+	public static function getChartMax(array $chart, $min = false)
 	{
 		$max = 0;
 		foreach ($chart as $series) {
@@ -270,9 +274,11 @@ class Flot extends Controller
 		return $max;
 	}
 
-	function showChart($divID, array $charts, array $cumulative = array())
+	public function showChart($divID, array $charts, array $cumulative = array())
 	{
-		if (!$charts) return '';
+		if (!$charts) {
+			return '';
+		}
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
