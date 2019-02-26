@@ -222,7 +222,7 @@ class Mailer
 	 * @throws Exception
 	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
 	 */
-	function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
+	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
 	{
 		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 
