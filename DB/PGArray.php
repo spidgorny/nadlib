@@ -18,7 +18,7 @@ class PGArray extends AsIs
 	 */
 	public $data;
 
-	public function __construct(DBLayer $db, array $data = null)
+	public function __construct(DBInterface $db, array $data = null)
 	{
 		$this->db = $db;
 
