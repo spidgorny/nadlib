@@ -937,7 +937,7 @@ class URL
 
 	public function getHost()
 	{
-		return $this->components['host'];
+		return ifsetor($this->components['host']);
 	}
 
 	public function setHost($host)
@@ -947,17 +947,17 @@ class URL
 
 	public function getPort()
 	{
-		return $this->components['port'];
+		return ifsetor($this->components['port']);
 	}
 
 	public function getUser()
 	{
-		return $this->components['user'];
+		return ifsetor($this->components['user']);
 	}
 
 	public function getPass()
 	{
-		return $this->components['pass'];
+		return ifsetor($this->components['pass']);
 	}
 
 	public function getHash()
