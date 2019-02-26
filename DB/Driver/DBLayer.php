@@ -938,6 +938,9 @@ WHERE ccu.table_name='" . $table . "'");
 		return pg_transaction_status($this->connection) == PGSQL_TRANSACTION_INTRANS;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getInfo()
 	{
 		return pg_version($this->connection) + [
