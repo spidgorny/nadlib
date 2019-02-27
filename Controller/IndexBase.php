@@ -58,7 +58,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @var Config
 	 */
-	var $config;
+	protected $config;
 
 	var $csp = array(
 		"default-src" => array(
