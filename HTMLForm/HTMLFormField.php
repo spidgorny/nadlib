@@ -200,7 +200,9 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$this->form->text($fieldValue);
 				break;
 			case "textarea":
-				$this->form->textarea($fieldName, $fieldValue,
+				$this->form->textarea(
+					$fieldName,
+					$fieldValue,
 					(is_array(ifsetor($desc['more']))
 						? HTMLForm::getAttrHTML($desc['more'])
 						: $desc['more']
