@@ -190,6 +190,13 @@ post_max_size: ' . $post_max_size . '">' .
 		return $ok;
 	}
 
+	/**
+	 * @param $from
+	 * @param \League\Flysystem\Filesystem $path
+	 * @param null $fileName
+	 * @return bool
+	 * @throws UploadException
+	 */
 	public function moveUploadFly($from, League\Flysystem\Filesystem $path, $fileName = null)
 	{
 		if (is_array($from)) {
@@ -225,7 +232,7 @@ post_max_size: ' . $post_max_size . '">' .
 		return $ok;
 	}
 
-	function checkError(array $uf)
+	public function checkError(array $uf)
 	{
 		$errorCode = $uf['error'];
 		return (!$errorCode);
@@ -236,7 +243,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkExtension(array &$uf)
+	public function checkExtension(array &$uf)
 	{
 		if ($this->allowed) {
 			$filename = $uf['name'];
@@ -254,7 +261,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkMime(array &$uf)
+	public function checkMime(array &$uf)
 	{
 		if ($this->allowedMime) {
 			$mimer = new MIME();
@@ -283,14 +290,15 @@ post_max_size: ' . $post_max_size . '">' .
 		}
 	}
 
-	function getContent($from)
+	public function getContent($from)
 	{
-		if ($uf = $_FILES[$from]) {
+		$uf = $_FILES[$from];
+		if ($uf) {
 			if ($uf['tmp_name']) {
 				return file_get_contents($uf['tmp_name']);
 			}
 		}
-		return NULL;
+		return null;
 	}
 
 	public function getTempFile($fieldName = 'file')
@@ -298,7 +306,7 @@ post_max_size: ' . $post_max_size . '">' .
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['tmp_name'];
 		}
-		return NULL;
+		return null;
 	}
 
 	public function getBasename($fieldName = 'file')
@@ -306,7 +314,7 @@ post_max_size: ' . $post_max_size . '">' .
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['name'];
 		}
-		return NULL;
+		return null;
 	}
 
 	/**
@@ -315,7 +323,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param $callback
 	 * @param array $params
 	 */
-	function handleBlueImpUpload($callback, array $params)
+	public function handleBlueImpUpload($callback, array $params)
 	{
 		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
 		$uh = new UploadHandler($params, false);
@@ -428,7 +436,7 @@ post_max_size: ' . $post_max_size . '">' .
 		return $Result;
 	}
 
-	function getError($code)
+	public function getError($code)
 	{
 		$message = $this->errors[$code];
 		if ($code == 1) {
