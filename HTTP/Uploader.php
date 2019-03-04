@@ -130,13 +130,10 @@ post_max_size: ' . $post_max_size . '">' .
 	}
 
 	/**
-	 * @param string|array $from - usually 'file' - the same name as in getUploadForm()
-	 * @param string $to - directory
-	 * @param bool $overwriteExistingFile
-	 * @return bool
-	 * @throws Exception
+	 * @param $file
+	 * @throws UploadException
 	 */
-	public function moveUpload($from, $to, $overwriteExistingFile = true)
+	public function validateEverything($from)
 	{
 		if (is_array($from)) {
 			$uf = $from;            // $_FILES['whatever']
@@ -155,14 +152,26 @@ post_max_size: ' . $post_max_size . '">' .
 		if (!$this->checkMime($uf)) {
 			throw new UploadException('File mime-type is not allowed (' . $uf['mime'] . ')');
 		}
+	}
 
+	public function getFinalDestination($from, $to, $overwriteExistingFile = true)
+	{
+		if (is_array($from)) {
+			$uf = $from;            // $_FILES['whatever']
+		} else {
+			$uf = $_FILES[$from];   // string index
+		}
 		// if you don't want existing files to be overwritten,
 		// new file will be renamed to *_n,
 		// where n is the number of existing files
-		if (is_dir($to)) {
-			$fileName = $to . $uf['name'];
+		$hasExtension = pathinfo($to, PATHINFO_EXTENSION);
+		if (is_dir($to) || !$hasExtension) {
+			$fileName = rtrim($to, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $uf['name'];
 		} else {
 			$fileName = $to;
+		}
+		if (!is_dir(dirname($fileName))) {
+			@mkdir(dirname($fileName), 0777, true);
 		}
 		if (!$overwriteExistingFile && file_exists($fileName)) {
 			$actualName = pathinfo($fileName, PATHINFO_FILENAME);
@@ -176,7 +185,25 @@ post_max_size: ' . $post_max_size . '">' .
 				$i++;
 			}
 		}
+		return $fileName;
+	}
+	/**
+	 * @param string|array $from - usually 'file' - the same name as in getUploadForm()
+	 * @param string $to - directory
+	 * @param bool $overwriteExistingFile
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function moveUpload($from, $to, $overwriteExistingFile = true)
+	{
+		if (is_array($from)) {
+			$uf = $from;            // $_FILES['whatever']
+		} else {
+			$uf = $_FILES[$from];   // string index
+		}
+		$this->validateEverything($from);
 
+		$fileName = $this->getFinalDestination($from, $to, $overwriteExistingFile);
 		if (!is_dir(dirname($fileName))) {
 			@mkdir(dirname($fileName), 0777, true);
 		}
