@@ -20,7 +20,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
 	public function test_cleanComment()
 	{
 		if (class_exists('HTMLPurifier_Config')) {
-			$v = new View('whatever');
+			$v = new HTMLPRocessor('whatever');
 			$clean = $v->cleanComment('Some shit');
 			$this->assertNotEmpty($clean);
 		} else {
