@@ -32,12 +32,12 @@ class Mailer
 	 * From => From: somebody
 	 * @var array
 	 */
-	var $headers = array();
+	var $headers = [];
 
 	/**
 	 * @var array
 	 */
-	var $params = array();
+	var $params = [];
 
 	public $attachments;
 
@@ -173,7 +173,7 @@ class Mailer
 
 	function debug()
 	{
-		$assoc = array();
+		$assoc = [];
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
 		$assoc['isHTML'] = self::isHTML($this->bodytext);
@@ -222,13 +222,13 @@ class Mailer
 	 * @throws Exception
 	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
 	 */
-	function sendSwiftMailerEmail($cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
+	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
 	{
 		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 
 		$transport = new Swift_SendmailTransport();
 		$mailer = new Swift_Mailer($transport);
-		$failedRecipients = array();
+		$failedRecipients = [];
 		$sent = $mailer->send($message, $failedRecipients);
 
 		return !empty($failedRecipients) ? $failedRecipients : $sent;
@@ -242,7 +242,7 @@ class Mailer
 	 * @return Swift_Message
 	 * @throws Exception
 	 */
-	public function getSwiftMessage($cc = null, $bcc = null, $attachments = array(), $additionalSenders = array())
+	public function getSwiftMessage($cc = null, $bcc = null, $attachments = [], array $additionalSenders = [])
 	{
 		$messageHTML = $this->getBodyText();
 		$messageText = $this->getPlainText();

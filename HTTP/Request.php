@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/URL.php';
+require_once __DIR__ . '/URL.php';
 
 use spidgorny\nadlib\HTTP\URL;
 
@@ -147,8 +147,8 @@ class Request
 	 * Checks that trimmed value isset in the supplied array
 	 * @param $name
 	 * @param array $options
-	 * @throws Exception
 	 * @return string
+	 * @throws Exception
 	 */
 	public function getOneOf($name, array $options)
 	{
@@ -230,8 +230,8 @@ class Request
 	 * Converts string date compatible with strtotime() into timestamp (integer)
 	 *
 	 * @param string $name
-	 * @throws Exception
 	 * @return int
+	 * @throws Exception
 	 */
 	public function getTimestampFromString($name)
 	{
@@ -424,8 +424,8 @@ class Request
 	/**
 	 * Will require modifications when realurl is in place
 	 *
-	 * @throws Exception
 	 * @return object
+	 * @throws Exception
 	 */
 	public function getController()
 	{
@@ -485,12 +485,15 @@ class Request
 		return $ok ? $referer : null;
 	}
 
-	public function redirect($controller, $exit = true)
+	public function redirect($controller, $exit = true, array $params = [])
 	{
 		if (class_exists('Index')
 			&& Index::getInstance()
 			&& method_exists(Index::getInstance(), '__destruct')) {
 			Index::getInstance()->__destruct();
+		}
+		if ($params) {
+			$controller .= '?' . http_build_query($params);
 		}
 		if ($this->canRedirect($controller)) {
 			if (!headers_sent()) {
