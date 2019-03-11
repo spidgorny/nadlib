@@ -639,7 +639,7 @@ class SQLBuilder
 	public function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
-		$res = $this->db->perform($query);
+		$res = $this->db->perform($query, $query->getParameters());
 		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}
