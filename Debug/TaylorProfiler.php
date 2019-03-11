@@ -477,6 +477,15 @@ class TaylorProfiler
 		}
 		$oaTime = microtime(true) - $since;
 		$totalTime = number_format($oaTime, 3, '.', '');
+		return $totalTime;
+	}
+
+	/**
+	 * @return string
+	 */
+	static function getElapsedTimeString()
+	{
+		$totalTime = self::getElapsedTime();
 		list($seconds, $ms) = explode('.', $totalTime);
 		$totalTime = gmdate('H:i:s', $seconds).'.'.$ms;
 		return $totalTime;
