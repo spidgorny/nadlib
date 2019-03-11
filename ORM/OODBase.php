@@ -372,7 +372,7 @@ abstract class OODBase
 		$this->lastSelectQuery = $this->db->lastQuery;
 		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
-		if (is_array($rows)) {
+		if (is_array($rows) && $rows) {
 			$data = $rows;
 			$this->initByRow($data);
 		} else {
