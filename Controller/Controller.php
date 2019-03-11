@@ -125,6 +125,9 @@ abstract class Controller
 			$this->config = $this->index->getConfig();
 		}
 
+		if (!$this->config) {
+			throw new RuntimeException('Controller need Config object');
+		}
 		$this->db = $this->config->getDB();
 		$this->user = $this->config->getUser();
 			//			pre_print_r('User ID', $this->user->getID());
