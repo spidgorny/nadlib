@@ -5,13 +5,16 @@ use spidgorny\nadlib\HTTP\URL;
 /**
  * Class MySQL
  * @mixin SQLBuilder
+ * @method getSelectQuery($table, array $where = array(), $order = '', $addSelect = null)
+ * @method runInsertQuery($table, array $columns, array $where = [])
+ * @method fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
  * @deprecated
  */
 class MySQL extends DBLayerBase implements DBInterface
 {
 
 	/**
-	 * @var string
+	 * @var string|SQLSelectQuery
 	 */
 	public $lastQuery;
 
