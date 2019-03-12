@@ -100,6 +100,7 @@ class PersistantOODBase extends OODBase
 	 *
 	 * @param array $data
 	 * @return resource
+	 * @throws Exception
 	 */
 	function update(array $data)
 	{
@@ -158,9 +159,9 @@ class PersistantOODBase extends OODBase
 		return $action;
 	}
 
-	function findInDB(array $where, $orderByLimit = '')
+	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
-		$ret = parent::findInDB($where, $orderByLimit);
+		$ret = parent::findInDB($where, $orderByLimit, $selectPlus);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
 		return $ret;
