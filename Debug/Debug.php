@@ -432,9 +432,12 @@ class Debug
 				if (is_scalar($a)) {
 					$val = $a;
 				}
-				return ['type' => typ($a) . '', 'value' => $val];
+				return [
+					'type' => trim(strip_tags(typ($a) . '')),
+					'value' => $val.''
+				];
 			}, $row);
-			pre_print_r(array_combine(array_keys($row), $types));
+			return array_combine(array_keys($row), $types);
 		}
 	}
 

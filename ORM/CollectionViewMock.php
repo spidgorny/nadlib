@@ -1,19 +1,24 @@
 <?php
 
-class CollectionViewMock {
+use spidgorny\nadlib\HTTP\URL;
+
+class CollectionViewMock
+{
 
 	/**
 	 * @var Collection
 	 */
 	var $collection;
 
-	function __construct(Collection $col) {
+	function __construct(Collection $col)
+	{
 		$this->collection = $col;
 	}
 
-	function renderTable() {
-		TaylorProfiler::start(__METHOD__." ({$this->collection->table})");
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
+	function renderTable()
+	{
+		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		if ($this->collection->getCount()) {
 			$this->prepareRender();
 			//debug($this->tableMore);
@@ -26,22 +31,23 @@ class CollectionViewMock {
 				$content = $s;
 			}
 		} else {
-			$content = '<div class="message alert alert-warning">'.__($this->noDataMessage).'</div>';
+			$content = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
-		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
+		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 		return $content;
 	}
 
-	function prepareRender() {
-		TaylorProfiler::start(__METHOD__." ({$this->collection->table})");
-		$this->collection->log(get_class($this).'::'.__FUNCTION__.'()');
+	function prepareRender()
+	{
+		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
+		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getData();
 		foreach ($data as $i => $row) { // Iterator by reference (PHP 5.4.15 crash)
 			$row = $this->collection->prepareRenderRow($row);
 			$data[$i] = $row;
 		}
 		$this->collection->setData($data);
-		TaylorProfiler::stop(__METHOD__." ({$this->collection->table})");
+		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 	}
 
 }

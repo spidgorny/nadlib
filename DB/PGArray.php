@@ -1,23 +1,24 @@
 <?php
 
-class PGArray extends AsIs {
+class PGArray extends AsIs
+{
 
 	/**
 	 * @var DBLayer
 	 */
-	var $db;
+	protected $db;
 
 	/**
 	 * @var bool
 	 */
-	var $standard_conforming_strings;
+	protected $standard_conforming_strings;
 
 	/**
 	 * @var array
 	 */
-	var $data;
+	public $data;
 
-	function __construct(DBLayer $db, array $data = NULL)
+	public function __construct(DBInterface $db, array $data = null)
 	{
 		$this->db = $db;
 
@@ -34,12 +35,12 @@ class PGArray extends AsIs {
 		}
 	}
 
-	function set(array $data)
+	public function set(array $data)
 	{
 		$this->data = $data;
 	}
 
-	function __sleep()
+	public function __sleep()
 	{
 		$props = get_object_vars($this);
 		$props = array_keys($props);
@@ -53,13 +54,13 @@ class PGArray extends AsIs {
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	function __toString()
+	public function __toString()
 	{
 		$quoted = $this->db->quoteValues($this->data);
 		return 'ARRAY[' . implode(', ', $quoted) . ']';
 	}
 
-	function encodeInString()
+	public function encodeInString()
 	{
 		return $this->setPGArray($this->data);
 	}
@@ -70,7 +71,7 @@ class PGArray extends AsIs {
 	 * @param string $pgArray
 	 * @return array
 	 */
-	function PGArrayToPHPArray($pgArray)
+	public function PGArrayToPHPArray($pgArray)
 	{
 		$ret = array();
 		$stack = array(&$ret);
@@ -89,8 +90,9 @@ class PGArray extends AsIs {
 				}
 				$newSub[] = substr($elem, 1);
 				$ret[] = array_reverse($newSub);
-			} else
+			} else {
 				$ret[] = $elem;
+			}
 		}
 		return $ret;
 	}
@@ -101,7 +103,7 @@ class PGArray extends AsIs {
 	 * @internal param string $dbarr
 	 * @return array
 	 */
-	function getPGArray($input)
+	public function getPGArray($input)
 	{
 		$input = (string)$input;
 		if (strlen($input) && $input{0} == '{') {    // array inside
@@ -123,7 +125,7 @@ class PGArray extends AsIs {
 		}
 	}
 
-	static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
+	public static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
 	{
 		$temp = fopen("php://memory", "rw");
 		fwrite($temp, $input);
@@ -195,7 +197,7 @@ class PGArray extends AsIs {
 			return $elements;
 		}
 	*/
-	function getPGArray1D($input)
+	public function getPGArray1D($input)
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
@@ -254,7 +256,7 @@ class PGArray extends AsIs {
 	 * @param array $data
 	 * @return string
 	 */
-	function setPGArray(array $data)
+	public function setPGArray(array $data)
 	{
 		foreach ($data as &$el) {
 			if (is_array($el)) {
@@ -280,7 +282,7 @@ class PGArray extends AsIs {
 		return $result;
 	}
 
-	function __toString2()
+	public function __toString2()
 	{
 		return $this->setPGArray($this->data);
 	}

@@ -118,6 +118,7 @@ class MergedContent implements ArrayAccess
 
 	public function clear()
 	{
+		debug('clear');
 		$this->content = array();
 	}
 

@@ -56,7 +56,7 @@ class HTMLTag implements ArrayAccess {
 		foreach ($attr as $key => $val) {
 			if (is_array($val) && $key == 'style') {
 				$style = ArrayPlus::create($val);
-				$style = $style->getHeaders(': ');
+				$style = $style->getHeaders('; ');
 				$val = $style; 				  	 	// for style="a: b; c: d"
 			} elseif (is_array($val)) {
 				if (ArrayPlus::isRecursive($val)) {
@@ -250,8 +250,8 @@ class HTMLTag implements ArrayAccess {
 		return '#'.$hash;
 	}
 
-	static function a($href, $name, array $more = []) {
-		return new self('a', ['href' => $href] + $more, $name);
+	static function a($href, $name, array $more = [], $isHTML = false) {
+		return new self('a', ['href' => $href] + $more, $name, $isHTML);
 	}
 
 	static function img($src, array $params = []) {

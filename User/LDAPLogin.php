@@ -6,14 +6,14 @@ class LDAPLogin
 	/**
 	 * @var string
 	 */
-	var $LDAP_HOST;
+	public $LDAP_HOST;
 
 	/**
 	 * @var string
 	 */
-	var $LDAP_BASEDN;
+	public $LDAP_BASEDN;
 
-	private $_ldapconn;
+	public $_ldapconn;
 
 	/**
 	 * @var LDAPUser
@@ -40,14 +40,17 @@ class LDAPLogin
 		}
 	}
 
-	function reconnect()
+	public function reconnect()
 	{
 		if ($this->_ldapconn) {
 			ldap_unbind($this->_ldapconn);
 		}
-		ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
-		$this->_ldapconn = ldap_connect($this->LDAP_HOST)
-		or die("Couldn't connect to the LDAP server.");
+//		ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, 7);
+		$this->_ldapconn = ldap_connect($this->LDAP_HOST);
+		if (!$this->_ldapconn) {
+			throw new RuntimeException("Couldn't connect to the LDAP server.");
+		}
+		// https://stackoverflow.com/questions/17742751/ldap-operations-error
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($this->_ldapconn, LDAP_OPT_REFERRALS, 0);
 	}
@@ -57,11 +60,17 @@ class LDAPLogin
 	 * @param $string
 	 * @return string
 	 */
-	function _sanitizeLdap($string)
+	public function _sanitizeLdap($string)
 	{
 		return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
 	}
 
+	/**
+	 * http://php.net/manual/en/function.ldap-bind.php
+	 * @param $loginDN
+	 * @param $password
+	 * @return mixed
+	 */
 	public function bind($loginDN, $password)
 	{
 		$this->_connectLdap();
@@ -87,9 +96,9 @@ class LDAPLogin
 			//$filter = "(&(objectClass=user)(objectCategory=person)(cn=" . $this->_sanitizeLdap($username) . "))";
 			$filter = "(&(objectClass=user)(cn=" . $this->_sanitizeLdap($username) . "))";
 			//echo $filter;
-			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
+//			$attributes = ['dn', 'uid', 'fullname', 'givenname', 'firstname'];
 
-//			debug($this->_ldapconn, $this->LDAP_BASEDN, $filter);
+			//			debug($this->_ldapconn, $this->LDAP_BASEDN, $filter);
 			$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $filter/*, $attributes*/);
 			if ($search) {
 				$info = ldap_get_entries($this->_ldapconn, $search);
@@ -103,8 +112,7 @@ class LDAPLogin
 				for ($i = 0; $i < $info['count']; $i++) {
 					//$this->reconnect();
 					// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
-					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], /*$this->_sanitizeLdap*/
-						($password));
+					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $password);
 
 					if ($ldapbind) {
 						/** @var LDAPUser $user */
@@ -137,7 +145,9 @@ class LDAPLogin
 		//$query = '(&(objectClass=inetOrgPerson)(groupMembership=*cn=Application_Development,ou=FFM2,ou=NOE,o=NWW))';
 		$query = '(&(objectClass=inetOrgPerson))';
 		//$query = '(cn=*)';
-		//$query = '(|(name=memberof)(cn=memberof)(sn=memberof)(displayName=memberof)(givenName=memberof)(uid=memberof)(initials=memberof)(gecos=memberof)(ou=memberof)(dc=memberof)(o=memberof)(group=memberof)(dmdName=memberof)(sAMAccountName=memberof)(description=memberof)(labeledURI=memberof))';
+		//$query = '(|(name=memberof)(cn=memberof)(sn=memberof)(displayName=memberof)(givenName=memberof)(uid=memberof)
+		//(initials=memberof)(gecos=memberof)(ou=memberof)(dc=memberof)(o=memberof)(group=memberof)(dmdName=memberof)
+		//(sAMAccountName=memberof)(description=memberof)(labeledURI=memberof))';
 		$this->_connectLdap();
 
 		$search = ldap_search($this->_ldapconn, $group, $query);
@@ -158,7 +168,10 @@ class LDAPLogin
 	{
 		$this->_connectLdap();
 
-		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, array(), null, 50);
+		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, [], null, 50);
+		if (!$search) {
+			return null;
+		}
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
 		$userClass = get_class($this->userClass);
@@ -167,5 +180,4 @@ class LDAPLogin
 		}
 		return $info;
 	}
-
 }

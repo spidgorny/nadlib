@@ -3,7 +3,7 @@
 /**
  * Class AccessRights represents all the rights of a specific group
  */
-class AccessRights
+class AccessRights implements AccessRightsInterface
 {
 	protected $accessTable = 'access';
 	protected $groupAccessTable = 'department_access';
@@ -21,7 +21,7 @@ class AccessRights
 
 	protected $query;
 
-	function __construct($idGroup)
+	public function __construct($idGroup)
 	{
 		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
 		$this->db = Config::getInstance()->getDB();
@@ -30,33 +30,36 @@ class AccessRights
 		TaylorProfiler::stop($profiler);
 	}
 
-	function reload()
+	public function reload()
 	{
 		$this->init($this->groupID);
 	}
 
-	function init($idGroup)
+	public function init($idGroup)
 	{
-		$res = $this->db->runSelectQuery($this->accessTable . ' /**/
+		$res = $this->db->runSelectQuery(
+			$this->accessTable . ' /**/
 			LEFT OUTER JOIN ' . $this->groupAccessTable . ' ON (
 				' . $this->accessTable . '.id = ' . $this->groupAccessTable . '.' . $this->id_useraccess . '
 				AND ' . $this->id_usergroup . ' = ' . $idGroup . ')',
-			array(), 'ORDER BY ' . $this->accessTable . '.name',
-			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative');
+			array(),
+			'ORDER BY ' . $this->accessTable . '.name',
+			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative'
+		);
 		$data = $this->db->fetchAll($res);
 		$this->query = $this->db->lastQuery;
-//		debug($this->query);
+		//		debug($this->query);
 		//debug($data);
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();
 		foreach ($data as &$affirmative) {
-			$affirmative = $affirmative ? TRUE : FALSE;
+			$affirmative = $affirmative ? true : false;
 		}
 		$this->arCache = $data;
 		//debug($this->arCache);
 	}
 
-	function can($what)
+	public function can($what)
 	{
 		//debug($what, $this->arCache);
 		if (isset($this->arCache[$what])) {
@@ -66,22 +69,22 @@ class AccessRights
 		}
 	}
 
-	function getList()
+	public function getList()
 	{
 		return $this->arCache;
 	}
 
-	function getQuery()
+	public function getQuery()
 	{
 		return $this->query;
 	}
 
-	function render()
+	public function render()
 	{
 		return new UL($this->arCache);
 	}
 
-	function __sleep()
+	public function __sleep()
 	{
 		$vars = get_object_vars($this);
 		$keys = array_keys($vars);
@@ -97,7 +100,7 @@ class AccessRights
 	 * @return AccessRightModel[]|ArrayPlus
 	 * @throws Exception
 	 */
-	function getAllRights($wherePlus = 'WHERE 1 = 1')
+	public function getAllRights($wherePlus = 'WHERE 1 = 1')
 	{
 		$accessRights = $this->db->fetchAll("
 		SELECT * FROM {$this->accessTable}
@@ -109,9 +112,8 @@ class AccessRights
 		return $accessRights;
 	}
 
-	function setAccess($name, $value)
+	public function setAccess($name, $value)
 	{
 		$this->arCache[$name] = $value;
 	}
-
 }
