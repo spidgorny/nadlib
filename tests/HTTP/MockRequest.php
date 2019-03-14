@@ -1,10 +1,11 @@
 <?php
 
-class MockRequest {
+class MockRequest
+{
 
-	var $log = [];
+	public $log = [];
 
-	function __call($function, array $args)
+	public function __call($function, array $args)
 	{
 		$this->log[] = (object)[
 			'function' => $function,

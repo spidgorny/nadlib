@@ -1,14 +1,16 @@
 <?php
 
-class ChangePassword extends HTMLFormProcessor {
-	
+class ChangePassword extends HTMLFormProcessor
+{
+
 	protected $minLength = 8;
-	
+
 	protected $submitButton = 'Change';
-	
+
 	public $title = 'Change Password';
 
-	function getDesc() {
+	public function getDesc()
+	{
 		$desc = array();
 		$desc['action'] = array(
 			'type' => 'hidden',
@@ -27,7 +29,8 @@ class ChangePassword extends HTMLFormProcessor {
 		return $desc;
 	}
 
-	function onSuccess(array $data) {
+	public function onSuccess(array $data)
+	{
 		$content = '';
 		if (strlen($data['password']) >= $this->minLength) {
 			if ($data['password'] == $data['repeat']) {

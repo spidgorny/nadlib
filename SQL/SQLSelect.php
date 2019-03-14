@@ -1,20 +1,22 @@
 <?php
 
-class SQLSelect {
+class SQLSelect
+{
 
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	public $db;
 
-	protected $parts = array();
+	public $parts = [];
 
 	/**
 	 * SQLSelect constructor.
 	 *
 	 * @param $parts array|string
 	 */
-	function __construct($parts) {
+	public function __construct($parts)
+	{
 		if (is_array($parts)) {
 			$this->parts = $parts;
 		} elseif ($parts) {
@@ -24,12 +26,24 @@ class SQLSelect {
 		}
 	}
 
-	function injectDB(DBInterface $db) {
+	public function injectDB(DBInterface $db)
+	{
 		$this->db = $db;
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		return implode(', ', $this->parts);
+	}
+
+	public function contains($string)
+	{
+		foreach ($this->parts as $p) {
+			if (str_contains($p.'', $string)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

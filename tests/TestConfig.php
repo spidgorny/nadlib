@@ -1,8 +1,10 @@
 <?php
 
-class TestConfig extends ConfigBase {
+class TestConfig extends ConfigBase
+{
 
-	function getDB() {
+	public function getDB()
+	{
 		if (!$this->db) {
 			$this->db = new DBPlacebo();
 			$this->db->qb = $this->getQb();
@@ -10,7 +12,8 @@ class TestConfig extends ConfigBase {
 		return $this->db;
 	}
 
-	function getQB() {
+	public function getQB()
+	{
 		return new SQLBuilder($this->getDB());
 	}
 

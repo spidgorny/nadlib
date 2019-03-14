@@ -15,12 +15,12 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 	 */
 	public $data;
 
-	function __construct(array $ldapInfo = array())
+	public function __construct(array $ldapInfo = array())
 	{
 		$this->initLDAP($ldapInfo);
 	}
 
-	function initLDAP(array $ldapInfo = array())
+	public function initLDAP(array $ldapInfo = array())
 	{
 		$goodKeys = array_filter(array_keys($ldapInfo), 'is_string');
 		$ldapInfo = array_intersect_key($ldapInfo, array_flip($goodKeys));
@@ -34,12 +34,12 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		}
 	}
 
-	function getName()
+	public function getName()
 	{
 		return $this->UserName . ' (' . $this->UserID . ') <' . $this->data['mail'][0] . '>';
 	}
 
-	function try2login()
+	public function try2login()
 	{
 		if ($_SESSION['user']) {
 			$this->id = $_SESSION['user']->id;
@@ -49,7 +49,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		}
 	}
 
-	function saveLogin()
+	public function saveLogin()
 	{
 		$obj = new stdClass();
 		$obj->id = $this->id;
@@ -59,7 +59,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		$_SESSION['user'] = $obj;
 	}
 
-	function logout()
+	public function logout()
 	{
 		unset($_SESSION['user']);
 	}
@@ -68,13 +68,13 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 	 * Simplifies $this->data for display
 	 * @return array
 	 */
-	function getInfo()
+	public function getInfo()
 	{
 		$simpleData = array();
 		foreach ($this->data as $field => $data) {
 			if (is_array($data) && $data['count'] == 1) {
 				$simpleData[$field] = $data[0];
-			} else if (is_array($data)) {
+			} elseif (is_array($data)) {
 				unset($data['count']);
 				$simpleData[$field] = $data;
 			}
@@ -90,12 +90,12 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		return $simpleData;
 	}
 
-	function getEmail()
+	public function getEmail()
 	{
 		return $this->data['mail'][0];
 	}
 
-	function getPasswordHash()
+	public function getPasswordHash()
 	{
 		return $this->data['lastlogontimestamp'][0];
 	}

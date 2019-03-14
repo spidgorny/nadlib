@@ -17,3 +17,4 @@ docs/
 tests/reports/
 debugCookie/
 /VERSION
+.git 
