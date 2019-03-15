@@ -518,19 +518,19 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	public function quoteSQL($value, $key = NULL)
+	public function quoteSQL($value, $key = null)
 	{
-		if ($value === NULL) {
+		if ($value === null) {
 			return "NULL";
-		} else if ($value === FALSE) {
+		} elseif ($value === false) {
 			return "'f'";
-		} else if ($value === TRUE) {
+		} elseif ($value === true) {
 			return "'t'";
-		} else if (is_int($value)) {    // is_numeric - bad: operator does not exist: character varying = integer
+		} elseif (is_int($value)) {    // is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
-		} else if (is_bool($value)) {
+		} elseif (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
-		} else if ($value instanceof SQLParam) {
+		} elseif ($value instanceof SQLParam) {
 			return $value;
 		} elseif (is_scalar($value)) {
 			return "'" . $this->escape($value) . "'";
