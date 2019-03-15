@@ -104,6 +104,9 @@ class UploaderTest extends PHPUnit_Framework_TestCase
 
 	public function test_moveUploadFly()
 	{
+		if (!class_exists('League\Flysystem\Filesystem')) {
+			$this->markTestSkipped('League\Flysystem\Filesystem not installed');
+		}
 		$u = new Uploader();
 		$fly = new League\Flysystem\Filesystem(new League\Flysystem\Adapter\NullAdapter());
 		$_FILES['test'] = [
