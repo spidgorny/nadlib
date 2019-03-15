@@ -3,6 +3,7 @@
 /**
  * Class DBLayerBase
  * @mixin SQLBuilder
+ * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
  */
 class DBLayerBase implements DBInterface
 {
