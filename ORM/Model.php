@@ -16,7 +16,8 @@
  * - don't put collection methods directly into the Model - try to use ArrayPlus
  * - or add Traits that deal with multiple rows
  */
-class Model {
+class Model
+{
 
 	var $table;
 
@@ -25,7 +26,7 @@ class Model {
 	var $titleColumn = 'name';
 
 	/**
-	 * @var DBInterface|SQLBuilder
+	 * @var DBInterface|SQLBuilder|DBLayerBase
 	 */
 	protected $db;
 
@@ -36,6 +37,7 @@ class Model {
 	 * @param array $data
 	 * @param DBInterface $db
 	 * @return static
+	 * @throws DatabaseException
 	 */
 	static function getInstance(array $data, DBInterface $db = null)
 	{
@@ -297,7 +299,7 @@ class Model {
 				$f->type = $dc2->get('var')
 					? first(trimExplode(' ', $dc2->get('var')))
 					: 'varchar';
-				$f->references = $type->table.'('.$type->idField.')';
+				$f->references = $type->table . '(' . $type->idField . ')';
 			}
 			$columns[] = $f;
 		}

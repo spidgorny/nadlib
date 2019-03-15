@@ -1,11 +1,7 @@
 <?php
 
-interface DBInterface {
-
-	//function __construct();
-
-	// parameters are different
-	//function connect();
+interface DBInterface
+{
 
 	function perform($query, array $params = []);
 

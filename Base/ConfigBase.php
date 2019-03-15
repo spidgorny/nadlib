@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__.'/ConfigInterface.php';
 /**
  * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
  * Extend with a name Class and add any configuration parameters and factory calls.
