@@ -12,6 +12,7 @@
  * @method performWithParams($query, $params)
  * @method getInfo();
  * @method getConnection();
+ * @method getViews();
  */
 interface DBInterface
 {

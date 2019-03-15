@@ -3,6 +3,7 @@
 /**
  * Class dbLayer
  * @mixin SQLBuilder
+ * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
@@ -100,18 +101,18 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @return bool
 	 */
-	function isConnected()
+	public function isConnected()
 	{
 		return !!$this->connection
 			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
 	}
 
-	function getConnection()
+	public function getConnection()
 	{
 		return $this->connection;
 	}
 
-	function reconnect()
+	public function reconnect()
 	{
 		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
 	}
@@ -423,6 +424,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * Returns a list of tables in the current database
 	 * @return string[]
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getViews()
 	{
@@ -581,6 +583,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param resource/query $result
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function fetchAssoc($res)
 	{
@@ -600,6 +603,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param $res
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function fetchAssocSeek($res)
 	{
