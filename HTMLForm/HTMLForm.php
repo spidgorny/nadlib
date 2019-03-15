@@ -454,7 +454,7 @@ class HTMLForm
 		$this->text("&euro;");
 	}
 
-	public function textarea($name, $value = NULL, $more = '')
+	public function textarea($name, $value = null, $more = '')
 	{
 		$more = is_array($more) ? HTMLForm::getAttrHTML($more) : $more;
 		$this->stdout .= "<textarea " . $this->getName($name) . " {$more}>" .
@@ -465,12 +465,12 @@ class HTMLForm
 	/**
 	 * Changelog: second $more parameter was removed, please use $params instead
 	 *
-	 * @param null $value
+	 * @param string $value
 	 * @param array $params
 	 *
 	 * @return HTMLForm
 	 */
-	public function submit($value = NULL, array $params = [])
+	public function submit($value = null, array $params = [])
 	{
 		$params['class'] = ifsetor($params['class'], 'submit btn');
 		$params['name'] = ifsetor($params['name'], 'btnSubmit');
@@ -484,7 +484,7 @@ class HTMLForm
 		return $this;
 	}
 
-	public function button($innerHTML = NULL, array $more = [])
+	public function button($innerHTML = null, array $more = [])
 	{
 		$more = HTMLTag::renderAttr($more);
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
