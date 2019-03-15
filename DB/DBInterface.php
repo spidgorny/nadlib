@@ -3,8 +3,15 @@
 /**
  * Interface DBInterface
  * @mixin SQLBuilder
- * @method fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
- * @method fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
+ * @method fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
+ * @method fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+ * @method describeView($viewName)
+ * @method fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method getFirstValue($query)
+ * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
+ * @method performWithParams($query, $params)
+ * @method getInfo();
+ * @method getConnection();
  */
 interface DBInterface
 {
