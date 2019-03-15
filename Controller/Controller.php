@@ -372,7 +372,7 @@ abstract class Controller
 	 * @param string $caption
 	 * @param null $h
 	 * @param array $more
-	 * @return array|string
+	 * @return string[]|string
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
