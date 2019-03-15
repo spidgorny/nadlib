@@ -45,13 +45,13 @@ class MessageQueue extends OODBase
 	/**
 	 * TODO: move this into MessageQueueCollection
 	 * Get next task available
-	 * @return object
+	 * @return TaskInterface|bool
 	 * @throws Exception
 	 */
 	public function getTaskObject()
 	{
 		// need to delete previous record, otherwise infinite loop
-		$this->id = NULL;
+		$this->id = null;
 		$this->data = array();
 		$this->db->transaction();
 		$newTaskOK = $this->fetchNextTask($this->type);
