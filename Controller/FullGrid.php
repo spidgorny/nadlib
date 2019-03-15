@@ -48,6 +48,7 @@ abstract class FullGrid extends Grid
 	/**
 	 * @param null $collection
 	 * @throws LoginException
+	 * @throws ReflectionException
 	 */
 	public function postInit($collection = null)
 	{

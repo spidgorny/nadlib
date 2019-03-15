@@ -94,8 +94,37 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
 	}
 
+	/**
+	 * @param $url
+	 * @return mixed
+	 * @see http://php.net/manual/de/function.parse-url.php#83828
+	 */
+	function parseUrl($url) {
+		$r  = "^(?:(?P<scheme>\w+)://)?";
+		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
+		$r .= "(?P<host>(?:(?P<subdomain>[\w\.]+)\.)?" . "(?P<domain>\w+\.(?P<extension>\w+)))";
+		$r .= "(?::(?P<port>\d+))?";
+		$r .= "(?P<path>[\w/]*/(?P<file>\w+(?:\.\w+)?)?)?";
+		$r .= "(?:\?(?P<arg>[\w=&]+))?";
+		$r .= "(?:#(?P<anchor>\w+))?";
+		$r = "!$r!";                                                // Delimiters
+
+		preg_match ( $r, $url, $out );
+
+		return $out;
+	}
+
 	public function connectDSN($dsn, $user = NULL, $password = NULL)
 	{
+		if (!$user) {
+			$dsnParts = parse_url($dsn);
+//			debug($dsnParts);
+			$user = $dsnParts['user'];
+			$password = $dsnParts['pass'];
+//			$dsn = str_replace($user.':'.$password.'@', '', $dsn);
+			$dsnBuilder = DSNBuilder::make($dsnParts['scheme'], $dsnParts['host'], '','', trim($dsnParts['path'], '/'), $dsnParts['port']);
+			$dsn = $dsnBuilder->__toString();
+		}
 		$this->dsn = $dsn;
 		$options = array(
 			PDO::ATTR_PERSISTENT => false,
@@ -110,6 +139,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
 			debug([
+				'class' => get_class($e),
 				'exception' => $e->getMessage(),
 				'dsn' => $this->dsn,
 				'extensions' => get_loaded_extensions(),
