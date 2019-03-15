@@ -56,7 +56,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * Initialize in postInit() to run paged SQL
 	 * initialize if necessary with = new Pager(); in postInit()
-	 * @var Pager
+	 * @var Pager|null
 	 */
 	public $pager;
 
