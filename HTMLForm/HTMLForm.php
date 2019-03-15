@@ -330,7 +330,7 @@ class HTMLForm
 	 * @see renderSelectionOptions
 	 */
 	public function selection(
-		$name, array $aOptions = NULL, $default,
+		$name, array $aOptions = null, $default,
 		$autoSubmit = false, $more = [],
 		$multiple = false, array $desc = []
 	)

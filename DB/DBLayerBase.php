@@ -4,6 +4,7 @@
  * Class DBLayerBase
  * @mixin SQLBuilder
  * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
+ * @method  fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
  */
 class DBLayerBase implements DBInterface
 {
@@ -315,4 +316,13 @@ class DBLayerBase implements DBInterface
 		return $set;
 	}
 
+	public function quoteSQL($value, $key = null)
+	{
+		return "'" . $this->escape($value) . "'";
+	}
+
+	public function getLastQuery()
+	{
+		return $this->lastQuery;
+	}
 }
