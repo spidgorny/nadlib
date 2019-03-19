@@ -1,12 +1,12 @@
 /// <reference path="../../../../vendor/yankee42/typescript-server-sent-events/sse.d.ts" />
 function addEvent(html_element, event_name, event_function) {
-    if (html_element.addEventListener) {
+    if (html_element.addEventListener) { // Modern
         html_element.addEventListener(event_name, event_function, false);
     }
-    else if (html_element.attachEvent) {
+    else if (html_element.attachEvent) { // Internet Explorer
         html_element.attachEvent("on" + event_name, event_function);
     }
-    else {
+    else { // others
         html_element["on" + event_name] = event_function;
     }
 }
@@ -27,6 +27,7 @@ function startTask(url, target) {
                 // update the UI now that task is complete
                 target.innerHTML = data.complete;
             }
+            // otherwise, it's a progress update so just update progress bar
             else {
                 var pct = 100.0 * data.current / data.total;
                 //console.log(pct);
