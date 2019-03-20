@@ -169,6 +169,9 @@ class Path {
 	 */
 	function exists()
 	{
+		if (ini_get('open_basedir')) {
+			return false;
+		}
 		return is_dir($this->sPath) || file_exists($this->sPath);
 	}
 
