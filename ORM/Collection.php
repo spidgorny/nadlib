@@ -56,7 +56,7 @@ class Collection implements IteratorAggregate
 	/**
 	 * Initialize in postInit() to run paged SQL
 	 * initialize if necessary with = new Pager(); in postInit()
-	 * @var Pager
+	 * @var Pager|null
 	 */
 	public $pager;
 
@@ -506,7 +506,7 @@ class Collection implements IteratorAggregate
 	}
 
 	/**
-	 * @return slTable|string - returns the slTable if not using Pager
+	 * @return string - returns the slTable if not using Pager
 	 * @throws Exception
 	 */
 	public function render()

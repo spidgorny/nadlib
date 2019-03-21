@@ -3,6 +3,7 @@
 /**
  * Class dbLayer
  * @mixin SQLBuilder
+ * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
@@ -100,18 +101,18 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @return bool
 	 */
-	function isConnected()
+	public function isConnected()
 	{
 		return !!$this->connection
 			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
 	}
 
-	function getConnection()
+	public function getConnection()
 	{
 		return $this->connection;
 	}
 
-	function reconnect()
+	public function reconnect()
 	{
 		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
 	}
@@ -423,6 +424,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * Returns a list of tables in the current database
 	 * @return string[]
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getViews()
 	{
@@ -518,19 +520,19 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	public function quoteSQL($value, $key = NULL)
+	public function quoteSQL($value, $key = null)
 	{
-		if ($value === NULL) {
+		if ($value === null) {
 			return "NULL";
-		} else if ($value === FALSE) {
+		} elseif ($value === false) {
 			return "'f'";
-		} else if ($value === TRUE) {
+		} elseif ($value === true) {
 			return "'t'";
-		} else if (is_int($value)) {    // is_numeric - bad: operator does not exist: character varying = integer
+		} elseif (is_int($value)) {    // is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
-		} else if (is_bool($value)) {
+		} elseif (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
-		} else if ($value instanceof SQLParam) {
+		} elseif ($value instanceof SQLParam) {
 			return $value;
 		} elseif (is_scalar($value)) {
 			return "'" . $this->escape($value) . "'";
@@ -581,6 +583,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param resource/query $result
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function fetchAssoc($res)
 	{
@@ -600,6 +603,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param $res
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function fetchAssocSeek($res)
 	{

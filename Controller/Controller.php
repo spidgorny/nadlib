@@ -39,7 +39,7 @@ abstract class Controller
 	public $noRender = false;
 
 	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase
+	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
 	protected $db;
 
@@ -58,7 +58,7 @@ abstract class Controller
 	public $useRouter = false;
 
 	/**
-	 * @var User|Client|userMan|LoginUser|UserModelInterface
+	 * @var UserModelInterface
 	 */
 	public $user;
 
@@ -372,7 +372,7 @@ abstract class Controller
 	 * @param string $caption
 	 * @param null $h
 	 * @param array $more
-	 * @return array|string
+	 * @return string[]|string
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
