@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class TYPO3Page extends OODBase
 {
 	var $table = 'pages';
