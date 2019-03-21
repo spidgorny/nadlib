@@ -21,4 +21,12 @@ interface UserModelInterface
 
 	public function getAvatarURL();
 
+	/**
+	 * @param string $acl
+	 * @return bool
+	 */
+	public function can($acl);
+
+	public function getID();
+
 }
