@@ -1,6 +1,7 @@
 <?php
 
-class HTML {
+class HTML
+{
 
 //	use HTMLHelper;
 
@@ -16,63 +17,63 @@ class HTML {
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false, array $more = array())
+	public function a($href, $text = '', $isHTML = false, array $more = [])
 	{
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 				'href' => $href,
-			) + $more, $text ?: $href, $isHTML);
+			] + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '', array $more = array())
+	public function div($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
-	function span($content, $class = '', array $more = array())
+	public function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
-		return '<span ' . $more . '>' . $this->s($content) . '</span>';
+		return new htmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
 	}
 
-	function info($content)
+	public function info($content)
 	{
 		return '<div class="alert alert-info">' . $this->s($content) . '</div>';
 	}
 
-	function error($content)
+	public function error($content)
 	{
 		return '<div class="alert alert-danger">' . $this->s($content) . '</div>';
 	}
 
-	function success($content)
+	public function success($content)
 	{
 		return '<div class="alert alert-success">' . $this->s($content) . '</div>';
 	}
 
-	function message($content)
+	public function message($content)
 	{
 		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
 	}
 
-	function h1($content)
+	public function h1($content)
 	{
 		return '<h1>' . $this->s($content) . '</h1>';
 	}
 
-	function h2($content)
+	public function h2($content)
 	{
 		return '<h2>' . $this->s($content) . '</h2>';
 	}
 
-	function h3($content)
+	public function h3($content)
 	{
 		return '<h3>' . $this->s($content) . '</h3>';
 	}
 
-	function h4($content)
+	public function h4($content)
 	{
 		return '<h4>' . $this->s($content) . '</h4>';
 	}
@@ -87,7 +88,7 @@ class HTML {
 		return '<h6 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h6>';
 	}
 
-	function progress($percent)
+	public function progress($percent)
 	{
 		$percent = intval($percent);
 		return '<div class="progress">
@@ -99,21 +100,23 @@ class HTML {
 		</div>';
 	}
 
-	function p($content, array $attr = array())
+	public function p($content, array $attr = [])
 	{
 		$more = HTMLTag::renderAttr($attr);
 		return '<p ' . $more . '>' . $this->s($content) . '</p>';
 	}
 
-	function img($src, array $attr = array())
+	public function img($src, array $attr = [])
 	{
-		return new HTMLTag('img', array(
+		$html = new HTMLTag('img', [
 				'src' => /*$this->e*/
 					($src),    // encoding is not necessary for &amp; in URL
-			) + $attr);
+			] + $attr);
+		$html->closingTag = false;
+		return $html;
 	}
 
-	function e($content)
+	public function e($content)
 	{
 		if ($content instanceof HTMLTag) {
 			return $content;
@@ -127,7 +130,7 @@ class HTML {
 		return htmlspecialchars($content, ENT_QUOTES);
 	}
 
-	function script($file)
+	public function script($file)
 	{
 		$mtime = filemtime($file);
 		$file .= '?' . $mtime;
@@ -172,6 +175,11 @@ class HTML {
 	function li($text)
 	{
 		return '<li>' . $this->e($text) . '</li>';
+	}
+
+	public function st($a)
+	{
+		return strip_tags($a);
 	}
 
 }
