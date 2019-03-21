@@ -15,7 +15,7 @@ abstract class OODBase
 	use CachedGetInstance;
 
 	/**
-	 * @var DBInterface|SQLBuilder
+	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -201,7 +201,12 @@ abstract class OODBase
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			debug(typ($row) . '', $this->idField, $idField, $this->data);
+			debug([
+				'class' => static::class,
+				'typ' => typ($row) . '',
+				'idField' => $this->idField,
+				'id' => $idField,
+				'data' => $this->data]);
 			throw new InvalidArgumentException(get_class($this) . '::' . __METHOD__);
 		}
 	}
@@ -319,6 +324,7 @@ abstract class OODBase
 	 * @param array|NULL $where
 	 * @return null
 	 * @throws MustBeStringException
+	 * @throws DatabaseException
 	 */
 	public function delete(array $where = null)
 	{
@@ -367,7 +373,7 @@ abstract class OODBase
 		$this->lastSelectQuery = $this->db->lastQuery;
 		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
-		if (is_array($rows)) {
+		if (is_array($rows) && $rows) {
 			$data = $rows;
 			$this->initByRow($data);
 		} else {
@@ -380,9 +386,14 @@ abstract class OODBase
 		return $data;
 	}
 
+	/**
+	 * @param $id
+	 * @return array
+	 * @throws Exception
+	 */
 	public function findByID($id)
 	{
-		$this->findInDB([
+		return $this->findInDB([
 			$this->idField => $id
 		]);
 	}
@@ -395,7 +406,7 @@ abstract class OODBase
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public static function findInstance(array $where, $static = NULL)
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {

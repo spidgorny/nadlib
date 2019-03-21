@@ -1,6 +1,7 @@
 <?php
 
-class DSNBuilderMySQL extends DSNBuilder {
+class DSNBuilderMySQL extends DSNBuilder
+{
 
 	var $host;
 	var $user;
@@ -28,7 +29,7 @@ class DSNBuilderMySQL extends DSNBuilder {
 			'PORT' => $this->port,
 			'PROTOCOL' => 'TCPIP',
 		);
-		return 'mysql:'.$this->getDSN($aDSN);
+		return 'mysql:' . $this->getDSN($aDSN);
 	}
 
 }

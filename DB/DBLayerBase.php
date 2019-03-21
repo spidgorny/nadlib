@@ -3,13 +3,16 @@
 /**
  * Class DBLayerBase
  * @mixin SQLBuilder
+ * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
+ * @method  fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
  */
-class DBLayerBase implements DBInterface {
+class DBLayerBase implements DBInterface
+{
 
 	/**
 	 * @var SQLBuilder
 	 */
-	var $qb;
+	public $qb;
 
 	/**
 	 * List of reserved words for each DB
@@ -21,22 +24,22 @@ class DBLayerBase implements DBInterface {
 	/**
 	 * @var resource
 	 */
-	var $connection;
+	public $connection;
 
 	/**
 	 * @var string
 	 */
-	var $lastQuery;
+	public $lastQuery;
 
 	/**
 	 * @var int
 	 */
-	var $queryCount = 0;
+	public $queryCount = 0;
 
 	/**
 	 * @var int Time in seconds
 	 */
-	var $queryTime = 0;
+	public $queryTime = 0;
 
 	/**
 	 * set to NULL for disabling
@@ -55,7 +58,7 @@ class DBLayerBase implements DBInterface {
 	 */
 	public $database;
 
-	function setQB(SQLBuilder $qb = NULL)
+	public function setQB(SQLBuilder $qb = null)
 	{
 		$this->qb = $qb;
 	}
@@ -63,12 +66,12 @@ class DBLayerBase implements DBInterface {
 	/**
 	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
 	 */
-	function getScheme()
+	public function getScheme()
 	{
 		return strtolower(str_replace('DBLayer', '', get_class($this)));
 	}
 
-	function __call($method, array $params)
+	public function __call($method, array $params)
 	{
 		if (!$this->qb) {
 			if (!$this->qb) {
@@ -82,27 +85,27 @@ class DBLayerBase implements DBInterface {
 		}
 	}
 
-	function logQuery($query)
-    {
-        if ($this->logToLog) {
+	public function logQuery($query)
+	{
+		if ($this->logToLog) {
 			$query = preg_replace('/\s+/', ' ',
 				str_replace("\n", ' ', $query));
-			error_log('['.get_class($this).']'.TAB.
-				'[' . $this->AFFECTED_ROWS . ' rows]'.TAB.
-				$query .': '.$this->queryTime);
-        }
-    }
+			error_log('[' . get_class($this) . ']' . TAB .
+				'[' . $this->AFFECTED_ROWS . ' rows]' . TAB .
+				$query . ': ' . $this->queryTime);
+		}
+	}
 
-	function dataSeek($res, $i)
+	public function dataSeek($res, $i)
 	{
 	}
 
-	function fetchAssocSeek($res)
+	public function fetchAssocSeek($res)
 	{
-		return NULL;
+		return null;
 	}
 
-	function fetchPartition($res, $start, $limit)
+	public function fetchPartition($res, $start, $limit)
 	{
 		if ($this->getScheme() == 'mysql') {
 			return $this->fetchPartitionMySQL($res, $start, $limit);
@@ -125,63 +128,63 @@ class DBLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function saveQueryLog($query, $time)
+	public function saveQueryLog($query, $time)
 	{
 		$this->queryCount++;
 		$this->queryTime += $time;
 	}
 
-	function getReserved()
+	public function getReserved()
 	{
 		return $this->reserved;
 	}
 
-	function perform($query, array $params = [])
+	public function perform($query, array $params = [])
 	{
-		return NULL;
+		return null;
 	}
 
-	function transaction()
+	public function transaction()
 	{
 		return $this->perform('BEGIN');
 	}
 
-	function commit()
+	public function commit()
 	{
 		return $this->perform('COMMIT');
 	}
 
-	function rollback()
+	public function rollback()
 	{
 		return $this->perform('ROLLBACK');
 	}
 
-	function numRows($res = NULL)
+	public function numRows($res = null)
 	{
 		return 0;
 	}
 
-	function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		return 0;
 	}
 
-	function getTables()
+	public function getTables()
 	{
 		return array();
 	}
 
-	function lastInsertID($res, $table = NULL)
+	public function lastInsertID($res, $table = null)
 	{
 		return 0;
 	}
 
-	function free($res)
+	public function free($res)
 	{
 		// TODO: Implement free() method.
 	}
 
-	function quoteKey($key)
+	public function quoteKey($key)
 	{
 		$reserved = $this->getReserved();
 		if (in_array(strtoupper($key), $reserved)) {
@@ -190,47 +193,47 @@ class DBLayerBase implements DBInterface {
 		return $key;
 	}
 
-	function escape($string)
+	public function escape($string)
 	{
 		throw new Exception('Implement ' . __METHOD__);
 	}
 
-	function escapeBool($value)
+	public function escapeBool($value)
 	{
 		return $value;
 	}
 
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		return array();
 	}
 
-	function getTablesEx()
+	public function getTablesEx()
 	{
 		return array();
 	}
 
-	function getTableColumnsEx($table)
+	public function getTableColumnsEx($table)
 	{
 		return array();
 	}
 
-	function getIndexesFrom($table)
+	public function getIndexesFrom($table)
 	{
 		return array();
 	}
 
-	function isConnected()
+	public function isConnected()
 	{
 		return !!$this->connection;
 	}
 
-	function getTableColumns($table)
+	public function getTableColumns($table)
 	{
 
 	}
 
-	function getQueryLog()
+	public function getQueryLog()
 	{
 		if (!$this->queryLog) {
 			$this->queryLog = new QueryLog();
@@ -238,34 +241,34 @@ class DBLayerBase implements DBInterface {
 		return $this->queryLog;
 	}
 
-	function isMySQL()
+	public function isMySQL()
 	{
 		return in_array(
 			$this->getScheme(),
 			array('mysql', 'mysqli'));
 	}
 
-	function isPostgres()
+	public function isPostgres()
 	{
 		return $this->getScheme() == 'psql';
 	}
 
-	function isSQLite()
+	public function isSQLite()
 	{
 		return $this->getScheme() == 'sqlite';
 	}
 
-	function clearQueryLog()
+	public function clearQueryLog()
 	{
-		$this->queryLog = NULL;
+		$this->queryLog = null;
 	}
 
-	function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = null)
 	{
 		// TODO: Implement fetchAll() method.
 	}
 
-	function quoteKeys(array $a)
+	public function quoteKeys(array $a)
 	{
 		$c = array();
 		foreach ($a as $b) {
@@ -279,7 +282,7 @@ class DBLayerBase implements DBInterface {
 	 * @return TableField[]
 	 * @throws Exception
 	 */
-	function getTableFields($table)
+	public function getTableFields($table)
 	{
 		$fields = $this->getTableColumnsEx($table);
 		foreach ($fields as $field => &$set) {
@@ -313,4 +316,13 @@ class DBLayerBase implements DBInterface {
 		return $set;
 	}
 
+	public function quoteSQL($value, $key = null)
+	{
+		return "'" . $this->escape($value) . "'";
+	}
+
+	public function getLastQuery()
+	{
+		return $this->lastQuery;
+	}
 }

@@ -409,7 +409,7 @@ class Pager {
 
 	function renderPageSize()
 	{
-		$this->pageSize->setURL(new URL(NULL, array()));
+		$this->pageSize->setURL(new URL(null, array()));
 		$this->pageSize->set($this->itemsPerPage);
 		$content = '<div class="pageSize pull-right floatRight">' .
 			$this->pageSize->render() . '&nbsp;' . __('per page') . '</div>';

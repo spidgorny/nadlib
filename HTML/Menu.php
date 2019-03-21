@@ -19,7 +19,7 @@ class Menu /*extends Controller*/
 	 * Set to not NULL to see only specific level
 	 * @var int|null
 	 */
-	public $level = NULL;
+	public $level = null;
 
 	/**
 	 * Set to call getMenuSuffix() on each object in menu

@@ -20,26 +20,28 @@
  * @link        http://aidanlister.com/repos/v/Duration.php
  */
 
-class Duration extends Time {
+class Duration extends Time
+{
 
-	var $periods = array (
-		'year'     => 31556926,
-		'month'    => 2629743,
-		'week'     => 604800,
-		'day'      => 86400,
-		'hour'     => 3600,
-		'minute'   => 60,
-		'second'   => 1
+	var $periods = array(
+		'year' => 31556926,
+		'month' => 2629743,
+		'week' => 604800,
+		'day' => 86400,
+		'hour' => 3600,
+		'minute' => 60,
+		'second' => 1
 	);
 
-	function  __construct($input = NULL) {
+	function __construct($input = null)
+	{
 		if ($input instanceof Time) {
 			$this->time = $input->time;
 		} elseif (is_string($input)) {
 			$temp = self::fromHuman($input);
 			$this->time = $temp->getTimestamp();
 			if (!$this->time) { // parsing failed
-				parent::__construct($input.' ', 0);	// GMT removed as it gives from '3 days' a value of '3d 1h'
+				parent::__construct($input . ' ', 0);    // GMT removed as it gives from '3 days' a value of '3d 1h'
 			}
 		} else {
 			$this->time = $input;
@@ -47,23 +49,28 @@ class Duration extends Time {
 		$this->updateDebug();
 	}
 
-	public static function fromSeconds($ini_get) {
+	public static function fromSeconds($ini_get)
+	{
 		return new Duration($ini_get);
 	}
 
-	function format($rules) {
-		die(__METHOD__.' - don\'t use.');
+	function format($rules)
+	{
+		die(__METHOD__ . ' - don\'t use.');
 	}
 
-	function getTime($format = 'H:i:s') {
+	function getTime($format = 'H:i:s')
+	{
 		return gmdate($format, $this->time);
 	}
 
-	function nice($perCount = 2) {
+	function nice($perCount = 2)
+	{
 		return $this->toString($perCount);
 	}
 
-	function short() {
+	function short()
+	{
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = array();
@@ -84,7 +91,8 @@ class Duration extends Time {
 	 * @param string $string
 	 * @return \Duration
 	 */
-	static function fromHuman($string) {
+	static function fromHuman($string)
+	{
 		$total = 0;
 		$parts = trimExplode(' ', $string);
 		foreach ($parts as $p) {
@@ -96,51 +104,51 @@ class Duration extends Time {
 				case 'sec':
 				case 'second':
 				case 'seconds':
-					$total += $value*1;
-				break;
+					$total += $value * 1;
+					break;
 				case 'm':
 				case 'min':
 				case 'minute':
 				case 'minutes':
-					$total += $value*60;
-				break;
+					$total += $value * 60;
+					break;
 				case 'h':
 				case 'hr':
 				case 'hrs':
 				case 'hour':
 				case 'hours':
-					$total += $value*60*60;
-				break;
+					$total += $value * 60 * 60;
+					break;
 				case 'd':
 				case 'day':
 				case 'days':
-					$total += $value*60*60*24;
-				break;
+					$total += $value * 60 * 60 * 24;
+					break;
 				case 'w':
 				case 'wk':
 				case 'week':
 				case 'weeks':
-					$total += $value*60*60*24*7;
-				break;
+					$total += $value * 60 * 60 * 24 * 7;
+					break;
 				case 'mon':
 				case 'month':
 				case 'months':
-					$total += $value*60*60*24*30;
-				break;
+					$total += $value * 60 * 60 * 24 * 30;
+					break;
 				case 'y':
 				case 'yr':
 				case 'yrs':
 				case 'year':
 				case 'years':
-					$total += $value*60*60*24*365;
-				break;
+					$total += $value * 60 * 60 * 24 * 365;
+					break;
 			}
 		}
 		if (!$total) {
 			$totalBefore = $total;
 			$tz = date_default_timezone_get();
 			date_default_timezone_set('UTC');
-			$total = strtotime($string.' UTC', 0);
+			$total = strtotime($string . ' UTC', 0);
 			//debug($string, $totalBefore, $tz, date_default_timezone_get(), $total, $total/60/60);
 			date_default_timezone_set($tz);
 		}
@@ -151,7 +159,8 @@ class Duration extends Time {
 	 * Return human-readable time units
 	 * @return string
 	 */
-	function __toString() {
+	function __toString()
+	{
 		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
 		return $this->toString();
 	}
@@ -162,141 +171,156 @@ class Duration extends Time {
 	 * @param int $perCount
 	 * @return  string
 	 */
-    function toString($perCount = 2) {
+	function toString($perCount = 2)
+	{
 		$content = '';
-        $duration = $this->int2array();
-        //debug($duration);
+		$duration = $this->int2array();
+		//debug($duration);
 
-        if (is_array($duration)) {
-	        $duration = array_slice($duration, 0, $perCount, TRUE);
-	        $content .= $this->array2string($duration);
+		if (is_array($duration)) {
+			$duration = array_slice($duration, 0, $perCount, TRUE);
+			$content .= $this->array2string($duration);
 			//debug($this->time, $periods, $duration, $content);
 			if ($this->time < 0) {
-				$content .= ' '.__('ago');
+				$content .= ' ' . __('ago');
 			}
-        } else {
-        	$content .= __('just now');
-        }
+		} else {
+			$content .= __('just now');
+		}
 
-        return $content;
-    }
+		return $content;
+	}
 
 
 	/**
 	 * Return an array of date segments.
 	 * Must be public for Trip
 	 *
-	 * @internal param int $seconds Number of seconds to be parsed
 	 * @return       mixed An array containing named segments
+	 * @internal param int $seconds Number of seconds to be parsed
 	 */
-    public function int2array() {
-        // Loop
-        $seconds = (float) abs($this->time);
-        foreach ($this->periods as $period => $value) {
-            $count = floor($seconds / $value);
+	public function int2array()
+	{
+		// Loop
+		$seconds = (float)abs($this->time);
+		foreach ($this->periods as $period => $value) {
+			$count = floor($seconds / $value);
 
-            if ($count == 0) {
-                continue;
-            }
+			if ($count == 0) {
+				continue;
+			}
 
 			if ($count > 1) {
 				$period .= 's';
 			}
-            $values[$period] = $count;
-            $seconds = $seconds % $value;
-        }
+			$values[$period] = $count;
+			$seconds = $seconds % $value;
+		}
 
-        // Return
-        if (empty($values)) {
-            $values = NULL;
-        }
+		// Return
+		if (empty($values)) {
+			$values = NULL;
+		}
 
-        return $values;
-    }
+		return $values;
+	}
 
 
-    /**
-     * Return a string of time periods.
-     *
-     * @package      Duration
-     * @param        mixed $duration An array of named segments
-     * @return       string
-     */
-    protected static function array2string($duration) {
-        if (!is_array($duration)) {
-            return false;
-        }
+	/**
+	 * Return a string of time periods.
+	 *
+	 * @param mixed $duration An array of named segments
+	 * @return       string
+	 * @package      Duration
+	 */
+	protected static function array2string($duration)
+	{
+		if (!is_array($duration)) {
+			return false;
+		}
 
-	    $array = array();
-        foreach ($duration as $key => $value) {
-            $segment = abs($value) . ' ' . $key;
+		$array = array();
+		foreach ($duration as $key => $value) {
+			$segment = abs($value) . ' ' . $key;
 			// otherwise -1 years, -1 months ago
 
-            $array[] = $segment;
-        }
+			$array[] = $segment;
+		}
 
-        $str = implode(', ', $array);
-        return $str;
-    }
+		$str = implode(', ', $array);
+		return $str;
+	}
 
-	function getTimestamp() {
+	function getTimestamp()
+	{
 		return $this->time;
 	}
 
-	function less($sDuration) {
+	function less($sDuration)
+	{
 		if (is_string($sDuration)) {
 			return $this->time < strtotime($sDuration, 0);
 		} else if ($sDuration instanceof Time) {
 			return $this->earlier($sDuration);
 		} else {
-			throw new Exception(__METHOD__.'#'.__LINE__);
+			throw new Exception(__METHOD__ . '#' . __LINE__);
 		}
 	}
 
-	function more($sDuration) {
+	function more($sDuration)
+	{
 		if (is_string($sDuration)) {
 			return $this->time > strtotime($sDuration, 0);
 		} else if ($sDuration instanceof Time) {
 			return $this->later($sDuration);
 		} else {
-			throw new Exception(__METHOD__.'#'.__LINE__);
+			throw new Exception(__METHOD__ . '#' . __LINE__);
 		}
 	}
 
-	public function getMinutes() {
+	public function getMinutes()
+	{
 		return $this->time / 60;
 	}
 
-	public function getHours() {
+	public function getHours()
+	{
 		return $this->time / 60 / 60;
 	}
 
-	public function getDays() {
+	public function getDays()
+	{
 		return $this->time / 60 / 60 / 24;
 	}
 
-	public function getRemHours() {
+	public function getRemHours()
+	{
 		return floor($this->time / 60 / 60);
 	}
 
-	public function getRemMinutes() {
-		return floor($this->time % (60*60) / 60);
+	public function getRemMinutes()
+	{
+		return floor($this->time % (60 * 60) / 60);
 	}
 
-	public function getRemSeconds() {
+	public function getRemSeconds()
+	{
 		return $this->time % (60);
 	}
 
-	public function biggerThan(Duration $d2) {
+	public function biggerThan(Duration $d2)
+	{
 		return abs($this->time) > abs($d2->getTimestamp());
 	}
 
-	public function smallerThan(Duration $d2) {
+	public function smallerThan(Duration $d2)
+	{
 		return abs($this->time) < abs($d2->getTimestamp());
 	}
 
-	function getSeconds() {
-    	return $this->getTimestamp();
+	function getSeconds()
+	{
+		return $this->getTimestamp();
 	}
 
 }

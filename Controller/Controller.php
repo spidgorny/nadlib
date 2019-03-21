@@ -29,7 +29,7 @@ abstract class Controller extends SimpleController
 	public $noRender = false;
 
 	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase
+	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
 	protected $db;
 
@@ -88,6 +88,8 @@ abstract class Controller extends SimpleController
 			$this->db = $this->config->getDB();
 			$this->user = $this->config->getUser();
 			$this->config->mergeConfig($this);
+		} else {
+			throw new RuntimeException('Controller need Config object');
 		}
 		$this->al = AutoLoad::getInstance();
 

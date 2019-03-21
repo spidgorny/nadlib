@@ -7,23 +7,27 @@
  * Time: 13:37
  */
 
-class MailerTest extends PHPUnit_Framework_TestCase {
+class MailerTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_getShortFilename() {
-		$sut = new Mailer('spidgorny@gmail.com', 'test', 'test');
-		$filename = './request/97777/RP Nintendo EA3P40 The Legend of Zelda Tri Force Heroes Checklists.zip';
+	public function test_getShortFilename()
+	{
+		$sut = new Mailer('asd@qwe.com', 'test', 'test');
+		$filename = './request/97777/RP EA3P40 The Legend of Zelda Tri Force Heroes Some Text Checklists.zip';
 		$short = $sut->getShortFilename($filename);
-		$this->assertEquals('RP_Nintendo_EA3P40_The_Legend_of_Zelda_Tri_Force_Heroes_Che.zip', $short);
+		$this->assertEquals('RP_EA3P40_The_Legend_of_Zelda_Tri_Force_Heroes_Some_Text_Ch.zip', $short);
 	}
 
-	function test_getShortFilename2() {
-		$sut = new Mailer('spidgorny@gmail.com', 'test', 'test');
-		$filename = './request/97777/RP Nintendo EA3P40 The Legend of Соме Рашшан Шит.zip';
+	public function test_getShortFilename2()
+	{
+		$sut = new Mailer('asd@qwe.com', 'test', 'test');
+		$filename = './request/97777/RP EA3P40 The Рашшан Шит.zip';
 		$short = $sut->getShortFilename($filename);
-		$this->assertEquals('RP_Nintendo_EA3P40_The_Legend_of_.zip', $short);
+		$this->assertEquals('RP_EA3P40_The_.zip', $short);
 	}
 
-	function test_getShortFilename3() {
+	public function test_getShortFilename3()
+	{
 		// from RequestInfoEPES?id=102865
 		$fixture = [
 			'VC Pokemon Local Play Compatibility.pdf' => 'VC_Pokemon_Local_Play_Compatibility.pdf',
@@ -37,6 +41,21 @@ class MailerTest extends PHPUnit_Framework_TestCase {
 			$short = $sut->getShortFilename($filename);
 			$this->assertEquals($must, $short);
 		}
+	}
+
+	public function test_to_split()
+	{
+		$to = ['test@asd.de', 'asd@asd.co.jp', 'asd@asd.co.jp'];
+		$mailer = new Mailer($to, '', '');
+		$this->assertCount(2, $mailer->to);
+
+		$to = 'test@asd.de, asd@asd.co.jp, asd@asd.co.jp';
+		$mailer = new Mailer($to, '', '');
+		$this->assertCount(2, $mailer->to);
+
+		$to = 'test@asd.de; asd@asd.co.jp; asd@asd.co.jp';
+		$mailer = new Mailer($to, '', '');
+		$this->assertCount(2, $mailer->to);
 	}
 
 }
