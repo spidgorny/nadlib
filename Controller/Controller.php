@@ -15,21 +15,10 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-abstract class Controller
+abstract class Controller extends SimpleController
 {
 
 	//use HTMLHelper;	// bijou is PHP 5.4
-
-	/**
-	 * @var Index|\nadlib\IndexInterface
-	 */
-	public $index;
-
-	/**
-	 * @var Request
-	 * @public for injecting something in PHPUnit
-	 */
-	public $request;
 
 	/**
 	 * @var boolean
@@ -42,12 +31,6 @@ abstract class Controller
 	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase
 	 */
 	protected $db;
-
-	/**
-	 * Will be taken as a <title> of the HTML table
-	 * @var string
-	 */
-	public $title;
 
 	/**
 	 * Will be set according to mod_rewrite
@@ -63,12 +46,6 @@ abstract class Controller
 	public $user;
 
 	/**
-	 * Instance per class
-	 * @var Controller[]
-	 */
-	protected static $instance = [];
-
-	/**
 	 * Allows selecting fullScreen layout of the template
 	 *
 	 * @var string|Wrap
@@ -76,8 +53,6 @@ abstract class Controller
 	public $layout;
 
 	public $linkVars = [];
-
-	public $encloseTag = 'h2';
 
 	/**
 	 * accessible without login
@@ -95,8 +70,6 @@ abstract class Controller
 	 */
 	protected $al;
 
-	public $log = [];
-
 	/**
 	 * @var HTML
 	 */
@@ -111,35 +84,20 @@ abstract class Controller
 
 	public function __construct()
 	{
-		if (ifsetor($_REQUEST['d']) == 'log') {
-			echo get_class($this) . '::' . __METHOD__ . BR;
+		parent::__construct();
+		if (!$this->config) {
+			if ($this->index) {
+				$this->config = $this->index->getConfig();
+			}
 		}
-		$this->index = class_exists('Index', false)
-			? Index::getInstance(false) : null;
-		$this->request = Request::getInstance();
-		$this->useRouter = $this->request->apacheModuleRewrite();
-		$this->al = AutoLoad::getInstance();
-
-		if (!is_object($this->config) && class_exists('Config')) {
-//			$this->config = Config::getInstance();
-			$this->config = $this->index->getConfig();
+		
+		if ($this->config) {
+			// move this into AppController
+			// some projects don't need DB or User
+			$this->db = $this->config->getDB();
+			$this->user = $this->config->getUser();
+			$this->config->mergeConfig($this);
 		}
-
-		$this->db = $this->config->getDB();
-		$this->user = $this->config->getUser();
-			//			pre_print_r('User ID', $this->user->getID());
-		$this->config->mergeConfig($this);
-		if (!$this->useRouter) {
-			$this->linkVars['c'] = get_class($this);
-		}
-		$this->title = $this->title ? $this->title
-			: last(trimExplode('\\', get_class($this)));
-		//debug_pre_print_backtrace();
-//		if ($this->config->ll) {
-//			$this->title = $this->title ? __($this->title) : $this->title;
-//		}
-		$this->html = new HTML();
-		self::$instance[get_class($this)] = $this;
 	}
 
 	/**
@@ -209,26 +167,6 @@ abstract class Controller
 	}
 
 	/**
-	 * Combines params with $this->linkVars
-	 * Use makeURL() for old functionality
-	 * @param array $params
-	 * @param null $prefix
-	 * @return URL
-	 */
-	public function getURL(array $params = [], $prefix = null)
-	{
-		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
-		}
-		//		$params = $params + $this->linkVars;
-		//		debug($params);
-		//		return $this->makeURL($params, $prefix);
-		return ClosureCache::getInstance(spl_object_hash($this), function () {
-			return new URL();
-		})->get();
-	}
-
-	/**
 	 * Returns '<a href="$page?$params" $more">$text</a>
 	 * @param $text
 	 * @param array $params
@@ -274,119 +212,11 @@ abstract class Controller
 		return $table;
 	}
 
-	public static function getInstance()
-	{
-		$static = get_called_class();
-		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		$isset = isset(self::$instance[$static]);
-		//debug(array_keys(self::$instance), $static, $isset);
-		if ($isset) {
-			$result = self::$instance[$static];
-		} else {
-			$index = Index::getInstance();
-			if ($index->controller instanceof $static) {
-				$result = $index->getController();
-			} else {
-				$result = new $static;
-			}
-		}
-		//debug($isset, get_class($index), get_class($result));
-		return $result;
-	}
-
-	/*function redirect($url) {
-		if (DEVELOPMENT) {
-			return '<script>
-				setTimeout(function() {
-					document.location.replace("'.str_replace('"', '&quot;', $url).'");
-				}, 5000);
-			</script>';
-		} else {
-			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
-		}
-	}*/
-
-	public function render()
-	{
-		$content[] = $this->performAction();
-		return $content;
-	}
-
-	/**
-	 * This function prevents performAction() from doing nothing
-	 * if there is a __CLASS__.phtml file in the same folder
-	 * @return MarkdownView|string|View
-	 */
-	public function indexAction()
-	{
-		$content = $this->renderTemplate();
-		$content = $this->div($content, str_replace('\\', '-', get_class($this)));
-		return $content;
-	}
-
-	public function renderTemplate()
-	{
-		$filePHTML = get_class($this) . '.phtml';
-		$fileMD = get_class($this) . '.md';
-
-		$reflector = new ReflectionClass(get_class($this));
-		$classDir = dirname($reflector->getFileName());
-		if (file_exists('template/' . $filePHTML)) {
-			$content = new View($filePHTML, $this);
-		} elseif (file_exists('template/' . $fileMD)) {
-			$content = new MarkdownView($fileMD, $this);
-		} elseif (file_exists($classDir . '/' . $filePHTML)) {
-			$content = new View($classDir . '/' . $filePHTML, $this);
-		} elseif (file_exists($classDir . '/' . $fileMD)) {
-			$content = new MarkdownView($classDir . '/' . $fileMD, $this);
-		} else {
-			$content = '';
-		}
-
-		//		debug($filePHTML, $fileMD);
-
-		return is_object($content)
-			? $content->render()
-			: $content;
-	}
-
-	public function __toString()
-	{
-		return $this->s($this->render());
-	}
-
 	public function encloseIn($title, $content)
 	{
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
-	}
-
-	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param $content
-	 * @param string $caption
-	 * @param null $h
-	 * @param array $more
-	 * @return array|string
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
-	{
-		$h = $h ? $h : $this->encloseTag;
-		$content = $this->s($content);
-		if ($caption) {
-			$content = [
-				'caption' => $this->getCaption($caption, $h),
-				$content
-			];
-		}
-		$more['class'] = ifsetor($more['class'], 'padding clearfix');
-		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
 	}
 
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
@@ -411,45 +241,6 @@ abstract class Controller
 					style="max-height: ' . $height . '; overflow: auto;
 					' . ($isOpen ? '' : 'display: none;') . '">' . $content . '</div>
 			</div>';
-		}
-		return $content;
-	}
-
-	public function performAction($action = null)
-	{
-		$content = '';
-		if ($this->request->isCLI()) {
-			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
-		}
-		//		debug($reqAction);
-		$method = $action
-			?: (!empty($reqAction) ? $reqAction : 'index');
-		if ($method) {
-			$method .= 'Action';        // ZendFramework style
-			//			debug($method, method_exists($this, $method));
-
-			$proxy = $this->request->getTrim('proxy');
-			if ($proxy) {
-				$proxy = new $proxy($this);
-			} else {
-				$proxy = $this;
-			}
-
-			if (method_exists($proxy, $method)) {
-				if ($this->request->isCLI()) {
-					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array([$proxy, $method], $assoc);
-				} else {
-					$caller = new MarshalParams($proxy);
-					$content = $caller->call($method);
-				}
-			} else {
-				// other classes except main controller may result in multiple messages
-//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			}
 		}
 		return $content;
 	}
@@ -659,11 +450,6 @@ abstract class Controller
 		return $content;
 	}
 
-	public function s($something)
-	{
-		return MergedContent::mergeStringArrayRecursive($something);
-	}
-
 	/**
 	 * @param string|URL $href
 	 * @param string|htmlString $text
@@ -807,11 +593,6 @@ abstract class Controller
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	public function log($action, $data = null)
-	{
-		$this->log[] = new LogEntry($action, $data);
-	}
-
 	public static function link($text = null, array $params = [])
 	{
 		/** @var Controller $self */
@@ -896,4 +677,5 @@ abstract class Controller
 		$urlParams = array_filter($urlParams);
 		return $this->makeURL($urlParams, $path);
 	}
+
 }
