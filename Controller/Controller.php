@@ -33,14 +33,6 @@ abstract class Controller extends SimpleController
 	protected $db;
 
 	/**
-	 * Will be set according to mod_rewrite
-	 * Override in __construct()
-	 * @public to be accessed from Menu
-	 * @var bool
-	 */
-	public $useRouter = false;
-
-	/**
 	 * @var User|Client|userMan|LoginUser|UserModelInterface
 	 */
 	public $user;
@@ -51,8 +43,6 @@ abstract class Controller extends SimpleController
 	 * @var string|Wrap
 	 */
 	public $layout;
-
-	public $linkVars = [];
 
 	/**
 	 * accessible without login
@@ -82,6 +72,11 @@ abstract class Controller extends SimpleController
 	 */
 	public $sortBy;
 
+	/**
+	 * @var Linker
+	 */
+	public $linker;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -98,105 +93,21 @@ abstract class Controller extends SimpleController
 			$this->user = $this->config->getUser();
 			$this->config->mergeConfig($this);
 		}
+
+		$this->linker = new Linker($this->request);
 	}
 
-	/**
-	 * @param array|string $params
-	 * @param null $prefix
-	 * @return URL
-	 * @public for View::link
-	 * @use getURL()
-	 */
-	public function makeURL(array $params, $prefix = null)
+	public function __call($method, array $arguments)
 	{
-		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
-			$class = ifsetor($params['c']);
-			if ($class && !$prefix) {
-				unset($params['c']);    // RealURL
-				$prefix = $class;
-			} else {
-				$class = null;
-			}
+		if (method_exists($this->linker, $method)) {
+			return call_user_func_array($this->linker->$method, $arguments);
+		} elseif (method_exists($this->html, $method)) {
+			return call_user_func_array($this->html->$method, $arguments);
 		} else {
-			$class = null;
-			// this is the only way to supply controller
-			//unset($params['c']);
+			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
-
-		$location = $this->request->getLocation();
-		$url = new URL($prefix
-			? $location . $prefix
-			: $location, $params);
-		$path = $url->getPath();
-		if ($this->useRouter && $class) {
-			$path->setFile($class);
-			$path->setAsFile();
-		}
-		//debug($prefix, get_class($path));
-		$url->setPath($path);
-		nodebug([
-			'method' => __METHOD__,
-			'params' => $params,
-			'prefix' => $prefix,
-			'useRouter' => $this->useRouter,
-			'class' => $class,
-			'class($url)' => get_class($url),
-			'class($path)' => get_class($path),
-			'$this->linkVars' => $this->linkVars,
-			'return' => $url . '',
-			'location' => $location . '',
-		]);
-		return $url;
 	}
-
-	/**
-	 * Only appends $this->linkVars to the URL.
-	 * Use this one if your linkVars is defined.
-	 * @param array $params
-	 * @param string $page
-	 * @return URL
-	 */
-	public function makeRelURL(array $params = [], $page = null)
-	{
-		return $this->makeURL(
-			$params                           // 1st priority
-			+ $this->getURL()->getParams()            // 2nd priority
-			+ $this->linkVars,
-			$page
-		);                // 3rd priority
-	}
-
-	/**
-	 * Returns '<a href="$page?$params" $more">$text</a>
-	 * @param $text
-	 * @param array $params
-	 * @param string $page
-	 * @param array $more
-	 * @param bool $isHTML
-	 * @return HTMLTag
-	 */
-	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
-	{
-		//debug($text, $params, $page, $more, $isHTML);
-		$content = new HTMLTag('a', [
-				'href' => $this->makeURL($params, $page),
-			] + $more, $text, $isHTML);
-		return $content;
-	}
-
-	public function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = [], $prefix = '')
-	{
-		$url = $this->makeURL($params, $prefix);
-		$link = new HTMLTag('a', $aMore + [
-				'href' => $url,
-				'onclick' => '
-			jQuery(\'#' . $div . '\').load(\'' . $url . '\');
-			return false;
-			' . $jsPlus,
-			], $text, true);
-		return $link;
-	}
-
+	
 	/**
 	 * @param array $data
 	 * @return array
@@ -347,76 +258,6 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-	 * @see makeRelURL
-	 * @param array $params
-	 * @return URL
-	 * @throws Exception
-	 */
-	public function adjustURL(array $params)
-	{
-		return URL::getCurrent()->addParams([
-				'c' => get_class(Index::getInstance()->controller),
-			] + $params);
-	}
-
-	/**
-	 * Just appends $this->linkVars
-	 * @param $text
-	 * @param array $params
-	 * @param string $page
-	 * @return HTMLTag
-	 */
-	public function makeRelLink($text, array $params, $page = '?')
-	{
-		return new HTMLTag('a', [
-			'href' => $this->makeRelURL($params, $page)
-		], $text);
-	}
-
-	/**
-	 * There is no $formMore parameter because you get the whole form returned.
-	 * You can modify it after returning as you like.
-	 * @param $name string|htmlString - if object then will be used as is
-	 * @param string|null $action
-	 * @param $formAction
-	 * @param array $hidden
-	 * @param string $submitClass
-	 * @param array $submitParams
-	 * @return HTMLForm
-	 */
-	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
-	{
-		$f = new HTMLForm();
-		if ($formAction) {
-			$f->action($formAction);
-		} else {
-			$f->hidden('c', get_class($this));
-		}
-		$f->formHideArray($hidden);
-		if (false) {    // this is too specific, not and API
-//			if ($id = $this->request->getInt('id')) {
-//				$f->hidden('id', $id);
-//			}
-		}
-		if (!is_null($action)) {
-			$f->hidden('action', $action);
-		}
-		if ($name instanceof htmlString) {
-			$f->button($name, [
-					'type' => "submit",
-					'id' => 'button-action-' . $action,
-					'class' => $submitClass,
-				] + $submitParams);
-		} else {
-			$f->submit($name, [
-					'id' => 'button-action-' . $action,
-					'class' => $submitClass,
-				] + $submitParams);
-		}
-		return $f;
-	}
-
-	/**
 	 * Returns content wrapped in bootstrap .row .col-md-3/4/5 columns
 	 * @param array $parts
 	 * @param array $widths
@@ -450,147 +291,10 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	/**
-	 * @param string|URL $href
-	 * @param string|htmlString $text
-	 * @param bool $isHTML
-	 * @param array $more
-	 * @return HTMLTag
-	 */
-	public function a($href, $text = '', $isHTML = false, array $more = [])
-	{
-		return new HTMLTag('a', [
-				'href' => $href,
-			] + $more, $text ?: $href, $isHTML);
-	}
-
-	public function div($content, $class = '', array $more = [])
-	{
-		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return '<div ' . $more . '>' . $this->s($content) . '</div>';
-	}
-
-	public function span($content, $class = '', array $more = [])
-	{
-		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return new htmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
-	}
-
-	public function info($content)
-	{
-		return '<div class="alert alert-info">' . $this->s($content) . '</div>';
-	}
-
-	public function error($content)
-	{
-		return '<div class="alert alert-danger">' . $this->s($content) . '</div>';
-	}
-
-	public function success($content)
-	{
-		return '<div class="alert alert-success">' . $this->s($content) . '</div>';
-	}
-
-	public function message($content)
-	{
-		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
-	}
-
-	public function h1($content)
-	{
-		return '<h1>' . $this->s($content) . '</h1>';
-	}
-
-	public function h2($content)
-	{
-		return '<h2>' . $this->s($content) . '</h2>';
-	}
-
-	public function h3($content)
-	{
-		return '<h3>' . $this->s($content) . '</h3>';
-	}
-
-	public function h4($content)
-	{
-		return '<h4>' . $this->s($content) . '</h4>';
-	}
-
-	public function h5($content)
-	{
-		return '<h5>' . $this->s($content) . '</h5>';
-	}
-
-	public function h6($content)
-	{
-		return '<h6>' . $this->s($content) . '</h6>';
-	}
-
-	public function progress($percent)
-	{
-		$percent = intval($percent);
-		return '<div class="progress">
-		  <div class="progress-bar" role="progressbar"
-		  	aria-valuenow="' . $percent . '" aria-valuemin="0" aria-valuemax="100"
-		  	style="width: ' . $percent . '%;">
-			' . $percent . '%
-		  </div>
-		</div>';
-	}
-
-	public function linkToAction($action = '', array $params = [], $controller = null)
-	{
-		if (!$controller) {
-			$controller = get_class($this);
-		}
-		$params = [
-				'c' => $controller,
-			] + $params;
-		if ($action) {
-			$params += [
-				'action' => $action,
-			];
-		}
-		return $this->makeURL($params);
-	}
-
-	public function p($content, array $attr = [])
-	{
-		$more = HTMLTag::renderAttr($attr);
-		return '<p ' . $more . '>' . $this->s($content) . '</p>';
-	}
-
-	public function img($src, array $attr = [])
-	{
-		$html = new HTMLTag('img', [
-				'src' => /*$this->e*/
-					($src),    // encoding is not necessary for &amp; in URL
-			] + $attr);
-		$html->closingTag = false;
-		return $html;
-	}
-
-	public function e($content)
-	{
-		if (is_array($content)) {
-			$content = MergedContent::mergeStringArrayRecursive($content);
-		}
-		return htmlspecialchars($content, ENT_QUOTES);
-	}
-
 	public function noRender()
 	{
 		$this->noRender = true;
 		$this->request->set('ajax', 1);
-	}
-
-	public function script($file)
-	{
-		$mtime = filemtime($file);
-		$file .= '?' . $mtime;
-		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
 	public static function link($text = null, array $params = [])
@@ -632,13 +336,6 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	public function linkPage($className)
-	{
-		$obj = new $className();
-		$title = $obj->title;
-		return $this->a($className, $title);
-	}
-
 	public function makeNewOf($className, $id)
 	{
 		return new $className($id);
@@ -661,21 +358,6 @@ abstract class Controller extends SimpleController
 	public function self()
 	{
 		return substr(strrchr(get_class($this), '\\'), 1);
-	}
-
-	public function st($a)
-	{
-		return strip_tags($a);
-	}
-
-	public function makeActionURL($action = '', array $params = [], $path = '')
-	{
-		$urlParams = [
-				'c' => get_class($this),
-				'action' => $action,
-			] + $params;
-		$urlParams = array_filter($urlParams);
-		return $this->makeURL($urlParams, $path);
 	}
 
 }
