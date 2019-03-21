@@ -126,8 +126,11 @@ class slTable
 		} else {
 			$this->ID = md5(microtime());
 		}
-		$this->more = $more ? HTMLTag::parseAttributes($more)
-			: $this->more;
+		if ($more) {
+			$this->more = is_string($more)
+				? HTMLTag::parseAttributes($more)
+				: $more;
+		}
 		if (isset($this->more['id'])) {
 			$this->ID = $this->more['id'];
 		}
