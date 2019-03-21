@@ -13,7 +13,8 @@ class slTableValue
 	/**
 	 * @var array
 	 */
-	var $desc = array(//		'hsc' => TRUE,
+	var $desc = array(
+		//		'hsc' => TRUE,
 	);
 
 	/**
@@ -330,13 +331,13 @@ class slTableValue
 					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
-					} else if ($val instanceof htmlString) {
+					} elseif ($val instanceof htmlString) {
 						$out = $val . '';
-					} else if ($val instanceof HTMLTag) {
+					} elseif ($val instanceof HTMLTag) {
 						$out = $val . '';
-					} else if ($val instanceof HTMLDate) {
+					} elseif ($val instanceof HTMLDate) {
 						$out = $val . '';
-					} else if ($val instanceof HTMLForm) {
+					} elseif ($val instanceof HTMLForm) {
 						$out = $val->getContent() . '';   // to avoid calling getName()
 					} elseif (is_object($val)) {
 						if (ifsetor($k['call'])) {

@@ -644,22 +644,9 @@ class slTable
 	/**
 	 * @throws Exception
 	 */
-	function show()
-	{
-		if (!$this->generation->isDone()) {
-			$this->generate();
-		}
-		$this->generation->render();
-	}
-
-	/**
-	 * @throws Exception
-	 */
 	function render()
 	{
-		echo Request::isCLI()
-			? $this->getCLITable()
-			: $this->getContent();
+		echo $this->getContent();
 	}
 
 	/**
@@ -694,9 +681,7 @@ class slTable
 
 	function __toString()
 	{
-		return Request::isCLI()
-			? $this->getCLITable()
-			: $this->getContent();
+		return $this->getContent();
 	}
 
 	/**
