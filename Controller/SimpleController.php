@@ -31,7 +31,12 @@ abstract class SimpleController
 	public $encloseTag = 'h2';
 
 	public $log = [];
-	
+
+	/**
+	 * @var HTML
+	 */
+	protected $html;
+
 	public function __construct()
 	{
 		if (ifsetor($_REQUEST['d']) == 'log') {
@@ -40,17 +45,20 @@ abstract class SimpleController
 		$this->index = class_exists('Index', false)
 			? Index::getInstance(false) : null;
 		$this->request = Request::getInstance();
-		$this->useRouter = $this->request->apacheModuleRewrite();
-		$this->al = AutoLoad::getInstance();
-
-		if (!$this->useRouter) {
-			$this->linkVars['c'] = get_class($this);
-		}
 		$this->title = $this->title ? $this->title
 			: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
+	}
+
+	public function __call($method, array $arguments)
+	{
+		if (method_exists($this->html, $method)) {
+			return call_user_func_array($this->html->$method, $arguments);
+		} else {
+			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
+		}
 	}
 
 	/**

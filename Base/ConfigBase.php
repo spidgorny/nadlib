@@ -231,7 +231,7 @@ class ConfigBase implements ConfigInterface
 	}
 
 	/**
-	 * @return LoginUser|User|UserModelInterface
+	 * @return UserModelInterface
 	 * @throws LoginException
 	 */
 	function getUser()
@@ -245,7 +245,7 @@ class ConfigBase implements ConfigInterface
 
 	/**
 	 * Convenience function example how to use Login
-	 * @return LoginUser|User
+	 * @return UserModelInterface
 	 * @throws DatabaseException
 	 */
 	function _getLoginUser()
@@ -253,7 +253,7 @@ class ConfigBase implements ConfigInterface
 		if (!$this->user) {
 			$db = $this->getDB();
 //			debug(get_class($db));
-			$this->user = new LoginUser($db);
+			$this->user = new BEUser($db);
 			try {
 				$this->user->try2login();
 			} catch (Exception $e) {
@@ -274,6 +274,11 @@ class ConfigBase implements ConfigInterface
 	function getRequest()
 	{
 		return Request::getInstance();
+	}
+
+	public function getDBpassword()
+	{
+		return $this->db_password;
 	}
 
 }

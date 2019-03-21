@@ -2,34 +2,40 @@
 
 namespace spidgorny\nadlib;
 
-class Bootstrap {
+class Bootstrap
+{
 
-	function boot() {
+	function boot()
+	{
 		echo 'cwd: ', basename(getcwd()), "\n";
 		if (basename(getcwd()) == 'tests') {
 		}
 
-		require_once __DIR__ . '/init.php';
-		@define('BR', Request::isWindows()
+		require_once __DIR__ . '/../init.php';
+		@define('BR', \Request::isWindows()
 			? "\r\n" : "\n");
 
 		// first in order to load phpunit classes
-		@define('DS', DIRECTORY_SEPARATOR);
-		$globalAutoload = getenv('USERPROFILE') . DS . 'AppData' . DS . 'Roaming' . DS . 'Composer' . DS . 'vendor' . DS . 'autoload.php';
+		$globalAutoload = getenv('USERPROFILE') .
+			DIRECTORY_SEPARATOR . 'AppData' .
+			DIRECTORY_SEPARATOR . 'Roaming' .
+			DIRECTORY_SEPARATOR . 'Composer' .
+			DIRECTORY_SEPARATOR . 'vendor' .
+			DIRECTORY_SEPARATOR . 'autoload.php';
 		echo $globalAutoload, BR;
 		if (is_file($globalAutoload)) {
 			/** @noinspection PhpIncludeInspection */
 			include_once $globalAutoload;
 		}
 
-		require_once __DIR__ . '/Base/ConfigBase.php';
+		require_once __DIR__ . '/../Base/ConfigBase.php';
 		//require_once 'TestConfig.php';
 		//class_alias('TestConfig', 'Config');
 
 		$_COOKIE['debug'] = 1;
 
-		require_once __DIR__ . '/Base/InitNADLIB.php';
-		$n = new InitNADLIB();
+		require_once __DIR__ . '/../Base/InitNADLIB.php';
+//		$n = new \InitNADLIB();
 		//$n->init();
 
 //		$al = AutoLoad::getInstance();
@@ -42,7 +48,8 @@ class Bootstrap {
 		echo 'bootstrap.php done', BR;
 	}
 
-	public function loadVendorAutoload() {
+	public function loadVendorAutoload()
+	{
 		$path = trimExplode('/', str_replace('\\', '/', getcwd()));
 		//debug($path);
 		foreach (range(sizeof($path), 0, -1) as $i) {
