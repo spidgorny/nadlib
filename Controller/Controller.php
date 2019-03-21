@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Controller - a base class for all front-facing pages.
  * Extend and implement your own render() function.
@@ -11,10 +13,9 @@
  * Can be called from CLI with parameters e.g.
  * > php index.php SomeController -action cronjob
  * will call cronjobAction instead of default render()
+ * @mixin Linker
+ * @mixin HTML
  */
-
-use spidgorny\nadlib\HTTP\URL;
-
 abstract class Controller extends SimpleController
 {
 
@@ -33,7 +34,7 @@ abstract class Controller extends SimpleController
 	protected $db;
 
 	/**
-	 * @var User|Client|userMan|LoginUser|UserModelInterface
+	 * @var UserModelInterface
 	 */
 	public $user;
 
@@ -59,11 +60,6 @@ abstract class Controller extends SimpleController
 	 * @var AutoLoad
 	 */
 	protected $al;
-
-	/**
-	 * @var HTML
-	 */
-	protected $html;
 
 	/**
 	 * Used by Collection to get the current sorting method.
@@ -93,8 +89,14 @@ abstract class Controller extends SimpleController
 			$this->user = $this->config->getUser();
 			$this->config->mergeConfig($this);
 		}
+		$this->al = AutoLoad::getInstance();
 
 		$this->linker = new Linker($this->request);
+		$this->linker->useRouter = $this->request->apacheModuleRewrite();
+
+		if (!$this->linker->useRouter) {
+			$this->linker->linkVars['c'] = get_class($this);
+		}
 	}
 
 	public function __call($method, array $arguments)
@@ -317,9 +319,10 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-	 * @param $caption
-	 * @param $h
+	 * @param string $caption
+	 * @param string $h
 	 * @return string
+	 * @throws Exception
 	 */
 	public function getCaption($caption, $h)
 	{

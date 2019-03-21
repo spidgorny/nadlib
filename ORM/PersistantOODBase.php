@@ -158,7 +158,7 @@ class PersistantOODBase extends OODBase
 		return $action;
 	}
 
-	function findInDB(array $where, $orderByLimit = '')
+	function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
 		$ret = parent::findInDB($where, $orderByLimit);
 		$this->originalData = $this->data;
