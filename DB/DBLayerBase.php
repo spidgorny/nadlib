@@ -3,6 +3,7 @@
 /**
  * Class DBLayerBase
  * @mixin SQLBuilder
+ * @method fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
  */
 class DBLayerBase implements DBInterface {
 
