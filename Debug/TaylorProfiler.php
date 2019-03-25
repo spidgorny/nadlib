@@ -20,7 +20,8 @@
 
 /// Enable multiple timers to aid profiling of performance over sections of code
 
-class TaylorProfiler {
+class TaylorProfiler
+{
 	var $description;
 	var $description2;
 	var $startTime;
@@ -206,7 +207,7 @@ class TaylorProfiler {
 			$oaTime = $this->getMicroTime() - $this->initTime;
 
 			$together = [];
-			while (list ($key, $val) = each($this->description)) {
+			foreach ($this->description as $key => $val) {
 				$row = [];
 				$row['desc'] = $val;
 				$row['time'] = $this->elapsedTime($key);
