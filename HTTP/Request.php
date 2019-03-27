@@ -747,7 +747,11 @@ class Request {
 	 * @return array
 	 */
 	function getURLLevels() {
-		$path = $this->getPathAfterDocRoot();
+		if (ini_get('open_basedir')) {
+			$path = new Path($_SERVER['REQUEST_URI']);
+		} else {
+			$path = $this->getPathAfterDocRoot();
+		}
 		//$path = $path->getURL();
 		//debug($path);
 		if (strlen($path) > 1) {	// "/"

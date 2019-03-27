@@ -139,9 +139,12 @@ class slTable
 		$this->db = class_exists('Config', false)
 			? Config::getInstance()->getDB()
 			: null;
-		if (!file_exists('img/arrow_down.gif')) {
-			$this->arrowDesc = '&#x25bc;';
-			$this->arrowAsc = '&#x25b2;';
+		if (!ini_get('open_basedir')) {
+			error_log(__METHOD__ . ' ' . getcwd());
+			if (!file_exists('./img/arrow_down.gif')) {
+				$this->arrowDesc = '&#x25bc;';
+				$this->arrowAsc = '&#x25b2;';
+			}
 		}
 		$this->sortLinkPrefix = new URL();
 		$this->generation = new HTMLTableBuf();
