@@ -253,9 +253,6 @@ post_max_size: ' . $post_max_size . '">' .
 		if (is_resource($fp)) {
 			fclose($fp);
 		}
-		if (!$ok) {
-			throw new UploadException($error['message']);
-		}
 		return $ok;
 	}
 
@@ -368,7 +365,7 @@ post_max_size: ' . $post_max_size . '">' .
 				$request = Request::getInstance();
 				if ($request->isAjax()) {
 					echo json_encode($json);
-				} else if ($redirect) {
+				} elseif ($redirect) {
 					$request->redirect($redirect);
 				}
 			} else {
@@ -388,6 +385,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * <input type="file" name="photo2[]" />
 	 * <input type="file" name="photo2[]" />
 	 * <input type="file" name="photo3[]" multiple />
+	 * @param array $source = $_FILES
 	 * @return   Array
 	 * @todo
 	 * @see  http://stackoverflow.com/questions/5444827/how-do-you-loop-through-files-array

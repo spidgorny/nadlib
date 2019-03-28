@@ -32,6 +32,7 @@ if (!function_exists('__')) {    // conflict with cakePHP
 	 */
 	function __p($code, $r1 = null, $r2 = null, $r3 = null)
 	{
+		$index = null;
 		if (class_exists('Config')) {
 			$index = Config::getInstance();
 		}

@@ -1,6 +1,7 @@
 <?php
 
-class LogEntry {
+class LogEntry
+{
 
 	var $time;
 
@@ -10,11 +11,13 @@ class LogEntry {
 
 	static $log2file;
 
-	static function initLogging() {
+	static function initLogging()
+	{
 		self::$log2file = DEVELOPMENT;
 	}
 
-	function __construct($action, $data) {
+	function __construct($action, $data)
+	{
 		$this->time = microtime(true);
 		$this->action = $action;
 		$this->data = $data;
@@ -23,22 +26,24 @@ class LogEntry {
 			$r = Request::getInstance();
 			//$ip = $r->getClientIP();	// this is very expensive
 			$ip = $r->getBrowserIP();
-			error_log($ip.' '.$action . ' ' . $sData);
+			error_log($ip . ' ' . $action . ' ' . $sData);
 		}
 	}
 
-	function __toString() {
-		$floating = substr($this->time - floor($this->time), 2);	// cut 0 from 0.1
+	function __toString()
+	{
+		$floating = substr($this->time - floor($this->time), 2);    // cut 0 from 0.1
 		$floating = substr($floating, 0, 4);
 		$sData = $this->shorten($this->data);
 		return implode("\t", array(
-			date('H:i:s', $this->time).'.'.$floating,
-			$this->action,
-			$this->data ? $sData : NULL
-		)).BR;
+				date('H:i:s', $this->time) . '.' . $floating,
+				$this->action,
+				$this->data ? $sData : NULL
+			)) . BR;
 	}
 
-	static function getLogFrom(array $log) {
+	static function getLogFrom(array $log)
+	{
 		return array(
 			'<div class="debug" style="font-family: monospace">',
 			$log,
@@ -50,7 +55,8 @@ class LogEntry {
 	 * @param $data
 	 * @return bool|float|int|string
 	 */
-	public function shorten($data) {
+	public function shorten($data)
+	{
 		if (is_scalar($data)) {
 			$sData = $data;
 		} else {
@@ -58,9 +64,9 @@ class LogEntry {
 		}
 
 		if (contains($sData, '<')) {
-			$sData = htmlspecialchars($sData);	// no tags
+			$sData = htmlspecialchars($sData);    // no tags
 		} elseif (contains($sData, "\n")) {
-			$sData = '<pre>'.substr($sData, 0, 1000).'</pre>';
+			$sData = '<pre>' . substr($sData, 0, 1000) . '</pre>';
 		} else {
 			$sData = substr($sData, 0, 1000);
 		}
