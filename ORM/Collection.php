@@ -539,7 +539,7 @@ class Collection implements IteratorAggregate
 		$this->log('getData() data->count: ' .
 			is_null($this->data) ? 'NULL' :	count($this->data));
 		if (!$this->isFetched()) {
-			$this->retrieveData(false, false);
+			$this->retrieveData(false);
 		}
 		if (!($this->data instanceof ArrayPlus)) {
 			$this->data = ArrayPlus::create($this->data);

@@ -2,6 +2,8 @@
 
 namespace spidgorny\nadlib\HTTP;
 
+use LogEntry;
+use nadlib\Proxy;
 use Request;
 use Path;
 use AutoLoad;
@@ -48,6 +50,19 @@ class URL
 	 * @var array
 	 */
 	public $cookies = [];
+
+	public $headers = [];
+
+	public $user_agent;
+
+	public $cookie_file;
+
+	public $compression;
+
+	/**
+	 * @var Proxy
+	 */
+	public $proxy;
 
 	/**
 	 * @param null $url - if not specified then the current page URL is reconstructed

@@ -13,6 +13,8 @@ class TYPO3DownloadObfuscator extends DownloadObfuscator
 	 */
 	const type = 574;
 
+	public $sub;
+
 	/**
 	 * TYPO3 specific
 	 */
@@ -40,7 +42,9 @@ class TYPO3DownloadObfuscator extends DownloadObfuscator
 
 	public function test()
 	{
-		if (ifsetor($_REQUEST['id']) == DownloadObfuscator::page && ifsetor($_REQUEST['type']) == DownloadObfuscator::type) {
+		$samePage = ifsetor($_REQUEST['id']) == TYPO3DownloadObfuscator::page;
+		$sameType = ifsetor($_REQUEST['type']) == TYPO3DownloadObfuscator::type;
+		if ($samePage && $sameType) {
 			$subid = intval($_REQUEST['subid']);
 			if ($subid) {
 				$extPath = t3lib_extMgm::extPath('submission');

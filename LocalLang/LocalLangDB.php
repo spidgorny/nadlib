@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Singleton
  */
@@ -19,7 +21,7 @@ class LocalLangDB extends LocalLang
 	 */
 	protected $rows = array();
 
-	function __construct($forceLang = NULL)
+	public function __construct($forceLang = null)
 	{
 		parent::__construct($forceLang);
 	}
@@ -28,7 +30,7 @@ class LocalLangDB extends LocalLang
 	 * Why is it not called from the constructor?
 	 * Because we need to specify the desired language $this->lang
 	 */
-	function init()
+	public function init()
 	{
 		$config = Config::getInstance();
 		$this->db = $config->getDB();
@@ -42,7 +44,7 @@ class LocalLangDB extends LocalLang
 		}
 	}
 
-	static function getInstance($forceLang = NULL, $filename = NULL)
+	public static function getInstance($forceLang = NULL, $filename = NULL)
 	{
 		static $instance = NULL;
 		if (!$instance) {
@@ -58,7 +60,7 @@ class LocalLangDB extends LocalLang
 	 * @param $code
 	 * @throws Exception
 	 */
-	function saveMissingMessage($code)
+	public function saveMissingMessage($code)
 	{
 		nodebug(array(
 			'object' => spl_object_hash($this),
@@ -104,11 +106,12 @@ class LocalLangDB extends LocalLang
 	 * @throws AccessDeniedException
 	 * @throws Exception
 	 */
-	function updateMessage(array $data)
+	public function updateMessage(array $data)
 	{
 		$user = Config::getInstance()->getUser();
 		if ($user->isAdmin()) {
-			$llm = new LocalLangModel($data['lang'], $data['code']);
+			$llm = new LocalLangModel();
+			$llm->findInDB(['lang' => $data['lang'], 'code' => $data['code']]);
 			if ($llm->id) {
 				$llm->update(array(
 					'text' => $data['text'],
@@ -121,7 +124,7 @@ class LocalLangDB extends LocalLang
 		}
 	}
 
-	function readDB($lang)
+	public function readDB($lang)
 	{
 		//debug_pre_print_backtrace();
 		$res = $this->db->getTableColumnsEx($this->table);
@@ -155,12 +158,12 @@ class LocalLangDB extends LocalLang
 		return $rows;
 	}
 
-	function getRow($id)
+	public function getRow($id)
 	{
 		return ifsetor($this->rows[$id]);
 	}
 
-	function showLangSelection()
+	public function showLangSelection()
 	{
 		$content = '';
 		$stats = $this->getLangStats();
@@ -178,7 +181,7 @@ class LocalLangDB extends LocalLang
 		return $content;
 	}
 
-	function getLangStats()
+	public function getLangStats()
 	{
 		$en = $this->readDB('en');
 		$countEN = sizeof($en) ? sizeof($en) : 1;
