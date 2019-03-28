@@ -1,52 +1,68 @@
 <?php
 
-interface DBInterface {
+/**
+ * Interface DBInterface
+ * @mixin SQLBuilder
+ * @method fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
+ * @method fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+ * @method describeView($viewName)
+ * @method fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method getFirstValue($query)
+ * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
+ * @method performWithParams($query, $params)
+ * @method getInfo();
+ * @method getConnection();
+ * @method getViews();
+ */
+interface DBInterface
+{
 
-	//function __construct();
+	public function perform($query, array $params = []);
 
-	// parameters are different
-	//function connect();
+	public function numRows($res = null);
 
-	function perform($query, array $params = []);
+	public function affectedRows($res = null);
 
-	function numRows($res = NULL);
+	public function getTables();
 
-	function affectedRows($res = NULL);
+	public function lastInsertID($res, $table = null);
 
-	function getTables();
+	public function free($res);
 
-	function lastInsertID($res, $table = NULL);
+	public function quoteKey($key);
 
-	function free($res);
+	public function quoteKeys(array $keys);
 
-	function quoteKey($key);
+	public function escapeBool($value);
 
-	function quoteKeys(array $keys);
+	public function fetchAssoc($res);
 
-	function escapeBool($value);
+	public function transaction();
 
-	function fetchAssoc($res);
+	public function commit();
 
-	function transaction();
-
-	function commit();
-
-	function rollback();
+	public function rollback();
 
 	public function getScheme();
 
-	function getTablesEx();
+	public function getTablesEx();
 
-	function getTableColumnsEx($table);
+	public function getTableColumnsEx($table);
 
-	function getIndexesFrom($table);
+	public function getIndexesFrom($table);
 
-	function dataSeek($resource, $index);
+	public function dataSeek($resource, $index);
 
-	function escape($string);
+	public function escape($string);
 
-	function fetchAll($res_or_query, $index_by_key = NULL);
+	public function fetchAll($res_or_query, $index_by_key = null);
 
-	function isConnected();
+	public function isConnected();
+
+	public function quoteSQL($value, $key = null);
+
+	public function clearQueryLog();
+
+	public function getLastQuery();
 
 }

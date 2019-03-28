@@ -19,7 +19,7 @@ class Menu /*extends Controller*/
 	 * Set to not NULL to see only specific level
 	 * @var int|null
 	 */
-	public $level = NULL;
+	public $level = null;
 
 	/**
 	 * Set to call getMenuSuffix() on each object in menu
@@ -34,7 +34,7 @@ class Menu /*extends Controller*/
 	public $current;
 
 	/**
-	 * @var User
+	 * @var UserModelInterface
 	 */
 	protected $user;
 
@@ -82,6 +82,11 @@ class Menu /*extends Controller*/
 	public $useControllerSlug = true;
 
 	public $controllerVarName = 'c';
+
+	/**
+	 * @var Request
+	 */
+	protected $request;
 
 	function __construct(array $items, $level = NULL)
 	{

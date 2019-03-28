@@ -34,7 +34,7 @@ class TYPO3Page extends OODBase
 		}
 	}
 
-	function getChildren()
+	function getChildren(array $where = [])
 	{
 		if (is_null($this->children)) {
 			$this->fetchChildren();
@@ -114,8 +114,8 @@ class TYPO3Page extends OODBase
 	}
 
 	/**
-	 *
 	 * @return TYPO3PageOverlay|null
+	 * @throws Exception
 	 */
 	function getPageOverlay()
 	{

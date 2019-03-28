@@ -5,13 +5,22 @@ use spidgorny\nadlib\HTTP\URL;
 /**
  * Class MySQL
  * @mixin SQLBuilder
+ * @method getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
+ * @method runInsertQuery($table, array $columns, array $where = [])
+ * @method fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
  * @deprecated
+ * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+ * @method  describeView($viewName)
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  getFirstValue($query)
+ * @method  performWithParams($query, $params)
+ * @method  getConnection()
  */
 class MySQL extends DBLayerBase implements DBInterface
 {
 
 	/**
-	 * @var string
+	 * @var string|SQLSelectQuery
 	 */
 	public $lastQuery;
 
@@ -34,7 +43,7 @@ class MySQL extends DBLayerBase implements DBInterface
 	 * Reserved MySQL words
 	 * @var array
 	 */
-	protected $reserved = array(
+	protected $reserved = [
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
 		2 => 'ALL',
@@ -258,7 +267,7 @@ class MySQL extends DBLayerBase implements DBInterface
 		'TERMINATED',
 		'UNDO',
 		'VALUES',
-	);
+	];
 
 	public function __construct($db = null, $host = '127.0.0.1', $login = 'root', $password = '')
 	{
@@ -301,14 +310,14 @@ class MySQL extends DBLayerBase implements DBInterface
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public function perform($query, array $params = array())
+	public function perform($query, array $params = [])
 	{
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
 				$caller = Debug::getCaller($c);
 				$c++;
-			} while (in_array($caller, array(
+			} while (in_array($caller, [
 				'MySQL::fetchSelectQuery',
 				'MySQL::runSelectQuery',
 				'OODBase::findInDB',
@@ -317,7 +326,7 @@ class MySQL extends DBLayerBase implements DBInterface
 				'MySQL::getTableColumns',
 				'MySQL::perform',
 				'OODBase::fetchFromDB',
-			)));
+			]));
 			$profilerKey = __METHOD__ . " (" . $caller . ")";
 			TaylorProfiler::start($profilerKey);
 		}
@@ -345,11 +354,11 @@ class MySQL extends DBLayerBase implements DBInterface
 		}
 		if (!$res || mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				debug([
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
-				));
+				]);
 			}
 			debug_pre_print_backtrace();
 			$e = new DatabaseException(mysql_errno($this->connection) . ': ' . mysql_error($this->connection) .
@@ -442,7 +451,7 @@ class MySQL extends DBLayerBase implements DBInterface
 		return mysql_real_escape_string($string, $this->connection);
 	}
 
-	public function quoteSQL($string)
+	public function quoteSQL($string, $key = null)
 	{
 		if ($string instanceof Time) {
 			$string = $string->getMySQL();
@@ -499,7 +508,7 @@ class MySQL extends DBLayerBase implements DBInterface
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
-			$columns = array();
+			$columns = [];
 		}
 		TaylorProfiler::stop(__METHOD__ . " ({$table})" . Debug::getCaller());
 		return $columns;
@@ -515,7 +524,7 @@ class MySQL extends DBLayerBase implements DBInterface
 			}
 		}
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			debug(get_class($this->qb));
 			throw new Exception($method . '() not found in ' . get_class($this) . ' and SQLBuilder');
@@ -580,7 +589,7 @@ class MySQL extends DBLayerBase implements DBInterface
 	 */
 	public function fetchPartitionMySQL($res, $start, $limit)
 	{
-		$data = array();
+		$data = [];
 		for ($i = 0; $i < $start + $limit; $i++) {
 			$row = $this->fetchAssoc($res);
 			if ($row !== false) {

@@ -254,7 +254,7 @@ class PGArray extends AsIs
 
 	/**
 	 * @param array $data
-	 * @return string
+	 * @return AsIs
 	 */
 	public function setPGArray(array $data)
 	{
