@@ -102,7 +102,7 @@ class CollectionView
 					'</div>'.
 					$pages;
 			} else {
-				$content = $s;
+				$content = $s->getContent();
 			}
 			$content = $this->wrap($content);
 		} else {

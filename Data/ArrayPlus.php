@@ -689,7 +689,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	{
 		$count = 0;
 		foreach ($this as $val) {
-			if ($val[$k]) {
+			if (ifsetor($val[$k])) {
 				$count++;
 			}
 		}

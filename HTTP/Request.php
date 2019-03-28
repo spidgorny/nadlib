@@ -424,8 +424,8 @@ class Request
 	/**
 	 * Will require modifications when realurl is in place
 	 *
-	 * @return object
 	 * @throws Exception
+	 * @return SimpleController|Controller
 	 */
 	public function getController()
 	{
