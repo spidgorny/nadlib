@@ -14,6 +14,17 @@
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
  * @mixin DBLayerBase
+ * @method  describeView($viewName)
+ * @method  getFirstValue($query)
+ * @method  performWithParams($query, $params)
+ * @method  getInfo()
+ * @method  getConnection()
+ * @method  getViews()
+ * @method getScheme()
+ * @method quoteKeys(array $keys)
+ * @method quoteKey($key)
+ * @method perform($query, array $params = [])
+ * @method fetchAssoc($res)
  */
 class SQLBuilder
 {
@@ -441,7 +452,7 @@ class SQLBuilder
 	 * @param string $order
 	 * @param string $addFields
 	 * @param string $idField - will return data as assoc indexed by this column
-	 * @return array <type>
+	 * @return array
 	 */
 	public function fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
 	{

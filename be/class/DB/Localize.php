@@ -310,8 +310,9 @@ class Localize extends AppControllerBE
 		return $content;
 	}
 
-	function getUntranslatedCheckbox()
+	public function getUntranslatedCheckbox()
 	{
+		$content = [];
 		foreach ($this->languages as $lang) {
 			$checked = ifsetor($_COOKIE['untranslated'][$lang]) ? 'checked="checked"' : '';
 			$content[] = '<label>
@@ -322,7 +323,7 @@ class Localize extends AppControllerBE
 		return $content;
 	}
 
-	function deleteDuplicatesAction()
+	public function deleteDuplicatesAction()
 	{
 		$rows = $this->db->fetchSelectQuery($this->table, array(
 			'lang' => 'en',
@@ -339,7 +340,7 @@ class Localize extends AppControllerBE
 		}
 	}
 
-	function deleteRowAction()
+	public function deleteRowAction()
 	{
 		$code = $this->request->getString('code');
 		$columns = $this->db->getTableColumns($this->table);
@@ -363,7 +364,7 @@ class Localize extends AppControllerBE
 		$this->request->redirect($url);
 	}
 
-	function downloadJSONAction()
+	public function downloadJSONAction()
 	{
 		$keys = $this->getAllKeys();
 		$transTab = $this->getTranslationTable($keys);
@@ -380,7 +381,7 @@ class Localize extends AppControllerBE
 		exit();
 	}
 
-	function saveJSONAction()
+	public function saveJSONAction()
 	{
 		$keys = $this->getAllKeys();
 		$transTab = $this->getTranslationTable($keys);
@@ -395,7 +396,7 @@ class Localize extends AppControllerBE
 		file_put_contents('sql/localize.json', json_encode($transTab, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 	}
 
-	function importJSONAction()
+	public function importJSONAction()
 	{
 		$content = [];
 		$fileData = json_decode(file_get_contents($_FILES['file']['tmp_name']), true);
@@ -429,7 +430,7 @@ class Localize extends AppControllerBE
 		return $content;
 	}
 
-	function addNewAction()
+	public function addNewAction()
 	{
 		$content = array();
 		$code = $this->request->getTrimRequired('code');
@@ -448,12 +449,12 @@ class Localize extends AppControllerBE
 		return $content;
 	}
 
-	function untranslatedAction()
+	public function untranslatedAction()
 	{
 		// nothing, used in the filter
 	}
 
-	function editOneAction()
+	public function editOneAction()
 	{
 		$key = $this->request->getTrimRequired('key');
 		foreach ($this->languages as $lang) {
@@ -485,7 +486,7 @@ class Localize extends AppControllerBE
 		return $content;
 	}
 
-	function saveOneAction()
+	public function saveOneAction()
 	{
 		$id = $this->request->getTrim('id');
 		if ($id) {

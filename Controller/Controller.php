@@ -15,6 +15,24 @@ use spidgorny\nadlib\HTTP\URL;
  * will call cronjobAction instead of default render()
  * @mixin Linker
  * @mixin HTML
+ * @method div($content, $class = '', array $more = [])
+ * @method message($content)
+ * @method getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
+ * @method h1($content)
+ * @method h2($content)
+ * @method h3($content)
+ * @method h4($content)
+ * @method h5($content)
+ * @method h6($content)
+ * @method a($href, $text = '', $isHTML = false, array $more = [])
+ * @method error($content)
+ * @method info($content)
+ * @method success($content)
+ * @method img($src, array $attr = [])
+ * @method e($content)
+ * @method makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
+ * @method makeURL(array $params = array(), $prefix = '?')
+ * @method makeRelURL()
  */
 abstract class Controller extends SimpleController
 {

@@ -3,6 +3,13 @@
 /**
  * Class dbPlacebo
  * @mixin SQLBuilder
+ * @method  describeView($viewName)
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  getFirstValue($query)
+ * @method  performWithParams($query, $params)
+ * @method  getInfo()
+ * @method  getConnection()
+ * @method  getViews()
  */
 class DBPlacebo extends DBLayerBase implements DBInterface
 {

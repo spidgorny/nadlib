@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class View extends stdClass {
 
 	//use HTMLHelper;

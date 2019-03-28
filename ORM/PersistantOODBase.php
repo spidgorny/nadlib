@@ -14,11 +14,11 @@ class PersistantOODBase extends OODBase
 	 */
 	public $originalData;
 
-	/*	static public $inserted = 0;
-		static public $updated = 0;
-		static public $skipped = 0;
-		// define them in a subclass for static::inserted to work
-	*/
+	static public $inserted = 0;
+	static public $updated = 0;
+	static public $skipped = 0;
+
+	// define them in a subclass for static::inserted to work
 
 	public function __construct($initer)
 	{
@@ -28,9 +28,9 @@ class PersistantOODBase extends OODBase
 		//debug($this->getStateHash(), $this->stateHash, $this->data, $this->id);
 	}
 
-	public function init($id, $fromFindInDB = false)
+	public function init($id)
 	{
-		parent::init($id, $fromFindInDB);
+		parent::init($id);
 	}
 
 	public function getStateHash()
@@ -74,7 +74,7 @@ class PersistantOODBase extends OODBase
 		$ret = null;
 		nodebug([
 			'insert before',
-			$this->stateHash      => $this->originalData,
+			$this->stateHash => $this->originalData,
 			$this->getStateHash() => $this->data,
 			$this->id,
 		]);
@@ -89,7 +89,7 @@ class PersistantOODBase extends OODBase
 		$this->stateHash = $this->getStateHash();
 		nodebug([
 			'insert after',
-			$this->stateHash      => $this->originalData,
+			$this->stateHash => $this->originalData,
 			$this->getStateHash() => $this->data,
 			$this->id,
 		]);
@@ -117,7 +117,8 @@ class PersistantOODBase extends OODBase
 		return $this->getStateHash() != $this->stateHash;
 	}
 
-	public function isUpdate() {
+	public function isUpdate()
+	{
 		$idDefined = is_array($this->id)
 			? trim(implode('', $this->id))
 			: $this->id;
@@ -128,12 +129,12 @@ class PersistantOODBase extends OODBase
 	{
 		if ($this->isChanged()) {
 			0 && debug([
-				'stateHash'    => $this->stateHash,
+				'stateHash' => $this->stateHash,
 				'originalData' => $this->originalData,
 				'getStateHash' => $this->getStateHash(),
-				'data'         => $this->data,
-				'table'        => $this->table,
-				'id'           => $this->id,
+				'data' => $this->data,
+				'table' => $this->table,
+				'id' => $this->id,
 			]);
 			if ($this->isUpdate()) {
 				//debug(__CLASS__, $this->id, $this->getStateHash(), $this->stateHash, $this->data, $this->originalData);
@@ -151,10 +152,10 @@ class PersistantOODBase extends OODBase
 			static::$skipped++;
 		}
 		nodebug([
-			$this->stateHash      => $this->originalData,
+			$this->stateHash => $this->originalData,
 			$this->getStateHash() => $this->data,
-			$this->table          => $this->id,
-			'action'              => $action,
+			$this->table => $this->id,
+			'action' => $action,
 		]);
 		//debug('table: '.$this->table.' action: '.$action.' id: '.$this->id);
 		return $action;

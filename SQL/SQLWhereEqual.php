@@ -13,14 +13,14 @@ class SQLWhereEqual extends SQLWherePart
 	 */
 	protected $val;
 
-	function __construct($field, $val)
+	public function __construct($field, $val)
 	{
 		parent::__construct();
 		$this->field = $field;
 		$this->val = $val;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		if (0) {
 			debug(__METHOD__, $this->field, $this->val);
@@ -41,7 +41,7 @@ class SQLWhereEqual extends SQLWherePart
 		return $sql;
 	}
 
-	public function getWhereItem($key, $val)
+	public function getWhereItem($key, $val, array $where = [])
 	{
 		$set = array();
 		$key = $this->db->quoteKey(trim($key));
@@ -73,7 +73,7 @@ class SQLWhereEqual extends SQLWherePart
 			//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 			//	$set[] = $val.'';
 		} elseif (isset($where[$key . '.']) && ifsetor($where[$key . '.']['asis'])) {
-			if (strpos($val, '###FIELD###') !== FALSE) {
+			if (strpos($val, '###FIELD###') !== false) {
 				$val = str_replace('###FIELD###', $key, $val);
 				$set[] = $val;
 			} else {
@@ -119,12 +119,12 @@ class SQLWhereEqual extends SQLWherePart
 		return first($set);
 	}
 
-	function debug()
+	public function debug()
 	{
 		return $this->__toString();
 	}
 
-	function injectField($field)
+	public function injectField($field)
 	{
 //		debug(__METHOD__, $field);
 		parent::injectField($field);

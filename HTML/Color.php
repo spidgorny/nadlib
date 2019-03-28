@@ -1,18 +1,20 @@
 <?php
 
-class Color {
+class Color
+{
 
 	/**
 	 * @var int
 	 */
-	var $r, $g, $b;
+	public $r, $g, $b;
 
-	function __construct($init) {
+	public function __construct($init)
+	{
 		if ($init[0] == '#') {
 			$colourstr = str_replace('#', '', $init);
-			$rhex = substr($colourstr,0,2);
-			$ghex = substr($colourstr,2,2);
-			$bhex = substr($colourstr,4,2);
+			$rhex = substr($colourstr, 0, 2);
+			$ghex = substr($colourstr, 2, 2);
+			$bhex = substr($colourstr, 4, 2);
 
 			$this->r = hexdec($rhex);
 			$this->g = hexdec($ghex);
@@ -24,7 +26,7 @@ class Color {
 				throw new InvalidArgumentException('Please use static constructors for HSL and HSV');
 			}
 		} else {
-			throw new InvalidArgumentException('Unable to understand color ['.$init.']');
+			throw new InvalidArgumentException('Unable to understand color [' . $init . ']');
 		}
 	}
 
@@ -34,10 +36,11 @@ class Color {
 	 * @param $steps
 	 * @return string
 	 */
-	function alter_brightness($colourstr, $steps) {
-		$r = max(0,min(255, $this->r + $steps));
-		$g = max(0,min(255, $this->g + $steps));
-		$b = max(0,min(255, $this->b + $steps));
+	public function alter_brightness($colourstr, $steps)
+	{
+		$r = max(0, min(255, $this->r + $steps));
+		$g = max(0, min(255, $this->g + $steps));
+		$b = max(0, min(255, $this->b + $steps));
 
 		return $this->getCSS(array($r, $g, $b));
 	}
@@ -48,13 +51,14 @@ class Color {
 	 * @param int $deltaLightness [0..100]
 	 * @return string
 	 */
-	function alter_color($deltaHue = 0, $deltaSaturation = 0, $deltaLightness = 0) {
+	public function alter_color($deltaHue = 0, $deltaSaturation = 0, $deltaLightness = 0)
+	{
 		$hsv = $this->RGB_TO_HSV($this->r, $this->g, $this->b);
 		$hsl = $this->hsv_to_hsl($hsv['H'], $hsv['S'], $hsv['V']);
 
-		$hsl2[0] = $hsl[0] + $deltaHue/360;
-		$hsl2[1] = $hsl[1] + $deltaSaturation/100;
-		$hsl2[2] = $hsl[2] + $deltaLightness/100;
+		$hsl2[0] = $hsl[0] + $deltaHue / 360;
+		$hsl2[1] = $hsl[1] + $deltaSaturation / 100;
+		$hsl2[2] = $hsl[2] + $deltaLightness / 100;
 
 		$hsv2 = $this->hsl_to_hsv($hsl2[0], $hsl2[1], $hsl2[2]);
 
@@ -70,15 +74,17 @@ class Color {
 		return $this->getCSS($rgb);
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		return $this->getCSS(array($this->r, $this->g, $this->b));
 	}
 
-	function getCSS($rgb) {
+	public function getCSS($rgb)
+	{
 		$rgb = array_values($rgb);
-		return '#'.
-			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT).
-			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT).
+		return '#' .
+			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT) .
+			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT) .
 			str_pad(dechex($rgb[2]), 2, '0', STR_PAD_LEFT);
 	}
 
@@ -89,7 +95,7 @@ class Color {
 	 * @param $B
 	 * @return array
 	 */
-	function RGB_TO_HSV ($R, $G, $B)  // RGB Values:Number 0-255
+	public function RGB_TO_HSV($R, $G, $B)  // RGB Values:Number 0-255
 	{                                 // HSV Results:Number 0-1
 		$HSL = array();
 
@@ -103,25 +109,30 @@ class Color {
 
 		$V = $var_Max;
 
-		if ($del_Max == 0)
-		{
+		if ($del_Max == 0) {
 			$H = 0;
 			$S = 0;
-		}
-		else
-		{
+		} else {
 			$S = $del_Max / $var_Max;
 
-			$del_R = ( ( ( $var_Max - $var_R ) / 6 ) + ( $del_Max / 2 ) ) / $del_Max;
-			$del_G = ( ( ( $var_Max - $var_G ) / 6 ) + ( $del_Max / 2 ) ) / $del_Max;
-			$del_B = ( ( ( $var_Max - $var_B ) / 6 ) + ( $del_Max / 2 ) ) / $del_Max;
+			$del_R = ((($var_Max - $var_R) / 6) + ($del_Max / 2)) / $del_Max;
+			$del_G = ((($var_Max - $var_G) / 6) + ($del_Max / 2)) / $del_Max;
+			$del_B = ((($var_Max - $var_B) / 6) + ($del_Max / 2)) / $del_Max;
 
-			if      ($var_R == $var_Max) $H = $del_B - $del_G;
-			else if ($var_G == $var_Max) $H = ( 1 / 3 ) + $del_R - $del_B;
-			else if ($var_B == $var_Max) $H = ( 2 / 3 ) + $del_G - $del_R;
+			if ($var_R == $var_Max) {
+				$H = $del_B - $del_G;
+			} elseif ($var_G == $var_Max) {
+				$H = (1 / 3) + $del_R - $del_B;
+			} elseif ($var_B == $var_Max) {
+				$H = (2 / 3) + $del_G - $del_R;
+			}
 
-			if ($H<0) $H++;
-			if ($H>1) $H--;
+			if ($H < 0) {
+				$H++;
+			}
+			if ($H > 1) {
+				$H--;
+			}
 		}
 
 		$HSL['H'] = $H;
@@ -136,10 +147,11 @@ class Color {
 	 * @param array $hsv
 	 * @return array
 	 */
-	function HSVtoRGB(array $hsv) {
-		list($H,$S,$V) = $hsv;
+	public function HSVtoRGB(array $hsv)
+	{
+		list($H, $S, $V) = $hsv;
 		//0
-		$H = $H - floor($H);	// not bigger than 360 grad
+		$H = $H - floor($H);    // not bigger than 360 grad
 		//1
 		$H *= 6;
 		//2
@@ -152,28 +164,28 @@ class Color {
 		//4
 		switch ($I) {
 			case 0:
-				list($R,$G,$B) = array($V,$K,$M);
+				list($R, $G, $B) = array($V, $K, $M);
 				break;
 			case 1:
-				list($R,$G,$B) = array($N,$V,$M);
+				list($R, $G, $B) = array($N, $V, $M);
 				break;
 			case 2:
-				list($R,$G,$B) = array($M,$V,$K);
+				list($R, $G, $B) = array($M, $V, $K);
 				break;
 			case 3:
-				list($R,$G,$B) = array($M,$N,$V);
+				list($R, $G, $B) = array($M, $N, $V);
 				break;
 			case 4:
-				list($R,$G,$B) = array($K,$M,$V);
+				list($R, $G, $B) = array($K, $M, $V);
 				break;
 			case 5:
 			case 6: //for when $H=1 is given
-				list($R,$G,$B) = array($V,$M,$N);
+				list($R, $G, $B) = array($V, $M, $N);
 				break;
 			default:
-				die(__METHOD__.'#'.__LINE__.' '.$I.' '.$H);
+				die(__METHOD__ . '#' . __LINE__ . ' ' . $I . ' ' . $H);
 		}
-		return array($R*255, $G*255, $B*255);
+		return array($R * 255, $G * 255, $B * 255);
 	}
 
 	/**
@@ -183,7 +195,8 @@ class Color {
 	 * @param $v
 	 * @return array
 	 */
-	function hsv_to_hsl($h, $s, $v) {
+	public function hsv_to_hsl($h, $s, $v)
+	{
 		$hh = $h;
 		$ll = (2 - $s) * $v;
 		$ss = $s * $v;
@@ -192,7 +205,8 @@ class Color {
 		return array($hh, $ss, $ll);
 	}
 
-	function hsl_to_hsv($hh, $ss, $ll) {
+	public function hsl_to_hsv($hh, $ss, $ll)
+	{
 		$h = $hh;
 		$ll *= 2;
 		$ss *= ($ll <= 1) ? $ll : 2 - $ll;
@@ -201,15 +215,17 @@ class Color {
 		return array($h, $s, $v);
 	}
 
-	public function getComplement255() {
+	public function getComplement255()
+	{
 		$c = new self(array(
-			255-$this->r,
-			255-$this->g,
-			255-$this->b));
+			255 - $this->r,
+			255 - $this->g,
+			255 - $this->b));
 		return $c;
 	}
 
-	public function getComplement() {
+	public function getComplement()
+	{
 		$c = $this->alter_color(180, 0, 0);
 		return $c;
 	}

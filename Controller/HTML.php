@@ -1,11 +1,13 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class HTML
 {
 
 //	use HTMLHelper;
 
-	function s($something)
+	public function s($something)
 	{
 		return MergedContent::mergeStringArrayRecursive($something);
 	}

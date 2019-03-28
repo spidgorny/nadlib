@@ -14,11 +14,14 @@ class SessionUser extends PlainSessionUser
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function autologin()
 	{
 		$class = get_called_class();
 		if (ifsetor($_SESSION[$class]) && ($login = $_SESSION[$class]['login'])) {
-			$inSession = $this->checkPassword($login, $_SESSION[$class]['password']);
+			$inSession = $this->checkPassword($_SESSION[$class]['password']);
 			if ($inSession) {
 				//$this->findInDB(array('email' => $login));
 				$this->init($login);

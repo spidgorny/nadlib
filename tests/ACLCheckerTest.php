@@ -16,7 +16,7 @@ class ACLCheckerTest extends \PHPUnit_Framework_TestCase
 		$this->markTestIncomplete(
 			'AppController was not found.'
 		);
-		$controller = new \AppController();
+		$controller = new \TestController();
 		$controller->user = null;
 		$ac = new \ACLChecker($controller);
 		$okNothing = $ac->compareACL(null);
@@ -30,7 +30,7 @@ class ACLCheckerTest extends \PHPUnit_Framework_TestCase
 		$this->markTestIncomplete(
 			'AppController was not found.'
 		);
-		$controller = new \AppController();
+		$controller = new \TestController();
 		$controller->user = new \NOEUser();
 		$controller->user->id = 1;
 		$ac = new \ACLChecker($controller);
