@@ -2,6 +2,13 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
+/**
+ * Class SimpleController
+ * @mixin HTML
+ * @method error($content)
+ * @method info($content)
+ * @method success($content)
+ */
 abstract class SimpleController
 {
 

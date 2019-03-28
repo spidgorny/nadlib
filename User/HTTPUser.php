@@ -6,13 +6,13 @@ class HTTPUser extends UserBase
 	protected $login;
 	protected $password;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->login = $_SERVER['PHP_AUTH_USER'];
 		$this->password = $_SERVER['PHP_AUTH_PASSWORD'];
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->login;
 	}
@@ -35,5 +35,14 @@ class HTTPUser extends UserBase
 	public function getAvatarURL()
 	{
 		// TODO: Implement getAvatarURL() method.
+	}
+
+	/**
+	 * @param string $acl
+	 * @return bool
+	 */
+	public function can($acl)
+	{
+		// TODO: Implement can() method.
 	}
 }

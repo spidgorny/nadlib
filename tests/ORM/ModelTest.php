@@ -12,7 +12,7 @@ class ModelTest extends PHPUnit_Framework_TestCase
 
 	public function _test_getFormFromModel()
 	{
-		$cm = new CareerModel(new dbPlacebo());
+		$cm = new CareerModel(new DBPlacebo());
 		$form = $cm->getFormFromModel();
 //		var_export($form);
 		$this->assertEquals([
@@ -38,7 +38,7 @@ class ModelTest extends PHPUnit_Framework_TestCase
 
 	public function _test_getFormFromModel2()
 	{
-		$cm = new ApplicationModel(new dbPlacebo());
+		$cm = new ApplicationModel(new DBPlacebo());
 		$form = $cm->getFormFromModel();
 //		var_export($form);
 		$this->assertEquals([

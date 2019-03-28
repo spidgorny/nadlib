@@ -28,7 +28,7 @@ class AppControllerBE extends Controller
 
 	var $layout = '<div class="col-md-9">|</div>';
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		if (!static::$public) {
@@ -55,7 +55,7 @@ class AppControllerBE extends Controller
 		$this->layout = new Wrap($this->layout);
 	}
 
-	function log($class, $message = NULL)
+	public function log($class, $message = NULL)
 	{
 		//echo $class, ' ', print_r($message, true), BR;
 		Debug::getInstance()->consoleLog([
@@ -64,9 +64,9 @@ class AppControllerBE extends Controller
 		]);
 	}
 
-	public function getURL(array $params = array(), $prefix = '?')
+	public function makeURL(array $params = array(), $prefix = '?')
 	{
-		$url = parent::getURL($params, $this->nadlibFromDocRoot . 'be/?');
+		$url = parent::makeURL($params, $this->nadlibFromDocRoot . 'be/?');
 		return $url;
 	}
 
