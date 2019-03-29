@@ -760,6 +760,7 @@ class Collection implements IteratorAggregate
 	 * @param array $where
 	 * @param string $orderBy
 	 * @return Collection
+	 * @throws Exception
 	 */
 	public static function createForTable(DBInterface $db, $table, array $where = array(), $orderBy = '')
 	{
@@ -806,7 +807,9 @@ class Collection implements IteratorAggregate
 
 	public function objectifyAsPlus()
 	{
-		return ArrayPlus::create($this->objectify($this->itemClassName, $this->objectifyByInstance));
+		return ArrayPlus::create(
+			$this->objectify($this->itemClassName, $this->objectifyByInstance)
+		);
 	}
 
 	public function __toString()
