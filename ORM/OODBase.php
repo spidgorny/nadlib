@@ -735,7 +735,8 @@ abstract class OODBase
 
 	/**
 	 * Override if collection name is different
-	 * @return Collection
+	 * @param array $where
+	 * @return DatabaseResultIteratorAssoc
 	 */
 	public function getChildren(array $where = [])
 	{
