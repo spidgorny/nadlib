@@ -57,6 +57,7 @@ class URL
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
+			throw new \RuntimeException(__METHOD__);
 		}
 		if (!isset($url)) { // empty string should not default to localhost
 			$http = Request::getRequestType();
@@ -77,6 +78,9 @@ class URL
 //		if (class_exists('Config')) {
 //			$this->setDocumentRoot(Config::getInstance()->documentRoot);
 //		}
+		// infinite recursion
+//		$this->setDocumentRoot(Request::getInstance()->getDocumentRoot());
+		$this->setDocumentRoot(Request::getDocumentRootByRequest());
 	}
 
 	/**
@@ -239,6 +243,8 @@ class URL
 	public function reset()
 	{
 		$this->components['path'] = $this->documentRoot;
+		$this->components['query'] = '';
+		$this->clearParams();
 	}
 
 	/**
@@ -982,8 +988,13 @@ class URL
 		}
 		$path = $this->getPath();
 		$diff = str_replace($this->documentRoot, '', $path);
-		//debug($path, $this->documentRoot, $diff);
-		$path = str_replace($diff, $newController, $path);
+		nodebug([
+			'original' => $path.'',
+			'docroot' => $this->documentRoot,
+			'diff' => $diff,
+			'replace-by' => $newController,
+		]);
+		$path = str_replace($diff, '/'.$newController, $path);
 		$this->setPath($path);
 		return $this;
 	}
