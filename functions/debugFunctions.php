@@ -6,7 +6,7 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param ...$a mixed|string
+	 * @param $a,... mixed|string|bool|array
 	 */
 	function debug($a)
 	{
