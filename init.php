@@ -27,7 +27,7 @@ if (!function_exists('parseFloat')) {
 	 * BUT, it creates a NULL elements with the multidimensional arrays!!!
 	 * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
 	 * @param      $variable
-	 * @param null $default
+	 * @param mixed $default
 	 * @return null
 	 * @see https://wiki.php.net/rfc/ifsetor
 	 */
@@ -45,7 +45,7 @@ if (!function_exists('parseFloat')) {
 	/**
 	 * Makes sure the value is not empty even if it is set
 	 * @param $variable
-	 * @param null $default
+	 * @param mixed $default
 	 * @return null
 	 */
 	function ifvalor(&$variable, $default = null)
