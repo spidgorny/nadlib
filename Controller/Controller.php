@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Controller - a base class for all front-facing pages.
  * Extend and implement your own render() function.
@@ -11,25 +13,13 @@
  * Can be called from CLI with parameters e.g.
  * > php index.php SomeController -action cronjob
  * will call cronjobAction instead of default render()
+ * @mixin Linker
+ * @mixin HTML
  */
-
-use spidgorny\nadlib\HTTP\URL;
-
-abstract class Controller
+abstract class Controller extends SimpleController
 {
 
 	//use HTMLHelper;	// bijou is PHP 5.4
-
-	/**
-	 * @var Index|\nadlib\IndexInterface
-	 */
-	public $index;
-
-	/**
-	 * @var Request
-	 * @public for injecting something in PHPUnit
-	 */
-	public $request;
 
 	/**
 	 * @var boolean
@@ -44,29 +34,9 @@ abstract class Controller
 	protected $db;
 
 	/**
-	 * Will be taken as a <title> of the HTML table
-	 * @var string
-	 */
-	public $title;
-
-	/**
-	 * Will be set according to mod_rewrite
-	 * Override in __construct()
-	 * @public to be accessed from Menu
-	 * @var bool
-	 */
-	public $useRouter = false;
-
-	/**
-	 * @var User|Client|userMan|LoginUser|UserModelInterface
+	 * @var UserModelInterface
 	 */
 	public $user;
-
-	/**
-	 * Instance per class
-	 * @var Controller[]
-	 */
-	protected static $instance = [];
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -74,10 +44,6 @@ abstract class Controller
 	 * @var string|Wrap
 	 */
 	public $layout;
-
-	public $linkVars = [];
-
-	public $encloseTag = 'h2';
 
 	/**
 	 * accessible without login
@@ -95,13 +61,6 @@ abstract class Controller
 	 */
 	protected $al;
 
-	public $log = [];
-
-	/**
-	 * @var HTML
-	 */
-	protected $html;
-
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
@@ -109,156 +68,48 @@ abstract class Controller
 	 */
 	public $sortBy;
 
+	/**
+	 * @var Linker
+	 */
+	public $linker;
+
 	public function __construct()
 	{
-		if (ifsetor($_REQUEST['d']) == 'log') {
-			echo get_class($this) . '::' . __METHOD__ . BR;
+		parent::__construct();
+		if (!$this->config) {
+			if ($this->index) {
+				$this->config = $this->index->getConfig();
+			}
 		}
-		$this->index = class_exists('Index', false)
-			? Index::getInstance(false) : null;
-		$this->request = Request::getInstance();
-		$this->useRouter = $this->request->apacheModuleRewrite();
+		
+		if ($this->config) {
+			// move this into AppController
+			// some projects don't need DB or User
+			$this->db = $this->config->getDB();
+			$this->user = $this->config->getUser();
+			$this->config->mergeConfig($this);
+		}
 		$this->al = AutoLoad::getInstance();
 
-		if (!is_object($this->config) && class_exists('Config')) {
-//			$this->config = Config::getInstance();
-			$this->config = $this->index->getConfig();
-		}
+		$this->linker = new Linker($this->request);
+		$this->linker->useRouter = $this->request->apacheModuleRewrite();
 
-		$this->db = $this->config->getDB();
-		$this->user = $this->config->getUser();
-			//			pre_print_r('User ID', $this->user->getID());
-		$this->config->mergeConfig($this);
-		if (!$this->useRouter) {
-			$this->linkVars['c'] = get_class($this);
+		if (!$this->linker->useRouter) {
+			$this->linker->linkVars['c'] = get_class($this);
 		}
-		$this->title = $this->title ? $this->title
-			: last(trimExplode('\\', get_class($this)));
-		//debug_pre_print_backtrace();
-//		if ($this->config->ll) {
-//			$this->title = $this->title ? __($this->title) : $this->title;
-//		}
-		$this->html = new HTML();
-		self::$instance[get_class($this)] = $this;
 	}
 
-	/**
-	 * @param array|string $params
-	 * @param null $prefix
-	 * @return URL
-	 * @public for View::link
-	 * @use getURL()
-	 */
-	public function makeURL(array $params, $prefix = null)
+	public function __call($method, array $arguments)
 	{
-		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
-			$class = ifsetor($params['c']);
-			if ($class && !$prefix) {
-				unset($params['c']);    // RealURL
-				$prefix = $class;
-			} else {
-				$class = null;
-			}
+		if (method_exists($this->linker, $method)) {
+			return call_user_func_array($this->linker->$method, $arguments);
+		} elseif (method_exists($this->html, $method)) {
+			return call_user_func_array($this->html->$method, $arguments);
 		} else {
-			$class = null;
-			// this is the only way to supply controller
-			//unset($params['c']);
+			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
-
-		$location = $this->request->getLocation();
-		$url = new URL($prefix
-			? $location . $prefix
-			: $location, $params);
-		$path = $url->getPath();
-		if ($this->useRouter && $class) {
-			$path->setFile($class);
-			$path->setAsFile();
-		}
-		//debug($prefix, get_class($path));
-		$url->setPath($path);
-		nodebug([
-			'method' => __METHOD__,
-			'params' => $params,
-			'prefix' => $prefix,
-			'useRouter' => $this->useRouter,
-			'class' => $class,
-			'class($url)' => get_class($url),
-			'class($path)' => get_class($path),
-			'$this->linkVars' => $this->linkVars,
-			'return' => $url . '',
-			'location' => $location . '',
-		]);
-		return $url;
 	}
-
-	/**
-	 * Only appends $this->linkVars to the URL.
-	 * Use this one if your linkVars is defined.
-	 * @param array $params
-	 * @param string $page
-	 * @return URL
-	 */
-	public function makeRelURL(array $params = [], $page = null)
-	{
-		return $this->makeURL(
-			$params                           // 1st priority
-			+ $this->getURL()->getParams()            // 2nd priority
-			+ $this->linkVars,
-			$page
-		);                // 3rd priority
-	}
-
-	/**
-	 * Combines params with $this->linkVars
-	 * Use makeURL() for old functionality
-	 * @param array $params
-	 * @param null $prefix
-	 * @return URL
-	 */
-	public function getURL(array $params = [], $prefix = null)
-	{
-		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
-		}
-		//		$params = $params + $this->linkVars;
-		//		debug($params);
-		//		return $this->makeURL($params, $prefix);
-		return ClosureCache::getInstance(spl_object_hash($this), function () {
-			return new URL();
-		})->get();
-	}
-
-	/**
-	 * Returns '<a href="$page?$params" $more">$text</a>
-	 * @param $text
-	 * @param array $params
-	 * @param string $page
-	 * @param array $more
-	 * @param bool $isHTML
-	 * @return HTMLTag
-	 */
-	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
-	{
-		//debug($text, $params, $page, $more, $isHTML);
-		$content = new HTMLTag('a', [
-				'href' => $this->makeURL($params, $page),
-			] + $more, $text, $isHTML);
-		return $content;
-	}
-
-	public function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = [], $prefix = '')
-	{
-		$url = $this->makeURL($params, $prefix);
-		$link = new HTMLTag('a', $aMore + [
-				'href' => $url,
-				'onclick' => '
-			jQuery(\'#' . $div . '\').load(\'' . $url . '\');
-			return false;
-			' . $jsPlus,
-			], $text, true);
-		return $link;
-	}
-
+	
 	/**
 	 * @param array $data
 	 * @return array
@@ -274,119 +125,11 @@ abstract class Controller
 		return $table;
 	}
 
-	public static function getInstance()
-	{
-		$static = get_called_class();
-		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		$isset = isset(self::$instance[$static]);
-		//debug(array_keys(self::$instance), $static, $isset);
-		if ($isset) {
-			$result = self::$instance[$static];
-		} else {
-			$index = Index::getInstance();
-			if ($index->controller instanceof $static) {
-				$result = $index->getController();
-			} else {
-				$result = new $static;
-			}
-		}
-		//debug($isset, get_class($index), get_class($result));
-		return $result;
-	}
-
-	/*function redirect($url) {
-		if (DEVELOPMENT) {
-			return '<script>
-				setTimeout(function() {
-					document.location.replace("'.str_replace('"', '&quot;', $url).'");
-				}, 5000);
-			</script>';
-		} else {
-			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
-		}
-	}*/
-
-	public function render()
-	{
-		$content[] = $this->performAction();
-		return $content;
-	}
-
-	/**
-	 * This function prevents performAction() from doing nothing
-	 * if there is a __CLASS__.phtml file in the same folder
-	 * @return MarkdownView|string|View
-	 */
-	public function indexAction()
-	{
-		$content = $this->renderTemplate();
-		$content = $this->div($content, str_replace('\\', '-', get_class($this)));
-		return $content;
-	}
-
-	public function renderTemplate()
-	{
-		$filePHTML = get_class($this) . '.phtml';
-		$fileMD = get_class($this) . '.md';
-
-		$reflector = new ReflectionClass(get_class($this));
-		$classDir = dirname($reflector->getFileName());
-		if (file_exists('template/' . $filePHTML)) {
-			$content = new View($filePHTML, $this);
-		} elseif (file_exists('template/' . $fileMD)) {
-			$content = new MarkdownView($fileMD, $this);
-		} elseif (file_exists($classDir . '/' . $filePHTML)) {
-			$content = new View($classDir . '/' . $filePHTML, $this);
-		} elseif (file_exists($classDir . '/' . $fileMD)) {
-			$content = new MarkdownView($classDir . '/' . $fileMD, $this);
-		} else {
-			$content = '';
-		}
-
-		//		debug($filePHTML, $fileMD);
-
-		return is_object($content)
-			? $content->render()
-			: $content;
-	}
-
-	public function __toString()
-	{
-		return $this->s($this->render());
-	}
-
 	public function encloseIn($title, $content)
 	{
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
-	}
-
-	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param $content
-	 * @param string $caption
-	 * @param null $h
-	 * @param array $more
-	 * @return array|string
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
-	{
-		$h = $h ? $h : $this->encloseTag;
-		$content = $this->s($content);
-		if ($caption) {
-			$content = [
-				'caption' => $this->getCaption($caption, $h),
-				$content
-			];
-		}
-		$more['class'] = ifsetor($more['class'], 'padding clearfix');
-		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
 	}
 
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
@@ -411,45 +154,6 @@ abstract class Controller
 					style="max-height: ' . $height . '; overflow: auto;
 					' . ($isOpen ? '' : 'display: none;') . '">' . $content . '</div>
 			</div>';
-		}
-		return $content;
-	}
-
-	public function performAction($action = null)
-	{
-		$content = '';
-		if ($this->request->isCLI()) {
-			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
-		}
-		//		debug($reqAction);
-		$method = $action
-			?: (!empty($reqAction) ? $reqAction : 'index');
-		if ($method) {
-			$method .= 'Action';        // ZendFramework style
-			//			debug($method, method_exists($this, $method));
-
-			$proxy = $this->request->getTrim('proxy');
-			if ($proxy) {
-				$proxy = new $proxy($this);
-			} else {
-				$proxy = $this;
-			}
-
-			if (method_exists($proxy, $method)) {
-				if ($this->request->isCLI()) {
-					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array([$proxy, $method], $assoc);
-				} else {
-					$caller = new MarshalParams($proxy);
-					$content = $caller->call($method);
-				}
-			} else {
-				// other classes except main controller may result in multiple messages
-//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			}
 		}
 		return $content;
 	}
@@ -556,76 +260,6 @@ abstract class Controller
 	}
 
 	/**
-	 * @see makeRelURL
-	 * @param array $params
-	 * @return URL
-	 * @throws Exception
-	 */
-	public function adjustURL(array $params)
-	{
-		return URL::getCurrent()->addParams([
-				'c' => get_class(Index::getInstance()->controller),
-			] + $params);
-	}
-
-	/**
-	 * Just appends $this->linkVars
-	 * @param $text
-	 * @param array $params
-	 * @param string $page
-	 * @return HTMLTag
-	 */
-	public function makeRelLink($text, array $params, $page = '?')
-	{
-		return new HTMLTag('a', [
-			'href' => $this->makeRelURL($params, $page)
-		], $text);
-	}
-
-	/**
-	 * There is no $formMore parameter because you get the whole form returned.
-	 * You can modify it after returning as you like.
-	 * @param $name string|htmlString - if object then will be used as is
-	 * @param string|null $action
-	 * @param $formAction
-	 * @param array $hidden
-	 * @param string $submitClass
-	 * @param array $submitParams
-	 * @return HTMLForm
-	 */
-	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
-	{
-		$f = new HTMLForm();
-		if ($formAction) {
-			$f->action($formAction);
-		} else {
-			$f->hidden('c', get_class($this));
-		}
-		$f->formHideArray($hidden);
-		if (false) {    // this is too specific, not and API
-//			if ($id = $this->request->getInt('id')) {
-//				$f->hidden('id', $id);
-//			}
-		}
-		if (!is_null($action)) {
-			$f->hidden('action', $action);
-		}
-		if ($name instanceof htmlString) {
-			$f->button($name, [
-					'type' => "submit",
-					'id' => 'button-action-' . $action,
-					'class' => $submitClass,
-				] + $submitParams);
-		} else {
-			$f->submit($name, [
-					'id' => 'button-action-' . $action,
-					'class' => $submitClass,
-				] + $submitParams);
-		}
-		return $f;
-	}
-
-	/**
 	 * Returns content wrapped in bootstrap .row .col-md-3/4/5 columns
 	 * @param array $parts
 	 * @param array $widths
@@ -659,157 +293,10 @@ abstract class Controller
 		return $content;
 	}
 
-	public function s($something)
-	{
-		return MergedContent::mergeStringArrayRecursive($something);
-	}
-
-	/**
-	 * @param string|URL $href
-	 * @param string|htmlString $text
-	 * @param bool $isHTML
-	 * @param array $more
-	 * @return HTMLTag
-	 */
-	public function a($href, $text = '', $isHTML = false, array $more = [])
-	{
-		return new HTMLTag('a', [
-				'href' => $href,
-			] + $more, $text ?: $href, $isHTML);
-	}
-
-	public function div($content, $class = '', array $more = [])
-	{
-		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return '<div ' . $more . '>' . $this->s($content) . '</div>';
-	}
-
-	public function span($content, $class = '', array $more = [])
-	{
-		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return new htmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
-	}
-
-	public function info($content)
-	{
-		return '<div class="alert alert-info">' . $this->s($content) . '</div>';
-	}
-
-	public function error($content)
-	{
-		return '<div class="alert alert-danger">' . $this->s($content) . '</div>';
-	}
-
-	public function success($content)
-	{
-		return '<div class="alert alert-success">' . $this->s($content) . '</div>';
-	}
-
-	public function message($content)
-	{
-		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
-	}
-
-	public function h1($content)
-	{
-		return '<h1>' . $this->s($content) . '</h1>';
-	}
-
-	public function h2($content)
-	{
-		return '<h2>' . $this->s($content) . '</h2>';
-	}
-
-	public function h3($content)
-	{
-		return '<h3>' . $this->s($content) . '</h3>';
-	}
-
-	public function h4($content)
-	{
-		return '<h4>' . $this->s($content) . '</h4>';
-	}
-
-	public function h5($content)
-	{
-		return '<h5>' . $this->s($content) . '</h5>';
-	}
-
-	public function h6($content)
-	{
-		return '<h6>' . $this->s($content) . '</h6>';
-	}
-
-	public function progress($percent)
-	{
-		$percent = intval($percent);
-		return '<div class="progress">
-		  <div class="progress-bar" role="progressbar"
-		  	aria-valuenow="' . $percent . '" aria-valuemin="0" aria-valuemax="100"
-		  	style="width: ' . $percent . '%;">
-			' . $percent . '%
-		  </div>
-		</div>';
-	}
-
-	public function linkToAction($action = '', array $params = [], $controller = null)
-	{
-		if (!$controller) {
-			$controller = get_class($this);
-		}
-		$params = [
-				'c' => $controller,
-			] + $params;
-		if ($action) {
-			$params += [
-				'action' => $action,
-			];
-		}
-		return $this->makeURL($params);
-	}
-
-	public function p($content, array $attr = [])
-	{
-		$more = HTMLTag::renderAttr($attr);
-		return '<p ' . $more . '>' . $this->s($content) . '</p>';
-	}
-
-	public function img($src, array $attr = [])
-	{
-		$html = new HTMLTag('img', [
-				'src' => /*$this->e*/
-					($src),    // encoding is not necessary for &amp; in URL
-			] + $attr);
-		$html->closingTag = false;
-		return $html;
-	}
-
-	public function e($content)
-	{
-		if (is_array($content)) {
-			$content = MergedContent::mergeStringArrayRecursive($content);
-		}
-		return htmlspecialchars($content, ENT_QUOTES);
-	}
-
 	public function noRender()
 	{
 		$this->noRender = true;
 		$this->request->set('ajax', 1);
-	}
-
-	public function script($file)
-	{
-		$mtime = filemtime($file);
-		$file .= '?' . $mtime;
-		return '<script src="' . $file . '" type="text/javascript"></script>';
-	}
-
-	public function log($action, $data = null)
-	{
-		$this->log[] = new LogEntry($action, $data);
 	}
 
 	public static function link($text = null, array $params = [])
@@ -832,9 +319,10 @@ abstract class Controller
 	}
 
 	/**
-	 * @param $caption
-	 * @param $h
+	 * @param string $caption
+	 * @param string $h
 	 * @return string
+	 * @throws Exception
 	 */
 	public function getCaption($caption, $h)
 	{
@@ -849,13 +337,6 @@ abstract class Controller
 			$link . $caption .
 			'</' . $h . '>';
 		return $content;
-	}
-
-	public function linkPage($className)
-	{
-		$obj = new $className();
-		$title = $obj->title;
-		return $this->a($className, $title);
 	}
 
 	public function makeNewOf($className, $id)
@@ -882,18 +363,4 @@ abstract class Controller
 		return substr(strrchr(get_class($this), '\\'), 1);
 	}
 
-	public function st($a)
-	{
-		return strip_tags($a);
-	}
-
-	public function makeActionURL($action = '', array $params = [], $path = '')
-	{
-		$urlParams = [
-				'c' => get_class($this),
-				'action' => $action,
-			] + $params;
-		$urlParams = array_filter($urlParams);
-		return $this->makeURL($urlParams, $path);
-	}
 }
