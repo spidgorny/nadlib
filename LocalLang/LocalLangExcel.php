@@ -112,7 +112,7 @@ class LocalLangExcel extends LocalLang
 		return $data;
 	}
 
-	static function getInstance()
+	static function getInstance($forceLang = NULL, $filename = NULL)
 	{
 		static $instance = NULL;
 		if (!$instance) {
