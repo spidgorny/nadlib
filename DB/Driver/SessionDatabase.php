@@ -3,8 +3,19 @@
 namespace nadlib;
 
 use Nette\NotImplementedException;
+use SQLBuilder;
 
-class SessionDatabase implements \DBInterface {
+/**
+ * @method  fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
+ * @method  describeView($viewName)
+ * @method  getFirstValue($query)
+ * @method  performWithParams($query, $params)
+ * @method  getInfo()
+ * @method  getConnection()
+ * @method  getViews()
+ */
+class SessionDatabase implements \DBInterface
+{
 
 	/**
 	 * @var \Session
@@ -244,4 +255,29 @@ class SessionDatabase implements \DBInterface {
 		}
 	}
 
+	public function quoteSQL($value, $key = null)
+	{
+		// TODO: Implement quoteSQL() method.
+	}
+
+	public function clearQueryLog()
+	{
+		// TODO: Implement clearQueryLog() method.
+	}
+
+	public function getLastQuery()
+	{
+		// TODO: Implement getLastQuery() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
+		// TODO: Implement @method  describeView($viewName)
+		// TODO: Implement @method  getFirstValue($query)
+		// TODO: Implement @method  performWithParams($query, $params)
+		// TODO: Implement @method  getInfo()
+		// TODO: Implement @method  getConnection()
+		// TODO: Implement @method  getViews()
+	}
 }
