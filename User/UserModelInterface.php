@@ -21,4 +21,8 @@ interface UserModelInterface
 
 	public function getAvatarURL();
 
+	public function prefs();
+
+	public function can($rights);
+
 }

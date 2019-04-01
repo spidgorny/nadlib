@@ -82,4 +82,9 @@ class NoUser extends UserBase
 	{
 		return 'http://avatar.com/';
 	}
+
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
+	}
 }
