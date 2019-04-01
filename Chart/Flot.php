@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Flot - is drawing a flot chart.
  */
@@ -272,7 +274,9 @@ class Flot extends Controller
 
 	function showChart($divID, array $charts, array $cumulative = array())
 	{
-		if (!$charts) return '';
+		if (!$charts) {
+			return '';
+		}
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
