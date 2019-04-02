@@ -58,7 +58,7 @@ abstract class Controller
 	public $useRouter = false;
 
 	/**
-	 * @var UserModelInterface
+	 * @var User
 	 */
 	public $user;
 
