@@ -207,8 +207,8 @@ class SQLBuilder
 	 * @param string $table
 	 * @param array $columns
 	 * @param array $where
+	 * @param string $orderBy
 	 * @return string
-	 * @throws Exception
 	 * @throws MustBeStringException
 	 */
 	public function getUpdateQuery($table, $columns, $where, $orderBy = '')

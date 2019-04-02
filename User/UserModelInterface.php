@@ -25,4 +25,6 @@ interface UserModelInterface
 
 	public function can($rights);
 
+	public function getID();
+
 }
