@@ -4,8 +4,15 @@
  * Class DBLayerBase
  * @mixin SQLBuilder
  * @method fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method getInsertQuery($table, array $columns)
+ * @method getDeleteQuery($table, $where = array(), $what = '')
+ * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
+ * @method runUpdateQuery($table, $columns, $where, $orderBy = '')
+ * @method runInsertQuery($table, array $columns)
+ * @method fetchOneSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
  */
-class DBLayerBase implements DBInterface {
+class DBLayerBase implements DBInterface
+{
 
 	/**
 	 * @var SQLBuilder
@@ -56,7 +63,7 @@ class DBLayerBase implements DBInterface {
 	 */
 	public $database;
 
-	function setQB(SQLBuilder $qb = NULL)
+	public function setQB(SQLBuilder $qb = null)
 	{
 		$this->qb = $qb;
 	}
@@ -84,15 +91,15 @@ class DBLayerBase implements DBInterface {
 	}
 
 	function logQuery($query)
-    {
-        if ($this->logToLog) {
+	{
+		if ($this->logToLog) {
 			$query = preg_replace('/\s+/', ' ',
 				str_replace("\n", ' ', $query));
-			error_log('['.get_class($this).']'.TAB.
-				'[' . $this->AFFECTED_ROWS . ' rows]'.TAB.
-				$query .': '.$this->queryTime);
-        }
-    }
+			error_log('[' . get_class($this) . ']' . TAB .
+				'[' . $this->AFFECTED_ROWS . ' rows]' . TAB .
+				$query . ': ' . $this->queryTime);
+		}
+	}
 
 	function dataSeek($res, $i)
 	{
@@ -287,6 +294,12 @@ class DBLayerBase implements DBInterface {
 			$set = TableField::init($set + ['pg_field' => $field]);
 		}
 		return $fields;
+	}
+
+	public function getDSN()
+	{
+//		return $this->dsn();
+		return null;
 	}
 
 	/**
