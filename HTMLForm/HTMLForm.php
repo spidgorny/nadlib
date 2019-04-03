@@ -143,8 +143,8 @@ class HTMLForm
 	}
 
 	/**
-	 * @param $type
-	 * @param $name
+	 * @param string $type
+	 * @param string $name
 	 * @param null $value
 	 * @param array $more - may be array
 	 * @param string $extraClass
@@ -152,7 +152,7 @@ class HTMLForm
 	 *
 	 * @return string
 	 */
-	public function getInput($type, $name, $value = NULL, array $more = [], $extraClass = '', $namePlus = '')
+	public function getInput($type, $name, $value = null, array $more = [], $extraClass = '', $namePlus = '')
 	{
 //		debug($type, $name, $value, $more, $extraClass, $namePlus);
 		$attrs = [];
@@ -163,7 +163,8 @@ class HTMLForm
 			$isHTML = $value instanceof htmlString;
 			//debug($value, $isHTML);
 			if (!$isHTML) {
-				$value = htmlspecialchars($value, ENT_QUOTES);
+				//$value = htmlspecialchars($value, ENT_QUOTES);
+				// escaped by HTMLTag::renderAttr
 			} else {
 				$value = str_replace('"', '&quot;', $value);
 			}
@@ -175,7 +176,7 @@ class HTMLForm
 	}
 
 	/**
-	 * @param $name
+	 * @param string $name
 	 * @param string $value
 	 * @param array $more - may be array
 	 * @param string $type
