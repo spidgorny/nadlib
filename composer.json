@@ -4,7 +4,6 @@
     "require": {
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "~1.4",
-		"mustangostang/spyc": "dev-master",
 		"greenlion/PHP-SQL-Parser": "*",
 		"HTMLawed/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
@@ -23,7 +22,8 @@
     "suggest": {
         "flot/flot": "dev-master",
 		"components/bootstrap": "dev-master",
-		"components/modernizr": "dev-master"
+		"components/modernizr": "dev-master",
+		"mustangostang/spyc": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
