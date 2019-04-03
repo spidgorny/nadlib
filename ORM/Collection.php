@@ -87,7 +87,8 @@ class Collection implements IteratorAggregate
 
 	/**
 	 * getQuery() stores the final query here for debug
-	 * @var string
+	 * is null until initialized
+	 * @var string|null
 	 */
 	public $query;
 
