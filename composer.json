@@ -4,8 +4,6 @@
     "require": {
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "~1.4",
-		"components/bootstrap": "dev-master",
-		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
 		"greenlion/PHP-SQL-Parser": "*",
 		"HTMLawed/HTMLawed": "dev-master",
@@ -23,8 +21,10 @@
 		"phpunit/phpunit": "*"
     },
     "suggest": {
-        "flot/flot": "dev-master"
-    },
+        "flot/flot": "dev-master",
+		"components/bootstrap": "dev-master",
+		"components/modernizr": "dev-master"
+	},
 	"autoload": {
 		"classmap": [
 			"Cache/",
