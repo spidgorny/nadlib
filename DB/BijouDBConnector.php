@@ -21,7 +21,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface {
 //		$this->setQB();
 	}
 
-	function perform($query) {
+	function perform($query, array $params = []) {
 		$this->lastQuery = $query;
 		$start = array_sum(explode(' ', microtime()));
 		$res = $this->t3db->sql_query($query);
