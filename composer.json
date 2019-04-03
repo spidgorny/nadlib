@@ -5,7 +5,6 @@
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "~1.4",
 		"greenlion/PHP-SQL-Parser": "*",
-		"HTMLawed/HTMLawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1",
         "phpauth/phpauth": "v1.1",
@@ -23,7 +22,8 @@
         "flot/flot": "dev-master",
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
-		"mustangostang/spyc": "dev-master"
+		"mustangostang/spyc": "dev-master",
+		"HTMLawed/HTMLawed": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
