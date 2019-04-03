@@ -8,7 +8,6 @@
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1",
         "phpauth/phpauth": "v1.1",
-        "gnat/nc-cms": "*",
         "robloach/component-installer": "^0.2.3"
 	},
 	"require-dev": {
@@ -23,7 +22,8 @@
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"HTMLawed/HTMLawed": "dev-master"
+		"HTMLawed/HTMLawed": "dev-master",
+		"gnat/nc-cms": "*"
 	},
 	"autoload": {
 		"classmap": [
