@@ -1055,7 +1055,7 @@ class Collection implements IteratorAggregate
 	}
 
 	/**
-	 * @param null $class
+	 * @param string $class
 	 * @return LazyMemberIterator|$class[]
 	 */
 	public function getLazyMemberIterator($class = null)

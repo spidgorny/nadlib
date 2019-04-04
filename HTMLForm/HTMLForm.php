@@ -331,7 +331,7 @@ class HTMLForm
 	 */
 	public function selection(
 		$name, array $aOptions = null, $default,
-		$autoSubmit = false, $more = [],
+		$autoSubmit = false, array $more = [],
 		$multiple = false, array $desc = []
 	)
 	{

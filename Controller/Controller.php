@@ -368,9 +368,9 @@ abstract class Controller
 	/**
 	 * Wraps the content in a div/section with a header.
 	 * The header is linkable.
-	 * @param $content
+	 * @param string|string[] $content
 	 * @param string $caption
-	 * @param null $h
+	 * @param string $h
 	 * @param array $more
 	 * @return string[]|string
 	 */
@@ -669,7 +669,7 @@ abstract class Controller
 
 	/**
 	 * @param string|URL $href
-	 * @param string|htmlString $text
+	 * @param string|htmlString|HTMLTag $text
 	 * @param bool $isHTML
 	 * @param array $more
 	 * @return HTMLTag

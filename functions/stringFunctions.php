@@ -72,7 +72,7 @@ if (!function_exists('str_startsWith')) {
 	 * Added array_pad() to prevent list() complaining about undefined index
 	 * @param $sep string
 	 * @param $str string
-	 * @param null $max
+	 * @param int $max
 	 * @return array
 	 */
 	function trimExplode($sep, $str, $max = null)
