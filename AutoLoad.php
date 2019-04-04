@@ -467,17 +467,6 @@ class AutoLoad {
 			$instance->postInit();
 		}
 		$result = spl_autoload_register(array($instance, 'load'), true, true);    // before composer
-		if ($result) {
-			//echo __METHOD__ . ' OK'.BR;
-		} else {
-			//debug(phpversion());
-			//debug(error_get_last());
-			//debug(is_callable(array($instance, 'load')));
-			function __autoload($class) {
-				$instance = AutoLoad::getInstance();
-				$instance->load($class);
-			}
-		}
 		return $instance;
 	}
 
