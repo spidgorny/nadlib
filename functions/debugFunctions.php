@@ -68,11 +68,11 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ...$a
-	 * @param null $b
-	 * @param null $c
-	 * @param null $d
-	 * @param null $e
-	 * @param null $f
+	 * @param mixed $b
+	 * @param mixed $c
+	 * @param mixed $d
+	 * @param mixed $e
+	 * @param mixed $f
 	 */
 	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
 	{

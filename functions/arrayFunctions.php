@@ -4,8 +4,8 @@ if (!function_exists('first')) {
 
 	/**
 	 * Complements the built-in end() function
-	 * @param array<T> $list
-	 * @return array|mixed|T
+	 * @param array $list
+	 * @return array|mixed
 	 */
 	function first(array $list)
 	{
