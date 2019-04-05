@@ -117,10 +117,10 @@ class FilterController extends Controller
 			//debug($options);
 		} elseif (ifsetor($k['type']) == 'like') {
 			// this is handled in getFilterWhere
-			$options = NULL;
+			$options = null;
 		} else {
 			$k['type'] = $k['type'] ?: 'input';
-			$options = NULL;
+			$options = null;
 		}
 		$k = array(
 				'label' => $k['name'],
@@ -135,7 +135,7 @@ class FilterController extends Controller
 		return $k;
 	}
 
-	function getTableFieldOptions($key, $count = false)
+	public function getTableFieldOptions($key, $count = false)
 	{
 		if ($this->model instanceof OODBase) {
 			$res = $this->db->getTableOptions($this->model->table
@@ -164,7 +164,7 @@ class FilterController extends Controller
 	 * Converts $this->filter data from URL into SQL where parameters
 	 * @return array
 	 */
-	function getFilterWhere()
+	public function getFilterWhere()
 	{
 		$where = array();
 
@@ -183,7 +183,7 @@ class FilterController extends Controller
 		return $where;
 	}
 
-	function getFilterWherePair($key, $val, $type)
+	public function getFilterWherePair($key, $val, $type)
 	{
 		$where = [];
 		switch ($type) {
