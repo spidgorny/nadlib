@@ -106,8 +106,9 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $res    mysqli_result
+	 * @param resource $res
 	 * @return array|false
+	 * @throws DatabaseException
 	 */
 	public function fetchAssoc($res)
 	{
@@ -147,7 +148,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $res mysqli_result
+	 * @param resource $res
 	 * @param null $table
 	 * @return mixed
 	 */

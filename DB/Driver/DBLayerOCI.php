@@ -1,6 +1,7 @@
 <?php
 
-class DBLayerOCI extends DBLayer implements DBInterface {
+class DBLayerOCI extends DBLayer implements DBInterface
+{
 	var $connection = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -9,50 +10,58 @@ class DBLayerOCI extends DBLayer implements DBInterface {
 	var $debugOnce = FALSE;
 	var $is_connected = FALSE;
 
-	function __construct($tns, $user, $pass) {
+	function __construct($tns, $user, $pass)
+	{
 		$this->connect($tns, $user, $pass);
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return '[Object of type dbLayerOCI]';
 	}
 
 	/**
-	 * @param $tns
-	 * @param $user
-	 * @param $pass
-	 * @param string $host      - unused, for declaration consistency
+	 * @param string $tns
+	 * @param string $user
+	 * @param string $pass
+	 * @param string $host - unused, for declaration consistency
 	 * @return bool|null|resource
 	 */
-	function connect($tns, $user, $pass, $host = 'localhost') {
+	function connect($tns, $user, $pass, $host = 'localhost')
+	{
 		$this->connection = oci_connect($user, $pass, $tns);
 		if (!$this->connection) {
-			print('Error in Oracle library: connection failed. Reason: '.getDebug(oci_error($this->connection)).BR);
+			print('Error in Oracle library: connection failed. Reason: ' . getDebug(oci_error($this->connection)) . BR);
 			return NULL;
 		}
 		return $this->connection;
 	}
 
-	function getConnection() {
+	function getConnection()
+	{
 		return $this->connection;
 	}
 
-	function disconnect() {
+	function disconnect()
+	{
 		oci_close($this->connection);
 	}
 
-	function insertFields() {
+	function insertFields()
+	{
 		return array();
 	}
 
-	function updateFields() {
+	function updateFields()
+	{
 		return array();
 	}
 
-	function performOCI($query, $canprint = TRUE, $try = FALSE) {
+	function performOCI($query, $canprint = TRUE, $try = FALSE)
+	{
 		if (!$this->connection) {
-			print('Error in Oracle library: no connection. Query: '.$query.BR);
+			print('Error in Oracle library: no connection. Query: ' . $query . BR);
 			return NULL;
 		}
 		$this->COUNTQUERIES++;
@@ -66,7 +75,7 @@ class DBLayerOCI extends DBLayer implements DBInterface {
 		$this->LAST_PERFORM_RESULT = oci_parse($this->connection, $query);
 		$error = oci_error();
 		if ($error) {
-			print('Oracle error '.$error['code'].': '.$error['message'].' while doing '.$query.BR);
+			print('Oracle error ' . $error['code'] . ': ' . $error['message'] . ' while doing ' . $query . BR);
 		}
 		if ($try) {
 			@oci_execute($this->LAST_PERFORM_RESULT, OCI_DEFAULT);
@@ -79,7 +88,7 @@ class DBLayerOCI extends DBLayer implements DBInterface {
 			oci_execute($this->LAST_PERFORM_RESULT, OCI_DEFAULT);
 			$error = oci_error($this->LAST_PERFORM_RESULT);
 			if ($error) {
-				print('Oracle error '.$error['code'].': '.$error['message'].' while doing '.$query.BR);
+				print('Oracle error ' . $error['code'] . ': ' . $error['message'] . ' while doing ' . $query . BR);
 			}
 		}
 
@@ -132,24 +141,28 @@ class DBLayerOCI extends DBLayer implements DBInterface {
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-	function done($result) {
+	function done($result)
+	{
 		oci_free_statement($result);
 	}
 
-/*	function transaction() {
-		// everything is a transaction in oracle
-		ora_commitoff($this->CONNECTION);
-	}
-*/
-	function commit() {
+	/*	function transaction() {
+			// everything is a transaction in oracle
+			ora_commitoff($this->CONNECTION);
+		}
+	*/
+	function commit()
+	{
 		ocicommit($this->connection);
 	}
-/*
-	function rollback() {
-		ora_rollback($this->CONNECTION);
-	}
-*/
-	function quoteSQL($value, $more = array()) {
+
+	/*
+		function rollback() {
+			ora_rollback($this->CONNECTION);
+		}
+	*/
+	function quoteSQL($value, $more = array())
+	{
 		if ($value == "CURRENT_TIMESTAMP") {
 			return $value;
 		} else if ($value === NULL) {
@@ -165,11 +178,12 @@ class DBLayerOCI extends DBLayer implements DBInterface {
 		} else if ($value == '') {
 			return "NULL";
 		} else {
-			return "'".pg_escape_string($value)."'";
+			return "'" . pg_escape_string($value) . "'";
 		}
 	}
 
-	function fetchAll($result, $key = NULL) {
+	function fetchAll($result, $key = NULL)
+	{
 		$ret = array();
 		while (($row = $this->fetchAssoc($result)) !== FALSE) {
 			$ret[] = $row;
@@ -177,16 +191,19 @@ class DBLayerOCI extends DBLayer implements DBInterface {
 		return $ret;
 	}
 
-	function fetchAssoc($result) {
+	function fetchAssoc($result)
+	{
 		$array = oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
 		return $array;
 	}
 
-	function numRowsFast($result) {
+	function numRowsFast($result)
+	{
 		return oci_num_rows($result);
 	}
 
-	function numRows($result = NULL) {
+	function numRows($result = NULL)
+	{
 		$i = 0;
 		while (($row = $this->fetchAssoc($result)) !== FALSE) {
 			$i++;
@@ -194,16 +211,19 @@ class DBLayerOCI extends DBLayer implements DBInterface {
 		return $i;
 	}
 
-	function to_date($timestamp) {
-		$content = "to_date('".date('Y-m-d H:i', $timestamp)."', 'yyyy-mm-dd hh24:mi')";
+	function to_date($timestamp)
+	{
+		$content = "to_date('" . date('Y-m-d H:i', $timestamp) . "', 'yyyy-mm-dd hh24:mi')";
 		return $content;
 	}
 
-	function to_timestamp($value) {
+	function to_timestamp($value)
+	{
 		return strtotime($value);
 	}
 
-	function filterFields() {
+	function filterFields()
+	{
 		return array();
 	}
 

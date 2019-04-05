@@ -23,8 +23,8 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * Whether string ends with some chars
-	 * @param $haystack
-	 * @param $needle
+	 * @param string $haystack
+	 * @param string $needle
 	 * @return bool
 	 */
 	function str_endsWith($haystack, $needle)
@@ -70,8 +70,8 @@ if (!function_exists('str_startsWith')) {
 	/**
 	 * Does string splitting with cleanup.
 	 * Added array_pad() to prevent list() complaining about undefined index
-	 * @param $sep string
-	 * @param $str string
+	 * @param string $sep
+	 * @param string $str
 	 * @param int $max
 	 * @return array
 	 */
@@ -101,7 +101,7 @@ if (!function_exists('str_startsWith')) {
 	/**
 	 * Replaces "\t" tabs in non breaking spaces so they can be displayed in html
 	 *
-	 * @param $text
+	 * @param string $text
 	 * @param int $tabDepth
 	 * @return mixed
 	 */
@@ -183,9 +183,9 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * http://php.net/manual/en/function.str-replace.php#86177
-	 * @param $search
-	 * @param $replace
-	 * @param $subject
+	 * @param string $search
+	 * @param string $replace
+	 * @param string $subject
 	 * @return string
 	 */
 	function str_replace_once($search, $replace, $subject)
@@ -203,7 +203,7 @@ if (!function_exists('str_startsWith')) {
 	/**
 	 * Convert string to in camel-case, useful for class name patterns.
 	 *
-	 * @param $string
+	 * @param string $string
 	 *   Target string.
 	 *
 	 * @return string
@@ -219,7 +219,7 @@ if (!function_exists('str_startsWith')) {
 	}
 
 	/**
-	 * @param $string
+	 * @param string $string
 	 * @return string
 	 */
 	function toDatabaseKey($string)
