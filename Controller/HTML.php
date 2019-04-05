@@ -1,6 +1,9 @@
 <?php
 
-class HTML {
+use spidgorny\nadlib\HTTP\URL;
+
+class HTML
+{
 
 //	use HTMLHelper;
 
