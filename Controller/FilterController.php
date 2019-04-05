@@ -84,8 +84,8 @@ class FilterController extends Controller
 	}
 
 	/**
-	 * @param $k
-	 * @param $key
+	 * @param array $k
+	 * @param string $key
 	 * @return array
 	 */
 	public function getFieldFilter(array $k, $key)
@@ -95,7 +95,7 @@ class FilterController extends Controller
 			in_array('HTMLFormCollection', class_implements($autoClass))
 		) {
 			$k['type'] = new $autoClass();
-			$options = NULL;
+			$options = null;
 		} elseif (ifsetor($k['tf'])) {    // boolean
 			$k['type'] = 'select';
 			$stv = new slTableValue('', array());
