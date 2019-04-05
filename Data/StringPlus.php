@@ -1354,7 +1354,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-	 * @param $int
+	 * @param int $int
 	 * @return String
 	 */
 	static function mb_chr($int)

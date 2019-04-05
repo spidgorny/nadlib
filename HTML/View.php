@@ -234,7 +234,7 @@ class View extends stdClass {
 
 	/**
 	 * Uses htmlspecialchars()
-	 * @param $str
+	 * @param string $str
 	 * @return string
 	 */
 	public function escape($str)

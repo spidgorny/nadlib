@@ -3,7 +3,7 @@
 class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface {
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param TableField[] $columns
 	 * @return string
 	 */
