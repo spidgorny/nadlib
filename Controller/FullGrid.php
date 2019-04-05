@@ -153,7 +153,8 @@ abstract class FullGrid extends Grid
 	public function getFilterWhere()
 	{
 		return $this->filterController->getFilterWhere(
-			$this->getFilterDesc());
+			$this->getFilterDesc()
+		);
 	}
 
 	public function sidebar()
@@ -166,7 +167,7 @@ abstract class FullGrid extends Grid
 
 	/**
 	 * @param array $fields
-	 * @return string
+	 * @return HTMLForm
 	 * @throws Exception
 	 */
 	public function getFilterForm(array $fields = [])
@@ -178,7 +179,7 @@ abstract class FullGrid extends Grid
 			$this->filterController->setFields($fields);
 		}
 		$this->filterController->linkVars['c'] = get_class($this);
-		return $this->filterController->render()->render();
+		return $this->filterController->render();
 	}
 
 	/**
