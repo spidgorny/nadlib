@@ -64,7 +64,7 @@ class NoUser extends UserBase implements UserModelInterface
 		return [];
 	}
 
-	public function try2login()
+	public function try2login($user, $password = null)
 	{
 	}
 

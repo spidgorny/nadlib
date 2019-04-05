@@ -34,4 +34,6 @@ interface UserModelInterface
 
 	public function getID();
 
+	public function getAllSettings();
+
 }

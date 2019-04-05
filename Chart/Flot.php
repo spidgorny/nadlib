@@ -91,7 +91,7 @@ class Flot extends Controller
 
 	/**
 	 * @param array $data - source data
-	 * @param string $keyKey - group by field (distinct charts, lines)
+	 * @param string|null $keyKey - group by field (distinct charts, lines)
 	 * @param string $timeKey - time field
 	 * @param string $amountKey - value (numeric) field
 	 */

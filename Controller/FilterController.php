@@ -28,18 +28,18 @@ class FilterController extends Controller
 	 */
 	public $desc;
 
-	function setFields(array $fields)
+	public function setFields(array $fields)
 	{
 		$this->fields = $fields;
 		$this->desc = $this->getFilterDesc($this->fields);
 	}
 
-	function setFilter(Filter $filter)
+	public function setFilter(Filter $filter)
 	{
 		$this->filter = $filter;
 	}
 
-	function render()
+	public function render()
 	{
 		$f = new HTMLFormTable($this->desc);
 		$f->setAllOptional();
@@ -48,7 +48,7 @@ class FilterController extends Controller
 		$f->formHideArray($this->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
-		$f->prefix(NULL);
+		$f->prefix(null);
 		$f->submit(__('Filter'));
 		return $f;
 	}
@@ -61,7 +61,7 @@ class FilterController extends Controller
 	 * @throws Exception
 	 * @return array
 	 */
-	function getFilterDesc(array $fields = NULL)
+	public function getFilterDesc(array $fields = null)
 	{
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);

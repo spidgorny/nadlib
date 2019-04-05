@@ -3,47 +3,53 @@
 /**
  * UserBase not User because it's not dependent on the main app login system
  */
-class BEUser extends UserBase {
+class BEUser extends UserBase
+{
 
 	/**
 	 * Loaded from config.json
 	 * @var array
 	 */
-	public $acl = array(
+	public $acl = array();
 
-	);
-
-	function __construct($id = NULL) {
+	function __construct($id = NULL)
+	{
 		parent::__construct($id);
 		if (class_exists('Config')) {
 			Config::getInstance()->mergeConfig($this);
 		}
 	}
 
-	function try2login() {
+	function try2login($user, $password = null)
+	{
 		//debug('session_start');
 		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
 			session_start();
 		}
 	}
 
-	function can($something) {
+	function can($something)
+	{
 		return $this->acl[$something];
 	}
 
-	function saveLogin() {
+	function saveLogin()
+	{
 		$_SESSION[__CLASS__]['login'] = $this->id;
 	}
 
-	function isAuth() {
+	function isAuth()
+	{
 		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
-	function logout() {
+	function logout()
+	{
 		unset($_SESSION[__CLASS__]['login']);
 	}
 
-	function __destruct() {
+	function __destruct()
+	{
 		// do nothing
 	}
 
