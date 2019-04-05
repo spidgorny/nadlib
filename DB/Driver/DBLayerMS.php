@@ -119,10 +119,10 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 
 	/**
 	 * Remove space from WHERE SUBSTRING(GameCode,1,3) = N 'CTR')
-	 * @param $original
+	 * @param string $original
 	 * @return SQLQuery|string
 	 */
-	function fixQuery($original)
+	public function fixQuery($original)
 	{
 		$query = new SQLQuery($original);
 		if (isset($query->parsed['WHERE'])) {
@@ -140,7 +140,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 		return $fixed;
 	}
 
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
@@ -152,7 +152,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 		return mssql_fetch_assoc($res);
 	}
 
-	function fetchAll($res, $keyKey = NULL)
+	public function fetchAll($res, $keyKey = NULL)
 	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
@@ -175,10 +175,9 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 *
 	 * @return array ('name' => ...)
 	 */
-	function getTables()
+	public function getTables()
 	{
 		$res = $this->perform("select * from sysobjects
 		where xtype = 'U'");
@@ -188,7 +187,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 
 	/**
 	 *
-	 * @param $table
+	 * @param string $table
 	 * @return array ('name' => ...)
 	 */
 	function getFields($table)
@@ -355,10 +354,11 @@ AND name = '?')", array($table));
 	 * * Append this to the existing query SELECT
 	 * * Wrap everything in outside SELECT FROM ()
 	 * * Add append WHERE RowNumber BETWEEN
-	 * @param $query
-	 * @param $howMany
-	 * @param $startingFrom
+	 * @param string $query
+	 * @param int $howMany
+	 * @param int $startingFrom
 	 * @return mixed|SQLQuery|string
+	 * @throws \PHPSQLParser\exceptions\UnableToCreateSQLException
 	 */
 	function addLimitOldVersion($query, $howMany, $startingFrom)
 	{
