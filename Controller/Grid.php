@@ -221,7 +221,7 @@ abstract class Grid extends AppController {
 
 	/**
 	 * Only get filter if it's not need to be cleared
-	 * @param $cn
+	 * @param string $cn
 	 * @throws LoginException
 	 */
 	public function setFilter($cn)
@@ -254,8 +254,8 @@ abstract class Grid extends AppController {
 	}
 
 	/**
-	 * @param $cn string
-	 * @param $allowEdit boolean
+	 * @param string $cn
+	 * @param boolean $allowEdit
 	 * @throws LoginException
 	 */
 	public function setColumns($cn, $allowEdit)

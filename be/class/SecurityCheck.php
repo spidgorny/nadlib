@@ -74,7 +74,7 @@ class SecurityCheck extends AppControllerBE {
 	}
 
 	/**
-	 * @param $constructor
+	 * @param ReflectionMethod $constructor
 	 * @return array
 	 */
 	public function checkMethod(ReflectionMethod $constructor) {

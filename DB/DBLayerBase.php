@@ -278,7 +278,7 @@ class DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return TableField[]
 	 * @throws Exception
 	 */
@@ -292,7 +292,7 @@ class DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $set
 	 * @return array
 	 * @throws Exception

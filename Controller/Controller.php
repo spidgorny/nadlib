@@ -233,7 +233,7 @@ abstract class Controller
 
 	/**
 	 * Returns '<a href="$page?$params" $more">$text</a>
-	 * @param $text
+	 * @param string $text
 	 * @param array $params
 	 * @param string $page
 	 * @param array $more
@@ -368,11 +368,12 @@ abstract class Controller
 	/**
 	 * Wraps the content in a div/section with a header.
 	 * The header is linkable.
-	 * @param string|string[]|array $content
+	 * @param string|array|ToStringable $content
 	 * @param string $caption
 	 * @param string $h
 	 * @param array $more
-	 * @return HTMLTag
+	 * @return ToStringable
+	 * @throws Exception
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
@@ -573,7 +574,7 @@ abstract class Controller
 
 	/**
 	 * Just appends $this->linkVars
-	 * @param $text
+	 * @param string $text
 	 * @param array $params
 	 * @param string $page
 	 * @return HTMLTag
@@ -588,9 +589,9 @@ abstract class Controller
 	/**
 	 * There is no $formMore parameter because you get the whole form returned.
 	 * You can modify it after returning as you like.
-	 * @param $name string|htmlString - if object then will be used as is
+	 * @param string|htmlString $name - if object then will be used as is
 	 * @param string|null $action
-	 * @param $formAction
+	 * @param string $formAction
 	 * @param array $hidden
 	 * @param string $submitClass
 	 * @param array $submitParams
@@ -835,9 +836,10 @@ abstract class Controller
 	}
 
 	/**
-	 * @param $caption
-	 * @param $h
+	 * @param string $caption
+	 * @param string $h
 	 * @return string
+	 * @throws Exception
 	 */
 	public function getCaption($caption, $h)
 	{

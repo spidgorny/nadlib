@@ -76,8 +76,8 @@ class MemcacheFile implements MemcacheInterface
 	}
 
 	/**
-	 * @param $key - can be provided in the constructor, but repeated here for BWC
-	 * @param $val
+	 * @param string $key - can be provided in the constructor, but repeated here for BWC
+	 * @param mixed $val
 	 * @throws Exception
 	 */
 	function set($key, $val)
@@ -150,7 +150,7 @@ class MemcacheFile implements MemcacheInterface
 	}
 
 	/**
-	 * @param $key
+	 * @param string $key
 	 * @return Duration
 	 */
 	function getAge($key)

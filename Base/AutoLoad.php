@@ -287,7 +287,7 @@ class AutoLoad
 
 	/**
 	 * Main __autoload() function
-	 * @param $class
+	 * @param string $class
 	 * @return bool
 	 * @throws Exception
 	 */
