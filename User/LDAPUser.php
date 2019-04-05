@@ -39,7 +39,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		return $this->UserName . ' (' . $this->UserID . ') <' . $this->data['mail'][0] . '>';
 	}
 
-	public function try2login()
+	public function try2login($user, $password = null)
 	{
 		if ($_SESSION['user']) {
 			$this->id = $_SESSION['user']->id;

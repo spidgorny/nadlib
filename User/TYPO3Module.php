@@ -8,7 +8,8 @@
  * SessionUser -> PlainSessionUser -> User (app) -> UserBase -> OODBase
  */
 
-class TYPO3Module extends UserBase {
+class TYPO3Module extends UserBase
+{
 
 	protected $module;
 
@@ -17,20 +18,56 @@ class TYPO3Module extends UserBase {
 	 */
 	public $t3user;
 
-	function __construct($module) {
+	public function __construct($module)
+	{
 		parent::__construct();
 		$this->module = $module;
 		$this->t3user = $GLOBALS['BE_USER'];
 	}
 
-	function getPref($key) {
+	public function getPref($key)
+	{
 		//d($this->t3user->uc);
 		return $this->t3user->uc['moduleData'][$this->module][$key];
 	}
 
-	function setPref($key, $val) {
+	public function setPref($key, $val)
+	{
 		$this->t3user->uc['moduleData'][$this->module][$key] = $val;
 		$this->t3user->pushModuleData($this->module, $this->t3user->uc['moduleData'][$this->module], false);
 	}
 
+	/**
+	 * @param string $login
+	 * @param string $email
+	 * @return mixed
+	 */
+	public function try2login($login, $email = null)
+	{
+		// TODO: Implement try2login() method.
+	}
+
+	public function isAdmin()
+	{
+		// TODO: Implement isAdmin() method.
+	}
+
+	public function getLogin()
+	{
+		// TODO: Implement getLogin() method.
+	}
+
+	public function getAvatarURL()
+	{
+		// TODO: Implement getAvatarURL() method.
+	}
+
+	/**
+	 * @param string $acl
+	 * @return bool
+	 */
+	public function can($acl)
+	{
+		// TODO: Implement can() method.
+	}
 }
