@@ -46,7 +46,7 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
-	 * @param Collection $collection
+	 * @param string $collection
 	 * @throws LoginException
 	 * @throws ReflectionException
 	 */

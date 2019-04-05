@@ -368,11 +368,11 @@ abstract class Controller
 	/**
 	 * Wraps the content in a div/section with a header.
 	 * The header is linkable.
-	 * @param string|string[] $content
+	 * @param string|string[]|array $content
 	 * @param string $caption
 	 * @param string $h
 	 * @param array $more
-	 * @return string[]|string
+	 * @return HTMLTag
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{

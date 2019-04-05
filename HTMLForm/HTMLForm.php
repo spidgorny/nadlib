@@ -85,7 +85,7 @@ class HTMLForm
 	/**
 	 * Set empty to unset prefix
 	 *
-	 * @param string $p
+	 * @param string|null $p
 	 *
 	 * @return $this
 	 */
@@ -152,7 +152,7 @@ class HTMLForm
 	 *
 	 * @return string
 	 */
-	public function getInput($type, $name, $value = NULL, array $more = [], $extraClass = '', $namePlus = '')
+	public function getInput($type, $name, $value = null, array $more = [], $extraClass = '', $namePlus = '')
 	{
 //		debug($type, $name, $value, $more, $extraClass, $namePlus);
 		$attrs = [];
