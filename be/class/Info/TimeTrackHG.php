@@ -47,7 +47,7 @@ class TimeTrackHG extends AppControllerBE
 
 	/**
 	 * From HYBH
-	 * @param string $file
+	 * @param array $file
 	 * @return array
 	 */
 	public function readFile(array $file)

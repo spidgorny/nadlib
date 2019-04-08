@@ -533,8 +533,6 @@ class DBLayer extends DBLayerBase implements DBInterface
 			return $value;
 		} elseif (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
-		} elseif ($value instanceof SQLParam) {
-			return $value;
 		} elseif (is_scalar($value)) {
 			return "'" . $this->escape($value) . "'";
 		} else {

@@ -12,7 +12,7 @@ class BEUser extends UserBase
 	 */
 	public $acl = array();
 
-	function __construct($id = NULL)
+	public function __construct($id = null)
 	{
 		parent::__construct($id);
 		if (class_exists('Config')) {
@@ -20,7 +20,7 @@ class BEUser extends UserBase
 		}
 	}
 
-	function try2login($user, $password = null)
+	public function try2login($user, $password = null)
 	{
 		//debug('session_start');
 		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
@@ -28,44 +28,53 @@ class BEUser extends UserBase
 		}
 	}
 
-	function can($something)
+	public function can($something)
 	{
 		return $this->acl[$something];
 	}
 
-	function saveLogin()
+	public function saveLogin()
 	{
 		$_SESSION[__CLASS__]['login'] = $this->id;
 	}
 
-	function isAuth()
+	public function isAuth()
 	{
 		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
-	function logout()
+	public function logout()
 	{
 		unset($_SESSION[__CLASS__]['login']);
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		// do nothing
 	}
 
-	function isAdmin()
+	public function isAdmin()
 	{
 		return true;
 	}
 
-	function getLogin()
+	public function getLogin()
 	{
 		return 'Nadlib Admin';
 	}
 
-	function getAvatarURL()
+	public function getAvatarURL()
 	{
-		return NULL;
+		return null;
 	}
 
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
+	}
+
+	public function getAllSettings()
+	{
+		// TODO: Implement getAllSettings() method.
+	}
 }

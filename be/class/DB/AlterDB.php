@@ -38,7 +38,7 @@ class AlterDB extends AppControllerBE
 			// access controlled by AlterDB::$public which is false
 		}
 		$this->file = $this->request->getTrim('file');
-		$this->linkVars['file'] = $this->file;
+		$this->linker->linkVars['file'] = $this->file;
 	}
 
 	public function wrongApproach()
@@ -237,15 +237,17 @@ class AlterDB extends AppControllerBE
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
-		if ($update_statements['create_table']) foreach ($update_statements['create_table'] as $md5 => $query) {
-			$content .= '<pre>' . ($query);
-			$content .= ' ' . $this->makeRelLink('CREATE', array(
-					'action' => 'do',
-					'file' => $this->file,
-					'key' => 'create_table',
-					'query' => $md5,
-				));
-			$content .= '</pre>';
+		if ($update_statements['create_table']) {
+			foreach ($update_statements['create_table'] as $md5 => $query) {
+				$content .= '<pre>' . ($query);
+				$content .= ' ' . $this->makeRelLink('CREATE', array(
+						'action' => 'do',
+						'file' => $this->file,
+						'key' => 'create_table',
+						'query' => $md5,
+					));
+				$content .= '</pre>';
+			}
 		}
 		return $content;
 	}
@@ -284,22 +286,26 @@ class AlterDB extends AppControllerBE
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
-		if ($diff['extra']) foreach ($diff['extra'] as $table => $desc) {
-			$list = array();
-			if (is_array($desc['fields'])) foreach ($desc['fields'] as $field => $type) {
-				$list[] = array(
-					'field' => $field,
-					'file' => $type,
-					'sql' => $sql = $this->findStringWith($update_statements['add'], array($table, $field)),
-					'do' => $this->makeRelLink('ADD', array(
-						'action' => 'do',
-						'file' => $this->file,
-						'key' => 'add',
-						'query' => md5($sql),
-					)),
-				);
+		if ($diff['extra']) {
+			foreach ($diff['extra'] as $table => $desc) {
+				$list = array();
+				if (is_array($desc['fields'])) {
+					foreach ($desc['fields'] as $field => $type) {
+						$list[] = array(
+							'field' => $field,
+							'file' => $type,
+							'sql' => $sql = $this->findStringWith($update_statements['add'], array($table, $field)),
+							'do' => $this->makeRelLink('ADD', array(
+								'action' => 'do',
+								'file' => $this->file,
+								'key' => 'add',
+								'query' => md5($sql),
+							)),
+						);
+					}
+				}
+				$content .= $this->showTable($list, $table);
 			}
-			$content .= $this->showTable($list, $table);
 		}
 		//debug($update_statements, Debug::LEVELS, 1);
 		//debug($update_statements['create_table']);
@@ -329,7 +335,7 @@ class AlterDB extends AppControllerBE
 		foreach ($options as $el) {
 			$false = false;
 			foreach ($with as $search) {
-				if (strpos($el, $search) === FALSE) {
+				if (strpos($el, $search) === false) {
 					$false = true;
 					continue;
 				}

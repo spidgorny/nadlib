@@ -27,6 +27,10 @@ class WordCloud
 {
 	var $version = '2.0';
 	var $wordsArray = array();
+	/**
+	 * @var array
+	 */
+	public $removeWords = [];
 
 	protected $limitAmount = 0;
 
@@ -67,7 +71,8 @@ class WordCloud
 
 	public function wordCloud($words = false)
 	{
-		return $this->__construct($words);
+		$this->__construct($words);
+		return $this;
 	}
 
 	/*

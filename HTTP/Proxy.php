@@ -3,6 +3,7 @@
 namespace nadlib;
 
 
+use AsIs;
 use DBInterface;
 
 class Proxy extends \OODBase
