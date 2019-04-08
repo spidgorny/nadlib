@@ -26,8 +26,8 @@ class AlterTableHandler
 	}
 
 	/**
-	 * @param $t1
-	 * @param $t2
+	 * @param string $t1
+	 * @param string $t2
 	 * @return bool
 	 * @todo compare using TableField
 	 */

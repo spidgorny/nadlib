@@ -247,7 +247,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Return one dimensional array
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 */
 	public function getTableColumns($table)
@@ -330,10 +330,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
-	 * @param $column
+	 * @param string $table
+	 * @param string $column
 	 * @param string $where
-	 * @param null $order
+	 * @param string $order
 	 * @param string $key
 	 * @return array
 	 * @throws Exception
@@ -370,11 +370,12 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * fetchAll() equivalent with $key and $val properties
-	 * @param $query
-	 * @param null $key
-	 * @param null $val
+	 * @param string $query
+	 * @param string $key
+	 * @param mixed $val
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getTableDataSql($query, $key = NULL, $val = null)
 	{
@@ -515,7 +516,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $value
+	 * @param mixed $value
 	 * @param null $key
 	 * @return string
 	 * @throws MustBeStringException
@@ -600,7 +601,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Called after dataSeek()
-	 * @param $res
+	 * @param resource $res
 	 * @return array
 	 * @throws DatabaseException
 	 * @throws MustBeStringException

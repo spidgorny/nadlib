@@ -36,11 +36,6 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return $res;
 	}
 
-	/**
-	 * @see SQLBuilder
-	 * @param $res
-	 * @return mixed
-	 */
 	/*	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
 			//$query = $this->getSelectQuery($table, $where, $order);
 			$res = $this->runSelectQuery($table, $where, $order, '', FALSE, !$noDeleted);
@@ -54,6 +49,11 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		}
 	*/
 
+	/**
+	 * @see SQLBuilder
+	 * @param resource $res
+	 * @return mixed
+	 */
 	public function fetchAssoc($res)
 	{
 		if (is_string($res)) {

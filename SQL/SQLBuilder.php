@@ -61,8 +61,8 @@ class SQLBuilder
 	/**
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
-	 * @param $value
-	 * @param null $key
+	 * @param mixed $value
+	 * @param string $key
 	 * @throws MustBeStringException
 	 * @return string
 	 */
@@ -617,7 +617,7 @@ class SQLBuilder
 
 	/**
 	 * @param string $query
-	 * @param null $className - if provided it will return DatabaseInstanceIterator
+	 * @param string|null $className - if provided it will return DatabaseInstanceIterator
 	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 * @throws DatabaseException
 	 */

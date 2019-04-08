@@ -11,17 +11,17 @@ class Uploader
 	 * Allowed extensions
 	 * @var array|null
 	 */
-	public $allowed = array(
+	public $allowed = [
 		'gif', 'jpg', 'png', 'jpeg',
-	);
+	];
 
 	/**
 	 * Allowed mime types, not checked if empty
 	 * @var array
 	 */
-	public $allowedMime = array();
+	public $allowedMime = [];
 
-	public $errors = array(
+	public $errors = [
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
 		'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
 		'The uploaded file was only partially uploaded.',
@@ -29,13 +29,13 @@ class Uploader
 		6 => 'Missing a temporary folder.',
 		'Failed to write file to disk.',
 		'A PHP extension stopped the file upload.'
-	);
+	];
 
 	/**
 	 *
 	 * @param array|null $allowed If provided this will override allowed extensions
 	 */
-	function __construct($allowed = array())
+	public function __construct($allowed = [])
 	{
 		if (!empty($allowed)) {
 			$this->allowed = $allowed;
@@ -46,7 +46,7 @@ class Uploader
 		}
 	}
 
-	function isUploaded()
+	public function isUploaded()
 	{
 		$uploaded = !!$_FILES;
 		$firstFile = first($_FILES);
@@ -76,12 +76,12 @@ class Uploader
 		$f = new HTMLForm();
 		$f->file($fieldName);
 		$f->text('<br />');
-		$f->submit('Upload', array('class' => 'btn btn-primary'));
+		$f->submit('Upload', ['class' => 'btn btn-primary']);
 		$f->text($this->getLimitsDiv());
 		return $f;
 	}
 
-	function getLimitsDiv()
+	public function getLimitsDiv()
 	{
 		$tmpDir = ini_get('upload_tmp_dir') ?: sys_get_temp_dir();
 		if (is_writable($tmpDir)) {
@@ -120,13 +120,13 @@ post_max_size: ' . $post_max_size . '">' .
 		';
 	}
 
-	function getLimits()
+	public function getLimits()
 	{
-		return array(
+		return [
 			'upload_max_filesize' => ini_get('upload_max_filesize'),
 			'post_max_size' => ini_get('post_max_size'),
 			'disk_free_space' => round(disk_free_space('.') / 1024 / 1024) . 'MB',
-		);
+		];
 	}
 
 	/**
@@ -430,11 +430,11 @@ post_max_size: ' . $post_max_size . '">' .
 
 		$source = is_null($source) ? $_FILES : $source;
 
-		$Result = array();
+		$Result = [];
 
 		foreach ($source as $Field => $Data) {
 			foreach ($Data as $Key => $Val) {
-				$Result[$Field] = array();
+				$Result[$Field] = [];
 				if (!is_array($Val)) {
 					$Result[$Field] = $Data;
 				} elseif (isset($Data['name'])) {

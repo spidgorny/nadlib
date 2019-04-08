@@ -52,7 +52,7 @@ class LogEntry
 	}
 
 	/**
-	 * @param $data
+	 * @param mixed $data
 	 * @return bool|float|int|string
 	 */
 	public function shorten($data)

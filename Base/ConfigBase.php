@@ -204,11 +204,11 @@ class ConfigBase implements ConfigInterface
 
 	/**
 	 * TODO: enable FirePHP
-	 * @param $class
-	 * @param $message
+	 * @param string $class
+	 * @param mixed $message
 	 * @throws Exception
 	 */
-	function log($class, $message)
+	public function log($class, $message)
 	{
 		if (DEVELOPMENT) {
 			throw new Exception($class . ' ' . $message);
@@ -216,9 +216,9 @@ class ConfigBase implements ConfigInterface
 	}
 
 	/**
-	 * @param $obj object
+	 * @param object $obj
 	 */
-	function mergeConfig($obj)
+	public function mergeConfig($obj)
 	{
 		$class = get_class($obj);
 		if (isset($this->config[$class]) && is_array($this->config[$class])) {
@@ -235,7 +235,7 @@ class ConfigBase implements ConfigInterface
 	 * @return UserModelInterface
 	 * @throws LoginException
 	 */
-	function getUser()
+	public function getUser()
 	{
 		if (is_object($this->user)) {
 			return $this->user;
@@ -249,7 +249,7 @@ class ConfigBase implements ConfigInterface
 	 * @return UserModelInterface
 	 * @throws DatabaseException
 	 */
-	function _getLoginUser()
+	public function _getLoginUser()
 	{
 		if (!$this->user) {
 			$db = $this->getDB();
@@ -264,7 +264,7 @@ class ConfigBase implements ConfigInterface
 		return $this->user;
 	}
 
-	function getLL()
+	public function getLL()
 	{
 		if (!$this->ll) {
 			$this->ll = new LocalLangDummy();
@@ -272,7 +272,7 @@ class ConfigBase implements ConfigInterface
 		return $this->ll;
 	}
 
-	function getRequest()
+	public function getRequest()
 	{
 		return Request::getInstance();
 	}

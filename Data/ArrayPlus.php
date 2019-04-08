@@ -54,7 +54,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Returns an array of the elements in a specific column.
-	 * @param $col
+	 * @param string $col
 	 * @return ArrayPlus
 	 */
 	public function column($col)
@@ -242,8 +242,8 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Returns the first found row
-	 * @param $key
-	 * @param $val
+	 * @param string $key
+	 * @param mixed $val
 	 * @return mixed
 	 */
 	public function searchColumn($key, $val)
@@ -305,7 +305,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Keys are reindexed
-	 * @param $callback
+	 * @param callable $callback
 	 * @return static
 	 */
 	public function map($callback)
@@ -316,7 +316,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Will keep the assoc keys
-	 * @param $callback
+	 * @param callable $callback
 	 * @return static
 	 */
 	public function mapBoth($callback)
@@ -332,7 +332,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * @param $callback
+	 * @param callable $callback
 	 * @return array
 	 */
 	public function getMap($callback)
@@ -341,8 +341,8 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * @param $a
-	 * @param $b
+	 * @param string $a
+	 * @param string $b
 	 * @return array
 	 */
 	public function wrap($a, $b)
@@ -357,7 +357,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * Not working as expected.
 	 * PHP 4 doesn't have seek() function
 	 * PHP 5 doesn't have prev() method
-	 * @param $key
+	 * @param string $key
 	 */
 	public function getPrevNext($key)
 	{
@@ -382,7 +382,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * http://stackoverflow.com/a/9944080/417153
-	 * @param $key
+	 * @param string $key
 	 * @return bool
 	 */
 	public function getPrevKey($key)
@@ -397,7 +397,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * http://stackoverflow.com/a/9944080/417153
-	 * @param $key
+	 * @param string $key
 	 * @return bool
 	 */
 	public function getNextKey($key)
@@ -412,7 +412,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Searches inside Recursive tree
-	 * @param $needle
+	 * @param string $needle
 	 * @return array|null
 	 */
 	public function find($needle)
@@ -464,7 +464,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Bug. Only one element per sorted field is allowed.
-	 * @param $column
+	 * @param string $column
 	 * @return $this
 	 */
 	public function sortBy($column)
@@ -585,7 +585,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * http://www.if-not-true-then-false.com/2009/php-tip-convert-stdclass-object-to-multidimensional-array-and-convert-multidimensional-array-to-stdclass-object/
-	 * @param $d
+	 * @param object $d
 	 * @return array
 	 */
 	protected function objectToArray($d)
@@ -719,8 +719,8 @@ class ArrayPlus extends ArrayObject implements Countable
 	/**
 	 * Chainable
 	 *
-	 * @param $i
-	 * @param $val
+	 * @param string $i
+	 * @param mixed $val
 	 * @return $this
 	 */
 	public function set($i, $val)
@@ -758,8 +758,8 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * @param $oldKey
-	 * @param $newKey
+	 * @param string $oldKey
+	 * @param string $newKey
 	 * @return array
 	 * @throws Exception
 	 */
@@ -793,7 +793,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * 2D table => 3D table
-	 * @param $groupBy
+	 * @param string $groupBy
 	 * @return $this
 	 */
 	public function groupBy($groupBy)
@@ -863,10 +863,10 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * http://php.net/manual/en/function.array-splice.php#111204
-	 * @param $input
-	 * @param $offset - key of the element to insert BEFORE(!)
-	 * @param $length
-	 * @param $replacement
+	 * @param array $input
+	 * @param int $offset - key of the element to insert BEFORE(!)
+	 * @param int $length
+	 * @param array $replacement
 	 * @return array
 	 */
 	public static function array_splice_assoc(&$input, $offset, $length, $replacement = [])
@@ -907,7 +907,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * If we store array of objects, we can retrieve a specific property of all objects
-	 * @param $name
+	 * @param string $name
 	 * @return ArrayPlus
 	 */
 	public function getProperty($name)
@@ -1067,7 +1067,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * @param $ap ArrayPlus|array
+	 * @param ArrayPlus|array $ap
 	 * @return ArrayPlus
 	 */
 	public function diff($ap)
@@ -1080,8 +1080,8 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Filter rows where $key = $value
-	 * @param $key
-	 * @param $value
+	 * @param string $key
+	 * @param mixed $value
 	 * @return $this
 	 */
 	public function where($key, $value)
@@ -1098,8 +1098,8 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Filter rows where $key = $value
-	 * @param $key
-	 * @param $value
+	 * @param string $key
+	 * @param mixed $value
 	 * @return $this
 	 */
 	public function filterWhere($key, $value)

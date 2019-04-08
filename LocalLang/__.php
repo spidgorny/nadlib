@@ -25,10 +25,10 @@ if (!function_exists('__')) {    // conflict with cakePHP
 	/**
 	 * Same as __(), but calls only str_replace() without translating
 	 * @param $code
-	 * @param null $r1
-	 * @param null $r2
-	 * @param null $r3
-	 * @return mixed|null
+	 * @param mixed $r1
+	 * @param mixed $r2
+	 * @param mixed $r3
+	 * @return string
 	 */
 	function __p($code, $r1 = null, $r2 = null, $r3 = null)
 	{

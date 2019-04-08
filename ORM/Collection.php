@@ -87,7 +87,8 @@ class Collection implements IteratorAggregate
 
 	/**
 	 * getQuery() stores the final query here for debug
-	 * @var string
+	 * is null until initialized
+	 * @var string|null
 	 */
 	public $query;
 
@@ -1054,7 +1055,7 @@ class Collection implements IteratorAggregate
 	}
 
 	/**
-	 * @param null $class
+	 * @param string $class
 	 * @return LazyMemberIterator|$class[]
 	 */
 	public function getLazyMemberIterator($class = null)

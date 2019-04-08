@@ -242,8 +242,8 @@ class Mailer
 	/**
 	 * @param $cc
 	 * @param $bcc
-	 * @param $attachments
-	 * @param $additionalSenders
+	 * @param array $attachments
+	 * @param array $additionalSenders
 	 * @return Swift_Message
 	 * @throws Exception
 	 */
@@ -262,8 +262,8 @@ class Mailer
 		$message->setFrom($this->from, $this->fromName);
 
 		if (!empty($additionalSenders)) {
-			foreach ($additionalSenders as $address) {
-				$message->addFrom(key($address));
+			foreach ($additionalSenders as $address => $_) {
+				$message->addFrom($address);
 			}
 		}
 

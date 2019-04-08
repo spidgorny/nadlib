@@ -170,12 +170,12 @@ class AlterIndex extends AppControllerBE
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $local
-	 * @param $desc
+	 * @param array $desc
 	 * @return array
 	 */
-	protected function compareTable($table, array $local, $desc)
+	protected function compareTable($table, array $local, array $desc)
 	{
 		$indexCompare = array();
 		foreach ($desc['indexes'] as $i => $index) {

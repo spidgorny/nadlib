@@ -14,17 +14,17 @@ class MergedContent implements ArrayAccess
 
 	var $content = array();
 
-	function __construct(array $parts = array())
+	public function __construct(array $parts = array())
 	{
 		$this->content = $parts;
 	}
 
-	function getContent()
+	public function getContent()
 	{
 		return $this->mergeStringArrayRecursive($this->content);
 	}
 
-	function __toString()
+	public function __toString()
 	{
 //		debug_pre_print_backtrace();
 		return $this->getContent();
@@ -161,7 +161,7 @@ class MergedContent implements ArrayAccess
 		return $render;
 	}
 
-	static function stringify(array $objects)
+	public static function stringify(array $objects)
 	{
 		foreach ($objects as &$element) {
 //			$debug = '-= ' . typ($element) . ' =-' . BR;
