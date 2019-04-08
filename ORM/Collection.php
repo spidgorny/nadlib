@@ -761,6 +761,7 @@ class Collection implements IteratorAggregate
 	 * @param array $where
 	 * @param string $orderBy
 	 * @return Collection
+	 * @throws Exception
 	 */
 	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = '')
 	{
@@ -807,7 +808,9 @@ class Collection implements IteratorAggregate
 
 	public function objectifyAsPlus()
 	{
-		return ArrayPlus::create($this->objectify($this->itemClassName, $this->objectifyByInstance));
+		return ArrayPlus::create(
+			$this->objectify($this->itemClassName, $this->objectifyByInstance)
+		);
 	}
 
 	public function __toString()
@@ -1158,7 +1161,7 @@ class Collection implements IteratorAggregate
 	 * (PHP 5 &gt;= 5.0.0)<br/>
 	 * Retrieve an external iterator
 	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-	 * @return Traversable An instance of an object implementing <b>Iterator</b> or
+	 * @return ArrayPlus Traversable An instance of an object implementing <b>Iterator</b> or
 	 * <b>Traversable</b>
 	 * @throws Exception
 	 */

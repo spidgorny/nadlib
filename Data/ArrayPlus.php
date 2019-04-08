@@ -236,7 +236,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	public function ksort()
 	{
-		ksort($this);
+		ksort($this->getArrayCopy());
 		return $this;
 	}
 
@@ -500,6 +500,9 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * Extracts key from array as ['__key__']
+	 * @param string $column
+	 * @param bool $unset
+	 * @return ArrayPlus
 	 */
 	public function extractKeyFromColumn($column = '__key__', $unset = true)
 	{
@@ -1251,6 +1254,14 @@ class ArrayPlus extends ArrayObject implements Countable
 			);
 			$this->setData($array);
 		}
+	}
+
+	public function sort($callback)
+	{
+		$data = $this->getArrayCopy();
+		usort($data, $callback);
+		$this->setData($data);
+		return $this;
 	}
 
 }

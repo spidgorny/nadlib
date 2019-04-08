@@ -26,6 +26,8 @@ interface UserModelInterface
 
 	public function getAvatarURL();
 
+	public function prefs();
+
 	/**
 	 * @param string $acl
 	 * @return bool

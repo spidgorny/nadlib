@@ -82,4 +82,9 @@ class NoUser extends UserBase implements UserModelInterface
 	{
 		return 'http://avatar.com/';
 	}
+
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
+	}
 }

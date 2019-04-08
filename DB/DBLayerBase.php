@@ -4,7 +4,13 @@
  * Class DBLayerBase
  * @mixin SQLBuilder
  * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
- * @method  fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method fetchSelectQuery($table, array $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method getInsertQuery($table, array $columns)
+ * @method getDeleteQuery($table, $where = array(), $what = '')
+ * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
+ * @method runUpdateQuery($table, $columns, $where, $orderBy = '')
+ * @method runInsertQuery($table, array $columns)
+ * @method fetchOneSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
  */
 class DBLayerBase implements DBInterface
 {
@@ -289,6 +295,12 @@ class DBLayerBase implements DBInterface
 			$set = TableField::init($set + ['pg_field' => $field]);
 		}
 		return $fields;
+	}
+
+	public function getDSN()
+	{
+//		return $this->dsn();
+		return null;
 	}
 
 	/**
