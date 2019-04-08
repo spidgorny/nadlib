@@ -135,7 +135,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $query
+	 * @param string $query
 	 * @param array $params
 	 * @return resource|null
 	 * @throws DatabaseException
