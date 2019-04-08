@@ -172,10 +172,9 @@ class Path
 	public function exists()
 	{
 		if (ini_get('open_basedir')) {
-			return true;
-		} else {
-			return is_dir($this->sPath) || file_exists($this->sPath);
+			return false;
 		}
+		return is_dir($this->sPath) || file_exists($this->sPath);
 	}
 
 	public function trim()
