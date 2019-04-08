@@ -75,11 +75,6 @@ abstract class Controller extends SimpleController
 	public $config;
 
 	/**
-	 * @var AutoLoad
-	 */
-	protected $al;
-
-	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
 	 * @var
@@ -107,7 +102,6 @@ abstract class Controller extends SimpleController
 //			$this->user = $this->config->getUser();
 			$this->config->mergeConfig($this);
 		}
-		$this->al = AutoLoad::getInstance();
 
 		$this->linker = new Linker($this->request);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();
@@ -201,7 +195,7 @@ abstract class Controller extends SimpleController
 
 	public function inColumnsHTML5()
 	{
-		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -214,7 +208,7 @@ abstract class Controller extends SimpleController
 
 	public function inEqualColumnsHTML5()
 	{
-		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -248,7 +242,7 @@ abstract class Controller extends SimpleController
 	 */
 	public function encloseInTable()
 	{
-		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/columnContainer.less');
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/columnContainer.less');
 		$elements = func_get_args();
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
