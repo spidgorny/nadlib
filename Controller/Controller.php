@@ -103,11 +103,9 @@ abstract class Controller extends SimpleController
 		if ($this->config) {
 			// move this into AppController
 			// some projects don't need DB or User
-			$this->db = $this->config->getDB();
-			$this->user = $this->config->getUser();
+//			$this->db = $this->config->getDB();
+//			$this->user = $this->config->getUser();
 			$this->config->mergeConfig($this);
-		} else {
-			throw new RuntimeException('Controller need Config object');
 		}
 		$this->al = AutoLoad::getInstance();
 
@@ -122,9 +120,9 @@ abstract class Controller extends SimpleController
 	public function __call($method, array $arguments)
 	{
 		if (method_exists($this->linker, $method)) {
-			return call_user_func_array($this->linker->$method, $arguments);
+			return call_user_func_array([$this->linker, $method], $arguments);
 		} elseif (method_exists($this->html, $method)) {
-			return call_user_func_array($this->html->$method, $arguments);
+			return call_user_func_array([$this->html, $method], $arguments);
 		} else {
 			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
