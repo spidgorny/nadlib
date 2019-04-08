@@ -62,7 +62,7 @@ class MemcacheFile implements MemcacheInterface
 		}
 	}
 
-	function map($key)
+	public function map($key)
 	{
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
@@ -80,7 +80,7 @@ class MemcacheFile implements MemcacheInterface
 	 * @param mixed $val
 	 * @throws Exception
 	 */
-	function set($key, $val)
+	public function set($key, $val)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$file = $this->map($key);
@@ -94,7 +94,7 @@ class MemcacheFile implements MemcacheInterface
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function isValid($key = NULL, $expire = 0)
+	public function isValid($key = NULL, $expire = 0)
 	{
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
@@ -112,7 +112,7 @@ class MemcacheFile implements MemcacheInterface
 	 * @param int $expire
 	 * @return mixed|null|string
 	 */
-	function get($key = NULL, $expire = 0)
+	public function get($key = NULL, $expire = 0)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$val = NULL;
@@ -133,12 +133,12 @@ class MemcacheFile implements MemcacheInterface
 		return $val;
 	}
 
-	function setValue($value)
+	public function setValue($value)
 	{
 		$this->set($this->key, $value);
 	}
 
-	function clearCache($key = NULL)
+	public function clearCache($key = null)
 	{
 		$file = $this->map($key ?: $this->key);
 		if (file_exists($file)) {
@@ -153,7 +153,7 @@ class MemcacheFile implements MemcacheInterface
 	 * @param string $key
 	 * @return Duration
 	 */
-	function getAge($key)
+	public function getAge($key)
 	{
 		$file = $this->map($key);
 		return new Duration(time() - @filemtime($file));
