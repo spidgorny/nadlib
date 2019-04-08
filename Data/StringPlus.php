@@ -102,7 +102,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	/**
 	 * @param string $str
-	 * @param null $encoding
+	 * @param string $encoding
 	 * @return static
 	 */
 	public static function make($str = '', $encoding = null)
@@ -1354,7 +1354,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-	 * @param $int
+	 * @param int $int
 	 * @return String
 	 */
 	static function mb_chr($int)

@@ -24,8 +24,8 @@ class ErrorLog extends AppControllerBE {
 
 	/**
 	 * http://tekkie.flashbit.net/php/tail-functionality-in-php
-	 * @param $file
-	 * @param $lines
+	 * @param string $file
+	 * @param int $lines
 	 * @return array
 	 */
 	function read_file($file, $lines) {

@@ -37,7 +37,12 @@ class TYPO3Module extends UserBase
 		$this->t3user->pushModuleData($this->module, $this->t3user->uc['moduleData'][$this->module], false);
 	}
 
-	public function try2login()
+	/**
+	 * @param string $login
+	 * @param string $email
+	 * @return mixed
+	 */
+	public function try2login($login, $email = null)
 	{
 		// TODO: Implement try2login() method.
 	}

@@ -103,8 +103,9 @@ abstract class Grid extends AppController {
 	}
 
 	/**
-	 * @param null $cn Supply get_class($this->collection) to the function
+	 * @param string $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
+	 * @throws LoginException
 	 */
 	public function saveFilterAndSort($cn = null)
 	{
@@ -220,7 +221,7 @@ abstract class Grid extends AppController {
 
 	/**
 	 * Only get filter if it's not need to be cleared
-	 * @param $cn
+	 * @param string $cn
 	 * @throws LoginException
 	 */
 	public function setFilter($cn)
@@ -253,8 +254,8 @@ abstract class Grid extends AppController {
 	}
 
 	/**
-	 * @param $cn string
-	 * @param $allowEdit boolean
+	 * @param string $cn
+	 * @param boolean $allowEdit
 	 * @throws LoginException
 	 */
 	public function setColumns($cn, $allowEdit)

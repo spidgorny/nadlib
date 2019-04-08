@@ -20,7 +20,7 @@ class BEUser extends UserBase
 		}
 	}
 
-	function try2login()
+	function try2login($user, $password = null)
 	{
 		//debug('session_start');
 		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {

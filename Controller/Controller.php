@@ -52,7 +52,14 @@ abstract class Controller extends SimpleController
 	protected $db;
 
 	/**
+	 * Will be taken as a <title> of the HTML table
+	 * @var string
+	 */
+	public $title;
+
+	/**
 	 * @var UserModelInterface
+	 * @var Person|NoPerson
 	 */
 	public $user;
 

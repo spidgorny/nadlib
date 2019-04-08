@@ -17,7 +17,12 @@ class HTTPUser extends UserBase
 		return $this->login;
 	}
 
-	public function try2login()
+	/**
+	 * @param string $login
+	 * @param string $email
+	 * @return mixed
+	 */
+	public function try2login($login, $email = null)
 	{
 		// TODO: Implement try2login() method.
 	}

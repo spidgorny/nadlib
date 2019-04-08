@@ -225,9 +225,9 @@ class Localize extends AppControllerBE
 	}
 
 	/**
-	 * @param $rel - can be int: ID of the already translated element
+	 * @param int|string $rel - can be int: ID of the already translated element
 	 *                - can be string: Code of the original English element
-	 * @param $save
+	 * @param mixed $save
 	 * @return array
 	 * @throws DatabaseException
 	 */

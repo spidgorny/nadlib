@@ -14,7 +14,7 @@ class HTML
 
 	/**
 	 * @param string|URL $href
-	 * @param string|htmlString $text
+	 * @param string|htmlString|HTMLTag $text
 	 * @param bool $isHTML
 	 * @param array $more
 	 * @return HTMLTag

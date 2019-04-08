@@ -23,10 +23,10 @@ class MemcacheFile implements MemcacheInterface
 	 * If you define $key and $expire in the constructor
 	 * you don't need to define it in each method below.
 	 * Otherwise, please specify.
-	 * @param null $key
+	 * @param string $key
 	 * @param int $expire
 	 */
-	function __construct($key = NULL, $expire = 0)
+	public function __construct($key = null, $expire = 0)
 	{
 		if (MemcacheArray::$debug) {
 			echo __METHOD__ . '(' . $key . ')' . BR;
@@ -76,8 +76,8 @@ class MemcacheFile implements MemcacheInterface
 	}
 
 	/**
-	 * @param $key - can be provided in the constructor, but repeated here for BWC
-	 * @param $val
+	 * @param string $key - can be provided in the constructor, but repeated here for BWC
+	 * @param mixed $val
 	 * @throws Exception
 	 */
 	function set($key, $val)
@@ -150,7 +150,7 @@ class MemcacheFile implements MemcacheInterface
 	}
 
 	/**
-	 * @param $key
+	 * @param string $key
 	 * @return Duration
 	 */
 	function getAge($key)

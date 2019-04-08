@@ -51,14 +51,14 @@ class SQLSelectQuery extends SQLWherePart
 
 	/**
 	 * SQLSelectQuery constructor.
-	 * @param null $select
-	 * @param null $from
-	 * @param null $where
-	 * @param null $join
-	 * @param null $group
-	 * @param null $having
-	 * @param null $order
-	 * @param null $limit
+	 * @param SQLSelect $select
+	 * @param SQLFrom $from
+	 * @param SQLWhere $where
+	 * @param SQLJoin $join
+	 * @param SQLGroup $group
+	 * @param SQLHaving $having
+	 * @param SQLOrder $order
+	 * @param SQLLimit $limit
 	 */
 	public function __construct($select = null, $from = null, $where = null, $join = null, $group = null, $having = null, $order = null, $limit = null)
 	{
@@ -272,11 +272,11 @@ FROM {$from}
 	}
 
 	/**
-	 * @param $db DBInterface
-	 * @param        $table
+	 * @param DBInterface $db
+	 * @param string $table
 	 * @param array|SQLWhere $where
 	 * @param string $sOrder
-	 * @param null $addSelect
+	 * @param string $addSelect
 	 * @return SQLSelectQuery
 	 */
 	public static function getSelectQueryP(

@@ -86,8 +86,8 @@ class FilterController extends Controller
 	}
 
 	/**
-	 * @param $k
-	 * @param $key
+	 * @param array $k
+	 * @param string $key
 	 * @return array
 	 */
 	public function getFieldFilter(array $k, $key)

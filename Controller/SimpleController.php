@@ -172,11 +172,12 @@ abstract class SimpleController
 	/**
 	 * Wraps the content in a div/section with a header.
 	 * The header is linkable.
-	 * @param $content
+	 * @param string|array|ToStringable $content
 	 * @param string $caption
-	 * @param null $h
+	 * @param string $h
 	 * @param array $more
-	 * @return array|string
+	 * @return ToStringable
+	 * @throws Exception
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
