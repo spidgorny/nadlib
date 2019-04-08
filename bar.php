@@ -19,9 +19,10 @@
 // Mod by Slawa.
 
 require_once __DIR__.'/init.php';
+require_once __DIR__.'/HTML/BarImage.php';
 
 if (!function_exists('imagecreate')) {
-	error_reporting(E_ALL);
+	error_reporting(ifsetor($_COOKIE['debug']) ? E_ALL : 0);
 	ini_set('display_errors', true);
 	echo 'PHP: ' . phpversion() . '<br />';
 	echo 'GD not installed';
