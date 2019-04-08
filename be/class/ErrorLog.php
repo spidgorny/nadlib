@@ -1,10 +1,12 @@
 <?php
 
-class ErrorLog extends AppControllerBE {
+class ErrorLog extends AppControllerBE
+{
 
 	var $file = '/var/log/apache2/error.log';
 
-	function render() {
+	public function render()
+	{
 		$file = ini_get('error_log');
 		$exists = file_exists($file);
 		debug($file, $exists);
@@ -12,12 +14,12 @@ class ErrorLog extends AppControllerBE {
 			$this->file = $file;
 		}
 
-		$content[] = "<strong>".$this->file."</strong>".BR;
-		$fsize = round(filesize($this->file)/1024/1024,2);
-		$content[] = "File size is {$fsize} megabytes".BR;
-		//$lines = $this->read_file($this->file, 50);
+		$content[] = "<strong>" . $this->file . "</strong>" . BR;
+		$fsize = round(filesize($this->file) / 1024 / 1024, 2);
+		$content[] = "File size is {$fsize} megabytes" . BR;
+		$lines = $this->read_file($this->file, 50);
 		foreach ($lines as $line) {
-			$content[] = $line.BR;
+			$content[] = $line . BR;
 		}
 		return $content;
 	}
@@ -28,7 +30,8 @@ class ErrorLog extends AppControllerBE {
 	 * @param int $lines
 	 * @return array
 	 */
-	function read_file($file, $lines) {
+	public function read_file($file, $lines)
+	{
 		$text = array();
 		$handle = fopen($file, "r");
 		if ($handle) {
@@ -50,7 +53,9 @@ class ErrorLog extends AppControllerBE {
 					rewind($handle);
 				}
 				$text[$lines - $linecounter - 1] = fgets($handle);
-				if ($beginning) break;
+				if ($beginning) {
+					break;
+				}
 			}
 			fclose($handle);
 		}

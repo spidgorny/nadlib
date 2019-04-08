@@ -16,7 +16,7 @@ class TYPO3User extends UserBase
 	 */
 	public $t3user;
 
-	public function __construct($id = NULL)
+	public function __construct($id = null)
 	{
 		parent::__construct($id);
 		$this->t3user = $GLOBALS["TSFE"]->fe_user;    // set to be_user if you need
@@ -65,5 +65,15 @@ class TYPO3User extends UserBase
 	public function can($acl)
 	{
 		// TODO: Implement can() method.
+	}
+
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
+	}
+
+	public function getAllSettings()
+	{
+		// TODO: Implement getAllSettings() method.
 	}
 }

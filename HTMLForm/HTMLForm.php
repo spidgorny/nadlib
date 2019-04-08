@@ -892,7 +892,7 @@ document.observe("dom:loaded", () => {
 	 *
 	 * @return string
 	 */
-	public static function getAttrHTML(array $attr = NULL)
+	public static function getAttrHTML(array $attr = null)
 	{
 		if ($attr) {
 			return HTMLTag::renderAttr($attr);

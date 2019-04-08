@@ -119,6 +119,7 @@ class Color
 			$del_G = ((($var_Max - $var_G) / 6) + ($del_Max / 2)) / $del_Max;
 			$del_B = ((($var_Max - $var_B) / 6) + ($del_Max / 2)) / $del_Max;
 
+			$H = 0;
 			if ($var_R == $var_Max) {
 				$H = $del_B - $del_G;
 			} elseif ($var_G == $var_Max) {

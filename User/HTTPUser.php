@@ -50,4 +50,14 @@ class HTTPUser extends UserBase
 	{
 		// TODO: Implement can() method.
 	}
+
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
+	}
+
+	public function getAllSettings()
+	{
+		// TODO: Implement getAllSettings() method.
+	}
 }

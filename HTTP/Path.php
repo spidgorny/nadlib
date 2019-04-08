@@ -353,6 +353,7 @@ class Path
 
 	public function onlyExisting()
 	{
+		$assembled = '';
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' .
 				implode('/', array_slice($this->aPath, 0, $i + 1));

@@ -44,6 +44,7 @@ class ExeFile extends File
 		$OptHdrSize = unpack("v", substr($Header, 20, 2));
 		fseek($handle, $OptHdrSize[1], SEEK_CUR);
 		$ResFound = FALSE;
+		$SecHdr = null;
 		for ($x = 0; $x < $NoSections[1]; $x++) {      //$x fixed here
 			$SecHdr = fread($handle, 40);
 			if (substr($SecHdr, 0, 5) == '.rsrc') {         //resource section
