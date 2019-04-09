@@ -134,6 +134,29 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return true;
 	}
 
+	public function reportIfLastQueryFailed()
+	{
+		if (false === $this->LAST_PERFORM_RESULT) {
+			$backtrace = array_map(function ($el) {
+				unset($el['object']);
+				unset($el['args']);
+				return $el;
+			}, $this->lastBacktrace);
+			$backtrace = array_map(function (array $el) {
+				return ifsetor($el['class']).ifsetor($el['type']).ifsetor($el['function']).
+					' in '.basename(ifsetor($el['file'])).':'.ifsetor($el['line']);
+			}, $backtrace);
+//			debug($this->lastQuery.'', pg_errormessage($this->connection));
+//			die(pg_errormessage($this->connection));
+			throw new DatabaseException(
+				'Last query has failed.' . PHP_EOL .
+				$this->lastQuery . PHP_EOL .
+				pg_errormessage($this->connection).PHP_EOL.
+				implode(PHP_EOL, $backtrace)
+			);
+		}
+	}
+
 	/**
 	 * @param string $query
 	 * @param array $params
@@ -146,26 +169,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 //		echo $query, BR;
 		$prof = new Profiler();
 
-		if (false === $this->LAST_PERFORM_RESULT) {
-			$backtrace = array_map(function ($el) {
-				unset($el['object']);
-				unset($el['args']);
-				return $el;
-			}, $this->lastBacktrace);
-			$backtrace = array_map(function (array $el) {
-				return ifsetor($el['class']).ifsetor($el['type']).ifsetor($el['function']).
-					' in '.basename(ifsetor($el['file'])).':'.ifsetor($el['line']);
-			}, $backtrace);
-			debug($this->lastQuery.'', pg_errormessage($this->connection));
-//			die(pg_errormessage($this->connection));
-			throw new DatabaseException(
-				'Last query has failed.' . PHP_EOL .
-				$this->lastQuery . PHP_EOL .
-				pg_errormessage($this->connection).PHP_EOL.
-				implode(PHP_EOL, $backtrace)
-			);
-		}
-
+		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
 			debug('no connection', $this->connection, $query . '');
@@ -183,7 +187,11 @@ class DBLayer extends DBLayerBase implements DBInterface
 				pg_prepare($this->connection, '', $query);
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
-				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
+				$lastError = error_get_last();
+				if ($lastError) {
+					throw new Exception(json_encode($lastError));
+				}
 			}
 			$this->queryTime = $prof->elapsed();
 		} catch (Exception $e) {
@@ -207,7 +215,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 			//debug($query);
 			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(
-				pg_errormessage($this->connection)
+				pg_errormessage($this->connection).
+				'Query: '.$query
 			);
 			$e->setQuery($query);
 			throw $e;

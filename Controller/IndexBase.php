@@ -644,12 +644,15 @@ class IndexBase /*extends Controller*/
 		return $this;
 	}
 
-	function addMtime($source)
+	public function addMtime($source)
 	{
 		if (!contains($source, '//') && !contains($source, '?')) {    // don't download URL
-			$mtime = @filemtime($source);
-			if (!$mtime) {
-				$mtime = @filemtime('public/' . $source);
+			$mtime = null;
+			if (is_file($source)) {
+				$mtime = filemtime($source);
+			}
+			if (!$mtime && is_file('public/' . $source)) {
+				$mtime = filemtime('public/' . $source);
 			}
 			if ($mtime) {
 				$source .= '?' . $mtime;
