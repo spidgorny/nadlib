@@ -188,11 +188,11 @@ class DBLayer extends DBLayerBase implements DBInterface
 				pg_prepare($this->connection, '', $query);
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
-				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
-				$lastError = error_get_last();
-				if ($lastError) {
-					throw new Exception(json_encode($lastError));
-				}
+				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+//				$lastError = error_get_last();
+//				if ($lastError) {
+//					throw new Exception(json_encode($lastError));
+//				}
 			}
 			$this->queryTime = $prof->elapsed();
 		} catch (Exception $e) {
