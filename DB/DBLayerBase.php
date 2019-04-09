@@ -8,9 +8,15 @@
  * @method getInsertQuery($table, array $columns)
  * @method getDeleteQuery($table, $where = array(), $what = '')
  * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
- * @method runUpdateQuery($table, $columns, $where, $orderBy = '')
  * @method runInsertQuery($table, array $columns)
  * @method fetchOneSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method  describeView($viewName)
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  getFirstValue($query)
+ * @method  performWithParams($query, $params)
+ * @method  getInfo()
+ * @method  getConnection()
+ * @method  getViews()
  */
 class DBLayerBase implements DBInterface
 {
