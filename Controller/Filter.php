@@ -23,7 +23,7 @@ class Filter extends ArrayObject
 		$this->setRequest($input);
 	}
 
-	public function setPreferences(array $_preferences = NULL)
+	public function setPreferences(array $_preferences = null)
 	{
 		if ($_preferences) {
 			$this->_preferences = $_preferences;

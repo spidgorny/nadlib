@@ -4,6 +4,7 @@
  * Class dbLayer
  * @mixin SQLBuilder
  * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
