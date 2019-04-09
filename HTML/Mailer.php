@@ -243,7 +243,7 @@ class Mailer
 	 * @param $cc
 	 * @param $bcc
 	 * @param array $attachments
-	 * @param array $additionalSenders
+	 * @param array $additionalSenders - assoc array
 	 * @return Swift_Message
 	 * @throws Exception
 	 */
@@ -261,10 +261,8 @@ class Mailer
 
 		$message->setFrom($this->from, $this->fromName);
 
-		if (!empty($additionalSenders)) {
-			foreach ($additionalSenders as $address => $_) {
-				$message->addFrom($address);
-			}
+		foreach ($additionalSenders as $address => $_) {
+			$message->addFrom($address);
 		}
 
 		$to = $this->to;
@@ -299,9 +297,9 @@ class Mailer
 
 		if (!empty($additionalSenders)) {
 			foreach ($additionalSenders as $address => $name) {
-				empty($address)
-					? NULL
-					: $message->addFrom($address, $name);
+				if (!empty($address)) {
+					$message->addFrom($address, $name);
+				}
 			}
 		}
 
