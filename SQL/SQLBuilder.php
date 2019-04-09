@@ -14,12 +14,12 @@
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
  * @mixin DBLayerBase
- * @method  describeView($viewName)
- * @method  getFirstValue($query)
- * @method  performWithParams($query, $params)
- * @method  getInfo()
- * @method  getConnection()
- * @method  getViews()
+ * @method describeView($viewName)
+ * @method getFirstValue($query)
+ * @method performWithParams($query, $params)
+ * @method getInfo()
+ * @method getConnection()
+ * @method getViews()
  * @method getScheme()
  * @method quoteKeys(array $keys)
  * @method quoteKey($key)
