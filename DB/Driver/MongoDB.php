@@ -6,7 +6,8 @@ namespace nadlib\DB\Driver;
  * Class MongoDB
  * @deprecated
  */
-class MongoDB {
+class MongoDB
+{
 
 	/**
 	 * @var string
@@ -23,12 +24,14 @@ class MongoDB {
 	 */
 	protected $connection;
 
-	function __construct($dbName) {
+	function __construct($dbName)
+	{
 		$this->dbName = $dbName;
 		$this->connect($this->dbName);
 	}
 
-	function connect($db) {
+	function connect($db)
+	{
 		$server = array(
 			'mongodb://localhost:27017',
 		);
@@ -48,10 +51,11 @@ class MongoDB {
 	}
 
 	/**
-	 * @param $colName
+	 * @param string $colName
 	 * @return \MongoCollection
 	 */
-	function getCollection($colName) {
+	function getCollection($colName)
+	{
 		$collection = $this->connection->selectCollection($colName);
 		return $collection;
 	}
