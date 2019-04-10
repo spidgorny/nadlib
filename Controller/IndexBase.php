@@ -58,7 +58,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @var Config
 	 */
-	var $config;
+	protected $config;
 
 	var $csp = array(
 		"default-src" => array(
@@ -133,7 +133,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @throws AccessDeniedException
 	 */
-	function initSession()
+	public function initSession()
 	{
 //		debug('is session started', session_id(), session_status());
 		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {

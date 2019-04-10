@@ -1,14 +1,26 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class MySQL
  * @mixin SQLBuilder
+ * @method getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
+ * @method runInsertQuery($table, array $columns, array $where = [])
+ * @method fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
  * @deprecated
+ * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+ * @method  describeView($viewName)
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  getFirstValue($query)
+ * @method  performWithParams($query, $params)
+ * @method  getConnection()
  */
-class MySQL extends DBLayerBase implements DBInterface {
+class MySQL extends DBLayerBase implements DBInterface
+{
 
 	/**
-	 * @var string
+	 * @var string|SQLSelectQuery
 	 */
 	public $lastQuery;
 
@@ -31,7 +43,7 @@ class MySQL extends DBLayerBase implements DBInterface {
 	 * Reserved MySQL words
 	 * @var array
 	 */
-	protected $reserved = array (
+	protected $reserved = [
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
 		2 => 'ALL',
@@ -255,9 +267,10 @@ class MySQL extends DBLayerBase implements DBInterface {
 		'TERMINATED',
 		'UNDO',
 		'VALUES',
-	);
+	];
 
-	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
+	public function __construct($db = null, $host = '127.0.0.1', $login = 'root', $password = '')
+	{
 		TaylorProfiler::start(__METHOD__);
 		$this->database = $db;
 		if ($this->database) {
@@ -269,14 +282,15 @@ class MySQL extends DBLayerBase implements DBInterface {
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function connect($host, $login, $password, $newConnection = false) {
+	public function connect($host, $login, $password, $newConnection = false)
+	{
 		TaylorProfiler::start(__METHOD__);
 		//echo __METHOD__.'<br />';
 		//ini_set('mysql.connect_timeout', 3);
 		if ($newConnection) {
 			$this->connection = mysql_connect($host, $login, $password, $newConnection);
 		} else {
-		// important to say new_link = true for MSSQL
+			// important to say new_link = true for MSSQL
 			$this->connection = @mysql_pconnect($host, $login, $password);
 		}
 		if (!$this->connection) {
@@ -296,13 +310,14 @@ class MySQL extends DBLayerBase implements DBInterface {
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function perform($query, array $params = array()) {
+	public function perform($query, array $params = [])
+	{
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
 				$caller = Debug::getCaller($c);
 				$c++;
-			} while (in_array($caller, array(
+			} while (in_array($caller, [
 				'MySQL::fetchSelectQuery',
 				'MySQL::runSelectQuery',
 				'OODBase::findInDB',
@@ -311,13 +326,13 @@ class MySQL extends DBLayerBase implements DBInterface {
 				'MySQL::getTableColumns',
 				'MySQL::perform',
 				'OODBase::fetchFromDB',
-			)));
-			$profilerKey = __METHOD__." (".$caller.")";
+			]));
+			$profilerKey = __METHOD__ . " (" . $caller . ")";
 			TaylorProfiler::start($profilerKey);
 		}
 		if ($this->logToLog) {
-			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime.' '.str_replace("\n", ' ', $query));
+			$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime . ' ' . str_replace("\n", ' ', $query));
 		}
 
 		$start = microtime(true);
@@ -339,24 +354,24 @@ class MySQL extends DBLayerBase implements DBInterface {
 		}
 		if (!$res || mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				debug([
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
-				));
+				]);
 			}
 			debug_pre_print_backtrace();
-			$e = new DatabaseException(mysql_errno($this->connection).': '.mysql_error($this->connection).
-				(DEVELOPMENT ? '<br>Query: '.$this->lastQuery : '')
-			, mysql_errno($this->connection));
+			$e = new DatabaseException(mysql_errno($this->connection) . ': ' . mysql_error($this->connection) .
+				(DEVELOPMENT ? '<br>Query: ' . $this->lastQuery : ''), mysql_errno($this->connection));
 			$e->setQuery($this->lastQuery);
 			throw $e;
 		}
 		return $res;
 	}
 
-	function fetchAssoc($res) {
-		$key = __METHOD__.' ('.$this->lastQuery.')';
+	public function fetchAssoc($res)
+	{
+		$key = __METHOD__ . ' (' . $this->lastQuery . ')';
 		//TaylorProfiler::start($key);
 		if (is_string($res)) {
 			$res = $this->perform($res);
@@ -372,11 +387,13 @@ class MySQL extends DBLayerBase implements DBInterface {
 		return $row;
 	}
 
-	function fetchAssocSeek($res) {
+	public function fetchAssocSeek($res)
+	{
 		return $this->fetchAssoc($res);
 	}
 
-	function fetchRow($res) {
+	public function fetchRow($res)
+	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_string($res)) {
 			$res = $this->perform($res);
@@ -386,61 +403,72 @@ class MySQL extends DBLayerBase implements DBInterface {
 		return $row;
 	}
 
-	function free($res) {
+	public function free($res)
+	{
 		if (is_resource($res)) {
 			mysql_free_result($res);
 		}
 	}
 
-	function numRows($res = NULL) {
+	public function numRows($res = null)
+	{
 		if (is_resource($res ? $res : $this->lastResult)) {
 			return mysql_num_rows($res ? $res : $this->lastResult);
 		}
-		return NULL;
+		return null;
 	}
 
-	function dataSeek($res, $number) {
+	public function dataSeek($res, $number)
+	{
 		return mysql_data_seek($res, $number);
 	}
 
-	function lastInsertID($res, $table = NULL) {
+	public function lastInsertID($res, $table = null)
+	{
 		return mysql_insert_id($this->connection);
 	}
 
-	function transaction() {
+	public function transaction()
+	{
 		//echo '<div class="error">Transaction BEGIN</div>';
 		return $this->perform('BEGIN');
 	}
 
-	function commit() {
+	public function commit()
+	{
 		//echo '<div class="error">Transaction COMMIT</div>';
 		return $this->perform('COMMIT');
 	}
 
-	function rollback() {
+	public function rollback()
+	{
 		//echo '<div class="error">Transaction ROLLBACK</div>';
 		return $this->perform('ROLLBACK');
 	}
 
-	function escape($string) {
+	public function escape($string)
+	{
 		return mysql_real_escape_string($string, $this->connection);
 	}
 
-	function quoteSQL($string) {
+	public function quoteSQL($string, $key = null)
+	{
 		if ($string instanceof Time) {
 			$string = $string->getMySQL();
 		}
-		return "'".$this->escape($string)."'";
+		return "'" . $this->escape($string) . "'";
 	}
 
-	function getDatabaseCharacterSet() {
+	public function getDatabaseCharacterSet()
+	{
 		return current($this->fetchAssoc('show variables like "character_set_database"'));
 	}
 
 	/**
 	 * @return string[]
 	 */
-	function getTables() {
+	public function getTables()
+	{
 		$list = $this->fetchAll('SHOW TABLES');
 		foreach ($list as &$row) {
 			$row = current($row);
@@ -448,17 +476,19 @@ class MySQL extends DBLayerBase implements DBInterface {
 		return $list;
 	}
 
-	function getTableCharset($table) {
+	public function getTableCharset($table)
+	{
 		$query = "SELECT CCSA.* FROM information_schema.`TABLES` T,
     	information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
 		WHERE CCSA.collation_name = T.table_collation
 		/*AND T.table_schema = 'schemaname'*/
-		AND T.table_name = '".$table."'";
+		AND T.table_name = '" . $table . "'";
 		$row = $this->fetchAssoc($query);
 		return $row;
 	}
 
-	function getTableColumns($table) {
+	public function getTableColumns($table)
+	{
 		$details = $this->getTableColumnsEx($table);
 		$keys = array_keys($details);
 		$columns = array_combine($keys, $keys);
@@ -470,20 +500,22 @@ class MySQL extends DBLayerBase implements DBInterface {
 	 * @param $table
 	 * @return array
 	 */
-	function getTableColumnsEx($table) {
-		TaylorProfiler::start(__METHOD__." ({$table})".Debug::getCaller());
-		if ($this->numRows($this->perform("SHOW TABLES LIKE '".$this->escape($table)."'"))) {
-			$query = "SHOW FULL COLUMNS FROM ".$this->quoteKey($table);
+	public function getTableColumnsEx($table)
+	{
+		TaylorProfiler::start(__METHOD__ . " ({$table})" . Debug::getCaller());
+		if ($this->numRows($this->perform("SHOW TABLES LIKE '" . $this->escape($table) . "'"))) {
+			$query = "SHOW FULL COLUMNS FROM " . $this->quoteKey($table);
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
-			$columns = array();
+			$columns = [];
 		}
-		TaylorProfiler::stop(__METHOD__." ({$table})".Debug::getCaller());
+		TaylorProfiler::stop(__METHOD__ . " ({$table})" . Debug::getCaller());
 		return $columns;
 	}
 
-	function __call($method, array $params) {
+	public function __call($method, array $params)
+	{
 		if (!$this->qb) {
 			if (class_exists('Config')) {
 				$this->qb = Config::getInstance()->getQb();
@@ -492,14 +524,15 @@ class MySQL extends DBLayerBase implements DBInterface {
 			}
 		}
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			debug(get_class($this->qb));
-			throw new Exception($method.'() not found in '.get_class($this).' and SQLBuilder');
+			throw new Exception($method . '() not found in ' . get_class($this) . ' and SQLBuilder');
 		}
 	}
 
-	function quoteKey($key) {
+	public function quoteKey($key)
+	{
 		if ($key[0] != '`') {
 			if (in_array(strtoupper($key), $this->reserved)) {
 				$key = '`' . trim($key) . '`';
@@ -523,21 +556,25 @@ class MySQL extends DBLayerBase implements DBInterface {
 		return $key;
 	}
 
-	function switchDB($db) {
-		$this->database= $db;
+	public function switchDB($db)
+	{
+		$this->database = $db;
 		mysql_select_db($this->database);
 		return $this;
 	}
 
-	function affectedRows($res = NULL) {
+	public function affectedRows($res = null)
+	{
 		return mysql_affected_rows();
 	}
 
-	function getIndexesFrom($table) {
-		return $this->fetchAll('SHOW INDEXES FROM '.$table, 'Key_name');
+	public function getIndexesFrom($table)
+	{
+		return $this->fetchAll('SHOW INDEXES FROM ' . $table, 'Key_name');
 	}
 
-	function escapeBool($value) {
+	public function escapeBool($value)
+	{
 		return intval(!!$value);
 	}
 
@@ -550,8 +587,9 @@ class MySQL extends DBLayerBase implements DBInterface {
 	 * @param $limit
 	 * @return array
 	 */
-	function fetchPartitionMySQL($res, $start, $limit) {
-		$data = array();
+	public function fetchPartitionMySQL($res, $start, $limit)
+	{
+		$data = [];
 		for ($i = 0; $i < $start + $limit; $i++) {
 			$row = $this->fetchAssoc($res);
 			if ($row !== false) {
@@ -566,19 +604,23 @@ class MySQL extends DBLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function uncompress($value) {
+	public function uncompress($value)
+	{
 		return @gzuncompress(substr($value, 4));
 	}
 
-	function getScheme() {
+	public function getScheme()
+	{
 		return strtolower(get_class($this));
 	}
 
-	function unsetQueryLog() {
-		$this->queryLog = NULL;
+	public function unsetQueryLog()
+	{
+		$this->queryLog = null;
 	}
 
-	function getInfo() {
+	public function getInfo()
+	{
 		return mysql_info($this->connection);
 	}
 
@@ -587,18 +629,19 @@ class MySQL extends DBLayerBase implements DBInterface {
 	 * @return string
 	 * @deprecated not supported by MySQL PHP extension
 	 */
-	function getPlaceholder($field) {
+	public function getPlaceholder($field)
+	{
 		$slug = URL::getSlug($field);
 		$slug = str_replace('-', '_', $slug);
-		return '@'.$slug;
+		return '@' . $slug;
 	}
 
 	/**
 	 * Overridden because $this->reserved is protected
 	 * @return array
 	 */
-	function getReserved() {
+	public function getReserved()
+	{
 		return $this->reserved;
 	}
-
 }

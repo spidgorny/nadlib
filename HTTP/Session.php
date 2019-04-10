@@ -1,9 +1,18 @@
 <?php
 
+namespace nadlib\HTTP;
+
+use Request;
+
 class Session implements SessionInterface
 {
 
 	public $prefix;
+
+	public static function make($prefix)
+	{
+		return new self($prefix);
+	}
 
 	public function __construct($prefix = null)
 	{
@@ -16,8 +25,10 @@ class Session implements SessionInterface
 	public function start()
 	{
 		if (!Request::isPHPUnit() && !Request::isCLI()) {
-			// not using @ to see when session error happen
-			session_start();
+			if (!headers_sent()) {
+				// not using @ to see when session error happen
+				session_start();
+			}
 		}
 	}
 
@@ -40,6 +51,13 @@ class Session implements SessionInterface
 		} else {
 			return ifsetor($_SESSION[$key]);
 		}
+	}
+
+	public function getOnce($key)
+	{
+		$value = $this->get($key);
+		$this->delete($key);
+		return $value;
 	}
 
 	public function set($key, $val)

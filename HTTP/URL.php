@@ -935,6 +935,11 @@ class URL
 		return $this;
 	}
 
+	public function getScheme()
+	{
+		return ifsetor($this->components['scheme']);
+	}
+
 	public function getHost()
 	{
 		return ifsetor($this->components['host']);

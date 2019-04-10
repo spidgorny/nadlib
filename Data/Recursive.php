@@ -6,32 +6,33 @@
  * Used by {@link Menu} to display the menu item itself as well as contain sub-menus.
  */
 
-class Recursive {
+class Recursive
+{
 
 	/**
 	 * @var string
 	 */
 	public $value;
 
-	public $elements = array();
+	public $elements = [];
 
-	function __construct($value, array $elements = array())
+	public function __construct($value, array $elements = [])
 	{
 		$this->value = $value;
 		$this->elements = $elements;
 	}
 
-	function setValue($value)
+	public function setValue($value)
 	{
 		$this->value = $value;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return strip_tags(strval($this->value));
 	}
 
-	function getChildren()
+	public function getChildren()
 	{
 		return $this->elements;
 	}
@@ -40,7 +41,7 @@ class Recursive {
 	 * @param array $path
 	 * @return Recursive
 	 */
-	function findPath(array $path)
+	public function findPath(array $path)
 	{
 		//debug($path);
 		if ($path) {
@@ -62,7 +63,7 @@ class Recursive {
 	 * @param callable $callback
 	 * @return Recursive
 	 */
-	function eachRecursive($callback)
+	public function eachRecursive($callback)
 	{
 		foreach ($this->elements as $i => &$el) {
 			if ($el instanceof Recursive) {
@@ -82,14 +83,14 @@ class Recursive {
 	 * @param int $level
 	 * @return Recursive
 	 */
-	function eachRecursiveKey($callback, $level = 0)
+	public function eachRecursiveKey($callback, $level = 0)
 	{
-		$new = array();
+		$new = [];
 		foreach ($this->elements as $i => $el) {
 			if ($el instanceof Recursive) {
 				$val = $el->eachRecursiveKey($callback, $level + 1);
 			} else {
-				$val = NULL;
+				$val = null;
 			}
 			$res = call_user_func($callback, $val, $i);
 			if (!is_null($res)) {
