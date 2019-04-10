@@ -4,7 +4,7 @@
  * Class Scaffold
  * @deprecated - use HTMLFormProcessor if you only need the edit form
  */
-abstract class Scaffold extends Controller
+abstract class Scaffold extends AppController
 {
 
 	/**
@@ -323,7 +323,7 @@ abstract class Scaffold extends Controller
 	 * @param array $data - the source data of the edited record, if in edit more
 	 * @return array
 	 */
-	protected function getDesc(array $data = null)
+	protected function getDesc(array $data = [])
 	{
 		$desc = array(
 			'name' => array(

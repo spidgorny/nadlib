@@ -5,7 +5,8 @@
  * Then you can instantiate an object of your class and provide some
  * JSON data, it will extract and convert JSON data to POPO
  */
-class POPOBase {
+class POPOBase
+{
 
 	/**
 	 * @var \ReflectionClass
@@ -17,8 +18,10 @@ class POPOBase {
 	public function __construct($set)
 	{
 		$this->reflector = new ReflectionClass($this);
-		foreach (get_object_vars($set) as $key => $val) {
-			$this->$key = $this->transform($key, $val);
+		if (is_object($set)) {
+			foreach (get_object_vars($set) as $key => $val) {
+				$this->$key = $this->transform($key, $val);
+			}
 		}
 	}
 
@@ -66,7 +69,7 @@ class POPOBase {
 				}
 			}
 		} catch (ReflectionException $e) {
-			$this->missingProperties[$name] = TAB . 'public $'.$name.';';
+			$this->missingProperties[$name] = TAB . 'public $' . $name . ';';
 		}
 		return $value;
 	}

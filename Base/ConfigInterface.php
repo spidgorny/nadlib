@@ -9,5 +9,7 @@ interface ConfigInterface
 	public function getDB();
 
 	public function mergeConfig($obj);
+
+	public function getLL();
 	
 }

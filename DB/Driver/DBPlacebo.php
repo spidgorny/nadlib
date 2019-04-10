@@ -121,6 +121,8 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
 	{
+		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		$this->lastQuery = $query;
 		return array();
 	}
 

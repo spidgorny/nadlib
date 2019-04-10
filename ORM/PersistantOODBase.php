@@ -19,7 +19,8 @@ class PersistantOODBase extends OODBase
 		static public $skipped = 0;
 		// define them in a subclass for static::inserted to work
 	*/
-	function __construct($initer)
+
+	public function __construct($initer)
 	{
 		parent::__construct($initer);
 		$this->originalData = $this->data;
@@ -27,12 +28,12 @@ class PersistantOODBase extends OODBase
 		//debug($this->getStateHash(), $this->stateHash, $this->data, $this->id);
 	}
 
-	function init($id, $fromFindInDB = false)
+	public function init($id, $fromFindInDB = false)
 	{
 		parent::init($id, $fromFindInDB);
 	}
 
-	function getStateHash()
+	public function getStateHash()
 	{
 		$isNull = array_reduce($this->data, function ($acc, $el) {
 			return is_null($acc) && is_null($el) ? null : 'not null';
@@ -56,7 +57,7 @@ class PersistantOODBase extends OODBase
 		}
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		//debug(get_called_class());
 		$this->save();
@@ -68,7 +69,7 @@ class PersistantOODBase extends OODBase
 	 * @param array $data
 	 * @return OODBase
 	 */
-	function insert(array $data)
+	public function insert(array $data)
 	{
 		$ret = null;
 		nodebug([
@@ -100,8 +101,9 @@ class PersistantOODBase extends OODBase
 	 *
 	 * @param array $data
 	 * @return resource
+	 * @throws Exception
 	 */
-	function update(array $data)
+	public function update(array $data)
 	{
 		$ret = parent::update($data);
 		//debug($this->db->lastQuery);
@@ -110,19 +112,19 @@ class PersistantOODBase extends OODBase
 		return $ret;
 	}
 
-	function isChanged()
+	public function isChanged()
 	{
 		return $this->getStateHash() != $this->stateHash;
 	}
 
-	function isUpdate() {
+	public function isUpdate() {
 		$idDefined = is_array($this->id)
 			? trim(implode('', $this->id))
 			: $this->id;
 		return $idDefined;
 	}
 
-	function save(array $where = null)
+	public function save(array $where = null)
 	{
 		if ($this->isChanged()) {
 			0 && debug([
@@ -158,9 +160,9 @@ class PersistantOODBase extends OODBase
 		return $action;
 	}
 
-	function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
+	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
-		$ret = parent::findInDB($where, $orderByLimit);
+		$ret = parent::findInDB($where, $orderByLimit, $selectPlus);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
 		return $ret;

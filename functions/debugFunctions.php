@@ -40,6 +40,11 @@ if (!function_exists('debugList')) {
 		debug($a);
 	}
 
+	function debugTable(array $a)
+	{
+		debug(new slTable($a));
+	}
+
 	function ddie()
 	{
 		debug(func_get_args());

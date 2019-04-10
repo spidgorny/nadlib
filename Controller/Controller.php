@@ -29,7 +29,7 @@ abstract class Controller extends SimpleController
 	public $noRender = false;
 
 	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase
+	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
 	protected $db;
 
