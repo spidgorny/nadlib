@@ -99,7 +99,7 @@ class PGArray extends AsIs
 
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
-	 * @param $input
+	 * @param string $input
 	 * @internal param string $dbarr
 	 * @return array
 	 */
@@ -153,7 +153,7 @@ class PGArray extends AsIs
 
 	/**
 	 * Change a db array into a PHP array
-	 * @param $input
+	 * @param string $input
 	 * @internal param String $arr representing the DB array
 	 * @return A PHP array
 	 */

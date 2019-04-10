@@ -15,6 +15,25 @@ use spidgorny\nadlib\HTTP\URL;
  * will call cronjobAction instead of default render()
  * @mixin Linker
  * @mixin HTML
+ * @method div($content, $class = '', array $more = [])
+ * @method message($content)
+ * @method getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
+ * @method h1($content)
+ * @method h2($content)
+ * @method h3($content)
+ * @method h4($content)
+ * @method h5($content)
+ * @method h6($content)
+ * @method a($href, $text = '', $isHTML = false, array $more = [])
+ * @method error($content)
+ * @method info($content)
+ * @method success($content)
+ * @method img($src, array $attr = [])
+ * @method e($content)
+ * @method makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
+ * @method makeURL(array $params = array(), $prefix = '?')
+ * @method makeRelURL()
+ * @method makeRelLink($text, array $params, $page = '?')
  */
 abstract class Controller extends SimpleController
 {
@@ -34,7 +53,14 @@ abstract class Controller extends SimpleController
 	protected $db;
 
 	/**
+	 * Will be taken as a <title> of the HTML table
+	 * @var string
+	 */
+	public $title;
+
+	/**
 	 * @var UserModelInterface
+	 * @var Person|NoPerson
 	 */
 	public $user;
 
@@ -55,11 +81,6 @@ abstract class Controller extends SimpleController
 	 * @var Config
 	 */
 	public $config;
-
-	/**
-	 * @var AutoLoad
-	 */
-	protected $al;
 
 	/**
 	 * Used by Collection to get the current sorting method.
@@ -89,7 +110,6 @@ abstract class Controller extends SimpleController
 //			$this->user = $this->config->getUser();
 			$this->config->mergeConfig($this);
 		}
-		$this->al = AutoLoad::getInstance();
 
 		$this->linker = new Linker($this->request);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();
@@ -183,7 +203,7 @@ abstract class Controller extends SimpleController
 
 	public function inColumnsHTML5()
 	{
-		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -196,7 +216,7 @@ abstract class Controller extends SimpleController
 
 	public function inEqualColumnsHTML5()
 	{
-		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
@@ -230,7 +250,7 @@ abstract class Controller extends SimpleController
 	 */
 	public function encloseInTable()
 	{
-		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/columnContainer.less');
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/columnContainer.less');
 		$elements = func_get_args();
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {

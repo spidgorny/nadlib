@@ -30,7 +30,7 @@ class AlterDB extends AppControllerBE
 
 	protected $file;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		if (!$this->user || !$this->user->can('Admin')) {
@@ -38,10 +38,10 @@ class AlterDB extends AppControllerBE
 			// access controlled by AlterDB::$public which is false
 		}
 		$this->file = $this->request->getTrim('file');
-		$this->linkVars['file'] = $this->file;
+		$this->linker->linkVars['file'] = $this->file;
 	}
 
-	function wrongApproach()
+	public function wrongApproach()
 	{
 		$query = "CREATE TABLE app_appointment (
   id int(11) NOT NULL auto_increment,
@@ -85,7 +85,7 @@ class AlterDB extends AppControllerBE
 		//debug(substr($query, 0, 1000));
 	}
 
-	function render()
+	public function render()
 	{
 		$content = '';
 		$content .= $this->getFileChoice();
@@ -122,7 +122,7 @@ class AlterDB extends AppControllerBE
 		return $content;
 	}
 
-	function getFileChoice()
+	public function getFileChoice()
 	{
 		$menu = array();
 		$sqlFolder = Config::getInstance()->appRoot . '/sql/';
@@ -148,7 +148,7 @@ class AlterDB extends AppControllerBE
 		return $content;
 	}
 
-	function getQueryFrom($file)
+	public function getQueryFrom($file)
 	{
 		$query = file_get_contents($file);
 		$query = str_replace('`', '', $query);
@@ -159,7 +159,7 @@ class AlterDB extends AppControllerBE
 		return $query;
 	}
 
-	function initInstallerSQL()
+	public function initInstallerSQL()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$config = Config::getInstance();
@@ -175,7 +175,7 @@ class AlterDB extends AppControllerBE
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function getDiff($query)
+	public function getDiff($query)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$FDfile = $this->installerSQL->getFieldDefinitions_fileContent($query);
@@ -190,7 +190,7 @@ class AlterDB extends AppControllerBE
 		return $diff;
 	}
 
-	function filterDifferencesFile(array $FDfile)
+	public function filterDifferencesFile(array $FDfile)
 	{
 		foreach ($FDfile as $table => &$desc) {
 			foreach ($desc['fields'] as $field => &$type) {
@@ -204,7 +204,7 @@ class AlterDB extends AppControllerBE
 		return $FDfile;
 	}
 
-	function filterDifferencesDB(array $FDdb)
+	public function filterDifferencesDB(array $FDdb)
 	{
 		foreach ($FDdb as $table => &$desc) {
 			$info = $this->db->getTableColumns($table);
@@ -224,7 +224,7 @@ class AlterDB extends AppControllerBE
 		return $FDdb;
 	}
 
-	function showDifferences(array $diff)
+	public function showDifferences(array $diff)
 	{
 		$content = '';
 		$content .= $this->showCreate();
@@ -233,24 +233,26 @@ class AlterDB extends AppControllerBE
 		return $content;
 	}
 
-	function showCreate()
+	public function showCreate()
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
-		if ($update_statements['create_table']) foreach ($update_statements['create_table'] as $md5 => $query) {
-			$content .= '<pre>' . ($query);
-			$content .= ' ' . $this->makeRelLink('CREATE', array(
-					'action' => 'do',
-					'file' => $this->file,
-					'key' => 'create_table',
-					'query' => $md5,
-				));
-			$content .= '</pre>';
+		if ($update_statements['create_table']) {
+			foreach ($update_statements['create_table'] as $md5 => $query) {
+				$content .= '<pre>' . ($query);
+				$content .= ' ' . $this->makeRelLink('CREATE', array(
+						'action' => 'do',
+						'file' => $this->file,
+						'key' => 'create_table',
+						'query' => $md5,
+					));
+				$content .= '</pre>';
+			}
 		}
 		return $content;
 	}
 
-	function showChanges(array $diff)
+	public function showChanges(array $diff)
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
@@ -280,33 +282,37 @@ class AlterDB extends AppControllerBE
 		return $content;
 	}
 
-	function showExtras(array $diff)
+	public function showExtras(array $diff)
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
-		if ($diff['extra']) foreach ($diff['extra'] as $table => $desc) {
-			$list = array();
-			if (is_array($desc['fields'])) foreach ($desc['fields'] as $field => $type) {
-				$list[] = array(
-					'field' => $field,
-					'file' => $type,
-					'sql' => $sql = $this->findStringWith($update_statements['add'], array($table, $field)),
-					'do' => $this->makeRelLink('ADD', array(
-						'action' => 'do',
-						'file' => $this->file,
-						'key' => 'add',
-						'query' => md5($sql),
-					)),
-				);
+		if ($diff['extra']) {
+			foreach ($diff['extra'] as $table => $desc) {
+				$list = array();
+				if (is_array($desc['fields'])) {
+					foreach ($desc['fields'] as $field => $type) {
+						$list[] = array(
+							'field' => $field,
+							'file' => $type,
+							'sql' => $sql = $this->findStringWith($update_statements['add'], array($table, $field)),
+							'do' => $this->makeRelLink('ADD', array(
+								'action' => 'do',
+								'file' => $this->file,
+								'key' => 'add',
+								'query' => md5($sql),
+							)),
+						);
+					}
+				}
+				$content .= $this->showTable($list, $table);
 			}
-			$content .= $this->showTable($list, $table);
 		}
 		//debug($update_statements, Debug::LEVELS, 1);
 		//debug($update_statements['create_table']);
 		return $content;
 	}
 
-	function showTable(array $list, $table)
+	public function showTable(array $list, $table)
 	{
 		if ($list) {
 			$s = new slTable($list, 'class="table"', array(
@@ -324,12 +330,12 @@ class AlterDB extends AppControllerBE
 		return $content;
 	}
 
-	function findStringWith(array $options, array $with)
+	public function findStringWith(array $options, array $with)
 	{
 		foreach ($options as $el) {
 			$false = false;
 			foreach ($with as $search) {
-				if (strpos($el, $search) === FALSE) {
+				if (strpos($el, $search) === false) {
 					$false = true;
 					continue;
 				}
@@ -340,7 +346,7 @@ class AlterDB extends AppControllerBE
 		}
 	}
 
-	function doAction()
+	public function doAction()
 	{
 		$md5 = $this->request->getTrim('query');
 		$key = $this->request->getTrim('key');
@@ -351,7 +357,7 @@ class AlterDB extends AppControllerBE
 			$this->db->perform($query);
 			$cache = new MemcacheArray(__CLASS__);
 			$cache->clearCache();
-			$this->request->redirect($this->makeRelURL());
+			$this->request->redirect($this->linker->makeRelURL());
 		}
 	}
 

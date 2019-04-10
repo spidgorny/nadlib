@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class View extends stdClass {
 
 	//use HTMLHelper;
@@ -162,8 +164,8 @@ class View extends stdClass {
 	/**
 	 * Really primitive and buggy.
 	 * @use markdown() instead
-	 * @param $text
-	 * @param null $linkCallback
+	 * @param string $text
+	 * @param callable $linkCallback
 	 * @return mixed|string
 	 */
 	public function wikify($text, $linkCallback = null)
@@ -175,7 +177,7 @@ class View extends stdClass {
 			if ($line{0} == '*' || $line{0} == '-') {
 				if (!$inUL) {
 					$lines2[] = "<ul>";
-					$inUL = TRUE;
+					$inUL = true;
 				}
 			}
 			$lines2[] = $inUL
@@ -184,7 +186,7 @@ class View extends stdClass {
 			if ($line{0} != '*' && $line{0} != '-') {
 				if ($inUL) {
 					$lines2[] = "</ul>";
-					$inUL = FALSE;
+					$inUL = false;
 				}
 			}
 		}
@@ -234,7 +236,7 @@ class View extends stdClass {
 
 	/**
 	 * Uses htmlspecialchars()
-	 * @param $str
+	 * @param string $str
 	 * @return string
 	 */
 	public function escape($str)

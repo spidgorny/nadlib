@@ -1,18 +1,20 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class HTML
 {
 
 //	use HTMLHelper;
 
-	function s($something)
+	public function s($something)
 	{
 		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
 	/**
 	 * @param string|URL $href
-	 * @param string|htmlString $text
+	 * @param string|htmlString|HTMLTag $text
 	 * @param bool $isHTML
 	 * @param array $more
 	 * @return HTMLTag

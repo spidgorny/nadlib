@@ -93,7 +93,7 @@ class Linker
 
 	/**
 	 * Returns '<a href="$page?$params" $more">$text</a>
-	 * @param $text
+	 * @param string $text
 	 * @param array $params
 	 * @param string $page
 	 * @param array $more
@@ -137,7 +137,7 @@ class Linker
 
 	/**
 	 * Just appends $this->linkVars
-	 * @param $text
+	 * @param string $text
 	 * @param array $params
 	 * @param string $page
 	 * @return HTMLTag
@@ -152,9 +152,9 @@ class Linker
 	/**
 	 * There is no $formMore parameter because you get the whole form returned.
 	 * You can modify it after returning as you like.
-	 * @param $name string|htmlString - if object then will be used as is
+	 * @param string|htmlString $name - if object then will be used as is
 	 * @param string|null $action
-	 * @param $formAction
+	 * @param string $formAction
 	 * @param array $hidden
 	 * @param string $submitClass
 	 * @param array $submitParams

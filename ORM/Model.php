@@ -38,8 +38,9 @@ class Model
 	 * @param DBInterface $db
 	 * @return static
 	 * @throws DatabaseException
+	 * @throws Exception
 	 */
-	static function getInstance(array $data, DBInterface $db = null)
+	public static function getInstance(array $data, DBInterface $db = null)
 	{
 		$obj = new static(null);
 		$obj->setDB($db ?: Config::getInstance()->getDB());
@@ -53,14 +54,14 @@ class Model
 	 * @param $id
 	 * @return static
 	 */
-	static function getInstanceByID(DBInterface $db, $id)
+	public static function getInstanceByID(DBInterface $db, $id)
 	{
 		$obj = new static($db, []);
 		$obj->getByID($id);
 		return $obj;
 	}
 
-	function __construct(DBInterface $db = null, array $data = [])
+	public function __construct(DBInterface $db = null, array $data = [])
 	{
 		if ($db) {
 			$this->setDB($db);
@@ -78,7 +79,7 @@ class Model
 	 * different data types in DB and in runtime.
 	 * @param array $data
 	 */
-	function setData(array $data)
+	public function setData(array $data)
 	{
 		foreach ($data as $key => $val) {
 			$this->$key = $val;
@@ -99,6 +100,7 @@ class Model
 	}
 
 	/**
+	 * @param array $where
 	 * @return ArrayPlus
 	 * @deprecated
 	 */
@@ -112,6 +114,7 @@ class Model
 	}
 
 	/**
+	 * @param array $where
 	 * @return ArrayPlus
 	 * @deprecated
 	 */
@@ -127,7 +130,7 @@ class Model
 		return $data;
 	}
 
-	function renderList()
+	public function renderList()
 	{
 		$list = array();
 		if ($this->getData()->count()) {
@@ -154,7 +157,7 @@ class Model
 		return null;
 	}
 
-	function insert(array $data, array $where = [])
+	public function insert(array $data, array $where = [])
 	{
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();

@@ -2,6 +2,8 @@
 
 namespace spidgorny\nadlib\HTTP;
 
+use LogEntry;
+use nadlib\Proxy;
 use Request;
 use Path;
 use AutoLoad;
@@ -49,14 +51,28 @@ class URL
 	 */
 	public $cookies = [];
 
+	public $headers = [];
+
+	public $user_agent;
+
+	public $cookie_file;
+
+	public $compression;
+
 	/**
-	 * @param null $url - if not specified then the current page URL is reconstructed
+	 * @var Proxy
+	 */
+	public $proxy;
+
+	/**
+	 * @param string $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
 	public function __construct($url = null, array $params = [])
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
+			throw new \RuntimeException(__METHOD__);
 		}
 		if (!isset($url)) { // empty string should not default to localhost
 			$http = Request::getRequestType();
@@ -77,6 +93,9 @@ class URL
 //		if (class_exists('Config')) {
 //			$this->setDocumentRoot(Config::getInstance()->documentRoot);
 //		}
+		// infinite recursion
+//		$this->setDocumentRoot(Request::getInstance()->getDocumentRoot());
+		$this->setDocumentRoot(Request::getDocumentRootByRequest());
 	}
 
 	/**
@@ -239,6 +258,8 @@ class URL
 	public function reset()
 	{
 		$this->components['path'] = $this->documentRoot;
+		$this->components['query'] = '';
+		$this->clearParams();
 	}
 
 	/**
@@ -987,8 +1008,13 @@ class URL
 		}
 		$path = $this->getPath();
 		$diff = str_replace($this->documentRoot, '', $path);
-		//debug($path, $this->documentRoot, $diff);
-		$path = str_replace($diff, $newController, $path);
+		nodebug([
+			'original' => $path.'',
+			'docroot' => $this->documentRoot,
+			'diff' => $diff,
+			'replace-by' => $newController,
+		]);
+		$path = str_replace($diff, '/'.$newController, $path);
 		$this->setPath($path);
 		return $this;
 	}

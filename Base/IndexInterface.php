@@ -2,7 +2,13 @@
 
 namespace nadlib;
 
-interface IndexInterface {
+/**
+ * Interface IndexInterface
+ * @package nadlib
+ * @mixin
+ */
+interface IndexInterface
+{
 
 	static function getInstance($createNew = false);
 

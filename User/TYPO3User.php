@@ -16,24 +16,29 @@ class TYPO3User extends UserBase
 	 */
 	public $t3user;
 
-	function __construct($id = NULL)
+	public function __construct($id = null)
 	{
 		parent::__construct($id);
 		$this->t3user = $GLOBALS["TSFE"]->fe_user;    // set to be_user if you need
 	}
 
-	function getPref($key)
+	public function getPref($key)
 	{
 		return $this->t3user->getKey('user', $key);
 	}
 
-	function setPref($key, $val)
+	public function setPref($key, $val)
 	{
 		$this->t3user->setKey('user', $key, $val);
 		$this->t3user->storeSessionData();
 	}
 
-	public function try2login()
+	/**
+	 * @param string $login
+	 * @param string $email
+	 * @return mixed
+	 */
+	public function try2login($login, $email = null)
 	{
 		// TODO: Implement try2login() method.
 	}
@@ -51,5 +56,24 @@ class TYPO3User extends UserBase
 	public function getAvatarURL()
 	{
 		// TODO: Implement getAvatarURL() method.
+	}
+
+	/**
+	 * @param string $acl
+	 * @return bool
+	 */
+	public function can($acl)
+	{
+		// TODO: Implement can() method.
+	}
+
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
+	}
+
+	public function getAllSettings()
+	{
+		// TODO: Implement getAllSettings() method.
 	}
 }

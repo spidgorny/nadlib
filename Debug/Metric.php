@@ -37,6 +37,7 @@ class Metric
 
 		$this->renderTable($attr + $props, $last);
 
+		$p1 = 0;
 		if ($last) {
 			$p1 = $this->showTotalProgress($last);
 			echo 'Metric from prev. run: ', $p1, PHP_EOL;
@@ -50,9 +51,11 @@ class Metric
 //		debug($last['generated'], $attr['generated']);
 		$save = $this->save && ifsetor($last['generated']) != $attr['generated'];
 		if ($save) {
-			file_put_contents(getcwd() . '/metric.log',
+			file_put_contents(
+				getcwd() . '/metric.log',
 				json_encode($attr + $props) . PHP_EOL,
-				FILE_APPEND);
+				FILE_APPEND
+			);
 		}
 	}
 
