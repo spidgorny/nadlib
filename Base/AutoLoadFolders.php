@@ -231,8 +231,8 @@ class AutoLoadFolders
 
 	/**
 	 * Called to autoload a class from a namespace
-	 * @param $className
-	 * @param $namespace
+	 * @param string $className
+	 * @param string $namespace
 	 * @return string
 	 */
 	function findInFolders($className, $namespace)

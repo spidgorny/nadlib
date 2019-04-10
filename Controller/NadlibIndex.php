@@ -13,7 +13,12 @@ class NadlibIndex
 	 */
 	static $instance;
 
-	function __construct()
+	/**
+	 * @var DIContainer
+	 */
+	protected $dic;
+
+	public function __construct()
 	{
 		if (file_exists('vendor/autoload.php')) {
 			require_once 'vendor/autoload.php';

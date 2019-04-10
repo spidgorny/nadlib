@@ -5,18 +5,20 @@
  * This may not be used as an alternative to 'makeOR'. Use SQLIn instead.
  */
 
-class SQLOr extends SQLWherePart {
+class SQLOr extends SQLWherePart
+{
 
 	protected $or = array();
 
 	/**
-	 * @var dbLayerPG|DBLayer
+	 * @var DBInterface
 	 */
 	protected $db;
 
 	protected $join = ' OR ';
 
-	function __construct(array $ors) {
+	public function __construct(array $ors)
+	{
 		//parent::__construct();
 		$this->or = $ors;
 		$this->db = Config::getInstance()->getDB();
@@ -28,18 +30,19 @@ class SQLOr extends SQLWherePart {
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	function __toString() {
+	public function __toString()
+	{
 		$ors = array();
 		//debug(get_class($this->db));
-		if (false && $this->db instanceof dbLayerPG) {
+		if (false && $this->db instanceof DBLayerPG) {
 			$ors[] = $this->bijouStyle();
 		} elseif (false && $this->db instanceof DBLayer) {
-			$ors[]  = $this->dciStyle();
-		} else {						// MySQL
+			$ors[] = $this->dciStyle();
+		} else {                        // MySQL
 			$ors = $this->db->quoteWhere($this->or);
 		}
 		if ($ors) {
-			$res = '('.implode($this->join, $ors).')';
+			$res = '(' . implode($this->join, $ors) . ')';
 		} else {
 			$res = '/* EMPTY OR */';
 		}
@@ -47,21 +50,23 @@ class SQLOr extends SQLWherePart {
 		return $res;
 	}
 
-	function bijouStyle() {
+	public function bijouStyle()
+	{
 		// bijou
 		$ors = array();
 		foreach ($this->or as $key => $or) {
-			if (is_main($key)) {
+			if ($this->is_main($key)) {
 				$ors[] = $this->db->getWherePart(array(
 					$key => $or,
-					$key.'.' => $this->or[$key.'.'],
+					$key . '.' => $this->or[$key . '.'],
 				), false);
 			}
 		}
 		return first($ors);
 	}
 
-	function dciStyle() {
+	public function dciStyle()
+	{
 		$ors = array();
 		// DCI, ORS
 		// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
@@ -78,7 +83,7 @@ class SQLOr extends SQLWherePart {
 			}
 		} elseif (!is_int($this->field)) {
 			foreach ($this->or as $field => $or) {
-				$tmp = $this->qb->quoteWhere(
+				$tmp = $this->db->quoteWhere(
 					array(trim($this->field) => $or)
 				//$or
 				);
@@ -95,11 +100,13 @@ class SQLOr extends SQLWherePart {
 		return first($ors);
 	}
 
-	function debug() {
+	public function debug()
+	{
 		return array($this->field => $this->or);
 	}
 
-	function getParameter() {
+	public function getParameter()
+	{
 		$params = array();
 		/**
 		 * @var string $field
@@ -114,6 +121,11 @@ class SQLOr extends SQLWherePart {
 			}
 		}
 		return $params;
+	}
+
+	private function is_main($key)
+	{
+		return $key[0] != '.';
 	}
 
 }

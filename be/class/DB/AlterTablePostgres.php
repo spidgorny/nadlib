@@ -3,7 +3,7 @@
 class AlterTablePostgres extends AlterTableHandler implements AlterTableInterface {
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param TableField[] $columns
 	 * @return mixed|string
 	 */

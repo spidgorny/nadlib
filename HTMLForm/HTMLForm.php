@@ -85,7 +85,7 @@ class HTMLForm
 	/**
 	 * Set empty to unset prefix
 	 *
-	 * @param string $p
+	 * @param string|null $p
 	 *
 	 * @return $this
 	 */
@@ -152,7 +152,7 @@ class HTMLForm
 	 *
 	 * @return string
 	 */
-	public function getInput($type, $name, $value = NULL, array $more = [], $extraClass = '', $namePlus = '')
+	public function getInput($type, $name, $value = null, array $more = [], $extraClass = '', $namePlus = '')
 	{
 //		debug($type, $name, $value, $more, $extraClass, $namePlus);
 		$attrs = [];
@@ -331,7 +331,7 @@ class HTMLForm
 	 */
 	public function selection(
 		$name, array $aOptions = null, $default,
-		$autoSubmit = false, $more = [],
+		$autoSubmit = false, array $more = [],
 		$multiple = false, array $desc = []
 	)
 	{
@@ -892,7 +892,7 @@ document.observe("dom:loaded", () => {
 	 *
 	 * @return string
 	 */
-	public static function getAttrHTML(array $attr = NULL)
+	public static function getAttrHTML(array $attr = null)
 	{
 		if ($attr) {
 			return HTMLTag::renderAttr($attr);

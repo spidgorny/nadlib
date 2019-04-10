@@ -13,6 +13,7 @@
  * @method getInfo();
  * @method getConnection();
  * @method getViews();
+ * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 interface DBInterface
 {

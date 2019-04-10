@@ -7,7 +7,7 @@ class TestConfig extends ConfigBase
 	{
 		if (!$this->db) {
 			$this->db = new DBPlacebo();
-			$this->db->qb = $this->getQb();
+			$this->db->qb = $this->getQB();
 		}
 		return $this->db;
 	}

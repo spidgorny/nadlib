@@ -1,6 +1,7 @@
 <?php
 
-class DSNBuilderPostgreSQL extends DSNBuilder {
+class DSNBuilderPostgreSQL extends DSNBuilder
+{
 
 	var $host;
 	var $user;
@@ -8,7 +9,7 @@ class DSNBuilderPostgreSQL extends DSNBuilder {
 	var $db;
 	var $port;
 
-	function __construct($host, $user, $pass, $db, $port = 3306)
+	function __construct($host, $user, $pass, $db, $port = 5432)
 	{
 		$this->host = $host;
 		$this->user = $user;
@@ -24,7 +25,7 @@ class DSNBuilderPostgreSQL extends DSNBuilder {
 			'dbname' => $this->db,
 			'port' => $this->port,
 		);
-		return 'pgsql:'.$this->getDSN($aDSN);
+		return 'pgsql:' . $this->getDSN($aDSN);
 	}
 
 }

@@ -6,7 +6,8 @@
  * This class stores the structure in JSON files and then reads them back.
  * This gives a more reliable comparison.
  */
-class AlterTable extends AlterIndex {
+class AlterTable extends AlterIndex
+{
 
 	var $different = 0;
 	var $same = 0;
@@ -264,7 +265,19 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function runSQLAction()
+	/**
+	 * TODO
+	 * @see AlterTableHandler
+	 * @param array $a
+	 * @param array $b
+	 * @return bool
+	 */
+	public function sameType($a, $b)
+	{
+		return false;
+	}
+
+	public function runSQLAction()
 	{
 		$table = $this->request->getTrimRequired('table');
 		$sql = $this->request->getTrim('sql');

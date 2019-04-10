@@ -45,9 +45,9 @@ class DBLayerORA extends DBLayer implements DBInterface
 		list($time1['usec'], $time1['sec']) = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
-		$cursor = NULL;
+		$cursor = null;
 		$this->LAST_PERFORM_RESULT = ora_open($this->connection);
-		ora_parse($cursor, $query, TRUE) or $canprint ? my_print_backtrace($query) : '';
+		ora_parse($cursor, $query, true) or $canprint ? debug($query) : '';
 		ora_exec($this->LAST_PERFORM_RESULT);
 
 		list($time2['usec'], $time2['sec']) = explode(" ", microtime());
@@ -56,7 +56,7 @@ class DBLayerORA extends DBLayer implements DBInterface
 		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
 		if ($this->debugOnce || $this->debug) {
 			debug(array($query, $numRows));
-			$this->debugOnce = FALSE;
+			$this->debugOnce = false;
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
 		$debug = debug_backtrace();

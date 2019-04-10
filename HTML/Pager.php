@@ -2,7 +2,8 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class Pager {
+class Pager
+{
 
 	/**
 	 * Total amount of rows in database (with WHERE)
@@ -47,7 +48,7 @@ class Pager {
 	protected $prefix;
 
 	/**
-	 * @var User|LoginUser|blUser|grUser|NadlibUser
+	 * @var UserModelInterface
 	 */
 	protected $user;
 
@@ -83,7 +84,12 @@ class Pager {
 	 */
 	public $countQuery;
 
-	function __construct($itemsPerPage = null, $prefix = '')
+	/**
+	 * @var DBInterface
+	 */
+	protected $db;
+
+	public function __construct($itemsPerPage = null, $prefix = '')
 	{
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
@@ -108,7 +114,7 @@ class Pager {
 	/**
 	 * To be called only after setNumberOfRecords()
 	 */
-	function detectCurrentPage()
+	public function detectCurrentPage()
 	{
 		$pagerData = ifsetor($_REQUEST['Pager.' . $this->prefix],
 			ifsetor($_REQUEST['Pager_' . $this->prefix]));
@@ -399,7 +405,7 @@ class Pager {
 			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
 			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
 			'getPagesAround()' => $pages = $this->getPagesAround($this->currentPage, $this->getMaxPage()),
-			'url' => $this->url.'',
+			'url' => $this->url . '',
 			'pagesAround' => $this->pagesAround,
 			'showPageJump' => $this->showPageJump,
 			'showPager' => $this->showPager,
@@ -407,7 +413,7 @@ class Pager {
 		);
 	}
 
-	function renderPageSize()
+	public function renderPageSize()
 	{
 		$this->pageSize->setURL(new URL(null, array()));
 		$this->pageSize->set($this->itemsPerPage);
@@ -462,7 +468,7 @@ class Pager {
 		return $content;
 	}
 
-	function getSinglePageLink($k, $text)
+	public function getSinglePageLink($k, $text)
 	{
 		$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $k));
 		if ($k == $this->currentPage) {
@@ -483,7 +489,7 @@ class Pager {
 	 * @param $max
 	 * @return array
 	 */
-	function getPagesAround($current, $max)
+	public function getPagesAround($current, $max)
 	{
 		$size = $this->pagesAround;
 		$pages = array();
@@ -517,12 +523,12 @@ class Pager {
 		return $pages;
 	}
 
-	function getVisiblePages()
+	public function getVisiblePages()
 	{
 		return $this->getPagesAround($this->currentPage, $this->getMaxPage());
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$properties = get_object_vars($this);
 		unset($properties['graphics']);
@@ -540,12 +546,12 @@ class Pager {
 		return '<blockquote style="background-color: silver; border: solid 1px lightblue;"><pre>' . get_class($this) . ' [' . print_r($properties, TRUE) . ']</pre></blockquote>';
 	}
 
-	function getURL()
+	public function getURL()
 	{
 		return $this->url . '&pager[page]=' . ($this->currentPage);
 	}
 
-	function getObjectInfo()
+	public function getObjectInfo()
 	{
 		return get_class($this) . ': "' . $this->itemsPerPage . '" (id:' . $this->id . ' #' . spl_object_hash($this) . ')';
 	}
@@ -566,7 +572,7 @@ class Pager {
 		return $this->user;
 	}
 
-	function loadMoreButton($controller)
+	public function loadMoreButton($controller)
 	{
 		$content = '';
 		//debug($pager->currentPage, $pager->getMaxPage());
@@ -584,14 +590,14 @@ class Pager {
 		return $content;
 	}
 
-	function setIterator(Iterator $iterator)
+	public function setIterator(Iterator $iterator)
 	{
 		$this->iterator = $iterator;
 		$this->setNumberOfRecords($iterator->count());
 		$this->detectCurrentPage();
 	}
 
-	function getPageData()
+	public function getPageData()
 	{
 		$data = [];
 
@@ -611,7 +617,7 @@ class Pager {
 		return $data;
 	}
 
-	function slice(array $data)
+	public function slice(array $data)
 	{
 		$this->setNumberOfRecords(sizeof($data));
 		$this->detectCurrentPage();

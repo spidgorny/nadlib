@@ -17,7 +17,7 @@ abstract class FullGrid extends Grid
 
 	/**
 	 */
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		// calls $this->initFilter();
@@ -46,7 +46,7 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
-	 * @param null $collection
+	 * @param string $collection
 	 * @throws LoginException
 	 * @throws ReflectionException
 	 */
@@ -127,14 +127,14 @@ abstract class FullGrid extends Grid
 		return $ret;
 	}
 
-	function render()
+	public function render()
 	{
 		$this->setVisibleColumns();
 		//$this->collection->pageSize = $this->pageSize;
 		return parent::render();
 	}
 
-	function setVisibleColumns()
+	public function setVisibleColumns()
 	{
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
@@ -150,13 +150,14 @@ abstract class FullGrid extends Grid
 	 * @return array
 	 * @throws Exception
 	 */
-	function getFilterWhere()
+	public function getFilterWhere()
 	{
 		return $this->filterController->getFilterWhere(
-			$this->getFilterDesc());
+			$this->getFilterDesc()
+		);
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		$fields = $this->collection->thes;
 		$content[] = $this->getFilterForm($fields);
@@ -166,10 +167,10 @@ abstract class FullGrid extends Grid
 
 	/**
 	 * @param array $fields
-	 * @return array|HTMLFormTable
+	 * @return HTMLForm
 	 * @throws Exception
 	 */
-	function getFilterForm(array $fields = [])
+	public function getFilterForm(array $fields = [])
 	{
 		if (method_exists($this, 'getFilterDesc')) {
 			$this->filterController->desc = $this->getFilterDesc($fields);
@@ -189,12 +190,12 @@ abstract class FullGrid extends Grid
 	 * @throws Exception
 	 * @return array
 	 */
-	function getFilterDesc(array $fields = NULL)
+	public function getFilterDesc(array $fields = null)
 	{
 		return $this->filterController->getFilterDesc($fields);
 	}
 
-	function getColumnsForm()
+	public function getColumnsForm()
 	{
 //		debug($this->getGridColumns());
 //		debug($this->columns->getData());
@@ -223,7 +224,7 @@ abstract class FullGrid extends Grid
 	/**
 	 * @throws Exception
 	 */
-	function injectCollection()
+	public function injectCollection()
 	{
 		parent::injectCollection();
 		debug($this->collection->where,

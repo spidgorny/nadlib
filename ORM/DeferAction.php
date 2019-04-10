@@ -1,18 +1,23 @@
 <?php
 
-class DeferAction extends OODBase {
+class DeferAction extends OODBase
+{
 	const table = 'defer_action';
 	var $table = self::table;
 	const idField = 'id';
 	var $idField = self::idField;
 
-	function __construct($queue) {
+	var $queue;
+
+	public function __construct($queue)
+	{
 		parent::__construct();
 		$this->queue = $queue;
 		//debug($this->table);
 	}
 
-	function put(Time $time, $object, array $constructor, $action, array $params) {
+	public function put(Time $time, $object, array $constructor, $action, array $params)
+	{
 		$insert = array(
 			'queue' => $this->queue,
 			'time' => new SQLDateTime($time),
@@ -25,7 +30,9 @@ class DeferAction extends OODBase {
 		return $this->insert($insert);
 	}
 
-	function processNextTask() {
+	public function processNextTask()
+	{
+		$content = '';
 		$this->db->transaction();
 		$task = $this->fetchTasks();
 		if ($task) {
@@ -33,7 +40,7 @@ class DeferAction extends OODBase {
 			$this->data = $task;
 
 			//debug($this->db->lastQuery, $task);
-			include_once(dirname(__FILE__).'/../../../ext/'.$task['object'].'/class.'.$task['object'].'.php');
+			include_once(dirname(__FILE__) . '/../../../ext/' . $task['object'] . '/class.' . $task['object'] . '.php');
 			$klass = new ReflectionClass($task['object']);
 			$thing = $klass->newInstanceArgs(json_decode($task['constructor'], true));
 			$content = call_user_func_array(array($thing, $task['action']), json_decode($task['params'], true));
@@ -44,9 +51,10 @@ class DeferAction extends OODBase {
 		return $content;
 	}
 
-	function fetchTasks() {
+	public function fetchTasks()
+	{
 		return $this->db->fetchSelectQuery($this->table, array(
-			'time' => new AsIs('< NOW()', true),
+			'time' => new AsIsOp('< NOW()'),
 			'done' => false,
 		), 'LIMIT 1');
 	}

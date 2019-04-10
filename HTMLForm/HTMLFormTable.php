@@ -581,6 +581,11 @@ class HTMLFormTable extends HTMLForm
 		return $desc;
 	}
 
+	public function formatDate($timestamp, $key)
+	{
+		return date('Y-m-d H:i:s', $timestamp);
+	}
+
 	/**
 	 * @param array $assoc
 	 * @param bool $forceInsert

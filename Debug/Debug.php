@@ -24,9 +24,9 @@ class Debug
 	var $name;
 
 	/**
-	 * @param $index Index|IndexBE
+	 * @param Index|IndexBE $index
 	 */
-	function __construct($index)
+	public function __construct($index)
 	{
 		$this->index = $index;
 		self::$instance = $this;

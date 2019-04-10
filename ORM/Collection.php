@@ -87,7 +87,8 @@ class Collection implements IteratorAggregate
 
 	/**
 	 * getQuery() stores the final query here for debug
-	 * @var string
+	 * is null until initialized
+	 * @var string|null
 	 */
 	public $query;
 
@@ -539,7 +540,7 @@ class Collection implements IteratorAggregate
 		$this->log('getData() data->count: ' .
 			is_null($this->data) ? 'NULL' :	count($this->data));
 		if (!$this->isFetched()) {
-			$this->retrieveData(false, false);
+			$this->retrieveData(false);
 		}
 		if (!($this->data instanceof ArrayPlus)) {
 			$this->data = ArrayPlus::create($this->data);
@@ -760,6 +761,7 @@ class Collection implements IteratorAggregate
 	 * @param array $where
 	 * @param string $orderBy
 	 * @return Collection
+	 * @throws Exception
 	 */
 	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = '')
 	{
@@ -806,7 +808,9 @@ class Collection implements IteratorAggregate
 
 	public function objectifyAsPlus()
 	{
-		return ArrayPlus::create($this->objectify($this->itemClassName, $this->objectifyByInstance));
+		return ArrayPlus::create(
+			$this->objectify($this->itemClassName, $this->objectifyByInstance)
+		);
 	}
 
 	public function __toString()
@@ -1054,7 +1058,7 @@ class Collection implements IteratorAggregate
 	}
 
 	/**
-	 * @param null $class
+	 * @param string $class
 	 * @return LazyMemberIterator|$class[]
 	 */
 	public function getLazyMemberIterator($class = null)
@@ -1157,7 +1161,7 @@ class Collection implements IteratorAggregate
 	 * (PHP 5 &gt;= 5.0.0)<br/>
 	 * Retrieve an external iterator
 	 * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-	 * @return Traversable An instance of an object implementing <b>Iterator</b> or
+	 * @return ArrayPlus Traversable An instance of an object implementing <b>Iterator</b> or
 	 * <b>Traversable</b>
 	 * @throws Exception
 	 */

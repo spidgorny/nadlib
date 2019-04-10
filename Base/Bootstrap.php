@@ -5,7 +5,7 @@ namespace spidgorny\nadlib;
 class Bootstrap
 {
 
-	function boot()
+	public function boot()
 	{
 		echo 'cwd: ', basename(getcwd()), "\n";
 		if (basename(getcwd()) == 'tests') {
@@ -53,7 +53,7 @@ class Bootstrap
 		$path = trimExplode('/', str_replace('\\', '/', getcwd()));
 		//debug($path);
 		foreach (range(sizeof($path), 0, -1) as $i) {
-			$dir = implode(DS, array_slice($path, 0, $i));
+			$dir = implode(DIRECTORY_SEPARATOR, array_slice($path, 0, $i));
 			$autoloadPHP = $dir . '/vendor/autoload.php';
 			echo $autoloadPHP, BR;
 			if (file_exists($autoloadPHP)) {

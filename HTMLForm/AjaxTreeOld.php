@@ -1,8 +1,12 @@
 <?php
 
-class AjaxTreeOld extends HTMLFormType {
+class AjaxTreeOld extends HTMLFormType
+{
 
-	function __construct($field, $value, array $desc) {
+	var $stdout = '';
+
+	function __construct($field, $value, array $desc)
+	{
 		$this->setField($field);
 		$this->setValue($value);
 		$this->desc = $desc;
@@ -17,7 +21,8 @@ class AjaxTreeOld extends HTMLFormType {
 	 * $desc['tableTitle'] - SELECT id, tableTitle FROM ...
 	 * $desc['paddedID'] - paddedID.innerHTML = tree.toString()
 	 */
-	function getOpenButton() {
+	function getOpenButton()
+	{
 		$desc = $this->desc;
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
@@ -25,21 +30,21 @@ class AjaxTreeOld extends HTMLFormType {
 		$this->stdout .= new HTMLTag('a', array(
 			'href' => '#',
 			'onclick' => 'ajaxTreeOpen(
-				\''.$desc['selectID'].'\',
-				\''.$desc['treeDivID'].'\',
-				\''.$desc['tableName'].'\',
-				\''.json_encode($desc['tableRoot']).'\',
-				\''.$desc['tableTitle'].'\',
-				\''.(isset($desc['paddedID'])?$desc['paddedID']:'').'\',
-				\''.$desc['categoryID'].'\',
-				\''.$desc['onlyLeaves'].'\',
-				\''.$desc['selected'].'\'
+				\'' . $desc['selectID'] . '\',
+				\'' . $desc['treeDivID'] . '\',
+				\'' . $desc['tableName'] . '\',
+				\'' . json_encode($desc['tableRoot']) . '\',
+				\'' . $desc['tableTitle'] . '\',
+				\'' . (isset($desc['paddedID']) ? $desc['paddedID'] : '') . '\',
+				\'' . $desc['categoryID'] . '\',
+				\'' . $desc['onlyLeaves'] . '\',
+				\'' . $desc['selected'] . '\'
 			);
-			'.$desc['onclickMore'].'
+			' . $desc['onclickMore'] . '
 			return false;
 		'), '<img
 			src="img/tb_folder.gif"
-			title="'.$desc['ButtonTitle'].'">', true);
+			title="' . $desc['ButtonTitle'] . '">', true);
 		$style = 'display: none;
 		position: absolute;
 		left: 0;
@@ -58,16 +63,17 @@ class AjaxTreeOld extends HTMLFormType {
 				'outerStyle' => $style,
 				'foldable' => FALSE,
 				'outerID' => $desc['treeDivID'],
-				'paddedID' => (isset($desc['paddedID'])?$desc['paddedID']:''),
+				'paddedID' => (isset($desc['paddedID']) ? $desc['paddedID'] : ''),
 				'closable' => TRUE,
 				'absolute' => TRUE,
 				'paddedStyle' => 'height: 640px; overflow: auto;',
-				'titleMore' => 'onmousedown="dragStart(event, \''.$desc['treeDivID'].'\')" style="cursor: move;"',
+				'titleMore' => 'onmousedown="dragStart(event, \'' . $desc['treeDivID'] . '\')" style="cursor: move;"',
 			));
 		return $this->stdout;
 	}
 
-	function render() {
+	function render()
+	{
 		$tmp = $this->form->stdout;
 		$this->form->stdout = '';
 
@@ -80,16 +86,16 @@ class AjaxTreeOld extends HTMLFormType {
 		$desc['readonly'] = isset($desc['readonly']) ? $desc['readonly'] : NULL;
 		$this->form->text('<nobr>');
 		$this->form->hidden($fieldName, $fieldValue,
-			'id="'.ifsetor($desc['selectID']).'"');
+			'id="' . ifsetor($desc['selectID']) . '"');
 		if (is_array($fieldName)) {
 			$fieldName[sizeof($fieldName) - 1] = end($fieldName) . '_name';
 		} else {
 			$fieldName .= '_name';
 		}
 		$this->form->input($fieldName, $desc['valueName'], [
-			'style' => 'width: '.$desc['size'],
-			'readonly' => 'readonly',
-			'id' => $desc['selectID'].'_name'
+				'style' => 'width: ' . $desc['size'],
+				'readonly' => 'readonly',
+				'id' => $desc['selectID'] . '_name'
 			] + $desc['more']);
 		$this->form->text('</td><td>');
 		$this->form->text($this->getOpenButton());

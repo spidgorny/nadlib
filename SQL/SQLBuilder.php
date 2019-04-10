@@ -14,6 +14,17 @@
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
  * @mixin DBLayerBase
+ * @method describeView($viewName)
+ * @method getFirstValue($query)
+ * @method performWithParams($query, $params)
+ * @method getInfo()
+ * @method getConnection()
+ * @method getViews()
+ * @method getScheme()
+ * @method quoteKeys(array $keys)
+ * @method quoteKey($key)
+ * @method perform($query, array $params = [])
+ * @method fetchAssoc($res)
  */
 class SQLBuilder
 {
@@ -50,8 +61,8 @@ class SQLBuilder
 	/**
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
-	 * @param $value
-	 * @param null $key
+	 * @param mixed $value
+	 * @param string $key
 	 * @throws MustBeStringException
 	 * @return string
 	 */
@@ -207,8 +218,8 @@ class SQLBuilder
 	 * @param string $table
 	 * @param array $columns
 	 * @param array $where
+	 * @param string $orderBy
 	 * @return string
-	 * @throws Exception
 	 * @throws MustBeStringException
 	 */
 	public function getUpdateQuery($table, $columns, $where, $orderBy = '')
@@ -441,7 +452,7 @@ class SQLBuilder
 	 * @param string $order
 	 * @param string $addFields
 	 * @param string $idField - will return data as assoc indexed by this column
-	 * @return array <type>
+	 * @return array
 	 */
 	public function fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
 	{
@@ -606,7 +617,7 @@ class SQLBuilder
 
 	/**
 	 * @param string $query
-	 * @param null $className - if provided it will return DatabaseInstanceIterator
+	 * @param string|null $className - if provided it will return DatabaseInstanceIterator
 	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 * @throws DatabaseException
 	 */

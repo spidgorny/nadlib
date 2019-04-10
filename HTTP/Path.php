@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class Path
 {
 	public $sPath;
@@ -170,10 +172,9 @@ class Path
 	public function exists()
 	{
 		if (ini_get('open_basedir')) {
-			return true;
-		} else {
-			return is_dir($this->sPath) || file_exists($this->sPath);
+			return false;
 		}
+		return is_dir($this->sPath) || file_exists($this->sPath);
 	}
 
 	public function trim()
@@ -352,6 +353,7 @@ class Path
 
 	public function onlyExisting()
 	{
+		$assembled = '';
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' .
 				implode('/', array_slice($this->aPath, 0, $i + 1));

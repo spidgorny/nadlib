@@ -413,7 +413,6 @@ class Request
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
-			'last' => isset($last) ? $last : null,
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
 				: null,

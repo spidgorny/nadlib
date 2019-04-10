@@ -10,18 +10,6 @@ namespace nadlib\HTMLForm;
 
 use HTMLFormInline;
 
-function normalize($string)
-{
-//	echo chunk_split(bin2hex($string), 32);
-//	echo PHP_EOL;
-	$ok = str_replace("\n", "\r\n", str_replace("\r", '', $string));	// working
-//	$ok = preg_replace("~\r\n?~u", PHP_EOL, $string);	// not working
-//	$ok = preg_replace("~\R~u", PHP_EOL, $string);		// working
-//	echo chunk_split(bin2hex($ok), 32);
-//	echo PHP_EOL;
-	return $ok;
-}
-
 class HTMLFormInlineTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -34,7 +22,7 @@ class HTMLFormInlineTest extends \PHPUnit_Framework_TestCase
 		]);
 		$html = $f->showForm();
 //		debug($html->getContent());
-		$this->assertEquals(normalize('<form method="POST">
+		$this->assertEquals($this->normalize('<form method="POST">
 <div class="form-group">
 <label>
 <span>Name</span>
@@ -42,7 +30,19 @@ class HTMLFormInlineTest extends \PHPUnit_Framework_TestCase
 </label>
 </div>
 </form>
-'), normalize($html->getContent()));
+'), $this->normalize($html->getContent()));
+	}
+
+	public function normalize($string)
+	{
+//	echo chunk_split(bin2hex($string), 32);
+//	echo PHP_EOL;
+		$ok = str_replace("\n", "\r\n", str_replace("\r", '', $string));	// working
+//	$ok = preg_replace("~\r\n?~u", PHP_EOL, $string);	// not working
+//	$ok = preg_replace("~\R~u", PHP_EOL, $string);		// working
+//	echo chunk_split(bin2hex($ok), 32);
+//	echo PHP_EOL;
+		return $ok;
 	}
 
 }

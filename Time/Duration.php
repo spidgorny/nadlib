@@ -23,7 +23,7 @@
 class Duration extends Time
 {
 
-	var $periods = array(
+	public $periods = array(
 		'year' => 31556926,
 		'month' => 2629743,
 		'week' => 604800,
@@ -33,7 +33,7 @@ class Duration extends Time
 		'second' => 1
 	);
 
-	function __construct($input = null)
+	public function __construct($input = null)
 	{
 		if ($input instanceof Time) {
 			$this->time = $input->time;
@@ -54,22 +54,22 @@ class Duration extends Time
 		return new Duration($ini_get);
 	}
 
-	function format($rules)
+	public function format($rules)
 	{
 		die(__METHOD__ . ' - don\'t use.');
 	}
 
-	function getTime($format = 'H:i:s')
+	public function getTime($format = 'H:i:s')
 	{
 		return gmdate($format, $this->time);
 	}
 
-	function nice($perCount = 2)
+	public function nice($perCount = 2)
 	{
 		return $this->toString($perCount);
 	}
 
-	function short()
+	public function short()
 	{
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
@@ -91,7 +91,7 @@ class Duration extends Time
 	 * @param string $string
 	 * @return \Duration
 	 */
-	static function fromHuman($string)
+	public static function fromHuman($string)
 	{
 		$total = 0;
 		$parts = trimExplode(' ', $string);
@@ -159,7 +159,7 @@ class Duration extends Time
 	 * Return human-readable time units
 	 * @return string
 	 */
-	function __toString()
+	public function __toString()
 	{
 		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
 		return $this->toString();
@@ -171,7 +171,7 @@ class Duration extends Time
 	 * @param int $perCount
 	 * @return  string
 	 */
-	function toString($perCount = 2)
+	public function toString($perCount = 2)
 	{
 		$content = '';
 		$duration = $this->int2array();
@@ -201,6 +201,8 @@ class Duration extends Time
 	 */
 	public function int2array()
 	{
+		$values = null;
+
 		// Loop
 		$seconds = (float)abs($this->time);
 		foreach ($this->periods as $period => $value) {
@@ -215,11 +217,6 @@ class Duration extends Time
 			}
 			$values[$period] = $count;
 			$seconds = $seconds % $value;
-		}
-
-		// Return
-		if (empty($values)) {
-			$values = NULL;
 		}
 
 		return $values;
@@ -251,27 +248,27 @@ class Duration extends Time
 		return $str;
 	}
 
-	function getTimestamp()
+	public function getTimestamp()
 	{
 		return $this->time;
 	}
 
-	function less($sDuration)
+	public function less($sDuration)
 	{
 		if (is_string($sDuration)) {
 			return $this->time < strtotime($sDuration, 0);
-		} else if ($sDuration instanceof Time) {
+		} elseif ($sDuration instanceof Time) {
 			return $this->earlier($sDuration);
 		} else {
 			throw new Exception(__METHOD__ . '#' . __LINE__);
 		}
 	}
 
-	function more($sDuration)
+	public function more($sDuration)
 	{
 		if (is_string($sDuration)) {
 			return $this->time > strtotime($sDuration, 0);
-		} else if ($sDuration instanceof Time) {
+		} elseif ($sDuration instanceof Time) {
 			return $this->later($sDuration);
 		} else {
 			throw new Exception(__METHOD__ . '#' . __LINE__);

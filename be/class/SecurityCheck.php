@@ -1,31 +1,34 @@
 <?php
 
-class SecurityCheck extends AppControllerBE {
+class SecurityCheck extends AppControllerBE
+{
 
-	function render() {
+	public function render()
+	{
 		$content = [];
-		$folder = AutoLoad::getInstance()->appRoot;
+		$folder = AutoLoad::getInstance()->getAppRoot();
 		$content[] = $this->h1('class');
 		$content[] = $this->checkFolder($folder . 'class/');
-		$sub = glob($folder.'class/*', GLOB_ONLYDIR);
+		$sub = glob($folder . 'class/*', GLOB_ONLYDIR);
 		foreach ($sub as $folder) {
 			$content[] = $this->h1(basename($folder));
-			$content[] = $this->checkFolder($folder.'/');
+			$content[] = $this->checkFolder($folder . '/');
 			break;
 		}
 		return $content;
 	}
 
-	function checkFolder($folder) {
+	function checkFolder($folder)
+	{
 		$content = [];
-		$files = glob($folder.'*.php');
+		$files = glob($folder . '*.php');
 		foreach ($files as $file) {
 			$content[] = $this->h2(basename($file));
 			$fileContent = file($file);
 			$class = $this->findClass($fileContent);
 			if ($class) {
 				$content[] = $this->h3($this->a(
-					$this->request->getLocation().$class, $class));
+					$this->request->getLocation() . $class, $class));
 				try {
 					$rc = new ReflectionClass($class);
 					$content[] = $this->checkClass($rc);
@@ -37,11 +40,12 @@ class SecurityCheck extends AppControllerBE {
 		return $content;
 	}
 
-	function findClass(array $lines) {
+	function findClass(array $lines)
+	{
 		$lines = array_map(function ($line) {
 			if (str_startsWith($line, 'class')) {
 				$words = trimExplode(' ', $line);
-				return $words[1];	// class Something
+				return $words[1];    // class Something
 			}
 			return NULL;
 		}, $lines);
@@ -49,7 +53,8 @@ class SecurityCheck extends AppControllerBE {
 		return first($lines);
 	}
 
-	function checkClass(ReflectionClass $rc) {
+	function checkClass(ReflectionClass $rc)
+	{
 		$content = [];
 		$constructor = $rc->getConstructor();
 		if ($constructor) {
@@ -74,16 +79,17 @@ class SecurityCheck extends AppControllerBE {
 	}
 
 	/**
-	 * @param $constructor
+	 * @param ReflectionMethod $constructor
 	 * @return array
 	 */
-	public function checkMethod(ReflectionMethod $constructor) {
+	public function checkMethod(ReflectionMethod $constructor)
+	{
 		$from = $constructor->getStartLine();
 		$till = $constructor->getEndLine();
 		$file = $constructor->getFileName();
 		$fileContent = file($file);
 		$fileContent = array_slice($fileContent, $from - 1, $till - $from + 1);
-		$content[] = $constructor->getDeclaringClass()->getName().'::'.$constructor->getName().': ';
+		$content[] = $constructor->getDeclaringClass()->getName() . '::' . $constructor->getName() . ': ';
 		//$content[] = ['<pre>', $this->e($fileContent), '</pre>'];
 		list($checks, $throws) = $this->findCheckInFunction($fileContent);
 		if ($checks) {
@@ -98,7 +104,8 @@ class SecurityCheck extends AppControllerBE {
 		return $content;
 	}
 
-	function findCheckInFunction(array $lines) {
+	public function findCheckInFunction(array $lines)
+	{
 		$checks = [];
 		$throws = [];
 		foreach ($lines as $line) {

@@ -4,6 +4,7 @@
  * Class dbLayer
  * @mixin SQLBuilder
  * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
@@ -134,18 +135,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return true;
 	}
 
-	/**
-	 * @param $query
-	 * @param array $params
-	 * @return resource|null
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
-	 */
-	public function perform($query, array $params = [])
+	public function reportIfLastQueryFailed()
 	{
-//		echo $query, BR;
-		$prof = new Profiler();
-
 		if (false === $this->LAST_PERFORM_RESULT) {
 			$backtrace = array_map(function ($el) {
 				unset($el['object']);
@@ -156,7 +147,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 				return ifsetor($el['class']).ifsetor($el['type']).ifsetor($el['function']).
 					' in '.basename(ifsetor($el['file'])).':'.ifsetor($el['line']);
 			}, $backtrace);
-			debug($this->lastQuery.'', pg_errormessage($this->connection));
+//			debug($this->lastQuery.'', pg_errormessage($this->connection));
 //			die(pg_errormessage($this->connection));
 			throw new DatabaseException(
 				'Last query has failed.' . PHP_EOL .
@@ -165,7 +156,21 @@ class DBLayer extends DBLayerBase implements DBInterface
 				implode(PHP_EOL, $backtrace)
 			);
 		}
+	}
 
+	/**
+	 * @param string $query
+	 * @param array $params
+	 * @return resource|null
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function perform($query, array $params = [])
+	{
+//		echo $query, BR;
+		$prof = new Profiler();
+
+		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
 			debug('no connection', $this->connection, $query . '');
@@ -184,6 +189,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+//				$lastError = error_get_last();
+//				if ($lastError) {
+//					throw new Exception(json_encode($lastError));
+//				}
 			}
 			$this->queryTime = $prof->elapsed();
 		} catch (Exception $e) {
@@ -207,7 +216,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 			//debug($query);
 			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(
-				pg_errormessage($this->connection)
+				pg_errormessage($this->connection).
+				'Query: '.$query
 			);
 			$e->setQuery($query);
 			throw $e;
@@ -247,7 +257,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Return one dimensional array
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 */
 	public function getTableColumns($table)
@@ -330,10 +340,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
-	 * @param $column
+	 * @param string $table
+	 * @param string $column
 	 * @param string $where
-	 * @param null $order
+	 * @param string $order
 	 * @param string $key
 	 * @return array
 	 * @throws Exception
@@ -370,11 +380,12 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * fetchAll() equivalent with $key and $val properties
-	 * @param $query
-	 * @param null $key
-	 * @param null $val
+	 * @param string $query
+	 * @param string $key
+	 * @param mixed $val
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getTableDataSql($query, $key = NULL, $val = null)
 	{
@@ -515,7 +526,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $value
+	 * @param mixed $value
 	 * @param null $key
 	 * @return string
 	 * @throws MustBeStringException
@@ -532,8 +543,6 @@ class DBLayer extends DBLayerBase implements DBInterface
 			return $value;
 		} elseif (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
-		} elseif ($value instanceof SQLParam) {
-			return $value;
 		} elseif (is_scalar($value)) {
 			return "'" . $this->escape($value) . "'";
 		} else {
@@ -600,7 +609,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Called after dataSeek()
-	 * @param $res
+	 * @param resource $res
 	 * @return array
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
