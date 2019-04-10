@@ -192,7 +192,7 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * http://php.net/manual/en/function.error-reporting.php#65884
-	 * @param $value
+	 * @param int $value
 	 * @return string
 	 */
 	function error2string($value)
@@ -227,10 +227,10 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * similar to gettype() but return more information depending on data type in HTML
-	 * @param $something
+	 * @param mixed $something
 	 * @param bool $withHash
 	 *
-	 * @return htmlString
+	 * @return HTMLTag
 	 */
 	function typ($something, $withHash = true)
 	{
@@ -279,7 +279,7 @@ if (!function_exists('debugList')) {
 	}
 
 	/**
-	 * @param $something array|mixed
+	 * @param array|mixed $something
 	 * @return array|htmlString
 	 */
 	function gettypes($something)

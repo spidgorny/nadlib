@@ -33,9 +33,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	protected $dataSeek = NULL;
 
 	public function __construct($db = null, $host = null,
-						 $user = null, $password = null,
-						 $scheme = 'mysql', $driver = null,
-						 $port = 3306)
+								$user = null, $password = null,
+								$scheme = 'mysql', $driver = null,
+								$port = 3306)
 	{
 		if ($user) {
 			$this->connect($user, $password,
@@ -56,12 +56,12 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $user
-	 * @param $password
-	 * @param $scheme
-	 * @param $driver        string IBM DB2 ODBC DRIVER
-	 * @param $host
-	 * @param $db
+	 * @param string $user
+	 * @param string $password
+	 * @param string $scheme
+	 * @param string $driver string IBM DB2 ODBC DRIVER
+	 * @param string $host
+	 * @param string $db
 	 * @param int $port
 	 */
 	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
@@ -95,12 +95,13 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $url
+	 * @param string $url
 	 * @return mixed
 	 * @see http://php.net/manual/de/function.parse-url.php#83828
 	 */
-	function parseUrl($url) {
-		$r  = "^(?:(?P<scheme>\w+)://)?";
+	function parseUrl($url)
+	{
+		$r = "^(?:(?P<scheme>\w+)://)?";
 		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
 		$r .= "(?P<host>(?:(?P<subdomain>[\w\.]+)\.)?" . "(?P<domain>\w+\.(?P<extension>\w+)))";
 		$r .= "(?::(?P<port>\d+))?";
@@ -109,7 +110,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		$r .= "(?:#(?P<anchor>\w+))?";
 		$r = "!$r!";                                                // Delimiters
 
-		preg_match ( $r, $url, $out );
+		preg_match($r, $url, $out);
 
 		return $out;
 	}
@@ -122,7 +123,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$user = $dsnParts['user'];
 			$password = $dsnParts['pass'];
 //			$dsn = str_replace($user.':'.$password.'@', '', $dsn);
-			$dsnBuilder = DSNBuilder::make($dsnParts['scheme'], $dsnParts['host'], '','', trim($dsnParts['path'], '/'), $dsnParts['port']);
+			$dsnBuilder = DSNBuilder::make($dsnParts['scheme'], $dsnParts['host'], '', '', trim($dsnParts['path'], '/'), $dsnParts['port']);
 			$dsn = $dsnBuilder->__toString();
 		}
 		$this->dsn = $dsn;
@@ -241,7 +242,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $res PDOStatement
+	 * @param PDOStatement $res
 	 * @return array|mixed
 	 */
 	public function numRows($res = null)
@@ -359,7 +360,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $res PDOStatement
+	 * @param PDOStatement $res
 	 * @return mixed
 	 */
 	public function fetchAssoc($res)
@@ -411,7 +412,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	/**
 	 * Avoid this as hell, just for compatibility
-	 * @param $str
+	 * @param string $str
 	 * @return string
 	 */
 	public function escape($str)
@@ -447,9 +448,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 * http://stackoverflow.com/questions/15637291/how-use-mysql-data-seek-with-pdo
 	 * Will start with 0 and skip rows until $start.
 	 * Will end with $start+$limit.
-	 * @param $res
-	 * @param $start
-	 * @param $limit
+	 * @param resource $res
+	 * @param int $start
+	 * @param int $limit
 	 * @return array
 	 */
 	public function fetchPartitionMySQL($res, $start, $limit)

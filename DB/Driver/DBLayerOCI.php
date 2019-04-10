@@ -22,9 +22,9 @@ class DBLayerOCI extends DBLayer implements DBInterface
 	}
 
 	/**
-	 * @param $tns
-	 * @param $user
-	 * @param $pass
+	 * @param string $tns
+	 * @param string $user
+	 * @param string $pass
 	 * @param string $host - unused, for declaration consistency
 	 * @return bool|null|resource
 	 */

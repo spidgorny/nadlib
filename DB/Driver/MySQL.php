@@ -497,7 +497,7 @@ class MySQL extends DBLayerBase implements DBInterface
 
 	/**
 	 * Return a 2D array
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 */
 	public function getTableColumnsEx($table)
@@ -582,9 +582,9 @@ class MySQL extends DBLayerBase implements DBInterface
 	 * http://stackoverflow.com/questions/15637291/how-use-mysql-data-seek-with-pdo
 	 * Will start with 0 and skip rows until $start.
 	 * Will end with $start+$limit.
-	 * @param $res
-	 * @param $start
-	 * @param $limit
+	 * @param resource $res
+	 * @param int $start
+	 * @param int $limit
 	 * @return array
 	 */
 	public function fetchPartitionMySQL($res, $start, $limit)
@@ -625,7 +625,7 @@ class MySQL extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $field
+	 * @param string $field
 	 * @return string
 	 * @deprecated not supported by MySQL PHP extension
 	 */

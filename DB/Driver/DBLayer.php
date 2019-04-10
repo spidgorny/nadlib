@@ -663,8 +663,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Compatibility.
-	 * @param $res
-	 * @param $table - optional
+	 * @param resource $res
+	 * @param string $table - optional
 	 * @return null
 	 */
 	public function lastInsertID($res, $table = null)
@@ -727,7 +727,7 @@ order by a.attnum';
 	}
 
 	/**
-	 * @param $method
+	 * @param string $method
 	 * @param array $params
 	 * @return mixed
 	 * @throws Exception
@@ -807,7 +807,7 @@ order by a.attnum';
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 * @throws Exception
 	 */
@@ -893,7 +893,7 @@ WHERE ccu.table_name='" . $table . "'");
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $columns
 	 * @return string
 	 * @throws DatabaseException
