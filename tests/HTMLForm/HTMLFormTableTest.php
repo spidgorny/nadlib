@@ -9,7 +9,7 @@
 class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 {
 
-	function test_fillValues()
+	public function test_fillValues()
 	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
@@ -27,7 +27,7 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($fixture, $values);
 	}
 
-	function test_fillValues_with_force()
+	public function test_fillValues_with_force()
 	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
@@ -44,7 +44,7 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($fixture, $values);
 	}
 
-	function test_fillValues_twice()
+	public function test_fillValues_twice()
 	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',

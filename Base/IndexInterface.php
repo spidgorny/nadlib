@@ -16,4 +16,8 @@ interface IndexInterface
 
 	function addJS($source);
 
+	function message($text);
+	function error($text);
+	function success($text);
+
 }

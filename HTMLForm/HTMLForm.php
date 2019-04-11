@@ -1,6 +1,6 @@
 <?php
 
-class HTMLForm
+class HTMLForm implements ToStringable
 {
 
 	const METHOD_GET = 'GET';
