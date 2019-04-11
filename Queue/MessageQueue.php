@@ -45,7 +45,7 @@ class MessageQueue extends OODBase
 	/**
 	 * TODO: move this into MessageQueueCollection
 	 * Get next task available
-	 * @return TaskInterface|bool
+	 * @return TaskInterface
 	 * @throws Exception
 	 */
 	public function getTaskObject()
@@ -81,7 +81,7 @@ class MessageQueue extends OODBase
 		}
 
 		// if there is no next task return false
-		return false;
+		return null;
 	}
 
 	/**
