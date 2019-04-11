@@ -6,7 +6,7 @@
  * Time: 15:03
  */
 
-class RequestTest extends PHPUnit_Framework_TestCase
+class RequestTest extends PHPUnit\Framework\TestCase
 {
 
 	/**

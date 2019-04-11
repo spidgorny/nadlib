@@ -6,7 +6,7 @@
  * Date: 22.01.2016
  * Time: 17:27
  */
-class HTMLTagTest extends PHPUnit_Framework_TestCase {
+class HTMLTagTest extends PHPUnit\Framework\TestCase {
 
 	public function test_parse_simple() {
 		$str = '<a>';

@@ -8,7 +8,7 @@
 
 namespace nadlib\Controller;
 
-class ControllerTest extends \PHPUnit_Framework_TestCase
+class ControllerTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_makeLinkSimple()

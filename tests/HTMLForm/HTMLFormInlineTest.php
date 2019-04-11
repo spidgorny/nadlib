@@ -22,7 +22,7 @@ function normalize($string)
 	return $ok;
 }
 
-class HTMLFormInlineTest extends \PHPUnit_Framework_TestCase
+class HTMLFormInlineTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testSimple()

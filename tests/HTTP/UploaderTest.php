@@ -7,7 +7,7 @@
  */
 
 
-class UploaderTest extends PHPUnit_Framework_TestCase
+class UploaderTest extends PHPUnit\Framework\TestCase
 {
 
 	public function test_GetPostedFiles_single()

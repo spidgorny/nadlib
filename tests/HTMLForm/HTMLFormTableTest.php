@@ -6,7 +6,7 @@
  * Date: 2017-03-22
  * Time: 16:26
  */
-class HTMLFormTableTest extends PHPUnit_Framework_TestCase
+class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 {
 
 	function test_fillValues()

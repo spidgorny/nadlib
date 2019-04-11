@@ -6,7 +6,7 @@
  * Date: 15.03.2017
  * Time: 17:59
  */
-class PGArrayTest extends PHPUnit_Framework_TestCase
+class PGArrayTest extends PHPUnit\Framework\TestCase
 {
 
 	/**

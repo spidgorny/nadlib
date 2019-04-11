@@ -1,6 +1,6 @@
 <?php
 
-class SQLBuilderTest extends PHPUnit_Framework_TestCase
+class SQLBuilderTest extends PHPUnit\Framework\TestCase
 {
 
 	/**

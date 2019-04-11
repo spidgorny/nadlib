@@ -6,7 +6,7 @@
  * Date: 02.02.2016
  * Time: 17:45
  */
-class SQLWhereTest extends PHPUnit_Framework_TestCase
+class SQLWhereTest extends PHPUnit\Framework\TestCase
 {
 
 	public function test_add()

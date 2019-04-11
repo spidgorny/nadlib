@@ -10,7 +10,7 @@ namespace nadlib\User;
 
 use Preferences;
 
-class PreferencesTest extends \PHPUnit_Framework_TestCase
+class PreferencesTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testGet()
