@@ -72,9 +72,11 @@ class URL
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
-			throw new \RuntimeException(__METHOD__);
-		}
-		if (!isset($url)) { // empty string should not default to localhost
+//			throw new \RuntimeException(__METHOD__);
+			foreach (get_object_vars($url) as $key => $val) {
+				$this->$key = $val;
+			}
+		} elseif (empty($url)) { // empty string should not default to localhost
 			$http = Request::getRequestType();
 			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER);
 			$host = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST'], ifsetor($_SERVER['HTTP_HOST']));
