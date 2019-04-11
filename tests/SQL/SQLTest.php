@@ -5,7 +5,7 @@ function normalize($s)
 	return implode(PHP_EOL, trimExplode("\n", $s));
 }
 
-class SQLTest extends PHPUnit_Framework_TestCase
+class SQLTest extends PHPUnit\Framework\TestCase
 {
 
 	/**

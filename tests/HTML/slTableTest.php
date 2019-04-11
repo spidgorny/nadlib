@@ -1,6 +1,6 @@
 <?php
 
-class slTableTest extends PHPUnit_Framework_TestCase {
+class slTableTest extends PHPUnit\Framework\TestCase {
 
 	function test_construct()
 	{

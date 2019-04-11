@@ -7,7 +7,7 @@
  * Time: 13:37
  */
 
-class MailerTest extends PHPUnit_Framework_TestCase {
+class MailerTest extends PHPUnit\Framework\TestCase {
 
 	function test_getShortFilename() {
 		$sut = new Mailer('spidgorny@gmail.com', 'test', 'test');
