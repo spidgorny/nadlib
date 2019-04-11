@@ -43,6 +43,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 	public function test_less_recursive()
 	{
+		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([
 			'Page1' => 'Page 1',
 		]);
@@ -64,21 +65,22 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$m->setCurrent(null);
 		$html = $m->render();
 //		debug($m->debug());
-		$this->assertContains('localhost/Page1', $html);
+		$this->assertContains("$localhost/Page1", $html);
 	}
 
 	public function test_getClassPath()
 	{
+		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([]);
 		$m->useControllerSlug = false;
 
 		$path1 = $m->getClassPath('Class1', []);
 //		debug($path1.'');
-		$this->assertEquals('http://localhost/?c=Class1', $path1);
+		$this->assertEquals("http://$localhost/?c=Class1", $path1.'');
 
 		$path1 = $m->getClassPath('http://someshit/', []);
 //		debug($path1.'');
-		$this->assertEquals('http://someshit/', $path1);
+		$this->assertEquals('http://someshit/', $path1.'');
 
 		$m->basePath->reset();
 //		debug($m->basePath);
@@ -86,7 +88,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 //		$m->useRecursiveURL = true;
 		$path1 = $m->getClassPath('Class1', ['level1']);
 //		debug($path1.'');
-		$this->assertEquals('http://localhost/level1/Class1', $path1.'');
+		$this->assertEquals("http://$localhost/level1/Class1", $path1.'');
 	}
 
 }

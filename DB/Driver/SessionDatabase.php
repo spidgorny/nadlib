@@ -42,7 +42,7 @@ class SessionDatabase implements \DBInterface
 
 	public function __construct()
 	{
-		$this->session = new \Session(__CLASS__);
+		$this->session = new \nadlib\HTTP\Session(__CLASS__);
 		$data = $this->session->getAll();
 		foreach ($data as $table => $rows) {
 			$this->data[$table] = $rows;
