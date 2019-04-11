@@ -1,10 +1,5 @@
 <?php
 
-function normalize($s)
-{
-	return implode(PHP_EOL, trimExplode("\n", $s));
-}
-
 class SQLTest extends PHPUnit\Framework\TestCase
 {
 
@@ -38,7 +33,7 @@ class SQLTest extends PHPUnit\Framework\TestCase
 SET \"mtime\" = now()
 WHERE
 \"id\" = '1' ";
-		$this->assertEquals(normalize($expected), normalize($query));
+		$this->assertEquals($this->normalize($expected), $this->normalize($query));
 //		$this->assertEquals($expected, $query);
 	}
 
@@ -53,6 +48,11 @@ WHERE
 		$expected = "INSERT INTO \"asd\" (\"mtime\") VALUES (now())";
 		$expected = str_replace("\r", '', $expected);
 		$this->assertEquals($expected, $query);
+	}
+
+	public function normalize($s)
+	{
+		return implode(PHP_EOL, trimExplode("\n", $s));
 	}
 
 }

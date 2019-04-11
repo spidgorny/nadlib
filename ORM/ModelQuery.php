@@ -1,6 +1,7 @@
 <?php
 
-class ModelQuery implements IteratorAggregate {
+class ModelQuery implements IteratorAggregate
+{
 
 	/**
 	 * @var DBInterface
@@ -22,14 +23,16 @@ class ModelQuery implements IteratorAggregate {
 	 */
 	var $where = [];
 
-	function __construct(DBInterface $db, Model $instanceClass)
+	public $table;
+
+	public function __construct(DBInterface $db, Model $instanceClass)
 	{
 		$this->db = $db;
 		$this->itemInstance = $instanceClass;
 		$this->itemClassName = get_class($instanceClass);
 	}
 
-	function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
+	public function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
 	{
 		$this->where($where);
 		return SQLSelectQuery::getSelectQueryP($this->db, $this->table, $this->where, $orderBy);

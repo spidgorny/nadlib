@@ -26,7 +26,7 @@ class TYPO3Page extends OODBase
 	 */
 	public $colPos;
 
-	function fetchChildren()
+	public function fetchChildren()
 	{
 		if (!$this->children) {
 			$this->children = new TYPO3PageCollection($this->id);
@@ -34,7 +34,7 @@ class TYPO3Page extends OODBase
 		}
 	}
 
-	function getChildren()
+	public function getChildren(array $where = [])
 	{
 		if (is_null($this->children)) {
 			$this->fetchChildren();
@@ -42,7 +42,7 @@ class TYPO3Page extends OODBase
 		return $this->children;
 	}
 
-	function fetchContent($colPos)
+	public function fetchContent($colPos)
 	{
 		// retrieve once for each colPos
 		if (!$this->content || $this->colPos != $colPos) {
@@ -56,34 +56,34 @@ class TYPO3Page extends OODBase
 		}
 	}
 
-	function getContent($colPos = 0)
+	public function getContent($colPos = 0)
 	{
 		$this->fetchContent($colPos);
 		return $this->content->renderMembers();
 	}
 
-	function render()
+	public function render()
 	{
 		return $this->getContent(0);
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		return $this->getContent(1);
 	}
 
-	function getSlug()
+	public function getSlug()
 	{
 		return URL::friendlyURL($this->data['title']);
 	}
 
-	function findDeepChild(array $match)
+	public function findDeepChild(array $match)
 	{
 		$this->fetchChildren();
 		return $this->children->findDeepChild($match);
 	}
 
-	function insert(array $data)
+	public function insert(array $data)
 	{
 		$data['tstamp'] = time();
 		$data['crdate'] = time();
@@ -91,33 +91,33 @@ class TYPO3Page extends OODBase
 		return parent::insert($data);
 	}
 
-	function update(array $data)
+	public function update(array $data)
 	{
 		$data['tstamp'] = time();
 		return parent::update($data);
 	}
 
-	function getAbstract()
+	public function getAbstract()
 	{
 		return $this->data['abstract'];
 	}
 
-	function getDescription()
+	public function getDescription()
 	{
 		//debug($this->data);
 		return $this->data['description'];
 	}
 
-	function getKeywords()
+	public function getKeywords()
 	{
 		return $this->data['keywords'];
 	}
 
 	/**
-	 *
 	 * @return TYPO3PageOverlay|null
+	 * @throws Exception
 	 */
-	function getPageOverlay()
+	public function getPageOverlay()
 	{
 		if (Config::getInstance()->langID) {
 			$po = new TYPO3PageOverlay();
@@ -125,20 +125,23 @@ class TYPO3Page extends OODBase
 				'pid' => $this->id,
 				'sys_language_uid' => Config::getInstance()->langID,
 			));
+			return $po->id ? $po : null;
 		}
-		return $po->id ? $po : null;
+		return null;
 	}
 
-	function getParentPage()
+	public function getParentPage()
 	{
 		if ($this->data['pid']) {
 			$parent = TYPO3Page::getInstance($this->data['pid']);
+			return $parent;
 		}
-		return $parent;
+		return null;
 	}
 
-	function getLangAbstract()
+	public function getLangAbstract()
 	{
+		$content = null;
 		if (Config::getInstance()->langID) {
 			$overlay = $this->getPageOverlay();
 			if ($overlay) {
@@ -147,6 +150,7 @@ class TYPO3Page extends OODBase
 		} else {
 			$content = $this->getAbstract();        // default language
 		}
+
 		if (!$content) {
 			$parent = $this->getParentPage();
 			if ($parent) {
@@ -156,8 +160,9 @@ class TYPO3Page extends OODBase
 		return $content;
 	}
 
-	function getLangDescription()
+	public function getLangDescription()
 	{
+		$content = null;
 		if (Config::getInstance()->langID) {
 			$overlay = $this->getPageOverlay();
 			if ($overlay) {
@@ -175,8 +180,9 @@ class TYPO3Page extends OODBase
 		return $content;
 	}
 
-	function getLangKeywords()
+	public function getLangKeywords()
 	{
+		$content = null;
 		if (Config::getInstance()->langID) {
 			$overlay = $this->getPageOverlay();
 			if ($overlay) {

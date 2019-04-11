@@ -1,9 +1,12 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Singleton
  */
-class LocalLangDB extends LocalLang {
+class LocalLangDB extends LocalLang
+{
 
 	public $table = 'interface';
 
@@ -18,7 +21,8 @@ class LocalLangDB extends LocalLang {
 	 */
 	protected $rows = array();
 
-	function __construct($forceLang = NULL) {
+	public function __construct($forceLang = null)
+	{
 		parent::__construct($forceLang);
 	}
 
@@ -26,7 +30,8 @@ class LocalLangDB extends LocalLang {
 	 * Why is it not called from the constructor?
 	 * Because we need to specify the desired language $this->lang
 	 */
-	function init() {
+	public function init()
+	{
 		$config = Config::getInstance();
 		$this->db = $config->getDB();
 		$this->table = $config->prefixTable($this->table);
@@ -39,7 +44,8 @@ class LocalLangDB extends LocalLang {
 		}
 	}
 
-	static function getInstance($forceLang = NULL, $filename = NULL) {
+	public static function getInstance($forceLang = NULL, $filename = NULL)
+	{
 		static $instance = NULL;
 		if (!$instance) {
 			$instance = new static($forceLang);
@@ -52,8 +58,10 @@ class LocalLangDB extends LocalLang {
 	 * Instead of searching if the original language (en) record exists
 	 * it tries to insert and then catches the UNIQUE constraint exception.
 	 * @param $code
+	 * @throws Exception
 	 */
-	function saveMissingMessage($code) {
+	public function saveMissingMessage($code)
+	{
 		nodebug(array(
 			'object' => spl_object_hash($this),
 			'method' => __METHOD__,
@@ -62,15 +70,15 @@ class LocalLangDB extends LocalLang {
 			'$this->saveMissingMessages' => $this->saveMissingMessages,
 			'$this->db' => !!$this->db,
 			'$this->ll[code]' => ifsetor($this->ll[$code]),
-			));
+		));
 		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
 			try {
 				$where = array(
 					'code' => $code,
-					'lang' => $this->defaultLang,		// is maybe wrong to save to the defaultLang?
+					'lang' => $this->defaultLang,        // is maybe wrong to save to the defaultLang?
 				);
 				$insert = array(
-					'text' => $code,					// not empty, because that's how it will be translated
+					'text' => $code,                    // not empty, because that's how it will be translated
 					'page' => Request::getInstance()->getURL(),
 				);
 				$cols = $this->db->getTableColumns($this->table);
@@ -98,10 +106,12 @@ class LocalLangDB extends LocalLang {
 	 * @throws AccessDeniedException
 	 * @throws Exception
 	 */
-	function updateMessage(array $data) {
+	public function updateMessage(array $data)
+	{
 		$user = Config::getInstance()->getUser();
 		if ($user->isAdmin()) {
-			$llm = new LocalLangModel($data['lang'], $data['code']);
+			$llm = new LocalLangModel();
+			$llm->findInDB(['lang' => $data['lang'], 'code' => $data['code']]);
 			if ($llm->id) {
 				$llm->update(array(
 					'text' => $data['text'],
@@ -114,7 +124,8 @@ class LocalLangDB extends LocalLang {
 		}
 	}
 
-	function readDB($lang) {
+	public function readDB($lang)
+	{
 		//debug_pre_print_backtrace();
 		$res = $this->db->getTableColumnsEx($this->table);
 		if ($res) {
@@ -147,11 +158,13 @@ class LocalLangDB extends LocalLang {
 		return $rows;
 	}
 
-	function getRow($id) {
+	public function getRow($id)
+	{
 		return ifsetor($this->rows[$id]);
 	}
 
-	function showLangSelection() {
+	public function showLangSelection()
+	{
 		$content = '';
 		$stats = $this->getLangStats();
 		if (sizeof($stats) > 1) {           // don't show selection of just one language
@@ -168,17 +181,18 @@ class LocalLangDB extends LocalLang {
 		return $content;
 	}
 
-	function getLangStats() {
+	public function getLangStats()
+	{
 		$en = $this->readDB('en');
 		$countEN = sizeof($en) ? sizeof($en) : 1;
 		$langs = array_combine($this->possibleLangs, $this->possibleLangs);
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
 			$lang = array(
-				'img' => new htmlString('<img src="img/'.$lang.'.gif" width="20" height="12" />'),
+				'img' => new htmlString('<img src="img/' . $lang . '.gif" width="20" height="12" />'),
 				'lang' => $lang,
 				'rows' => sizeof($rows),
-				'percent' => number_format(sizeof($rows)/$countEN*100, 0).'%',
+				'percent' => number_format(sizeof($rows) / $countEN * 100, 0) . '%',
 			);
 		}
 		return $langs;

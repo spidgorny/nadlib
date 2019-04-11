@@ -3,6 +3,20 @@
 /**
  * Class DBLayerBase
  * @mixin SQLBuilder
+ * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
+ * @method fetchSelectQuery($table, array $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method getInsertQuery($table, array $columns)
+ * @method getDeleteQuery($table, $where = array(), $what = '')
+ * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
+ * @method runInsertQuery($table, array $columns)
+ * @method fetchOneSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method  describeView($viewName)
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  getFirstValue($query)
+ * @method  performWithParams($query, $params)
+ * @method  getInfo()
+ * @method  getConnection()
+ * @method  getViews()
  */
 class DBLayerBase implements DBInterface
 {
@@ -276,7 +290,7 @@ class DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return TableField[]
 	 * @throws Exception
 	 */
@@ -289,8 +303,14 @@ class DBLayerBase implements DBInterface
 		return $fields;
 	}
 
+	public function getDSN()
+	{
+//		return $this->dsn();
+		return null;
+	}
+
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $set
 	 * @return array
 	 * @throws Exception
@@ -314,4 +334,13 @@ class DBLayerBase implements DBInterface
 		return $set;
 	}
 
+	public function quoteSQL($value, $key = null)
+	{
+		return "'" . $this->escape($value) . "'";
+	}
+
+	public function getLastQuery()
+	{
+		return $this->lastQuery;
+	}
 }

@@ -13,7 +13,8 @@ class slTableValue
 	/**
 	 * @var array
 	 */
-	var $desc = array(//		'hsc' => TRUE,
+	var $desc = array(
+		//		'hsc' => TRUE,
 	);
 
 	/**
@@ -181,21 +182,23 @@ class slTableValue
 
 			case "delete":
 				$out = new HTMLTag('a', array(
-					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=" . $row['id'],
+					'href' => "?perform[do]=delete&perform[table]={$this->caller->ID}&perform[id]=" . $row['id'],
 				), "Del");
 				break;
 
 			case "datatable":
 				//$out .= t3lib_utility_Debug::viewArray(array('col' => $col, 'val' => $val, 'desc' => $k));
-				$out = $k['prefix'];
-				$f = $this->caller->makeInstance('HTMLForm');
-				$f->prefix($this->prefixId);
-				$out .= $f->datatable($col, $val, $k, $details = TRUE, $doDiv = TRUE, 'sltable', $data = 'test');
-				$out .= $k['append'];
+//				$out = $k['prefix'];
+//				$f = $this->caller->makeInstance(HTMLForm::class);
+//				$f->prefix($this->prefixId);
+//				$out .= $f->datatable($col, $val, $k, $details = true, $doDiv = TRUE, 'sltable', $data = 'test');
+//				$out .= $k['append'];
 				break;
 
 			case 'link':
-				$out = '<a href="' . $val . '" target="' . ifsetor($k['target']) . '">' . ifsetor($k['text'], $val) . '</a>';
+				$out = '<a href="' . $val . '" 
+					target="' . ifsetor($k['target']) . '">' .
+					ifsetor($k['text'], $val) . '</a>';
 				break;
 
 			case 'image':
@@ -330,13 +333,13 @@ class slTableValue
 					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
-					} else if ($val instanceof htmlString) {
+					} elseif ($val instanceof htmlString) {
 						$out = $val . '';
-					} else if ($val instanceof HTMLTag) {
+					} elseif ($val instanceof HTMLTag) {
 						$out = $val . '';
-					} else if ($val instanceof HTMLDate) {
+					} elseif ($val instanceof HTMLDate) {
 						$out = $val . '';
-					} else if ($val instanceof HTMLForm) {
+					} elseif ($val instanceof HTMLForm) {
 						$out = $val->getContent() . '';   // to avoid calling getName()
 					} elseif (is_object($val)) {
 						if (ifsetor($k['call'])) {

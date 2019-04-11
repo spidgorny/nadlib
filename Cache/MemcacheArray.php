@@ -5,7 +5,8 @@
  * Each get/set will work with one value from this array
  * Class MemcacheArray
  */
-class MemcacheArray implements ArrayAccess {
+class MemcacheArray implements ArrayAccess
+{
 
 	/**
 	 * @var string
@@ -34,7 +35,7 @@ class MemcacheArray implements ArrayAccess {
 	/**
 	 * @var callable
 	 */
-	public $onDestruct;			// callback
+	public $onDestruct;            // callback
 
 	/**
 	 * @var int
@@ -57,8 +58,9 @@ class MemcacheArray implements ArrayAccess {
 	 * @param string $file - filename inside /cache/ folder
 	 * @param int $expire - seconds to keep the cache active
 	 */
-	function __construct($file, $expire = 0) {
-		TaylorProfiler::start(__METHOD__.' ('.$file.')');
+	function __construct($file, $expire = 0)
+	{
+		TaylorProfiler::start(__METHOD__ . ' (' . $file . ')');
 		//debug(__METHOD__.' ('.$file.')');
 		$this->file = $file;
 		$this->expire = $expire instanceof Duration ? $expire->getTimestamp() : $expire;
@@ -70,16 +72,17 @@ class MemcacheArray implements ArrayAccess {
 		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);
 		if (self::$debug) {
-			echo __METHOD__.'('.$file.', '.$expire.'). Sizeof: '.sizeof($this->data).BR;
+			echo __METHOD__ . '(' . $file . ', ' . $expire . '). Sizeof: ' . sizeof($this->data) . BR;
 		}
-		TaylorProfiler::stop(__METHOD__.' ('.$file.')');
+		TaylorProfiler::stop(__METHOD__ . ' (' . $file . ')');
 	}
 
 	/**
 	 * Saving always means that the expiry date is renewed upon each read
 	 * Modified to save only on changed data
 	 */
-	function __destruct() {
+	function __destruct()
+	{
 		TaylorProfiler::start(__METHOD__);
 		if ($this->onDestruct) {
 			call_user_func($this->onDestruct, $this);
@@ -89,9 +92,11 @@ class MemcacheArray implements ArrayAccess {
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function save() {
+	function save()
+	{
 		if (false) {
-			print_r($this->file); echo BR;
+			print_r($this->file);
+			echo BR;
 			debug_pre_print_backtrace();
 			pre_print_r(array_keys($this->data));
 			//echo '<pre>'; var_dump($this->data); echo '</pre>';
@@ -104,7 +109,8 @@ class MemcacheArray implements ArrayAccess {
 		}
 	}
 
-	function clearCache() {
+	function clearCache()
+	{
 		TaylorProfiler::start(__METHOD__);
 		$prev = sizeof(self::$instances);
 		$prevKeys = array_keys(self::$instances);
@@ -115,49 +121,58 @@ class MemcacheArray implements ArrayAccess {
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value)
+	{
 		$this->data[$offset] = $value;
 	}
 
-	function exists($key) {
+	function exists($key)
+	{
 		return isset($this->data[$key]);
 	}
 
-	function get($key) {
+	function get($key)
+	{
 		return isset($this->data[$key]) ? $this->data[$key] : NULL;
 	}
 
 	/**
 	 * __destruct should save
-	 * @param $key
-	 * @param $value
+	 * @param string $key
+	 * @param mixed $value
 	 */
-	function set($key, $value) {
+	function set($key, $value)
+	{
 		$this->data[$key] = $value;
 	}
-	
-	public function offsetExists($offset) {
+
+	public function offsetExists($offset)
+	{
 		return isset($this->data[$offset]);
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($this->data[$offset]);
 	}
 
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return isset($this->data[$offset]) ? $this->data[$offset] : null;
 	}
 
-	static function getInstance($file, $expire = 0) {
+	static function getInstance($file, $expire = 0)
+	{
 		if (self::$debug) {
 			//echo __METHOD__.'('.$file.')'.BR;
 		}
 		return isset(self::$instances[$file])
-    		? self::$instances[$file]
+			? self::$instances[$file]
 			: (self::$instances[$file] = new self($file, $expire));
 	}
 
-	static function unsetInstance($file) {
+	static function unsetInstance($file)
+	{
 		if (ifsetor(self::$instances[$file])) {
 			if (ifsetor(self::$instances[$file]->fc)) {
 				self::$instances[$file]->fc->clearCache(self::$instances[$file]->file);
@@ -167,7 +182,8 @@ class MemcacheArray implements ArrayAccess {
 		unset(self::$instances[$file]);
 	}
 
-	static function enableDebug() {
+	static function enableDebug()
+	{
 		self::$debug = true;
 	}
 

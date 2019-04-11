@@ -4,12 +4,12 @@
  * Use $content instanceof htmlString ? $content : htmlspecialchars($content);
  * Update: use htmlString:hsc($content)
  */
-class htmlString
+class htmlString implements ToStringable
 {
 
 	protected $value = '';
 
-	function __construct($input)
+	public function __construct($input)
 	{
 		if (is_array($input)) {
 			$input = implode(PHP_EOL, $input);
@@ -17,7 +17,7 @@ class htmlString
 		$this->value = $input . '';
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->value . '';
 	}
@@ -27,7 +27,7 @@ class htmlString
 	 * @param $string
 	 * @return string
 	 */
-	static function hsc($string)
+	public static function hsc($string)
 	{
 		if ($string instanceof htmlString) {
 			return $string;
@@ -36,14 +36,14 @@ class htmlString
 		}
 	}
 
-	function replace($one, $two)
+	public function replace($one, $two)
 	{
 		$new = new htmlString(
 			str_replace($one, $two, $this->value));
 		return $new;
 	}
 
-	function render()
+	public function render()
 	{
 		return $this->__toString();
 	}

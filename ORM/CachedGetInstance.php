@@ -220,6 +220,8 @@ trait CachedGetInstance
 				$c->findInDBsetInstance([
 					$field
 				]);
+			} else {
+				throw new RuntimeException(__METHOD__);
 			}
 		}
 		return $c;

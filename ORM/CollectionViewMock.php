@@ -10,19 +10,19 @@ class CollectionViewMock
 	 */
 	var $collection;
 
-	function __construct(Collection $col)
+	public function __construct(Collection $col)
 	{
 		$this->collection = $col;
 	}
 
-	function renderTable()
+	public function renderTable()
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		if ($this->collection->getCount()) {
 			$this->prepareRender();
 			//debug($this->tableMore);
-			$s = $this->getDataTable();
+			$s = $this->collection->getView()->getDataTable();
 			if ($this->collection->pager) {
 				$url = new URL();
 				$pages = $this->collection->pager->renderPageSelectors($url);
@@ -31,13 +31,14 @@ class CollectionViewMock
 				$content = $s;
 			}
 		} else {
-			$content = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
+			$content = '<div class="message alert alert-warning">' .
+				__($this->collection->getView()->noDataMessage) . '</div>';
 		}
 		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 		return $content;
 	}
 
-	function prepareRender()
+	public function prepareRender()
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');

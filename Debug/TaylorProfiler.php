@@ -168,7 +168,7 @@ class TaylorProfiler
 	/**
 	 *   measure the elapsed time of a timer without stoping the timer if
 	 *   it is still running
-	 * @param $name
+	 * @param string $name
 	 * @return int|mixed
 	 */
 	public function elapsedTime($name)
@@ -393,7 +393,7 @@ class TaylorProfiler
 
 	/**
 	 * resume  an individual timer
-	 * @param $name
+	 * @param string $name
 	 */
 	public function __resumeTimer($name)
 	{
@@ -403,7 +403,7 @@ class TaylorProfiler
 
 	/**
 	 * suspend  an individual timer
-	 * @param $name
+	 * @param string $name
 	 */
 	public function __suspendTimer($name)
 	{

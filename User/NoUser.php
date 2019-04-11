@@ -3,7 +3,7 @@
 /**
  * Some places require a user object which does nothing if you're not logged-in
  */
-class NoUser extends UserBase
+class NoUser extends UserBase implements UserModelInterface
 {
 
 	/**
@@ -64,7 +64,7 @@ class NoUser extends UserBase
 		return [];
 	}
 
-	public function try2login()
+	public function try2login($user, $password = null)
 	{
 	}
 
@@ -81,5 +81,10 @@ class NoUser extends UserBase
 	public function getAvatarURL()
 	{
 		return 'http://avatar.com/';
+	}
+
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
 	}
 }
