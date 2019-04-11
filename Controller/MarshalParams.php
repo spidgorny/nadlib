@@ -27,7 +27,7 @@ class MarshalParams
 	}
 
 	/**
-	 * @param $class
+	 * @param string $class
 	 * @return object
 	 * @throws ReflectionException
 	 */
@@ -37,8 +37,8 @@ class MarshalParams
 	}
 
 	/**
-	 * @param $class
-	 * @param $container
+	 * @param string $class
+	 * @param object $container
 	 * @return object
 	 * @throws ReflectionException
 	 */
@@ -60,8 +60,8 @@ class MarshalParams
 	}
 
 	/**
-	 * @param $container
-	 * @param $constructor
+	 * @param object $container
+	 * @param ReflectionMethod $constructor
 	 * @return array
 	 * @throws ReflectionException
 	 */
@@ -104,7 +104,7 @@ class MarshalParams
 	}
 
 	/**
-	 * @param $method
+	 * @param string $method
 	 * @return mixed
 	 * @throws ReflectionException
 	 */
@@ -115,8 +115,8 @@ class MarshalParams
 
 	/**
 	 * Will detect parameter types and call getInstance() or new $class
-	 * @param $proxy
-	 * @param $method
+	 * @param object $proxy
+	 * @param string $method
 	 * @return mixed
 	 * @throws ReflectionException
 	 */

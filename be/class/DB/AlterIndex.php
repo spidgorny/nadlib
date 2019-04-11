@@ -15,26 +15,16 @@ class AlterIndex extends AppControllerBE
 	 */
 	var $db;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$host = gethostname() ?: $_SERVER['SERVER_NAME'];
 		$filename = $this->request->getFilename('file') ?: $host . '-' . $this->db->database . '.json';
-		$appRoot = Autoload::getInstance()->getAppRoot();
+		$appRoot = AutoLoad::getInstance()->getAppRoot();
 		$this->jsonFile = $appRoot . '/sql/' . $filename;
-
-		if (false) {
-			require_once $this->config->appRoot . '/constants.php';
-			$GLOBALS['DBLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
-			$this->db = $GLOBALS['DBLayer'];
-//			$this->config->db = $GLOBALS['dbLayer'];
-//			$this->config->qb->db = $GLOBALS['dbLayer'];
-			$this->jsonFile = $this->config->appRoot . '/sql/buglog_dev.json';
-		}
-
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		$content = array();
 		if (class_exists('AdminPage')) {
@@ -48,7 +38,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	function showDBInfo()
+	public function showDBInfo()
 	{
 		$content[] = 'Schema: ' . $this->db->getScheme() . BR;
 		$content[] = 'Wrapper: ' . get_class($this->db) . BR;
@@ -60,7 +50,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	function listFiles()
+	public function listFiles()
 	{
 		$li = array();
 		$files = new ListFilesIn($this->config->appRoot . '/sql/');
@@ -170,12 +160,12 @@ class AlterIndex extends AppControllerBE
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $local
-	 * @param $desc
+	 * @param array $desc
 	 * @return array
 	 */
-	protected function compareTable($table, array $local, $desc)
+	protected function compareTable($table, array $local, array $desc)
 	{
 		$indexCompare = array();
 		foreach ($desc['indexes'] as $i => $index) {

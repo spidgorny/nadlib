@@ -4,8 +4,8 @@ if (!function_exists('first')) {
 
 	/**
 	 * Complements the built-in end() function
-	 * @param array<T> $list
-	 * @return array|mixed|T
+	 * @param array $list
+	 * @return array|mixed
 	 */
 	function first(array $list)
 	{
@@ -58,7 +58,7 @@ if (!function_exists('first')) {
 
 	/**
 	 * http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential
-	 * @param $arr
+	 * @param array $arr
 	 * @return bool
 	 */
 	function is_assoc($arr)

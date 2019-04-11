@@ -1,10 +1,11 @@
 <?php
 
-interface AlterTableInterface {
+interface AlterTableInterface
+{
 
 	/**
 	 * CREATE TABLE $table ...
-	 * @param $table
+	 * @param string $table
 	 * @param array $columns
 	 * @return mixed
 	 */
@@ -12,8 +13,8 @@ interface AlterTableInterface {
 
 	/**
 	 * ALTER TABLE CHANGE COLUMN $oldName ...
-	 * @param $table
-	 * @param $oldName
+	 * @param string $table
+	 * @param string $oldName
 	 * @param TableField $index
 	 * @return mixed
 	 */
@@ -21,7 +22,7 @@ interface AlterTableInterface {
 
 	/**
 	 * ALTER TABLE ADD COLUMN ...
-	 * @param $table
+	 * @param string $table
 	 * @param TableField $index
 	 * @return mixed
 	 */

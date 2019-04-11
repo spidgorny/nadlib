@@ -33,7 +33,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	 */
 	protected $content;
 
-	function __construct(array $desc, $fieldName = NULL)
+	public function __construct(array $desc, $fieldName = NULL)
 	{
 		$this->data = $desc;
 		if ($fieldName) {
@@ -375,7 +375,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			case "input":
 			case "text":
 			default:
-				$type = isset($type) ? $type : 'text';
+				$type = $type ?: 'text';
 				//$this->text(htmlspecialchars($desc['more']));
 //				debug($desc);
 				$more = ifsetor($desc['more']);

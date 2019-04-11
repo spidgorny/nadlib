@@ -51,4 +51,17 @@ class URLTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($original, $url . '');
 	}
 
+	public function test_replaceController()
+	{
+		$url = new URL('http://localhost/level1/level2/level3');
+		$url->replaceController('Class2');
+		$this->assertEquals('http://localhost/Class2', $url.'');
+
+		$url = new URL('http://localhost/docroot/level1/level2/level3');
+//		debug($url->documentRoot);
+		$url->documentRoot = '/docroot';
+		$url->replaceController('Class2');
+		$this->assertEquals('http://localhost/docroot/Class2', $url.'');
+	}
+
 }

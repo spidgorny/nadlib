@@ -413,7 +413,6 @@ class Request
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
-			'last' => isset($last) ? $last : null,
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
 				: null,
@@ -424,8 +423,8 @@ class Request
 	/**
 	 * Will require modifications when realurl is in place
 	 *
-	 * @return object
 	 * @throws Exception
+	 * @return SimpleController|Controller
 	 */
 	public function getController()
 	{

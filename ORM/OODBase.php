@@ -1,6 +1,7 @@
 <?php
 
 use Psr\Log\LoggerInterface;
+use spidgorny\nadlib\HTTP\URL;
 
 require_once __DIR__ . '/CachedGetInstance.php';
 
@@ -15,7 +16,7 @@ abstract class OODBase
 	use CachedGetInstance;
 
 	/**
-	 * @var DBInterface|SQLBuilder
+	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -72,7 +73,7 @@ abstract class OODBase
 	public $parentField = 'pid';
 
 	/**
-	 * @var findInDB() will call init
+	 * @var bool findInDB() will call init
 	 */
 	public $forceInit;
 
@@ -324,6 +325,7 @@ abstract class OODBase
 	 * @param array|NULL $where
 	 * @return null
 	 * @throws MustBeStringException
+	 * @throws DatabaseException
 	 */
 	public function delete(array $where = null)
 	{
@@ -372,7 +374,7 @@ abstract class OODBase
 		$this->lastSelectQuery = $this->db->lastQuery;
 		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
-		if (is_array($rows)) {
+		if (is_array($rows) && $rows) {
 			$data = $rows;
 			$this->initByRow($data);
 		} else {
@@ -712,13 +714,13 @@ abstract class OODBase
 			nodebug(__METHOD__, $className, $id,
 				sizeof(self::$instances[$className]),
 				isset(self::$instances[$className][$id]));
-			$this->init($data, true);
+			$this->init($data);
 		}
 		return $data;
 	}
 
 	/**
-	 * @return OODBase|LazyPrefs
+	 * @return OODBase
 	 * @throws Exception
 	 */
 	public function getParent()
@@ -734,7 +736,8 @@ abstract class OODBase
 
 	/**
 	 * Override if collection name is different
-	 * @return Collection
+	 * @param array $where
+	 * @return DatabaseResultIteratorAssoc
 	 */
 	public function getChildren(array $where = [])
 	{

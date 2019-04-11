@@ -11,47 +11,49 @@ class Mailer
 	/**
 	 * @var string
 	 */
-	var $to;
+	public $to = [];
 
-	var $cc;
+	public $cc;
 
-	var $bcc;
-
-	/**
-	 * @var string
-	 */
-	var $subject;
+	public $bcc;
 
 	/**
 	 * @var string
 	 */
-	var $bodytext;
+	public $subject;
+
+	/**
+	 * @var string
+	 */
+	public $bodytext;
 
 	/**
 	 * Need to repeat key inside the value
 	 * From => From: somebody
 	 * @var array
 	 */
-	var $headers = [];
+	public $headers = [];
 
 	/**
 	 * @var array
 	 */
-	var $params = [];
+	public $params = [];
 
 	public $attachments;
 
-	var $from;
+	public $from;
 
-	var $fromName;
+	public $fromName;
 
-	function __construct($to, $subject, $bodyText)
+	public function __construct($to, $subject, $bodyText)
 	{
-		if (is_array($to)) {
-			$this->to = implode(', ', $to);
+		if (!is_array($to)) {
+			$sep = str_contains($to, ';') ? ';' : ',';
+			$this->to = trimExplode($sep, $to);
 		} else {
-			$this->to = trim($to);
+			$this->to = $to;
 		}
+		$this->to = array_unique($this->to);
 		$this->subject = trim($subject);
 		$this->bodytext = $bodyText;
 		$this->headers['X-Mailer'] = 'X-Mailer: PHP/' . phpversion();
@@ -63,22 +65,23 @@ class Mailer
 		}
 		$this->headers['Content-Transfer-Encoding'] = 'Content-Transfer-Encoding: 8bit';
 		if (class_exists('Config')) {
-			if ($mailFrom = ifsetor(Config::getInstance()->mailFrom)) {
+			$mailFrom = ifsetor(Config::getInstance()->mailFrom);
+			if ($mailFrom) {
 				$this->from($mailFrom);
 			}
 		}
 	}
 
-	static function isHTML($bodyText)
+	public static function isHTML($bodyText)
 	{
 //		return strpos($bodyText, '<') !== FALSE;
-		return $bodyText[0] == '<';
+		return strlen($bodyText) && $bodyText[0] == '<';
 	}
 
 	/**
 	 * @param $mailFrom string
 	 */
-	function from($mailFrom)
+	public function from($mailFrom)
 	{
 		// name <email@company.com>
 		$split = trimExplode('<', $mailFrom);
@@ -89,7 +92,7 @@ class Mailer
 		$this->headers['From'] = 'From: ' . $mailFrom;
 		// get only the pure email from "Somebody <sb@somecompany.de>"
 		$arMailFrom = explode('<', $mailFrom);
-		$mailFromOnly = (strpos($this->bodytext, '<') !== FALSE)
+		$mailFromOnly = (strpos($this->bodytext, '<') !== false)
 			? substr(next($arMailFrom), 0, -1)
 			: ''; //$mailFrom;
 		if ($mailFromOnly) {
@@ -97,7 +100,7 @@ class Mailer
 		}
 	}
 
-	function appendPlainText()
+	public function appendPlainText()
 	{
 		$htmlMail = $this->bodytext;
 		$mailText = $this->getPlainText();
@@ -150,7 +153,7 @@ class Mailer
 		$this->bodytext = $message;
 	}
 
-	function attach($name, $mime, $content)
+	public function attach($name, $mime, $content)
 	{
 		$this->attachments[] = [
 			'name' => $name,
@@ -159,19 +162,19 @@ class Mailer
 		];
 	}
 
-	function getSubject()
+	public function getSubject()
 	{
 		$subject = '=?utf-8?B?' . base64_encode($this->subject) . '?=';
 		return $subject;
 	}
 
-	function getBodyText()
+	public function getBodyText()
 	{
 		$bodyText = str_replace("\n.", "\n..", $this->bodytext);
 		return $bodyText;
 	}
 
-	function debug()
+	public function debug()
 	{
 		$assoc = [];
 		$assoc['to'] = $this->to;
@@ -187,24 +190,26 @@ class Mailer
 	 * @return bool
 	 * @throws MailerException
 	 */
-	function send()
+	public function send()
 	{
-		$emails = trimExplode(',', $this->to);
+		$emails = $this->to;
 		$validEmails = 0;
 		foreach ($emails as $e) {
 			$validEmails += HTMLFormValidate::validEmail($e);
 		}
 		if ($validEmails == sizeof($emails)) {
-			$res = mail($this->to,
+			$res = mail(
+				implode(', ', $this->to),
 				$this->getSubject(),
 				$this->getBodyText(),
 				implode("\n", $this->headers) . "\n",
-				implode(' ', $this->params));
+				implode(' ', $this->params)
+			);
 			if (!$res) {
-				throw new MailerException('Email sending to ' . $this->to . ' failed');
+				throw new MailerException('Email sending to [' . implode(', ', $this->to) . '] failed');
 			}
 		} else {
-			throw new MailerException('Invalid email address: ' . $this->to);
+			throw new MailerException('Invalid email address: ' . implode(', ', $this->to));
 		}
 		return $res;
 	}
@@ -237,8 +242,8 @@ class Mailer
 	/**
 	 * @param $cc
 	 * @param $bcc
-	 * @param $attachments
-	 * @param $additionalSenders
+	 * @param array $attachments
+	 * @param array $additionalSenders - assoc array
 	 * @return Swift_Message
 	 * @throws Exception
 	 */
@@ -256,13 +261,11 @@ class Mailer
 
 		$message->setFrom($this->from, $this->fromName);
 
-		if (!empty($additionalSenders)) {
-			foreach ($additionalSenders as $address) {
-				$message->addFrom(key($address));
-			}
+		foreach ($additionalSenders as $address => $_) {
+			$message->addFrom($address);
 		}
 
-		$to = trimExplode(';', $this->to);
+		$to = $this->to;
 		foreach ($to as $address) {
 			$message->addTo(trim($address));
 		}
@@ -294,9 +297,9 @@ class Mailer
 
 		if (!empty($additionalSenders)) {
 			foreach ($additionalSenders as $address => $name) {
-				empty($address)
-					? NULL
-					: $message->addFrom($address, $name);
+				if (!empty($address)) {
+					$message->addFrom($address, $name);
+				}
 			}
 		}
 
@@ -342,7 +345,7 @@ class Mailer
 		return $mailText;
 	}
 
-	function getSendGridMail()
+	public function getSendGridMail()
 	{
 		$config = Config::getInstance();
 		$from = new SendGrid\Email(null, $config->mailFrom);
@@ -355,7 +358,7 @@ class Mailer
 	/**
 	 * @return \SendGrid\Response
 	 */
-	function sendGrid()
+	public function sendGrid()
 	{
 		$config = Config::getInstance();
 		$mail = $this->getSendGridMail();

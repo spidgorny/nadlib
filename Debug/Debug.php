@@ -24,9 +24,9 @@ class Debug
 	var $name;
 
 	/**
-	 * @param $index Index|IndexBE
+	 * @param Index|IndexBE $index
 	 */
-	function __construct($index)
+	public function __construct($index)
 	{
 		$this->index = $index;
 		self::$instance = $this;
@@ -127,10 +127,10 @@ class Debug
 
 	/**
 	 * Main entry point.
-	 * @param $params
+	 * @param mixed $params
 	 * @return string
 	 */
-	function debug($params)
+	public function debug($params)
 	{
 		$content = '';
 		if ($this->renderer) {
@@ -363,11 +363,11 @@ class Debug
 
 	/**
 	 * http://stackoverflow.com/a/2510459/417153
-	 * @param $bytes
+	 * @param int $bytes
 	 * @param int $precision
 	 * @return string
 	 */
-	static function formatBytes($bytes, $precision = 2)
+	public static function formatBytes($bytes, $precision = 2)
 	{
 		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
@@ -382,7 +382,7 @@ class Debug
 		return round($bytes, $precision) . ' ' . $units[$pow];
 	}
 
-	static function getArraySize(array $tmpArray)
+	public static function getArraySize(array $tmpArray)
 	{
 		$size = [];
 		foreach ($tmpArray as $key => $row) {
@@ -392,17 +392,20 @@ class Debug
 		return array_sum($size);
 	}
 
-	function canDebugster()
+	public function canDebugster()
 	{
 		return false;
 	}
 
 	/**
-	 * @param $debugAccess ...
+	 * @param mixed ..$debugAccess
+	 * @throws Exception
 	 */
 	public function consoleLog($debugAccess)
 	{
-		if ($this->request->isAjax()) return;
+		if ($this->request->isAjax()) {
+			return;
+		}
 		if (func_num_args() > 1) {
 			$debugAccess = func_get_args();
 		}
@@ -421,7 +424,7 @@ class Debug
 		}
 	}
 
-	static function peek($row)
+	public static function peek($row)
 	{
 		if (is_object($row)) {
 			$row = get_object_vars($row);
@@ -446,7 +449,7 @@ class Debug
 	 * @param     $row
 	 * @param int $spaces
 	 */
-	static function dumpStruct($row, $spaces = 0)
+	public static function dumpStruct($row, $spaces = 0)
 	{
 		static $recursive;
 		if (!$spaces) {

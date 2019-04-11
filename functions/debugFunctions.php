@@ -6,7 +6,7 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param $a,... mixed|string|int
+	 * @param ...$a mixed|string|bool|array|int|float
 	 */
 	function debug($a)
 	{
@@ -68,11 +68,11 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ...$a
-	 * @param null $b
-	 * @param null $c
-	 * @param null $d
-	 * @param null $e
-	 * @param null $f
+	 * @param mixed $b
+	 * @param mixed $c
+	 * @param mixed $d
+	 * @param mixed $e
+	 * @param mixed $f
 	 */
 	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
 	{
@@ -192,7 +192,7 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * http://php.net/manual/en/function.error-reporting.php#65884
-	 * @param $value
+	 * @param int $value
 	 * @return string
 	 */
 	function error2string($value)
@@ -227,10 +227,10 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * similar to gettype() but return more information depending on data type in HTML
-	 * @param $something
+	 * @param mixed $something
 	 * @param bool $withHash
 	 *
-	 * @return htmlString
+	 * @return HTMLTag
 	 */
 	function typ($something, $withHash = true)
 	{
@@ -279,7 +279,7 @@ if (!function_exists('debugList')) {
 	}
 
 	/**
-	 * @param $something array|mixed
+	 * @param array|mixed $something
 	 * @return array|htmlString
 	 */
 	function gettypes($something)
