@@ -14,7 +14,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	public function test_makeLinkSimple()
 	{
 		$c = new \AppController4Test();
-		$c->useRouter = false;
+		$c->linker->useRouter = false;
 		$link = $c->makeURL(['a' => 'b']);
 		$link->setHost(null);
 		$this->assertEquals('/?a=b', $link . '');
@@ -23,7 +23,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	public function test_makeLinkSimpleWithPrefix()
 	{
 		$c = new \AppController4Test();
-		$c->useRouter = false;
+		$c->linker->useRouter = false;
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals('/prefix?a=b', $link . '');
@@ -32,7 +32,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	public function test_makeLinkRouter()
 	{
 		$c = new \AppController4Test();
-		$c->useRouter = true;
+		$c->linker->useRouter = true;
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals('/prefix?a=b', $link . '');
@@ -41,7 +41,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	public function test_makeLinkRouterWithPrefix()
 	{
 		$c = new \AppController4Test();
-		$c->useRouter = true;
+		$c->linker->useRouter = true;
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals('/prefix?a=b', $link . '');
@@ -50,7 +50,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	public function test_makeLinkCSimple()
 	{
 		$c = new \AppController4Test();
-		$c->useRouter = false;
+		$c->linker->useRouter = false;
 		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
 		$this->assertEquals('/?a=b&c=Controller', $link . '');
@@ -59,7 +59,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	public function test_makeLinkCRouter()
 	{
 		$c = new \AppController4Test();
-		$c->useRouter = true;
+		$c->linker->useRouter = true;
 		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
 		$this->assertEquals('/Controller?a=b', $link . '');
