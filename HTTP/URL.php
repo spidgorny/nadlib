@@ -1009,8 +1009,11 @@ class URL
 			$newController = implode('/', $newController);
 		}
 		$path = $this->getPath();
-		$diff = str_replace($this->documentRoot, '', $path);
-		nodebug([
+		$diff = '';
+		if ($this->documentRoot != '/') {
+			$diff = str_replace($this->documentRoot, '', $path);
+		}
+		debug([
 			'original' => $path.'',
 			'docroot' => $this->documentRoot,
 			'diff' => $diff,
