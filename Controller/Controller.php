@@ -59,7 +59,6 @@ abstract class Controller extends SimpleController
 	public $title;
 
 	/**
-	 * @var UserModelInterface
 	 * @var Person|NoPerson
 	 */
 	public $user;
