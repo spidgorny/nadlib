@@ -516,7 +516,7 @@ class Request {
 
 		$host = self::getHost($isUTF8);
 		$url = Request::getRequestType().'://'.$host.$docRoot;
-		false && pre_print_r(array(
+		0 && pre_print_r(array(
 				'c' => get_class($c),
 				'docRoot' => $docRoot . '',
 				'PHP_SELF' => $_SERVER['PHP_SELF'],
@@ -918,10 +918,10 @@ class Request {
 		));
 
 		$docRoot = self::getDocumentRootByRequest();
-		if (!$docRoot || $docRoot == '/') {
+		if (!$docRoot) {
 			$docRoot = self::getDocumentRootByDocRoot();
 		}
-		if (!$docRoot || $docRoot == '/') {
+		if (!$docRoot) {
 			$docRoot = self::getDocumentRootByScript();
 		}
 		$before = $docRoot;

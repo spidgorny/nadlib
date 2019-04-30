@@ -43,15 +43,8 @@ class SQLSearch extends SQLWherePart {
 	}
 
 	function getSplitWords($sword) {
-		$user = Config::getInstance()->getUser();
-		if ($user && $user->id) {
-			$searchAppend = ifsetor($user->data['searchAppend']);
-		} else {
-			$searchAppend = '';
-		}
-
 		$sword = trim($sword);
-		$words = explode(' ', $sword . ' ' . $searchAppend);
+		$words = explode(' ', $sword);
 		$words = array_map('trim', $words);
 		$words = array_filter($words);
 		$words = array_unique($words);
