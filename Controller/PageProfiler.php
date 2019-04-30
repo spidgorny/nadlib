@@ -104,6 +104,7 @@ class PageProfiler
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function getHeader()
 	{
@@ -121,6 +122,7 @@ class PageProfiler
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function getFooter()
 	{
