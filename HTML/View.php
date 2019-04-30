@@ -77,9 +77,10 @@ class View extends stdClass {
 			$this->caller = (object)$copyObject;
 		}
 		$this->ll = (class_exists('Config') && Config::getInstance()->getLL())
-			? Config::getInstance()->getLL() : NULL;
+			? Config::getInstance()->getLL() : null;
 		$this->request = Request::getInstance();
-		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
+		$this->index = class_exists('Index')
+			? Index::getInstance() : null;
 		TaylorProfiler::stop(__METHOD__ . ' (' . $file . ')');
 	}
 
@@ -103,7 +104,6 @@ class View extends stdClass {
 
 	public function getContent($file, array $variables = [])
 	{
-		$content = '';
 		ob_start();
 
 		extract($variables);
@@ -333,8 +333,8 @@ class View extends stdClass {
 	{
 		// grab anything that looks like a URL...
 		$urls = $this->_autolink_find_URLS($text);
-		if (!empty($urls)) // i.e. there were some URLS found in the text
-		{
+		if (!empty($urls)) {
+			// i.e. there were some URLS found in the text
 			array_walk($urls, [$this, '_autolink_create_html_tags'], [
 				'target' => $target,
 				'nofollow' => $nofollow,
@@ -407,7 +407,7 @@ class View extends stdClass {
 			'src' => $src,
 			'alt' => $percent . '%',
 		];
-		return new HTMLTag('img', $attr, NULL);
+		return new HTMLTag('img', $attr, null);
 	}
 
 	public function s($a)

@@ -375,9 +375,12 @@ class IndexBase /*extends Controller*/
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
-		$contentOut .= $this->content->getContent();    // this is already output
-//		$this->content->clear();        // clear for the next output. May affect saveMessages()
+		// this is already output
+		$contentOut .= $this->content->getContent();
+		// clear for the next output. May affect saveMessages()
+//		$this->content->clear();
 		$contentOut .= $this->s($content);
+
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
 		$v->title = strip_tags(ifsetor($this->controller->title));
