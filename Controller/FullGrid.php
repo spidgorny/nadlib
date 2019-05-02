@@ -13,7 +13,7 @@ abstract class FullGrid extends Grid
 	/**
 	 * @var FilterController
 	 */
-	var $filterController;
+	public $filterController;
 
 	/**
 	 */

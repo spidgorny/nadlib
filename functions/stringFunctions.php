@@ -142,7 +142,7 @@ if (!function_exists('str_startsWith')) {
 		$isAbs = isset($path[0]) &&
 			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
 
-		$parts = trimExplode('/', $path);
+		$parts = trimExplode('/', $path.'');
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
