@@ -56,7 +56,7 @@ alert("xss");
 		$v = new View(__DIR__ . '/../../../../../template/template.phtml', $i);
 		$html = $v->render();
 		ini_set('xdebug.var_display_max_data', -1);
-		debug($html);
+//		debug($html);
 		$countSidebar = substr_count($html, 'sidebar');
 		$this->assertEquals(1, $countSidebar);
 	}
