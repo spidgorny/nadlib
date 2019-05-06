@@ -189,6 +189,17 @@ class HTMLForm
 		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
 	}
 
+	public function add(HTMLFormFieldInterface $field)
+	{
+		$field->setForm($this);
+		$this->stdout .= $this->s($field->render());
+	}
+
+	public function s($content)
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
+	}
+
 	public function label($for, $text)
 	{
 		$this->stdout .= '<label for="' . $for . '">' . $text . '</label>';
@@ -331,7 +342,7 @@ class HTMLForm
 	 * @see renderSelectionOptions
 	 */
 	public function selection(
-		$name, array $aOptions = NULL, $default,
+		$name, array $aOptions = null, $default,
 		$autoSubmit = false, $more = [],
 		$multiple = false, array $desc = []
 	)
@@ -389,6 +400,7 @@ class HTMLForm
 	 * @param array $params
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
 	public function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = [])
 	{
@@ -455,7 +467,7 @@ class HTMLForm
 		$this->text("&euro;");
 	}
 
-	public function textarea($name, $value = NULL, $more = '')
+	public function textarea($name, $value = null, $more = '')
 	{
 		$more = is_array($more) ? HTMLForm::getAttrHTML($more) : $more;
 		$this->stdout .= "<textarea " . $this->getName($name) . " {$more}>" .
@@ -466,32 +478,26 @@ class HTMLForm
 	/**
 	 * Changelog: second $more parameter was removed, please use $params instead
 	 *
-	 * @param null $value
+	 * @param string $value
 	 * @param array $params
 	 *
 	 * @return HTMLForm
 	 */
-	public function submit($value = NULL, array $params = [])
+	public function submit($value = null, array $params = [])
 	{
-		$params['class'] = ifsetor($params['class'], 'submit btn');
-		$params['name'] = ifsetor($params['name'], 'btnSubmit');
-		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
-		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
-		// this.form.submit() will not work
-		//debug('submit', $params);
-		$content = $this->getInput("submit", $params['name'], $value, $params, $params['class']);
-		$this->stdout .= $content;
-
+		$field = new HTMLSubmit($value, $params);
+		$field->setForm($this);
+		$this->add($field);
 		return $this;
 	}
 
-	public function button($innerHTML = NULL, array $more = [])
+	public function button($innerHTML = null, array $more = [])
 	{
 		$more = HTMLTag::renderAttr($more);
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
-	public function image($value = NULL, $more = "", $desc = [])
+	public function image($value = null, $more = "", $desc = [])
 	{
 		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
 		$value = htmlspecialchars($value, ENT_QUOTES);
@@ -502,7 +508,7 @@ class HTMLForm
 			($value ? "value=\"$value\"" : "") . " $more>\n";
 	}
 
-	public function reset($value = NULL, $more = "")
+	public function reset($value = null, $more = "")
 	{
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=reset class=submit " . ($value ? "value=\"$value\"" : "") . " $more>\n";
@@ -604,7 +610,7 @@ class HTMLForm
 	 *
 	 * @return $this
 	 */
-	public function set($name, $value = [], array $desc)
+	public function set($name, array $value, array $desc)
 	{
 		if ($value) {
 			if (!is_array($value)) {
