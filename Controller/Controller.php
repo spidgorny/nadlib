@@ -171,7 +171,7 @@ abstract class Controller
 		$location = $this->request->getLocation();
 		$url = new URL($prefix
 			? $location . $prefix
-			: $location, $params);
+			: $location.'', $params);
 		$path = $url->getPath();
 		if ($this->useRouter && $class) {
 			$path->setFile($class);
