@@ -1,6 +1,7 @@
 <?php
 
-interface MemcacheInterface {
+interface MemcacheInterface
+{
 
 	function get($key);
 

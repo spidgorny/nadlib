@@ -20,7 +20,8 @@
 
 require_once 'init.php';
 
-class BarImage {
+class BarImage
+{
 
 	var $expires = 31536000; //60*60*24*365;	// days
 
@@ -42,7 +43,8 @@ class BarImage {
 
 	var $withBorder = true;
 
-	function __construct() {
+	function __construct()
+	{
 		$this->width = isset($_GET['width']) ? $_GET['width'] : 100;
 		$this->height = isset($_GET['height']) ? $_GET['height'] : 15;
 		$color = isset($_GET['color']) ? $_GET['color'] : NULL;
@@ -53,16 +55,18 @@ class BarImage {
 		$this->withBorder = !ifsetor($_GET['!border']);
 	}
 
-	function setHeaders() {
+	function setHeaders()
+	{
 		error_reporting(E_ALL);
 		//ini_set('display_errors', false);
 		header("Content-Type: image/png");
 		header("Pragma: public");
-		header("Cache-Control: maxage=".$this->expires);
-		header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$this->expires) . ' GMT');
+		header("Cache-Control: maxage=" . $this->expires);
+		header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $this->expires) . ' GMT');
 	}
 
-	function drawRating($rating) {
+	function drawRating($rating)
+	{
 		$ratingbar = ($rating / 100) * ($this->width - 5);
 		$barDX = 2;
 		$image = imagecreate($this->width, $this->height);
@@ -86,7 +90,7 @@ class BarImage {
 		//if ($rating > 89) { $fill = ImageColorAllocate($image,255,0,0); }
 		if ($this->symmetric) {
 			$middle = $this->width / 2;
-			imagefilledrectangle($image, $middle + $barDX, $barDX, $middle + $barDX + $ratingbar/2, $this->height - $barDX - 1, $fill);
+			imagefilledrectangle($image, $middle + $barDX, $barDX, $middle + $barDX + $ratingbar / 2, $this->height - $barDX - 1, $fill);
 		} else {
 			imagefilledrectangle($image, $barDX, $barDX, $barDX + $ratingbar, $this->height - $barDX - 1, $fill);
 		}
@@ -94,15 +98,16 @@ class BarImage {
 		imagedestroy($image);
 	}
 
-	function html2rgb($color) {
+	function html2rgb($color)
+	{
 		if ($color[0] == '#') {
 			$color = substr($color, 1);
 		}
 
 		if (strlen($color) == 6)
 			list($r, $g, $b) = array($color[0] . $color[1],
-					$color[2] . $color[3],
-					$color[4] . $color[5]);
+				$color[2] . $color[3],
+				$color[4] . $color[5]);
 		elseif (strlen($color) == 3)
 			list($r, $g, $b) = array($color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]);
 		else
@@ -120,7 +125,7 @@ class BarImage {
 if (!function_exists('imagecreate')) {
 	error_reporting(E_ALL);
 	ini_set('display_errors', true);
-	echo 'PHP: '.phpversion().'<br />';
+	echo 'PHP: ' . phpversion() . '<br />';
 	echo 'GD not installed';
 } else {
 	$bar = new BarImage();

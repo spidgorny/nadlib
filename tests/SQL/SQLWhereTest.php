@@ -6,9 +6,11 @@
  * Date: 02.02.2016
  * Time: 17:45
  */
-class SQLWhereTest extends PHPUnit_Framework_TestCase {
+class SQLWhereTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_add() {
+	function test_add()
+	{
 		$sq = new SQLWhere();
 		$sq->add(new SQLWhereEqual('deleted', false));
 		$sql = $sq->__toString();
@@ -16,7 +18,8 @@ class SQLWhereTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("WHERE deleted = 'f'", $sql);
 	}
 
-	function test_addArray() {
+	function test_addArray()
+	{
 		$sq = new SQLWhere();
 		$sq->addArray([
 			'a' => 'b',
@@ -26,7 +29,8 @@ class SQLWhereTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("WHERE a = 'b'", $sql);
 	}
 
-	function test_InvalidArgumentException() {
+	function test_InvalidArgumentException()
+	{
 		$this->setExpectedException(InvalidArgumentException::class);
 		$sq = new SQLWhere();
 		$sq->add([
@@ -34,7 +38,8 @@ class SQLWhereTest extends PHPUnit_Framework_TestCase {
 		]);
 	}
 
-	function trim($sql) {
+	function trim($sql)
+	{
 		$sql = str_replace("\n", ' ', $sql);
 		$sql = str_replace("\t", ' ', $sql);
 		$sql = preg_replace('/ +/', ' ', $sql);

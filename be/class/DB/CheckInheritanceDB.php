@@ -1,19 +1,22 @@
 <?php
 
-class CheckInheritanceDB extends AppController {
+class CheckInheritanceDB extends AppController
+{
 
 	var $basedOnBase = array();
 
-	function render() {
+	function render()
+	{
 		$content[] = $this->getClassOverview();
 		$content[] = $this->getMethodOverview();
 		return $content;
 	}
 
-	function getClassOverview() {
+	function getClassOverview()
+	{
 		$table = array();
 		$folder = 'vendor/spidgorny/nadlib/DB/';
-		$files = glob($folder.'*.php');
+		$files = glob($folder . '*.php');
 		if (class_exists('dbLayerDCI')) {
 			$files[] = 'dbLayerDCI.php';
 		}
@@ -34,7 +37,7 @@ class CheckInheritanceDB extends AppController {
 			if ($class) {
 				$rc = new ReflectionClass($class);
 				if ($class == 'dbLayerBase' || $rc->isSubclassOf('dbLayerBase')
-				|| $class == 'SQLBuilder') {
+					|| $class == 'SQLBuilder') {
 					$row['parent'] = $rc->getParentClass();
 					$this->basedOnBase[] = $class;
 				}
@@ -45,7 +48,8 @@ class CheckInheritanceDB extends AppController {
 		return $content;
 	}
 
-	function getMethodOverview() {
+	function getMethodOverview()
+	{
 		$dbLayerBase = new ReflectionClass('dbLayerBase');
 		$sqlBuilder = new ReflectionClass('SQLBuilder');
 
@@ -68,7 +72,7 @@ class CheckInheritanceDB extends AppController {
 					$isDeprecated = $rm->isDeprecated() ||
 						contains($rm->getDocComment(), '@deprecated');
 					$table[$method][$class] = new HTMLTag('td', array(
-						'style' => 'background: ' . $color.'; '.
+						'style' => 'background: ' . $color . '; ' .
 							($isDeprecated ? 'text-decoration: line-through;' : ''),
 					), $class);
 				}

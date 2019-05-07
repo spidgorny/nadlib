@@ -1,21 +1,24 @@
 <?php
 
-class SQLIn extends SQLWherePart {
+class SQLIn extends SQLWherePart
+{
 
 	public $list = array();
 
-	function __construct(array $list, $field = NULL) {
+	function __construct(array $list, $field = NULL)
+	{
 		parent::__construct();
 		$this->list = $list;
 		foreach ($this->list as $el) {
 			if (is_array($el)) {
-				throw new InvalidArgumentException(__METHOD__.' need to have flat array');
+				throw new InvalidArgumentException(__METHOD__ . ' need to have flat array');
 			}
 		}
 		$this->injectField($field);
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		$field = $this->field;
 
 		// this prevents field names with dot notation being quoted!
@@ -27,7 +30,7 @@ class SQLIn extends SQLWherePart {
 			//debug_pre_print_backtrace();
 		}
 //		debug(__METHOD__, $this->list);
-		$content = $field ." IN (".implode(", ", $this->db->quoteValues($this->list)).")";
+		$content = $field . " IN (" . implode(", ", $this->db->quoteValues($this->list)) . ")";
 		return $content;
 	}
 

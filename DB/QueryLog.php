@@ -1,6 +1,7 @@
 <?php
 
-class QueryLog {
+class QueryLog
+{
 
 	/**
 	 * @var array[
@@ -12,7 +13,8 @@ class QueryLog {
 	 */
 	var $queryLog = array();
 
-	public function log($query, $diffTime, $results = NULL) {
+	public function log($query, $diffTime, $results = NULL)
+	{
 		$key = md5(trim($query));
 //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
 		if (isset($this->queryLog[$key])) {
@@ -23,7 +25,7 @@ class QueryLog {
 		$this->queryLog[$key] = array(
 			'query' => $query,
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
-			'times' => ifsetor($old['times'])+1,
+			'times' => ifsetor($old['times']) + 1,
 			'results' => $results,
 		);
 //		debug($key, $this->queryLog);
@@ -33,7 +35,8 @@ class QueryLog {
 	 * Renders the list of queries accumulated
 	 * @return string
 	 */
-	function dumpQueries() {
+	function dumpQueries()
+	{
 		$q = $this->queryLog;
 		arsort($q);
 		foreach ($q as &$row) {
@@ -44,7 +47,7 @@ class QueryLog {
 				'times' => $times,
 				'query' => $query,
 				'time' => number_format($time, 3),
-				'time/1' => number_format($time/$times, 3),
+				'time/1' => number_format($time / $times, 3),
 				//'func' => $this->QUERYFUNC[$query],
 			);
 		}
@@ -62,17 +65,19 @@ class QueryLog {
 			'func' => 'Caller',
 		));
 		$q->isOddEven = false;
-		$content = '<div class="profiler">'.$q.'</div>';
+		$content = '<div class="profiler">' . $q . '</div>';
 		return $content;
 	}
 
-	function getDBTime() {
+	function getDBTime()
+	{
 		$sumtime = ArrayPlus::create($this->queryLog)->column('sumtime')->sum();
 		//debug(sizeof($this->queryLog), $sumtime);
 		return $sumtime;
 	}
 
-	function dumpQueriesBijou(array $log, $totalTime) {
+	function dumpQueriesBijou(array $log, $totalTime)
+	{
 		//debug(trim(first($log)['query']));
 		foreach ($log as &$row) {
 			$sQuery = trim(strip_tags($row['query']));
@@ -83,26 +88,26 @@ class QueryLog {
 				$row['query'] = substr($row['query'], 0, 100);
 			}
 			if ($row['results'] >= 1000) {
-				$row['results'] = new htmlString('<font color="red">'.$row['results'].'</font>');
+				$row['results'] = new htmlString('<font color="red">' . $row['results'] . '</font>');
 			}
 			if ($row['count'] >= 3) {
-				$row['count'] = new htmlString('<font color="red">'.$row['count'].'</font>');
+				$row['count'] = new htmlString('<font color="red">' . $row['count'] . '</font>');
 			}
 		}
 		$s = new slTable(NULL, 'width="100%" class="table"');
 		$s->thes(array(
-				'query' => array(
-						'label' => 'Query',
-						'no_hsc' => true,
-						'wrap' => new Wrap('<small>|</small>'),
-				),
-				'function' => 'Function',
-				'line' => 'Line',
-				'results' => 'Rows',
-				'elapsed' => 'Elapsed',
-				'count' => 'Count',
-				'total' => $totalTime,
-				'percent' => '100%'));
+			'query' => array(
+				'label' => 'Query',
+				'no_hsc' => true,
+				'wrap' => new Wrap('<small>|</small>'),
+			),
+			'function' => 'Function',
+			'line' => 'Line',
+			'results' => 'Rows',
+			'elapsed' => 'Elapsed',
+			'count' => 'Count',
+			'total' => $totalTime,
+			'percent' => '100%'));
 		$s->data = $log;
 		$s->isOddEven = TRUE;
 		$s->more = 'class="nospacing"';
@@ -110,7 +115,8 @@ class QueryLog {
 		return $content;
 	}
 
-	function dumpQueriesTP() {
+	function dumpQueriesTP()
+	{
 		$queryLog = ArrayPlus::create($this->queryLog);
 		//debug($queryLog);
 		$sumTimeCol = $queryLog->column('sumtime');
@@ -124,36 +130,36 @@ class QueryLog {
 			$query = $set['query'];
 			$time = ifsetor($set['time'], $set['sumtime'] / $set['times']);
 			$log[] = array(
-					'times' => $set['times'],
-					'query' => '<small>'.htmlspecialchars($query).'</small>',
-					'sumtime' => number_format($set['sumtime'], 3, '.', '').'s',
-					'time' => number_format($time, 3, '.', '').'s',
-					'%' => $sumTime != 0 ? $pb->getImage($set['sumtime']/$sumTime*100) : '',
-					'results' => $set['results'],
+				'times' => $set['times'],
+				'query' => '<small>' . htmlspecialchars($query) . '</small>',
+				'sumtime' => number_format($set['sumtime'], 3, '.', '') . 's',
+				'time' => number_format($time, 3, '.', '') . 's',
+				'%' => $sumTime != 0 ? $pb->getImage($set['sumtime'] / $sumTime * 100) : '',
+				'results' => $set['results'],
 			);
 		}
 		$s = new slTable($log, 'class="table"', array(
-				'times' => 'times',
-				'sumtime' => array(
-					'name' => 'sumtime ('.number_format($sumTime, 3).')',
-					'align' => 'right',
-				),
-				'time' => array(
-					'name' => 'time',
-					'align' => 'right',
-				),
-				'%' => array(
-					'name' => '%',
-					'align' => 'right',
-					'no_hsc' => true,
-				),
-				'query' => array(
-					'name' => 'query',
-					'no_hsc' => true,
-				),
-				'results' => array(
-					'name' => 'Results',
-				)
+			'times' => 'times',
+			'sumtime' => array(
+				'name' => 'sumtime (' . number_format($sumTime, 3) . ')',
+				'align' => 'right',
+			),
+			'time' => array(
+				'name' => 'time',
+				'align' => 'right',
+			),
+			'%' => array(
+				'name' => '%',
+				'align' => 'right',
+				'no_hsc' => true,
+			),
+			'query' => array(
+				'name' => 'query',
+				'no_hsc' => true,
+			),
+			'results' => array(
+				'name' => 'Results',
+			)
 		));
 		return $s;
 	}

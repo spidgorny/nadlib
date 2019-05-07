@@ -74,13 +74,13 @@ class RandomStringGenerator
 		$log = log($range, 2);
 
 		// Length in bytes.
-		$bytes = (int) ($log / 8) + 1;
+		$bytes = (int)($log / 8) + 1;
 
 		// Length in bits.
-		$bits = (int) $log + 1;
+		$bits = (int)$log + 1;
 
 		// Set all lower bits to 1.
-		$filter = (int) (1 << $bits) - 1;
+		$filter = (int)(1 << $bits) - 1;
 
 		do {
 			$rnd = hexdec(bin2hex(openssl_random_pseudo_bytes($bytes)));
@@ -93,10 +93,11 @@ class RandomStringGenerator
 		return ($min + $rnd);
 	}
 
-	function generateSplit4($length) {
+	function generateSplit4($length)
+	{
 		$continuous = $this->generate($length);
 		$parts = chunk_split($continuous, 4, '-');
-		if ($parts[strlen($parts)-1] == '-') {
+		if ($parts[strlen($parts) - 1] == '-') {
 			$parts = substr($parts, 0, strlen($parts) - 1);
 		}
 		return $parts;
@@ -107,13 +108,15 @@ class RandomStringGenerator
 	 * @param int $syllables
 	 * @return string
 	 */
-	public function generateReadablePassword($syllables = 3) {
+	public function generateReadablePassword($syllables = 3)
+	{
 		$use_prefix = false;
 		// Define function unless it is already exists
 		if (!function_exists('ae_arr')) {
 			// This function returns random array element
-			function ae_arr(&$arr) {
-				return $arr[rand(0, sizeof($arr)-1)];
+			function ae_arr(&$arr)
+			{
+				return $arr[rand(0, sizeof($arr) - 1)];
 			}
 		}
 
@@ -134,15 +137,14 @@ class RandomStringGenerator
 		$consonants = array('w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j',
 			'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'qu');
 
-		$password = $use_prefix?ae_arr($prefix):'';
+		$password = $use_prefix ? ae_arr($prefix) : '';
 		$password_suffix = ae_arr($suffix);
 
-		for($i=0; $i<$syllables; $i++)
-		{
+		for ($i = 0; $i < $syllables; $i++) {
 			// selecting random consonant
 			$doubles = array('n', 'm', 't', 's');
 			$c = ae_arr($consonants);
-			if (in_array($c, $doubles)&&($i!=0)) { // maybe double it
+			if (in_array($c, $doubles) && ($i != 0)) { // maybe double it
 				if (rand(0, 2) == 1) // 33% probability
 					$c .= $c;
 			}

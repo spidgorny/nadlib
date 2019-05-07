@@ -1,6 +1,7 @@
 <?php
 
-abstract class Grid extends AppController {
+abstract class Grid extends AppController
+{
 
 	/**
 	 * @var Collection
@@ -33,18 +34,20 @@ abstract class Grid extends AppController {
 	 */
 	public $pageSize;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 	}
 
 	/**
 	 * Either take from URL or take from preferences, not both
 	 */
-	function getSetRequest() {
+	function getSetRequest()
+	{
 		if ($this->request->getAll()) {
-			$this->user->setPref(get_class($this).'.Request', $this->request);
+			$this->user->setPref(get_class($this) . '.Request', $this->request);
 		} else {
-			$maybe = $this->user->getPref(get_class($this).'.Request');
+			$maybe = $this->user->getPref(get_class($this) . '.Request');
 			if ($maybe) {
 				$this->request = $maybe;
 			}
@@ -57,21 +60,22 @@ abstract class Grid extends AppController {
 	 * Take from preferences and then append/overwrite from URL
 	 * How does it work when some params need to be cleared?
 	 *
-	 * @deprecated - use saveFilterColumnsSort() instead
 	 * @param null $subname
+	 * @deprecated - use saveFilterColumnsSort() instead
 	 */
-	function mergeRequest($subname = NULL) {
+	function mergeRequest($subname = NULL)
+	{
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
 		if ($subname) {
 			$r = $this->request->getSubRequest($subname);
 		} else {
 			$r = $this->request;
 		}
-		$default = $this->user->getPref(get_class($this).'.Request');
+		$default = $this->user->getPref(get_class($this) . '.Request');
 		if ($default instanceof Request) {
 			$r->append($default->getAll());
 		}
-		$this->user->setPref(get_class($this).'.Request', $r);
+		$this->user->setPref(get_class($this) . '.Request', $r);
 		if ($subname) {
 			$this->request->set($subname, $r->getAll());
 		}
@@ -81,7 +85,8 @@ abstract class Grid extends AppController {
 	 * @param null $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
 	 */
-	function saveFilterAndSort($cn = NULL) {
+	function saveFilterAndSort($cn = NULL)
+	{
 		// why do we inject collection
 		// before we have detected the filter (=where)?
 		if (!$this->collection) {
@@ -102,7 +107,7 @@ abstract class Grid extends AppController {
 
 		if (method_exists($this->user, 'setPref')) {
 			if ($this->request->is_set('slTable') && $allowEdit) {
-				$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+				$this->user->setPref('Sort.' . $cn, $this->request->getArray('slTable'));
 			}
 		}
 
@@ -111,8 +116,8 @@ abstract class Grid extends AppController {
 		if (method_exists($this->user, 'getPref')) {
 			$this->sort = $sortRequest
 				? $sortRequest
-				: ($this->user->getPref('Sort.'.$cn)
-					? $this->user->getPref('Sort.'.$cn)
+				: ($this->user->getPref('Sort.' . $cn)
+					? $this->user->getPref('Sort.' . $cn)
 					: $this->sort
 				);
 		}
@@ -121,7 +126,8 @@ abstract class Grid extends AppController {
 		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
 	}
 
-	function render() {
+	function render()
+	{
 		if (!$this->collection) {
 			$this->injectCollection();
 		}
@@ -133,7 +139,8 @@ abstract class Grid extends AppController {
 		return $content;
 	}
 
-	function injectCollection() {
+	function injectCollection()
+	{
 		$class = new ReflectionObject($this);
 		$col = $class->getProperty('collection');
 		$comment = $col->getDocComment();
@@ -157,12 +164,14 @@ abstract class Grid extends AppController {
 		}
 	}*/
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = $this->showFilter();
 		return $content;
 	}
 
-	function showFilter() {
+	function showFilter()
+	{
 		$content = array();
 		if ($this->filter) {
 			$f = new HTMLFormTable();
@@ -176,7 +185,8 @@ abstract class Grid extends AppController {
 		return $content;
 	}
 
-	function getFilterWhere() {
+	function getFilterWhere()
+	{
 		$where = array();
 		if ($this->filter) {
 			foreach ($this->filter as $field => $desc) {
@@ -194,7 +204,8 @@ abstract class Grid extends AppController {
 	 * @param $cn
 	 * @throws LoginException
 	 */
-	public function setFilter($cn) {
+	public function setFilter($cn)
+	{
 		$this->filter = new Filter();
 		if ($this->request->getTrim('action') == 'clearFilter') {
 			$this->filter->clear();
@@ -230,7 +241,8 @@ abstract class Grid extends AppController {
 	 * @param $allowEdit
 	 * @throws LoginException
 	 */
-	public function setColumns($cn, $allowEdit) {
+	public function setColumns($cn, $allowEdit)
+	{
 		// request
 		if ($this->request->is_set('columns') && $allowEdit) {
 			$urlColumns = $this->request->getArray('columns');
@@ -267,7 +279,8 @@ abstract class Grid extends AppController {
 		$this->log(__METHOD__, $this->columns->getData());
 	}
 
-	function getGridColumns() {
+	function getGridColumns()
+	{
 		if ($this->collection) {
 			$this->log(__METHOD__, 'Collection exists');
 			return ArrayPlus::create($this->collection->thes)

@@ -6,9 +6,11 @@
  * Date: 22.06.2016
  * Time: 16:42
  */
-class ClosureCacheTest extends PHPUnit_Framework_TestCase {
+class ClosureCacheTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_it() {
+	function test_it()
+	{
 		$cc = new ClosureCache(
 			function () {
 				return rand(0, PHP_INT_MAX);

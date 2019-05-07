@@ -4,7 +4,8 @@
  * Class MySQLi
  * Should work but it doesn't get num_rows() after store_result().
  */
-class dbLayerMySQLi extends dbLayerBase implements DBInterface {
+class dbLayerMySQLi extends dbLayerBase implements DBInterface
+{
 
 	/**
 	 * @var MySQLi
@@ -16,14 +17,16 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	 */
 	var $columns = [];
 
-	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
+	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '')
+	{
 		$this->database = $db;
 		if ($this->database) {
 			$this->connect($host, $login, $password);
 		}
 	}
 
-	function connect($host, $login, $password) {
+	function connect($host, $login, $password)
+	{
 		$this->connection = new mysqli($host, $login, $password, $this->database);
 		if (!$this->connection) {
 			throw new Exception(mysqli_error($this->connection), mysqli_errno($this->connection));
@@ -37,7 +40,8 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	 * @return bool|mysqli_result
 	 * @throws DatabaseException
 	 */
-	function perform($query, array $params = array()) {
+	function perform($query, array $params = array())
+	{
 		$this->lastQuery = $query;
 
 		if ($params) {
@@ -77,17 +81,19 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 		}
 
 		if (!$stmt) {
-			debug($query.'', $params);
+			debug($query . '', $params);
 			throw new DatabaseException($this->connection->error, $this->connection->errno);
 		}
 		return $stmt;
 	}
 
-	function prepare($sql) {
+	function prepare($sql)
+	{
 		return mysqli_prepare($this->connection, $sql);
 	}
 
-	private function makeValuesReferenced(array $arr){
+	private function makeValuesReferenced(array $arr)
+	{
 		$refs = array();
 		foreach ($arr as $key => $value) {
 			$refs[$key] = &$arr[$key];
@@ -97,10 +103,11 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	}
 
 	/**
-	 * @param $res	mysqli_result
+	 * @param $res    mysqli_result
 	 * @return array|false
 	 */
-	function fetchAssoc($res) {
+	function fetchAssoc($res)
+	{
 //		debug(gettype2($res));
 		if ($res instanceof mysqli_result) {
 			$data = (array)$res->fetch_assoc();
@@ -110,7 +117,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 			$res = $this->perform($res);
 			return $res->fetch_assoc();
 		} elseif ($res instanceof SQLSelectQuery) {
-			$res = $this->perform($res.'', $res->getParameters());
+			$res = $this->perform($res . '', $res->getParameters());
 			return $res->fetch_assoc();
 		} elseif ($res instanceof mysqli_stmt) {
 			$res->fetch();
@@ -121,15 +128,18 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 		}
 	}
 
-	function affectedRows($res = NULL) {
+	function affectedRows($res = NULL)
+	{
 		return $this->connection->affected_rows;
 	}
 
-	function escape($string) {
+	function escape($string)
+	{
 		return $this->connection->escape_string($string);
 	}
 
-	function escapeBool($value) {
+	function escapeBool($value)
+	{
 		return intval(!!$value);
 	}
 
@@ -138,7 +148,8 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	 * @param null $table
 	 * @return mixed
 	 */
-	function lastInsertID($res, $table = NULL) {
+	function lastInsertID($res, $table = NULL)
+	{
 		return $this->connection->insert_id;
 	}
 
@@ -146,19 +157,22 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 	 * @param mysqli_result $res
 	 * @return mixed
 	 */
-	function numRows($res = NULL) {
+	function numRows($res = NULL)
+	{
 		//debug($res->num_rows);
 		return $res->num_rows;
 	}
 
-	function getPlaceholder($field) {
+	function getPlaceholder($field)
+	{
 //		$slug = URL::getSlug($field);
 //		$slug = str_replace('-', '_', $slug);
 //		return '@'.$slug;
 		return '?';
 	}
 
-	function getInfo() {
+	function getInfo()
+	{
 		return [
 			$this->connection->host_info,
 			$this->connection->server_info,
@@ -167,13 +181,14 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface {
 			$this->connection->get_charset(),
 		];
 	}
-	
+
 	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @return string
 	 */
-	function getReplaceQuery($table, $columns) {
+	function getReplaceQuery($table, $columns)
+	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);

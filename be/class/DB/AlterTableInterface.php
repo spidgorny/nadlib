@@ -1,6 +1,7 @@
 <?php
 
-interface AlterTableInterface {
+interface AlterTableInterface
+{
 
 	/**
 	 * CREATE TABLE $table ...

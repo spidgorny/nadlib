@@ -1,10 +1,12 @@
 <?php
 
-class SQLHaving extends SQLWhere {
+class SQLHaving extends SQLWhere
+{
 
 	protected $parts = array();
 
-	function __construct($order = array()) {
+	function __construct($order = array())
+	{
 		if (is_array($order)) {
 			$this->parts = $order;
 		} else if ($order) {
@@ -12,9 +14,10 @@ class SQLHaving extends SQLWhere {
 		}
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		if ($this->parts) {
-			return 'ORDER BY '.implode(' ', $this->parts);
+			return 'ORDER BY ' . implode(' ', $this->parts);
 		} else {
 			return '';
 		}

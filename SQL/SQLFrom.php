@@ -1,6 +1,7 @@
 <?php
 
-class SQLFrom extends SQLWherePart {
+class SQLFrom extends SQLWherePart
+{
 
 	/**
 	 * @var DBInterface
@@ -9,12 +10,14 @@ class SQLFrom extends SQLWherePart {
 
 	protected $parts = array();
 
-	function __construct($from) {
+	function __construct($from)
+	{
 		parent::__construct();
 		$this->parts[] = trim($from);
 	}
 
-	function __toString() {
+	function __toString()
+	{
 //		$config = Config::getInstance();
 //		debug(
 //			gettype2($this),

@@ -4,7 +4,8 @@
  * Class Uploader
  * General validating uploader with error handling
  */
-class Uploader {
+class Uploader
+{
 
 	/**
 	 * Allowed extensions
@@ -18,9 +19,7 @@ class Uploader {
 	 * Allowed mime types, not checked if empty
 	 * @var array
 	 */
-	public $allowedMime = array(
-
-	);
+	public $allowedMime = array();
 
 	/**
 	 * Which method of mime detection was used
@@ -29,20 +28,21 @@ class Uploader {
 	public $mimeMethod;
 
 	protected $errors = array(
-		1 =>'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-			'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
-			'The uploaded file was only partially uploaded.',
-			'No file was uploaded.',
-		6 =>'Missing a temporary folder.',
-			'Failed to write file to disk.',
-			'A PHP extension stopped the file upload.'
+		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+		'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+		'The uploaded file was only partially uploaded.',
+		'No file was uploaded.',
+		6 => 'Missing a temporary folder.',
+		'Failed to write file to disk.',
+		'A PHP extension stopped the file upload.'
 	);
 
 	/**
 	 *
 	 * @param array|null $allowed If provided this will override allowed extensions
 	 */
-	function __construct($allowed = array()) {
+	function __construct($allowed = array())
+	{
 		if (!empty($allowed)) {
 			$this->allowed = $allowed;
 		}
@@ -52,7 +52,8 @@ class Uploader {
 		}
 	}
 
-	function isUploaded() {
+	function isUploaded()
+	{
 		$uploaded = !!$_FILES;
 		if (is_array(first($_FILES)['name'])) {
 			$_FILES = $this->GetPostedFiles();
@@ -67,15 +68,16 @@ class Uploader {
 	 * // add custom hidden fields to upload form (e.g. Loan[id])
 	 * if (!empty($hiddenFields)) {
 	 * foreach ($hiddenFields as $name => $value) {
-	 * 		$f->hidden($name, $value);
+	 *        $f->hidden($name, $value);
 	 * }
 	 * }
-	 * @param  string - input field name - usually 'file'
-	 * @return HTMLForm
+	 * @param string - input field name - usually 'file'
 	 * @param string $fieldName
 	 * @return HTMLForm
+	 * @return HTMLForm
 	 */
-	public function getUploadForm($fieldName = 'file') {
+	public function getUploadForm($fieldName = 'file')
+	{
 		$f = new HTMLForm();
 		$f->file($fieldName);
 		$f->text('<br />');
@@ -84,7 +86,8 @@ class Uploader {
 		return $f;
 	}
 
-	function getLimitsDiv() {
+	function getLimitsDiv()
+	{
 		$tmpDir = ini_get('upload_tmp_dir') ?: sys_get_temp_dir();
 		if (is_writable($tmpDir)) {
 			$tmpDir .= ' [OK]';
@@ -97,36 +100,37 @@ class Uploader {
 		<div class="message">
 		    <table>
 		        <tr><td><nobr>Uploads enabled:</nobr></td>
-		        <td>'.(ini_get('file_uploads')?'Yes':'No').'</td></tr>
+		        <td>' . (ini_get('file_uploads') ? 'Yes' : 'No') . '</td></tr>
 
 		        <tr><td><nobr>Max size:</nobr></td>
-		        <td title="upload_max_filesize: '.$upload_max_filesize.'
-post_max_size: '.$post_max_size.'">'.
-				min($upload_max_filesize, $post_max_size).'</td></tr>
+		        <td title="upload_max_filesize: ' . $upload_max_filesize . '
+post_max_size: ' . $post_max_size . '">' .
+			min($upload_max_filesize, $post_max_size) . '</td></tr>
 
 		        <tr><td><nobr>Free space:</nobr></td>
-		        <td>'.
-		number_format(disk_free_space('.')/1024/1024, 0, '.', '').'M
+		        <td>' .
+			number_format(disk_free_space('.') / 1024 / 1024, 0, '.', '') . 'M
 		        </td></tr>
 
 		        <tr><td><nobr>Allowed:</nobr></td>
-		        <td>'.($this->allowed
-					? implode(', ', $this->allowed)
-					: '*.*').'
+		        <td>' . ($this->allowed
+				? implode(', ', $this->allowed)
+				: '*.*') . '
 				</td></tr>
 
 		        <tr><td><nobr>Temp folder:</nobr></td>
-		        <td>'. $tmpDir .'</td></tr>
+		        <td>' . $tmpDir . '</td></tr>
 		    </table>
 		</div>
 		';
 	}
 
-	function getLimits() {
+	function getLimits()
+	{
 		return array(
 			'upload_max_filesize' => ini_get('upload_max_filesize'),
 			'post_max_size' => ini_get('post_max_size'),
-			'disk_free_space' => round(disk_free_space('.')/1024/1024).'MB',
+			'disk_free_space' => round(disk_free_space('.') / 1024 / 1024) . 'MB',
 		);
 	}
 
@@ -137,7 +141,8 @@ post_max_size: '.$post_max_size.'">'.
 	 * @return bool
 	 * @throws Exception
 	 */
-	public function moveUpload($from, $to, $overwriteExistingFile = true) {
+	public function moveUpload($from, $to, $overwriteExistingFile = true)
+	{
 		if (is_array($from)) {
 			$uf = $from;            // $_FILES['whatever']
 		} else {
@@ -148,33 +153,32 @@ post_max_size: '.$post_max_size.'">'.
 				throw new Exception($this->errors[$uf['error']]);
 			}
 			if (!$this->checkExtension($uf)) {
-				throw new Exception('File extension is not allowed ('.$uf['ext'].')');
+				throw new Exception('File extension is not allowed (' . $uf['ext'] . ')');
 			}
 			if (!$this->checkMime($uf)) {
-				throw new Exception('File mime-type is not allowed ('.$uf['mime'].')');
+				throw new Exception('File mime-type is not allowed (' . $uf['mime'] . ')');
 			}
 
-            // if you don't want existing files to be overwritten,
-            // new file will be renamed to *_n,
-            // where n is the number of existing files
+			// if you don't want existing files to be overwritten,
+			// new file will be renamed to *_n,
+			// where n is the number of existing files
 			if (is_dir($to)) {
 				$fileName = $to . $uf['name'];
 			} else {
 				$fileName = $to;
 			}
-            if (!$overwriteExistingFile && file_exists($fileName)) {
-                $actualName = pathinfo($fileName, PATHINFO_FILENAME);
-                $originalName = $actualName;
-                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+			if (!$overwriteExistingFile && file_exists($fileName)) {
+				$actualName = pathinfo($fileName, PATHINFO_FILENAME);
+				$originalName = $actualName;
+				$extension = pathinfo($fileName, PATHINFO_EXTENSION);
 
-                $i = 1;
-                while (file_exists($to.$actualName.".".$extension))
-                {
-                    $actualName = (string) $originalName.'_'.$i;
-                    $fileName = $to.$actualName.".".$extension;
-                    $i++;
-                }
-            }
+				$i = 1;
+				while (file_exists($to . $actualName . "." . $extension)) {
+					$actualName = (string)$originalName . '_' . $i;
+					$fileName = $to . $actualName . "." . $extension;
+					$i++;
+				}
+			}
 
 			@mkdir(dirname($fileName), 0777, true);
 			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
@@ -190,7 +194,8 @@ post_max_size: '.$post_max_size.'">'.
 		return $ok;
 	}
 
-	function checkError(array $uf) {
+	function checkError(array $uf)
+	{
 		$errorCode = $uf['error'];
 		return (!$errorCode);
 	}
@@ -200,7 +205,8 @@ post_max_size: '.$post_max_size.'">'.
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkExtension(array &$uf) {
+	function checkExtension(array &$uf)
+	{
 		if ($this->allowed) {
 			$filename = $uf['name'];
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
@@ -217,7 +223,8 @@ post_max_size: '.$post_max_size.'">'.
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkMime(array &$uf) {
+	function checkMime(array &$uf)
+	{
 		if ($this->allowedMime) {
 			$mime = $this->get_mime_type($uf['tmp_name']);
 			$uf['mime'] = $mime;
@@ -233,7 +240,8 @@ post_max_size: '.$post_max_size.'">'.
 	 * @param $filename
 	 * @return string
 	 */
-	function get_mime_type($filename) {
+	function get_mime_type($filename)
+	{
 		if (class_exists('finfo')) {
 			$fi = new finfo();
 			$mime = $fi->file($filename);
@@ -249,7 +257,7 @@ post_max_size: '.$post_max_size.'">'.
 			$mime = $this->get_mime_type_system($filename);
 			$this->mimeMethod = 'get_mime_type_system';
 		}
-		$mime = trim($mime); 	// necessary !!!
+		$mime = trim($mime);    // necessary !!!
 		//debug($mime, $this->mimeMethod);
 		return $mime;
 	}
@@ -259,16 +267,17 @@ post_max_size: '.$post_max_size.'">'.
 	 * @param $filepath
 	 * @return string
 	 */
-	function get_mime_type_system($filepath) {
+	function get_mime_type_system($filepath)
+	{
 		ob_start();
 		system("file -i -b {$filepath}");
 		$output = ob_get_clean();
-		$output = explode("; ",$output);	// text/plain; charset=us-ascii
-		if ( is_array($output) ) {
+		$output = explode("; ", $output);    // text/plain; charset=us-ascii
+		if (is_array($output)) {
 			$output = $output[0];
 		}
-		$output = explode(" ", $output);	// text/plain charset=us-ascii
-		if ( is_array($output) ) {
+		$output = explode(" ", $output);    // text/plain charset=us-ascii
+		if (is_array($output)) {
 			$output = $output[0];
 		}
 		return $output;
@@ -278,18 +287,20 @@ post_max_size: '.$post_max_size.'">'.
 	 * Will incrementally create subfolders which don't exist.
 	 * @param $folder
 	 */
-	public function createUploadFolder($folder) {
+	public function createUploadFolder($folder)
+	{
 		$parts = trimExplode('/', $folder);
 		$current = '/';
 		foreach ($parts as $plus) {
-			$current .= $plus.'/';
+			$current .= $plus . '/';
 			if (!file_exists($current)) {
 				mkdir($current);
 			}
 		}
 	}
 
-	function getContent($from) {
+	function getContent($from)
+	{
 		if ($uf = $_FILES[$from]) {
 			if ($uf['tmp_name']) {
 				return file_get_contents($uf['tmp_name']);
@@ -298,14 +309,16 @@ post_max_size: '.$post_max_size.'">'.
 		return NULL;
 	}
 
-	public function getTempFile($fieldName = 'file') {
+	public function getTempFile($fieldName = 'file')
+	{
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['tmp_name'];
 		}
 		return NULL;
 	}
 
-	public function getBasename($fieldName = 'file') {
+	public function getBasename($fieldName = 'file')
+	{
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['name'];
 		}
@@ -318,7 +331,8 @@ post_max_size: '.$post_max_size.'">'.
 	 * @param $callback
 	 * @param array $params
 	 */
-	function handleBlueImpUpload($callback, array $params) {
+	function handleBlueImpUpload($callback, array $params)
+	{
 		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
 		$uh = new UploadHandler($params, false);
 		//$uh->post(true); exit();
@@ -349,12 +363,12 @@ post_max_size: '.$post_max_size.'">'.
 
 	/**
 	 * @brief get the POSTed files in a more usable format
-	Works on the following methods:
-	<form method="post" action="/" name="" enctype="multipart/form-data">
-	<input type="file" name="photo1" />
-	<input type="file" name="photo2[]" />
-	<input type="file" name="photo2[]" />
-	<input type="file" name="photo3[]" multiple />
+	 * Works on the following methods:
+	 * <form method="post" action="/" name="" enctype="multipart/form-data">
+	 * <input type="file" name="photo1" />
+	 * <input type="file" name="photo2[]" />
+	 * <input type="file" name="photo2[]" />
+	 * <input type="file" name="photo3[]" multiple />
 	 * @return   Array
 	 * @todo
 	 * @see  http://stackoverflow.com/questions/5444827/how-do-you-loop-through-files-array
@@ -403,15 +417,12 @@ post_max_size: '.$post_max_size.'">'.
 		$TmpName = array();
 		$Error = array();
 		$Size = array();
-		foreach($_FILES as $Field => $Data)
-		{
-			foreach($Data as $Key => $Val)
-			{
+		foreach ($_FILES as $Field => $Data) {
+			foreach ($Data as $Key => $Val) {
 				$Result[$Field] = array();
-				if(!is_array($Val))
+				if (!is_array($Val))
 					$Result[$Field] = $Data;
-				else
-				{
+				else {
 					$Res = array();
 					self::GPF_FilesFlip($Res, array(), $Data);
 					$Result[$Field] += $Res;
@@ -435,22 +446,18 @@ post_max_size: '.$post_max_size.'">'.
 	private static function GPF_FilesFlip(&$Result, $Keys, $Value)
 	{
 		// helper method for GetPostedFiles
-		if(is_array($Value))
-		{
-			foreach($Value as $K => $V)
-			{
+		if (is_array($Value)) {
+			foreach ($Value as $K => $V) {
 				$NewKeys = $Keys;
 				array_push($NewKeys, $K);
 				self::GPF_FilesFlip($Result, $NewKeys, $V);
 			}
-		}
-		else
-		{
+		} else {
 			$Res = $Value;
 			// move the innermost key to the outer spot
 			$First = array_shift($Keys);
 			array_push($Keys, $First);
-			foreach(array_reverse($Keys) as $K)
+			foreach (array_reverse($Keys) as $K)
 				$Res = array($K => $Res); // you might think we'd say $Res[$K] = $Res, but $Res starts out not as an array
 			$Result = self::GPF_ArrayMergeRecursive($Result, $Res);
 		}

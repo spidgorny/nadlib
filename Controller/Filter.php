@@ -1,6 +1,7 @@
 <?php
 
-class Filter extends ArrayObject {
+class Filter extends ArrayObject
+{
 
 	protected $_set = [];
 
@@ -10,20 +11,24 @@ class Filter extends ArrayObject {
 
 	protected $_default = [];
 
-	function __construct(array $input = array()) {
+	function __construct(array $input = array())
+	{
 		parent::__construct($input, ArrayObject::ARRAY_AS_PROPS);
 		$this->setRequest($input);
 	}
 
-	function setPreferences(array $_preferences) {
+	function setPreferences(array $_preferences)
+	{
 		$this->_preferences = $_preferences;
 	}
 
-	function setRequest(array $_request) {
+	function setRequest(array $_request)
+	{
 		$this->_request = $_request;
 	}
 
-	function setDefault(array $_default) {
+	function setDefault(array $_default)
+	{
 		$this->_default = $_default;
 	}
 
@@ -33,7 +38,8 @@ class Filter extends ArrayObject {
 		$this->_set[$index] = $newval;
 	}
 
-	function offsetGet($index) {
+	function offsetGet($index)
+	{
 		if (isset($this->_set[$index])) {
 			return $this->_set[$index];
 		} elseif (isset($this->_request[$index])) {
@@ -46,11 +52,13 @@ class Filter extends ArrayObject {
 		return NULL;
 	}
 
-	function offsetExists($index) {
+	function offsetExists($index)
+	{
 		return $this->offsetGet($index) != '';
 	}
 
-	function getArrayCopy() {
+	function getArrayCopy()
+	{
 		// first array has priority (only append new)
 		return $this->_set +
 			$this->_request +
@@ -63,14 +71,16 @@ class Filter extends ArrayObject {
 		return new ArrayIterator($this->getArrayCopy());
 	}
 
-	function clear() {
+	function clear()
+	{
 		$this->_set = [];
 		$this->_request = [];
 		$this->_preferences = [];
-		$this->_default = [];	// maybe it should remain?
+		$this->_default = [];    // maybe it should remain?
 	}
 
-	function getDebug() {
+	function getDebug()
+	{
 		return [
 			'set' => $this->_set,
 			'request' => $this->_request,
@@ -79,7 +89,8 @@ class Filter extends ArrayObject {
 		];
 	}
 
-	function __debugInfo() {
+	function __debugInfo()
+	{
 		return $this->getDebug();
 	}
 

@@ -1,6 +1,7 @@
 <?php
 
-class URLGet {
+class URLGet
+{
 
 	/**
 	 * @var string
@@ -44,7 +45,8 @@ class URLGet {
 	 * @param string $url
 	 * @param $logger object with method log()
 	 */
-	public function __construct($url, $logger) {
+	public function __construct($url, $logger)
+	{
 		$this->url = $url;
 		$this->logger = $logger;
 		$this->context = array(
@@ -54,10 +56,11 @@ class URLGet {
 		);
 	}
 
-	function setProxy($host, $username, $password) {
+	function setProxy($host, $username, $password)
+	{
 		$this->proxy = new Proxy(array(
 			'id' => -1,
-			'proxy' => 'http://'.$username.':'.$password.'@'.$host,
+			'proxy' => 'http://' . $username . ':' . $password . '@' . $host,
 		));
 	}
 
@@ -66,9 +69,10 @@ class URLGet {
 	 * @internal param bool|Proxy $proxy - it was a proxy object, but now it's boolean
 	 * as a new proxy will get generation
 	 */
-	public function fetch($retries = 1) {
+	public function fetch($retries = 1)
+	{
 		$start = microtime(true);
-		$this->logger->log(__METHOD__, '<a href="'.$this->url.'">'.$this->url.'</a>');
+		$this->logger->log(__METHOD__, '<a href="' . $this->url . '">' . $this->url . '</a>');
 		$html = NULL;
 		for ($i = 0; $i < $retries; $i++) {
 			try {
@@ -79,7 +83,7 @@ class URLGet {
 						if (!($this->proxy instanceof Proxy)) {
 							$this->proxy = Proxy::getRandomOrBest();
 						}
-						$curlParams[CURLOPT_PROXY] = $this->proxy.'';
+						$curlParams[CURLOPT_PROXY] = $this->proxy . '';
 					} else {
 						$this->logger->log(__METHOD__, 'No Proxy');
 					}
@@ -92,15 +96,16 @@ class URLGet {
 				$this->logger->log(__METHOD__, $e->getMessage());
 			}
 			if ($html) {
-				$this->logger->log(__METHOD__, 'Download successful. Data size: '.strlen($html).' bytes');
+				$this->logger->log(__METHOD__, 'Download successful. Data size: ' . strlen($html) . ' bytes');
 				break;
 			}
 		}
-		$this->logger->log(__METHOD__, $this->url.' ('.number_format(microtime(true)-$start, 3, '.', '').' sec)');
+		$this->logger->log(__METHOD__, $this->url . ' (' . number_format(microtime(true) - $start, 3, '.', '') . ' sec)');
 		$this->html = $html;
 	}
 
-	public function fetchFOpen() {
+	public function fetchFOpen()
+	{
 		if ($this->headers) {
 			$this->context['http']['header'] = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		}
@@ -110,8 +115,9 @@ class URLGet {
 		return $html;
 	}
 
-	public function fetchCURL(array $options = array()) {
-		$this->logger->log(__METHOD__, $this->url.'');
+	public function fetchCURL(array $options = array())
+	{
+		$this->logger->log(__METHOD__, $this->url . '');
 		$process = curl_init($this->url);
 		$headers = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		$headers = trimExplode("\r\n", $headers);
@@ -144,20 +150,20 @@ class URLGet {
 		}
 
 		$this->info = curl_getinfo($process);
-		$this->logger->log(__METHOD__, 'URLGet Info: '.json_encode($this->info, defined('JSON_PRETTY_PRINT') ? JSON_PRETTY_PRINT : NULL));
-		$this->logger->log(__METHOD__, 'URLGet Errno: '.curl_errno($process));
-		$this->logger->log(__METHOD__, 'URLGet HTTP code: '.$this->info['http_code']);
-		$this->logger->log(__METHOD__, 'URLGet Headers: '.$headers);
+		$this->logger->log(__METHOD__, 'URLGet Info: ' . json_encode($this->info, defined('JSON_PRETTY_PRINT') ? JSON_PRETTY_PRINT : NULL));
+		$this->logger->log(__METHOD__, 'URLGet Errno: ' . curl_errno($process));
+		$this->logger->log(__METHOD__, 'URLGet HTTP code: ' . $this->info['http_code']);
+		$this->logger->log(__METHOD__, 'URLGet Headers: ' . $headers);
 		//debug($this->info);
-		if (curl_errno($process)){
+		if (curl_errno($process)) {
 			debug('Curl error: ' . curl_error($process));
 		}
 		curl_close($process);
 
 		$this->html = $html;
-		if (/*!$html || */$this->info['http_code'] != 200) {	// when downloading large file directly to file system
+		if (/*!$html || */ $this->info['http_code'] != 200) {    // when downloading large file directly to file system
 			//debug($this->info);
-			throw new Exception('failed to read URL: '.$this->url);
+			throw new Exception('failed to read URL: ' . $this->url);
 		}
 		return $html;
 	}
@@ -165,18 +171,21 @@ class URLGet {
 	/**
 	 * @return string
 	 */
-	public function __toString() {
-		return strval($this->html).'';
+	public function __toString()
+	{
+		return strval($this->html) . '';
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getContent() {
-		return strval($this->html).'';
+	public function getContent()
+	{
+		return strval($this->html) . '';
 	}
 
-	public function setProxyObject(Proxy $useProxy) {
+	public function setProxyObject(Proxy $useProxy)
+	{
 		$this->proxy = $useProxy;
 	}
 

@@ -13,7 +13,8 @@
  * will call cronjobAction instead of default render()
  */
 
-abstract class Controller {
+abstract class Controller
+{
 
 	//use HTMLHelper;	// bijou is PHP 5.4
 
@@ -105,8 +106,9 @@ abstract class Controller {
 	 */
 	public $sortBy;
 
-	function __construct() {
-		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this).'::'.__METHOD__.BR;
+	function __construct()
+	{
+		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this) . '::' . __METHOD__ . BR;
 		$this->index = class_exists('Index', false)
 			? Index::getInstance(false) : NULL;
 		$this->request = Request::getInstance();
@@ -133,13 +135,14 @@ abstract class Controller {
 
 	/**
 	 * Why protected?
-	 * @param array|string 	$params
-	 * @param null 			$prefix
+	 * @param array|string $params
+	 * @param null $prefix
 	 * @return URL
 	 * @protected
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL) {
+	protected function makeURL(array $params, $prefix = NULL)
+	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
 			if ($class && !$prefix) {
@@ -158,7 +161,7 @@ abstract class Controller {
 			? $prefix
 			: $this->request->getLocation(), $params);
 		$path = $url->getPath();
-		if ($this->useRouter &&	$class) {
+		if ($this->useRouter && $class) {
 			$path->setFile($class);
 			$path->setAsFile();
 		}
@@ -173,7 +176,7 @@ abstract class Controller {
 			'class($url)' => get_class($url),
 			'class($path)' => get_class($path),
 			'$this->linkVars' => $this->linkVars,
-			'return' => $url.'',
+			'return' => $url . '',
 		));
 		return $url;
 	}
@@ -185,9 +188,10 @@ abstract class Controller {
 	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array(), $page = NULL) {
+	function makeRelURL(array $params = array(), $page = NULL)
+	{
 		return $this->makeURL(
-			$params							// 1st priority
+			$params                            // 1st priority
 			+ $this->getURL()->getParams()
 			+ $this->linkVars, $page);
 	}
@@ -199,9 +203,10 @@ abstract class Controller {
 	 * @param string $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = NULL) {
+	public function getURL(array $params = [], $prefix = NULL)
+	{
 		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of '.__METHOD__);
+			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
 		}
 //		$params = $params + $this->linkVars;
 //		debug($params);
@@ -220,22 +225,24 @@ abstract class Controller {
 	 * @param bool $isHTML
 	 * @return HTMLTag
 	 */
-	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false) {
+	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false)
+	{
 		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', array(
-			'href' => $this->makeURL($params, $page),
-		)+$more, $text, $isHTML);
+				'href' => $this->makeURL($params, $page),
+			) + $more, $text, $isHTML);
 		return $content;
 	}
 
-	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array(), $prefix = '') {
+	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array(), $prefix = '')
+	{
 		$url = $this->makeURL($params, $prefix);
 		$link = new HTMLTag('a', $aMore + array(
-			'href' => $url,
-			'onclick' => '
-			jQuery(\'#'.$div.'\').load(\''.$url.'\');
+				'href' => $url,
+				'onclick' => '
+			jQuery(\'#' . $div . '\').load(\'' . $url . '\');
 			return false;
-			'.$jsPlus,
+			' . $jsPlus,
 			), $text, true);
 		return $link;
 	}
@@ -246,7 +253,8 @@ abstract class Controller {
 	 * @deprecated
 	 * @see slTable::showAssoc()
 	 */
-	function getAssocTable(array $data) {
+	function getAssocTable(array $data)
+	{
 		$table = array();
 		foreach ($data as $key => $val) {
 			$table[] = array('key' => $key, 'val' => $val);
@@ -254,7 +262,8 @@ abstract class Controller {
 		return $table;
 	}
 
-	static function getInstance() {
+	static function getInstance()
+	{
 		$static = get_called_class();
 		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
 		$isset = isset(self::$instance[$static]);
@@ -291,40 +300,44 @@ abstract class Controller {
 		return $content;
 	}
 
-	function indexAction() {
+	function indexAction()
+	{
 		$content = $this->renderTemplate();
 		$content = $this->div($content, str_replace('\\', '-', get_class($this)));
 		return $content;
 	}
 
-	function renderTemplate() {
-		$filePHTML = get_class($this).'.phtml';
-		$fileMD = get_class($this).'.md';
+	function renderTemplate()
+	{
+		$filePHTML = get_class($this) . '.phtml';
+		$fileMD = get_class($this) . '.md';
 
 		$reflector = new ReflectionClass(get_class($this));
 		$classDir = dirname($reflector->getFileName());
-		if (file_exists('template/'.$filePHTML)) {
+		if (file_exists('template/' . $filePHTML)) {
 			$content = new View($filePHTML, $this);
-		} elseif (file_exists('template/'.$fileMD)) {
+		} elseif (file_exists('template/' . $fileMD)) {
 			$content = new MarkdownView($fileMD, $this);
-		} elseif (file_exists($classDir.'/'.$filePHTML)) {
-			$content = new View($classDir.'/'.$filePHTML, $this);
-		} elseif (file_exists($classDir.'/'.$fileMD)) {
-			$content = new MarkdownView($classDir.'/'.$fileMD, $this);
+		} elseif (file_exists($classDir . '/' . $filePHTML)) {
+			$content = new View($classDir . '/' . $filePHTML, $this);
+		} elseif (file_exists($classDir . '/' . $fileMD)) {
+			$content = new MarkdownView($classDir . '/' . $fileMD, $this);
 		} else {
 			$content = '';
 		}
 		return $content;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->s($this->render());
 	}
 
-	function encloseIn($title, $content) {
+	function encloseIn($title, $content)
+	{
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
-		return '<fieldset><legend>'.$title.'</legend>'.$content.'</fieldset>';
+		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
 	}
 
 	/**
@@ -336,7 +349,8 @@ abstract class Controller {
 	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = NULL, array $more = array()) {
+	function encloseInAA($content, $caption = '', $h = NULL, array $more = array())
+	{
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
@@ -346,50 +360,52 @@ abstract class Controller {
 			);
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
-		$more['class'] .= ' '.get_class($this);
+		$more['class'] .= ' ' . get_class($this);
 		//debug_pre_print_backtrace();
 		//$more['style'] = "position: relative;";	// project specific
 		$content = new HTMLTag('section', $more, $content, true);
 		return $content;
 	}
 
-	function encloseInToggle($content, $title, $height = 'auto', $isOpen = NULL, $tag = 'h3') {
+	function encloseInToggle($content, $title, $height = 'auto', $isOpen = NULL, $tag = 'h3')
+	{
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
 			$nadlibPath = AutoLoad::getInstance()->nadlibFromDocRoot;
 			$this->index->addJQuery();
-			$this->index->addJS($nadlibPath.'js/showHide.js');
-			$this->index->addJS($nadlibPath.'js/encloseInToggle.js');
+			$this->index->addJS($nadlibPath . 'js/showHide.js');
+			$this->index->addJS($nadlibPath . 'js/encloseInToggle.js');
 			$id = uniqid();
 
 			$content = '<div class="encloseIn">
-				<'.$tag.'>
-					<a class="show_hide" href="#" rel="#'.$id.'">
-						<span>'.($isOpen ? '&#x25BC;' : '&#x25BA;').'</span>
-						'.$title.'
+				<' . $tag . '>
+					<a class="show_hide" href="#" rel="#' . $id . '">
+						<span>' . ($isOpen ? '&#x25BC;' : '&#x25BA;') . '</span>
+						' . $title . '
 					</a>
-				</'.$tag.'>
-				<div id="'.$id.'"
+				</' . $tag . '>
+				<div id="' . $id . '"
 					class="toggleDiv"
-					style="max-height: '.$height.'; overflow: auto;
-					'.($isOpen ? '' : 'display: none;').'">'.$content.'</div>
+					style="max-height: ' . $height . '; overflow: auto;
+					' . ($isOpen ? '' : 'display: none;') . '">' . $content . '</div>
 			</div>';
 		}
 		return $content;
 	}
 
-	function performAction($action = NULL) {
+	function performAction($action = NULL)
+	{
 		$content = '';
 		if ($this->request->isCLI()) {
 			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);	// it was 1
+			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
 		} else {
 			$reqAction = $this->request->getTrim('action');
 		}
 		$method = $action
-				?: (!empty($reqAction) ? $reqAction : 'index');
+			?: (!empty($reqAction) ? $reqAction : 'index');
 		if ($method) {
-			$method .= 'Action';		// ZendFramework style
+			$method .= 'Action';        // ZendFramework style
 //			debug($method, method_exists($this, $method));
 
 			if ($proxy = $this->request->getTrim('proxy')) {
@@ -414,7 +430,8 @@ abstract class Controller {
 		return $content;
 	}
 
-	function preventDefault() {
+	function preventDefault()
+	{
 		$this->noRender = true;
 	}
 
@@ -423,46 +440,50 @@ abstract class Controller {
 	 * @params array[string]
 	 * @return mixed|string
 	 */
-	function inColumns() {
+	function inColumns()
+	{
 		$elements = func_get_args();
 		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
-/*		$content = '';
-		foreach ($elements as $html) {
-			$html = $this->s($html);
-			$content .= '<div style="float: left;">'.$html.'</div>';
-		}
-		$content = $content.'<div style="clear: both"></div>';
-		return $content;*/
+		/*		$content = '';
+				foreach ($elements as $html) {
+					$html = $this->s($html);
+					$content .= '<div style="float: left;">'.$html.'</div>';
+				}
+				$content = $content.'<div style="clear: both"></div>';
+				return $content;*/
 	}
 
-	function inColumnsHTML5() {
-		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/display-box.css');
+	function inColumnsHTML5()
+	{
+		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);
-			$content .= '<div class="flex-box">'.$html.'</div>';
+			$content .= '<div class="flex-box">' . $html . '</div>';
 		}
-		$content = '<div class="display-box">'.$content.'</div>';
+		$content = '<div class="display-box">' . $content . '</div>';
 		return $content;
 	}
 
-	function inEqualColumnsHTML5() {
-		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/display-box.css');
+	function inEqualColumnsHTML5()
+	{
+		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/display-box.css');
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
-			$content .= '<div class="flex-box flex-equal">'.$html.'</div>';
+			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
-		$content = '<div class="display-box equal">'.$content.'</div>';
+		$content = '<div class="display-box equal">' . $content . '</div>';
 		return $content;
 	}
 
-	function encloseInTableHTML3(array $cells, array $more = array()) {
+	function encloseInTableHTML3(array $cells, array $more = array())
+	{
 		if (!$more) {
 			$more['class'] = "encloseInTable";
 		}
-		$content[] = '<table '.HTMLTag::renderAttr($more).'>';
+		$content[] = '<table ' . HTMLTag::renderAttr($more) . '>';
 		$content[] = '<tr>';
 		foreach ($cells as $info) {
 			$content[] = '<td valign="top">';
@@ -474,8 +495,9 @@ abstract class Controller {
 		return $content;
 	}
 
-	function encloseInTable() {
-		$this->index->addCSS($this->al->nadlibFromDocRoot.'CSS/columnContainer.less');
+	function encloseInTable()
+	{
+		$this->index->addCSS($this->al->nadlibFromDocRoot . 'CSS/columnContainer.less');
 		$elements = func_get_args();
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
@@ -499,19 +521,21 @@ abstract class Controller {
 	//	return '';
 	//}
 
-	function sidebar() {
+	function sidebar()
+	{
 		return '';
 	}
 
 	/**
-	 * @see makeRelURL
 	 * @param array $params
 	 * @return URL
+	 * @see makeRelURL
 	 */
-	function adjustURL(array $params) {
+	function adjustURL(array $params)
+	{
 		return URL::getCurrent()->addParams(array(
-			'c' => get_class(Index::getInstance()->controller),
-		)+$params);
+				'c' => get_class(Index::getInstance()->controller),
+			) + $params);
 	}
 
 	/**
@@ -521,7 +545,8 @@ abstract class Controller {
 	 * @param string $page
 	 * @return HTMLTag
 	 */
-	function makeRelLink($text, array $params, $page = '?') {
+	function makeRelLink($text, array $params, $page = '?')
+	{
 		return new HTMLTag('a', array(
 			'href' => $this->makeRelURL($params, $page)
 		), $text);
@@ -538,7 +563,8 @@ abstract class Controller {
 	 * @param array $submitParams
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array()) {
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array())
+	{
 		$f = new HTMLForm();
 		if ($formAction) {
 			$f->action($formAction);
@@ -556,15 +582,15 @@ abstract class Controller {
 		}
 		if ($name instanceof htmlString) {
 			$f->button($name, array(
-				'type' => "submit",
-				'id' => 'button-action-'.$action,
-				'class' => $submitClass,
+					'type' => "submit",
+					'id' => 'button-action-' . $action,
+					'class' => $submitClass,
 				) + $submitParams);
 		} else {
 			$f->submit($name, array(
-				'id' => 'button-action-'.$action,
-				'class' => $submitClass,
-			) + $submitParams);
+					'id' => 'button-action-' . $action,
+					'class' => $submitClass,
+				) + $submitParams);
 		}
 		return $f;
 	}
@@ -575,20 +601,22 @@ abstract class Controller {
 	 * @param array $widths
 	 * @return string
 	 */
-	function inTable(array $parts, array $widths = array()) {
+	function inTable(array $parts, array $widths = array())
+	{
 		$size = sizeof($parts);
 		$equal = round(12 / $size);
 		$content = '<div class="row">';
 		foreach ($parts as $i => $c) {
 			$c = $this->s($c);
 			$x = ifsetor($widths[$i], $equal);
-			$content .= '<div class="col-md-'.$x.'">'.$c.'</div>';
+			$content .= '<div class="col-md-' . $x . '">' . $c . '</div>';
 		}
 		$content .= '</div>';
 		return $content;
 	}
 
-	function attr($s) {
+	function attr($s)
+	{
 		if (is_array($s)) {
 			$content = array();
 			foreach ($s as $k => $v) {
@@ -601,7 +629,8 @@ abstract class Controller {
 		return $content;
 	}
 
-	function s($something) {
+	function s($something)
+	{
 		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
@@ -612,76 +641,91 @@ abstract class Controller {
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false, array $more = array()) {
+	function a($href, $text = '', $isHTML = false, array $more = array())
+	{
 		return new HTMLTag('a', array(
-			'href' => $href,
-		) + $more, $text ?: $href, $isHTML);
+				'href' => $href,
+			) + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '', array $more = array()) {
-		$more['class'] = ifsetor($more['class']) .' '.$class;
+	function div($content, $class = '', array $more = array())
+	{
+		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
-		return '<div '.$more.'>'.$this->s($content).'</div>';
+		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
-	function span($content, $class = '', array $more = array()) {
-		$more['class'] = ifsetor($more['class']) .' '.$class;
+	function span($content, $class = '', array $more = array())
+	{
+		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
-		return new htmlString('<span '.$more.'>'.$this->s($content).'</span>');
+		return new htmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
 	}
 
-	function info($content) {
-		return '<div class="alert alert-info">'.$this->s($content).'</div>';
+	function info($content)
+	{
+		return '<div class="alert alert-info">' . $this->s($content) . '</div>';
 	}
 
-	function error($content) {
-		return '<div class="alert alert-danger">'.$this->s($content).'</div>';
+	function error($content)
+	{
+		return '<div class="alert alert-danger">' . $this->s($content) . '</div>';
 	}
 
-	function success($content) {
-		return '<div class="alert alert-success">'.$this->s($content).'</div>';
+	function success($content)
+	{
+		return '<div class="alert alert-success">' . $this->s($content) . '</div>';
 	}
 
-	function message($content) {
-		return '<div class="alert alert-warning">'.$this->s($content).'</div>';
+	function message($content)
+	{
+		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
 	}
 
-	function h1($content) {
-		return '<h1>'.$this->s($content).'</h1>';
+	function h1($content)
+	{
+		return '<h1>' . $this->s($content) . '</h1>';
 	}
 
-	function h2($content) {
-		return '<h2>'.$this->s($content).'</h2>';
+	function h2($content)
+	{
+		return '<h2>' . $this->s($content) . '</h2>';
 	}
 
-	function h3($content) {
-		return '<h3>'.$this->s($content).'</h3>';
+	function h3($content)
+	{
+		return '<h3>' . $this->s($content) . '</h3>';
 	}
 
-	function h4($content) {
-		return '<h4>'.$this->s($content).'</h4>';
+	function h4($content)
+	{
+		return '<h4>' . $this->s($content) . '</h4>';
 	}
 
-	function h5($content) {
-		return '<h5>'.$this->s($content).'</h5>';
+	function h5($content)
+	{
+		return '<h5>' . $this->s($content) . '</h5>';
 	}
 
-	function h6($content) {
-		return '<h6>'.$this->s($content).'</h6>';
+	function h6($content)
+	{
+		return '<h6>' . $this->s($content) . '</h6>';
 	}
 
-	function progress($percent) {
+	function progress($percent)
+	{
 		$percent = intval($percent);
 		return '<div class="progress">
 		  <div class="progress-bar" role="progressbar"
-		  	aria-valuenow="'.$percent.'" aria-valuemin="0" aria-valuemax="100"
-		  	style="width: '.$percent.'%;">
-			'.$percent.'%
+		  	aria-valuenow="' . $percent . '" aria-valuemin="0" aria-valuemax="100"
+		  	style="width: ' . $percent . '%;">
+			' . $percent . '%
 		  </div>
 		</div>';
 	}
 
-	function linkToAction($action = '', array $params = array(), $controller = NULL) {
+	function linkToAction($action = '', array $params = array(), $controller = NULL)
+	{
 		if (!$controller) {
 			$controller = get_class($this);
 		}
@@ -696,41 +740,48 @@ abstract class Controller {
 		return $this->makeURL($params);
 	}
 
-	function p($content, array $attr = array()) {
+	function p($content, array $attr = array())
+	{
 		$more = HTMLTag::renderAttr($attr);
-		return '<p '.$more.'>'.$this->s($content).'</p>';
+		return '<p ' . $more . '>' . $this->s($content) . '</p>';
 	}
 
-	function img($src, array $attr = array()) {
+	function img($src, array $attr = array())
+	{
 		return new HTMLTag('img', array(
 				'src' => /*$this->e*/
 					($src),    // encoding is not necessary for &amp; in URL
 			) + $attr);
 	}
 
-	function e($content) {
+	function e($content)
+	{
 		if (is_array($content)) {
 			$content = MergedContent::mergeStringArrayRecursive($content);
 		}
 		return htmlspecialchars($content, ENT_QUOTES);
 	}
 
-	public function noRender() {
+	public function noRender()
+	{
 		$this->noRender = true;
 		$this->request->set('ajax', 1);
 	}
 
-	function script($file) {
+	function script($file)
+	{
 		$mtime = filemtime($file);
-		$file .= '?'.$mtime;
-		return '<script src="'.$file.'" type="text/javascript"></script>';
+		$file .= '?' . $mtime;
+		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	function log($action, $data = NULL) {
+	function log($action, $data = NULL)
+	{
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	static function link($text = NULL, array $params = []) {
+	static function link($text = NULL, array $params = [])
+	{
 		/** @var Controller $self */
 		$self = get_called_class();
 		return new HTMLTag('a', array(
@@ -738,9 +789,10 @@ abstract class Controller {
 		), $text ?: $self);
 	}
 
-	static function href(array $params = array()) {
+	static function href(array $params = array())
+	{
 		$self = get_called_class();
-		return $self.'?'.http_build_query($params);
+		return $self . '?' . http_build_query($params);
 	}
 
 	/**
@@ -748,7 +800,8 @@ abstract class Controller {
 	 * @param $h
 	 * @return string
 	 */
-	public function getCaption($caption, $h) {
+	public function getCaption($caption, $h)
+	{
 		$al = AutoLoad::getInstance();
 		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
 		$slug = URL::friendlyURL($caption);
@@ -762,21 +815,25 @@ abstract class Controller {
 		return $content;
 	}
 
-	function linkPage($className) {
+	function linkPage($className)
+	{
 		$obj = new $className();
 		$title = $obj->title;
 		return $this->a($className, $title);
 	}
 
-	function makeNewOf($className, $id) {
+	function makeNewOf($className, $id)
+	{
 		return new $className($id);
 	}
 
-	function getInstanceOf($className, $id) {
+	function getInstanceOf($className, $id)
+	{
 		return $className::getInstance($id);
 	}
 
-	function setDB(DBInterface $db) {
+	function setDB(DBInterface $db)
+	{
 		$this->db = $db;
 	}
 

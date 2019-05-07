@@ -4,98 +4,121 @@
  * Class dbPlacebo
  * @mixin SQLBuilder
  */
-class dbPlacebo extends dbLayerBase implements DBInterface {
+class dbPlacebo extends dbLayerBase implements DBInterface
+{
 
-	function __construct() {
+	function __construct()
+	{
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
 	}
 
-	function perform($query) {
+	function perform($query)
+	{
 		return '';
 	}
 
-	function fetchOptions($a) {
+	function fetchOptions($a)
+	{
 		return '';
 	}
 
-	function fetchAll() {
+	function fetchAll()
+	{
 		return array();
 	}
 
-	function __call($method, array $params) {
+	function __call($method, array $params)
+	{
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in dbPlacebo and SQLBuilder');
+			throw new Exception($method . ' not found in dbPlacebo and SQLBuilder');
 		}
 	}
 
-	function numRows($res = NULL) {
+	function numRows($res = NULL)
+	{
 		// TODO: Implement numRows() method.
 	}
 
-	function affectedRows($res = NULL) {
+	function affectedRows($res = NULL)
+	{
 		// TODO: Implement affectedRows() method.
 	}
 
-	function getTables() {
+	function getTables()
+	{
 		// TODO: Implement getTables() method.
 	}
 
-	function lastInsertID($res = NULL, $table = NULL) {
+	function lastInsertID($res = NULL, $table = NULL)
+	{
 		// TODO: Implement lastInsertID() method.
 	}
 
-	function free($res) {
+	function free($res)
+	{
 		// TODO: Implement free() method.
 	}
 
-	function quoteKey($key) {
+	function quoteKey($key)
+	{
 		// TODO: Implement quoteKey() method.
 	}
 
-	function escape($string) {
+	function escape($string)
+	{
 		return $string;
 	}
 
-	function escapeBool($value) {
+	function escapeBool($value)
+	{
 		// TODO: Implement escapeBool() method.
 	}
 
-	function fetchAssoc($res) {
+	function fetchAssoc($res)
+	{
 		// TODO: Implement fetchAssoc() method.
 	}
 
-	function transaction() {
+	function transaction()
+	{
 		// TODO: Implement transaction() method.
 	}
 
-	function commit() {
+	function commit()
+	{
 		// TODO: Implement commit() method.
 	}
 
-	function rollback() {
+	function rollback()
+	{
 		// TODO: Implement rollback() method.
 	}
 
-	public function getScheme() {
+	public function getScheme()
+	{
 		// TODO: Implement getScheme() method.
 	}
 
-	function getTablesEx() {
+	function getTablesEx()
+	{
 		// TODO: Implement getTablesEx() method.
 	}
 
-	function getTableColumnsEx($table) {
+	function getTableColumnsEx($table)
+	{
 		// TODO: Implement getTableColumnsEx() method.
 	}
 
-	function getIndexesFrom($table) {
+	function getIndexesFrom($table)
+	{
 		// TODO: Implement getIndexesFrom() method.
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
+	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
+	{
 		return array();
 	}
 

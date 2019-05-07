@@ -5,17 +5,19 @@
  * ErrorDocument 404 /index.php?c=PHPRewrite
  * @acl *
  */
-class PHPRewrite extends AppController {
+class PHPRewrite extends AppController
+{
 
 	/**
 	 * @acl *
 	 */
-	function render() {
+	function render()
+	{
 		//debug($_SERVER);
 		//$originalURL = $_SERVER['REDIRECT_URL'];	// Apache
 		//$prefix = $this->request->getPathAfterDocRoot();
 		//debug($originalURL, $prefix);
-		$controller = $this->request->getPathAfterDocRoot().'';
+		$controller = $this->request->getPathAfterDocRoot() . '';
 		if (class_exists($controller)) {
 			http_response_code(200);
 			$object = new $controller();

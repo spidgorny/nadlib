@@ -6,13 +6,16 @@ $tmp = error_reporting(error_reporting() ^ E_STRICT);
  * Class ArrayPlusReference
  * @mixin ArrayPlus
  */
-class ArrayPlusReference /*extends ArrayPlus */{
+class ArrayPlusReference /*extends ArrayPlus */
+{
 
-	function __construct(array &$a = array()) {
+	function __construct(array &$a = array())
+	{
 		$this->setData($a);
 	}
 
-	static function create(array &$data = array()) {
+	static function create(array &$data = array())
+	{
 		$self = new self($data);
 		return $self;
 	}
@@ -20,7 +23,8 @@ class ArrayPlusReference /*extends ArrayPlus */{
 	/**
 	 * @return array
 	 */
-	function &getData() {
+	function &getData()
+	{
 		return (array)$this;
 	}
 
@@ -28,6 +32,7 @@ class ArrayPlusReference /*extends ArrayPlus */{
 
 error_reporting($tmp);
 
-function APR(array &$a = array()) {
+function APR(array &$a = array())
+{
 	return ArrayPlusReference::create($a);
 }

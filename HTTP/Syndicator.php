@@ -1,17 +1,18 @@
 <?php
 
-define('LOWERCASE',3);
-define('UPPERCASE',1);
+define('LOWERCASE', 3);
+define('UPPERCASE', 1);
 
 use Symfony\Component\CssSelector\CssSelector;
 
-class Syndicator {
+class Syndicator
+{
 
 	/**
 	 * @var string
 	 */
 	var $url;
-	 /**
+	/**
 	 * @var bool|int enabled or seconds for caching
 	 */
 	var $isCaching = FALSE;
@@ -33,7 +34,7 @@ class Syndicator {
 	 */
 	public $json;
 
-	var $xpath;	// last used, for what?
+	var $xpath;    // last used, for what?
 
 	var $recodeUTF8;
 
@@ -60,7 +61,8 @@ class Syndicator {
 	 */
 	public $validateDownload;
 
-	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8') {
+	function __construct($url = NULL, $caching = TRUE, $recodeUTF8 = 'utf-8')
+	{
 		TaylorProfiler::start(__METHOD__);
 		if ($url) {
 			$this->url = $url;
@@ -71,7 +73,8 @@ class Syndicator {
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function detectProxy() {
+	function detectProxy()
+	{
 		$proxy = NULL;
 		if (str_startsWith($this->url, 'https')) {
 			$proxy = getenv('https_proxy');
@@ -91,7 +94,8 @@ class Syndicator {
 	 * @param string $recodeUTF8
 	 * @return Syndicator
 	 */
-	static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8') {
+	static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8')
+	{
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'HTML';
 		$s->html = $s->retrieveFile();
@@ -105,7 +109,8 @@ class Syndicator {
 	 * @param string $recodeUTF8
 	 * @return Syndicator
 	 */
-	static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8') {
+	static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8')
+	{
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'XML';
 		$s->html = $s->retrieveFile();
@@ -119,7 +124,8 @@ class Syndicator {
 	 * @param string $recodeUTF8
 	 * @return Syndicator
 	 */
-	static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8') {
+	static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8')
+	{
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'JSON';
 		$s->html = $s->retrieveFile();
@@ -129,14 +135,15 @@ class Syndicator {
 		return $s;
 	}
 
-	function retrieveFile($retries = 1) {
+	function retrieveFile($retries = 1)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$c = Index::getInstance()->controller;
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {
 				$html = $this->cache->get($this->url);
-				$this->log(__METHOD__, '<a href="'.$this->cache->map($this->url).'">'.$this->cache->map($this->url).'</a> Size: '.strlen($html));
+				$this->log(__METHOD__, '<a href="' . $this->cache->map($this->url) . '">' . $this->cache->map($this->url) . '</a> Size: ' . strlen($html));
 			} else {
 				$this->log(__METHOD__, 'No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
@@ -165,27 +172,31 @@ class Syndicator {
 		return $html;
 	}
 
-	function proxyOK() {
+	function proxyOK()
+	{
 		if ($this->useProxy && $this->useProxy instanceof Proxy) {
 			$c = Controller::getInstance();
-			$c->log(__METHOD__, 'Using proxy: '.$this->useProxy.': OK');
+			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
 			$this->useProxy->ok();
 		}
 	}
 
-	function proxyFail() {
+	function proxyFail()
+	{
 		if ($this->useProxy && $this->useProxy instanceof Proxy) {
 			$c = Controller::getInstance();
-			$c->log(__METHOD__, 'Using proxy: '.$this->useProxy.': OK');
+			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
 			$this->useProxy->fail();
 		}
 	}
 
-	function log($method, $msg) {
+	function log($method, $msg)
+	{
 		$this->log[] = new LogEntry($method, $msg);
 	}
 
-	function downloadFile($href, $retries = 1) {
+	function downloadFile($href, $retries = 1)
+	{
 		if (str_startsWith($href, 'http')) {
 			$ug = new URLGet($href, $this);
 			$ug->timeout = 10;
@@ -201,46 +212,48 @@ class Syndicator {
 	 * @param $str
 	 * @return mixed
 	 */
-	function detect_cyr_charset($str) {
-	    $charsets = Array(
-	                      'koi8-r' => 0,
-	                      'Windows-1251' => 0,
-	                      'CP866' => 0,
-	                      'ISO-8859-5' => 0,
-	                      'MAC' => 0
-	                      );
-	    for ( $i = 0, $length = strlen($str); $i < $length; $i++ ) {
-	        $char = ord($str[$i]);
-	        //non-russian characters
-	        if ($char < 128 || $char > 256) continue;
+	function detect_cyr_charset($str)
+	{
+		$charsets = Array(
+			'koi8-r' => 0,
+			'Windows-1251' => 0,
+			'CP866' => 0,
+			'ISO-8859-5' => 0,
+			'MAC' => 0
+		);
+		for ($i = 0, $length = strlen($str); $i < $length; $i++) {
+			$char = ord($str[$i]);
+			//non-russian characters
+			if ($char < 128 || $char > 256) continue;
 
-	        //CP866
-	        if (($char > 159 && $char < 176) || ($char > 223 && $char < 242))
-	            $charsets['CP866']+=LOWERCASE;
-	        if (($char > 127 && $char < 160)) $charsets['CP866']+=UPPERCASE;
+			//CP866
+			if (($char > 159 && $char < 176) || ($char > 223 && $char < 242))
+				$charsets['CP866'] += LOWERCASE;
+			if (($char > 127 && $char < 160)) $charsets['CP866'] += UPPERCASE;
 
-	        //KOI8-R
-	        if (($char > 191 && $char < 223)) $charsets['koi8-r']+=LOWERCASE;
-	        if (($char > 222 && $char < 256)) $charsets['koi8-r']+=UPPERCASE;
+			//KOI8-R
+			if (($char > 191 && $char < 223)) $charsets['koi8-r'] += LOWERCASE;
+			if (($char > 222 && $char < 256)) $charsets['koi8-r'] += UPPERCASE;
 
-	        //WIN-1251
-	        if ($char > 223 && $char < 256) $charsets['Windows-1251']+=LOWERCASE;
-	        if ($char > 191 && $char < 224) $charsets['Windows-1251']+=UPPERCASE;
+			//WIN-1251
+			if ($char > 223 && $char < 256) $charsets['Windows-1251'] += LOWERCASE;
+			if ($char > 191 && $char < 224) $charsets['Windows-1251'] += UPPERCASE;
 
-	        //MAC
-	        if ($char > 221 && $char < 255) $charsets['MAC']+=LOWERCASE;
-	        if ($char > 127 && $char < 160) $charsets['MAC']+=UPPERCASE;
+			//MAC
+			if ($char > 221 && $char < 255) $charsets['MAC'] += LOWERCASE;
+			if ($char > 127 && $char < 160) $charsets['MAC'] += UPPERCASE;
 
-	        //ISO-8859-5
-	        if ($char > 207 && $char < 240) $charsets['ISO-8859-5']+=LOWERCASE;
-	        if ($char > 175 && $char < 208) $charsets['ISO-8859-5']+=UPPERCASE;
+			//ISO-8859-5
+			if ($char > 207 && $char < 240) $charsets['ISO-8859-5'] += LOWERCASE;
+			if ($char > 175 && $char < 208) $charsets['ISO-8859-5'] += UPPERCASE;
 
-	    }
-	    arsort($charsets);
-	    return key($charsets);
+		}
+		arsort($charsets);
+		return key($charsets);
 	}
 
-	function processFile($html) {
+	function processFile($html)
+	{
 		TaylorProfiler::start(__METHOD__);
 		//debug(substr($html, 0, 1000));
 		if ($this->input == 'HTML' && $this->recodeUTF8 != 'pass') {
@@ -284,22 +297,23 @@ class Syndicator {
 		return $xml;
 	}
 
-	function tidy($html) {
+	function tidy($html)
+	{
 		TaylorProfiler::start(__METHOD__);
 		//debug(extension_loaded('tidy'));
 		if ($this->input == 'HTML') {
 			if (extension_loaded('tidy')) {
 				$config = array(
-					'clean'         	=> true,
-					'indent'        	=> true,
-					'output-xhtml'  	=> true,
+					'clean' => true,
+					'indent' => true,
+					'output-xhtml' => true,
 					//'output-html'		=> true,
 					//'output-xml' 		=> true,
-					'wrap'         		=> 1000,
-					'numeric-entities'	=> true,
-					'char-encoding' 	=> 'raw',
-					'input-encoding' 	=> 'raw',
-					'output-encoding' 	=> 'raw',
+					'wrap' => 1000,
+					'numeric-entities' => true,
+					'char-encoding' => 'raw',
+					'input-encoding' => 'raw',
+					'output-encoding' => 'raw',
 
 				);
 				$tidy = new tidy;
@@ -314,13 +328,14 @@ class Syndicator {
 				));
 			}
 		} elseif ($this->input == 'XML') {
-			$out = $html;	// hope that XML is valid
+			$out = $html;    // hope that XML is valid
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $out;
 	}
 
-	function recode($xml) {
+	function recode($xml)
+	{
 		TaylorProfiler::start(__METHOD__);
 		//$enc = mb_detect_encoding($xml);
 		//debug($enc);
@@ -340,7 +355,8 @@ class Syndicator {
 		return $xml;
 	}
 
-	function getXML($recode) {
+	function getXML($recode)
+	{
 		TaylorProfiler::start(__METHOD__);
 		if (strlen($recode) && $recode{0} == '<') {
 			$xml = new SimpleXMLElement($recode);
@@ -363,7 +379,8 @@ class Syndicator {
 	 * @param $xpath
 	 * @return null|SimpleXMLElement[]
 	 */
-	function getElements($xpath) {
+	function getElements($xpath)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$target = NULL;
 		if ($this->xml) {
@@ -380,7 +397,8 @@ class Syndicator {
 	 * @param string $xpath
 	 * @return SimpleXMLElement
 	 */
-	function getElement($xpath) {
+	function getElement($xpath)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$first = NULL;
 		$res = $this->getElements($xpath);
@@ -398,15 +416,17 @@ class Syndicator {
 	 * @param string $xml
 	 * @return SimpleXMLElement
 	 */
-	function getSXML($xml) {
+	function getSXML($xml)
+	{
 		$xml_parser = new sxml();
 		$xml_parser->parse($xml);
-        $xml = $xml_parser->datas;
-        //debug($xml_parser);
-        return $xml;
+		$xml = $xml_parser->datas;
+		//debug($xml_parser);
+		return $xml;
 	}
 
-	function getDOM($xml) {
+	function getDOM($xml)
+	{
 		$dom = domxml_xmltree($xml);
 		return $dom;
 	}
@@ -416,53 +436,57 @@ class Syndicator {
 	 * script code, and embedded objects.  Add line breaks around
 	 * block-level tags to prevent word joining after tag removal.
 	 */
-	function strip_html_tags( $text ) {
+	function strip_html_tags($text)
+	{
 		return preg_replace('/<script[^>]*?>.*?<\/script>/is', '', $text);
-	    $text = preg_replace(
-	        array(
-	          // Remove invisible content
-	            '@<head[^>]*?>.*?</head>@siu',
-	            '@<style[^>]*?>.*?</style>@siu',
-	            '@<script[^>]*?.*?</script>@siu',
-	            '@<object[^>]*?.*?</object>@siu',
-	            '@<embed[^>]*?.*?</embed>@siu',
-	            '@<applet[^>]*?.*?</applet>@siu',
-	            '@<noframes[^>]*?.*?</noframes>@siu',
-	            '@<noscript[^>]*?.*?</noscript>@siu',
-	            '@<noembed[^>]*?.*?</noembed>@siu',
-	          // Add line breaks before and after blocks
-	            '@</?((address)|(blockquote)|(center)|(del))@iu',
-	            '@</?((div)|(h[1-9])|(ins)|(isindex)|(p)|(pre))@iu',
-	            '@</?((dir)|(dl)|(dt)|(dd)|(li)|(menu)|(ol)|(ul))@iu',
-	            '@</?((table)|(th)|(td)|(caption))@iu',
-	            '@</?((form)|(button)|(fieldset)|(legend)|(input))@iu',
-	            '@</?((label)|(select)|(optgroup)|(option)|(textarea))@iu',
-	            '@</?((frameset)|(frame)|(iframe))@iu',
-	        ),
-	        array(
-	            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-	            "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0",
-	            "\n\$0", "\n\$0",
-	        ),
-	        $text );
-	    return /*strip_tags*/( $text );
+		$text = preg_replace(
+			array(
+				// Remove invisible content
+				'@<head[^>]*?>.*?</head>@siu',
+				'@<style[^>]*?>.*?</style>@siu',
+				'@<script[^>]*?.*?</script>@siu',
+				'@<object[^>]*?.*?</object>@siu',
+				'@<embed[^>]*?.*?</embed>@siu',
+				'@<applet[^>]*?.*?</applet>@siu',
+				'@<noframes[^>]*?.*?</noframes>@siu',
+				'@<noscript[^>]*?.*?</noscript>@siu',
+				'@<noembed[^>]*?.*?</noembed>@siu',
+				// Add line breaks before and after blocks
+				'@</?((address)|(blockquote)|(center)|(del))@iu',
+				'@</?((div)|(h[1-9])|(ins)|(isindex)|(p)|(pre))@iu',
+				'@</?((dir)|(dl)|(dt)|(dd)|(li)|(menu)|(ol)|(ul))@iu',
+				'@</?((table)|(th)|(td)|(caption))@iu',
+				'@</?((form)|(button)|(fieldset)|(legend)|(input))@iu',
+				'@</?((label)|(select)|(optgroup)|(option)|(textarea))@iu',
+				'@</?((frameset)|(frame)|(iframe))@iu',
+			),
+			array(
+				' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+				"\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0",
+				"\n\$0", "\n\$0",
+			),
+			$text);
+		return /*strip_tags*/ ($text);
 	}
 
-	function trimArray(array $elements) {
+	function trimArray(array $elements)
+	{
 		foreach ($elements as &$e) {
 			$e = trim(strip_tags($e));
 		}
 		return $elements;
 	}
 
-	function css($selector) {
+	function css($selector)
+	{
 		CssSelector::enableHtmlExtension();
 		$xpath = CssSelector::toXPath($selector);
 		//debug($xpath);
 		return $this->getElements($xpath);
 	}
 
-	public function get($string) {
+	public function get($string)
+	{
 		$elements = $this->getElements($string);
 		//debug($string, $elements);
 		foreach ($elements as &$e) {
@@ -478,9 +502,10 @@ class Syndicator {
 		}
 	}
 
-	public function getEncoding() {
+	public function getEncoding()
+	{
 		$ct = $this->get('//meta[@http-equiv="Content-Type"]/@content');
-		$ctParts = trimExplode('=', $ct);	// text/html; charset=windows-1251
+		$ctParts = trimExplode('=', $ct);    // text/html; charset=windows-1251
 		$ct = ifsetor($ctParts[1]);
 		if ($ct) {
 			$list = mb_list_encodings();
@@ -506,7 +531,7 @@ class Syndicator {
 		// convert DOM to SimpleXML
 		$xml = simplexml_import_dom($html);
 */
-  		//return $xml;
-		//debug($xml);
-		//debug($xml->body->pre[1]->a[14]);
+//return $xml;
+//debug($xml);
+//debug($xml->body->pre[1]->a[14]);
 /**/

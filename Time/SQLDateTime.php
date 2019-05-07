@@ -1,8 +1,10 @@
 <?php
 
-class SQLDateTime extends Time {
+class SQLDateTime extends Time
+{
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->format('Y-m-d H:i:s');
 	}
 

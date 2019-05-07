@@ -33,7 +33,8 @@ namespace TYPO3\CMS\Install\Sql;
  *
  * @author Christian Kuhn <lolli@schwarzbu.ch>
  */
-class SchemaMigrator {
+class SchemaMigrator
+{
 
 	/**
 	 * @var string Prefix of deleted tables
@@ -53,12 +54,14 @@ class SchemaMigrator {
 
 	// Maximum field width of MYSQL
 	const MYSQL_MAXIMUM_FIELD_WIDTH = 64;
+
 	/**
 	 * Constructor function
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['multiplyDBfieldSize'] >= 1 && $GLOBALS['TYPO3_CONF_VARS']['SYS']['multiplyDBfieldSize'] <= 5) {
-			$this->multiplySize = (double) $GLOBALS['TYPO3_CONF_VARS']['SYS']['multiplyDBfieldSize'];
+			$this->multiplySize = (double)$GLOBALS['TYPO3_CONF_VARS']['SYS']['multiplyDBfieldSize'];
 		}
 	}
 
@@ -67,7 +70,8 @@ class SchemaMigrator {
 	 *
 	 * @param string $prefix Prefix string
 	 */
-	public function setDeletedPrefixKey($prefix) {
+	public function setDeletedPrefixKey($prefix)
+	{
 		$this->deletedPrefixKey = $prefix;
 	}
 
@@ -76,7 +80,8 @@ class SchemaMigrator {
 	 *
 	 * @return string
 	 */
-	public function getDeletedPrefixKey() {
+	public function getDeletedPrefixKey()
+	{
 		return $this->deletedPrefixKey;
 	}
 
@@ -86,7 +91,8 @@ class SchemaMigrator {
 	 * @param string $fileContent Should be a string read from an SQL-file made with 'mysqldump [database_name] -d'
 	 * @return array Array with information about table.
 	 */
-	public function getFieldDefinitions_fileContent($fileContent) {
+	public function getFieldDefinitions_fileContent($fileContent)
+	{
 		$lines = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(LF, $fileContent, 1);
 		$table = '';
 		$total = array();
@@ -176,13 +182,14 @@ class SchemaMigrator {
 	 * Multiplies varchars/tinytext fields in size according to $this->multiplySize
 	 * Useful if you want to use UTF-8 in the database and needs to extend the field sizes in the database so UTF-8 chars are not discarded. For most charsets available as single byte sets, multiplication with 2 should be enough. For chinese, use 3.
 	 *
-	 * @param array	$total Total array (from getFieldDefinitions_fileContent())
+	 * @param array $total Total array (from getFieldDefinitions_fileContent())
 	 * @return void
 	 * @access private
 	 * @see getFieldDefinitions_fileContent()
 	 */
-	protected function getFieldDefinitions_sqlContent_parseTypes(&$total) {
-		$mSize = (double) $this->multiplySize;
+	protected function getFieldDefinitions_sqlContent_parseTypes(&$total)
+	{
+		$mSize = (double)$this->multiplySize;
 		if ($mSize > 1) {
 			/** @var $sqlParser \TYPO3\CMS\Core\Database\SqlParser */
 			$sqlParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Database\\SqlParser');
@@ -192,41 +199,41 @@ class SchemaMigrator {
 						$orig_fType = $fType;
 						$fInfo = $sqlParser->parseFieldDef($fType);
 						switch ($fInfo['fieldType']) {
-						case 'char':
+							case 'char':
 
-						case 'varchar':
-							$newSize = round($fInfo['value'] * $mSize);
-							if ($newSize <= 255) {
-								$fInfo['value'] = $newSize;
-							} else {
-								$fInfo = array(
-									'fieldType' => 'text',
-									'featureIndex' => array(
-										'NOTNULL' => array(
-											'keyword' => 'NOT NULL'
+							case 'varchar':
+								$newSize = round($fInfo['value'] * $mSize);
+								if ($newSize <= 255) {
+									$fInfo['value'] = $newSize;
+								} else {
+									$fInfo = array(
+										'fieldType' => 'text',
+										'featureIndex' => array(
+											'NOTNULL' => array(
+												'keyword' => 'NOT NULL'
+											)
 										)
-									)
-								);
-								// Change key definition if necessary (must use "prefix" on TEXT columns)
-								if (is_array($cfg['keys'])) {
-									foreach ($cfg['keys'] as $kN => $kType) {
-										$match = array();
-										preg_match('/^([^(]*)\\(([^)]+)\\)(.*)/', $kType, $match);
-										$keys = array();
-										foreach (\TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $match[2]) as $kfN) {
-											if ($fN == $kfN) {
-												$kfN .= '(' . $newSize . ')';
+									);
+									// Change key definition if necessary (must use "prefix" on TEXT columns)
+									if (is_array($cfg['keys'])) {
+										foreach ($cfg['keys'] as $kN => $kType) {
+											$match = array();
+											preg_match('/^([^(]*)\\(([^)]+)\\)(.*)/', $kType, $match);
+											$keys = array();
+											foreach (\TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $match[2]) as $kfN) {
+												if ($fN == $kfN) {
+													$kfN .= '(' . $newSize . ')';
+												}
+												$keys[] = $kfN;
 											}
-											$keys[] = $kfN;
+											$total[$table]['keys'][$kN] = $match[1] . '(' . implode(',', $keys) . ')' . $match[3];
 										}
-										$total[$table]['keys'][$kN] = $match[1] . '(' . implode(',', $keys) . ')' . $match[3];
 									}
 								}
-							}
-							break;
-						case 'tinytext':
-							$fInfo['fieldType'] = 'text';
-							break;
+								break;
+							case 'tinytext':
+								$fInfo['fieldType'] = 'text';
+								break;
 						}
 						$total[$table]['fields'][$fN] = $sqlParser->compileFieldCfg($fInfo);
 						if ($sqlParser->parse_error) {
@@ -244,7 +251,8 @@ class SchemaMigrator {
 	 * @param string $charset Character set
 	 * @return string Corresponding default collation
 	 */
-	public function getCollationForCharset($charset) {
+	public function getCollationForCharset($charset)
+	{
 		// Load character sets, if not cached already
 		if (!count($this->character_sets)) {
 			if (method_exists($GLOBALS['TYPO3_DB'], 'admin_get_charsets')) {
@@ -266,7 +274,8 @@ class SchemaMigrator {
 	 *
 	 * @return array Array with information about table.
 	 */
-	public function getFieldDefinitions_database() {
+	public function getFieldDefinitions_database()
+	{
 		$total = array();
 		$tempKeys = array();
 		$tempKeysPrefix = array();
@@ -337,7 +346,8 @@ class SchemaMigrator {
 	 * @param boolean $ignoreNotNullWhenComparing If set, this function ignores NOT NULL statements of the SQL file field definition when comparing current field definition from database with field definition from SQL file. This way, NOT NULL statements will be executed when the field is initially created, but the SQL parser will never complain about missing NOT NULL statements afterwards.
 	 * @return array Returns an array with 1) all elements from $FDsrc that is not in $FDcomp (in key 'extra') and 2) all elements from $FDsrc that is different from the ones in $FDcomp
 	 */
-	public function getDatabaseExtra($FDsrc, $FDcomp, $onlyTableList = '', $ignoreNotNullWhenComparing = TRUE) {
+	public function getDatabaseExtra($FDsrc, $FDcomp, $onlyTableList = '', $ignoreNotNullWhenComparing = TRUE)
+	{
 		$extraArr = array();
 		$diffArr = array();
 		if (is_array($FDsrc)) {
@@ -392,7 +402,8 @@ class SchemaMigrator {
 	 * @param string $keyList List of fields in diff array to take notice of.
 	 * @return array Array of SQL statements (organized in keys depending on type)
 	 */
-	public function getUpdateSuggestions($diffArr, $keyList = 'extra,diff') {
+	public function getUpdateSuggestions($diffArr, $keyList = 'extra,diff')
+	{
 		$statements = array();
 		$deletedPrefixKey = $this->deletedPrefixKey;
 		$deletedPrefixLength = strlen($deletedPrefixKey);
@@ -546,7 +557,8 @@ class SchemaMigrator {
 	 * @param array $row MySQL result row
 	 * @return string Field definition
 	 */
-	public function assembleFieldDefinition($row) {
+	public function assembleFieldDefinition($row)
+	{
 		$field = array($row['Type']);
 		if ($row['Null'] == 'NO') {
 			$field[] = 'NOT NULL';
@@ -575,7 +587,8 @@ class SchemaMigrator {
 	 * @param string $query_regex Regex to filter SQL lines to include
 	 * @return array Array of SQL statements
 	 */
-	public function getStatementArray($sqlcode, $removeNonSQL = FALSE, $query_regex = '') {
+	public function getStatementArray($sqlcode, $removeNonSQL = FALSE, $query_regex = '')
+	{
 		$sqlcodeArr = explode(LF, $sqlcode);
 		// Based on the assumption that the sql-dump has
 		$statementArray = array();
@@ -612,7 +625,8 @@ class SchemaMigrator {
 	 * @param boolean $insertCountFlag If set, will count number of INSERT INTO statements following that table definition
 	 * @return array Array with table definitions in index 0 and count in index 1
 	 */
-	public function getCreateTables($statements, $insertCountFlag = FALSE) {
+	public function getCreateTables($statements, $insertCountFlag = FALSE)
+	{
 		$crTables = array();
 		$insertCount = array();
 		foreach ($statements as $line => $lineContent) {
@@ -648,7 +662,8 @@ class SchemaMigrator {
 	 * @param string $table Table name
 	 * @return array Array of INSERT INTO statements where table match $table
 	 */
-	public function getTableInsertStatements($statements, $table) {
+	public function getTableInsertStatements($statements, $table)
+	{
 		$outStatements = array();
 		foreach ($statements as $line => $lineContent) {
 			$reg = array();
@@ -669,7 +684,8 @@ class SchemaMigrator {
 	 * @param array $keyArr Array with keys that must match keys in $arr. Only where a key in this array is set and TRUE will the query be executed (meant to be passed from a form checkbox)
 	 * @return mixed Array with error message from database if any occurred. Otherwise TRUE if everything was executed successfully.
 	 */
-	public function performUpdateQueries($arr, $keyArr) {
+	public function performUpdateQueries($arr, $keyArr)
+	{
 		$result = array();
 		if (is_array($arr)) {
 			foreach ($arr as $key => $string) {
@@ -696,7 +712,8 @@ class SchemaMigrator {
 	 * @return array List of tables.
 	 * @see \TYPO3\CMS\Core\Database\DatabaseConnection::admin_get_tables()
 	 */
-	public function getListOfTables() {
+	public function getListOfTables()
+	{
 		$whichTables = $GLOBALS['TYPO3_DB']->admin_get_tables(TYPO3_db);
 		foreach ($whichTables as $key => &$value) {
 			$value = $key;

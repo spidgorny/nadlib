@@ -1,6 +1,7 @@
 <?php
 
-class TYPO3ContentCollection extends Collection {
+class TYPO3ContentCollection extends Collection
+{
 	var $table = 'tt_content';
 	var $idField = 'uid';
 	var $orderBy = 'ORDER BY sorting';
@@ -15,7 +16,8 @@ class TYPO3ContentCollection extends Collection {
 	 * @param bool $byInstance
 	 * @return TYPO3Content[]
 	 */
-	function objectify($class = '', $byInstance = false) {
+	function objectify($class = '', $byInstance = false)
+	{
 		return parent::objectify('TYPO3Content');
 	}
 

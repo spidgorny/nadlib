@@ -5,7 +5,8 @@
  * This may not be used as an alternative to 'makeOR'. Use SQLIn instead.
  */
 
-class SQLOr extends SQLWherePart {
+class SQLOr extends SQLWherePart
+{
 
 	protected $or = array();
 
@@ -16,7 +17,8 @@ class SQLOr extends SQLWherePart {
 
 	protected $join = ' OR ';
 
-	function __construct(array $ors) {
+	function __construct(array $ors)
+	{
 		//parent::__construct();
 		$this->or = $ors;
 		$this->db = Config::getInstance()->getDB();
@@ -27,18 +29,19 @@ class SQLOr extends SQLWherePart {
 	 * This one should be just simple general.
 	 * @return string
 	 */
-	function __toString() {
+	function __toString()
+	{
 		$ors = array();
 		//debug(get_class($this->db));
 		if (false && $this->db instanceof dbLayerPG) {
 			$ors[] = $this->bijouStyle();
 		} elseif (false && $this->db instanceof dbLayer) {
-			$ors[]  = $this->dciStyle();
-		} else {						// MySQL
+			$ors[] = $this->dciStyle();
+		} else {                        // MySQL
 			$ors = $this->db->quoteWhere($this->or);
 		}
 		if ($ors) {
-			$res = '('.implode($this->join, $ors).')';
+			$res = '(' . implode($this->join, $ors) . ')';
 		} else {
 			$res = '/* EMPTY OR */';
 		}
@@ -46,21 +49,23 @@ class SQLOr extends SQLWherePart {
 		return $res;
 	}
 
-	function bijouStyle() {
+	function bijouStyle()
+	{
 		// bijou
 		$ors = array();
 		foreach ($this->or as $key => $or) {
 			if (is_main($key)) {
 				$ors[] = $this->db->getWherePart(array(
 					$key => $or,
-					$key.'.' => $this->or[$key.'.'],
+					$key . '.' => $this->or[$key . '.'],
 				), false);
 			}
 		}
 		return first($ors);
 	}
 
-	function dciStyle() {
+	function dciStyle()
+	{
 		$ors = array();
 		// DCI, ORS
 		// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
@@ -94,11 +99,13 @@ class SQLOr extends SQLWherePart {
 		return first($ors);
 	}
 
-	function debug() {
+	function debug()
+	{
 		return array($this->field => $this->or);
 	}
 
-	function getParameter() {
+	function getParameter()
+	{
 		$params = array();
 		/**
 		 * @var string $field

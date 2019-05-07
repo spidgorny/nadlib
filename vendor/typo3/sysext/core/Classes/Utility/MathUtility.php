@@ -1,4 +1,5 @@
 <?php
+
 namespace TYPO3\CMS\Core\Utility;
 
 /***************************************************************
@@ -26,12 +27,14 @@ namespace TYPO3\CMS\Core\Utility;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * Class with helper functions for mathematical calculations
  *
  * @author Susanne Moog <typo3@susanne-moog.de>
  */
-class MathUtility {
+class MathUtility
+{
 
 	/**
 	 * Forces the integer $theInt into the boundaries of $min and $max. If the $theInt is FALSE then the $defaultValue is applied.
@@ -42,7 +45,8 @@ class MathUtility {
 	 * @param integer $defaultValue Default value if input is FALSE.
 	 * @return integer The input value forced into the boundaries of $min and $max
 	 */
-	static public function forceIntegerInRange($theInt, $min, $max = 2000000000, $defaultValue = 0) {
+	static public function forceIntegerInRange($theInt, $min, $max = 2000000000, $defaultValue = 0)
+	{
 		// Returns $theInt as an integer in the integerspace from $min to $max
 		$theInt = intval($theInt);
 		// If the input value is zero after being converted to integer,
@@ -65,7 +69,8 @@ class MathUtility {
 	 * @param integer $theInt Integer string to process
 	 * @return integer
 	 */
-	static public function convertToPositiveInteger($theInt) {
+	static public function convertToPositiveInteger($theInt)
+	{
 		$theInt = intval($theInt);
 		if ($theInt < 0) {
 			$theInt = 0;
@@ -82,11 +87,12 @@ class MathUtility {
 	 * @param mixed $var Any input variable to test
 	 * @return boolean Returns TRUE if string is an integer
 	 */
-	static public function canBeInterpretedAsInteger($var) {
+	static public function canBeInterpretedAsInteger($var)
+	{
 		if ($var === '' || is_object($var) || is_array($var)) {
 			return FALSE;
 		}
-		return (string) intval($var) === (string) $var;
+		return (string)intval($var) === (string)$var;
 	}
 
 	/**
@@ -96,7 +102,8 @@ class MathUtility {
 	 * @return integer Calculated value. Or error string.
 	 * @see \TYPO3\CMS\Core\Utility\MathUtility::calculateWithParentheses()
 	 */
-	static public function calculateWithPriorityToAdditionAndSubtraction($string) {
+	static public function calculateWithPriorityToAdditionAndSubtraction($string)
+	{
 		// Removing all whitespace
 		$string = preg_replace('/[[:space:]]*/', '', $string);
 		// Ensuring an operator for the first entrance
@@ -154,7 +161,8 @@ class MathUtility {
 	 * @return integer Calculated value. Or error string.
 	 * @see calculateWithPriorityToAdditionAndSubtraction(), tslib_cObj::stdWrap()
 	 */
-	static public function calculateWithParentheses($string) {
+	static public function calculateWithParentheses($string)
+	{
 		$securC = 100;
 		do {
 			$valueLenO = strcspn($string, '(');
@@ -183,7 +191,8 @@ class MathUtility {
 	 * @param integer $maximum Upper boundary of the range
 	 * @return boolean
 	 */
-	static public function isIntegerInRange($value, $minimum, $maximum) {
+	static public function isIntegerInRange($value, $minimum, $maximum)
+	{
 		$value = filter_var($value, FILTER_VALIDATE_INT, array(
 			'options' => array(
 				'min_range' => $minimum,

@@ -1,6 +1,7 @@
 <?php
 
-interface ResolverInterface {
+interface ResolverInterface
+{
 
 	function getController();
 

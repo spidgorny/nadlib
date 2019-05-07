@@ -1,6 +1,7 @@
 <?php
 
-interface UserModelInterface {
+interface UserModelInterface
+{
 
 	function try2login();
 

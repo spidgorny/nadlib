@@ -3,17 +3,19 @@
 /**
  * Class StringTemplate - renders PHP template with {$variable} substitution
  */
-class StringTemplate {
+class StringTemplate
+{
 	public $filename;
 	protected $content;
 	protected $lines;
 	protected $caller;
 
-	function __construct($file, $self = NULL) {
+	function __construct($file, $self = NULL)
+	{
 		$this->filename = $file;
-		$filepath = 'template/'.$file;
+		$filepath = 'template/' . $file;
 		if (!file_exists($filepath)) {
-			throw new Exception($filepath.' does not exist.');
+			throw new Exception($filepath . ' does not exist.');
 		}
 		$this->content = file_get_contents($filepath);
 		$this->caller = $self;
@@ -25,7 +27,8 @@ class StringTemplate {
 	 * @param int $line
 	 * @return string
 	 */
-	function getLine($line) {
+	function getLine($line)
+	{
 		$this->lines = explode("\n", $this->content);
 		$content = $this->lines[$line];
 		unset($this->lines[$line]);
@@ -37,19 +40,23 @@ class StringTemplate {
 	 *
 	 * @return string
 	 */
-	function getRest() {
+	function getRest()
+	{
 		return implode("\n", $this->lines);
 	}
 
-	function render() {
-		return eval("return<<<END\n".$this->content."\nEND;\n"); // space is important
+	function render()
+	{
+		return eval("return<<<END\n" . $this->content . "\nEND;\n"); // space is important
 	}
 
-	function  __toString() {
+	function __toString()
+	{
 		return $this->render();
 	}
 
-	function __call($func, array $args) {
+	function __call($func, array $args)
+	{
 		$method = array($this->caller, $func);
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			$method = array('Controller', $func);
@@ -57,7 +64,8 @@ class StringTemplate {
 		return call_user_func_array($method, $args);
 	}
 
-	function &__get($var) {
+	function &__get($var)
+	{
 		return $this->caller->$var;
 	}
 

@@ -21,7 +21,8 @@ class SQLNotIn extends SQLWherePart
 	/**
 	 * @return string
 	 */
-	function __toString() {
+	function __toString()
+	{
 		$field = $this->field;
 
 		// this prevents field names with dot notation being quoted!
@@ -32,7 +33,7 @@ class SQLNotIn extends SQLWherePart
 		if (!$field) {
 			//debug_pre_print_backtrace();
 		}
-		$content = $field ." NOT IN (".implode(", ", $this->db->quoteValues($this->list)).")";
+		$content = $field . " NOT IN (" . implode(", ", $this->db->quoteValues($this->list)) . ")";
 		return $content;
 	}
 

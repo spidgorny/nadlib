@@ -1,4 +1,5 @@
 <?php
+
 namespace TYPO3\CMS\Core\Database;
 
 /***************************************************************
@@ -31,12 +32,14 @@ namespace TYPO3\CMS\Core\Database;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
+
 /**
  * TYPO3 SQL parser class.
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
-class SqlParser {
+class SqlParser
+{
 
 	// Parser:
 	// Parsing error string
@@ -63,7 +66,8 @@ class SqlParser {
 	 * @return array Result array with all the parts in - or error message string
 	 * @see compileSQL(), debug_testSQL()
 	 */
-	public function parseSQL($parseString) {
+	public function parseSQL($parseString)
+	{
 		// Prepare variables:
 		$parseString = $this->trimSQL($parseString);
 		$this->parse_error = '';
@@ -74,49 +78,49 @@ class SqlParser {
 		$keyword = $this->nextPart($_parseString, '^(SELECT|UPDATE|INSERT[[:space:]]+INTO|DELETE[[:space:]]+FROM|EXPLAIN|DROP[[:space:]]+TABLE|CREATE[[:space:]]+TABLE|CREATE[[:space:]]+DATABASE|ALTER[[:space:]]+TABLE|TRUNCATE[[:space:]]+TABLE)[[:space:]]+');
 		$keyword = strtoupper(str_replace(array(' ', TAB, CR, LF), '', $keyword));
 		switch ($keyword) {
-		case 'SELECT':
-			// Parsing SELECT query:
-			$result = $this->parseSELECT($parseString);
-			break;
-		case 'UPDATE':
-			// Parsing UPDATE query:
-			$result = $this->parseUPDATE($parseString);
-			break;
-		case 'INSERTINTO':
-			// Parsing INSERT query:
-			$result = $this->parseINSERT($parseString);
-			break;
-		case 'DELETEFROM':
-			// Parsing DELETE query:
-			$result = $this->parseDELETE($parseString);
-			break;
-		case 'EXPLAIN':
-			// Parsing EXPLAIN SELECT query:
-			$result = $this->parseEXPLAIN($parseString);
-			break;
-		case 'DROPTABLE':
-			// Parsing DROP TABLE query:
-			$result = $this->parseDROPTABLE($parseString);
-			break;
-		case 'ALTERTABLE':
-			// Parsing ALTER TABLE query:
-			$result = $this->parseALTERTABLE($parseString);
-			break;
-		case 'CREATETABLE':
-			// Parsing CREATE TABLE query:
-			$result = $this->parseCREATETABLE($parseString);
-			break;
-		case 'CREATEDATABASE':
-			// Parsing CREATE DATABASE query:
-			$result = $this->parseCREATEDATABASE($parseString);
-			break;
-		case 'TRUNCATETABLE':
-			// Parsing TRUNCATE TABLE query:
-			$result = $this->parseTRUNCATETABLE($parseString);
-			break;
-		default:
-			$result = $this->parseError('"' . $keyword . '" is not a keyword', $parseString);
-			break;
+			case 'SELECT':
+				// Parsing SELECT query:
+				$result = $this->parseSELECT($parseString);
+				break;
+			case 'UPDATE':
+				// Parsing UPDATE query:
+				$result = $this->parseUPDATE($parseString);
+				break;
+			case 'INSERTINTO':
+				// Parsing INSERT query:
+				$result = $this->parseINSERT($parseString);
+				break;
+			case 'DELETEFROM':
+				// Parsing DELETE query:
+				$result = $this->parseDELETE($parseString);
+				break;
+			case 'EXPLAIN':
+				// Parsing EXPLAIN SELECT query:
+				$result = $this->parseEXPLAIN($parseString);
+				break;
+			case 'DROPTABLE':
+				// Parsing DROP TABLE query:
+				$result = $this->parseDROPTABLE($parseString);
+				break;
+			case 'ALTERTABLE':
+				// Parsing ALTER TABLE query:
+				$result = $this->parseALTERTABLE($parseString);
+				break;
+			case 'CREATETABLE':
+				// Parsing CREATE TABLE query:
+				$result = $this->parseCREATETABLE($parseString);
+				break;
+			case 'CREATEDATABASE':
+				// Parsing CREATE DATABASE query:
+				$result = $this->parseCREATEDATABASE($parseString);
+				break;
+			case 'TRUNCATETABLE':
+				// Parsing TRUNCATE TABLE query:
+				$result = $this->parseTRUNCATETABLE($parseString);
+				break;
+			default:
+				$result = $this->parseError('"' . $keyword . '" is not a keyword', $parseString);
+				break;
 		}
 		return $result;
 	}
@@ -129,7 +133,8 @@ class SqlParser {
 	 * @return mixed Returns array with components of SELECT query on success, otherwise an error message string.
 	 * @see compileSELECT()
 	 */
-	protected function parseSELECT($parseString, &$parameterReferences = NULL) {
+	protected function parseSELECT($parseString, &$parameterReferences = NULL)
+	{
 		// Removing SELECT:
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr($parseString, 6));
@@ -203,7 +208,8 @@ class SqlParser {
 	 * @return mixed Returns array with components of UPDATE query on success, otherwise an error message string.
 	 * @see compileUPDATE()
 	 */
-	protected function parseUPDATE($parseString) {
+	protected function parseUPDATE($parseString)
+	{
 		// Removing UPDATE
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr($parseString, 6));
@@ -256,7 +262,8 @@ class SqlParser {
 	 * @return mixed Returns array with components of INSERT query on success, otherwise an error message string.
 	 * @see compileINSERT()
 	 */
-	protected function parseINSERT($parseString) {
+	protected function parseINSERT($parseString)
+	{
 		// Removing INSERT
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr(ltrim(substr($parseString, 6)), 4));
@@ -346,7 +353,8 @@ class SqlParser {
 	 * @return mixed Returns array with components of DELETE query on success, otherwise an error message string.
 	 * @see compileDELETE()
 	 */
-	protected function parseDELETE($parseString) {
+	protected function parseDELETE($parseString)
+	{
 		// Removing DELETE
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr(ltrim(substr($parseString, 6)), 4));
@@ -381,7 +389,8 @@ class SqlParser {
 	 * @return mixed Returns array with components of EXPLAIN query on success, otherwise an error message string.
 	 * @see parseSELECT()
 	 */
-	protected function parseEXPLAIN($parseString) {
+	protected function parseEXPLAIN($parseString)
+	{
 		// Removing EXPLAIN
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr($parseString, 6));
@@ -400,7 +409,8 @@ class SqlParser {
 	 * @return mixed Returns array with components of CREATE TABLE query on success, otherwise an error message string.
 	 * @see compileCREATETABLE()
 	 */
-	protected function parseCREATETABLE($parseString) {
+	protected function parseCREATETABLE($parseString)
+	{
 		// Removing CREATE TABLE
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr(ltrim(substr($parseString, 6)), 5));
@@ -416,34 +426,34 @@ class SqlParser {
 				if ($key = $this->nextPart($parseString, '^(KEY|PRIMARY KEY|UNIQUE KEY|UNIQUE)([[:space:]]+|\\()')) {
 					$key = strtoupper(str_replace(array(' ', TAB, CR, LF), '', $key));
 					switch ($key) {
-					case 'PRIMARYKEY':
-						$result['KEYS']['PRIMARYKEY'] = $this->getValue($parseString, '_LIST');
-						if ($this->parse_error) {
-							return $this->parse_error;
-						}
-						break;
-					case 'UNIQUE':
+						case 'PRIMARYKEY':
+							$result['KEYS']['PRIMARYKEY'] = $this->getValue($parseString, '_LIST');
+							if ($this->parse_error) {
+								return $this->parse_error;
+							}
+							break;
+						case 'UNIQUE':
 
-					case 'UNIQUEKEY':
-						if ($keyName = $this->nextPart($parseString, '^([[:alnum:]_]+)([[:space:]]+|\\()')) {
-							$result['KEYS']['UNIQUE'] = array($keyName => $this->getValue($parseString, '_LIST'));
-							if ($this->parse_error) {
-								return $this->parse_error;
+						case 'UNIQUEKEY':
+							if ($keyName = $this->nextPart($parseString, '^([[:alnum:]_]+)([[:space:]]+|\\()')) {
+								$result['KEYS']['UNIQUE'] = array($keyName => $this->getValue($parseString, '_LIST'));
+								if ($this->parse_error) {
+									return $this->parse_error;
+								}
+							} else {
+								return $this->parseError('No keyname found', $parseString);
 							}
-						} else {
-							return $this->parseError('No keyname found', $parseString);
-						}
-						break;
-					case 'KEY':
-						if ($keyName = $this->nextPart($parseString, '^([[:alnum:]_]+)([[:space:]]+|\\()')) {
-							$result['KEYS'][$keyName] = $this->getValue($parseString, '_LIST', 'INDEX');
-							if ($this->parse_error) {
-								return $this->parse_error;
+							break;
+						case 'KEY':
+							if ($keyName = $this->nextPart($parseString, '^([[:alnum:]_]+)([[:space:]]+|\\()')) {
+								$result['KEYS'][$keyName] = $this->getValue($parseString, '_LIST', 'INDEX');
+								if ($this->parse_error) {
+									return $this->parse_error;
+								}
+							} else {
+								return $this->parseError('No keyname found', $parseString);
 							}
-						} else {
-							return $this->parseError('No keyname found', $parseString);
-						}
-						break;
+							break;
 					}
 				} elseif ($fieldName = $this->nextPart($parseString, '^([[:alnum:]_]+)[[:space:]]+')) {
 					// Getting field:
@@ -486,7 +496,8 @@ class SqlParser {
 	 * @return mixed Returns array with components of ALTER TABLE query on success, otherwise an error message string.
 	 * @see compileALTERTABLE()
 	 */
-	protected function parseALTERTABLE($parseString) {
+	protected function parseALTERTABLE($parseString)
+	{
 		// Removing ALTER TABLE
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr(ltrim(substr($parseString, 5)), 5));
@@ -505,52 +516,52 @@ class SqlParser {
 				// Getting field:
 				if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('ADDPRIMARYKEY,DROPPRIMARYKEY,ENGINE', $actionKey) || ($fieldKey = $this->nextPart($parseString, '^([[:alnum:]_]+)[[:space:]]+'))) {
 					switch ($actionKey) {
-					case 'ADD':
-						$result['FIELD'] = $fieldKey;
-						$result['definition'] = $this->parseFieldDef($parseString);
-						if ($this->parse_error) {
-							return $this->parse_error;
-						}
-						break;
-					case 'DROP':
-
-					case 'RENAME':
-						$result['FIELD'] = $fieldKey;
-						break;
-					case 'CHANGE':
-						$result['FIELD'] = $fieldKey;
-						if ($result['newField'] = $this->nextPart($parseString, '^([[:alnum:]_]+)[[:space:]]+')) {
+						case 'ADD':
+							$result['FIELD'] = $fieldKey;
 							$result['definition'] = $this->parseFieldDef($parseString);
 							if ($this->parse_error) {
 								return $this->parse_error;
 							}
-						} else {
-							return $this->parseError('No NEW field name found', $parseString);
-						}
-						break;
-					case 'ADDKEY':
+							break;
+						case 'DROP':
 
-					case 'ADDPRIMARYKEY':
+						case 'RENAME':
+							$result['FIELD'] = $fieldKey;
+							break;
+						case 'CHANGE':
+							$result['FIELD'] = $fieldKey;
+							if ($result['newField'] = $this->nextPart($parseString, '^([[:alnum:]_]+)[[:space:]]+')) {
+								$result['definition'] = $this->parseFieldDef($parseString);
+								if ($this->parse_error) {
+									return $this->parse_error;
+								}
+							} else {
+								return $this->parseError('No NEW field name found', $parseString);
+							}
+							break;
+						case 'ADDKEY':
 
-					case 'ADDUNIQUE':
-						$result['KEY'] = $fieldKey;
-						$result['fields'] = $this->getValue($parseString, '_LIST', 'INDEX');
-						if ($this->parse_error) {
-							return $this->parse_error;
-						}
-						break;
-					case 'DROPKEY':
-						$result['KEY'] = $fieldKey;
-						break;
-					case 'DROPPRIMARYKEY':
-						// ??? todo!
-						break;
-					case 'DEFAULTCHARACTERSET':
-						$result['charset'] = $fieldKey;
-						break;
-					case 'ENGINE':
-						$result['engine'] = $this->nextPart($parseString, '^=[[:space:]]*([[:alnum:]]+)[[:space:]]+', TRUE);
-						break;
+						case 'ADDPRIMARYKEY':
+
+						case 'ADDUNIQUE':
+							$result['KEY'] = $fieldKey;
+							$result['fields'] = $this->getValue($parseString, '_LIST', 'INDEX');
+							if ($this->parse_error) {
+								return $this->parse_error;
+							}
+							break;
+						case 'DROPKEY':
+							$result['KEY'] = $fieldKey;
+							break;
+						case 'DROPPRIMARYKEY':
+							// ??? todo!
+							break;
+						case 'DEFAULTCHARACTERSET':
+							$result['charset'] = $fieldKey;
+							break;
+						case 'ENGINE':
+							$result['engine'] = $this->nextPart($parseString, '^=[[:space:]]*([[:alnum:]]+)[[:space:]]+', TRUE);
+							break;
 					}
 				} else {
 					return $this->parseError('No field name found', $parseString);
@@ -574,7 +585,8 @@ class SqlParser {
 	 * @param string $parseString SQL string starting with DROP TABLE
 	 * @return mixed Returns array with components of DROP TABLE query on success, otherwise an error message string.
 	 */
-	protected function parseDROPTABLE($parseString) {
+	protected function parseDROPTABLE($parseString)
+	{
 		// Removing DROP TABLE
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr(ltrim(substr($parseString, 4)), 5));
@@ -602,7 +614,8 @@ class SqlParser {
 	 * @param string $parseString SQL string starting with CREATE DATABASE
 	 * @return mixed Returns array with components of CREATE DATABASE query on success, otherwise an error message string.
 	 */
-	protected function parseCREATEDATABASE($parseString) {
+	protected function parseCREATEDATABASE($parseString)
+	{
 		// Removing CREATE DATABASE
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr(ltrim(substr($parseString, 6)), 8));
@@ -628,7 +641,8 @@ class SqlParser {
 	 * @param string $parseString SQL string starting with TRUNCATE TABLE
 	 * @return mixed Returns array with components of TRUNCATE TABLE query on success, otherwise an error message string.
 	 */
-	protected function parseTRUNCATETABLE($parseString) {
+	protected function parseTRUNCATETABLE($parseString)
+	{
 		// Removing TRUNCATE TABLE
 		$parseString = $this->trimSQL($parseString);
 		$parseString = ltrim(substr(ltrim(substr($parseString, 8)), 5));
@@ -663,7 +677,8 @@ class SqlParser {
 	 * @return array If successful parsing, returns an array, otherwise an error string.
 	 * @see compileFieldList()
 	 */
-	public function parseFieldList(&$parseString, $stopRegex = '') {
+	public function parseFieldList(&$parseString, $stopRegex = '')
+	{
 		$stack = array();
 		// Contains the parsed content
 		if (strlen($parseString) == 0) {
@@ -696,18 +711,18 @@ class SqlParser {
 				$stack[$pnt]['func_content'] .= $funcContent;
 				// Detecting ( or )
 				switch (substr($stack[$pnt]['func_content'], -1)) {
-				case '(':
-					$level++;
-					break;
-				case ')':
-					$level--;
-					// If this was the last parenthesis:
-					if (!$level) {
-						$stack[$pnt]['func_content'] = substr($stack[$pnt]['func_content'], 0, -1);
-						// Remove any whitespace after the parenthesis.
-						$parseString = ltrim($parseString);
-					}
-					break;
+					case '(':
+						$level++;
+						break;
+					case ')':
+						$level--;
+						// If this was the last parenthesis:
+						if (!$level) {
+							$stack[$pnt]['func_content'] = substr($stack[$pnt]['func_content'], 0, -1);
+							// Remove any whitespace after the parenthesis.
+							$parseString = ltrim($parseString);
+						}
+						break;
 				}
 			} else {
 				// Outside parenthesis, looking for next field:
@@ -791,7 +806,8 @@ class SqlParser {
 	 * @return array If successful parsing, returns an array, otherwise an error string.
 	 * @see compileCaseConstruct()
 	 */
-	protected function parseCaseStatement(&$parseString) {
+	protected function parseCaseStatement(&$parseString)
+	{
 		$result = array();
 		$result['type'] = $this->nextPart($parseString, '^(case)[[:space:]]+');
 		if (!preg_match('/^when[[:space:]]+/i', $parseString)) {
@@ -827,7 +843,8 @@ class SqlParser {
 	 * @return array If successful parsing, returns an array, otherwise an error string.
 	 * @see compileFromTables()
 	 */
-	public function parseFromTables(&$parseString, $stopRegex = '') {
+	public function parseFromTables(&$parseString, $stopRegex = '')
+	{
 		// Prepare variables:
 		$parseString = $this->trimSQL($parseString);
 		$this->lastStopKeyWord = '';
@@ -942,7 +959,8 @@ class SqlParser {
 	 * @param array $parameterReferences Array holding references to either named (:name) or question mark (?) parameters found
 	 * @return mixed If successful parsing, returns an array, otherwise an error string.
 	 */
-	public function parseWhereClause(&$parseString, $stopRegex = '', array &$parameterReferences = array()) {
+	public function parseWhereClause(&$parseString, $stopRegex = '', array &$parameterReferences = array())
+	{
 		// Prepare variables:
 		$parseString = $this->trimSQL($parseString);
 		$this->lastStopKeyWord = '';
@@ -1239,7 +1257,8 @@ class SqlParser {
 	 * @param string $stopRegex Regular expressing to STOP parsing, eg. '^(GROUP BY|ORDER BY|LIMIT)([[:space:]]*)'
 	 * @return mixed If successful parsing, returns an array, otherwise an error string.
 	 */
-	public function parseFieldDef(&$parseString, $stopRegex = '') {
+	public function parseFieldDef(&$parseString, $stopRegex = '')
+	{
 		// Prepare variables:
 		$parseString = $this->trimSQL($parseString);
 		$this->lastStopKeyWord = '';
@@ -1261,9 +1280,9 @@ class SqlParser {
 				$keywordCmp = strtoupper(str_replace(array(' ', TAB, CR, LF), '', $keyword));
 				$result['featureIndex'][$keywordCmp]['keyword'] = $keyword;
 				switch ($keywordCmp) {
-				case 'DEFAULT':
-					$result['featureIndex'][$keywordCmp]['value'] = $this->getValue($parseString);
-					break;
+					case 'DEFAULT':
+						$result['featureIndex'][$keywordCmp]['value'] = $this->getValue($parseString);
+						break;
 				}
 			}
 		} else {
@@ -1286,7 +1305,8 @@ class SqlParser {
 	 * @param boolean $trimAll If set the full match of the regex is stripped of the beginning of the string!
 	 * @return string The value of the first parenthesis level of the REGEX.
 	 */
-	protected function nextPart(&$parseString, $regex, $trimAll = FALSE) {
+	protected function nextPart(&$parseString, $regex, $trimAll = FALSE)
+	{
 		$reg = array();
 		// Adding space char because [[:space:]]+ is often a requirement in regex's
 		if (preg_match('/' . $regex . '/i', $parseString . ' ', $reg)) {
@@ -1308,7 +1328,8 @@ class SqlParser {
 	 * @param string $mode The mode, e.g., "INDEX
 	 * @param mixed The value (string/integer) or parameter (:name/?). Otherwise an array with error message in first key (0)
 	 */
-	protected function &getValueOrParameter(&$parseString, $comparator = '', $mode = '', array &$parameterReferences = array()) {
+	protected function &getValueOrParameter(&$parseString, $comparator = '', $mode = '', array &$parameterReferences = array())
+	{
 		$parameter = $this->nextPart($parseString, '^(\\:[[:alnum:]_]+|\\?)');
 		if ($parameter === '?') {
 			if (!isset($parameterReferences['?'])) {
@@ -1339,7 +1360,8 @@ class SqlParser {
 	 * @param string $mode The mode, eg. "INDEX
 	 * @return mixed The value (string/integer). Otherwise an array with error message in first key (0)
 	 */
-	protected function getValue(&$parseString, $comparator = '', $mode = '') {
+	protected function getValue(&$parseString, $comparator = '', $mode = '')
+	{
 		$value = '';
 		if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('NOTIN,IN,_LIST', strtoupper(str_replace(array(' ', LF, CR, TAB), '', $comparator)))) {
 			// List of values:
@@ -1376,19 +1398,19 @@ class SqlParser {
 			// Quote?
 			$firstChar = substr($parseString, 0, 1);
 			switch ($firstChar) {
-			case '"':
-				$value = array($this->getValueInQuotes($parseString, '"'), '"');
-				break;
-			case '\'':
-				$value = array($this->getValueInQuotes($parseString, '\''), '\'');
-				break;
-			default:
-				$reg = array();
-				if (preg_match('/^([[:alnum:]._-]+)/i', $parseString, $reg)) {
-					$parseString = ltrim(substr($parseString, strlen($reg[0])));
-					$value = array($reg[1]);
-				}
-				break;
+				case '"':
+					$value = array($this->getValueInQuotes($parseString, '"'), '"');
+					break;
+				case '\'':
+					$value = array($this->getValueInQuotes($parseString, '\''), '\'');
+					break;
+				default:
+					$reg = array();
+					if (preg_match('/^([[:alnum:]._-]+)/i', $parseString, $reg)) {
+						$parseString = ltrim(substr($parseString, strlen($reg[0])));
+						$value = array($reg[1]);
+					}
+					break;
 			}
 		}
 		return $value;
@@ -1402,7 +1424,8 @@ class SqlParser {
 	 * @param string $quote The quote used; input either " or '
 	 * @return string The value, passed through stripslashes() !
 	 */
-	protected function getValueInQuotes(&$parseString, $quote) {
+	protected function getValueInQuotes(&$parseString, $quote)
+	{
 		$parts = explode($quote, substr($parseString, 1));
 		$buffer = '';
 		foreach ($parts as $k => $v) {
@@ -1425,7 +1448,8 @@ class SqlParser {
 	 * @param string $str Input string
 	 * @return string Output string
 	 */
-	protected function parseStripslashes($str) {
+	protected function parseStripslashes($str)
+	{
 		$search = array('\\\\', '\\\'', '\\"', '\0', '\n', '\r', '\Z');
 		$replace = array('\\', '\'', '"', "\x00", "\x0a", "\x0d", "\x1a");
 
@@ -1439,7 +1463,8 @@ class SqlParser {
 	 * @param string $str Input string
 	 * @return string Output string
 	 */
-	protected function compileAddslashes($str) {
+	protected function compileAddslashes($str)
+	{
 		$search = array('\\', '\'', '"', "\x00", "\x0a", "\x0d", "\x1a");
 		$replace = array('\\\\', '\\\'', '\\"', '\0', '\n', '\r', '\Z');
 
@@ -1453,7 +1478,8 @@ class SqlParser {
 	 * @param string $restQuery Remaining query to parse.
 	 * @return string Error message.
 	 */
-	protected function parseError($msg, $restQuery) {
+	protected function parseError($msg, $restQuery)
+	{
 		$this->parse_error = 'SQL engine parse ERROR: ' . $msg . ': near "' . substr($restQuery, 0, 50) . '"';
 		return $this->parse_error;
 	}
@@ -1467,7 +1493,8 @@ class SqlParser {
 	 * @param string $str Input string
 	 * @return string Output string
 	 */
-	protected function trimSQL($str) {
+	protected function trimSQL($str)
+	{
 		return rtrim(rtrim(trim($str), ';')) . ' ';
 	}
 
@@ -1483,35 +1510,36 @@ class SqlParser {
 	 * @return string SQL query
 	 * @see parseSQL()
 	 */
-	public function compileSQL($components) {
+	public function compileSQL($components)
+	{
 		switch ($components['type']) {
-		case 'SELECT':
-			$query = $this->compileSELECT($components);
-			break;
-		case 'UPDATE':
-			$query = $this->compileUPDATE($components);
-			break;
-		case 'INSERT':
-			$query = $this->compileINSERT($components);
-			break;
-		case 'DELETE':
-			$query = $this->compileDELETE($components);
-			break;
-		case 'EXPLAIN':
-			$query = 'EXPLAIN ' . $this->compileSELECT($components);
-			break;
-		case 'DROPTABLE':
-			$query = 'DROP TABLE' . ($components['ifExists'] ? ' IF EXISTS' : '') . ' ' . $components['TABLE'];
-			break;
-		case 'CREATETABLE':
-			$query = $this->compileCREATETABLE($components);
-			break;
-		case 'ALTERTABLE':
-			$query = $this->compileALTERTABLE($components);
-			break;
-		case 'TRUNCATETABLE':
-			$query = $this->compileTRUNCATETABLE($components);
-			break;
+			case 'SELECT':
+				$query = $this->compileSELECT($components);
+				break;
+			case 'UPDATE':
+				$query = $this->compileUPDATE($components);
+				break;
+			case 'INSERT':
+				$query = $this->compileINSERT($components);
+				break;
+			case 'DELETE':
+				$query = $this->compileDELETE($components);
+				break;
+			case 'EXPLAIN':
+				$query = 'EXPLAIN ' . $this->compileSELECT($components);
+				break;
+			case 'DROPTABLE':
+				$query = 'DROP TABLE' . ($components['ifExists'] ? ' IF EXISTS' : '') . ' ' . $components['TABLE'];
+				break;
+			case 'CREATETABLE':
+				$query = $this->compileCREATETABLE($components);
+				break;
+			case 'ALTERTABLE':
+				$query = $this->compileALTERTABLE($components);
+				break;
+			case 'TRUNCATETABLE':
+				$query = $this->compileTRUNCATETABLE($components);
+				break;
 		}
 		return $query;
 	}
@@ -1523,7 +1551,8 @@ class SqlParser {
 	 * @return string SQL SELECT query
 	 * @see parseSELECT()
 	 */
-	protected function compileSELECT($components) {
+	protected function compileSELECT($components)
+	{
 		// Initialize:
 		$where = $this->compileWhereClause($components['WHERE']);
 		$groupBy = $this->compileFieldList($components['GROUPBY']);
@@ -1547,7 +1576,8 @@ class SqlParser {
 	 * @return string SQL UPDATE query
 	 * @see parseUPDATE()
 	 */
-	protected function compileUPDATE($components) {
+	protected function compileUPDATE($components)
+	{
 		// Where clause:
 		$where = $this->compileWhereClause($components['WHERE']);
 		// Fields
@@ -1571,7 +1601,8 @@ class SqlParser {
 	 * @return string SQL INSERT query
 	 * @see parseINSERT()
 	 */
-	protected function compileINSERT($components) {
+	protected function compileINSERT($components)
+	{
 		$values = array();
 		if (isset($components['VALUES_ONLY']) && is_array($components['VALUES_ONLY'])) {
 			$valuesComponents = $components['EXTENDED'] === '1' ? $components['VALUES_ONLY'] : array($components['VALUES_ONLY']);
@@ -1609,7 +1640,8 @@ class SqlParser {
 	 * @return string SQL DELETE query
 	 * @see parseDELETE()
 	 */
-	protected function compileDELETE($components) {
+	protected function compileDELETE($components)
+	{
 		// Where clause:
 		$where = $this->compileWhereClause($components['WHERE']);
 		// Make query:
@@ -1625,7 +1657,8 @@ class SqlParser {
 	 * @return string SQL CREATE TABLE query
 	 * @see parseCREATETABLE()
 	 */
-	protected function compileCREATETABLE($components) {
+	protected function compileCREATETABLE($components)
+	{
 		// Create fields and keys:
 		$fieldsKeys = array();
 		foreach ($components['FIELDS'] as $fN => $fCfg) {
@@ -1657,34 +1690,35 @@ class SqlParser {
 	 * @return string SQL ALTER TABLE query
 	 * @see parseALTERTABLE()
 	 */
-	protected function compileALTERTABLE($components) {
+	protected function compileALTERTABLE($components)
+	{
 		// Make query:
 		$query = 'ALTER TABLE ' . $components['TABLE'] . ' ' . $components['action'] . ' ' . ($components['FIELD'] ? $components['FIELD'] : $components['KEY']);
 		// Based on action, add the final part:
 		switch (strtoupper(str_replace(array(' ', TAB, CR, LF), '', $components['action']))) {
-		case 'ADD':
-			$query .= ' ' . $this->compileFieldCfg($components['definition']);
-			break;
-		case 'CHANGE':
-			$query .= ' ' . $components['newField'] . ' ' . $this->compileFieldCfg($components['definition']);
-			break;
-		case 'DROP':
+			case 'ADD':
+				$query .= ' ' . $this->compileFieldCfg($components['definition']);
+				break;
+			case 'CHANGE':
+				$query .= ' ' . $components['newField'] . ' ' . $this->compileFieldCfg($components['definition']);
+				break;
+			case 'DROP':
 
-		case 'DROPKEY':
-			break;
-		case 'ADDKEY':
+			case 'DROPKEY':
+				break;
+			case 'ADDKEY':
 
-		case 'ADDPRIMARYKEY':
+			case 'ADDPRIMARYKEY':
 
-		case 'ADDUNIQUE':
-			$query .= ' (' . implode(',', $components['fields']) . ')';
-			break;
-		case 'DEFAULTCHARACTERSET':
-			$query .= $components['charset'];
-			break;
-		case 'ENGINE':
-			$query .= '= ' . $components['engine'];
-			break;
+			case 'ADDUNIQUE':
+				$query .= ' (' . implode(',', $components['fields']) . ')';
+				break;
+			case 'DEFAULTCHARACTERSET':
+				$query .= $components['charset'];
+				break;
+			case 'ENGINE':
+				$query .= '= ' . $components['engine'];
+				break;
 		}
 		// Return query
 		return $query;
@@ -1697,7 +1731,8 @@ class SqlParser {
 	 * @return string SQL TRUNCATE TABLE query
 	 * @see parseTRUNCATETABLE()
 	 */
-	protected function compileTRUNCATETABLE(array $components) {
+	protected function compileTRUNCATETABLE(array $components)
+	{
 		// Make query:
 		$query = 'TRUNCATE TABLE ' . $components['TABLE'];
 		// Return query
@@ -1718,7 +1753,8 @@ class SqlParser {
 	 * @return string Select field string
 	 * @see parseFieldList()
 	 */
-	public function compileFieldList($selectFields, $compileComments = TRUE) {
+	public function compileFieldList($selectFields, $compileComments = TRUE)
+	{
 		// Prepare buffer variable:
 		$fields = '';
 		// Traverse the selectFields if any:
@@ -1727,17 +1763,17 @@ class SqlParser {
 			foreach ($selectFields as $k => $v) {
 				// Detecting type:
 				switch ($v['type']) {
-				case 'function':
-					$outputParts[$k] = $v['function'] . '(' . $v['func_content'] . ')';
-					break;
-				case 'flow-control':
-					if ($v['flow-control']['type'] === 'CASE') {
-						$outputParts[$k] = $this->compileCaseStatement($v['flow-control']);
-					}
-					break;
-				case 'field':
-					$outputParts[$k] = ($v['distinct'] ? $v['distinct'] : '') . ($v['table'] ? $v['table'] . '.' : '') . $v['field'];
-					break;
+					case 'function':
+						$outputParts[$k] = $v['function'] . '(' . $v['func_content'] . ')';
+						break;
+					case 'flow-control':
+						if ($v['flow-control']['type'] === 'CASE') {
+							$outputParts[$k] = $this->compileCaseStatement($v['flow-control']);
+						}
+						break;
+					case 'field':
+						$outputParts[$k] = ($v['distinct'] ? $v['distinct'] : '') . ($v['table'] ? $v['table'] . '.' : '') . $v['field'];
+						break;
 				}
 				// Alias:
 				if ($v['as']) {
@@ -1763,7 +1799,8 @@ class SqlParser {
 	 * @return string Case when string
 	 * @see parseCaseStatement()
 	 */
-	protected function compileCaseStatement(array $components) {
+	protected function compileCaseStatement(array $components)
+	{
 		$statement = 'CASE';
 		if (isset($components['case_field'])) {
 			$statement .= ' ' . $components['case_field'];
@@ -1791,7 +1828,8 @@ class SqlParser {
 	 * @return string Table name string
 	 * @see parseFromTables()
 	 */
-	public function compileFromTables($tablesArray) {
+	public function compileFromTables($tablesArray)
+	{
 		// Prepare buffer variable:
 		$outputParts = array();
 		// Traverse the table names:
@@ -1834,9 +1872,10 @@ class SqlParser {
 	 *
 	 * @param array $clauseArray WHERE clause configuration
 	 * @return string WHERE clause as string.
-	 * @see 	explodeWhereClause()
+	 * @see    explodeWhereClause()
 	 */
-	public function compileWhereClause($clauseArray) {
+	public function compileWhereClause($clauseArray)
+	{
 		// Prepare buffer variable:
 		$output = '';
 		// Traverse clause array:
@@ -1921,7 +1960,8 @@ class SqlParser {
 	 * @param array $fieldCfg Field definition parts
 	 * @return string Field definition string
 	 */
-	public function compileFieldCfg($fieldCfg) {
+	public function compileFieldCfg($fieldCfg)
+	{
 		// Set type:
 		$cfg = $fieldCfg['fieldType'];
 		// Add value, if any:
@@ -1954,18 +1994,19 @@ class SqlParser {
 	 * @param string $str SQL string to verify parsability of
 	 * @return mixed Returns array with string 1 and 2 if error, otherwise FALSE
 	 */
-	public function debug_parseSQLpart($part, $str) {
+	public function debug_parseSQLpart($part, $str)
+	{
 		$retVal = FALSE;
 		switch ($part) {
-		case 'SELECT':
-			$retVal = $this->debug_parseSQLpartCompare($str, $this->compileFieldList($this->parseFieldList($str)));
-			break;
-		case 'FROM':
-			$retVal = $this->debug_parseSQLpartCompare($str, $this->compileFromTables($this->parseFromTables($str)));
-			break;
-		case 'WHERE':
-			$retVal = $this->debug_parseSQLpartCompare($str, $this->compileWhereClause($this->parseWhereClause($str)));
-			break;
+			case 'SELECT':
+				$retVal = $this->debug_parseSQLpartCompare($str, $this->compileFieldList($this->parseFieldList($str)));
+				break;
+			case 'FROM':
+				$retVal = $this->debug_parseSQLpartCompare($str, $this->compileFromTables($this->parseFromTables($str)));
+				break;
+			case 'WHERE':
+				$retVal = $this->debug_parseSQLpartCompare($str, $this->compileWhereClause($this->parseWhereClause($str)));
+				break;
 		}
 		return $retVal;
 	}
@@ -1978,7 +2019,8 @@ class SqlParser {
 	 * @param boolean $caseInsensitive If TRUE, the strings are compared insensitive to case
 	 * @return mixed Returns array with string 1 and 2 if error, otherwise FALSE
 	 */
-	public function debug_parseSQLpartCompare($str, $newStr, $caseInsensitive = FALSE) {
+	public function debug_parseSQLpartCompare($str, $newStr, $caseInsensitive = FALSE)
+	{
 		if ($caseInsensitive) {
 			$str1 = strtoupper($str);
 			$str2 = strtoupper($newStr);
@@ -1987,7 +2029,7 @@ class SqlParser {
 			$str2 = $newStr;
 		}
 
-			// Fixing escaped chars:
+		// Fixing escaped chars:
 		$search = array('\0', '\n', '\r', '\Z');
 		$replace = array("\x00", "\x0a", "\x0d", "\x1a");
 		$str1 = str_replace($search, $replace, $str1);
@@ -2007,7 +2049,8 @@ class SqlParser {
 	 * @param string $SQLquery SQL query
 	 * @return string Query if all is well, otherwise exit.
 	 */
-	public function debug_testSQL($SQLquery) {
+	public function debug_testSQL($SQLquery)
+	{
 		// Getting result array:
 		$parseResult = $this->parseSQL($SQLquery);
 		// If result array was returned, proceed. Otherwise show error and exit.

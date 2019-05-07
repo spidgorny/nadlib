@@ -54,7 +54,8 @@ namespace TYPO3\CMS\Core\Database;
  *
  * @author Kasper Skårhøj <kasperYYYY@typo3.com>
  */
-class DatabaseConnection {
+class DatabaseConnection
+{
 
 	/**
 	 * The AND constraint in where clause
@@ -184,7 +185,8 @@ class DatabaseConnection {
 	 * @param boolean $no_quote_fields See fullQuoteArray()
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function exec_INSERTquery($table, $fields_values, $no_quote_fields = FALSE) {
+	public function exec_INSERTquery($table, $fields_values, $no_quote_fields = FALSE)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -208,7 +210,8 @@ class DatabaseConnection {
 	 * @param boolean $no_quote_fields See fullQuoteArray()
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function exec_INSERTmultipleRows($table, array $fields, array $rows, $no_quote_fields = FALSE) {
+	public function exec_INSERTmultipleRows($table, array $fields, array $rows, $no_quote_fields = FALSE)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -233,7 +236,8 @@ class DatabaseConnection {
 	 * @param boolean $no_quote_fields See fullQuoteArray()
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function exec_UPDATEquery($table, $where, $fields_values, $no_quote_fields = FALSE) {
+	public function exec_UPDATEquery($table, $where, $fields_values, $no_quote_fields = FALSE)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -255,7 +259,8 @@ class DatabaseConnection {
 	 * @param string $where WHERE clause, eg. "uid=1". NOTICE: You must escape values in this argument with $this->fullQuoteStr() yourself!
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function exec_DELETEquery($table, $where) {
+	public function exec_DELETEquery($table, $where)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -282,7 +287,8 @@ class DatabaseConnection {
 	 * @param string $limit Optional LIMIT value ([begin,]max), if none, supply blank string.
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function exec_SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '') {
+	public function exec_SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '')
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -318,7 +324,8 @@ class DatabaseConnection {
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 * @see exec_SELECTquery()
 	 */
-	public function exec_SELECT_mm_query($select, $local_table, $mm_table, $foreign_table, $whereClause = '', $groupBy = '', $orderBy = '', $limit = '') {
+	public function exec_SELECT_mm_query($select, $local_table, $mm_table, $foreign_table, $whereClause = '', $groupBy = '', $orderBy = '', $limit = '')
+	{
 		if ($foreign_table == $local_table) {
 			$foreign_table_as = $foreign_table . uniqid('_join');
 		}
@@ -339,7 +346,8 @@ class DatabaseConnection {
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 * @see exec_SELECTquery()
 	 */
-	public function exec_SELECT_queryArray($queryParts) {
+	public function exec_SELECT_queryArray($queryParts)
+	{
 		return $this->exec_SELECTquery($queryParts['SELECT'], $queryParts['FROM'], $queryParts['WHERE'], $queryParts['GROUPBY'], $queryParts['ORDERBY'], $queryParts['LIMIT']);
 	}
 
@@ -355,7 +363,8 @@ class DatabaseConnection {
 	 * @param string $uidIndexField If set, the result array will carry this field names value as index. Requires that field to be selected of course!
 	 * @return array|NULL Array of rows, or NULL in case of SQL error
 	 */
-	public function exec_SELECTgetRows($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '', $uidIndexField = '') {
+	public function exec_SELECTgetRows($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '', $uidIndexField = '')
+	{
 		$res = $this->exec_SELECTquery($select_fields, $from_table, $where_clause, $groupBy, $orderBy, $limit);
 		if ($this->debugOutput) {
 			$this->debug('exec_SELECTquery');
@@ -391,7 +400,8 @@ class DatabaseConnection {
 	 * @param boolean $numIndex If set, the result will be fetched with sql_fetch_row, otherwise sql_fetch_assoc will be used.
 	 * @return array Single row or NULL if it fails.
 	 */
-	public function exec_SELECTgetSingleRow($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $numIndex = FALSE) {
+	public function exec_SELECTgetSingleRow($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $numIndex = FALSE)
+	{
 		$res = $this->exec_SELECTquery($select_fields, $from_table, $where_clause, $groupBy, $orderBy, '1');
 		if ($this->debugOutput) {
 			$this->debug('exec_SELECTquery');
@@ -416,7 +426,8 @@ class DatabaseConnection {
 	 * @param string $where (optional) WHERE statement of the query
 	 * @return mixed Number of rows counter (integer) or FALSE if something went wrong (boolean)
 	 */
-	public function exec_SELECTcountRows($field, $table, $where = '') {
+	public function exec_SELECTcountRows($field, $table, $where = '')
+	{
 		$count = FALSE;
 		$resultSet = $this->exec_SELECTquery('COUNT(' . $field . ')', $table, $where);
 		if ($resultSet !== FALSE) {
@@ -433,7 +444,8 @@ class DatabaseConnection {
 	 * @param string $table Database tablename
 	 * @return mixed Result from handler
 	 */
-	public function exec_TRUNCATEquery($table) {
+	public function exec_TRUNCATEquery($table)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -461,7 +473,8 @@ class DatabaseConnection {
 	 * @param boolean $no_quote_fields See fullQuoteArray()
 	 * @return string Full SQL query for INSERT (unless $fields_values does not contain any elements in which case it will be FALSE)
 	 */
-	public function INSERTquery($table, $fields_values, $no_quote_fields = FALSE) {
+	public function INSERTquery($table, $fields_values, $no_quote_fields = FALSE)
+	{
 		// Table and fieldnames should be "SQL-injection-safe" when supplied to this
 		// function (contrary to values in the arrays which may be insecure).
 		if (is_array($fields_values) && count($fields_values)) {
@@ -489,7 +502,8 @@ class DatabaseConnection {
 	 * @param boolean $no_quote_fields See fullQuoteArray()
 	 * @return string Full SQL query for INSERT (unless $rows does not contain any elements in which case it will be FALSE)
 	 */
-	public function INSERTmultipleRows($table, array $fields, array $rows, $no_quote_fields = FALSE) {
+	public function INSERTmultipleRows($table, array $fields, array $rows, $no_quote_fields = FALSE)
+	{
 		// Table and fieldnames should be "SQL-injection-safe" when supplied to this
 		// function (contrary to values in the arrays which may be insecure).
 		if (count($rows)) {
@@ -522,10 +536,11 @@ class DatabaseConnection {
 	 * @param string $where See exec_UPDATEquery()
 	 * @param array $fields_values See exec_UPDATEquery()
 	 * @param boolean $no_quote_fields
-	 * @throws \InvalidArgumentException
 	 * @return string Full SQL query for UPDATE
+	 * @throws \InvalidArgumentException
 	 */
-	public function UPDATEquery($table, $where, $fields_values, $no_quote_fields = FALSE) {
+	public function UPDATEquery($table, $where, $fields_values, $no_quote_fields = FALSE)
+	{
 		// Table and fieldnames should be "SQL-injection-safe" when supplied to this
 		// function (contrary to values in the arrays which may be insecure).
 		if (is_string($where)) {
@@ -560,7 +575,8 @@ class DatabaseConnection {
 	 * @return string Full SQL query for DELETE
 	 * @throws \InvalidArgumentException
 	 */
-	public function DELETEquery($table, $where) {
+	public function DELETEquery($table, $where)
+	{
 		if (is_string($where)) {
 			foreach ($this->preProcessHookObjects as $hookObject) {
 				/** @var $hookObject PreProcessQueryHookInterface */
@@ -588,7 +604,8 @@ class DatabaseConnection {
 	 * @param string $limit See exec_SELECTquery()
 	 * @return string Full SQL query for SELECT
 	 */
-	public function SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '') {
+	public function SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '')
+	{
 		foreach ($this->preProcessHookObjects as $hookObject) {
 			/** @var $hookObject PreProcessQueryHookInterface */
 			$hookObject->SELECTquery_preProcessAction($select_fields, $from_table, $where_clause, $groupBy, $orderBy, $limit, $this);
@@ -618,7 +635,8 @@ class DatabaseConnection {
 	 * @param string $where_clause Conditional WHERE statement
 	 * @return string Full SQL query for SELECT
 	 */
-	public function SELECTsubquery($select_fields, $from_table, $where_clause) {
+	public function SELECTsubquery($select_fields, $from_table, $where_clause)
+	{
 		// Table and fieldnames should be "SQL-injection-safe" when supplied to this function
 		// Build basic query:
 		$query = 'SELECT ' . $select_fields . ' FROM ' . $from_table . (strlen($where_clause) > 0 ? ' WHERE ' . $where_clause : '');
@@ -635,7 +653,8 @@ class DatabaseConnection {
 	 * @param string $table See exec_TRUNCATEquery()
 	 * @return string Full SQL query for TRUNCATE TABLE
 	 */
-	public function TRUNCATEquery($table) {
+	public function TRUNCATEquery($table)
+	{
 		foreach ($this->preProcessHookObjects as $hookObject) {
 			/** @var $hookObject PreProcessQueryHookInterface */
 			$hookObject->TRUNCATEquery_preProcessAction($table, $this);
@@ -662,11 +681,12 @@ class DatabaseConnection {
 	 * @param string $field Field name
 	 * @param string $value Value to find in list
 	 * @param string $table Table in which we are searching (for DBAL detection of quoteStr() method)
-	 * @throws \InvalidArgumentException
 	 * @return string WHERE clause for a query
+	 * @throws \InvalidArgumentException
 	 */
-	public function listQuery($field, $value, $table) {
-		$value = (string) $value;
+	public function listQuery($field, $value, $table)
+	{
+		$value = (string)$value;
 		if (strpos(',', $value) !== FALSE) {
 			throw new \InvalidArgumentException('$value must not contain a comma (,) in $this->listQuery() !', 1294585862);
 		}
@@ -684,7 +704,8 @@ class DatabaseConnection {
 	 * @param string $constraint How multiple search words have to match ('AND' or 'OR')
 	 * @return string WHERE clause for search
 	 */
-	public function searchQuery($searchWords, $fields, $table, $constraint = self::AND_Constraint) {
+	public function searchQuery($searchWords, $fields, $table, $constraint = self::AND_Constraint)
+	{
 		switch ($constraint) {
 			case self::OR_Constraint:
 				$constraint = 'OR';
@@ -721,7 +742,8 @@ class DatabaseConnection {
 	 * @param array $input_parameters An array of values with as many elements as there are bound parameters in the SQL statement being executed. All values are treated as \TYPO3\CMS\Core\Database\PreparedStatement::PARAM_AUTOTYPE.
 	 * @return \TYPO3\CMS\Core\Database\PreparedStatement Prepared statement
 	 */
-	public function prepare_SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '', array $input_parameters = array()) {
+	public function prepare_SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '', array $input_parameters = array())
+	{
 		$query = $this->SELECTquery($select_fields, $from_table, $where_clause, $groupBy, $orderBy, $limit);
 		/** @var $preparedStatement \TYPO3\CMS\Core\Database\PreparedStatement */
 		$preparedStatement = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Database\\PreparedStatement', $query, $from_table, array());
@@ -740,7 +762,8 @@ class DatabaseConnection {
 	 * @param array $input_parameters An array of values with as many elements as there are bound parameters in the SQL statement being executed. All values are treated as \TYPO3\CMS\Core\Database\PreparedStatement::PARAM_AUTOTYPE.
 	 * @return \TYPO3\CMS\Core\Database\PreparedStatement Prepared statement
 	 */
-	public function prepare_SELECTqueryArray(array $queryParts, array $input_parameters = array()) {
+	public function prepare_SELECTqueryArray(array $queryParts, array $input_parameters = array())
+	{
 		return $this->prepare_SELECTquery($queryParts['SELECT'], $queryParts['FROM'], $queryParts['WHERE'], $queryParts['GROUPBY'], $queryParts['ORDERBY'], $queryParts['LIMIT'], $input_parameters);
 	}
 
@@ -752,7 +775,8 @@ class DatabaseConnection {
 	 * @param array $queryComponents The components of the query to execute
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function exec_PREPAREDquery($query, array $queryComponents) {
+	public function exec_PREPAREDquery($query, array $queryComponents)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -782,7 +806,8 @@ class DatabaseConnection {
 	 * @return string Output string; Wrapped in single quotes and quotes in the string (" / ') and \ will be backslashed (or otherwise based on DBAL handler)
 	 * @see quoteStr()
 	 */
-	public function fullQuoteStr($str, $table, $allowNull = FALSE) {
+	public function fullQuoteStr($str, $table, $allowNull = FALSE)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -803,7 +828,8 @@ class DatabaseConnection {
 	 * @return array The input array with the values quoted
 	 * @see cleanIntArray()
 	 */
-	public function fullQuoteArray($arr, $table, $noQuote = FALSE, $allowNull = FALSE) {
+	public function fullQuoteArray($arr, $table, $noQuote = FALSE, $allowNull = FALSE)
+	{
 		if (is_string($noQuote)) {
 			$noQuote = explode(',', $noQuote);
 		} elseif (!is_array($noQuote)) {
@@ -827,7 +853,8 @@ class DatabaseConnection {
 	 * @return string Output string; Quotes (" / ') and \ will be backslashed (or otherwise based on DBAL handler)
 	 * @see quoteStr()
 	 */
-	public function quoteStr($str, $table) {
+	public function quoteStr($str, $table)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -842,7 +869,8 @@ class DatabaseConnection {
 	 * @return string Output string; % and _ will be escaped with \ (or otherwise based on DBAL handler)
 	 * @see quoteStr()
 	 */
-	public function escapeStrForLike($str, $table) {
+	public function escapeStrForLike($str, $table)
+	{
 		return addcslashes($str, '_%');
 	}
 
@@ -854,7 +882,8 @@ class DatabaseConnection {
 	 * @return array The input array with all values passed through intval()
 	 * @see cleanIntList()
 	 */
-	public function cleanIntArray($arr) {
+	public function cleanIntArray($arr)
+	{
 		foreach ($arr as $k => $v) {
 			$arr[$k] = intval($arr[$k]);
 		}
@@ -869,7 +898,8 @@ class DatabaseConnection {
 	 * @return string The input list but with every value passed through intval()
 	 * @see cleanIntArray()
 	 */
-	public function cleanIntList($list) {
+	public function cleanIntList($list)
+	{
 		return implode(',', \TYPO3\CMS\Core\Utility\GeneralUtility::intExplode(',', $list));
 	}
 
@@ -882,7 +912,8 @@ class DatabaseConnection {
 	 * @return string eg. "title, uid
 	 * @see exec_SELECTquery(), stripGroupBy()
 	 */
-	public function stripOrderBy($str) {
+	public function stripOrderBy($str)
+	{
 		return preg_replace('/^(?:ORDER[[:space:]]*BY[[:space:]]*)+/i', '', trim($str));
 	}
 
@@ -895,7 +926,8 @@ class DatabaseConnection {
 	 * @return string eg. "title, uid
 	 * @see exec_SELECTquery(), stripOrderBy()
 	 */
-	public function stripGroupBy($str) {
+	public function stripGroupBy($str)
+	{
 		return preg_replace('/^(?:GROUP[[:space:]]*BY[[:space:]]*)+/i', '', trim($str));
 	}
 
@@ -906,7 +938,8 @@ class DatabaseConnection {
 	 * @param string $str Input string
 	 * @return array
 	 */
-	public function splitGroupOrderLimit($str) {
+	public function splitGroupOrderLimit($str)
+	{
 		// Prepending a space to make sure "[[:space:]]+" will find a space there
 		// for the first element.
 		$str = ' ' . $str;
@@ -946,7 +979,8 @@ class DatabaseConnection {
 	 * @param string $table Table name for which to return an empty date. Just enter the table that the field-value is selected from (and any DBAL will look up which handler to use and then how date and time should be formatted).
 	 * @return array
 	 */
-	public function getDateTimeFormats($table) {
+	public function getDateTimeFormats($table)
+	{
 		return array(
 			'date' => array(
 				'empty' => '0000-00-00',
@@ -974,7 +1008,8 @@ class DatabaseConnection {
 	 * @param string $query Query to execute
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function sql_query($query) {
+	public function sql_query($query)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -990,7 +1025,8 @@ class DatabaseConnection {
 	 *
 	 * @return string MySQLi error string.
 	 */
-	public function sql_error() {
+	public function sql_error()
+	{
 		return $this->link->error;
 	}
 
@@ -999,7 +1035,8 @@ class DatabaseConnection {
 	 *
 	 * @return integer MySQLi error number
 	 */
-	public function sql_errno() {
+	public function sql_errno()
+	{
 		return $this->link->errno;
 	}
 
@@ -1009,7 +1046,8 @@ class DatabaseConnection {
 	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return integer Number of resulting rows
 	 */
-	public function sql_num_rows($res) {
+	public function sql_num_rows($res)
+	{
 		if ($this->debug_check_recordset($res)) {
 			return $res->num_rows;
 		} else {
@@ -1024,7 +1062,8 @@ class DatabaseConnection {
 	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return array|boolean Associative array of result row.
 	 */
-	public function sql_fetch_assoc($res) {
+	public function sql_fetch_assoc($res)
+	{
 		if ($this->debug_check_recordset($res)) {
 			$result = $res->fetch_assoc();
 			if ($result === NULL) {
@@ -1045,7 +1084,8 @@ class DatabaseConnection {
 	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return array|boolean Array with result rows.
 	 */
-	public function sql_fetch_row($res) {
+	public function sql_fetch_row($res)
+	{
 		if ($this->debug_check_recordset($res)) {
 			$result = $res->fetch_row();
 			if ($result === NULL) {
@@ -1065,7 +1105,8 @@ class DatabaseConnection {
 	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return boolean Returns TRUE on success or FALSE on failure.
 	 */
-	public function sql_free_result($res) {
+	public function sql_free_result($res)
+	{
 		if ($this->debug_check_recordset($res)) {
 			return $res->free();
 		} else {
@@ -1078,7 +1119,8 @@ class DatabaseConnection {
 	 *
 	 * @return integer The uid of the last inserted record.
 	 */
-	public function sql_insert_id() {
+	public function sql_insert_id()
+	{
 		return $this->link->insert_id;
 	}
 
@@ -1087,7 +1129,8 @@ class DatabaseConnection {
 	 *
 	 * @return integer Number of rows affected by last query
 	 */
-	public function sql_affected_rows() {
+	public function sql_affected_rows()
+	{
 		return $this->link->affected_rows;
 	}
 
@@ -1098,7 +1141,8 @@ class DatabaseConnection {
 	 * @param integer $seek Seek result number.
 	 * @return boolean Returns TRUE on success or FALSE on failure.
 	 */
-	public function sql_data_seek($res, $seek) {
+	public function sql_data_seek($res, $seek)
+	{
 		if ($this->debug_check_recordset($res)) {
 			return $res->data_seek($seek);
 		} else {
@@ -1114,28 +1158,29 @@ class DatabaseConnection {
 	 * @param integer $pointer Field index.
 	 * @return string Returns the name of the specified field index, or FALSE on error
 	 */
-	public function sql_field_type($res, $pointer) {
+	public function sql_field_type($res, $pointer)
+	{
 		// mysql_field_type compatibility map
 		// taken from: http://www.php.net/manual/en/mysqli-result.fetch-field-direct.php#89117
 		// Constant numbers see http://php.net/manual/en/mysqli.constants.php
 		$mysql_data_type_hash = array(
-			1=>'tinyint',
-			2=>'smallint',
-			3=>'int',
-			4=>'float',
-			5=>'double',
-			7=>'timestamp',
-			8=>'bigint',
-			9=>'mediumint',
-			10=>'date',
-			11=>'time',
-			12=>'datetime',
-			13=>'year',
-			16=>'bit',
+			1 => 'tinyint',
+			2 => 'smallint',
+			3 => 'int',
+			4 => 'float',
+			5 => 'double',
+			7 => 'timestamp',
+			8 => 'bigint',
+			9 => 'mediumint',
+			10 => 'date',
+			11 => 'time',
+			12 => 'datetime',
+			13 => 'year',
+			16 => 'bit',
 			//252 is currently mapped to all text and blob types (MySQL 5.0.51a)
-			253=>'varchar',
-			254=>'char',
-			246=>'decimal'
+			253 => 'varchar',
+			254 => 'char',
+			246 => 'decimal'
 		);
 		if ($this->debug_check_recordset($res)) {
 			$metaInfo = $res->fetch_field_direct($pointer);
@@ -1157,7 +1202,8 @@ class DatabaseConnection {
 	 * @return boolean|void
 	 * @throws \RuntimeException
 	 */
-	public function sql_pconnect($host = NULL, $username = NULL, $password = NULL) {
+	public function sql_pconnect($host = NULL, $username = NULL, $password = NULL)
+	{
 		if ($this->isConnected) {
 			return $this->link;
 		}
@@ -1218,7 +1264,8 @@ class DatabaseConnection {
 	 *
 	 * @return void
 	 */
-	protected function setSqlMode() {
+	protected function setSqlMode()
+	{
 		$resource = $this->sql_query('SELECT @@SESSION.sql_mode;');
 		if ($resource) {
 			$result = $this->sql_fetch_row($resource);
@@ -1241,7 +1288,8 @@ class DatabaseConnection {
 	 * @param string $TYPO3_db Deprecated since 6.1, will be removed in two versions. Database to connect to.
 	 * @return boolean Returns TRUE on success or FALSE on failure.
 	 */
-	public function sql_select_db($TYPO3_db = NULL) {
+	public function sql_select_db($TYPO3_db = NULL)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -1249,7 +1297,7 @@ class DatabaseConnection {
 		if ($TYPO3_db) {
 			\TYPO3\CMS\Core\Utility\GeneralUtility::deprecationLog(
 				'DatabaseConnection->sql_select_db() should be called without arguments.' .
-					' Use the setDatabaseName() before. Will be removed two versions after 6.1.'
+				' Use the setDatabaseName() before. Will be removed two versions after 6.1.'
 			);
 		} else {
 			$TYPO3_db = $this->databaseName;
@@ -1280,7 +1328,8 @@ class DatabaseConnection {
 	 *
 	 * @return array Each entry represents a database name
 	 */
-	public function admin_get_dbs() {
+	public function admin_get_dbs()
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -1302,7 +1351,8 @@ class DatabaseConnection {
 	 *
 	 * @return array Array with tablenames as key and arrays with status information as value
 	 */
-	public function admin_get_tables() {
+	public function admin_get_tables()
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -1328,7 +1378,8 @@ class DatabaseConnection {
 	 * @param string $tableName Table name
 	 * @return array Field information in an associative array with fieldname => field row
 	 */
-	public function admin_get_fields($tableName) {
+	public function admin_get_fields($tableName)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -1348,7 +1399,8 @@ class DatabaseConnection {
 	 * @param string $tableName Table name
 	 * @return array Key information in a numeric array
 	 */
-	public function admin_get_keys($tableName) {
+	public function admin_get_keys($tableName)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -1373,7 +1425,8 @@ class DatabaseConnection {
 	 *
 	 * @return array Array with Charset as key and an array of "Charset", "Description", "Default collation", "Maxlen" as values
 	 */
-	public function admin_get_charsets() {
+	public function admin_get_charsets()
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -1394,7 +1447,8 @@ class DatabaseConnection {
 	 * @param string $query Query to execute
 	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
 	 */
-	public function admin_query($query) {
+	public function admin_query($query)
+	{
 		if (!$this->isConnected) {
 			$this->connectDB();
 		}
@@ -1416,7 +1470,8 @@ class DatabaseConnection {
 	 *
 	 * @param string $host
 	 */
-	public function setDatabaseHost($host = 'localhost') {
+	public function setDatabaseHost($host = 'localhost')
+	{
 		$this->disconnectIfConnected();
 		$this->databaseHost = $host;
 	}
@@ -1426,7 +1481,8 @@ class DatabaseConnection {
 	 *
 	 * @param integer $port
 	 */
-	public function setDatabasePort($port = 3306) {
+	public function setDatabasePort($port = 3306)
+	{
 		$this->disconnectIfConnected();
 		$this->databasePort = (int)$port;
 	}
@@ -1436,7 +1492,8 @@ class DatabaseConnection {
 	 *
 	 * @param string $name
 	 */
-	public function setDatabaseName($name) {
+	public function setDatabaseName($name)
+	{
 		$this->disconnectIfConnected();
 		$this->databaseName = $name;
 	}
@@ -1446,7 +1503,8 @@ class DatabaseConnection {
 	 *
 	 * @param string $username
 	 */
-	public function setDatabaseUsername($username) {
+	public function setDatabaseUsername($username)
+	{
 		$this->disconnectIfConnected();
 		$this->databaseUsername = $username;
 	}
@@ -1456,7 +1514,8 @@ class DatabaseConnection {
 	 *
 	 * @param string $password
 	 */
-	public function setDatabasePassword($password) {
+	public function setDatabasePassword($password)
+	{
 		$this->disconnectIfConnected();
 		$this->databaseUserPassword = $password;
 	}
@@ -1467,7 +1526,8 @@ class DatabaseConnection {
 	 * @param boolean $persistentDatabaseConnection
 	 * @see http://php.net/manual/de/mysqli.persistconns.php
 	 */
-	public function setPersistentDatabaseConnection($persistentDatabaseConnection) {
+	public function setPersistentDatabaseConnection($persistentDatabaseConnection)
+	{
 		$this->disconnectIfConnected();
 		$this->persistentDatabaseConnection = (bool)$persistentDatabaseConnection;
 	}
@@ -1477,7 +1537,8 @@ class DatabaseConnection {
 	 *
 	 * @param bool $connectionCompression TRUE if connection should be compressed
 	 */
-	public function setConnectionCompression($connectionCompression) {
+	public function setConnectionCompression($connectionCompression)
+	{
 		$this->disconnectIfConnected();
 		$this->connectionCompression = (bool)$connectionCompression;
 	}
@@ -1487,7 +1548,8 @@ class DatabaseConnection {
 	 *
 	 * @param array $commands List of SQL commands to be executed after connect
 	 */
-	public function setInitializeCommandsAfterConnect(array $commands) {
+	public function setInitializeCommandsAfterConnect(array $commands)
+	{
 		$this->disconnectIfConnected();
 		$this->initializeCommandsAfterConnect = $commands;
 	}
@@ -1499,12 +1561,13 @@ class DatabaseConnection {
 	 * @param string $username Deprecated since 6.1, will be removed in two versions. Username to connect with
 	 * @param string $password Deprecated since 6.1, will be removed in two versions. Password to connect with
 	 * @param string $db Deprecated since 6.1, will be removed in two versions. Database name to connect to
-	 * @throws \RuntimeException
-	 * @throws \UnexpectedValueException
-	 * @internal param string $user Username to connect with.
 	 * @return void
+	 * @throws \UnexpectedValueException
+	 * @throws \RuntimeException
+	 * @internal param string $user Username to connect with.
 	 */
-	public function connectDB($host = NULL, $username = NULL, $password = NULL, $db = NULL) {
+	public function connectDB($host = NULL, $username = NULL, $password = NULL, $db = NULL)
+	{
 		// Early return if connected already
 		if ($this->isConnected) {
 			return;
@@ -1565,7 +1628,8 @@ class DatabaseConnection {
 	 *
 	 * @return boolean
 	 */
-	public function isConnected() {
+	public function isConnected()
+	{
 		return $this->isConnected;
 	}
 
@@ -1574,7 +1638,8 @@ class DatabaseConnection {
 	 *
 	 * @return void
 	 */
-	protected function disconnectIfConnected() {
+	protected function disconnectIfConnected()
+	{
 		if ($this->isConnected()) {
 			$this->link->close();
 			$this->isConnected = FALSE;
@@ -1586,7 +1651,8 @@ class DatabaseConnection {
 	 *
 	 * @return \mysqli|NULL
 	 */
-	public function getDatabaseHandle() {
+	public function getDatabaseHandle()
+	{
 		return $this->link;
 	}
 
@@ -1595,7 +1661,8 @@ class DatabaseConnection {
 	 *
 	 * @param \mysqli $handle
 	 */
-	public function setDatabaseHandle($handle) {
+	public function setDatabaseHandle($handle)
+	{
 		$this->link = $handle;
 	}
 
@@ -1607,7 +1674,8 @@ class DatabaseConnection {
 	 * @param string|null $password User password
 	 * @param string|null $db Database
 	 */
-	protected function handleDeprecatedConnectArguments($host = NULL, $username = NULL, $password = NULL, $db = NULL) {
+	protected function handleDeprecatedConnectArguments($host = NULL, $username = NULL, $password = NULL, $db = NULL)
+	{
 		\TYPO3\CMS\Core\Utility\GeneralUtility::deprecationLog(
 			'DatabaseConnection->sql_pconnect() and DatabaseConnection->connectDB() should be ' .
 			'called without arguments. Use the setters instead.'
@@ -1645,9 +1713,10 @@ class DatabaseConnection {
 	 * @return void
 	 * @todo Define visibility
 	 */
-	public function debug($func, $query = '') {
+	public function debug($func, $query = '')
+	{
 		$error = $this->sql_error();
-		if ($error || (int) $this->debugOutput === 2) {
+		if ($error || (int)$this->debugOutput === 2) {
 			\TYPO3\CMS\Core\Utility\DebugUtility::debug(
 				array(
 					'caller' => 'TYPO3\\CMS\\Core\\Database\\DatabaseConnection::' . $func,
@@ -1670,7 +1739,8 @@ class DatabaseConnection {
 	 * @return boolean TRUE if the  record set is valid, FALSE otherwise
 	 * @todo Define visibility
 	 */
-	public function debug_check_recordset($res) {
+	public function debug_check_recordset($res)
+	{
 		if ($res !== FALSE) {
 			return TRUE;
 		}
@@ -1716,7 +1786,8 @@ class DatabaseConnection {
 	 * @param integer $row_count Number of resulting rows
 	 * @return boolean TRUE if explain was run, FALSE otherwise
 	 */
-	protected function explain($query, $from_table, $row_count) {
+	protected function explain($query, $from_table, $row_count)
+	{
 		$debugAllowedForIp = \TYPO3\CMS\Core\Utility\GeneralUtility::cmpIP(
 			\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('REMOTE_ADDR'),
 			$GLOBALS['TYPO3_CONF_VARS']['SYS']['devIPmask']
@@ -1727,7 +1798,7 @@ class DatabaseConnection {
 		) {
 			// Raw HTML output
 			$explainMode = 1;
-		} elseif ((int) $this->explainOutput == 3 && is_object($GLOBALS['TT'])) {
+		} elseif ((int)$this->explainOutput == 3 && is_object($GLOBALS['TT'])) {
 			// Embed the output into the TS admin panel
 			$explainMode = 2;
 		} else {
@@ -1801,7 +1872,8 @@ class DatabaseConnection {
 	 *
 	 * @return array All protected properties that should be saved
 	 */
-	public function __sleep() {
+	public function __sleep()
+	{
 		$this->disconnectIfConnected();
 		return array(
 			'debugOutput',
@@ -1818,4 +1890,5 @@ class DatabaseConnection {
 		);
 	}
 }
+
 ?>

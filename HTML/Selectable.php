@@ -1,6 +1,7 @@
 <?php
 
-class Selectable {
+class Selectable
+{
 
 	public $name;
 
@@ -28,7 +29,8 @@ class Selectable {
 	/**
 	 * @param $selected - id / array row
 	 */
-	function __construct($selected) {
+	function __construct($selected)
+	{
 		$this->name = get_class($this);
 		if (is_array($selected)) {
 			$id = $selected['id'];
@@ -42,7 +44,8 @@ class Selectable {
 		}
 	}
 
-	function validateSelected() {
+	function validateSelected()
+	{
 		// it's called AFTER subclass initialized $this->data
 		//debug($selected, array_keys($this->data));
 		if (!in_array($this->selected, array_keys($this->options))) {
@@ -58,11 +61,13 @@ class Selectable {
 	 * It's not more convenient to have it in a toString()
 	 * @return string
 	 */
-	function __toString() {
+	function __toString()
+	{
 		return $this->getDropdown();
 	}
 
-	function getDropdown() {
+	function getDropdown()
+	{
 		$request = Request::getInstance();
 
 		$f = new HTMLForm();
@@ -85,21 +90,24 @@ class Selectable {
 		return $f->getContent();
 	}
 
-	function getOptions() {
+	function getOptions()
+	{
 		return $this->options;
 	}
 
-	function getName() {
+	function getName()
+	{
 		if (!isset($this->options[$this->selected])) {
 			//debug($this->data);
 			//debug_pre_print_backtrace();
-			return 'Unknown room/location #'.$this->selected;
+			return 'Unknown room/location #' . $this->selected;
 		}
 		return $this->options[$this->selected];
 	}
 
-	function getID() {
+	function getID()
+	{
 		return $this->selected;
 	}
-	
+
 }

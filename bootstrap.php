@@ -1,8 +1,10 @@
 <?php
 
-class Bootstrap {
+class Bootstrap
+{
 
-	function boot() {
+	function boot()
+	{
 		echo 'cwd: ', basename(getcwd()), "\n";
 		if (basename(getcwd()) == 'tests') {
 		}
@@ -37,7 +39,8 @@ class Bootstrap {
 		echo 'bootstrap.php done', BR;
 	}
 
-	public function loadVendorAutoload() {
+	public function loadVendorAutoload()
+	{
 		$path = trimExplode('/', str_replace('\\', '/', getcwd()));
 		//debug($path);
 		foreach (range(sizeof($path), 0, -1) as $i) {

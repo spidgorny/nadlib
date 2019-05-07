@@ -1,6 +1,7 @@
 <?php
 
-class ShowAssoc {
+class ShowAssoc
+{
 
 	var $data = [];
 
@@ -8,20 +9,24 @@ class ShowAssoc {
 
 	var $title;
 
-	function __construct(array $assoc) {
+	function __construct(array $assoc)
+	{
 		$this->data = $assoc;
 	}
 
-	function setThes(array $thes) {
+	function setThes(array $thes)
+	{
 		$this->thes = $thes;
 	}
 
-	function setTitle($title) {
+	function setTitle($title)
+	{
 		$this->title = $title;
 		return $this;
 	}
 
-	function render() {
+	function render()
+	{
 		TaylorProfiler::start(__METHOD__);
 		$content[] = '<div class="showAssoc">';
 		if ($this->title) {
@@ -42,7 +47,8 @@ class ShowAssoc {
 		return $content;
 	}
 
-	function getValue(array $desc, $val) {
+	function getValue(array $desc, $val)
+	{
 		if (ifsetor($desc['reference'])) {
 			// class name
 			$class = $desc['reference'];
@@ -58,14 +64,15 @@ class ShowAssoc {
 			if (ifsetor($desc['t/f'])) {
 				$val = $val == 't';
 			}
-			$val = $desc['bool'][$val];	// yes/no
+			$val = $desc['bool'][$val];    // yes/no
 		} elseif (is_callable(ifsetor($desc['render']))) {
 			$val = call_user_func($desc['render'], $this->data);
 		}
 		return $val;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return MergedContent::mergeStringArrayRecursive($this->render());
 	}
 

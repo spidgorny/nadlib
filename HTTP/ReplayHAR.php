@@ -1,22 +1,26 @@
 <?php
 
-class ReplayHAR {
+class ReplayHAR
+{
 
 	var $file;
 
 	var $request;
 
-	function __construct($file) {
+	function __construct($file)
+	{
 		$this->file = $file;
 	}
 
-	function readHAR() {
+	function readHAR()
+	{
 		$har = json_decode(file_get_contents($this->file));
 		$this->request = $har->log->entries[0]->request;
 		return $this->request;
 	}
 
-	function getURL() {
+	function getURL()
+	{
 		if (!$this->request) {
 			$this->readHAR();
 		}
@@ -26,7 +30,8 @@ class ReplayHAR {
 		return $url;
 	}
 
-	function getURLGet() {
+	function getURLGet()
+	{
 		$url = $this->getURL();
 		$urlget = $url->getURLGet();
 		$urlget->context['http']['method'] = $this->request->method;

@@ -7,7 +7,8 @@ if (!function_exists('first')) {
 	 * @param array $list
 	 * @return array|mixed
 	 */
-	function first(array $list) {
+	function first(array $list)
+	{
 		reset($list);
 		return current($list);
 	}
@@ -17,7 +18,8 @@ if (!function_exists('first')) {
 	 * @param array $list
 	 * @return array|mixed
 	 */
-	function last(array $list) {
+	function last(array $list)
+	{
 		return end($list);
 	}
 
@@ -27,7 +29,8 @@ if (!function_exists('first')) {
 	 * @param array $list
 	 * @return mixed
 	 */
-	function eachv(array &$list) {
+	function eachv(array &$list)
+	{
 		$current = current($list);
 		next($list);
 		return $current;
@@ -40,7 +43,8 @@ if (!function_exists('first')) {
 	 * @param array $b
 	 * @return array
 	 */
-	function array_combine_stringkey(array $a, array $b) {
+	function array_combine_stringkey(array $a, array $b)
+	{
 		$ret = array();
 		reset($b);
 		foreach ($a as $key) {
@@ -55,7 +59,8 @@ if (!function_exists('first')) {
 	 * @param $arr
 	 * @return bool
 	 */
-	function is_assoc($arr)	{
+	function is_assoc($arr)
+	{
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
@@ -65,27 +70,26 @@ if (!function_exists('first')) {
 	 * @param array $matriz
 	 * @return array
 	 */
-	function unique_multidim_array(array $matriz) {
+	function unique_multidim_array(array $matriz)
+	{
 		$aux_ini = array();
-		foreach ($matriz as $n => $source)
-		{
+		foreach ($matriz as $n => $source) {
 			$aux_ini[$n] = serialize($source);
 		}
 
 		$mat = array_unique($aux_ini);
 
 		$entrega = array();
-		foreach ($mat as $n => $serial)
-		{
+		foreach ($mat as $n => $serial) {
 			$entrega[$n] = unserialize($serial);
 
 		}
 		return $entrega;
 	}
 
-	function unique_multidim_array_thru(array $matriz) {
-		foreach ($matriz as $n => &$source)
-		{
+	function unique_multidim_array_thru(array $matriz)
+	{
+		foreach ($matriz as $n => &$source) {
 			if (is_array($source)) {
 				$source = unique_multidim_array_thru($source);
 			}
@@ -100,7 +104,8 @@ if (!function_exists('first')) {
 	 * @param array $a
 	 * @return array
 	 */
-	function array_to_string(array $a) {
+	function array_to_string(array $a)
+	{
 		foreach ($a as &$val) {
 			if (is_array($val)) {
 				$val = array_to_string($val);
@@ -111,7 +116,8 @@ if (!function_exists('first')) {
 		return $a;
 	}
 
-	function without(array $source, $remove) {
+	function without(array $source, $remove)
+	{
 		if (phpversion() > 5.6) {
 			return array_filter($source, function ($el, $key) use ($remove) {
 				if (is_array($remove)) {
@@ -121,8 +127,8 @@ if (!function_exists('first')) {
 				}
 			}, ARRAY_FILTER_USE_BOTH);
 		} else {
-			return array_diff_key( $source,
-				array_flip( (array)$remove) );
+			return array_diff_key($source,
+				array_flip((array)$remove));
 		}
 	}
 

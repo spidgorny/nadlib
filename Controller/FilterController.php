@@ -1,6 +1,7 @@
 <?php
 
-class FilterController extends AppController {
+class FilterController extends AppController
+{
 
 	var $fields = [];
 
@@ -25,16 +26,19 @@ class FilterController extends AppController {
 	 */
 	public $desc;
 
-	function setFields(array $fields) {
+	function setFields(array $fields)
+	{
 		$this->fields = $fields;
 		$this->desc = $this->getFilterDesc($this->fields);
 	}
 
-	function setFilter(Filter $filter) {
+	function setFilter(Filter $filter)
+	{
 		$this->filter = $filter;
 	}
 
-	function render() {
+	function render()
+	{
 		$f = new HTMLFormTable($this->desc);
 		$f->setAllOptional();
 		$f->method('POST');
@@ -52,10 +56,11 @@ class FilterController extends AppController {
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
-	 * @throws Exception
 	 * @return array
+	 * @throws Exception
 	 */
-	function getFilterDesc(array $fields = NULL) {
+	function getFilterDesc(array $fields = NULL)
+	{
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);
 //		}
@@ -81,7 +86,8 @@ class FilterController extends AppController {
 	 * @param $key
 	 * @return array
 	 */
-	public function getFieldFilter(array $k, $key) {
+	public function getFieldFilter(array $k, $key)
+	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
 			in_array('HTMLFormCollection', class_implements($autoClass))
@@ -115,24 +121,25 @@ class FilterController extends AppController {
 			$options = NULL;
 		}
 		$k = array(
-				'label'   => $k['name'],
-				'type'    => $k['type'] ?: 'text',
+				'label' => $k['name'],
+				'type' => $k['type'] ?: 'text',
 				'options' => $options,
-				'null'    => true,
-				'value'   => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
-				'more'    => ['class' => "text input-medium"],
-				'==='     => true,
+				'null' => true,
+				'value' => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
+				'more' => ['class' => "text input-medium"],
+				'===' => true,
 			) + $k;
 //		debug(without($k, 'options'));
 		return $k;
 	}
 
-	function getTableFieldOptions($key, $count = false) {
+	function getTableFieldOptions($key, $count = false)
+	{
 		if ($this->model instanceof OODBase) {
 			$res = $this->db->getTableOptions($this->model->table
 				? $this->model->table
 				: $this->collection->table,
-				$key, array(), 'ORDER BY '.$key, $key);	// NOT 'id' (DISTINCT!)
+				$key, array(), 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
 
 			if ($count) {
 				foreach ($res as &$val) {
@@ -155,7 +162,8 @@ class FilterController extends AppController {
 	 * Converts $this->filter data from URL into SQL where parameters
 	 * @return array
 	 */
-	function getFilterWhere(array $desc) {
+	function getFilterWhere(array $desc)
+	{
 		$where = array();
 
 		$filterList = $this->filter->getIterator();
@@ -173,7 +181,8 @@ class FilterController extends AppController {
 		return $where;
 	}
 
-	function getFilterWherePair($key, $val, $type) {
+	function getFilterWherePair($key, $val, $type)
+	{
 		$where = [];
 		switch ($type) {
 			case 'like':

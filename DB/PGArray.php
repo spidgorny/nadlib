@@ -1,6 +1,7 @@
 <?php
 
-class PGArray extends AsIs {
+class PGArray extends AsIs
+{
 
 	/**
 	 * @var dbLayer
@@ -17,7 +18,8 @@ class PGArray extends AsIs {
 	 */
 	var $data;
 
-	function __construct(dbLayer $db, array $data = NULL) {
+	function __construct(dbLayer $db, array $data = NULL)
+	{
 		$this->db = $db;
 
 		$query = "SHOW standard_conforming_strings;";
@@ -33,7 +35,8 @@ class PGArray extends AsIs {
 		}
 	}
 
-	function set(array $data) {
+	function set(array $data)
+	{
 		$this->data = $data;
 	}
 
@@ -42,12 +45,14 @@ class PGArray extends AsIs {
 	 * require tripple escaping of backslashes
 	 * @return string
 	 */
-	function __toString() {
+	function __toString()
+	{
 		$quoted = $this->db->quoteValues($this->data);
-		return 'ARRAY['.implode(', ', $quoted).']';
+		return 'ARRAY[' . implode(', ', $quoted) . ']';
 	}
 
-	function encodeInString() {
+	function encodeInString()
+	{
 		return $this->setPGArray($this->data);
 	}
 
@@ -57,7 +62,8 @@ class PGArray extends AsIs {
 	 * @param unknown_type $pgArray
 	 * @return unknown
 	 */
-	function PGArrayToPHPArray($pgArray) {
+	function PGArrayToPHPArray($pgArray)
+	{
 		$ret = array();
 		$stack = array(&$ret);
 		$pgArray = substr($pgArray, 1, -1);
@@ -65,21 +71,17 @@ class PGArray extends AsIs {
 
 		//ArrayDump($pgElements);
 
-		foreach($pgElements as $elem)
-		{
-			if(substr($elem,-1) == "}")
-			{
-				$elem = substr($elem,0,-1);
+		foreach ($pgElements as $elem) {
+			if (substr($elem, -1) == "}") {
+				$elem = substr($elem, 0, -1);
 				$newSub = array();
-				while(substr($elem,0,1) != "{")
-				{
+				while (substr($elem, 0, 1) != "{") {
 					$newSub[] = $elem;
 					$elem = array_pop($ret);
 				}
-				$newSub[] = substr($elem,1);
+				$newSub[] = substr($elem, 1);
 				$ret[] = array_reverse($newSub);
-			}
-			else
+			} else
 				$ret[] = $elem;
 		}
 		return $ret;
@@ -88,12 +90,13 @@ class PGArray extends AsIs {
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
 	 * @param $input
-	 * @internal param string $dbarr
 	 * @return array
+	 * @internal param string $dbarr
 	 */
-	function getPGArray($input) {
-		if (strlen($input) && $input{0} == '{') {	// array inside
-			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
+	function getPGArray($input)
+	{
+		if (strlen($input) && $input{0} == '{') {    // array inside
+			$input = substr(substr(trim($input), 1), 0, -1);    // cut { and }
 			return $this->getPGArray($input);
 		} else {
 			if (strpos($input, '},{') !== FALSE) {
@@ -111,8 +114,9 @@ class PGArray extends AsIs {
 		}
 	}
 
-	static function str_getcsv($input, $delimiter=',', $enclosure='"', $escape='\\', $eol=null) {
-		$temp=fopen("php://memory", "rw");
+	static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
+	{
+		$temp = fopen("php://memory", "rw");
 		fwrite($temp, $input);
 		fseek($temp, 0);
 		$r = array();
@@ -139,8 +143,8 @@ class PGArray extends AsIs {
 	/**
 	 * Change a db array into a PHP array
 	 * @param $input
-	 * @internal param String $arr representing the DB array
 	 * @return A PHP array
+	 * @internal param String $arr representing the DB array
 	 */
 	/*	function getPGArray($dbarr) {
 			// Take off the first and last characters (the braces)
@@ -182,7 +186,8 @@ class PGArray extends AsIs {
 			return $elements;
 		}
 	*/
-	function getPGArray1D($input) {
+	function getPGArray1D($input)
+	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
 		if ($v1 == array('')) return array();
@@ -194,8 +199,8 @@ class PGArray extends AsIs {
 				$inside = true;
 				$word = substr($word, 1);
 			}
-			if (in_array($word{strlen($word)-1}, array('"'))
-				&& !in_array($word{strlen($word)-2}, array('\\'))
+			if (in_array($word{strlen($word) - 1}, array('"'))
+				&& !in_array($word{strlen($word) - 2}, array('\\'))
 			) {
 				$inside = false;
 				$word = substr($word, 0, -1);
@@ -240,7 +245,8 @@ class PGArray extends AsIs {
 	 * @param array $data
 	 * @return string
 	 */
-	function setPGArray(array $data) {
+	function setPGArray(array $data)
+	{
 		foreach ($data as &$el) {
 			if (is_array($el)) {
 				$el = $this->setPGArray($el);
@@ -252,14 +258,14 @@ class PGArray extends AsIs {
 //					$el = addslashes($el); // changed after postgres version updated to 9.4
 				}
 
-				$el = '"'.str_replace(array(
+				$el = '"' . str_replace(array(
 						'"',
 					), array(
 						'\\"',
-					), $el).'"';
+					), $el) . '"';
 			}
 		}
-		$pgArray = '{'.implode(',', $data).'}';
+		$pgArray = '{' . implode(',', $data) . '}';
 		return $pgArray;
 	}
 

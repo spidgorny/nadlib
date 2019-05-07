@@ -4,7 +4,8 @@
  * Class DocCommentParser
  * Shamelessly stolen from TYPO3.Flow - don't tell anybody
  */
-class DocCommentParser {
+class DocCommentParser
+{
 
 	/**
 	 * The description as found in the doc comment
@@ -17,7 +18,8 @@ class DocCommentParser {
 	 */
 	protected $tags = array();
 
-	function __construct($text = NULL) {
+	function __construct($text = NULL)
+	{
 		$this->text = $text;
 	}
 
@@ -29,7 +31,8 @@ class DocCommentParser {
 	 * @param string $docComment A doc comment as returned by the reflection getDocComment() method
 	 * @return DocCommentParser
 	 */
-	public function parseDocComment($docComment = NULL) {
+	public function parseDocComment($docComment = NULL)
+	{
 		$docComment = $docComment ?: $this->text;
 		$this->description = '';
 		$this->tags = array();
@@ -56,7 +59,8 @@ class DocCommentParser {
 	 * @param string $line A line of a doc comment which starts with an @-sign
 	 * @return void
 	 */
-	protected function parseTag($line) {
+	protected function parseTag($line)
+	{
 		$tagAndValue = array();
 		if (preg_match('/@[A-Za-z0-9\\\\]+\\\\([A-Za-z0-9]+)(?:\\((.*)\\))?$/', $line, $tagAndValue) === 0) {
 			$tagAndValue = preg_split('/\s/', $line, 2);
@@ -77,7 +81,8 @@ class DocCommentParser {
 	 *
 	 * @return string The description which has been parsed
 	 */
-	public function getDescription() {
+	public function getDescription()
+	{
 		return $this->description;
 	}
 
@@ -89,11 +94,13 @@ class DocCommentParser {
 	 * @param string $tagName The tag name to retrieve the values for
 	 * @return array The tag's values
 	 */
-	public function getTagValues($tagName) {
+	public function getTagValues($tagName)
+	{
 		return ifsetor($this->tags[$tagName]);
 	}
 
-	public function getFirstTagValue($tagName) {
+	public function getFirstTagValue($tagName)
+	{
 		$values = $this->getTagValues($tagName);
 		return ifsetor($values[0]);
 	}

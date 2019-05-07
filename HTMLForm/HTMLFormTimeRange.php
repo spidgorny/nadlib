@@ -1,9 +1,10 @@
 <?php
 
-class HTMLFormTimeRange extends HTMLFormType {
+class HTMLFormTimeRange extends HTMLFormType
+{
 	public $div = '1';
 	public $min = 0;
-	public $max = 1440;		// 24*60
+	public $max = 1440;        // 24*60
 
 	/**
 	 * @var IndTime
@@ -19,9 +20,10 @@ class HTMLFormTimeRange extends HTMLFormType {
 
 	/**
 	 * @param string $field
-	 * @param array $value				- array of minutes
+	 * @param array $value - array of minutes
 	 */
-	function __construct($field, array $value) {
+	function __construct($field, array $value)
+	{
 //		parent::__construct();
 		$this->field = $field;
 		if (is_array($value) && sizeof($value) == 2) {
@@ -32,7 +34,7 @@ class HTMLFormTimeRange extends HTMLFormType {
 		// to load libs in the NON-AJAX page request
 		Index::getInstance()->addJQueryUI();
 		$al = AutoLoad::getInstance();
-		Index::getInstance()->addJS($al->nadlibFromDocRoot.'HTMLForm/HTMLFormTimeRange.js');
+		Index::getInstance()->addJS($al->nadlibFromDocRoot . 'HTMLForm/HTMLFormTimeRange.js');
 	}
 
 	/**
@@ -40,7 +42,8 @@ class HTMLFormTimeRange extends HTMLFormType {
 	 *
 	 * @param string $value - 10:00-13:30
 	 */
-	function setValue($value) {
+	function setValue($value)
+	{
 		if ($value) {
 			list($this->start, $this->end) = $this->parseRange($value);
 		}
@@ -51,25 +54,27 @@ class HTMLFormTimeRange extends HTMLFormType {
 	 * @return array[IndTime, IndTime]
 	 * @throws Exception
 	 */
-	static function parseRange($value) {
+	static function parseRange($value)
+	{
 		if (strlen($value) == 11) {
 			$parts = explode('-', $value);
 			if (sizeof($parts) == 2) {
 				$s = new IndTime($parts[0]);
 				$e = new IndTime($parts[1]);
 			} else {
-				throw new Exception('Unable to parse time range: '.$value);
+				throw new Exception('Unable to parse time range: ' . $value);
 			}
 		} else {
-			throw new Exception('Unable to parse time range: '.$value);
+			throw new Exception('Unable to parse time range: ' . $value);
 		}
 		return array($s, $e);
 	}
 
-	function render() {
+	function render()
+	{
 		assert($this->step);
 		$al = AutoLoad::getInstance();
-		$content = new View($al->nadlibRoot.'HTMLForm/HTMLFormTimeRange.phtml', $this);
+		$content = new View($al->nadlibRoot . 'HTMLForm/HTMLFormTimeRange.phtml', $this);
 		$fieldString = $this->form->getName($this->field, '', true);
 		$fieldString = str_replace('[', '\\[', $fieldString);
 		$fieldString = str_replace(']', '\\]', $fieldString);

@@ -4,7 +4,8 @@
  * Some places require a user object which does nothing if you're not logged-in
  */
 
-class NoUser extends UserBase {
+class NoUser extends UserBase
+{
 
 	/**
 	 * @var Preferences|MockPreferences
@@ -16,42 +17,51 @@ class NoUser extends UserBase {
 	 */
 	public $access;
 
-	function __construct() {
+	function __construct()
+	{
 		//parent::__construct(NULL);	// does nothing anyway
 	}
 
-	function can() {
+	function can()
+	{
 		return false;
 	}
 
-	function renderMessages() {
+	function renderMessages()
+	{
 		return '';
 	}
 
-	function getPref($key) {
+	function getPref($key)
+	{
 		return NULL;
 	}
 
-	function setPref($key, $val) {
+	function setPref($key, $val)
+	{
 		return NULL;
 	}
 
 	/**
 	 * @return null
 	 */
-	function getUnreadMessages() {
+	function getUnreadMessages()
+	{
 		return NULL;
 	}
 
-	function getAllSettings() {
+	function getAllSettings()
+	{
 		return [];
 	}
 
-	function getSelfAndBackupID() {
+	function getSelfAndBackupID()
+	{
 		return [$this->id];
 	}
 
-	function getAllSubordinates() {
+	function getAllSubordinates()
+	{
 		return [];
 	}
 

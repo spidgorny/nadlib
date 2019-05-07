@@ -6,11 +6,11 @@
  */
 Date.prototype.getWeek = function () {
 	// Create a copy of this date object
-	var target  = new Date(this.valueOf());
+	var target = new Date(this.valueOf());
 
 	// ISO week date weeks start on monday
 	// so correct the day number
-	var dayNr   = (this.getDay() + 6) % 7;
+	var dayNr = (this.getDay() + 6) % 7;
 
 	// Set the target to the thursday of this week so the
 	// target date is in the right year
@@ -18,7 +18,7 @@ Date.prototype.getWeek = function () {
 
 	// ISO 8601 states that week 1 is the week
 	// with january 4th in it
-	var jan4    = new Date(target.getFullYear(), 0, 4);
+	var jan4 = new Date(target.getFullYear(), 0, 4);
 
 	// Number of days between target date and january 4th
 	var dayDiff = (target - jan4) / 86400000;
@@ -30,12 +30,12 @@ Date.prototype.getWeek = function () {
 	return weekNr;
 };
 
-Date.prototype.nextWeek = function() {
+Date.prototype.nextWeek = function () {
 	var copy = new Date(this.getTime());
 	return new Date(copy.setDate(copy.getDate() + 7));
 };
 
-Date.prototype.beginningOfWeek = function() {
+Date.prototype.beginningOfWeek = function () {
 	var copy = new Date(this.getTime());
 	var monday = new Date(copy.setDate(copy.getDate() - copy.getDay() + 1))
 	monday.setHours(0);

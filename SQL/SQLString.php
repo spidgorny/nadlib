@@ -1,16 +1,19 @@
 <?php
 
-class SQLString extends SQLWherePart {
+class SQLString extends SQLWherePart
+{
 
 	protected $value;
 
-	function __construct($value) {
+	function __construct($value)
+	{
 		parent::__construct();
 		$this->value = $value;
 	}
 
-	function __toString() {
-		return $this->field ." = '".$this->qb->db->escape($this->value)."'";
+	function __toString()
+	{
+		return $this->field . " = '" . $this->qb->db->escape($this->value) . "'";
 	}
 
 }

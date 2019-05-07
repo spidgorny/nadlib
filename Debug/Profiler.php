@@ -13,29 +13,34 @@
  * sleep(1);
  * echo $p2->elapsed();
  */
-class Profiler {
+class Profiler
+{
 
 	var $startTime;
 
 	var $endTime;
 
-	function __construct($startTime = NULL) {
+	function __construct($startTime = NULL)
+	{
 		$this->startTime = $startTime ? $startTime : microtime(true);
 	}
 
-	function restart() {
+	function restart()
+	{
 		$this->startTime = microtime(true);
 		$this->endTime = NULL;
 	}
 
-	function stop() {
+	function stop()
+	{
 		$this->endTime = microtime(true);
 	}
 
 	/**
 	 * @return float
 	 */
-	function elapsed() {
+	function elapsed()
+	{
 		if (!$this->endTime) {
 			$this->stop();
 		}
@@ -43,18 +48,21 @@ class Profiler {
 		return number_format($out, 5, '.', '');
 	}
 
-	function elapsedCont() {
+	function elapsedCont()
+	{
 		$out = microtime(true) - $this->startTime;
 		return number_format($out, 5, '.', '');
 	}
 
-	function elapsedNext() {
+	function elapsedNext()
+	{
 		$since = $this->elapsed();
 		$this->restart();
 		return $since;
 	}
 
-	function Done($isReturn = FALSE) {
+	function Done($isReturn = FALSE)
+	{
 		$out = number_format($this->elapsed(), 3);
 		$content = "Done in $out seconds." . BR;
 		if ($isReturn) {
@@ -64,16 +72,19 @@ class Profiler {
 		}
 	}
 
-	function startTimer($method) {
+	function startTimer($method)
+	{
 		TaylorProfiler::start($method);
 	}
 
-	function stopTimer($method) {
+	function stopTimer($method)
+	{
 		TaylorProfiler::stop($method);
 	}
 
-	function __toString() {
-		return $this->elapsed().'';
+	function __toString()
+	{
+		return $this->elapsed() . '';
 	}
 
 }

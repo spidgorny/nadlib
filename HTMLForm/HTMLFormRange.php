@@ -1,10 +1,11 @@
 <?php
 
-class HTMLFormRange extends HTMLFormType {
+class HTMLFormRange extends HTMLFormType
+{
 
 	public $min = 0;
 
-	public $max = 1440;		// 24*60
+	public $max = 1440;        // 24*60
 
 	public $value;
 
@@ -21,7 +22,8 @@ class HTMLFormRange extends HTMLFormType {
 	 * @param string $field
 	 * @param integer $value
 	 */
-	function __construct($field, $value) {
+	function __construct($field, $value)
+	{
 //		parent::__construct();
 		$this->field = $field;
 		$this->setValue($value);
@@ -31,17 +33,19 @@ class HTMLFormRange extends HTMLFormType {
 	/**
 	 * @param int $value
 	 */
-	function setValue($value) {
+	function setValue($value)
+	{
 		$this->value = $value;
 	}
 
-	function render() {
+	function render()
+	{
 		$index = Index::getInstance();
 		$index->addJQuery();
 		$index->addJS($this->jsFile
-			?: $this->al->nadlibFromDocRoot.'HTMLForm/HTMLFormRange.js');
+			?: $this->al->nadlibFromDocRoot . 'HTMLForm/HTMLFormRange.js');
 
-		$content = new View($this->al->nadlibRoot.'HTMLForm/HTMLFormRange.phtml', $this);
+		$content = new View($this->al->nadlibRoot . 'HTMLForm/HTMLFormRange.phtml', $this);
 		$fieldString = $this->form->getName($this->field, '', true);
 		$fieldString = str_replace('[', '\\[', $fieldString);
 		$fieldString = str_replace(']', '\\]', $fieldString);

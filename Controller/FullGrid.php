@@ -1,6 +1,7 @@
 <?php
 
-abstract class FullGrid extends Grid {
+abstract class FullGrid extends Grid
+{
 
 	/**
 	 * @var FilterController
@@ -10,14 +11,15 @@ abstract class FullGrid extends Grid {
 	/**
 	 * @param string $collection
 	 */
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 		if ($allowEdit /*&& $collection*/) {
-			$this->saveFilterAndSort(/*$collection ?: */get_class($this));
+			$this->saveFilterAndSort(/*$collection ?: */ get_class($this));
 		}
 
 		if (!($this->filter instanceof Filter)) {
@@ -29,7 +31,8 @@ abstract class FullGrid extends Grid {
 		$this->filterController->setFilter($this->filter);
 	}
 
-	function postInit($collection = NULL) {
+	function postInit($collection = NULL)
+	{
 		if (!$this->collection) {
 			if (is_string($collection)) {
 				$this->log(__METHOD__ . ' new collection', $collection);
@@ -59,7 +62,8 @@ abstract class FullGrid extends Grid {
 	 * Can't use $this->collection at this point as this function is used to initialize the collection!
 	 * @return string
 	 */
-	function getOrderBy() {
+	function getOrderBy()
+	{
 		$ret = '';
 		$sortBy = $this->sort['sortBy'];
 		if ($this->model &&
@@ -83,19 +87,21 @@ abstract class FullGrid extends Grid {
 		}
 		$sortBy = $sortBy ? $sortBy : ifsetor($this->model->idField);
 		if ($sortBy) {
-			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.
+			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' .
 				(ifsetor($this->sort['sortOrder']) ? 'DESC' : 'ASC');
 		}
 		return $ret;
 	}
 
-	function render() {
+	function render()
+	{
 		$this->setVisibleColumns();
 		//$this->collection->pageSize = $this->pageSize;
 		return parent::render();
 	}
 
-	function setVisibleColumns() {
+	function setVisibleColumns()
+	{
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
 				if (!$this->columns->isVisible($cn)) {
@@ -112,13 +118,15 @@ abstract class FullGrid extends Grid {
 			$this->getFilterDesc());
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content[] = $this->getFilterForm();
 		$content[] = $this->getColumnsForm();
 		return $content;
 	}
 
-	function getFilterForm(array $fields = []) {
+	function getFilterForm(array $fields = [])
+	{
 		if (method_exists($this, 'getFilterDesc')) {
 			$this->filterController->desc = $this->getFilterDesc();
 		} else {
@@ -134,19 +142,21 @@ abstract class FullGrid extends Grid {
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
-	 * @throws Exception
 	 * @return array
+	 * @throws Exception
 	 */
-	function getFilterDesc(array $fields = NULL) {
+	function getFilterDesc(array $fields = NULL)
+	{
 		return $this->filterController->getFilterDesc($fields);
 	}
 
-	function getColumnsForm() {
+	function getColumnsForm()
+	{
 //		debug($this->getGridColumns());
 //		debug($this->columns->getData());
 		$desc = array(
 			'columns' => array(
-				'label' => '<h2>'.__('Visible').'</h2>',
+				'label' => '<h2>' . __('Visible') . '</h2>',
 				'type' => 'keyset',
 				'options' => $this->getGridColumns(),
 				'value' => $this->columns->getData(),
@@ -166,7 +176,8 @@ abstract class FullGrid extends Grid {
 		return $f;
 	}
 
-	function injectCollection() {
+	function injectCollection()
+	{
 		parent::injectCollection();
 		debug($this->collection->where,
 			$this->getFilterWhere());

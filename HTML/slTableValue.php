@@ -1,6 +1,7 @@
 <?php
 
-class slTableValue {
+class slTableValue
+{
 
 	/**
 	 * @var mixed
@@ -10,8 +11,7 @@ class slTableValue {
 	/**
 	 * @var array
 	 */
-	var $desc = array(
-//		'hsc' => TRUE,
+	var $desc = array(//		'hsc' => TRUE,
 	);
 
 	/**
@@ -29,7 +29,8 @@ class slTableValue {
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
 	public $SLTABLE_IMG_CROSS = '☐';
 
-	function __construct($value, array $desc = array()) {
+	function __construct($value, array $desc = array())
+	{
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
 			//debugster(array($value, $value->desc, '+', $desc, '=', (array)$value->desc + $desc));
@@ -42,29 +43,32 @@ class slTableValue {
 		}
 	}
 
-/*	function render() {
-		$value = $this->value;
-		if (is_array($value)) {
-			$value = t3lib_utility_Debug::viewArray($value);
-		} else {
-			if ($this->desc['hsc']) {
-				$value = htmlspecialchars($value);
+	/*	function render() {
+			$value = $this->value;
+			if (is_array($value)) {
+				$value = t3lib_utility_Debug::viewArray($value);
+			} else {
+				if ($this->desc['hsc']) {
+					$value = htmlspecialchars($value);
+				}
 			}
+			return $value.' ('.$this->desc['type'].')';
 		}
-		return $value.' ('.$this->desc['type'].')';
-	}
-*/
+	*/
 
-	function render($col = NULL, array $row = array()) {
+	function render($col = NULL, array $row = array())
+	{
 		$content = $this->getCell($col, $this->value, $this->desc, $row);
 		return $content;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->render();
 	}
 
-	function getCell($col, $val, array $k, array $row) {
+	function getCell($col, $val, array $k, array $row)
+	{
 		$out = '';
 		$type = isset($k['type']) ? $k['type'] : NULL;
 		if (is_object($type)) {
@@ -83,11 +87,11 @@ class slTableValue {
 							$list = trimExplode(',', $val);
 							$out = array();
 							foreach ($list as $val) {
-								$out[] = $this->db->sqlFind($what, $k['from'], $id." = '".$val."'", FALSE);
+								$out[] = $this->db->sqlFind($what, $k['from'], $id . " = '" . $val . "'", FALSE);
 							}
 							$out = implode(', ', $out);
 						} else if ($k['from']) {
-							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'].'.*, '.$what);
+							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'] . '.*, ' . $what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
 							$whatAs = $whatAs[1] ? $whatAs[1] : $what;
@@ -143,7 +147,7 @@ class slTableValue {
 			case "sqldate":
 				if ($val) {
 					$val = new Date($val);
-					$out = $val->format(ifsetor($k['format'], 'Y-m-d'));	// hours will not work
+					$out = $val->format(ifsetor($k['format'], 'Y-m-d'));    // hours will not work
 				} else {
 					$out = '';
 				}
@@ -160,7 +164,7 @@ class slTableValue {
 
 			case "file":
 				$out = new HTMLTag('a', array(
-					'href' => $GLOBALS['uploadURL'].$val,
+					'href' => $GLOBALS['uploadURL'] . $val,
 				), $val);
 				break;
 
@@ -173,7 +177,7 @@ class slTableValue {
 
 			case "delete":
 				$out = new HTMLTag('a', array(
-					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=".$row['id'],
+					'href' => "?perform[do]=delete&perform[table]={$this->ID}&perform[id]=" . $row['id'],
 				), "Del");
 				break;
 
@@ -187,13 +191,13 @@ class slTableValue {
 				break;
 
 			case 'link':
-				$out = '<a href="'.$val.'" target="'.$k['target'].'">'.($k['text'] ? $k['text'] : $val).'</a>';
+				$out = '<a href="' . $val . '" target="' . $k['target'] . '">' . ($k['text'] ? $k['text'] : $val) . '</a>';
 				break;
 
 			case 'image':
 				$out = new HTMLTag('img', [
-					'src' => $k['prefix'].$val,
-				] + $k['more']);
+						'src' => $k['prefix'] . $val,
+					] + $k['more']);
 				break;
 
 			case "checkbox":
@@ -205,9 +209,9 @@ class slTableValue {
 				} else {
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
-				if (ifsetor($row[$col.'.link'])) {
+				if (ifsetor($row[$col . '.link'])) {
 					$out = new HTMLTag('a', array(
-						'href' => $row[$col.'.link'],
+						'href' => $row[$col . '.link'],
 					), $img, $k['no_hsc']);
 				} else {
 					$out = $img;
@@ -231,21 +235,21 @@ class slTableValue {
 
 			case 'check':
 				$out = '<div style="text-align: center;">
-					<input class="check" type="checkbox" disabled="" '.($val ? 'checked' : '').' />
+					<input class="check" type="checkbox" disabled="" ' . ($val ? 'checked' : '') . ' />
 				</div>';
 				break;
 
 			case "percent":
-				$out = number_format($val*100, 2, '.', '').'&nbsp;%';
+				$out = number_format($val * 100, 2, '.', '') . '&nbsp;%';
 				break;
 
 			case "bar":
 				if (!is_null($val)) {
 					$pb = new ProgressBar();
 					if (isset($k['css'])) {
-						$out = $pb->getImage($val*100, $k['css']);
+						$out = $pb->getImage($val * 100, $k['css']);
 					} else {
-						$out = $pb->getImage($val*100);
+						$out = $pb->getImage($val * 100);
 					}
 				}
 				break;
@@ -285,7 +289,7 @@ class slTableValue {
 
 			case "singleLink":
 				$out = new HTMLTag('a', array(
-					'href' => new URL($k['link'].$row[$k['idField']]),
+					'href' => new URL($k['link'] . $row[$k['idField']]),
 				), $val ?: $k['text']);
 				break;
 
@@ -317,19 +321,19 @@ class slTableValue {
 						$val = trimExplode($k['explode'], $val);
 					}
 					if (isset($k['nl2br']) && $k['nl2br']) {
-						$val = nl2br(htmlspecialchars($val));	// escape it (!)
-						$k['no_hsc'] = true; 	// for below
+						$val = nl2br(htmlspecialchars($val));    // escape it (!)
+						$k['no_hsc'] = true;    // for below
 					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
 					} else if ($val instanceof htmlString) {
-						$out = $val.'';
+						$out = $val . '';
 					} else if ($val instanceof HTMLTag) {
-						$out = $val.'';
+						$out = $val . '';
 					} else if ($val instanceof HTMLDate) {
-						$out = $val.'';
+						$out = $val . '';
 					} else if ($val instanceof HTMLForm) {
-						$out = $val->getContent().'';   // to avoid calling getName()
+						$out = $val->getContent() . '';   // to avoid calling getName()
 					} elseif (is_object($val)) {
 						if (ifsetor($k['call'])) {
 							$out = $val->$k['call']();
@@ -338,7 +342,7 @@ class slTableValue {
 						} elseif (method_exists($val, '__toString')) {
 							$out = $val->__toString();
 						} else {
-							$out = '['.get_class($val).']';
+							$out = '[' . get_class($val) . ']';
 						}
 					} elseif (is_array($val)) {
 						if (is_assoc($val)) {
@@ -346,7 +350,7 @@ class slTableValue {
 								? JSON_PRETTY_PRINT
 								: NULL);
 						} else {
-							$out = '['.implode(', ', $val).']';
+							$out = '[' . implode(', ', $val) . ']';
 						}
 						$out = htmlspecialchars($out);
 					} elseif ($out == '' && ifsetor($k['default'])) {
@@ -355,7 +359,7 @@ class slTableValue {
 						$out = htmlspecialchars($val);
 					}
 				}
-			break;
+				break;
 		}
 		if (isset($k['wrap']) && $k['wrap']) {
 			$wrap = $k['wrap'] instanceof Wrap ? $k['wrap'] : new Wrap($k['wrap']);
@@ -364,15 +368,15 @@ class slTableValue {
 		if (isset($k['link']) && $k['link']) {
 			$link = $k['link'];
 			foreach ($row as $key => $rowVal) {
-				$link = str_replace('###'.strtoupper($key).'###', $rowVal, $link);
-				$link = str_replace('{{'.strtolower($key).'}}', $rowVal, $link);
-				$link = str_replace('%7B%7B'.strtolower($key).'%7D%7D', $rowVal, $link);
+				$link = str_replace('###' . strtoupper($key) . '###', $rowVal, $link);
+				$link = str_replace('{{' . strtolower($key) . '}}', $rowVal, $link);
+				$link = str_replace('%7B%7B' . strtolower($key) . '%7D%7D', $rowVal, $link);
 			}
 			if (isset($k['value'])) {
 				$link = str_replace('###VALUE###', $val ?: $k['value'], $link);
 			}
 			$link = str_replace('###ID###', $out, $link);
-			$out = '<a href="'.$link.'">'.$out.'</a>';
+			$out = '<a href="' . $link . '">' . $out . '</a>';
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');
@@ -380,15 +384,16 @@ class slTableValue {
 		return $out;
 	}
 
-	static function getHours($timestamp) {
+	static function getHours($timestamp)
+	{
 		if ($timestamp) {
 			//return gmdate('H:i', $timestamp);
-			$whole = floor($timestamp/(60*60));
+			$whole = floor($timestamp / (60 * 60));
 			$whole = str_pad($whole, 2, '0', STR_PAD_LEFT);
 
-			$rest = ($timestamp/60)%60;
+			$rest = ($timestamp / 60) % 60;
 			$rest = str_pad($rest, 2, '0', STR_PAD_LEFT);
-			return $whole.':'.$rest;
+			return $whole . ':' . $rest;
 		}
 		return NULL;
 	}

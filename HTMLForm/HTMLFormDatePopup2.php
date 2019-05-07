@@ -1,6 +1,7 @@
 <?php
 
-class HTMLFormDatePopup2 {
+class HTMLFormDatePopup2
+{
 	/**
 	 * @var $form HTMLForm
 	 */
@@ -13,7 +14,8 @@ class HTMLFormDatePopup2 {
 
 	function __construct(HTMLForm $form, $name, $value, array $desc = array(
 		'phpFormat' => 'Y-m-d',
-	)) {
+	))
+	{
 		$this->form = $form;
 		$this->name = $name;
 		if ($value instanceof Time) {
@@ -26,7 +28,8 @@ class HTMLFormDatePopup2 {
 		$this->id = uniqid();
 	}
 
-	function render() {
+	function render()
+	{
 		$fullname = $this->form->getName($this->name, '', TRUE);
 		$printValue = $this->value
 			? date($this->desc['phpFormat'], $this->value)
@@ -37,27 +40,28 @@ class HTMLFormDatePopup2 {
 			<script type="text/javascript" src="lib/JSCal2-1.7/src/js/jscal2.js"></script>
 			<script type="text/javascript" src="lib/JSCal2-1.7/src/js/lang/en.js"></script>';
 		$content = '
-			<input type="text" name="'.$fullname.'" id="id_field_'.$this->id.'" value="'.$printValue.'" class="datepopup2"/>
-			<button type="button" id="id_button_'.$this->id.'">...</button>
+			<input type="text" name="' . $fullname . '" id="id_field_' . $this->id . '" value="' . $printValue . '" class="datepopup2"/>
+			<button type="button" id="id_button_' . $this->id . '">...</button>
 			<script type="text/javascript">
 			    Calendar.setup({
-			        inputField:		"id_field_'.$this->id.'",		// id of the input field
-			        trigger:		"id_button_'.$this->id.'",   	// trigger for the calendar (button ID)
+			        inputField:		"id_field_' . $this->id . '",		// id of the input field
+			        trigger:		"id_button_' . $this->id . '",   	// trigger for the calendar (button ID)
 					weekNumbers:	true,
 					onSelect:		function() { this.hide() },
 					//min: 			Calendar.dateToInt(new Date),
-					//date:			Calendar.dateToInt(new Date('.$this->value.'*1000)),
-					date:			'.($this->value ? date('Ymd', $this->value) : date('Ymd')).',
-					selection:		Calendar.dateToInt(new Date('.intval($this->value).'*1000)),
-					align:			"Bc/Bc/Bc/Bc/Bc"'.
-					$this->desc['plusConfig'].'
+					//date:			Calendar.dateToInt(new Date(' . $this->value . '*1000)),
+					date:			' . ($this->value ? date('Ymd', $this->value) : date('Ymd')) . ',
+					selection:		Calendar.dateToInt(new Date(' . intval($this->value) . '*1000)),
+					align:			"Bc/Bc/Bc/Bc/Bc"' .
+			$this->desc['plusConfig'] . '
 			    });
 			</script>';
 		return $content;
 	}
 
-	function __toString() {
-		return $this->render().'';
+	function __toString()
+	{
+		return $this->render() . '';
 	}
 
 }

@@ -1,6 +1,7 @@
 <?php
 
-class BaseFactory {
+class BaseFactory
+{
 
 	static $instances = array();
 
@@ -8,7 +9,8 @@ class BaseFactory {
 //		throw new InvalidArgumentException('Please implement '.get_class($this).'->__invoke()');
 //	}
 
-	static function getInstance() {
+	static function getInstance()
+	{
 		$class = get_called_class();
 		if (!ifsetor(self::$instances[$class])) {
 			self::$instances[$class] = new $class();

@@ -1,6 +1,7 @@
 <?php
 
-class IndexBE extends IndexBase {
+class IndexBE extends IndexBase
+{
 
 	static $isBE = true;
 
@@ -22,7 +23,8 @@ class IndexBE extends IndexBase {
 
 	protected $nadlibFromCWD;
 
-	function __construct() {
+	function __construct()
+	{
 		//debug_pre_print_backtrace();
 		if (!class_exists('Config')) {
 			require_once 'class.ConfigBE.php';
@@ -45,7 +47,7 @@ class IndexBE extends IndexBase {
 		//$this->config->appRoot = str_replace('/nadlib/be', '', $this->config->appRoot);
 
 		$this->al = AutoLoad::getInstance();
-		$this->nadlibFromDocRoot = $this->al->nadlibFromDocRoot.'../';
+		$this->nadlibFromDocRoot = $this->al->nadlibFromDocRoot . '../';
 		$this->al->nadlibFromDocRoot = $this->nadlibFromDocRoot;
 		$this->nadlibFromCWD = $this->al->nadlibFromCWD;
 
@@ -53,13 +55,13 @@ class IndexBE extends IndexBase {
 		$componentsURL = $this->al->componentsPath->getURL();
 		$componentsURL = 'components/';
 		//debug($this->al->componentsPath, $this->al->appRoot, $componentsURL);
-		$this->header['modernizr.js'] = '<script src="'. $componentsURL .'modernizr/modernizr.js"></script>';  // Must be header and not footer
-		$this->addCSS($componentsURL .'bootstrap/css/bootstrap.min.css');
-		$this->addCSS($this->nadlibFromDocRoot.'be/css/main.css');
+		$this->header['modernizr.js'] = '<script src="' . $componentsURL . 'modernizr/modernizr.js"></script>';  // Must be header and not footer
+		$this->addCSS($componentsURL . 'bootstrap/css/bootstrap.min.css');
+		$this->addCSS($this->nadlibFromDocRoot . 'be/css/main.css');
 		$this->addCSS($this->nadlibFromDocRoot . 'CSS/TaylorProfiler.less');
 		$this->addJQuery();
-		$this->addJS($componentsURL .'bootstrap/js/bootstrap.js');
-		$this->addJS($this->nadlibFromDocRoot.'js/addTiming.js');
+		$this->addJS($componentsURL . 'bootstrap/js/bootstrap.js');
+		$this->addJS($this->nadlibFromDocRoot . 'js/addTiming.js');
 
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
@@ -110,7 +112,7 @@ class IndexBE extends IndexBase {
 		$this->menu->recursive = false;
 		$this->menu->renderOnlyCurrent = true;
 		$this->menu->useControllerSlug = false;
-		$this->menu->setBasePath();	// because 1und1 rewrite is not enabled
+		$this->menu->setBasePath();    // because 1und1 rewrite is not enabled
 		//debug($this->menu->basePath);
 		$docRoot = $this->request->getDocumentRoot();
 		$docRoot = new Path($docRoot);
@@ -123,7 +125,8 @@ class IndexBE extends IndexBase {
 		$this->menu->basePath->setPath($docRoot);
 	}
 
-	function loadBEmenu(array $menu) {
+	function loadBEmenu(array $menu)
+	{
 		if (class_exists('Spyc')) {
 			if (file_exists('class/config.yaml')) {
 				$c = Spyc::YAMLLoad('../../../../class/config.yaml');
@@ -144,21 +147,22 @@ class IndexBE extends IndexBase {
 		return $menu;
 	}
 
-	function renderController() {
+	function renderController()
+	{
 		$c = get_class($this->controller);
 		/** @var $c Controller */
 		//$public = $c::$public;	// Parse error:  syntax error, unexpected T_PAAMAYIM_NEKUDOTAYIM
 		$vars = get_class_vars($c);
 		$public = $vars['public'];
 		if ($public || $this->user->isAuth()) {
-			$this->controller->user = $this->user;	// BEUser instead of grUser
+			$this->controller->user = $this->user;    // BEUser instead of grUser
 			$content = parent::renderController();
 		} else {
 			$this->error('Accessing this page requires a valid login');
 			$loginForm = new LoginForm();
 			$loginForm->withRegister = false;
 			$content = $loginForm->layout->wrap(
-				$this->content.
+				$this->content .
 				$loginForm->render()
 			);
 			$this->content->clear();
@@ -169,7 +173,8 @@ class IndexBE extends IndexBase {
 		return $content;
 	}
 
-	function renderTemplate($content) {
+	function renderTemplate($content)
+	{
 		$v = new View($this->template, $this);
 		$v->content = $this->content . $content;
 		$v->title = $this->controller
@@ -177,16 +182,17 @@ class IndexBE extends IndexBase {
 			: NULL;
 		$v->sidebar = $this->showSidebar();
 		$v->version = @file_get_contents('VERSION');
-		$lf = new LoginForm('inlineForm');	// too specific - in subclass
+		$lf = new LoginForm('inlineForm');    // too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
 		// is the root of the project
 		$v->baseHref = $this->request->getLocation();
 		//$v->baseHref = str_replace('/vendor/spidgorny/nadlib/be', '', $v->baseHref);	// for CSS
-		$content = $v->render();	// not concatenate but replace
+		$content = $v->render();    // not concatenate but replace
 		return $content;
 	}
 
-	function showSidebar() {
+	function showSidebar()
+	{
 		$m = new Menu($this->menu->items->getData(), 1);
 		$m->recursive = false;
 		$m->renderOnlyCurrent = true;
@@ -199,7 +205,7 @@ class IndexBE extends IndexBase {
 		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
 		//$m->basePath->setPath($docRoot.$this->nadlibFromDocRoot.'be/');
 		//debug($m);
-		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
+		return '<div class="_well" style="padding: 0;">' . $m . '</div>' .
 			parent::showSidebar();
 	}
 

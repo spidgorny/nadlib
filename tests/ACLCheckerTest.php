@@ -9,9 +9,11 @@
 namespace tests;
 
 
-class ACLCheckerTest extends \PHPUnit_Framework_TestCase {
+class ACLCheckerTest extends \PHPUnit_Framework_TestCase
+{
 
-	function test_compareACL() {
+	function test_compareACL()
+	{
 		$controller = new \AppController();
 		$controller->user = NULL;
 		$ac = new \ACLChecker($controller);
@@ -21,7 +23,8 @@ class ACLCheckerTest extends \PHPUnit_Framework_TestCase {
 		debug(gettype2($controller->user), $okNothing, $okNull, $okUser);
 	}
 
-	function test_compareACLUser() {
+	function test_compareACLUser()
+	{
 		$controller = new \AppController();
 		$controller->user = new \NOEUser();
 		$controller->user->id = 1;

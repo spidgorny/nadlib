@@ -1,6 +1,7 @@
 <?php
 
-interface UserWithPreferences {
+interface UserWithPreferences
+{
 
 	function getPref($key);
 
