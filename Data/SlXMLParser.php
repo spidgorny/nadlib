@@ -5,8 +5,7 @@
  * BugLog XML parser. Made before SimpleXML existed.
  * @deprecated
  */
-
-class slXMLParser
+class SlXMLParser
 {
 	var $parsed;
 
