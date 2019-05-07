@@ -6,9 +6,9 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param ...$a mixed
+	 * @param mixed ..$a
 	 */
-	function debug($a)
+	function debug(...$a)
 	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists('Debug')) {
@@ -33,7 +33,7 @@ if (!function_exists('debug')) {
 		die(__FUNCTION__ . '#' . __LINE__);
 	}
 
-	function d($a)
+	function d(...$a)
 	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (DEVELOPMENT) {
@@ -49,9 +49,9 @@ if (!function_exists('debug')) {
 	}
 
 	/**
-	 * @param ...$a
+	 * @param mixed|bool|string ..$a
 	 */
-	function nodebug($a)
+	function nodebug(...$a)
 	{
 	}
 
@@ -200,6 +200,11 @@ if (!function_exists('debug')) {
 		return implode(' | ', $levels);
 	}
 
+	/**
+	 * @param mixed|object $something
+	 * @param bool $withHash
+	 * @return htmlString
+	 */
 	function gettype2($something, $withHash = true)
 	{
 		$type = gettype($something);
