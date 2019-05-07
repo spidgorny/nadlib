@@ -157,10 +157,14 @@ class dbLayer extends dbLayerBase implements DBInterface
 		}
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
-			//debug($query);
-			$e = new DatabaseException(pg_errormessage($this->connection) . BR . $query);
-			$e->setQuery($query);
-			throw $e;
+			$pg_errormessage = pg_errormessage($this->connection);
+			debug($query, $this->connection, $pg_errormessage);
+			exit;
+			if ($pg_errormessage) {
+				$e = new DatabaseException($pg_errormessage . BR . $query);
+				$e->setQuery($query);
+				throw $e;
+			}
 		} else {
 			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
 			if ($this->queryLog) {
@@ -516,6 +520,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
+//		die(__METHOD__);
 		$row = pg_fetch_assoc($res);
 		/*      // problem in OODBase
 		 * 		if (!$row) {

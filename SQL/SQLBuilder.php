@@ -201,8 +201,9 @@ class SQLBuilder
 	 * @param array $where
 	 * @return string
 	 */
-	function getUpdateQuery($table, $columns, $where)
+	function getUpdateQuery($table, array $columns, array $where)
 	{
+//		debug($table);
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$table = $this->quoteKey($table);
 		$q = "UPDATE $table\nSET ";
@@ -487,7 +488,7 @@ class SQLBuilder
 	 * @param string $order
 	 * @param string $addFields
 	 * @param string $idField - will return data as assoc indexed by this column
-	 * @return array <type>
+	 * @return array
 	 */
 	function fetchSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = NULL)
 	{

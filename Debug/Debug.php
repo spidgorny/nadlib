@@ -107,10 +107,6 @@ class Debug
 			&& !headers_sent()
 			&& ifsetor($_COOKIE['debug']);
 
-		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
-		if (!class_exists('FirePHP') && file_exists($require)) {
-			require_once $require;
-		}
 		$can = $can && class_exists('FirePHP');
 
 		if ($can) {

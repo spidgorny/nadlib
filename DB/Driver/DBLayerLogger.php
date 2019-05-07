@@ -26,7 +26,7 @@ class DBLayerLogger extends dbLayerBase implements DBInterface
 		}
 	}
 
-	function perform($query)
+	function perform($query, array $params = [])
 	{
 		$this->log($query);
 		return '';
