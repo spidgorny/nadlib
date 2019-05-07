@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @property  table
- * @property  thead
- * @property  tbody
- * @property  tfoot
+ * @property array table
+ * @property array thead
+ * @property array tbody
+ * @property array tfoot
  */
 class HTMLTableBuf extends MergedContent
 {

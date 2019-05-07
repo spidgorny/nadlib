@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Interface DBInterface
+ * @mixin SQLBuilder
+ * @method fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL)
+ * @method runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
+ * @method runUpdateInsert($table, $set, $where)
+ */
 interface DBInterface
 {
 
@@ -47,5 +54,7 @@ interface DBInterface
 	function escape($string);
 
 	function fetchAll($res_or_query, $index_by_key = NULL);
+
+	function getLastQuery();
 
 }

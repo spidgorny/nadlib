@@ -220,7 +220,7 @@ abstract class OODBase
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$res = $this->db->perform($query);
-		$this->lastQuery = $this->db->lastQuery;    // save before commit
+		$this->lastQuery = $this->db->getLastQuery();    // save before commit
 
 		// this needs to be checked first,
 		// because SQLite will give some kind of ID
@@ -237,7 +237,7 @@ abstract class OODBase
 		if ($id) {
 			$this->init($id ? $id : $this->id);
 		} else {
-			//debug($this->lastQuery, $this->db->lastQuery);
+			//debug($this->lastQuery, $this->db->getLastQuery());
 			throw new DatabaseException('OODBase for ' . $this->table . ' no insert id after insert');
 		}
 		TaylorProfiler::stop(__METHOD__);
@@ -275,8 +275,8 @@ abstract class OODBase
 			//debug($query); exit;
 			$this->lastQuery = $query;
 			$res = $this->db->perform($query);
-			//debug($query, $res, $this->db->lastQuery, $this->id);
-			$this->lastQuery = $this->db->lastQuery;    // save before commit
+			//debug($query, $res, $this->db->getLastQuery(), $this->id);
+			$this->lastQuery = $this->db->getLastQuery();    // save before commit
 			// If the input arrays have the same string keys,
 			// then the later value for that key will overwrite the previous one.
 			//$this->data = array_merge($this->data, $data);
@@ -328,8 +328,8 @@ abstract class OODBase
 		//debug(get_class($this->db));
 		$rows = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
-		//debug($this->where + $where, $this->db->lastQuery);
-		$this->lastSelectQuery = $this->db->lastQuery;
+		//debug($this->where + $where, $this->db->getLastQuery());
+		$this->lastSelectQuery = $this->db->getLastQuery();
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($rows)) {
 			$data = $rows;
@@ -413,7 +413,7 @@ abstract class OODBase
 			$ret = $this->insert($this->data);
 			$action = 'INS';
 		}
-		//debug($action, $this->db->lastQuery); exit();
+		//debug($action, $this->db->getLastQuery()); exit();
 		return $action;
 	}
 
@@ -456,9 +456,9 @@ abstract class OODBase
 				$op = 'INSERT ' . $this->id;
 			} else {
 				debug($this->lastQuery);
-				$op = $this->db->lastQuery;    // for debug
+				$op = $this->db->getLastQuery();    // for debug
 			}
-			//debug($this->id, $this->data, $op, $this->db->lastQuery);
+			//debug($this->id, $this->data, $op, $this->db->getLastQuery());
 		}
 		$this->db->commit();
 		TaylorProfiler::stop(__METHOD__);

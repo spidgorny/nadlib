@@ -4,7 +4,7 @@
  * Class dbLayerBase
  * @mixin SQLBuilder
  */
-class dbLayerBase implements DBInterface
+abstract class dbLayerBase implements DBInterface
 {
 
 	/**
@@ -267,6 +267,11 @@ class dbLayerBase implements DBInterface
 			$c[] = $this->quoteKey($b);
 		}
 		return $c;
+	}
+
+	public function getLastQuery()
+	{
+		return $this->lastQuery;
 	}
 
 }
