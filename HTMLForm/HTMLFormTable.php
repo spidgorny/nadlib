@@ -263,7 +263,7 @@ class HTMLFormTable extends HTMLForm
 				: $sType;
 			//pre_print_r([$sType, is_array($fieldDesc)]);
 			if ($sType == 'HTMLFormTable') {
-				/** @var $subForm HTMLFormTable */
+				/** @var HTMLFormTable $subForm */
 				$subForm = $fieldDesc;
 				$subForm->showForm();
 				$this->stdout .= '<tr><td colspan="2">' .

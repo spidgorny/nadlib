@@ -62,7 +62,7 @@ class AlterIndex extends AppControllerBE
 		$li = array();
 		$files = new ListFilesIn($this->config->appRoot . '/sql/');
 		foreach ($files as $file) {
-			/** @var $file SplFileInfo */
+			/** @var SplFileInfo $file */
 			if ($file->getExtension() == 'json') {
 				$li[] = $this->a(new URL(NULL, array(
 						'c' => get_class($this),

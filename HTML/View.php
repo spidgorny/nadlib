@@ -430,7 +430,7 @@ class View extends stdClass
 	/*		$ReflectionMethod =  new \ReflectionMethod(__CLASS__, __FUNCTION__);
 			$params = $ReflectionMethod->getParameters();
 			$paramNames = array_map(function( $item ) {
-				/** @var $item ReflectionParameter */
+				/** @var ReflectionParameter $item */
 	/*			return $item->getName();
 			}, $params);*/
 	/*

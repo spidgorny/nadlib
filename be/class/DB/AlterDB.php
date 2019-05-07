@@ -130,7 +130,7 @@ class AlterDB extends AppControllerBE
 		if (!is_dir($sqlFolder)) {
 			return '<div class="error">No ' . $sqlFolder . '</div>';
 		}
-		/** @var $file SplFileInfo */
+		/** @var SplFileInfo $file */
 		foreach (new RecursiveDirectoryIterator($sqlFolder) as $file) {
 			//debug($file);
 			if ($file->getFilename() != '.' && $file->getFilename() != '..') {

@@ -141,7 +141,7 @@ class MiniIndex extends AppController
 	function renderProfiler()
 	{
 		$profiler = $GLOBALS['profiler'];
-		/** @var $profiler TaylorProfiler */
+		/** @var TaylorProfiler $profiler */
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);

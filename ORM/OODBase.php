@@ -677,7 +677,7 @@ abstract class OODBase
 
 		if (!$c) {
 			$c = new $self();
-			/** @var $c OODBase */
+			/** @var OODBase $c */
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
 				$c->findInDBsetInstance(array(

@@ -155,7 +155,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			$index = Index::getInstance();
 			$this->form->stdout .= $index->s($type->render());
 		} elseif ($type instanceof HTMLFormCollection) {
-			/** @var $type HTMLFormCollection */
+			/** @var HTMLFormCollection $type */
 			$type->setField($fieldName);
 			$type->setForm($this->form);
 			$type->setValue($desc['value']);

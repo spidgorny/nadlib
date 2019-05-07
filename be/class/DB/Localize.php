@@ -154,7 +154,7 @@ class Localize extends AppControllerBE
 				*/);
 			foreach ($this->languages as $lang) {
 				$lobj = $this->$lang;
-				/** @var $lobj LocalLangDB */
+				/** @var LocalLangDB $lobj */
 				$dbID = $lobj->id($key);
 
 				$row = $this->db->fetchOneSelectQuery($this->table, array('id' => $dbID));

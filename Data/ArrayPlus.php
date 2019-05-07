@@ -337,7 +337,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	function findAlternativeFromMenu($current)
 	{
 		foreach ($this->items as $key => $rec) {
-			/** @var $rec Recursive */
+			/** @var Recursive $rec */
 			//$found = $rec->findPath($this->current);
 			if ($rec instanceof Recursive) {
 				$children = $rec->getChildren();

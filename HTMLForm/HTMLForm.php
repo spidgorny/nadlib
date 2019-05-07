@@ -254,6 +254,17 @@ class HTMLForm
 		$this->stdout .= $box;
 	}
 
+	function checkbox($name, $value = 1, $label = '', $checked = false, $more = "", $autoSubmit = false)
+	{
+		$desc = [];
+		$desc['more'] = $more;
+		$desc['autoSubmit'] = $autoSubmit;
+		$desc['value'] = $value;
+		$box = new HTMLFormCheckbox($name, $checked, $desc);
+		$box->form = $this;    // for prefix to work
+		$this->stdout .= $box;
+	}
+
 	function checkLabel($name, $value = 1, $checked = false, $more = "", $autoSubmit = false, $label = '')
 	{
 		$this->stdout .= '<label>';

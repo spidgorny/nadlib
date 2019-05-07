@@ -26,7 +26,7 @@ class TYPO3PageCollection extends Collection
 			$ret = $this->members[$ret[$this->idField]];    // get existing object
 		} else {
 			foreach ($this->members as $page) {
-				/** @var $page TYPO3Page */
+				/** @var TYPO3Page $page */
 				$ret = $page->findDeepChild($match);
 				if ($ret) {
 					//debug('found inside');

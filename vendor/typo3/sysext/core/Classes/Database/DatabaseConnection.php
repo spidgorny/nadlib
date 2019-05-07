@@ -195,7 +195,7 @@ class DatabaseConnection
 			$this->debug('exec_INSERTquery');
 		}
 		foreach ($this->postProcessHookObjects as $hookObject) {
-			/** @var $hookObject PostProcessQueryHookInterface */
+			/** @var PostProcessQueryHookInterface $hookObject */
 			$hookObject->exec_INSERTquery_postProcessAction($table, $fields_values, $no_quote_fields, $this);
 		}
 		return $res;
@@ -220,7 +220,7 @@ class DatabaseConnection
 			$this->debug('exec_INSERTmultipleRows');
 		}
 		foreach ($this->postProcessHookObjects as $hookObject) {
-			/** @var $hookObject PostProcessQueryHookInterface */
+			/** @var PostProcessQueryHookInterface $hookObject */
 			$hookObject->exec_INSERTmultipleRows_postProcessAction($table, $fields, $rows, $no_quote_fields, $this);
 		}
 		return $res;
@@ -246,7 +246,7 @@ class DatabaseConnection
 			$this->debug('exec_UPDATEquery');
 		}
 		foreach ($this->postProcessHookObjects as $hookObject) {
-			/** @var $hookObject PostProcessQueryHookInterface */
+			/** @var PostProcessQueryHookInterface $hookObject */
 			$hookObject->exec_UPDATEquery_postProcessAction($table, $where, $fields_values, $no_quote_fields, $this);
 		}
 		return $res;
@@ -269,7 +269,7 @@ class DatabaseConnection
 			$this->debug('exec_DELETEquery');
 		}
 		foreach ($this->postProcessHookObjects as $hookObject) {
-			/** @var $hookObject PostProcessQueryHookInterface */
+			/** @var PostProcessQueryHookInterface $hookObject */
 			$hookObject->exec_DELETEquery_postProcessAction($table, $where, $this);
 		}
 		return $res;
@@ -301,7 +301,7 @@ class DatabaseConnection
 			$this->explain($query, $from_table, $res->num_rows);
 		}
 		foreach ($this->postProcessHookObjects as $hookObject) {
-			/** @var $hookObject PostProcessQueryHookInterface */
+			/** @var PostProcessQueryHookInterface $hookObject */
 			$hookObject->exec_SELECTquery_postProcessAction($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '', $this);
 		}
 		return $res;
@@ -454,7 +454,7 @@ class DatabaseConnection
 			$this->debug('exec_TRUNCATEquery');
 		}
 		foreach ($this->postProcessHookObjects as $hookObject) {
-			/** @var $hookObject PostProcessQueryHookInterface */
+			/** @var PostProcessQueryHookInterface $hookObject */
 			$hookObject->exec_TRUNCATEquery_postProcessAction($table, $this);
 		}
 		return $res;
@@ -508,7 +508,7 @@ class DatabaseConnection
 		// function (contrary to values in the arrays which may be insecure).
 		if (count($rows)) {
 			foreach ($this->preProcessHookObjects as $hookObject) {
-				/** @var $hookObject PreProcessQueryHookInterface */
+				/** @var PreProcessQueryHookInterface $hookObject */
 				$hookObject->INSERTmultipleRows_preProcessAction($table, $fields, $rows, $no_quote_fields, $this);
 			}
 			// Build query
@@ -545,7 +545,7 @@ class DatabaseConnection
 		// function (contrary to values in the arrays which may be insecure).
 		if (is_string($where)) {
 			foreach ($this->preProcessHookObjects as $hookObject) {
-				/** @var $hookObject PreProcessQueryHookInterface */
+				/** @var PreProcessQueryHookInterface $hookObject */
 				$hookObject->UPDATEquery_preProcessAction($table, $where, $fields_values, $no_quote_fields, $this);
 			}
 			$fields = array();

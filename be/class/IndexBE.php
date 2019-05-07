@@ -150,7 +150,7 @@ class IndexBE extends IndexBase
 	function renderController()
 	{
 		$c = get_class($this->controller);
-		/** @var $c Controller */
+		/** @var Controller $c */
 		//$public = $c::$public;	// Parse error:  syntax error, unexpected T_PAAMAYIM_NEKUDOTAYIM
 		$vars = get_class_vars($c);
 		$public = $vars['public'];

@@ -306,7 +306,7 @@ class IndexBase /*extends Controller*/
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
-			/** @var $this ->controller->layout Wrap */
+			/** @var Wrap $this ->controller->layout */
 			$render = $this->controller->layout->wrap($render);
 			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
 		}
@@ -591,7 +591,7 @@ class IndexBase /*extends Controller*/
 				$content .= '<div class="profiler noprint">';
 				$content .= $this->s(OODBase::getCacheStatsTable());
 
-				/** @var $profiler TaylorProfiler */
+				/** @var TaylorProfiler $profiler */
 				$profiler = TaylorProfiler::getInstance();
 				if ($profiler) {
 					$content .= $profiler->printTimers(true);

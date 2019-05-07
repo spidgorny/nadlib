@@ -88,7 +88,7 @@ class Documentation extends AppControllerBE
 		$folders = array();
 		$it = new DirectoryIterator('../');
 		foreach ($it as $file) {
-			/** @var $file SplFileInfo */
+			/** @var SplFileInfo $file */
 			if ($file->isDir()) {
 				$filename = $file->getFilename();
 				if ($filename{0} != '.') {
@@ -104,7 +104,7 @@ class Documentation extends AppControllerBE
 		$files = array();
 		$it = new DirectoryIterator($folder);
 		foreach ($it as $file) {
-			/** @var $file SplFileInfo */
+			/** @var SplFileInfo $file */
 			if ($file->isFile()) {
 				$filename = $file->getFilename();
 				if (str_startsWith($filename, 'class.')) {
