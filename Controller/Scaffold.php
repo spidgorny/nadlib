@@ -4,7 +4,8 @@
  * Class Scaffold
  * @deprecated - use HTMLFormProcessor if you only need the edit form
  */
-abstract class Scaffold extends Controller {
+abstract class Scaffold extends AppController
+{
 
 	/**
 	 * @var string
@@ -21,7 +22,7 @@ abstract class Scaffold extends Controller {
 
 	/**
 	 * @var array
-	 * @deprecated	- why? Use Collection instead?
+	 * @deprecated    - why? Use Collection instead?
 	 */
 	protected $thes = array();
 
@@ -79,15 +80,16 @@ abstract class Scaffold extends Controller {
 	 */
 	protected $subRequest;
 
-	function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
 		$this->translateThes();
 		$this->addButton = __($this->addButton);
 		$this->updateButton = __($this->updateButton);
 		$this->action = $this->request->getCoalesce('action', $this->action);
-		$this->id = $this->request->getInt($this->table.'_id');
+		$this->id = $this->request->getInt($this->table . '_id');
 		if (!$this->id) {
-			$this->id = $this->request->getInt($this->table.'.id'); // NON AJAX POST
+			$this->id = $this->request->getInt($this->table . '.id'); // NON AJAX POST
 		}
 		if (!$this->id) {
 			// don't do it. It can be ID of anything (parent record)
@@ -95,7 +97,7 @@ abstract class Scaffold extends Controller {
 		}
 
 		$this->subRequest = $this->request->getSubRequest($this->formPrefix);
-		$this->setModel();	// uses $this->id
+		$this->setModel();    // uses $this->id
 
 		$this->form = new HTMLFormTable();
 		//debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
@@ -118,37 +120,39 @@ abstract class Scaffold extends Controller {
 	/**
 	 * Sets $this->model to something. Can use $this->id for editing mode
 	 */
-	abstract function setModel();
+	abstract public function setModel();
 
-	public function render() {
+	public function render()
+	{
 		$content = [];
 //		debug($this->action);
 		switch ($this->action) {
 			case 'showForm':
 				$content[] = $this->showForm();
-			break;
+				break;
 			case 'showEdit':
 				$content[] = $this->showEditForm();
-			break;
+				break;
 			case 'add':
 			case 'update':
 				$content[] = $this->showPerform();
-			break;
+				break;
 			default:    // view table
-				if (method_exists($this, $this->action.'Action')) {
-					$content[] = call_user_func(array($this, $this->action.'Action'));
+				if (method_exists($this, $this->action . 'Action')) {
+					$content[] = call_user_func(array($this, $this->action . 'Action'));
 				} else {
 					$content[] = $this->showDefault();
 				}
-			break;
+				break;
 		}
 		return $content;
 	}
 
-	function showDefault() {
+	public function showDefault()
+	{
 		$content[] = $this->showTable();
 		$content[] = $this->showButtons();
-		$content[] = '<div id="'.$this->formPrefix.'"></div>'; // container for all AJAX add/edit forms
+		$content[] = '<div id="' . $this->formPrefix . '"></div>'; // container for all AJAX add/edit forms
 		return $content;
 	}
 
@@ -157,8 +161,10 @@ abstract class Scaffold extends Controller {
 	 *
 	 * @return string
 	 * @deprecated
+	 * @throws Exception
 	 */
-	public function showTable() {
+	public function showTable()
+	{
 		$data = array($this->model->data);
 		$data = $this->processData($data);
 
@@ -173,21 +179,23 @@ abstract class Scaffold extends Controller {
 		return $content;
 	}
 
-	function processData(array $data) {
+	public function processData(array $data)
+	{
 		foreach ($data as &$row) {
 			$row['edit'] = $this->getEditIcon($row['id']);
 		}
 		return $data;
 	}
 
-	public function getEditIcon($id) {
+	public function getEditIcon($id)
+	{
 		//makeAjaxLink
 		$aTag = $this->makeLink($this->editIcon, array(
 			'c' => get_class($this),
 			'pageType' => get_class($this),
-			'ajax' => TRUE,
+			'ajax' => true,
 			'action' => 'showEdit',
-			$this->table.'.id' => $id,
+			$this->table . '.id' => $id,
 		), $this->formPrefix);
 		$href = $aTag->attr['href'];
 		/** @var $href URL */
@@ -195,16 +203,18 @@ abstract class Scaffold extends Controller {
 		return $aTag;
 	}
 
-	protected function showButtons() {
-		$content = $this->makeAjaxLink('<button>'.$this->addButton.'</button>', array(
+	protected function showButtons()
+	{
+		$content = $this->makeAjaxLink('<button>' . $this->addButton . '</button>', array(
 			'c' => get_class($this),
-			'ajax' => TRUE,
+			'ajax' => true,
 			'action' => 'showForm',
 		), $this->formPrefix, '', array('class' => "button"));
 		return $content;
 	}
 
-	public function showForm() {
+	public function showForm()
+	{
 		if ($this->action == 'showEdit' || $this->action == 'update') {
 			$f = $this->showEditForm();
 		} else {
@@ -221,20 +231,22 @@ abstract class Scaffold extends Controller {
 	 * Will be called by showForm() if the action is showEdit
 	 * @return HTMLFormTable
 	 */
-	protected function showEditForm() {
+	protected function showEditForm()
+	{
 		$override = array(
-			$this->table.'.id' => $this->id,
+			$this->table . '.id' => $this->id,
 		);
 
-/*		if ($this->desc['submit']) {
-			$this->desc['submit']['value'] = $this->updateButton;
-		}
-*/		$f = $this->getForm('update');
+		/*		if ($this->desc['submit']) {
+					$this->desc['submit']['value'] = $this->updateButton;
+				}
+		*/
+		$f = $this->getForm('update');
 		$f->prefix('');
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
-		$f->button('<span class="glyphicon glyphicon-floppy-disk"></span> '.$this->updateButton, array(
+		$f->button('<span class="glyphicon glyphicon-floppy-disk"></span> ' . $this->updateButton, array(
 			'type' => 'submit',
 			'class' => 'btn btn-primary',
 		));
@@ -246,16 +258,11 @@ abstract class Scaffold extends Controller {
 	 * $this->insertRecord should return nothing?!?
 	 *
 	 * @throws Exception
-	 * @return string
+	 * @return string[]
 	 */
-	public function showPerform() {
+	public function showPerform()
+	{
 		$content = [];
-		//$userData = $this->request->getArray($this->formPrefix);
-		//debug($userData, $formPrefix);
-
-		//$desc = $this->getDesc($userData);
-		//$f = new HTMLFormTable();
-		//$desc = $f->fillValues($desc, $userData); // commented not to overwrite
 		$v = new HTMLFormValidate($this->form);
 		if ($v->validate()) {
 			try {
@@ -266,13 +273,11 @@ abstract class Scaffold extends Controller {
 					case 'update':
 						$content[] = $this->updateRecord($this->data);
 						break;
-					default: {
-						debug(__METHOD__);
-						throw new Exception(__METHOD__);
-					}
+					default:
+						throw new Exception(__METHOD__.' has no action');
 				}
 			} catch (DatabaseException $e) {
-				$content[] = '<p class="error ui-state-error">We were unable to perform the operation because "'.$e->getMessage().'". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
+				$content[] = '<p class="error ui-state-error">We were unable to perform the operation because "' . $e->getMessage() . '". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';
 				debug($e->getQuery());
 				$content[] = $this->showForm();
 			} catch (PDOException $e) {
@@ -280,7 +285,17 @@ abstract class Scaffold extends Controller {
 				debug($this->db->lastQuery);
 			}
 		} else {
-			//$desc = $v->getDesc();
+			$content[] = $this->showFormWithValidation();
+		}
+		return $content;
+	}
+
+	public function showFormWithValidation()
+	{
+		$v = new HTMLFormValidate($this->form);
+		if ($v->validate()) {
+			$content[] = $this->showForm();
+		} else {
 			$content[] = '<div class="error ui-state-error">Validation failed. Check your form below:</div>';
 			$content[] = $v->getErrorList();
 			$content[] = $this->showForm();
@@ -288,14 +303,16 @@ abstract class Scaffold extends Controller {
 		return $content;
 	}
 
-	function insertRecord(array $userData) {
+	public function insertRecord(array $userData)
+	{
 		$this->model->insert($userData);
 		return $this->afterInsert($userData);
 	}
 
-	function updateRecord(array $userData) {
+	public function updateRecord(array $userData)
+	{
 		//debug($this->model->data, $userData);
-		$this->model->update($userData);	// update() returns nothing
+		$this->model->update($userData);    // update() returns nothing
 		//debug($this->model->data, $this->model->lastQuery);
 		return $this->afterUpdate($userData);
 	}
@@ -306,7 +323,8 @@ abstract class Scaffold extends Controller {
 	 * @param array $data - the source data of the edited record, if in edit more
 	 * @return array
 	 */
-	protected function getDesc(array $data = NULL) {
+	protected function getDesc(array $data = [])
+	{
 		$desc = array(
 			'name' => array(
 				'label' => 'Name',
@@ -323,7 +341,8 @@ abstract class Scaffold extends Controller {
 	 * @param string $action
 	 * @return HTMLFormTable
 	 */
-	protected function getForm($action = 'add') {
+	protected function getForm($action = 'add')
+	{
 		$this->form->method('POST');
 		$this->form->hidden('c', get_class($this));
 		$this->form->hidden('pageType', get_class($this));
@@ -339,45 +358,52 @@ abstract class Scaffold extends Controller {
 	/**
 	 * @deprecated
 	 */
-	function translateThes() {
+	public function translateThes()
+	{
 		// translate thes
 		foreach ($this->thes as $key => &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);
-			} else if (is_array($trans) && ifsetor($trans['name'])) {
+			} elseif (is_array($trans) && ifsetor($trans['name'])) {
 				$trans['name'] = __($trans['name']);
 			}
 		}
 	}
 
-	function getDescFromThes() {
+	public function getDescFromThes()
+	{
 		$special = array('id', 'match', 'mtime', 'muser');
 		$desc = array();
 		foreach ($this->model->thes as $key => $k) {
 			$k = is_array($k) ? $k : array('name' => $k);
 			if (!in_array($key, $special) && $k['showSingle'] !== false) {
 				$desc[$key] = array(
-					'label' => $k['name'],
-					'type' => $k['type'],
-					'value' => $this->model->data[$key],
-				) + $k;
+						'label' => $k['name'],
+						'type' => $k['type'],
+						'value' => $this->model->data[$key],
+					) + $k;
 				if ($k['type'] == 'combo') {
 					$desc[$key]['options'] = $this->db->getTableOptions(
 						$this->model->table,
-						$key, array(),
-						'ORDER BY '.$this->db->quoteKey($key), $key);
+						$key,
+						array(),
+						'ORDER BY ' . $this->db->quoteKey($key),
+						$key
+					);
 				}
 			}
 		}
 		return $desc;
 	}
 
-	function afterInsert(array $userData) {
-		return '<div class="success">'.__('Inserted').'</div>';
+	public function afterInsert(array $userData)
+	{
+		return '<div class="success">' . __('Inserted') . '</div>';
 	}
 
-	function afterUpdate(array $userData) {
-		return '<div class="success">'.__('Updated').'</div>';
+	public function afterUpdate(array $userData)
+	{
+		return '<div class="success">' . __('Updated') . '</div>';
 	}
 
 }

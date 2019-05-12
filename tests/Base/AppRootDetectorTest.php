@@ -11,16 +11,22 @@ namespace nadlib\Base;
 use AppRootDetector;
 use Request;
 
-class AppRootDetectorTest extends \PHPUnit_Framework_TestCase {
+class AppRootDetectorTest extends \PHPUnit\Framework\TestCase
+{
 
-	function test_run() {
-		echo 'isCLI: ', Request::isCLI(), BR;
-		echo 'cwd: ', getcwd(), BR;
-		echo 'dirname(cwd): ', dirname(getcwd()), BR;
-		echo 'dirname(dirname(cwd)): ', dirname(dirname(getcwd())), BR;
+	/**
+	 * Only works in Windows - Jenkins ignored
+	 */
+	public function test_run()
+	{
+		$this->markTestSkipped();
+//		echo 'isCLI: ', Request::isCLI(), BR;
+//		echo 'cwd: ', getcwd(), BR;
+//		echo 'dirname(cwd): ', dirname(getcwd()), BR;
+//		echo 'dirname(dirname(cwd)): ', dirname(dirname(getcwd())), BR;
 		$ad = new AppRootDetector();
-		echo 'AppRoot: ', $ad->get().'', BR;
-		$this->assertContains('vendor/spidgorny/nadlib', $ad->get().'');
+//		echo 'AppRoot: ', $ad->get() . '', BR;
+		$this->assertContains('vendor/spidgorny/nadlib', $ad->get() . '');
 	}
 
 }

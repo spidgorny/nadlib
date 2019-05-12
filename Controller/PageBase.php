@@ -7,6 +7,11 @@
 class PageBase extends AppController {
 
 	/**
+	 * @var TYPO3Page
+	 */
+	public $t3page;
+
+	/**
 	 * @var TYPO3Page|PageBase
 	 */
 	var $page;

@@ -1,11 +1,6 @@
 <?php
 
-if (!function_exists('mb_strlen')) {
-	function mb_strlen($a)
-	{
-		return strlen($a);
-	}
-}
+use spidgorny\nadlib\HTTP\URL;
 
 /**
  * Class slTable - renders the whole table array into HTML.
@@ -19,113 +14,109 @@ class slTable
 	 * <table id=""> will be generated
 	 * @var string
 	 */
-	var $ID = null;
+	public $ID = null;
 
 	/**
 	 * 2D array of rows and columns
 	 * @var array
 	 */
-	var $data = [];
+	public $data = [];
 
 	/**
 	 * Class for each ROW(!)
 	 * @var array
 	 */
-	var $dataClass = [];
+	public $dataClass = [];
 
-	var $iRow = -1;
+	public $iRow = -1;
 
-	var $iCol = 0;
+	public $iCol = 0;
 
 	/**
 	 * Columns definition. Will be generated if missing.
 	 * @var array
 	 */
-	var $thes = [];
+	public $thes = [];
 
 	/**
 	 * Appended to <table> tag
-	 * @var string
+	 * @var array
 	 */
-	var $more = [
+	public $more = [
 		'class' => "nospacing",
 	];
 
 	/**
 	 * @var HTMLTableBuf
 	 */
-	var $generation;
+	public $generation;
 
-	var $sortable = false;
+	public $sortable = false;
 
 	/**
 	 * @var URL
 	 */
-	var $sortLinkPrefix;
+	public $sortLinkPrefix;
 
 	/**
 	 * the first row after the header - used for filters
 	 * @var string
 	 */
-	var $dataPlus = '';
+	public $dataPlus = '';
 
 	/**
 	 * $_REQUEST[$this->prefix]
 	 * @var string
 	 */
-	var $prefix = 'slTable';
+	public $prefix = 'slTable';
 
-	var $sortBy, $sortOrder;
+	public $sortBy, $sortOrder;
 
 	/**
 	 * last line
 	 * @var array
 	 */
-	var $footer = [];
+	public $footer = [];
 
 	/**
 	 * Vertical stripes
 	 * @var bool
 	 */
-	var $isAlternatingColumns = false;
+	public $isAlternatingColumns = false;
 
 	/**
 	 * Horizontal stripes
 	 * @var bool
 	 */
-	var $isOddEven = true;
+	public $isOddEven = true;
 
 	/**
 	 * @var string <tr $thesMore>
 	 */
-	var $thesMore;
+	public $thesMore;
 
 	/**
 	 * @var string before <tbody>
 	 */
-	var $thesPlus = '';
+	public $thesPlus = '';
 
 	/**
 	 * @var string
 	 */
 	public $trmore;
 
-	/**
-	 * public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
-	 *
-	 * public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
-	 *
-	 * /**
-	 * @var BijouDBConnector
-	 */
-	protected $db;
+	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
+
+	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
 
 	/**
 	 * @var Request
 	 */
 	protected $request;
 
-	function __construct($id = null, $more = "", array $thes = [], Request $request = null)
+	public $isCLI = false;
+
+	public function __construct($id = null, $more = "", array $thes = [], Request $request = null)
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;
@@ -135,16 +126,16 @@ class slTable
 		} else {
 			$this->ID = md5(microtime());
 		}
-		$this->more = $more ? HTMLTag::parseAttributes($more)
-			: $this->more;
+		if ($more) {
+			$this->more = is_string($more)
+				? HTMLTag::parseAttributes($more)
+				: $more;
+		}
 		if (isset($this->more['id'])) {
 			$this->ID = $this->more['id'];
 		}
 		$this->thes($thes);
-		$this->db = class_exists('Config', false)
-			? Config::getInstance()->getDB()
-			: null;
-		if (!file_exists('img/arrow_down.gif')) {
+		if (!@file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
 			$this->arrowAsc = '&#x25b2;';
 		}
@@ -152,9 +143,10 @@ class slTable
 		$this->generation = new HTMLTableBuf();
 		$this->setRequest($request ?: Request::getInstance());
 		$this->detectSortBy();
+		$this->isCLI = Request::isCLI();
 	}
 
-	function setRequest(Request $request)
+	public function setRequest(Request $request)
 	{
 		$this->request = $request;
 	}
@@ -163,7 +155,7 @@ class slTable
 	 * @param array  $aThes
 	 * @param string $thesMore
 	 */
-	function thes(array $aThes, $thesMore = null)
+	public function thes(array $aThes, $thesMore = null)
 	{
 		$this->thes = $aThes;
 		if ($thesMore !== null) {
@@ -174,26 +166,26 @@ class slTable
 	/**
 	 * @deprecated - use addRowData
 	 */
-	function addRow()
+	public function addRow()
 	{
 		$this->iRow++;
 		$this->iCol = 0;
 	}
 
-	function addRowData($row)
+	public function addRowData($row)
 	{
 		$this->data[] = $row;
 		$this->iRow++;
 		$this->iCol = 0;
 	}
 
-	function add($val)
+	public function add($val)
 	{
 		$this->data[$this->iRow][$this->iCol] = $val;
 		$this->iCol++;
 	}
 
-	function addVal($col, $val)
+	public function addVal($col, $val)
 	{
 		$this->data[$this->iRow][$col] = $val;
 		$this->iCol++;
@@ -212,8 +204,9 @@ class slTable
 		$so = $this->sortOrder;
 
 		if (!isset($a[$by])) {
-			debug('slTable', $this->sortable, $this->sortBy, $this->sortOrder,
-				array_keys($this->thes), $a);
+//			debug($this->sortable, $this->sortBy, $this->sortOrder,
+//				array_keys($this->thes), $a);
+			// throw new SortingException('field $by is not set');
 		}
 
 		$aa = $a[$by];
@@ -257,11 +250,12 @@ class slTable
 	public function detectSortBy()
 	{
 		$aRequest = $this->request->getArray('slTable');
-		$by = ifsetor($aRequest['sortBy']);
-		$or = ifsetor($aRequest['sortOrder']);
+		$this->sortBy = ifsetor($aRequest['sortBy']);
+		$this->sortOrder = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
 
-		if (!$this->sortBy && false !== $this->sortable) {
+		// make default softBy if not provided
+		if (!$this->sortBy && $this->sortable) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {
@@ -283,7 +277,7 @@ class slTable
 	 * @param string  $by - can be array (for easy explode(' ', 'field DESC') processing
 	 * @param boolean $or
 	 */
-	function setSortBy($by = null, $or = null)
+	public function setSortBy($by = null, $or = null)
 	{
 		if (is_array($by)) {
 			list($by, $or) = $by;
@@ -292,9 +286,10 @@ class slTable
 		// sortBy for th linking and sorting below
 		$this->sortBy = $by;
 		$this->sortOrder = $or;
+//		$this->sort();
 	}
 
-	function sort()
+	public function sort()
 	{
 		//$this->setSortBy();	// don't use - use SQL
 		//debug('$this->sortBy', $this->sortBy);
@@ -325,7 +320,7 @@ class slTable
 		//debug($this->thes[$this->sortBy]);
 	}
 
-	function generateThes()
+	public function generateThes()
 	{
 		if (!sizeof($this->thes)) {
 			$thes = [];
@@ -360,7 +355,7 @@ class slTable
 		return $this->thes;
 	}
 
-	function getThesNames()
+	public function getThesNames()
 	{
 		$names = [];
 		foreach ($this->thes as $field => $thv) {
@@ -376,7 +371,7 @@ class slTable
 		return $names;
 	}
 
-	function generateThead()
+	public function generateThead()
 	{
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -453,7 +448,7 @@ class slTable
 		$this->generation->addTHead('</thead>');
 	}
 
-	function getColGroup(array $thes)
+	public function getColGroup(array $thes)
 	{
 		$colgroup = '<colgroup>';
 		$i = 0;
@@ -477,7 +472,7 @@ class slTable
 		return $colgroup;
 	}
 
-	function generate($caller = '')
+	public function generate($caller = '')
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$caller})");
 		// footer needs to be displayed
@@ -541,7 +536,7 @@ class slTable
 		TaylorProfiler::stop(__METHOD__ . " ({$caller})");
 	}
 
-	function genFooter()
+	public function genFooter()
 	{
 		if ($this->footer) {
 			$this->generation->tfoot('<tfoot>');
@@ -557,7 +552,7 @@ class slTable
 		}
 	}
 
-	function genRow(HTMLTableBuf $t, array $row)
+	public function genRow(HTMLTableBuf $t, array $row)
 	{
 		$skipCols = 0;
 		$iCol = 0;
@@ -616,7 +611,7 @@ class slTable
 	 * @param array $row
 	 * @return array
 	 */
-	function getCellMore(array $k, $iCol, $col, array $row)
+	public function getCellMore(array $k, $iCol, $col, array $row)
 	{
 		$more = [];
 		if ($this->isAlternatingColumns) {
@@ -652,22 +647,9 @@ class slTable
 	/**
 	 * @throws Exception
 	 */
-	function show()
-	{
-		if (!$this->generation->isDone()) {
-			$this->generate();
-		}
-		$this->generation->render();
-	}
-
-	/**
-	 * @throws Exception
-	 */
 	function render()
 	{
-		echo Request::isCLI()
-			? $this->getCLITable()
-			: $this->getContent();
+		echo $this->getContent();
 	}
 
 	/**
@@ -676,12 +658,12 @@ class slTable
 	 * @return string
 	 * @throws Exception
 	 */
-	function getContent($caller = '')
+	public function getContent($caller = '')
 	{
 		if (!$this->generation->isDone()) {
 			$this->generate($caller);
 		}
-		if (Request::isCLI()) {
+		if ($this->isCLI) {
 			$content = $this->getCLITable();
 		} else {
 			$content = $this->generation->getContent();
@@ -689,25 +671,10 @@ class slTable
 		return $content;
 	}
 
-	/**
-	 * @param $table
+	/*
+	 * @throws Exception
 	 */
-	function getData($table)
-	{
-		/** @var DBLayerBase|dbLayerBL $db */
-		$db = Config::getInstance()->getDB();
-		$cols = $db->getTableColumns($table);
-		$data = $db->getTableDataEx($table, "deleted = 0");
-		for ($i = 0; $i < sizeof($data); $i++) {
-			$this->addRow();
-			$iCol = 0;
-			foreach ($data[$i] as $val) {
-				$this->addVal($cols[$iCol++], $val);
-			}
-		}
-	}
-
-	function addRowWithMore($row)
+	public function addRowWithMore($row)
 	{
 		$this->addRow();
 		foreach ($row as $col => $val) {
@@ -715,11 +682,9 @@ class slTable
 		}
 	}
 
-	function __toString()
+	public function __toString()
 	{
-		return Request::isCLI()
-			? $this->getCLITable()
-			: $this->getContent();
+		return $this->getContent();
 	}
 
 	/**
@@ -826,7 +791,7 @@ class slTable
 		return $s;
 	}
 
-	function download($filename)
+	public function download($filename)
 	{
 		$content = $this->getContent();
 		header('Content-type: application/vnd.ms-excel');
@@ -839,7 +804,7 @@ class slTable
 	/**
 	 * TODO: use getThesNames()
 	 */
-	function prepare4XLS()
+	public function prepare4XLS()
 	{
 		$this->generateThes();
 		//debug($this->thes);
@@ -865,63 +830,15 @@ class slTable
 	 * @param bool $useAvg
 	 * @return string
 	 */
-	function getCLITable($cutTooLong = false, $useAvg = false)
+	public function getCLITable($cutTooLong = false, $useAvg = false)
 	{
 		$this->generateThes();
-		$widthMax = [];
-		$widthAvg = [];
-		// thes should fit into a columns as well
-		foreach ($this->thes as $field => $name) {
-			$widthMax[$field] = is_array($name)
-				? mb_strlen(ifsetor($name['name']))
-				: (mb_strlen($name) ?: mb_strlen($field));
-		}
-		//print_r($widthMax);
-		foreach ($this->data as $row) {
-			foreach ($this->thes as $field => $name) {
-				$value = ifsetor($row[$field]);
-				$value = is_array($value)
-					? json_encode($value, JSON_PRETTY_PRINT)
-					: strip_tags($value);
-				$widthMax[$field] = max($widthMax[$field], mb_strlen($value));
-				$widthAvg[$field] = ifsetor($widthAvg[$field]) + mb_strlen($value);
-			}
-		}
-		if ($useAvg) {
-			foreach ($this->thes as $field => $name) {
-				$widthAvg[$field] /= sizeof($this->data);
-				//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
-				$avgLen = $widthAvg[$field];
-				$widthMax[$field] = max(8, 1 + $avgLen);
-			}
-		}
-		//print_r($widthMax);
-
-		$dataWithHeader = array_merge(
-			[$this->getThesNames()],
-			$this->data,
-			[$this->footer]);
-
-		$content = "\n";
-		foreach ($dataWithHeader as $row) {
-			$padRow = [];
-			foreach ($this->thes as $field => $name) {
-				$value = ifsetor($row[$field]);
-				$value = is_array($value)
-					? json_encode($value, JSON_PRETTY_PRINT)
-					: strip_tags($value);
-				if ($cutTooLong) {
-					$value = substr($value, 0, $widthMax[$field]);
-				}
-				$value = str_pad($value, $widthMax[$field], ' ', STR_PAD_RIGHT);
-				$padRow[] = $value;
-			}
-			$content .= implode(" ", $padRow) . "\n";
-		}
-		return $content;
+		$ct = new CLITable($this->data, $this->thes);
+		$ct->footer = $this->footer;
+		return $ct->render($cutTooLong, $useAvg);
 	}
 
-	function autoFormat()
+	public function autoFormat()
 	{
 		$this->generateThes();
 		foreach ($this->thes as $key => $name) {
@@ -941,7 +858,7 @@ class slTable
 		}
 	}
 
-	function hideEmptyColumns()
+	public function hideEmptyColumns()
 	{
 		$visible = [];
 		foreach ($this->data as $row) {

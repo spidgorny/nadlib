@@ -7,8 +7,8 @@
  * To change this template use File | Settings | File Templates.
  */
 
-class MessageQueue extends OODBase {
-	const CLASS_POSTFIX = 'Task';
+class MessageQueue extends OODBase
+{
 
 	const STATUS_NEW = 'NEW';
 	const STATUS_IN_PROGRESS = 'IN PROGRESS';
@@ -31,7 +31,8 @@ class MessageQueue extends OODBase {
 	private $taskData = array();
 
 
-	public function __construct($type) {
+	public function __construct($type)
+	{
 		parent::__construct();
 
 		if (empty($type)) {
@@ -44,12 +45,13 @@ class MessageQueue extends OODBase {
 	/**
 	 * TODO: move this into MessageQueueCollection
 	 * Get next task available
-	 * @return object
+	 * @return TaskInterface|bool
 	 * @throws Exception
 	 */
-	public function getTaskObject() {
+	public function getTaskObject()
+	{
 		// need to delete previous record, otherwise infinite loop
-		$this->id = NULL;
+		$this->id = null;
 		$this->data = array();
 		$this->db->transaction();
 		$newTaskOK = $this->fetchNextTask($this->type);
@@ -66,7 +68,7 @@ class MessageQueue extends OODBase {
 				if (class_exists($className)) {
 					$obj = new $className($this);
 				} else {
-					echo 'Class '.$className.' does not exist', BR;
+					echo 'Class ' . $className . ' does not exist', BR;
 					$obj = false;
 				}
 			} catch (Exception $e) {
@@ -75,7 +77,7 @@ class MessageQueue extends OODBase {
 			}
 			return $obj;
 		} else {
-			$this->db->commit();	// tried to get new task
+			$this->db->commit();    // tried to get new task
 		}
 
 		// if there is no next task return false
@@ -88,8 +90,9 @@ class MessageQueue extends OODBase {
 	 * @param string $type
 	 * @return string
 	 */
-	private function getClassName($type) {
-		return $type . self::CLASS_POSTFIX;
+	private function getClassName($type)
+	{
+		return $type;
 	}
 
 	/**
@@ -99,10 +102,11 @@ class MessageQueue extends OODBase {
 	 * @param $type
 	 * @return bool
 	 */
-	private function fetchNextTask($type) {
+	private function fetchNextTask($type)
+	{
 		$where = array(
-			'status' 	=> self::STATUS_NEW,
-			'type'		=> $type
+			'status' => self::STATUS_NEW,
+			'type' => $type
 		);
 
 		$orderBy = 'ORDER BY id ASC';
@@ -117,10 +121,11 @@ class MessageQueue extends OODBase {
 		}
 	}
 
-	function count() {
+	function count()
+	{
 		$where = array(
-			'status' 	=> self::STATUS_NEW,
-			'type'		=> $this->type,
+			'status' => self::STATUS_NEW,
+			'type' => $this->type,
 		);
 		$res = $this->db->runSelectQuery($this->table, $where);
 		return $this->db->numRows($res);
@@ -131,7 +136,8 @@ class MessageQueue extends OODBase {
 	 *
 	 * @return array
 	 */
-	public function getTaskData() {
+	public function getTaskData()
+	{
 		return $this->taskData;
 	}
 
@@ -140,7 +146,8 @@ class MessageQueue extends OODBase {
 	 *
 	 * @param array $data
 	 */
-	public function setTaskData($data) {
+	public function setTaskData($data)
+	{
 		$this->taskData = json_decode($data, true);
 	}
 
@@ -150,9 +157,10 @@ class MessageQueue extends OODBase {
 	 * @param string $status MessageQueue::STATUS_*
 	 * @return void
 	 */
-	public function setStatus($status) {
+	public function setStatus($status)
+	{
 		$data = array(
-			'status'	=> $status
+			'status' => $status
 		);
 		$this->update($data);
 	}
@@ -164,12 +172,13 @@ class MessageQueue extends OODBase {
 	 * @param int|null $userId If not provided current user is used
 	 * @return OODBase
 	 */
-	public function push($taskData, $userId = null) {
+	public function push($taskData, $userId = null)
+	{
 		$data = array(
-			'ctime' 	=> new SQLNow(),
-			'type'		=> $this->type,
-			'status' 	=> self::STATUS_NEW,
-			'data'		=> json_encode($taskData)
+			'ctime' => new SQLNow(),
+			'type' => $this->type,
+			'status' => self::STATUS_NEW,
+			'data' => json_encode($taskData)
 		);
 
 		if (!empty($userId)) {
@@ -178,11 +187,13 @@ class MessageQueue extends OODBase {
 		return $this->insert($data);
 	}
 
-	public function getStatus() {
+	public function getStatus()
+	{
 		return $this->data['status'];
 	}
 
-	function update(array $data) {
+	function update(array $data)
+	{
 		$data['mtime'] = new SQLNow();
 		return parent::update($data);
 	}

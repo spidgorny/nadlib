@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 class View extends stdClass {
 
 	//use HTMLHelper;
@@ -25,7 +27,7 @@ class View extends stdClass {
 	 */
 	protected $request;
 
-	protected $parts = array();
+	protected $parts = [];
 
 	protected $folder;
 
@@ -38,7 +40,7 @@ class View extends stdClass {
 	 * Store something here and then @use $this->data('asd') to access it with escaping
 	 * @var array
 	 */
-	public $data = array();
+	public $data = [];
 
 	/**
 	 * @var AppController
@@ -47,10 +49,11 @@ class View extends stdClass {
 
 	public $processed;
 
-	function __construct($file, $copyObject = NULL)
+	public function __construct($file, $copyObject = null)
 	{
 		TaylorProfiler::start(__METHOD__ . ' (' . $file . ')');
-		$config = class_exists('Config') ? Config::getInstance() : new stdClass();
+		$config = class_exists('Config')
+			? Config::getInstance() : new stdClass();
 		$appRoot = AutoLoad::getInstance()->getAppRoot();
 		$this->folder = (ifsetor($appRoot) ? cap($appRoot, '/') : '')
 			. 'template/';
@@ -80,14 +83,14 @@ class View extends stdClass {
 		TaylorProfiler::stop(__METHOD__ . ' (' . $file . ')');
 	}
 
-	public static function getInstance($file, $copyObject = NULL)
+	public static function getInstance($file, $copyObject = null)
 	{
 		return new self($file, $copyObject);
 	}
 
 	/*	Add as many public properties as you like and use them in the PHTML file. */
 
-	function getFile()
+	public function getFile()
 	{
 		$path = new Path($this->file);
 //		debug($path, $path->isAbsolute());
@@ -98,7 +101,7 @@ class View extends stdClass {
 		return $file;
 	}
 
-	function getContent($file, array $variables = [])
+	public function getContent($file, array $variables = [])
 	{
 		$content = '';
 		ob_start();
@@ -119,7 +122,7 @@ class View extends stdClass {
 		return $content;
 	}
 
-	function render(array $variables = [])
+	public function render(array $variables = [])
 	{
 		$key = __METHOD__ . ' (' . basename($this->file) . ')';
 		TaylorProfiler::start($key);
@@ -142,7 +145,7 @@ class View extends stdClass {
 		return $this->processed;
 	}
 
-	function localize($content)
+	public function localize($content)
 	{
 		preg_match_all('/__([^ _\n\r]+?)__/', $content, $matches1);
 		preg_match_all('/__\{([^\n\r}]+?)\}__/', $content, $matches2);
@@ -161,20 +164,20 @@ class View extends stdClass {
 	/**
 	 * Really primitive and buggy.
 	 * @use markdown() instead
-	 * @param $text
-	 * @param null $linkCallback
+	 * @param string $text
+	 * @param callable $linkCallback
 	 * @return mixed|string
 	 */
-	function wikify($text, $linkCallback = null)
+	public function wikify($text, $linkCallback = null)
 	{
 		$inUL = false;
-		$lines2 = array();
+		$lines2 = [];
 		$lines = trimExplode("\n", '' . $text);
 		foreach ($lines as $line) {
 			if ($line{0} == '*' || $line{0} == '-') {
 				if (!$inUL) {
 					$lines2[] = "<ul>";
-					$inUL = TRUE;
+					$inUL = true;
 				}
 			}
 			$lines2[] = $inUL
@@ -183,7 +186,7 @@ class View extends stdClass {
 			if ($line{0} != '*' && $line{0} != '-') {
 				if ($inUL) {
 					$lines2[] = "</ul>";
-					$inUL = FALSE;
+					$inUL = false;
 				}
 			}
 		}
@@ -212,7 +215,7 @@ class View extends stdClass {
 	 *
 	 * @param string $sep
 	 */
-	function splitBy($sep)
+	public function splitBy($sep)
 	{
 		$file = $this->getFile();
 		$content = file_get_contents($file);
@@ -225,7 +228,7 @@ class View extends stdClass {
 	 * @param int $i
 	 * @return string
 	 */
-	function renderPart($i)
+	public function renderPart($i)
 	{
 		//debug($this->parts[$i]);
 		return eval('?>' . $this->parts[$i]);
@@ -233,22 +236,25 @@ class View extends stdClass {
 
 	/**
 	 * Uses htmlspecialchars()
-	 * @param $str
+	 * @param string $str
 	 * @return string
 	 */
-	function escape($str)
+	public function escape($str)
 	{
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
 
-	function e($str)
+	public function e($str)
 	{
 		return $this->escape($str);
 	}
 
-	function data($key)
+	public function data($key)
 	{
-		return $this->e(ifsetor($this->caller->data[$key]));
+		if ($this->caller != null) {
+			return $this->e($this->caller->get($key));
+		}
+		return null;
 	}
 
 	/**
@@ -257,10 +263,10 @@ class View extends stdClass {
 	 * which prevents seeing the trace of where the problem happened.
 	 * Please call ->render() everywhere manually.
 	 */
-	function __toString()
+	public function __toString()
 	{
 		if (DEVELOPMENT) {
-			debug($this->file, get_class($this->caller));
+			debug('Do not call View::__toString() as it will prevent you from obtaining a valid backtrace in case of an error.', $this->file, $this->caller ? get_class($this->caller) : null);
 			debug_pre_print_backtrace();
 		}
 //		return $this->render().'';
@@ -272,19 +278,19 @@ class View extends stdClass {
 	 * @param array $params
 	 * @return URL
 	 */
-	function link(array $params)
+	public function link(array $params)
 	{
 		return $this->getController()->makeURL($params);
 	}
 
-	function ahref($text, $href)
+	public function ahref($text, $href)
 	{
 		return new HTMLTag('a', [
 			'href' => $href,
 		], $text);
 	}
 
-	function getController()
+	public function getController()
 	{
 		if (!$this->controller) {
 			$this->controller = Index::getInstance()->getController();
@@ -292,9 +298,9 @@ class View extends stdClass {
 		return $this->controller;
 	}
 
-	function __call($func, array $args)
+	public function __call($func, array $args)
 	{
-		$method = array($this->caller, $func);
+		$method = [$this->caller, $func];
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			//$method = array($this->caller, end(explode('::', $func)));
 			$methodName = get_class($this->caller) . '::' . $func;
@@ -303,7 +309,7 @@ class View extends stdClass {
 		return call_user_func_array($method, $args);
 	}
 
-	function &__get($var)
+	public function &__get($var)
 	{
 		return $this->caller->$var;
 	}
@@ -323,22 +329,22 @@ class View extends stdClass {
 	 * http://www.gidforums.com/t-1816.html
 	 * ======================================*/
 
-	function autolink(&$text, $target = '_blank', $nofollow = true)
+	public function autolink(&$text, $target = '_blank', $nofollow = true)
 	{
 		// grab anything that looks like a URL...
 		$urls = $this->_autolink_find_URLS($text);
 		if (!empty($urls)) // i.e. there were some URLS found in the text
 		{
-			array_walk($urls, array($this, '_autolink_create_html_tags'), array(
+			array_walk($urls, [$this, '_autolink_create_html_tags'], [
 				'target' => $target,
 				'nofollow' => $nofollow,
-			));
+			]);
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
 		return $text;
 	}
 
-	static function _autolink_find_URLS($text)
+	public static function _autolink_find_URLS($text)
 	{
 		// build the patterns
 		$scheme = '(http:\/\/|https:\/\/)';
@@ -356,10 +362,10 @@ class View extends stdClass {
 		if ($c) {
 			return (array_flip($m[0]));
 		}
-		return (array());
+		return ([]);
 	}
 
-	function _autolink_create_html_tags(&$value, $key, $other = NULL)
+	public function _autolink_create_html_tags(&$value, $key, $other = null)
 	{
 		$target = $nofollow = NULL;
 		if (is_array($other)) {
@@ -370,18 +376,18 @@ class View extends stdClass {
 		$value = "<a href=\"$key\"$target$nofollow>$key</a>";
 	}
 
-	function linkBIDs($text)
+	public function linkBIDs($text)
 	{
 		$text = preg_replace('/\[#(\d+)\]/', '<a href="?bid=$1">$1</a>', $text);
 		return $text;
 	}
 
-	function money($val)
+	public function money($val)
 	{
 		return number_format(floatval($val), 2, '.', '');
 	}
 
-	function euro($val, $noCent = false)
+	public function euro($val, $noCent = false)
 	{
 		$money = $this->money($val) . '&nbsp;&euro;';
 		if ($noCent) {
@@ -390,77 +396,21 @@ class View extends stdClass {
 		return $money;
 	}
 
-	static function bar($percent, array $params = array(), $attr = array())
+	public static function bar($percent, array $params = [], $attr = [])
 	{
 		$percent = round($percent);
-		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + array(
+		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + [
 					'rating' => $percent,
 					'color' => '6DC5B4',
-				));
-		$attr += array(
+				]);
+		$attr += [
 			'src' => $src,
 			'alt' => $percent . '%',
-		);
+		];
 		return new HTMLTag('img', $attr, NULL);
 	}
 
-	function purifyLinkify($comment)
-	{
-		$comment = preg_replace("/#(\w+)/", "<a href=\"Search?q=\\1\" target=\"_blank\">#\\1</a>", $comment);
-		$comment = $this->cleanComment($comment);
-		$comment = nl2br($comment);
-		$comment .= $this->getEmbeddables($comment);
-		return $comment;
-	}
-
-	/**
-	 * @param string $comment
-	 * @return string
-	 */
-	function cleanComment($comment)
-	{
-		//$v = new View('');
-		//$comment = $v->autolink($comment);
-		$config = HTMLPurifier_Config::createDefault();
-		//debug($config);
-		$cc = new CommentCollection();
-		$config->set('HTML.Allowed', $cc->allowedTags);
-		$config->set('Attr.AllowedFrameTargets', array('_blank'));
-		$config->set('Attr.AllowedRel', array('nofollow'));
-		$config->set('AutoFormat.Linkify', true);
-		$config->set('HTML.TargetBlank', true);
-		$config->set('HTML.Nofollow', true);
-		$purifier = new HTMLPurifier($config);
-		$clean_html = $purifier->purify($comment);
-		return $clean_html;
-	}
-
-	function getEmbeddables($comment)
-	{
-		$content = '';
-		$links = $this->getLinks($comment);
-		foreach ($links as $link => $_) {
-			/** @noinspection PhpUndefinedNamespaceInspection */
-			$Essence = @Essence\Essence::instance();
-			$Media = $Essence->embed($link);
-
-			if ($Media) {
-				$content .= $Media->html;
-			}
-		}
-		return $content;
-	}
-
-	/**
-	 * @param $comment
-	 * @return array
-	 */
-	function getLinks($comment)
-	{
-		return View::_autolink_find_URLS($comment);
-	}
-
-	function s($a)
+	public function s($a)
 	{
 //		echo typ($a), BR;
 //		debug_pre_print_backtrace();
@@ -468,7 +418,7 @@ class View extends stdClass {
 		return MergedContent::mergeStringArrayRecursive($a);
 	}
 
-	static function markdown($text)
+	public static function markdown($text)
 	{
 		$my_html = \Michelf\Markdown::defaultTransform($text);
 		return $my_html;
@@ -477,24 +427,25 @@ class View extends stdClass {
 	/**
 	 * @param array $some
 	 */
-	function setSome(array $some)
+	public function setSome(array $some)
 	{
 		foreach ($some as $key => $val) {
 			$this->key = $val;
 		}
 	}
 
-	function replace(array $map)
+	public function replace(array $map)
 	{
 		$file = $this->getFile();
 		$content = $this->getContent($file);
 		return str_replace(
 			array_keys($map),
 			array_values($map),
-			$content);
+			$content
+		);
 	}
 
-	function curly()
+	public function curly()
 	{
 		$file = $this->getFile();
 		$template = $this->getContent($file);
@@ -507,7 +458,7 @@ class View extends stdClass {
 		return $template;
 	}
 
-	function setHTML($html)
+	public function setHTML($html)
 	{
 		$this->processed = $html;
 	}

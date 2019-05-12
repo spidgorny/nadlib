@@ -4,28 +4,29 @@
  * Singleton
  *
  */
-abstract class LocalLang {
+abstract class LocalLang
+{
 	/**
 	 * actual messages
 	 * @var array
 	 */
-	var		  	$ll = array();
+	var $ll = array();
 
-	protected 	$defaultLang = 'en';
+	protected $defaultLang = 'en';
 
-	public	 	$possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
+	public $possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
 
 	/**
 	 * name of the selected language
 	 * @var string
 	 */
-	public	  	$lang;
+	public $lang;
 
-	public    	$indicateUntranslated = false;
+	public $indicateUntranslated = false;
 
-	protected 	$codeID = array();
+	protected $codeID = array();
 
-	public 		$editMode = false;
+	public $editMode = false;
 
 	/**
 	 * @var bool
@@ -41,12 +42,13 @@ abstract class LocalLang {
 
 	/**
 	 * Will detect the language by the cookie or browser sniffing
-	 * @param null $forceLang
+	 * @param string $forceLang
 	 */
-	function __construct($forceLang = NULL) {
+	public function __construct($forceLang = null)
+	{
 		if (isset($_REQUEST['setLangCookie']) && $_REQUEST['setLangCookie']) {
 			$_COOKIE['lang'] = $_REQUEST['setLangCookie'];
-			setcookie('lang', $_REQUEST['setLangCookie'], time()+365*24*60*60, dirname($_SERVER['PHP_SELF']));
+			setcookie('lang', $_REQUEST['setLangCookie'], time() + 365 * 24 * 60 * 60, dirname($_SERVER['PHP_SELF']));
 		}
 
 		// detect language
@@ -69,7 +71,8 @@ abstract class LocalLang {
 		// Read language data from somewhere in a subclass
 	}
 
-	function detectLang() {
+	public function detectLang()
+	{
 		$l = new LanguageDetect();
 //		debug($this->ll);
 //		debug($l->languages);
@@ -83,11 +86,12 @@ abstract class LocalLang {
 			}
 		}
 		if (!$replace) {
-/*			$firstKey = array_keys($this->ll);
-			reset($firstKey);
-			$firstKey = current($firstKey);
-			$this->ll = $this->ll[$firstKey];
-*/			$this->lang = $this->defaultLang;
+			/*			$firstKey = array_keys($this->ll);
+						reset($firstKey);
+						$firstKey = current($firstKey);
+						$this->ll = $this->ll[$firstKey];
+			*/
+			$this->lang = $this->defaultLang;
 			//debug('firstKey: '.$firstKey);
 		}
 		//debug($this->ll);
@@ -98,11 +102,13 @@ abstract class LocalLang {
 			: $this->lang;
 	}
 
-	function areThereTranslationsFor($lang) {
+	public function areThereTranslationsFor($lang)
+	{
 		return isset($this->ll[$lang]);
 	}
 
-	static function getInstance($forceLang = NULL, $filename = NULL) {
+	public static function getInstance($forceLang = NULL, $filename = NULL)
+	{
 		if (!self::$instance) {
 			self::$instance = new static($forceLang, $filename);
 		}
@@ -114,14 +120,15 @@ abstract class LocalLang {
 	 * @param $text
 	 * @param string|array $replace can be a simple %1 replacement, but can also
 	 * be an array of alternative translations
-	 * @param null $s2
-	 * @param null $s3
-	 * @internal param $ <type> $text
+	 * @param mixed $s2
+	 * @param mixed $s3
+	 * @return string translated message
 	 * @internal param $ <type> $replace
 	 * @internal param $ <type> $s2
-	 * @return string translated message
+	 * @internal param $ <type> $text
 	 */
-	function T($text, $replace = NULL, $s2 = NULL, $s3 = NULL) {
+	public function T($text, $replace = null, $s2 = null, $s3 = null)
+	{
 		if (!is_scalar($text)) {
 			throw new InvalidArgumentException('[' . $text . ']');
 		}
@@ -151,15 +158,16 @@ abstract class LocalLang {
 	/**
 	 * Bare plain-text localization without outputting any HTML
 	 * @param $trans
-	 * @param null $replace
-	 * @param null $s2
-	 * @param null $s3
+	 * @param mixed $replace
+	 * @param mixed $s2
+	 * @param mixed $s3
 	 * @return mixed|null
 	 */
-	static function Tp($trans, $replace = NULL, $s2 = NULL, $s3 = NULL) {
+	public static function Tp($trans, $replace = null, $s2 = null, $s3 = null)
+	{
 		if (is_array($replace)) {
 			foreach ($replace as $key => $val) {
-				$trans = str_replace('{'.$key.'}', $val, $trans);
+				$trans = str_replace('{' . $key . '}', $val, $trans);
 			}
 		} else {
 			$trans = str_replace('%s', $replace, $trans);
@@ -170,49 +178,55 @@ abstract class LocalLang {
 		return $trans;
 	}
 
-	function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage') {
+	public function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage')
+	{
 		if ($this->editMode && $id) {
-			$trans = '<span class="'.$class.' clickTranslate" rel="'.htmlspecialchars($id).'">'.$text.'</span>';
+			$trans = '<span class="' . $class . ' clickTranslate" rel="' . htmlspecialchars($id) . '">' . $text . '</span>';
 			$al = AutoLoad::getInstance();
 			$index = Index::getInstance();
 			$index->addJQuery();
-			$index->addJS($al->nadlibFromDocRoot.'js/clickTranslate.js');
-			$index->addCSS($al->nadlibFromDocRoot.'CSS/clickTranslate.css');
+			$index->addJS($al->nadlibFromDocRoot . 'js/clickTranslate.js');
+			$index->addCSS($al->nadlibFromDocRoot . 'CSS/clickTranslate.css');
 		} else if ($this->indicateUntranslated) {
-			$trans = '<span class="untranslatedMessage">['.$text.']</span>';
+			$trans = '<span class="untranslatedMessage">[' . $text . ']</span>';
 		} else {
 			$trans = $text;
 		}
 		return $trans;
 	}
 
-	abstract function saveMissingMessage($text);
+	public abstract function saveMissingMessage($text);
 
-	function M($text) {
+	public function M($text)
+	{
 		return $this->T($text);
 	}
 
-	function getMessages() {
+	public function getMessages()
+	{
 		return $this->ll;
 	}
 
-	function id($code) {
+	public function id($code)
+	{
 		return ifsetor($this->codeID[$code]);
 	}
 
 	/**
 	 * This doesn't work in Chrome somehow
 	 * @return string
+	 * @throws Exception
 	 */
-	function showLangSelectionDropDown() {
+	public function showLangSelectionDropDown()
+	{
 		$options = '';
 		foreach ($this->possibleLangs as $code) {
 			$selected = $this->lang == $code ? ' selected="selected"' : '';
-			$options .= '<option value="'.$code.'"'.$selected.'>'.__($code).'</option>';
+			$options .= '<option value="' . $code . '"' . $selected . '>' . __($code) . '</option>';
 		}
 		$content = '
-		<form action="'.$_SERVER['REQUEST_URI'].'" method="POST">
-			<select class="input-small langMenu" name="setLangCookie">'.$options.'
+		<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
+			<select class="input-small langMenu" name="setLangCookie">' . $options . '
 			</select>
 		</form>';
 		Index::getInstance()->addCSS('vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
@@ -221,7 +235,8 @@ abstract class LocalLang {
 		return $content;
 	}
 
-	function log($method, $data) {
+	public function log($method, $data)
+	{
 //		error_log('['.$method.'] '. (is_scalar($data) ? $data : json_encode($data)));
 	}
 

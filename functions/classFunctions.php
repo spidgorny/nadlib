@@ -6,7 +6,8 @@ if (!function_exists('get_overriden_methods')) {
 	 * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
 	 */
 	if (!function_exists('get_called_class')) {
-		function get_called_class($bt = false, $l = 1) {
+		function get_called_class($bt = false, $l = 1)
+		{
 			if (!$bt) $bt = debug_backtrace();
 			if (!isset($bt[$l])) throw new Exception("Cannot find called class -> stack level too deep.");
 			if (!isset($bt[$l]['type'])) {
@@ -55,10 +56,12 @@ if (!function_exists('get_overriden_methods')) {
 
 	/**
 	 * http://www.php.net/manual/en/function.get-class-methods.php
-	 * @param $class
+	 * @param string $class
 	 * @return array|null
+	 * @throws ReflectionException
 	 */
-	function get_overriden_methods($class) {
+	function get_overriden_methods($class)
+	{
 		$rClass = new ReflectionClass($class);
 		$array = NULL;
 

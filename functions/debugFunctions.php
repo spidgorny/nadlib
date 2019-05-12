@@ -6,7 +6,7 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param ...$a mixed
+	 * @param ...$a mixed|string|bool|array|int|float
 	 */
 	function debug($a)
 	{
@@ -30,21 +30,29 @@ if (!function_exists('debug')) {
 
 if (!function_exists('debugList')) {
 
-	function debugList(array $a, $name = NULL) {
+	function debugList(array $a, $name = null)
+	{
 		$debug = Debug::getInstance();
 		$debug->name = $name;
 		foreach ($a as &$b) {
-			$b = $b.'';
+			$b = $b . '';
 		}
 		debug($a);
 	}
 
-	function ddie() {
-		debug(func_get_args());
-		die(__FUNCTION__.'#'.__LINE__);
+	function debugTable(array $a)
+	{
+		debug(new slTable($a));
 	}
 
-	function d($a) {
+	function ddie()
+	{
+		debug(func_get_args());
+		die(__FUNCTION__ . '#' . __LINE__);
+	}
+
+	function d($a)
+	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (DEVELOPMENT) {
 			ob_start();
@@ -54,17 +62,24 @@ if (!function_exists('debugList')) {
 			if (!function_exists('xdebug_break')) {
 				$dump = htmlspecialchars($dump);
 			}
-			echo '<pre>'.$dump.'</pre>';
+			echo '<pre>' . $dump . '</pre>';
 		}
 	}
 
 	/**
 	 * @param ...$a
+	 * @param mixed $b
+	 * @param mixed $c
+	 * @param mixed $d
+	 * @param mixed $e
+	 * @param mixed $f
 	 */
-	function nodebug($a) {
+	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
+	{
 	}
 
-	function getDebug()	{
+	function getDebug()
+	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
@@ -80,30 +95,35 @@ if (!function_exists('debugList')) {
 	/**
 	 * @param ..$a
 	 */
-	function pre_print_r($a) {
+	function pre_print_r($a)
+	{
 		if (php_sapi_name() !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
 			print_r(func_num_args() == 1 ? $a : func_get_args());
 			echo '</pre>';
 		} else {
 			print_r(func_num_args() == 1 ? $a : func_get_args());
+			echo PHP_EOL;
 		}
 	}
 
-	function get_print_r($a) {
-		return '<pre class="pre_print_r" style="white-space: pre-wrap;">'.
-		print_r($a, true).
-		'</pre>';
+	function get_print_r($a)
+	{
+		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
+			print_r($a, true) .
+			'</pre>';
 	}
 
-	function pre_var_dump($a) {
+	function pre_var_dump($a)
+	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
 		var_dump(func_num_args() == 1 ? $a : func_get_args());
 		echo '</pre>';
 	}
 
-	function debug_once() {
-		static $used = NULL;
+	function debug_once()
+	{
+		static $used = null;
 		if (is_null($used)) {
 			$used = array();
 		}
@@ -119,7 +139,8 @@ if (!function_exists('debugList')) {
 		}
 	}
 
-	function debug_size($a) {
+	function debug_size($a)
+	{
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
 			$keys = array_keys($vals);
@@ -141,7 +162,8 @@ if (!function_exists('debugList')) {
 		debug($assoc);
 	}
 
-	function debug_pre_print_backtrace() {
+	function debug_pre_print_backtrace()
+	{
 		if (DEVELOPMENT) {
 			require_once __DIR__ . '/../HTTP/Request.php';
 			if (!Request::isCLI()) {
@@ -160,7 +182,7 @@ if (!function_exists('debugList')) {
 			}
 			$content = ob_get_clean();
 			$content = str_replace(dirname(getcwd()), '', $content);
-			$content = str_replace('C:\\Users\\'.getenv('USERNAME').'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
+			$content = str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
 			echo $content;
 			if (!Request::isCLI()) {
 				print '</pre>';
@@ -170,10 +192,11 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * http://php.net/manual/en/function.error-reporting.php#65884
-	 * @param $value
+	 * @param int $value
 	 * @return string
 	 */
-	function error2string($value) {
+	function error2string($value)
+	{
 		$level_names = array(
 			E_ERROR => 'E_ERROR',
 			E_WARNING => 'E_WARNING',
@@ -185,7 +208,7 @@ if (!function_exists('debugList')) {
 			E_COMPILE_WARNING => 'E_COMPILE_WARNING',
 			E_USER_ERROR => 'E_USER_ERROR',
 			E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE => 'E_USER_NOTICE' );
+			E_USER_NOTICE => 'E_USER_NOTICE');
 		if (defined('E_STRICT')) {
 			$level_names[E_STRICT] = 'E_STRICT';
 		}
@@ -194,22 +217,23 @@ if (!function_exists('debugList')) {
 			$levels[] = 'E_ALL';
 			$value &= ~E_ALL;
 		}
-		foreach ($level_names as $level=>$name) {
+		foreach ($level_names as $level => $name) {
 			if (($value & $level) == $level) {
 				$levels[] = $name;
 			}
 		}
-		return implode(' | ',$levels);
+		return implode(' | ', $levels);
 	}
 
 	/**
 	 * similar to gettype() but return more information depending on data type in HTML
-	 * @param $something
+	 * @param mixed $something
 	 * @param bool $withHash
 	 *
-	 * @return htmlString
+	 * @return HTMLTag
 	 */
-	function typ($something, $withHash = true) {
+	function typ($something, $withHash = true)
+	{
 		$type = gettype($something);
 		if ($type == 'object') {
 			if ($withHash) {
@@ -221,28 +245,45 @@ if (!function_exists('debugList')) {
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
 					$hash = new HTMLTag('span', array(
+						'class' => 'tag',
 						'style' => 'background: ' . $color . '; color: ' . $complement,
 					), $hash);
 				}
-				$type = get_class($something) . '#' . $hash;
+				$typeName = get_class($something) . '#' . $hash;
 			} else {
-				$type = get_class($something);
+				$typeName = get_class($something);
 			}
+		} else {
+			$typeName = $type;
 		}
+
+		$bulma = [
+			'string' => 'is-primary',
+			'NULL' => 'is-danger',
+			'object' => 'is-warning',
+			'array' => 'is-link',
+			'boolean' => 'is-info',
+			'integer' => 'is-success',
+			'resource' => '',
+		];
+		$class = ifsetor($bulma[$type]) . ' tag';
+
 		if ($type == 'string') {
-			$type .= '[' . strlen($something) . ']';
+			$typeName .= '[' . strlen($something) . ']';
 		}
 		if ($type == 'array') {
-			$type .= '[' . sizeof($something) . ']';
+			$typeName .= '[' . sizeof($something) . ']';
 		}
-		return new htmlString($type);
+
+		return new HTMLTag('span', ['class' => $class], $typeName, true);
 	}
 
 	/**
-	 * @param $something array|mixed
+	 * @param array|mixed $something
 	 * @return array|htmlString
 	 */
-	function gettypes($something) {
+	function gettypes($something)
+	{
 		if (is_array($something)) {
 			$types = array();
 			foreach ($something as $key => $element) {

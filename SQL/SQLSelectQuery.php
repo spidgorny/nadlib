@@ -1,6 +1,7 @@
 <?php
 
-class SQLSelectQuery extends SQLWherePart {
+class SQLSelectQuery extends SQLWherePart
+{
 
 	/**
 	 * @var DBLayerBase|DBLayer|MySQL|DBLayerPDO
@@ -50,70 +51,87 @@ class SQLSelectQuery extends SQLWherePart {
 
 	/**
 	 * SQLSelectQuery constructor.
-	 * @param null $select
-	 * @param null $from
-	 * @param null $where
-	 * @param null $join
-	 * @param null $group
-	 * @param null $having
-	 * @param null $order
-	 * @param null $limit
+	 * @param SQLSelect $select
+	 * @param SQLFrom $from
+	 * @param SQLWhere $where
+	 * @param SQLJoin $join
+	 * @param SQLGroup $group
+	 * @param SQLHaving $having
+	 * @param SQLOrder $order
+	 * @param SQLLimit $limit
 	 */
-	function __construct($select = NULL, $from = NULL, $where = NULL, $join = NULL, $group = NULL, $having = NULL, $order = NULL, $limit = NULL)
+	public function __construct($select = null, $from = null, $where = null, $join = null, $group = null, $having = null, $order = null, $limit = null)
 	{
-		if ($select) $this->setSelect($select);
-		if ($from) $this->setFrom($from);
-		if ($where) $this->setWhere($where);
-		if ($join) $this->setJoin($join);
-		else        $this->join = new SQLJoin();
-		if ($group) $this->setGroup($group);
-		if ($having) $this->setHaving($having);
-		if ($order) $this->setOrder($order);
-		if ($limit) $this->setLimit($limit);
+		if ($select) {
+			$this->setSelect($select);
+		}
+		if ($from) {
+			$this->setFrom($from);
+		}
+		if ($where) {
+			$this->setWhere($where);
+		}
+		if ($join) {
+			$this->setJoin($join);
+		} else {
+			$this->join = new SQLJoin();
+		}
+		if ($group) {
+			$this->setGroup($group);
+		}
+		if ($having) {
+			$this->setHaving($having);
+		}
+		if ($order) {
+			$this->setOrder($order);
+		}
+		if ($limit) {
+			$this->setLimit($limit);
+		}
 	}
 
-	function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db)
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function setSelect(SQLSelect $select)
+	public function setSelect(SQLSelect $select)
 	{
 		$this->select = $select;
 	}
 
-	function setFrom(SQLFrom $from)
+	public function setFrom(SQLFrom $from)
 	{
 		$this->from = $from;
 	}
 
-	function setWhere(SQLWhere $where)
+	public function setWhere(SQLWhere $where)
 	{
 		$this->where = $where;
 	}
 
-	function setJoin(SQLJoin $join)
+	public function setJoin(SQLJoin $join)
 	{
 		$this->join = $join;
 	}
 
-	function setGroup(SQLGroup $group)
+	public function setGroup(SQLGroup $group)
 	{
 		$this->group = $group;
 	}
 
-	function setHaving(SQLHaving $having)
+	public function setHaving(SQLHaving $having)
 	{
 		$this->having = $having;
 	}
 
-	function setOrder(SQLOrder $order)
+	public function setOrder(SQLOrder $order)
 	{
 		$this->order = $order;
 	}
 
-	function setLimit(SQLLimit $limit)
+	public function setLimit(SQLLimit $limit)
 	{
 		$this->limit = $limit;
 	}
@@ -131,7 +149,7 @@ class SQLSelectQuery extends SQLWherePart {
 		}
 	}
 
-	function getQuery()
+	public function getQuery()
 	{
 		$from = ($this->from);
 		$query = trim("SELECT
@@ -145,11 +163,11 @@ FROM {$from}
 {$this->limit}");
 		// http://stackoverflow.com/a/709684
 		$query = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $query);
-//		debug($this->where, $query, $this->getParameters());
+		//		debug($this->where, $query, $this->getParameters());
 		return $query;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		try {
 			return $this->getQuery();
@@ -160,7 +178,7 @@ FROM {$from}
 		}
 	}
 
-	static function sqlSH($sql)
+	public static function sqlSH($sql)
 	{
 		$res = '';
 		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL');
@@ -168,14 +186,14 @@ FROM {$from}
 		$sql = str_replace("(", " ( ", $sql);
 		$sql = str_replace(")", " ) ", $sql);
 		$level = 0;
-		$open = FALSE;
+		$open = false;
 		$tok = strtok($sql, " \n\t");
-		while ($tok !== FALSE) {
+		while ($tok !== false) {
 			$tok = trim($tok);
 			if ($tok == "(") {
 				$level++;
 				$res .= " (" . "<br>" . str_repeat("&nbsp;", $level * 4);
-			} else if ($tok == ")") {
+			} elseif ($tok == ")") {
 				if ($level > 0) {
 					$level--;
 				}
@@ -184,16 +202,16 @@ FROM {$from}
 				$res .= " ";
 				if ($tok{0} == "'" && !$open) {
 					$res .= '<font color="green">';
-					$open = TRUE;
+					$open = true;
 				}
 				$res .= $tok;
 				if ($tok{strlen($tok) - 1} == "'" && $open) {
 					$res .= '</font>';
-					$open = FALSE;
+					$open = false;
 				}
-			} else if (is_numeric($tok)) {
+			} elseif (is_numeric($tok)) {
 				$res .= ' <font color="red">' . $tok . '</font>';
-			} else if (in_array(strtoupper($tok), $words)) {
+			} elseif (in_array(strtoupper($tok), $words)) {
 				$br = strlen($res) ? '<br>' : '';
 				$strange = $tok == 'SELECT' ? '' : ' ';
 				$res .= (!in_array($tok, $breakAfter)
@@ -212,7 +230,7 @@ FROM {$from}
 		return new htmlString($res);
 	}
 
-	function getParameters()
+	public function getParameters()
 	{
 		if ($this->where) {
 			$params = $this->where->getParameters();
@@ -221,7 +239,7 @@ FROM {$from}
 		}
 		if ($this->from instanceof SQLSubquery) {
 			$subParams = $this->from->getParameters();
-//			debug($subParams);
+			//			debug($subParams);
 			$params += $subParams;
 		}
 		return $params;
@@ -230,49 +248,50 @@ FROM {$from}
 	/**
 	 * A way to perform a query with parameter without making a SQL
 	 */
-	function perform()
+	public function perform()
 	{
 		$sQuery = $this->getQuery();
 		$aParams = $this->getParameters();
-//		debug(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
+		//		debug(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
 		return $this->db->perform($sQuery, $aParams);
 	}
 
-	function fetchAssoc()
+	public function fetchAssoc()
 	{
 		return $this->db->fetchAssoc($this->perform());
 	}
 
-	function fetchAll()
+	public function fetchAll()
 	{
 		return $this->db->fetchAll($this->perform());
 	}
 
 	public function unsetOrder()
 	{
-		$this->order = NULL;
+		$this->order = null;
 	}
 
 	/**
-	 * @param $db DBInterface
-	 * @param        $table
+	 * @param DBInterface $db
+	 * @param string $table
 	 * @param array|SQLWhere $where
 	 * @param string $sOrder
-	 * @param null $addSelect
+	 * @param string $addSelect
 	 * @return SQLSelectQuery
 	 */
-	static function getSelectQueryP(
+	public static function getSelectQueryP(
 		DBInterface $db,
 		$table,
 		$where = array(),
 		$sOrder = '',
-		$addSelect = NULL)
+		$addSelect = null
+	)
 	{
 		$table1 = SQLBuilder::getFirstWord($table);
 		if ($table == $table1) {    // NO JOIN
 			$from = /*$this->db->quoteKey*/
 				($table1);    // table name always quoted
-			$join = NULL;
+			$join = null;
 		} else {                    // JOIN
 			$join = substr($table, strlen($table1));
 			$from = $table1; // not quoted
@@ -298,20 +317,20 @@ FROM {$from}
 		$where->injectDB($db);
 
 		$sOrder = trim($sOrder);
-		$group = NULL;
-		$limit = NULL;
-		$order = NULL;
+		$group = null;
+		$limit = null;
+		$order = null;
 		if (str_startsWith($sOrder, 'ORDER BY')) {
 			$order = new SQLOrder($sOrder);
-			$order->db = $db;
-			$group = NULL;
+			$order->injectDB($db);
+			$group = null;
 		} elseif (str_startsWith($sOrder, 'GROUP BY')) {
 			$parts = trimExplode('ORDER BY', $sOrder);
 			$group = new SQLGroup($parts[0]);
 			$group->db = $db;
 			if (ifsetor($parts[1])) {
 				$order = new SQLOrder($parts[1]);
-				$order->db = $db;
+				$order->injectDB($db);
 			}
 		} elseif (str_startsWith($sOrder, 'LIMIT')) {
 			$parts = trimExplode('LIMIT', $sOrder);
@@ -320,8 +339,8 @@ FROM {$from}
 			debug(['sOrder' => $sOrder, 'order' => $order]);
 			throw new InvalidArgumentException(__METHOD__);
 		}
-//		debug(__METHOD__, $table, $where, $where->getParameters());
-		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, NULL, $order, $limit);
+		//		debug(__METHOD__, $table, $where, $where->getParameters());
+		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, null, $order, $limit);
 		$sq->injectDB($db);
 		return $sq;
 	}
@@ -338,7 +357,7 @@ FROM {$from}
 
 	public function join($table, $on)
 	{
-		$this->join = new SQLJoin('LEFT OUTER JOIN '.$table.' ON ('.$on.')');
+		$this->join = new SQLJoin('LEFT OUTER JOIN ' . $table . ' ON (' . $on . ')');
 		return $this;
 	}
 
@@ -346,6 +365,11 @@ FROM {$from}
 	{
 		$this->select = new SQLSelect($what);
 		return $this;
+	}
+
+	public function getSelect()
+	{
+		return $this->select;
 	}
 
 }

@@ -1,6 +1,7 @@
 <?php
 
-class Debug {
+class Debug
+{
 
 	var $index;
 
@@ -23,9 +24,9 @@ class Debug {
 	var $name;
 
 	/**
-	 * @param $index Index|IndexBE
+	 * @param Index|IndexBE $index
 	 */
-	function __construct($index)
+	public function __construct($index)
 	{
 		$this->index = $index;
 		self::$instance = $this;
@@ -40,15 +41,16 @@ class Debug {
 			$this->renderer = $this->detectRenderer();
 		}
 
-//		var_dump($_COOKIE);
+//		pre_print_r($_COOKIE);
 		if (0 && ifsetor($_COOKIE['debug'])) {
 			echo 'Renderer: ' . $this->renderer;
 			echo '<pre>';
 			var_dump([
-				'canCLI'       => $this->canCLI(),
-				'canFirebug'   => $this->canFirebug(),
+				'canCLI' => DebugCLI::canCLI(),
+				'canFirebug' => DebugFirebug::canFirebug(),
 				'canDebugster' => $this->canDebugster(),
-				'canHTML'      => $this->canHTML(),
+				'canBulma' => DebugBulma::canBulma(),
+				'canHTML' => $this->canHTML(),
 			]);
 			echo '</pre>';
 		}
@@ -57,14 +59,21 @@ class Debug {
 
 	function detectRenderer()
 	{
-		return $this->canCLI()
-			? 'CLI'
-			: ($this->canFirebug()
-				? 'Firebug'
+		return DebugCLI::canCLI()
+			? DebugCLI::class
+			: (DebugFirebug::canFirebug()
+				? DebugFirebug::class
 				: ($this->canDebugster()
 					? 'Debugster'
-					: ($this->canHTML() ? 'HTML'
-						: '')));
+					: (DebugBulma::canBulma()
+						? DebugBulma::class
+						: ($this->canHTML()
+							? 'HTML'
+							: ''
+						)
+					)
+				)
+			);
 	}
 
 	static function getInstance()
@@ -105,27 +114,6 @@ class Debug {
 		return $val;
 	}
 
-	function canFirebug()
-	{
-		$can = class_exists('FirePHP', false)
-			&& !Request::isCLI()
-			&& !headers_sent()
-			&& ifsetor($_COOKIE['debug']);
-
-		$require = 'vendor/firephp/firephp/lib/FirePHPCore/FirePHP.class.php';
-		if (!class_exists('FirePHP') && file_exists($require)) {
-			/** @noinspection PhpIncludeInspection */
-			require_once $require;
-		}
-		$can = $can && class_exists('FirePHP');
-
-		if ($can) {
-			$fb = FirePHP::getInstance(true);
-			$can = $fb->detectClientExtension();
-		}
-		return $can;
-	}
-
 	public static function header($url)
 	{
 		if (!headers_sent()) {
@@ -137,42 +125,22 @@ class Debug {
 		}
 	}
 
-	function debugWithFirebug($params, $title = '')
-	{
-		$content = '';
-		$params = is_array($params) ? $params : [$params];
-		//debug_pre_print_backtrace();
-		$fp = FirePHP::getInstance(true);
-		if ($fp->detectClientExtension()) {
-			$fp->setOption('includeLineNumbers', true);
-			$fp->setOption('maxArrayDepth', 10);
-			$fp->setOption('maxDepth', 20);
-			$trace = Debug::getSimpleTrace();
-			array_shift($trace);
-			array_shift($trace);
-			array_shift($trace);
-			if ($trace) {
-				$fp->table(implode(' ', first($trace)), $trace);
-			}
-			$fp->log(1 == sizeof($params) ? first($params) : $params, $title);
-		} else {
-			$content = call_user_func_array(['Debug', 'debug_args'], $params);
-		}
-		return $content;
-	}
-
 	/**
 	 * Main entry point.
-	 * @param $params
+	 * @param mixed $params
 	 * @return string
 	 */
-	function debug($params)
+	public function debug($params)
 	{
 		$content = '';
 		if ($this->renderer) {
 			$method = 'debugWith' . $this->renderer;
 			if (method_exists($this, $method)) {
 				$content = $this->$method($params);
+			} elseif (class_exists($this->renderer)) {
+				$dgger = new $this->renderer($this);
+				$content = $dgger->debug($params);
+				echo $content;
 			} else {
 				pre_print_r($params);
 				debug_pre_print_backtrace();
@@ -183,48 +151,6 @@ class Debug {
 			//debug_pre_print_backtrace();
 		}
 		return $content;
-	}
-
-	function canCLI()
-	{
-		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
-		return Request::isCLI() || $isCURL;
-	}
-
-	function debugWithCLI($args)
-	{
-		if (!DEVELOPMENT) return;
-		$db = debug_backtrace();
-		$db = array_slice($db, 2, sizeof($db));
-		$trace = [];
-		$i = 0;
-		foreach ($db as $i => $row) {
-			$trace[] = ' * ' . self::getMethod($row, ifsetor($db[$i + 1], []));
-			if (++$i > 7) break;
-		}
-		echo '--- ' . $this->name . ' ---' . BR .
-			implode(BR, $trace) . "\n";
-
-		if ($args instanceof htmlString) {
-			$args = strip_tags($args);
-		}
-
-		if (is_object($args)) {
-			echo 'Object: ', get_class($args), BR;
-			if (method_exists($args, '__debugInfo')) {
-				$args = $args->__debugInfo();
-			} else {
-				$args = get_object_vars($args);   // prevent private vars
-			}
-		}
-
-		ob_start();
-		var_dump($args);
-		$dump = ob_get_clean();
-		$dump = str_replace("=>\n", ' =>', $dump);
-		echo $dump;
-		echo '--- ' . $this->name . ' ---', BR;
-		$this->name = null;
 	}
 
 	function canHTML()
@@ -290,6 +216,41 @@ class Debug {
 	}
 
 	/**
+	 * @param array $db
+	 * @return string
+	 */
+	static function getTraceTable2(array $db)
+	{
+		$db = self::getSimpleTrace($db);
+		$thes = array(
+			'file' => 'file',
+			'line' => 'line',
+//			'class' => 'class',
+			'object' => 'object',
+//			'type' => 'type',
+			'function' => 'function',
+//			'args' => 'args',
+		);
+		$trace[] = '<table class="table">';
+		$trace[] = '<thead>';
+		foreach ($thes as $t) {
+			$trace[] = '<td>'.$t.'</td>';
+		}
+		$trace[] = '</thead>';
+		$trace[] = '<tbody>';
+		foreach ($db as $row) {
+			$trace[] = '<tr>';
+			foreach ($thes as $t => $_) {
+				$trace[] = '<td>'.ifsetor($row[$t]).'</td>';
+			}
+			$trace[] = '</tr>';
+		}
+		$trace[] = '</tbody>';
+		$trace[] = '</table>';
+		return implode(PHP_EOL, $trace);
+	}
+
+	/**
 	 * @param array $first
 	 * @param array $next
 	 * @return string
@@ -304,16 +265,27 @@ class Debug {
 		$nextFunc = ifsetor($first['function']);
 		$line = ifsetor($first['line']);
 		$file = ifsetor($first['file']);
+
+		$isPhpStorm = false; 	// don't like it
 		if ($isPhpStorm) {
 			$path = $file;
 		} else {
 			$path = basename(dirname(dirname($file))) .
 				'/' . basename(dirname($file)) .
 				'/' . basename($file);
+			if ($path[0] == 'C') {
+				var_dump($file, $path);
+				exit;
+			}
 		}
 		if (isset($first['object']) && $first['object']) {
 			$ref = new ReflectionClass($first['object']);
 			$path = $ref->getFileName();
+
+			$path = basename(dirname(dirname($file))) .
+				'/' . basename(dirname($file)) .
+				'/' . basename($file);
+
 			$function = $path .
 				':' . $line . ' ' .
 				get_class($first['object']) .
@@ -391,11 +363,11 @@ class Debug {
 
 	/**
 	 * http://stackoverflow.com/a/2510459/417153
-	 * @param $bytes
+	 * @param int $bytes
 	 * @param int $precision
 	 * @return string
 	 */
-	static function formatBytes($bytes, $precision = 2)
+	public static function formatBytes($bytes, $precision = 2)
 	{
 		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
@@ -410,7 +382,7 @@ class Debug {
 		return round($bytes, $precision) . ' ' . $units[$pow];
 	}
 
-	static function getArraySize(array $tmpArray)
+	public static function getArraySize(array $tmpArray)
 	{
 		$size = [];
 		foreach ($tmpArray as $key => $row) {
@@ -420,17 +392,20 @@ class Debug {
 		return array_sum($size);
 	}
 
-	function canDebugster()
+	public function canDebugster()
 	{
 		return false;
 	}
 
 	/**
-	 * @param $debugAccess ...
+	 * @param mixed ..$debugAccess
+	 * @throws Exception
 	 */
 	public function consoleLog($debugAccess)
 	{
-		if ($this->request->isAjax()) return;
+		if ($this->request->isAjax()) {
+			return;
+		}
 		if (func_num_args() > 1) {
 			$debugAccess = func_get_args();
 		}
@@ -449,7 +424,7 @@ class Debug {
 		}
 	}
 
-	static function peek($row)
+	public static function peek($row)
 	{
 		if (is_object($row)) {
 			$row = get_object_vars($row);
@@ -460,9 +435,12 @@ class Debug {
 				if (is_scalar($a)) {
 					$val = $a;
 				}
-				return ['type' => typ($a) . '', 'value' => $val];
+				return [
+					'type' => trim(strip_tags(typ($a) . '')),
+					'value' => $val.''
+				];
 			}, $row);
-			pre_print_r(array_combine(array_keys($row), $types));
+			return array_combine(array_keys($row), $types);
 		}
 	}
 
@@ -471,7 +449,7 @@ class Debug {
 	 * @param     $row
 	 * @param int $spaces
 	 */
-	static function dumpStruct($row, $spaces = 0)
+	public static function dumpStruct($row, $spaces = 0)
 	{
 		static $recursive;
 		if (!$spaces) {

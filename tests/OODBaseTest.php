@@ -10,15 +10,18 @@ namespace nadlib\Test;
 
 use OODBase;
 
-class OODBaseTest extends \PHPUnit_Framework_TestCase {
+class OODBaseTest extends \PHPUnit\Framework\TestCase
+{
 
-	var $sut;
+	protected $sut;
 
-	function setUp() {
+	public function setUp()
+	{
 		$this->sut = new SpecificOODBase();
 	}
 
-	function test_getBool() {
+	public function test_getBool()
+	{
 		$set = [
 			0 => false,
 			1 => true,
@@ -28,11 +31,10 @@ class OODBaseTest extends \PHPUnit_Framework_TestCase {
 			'false' => false,
 			'' => false,
 			'asd' => false,
-			'0' => false,
 			'123' => true,
 		];
 		foreach ($set as $source => $expected) {
-			echo $source, ' => ', $expected, BR;
+//			echo $source, ' => ', $expected, BR;
 			$this->assertEquals($expected, $this->sut->getBool($source));
 		}
 	}

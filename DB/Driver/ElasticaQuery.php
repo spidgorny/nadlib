@@ -1,6 +1,7 @@
 <?php
 
-class ElasticaQuery {
+class ElasticaQuery
+{
 
 	/**
 	 * @var Elastica\Client
@@ -42,7 +43,8 @@ class ElasticaQuery {
 	 */
 	var $facets;
 
-	function __construct(DIContainer $di) {
+	function __construct(DIContainer $di)
+	{
 		$this->client = $di->client;
 		$this->indexName = $di->indexName;
 
@@ -58,7 +60,8 @@ class ElasticaQuery {
 		$this->elasticaQuery = new \Elastica\Query();
 	}
 
-	function setOrderBy($orderBy) {
+	function setOrderBy($orderBy)
+	{
 		foreach ($orderBy as $by => $ascDesc) {
 			$this->elasticaQuery->setSort(array(
 				$by => array('order' => $ascDesc ?: 'asc'),
@@ -66,13 +69,15 @@ class ElasticaQuery {
 		}
 	}
 
-	function setPager(Pager $pager) {
+	function setPager(Pager $pager)
+	{
 		$this->pager = $pager;
 		$this->elasticaQuery->setFrom($pager->getStart());
 		$this->elasticaQuery->setSize($pager->getLimit());
 	}
 
-	function setWhere(array $where) {
+	function setWhere(array $where)
+	{
 		foreach ($where as $field => $condition) {
 			$elasticaCondition = $this->switchCondition($field, $condition);
 			if ($elasticaCondition) {
@@ -87,7 +92,8 @@ class ElasticaQuery {
 		}
 	}
 
-	function fetchSelectQuery($type) {
+	function fetchSelectQuery($type)
+	{
 		/** @var Elastica\Query\Filtered $fq */
 		$this->filteredQuery->setQuery($this->queryString);
 		$this->filteredQuery->setFilter($this->elasticaFilterAnd);
@@ -116,7 +122,9 @@ class ElasticaQuery {
 	 * @param mixed $condition
 	 * @return \Elastica\Query\AbstractQuery
 	 */
-	function switchCondition($field, $condition) {
+	function switchCondition($field, $condition)
+	{
+		$res = null;
 		$type = is_object($condition)
 			? get_class($condition)
 			: 'SQLWhereEqual';
@@ -153,19 +161,23 @@ class ElasticaQuery {
 		return $res;
 	}
 
-	function getString($obj) {
+	public function getString($obj)
+	{
 		if (is_object($obj)) {
 			//$obj->injectQB($this);
-			$obj = $obj.'';
+			$obj = $obj . '';
 		}
 		return $obj;
 	}
 
-	function quoteKey($a) {
+	public function quoteKey($a)
+	{
 		return $a;
 	}
 
-	function getByID($type, $id) {
+	public function getByID($type, $id)
+	{
+		$row = null;
 		//$elasticaTerm  = new \Elastica\Filter\Term();
 		//$elasticaTerm->setTerm('_id', $id);
 		$elasticaQuery = new \Elastica\Query\Term();

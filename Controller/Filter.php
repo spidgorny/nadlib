@@ -6,7 +6,8 @@ namespace nadlib\Controller;
 use ArrayIterator;
 use ArrayObject;
 
-class Filter extends ArrayObject {
+class Filter extends ArrayObject
+{
 
 	protected $_set = [];
 
@@ -16,36 +17,43 @@ class Filter extends ArrayObject {
 
 	protected $_default = [];
 
-	function __construct(array $input = array()) {
+	public function __construct(array $input = array())
+	{
 		parent::__construct($input, ArrayObject::ARRAY_AS_PROPS);
 		$this->setRequest($input);
 	}
 
-	function setPreferences(array $_preferences = NULL) {
+	public function setPreferences(array $_preferences = null)
+	{
 		if ($_preferences) {
 			$this->_preferences = $_preferences;
 		}
 	}
 
-	function setRequest(array $_request) {
+	public function setRequest(array $_request)
+	{
 		$this->_request = $_request;
 	}
 
-	function setDefault(array $_default) {
+	public function setDefault(array $_default)
+	{
 		$this->_default = $_default;
 	}
 
-	function get($index) {
+	public function get($index)
+	{
 		return $this->offsetGet($index);
 	}
 
-	function getArray($index) {
+	public function getArray($index)
+	{
 		$value = $this->offsetGet($index);
 		$value = (array)$value;
 		return $value;
 	}
 
-	function set($index, $newval) {
+	public function set($index, $newval)
+	{
 		$this->offsetSet($index, $newval);
 	}
 
@@ -55,7 +63,8 @@ class Filter extends ArrayObject {
 		$this->_set[$index] = $newval;
 	}
 
-	function offsetGet($index) {
+	public function offsetGet($index)
+	{
 		if (isset($this->_set[$index])) {
 			return $this->_set[$index];
 		} elseif (isset($this->_request[$index])) {
@@ -68,11 +77,13 @@ class Filter extends ArrayObject {
 		return NULL;
 	}
 
-	function offsetExists($index) {
+	public function offsetExists($index)
+	{
 		return $this->offsetGet($index) != '';
 	}
 
-	function getArrayCopy() {
+	public function getArrayCopy()
+	{
 		// first array has priority (only append new)
 		return $this->_set +
 			$this->_request +
@@ -80,19 +91,21 @@ class Filter extends ArrayObject {
 			$this->_default;
 	}
 
-	function getIterator()
+	public function getIterator()
 	{
 		return new ArrayIterator($this->getArrayCopy());
 	}
 
-	function clear() {
+	public function clear()
+	{
 		$this->_set = [];
 		$this->_request = [];
 		$this->_preferences = [];
-		$this->_default = [];	// maybe it should remain?
+		$this->_default = [];    // maybe it should remain?
 	}
 
-	function getDebug() {
+	public function getDebug()
+	{
 		return [
 			'set' => $this->_set,
 			'request' => $this->_request,
@@ -101,11 +114,13 @@ class Filter extends ArrayObject {
 		];
 	}
 
-	function __debugInfo() {
+	function __debugInfo()
+	{
 		return $this->getDebug();
 	}
 
-	function ensure($field, array $allowedOptions, $default = NULL) {
+	function ensure($field, array $allowedOptions, $default = NULL)
+	{
 		$value = $this[$field];
 		if ($value) {
 			if (!ifsetor($allowedOptions[$value])) {

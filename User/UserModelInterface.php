@@ -1,8 +1,14 @@
 <?php
 
-interface UserModelInterface {
+interface UserModelInterface
+{
 
-	function try2login();
+	/**
+	 * @param string $login
+	 * @param string $email
+	 * @return mixed
+	 */
+	public function try2login($login, $email = null);
 
 	/**
 	 * Implementation may vary.
@@ -10,14 +16,26 @@ interface UserModelInterface {
 	 */
 	/*function saveLogin();*/
 
-	function isAuth();
+	public function isAuth();
 
-	function isAdmin();
+	public function isAdmin();
 
-	function getLogin();
+	public function getLogin();
 
-	function insert(array $data);
+	public function insert(array $data);
 
-	function getAvatarURL();
+	public function getAvatarURL();
+
+	public function prefs();
+
+	/**
+	 * @param string $acl
+	 * @return bool
+	 */
+	public function can($acl);
+
+	public function getID();
+
+	public function getAllSettings();
 
 }

@@ -2,7 +2,8 @@
 
 use nadlib\Controller\Filter;
 
-class FilterController extends Controller {
+class FilterController extends Controller
+{
 
 	var $fields = [];
 
@@ -27,24 +28,29 @@ class FilterController extends Controller {
 	 */
 	public $desc;
 
-	function setFields(array $fields) {
+	public $collection = null;
+
+	public function setFields(array $fields)
+	{
 		$this->fields = $fields;
 		$this->desc = $this->getFilterDesc($this->fields);
 	}
 
-	function setFilter(Filter $filter) {
+	public function setFilter(Filter $filter)
+	{
 		$this->filter = $filter;
 	}
 
-	function render() {
+	public function render()
+	{
 		$f = new HTMLFormTable($this->desc);
 		$f->setAllOptional();
 		$f->method('POST');
 		$f->defaultBR = true;
-		$f->formHideArray($this->linkVars);
+		$f->formHideArray($this->linker->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
-		$f->prefix(NULL);
+		$f->prefix(null);
 		$f->submit(__('Filter'));
 		return $f;
 	}
@@ -57,7 +63,8 @@ class FilterController extends Controller {
 	 * @throws Exception
 	 * @return array
 	 */
-	function getFilterDesc(array $fields = NULL) {
+	public function getFilterDesc(array $fields = null)
+	{
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);
 //		}
@@ -79,17 +86,18 @@ class FilterController extends Controller {
 	}
 
 	/**
-	 * @param $k
-	 * @param $key
+	 * @param array $k
+	 * @param string $key
 	 * @return array
 	 */
-	public function getFieldFilter(array $k, $key) {
+	public function getFieldFilter(array $k, $key)
+	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
 			in_array('HTMLFormCollection', class_implements($autoClass))
 		) {
 			$k['type'] = new $autoClass();
-			$options = NULL;
+			$options = null;
 		} elseif (ifsetor($k['tf'])) {    // boolean
 			$k['type'] = 'select';
 			$stv = new slTableValue('', array());
@@ -111,30 +119,31 @@ class FilterController extends Controller {
 			//debug($options);
 		} elseif (ifsetor($k['type']) == 'like') {
 			// this is handled in getFilterWhere
-			$options = NULL;
+			$options = null;
 		} else {
 			$k['type'] = $k['type'] ?: 'input';
-			$options = NULL;
+			$options = null;
 		}
 		$k = array(
-				'label'   => $k['name'],
-				'type'    => $k['type'] ?: 'text',
+				'label' => $k['name'],
+				'type' => $k['type'] ?: 'text',
 				'options' => $options,
-				'null'    => true,
-				'value'   => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
-				'more'    => ['class' => "text input-medium"],
-				'==='     => true,
+				'null' => true,
+				'value' => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
+				'more' => ['class' => "text input-medium"],
+				'===' => true,
 			) + $k;
 //		debug(without($k, 'options'));
 		return $k;
 	}
 
-	function getTableFieldOptions($key, $count = false) {
+	public function getTableFieldOptions($key, $count = false)
+	{
 		if ($this->model instanceof OODBase) {
 			$res = $this->db->getTableOptions($this->model->table
 				? $this->model->table
 				: $this->collection->table,
-				$key, array(), 'ORDER BY '.$key, $key);	// NOT 'id' (DISTINCT!)
+				$key, array(), 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
 
 			if ($count) {
 				foreach ($res as &$val) {
@@ -157,7 +166,8 @@ class FilterController extends Controller {
 	 * Converts $this->filter data from URL into SQL where parameters
 	 * @return array
 	 */
-	function getFilterWhere() {
+	public function getFilterWhere()
+	{
 		$where = array();
 
 		$filterList = $this->filter->getIterator();
@@ -175,7 +185,8 @@ class FilterController extends Controller {
 		return $where;
 	}
 
-	function getFilterWherePair($key, $val, $type) {
+	public function getFilterWherePair($key, $val, $type)
+	{
 		$where = [];
 		switch ($type) {
 			case 'like':

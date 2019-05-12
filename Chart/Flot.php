@@ -1,11 +1,14 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Flot - is drawing a flot chart.
  */
-class Flot extends Controller {
+class Flot extends Controller
+{
 
-	public $colors = array(
+	public $colors = [
 		'#edc240',
 		'#afd8f8',
 		'#cb4b4b',
@@ -15,7 +18,7 @@ class Flot extends Controller {
 		"#9440ed",
 		"#40ed94",
 		'#4da74d',
-	);
+	];
 
 	/**
 	 * Raw data single table
@@ -23,7 +26,9 @@ class Flot extends Controller {
 	 */
 	public $data;
 
-	protected $keyKey, $timeKey, $amountKey;
+	protected $keyKey;
+	protected $timeKey;
+	protected $amountKey;
 
 	/**
 	 * A source table pivoted (grouped by) $keyKey
@@ -34,9 +39,9 @@ class Flot extends Controller {
 	/**
 	 * @var array - these are line charts, multiple series as well
 	 */
-	public $cumulative = array();
+	public $cumulative = [];
 
-	public $movingAverage = array();
+	public $movingAverage = [];
 
 	public $min = 0;
 
@@ -58,29 +63,40 @@ class Flot extends Controller {
 	/**
 	 * @var string
 	 */
-	var $flotPath = 'components/flot/flot/';
+	public $flotPath = 'components/flot/flot/';
 
-	var $jsConfig = array(
-    	'xaxis' => array(
-    		'mode' => "time"
-		),
-		'yaxes' => array(
-			array(),
-			array(
-    			'position' => "right"
-			)
-		),
-	);
+	/**
+	 * Inject
+	 * "ticks" => "tickWeeks"
+	 * to show weekly data
+	 * @var array
+	 */
+	public $jsConfig = [
+		'xaxis' => [
+			'mode' => "time",
+			"tickFormatter" => "(val, axis) => {
+						console.log(val);
+						return val.toFixed(axis.tickDecimals);
+			}",
+		],
+		'yaxes' => [
+			[],
+			[
+				'position' => "right"
+			]
+		],
+	];
 
 	public $MALength = 20;
 
 	/**
-	 * @param array $data	- source data
-	 * @param $keyKey		- group by field (distinct charts, lines)
-	 * @param $timeKey		- time field
-	 * @param $amountKey	- value (numeric) field
+	 * @param array $data - source data
+	 * @param string|null $keyKey - group by field (distinct charts, lines)
+	 * @param string $timeKey - time field
+	 * @param string $amountKey - value (numeric) field
 	 */
-	function __construct(array $data, $keyKey, $timeKey, $amountKey) {
+	public function __construct(array $data, $keyKey, $timeKey, $amountKey)
+	{
 		parent::__construct();
 		$this->data = $data;
 		$this->keyKey = $keyKey;
@@ -102,21 +118,23 @@ class Flot extends Controller {
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function setFlotPath($path) {
+	public function setFlotPath($path)
+	{
 		$this->flotPath = $path;
 	}
 
-	function setMinMax() {
+	public function setMinMax()
+	{
 		$this->jsConfig['colors'] = $this->colors;
 
-		$this->jsConfig['yaxes'][0] = array(
+		$this->jsConfig['yaxes'][0] = [
 			'min' => $this->min,
 			'max' => $this->max,
-		);
-		$this->jsConfig['yaxes'][1] += array(
+		];
+		$this->jsConfig['yaxes'][1] += [
 			'min' => $this->cMin,
 			'max' => $this->cMax,
-		);
+		];
 	}
 
 	/**
@@ -124,7 +142,7 @@ class Flot extends Controller {
 	 *
 	 * @param string $divID
 	 * @throws Exception
-	 * @return array
+	 * @return string
 	 * array[19]
 	 * 1309471200    array[2]
 	 * 0    integer    1309471200000
@@ -133,36 +151,39 @@ class Flot extends Controller {
 	 * 0    integer    1314828000000
 	 * 1    integer    39
 	 */
-	function render($divID = 'chart1') {
+	public function render($divID = 'chart1')
+	{
 		$content = '';
 		if (!is_dir($this->flotPath)) {
-			throw new Exception($this->flotPath.' is not correct');
+			throw new Exception($this->flotPath . ' is not correct');
 		}
 		$content .= $this->showChart($divID, $this->chart);
 		return $content;
 	}
 
-	function renderCumulative($divID = 'chart1') {
+	public function renderCumulative($divID = 'chart1')
+	{
 		$content = '';
 		$content .= $this->showChart($divID, $this->chart, $this->cumulative);
 		return $content;
 	}
 
-	function appendCumulative(array $data) {
+	public function appendCumulative(array $data)
+	{
 		//debug($this->cumulative, $data);
-		$cumulative2 = array();
+		$cumulative2 = [];
 		foreach ($this->cumulative as $series) {
 			$cumulative2 = array_merge($cumulative2, $series);
 		}
-		$cumulative = array_values($cumulative2);
-		$dataClass = array();
+		//$cumulative = array_values($cumulative2);
+		$dataClass = [];
 		foreach ($data as $i => &$row) {
-			$color = $this->colors[$row[$this->keyKey]-1];
-			$dataClass[$i] = '" style="background: white; color: '.$color;
+			$color = $this->colors[$row[$this->keyKey] - 1];
+			$dataClass[$i] = '" style="background: white; color: ' . $color;
 			//$row['###TD_CLASS###'] = '" style="background: white; color: '.$color;
 
 			//$row['cumulative'] = $cumulative[$i][1];
-			$jsTime = strtotime($i)*1000;
+			$jsTime = strtotime($i) * 1000;
 			$row['cumulative'] = $this->cumulative['Total'][$jsTime][1];
 		}
 		return $data;
@@ -172,7 +193,8 @@ class Flot extends Controller {
 	 * http://bytes.com/topic/php/answers/747586-calculate-moving-average
 	 * @return string
 	 */
-	function renderMovingAverage() {
+	public function renderMovingAverage()
+	{
 		$content = '';
 		$charts = $this->getChartTable($this->data);
 		$this->movingAverage = $this->getMovingAverage($charts);
@@ -180,24 +202,27 @@ class Flot extends Controller {
 		return $content;
 	}
 
-	function getMovingAverage(array $charts) {
+	public function getMovingAverage(array $charts)
+	{
 		foreach ($charts as $s => &$series) {
-			$res = array();
+			$res = [];
 			foreach ($series as $pair) {
 				$res[$pair[0]] = $pair[1];
 			}
 
 			$i = 0;
 			foreach ($res as &$row) {
-				$slice = array_slice($res, max($i-$this->MALength+1, 0), $this->MALength);
+				$slice = array_slice($res, max($i - $this->MALength + 1, 0), $this->MALength);
 				$row = round(
 					array_sum($slice) /
-					count($slice), 4);
+					count($slice),
+					4
+				);
 				$i++;
 			}
 
 			foreach ($res as $key => &$val) {
-				$val = array($key, $val);
+				$val = [$key, $val];
 			}
 			$series = $res;
 		}
@@ -215,17 +240,22 @@ class Flot extends Controller {
 	 * @internal param string $amountKey
 	 * @return array
 	 */
-	function getChartTable(array $rows) {
-		$chart = array();
+	public function getChartTable(array $rows)
+	{
+		$chart = [];
 		foreach ($rows as $i => $row) {
 			$key = $this->keyKey ? $row[$this->keyKey] : 'one';
 			$timeMaybe = $row[$this->timeKey];
 			if ($timeMaybe) {
 				$time = is_string($timeMaybe) ? strtotime($timeMaybe) : $timeMaybe;
+				$barHeight = $row[$this->amountKey];
+				if (is_string($barHeight)) {
+					$barHeight = strtotime($barHeight);
+				}
 				if ($time != -1 && $time > 100) {
-					$chart[$key][$time] = array($time * 1000, $row[$this->amountKey]);
+					$chart[$key][$time] = [$time * 1000, $barHeight];
 				} else {
-					$chart[$key][$time] = array($timeMaybe, $row[$this->amountKey]);
+					$chart[$key][$time] = [$timeMaybe, $barHeight];
 				}
 			} else {
 				unset($rows[$i]);
@@ -235,7 +265,8 @@ class Flot extends Controller {
 		return $chart;
 	}
 
-	function getChartCumulative(array $chart) {
+	public function getChartCumulative(array $chart)
+	{
 		foreach ($chart as &$sub) {
 			ksort($sub);
 			$sum = 0;
@@ -248,7 +279,8 @@ class Flot extends Controller {
 		return $chart;
 	}
 
-	static function getChartMax(array $chart, $min = false) {
+	public static function getChartMax(array $chart, $min = false)
+	{
 		$max = 0;
 		foreach ($chart as $series) {
 			foreach ($series as $pair) {
@@ -258,50 +290,70 @@ class Flot extends Controller {
 		return $max;
 	}
 
-	function showChart($divID, array $charts, array $cumulative = array()) {
-		if (!$charts) return '';
+	public function showChart($divID, array $charts, array $cumulative = [])
+	{
+		if (!$charts) {
+			return '';
+		}
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
-			src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
+			src="' . $this->flotPath . 'excanvas.min.js"></script><![endif]-->
     	<script language="javascript" type="text/javascript" defer="1"
-    	    src="'.$this->flotPath.'jquery.flot.js"></script>
+    	    src="' . $this->flotPath . 'jquery.canvaswrapper.js"></script>
+		<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.colorhelpers.js"></script>
+		<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.flot.js"></script>
+		<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.flot.saturated.js"></script>
+		<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.flot.browser.js"></script>
+		<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.flot.drawSeries.js"></script>
+		<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.flot.uiConstants.js"></script>
     	<script language="javascript" type="text/javascript" defer="1"
-    	    src="'.$this->flotPath.'jquery.flot.stack.js"></script>
+    	    src="' . $this->flotPath . 'jquery.flot.stack.js"></script>
     	<script language="javascript" type="text/javascript" defer="1"
-    	    src="'.$this->flotPath.'jquery.flot.time.js"></script>';
+    	    src="' . $this->flotPath . 'jquery.flot.hover.js"></script>
+    	<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.flot.time.js"></script>
+    	<script language="javascript" type="text/javascript" defer="1"
+    	    src="' . $this->flotPath . 'jquery.flot.axislabels.js"></script>
+';
 
-		$content = '<div id="'.$divID.'" style="
-			width: '.$this->width.';
-			height: '.$this->height.';
+		$content = '<div id="' . $divID . '" style="
+			width: ' . $this->width . ';
+			height: ' . $this->height . ';
 			border: none 0px silver;"></div>';
 
-		$dKeys = array();
+		$dKeys = [];
 		foreach ($charts as $key => &$rows) {
-			$jsKey = 'd_'.URL::friendlyURL($key);
+			$jsKey = 'd_' . URL::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$dKeys[] = $jsKey;
-			$array = $rows ? array_values($rows) : array();
-			$rows = 'var '.$jsKey.' = {
-				label: "'.$key.'",
-				data: '.json_encode($array).',
+			$array = $rows ? array_values($rows) : [];
+			$rows = 'var ' . $jsKey . ' = {
+				label: "' . $key . '",
+				data: ' . json_encode($array) . ',
 				stack: true,
 				bars: {
 					show: true,
-					barWidth: '.$this->barWidth.',
+					barWidth: ' . $this->barWidth . ',
 					align: "center"
 				}
 			};';
 		}
 
-		$cKeys = array();
+		$cKeys = [];
 		foreach ($cumulative as $key => &$rows) {
-			$jsKey = 'c_'.URL::friendlyURL($key);
+			$jsKey = 'c_' . URL::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$cKeys[] = $jsKey;
-			$array = $rows ? array_values($rows) : array();
-			$rows = 'var '.$jsKey.' = {
-				data: '.json_encode($array).',
+			$array = $rows ? array_values($rows) : [];
+			$rows = 'var ' . $jsKey . ' = {
+				data: ' . json_encode($array) . ',
 				lines: {
 					show: true,
 					fill: false
@@ -312,15 +364,19 @@ class Flot extends Controller {
 		//$max *= 2;
 
 		$config = json_encode($this->jsConfig, defined('JSON_PRETTY_PRINT')
-			? JSON_PRETTY_PRINT : NULL);
-		if (FALSE !== strpos($config, 'ticksWeeks')) {
+			? JSON_PRETTY_PRINT : null);
+		if (false !== strpos($config, 'ticksWeeks')) {
 			$al = AutoLoad::getInstance();
-			$this->index->addJS($al->nadlibFromDocRoot.'js/flot-weeks.js');
+			$this->index->addJS($al->nadlibFromDocRoot . 'js/flot-weeks.js');
 			$config = str_replace('"ticksWeeks"', 'ticksWeeks', $config); // hack
 		}
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
+var deferCounter = 0;
 function defer(method) {
+	if (deferCounter++ > 10) {
+		return;
+	}
 	if (window.jQuery && window.jQuery.plot) {
 		console.log(\'jQuery and plot OK\');
 		method();
@@ -328,7 +384,7 @@ function defer(method) {
 		console.log(\'no jQuery or no plot\');
 		setTimeout(function() { 
 			defer(method) 
-		}, 100);
+		}, 1000);
 	}
 }
 defer(function () {

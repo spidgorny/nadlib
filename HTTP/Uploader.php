@@ -4,29 +4,24 @@
  * Class Uploader
  * General validating uploader with error handling
  */
-class Uploader {
+class Uploader
+{
 
 	/**
 	 * Allowed extensions
 	 * @var array|null
 	 */
-	public $allowed = array(
+	public $allowed = [
 		'gif', 'jpg', 'png', 'jpeg',
-	);
+	];
 
 	/**
 	 * Allowed mime types, not checked if empty
 	 * @var array
 	 */
-	public $allowedMime = array();
+	public $allowedMime = [];
 
-	/**
-	 * Which method of mime detection was used
-	 * @var string
-	 */
-	public $mimeMethod;
-
-	protected $errors = array(
+	public $errors = [
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
 		'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
 		'The uploaded file was only partially uploaded.',
@@ -34,13 +29,13 @@ class Uploader {
 		6 => 'Missing a temporary folder.',
 		'Failed to write file to disk.',
 		'A PHP extension stopped the file upload.'
-	);
+	];
 
 	/**
 	 *
 	 * @param array|null $allowed If provided this will override allowed extensions
 	 */
-	function __construct($allowed = array())
+	public function __construct($allowed = [])
 	{
 		if (!empty($allowed)) {
 			$this->allowed = $allowed;
@@ -51,7 +46,7 @@ class Uploader {
 		}
 	}
 
-	function isUploaded()
+	public function isUploaded()
 	{
 		$uploaded = !!$_FILES;
 		$firstFile = first($_FILES);
@@ -81,12 +76,12 @@ class Uploader {
 		$f = new HTMLForm();
 		$f->file($fieldName);
 		$f->text('<br />');
-		$f->submit('Upload', array('class' => 'btn btn-primary'));
+		$f->submit('Upload', ['class' => 'btn btn-primary']);
 		$f->text($this->getLimitsDiv());
 		return $f;
 	}
 
-	function getLimitsDiv()
+	public function getLimitsDiv()
 	{
 		$tmpDir = ini_get('upload_tmp_dir') ?: sys_get_temp_dir();
 		if (is_writable($tmpDir)) {
@@ -125,15 +120,73 @@ post_max_size: ' . $post_max_size . '">' .
 		';
 	}
 
-	function getLimits()
+	public function getLimits()
 	{
-		return array(
+		return [
 			'upload_max_filesize' => ini_get('upload_max_filesize'),
-			'post_max_size'       => ini_get('post_max_size'),
-			'disk_free_space'     => round(disk_free_space('.') / 1024 / 1024) . 'MB',
-		);
+			'post_max_size' => ini_get('post_max_size'),
+			'disk_free_space' => round(disk_free_space('.') / 1024 / 1024) . 'MB',
+		];
 	}
 
+	/**
+	 * @param $file
+	 * @throws UploadException
+	 */
+	public function validateEverything($from)
+	{
+		if (is_array($from)) {
+			$uf = $from;            // $_FILES['whatever']
+		} else {
+			$uf = $_FILES[$from];   // string index
+		}
+		if (!$uf) {
+			throw new UploadException("[{$from}] is not a valid $_FILES index");
+		}
+		if (!$this->checkError($uf)) {
+			throw new UploadException($this->errors[$uf['error']]);
+		}
+		if (!$this->checkExtension($uf)) {
+			throw new UploadException('File extension is not allowed (' . $uf['ext'] . ')');
+		}
+		if (!$this->checkMime($uf)) {
+			throw new UploadException('File mime-type is not allowed (' . $uf['mime'] . ')');
+		}
+	}
+
+	public function getFinalDestination($from, $to, $overwriteExistingFile = true)
+	{
+		if (is_array($from)) {
+			$uf = $from;            // $_FILES['whatever']
+		} else {
+			$uf = $_FILES[$from];   // string index
+		}
+		// if you don't want existing files to be overwritten,
+		// new file will be renamed to *_n,
+		// where n is the number of existing files
+		$hasExtension = pathinfo($to, PATHINFO_EXTENSION);
+		if (is_dir($to) || !$hasExtension) {
+			$fileName = rtrim($to, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $uf['name'];
+		} else {
+			$fileName = $to;
+		}
+		if (!is_dir(dirname($fileName))) {
+			@mkdir(dirname($fileName), 0777, true);
+		}
+		if (!$overwriteExistingFile && file_exists($fileName)) {
+			$actualName = pathinfo($fileName, PATHINFO_FILENAME);
+			$originalName = $actualName;
+			$extension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+			$i = 1;
+			while (file_exists($to . $actualName . "." . $extension)) {
+				$actualName = (string)$originalName . '_' . $i;
+				$fileName = $to . $actualName . "." . $extension;
+				$i++;
+			}
+		}
+		return $fileName;
+	}
 	/**
 	 * @param string|array $from - usually 'file' - the same name as in getUploadForm()
 	 * @param string $to - directory
@@ -148,53 +201,62 @@ post_max_size: ' . $post_max_size . '">' .
 		} else {
 			$uf = $_FILES[$from];   // string index
 		}
-		if ($uf) {
-			if (!$this->checkError($uf)) {
-				throw new Exception($this->errors[$uf['error']]);
-			}
-			if (!$this->checkExtension($uf)) {
-				throw new Exception('File extension is not allowed (' . $uf['ext'] . ')');
-			}
-			if (!$this->checkMime($uf)) {
-				throw new Exception('File mime-type is not allowed (' . $uf['mime'] . ')');
-			}
+		$this->validateEverything($from);
 
-			// if you don't want existing files to be overwritten,
-			// new file will be renamed to *_n,
-			// where n is the number of existing files
-			if (is_dir($to)) {
-				$fileName = $to . $uf['name'];
-			} else {
-				$fileName = $to;
-			}
-			if (!$overwriteExistingFile && file_exists($fileName)) {
-				$actualName = pathinfo($fileName, PATHINFO_FILENAME);
-				$originalName = $actualName;
-				$extension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-				$i = 1;
-				while (file_exists($to . $actualName . "." . $extension)) {
-					$actualName = (string)$originalName . '_' . $i;
-					$fileName = $to . $actualName . "." . $extension;
-					$i++;
-				}
-			}
-
+		$fileName = $this->getFinalDestination($from, $to, $overwriteExistingFile);
+		if (!is_dir(dirname($fileName))) {
 			@mkdir(dirname($fileName), 0777, true);
-			$ok = move_uploaded_file($uf['tmp_name'], $fileName);
-			if (!$ok) {
-				//throw new Exception($php_errormsg);	// empty
-				$error = error_get_last();
-				//debug($error);
-				throw new Exception($error['message']);
-			}
-		} else {
-			$ok = false;
+		}
+		$ok = move_uploaded_file($uf['tmp_name'], $fileName);
+		if (!$ok) {
+			//throw new Exception($php_errormsg);	// empty
+			$error = error_get_last();
+			pre_print_r(__METHOD__, $error);
+			throw new UploadException($error['message']);
 		}
 		return $ok;
 	}
 
-	function checkError(array $uf)
+	/**
+	 * @param $from
+	 * @param \League\Flysystem\Filesystem $path
+	 * @param null $fileName
+	 * @return bool
+	 * @throws UploadException
+	 */
+	public function moveUploadFly($from, League\Flysystem\Filesystem $path, $fileName = null)
+	{
+		if (is_array($from)) {
+			$uf = $from;            // $_FILES['whatever']
+		} else {
+			$uf = $_FILES[$from];   // string index
+		}
+		if (!$uf) {
+			throw new UploadException("[{$from}] is not a valid $_FILES index");
+		}
+		if (!$this->checkError($uf)) {
+			throw new UploadException($this->errors[$uf['error']]);
+		}
+		if (!$this->checkExtension($uf)) {
+			throw new UploadException('File extension is not allowed (' . $uf['ext'] . ')');
+		}
+		if (!$this->checkMime($uf)) {
+			throw new UploadException('File mime-type is not allowed (' . $uf['mime'] . ')');
+		}
+
+		if (!$fileName) {
+			$fileName = basename($uf['name']);
+		}
+
+		$fp = fopen($uf['tmp_name'], 'r+');
+		$ok = $path->writeStream($fileName, $fp);
+		if (is_resource($fp)) {
+			fclose($fp);
+		}
+		return $ok;
+	}
+
+	public function checkError(array $uf)
 	{
 		$errorCode = $uf['error'];
 		return (!$errorCode);
@@ -205,7 +267,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkExtension(array &$uf)
+	public function checkExtension(array &$uf)
 	{
 		if ($this->allowed) {
 			$filename = $uf['name'];
@@ -223,73 +285,17 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkMime(array &$uf)
+	public function checkMime(array &$uf)
 	{
 		if ($this->allowedMime) {
-			$mime = $this->get_mime_type($uf['tmp_name']);
+			$mimer = new MIME();
+			$mime = $mimer->get_mime_type($uf['tmp_name']);
 			$uf['mime'] = $mime;
 			//debug($mime, $this->allowedMime);
 			return in_array($mime, $this->allowedMime);
 		} else {
 			return true;
 		}
-	}
-
-	function test_mime()
-	{
-		return [
-			'finfo' => class_exists('finfo'),
-			'finfo_open' => function_exists('finfo_open'),
-			'mime_content_type' => function_exists('mime_content_type'),
-		];
-	}
-
-	/**
-	 * Tries different methods
-	 * @param $filename
-	 * @return string
-	 */
-	function get_mime_type($filename)
-	{
-		if (class_exists('finfo')) {
-			$fi = new finfo();
-			$mime = $fi->file($filename, FILEINFO_MIME_TYPE);
-			$this->mimeMethod = 'finfo';
-		} elseif (function_exists('finfo_open')) {
-			$fi = finfo_open(FILEINFO_MIME_TYPE);
-			$mime = finfo_file($fi, $filename);
-			$this->mimeMethod = 'finfo_open';
-		} elseif (function_exists('mime_content_type')) {
-			$mime = mime_content_type($filename);
-			$this->mimeMethod = 'mime_content_type';
-		} else {
-			$mime = $this->get_mime_type_system($filename);
-			$this->mimeMethod = 'get_mime_type_system';
-		}
-		$mime = trim($mime);    // necessary !!!
-		//debug($mime, $this->mimeMethod);
-		return $mime;
-	}
-
-	/**
-	 * http://www.php.net/manual/en/function.finfo-open.php#78927
-	 * @param $filepath
-	 * @return string
-	 */
-	function get_mime_type_system($filepath)
-	{
-		ob_start();
-		system("file --mime-type -i --mime -b {$filepath}");
-		$output = ob_get_clean();
-		$output = explode("; ", $output);    // text/plain; charset=us-ascii
-		if (is_array($output)) {
-			$output = $output[0];
-		}
-		$output = explode(" ", $output);    // text/plain charset=us-ascii
-		if (is_array($output)) {
-			$output = $output[0];
-		}
-		return $output;
 	}
 
 	/**
@@ -308,14 +314,15 @@ post_max_size: ' . $post_max_size . '">' .
 		}
 	}
 
-	function getContent($from)
+	public function getContent($from)
 	{
-		if ($uf = $_FILES[$from]) {
+		$uf = $_FILES[$from];
+		if ($uf) {
 			if ($uf['tmp_name']) {
 				return file_get_contents($uf['tmp_name']);
 			}
 		}
-		return NULL;
+		return null;
 	}
 
 	public function getTempFile($fieldName = 'file')
@@ -323,7 +330,7 @@ post_max_size: ' . $post_max_size . '">' .
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['tmp_name'];
 		}
-		return NULL;
+		return null;
 	}
 
 	public function getBasename($fieldName = 'file')
@@ -331,7 +338,7 @@ post_max_size: ' . $post_max_size . '">' .
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['name'];
 		}
-		return NULL;
+		return null;
 	}
 
 	/**
@@ -340,7 +347,7 @@ post_max_size: ' . $post_max_size . '">' .
 	 * @param $callback
 	 * @param array $params
 	 */
-	function handleBlueImpUpload($callback, array $params)
+	public function handleBlueImpUpload($callback, array $params)
 	{
 		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
 		$uh = new UploadHandler($params, false);
@@ -358,7 +365,7 @@ post_max_size: ' . $post_max_size . '">' .
 				$request = Request::getInstance();
 				if ($request->isAjax()) {
 					echo json_encode($json);
-				} else if ($redirect) {
+				} elseif ($redirect) {
 					$request->redirect($redirect);
 				}
 			} else {
@@ -378,11 +385,12 @@ post_max_size: ' . $post_max_size . '">' .
 	 * <input type="file" name="photo2[]" />
 	 * <input type="file" name="photo2[]" />
 	 * <input type="file" name="photo3[]" multiple />
+	 * @param array $source = $_FILES
 	 * @return   Array
 	 * @todo
 	 * @see  http://stackoverflow.com/questions/5444827/how-do-you-loop-through-files-array
 	 */
-	public static function GetPostedFiles()
+	public static function GetPostedFiles($source = null)
 	{
 		/* group the information together like this example
 		Array
@@ -420,21 +428,19 @@ post_max_size: ' . $post_max_size . '">' .
 		)
 		*/
 
-		$Result = array();
-		$Name = array();
-		$Type = array();
-		$TmpName = array();
-		$Error = array();
-		$Size = array();
-		foreach ($_FILES as $Field => $Data) {
+		$source = is_null($source) ? $_FILES : $source;
+
+		$Result = [];
+
+		foreach ($source as $Field => $Data) {
 			foreach ($Data as $Key => $Val) {
-				$Result[$Field] = array();
+				$Result[$Field] = [];
 				if (!is_array($Val)) {
 					$Result[$Field] = $Data;
+				} elseif (isset($Data['name'])) {
+					$Result[$Field] = self::GPF_FilesFlip($Data);
 				} else {
-					$Res = array();
-					self::GPF_FilesFlip($Res, array(), $Data);
-					$Result[$Field] += $Res;
+					$Result[$Field] = $Data;
 				}
 			}
 		}
@@ -442,34 +448,26 @@ post_max_size: ' . $post_max_size . '">' .
 		return $Result;
 	}
 
-	private static function GPF_ArrayMergeRecursive($PaArray1, $PaArray2)
+	// helper method for GetPostedFiles
+	private static function GPF_FilesFlip(array $Value)
 	{
-		// helper method for GetPostedFiles
-		if (!is_array($PaArray1) or !is_array($PaArray2))
-			return $PaArray2;
-		foreach ($PaArray2 AS $SKey2 => $SValue2)
-			$PaArray1[$SKey2] = self::GPF_ArrayMergeRecursive(@$PaArray1[$SKey2], $SValue2);
-		return $PaArray1;
+		$Result = [];
+		foreach ($Value['name'] as $K => $V) {
+			$Result[$K] = [];
+			foreach ($Value as $param => $set) {
+				$Result[$K][$param] = $set[$K];
+			}
+		}
+		return $Result;
 	}
 
-	private static function GPF_FilesFlip(&$Result, $Keys, $Value)
+	public function getError($code)
 	{
-		// helper method for GetPostedFiles
-		if (is_array($Value)) {
-			foreach ($Value as $K => $V) {
-				$NewKeys = $Keys;
-				array_push($NewKeys, $K);
-				self::GPF_FilesFlip($Result, $NewKeys, $V);
-			}
-		} else {
-			$Res = $Value;
-			// move the innermost key to the outer spot
-			$First = array_shift($Keys);
-			array_push($Keys, $First);
-			foreach (array_reverse($Keys) as $K)
-				$Res = array($K => $Res); // you might think we'd say $Res[$K] = $Res, but $Res starts out not as an array
-			$Result = self::GPF_ArrayMergeRecursive($Result, $Res);
+		$message = $this->errors[$code];
+		if ($code == 1) {
+			$message .= ' ['.ini_get('upload_max_filesize').']';
 		}
+		return $message;
 	}
 
 }

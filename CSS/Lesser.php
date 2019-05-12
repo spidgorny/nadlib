@@ -1,6 +1,7 @@
 <?php
 
-class Lesser extends AppController {
+class Lesser extends Controller
+{
 
 	public $layout = 'none';
 
@@ -12,18 +13,20 @@ class Lesser extends AppController {
 	 */
 	public static $public = true;
 
-	function __construct() {
+	public function __construct()
+	{
 		if (!ifsetor($_REQUEST['d'])) {
 			unset($_COOKIE['debug']);
 		} else {
 			$_COOKIE['debug'] = 1;
 		}
 		parent::__construct();
-		$this->output = Path::make(AutoLoad::getInstance()->appRoot)->appendString($this->output);
+		$appRoot = AutoLoad::getInstance()->getAppRoot();
+		$this->output = Path::make($appRoot)->appendString($this->output);
 		$cacheDir = dirname($this->output);
 		nodebug(array(
 			'lessc' => class_exists('lessc'),
-			'appRoot' => AutoLoad::getInstance()->appRoot,
+			'appRoot' => $appRoot,
 			'output' => $this->output,
 			'cacheDir' => $cacheDir,
 			'file_exists()' => file_exists($cacheDir),
@@ -31,16 +34,17 @@ class Lesser extends AppController {
 			'is_writable()' => is_writable($cacheDir)
 		), DebugHTML::LEVELS, 5);
 		if (!is_dir($cacheDir)) {
-			echo '#mkdir(', $cacheDir, ');'."\n";
+			echo '#mkdir(', $cacheDir, ');' . "\n";
 			$ok = mkdir($cacheDir);
 			if (!$ok) {
-				throw new Exception('Cache dir not existing, can not be created. '.$cacheDir);
+				throw new Exception('Cache dir not existing, can not be created. ' . $cacheDir);
 			}
 		}
 		@set_time_limit(30);  // compiling bootstrap
 	}
 
-	function render() {
+	function render()
+	{
 		session_write_close();
 		//$less->importDir[] = '../../';
 		$cssFile = $this->request->getFilePathName('css');
@@ -48,14 +52,14 @@ class Lesser extends AppController {
 			$cssFile = 'public/' . $this->request->getTrim('css');
 			if (!file_exists($cssFile)) {
 				$cssFile = new Path(AutoLoad::getInstance()->documentRoot);
-				$cssFile->appendString($_SERVER['REQUEST_URI']);	// rewrite_rule
+				$cssFile->appendString($_SERVER['REQUEST_URI']);    // rewrite_rule
 				$cssFile = $cssFile->getUncapped();
 				//echo $cssFile.BR;
 			}
 		}
 		if ($cssFile) {
 			$cssFileName = $this->request->getFilename('css');
-			$this->output = dirname($this->output).'/'.str_replace('.less', '.css', $cssFileName);
+			$this->output = dirname($this->output) . '/' . str_replace('.less', '.css', $cssFileName);
 			//debug($cssFile, $cssFileName, file_exists($cssFile), $this->output);
 
 			if (!headers_sent()) {
@@ -105,7 +109,7 @@ class Lesser extends AppController {
 			echo getDebug($_REQUEST);
 			echo 'error which file?';
 		}
-		$this->request->set('ajax', true);	// avoid any HTML
+		$this->request->set('ajax', true);    // avoid any HTML
 	}
 
 }

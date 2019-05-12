@@ -1,30 +1,127 @@
 <?php
 
-class MarshalParams {
+/**
+ * Class MarshalParams
+ * Poor programmers' dependency injection solution
+ * Will check the reflection of the class to see which parameters need to be injected
+ */
+class MarshalParams
+{
 
-	var $object;
+	/**
+	 * @var object
+	 * This is an object with functions which require DI or
+	 * Container should have functions starting with 'get' and the class name
+	 */
+	public $object;
 
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
-	function __construct($object) {
+	public function __construct($object)
+	{
 		$this->object = $object;
 		$this->request = Request::getInstance();
 	}
 
-	function call($method) {
+	/**
+	 * @param string $class
+	 * @return object
+	 * @throws ReflectionException
+	 */
+	public function make($class)
+	{
+		return self::makeInstanceWithInjection($class, $this->object);
+	}
+
+	/**
+	 * @param string $class
+	 * @param object $container
+	 * @return object
+	 * @throws ReflectionException
+	 */
+	public static function makeInstanceWithInjection($class, $container)
+	{
+		$cr = new ReflectionClass($class);
+		$constructor = $cr->getConstructor();
+		if ($constructor) {
+			$init = self::getFunctionArguments($container, $constructor);
+//			debug($class, $constructor->getName(), $init);
+			// PHP 7
+			//$instance = new $class(...$init);
+			$reflector = new ReflectionClass($class);
+			$instance = $reflector->newInstanceArgs($init);
+		} else {
+			$instance = new $class();
+		}
+		return $instance;
+	}
+
+	/**
+	 * @param object $container
+	 * @param ReflectionMethod $constructor
+	 * @return array
+	 * @throws ReflectionException
+	 */
+	public static function getFunctionArguments($container, ReflectionMethod $constructor)
+	{
+		$init = []; // parameter values to the constructor
+		$params = $constructor->getParameters();
+		foreach ($params as $param) {
+			$name = $param->getName();
+			if ($param->isArray() || $param->isDefaultValueAvailable()) {
+				$init[$name] = $param->getDefaultValue();
+			} else {
+				if (method_exists($param, 'getType')) {
+					$type = $param->getType();
+				} else {
+					$type = $param->getClass()->name;
+				}
+				if ($type) {
+					if (!is_string($type) && $type->isBuiltin()) {
+						$init[$name] = $param->getDefaultValue();
+					} else {
+						$typeClass = method_exists($type, 'getName')
+							? $type->getName()
+							: $type . '';
+						$typeGenerator = 'get' . $typeClass;
+//						debug($typeClass, get_class($container), $typeGenerator);
+						if (method_exists($container, $typeGenerator)) {
+							$init[$name] = call_user_func([$container, $typeGenerator]);
+						} else {
+							// build the dependency
+							$init[$name] = self::makeInstanceWithInjection($typeClass, $container);
+						}
+					}
+				} else {
+					$init[$name] = null;
+				}
+			}
+		}
+		return $init;
+	}
+
+	/**
+	 * @param string $method
+	 * @return mixed
+	 * @throws ReflectionException
+	 */
+	public function call($method)
+	{
 		return $this->callMethodByReflection($this->object, $method);
 	}
 
 	/**
 	 * Will detect parameter types and call getInstance() or new $class
-	 * @param $proxy
-	 * @param $method
+	 * @param object $proxy
+	 * @param string $method
 	 * @return mixed
+	 * @throws ReflectionException
 	 */
-	private function callMethodByReflection($proxy, $method) {
+	private function callMethodByReflection($proxy, $method)
+	{
 		$r = new ReflectionMethod($proxy, $method);
 		if ($r->getNumberOfParameters()) {
 			$assoc = array();
@@ -35,7 +132,7 @@ class MarshalParams {
 				} elseif ($param->isDefaultValueAvailable()) {
 					$assoc[$name] = $param->getDefaultValue();
 				} else {
-					$assoc[$name] = NULL;
+					$assoc[$name] = null;
 				}
 			}
 			//debug($assoc);
@@ -46,7 +143,8 @@ class MarshalParams {
 		return $content;
 	}
 
-	function getParameterByReflection(ReflectionParameter $param) {
+	public function getParameterByReflection(ReflectionParameter $param)
+	{
 		$name = $param->getName();
 		if ($param->isArray()) {
 			$return = $this->request->getArray($name);
@@ -62,45 +160,12 @@ class MarshalParams {
 					$obj = $paramClass::getInstance($return);
 					$return = $obj;
 				} else {
-					$obj = new $paramClass($assoc[$name]);
+					$obj = new $paramClass(/*$assoc[$name]*/);
 					$return = $obj;
 				}
 			}
 		}
 		return $return;
-	}
-
-	static function makeInstanceWithInjection($class, $container)
-	{
-		$init = []; // parameter values to the constructor
-		$cr = new ReflectionClass($class);
-		$constructor = $cr->getConstructor();
-		if ($constructor) {
-			$params = $constructor->getParameters();
-			foreach ($params as $param) {
-				$type = $param->getType();
-				if ($type) {
-					if ($type->isBuiltin()) {
-						$init[] = $param->getDefaultValue();
-					} else {
-						$typeClass = method_exists($type, 'getName')
-							? $type->getName()
-							: $type->__toString();
-						//					debug($typeClass);
-						$init[] = call_user_func([$container, 'get' . $typeClass]);
-					}
-				} else {
-					$init[] = null;
-				}
-			}
-			// PHP 7
-			//$instance = new $class(...$init);
-			$reflector = new ReflectionClass($class);
-			$instance = $reflector->newInstanceArgs($init);
-		} else {
-			$instance = new $class();
-		}
-		return $instance;
 	}
 
 }
