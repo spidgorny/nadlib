@@ -14,7 +14,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 	}
 
 	/**
-	 * @param $name
+	 * @param string $name
 	 * @return DBLayerJSONTable
 	 */
 	function getTable($name)

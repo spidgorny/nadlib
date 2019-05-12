@@ -1,60 +1,70 @@
 <?php
 
-class Preferences {
+class Preferences
+{
 
 	/**
 	 * @var User
 	 */
 	protected $user;
 
-	public $prefs = array();	// for debug
+	public $prefs = array();    // for debug
 
 	/**
 	 * Preferences constructor.
 	 * @param $user User|NoUser
 	 */
-	function __construct($user) {
+	public function __construct($user)
+	{
 		$this->user = $user;
 		$this->prefs = unserialize($this->user->data['prefs']);
 	}
 
-	function set($key, $val) {
+	public function set($key, $val)
+	{
 		$this->prefs[$key] = $val;
+		//debug(__METHOD__, typ($this), $key, $val);
 	}
 
-	function get($key) {
+	public function get($key, $default = null)
+	{
 		//debug(__METHOD__, $key);
-		return ifsetor($this->prefs[$key]);
+		return ifsetor($this->prefs[$key], $default);
 	}
 
-	function un_set($key) {
+	public function un_set($key)
+	{
 		unset($this->prefs[$key]);
 	}
 
-	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {
+	public function getSetPref($key, $prio1 = null, $prio3 = null)
+	{
 		$prio2 = $this->get($key);
-		if ($prio1 != NULL) {
+		if ($prio1 != null) {
 			$val = $prio1;
-		} else if ($prio2 != NULL) {
+		} elseif ($prio2 != null) {
 			$val = $prio2;
 		} else {
 			$val = $prio3;
 		}
-/*		debug(array(
-			$prio1,
-			$prio2,
-			$prio3,
-			$val,
-		));
-*/		$this->set($key, $val);
+		/*		debug(array(
+					$prio1,
+					$prio2,
+					$prio3,
+					$val,
+				));
+		*/
+		$this->set($key, $val);
 		return $val;
 	}
 
-	function serialize() {
+	public function serialize()
+	{
 		return serialize($this->prefs);
 	}
 
-	function getData() {
+	public function getData()
+	{
 		return $this->prefs;
 	}
 

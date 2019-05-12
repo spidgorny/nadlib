@@ -4,7 +4,8 @@
  * Class dbLayerPDO
  * @mixin SQLBuilder
  */
-class DBLayerPDO extends DBLayerBase implements DBInterface {
+class DBLayerPDO extends DBLayerBase implements DBInterface
+{
 
 	/**
 	 * @var PDO
@@ -31,10 +32,11 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 	 */
 	protected $dataSeek = NULL;
 
-	function __construct($db = NULL, $host = NULL,
-						 $user = NULL, $password = NULL,
-						 $scheme = 'mysql', $driver = NULL,
-						 $port = 3306) {
+	public function __construct($db = null, $host = null,
+								$user = null, $password = null,
+								$scheme = 'mysql', $driver = null,
+								$port = 3306)
+	{
 		if ($user) {
 			$this->connect($user, $password,
 				$scheme, $driver,
@@ -48,20 +50,22 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 //		debug_pre_print_backtrace();
 	}
 
-	static function getAvailableDrivers() {
+	public static function getAvailableDrivers()
+	{
 		return PDO::getAvailableDrivers();
 	}
 
 	/**
-	 * @param $user
-	 * @param $password
-	 * @param $scheme
-	 * @param $driver        string IBM DB2 ODBC DRIVER
-	 * @param $host
-	 * @param $db
+	 * @param string $user
+	 * @param string $password
+	 * @param string $scheme
+	 * @param string $driver string IBM DB2 ODBC DRIVER
+	 * @param string $host
+	 * @param string $db
 	 * @param int $port
 	 */
-	function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306) {
+	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
+	{
 		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
 		if ($scheme == 'sqlite') {
 			$this->database = basename($db);
@@ -84,16 +88,48 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function isConnected() {
+	public function isConnected()
+	{
 		return !!$this->connection
 			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
 	}
 
-	function connectDSN($dsn, $user = NULL, $password = NULL) {
+	/**
+	 * @param string $url
+	 * @return mixed
+	 * @see http://php.net/manual/de/function.parse-url.php#83828
+	 */
+	function parseUrl($url)
+	{
+		$r = "^(?:(?P<scheme>\w+)://)?";
+		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
+		$r .= "(?P<host>(?:(?P<subdomain>[\w\.]+)\.)?" . "(?P<domain>\w+\.(?P<extension>\w+)))";
+		$r .= "(?::(?P<port>\d+))?";
+		$r .= "(?P<path>[\w/]*/(?P<file>\w+(?:\.\w+)?)?)?";
+		$r .= "(?:\?(?P<arg>[\w=&]+))?";
+		$r .= "(?:#(?P<anchor>\w+))?";
+		$r = "!$r!";                                                // Delimiters
+
+		preg_match($r, $url, $out);
+
+		return $out;
+	}
+
+	public function connectDSN($dsn, $user = NULL, $password = NULL)
+	{
+		if (!$user) {
+			$dsnParts = parse_url($dsn);
+//			debug($dsnParts);
+			$user = $dsnParts['user'];
+			$password = $dsnParts['pass'];
+//			$dsn = str_replace($user.':'.$password.'@', '', $dsn);
+			$dsnBuilder = DSNBuilder::make($dsnParts['scheme'], $dsnParts['host'], '', '', trim($dsnParts['path'], '/'), $dsnParts['port']);
+			$dsn = $dsnBuilder->__toString();
+		}
 		$this->dsn = $dsn;
 		$options = array(
 			PDO::ATTR_PERSISTENT => false,
-			PDO::ATTR_ERRMODE    => PDO::ERRMODE_EXCEPTION
+			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 		);
 		if ($this->isMySQL()) {
 			$this->dsn .= ';charset=utf8';
@@ -104,6 +140,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 			$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
 			debug([
+				'class' => get_class($e),
+				'exception' => $e->getMessage(),
 				'dsn' => $this->dsn,
 				'extensions' => get_loaded_extensions(),
 			]);
@@ -122,7 +160,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function perform($query, array $params = array()) {
+	public function perform($query, array $params = array())
+	{
 //		echo $query, BR;
 		//debug($params);
 		$this->lastQuery = $query;
@@ -147,15 +186,15 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		}
 		$this->queryTime += $profiler->elapsed();
 		if ($this->logToLog) {
-			$runTime = number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime.' '.$query);
+			$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
+			error_log($runTime . ' ' . $query);
 		}
 		if ($this->lastResult) {
 			$profiler = new Profiler();
 			try {
 				$ok = $this->lastResult->execute($params);
 			} catch (PDOException $e) {
-				debug($query.'', $params, $e->getMessage());
+				debug($query . '', $params, $e->getMessage());
 				throw $e;
 			}
 			$this->queryTime += $profiler->elapsed();
@@ -174,27 +213,27 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 					'result' => $this->lastResult,
 				));
 				$e = new DatabaseException(getDebug(array(
-						'class' => get_class($this),
-						'ok' => $ok,
-						'code' => $this->connection->errorCode(),
-						'errorInfo' => $this->connection->errorInfo(),
-						'query' => $query,
-						'connection' => $this->connection,
-						'result' => $this->lastResult,
-					)),
-					$this->connection->errorCode() ?: 0);
-				$e->setQuery($query);
-				throw $e;
-			}
-		} else {
-			$e = new DatabaseException(getDebug(array(
 					'class' => get_class($this),
+					'ok' => $ok,
 					'code' => $this->connection->errorCode(),
 					'errorInfo' => $this->connection->errorInfo(),
 					'query' => $query,
 					'connection' => $this->connection,
 					'result' => $this->lastResult,
 				)),
+					$this->connection->errorCode() ?: 0);
+				$e->setQuery($query);
+				throw $e;
+			}
+		} else {
+			$e = new DatabaseException(getDebug(array(
+				'class' => get_class($this),
+				'code' => $this->connection->errorCode(),
+				'errorInfo' => $this->connection->errorInfo(),
+				'query' => $query,
+				'connection' => $this->connection,
+				'result' => $this->lastResult,
+			)),
 				$this->connection->errorCode() ?: 0);
 			$e->setQuery($query);
 			throw $e;
@@ -203,14 +242,15 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 	}
 
 	/**
-	 * @param $res PDOStatement
+	 * @param PDOStatement $res
 	 * @return array|mixed
 	 */
-	function numRows($res = NULL) {
+	public function numRows($res = null)
+	{
 		$count = $res->rowCount();
 		//debug($this->lastQuery, $count, $this->getScheme());
 		if ($count == -1 || $this->getScheme() == 'sqlite') {
-			$countQuery = 'SELECT count(*) FROM ('.$res->queryString.') AS sub1';
+			$countQuery = 'SELECT count(*) FROM (' . $res->queryString . ') AS sub1';
 			$rows = $this->fetchAll($countQuery);
 			//debug($countQuery, $rows);
 			$count = first(first($rows));
@@ -218,17 +258,20 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		return $count;
 	}
 
-	function affectedRows($res = NULL) {
+	public function affectedRows($res = null)
+	{
 		return $this->lastResult->rowCount();
 	}
 
-	function getScheme() {
+	public function getScheme()
+	{
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
 		return $scheme;
 	}
 
-	function getTables() {
+	public function getTables()
+	{
 		$tables = $this->getTablesEx();
 		$names = array_keys($tables);
 		return $names;
@@ -240,7 +283,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 	 * @throws DatabaseException
 	 * @throws Exception
 	 */
-	function getTablesEx() {
+	public function getTablesEx()
+	{
 		$tables = array();
 		$scheme = $this->getScheme();
 		if ($this->isMySQL()) {
@@ -272,26 +316,30 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		return $tables;
 	}
 
-	function lastInsertID($res, $table = NULL) {
+	public function lastInsertID($res, $table = null)
+	{
 		return $this->connection->lastInsertId();
 	}
 
 	/**
 	 * @param PDOStatement $res
 	 */
-	function free($res) {
+	public function free($res)
+	{
 		if ($res) {
 			$res->closeCursor();
 		}
 	}
 
-	function quoteKey($key) {
+	public function quoteKey($key)
+	{
 		$driver = $this->getDriver();
 		$content = $driver->quoteKey($key);
 		return $content;
 	}
 
-	function getDriver() {
+	public function getDriver()
+	{
 		$driverMap = [
 			'mysql' => 'MySQL',
 			'pgsql' => 'DBLayer',
@@ -302,19 +350,21 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		if (isset($driverMap[$scheme])) {
 			return new $driverMap[$scheme];
 		} else {
-			throw new InvalidArgumentException(__METHOD__.' not implemented for ['.$scheme.']');
+			throw new InvalidArgumentException(__METHOD__ . ' not implemented for [' . $scheme . ']');
 		}
 	}
 
-	function escapeBool($value) {
+	public function escapeBool($value)
+	{
 		return intval(!!$value);
 	}
 
 	/**
-	 * @param $res PDOStatement
+	 * @param PDOStatement $res
 	 * @return mixed
 	 */
-	function fetchAssoc($res) {
+	public function fetchAssoc($res)
+	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -322,7 +372,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		return $row;
 	}
 
-	function dataSeek($res, $int) {
+	public function dataSeek($res, $int)
+	{
 		$this->dataSeek = $int;
 	}
 
@@ -330,19 +381,21 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 	 * @param PDOStatement $res
 	 * @return mixed
 	 */
-	function fetchAssocSeek($res) {
+	public function fetchAssocSeek($res)
+	{
 		return $res->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_ABS, $this->dataSeek);
 	}
 
-	function getTableColumnsEx($table) {
+	public function getTableColumnsEx($table)
+	{
 		switch ($this->getScheme()) {
 			case 'mysql':
 			case 'mysqli':
-				$this->perform('show columns from '.$this->quoteKey($table));
+				$this->perform('show columns from ' . $this->quoteKey($table));
 				$tableInfo = $this->fetchAll($this->lastResult, 'Field');
 				break;
 			case 'sqlite':
-				$this->perform('PRAGMA table_info('.$this->quoteKey($table).')');
+				$this->perform('PRAGMA table_info(' . $this->quoteKey($table) . ')');
 				$tableInfo = $this->fetchAll($this->lastResult, 'name');
 				foreach ($tableInfo as &$row) {
 					$row['Field'] = $row['name'];
@@ -359,10 +412,11 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 
 	/**
 	 * Avoid this as hell, just for compatibility
-	 * @param $str
+	 * @param string $str
 	 * @return string
 	 */
-	function escape($str) {
+	public function escape($str)
+	{
 		$quoted = $this->connection->quote($str);
 		if ($quoted{0} == "'") {
 			$quoted = substr($quoted, 1, -1);
@@ -370,7 +424,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		return $quoted;
 	}
 
-	function fetchAll($stringOrRes, $key = NULL) {
+	public function fetchAll($stringOrRes, $key = NULL)
+	{
 		if (is_string($stringOrRes)) {
 			$res = $this->perform($stringOrRes);
 		} else {
@@ -393,12 +448,13 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 	 * http://stackoverflow.com/questions/15637291/how-use-mysql-data-seek-with-pdo
 	 * Will start with 0 and skip rows until $start.
 	 * Will end with $start+$limit.
-	 * @param $res
-	 * @param $start
-	 * @param $limit
+	 * @param resource $res
+	 * @param int $start
+	 * @param int $limit
 	 * @return array
 	 */
-	function fetchPartitionMySQL($res, $start, $limit) {
+	public function fetchPartitionMySQL($res, $start, $limit)
+	{
 		$data = array();
 		for ($i = 0; $i < $start + $limit; $i++) {
 			$row = $this->fetchAssoc($res);
@@ -414,24 +470,29 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function uncompress($value) {
+	public function uncompress($value)
+	{
 		return @gzuncompress(substr($value, 4));
 	}
 
-	function transaction() {
+	public function transaction()
+	{
 		$this->perform('BEGIN');
 	}
 
-	function commit() {
+	public function commit()
+	{
 		return $this->perform('COMMIT');
 	}
 
-	function rollback() {
+	public function rollback()
+	{
 		return $this->perform('ROLLBACK');
 	}
 
-	function getTableColumns($table) {
-		$query = "SELECT * FROM ".$table." LIMIT 1";
+	public function getTableColumns($table)
+	{
+		$query = "SELECT * FROM " . $table . " LIMIT 1";
 		$res = $this->perform($query);
 		$row = $this->fetchAssoc($res);
 		$columns = array_keys($row);
@@ -439,22 +500,26 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		return $columns;
 	}
 
-	function getIndexesFrom($table) {
+	public function getIndexesFrom($table)
+	{
 		return array();
 	}
 
 	/**
 	 * @return PDO
 	 */
-	function getConnection() {
+	public function getConnection()
+	{
 		return $this->connection;
 	}
 
-	function setQB(SQLBuilder $qb = NULL) {
+	public function setQB(SQLBuilder $qb = null)
+	{
 		parent::setQB($qb);
 	}
 
-	public function getQb() {
+	public function getQb()
+	{
 		if (!isset($this->qb)) {
 			$db = Config::getInstance()->getDB();
 			$this->setQB(new SQLBuilder($db));
@@ -463,15 +528,18 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 		return $this->qb;
 	}
 
-	function getPlaceholder() {
+	public function getPlaceholder()
+	{
 		return '?';
 	}
 
-	function unsetQueryLog() {
-		$this->queryLog = NULL;
+	public function unsetQueryLog()
+	{
+		$this->queryLog = null;
 	}
 
-	function getReplaceQuery($table, array $columns) {
+	public function getReplaceQuery($table, array $columns)
+	{
 		if ($this->isMySQL()) {
 			$m = new DBLayerMySQLi();
 			$m->qb = $this->qb;
@@ -481,7 +549,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface {
 			$p->qb = $this->qb;
 			return $p->getReplaceQuery($table, $columns);
 		} else {
-			throw new DatabaseException(__METHOD__.' is not implemented for '.get_class($this));
+			throw new DatabaseException(__METHOD__ . ' is not implemented for ' . get_class($this));
 		}
 	}
 

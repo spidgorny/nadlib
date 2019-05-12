@@ -6,67 +6,86 @@
  * Date: 15.03.2017
  * Time: 17:59
  */
-class PGArrayTest extends PHPUnit_Framework_TestCase {
+class PGArrayTest extends PHPUnit\Framework\TestCase
+{
 
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	protected $db;
 
 	/**
 	 * @var PGArray
 	 */
-	var $sut;
+	protected $sut;
 
-	function setUp() {
+	public function setUp()
+	{
 		$config = Config::getInstance();
 		$this->db = $config->getDB();
 		$pga = new PGArray($this->db);
 		$this->sut = $pga;
 	}
 
-	function test_setPGArray_simple() {
+	public function test_setPGArray_simple()
+	{
 		$str = $this->sut->setPGArray([1, "a", '/"\\']);
-		echo $str, BR;
+//		echo $str, BR;
 		if (!($str instanceof AsIs)) {
-			$str = "'".$str."'";
+			$str = "'" . $str . "'";
 		}
-		$row = $this->db->fetchAssoc("select ".$str."::varchar[] as array");
-		debug($row['array']);
+		$row = $this->db->fetchAssoc("select " . $str . "::varchar[] as array");
+//		debug($row['array']);
 		$this->assertEquals('{1,a,"/\\"\\\\"}', $row['array']);
 	}
 
-	function test_lineBreak() {
+	public function test_lineBreak()
+	{
 		$pga = new PGArray($this->db);
 		$fixture = [
 			'b',
 			"d
 e",
 		];
-		var_export($fixture); echo PHP_EOL;
+//		var_export($fixture);
+//		echo PHP_EOL;
 
 		$string = $pga->setPGArray($fixture);
-		var_export($string.''); echo PHP_EOL;
-		echo 'fixture: ', $this->serialize($fixture), PHP_EOL;
-		echo 'encode: ', $this->serialize($string), PHP_EOL;
-		$this->assertEquals('{"b","d
-e"}', $string.'');
-
-		$decode = $pga->getPGArray($string);
-		var_export($decode.''); echo PHP_EOL;
-		echo 'fixture: ', $this->serialize($fixture), PHP_EOL;
-		echo 'decode: ', $this->serialize($decode), PHP_EOL;
-		$this->assertEquals($fixture, $decode.'');
+//		var_export($string . '');
+//		echo PHP_EOL;
+//		echo 'fixture: ', $this->serialize($fixture), PHP_EOL;
+//		echo 'encode: ', $this->serialize($string.''), PHP_EOL;
+		$this->assertEquals("ARRAY['b','d
+e']", $string . '');
 	}
 
-	function serialize($var) {
+	public function test_lineBreak_decode()
+	{
+		$pga = new PGArray($this->db);
+		$decode = $pga->getPGArray('{"b","d
+e"}');
+//		var_export($decode);
+//		echo PHP_EOL;
+//		echo 'fixture: ', $this->serialize($fixture), PHP_EOL;
+//		echo 'decode: ', $this->serialize($decode), PHP_EOL;
+		$fixture = [
+			'b',
+			"d
+e",
+		];
+		$this->assertEquals($fixture, $decode);
+	}
+
+	public function serialize($var)
+	{
 		$serial = serialize($var);
 		$serial = str_replace("\n", '{0x0A}', $serial);
 		$serial = str_replace("\r", '{0x0D}', $serial);
 		return $serial;
 	}
 
-	function test_PGArray_toString() {
+	public function test_PGArray_toString()
+	{
 		$fixture = [
 			1,
 			2,
@@ -78,9 +97,9 @@ line"
 		$insert = $this->db->getInsertQuery('asd', [
 			'arrayField' => $pga,
 		]);
-		debug($insert);
-		$this->assertEquals("INSERT INTO \"asd\" (\"arrayField\") VALUES ('{\"1\",\"2\",\"slawa\",\"multi
-line\"}')", $insert);
+//		debug($insert);
+		$this->assertEquals("INSERT INTO \"asd\" (\"arrayField\") VALUES (ARRAY['1', '2', 'slawa', 'multi
+line'])", $insert);
 	}
 
 }

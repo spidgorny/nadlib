@@ -1,18 +1,20 @@
 <?php
 
-trait CachedGetInstance {
+trait CachedGetInstance
+{
 
 	/**
 	 * array[get_called_class()][$id]
 	 */
-	static $instances = array();
+	public static $instances = array();
 
 	/**
 	 * @param $id
 	 * @return self|$this|static
 	 * @throws Exception
 	 */
-	static function getInstance($id) {
+	public static function getInstance($id)
+	{
 		return static::getInstanceByID($id);
 	}
 
@@ -22,7 +24,8 @@ trait CachedGetInstance {
 	 * @return $this
 	 * @throws Exception
 	 */
-	public static function getInstanceByID($id) {
+	public static function getInstanceByID($id)
+	{
 		$static = get_called_class();
 		/*nodebug(array(
 			__METHOD__,
@@ -36,7 +39,7 @@ trait CachedGetInstance {
 		if (is_scalar($id)) {
 			$inst = isset(self::$instances[$static][$id])
 				? self::$instances[$static][$id]
-				: NULL;
+				: null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
@@ -49,15 +52,15 @@ trait CachedGetInstance {
 			}
 		} elseif (is_array($id)) {
 			/** @var OODBase $inst */
-			$inst = new $static();
+			$inst = new $static();	// only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
 			$inst = isset(self::$instances[$static][$intID])
 				? self::$instances[$static][$intID]
 				: $inst;
 			if (!$inst->id) {
-				$inst->init($id);	// array
-				self::storeInstance($inst, $intID);	// int id
+				$inst->init($id);    // array
+				self::storeInstance($inst, $intID);    // int id
 			}
 		} elseif ($id) {
 			//debug($static, $id);
@@ -69,12 +72,13 @@ trait CachedGetInstance {
 			$inst = new $static();
 		} else {
 			debug($id);
-			throw new InvalidArgumentException($static.'->'.__METHOD__);
+			throw new InvalidArgumentException($static . '->' . __METHOD__);
 		}
 		return $inst;
 	}
 
-	static function storeInstance($inst, $newID = NULL) {
+	public static function storeInstance($inst, $newID = null)
+	{
 		$static = get_called_class();
 		$id = $inst->id ?: $newID;
 		if ($id) {
@@ -82,12 +86,14 @@ trait CachedGetInstance {
 		}
 	}
 
-	static function clearInstances() {
+	public static function clearInstances()
+	{
 		self::$instances[get_called_class()] = array();
 		gc_collect_cycles();
 	}
 
-	static function clearAllInstances() {
+	public static function clearAllInstances()
+	{
 		self::$instances = array();
 		gc_collect_cycles();
 	}
@@ -97,7 +103,8 @@ trait CachedGetInstance {
 	 * @return self
 	 * @throws Exception
 	 */
-	static function tryGetInstance($id) {
+	public static function tryGetInstance($id)
+	{
 		try {
 			$obj = self::getInstance($id);
 		} catch (InvalidArgumentException $e) {
@@ -107,9 +114,14 @@ trait CachedGetInstance {
 		return $obj;
 	}
 
-	public static function getCacheStats() {
+	public static function getCacheStats()
+	{
 		$stats = array();
 		foreach (self::$instances as $class => $list) {
+			if (!is_array($list)) {
+				debug($list);
+				die;
+			}
 			$stats[$class] = sizeof($list);
 		}
 		return $stats;
@@ -119,12 +131,12 @@ trait CachedGetInstance {
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function getCacheStatsTable() {
+	public static function getCacheStatsTable()
+	{
 		$stats = OODBase::getCacheStats();
 		$stats = ArrayPlus::create($stats)
 			->makeTable('count')
-			->insertKeyAsColumn('class')
-		;
+			->insertKeyAsColumn('class');
 		$max = $stats->column('count')->max();
 		if ($max != 0) {
 			//debug((array)$stats); exit();
@@ -133,13 +145,13 @@ trait CachedGetInstance {
 			});
 		}
 		$stats = $stats->getData();
-		$s = new slTable($stats, 'class="table"', array(
+		$s = new slTable($stats, 'class="table"', [
 			'class' => 'Class',
 			'count' => 'Count',
-			'bar' => array(
+			'bar' => [
 				'no_hsc' => true,
-			),
-		));
+			],
+		]);
 		$content[] = $s->getContent();
 		return $content;
 	}
@@ -152,7 +164,8 @@ trait CachedGetInstance {
 	 * @return mixed
 	 * @throws Exception
 	 */
-	static function findInstance(array $where, $static = NULL) {
+	public static function findInstance(array $where, $static = null)
+	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
 				$static = get_called_class();
@@ -176,13 +189,14 @@ trait CachedGetInstance {
 	 * @return self|static
 	 * @throws Exception
 	 */
-	static function getInstanceByName($name, $field = NULL) {
+	public static function getInstanceByName($name, $field = null)
+	{
 		$self = get_called_class();
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
-		$c = NULL;
+		$c = null;
 		// first search instances
-		if (is_array(ifsetor(self::$instances[$self]))) {
+		if (ifsetor(self::$instances[$self], [])) {
 			foreach (self::$instances[$self] as $inst) {
 				if ($inst instanceof OODBase) {
 					$field = $field ? $field : $inst->titleColumn;
@@ -199,13 +213,15 @@ trait CachedGetInstance {
 			/** @var $c OODBase */
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
-				$c->findInDBsetInstance(array(
-					$field => $name,
-				));
+				$c->findInDBsetInstance([
+					'trim(' . $field . ')' => $name,
+				]);
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([
 					$field
 				]);
+			} else {
+				throw new RuntimeException(__METHOD__);
 			}
 		}
 		return $c;

@@ -6,7 +6,8 @@
  * This class stores the structure in JSON files and then reads them back.
  * This gives a more reliable comparison.
  */
-class AlterTable extends AlterIndex {
+class AlterTable extends AlterIndex
+{
 
 	var $different = 0;
 	var $same = 0;
@@ -17,12 +18,14 @@ class AlterTable extends AlterIndex {
 	 */
 	var $handler;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		$this->setHandler();
 	}
 
-	function setHandler() {
+	function setHandler()
+	{
 		$class = $this->getDBclass();
 		if ($class == 'mysql') {
 			$this->handler = new AlterTableMySQL($this->db);
@@ -35,27 +38,30 @@ class AlterTable extends AlterIndex {
 		}
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = array();
 		$content[] = $this->showDBInfo();
 		$content[] = $this->listFiles();
 		return $content;
 	}
 
-	function renderTableStruct(array $struct, array $local) {
+	function renderTableStruct(array $struct, array $local)
+	{
 		$class = $this->getDBclass();
 		$func = 'renderTableStruct';
 		$func = 'compareStruct';
-		$content[] = '<h5>'.$func.' ('.$class.')</h5>';
+		$content[] = '<h5>' . $func . ' (' . $class . ')</h5>';
 		$content[] = call_user_func(array($this, $func), $struct, $local);
 		return $content;
 	}
 
-	function compareStruct(array $struct, array $local) {
+	function compareStruct(array $struct, array $local)
+	{
 		$content = '';
 		//debug(array_keys($local));
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-' . $table . '">Table: ' . $table . '</h4>';
 			//$content .= '<pre>'.json_encode($desc['columns'], JSON_PRETTY_PRINT).'</pre>';
 
 			if (isset($local[$table])) {
@@ -69,14 +75,14 @@ class AlterTable extends AlterIndex {
 					),
 				)];
 			}
-			$s = new slTable($indexCompare, 'class="table" width="100%"', array (
-				'same' => array (
+			$s = new slTable($indexCompare, 'class="table" width="100%"', array(
+				'same' => array(
 					'name' => 'same',
 				),
-				'fromFile' => array (
+				'fromFile' => array(
 					'name' => 'From File',
 				),
-				'fromDB' =>	array (
+				'fromDB' => array(
 					'name' => 'From DB',
 				),
 				'action' => 'Action',
@@ -86,7 +92,8 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function compareTables($table, array $fromFile, array $fromDatabase) {
+	function compareTables($table, array $fromFile, array $fromDatabase)
+	{
 		$indexCompare = array();
 		foreach ($fromFile as $i => $index) {
 			$localIndex = ifsetor($fromDatabase[$i]);
@@ -96,32 +103,32 @@ class AlterTable extends AlterIndex {
 				if (!$this->handler->sameFieldType($fileField, $localField)) {
 					$alterQuery = $this->handler->getAlterQuery($table, $localField->field, $fileField);
 					$indexCompare[] = [
-						'same'          => 'diff',
+						'same' => 'diff',
 						'###TR_MORE###' => 'style="background: pink"',
-						'fromFile' => $fileField.'',
-						'fromDB' => $localField.'',
+						'fromFile' => $fileField . '',
+						'fromDB' => $localField . '',
 						'action' => new HTMLTag('td', array(
 							'colspan' => 10,
-							'class'   => 'sql',
+							'class' => 'sql',
 						), $this->click($table, $alterQuery))
 					];
 				} else {
 					$indexCompare[] = [
 						'same' => 'same',
 						'###TR_MORE###' => 'style="background: yellow"',
-						'fromFile' => $fileField.'',
-						'fromDB' => $localField.'',
+						'fromFile' => $fileField . '',
+						'fromDB' => $localField . '',
 					];
 				}
 			} else {
 				$indexCompare[] = array(
-					'same'          => 'new',
+					'same' => 'new',
 					'###TR_MORE###' => 'style="background: red"',
-					'fromFile' => $fileField.'',
+					'fromFile' => $fileField . '',
 					'fromDB' => '-',
 					'action' => new HTMLTag('td', array(
 						'colspan' => 10,
-						'class'   => 'sql',
+						'class' => 'sql',
 					), $this->click($table, $this->handler->getAddQuery($table, $fileField)))
 				);
 			}
@@ -129,13 +136,14 @@ class AlterTable extends AlterIndex {
 		return $indexCompare;
 	}
 
-	function click($table, $query) {
+	function click($table, $query)
+	{
 		$link = $this->a($this->makeURL(array(
-				'c' => get_class($this),
-				'file' => basename($this->jsonFile),
-				'action' => 'runSQL',
-				'table' => $table,
-				'sql' => $query,
+			'c' => get_class($this),
+			'file' => basename($this->jsonFile),
+			'action' => 'runSQL',
+			'table' => $table,
+			'sql' => $query,
 		)), $query);
 		return $link;
 	}
@@ -146,10 +154,11 @@ class AlterTable extends AlterIndex {
 	 * @param array $local
 	 * @return string
 	 */
-	function renderTableStructdbLayerBL(array $struct, array $local) {
+	function renderTableStructdbLayerBL(array $struct, array $local)
+	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-' . $table . '">Table: ' . $table . '</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
@@ -161,16 +170,16 @@ class AlterTable extends AlterIndex {
 
 				if ($index == $localIndex) {
 					$indexCompare[] = array('same' => 'sql file',
-						'###TR_MORE###' => 'style="background: lightgreen"',
-						'Field' => $i,
+							'###TR_MORE###' => 'style="background: lightgreen"',
+							'Field' => $i,
 						) + $index;
 				} else {
 					$indexCompare[] = array('same' => 'json file',
-						'###TR_MORE###' => 'style="background: yellow"',
+							'###TR_MORE###' => 'style="background: yellow"',
 						) + $index;
 					$indexCompare[] = array('same' => 'database',
-						'###TR_MORE###' => 'style="color: white; background: red"',
-						'Field' => $i,
+							'###TR_MORE###' => 'style="color: white; background: red"',
+							'Field' => $i,
 						) + $localIndex;
 					$indexCompare[] = array('same' => 'ALTER',
 						'###TR_MORE###' => 'style="color: white; background: green"',
@@ -191,17 +200,18 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function renderTableStructdbLayerSQLite(array $struct, array $local) {
+	function renderTableStructdbLayerSQLite(array $struct, array $local)
+	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-' . $table . '">Table: ' . $table . '</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
-				$index = $this->convertFromOtherDB($index);	// TODO: make it TableField
+				$index = $this->convertFromOtherDB($index);    // TODO: make it TableField
 				$localIndex = $local[$table]['columns'][$i];
 				if ($localIndex) {
-					$localIndex = $this->convertFromOtherDB($localIndex);	// TODO: make it TableField
+					$localIndex = $this->convertFromOtherDB($localIndex);    // TODO: make it TableField
 
 					$index['Field'] = $i;
 					$localIndex['Field'] = $i;
@@ -255,24 +265,38 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function runSQLAction() {
+	/**
+	 * TODO
+	 * @see AlterTableHandler
+	 * @param array $a
+	 * @param array $b
+	 * @return bool
+	 */
+	public function sameType($a, $b)
+	{
+		return false;
+	}
+
+	public function runSQLAction()
+	{
 		$table = $this->request->getTrimRequired('table');
 		$sql = $this->request->getTrim('sql');
-		if (   contains($sql, 'DROP')
+		if (contains($sql, 'DROP')
 			|| contains($sql, 'TRUNCATE')
 			|| contains($sql, 'DELETE')) {
 			throw new AccessDeniedException('Destructing query detected');
 		} else {
 			$this->db->perform($sql);
-			$this->request->redirect(get_class($this).
-				'?file='.$this->request->getTrimRequired('file').'#table-'.$table);
+			$this->request->redirect(get_class($this) .
+				'?file=' . $this->request->getTrimRequired('file') . '#table-' . $table);
 		}
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getDBclass() {
+	protected function getDBclass()
+	{
 		$class = get_class($this->db);
 		if ($class == 'DBLayerPDO') {
 			$class = $this->db->getScheme();

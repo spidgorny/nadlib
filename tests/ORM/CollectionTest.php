@@ -6,7 +6,7 @@
  * Date: 02.02.2016
  * Time: 16:42
  */
-class CollectionTest extends PHPUnit_Framework_TestCase {
+class CollectionTest extends PHPUnit\Framework\TestCase {
 
 	function test_lazyMemeberIterator() {
 

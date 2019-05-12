@@ -53,7 +53,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $query
+	 * @param string $query
 	 * @param array $params
 	 * @return null|SQLite3Result|SQLiteResult
 	 * @throws DatabaseException
@@ -76,7 +76,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $res SQLiteResult
+	 * @param SQLiteResult $res
 	 * @return int
 	 * @throws Exception
 	 */
@@ -122,7 +122,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 * @throws Exception
 	 */
@@ -138,7 +138,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $res SQLite3Result
+	 * @param SQLite3Result $res
 	 */
 	function free($res)
 	{
@@ -157,7 +157,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 * @throws Exception
 	 */

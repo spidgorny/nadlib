@@ -1,6 +1,9 @@
 <?php
 
-class ReplayHAR implements Iterator {
+use spidgorny\nadlib\HTTP\URL;
+
+class ReplayHAR implements Iterator
+{
 
 	var $file;
 
@@ -8,17 +11,20 @@ class ReplayHAR implements Iterator {
 
 	var $request;
 
-	function __construct($file) {
+	function __construct($file)
+	{
 		$this->file = $file;
 		$this->readHAR();
 	}
 
-	function readHAR() {
+	function readHAR()
+	{
 		$this->har = json_decode(file_get_contents($this->file));
 		$this->current();
 	}
 
-	function getURL() {
+	function getURL()
+	{
 		if (!$this->request) {
 			$this->readHAR();
 		}
@@ -28,7 +34,8 @@ class ReplayHAR implements Iterator {
 		return $url;
 	}
 
-	function getURLGet() {
+	function getURLGet()
+	{
 		$url = $this->getURL();
 		$urlget = $url->getURLGet();
 		$urlget->context['http']['method'] = $this->request->method;
@@ -44,7 +51,8 @@ class ReplayHAR implements Iterator {
 	 * @return mixed Can return any type.
 	 * @since 5.0.0
 	 */
-	public function current() {
+	public function current()
+	{
 		$el = current($this->har->log->entries);
 		$this->request = $el->request;
 		return $this->request;
@@ -56,7 +64,8 @@ class ReplayHAR implements Iterator {
 	 * @return void Any returned value is ignored.
 	 * @since 5.0.0
 	 */
-	public function next() {
+	public function next()
+	{
 		$el = next($this->har->log->entries);
 		$this->request = $el->request;
 		return $this->request;
@@ -68,7 +77,8 @@ class ReplayHAR implements Iterator {
 	 * @return mixed scalar on success, or null on failure.
 	 * @since 5.0.0
 	 */
-	public function key() {
+	public function key()
+	{
 		return key($this->har->log->entries);
 	}
 
@@ -79,8 +89,9 @@ class ReplayHAR implements Iterator {
 	 * Returns true on success or false on failure.
 	 * @since 5.0.0
 	 */
-	public function valid() {
-		return valid($this->har->log->entries);
+	public function valid()
+	{
+		return !!($this->har->log->entries);
 	}
 
 	/**
@@ -89,11 +100,13 @@ class ReplayHAR implements Iterator {
 	 * @return void Any returned value is ignored.
 	 * @since 5.0.0
 	 */
-	public function rewind() {
+	public function rewind()
+	{
 		rewind($this->har->log->entries);
 	}
 
-	function last() {
+	public function last()
+	{
 		$el = end($this->har->log->entries);
 		$this->request = $el->request;
 		return $this->request;

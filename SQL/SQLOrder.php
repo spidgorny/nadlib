@@ -1,25 +1,33 @@
 <?php
 
-class SQLOrder {
+class SQLOrder extends SQLWherePart
+{
 
-	var $db;
+	protected $db;
 
 	protected $parts = array();
 
-	function __construct($order = array()) {
+	public function __construct($order = array())
+	{
 		if (is_array($order)) {
 			$this->parts = $order;
 		} elseif ($order) {
-			$this->parts[] = str_replace('ORDER BY', '', $order);
+			$this->parts = trimExplode(' ', str_replace('ORDER BY', '', $order));
 		}
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		if ($this->parts) {
-			return 'ORDER BY '.implode(' ', $this->parts);
+			return 'ORDER BY ' . implode(' ', $this->parts);
 		} else {
 			return '';
 		}
+	}
+
+	public function getField()
+	{
+		return first($this->parts);
 	}
 
 }

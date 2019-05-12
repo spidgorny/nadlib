@@ -8,8 +8,7 @@
 
 namespace tests;
 
-
-class ACLCheckerTest extends \PHPUnit_Framework_TestCase
+class ACLCheckerTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_compareACL()
@@ -17,13 +16,13 @@ class ACLCheckerTest extends \PHPUnit_Framework_TestCase
 		$this->markTestIncomplete(
 			'AppController was not found.'
 		);
-		$controller = new \AppController();
-		$controller->user = NULL;
+		$controller = new \TestController();
+		$controller->user = null;
 		$ac = new \ACLChecker($controller);
-		$okNothing = $ac->compareACL(NULL);
+		$okNothing = $ac->compareACL(null);
 		$okNull = $ac->compareACL('null');
 		$okUser = $ac->compareACL('user');
-		debug(typ($controller->user), $okNothing, $okNull, $okUser);
+//		debug(typ($controller->user), $okNothing, $okNull, $okUser);
 	}
 
 	public function test_compareACLUser()
@@ -31,14 +30,14 @@ class ACLCheckerTest extends \PHPUnit_Framework_TestCase
 		$this->markTestIncomplete(
 			'AppController was not found.'
 		);
-		$controller = new \AppController();
+		$controller = new \TestController();
 		$controller->user = new \NOEUser();
 		$controller->user->id = 1;
 		$ac = new \ACLChecker($controller);
-		$okNothing = $ac->compareACL(NULL);
+		$okNothing = $ac->compareACL(null);
 		$okNull = $ac->compareACL('null');
 		$okUser = $ac->compareACL('user');
-		debug(typ($controller->user), $okNothing, $okNull, $okUser);
+//		debug(typ($controller->user), $okNothing, $okNull, $okUser);
 	}
 
 }

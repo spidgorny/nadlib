@@ -6,44 +6,49 @@
  * Date: 2016-01-23
  * Time: 01:10
  */
-class PathTest extends PHPUnit_Framework_TestCase {
+class PathTest extends PHPUnit\Framework\TestCase
+{
 
-	function test_Windows() {
+	public function test_Windows()
+	{
 		//$p = new Path(getcwd());
 		$p = new Path("C:\\folderone\\two\\three");
 
 		//debug($p->aPath, $p->sPath);
 		$this->assertGreaterThan(3, sizeof($p->aPath));
 		$this->assertEquals('C:', $p->aPath[0]);
-		$this->assertStringStartsWith('C:/', $p.'');
-
-
+		$this->assertStringStartsWith('C:/', $p . '');
 	}
 
-	function test_cap_Windows() {
+	public function test_cap_Windows()
+	{
 		$source = cap(getcwd());
 		$p = new Path($source);
 //		debug($p->aPath, $p->sPath);
 		// all windows slash except last
-		$source = str_replace('\\', '/', getcwd()).'/';
+		$source = str_replace('\\', '/', getcwd()) . '/';
 		$this->assertEquals($source, $p->implode());
 	}
 
-	function test_isAbsolute() {
+	public function test_isAbsolute()
+	{
 		$path = new Path('asd/qwe');
 		$this->assertFalse($path->isAbsolute());
 		$path = new Path('dev-jobz/Topic/hyperledger');
 		$this->assertFalse($path->isAbsolute());
 	}
 
-	function test_appRoot() {
+	public function test_appRoot()
+	{
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot();
-		debug($appRoot.'');
+//		debug($appRoot . '');
+//		$this->assertEquals(dirname(dirname(dirname(__FILE__))), $appRoot.'');
+		$this->markTestSkipped();
 	}
 
-	function test_relativeFromAppRoot() {
-
+	public function test_relativeFromAppRoot()
+	{
 		$this->markTestIncomplete(
 			'Cannot work from nadlib as a standalone.'
 		);
@@ -53,47 +58,67 @@ class PathTest extends PHPUnit_Framework_TestCase {
 		$path = new Path($source);
 		$relative = $path->relativeFromAppRoot();
 		//debug($relative.'');
-		$this->assertContains($relative.'', [
-			'nadlib/'.$source,
-			'vendor/spidgorny/nadlib/'.$source,
-			'Users/DEPIDSVY/nadlib/'.$source,
-			'tests/HTTP/'.$source,
+		$this->assertContains($relative . '', [
+			'nadlib/' . $source,
+			'vendor/spidgorny/nadlib/' . $source,
+			'Users/DEPIDSVY/nadlib/' . $source,
+			'tests/HTTP/' . $source,
 		]);
 	}
 
-	function test_append() {
+	public function test_append()
+	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('ftp'));
-		$this->assertEquals('/var/www/htdocs/ftp', $path.'');
+		$this->assertEquals('/var/www/htdocs/ftp', $path . '');
 	}
 
-	function test_append_capped() {
+	public function test_append_capped()
+	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('ftp/'));
-		$this->assertEquals('/var/www/htdocs/ftp/', $path.'');
+		$this->assertEquals('/var/www/htdocs/ftp/', $path . '');
 	}
 
-	function test_back_path() {
+	public function test_back_path()
+	{
 		$path = new Path('../ftp');
 		$this->assertEquals(['..', 'ftp'], $path->aPath);
 	}
 
-	function test_append_back() {
+	public function test_append_back()
+	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('../ftp'));
-		$this->assertEquals('/var/www/ftp', $path.'');
+		$this->assertEquals('/var/www/ftp', $path . '');
 	}
 
-	function test_append_back_twice() {
+	public function test_append_back_twice()
+	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('../../ftp'));
-		$this->assertEquals('/var/ftp', $path.'');
+		$this->assertEquals('/var/ftp', $path . '');
 	}
 
-	function test_remove() {
+	public function test_remove()
+	{
 		$path = new Path('/var/www/htdocs/');
 		$path->remove('/var/www');
-		$this->assertEquals('/htdocs/', $path.'');
+		$this->assertEquals('/htdocs/', $path . '');
+	}
+
+	public function test_setFile()
+	{
+		$path = new Path('xxx');
+		$path->setFile('yyy');
+		$this->assertEquals('yyy', $path . '');
+	}
+
+	public function test_setFile_empty()
+	{
+		$path = new Path('xxx');
+		$path->setFile('');
+		$this->assertEquals('', $path . '');
 	}
 
 }

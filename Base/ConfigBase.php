@@ -1,10 +1,12 @@
 <?php
 
+require_once __DIR__.'/ConfigInterface.php';
 /**
  * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
  * Extend with a name Class and add any configuration parameters and factory calls.
  */
-class ConfigBase implements ConfigInterface {
+class ConfigBase implements ConfigInterface
+{
 	/**
 	 * del: Public to allow Request to know if there's an instance
 	 * @var Config
@@ -81,22 +83,24 @@ class ConfigBase implements ConfigInterface {
 	public $config;
 
 	/**
-	 * @var User|LoginUser|UserModelInterface
+	 * @var UserModelInterface
 	 */
 	protected $user;
 
-	var $mailFrom = '';
+	public $mailFrom = '';
 
 	/**
 	 * @var LocalLang
 	 */
-	var $ll;
+	public $ll;
 
-	var $isCron = false;
+	public $isCron = false;
 
 	protected function __construct()
 	{
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . "<br />\n";
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
+			echo __METHOD__ . "<br />\n";
+		}
 		$this->documentRoot = Request::getDocumentRoot();
 //		debug($this->documentRoot);
 
@@ -122,7 +126,14 @@ class ConfigBase implements ConfigInterface {
 			$this->mergeConfig($this);
 		}
 		$this->isCron = Request::isCron();
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
+			echo __METHOD__ . BR;
+		}
+	}
+
+	public static function hasInstance()
+	{
+		return self::$instance;
 	}
 
 	/**
@@ -149,14 +160,16 @@ class ConfigBase implements ConfigInterface {
 	{
 		//$this->getDB();
 		// init user here as he needs to access Config::getInstance()
-		$this->user = NULL;
+		$this->user = null;
 		return $this;
 	}
 
 	public function getDB()
 	{
 		//debug_pre_print_backtrace();
-		if ($this->db) return $this->db;
+		if ($this->db) {
+			return $this->db;
+		}
 
 		if ($this->db_database) {
 			if (extension_loaded('pdo_mysql')) {
@@ -174,7 +187,8 @@ class ConfigBase implements ConfigInterface {
 					$this->db_database,
 					$this->db_server,
 					$this->db_user,
-					$this->db_password);
+					$this->db_password
+				);
 			} else {
 				throw new DatabaseException('Please enable PDO');
 			}
@@ -190,11 +204,11 @@ class ConfigBase implements ConfigInterface {
 
 	/**
 	 * TODO: enable FirePHP
-	 * @param $class
-	 * @param $message
+	 * @param string $class
+	 * @param mixed $message
 	 * @throws Exception
 	 */
-	function log($class, $message)
+	public function log($class, $message)
 	{
 		if (DEVELOPMENT) {
 			throw new Exception($class . ' ' . $message);
@@ -202,9 +216,9 @@ class ConfigBase implements ConfigInterface {
 	}
 
 	/**
-	 * @param $obj object
+	 * @param object $obj
 	 */
-	function mergeConfig($obj)
+	public function mergeConfig($obj)
 	{
 		$class = get_class($obj);
 		if (isset($this->config[$class]) && is_array($this->config[$class])) {
@@ -217,21 +231,30 @@ class ConfigBase implements ConfigInterface {
 		}
 	}
 
-	function getUser()
+	/**
+	 * @return UserModelInterface
+	 * @throws LoginException
+	 */
+	public function getUser()
 	{
-		return NULL;
+		if (is_object($this->user)) {
+			return $this->user;
+		} else {
+			throw new LoginException(__METHOD__);
+		}
 	}
 
 	/**
 	 * Convenience function example how to use Login
-	 * @return LoginUser|User
+	 * @return UserModelInterface
+	 * @throws DatabaseException
 	 */
-	function _getLoginUser()
+	public function _getLoginUser()
 	{
 		if (!$this->user) {
 			$db = $this->getDB();
 //			debug(get_class($db));
-			$this->user = new LoginUser($db);
+			$this->user = new BEUser($db);
 			try {
 				$this->user->try2login();
 			} catch (Exception $e) {
@@ -241,7 +264,7 @@ class ConfigBase implements ConfigInterface {
 		return $this->user;
 	}
 
-	function getLL()
+	public function getLL()
 	{
 		if (!$this->ll) {
 			$this->ll = new LocalLangDummy();
@@ -249,9 +272,14 @@ class ConfigBase implements ConfigInterface {
 		return $this->ll;
 	}
 
-	function getRequest()
+	public function getRequest()
 	{
 		return Request::getInstance();
+	}
+
+	public function getDBpassword()
+	{
+		return $this->db_password;
 	}
 
 }
