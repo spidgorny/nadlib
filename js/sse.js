@@ -1,4 +1,3 @@
-"use strict";
 /// <reference path="../../../../vendor/yankee42/typescript-server-sent-events/sse.d.ts" />
 function addEvent(html_element, event_name, event_function) {
     if (html_element.addEventListener) { // Modern
