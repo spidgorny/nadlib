@@ -26,7 +26,7 @@
 		"gnat/nc-cms": "*"
 	},
 	"autoload": {
-		"classhmap": [
+		"classmap": [
 			"./",
 			"Cache/",
 			"Controller/",
