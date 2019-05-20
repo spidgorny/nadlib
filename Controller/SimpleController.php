@@ -248,8 +248,11 @@ abstract class SimpleController
 		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
-	public function log($action, $data = null)
+	public function log($action, ...$data)
 	{
+		if (is_array($data) && sizeof($data) == 1) {
+			$data = $data[0];
+		}
 		$this->log[] = new LogEntry($action, $data);
 	}
 
