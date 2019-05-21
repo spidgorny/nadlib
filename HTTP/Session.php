@@ -117,4 +117,9 @@ class Session implements SessionInterface
 		}
 	}
 
+	public function getKeys()
+	{
+		return array_keys($this->getAll());
+	}
+
 }
