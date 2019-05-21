@@ -134,7 +134,7 @@ if (!function_exists('first')) {
 		}
 	}
 
-	function array_map_keys($callback, $array)
+	function array_map_keys($callback, array $array)
 	{
 		$keys = array_keys($array);
 		$temp = array_map($callback, $keys, $array);    // return ['key', 'value']
@@ -142,6 +142,15 @@ if (!function_exists('first')) {
 		$values = array_column($temp, 1);
 		$result = array_combine($keys, $values);
 		return $result;
+	}
+
+	function array_widths(array $arr)
+	{
+		$widths = [];
+		foreach ($arr as $key => $row) {
+			$widths[$key] = sizeof($row);
+		}
+		return $widths;
 	}
 
 }
