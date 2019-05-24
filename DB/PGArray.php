@@ -110,7 +110,7 @@ class PGArray extends AsIs
 			$input = substr(substr(trim($input), 1), 0, -1);    // cut { and }
 			return $this->getPGArray($input);
 		} else {
-			if (strpos($input, '},{') !== FALSE) {
+			if (strpos($input, '},{') !== false) {
 				$parts = explode('},{', $input);
 				foreach ($parts as &$p) {
 					$p = $this->getPGArray($p);
@@ -285,6 +285,93 @@ class PGArray extends AsIs
 	public function __toString2()
 	{
 		return $this->setPGArray($this->data);
+	}
+
+	/**
+	 * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
+	 * @param $s
+	 * @param int $start
+	 * @param null $end
+	 * @return array|null
+	 */
+	public function pg_array_parse($s, $start = 0, &$end = null)
+	{
+		if (empty($s) || $s[0] != '{') {
+			return null;
+		}
+		$return = array();
+		$string = false;
+		$quote='';
+		$len = strlen($s);
+		$v = '';
+		for ($i = $start + 1; $i < $len; $i++) {
+			$ch = $s[$i];
+
+			if (!$string && $ch == '}') {
+				if ($v !== '' || !empty($return)) {
+					$return[] = $v;
+				}
+				$end = $i;
+				break;
+			} elseif (!$string && $ch == '{') {
+				$v = $this->pg_array_parse($s, $i, $i);
+			} elseif (!$string && $ch == ',') {
+				$return[] = $v;
+				$v = '';
+			} elseif (!$string && ($ch == '"' || $ch == "'")) {
+				$string = true;
+				$quote = $ch;
+			} elseif ($string && $ch == $quote && $s[$i - 1] == "\\") {
+				$v = substr($v, 0, -1) . $ch;
+			} elseif ($string && $ch == $quote && $s[$i - 1] != "\\") {
+				$string = false;
+			} else {
+				$v .= $ch;
+			}
+		}
+
+		return $return;
+	}
+
+	public function getPGArrayFromJSON($s)
+	{
+		$deepData = $this->pg_array_parse($s);
+		$tokens = [];
+		$tokens[] = strtok($s, '{,}');
+		do {
+			$token1 = strtok('{,}');
+			$tokens[] = $token1;
+		} while ($token1 != null);
+//		debug($tokens);
+
+		$keys = [];
+		foreach ($tokens as $chr) {
+			if (str_endsWith($chr, ':')) {
+				$keys[] = substr($chr, 0, -1);
+			}
+		}
+//		debug($keys);
+
+		$arrays = array_filter($deepData, function ($el) {
+			return is_array($el);
+		});
+//		debug($arrays);
+
+		$deepDataMerged = [];
+		if (sizeof($keys) == sizeof($arrays)) {
+			foreach ($deepData as $key => $val) {
+				if (is_array($val)) {
+					$key = current($keys);
+					next($keys);
+					$deepDataMerged[$key] = $val;
+				} else {
+					$deepDataMerged[$key] = $val;
+				}
+			}
+		} else {
+			$deepDataMerged = $deepData;
+		}
+		return $deepDataMerged;
 	}
 
 }
