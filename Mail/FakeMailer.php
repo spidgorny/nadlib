@@ -26,7 +26,7 @@ class FakeMailer implements MailerInterface
 
 	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
 	{
-		pre_print_r(__METHOD__, get_object_vars($this), func_get_args());
+		//pre_print_r(__METHOD__, get_object_vars($this), func_get_args());
 		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 
 		$transport = new Swift_NullTransport();
