@@ -240,8 +240,8 @@ class Mailer implements MailerInterface
 	}
 
 	/**
-	 * @param $cc
-	 * @param $bcc
+	 * @param array $cc
+	 * @param array $bcc
 	 * @param array $attachments
 	 * @param array $additionalSenders - assoc array
 	 * @return Swift_Message
