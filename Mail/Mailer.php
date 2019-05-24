@@ -5,7 +5,7 @@
  * mails. No attachments. Use SwiftMailer for anything more complicated. Takes care
  * of the UTF-8 in subjects.
  */
-class Mailer
+class Mailer implements MailerInterface
 {
 
 	/**

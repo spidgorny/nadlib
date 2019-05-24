@@ -102,6 +102,23 @@ line"
 line'])", $insert);
 	}
 
+	public function test_pg_array_parse()
+	{
+		$pga = new PGArray($this->db);
+		$v1 = $pga->pg_array_parse('{{1,2},{3,4},{5}}');
+		$this->assertEquals([[1,2],[3,4],[5]], $v1);
+		$v2 = $pga->pg_array_parse('{dfasdf,"qw,,e{q\"we",\'qrer\'}');
+		$this->assertEquals([
+			0 => 'dfasdf',
+    		1 => 'qw,,e{q"we',
+    		2 => 'qrer',
+		], $v2);
+		$this->assertEquals(['',''], $pga->pg_array_parse('{,}'));
+		$this->assertEquals([], $pga->pg_array_parse('{}'));
+		$this->assertEquals(null, $pga->pg_array_parse('null'));
+		$this->assertEquals(null, $pga->pg_array_parse(''));
+	}
+
 }
 
 /*
