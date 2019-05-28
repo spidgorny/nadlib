@@ -8,11 +8,11 @@ $tmp = error_reporting(error_reporting() ^ E_STRICT);
  */
 class ArrayPlusReference /*extends ArrayPlus */{
 
-	function __construct(array &$a = array()) {
+	function __construct(array &$a = []) {
 		$this->setData($a);
 	}
 
-	static function create(array &$data = array()) {
+	static function create(array &$data = []) {
 		$self = new self($data);
 		return $self;
 	}
@@ -28,6 +28,6 @@ class ArrayPlusReference /*extends ArrayPlus */{
 
 error_reporting($tmp);
 
-function APR(array &$a = array()) {
+function APR(array &$a = []) {
 	return ArrayPlusReference::create($a);
 }

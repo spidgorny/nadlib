@@ -33,11 +33,11 @@ class AlterTableHandler
 	 */
 	function sameTypeString($t1, $t2)
 	{
-		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)');
-		$text = array('text', 'varchar(255)', 'tinytext');
-		$time = array('numeric', 'timestamp', 'datetime');
-		$real = array('real', 'double', 'float');
-		$bool = array('binary(1)', 'bool', 'boolean');
+		$int = ['int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)'];
+		$text = ['text', 'varchar(255)', 'tinytext'];
+		$time = ['numeric', 'timestamp', 'datetime'];
+		$real = ['real', 'double', 'float'];
+		$bool = ['binary(1)', 'bool', 'boolean'];
 		if ($t1 == $t2) {
 			return true;
 		} elseif (in_array($t1, $int) && in_array($t2, $int)) {

@@ -5,13 +5,13 @@ class SVGChart
 
 	protected $width;
 	protected $height;
-	protected $data = array();
+	protected $data = [];
 
 	public $text_size = 14;
 
 	protected $id;
 
-	public function __construct($width = '100%', $height = '50', array $data = array())
+	public function __construct($width = '100%', $height = '50', array $data = [])
 	{
 		$this->width = $width;
 		$this->height = $height;

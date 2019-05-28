@@ -121,28 +121,28 @@ class RandomStringGenerator
 		$use_prefix = false;
 		// Define function unless it is already exists
 		// 20 prefixes
-		$prefix = array('aero', 'anti', 'auto', 'bi', 'bio',
+		$prefix = ['aero', 'anti', 'auto', 'bi', 'bio',
 			'cine', 'deca', 'demo', 'dyna', 'eco',
 			'ergo', 'geo', 'gyno', 'hypo', 'kilo',
-			'mega', 'tera', 'mini', 'nano', 'duo');
+			'mega', 'tera', 'mini', 'nano', 'duo'];
 
 		// 10 random suffixes
-		$suffix = array('dom', 'ity', 'ment', 'sion', 'ness',
-			'ence', 'er', 'ist', 'tion', 'or');
+		$suffix = ['dom', 'ity', 'ment', 'sion', 'ness',
+			'ence', 'er', 'ist', 'tion', 'or'];
 
 		// 8 vowel sounds
-		$vowels = array('a', 'o', 'e', 'i', 'y', 'u', 'ou', 'oo');
+		$vowels = ['a', 'o', 'e', 'i', 'y', 'u', 'ou', 'oo'];
 
 		// 20 random consonants
-		$consonants = array('w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j',
-			'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'qu');
+		$consonants = ['w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j',
+			'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'qu'];
 
 		$password = $use_prefix ? ae_arr($prefix) : '';
 		$password_suffix = ae_arr($suffix);
 
 		for ($i = 0; $i < $syllables; $i++) {
 			// selecting random consonant
-			$doubles = array('n', 'm', 't', 's');
+			$doubles = ['n', 'm', 't', 's'];
 			$c = ae_arr($consonants);
 			if (in_array($c, $doubles) && ($i != 0)) { // maybe double it
 				if (rand(0, 2) == 1) // 33% probability

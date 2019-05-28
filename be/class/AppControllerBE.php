@@ -64,7 +64,7 @@ class AppControllerBE extends Controller
 		]);
 	}
 
-	public function makeURL(array $params = array(), $prefix = '?')
+	public function makeURL(array $params = [], $prefix = '?')
 	{
 		$url = parent::makeURL($params, $this->nadlibFromDocRoot . 'be/?');
 		return $url;

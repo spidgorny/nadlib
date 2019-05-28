@@ -78,7 +78,7 @@ class MIME
 	 */
 	public function mime_by_ext($filename)
 	{
-		$mime_types = array(
+		$mime_types = [
 			'txt' => 'text/plain',
 			'htm' => 'text/html',
 			'html' => 'text/html',
@@ -131,7 +131,7 @@ class MIME
 			// open office
 			'odt' => 'application/vnd.oasis.opendocument.text',
 			'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
-		);
+		];
 
 		$ext = strtolower(last(explode('.', $filename)));
 		if (array_key_exists($ext, $mime_types)) {

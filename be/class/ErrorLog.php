@@ -32,7 +32,7 @@ class ErrorLog extends AppControllerBE
 	 */
 	public function read_file($file, $lines)
 	{
-		$text = array();
+		$text = [];
 		$handle = fopen($file, "r");
 		if ($handle) {
 			$linecounter = $lines;

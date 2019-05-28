@@ -20,21 +20,21 @@ class TimeChart
 	 */
 	var $groupBy;
 
-	var $options = array(
+	var $options = [
 		'year-month' => '%Y-%m',
 		'year' => '%Y',
 		'year-month-day' => '%Y-%m-%d',
 		'year-week' => '%Y-W%W',
 		'dow' => '%w',
-	);
+	];
 
-	var $barWidths = array(
+	var $barWidths = [
 		'year-month' => 24,
 		'year' => 360,
 		'year-month-day' => 0.9,
 		'year-week' => 6,
 		'dow' => 0.9,
-	);
+	];
 
 	/**
 	 * @var array[array]
@@ -45,7 +45,7 @@ class TimeChart
 
 	var $query;
 
-	var $dow = array(
+	var $dow = [
 		'1' => 'Monday',
 		'2' => 'Tuesday',
 		'3' => 'Wednesday',
@@ -53,7 +53,7 @@ class TimeChart
 		'5' => 'Friday',
 		'6' => 'Saturday',
 		'0' => 'Sunday',
-	);
+	];
 
 	/**
 	 * @var string

@@ -268,7 +268,7 @@ class Time
 	function in()
 	{
 		TaylorProfiler::start(__METHOD__);
-		$periods = array(
+		$periods = [
 			"second",
 			"minute",
 			"hour",
@@ -277,8 +277,8 @@ class Time
 			"month",
 			"year",
 			"decade"
-		);
-		$pperiods = array(
+		];
+		$pperiods = [
 			"seconds",
 			"minutes",
 			"hours",
@@ -287,14 +287,14 @@ class Time
 			"months",
 			"years",
 			"decades"
-		);
+		];
 		foreach ($periods as &$period) {
 			$period = __($period);
 		}
 		foreach ($pperiods as &$period) {
 			$period = __($period);
 		}
-		$lengths = array("60", "60", "24", "7", "4.35", "12", "10");
+		$lengths = ["60", "60", "24", "7", "4.35", "12", "10"];
 
 		$now = time();
 		$unix_date = $this->time;
@@ -356,7 +356,7 @@ class Time
 		$noe = $this->format('H:i');
 		if ($noe{3} . $noe{4} != '00') {
 			//$noe = '<small>'.$noe.'</small>';
-			$noe = new HTMLTag('small', array(), $noe);
+			$noe = new HTMLTag('small', [], $noe);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $noe;
@@ -578,7 +578,7 @@ class Time
 	function getDuration()
 	{
 		TaylorProfiler::start(__METHOD__);
-		$periods = array(
+		$periods = [
 			"second" => 1,
 			"minute" => 60,
 			"hour" => 60,
@@ -587,7 +587,7 @@ class Time
 			"month" => 30.5,
 			"year" => 12,
 			"decade" => 10,
-		);
+		];
 		$pmultiple = 1;
 		foreach ($periods as $name => &$multiple) {
 			$multiple *= $pmultiple;
@@ -596,7 +596,7 @@ class Time
 		unset($multiple); // just in case
 		$periods = array_reverse($periods);
 
-		$collect = array();
+		$collect = [];
 		//$timestamp = $this->getAdjustedForTZ();
 		$timestamp = $this->time;
 		//debug($this->time, $timestamp); exit();

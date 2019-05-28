@@ -30,7 +30,7 @@ class MemcacheArray implements ArrayAccess
 
 	protected $state;
 
-	public static $instances = array();
+	public static $instances = [];
 
 	/**
 	 * @var callable
@@ -67,7 +67,7 @@ class MemcacheArray implements ArrayAccess
 		$this->fc = new MemcacheFile();
 		$this->data = $this->fc->get($this->file, $this->expire);
 		if (!is_array($this->data)) {
-			$this->data = array();
+			$this->data = [];
 		}
 		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);

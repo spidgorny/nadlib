@@ -33,13 +33,13 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function fetchAll($res_or_query, $index_by_key = null)
 	{
-		return array();
+		return [];
 	}
 
 	public function __call($method, array $params)
 	{
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			debug(typ($this->qb));
 			throw new Exception($method . ' not found in dbPlacebo and SQLBuilder');
@@ -126,11 +126,11 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		// TODO: Implement getIndexesFrom() method.
 	}
 
-	public function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
+	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		$this->lastQuery = $query;
-		return array();
+		return [];
 	}
 
 	public function getPlaceholder()

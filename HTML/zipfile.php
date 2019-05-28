@@ -28,8 +28,8 @@ by Denis O.Philippov, webmaster@atlant.ru, http://www.atlant.ru
 
 class zipfile {
 
-    var $datasec = array(); // array to store compressed data
-    var $ctrl_dir = array(); // central directory
+    var $datasec = []; // array to store compressed data
+    var $ctrl_dir = []; // central directory
     var $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00"; //end of Central directory record
     var $old_offset = 0;
 

@@ -39,17 +39,17 @@ class ExplainQuery extends AppControllerBE {
 	function render() {
 		$f = new HTMLFormTable();
 		$f->defaultBR = true;
-		$f->desc = array(
-			'query' => array(
+		$f->desc = [
+			'query' => [
 				'label' => 'Query',
 				'type' => 'textarea',
 				'more' => 'style = "width: 100%; height: 15em;"',
-			),
-			'submit' => array(
+			],
+			'submit' => [
 				'type' => 'submit',
 				'value' => 'Explain',
-			)
-		);
+			]
+		];
 		$f->fill($_REQUEST);
 		$f->showForm();
 		$content = $f;

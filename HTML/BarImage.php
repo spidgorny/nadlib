@@ -27,9 +27,9 @@ class BarImage {
 		$this->width = isset($_GET['width']) ? $_GET['width'] : 100;
 		$this->height = isset($_GET['height']) ? $_GET['height'] : 15;
 		$color = isset($_GET['color']) ? $_GET['color'] : NULL;
-		$this->color = $color ? $this->html2rgb($color) : array(0x43, 0xB6, 0xDF); #43B6DF
+		$this->color = $color ? $this->html2rgb($color) : [0x43, 0xB6, 0xDF]; #43B6DF
 		$bg = isset($_GET['bg']) ? $_GET['bg'] : NULL;
-		$this->backColor = $bg ? $this->html2rgb($bg) : array(0xFF, 0xFF, 0xFF);
+		$this->backColor = $bg ? $this->html2rgb($bg) : [0xFF, 0xFF, 0xFF];
 		$this->symmetric = ifsetor($_REQUEST['symmetric']);
 		$this->withBorder = !ifsetor($_GET['!border']);
 	}
@@ -84,11 +84,11 @@ class BarImage {
 		}
 
 		if (strlen($color) == 6)
-			list($r, $g, $b) = array($color[0] . $color[1],
+			list($r, $g, $b) = [$color[0] . $color[1],
 				$color[2] . $color[3],
-				$color[4] . $color[5]);
+				$color[4] . $color[5]];
 		elseif (strlen($color) == 3)
-			list($r, $g, $b) = array($color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]);
+			list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
 		else
 			return false;
 
@@ -96,7 +96,7 @@ class BarImage {
 		$g = hexdec($g);
 		$b = hexdec($b);
 
-		return array($r, $g, $b);
+		return [$r, $g, $b];
 	}
 
 }

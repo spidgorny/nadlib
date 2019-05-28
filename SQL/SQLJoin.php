@@ -2,7 +2,7 @@
 
 class SQLJoin {
 
-	protected $parts = array();
+	protected $parts = [];
 
 	function __construct($join = NULL) {
 		if (is_array($join)) {

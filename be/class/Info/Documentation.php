@@ -73,13 +73,13 @@ class Documentation extends AppControllerBE
 		$content = '';
 		$folders = $this->getFolders();
 		foreach ($folders as $path => &$file) {
-			$file = new HTMLTag('a', array(
-				'href' => new URL('', array(
+			$file = new HTMLTag('a', [
+				'href' => new URL('', [
 					'c' => __CLASS__,
 					'folder' => $path,
-				)),
+				]),
 				'class' => $this->folder == $path ? 'bold' : '',
-			), $file);
+			], $file);
 		}
 		$content .= '<ul><li>' . implode('</li><li>', $folders) . '</li></ul>';
 		return $content;
@@ -87,7 +87,7 @@ class Documentation extends AppControllerBE
 
 	function getFolders()
 	{
-		$folders = array();
+		$folders = [];
 		$it = new DirectoryIterator('../');
 		foreach ($it as $file) {
 			/** @var $file SplFileInfo */
@@ -103,7 +103,7 @@ class Documentation extends AppControllerBE
 
 	function getFiles($folder)
 	{
-		$files = array();
+		$files = [];
 		$it = new DirectoryIterator($folder);
 		foreach ($it as $file) {
 			/** @var $file SplFileInfo */
@@ -122,14 +122,14 @@ class Documentation extends AppControllerBE
 		foreach ($files as $path => &$file) {
 			$class = str_replace('class.', '', $file);
 			$class = str_replace('.php', '', $class);
-			$file = new HTMLTag('a', array(
-				'href' => new URL('', array(
+			$file = new HTMLTag('a', [
+				'href' => new URL('', [
 					'c' => __CLASS__,
 					'folder' => dirname($path),
 					'class' => $class,
-				)),
+				]),
 				'class' => $this->class == $class ? 'bold' : '',
-			), $file);
+			], $file);
 		}
 		$content = '<ul style="-moz-column-count: 2"><li>' . implode('</li><li>', $files) . '</li></ul>';
 		return $content;
@@ -139,15 +139,15 @@ class Documentation extends AppControllerBE
 	{
 		foreach ($methods as &$method) {
 			$method = $method->getName();
-			$method = new HTMLTag('a', array(
-				'href' => new URL('', array(
+			$method = new HTMLTag('a', [
+				'href' => new URL('', [
 					'c' => __CLASS__,
 					'folder' => $folder,
 					'class' => $class,
 					'method' => $method,
-				)),
+				]),
 				'class' => $this->method == $method ? 'bold' : '',
-			), $method);
+			], $method);
 		}
 		$content = '<ul style="-moz-column-count: 3"><li>' . implode('</li><li>', $methods) . '</li></ul>';
 		return $content;
@@ -158,13 +158,13 @@ class Documentation extends AppControllerBE
 		$content = '';
 		if ($rc->getParentClass()) {
 			$content .= ' <i class="icon-arrow-right"></i> ' .
-				new HTMLTag('a', array(
-					'href' => new URL('', array(
+				new HTMLTag('a', [
+					'href' => new URL('', [
 						'c' => __CLASS__,
 						'folder' => $this->folder,
 						'class' => $rc->getParentClass()->getName(),
-					)),
-				), $rc->getParentClass()->getName()
+					]),
+				], $rc->getParentClass()->getName()
 				);
 			$content .= $this->getParentClassLinks($rc->getParentClass(), $level + 1);
 		}

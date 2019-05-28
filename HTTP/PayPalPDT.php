@@ -12,7 +12,7 @@ class PayPalPDT {
 	//protected $auth_token	= "HbWDzBZjWhSpPhA_uLspqCZoENpH26CDVnhVY09LDE8NTOJNG4pIE7dK6f4";
 	//protected $sandbox = 'sandbox.';
 
-	public $response = array();			// payment data will appear here
+	public $response = [];			// payment data will appear here
 
 	function __construct() {
 		$tx_token = $_GET['tx'];
@@ -50,7 +50,7 @@ class PayPalPDT {
 
 			// parse the data
 			$lines = explode("\n", $res);
-			$keyarray = array();
+			$keyarray = [];
 			if (strcmp ($lines[0], "SUCCESS") == 0) {
 				for ($i=1; $i<count($lines);$i++){
 					list($key,$val) = explode("=", $lines[$i]);

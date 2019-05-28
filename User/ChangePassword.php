@@ -11,11 +11,11 @@ class ChangePassword extends HTMLFormProcessor
 
 	public function getDesc()
 	{
-		$desc = array();
-		$desc['action'] = array(
+		$desc = [];
+		$desc['action'] = [
 			'type' => 'hidden',
 			'value' => 'changePassword',
-		);
+		];
 		$desc['current'] = [
 			'label' => 'Current password',
 			'type' => 'password',

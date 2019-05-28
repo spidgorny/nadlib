@@ -26,30 +26,30 @@ class TranslateLL extends HTMLFormProcessor {
 	function getDesc() {
 		$ll = $this->config->getLL();
 		$code = $this->request->getTrim('code');
-		$desc = array(
-			'lang' => array(
+		$desc = [
+			'lang' => [
 				'label' => __('Lang'),
-				'more' => array(
+				'more' => [
 					'readonly' => "1",
-				),
+				],
 				'value' => $ll->lang,
-			),
-			'code' => array(
+			],
+			'code' => [
 				'label' => __('Code'),
-				'more' => array(
+				'more' => [
 					'readonly' => "1",
-				),
+				],
 				'value' => $code,
-			),
-			'text' => array(
+			],
+			'text' => [
 				'label' => __('Trans'),
 				'type' => 'textarea',
 				'value' => $ll->ll[$code],
-				'more' => array(
+				'more' => [
 					'rows' => 20,
-				)
-			),
-		);
+				]
+			],
+		];
 		return $desc;
 	}
 

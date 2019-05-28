@@ -12,9 +12,9 @@
 class MergedContent implements ArrayAccess
 {
 
-	var $content = array();
+	var $content = [];
 
-	public function __construct(array $parts = array())
+	public function __construct(array $parts = [])
 	{
 		$this->content = $parts;
 	}
@@ -119,7 +119,7 @@ class MergedContent implements ArrayAccess
 	public function clear()
 	{
 		debug('clear');
-		$this->content = array();
+		$this->content = [];
 	}
 
 	/**
@@ -140,7 +140,7 @@ class MergedContent implements ArrayAccess
 			//$combined = implode('', $combined);
 
 			$combinedA = new ArrayObject();
-			array_walk_recursive($render, array(__CLASS__, 'walkMergeArray'), $combinedA);
+			array_walk_recursive($render, [__CLASS__, 'walkMergeArray'], $combinedA);
 			$arrayOfObjects = $combinedA->getArrayCopy();
 			$sureStrings = self::stringify($arrayOfObjects);
 			$combined = implode('', $sureStrings);

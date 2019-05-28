@@ -71,7 +71,7 @@ class Pager
 	 * Mouse over tooltip text per page
 	 * @var array
 	 */
-	var $pageTitles = array();
+	var $pageTitles = [];
 
 	/**
 	 * @var Iterator
@@ -243,9 +243,9 @@ class Pager
 	{
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
 		if ($this->user instanceof UserWithPreferences) {
-			$this->user->setPref('Pager.' . $this->prefix, array(
+			$this->user->setPref('Pager.' . $this->prefix, [
 				'page' => $this->currentPage
-			));
+			]);
 		}
 	}
 
@@ -391,7 +391,7 @@ class Pager
 
 	public function debug()
 	{
-		return array(
+		return [
 			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
@@ -410,12 +410,12 @@ class Pager
 			'showPageJump' => $this->showPageJump,
 			'showPager' => $this->showPager,
 			'prefix' => $this->prefix,
-		);
+		];
 	}
 
 	public function renderPageSize()
 	{
-		$this->pageSize->setURL(new URL(null, array()));
+		$this->pageSize->setURL(new URL(null, []));
 		$this->pageSize->set($this->itemsPerPage);
 		$content = '<div class="pageSize pull-right floatRight">' .
 			$this->pageSize->render() . '&nbsp;' . __('per page') . '</div>';
@@ -429,7 +429,7 @@ class Pager
 		$pages = $this->getPagesAround($this->currentPage, $maxpage);
 		//debug($pages, $maxpage);
 		if ($this->currentPage > 0) {
-			$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $this->currentPage - 1));
+			$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $this->currentPage - 1]);
 			$link = $link->setParam('pageSize', $this->pageSize->get());
 			$content .= '<li><a href="' . $link . '" rel="prev">&lt;</a></li>';
 		} else {
@@ -445,7 +445,7 @@ class Pager
 			}
 		}
 		if ($this->currentPage < $maxpage) {
-			$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $this->currentPage + 1));
+			$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $this->currentPage + 1]);
 			$content .= '<li><a href="' . $link . '" rel="next">&gt;</a></li>' . "\n";
 		} else {
 			$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>' . "\n";
@@ -470,7 +470,7 @@ class Pager
 
 	public function getSinglePageLink($k, $text)
 	{
-		$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $k));
+		$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $k]);
 		if ($k == $this->currentPage) {
 			$content = '<li class="active"><a href="' . $link . '"
 				class="active"
@@ -492,7 +492,7 @@ class Pager
 	public function getPagesAround($current, $max)
 	{
 		$size = $this->pagesAround;
-		$pages = array();
+		$pages = [];
 		$k = 0;
 		for ($i = 0; $i < $size; $i++) {
 			$k = $i;
@@ -582,9 +582,9 @@ class Pager
 			$f->hidden('c', $controller);
 			$f->hidden('action', 'loadMore');
 			$f->hidden('Pager.[page]', $loadPage);
-			$f->formHideArray(array($this->prefix => $this->request->getArray($this->prefix)));
+			$f->formHideArray([$this->prefix => $this->request->getArray($this->prefix)]);
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
-			$f->submit(__('Load more'), array('class' => 'btn'));
+			$f->submit(__('Load more'), ['class' => 'btn']);
 			$content .= '<div id="loadMorePage' . $loadPage . '">' . $f . '</div>';
 		}
 		return $content;
