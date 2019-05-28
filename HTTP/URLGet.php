@@ -33,14 +33,14 @@ class URLGet
 	 * for file_get_content()
 	 * @var array
 	 */
-	public $context = array();
+	public $context = [];
 
 	/**
 	 * @var array
 	 */
-	public $curlParams = array();
+	public $curlParams = [];
 
-	public $headers = array();
+	public $headers = [];
 
 	/**
 	 *
@@ -51,11 +51,11 @@ class URLGet
 	{
 		$this->url = $url;
 		$this->logger = $logger;
-		$this->context = array(
-			'http' => array(
+		$this->context = [
+			'http' => [
 				'timeout' => $this->timeout,
-			)
-		);
+			]
+		];
 	}
 
 	public function log($method, $message)
@@ -72,10 +72,10 @@ class URLGet
 
 	public function setProxy($host, $username, $password)
 	{
-		$this->proxy = new Proxy(array(
+		$this->proxy = new Proxy([
 			'id' => -1,
 			'proxy' => 'http://' . $username . ':' . $password . '@' . $host,
-		));
+		]);
 	}
 
 	/**
@@ -139,7 +139,7 @@ class URLGet
 		return $html;
 	}
 
-	public function fetchCURL(array $options = array())
+	public function fetchCURL(array $options = [])
 	{
 		$this->log(__METHOD__, $this->url . '');
 		$process = curl_init($this->url);

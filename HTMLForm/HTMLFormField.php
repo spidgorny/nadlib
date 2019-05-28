@@ -15,7 +15,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	 * to the HTMLFormField with specific members
 	 * @var array
 	 */
-	var $data = array();
+	var $data = [];
 
 	/**
 	 * @var string
@@ -96,7 +96,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	{
 		$type = $this->getTypeString();
 		return !ifsetor($this->data['optional']) &&
-			!in_array($type, array('check', 'checkbox', 'submit'));
+			!in_array($type, ['check', 'checkbox', 'submit']);
 	}
 
 	public function isOptional()
@@ -150,7 +150,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$type->setValue($desc['value']);
 			}
 			if (ifsetor($desc['jsParams'])) {
-				$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : array();
+				$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : [];
 			}
 			$type->desc = $desc;
 			$index = Index::getInstance();
@@ -230,7 +230,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$this->form->selection($fieldName, NULL,
 					ifsetor($fieldValue, ifsetor($desc['default'])),
 					isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
-					array(),    // more
+					[],    // more
 					isset($desc['multiple']) ? $desc['multiple'] : NULL,
 					$desc->getArray());
 				break;
@@ -246,7 +246,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 					$this->form->hidden($fieldName, 0);
 				}
 				$elementID = $this['elementID'];
-				$more = ifsetor($desc['more'], []) + array('id' => $elementID);
+				$more = ifsetor($desc['more'], []) + ['id' => $elementID];
 				if (ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue == 't';
 				}
@@ -264,7 +264,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				break;
 			case 'hiddenArray':
 				$name = is_array($fieldName) ? end($fieldName) : $fieldName;
-				$this->form->formHideArray(array($name => $fieldValue));
+				$this->form->formHideArray([$name => $fieldValue]);
 				break;
 			case 'html':
 				$this->form->text($desc['code']);
@@ -279,7 +279,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$desc['name'] = ifsetor($desc['name'], $fieldName);
 				//debug($desc);
 				$more = (is_array(ifsetor($desc->data['more']))
-						? $desc->data['more'] : array()) + [
+						? $desc->data['more'] : []) + [
 						'id' => $desc->data['id']
 					];
 				$this->form->submit($desc['value'], $more);
@@ -347,7 +347,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$this->form->combo($fieldName, $desc->getArray());
 				break;
 			case 'button':
-				$this->form->button($desc['innerHTML'], $desc['more'] ?: array());
+				$this->form->button($desc['innerHTML'], $desc['more'] ?: []);
 				break;
 			case 'fieldset':
 				//$this->fieldset($desc['label']);	// it only sets the global fieldset name

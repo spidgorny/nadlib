@@ -67,13 +67,13 @@ class AlterTableCLI extends AlterTable {
 					$indexCompare = $this->compareTables($table, $desc['columns'], $local[$table]['columns']);
 				} else {
 					$createQuery = $this->handler->getCreateQuery($table, $desc['columns']);
-					$indexCompare = [array(
-									 'action' => new HTMLTag('td', array(
+					$indexCompare = [[
+									 'action' => new HTMLTag('td', [
 									 'colspan' => 10,
 									 'class' => 'sql',
-									 ), $this->click($table, $createQuery)
+									 ], $this->click($table, $createQuery)
 									 ),
-									 )];
+					]];
 				}
 				$this->filterChanges($table, $indexCompare);
 			}

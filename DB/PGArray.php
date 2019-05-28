@@ -73,8 +73,8 @@ class PGArray extends AsIs
 	 */
 	public function PGArrayToPHPArray($pgArray)
 	{
-		$ret = array();
-		$stack = array(&$ret);
+		$ret = [];
+		$stack = [&$ret];
 		$pgArray = substr($pgArray, 1, -1);
 		$pgElements = explode(",", $pgArray);
 
@@ -83,7 +83,7 @@ class PGArray extends AsIs
 		foreach ($pgElements as $elem) {
 			if (substr($elem, -1) == "}") {
 				$elem = substr($elem, 0, -1);
-				$newSub = array();
+				$newSub = [];
 				while (substr($elem, 0, 1) != "{") {
 					$newSub[] = $elem;
 					$elem = array_pop($ret);
@@ -130,7 +130,7 @@ class PGArray extends AsIs
 		$temp = fopen("php://memory", "rw");
 		fwrite($temp, $input);
 		fseek($temp, 0);
-		$r = array();
+		$r = [];
 		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
 //			$data = array_map('stripcslashes', $data);
 			$data = array_map(function ($str) {
@@ -201,17 +201,17 @@ class PGArray extends AsIs
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
-		if ($v1 == array('')) return array();
+		if ($v1 == ['']) return [];
 		$inside = false;
-		$out = array();
+		$out = [];
 		$o = 0;
 		foreach ($v1 as $word) {
 			if ($word{0} == '"') {
 				$inside = true;
 				$word = substr($word, 1);
 			}
-			if (in_array($word{strlen($word) - 1}, array('"'))
-				&& !in_array($word{strlen($word) - 2}, array('\\'))
+			if (in_array($word{strlen($word) - 1}, ['"'])
+				&& !in_array($word{strlen($word) - 2}, ['\\'])
 			) {
 				$inside = false;
 				$word = substr($word, 0, -1);
@@ -299,7 +299,7 @@ class PGArray extends AsIs
 		if (empty($s) || $s[0] != '{') {
 			return null;
 		}
-		$return = array();
+		$return = [];
 		$string = false;
 		$quote='';
 		$len = strlen($s);

@@ -50,12 +50,12 @@ class DBLayerOCI extends DBLayer implements DBInterface
 
 	function insertFields()
 	{
-		return array();
+		return [];
 	}
 
 	function updateFields()
 	{
-		return array();
+		return [];
 	}
 
 	function performOCI($query, $canprint = TRUE, $try = FALSE)
@@ -97,7 +97,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 
 		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
 		if ($this->debugOnce || $this->debug) {
-			debug(array($query));
+			debug([$query]);
 			$this->debugOnce = FALSE;
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
@@ -112,7 +112,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 		}
 		if ($this->LOG[$query]) {
 			$a = $this->LOG[$query];
-			$this->LOG[$query] = array(
+			$this->LOG[$query] = [
 				'timestamp' => '',
 				'file' => $debug[1]['file'],
 				'function' => $debug[1]['function'],
@@ -123,9 +123,9 @@ class DBLayerOCI extends DBLayer implements DBInterface
 				'elapsed' => $a['elapsed'],
 				'count' => 1 + $a['count'],
 				'total' => $elapsed + $a['total'],
-			);
+			];
 		} else {
-			$this->LOG[$query] = array(
+			$this->LOG[$query] = [
 				'timestamp' => date('H:i:s'),
 				'file' => $debug[1]['file'],
 				'function' => $debug[1]['function'],
@@ -136,7 +136,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 				'elapsed' => $elapsed,
 				'count' => 1,
 				'total' => $elapsed,
-			);
+			];
 		}
 		return $this->LAST_PERFORM_RESULT;
 	}
@@ -161,7 +161,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			ora_rollback($this->CONNECTION);
 		}
 	*/
-	function quoteSQL($value, $more = array())
+	function quoteSQL($value, $more = [])
 	{
 		if ($value == "CURRENT_TIMESTAMP") {
 			return $value;
@@ -184,7 +184,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 
 	public function fetchAll($result, $key = null)
 	{
-		$ret = array();
+		$ret = [];
 		while (($row = $this->fetchAssoc($result)) !== false) {
 			$ret[] = $row;
 		}
@@ -224,7 +224,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 
 	public function filterFields()
 	{
-		return array();
+		return [];
 	}
 
 }

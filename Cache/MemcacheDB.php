@@ -19,19 +19,19 @@ class MemcacheDB implements MemcacheInterface {
 	}
 
 	function getRow($key) {
-		$row = $this->db->fetchOneSelectQuery($this->table, array(
+		$row = $this->db->fetchOneSelectQuery($this->table, [
 			'key' => $key,
-		));
+		]);
 		return $row;
 	}
 
 	function set($key, $value) {
-		$this->db->runUpdateInsert($this->table, array(
+		$this->db->runUpdateInsert($this->table, [
 			'value' => $value,
 			'mtime' => new SQLNow(),
-		), array(
+		], [
 			'key' => $key,
-		));
+		]);
 	}
 
 	function isValid($key = NULL, $expire = 0) {
@@ -40,9 +40,9 @@ class MemcacheDB implements MemcacheInterface {
 	}
 
 	function un_set($key) {
-		$this->db->runDeleteQuery($this->table, array(
+		$this->db->runDeleteQuery($this->table, [
 			'key' => $key,
-		));
+		]);
 	}
 
 }

@@ -2,7 +2,7 @@
 
 class IteratorImplementation {
 
-	var $data = array();
+	var $data = [];
 
 	private $position = 0;
 

@@ -13,9 +13,9 @@ class slTableValue
 	/**
 	 * @var array
 	 */
-	var $desc = array(
+	var $desc = [
 		//		'hsc' => TRUE,
-	);
+	];
 
 	/**
 	 * @var MySQL|DBLayer
@@ -32,7 +32,7 @@ class slTableValue
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
 	public $SLTABLE_IMG_CROSS = '☐';
 
-	function __construct($value, array $desc = array())
+	function __construct($value, array $desc = [])
 	{
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
@@ -61,7 +61,7 @@ class slTableValue
 		}
 	*/
 
-	function render($col = NULL, array $row = array())
+	function render($col = NULL, array $row = [])
 	{
 		$content = $this->getCell($col, $this->value, $this->desc, $row);
 		return $content;
@@ -90,13 +90,13 @@ class slTableValue
 					if (!isset($k['options'])) {
 						if ($k['set']) {
 							$list = trimExplode(',', $val);
-							$out = array();
+							$out = [];
 							foreach ($list as $val) {
 								$out[] = $this->db->sqlFind($what, $k['from'], $id . " = '" . $val . "'", FALSE);
 							}
 							$out = implode(', ', $out);
 						} else if ($k['from']) {
-							$options = $this->db->fetchSelectQuery($k['from'], array($id => $val), '', $k['from'] . '.*, ' . $what);
+							$options = $this->db->fetchSelectQuery($k['from'], [$id => $val], '', $k['from'] . '.*, ' . $what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
 							$whatAs = $whatAs[1] ? $whatAs[1] : $what;
@@ -168,9 +168,9 @@ class slTableValue
 				break;
 
 			case "file":
-				$out = new HTMLTag('a', array(
+				$out = new HTMLTag('a', [
 					'href' => $GLOBALS['uploadURL'] . $val,
-				), $val);
+				], $val);
 				break;
 
 			case "money":
@@ -181,9 +181,9 @@ class slTableValue
 				break;
 
 			case "delete":
-				$out = new HTMLTag('a', array(
+				$out = new HTMLTag('a', [
 					'href' => "?perform[do]=delete&perform[table]={$this->caller->ID}&perform[id]=" . $row['id'],
-				), "Del");
+				], "Del");
 				break;
 
 			case "datatable":
@@ -217,9 +217,9 @@ class slTableValue
 					$img = $this->SLTABLE_IMG_CROSS;
 				}
 				if (ifsetor($row[$col . '.link'])) {
-					$out = new HTMLTag('a', array(
+					$out = new HTMLTag('a', [
 						'href' => $row[$col . '.link'],
-					), $img, $k['no_hsc']);
+					], $img, $k['no_hsc']);
 				} else {
 					$out = $img;
 				}
@@ -278,7 +278,7 @@ class slTableValue
 				if ($val) {
 					if (ifsetor($k['csv'])) {
 						$parts = trimExplode(',', $val);
-						$obj = array();
+						$obj = [];
 						foreach ($parts as $id) {
 							$obj[] = is_object($k['class'])
 								? $k['class']
@@ -295,9 +295,9 @@ class slTableValue
 				break;
 
 			case "singleLink":
-				$out = new HTMLTag('a', array(
+				$out = new HTMLTag('a', [
 					'href' => new URL($k['link'] . $row[$k['idField']]),
-				), $val ?: $k['text']);
+				], $val ?: $k['text']);
 				break;
 
 			case 'HTMLFormDatePicker':

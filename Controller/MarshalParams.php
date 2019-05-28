@@ -124,7 +124,7 @@ class MarshalParams
 	{
 		$r = new ReflectionMethod($proxy, $method);
 		if ($r->getNumberOfParameters()) {
-			$assoc = array();
+			$assoc = [];
 			foreach ($r->getParameters() as $param) {
 				$name = $param->getName();
 				if ($this->request->is_set($name)) {
@@ -136,7 +136,7 @@ class MarshalParams
 				}
 			}
 			//debug($assoc);
-			$content = call_user_func_array(array($proxy, $method), $assoc);
+			$content = call_user_func_array([$proxy, $method], $assoc);
 		} else {
 			$content = $proxy->$method();
 		}

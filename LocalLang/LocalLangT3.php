@@ -11,7 +11,7 @@ class LocalLangT3 extends LocalLang {
 	 * To avoid readLLfile() on the same file
 	 * @var array
 	 */
-	var $loaded = array();
+	var $loaded = [];
 
 	function saveMissingMessage($text) {
 	}
@@ -28,11 +28,11 @@ class LocalLangT3 extends LocalLang {
 				foreach ($tempLOCAL_LANG[$this->LLkey] as $key => $single) {
 					$this->ll[$key] = $single[0]['source'];
 				}
-				(array($label,
+				([$label,
 					$file,
 					//$tempLOCAL_LANG,
 					$this->ll
-				));
+				]);
 				$this->loaded[$file] = 1;
 			}
 		}
