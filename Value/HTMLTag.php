@@ -70,7 +70,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				}
 				$val = implode(' ', $val);        // for class="a b c"
 			}
-			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES) . '"';
+			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
 		}
 		return implode(' ', $set);
 	}
