@@ -310,7 +310,7 @@ class Debug
 	 * @param int $stepBack
 	 * @return string
 	 */
-	static function getCaller($stepBack = 2)
+	public static function getCaller($stepBack = 2)
 	{
 		$btl = debug_backtrace();
 		reset($btl);
@@ -333,7 +333,7 @@ class Debug
 	 * @param bool $withHash
 	 * @return string
 	 */
-	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true)
+	public static function getBackLog($limit = 5, $cut = 7, $join = null, $withHash = true)
 	{
 		$debug = debug_backtrace();
 		for ($i = 0; $i < $cut; $i++) {
@@ -357,7 +357,9 @@ class Debug
 				break;
 			}
 		}
-		$content = implode($join, $content);
+		if ($join) {
+			$content = implode($join, $content);
+		}
 		return $content;
 	}
 

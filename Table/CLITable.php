@@ -78,6 +78,11 @@ class CLITable
 		return $content;
 	}
 
+	public function __toString()
+	{
+		return $this->render();
+	}
+
 	public function getThesNames()
 	{
 		$names = [];
