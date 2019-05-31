@@ -47,11 +47,11 @@ class Mailer implements MailerInterface
 
 	public function __construct($to, $subject, $bodyText)
 	{
-		if (!is_array($to)) {
+		if ($to && !is_array($to)) {
 			$sep = str_contains($to, ';') ? ';' : ',';
 			$this->to = trimExplode($sep, $to);
 		} else {
-			$this->to = $to;
+			$this->to = $to ?: [];
 		}
 		$this->to = array_unique($this->to);
 		$this->subject = trim($subject);
@@ -327,7 +327,7 @@ class Mailer implements MailerInterface
 		return $shortFile;
 	}
 
-	function getPlainText()
+	public function getPlainText()
 	{
 		if (class_exists('HTMLPurifier_Config')) {
 			$config = HTMLPurifier_Config::createDefault();
