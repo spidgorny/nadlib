@@ -81,7 +81,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		$params = [];
 		if ($query instanceof SQLSelectQuery) {
 			$params = $query->getParameters();
-			debug($query, $params);
+			//debug($query, $params);
 		}
 		$this->log('call perform() on '.get_class($this->db));
 		$this->dbResultResource = $this->db->perform($query, $params);
