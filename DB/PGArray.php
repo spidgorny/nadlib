@@ -115,6 +115,20 @@ class PGArray extends AsIs
 				foreach ($parts as &$p) {
 					$p = $this->getPGArray($p);
 				}
+			} elseif (str_contains($input, '{')) {
+				// JSON inside
+				$jsonStart = strpos($input, '{');
+				$jsonEnd = strpos($input, '}');
+				$json = substr($input, $jsonStart, $jsonEnd-$jsonStart+1);
+				$input = substr($input, 0, $jsonStart).
+					'*!*JSON*!*'.
+					substr($input, $jsonEnd+1);
+				$parts = $this->str_getcsv($input, ',', '"');
+//				ini_set('xdebug.var_display_max_data', 9999);
+//				debug($input, $parts, $json);
+				foreach ($parts as &$p) {
+					$p = str_replace('*!*JSON*!*', $json, $p);
+				}
 			} else {
 				$parts = $this->str_getcsv($input, ',', '"');
 				$parts = (array)$parts;
