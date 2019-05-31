@@ -201,7 +201,9 @@ class PGArray extends AsIs
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
-		if ($v1 == ['']) return [];
+		if ($v1 == ['']) {
+			return [];
+		}
 		$inside = false;
 		$out = [];
 		$o = 0;
@@ -333,13 +335,14 @@ class PGArray extends AsIs
 		return $return;
 	}
 
-	public function getPGArrayFromJSON($s)
+	public function getPGArrayFromJSON_bad($s)
 	{
 		$deepData = $this->pg_array_parse($s);
+
 		$tokens = [];
-		$tokens[] = strtok($s, '{,}');
+		$tokens[] = strtok($s, '{,}"');
 		do {
-			$token1 = strtok('{,}');
+			$token1 = strtok('{,}"');
 			$tokens[] = $token1;
 		} while ($token1 != null);
 //		debug($tokens);
@@ -350,13 +353,14 @@ class PGArray extends AsIs
 				$keys[] = substr($chr, 0, -1);
 			}
 		}
-//		debug($keys);
+		debug($s, $deepData, $keys);
 
 		$arrays = array_filter($deepData, function ($el) {
 			return is_array($el);
 		});
 //		debug($arrays);
 
+		debug(sizeof($keys), sizeof($arrays), $keys);
 		$deepDataMerged = [];
 		if (sizeof($keys) == sizeof($arrays)) {
 			foreach ($deepData as $key => $val) {
@@ -372,6 +376,40 @@ class PGArray extends AsIs
 			$deepDataMerged = $deepData;
 		}
 		return $deepDataMerged;
+	}
+
+	public function getPGArrayFromJSON($s)
+	{
+		$result = [];
+		$collect = false;
+		$buffer = [];
+		$deepData = $this->pg_array_parse($s);
+		foreach ($deepData as $part) {
+			if (str_contains($part, ':{')) {
+				$collect = true;
+				$buffer = [];
+			}
+			if ($collect) {
+				$buffer[] = $part;
+			} else {
+				$result[] = $part;
+			}
+
+			if (str_endsWith($part, '}')) {
+				$result[] = implode(',', $buffer);
+				$buffer = [];
+				$collect = false;
+			}
+		}
+//		debug($deepData, $result);
+		return $result;
+	}
+
+	public function unnest($sElements)
+	{
+		$rows = $this->db->fetchAll("SELECT unnest('".pg_escape_string($sElements)."'::text[])");
+//		$rows = $this->db->fetchAll("SELECT unnest(string_to_array('".pg_escape_string($sElements)."'::text, ','))");
+		return $rows;
 	}
 
 }
