@@ -127,7 +127,7 @@ class PGArray extends AsIs
 //				ini_set('xdebug.var_display_max_data', 9999);
 //				debug($input, $parts, $json);
 				foreach ($parts as &$p) {
-					$p = str_replace('*!*JSON*!*', $json, $p);
+					$p = str_replace('*!*JSON*!*', stripslashes($json), $p);
 				}
 			} else {
 				$parts = $this->str_getcsv($input, ',', '"');
