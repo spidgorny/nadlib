@@ -318,9 +318,6 @@ class Debug
 		for ($i = 0; $i < $stepBack; $i++) {
 			$bt = next($btl);
 		}
-		if ($bt['function'] == 'runSelectQuery') {
-			$bt = next($btl);
-		}
 		return ifsetor($bt['class'], get_class(ifsetor($bt['object'])))
 			. '::' . $bt['function'];
 	}

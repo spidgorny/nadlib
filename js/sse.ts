@@ -37,9 +37,10 @@ function startTask(url, target) {
 			}
 		}
 	};
-	source.onerror = function(event) {
+	source.onerror = function(event: Event) {
 		var txt;
-		switch( event.target.readyState ){
+		const xhr: XMLHttpRequest = event.target;
+		switch( xhr.readyState ){
 			// if reconnecting
 			case EventSource.CONNECTING:
 				txt = 'Reconnecting...';
