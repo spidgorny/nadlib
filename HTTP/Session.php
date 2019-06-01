@@ -91,7 +91,9 @@ class Session implements SessionInterface
 
 	public function has($key)
 	{
-		return isset($_SESSION[$this->prefix][$key]);
+		return $this->prefix
+			? isset($_SESSION[$this->prefix][$key])
+			: ifsetor($_SESSION[$key]);
 	}
 
 	public function append($key, $val)
@@ -105,7 +107,7 @@ class Session implements SessionInterface
 
 	public function getAll()
 	{
-		return ifsetor($_SESSION[$this->prefix], []);
+		return $this->prefix ? ifsetor($_SESSION[$this->prefix], []) : $_SESSION;
 	}
 
 	public function delete($string)
@@ -115,6 +117,11 @@ class Session implements SessionInterface
 		} else {
 			unset($_SESSION[$string]);
 		}
+	}
+
+	public function getKeys()
+	{
+		return array_keys($this->getAll());
 	}
 
 }

@@ -41,6 +41,7 @@ class FileCache
 			//print_r($key);
 			$val = serialize($val);
 		}
+		$con = null;
 		if (class_exists('Index')) {
 			$con = Index::getInstance()->controller;
 		}

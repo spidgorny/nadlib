@@ -321,11 +321,9 @@ abstract class Controller extends SimpleController
 
 	public static function link($text = null, array $params = [])
 	{
-		/** @var Controller $self */
-		$self = get_called_class();
 		return new HTMLTag('a', [
-			'href' => $self::href($params)
-		], $text ?: $self);
+			'href' => static::href($params)
+		], $text ?: static::class);
 	}
 
 	public static function href(array $params = [])

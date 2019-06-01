@@ -141,7 +141,7 @@ class URLGet
 
 	public function fetchCURL(array $options = array())
 	{
-		$this->logger->log(__METHOD__, $this->url . '');
+		$this->log(__METHOD__, $this->url . '');
 		$process = curl_init($this->url);
 		$headers = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		$headers = trimExplode("\r\n", $headers);
@@ -161,7 +161,7 @@ class URLGet
 
 		$response = curl_exec($process);
 		$header_size = curl_getinfo($process, CURLINFO_HEADER_SIZE);
-		$this->logger->log(__METHOD__, $header_size);
+		$this->log(__METHOD__, $header_size);
 		$headers = substr($response, 0, $header_size);
 		$headlines = explode("\n", $headers);
 		$headlines = array_map('trim', $headlines); // empty line
