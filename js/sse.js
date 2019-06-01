@@ -1,4 +1,3 @@
-"use strict";
 /// <reference path="../../../../vendor/yankee42/typescript-server-sent-events/sse.d.ts" />
 function addEvent(html_element, event_name, event_function) {
     if (html_element.addEventListener) { // Modern
@@ -40,7 +39,8 @@ function startTask(url, target) {
     };
     source.onerror = function (event) {
         var txt;
-        switch (event.target.readyState) {
+        var xhr = event.target;
+        switch (xhr.readyState) {
             // if reconnecting
             case EventSource.CONNECTING:
                 txt = 'Reconnecting...';
