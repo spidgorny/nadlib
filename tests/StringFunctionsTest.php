@@ -27,6 +27,11 @@ class StringFunctionsTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('asd/qwe', path_plus('asd/', '/qwe/'));
 	}
 
+	public function test_path_plus_twice()
+	{
+		$this->assertEquals('/asd/qwe/zxc', path_plus('/asd', 'qwe', 'zxc'));
+	}
+
 	public function test_str_contains()
 	{
 		$this->assertFalse(str_contains('q', 'abc'));
