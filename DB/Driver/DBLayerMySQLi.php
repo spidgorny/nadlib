@@ -40,7 +40,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	 * @return bool|mysqli_result
 	 * @throws DatabaseException
 	 */
-	public function perform($query, array $params = array())
+	public function perform($query, array $params = [])
 	{
 		$this->lastQuery = $query;
 
@@ -70,7 +70,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 						// pass by reference
 					}
 					//debug($data, $meta, $field, $this->columns);
-					$ok = call_user_func_array(array($stmt, 'bind_result'), $this->columns);
+					$ok = call_user_func_array([$stmt, 'bind_result'], $this->columns);
 				}
 				if (!$ok) {
 					throw new DatabaseException(mysqli_error($this->connection));
@@ -98,7 +98,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 
 	private function makeValuesReferenced(array $arr)
 	{
-		$refs = array();
+		$refs = [];
 		foreach ($arr as $key => $value) {
 			$refs[$key] = &$arr[$key];
 		}

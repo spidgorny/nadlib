@@ -149,49 +149,6 @@ class Linker
 		], $text);
 	}
 
-	/**
-	 * There is no $formMore parameter because you get the whole form returned.
-	 * You can modify it after returning as you like.
-	 * @param string|htmlString $name - if object then will be used as is
-	 * @param string|null $action
-	 * @param string $formAction
-	 * @param array $hidden
-	 * @param string $submitClass
-	 * @param array $submitParams
-	 * @return HTMLForm
-	 */
-	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
-	{
-		$f = new HTMLForm();
-		if ($formAction) {
-			$f->action($formAction);
-		} else {
-			$f->hidden('c', get_class($this));
-		}
-		$f->formHideArray($hidden);
-		if (false) {    // this is too specific, not and API
-//			if ($id = $this->request->getInt('id')) {
-//				$f->hidden('id', $id);
-//			}
-		}
-		if (!is_null($action)) {
-			$f->hidden('action', $action);
-		}
-		if ($name instanceof htmlString) {
-			$f->button($name, [
-					'type' => "submit",
-					'id' => 'button-action-' . $action,
-					'class' => $submitClass,
-				] + $submitParams);
-		} else {
-			$f->submit($name, [
-					'id' => 'button-action-' . $action,
-					'class' => $submitClass,
-				] + $submitParams);
-		}
-		return $f;
-	}
-
 	public function linkToAction($action = '', array $params = [], $controller = null)
 	{
 		if (!$controller) {

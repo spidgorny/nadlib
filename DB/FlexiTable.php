@@ -11,7 +11,7 @@ class FlexiTable extends OODBase
 	/**
 	 * @var array
 	 */
-	protected $columns = array();
+	protected $columns = [];
 
 	/**
 	 * Enables/disables FlexiTable functionality
@@ -26,7 +26,7 @@ class FlexiTable extends OODBase
 	 *
 	 * @var array
 	 */
-	static protected $tableColumns = array();
+	static protected $tableColumns = [];
 
 	/**
 	 * @var string 'ctime'
@@ -183,7 +183,7 @@ class FlexiTable extends OODBase
 		static $stopDebug = false;
 		$this->fetchColumns();
 		foreach ($this->columns as $field => &$info) {
-			if (in_array($info['Type'], array('blob', 'text')) && $this->data[$field]) {
+			if (in_array($info['Type'], ['blob', 'text']) && $this->data[$field]) {
 				$info['uncompress'] = 'try';
 				$uncompressed = $this->db->uncompress($this->data[$field]);
 				if (!$uncompressed) {

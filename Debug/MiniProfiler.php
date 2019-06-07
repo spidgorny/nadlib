@@ -1,8 +1,8 @@
 <?php
 
 class MiniProfiler {
-	protected $timer = array();
-	protected $lastName = array();
+	protected $timer = [];
+	protected $lastName = [];
 
 	function startTimer($name) {
 		$this->timer[$name]['start'] = microtime(true);
@@ -17,13 +17,13 @@ class MiniProfiler {
 	}
 
 	function printTimers() {
-		$table = array();
+		$table = [];
 		foreach ($this->timer as $name => $t) {
-			$table[] = array(
+			$table[] = [
 				'name' => $name,
 				'duration' => number_format($t['duration'], 3, '.', ''),
 				'times' => $t['times'],
-			);
+			];
 		}
 		//$ac = array_column($table, 'duration');
 		$ac = ArrayPlus::create($table)->column('duration')->getData();

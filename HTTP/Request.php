@@ -249,7 +249,7 @@ class Request
 	 */
 	public function getArray($name)
 	{
-		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
+		return isset($this->data[$name]) ? (array)($this->data[$name]) : [];
 	}
 
 	public function getTrimArray($name)
@@ -409,14 +409,14 @@ class Request
 				$controller = $resolver->getController($returnDefault);
 			}
 		}   // cli
-		nodebug(array(
+		nodebug([
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
 				: null,
-			'data' => $this->data));
+			'data' => $this->data]);
 		return $controller;
 	}
 
@@ -463,7 +463,7 @@ class Request
 		$return = null;
 		$url = $this->getReferer();
 		if ($url) {
-			$url->setParams(array());   // get rid of any action
+			$url->setParams([]);   // get rid of any action
 			$rr = $url->getRequest();
 			$return = $rr->getControllerString();
 		}
@@ -602,7 +602,7 @@ class Request
 		$c = null;
 		$docRoot = self::getDocRoot();
 		ksort($_SERVER);
-		pre_print_r(array(
+		pre_print_r([
 			'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
@@ -611,7 +611,7 @@ class Request
 			'server' => array_filter($_SERVER, function ($el) {
 				return strpos($el, '/') !== false;
 			}),
-		));
+		]);
 	}
 
 	public static function getHost($isUTF8 = false)
@@ -670,11 +670,11 @@ class Request
 	 */
 	public function isAjax()
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
 		if (!$headers) {
-			$headers = array(
+			$headers = [
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
-			);
+			];
 		}
 		$isXHR = false;
 		if (isset($headers['X-Requested-With'])) {
@@ -685,7 +685,7 @@ class Request
 
 	public function getHeader($name)
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
 		return ifsetor($headers[$name]);
 	}
 
@@ -901,14 +901,14 @@ class Request
 				array_shift($levels);
 			}
 		} else {
-			$levels = array();
+			$levels = [];
 		}
-		nodebug(array(
+		nodebug([
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
 			//'getURL()' => $path->getURL() . '',
-			'levels' => $levels));
+			'levels' => $levels]);
 		return $levels;
 	}
 
@@ -1059,10 +1059,10 @@ class Request
 	 * @param array $noopt List of parameters without values
 	 * @return array
 	 */
-	public function parseParameters($noopt = array())
+	public function parseParameters($noopt = [])
 	{
-		$result = array();
-		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
+		$result = [];
+		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		foreach ($params as $tmp => $p) {
@@ -1091,7 +1091,7 @@ class Request
 		return $result;
 	}
 
-	public function importCLIparams($noopt = array())
+	public function importCLIparams($noopt = [])
 	{
 		$this->data += $this->parseParameters($noopt);
 		return $this;
@@ -1127,7 +1127,7 @@ class Request
 
 	public function clear()
 	{
-		$this->data = array();
+		$this->data = [];
 	}
 
 	/**
@@ -1166,7 +1166,7 @@ class Request
 
 	public static function printDocumentRootDebug()
 	{
-		pre_print_r(array(
+		pre_print_r([
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
@@ -1176,7 +1176,7 @@ class Request
 			'getDocumentRootByScript' => self::getDocumentRootByScript(),
 			'getDocumentRootByIsDir' => self::getDocumentRootByIsDir(),
 			'getDocumentRoot' => self::getDocumentRoot() . '',
-		));
+		]);
 	}
 
 	/**
@@ -1370,10 +1370,10 @@ class Request
 	public function getClientIP()
 	{
 		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
-		if (!$ip || in_array($ip, array(
+		if (!$ip || in_array($ip, [
 				'127.0.0.1',
 				'::1'
-			))) {
+			])) {
 			$ip = $this->fetch('http://ipecho.net/plain');
 		}
 		return $ip;

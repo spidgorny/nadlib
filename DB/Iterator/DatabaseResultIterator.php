@@ -21,32 +21,32 @@ class DatabaseResultIterator implements Iterator, Countable
 	 * If defined it will influence the key() method return value
 	 * @var string
 	 */
-	var $defaultKey;
+	public $defaultKey;
 
 	/**
 	 * Query result
 	 * @var resource
 	 */
-	var $dbResultResource;
+	public $dbResultResource;
 
 	/**
 	 * Must be false to indicate no results
 	 * @var array
 	 */
-	var $row = FALSE;
+	public $row = false;
 
 	/**
 	 * Amount. Must be NULL for the first time.
 	 * @var int
 	 */
-	var $rows = NULL;
+	public $rows = null;
 
 	/**
 	 * Will return the value of the current row corresponding to $this->defaultKey
 	 * or number 0, 1, 2, 3, ... otherwise
 	 * @var int
 	 */
-	var $key = 0;
+	public $key = 0;
 
 	/**
 	 * @var DBInterface
@@ -57,46 +57,53 @@ class DatabaseResultIterator implements Iterator, Countable
 
 	public $debug = false;
 
-	function __construct(DBInterface $db, $defaultKey = null)
-	{ // 'uid'
+	/**
+	 * DatabaseResultIterator constructor.
+	 * @param DBInterface $db
+	 * @param string $defaultKey = 'id', or 'uid'
+	 */
+	public function __construct(DBInterface $db, $defaultKey = null)
+	{
 		$this->db = $db;
 		$this->defaultKey = $defaultKey;
 	}
 
-	function setResult($res)
+	public function setResult($res)
 	{
 		$this->dbResultResource = $res;
 		$this->rows = $this->count();
 	}
 
-	function perform($query)
+	public function perform($query)
 	{
 		$this->log(__METHOD__);
 		$this->query = $query;
 		$params = [];
 		if ($query instanceof SQLSelectQuery) {
 			$params = $query->getParameters();
-//			debug($query, $params);
+			//debug($query, $params);
 		}
+		$this->log('call perform() on '.get_class($this->db));
 		$this->dbResultResource = $this->db->perform($query, $params);
-		$this->log(__METHOD__, ['dbResultResource' => $this->dbResultResource]);
+		$this->log(__METHOD__, [
+			'dbResultResource' => $this->dbResultResource
+		]);
 		$this->rows = $this->count();
 		//$this->rewind();
 	}
 
-	function count()
+	public function count()
 	{
 		$this->log(__METHOD__);
-		if (is_null($this->rows)) {
-			$numRows = $this->db->numRows($this->dbResultResource);
-			$this->log(__METHOD__, ['numRows' => $numRows]);
-			return $numRows;
-		} else {
+		if (!is_null($this->rows)) {
 			return $this->rows;
 		}
+		$numRows = $this->db->numRows($this->dbResultResource);
+		$this->log(__METHOD__, ['numRows' => $numRows]);
+		return $numRows;
 	}
 
-	function rewind()
+	public function rewind()
 	{
 		$this->log(__METHOD__);
 		if ($this->rows) {
@@ -106,22 +113,22 @@ class DatabaseResultIterator implements Iterator, Countable
 		}
 	}
 
-	function current()
+	public function current()
 	{
 		$this->log(__METHOD__);
 		return $this->row;
 	}
 
-	function key()
+	public function key()
 	{
 		return $this->key;
 	}
 
-	function next()
+	public function next()
 	{
 		$this->log(__METHOD__);
 		$this->row = $this->retrieveRow();
-		if (is_array($this->row)) {
+		if ($this->row) {
 			if ($this->defaultKey) {
 				$this->key = ifsetor($this->row[$this->defaultKey]);
 			} else {
@@ -131,7 +138,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		//debug($this->key, $this->row);
 	}
 
-	function retrieveRow()
+	public function retrieveRow()
 	{
 		$this->log(__METHOD__);
 		$row = $this->db->fetchRow($this->dbResultResource);
@@ -139,33 +146,33 @@ class DatabaseResultIterator implements Iterator, Countable
 		return $row;
 	}
 
-	function valid()
+	public function valid()
 	{
 		$this->log(__METHOD__);
-		return $this->row !== NULL && $this->row !== FALSE;
+		return $this->row !== null && $this->row !== false;
 	}
 
 	/**
 	 * Should not be used - against the purpose, but nice for debugging
 	 * @return array
 	 */
-	function fetchAll()
+	public function fetchAll()
 	{
 		$this->log(__METHOD__);
-		$data = array();
+		$data = [];
 		foreach ($this as $row) {
 			$data[] = $row;
 		}
 		return $data;
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		$this->log(__METHOD__);
 		$this->db->free($this->dbResultResource);
 	}
 
-	function skip($rows)
+	public function skip($rows)
 	{
 		$this->log(__METHOD__, $rows);
 		while ($rows) {
@@ -176,14 +183,10 @@ class DatabaseResultIterator implements Iterator, Countable
 		return $this;
 	}
 
-	function log($method, $data = NULL)
+	public function log($method, $data = null)
 	{
 		if ($this->debug) {
-			if ($data) {
-				debug($method, $data);
-			} else {
-				debug($method);
-			}
+			debug($method, $data);
 		}
 	}
 

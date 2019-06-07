@@ -17,11 +17,11 @@ class SessionView extends AppControllerBE {
 				<a name="'.$key.'">
 					'.$key.'
 				</a>
-				<a href="'.$this->getURL(array(
+				<a href="'.$this->getURL([
 					'c' => 'Session',
 					'action' => 'del',
 					'del' => $key,
-				)).'">&times;</a>
+				]).'">&times;</a>
 			</h4>'.
 			getDebug($val);
 		}

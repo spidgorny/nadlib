@@ -170,7 +170,7 @@ abstract class ThornbladXmlStreamer
 
 					$aPositions = [];
 					// find min. (exclude false, as it would convert to int 0)
-					$aPositionsIn = array($spacePos, $crPos, $lfPos, $tabPos);
+					$aPositionsIn = [$spacePos, $crPos, $lfPos, $tabPos];
 					foreach ($aPositionsIn as $iPos) {
 						if ($iPos !== false) {
 							$aPositions[] = $iPos;

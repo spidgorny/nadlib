@@ -88,7 +88,7 @@ if (!function_exists('debugList')) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array(array($dh, 'view_array'), $params);
+		$content .= call_user_func_array([$dh, 'view_array'], $params);
 		return $content;
 	}
 
@@ -125,7 +125,7 @@ if (!function_exists('debugList')) {
 	{
 		static $used = null;
 		if (is_null($used)) {
-			$used = array();
+			$used = [];
 		}
 		$trace = debug_backtrace();
 		array_shift($trace); // debug_once itself
@@ -148,7 +148,7 @@ if (!function_exists('debugList')) {
 			$vals = $a;
 			$keys = array_keys($a);
 		}
-		$assoc = array();
+		$assoc = [];
 		foreach ($keys as $key) {
 			$sxe = $vals[$key];
 			if ($sxe instanceof SimpleXMLElement) {
@@ -197,7 +197,7 @@ if (!function_exists('debugList')) {
 	 */
 	function error2string($value)
 	{
-		$level_names = array(
+		$level_names = [
 			E_ERROR => 'E_ERROR',
 			E_WARNING => 'E_WARNING',
 			E_PARSE => 'E_PARSE',
@@ -208,11 +208,11 @@ if (!function_exists('debugList')) {
 			E_COMPILE_WARNING => 'E_COMPILE_WARNING',
 			E_USER_ERROR => 'E_USER_ERROR',
 			E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE => 'E_USER_NOTICE');
+			E_USER_NOTICE => 'E_USER_NOTICE'];
 		if (defined('E_STRICT')) {
 			$level_names[E_STRICT] = 'E_STRICT';
 		}
-		$levels = array();
+		$levels = [];
 		if (($value & E_ALL) == E_ALL) {
 			$levels[] = 'E_ALL';
 			$value &= ~E_ALL;
@@ -241,13 +241,13 @@ if (!function_exists('debugList')) {
 				$hash = substr($hash, 0, 6);
 				require_once __DIR__ . '/../HTTP/Request.php';
 				if (!Request::isCLI()) {
-					require_once __DIR__ . '/../HTML/Color.php';
+					require_once __DIR__ . '/../Value/Color.php';
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
-					$hash = new HTMLTag('span', array(
+					$hash = new HTMLTag('span', [
 						'class' => 'tag',
 						'style' => 'background: ' . $color . '; color: ' . $complement,
-					), $hash);
+					], $hash);
 				}
 				$typeName = get_class($something) . '#' . $hash;
 			} else {
@@ -285,7 +285,7 @@ if (!function_exists('debugList')) {
 	function gettypes($something)
 	{
 		if (is_array($something)) {
-			$types = array();
+			$types = [];
 			foreach ($something as $key => $element) {
 				$types[$key] = strip_tags(typ($element));
 			}

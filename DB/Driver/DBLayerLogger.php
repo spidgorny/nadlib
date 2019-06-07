@@ -35,7 +35,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface {
 
 	function fetchAll($res_or_query, $index_by_key = NULL) {
 		$this->log(__METHOD__);
-		return array();
+		return [];
 	}
 
 	function __call($method, array $params) {
@@ -44,7 +44,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface {
 		}
 		if (method_exists($this->qb, $method)) {
 			$this->log($method);
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			throw new Exception($method.' not found in '.get_called_class().' and SQLBuilder');
 		}
@@ -116,7 +116,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface {
 		$this->log(__METHOD__);
 	}
 
-	function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '') {
+	function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '') {
 		$this->log(__METHOD__);
 		return $this->data;
 	}

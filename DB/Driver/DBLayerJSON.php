@@ -93,7 +93,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 		return $t->runUpdateQuery($table, $data, $where);
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL)
+	function getSelectQuery($table, array $where = [], $order = '', $addSelect = NULL)
 	{
 		$query = parent::getSelectQuery($table, $where, $order, $addSelect);
 		$this->currentQuery = $query;
@@ -103,7 +103,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 		return $t;
 	}
 
-	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
+	function runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 	{
 		$t = $this->getTable($table);
 		$res = $t->runSelectQuery($table, $where, $order, $addSelect);

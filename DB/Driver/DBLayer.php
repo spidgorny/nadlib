@@ -93,7 +93,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		}
 	}
 
-	function getVersion()
+	public function getVersion()
 	{
 		$version = pg_version();
 		return $version['server'];

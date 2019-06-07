@@ -43,7 +43,7 @@ class SQLWhereEqual extends SQLWherePart
 
 	public function getWhereItem($key, $val, array $where = [])
 	{
-		$set = array();
+		$set = [];
 		$key = $this->db->quoteKey(trim($key));
 //		debug($key);
 		if ($val instanceof AsIsOp) {       // check subclass first
@@ -83,8 +83,8 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = "$key IS NULL";
 		} elseif ($val === 'NOTNULL') {
 			$set[] = "$key IS NOT NULL";
-		} elseif (in_array($key{strlen($key) - 1}, array('>', '<'))
-			|| in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
+		} elseif (in_array($key{strlen($key) - 1}, ['>', '<'])
+			|| in_array(substr($key, -2), ['!=', '<=', '>=', '<>'])) {
 			list($key, $sign) = explode(' ', $key); // need to quote separately
 			// TODO: quoteKey was done already?
 			$key = $this->db->quoteKey($key);

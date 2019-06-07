@@ -9,9 +9,9 @@ class PageSize extends Controller
 	 * Public to allow apps to adjust the amount
 	 * @var array
 	 */
-	public $options = array(
+	public $options = [
 		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
-	);
+	];
 
 	protected $selected;
 

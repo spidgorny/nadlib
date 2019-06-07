@@ -20,7 +20,7 @@ class DSNBuilderMySQL extends DSNBuilder
 
 	function __toString()
 	{
-		$aDSN = array(
+		$aDSN = [
 			'DATABASE' => $this->db,
 			'host' => $this->host,
 			'SYSTEM' => $this->host,
@@ -28,7 +28,7 @@ class DSNBuilderMySQL extends DSNBuilder
 			'HOSTNAME' => $this->host,
 			'PORT' => $this->port,
 			'PROTOCOL' => 'TCPIP',
-		);
+		];
 		return 'mysql:' . $this->getDSN($aDSN);
 	}
 

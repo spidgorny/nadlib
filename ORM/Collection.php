@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
  *
  */
 /*abstract*/ // commented because of createForTable()
-class Collection implements IteratorAggregate
+class Collection implements IteratorAggregate, ToStringable
 {
 
 	/**
@@ -226,7 +226,10 @@ class Collection implements IteratorAggregate
 	 */
 	public function retrieveData($preProcess = true)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(allowMerge: ' . ($this->allowMerge ? 1 : 0) . ', preprocess: ' . ($preProcess ? 1 : 0) . ')');
+		$this->log(get_class($this) . '::' . __FUNCTION__, [
+			'allowMerge' => $this->allowMerge,
+			'preprocess' => $preProcess,
+		]);
 		//debug(__METHOD__, $allowMerge, $preprocess);
 		$isMySQL = phpversion() > 5.3 && (
 				$this->db instanceof MySQL
@@ -261,6 +264,7 @@ class Collection implements IteratorAggregate
 		$taylorKey = get_class($this) . '::' . __FUNCTION__ . '#' . __LINE__ . BR .
 			Debug::getBackLog(15, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
+		$this->log(__METHOD__);
 
 		$this->query = $this->getQueryWithLimit();
 		//debug($this->query);
@@ -300,7 +304,8 @@ class Collection implements IteratorAggregate
 	 */
 	public function retrieveDataFromMySQL()
 	{
-		$taylorKey = get_class($this) . '::' . __FUNCTION__ . " (" . $this->parentField . ':' . (is_array($this->parentID)
+		$taylorKey = get_class($this) . '::' . __FUNCTION__ .
+			" (" . $this->parentField . ':' . (is_array($this->parentID)
 				? json_encode($this->parentID)
 				: $this->parentID) . ")";
 		TaylorProfiler::start($taylorKey);
@@ -482,7 +487,8 @@ class Collection implements IteratorAggregate
 
 	public function preprocessData()
 	{
-		TaylorProfiler::start($profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table}): " . $this->getCount());
+		$profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table}): " . $this->getCount();
+		TaylorProfiler::start($profiler);
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		if (!$this->processed) {
 			$count = $this->getCount();
@@ -531,16 +537,22 @@ class Collection implements IteratorAggregate
 	public function getData()
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
-		$this->log('getData() query: ' . ($this->query
-				? substr($this->query, 0, 10) . '...'
-				: '-'));
-		$this->log('getData() data: ' . ($this->data
+		$this->log(__METHOD__, [
+			'query' => $this->query
+				? substr($this->query, 0, 25) . '...'
+				: '-'
+		]);
+		$this->log(__METHOD__, [
+			'data' => $this->data
 				? sizeof($this->data)
-				: '-'));
-		$this->log('getData() data->count: ' .
-			is_null($this->data) ? 'NULL' :	count($this->data));
+				: '-'
+		]);
+		$this->log(__METHOD__, [
+			'data->count' =>
+			is_null($this->data) ? 'NULL' :	count($this->data)
+		]);
 		if (!$this->isFetched()) {
-			$this->retrieveData(false);
+			$this->retrieveData();
 		}
 		if (!($this->data instanceof ArrayPlus)) {
 			$this->data = ArrayPlus::create($this->data);
@@ -573,6 +585,7 @@ class Collection implements IteratorAggregate
 	public function setData($data)
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . sizeof($data) . ')');
+		$this->log(__METHOD__, ['from' => Debug::getCaller(2)]);
 		//debug_pre_print_backtrace();
 		//$this->log(__METHOD__, get_call_stack());
 		if ($data instanceof ArrayPlus) {
@@ -585,7 +598,9 @@ class Collection implements IteratorAggregate
 		//$this->count = count($this->data);
 		$this->count = __METHOD__;    // we need to disable getCount()
 
-		// this is needed to not retrieve the data again after it was set (see $this->getData() which is called in $this->render())
+		// this is needed to not retrieve the data again
+		// after it was set (see $this->getData()
+		// which is called in $this->render())
 		$this->query = $this->query ?: __METHOD__;
 	}
 
@@ -789,9 +804,9 @@ class Collection implements IteratorAggregate
 	 */
 	public function objectify($class = null, $byInstance = false)
 	{
-		$this->log(__METHOD__, $class);
 		$class = $class ? $class : $this->itemClassName;
 		if (!$this->members) {
+			$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
 			$this->members = [];   // somehow necessary
 			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];

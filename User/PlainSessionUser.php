@@ -25,7 +25,7 @@ class PlainSessionUser extends User {
 			//debug('session_start');
 			@session_start();
 		} else {
-			$_SESSION = array();
+			$_SESSION = [];
 		}
 		$this->session = $session ?: new Session(get_class($this));
 		parent::__construct($id);

@@ -13,7 +13,7 @@ abstract class FullGrid extends Grid
 	/**
 	 * @var FilterController
 	 */
-	var $filterController;
+	public $filterController;
 
 	/**
 	 */
@@ -46,6 +46,7 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
+	 * Will create collection object
 	 * @param string $collection
 	 * @throws LoginException
 	 * @throws ReflectionException
@@ -199,19 +200,19 @@ abstract class FullGrid extends Grid
 	{
 //		debug($this->getGridColumns());
 //		debug($this->columns->getData());
-		$desc = array(
-			'columns' => array(
+		$desc = [
+			'columns' => [
 				'label' => '<h2>' . __('Visible') . '</h2>',
 				'type' => 'keyset',
 				'options' => $this->getGridColumns(),
 				'value' => $this->columns->getData(),
 				'between' => '',
-			),
-			'collectionName' => array(
+			],
+			'collectionName' => [
 				'type' => 'hidden',
 				'value' => get_class($this->collection),
-			)
-		);
+			]
+		];
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;

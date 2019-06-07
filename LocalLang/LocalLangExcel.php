@@ -15,7 +15,7 @@ class LocalLangExcel extends LocalLang
 		parent::__construct($forceLang);
 		$this->ll = $this->readPersistant();
 		if (!$this->ll) {
-			$this->ll = $this->readExcel(array_merge(array('code'), $this->possibleLangs));
+			$this->ll = $this->readExcel(array_merge(['code'], $this->possibleLangs));
 			if ($this->ll) {
 				$this->savePersistant($this->ll);
 			}
@@ -45,7 +45,7 @@ class LocalLangExcel extends LocalLang
 	public function readExcel(array $keys)
 	{
 		//debug($keys);
-		$data = array();
+		$data = [];
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
 			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
@@ -124,7 +124,7 @@ class LocalLangExcel extends LocalLang
 	public function saveMissingMessage($text)
 	{
 		if (DEVELOPMENT) {
-			$missingWords = array();
+			$missingWords = [];
 			$fp = fopen('lib/missing.txt', 'r');
 			while (!feof($fp)) {
 				$line = fgets($fp);

@@ -15,12 +15,12 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 	 */
 	public $data;
 
-	public function __construct(array $ldapInfo = array())
+	public function __construct(array $ldapInfo = [])
 	{
 		$this->initLDAP($ldapInfo);
 	}
 
-	public function initLDAP(array $ldapInfo = array())
+	public function initLDAP(array $ldapInfo = [])
 	{
 		$goodKeys = array_filter(array_keys($ldapInfo), 'is_string');
 		$ldapInfo = array_intersect_key($ldapInfo, array_flip($goodKeys));
@@ -70,7 +70,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 	 */
 	public function getInfo()
 	{
-		$simpleData = array();
+		$simpleData = [];
 		foreach ($this->data as $field => $data) {
 			if (is_array($data) && $data['count'] == 1) {
 				$simpleData[$field] = $data[0];

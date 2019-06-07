@@ -12,7 +12,7 @@ class HTMLFormSlicer
 	public static function sliceFromTill(array $desc, $from, $till)
 	{
 		$copy = false;
-		$desc2 = array();
+		$desc2 = [];
 		foreach ($desc as $key => $val) {
 			if ($key == $from) {
 				$copy = true;

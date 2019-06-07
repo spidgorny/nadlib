@@ -3,7 +3,7 @@
 class AlterTableSQLite extends AlterTableHandler implements AlterTableInterface {
 
 	function getCreateQuery($table, array $columns) {
-		$set = array();
+		$set = [];
 		foreach ($columns as $row) {
 			$col = TableField::init($row);
 			$set[] = $col->field.' '.$col->type.' '
