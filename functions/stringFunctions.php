@@ -134,7 +134,7 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
-	function path_plus($path, $plus)
+	function path_plus($path, $plus, $plus2 = null)
 	{
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
@@ -151,6 +151,11 @@ if (!function_exists('str_startsWith')) {
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);
+
+		if ($plus2) {
+			$string = path_plus($string, $plus2);
+		}
+
 		return $string;
 	}
 
