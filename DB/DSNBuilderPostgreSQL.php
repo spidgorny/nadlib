@@ -20,11 +20,11 @@ class DSNBuilderPostgreSQL extends DSNBuilder
 
 	function __toString()
 	{
-		$aDSN = array(
+		$aDSN = [
 			'host' => $this->host,
 			'dbname' => $this->db,
 			'port' => $this->port,
-		);
+		];
 		return 'pgsql:' . $this->getDSN($aDSN);
 	}
 

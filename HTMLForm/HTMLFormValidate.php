@@ -44,14 +44,14 @@ class HTMLFormValidate {
 				if (is_object($type)) {
 					$type = get_class($type);
 				}
-				$isCheckbox = !is_object($type) && in_array($type, array(
+				$isCheckbox = !is_object($type) && in_array($type, [
 						'check',
 						'checkbox',
 						'captcha',
 						'recaptcha',
 						'recaptchaAjax',
 						'select',
-					));
+					]);
 				$d = $this->validateField($field, $d, $type, $isCheckbox);
 				//debug($field, $d['error']);
 				$error = $error || ifsetor($d['error']);
@@ -210,7 +210,7 @@ class HTMLFormValidate {
 
 	function getErrorList()
 	{
-		$list = array();
+		$list = [];
 		foreach ($this->desc as $key => $desc) {
 			if (ifsetor($desc['error'])) {
 				$list[$key] = $desc['error'];
@@ -226,7 +226,7 @@ class HTMLFormValidate {
 	 * @param array $invalid contains invalid entries (pass by reference)
 	 * @return bool
 	 */
-	public static function validateEmailAddresses($value, &$invalid = array())
+	public static function validateEmailAddresses($value, &$invalid = [])
 	{
 		$value = trim($value);
 		if (empty($value)) {

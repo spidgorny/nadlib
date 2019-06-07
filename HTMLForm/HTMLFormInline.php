@@ -26,7 +26,7 @@ class HTMLFormInline extends HTMLFormTable
 	 * @param string $append
 	 * @return string
 	 */
-	function getForm(array $formData, array $prefix = array(), $mainForm = TRUE, $append = '')
+	function getForm(array $formData, array $prefix = [], $mainForm = TRUE, $append = '')
 	{
 		if (!is_array($formData)) {
 			debug_pre_print_backtrace();
@@ -58,7 +58,7 @@ class HTMLFormInline extends HTMLFormTable
 		return $part;
 	}
 
-	function renderFormRows(array $formData, array $prefix = array())
+	function renderFormRows(array $formData, array $prefix = [])
 	{
 		$content = [];
 		foreach ($formData as $fieldName => $fieldDesc) {

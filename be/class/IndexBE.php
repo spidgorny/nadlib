@@ -173,9 +173,9 @@ class IndexBE extends IndexBase {
 	 * @return array
 	 */
 	public static function getMenu() {
-		$menu = array(
+		$menu = [
 			'HomeBE'         => 'Home',
-			'ServerStat'     => new Recursive('Info', array(
+			'ServerStat'     => new Recursive('Info', [
 				SysInfo::class  => 'Sys Info',
 				'ServerStat'    => 'Server Stat',
 				'ServerData'    => 'Server Data',
@@ -188,13 +188,13 @@ class IndexBE extends IndexBase {
 				'IniCheck'      => 'php.ini Check',
 				'TimeTrack'     => 'Time Track',
 				'Issues'        => 'Issues',
-			)),
-			'UnitTestReport' => new Recursive('Test', array(
+			]),
+			'UnitTestReport' => new Recursive('Test', [
 				'UnitTestReport' => 'Unit Test Report',
 				'ValidatorCheck' => 'Validator Check',
 				'TestQueue'      => 'Test Queue',
-			)),
-			'ExplainQuery'   => new Recursive('DB', array(
+			]),
+			'ExplainQuery'   => new Recursive('DB', [
 				'AlterDB'      => 'Alter DB',
 				'AlterCharset' => 'Alter Charset',
 				'AlterTable'   => 'Alter Table',
@@ -202,12 +202,12 @@ class IndexBE extends IndexBase {
 				'OptimizeDB'   => 'Optimize DB',
 				'ExplainQuery' => 'Explain Query',
 				'Localize'     => 'Localize',
-			)),
-			'ClearCache'     => new Recursive('FE', array(
+			]),
+			'ClearCache'     => new Recursive('FE', [
 				'ClearCache'   => 'Clear Cache',
 				'JumpFrontend' => '<- Frontend',
-			)),
-		);
+			]),
+		];
 		return $menu;
 	}
 

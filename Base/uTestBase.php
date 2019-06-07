@@ -18,7 +18,7 @@ class uTestBase extends AppControllerBE
 		false => 0,
 	];
 
-	function render()
+	public function render()
 	{
 		$this->index->bodyClasses[] = 'fullScreen';
 		$content = '<style>

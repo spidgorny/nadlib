@@ -23,7 +23,7 @@
 class Duration extends Time
 {
 
-	public $periods = array(
+	public $periods = [
 		'year' => 31556926,
 		'month' => 2629743,
 		'week' => 604800,
@@ -31,7 +31,7 @@ class Duration extends Time
 		'hour' => 3600,
 		'minute' => 60,
 		'second' => 1
-	);
+	];
 
 	public function __construct($input = null)
 	{
@@ -73,7 +73,7 @@ class Duration extends Time
 	{
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
-		$content = array();
+		$content = [];
 		if ($h) {
 			$content[] = $h . 'h';
 		}
@@ -236,7 +236,7 @@ class Duration extends Time
 			return false;
 		}
 
-		$array = array();
+		$array = [];
 		foreach ($duration as $key => $value) {
 			$segment = abs($value) . ' ' . $key;
 			// otherwise -1 years, -1 months ago

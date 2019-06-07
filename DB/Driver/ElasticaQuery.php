@@ -63,9 +63,9 @@ class ElasticaQuery
 	function setOrderBy($orderBy)
 	{
 		foreach ($orderBy as $by => $ascDesc) {
-			$this->elasticaQuery->setSort(array(
-				$by => array('order' => $ascDesc ?: 'asc'),
-			));
+			$this->elasticaQuery->setSort([
+				$by => ['order' => $ascDesc ?: 'asc'],
+			]);
 		}
 	}
 
@@ -139,18 +139,18 @@ class ElasticaQuery
 			case 'SQLRange':
 				$from = $this->getString($condition->from);
 				$till = $this->getString($condition->till);
-				$res = new Elastica\Filter\Range($field, array(
+				$res = new Elastica\Filter\Range($field, [
 					'from' => $from,
 					'to' => $till,
-				));
+				]);
 				break;
 			case 'SQLBetween':
 				$start = $this->getString($condition->start);
 				$end = $this->getString($condition->end);
-				$res = new Elastica\Filter\Range($field, array(
+				$res = new Elastica\Filter\Range($field, [
 					'from' => $start,
 					'to' => $end,
-				));
+				]);
 				break;
 			case 'SQLLike':
 				$res = new \Elastica\Query\QueryString();

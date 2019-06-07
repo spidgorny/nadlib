@@ -80,12 +80,12 @@ class HTML
 		return '<h4>' . $this->s($content) . '</h4>';
 	}
 
-	function h5($content, array $more = array())
+	function h5($content, array $more = [])
 	{
 		return '<h5 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h5>';
 	}
 
-	function h6($content, array $more = array())
+	function h6($content, array $more = [])
 	{
 		return '<h6 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h6>';
 	}
@@ -139,7 +139,7 @@ class HTML
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	function url($page, array $params = array())
+	function url($page, array $params = [])
 	{
 		return $page . '?' . http_build_query($params);
 	}

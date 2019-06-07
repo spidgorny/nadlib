@@ -24,7 +24,7 @@ class DSNBuilderMSSQL extends DSNBuilder {
 
 	function __toString()
 	{
-		$aDSN = array(
+		$aDSN = [
 			'DATABASE' => $this->db,
 			'host' => $this->host,
 			'SYSTEM' => $this->host,
@@ -33,7 +33,7 @@ class DSNBuilderMSSQL extends DSNBuilder {
 			'PORT' => $this->port,
 			'PROTOCOL' => 'TCPIP',
 			'DRIVER' => '{' . $this->driver . '}',
-		);
+		];
 		return 'mssql:'.$this->getDSN($aDSN);
 	}
 

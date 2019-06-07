@@ -24,10 +24,10 @@ class SQLTest extends PHPUnit\Framework\TestCase
 	public function test_SQLNow_PG_update_no_quote()
 	{
 		$now = new SQLNow();
-		$update = array(
+		$update = [
 			'mtime' => $now,
-		);
-		$query = $this->db->getUpdateQuery('asd', $update, array('id' => 1));
+		];
+		$query = $this->db->getUpdateQuery('asd', $update, ['id' => 1]);
 
 		$expected = "UPDATE \"asd\"
 SET \"mtime\" = now()
@@ -40,9 +40,9 @@ WHERE
 	public function test_SQLNow_PG_insert_no_quote()
 	{
 		$now = new SQLNow();
-		$update = array(
+		$update = [
 			'mtime' => $now,
-		);
+		];
 		$query = $this->db->getInsertQuery('asd', $update);
 
 		$expected = "INSERT INTO \"asd\" (\"mtime\") VALUES (now())";

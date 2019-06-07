@@ -8,7 +8,7 @@
 class SQLOr extends SQLWherePart
 {
 
-	protected $or = array();
+	protected $or = [];
 
 	/**
 	 * @var DBInterface
@@ -32,7 +32,7 @@ class SQLOr extends SQLWherePart
 	 */
 	public function __toString()
 	{
-		$ors = array();
+		$ors = [];
 		//debug(get_class($this->db));
 		if (false && $this->db instanceof DBLayerPG) {
 			$ors[] = $this->bijouStyle();
@@ -53,13 +53,13 @@ class SQLOr extends SQLWherePart
 	public function bijouStyle()
 	{
 		// bijou
-		$ors = array();
+		$ors = [];
 		foreach ($this->or as $key => $or) {
 			if ($this->is_main($key)) {
-				$ors[] = $this->db->getWherePart(array(
+				$ors[] = $this->db->getWherePart([
 					$key => $or,
 					$key . '.' => $this->or[$key . '.'],
-				), false);
+				], false);
 			}
 		}
 		return first($ors);
@@ -67,14 +67,14 @@ class SQLOr extends SQLWherePart
 
 	public function dciStyle()
 	{
-		$ors = array();
+		$ors = [];
 		// DCI, ORS
 		// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
 		// http://ors.nintendo.de/NotifyVersion
 		if (is_int($this->field)) {                 // added is_int condition to solve problem with software mngmt & request (hw/sw request)  .. deklesoe 20130514
 			foreach ($this->or as $field => $or) {
 				$tmp = $this->db->quoteWhere(
-					array(trim($field) => $or)
+					[trim($field) => $or]
 				//array($this->field => $or)    //  commented and replaced with line above due to problem
 				//  with query creation for software management .. deklesoe 20130514
 				//$or
@@ -84,7 +84,7 @@ class SQLOr extends SQLWherePart
 		} elseif (!is_int($this->field)) {
 			foreach ($this->or as $field => $or) {
 				$tmp = $this->db->quoteWhere(
-					array(trim($this->field) => $or)
+					[trim($this->field) => $or]
 				//$or
 				);
 				$ors[] = implode('', $tmp);
@@ -102,12 +102,12 @@ class SQLOr extends SQLWherePart
 
 	public function debug()
 	{
-		return array($this->field => $this->or);
+		return [$this->field => $this->or];
 	}
 
 	public function getParameter()
 	{
-		$params = array();
+		$params = [];
 		/**
 		 * @var string $field
 		 * @var SQLLike $sub

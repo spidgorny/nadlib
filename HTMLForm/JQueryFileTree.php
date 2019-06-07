@@ -32,7 +32,7 @@ class JQueryFileTree extends HTMLFormType
 
 		$fullPath = array_merge(
 			$this->form->getPrefix(),
-			(is_array($fieldName) ? $fieldName : array($fieldName))
+			(is_array($fieldName) ? $fieldName : [$fieldName])
 		);
 		$strField = implode('_', $fullPath);
 

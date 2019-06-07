@@ -11,7 +11,7 @@ class AutoLoadBE extends AutoLoad
 	public function getFolders()
 	{
 		require_once __DIR__ . '/../HTTP/Request.php';
-		$folders = array();
+		$folders = [];
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
@@ -21,16 +21,16 @@ class AutoLoadBE extends AutoLoad
 				if (isset($_SESSION[__CLASS__])) {
 					$folders = isset($_SESSION[__CLASS__]['folders'])
 						? $_SESSION[__CLASS__]['folders']
-						: array();
+						: [];
 					$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
 						? $_SESSION[__CLASS__]['classFileMap']
-						: array();
+						: [];
 				}
 			}
 		}
 
 		if (!$folders) {
-			$folders = array('be/class');
+			$folders = ['be/class'];
 			$folders = array_merge($folders, $this->folders->getFoldersFromConfigBase());
 			// should come first to override /be/
 			$folders = array_merge($folders, $this->folders->getFoldersFromConfig());

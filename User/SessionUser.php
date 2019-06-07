@@ -36,7 +36,7 @@ class SessionUser extends PlainSessionUser
 		// we go here only if not logged in
 		// if not a new email and no password we need to ask for password
 		$u = new User(); // not to mess-up with current object
-		$u->findInDB(array('email' => $email));
+		$u->findInDB(['email' => $email]);
 		if ($u->id) {
 			throw new Exception(__('Your e-mail is known to the system. Please enter a password.<br>
 			<a href="?c=ForgotPassword">Forgot password?</a>'));
@@ -45,10 +45,10 @@ class SessionUser extends PlainSessionUser
 			if (DEVELOPMENT) {
 				print 'Generated password: ' . $password;
 			}
-			$this->insert(array(
+			$this->insert([
 				'email' => $email,
 				'password' => $password,
-			));
+			]);
 
 			$dataObj = new stdClass();
 			$dataObj->email = $email;

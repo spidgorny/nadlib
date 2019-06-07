@@ -8,7 +8,7 @@
 class DatabaseResultIteratorAssoc extends DatabaseResultIterator
 {
 
-	function retrieveRow()
+	public function retrieveRow()
 	{
 		$this->log(__METHOD__);
 		$row = $this->db->fetchAssoc($this->dbResultResource);

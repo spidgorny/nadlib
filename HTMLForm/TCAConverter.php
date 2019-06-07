@@ -12,7 +12,7 @@ class TCAConverter {
 	 */
 	public $pi1;
 
-	public $skipFields = array('hidden');
+	public $skipFields = ['hidden'];
 
 	/**
 	 * @var \TYPO3\CMS\Core\Database\DatabaseConnection
@@ -28,7 +28,7 @@ class TCAConverter {
 		$labels = $this->array_column($fields, 'label');
 		$this->pi1->loadLabels($labels);
 
-		$desc = array();
+		$desc = [];
 		foreach ($fields as $field => $config) {
 			if (!in_array($field, $this->skipFields)) {
 				//t3lib_div::debug($config['config']);
@@ -43,10 +43,10 @@ class TCAConverter {
 	}
 
 	function convertTCAtoDesc(array $config) {
-		$match = array(
+		$match = [
 			'radio' => 'radioset',
 			'text' => 'textarea',
-		);
+		];
 		$desc['type'] = $match[$config['type']] ? $match[$config['type']] : $config['type'];
 		$func = 'convertTCA_'.$config['type'];
 		$desc = $this->$func($desc, $config);
@@ -110,7 +110,7 @@ class TCAConverter {
 		$labels = $this->array_column($items, '0');
 		$this->pi1->loadLabels($labels);
 
-		$options = array();
+		$options = [];
 		foreach ($items as $o) {
 			$pair = explode(':', $o[0]);
 			$options[$o[1]] = $this->pi1->pi_getLL(end($pair), $o[0]);
@@ -124,7 +124,7 @@ class TCAConverter {
 	 * @return array
 	 */
 	static function fetchAll($res) {
-		$rows = array();
+		$rows = [];
 		/** @var \TYPO3\CMS\Core\Database\DatabaseConnection $db */
 		$db = $GLOBALS['TYPO3_DB'];
 		while (($row = $db->sql_fetch_assoc($res)) !== FALSE) {

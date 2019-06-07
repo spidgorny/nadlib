@@ -38,7 +38,7 @@ class AutoLoad
 	 * This prevents searching for each file.
 	 * @var array
 	 */
-	public $classFileMap = array();
+	public $classFileMap = [];
 
 	/**
 	 * @var Config
@@ -77,11 +77,11 @@ class AutoLoad
 	 */
 	public $componentsPath;
 
-	public $stat = array(
+	public $stat = [
 		'findInFolders' => 0,
 		'loadFile1' => 0,
 		'loadFile2' => 0,
-	);
+	];
 
 	/**
 	 * getFolders() is called from outside
@@ -142,7 +142,7 @@ class AutoLoad
 			if (isset($_SESSION[__CLASS__])) {
 				$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
 					? $_SESSION[__CLASS__]['classFileMap']
-					: array();
+					: [];
 			}
 			if (ifsetor($_SERVER['argc'])) {
 				if (in_array('-al', (array)ifsetor($_SERVER['argv']))) {
@@ -212,7 +212,7 @@ class AutoLoad
 
 		if (0) {
 			echo '<pre>';
-			print_r(array(
+			print_r([
 				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 				'rp(SCRIPT_FILENAME)' => realpath($_SERVER['SCRIPT_FILENAME']),
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -234,7 +234,7 @@ class AutoLoad
 				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot() . '',
 				'request->getLocation()' => Request::getInstance()->getLocation() . '',
 				'this->componentsPath' => $this->componentsPath . '',
-			));
+			]);
 			echo '</pre>';
 		}
 	}
@@ -470,7 +470,7 @@ class AutoLoad
 		}
 		// before composer <- incorrect
 		// composer autoload is much faster and should be first
-		$result = spl_autoload_register(array($instance, 'load'), true, false);
+		$result = spl_autoload_register([$instance, 'load'], true, false);
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
 		} else {

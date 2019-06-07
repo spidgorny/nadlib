@@ -7,12 +7,12 @@
 class HTMLTag implements ArrayAccess, ToStringable
 {
 	public $tag;
-	public $attr = array();
+	public $attr = [];
 	public $content;
 	public $isHTML = FALSE;
 	public $closingTag = true;
 
-	public function __construct($tag, array $attr = array(), $content = '', $isHTML = false)
+	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
 	{
 		$this->tag = $tag;
 		$this->attr = $attr;
@@ -58,7 +58,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public static function renderAttr(array $attr)
 	{
-		$set = array();
+		$set = [];
 		foreach ($attr as $key => $val) {
 			if (is_array($val) && $key == 'style') {
 				$style = ArrayPlus::create($val);
@@ -70,7 +70,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				}
 				$val = implode(' ', $val);        // for class="a b c"
 			}
-			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES) . '"';
+			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
 		}
 		return implode(' ', $set);
 	}
@@ -153,7 +153,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public static function parseDOM($html)
 	{
-		$content = array();
+		$content = [];
 		if (is_string($html)) {
 			$doc = new DOMDocument();
 			$doc->loadHTML($html);
@@ -168,7 +168,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		foreach ($doc->childNodes as $child) {
 			//echo gettype2($child), BR;
 			if ($child instanceof DOMElement) {
-				$attributes = array();
+				$attributes = [];
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
 					/** @var  DOMNode $attribute_node */
 					echo $attribute_name, ': ', typ($attribute_node), BR;
@@ -210,7 +210,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		if (is_array($text)) {
 			return $text;
 		}
-		$attributes = array();
+		$attributes = [];
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)
 (?<value_double>"[^"]+")

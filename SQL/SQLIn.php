@@ -2,7 +2,7 @@
 
 class SQLIn extends SQLWherePart {
 
-	public $list = array();
+	public $list = [];
 
 	function __construct(array $list, $field = NULL) {
 		parent::__construct();
