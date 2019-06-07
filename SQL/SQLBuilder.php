@@ -164,6 +164,7 @@ class SQLBuilder
 		foreach ($where as $key => $val) {
 			if (!strlen($key) || (strlen($key) && $key{strlen($key) - 1} != '.')) {
 				$equal = new SQLWhereEqual($key, $val);
+				$equal->injectDB($this->db);
 				$set[] = $equal->__toString();
 			}
 		}
