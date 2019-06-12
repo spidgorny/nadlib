@@ -53,58 +53,12 @@ alert("xss");
 	{
 		$c = new MockController();
 		$i = new MockIndex($c, Config::getInstance());
-		$v = new View(__DIR__ . '/../../../../../template/template.phtml', $i);
+		$v = new View(__DIR__ . '/template.phtml', $i);
 		$html = $v->render();
 		ini_set('xdebug.var_display_max_data', -1);
 //		debug($html);
 		$countSidebar = substr_count($html, 'sidebar');
 		$this->assertEquals(1, $countSidebar);
 	}
-
-}
-
-class MockIndex
-{
-
-	/** @var MockController */
-	public $controller;
-
-	/** @var Config */
-	public $config;
-
-	public $bodyClasses = [];
-
-	public $withSidebar = true;
-
-	public function __construct(MockController $c, Config $config)
-	{
-		$this->controller = $c;
-		$this->config = $config;
-	}
-
-	public function addCSS($path)
-	{
-	}
-
-	public function implodeCSS()
-	{
-		return null;
-	}
-
-	public function implodeJS()
-	{
-		return null;
-	}
-
-	public function getBookmarks()
-	{
-		return [];
-	}
-
-}
-
-class MockController
-{
-	public $title = 'the title';
 
 }
