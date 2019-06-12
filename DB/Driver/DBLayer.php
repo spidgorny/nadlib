@@ -12,7 +12,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @var resource
 	 */
-	public $connection = null;
+    public $connection = NULL;
 
 	public $LAST_PERFORM_RESULT;
 
@@ -58,7 +58,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	protected $pass;
 
-	protected $host;
+	public $host;
 
 	protected $lastBacktrace;
 
@@ -539,7 +539,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			return "'f'";
 		} elseif ($value === true) {
 			return "'t'";
-		} elseif (is_int($value)) {    // is_numeric - bad: operator does not exist: character varying = integer
+		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
 		} elseif (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
@@ -691,7 +691,7 @@ from
 	pg_catalog.pg_attribute a
 	inner join pg_catalog.pg_class c on a.attrelid = c.oid
 where
-		c.relname = ' . $this->quoteSQL($table) . '
+        c.relname = '.$this->quoteSQL($table).'
 	and a.attnum > 0
 	and a.attisdropped is false
 	and pg_catalog.pg_table_is_visible(c.oid)
@@ -705,11 +705,11 @@ order by a.attnum';
 
 	/**
 	 * Uses find_in_set function which is not built-in
-	 * @see SQLBuilder::array_intersect()
-	 *
 	 * @param array $options
 	 * @param string $field
 	 * @return string
+	 * @see SQLBuilder::array_intersect()
+	 *
 	 */
 	public function getArrayIntersect(array $options, $field = 'list_next')
 	{
