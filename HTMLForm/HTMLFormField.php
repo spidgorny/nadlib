@@ -248,7 +248,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$elementID = $this['elementID'];
 				$more = ifsetor($desc['more'], []) + ['id' => $elementID];
 				if (ifsetor($desc['postgresql'])) {
-					$fieldValue = $fieldValue == 't';
+					$fieldValue = $fieldValue === 't';
 				}
 				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
 					$more);
