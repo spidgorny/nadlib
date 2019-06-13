@@ -31,7 +31,7 @@ class SQLWhereTest extends PHPUnit\Framework\TestCase
 
 	public function test_InvalidArgumentException()
 	{
-		$this->expectException(InvalidArgumentException::class);
+		$this->setExpectedException(InvalidArgumentException::class);
 		$sq = new SQLWhere();
 		$sq->add([
 			'a' => 'b',
