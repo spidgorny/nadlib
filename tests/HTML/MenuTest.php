@@ -18,6 +18,15 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$m = new Menu([
 			'Page1' => 'Page 1',
 		]);
+//		pre_print_r(['useRouter' => $m->useRouter()]);
+		$this->assertFalse($m->useRouter());
+//		pre_print_r(['useControllerSlug' => $m->useControllerSlug]);
+		$this->assertFalse($m->useControllerSlug);
+
+		$m->basePath->setDocumentRoot('');
+//		pre_print_r($m->basePath);
+		$this->assertEquals('', $m->basePath->documentRoot);
+
 		$m->request = new MockRequest();
 		$m->request->pathAfterAppRootByPath = '/level1';
 //		debug($m->request->getPathAfterAppRootByPath());
@@ -47,15 +56,16 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$m = new Menu([
 			'Page1' => 'Page 1',
 		]);
+		$m->basePath->setDocumentRoot('');
 		$m->request = new MockRequest();
 		$m->request->pathAfterAppRootByPath = '/level1';
-//		debug($m->request->getPathAfterAppRootByPath());
+//		pre_print_r($m->request->getPathAfterAppRootByPath());
 		$this->assertEquals('/level1', $m->request->getPathAfterAppRootByPath());
 		$levels = $m->request->getURLLevels();
-//		debug($levels);
+//		pre_print_r($levels);
 		$this->assertContains('level1', $levels);
 		$rootPath = $m->getRootpath();
-//		debug($rootPath);
+//		pre_print_r($rootPath);
 		$this->assertContains('level1', $rootPath);
 		$m->useControllerSlug = true;
 		$m->useRecursiveURL = true;
@@ -63,6 +73,15 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$m->renderOnlyCurrent = true;
 		$m->basePath->reset();
 		$m->setCurrent(null);
+		
+		$link = $m->getClassPath('level2', $m->getRootpath());
+		pre_print_r($link);
+		$this->assertEquals("http://$localhost/level1/level2", $link);
+
+		$level = $m->renderLevel((array)$m->items, $m->getRootpath());
+//		pre_print_r($level);
+		$this->assertContains("http://$localhost/level1/Page1", $level);
+		
 		$html = $m->render();
 //		debug($m->debug());
 		$this->assertContains("$localhost/Page1", $html);
@@ -72,6 +91,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 	{
 		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([]);
+		$m->basePath->setDocumentRoot('');
 		$m->useControllerSlug = false;
 
 		$path1 = $m->getClassPath('Class1', []);
