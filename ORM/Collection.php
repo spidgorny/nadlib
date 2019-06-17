@@ -799,7 +799,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 *
 	 * @param string $class - required, but is supplied by the subclasses
 	 * @param bool $byInstance - will call getInstance() instead of "new"
-	 * @return static[]
+	 * @return object[]|OODBase[]
 	 * @throws Exception
 	 */
 	public function objectify($class = null, $byInstance = false)
