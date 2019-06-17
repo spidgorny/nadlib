@@ -107,7 +107,7 @@ class UploaderTest extends PHPUnit\Framework\TestCase
 		if (!class_exists('League\Flysystem\Filesystem')) {
 			$this->markTestSkipped('League\Flysystem\Filesystem not installed');
 		}
-		if (getenv('USERNAME') == 'jenkins') {
+		if (getenv('USER') == 'jenkins') {
 			$this->markTestSkipped('Fill fail when run from Jenkins anyway');
 		}
 		$u = new Uploader();
