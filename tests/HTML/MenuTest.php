@@ -75,7 +75,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$m->setCurrent(null);
 		
 		$link = $m->getClassPath('level2', $m->getRootpath());
-		pre_print_r($link);
+//		pre_print_r($link);
 		$this->assertEquals("http://$localhost/level1/level2", $link);
 
 		$level = $m->renderLevel((array)$m->items, $m->getRootpath());
