@@ -60,24 +60,24 @@ class HTML
 		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
 	}
 
-	public function h1($content)
+	public function h1($content, array $attrs = [])
 	{
-		return '<h1>' . $this->s($content) . '</h1>';
+		return '<h1 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h1>';
 	}
 
-	public function h2($content)
+	public function h2($content, array $attrs = [])
 	{
-		return '<h2>' . $this->s($content) . '</h2>';
+		return '<h2 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h2>';
 	}
 
-	public function h3($content)
+	public function h3($content, array $attrs = [])
 	{
-		return '<h3>' . $this->s($content) . '</h3>';
+		return '<h3 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h3>';
 	}
 
-	public function h4($content)
+	public function h4($content, array $attrs = [])
 	{
-		return '<h4>' . $this->s($content) . '</h4>';
+		return '<h4 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h4>';
 	}
 
 	function h5($content, array $more = [])
