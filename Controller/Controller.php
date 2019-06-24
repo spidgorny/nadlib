@@ -17,12 +17,12 @@ use spidgorny\nadlib\HTTP\URL;
  * @mixin HTML
  * @method div($content, $class = '', array $more = [])
  * @method message($content)
- * @method h1($content)
- * @method h2($content)
- * @method h3($content)
- * @method h4($content)
- * @method h5($content)
- * @method h6($content)
+ * @method h1($content, array $attrs = [])
+ * @method h2($content, array $attrs = [])
+ * @method h3($content, array $attrs = [])
+ * @method h4($content, array $attrs = [])
+ * @method h5($content, array $attrs = [])
+ * @method h6($content, array $attrs = [])
  * @method a($href, $text = '', $isHTML = false, array $more = [])
  * @method error($content)
  * @method info($content)
@@ -100,7 +100,7 @@ abstract class Controller extends SimpleController
 				$this->config = $this->index->getConfig();
 			}
 		}
-		
+
 		if ($this->config) {
 			// move this into AppController
 			// some projects don't need DB or User
@@ -127,7 +127,7 @@ abstract class Controller extends SimpleController
 			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
 	}
-	
+
 	/**
 	 * @param array $data
 	 * @return array
