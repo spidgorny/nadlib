@@ -166,7 +166,11 @@ class Linker
 		if ($formAction) {
 			$f->action($formAction);
 		} else {
-			$f->hidden('c', get_class($this));
+			$bt = debug_backtrace();
+//			debug($bt[2]);
+			// this autodetection is tricky
+			// better provide $formAction = '?c=SomeController'
+			$f->hidden('c', get_class($bt[2]['object']));
 		}
 		$f->formHideArray($hidden);
 		if (false) {    // this is too specific, not and API
