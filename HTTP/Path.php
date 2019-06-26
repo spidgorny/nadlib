@@ -319,6 +319,7 @@ class Path
 
 	/**
 	 * Recursive. For no reason?
+	 * Reason is that readlink() fails if the final part is not a link
 	 * @return $this
 	 */
 	public function resolveLinks()
