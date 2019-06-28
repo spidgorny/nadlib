@@ -162,23 +162,28 @@ class ProgressBar {
 		}
 	}
 
-	function setIndex($i, $always = false, $text = '', $after = '')
+	function setIndex($i, $always = false, $text = '', $after = '', $everyStep = 1000)
 	{
 		static $last;
-		if ($this->count) {
-			$percent = $this->getProgress($i);
-			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
-			if ($every < 1 || !($i % $every) || $always || (($last + $every) > $i)) {
-				$this->setProgressBarProgress($percent, $text, $after);
-				$last = $i;
-			}
-		} else {
+		if (!$this->count) {
 			throw new InvalidArgumentException(__CLASS__ . '->count is not set');
 		}
+		$percent = $this->getProgress($i);
+		$every = ceil($this->count / $everyStep); // 100% * 10 for each 0.1
+//		echo $percent, TAB, $every, TAB, $last + $every, TAB, $i, TAB, $i % $every, PHP_EOL;
+		if ($every < 1 || !($i % $every) || $always || ($i > ($last + $every))) {
+			$this->setProgressBarProgress($percent, $text, $after);
+			$last = $i;
+			return true;
+		}
+		return false;
 	}
 
-	public function getProgress($i)
+	public function getProgress($i = null)
 	{
+		if (!$i) {
+			$i = $this->count;
+		}
 		$percent = $i / $this->count * 100;
 		return $percent;
 	}
