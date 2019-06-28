@@ -62,7 +62,7 @@ class LDAPLogin
 	 */
 	public function _sanitizeLdap($string)
 	{
-		return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
+		return trim(preg_replace('/[^a-zA-Z0-9_]+/', '', $string));
 	}
 
 	/**
