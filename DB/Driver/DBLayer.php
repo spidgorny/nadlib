@@ -838,8 +838,7 @@ order by a.attnum';
 	public function getQb()
 	{
 		if (!isset($this->qb)) {
-			$db = Config::getInstance()->getDB();
-			$this->setQb(new SQLBuilder($db));
+			$this->setQb(new SQLBuilder($this));
 		}
 
 		return $this->qb;

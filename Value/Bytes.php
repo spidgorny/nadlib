@@ -16,6 +16,11 @@ class Bytes
 
 	var $precision = 3;
 
+	public static function create($bytes)
+	{
+		return new self($bytes);
+	}
+
 	/**
 	 * Bytes constructor.
 	 * @param string $bytes 10MB, 1.5GB
