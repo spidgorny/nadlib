@@ -341,10 +341,10 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	public function getDriver()
 	{
 		$driverMap = [
-			'mysql' => 'MySQL',
-			'pgsql' => 'DBLayer',
-			'sqlite' => 'DBLayerSQLite',
-			'mssql' => 'DBLayerMS',
+			'mysql' => MySQL::class,
+			'pgsql' => DBLayer::class,
+			'sqlite' => DBLayerSQLite::class,
+			'mssql' => DBLayerMS::class,
 		];
 		$scheme = $this->getScheme();
 		if (isset($driverMap[$scheme])) {

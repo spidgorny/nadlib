@@ -35,7 +35,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		'FROM',
 	];
 
-	function __construct($file)
+	function __construct($file = null)
 	{
 		$this->file = $file;
 		$this->database = basename($this->file);
