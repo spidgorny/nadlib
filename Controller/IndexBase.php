@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\HTTP\Session;
+
 class IndexBase /*extends Controller*/
 {    // infinite loop
 
