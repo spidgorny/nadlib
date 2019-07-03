@@ -130,4 +130,10 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 	{
 		return '?';
 	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
 }
