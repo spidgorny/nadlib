@@ -6,7 +6,7 @@
  * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
  * @method fetchSelectQuery($table, array $where = [], $order = '', $addFields = '', $idField = null)
  * @method getInsertQuery($table, array $columns)
- * @method getDeleteQuery($table, $where = [], $what = '')
+ * @method getDeleteQuery($table, array $where = [], $what = '')
  * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
  * @method runInsertQuery($table, array $columns)
  * @method fetchOneSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
@@ -343,4 +343,5 @@ abstract class DBLayerBase implements DBInterface
 	{
 		return $this->lastQuery;
 	}
+
 }

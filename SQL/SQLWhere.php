@@ -65,6 +65,7 @@ class SQLWhere implements ArrayAccess
 					$p = new SQLWhereEqual($field, $p);
 					$p->injectDB($this->db);
 				}
+				$p = $p->__toString();
 			}
 			$sWhere = " WHERE\n\t" . implode("\n\tAND ", $this->parts);    // __toString()
 

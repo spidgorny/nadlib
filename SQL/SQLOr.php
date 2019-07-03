@@ -19,9 +19,8 @@ class SQLOr extends SQLWherePart
 
 	public function __construct(array $ors)
 	{
-		//parent::__construct();
+		parent::__construct();
 		$this->or = $ors;
-		$this->db = Config::getInstance()->getDB();
 	}
 
 	/**
@@ -41,6 +40,7 @@ class SQLOr extends SQLWherePart
 		} else {                        // MySQL
 			$ors = $this->db->quoteWhere($this->or);
 		}
+
 		if ($ors) {
 			$res = '(' . implode($this->join, $ors) . ')';
 		} else {
@@ -71,7 +71,9 @@ class SQLOr extends SQLWherePart
 		// DCI, ORS
 		// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
 		// http://ors.nintendo.de/NotifyVersion
-		if (is_int($this->field)) {                 // added is_int condition to solve problem with software mngmt & request (hw/sw request)  .. deklesoe 20130514
+		if (is_int($this->field)) {
+			// added is_int condition to solve problem
+			// with software mngmt & request (hw/sw request)  .. deklesoe 20130514
 			foreach ($this->or as $field => $or) {
 				$tmp = $this->db->quoteWhere(
 					[trim($field) => $or]
@@ -93,6 +95,7 @@ class SQLOr extends SQLWherePart
 			foreach ($this->or as $field => $p) {
 				if ($p instanceof SQLWherePart) {
 					$p->injectField($field);
+					$p->injectDB($this->db);
 				}
 			}
 			$ors = $this->db->quoteWhere($this->or);
