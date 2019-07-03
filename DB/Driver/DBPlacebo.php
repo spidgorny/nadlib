@@ -15,8 +15,14 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 {
 	public $lastQuery;
 
+	/**
+	 * @var array
+	 */
+	protected $returnNextTime = [];
+
 	public function __construct()
 	{
+		//llog(__METHOD__, Debug::getCaller());
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
 	}
@@ -33,7 +39,10 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function fetchAll($res_or_query, $index_by_key = null)
 	{
-		return [];
+		$return = $this->returnNextTime;
+		//debug(__METHOD__, typ($this), $return);
+		$this->returnNextTime = [];
+		return $return;
 	}
 
 	public function __call($method, array $params)
@@ -48,7 +57,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function numRows($res = null)
 	{
-		// TODO: Implement numRows() method.
+		return sizeof($this->returnNextTime);
 	}
 
 	public function affectedRows($res = null)
@@ -88,7 +97,9 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function fetchAssoc($res)
 	{
-		// TODO: Implement fetchAssoc() method.
+		$return = $this->returnNextTime;
+		$this->returnNextTime = [];
+		return $return;
 	}
 
 	public function transaction()
@@ -108,7 +119,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function getScheme()
 	{
-		// TODO: Implement getScheme() method.
+		return get_class($this).'://';
 	}
 
 	public function getTablesEx()
@@ -130,11 +141,22 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		$this->lastQuery = $query;
-		return [];
+		return $this->fetchAll(null);
 	}
 
 	public function getPlaceholder()
 	{
 		return '?';
 	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
+	public function returnNextTime(array $rows)
+	{
+		$this->returnNextTime = $rows;
+	}
+
 }

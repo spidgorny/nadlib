@@ -144,19 +144,19 @@ class HTML
 		return $page . '?' . http_build_query($params);
 	}
 
-	function pre($text)
+	public function pre($text)
 	{
-		return '<pre>' . $this->e($text) . '</pre>';
+		return '<pre>' . $this->e($this->s($text)) . '</pre>';
 	}
 
 	function strong($text)
 	{
-		return '<strong>' . $this->e($text) . '</strong>';
+		return '<strong>' . $this->e($this->s($text)) . '</strong>';
 	}
 
 	function em($text)
 	{
-		return '<em>' . $this->e($text) . '</em>';
+		return '<em>' . $this->e($this->s($text)) . '</em>';
 	}
 
 	function hr()

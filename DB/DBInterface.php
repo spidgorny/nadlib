@@ -65,5 +65,8 @@ interface DBInterface
 	public function clearQueryLog();
 
 	public function getLastQuery();
+	
+	/** @return array */
+	public function getInfo();
 
 }

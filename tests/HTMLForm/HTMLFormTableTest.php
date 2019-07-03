@@ -65,4 +65,27 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($fixture, $values);
 	}
 
+	public function test_htmlspecialchars()
+	{
+		$f = new HTMLFormTable([
+			'field' => [
+				'value' => 'asd'
+			]
+		]);
+		$f->showForm();
+		$html = $f->getContent();
+//		echo $html;
+		$this->assertContains('value="asd"', $html);
+
+		$f = new HTMLFormTable([
+			'field' => [
+				'value' => 'asd & "qwe"'
+			]
+		]);
+		$f->showForm();
+		$html = $f->getContent();
+//		echo $html;
+		$this->assertContains('value="asd &amp; &quot;qwe&quot;"', $html);
+	}
+
 }
