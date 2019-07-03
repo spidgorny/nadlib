@@ -18,7 +18,7 @@
  * @method  getConnection()
  * @method  getViews()
  */
-class DBLayerBase implements DBInterface
+abstract class DBLayerBase implements DBInterface
 {
 
 	/**

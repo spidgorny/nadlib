@@ -143,8 +143,8 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param $type
-	 * @param $name
+	 * @param string $type
+	 * @param string $name
 	 * @param null $value
 	 * @param array $more - may be array
 	 * @param string $extraClass
@@ -163,7 +163,8 @@ class HTMLForm implements ToStringable
 			$isHTML = $value instanceof htmlString;
 			//debug($value, $isHTML);
 			if (!$isHTML) {
-				$value = htmlspecialchars($value, ENT_QUOTES);
+				//$value = htmlspecialchars($value, ENT_QUOTES);
+				// escaped by HTMLTag::renderAttr
 			} else {
 				$value = str_replace('"', '&quot;', $value);
 			}
@@ -175,7 +176,7 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param $name
+	 * @param string $name
 	 * @param string $value
 	 * @param array $more - may be array
 	 * @param string $type
@@ -186,6 +187,17 @@ class HTMLForm implements ToStringable
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
 		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
+	}
+
+	public function add(HTMLFormFieldInterface $field)
+	{
+		$field->setForm($this);
+		$this->stdout .= $this->s($field->render());
+	}
+
+	public function s($content)
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
 	public function label($for, $text)
@@ -388,6 +400,7 @@ class HTMLForm implements ToStringable
 	 * @param array $params
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
 	public function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = [])
 	{
@@ -472,15 +485,9 @@ class HTMLForm implements ToStringable
 	 */
 	public function submit($value = null, array $params = [])
 	{
-		$params['class'] = ifsetor($params['class'], 'submit btn');
-		$params['name'] = ifsetor($params['name'], 'btnSubmit');
-		//$value = htmlspecialchars(strip_tags($value), ENT_QUOTES);
-		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
-		// this.form.submit() will not work
-		//debug('submit', $params);
-		$content = $this->getInput("submit", $params['name'], $value, $params, $params['class']);
-		$this->stdout .= $content;
-
+		$field = new HTMLSubmit($value, $params);
+		$field->setForm($this);
+		$this->add($field);
 		return $this;
 	}
 
@@ -490,7 +497,7 @@ class HTMLForm implements ToStringable
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
-	public function image($value = NULL, $more = "", $desc = [])
+	public function image($value = null, $more = "", $desc = [])
 	{
 		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
 		$value = htmlspecialchars($value, ENT_QUOTES);
@@ -501,7 +508,7 @@ class HTMLForm implements ToStringable
 			($value ? "value=\"$value\"" : "") . " $more>\n";
 	}
 
-	public function reset($value = NULL, $more = "")
+	public function reset($value = null, $more = "")
 	{
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=reset class=submit " . ($value ? "value=\"$value\"" : "") . " $more>\n";
@@ -603,7 +610,7 @@ class HTMLForm implements ToStringable
 	 *
 	 * @return $this
 	 */
-	public function set($name, $value = [], array $desc)
+	public function set($name, array $value, array $desc)
 	{
 		if ($value) {
 			if (!is_array($value)) {

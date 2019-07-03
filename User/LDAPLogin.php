@@ -62,7 +62,7 @@ class LDAPLogin
 	 */
 	public function _sanitizeLdap($string)
 	{
-		return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
+		return trim(preg_replace('/[^a-zA-Z0-9_]+/', '', $string));
 	}
 
 	/**
@@ -105,7 +105,7 @@ class LDAPLogin
 				//debug($info);
 
 				if ($info['count'] == 0) {
-					$this->error = "User not found";
+					$this->error = "User not found in LDAP {$this->LDAP_BASEDN} [{$filter}]";
 					return false;
 				}
 
@@ -120,7 +120,7 @@ class LDAPLogin
 						$user->initLDAP($info[$i]);
 						return $user;
 					} else {
-						$this->error = "LDAP login failed.";
+						$this->error = "LDAP login failed. Probably wrong password";
 						//echo getDebug($ldapbind);
 						return false;
 					}

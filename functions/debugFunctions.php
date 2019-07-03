@@ -244,10 +244,12 @@ if (!function_exists('debugList')) {
 					require_once __DIR__ . '/../Value/Color.php';
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
-					$hash = new HTMLTag('span', [
-						'class' => 'tag',
-						'style' => 'background: ' . $color . '; color: ' . $complement,
-					], $hash);
+					if (!Request::isCLI()) {
+						$hash = new HTMLTag('span', array(
+							'class' => 'tag',
+							'style' => 'background: ' . $color . '; color: ' . $complement,
+						), $hash);
+					}
 				}
 				$typeName = get_class($something) . '#' . $hash;
 			} else {
@@ -275,7 +277,10 @@ if (!function_exists('debugList')) {
 			$typeName .= '[' . sizeof($something) . ']';
 		}
 
-		return new HTMLTag('span', ['class' => $class], $typeName, true);
+		if (!Request::isCLI()) {
+			return new HTMLTag('span', ['class' => $class], $typeName, true);
+		}
+		return $typeName;
 	}
 
 	/**

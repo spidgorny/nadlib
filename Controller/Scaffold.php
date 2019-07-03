@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Scaffold
  * @deprecated - use HTMLFormProcessor if you only need the edit form
@@ -198,7 +200,7 @@ abstract class Scaffold extends AppController
 			$this->table . '.id' => $id,
 		], $this->formPrefix);
 		$href = $aTag->attr['href'];
-		/** @var $href URL */
+		/** @var URL $href */
 		$aTag->attr['href'] = $href->buildQuery();
 		return $aTag;
 	}
