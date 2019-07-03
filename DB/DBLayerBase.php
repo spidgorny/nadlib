@@ -11,13 +11,13 @@
  * @method runInsertQuery($table, array $columns)
  * @method fetchOneSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
  */
-class DBLayerBase implements DBInterface
+abstract class DBLayerBase implements DBInterface
 {
 
 	/**
 	 * @var SQLBuilder
 	 */
-	var $qb;
+	public $qb;
 
 	/**
 	 * List of reserved words for each DB

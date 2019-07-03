@@ -130,7 +130,7 @@ class Debug
 	 * @param $params
 	 * @return string
 	 */
-	function debug($params)
+	public function debug($params)
 	{
 		$content = '';
 		if ($this->renderer) {
@@ -153,7 +153,7 @@ class Debug
 		return $content;
 	}
 
-	function canHTML()
+	public function canHTML()
 	{
 //		pre_print_r(__METHOD__, $_COOKIE);
 		return ifsetor($_COOKIE['debug']);
