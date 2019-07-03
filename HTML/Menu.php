@@ -88,26 +88,15 @@ class Menu /*extends Controller*/
 	 */
 	public $request;
 
-	public function __construct(array $items, $level = null)
+	public function __construct(array $items, $level = null, UserModelInterface $user = null)
 	{
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
 		$this->level = $level;
 		$this->request = Request::getInstance();
 		//$this->tryInstance();
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-			$this->user = $config->getUser();
-
-			$index = Index::getInstance();
-			$controller = ifsetor($index->controller);
-			if ($controller && isset($controller->useRouter)) {
-				$this->useControllerSlug = $controller->useRouter;
-			} else {
-				//debug(get_class($controller));
-				$this->useControllerSlug = $this->request->apacheModuleRewrite();
-			}
-		}
+		$this->user = $user;
+		$this->useControllerSlug = $this->request->apacheModuleRewrite();
 		$this->setBasePath();
 		$this->setCurrent($level);
 	}
