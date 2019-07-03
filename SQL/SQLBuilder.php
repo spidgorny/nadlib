@@ -280,7 +280,6 @@ class SQLBuilder
 		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
 
-
 	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
 	{
 		$table1 = $this->getFirstWord($table);
@@ -728,7 +727,7 @@ class SQLBuilder
 
 		$res = $query->fetchAssoc();
 		//		debug($res);
-		$count = $res['count'];
+		$count = ifsetor($res['count']);
 		return $count;
 	}
 

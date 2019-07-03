@@ -7,9 +7,9 @@
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  * @method  getFirstValue($query)
  * @method  performWithParams($query, $params)
- * @method  getInfo()
  * @method  getConnection()
  * @method  getViews()
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBPlacebo extends DBLayerBase implements DBInterface
 {
