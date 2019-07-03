@@ -6,9 +6,9 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param ..$a mixed|string|bool|array|int|float
+	 * @param mixed|string|bool|array|int|float|object ...$a
 	 */
-	function debug(...$a)
+	function debug($a)
 	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists('Debug')) {
