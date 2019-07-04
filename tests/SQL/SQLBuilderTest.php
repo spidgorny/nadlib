@@ -15,6 +15,12 @@ class SQLBuilderTest extends PHPUnit\Framework\TestCase
 
 	public function test_getSelectQuery()
 	{
+		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
+			$this->markTestSkipped('MySQL has different SQL');
+		}
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$qb = new SQLBuilder($this->db);
 		$query = $qb->getSelectQueryString('table', [
 			'a' => 'b',
@@ -31,6 +37,12 @@ ORDER BY c";
 
 	public function test_getSelectQueryP()
 	{
+		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
+			$this->markTestSkipped('MySQL has different SQL');
+		}
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$query = SQLSelectQuery::getSelectQueryP($this->db, 'table', [
 			'a' => new SQLLikeContains('b'),
 		], 'ORDER BY c');

@@ -17,6 +17,7 @@ class SQLNow extends AsIs
 			'ms' => 'GetDate()',
 			'postgresql' => 'now()',
 			'pg' => 'now()',
+			DBPlacebo::class.'://' => 'now()'
 		];
 		$schema = $this->db->getScheme();
 		$content = $map[$schema] ?: end($map);

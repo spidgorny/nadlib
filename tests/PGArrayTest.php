@@ -23,6 +23,9 @@ class PGArrayTest extends PHPUnit\Framework\TestCase
 	{
 		$config = Config::getInstance();
 		$this->db = $config->getDB();
+		if (!$this->db instanceof DBLayer) {
+			$this->markTestSkipped('Only for PGSQL');
+		}
 		$pga = new PGArray($this->db);
 		$this->sut = $pga;
 	}

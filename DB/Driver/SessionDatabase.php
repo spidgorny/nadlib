@@ -10,9 +10,12 @@ use SQLBuilder;
  * @method  describeView($viewName)
  * @method  getFirstValue($query)
  * @method  performWithParams($query, $params)
- * @method  getInfo()
  * @method  getConnection()
  * @method  getViews()
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  getInsertQuery($table, array $data)
+ * @method  getDeleteQuery($table, array $where = [], $what = '')
+ * @method  getUpdateQuery($table, array $set, array $where)
  */
 class SessionDatabase implements \DBInterface
 {
@@ -270,14 +273,15 @@ class SessionDatabase implements \DBInterface
 		// TODO: Implement getLastQuery() method.
 	}
 
-	public function __call($name, $arguments)
+	/** @return string */
+	public function getDSN()
 	{
-		// TODO: Implement @method  fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
-		// TODO: Implement @method  describeView($viewName)
-		// TODO: Implement @method  getFirstValue($query)
-		// TODO: Implement @method  performWithParams($query, $params)
-		// TODO: Implement @method  getInfo()
-		// TODO: Implement @method  getConnection()
-		// TODO: Implement @method  getViews()
+		// TODO: Implement getDSN() method.
 	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
 }

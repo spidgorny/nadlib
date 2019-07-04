@@ -3,6 +3,7 @@
 /**
  * Class dbLayerPDO
  * @mixin SQLBuilder
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayerPDO extends DBLayerBase implements DBInterface
 {
@@ -551,6 +552,16 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		} else {
 			throw new DatabaseException(__METHOD__ . ' is not implemented for ' . get_class($this));
 		}
+	}
+
+	public function __call($name, array $arguments)
+	{
+		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+	}
+
+	public function getInfo()
+	{
+		return $this->connection->errorInfo();
 	}
 
 }
