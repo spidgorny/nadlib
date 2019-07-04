@@ -311,7 +311,6 @@ class Collection implements IteratorAggregate, ToStringable
 		TaylorProfiler::start($taylorKey);
 		/** @var SQLSelectQuery $query */
 		$query = $this->getQuery();
-		assert($query instanceof SQLSelectQuery);
 		if (class_exists('PHPSQL\Parser') && false) {
 			$sql = new SQLQuery($query);
 			$sql->appendCalcRows();
@@ -321,15 +320,12 @@ class Collection implements IteratorAggregate, ToStringable
 			$this->query = preg_replace('/SELECT /', 'SELECT SQL_CALC_FOUND_ROWS ', $query, 1);
 		}
 
-		if (str_contains($query, 'valid_from--')) {
+		if ($query instanceof SQLSelectQuery) {
 			$params = $query->getParameters();
-			Debug::getInstance()->debugWithHTML([
-				$query, $query . '', $params
-			]);
-			die;
+			$res = $this->db->perform($this->query, $params);
+		} else {
+			$res = $this->db->perform($this->query);
 		}
-		$params = $query->getParameters();
-		$res = $this->db->perform($this->query, $params);
 
 		if ($this->pager) {
 			$this->pager->setNumberOfRecords(PHP_INT_MAX);

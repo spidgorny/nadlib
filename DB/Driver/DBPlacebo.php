@@ -82,7 +82,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function quoteKey($key)
 	{
-		return $key;
+		return '"'.$key.'"';
 	}
 
 	public function escape($string)
