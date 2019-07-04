@@ -55,7 +55,8 @@ class SQLWhere implements ArrayAccess
 	{
 		if ($this->parts) {
 //			debug($this->parts);
-			foreach ($this->parts as $field => &$p) {
+			$strings = [];
+			foreach ($this->parts as $field => $p) {
 				if ($p instanceof SQLWherePart) {
 					$p->injectDB($this->db);
 					if (!is_numeric($field)) {
@@ -70,9 +71,9 @@ class SQLWhere implements ArrayAccess
 					$p = new SQLWhereEqual($field, $p);
 					$p->injectDB($this->db);
 				}
-				$p = $p->__toString();
+				$strings[] = $p->__toString();
 			}
-			$sWhere = " WHERE\n\t" . implode("\n\tAND ", $this->parts);    // __toString()
+			$sWhere = " WHERE\n\t" . implode("\n\tAND ", $strings);    // __toString()
 
 			$sWhere = $this->replaceParams($sWhere);
 			return $sWhere;
@@ -125,7 +126,7 @@ class SQLWhere implements ArrayAccess
 		foreach ($this->parts as $part) {
 			if ($part instanceof SQLWherePart) {
 				$plus = $part->getParameter();
-//				debug(gettype2($part), $part->getField(), $plus);
+				//debug(typ($part), $part->getField(), $plus);
 				if (is_array($plus)) {
 					$parameters = array_merge($parameters, $plus);
 				} elseif (!is_null($plus)) {
