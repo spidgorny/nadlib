@@ -24,7 +24,9 @@ class SQLWhere implements ArrayAccess
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 		foreach ($this->parts as $p) {
-			$p->injectDB($this->db);
+			if ($p instanceof SQLWherePart) {
+				$p->injectDB($this->db);
+			}
 		}
 	}
 
