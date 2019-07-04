@@ -14,7 +14,6 @@
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  * @method  getFirstValue($query)
  * @method  performWithParams($query, $params)
- * @method  getInfo()
  * @method  getConnection()
  * @method  getViews()
  */
@@ -342,6 +341,11 @@ abstract class DBLayerBase implements DBInterface
 	public function getLastQuery()
 	{
 		return $this->lastQuery;
+	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
 	}
 
 }
