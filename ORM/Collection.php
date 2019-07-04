@@ -195,7 +195,7 @@ class Collection implements IteratorAggregate, ToStringable
 		if (is_array($where)) {
 			// array_merge should be use instead of array union,
 			// in order to prevent existing entries with numeric keys being ignored in $where
-			// simple array_merge will reoder numeric keys which is not good
+			// simple array_merge will reorder numeric keys which is not good
 			$this->where = ArrayPlus::create($this->where)->merge_recursive_overwrite($where)->getData();
 		} elseif ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
