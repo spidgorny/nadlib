@@ -3,19 +3,23 @@
 /**
  * Class DBLayerLogger
  * @mixin SQLBuilder
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
-class DBLayerLogger extends DBLayerBase implements DBInterface {
+class DBLayerLogger extends DBLayerBase implements DBInterface
+{
 
 	var $logger;
 
 	var $data = [];
 
-	function __construct() {
+	public function __construct()
+	{
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
 	}
 
-	function log($query) {
+	public function log($query)
+	{
 		if ($this->logger) {
 			$this->logger->log($query);
 		} else {
@@ -23,105 +27,127 @@ class DBLayerLogger extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function perform($query, array $params = []) {
+	public function perform($query, array $params = [])
+	{
 		$this->log($query);
 		return '';
 	}
 
-	function fetchOptions($a) {
+	public function fetchOptions($a)
+	{
 		$this->log(__METHOD__);
 		return '';
 	}
 
-	function fetchAll($res_or_query, $index_by_key = NULL) {
+	public function fetchAll($res_or_query, $index_by_key = NULL)
+	{
 		$this->log(__METHOD__);
 		return [];
 	}
 
-	function __call($method, array $params) {
+	public function __call($method, array $params)
+	{
 		if (!$this->qb) {
-			throw new Exception(get_called_class().' does not have QB');
+			throw new Exception(get_called_class() . ' does not have QB');
 		}
 		if (method_exists($this->qb, $method)) {
 			$this->log($method);
 			return call_user_func_array([$this->qb, $method], $params);
 		} else {
-			throw new Exception($method.' not found in '.get_called_class().' and SQLBuilder');
+			throw new Exception($method . ' not found in ' . get_called_class() . ' and SQLBuilder');
 		}
 	}
 
-	function numRows($res = NULL) {
+	public function numRows($res = NULL)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function affectedRows($res = NULL) {
+	function affectedRows($res = NULL)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function getTables() {
+	public function getTables()
+	{
 		$this->log(__METHOD__);
 	}
 
-	function lastInsertID($res = NULL, $table = NULL) {
+	public function lastInsertID($res = NULL, $table = NULL)
+	{
 		$id = $this->data['id'];
-		$this->log(__METHOD__.' id: '.$id);
+		$this->log(__METHOD__ . ' id: ' . $id);
 		return $id;
 	}
 
-	function free($res) {
+	public function free($res)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function quoteKey($key) {
+	public function quoteKey($key)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function escape($string) {
+	public function escape($string)
+	{
 		return $string;
 	}
 
-	function escapeBool($value) {
+	public function escapeBool($value)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function fetchAssoc($res) {
+	public function fetchAssoc($res)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function transaction() {
+	public function transaction()
+	{
 		$this->log(__METHOD__);
 	}
 
-	function commit() {
+	public function commit()
+	{
 		$this->log(__METHOD__);
 	}
 
-	function rollback() {
+	public function rollback()
+	{
 		$this->log(__METHOD__);
 	}
 
-	public function getScheme() {
+	public function getScheme()
+	{
 		$this->log(__METHOD__);
 	}
 
-	function getTablesEx() {
+	public function getTablesEx()
+	{
 		$this->log(__METHOD__);
 	}
 
-	function getTableColumnsEx($table) {
+	public function getTableColumnsEx($table)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function getIndexesFrom($table) {
+	public function getIndexesFrom($table)
+	{
 		$this->log(__METHOD__);
 	}
 
-	function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '') {
+	function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+	{
 		$this->log(__METHOD__);
 		return $this->data;
 	}
 
-	function getInsertQuery($table, array $columns) {
+	public function getInsertQuery($table, array $columns)
+	{
 		$this->log(__METHOD__);
 		$this->data = $columns;
 		if (!ifsetor($this->data['id'])) {
