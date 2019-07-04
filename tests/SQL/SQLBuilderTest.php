@@ -69,4 +69,35 @@ ORDER BY c";
 		return $sql;
 	}
 
+	public function testGetFirstWord()
+	{
+		$room = SQLBuilder::getFirstWord('room');
+		$this->assertEquals('room', $room);
+		$room = SQLBuilder::getFirstWord('room AND something else');
+		$this->assertEquals('room', $room);
+		$room = SQLBuilder::getFirstWord('room
+AND something else');
+		$this->assertEquals('room', $room);
+		$room = SQLBuilder::getFirstWord('room' . TAB . 'AND something else');
+		$this->assertEquals('room', $room);
+		$this->expectException(InvalidArgumentException::class);
+		$room = SQLBuilder::getFirstWord('');
+		$this->assertEquals('room', $room);
+	}
+
+	public function testGetFirstWordAgain()
+	{
+		$this->expectException(InvalidArgumentException::class);
+		$room = SQLBuilder::getFirstWord(null);
+		$this->assertEquals('room', $room);
+	}
+
+	public function testGetFirstWordFromPDO()
+	{
+		$pdo = new DBLayerPDO();
+		$pdo->setQB(new SQLBuilder($pdo));
+		$room = SQLBuilder::getFirstWord('room');
+		$this->assertEquals('room', $room);
+	}
+
 }

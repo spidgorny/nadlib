@@ -13,7 +13,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	/**
 	 * In case of MSSQL it needs to be set from outside
-	 * @var DBLayer|MySQL|BijouDBConnector|DBLayerMS|DBLayerPDO|DBLayerSQLite
+	 * @var DBInterface
 	 * @protected because it's visible in debug
 	 * use injection if you need to modify it
 	 */
@@ -180,11 +180,16 @@ class Collection implements IteratorAggregate, ToStringable
 		$config = Config::getInstance();
 		$this->db = $db ?: $config->getDB();
 		$this->table = $config->prefixTable($this->table);
-		$this->select = $this->select
-			// DISTINCT is 100 times slower, add it manually if needed
-			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
-			?: $this->db->quoteKey(
-				$this->db->getFirstWord($this->table)) . '.*';
+
+		if (!$this->select) {
+			$firstWordFromTable = $this->db->getFirstWord($this->table);
+//			$firstWordFromTable2 = SQLBuilder::getFirstWord($this->table);
+//			debug($this->table, $firstWordFromTable, $firstWordFromTable2, typ($this->db));
+			$this->select =
+				// DISTINCT is 100 times slower, add it manually if needed
+				//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
+				$this->db->quoteKey($firstWordFromTable) . '.*';
+		}
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
