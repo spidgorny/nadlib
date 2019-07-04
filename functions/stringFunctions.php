@@ -83,7 +83,7 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str);
 		}
 		if (!$is_string) {
-			debug('trimExplode', 'must be string', typ($str).'');
+			debug('trimExplode', 'must be string', new htmlString(typ($str)));
 //			debug_pre_print_backtrace();
 		}
 		if ($max) {
