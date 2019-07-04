@@ -68,7 +68,7 @@ class TYPO3Module extends UserBase
 	 */
 	public function can($acl)
 	{
-		// TODO: Implement can() method.
+		return false;
 	}
 
 	public function prefs()
@@ -80,4 +80,10 @@ class TYPO3Module extends UserBase
 	{
 		// TODO: Implement getAllSettings() method.
 	}
+
+	public function getGroup()
+	{
+		return null;
+	}
+
 }

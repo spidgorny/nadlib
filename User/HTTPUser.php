@@ -60,4 +60,10 @@ class HTTPUser extends UserBase
 	{
 		// TODO: Implement getAllSettings() method.
 	}
+
+	public function getGroup()
+	{
+		return null;
+	}
+
 }
