@@ -610,7 +610,7 @@ class HTMLForm implements ToStringable
 	 *
 	 * @return $this
 	 */
-	public function set($name, array $value, array $desc)
+	public function set($name, $value, array $desc)
 	{
 		if ($value) {
 			if (!is_array($value)) {

@@ -85,7 +85,7 @@ class Linker
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
-			+ $this->getURL()->getParams()            // 2nd priority
+			+ (new URL())->getParams()            // 2nd priority
 			+ $this->linkVars,
 			$page
 		);                // 3rd priority

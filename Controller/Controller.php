@@ -33,6 +33,7 @@ use spidgorny\nadlib\HTTP\URL;
  * @method makeURL(array $params = [], $prefix = '?')
  * @method makeRelURL()
  * @method makeRelLink($text, array $params, $page = '?')
+ * @method getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
  */
 abstract class Controller extends SimpleController
 {

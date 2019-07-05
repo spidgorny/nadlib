@@ -238,6 +238,9 @@ class SQLBuilder
 
 	public static function getFirstWord($table)
 	{
+		if (!$table) {
+			throw new InvalidArgumentException(__METHOD__.' called on ['.$table.']');
+		}
 		$table1 = trimExplode(' ', $table);
 		$table0 = $table1[0];
 		$table1 = trimExplode("\t", $table0);
@@ -279,7 +282,6 @@ class SQLBuilder
 	{
 		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
-
 
 	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
 	{
@@ -728,7 +730,7 @@ class SQLBuilder
 
 		$res = $query->fetchAssoc();
 		//		debug($res);
-		$count = $res['count'];
+		$count = ifsetor($res['count']);
 		return $count;
 	}
 

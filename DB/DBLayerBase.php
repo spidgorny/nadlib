@@ -6,7 +6,7 @@
  * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
  * @method fetchSelectQuery($table, array $where = [], $order = '', $addFields = '', $idField = null)
  * @method getInsertQuery($table, array $columns)
- * @method getDeleteQuery($table, $where = [], $what = '')
+ * @method getDeleteQuery($table, array $where = [], $what = '')
  * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
  * @method runInsertQuery($table, array $columns)
  * @method fetchOneSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
@@ -14,7 +14,6 @@
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  * @method  getFirstValue($query)
  * @method  performWithParams($query, $params)
- * @method  getInfo()
  * @method  getConnection()
  * @method  getViews()
  */
@@ -343,4 +342,10 @@ abstract class DBLayerBase implements DBInterface
 	{
 		return $this->lastQuery;
 	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
 }

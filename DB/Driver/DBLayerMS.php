@@ -16,7 +16,13 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 	/**
 	 * @var string
 	 */
-	public $server, $database, $user, $password;
+	public $server;
+
+	public $database;
+
+	public $user;
+
+	public $password;
 
 	/**
 	 * @var string
@@ -428,6 +434,11 @@ AND name = '?')", [$table]);
 		$outside = $outside->getQuery();
 		$outside = str_replace('subquery123', $query, $outside);
 		return $outside;
+	}
+
+	public function getInfo()
+	{
+		return ['message' => mssql_get_last_message()];
 	}
 
 }

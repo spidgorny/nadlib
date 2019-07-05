@@ -13,7 +13,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	/**
 	 * In case of MSSQL it needs to be set from outside
-	 * @var DBLayer|MySQL|BijouDBConnector|DBLayerMS|DBLayerPDO|DBLayerSQLite
+	 * @var DBInterface
 	 * @protected because it's visible in debug
 	 * use injection if you need to modify it
 	 */
@@ -180,17 +180,22 @@ class Collection implements IteratorAggregate, ToStringable
 		$config = Config::getInstance();
 		$this->db = $db ?: $config->getDB();
 		$this->table = $config->prefixTable($this->table);
-		$this->select = $this->select
-			// DISTINCT is 100 times slower, add it manually if needed
-			//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
-			?: $this->db->quoteKey(
-				$this->db->getFirstWord($this->table)) . '.*';
+
+		if (!$this->select) {
+			$firstWordFromTable = $this->db->getFirstWord($this->table);
+//			$firstWordFromTable2 = SQLBuilder::getFirstWord($this->table);
+//			debug($this->table, $firstWordFromTable, $firstWordFromTable2, typ($this->db));
+			$this->select =
+				// DISTINCT is 100 times slower, add it manually if needed
+				//?: 'DISTINCT /*auto*/ '.$this->db->getFirstWord($this->table).'.*';
+				$this->db->quoteKey($firstWordFromTable) . '.*';
+		}
 		$this->parentID = $pid;
 
 		if (is_array($where)) {
 			// array_merge should be use instead of array union,
 			// in order to prevent existing entries with numeric keys being ignored in $where
-			// simple array_merge will reoder numeric keys which is not good
+			// simple array_merge will reorder numeric keys which is not good
 			$this->where = ArrayPlus::create($this->where)->merge_recursive_overwrite($where)->getData();
 		} elseif ($where instanceof SQLWhere) {
 			$this->where = $where->addArray($this->where);
@@ -311,7 +316,6 @@ class Collection implements IteratorAggregate, ToStringable
 		TaylorProfiler::start($taylorKey);
 		/** @var SQLSelectQuery $query */
 		$query = $this->getQuery();
-		assert($query instanceof SQLSelectQuery);
 		if (class_exists('PHPSQL\Parser') && false) {
 			$sql = new SQLQuery($query);
 			$sql->appendCalcRows();
@@ -321,15 +325,12 @@ class Collection implements IteratorAggregate, ToStringable
 			$this->query = preg_replace('/SELECT /', 'SELECT SQL_CALC_FOUND_ROWS ', $query, 1);
 		}
 
-		if (str_contains($query, 'valid_from--')) {
+		if ($query instanceof SQLSelectQuery) {
 			$params = $query->getParameters();
-			Debug::getInstance()->debugWithHTML([
-				$query, $query . '', $params
-			]);
-			die;
+			$res = $this->db->perform($this->query, $params);
+		} else {
+			$res = $this->db->perform($this->query);
 		}
-		$params = $query->getParameters();
-		$res = $this->db->perform($this->query, $params);
 
 		if ($this->pager) {
 			$this->pager->setNumberOfRecords(PHP_INT_MAX);

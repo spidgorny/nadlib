@@ -16,6 +16,7 @@ class SQLTest extends PHPUnit\Framework\TestCase
 	public function test_SQLNow_PG()
 	{
 		$now = new SQLNow();
+		$now->injectDB($this->db);
 		$string = $now . '';
 
 		$this->assertEquals('now()', $string);
@@ -23,7 +24,11 @@ class SQLTest extends PHPUnit\Framework\TestCase
 
 	public function test_SQLNow_PG_update_no_quote()
 	{
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$now = new SQLNow();
+		$now->injectDB($this->db);
 		$update = [
 			'mtime' => $now,
 		];
@@ -39,6 +44,9 @@ WHERE
 
 	public function test_SQLNow_PG_insert_no_quote()
 	{
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$now = new SQLNow();
 		$update = [
 			'mtime' => $now,
