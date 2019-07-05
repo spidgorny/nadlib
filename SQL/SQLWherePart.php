@@ -55,7 +55,10 @@ class SQLWherePart
 
 	public function debug()
 	{
-		return $this->__toString();
+		return [
+			'class' => get_class($this),
+			'sql' => $this->sql,
+		];
 	}
 
 	/**

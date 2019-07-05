@@ -61,9 +61,11 @@ class SQLWhereEqual extends SQLWherePart
 			$val->injectField(null);
 			$set[] = $key . ' = ' . $val;
 		} elseif ($val instanceof SQLBetween) {
+			$val->injectDB($this->db);
 			$val->injectField($key);
 			$set[] = $val->toString($key);
 		} elseif ($val instanceof SQLWherePart) {
+			$val->injectDB($this->db);
 			if (!is_numeric($key)) {
 				$val->injectField($key);
 			}

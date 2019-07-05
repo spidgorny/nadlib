@@ -10,10 +10,13 @@
  * @method getFirstValue($query)
  * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
  * @method performWithParams($query, $params)
- * @method getInfo();
  * @method getConnection();
  * @method getViews();
  * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method getInsertQuery($table, array $data);
+ * @method getDeleteQuery($table, array $where = [], $what = '');
+ * @method getUpdateQuery($table, array $set, array $where);
+ * @method runInsertQuery($table, array $data);
  */
 interface DBInterface
 {
@@ -68,5 +71,8 @@ interface DBInterface
 	
 	/** @return array */
 	public function getInfo();
+
+	/** @return string */
+	public function getDSN();
 
 }

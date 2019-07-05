@@ -87,4 +87,9 @@ class NoUser extends UserBase implements UserModelInterface
 	{
 		// TODO: Implement prefs() method.
 	}
+
+	public function getGroup()
+	{
+		// TODO: Implement getGroup() method.
+	}
 }

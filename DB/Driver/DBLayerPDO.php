@@ -3,6 +3,7 @@
 /**
  * Class dbLayerPDO
  * @mixin SQLBuilder
+ * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayerPDO extends DBLayerBase implements DBInterface
 {
@@ -30,7 +31,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	/**
 	 * @var null|int
 	 */
-	protected $dataSeek = NULL;
+	protected $dataSeek = null;
 
 	public function __construct($db = null, $host = null,
 								$user = null, $password = null,
@@ -551,6 +552,21 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		} else {
 			throw new DatabaseException(__METHOD__ . ' is not implemented for ' . get_class($this));
 		}
+	}
+
+	public function getInfo()
+	{
+		return [
+			'class' => get_class($this),
+			'errorInfo' => $this->connection->errorInfo(),
+			'errorCode' => $this->connection->errorCode(),
+			'ATTR_CLIENT_VERSION' => $this->connection->getAttribute(PDO::ATTR_CLIENT_VERSION),
+			'ATTR_CONNECTION_STATUS' => $this->connection->getAttribute(PDO::ATTR_CONNECTION_STATUS),
+			'ATTR_DRIVER_NAME' => $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME),
+			'ATTR_SERVER_INFO' => $this->connection->getAttribute(PDO::ATTR_SERVER_INFO),
+			'ATTR_SERVER_VERSION' => $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION),
+//			'ATTR_TIMEOUT' => $this->connection->getAttribute(PDO::ATTR_TIMEOUT),
+		];
 	}
 
 }

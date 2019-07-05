@@ -64,7 +64,7 @@ class TYPO3User extends UserBase
 	 */
 	public function can($acl)
 	{
-		// TODO: Implement can() method.
+		return false;
 	}
 
 	public function prefs()
@@ -76,4 +76,10 @@ class TYPO3User extends UserBase
 	{
 		// TODO: Implement getAllSettings() method.
 	}
+
+	public function getGroup()
+	{
+		return null;
+	}
+
 }
