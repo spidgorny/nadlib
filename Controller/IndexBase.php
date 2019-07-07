@@ -264,7 +264,15 @@ class IndexBase /*extends Controller*/
 	public function makeController($class)
 	{
 		try {
-			$this->controller = new $class();
+			// v1
+//			$this->controller = new $class();
+			// v2
+//			$ms = new MarshalParams($this->config);
+//			$this->controller = $ms->make($class);
+			// v3
+			$di = $this->config->getDI();
+			$this->controller = $di->get($class);
+
 			// debug($class, get_class($this->controller));
 			if (method_exists($this->controller, 'postInit')) {
 				$this->controller->postInit();
