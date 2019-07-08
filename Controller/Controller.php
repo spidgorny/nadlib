@@ -29,6 +29,8 @@ use spidgorny\nadlib\HTTP\URL;
  * @method success($content)
  * @method img($src, array $attr = [])
  * @method e($content)
+ * @method pre($content)
+ *
  * @method makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
  * @method makeURL(array $params = [], $prefix = '?')
  * @method makeRelURL()
@@ -38,7 +40,7 @@ use spidgorny\nadlib\HTTP\URL;
 abstract class Controller extends SimpleController
 {
 
-	//use HTMLHelper;	// bijou is PHP 5.4
+	use HTMLHelper;
 
 	/**
 	 * @var boolean
