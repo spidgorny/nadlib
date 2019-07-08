@@ -731,6 +731,7 @@ class Time
 	public function makeGMT()
 	{
 		$this->setTimestamp(strtotime(gmdate('Y-m-d H:i:s', $this->time) . ' GMT', 0));
+		return $this;
 	}
 
 	function setTimestamp($time)
