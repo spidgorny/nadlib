@@ -48,7 +48,7 @@ class MarshalParams
 		$constructor = $cr->getConstructor();
 		if ($constructor) {
 			$init = self::getFunctionArguments($container, $constructor);
-			debug($class, $constructor->getName(), $init);
+//			debug($class, $constructor->getName(), $init);
 			// PHP 7
 			//$instance = new $class(...$init);
 			$reflector = new ReflectionClass($class);
