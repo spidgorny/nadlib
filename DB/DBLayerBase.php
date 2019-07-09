@@ -348,4 +348,9 @@ abstract class DBLayerBase implements DBInterface
 		return ['class' => get_class($this)];
 	}
 
+	public function getDatabaseName()
+	{
+		return $this->database;
+	}
+
 }
