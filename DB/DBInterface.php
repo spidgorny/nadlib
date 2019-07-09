@@ -75,4 +75,6 @@ interface DBInterface
 	/** @return string */
 	public function getDSN();
 
+	public function getDatabaseName();
+
 }

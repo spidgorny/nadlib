@@ -33,7 +33,8 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * Retrieved rows from DB
 	 * Protected in order to force usage of getData()
-	 * @var ArrayPlus|array
+	 * @var ArrayPlus
+	 * @note should not be |array because it's used as ArrayPlus
 	 */
 	protected $data = [];
 
