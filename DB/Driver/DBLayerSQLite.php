@@ -40,7 +40,6 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	{
 		$this->file = $file;
 		$this->database = basename($this->file);
-		$this->connect();
 	}
 
 	public function connect()
@@ -100,7 +99,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		return $numRows;
 	}
 
-	public function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		$this->lastResult->numRows();
 	}
