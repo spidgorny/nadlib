@@ -68,12 +68,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
 	{
 		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
-		if ($scheme == 'sqlite') {
-			$this->database = basename($db);
-		} else {
-			$this->database = $db;
-		}
-
 		$builder = DSNBuilder::make($scheme, $host, $user, $password, $db, $port);
 		if ($driver) {
 			$builder->setDriver($driver);
@@ -116,17 +110,28 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $out;
 	}
 
-	public function connectDSN($dsn, $user = NULL, $password = NULL)
+	public function connectDSN($dsn, $user = null, $password = null)
 	{
 		if (!$user) {
 			$dsnParts = parse_url($dsn);
 //			debug($dsnParts);
-			$user = $dsnParts['user'];
-			$password = $dsnParts['pass'];
+			$user = ifsetor($dsnParts['user']);
+			$password = ifsetor($dsnParts['pass']);
 //			$dsn = str_replace($user.':'.$password.'@', '', $dsn);
-			$dsnBuilder = DSNBuilder::make($dsnParts['scheme'], $dsnParts['host'], '', '', trim($dsnParts['path'], '/'), $dsnParts['port']);
+			$dsnBuilder = DSNBuilder::make(
+				$dsnParts['scheme'],
+				ifsetor($dsnParts['host']),
+				'',
+				'',
+				trim($dsnParts['path'], '/'),
+				ifsetor($dsnParts['port'])
+			);
 			$dsn = $dsnBuilder->__toString();
 		}
+
+//		debug($dsnParts);
+		$this->database = $dsnParts['path'];
+
 		$this->dsn = $dsn;
 		$options = [
 			PDO::ATTR_PERSISTENT => false,
@@ -556,17 +561,25 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	public function getInfo()
 	{
-		return [
+		$info = [
 			'class' => get_class($this),
 			'errorInfo' => $this->connection->errorInfo(),
 			'errorCode' => $this->connection->errorCode(),
-			'ATTR_CLIENT_VERSION' => $this->connection->getAttribute(PDO::ATTR_CLIENT_VERSION),
-			'ATTR_CONNECTION_STATUS' => $this->connection->getAttribute(PDO::ATTR_CONNECTION_STATUS),
-			'ATTR_DRIVER_NAME' => $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME),
-			'ATTR_SERVER_INFO' => $this->connection->getAttribute(PDO::ATTR_SERVER_INFO),
-			'ATTR_SERVER_VERSION' => $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION),
-//			'ATTR_TIMEOUT' => $this->connection->getAttribute(PDO::ATTR_TIMEOUT),
 		];
+		$plus = [
+			'ATTR_CLIENT_VERSION' => PDO::ATTR_CLIENT_VERSION,
+			'ATTR_CONNECTION_STATUS' => PDO::ATTR_CONNECTION_STATUS,
+			'ATTR_DRIVER_NAME' => PDO::ATTR_DRIVER_NAME,
+			'ATTR_SERVER_INFO' => PDO::ATTR_SERVER_INFO,
+			'ATTR_SERVER_VERSION' => PDO::ATTR_SERVER_VERSION,
+			'ATTR_TIMEOUT' => PDO::ATTR_TIMEOUT,
+		];
+		foreach ($plus as $name => $attribute) {
+			try {
+				$info[$name] = $this->connection->getAttribute($attribute);
+			} catch (PDOException $e) {}
+		}
+		return $info;
 	}
 
 }
