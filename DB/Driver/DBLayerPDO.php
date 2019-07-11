@@ -72,7 +72,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$builder->setDriver($driver);
 		}
 		$this->dsn = $builder->__toString();
-		//debug($this->dsn);
+		debug($this->dsn);
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
 		$this->queryTime += $profiler->elapsed();
@@ -111,8 +111,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	public function connectDSN($dsn, $user = null, $password = null)
 	{
+		$dsnParts = parse_url($dsn);
 		if (!$user) {
-			$dsnParts = parse_url($dsn);
 //			debug($dsnParts);
 			$user = ifsetor($dsnParts['user']);
 			$password = ifsetor($dsnParts['pass']);
@@ -122,13 +122,12 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 				ifsetor($dsnParts['host']),
 				'',
 				'',
-				trim($dsnParts['path'], '/'),
+				$dsnParts['path'],
 				ifsetor($dsnParts['port'])
 			);
 			$dsn = $dsnBuilder->__toString();
+//			debug($dsnParts);
 		}
-
-//		debug($dsnParts);
 		$this->database = $dsnParts['path'];
 
 		$this->dsn = $dsn;
