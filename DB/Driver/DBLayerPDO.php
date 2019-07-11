@@ -67,7 +67,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 */
 	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
 	{
-		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
 		$builder = DSNBuilder::make($scheme, $host, $user, $password, $db, $port);
 		if ($driver) {
 			$builder->setDriver($driver);
