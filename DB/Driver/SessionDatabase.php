@@ -284,4 +284,9 @@ class SessionDatabase implements \DBInterface
 		return ['class' => get_class($this)];
 	}
 
+	public function getDatabaseName()
+	{
+		return get_class($this);
+	}
+
 }

@@ -12,7 +12,7 @@ class NoUser extends UserBase implements UserModelInterface
 	public $prefs;
 
 	/**
-	 * @var AccessRights
+	 * @var AccessRightsInterface
 	 */
 	public $access;
 
