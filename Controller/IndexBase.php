@@ -225,7 +225,7 @@ class IndexBase /*extends Controller*/
 					$this->log(__METHOD__, $slug);
 				}
 				$this->loadController($slug);
-				$this->bodyClasses[] = get_class($this->controller);
+				$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
 			} else {
 				throw new Exception404($slug);
 			}
