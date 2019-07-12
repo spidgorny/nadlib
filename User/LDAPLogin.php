@@ -23,7 +23,7 @@ class LDAPLogin
 	public $error = null;
 
 	/**
-	 * @var LDAPUser or a descendant
+	 * @var string LDAPUser::class or a descendant
 	 */
 	public $userClass = LDAPUser::class;
 
