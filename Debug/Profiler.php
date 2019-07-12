@@ -96,4 +96,10 @@ class Profiler
 		return $this->elapsed() . '';
 	}
 
+	public static function sinceStart()
+	{
+		$p = new static(ifsetor($_SERVER['REQUEST_TIME_FLOAT'], $_SERVER['REQUEST_TIME']));
+		return $p->elapsed();
+	}
+
 }
