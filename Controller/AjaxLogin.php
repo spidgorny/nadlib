@@ -51,7 +51,7 @@ class AjaxLogin extends AppController
 
 	var $encloseTag = 'h3';
 
-	function __construct($action = NULL)
+	function __construct($action = null)
 	{
 		parent::__construct();
 		$config = Config::getInstance();

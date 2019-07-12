@@ -517,6 +517,7 @@ class Request
 			session_write_close();
 			exit();
 		}
+		return $controller;
 	}
 
 	public function canRedirect($to)
