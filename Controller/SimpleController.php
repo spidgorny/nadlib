@@ -78,7 +78,7 @@ abstract class SimpleController
 	public function getURL(array $params = [], $prefix = null)
 	{
 		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
+			throw new InvalidArgumentException('Use makeURL() instead of ' . __METHOD__);
 		}
 		//		$params = $params + $this->linkVars;
 		//		debug($params);
