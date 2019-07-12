@@ -478,22 +478,22 @@ class IndexBase /*extends Controller*/
 
 	public function message($text)
 	{
-		$this->content->message($text);
+		return $this->content->message($text);
 	}
 
 	public function error($text)
 	{
-		$this->content->error($text);
+		return $this->content->error($text);
 	}
 
 	public function success($text)
 	{
-		$this->content->success($text);
+		return $this->content->success($text);
 	}
 
 	public function info($text)
 	{
-		$this->content->info($text);
+		return $this->content->info($text);
 	}
 
 	/**
