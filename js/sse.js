@@ -39,7 +39,7 @@ function startTask(url, target) {
     };
     source.onerror = function (event) {
         var txt;
-        var xhr = event.target;
+        const xhr = event.target;
         switch (xhr.readyState) {
             // if reconnecting
             case EventSource.CONNECTING:

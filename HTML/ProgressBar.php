@@ -46,7 +46,7 @@ class ProgressBar {
 	 */
 	var $useIndexCss = true;
 
-	var $cssFile = 'ProgressBarSimple.less';
+	var $cssFile = 'ProgressBarSimple.css';
 
 	/**
 	 * @ param #2 $color = '#43b6df'
