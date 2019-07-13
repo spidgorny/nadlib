@@ -13,7 +13,8 @@ class MiniRouter
 		//debug($requestURL, $requestURL->getPath().'', is_file($requestURL->getPath()));
 		$staticPath = $requestURL->getPath();
 		if ($staticPath) {
-			$fullPath = __DIR__.'/../../../../..'.$staticPath;
+			$fullPath = realpath(__DIR__.'/../../../../..'.$staticPath);
+			llog($fullPath);
 			if (is_file($fullPath)) {
 				llog($fullPath);
 				return false;
