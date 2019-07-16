@@ -114,8 +114,7 @@ class Menu /*extends Controller*/
 //		debug($rootPath, $level);
 
 		if ($this->useRouter()) {
-			$this->current = $rootPath[$level]
-				?: $this->request->getControllerString();
+			$this->current = ifsetor($rootPath[$level], $this->request->getControllerString());
 		} elseif ($this->useControllerSlug) {
 			if ($rootPath) {
 				$this->current = implode('/', $rootPath);
