@@ -20,6 +20,8 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 	 */
 	protected $returnNextTime = [];
 
+	protected $insertedRow = [];
+
 	public function __construct()
 	{
 		//llog(__METHOD__, Debug::getCaller());
@@ -72,7 +74,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function lastInsertID($res = null, $table = null)
 	{
-		// TODO: Implement lastInsertID() method.
+		return rand();
 	}
 
 	public function free($res)
@@ -157,6 +159,15 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 	public function returnNextTime(array $rows)
 	{
 		$this->returnNextTime = $rows;
+	}
+
+	public function runInsertQuery($table, array $columns)
+	{
+		if (!ifsetor($columns['id'])) {
+			$columns['id'] = rand();
+		}
+		$this->insertedRow = $columns;
+		$this->returnNextTime = $columns;
 	}
 
 }

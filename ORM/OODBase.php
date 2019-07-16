@@ -233,7 +233,8 @@ abstract class OODBase
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
-		$res = $this->db->perform($query);
+		// for DBPlacebo to return the same data back
+		$res = $this->db->runInsertQuery($this->table, $data);
 		$this->lastQuery = $this->db->lastQuery;    // save before commit
 
 		// this needs to be checked first,
@@ -253,7 +254,15 @@ abstract class OODBase
 			$this->init($id ? $id : $this->id);
 		} else {
 			//debug($this->lastQuery, $this->db->lastQuery);
-			throw new DatabaseException('OODBase for ' . $this->table . ' no insert id after insert');
+			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
+			$errorCode = null;
+			if ($this->db instanceof DBLayerPDO) {
+				$errorMessage .= $this->db->getConnection()->errorInfo();
+				$errorCode = $this->db->getConnection()->errorCode();
+			}
+			$e = new DatabaseException($errorMessage, $errorCode);
+			$e->setQuery($query);
+			throw $e;
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $this;
