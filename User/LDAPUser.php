@@ -92,7 +92,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 
 	public function getEmail()
 	{
-		return $this->data['mail'][0];
+		return ifsetor($this->data['mail'][0]);
 	}
 
 	public function getPasswordHash()
