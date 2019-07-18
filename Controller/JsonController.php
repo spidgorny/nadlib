@@ -9,6 +9,16 @@ trait JsonController
         $request->set('ajax', true);
     }
 
+    public function validateAuthorization($registeredApps)
+	{
+		$headers = apache_request_headers();
+		$authorization = ifsetor($headers['Authorization']);
+		//debug($headers, $authorization);
+		if (!$authorization || !in_array($authorization, $registeredApps)) {
+			return $this->error(new LoginException('Authorization failed.'), 401);
+		}
+	}
+
     public function __invoke()
     {
 		list($request, $arguments) = $this->getActionAndArguments();
@@ -45,8 +55,7 @@ trait JsonController
         $message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
         llog($message);
         http_response_code($httpCode);
-        header('Content-Type: application/json');
-        return json_encode([
+        return $this->json([
             'status' => 'error',
             'error_type' => get_class($e),
             'message' => $e->getMessage(),
@@ -54,8 +63,7 @@ trait JsonController
             'line' => $e->getLine(),
             'request' => $_REQUEST,
             'headers' => getallheaders(),
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-        );
+        ]);
     }
 
     public function json($key)
