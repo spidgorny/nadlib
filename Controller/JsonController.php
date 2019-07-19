@@ -15,7 +15,7 @@ trait JsonController
 		$authorization = ifsetor($headers['Authorization']);
 		//debug($headers, $authorization);
 		if (!$authorization || !in_array($authorization, $registeredApps)) {
-			return $this->error(new LoginException('Authorization failed.'), 401);
+			throw new LoginException('Authorization failed.', 401);
 		}
 	}
 
