@@ -230,7 +230,7 @@ if (!function_exists('debugList')) {
 	 * @param $something
 	 * @param bool $withHash
 	 *
-	 * @return htmlString
+	 * @return HTMLTag
 	 */
 	function typ($something, $withHash = true)
 	{
@@ -280,7 +280,7 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param $something array|mixed
-	 * @return array|htmlString
+	 * @return array|HTMLTag
 	 */
 	function gettypes($something)
 	{

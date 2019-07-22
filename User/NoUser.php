@@ -14,16 +14,21 @@ class NoUser extends UserBase implements UserModelInterface
 	/**
 	 * @var AccessRights
 	 */
-	public $access;
+	public $access = [];
 
 	public function __construct()
 	{
 		$this->prefs = new MockPreferences($this);
 	}
 
+	public function setAccess($name, $value)
+	{
+		$this->access[$name] = $value;
+	}
+
 	public function can($name)
 	{
-		return false;
+		return ifsetor($this->access[$name]);
 	}
 
 	public function renderMessages()
@@ -33,12 +38,12 @@ class NoUser extends UserBase implements UserModelInterface
 
 	public function getPref($key)
 	{
-		return null;
+		return $this->prefs->get($key);
 	}
 
 	public function setPref($key, $val)
 	{
-		return null;
+		$this->prefs->set($key, $val);
 	}
 
 	/**
@@ -75,7 +80,7 @@ class NoUser extends UserBase implements UserModelInterface
 
 	public function getLogin()
 	{
-		return 'somebody';
+		return 'nobody';
 	}
 
 	public function getAvatarURL()
@@ -85,6 +90,17 @@ class NoUser extends UserBase implements UserModelInterface
 
 	public function prefs()
 	{
-		// TODO: Implement prefs() method.
+		return $this->prefs;
 	}
+
+	public function getAllPrefs()
+	{
+		return $this->prefs()->getData();
+	}
+
+	public function getPerson()
+	{
+		return null;
+	}
+
 }

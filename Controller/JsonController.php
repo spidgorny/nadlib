@@ -5,8 +5,9 @@ trait JsonController
 
     public function afterConstruct()
     {
-        $request = Request::getInstance();
-        $request->set('ajax', true);
+        $this->request->set('ajax', true);
+        $this->user = new NoUser();	// prevent API to hijack user session
+		$this->config->setUser($this->user);
     }
 
     public function validateAuthorization($registeredApps)
@@ -61,6 +62,7 @@ trait JsonController
             'message' => $e->getMessage(),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
+            'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
             'request' => $_REQUEST,
             'headers' => getallheaders(),
         ]);
@@ -69,7 +71,7 @@ trait JsonController
     public function json($key)
     {
         header('Content-Type: application/json');
-        return json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        return json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
     }
 
 }
