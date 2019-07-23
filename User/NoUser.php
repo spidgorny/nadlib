@@ -103,4 +103,14 @@ class NoUser extends UserBase implements UserModelInterface
 		return null;
 	}
 
+	public function isDev()
+	{
+		return false;
+	}
+
+	public function loginFromHTTP()
+	{
+		// do nothing, we failed to login with a session
+	}
+
 }
