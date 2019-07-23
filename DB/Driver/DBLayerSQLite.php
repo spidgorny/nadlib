@@ -148,6 +148,9 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 
 	public function quoteKey($key)
 	{
+		if ($key instanceof AsIs) {
+			return $key.'';
+		}
 		return '`' . $key . '`';
 	}
 

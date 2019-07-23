@@ -280,7 +280,7 @@ if (!function_exists('debugList')) {
 		if (!Request::isCLI()) {
 			return new HTMLTag('span', ['class' => $class], $typeName, true);
 		}
-		return $typeName;
+		return new htmlString($typeName);
 	}
 
 	/**

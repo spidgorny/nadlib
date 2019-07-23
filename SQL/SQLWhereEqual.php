@@ -44,7 +44,8 @@ class SQLWhereEqual extends SQLWherePart
 	public function getWhereItem($key, $val, array $where = [])
 	{
 		$set = [];
-		$key = $this->db->quoteKey(trim($key));
+//		debug($key);
+		$key = $this->db->quoteKey($key);
 //		debug($key);
 		if ($val instanceof AsIsOp) {       // check subclass first
 			$val->injectDB($this->db);
