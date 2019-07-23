@@ -3,6 +3,7 @@
 require_once __DIR__ . '/URL.php';
 
 use spidgorny\nadlib\HTTP\URL;
+use nadlib\HTTP\Session;
 
 class Request
 {
