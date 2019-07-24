@@ -261,18 +261,22 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @param string $class
 	 * @return AppController
+	 * @throws ReflectionException
 	 */
 	public function makeController($class)
 	{
 		try {
 			// v1
 //			$this->controller = new $class();
-			// v2
-//			$ms = new MarshalParams($this->config);
-//			$this->controller = $ms->make($class);
 			// v3
-			$di = $this->config->getDI();
-			$this->controller = $di->get($class);
+			if (method_exists($this->config, 'getDI')) {
+				$di = $this->config->getDI();
+				$this->controller = $di->get($class);
+			} else {
+				// v2
+				$ms = new MarshalParams($this->config);
+				$this->controller = $ms->make($class);
+			}
 
 			// debug($class, get_class($this->controller));
 			if (method_exists($this->controller, 'postInit')) {
