@@ -68,7 +68,10 @@ class SQLBuilder
 	 */
 	public function quoteSQL($value, $key = null)
 	{
-		if ($value instanceof AsIsOp) {     // check subclass first
+		if ($value instanceof SQLNow) {     // check subclass first
+			$value->injectDB($this->db);
+			return $value . '';
+		} elseif ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
 			$value->injectField($key);
 			$result = $value->__toString();
@@ -144,7 +147,7 @@ class SQLBuilder
 		//		debug(__METHOD__, $a);
 		$c = [];
 		foreach ($a as $key => $b) {
-			$c[] = SQLBuilder::quoteSQL($b, $key);
+			$c[] = $this->quoteSQL($b, $key);
 		}
 		return $c;
 	}
