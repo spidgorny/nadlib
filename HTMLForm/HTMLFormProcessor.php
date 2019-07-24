@@ -7,7 +7,7 @@
  * - onSuccess();
  * - submitButton
  */
-abstract class HTMLFormProcessor extends Controller
+abstract class HTMLFormProcessor extends AppController
 {
 
 	/**
