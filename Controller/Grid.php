@@ -81,8 +81,9 @@ abstract class Grid extends AppController {
 	 * Take from preferences and then append/overwrite from URL
 	 * How does it work when some params need to be cleared?
 	 *
-	 * @deprecated - use saveFilterColumnsSort() instead
 	 * @param null $subname
+	 * @throws LoginException
+	 * @deprecated - use saveFilterColumnsSort() instead
 	 */
 	function mergeRequest($subname = NULL)
 	{
@@ -192,14 +193,14 @@ abstract class Grid extends AppController {
 
 	function showFilter()
 	{
-		$content = array();
+		$content = [];
 		if ($this->filter) {
 			$f = new HTMLFormTable($this->filter);
 			$f->method('GET');
 			$f->defaultBR = true;
 			$this->filter = $f->fill($this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn btn-primary'));
+			$f->submit('Filter', ['class' => 'btn btn-primary']);
 			$content[] = $f->getContent();
 		}
 		return $content;
@@ -207,7 +208,7 @@ abstract class Grid extends AppController {
 
 	public function getFilterWhere()
 	{
-		$where = array();
+		$where = [];
 		if ($this->filter) {
 			foreach ($this->filter as $field => $desc) {
 				$value = $this->request->getTrim($field);
