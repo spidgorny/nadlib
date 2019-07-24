@@ -34,6 +34,9 @@ class SQLWhereEqual extends SQLWherePart
 		} elseif (is_null($this->val)) {
 			$sql = $this->field . ' IS NULL';
 		} elseif (is_numeric($this->field)) {
+			if ($this->val instanceof SQLWherePart) {
+				$this->val->injectDB($this->db);
+			}
 			$sql = $this->val . '';
 		} else {
 			$sql = $this->getWhereItem($this->field, $this->val);
