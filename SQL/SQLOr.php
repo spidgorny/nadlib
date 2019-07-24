@@ -32,8 +32,15 @@ class SQLOr extends SQLWherePart
 	public function __toString()
 	{
 		$ors = [];
-		//debug(get_class($this->db));
-		if (false && $this->db instanceof DBLayerPG) {
+		llog(typ($this->db)->cli());
+		if (!$this->db) {
+			ob_start();
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			$bt = ob_get_clean();
+			llog($bt);
+			$e = new RuntimeException('SQLOr does not have $db set');
+			return trigger_error($e, E_USER_ERROR);
+		} elseif (false && $this->db instanceof DBLayerPG) {
 			$ors[] = $this->bijouStyle();
 		} elseif (false && $this->db instanceof DBLayer) {
 			$ors[] = $this->dciStyle();
