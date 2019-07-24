@@ -134,10 +134,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$this->host = $host;
 		}
 		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
-		debug($string);
+//		debug($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection to $host.");
+			throw new Exception("No PostgreSQL connection to $host. ".json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
