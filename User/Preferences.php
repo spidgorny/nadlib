@@ -12,7 +12,7 @@ class Preferences
 
 	/**
 	 * Preferences constructor.
-	 * @param $user User|NoUser
+	 * @param $user UserModelInterface
 	 */
 	public function __construct($user)
 	{

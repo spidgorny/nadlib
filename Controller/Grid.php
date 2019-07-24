@@ -81,6 +81,8 @@ abstract class Grid extends AppController {
 	 * Take from preferences and then append/overwrite from URL
 	 * How does it work when some params need to be cleared?
 	 *
+	 * @param null $subname
+	 * @throws LoginException
 	 * @deprecated - use saveFilterColumnsSort() instead
 	 * @param null $subname
 	 */

@@ -1,6 +1,7 @@
 <?php
 
-class Exception404 extends Exception {
+class Exception404 extends Exception
+{
 
 	protected $message = 'The requested page URL is not found. Check the menu items. In case you see this message often please contact the site administrator. Slug: ';
 
