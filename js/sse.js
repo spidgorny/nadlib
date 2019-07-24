@@ -1,51 +1,38 @@
-/// <reference path="../../../../vendor/yankee42/typescript-server-sent-events/sse.d.ts" />
 function addEvent(html_element, event_name, event_function) {
-    if (html_element.addEventListener) { // Modern
+    if (html_element.addEventListener) {
         html_element.addEventListener(event_name, event_function, false);
     }
-    else if (html_element.attachEvent) { // Internet Explorer
+    else if (html_element.attachEvent) {
         html_element.attachEvent("on" + event_name, event_function);
     }
-    else { // others
+    else {
         html_element["on" + event_name] = event_function;
     }
 }
 function startTask(url, target) {
-    /* create the event source */
-    var source = new EventSource(url);
-    /* handle incoming messages */
-    source.onmessage = function (event) {
-        //console.log(event);
+    const source = new EventSource(url);
+    source.onmessage = (event) => {
         if (event.type == 'message') {
-            // data expected to be in JSON-format, so parse */
-            var data = JSON.parse(event.data);
-            //console.log(event.data.length, data);
-            // server sends complete:true on completion
+            const data = JSON.parse(event.data);
             if (data.complete) {
-                // close the connection so browser does not keep connecting
                 source.close();
-                // update the UI now that task is complete
                 target.innerHTML = data.complete;
             }
-            // otherwise, it's a progress update so just update progress bar
             else {
-                var pct = 100.0 * data.current / data.total;
-                //console.log(pct);
+                const pct = 100.0 * data.current / data.total;
                 document.getElementById('progress-bar').style.width = pct + '%';
                 document.getElementById('pb_text').innerHTML =
                     Math.round(pct) + '% (' + data.current + ' of ' + data.total + ')';
             }
         }
     };
-    source.onerror = function (event) {
-        var txt;
-        const xhr = event.target;
-        switch (xhr.readyState) {
-            // if reconnecting
+    source.onerror = (event) => {
+        let txt;
+        let es = event.target;
+        switch (es.readyState) {
             case EventSource.CONNECTING:
                 txt = 'Reconnecting...';
                 break;
-            // if error was fatal
             case EventSource.CLOSED:
                 txt = 'Connection failed. Will not retry.';
                 break;
@@ -54,9 +41,9 @@ function startTask(url, target) {
         source.close();
     };
 }
-addEvent(document, 'DOMContentLoaded', function () {
-    //console.log('domready');
-    var target = document.getElementById('sseTarget');
-    var href = target.getAttribute('href');
+addEvent(document, 'DOMContentLoaded', () => {
+    const target = document.getElementById('sseTarget');
+    const href = target.getAttribute('href');
     startTask(href, target);
 });
+//# sourceMappingURL=sse.js.map

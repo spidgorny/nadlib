@@ -279,4 +279,9 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new self('img', ['src' => $src] + $params);
 	}
 
+	public function cli()
+	{
+		return trim(strip_tags($this->render()));
+	}
+
 }

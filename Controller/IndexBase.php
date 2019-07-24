@@ -218,6 +218,7 @@ class IndexBase /*extends Controller*/
 	public function initController()
 	{
 		TaylorProfiler::start(__METHOD__);
+		// already created
 		if (!$this->controller instanceof Controller) {
 			$slug = $this->request->getControllerString();
 			if ($slug) {

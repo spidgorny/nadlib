@@ -626,7 +626,11 @@ class Request
 				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
 		}
 		if (function_exists('idn_to_utf8') && $isUTF8) {
-			$try = idn_to_utf8($host);
+			if (phpversion() >= 7.3) {
+				$try = idn_to_utf8($host, 0, defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 1);
+			} else {
+				$try = idn_to_utf8($host);
+			}
 			//debug($host, $try);
 			if ($try) {
 				$host = $try;
