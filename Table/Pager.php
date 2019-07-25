@@ -89,6 +89,11 @@ class Pager
 	 */
 	protected $db;
 
+	/**
+	 * @var int - can deviate from the valid range of pages
+	 */
+	public $requestedPage;
+
 	public function __construct($itemsPerPage = null, $prefix = '')
 	{
 		if ($itemsPerPage instanceof PageSize) {
@@ -136,11 +141,16 @@ class Pager
 			$pager = $this->user->getPref('Pager.' . $this->prefix);
 			if ($pager) {
 				//debug(__METHOD__, $this->prefix, $pager['page']);
-				$this->setCurrentPage($pager['page']);
+				$this->setRequestedPage($pager['page']);
 			}
 		} else {
-			$this->setCurrentPage(0);
+			$this->setRequestedPage(0);
 		}
+	}
+
+	public function setRequestedPage($page)
+	{
+		$this->requestedPage = $page;
 	}
 
 	public function initByQuery($originalSQL)
@@ -182,7 +192,8 @@ class Pager
 		// , $query->getParameters()
 		$this->setNumberOfRecords($res['count']);
 		//debug($originalSQL, $query, $res);
-		$this->detectCurrentPage();
+		// validate the requested page is within the allowed range
+		$this->setCurrentPage($this->requestedPage);
 		TaylorProfiler::stop($key);
 	}
 
@@ -194,12 +205,12 @@ class Pager
 			$queryWithoutOrder = clone $originalSQL;
 			$queryWithoutOrder->unsetOrder();
 
-			$subquery = new SQLSubquery($queryWithoutOrder, 'counted');
-			$subquery->parameters = $parameters;
+			$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
+			$subQuery->parameters = $parameters;
 
 			$query = new SQLSelectQuery(
 				new SQLSelect('count(*) AS count'),
-				$subquery
+				$subQuery
 			);
 		} else {
 			$query = $originalSQL;
@@ -209,7 +220,8 @@ class Pager
 
 		$res = $query->fetchAssoc();
 		$this->setNumberOfRecords($res['count']);
-		$this->detectCurrentPage();
+		// validate the requested page is within the allowed range
+		$this->setCurrentPage($this->requestedPage);
 		TaylorProfiler::stop($key);
 	}
 

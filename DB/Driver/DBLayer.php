@@ -5,6 +5,7 @@
  * @mixin SQLBuilder
  * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
@@ -72,7 +73,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
 	{
 //		debug_pre_print_backtrace();
-		$this->dbName = $dbName;
+		$this->database = $dbName;
 //		pre_print_r($this->dbName);
 		$this->user = $user;
 		$this->pass = $pass;
@@ -115,18 +116,28 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	public function reconnect()
 	{
-		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
+		$this->connect($this->database, $this->user, $this->pass, $this->host);
 	}
 
-	public function connect($dbName, $user, $pass, $host = "localhost")
+	public function connect($database = null, $user = null, $pass = null, $host = null)
 	{
-		$this->database = $dbName;
-		$string = "host=$host dbname=$dbName user=$user password=$pass";
-		#debug($string);
-		#debug_print_backtrace();
+		if ($database) {
+			$this->database = $database;
+		}
+		if ($user) {
+			$this->user = $user;
+		}
+		if ($pass) {
+			$this->pass = $pass;
+		}
+		if ($host) {
+			$this->host = $host;
+		}
+		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
+//		debug($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection to $host.");
+			throw new Exception("No PostgreSQL connection to $host. ".json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -966,6 +977,11 @@ WHERE ccu.table_name='" . $table . "'");
 				'host' => pg_host($this->connection),
 				'port' => pg_port($this->connection),
 			];
+	}
+
+	public function getDSN()
+	{
+		return 'pgsql://'.$this->user.'@'.$this->host.'/'.$this->database;
 	}
 
 }
