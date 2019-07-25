@@ -197,7 +197,7 @@ abstract class SimpleController
 		return $content;
 	}
 
-	public function getCaption($caption, $h)
+	public function getCaption($caption, $hTag)
 	{
 		return '<' . $h . '>' .
 			$caption .

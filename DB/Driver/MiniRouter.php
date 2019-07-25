@@ -7,6 +7,9 @@ class MiniRouter
 
 	public function handleRequest()
 	{
+		if (!ifsetor($_SERVER['REQUEST_URI'])) {
+			return true;
+		}
 		//debug($_SERVER);
 		llog($_SERVER['REQUEST_URI']);
 		$requestURL = new URL($_SERVER['REQUEST_URI']);

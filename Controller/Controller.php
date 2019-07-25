@@ -339,14 +339,32 @@ abstract class Controller extends SimpleController
 
 	/**
 	 * @param string $caption
+	 * @param string $hTag
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCaption($caption, $hTag = 'h3')
+	{
+		$al = AutoLoad::getInstance();
+		$slug =  URL::friendlyURL($caption);
+		$content = '
+			<' . $hTag . ' id="' . $slug . '">' .
+			 $caption .
+			'</' . $hTag . '>';
+		return $content;
+	}
+
+	/**
+	 * @param string $caption
 	 * @param string $h
 	 * @return string
 	 * @throws Exception
 	 */
-	public function getCaption($caption, $h)
+	public function getCaptionWithHashLink($caption, $h)
 	{
 		$al = AutoLoad::getInstance();
-		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
+		// optional, use it in a project
+//		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
 		$slug = $this->request->getURL() . URL::friendlyURL($caption);
 		$link = '<a class="header-link" href="#' . $slug . '">
 				<i class="fa fa-link"></i>
