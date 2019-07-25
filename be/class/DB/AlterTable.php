@@ -18,7 +18,7 @@ class AlterTable extends AlterIndex
 	 */
 	var $handler;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->setHandler();

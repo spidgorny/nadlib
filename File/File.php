@@ -96,4 +96,24 @@ class File
 		return $mime->get_mime_type($this->getPathname());
 	}
 
+	public function getExtension()
+	{
+		return pathinfo($this->getName(), PATHINFO_EXTENSION);
+	}
+
+	public function __toString()
+	{
+		return $this->getPathname();
+	}
+
+	public function getCTime()
+	{
+		return filectime($this->getPathname());
+	}
+
+	public function getMTime()
+	{
+		return filemtime($this->getPathname());
+	}
+
 }
