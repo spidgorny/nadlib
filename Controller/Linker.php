@@ -198,6 +198,7 @@ class Linker
 		}
 		return $f;
 	}
+
 	public function linkToAction($action = '', array $params = [], $controller = null)
 	{
 		if (!$controller) {

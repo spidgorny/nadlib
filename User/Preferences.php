@@ -12,12 +12,15 @@ class Preferences
 
 	/**
 	 * Preferences constructor.
-	 * @param $user User|NoUser
+	 * @param $user UserModelInterface
 	 */
 	public function __construct($user)
 	{
 		$this->user = $user;
-		$this->prefs = unserialize($this->user->data['prefs']);
+		$dbPrefs = ifsetor($this->user->data['prefs']);
+		if ($dbPrefs) {
+			$this->prefs = unserialize($dbPrefs);
+		}
 	}
 
 	public function set($key, $val)

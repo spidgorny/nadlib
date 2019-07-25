@@ -1,6 +1,7 @@
 <?php
 
-class SQLAnd extends SQLOr {
+class SQLAnd extends SQLOr
+{
 
 	var $join = ' AND ';
 

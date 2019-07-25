@@ -216,7 +216,7 @@ abstract class FullGrid extends Grid
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
-		$f->formHideArray($this->linkVars);
+		$f->formHideArray($this->linker->linkVars);
 		$f->showForm($desc);
 		$f->submit(__('Set Visible Columns'));
 		return $f;
