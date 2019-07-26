@@ -17,12 +17,12 @@ use spidgorny\nadlib\HTTP\URL;
  * @mixin HTML
  * @method div($content, $class = '', array $more = [])
  * @method message($content)
- * @method h1($content)
- * @method h2($content)
- * @method h3($content)
- * @method h4($content)
- * @method h5($content)
- * @method h6($content)
+ * @method h1($content, array $attrs = [])
+ * @method h2($content, array $attrs = [])
+ * @method h3($content, array $attrs = [])
+ * @method h4($content, array $attrs = [])
+ * @method h5($content, array $attrs = [])
+ * @method h6($content, array $attrs = [])
  * @method a($href, $text = '', $isHTML = false, array $more = [])
  * @method error($content)
  * @method info($content)
@@ -103,7 +103,7 @@ abstract class Controller extends SimpleController
 				$this->config = $this->index->getConfig();
 			}
 		}
-		
+
 		if ($this->config) {
 			// move this into AppController
 			// some projects don't need DB or User
@@ -130,7 +130,7 @@ abstract class Controller extends SimpleController
 			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
 	}
-	
+
 	/**
 	 * @param array $data
 	 * @return array
@@ -398,6 +398,49 @@ abstract class Controller extends SimpleController
 	public function self()
 	{
 		return substr(strrchr(get_class($this), '\\'), 1);
+	}
+
+	/**
+	 * There is no $formMore parameter because you get the whole form returned.
+	 * You can modify it after returning as you like.
+	 * @param string|htmlString $name - if object then will be used as is
+	 * @param string|null $action
+	 * @param string $formAction
+	 * @param array $hidden
+	 * @param string $submitClass
+	 * @param array $submitParams
+	 * @return HTMLForm
+	 */
+	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
+	{
+		$f = new HTMLForm();
+		if ($formAction) {
+			$f->action($formAction);
+		} else {
+			$f->hidden('c', get_class($this));
+		}
+		$f->formHideArray($hidden);
+		if (false) {    // this is too specific, not and API
+//			if ($id = $this->request->getInt('id')) {
+//				$f->hidden('id', $id);
+//			}
+		}
+		if (!is_null($action)) {
+			$f->hidden('action', $action);
+		}
+		if ($name instanceof htmlString) {
+			$f->button($name, [
+					'type' => "submit",
+					'id' => 'button-action-' . $action,
+					'class' => $submitClass,
+				] + $submitParams);
+		} else {
+			$f->submit($name, [
+					'id' => 'button-action-' . $action,
+					'class' => $submitClass,
+				] + $submitParams);
+		}
+		return $f;
 	}
 
 }
