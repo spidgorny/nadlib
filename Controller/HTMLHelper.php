@@ -47,20 +47,34 @@ trait HTMLHelper {
 		return '<div class="alert alert-warning">'.$this->s($content).'</div>';
 	}
 
-	function h1($content) {
-		return '<h1>'.$this->s($content).'</h1>';
+	public function h1($content, array $attrs = [])
+	{
+		return '<h1 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h1>';
 	}
 
-	function h2($content) {
-		return '<h2>'.$this->s($content).'</h2>';
+	public function h2($content, array $attrs = [])
+	{
+		return '<h2 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h2>';
 	}
 
-	function h3($content) {
-		return '<h3>'.$this->s($content).'</h3>';
+	public function h3($content, array $attrs = [])
+	{
+		return '<h3 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h3>';
 	}
 
-	function h4($content) {
-		return '<h4>'.$this->s($content).'</h4>';
+	public function h4($content, array $attrs = [])
+	{
+		return '<h4 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h4>';
+	}
+
+	function h5($content, array $more = [])
+	{
+		return '<h5 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h5>';
+	}
+
+	function h6($content, array $more = [])
+	{
+		return '<h6 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h6>';
 	}
 
 	function progress($percent) {
