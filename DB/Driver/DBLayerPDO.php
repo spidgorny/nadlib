@@ -72,7 +72,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$builder->setDriver($driver);
 		}
 		$this->dsn = $builder->__toString();
-		debug($this->dsn);
+//		debug($this->dsn);
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
 		$this->queryTime += $profiler->elapsed();
@@ -578,6 +578,11 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			} catch (PDOException $e) {}
 		}
 		return $info;
+	}
+
+	public function getVersion()
+	{
+		return $this->getInfo()['ATTR_SERVER_VERSION'];
 	}
 
 }
