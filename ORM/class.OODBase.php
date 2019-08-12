@@ -431,7 +431,8 @@ abstract class OODBase {
 		//debug($self, $name, count(self::$instances[$self]));
 
 		// first search instances
-		if (is_array(self::$instances[$self])) {
+		$c = null;
+		if (is_array(ifsetor(self::$instances[$self]))) {
 			foreach (self::$instances[$self] as $inst) {
 				$field = $field ?: $inst->titleColumn;
 				if ($inst->data[$field] == $name) {
