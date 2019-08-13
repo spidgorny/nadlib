@@ -105,7 +105,12 @@ class MySQL extends dbLayerBase implements DBInterface {
 		if (!is_null($this->queryLog)) {
 			$diffTime = microtime(true) - $start;
 			$key = md5($query);
-			$this->queryLog[$key] = is_array($this->queryLog[$key]) ? $this->queryLog[$key] : array();
+			$this->queryLog[$key] = is_array(ifsetor($this->queryLog[$key])) ? $this->queryLog[$key] : array(
+				'query' => null,
+				'time' => 0,
+				'sumtime' => 0,
+				'times' => 0,
+			);
 			$this->queryLog[$key]['query'] = $query;
 			$this->queryLog[$key]['time'] = ($this->queryLog[$key]['time'] + $diffTime) / 2;
 			$this->queryLog[$key]['sumtime'] += $diffTime;
