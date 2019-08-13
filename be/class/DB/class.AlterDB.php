@@ -5,9 +5,6 @@
  * ALTER TABLE statements
  */
 
-define('TAB', "\t");
-define('CR', "\r");
-define('LF', "\n");
 require_once('../vendor/typo3/class.t3lib_div.php');
 //require_once('../vendor/typo3/class.t3lib_sqlparser.php');
 require_once('../vendor/typo3/sysext/core/Classes/Database/SqlParser.php');
@@ -158,7 +155,7 @@ class AlterDB extends AppControllerBE {
 
 		//$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
 		$GLOBALS['TYPO3_DB'] = $t3db = new TYPO3\CMS\Core\Database\DatabaseConnection();
-		$t3db->connectDB($config->db_server, $config->db_user, $config->db_password, $config->db_database);
+	//	$t3db->connectDB($config->db_server, $config->db_user, $config->db_password, $config->db_database);
 		//debug($t3db);
 		define('TYPO3_db', $config->db_database);
 

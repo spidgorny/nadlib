@@ -5,7 +5,6 @@ if (php_sapi_name() == 'cli') {
 } else {
 	define('BR', "<br />\n");
 }
-define('TAB', "\t");
 
 class InitNADLIB {
 
@@ -29,6 +28,7 @@ class InitNADLIB {
 			? (Request::isWindows() || $debug) // at home
 			: ($debug)
 		);
+		define('TAB', "\t");
 
 		date_default_timezone_set('Europe/Berlin');	// before using header()
 		Mb_Internal_Encoding ( 'UTF-8' );
