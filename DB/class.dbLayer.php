@@ -674,6 +674,10 @@ order by a.attnum';
 		return $content;
 	}
 
+	function affectedRows($res) {
+		return pg_affected_rows($res);
+	}
+
 	/**
 	 * Renders the list of queries accumulated
 	 * @return string
