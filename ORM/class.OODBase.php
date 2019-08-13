@@ -119,7 +119,9 @@ abstract class OODBase
 			if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
 			throw new Exception(__METHOD__);
 		}
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['prof'])) {
+			$GLOBALS['prof']->stopTimer(__METHOD__);
+		}
 	}
 
 	function getName()
@@ -136,7 +138,10 @@ abstract class OODBase
 				$this->id[$field] = $this->data[$field];
 			}
 		} else {
-			$this->id = $this->data[$this->idField];
+			if (!isset($this->data[$this->idField])) {
+				//throw new InvalidArgumentException(__METHOD__.' has no value in '.$this->idField);
+			}
+			$this->id = ifsetor($this->data[$this->idField]);
 		}
 	}
 
