@@ -1,11 +1,13 @@
 <?php
 
-class MarkdownView extends View {
+class MarkdownView extends View
+{
 
-	function render() {
+	function render()
+	{
 		$file = dirname($this->file) != '.'
 			? $this->file
-			: $this->folder.$this->file;
+			: $this->folder . $this->file;
 		$contents = file_get_contents($file);
 
 		// with autoloader from composer this should not be necessary

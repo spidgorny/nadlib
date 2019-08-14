@@ -4,16 +4,15 @@
  * Class Uploader
  * General validating uploader with error handling
  */
-class Uploader {
+class Uploader
+{
 
 
 	public $allowed = array(
 		'gif', 'jpg', 'png', 'jpeg',
 	);
 
-	public $allowedMime = array(
-
-	);
+	public $allowedMime = array();
 
 	/**
 	 * Which method of mime detection was used
@@ -22,22 +21,23 @@ class Uploader {
 	public $mimeMethod;
 
 	protected $errors = array(
-		1 =>'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-			'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
-			'The uploaded file was only partially uploaded.',
-			'No file was uploaded.',
-		6 =>'Missing a temporary folder.',
-			'Failed to write file to disk.',
-			'A PHP extension stopped the file upload.'
+		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+		'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+		'The uploaded file was only partially uploaded.',
+		'No file was uploaded.',
+		6 => 'Missing a temporary folder.',
+		'Failed to write file to disk.',
+		'A PHP extension stopped the file upload.'
 	);
 
 	/**
 	 *
 	 * @param array|null $allowed If provided this will override allowed extensions
 	 */
-	function __construct($allowed = array()) {
+	function __construct($allowed = array())
+	{
 
-		if(!empty($allowed)) {
+		if (!empty($allowed)) {
 			$this->allowed = $allowed;
 		}
 
@@ -46,69 +46,71 @@ class Uploader {
 		}
 	}
 
-	function isUploaded() {
+	function isUploaded()
+	{
 		return !!$_FILES;
 	}
 
 	/**
-		Usage:
-		$uf = new Uploader();
-		$f = $uf->getUploadForm()
-		// add custom hidden fields to upload form (e.g. Loan[id])
-		if (!empty($hiddenFields)) {
-			foreach ($hiddenFields as $name => $value) {
-				$f->hidden($name, $value);
-			}
-		}
-		@param  string - input field name - usually 'file'
-		@return HTMLForm
-	*/
-	public function getUploadForm($fieldName = 'file') {
+	 * Usage:
+	 * $uf = new Uploader();
+	 * $f = $uf->getUploadForm()
+	 * // add custom hidden fields to upload form (e.g. Loan[id])
+	 * if (!empty($hiddenFields)) {
+	 * foreach ($hiddenFields as $name => $value) {
+	 * $f->hidden($name, $value);
+	 * }
+	 * }
+	 * @param string - input field name - usually 'file'
+	 * @return HTMLForm
+	 */
+	public function getUploadForm($fieldName = 'file')
+	{
 		$f = new HTMLForm();
 		$f->file($fieldName);
 		$f->text('<br />');
 		$f->submit('Upload', array('class' => 'btn btn-primary'));
-		$f->text('<div class="message">Max size: '.ini_get('upload_max_filesize').'</div>');
-		$f->text('<div class="message">Max post: '.ini_get('post_max_size').'</div>');
-		$f->text('<div class="message">Allowed: '.implode(', ', $this->allowed).'</div>');
+		$f->text('<div class="message">Max size: ' . ini_get('upload_max_filesize') . '</div>');
+		$f->text('<div class="message">Max post: ' . ini_get('post_max_size') . '</div>');
+		$f->text('<div class="message">Allowed: ' . implode(', ', $this->allowed) . '</div>');
 		return $f;
 	}
 
-    /**
-     * @param string $from - usually 'file' - the same name as in getUploadForm()
-     * @param string $to - directory
-     * @param bool $overwriteExistingFile
-     * @throws Exception
-     */
-	public function moveUpload($from, $to, $overwriteExistingFile = true) {
+	/**
+	 * @param string $from - usually 'file' - the same name as in getUploadForm()
+	 * @param string $to - directory
+	 * @param bool $overwriteExistingFile
+	 * @throws Exception
+	 */
+	public function moveUpload($from, $to, $overwriteExistingFile = true)
+	{
 		if ($uf = $_FILES[$from]) {
 			if (!$this->checkError($uf)) {
 				throw new Exception($this->errors[$uf['error']]);
 			}
 			if (!$this->checkExtension($uf)) {
-				throw new Exception('File uploaded is not allowed ('.$uf['ext'].')');
+				throw new Exception('File uploaded is not allowed (' . $uf['ext'] . ')');
 			}
 			if (!$this->checkMime($uf)) {
-				throw new Exception('File uploaded is not allowed ('.$uf['mime'].')');
+				throw new Exception('File uploaded is not allowed (' . $uf['mime'] . ')');
 			}
 
-            // if you don't want existing files to be overwritten,
-            // new file will be renamed to *_n,
-            // where n is the number of existing files
-            $fileName = $to.$uf['name'];
-            if (!$overwriteExistingFile && file_exists($fileName)) {
-                $actualName = pathinfo($fileName, PATHINFO_FILENAME);
-                $originalName = $actualName;
-                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+			// if you don't want existing files to be overwritten,
+			// new file will be renamed to *_n,
+			// where n is the number of existing files
+			$fileName = $to . $uf['name'];
+			if (!$overwriteExistingFile && file_exists($fileName)) {
+				$actualName = pathinfo($fileName, PATHINFO_FILENAME);
+				$originalName = $actualName;
+				$extension = pathinfo($fileName, PATHINFO_EXTENSION);
 
-                $i = 1;
-                while(file_exists($to.$actualName.".".$extension))
-                {
-                    $actualName = (string) $originalName.'_'.$i;
-                    $fileName = $to.$actualName.".".$extension;
-                    $i++;
-                }
-            }
+				$i = 1;
+				while (file_exists($to . $actualName . "." . $extension)) {
+					$actualName = (string)$originalName . '_' . $i;
+					$fileName = $to . $actualName . "." . $extension;
+					$i++;
+				}
+			}
 
 			$ok = @move_uploaded_file($uf['tmp_name'], $fileName);
 			if (!$ok) {
@@ -120,7 +122,8 @@ class Uploader {
 		}
 	}
 
-	function checkError(array $uf) {
+	function checkError(array $uf)
+	{
 		$errorCode = $uf['error'];
 		return (!$errorCode);
 	}
@@ -130,7 +133,8 @@ class Uploader {
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkExtension(array &$uf) {
+	function checkExtension(array &$uf)
+	{
 		if ($this->allowed) {
 			$filename = $uf['name'];
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
@@ -146,7 +150,8 @@ class Uploader {
 	 * @param array $uf
 	 * @return bool
 	 */
-	function checkMime(array &$uf) {
+	function checkMime(array &$uf)
+	{
 		if ($this->allowedMime) {
 			$mime = $this->get_mime_type($uf['tmp_name']);
 			$uf['mime'] = $mime;
@@ -162,7 +167,8 @@ class Uploader {
 	 * @param $filename
 	 * @return string
 	 */
-	function get_mime_type($filename) {
+	function get_mime_type($filename)
+	{
 		if (class_exists('finfo')) {
 			$fi = new finfo();
 			$mime = $fi->file($filename);
@@ -174,7 +180,7 @@ class Uploader {
 			$mime = $this->get_mime_type_system($filename);
 			$this->mimeMethod = 'get_mime_type_system';
 		}
-		$mime = trim($mime); 	// necessary !!!
+		$mime = trim($mime);    // necessary !!!
 		//debug($mime, $this->mimeMethod);
 		return $mime;
 	}
@@ -184,16 +190,17 @@ class Uploader {
 	 * @param $filepath
 	 * @return string
 	 */
-	function get_mime_type_system($filepath) {
+	function get_mime_type_system($filepath)
+	{
 		ob_start();
 		system("file -i -b {$filepath}");
 		$output = ob_get_clean();
-		$output = explode("; ",$output);	// text/plain; charset=us-ascii
-		if ( is_array($output) ) {
+		$output = explode("; ", $output);    // text/plain; charset=us-ascii
+		if (is_array($output)) {
 			$output = $output[0];
 		}
-		$output = explode(" ", $output);	// text/plain charset=us-ascii
-		if ( is_array($output) ) {
+		$output = explode(" ", $output);    // text/plain charset=us-ascii
+		if (is_array($output)) {
 			$output = $output[0];
 		}
 		return $output;
@@ -203,24 +210,27 @@ class Uploader {
 	 * Will incrementally create subfolders which don't exist.
 	 * @param $folder
 	 */
-	public function createUploadFolder($folder) {
+	public function createUploadFolder($folder)
+	{
 		$parts = trimExplode('/', $folder);
 		$current = '/';
 		foreach ($parts as $plus) {
-			$current .= $plus.'/';
+			$current .= $plus . '/';
 			if (!file_exists($current)) {
 				mkdir($current);
 			}
 		}
 	}
 
-	function getContent($from) {
+	function getContent($from)
+	{
 		if ($uf = $_FILES[$from]) {
 			return file_get_contents($uf['tmp_name']);
 		}
 	}
 
-	public function getTempFile($fieldName = 'file') {
+	public function getTempFile($fieldName = 'file')
+	{
 		if ($this->isUploaded()) {
 			return $_FILES[$fieldName]['tmp_name'];
 		}
@@ -232,7 +242,8 @@ class Uploader {
 	 * @param $callback
 	 * @param array $params
 	 */
-	function handleBlueImpUpload($callback, array $params) {
+	function handleBlueImpUpload($callback, array $params)
+	{
 		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
 		$uh = new UploadHandler($params, false);
 		//$uh->post(true); exit();

@@ -13,34 +13,40 @@
  * sleep(1);
  * echo $p2->elapsed();
  */
-class Profiler {
+class Profiler
+{
 
 	var $startTime;
 
 	var $endTime;
 
-	function __construct($startTime = NULL) {
+	function __construct($startTime = NULL)
+	{
 		$this->startTime = $startTime ? $startTime : microtime(true);
 	}
 
-	function stop() {
+	function stop()
+	{
 		$this->endTime = microtime(true);
 	}
 
-	function elapsed() {
+	function elapsed()
+	{
 		if (!$this->endTime) {
 			$this->stop();
 		}
-		$out = $this->endTime-$this->startTime;
+		$out = $this->endTime - $this->startTime;
 		return number_format($out, 5, '.', '');
 	}
 
-	function elapsedCont() {
+	function elapsedCont()
+	{
 		$out = microtime(true) - $this->startTime;
 		return number_format($out, 5, '.', '');
 	}
 
-	function Done($isReturn = FALSE) {
+	function Done($isReturn = FALSE)
+	{
 		$out = number_format($this->elapsed(), 3);
 		$content = "Done in $out seconds.";
 		if ($isReturn) {
@@ -50,15 +56,18 @@ class Profiler {
 		}
 	}
 
-	function startTimer($method) {
+	function startTimer($method)
+	{
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->startTimer($method);
 	}
 
-	function stopTimer($method) {
+	function stopTimer($method)
+	{
 		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer($method);
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->elapsed();
 	}
 

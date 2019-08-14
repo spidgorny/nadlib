@@ -1,9 +1,11 @@
 <?php
 
 //debug('trace me');
-class LocalLangDummy extends LocalLang {
+class LocalLangDummy extends LocalLang
+{
 
-	function saveMissingMessage($text) {
+	function saveMissingMessage($text)
+	{
 	}
 
 }

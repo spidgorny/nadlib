@@ -1,6 +1,7 @@
 <?php
 
-class Selectable {
+class Selectable
+{
 
 	public $name;
 
@@ -15,7 +16,8 @@ class Selectable {
 	/**
 	 * @param $selected - id / array row
 	 */
-	function __construct($selected) {
+	function __construct($selected)
+	{
 		$this->name = get_class($this);
 		if (is_array($selected)) {
 			$this->rows[$selected['id']] = $selected;
@@ -40,11 +42,13 @@ class Selectable {
 	 * It's not more convenient to have it in a toString()
 	 * @return string
 	 */
-	function __toString() {
+	function __toString()
+	{
 		return $this->getDropdown();
 	}
 
-	function getDropdown() {
+	function getDropdown()
+	{
 		$request = Request::getInstance();
 
 		$f = new HTMLForm();
@@ -67,7 +71,8 @@ class Selectable {
 		return $f->getContent();
 	}
 
-	function getName() {
+	function getName()
+	{
 		return $this->data[$this->selected];
 	}
 

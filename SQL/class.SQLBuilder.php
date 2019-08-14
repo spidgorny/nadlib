@@ -14,7 +14,8 @@
  * Note that the creation of objects above is handled by DIContainer
  * but it's not shown above for comprehensibility.
  */
-class SQLBuilder {
+class SQLBuilder
+{
 
 	/**
 	 * Update/Insert is storing the found row for debugging
@@ -26,7 +27,7 @@ class SQLBuilder {
 	 * Reserved MySQL words
 	 * @var array
 	 */
-	protected $reserved = array (
+	protected $reserved = array(
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
 		2 => 'ALL',
@@ -257,11 +258,13 @@ class SQLBuilder {
 	 */
 	public $db;
 
-	function __construct(dbLayerBase $db) {
+	function __construct(dbLayerBase $db)
+	{
 		$this->db = $db;
 	}
 
-	function quoteKey($key) {
+	function quoteKey($key)
+	{
 		if (in_array(strtoupper($key), $this->reserved)) {
 			$key = $this->db->quoteKey($key);
 		}
@@ -272,11 +275,12 @@ class SQLBuilder {
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
 	 * @param $value
+	 * @return string
 	 * @throws Exception
 	 * @internal param $key
-	 * @return string
 	 */
-	function quoteSQL($value) {
+	function quoteSQL($value)
+	{
 		if ($value instanceof AsIs) {
 			return $value->__toString();
 		} else if ($value instanceof AsIsOp) {
@@ -284,25 +288,25 @@ class SQLBuilder {
 		} else if ($value instanceof SQLOr) {
 			return $value->__toString();
 		} else if ($value instanceof Time) {
-			return "'".$this->db->escape($value->__toString())."'";
+			return "'" . $this->db->escape($value->__toString()) . "'";
 		} else if ($value instanceof SQLDate) {
-			return "'".$this->db->escape($value->__toString())."'";
+			return "'" . $this->db->escape($value->__toString()) . "'";
 		} else if ($value instanceof AsIs) {
-			return $value.'';
+			return $value . '';
 		} else if ($value instanceof SimpleXMLElement) {
-			return "COMPRESS('".$this->db->escape($value->asXML())."')";
+			return "COMPRESS('" . $this->db->escape($value->asXML()) . "')";
 		} else if (is_object($value)) {
-			return "'".$this->db->escape($value)."'";
+			return "'" . $this->db->escape($value) . "'";
 		} else if ($value === NULL) {
 			return "NULL";
 		} else if (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
-			return "'".$value."'";		// quoting will not hurt, but will keep leading zeroes if necessary
+			return "'" . $value . "'";        // quoting will not hurt, but will keep leading zeroes if necessary
 		} else if (is_bool($value)) {
 			return $this->db->escapeBool($value);
 		} else {
 			if (is_scalar($value)) {
-				return "'".$this->db->escape($value)."'";
+				return "'" . $this->db->escape($value) . "'";
 			} else {
 				debug($value);
 				throw new Exception('Must be string.');
@@ -315,7 +319,8 @@ class SQLBuilder {
 	 * @param $number
 	 * @return bool
 	 */
-	function isExp($number) {
+	function isExp($number)
+	{
 		return is_numeric($number) && $number != number_format($number, 0, '', '');
 	}
 
@@ -325,9 +330,10 @@ class SQLBuilder {
 	 * @param array $a
 	 * @return array
 	 */
-	function quoteValues(array $a) {
+	function quoteValues(array $a)
+	{
 		$c = array();
-		foreach($a as $key => $b) {
+		foreach ($a as $key => $b) {
 			$c[] = SQLBuilder::quoteSQL($b, $key);
 		}
 		return $c;
@@ -340,10 +346,11 @@ class SQLBuilder {
 	 * @param array $where
 	 * @return array
 	 */
-	function quoteWhere(array $where) {
+	function quoteWhere(array $where)
+	{
 		$set = array();
 		foreach ($where as $key => $val) {
-			if ($key{strlen($key)-1} != '.') {
+			if ($key{strlen($key) - 1} != '.') {
 				$key = $this->quoteKey($key);
 				if ($val instanceof AsIs) {
 					$set[] = $key . ' = ' . $val;
@@ -363,34 +370,34 @@ class SQLBuilder {
 					$set[] = $val->__toString();
 				} else if ($val instanceof SimpleXMLElement) {
 					$set[] = $val->asXML();
-				//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
-				//	$set[] = $val.'';
-				} else if (isset($where[$key.'.']) && $where[$key.'.']['asis']) {
+					//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
+					//	$set[] = $val.'';
+				} else if (isset($where[$key . '.']) && $where[$key . '.']['asis']) {
 					if (strpos($val, '###FIELD###') !== FALSE) {
 						$val = str_replace('###FIELD###', $key, $val);
 						$set[] = $val;
 					} else {
-						$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
+						$set[] = '(' . $key . ' ' . $val . ')';    // for GloRe compatibility - may contain OR
 					}
 				} else if ($val === NULL) {
 					$set[] = "$key IS NULL";
 				} else if ($val === 'NOTNULL') {
 					$set[] = "$key IS NOT NULL";
-				} else if (in_array($key{strlen($key)-1}, array('>', '<'))
-                    || in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
+				} else if (in_array($key{strlen($key) - 1}, array('>', '<'))
+					|| in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 					list($key, $sign) = explode(' ', $key); // need to quote separately
 					$key = $this->quoteKey($key);
 					$set[] = "$key $sign '$val'";
 				} else if (is_bool($val)) {
 					$set[] = ($val ? "" : "NOT ") . $key;
-				} else if (is_numeric($key)) {		// KEY!!!
+				} else if (is_numeric($key)) {        // KEY!!!
 					$set[] = $val;
-				} else if (is_array($val) && $where[$key.'.']['makeIN']) {
-					$set[] = $key." IN ('".implode("', '", $val)."')";
-				} else if (is_array($val) && $where[$key.'.']['makeOR']) {
+				} else if (is_array($val) && $where[$key . '.']['makeIN']) {
+					$set[] = $key . " IN ('" . implode("', '", $val) . "')";
+				} else if (is_array($val) && $where[$key . '.']['makeOR']) {
 					foreach ($val as &$row) {
 						if (is_null($row)) {
-							$row = $key .' IS NULL';
+							$row = $key . ' IS NULL';
 						} else {
 							$row = $key . " = '" . $row . "'";
 						}
@@ -409,7 +416,8 @@ class SQLBuilder {
 
 	}
 
-	function getInsertQuery($table, array $columns) {
+	function getInsertQuery($table, array $columns)
+	{
 		$set = $this->quoteLike($columns, '$key');
 		$set = implode(", ", $set);
 
@@ -418,11 +426,12 @@ class SQLBuilder {
 		$values = $this->quoteValues($values);
 		$values = implode(", ", $values);
 
-		$q = "INSERT INTO ".$this->quoteKey($table)."\n($set)\nVALUES ($values)";
+		$q = "INSERT INTO " . $this->quoteKey($table) . "\n($set)\nVALUES ($values)";
 		return $q;
 	}
 
-	function quoteLike($columns, $like) {
+	function quoteLike($columns, $like)
+	{
 		$set = array();
 		foreach ($columns as $key => $val) {
 			$key = $this->quoteKey($key);
@@ -435,7 +444,8 @@ class SQLBuilder {
 		return $set;
 	}
 
-	function getUpdateQuery($table, $columns, $where) {
+	function getUpdateQuery($table, $columns, $where)
+	{
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$q = "UPDATE $table\nSET ";
 		$set = $this->quoteLike($columns, '$key = $val');
@@ -445,36 +455,40 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getFirstWord($table) {
+	function getFirstWord($table)
+	{
 		$table1 = explode(' ', $table);
 		$table0 = $table1[0];
 		//debug($table, $table1, $table0);
 		return $table0;
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '') {
+	function getSelectQuery($table, array $where = array(), $order = "", $addSelect = '')
+	{
 		$table1 = $this->getFirstWord($table);
-		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1) . ".*";
 		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE\n" . implode("\nAND ", $set);
 		}
-		$q .= "\n".$order;
+		$q .= "\n" . $order;
 		return $q;
 	}
 
-	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '') {
+	function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
+	{
 		$table1 = $this->getFirstWord($table);
-		$select = $addSelect ? $addSelect : $this->quoteKey($table1).".*";
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1) . ".*";
 		$q = "SELECT $select\nFROM " . $this->quoteKey($table);
 		$q .= $where->__toString();
-		$q .= "\n".$order;
+		$q .= "\n" . $order;
 		return $q;
 	}
 
-	function getDeleteQuery($table, $where = array(), $what = '') {
-		$q = "DELETE ".$what." FROM $table ";
+	function getDeleteQuery($table, $where = array(), $what = '')
+	{
+		$q = "DELETE " . $what . " FROM $table ";
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
 			$q .= "\nWHERE " . implode(" AND ", $set);
@@ -484,14 +498,16 @@ class SQLBuilder {
 		return $q;
 	}
 
-	function getDefaultInsertFields() {
+	function getDefaultInsertFields()
+	{
 		return array();
 	}
 
 	/**
-	 * 2010/09/12: modified according to mantis request 0001812	- 4th argument added
+	 * 2010/09/12: modified according to mantis request 0001812    - 4th argument added
 	 */
-	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY') {
+	static function array_intersect($array, $field, $joiner = 'OR', $conditioner = 'ANY')
+	{
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
 
@@ -501,26 +517,28 @@ class SQLBuilder {
 			foreach ($array as $langID) {
 				//2010/09/12: modified according to mantis request 0001812	- if/else condition for 4th argument added
 				if ($conditioner == 'ANY') {
-					$or[] = "'" . $langID . "' = ANY(string_to_array(".$field.", ','))"; // this line is the original one
+					$or[] = "'" . $langID . "' = ANY(string_to_array(" . $field . ", ','))"; // this line is the original one
 				} else {
-					$or[] = "'" . $langID . "' = ".$field." ";
+					$or[] = "'" . $langID . "' = " . $field . " ";
 				}
 			}
-			$content = '('.implode(' '.$joiner.' ', $or).')';
+			$content = '(' . implode(' ' . $joiner . ' ', $or) . ')';
 		} else {
 			$content = ' 1 = 1 ';
 		}
 		return $content;
 	}
 
-	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '') {
+	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
+	{
 		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
 		return $res;
 	}
 
-	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '') {
+	function runSelectQuerySW($table, SQLWhere $where, $order = '', $addSelect = '')
+	{
 		$query = $this->getSelectQuerySW($table, $where, $order, $addSelect);
 		//debug($query);
 		$res = $this->db->perform($query);
@@ -537,7 +555,8 @@ class SQLBuilder {
 	 * @param array $insert
 	 * @return bool|int
 	 */
-	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array()) {
+	function runInsertUpdateQuery($table, array $fields, array $where, array $insert = array())
+	{
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->db->transaction();
 		$res = $this->runSelectQuery($table, $where);
@@ -565,7 +584,8 @@ class SQLBuilder {
 	 * @param array $insert
 	 * @return resource
 	 */
-	function runInsertNew($table, array $fields, array $insert = array()) {
+	function runInsertNew($table, array $fields, array $insert = array())
+	{
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$res = $this->runSelectQuery($table, $fields);
 		if (!$this->db->numRows($res)) {
@@ -577,12 +597,14 @@ class SQLBuilder {
 		return $resInsert;
 	}
 
-	function runInsertQuery($table, array $columns) {
+	function runInsertQuery($table, array $columns)
+	{
 		$query = $this->getInsertQuery($table, $columns);
 		return $this->db->perform($query);
 	}
 
-	function getFoundOrLastID($inserted) {
+	function getFoundOrLastID($inserted)
+	{
 		if ($inserted) {
 			$authorID = $this->db->lastInsertID();
 		} else {
@@ -591,38 +613,42 @@ class SQLBuilder {
 		return $authorID;
 	}
 
-	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '') {
+	function fetchSelectQuery($table, array $where, $order = "", $addSelect = '')
+	{
 		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		$data = $this->db->fetchAll($this->db->perform($query));
 		return $data;
 	}
 
-	function runUpdateQuery($table, array $columns, array $where) {
+	function runUpdateQuery($table, array $columns, array $where)
+	{
 		$query = $this->getUpdateQuery($table, $columns, $where);
 		return $this->db->perform($query);
 	}
 
 	/**
 	 * Originates from BBMM
-	 * @param type $sword
+	 * @param string $sword
 	 * @param array $fields
-	 * @return AsIs
+	 * @return array
 	 */
-	function getSearchWhere($sword, array $fields) {
+	function getSearchWhere($sword, array $fields)
+	{
 		$where = array();
 		$words = $this->getSplitWords($sword);
 		foreach ($words as $word) {
 			$like = array();
 			foreach ($fields as $field) {
-				$like[] = $field . " LIKE '%".mysql_real_escape_string($word)."%'";
+				$like[] = $field . " LIKE '%" . mysql_real_escape_string($word) . "%'";
 			}
-			$where['0'] = new AsIsOp(' = 0 AND ('.implode(' OR ', $like).')');
+			$where['0'] = new AsIsOp(' = 0 AND (' . implode(' OR ', $like) . ')');
 		}
 		//debug($where);
 		return $where;
 	}
 
-	function getSplitWords($sword) {
+	function getSplitWords($sword)
+	{
 		$sword = trim($sword);
 		$words = explode(' ', $sword);
 		$words = array_map('trim', $words);
@@ -633,7 +659,8 @@ class SQLBuilder {
 		return $words;
 	}
 
-	function combineSplitTags($words) {
+	function combineSplitTags($words)
+	{
 		$new = array();
 		$i = 0;
 		foreach ($words as $word) {
@@ -642,7 +669,7 @@ class SQLBuilder {
 				++$i;
 				$in = true;
 			}
-			$new[$i] = $new[$i] ? $new[$i] . ' ' . $word : $word.'';
+			$new[$i] = $new[$i] ? $new[$i] . ' ' . $word : $word . '';
 			if (!$in || ($in && $word->contains(']'))) {
 				++$i;
 				$in = false;
@@ -652,18 +679,21 @@ class SQLBuilder {
 		return $new;
 	}
 
-	function runDeleteQuery($table, array $where) {
+	function runDeleteQuery($table, array $where)
+	{
 		return $this->db->perform($this->getDeleteQuery($table, $where));
 	}
 
-	function __call($method, array $params) {
+	function __call($method, array $params)
+	{
 		return call_user_func_array(array($this->db, $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL) {
+	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = NULL)
+	{
 		$res = $this->runSelectQuery($table, $where, $order,
-			'DISTINCT '.$this->quoteKey($titleField).' AS title'.
-			($idField ? ', '.$this->quoteKey($idField).' AS id_field' : ''),
+			'DISTINCT ' . $this->quoteKey($titleField) . ' AS title' .
+			($idField ? ', ' . $this->quoteKey($idField) . ' AS id_field' : ''),
 			true);
 		//debug($this->db->lastQuery, $this->db->numRows($res), $idField);
 		if ($idField) {
@@ -688,7 +718,8 @@ class SQLBuilder {
 	 * @param string $key can be set to NULL to avoid assoc array
 	 * @return array
 	 */
-	function fetchAll($res, $key = NULL) {
+	function fetchAll($res, $key = NULL)
+	{
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		if (is_string($res)) {
 			$res = $this->perform($res);
@@ -710,10 +741,11 @@ class SQLBuilder {
 	}
 
 	/**
-	 * @var string $query
 	 * @return resource
+	 * @var string $query
 	 */
-	function getIterator($query) {
+	function getIterator($query)
+	{
 		if ($this->db instanceof dbLayerPDO) {
 			$res = $this->db->perform($query);
 			return $res;

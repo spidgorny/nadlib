@@ -7,6 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-interface TaskInterface {
+interface TaskInterface
+{
 	public function process(array $data);
 }

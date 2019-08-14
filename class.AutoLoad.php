@@ -1,6 +1,7 @@
 <?php
 
-class AutoLoad {
+class AutoLoad
+{
 
 	/**
 	 * @var array
@@ -62,14 +63,15 @@ class AutoLoad {
 	 * to be able to modify $useCookies
 	 * #see register()
 	 */
-	protected function __construct() {
+	protected function __construct()
+	{
 		require_once __DIR__ . '/HTTP/class.URL.php';
 		require_once __DIR__ . '/HTTP/class.Request.php';
 
-		$this->nadlibRoot = dirname(__FILE__).'/';
+		$this->nadlibRoot = dirname(__FILE__) . '/';
 		$this->appRoot = $this->detectAppRoot();
 		$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
-		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot).'/';
+		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot) . '/';
 
 		if (false) {
 			echo '<pre>';
@@ -80,7 +82,8 @@ class AutoLoad {
 		$this->loadConfig();
 	}
 
-	function debug() {
+	function debug()
+	{
 		$scriptWithPath = URL::getScriptWithPath();
 		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
 		$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__FILE__));
@@ -109,25 +112,27 @@ class AutoLoad {
 	 * but since $this->nadlibRoot is relative "../" it's impossible.
 	 * Now we go back one folder until we find "class/class.Config.php" which MUST exist
 	 */
-	function detectAppRoot() {
+	function detectAppRoot()
+	{
 		$appRoot = dirname(URL::getScriptWithPath());
 		$appRoot = realpath($appRoot);
 		//debug('$this->appRoot', $this->appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && $appRoot != '/'
-			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
+			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)    // u:\
 		) {
-			$exists = file_exists($appRoot.DIRECTORY_SEPARATOR.'class'.DIRECTORY_SEPARATOR.'class.Config.php');
+			$exists = file_exists($appRoot . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php');
 			//debug($appRoot, strlen($appRoot), $exists);
 			if ($exists) {
 				break;
 			}
 			$appRoot = dirname($appRoot);
 		}
-		return $appRoot.DIRECTORY_SEPARATOR;
+		return $appRoot . DIRECTORY_SEPARATOR;
 	}
 
-	function loadConfig() {
+	function loadConfig()
+	{
 		nodebug(array(
 			dirname($_SERVER['SCRIPT_FILENAME']),
 			getcwd(),
@@ -137,7 +142,7 @@ class AutoLoad {
 		}
 		if (!class_exists('Config')) {
 			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath = $this->appRoot.'class'.DIRECTORY_SEPARATOR.'class.Config.php';
+			$configPath = $this->appRoot . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php';
 			//var_dump($configPath, file_exists($configPath)); exit();
 			if (file_exists($configPath)) {
 				include_once $configPath;
@@ -149,8 +154,9 @@ class AutoLoad {
 		}
 	}
 
-	function initFolders() {
-        //if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
+	function initFolders()
+	{
+		//if (isset($_SESSION[__CLASS__])) unset($_SESSION[__CLASS__]);
 		$this->folders = $this->getFolders();
 		if (false) {
 			print '<pre>';
@@ -160,13 +166,14 @@ class AutoLoad {
 		}
 	}
 
-	function getFolders() {
+	function getFolders()
+	{
 		require_once __DIR__ . '/HTTP/class.Request.php';
 		$folders = array();
 		if (!Request::isCLI()) {
 			if ($this->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
-				session_set_cookie_params(0, '');	// current folder
+				session_set_cookie_params(0, '');    // current folder
 				session_start();
 
 				if (isset($_SESSION[__CLASS__])) {
@@ -182,7 +189,7 @@ class AutoLoad {
 
 		if (!$folders) {
 			$folders = array();
-			$folders = array_merge($folders, $this->getFoldersFromConfig());		// should come first to override /be/
+			$folders = array_merge($folders, $this->getFoldersFromConfig());        // should come first to override /be/
 			$folders = array_merge($folders, $this->getFoldersFromConfigBase());
 		}
 		//debug($folders);
@@ -190,7 +197,8 @@ class AutoLoad {
 		return $folders;
 	}
 
-	function getFoldersFromConfig() {
+	function getFoldersFromConfig()
+	{
 		$folders = array();
 		if (class_exists('Config') && Config::$includeFolders) {
 			$folders = Config::$includeFolders;
@@ -205,13 +213,14 @@ class AutoLoad {
 		return $folders;
 	}
 
-	function getFoldersFromConfigBase() {
-		$folders = ConfigBase::$includeFolders;	// only ConfigBase here
+	function getFoldersFromConfigBase()
+	{
+		$folders = ConfigBase::$includeFolders;    // only ConfigBase here
 		// append $this->nadlibRoot before each
 		//if (basename(getcwd()) != 'be') {
-			foreach ($folders as &$el) {
-				$el = $this->nadlibRoot . $el;
-			}
+		foreach ($folders as &$el) {
+			$el = $this->nadlibRoot . $el;
+		}
 		/*} else {
 			foreach ($folders as &$el) {
 				$el = '../'. $el;
@@ -222,7 +231,8 @@ class AutoLoad {
 		return $folders;
 	}
 
-	function __destruct() {
+	function __destruct()
+	{
 		if ($this->useCookies) {
 			$_SESSION[__CLASS__]['classFileMap'] = $this->classFileMap;
 			$_SESSION[__CLASS__]['folders'] = $this->folders;
@@ -234,16 +244,17 @@ class AutoLoad {
 	 * @param $class
 	 * @throws Exception
 	 */
-	function load($class) {
+	function load($class)
+	{
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->count++;
 
 		$namespaces = explode('\\', $class);
-		$classFile = end($namespaces);				// why?
+		$classFile = end($namespaces);                // why?
 
-		$subFolders = explode('/', $classFile);		// Download/GetAllRoutes
-		$classFile = array_pop($subFolders);		// [Download, GetAllRoutes]
-		$subFolders = implode('/', $subFolders);	// Download
+		$subFolders = explode('/', $classFile);        // Download/GetAllRoutes
+		$classFile = array_pop($subFolders);        // [Download, GetAllRoutes]
+		$subFolders = implode('/', $subFolders);    // Download
 
 		$file = isset($this->classFileMap[$class]) ? $this->classFileMap[$class] : NULL;
 		$file2 = str_replace('class.', '', $file);
@@ -263,13 +274,13 @@ class AutoLoad {
 		}
 
 		if (!class_exists($class) && !interface_exists($class)) {
-			unset($_SESSION[__CLASS__]['folders']);	// just in case
+			unset($_SESSION[__CLASS__]['folders']);    // just in case
 			//debug($this->folders);
 			if (false && class_exists('Config')) {
 				$config = Config::getInstance();
 				if ($config->config['autoload']['notFoundException']) {
 					if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
-					throw new Exception('Class '.$class.' ('.$file.') not found.');
+					throw new Exception('Class ' . $class . ' (' . $file . ') not found.');
 				}
 			}
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
@@ -279,35 +290,37 @@ class AutoLoad {
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__);
 	}
 
-	function findInFolders($classFile, $subFolders) {
+	function findInFolders($classFile, $subFolders)
+	{
 		foreach ($this->folders as $path) {
 			$file =
 				//dirname(__FILE__).DIRECTORY_SEPARATOR.
 				//dirname($_SERVER['SCRIPT_FILENAME']).DIRECTORY_SEPARATOR.
 				//$this->nadlibRoot.
-				$path.DIRECTORY_SEPARATOR.
-				$subFolders.//DIRECTORY_SEPARATOR.
-				'class.'.$classFile.'.php';
+				$path . DIRECTORY_SEPARATOR .
+				$subFolders .//DIRECTORY_SEPARATOR.
+				'class.' . $classFile . '.php';
 
 			// pre-check for file without "class." prefix
 			if (!file_exists($file)) {
-				$file2 = str_replace(DIRECTORY_SEPARATOR.'class.', DIRECTORY_SEPARATOR, $file);
+				$file2 = str_replace(DIRECTORY_SEPARATOR . 'class.', DIRECTORY_SEPARATOR, $file);
 				if (file_exists($file2)) {
 					$file = $file2;
 				}
 			}
 
 			if (file_exists($file)) {
-				$this->log($classFile.' <span style="color: green;">'.$file.'</span>: YES<br />'."\n");
+				$this->log($classFile . ' <span style="color: green;">' . $file . '</span>: YES<br />' . "\n");
 				$this->classFileMap[$classFile] = $file;
 				return $file;
 			} else {
-				$this->log($classFile.' <span style="color: red;">'.$file.'</span>: no<br />'."\n");
+				$this->log($classFile . ' <span style="color: red;">' . $file . '</span>: no<br />' . "\n");
 			}
 		}
 	}
 
-	function log($debugLine) {
+	function log($debugLine)
+	{
 		if ($this->debug && $_COOKIE['debug']) {
 			if (Request::isCLI()) {
 				echo strip_tags($debugLine);
@@ -320,14 +333,16 @@ class AutoLoad {
 	/**
 	 * @return AutoLoad
 	 */
-	static function getInstance() {
+	static function getInstance()
+	{
 		if (!self::$instance) {
 			self::$instance = new self();
 		}
 		return self::$instance;
 	}
 
-	static function register() {
+	static function register()
+	{
 		$instance = self::getInstance();
 		$instance->initFolders();
 		spl_autoload_register(array($instance, 'load'), true, true);    // before composer

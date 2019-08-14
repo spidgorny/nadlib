@@ -2,14 +2,16 @@
 
 require_once 'tests/IteratorArrayAccessTest.php';
 
-class ArrayPlusTest extends IteratorArrayAccessTest {
+class ArrayPlusTest extends IteratorArrayAccessTest
+{
 
 	/**
 	 * @var ArrayPlus $ai
 	 */
 	protected $ai;
 
-	function setUp() {
+	function setUp()
+	{
 		$this->ai = new ArrayPlus(array(
 			0 => 'a',
 			1 => 'b',
@@ -17,7 +19,8 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		));
 	}
 
-	function test_typoscript() {
+	function test_typoscript()
+	{
 		$a = array(
 			'a' => 'b',
 			'c' => array(
@@ -36,12 +39,13 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		), $b);
 	}
 
-    function test_unset() {
-        unset($this->ai[1]);
-        $this->assertEquals(array(
-            0 => 'a',
-            'slawa' => 'test'
-        ), $this->ai->getData());
-    }
+	function test_unset()
+	{
+		unset($this->ai[1]);
+		$this->assertEquals(array(
+			0 => 'a',
+			'slawa' => 'test'
+		), $this->ai->getData());
+	}
 
 }

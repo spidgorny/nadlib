@@ -4,7 +4,8 @@
  * Class dbLayerORA is completely deprecated.
  * There's not even a documentation on the php.net.
  */
-class dbLayerORA extends dbLayer {
+class dbLayerORA extends dbLayer
+{
 	var $CONNECTION = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -12,25 +13,30 @@ class dbLayerORA extends dbLayer {
 	var $debug = FALSE;
 	var $debugOnce = FALSE;
 
-	function dbLayerORA($tns, $pass) {
+	function dbLayerORA($tns, $pass)
+	{
 		$this->connect($tns, '', $pass);
 	}
 
-	function connect($tns, $user, $pass, $host = 'localhost') {
+	function connect($tns, $user, $pass, $host = 'localhost')
+	{
 		$this->CONNECTION = ora_logon($tns, $pass);
 		ora_commiton($this->CONNECTION);
 		return $this->CONNECTION;
 	}
 
-	function getConnection() {
+	function getConnection()
+	{
 		return $this->CONNECTION;
 	}
 
-	function disconnect() {
+	function disconnect()
+	{
 		ora_logoff($this->CONNECTION);
 	}
 
-	function perform($query, $canprint = TRUE) {
+	function perform($query, $canprint = TRUE)
+	{
 		$this->COUNTQUERIES++;
 		if ($this->debugOnce || $this->debug) {
 			//debug($query);
@@ -40,7 +46,7 @@ class dbLayerORA extends dbLayer {
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
 		$this->LAST_PERFORM_RESULT = ora_open($this->CONNECTION);
-		ora_parse($cursor, $query, TRUE) or	$canprint ? my_print_backtrace($query) : '';
+		ora_parse($cursor, $query, TRUE) or $canprint ? my_print_backtrace($query) : '';
 		ora_exec($this->LAST_PERFORM_RESULT);
 
 		list($time2['usec'], $time2['sec']) = explode(" ", microtime());
@@ -90,25 +96,30 @@ class dbLayerORA extends dbLayer {
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-	function done($result) {
+	function done($result)
+	{
 		ora_close($result);
 	}
 
-	function transaction($serializable = false) {
+	function transaction($serializable = false)
+	{
 		// everything is a transaction in oracle
 		ora_commitoff($this->CONNECTION);
 	}
 
-	function commit() {
+	function commit()
+	{
 		ora_commit($this->CONNECTION);
 		ora_commiton($this->CONNECTION);
 	}
 
-	function rollback() {
+	function rollback()
+	{
 		ora_rollback($this->CONNECTION);
 	}
 
-	function quoteSQL($value) {
+	function quoteSQL($value)
+	{
 		if ($value == "CURRENT_TIMESTAMP") {
 			return $value;
 		} else if ($value === NULL) {
@@ -120,12 +131,13 @@ class dbLayerORA extends dbLayer {
 		} else if (is_numeric($value)) {
 			return $value;
 		} else {
-			return "'".pg_escape_string($value)."'";
+			return "'" . pg_escape_string($value) . "'";
 		}
 	}
 
-	function fetchAssoc($result) {
-		$res = ora_fetch_into($result, $array, ORA_FETCHINTO_NULLS|ORA_FETCHINTO_ASSOC);
+	function fetchAssoc($result)
+	{
+		$res = ora_fetch_into($result, $array, ORA_FETCHINTO_NULLS | ORA_FETCHINTO_ASSOC);
 		if ($res) {
 			return $array;
 		} else {
@@ -133,7 +145,8 @@ class dbLayerORA extends dbLayer {
 		}
 	}
 
-	function numRows($result) {
+	function numRows($result)
+	{
 		return ora_numrows($result);
 	}
 

@@ -1,6 +1,7 @@
 <?php
 
-class MemcacheFile {
+class MemcacheFile
+{
 
 	/**
 	 * @used in ClearCache
@@ -8,18 +9,20 @@ class MemcacheFile {
 	 */
 	public $folder = 'cache/';
 
-	function __construct() {
+	function __construct()
+	{
 		$sub = Config::getInstance()->appRoot;
 
-		if (!file_exists($sub.$this->folder)) {
-			debug(__METHOD__, $sub.$this->folder);
+		if (!file_exists($sub . $this->folder)) {
+			debug(__METHOD__, $sub . $this->folder);
 			die();
 		} else {
 			$this->folder = $sub . DIRECTORY_SEPARATOR . $this->folder;
 		}
 	}
 
-	function map($key) {
+	function map($key)
+	{
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
 		$key = str_replace('::', '-', $key);
@@ -31,25 +34,28 @@ class MemcacheFile {
 		return $file;
 	}
 
-	function set($key, $val) {
+	function set($key, $val)
+	{
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$file = $this->map($key);
 		if (is_writable($this->folder)) {
 			file_put_contents($file, serialize($val));
-			@chmod($file, 0777);	// needed for cronjob accessing cache files
+			@chmod($file, 0777);    // needed for cronjob accessing cache files
 		} else {
 			if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
-			throw new Exception($file.' write access denied.');
+			throw new Exception($file . ' write access denied.');
 		}
 		if ($GLOBALS['prof']) $GLOBALS['prof']->stopTimer(__METHOD__);
 	}
 
-	function isValid($key, $expire = 0) {
+	function isValid($key, $expire = 0)
+	{
 		$file = $this->map($key);
 		return !$expire || (@filemtime($file) > (time() - $expire));
 	}
 
-	function get($key, $expire = 0) {
+	function get($key, $expire = 0)
+	{
 		if ($GLOBALS['prof']) $GLOBALS['prof']->startTimer(__METHOD__);
 		$file = $this->map($key);
 		if ($this->isValid($key, $expire)) {
@@ -62,7 +68,8 @@ class MemcacheFile {
 		return $val;
 	}
 
-	function clearCache($key) {
+	function clearCache($key)
+	{
 		$file = $this->map($key);
 		if (file_exists($file)) {
 			//debug('<font color="green">Deleting '.$file.'</font>');
@@ -74,16 +81,17 @@ class MemcacheFile {
 	 * @param $key
 	 * @return Duration
 	 */
-	function getAge($key) {
+	function getAge($key)
+	{
 		$file = $this->map($key);
 		return new Duration(time() - @filemtime($file));
 	}
 
-/**
- * unfinished
- * static function getInstance($file, $expire) {
-		$mf = new self();
-		$get = $mf->get($file, $expire);
-	}
- */
+	/**
+	 * unfinished
+	 * static function getInstance($file, $expire) {
+	 * $mf = new self();
+	 * $get = $mf->get($file, $expire);
+	 * }
+	 */
 }

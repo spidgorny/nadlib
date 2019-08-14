@@ -1,6 +1,7 @@
 <?php
 
-class Documentation extends AppControllerBE {
+class Documentation extends AppControllerBE
+{
 
 	protected $folder;
 
@@ -8,7 +9,8 @@ class Documentation extends AppControllerBE {
 
 	protected $method;
 
-	function render() {
+	function render()
+	{
 		$content = '';
 		$this->folder = $this->request->getTrim('folder');
 		if ($this->folder) {
@@ -23,15 +25,16 @@ class Documentation extends AppControllerBE {
 		return $content;
 	}
 
-	function renderClass() {
+	function renderClass()
+	{
 		$content = '';
-		$content .= '<hr><h4 style="display: inline-block;">'.$this->class.'</h4>';
+		$content .= '<hr><h4 style="display: inline-block;">' . $this->class . '</h4>';
 		$rc = new ReflectionClass($this->class);
 		$content .= ' <small class="muted">
-			<a href="file://'.$rc->getFileName().'">'.$rc->getFileName().'</a>
+			<a href="file://' . $rc->getFileName() . '">' . $rc->getFileName() . '</a>
 		</small>';
 		$content .= $this->getParentClassLinks($rc);
-		$content .= '<pre>'.htmlspecialchars($rc->getDocComment()).'</pre>';
+		$content .= '<pre>' . htmlspecialchars($rc->getDocComment()) . '</pre>';
 		$methods = $rc->getMethods();
 		$this->method = $this->request->getTrim('method');
 		$content .= $this->listMethods($this->folder, $this->class, $methods);
@@ -41,15 +44,16 @@ class Documentation extends AppControllerBE {
 		return $content;
 	}
 
-	function renderMethod(ReflectionClass $rc) {
+	function renderMethod(ReflectionClass $rc)
+	{
 		$content = '';
 		$rf = $rc->getMethod($this->method);
-		$content .= '<pre>'.htmlspecialchars("\t".$rf->getDocComment()).'</pre>';
-		$content .= implode(' ', Reflection::getModifierNames($rf->getModifiers())) .' <b>'. $rf->getName() . '</b>';
+		$content .= '<pre>' . htmlspecialchars("\t" . $rf->getDocComment()) . '</pre>';
+		$content .= implode(' ', Reflection::getModifierNames($rf->getModifiers())) . ' <b>' . $rf->getName() . '</b>';
 		$params = $rf->getParameters();
 		if ($params) {
 			foreach ($params as &$param) {
-				$line = $param->getPosition() .': ';
+				$line = $param->getPosition() . ': ';
 				//$line .= $param->getName();
 				if ($param->isDefaultValueAvailable()) {
 					//$line .= ' = '.var_export($param->getDefaultValue(), true);
@@ -57,12 +61,13 @@ class Documentation extends AppControllerBE {
 				$line .= substr(substr($param->__toString(), 14), 0, -1);
 				$param = $line;
 			}
-			$content .= '<ul><li>'.implode('</li><li>', $params).'</li></ul>';
+			$content .= '<ul><li>' . implode('</li><li>', $params) . '</li></ul>';
 		}
 		return $content;
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = '';
 		$folders = $this->getFolders();
 		foreach ($folders as $path => &$file) {
@@ -74,14 +79,16 @@ class Documentation extends AppControllerBE {
 				'class' => $this->folder == $path ? 'bold' : '',
 			), $file);
 		}
-		$content .= '<ul><li>'.implode('</li><li>', $folders).'</li></ul>';
+		$content .= '<ul><li>' . implode('</li><li>', $folders) . '</li></ul>';
 		return $content;
 	}
 
-	function getFolders() {
+	function getFolders()
+	{
 		$folders = array();
 		$it = new DirectoryIterator('../');
-		foreach ($it as $file) { /** @var $file SplFileInfo */
+		foreach ($it as $file) {
+			/** @var $file SplFileInfo */
 			if ($file->isDir()) {
 				$filename = $file->getFilename();
 				if ($filename{0} != '.') {
@@ -92,10 +99,12 @@ class Documentation extends AppControllerBE {
 		return $folders;
 	}
 
-	function getFiles($folder) {
+	function getFiles($folder)
+	{
 		$files = array();
 		$it = new DirectoryIterator($folder);
-		foreach ($it as $file) { /** @var $file SplFileInfo */
+		foreach ($it as $file) {
+			/** @var $file SplFileInfo */
 			if ($file->isFile()) {
 				$filename = $file->getFilename();
 				if (startsWith($filename, 'class.')) {
@@ -106,7 +115,8 @@ class Documentation extends AppControllerBE {
 		return $files;
 	}
 
-	function listFiles(array $files) {
+	function listFiles(array $files)
+	{
 		foreach ($files as $path => &$file) {
 			$class = str_replace('class.', '', $file);
 			$class = str_replace('.php', '', $class);
@@ -119,11 +129,12 @@ class Documentation extends AppControllerBE {
 				'class' => $this->class == $class ? 'bold' : '',
 			), $file);
 		}
-		$content = '<ul style="-moz-column-count: 2"><li>'.implode('</li><li>', $files).'</li></ul>';
+		$content = '<ul style="-moz-column-count: 2"><li>' . implode('</li><li>', $files) . '</li></ul>';
 		return $content;
 	}
 
-	function listMethods($folder, $class, array $methods) {
+	function listMethods($folder, $class, array $methods)
+	{
 		foreach ($methods as &$method) {
 			$method = $method->getName();
 			$method = new HTMLTag('a', array(
@@ -136,26 +147,27 @@ class Documentation extends AppControllerBE {
 				'class' => $this->method == $method ? 'bold' : '',
 			), $method);
 		}
-		$content = '<ul style="-moz-column-count: 3"><li>'.implode('</li><li>', $methods).'</li></ul>';
+		$content = '<ul style="-moz-column-count: 3"><li>' . implode('</li><li>', $methods) . '</li></ul>';
 		return $content;
 	}
 
-	function getParentClassLinks(ReflectionClass $rc, $level = 0) {
+	function getParentClassLinks(ReflectionClass $rc, $level = 0)
+	{
 		$content = '';
 		if ($rc->getParentClass()) {
-			$content .= ' <i class="icon-arrow-right"></i> '.
+			$content .= ' <i class="icon-arrow-right"></i> ' .
 				new HTMLTag('a', array(
-						'href' => new URL('', array(
-							'c' => __CLASS__,
-							'folder' => $this->folder,
-							'class' => $rc->getParentClass()->getName(),
-						)),
-					), $rc->getParentClass()->getName()
+					'href' => new URL('', array(
+						'c' => __CLASS__,
+						'folder' => $this->folder,
+						'class' => $rc->getParentClass()->getName(),
+					)),
+				), $rc->getParentClass()->getName()
 				);
-			$content .= $this->getParentClassLinks($rc->getParentClass(), $level+1);
+			$content .= $this->getParentClassLinks($rc->getParentClass(), $level + 1);
 		}
 		if (!$level) {
-			$content = '<h5>'.$content.'</h5>';
+			$content = '<h5>' . $content . '</h5>';
 		}
 		return $content;
 	}

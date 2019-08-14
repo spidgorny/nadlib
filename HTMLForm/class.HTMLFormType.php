@@ -5,7 +5,8 @@
  *
  */
 
-abstract class HTMLFormType {
+abstract class HTMLFormType
+{
 
 	/**
 	 * @var HTMLForm
@@ -16,14 +17,17 @@ abstract class HTMLFormType {
 	public $fullname;
 	public $value;
 
-	function __construct() {
+	function __construct()
+	{
 	}
 
-	function setField($field) {
+	function setField($field)
+	{
 		$this->field = $field;
 	}
 
-	function setForm(HTMLFormTable $f) {
+	function setForm(HTMLFormTable $f)
+	{
 		$this->form = $f;
 		$this->fullname = $this->form->getName($this->field, '', TRUE);
 	}
@@ -33,7 +37,8 @@ abstract class HTMLFormType {
 	 *
 	 * @param unknown_type $value - 10:00-13:30
 	 */
-	function setValue($value) {
+	function setValue($value)
+	{
 		$this->value = $value;
 	}
 

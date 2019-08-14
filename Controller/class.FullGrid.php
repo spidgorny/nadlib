@@ -1,11 +1,13 @@
 <?php
 
-abstract class FullGrid extends Grid {
+abstract class FullGrid extends Grid
+{
 
 	/**
 	 * @param string $collection
 	 */
-	function __construct($collection = NULL) {
+	function __construct($collection = NULL)
+	{
 		parent::__construct();
 
 		// menu is making an instance of each class because of tryMenuSuffix
@@ -21,7 +23,8 @@ abstract class FullGrid extends Grid {
 		}
 	}
 
-	function postInit() {
+	function postInit()
+	{
 		if ($this->collection) {
 			$this->collection->retrieveDataFromDB();
 		}
@@ -31,19 +34,21 @@ abstract class FullGrid extends Grid {
 	 * Can't use $this->collection at this point as this function is used to initialize the collection!
 	 * @return string
 	 */
-	function getOrderBy() {
+	function getOrderBy()
+	{
 		$sortBy = $this->sort['sortBy'];
 		if ($this->model->thes && is_array($this->model->thes[$sortBy]) && $this->model->thes[$sortBy]['source']) {
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
 		$sortBy = $sortBy ? $sortBy : $this->model->idField;
 		if ($sortBy) {
-			$ret = 'ORDER BY '.$this->db->quoteKey($sortBy).' '.($this->sort['sortOrder'] ? 'DESC' : 'ASC');
+			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' . ($this->sort['sortOrder'] ? 'DESC' : 'ASC');
 		}
 		return $ret;
 	}
 
-	function render() {
+	function render()
+	{
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
 				if (!in_array($cn, $this->columns)) {
@@ -60,7 +65,8 @@ abstract class FullGrid extends Grid {
 	 * Converts $this->filter data from URL into SQL where parameters
 	 * @return array
 	 */
-	function getFilterWhere() {
+	function getFilterWhere()
+	{
 		$where = array();
 
 		foreach ($this->filter as $key => $val) {
@@ -72,13 +78,15 @@ abstract class FullGrid extends Grid {
 		return $where;
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = $this->getFilterForm();
 		$content .= $this->getColumnsForm();
 		return $content;
 	}
 
-	function getFilterForm(array $fields = NULL) {
+	function getFilterForm(array $fields = NULL)
+	{
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
@@ -97,7 +105,8 @@ abstract class FullGrid extends Grid {
 	 * @param array $fields
 	 * @return array
 	 */
-	function getFilterDesc(array $fields = NULL) {
+	function getFilterDesc(array $fields = NULL)
+	{
 		$fields = $fields ? $fields : $this->model->thes;
 		$fields = $fields ? $fields : $this->collection->thes;
 		$fields = is_array($fields) ? $fields : array();
@@ -106,12 +115,12 @@ abstract class FullGrid extends Grid {
 		$desc = array();
 		foreach ($fields as $key => $k) {
 			if (!$k['noFilter']) {
-				$autoClass = ucfirst(str_replace('id_', '', $key)).'Collection';
+				$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 				if (class_exists($autoClass) &&
 					in_array('HTMLFormCollection', class_implements($autoClass))) {
 					$type = new $autoClass();
 					$options = NULL;
-				} elseif ($k['tf']) {	// boolean
+				} elseif ($k['tf']) {    // boolean
 					$type = 'select';
 					$stv = new slTableValue('', array());
 					$options = array(
@@ -122,7 +131,7 @@ abstract class FullGrid extends Grid {
 				} else {
 					$type = 'select';
 					$options = $this->getTableFieldOptions($k['dbField'] ? $k['dbField'] : $key, false);
-					$options = ArrayPlus::create($options)->trim()->getData();	// convert to string for === operation
+					$options = ArrayPlus::create($options)->trim()->getData();    // convert to string for === operation
 					//debug($options);
 					$options = array_combine_stringkey($options, $options); // will only work for strings, ID to other table needs to avoid it
 					//debug($options);
@@ -142,25 +151,27 @@ abstract class FullGrid extends Grid {
 		return $desc;
 	}
 
-	function getTableFieldOptions($key, $count = false) {
+	function getTableFieldOptions($key, $count = false)
+	{
 		$res = $this->db->getTableOptions($this->model->table
 			? $this->model->table
 			: $this->collection->table,
-		$key, array(), 'ORDER BY title', $this->model->idField);
+			$key, array(), 'ORDER BY title', $this->model->idField);
 
 		if ($count) {
 			foreach ($res as &$val) {
 				$copy = clone $this->collection;
 				$copy->where[$key] = $val;
 				$copy->retrieveDataFromDB();
-				$val .= ' ('.sizeof($copy->data).')';
+				$val .= ' (' . sizeof($copy->data) . ')';
 			}
 		}
 
 		return $res;
 	}
 
-	function getColumnsForm() {
+	function getColumnsForm()
+	{
 		$desc = array(
 			'columns' => array(
 				'label' => 'Visible<br />',

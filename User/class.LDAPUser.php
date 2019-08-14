@@ -1,6 +1,7 @@
 <?php
 
-class LDAPUser extends UserBase {
+class LDAPUser extends UserBase
+{
 
 	public $UserID;
 	public $UserName;
@@ -10,11 +11,13 @@ class LDAPUser extends UserBase {
 	 */
 	public $data;
 
-	function __construct(array $ldapInfo = array()) {
+	function __construct(array $ldapInfo = array())
+	{
 		$this->initLDAP($ldapInfo);
 	}
 
-	function initLDAP(array $ldapInfo = array()) {
+	function initLDAP(array $ldapInfo = array())
+	{
 		$goodKeys = array_filter(array_keys($ldapInfo), 'is_string');
 		$ldapInfo = array_intersect_key($ldapInfo, array_flip($goodKeys));
 		$this->data = $ldapInfo;
@@ -23,11 +26,13 @@ class LDAPUser extends UserBase {
 		$this->UserName = $this->data['fullname'][0];
 	}
 
-	function getName() {
-		return $this->UserName.' ('.$this->UserID.') <'.$this->data['mail'][0].'>';
+	function getName()
+	{
+		return $this->UserName . ' (' . $this->UserID . ') <' . $this->data['mail'][0] . '>';
 	}
 
-	function try2login() {
+	function try2login()
+	{
 		if ($_SESSION['user']) {
 			$this->id = $_SESSION['user']->id;
 			$this->data = $_SESSION['user']->data;
@@ -36,7 +41,8 @@ class LDAPUser extends UserBase {
 		}
 	}
 
-	function saveLogin() {
+	function saveLogin()
+	{
 		$obj = new stdClass();
 		$obj->id = $this->id;
 		$obj->data = $this->data;
@@ -45,7 +51,8 @@ class LDAPUser extends UserBase {
 		$_SESSION['user'] = $obj;
 	}
 
-	function logout() {
+	function logout()
+	{
 		unset($_SESSION['user']);
 	}
 
@@ -53,7 +60,8 @@ class LDAPUser extends UserBase {
 	 * Simplifies $this->data for display
 	 * @return array
 	 */
-	function getInfo() {
+	function getInfo()
+	{
 		$simpleData = array();
 		foreach ($this->data as $field => $data) {
 			if (is_array($data) && $data['count'] == 1) {

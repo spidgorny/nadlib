@@ -4,7 +4,8 @@
  * Base class in order to check instanceof SQLWherePart
  */
 
-class SQLWhereEqual extends SQLWherePart {
+class SQLWhereEqual extends SQLWherePart
+{
 
 	/**
 	 * $this->field is inherited
@@ -18,15 +19,17 @@ class SQLWhereEqual extends SQLWherePart {
 	 */
 	protected $db;
 
-	function __construct($field, $val) {
+	function __construct($field, $val)
+	{
 		$this->field = $field;
 		$this->val = $val;
 		$this->db = Config::getInstance()->db;
 	}
 
-	function __toString() {
-		if (is_numeric($this->val)) {	// leading 0 leads to problems
-			$sql = "({$this->field} = ".$this->val." OR {$this->field} = '".$this->val."')";
+	function __toString()
+	{
+		if (is_numeric($this->val)) {    // leading 0 leads to problems
+			$sql = "({$this->field} = " . $this->val . " OR {$this->field} = '" . $this->val . "')";
 		} elseif (is_null($this->val)) {
 			$sql = $this->field . ' IS NULL';
 		} else {
@@ -35,7 +38,8 @@ class SQLWhereEqual extends SQLWherePart {
 		return $sql;
 	}
 
-	function debug() {
+	function debug()
+	{
 		return $this->__toString();
 	}
 

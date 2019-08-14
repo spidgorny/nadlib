@@ -6,17 +6,20 @@
  * This class stores the structure in JSON files and then reads them back.
  * This gives a more reliable comparison.
  */
-class AlterTable extends AlterIndex {
+class AlterTable extends AlterIndex
+{
 
-	function renderTableStruct(array $struct, array $local) {
-		$func = 'renderTableStruct'.get_class($this->db);
+	function renderTableStruct(array $struct, array $local)
+	{
+		$func = 'renderTableStruct' . get_class($this->db);
 		return call_user_func(array($this, $func), $struct, $local);
 	}
 
-	function renderTableStructMySQL(array $struct, array $local) {
+	function renderTableStructMySQL(array $struct, array $local)
+	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4>Table: '.$table.'</h4>';
+			$content .= '<h4>Table: ' . $table . '</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
@@ -26,18 +29,18 @@ class AlterTable extends AlterIndex {
 					//$content .= getDebug($index, $localIndex);
 					if (is_array($index)) {
 						$indexCompare[] = array('same' => 'sql file',
-							'###TR_MORE###' => 'style="background: pink"',
+								'###TR_MORE###' => 'style="background: pink"',
 							) + $index;
 					}
 					if (is_array($localIndex)) {
 						$indexCompare[] = array('same' => 'database',
-							'###TR_MORE###' => 'style="background: pink"',
-						) + $localIndex;
+								'###TR_MORE###' => 'style="background: pink"',
+							) + $localIndex;
 					} else {
 						$indexCompare[] = array(
 							'Field' => new HTMLTag('td', array(
-									'colspan' => 10,
-								), $this->getAlterQuery($table, $index)
+								'colspan' => 10,
+							), $this->getAlterQuery($table, $index)
 							),
 						);
 					}
@@ -48,35 +51,35 @@ class AlterTable extends AlterIndex {
 					$indexCompare[] = $index;
 				}
 			}
-			$s = new slTable($indexCompare, 'class="table"', array (
-				'same' =>				array (
+			$s = new slTable($indexCompare, 'class="table"', array(
+				'same' => array(
 					'name' => 'same',
 				),
-				'Field' =>				array (
+				'Field' => array(
 					'name' => 'Field',
 				),
-				'Type' =>				array (
+				'Type' => array(
 					'name' => 'Type',
 				),
-				'Collation' =>				array (
+				'Collation' => array(
 					'name' => 'Collation',
 				),
-				'Null' =>				array (
+				'Null' => array(
 					'name' => 'Null',
 				),
-				'Key' =>				array (
+				'Key' => array(
 					'name' => 'Key',
 				),
-				'Default' =>				array (
+				'Default' => array(
 					'name' => 'Default',
 				),
-				'Extra' =>				array (
+				'Extra' => array(
 					'name' => 'Extra',
 				),
-/*				'Privileges' =>				array (
-					'name' => 'Privileges',
-				),
-*/				'Comment' =>				array (
+				/*				'Privileges' =>				array (
+									'name' => 'Privileges',
+								),
+				*/ 'Comment' => array(
 					'name' => 'Comment',
 				),
 			));
@@ -85,21 +88,23 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function getAlterQuery($table, array $index) {
-		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
-		' '.$index['Type'].
-		' '.(($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL').
-		' '.($index['Collation'] ? 'COLLATE '.$index['Collation'] : '').
-		' '.($index['Default'] ? "DEFAULT '".$index['Default']."'" : '').
-		' '.($index['Comment'] ? "COMMENT '".$index['Comment']."'" : '').
-		' '.$index['Extra'];
+	function getAlterQuery($table, array $index)
+	{
+		$query = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index['Field'] .
+			' ' . $index['Type'] .
+			' ' . (($index['Null'] == 'NO') ? 'NOT NULL' : 'NULL') .
+			' ' . ($index['Collation'] ? 'COLLATE ' . $index['Collation'] : '') .
+			' ' . ($index['Default'] ? "DEFAULT '" . $index['Default'] . "'" : '') .
+			' ' . ($index['Comment'] ? "COMMENT '" . $index['Comment'] . "'" : '') .
+			' ' . $index['Extra'];
 		return $query;
 	}
 
-	function renderTableStructdbLayerBL(array $struct, array $local) {
+	function renderTableStructdbLayerBL(array $struct, array $local)
+	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4>Table: '.$table.'</h4>';
+			$content .= '<h4>Table: ' . $table . '</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['columns'] as $i => $index) {
@@ -111,16 +116,16 @@ class AlterTable extends AlterIndex {
 
 				if ($index == $localIndex) {
 					$indexCompare[] = array('same' => 'sql file',
-						'###TR_MORE###' => 'style="background: lightgreen"',
-						'Field' => $i,
+							'###TR_MORE###' => 'style="background: lightgreen"',
+							'Field' => $i,
 						) + $index;
 				} else {
 					$indexCompare[] = array('same' => 'json file',
-						'###TR_MORE###' => 'style="background: yellow"',
+							'###TR_MORE###' => 'style="background: yellow"',
 						) + $index;
 					$indexCompare[] = array('same' => 'database',
-						'###TR_MORE###' => 'style="color: white; background: red"',
-						'Field' => $i,
+							'###TR_MORE###' => 'style="color: white; background: red"',
+							'Field' => $i,
 						) + $localIndex;
 					$indexCompare[] = array('same' => 'ALTER',
 						'###TR_MORE###' => 'style="color: white; background: green"',
@@ -141,19 +146,21 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function getAlterQueryDBLayer($table, array $index) {
-		$query = 'ALTER TABLE '.$table.' ADD COLUMN '.$index['Field'].
-			' '.$index['type'].
-			' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
-			' '.($index['not null'] ? 'NOT NULL' : 'NULL');
+	function getAlterQueryDBLayer($table, array $index)
+	{
+		$query = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index['Field'] .
+			' ' . $index['type'] .
+			' ' . (($index['len'] > 0) ? ' (' . $index['len'] . ')' : '') .
+			' ' . ($index['not null'] ? 'NOT NULL' : 'NULL');
 		return $query;
 	}
 
-	function getChangeQueryDBLayer($table, array $index) {
-		$query = 'ALTER TABLE '.$table.' ALTER COLUMN '.$index['Field'].' '.$index['Field'].
-			' '.$index['type'].
-			' '.(($index['len'] > 0) ? ' ('.$index['len'].')' : '').
-			' '.($index['not null'] ? 'NOT NULL' : 'NULL');
+	function getChangeQueryDBLayer($table, array $index)
+	{
+		$query = 'ALTER TABLE ' . $table . ' ALTER COLUMN ' . $index['Field'] . ' ' . $index['Field'] .
+			' ' . $index['type'] .
+			' ' . (($index['len'] > 0) ? ' (' . $index['len'] . ')' : '') .
+			' ' . ($index['not null'] ? 'NOT NULL' : 'NULL');
 		return $query;
 	}
 

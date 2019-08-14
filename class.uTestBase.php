@@ -1,10 +1,12 @@
 <?php
 
-class uTestBase extends AppControllerBE {
+class uTestBase extends AppControllerBE
+{
 	protected $start;
-	protected $stat = array();			// true/false counter
+	protected $stat = array();            // true/false counter
 
-	function render() {
+	function render()
+	{
 		$content = '<style>
 	body, td {
 		/*font-size: 9pt;*/
@@ -41,7 +43,7 @@ class uTestBase extends AppControllerBE {
 				$contentPlus = call_user_func(array($this, $function));
 				$debug = ob_get_clean();
 				if ($debug) {
-					$content .= '<tr><td colspan="99">'.$debug.'</td></tr>';
+					$content .= '<tr><td colspan="99">' . $debug . '</td></tr>';
 				}
 				$content .= $contentPlus;
 			}
@@ -53,13 +55,15 @@ class uTestBase extends AppControllerBE {
 		return $content;
 	}
 
-	function get_var_dump($a) {
+	function get_var_dump($a)
+	{
 		ob_start();
 		var_dump($a);
 		return ob_get_clean();
 	}
 
-	function assertEqual($v1, $v2, $comment = '', $bool = NULL) {
+	function assertEqual($v1, $v2, $comment = '', $bool = NULL)
+	{
 		$row = array();
 		$dbt = debug_backtrace();
 		if (in_array($dbt[1]['function'], array('assert', 'assertNotEqual'))) {
@@ -78,8 +82,8 @@ class uTestBase extends AppControllerBE {
 
 		$row['result'] = '';
 
-		$row['v1'] = $v1.'' == 'Array' ? '<pre style="font-size: 8pt;">'.htmlspecialchars($this->get_var_dump($v1, TRUE)).'</pre>' : $v1.'';
-		$row['v2'] = $v2.'' == 'Array' ? '<pre style="font-size: 8pt;">'.htmlspecialchars($this->get_var_dump($v2, TRUE)).'</pre>' : $v2.'';
+		$row['v1'] = $v1 . '' == 'Array' ? '<pre style="font-size: 8pt;">' . htmlspecialchars($this->get_var_dump($v1, TRUE)) . '</pre>' : $v1 . '';
+		$row['v2'] = $v2 . '' == 'Array' ? '<pre style="font-size: 8pt;">' . htmlspecialchars($this->get_var_dump($v2, TRUE)) . '</pre>' : $v2 . '';
 
 		if (is_null($bool)) {
 			$bool = $v1 == $v2;
@@ -94,20 +98,23 @@ class uTestBase extends AppControllerBE {
 		$row['dur'] = number_format(microtime(TRUE) - $this->start, 3, '.', '');
 
 		static $odd = 0;
-		$content = '<tr class="'.($odd++%2?'odd':'').'"><td>'.implode('</td><td>', $row).'</td></tr>';
+		$content = '<tr class="' . ($odd++ % 2 ? 'odd' : '') . '"><td>' . implode('</td><td>', $row) . '</td></tr>';
 		return $content;
 	}
 
-	function assert($bool) {
+	function assert($bool)
+	{
 		$content = $this->assertEqual($bool, TRUE);
 		return $content;
 	}
 
-	function assertNotEqual($v1, $v2, $comment = NULL) {
+	function assertNotEqual($v1, $v2, $comment = NULL)
+	{
 		return $this->assertEqual($v1, $v2, $comment, $v1 !== $v2);
 	}
 
-	function test_OK() {
+	function test_OK()
+	{
 		return $this->assertEqual(1, 1, '1=1?');
 	}
 

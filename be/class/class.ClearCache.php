@@ -1,19 +1,22 @@
 <?php
 
-class ClearCache extends AppControllerBE {
+class ClearCache extends AppControllerBE
+{
 
 	var $dir = 'cache/';
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		$mf = new MemcacheFile();
 		$this->dir = $mf->folder;
 	}
 
-	function render() {
+	function render()
+	{
 		$content = $this->performAction();
 		$files = $this->getFiles();
-		$content .= '<h1>Files in '.$this->dir.' ('.sizeof($files).')</h1>';
+		$content .= '<h1>Files in ' . $this->dir . ' (' . sizeof($files) . ')</h1>';
 		$s = new slTable($files, '', array(
 			'filelink' => array(
 				'name' => 'file',
@@ -30,16 +33,17 @@ class ClearCache extends AppControllerBE {
 		return $content;
 	}
 
-	function getFiles() {
+	function getFiles()
+	{
 		$files = scandir($this->dir);
 		//debug(sizeof($files));
 		foreach ($files as $f => $file) {
 			if ($file{0} != '.') {
 				$files[$f] = array(
 					'file' => $file,
-					'filelink' => '<a href="../../../../cache/'.$file.'">'.$file.'</a>',
-					'size' => filesize($this->dir.$file),
-					'date' => filemtime($this->dir.$file),
+					'filelink' => '<a href="../../../../cache/' . $file . '">' . $file . '</a>',
+					'size' => filesize($this->dir . $file),
+					'date' => filemtime($this->dir . $file),
 				);
 			} else {
 				unset($files[$f]);
@@ -48,16 +52,18 @@ class ClearCache extends AppControllerBE {
 		return $files;
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		return $this->getActionButton('Clear Cache', 'clear');
 	}
 
-	function clearAction() {
+	function clearAction()
+	{
 		$files = $this->getFiles();
 		foreach ($files as $file) {
-			$ext = pathinfo($this->dir.$file, PATHINFO_EXTENSION);
+			$ext = pathinfo($this->dir . $file, PATHINFO_EXTENSION);
 			if (in_array($ext, array('', 'cache'))) {
-				unlink($this->dir.$file['file']);
+				unlink($this->dir . $file['file']);
 				//echo $file, "\n";
 				echo '.';
 			}

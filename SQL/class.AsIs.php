@@ -12,18 +12,22 @@
  *
  * Well, it's clever enough to use "=" sign for WHERE and UPDATE queries and nothing in INSERT.
  */
-class AsIs extends SQLWherePart {
+class AsIs extends SQLWherePart
+{
 	protected $value;
 
-	function __construct($value) {
+	function __construct($value)
+	{
 		$this->value = $value;
 	}
 
-	function __toString() {
-		return $this->value.'';
+	function __toString()
+	{
+		return $this->value . '';
 	}
 
-	function getValue() {
+	function getValue()
+	{
 		return $this->value;
 	}
 

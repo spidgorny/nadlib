@@ -1,8 +1,10 @@
 <?php
 
-class FE extends AppControllerBE {
+class FE extends AppControllerBE
+{
 
-	function render() {
+	function render()
+	{
 		return '';
 	}
 

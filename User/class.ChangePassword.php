@@ -1,10 +1,12 @@
 <?php
 
-class ChangePassword extends HTMLFormProcessor {
+class ChangePassword extends HTMLFormProcessor
+{
 	protected $minLength = 8;
 	protected $submitButton = 'Change';
 
-	function getDesc() {
+	function getDesc()
+	{
 		$desc = array();
 		$desc['password']['label'] = __('Password');
 		$desc['password']['append'] = __('Min: %s chars.', $this->minLength);
@@ -14,12 +16,13 @@ class ChangePassword extends HTMLFormProcessor {
 		return $desc;
 	}
 
-	function onSuccess(array $data) {
+	function onSuccess(array $data)
+	{
 		$content = '';
 		if (strlen($data['password']) >= 6) {
 			if ($data['password'] == $data['repeat']) {
 				$this->user->updatePassword($data['password']);
-				$content .= '<div class="message">'.__('Password changed.').'</div>';
+				$content .= '<div class="message">' . __('Password changed.') . '</div>';
 			} else {
 				throw new Exception(__('Passwords mismatch. Please try again.'));
 			}

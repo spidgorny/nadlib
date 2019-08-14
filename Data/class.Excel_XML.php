@@ -82,7 +82,7 @@ class Excel_XML
 	 * @access private
 	 * @var array
 	 */
-	private $lines = array ();
+	private $lines = array();
 
 	/**
 	 * Worksheet title
@@ -101,7 +101,7 @@ class Excel_XML
 	 * @param array 1-dimensional array
 	 * @todo Row-creation should be done by $this->addArray
 	 */
-	private function addRow ($array)
+	private function addRow($array)
 	{
 
 		// initialize all cells for this row
@@ -113,7 +113,8 @@ class Excel_XML
 			if (is_numeric($v)) {
 				$dataType = 'Number';
 			}
-			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . /*utf8_encode*/($v) . "</Data></Cell>\n";
+			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . /*utf8_encode*/
+				($v) . "</Data></Cell>\n";
 
 		endforeach;
 
@@ -132,12 +133,12 @@ class Excel_XML
 	 * @param array 2-dimensional array
 	 * @todo Can be transfered to __construct() later on
 	 */
-	public function addArray ($array)
+	public function addArray($array)
 	{
 
 		// run through the array and add them into rows
 		foreach ($array as $k => $v):
-			$this->addRow ($v);
+			$this->addRow($v);
 		endforeach;
 
 	}
@@ -153,14 +154,14 @@ class Excel_XML
 	 * @access public
 	 * @param string $title Designed title
 	 */
-	public function setWorksheetTitle ($title)
+	public function setWorksheetTitle($title)
 	{
 
 		// strip out special chars first
-		$title = preg_replace ("/[\\\|:|\/|\?|\*|\[|\]]/", "", $title);
+		$title = preg_replace("/[\\\|:|\/|\?|\*|\[|\]]/", "", $title);
 
 		// now cut it to the allowed length
-		$title = substr ($title, 0, 31);
+		$title = substr($title, 0, 31);
 
 		// set title
 		$this->worksheet_title = $title;
@@ -176,17 +177,18 @@ class Excel_XML
 	 * @access public
 	 * @param string $filename Name of excel file to generate (...xls)
 	 */
-	function generateXML ($filename) {
+	function generateXML($filename)
+	{
 		// deliver header (as recommended in php manual)
 		header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
 		header("Content-Disposition: inline; filename=\"" . $filename . ".xls\"");
 
 		// print out document to the browser
 		// need to use stripslashes for the damn ">"
-		echo stripslashes ($this->header);
+		echo stripslashes($this->header);
 		echo "\n<Worksheet ss:Name=\"" . $this->worksheet_title . "\">\n<Table>\n";
 		echo "<Column ss:Index=\"1\" ss:AutoFitWidth=\"0\" ss:Width=\"110\"/>\n";
-		echo implode ("\n", $this->lines);
+		echo implode("\n", $this->lines);
 		echo "</Table>\n</Worksheet>\n";
 		echo $this->footer;
 	}

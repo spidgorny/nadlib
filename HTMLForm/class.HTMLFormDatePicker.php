@@ -1,6 +1,7 @@
 <?php
 
-class HTMLFormDatePicker extends HTMLFormType {
+class HTMLFormDatePicker extends HTMLFormType
+{
 	/**
 	 * PHP Format
 	 * @var string
@@ -21,26 +22,28 @@ class HTMLFormDatePicker extends HTMLFormType {
 	 * @internal param string $name
 	 * @internal param array $value - array of minutes
 	 */
-	function __construct() {
-		Index::getInstance()->addJQueryUI();	// for the picker
+	function __construct()
+	{
+		Index::getInstance()->addJQueryUI();    // for the picker
 		Index::getInstance()->addJS('vendor/spidgorny/nadlib/js/HTMLFormDatePicker.js');
 	}
 
-	function render() {
+	function render()
+	{
 		if ($this->value && $this->value != '0000-00-00') {
 			if (is_integer($this->value) || is_numeric($this->value)) {
 				$val = date($this->format, $this->value);
 			} else {
-				$val = strtotime($this->value);	// hope for Y-m-d
+				$val = strtotime($this->value);    // hope for Y-m-d
 				$val = date($this->format, $val);
 			}
 		} else {
 			$val = '';
 		}
 		$this->form->input($this->field, $val, array(
-			'format' => $this->jsFormat
-		) + $this->jsParams,
-		$this->inputType, 'datepicker');
+				'format' => $this->jsFormat
+			) + $this->jsParams,
+			$this->inputType, 'datepicker');
 	}
 
 	/**
@@ -48,7 +51,8 @@ class HTMLFormDatePicker extends HTMLFormType {
 	 * @param $value
 	 * @return int
 	 */
-	function getISODate($value) {
+	function getISODate($value)
+	{
 		//debug($value, is_integer($value), is_numeric($value), strtotime($value));
 		if ($value && (is_integer($value) || is_numeric($value))) {
 			$val = intval($value);
@@ -61,7 +65,7 @@ class HTMLFormDatePicker extends HTMLFormType {
 			$val = $value;
 			$val = strtotime($val);
 		} else {
-			$val = NULL;	// time();
+			$val = NULL;    // time();
 		}
 		//debug($this->jsFormat, $value, $val);
 		return $val;

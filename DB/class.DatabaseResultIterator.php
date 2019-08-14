@@ -5,7 +5,8 @@
  * completely. (wrong!?)
  */
 
-class DatabaseResultIterator implements Iterator, Countable {
+class DatabaseResultIterator implements Iterator, Countable
+{
 
 	/**
 	 * If defined it will influence the key() method return value
@@ -44,35 +45,41 @@ class DatabaseResultIterator implements Iterator, Countable {
 	 */
 	var $db;
 
-	function __construct(dbLayerBase $db, $defaultKey = NULL) { // 'uid'
+	function __construct(dbLayerBase $db, $defaultKey = NULL)
+	{ // 'uid'
 		$this->defaultKey = $defaultKey;
 		//$this->db = Config::getInstance()->db;
 		$this->db = $db;
 	}
 
-	function perform($query) {
+	function perform($query)
+	{
 		$this->dbResultResource = $this->db->perform($query);
 		$this->rows = $this->count();
 		//debug($this->rows);
 		$this->rewind();
 	}
 
-	function rewind() {
+	function rewind()
+	{
 		if ($this->rows) {
 			$this->db->dataSeek($this->dbResultResource, 0);
 			$this->next();
 		}
 	}
 
-	function current() {
+	function current()
+	{
 		return $this->row;
 	}
 
-	function key() {
+	function key()
+	{
 		return $this->key;
 	}
 
-	function next() {
+	function next()
+	{
 		$this->row = $this->retrieveRow();
 		if ($this->defaultKey) {
 			$this->key = $this->row[$this->defaultKey];
@@ -82,7 +89,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 		return $this->row;
 	}
 
-	function retrieveRow() {
+	function retrieveRow()
+	{
 		$row = $this->db->fetchRow($this->dbResultResource);
 		return $row;
 	}
@@ -91,11 +99,13 @@ class DatabaseResultIterator implements Iterator, Countable {
 	 * dbLayer returns [] if pg_fetch_assoc() returns FALSE
 	 * @return bool
 	 */
-	function valid() {
+	function valid()
+	{
 		return $this->row !== FALSE && $this->row !== [];
 	}
 
-	function count() {
+	function count()
+	{
 		return $this->db->numRows($this->dbResultResource);
 	}
 
@@ -103,7 +113,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 	 * Should not be used - against the purpose, but nice for debugging
 	 * @return array
 	 */
-	function fetchAll() {
+	function fetchAll()
+	{
 		$data = array();
 		foreach ($this as $row) {
 			$data[] = $row;
@@ -111,7 +122,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 		return $data;
 	}
 
-	function __destruct() {
+	function __destruct()
+	{
 		$this->db->free($this->dbResultResource);
 	}
 

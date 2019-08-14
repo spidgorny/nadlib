@@ -1,8 +1,10 @@
 <?php
 
-class SysInfo extends AppController {
+class SysInfo extends AppController
+{
 
-	function render() {
+	function render()
+	{
 		$a = array();
 		$a['phpVersion'] = phpversion();
 		$a['modRewrite'] = $this->request->apacheModuleRewrite();

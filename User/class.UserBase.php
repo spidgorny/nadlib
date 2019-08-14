@@ -1,6 +1,7 @@
 <?php
 
-abstract class UserBase extends OODBase {
+abstract class UserBase extends OODBase
+{
 
 	public $table = 'user';
 
@@ -16,7 +17,8 @@ abstract class UserBase extends OODBase {
 	 *
 	 * @param int $id
 	 */
-	public function __construct($id = NULL) {
+	public function __construct($id = NULL)
+	{
 		parent::__construct($id);
 	}
 
@@ -24,7 +26,8 @@ abstract class UserBase extends OODBase {
 	 * @param null $id
 	 * @return User
 	 */
-	public static function getInstance($id) {
+	public static function getInstance($id)
+	{
 		if (!($obj = self::$instances[$id])) {
 			$static = 'User'; //get_class($this);
 			$obj = new $static($id);
@@ -38,7 +41,8 @@ abstract class UserBase extends OODBase {
 		return $obj;
 	}
 
-	public static function unsetInstance($id) {
+	public static function unsetInstance($id)
+	{
 		unset(self::$instances[$id]);
 		//debug(self::$instances);
 	}
@@ -49,7 +53,8 @@ abstract class UserBase extends OODBase {
 	 */
 	//abstract function autologin();
 
-	function __destruct() {
+	function __destruct()
+	{
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
@@ -64,7 +69,8 @@ abstract class UserBase extends OODBase {
 	 * @param string $password - plain text password (no, it's md5'ed already)
 	 * @return boolean
 	 */
-	function checkPassword($login, $password) {
+	function checkPassword($login, $password)
+	{
 		$query = $this->db->getSelectQuery($this->table, array('email' => $login));
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
@@ -81,27 +87,29 @@ abstract class UserBase extends OODBase {
 	 * Will NOT md5 password inside as Client is UserBased.
 	 *
 	 * @param array $data
-	 * @throws Exception
 	 * @return unknown
+	 * @throws Exception
 	 */
-	function insert(array $data) {
-        //debug($data);
-        if ($data['email']) {
-            $this->findInDB(array('email' => $data['email']));
-            if ($this->id) {
-                throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
-            } else {
-                //$data['password'] = md5($data['password']);
-                return $this->insertNoUserCheck($data);
-            }
-        } else {
-            $index = Index::getInstance();
-            $index->error('No email provided.');
-        }
+	function insert(array $data)
+	{
+		//debug($data);
+		if ($data['email']) {
+			$this->findInDB(array('email' => $data['email']));
+			if ($this->id) {
+				throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
+			} else {
+				//$data['password'] = md5($data['password']);
+				return $this->insertNoUserCheck($data);
+			}
+		} else {
+			$index = Index::getInstance();
+			$index->error('No email provided.');
+		}
 		return NULL;
 	}
 
-	function insertNoUserCheck(array $data) {
+	function insertNoUserCheck(array $data)
+	{
 		$data['ctime'] = new AsIs('NOW()');
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -110,15 +118,18 @@ abstract class UserBase extends OODBase {
 		$this->findInDB($data);
 	}
 
-	function setPref($key, $val) {
+	function setPref($key, $val)
+	{
 		$this->prefs[$key] = $val;
 	}
 
-	function getPref($key) {
+	function getPref($key)
+	{
 		return $this->prefs[$key];
 	}
 
-	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {
+	function getSetPref($key, $prio1 = NULL, $prio3 = NULL)
+	{
 		$prio2 = $this->getPref($key);
 		if ($prio1 != NULL) {
 			$val = $prio1;
@@ -127,30 +138,34 @@ abstract class UserBase extends OODBase {
 		} else {
 			$val = $prio3;
 		}
-/*		debug(array(
-			$prio1,
-			$prio2,
-			$prio3,
-			$val,
-		));
-*/		$this->setPref($key, $val);
+		/*		debug(array(
+					$prio1,
+					$prio2,
+					$prio3,
+					$val,
+				));
+		*/
+		$this->setPref($key, $val);
 		return $val;
 	}
 
-	function isAuth() {
+	function isAuth()
+	{
 		return !!$this->id;
 	}
 
-	function getHTML() {
+	function getHTML()
+	{
 		$content = '<div class="user">
-			<img src="'.$this->getGravatarURL(24).'" class="gravatar24">'.
-			$this->getName().
+			<img src="' . $this->getGravatarURL(24) . '" class="gravatar24">' .
+			$this->getName() .
 			'</div>';
 		return $content;
 	}
 
-	function getGravatarURL($gravatarSize = 50) {
-		return 'http://www.gravatar.com/avatar/'.md5(strtolower(trim($this->data['email']))).'?s='.intval($gravatarSize);
+	function getGravatarURL($gravatarSize = 50)
+	{
+		return 'http://www.gravatar.com/avatar/' . md5(strtolower(trim($this->data['email']))) . '?s=' . intval($gravatarSize);
 	}
 
 }

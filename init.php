@@ -5,9 +5,9 @@ if (php_sapi_name() == 'cli') {
 } else {
 	define('BR', "<br />\n");
 }
-define('TAB', "\t");
 
-class InitNADLIB {
+class InitNADLIB
+{
 
 	var $useCookies = true;
 
@@ -16,12 +16,14 @@ class InitNADLIB {
 	 */
 	var $al;
 
-	function __construct() {
+	function __construct()
+	{
 		require_once dirname(__FILE__) . '/class.AutoLoad.php';
 		$this->al = AutoLoad::getInstance();
 	}
 
-	function init() {
+	function init()
+	{
 		//print_r($_SERVER);
 
 		$debug = ifsetor($_COOKIE['debug']);
@@ -29,9 +31,10 @@ class InitNADLIB {
 			? (Request::isWindows() || $debug) // at home
 			: ($debug)
 		);
+		define('TAB', "\t");
 
-		date_default_timezone_set('Europe/Berlin');	// before using header()
-		Mb_Internal_Encoding ( 'UTF-8' );
+		date_default_timezone_set('Europe/Berlin');    // before using header()
+		Mb_Internal_Encoding('UTF-8');
 		setlocale(LC_ALL, 'UTF-8');
 
 		if (DEVELOPMENT) {
@@ -56,13 +59,13 @@ class InitNADLIB {
 		}
 
 		if (DEVELOPMENT) {
-			$GLOBALS['profiler'] = new TaylorProfiler(true);	// GLOBALS
+			$GLOBALS['profiler'] = new TaylorProfiler(true);    // GLOBALS
 			/* @var $profiler TaylorProfiler */
 			if (class_exists('Config')) {
 				//print_r(Config::getInstance()->config['Config']);
 				set_time_limit(Config::getInstance()->timeLimit
 					? Config::getInstance()->timeLimit
-					: 5);	// small enough to notice if the site is having perf. problems
+					: 5);    // small enough to notice if the site is having perf. problems
 			}
 			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
 			if (!Request::isCLI()) {
@@ -83,8 +86,9 @@ class InitNADLIB {
 		}
 	}
 
-	function initWhoops() {
-		$run     = new Whoops\Run;
+	function initWhoops()
+	{
+		$run = new Whoops\Run;
 		$handler = new Whoops\Handler\PrettyPageHandler;
 		$run->pushHandler($handler);
 		$run->register();
@@ -96,43 +100,46 @@ class InitNADLIB {
  * May already be defined in TYPO3
  */
 if (!function_exists('debug')) {
-function debug($a) {
-    $params = func_get_args();
-    if (method_exists('Debug', 'debug_args')) {
-	    if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
-		    $fp = FirePHP::getInstance(true);
-			if ($fp->detectClientExtension()) {
-				$fp->setOption('includeLineNumbers', true);
-				$fp->setOption('maxArrayDepth', 10);
-				$fp->setOption('maxDepth', 20);
-				$trace = Debug::getSimpleTrace();
-				array_shift($trace);
-				if ($trace) {
-					$fp->table(implode(' ', first($trace)), $trace);
+	function debug($a)
+	{
+		$params = func_get_args();
+		if (method_exists('Debug', 'debug_args')) {
+			if (class_exists('FirePHP') && !Request::isCLI() && !headers_sent()) {
+				$fp = FirePHP::getInstance(true);
+				if ($fp->detectClientExtension()) {
+					$fp->setOption('includeLineNumbers', true);
+					$fp->setOption('maxArrayDepth', 10);
+					$fp->setOption('maxDepth', 20);
+					$trace = Debug::getSimpleTrace();
+					array_shift($trace);
+					if ($trace) {
+						$fp->table(implode(' ', first($trace)), $trace);
+					}
+					$fp->log(1 == sizeof($params) ? $a : $params);
+				} else {
+					call_user_func_array(array('Debug', 'debug_args'), $params);
 				}
-				$fp->log(1 == sizeof($params) ? $a : $params);
 			} else {
 				call_user_func_array(array('Debug', 'debug_args'), $params);
 			}
-	    } else {
-		    call_user_func_array(array('Debug', 'debug_args'), $params);
-	    }
-	} else {
-		ob_start();
-		var_dump(
-			func_num_args() == 1 ? $a : $params
-		);
-		$dump = ob_get_clean();
-		$dump = str_replace("=>\n", ' =>', $dump);
-		echo '<pre>'.htmlspecialchars($dump).'</pre>';
+		} else {
+			ob_start();
+			var_dump(
+				func_num_args() == 1 ? $a : $params
+			);
+			$dump = ob_get_clean();
+			$dump = str_replace("=>\n", ' =>', $dump);
+			echo '<pre>' . htmlspecialchars($dump) . '</pre>';
+		}
 	}
 }
+
+function nodebug()
+{
 }
 
-function nodebug() {
-}
-
-function getDebug() {
+function getDebug()
+{
 	ob_start();
 	$tmp = $_COOKIE['debug'];
 	$_COOKIE['debug'] = 1;
@@ -142,18 +149,20 @@ function getDebug() {
 	return ob_get_clean();
 }
 
-function pre_print_r($a) {
+function pre_print_r($a)
+{
 	echo '<pre style="white-space: pre-wrap;">';
 	print_r($a);
 	echo '</pre>';
 }
 
-function debug_once() {
+function debug_once()
+{
 	static $used = array();
 	$trace = debug_backtrace();
-	array_shift($trace);	// debug_once itself
+	array_shift($trace);    // debug_once itself
 	$first = array_shift($trace);
-	$key = $first['file'].'.'.$first['line'];
+	$key = $first['file'] . '.' . $first['line'];
 	if (!$used[$key]) {
 		$v = func_get_args();
 		//$v[] = $key;
@@ -162,7 +171,8 @@ function debug_once() {
 	}
 }
 
-function debug_size($a) {
+function debug_size($a)
+{
 	if (is_object($a)) {
 		$vals = get_object_vars($a);
 		$keys = array_keys($vals);
@@ -190,7 +200,8 @@ if (!function_exists('startsWith')) {
 	 * @param string|string[] $needle
 	 * @return bool
 	 */
-	function startsWith($haystack, $needle) {
+	function startsWith($haystack, $needle)
+	{
 		if (!is_array($needle)) {
 			$needle = array($needle);
 		}
@@ -208,8 +219,9 @@ if (!function_exists('startsWith')) {
 	 * @param $needle
 	 * @return bool
 	 */
-	function endsWith($haystack, $needle) {
-		return strrpos($haystack, $needle) === (strlen($haystack)-strlen($needle));
+	function endsWith($haystack, $needle)
+	{
+		return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 	}
 
 }
@@ -221,9 +233,10 @@ if (!function_exists('startsWith')) {
  * @param null $max
  * @return array
  */
-function trimExplode($sep, $str, $max = NULL) {
+function trimExplode($sep, $str, $max = NULL)
+{
 	if ($max) {
-		$parts = explode($sep, $str, $max);		// checked by isset so NULL makes it 0
+		$parts = explode($sep, $str, $max);        // checked by isset so NULL makes it 0
 	} else {
 		$parts = explode($sep, $str);
 	}
@@ -233,7 +246,8 @@ function trimExplode($sep, $str, $max = NULL) {
 	return $parts;
 }
 
-function debug_pre_print_backtrace() {
+function debug_pre_print_backtrace()
+{
 	if (DEVELOPMENT) {
 		print '<pre>';
 		if (phpversion() >= '5.3') {
@@ -252,33 +266,34 @@ function debug_pre_print_backtrace() {
  * @param int $tabDepth
  * @return mixed
  */
-function tab2nbsp ($text, $tabDepth = 4) {
-    $tabSpaces = str_repeat('&nbsp;', $tabDepth);
-    return str_replace("\t", $tabSpaces, $text);
+function tab2nbsp($text, $tabDepth = 4)
+{
+	$tabSpaces = str_repeat('&nbsp;', $tabDepth);
+	return str_replace("\t", $tabSpaces, $text);
 }
 
 /**
  * http://djomla.blog.com/2011/02/16/php-versions-5-2-and-5-3-get_called_class/
  */
-if(!function_exists('get_called_class')) {
-	function get_called_class($bt = false, $l = 1) {
+if (!function_exists('get_called_class')) {
+	function get_called_class($bt = false, $l = 1)
+	{
 		if (!$bt) $bt = debug_backtrace();
 		if (!isset($bt[$l])) throw new Exception("Cannot find called class -> stack level too deep.");
 		if (!isset($bt[$l]['type'])) {
 			throw new Exception ('type not set');
-		}
-		else switch ($bt[$l]['type']) {
+		} else switch ($bt[$l]['type']) {
 			case '::':
 				$lines = file($bt[$l]['file']);
 				$i = 0;
 				$callerLine = '';
 				do {
 					$i++;
-					$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
+					$callerLine = $lines[$bt[$l]['line'] - $i] . $callerLine;
 					$findLine = stripos($callerLine, $bt[$l]['function']);
 				} while ($callerLine && $findLine === false);
-				$callerLine = $lines[$bt[$l]['line']-$i] . $callerLine;
-				preg_match('/([a-zA-Z0-9\_]+)::'.$bt[$l]['function'].'/',
+				$callerLine = $lines[$bt[$l]['line'] - $i] . $callerLine;
+				preg_match('/([a-zA-Z0-9\_]+)::' . $bt[$l]['function'] . '/',
 					$callerLine,
 					$matches);
 				if (!isset($matches[1])) {
@@ -288,20 +303,23 @@ if(!function_exists('get_called_class')) {
 				switch ($matches[1]) {
 					case 'self':
 					case 'parent':
-						return get_called_class($bt,$l+1);
+						return get_called_class($bt, $l + 1);
 					default:
 						return $matches[1];
 				}
 			// won't get here.
-			case '->': switch ($bt[$l]['function']) {
-				case '__get':
-					// edge case -> get class of calling object
-					if (!is_object($bt[$l]['object'])) throw new Exception ("Edge case fail. __get called on non object.");
-					return get_class($bt[$l]['object']);
-				default: return $bt[$l]['class'];
-			}
+			case '->':
+				switch ($bt[$l]['function']) {
+					case '__get':
+						// edge case -> get class of calling object
+						if (!is_object($bt[$l]['object'])) throw new Exception ("Edge case fail. __get called on non object.");
+						return get_class($bt[$l]['object']);
+					default:
+						return $bt[$l]['class'];
+				}
 
-			default: throw new Exception ("Unknown backtrace method type");
+			default:
+				throw new Exception ("Unknown backtrace method type");
 		}
 	}
 }
@@ -311,7 +329,8 @@ if(!function_exists('get_called_class')) {
  * @param array $list
  * @return array|mixed
  */
-function first(array $list) {
+function first(array $list)
+{
 	reset($list);
 	return current($list);
 }
@@ -322,7 +341,8 @@ function first(array $list) {
  * @param array $list
  * @return mixed
  */
-function eachv(array &$list) {
+function eachv(array &$list)
+{
 	$current = current($list);
 	next($list);
 	return $current;
@@ -334,7 +354,8 @@ function eachv(array &$list) {
  * @param array $b
  * @return array
  */
-function array_combine_stringkey(array $a, array $b) {
+function array_combine_stringkey(array $a, array $b)
+{
 	$ret = array();
 	reset($b);
 	foreach ($a as $key) {
@@ -349,27 +370,24 @@ function array_combine_stringkey(array $a, array $b) {
  * @param $class
  * @return array|null
  */
-function get_overriden_methods($class) {
+function get_overriden_methods($class)
+{
 	$rClass = new ReflectionClass($class);
 	$array = NULL;
 
-	foreach ($rClass->getMethods() as $rMethod)
-	{
-		try
-		{
+	foreach ($rClass->getMethods() as $rMethod) {
+		try {
 			// attempt to find method in parent class
 			new ReflectionMethod($rClass->getParentClass()->getName(),
 				$rMethod->getName());
 			// check whether method is explicitly defined in this class
 			if ($rMethod->getDeclaringClass()->getName()
-				== $rClass->getName())
-			{
+				== $rClass->getName()) {
 				// if so, then it is overriden, so add to array
-				$array[] .=  $rMethod->getName();
+				$array[] .= $rMethod->getName();
 			}
+		} catch (exception $e) {    /* was not in parent class! */
 		}
-		catch (exception $e)
-		{    /* was not in parent class! */    }
 	}
 
 	return $array;
@@ -380,7 +398,8 @@ function get_overriden_methods($class) {
  * @param $arr
  * @return bool
  */
-function is_assoc($arr) {
+function is_assoc($arr)
+{
 	return array_keys($arr) !== range(0, count($arr) - 1);
 }
 
@@ -394,7 +413,8 @@ function is_assoc($arr) {
  * @return null
  * @see https://wiki.php.net/rfc/ifsetor
  */
-function ifsetor(&$variable, $default = null) {
+function ifsetor(&$variable, $default = null)
+{
 	if (isset($variable)) {
 		$tmp = $variable;
 	} else {
@@ -403,7 +423,8 @@ function ifsetor(&$variable, $default = null) {
 	return $tmp;
 }
 
-function gettype2($something, $withHash = true) {
+function gettype2($something, $withHash = true)
+{
 	$type = gettype($something);
 	if ($type == 'object') {
 		if ($withHash) {
@@ -436,7 +457,8 @@ function gettype2($something, $withHash = true) {
  * @param $something array
  * @return array
  */
-function gettypes($something) {
+function gettypes($something)
+{
 	if (is_array($something)) {
 		$types = array();
 		foreach ($something as $key => $element) {
@@ -449,7 +471,8 @@ function gettypes($something) {
 	//return json_encode($types, JSON_PRETTY_PRINT);
 }
 
-function cap($string, $with = '/') {
+function cap($string, $with = '/')
+{
 	$string .= '';
 	if (!str_endsWith($string, $with)) {
 		$string .= $with;
@@ -463,7 +486,8 @@ function cap($string, $with = '/') {
  * @param string|string[] $needle
  * @return bool
  */
-function str_startsWith($haystack, $needle) {
+function str_startsWith($haystack, $needle)
+{
 	if (!is_array($needle)) {
 		$needle = array($needle);
 	}
@@ -481,11 +505,13 @@ function str_startsWith($haystack, $needle) {
  * @param $needle
  * @return bool
  */
-function str_endsWith($haystack, $needle) {
+function str_endsWith($haystack, $needle)
+{
 	return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 }
 
-function str_contains($haystack, $needle) {
+function str_contains($haystack, $needle)
+{
 	if (is_array($haystack)) {
 		debug_pre_print_backtrace();
 	}

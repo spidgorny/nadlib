@@ -1,13 +1,15 @@
 <?php
 
-class PGArray {
+class PGArray
+{
 
 	/**
 	 * @var dbLayer
 	 */
 	var $db;
 
-	function __construct(dbLayer $db) {
+	function __construct(dbLayer $db)
+	{
 		$this->db = $db;
 	}
 
@@ -17,7 +19,8 @@ class PGArray {
 	 * @param unknown_type $pgArray
 	 * @return unknown
 	 */
-	function PGArrayToPHPArray($pgArray) {
+	function PGArrayToPHPArray($pgArray)
+	{
 		$ret = array();
 		$stack = array(&$ret);
 		$pgArray = substr($pgArray, 1, -1);
@@ -25,21 +28,17 @@ class PGArray {
 
 		//ArrayDump($pgElements);
 
-		foreach($pgElements as $elem)
-		{
-			if(substr($elem,-1) == "}")
-			{
-				$elem = substr($elem,0,-1);
+		foreach ($pgElements as $elem) {
+			if (substr($elem, -1) == "}") {
+				$elem = substr($elem, 0, -1);
 				$newSub = array();
-				while(substr($elem,0,1) != "{")
-				{
+				while (substr($elem, 0, 1) != "{") {
 					$newSub[] = $elem;
 					$elem = array_pop($ret);
 				}
-				$newSub[] = substr($elem,1);
+				$newSub[] = substr($elem, 1);
 				$ret[] = array_reverse($newSub);
-			}
-			else
+			} else
 				$ret[] = $elem;
 		}
 		return $ret;
@@ -48,12 +47,13 @@ class PGArray {
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
 	 * @param $input
-	 * @internal param string $dbarr
 	 * @return array
+	 * @internal param string $dbarr
 	 */
-	function getPGArray($input) {
-		if ($input{0} == '{') {	// array inside
-			$input = substr(substr(trim($input), 1), 0, -1);	// cut { and }
+	function getPGArray($input)
+	{
+		if ($input{0} == '{') {    // array inside
+			$input = substr(substr(trim($input), 1), 0, -1);    // cut { and }
 			return $this->getPGArray($input);
 		} else {
 			if (strpos($input, '},{') !== FALSE) {
@@ -71,8 +71,9 @@ class PGArray {
 		}
 	}
 
-	static function str_getcsv($input, $delimiter=',', $enclosure='"', $escape='\\', $eol=null) {
-		$temp=fopen("php://memory", "rw");
+	static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
+	{
+		$temp = fopen("php://memory", "rw");
 		fwrite($temp, $input);
 		fseek($temp, 0);
 		$r = array();
@@ -86,8 +87,8 @@ class PGArray {
 	/**
 	 * Change a db array into a PHP array
 	 * @param $input
-	 * @internal param String $arr representing the DB array
 	 * @return A PHP array
+	 * @internal param String $arr representing the DB array
 	 */
 	/*	function getPGArray($dbarr) {
 			// Take off the first and last characters (the braces)
@@ -129,7 +130,8 @@ class PGArray {
 			return $elements;
 		}
 	*/
-	function getPGArray1D($input) {
+	function getPGArray1D($input)
+	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
 		if ($v1 == array('')) return array();
@@ -141,8 +143,8 @@ class PGArray {
 				$inside = true;
 				$word = substr($word, 1);
 			}
-			if (in_array($word{strlen($word)-1}, array('"'))
-				&& !in_array($word{strlen($word)-2}, array('\\'))
+			if (in_array($word{strlen($word) - 1}, array('"'))
+				&& !in_array($word{strlen($word) - 2}, array('\\'))
 			) {
 				$inside = false;
 				$word = substr($word, 0, -1);
@@ -182,20 +184,21 @@ class PGArray {
 				while( $limit > $offset );
 		}
 	*/
-	function setPGArray(array $data) {
+	function setPGArray(array $data)
+	{
 		foreach ($data as &$el) {
 			if (is_array($el)) {
 				$el = $this->setPGArray($el);
 			} else {
 				$el = pg_escape_string($el);
-				$el = '"'.str_replace(array(
+				$el = '"' . str_replace(array(
 						'"',
 					), array(
 						'\\"',
-					), $el).'"';
+					), $el) . '"';
 			}
 		}
-		return '{'.implode(',', $data).'}';
+		return '{' . implode(',', $data) . '}';
 	}
 
 }

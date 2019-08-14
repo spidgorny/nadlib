@@ -5,15 +5,17 @@
 	opacity: 0.75;
 	z-index: 100;
 }
+
 .floatTime {
-    border-top-left-radius: 5px;
-    -moz-border-radius-topleft: 5px;
-    -webkit-border-top-left-radius: 5px;
-    background-color: #22221F;
-    color: #FFF4A7;
-    width: auto;
-    padding: 0.5em;
+	border-top-left-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-webkit-border-top-left-radius: 5px;
+	background-color: #22221F;
+	color: #FFF4A7;
+	width: auto;
+	padding: 0.5em;
 }
+
 .profiler {
 	opacity: 0.75;
 	background-color: #22221F;
@@ -21,7 +23,8 @@
 	padding: 1em;
 	color: white !important;
 }
+
 .profiler th, .profiler td {
 	color: white;
-	margin-top: 50px;   /* footer */
+	margin-top: 50px; /* footer */
 }

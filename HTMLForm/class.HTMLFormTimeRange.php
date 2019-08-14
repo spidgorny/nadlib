@@ -1,9 +1,10 @@
 <?php
 
-class HTMLFormTimeRange extends HTMLFormType {
+class HTMLFormTimeRange extends HTMLFormType
+{
 	public $div = '1';
 	public $min = 0;
-	public $max = 1440;		// 24*60
+	public $max = 1440;        // 24*60
 	/**
 	 * Enter description here...
 	 *
@@ -22,9 +23,10 @@ class HTMLFormTimeRange extends HTMLFormType {
 	 * Enter description here...
 	 *
 	 * @param string $field
-	 * @param array $value				- array of minutes
+	 * @param array $value - array of minutes
 	 */
-	function __construct($field, array $value) {
+	function __construct($field, array $value)
+	{
 		$this->field = $field;
 		list($this->start, $this->end) = $value;
 		$this->div = uniqid();
@@ -35,28 +37,31 @@ class HTMLFormTimeRange extends HTMLFormType {
 	 *
 	 * @param string $value - 10:00-13:30
 	 */
-	function setValue($value) {
+	function setValue($value)
+	{
 		if ($value) {
 			list($this->start, $this->end) = $this->parseRange($value);
 		}
 	}
 
-	static function parseRange($value) {
+	static function parseRange($value)
+	{
 		if (strlen($value) == 11) {
 			$parts = explode('-', $value);
 			if (sizeof($parts) == 2) {
 				$s = new IndTime($parts[0]);
 				$e = new IndTime($parts[1]);
 			} else {
-				throw new Exception('Unable to parse time range: '.$value);
+				throw new Exception('Unable to parse time range: ' . $value);
 			}
 		} else {
-			throw new Exception('Unable to parse time range: '.$value);
+			throw new Exception('Unable to parse time range: ' . $value);
 		}
 		return array($s, $e);
 	}
 
-	function render() {
+	function render()
+	{
 		assert($this->step);
 		$content = new View('nadlib/HTMLForm/HTMLFormTimeRange.phtml', $this);
 		Index::getInstance()->addJS('nadlib/HTMLForm/HTMLFormTimeRange.js');

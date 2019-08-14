@@ -4,16 +4,18 @@
  * Class ExcelReader - only reads the XML file Excel
  * @see class SimpleXLSX
  */
-class ExcelReader {
+class ExcelReader
+{
 	protected $excel;
 	protected $isCache = TRUE;
 	protected $filename = 'cache/';
 	protected $xml;
 	public $ll;
 
-	function __construct($excelFile) {
-		$this->excel = $excelFile{0} == '/' ? $excelFile : dirname(__FILE__).'../'.$excelFile;
-		$this->filename .= basename($this->excel).'.serial';
+	function __construct($excelFile)
+	{
+		$this->excel = $excelFile{0} == '/' ? $excelFile : dirname(__FILE__) . '../' . $excelFile;
+		$this->filename .= basename($this->excel) . '.serial';
 
 		// read from excel - SimpleXML can't be serialized
 		//$this->xml = $this->readPersistant();
@@ -24,7 +26,8 @@ class ExcelReader {
 		$this->ll = $this->getSheet(0);
 	}
 
-	function readPersistant() {
+	function readPersistant()
+	{
 		$data = [];
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
@@ -37,13 +40,15 @@ class ExcelReader {
 		return $data;
 	}
 
-	function savePersistant($data) {
+	function savePersistant($data)
+	{
 		print_r($data);
 		$data = serialize($data);
 		file_put_contents($this->filename, $data);
 	}
 
-	function readExcel() {
+	function readExcel()
+	{
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
 			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
@@ -56,7 +61,8 @@ class ExcelReader {
 		}
 	}
 
-	function getSheets() {
+	function getSheets()
+	{
 		$list = array();
 		foreach ($this->xml->Worksheet as $sheet) {
 			$attr = $sheet->attributes('ss', true);
@@ -66,7 +72,8 @@ class ExcelReader {
 		return $list;
 	}
 
-	function getSheet($sheet = 0) {
+	function getSheet($sheet = 0)
+	{
 		$data = array();
 		$s = $this->xml->Worksheet[$sheet]->Table;
 //		echo __METHOD__, BR;

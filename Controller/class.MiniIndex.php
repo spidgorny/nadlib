@@ -1,6 +1,7 @@
 <?php
 
-class MiniIndex extends AppController {
+class MiniIndex extends AppController
+{
 
 	/**
 	 * @var Menu
@@ -27,7 +28,8 @@ class MiniIndex extends AppController {
 	 */
 	public $config;
 
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
 		$this->config = Config::getInstance();
 	}
@@ -39,18 +41,21 @@ class MiniIndex extends AppController {
 	 * @param bool $createAllowed
 	 * @return MiniIndex
 	 */
-	public static function getInstance($createAllowed = true) {
+	public static function getInstance($createAllowed = true)
+	{
 		$self = get_called_class();
 		if (!self::$instance) {
 			if ($createAllowed) {
-				self::$instance = new $self(true);	/** @var self::$instance MiniIndex */
+				self::$instance = new $self(true);
+				/** @var self::$instance MiniIndex */
 				self::$instance->init();
 			}
 		}
 		return self::$instance;
 	}
 
-	function init() {
+	function init()
+	{
 		$this->controller = $this->request->getController();
 		//debug(get_class($this), spl_object_hash($this));
 		//debug(get_class($this->controller), spl_object_hash($this->controller));
@@ -59,7 +64,8 @@ class MiniIndex extends AppController {
 		}
 	}
 
-	function render() {
+	function render()
+	{
 		if ($this->controller->layout == 'none' || $this->request->isAjax()) {
 			$content = $this->renderController();
 		} else {
@@ -67,13 +73,14 @@ class MiniIndex extends AppController {
 			$v->content = $this->renderController();
 			$v->sidebar = $this->showSidebar();
 			$v->baseHref = $this->request->getLocation();
-			$this->title = $this->controller->title;	// after $controller->render() before $view->render()
+			$this->title = $this->controller->title;    // after $controller->render() before $view->render()
 			$content = $v->render();
 		}
 		return $content;
 	}
 
-	function renderController() {
+	function renderController()
+	{
 		$content = '';
 		if ($this->controller) {
 			try {
@@ -88,44 +95,53 @@ class MiniIndex extends AppController {
 		return $content;
 	}
 
-	function message($text) {
-		return '<div class="message">'.$text.'</div>';
+	function message($text)
+	{
+		return '<div class="message">' . $text . '</div>';
 	}
 
-	function error($text) {
-		return '<div class="ui-state-error alert alert-error alert-danger padding">'.$text.'</div>';
+	function error($text)
+	{
+		return '<div class="ui-state-error alert alert-error alert-danger padding">' . $text . '</div>';
 	}
 
-	function addJQuery() {
+	function addJQuery()
+	{
 		$this->footer['jquery.js'] = '
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 		<script>window.jQuery || document.write(\'<script src="js/vendor/jquery-1.8.1.min.js"><\/script>\')</script>
 		';
 	}
 
-	function addJQueryUI() {
+	function addJQueryUI()
+	{
 		$this->addJQuery();
 		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 	}
 
-	function addJS($source) {
-		$this->footer[$source] = '<script src="'.$source.'"></script>';
+	function addJS($source)
+	{
+		$this->footer[$source] = '<script src="' . $source . '"></script>';
 	}
 
-	function addCSS($source) {
-		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$source.'" />';
+	function addCSS($source)
+	{
+		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="' . $source . '" />';
 	}
 
-	function showSidebar() {
+	function showSidebar()
+	{
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
 		}
 		return $content;
 	}
 
-	function renderProfiler() {
-		$profiler = $GLOBALS['profiler']; /** @var $profiler TaylorProfiler */
+	function renderProfiler()
+	{
+		$profiler = $GLOBALS['profiler'];
+		/** @var $profiler TaylorProfiler */
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);

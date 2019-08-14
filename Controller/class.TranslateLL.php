@@ -5,10 +5,12 @@
  * TODO: Combine with Localize
  */
 
-class TranslateLL extends HTMLFormProcessor {
+class TranslateLL extends HTMLFormProcessor
+{
 	protected $submitButton = 'Update';
 
-	function getDesc() {
+	function getDesc()
+	{
 		$ll = Index::getInstance()->ll;
 		$code = $this->request->getTrim('code');
 		$desc = array(
@@ -35,17 +37,19 @@ class TranslateLL extends HTMLFormProcessor {
 		return $desc;
 	}
 
-	function render() {
+	function render()
+	{
 		$content = parent::render();
 		$content .= '<iframe
-			src="http://dict.leo.org/ende?search='.
-			urlencode($this->request->getTrim('code')).'"
+			src="http://dict.leo.org/ende?search=' .
+			urlencode($this->request->getTrim('code')) . '"
 			width="100%"
 			height="500"></iframe>';
 		return $content;
 	}
 
-	function onSuccess(array $data) {
+	function onSuccess(array $data)
+	{
 		$ll = Index::getInstance()->ll;
 		$ll->updateMessage($data);
 		$content = '<div class="message">Updated.</div>';

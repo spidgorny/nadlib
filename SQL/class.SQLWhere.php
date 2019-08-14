@@ -1,10 +1,12 @@
 <?php
 
-class SQLWhere {
+class SQLWhere
+{
 
 	protected $parts = array();
 
-	function __construct($where = NULL) {
+	function __construct($where = NULL)
+	{
 		if (is_array($where)) {
 			$this->parts = $where;
 		} else if ($where) {
@@ -12,25 +14,28 @@ class SQLWhere {
 		}
 	}
 
-	function add($where) {
+	function add($where)
+	{
 		$this->parts[] = $where;
 	}
 
-	function addArray(array $where) {
+	function addArray(array $where)
+	{
 		foreach ($where as $el) {
 			$this->add($el);
 		}
 		return $this;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		if ($this->parts) {
 			foreach ($this->parts as $field => $p) {
 				if ($p instanceof SQLWherePart) {
 					$p->injectField($field);
 				}
 			}
-			return " WHERE\n\t".implode("\n\tAND ", $this->parts);	// __toString()
+			return " WHERE\n\t" . implode("\n\tAND ", $this->parts);    // __toString()
 		} else {
 			return '';
 		}
@@ -39,15 +44,18 @@ class SQLWhere {
 	/**
 	 * @return array
 	 */
-	function getAsArray() {
+	function getAsArray()
+	{
 		return $this->parts;
 	}
 
-	function debug() {
+	function debug()
+	{
 		return $this->parts;
 	}
 
-	static function genFromArray(array $where) {
+	static function genFromArray(array $where)
+	{
 		foreach ($where as $key => &$val) {
 			$val = new SQLWhereEqual($key, $val);
 		}

@@ -1,6 +1,7 @@
 <?php
 
-class LazyMemberIterator extends IteratorIterator {
+class LazyMemberIterator extends IteratorIterator
+{
 
 	/**
 	 * @var string
@@ -18,7 +19,8 @@ class LazyMemberIterator extends IteratorIterator {
 	 * @param int $flags
 	 * @param string $class
 	 */
-	public function __construct($array = array(), $flags = 0, $class) {
+	public function __construct($array = array(), $flags = 0, $class)
+	{
 		//debug($array, $array->count());
 		parent::__construct($array, $flags);
 		$this->class = $class;
@@ -43,7 +45,8 @@ class LazyMemberIterator extends IteratorIterator {
 	/**
 	 * @return mixed|null
 	 */
-	public function current() {
+	public function current()
+	{
 		$array = parent::current();
 		if ($array) {
 			$obj = new $this->class($array);
@@ -54,11 +57,13 @@ class LazyMemberIterator extends IteratorIterator {
 		}
 	}
 
-	public function valid() {
+	public function valid()
+	{
 		return !!$this->current();
 	}
 
-	function count() {
+	function count()
+	{
 		return $this->count;
 	}
 

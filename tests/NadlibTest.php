@@ -1,11 +1,12 @@
 <?php
 
-class NadlibTest extends PHPUnit_Framework_TestCase {
+class NadlibTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_requireAll() {
+	function test_requireAll()
+	{
 		//return;
-		$skip = array(
-		);
+		$skip = array();
 		require_once 'class.AppController.php';
 
 		$files = glob('**/*');
@@ -14,7 +15,7 @@ class NadlibTest extends PHPUnit_Framework_TestCase {
 				$class = trimExplode('.', basename($file));
 				$class = $class[1];
 				if (!in_array($class, $skip)) {
-					echo $class."\n";
+					echo $class . "\n";
 					require_once $file;
 				}
 			}

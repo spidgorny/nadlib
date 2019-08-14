@@ -1,6 +1,7 @@
 <?php
 
-class ConfigBase {
+class ConfigBase
+{
 	/**
 	 * del: Public to allow Request to know if there's an instance
 	 * @var Config
@@ -55,7 +56,7 @@ class ConfigBase {
 		'be/class/DB',
 		'be/class/Info',
 		'be/class/Test',
-        'Queue',
+		'Queue',
 	);
 
 	/**
@@ -68,13 +69,14 @@ class ConfigBase {
 
 	public $config;
 
-	protected function __construct() {
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__."<br />\n";
+	protected function __construct()
+	{
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . "<br />\n";
 		$this->documentRoot = Request::getDocumentRoot();
 		if (Request::isCLI()) {
 			$this->appRoot = getcwd();
 		} else {
-			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']).'/';
+			$this->appRoot = dirname($_SERVER['SCRIPT_FILENAME']) . '/';
 			$this->appRoot = str_replace('/kunden', '', $this->appRoot); // 1und1.de
 		}
 
@@ -97,7 +99,7 @@ class ConfigBase {
 			$this->config = Spyc::YAMLLoad('class/config.yaml');
 		}
 		$this->mergeConfig($this);
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . BR;
 	}
 
 	/**
@@ -105,7 +107,8 @@ class ConfigBase {
 	 * Config::getInstance()->postInit() manually
 	 * @return Config
 	 */
-	public static function getInstance() {
+	public static function getInstance()
+	{
 		if (!self::$instance) {
 			self::$instance = new Config();
 			self::$instance->postInit();
@@ -117,8 +120,9 @@ class ConfigBase {
 	 * Does heavy operations during bootstraping
 	 * @return $this
 	 */
-	public function postInit() {
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
+	public function postInit()
+	{
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . BR;
 		if ($this->db_database) {
 			if (extension_loaded('mysqlnd')) {
 				$this->db = new dbLayerPDO(
@@ -142,11 +146,12 @@ class ConfigBase {
 
 		// init user here as he needs to access Config::getInstance()
 		$this->user = NULL;
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__.BR;
+		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') echo __METHOD__ . BR;
 		return $this;
 	}
 
-	public function prefixTable($a) {
+	public function prefixTable($a)
+	{
 		return $a;
 	}
 
@@ -156,41 +161,43 @@ class ConfigBase {
 	 * @param $message
 	 * @throws Exception
 	 */
-	function log($class, $message) {
+	function log($class, $message)
+	{
 		if (DEVELOPMENT) {
-			throw new Exception($class.' '.$message);
+			throw new Exception($class . ' ' . $message);
 		}
 	}
 
-	function mergeConfig($obj) {
+	function mergeConfig($obj)
+	{
 		$class = get_class($obj);
 		if (is_array($this->config[$class])) {
 			foreach ($this->config[$class] as $key => $val) {
-				if ($key != 'includeFolders') {	// Strict Standards: Accessing static property Config::$includeFolders as non static
+				if ($key != 'includeFolders') {    // Strict Standards: Accessing static property Config::$includeFolders as non static
 					$obj->$key = $val;
 				}
 			}
 		}
 	}
 
-    /**
-     * @return \SQLBuilder
-     */
-    public function getQb()
-    {
-        if(!isset($this->qb)) {
-            $this->setQb(new SQLBuilder(Config::getInstance()->db));
-        }
+	/**
+	 * @return \SQLBuilder
+	 */
+	public function getQb()
+	{
+		if (!isset($this->qb)) {
+			$this->setQb(new SQLBuilder(Config::getInstance()->db));
+		}
 
-        return $this->qb;
-    }
+		return $this->qb;
+	}
 
-    /**
-     * @param \SQLBuilder $qb
-     */
-    public function setQb($qb)
-    {
-        $this->qb = $qb;
-    }
+	/**
+	 * @param \SQLBuilder $qb
+	 */
+	public function setQb($qb)
+	{
+		$this->qb = $qb;
+	}
 
 }

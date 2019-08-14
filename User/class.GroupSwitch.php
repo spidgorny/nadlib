@@ -1,12 +1,13 @@
 <?php
 
-class GroupSwitch extends AppController {
+class GroupSwitch extends AppController
+{
 
 	public $allowedUsers = array(
 		'depidsvy',
 		'deloprub',
-        'dejokmaj',
-        'dedomedu' // requested by deloprub on Feb. 11th 2014
+		'dejokmaj',
+		'dedomedu' // requested by deloprub on Feb. 11th 2014
 	);
 
 	protected $groups = array(
@@ -18,7 +19,8 @@ class GroupSwitch extends AppController {
 		'1895312' => 'Coords',
 	);
 
-	function render() {
+	function render()
+	{
 		//debug($this->user->data);
 		$content = '';
 		if (in_array($this->user->data['login'], $this->allowedUsers)) {
@@ -26,11 +28,11 @@ class GroupSwitch extends AppController {
 			$items = array();
 			foreach ($this->groups as $groupID => $groupName) {
 				$el = $this->makeLink($groupName, array(
-					'action' => 'setGroup',
-					'groupID' => $groupID,
-				), 'GroupSwitch').' ';
+						'action' => 'setGroup',
+						'groupID' => $groupID,
+					), 'GroupSwitch') . ' ';
 				if ($this->user->rights->groupID == $groupID) {
-					$el = '<b>'.$el.'</b>';
+					$el = '<b>' . $el . '</b>';
 				}
 				$items[] = $el;
 			}
@@ -43,7 +45,8 @@ class GroupSwitch extends AppController {
 	//	return $this->render().'';
 	//}
 
-	function setGroupAction() {
+	function setGroupAction()
+	{
 		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
 		$referer = new URL($_SERVER['HTTP_REFERER']);
 		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123

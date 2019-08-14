@@ -8,7 +8,8 @@
  */
 
 
-class MessageQueue extends OODBase {
+class MessageQueue extends OODBase
+{
 	const CLASS_POSTFIX = 'Task';
 
 	const STATUS_NEW = 'NEW';
@@ -32,7 +33,8 @@ class MessageQueue extends OODBase {
 	private $taskData = array();
 
 
-	public function __construct($type) {
+	public function __construct($type)
+	{
 		parent::__construct();
 
 		if (empty($type)) {
@@ -46,9 +48,10 @@ class MessageQueue extends OODBase {
 	 * @return object
 	 * @throws Exception
 	 */
-	public function getTaskObject() {
+	public function getTaskObject()
+	{
 		// get next task available
-		if($this->fetchNextTask($this->type)) {
+		if ($this->fetchNextTask($this->type)) {
 			// set task data retrieved from DB
 			$this->setTaskData($this->data['data']);
 
@@ -66,7 +69,8 @@ class MessageQueue extends OODBase {
 	 * @param string $type
 	 * @return string
 	 */
-	private function getClassName($type) {
+	private function getClassName($type)
+	{
 		return $type . self::CLASS_POSTFIX;
 	}
 
@@ -77,17 +81,18 @@ class MessageQueue extends OODBase {
 	 * @param $type
 	 * @return bool
 	 */
-	private function fetchNextTask($type) {
+	private function fetchNextTask($type)
+	{
 		$where = array(
-			'status' 	=> self::STATUS_NEW,
-			'type'		=> $type
+			'status' => self::STATUS_NEW,
+			'type' => $type
 		);
 
 		$orderBy = 'ORDER BY id ASC';
 
 		$this->findInDB($where, $orderBy);
 
-		if(!empty($this->data['id'])) {
+		if (!empty($this->data['id'])) {
 			// Set the status to "IN PROGRESS"
 			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
 
@@ -102,7 +107,8 @@ class MessageQueue extends OODBase {
 	 *
 	 * @return array
 	 */
-	public function getTaskData() {
+	public function getTaskData()
+	{
 		return $this->taskData;
 	}
 
@@ -111,7 +117,8 @@ class MessageQueue extends OODBase {
 	 *
 	 * @param array $data
 	 */
-	public function setTaskData($data) {
+	public function setTaskData($data)
+	{
 		$this->taskData = json_decode($data, true);
 	}
 
@@ -121,9 +128,10 @@ class MessageQueue extends OODBase {
 	 * @param string $status MessageQueue::STATUS_*
 	 * @return void
 	 */
-	public function setStatus($status) {
+	public function setStatus($status)
+	{
 		$data = array(
-			'status'	=> $status
+			'status' => $status
 		);
 		$this->update($data);
 	}
@@ -135,15 +143,16 @@ class MessageQueue extends OODBase {
 	 * @param int|null $userId If not provided current user is used
 	 * @return OODBase
 	 */
-	public function push($taskData, $userId = null) {
+	public function push($taskData, $userId = null)
+	{
 		$data = array(
-			'ctime' 	=> 'NOW()',
-			'type'		=> $this->type,
-			'status' 	=> self::STATUS_NEW,
-			'data'		=> json_encode($taskData)
+			'ctime' => 'NOW()',
+			'type' => $this->type,
+			'status' => self::STATUS_NEW,
+			'data' => json_encode($taskData)
 		);
 
-		if(!empty($userId)) {
+		if (!empty($userId)) {
 			$data['cuser'] = $userId;
 		}
 		return $this->insert($data);

@@ -1,6 +1,7 @@
 <?php
 
-class FlotArea {
+class FlotArea
+{
 
 	/**
 	 * @var array
@@ -17,27 +18,31 @@ class FlotArea {
 	 */
 	var $flotPath = 'components/flot/flot/';
 
-	function __construct(array $data, array $series) {
+	function __construct(array $data, array $series)
+	{
 		$this->data = $data;
 		$this->series = $series;
 	}
 
-	function setFlot($path) {
+	function setFlot($path)
+	{
 		$this->flotPath = $path;
 	}
 
-	function getSeries() {
+	function getSeries()
+	{
 		$series = array();
 		ksort($this->data);
 		foreach ($this->data as $time => $pair) {
 			foreach ($this->series as $key) {
-				$series[$key][] = array($time*1000, $pair[$key]);
+				$series[$key][] = array($time * 1000, $pair[$key]);
 			}
 		}
 		return $series;
 	}
 
-	function accumulateSeries(array $series) {
+	function accumulateSeries(array $series)
+	{
 		foreach ($series as &$set) {
 			$runningTotal = 0;
 			foreach ($set as &$pair) {
@@ -48,28 +53,30 @@ class FlotArea {
 		return $series;
 	}
 
-	function getJSON(array $series) {
+	function getJSON(array $series)
+	{
 		foreach ($series as &$set) {
 			$set = json_encode($set);
-			$set = '['.substr($set, 1, -1).']';	// json_encode => {}
+			$set = '[' . substr($set, 1, -1) . ']';    // json_encode => {}
 		}
 		return $series;
 	}
 
-	function render() {
+	function render()
+	{
 		$series = $this->getSeries();
 		$series = $this->accumulateSeries($series);
 		$series = $this->getJSON($series);
 
 		$content = '
-<script type="text/javascript" language="javascript" src="'.$this->flotPath.'jquery.js"></script>
-<script type="text/javascript" language="javascript" src="'.$this->flotPath.'jquery.flot.js"></script>
-<script type="text/javascript" language="javascript" src="'.$this->flotPath.'jquery.flot.time.js"></script>';
+<script type="text/javascript" language="javascript" src="' . $this->flotPath . 'jquery.js"></script>
+<script type="text/javascript" language="javascript" src="' . $this->flotPath . 'jquery.flot.js"></script>
+<script type="text/javascript" language="javascript" src="' . $this->flotPath . 'jquery.flot.time.js"></script>';
 		$content .= '<div id="placeholder" style="width: 768px; height: 480px;"></div>';
 		$content .= "<script type=\"text/javascript\">
 $(document).ready(function ($) {
-    var d1 = ".$series[$this->series[0]].";
-    var d2 = ".$series[$this->series[1]].";
+    var d1 = " . $series[$this->series[0]] . ";
+    var d2 = " . $series[$this->series[1]] . ";
  
     var data1 = [
         { label: 'Reported', data: d1, points: { fillColor: '#EE3B3B', size: 5 }, color: '#EE3B3B' },

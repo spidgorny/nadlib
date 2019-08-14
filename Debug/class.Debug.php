@@ -1,10 +1,12 @@
 <?php
 
-class Debug {
+class Debug
+{
 
 	const LEVELS = 'LEVELS';
 
-	static function debug_args() {
+	static function debug_args()
+	{
 		$args = func_get_args();
 		if (sizeof($args) == 1) {
 			$a = $args[0];
@@ -26,7 +28,7 @@ class Debug {
 			foreach ($db as $row) {
 				$trace[] = self::getMethod($row);
 			}
-			echo '---'.implode(' // ', $trace)."\n";
+			echo '---' . implode(' // ', $trace) . "\n";
 
 			if (is_object($a)) {
 				$a = get_object_vars($a);   // prevent private vars
@@ -60,33 +62,35 @@ class Debug {
 			if (!headers_sent()) {
 				echo '<!DOCTYPE html><html>';
 			}
-			print($content); flush();
+			print($content);
+			flush();
 		}
 		return $content;
 	}
 
-	static function renderHTMLView($db, $a, $levels) {
+	static function renderHTMLView($db, $a, $levels)
+	{
 		$trace = Debug::getTraceTable($db);
 
 		reset($db);
 		$first = current($db);
 		$function = self::getMethod($first);
 		$props = array(
-			'<span style="display: inline-block; width: 5em;">Function:</span> '.$function,
-			'<span style="display: inline-block; width: 5em;">Type:</span> '.gettype($a).
-				(is_object($a) ? ' '.get_class($a).'#'.spl_object_hash($a) : '')
+			'<span style="display: inline-block; width: 5em;">Function:</span> ' . $function,
+			'<span style="display: inline-block; width: 5em;">Type:</span> ' . gettype($a) .
+			(is_object($a) ? ' ' . get_class($a) . '#' . spl_object_hash($a) : '')
 		);
 		if (is_array($a)) {
-			$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> '.sizeof($a);
+			$props[] = '<span style="display: inline-block; width: 5em;">Size:</span> ' . sizeof($a);
 		} else if (!is_object($a) && !is_resource($a)) {
-			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> '.strlen($a);
+			$props[] = '<span style="display: inline-block; width: 5em;">Length:</span> ' . strlen($a);
 		}
-		$memPercent = TaylorProfiler::getMemUsage()*100;
+		$memPercent = TaylorProfiler::getMemUsage() * 100;
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> '.$pb->getImage($memPercent, 'display: inline');
-		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> '.TaylorProfiler::getMemDiff();
-		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> '.number_format(microtime(true)-$_SERVER['REQUEST_TIME'], 3).'<br />';
+		$props[] = '<span style="display: inline-block; width: 5em;">Mem:</span> ' . $pb->getImage($memPercent, 'display: inline');
+		$props[] = '<span style="display: inline-block; width: 5em;">Mem ±:</span> ' . TaylorProfiler::getMemDiff();
+		$props[] = '<span style="display: inline-block; width: 5em;">Elapsed:</span> ' . number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3) . '<br />';
 
 		$content = '
 			<div class="debug" style="
@@ -97,22 +101,23 @@ class Debug {
 				font-family: verdana;
 				vertical-align: top;">
 				<div class="caption" style="background-color: #EEEEEE">
-					'.implode(BR, $props).'
+					' . implode(BR, $props) . '
 					<a href="javascript: void(0);" onclick="
 						var a = this.nextSibling.nextSibling;
 						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
 					">Trace: </a>
-					<div style="display: none;">'.$trace.'</div>
+					<div style="display: none;">' . $trace . '</div>
 				</div>
-				'.Debug::view_array($a, $levels).'
+				' . Debug::view_array($a, $levels) . '
 			</div>';
 		return $content;
 	}
 
-	static function getSimpleTrace($db = NULL) {
+	static function getSimpleTrace($db = NULL)
+	{
 		$db = $db ?: debug_backtrace();
 		foreach ($db as &$row) {
-			$row['file'] = basename(dirname($row['file'])).'/'.basename($row['file']);
+			$row['file'] = basename(dirname($row['file'])) . '/' . basename($row['file']);
 			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : NULL;
 			$row['args'] = sizeof($row['args']);
 		}
@@ -123,10 +128,11 @@ class Debug {
 	 * @param array $db
 	 * @return string
 	 */
-	static function getTraceTable(array $db) {
+	static function getTraceTable(array $db)
+	{
 		$db = self::getSimpleTrace($db);
 		if (!array_search('slTable', ArrayPlus::create($db)->column('object')->getData())) {
-			$trace = '<pre style="white-space: pre-wrap; margin: 0;">'.
+			$trace = '<pre style="white-space: pre-wrap; margin: 0;">' .
 				new slTable($db, 'class="nospacing"', array(
 					'file' => 'file',
 					'line' => 'line',
@@ -135,7 +141,7 @@ class Debug {
 					'function' => 'function',
 					'args' => 'args',
 					'object' => 'object',
-				)).'</pre>';
+				)) . '</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';
 		}
@@ -145,14 +151,15 @@ class Debug {
 	/**
 	 * @param $a
 	 * @param $levels
-	 * @return string|NULL	- will be recursive while levels is more than zero, but NULL is a special case
+	 * @return string|NULL    - will be recursive while levels is more than zero, but NULL is a special case
 	 */
-	static function view_array($a, $levels = NULL) {
+	static function view_array($a, $levels = NULL)
+	{
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
 				$a = $a->debug();
-			//} elseif (method_exists($a, '__toString')) {
-			//	$a = $a->__toString();
+				//} elseif (method_exists($a, '__toString')) {
+				//	$a = $a->__toString();
 			} elseif ($a instanceof htmlString) {
 				$a = $a; // will take care below
 			} else {
@@ -160,21 +167,21 @@ class Debug {
 			}
 		}
 
-		if (is_array($a)) {	// not else if so it also works for objects
+		if (is_array($a)) {    // not else if so it also works for objects
 			$content = '<table class="view_array" style="border-collapse: collapse; margin: 2px;">';
 			foreach ($a as $i => $r) {
-				$type = gettype($r) == 'object' ? gettype($r).' '.get_class($r) : gettype($r);
-				$type = gettype($r) == 'string' ? gettype($r).'['.strlen($r).']' : $type;
-				$type = gettype($r) == 'array'  ? gettype($r).'['.sizeof($r).']' : $type;
+				$type = gettype($r) == 'object' ? gettype($r) . ' ' . get_class($r) : gettype($r);
+				$type = gettype($r) == 'string' ? gettype($r) . '[' . strlen($r) . ']' : $type;
+				$type = gettype($r) == 'array' ? gettype($r) . '[' . sizeof($r) . ']' : $type;
 				$content .= '<tr>
-					<td class="view_array">'.$i.'</td>
-					<td class="view_array">'.$type.'</td>
+					<td class="view_array">' . $i . '</td>
+					<td class="view_array">' . $type . '</td>
 					<td class="view_array">';
 
 				//var_dump($levels); echo '<br/>'."\n";
 				//echo $levels, ': null: '.is_null($levels)."<br />\n";
 				if (is_null($levels) || $levels > 0) {
-					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels-1);
+					$content .= Debug::view_array($r, is_null($levels) ? NULL : $levels - 1);
 				}
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';
@@ -182,29 +189,30 @@ class Debug {
 			$content .= '</table>';
 		} else if (is_object($a)) {
 			if ($a instanceof htmlString) {
-				$content = $a.'';
+				$content = $a . '';
 			} else {
-				$content = '<pre style="font-size: 12px;">'.htmlspecialchars(print_r($a, TRUE)).'</pre>';
+				$content = '<pre style="font-size: 12px;">' . htmlspecialchars(print_r($a, TRUE)) . '</pre>';
 			}
 		} else if (is_resource($a)) {
 			$content = $a;
 		} else if (is_string($a) && strstr($a, "\n")) {
-			$content = '<pre style="font-size: 12px;">'.htmlspecialchars($a).'</pre>';
+			$content = '<pre style="font-size: 12px;">' . htmlspecialchars($a) . '</pre>';
 		} else if ($a instanceof __PHP_Incomplete_Class) {
 			$content = '__PHP_Incomplete_Class';
 		} else {
-			$content = htmlspecialchars($a.'');
+			$content = htmlspecialchars($a . '');
 		}
 		return $content;
 	}
 
-	static function getMethod(array $first) {
+	static function getMethod(array $first)
+	{
 		if ($first['object']) {
-			$function = get_class($first['object']).'::'.$first['function'].'#'.$first['line'];
+			$function = get_class($first['object']) . '::' . $first['function'] . '#' . $first['line'];
 		} else if ($first['class']) {
-			$function = $first['class'].'::'.$first['function'].'#'.$first['line'];
+			$function = $first['class'] . '::' . $first['function'] . '#' . $first['line'];
 		} else {
-			$function = basename(dirname($first['file'])).'/'.basename($first['file']).'#'.$first['line'];
+			$function = basename(dirname($first['file'])) . '/' . basename($first['file']) . '#' . $first['line'];
 		}
 		return $function;
 	}
@@ -214,7 +222,8 @@ class Debug {
 	 * @param int $stepBack
 	 * @return string
 	 */
-	static function getCaller($stepBack = 2) {
+	static function getCaller($stepBack = 2)
+	{
 		$btl = debug_backtrace();
 		reset($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
@@ -231,12 +240,13 @@ class Debug {
 	 * @param int $limit
 	 * @return string
 	 */
-	static function getBackLog($limit = 5) {
+	static function getBackLog($limit = 5)
+	{
 		$debug = debug_backtrace();
 		array_shift($debug);
 		$content = array();
 		foreach ($debug as $debugLine) {
-			$content[] = $debugLine['class'].'::'.$debugLine['function'];
+			$content[] = $debugLine['class'] . '::' . $debugLine['function'];
 		}
 		$content = implode(' // ', $content);
 		return $content;
@@ -247,7 +257,8 @@ class Debug {
 	 * @param     $row
 	 * @param int $spaces
 	 */
-	static function dumpStruct($row, $spaces = 0) {
+	static function dumpStruct($row, $spaces = 0)
+	{
 		static $recursive;
 		if (!$spaces) {
 			echo '<pre class="debug">';
@@ -258,7 +269,7 @@ class Debug {
 			if (!ifsetor($recursive[$hash])) {
 				$sleep = method_exists($row, '__sleep')
 					? $row->__sleep() : NULL;
-				$recursive[$hash] = gettype2($row);	// before it's array
+				$recursive[$hash] = gettype2($row);    // before it's array
 				$row = get_object_vars($row);
 				if ($sleep) {
 					$sleep = array_combine($sleep, $sleep);
@@ -266,14 +277,14 @@ class Debug {
 					$row = array_intersect_key($row, $sleep);
 				}
 			} else {
-				$row = '*RECURSIVE* '.$recursive[$hash];
+				$row = '*RECURSIVE* ' . $recursive[$hash];
 			}
 		}
 		if (is_array($row)) {
 			foreach ($row as $key => $el) {
 				echo str_repeat(' ', $spaces), $key, '->',
 				cap(gettype2($el), "\n");
-				self::dumpStruct($el, $spaces+4);
+				self::dumpStruct($el, $spaces + 4);
 			}
 		} else {
 			echo str_repeat(' ', $spaces);

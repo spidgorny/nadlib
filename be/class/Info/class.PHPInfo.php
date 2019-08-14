@@ -1,10 +1,12 @@
 <?php
 
-class PHPInfo extends AppControllerBE {
+class PHPInfo extends AppControllerBE
+{
 
 	public $layout = 'none';
 
-	function render() {
+	function render()
+	{
 		ob_start();
 		phpinfo();
 		$content = ob_get_clean();

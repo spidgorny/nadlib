@@ -1,6 +1,7 @@
 <?php
 
-class URL {
+class URL
+{
 
 	/**
 	 * @var string
@@ -29,20 +30,21 @@ class URL {
 	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
-	function __construct($url = NULL, array $params = array()) {
+	function __construct($url = NULL, array $params = array())
+	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
 		}
 		if (!$url) {
 			$http = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-			$url = $http . '://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+			$url = $http . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		}
 		$this->components = @parse_url($url);
-		if (!$this->components) {	//  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
+		if (!$this->components) {    //  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html) [function.parse-url]: Unable to parse URL
 			$request = Request::getExistingInstance();
 			if ($request) {
 				//debug(substr($request->getLocation(), 0, -1).$url);
-				$this->components = parse_url(substr($request->getLocation(), 0, -1).$url);
+				$this->components = parse_url(substr($request->getLocation(), 0, -1) . $url);
 			}
 		}
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
@@ -50,14 +52,15 @@ class URL {
 			parse_str($this->components['query'], $this->params);
 		}
 		if ($params) {
-			$this->addParams($params);	// setParams was deleting all filters from the URL
+			$this->addParams($params);    // setParams was deleting all filters from the URL
 		}
 		if (class_exists('Config')) {
 			$this->setDocumentRoot(Config::getInstance()->documentRoot);
 		}
 	}
 
-	static function make(array $params = array()) {
+	static function make(array $params = array())
+	{
 		$url = new self();
 		$url->setParams($params);
 		return $url;
@@ -68,17 +71,20 @@ class URL {
 	 * @param $value
 	 * @return static
 	 */
-	public function setParam($param, $value) {
+	public function setParam($param, $value)
+	{
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function unsetParam($param) {
+	function unsetParam($param)
+	{
 		unset($this->params[$param]);
 	}
 
-	function getParam($param) {
+	function getParam($param)
+	{
 		return $this->params[$param];
 	}
 
@@ -87,7 +93,8 @@ class URL {
 	 * @param array $params
 	 * @return $this
 	 */
-	function setParams(array $params = array()) {
+	function setParams(array $params = array())
+	{
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
@@ -98,29 +105,34 @@ class URL {
 	 * @param array $params
 	 * @return $this
 	 */
-	function addParams(array $params = array()) {
+	function addParams(array $params = array())
+	{
 		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function forceParams(array $params = array()) {
-		$this->params = array_merge($this->params, $params);	// keep default order but overwrite
+	function forceParams(array $params = array())
+	{
+		$this->params = array_merge($this->params, $params);    // keep default order but overwrite
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function clearParams() {
+	function clearParams()
+	{
 		$this->setParams(array());
 		return $this;
 	}
 
-	function appendParams(array $params) {
+	function appendParams(array $params)
+	{
 		$this->params += $params;
 		$this->components['query'] = $this->buildQuery();
 	}
 
-	function getPath() {
+	function getPath()
+	{
 		$path = $this->components['path'];
 		if ($this->documentRoot != '/') {
 			$path = str_replace($this->documentRoot, '', $path);
@@ -129,7 +141,8 @@ class URL {
 		return $path;
 	}
 
-	function setPath($path) {
+	function setPath($path)
+	{
 		$this->components['path'] = $path;
 	}
 
@@ -137,24 +150,29 @@ class URL {
 	 * Defines the filename in the URL
 	 * @param $name
 	 */
-	function setBasename($name) {
+	function setBasename($name)
+	{
 		$this->components['path'] .= $name;
 	}
 
-	function getBasename() {
+	function getBasename()
+	{
 		return basename($this->getPath());
 	}
 
-	function setDocumentRoot($root) {
+	function setDocumentRoot($root)
+	{
 		$this->documentRoot = $root;
 		//debug($this);
 	}
 
-	function setFragment($name) {
+	function setFragment($name)
+	{
 		$this->components['fragment'] = $name;
 	}
 
-	function buildQuery() {
+	function buildQuery()
+	{
 		$queryString = http_build_query($this->params, '_');
 		$queryString = str_replace('#', '%23', $queryString);
 		//parse_str($queryString, $queryStringTest);
@@ -168,40 +186,44 @@ class URL {
 	 * @param null $parsed
 	 * @return string
 	 */
-	function buildURL($parsed = NULL) {
+	function buildURL($parsed = NULL)
+	{
 		if (!$parsed) {
 			$this->components['query'] = $this->buildQuery(); // to make sure manual manipulations are not possible (although it's already protected?)
 			$parsed = $this->components;
 		}
-	    if (!is_array($parsed)) {
-	        return false;
-	    }
+		if (!is_array($parsed)) {
+			return false;
+		}
 
-	    $uri = isset($parsed['scheme'])
-			? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
+		$uri = isset($parsed['scheme'])
+			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
 			: '';
-	    $uri .= isset($parsed['user']) ? $parsed['user'].(isset($parsed['pass']) ? ':'.$parsed['pass'] : '').'@' : '';
-	    $uri .= isset($parsed['host']) ? $parsed['host'] : '';
-	    $uri .= isset($parsed['port']) ? ':'.$parsed['port'] : '';
+		$uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
+		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
-	    if (isset($parsed['path'])) {
-	        $uri .= (substr($parsed['path'], 0, 1) == '/') ?
-	            $parsed['path'] : ((!empty($uri) ? '/' : '' ) . $parsed['path']);
-	    }
+		if (isset($parsed['path'])) {
+			$uri .= (substr($parsed['path'], 0, 1) == '/') ?
+				$parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
+		}
 
-	    $uri .= /*isset*/($parsed['query']) ? '?'.$parsed['query'] : '';
-	    $uri .= isset($parsed['fragment']) ? '#'.$parsed['fragment'] : '';
+		$uri .= /*isset*/
+			($parsed['query']) ? '?' . $parsed['query'] : '';
+		$uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
 
-	    return $uri;
+		return $uri;
 	}
 
-	public function __toString() {
+	public function __toString()
+	{
 		$url = $this->buildURL();
 		//debug($this->components, $url);
-		return $url.'';
+		return $url . '';
 	}
 
-	public function getRequest() {
+	public function getRequest()
+	{
 		$r = new Request($this->params ? $this->params : array());
 		$r->url = $this;
 		return $r;
@@ -211,17 +233,20 @@ class URL {
 	 * @static
 	 * @return URL
 	 */
-	static function getCurrent() {
+	static function getCurrent()
+	{
 		return new URL();
 	}
 
-	function GET() {
+	function GET()
+	{
 		return file_get_contents($this->buildURL());
 	}
 
-	function POST($login = NULL, $password = NULL) {
+	function POST($login = NULL, $password = NULL)
+	{
 		if ($login) {
-			$auth = "Authorization: Basic ".base64_encode($login.':'.$password) . PHP_EOL;
+			$auth = "Authorization: Basic " . base64_encode($login . ':' . $password) . PHP_EOL;
 		}
 		$stream = array(
 			'http' => array(
@@ -256,7 +281,8 @@ $return = curl_exec($process);
 curl_close($process);
 return $return; */
 
-	function exists() {
+	function exists()
+	{
 		$AgetHeaders = @get_headers($this->buildURL());
 		return preg_match("|200|", $AgetHeaders[0]);
 	}
@@ -269,11 +295,12 @@ return $return; */
 	 * @param string $to
 	 * @return string
 	 */
-	static function getRelativePath($from, $to) {
+	static function getRelativePath($from, $to)
+	{
 		// some compatibility fixes for Windows paths
 		$from = self::getPathFolders($from);
 		$to = self::getPathFolders($to);
-		$relPath  = $to;
+		$relPath = $to;
 
 		foreach ($from as $depth => $dir) {
 			// find first non-matching dir
@@ -298,13 +325,14 @@ return $return; */
 		return implode('/', $relPath);
 	}
 
-	static function getScriptWithPath() {
+	static function getScriptWithPath()
+	{
 		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
 		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
-        // C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
-        if (Request::isCLI()) {
-			if (basename(__FILE__) == __FILE__) {	// index.php
-				$scriptWithPath = getcwd().'/'.__FILE__;
+		// C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
+		if (Request::isCLI()) {
+			if (basename(__FILE__) == __FILE__) {    // index.php
+				$scriptWithPath = getcwd() . '/' . __FILE__;
 			} else {
 				$scriptWithPath = __FILE__;
 			}
@@ -318,7 +346,8 @@ return $return; */
 	/**
 	 * @return string
 	 */
-	function getDomain() {
+	function getDomain()
+	{
 		return $this->components['host'];
 	}
 
@@ -328,7 +357,8 @@ return $return; */
 	 * @param $from
 	 * @return array
 	 */
-	static function getPathFolders($from) {
+	static function getPathFolders($from)
+	{
 		$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
 		$from = str_replace('\\', '/', $from);
 		$from = explode('/', $from);
@@ -341,7 +371,8 @@ return $return; */
 	 * @param string $path2
 	 * @return string
 	 */
-	static function getCommonRoot($path1, $path2) {
+	static function getCommonRoot($path1, $path2)
+	{
 		$path1 = self::getPathFolders($path1);
 		$path2 = self::getPathFolders($path2);
 		$common = array_intersect($path1, $path2);

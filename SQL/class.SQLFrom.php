@@ -1,14 +1,17 @@
 <?php
 
-class SQLFrom {
+class SQLFrom
+{
 
 	protected $parts = array();
 
-	function __construct($from) {
+	function __construct($from)
+	{
 		$this->parts[] = $from;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return implode(', ', $this->parts);
 	}
 

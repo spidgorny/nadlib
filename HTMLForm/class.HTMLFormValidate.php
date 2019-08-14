@@ -1,6 +1,7 @@
 <?php
 
-class HTMLFormValidate {
+class HTMLFormValidate
+{
 
 	/**
 	 * Reference to the form object which contains the $desc as well as other vars
@@ -14,12 +15,14 @@ class HTMLFormValidate {
 	 */
 	protected $desc;
 
-	function __construct(HTMLFormTable $form) {
+	function __construct(HTMLFormTable $form)
+	{
 		$this->form = $form;
 		$this->desc = &$this->form->desc;
 	}
 
-	function validate() {
+	function validate()
+	{
 		$error = false;
 		foreach ($this->desc as $field => &$d) {
 			if ($d instanceof HTMLFormTable) {
@@ -51,17 +54,18 @@ class HTMLFormValidate {
 		return !$error;
 	}
 
-	function validateField($field, array $d, $type, $isCheckbox) {
+	function validateField($field, array $d, $type, $isCheckbox)
+	{
 		$value = $d['value'];
 		$isHidden = $type == 'hidden';
 		if (!$d['optional'] && (
-			!($value) || (!$d['allow0'] && !isset($d['value'])))
+				!($value) || (!$d['allow0'] && !isset($d['value'])))
 			&& !$isCheckbox && !$isHidden) {
 			$d['error'] = __('Field "%1" is obligatory.', $d['label'] ?: $field);
 			//debug(array($field, $type, $value, $isCheckbox));
 		} elseif ($type instanceof Collection) {
 			// all OK, avoid calling __toString on the collection
-		} elseif ($d['mustBset'] && !isset($d['value'])) {	// must be before 'obligatory'
+		} elseif ($d['mustBset'] && !isset($d['value'])) {    // must be before 'obligatory'
 			$d['error'] = __('Field "%1" must be set', $d['label'] ?: $field);
 		} elseif ($d['obligatory'] && !$value) {
 			$d['error'] = __('Field "%1" is obligatory', $d['label'] ?: $field);
@@ -69,8 +73,8 @@ class HTMLFormValidate {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $d['label'] ?: $field);
 		} elseif ($field == 'password' && strlen($value) < 6) {
 			$d['error'] = __('Password is too short. Min 6 characters, please. It\'s for your own safety');
-        } elseif ($field == 'securePassword' && !$this->securePassword($value)) {
-            $d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
+		} elseif ($field == 'securePassword' && !$this->securePassword($value)) {
+			$d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif ($d['min'] && ($value < $d['min'])) {
 			//debug(__METHOD__, $value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $d['label'] ?: $field, $d['min']);
@@ -82,10 +86,10 @@ class HTMLFormValidate {
 			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $d['label'] ?: $field, $d['maxlen'], strlen($value));
 		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
 			//debug($_REQUEST);
-			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"] ) {
+			if ($_REQUEST["recaptcha_challenge_field"] && $_REQUEST["recaptcha_response_field"]) {
 				require_once('lib/recaptcha-php-1.10/recaptchalib.php');
 				$f = new HTMLForm();
-				$resp = recaptcha_check_answer (
+				$resp = recaptcha_check_answer(
 					$f->privatekey,
 					$_SERVER["REMOTE_ADDR"],
 					$_REQUEST["recaptcha_challenge_field"],
@@ -130,27 +134,31 @@ class HTMLFormValidate {
 		return $d;
 	}
 
-    function securePassword($value) {
-        /*
-        * REGEX used for password strength check
-        *  (?=.*\\d.*)      : at least one Digit
-        *  (?=.*[a-zA-Z].*) : any Letters
-        *  (?=.*[A-Z])      : at least one Uppercase
-        *  {8,}             : 8 Length
-        */
-        $passwordRegex = '/(?=.*\\d.*)(?=.*[a-zA-Z].*)(?=.*[A-Z]).{8,}/';
-        return(preg_match($passwordRegex, $value));
-    }
+	function securePassword($value)
+	{
+		/*
+		* REGEX used for password strength check
+		*  (?=.*\\d.*)      : at least one Digit
+		*  (?=.*[a-zA-Z].*) : any Letters
+		*  (?=.*[A-Z])      : at least one Uppercase
+		*  {8,}             : 8 Length
+		*/
+		$passwordRegex = '/(?=.*\\d.*)(?=.*[a-zA-Z].*)(?=.*[A-Z]).{8,}/';
+		return (preg_match($passwordRegex, $value));
+	}
 
-	function getDesc() {
+	function getDesc()
+	{
 		return $this->desc;
 	}
 
-	static function validMail($email) {
+	static function validMail($email)
+	{
 		return preg_match("/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i", $email);
 	}
 
-	function getErrorList() {
+	function getErrorList()
+	{
 		$list = array();
 		foreach ($this->desc as $key => $desc) {
 			if ($desc['error']) {
@@ -160,26 +168,27 @@ class HTMLFormValidate {
 		return $list;
 	}
 
-    /**
-     * If Swift_Mail is installed, Swift_Validate will be used
-     *
-     * @param $value should contain multiple email addresses (comma separated)
-     * @param array $invalid contains invalid entries (pass by reference)
-     * @return bool
-     */
-    public static function validateEmailAddresses($value, &$invalid = array()) {
-        $value = trim($value);
-        if (empty($value)) {
-            return true;
-        }
+	/**
+	 * If Swift_Mail is installed, Swift_Validate will be used
+	 *
+	 * @param $value should contain multiple email addresses (comma separated)
+	 * @param array $invalid contains invalid entries (pass by reference)
+	 * @return bool
+	 */
+	public static function validateEmailAddresses($value, &$invalid = array())
+	{
+		$value = trim($value);
+		if (empty($value)) {
+			return true;
+		}
 
-        $emailAddresses = preg_split('/\s*,\s*/', $value);
-        foreach ($emailAddresses as &$emailAddress) {
-            if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
-                !self::validMail($value)) {
-                $invalid[] = $emailAddress;
-            }
-        }
-        return empty($invalid);
-    }
+		$emailAddresses = preg_split('/\s*,\s*/', $value);
+		foreach ($emailAddresses as &$emailAddress) {
+			if ((class_exists('Swift_Validate') && !Swift_Validate::email($emailAddress)) ||
+				!self::validMail($value)) {
+				$invalid[] = $emailAddress;
+			}
+		}
+		return empty($invalid);
+	}
 }

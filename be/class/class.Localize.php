@@ -5,15 +5,16 @@
  *
  * Hint: merge two localization tables together:
  * insert into app_interface (code, lang, text)
-select app_interface_import.code, app_interface_import.lang, app_interface_import.text
-from app_interface_import
-left outer join app_interface
-on (app_interface.code = app_interface_import.code
-AND app_interface.lang = app_interface.lang)
-WHERE app_interface.text IS NULL
+ * select app_interface_import.code, app_interface_import.lang, app_interface_import.text
+ * from app_interface_import
+ * left outer join app_interface
+ * on (app_interface.code = app_interface_import.code
+ * AND app_interface.lang = app_interface.lang)
+ * WHERE app_interface.text IS NULL
  */
 
-class Localize extends AppControllerBE {
+class Localize extends AppControllerBE
+{
 	/**
 	 * @var LocalLang
 	 */
@@ -28,7 +29,8 @@ class Localize extends AppControllerBE {
 
 	public $table = 'interface';
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		$this->from = new LocalLangDB('en');
 		$this->from->indicateUntranslated = false;
@@ -42,7 +44,8 @@ class Localize extends AppControllerBE {
 		$this->url = new URL('?c=Localize');
 	}
 
-	function render() {
+	function render()
+	{
 		$content = $this->performAction();
 		/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
 			'c' => 'ImportMissing',
@@ -80,14 +83,15 @@ class Localize extends AppControllerBE {
 		return $content;
 	}
 
-	function getAllKeys() {
+	function getAllKeys()
+	{
 		$all = $this->from->getMessages();
 		$all += $this->de->getMessages();
 		$all += $this->ru->getMessages();
 		if (($search = strtolower($this->request->getTrim('search')))) {
 			foreach ($all as $key => $trans) {
 				if (strpos(strtolower($trans), $search) === FALSE &&
-					strpos(strtolower($key)  , $search) === FALSE) {
+					strpos(strtolower($key), $search) === FALSE) {
 					unset($all[$key]);
 				}
 			}
@@ -96,7 +100,8 @@ class Localize extends AppControllerBE {
 		return $keys;
 	}
 
-	function getTranslationTable(array $keys) {
+	function getTranslationTable(array $keys)
+	{
 		$table = array();
 		foreach ($keys as $key) {
 			$table[$key] = array(
@@ -106,7 +111,7 @@ class Localize extends AppControllerBE {
 										'lang' => $this->from->lang,
 										'class' => 'inlineEdit',
 									), $this->from->M($key)),
-				*/				);
+				*/);
 			foreach (array('from', 'de', 'ru') as $lang) {
 				$lobj = $this->$lang;
 				/** @var $lobj LocalLangDB */
@@ -122,9 +127,9 @@ class Localize extends AppControllerBE {
 				}
 
 				$table[$key][$lang] = new HTMLTag('td', array(
-						'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
+					'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
 					'lang' => $lobj->lang,
-					'class' => 'inlineEdit '.$colorCode,
+					'class' => 'inlineEdit ' . $colorCode,
 				), isset($lobj->lang[$key]) ? $lobj->M($key) : '-');
 
 				// Page
@@ -137,7 +142,7 @@ class Localize extends AppControllerBE {
 					$table[$key]['page'] .= new HTMLTag('a', array(
 							'href' => $row['page'],
 							'class' => $colorPage,
-						), $url->getParam('c') ?: basename($url->getPath())).' ';
+						), $url->getParam('c') ?: basename($url->getPath())) . ' ';
 				}
 
 			}
@@ -153,7 +158,8 @@ class Localize extends AppControllerBE {
 		return $table;
 	}
 
-	function saveAction() {
+	function saveAction()
+	{
 		$id = $this->request->getTrim('id');
 		if ($id) {
 			$this->save($id, $this->request->getTrim('value'));
@@ -163,11 +169,12 @@ class Localize extends AppControllerBE {
 	}
 
 	/**
-	 * @param $rel	- can be int: ID of the already translated element
-	 * 				- can be string: Code of the original English element
+	 * @param $rel - can be int: ID of the already translated element
+	 *                - can be string: Code of the original English element
 	 * @param $save
 	 */
-	function save($rel, $save) {
+	function save($rel, $save)
+	{
 		//$save = $this->request->getTrim('save');
 		//$rel = $this->request->getInt('rel');
 		if (is_numeric($rel)) {
@@ -194,7 +201,8 @@ class Localize extends AppControllerBE {
 		echo htmlspecialchars($save);
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$f = new HTMLForm();
 		$f->method('GET');
 		$f->hidden('c', get_class($this));
@@ -207,7 +215,8 @@ class Localize extends AppControllerBE {
 		return $content;
 	}
 
-	function deleteDuplicatesAction() {
+	function deleteDuplicatesAction()
+	{
 		$rows = $this->db->fetchSelectQuery('interface', array(
 			'lang' => 'en',
 		), 'ORDER BY code, id');
@@ -223,7 +232,8 @@ class Localize extends AppControllerBE {
 		}
 	}
 
-	function deleteRowAction() {
+	function deleteRowAction()
+	{
 		//debug($_REQUEST);
 		$this->db->runUpdateQuery('interface', array(
 			'deleted' => true,

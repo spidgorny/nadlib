@@ -3,7 +3,8 @@
 /**
  * Class Flot - is drawing a flot chart.
  */
-class Flot extends AppController {
+class Flot extends AppController
+{
 
 	protected $colors = array(
 		'#edc240',
@@ -53,12 +54,13 @@ class Flot extends AppController {
 	var $flotPath = 'components/flot/flot/';
 
 	/**
-	 * @param array $data	- source data
-	 * @param $keyKey		- group by field (distinct charts, lines)
-	 * @param $timeKey		- time field
-	 * @param $amountKey	- value (numeric) field
+	 * @param array $data - source data
+	 * @param $keyKey - group by field (distinct charts, lines)
+	 * @param $timeKey - time field
+	 * @param $amountKey - value (numeric) field
 	 */
-	function __construct(array $data, $keyKey, $timeKey, $amountKey) {
+	function __construct(array $data, $keyKey, $timeKey, $amountKey)
+	{
 		parent::__construct();
 		$this->data = $data;
 		$this->keyKey = $keyKey;
@@ -72,14 +74,14 @@ class Flot extends AppController {
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	function setFlot($path) {
+	function setFlot($path)
+	{
 		$this->flotPath = $path;
 	}
 
 	/**
 	 * Fixed for Posa Cards
 	 *
-	 * @internal param array $data
 	 * @param string $divID
 	 * @return array
 	 * array[19]
@@ -89,8 +91,10 @@ class Flot extends AppController {
 	 * 1314828000    array[2]
 	 * 0    integer    1314828000000
 	 * 1    integer    39
+	 * @internal param array $data
 	 */
-	function render($divID = 'chart1') {
+	function render($divID = 'chart1')
+	{
 		$content = '';
 		$chart = $this->getChartTable($this->data);
 		$max = $this->getChartMax($chart);
@@ -98,7 +102,8 @@ class Flot extends AppController {
 		return $content;
 	}
 
-	function renderCumulative($divID = 'chart1') {
+	function renderCumulative($divID = 'chart1')
+	{
 		$content = '';
 		$chart = $this->getChartTable($this->data);
 		$this->cumulative = $this->getChartCumulative($chart);
@@ -107,7 +112,8 @@ class Flot extends AppController {
 		return $content;
 	}
 
-	function appendCumulative(array $data) {
+	function appendCumulative(array $data)
+	{
 		//debug($this->cumulative, $data);
 		$cumulative2 = array();
 		foreach ($this->cumulative as $series) {
@@ -116,12 +122,12 @@ class Flot extends AppController {
 		$cumulative = array_values($cumulative2);
 		$dataClass = array();
 		foreach ($data as $i => &$row) {
-			$color = $this->colors[$row[$this->keyKey]-1];
-			$dataClass[$i] = '" style="background: white; color: '.$color;
+			$color = $this->colors[$row[$this->keyKey] - 1];
+			$dataClass[$i] = '" style="background: white; color: ' . $color;
 			//$row['###TD_CLASS###'] = '" style="background: white; color: '.$color;
 
 			//$row['cumulative'] = $cumulative[$i][1];
-			$jsTime = strtotime($i)*1000;
+			$jsTime = strtotime($i) * 1000;
 			$row['cumulative'] = $this->cumulative['Total'][$jsTime][1];
 		}
 		return $data;
@@ -133,19 +139,20 @@ class Flot extends AppController {
 	 * Uses strtotime() so the $timeKey values should be PHP parsable
 	 *
 	 * @param array $rows
-	 * @internal param string $keyKey
+	 * @return array
 	 * @internal param string $timeKey
 	 * @internal param string $amountKey
-	 * @return array
+	 * @internal param string $keyKey
 	 */
-	function getChartTable(array $rows) {
+	function getChartTable(array $rows)
+	{
 		$chart = array();
 		foreach ($rows as $i => $row) {
 			$key = $row[$this->keyKey];
 			$time = $row[$this->timeKey];
 			if ($time) {
 				$time = is_string($time) ? strtotime($time) : $time;
-				$chart[$key][$time] = array($time*1000, $row[$this->amountKey]);
+				$chart[$key][$time] = array($time * 1000, $row[$this->amountKey]);
 			} else {
 				unset($rows[$i]);
 			}
@@ -153,7 +160,8 @@ class Flot extends AppController {
 		return $chart;
 	}
 
-	function getChartCumulative(array $chart) {
+	function getChartCumulative(array $chart)
+	{
 		foreach ($chart as &$sub) {
 			ksort($sub);
 			$sum = 0;
@@ -166,7 +174,8 @@ class Flot extends AppController {
 		return $chart;
 	}
 
-	static function getChartMax(array $chart) {
+	static function getChartMax(array $chart)
+	{
 		$max = 0;
 		foreach ($chart as $series) {
 			foreach ($series as $pair) {
@@ -176,32 +185,33 @@ class Flot extends AppController {
 		return $max;
 	}
 
-	function showChart($divID, array $charts, array $cumulative, $max) {
+	function showChart($divID, array $charts, array $cumulative, $max)
+	{
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
-			src="'.$this->flotPath.'excanvas.min.js"></script><![endif]-->
+			src="' . $this->flotPath . 'excanvas.min.js"></script><![endif]-->
     	<script language="javascript" type="text/javascript"
-    	    src="'.$this->flotPath.'jquery.flot.js"></script>
+    	    src="' . $this->flotPath . 'jquery.flot.js"></script>
     	<script language="javascript" type="text/javascript"
-    	    src="'.$this->flotPath.'jquery.flot.stack.js"></script>
+    	    src="' . $this->flotPath . 'jquery.flot.stack.js"></script>
     	<script language="javascript" type="text/javascript"
-    	    src="'.$this->flotPath.'jquery.flot.time.js"></script>';
+    	    src="' . $this->flotPath . 'jquery.flot.time.js"></script>';
 
-		$content = '<div id="'.$divID.'" style="
-			width: '.$this->width.';
-			height: '.$this->height.';
+		$content = '<div id="' . $divID . '" style="
+			width: ' . $this->width . ';
+			height: ' . $this->height . ';
 			border: none 0px silver;"></div>';
 
 		$dKeys = array();
 		foreach ($charts as $key => &$rows) {
-			$jsKey = 'd_'.Controller::friendlyURL($key);
+			$jsKey = 'd_' . Controller::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$dKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
-			$rows = 'var '.$jsKey.' = {
-				label: "'.$key.'",
-				data: '.json_encode($array).',
+			$rows = 'var ' . $jsKey . ' = {
+				label: "' . $key . '",
+				data: ' . json_encode($array) . ',
 				stack: true,
 				bars: {
 					show: true,
@@ -213,12 +223,12 @@ class Flot extends AppController {
 
 		$cKeys = array();
 		foreach ($cumulative as $key => &$rows) {
-			$jsKey = 'c_'.Controller::friendlyURL($key);
+			$jsKey = 'c_' . Controller::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$cKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : array();
-			$rows = 'var '.$jsKey.' = {
-				data: '.json_encode($array).',
+			$rows = 'var ' . $jsKey . ' = {
+				data: ' . json_encode($array) . ',
 				lines: {
 					show: true,
 					fill: false
@@ -231,22 +241,22 @@ class Flot extends AppController {
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
 jQuery("document").ready(function ($) {
-	'.implode("\n", $charts).'
-	'.implode("\n", $cumulative).'
-    $.plot($("#'.$divID.'"), [
-    	'.implode(", ", $dKeys).',
-    	'.implode(", ", $cKeys).'
+	' . implode("\n", $charts) . '
+	' . implode("\n", $cumulative) . '
+    $.plot($("#' . $divID . '"), [
+    	' . implode(", ", $dKeys) . ',
+    	' . implode(", ", $cKeys) . '
     ], {
     	xaxis: {
     		mode: "time"
     	},
     	yaxes: [ {
-    			max: '.$max.'
+    			max: ' . $max . '
     		}, {
     			position: "right"
     		}
     	],
-    	colors: '.json_encode($this->colors).'
+    	colors: ' . json_encode($this->colors) . '
     });
 });
 </script>';

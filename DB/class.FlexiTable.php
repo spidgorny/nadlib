@@ -5,7 +5,8 @@
  * and add new DB columns based on INSERT and UPDATE queries. Useful for quick DB prototyping.
  * Data type for new columns is not perfect.
  */
-class FlexiTable extends OODBase {
+class FlexiTable extends OODBase
+{
 
 	/**
 	 * @var array
@@ -20,14 +21,15 @@ class FlexiTable extends OODBase {
 
 	/**
 	 * array(
-	 * 		$table => array('id' => ...)
+	 *        $table => array('id' => ...)
 	 * )
 	 *
 	 * @var array
 	 */
 	static protected $tableColumns = array();
 
-	function __construct($id = NULL) {
+	function __construct($id = NULL)
+	{
 		parent::__construct($id);
 		//debug(Config::getInstance()->config[__CLASS__]);
 		$this->doCheck = Config::getInstance()->config[__CLASS__]['doCheck'];
@@ -36,7 +38,8 @@ class FlexiTable extends OODBase {
 		}
 	}
 
-	function insert(array $row) {
+	function insert(array $row)
+	{
 		if (!$row['ctime']) {
 			$row['ctime'] = new AsIs('now()');
 		}
@@ -50,7 +53,8 @@ class FlexiTable extends OODBase {
 		return $ret;
 	}
 
-	function update(array $row) {
+	function update(array $row)
+	{
 		if (!$row['mtime']) {
 			$mtime = new Time();
 			$row['mtime'] = $mtime->format('Y-m-d H:i:s');
@@ -62,28 +66,31 @@ class FlexiTable extends OODBase {
 			$this->checkAllFields($row);
 		}
 		$tempMtime = $this->data['mtime'];
-		$res = parent::update($row);	// calls $this->init($id) to update data
+		$res = parent::update($row);    // calls $this->init($id) to update data
 		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
 		return $res;
 	}
 
-	function findInDB(array $where, $orderby = '') {
+	function findInDB(array $where, $orderby = '')
+	{
 		if ($this->doCheck) {
 			$this->checkAllFields($where);
 		}
 		parent::findInDB($where, $orderby);
 	}
 
-/*********************/
+	/*********************/
 
-	function checkAllFields(array $row) {
+	function checkAllFields(array $row)
+	{
 		$this->fetchColumns();
 		foreach ($row as $field => $value) {
 			$this->checkCreateField($field, $value);
 		}
 	}
 
-	function fetchColumns($force = false) {
+	function fetchColumns($force = false)
+	{
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		$table = str_replace('`', '', $this->table);
 		$table = str_replace("'", '', $table);
@@ -95,25 +102,28 @@ class FlexiTable extends OODBase {
 		//if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
-	function checkCreateTable() {
+	function checkCreateTable()
+	{
 		$this->fetchColumns();
 		if (!$this->columns) {
-			$this->db->perform('CREATE TABLE '.$this->db->escape($this->table).' (id integer auto_increment, PRIMARY KEY (id))');
+			$this->db->perform('CREATE TABLE ' . $this->db->escape($this->table) . ' (id integer auto_increment, PRIMARY KEY (id))');
 			$this->fetchColumns(true);
 		}
 	}
 
-	function checkCreateField($field, $value) {
+	function checkCreateField($field, $value)
+	{
 		//debug($this->columns);
 		$qb = Config::getInstance()->qb;
 		$field = strtolower($field);
 		if (strtolower($this->columns[$field]['Field']) != $field) {
-			$this->db->perform('ALTER TABLE '.$this->db->escape($this->table).' ADD COLUMN '.$qb->quoteKey($field).' '.$this->getType($value));
+			$this->db->perform('ALTER TABLE ' . $this->db->escape($this->table) . ' ADD COLUMN ' . $qb->quoteKey($field) . ' ' . $this->getType($value));
 			$this->fetchColumns(true);
 		}
 	}
 
-	function getType($value) {
+	function getType($value)
+	{
 		if (is_int($value)) {
 			$type = 'integer';
 		} else if ($value instanceof Time) {
@@ -136,7 +146,8 @@ class FlexiTable extends OODBase {
 	 * and save the result into $this->$field
 	 * @param bool $debug
 	 */
-	function expand($debug = false) {
+	function expand($debug = false)
+	{
 		static $stopDebug = false;
 		$this->fetchColumns();
 		foreach ($this->columns as $field => &$info) {
@@ -162,7 +173,7 @@ class FlexiTable extends OODBase {
 					unset($this->data[$field]);
 					$info['unxml'] = 'true';
 				} elseif ($this->data[$field]{0} == '{') {
-					$this->$field = json_decode($uncompressed, false);	// make it look like SimpleXML
+					$this->$field = json_decode($uncompressed, false);    // make it look like SimpleXML
 					unset($this->data[$field]);
 					$info['unjson'] = 'true';
 				}

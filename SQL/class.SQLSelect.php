@@ -1,9 +1,11 @@
 <?php
 
-class SQLSelect {
+class SQLSelect
+{
 	protected $parts = array();
 
-	function __construct($parts) {
+	function __construct($parts)
+	{
 		if (is_array($parts)) {
 			$this->parts = $parts;
 		} else if ($parts) {
@@ -13,7 +15,8 @@ class SQLSelect {
 		}
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return implode(', ', $this->parts);
 	}
 

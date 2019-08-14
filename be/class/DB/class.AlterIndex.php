@@ -1,37 +1,41 @@
 <?php
 
-class AlterIndex extends AppControllerBE {
+class AlterIndex extends AppControllerBE
+{
 
 	/**
 	 * @var string
 	 */
 	var $jsonFile;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		$c = Config::getInstance();
 		//$this->db->switchDB('glore');
-		$this->jsonFile = $c->appRoot.'/sql/'.$this->db->db.'.json';
+		$this->jsonFile = $c->appRoot . '/sql/' . $this->db->db . '.json';
 
 		if (true) {
-			require_once $c->appRoot.'/constants.php';
+			require_once $c->appRoot . '/constants.php';
 			$GLOBALS['dbLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
 			$this->db = $GLOBALS['dbLayer'];
 			$c->db = $GLOBALS['dbLayer'];
 			$c->qb->db = $GLOBALS['dbLayer'];
 		}
 
-		$this->jsonFile = $c->appRoot.'/sql/buglog_dev.json';
+		$this->jsonFile = $c->appRoot . '/sql/buglog_dev.json';
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = '';
-		$content .= 'DB: '.$this->db->database.BR;
+		$content .= 'DB: ' . $this->db->database . BR;
 		$content .= $this->getActionButton('Save DB Struct', 'saveStruct');
 		return $content;
 	}
 
-	function saveStructAction() {
+	function saveStructAction()
+	{
 		$struct = $this->getDBStruct();
 		if (phpversion() > '5.4') {
 			$json = json_encode($struct, JSON_PRETTY_PRINT);
@@ -40,10 +44,11 @@ class AlterIndex extends AppControllerBE {
 		}
 
 		file_put_contents($this->jsonFile, $json);
-		return 'Saved: '.strlen($json).'<br />';
+		return 'Saved: ' . strlen($json) . '<br />';
 	}
 
-	function getDBStruct() {
+	function getDBStruct()
+	{
 		$result = array();
 		$tables = $this->db->getTables();
 		foreach ($tables as $t) {
@@ -58,7 +63,8 @@ class AlterIndex extends AppControllerBE {
 		return $result;
 	}
 
-	function render() {
+	function render()
+	{
 		$content = $this->performAction();
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
@@ -71,33 +77,34 @@ class AlterIndex extends AppControllerBE {
 		return $content;
 	}
 
-	function renderTableStruct(array $struct, array $local) {
+	function renderTableStruct(array $struct, array $local)
+	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4>Table: '.$table.'</h4>';
+			$content .= '<h4>Table: ' . $table . '</h4>';
 
 			$indexCompare = array();
 			foreach ($desc['indexes'] as $i => $index) {
 				$localIndex = $local[$table]['indexes'][$i];
-				unset($index['Cardinality'], $localIndex['Cardinality']);	// changes over time
+				unset($index['Cardinality'], $localIndex['Cardinality']);    // changes over time
 				if ($index != $localIndex) {
 					//$content .= getDebug($index, $localIndex);
 					if (is_array($index)) {
 						$indexCompare[] = array('same' => 'sql file',
-							'###TR_MORE###' => 'style="background: pink"',
+								'###TR_MORE###' => 'style="background: pink"',
 							) + $index;
 					}
 					if (is_array($localIndex)) {
 						$indexCompare[] = array('same' => 'database',
-							'###TR_MORE###' => 'style="background: pink"',
-						) + $localIndex;
+								'###TR_MORE###' => 'style="background: pink"',
+							) + $localIndex;
 					} else {
 						$indexCompare[] = array(
 							'Table' => new HTMLTag('td', array(
-									'colspan' => 10,
-								), 'CREATE '.($index['Non_unique'] ? '' : 'UNIQUE' ).
-								' INDEX '.$index['Key_name'].
-								' ON '.$index['Table'].' ('.$index['Key_name'].')'
+								'colspan' => 10,
+							), 'CREATE ' . ($index['Non_unique'] ? '' : 'UNIQUE') .
+								' INDEX ' . $index['Key_name'] .
+								' ON ' . $index['Table'] . ' (' . $index['Key_name'] . ')'
 							),
 						);
 					}

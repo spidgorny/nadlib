@@ -3,14 +3,17 @@
 /**
  * SessionUser is stored in the database and has an ID even though the login is stored in the session.
  */
-class SessionUser extends PlainSessionUser {
+class SessionUser extends PlainSessionUser
+{
 
-	function __construct($id = NULL) {
+	function __construct($id = NULL)
+	{
 		parent::__construct($id);
 		$this->autologin(); // the main difference of SessionUser
 	}
 
-	function autologin() {
+	function autologin()
+	{
 		//debug($_SESSION);
 		if ($login = $_SESSION[__CLASS__]['login']) {
 			$inSession = $this->checkPassword($login, $_SESSION[__CLASS__]['password']);
@@ -22,7 +25,8 @@ class SessionUser extends PlainSessionUser {
 		}
 	}
 
-	function autoCreate($email) {
+	function autoCreate($email)
+	{
 		// we go here only if not logged in
 		// if not a new email and no password we need to ask for password
 		$u = new User(); // not to mess-up with current object
@@ -33,7 +37,7 @@ class SessionUser extends PlainSessionUser {
 		} else {
 			$password = rand(1000000, 9999999);
 			if (DEVELOPMENT) {
-				print 'Generated password: '.$password;
+				print 'Generated password: ' . $password;
 			}
 			$this->insert(array(
 				'email' => $email,
@@ -43,7 +47,7 @@ class SessionUser extends PlainSessionUser {
 			$dataObj = new stdClass();
 			$dataObj->email = $email;
 			$dataObj->password = $password;
-			mail($email, 'Account created', new View('emailNewAutoAccount.phtml', $dataObj), "From: ".$GLOBALS['i']->mailFrom);
+			mail($email, 'Account created', new View('emailNewAutoAccount.phtml', $dataObj), "From: " . $GLOBALS['i']->mailFrom);
 
 			$this->saveLogin($email, md5($password));
 			//$this->autologin();
@@ -58,9 +62,10 @@ class SessionUser extends PlainSessionUser {
 	 * @param unknown_type $password - hash
 	 * @throws Exception
 	 */
-	function saveLogin($email, $password) {
+	function saveLogin($email, $password)
+	{
 		if (strlen($password) != 32) {
-			throw new Exception(__METHOD__.': supplied password is not hash.');
+			throw new Exception(__METHOD__ . ': supplied password is not hash.');
 		} else {
 			$_SESSION[__CLASS__]['login'] = $email;
 			$_SESSION[__CLASS__]['password'] = $password;
@@ -72,7 +77,8 @@ class SessionUser extends PlainSessionUser {
 		}
 	}
 
-	function logout() {
+	function logout()
+	{
 		unset($_SESSION[__CLASS__]);
 		User::unsetInstance($GLOBALS['i']->user->id);
 		unset($GLOBALS['i']->user);

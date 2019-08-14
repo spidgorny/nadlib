@@ -1,6 +1,7 @@
 <?php
 
-class View {
+class View
+{
 
 	/**
 	 * @var string
@@ -31,12 +32,13 @@ class View {
 	 */
 	protected $index;
 
-	function __construct($file, $copyObject = NULL) {
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__.' ('.$file.')');
+	function __construct($file, $copyObject = NULL)
+	{
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__ . ' (' . $file . ')');
 		$config = Config::getInstance();
-		$this->folder = $config->appRoot.'/template/';
+		$this->folder = $config->appRoot . '/template/';
 		if (class_exists('Config') && $config->config[__CLASS__]['folder']) {
-			$this->folder = dirname(__FILE__).'/'.$config->config[__CLASS__]['folder'];
+			$this->folder = dirname(__FILE__) . '/' . $config->config[__CLASS__]['folder'];
 		}
 		$this->file = $file;
 		nodebug(
@@ -56,17 +58,18 @@ class View {
 		$this->ll = class_exists('Config') ? Config::getInstance()->ll : NULL;
 		$this->request = Request::getInstance();
 		$this->index = class_exists('Index') ? Index::getInstance() : NULL;
-		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__.' ('.$file.')');
+		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer(__METHOD__ . ' (' . $file . ')');
 	}
 
-/*	Add as many public properties as you like and use them in the PHTML file. */
+	/*	Add as many public properties as you like and use them in the PHTML file. */
 
-	function render() {
-		$key = __METHOD__.' ('.basename($this->file).')';
+	function render()
+	{
+		$key = __METHOD__ . ' (' . basename($this->file) . ')';
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer($key);
 		$file = dirname($this->file) != '.'
 			? $this->file
-			: $this->folder.$this->file;
+			: $this->folder . $this->file;
 		//debug($this->folder, $this->file, $file, filesize($file));
 		$content = '';
 		ob_start();
@@ -82,14 +85,15 @@ class View {
 		if (DEVELOPMENT) {
 			// not allowed in MRBS as some templates return OBJECT(!)
 			//$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-			$content = '<!-- View template: '.$this->folder.$this->file.' -->'."\n".
+			$content = '<!-- View template: ' . $this->folder . $this->file . ' -->' . "\n" .
 				$content;
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->stopTimer($key);
 		return $content;
 	}
 
-	function wikify($text, $linkCallback = null) {
+	function wikify($text, $linkCallback = null)
+	{
 		$inUL = false;
 		$lines2 = array();
 		$lines = trimExplode("\n", $text);
@@ -101,7 +105,7 @@ class View {
 				}
 			}
 			$lines2[] = $inUL
-				? '<li>'.substr($line, 2).'</li>'
+				? '<li>' . substr($line, 2) . '</li>'
 				: $line;
 			if ($line{0} != '*' && $line{0} != '-') {
 				if ($inUL) {
@@ -135,8 +139,9 @@ class View {
 	 *
 	 * @param string $sep
 	 */
-	function splitBy($sep) {
-		$file = 'template/'.$this->file;
+	function splitBy($sep)
+	{
+		$file = 'template/' . $this->file;
 		$content = file_get_contents($file);
 		$this->parts = explode($sep, $content);
 	}
@@ -147,9 +152,10 @@ class View {
 	 * @param int $i
 	 * @return string
 	 */
-	function renderPart($i) {
+	function renderPart($i)
+	{
 		//debug($this->parts[$i]);
-		return eval('?>'.$this->parts[$i]);
+		return eval('?>' . $this->parts[$i]);
 	}
 
 	/**
@@ -157,13 +163,15 @@ class View {
 	 * @param $str
 	 * @return string
 	 */
-	function escape($str) {
+	function escape($str)
+	{
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		//debug_pre_print_backtrace();
-		return $this->render().'';
+		return $this->render() . '';
 	}
 
 	/**
@@ -171,39 +179,43 @@ class View {
 	 * @param array $params
 	 * @return URL
 	 */
-	function link(array $params) {
+	function link(array $params)
+	{
 		return Index::getInstance()->controller->getURL($params);
 	}
 
-	function __call($func, array $args) {
+	function __call($func, array $args)
+	{
 		$method = array($this->caller, $func);
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			//$method = array($this->caller, end(explode('::', $func)));
-			throw new Exception('View: Method ('.implode(', ', $method).') doesn\'t exists.');
+			throw new Exception('View: Method (' . implode(', ', $method) . ') doesn\'t exists.');
 		}
 		return call_user_func_array($method, $args);
 	}
 
-	function &__get($var) {
+	function &__get($var)
+	{
 		return $this->caller->$var;
 	}
 
-/*	function __set($var, $val) {
-		$this->caller->$var = &$val;
-	}
-*/
+	/*	function __set($var, $val) {
+			$this->caller->$var = &$val;
+		}
+	*/
 
 	/**
-	   NAME        : autolink()
-	   VERSION     : 1.0
-	   AUTHOR      : J de Silva
-	   DESCRIPTION : returns VOID; handles converting
-					 URLs into clickable links off a string.
-	   TYPE        : functions
+	 * NAME        : autolink()
+	 * VERSION     : 1.0
+	 * AUTHOR      : J de Silva
+	 * DESCRIPTION : returns VOID; handles converting
+	 * URLs into clickable links off a string.
+	 * TYPE        : functions
 	 * http://www.gidforums.com/t-1816.html
-	   ======================================*/
+	 * ======================================*/
 
-	function autolink( &$text, $target='_blank', $nofollow=true ) {
+	function autolink(&$text, $target = '_blank', $nofollow = true)
+	{
 		// grab anything that looks like a URL...
 		$urls = $this->_autolink_find_URLS($text);
 		if (!empty($urls)) // i.e. there were some URLS found in the text
@@ -217,7 +229,8 @@ class View {
 		return $text;
 	}
 
-	static function _autolink_find_URLS( $text ) {
+	static function _autolink_find_URLS($text)
+	{
 		// build the patterns
 		$scheme = '(http:\/\/|https:\/\/)';
 		$www = 'www\.';
@@ -237,7 +250,8 @@ class View {
 		return (array());
 	}
 
-	function _autolink_create_html_tags(&$value, $key, $other = NULL) {
+	function _autolink_create_html_tags(&$value, $key, $other = NULL)
+	{
 		$target = $nofollow = NULL;
 		if (is_array($other)) {
 			$target = ($other['target'] ? " target=\"$other[target]\"" : NULL);
@@ -247,32 +261,36 @@ class View {
 		$value = "<a href=\"$key\"$target$nofollow>$key</a>";
 	}
 
-	function linkBIDs($text) {
+	function linkBIDs($text)
+	{
 		$text = preg_replace('/\[#(\d+)\]/', '<a href="?main2.php?bid=$1">$1</a>', $text);
 		return $text;
 	}
 
-	function money($val) {
+	function money($val)
+	{
 		return number_format(floatval($val), 2, '.', '');
 	}
 
-	function euro($val, $noCent = false) {
-		$money = $this->money($val).'&nbsp;&euro;';
+	function euro($val, $noCent = false)
+	{
+		$money = $this->money($val) . '&nbsp;&euro;';
 		if ($noCent) {
 			$money = str_replace('.00', '.-', $money);
 		}
 		return $money;
 	}
 
-	static function bar($percent, array $params = array(), $attr = array()) {
+	static function bar($percent, array $params = array(), $attr = array())
+	{
 		$percent = round($percent);
-		$src = 'vendor/spidgorny/nadlib/bar.php?'.http_build_query($params + array(
-			'rating' => $percent,
-			'color' => '6DC5B4',
-		));
+		$src = 'vendor/spidgorny/nadlib/bar.php?' . http_build_query($params + array(
+					'rating' => $percent,
+					'color' => '6DC5B4',
+				));
 		$attr += array(
 			'src' => $src,
-			'alt' => $percent.'%',
+			'alt' => $percent . '%',
 		);
 		return new HTMLTag('img', $attr, NULL);
 	}

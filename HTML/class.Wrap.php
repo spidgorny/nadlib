@@ -1,9 +1,11 @@
 <?php
 
-class Wrap {
+class Wrap
+{
 	protected $wrap1, $wrap2;
 
-	function  __construct($strWrap, $arrWrap2 = NULL) {
+	function __construct($strWrap, $arrWrap2 = NULL)
+	{
 		if ($arrWrap2) {
 			$this->wrap1 = $strWrap;
 			$this->wrap2 = $arrWrap2;
@@ -14,16 +16,19 @@ class Wrap {
 		//echo __METHOD__.' '.$db->getCaller(3).' '.$this->__toString().'<br />'."\n";
 	}
 
-	function __toString() {
-		return 'Wrap Object ('.strlen($this->wrap1).', '.strlen($this->wrap2).')';
+	function __toString()
+	{
+		return 'Wrap Object (' . strlen($this->wrap1) . ', ' . strlen($this->wrap2) . ')';
 	}
 
-	function debug() {
+	function debug()
+	{
 		return $this->__toString();
 	}
 
-	function wrap($str) {
-		return $this->wrap1.$str.$this->wrap2;
+	function wrap($str)
+	{
+		return $this->wrap1 . $str . $this->wrap2;
 	}
 
 	/**
@@ -31,7 +36,8 @@ class Wrap {
 	 * @param $w2
 	 * @return Wrap
 	 */
-	static function make($w1, $w2 = '') {
+	static function make($w1, $w2 = '')
+	{
 		return new self($w1, $w2);
 	}
 

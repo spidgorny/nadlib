@@ -1,12 +1,14 @@
 <?php
 
-class PrettyJson {
+class PrettyJson
+{
 
 	/**
 	 * Pretty print some JSON
 	 * http://www.php.net/manual/en/function.json-encode.php#80339
 	 */
-	function json_format($json)	{
+	function json_format($json)
+	{
 		$tab = "  ";
 		$new_json = "";
 		$indent_level = 0;
@@ -14,64 +16,49 @@ class PrettyJson {
 
 		$json_obj = json_decode($json);
 
-		if($json_obj === false)
+		if ($json_obj === false)
 			return false;
 
 		$json = json_encode($json_obj);
 		$len = strlen($json);
 
-		for($c = 0; $c < $len; $c++)
-		{
+		for ($c = 0; $c < $len; $c++) {
 			$char = $json[$c];
-			switch($char)
-			{
+			switch ($char) {
 				case '{':
 				case '[':
-					if(!$in_string)
-					{
-						$new_json .= $char . "\n" . str_repeat($tab, $indent_level+1);
+					if (!$in_string) {
+						$new_json .= $char . "\n" . str_repeat($tab, $indent_level + 1);
 						$indent_level++;
-					}
-					else
-					{
+					} else {
 						$new_json .= $char;
 					}
 					break;
 				case '}':
 				case ']':
-					if(!$in_string)
-					{
+					if (!$in_string) {
 						$indent_level--;
 						$new_json .= "\n" . str_repeat($tab, $indent_level) . $char;
-					}
-					else
-					{
+					} else {
 						$new_json .= $char;
 					}
 					break;
 				case ',':
-					if(!$in_string)
-					{
+					if (!$in_string) {
 						$new_json .= ",\n" . str_repeat($tab, $indent_level);
-					}
-					else
-					{
+					} else {
 						$new_json .= $char;
 					}
 					break;
 				case ':':
-					if(!$in_string)
-					{
+					if (!$in_string) {
 						$new_json .= ": ";
-					}
-					else
-					{
+					} else {
 						$new_json .= $char;
 					}
 					break;
 				case '"':
-					if($c > 0 && $json[$c-1] != '\\')
-					{
+					if ($c > 0 && $json[$c - 1] != '\\') {
 						$in_string = !$in_string;
 					}
 				default:

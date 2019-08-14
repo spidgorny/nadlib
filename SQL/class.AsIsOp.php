@@ -12,18 +12,22 @@
  *
  * Well, it's clever enough to use "=" sign for WHERE and UPDATE queries and nothing in INSERT.
  */
-class AsIsOp {
+class AsIsOp
+{
 	protected $value;
 
-	function __construct($val) {
+	function __construct($val)
+	{
 		$this->value = $val;
 	}
 
-	function __toString() {
-		return $this->value.'';
+	function __toString()
+	{
+		return $this->value . '';
 	}
 
-	function debug() {
+	function debug()
+	{
 		return array(
 			'field' => $this->field,
 			'value' => $this->value,

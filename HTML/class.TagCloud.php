@@ -1,10 +1,12 @@
 <?php
 
-class TagCloud extends AppController {
+class TagCloud extends AppController
+{
 	protected $words = array();
 	protected $count;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		$words = $GLOBALS['i']->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
 		$words = $GLOBALS['i']->db->fetchAll($words);
@@ -19,14 +21,16 @@ class TagCloud extends AppController {
 		$this->count = $count;
 	}
 
-	function parseWords(array $row) {
+	function parseWords(array $row)
+	{
 		//debug($row);
-		$url = "Companies?sword=".urlencode($row['name']);
+		$url = "Companies?sword=" . urlencode($row['name']);
 		$row['url'] = $url;
 		return $row;
 	}
 
-	function renderHTML() {
+	function renderHTML()
+	{
 		$content = '';
 		$cloud = new WordCloud();
 		foreach ($this->words as $row) {
@@ -40,49 +44,52 @@ class TagCloud extends AppController {
 		//$content .= $cloud->showCloud();
 		$cloud = $cloud->showCloud('array');
 		foreach ($cloud as $cloudArray) {
-			$content .= ' &nbsp; <a href="'.$cloudArray['url'].'" class="word size'.$cloudArray['range'].'">'.$cloudArray['word'].'</a> &nbsp;';
+			$content .= ' &nbsp; <a href="' . $cloudArray['url'] . '" class="word size' . $cloudArray['range'] . '">' . $cloudArray['word'] . '</a> &nbsp;';
 		}
 		return $content;
 	}
 
-	function renderXML() {
+	function renderXML()
+	{
 		$content = '';
 		foreach ($this->words as $row) {
-			$size = 8+round($row['count'] / $this->count * 10); // 8...18
-			$content .= "<a href='".$row['url']."' style='".$size."'>".htmlspecialchars($row['name'])."</a>";
+			$size = 8 + round($row['count'] / $this->count * 10); // 8...18
+			$content .= "<a href='" . $row['url'] . "' style='" . $size . "'>" . htmlspecialchars($row['name']) . "</a>";
 		}
-		$content = '<tags>'.$content.'</tags>';
+		$content = '<tags>' . $content . '</tags>';
 		return $content;
 	}
 
-	function renderHTMLandFlash() {
+	function renderHTMLandFlash()
+	{
 		$this->index->addCSS('css/wordcloud.css');
 		$this->index->addJS('lib/wp-cumulus/swfobject.js');
 		$this->index->addJS('nadlib/js/tagCloud.js');
 		return '
 		<div id="flashcontent">
-			'.$this->renderHTML().'
+			' . $this->renderHTML() . '
 		</div>
 		<div id="flashxml" style="display: none;">
-			'.htmlspecialchars($this->renderXML()).'
+			' . htmlspecialchars($this->renderXML()) . '
 		</div>';
-/*		'
-		<script src="lib/wp-cumulus/swfobject.js"></script>
-		<script type="text/javascript">
-			var so = new SWFObject(
-				"lib/wp-cumulus/tagcloud.swf",
-				"tagcloud",
-				$("#flashcontent").width(),
-				$("#flashcontent").width()*3/4,
-				"7", "#336699");
-			so.addParam("wmode", "transparent");
-			so.addVariable("mode", "tags");
-			so.addVariable("distr", "true");
-			so.addVariable("tcolor", "0xff0000");
-			so.addVariable("hicolor", "0x000000");
-			so.addVariable("tagcloud", "'.$this->renderXML().'");
-			so.write("flashcontent");
-		</script>';
-*/	}
+		/*		'
+				<script src="lib/wp-cumulus/swfobject.js"></script>
+				<script type="text/javascript">
+					var so = new SWFObject(
+						"lib/wp-cumulus/tagcloud.swf",
+						"tagcloud",
+						$("#flashcontent").width(),
+						$("#flashcontent").width()*3/4,
+						"7", "#336699");
+					so.addParam("wmode", "transparent");
+					so.addVariable("mode", "tags");
+					so.addVariable("distr", "true");
+					so.addVariable("tcolor", "0xff0000");
+					so.addVariable("hicolor", "0x000000");
+					so.addVariable("tagcloud", "'.$this->renderXML().'");
+					so.write("flashcontent");
+				</script>';
+		*/
+	}
 
 }

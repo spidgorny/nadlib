@@ -7,7 +7,8 @@
  * - onSuccess();
  * - submitButton
  */
-abstract class HTMLFormProcessor extends AppController {
+abstract class HTMLFormProcessor extends AppController
+{
 	protected $prefix = __CLASS__;
 	protected $default = array();
 	protected $desc = array();
@@ -44,7 +45,8 @@ abstract class HTMLFormProcessor extends AppController {
 	 */
 	public $method = array();
 
-	function __construct(array $default = array()) {
+	function __construct(array $default = array())
+	{
 		parent::__construct();
 		$this->prefix = get_class($this);
 		$this->default = $default ? $default : $this->default;
@@ -58,11 +60,12 @@ abstract class HTMLFormProcessor extends AppController {
 	 * The idea is to remove all slow operations outside of the constructor.
 	 * Who's gonna call this function? Index?
 	 */
-	function postInit() {
+	function postInit()
+	{
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
-		$this->form = new HTMLFormTable();	// needed sometime in getDesc
+		$this->form = new HTMLFormTable();    // needed sometime in getDesc
 		$this->desc = $this->getDesc();
-		$this->form = $this->getForm();		// $this->desc will be used inside
+		$this->form = $this->getForm();        // $this->desc will be used inside
 		//debug($this->desc);
 		//debug($this->prefix);
 		if ($this->submitted) {
@@ -103,7 +106,8 @@ abstract class HTMLFormProcessor extends AppController {
 	 * If inherited can be used as both string and HTMLFormTable
 	 * @return HTMLFormTable
 	 */
-	function render() {
+	function render()
+	{
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$content = '';
 		if (!$this->form) {
@@ -119,8 +123,8 @@ abstract class HTMLFormProcessor extends AppController {
 			$content .= $this->onSuccess($data);
 		} else {
 			if ($this->submitted) {
-				$content .= '<div class="error alert alert-error ui-state-error padding">'.
-					__('The form is not complete. Please check the comments next to each field below.').'</div>';
+				$content .= '<div class="error alert alert-error ui-state-error padding">' .
+					__('The form is not complete. Please check the comments next to each field below.') . '</div>';
 			}
 			$content .= $this->showForm();
 		}
@@ -129,7 +133,8 @@ abstract class HTMLFormProcessor extends AppController {
 		return $content;
 	}
 
-	function getForm(HTMLFormTable $preForm = NULL) {
+	function getForm(HTMLFormTable $preForm = NULL)
+	{
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$f = $preForm ? $preForm : $this->form;
 		$f->setDesc($this->desc);
@@ -143,9 +148,10 @@ abstract class HTMLFormProcessor extends AppController {
 		return $f;
 	}
 
-	function showForm() {
+	function showForm()
+	{
 		if (!$this->form) {
-			throw new Exception(__METHOD__.': initialize form with getForm()');
+			throw new Exception(__METHOD__ . ': initialize form with getForm()');
 		}
 		if (isset($GLOBALS['profiler'])) $GLOBALS['profiler']->startTimer(__METHOD__);
 		$this->form->prefix($this->prefix);
@@ -156,8 +162,9 @@ abstract class HTMLFormProcessor extends AppController {
 		return $this->form->getContent();
 	}
 
-	function __toString() {
-		return '<div class="HTMLFormProcessor">'.$this->render().'</div>';
+	function __toString()
+	{
+		return '<div class="HTMLFormProcessor">' . $this->render() . '</div>';
 	}
 
 	abstract function onSuccess(array $data);

@@ -1,6 +1,7 @@
 <?php
 
-class dbLayerMS implements DBInterface {
+class dbLayerMS implements DBInterface
+{
 
 	/**
 	 * @var string
@@ -37,13 +38,15 @@ class dbLayerMS implements DBInterface {
 		"Changed database context to 'PRD_LOTCHECK'.",
 	);
 
-	public static function getInstance() {
+	public static function getInstance()
+	{
 		//$c = Config::getInstance();
 		//if (!self::$instance) self::$instance = ;
 		return self::$instance;
 	}
 
-	function  __construct($server, $database, $user, $password) {
+	function __construct($server, $database, $user, $password)
+	{
 		$this->server = $server;
 		$this->database = $database;
 		$this->user = $user;
@@ -51,16 +54,19 @@ class dbLayerMS implements DBInterface {
 		$this->connect();
 	}
 
-	function connect() {
+	function connect()
+	{
 		$this->connection = mssql_connect($this->server, $this->user, $this->password);
 		mssql_select_db($this->database);
 	}
 
-	function close() {
+	function close()
+	{
 		mssql_close($this->connection);
 	}
 
-	function perform($query, array $arguments = array()) {
+	function perform($query, array $arguments = array())
+	{
 		foreach ($arguments as $ar) {
 			$query = str_replace('?', $ar, $query);
 		}
@@ -84,22 +90,25 @@ class dbLayerMS implements DBInterface {
 			$this->close();
 			$this->connect();
 			debug($query);
-			throw new Exception(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
+			throw new Exception(__METHOD__ . ': ' . $msg . BR . $query . BR . $msg2);
 		}
 		$this->lastQuery = $query;
 		return $res;
 	}
 
-	function fetchAssoc($res) {
+	function fetchAssoc($res)
+	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
-		} if (!is_resource($res)) {
+		}
+		if (!is_resource($res)) {
 			debug($res);
 		}
 		return mssql_fetch_assoc($res);
 	}
 
-	function fetchAll($res, $keyKey = NULL) {
+	function fetchAll($res, $keyKey = NULL)
+	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -124,7 +133,8 @@ class dbLayerMS implements DBInterface {
 	 *
 	 * @return array ('name' => ...)
 	 */
-	function getTables() {
+	function getTables()
+	{
 		$res = $this->perform("select * from sysobjects where xtype = 'U'");
 		$tables = $this->fetchAll($res);
 		return $tables;
@@ -135,7 +145,8 @@ class dbLayerMS implements DBInterface {
 	 * @param $table
 	 * @return array ('name' => ...)
 	 */
-	function getFields($table) {
+	function getFields($table)
+	{
 		//mssql_meta - doesn't exist
 		$res = $this->perform("
 SELECT
@@ -152,27 +163,29 @@ AND name = '?')", array($table));
 		return $tables;
 	}
 
-	function escape($val) {
+	function escape($val)
+	{
 		return $this->mssql_escape_string($val);
 	}
 
-	function mssql_escape_string($data) {
-        if ( !isset($data) or empty($data) ) return '';
-        if ( is_numeric($data) ) return $data;
+	function mssql_escape_string($data)
+	{
+		if (!isset($data) or empty($data)) return '';
+		if (is_numeric($data)) return $data;
 
-        $non_displayables = array(
-            '/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
-            '/%1[0-9a-f]/',             // url encoded 16-31
-            '/[\x00-\x08]/',            // 00-08
-            '/\x0b/',                   // 11
-            '/\x0c/',                   // 12
-            '/[\x0e-\x1f]/'             // 14-31
-        );
-        foreach ( $non_displayables as $regex )
-            $data = preg_replace( $regex, '', $data );
-        $data = str_replace("'", "''", $data );
-        return $data;
-    }
+		$non_displayables = array(
+			'/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
+			'/%1[0-9a-f]/',             // url encoded 16-31
+			'/[\x00-\x08]/',            // 00-08
+			'/\x0b/',                   // 11
+			'/\x0c/',                   // 12
+			'/[\x0e-\x1f]/'             // 14-31
+		);
+		foreach ($non_displayables as $regex)
+			$data = preg_replace($regex, '', $data);
+		$data = str_replace("'", "''", $data);
+		return $data;
+	}
 
 	/* *
 	 * Return ALL rows
@@ -205,15 +218,18 @@ AND name = '?')", array($table));
 		return $res;
 	}
 */
-	function numRows($res) {
+	function numRows($res)
+	{
 		return mssql_num_rows($res);
 	}
 
-	function quoteKey($key) {
-		return '['.$key.']';
+	function quoteKey($key)
+	{
+		return '[' . $key . ']';
 	}
 
-	function lastInsertID() {
+	function lastInsertID()
+	{
 		$lq = $this->lastQuery;
 		$query = 'SELECT SCOPE_IDENTITY()';
 		$res = $this->perform($query);
@@ -223,23 +239,27 @@ AND name = '?')", array($table));
 		return $val;
 	}
 
-	function __call($method, array $params) {
+	function __call($method, array $params)
+	{
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
+			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
 	}
 
-	function free($res) {
+	function free($res)
+	{
 		mssql_free_result($res);
 	}
 
-	function escapeBool($value) {
+	function escapeBool($value)
+	{
 		return $value ? 1 : 0;
 	}
 
-	function affectedRows() {
+	function affectedRows()
+	{
 		return mssql_rows_affected($this->connection);
 	}
 

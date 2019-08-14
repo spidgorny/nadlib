@@ -1,5 +1,6 @@
 <?php
 
-class AppController4Test extends Controller {
+class AppController4Test extends Controller
+{
 
 }

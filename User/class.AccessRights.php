@@ -1,6 +1,7 @@
 <?php
 
-class AccessRights {
+class AccessRights
+{
 	protected $accessTable = 'access';
 	protected $groupAccessTable = 'department_access';
 	protected $id_usergroup = 'id_department';
@@ -15,18 +16,20 @@ class AccessRights {
 	 */
 	protected $db;
 
-	function __construct($idGroup) {
+	function __construct($idGroup)
+	{
 		$this->db = Config::getInstance()->db;
 		$this->init($this->groupID = $idGroup);
 	}
 
-	function init($idGroup) {
-		$res = $this->db->runSelectQuery($this->accessTable.' /**/
-			LEFT OUTER JOIN '.$this->groupAccessTable.' ON (
-				'.$this->accessTable.'.id = '.$this->groupAccessTable.'.'.$this->id_useraccess.'
-				AND '.$this->id_usergroup.' = '.$idGroup.')',
-			array(), 'ORDER BY '.$this->accessTable.'.name',
-			$this->accessTable.'.*, '.$this->groupAccessTable.'.id as affirmative');
+	function init($idGroup)
+	{
+		$res = $this->db->runSelectQuery($this->accessTable . ' /**/
+			LEFT OUTER JOIN ' . $this->groupAccessTable . ' ON (
+				' . $this->accessTable . '.id = ' . $this->groupAccessTable . '.' . $this->id_useraccess . '
+				AND ' . $this->id_usergroup . ' = ' . $idGroup . ')',
+			array(), 'ORDER BY ' . $this->accessTable . '.name',
+			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative');
 		$data = $this->db->fetchAll($res);
 		//debug($GLOBALS['i']->db->lastQuery);
 		//debug($data);
@@ -39,12 +42,14 @@ class AccessRights {
 		//debug($this->arCache);
 	}
 
-	function can($what) {
+	function can($what)
+	{
 		//debug($what, $this->arCache);
 		return isset($this->arCache[$what]) ? $this->arCache[$what] : NULL;
 	}
 
-	function getList() {
+	function getList()
+	{
 		return $this->arCache;
 	}
 

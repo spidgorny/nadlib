@@ -1,6 +1,7 @@
 <?php
 
-class SQLLike extends SQLWherePart {
+class SQLLike extends SQLWherePart
+{
 
 	/**
 	 * @var string value
@@ -18,17 +19,19 @@ class SQLLike extends SQLWherePart {
 
 	public $wrap = '%|%';
 
-	function __construct($string, $caseInsensitive = false) {
+	function __construct($string, $caseInsensitive = false)
+	{
 		parent::__construct();
-        $this->caseInsensitive = $caseInsensitive;
+		$this->caseInsensitive = $caseInsensitive;
 		$this->string = $string;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
 		$w = explode('|', $this->wrap);
 		$wrap = $w[0] . $this->qb->db->escape($this->string) . $w[1];
-		return $this->field ." ". $like ." '".$wrap."'";
+		return $this->field . " " . $like . " '" . $wrap . "'";
 	}
 
 }

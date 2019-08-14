@@ -1,6 +1,7 @@
 <?php
 
-class AppControllerBE extends Controller {
+class AppControllerBE extends Controller
+{
 
 	/**
 	 * -forceDL in CLI will re-download and extract data
@@ -16,9 +17,10 @@ class AppControllerBE extends Controller {
 
 	var $nadlibFromDocRoot;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
-		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
+		$this->layout = new Wrap('<div class="col-md-10">', '</div>' . "\n");
 		$this->index = Index::getInstance();
 		//debug($this->request->getAll());
 		if ($this->request->getBool('forceDL')) {
@@ -30,12 +32,14 @@ class AppControllerBE extends Controller {
 		$this->nadlibFromDocRoot = AutoLoad::getInstance()->nadlibFromDocRoot;
 	}
 
-	function log($a) {
-		echo $a.'<br />'."\n";
+	function log($a)
+	{
+		echo $a . '<br />' . "\n";
 	}
 
-	public function getURL(array $params, $prefix = '?') {
-		$url = parent::getURL($params, $this->nadlibFromDocRoot.'be/?');
+	public function getURL(array $params, $prefix = '?')
+	{
+		$url = parent::getURL($params, $this->nadlibFromDocRoot . 'be/?');
 		return $url;
 	}
 

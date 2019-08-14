@@ -1,8 +1,10 @@
 <?php
 
-class ValidatorCheck extends AppControllerBE {
+class ValidatorCheckTest extends AppControllerBE
+{
 
-	function render() {
+	function render()
+	{
 		$f = new HTMLFormTable(array(
 			'obligatory' => array(
 				'label' => 'Obligatory',

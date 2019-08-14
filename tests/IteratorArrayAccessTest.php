@@ -1,13 +1,15 @@
 <?php
 
-class IteratorArrayAccessTest extends ArrayIteratorPlusTest {
+class IteratorArrayAccessTest extends ArrayIteratorPlusTest
+{
 
 	/**
 	 * @var IteratorArrayAccess $ai
 	 */
 	protected $ai;
 
-	function setUp() {
+	function setUp()
+	{
 		$this->ai = new IteratorArrayAccess(array(
 			0 => 'a',
 			1 => 'b',

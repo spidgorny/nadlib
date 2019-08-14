@@ -4,7 +4,8 @@
  * Specific app implementation of the login form.
  * This one renders nothing because the login form is embedded into the template.
  */
-class LoginForm extends AjaxLogin {
+class LoginForm extends AjaxLogin
+{
 
 	protected $secret = 'nadlibSecretPasswordHash';
 
@@ -13,7 +14,8 @@ class LoginForm extends AjaxLogin {
 	 */
 	public $user;
 
-	function __construct($action = NULL) {
+	function __construct($action = NULL)
+	{
 		parent::__construct($action);
 		$env = $_ENV;
 		unset($env['REDIRECT_UNIQUE_ID']);
@@ -24,14 +26,16 @@ class LoginForm extends AjaxLogin {
 		unset($env['CONTENT_LENGTH  ']);
 		debug($env);
 		$this->secret = md5(json_encode($env));
-		$this->layout = new Wrap('<div class="col-md-10">', '</div>'."\n");
+		$this->layout = new Wrap('<div class="col-md-10">', '</div>' . "\n");
 	}
 
-	function __render() {
+	function __render()
+	{
 		return '';
 	}
 
-	function loginAction() {
+	function loginAction()
+	{
 		//debug($this->request);
 		$content = '';
 		$username = $this->request->getTrim('username');
@@ -39,11 +43,11 @@ class LoginForm extends AjaxLogin {
 		$passwordHash = $this->secret;
 		if ($username == 'nadlib' && $password == $passwordHash) {
 			$this->user->saveLogin($username, $passwordHash);
-			$content .= '<div class="message">'.__('You are logged in.').'</div>';
+			$content .= '<div class="message">' . __('You are logged in.') . '</div>';
 			$content .= $this->menuAction();
 		} else {
 			$content .= getDebug($password, $passwordHash);
-			$content .= '<div class="error">'.__('Wrong login or password.').'</div>';
+			$content .= '<div class="error">' . __('Wrong login or password.') . '</div>';
 			$desc = $this->getLoginDesc();
 			$desc['username']['value'] = $username;
 			$desc['password']['cursor'] = true;

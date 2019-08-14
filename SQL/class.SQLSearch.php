@@ -1,6 +1,7 @@
 <?php
 
-class SQLSearch {
+class SQLSearch
+{
 	protected $table;
 	protected $sword;
 	protected $words = array();
@@ -13,7 +14,8 @@ class SQLSearch {
 	 */
 	protected $db;
 
-	function __construct($table, $sword) {
+	function __construct($table, $sword)
+	{
 		//debug(array($table, $sword));
 		$this->table = $table;
 		$this->sword = $sword;
@@ -22,7 +24,8 @@ class SQLSearch {
 		$this->db = Config::getInstance()->db;
 	}
 
-	function getSplitWords($sword) {
+	function getSplitWords($sword)
+	{
 		$sword = trim($sword);
 		$words = explode(' ', $sword . ' ' . $GLOBALS['i']->user->data['searchAppend']);
 		$words = array_map('trim', $words);
@@ -33,7 +36,8 @@ class SQLSearch {
 		return $words;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		$where = $this->getWhere();
 		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		$query = '';
@@ -47,7 +51,8 @@ class SQLSearch {
 	/**
 	 * @return array
 	 */
-	public function getWhere() {
+	public function getWhere()
+	{
 		$query = '';
 		$where = array();
 		$words = $this->words;
@@ -61,18 +66,19 @@ class SQLSearch {
 			} else {
 				if ($word{0} == '!') {
 					$word = substr($word, 1);
-					$where[] = $this->table.'.id NOT IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
+					$where[] = $this->table . '.id NOT IN ( ' . $this->getSearchSubquery($word, $this->table . '.id') . ') ';
 				} else {
 					//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
 					// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
-					$where[] = $this->table.'.id IN ( '.$this->getSearchSubquery($word, $this->table.'.id').') ';
+					$where[] = $this->table . '.id IN ( ' . $this->getSearchSubquery($word, $this->table . '.id') . ') ';
 				}
 			}
 		}
 		return $where;
 	}
 
-	function getSearchSubquery($word, $select = NULL) {
+	function getSearchSubquery($word, $select = NULL)
+	{
 		$table = $this->table;
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
@@ -85,7 +91,8 @@ class SQLSearch {
 		return $query;
 	}
 
-	function getSearchWhere($word, $prefix = '') {
+	function getSearchWhere($word, $prefix = '')
+	{
 		if ($word{0} == '!') {
 			$like = 'NOT LIKE';
 			$or = "\n\t\tAND";
@@ -94,7 +101,7 @@ class SQLSearch {
 			$or = "\n\t\tOR";
 		}
 
-		$prefix = $prefix ? $prefix.'.' : '';
+		$prefix = $prefix ? $prefix . '.' : '';
 
 		foreach ($this->searchableFields as $field) {
 			$part[] = "{$prefix}{$field} {$like} '%$1%'";
@@ -114,7 +121,7 @@ class SQLSearch {
 			";
 		}
 
-		return '('.$part.')'; // because of OR
+		return '(' . $part . ')'; // because of OR
 	}
 
 }

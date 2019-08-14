@@ -1,6 +1,7 @@
 <?php
 
-abstract class Grid extends AppController {
+abstract class Grid extends AppController
+{
 
 	/**
 	 * @var Collection
@@ -32,18 +33,20 @@ abstract class Grid extends AppController {
 	 */
 	public $pageSize;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 	}
 
 	/**
 	 * Either take from URL or take from preferences, not both
 	 */
-	function getSetRequest() {
+	function getSetRequest()
+	{
 		if ($this->request->getAll()) {
-			$this->user->setPref(get_class($this).'.Request', $this->request);
+			$this->user->setPref(get_class($this) . '.Request', $this->request);
 		} else {
-			$maybe = $this->user->getPref(get_class($this).'.Request');
+			$maybe = $this->user->getPref(get_class($this) . '.Request');
 			if ($maybe) {
 				$this->request = $maybe;
 			}
@@ -59,18 +62,19 @@ abstract class Grid extends AppController {
 	 * @deprecated - use saveFilterColumnsSort() instead
 	 *
 	 */
-	function mergeRequest($subname = NULL) {
+	function mergeRequest($subname = NULL)
+	{
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
 		if ($subname) {
 			$r = $this->request->getSubRequest($subname);
 		} else {
 			$r = $this->request;
 		}
-		$default = $this->user->getPref(get_class($this).'.Request');
+		$default = $this->user->getPref(get_class($this) . '.Request');
 		if ($default instanceof Request) {
 			$r->append($default->getAll());
 		}
-		$this->user->setPref(get_class($this).'.Request', $r);
+		$this->user->setPref(get_class($this) . '.Request', $r);
 		if ($subname) {
 			$this->request->set($subname, $r->getAll());
 		}
@@ -78,9 +82,10 @@ abstract class Grid extends AppController {
 
 	/**
 	 * @param null $cn Supply get_class($this) to the function
-	 * 					or it should be called after $this->collection is initialized
+	 *                    or it should be called after $this->collection is initialized
 	 */
-	function saveFilterColumnsSort($cn = NULL) {
+	function saveFilterColumnsSort($cn = NULL)
+	{
 		$cn = $cn ? $cn : get_class($this->collection);
 		//debug($cn);
 		assert($cn);
@@ -88,7 +93,7 @@ abstract class Grid extends AppController {
 		$allowEdit = $this->request->getControllerString() == get_class($this);
 
 		if ($this->request->is_set('columns') && $allowEdit) {
-			$this->user->setPref('Columns.'.$cn, $this->request->getArray('columns'));
+			$this->user->setPref('Columns.' . $cn, $this->request->getArray('columns'));
 		}
 		$this->columns = $allowEdit
 			? $this->request->getArray('columns')
@@ -96,7 +101,7 @@ abstract class Grid extends AppController {
 		if (method_exists($this->user, 'getPref')) {
 			$this->columns = $this->columns
 				? $this->columns
-				: $this->user->getPref('Columns.'.$cn);
+				: $this->user->getPref('Columns.' . $cn);
 		}
 		if (!$this->columns && $this->model->thes) {
 			$this->columns = array_keys($this->model->thes);
@@ -115,7 +120,7 @@ abstract class Grid extends AppController {
 			if (method_exists($this->user, 'getPref')) {
 				$this->filter = $this->filter
 					? $this->filter
-					: $this->user->getPref('Filter.'.$cn);
+					: $this->user->getPref('Filter.' . $cn);
 			}
 			$this->filter = $this->filter ? $this->filter : array();
 			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
@@ -125,19 +130,19 @@ abstract class Grid extends AppController {
 
 		if (method_exists($this->user, 'setPref')) {
 			if ($allowEdit) {
-				$this->user->setPref('Filter.'.$cn, $this->filter);
+				$this->user->setPref('Filter.' . $cn, $this->filter);
 			}
 
 			if ($this->request->is_set('slTable') && $allowEdit) {
-				$this->user->setPref('Sort.'.$cn, $this->request->getArray('slTable'));
+				$this->user->setPref('Sort.' . $cn, $this->request->getArray('slTable'));
 			}
 		}
 		$sortRequest = $this->request->getArray('slTable');
 		if (method_exists($this->user, 'getPref')) {
 			$this->sort = $sortRequest
 				? $sortRequest
-				: ($this->user->getPref('Sort.'.$cn)
-					? $this->user->getPref('Sort.'.$cn)
+				: ($this->user->getPref('Sort.' . $cn)
+					? $this->user->getPref('Sort.' . $cn)
 					: $this->sort
 				);
 		}
@@ -145,7 +150,8 @@ abstract class Grid extends AppController {
 		$this->pageSize = $this->pageSize ? $this->pageSize : new PageSize();
 	}
 
-	function render() {
+	function render()
+	{
 		$content = $this->collection->render();
 		$content .= '<hr />';
 		$content = $this->encloseInAA($content, $this->title = $this->title ? $this->title : get_class($this), $this->encloseTag);
@@ -164,7 +170,8 @@ abstract class Grid extends AppController {
 		}
 	}*/
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = $this->collection->showFilter();
 		return $content;
 	}

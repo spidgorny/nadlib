@@ -1,20 +1,25 @@
 <?php
 
-class TestQueue extends AppController {
-	public function render() {
+class TestQueue extends AppController
+{
+	public function render()
+	{
 		$content = $this->performAction();
 		return $content;
 	}
 
-	public function processDeleteUserAction() {
+	public function processDeleteUserAction()
+	{
 		return $this->processTask('DeleteUser');
 	}
 
-	public function processNotifyUserAction() {
+	public function processNotifyUserAction()
+	{
 		return $this->processTask('NotifyUser');
 	}
 
-	public function createAction() {
+	public function createAction()
+	{
 		$taskData = '{"array":[1,2,3],"boolean":true,"null":null,"number":123,"object":{"a":"b","c":"d","e":"f"},"string":"Hello World"}';
 
 		$msgQ = new MessageQueue('DeleteUser');
@@ -22,17 +27,18 @@ class TestQueue extends AppController {
 	}
 
 
-	private function processTask($type) {
-		$content 	= '';
-		$counter 	= 0;
-		$msgQ 		= new MessageQueue($type);
+	private function processTask($type)
+	{
+		$content = '';
+		$counter = 0;
+		$msgQ = new MessageQueue($type);
 
-		while($taskObj = $msgQ->getTaskObject()) {
+		while ($taskObj = $msgQ->getTaskObject()) {
 			try {
-				$content .= '<pre>'.++$counter.'  '. $taskObj->process($msgQ->getTaskData()) . '</pre>';
+				$content .= '<pre>' . ++$counter . '  ' . $taskObj->process($msgQ->getTaskData()) . '</pre>';
 				$msgQ->setStatus(MessageQueue::STATUS_DONE);
 
-			} catch(Exception $e) {
+			} catch (Exception $e) {
 				$msgQ->setStatus(MessageQueue::STATUS_FAILED);
 			}
 		}

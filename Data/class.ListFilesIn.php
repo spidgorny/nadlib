@@ -1,13 +1,16 @@
 <?php
 
-class ListFilesIn extends ArrayObject {
+class ListFilesIn extends ArrayObject
+{
 
-	function __construct($folder) {
+	function __construct($folder)
+	{
 		//parent::__construct();
 		$menu = array();
 		$iterator = new RecursiveDirectoryIterator($folder, FilesystemIterator::SKIP_DOTS);
 		//$iterator = new RecursiveIteratorIterator($iterator);
-		foreach ($iterator as $file) { /** @var $file SplFileInfo */
+		foreach ($iterator as $file) {
+			/** @var $file SplFileInfo */
 			$filename = $file->getFilename();
 			if ($filename{0} != '.') {
 				$pathname = $file->getPathname();
@@ -15,7 +18,7 @@ class ListFilesIn extends ArrayObject {
 				$key = $filename;
 				//debug($filename, $pathname, $key);
 				if ($file->isDir()) {
-					$children = new self($folder.$filename);
+					$children = new self($folder . $filename);
 					$menu[$key] = new Recursive($key, $children->getArrayCopy());
 				} else {
 					$menu[$key] = $file;

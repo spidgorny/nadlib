@@ -4,38 +4,43 @@
  * General HTML Tag representation.
  */
 
-class HTMLTag {
+class HTMLTag
+{
 	public $tag;
 	public $attr = array();
 	public $content;
 	public $isHTML = FALSE;
 
-	function __construct($tag, array $attr = array(), $content = '', $isHTML = FALSE) {
+	function __construct($tag, array $attr = array(), $content = '', $isHTML = FALSE)
+	{
 		$this->tag = $tag;
 		$this->attr = $attr;
 		$this->content = $content;
 		$this->isHTML = $isHTML;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		$content = ($this->isHTML || $this->content instanceof HTMLTag)
 			? $this->content
 			: htmlspecialchars($this->content, ENT_QUOTES);
-		return '<'.$this->tag.' '.$this->renderAttr($this->attr).'>'.$content.'</'.$this->tag.'>';
+		return '<' . $this->tag . ' ' . $this->renderAttr($this->attr) . '>' . $content . '</' . $this->tag . '>';
 	}
 
-	static function renderAttr(array $attr) {
+	static function renderAttr(array $attr)
+	{
 		$set = array();
 		foreach ($attr as $key => $val) {
 			if (is_array($val)) {
-				$val = implode(' ', $val);	// for class="a b c"
+				$val = implode(' ', $val);    // for class="a b c"
 			}
-			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
+			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES) . '"';
 		}
 		return implode(' ', $set);
 	}
 
-	function attr($name) {
+	function attr($name)
+	{
 		return $this->attr[$name];
 	}
 
@@ -44,13 +49,14 @@ class HTMLTag {
 	 * @param string $str
 	 * @return null|HTMLTag
 	 */
-	static function parse($str) {
+	static function parse($str)
+	{
 		$str = trim($str);
 		if ($str{0} != '<') return NULL;
 		$parts = trimExplode(' ', $str);
 		$tag = substr($parts[0], 1, -1);
-		$attributes = str_replace('<'.$tag.'>', '', $str);
-		$attributes = str_replace('</'.$tag.'>', '', $attributes);
+		$attributes = str_replace('<' . $tag . '>', '', $str);
+		$attributes = str_replace('</' . $tag . '>', '', $attributes);
 		$obj = new HTMLTag($tag);
 		$obj->attr = $obj->parseAttributes($attributes);
 		$obj->content = strip_tags($str);
@@ -62,7 +68,8 @@ class HTMLTag {
 	 * @param string $text
 	 * @return array
 	 */
-	function parseAttributes($text) {
+	function parseAttributes($text)
+	{
 		$attributes = array();
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)

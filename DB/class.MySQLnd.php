@@ -4,16 +4,19 @@
  * Class MySQLnd
  * Wrong approach
  */
-class MySQLnd {
+class MySQLnd
+{
 
-	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
+	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '')
+	{
 		$this->db = $db;
 		if ($this->db) {
 			$this->connect($host, $login, $password);
 		}
 	}
 
-	function connect($host, $login, $password) {
+	function connect($host, $login, $password)
+	{
 		$this->connection = @mysqlnd_pconnect($host, $login, $password);
 		if (!$this->connection) {
 			throw new Exception(mysql_error(), mysql_errno());

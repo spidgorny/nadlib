@@ -4,21 +4,26 @@
  * Class dbPlacebo
  * @mixin SQLBuilder
  */
-class dbPlacebo implements DBInterface {
+class dbPlacebo implements DBInterface
+{
 
-	function perform($query) {
+	function perform($query)
+	{
 		return '';
 	}
 
-	function fetchOptions($a) {
+	function fetchOptions($a)
+	{
 		return '';
 	}
 
-	function fetchAll() {
+	function fetchAll()
+	{
 		return array();
 	}
 
-	function __call($method, array $params) {
+	function __call($method, array $params)
+	{
 		$qb = Config::getInstance()->qb;
 		/** @var $qb SQLBuilder */
 		//debug_pre_print_backtrace();
@@ -26,35 +31,42 @@ class dbPlacebo implements DBInterface {
 		if (method_exists($qb, $method)) {
 			return call_user_func_array(array($qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in dbPlacebo and SQLBuilder');
+			throw new Exception($method . ' not found in dbPlacebo and SQLBuilder');
 		}
 	}
 
-	function numRows($res) {
+	function numRows($res)
+	{
 		// TODO: Implement numRows() method.
 	}
 
-	function affectedRows() {
+	function affectedRows()
+	{
 		// TODO: Implement affectedRows() method.
 	}
 
-	function getTables() {
+	function getTables()
+	{
 		// TODO: Implement getTables() method.
 	}
 
-	function lastInsertID() {
+	function lastInsertID()
+	{
 		// TODO: Implement lastInsertID() method.
 	}
 
-	function free($res) {
+	function free($res)
+	{
 		// TODO: Implement free() method.
 	}
 
-	function quoteKey($key) {
+	function quoteKey($key)
+	{
 		// TODO: Implement quoteKey() method.
 	}
 
-	function escapeBool($value) {
+	function escapeBool($value)
+	{
 		// TODO: Implement escapeBool() method.
 	}
 }

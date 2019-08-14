@@ -1,10 +1,12 @@
 <?php
 
-class HomeBE extends AppControllerBE {
+class HomeBE extends AppControllerBE
+{
 
 	static public $public = true;
 
-	function render() {
+	function render()
+	{
 		$content = '';
 		$content .= new MarkdownView('Home.md');
 

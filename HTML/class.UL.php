@@ -1,6 +1,7 @@
 <?php
 
-class UL {
+class UL
+{
 
 	var $items = array();
 
@@ -16,18 +17,20 @@ class UL {
 
 	var $links = array();
 
-	function __construct(array $items) {
+	function __construct(array $items)
+	{
 		$this->items = $items;
 		$this->activeClass = each($this->items);
 	}
 
-	function render() {
+	function render()
+	{
 		$out = array();
 		foreach ($this->items as $class => $li) {
 			if ($this->links) {
 				$link = $this->links[$class];
 				if ($link) {
-					$wrap = Wrap::make('<a href="'.$link.'">|</a>');
+					$wrap = Wrap::make('<a href="' . $link . '">|</a>');
 				} else {
 					$wrap = Wrap::make('<a>|</a>');
 				}
@@ -43,7 +46,8 @@ class UL {
 		return $content;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->render();
 	}
 
