@@ -69,15 +69,20 @@ class HTMLFormInline extends HTMLFormTable
 
 	public function showTR(array $prefix, $fieldDesc, $path)
 	{
-		$content[] = '<div class="form-group">'.PHP_EOL;
+		$wrapElement = $fieldDesc['type'] !== 'html';
+		if ($wrapElement) {
+			$content[] = '<div class="form-group">' . PHP_EOL;
+		}
 		$content[] = $this->showCell($path, $fieldDesc);
-		$content[] = '</div>'.PHP_EOL;
+		if ($wrapElement) {
+			$content[] = '</div>' . PHP_EOL;
+		}
 		return $content;
 	}
 
 	function showCell($fieldName, /*array*/ $desc)
 	{
-		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
+		$fieldValue = isset($desc['value']) ? $desc['value'] : null;
 		$fieldObj = $this->switchType($fieldName, $fieldValue, $desc);
 		$content[] = $fieldObj->getContent();
 		if (ifsetor($desc['label'])) {
@@ -90,6 +95,12 @@ class HTMLFormInline extends HTMLFormTable
 			];
 		}
 		return $content;
+	}
+
+	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
+	{
+		$extraClass = $extraClass ?: 'form-control';
+		parent::input($name, $value, $more, $type, $extraClass);
 	}
 
 }

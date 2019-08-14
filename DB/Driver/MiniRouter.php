@@ -17,11 +17,13 @@ class MiniRouter
 		$staticPath = $requestURL->getPath();
 		if ($staticPath) {
 			$fullPath = realpath(__DIR__.'/../../../../..'.$staticPath);
-			llog($fullPath);
+//			llog($fullPath);
 			if (is_file($fullPath)) {
-				llog($fullPath);
+				llog(['fullPath' => $fullPath]);
 				return false;
 			} else {
+				// Windows
+				$staticPath = str_replace('\\', '/', $staticPath);
 				$parts = trimExplode('/', $staticPath);
 				$first = first($parts);
 				if ($first && !class_exists($first)) {
@@ -29,6 +31,8 @@ class MiniRouter
 					header('X-Path: '.$fullPath);
 					echo 'Class '.$first.' not found';
 					return;
+				} else {
+					return $first;
 				}
 			}
 		}
