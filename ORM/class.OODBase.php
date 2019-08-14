@@ -50,7 +50,9 @@ abstract class OODBase
 	protected $where = array();
 
 	/**
-	 * @var self[get_called_class()][$id]
+* @var self
+	 * array[get_called_class()][$id]
+
 	 */
 	static $instances = array();
 
@@ -119,7 +121,9 @@ abstract class OODBase
 			if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
 			throw new Exception(__METHOD__);
 		}
-		if (isset($GLOBALS['prof'])) $GLOBALS['prof']->stopTimer(__METHOD__);
+		if (isset($GLOBALS['prof'])) {
+			$GLOBALS['prof']->stopTimer(__METHOD__);
+		}
 	}
 
 	function getName()
@@ -136,7 +140,10 @@ abstract class OODBase
 				$this->id[$field] = $this->data[$field];
 			}
 		} else {
-			$this->id = $this->data[$this->idField];
+			if (!isset($this->data[$this->idField])) {
+				//throw new InvalidArgumentException(__METHOD__.' has no value in '.$this->idField);
+			}
+			$this->id = ifsetor($this->data[$this->idField]);
 		}
 	}
 
@@ -267,6 +274,9 @@ abstract class OODBase
 		}
 		$obj = new $static();
 		$obj->findInDB($where);
+		if ($obj->id) {
+			self::$instances[$static][$obj->id] = $obj;
+		}
 		return $obj;
 	}
 
@@ -415,6 +425,7 @@ abstract class OODBase
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id int
+	 * @return self|$this|static
 	 * @return static
 	 */
 	public static function getInstance($id)
@@ -437,6 +448,9 @@ abstract class OODBase
 			}
 		} else {
 			$inst = new $static($id);
+			if ($inst->id) {
+				self::$instances[$static][$inst->id] = $inst;
+			}
 		}
 		return $inst;
 	}
