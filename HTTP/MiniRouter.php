@@ -5,6 +5,13 @@ use spidgorny\nadlib\HTTP\URL;
 class MiniRouter
 {
 
+	protected $basePath;
+
+	public function __construct($basePath = '')
+	{
+		$this->basePath = $basePath;
+	}
+
 	public function handleRequest()
 	{
 		if (!ifsetor($_SERVER['REQUEST_URI'])) {
@@ -15,6 +22,11 @@ class MiniRouter
 		$requestURL = new URL($_SERVER['REQUEST_URI']);
 		//debug($requestURL, $requestURL->getPath().'', is_file($requestURL->getPath()));
 		$staticPath = $requestURL->getPath();
+		if ($this->basePath) {
+			$last = basename($this->basePath);
+			$staticPath->remove($last);
+		}
+		//llog($staticPath.'');
 		if ($staticPath == '/') {
 			return null;	// default index controller
 		} elseif ($staticPath) {
