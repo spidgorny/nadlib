@@ -381,10 +381,16 @@ class HTMLForm implements ToStringable
 			//throw new InvalidArgumentException(__METHOD__ . ' $desc[more] is not array');
 		}
 
+		$extraClass = '';
+		if (ifsetor($desc['error'])) {
+			$extraClass .= ' is-invalid';
+		}
+
 		$this->input($name, $value,
 			(isset($desc['id']) ? ['id' => $desc['id']] : []) +
 			ifsetor($desc['more'], []),
-			'date'
+			'date',
+			$extraClass
 		);
 	}
 

@@ -52,7 +52,8 @@ class HTMLFormValidate {
 						'recaptchaAjax',
 						'select',
 					]);
-				$d = $this->validateField($field, $d, $type, $isCheckbox);
+				$dWithError = $this->validateField($field, $d, $type, $isCheckbox);
+				$d['error'] = ifsetor($dWithError['error']);
 				//debug($field, $d['error']);
 				$error = $error || ifsetor($d['error']);
 			}
@@ -78,9 +79,9 @@ class HTMLFormValidate {
 			$d['error'] = __('Field "%1" is obligatory', $label);
 		} elseif (($type == 'email' || $field == 'email') && $value && !self::validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
-		} elseif ($field == 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
+		} elseif ($field === 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
 			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
-		} elseif ($field == 'securePassword' && !$this->securePassword($value)) {
+		} elseif ($field === 'securePassword' && !$this->securePassword($value)) {
 			$d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
 		} elseif (ifsetor($d['min']) && ($value < $d['min'])) {
 			//debug(__METHOD__, $value, $d['min']);
@@ -111,7 +112,7 @@ class HTMLFormValidate {
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
-			if ($field == 'xsrf') {
+			if ($field === 'xsrf') {
 				//debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);
 				if ($value != $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]) {
 					$d['error'] = __('XSRF token validation failed.');
