@@ -8,6 +8,11 @@ class HTMLFormInline extends HTMLFormTable
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
+	public function e($content)
+	{
+		return htmlspecialchars($this->s($content));
+	}
+
 	function mainFormStart()
 	{
 		$this->stdout .= '';
@@ -88,11 +93,16 @@ class HTMLFormInline extends HTMLFormTable
 		if (ifsetor($desc['label'])) {
 			$content = [
 				'<label>'.PHP_EOL.
-				'<span>'.$desc['label'].'</span>', PHP_EOL,
+				'<span>'.$this->e($desc['label']).'</span>', PHP_EOL,
 				$content,
 				'</label>',
 				PHP_EOL
 			];
+			if (ifsetor($desc['error'])) {
+				$content[] = '<div class="invalid-feedback d-block">';
+				$content[] = $this->e($desc['error']);
+				$content[] = '</div>';
+			}
 		}
 		return $content;
 	}

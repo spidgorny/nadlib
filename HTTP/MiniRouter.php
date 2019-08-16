@@ -11,15 +11,18 @@ class MiniRouter
 			return true;
 		}
 		//debug($_SERVER);
-		llog($_SERVER['REQUEST_URI']);
+//		llog($_SERVER['REQUEST_URI']);
 		$requestURL = new URL($_SERVER['REQUEST_URI']);
 		//debug($requestURL, $requestURL->getPath().'', is_file($requestURL->getPath()));
 		$staticPath = $requestURL->getPath();
-		if ($staticPath) {
-			$fullPath = realpath(__DIR__.'/../../../../..'.$staticPath);
+		if ($staticPath == '/') {
+			return null;	// default index controller
+		} elseif ($staticPath) {
+			// vendor/spidgorny/nadlib/HTTP
+			$fullPath = realpath(__DIR__ . '/../../../../' .$staticPath);
 //			llog($fullPath);
 			if (is_file($fullPath)) {
-				llog(['fullPath' => $fullPath]);
+//				llog(['fullPath' => $fullPath]);
 				return false;
 			} else {
 				// Windows
@@ -32,7 +35,7 @@ class MiniRouter
 					echo 'Class '.$first.' not found';
 					return;
 				} else {
-					return $first;
+					return $first;	// the class from the URL
 				}
 			}
 		}
