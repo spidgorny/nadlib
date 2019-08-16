@@ -32,7 +32,7 @@ class MiniRouter
 				if ($first && !class_exists($first)) {
 					http_response_code(404);
 					header('X-Path: '.$fullPath);
-					echo 'Class '.$first.' not found';
+					//echo 'Class '.$first.' not found';
 					return;
 				} else {
 					return $first;	// the class from the URL
