@@ -274,9 +274,8 @@ class HTMLForm implements ToStringable
 		$this->stdout .= $this->hsc($label) . "</label>";
 	}
 
-	public function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false)
+	public function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, array $desc = [])
 	{
-		$desc = [];
 		$desc['more'] = $more;
 		$desc['autoSubmit'] = $autoSubmit;
 		$desc['value'] = $value;

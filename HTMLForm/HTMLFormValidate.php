@@ -109,6 +109,8 @@ class HTMLFormValidate {
 			&& $value != $d['mustMatch']) {
 			//debug($value, $d['mustMatch']);
 			$d['error'] = __('Value does not match');
+		} elseif (ifsetor($d['required']) && !$value) {
+			$d['error'] = __('Field is required');
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));

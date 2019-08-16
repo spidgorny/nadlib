@@ -113,4 +113,21 @@ class HTMLFormInline extends HTMLFormTable
 		parent::input($name, $value, $more, $type, $extraClass);
 	}
 
+	public function getCreateTable($table)
+	{
+		$typeMap = [
+			'checkbox' => 'boolean',
+			'date' => 'date',
+			'radioset' => 'varchar',
+		];
+		$fields = [];
+		foreach ($this->desc as $field => $desc) {
+			if (is_integer($field)) continue;
+			$type = ifsetor($desc['type']);
+			$sqlType = ifsetor($typeMap[$type], 'varchar');
+			$fields[] = $field.' '.$sqlType;
+		}
+		return 'CREATE TABLE '.$table.' ('.implode(','.PHP_EOL, $fields).')';
+	}
+
 }
