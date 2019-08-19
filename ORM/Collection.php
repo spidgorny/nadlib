@@ -536,7 +536,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
-	public function getData()
+	public function getData($preProcess = true)
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$this->log(__METHOD__, [
@@ -554,7 +554,7 @@ class Collection implements IteratorAggregate, ToStringable
 			is_null($this->data) ? 'NULL' :	count($this->data)
 		]);
 		if (!$this->isFetched()) {
-			$this->retrieveData();
+			$this->retrieveData($preProcess);
 		}
 		if (!($this->data instanceof ArrayPlus)) {
 			$this->data = ArrayPlus::create($this->data);
