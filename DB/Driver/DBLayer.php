@@ -134,7 +134,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$this->host = $host;
 		}
 		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
-		debug($string);
+//		debug($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
 			throw new Exception("No PostgreSQL connection to $host.");
