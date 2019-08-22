@@ -22,6 +22,7 @@ class SQLWhereEqual extends SQLWherePart
 
 	public function __toString()
 	{
+		//llog(__METHOD__, $this->field);
 		if (0) {
 			debug(__METHOD__, $this->field, $this->val);
 //			die;
@@ -44,10 +45,17 @@ class SQLWhereEqual extends SQLWherePart
 		return $sql;
 	}
 
+	/**
+	 * @param string $key
+	 * @param mixed $val
+	 * @param array $where
+	 * @return string
+	 * @throws MustBeStringException
+	 */
 	public function getWhereItem($key, $val, array $where = [])
 	{
 		$set = [];
-//		debug($key);
+//		llog(__METHOD__, $key);
 		$key = $this->db->quoteKey($key);
 //		debug($key);
 		if ($val instanceof AsIsOp) {       // check subclass first

@@ -757,6 +757,8 @@ order by a.attnum';
 	 * If the key contains special chars,
 	 * it thinks it's a function call like trim(field)
 	 * and quoting is not done.
+	 * @param string|AsIs $key
+	 * @return string
 	 */
 	public function quoteKey($key)
 	{
@@ -767,7 +769,9 @@ order by a.attnum';
 			} else {
 				$key = '"' . $key . '"';
 			}
-		} // else it can be functions (of something)
+		} elseif ($key instanceof AsIs) {
+			$key .= '';
+		}// else it can be functions (of something)
 		return $key;
 	}
 
