@@ -1538,4 +1538,20 @@ class Request
 		}
 		return $action;
 	}
+	
+	public function getRawPost()
+	{
+		if (defined('STDIN')) {
+			$post = stream_get_contents(STDIN);
+		} else {
+			$post = file_get_contents('php://input');
+		}
+		return $post;
+	}
+	
+	public function getJsonPost()
+	{
+		return json_decode($this->getRawPost());
+	}
+	
 }
