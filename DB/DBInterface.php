@@ -12,6 +12,7 @@
  * @method performWithParams($query, $params)
  * @method getConnection();
  * @method getViews();
+ * @method getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method getInsertQuery($table, array $data);
  * @method getDeleteQuery($table, array $where = [], $what = '');
