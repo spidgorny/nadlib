@@ -580,4 +580,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $info;
 	}
 
+	public function getVersion()
+	{
+		return $this->getInfo()['ATTR_SERVER_VERSION'];
+	}
+
 }
