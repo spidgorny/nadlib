@@ -65,12 +65,14 @@ class Debug
 				? DebugFirebug::class
 				: ($this->canDebugster()
 					? 'Debugster'
-					: (DebugBulma::canBulma()
-						? DebugBulma::class
-						: ($this->canHTML()
-							? 'HTML'
-							: ''
+					: (DEVELOPMENT
+						? (DebugBulma::canBulma()
+							? DebugBulma::class
+							: ($this->canHTML()
+								? 'HTML'
+								: '')
 						)
+						: null
 					)
 				)
 			);
@@ -234,14 +236,14 @@ class Debug
 		$trace[] = '<table class="table">';
 		$trace[] = '<thead>';
 		foreach ($thes as $t) {
-			$trace[] = '<td>'.$t.'</td>';
+			$trace[] = '<td>' . $t . '</td>';
 		}
 		$trace[] = '</thead>';
 		$trace[] = '<tbody>';
 		foreach ($db as $row) {
 			$trace[] = '<tr>';
 			foreach ($thes as $t => $_) {
-				$trace[] = '<td>'.ifsetor($row[$t]).'</td>';
+				$trace[] = '<td>' . ifsetor($row[$t]) . '</td>';
 			}
 			$trace[] = '</tr>';
 		}
@@ -266,7 +268,7 @@ class Debug
 		$line = ifsetor($first['line']);
 		$file = ifsetor($first['file']);
 
-		$isPhpStorm = false; 	// don't like it
+		$isPhpStorm = false;    // don't like it
 		if ($isPhpStorm) {
 			$path = $file;
 		} else {
@@ -436,7 +438,7 @@ class Debug
 				}
 				return [
 					'type' => trim(strip_tags(typ($a) . '')),
-					'value' => $val.''
+					'value' => $val . ''
 				];
 			}, $row);
 			return array_combine(array_keys($row), $types);

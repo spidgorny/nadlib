@@ -274,9 +274,8 @@ class HTMLForm implements ToStringable
 		$this->stdout .= $this->hsc($label) . "</label>";
 	}
 
-	public function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false)
+	public function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, array $desc = [])
 	{
-		$desc = [];
 		$desc['more'] = $more;
 		$desc['autoSubmit'] = $autoSubmit;
 		$desc['value'] = $value;
@@ -381,10 +380,16 @@ class HTMLForm implements ToStringable
 			//throw new InvalidArgumentException(__METHOD__ . ' $desc[more] is not array');
 		}
 
+		$extraClass = '';
+		if (ifsetor($desc['error'])) {
+			$extraClass .= ' is-invalid';
+		}
+
 		$this->input($name, $value,
 			(isset($desc['id']) ? ['id' => $desc['id']] : []) +
 			ifsetor($desc['more'], []),
-			'date'
+			'date',
+			$extraClass
 		);
 	}
 

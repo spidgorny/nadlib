@@ -8,6 +8,11 @@ class HTMLFormInline extends HTMLFormTable
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
+	public function e($content)
+	{
+		return htmlspecialchars($this->s($content));
+	}
+
 	function mainFormStart()
 	{
 		$this->stdout .= '';
@@ -69,27 +74,60 @@ class HTMLFormInline extends HTMLFormTable
 
 	public function showTR(array $prefix, $fieldDesc, $path)
 	{
-		$content[] = '<div class="form-group">'.PHP_EOL;
+		$wrapElement = $fieldDesc['type'] !== 'html';
+		if ($wrapElement) {
+			$content[] = '<div class="form-group">' . PHP_EOL;
+		}
 		$content[] = $this->showCell($path, $fieldDesc);
-		$content[] = '</div>'.PHP_EOL;
+		if ($wrapElement) {
+			$content[] = '</div>' . PHP_EOL;
+		}
 		return $content;
 	}
 
 	function showCell($fieldName, /*array*/ $desc)
 	{
-		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
+		$fieldValue = isset($desc['value']) ? $desc['value'] : null;
 		$fieldObj = $this->switchType($fieldName, $fieldValue, $desc);
 		$content[] = $fieldObj->getContent();
 		if (ifsetor($desc['label'])) {
 			$content = [
 				'<label>'.PHP_EOL.
-				'<span>'.$desc['label'].'</span>', PHP_EOL,
+				'<span>'.$this->e($desc['label']).'</span>', PHP_EOL,
 				$content,
 				'</label>',
 				PHP_EOL
 			];
+			if (ifsetor($desc['error'])) {
+				$content[] = '<div class="invalid-feedback d-block">';
+				$content[] = $this->e($desc['error']);
+				$content[] = '</div>';
+			}
 		}
 		return $content;
+	}
+
+	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
+	{
+		$extraClass = $extraClass ?: 'form-control';
+		parent::input($name, $value, $more, $type, $extraClass);
+	}
+
+	public function getCreateTable($table)
+	{
+		$typeMap = [
+			'checkbox' => 'boolean',
+			'date' => 'date',
+			'radioset' => 'varchar',
+		];
+		$fields = [];
+		foreach ($this->desc as $field => $desc) {
+			if (is_integer($field)) continue;
+			$type = ifsetor($desc['type']);
+			$sqlType = ifsetor($typeMap[$type], 'varchar');
+			$fields[] = $field.' '.$sqlType;
+		}
+		return 'CREATE TABLE '.$table.' ('.implode(','.PHP_EOL, $fields).')';
 	}
 
 }
