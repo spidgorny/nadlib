@@ -11,7 +11,7 @@ if (!function_exists('debug')) {
 	function debug($a)
 	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
-		if (class_exists('Debug')) {
+		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
 		} elseif (DEVELOPMENT) {
