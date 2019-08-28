@@ -199,11 +199,11 @@ abstract class SimpleController
 
 	public function getCaption($caption, $hTag)
 	{
-		return '<' . $h . '>' .
+		return '<' . $hTag . '>' .
 			$caption .
-			'</' . $h . '>';
+			'</' . $hTag . '>';
 	}
-	
+
 	public function performAction($action = null)
 	{
 		$content = '';
