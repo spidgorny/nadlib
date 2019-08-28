@@ -1441,6 +1441,7 @@ class Request
 		if ($ref) {
 			$this->redirect($ref);
 		}
+		return true;
 	}
 
 	public function setProxy($proxy)
