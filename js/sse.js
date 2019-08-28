@@ -10,25 +10,25 @@ function addEvent(html_element, event_name, event_function) {
     }
 }
 function startTask(url, target) {
-    const source = new EventSource(url);
-    source.onmessage = (event) => {
+    var source = new EventSource(url);
+    source.onmessage = function (event) {
         if (event.type == 'message') {
-            const data = JSON.parse(event.data);
+            var data = JSON.parse(event.data);
             if (data.complete) {
                 source.close();
                 target.innerHTML = data.complete;
             }
             else {
-                const pct = 100.0 * data.current / data.total;
+                var pct = 100.0 * data.current / data.total;
                 document.getElementById('progress-bar').style.width = pct + '%';
                 document.getElementById('pb_text').innerHTML =
                     Math.round(pct) + '% (' + data.current + ' of ' + data.total + ')';
             }
         }
     };
-    source.onerror = (event) => {
-        let txt;
-        let es = event.target;
+    source.onerror = function (event) {
+        var txt;
+        var es = event.target;
         switch (es.readyState) {
             case EventSource.CONNECTING:
                 txt = 'Reconnecting...';
@@ -41,9 +41,9 @@ function startTask(url, target) {
         source.close();
     };
 }
-addEvent(document, 'DOMContentLoaded', () => {
-    const target = document.getElementById('sseTarget');
-    const href = target.getAttribute('href');
+addEvent(document, 'DOMContentLoaded', function () {
+    var target = document.getElementById('sseTarget');
+    var href = target.getAttribute('href');
     startTask(href, target);
 });
 //# sourceMappingURL=sse.js.map
