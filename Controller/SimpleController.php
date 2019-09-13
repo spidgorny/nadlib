@@ -5,7 +5,7 @@ use spidgorny\nadlib\HTTP\URL;
 /**
  * Class SimpleController
  * @mixin HTML
- * @method error($content)
+ * @method error($content, $httpCode = 500)
  * @method info($content)
  * @method success($content)
  */

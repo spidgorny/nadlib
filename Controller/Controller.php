@@ -24,7 +24,7 @@ use spidgorny\nadlib\HTTP\URL;
  * @method h5($content, array $attrs = [])
  * @method h6($content, array $attrs = [])
  * @method a($href, $text = '', $isHTML = false, array $more = [])
- * @method error($content)
+ * @method error($content, $httpCode = 500)
  * @method info($content)
  * @method success($content)
  * @method img($src, array $attr = [])
