@@ -13,6 +13,7 @@ trait JsonController
     public function validateAuthorization($registeredApps)
 	{
 		$authorization = $this->request->getHeader('Authorization');
+//		llog($authorization);
 		//debug($headers, $authorization);
 		if (!$authorization || !in_array($authorization, $registeredApps)) {
 			throw new LoginException('Authorization failed.', 401);
