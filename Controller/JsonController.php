@@ -12,8 +12,7 @@ trait JsonController
 
     public function validateAuthorization($registeredApps)
 	{
-		$headers = apache_request_headers();
-		$authorization = ifsetor($headers['Authorization']);
+		$authorization = $this->request->getHeader('Authorization');
 		//debug($headers, $authorization);
 		if (!$authorization || !in_array($authorization, $registeredApps)) {
 			throw new LoginException('Authorization failed.', 401);
@@ -51,7 +50,7 @@ trait JsonController
 		return [$request, $arguments];
 	}
 
-    public function error(Exception $e, $httpCode = 500)
+    public function jsonError(Exception $e, $httpCode = 500)
     {
         $message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
         llog($message);

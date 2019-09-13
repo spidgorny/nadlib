@@ -691,7 +691,9 @@ class Request
 
 	public function getHeader($name)
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
+		$headers = function_exists('apache_request_headers')
+			? apache_request_headers() : [];
+
 		return ifsetor($headers[$name]);
 	}
 
