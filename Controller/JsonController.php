@@ -51,7 +51,7 @@ trait JsonController
 		return [$request, $arguments];
 	}
 
-    public function error(Exception $e, $httpCode = 500)
+    public function jsonError(Exception $e, $httpCode = 500)
     {
         $message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
         llog($message);
