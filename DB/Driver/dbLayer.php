@@ -14,8 +14,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 	 */
 	public $connection = NULL;
 
-	public $LAST_PERFORM_RESULT;
-	public $LAST_PERFORM_QUERY;
+	public $lastResult;
 
 	/**
 	 * todo: use setter & getter method
@@ -150,14 +149,14 @@ class dbLayer extends dbLayerBase implements DBInterface
 		try {
 			if ($params) {
 				pg_prepare($this->connection, '', $query);
-				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
+				$this->lastResult = pg_execute($this->connection, '', $params);
 			} else {
-				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
+				$this->lastResult = @pg_query($this->connection, $query);
 			}
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
-			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
-				? pg_result_error($this->LAST_PERFORM_RESULT)
+			$errorMessage = is_resource($this->lastResult)
+				? pg_result_error($this->lastResult)
 				: '';
 			$e = new DatabaseException(
 				'[' . $e->getCode() . '] ' . $e->getMessage() . BR .
@@ -167,7 +166,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 			$e->setQuery($query);
 			throw $e;
 		}
-		if (!$this->LAST_PERFORM_RESULT) {
+		if (!$this->lastResult) {
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
@@ -175,9 +174,9 @@ class dbLayer extends dbLayerBase implements DBInterface
 			$e->setQuery($query);
 			throw $e;
 		} else {
-			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+			$this->AFFECTED_ROWS = pg_affected_rows($this->lastResult);
 			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
+				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->lastResult);
 			}
 			if ($this->logToLog) {
 				$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
@@ -187,26 +186,26 @@ class dbLayer extends dbLayerBase implements DBInterface
 		$this->lastQuery = $query;
 		$this->queryTime = $prof->elapsed();
 		$this->queryCount++;
-		return $this->LAST_PERFORM_RESULT;
+		return $this->lastResult;
 	}
 
 	function performWithParams($query, $params)
 	{
 		$prof = new Profiler();
 		$this->lastQuery = $query;
-		$this->LAST_PERFORM_RESULT = pg_query_params($this->connection, $query, $params);
-		if (!$this->LAST_PERFORM_RESULT) {
+		$this->lastResult = pg_query_params($this->connection, $query, $params);
+		if (!$this->lastResult) {
 			debug($query);
 			debug_pre_print_backtrace();
 			throw new Exception(pg_errormessage($this->connection) . BR . $query);
 		} else {
-			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+			$this->AFFECTED_ROWS = pg_affected_rows($this->lastResult);
 			if ($this->queryLog) {
 				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 			}
 		}
 		$this->queryCount++;
-		return $this->LAST_PERFORM_RESULT;
+		return $this->lastResult;
 	}
 
 	/**
@@ -367,6 +366,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 	/**
 	 * Returns a list of tables in the current database
 	 * @return string[]
+	 * @throws DatabaseException
 	 */
 	function getTables()
 	{

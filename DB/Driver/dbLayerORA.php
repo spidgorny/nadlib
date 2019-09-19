@@ -8,7 +8,7 @@ class dbLayerORA extends dbLayer
 {
 	public $connection = NULL;
 	public $COUNTQUERIES = 0;
-	public $LAST_PERFORM_RESULT;
+	public $lastResult;
 	public $LOG;
 	public $debug = FALSE;
 	public $debugOnce = FALSE;
@@ -45,14 +45,14 @@ class dbLayerORA extends dbLayer
 		list($time1['usec'], $time1['sec']) = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
-		$this->LAST_PERFORM_RESULT = ora_open($this->connection);
+		$this->lastResult = ora_open($this->connection);
 		ora_parse($cursor, $query, TRUE) or $canprint ? my_print_backtrace($query) : '';
-		ora_exec($this->LAST_PERFORM_RESULT);
+		ora_exec($this->lastResult);
 
 		list($time2['usec'], $time2['sec']) = explode(" ", microtime());
 		$time2['float'] = (float)$time2['usec'] + (float)$time2['sec'];
 
-		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
+		$numRows = $this->numRows($this->lastResult);
 		if ($this->debugOnce || $this->debug) {
 			debug(array($query, $numRows));
 			$this->debugOnce = FALSE;
@@ -94,7 +94,7 @@ class dbLayerORA extends dbLayer
 				'total' => $elapsed,
 			);
 		}
-		return $this->LAST_PERFORM_RESULT;
+		return $this->lastResult;
 	}
 
 	function done($result)
