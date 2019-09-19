@@ -4,6 +4,7 @@ var urls = require("sdk/url");
 var {Cc, Ci} = require("chrome");
 
 var button;
+
 function main() {
 	button = buttons.ToggleButton({
 		id: "debug-cookie",
@@ -20,7 +21,7 @@ function main() {
 }
 
 function handleClick(state) {
-	console.log(state.label +  " checked state: " + state.checked);
+	console.log(state.label + " checked state: " + state.checked);
 	var isDebug = checkCookie(tabs.activeTab.url);
 	console.log('isDebug: ', isDebug);
 
@@ -118,14 +119,14 @@ function setDebug(value) {
 		if (false) {
 			var cookieManager = getCookieManager();
 			cookieManager.add(
-			'.' + hostWithoutWWW,
-			'/',
-			'debug',
-			value,
-			false,
-			false,
-			false,
-			expires
+				'.' + hostWithoutWWW,
+				'/',
+				'debug',
+				value,
+				false,
+				false,
+				false,
+				expires
 			);
 		} else {
 			var cookieSvc = Cc["@mozilla.org/cookieService;1"].getService(Ci.nsICookieService);
@@ -135,7 +136,7 @@ function setDebug(value) {
 			console.log(cookieConfig);
 
 			var ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-			var cookieUri = ios.newURI("http://"+hostWithoutWWW, null, null);
+			var cookieUri = ios.newURI("http://" + hostWithoutWWW, null, null);
 			cookieSvc.setCookieString(cookieUri, null, cookieConfig, null);
 		}
 	} else {

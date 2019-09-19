@@ -9,32 +9,39 @@
  * sometimes you only need a part of it.
  * @see http://php.net/manual/en/class.arrayaccess.php#113865
  */
-class MergedContent implements ArrayAccess {
+class MergedContent implements ArrayAccess
+{
 
-	var $content = array();
+	public $content = array();
 
-	function __construct(array $parts = array()) {
+	function __construct(array $parts = array())
+	{
 		$this->content = $parts;
 	}
 
-	function getContent() {
+	function getContent()
+	{
 		return $this->mergeStringArrayRecursive($this->content);
 	}
 
-	function __toString() {
+	function __toString()
+	{
 //		debug_pre_print_backtrace();
 		return $this->getContent();
 	}
 
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		return isset($this->content[$offset]);
 	}
 
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return $this->content[$offset];
 	}
 
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value)
+	{
 		//debug('offsetSet', $offset);
 		if (is_null($offset)) {
 			$this->content[] = $value;
@@ -43,18 +50,21 @@ class MergedContent implements ArrayAccess {
 		}
 	}
 
-	public function add($value) {
+	public function add($value)
+	{
 		$this->content[] = $value;
 	}
 
-	public function addSub($key, $value) {
+	public function addSub($key, $value)
+	{
 		if (isset($this->content[$key]) && is_string($this->content[$key])) {
 			$this->content[$key] = [$this->content[$key]];
 		}
 		$this->content[$key][] = $value;
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($this->content[$offset]);
 	}
 
@@ -65,7 +75,8 @@ class MergedContent implements ArrayAccess {
 	 * @access public
 	 * @return mixed
 	 */
-	public function &__get ($key) {
+	public function &__get($key)
+	{
 		return $this->content[$key];
 	}
 
@@ -73,10 +84,11 @@ class MergedContent implements ArrayAccess {
 	 * Assigns a value to the specified data
 	 *
 	 * @param string $key The data key to assign the value to
-	 * @param mixed  $value The value to set
+	 * @param mixed $value The value to set
 	 * @access public
 	 */
-	public function __set($key,$value) {
+	public function __set($key, $value)
+	{
 		$this->content[$key] = $value;
 	}
 
@@ -85,10 +97,11 @@ class MergedContent implements ArrayAccess {
 	 *
 	 * @param string $key An data key to check for
 	 * @access public
-	 * @return boolean
+	 * @return bool
 	 * @abstracting ArrayAccess
 	 */
-	public function __isset($key) {
+	public function __isset($key)
+	{
 		return isset($this->content[$key]);
 	}
 
@@ -98,11 +111,13 @@ class MergedContent implements ArrayAccess {
 	 * @param string $key The key to unset
 	 * @access public
 	 */
-	public function __unset($key) {
+	public function __unset($key)
+	{
 		unset($this->content[$key]);
 	}
 
-	public function clear() {
+	public function clear()
+	{
 		$this->content = array();
 	}
 
@@ -110,7 +125,8 @@ class MergedContent implements ArrayAccess {
 	 * @param string|string[] $render
 	 * @return string
 	 */
-	static function mergeStringArrayRecursive($render) {
+	static function mergeStringArrayRecursive($render)
+	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($render)) {
 			$combined = '';
@@ -135,32 +151,35 @@ class MergedContent implements ArrayAccess {
 				debug_pre_print_backtrace();
 //				debug('Object of class ', get_class($render), 'could not be converted to string');
 //				debug($render);
-				$render = '?['.get_class($render).']?';
+				$render = '?[' . get_class($render) . ']?';
 			}
 		} else {
-			$render = $render.'';	// just in case
+			$render = $render . '';    // just in case
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $render;
 	}
 
-	static function stringify(array $objects) {
+	static function stringify(array $objects)
+	{
 		foreach ($objects as &$element) {
-			$debug = '-= '.gettype2($element).' =-'.BR;
+			$debug = '-= ' . gettype2($element) . ' =-' . BR;
 			//echo $debug;
 			//$content .= $debug;
 			$element = is_object($element)
-				? $element.''
+				? $element . ''
 				: $element;
 		}
 		return $objects;
 	}
 
-	protected static function walkMerge($value, $key, &$combined = '') {
-		$combined .= $value."\n";
+	protected static function walkMerge($value, $key, &$combined = '')
+	{
+		$combined .= $value . "\n";
 	}
 
-	protected static function walkMergeArray($value, $key, $combined) {
+	protected static function walkMergeArray($value, $key, $combined)
+	{
 		$combined[] = $value;
 	}
 

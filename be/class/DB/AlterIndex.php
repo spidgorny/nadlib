@@ -1,35 +1,38 @@
 <?php
 
-class AlterIndex extends AppControllerBE {
+class AlterIndex extends AppControllerBE
+{
 
 	/**
 	 * @var string
 	 */
-	var $jsonFile;
+	public $jsonFile;
 
 	/**
 	 * @var dbLayerBase
 	 */
-	var $db;
+	public $db;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		$host = gethostname() ?: $_SERVER['SERVER_NAME'];
-		$filename = $this->request->getFilename('file') ?: $host .'-'. $this->db->database.'.json';
-		$this->jsonFile = $this->config->appRoot.'/sql/'.$filename;
+		$filename = $this->request->getFilename('file') ?: $host . '-' . $this->db->database . '.json';
+		$this->jsonFile = $this->config->appRoot . '/sql/' . $filename;
 
 		if (false) {
-			require_once $this->config->appRoot.'/constants.php';
+			require_once $this->config->appRoot . '/constants.php';
 			$GLOBALS['dbLayer'] = new dbLayerBL('buglog', PG_DB_LOGIN, PG_DB_PASSW, PG_DB_HOSTN);
 			$this->db = $GLOBALS['dbLayer'];
 //			$this->config->db = $GLOBALS['dbLayer'];
 //			$this->config->qb->db = $GLOBALS['dbLayer'];
-			$this->jsonFile = $this->config->appRoot.'/sql/buglog_dev.json';
+			$this->jsonFile = $this->config->appRoot . '/sql/buglog_dev.json';
 		}
 
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = array();
 		if (class_exists('AdminPage')) {
 			$ap = new AdminPage();
@@ -42,20 +45,22 @@ class AlterIndex extends AppControllerBE {
 		return $content;
 	}
 
-	function showDBInfo() {
-		$content[] = 'Schema: '.$this->db->getScheme().BR;
-		$content[] = 'Wrapper: '.get_class($this->db).BR;
-		$content[] = 'DB: '.$this->db->database.BR;
-		$content[] = 'File: '.basename($this->jsonFile).BR;
+	function showDBInfo()
+	{
+		$content[] = 'Schema: ' . $this->db->getScheme() . BR;
+		$content[] = 'Wrapper: ' . get_class($this->db) . BR;
+		$content[] = 'DB: ' . $this->db->database . BR;
+		$content[] = 'File: ' . basename($this->jsonFile) . BR;
 		if ($this->db->database) {
 			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', NULL, array(), 'btn btn-info');
 		}
 		return $content;
 	}
 
-	function listFiles() {
+	function listFiles()
+	{
 		$li = array();
-		$files = new ListFilesIn($this->config->appRoot.'/sql/');
+		$files = new ListFilesIn($this->config->appRoot . '/sql/');
 		foreach ($files as $file) {
 			/** @var $file SplFileInfo */
 			if ($file->getExtension() == 'json') {
@@ -71,7 +76,8 @@ class AlterIndex extends AppControllerBE {
 		return $content;
 	}
 
-	function saveStructAction() {
+	function saveStructAction()
+	{
 		$struct = $this->getDBStruct();
 		if (phpversion() > '5.4') {
 			$json = json_encode($struct, JSON_PRETTY_PRINT);
@@ -80,10 +86,11 @@ class AlterIndex extends AppControllerBE {
 		}
 
 		file_put_contents($this->jsonFile, $json);
-		return 'Saved: '.strlen($json).'<br />';
+		return 'Saved: ' . strlen($json) . '<br />';
 	}
 
-	function getDBStruct() {
+	function getDBStruct()
+	{
 		$result = array();
 		$tables = $this->db->getTables();
 		foreach ($tables as $t) {
@@ -97,7 +104,8 @@ class AlterIndex extends AppControllerBE {
 		return $result;
 	}
 
-	function render() {
+	function render()
+	{
 		$content[] = $this->performAction();
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
@@ -115,10 +123,11 @@ class AlterIndex extends AppControllerBE {
 		return $content;
 	}
 
-	function renderTableStruct(array $struct, array $local) {
+	function renderTableStruct(array $struct, array $local)
+	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
-			$content .= '<h4 id="table-'.$table.'">Table: '.$table.'</h4>';
+			$content .= '<h4 id="table-' . $table . '">Table: ' . $table . '</h4>';
 
 			$indexCompare = $this->compareTable($table, $local, $desc);
 			$content .= new slTable($indexCompare, 'class="nospacing table table-striped"', array(
@@ -141,7 +150,8 @@ class AlterIndex extends AppControllerBE {
 		return $content;
 	}
 
-	function convertFromOtherDB(array $desc) {
+	function convertFromOtherDB(array $desc)
+	{
 		if ($desc['tbl_name']) {    // SQLite
 			$desc['Table'] = $desc['tbl_name'];
 			unset($desc['tbl_name']);
@@ -162,7 +172,8 @@ class AlterIndex extends AppControllerBE {
 	 * @param $desc
 	 * @return array
 	 */
-	protected function compareTable($table, array $local, $desc) {
+	protected function compareTable($table, array $local, $desc)
+	{
 		$indexCompare = array();
 		foreach ($desc['indexes'] as $i => $index) {
 			$index = $this->convertFromOtherDB($index);
@@ -175,23 +186,23 @@ class AlterIndex extends AppControllerBE {
 				//$content .= getDebug($index, $localIndex);
 				if (is_array($index)) {
 					$indexCompare[] = array(
-					'same'          => 'sql file',
-					'###TR_MORE###' => 'style="background: pink"',
-					) + $index;
+							'same' => 'sql file',
+							'###TR_MORE###' => 'style="background: pink"',
+						) + $index;
 				}
 				if (is_array($localIndex)) {
 					$indexCompare[] = array(
-					'same'          => 'database',
-					'###TR_MORE###' => 'style="background: pink"',
-					) + $localIndex;
+							'same' => 'database',
+							'###TR_MORE###' => 'style="background: pink"',
+						) + $localIndex;
 				} else {
 					$indexCompare[] = array(
-					'Table' => new HTMLTag('td', array(
-					'colspan' => 10,
-					), 'CREATE ' . ($index['Non_unique'] ? '' : 'UNIQUE') .
-					' INDEX ' . $index['Key_name'] .
-					' ON ' . $index['Table'] . ' (' . $index['Key_name'] . ')'
-					),
+						'Table' => new HTMLTag('td', array(
+							'colspan' => 10,
+						), 'CREATE ' . ($index['Non_unique'] ? '' : 'UNIQUE') .
+							' INDEX ' . $index['Key_name'] .
+							' ON ' . $index['Table'] . ' (' . $index['Key_name'] . ')'
+						),
 					);
 				}
 			} else {

@@ -7,7 +7,7 @@
 class CsvIterator implements Iterator, Countable
 {
 
-	var $filename;
+	public $filename;
 
 	const ROW_SIZE = 4194304; // 4096*1024;
 
@@ -27,7 +27,7 @@ class CsvIterator implements Iterator, Countable
 	protected $currentElement = null;
 
 	/**
-	 * @var integer - cached amount of rows in a file
+	 * @var int - cached amount of rows in a file
 	 */
 	protected $numRows;
 
@@ -59,16 +59,15 @@ class CsvIterator implements Iterator, Countable
 	 *
 	 * @throws Exception
 	 */
-	public function __construct($filename, $delimiter=',')
+	public function __construct($filename, $delimiter = ',')
 	{
 		$this->filename = $filename;
 		ini_set('auto_detect_line_endings', TRUE);
 		$this->delimiter = $delimiter;
 		try {
 			$this->filePointer = $this->fopen_utf8($filename, 'r');
-		}
-		catch (Exception $e) {
-			throw new Exception('The file "'.$filename.'" cannot be read because '.$e->getMessage());
+		} catch (Exception $e) {
+			throw new Exception('The file "' . $filename . '" cannot be read because ' . $e->getMessage());
 		}
 	}
 
@@ -78,10 +77,11 @@ class CsvIterator implements Iterator, Countable
 	 * @param $mode
 	 * @return resource
 	 */
-	function fopen_utf8 ($filename, $mode) {
+	function fopen_utf8($filename, $mode)
+	{
 		$file = fopen($filename, $mode);
 		if (!$file) {
-			throw new InvalidArgumentException($filename.' is not found in '.getcwd());
+			throw new InvalidArgumentException($filename . ' is not found in ' . getcwd());
 		}
 		$bom = fread($file, 3);
 		if ($bom != b"\xEF\xBB\xBF") {
@@ -100,7 +100,8 @@ class CsvIterator implements Iterator, Countable
 	 *
 	 * @access public
 	 */
-	public function rewind() {
+	public function rewind()
+	{
 		$this->rowCounter = 0;
 		// feof() is stuck in true after rewind somehow
 		if (pathinfo($this->filename, PATHINFO_EXTENSION) == 'bz2') {
@@ -119,7 +120,8 @@ class CsvIterator implements Iterator, Countable
 	 * @access public
 	 * @return array The current csv row as a 2 dimensional array
 	 */
-	public function current() {
+	public function current()
+	{
 		$this->read();
 		return $this->currentElement;
 	}
@@ -130,21 +132,24 @@ class CsvIterator implements Iterator, Countable
 	 * @access public
 	 * @return int The current row number
 	 */
-	public function key() {
+	public function key()
+	{
 		return $this->rowCounter;
 	}
 
-	public function feof() {
+	public function feof()
+	{
 		return feof($this->filePointer);
 	}
 
 	/**
 	 * @access public
 	 * @inheritdoc Returns the array value in the next place that's pointed to by the internal array pointer, or FALSE if there are no more elements.
-	 * @return array|boolean Returns FALSE on EOF reached, VALUE otherwise.
+	 * @return array|bool Returns FALSE on EOF reached, VALUE otherwise.
 	 */
-	public function next() {
-		$this->rowCounter++;	// this make read() to read next row
+	public function next()
+	{
+		$this->rowCounter++;    // this make read() to read next row
 		$this->read();
 		if (!$this->currentElement) {
 			//debug($this->feof(), ftell($this->filePointer));
@@ -156,9 +161,10 @@ class CsvIterator implements Iterator, Countable
 	 * This method checks if the next row is a valid row.
 	 *
 	 * @access public
-	 * @return boolean If the next row is a valid row.
+	 * @return bool If the next row is a valid row.
 	 */
-	public function valid() {
+	public function valid()
+	{
 		return !$this->feof();
 	}
 
@@ -166,7 +172,8 @@ class CsvIterator implements Iterator, Countable
 	 * If called multiple times should return the same value
 	 * until next() is called
 	 */
-	function read() {
+	function read()
+	{
 		//debug_pre_print_backtrace();
 		if ($this->rowCounter != $this->lastRead) {
 			$this->currentElement = fgetcsv($this->filePointer, self::ROW_SIZE,
@@ -192,7 +199,8 @@ class CsvIterator implements Iterator, Countable
 	 * The return value is cast to an integer.
 	 * @since 5.1.0
 	 */
-	public function count() {
+	public function count()
+	{
 		if ($this->numRows) {
 			return $this->numRows;
 		}

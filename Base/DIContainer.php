@@ -4,46 +4,49 @@
  * Class DIContainer
  * http://fabien.potencier.org/article/17/on-php-5-3-lambda-functions-and-closures
  */
-class DIContainer {
+class DIContainer
+{
 
 	protected $values = array();
 
-	function __set($id, $value) {
+	function __set($id, $value)
+	{
 		//echo __METHOD__, ' ('.$id.')', BR;
 		$this->values[$id] = $value;
 	}
 
-	function __get($id) {
+	function __get($id)
+	{
 		//echo __METHOD__, ' ('.$id.')', BR;
 		// we check for is_null() because sometimes ['user'] is not logged-in
 		if (!isset($this->values[$id]) && !is_null($this->values[$id])) {
 			debug(array_keys($this->values));
 			throw new InvalidArgumentException(sprintf(
-				__METHOD__.': value "%s" is not defined.', $id));
+				__METHOD__ . ': value "%s" is not defined.', $id));
 		}
 		$v = $this->values[$id];
-/*		print_r(array(
-			'id' => $id,
-			'type' => gettype($v),
-			'callable' => is_callable($v),
-			'object' => is_object($v),
-		)); echo BR;*/
+		/*		print_r(array(
+					'id' => $id,
+					'type' => gettype($v),
+					'callable' => is_callable($v),
+					'object' => is_object($v),
+				)); echo BR;*/
 
 		return is_callable($v) //&& is_object($v)
 			? $this->values[$id] = $v($this)
 			: $v;
 	}
 
-/*	function asShared($callable) {
-		return function ($c) use ($callable) {
-			static $object;
+	/*	function asShared($callable) {
+			return function ($c) use ($callable) {
+				static $object;
 
-			if (is_null($object)) {
-				$object = $callable($c);
-			}
+				if (is_null($object)) {
+					$object = $callable($c);
+				}
 
-			return $object;
-		};
-	}
-*/
+				return $object;
+			};
+		}
+	*/
 }

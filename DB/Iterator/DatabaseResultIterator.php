@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This class is a replacement for fetchAll - foreach combination and should be used to reduce the memory
  * requirements of the script. It's ment to mimic Iterator classes in PHP5, but doesn't inherit the interface
@@ -8,43 +9,44 @@
  * rewind()
  *
  * [
- * 	next()
- * 	valid()
- * 	current()
+ *    next()
+ *    valid()
+ *    current()
  * ]
  */
-class DatabaseResultIterator implements Iterator, Countable {
+class DatabaseResultIterator implements Iterator, Countable
+{
 
 	/**
 	 * If defined it will influence the key() method return value
 	 * @var string
 	 */
-	var $defaultKey;
+	public $defaultKey;
 
 	/**
 	 * Query result
 	 * @var resource
 	 */
-	var $dbResultResource;
+	public $dbResultResource;
 
 	/**
 	 * Must be false to indicate no results
 	 * @var array
 	 */
-	var $row = FALSE;
+	public $row = FALSE;
 
 	/**
 	 * Amount. Must be NULL for the first time.
 	 * @var int
 	 */
-	var $rows = NULL;
+	public $rows = NULL;
 
 	/**
 	 * Will return the value of the current row corresponding to $this->defaultKey
 	 * or number 0, 1, 2, 3, ... otherwise
 	 * @var int
 	 */
-	var $key = 0;
+	public $key = 0;
 
 	/**
 	 * @var DBInterface
@@ -55,17 +57,20 @@ class DatabaseResultIterator implements Iterator, Countable {
 
 	public $debug = false;
 
-	function __construct(DBInterface $db, $defaultKey = NULL) { // 'uid'
+	function __construct(DBInterface $db, $defaultKey = NULL)
+	{ // 'uid'
 		$this->db = $db;
 		$this->defaultKey = $defaultKey;
 	}
 
-	function setResult($res) {
+	function setResult($res)
+	{
 		$this->dbResultResource = $res;
 		$this->rows = $this->count();
 	}
 
-	function perform($query) {
+	function perform($query)
+	{
 		$this->log(__METHOD__);
 		$this->query = $query;
 		$params = [];
@@ -79,7 +84,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 		//$this->rewind();
 	}
 
-	function count() {
+	function count()
+	{
 		$this->log(__METHOD__);
 		if (is_null($this->rows)) {
 			$numRows = $this->db->numRows($this->dbResultResource);
@@ -90,7 +96,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 		}
 	}
 
-	function rewind() {
+	function rewind()
+	{
 		$this->log(__METHOD__);
 		if ($this->rows) {
 			$this->key = 0;
@@ -99,16 +106,19 @@ class DatabaseResultIterator implements Iterator, Countable {
 		}
 	}
 
-	function current() {
+	function current()
+	{
 		$this->log(__METHOD__);
 		return $this->row;
 	}
 
-	function key() {
+	function key()
+	{
 		return $this->key;
 	}
 
-	function next() {
+	function next()
+	{
 		$this->log(__METHOD__);
 		$this->row = $this->retrieveRow();
 		if (is_array($this->row)) {
@@ -121,14 +131,16 @@ class DatabaseResultIterator implements Iterator, Countable {
 		//debug($this->key, $this->row);
 	}
 
-	function retrieveRow() {
+	function retrieveRow()
+	{
 		$this->log(__METHOD__);
 		$row = $this->db->fetchRow($this->dbResultResource);
 //		debug(__METHOD__, $row);
 		return $row;
 	}
 
-	function valid() {
+	function valid()
+	{
 		$this->log(__METHOD__);
 		return $this->row !== NULL && $this->row !== FALSE;
 	}
@@ -137,7 +149,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 	 * Should not be used - against the purpose, but nice for debugging
 	 * @return array
 	 */
-	function fetchAll() {
+	function fetchAll()
+	{
 		$this->log(__METHOD__);
 		$data = array();
 		foreach ($this as $row) {
@@ -146,12 +159,14 @@ class DatabaseResultIterator implements Iterator, Countable {
 		return $data;
 	}
 
-	function __destruct() {
+	function __destruct()
+	{
 		$this->log(__METHOD__);
 		$this->db->free($this->dbResultResource);
 	}
 
-	function skip($rows) {
+	function skip($rows)
+	{
 		$this->log(__METHOD__, $rows);
 		while ($rows) {
 			$this->next();
@@ -161,7 +176,8 @@ class DatabaseResultIterator implements Iterator, Countable {
 		return $this;
 	}
 
-	function log($method, $data = NULL) {
+	function log($method, $data = NULL)
+	{
 		if ($this->debug) {
 			if ($data) {
 				debug($method, $data);

@@ -1,6 +1,7 @@
 <?php
 
-interface DBInterface {
+interface DBInterface
+{
 
 	//function __construct();
 

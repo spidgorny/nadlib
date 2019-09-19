@@ -1,10 +1,12 @@
 <?php
 
-class LocalLangModel extends OODBase {
-	var $table = 'app_interface';
-	var $idField = 'id';
+class LocalLangModel extends OODBase
+{
+	public $table = 'app_interface';
+	public $idField = 'id';
 
-	function getValue() {
+	function getValue()
+	{
 		return $this->data['text'];
 	}
 

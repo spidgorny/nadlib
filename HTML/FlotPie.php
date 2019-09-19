@@ -3,7 +3,8 @@
 /**
  * Class Flot - is drawing a flot chart.
  */
-class FlotPie extends AppController {
+class FlotPie extends AppController
+{
 
 	protected $colors = array(
 		'#edc240',
@@ -26,39 +27,42 @@ class FlotPie extends AppController {
 	/**
 	 * @var string
 	 */
-	var $flotPath = 'components/flot/flot/';
+	public $flotPath = 'components/flot/flot/';
 
 	/**
-	 * @param array $data	- source data
+	 * @param array $data - source data
 	 */
-	function __construct(array $data) {
+	function __construct(array $data)
+	{
 		$this->data = $data;
 	}
 
-	function render() {
+	function render()
+	{
 		$content = '';
 		$content .= $this->showChart('chart1');
 		return $content;
 	}
 
-	function showChart($divID) {
+	function showChart($divID)
+	{
 		Index::getInstance()->addJQuery();
 		Index::getInstance()->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.js"></script>
-    	<script language="javascript" type="text/javascript" src="'.$this->flotPath.'jquery.flot.pie.js"></script>';
+    	<script language="javascript" type="text/javascript" src="' . $this->flotPath . 'jquery.flot.js"></script>
+    	<script language="javascript" type="text/javascript" src="' . $this->flotPath . 'jquery.flot.pie.js"></script>';
 
-		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: none 0px silver;"></div>';
+		$content = '<div id="' . $divID . '" style="width: 950px; height:600px; border: none 0px silver;"></div>';
 
 		$charts = array();
 		$dKeys = array();
 		foreach ($this->data as $key => $val) {
-			$jsKey = 'd_'.Controller::friendlyURL($key);
+			$jsKey = 'd_' . Controller::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$dKeys[] = $jsKey;
-			$charts[] = 'var '.$jsKey.' = {
-				label: "'.$key.'",
-				data: '.$val.',
+			$charts[] = 'var ' . $jsKey . ' = {
+				label: "' . $key . '",
+				data: ' . $val . ',
 			};';
 		}
 
@@ -68,26 +72,26 @@ class FlotPie extends AppController {
 		return "<div style=\'font-size:8pt; text-align:center; padding:2px; color:white;\'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
 	}
 $(function ($) {
-	'.implode("\n", $charts).'
-    $.plot($("#'.$divID.'"), [
-    	'.implode(", ", $dKeys).'
+	' . implode("\n", $charts) . ';
+    $.plot($("#' . $divID . '"), [
+    	' . implode(", ", $dKeys) . ';
     ], {
-    	series: {
-     		pie: {
-           		show: true,
-           		radius: 1,
-				label: {
-					show: true,
-					radius: 3/4,
-					formatter: labelFormatter,
-					background: {
-						opacity: 0.5
+    	{
+     		{
+           		true,
+           		radius;: 1,
+				label;: {
+					true,
+					radius;: 3/4,
+					formatter;: labelFormatter,
+					background;: {
+						0.5
 					}
 				}
         	}
         },
-    	colors: '.json_encode($this->colors).'
-    });
+    	colors: ' . json_encode($this->colors) . '
+    })
 });
 </script>';
 		return $content;

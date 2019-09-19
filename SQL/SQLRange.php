@@ -1,6 +1,7 @@
 <?php
 
-class SQLRange extends SQLWherePart {
+class SQLRange extends SQLWherePart
+{
 
 	/**
 	 * @var mixed
@@ -17,13 +18,15 @@ class SQLRange extends SQLWherePart {
 	 * @param string $from
 	 * @param null $till
 	 */
-	function __construct($from, $till = NULL) {
+	function __construct($from, $till = NULL)
+	{
 		parent::__construct();
 		$this->from = $from;
 		$this->till = $till;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		$field = $this->db->quoteKey($this->field);
 		$sql = "($field >= '$this->from'";
 		if ($this->till) {
@@ -33,7 +36,8 @@ class SQLRange extends SQLWherePart {
 		return $sql;
 	}
 
-	function debug() {
+	function debug()
+	{
 		return $this->__toString();
 	}
 

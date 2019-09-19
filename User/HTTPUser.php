@@ -1,16 +1,19 @@
 <?php
 
-class HTTPUser extends UserBase {
+class HTTPUser extends UserBase
+{
 
 	protected $login;
 	protected $password;
 
-	function __construct() {
+	function __construct()
+	{
 		$this->login = $_SERVER['PHP_AUTH_USER'];
 		$this->password = $_SERVER['PHP_AUTH_PASSWORD'];
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->login;
 	}
 

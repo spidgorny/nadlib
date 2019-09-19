@@ -6,11 +6,13 @@
  * @property  tbody
  * @property  tfoot
  */
-class HTMLTableBuf extends MergedContent {
+class HTMLTableBuf extends MergedContent
+{
 
-	var $curPart = 'tbody';
+	public $curPart = 'tbody';
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct(array(
 			'table' => '',
 			'thead' => '',
@@ -18,78 +20,95 @@ class HTMLTableBuf extends MergedContent {
 		));
 	}
 
-	function table($more = "") {
+	function table($more = "")
+	{
 		$this['table'] = "<table $more>\n";
 	}
 
-	function tablee() {
+	function tablee()
+	{
 		$this['/table'] = "</table>\n";
 	}
 
-	function htr(array $more = []) {
-		$this->addSub('thead', "<tr ".HTMLTag::renderAttr($more).">\n");
+	function htr(array $more = [])
+	{
+		$this->addSub('thead', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
-	function htre() {
+	function htre()
+	{
 		$this->addSub('thead', "</tr>\n");
 	}
 
-	function tr($more = "") {
-		$this->addSub('tbody', "<tr".rtrim(' '.$more).">\n");
+	function tr($more = "")
+	{
+		$this->addSub('tbody', "<tr" . rtrim(' ' . $more) . ">\n");
 	}
 
-	function tre() {
+	function tre()
+	{
 		$this->addSub('tbody', "</tr>\n");
 	}
 
-	function ftr($more = "") {
-		$this->addSub('tfoot', "<tr ".$more.">\n");
+	function ftr($more = "")
+	{
+		$this->addSub('tfoot', "<tr " . $more . ">\n");
 	}
 
-	function ftre() {
+	function ftre()
+	{
 		$this->addSub('tfoot', "</tr>\n");
 	}
 
-	function th($more = '') {
-		$this->addSub('thead', "<th".rtrim(' '.$more).">\n");
+	function th($more = '')
+	{
+		$this->addSub('thead', "<th" . rtrim(' ' . $more) . ">\n");
 	}
 
-	function the() {
+	function the()
+	{
 		$this->addSub('thead', "</th>\n");
 	}
 
-	function td($more = "") {
-		$this->addSub($this->curPart, "<td".rtrim(' '.$more).">");
+	function td($more = "")
+	{
+		$this->addSub($this->curPart, "<td" . rtrim(' ' . $more) . ">");
 	}
 
-	function tde() {
+	function tde()
+	{
 		$this->addSub($this->curPart, "</td>\n");
 	}
 
-	function addTHead($text) {
+	function addTHead($text)
+	{
 		$this->addSub('thead', $text);
 	}
 
-	function text($text) {
+	function text($text)
+	{
 		$this->addSub($this->curPart, $text);
 	}
 
-	function tfoot($text) {
+	function tfoot($text)
+	{
 		$this->addSub('tfoot', $text);
 	}
 
-	function cell($a, array $more = array()) {
+	function cell($a, array $more = array())
+	{
 		$this->td(HTMLTag::renderAttr($more));
 		$this->text($a);
 		$this->tde();
 	}
 
 	/**
-	 * @param array  $aCaption	- array of names
-	 * @param array  $thMore	- more on each column TH
-	 * @param array  $trMore	- more on the whole row
+	 * @param array $aCaption - array of names
+	 * @param array $thMore - more on each column TH
+	 * @param array $trMore - more on the whole row
 	 */
-	function thes(array $aCaption, $thMore = array(), $trMore = []) {
+	function thes(array $aCaption, $thMore = array(), $trMore = [])
+	{
 		$this->htr($trMore);
 		foreach ($aCaption as $i => $caption) {
 			if ($caption instanceof HTMLTag) {
@@ -102,26 +121,30 @@ class HTMLTableBuf extends MergedContent {
 				if (is_array($more)) {
 					$more = HTMLTag::renderAttr($more);
 				}
-				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>'."\n";
+				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>' . "\n";
 			}
 		}
 		$this->htre();
 		//debug($this);
 	}
 
-	function render() {
+	function render()
+	{
 		print($this->getContent());
 	}
 
-	function tag(HTMLTag $tag) {
-		$this->addSub($this->curPart, $tag.'');
+	function tag(HTMLTag $tag)
+	{
+		$this->addSub($this->curPart, $tag . '');
 	}
 
-	function isDone() {
+	function isDone()
+	{
 		return isset($this['/table']);
 	}
 
-	function &__get($key) {
+	function &__get($key)
+	{
 //		echo __METHOD__, '(', $key, ')', BR;
 		if (!isset($this[$key])) {
 			$this->offsetSet($key, []);
@@ -129,7 +152,8 @@ class HTMLTableBuf extends MergedContent {
 		return $this->content[$key];
 	}
 
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return ifsetor($this->content[$offset], []);
 	}
 

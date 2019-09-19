@@ -1,5 +1,6 @@
 <?php
 
-class MailerException extends Exception {
-	
+class MailerException extends Exception
+{
+
 }

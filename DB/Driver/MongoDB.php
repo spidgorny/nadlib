@@ -2,11 +2,15 @@
 
 namespace nadlib\DB\Driver;
 
+use Mongo;
+use MongoCollection;
+
 /**
  * Class MongoDB
  * @deprecated
  */
-class MongoDB {
+class MongoDB
+{
 
 	/**
 	 * @var string
@@ -23,12 +27,14 @@ class MongoDB {
 	 */
 	protected $connection;
 
-	function __construct($dbName) {
+	function __construct($dbName)
+	{
 		$this->dbName = $dbName;
 		$this->connect($this->dbName);
 	}
 
-	function connect($db) {
+	function connect($db)
+	{
 		$server = array(
 			'mongodb://localhost:27017',
 		);
@@ -37,7 +43,7 @@ class MongoDB {
 			die("Mongo support required. Install mongo pecl extension with 'pecl install mongo; echo \"extension=mongo.so\" >> php.ini'");
 		}
 		try {
-			$this->mongo = new \Mongo($server[0], array(
+			$this->mongo = new Mongo($server[0], array(
 				'connect' => true
 			));
 		} catch (MongoConnectionException $ex) {
@@ -49,9 +55,10 @@ class MongoDB {
 
 	/**
 	 * @param $colName
-	 * @return \MongoCollection
+	 * @return MongoCollection
 	 */
-	function getCollection($colName) {
+	function getCollection($colName)
+	{
 		$collection = $this->connection->selectCollection($colName);
 		return $collection;
 	}

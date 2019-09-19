@@ -1,14 +1,17 @@
 <?php
 
-class DatabaseException extends Exception {
+class DatabaseException extends Exception
+{
 
-	var $query;
+	public $query;
 
-	function setQuery($q) {
+	function setQuery($q)
+	{
 		$this->query = $q;
 	}
 
-	function getQuery() {
+	function getQuery()
+	{
 		return $this->query;
 	}
 

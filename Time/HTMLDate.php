@@ -1,12 +1,14 @@
 <?php
 
-class HTMLDate extends DateTime {
+class HTMLDate extends DateTime
+{
 
-	function __toString() {
+	function __toString()
+	{
 		return new HTMLTag('time', array(
-			'datetime' => $this->format('Y-m-d H:i:s'),
-			'title' => $this->format('Y-m-d H:i:s'),
-		), $this->format('Y-m-d H:i')).'';
+				'datetime' => $this->format('Y-m-d H:i:s'),
+				'title' => $this->format('Y-m-d H:i:s'),
+			), $this->format('Y-m-d H:i')) . '';
 	}
 
 }

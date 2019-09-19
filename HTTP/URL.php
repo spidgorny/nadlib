@@ -35,15 +35,15 @@ class URL
 	/**
 	 * @var array
 	 */
-	var $log = [];
+	public $log = [];
 
 	/**
 	 * @var array
 	 */
-	var $cookies = [];
+	public $cookies = [];
 
 	/**
-	 * @param null  $url - if not specified then the current page URL is reconstructed
+	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
 	function __construct($url = null, array $params = [])
@@ -207,10 +207,10 @@ class URL
 		}
 		nodebug([
 			'class($this->path)' => get_class($this->path),
-			'$this->path'        => $this->path . '',
-			'documentRoot'       => $this->documentRoot . '',
-			'class($path)'       => get_class($path),
-			'path'               => $path . '',
+			'$this->path' => $this->path . '',
+			'documentRoot' => $this->documentRoot . '',
+			'class($path)' => get_class($path),
+			'path' => $path . '',
 		]);
 		return $path;
 	}
@@ -354,8 +354,8 @@ class URL
 		}
 		$stream = [
 			'http' => [
-				'method'  => 'POST',
-				'header'  => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL . $auth,
+				'method' => 'POST',
+				'header' => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL . $auth,
 				'content' => $this->components['query'],
 			],
 		];
@@ -776,7 +776,7 @@ class URL
 
 	/**
 	 * @param string $string - source page name
-	 * @param bool   $preserveSpaces - leaves spaces
+	 * @param bool $preserveSpaces - leaves spaces
 	 * @return string                - converted to URL friendly name
 	 */
 	static function friendlyURL($string, $preserveSpaces = false)

@@ -1,10 +1,11 @@
 <?php
 
-class Bytes {
+class Bytes
+{
 
-	var $value;
+	public $value;
 
-	var $suffix = array(
+	public $suffix = array(
 		'b' => 'b',
 		'k' => 'kb',
 		'm' => 'mb',
@@ -13,9 +14,10 @@ class Bytes {
 		'p' => 'pb',
 	);
 
-	var $precision = 3;
+	public $precision = 3;
 
-	function __construct($bytes) {
+	function __construct($bytes)
+	{
 		$iBytes = (string)(int)$bytes;
 		$sBytes = (string)$bytes;
 		//echo $bytes, TAB, $iBytes, TAB, $sBytes, BR, $sBytes === $iBytes, BR;
@@ -31,7 +33,8 @@ class Bytes {
 	 * @param $val
 	 * @return int|string
 	 */
-	static function return_bytes($val) {
+	static function return_bytes($val)
+	{
 		$val = trim($val);
 		if (strlen($val)) {
 			$last = strtolower($val[strlen($val) - 1]);
@@ -53,24 +56,27 @@ class Bytes {
 		return $val;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->renderDynamic();
 	}
 
-	function renderDynamic() {
+	function renderDynamic()
+	{
 		if ($this->value < 1024) {
 			return $this->value . $this->suffix['b'];
-		} elseif ($this->value > 1024*1024*1024) {
-			return round($this->value / 1024/1024/1024, $this->precision) . $this->suffix['g'];
-		} elseif ($this->value > 1024*1024) {
-			return round($this->value / 1024/1024, $this->precision) . $this->suffix['m'];
+		} elseif ($this->value > 1024 * 1024 * 1024) {
+			return round($this->value / 1024 / 1024 / 1024, $this->precision) . $this->suffix['g'];
+		} elseif ($this->value > 1024 * 1024) {
+			return round($this->value / 1024 / 1024, $this->precision) . $this->suffix['m'];
 		} elseif ($this->value > 1024) {
 			return round($this->value / 1024, $this->precision) . $this->suffix['k'];
 		}
 		return '?';
 	}
 
-	public function getBytes() {
+	public function getBytes()
+	{
 		return $this->value;
 	}
 

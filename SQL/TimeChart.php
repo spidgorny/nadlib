@@ -1,25 +1,26 @@
 <?php
 
-class TimeChart {
+class TimeChart
+{
 
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	public $db;
 
-	var $table;
+	public $table;
 
 	/**
 	 * @var array
 	 */
-	var $where;
+	public $where;
 
 	/**
 	 * @var
 	 */
-	var $groupBy;
+	public $groupBy;
 
-	var $options = array(
+	public $options = array(
 		'year-month' => '%Y-%m',
 		'year' => '%Y',
 		'year-month-day' => '%Y-%m-%d',
@@ -27,7 +28,7 @@ class TimeChart {
 		'dow' => '%w',
 	);
 
-	var $barWidths = array(
+	public $barWidths = array(
 		'year-month' => 24,
 		'year' => 360,
 		'year-month-day' => 0.9,
@@ -38,13 +39,13 @@ class TimeChart {
 	/**
 	 * @var array[array]
 	 */
-	var $data;
+	public $data;
 
-	var $title = 'Appointments';
+	public $title = 'Appointments';
 
-	var $query;
+	public $query;
 
-	var $dow = array(
+	public $dow = array(
 		'1' => 'Monday',
 		'2' => 'Tuesday',
 		'3' => 'Wednesday',
@@ -54,7 +55,8 @@ class TimeChart {
 		'0' => 'Sunday',
 	);
 
-	function __construct($table, array $where, $timeField, $groupBy = 'year-month') {
+	function __construct($table, array $where, $timeField, $groupBy = 'year-month')
+	{
 		$this->db = Config::getInstance()->db;
 		$this->table = $table;
 		$this->where = $where;
@@ -65,21 +67,23 @@ class TimeChart {
 		}
 	}
 
-	function fetch() {
+	function fetch()
+	{
 		if (!$this->data) {
 			$sqlDate = $this->getSQLForTime();
 			$where = $this->where;
 			//$where["'1970-01'"] = new AsIsOp("!= ".$sqlDate);
 			$this->query = $this->db->getSelectQuery($this->table, $where,
-				'GROUP BY '.$sqlDate.'
-				 ORDER BY '.$sqlDate,
-				'"'.$this->title.'" as line,
-				'.$sqlDate.' as "'.$this->groupBy.'", count(*) AS amount');
+				'GROUP BY ' . $sqlDate . '
+				 ORDER BY ' . $sqlDate,
+				'"' . $this->title . '" as line,
+				' . $sqlDate . ' as "' . $this->groupBy . '", count(*) AS amount');
 			$this->data = $this->db->fetchAll($this->query);
 		}
 	}
 
-	function getSQLForTime() {
+	function getSQLForTime()
+	{
 		$dateFormat = $this->options[$this->groupBy];
 		if (!$dateFormat) {
 			throw new Exception(__METHOD__);
@@ -93,7 +97,8 @@ class TimeChart {
 		return $content;
 	}
 
-	function render() {
+	function render()
+	{
 		$this->fetch();
 		if ($this->data) {
 			$f = $this->getFlot();
@@ -107,7 +112,8 @@ class TimeChart {
 		return $content;
 	}
 
-	function getFlot() {
+	function getFlot()
+	{
 		$this->fetch();
 		$f = new Flot($this->data, 'line', $this->groupBy, 'amount');
 		$f->flotPath = 'vendor/flot/flot/';
@@ -120,8 +126,9 @@ class TimeChart {
 		return $f;
 	}
 
-	function __toString() {
-		return $this->render().'';
+	function __toString()
+	{
+		return $this->render() . '';
 	}
 
 }

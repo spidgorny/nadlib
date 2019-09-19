@@ -12,15 +12,15 @@ class Metric
 	protected $save;
 
 	protected $thresholds = [
-		'cyclo-loc'    => [0.16, 0.20, 0.24],
-		'cyclo-nom'    => [0, 6, 12],
-		'loc-nom'      => [7, 10, 13],
-		'nom-noc'      => [4, 7, 10],
-		'noc-nop'      => [6, 17, 26],
-		'calls-nom'    => [2.01, 2.62, 3.2],
+		'cyclo-loc' => [0.16, 0.20, 0.24],
+		'cyclo-nom' => [0, 6, 12],
+		'loc-nom' => [7, 10, 13],
+		'nom-noc' => [4, 7, 10],
+		'noc-nop' => [6, 17, 26],
+		'calls-nom' => [2.01, 2.62, 3.2],
 		'fanout-calls' => [0.56, 0.62, 0.68],
-		'andc'         => [0.25, 0.41, 0.57],
-		'ahh'          => [0.09, 0.21, 0.32],
+		'andc' => [0.25, 0.41, 0.57],
+		'ahh' => [0.09, 0.21, 0.32],
 	];
 
 	public function __construct()
@@ -108,7 +108,8 @@ class Metric
 		return $last;
 	}
 
-	protected function renderTable(array $combined, array $last) {
+	protected function renderTable(array $combined, array $last)
+	{
 		foreach ($combined as $name => $value) {
 			$warning = null;
 			$limits = ifsetor($this->thresholds[$name]);
@@ -120,31 +121,33 @@ class Metric
 				} elseif ($value > $limits[2]) {
 					$warning = 'Too high (' . round($percent, 2) . '%)';
 				} else {
-					$warning = 'OK ('.(($percent > 0)?'+':'').round($percent, 2).'%)';
+					$warning = 'OK (' . (($percent > 0) ? '+' : '') . round($percent, 2) . '%)';
 				}
 			}
 
 			$lastTime = null;
 			if (ifsetor($last[$name]) != $value) {
-				$lastTime = 'was '.$last[$name];
+				$lastTime = 'was ' . $last[$name];
 			}
 			echo tabify([$name,
-						 $limits ? '['.$limits[0].'..'.$limits[2].']'
-							 : TAB.TAB.TAB,
-						 $lastTime, $value, $warning]), PHP_EOL;
+				$limits ? '[' . $limits[0] . '..' . $limits[2] . ']'
+					: TAB . TAB . TAB,
+				$lastTime, $value, $warning]), PHP_EOL;
 		}
 	}
 
-	protected function getPercentage($value, array $limits) {
+	protected function getPercentage($value, array $limits)
+	{
 //		if (($value >= $limits[0]) && ($value <= $limits[2])) {
-			$range = $limits[2] - $limits[1];
-			$num = -1 + ($value - $limits[0]) / $range;
+		$range = $limits[2] - $limits[1];
+		$num = -1 + ($value - $limits[0]) / $range;
 		return $num;
 //		}
 		return null;
 	}
 
-	protected function showTotalProgress(array $props) {
+	protected function showTotalProgress(array $props)
+	{
 		$progress = array_reduce(array_keys($props),
 			function ($acc, $code) use ($props) {
 				$value = $props[$code];
@@ -163,7 +166,7 @@ class Metric
 	/**
 	 * Computes the proportions between the given metrics.
 	 *
-	 * @param  array $metrics The aggregated project metrics.
+	 * @param array $metrics The aggregated project metrics.
 	 * @return array(string => float)
 	 */
 	protected function computeProportions(array $metrics)
@@ -192,7 +195,8 @@ class Metric
 		return $proportions;
 	}
 
-	protected function testPercentage() {
+	protected function testPercentage()
+	{
 		$this->thresholds['test'] = [10, 15, 20];
 		$percentageTests = [
 			0 => NULL,

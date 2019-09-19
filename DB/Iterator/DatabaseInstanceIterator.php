@@ -1,15 +1,18 @@
 <?php
 
-class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc {
+class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc
+{
 
-	var $className;
+	public $className;
 
-	function __construct(dbLayerBase $db, $className) {
+	function __construct(dbLayerBase $db, $className)
+	{
 		parent::__construct($db);
 		$this->className = $className;
 	}
 
-	function retrieveRow() {
+	function retrieveRow()
+	{
 		$row = parent::retrieveRow();
 		if ($row) {
 			//debug($row, $this->className);
@@ -21,7 +24,7 @@ class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc {
 			}
 			return $obj;
 		}
-		return FALSE;	// @see isValid()
+		return FALSE;    // @see isValid()
 	}
 
 }

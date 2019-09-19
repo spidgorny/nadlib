@@ -4,16 +4,19 @@
  * Use $content instanceof htmlString ? $content : htmlspecialchars($content);
  * Update: use htmlString:hsc($content)
  */
-class htmlString {
+class htmlString
+{
 
 	protected $value = '';
 
-	function __construct($input) {
+	function __construct($input)
+	{
 		$this->value = $input;
 	}
 
-	function __toString() {
-		return $this->value.'';
+	function __toString()
+	{
+		return $this->value . '';
 	}
 
 	/**
@@ -21,7 +24,8 @@ class htmlString {
 	 * @param $string
 	 * @return string
 	 */
-	static function hsc($string) {
+	static function hsc($string)
+	{
 		if ($string instanceof htmlString) {
 			return $string;
 		} else {
@@ -29,7 +33,8 @@ class htmlString {
 		}
 	}
 
-	function replace($one, $two) {
+	function replace($one, $two)
+	{
 		$new = new htmlString(
 			str_replace($one, $two, $this->value));
 		return $new;

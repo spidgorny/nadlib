@@ -1,16 +1,17 @@
 <?php
 
-class PageProfiler {
+class PageProfiler
+{
 
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
 	/**
 	 * @var HTML
 	 */
-	var $html;
+	public $html;
 
 	function __construct()
 	{
@@ -18,7 +19,8 @@ class PageProfiler {
 		$this->html = new HTML();
 	}
 
-	function render() {
+	function render()
+	{
 		$content = '';
 		$index = Index::getInstance();
 		$exceptions = in_array(get_class($index->controller), array('Lesser'));
@@ -59,7 +61,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getURL() {
+	private function getURL()
+	{
 		$url = clone $this->request->getURL();
 		$url->makeRelative();
 		$params = $url->getParams();
@@ -73,7 +76,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getGET() {
+	private function getGET()
+	{
 		$content = '';
 		$url = $this->request->getURL();
 		$params = $url->getParams();
@@ -85,7 +89,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getPOST() {
+	private function getPOST()
+	{
 		$content = '';
 		$content .= $this->html->h4('POST');
 		$content .= $this->html->pre(json_encode($_POST, JSON_PRETTY_PRINT));
@@ -95,7 +100,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getHeader() {
+	private function getHeader()
+	{
 		$content = '';
 		$index = Index::getInstance();
 		$content .= $this->html->h4('Header');
@@ -109,7 +115,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getFooter() {
+	private function getFooter()
+	{
 		$content = '';
 		$index = Index::getInstance();
 		$content .= $this->html->h4('Footer');
@@ -123,7 +130,8 @@ class PageProfiler {
 	/**
 	 * @return string
 	 */
-	private function getSession() {
+	private function getSession()
+	{
 		$content = '';
 		$content .= $this->html->h4('Session');
 		$session = json_encode($_SESSION, JSON_PRETTY_PRINT);

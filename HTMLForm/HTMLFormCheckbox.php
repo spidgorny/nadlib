@@ -1,10 +1,12 @@
 <?php
 
-class HTMLFormCheckbox extends HTMLFormType implements HTMLFormTypeInterface {
+class HTMLFormCheckbox extends HTMLFormType implements HTMLFormTypeInterface
+{
 
-	var $checked;
-	
-	public function __construct($name, $checked, array $more = []) {
+	public $checked;
+
+	public function __construct($name, $checked, array $more = [])
+	{
 		$this->field = $name;
 		$this->checked = $checked;
 		$this->desc = $more;
@@ -13,7 +15,8 @@ class HTMLFormCheckbox extends HTMLFormType implements HTMLFormTypeInterface {
 		}
 	}
 
-	function render() {
+	function render()
+	{
 		$this->form = $this->form instanceof HTMLForm
 			? $this->form
 			: new HTMLForm();
@@ -25,8 +28,8 @@ class HTMLFormCheckbox extends HTMLFormType implements HTMLFormTypeInterface {
 		}
 		//debug($this->field, $this->value, $this->desc);
 		return $this->form->getInput("checkbox", $this->field, $this->value,
-			($this->checked?'checked="checked"':"").' '.
-			($this->desc['autoSubmit'] ? "onchange=this.form.submit()" : '').' '.
+			($this->checked ? 'checked="checked"' : "") . ' ' .
+			($this->desc['autoSubmit'] ? "onchange=this.form.submit()" : '') . ' ' .
 			(is_array($more) ? $this->form->getAttrHTML($more) : $more),
 			is_array($more) ? ifsetor($more['class']) : ''
 		);

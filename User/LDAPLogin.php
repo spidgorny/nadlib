@@ -1,16 +1,17 @@
 <?php
 
-class LDAPLogin {
+class LDAPLogin
+{
 
 	/**
 	 * @var string
 	 */
-	var $LDAP_HOST;
+	public $LDAP_HOST;
 
 	/**
 	 * @var string
 	 */
-	var $LDAP_BASEDN;
+	public $LDAP_BASEDN;
 
 	private $_ldapconn;
 
@@ -19,30 +20,33 @@ class LDAPLogin {
 	 */
 	public $data;
 
-    public $error = null;
+	public $error = null;
 
 	/**
 	 * @var LDAPUser or a descendant
 	 */
 	public $userClass = LDAPUser::class;
 
-    public function __construct($host, $base) {
+	public function __construct($host, $base)
+	{
 		$this->LDAP_HOST = $host;
 		$this->LDAP_BASEDN = $base;
-    }
+	}
 
-    private function _connectLdap() {
+	private function _connectLdap()
+	{
 		if (!$this->_ldapconn) {
-        	$this->reconnect();
+			$this->reconnect();
 		}
-    }
+	}
 
-	function reconnect() {
+	function reconnect()
+	{
 		if ($this->_ldapconn) {
 			ldap_unbind($this->_ldapconn);
 		}
 		$this->_ldapconn = ldap_connect($this->LDAP_HOST)
-			or die("Couldn't connect to the LDAP server.");
+		or die("Couldn't connect to the LDAP server.");
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($this->_ldapconn, LDAP_OPT_REFERRALS, 0);
 	}
@@ -52,13 +56,15 @@ class LDAPLogin {
 	 * @param $string
 	 * @return string
 	 */
-    function _sanitizeLdap($string) {
-        return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
-    }
+	function _sanitizeLdap($string)
+	{
+		return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
+	}
 
-    public function bind($loginDN, $password) {
-    	$this->_connectLdap();
-    	return ldap_bind($this->_ldapconn, $loginDN, $password);
+	public function bind($loginDN, $password)
+	{
+		$this->_connectLdap();
+		return ldap_bind($this->_ldapconn, $loginDN, $password);
 	}
 
 	/**
@@ -67,18 +73,19 @@ class LDAPLogin {
 	 * @return bool|LDAPUser
 	 * @throws LoginException
 	 */
-	public function authLdap($username, $password) {
-        $this->_connectLdap();
+	public function authLdap($username, $password)
+	{
+		$this->_connectLdap();
 
-        if (($username == null) || ($password == null)) {
-            $this->error = "Fields cannot be blank.";
-            return false;
-        }
+		if (($username == null) || ($password == null)) {
+			$this->error = "Fields cannot be blank.";
+			return false;
+		}
 
-        if ($this->_ldapconn) {
+		if ($this->_ldapconn) {
 			//$filter = "(&(objectClass=user)(objectCategory=person)(cn=" . $this->_sanitizeLdap($username) . "))";
 			$filter = "(&(objectClass=user)(cn=" . $this->_sanitizeLdap($username) . "))";
-	        //echo $filter;
+			//echo $filter;
 			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
 
 //			debug($this->_ldapconn, $this->LDAP_BASEDN, $filter);
@@ -95,11 +102,11 @@ class LDAPLogin {
 				for ($i = 0; $i < $info['count']; $i++) {
 					//$this->reconnect();
 					// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
-					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], /*$this->_sanitizeLdap*/($password));
+					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], /*$this->_sanitizeLdap*/ ($password));
 
 					if ($ldapbind) {
 						/** @var LDAPUser $user */
-						$user = new $this->userClass;
+						$user = new $this->userClass();
 						$user->initLDAP($info[$i]);
 						return $user;
 					} else {
@@ -111,9 +118,9 @@ class LDAPLogin {
 			} else {
 				throw new LoginException(error_get_last());
 			}
-        }
-        return false;
-    }
+		}
+		return false;
+	}
 
 	/**
 	 * Substring searches fail on any attribute with a DN syntax
@@ -121,7 +128,8 @@ class LDAPLogin {
 	 * @param $group
 	 * @return array
 	 */
-	public function getUsersFrom($group) {
+	public function getUsersFrom($group)
+	{
 		//$query = '(&(objectCategory=user)(groupMembership=ou=Application_Development))';
 		//$query = '(&(objectClass=inetOrgPerson)(groupMembership=cn=Prog_DevApp,ou=Application_Development,ou=FFM2,ou=NOE,o=NWW))';
 		//$query = '(&(objectClass=inetOrgPerson)(groupMembership=*cn=Application_Development,ou=FFM2,ou=NOE,o=NWW))';
@@ -144,7 +152,8 @@ class LDAPLogin {
 	 * @param $query
 	 * @return LDAPUser[]
 	 */
-	public function query($query) {
+	public function query($query)
+	{
 		$this->_connectLdap();
 
 		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, array(), null, 50);

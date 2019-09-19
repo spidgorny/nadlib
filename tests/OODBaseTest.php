@@ -8,17 +8,20 @@
 
 namespace nadlib\Test;
 
-use OODBase;
+use PHPUnit_Framework_TestCase;
 
-class OODBaseTest extends \PHPUnit_Framework_TestCase {
+class OODBaseTest extends PHPUnit_Framework_TestCase
+{
 
-	var $sut;
+	public $sut;
 
-	function setUp() {
+	function setUp()
+	{
 		$this->sut = new SpecificOODBase();
 	}
 
-	function test_getBool() {
+	function test_getBool()
+	{
 		$set = [
 			0 => false,
 			1 => true,

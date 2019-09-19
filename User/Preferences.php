@@ -1,33 +1,39 @@
 <?php
 
-class Preferences {
+class Preferences
+{
 
 	/**
 	 * @var User
 	 */
 	protected $user;
 
-	public $prefs = array();	// for debug
+	public $prefs = array();    // for debug
 
-	function __construct(User $user) {
+	function __construct(User $user)
+	{
 		$this->user = $user;
 		$this->prefs = unserialize($this->user->data['prefs']);
 	}
 
-	function set($key, $val) {
+	function set($key, $val)
+	{
 		$this->prefs[$key] = $val;
 	}
 
-	function get($key) {
+	function get($key)
+	{
 		//debug(__METHOD__, $key);
 		return ifsetor($this->prefs[$key]);
 	}
 
-	function un_set($key) {
+	function un_set($key)
+	{
 		unset($this->prefs[$key]);
 	}
 
-	function getSetPref($key, $prio1 = NULL, $prio3 = NULL) {
+	function getSetPref($key, $prio1 = NULL, $prio3 = NULL)
+	{
 		$prio2 = $this->get($key);
 		if ($prio1 != NULL) {
 			$val = $prio1;
@@ -36,21 +42,24 @@ class Preferences {
 		} else {
 			$val = $prio3;
 		}
-/*		debug(array(
-			$prio1,
-			$prio2,
-			$prio3,
-			$val,
-		));
-*/		$this->set($key, $val);
+		/*		debug(array(
+					$prio1,
+					$prio2,
+					$prio3,
+					$val,
+				));
+		*/
+		$this->set($key, $val);
 		return $val;
 	}
 
-	function serialize() {
+	function serialize()
+	{
 		return serialize($this->prefs);
 	}
 
-	function getData() {
+	function getData()
+	{
 		return $this->prefs;
 	}
 

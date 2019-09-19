@@ -1,13 +1,15 @@
 <?php
 
-class IniCheck extends AppControllerBE {
+class IniCheck extends AppControllerBE
+{
 
-	function render() {
+	function render()
+	{
 		$content = array();
-		$iniFile = AutoLoad::getInstance()->appRoot.'php.ini';
+		$iniFile = AutoLoad::getInstance()->appRoot . 'php.ini';
 		$iniData = parse_ini_file($iniFile, true);  // sections
 
-		$htaccess = AutoLoad::getInstance()->appRoot.'.htaccess';
+		$htaccess = AutoLoad::getInstance()->appRoot . '.htaccess';
 		if (file_exists($htaccess)) {
 			$iniData['htaccess'] = $this->parseHtAccess($htaccess);
 		}
@@ -22,7 +24,8 @@ class IniCheck extends AppControllerBE {
 		return $content;
 	}
 
-	function showSection(array $iniData) {
+	function showSection(array $iniData)
+	{
 		$table = array();
 		foreach ($iniData as $key => $val) {
 			if ($key == 'extension' && is_array($val)) {
@@ -52,7 +55,8 @@ class IniCheck extends AppControllerBE {
 		return $content;
 	}
 
-	function parseHtAccess($htaccess) {
+	function parseHtAccess($htaccess)
+	{
 		$ini = [];
 		$lines = file($htaccess);
 		foreach ($lines as $line) {

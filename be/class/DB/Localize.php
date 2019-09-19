@@ -5,15 +5,16 @@
  *
  * Hint: merge two localization tables together:
  * insert into app_interface (code, lang, text)
-select app_interface_import.code, app_interface_import.lang, app_interface_import.text
-from app_interface_import
-left outer join app_interface
-on (app_interface.code = app_interface_import.code
-AND app_interface.lang = app_interface.lang)
-WHERE app_interface.text IS NULL
+ * select app_interface_import.code, app_interface_import.lang, app_interface_import.text
+ * from app_interface_import
+ * left outer join app_interface
+ * on (app_interface.code = app_interface_import.code
+ * AND app_interface.lang = app_interface.lang)
+ * WHERE app_interface.text IS NULL
  */
 
-class Localize extends AppControllerBE {
+class Localize extends AppControllerBE
+{
 
 	/**
 	 * @var LocalLangDB
@@ -29,22 +30,23 @@ class Localize extends AppControllerBE {
 
 	public $table = 'interface';
 
-	var $languages = array(
+	public $languages = array(
 		'en', 'de', 'ru',
 	);
 
 	/**
 	 * @var URL
 	 */
-	var $url;
+	public $url;
 
 	/**
 	 * Cached
 	 * @var array
 	 */
-	var $allKeys = array();
+	public $allKeys = array();
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 
 		$this->from = new LocalLangDB('en');
@@ -62,10 +64,11 @@ class Localize extends AppControllerBE {
 		$this->ru->indicateUntranslated = false;
 		$this->ru->saveMissingMessages = false;
 		$this->ru->init();
-		$this->url = new URL('?c='.get_class($this));
+		$this->url = new URL('?c=' . get_class($this));
 	}
 
-	function render() {
+	function render()
+	{
 		$content[] = $this->performAction();
 		/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
 			'c' => 'ImportMissing',
@@ -74,15 +77,16 @@ class Localize extends AppControllerBE {
 		if (!$this->noRender) {
 			$content[] = $this->renderList();
 		}
-		$content = $this->encloseIn(__('Localize').' ('.sizeof($this->allKeys).')', $content);
+		$content = $this->encloseIn(__('Localize') . ' (' . sizeof($this->allKeys) . ')', $content);
 		//$this->index->addJQuery();
 		$this->index->addJS('vendor/tuupola/jquery_jeditable/jquery.jeditable.js');
-		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot."js/Localize.js");
+		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . "js/Localize.js");
 		$this->index->addCSS("nadlib/CSS/PaginationControl.less");
 		return $content;
 	}
 
-	function renderList() {
+	function renderList()
+	{
 		$keys = $this->getAllKeys();
 		$table = $this->getTranslationTable($keys);
 
@@ -93,18 +97,18 @@ class Localize extends AppControllerBE {
 		$content[] = $pager->renderPageSelectors($this->url);
 
 		$s = new slTable($table, 'id="localize" width="100%" class="table _table-striped"', array(
-			'key'             => array(
-				'name'   => 'Key',
+			'key' => array(
+				'name' => 'Key',
 				'no_hsc' => true,
 			),
 			$this->from->lang => $this->from->lang,
-			'de'              => array('name' => $this->de->lang, 'ano_hsc' => true),
-			'ru'              => array('name' => $this->ru->lang, 'ano_hsc' => true),
-			'page'            => array(
-				'name'   => 'Page',
+			'de' => array('name' => $this->de->lang, 'ano_hsc' => true),
+			'ru' => array('name' => $this->ru->lang, 'ano_hsc' => true),
+			'page' => array(
+				'name' => 'Page',
 				'no_hsc' => true,
 			),
-			'del'             => array(
+			'del' => array(
 				'no_hsc' => true,
 			)
 		));
@@ -114,7 +118,8 @@ class Localize extends AppControllerBE {
 		return $content;
 	}
 
-	function getAllKeys() {
+	function getAllKeys()
+	{
 		if (!$this->allKeys) {
 			$all = $this->from->getMessages();
 			$all += $this->de->getMessages();
@@ -135,17 +140,18 @@ class Localize extends AppControllerBE {
 		return $this->allKeys;
 	}
 
-	function getTranslationTable(array $keys) {
+	function getTranslationTable(array $keys)
+	{
 		$table = array();
 		foreach ($keys as $key) {
 			$table[$key] = array(
-				'key' => '<a href="?c='.get_class($this).'&action=editOne&key='.urlencode($key).'">'.$key.'</a>',
+				'key' => '<a href="?c=' . get_class($this) . '&action=editOne&key=' . urlencode($key) . '">' . $key . '</a>',
 				/*					'from' => new HTMLTag('td', array(
 										'id' => $this->from->id($key),
 										'lang' => $this->from->lang,
 										'class' => 'inlineEdit',
 									), $this->from->M($key)),
-				*/				);
+				*/);
 			foreach ($this->languages as $lang) {
 				$lobj = $this->$lang;
 				/** @var $lobj LocalLangDB */
@@ -163,7 +169,7 @@ class Localize extends AppControllerBE {
 				$table[$key][$lang] = new HTMLTag('td', array(
 					'id' => $dbID ? $dbID : json_encode(array($lobj->lang, $key)),
 					'lang' => $lobj->lang,
-					'class' => 'inlineEdit '.$colorCode,
+					'class' => 'inlineEdit ' . $colorCode,
 				),
 					//isset($lobj->ll[$key]) ? $lobj->M($key) : '-');
 					ifsetor($lobj->ll[$key], ''));
@@ -175,11 +181,11 @@ class Localize extends AppControllerBE {
 					$colorPage = strpos($url->getPath(), 'nadlib/be') !== false
 						? 'be'
 						: 'fe';
-					$table[$key]['page'] = ifsetor($table[$key]['page']);	// can be multiple
+					$table[$key]['page'] = ifsetor($table[$key]['page']);    // can be multiple
 					$table[$key]['page'] .= new HTMLTag('a', array(
 							'href' => $row['page'],
 							'class' => $colorPage,
-						), $url->getParam('c') ?: urldecode(basename($url->getPath()))).' ';
+						), $url->getParam('c') ?: urldecode(basename($url->getPath()))) . ' ';
 				}
 
 			}
@@ -206,7 +212,8 @@ class Localize extends AppControllerBE {
 		return $table;
 	}
 
-	function saveAction() {
+	function saveAction()
+	{
 		$id = $this->request->getTrim('id');
 		if ($id) {
 			$row = $this->save($id, $this->request->getTrim('value'));
@@ -222,7 +229,8 @@ class Localize extends AppControllerBE {
 	 * @param $save
 	 * @return array
 	 */
-	function save($rel, $save) {
+	function save($rel, $save)
+	{
 		//$save = $this->request->getTrim('save');
 		//$rel = $this->request->getInt('rel');
 		if (is_numeric($rel)) {
@@ -252,7 +260,8 @@ class Localize extends AppControllerBE {
 		return array('text' => $save) + (is_array($row) ? $row : array());
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$f = new HTMLForm();
 		$f->method('GET');
 		$f->hidden('c', get_class($this));
@@ -299,18 +308,20 @@ class Localize extends AppControllerBE {
 		return $content;
 	}
 
-	function getUntranslatedCheckbox() {
+	function getUntranslatedCheckbox()
+	{
 		foreach ($this->languages as $lang) {
 			$checked = ifsetor($_COOKIE['untranslated'][$lang]) ? 'checked="checked"' : '';
 			$content[] = '<label>
-				<input type="checkbox" class="setCookie" name="untranslated[' . $lang . ']" value="1" '.$checked.'/>
-				'.$lang.'
+				<input type="checkbox" class="setCookie" name="untranslated[' . $lang . ']" value="1" ' . $checked . '/>
+				' . $lang . '
 			</label><br />';
 		}
 		return $content;
 	}
 
-	function deleteDuplicatesAction() {
+	function deleteDuplicatesAction()
+	{
 		$rows = $this->db->fetchSelectQuery($this->table, array(
 			'lang' => 'en',
 		), 'ORDER BY code, id');
@@ -326,7 +337,8 @@ class Localize extends AppControllerBE {
 		}
 	}
 
-	function deleteRowAction() {
+	function deleteRowAction()
+	{
 		$code = $this->request->getString('code');
 		$columns = $this->db->getTableColumns($this->table);
 		if (ifsetor($columns['deleted'])) {
@@ -349,7 +361,8 @@ class Localize extends AppControllerBE {
 		$this->request->redirect($url);
 	}
 
-	function downloadJSONAction() {
+	function downloadJSONAction()
+	{
 		$keys = $this->getAllKeys();
 		$transTab = $this->getTranslationTable($keys);
 		foreach ($transTab as &$row) {
@@ -360,12 +373,13 @@ class Localize extends AppControllerBE {
 			$row['de'] = strip_tags($row['de']);
 			$row['ru'] = strip_tags($row['ru']);
 		}
-		$this->request->forceDownload('application/json', $this->index->appName.'-Localization.json');
+		$this->request->forceDownload('application/json', $this->index->appName . '-Localization.json');
 		echo json_encode($transTab, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 		exit();
 	}
 
-	function saveJSONAction() {
+	function saveJSONAction()
+	{
 		$keys = $this->getAllKeys();
 		$transTab = $this->getTranslationTable($keys);
 		foreach ($transTab as &$row) {
@@ -379,7 +393,8 @@ class Localize extends AppControllerBE {
 		file_put_contents('sql/localize.json', json_encode($transTab, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 	}
 
-	function importJSONAction() {
+	function importJSONAction()
+	{
 		$content = [];
 		$fileData = json_decode(file_get_contents($_FILES['file']['tmp_name']), true);
 		//debug(sizeof($fileData), first($fileData));
@@ -395,7 +410,7 @@ class Localize extends AppControllerBE {
 				), '', false);
 				if ($l->id) {
 					if ($l->getValue() != $value) {
-						$content[] = '<p class="text-danger">Import skipped for ['.$key.'/'.$lang.']: "'.$value.'" exists as "'.$l->getValue().'"</p>';
+						$content[] = '<p class="text-danger">Import skipped for [' . $key . '/' . $lang . ']: "' . $value . '" exists as "' . $l->getValue() . '"</p>';
 					}
 				} else {
 					if ($value && $value != 'nothing') {
@@ -412,7 +427,8 @@ class Localize extends AppControllerBE {
 		return $content;
 	}
 
-	function addNewAction() {
+	function addNewAction()
+	{
 		$content = array();
 		$code = $this->request->getTrimRequired('code');
 		foreach ($this->languages as $lang) {
@@ -424,35 +440,37 @@ class Localize extends AppControllerBE {
 					'lang' => $lang,
 					'text' => $text,
 				));
-				$content[] = '<div class="message">Added '.$text.' ('.$lang.')</div>';
+				$content[] = '<div class="message">Added ' . $text . ' (' . $lang . ')</div>';
 			}
 		}
 		return $content;
 	}
 
-	function untranslatedAction() {
+	function untranslatedAction()
+	{
 		// nothing, used in the filter
 	}
 
-	function editOneAction() {
+	function editOneAction()
+	{
 		$key = $this->request->getTrimRequired('key');
 		foreach ($this->languages as $lang) {
-			$content[] = '<h2>'.$lang.'</h2>';
+			$content[] = '<h2>' . $lang . '</h2>';
 			/** @var LocalLangDB $langObj */
 			$langObj = $this->$lang;
-			$trans = ifsetor($langObj->ll[$key]);	// not T() because we don't need to replace %1
+			$trans = ifsetor($langObj->ll[$key]);    // not T() because we don't need to replace %1
 			$lines = sizeof(explode("\n", $trans));
 			$id = $langObj->id($key);
 			if (!$id) {
-				$id = array($lang, $key);	// @see $this->save()
+				$id = array($lang, $key);    // @see $this->save()
 				$id = json_encode($id);
 			}
 			$f = new HTMLForm();
-			$f->action('?c='.get_class($this));
+			$f->action('?c=' . get_class($this));
 			$f->hidden('action', 'saveOne');
 			$f->input('id', $id);
 			$f->textarea('value', $trans, array(
-				'style' => 'width: 100%; height: '.(1+$lines).'em',
+				'style' => 'width: 100%; height: ' . (1 + $lines) . 'em',
 			));
 			$f->submit(__('Save'));
 			$content[] = $f->getContent();
@@ -465,12 +483,13 @@ class Localize extends AppControllerBE {
 		return $content;
 	}
 
-	function saveOneAction() {
+	function saveOneAction()
+	{
 		$id = $this->request->getTrim('id');
 		if ($id) {
-			$row = $this->save($id, $this->request->getString('value'));	// HTML tags allowed
+			$row = $this->save($id, $this->request->getString('value'));    // HTML tags allowed
 			$key = $row['code'];
-			$this->request->redirect('?c='.get_class($this).'&action=editOne&key='.urlencode($key));
+			$this->request->redirect('?c=' . get_class($this) . '&action=editOne&key=' . urlencode($key));
 		}
 	}
 

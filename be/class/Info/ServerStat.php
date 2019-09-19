@@ -2,15 +2,15 @@
 
 class ServerStat extends AppControllerBE
 {
-	var $start_time;
-	var $LOG = [];
-	var $COUNTQUERIES = 0;
-	var $totalTime;
+	public $start_time;
+	public $LOG = [];
+	public $COUNTQUERIES = 0;
+	public $totalTime;
 
 	/**
 	 * @var Config
 	 */
-	var $config;
+	public $config;
 
 	function __construct($start_time = null, $LOG = [], $COUNTQUERIES = 0)
 	{
@@ -212,14 +212,14 @@ class ServerStat extends AppControllerBE
 	{
 		$s = new slTable('dumpQueries', 'width="100%"');
 		$s->thes([
-			'query'    => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
+			'query' => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
 			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
-			'line'     => '(l)',
+			'line' => '(l)',
 			//'results' => 'Rows',
-			'elapsed'  => ['name' => '1st', 'decimals' => 3],
-			'count'    => '#',
-			'total'    => ['name' => $this->totalTime, 'decimals' => 3],
-			'percent'  => '100%',
+			'elapsed' => ['name' => '1st', 'decimals' => 3],
+			'count' => '#',
+			'total' => ['name' => $this->totalTime, 'decimals' => 3],
+			'percent' => '100%',
 		]);
 		$s->data = ifsetor($this->LOG, ifsetor($this->config->getDB()->getQueryLog()));
 		$s->isOddEven = true;
@@ -296,9 +296,9 @@ class ServerStat extends AppControllerBE
 			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
 		}
 		$res = [
-			'total'   => ifsetor($totalp),
-			'used'    => ifsetor($belegtq),
-			'free'    => ifsetor($freiq),
+			'total' => ifsetor($totalp),
+			'used' => ifsetor($belegtq),
+			'free' => ifsetor($freiq),
 			'percent' => ifsetor($prozent_belegtq),
 		];
 		return $res;

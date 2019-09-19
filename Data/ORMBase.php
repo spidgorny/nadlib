@@ -1,8 +1,10 @@
 <?php
 
-class ORMBase {
+class ORMBase
+{
 
-	function __construct($media) {
+	function __construct($media)
+	{
 		$base = NULL;
 		if (is_object($media)) {
 			$base = get_object_vars($media);

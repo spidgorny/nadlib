@@ -1,8 +1,10 @@
 <?php
 
-class SQLWhereNotEqual extends SQLWhereEqual {
+class SQLWhereNotEqual extends SQLWhereEqual
+{
 
-	function __toString() {
+	function __toString()
+	{
 		if (is_numeric($this->val)) {    // leading 0 leads to problems
 			$sql = "({$this->field} != " . $this->val . "
 			AND {$this->field} != '" . $this->val . "')";

@@ -1,29 +1,34 @@
 <?php
 
-class slTableTest extends PHPUnit_Framework_TestCase {
+class slTableTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_construct() {
+	function test_construct()
+	{
 		$s = new slTable();
 		$this->assertEquals($s->more, [
 			'class' => 'nospacing',
 		]);
 	}
 
-	function test_construct_with_more() {
+	function test_construct_with_more()
+	{
 		$s = new slTable([], 'class="whatever"');
 		$this->assertEquals($s->more, [
 			'class' => 'whatever',
 		]);
 	}
 
-	function test_construct_with_more_array() {
+	function test_construct_with_more_array()
+	{
 		$s = new slTable([], ['class' => "whatever"]);
 		$this->assertEquals($s->more, [
 			'class' => 'whatever',
 		]);
 	}
 
-	function test_construct_with_more_id() {
+	function test_construct_with_more_id()
+	{
 		$s = new slTable([], ['class' => "whatever", 'id' => 'qwe']);
 		$this->assertEquals([
 			'class' => 'whatever',
@@ -32,7 +37,8 @@ class slTableTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('qwe', $s->ID);
 	}
 
-	function test_construct_with_more_id_string() {
+	function test_construct_with_more_id_string()
+	{
 		$s = new slTable([], 'id="qwe"');
 		$this->assertEquals([
 			'id' => 'qwe',
@@ -40,7 +46,8 @@ class slTableTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('qwe', $s->ID);
 	}
 
-	function test_construct_with_more_id_string_more() {
+	function test_construct_with_more_id_string_more()
+	{
 		$s = new slTable([], 'id="qwe" cellpadding="2"');
 		$this->assertEquals([
 			'id' => 'qwe',

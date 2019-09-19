@@ -1,8 +1,10 @@
 <?php
 
-class ErrorPage extends AppController {
+class ErrorPage extends AppController
+{
 
-	function render() {
+	function render()
+	{
 		debug($_REQUEST);
 	}
 

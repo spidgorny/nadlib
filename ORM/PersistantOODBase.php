@@ -1,6 +1,7 @@
 <?php
 
-class PersistantOODBase extends OODBase {
+class PersistantOODBase extends OODBase
+{
 
 	/**
 	 * @var string
@@ -13,23 +14,26 @@ class PersistantOODBase extends OODBase {
 	 */
 	public $originalData;
 
-/*	static public $inserted = 0;
-	static public $updated = 0;
-	static public $skipped = 0;
-	// define them in a subclass for static::inserted to work
-*/
-	function __construct($initer) {
+	/*	static public $inserted = 0;
+		static public $updated = 0;
+		static public $skipped = 0;
+		// define them in a subclass for static::inserted to work
+	*/
+	function __construct($initer)
+	{
 		parent::__construct($initer);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
 		//debug($this->getStateHash(), $this->stateHash, $this->data, $this->id);
 	}
 
-	function init($id, $fromFindInDB = false) {
+	function init($id, $fromFindInDB = false)
+	{
 		parent::init($id, $fromFindInDB);
 	}
 
-	function getStateHash() {
+	function getStateHash()
+	{
 		$isNull = array_reduce($this->data, function ($acc, $el) {
 			return is_null($acc) && is_null($el) ? null : 'not null';
 		}, null);
@@ -40,17 +44,20 @@ class PersistantOODBase extends OODBase {
 		return md5(serialize($this->data));
 	}
 
-	public function __set($property, $value) {
+	public function __set($property, $value)
+	{
 		$this->data[$property] = $value;
 	}
 
-	public function __get($property)  {
+	public function __get($property)
+	{
 		if (isset($this->data[$property])) {
 			return $this->data[$property];
 		}
 	}
 
-	function __destruct() {
+	function __destruct()
+	{
 		//debug(get_called_class());
 		$this->save();
 	}
@@ -61,7 +68,8 @@ class PersistantOODBase extends OODBase {
 	 * @param array $data
 	 * @return resource
 	 */
-	function insert(array $data) {
+	function insert(array $data)
+	{
 		$ret = NULL;
 		nodebug(array('insert before',
 			$this->stateHash => $this->originalData,
@@ -78,7 +86,7 @@ class PersistantOODBase extends OODBase {
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
 		nodebug(array('insert after',
-			$this->stateHash =>$this->originalData,
+			$this->stateHash => $this->originalData,
 			$this->getStateHash() => $this->data,
 			$this->id,
 		));
@@ -91,7 +99,8 @@ class PersistantOODBase extends OODBase {
 	 * @param array $data
 	 * @return resource
 	 */
-	function update(array $data) {
+	function update(array $data)
+	{
 		$ret = parent::update($data);
 		//debug($this->db->lastQuery);
 		$this->originalData = $this->data;
@@ -99,7 +108,8 @@ class PersistantOODBase extends OODBase {
 		return $ret;
 	}
 
-	function save($where = NULL) {
+	function save($where = NULL)
+	{
 		if ($this->getStateHash() != $this->stateHash) {
 			0 && debug(array(
 				'stateHash' => $this->stateHash,
@@ -137,7 +147,8 @@ class PersistantOODBase extends OODBase {
 		return $action;
 	}
 
-	function findInDB(array $where, $orderByLimit = '') {
+	function findInDB(array $where, $orderByLimit = '')
+	{
 		$ret = parent::findInDB($where, $orderByLimit);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();

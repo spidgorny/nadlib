@@ -1,15 +1,16 @@
 <?php
 
-class ProgressBar {
+class ProgressBar
+{
 
-	var $percentDone = 0;
+	public $percentDone = 0;
 
-	var $pbid;
-	var $pbarid;
-	var $tbarid;
-	var $textid;
+	public $pbid;
+	public $pbarid;
+	public $tbarid;
+	public $textid;
 
-	var $decimals = 2;
+	public $decimals = 2;
 
 	protected $color = '#43b6df';
 	public $cliBR = "\r";
@@ -17,7 +18,7 @@ class ProgressBar {
 	/**
 	 * @var bool
 	 */
-	var $cli = false;
+	public $cli = false;
 
 	/**
 	 * Must be false in order to user new ProgressBar(...) inside strings.
@@ -25,36 +26,37 @@ class ProgressBar {
 	 * Destructor will set the progress bar to 100%
 	 * if enabled.
 	 */
-	var $destruct100 = false;
+	public $destruct100 = false;
 
 	/**
 	 * Should be undefined so that it can be detected once and then stored.
 	 * Don't put default value here.
 	 * @var int
 	 */
-	var $cliWidth = NULL;
+	public $cliWidth = NULL;
 
 	/**
 	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
 	 * @var int
 	 */
-	var $count = 0;
+	public $count = 0;
 
-    /**
-     * Force getCss() to NOT load from Index if Index exists
-     * @var bool
-     */
-    var $useIndexCss = true;
+	/**
+	 * Force getCss() to NOT load from Index if Index exists
+	 * @var bool
+	 */
+	public $useIndexCss = true;
 
-	var $cssFile = 'ProgressBarSimple.less';
+	public $cssFile = 'ProgressBarSimple.less';
 
 	/**
 	 * @ param #2 $color = '#43b6df'
 	 * @param int $percentDone
 	 * @param int $count
 	 */
-	function __construct($percentDone = 0, $count = 0) {
-		$this->setID('pb-'.uniqid());
+	function __construct($percentDone = 0, $count = 0)
+	{
+		$this->setID('pb-' . uniqid());
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
@@ -67,14 +69,16 @@ class ProgressBar {
 	 * AJAX request need to re-access the main page ProgressBar
 	 * @param $pbid
 	 */
-	public function setID($pbid) {
+	public function setID($pbid)
+	{
 		$this->pbid = $pbid;
-		$this->pbarid = 'progress-bar-'.$pbid;
-		$this->tbarid = 'transparent-bar-'.$pbid;
-		$this->textid = 'pb_text-'.$pbid;
+		$this->pbarid = 'progress-bar-' . $pbid;
+		$this->tbarid = 'transparent-bar-' . $pbid;
+		$this->textid = 'pb_text-' . $pbid;
 	}
 
-	function render() {
+	function render()
+	{
 		if (!$this->cli) {
 			ini_set('output_buffering', 0); // php_value output_buffering 0
 			if (!headers_sent()) {
@@ -86,7 +90,7 @@ class ProgressBar {
 			} elseif (!headers_sent()) {
 				echo '<!DOCTYPE html>';
 			}
-            print($this->getCSS());
+			print($this->getCSS());
 			print($this->getContent());
 			$this->flush();
 		}
@@ -96,8 +100,9 @@ class ProgressBar {
 	 * pre-compiles LESS inline
 	 * @return string
 	 */
-	function getCSS() {
-		$less = AutoLoad::getInstance()->nadlibFromDocRoot.'CSS/'.$this->cssFile;
+	function getCSS()
+	{
+		$less = AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/' . $this->cssFile;
 		$cssFile = str_replace('.less', '.css', $less);
 		if ($this->useIndexCss && class_exists('Index')) {
 			//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
@@ -105,7 +110,7 @@ class ProgressBar {
 			return ifsetor(Index::getInstance()->header[$less]);
 		} elseif (ifsetor($GLOBALS['HTMLHEADER'])) {
 			$GLOBALS['HTMLHEADER'][basename($this->cssFile)]
-				= '<link rel="stylesheet" href="Lesser?css='.$less.'" />';
+				= '<link rel="stylesheet" href="Lesser?css=' . $less . '" />';
 		} elseif (class_exists('lessc')) {
 			$l = new lessc();
 			$css = $l->compileFile($less);
@@ -118,33 +123,36 @@ class ProgressBar {
 		return '';
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->getContent();
 	}
 
-	function getContent() {
+	function getContent()
+	{
 		$percentDone = floatval($this->percentDone);
 		$percentDone = max(0, min(100, $percentDone));
-		$percentDone = number_format($percentDone, $this->decimals, '.', '') .'%';
+		$percentDone = number_format($percentDone, $this->decimals, '.', '') . '%';
 		//debug($this->percentDone, $percentDone);
-		$content = '<div id="'.$this->pbid.'" class="pb_container">
-			<div id="'.$this->textid.'" class="'.$this->textid.'">'.
-			$percentDone.'</div>
+		$content = '<div id="' . $this->pbid . '" class="pb_container">
+			<div id="' . $this->textid . '" class="' . $this->textid . '">' .
+			$percentDone . '</div>
 			<div class="pb_bar">
-				<div id="'.$this->pbarid.'" class="pb_before"
-				style="background-color: '.$this->color.'; width: '.$percentDone.';"></div>
-				<div id="'.$this->tbarid.'" class="pb_after"></div>
+				<div id="' . $this->pbarid . '" class="pb_before"
+				style="background-color: ' . $this->color . '; width: ' . $percentDone . ';"></div>
+				<div id="' . $this->tbarid . '" class="pb_after"></div>
 			</div>
 			<div style="clear: both;"></div>
-		</div>'."\r\n";
+		</div>' . "\r\n";
 		$content .= $this->getCSS();
 		return $content;
 	}
 
-	function setProgressBarProgress($percentDone, $text = '', $after = '') {
+	function setProgressBarProgress($percentDone, $text = '', $after = '')
+	{
 		$this->percentDone = $percentDone;
 		$text = $text
-			?: number_format($this->percentDone, $this->decimals, '.', '').'%';
+			?: number_format($this->percentDone, $this->decimals, '.', '') . '%';
 		if ($this->cli) {
 			if (!Request::isCron()) {
 				// \r first to preserve errors
@@ -155,7 +163,8 @@ class ProgressBar {
 		}
 	}
 
-	function setIndex($i, $always = false, $text = '', $after = '') {
+	function setIndex($i, $always = false, $text = '', $after = '')
+	{
 		static $last;
 		if ($this->count) {
 			$percent = $this->getProgress($i);
@@ -165,46 +174,51 @@ class ProgressBar {
 				$last = $i;
 			}
 		} else {
-			throw new InvalidArgumentException(__CLASS__.'->count is not set');
+			throw new InvalidArgumentException(__CLASS__ . '->count is not set');
 		}
 	}
 
-	public function getProgress($i) {
+	public function getProgress($i)
+	{
 		$percent = $i / $this->count * 100;
 		return $percent;
 	}
 
-	static function flush($ob_flush = false) {
-		print str_pad('', intval(ini_get('output_buffering')), ' ')."\n";
+	static function flush($ob_flush = false)
+	{
+		print str_pad('', intval(ini_get('output_buffering')), ' ') . "\n";
 		if ($ob_flush) {
 			ob_end_flush();
 		}
 		flush();
 	}
 
-	function __destruct() {
+	function __destruct()
+	{
 		if ($this->destruct100) {
 			$this->setProgressBarProgress(100);
 		}
 	}
 
-	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '') {
-		return new htmlString('<div style="'.$css.'">'.
-			number_format($p, 2).'&nbsp;%&nbsp;
-			'.self::getImage($p, $append).'
+	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
+	{
+		return new htmlString('<div style="' . $css . '">' .
+			number_format($p, 2) . '&nbsp;%&nbsp;
+			' . self::getImage($p, $append) . '
 		</div>');
 	}
 
-	static function getImage($p, $append = '', $imgAttributes = []) {
+	static function getImage($p, $append = '', $imgAttributes = [])
+	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		// absolute URL to work even before <base href> is defined
 		$prefix = Request::getInstance()->getLocation() . $prefix;
-		$imageURL = $prefix.'bar.php?rating='.round($p).htmlspecialchars($append);
-		return '<img src="'.$imageURL.'"
+		$imageURL = $prefix . 'bar.php?rating=' . round($p) . htmlspecialchars($append);
+		return '<img src="' . $imageURL . '"
 		style="vertical-align: middle;"
-		title="'.number_format($p, 2).'%"
+		title="' . number_format($p, 2) . '%"
 		width="100"
-		height="15" '. HTMLTag::renderAttr($imgAttributes) .'/>';
+		height="15" ' . HTMLTag::renderAttr($imgAttributes) . '/>';
 	}
 
 	/**
@@ -213,36 +227,41 @@ class ProgressBar {
 	 * @param string $append
 	 * @return string
 	 */
-	static function getBar($p, $append = '') {
+	static function getBar($p, $append = '')
+	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return $prefix . 'bar.php?rating=' . round($p) . $append;
 	}
 
-	static function getBackground($p, $width = '100px') {
+	static function getBackground($p, $width = '100px')
+	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return '<div style="
 			display: inline-block;
-			width: '.$width.';
+			width: ' . $width . ';
 			text-align: center;
 			wrap: nowrap;
-			background: url('.$prefix.'bar.php?rating='.round($p).'&height=14&width='.intval($width).') no-repeat;">'.number_format($p, 2).'%</div>';
+			background: url(' . $prefix . 'bar.php?rating=' . round($p) . '&height=14&width=' . intval($width) . ') no-repeat;">' . number_format($p, 2) . '%</div>';
 	}
 
-	public function setTitle() {
+	public function setTitle()
+	{
 		print '
 		<script>
-			document.title = "'.number_format($this->percentDone, 3, '.', '').'%";
+			document.title = "' . number_format($this->percentDone, 3, '.', '') . '%";
 		</script>';
 	}
 
-	public function hide() {
+	public function hide()
+	{
 		echo '<script>
-			var el = document.getElementById("'.$this->pbid.'");
+			var el = document.getElementById("' . $this->pbid . '");
 			el.parentNode.removeChild(el);
 		</script>';
 	}
 
-	function getCLIbar() {
+	function getCLIbar()
+	{
 		$content = '';
 		if (!$this->cliWidth) {
 			$this->cliWidth = intval(round($this->getTerminalWidth() / 2));
@@ -251,12 +270,13 @@ class ProgressBar {
 			$chars = round(abs($this->percentDone) / 100 * $this->cliWidth);
 			$chars = min($this->cliWidth, $chars);
 			$space = max(0, $this->cliWidth - $chars);
-			$content = '['.str_repeat('#', $chars).str_repeat(' ', $space).']';
+			$content = '[' . str_repeat('#', $chars) . str_repeat(' ', $space) . ']';
 		}
 		return $content;
 	}
 
-	function getTerminalWidth() {
+	function getTerminalWidth()
+	{
 		if (Request::isWindows()) {
 			$both = $this->getTerminalSizeOnWindows();
 			$width = $both['width'];
@@ -273,29 +293,31 @@ class ProgressBar {
 	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
 	 * @return array
 	 */
-	function getTerminalSizeOnWindows() {
+	function getTerminalSizeOnWindows()
+	{
 		$output = array();
-		$size = array('width'=>0,'height'=>0);
-		exec('mode',$output);
+		$size = array('width' => 0, 'height' => 0);
+		exec('mode', $output);
 		foreach ($output as $line) {
 			$matches = array();
-			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i',$line,$matches);
-			if($w) {
+			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i', $line, $matches);
+			if ($w) {
 				$size['width'] = intval($matches[1]);
 			} else {
-				$h = preg_match('/^\s*lines\:?\s*(\d+)\s*$/i',$line,$matches);
-				if($h) {
+				$h = preg_match('/^\s*lines\:?\s*(\d+)\s*$/i', $line, $matches);
+				if ($h) {
 					$size['height'] = intval($matches[1]);
 				}
 			}
-			if($size['width'] AND $size['height']) {
+			if ($size['width'] AND $size['height']) {
 				break;
 			}
 		}
 		return $size;
 	}
 
-	function getTerminalSizeOnLinux() {
+	function getTerminalSizeOnLinux()
+	{
 		$size = array_combine(
 			array('width', 'height'),
 			array(exec('tput cols'), exec('tput lines'))
@@ -303,13 +325,15 @@ class ProgressBar {
 		return $size;
 	}
 
-	public function startSSE($url) {
-		Index::getInstance()->addJS(AutoLoad::getInstance()->nadlibFromDocRoot.'js/sse.js');
+	public function startSSE($url)
+	{
+		Index::getInstance()->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/sse.js');
 		return '<div class="sse" id="sseTarget"
-		href="'.htmlspecialchars($url).'">'.$this->getContent().'</div>';
+		href="' . htmlspecialchars($url) . '">' . $this->getContent() . '</div>';
 	}
 
-	public function setIndexSSE($index) {
+	public function setIndexSSE($index)
+	{
 		if (!headers_sent()) {
 			if (true || Request::getInstance()->isAjax()) {
 				header('Content-Type: text/event-stream');
@@ -320,17 +344,18 @@ class ProgressBar {
 			}
 		}
 		//echo 'event: status', "\n\n";
-		echo 'data: '.json_encode(array(
+		echo 'data: ' . json_encode(array(
 				'current' => $index,
 				'total' => $this->count,
-		)), "\n\n";
+			)), "\n\n";
 		if (ob_get_status()) {
 			ob_end_flush();
 		}
 		flush();
 	}
 
-	function done($content) {
+	function done($content)
+	{
 		echo 'data: ', json_encode(array('complete' => $content)), "\n\n";
 	}
 
@@ -338,7 +363,8 @@ class ProgressBar {
 	 * @param $percentDone
 	 * @param $text
 	 */
-	private function setProgressBarJS($percentDone, $text) {
+	private function setProgressBarJS($percentDone, $text)
+	{
 		print('
 			<script type="text/javascript">
 			if (document.getElementById("' . $this->pbarid . '")) {

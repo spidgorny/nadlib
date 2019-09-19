@@ -6,14 +6,16 @@
  * Date: 20.05.2016
  * Time: 14:05
  */
-class FilterTest extends PHPUnit_Framework_TestCase {
+class FilterTest extends PHPUnit_Framework_TestCase
+{
 
 	/**
 	 * @var Filter
 	 */
-	var $f;
+	public $f;
 
-	function test_init() {
+	function test_init()
+	{
 		$this->assertEquals(10, $this->f->default);
 		$this->assertEquals(20, $this->f->request);
 		$this->assertEquals(30, $this->f->prefs);
@@ -27,7 +29,8 @@ class FilterTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('cascade', $this->f->two);
 	}
 
-	function test_arrayCopy() {
+	function test_arrayCopy()
+	{
 		$this->assertEquals([
 			'a' => 'request',
 			'two' => 'cascade',
@@ -40,19 +43,20 @@ class FilterTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @return Filter
 	 */
-	public function setup() {
+	public function setup()
+	{
 		$f = new Filter();
 		$f->setDefault([
-			'a'       => 'default',
+			'a' => 'default',
 			'default' => 10
 		]);
 		$f->setPreferences([
-			'a'     => 'preferences',
+			'a' => 'preferences',
 			'prefs' => 30,
-			'two'   => 'cascade'
+			'two' => 'cascade'
 		]);
 		$f->setRequest([
-			'a'       => 'request',
+			'a' => 'request',
 			'request' => 20
 		]);
 		$this->f = $f;

@@ -8,7 +8,8 @@ if (!function_exists('str_startsWith')) {
 	 * @param string|string[] $needle
 	 * @return bool
 	 */
-	function str_startsWith($haystack, $needle) {
+	function str_startsWith($haystack, $needle)
+	{
 		if (!is_array($needle)) {
 			$needle = array($needle);
 		}
@@ -26,18 +27,21 @@ if (!function_exists('str_startsWith')) {
 	 * @param $needle
 	 * @return bool
 	 */
-	function str_endsWith($haystack, $needle) {
+	function str_endsWith($haystack, $needle)
+	{
 		return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 	}
 
-	function str_contains($haystack, $needle) {
+	function str_contains($haystack, $needle)
+	{
 		if (is_array($haystack)) {
 			debug_pre_print_backtrace();
 		}
 		return FALSE !== strpos($haystack, $needle);
 	}
 
-	function str_icontains($haystack, $needle) {
+	function str_icontains($haystack, $needle)
+	{
 		if (is_array($haystack)) {
 			debug_pre_print_backtrace();
 		}
@@ -45,12 +49,14 @@ if (!function_exists('str_startsWith')) {
 	}
 
 	if (!function_exists('contains')) {
-		function contains($haystack, $needle) {
+		function contains($haystack, $needle)
+		{
 			return str_contains($haystack, $needle);
 		}
 	}
 
-	function containsAny($haystack, array $needle) {
+	function containsAny($haystack, array $needle)
+	{
 		foreach ($needle as $n) {
 			if (contains($haystack, $n)) {
 				return true;
@@ -66,7 +72,8 @@ if (!function_exists('str_startsWith')) {
 	 * @param null $max
 	 * @return array
 	 */
-	function trimExplode($sep, $str, $max = NULL) {
+	function trimExplode($sep, $str, $max = NULL)
+	{
 		if (is_object($str)) {
 			$is_string = method_exists($str, '__toString');
 		} else {
@@ -93,12 +100,14 @@ if (!function_exists('str_startsWith')) {
 	 * @param int $tabDepth
 	 * @return mixed
 	 */
-	function tab2nbsp($text, $tabDepth = 4) {
+	function tab2nbsp($text, $tabDepth = 4)
+	{
 		$tabSpaces = str_repeat('&nbsp;', $tabDepth);
 		return str_replace("\t", $tabSpaces, $text);
 	}
 
-	function tabify(array $fields) {
+	function tabify(array $fields)
+	{
 		static $lengths = [];
 		foreach ($fields as $i => $f) {
 			$len = mb_strlen($f);
@@ -111,7 +120,8 @@ if (!function_exists('str_startsWith')) {
 		return $str;
 	}
 
-	function cap($string, $with = '/') {
+	function cap($string, $with = '/')
+	{
 		$string .= '';
 		if (!str_endsWith($string, $with)) {
 			$string .= $with;
@@ -119,7 +129,8 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
-	function unquote ($value, $start = ['\'', '"'], $end = ['\'', '"']) {
+	function unquote($value, $start = ['\'', '"'], $end = ['\'', '"'])
+	{
 		if (is_string($start)) $start = [$start];
 		if (is_string($end)) $end = [$end];
 		if (!$value) return $value;
@@ -130,7 +141,7 @@ if (!function_exists('str_startsWith')) {
 			}
 		}
 		foreach ($end as $e) {
-			if ($value[strlen($value)-1] == $e) {
+			if ($value[strlen($value) - 1] == $e) {
 				$value = trim($value, $e);
 			}
 		}
@@ -144,12 +155,13 @@ if (!function_exists('str_startsWith')) {
 	 * @param $subject
 	 * @return string
 	 */
-	function str_replace_once($search, $replace, $subject) {
+	function str_replace_once($search, $replace, $subject)
+	{
 		$firstChar = strpos($subject, $search);
 		if ($firstChar !== false) {
-			$beforeStr = substr($subject,0,$firstChar);
+			$beforeStr = substr($subject, 0, $firstChar);
 			$afterStr = substr($subject, $firstChar + strlen($search));
-			return $beforeStr.$replace.$afterStr;
+			return $beforeStr . $replace . $afterStr;
 		} else {
 			return $subject;
 		}
@@ -164,7 +176,8 @@ if (!function_exists('str_startsWith')) {
 	 * @return string
 	 *   Camel-case string.
 	 */
-	function toCamelCase($string) {
+	function toCamelCase($string)
+	{
 		$string = str_replace('-', ' ', $string);
 		$string = str_replace('_', ' ', $string);
 		$string = ucwords(strtolower($string));
@@ -172,10 +185,11 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
-	function toDatabaseKey($string) {
+	function toDatabaseKey($string)
+	{
 		if (strtoupper($string) == $string) return strtolower($string);
 		$out = '';
-		$chars = preg_split( '//u', $string, null, PREG_SPLIT_NO_EMPTY );
+		$chars = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
 		foreach ($chars as $i => $ch) {
 			if ($ch == ' ') {
 				if ($out[-1] != '_') {

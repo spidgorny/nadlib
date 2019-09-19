@@ -1,30 +1,34 @@
 <?php
 
-class Model {
+class Model
+{
 
-	var $table;
+	public $table;
 
-	var $idField = 'id';
+	public $idField = 'id';
 
-	var $titleColumn = 'name';
+	public $titleColumn = 'name';
 
-	var $itemClassName = '?';
+	public $itemClassName = '?';
 
 	/**
 	 * @var DBInterface|SQLBuilder
 	 */
-	var $db;
+	public $db;
 
-	function __construct(DBInterface $db) {
+	function __construct(DBInterface $db)
+	{
 		$this->db = $db;
 	}
 
-	function getCollection() {
+	function getCollection()
+	{
 		$col = Collection::createForTable($this->table);
 		return $col;
 	}
 
-	function getModel($id) {
+	function getModel($id)
+	{
 		$model = call_user_func([$this->itemClassName, 'getInstance'], $id);
 		return $model;
 	}

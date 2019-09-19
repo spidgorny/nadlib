@@ -1,10 +1,12 @@
 <?php
 
-class AssocCollection {
+class AssocCollection
+{
 
-	var $data;
+	public $data;
 
-	function __construct(array $data = []) {
+	function __construct(array $data = [])
+	{
 		$this->data = $data;
 	}
 

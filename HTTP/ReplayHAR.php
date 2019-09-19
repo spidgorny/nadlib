@@ -1,24 +1,28 @@
 <?php
 
-class ReplayHAR implements Iterator {
+class ReplayHAR implements Iterator
+{
 
-	var $file;
+	public $file;
 
-	var $har;
+	public $har;
 
-	var $request;
+	public $request;
 
-	function __construct($file) {
+	function __construct($file)
+	{
 		$this->file = $file;
 		$this->readHAR();
 	}
 
-	function readHAR() {
+	function readHAR()
+	{
 		$this->har = json_decode(file_get_contents($this->file));
 		$this->current();
 	}
 
-	function getURL() {
+	function getURL()
+	{
 		if (!$this->request) {
 			$this->readHAR();
 		}
@@ -28,7 +32,8 @@ class ReplayHAR implements Iterator {
 		return $url;
 	}
 
-	function getURLGet() {
+	function getURLGet()
+	{
 		$url = $this->getURL();
 		$urlget = $url->getURLGet();
 		$urlget->context['http']['method'] = $this->request->method;
@@ -44,7 +49,8 @@ class ReplayHAR implements Iterator {
 	 * @return mixed Can return any type.
 	 * @since 5.0.0
 	 */
-	public function current() {
+	public function current()
+	{
 		$el = current($this->har->log->entries);
 		$this->request = $el->request;
 		return $this->request;
@@ -56,7 +62,8 @@ class ReplayHAR implements Iterator {
 	 * @return void Any returned value is ignored.
 	 * @since 5.0.0
 	 */
-	public function next() {
+	public function next()
+	{
 		$el = next($this->har->log->entries);
 		$this->request = $el->request;
 		return $this->request;
@@ -68,18 +75,20 @@ class ReplayHAR implements Iterator {
 	 * @return mixed scalar on success, or null on failure.
 	 * @since 5.0.0
 	 */
-	public function key() {
+	public function key()
+	{
 		return key($this->har->log->entries);
 	}
 
 	/**
 	 * Checks if current position is valid
 	 * @link http://php.net/manual/en/iterator.valid.php
-	 * @return boolean The return value will be casted to boolean and then evaluated.
+	 * @return bool The return value will be casted to boolean and then evaluated.
 	 * Returns true on success or false on failure.
 	 * @since 5.0.0
 	 */
-	public function valid() {
+	public function valid()
+	{
 		return valid($this->har->log->entries);
 	}
 
@@ -89,11 +98,13 @@ class ReplayHAR implements Iterator {
 	 * @return void Any returned value is ignored.
 	 * @since 5.0.0
 	 */
-	public function rewind() {
+	public function rewind()
+	{
 		rewind($this->har->log->entries);
 	}
 
-	function last() {
+	function last()
+	{
 		$el = end($this->har->log->entries);
 		$this->request = $el->request;
 		return $this->request;

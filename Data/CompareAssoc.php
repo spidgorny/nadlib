@@ -1,20 +1,23 @@
 <?php
 
-class CompareAssoc {
+class CompareAssoc
+{
 
-	var $keys;
+	public $keys;
 
-	var $assoc1;
+	public $assoc1;
 
-	var $assoc2;
+	public $assoc2;
 
-	function __construct($assoc1, $assoc2) {
+	function __construct($assoc1, $assoc2)
+	{
 		$this->keys = array_keys($assoc1) + array_keys($assoc2);
 		$this->assoc1 = $assoc1;
 		$this->assoc2 = $assoc2;
 	}
 
-	function render() {
+	function render()
+	{
 		$table = array();
 		foreach ($this->keys as $key) {
 			$table[] = array(

@@ -22,19 +22,19 @@
 
 class TaylorProfiler
 {
-	var $description;
-	var $description2;
-	var $startTime;
-	var $endTime;
-	var $initTime;
-	var $cur_timer;
-	var $stack;
-	var $trail;
-	var $trace;
-	var $count;
-	var $running;
-	var $output_enabled;
-	var $trace_enabled;
+	public $description;
+	public $description2;
+	public $startTime;
+	public $endTime;
+	public $initTime;
+	public $cur_timer;
+	public $stack;
+	public $trail;
+	public $trace;
+	public $count;
+	public $running;
+	public $output_enabled;
+	public $trace_enabled;
 
 	/**
 	 * @var SplObjectStorage
@@ -44,7 +44,7 @@ class TaylorProfiler
 	/**
 	 * @var TaylorProfiler
 	 */
-	static $instance;
+	public static $instance;
 
 	/**
 	 * Initialise the timer. with the current micro time

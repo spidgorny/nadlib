@@ -1,13 +1,16 @@
 <?php
 
-class DateTest extends PHPUnit_Framework_TestCase {
+class DateTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_Date() {
+	function test_Date()
+	{
 		$d = new Date(1306879200);
 		$this->assertEquals($d, '01.06.2011');
 	}
 
-	function test_Date_preserveTimestamp() {
+	function test_Date_preserveTimestamp()
+	{
 		$d = new Date(1306879200);
 		$this->assertEquals($d->getTimestamp(), 1306879200);
 	}
@@ -22,7 +25,8 @@ class DateTest extends PHPUnit_Framework_TestCase {
 		return $this->assertEqual($d->getTimestamp(), 1306879200);
 	}*/
 
-	function test_NewDateNewDate() {
+	function test_NewDateNewDate()
+	{
 		$d = new Date('2011-11-11');
 		$d2 = new Date($d);
 		$this->assertEquals($d, $d2);

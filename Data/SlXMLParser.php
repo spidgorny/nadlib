@@ -6,10 +6,12 @@
  * @deprecated
  */
 
-class slXMLParser {
-	var $parsed;
+class slXMLParser
+{
+	public $parsed;
 
-	function parseText($content) {
+	function parseText($content)
+	{
 		//debug($content, 'content');
 		$parser = xml_parser_create('UTF-8');
 		//xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, TRUE); // to avoid \n in the text skipped
@@ -29,15 +31,16 @@ class slXMLParser {
 		return $assoc;
 	}
 
-	function xml_parse_into_assoc($vals, &$i) {
+	function xml_parse_into_assoc($vals, &$i)
+	{
 		$ret = array();
 		while ($i++ < sizeof($vals)) {
 			$tag = $vals[$i];
 			//println($tag['type']);
-			switch($tag['type']) {
+			switch ($tag['type']) {
 				case "cdata":
 					$ret['value'] .= $tag['value'];
-				break;
+					break;
 				case "complete":
 					unset($tag['type']);
 					unset($tag['level']);
@@ -47,7 +50,7 @@ class slXMLParser {
 					if (!is_array($attr)) $attr = array();
 					unset($tag['attributes']);
 					$ret[] = array_merge($tag, $attr);
-				break;
+					break;
 				case "open":
 					unset($tag['type']);
 					unset($tag['level']);
@@ -61,14 +64,14 @@ class slXMLParser {
 					if (!$attr) $attr = array();
 					unset($tag['attributes']);
 					$ret[] = array_merge($tag, $attr);
-				break;
+					break;
 				case "close":
-					if ($i == sizeof($vals)-1) {
-						return  array($tag['tag'] => $ret);
+					if ($i == sizeof($vals) - 1) {
+						return array($tag['tag'] => $ret);
 					} else {
 						return $ret;
 					}
-				break;
+					break;
 			}
 		}
 	}
@@ -79,7 +82,8 @@ class slXMLParser {
 	 * @param unknown_type $arr
 	 * @return unknown
 	 */
-	function simplify($arr) {
+	function simplify($arr)
+	{
 		$res = array();
 		if (is_array($arr)) {
 			if (isset($arr['tag'])) {
@@ -123,12 +127,13 @@ class slXMLParser {
 			}
 		}
 		//if ($arr['tag'] == 'DocumentProperties') {
-			//debug(array('source' => $arr, 'simplified' => $res), 'simplify');
+		//debug(array('source' => $arr, 'simplified' => $res), 'simplify');
 		//}
 		return $res;
 	}
 
-	function array_merge_with_multi($a, $b) {
+	function array_merge_with_multi($a, $b)
+	{
 		$c = $a;
 		foreach ($b as $i => $v) {
 			if (isset($c[$i])) {
@@ -156,7 +161,8 @@ class slXMLParser {
 	 * @param array $arr
 	 * @return unknown
 	 */
-	function simplifySimple(array $arr) {
+	function simplifySimple(array $arr)
+	{
 		//debug($arr);
 		$res = array();
 		if (is_array($arr)) foreach ($arr as $numeric => $pair) {
@@ -178,7 +184,8 @@ class slXMLParser {
 	 * @param array $arr
 	 * @return unknown
 	 */
-	function simplifyTree(array $arr) {
+	function simplifyTree(array $arr)
+	{
 		//debug($arr);
 		$res = array();
 		if (is_array($arr)) foreach ($arr as $numeric => $pair) {
@@ -187,7 +194,7 @@ class slXMLParser {
 				$res[$pair['tag']] = $pair['value'];
 				$sub = $this->simplifyTree($pair);
 				if ($sub) {
-					$res[$pair['tag'].'.'] = $sub;
+					$res[$pair['tag'] . '.'] = $sub;
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 <?php
 
-interface NadlibUser {
+interface NadlibUser
+{
 
 	function getPref($key);
 

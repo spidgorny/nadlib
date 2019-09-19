@@ -1,19 +1,21 @@
 <?php
 
-class HTMLFormLocation extends HTMLFormType {
+class HTMLFormLocation extends HTMLFormType
+{
 
 	/**
 	 * @var AutoLoad
 	 */
-	var $al;
+	public $al;
 
-	var $size;
+	public $size;
 
 	/**
 	 * @param string $field
 	 * @param string $value
 	 */
-	function __construct($field, $value = '') {
+	function __construct($field, $value = '')
+	{
 //		parent::__construct();
 		$this->field = $field;
 		$this->setValue($value);
@@ -24,11 +26,13 @@ class HTMLFormLocation extends HTMLFormType {
 	 * @param int $value
 	 * @return mixed|void
 	 */
-	function setValue($value) {
+	function setValue($value)
+	{
 		$this->value = $value;
 	}
 
-	function render() {
+	function render()
+	{
 		$content = [];
 		$content[] = $this->form->getInput('input', $this->field, $this->value, [
 			'class' => ifsetor($this->desc['class']),
@@ -42,7 +46,7 @@ class HTMLFormLocation extends HTMLFormType {
 			if ($this->size) {
 				$map->size = $this->size;
 			}
-			$content[] = '<div class="text-center p-3">'.$map->render().'</div>';
+			$content[] = '<div class="text-center p-3">' . $map->render() . '</div>';
 		}
 		return $content;
 	}

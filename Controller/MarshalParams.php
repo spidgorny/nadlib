@@ -1,20 +1,23 @@
 <?php
 
-class MarshalParams {
+class MarshalParams
+{
 
-	var $object;
+	public $object;
 
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
-	function __construct($object) {
+	function __construct($object)
+	{
 		$this->object = $object;
 		$this->request = Request::getInstance();
 	}
 
-	function call($method) {
+	function call($method)
+	{
 		return $this->callMethodByReflection($this->object, $method);
 	}
 
@@ -24,7 +27,8 @@ class MarshalParams {
 	 * @param $method
 	 * @return mixed
 	 */
-	private function callMethodByReflection($proxy, $method) {
+	private function callMethodByReflection($proxy, $method)
+	{
 		$r = new ReflectionMethod($proxy, $method);
 		if ($r->getNumberOfParameters()) {
 			$assoc = array();
@@ -46,7 +50,8 @@ class MarshalParams {
 		return $content;
 	}
 
-	function getParameterByReflection(ReflectionParameter $param) {
+	function getParameterByReflection(ReflectionParameter $param)
+	{
 		$name = $param->getName();
 		if ($param->isArray()) {
 			$return = $this->request->getArray($name);

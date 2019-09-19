@@ -1,6 +1,9 @@
 <?php
 
-class IndexBase /*extends Controller*/ {	// infinite loop
+use nadlib\HTML\Messages;
+
+class IndexBase /*extends Controller*/
+{    // infinite loop
 
 	/**
 	 * @var MySQL
@@ -22,7 +25,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string|array|\nadlib\HTML\Messages
+	 * @var string|array|Messages
 	 */
 	public $content;
 
@@ -57,9 +60,9 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	/**
 	 * @var Config
 	 */
-	var $config;
+	public $config;
 
-	var $csp = array(
+	public $csp = array(
 		"default-src" => array(
 			"'self'",
 			"'unsafe-inline'",
@@ -96,21 +99,25 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		],
 	);
 
-	public function __construct() {
+	/** @var Request */
+	protected $request;
+
+	public function __construct()
+	{
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		if (class_exists('Config', false)) {
 //			try {
-				$this->config = Config::getInstance();
-				$this->db = $this->config->getDB();
+			$this->config = Config::getInstance();
+			$this->db = $this->config->getDB();
 
-				// you need a session if you want to try2login()
-				$this->initSession();
-				$this->user = $this->config->getUser();
+			// you need a session if you want to try2login()
+			$this->initSession();
+			$this->user = $this->config->getUser();
 
-				$this->ll = $this->config->getLL();
+			$this->ll = $this->config->getLL();
 //			} catch (Exception $e) {
-				// should not catch exceptions here, let subclass do it
+			// should not catch exceptions here, let subclass do it
 //				echo get_class($e), BR;
 //				$this->content[] = $this->renderException($e);
 //			}
@@ -126,7 +133,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function initSession() {
+	function initSession()
+	{
 //		debug('is session started', session_id(), session_status());
 		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
 			ini_set('session.use_trans_sid', false);
@@ -169,7 +177,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param bool $createNew - must be false
 	 * @return Index|IndexBE
 	 */
-	static function getInstance($createNew = false) {
+	static function getInstance($createNew = false)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance
 			? self::$instance
@@ -190,7 +199,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * That's not true anymore, called in render().
 	 * @throws Exception
 	 */
-	public function initController() {
+	public function initController()
+	{
 		TaylorProfiler::start(__METHOD__);
 		if (!$this->controller) {
 			$slug = $this->request->getControllerString();
@@ -210,10 +220,11 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param $class
 	 * @throws Exception
 	 */
-	protected function loadController($class) {
+	protected function loadController($class)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
-		$class = end($slugParts);	// again, because __autoload need the full path
+		$class = end($slugParts);    // again, because __autoload need the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			try {
@@ -227,7 +238,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 		} else {
 			//debug($_SESSION['autoloadCache']);
-			$exception = 'Class '.$class.' not found. Dev hint: try clearing autoload cache?';
+			$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
 			unset($_SESSION['AutoLoad']);
 			TaylorProfiler::stop(__METHOD__);
 			throw new Exception404($exception);
@@ -235,7 +246,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function getController() {
+	function getController()
+	{
 		if (!$this->controller) {
 			$this->initController();
 		}
@@ -243,7 +255,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $this->controller;
 	}
 
-	function render() {
+	function render()
+	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		try {
@@ -259,7 +272,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				$this->content->clear();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} catch (Exception $e) {	// handles ALL exceptions
+		} catch (Exception $e) {    // handles ALL exceptions
 			$content = $this->renderException($e);
 		}
 
@@ -269,7 +282,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $content;
 	}
 
-	function renderController() {
+	function renderController()
+	{
 		TaylorProfiler::start(__METHOD__);
 		$method = ifsetor($_SERVER['argv'][2]);
 		if ($method && method_exists($this->controller, $method)) {
@@ -286,7 +300,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
-			/** @var $this->controller->layout Wrap */
+			/** @var $this ->controller->layout Wrap */
 			$render = $this->controller->layout->wrap($render);
 			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
 		}
@@ -294,7 +308,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $render;
 	}
 
-	function renderTemplateIfNotAjax($content) {
+	function renderTemplateIfNotAjax($content)
+	{
 		$contentOut = '';
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			// display Exception
@@ -308,15 +323,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut .= $this->s($content);
-			$this->content->clear();		// clear for the next output. May affect saveMessages()
+			$this->content->clear();        // clear for the next output. May affect saveMessages()
 		}
 		return $contentOut;
 	}
 
-	function renderTemplate($content) {
+	function renderTemplate($content)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
-		$contentOut .= $this->content->getContent();	// this is already output
+		$contentOut .= $this->content->getContent();    // this is already output
 		$contentOut .= $this->s($content);
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
@@ -329,7 +345,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $v;
 	}
 
-	function s($content) {
+	function s($content)
+	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
@@ -339,7 +356,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param string $wrapClass
 	 * @return string
 	 */
-	function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error') {
+	function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
+	{
 		if ($this->request->isCLI()) {
 			echo get_class($e),
 			' #', $e->getCode(),
@@ -378,7 +396,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $content;
 	}
 
-	function __destruct() {
+	function __destruct()
+	{
 		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
 			// called automatically(!)
 			//$this->user->__destruct();
@@ -390,7 +409,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param string $action
 	 * @param mixed $data
 	 */
-	function log($action, $data) {
+	function log($action, $data)
+	{
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
@@ -399,19 +419,23 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		));*/
 	}
 
-	function message($text) {
+	function message($text)
+	{
 		$this->content->message($text);
 	}
 
-	function error($text) {
+	function error($text)
+	{
 		$this->content->error($text);
 	}
 
-	function success($text) {
+	function success($text)
+	{
 		$this->content->success($text);
 	}
 
-	function info($text) {
+	function info($text)
+	{
 		$this->content->info($text);
 	}
 
@@ -419,7 +443,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param bool $defer
 	 * @return $this
 	 */
-	function addJQuery($defer = true) {
+	function addJQuery($defer = true)
+	{
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
 		}
@@ -443,16 +468,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 				'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 				'documentRoot' => $al->documentRoot,
-				'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+				'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
 			));
 			if (file_exists($al->componentsPath . $jQueryPath)) {
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
-				$this->addJS($al->componentsPath->getURL().$jQueryPath, $defer);
+				$this->addJS($al->componentsPath->getURL() . $jQueryPath, $defer);
 				return $this;
 			} elseif (file_exists($appRoot . $jQueryPath)) {
-                // does not work if both paths are the same!!
+				// does not work if both paths are the same!!
 //				$rel = Path::make(getcwd())->remove($al->appRoot);
-                $rel = Path::make(Config::getInstance()->documentRoot)->remove($appRoot);
+				$rel = Path::make(Config::getInstance()->documentRoot)->remove($appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
 				$this->addJS($rel . $jQueryPath, $defer);
@@ -468,7 +493,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $this;
 	}
 
-	function addJQueryUI() {
+	function addJQueryUI()
+	{
 		$this->addJQuery();
 		if (ifsetor($this->footer['jqueryui.js'])) return $this;
 		$al = AutoLoad::getInstance();
@@ -489,7 +515,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'documentRoot' => $al->documentRoot,
-			'componentsPath.jQueryPath' => $al->componentsPath.$jQueryPath,
+			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
 		));
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			if ($jQueryPath->exists()) {
@@ -509,7 +535,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		// commented out because this should be project specific
 		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
 		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-		<script>window.jQueryUI || document.write(\'<script src="'.$jQueryPath.'"><\/script>\')</script>';
+		<script>window.jQueryUI || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.css');
 		return $this;
 	}
@@ -519,17 +545,18 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param bool $defer
 	 * @return Index|IndexBase
 	 */
-	function addJS($source, $defer = true) {
+	function addJS($source, $defer = true)
+	{
 		if (class_exists('Debug')) {
 			$called = Debug::getCaller();
 		} else {
 			$called = '';
 		}
 		$fileName = $source;
-		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
+		if (!contains($source, '//') && !contains($source, '?')) {    // don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
-				$mtime = @filemtime('public/'.$source);
+				$mtime = @filemtime('public/' . $source);
 			}
 			if ($mtime) {
 				$fileName .= '?' . $mtime;
@@ -538,7 +565,7 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$fileName = $fn->relativeFromAppRoot();
 		}
 		$defer = $defer ? 'defer="defer"' : '';
-		$this->footer[$source] = '<!-- '.$called.' --><script src="'.$fileName.'" '.$defer.'></script>';
+		$this->footer[$source] = '<!-- ' . $called . ' --><script src="' . $fileName . '" ' . $defer . '></script>';
 		return $this;
 	}
 
@@ -546,13 +573,14 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 	 * @param $source
 	 * @return Index|IndexBase
 	 */
-	function addCSS($source) {
+	function addCSS($source)
+	{
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
-				$fileName = $source;	// rewrite inside css folder
+				$fileName = $source;    // rewrite inside css folder
 			} else {
 				$sourceCSS = str_replace('.less', '.css', $source);
-				if (file_exists($sourceCSS)){
+				if (file_exists($sourceCSS)) {
 					$fileName = $sourceCSS;
 					$fileName = $this->addMtime($source);
 				} else {
@@ -564,15 +592,16 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			$fileName = $fn->relativeFromAppRoot();
 			$fileName = $this->addMtime($fileName);
 		}
-		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="'.$fileName.'" />';
+		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="' . $fileName . '" />';
 		return $this;
 	}
 
-	function addMtime($source) {
-		if (!contains($source, '//') && !contains($source, '?')) {	// don't download URL
+	function addMtime($source)
+	{
+		if (!contains($source, '//') && !contains($source, '?')) {    // don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
-				$mtime = @filemtime('public/'.$source);
+				$mtime = @filemtime('public/' . $source);
 			}
 			if ($mtime) {
 				$source .= '?' . $mtime;
@@ -581,7 +610,8 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $source;
 	}
 
-	function showSidebar() {
+	function showSidebar()
+	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
@@ -592,27 +622,30 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 		return $content;
 	}
 
-	function renderProfiler() {
+	function renderProfiler()
+	{
 		$pp = new PageProfiler();
 		$content = $pp->render();
 		return $content;
 	}
 
-	function implodeCSS() {
+	function implodeCSS()
+	{
 		$content = array();
 		foreach ($this->header as $key => $script) {
-			$content[] = '<!--'.$key.'-->'."\n".$script;
+			$content[] = '<!--' . $key . '-->' . "\n" . $script;
 		}
-		return implode("\n", $content)."\n";
+		return implode("\n", $content) . "\n";
 	}
 
-	function implodeJS() {
+	function implodeJS()
+	{
 		// composer require mrclay/minify
 		$path = 'vendor/mrclay/minify/min/';
 		if (
 			true
 			// && !DEVELOPMENT
-			&& file_exists($path.'index.php')) {
+			&& file_exists($path . 'index.php')) {
 			$include = array(); // some files can't be found
 			$files = array_keys($this->footer);
 			foreach ($files as $f => &$file) {
@@ -625,22 +658,24 @@ class IndexBase /*extends Controller*/ {	// infinite loop
 			}
 			$files = implode(",", $files);
 			//$files .= DEVELOPMENT ? '&debug' : '';
-			$content = '<script src="'.$path.'?f='.$files.'"></script>';
+			$content = '<script src="' . $path . '?f=' . $files . '"></script>';
 			$content .= implode("\n", $include);
 		} else {
-			$content = implode("\n", $this->footer)."\n";
+			$content = implode("\n", $this->footer) . "\n";
 		}
 		return $content;
 	}
 
-	function addBodyClass($name) {
+	function addBodyClass($name)
+	{
 		$this->bodyClasses[$name] = $name;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function setSecurityHeaders() {
+	public function setSecurityHeaders()
+	{
 		if (!headers_sent()) {
 			header('X-Frame-Options: SAMEORIGIN');
 			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');

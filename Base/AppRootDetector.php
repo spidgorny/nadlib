@@ -1,13 +1,14 @@
 <?php
 
-class AppRootDetector {
+class AppRootDetector
+{
 
 	/**
 	 * @var Path
 	 */
 	protected $appRoot;
 
-	var $debug = false;
+	public $debug = false;
 
 	/**
 	 * Original idea was to remove vendor/s/nadlib/be from the CWD
@@ -32,7 +33,7 @@ class AppRootDetector {
 		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
-			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
+			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)    // u:\
 		) {
 			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'index.php';
 			$exists1 = file_exists($config1);
@@ -71,7 +72,8 @@ class AppRootDetector {
 		$this->appRoot = $appRoot;
 	}
 
-	function get() {
+	function get()
+	{
 		return $this->appRoot;
 	}
 

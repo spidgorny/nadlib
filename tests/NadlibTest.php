@@ -1,8 +1,10 @@
 <?php
 
-class NadlibTest extends PHPUnit_Framework_TestCase {
+class NadlibTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_requireAll() {
+	function test_requireAll()
+	{
 		//return;
 		$skip = array(
 			'MemcacheMemory',

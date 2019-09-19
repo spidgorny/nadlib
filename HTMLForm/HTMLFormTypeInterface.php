@@ -11,7 +11,8 @@
  * Type knows how to render <input type="text">
  * But Field knows how to wrap it with <tr><td><label>
  */
-interface HTMLFormTypeInterface {
+interface HTMLFormTypeInterface
+{
 
 	/**
 	 * Shows the form element in the form

@@ -1,12 +1,13 @@
 <?php
 
-class TYPO3PageOverlay extends OODBase {
-	var $table = 'pages_language_overlay';
-	var $idField = 'uid';
-	var $titleColumn = 'title';
+class TYPO3PageOverlay extends OODBase
+{
+	public $table = 'pages_language_overlay';
+	public $idField = 'uid';
+	public $titleColumn = 'title';
 
 	/**
-	 * @var integer sys_language_uid
+	 * @var int sys_language_uid
 	 */
 	public $langID;
 
@@ -17,47 +18,56 @@ class TYPO3PageOverlay extends OODBase {
 
 	public $colPos;
 
-	function init($id, $fromFindInDB = false) {
+	function init($id, $fromFindInDB = false)
+	{
 		parent::init($id, $fromFindInDB);
 		$this->langID = $this->data['sys_language_uid'];
 	}
 
-	function insert(array $data) {
+	function insert(array $data)
+	{
 		$data['tstamp'] = time();
 		$data['crdate'] = time();
 		return parent::insert($data);
 	}
 
-	function update(array $data) {
+	function update(array $data)
+	{
 		$data['tstamp'] = time();
 		return parent::insert($data);
 	}
 
-	function getAbstract() {
+	function getAbstract()
+	{
 		return $this->data['abstract'];
 	}
 
-	function getDescription() {
+	function getDescription()
+	{
 		return $this->data['description'];
 	}
 
-	function getKeywords() {
+	function getKeywords()
+	{
 		return $this->data['keywords'];
 	}
 
-	function fetchContent($colPos) {
+	function fetchContent($colPos)
+	{
 		// retrieve once for each colPos
 		if (!$this->content || $this->colPos != $colPos) {
 			$this->content = new TYPO3ContentCollection($this->data['pid'], array(
 				'colPos' => $colPos,
 				'sys_language_uid' => Config::getInstance()->langID,
 			));
-			$this->content->objectify();	/* @var TYPO3Content */
+			$this->content->objectify();
+			/* @var TYPO3Content */
 			$this->colPos = $colPos;
 		}
 	}
 
-	function getContent($colPos = 0) {
+	function getContent($colPos = 0)
+	{
 		$this->fetchContent($colPos);
 		return $this->content->renderMembers();
 	}

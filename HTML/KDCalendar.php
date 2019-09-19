@@ -4,37 +4,38 @@
 #  see example at http://keithdevens.com/weblog
 # License: http://keithdevens.com/software/license
 
-class KDCalendar {
+class KDCalendar
+{
 
-	var $year, $month;
+	public $year, $month;
 
-	var $days;
+	public $days;
 
-	var $day_name_length;
+	public $day_name_length;
 
-	var $month_href;
+	public $month_href;
 
-	var $first_day;
+	public $first_day;
 
-	var $pn;
+	public $pn;
 
-	var $weekTotalCallback;
+	public $weekTotalCallback;
 
-	var $titleLinkMore;
+	public $titleLinkMore;
 
-	var $weekNrLink;
+	public $weekNrLink;
 
 	/**
 	 * @param        $year
 	 * @param        $month
-	 * @param array  $days day-indexed array of [$link, $classes, $content]
-	 * @param int    $day_name_length
-	 * @param null   $month_href
-	 * @param int    $first_day
-	 * @param array  $pn
-	 * @param null   $callback
+	 * @param array $days day-indexed array of [$link, $classes, $content]
+	 * @param int $day_name_length
+	 * @param null $month_href
+	 * @param int $first_day
+	 * @param array $pn
+	 * @param null $callback
 	 * @param string $titleLinkMore
-	 * @param null   $weekNrLink <a href="bla">|</a>
+	 * @param null $weekNrLink <a href="bla">|</a>
 	 */
 	function __construct($year, $month, $days = array(),
 						 $day_name_length = 3,
@@ -43,7 +44,8 @@ class KDCalendar {
 						 $pn = array(),
 						 $callback = NULL,
 						 $titleLinkMore = '',
-						 $weekNrLink = NULL) {
+						 $weekNrLink = NULL)
+	{
 		$this->year = $year;
 		$this->month = $month;
 		$this->days = $days;
@@ -56,7 +58,8 @@ class KDCalendar {
 		$this->weekNrLink = $weekNrLink;
 	}
 
-	function generate_calendar() {
+	function generate_calendar()
+	{
 		$first_of_month = gmmktime(0, 0, 0, $this->month, 1, $this->year);
 		//debug(date('Y-m-d H:i:s', $first_of_month));
 		#remember that mktime will automatically correct if invalid dates are entered
@@ -80,22 +83,22 @@ class KDCalendar {
 		}
 		if ($n) $n = '&nbsp;<span class="calendar-next">' . ($nl ? '<a href="' . htmlspecialchars($nl) . '">' . $n . '</a>' : $n) . '</span>';
 		$monthLink = $this->month_href
-				? '<a href="' . htmlspecialchars($this->month_href) . '" ' . $this->titleLinkMore . '>' . $title . '</a>'
-				: $title;
+			? '<a href="' . htmlspecialchars($this->month_href) . '" ' . $this->titleLinkMore . '>' . $title . '</a>'
+			: $title;
 		$calendar = '<table class="calendar">' . "\n" .
-				'<tr><th colspan="8" class="calendar-month">'
-				. $p
-				. $monthLink
-				. $n
-				. "</th></tr>\n<tr>";
+			'<tr><th colspan="8" class="calendar-month">'
+			. $p
+			. $monthLink
+			. $n
+			. "</th></tr>\n<tr>";
 
 		if ($this->day_name_length) { #if the day names should be shown ($day_name_length > 0)
 			#if day_name_length is >3, the full name of the day will be printed
 			$calendar .= '<th class="weeknumber">#</td>';
 			foreach ($day_names as $d) {
 				$dayName = $this->day_name_length < 4
-						? substr($d, 0, $this->day_name_length)
-						: $d;
+					? substr($d, 0, $this->day_name_length)
+					: $d;
 				$calendar .= '<th abbr="' . htmlentities($d) . '">' . htmlentities($dayName) . '</th>';
 			}
 			//		$calendar .= '<th class="weektotal">T.</td>';
@@ -105,14 +108,14 @@ class KDCalendar {
 		$weekNr = $this->getWeekNr($first_of_month);
 		$calendar .= '<td class="weeknumber">' . $weekNr . '</td>';
 		if ($weekday > 0) $calendar .= '<td colspan="' . $weekday . '" class="empty">&nbsp;</td>'; #initial 'empty' days
-		for ($day = 1, 
+		for ($day = 1,
 			 $days_in_month = gmdate('t', $first_of_month);
 			 $day <= $days_in_month; $day++, $weekday++) {
 			if ($weekday == 7) {
 				$weekday = 0; #start a new week
 				$today = strtotime('+' . ($day - 1) . ' days', $first_of_month);
 				if ($this->weekTotalCallback) {
-					$calendar .= '<td class="weektotal">'.call_user_func($this->weekTotalCallback, $today).'</td>';
+					$calendar .= '<td class="weektotal">' . call_user_func($this->weekTotalCallback, $today) . '</td>';
 				} else {
 					//$calendar .= '<td class="weektotal"></td>';
 				}
@@ -132,7 +135,7 @@ class KDCalendar {
 					($link
 						? '<a 
 							href="' . htmlspecialchars($link) . '" 
-							class="'.$linkClass.'">' . $content . '</a>'
+							class="' . $linkClass . '">' . $content . '</a>'
 						: $content) . '</td>';
 			} else {
 				$calendar .= "<td {$weekend}>$day</td>";
@@ -151,7 +154,8 @@ class KDCalendar {
 		return $calendar . "</tr>\n</table>\n";
 	}
 
-	function getWeekNr($today) {
+	function getWeekNr($today)
+	{
 		$weekNr = date('W', $today);
 		if ($this->weekNrLink) {
 			$weekNrLink = str_replace('|', $weekNr, $this->weekNrLink);

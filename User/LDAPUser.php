@@ -1,6 +1,7 @@
 <?php
 
-abstract class LDAPUser extends UserBase implements UserModelInterface {
+abstract class LDAPUser extends UserBase implements UserModelInterface
+{
 
 	public $UserID;
 	public $UserName;
@@ -10,11 +11,13 @@ abstract class LDAPUser extends UserBase implements UserModelInterface {
 	 */
 	public $data;
 
-	function __construct(array $ldapInfo = array()) {
+	function __construct(array $ldapInfo = array())
+	{
 		$this->initLDAP($ldapInfo);
 	}
 
-	function initLDAP(array $ldapInfo = array()) {
+	function initLDAP(array $ldapInfo = array())
+	{
 		$goodKeys = array_filter(array_keys($ldapInfo), 'is_string');
 		$ldapInfo = array_intersect_key($ldapInfo, array_flip($goodKeys));
 		$this->data = $ldapInfo;
@@ -27,11 +30,13 @@ abstract class LDAPUser extends UserBase implements UserModelInterface {
 		}
 	}
 
-	function getName() {
-		return $this->UserName.' ('.$this->UserID.') <'.$this->data['mail'][0].'>';
+	function getName()
+	{
+		return $this->UserName . ' (' . $this->UserID . ') <' . $this->data['mail'][0] . '>';
 	}
 
-	function try2login() {
+	function try2login()
+	{
 		if ($_SESSION['user']) {
 			$this->id = $_SESSION['user']->id;
 			$this->data = $_SESSION['user']->data;
@@ -40,7 +45,8 @@ abstract class LDAPUser extends UserBase implements UserModelInterface {
 		}
 	}
 
-	function saveLogin() {
+	function saveLogin()
+	{
 		$obj = new stdClass();
 		$obj->id = $this->id;
 		$obj->data = $this->data;
@@ -49,7 +55,8 @@ abstract class LDAPUser extends UserBase implements UserModelInterface {
 		$_SESSION['user'] = $obj;
 	}
 
-	function logout() {
+	function logout()
+	{
 		unset($_SESSION['user']);
 	}
 
@@ -57,7 +64,8 @@ abstract class LDAPUser extends UserBase implements UserModelInterface {
 	 * Simplifies $this->data for display
 	 * @return array
 	 */
-	function getInfo() {
+	function getInfo()
+	{
 		$simpleData = array();
 		foreach ($this->data as $field => $data) {
 			if (is_array($data) && $data['count'] == 1) {
@@ -78,11 +86,13 @@ abstract class LDAPUser extends UserBase implements UserModelInterface {
 		return $simpleData;
 	}
 
-	function getEmail() {
+	function getEmail()
+	{
 		return $this->data['mail'][0];
 	}
 
-	function getPasswordHash() {
+	function getPasswordHash()
+	{
 		return $this->data['lastlogontimestamp'][0];
 	}
 

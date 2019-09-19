@@ -6,7 +6,8 @@
  * Date: 20.01.2016
  * Time: 14:59
  */
-interface HTMLFormFieldInterface {
+interface HTMLFormFieldInterface
+{
 
 	/**
 	 * Shows the form element in the form

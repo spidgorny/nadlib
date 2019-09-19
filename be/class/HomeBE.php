@@ -1,14 +1,17 @@
 <?php
 
-class HomeBE extends AppControllerBE {
+class HomeBE extends AppControllerBE
+{
 
-	static public $public = true;
+	public static $public = true;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 	}
 
-	function render() {
+	function render()
+	{
 		$content = '';
 		$content .= new MarkdownView('Home.md');
 
@@ -24,12 +27,13 @@ class HomeBE extends AppControllerBE {
 
 		//$content .= getDebug(AutoLoad::getInstance()->getDebug());
 
-		$content .= '<h1>$_ENV</h1>'.getDebug($_ENV);
+		$content .= '<h1>$_ENV</h1>' . getDebug($_ENV);
 
 		return $content;
 	}
 
-	function sidebar() {
+	function sidebar()
+	{
 		$content = SysInfo::getInstance()->render();
 		return $content;
 	}

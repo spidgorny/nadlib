@@ -19,91 +19,91 @@ class slTable
 	 * <table id=""> will be generated
 	 * @var string
 	 */
-	var $ID = null;
+	public $ID = null;
 
 	/**
 	 * 2D array of rows and columns
 	 * @var array
 	 */
-	var $data = [];
+	public $data = [];
 
 	/**
 	 * Class for each ROW(!)
 	 * @var array
 	 */
-	var $dataClass = [];
+	public $dataClass = [];
 
-	var $iRow = -1;
+	public $iRow = -1;
 
-	var $iCol = 0;
+	public $iCol = 0;
 
 	/**
 	 * Columns definition. Will be generated if missing.
 	 * @var array
 	 */
-	var $thes = [];
+	public $thes = [];
 
 	/**
 	 * Appended to <table> tag
 	 * @var string
 	 */
-	var $more = [
+	public $more = [
 		'class' => "nospacing",
 	];
 
 	/**
 	 * @var HTMLTableBuf
 	 */
-	var $generation;
+	public $generation;
 
-	var $sortable = false;
+	public $sortable = false;
 
 	/**
 	 * @var URL
 	 */
-	var $sortLinkPrefix;
+	public $sortLinkPrefix;
 
 	/**
 	 * the first row after the header - used for filters
 	 * @var string
 	 */
-	var $dataPlus = '';
+	public $dataPlus = '';
 
 	/**
 	 * $_REQUEST[$this->prefix]
 	 * @var string
 	 */
-	var $prefix = 'slTable';
+	public $prefix = 'slTable';
 
-	var $sortBy, $sortOrder;
+	public $sortBy, $sortOrder;
 
 	/**
 	 * last line
 	 * @var array
 	 */
-	var $footer = [];
+	public $footer = [];
 
 	/**
 	 * Vertical stripes
 	 * @var bool
 	 */
-	var $isAlternatingColumns = false;
+	public $isAlternatingColumns = false;
 
 	/**
 	 * Horizontal stripes
 	 * @var bool
 	 */
-	var $isOddEven = true;
+	public $isOddEven = true;
 
 	/**
 	 * @var string <tr $thesMore>
 	 */
-	var $thesMore;
+	public $thesMore;
 
 	/**
 	 * @var string before <tbody>
 	 */
-	var $thesPlus = '';
+	public $thesPlus = '';
 
 	/**
 	 * @var string
@@ -152,7 +152,7 @@ class slTable
 	}
 
 	/**
-	 * @param array  $aThes
+	 * @param array $aThes
 	 * @param string $thesMore
 	 */
 	function thes(array $aThes, $thesMore = null)
@@ -240,7 +240,8 @@ class slTable
 		}
 	}
 
-	public function detectSortBy() {
+	public function detectSortBy()
+	{
 		$by = ifsetor($_REQUEST['slTable']['sortBy']);
 		$or = ifsetor($_REQUEST['slTable']['sortOrder']);
 		//debug(array($by, $or));
@@ -259,8 +260,8 @@ class slTable
 	 * Useful only when the complete result set is visible on a single page.
 	 * Otherwise you're sorting just a portion of the data.
 	 *
-	 * @param string  $by - can be array (for easy explode(' ', 'field DESC') processing
-	 * @param boolean $or
+	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
+	 * @param bool $or
 	 */
 	function setSortBy($by = null, $or = null)
 	{
@@ -397,7 +398,7 @@ class slTable
 						: $this->sortOrder;
 					$link = $this->sortLinkPrefix->forceParams([
 						$this->prefix => [
-							'sortBy'    => $sortField,
+							'sortBy' => $sortField,
 							'sortOrder' => $sortOrder,
 						],
 					]);
@@ -782,12 +783,12 @@ class slTable
 
 			$val = [
 				//0 => $key instanceof htmlString ? $key : htmlspecialchars($key),
-				0  => htmlspecialchars($key),
+				0 => htmlspecialchars($key),
 				'' => $val,
 			];
 		}
 		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
-			0  => '',
+			0 => '',
 			'' => ['no_hsc' => $no_hsc],
 		]);
 		return $s;

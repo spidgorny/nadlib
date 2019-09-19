@@ -3,7 +3,8 @@
 /**
  * Combines a Collection of elements from a database with an HTMLFormTable
  */
-interface HTMLFormCollection {
+interface HTMLFormCollection
+{
 
 	//var $field;
 	/**

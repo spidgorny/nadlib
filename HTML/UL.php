@@ -1,46 +1,49 @@
 <?php
 
-class UL {
+class UL
+{
 
-	var $items = array();
+	public $items = array();
 
-	var $before = '<ul>';
+	public $before = '<ul>';
 
-	var $after = '</ul>';
+	public $after = '</ul>';
 
-	var $wrap = '<li###ACTIVE###>|</li>';
+	public $wrap = '<li###ACTIVE###>|</li>';
 
 	/**
 	 * Should be equal to an $this->items key which is selected
 	 * @var string
 	 */
-	var $activeClass = '';
+	public $activeClass = '';
 
 	/**
 	 * Piece of HTML to mark active items
 	 * @var string
 	 */
-	var $active = ' class="active"';
+	public $active = ' class="active"';
 
-	var $links = array();
+	public $links = array();
 
 	/**
 	 * <a href="###LINK###">|</a>
 	 * @var string
 	 */
-	var $linkWrap = '';
+	public $linkWrap = '';
 
 	/**
 	 * @var callback to link generation function(index, name)
 	 */
 	public $linkFunc;
 
-	function __construct(array $items = array()) {
+	function __construct(array $items = array())
+	{
 		$this->items = $items;
 		$this->activeClass = each($this->items);
 	}
 
-	public function add($value, $key = NULL) {
+	public function add($value, $key = NULL)
+	{
 		if ($key) {
 			$this->items[$key] = $value;
 		} else {
@@ -48,13 +51,15 @@ class UL {
 		}
 	}
 
-	function makeClickable($urlPrefix = '') {
-		$this->linkWrap = '<a href="'.$urlPrefix.'###LINK###">|</a>';
+	function makeClickable($urlPrefix = '')
+	{
+		$this->linkWrap = '<a href="' . $urlPrefix . '###LINK###">|</a>';
 		$this->links = array_keys($this->items);
 		$this->links = array_combine($this->links, $this->links);
 	}
 
-	function render() {
+	function render()
+	{
 		$out = array();
 		foreach ($this->items as $class => $li) {
 			$link = $this->getLinkFor($class, $li);
@@ -83,11 +88,13 @@ class UL {
 		return $content;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		return $this->render();
 	}
 
-	public static function DL(array $assoc) {
+	public static function DL(array $assoc)
+	{
 		$ul = new UL($assoc);
 		$links = array_keys($assoc);
 		$ul->links = array_combine($links, $links);
@@ -98,7 +105,8 @@ class UL {
 		return $ul;
 	}
 
-	public static function recursive(array $epesEmployees) {
+	public static function recursive(array $epesEmployees)
+	{
 		foreach ($epesEmployees as &$el) {
 			if ($el instanceof Recursive) {
 				$el = $el->value . UL::recursive($el->getChildren());
@@ -108,7 +116,8 @@ class UL {
 		return $ul;
 	}
 
-	function cli() {
+	function cli()
+	{
 		foreach ($this->items as $class => $li) {
 			echo '* ', strip_tags($li);
 			if (!is_numeric($class)) {
@@ -124,7 +133,8 @@ class UL {
 	 * @param $li
 	 * @return mixed
 	 */
-	protected function getLinkFor($class, $li) {
+	protected function getLinkFor($class, $li)
+	{
 		if ($this->links) {
 			$link = $this->links[$class];
 		} elseif ($this->linkFunc) {

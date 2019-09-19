@@ -1,19 +1,21 @@
 <?php
 
-class MemcacheMemory extends Memcache {
+class MemcacheMemory extends Memcache
+{
 
 	/**
 	 * https://coderwall.com/p/imot3w/php-memcache-list-keys
 	 * @ param int $limit
 	 * @return array
 	 */
-	function getKeys($limit = 10000) {
+	function getKeys($limit = 10000)
+	{
 		$keysFound = array();
 		$slabs = $this->getExtendedStats('slabs');
 		foreach ($slabs as $serverSlabs) {
 			if (is_array('slabs')) foreach ($serverSlabs as $slabId => $slabMeta) {
 				try {
-					$cacheDump = $this->getExtendedStats('cachedump', (int) $slabId, 1000);
+					$cacheDump = $this->getExtendedStats('cachedump', (int)$slabId, 1000);
 				} catch (Exception $e) {
 					continue;
 				}
@@ -42,7 +44,8 @@ class MemcacheMemory extends Memcache {
 		return $keysFound;
 	}
 
-	function getKeysStarting($begin) {
+	function getKeysStarting($begin)
+	{
 		$keys = $this->getKeys();
 		foreach ($keys as $key => $_) {
 			if (!str_startsWith($key, $begin)) {

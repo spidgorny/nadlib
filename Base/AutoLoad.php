@@ -6,15 +6,15 @@ class AutoLoad
 	/**
 	 * @var AutoLoadFolders
 	 */
-	var $folders;
+	public $folders;
 
 	/**
 	 * @var bool
 	 */
-	var $useCookies = true;
+	public $useCookies = true;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	public $debug = 0;
 

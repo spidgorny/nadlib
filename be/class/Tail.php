@@ -1,8 +1,10 @@
 <?php
 
-class Tail extends AppController {
+class Tail extends AppController
+{
 
-	function render() {
+	function render()
+	{
 		$log = ini_get('error_log');
 		if (!$log) {
 			$log = '/var/log/apache2/error_log';

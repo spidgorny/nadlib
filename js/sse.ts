@@ -14,7 +14,7 @@ function startTask(url, target) {
 	/* create the event source */
 	var source = new EventSource(url);
 	/* handle incoming messages */
-	source.onmessage = function(event) {
+	source.onmessage = function (event) {
 		//console.log(event);
 		if (event.type == 'message') {
 			// data expected to be in JSON-format, so parse */
@@ -37,9 +37,9 @@ function startTask(url, target) {
 			}
 		}
 	};
-	source.onerror = function(event) {
+	source.onerror = function (event) {
 		var txt;
-		switch( event.target.readyState ){
+		switch (event.target.readyState) {
 			// if reconnecting
 			case EventSource.CONNECTING:
 				txt = 'Reconnecting...';

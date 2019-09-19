@@ -1,14 +1,17 @@
 <?php
 
-class SQLBuilderTest extends PHPUnit_Framework_TestCase {
+class SQLBuilderTest extends PHPUnit_Framework_TestCase
+{
 
-	var $db;
+	public $db;
 
-	function setUp() {
+	function setUp()
+	{
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function test_getSelectQuery() {
+	function test_getSelectQuery()
+	{
 		$qb = new SQLBuilder($this->db);
 		$query = $qb->getSelectQueryString('table', [
 			'a' => 'b',
@@ -23,7 +26,8 @@ ORDER BY c";
 		$this->assertEquals($must, $query);
 	}
 
-	function test_getSelectQueryP() {
+	function test_getSelectQueryP()
+	{
 		$qb = new SQLBuilder($this->db);
 		$query = $qb->getSelectQueryP('table', [
 			'a' => new SQLLikeContains('b'),
@@ -40,7 +44,8 @@ ORDER BY c";
 		$this->assertEquals($must, $sQuery);
 	}
 
-	function implodeSQL($sql) {
+	function implodeSQL($sql)
+	{
 		$sql = strtr($sql, [
 			" " => '',
 			"\t" => '',

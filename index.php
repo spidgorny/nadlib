@@ -1,25 +1,28 @@
 <?php
 
-function __($a, $sub1 = NULL, $sub2 = NULL, $sub3 = NULL) {
+function __($a, $sub1 = NULL, $sub2 = NULL, $sub3 = NULL)
+{
 	$a = str_replace('%1', $sub1, $a);
 	$a = str_replace('%2', $sub2, $a);
 	$a = str_replace('%3', $sub3, $a);
 	return $a;
 }
 
-class NadlibIndex {
+class NadlibIndex
+{
 
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
 	/**
 	 * @var NadlibIndex
 	 */
 	static $instance;
 
-	function __construct() {
+	function __construct()
+	{
 		if (file_exists('vendor/autoload.php')) {
 			require_once 'vendor/autoload.php';
 		} elseif (file_exists('../vendor/autoload.php')) {
@@ -72,7 +75,8 @@ class NadlibIndex {
 		self::$instance = $this;
 	}
 
-	function render() {
+	function render()
+	{
 		if (Request::isCLI()) {
 			$content[] = $this->cliMode();
 		} else {
@@ -90,25 +94,28 @@ class NadlibIndex {
 		return $content;
 	}
 
-	function cliMode() {
+	function cliMode()
+	{
 		$content[] = 'Nadlib CLI mode';
 		$this->request->importCLIparams();
 		if ($cmd = $this->request->getTrim('0')) {
-			$cmdAction = $cmd.'Action';
+			$cmdAction = $cmd . 'Action';
 			if (method_exists($this, $cmdAction)) {
 				$content[] = $this->$cmdAction();
 			}
 		} else {
-			throw new InvalidArgumentException('"'.$cmd.'" is unknown');
+			throw new InvalidArgumentException('"' . $cmd . '" is unknown');
 		}
 		return $content;
 	}
 
-	function initAction() {
+	function initAction()
+	{
 		return 'initAction';
 	}
 
-	function s($content) {
+	function s($content)
+	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 

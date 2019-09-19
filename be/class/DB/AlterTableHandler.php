@@ -1,27 +1,32 @@
 <?php
 
-class AlterTableHandler {
+class AlterTableHandler
+{
 
 	/**
 	 * @var MySQL|dbLayerPDO
 	 */
-	var $db;
+	public $db;
 
-	function __construct($db) {
+	function __construct($db)
+	{
 		$this->db = $db;
 	}
 
-	function sameType($index1, $index2) {
+	function sameType($index1, $index2)
+	{
 		$t1 = $index1['Type'];
 		$t2 = $index2['Type'];
 		return $this->sameTypeString($t1, $t2);
 	}
 
-	function sameFieldType(TableField $index1, TableField $index2) {
+	function sameFieldType(TableField $index1, TableField $index2)
+	{
 		return $this->sameTypeString($index1->type, $index2->type);
 	}
 
-	function sameTypeString($t1, $t2) {
+	function sameTypeString($t1, $t2)
+	{
 		$int = array('int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)');
 		$text = array('text', 'varchar(255)', 'tinytext');
 		$time = array('numeric', 'timestamp', 'datetime');

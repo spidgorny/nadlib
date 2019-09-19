@@ -1,11 +1,14 @@
 <?php
 
-class LocalLangDummy extends LocalLang {
+class LocalLangDummy extends LocalLang
+{
 
-	function readDB() {
+	function readDB()
+	{
 	}
 
-	function saveMissingMessage($text) {
+	function saveMissingMessage($text)
+	{
 	}
 
 }

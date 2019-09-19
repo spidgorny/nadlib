@@ -6,9 +6,11 @@
  * Date: 2017-03-22
  * Time: 17:04
  */
-class HTMLFormTest extends PHPUnit_Framework_TestCase {
+class HTMLFormTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_set() {
+	function test_set()
+	{
 		$f = new HTMLForm();
 		$f->set('asd', 'k1', [
 			'options' => [
@@ -22,7 +24,8 @@ class HTMLFormTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains('"k1" checked', $html);
 	}
 
-	function test_set_multiple() {
+	function test_set_multiple()
+	{
 		$f = new HTMLForm();
 		$f->set('asd', ['k1', 'k2'], [
 			'options' => [
@@ -37,7 +40,8 @@ class HTMLFormTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains('"k2" checked', $html);
 	}
 
-	function test_keyset_multiple() {
+	function test_keyset_multiple()
+	{
 		$f = new HTMLForm();
 		$f->set('asd', ['k1', 'k2'], [
 			'options' => [

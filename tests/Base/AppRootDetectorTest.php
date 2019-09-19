@@ -9,17 +9,20 @@
 namespace nadlib\Base;
 
 use AppRootDetector;
+use PHPUnit_Framework_TestCase;
 use Request;
 
-class AppRootDetectorTest extends \PHPUnit_Framework_TestCase {
+class AppRootDetectorTest extends PHPUnit_Framework_TestCase
+{
 
-	function test_run() {
+	function test_run()
+	{
 		echo 'isCLI: ', Request::isCLI(), BR;
 		echo 'cwd: ', getcwd(), BR;
 		echo 'dirname(cwd): ', dirname(getcwd()), BR;
 		echo 'dirname(dirname(cwd)): ', dirname(dirname(getcwd())), BR;
 		$ad = new AppRootDetector();
-		echo 'AppRoot: ', $ad->get().'', BR;
+		echo 'AppRoot: ', $ad->get() . '', BR;
 	}
 
 }

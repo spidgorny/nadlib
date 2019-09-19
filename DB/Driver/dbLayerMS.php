@@ -1,6 +1,9 @@
 <?php
 
-class dbLayerMS extends dbLayerBase implements DBInterface {
+use PHPSQLParser\builders\OrderByBuilder;
+
+class dbLayerMS extends dbLayerBase implements DBInterface
+{
 
 	/**
 	 * @var string
@@ -37,13 +40,15 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		"Changed database context to 'PRD_LOTCHECK'.",
 	);
 
-	public static function getInstance() {
+	public static function getInstance()
+	{
 		//$c = Config::getInstance();
 		//if (!self::$instance) self::$instance = ;
 		return self::$instance;
 	}
 
-	function  __construct($server, $database, $user, $password) {
+	function __construct($server, $database, $user, $password)
+	{
 		ini_set('mssql.charset', 'UTF-8');
 		$this->server = $server;
 		$this->database = $database;
@@ -52,19 +57,22 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		$this->connect();
 	}
 
-	function connect() {
+	function connect()
+	{
 		$this->connection = mssql_connect($this->server, $this->user, $this->password);
 		if (!$this->connection) {
-			throw new DatabaseException('Unable to connect to DB on '.$this->server);
+			throw new DatabaseException('Unable to connect to DB on ' . $this->server);
 		}
 		mssql_select_db($this->database);
 	}
 
-	function close() {
+	function close()
+	{
 		mssql_close($this->connection);
 	}
 
-	function perform($query, array $arguments = array()) {
+	function perform($query, array $arguments = array())
+	{
 		//if (date('s') == '00') return false;    // debug
 		foreach ($arguments as $ar) {
 			$query = str_replace('?', $ar, $query);
@@ -96,7 +104,7 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 			$this->close();
 			$this->connect();
 			debug($msg2, $msg, $query);
-			throw new DatabaseException(__METHOD__.': '.$msg.BR.$query.BR.$msg2);
+			throw new DatabaseException(__METHOD__ . ': ' . $msg . BR . $query . BR . $msg2);
 		}
 		$this->lastQuery = $query;
 		return $res;
@@ -107,7 +115,8 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	 * @param $original
 	 * @return SQLQuery|string
 	 */
-	function fixQuery($original) {
+	function fixQuery($original)
+	{
 		$query = new SQLQuery($original);
 		if (isset($query->parsed['WHERE'])) {
 			foreach ($query->parsed['WHERE'] as $i => $part) {
@@ -124,18 +133,20 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 		return $fixed;
 	}
 
-	function fetchAssoc($res) {
+	function fetchAssoc($res)
+	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
 		if (!is_resource($res)) {
 			debug(__METHOD__, 'InvalidArgumentException', $res, $this->lastQuery);
-			throw new InvalidArgumentException(__METHOD__.' received a '.gettype($res).' as an argument instead of a resource.');
+			throw new InvalidArgumentException(__METHOD__ . ' received a ' . gettype($res) . ' as an argument instead of a resource.');
 		}
 		return mssql_fetch_assoc($res);
 	}
 
-	function fetchAll($res, $keyKey = NULL) {
+	function fetchAll($res, $keyKey = NULL)
+	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
@@ -160,7 +171,8 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	 *
 	 * @return array ('name' => ...)
 	 */
-	function getTables() {
+	function getTables()
+	{
 		$res = $this->perform("select * from sysobjects
 		where xtype = 'U'");
 		$tables = $this->fetchAll($res);
@@ -172,7 +184,8 @@ class dbLayerMS extends dbLayerBase implements DBInterface {
 	 * @param $table
 	 * @return array ('name' => ...)
 	 */
-	function getFields($table) {
+	function getFields($table)
+	{
 		//mssql_meta - doesn't exist
 		$res = $this->perform("
 SELECT
@@ -189,28 +202,30 @@ AND name = '?')", array($table));
 		return $tables;
 	}
 
-	function escape($val) {
+	function escape($val)
+	{
 		return $this->mssql_escape_string($val);
 	}
 
-	function mssql_escape_string($data) {
-        if ( !isset($data) or empty($data) ) return '';
-        if ( is_numeric($data) ) return $data;
+	function mssql_escape_string($data)
+	{
+		if (!isset($data) or empty($data)) return '';
+		if (is_numeric($data)) return $data;
 
-        $non_displayables = array(
-            '/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
-            '/%1[0-9a-f]/',             // url encoded 16-31
-            '/[\x00-\x08]/',            // 00-08
-            '/\x0b/',                   // 11
-            '/\x0c/',                   // 12
-            '/[\x0e-\x1f]/'             // 14-31
-        );
-        foreach ( $non_displayables as $regex ) {
+		$non_displayables = array(
+			'/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
+			'/%1[0-9a-f]/',             // url encoded 16-31
+			'/[\x00-\x08]/',            // 00-08
+			'/\x0b/',                   // 11
+			'/\x0c/',                   // 12
+			'/[\x0e-\x1f]/'             // 14-31
+		);
+		foreach ($non_displayables as $regex) {
 			$data = preg_replace($regex, '', $data);
 		}
-        $data = str_replace("'", "''", $data );
-        return $data;
-    }
+		$data = str_replace("'", "''", $data);
+		return $data;
+	}
 
 	/* *
 	 * Return ALL rows
@@ -243,19 +258,22 @@ AND name = '?')", array($table));
 		return $res;
 	}
 */
-	function numRows($res = NULL) {
+	function numRows($res = NULL)
+	{
 		return mssql_num_rows($res);
 	}
 
-	function quoteKey($key) {
-		if (!str_contains($key, '(')) {	// functions
+	function quoteKey($key)
+	{
+		if (!str_contains($key, '(')) {    // functions
 //			debug($key);
 			$key = '[' . $key . ']';
 		}
 		return $key;
 	}
 
-	function lastInsertID($res, $table = NULL) {
+	function lastInsertID($res, $table = NULL)
+	{
 		$lq = $this->lastQuery;
 		$query = 'SELECT SCOPE_IDENTITY()';
 		$res = $this->perform($query);
@@ -265,15 +283,17 @@ AND name = '?')", array($table));
 		return $val;
 	}
 
-	function __call($method, array $params) {
+	function __call($method, array $params)
+	{
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array(array($this->qb, $method), $params);
 		} else {
-			throw new Exception($method.' not found in '.get_class($this).' and SQLBuilder');
+			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
 	}
 
-	function free($res) {
+	function free($res)
+	{
 		@trigger_error('OK');
 		//error_clear_last();		// PHP 7.0
 
@@ -286,28 +306,33 @@ AND name = '?')", array($table));
 		}
 	}
 
-	function escapeBool($value) {
+	function escapeBool($value)
+	{
 		return $value ? 1 : 0;
 	}
 
-	function affectedRows($res = NULL) {
+	function affectedRows($res = NULL)
+	{
 		return mssql_rows_affected($this->connection);
 	}
 
-	function switchDB($name) {
+	function switchDB($name)
+	{
 		mssql_select_db($name);
 		$this->database = $name;
 	}
 
-	public function disconnect() {
+	public function disconnect()
+	{
 		mssql_close($this->connection);
 	}
 
-	function addLimit($query, $howMany, $startingFrom) {
+	function addLimit($query, $howMany, $startingFrom)
+	{
 		$version = first($this->fetchAssoc('SELECT @@VERSION'));
 		if ($version >= 'Microsoft SQL Server 2012') {
-			$query .= ' OFFSET '.$startingFrom.' ROWS
-    			FETCH NEXT '.$howMany.' ROWS ONLY';
+			$query .= ' OFFSET ' . $startingFrom . ' ROWS
+    			FETCH NEXT ' . $howMany . ' ROWS ONLY';
 		} else {
 			$query = $this->addLimitOldVersion($query, $howMany, $startingFrom);
 		}
@@ -328,21 +353,22 @@ AND name = '?')", array($table));
 	 * @param $startingFrom
 	 * @return mixed|SQLQuery|string
 	 */
-	function addLimitOldVersion($query, $howMany, $startingFrom) {
-		$query = new SQLQuery($query.'');
-		$builder = new \PHPSQLParser\builders\OrderByBuilder();
+	function addLimitOldVersion($query, $howMany, $startingFrom)
+	{
+		$query = new SQLQuery($query . '');
+		$builder = new OrderByBuilder();
 		$orderBy = $builder->build($query->parsed['ORDER']);
 		unset($query->parsed['ORDER']);
 
 		//$query .= ' WHERE a BETWEEN 10 AND 10 AND isok';
 		$querySelect = new SQLQuery('SELECT
 		ROW_NUMBER() OVER (
-			'.$orderBy.'
+			' . $orderBy . '
 		) AS RowNumber
 		FROM asd');
 		//debug($querySelect->parsed);
 
-		$lastIndex = sizeof($query->parsed['SELECT'])-1;
+		$lastIndex = sizeof($query->parsed['SELECT']) - 1;
 		$query->parsed['SELECT'][$lastIndex]['delim'] = ',';
 		$query->parsed['SELECT'] = array_merge(
 			$query->parsed['SELECT'], [
@@ -353,38 +379,38 @@ AND name = '?')", array($table));
 
 		$outside = new SQLQuery('SELECT * FROM (subquery123) AS zxc');
 		$outside->parsed['WHERE'] = array_merge(
-			//ifsetor($query->parsed['WHERE'], array()),
+		//ifsetor($query->parsed['WHERE'], array()),
 			array(),
 			[
-				array (
+				array(
 					'expr_type' => 'colref',
 					'base_expr' => 'RowNumber',
 					'no_quotes' =>
-						array (
+						array(
 							'delim' => false,
 							'parts' =>
-								array (
+								array(
 									0 => 'RowNumber',
 								),
 						),
 					'sub_tree' => false,
 				),
-				array (
+				array(
 					'expr_type' => 'operator',
 					'base_expr' => 'BETWEEN',
 					'sub_tree' => false,
 				),
-				array (
+				array(
 					'expr_type' => 'const',
 					'base_expr' => $startingFrom,
 					'sub_tree' => false,
 				),
-				array (
+				array(
 					'expr_type' => 'operator',
 					'base_expr' => 'AND',
 					'sub_tree' => false,
 				),
-				array (
+				array(
 					'expr_type' => 'const',
 					'base_expr' => $startingFrom + $howMany,
 					'sub_tree' => false,

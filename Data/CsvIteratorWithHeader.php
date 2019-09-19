@@ -1,22 +1,25 @@
 <?php
 
-class CsvIteratorWithHeader extends CsvIterator {
+class CsvIteratorWithHeader extends CsvIterator
+{
 
 	/**
 	 * @var array
 	 */
-	var $columns;
+	public $columns;
 
-	public function __construct($filename, $delimiter = ',', $convertUTF8 = false) {
+	public function __construct($filename, $delimiter = ',', $convertUTF8 = false)
+	{
 		parent::__construct($filename, $delimiter);
 		$this->doConvertToUTF8 = $convertUTF8;
-		$this->columns = parent::current();	// first line
+		$this->columns = parent::current();    // first line
 //		$this->current();	// this should not be next();
 		$this->next();
 		//print_r($this->columns);
 	}
 
-	public function current() {
+	public function current()
+	{
 		parent::current();
 		//debug($this->columns, $this->currentElement);
 		if ($this->currentElement) {
@@ -28,7 +31,8 @@ class CsvIteratorWithHeader extends CsvIterator {
 		return $this->currentElement;
 	}
 
-	public function next() {
+	public function next()
+	{
 		$return = parent::next();
 		//debug($this->columns, $this->currentElement);
 		if ($return !== false && $this->currentElement) {
@@ -43,14 +47,16 @@ class CsvIteratorWithHeader extends CsvIterator {
 		}
 	}
 
-	public function rewind() {
+	public function rewind()
+	{
 		parent::rewind();
-		$this->next();	// skip header row again
-		$this->next();	// jump to the next row
+		$this->next();    // skip header row again
+		$this->next();    // jump to the next row
 //		debug(__METHOD__, $this->current());
 	}
 
-	function ftell() {
+	function ftell()
+	{
 		return ftell($this->filePointer);
 	}
 

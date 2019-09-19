@@ -3,7 +3,8 @@
 /**
  * Class AccessRights represents all the rights of a specific group
  */
-class AccessRights {
+class AccessRights
+{
 	protected $accessTable = 'access';
 	protected $groupAccessTable = 'department_access';
 	protected $id_usergroup = 'id_department';
@@ -20,7 +21,8 @@ class AccessRights {
 
 	protected $query;
 
-	function __construct($idGroup) {
+	function __construct($idGroup)
+	{
 		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
 		$this->db = Config::getInstance()->getDB();
 		$this->groupID = $idGroup;
@@ -28,17 +30,19 @@ class AccessRights {
 		TaylorProfiler::stop($profiler);
 	}
 
-	function reload() {
+	function reload()
+	{
 		$this->init($this->groupID);
 	}
 
-	function init($idGroup) {
-		$res = $this->db->runSelectQuery($this->accessTable.' /**/
-			LEFT OUTER JOIN '.$this->groupAccessTable.' ON (
-				'.$this->accessTable.'.id = '.$this->groupAccessTable.'.'.$this->id_useraccess.'
-				AND '.$this->id_usergroup.' = '.$idGroup.')',
-			array(), 'ORDER BY '.$this->accessTable.'.name',
-			$this->accessTable.'.*, '.$this->groupAccessTable.'.id as affirmative');
+	function init($idGroup)
+	{
+		$res = $this->db->runSelectQuery($this->accessTable . ' /**/
+			LEFT OUTER JOIN ' . $this->groupAccessTable . ' ON (
+				' . $this->accessTable . '.id = ' . $this->groupAccessTable . '.' . $this->id_useraccess . '
+				AND ' . $this->id_usergroup . ' = ' . $idGroup . ')',
+			array(), 'ORDER BY ' . $this->accessTable . '.name',
+			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative');
 		$data = $this->db->fetchAll($res);
 		$this->query = $this->db->lastQuery;
 		//debug($data);
@@ -51,28 +55,33 @@ class AccessRights {
 		//debug($this->arCache);
 	}
 
-	function can($what) {
+	function can($what)
+	{
 		//debug($what, $this->arCache);
 		if (isset($this->arCache[$what])) {
 			return $this->arCache[$what];
 		} else {
-			throw new AccessDeniedException('Checking non-existing access-right: '.$what);
+			throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
 		}
 	}
 
-	function getList() {
+	function getList()
+	{
 		return $this->arCache;
 	}
 
-	function getQuery() {
+	function getQuery()
+	{
 		return $this->query;
 	}
 
-	function render() {
+	function render()
+	{
 		return new UL($this->arCache);
 	}
 
-	function __sleep() {
+	function __sleep()
+	{
 		$vars = get_object_vars($this);
 		$keys = array_keys($vars);
 		$keys = array_combine($keys, $keys);
@@ -82,7 +91,8 @@ class AccessRights {
 		return $keys;
 	}
 
-	function getAllRights() {
+	function getAllRights()
+	{
 		$accessRights = $this->db->fetchAll("
 		SELECT * FROM {$this->accessTable} ORDER BY name");
 		$accessRights = new ArrayPlus($accessRights);
@@ -91,7 +101,8 @@ class AccessRights {
 		return $accessRights;
 	}
 
-	function setAccess($name, $value) {
+	function setAccess($name, $value)
+	{
 		$this->arCache[$name] = $value;
 	}
 

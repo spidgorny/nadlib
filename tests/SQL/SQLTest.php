@@ -1,24 +1,28 @@
 <?php
 
-class SQLTest extends PHPUnit_Framework_TestCase {
+class SQLTest extends PHPUnit_Framework_TestCase
+{
 
 	/**
 	 * @var dbLayerBase|SQLBuilder
 	 */
-	var $db;
+	public $db;
 
-	function setup() {
+	function setup()
+	{
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function test_SQLNow_PG() {
+	function test_SQLNow_PG()
+	{
 		$now = new SQLNow();
-		$string = $now.'';
+		$string = $now . '';
 
 		$this->assertEquals('CURRENT_TIMESTAMP', $string);
 	}
 
-	function test_SQLNow_PG_update_no_quote() {
+	function test_SQLNow_PG_update_no_quote()
+	{
 		$now = new SQLNow();
 		$update = array(
 			'mtime' => $now,
@@ -33,7 +37,8 @@ id = '1' /* numeric */";
 		$this->assertEquals($expected, $query);
 	}
 
-	function test_SQLNow_PG_insert_no_quote() {
+	function test_SQLNow_PG_insert_no_quote()
+	{
 		$now = new SQLNow();
 		$update = array(
 			'mtime' => $now,

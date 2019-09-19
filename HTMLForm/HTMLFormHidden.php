@@ -1,8 +1,10 @@
 <?php
 
-class HTMLFormHidden extends HTMLFormType implements HTMLFormFieldInterface {
+class HTMLFormHidden extends HTMLFormType implements HTMLFormFieldInterface
+{
 
-	function __construct($value) {
+	function __construct($value)
+	{
 		$this->setValue($value);
 	}
 
@@ -10,7 +12,8 @@ class HTMLFormHidden extends HTMLFormType implements HTMLFormFieldInterface {
 	 * Shows the form element in the form
 	 * @return mixed
 	 */
-	function render() {
+	function render()
+	{
 		$this->form->hidden($this->fullName, $this->value);
 		$content[] = $this->form->getBuffer();
 		return $content;

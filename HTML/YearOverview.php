@@ -1,14 +1,15 @@
 <?php
 
-class YearOverview extends AppController {
+class YearOverview extends AppController
+{
 
-	var $year;
+	public $year;
 
-	var $days = [];
+	public $days = [];
 
-	var $beginning;
+	public $beginning;
 
-	var $dowName = [
+	public $dowName = [
 		1 => 'Mon',
 		'Tue',
 		'Wed',
@@ -18,7 +19,7 @@ class YearOverview extends AppController {
 		'Sun',
 	];
 
-	var $maxIntensity = '#1e6823';
+	public $maxIntensity = '#1e6823';
 
 	function __construct($year = NULL)
 	{
@@ -34,7 +35,8 @@ class YearOverview extends AppController {
 		}
 	}
 
-	function addActivity($day, $count) {
+	function addActivity($day, $count)
+	{
 		$day = strtotime($day);
 		$day = date('Y-m-d', $day);
 		$this->days[$day] += $count;
@@ -43,7 +45,8 @@ class YearOverview extends AppController {
 	/**
 	 * The values in $this->days are supposed to be in [0, 100] range
 	 */
-	function normalize() {
+	function normalize()
+	{
 		$max = max($this->days);
 		if ($max) {
 			foreach ($this->days as &$count) {
@@ -52,10 +55,11 @@ class YearOverview extends AppController {
 		}
 	}
 
-	function render() {
+	function render()
+	{
 		// diff between Monday and first of Jan
 		$diff = date('N', $this->beginning) - 1;
-		$beginning = strtotime('-'.$diff.' days', $this->beginning);
+		$beginning = strtotime('-' . $diff . ' days', $this->beginning);
 		$content[] = '<table class="YearOverview">';
 		$content[] = '<tr>
 			<th></th>
@@ -73,16 +77,16 @@ class YearOverview extends AppController {
 			<th colspan="5">Dec</th>
 		</tr>';
 		for ($dow = 1; $dow <= 7; $dow++) {
-			$date = strtotime('+'.($dow-1).' days', $beginning);	// first week Jan
+			$date = strtotime('+' . ($dow - 1) . ' days', $beginning);    // first week Jan
 			$content[] = '<tr>';
-			$content[] = '<td>'.$this->dowName[$dow].'</td>';
+			$content[] = '<td>' . $this->dowName[$dow] . '</td>';
 			for ($w = 1; $w <= 53; $w++) {
 				$iso = date('Y-m-d', $date);
 				if (str_startsWith($iso, $this->year)) {
 					if (isset($this->days[$iso])) {
 						$intensity = $this->days[$iso];
 						$color = new Color($this->maxIntensity);
-						$sColor = $color->alter_color(0, $intensity - 100, 100-$intensity);
+						$sColor = $color->alter_color(0, $intensity - 100, 100 - $intensity);
 						$style = 'background-color: ' . $sColor;
 					} else {
 						$style = '';
@@ -94,7 +98,7 @@ class YearOverview extends AppController {
 					$style = '';
 					$inTD = '';
 				}
-				$content[] = '<td style="'.$style.'">'.$inTD.'</td>';
+				$content[] = '<td style="' . $style . '">' . $inTD . '</td>';
 				$date = strtotime('+7 days', $date);
 			}
 			$content[] = '</tr>';

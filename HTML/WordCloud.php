@@ -2,31 +2,31 @@
 
 /************************************************************\
  *
- *	wordCloud Copyright 2007 Derek Harvey
- *	www.lotsofcode.com
+ *    wordCloud Copyright 2007 Derek Harvey
+ *    www.lotsofcode.com
  *
- *	This file is part of wordCloud.
+ *    This file is part of wordCloud.
  *
- *	wordCloud v2 is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *    wordCloud v2 is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 2 of the License, or
+ *    (at your option) any later version.
  *
- *	wordCloud v2 is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
- *	GNU General Public License for more details.
+ *    wordCloud v2 is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
+ *    GNU General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public License
- *	along with wordCloud; if not, write to the Free Software
- *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA	02111-1307	USA
+ *    You should have received a copy of the GNU General Public License
+ *    along with wordCloud; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA    02111-1307    USA
  *
- \************************************************************/
+ * \************************************************************/
 
 class WordCloud
 {
-	var $version = '2.0';
-	var $wordsArray = array();
+	public $version = '2.0';
+	public $wordsArray = array();
 
 	/*
 	 * PHP 5 Constructor
@@ -262,9 +262,9 @@ class WordCloud
 	 */
 
 	function orderBy($field, $direction = 'ASC')
-{
-	return $this->orderBy = array('field' => $field, 'direction' => $direction);
-}
+	{
+		return $this->orderBy = array('field' => $field, 'direction' => $direction);
+	}
 
 	/*
 	 * Orders the cloud by a specific field
@@ -278,7 +278,7 @@ class WordCloud
 
 	function orderCloud($unsortedArray, $sortField, $sortWay = 'SORT_ASC')
 	{
-	  $sortedArray = array();
+		$sortedArray = array();
 		foreach ($unsortedArray as $uniqid => $row) {
 			foreach ($row as $key => $value) {
 				$sortedArray[$key][$uniqid] = strtolower($value);
@@ -304,9 +304,10 @@ class WordCloud
 			foreach ($this->wordsArray as $cKey => $cVal) {
 				$c_size = $cVal['size'];
 				if ($c_size > $p_size) {
-		$max = $c_size; /* @Thanks Morticus */
-				$p_size = $c_size;
-	  }
+					$max = $c_size;
+					/* @Thanks Morticus */
+					$p_size = $c_size;
+				}
 			}
 		}
 		return $max;
@@ -324,7 +325,7 @@ class WordCloud
 			$this->shuffleCloud();
 		} else {
 			$orderDirection = strtolower($this->orderBy['direction']) == 'desc' ? 'SORT_DESC' : 'SORT_ASC';
-	$this->wordsArray = $this->orderCloud($this->wordsArray, $this->orderBy['field'], $orderDirection);
+			$this->wordsArray = $this->orderCloud($this->wordsArray, $this->orderBy['field'], $orderDirection);
 		}
 		if (!empty($this->limitAmount)) {
 			$this->limitCloud();

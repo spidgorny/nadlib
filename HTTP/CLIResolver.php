@@ -1,11 +1,13 @@
 <?php
 
-class CLIResolver implements ResolverInterface {
+class CLIResolver implements ResolverInterface
+{
 
-	function getController() {
+	function getController()
+	{
 		$request = Request::getInstance();
 		$controller = ifsetor($_SERVER['argv'][1]);
-		echo 'Controller: '.$controller, BR;
+		echo 'Controller: ' . $controller, BR;
 		$request->setArray($request->parseParameters());
 		return $controller;
 	}
