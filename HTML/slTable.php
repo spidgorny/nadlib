@@ -45,7 +45,7 @@ class slTable
 
 	/**
 	 * Appended to <table> tag
-	 * @var string
+	 * @var string[]
 	 */
 	public $more = [
 		'class' => "nospacing",

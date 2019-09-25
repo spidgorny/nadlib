@@ -284,7 +284,7 @@ class Path
 //			debug($assembled, is_link($assembled));
 			ob_start();
 			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-			elog(ob_get_clean());
+			llog(ob_get_clean());
 			if (is_link($assembled)) {
 				$this->sPath = readlink($assembled);
 				$this->explode();
