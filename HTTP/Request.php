@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/URL.php';
 
-use spidgorny\nadlib\HTTP\URL;
 use nadlib\HTTP\Session;
+use spidgorny\nadlib\HTTP\URL;
 
 class Request
 {
@@ -424,8 +424,8 @@ class Request
 	/**
 	 * Will require modifications when realurl is in place
 	 *
-	 * @throws Exception
 	 * @return SimpleController|Controller
+	 * @throws Exception
 	 */
 	public function getController()
 	{
@@ -682,9 +682,11 @@ class Request
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			];
 		}
+		$headers = array_change_key_case($headers, CASE_LOWER);
+
 		$isXHR = false;
-		if (isset($headers['X-Requested-With'])) {
-			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
+		if (isset($headers['x-requested-with'])) {
+			$isXHR = $headers['x-requested-with'] === 'XMLHttpRequest';
 		}
 		return $this->getBool('ajax') || $isXHR;
 	}
@@ -1539,7 +1541,7 @@ class Request
 		}
 		return $action;
 	}
-	
+
 	public function getRawPost()
 	{
 		if (defined('STDIN')) {
@@ -1549,10 +1551,10 @@ class Request
 		}
 		return $post;
 	}
-	
+
 	public function getJsonPost()
 	{
 		return json_decode($this->getRawPost());
 	}
-	
+
 }
