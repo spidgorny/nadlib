@@ -43,16 +43,16 @@ class HTMLFormSelection extends HTMLFormType
 	function render()
 	{
 		$this->form = $this->form ?: new HTMLForm();
-		$content[] = "<select " .
-			$this->form->getName($this->field, $this->multiple ? '[]' : '');
+		$tag = $this->desc['tag'] ?: 'select';
+		$more = $this->more;
+		$more['name'] = $this->form->getName($this->field, $this->multiple ? '[]' : '', true);
 		if ($this->autoSubmit) {
-			$content[] = " onchange='this.form.submit()' ";
+			$more['onchange'] = 'this.form.submit()';
 		}
 		if ($this->multiple) {
-			$content[] = ' multiple="1"';
+			$more['multiple'] = true;
 		}
 
-		$more = $this->more;
 		$more += (isset($this->desc['size'])
 			? array('size' => $this->desc['size']) : array());
 		$more += (isset($this->desc['id'])
@@ -66,16 +66,14 @@ class HTMLFormSelection extends HTMLFormType
 				? $this->desc['more']
 				: HTMLTag::parseAttributes($this->desc['more']);
 		}
-		$content[] = ' ' . HTMLTag::renderAttr($more) . ">\n";
 
 		if (is_null($this->options)) {
 			$this->options = $this->fetchSelectionOptions($this->desc->getArray());
 		}
-		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc->getArray());
-		$content[] = "</select>\n";
+		$htmlOptions = $this->getSelectionOptions($this->options, $this->value, $this->desc->getArray());
 
-		$mc = new MergedContent($content);
-		return $mc->getContent();
+		$content = new HTMLTag($tag, $more, $htmlOptions, true);
+		return $content;
 	}
 
 	/**
