@@ -1362,7 +1362,9 @@ class Request
 
 	public static function isJenkins()
 	{
-		return ifsetor($_SERVER['BUILD_NUMBER'], getenv('BUILD_NUMBER'));
+		$bn = ifsetor($_SERVER['BUILD_NUMBER'], getenv('BUILD_NUMBER'));
+		$bid = ifsetor($_SERVER['BUILD_ID'], getenv('BUILD_ID'));
+		return $bn || $bid;
 	}
 
 }
