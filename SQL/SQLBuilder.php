@@ -146,7 +146,7 @@ class SQLBuilder
 	 * @throws MustBeStringException
 	 * @throws Exception
 	 */
-	function quoteWhere(array $where)
+	public function quoteWhere(array $where)
 	{
 		$set = array();
 		foreach ($where as $key => $val) {
@@ -249,13 +249,13 @@ class SQLBuilder
 	}
 
 	/**
-	 * @param        $table
+	 * @param string $table
 	 * @param array $where
 	 * @param string $sOrder
 	 * @param null $addSelect
 	 * @return SQLSelectQuery
 	 */
-	function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL)
+	public function getSelectQueryP($table, array $where = array(), $sOrder = '', $addSelect = NULL)
 	{
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {    // NO JOIN

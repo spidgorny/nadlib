@@ -7,7 +7,7 @@ class SQLSelect
 
 	protected $parts = array();
 
-	function __construct($parts)
+	public function __construct($parts)
 	{
 		if (is_array($parts)) {
 			$this->parts = $parts;
@@ -18,14 +18,22 @@ class SQLSelect
 		}
 	}
 
-	function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db)
 	{
 		$this->db = $db;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return implode(', ', $this->parts);
+	}
+
+	public function debug()
+	{
+		return [
+			'class' => get_class($this),
+			'parts' => $this->parts,
+		];
 	}
 
 }

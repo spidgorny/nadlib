@@ -10,7 +10,7 @@ class SQLWhere
 
 	protected $parts = array();
 
-	function __construct($where = NULL)
+	public function __construct($where = NULL)
 	{
 		if (is_array($where)) {
 			$this->parts = $where;
@@ -20,13 +20,13 @@ class SQLWhere
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db)
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function add($where, $key = NULL)
+	public function add($where, $key = NULL)
 	{
 		if (is_array($where)) {
 			//debug($where);
@@ -39,7 +39,7 @@ class SQLWhere
 		}
 	}
 
-	function addArray(array $where)
+	public function addArray(array $where)
 	{
 		foreach ($where as $key => $el) {
 			$this->add($el, $key);
@@ -47,40 +47,37 @@ class SQLWhere
 		return $this;
 	}
 
-	function __toString()
+	public function partsAsObjects()
 	{
-		if ($this->parts) {
-//			debug($this->parts);
-			foreach ($this->parts as $field => &$p) {
-				if ($field == 'read') {
-					//debug($field, gettype2($p), $p instanceof SQLWherePart);
+		$copy = $this->parts;    // clone
+		foreach ($copy as $field => &$p) {
+			if ($p instanceof SQLWherePart) {
+				$p->injectDB($this->db);
+				if (!is_numeric($field)) {
+					$p->injectField($field);
 				}
-				if ($p instanceof SQLWherePart) {
-					$p->injectDB($this->db);
-					if (!is_numeric($field)) {
-						$p->injectField($field);
-					}
-				} else {
-					// bad: party = 'party = ''1'''
-					/*					$where = $this->db->quoteWhere(array(
-											$field => $p,
-										));
-										$p = first($where);
-					*/
-					$p = new SQLWhereEqual($field, $p);
-					$p->injectDB($this->db);
-				}
+			} else {
+				$p = new SQLWhereEqual($field, $p);
+				$p->injectDB($this->db);
 			}
-			$sWhere = " WHERE\n\t" . implode("\n\tAND ", $this->parts);    // __toString()
-
-			$sWhere = $this->replaceParams($sWhere);
-			return $sWhere;
-		} else {
-			return '';
 		}
+		return $copy;
 	}
 
-	function replaceParams($sWhere)
+	public function __toString()
+	{
+		if (!$this->parts) {
+			return '';
+		}
+//		debug($this->parts);
+		$partsWithObjects = $this->partsAsObjects();
+		$sWhere = " WHERE\n\t" . implode("\n\tAND ", $partsWithObjects);    // __toString()
+
+		$sWhere = $this->replaceParams($sWhere);
+		return $sWhere;
+	}
+
+	public function replaceParams($sWhere)
 	{
 		// replace $0$, $0$, $0$ with $1, $2, $3
 		$params = $this->getParameters();
@@ -98,17 +95,19 @@ class SQLWhere
 	/**
 	 * @return array
 	 */
-	function getAsArray()
+	public function getAsArray()
 	{
 		return $this->parts;
 	}
 
-	function debug()
+	public function debug()
 	{
-		return $this->parts;
+		return array_map(static function ($where) {
+			return $where->debug();
+		}, $this->partsAsObjects());
 	}
 
-	static function genFromArray(array $where)
+	public static function genFromArray(array $where)
 	{
 		foreach ($where as $key => &$val) {
 			if (!($val instanceof SQLWherePart)) {
@@ -118,7 +117,7 @@ class SQLWhere
 		return new self($where);
 	}
 
-	function getParameters()
+	public function getParameters()
 	{
 		$parameters = array();
 		foreach ($this->parts as $part) {
@@ -131,6 +130,8 @@ class SQLWhere
 					// add even if empty string or 0
 					$parameters[] = $plus;
 				}
+			} elseif ($part instanceof SQLValue) {
+				$parameters[] = $part->getParameter();
 			}
 		}
 //		debug($parameters);

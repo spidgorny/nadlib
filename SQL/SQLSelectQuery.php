@@ -49,7 +49,7 @@ class SQLSelectQuery extends SQLWherePart
 	 */
 	protected $limit;
 
-	function __construct($select = NULL, $from = NULL, $where = NULL, $join = NULL, $group = NULL, $having = NULL, $order = NULL, $limit = NULL)
+	public function __construct($select = NULL, $from = NULL, $where = NULL, $join = NULL, $group = NULL, $having = NULL, $order = NULL, $limit = NULL)
 	{
 		if ($select) $this->setSelect($select);
 		if ($from) $this->setFrom($from);
@@ -62,48 +62,48 @@ class SQLSelectQuery extends SQLWherePart
 		if ($limit) $this->setLimit($limit);
 	}
 
-	function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db)
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function setSelect(SQLSelect $select)
+	public function setSelect(SQLSelect $select)
 	{
 		$this->select = $select;
 	}
 
-	function setFrom(SQLFrom $from)
+	public function setFrom(SQLFrom $from)
 	{
 		$this->from = $from;
 	}
 
-	function setWhere(SQLWhere $where)
+	public function setWhere(SQLWhere $where)
 	{
 		$this->where = $where;
 	}
 
-	function setJoin(SQLJoin $join)
+	public function setJoin(SQLJoin $join)
 	{
 		$this->join = $join;
 	}
 
-	function setGroup(SQLGroup $group)
+	public function setGroup(SQLGroup $group)
 	{
 		$this->group = $group;
 	}
 
-	function setHaving(SQLHaving $having)
+	public function setHaving(SQLHaving $having)
 	{
 		$this->having = $having;
 	}
 
-	function setOrder(SQLOrder $order)
+	public function setOrder(SQLOrder $order)
 	{
 		$this->order = $order;
 	}
 
-	function setLimit(SQLLimit $limit)
+	public function setLimit(SQLLimit $limit)
 	{
 		$this->limit = $limit;
 	}
@@ -121,7 +121,10 @@ class SQLSelectQuery extends SQLWherePart
 		}
 	}
 
-	function getQuery()
+	/**
+	 * @return string
+	 */
+	public function getQuery()
 	{
 		$from = ($this->from);
 		$query = trim("SELECT
@@ -139,7 +142,7 @@ FROM {$from}
 		return $query;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		try {
 			return $this->getQuery();
@@ -150,28 +153,38 @@ FROM {$from}
 		}
 	}
 
-	static function sqlSH($sql)
+	public function debug()
+	{
+		return [
+			'class' => get_class($this),
+			'select' => $this->select->debug(),
+			'from' => $this->from->debug(),
+			'where' => $this->where->debug(),
+		];
+	}
+
+	public static function sqlSH($sql)
 	{
 		$res = '';
 		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL');
 		$breakAfter = array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN', 'NATURAL');
-		$sql = str_replace("(", " ( ", $sql);
-		$sql = str_replace(")", " ) ", $sql);
+		$sql = str_replace('(', ' ( ', $sql);
+		$sql = str_replace(')', ' ) ', $sql);
 		$level = 0;
 		$open = FALSE;
 		$tok = strtok($sql, " \n\t");
 		while ($tok !== FALSE) {
 			$tok = trim($tok);
-			if ($tok == "(") {
+			if ($tok === '(') {
 				$level++;
-				$res .= " (" . "<br>" . str_repeat("&nbsp;", $level * 4);
-			} else if ($tok == ")") {
+				$res .= ' (' . '<br>' . str_repeat('&nbsp;', $level * 4);
+			} elseif ($tok === ')') {
 				if ($level > 0) {
 					$level--;
 				}
-				$res .= "<br>" . str_repeat("&nbsp;", $level * 4) . ") ";
+				$res .= '<br>' . str_repeat('&nbsp;', $level * 4) . ') ';
 			} elseif ($tok && ($tok{0} == "'" || $tok{strlen($tok) - 1} == "'" || $tok == "'")) {
-				$res .= " ";
+				$res .= ' ';
 				if ($tok{0} == "'" && !$open) {
 					$res .= '<font color="green">';
 					$open = TRUE;
@@ -187,22 +200,22 @@ FROM {$from}
 				$br = strlen($res) ? '<br>' : '';
 				$strange = $tok == 'SELECT' ? '' : ' ';
 				$res .= (!in_array($tok, $breakAfter)
-					? ' ' . $br . str_repeat("&nbsp;", $level * 4)
+					? ' ' . $br . str_repeat('&nbsp;', $level * 4)
 					: $strange);
 				$res .= '<font color="blue">' . strtoupper($tok) . '</font>';
 			} else {
-				$res .= " " . $tok;
+				$res .= ' ' . $tok;
 			}
 			//print('toc: '.$tok.' ');
 			$tok = strtok(" \n\t");
 		}
 		$res = trim($res);
-		$res = str_replace("(<br><br>)", '()', $res);
-		$res = str_replace("(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)", '()', $res);
+		$res = str_replace('(<br><br>)', '()', $res);
+		$res = str_replace('(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)', '()', $res);
 		return new htmlString($res);
 	}
 
-	function getParameters()
+	public function getParameters()
 	{
 		if ($this->where) {
 			$params = $this->where->getParameters();
@@ -220,7 +233,7 @@ FROM {$from}
 	/**
 	 * A way to perform a query with parameter without making a SQL
 	 */
-	function perform()
+	public function perform()
 	{
 		$sQuery = $this->getQuery();
 		$aParams = $this->getParameters();
@@ -228,12 +241,12 @@ FROM {$from}
 		return $this->db->perform($sQuery, $aParams);
 	}
 
-	function fetchAssoc()
+	public function fetchAssoc()
 	{
 		return $this->db->fetchAssoc($this->perform());
 	}
 
-	function fetchAll()
+	public function fetchAll()
 	{
 		return $this->db->fetchAll($this->perform());
 	}

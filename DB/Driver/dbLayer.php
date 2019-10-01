@@ -672,7 +672,7 @@ order by a.attnum';
 		}
 	}
 
-	function quoteKey($key)
+	public function quoteKey($key)
 	{
 		if (ctype_alpha($key)) {
 			if (function_exists('pg_escape_identifier')) {

@@ -19,7 +19,7 @@ class SQLWherePart
 	 */
 	protected $field;
 
-	function __construct($sql = '')
+	public function __construct($sql = '')
 	{
 		$this->sql = $sql;
 		$this->db = Config::getInstance()->getDB();
@@ -28,55 +28,58 @@ class SQLWherePart
 	/**
 	 * Not used directly
 	 * @return string
+	 * @throws MustBeStringException
 	 * @see SQLWhereEqual
 	 */
-	function __toString()
+	public function __toString()
 	{
 		//debug(__METHOD__, gettype2($this->db));
 		if ($this->field && !is_numeric($this->field)) {
-			if ($this->field == 'read') {
-				//debug($this->field, $this->sql);
-			}
 			$part1 = $this->db->quoteWhere(
 				array($this->field => $this->sql)
 			);
-			return implode('', $part1);
+			return '/* SWP */ ' . implode(' /* && */ ', $part1);
 		} else {
 			return $this->sql . '';
 		}
 	}
 
-	function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db)
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function injectField($field)
+	public function injectField($field)
 	{
 		$this->field = $field;
 	}
 
-	function debug()
+	public function debug()
 	{
-		return $this->__toString();
+		return [
+			'class' => get_class($this),
+			'db' => get_class($this->db),
+			'field' => $this->field,
+			$this->field => $this->sql,
+		];
 	}
 
 	/**
 	 * Sub-classes should return their parameters
 	 * @return null
 	 */
-	function getParameter()
+	public function getParameter()
 	{
 		return NULL;
 	}
 
-	function perform()
+	public function perform()
 	{
-		return $this->db->perform($this->__toString());
+		return $this->db->perform((string)$this);
 	}
 
-	function getField()
+	public function getField()
 	{
 		return $this->field;
 	}
