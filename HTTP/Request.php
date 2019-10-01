@@ -1360,4 +1360,9 @@ class Request
 		return $hidden;
 	}
 
+	public static function isJenkins()
+	{
+		return ifsetor($_SERVER['BUILD_NUMBER'], getenv('BUILD_NUMBER'));
+	}
+
 }
