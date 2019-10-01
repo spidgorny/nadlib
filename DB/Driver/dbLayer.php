@@ -142,7 +142,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 
 		if ($query instanceof SQLSelectQuery) {
 			$params = $query->getParameters();
-			$query = $query->__toString();
+			$query = (string)$query;
 //			debug($query, $params);
 		}
 

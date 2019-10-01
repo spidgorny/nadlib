@@ -13,7 +13,7 @@ class SQLValue
 
 	public function __toString()
 	{
-		return '?';
+		return '$0$';
 	}
 
 	public function getParameter()

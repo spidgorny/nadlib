@@ -10,7 +10,7 @@
 class MailerTest extends PHPUnit_Framework_TestCase
 {
 
-	function test_getShortFilename()
+	public function test_getShortFilename()
 	{
 		$sut = new Mailer('spidgorny@gmail.com', 'test', 'test');
 		$filename = './request/97777/RP Nintendo EA3P40 The Legend of Zelda Tri Force Heroes Checklists.zip';
@@ -18,7 +18,7 @@ class MailerTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('RP_Nintendo_EA3P40_The_Legend_of_Zelda_Tri_Force_Heroes_Che.zip', $short);
 	}
 
-	function test_getShortFilename2()
+	public function test_getShortFilename2()
 	{
 		$sut = new Mailer('spidgorny@gmail.com', 'test', 'test');
 		$filename = './request/97777/RP Nintendo EA3P40 The Legend of Соме Рашшан Шит.zip';
@@ -26,7 +26,7 @@ class MailerTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('RP_Nintendo_EA3P40_The_Legend_of_.zip', $short);
 	}
 
-	function test_getShortFilename3()
+	public function test_getShortFilename3()
 	{
 		// from RequestInfoEPES?id=102865
 		$fixture = [

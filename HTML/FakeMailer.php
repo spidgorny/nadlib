@@ -9,6 +9,12 @@ class FakeMailer implements MailerInterface
 
 	public $body;
 
+	/**
+	 * Lot function or a class
+	 * @var callable
+	 */
+	protected $log;
+
 	public function __construct($emails = null, $subject = null, $body = null)
 	{
 		$this->emails = $emails;
@@ -21,7 +27,9 @@ class FakeMailer implements MailerInterface
 		$emails = is_array($this->emails)
 			? implode('; ', $this->emails)
 			: $this->emails;
-//		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
+		if ($this->log) {
+			call_user_func($this->log, 'Sending mail "' . $this->subject . '" to [' . $emails . ']');
+		}
 		return true;
 	}
 
@@ -40,8 +48,13 @@ class FakeMailer implements MailerInterface
 
 	public function getSwiftMessage($cc, $bcc, array $attachments, $additionalSenders)
 	{
-		$orsMailer = new ORSMailer($this->emails, $this->subject, $this->body);
+		$orsMailer = new Mailer($this->emails, $this->subject, $this->body);
 		return $orsMailer->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
+	}
+
+	public function setLog($logFunction)
+	{
+		$this->log = $logFunction;
 	}
 
 }

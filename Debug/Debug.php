@@ -195,7 +195,9 @@ class Debug
 		$i = 0;
 		foreach ($db as $i => $row) {
 			$trace[] = ' * ' . self::getMethod($row, ifsetor($db[$i + 1], array()));
-			if (++$i > 7) break;
+			if (++$i > 7) {
+				break;
+			}
 		}
 		echo '--- ' . $this->name . ' ---' . BR .
 			implode(BR, $trace) . "\n";
@@ -209,7 +211,7 @@ class Debug
 		$dump = ob_get_clean();
 		$dump = str_replace("=>\n", ' =>', $dump);
 		echo $dump;
-		echo '--- ' . $this->name . ' ---', BR;
+		echo '--- ' . $this->name . ' ['.strip_tags(gettype2($args)).'] ---', BR;
 		$this->name = NULL;
 	}
 
