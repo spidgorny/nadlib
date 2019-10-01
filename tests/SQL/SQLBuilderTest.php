@@ -19,10 +19,10 @@ class SQLBuilderTest extends PHPUnit_Framework_TestCase
 		$must = "SELECT \"table\".*
 FROM \"table\"
 WHERE
-a = 'b'
+/* SWE */ \"a\" = 'b'
 ORDER BY c";
 		$must = str_replace("\r\n", "\n", $must);
-		debug($must, $query);
+		//debug($must, $query);
 		$this->assertEquals($must, $query);
 	}
 
@@ -35,23 +35,24 @@ ORDER BY c";
 		$must = "SELECT \"table\".*
 FROM \"table\"
 WHERE
-a ILIKE '%' || $1 || '%'
+\"a\" ILIKE '%' || $1 || '%'
 ORDER BY c";
 		$must = $this->implodeSQL($must);
 		$sQuery = $query->getQuery();
 		$sQuery = $this->implodeSQL($sQuery);
-		debug($must, $sQuery, $query->getParameters());
+		//debug($must, $sQuery, $query->getParameters());
 		$this->assertEquals($must, $sQuery);
 	}
 
-	function implodeSQL($sql)
+	public function implodeSQL($sql)
 	{
 		$sql = strtr($sql, [
-			" " => '',
-			"\t" => '',
-			"\r" => '',
-			"\n" => '',
+			' ' => ' ',
+			"\t" => ' ',
+			"\r" => ' ',
+			"\n" => ' ',
 		]);
+		$sql = preg_replace('/\\s+/', ' ', $sql);
 		return $sql;
 	}
 

@@ -17,6 +17,13 @@ use PHPUnit_Framework_TestCase;
 class ACLCheckerTest extends PHPUnit_Framework_TestCase
 {
 
+	public function setUp()
+	{
+		if (!class_exists('ACLChecker')) {
+			$this->markTestSkipped();
+		}
+	}
+
 	function test_compareACL()
 	{
 		$controller = new AppController();

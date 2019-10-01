@@ -35,7 +35,7 @@ class OODBaseTest extends PHPUnit_Framework_TestCase
 			'123' => true,
 		];
 		foreach ($set as $source => $expected) {
-			echo $source, ' => ', $expected, BR;
+//			echo $source, ' => ', $expected, BR;
 			$this->assertEquals($expected, $this->sut->getBool($source));
 		}
 	}

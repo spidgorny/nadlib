@@ -528,6 +528,9 @@ class View extends stdClass
 	 */
 	public function extractScripts()
 	{
+		if (!class_exists('AdvancedHtmlDom')) {
+			return null;
+		}
 		$html = $this->render();
 		$dom = new AdvancedHtmlDom($html);
 		$scripts = $dom->find('script');

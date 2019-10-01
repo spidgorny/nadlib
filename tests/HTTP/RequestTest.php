@@ -98,7 +98,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
 		$_SERVER['DOCUMENT_ROOT'] = 'Z:/web/dev-jobz/htdocs/';
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
 		$location = Request::getLocation();
-		debug($location . '');
+		//debug($location . '');
+		$this->assertEquals('http://'.$_SERVER['HTTP_HOST'].'/', $location.'');
 	}
 
 }

@@ -11,6 +11,9 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
 	function test_lazyMemeberIterator()
 	{
+		if (!class_exists('RequestCollection')) {
+			$this->markTestSkipped();
+		}
 		$rc = new RequestCollection();
 		$rc->orderBy = 'ORDER BY ctime DESC LIMIT 10';
 		$iterator = $rc->getLazyMemberIterator('ORSRequest');

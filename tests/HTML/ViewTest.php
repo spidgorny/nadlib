@@ -20,6 +20,9 @@ class ViewTest extends PHPUnit_Framework_TestCase
 
 	function test_extractScripts()
 	{
+		if (!class_exists('AdvancedHtmlDom')) {
+			$this->markTestSkipped();
+		}
 		$html = '<html><h1>bla</h1>
 <script>
 alert("xss");

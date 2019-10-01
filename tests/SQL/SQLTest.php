@@ -18,7 +18,7 @@ class SQLTest extends PHPUnit_Framework_TestCase
 		$now = new SQLNow();
 		$string = $now . '';
 
-		$this->assertEquals('CURRENT_TIMESTAMP', $string);
+		$this->assertEquals('now()', $string);
 	}
 
 	function test_SQLNow_PG_update_no_quote()
@@ -29,12 +29,12 @@ class SQLTest extends PHPUnit_Framework_TestCase
 		);
 		$query = $this->db->getUpdateQuery('asd', $update, array('id' => 1));
 
-		$expected = "UPDATE asd
-SET mtime = CURRENT_TIMESTAMP
+		$expected = "UPDATE \"asd\"
+SET \"mtime\" = now()
 WHERE
-id = '1' /* numeric */";
+\"id\" = '1' /* numeric */";
 		$expected = str_replace("\r", '', $expected);
-		$this->assertEquals($expected, $query);
+		$this->assertEquals($this->normalize($expected), $this->normalize($query));
 	}
 
 	function test_SQLNow_PG_insert_no_quote()
@@ -45,9 +45,18 @@ id = '1' /* numeric */";
 		);
 		$query = $this->db->getInsertQuery('asd', $update);
 
-		$expected = "INSERT INTO asd (mtime) VALUES (CURRENT_TIMESTAMP)";
+		$expected = "INSERT INTO \"asd\" (\"mtime\") VALUES (now())";
 		$expected = str_replace("\r", '', $expected);
 		$this->assertEquals($expected, $query);
+	}
+
+	public function normalize($string)
+	{
+		// https://stackoverflow.com/questions/643113/regex-to-strip-comments-and-multi-line-comments-and-empty-lines
+		$string = preg_replace('!/\*.*?\*/!s', '', $string);
+		$string = preg_replace('/\s*$^\s*/m', "\n", $string);
+		$string = preg_replace('/[ \t\r\n]+/', ' ', $string);
+		return trim($string);
 	}
 
 }

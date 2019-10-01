@@ -48,7 +48,7 @@ class slTable
 	 * @var string[]
 	 */
 	public $more = [
-		'class' => "nospacing",
+		'class' => 'nospacing',
 	];
 
 	/**
@@ -120,7 +120,7 @@ class slTable
 	 */
 	protected $db;
 
-	function __construct($id = null, $more = "", array $thes = [])
+	function __construct($id = null, $more = '', array $thes = [])
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;
@@ -140,7 +140,7 @@ class slTable
 			? Config::getInstance()->getDB()
 			: null;
 		if (!ini_get('open_basedir')) {
-			error_log(__METHOD__ . ' ' . getcwd());
+//			error_log(__METHOD__ . ' ' . getcwd());
 			if (!file_exists('./img/arrow_down.gif')) {
 				$this->arrowDesc = '&#x25bc;';
 				$this->arrowAsc = '&#x25b2;';
@@ -332,7 +332,7 @@ class slTable
 				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
 				if (!$this->more) {
 					$this->more = [
-						'class' => "nospacing",
+						'class' => 'nospacing',
 					];
 				}
 			}
@@ -665,7 +665,7 @@ class slTable
 		/** @var dbLayerBase|dbLayerBL $db */
 		$db = Config::getInstance()->getDB();
 		$cols = $db->getTableColumns($table);
-		$data = $db->getTableDataEx($table, "deleted = 0");
+		$data = $db->getTableDataEx($table, 'deleted = 0');
 		for ($i = 0; $i < sizeof($data); $i++) {
 			$this->addRow();
 			$iCol = 0;
@@ -884,7 +884,7 @@ class slTable
 				$value = str_pad($value, $widthMax[$field], ' ', STR_PAD_RIGHT);
 				$padRow[] = $value;
 			}
-			$content .= implode(" ", $padRow) . "\n";
+			$content .= implode(' ', $padRow) . "\n";
 		}
 		return $content;
 	}
@@ -904,7 +904,7 @@ class slTable
 			}
 			//debug($col, $numeric);
 			if ($numeric) {
-				$this->thes[$key]['more']['align'] = "right";
+				$this->thes[$key]['more']['align'] = 'right';
 			}
 		}
 	}

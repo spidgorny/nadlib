@@ -17,7 +17,7 @@ class ClosureCache
 		$this->function = $function;
 	}
 
-	function get()
+	public function get()
 	{
 		if (!$this->result) {
 			$this->result = call_user_func($this->function);

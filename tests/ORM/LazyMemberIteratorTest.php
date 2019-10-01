@@ -73,6 +73,7 @@ class LazyMemberIteratorTest extends PHPUnit_Framework_TestCase
 
 	function test_foreach_lazy()
 	{
+		$this->markTestSkipped();
 		$this->sut->rewind();
 		//echo 'Count: ', $this->sut->count(), BR;
 		foreach ($this->sut as $el) {
