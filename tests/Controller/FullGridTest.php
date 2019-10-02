@@ -9,13 +9,16 @@ class FullGridTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp()
 	{
-		$config = Config::getInstance();
+		$config = \Config::getInstance();
 		$config->setDB(new \DBPlacebo());
 	}
 
 	public function testGetColumnsForm()
 	{
 		$fg = new \FullGrid4Test();
+		$fg->postInit();
 		$fg->getColumnsForm();
+		$this->assertTrue(true);	// not crashed
 	}
+
 }
