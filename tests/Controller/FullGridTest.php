@@ -15,7 +15,7 @@ class FullGridTest extends \PHPUnit\Framework\TestCase
 
 	public function testGetColumnsForm()
 	{
-		$fg = new FullGrid4Test();
+		$fg = new \FullGrid4Test();
 		$fg->getColumnsForm();
 	}
 }
