@@ -32,7 +32,7 @@ class SQLOr extends SQLWherePart
 	public function __toString()
 	{
 		$ors = [];
-		llog(typ($this->db)->cli());
+//		llog(typ($this->db)->cli());
 		if (!$this->db) {
 			ob_start();
 			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
