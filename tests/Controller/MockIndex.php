@@ -1,6 +1,7 @@
 <?php
 
-class MockIndex {
+class MockIndexDCI
+{
 
 	function error($message)
 	{
