@@ -11,7 +11,8 @@ namespace nadlib\Controller;
 class ControllerTest extends \PHPUnit\Framework\TestCase
 {
 
-	protected $globalPrefix = '/some/folder';
+//	protected $globalPrefix = '/some/folder';
+	protected $globalPrefix = '';
 
 	public function test_getLocation()
 	{
@@ -27,7 +28,8 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals('/', $docRoot);
 
 		$location = $request->getLocation();
-		$this->assertEquals('http://mock.request.tld/some/folder/', $location);
+		$host = gethostname();
+		$this->assertEquals('http://'.$host.$this->globalPrefix.'/', $location.'');
 	}
 
 	public function test_makeLinkSimple()
