@@ -345,7 +345,7 @@ abstract class Controller extends SimpleController
 	 */
 	public function getCaption($caption, $hTag = 'h3')
 	{
-		$al = AutoLoad::getInstance();
+//		$al = AutoLoad::getInstance();
 		$slug =  URL::friendlyURL($caption);
 		$content = '
 			<' . $hTag . ' id="' . $slug . '">' .
