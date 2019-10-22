@@ -144,15 +144,15 @@ class DBLayer extends DBLayerBase implements DBInterface
 				return $el;
 			}, $this->lastBacktrace);
 			$backtrace = array_map(function (array $el) {
-				return ifsetor($el['class']).ifsetor($el['type']).ifsetor($el['function']).
-					' in '.basename(ifsetor($el['file'])).':'.ifsetor($el['line']);
+				return ifsetor($el['class']) . ifsetor($el['type']) . ifsetor($el['function']) .
+					' in ' . basename(ifsetor($el['file'])) . ':' . ifsetor($el['line']);
 			}, $backtrace);
 //			debug($this->lastQuery.'', pg_errormessage($this->connection));
 //			die(pg_errormessage($this->connection));
 			throw new DatabaseException(
 				'Last query has failed.' . PHP_EOL .
 				$this->lastQuery . PHP_EOL .
-				pg_errormessage($this->connection).PHP_EOL.
+				pg_errormessage($this->connection) . PHP_EOL .
 				implode(PHP_EOL, $backtrace)
 			);
 		}
@@ -195,6 +195,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 //				}
 			}
 			$this->queryTime = $prof->elapsed();
+			error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
 			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
@@ -216,8 +217,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 			//debug($query);
 			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(
-				pg_errormessage($this->connection).
-				'Query: '.$query
+				pg_errormessage($this->connection) .
+				'Query: ' . $query
 			);
 			$e->setQuery($query);
 			throw $e;
@@ -228,7 +229,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
 		}
 
-		$this->logQuery($query);	// uses $this->queryTime
+		$this->logQuery($query);    // uses $this->queryTime
 
 		$this->lastQuery = $query;
 		$this->queryCount++;
@@ -599,6 +600,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
+//		error_log(__METHOD__ . ' [' . $res . ']');
 		$row = pg_fetch_assoc($res);
 		/*      // problem in OODBase
 		 * 		if (!$row) {
@@ -705,11 +707,11 @@ order by a.attnum';
 
 	/**
 	 * Uses find_in_set function which is not built-in
-	 * @see SQLBuilder::array_intersect()
-	 *
 	 * @param array $options
 	 * @param string $field
 	 * @return string
+	 * @see SQLBuilder::array_intersect()
+	 *
 	 */
 	public function getArrayIntersect(array $options, $field = 'list_next')
 	{

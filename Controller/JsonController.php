@@ -71,7 +71,9 @@ trait JsonController
     public function json($key)
     {
         header('Content-Type: application/json');
-        return json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
+		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
+		error_log($response);
+		return $response;
     }
 
 }
