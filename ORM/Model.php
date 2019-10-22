@@ -32,6 +32,10 @@ class Model
 
 	public $id;
 
+	public $lastSelectQuery;
+	public $lastInsertQuery;
+	public $lastUpdateQuery;
+
 	/**
 	 * Not caching.
 	 * @param array $data
@@ -107,6 +111,7 @@ class Model
 	public function getData($where = [])
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		$this->lastSelectQuery = $this->db->getLastQuery();
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
@@ -121,6 +126,7 @@ class Model
 	public function query($where = [])
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		$this->lastSelectQuery = $this->db->getLastQuery();
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
@@ -163,6 +169,7 @@ class Model
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
 		$res = $this->db->runInsertQuery($this->table, $data, $where);
+		$this->lastInsertQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
 	}
@@ -173,20 +180,22 @@ class Model
 	 * @param array $data
 	 * @return resource
 	 */
-	function update(array $data)
+	public function update(array $data)
 	{
 		$res = $this->db->runUpdateQuery($this->table, $data, [
 			$this->idField => $this->id,
 		]);
+		$this->lastUpdateQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
 	}
 
-	function getByID($id)
+	public function getByID($id)
 	{
 		$found = $this->db->fetchOneSelectQuery($this->table, [
 			$this->idField => $id,
 		]);
+		$this->lastSelectQuery = $this->db->getLastQuery();
 		if ($found) {
 			$this->setData($found);
 		} else {
@@ -195,7 +204,7 @@ class Model
 		return $this;
 	}
 
-	function getFormFromModel()
+	public function getFormFromModel()
 	{
 		$desc = [];
 		$fields = $this->getFields();
@@ -214,7 +223,7 @@ class Model
 	/**
 	 * @return DocCommentParser[]
 	 */
-	function getFields()
+	public function getFields()
 	{
 		$fields = [];
 		foreach (get_object_vars($this) as $fieldName => $_) {
@@ -258,6 +267,11 @@ class Model
 		unset($data['titleColumn']);
 		unset($data['db']);
 		return $data;
+	}
+
+	public function getJSON()
+	{
+		return (object)$this->asArray();
 	}
 
 	public function getNameLink()
