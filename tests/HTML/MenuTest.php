@@ -52,8 +52,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 	public function test_less_recursive()
 	{
-//		$localhost = gethostname() ?: 'localhost';
-		$localhost = 'localhost';
+		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([
 			'Page1' => 'Page 1',
 		]);
@@ -90,8 +89,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 	public function test_getClassPath()
 	{
-//		$localhost = gethostname() ?: 'localhost';
-		$localhost = 'localhost';
+		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([]);
 		$m->basePath->setDocumentRoot('');
 		$m->useControllerSlug = false;

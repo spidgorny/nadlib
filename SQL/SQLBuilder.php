@@ -296,7 +296,7 @@ class SQLBuilder
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $where
 	 * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
 	 * @return string
@@ -656,7 +656,9 @@ class SQLBuilder
 	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		llog($query.'', $query->getParameters(), get_class($this->db), $this->db->getConnection());
 		$res = $this->db->perform($query, $query->getParameters());
+		llog('$res', $res);
 		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}
