@@ -196,7 +196,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 		try {
 			if ($params) {
-				pg_prepare($this->connection, '', $query);
+				$ok = pg_prepare($this->connection, '', $query);
+				if (!is_resource($ok)) {
+					throw new DatabaseException($query.' can not be prepared');
+				}
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
