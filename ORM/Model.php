@@ -183,8 +183,11 @@ class Model
 	public function update(array $data)
 	{
 		$res = $this->db->runUpdateQuery($this->table, $data, [
-			$this->idField => $this->id,
+			$this->idField => $this->{$this->idField},
 		]);
+		if ($this->db->affectedRows($res) !== 1) {
+			throw new DatabaseException($this->db->getLastQuery() . ' updated ' . $this->db->affectedRows($res) . ' rows');
+		}
 		$this->lastUpdateQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
@@ -266,6 +269,9 @@ class Model
 		unset($data['idField']);
 		unset($data['titleColumn']);
 		unset($data['db']);
+		unset($data['lastSelectQuery']);
+		unset($data['lastInsertQuery']);
+		unset($data['lastUpdateQuery']);
 		return $data;
 	}
 
