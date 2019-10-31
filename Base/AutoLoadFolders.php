@@ -6,7 +6,7 @@ class AutoLoadFolders
 	/**
 	 * @var array
 	 */
-	var $folders = array();
+	var $folders = [];
 
 	/**
 	 * If set $this->log will collect output here
@@ -43,15 +43,15 @@ class AutoLoadFolders
 		}
 		$this->folders = unique_multidim_array($this->folders);
 		if (0) {
-			pre_print_r(array(
+			pre_print_r([
 				$this->folders, $this->al->stat
-			));
+			]);
 		}
 	}
 
 	function getFoldersFromSession()
 	{
-		$folders = array();
+		$folders = [];
 		if (!Request::isCLI()) {
 			if ($this->al->useCookies) {
 				//debug('session_start', $this->nadlibFromDocRoot);
@@ -75,7 +75,7 @@ class AutoLoadFolders
 				if (isset($_SESSION[__CLASS__])) {
 					$folders = isset($_SESSION[__CLASS__]['folders'])
 						? $_SESSION[__CLASS__]['folders']
-						: array();
+						: [];
 				}
 			}
 		}
@@ -136,14 +136,14 @@ class AutoLoadFolders
 	{
 		if ($this->debug) {
 			debug_pre_print_backtrace();
-			pre_print_r(array(
+			pre_print_r([
 				'SCRIPT_FILENAME' => dirname($_SERVER['SCRIPT_FILENAME']),
 				'getcwd' => getcwd(),
 				'exists(cwd)' => file_exists(getcwd()),
 				'appRoot' => $this->al->getAppRoot() . '',
 				'exists(appRoot)' => file_exists($this->al->getAppRoot()),
 				'exists(appRoot.class)' => file_exists($this->al->getAppRoot() . 'class'),
-			));
+			]);
 		}
 		if (!class_exists('ConfigBase')) {
 			require_once __DIR__ . '/ConfigBase.php';
@@ -231,8 +231,8 @@ class AutoLoadFolders
 
 	/**
 	 * Called to autoload a class from a namespace
-	 * @param $className
-	 * @param $namespace
+	 * @param string $className
+	 * @param string $namespace
 	 * @return string
 	 */
 	function findInFolders($className, $namespace)

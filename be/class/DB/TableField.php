@@ -16,7 +16,7 @@ class TableField {
 
 	var $comment;
 
-	var $extra = array();
+	var $extra = [];
 
 	var $references;
 

@@ -4,21 +4,29 @@
  * General HTML Tag representation.
  */
 
-class HTMLTag implements ArrayAccess {
+class HTMLTag implements ArrayAccess, ToStringable
+{
 	public $tag;
-	public $attr = array();
+	public $attr = [];
 	public $content;
 	public $isHTML = FALSE;
 	public $closingTag = true;
 
-	function __construct($tag, array $attr = array(), $content = '', $isHTML = FALSE) {
+	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
+	{
 		$this->tag = $tag;
 		$this->attr = $attr;
 		$this->content = $content;
 		$this->isHTML = $isHTML;
 	}
 
-	function __toString() {
+	public static function div($content, array $param = [])
+	{
+		return new HTMLTag('div', $param, $content);
+	}
+
+	public function __toString()
+	{
 		try {
 			return $this->render();
 		} catch (Exception $e) {
@@ -27,7 +35,8 @@ class HTMLTag implements ArrayAccess {
 		}
 	}
 
-	function render() {
+	public function render()
+	{
 		if (is_array($this->content) || $this->content instanceof MergedContent) {
 			$content = MergedContent::mergeStringArrayRecursive($this->content);
 		} else {
@@ -39,32 +48,34 @@ class HTMLTag implements ArrayAccess {
 		}
 		$attribs = $this->renderAttr($this->attr);
 		$xmlClose = $this->closingTag ? '' : '/';
-		$tag = '<'.trim($this->tag.' '. $attribs).$xmlClose.'>';
+		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
 		$tag .= $content;
 		if ($this->closingTag) {
-			$tag .= '</' . $this->tag . '>'."\n";
+			$tag .= '</' . $this->tag . '>' . "\n";
 		}
 		return $tag;
 	}
 
-	function getContent() {
+	public function getContent()
+	{
 		return $this->content;
 	}
 
-	static function renderAttr(array $attr) {
-		$set = array();
+	public static function renderAttr(array $attr)
+	{
+		$set = [];
 		foreach ($attr as $key => $val) {
 			if (is_array($val) && $key == 'style') {
 				$style = ArrayPlus::create($val);
 				$style = $style->getHeaders('; ');
-				$val = $style; 				  	 	// for style="a: b; c: d"
+				$val = $style;                        // for style="a: b; c: d"
 			} elseif (is_array($val)) {
 				if (ArrayPlus::isRecursive($val)) {
 					debug($val);
 				}
-				$val = implode(' ', $val);		// for class="a b c"
+				$val = implode(' ', $val);        // for class="a b c"
 			}
-			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
+			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
 		}
 		return implode(' ', $set);
 	}
@@ -75,7 +86,8 @@ class HTMLTag implements ArrayAccess {
 	 * @param null $value
 	 * @return mixed
 	 */
-	function attr($name, $value = NULL) {
+	public function attr($name, $value = null)
+	{
 		if ($value) {
 			$this->attr[$name] = $value;
 			return $this;
@@ -84,26 +96,30 @@ class HTMLTag implements ArrayAccess {
 		}
 	}
 
-	function setAttr($name, $value) {
+	public function setAttr($name, $value)
+	{
 		$this->attr[$name] = $value;
 		return $this;
 	}
 
-	function hasAttr($name) {
+	public function hasAttr($name)
+	{
 		return isset($this->attr[$name]);
 	}
 
-	function getAttr($name) {
+	public function getAttr($name)
+	{
 		return ifsetor($this->attr[$name]);
 	}
 
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str
-	 * @param bool   $recursive
+	 * @param bool $recursive
 	 * @return HTMLTag|null
 	 */
-	static function parse($str, $recursive = false) {
+	public static function parse($str, $recursive = false)
+	{
 		$str = trim($str);
 		if (strlen($str) && $str{0} != '<') {
 			return NULL;
@@ -140,8 +156,9 @@ class HTMLTag implements ArrayAccess {
 		return $obj;
 	}
 
-	static function parseDOM($html) {
-		$content = array();
+	public static function parseDOM($html)
+	{
+		$content = [];
 		if (is_string($html)) {
 			$doc = new DOMDocument();
 			$doc->loadHTML($html);
@@ -156,9 +173,9 @@ class HTMLTag implements ArrayAccess {
 		foreach ($doc->childNodes as $child) {
 			//echo gettype2($child), BR;
 			if ($child instanceof DOMElement) {
-				$attributes = array();
+				$attributes = [];
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
-					/** @var  DOMNode    $attribute_node */
+					/** @var  DOMNode $attribute_node */
 					echo $attribute_name, ': ', typ($attribute_node), BR;
 					$attributes[$attribute_name] = $attribute_node->nodeValue;
 				}
@@ -193,11 +210,12 @@ class HTMLTag implements ArrayAccess {
 	 * @param string $text
 	 * @return array
 	 */
-	static function parseAttributes($text) {
+	public static function parseAttributes($text)
+	{
 		if (is_array($text)) {
 			return $text;
 		}
-		$attributes = array();
+		$attributes = [];
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)
 (?<value_double>"[^"]+")
@@ -217,23 +235,28 @@ class HTMLTag implements ArrayAccess {
 		return $attributes;
 	}
 
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		return isset($this->attr[$offset]);
 	}
 
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return $this->getAttr($offset);
 	}
 
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value)
+	{
 		$this->setAttr($offset, $value);
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($this->attr[$offset]);
 	}
 
-	static function __set_state(array $properties) {
+	public static function __set_state(array $properties)
+	{
 		$a = new static($properties['tag']);
 		foreach ($properties as $key => $val) {
 			$a->$key = $val;
@@ -241,21 +264,29 @@ class HTMLTag implements ArrayAccess {
 		return $a;
 	}
 
-	function getHash($length = null) {
+	public function getHash($length = null)
+	{
 		$hash = spl_object_hash($this);
 		if ($length) {
 			$hash = sha1($hash);
 			$hash = substr($hash, 0, $length);
 		}
-		return '#'.$hash;
+		return '#' . $hash;
 	}
 
-	static function a($href, $name, array $more = [], $isHTML = false) {
+	public static function a($href, $name, array $more = [], $isHTML = false)
+	{
 		return new self('a', ['href' => $href] + $more, $name, $isHTML);
 	}
 
-	static function img($src, array $params = []) {
+	public static function img($src, array $params = [])
+	{
 		return new self('img', ['src' => $src] + $params);
+	}
+
+	public function cli()
+	{
+		return trim(strip_tags($this->render()));
 	}
 
 }

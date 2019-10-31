@@ -23,7 +23,7 @@ class LDAPLogin
 	public $error = null;
 
 	/**
-	 * @var LDAPUser or a descendant
+	 * @var string LDAPUser::class or a descendant
 	 */
 	public $userClass = LDAPUser::class;
 
@@ -46,8 +46,10 @@ class LDAPLogin
 			ldap_unbind($this->_ldapconn);
 		}
 //		ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, 7);
-		$this->_ldapconn = ldap_connect($this->LDAP_HOST)
-		or die("Couldn't connect to the LDAP server.");
+		$this->_ldapconn = ldap_connect($this->LDAP_HOST);
+		if (!$this->_ldapconn) {
+			throw new RuntimeException("Couldn't connect to the LDAP server.");
+		}
 		// https://stackoverflow.com/questions/17742751/ldap-operations-error
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($this->_ldapconn, LDAP_OPT_REFERRALS, 0);
@@ -60,7 +62,7 @@ class LDAPLogin
 	 */
 	public function _sanitizeLdap($string)
 	{
-		return trim(preg_replace('/[^a-zA-Z0-9]+/', '', $string));
+		return trim(preg_replace('/[^a-zA-Z0-9_]+/', '', $string));
 	}
 
 	/**
@@ -103,7 +105,7 @@ class LDAPLogin
 				//debug($info);
 
 				if ($info['count'] == 0) {
-					$this->error = "User not found";
+					$this->error = "User not found in LDAP {$this->LDAP_BASEDN} [{$filter}]";
 					return false;
 				}
 
@@ -118,7 +120,7 @@ class LDAPLogin
 						$user->initLDAP($info[$i]);
 						return $user;
 					} else {
-						$this->error = "LDAP login failed.";
+						$this->error = "LDAP login failed. Probably wrong password";
 						//echo getDebug($ldapbind);
 						return false;
 					}

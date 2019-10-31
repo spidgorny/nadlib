@@ -18,7 +18,7 @@ class PGArray extends AsIs
 	 */
 	public $data;
 
-	public function __construct(DBLayer $db, array $data = null)
+	public function __construct(DBInterface $db, array $data = null)
 	{
 		$this->db = $db;
 
@@ -73,8 +73,8 @@ class PGArray extends AsIs
 	 */
 	public function PGArrayToPHPArray($pgArray)
 	{
-		$ret = array();
-		$stack = array(&$ret);
+		$ret = [];
+		$stack = [&$ret];
 		$pgArray = substr($pgArray, 1, -1);
 		$pgElements = explode(",", $pgArray);
 
@@ -83,7 +83,7 @@ class PGArray extends AsIs
 		foreach ($pgElements as $elem) {
 			if (substr($elem, -1) == "}") {
 				$elem = substr($elem, 0, -1);
-				$newSub = array();
+				$newSub = [];
 				while (substr($elem, 0, 1) != "{") {
 					$newSub[] = $elem;
 					$elem = array_pop($ret);
@@ -99,7 +99,7 @@ class PGArray extends AsIs
 
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
-	 * @param $input
+	 * @param string $input
 	 * @internal param string $dbarr
 	 * @return array
 	 */
@@ -110,10 +110,24 @@ class PGArray extends AsIs
 			$input = substr(substr(trim($input), 1), 0, -1);    // cut { and }
 			return $this->getPGArray($input);
 		} else {
-			if (strpos($input, '},{') !== FALSE) {
+			if (strpos($input, '},{') !== false) {
 				$parts = explode('},{', $input);
 				foreach ($parts as &$p) {
 					$p = $this->getPGArray($p);
+				}
+			} elseif (str_contains($input, '{')) {
+				// JSON inside
+				$jsonStart = strpos($input, '{');
+				$jsonEnd = strpos($input, '}');
+				$json = substr($input, $jsonStart, $jsonEnd-$jsonStart+1);
+				$input = substr($input, 0, $jsonStart).
+					'*!*JSON*!*'.
+					substr($input, $jsonEnd+1);
+				$parts = $this->str_getcsv($input, ',', '"');
+//				ini_set('xdebug.var_display_max_data', 9999);
+//				debug($input, $parts, $json);
+				foreach ($parts as &$p) {
+					$p = str_replace('*!*JSON*!*', stripslashes($json), $p);
 				}
 			} else {
 				$parts = $this->str_getcsv($input, ',', '"');
@@ -130,7 +144,7 @@ class PGArray extends AsIs
 		$temp = fopen("php://memory", "rw");
 		fwrite($temp, $input);
 		fseek($temp, 0);
-		$r = array();
+		$r = [];
 		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
 //			$data = array_map('stripcslashes', $data);
 			$data = array_map(function ($str) {
@@ -153,7 +167,7 @@ class PGArray extends AsIs
 
 	/**
 	 * Change a db array into a PHP array
-	 * @param $input
+	 * @param string $input
 	 * @internal param String $arr representing the DB array
 	 * @return A PHP array
 	 */
@@ -201,17 +215,19 @@ class PGArray extends AsIs
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
-		if ($v1 == array('')) return array();
+		if ($v1 == ['']) {
+			return [];
+		}
 		$inside = false;
-		$out = array();
+		$out = [];
 		$o = 0;
 		foreach ($v1 as $word) {
 			if ($word{0} == '"') {
 				$inside = true;
 				$word = substr($word, 1);
 			}
-			if (in_array($word{strlen($word) - 1}, array('"'))
-				&& !in_array($word{strlen($word) - 2}, array('\\'))
+			if (in_array($word{strlen($word) - 1}, ['"'])
+				&& !in_array($word{strlen($word) - 2}, ['\\'])
 			) {
 				$inside = false;
 				$word = substr($word, 0, -1);
@@ -254,7 +270,7 @@ class PGArray extends AsIs
 
 	/**
 	 * @param array $data
-	 * @return string
+	 * @return AsIs
 	 */
 	public function setPGArray(array $data)
 	{
@@ -285,6 +301,129 @@ class PGArray extends AsIs
 	public function __toString2()
 	{
 		return $this->setPGArray($this->data);
+	}
+
+	/**
+	 * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
+	 * @param $s
+	 * @param int $start
+	 * @param null $end
+	 * @return array|null
+	 */
+	public function pg_array_parse($s, $start = 0, &$end = null)
+	{
+		if (empty($s) || $s[0] != '{') {
+			return null;
+		}
+		$return = [];
+		$string = false;
+		$quote='';
+		$len = strlen($s);
+		$v = '';
+		for ($i = $start + 1; $i < $len; $i++) {
+			$ch = $s[$i];
+
+			if (!$string && $ch == '}') {
+				if ($v !== '' || !empty($return)) {
+					$return[] = $v;
+				}
+				$end = $i;
+				break;
+			} elseif (!$string && $ch == '{') {
+				$v = $this->pg_array_parse($s, $i, $i);
+			} elseif (!$string && $ch == ',') {
+				$return[] = $v;
+				$v = '';
+			} elseif (!$string && ($ch == '"' || $ch == "'")) {
+				$string = true;
+				$quote = $ch;
+			} elseif ($string && $ch == $quote && $s[$i - 1] == "\\") {
+				$v = substr($v, 0, -1) . $ch;
+			} elseif ($string && $ch == $quote && $s[$i - 1] != "\\") {
+				$string = false;
+			} else {
+				$v .= $ch;
+			}
+		}
+
+		return $return;
+	}
+
+	public function getPGArrayFromJSON_bad($s)
+	{
+		$deepData = $this->pg_array_parse($s);
+
+		$tokens = [];
+		$tokens[] = strtok($s, '{,}"');
+		do {
+			$token1 = strtok('{,}"');
+			$tokens[] = $token1;
+		} while ($token1 != null);
+//		debug($tokens);
+
+		$keys = [];
+		foreach ($tokens as $chr) {
+			if (str_endsWith($chr, ':')) {
+				$keys[] = substr($chr, 0, -1);
+			}
+		}
+		debug($s, $deepData, $keys);
+
+		$arrays = array_filter($deepData, function ($el) {
+			return is_array($el);
+		});
+//		debug($arrays);
+
+		debug(sizeof($keys), sizeof($arrays), $keys);
+		$deepDataMerged = [];
+		if (sizeof($keys) == sizeof($arrays)) {
+			foreach ($deepData as $key => $val) {
+				if (is_array($val)) {
+					$key = current($keys);
+					next($keys);
+					$deepDataMerged[$key] = $val;
+				} else {
+					$deepDataMerged[$key] = $val;
+				}
+			}
+		} else {
+			$deepDataMerged = $deepData;
+		}
+		return $deepDataMerged;
+	}
+
+	public function getPGArrayFromJSON($s)
+	{
+		$result = [];
+		$collect = false;
+		$buffer = [];
+		$deepData = $this->pg_array_parse($s);
+		foreach ($deepData as $part) {
+			if (str_contains($part, ':{')) {
+				$collect = true;
+				$buffer = [];
+			}
+			if ($collect) {
+				$buffer[] = $part;
+			} else {
+				$result[] = $part;
+			}
+
+			if (str_endsWith($part, '}')) {
+				$result[] = implode(',', $buffer);
+				$buffer = [];
+				$collect = false;
+			}
+		}
+//		debug($deepData, $result);
+		return $result;
+	}
+
+	public function unnest($sElements)
+	{
+		$rows = $this->db->fetchAll("SELECT unnest('".pg_escape_string($sElements)."'::text[])");
+//		$rows = $this->db->fetchAll("SELECT unnest(string_to_array('".pg_escape_string($sElements)."'::text, ','))");
+		return $rows;
 	}
 
 }

@@ -7,7 +7,7 @@
  */
 
 
-class DBLayerTest extends PHPUnit_Framework_TestCase
+class DBLayerTest extends PHPUnit\Framework\TestCase
 {
 
 	public function testQuoteKey()

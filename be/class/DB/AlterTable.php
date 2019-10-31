@@ -6,7 +6,8 @@
  * This class stores the structure in JSON files and then reads them back.
  * This gives a more reliable comparison.
  */
-class AlterTable extends AlterIndex {
+class AlterTable extends AlterIndex
+{
 
 	var $different = 0;
 	var $same = 0;
@@ -17,7 +18,7 @@ class AlterTable extends AlterIndex {
 	 */
 	var $handler;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->setHandler();
@@ -39,7 +40,7 @@ class AlterTable extends AlterIndex {
 
 	function sidebar()
 	{
-		$content = array();
+		$content = [];
 		$content[] = $this->showDBInfo();
 		$content[] = $this->listFiles();
 		return $content;
@@ -51,7 +52,7 @@ class AlterTable extends AlterIndex {
 		$func = 'renderTableStruct';
 		$func = 'compareStruct';
 		$content[] = '<h5>' . $func . ' (' . $class . ')</h5>';
-		$content[] = call_user_func(array($this, $func), $struct, $local);
+		$content[] = call_user_func([$this, $func], $struct, $local);
 		return $content;
 	}
 
@@ -66,26 +67,26 @@ class AlterTable extends AlterIndex {
 			if (isset($local[$table])) {
 				$indexCompare = $this->compareTables($table, $desc['columns'], $local[$table]['columns']);
 			} else {
-				$indexCompare = [array(
-					'action' => new HTMLTag('td', array(
+				$indexCompare = [[
+					'action' => new HTMLTag('td', [
 						'colspan' => 10,
 						'class' => 'sql',
-					), $this->click($table, $this->handler->getCreateQuery($table, $desc['columns']))
+					], $this->click($table, $this->handler->getCreateQuery($table, $desc['columns']))
 					),
-				)];
+				]];
 			}
-			$s = new slTable($indexCompare, 'class="table" width="100%"', array(
-				'same' => array(
+			$s = new slTable($indexCompare, 'class="table" width="100%"', [
+				'same' => [
 					'name' => 'same',
-				),
-				'fromFile' => array(
+				],
+				'fromFile' => [
 					'name' => 'From File',
-				),
-				'fromDB' => array(
+				],
+				'fromDB' => [
 					'name' => 'From DB',
-				),
+				],
 				'action' => 'Action',
-			));
+			]);
 			$content .= $s;
 		}
 		return $content;
@@ -93,7 +94,7 @@ class AlterTable extends AlterIndex {
 
 	function compareTables($table, array $fromFile, array $fromDatabase)
 	{
-		$indexCompare = array();
+		$indexCompare = [];
 		foreach ($fromFile as $i => $index) {
 			$localIndex = ifsetor($fromDatabase[$i]);
 			$fileField = TableField::init($index);
@@ -106,10 +107,10 @@ class AlterTable extends AlterIndex {
 						'###TR_MORE###' => 'style="background: pink"',
 						'fromFile' => $fileField . '',
 						'fromDB' => $localField . '',
-						'action' => new HTMLTag('td', array(
+						'action' => new HTMLTag('td', [
 							'colspan' => 10,
 							'class' => 'sql',
-						), $this->click($table, $alterQuery))
+						], $this->click($table, $alterQuery))
 					];
 				} else {
 					$indexCompare[] = [
@@ -120,16 +121,16 @@ class AlterTable extends AlterIndex {
 					];
 				}
 			} else {
-				$indexCompare[] = array(
+				$indexCompare[] = [
 					'same' => 'new',
 					'###TR_MORE###' => 'style="background: red"',
 					'fromFile' => $fileField . '',
 					'fromDB' => '-',
-					'action' => new HTMLTag('td', array(
+					'action' => new HTMLTag('td', [
 						'colspan' => 10,
 						'class' => 'sql',
-					), $this->click($table, $this->handler->getAddQuery($table, $fileField)))
-				);
+					], $this->click($table, $this->handler->getAddQuery($table, $fileField)))
+				];
 			}
 		}
 		return $indexCompare;
@@ -137,13 +138,13 @@ class AlterTable extends AlterIndex {
 
 	function click($table, $query)
 	{
-		$link = $this->a($this->makeURL(array(
+		$link = $this->a($this->makeURL([
 			'c' => get_class($this),
 			'file' => basename($this->jsonFile),
 			'action' => 'runSQL',
 			'table' => $table,
 			'sql' => $query,
-		)), $query);
+		]), $query);
 		return $link;
 	}
 
@@ -159,7 +160,7 @@ class AlterTable extends AlterIndex {
 		foreach ($struct as $table => $desc) {
 			$content .= '<h4 id="table-' . $table . '">Table: ' . $table . '</h4>';
 
-			$indexCompare = array();
+			$indexCompare = [];
 			foreach ($desc['columns'] as $i => $index) {
 				$localIndex = $local[$table]['columns'][$i];
 
@@ -168,28 +169,28 @@ class AlterTable extends AlterIndex {
 				$localIndex['Field'] = $i;
 
 				if ($index == $localIndex) {
-					$indexCompare[] = array('same' => 'sql file',
+					$indexCompare[] = ['same' => 'sql file',
 							'###TR_MORE###' => 'style="background: lightgreen"',
 							'Field' => $i,
-						) + $index;
+						] + $index;
 				} else {
-					$indexCompare[] = array('same' => 'json file',
+					$indexCompare[] = ['same' => 'json file',
 							'###TR_MORE###' => 'style="background: yellow"',
-						) + $index;
-					$indexCompare[] = array('same' => 'database',
+						] + $index;
+					$indexCompare[] = ['same' => 'database',
 							'###TR_MORE###' => 'style="color: white; background: red"',
 							'Field' => $i,
-						) + $localIndex;
-					$indexCompare[] = array('same' => 'ALTER',
+						] + $localIndex;
+					$indexCompare[] = ['same' => 'ALTER',
 						'###TR_MORE###' => 'style="color: white; background: green"',
 						'Field' => $i,
-						'type' => new HTMLTag('td', array(
+						'type' => new HTMLTag('td', [
 							'colspan' => 5,
-						), $localIndex['type']
+						], $localIndex['type']
 							? $this->handler->getChangeQuery($table, $index)
 							: $this->handler->getAlterQuery($table, $index)
 						)
-					);
+					];
 				}
 			}
 
@@ -205,7 +206,7 @@ class AlterTable extends AlterIndex {
 		foreach ($struct as $table => $desc) {
 			$content .= '<h4 id="table-' . $table . '">Table: ' . $table . '</h4>';
 
-			$indexCompare = array();
+			$indexCompare = [];
 			foreach ($desc['columns'] as $i => $index) {
 				$index = $this->convertFromOtherDB($index);    // TODO: make it TableField
 				$localIndex = $local[$table]['columns'][$i];
@@ -216,42 +217,42 @@ class AlterTable extends AlterIndex {
 					$localIndex['Field'] = $i;
 
 					if ($this->sameType($index, $localIndex)) {
-						$indexCompare[] = array('same' => 'sql file',
+						$indexCompare[] = ['same' => 'sql file',
 								'###TR_MORE###' => 'style="background: lightgreen"',
 								'Field' => $i,
-							) + $index;
+							] + $index;
 						$this->same++;
 					} else {
-						$indexCompare[] = array('same' => 'json file',
+						$indexCompare[] = ['same' => 'json file',
 								'###TR_MORE###' => 'style="background: yellow"',
-							) + $index;
-						$indexCompare[] = array('same' => 'database',
+							] + $index;
+						$indexCompare[] = ['same' => 'database',
 								'###TR_MORE###' => 'style="color: white; background: red"',
 								'Field' => $i,
-							) + $localIndex;
-						$indexCompare[] = array('same' => 'ALTER',
+							] + $localIndex;
+						$indexCompare[] = ['same' => 'ALTER',
 							'###TR_MORE###' => 'style="color: white; background: green"',
 							'Field' => $i,
-							'Type' => new HTMLTag('td', array(
+							'Type' => new HTMLTag('td', [
 								'colspan' => 5,
-							), $localIndex['Type']
+							], $localIndex['Type']
 								? $this->handler->getChangeQuery($table, $index)
 								: $this->handler->getAlterQuery($table, $index)
 							)
-						);
+						];
 						$this->different++;
 					}
 				} else {
-					$indexCompare[] = array('same' => 'json file',
+					$indexCompare[] = ['same' => 'json file',
 							'###TR_MORE###' => 'style="background: yellow"',
-						) + $index;
-					$indexCompare[] = array(
+						] + $index;
+					$indexCompare[] = [
 						'same' => 'missing',
-						'Type' => new HTMLTag('td', array(
+						'Type' => new HTMLTag('td', [
 							'colspan' => 5,
-						), $this->handler->getAddQuery($table, $index)
+						], $this->handler->getAddQuery($table, $index)
 						),
-					);
+					];
 					$this->missing++;
 				}
 
@@ -264,7 +265,19 @@ class AlterTable extends AlterIndex {
 		return $content;
 	}
 
-	function runSQLAction()
+	/**
+	 * TODO
+	 * @see AlterTableHandler
+	 * @param array $a
+	 * @param array $b
+	 * @return bool
+	 */
+	public function sameType($a, $b)
+	{
+		return false;
+	}
+
+	public function runSQLAction()
 	{
 		$table = $this->request->getTrimRequired('table');
 		$sql = $this->request->getTrim('sql');

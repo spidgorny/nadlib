@@ -2,7 +2,7 @@
 
 abstract class IteratorMemberCollection extends CollectionMock implements Iterator, Countable {
 
-	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '') {
+	function __construct($pid = NULL, /*array/SQLWhere*/ $where = [], $order = '') {
 		parent::__construct($pid, $where, $order);
 		//$this->objectify();   // may cause data retrieval without $where
 	}

@@ -3,13 +3,13 @@
 class AlterTablePostgres extends AlterTableHandler implements AlterTableInterface {
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param TableField[] $columns
 	 * @return mixed|string
 	 */
 	function getCreateQuery($table, array $columns)
 	{
-		$set = array();
+		$set = [];
 		foreach ($columns as $col) {
 			$sCol = $col->field . ' ' . $col->type . ' ';
 			$sCol .= $col->isNull() ? 'NULL ' : 'NOT NULL ';

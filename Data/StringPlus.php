@@ -95,14 +95,14 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		$this->_string = (string)$string;
 		if ($encoding !== null) {
 			$this->_encoding = strtoupper(str_replace(' ', '-', (string)$encoding));
-		} else if (self::$_defaultEncoding !== null) {
+		} elseif (self::$_defaultEncoding !== null) {
 			$this->_encoding = self::$_defaultEncoding;
 		}
 	}
 
 	/**
 	 * @param string $str
-	 * @param null $encoding
+	 * @param string $encoding
 	 * @return static
 	 */
 	public static function make($str = '', $encoding = null)
@@ -164,7 +164,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @throws BadFunctionCallException
 	 * @see http://php.net/manual/en/language.pseudo-types.php#language.types.callback
 	 */
-	public function callback($name, array $args = array())
+	public function callback($name, array $args = [])
 	{
 		if (!is_callable($name)) {
 			throw new BadFunctionCallException('$name is not a valid callback.');
@@ -361,9 +361,9 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		if ($this->_length === null) {
 			if (function_exists('mb_strlen')) {
 				$this->_length = (int)mb_strlen($this->_string, $this->getEncoding());
-			} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strlen')) {
+			} elseif ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strlen')) {
 				$this->_length = (int)utf8_strlen($this->_string);
-			} else if (function_exists('iconv_strlen')) {
+			} elseif (function_exists('iconv_strlen')) {
 				$this->_length = (int)iconv_strlen($this->_string, $this->getEncoding());
 			} else {
 				$this->_length = (int)strlen($this->_string);
@@ -383,9 +383,9 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	{
 		if (function_exists('mb_strpos')) {
 			$pos = mb_strpos($this->_string, (string)$substr, (int)$offset, $this->getEncoding());
-		} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strpos')) {
+		} elseif ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strpos')) {
 			$pos = utf8_strpos($this->_string, (string)$substr, ($offset === 0 ? null : $offset));
-		} else if (function_exists('iconv_strpos')) {
+		} elseif (function_exists('iconv_strpos')) {
 			$pos = iconv_strpos($this->_string, (string)$substr, (int)$offset, $this->getEncoding());
 		} else {
 			$pos = strpos($this->_string, (string)$substr, (int)$offset);
@@ -654,7 +654,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	public function removeSpaces()
 	{
-		return $this->remove(array(" ", "\r", "\n", "\t", "\0", "\x0B"));
+		return $this->remove([" ", "\r", "\n", "\t", "\0", "\x0B"]);
 	}
 
 	/**
@@ -789,7 +789,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function squeeze()
 	{
 		return $this
-			->replace(array("\r\n", "\r", "\n", "\t", "\0", "\x0B"), ' ')
+			->replace(["\r\n", "\r", "\n", "\t", "\0", "\x0B"], ' ')
 			->removeDuplicates(' ')
 			->trim();
 	}
@@ -1222,7 +1222,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public static function getLoadedExtensions()
 	{
-		$ext = array('standard');
+		$ext = ['standard'];
 		if (self::_mbstringLoaded()) {
 			$ext[] = 'mbstring';
 		}
@@ -1273,7 +1273,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		}
 		$literal = array_shift($args);
 		$string = new self($literal);
-		return call_user_func_array(array($string, $name), $args);
+		return call_user_func_array([$string, $name], $args);
 	}
 
 	/**
@@ -1326,7 +1326,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public static function format($string, array $args)
 	{
-		return new self(vsprintf((string)$string), $args);
+		return new self(vsprintf((string)$string, $args));
 	}
 
 	/**
@@ -1347,17 +1347,17 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return new self($str);
 	}
 
-	function mb_ord()
+	public function mb_ord()
 	{
 		list(, $ord) = unpack('N', mb_convert_encoding($this->_string, 'UCS-4BE', 'UTF-8'));
 		return $ord;
 	}
 
 	/**
-	 * @param $int
+	 * @param int $int
 	 * @return String
 	 */
-	static function mb_chr($int)
+	public static function mb_chr($int)
 	{
 		if ($int <= 127) {
 			$json = chr($int);

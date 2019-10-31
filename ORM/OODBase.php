@@ -1,6 +1,7 @@
 <?php
 
 use Psr\Log\LoggerInterface;
+use spidgorny\nadlib\HTTP\URL;
 
 require_once __DIR__ . '/CachedGetInstance.php';
 
@@ -15,7 +16,7 @@ abstract class OODBase
 	use CachedGetInstance;
 
 	/**
-	 * @var DBInterface|SQLBuilder
+	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -72,7 +73,7 @@ abstract class OODBase
 	public $parentField = 'pid';
 
 	/**
-	 * @var findInDB() will call init
+	 * @var bool findInDB() will call init
 	 */
 	public $forceInit;
 
@@ -201,7 +202,12 @@ abstract class OODBase
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			debug(typ($row) . '', $this->idField, $idField, $this->data);
+			debug([
+				'class' => static::class,
+				'typ' => typ($row) . '',
+				'idField' => $this->idField,
+				'id' => $idField,
+				'data' => $this->data]);
 			throw new InvalidArgumentException(get_class($this) . '::' . __METHOD__);
 		}
 	}
@@ -227,7 +233,8 @@ abstract class OODBase
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
-		$res = $this->db->perform($query);
+		// for DBPlacebo to return the same data back
+		$res = $this->db->runInsertQuery($this->table, $data);
 		$this->lastQuery = $this->db->lastQuery;    // save before commit
 
 		// this needs to be checked first,
@@ -247,7 +254,15 @@ abstract class OODBase
 			$this->init($id ? $id : $this->id);
 		} else {
 			//debug($this->lastQuery, $this->db->lastQuery);
-			throw new DatabaseException('OODBase for ' . $this->table . ' no insert id after insert');
+			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
+			$errorCode = null;
+			if ($this->db instanceof DBLayerPDO) {
+				$errorMessage .= $this->db->getConnection()->errorInfo();
+				$errorCode = $this->db->getConnection()->errorCode();
+			}
+			$e = new DatabaseException($errorMessage, $errorCode);
+			$e->setQuery($query);
+			throw $e;
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $this;
@@ -319,6 +334,7 @@ abstract class OODBase
 	 * @param array|NULL $where
 	 * @return null
 	 * @throws MustBeStringException
+	 * @throws DatabaseException
 	 */
 	public function delete(array $where = null)
 	{
@@ -367,7 +383,7 @@ abstract class OODBase
 		$this->lastSelectQuery = $this->db->lastQuery;
 		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
-		if (is_array($rows)) {
+		if (is_array($rows) && $rows) {
 			$data = $rows;
 			$this->initByRow($data);
 		} else {
@@ -380,9 +396,14 @@ abstract class OODBase
 		return $data;
 	}
 
+	/**
+	 * @param $id
+	 * @return array
+	 * @throws Exception
+	 */
 	public function findByID($id)
 	{
-		$this->findInDB([
+		return $this->findInDB([
 			$this->idField => $id
 		]);
 	}
@@ -395,7 +416,7 @@ abstract class OODBase
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public static function findInstance(array $where, $static = NULL)
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -691,6 +712,10 @@ abstract class OODBase
 	 */
 	public function findInDBsetInstance(array $where, $orderByLimit = '')
 	{
+//		llog(__METHOD__, $this->where);
+//		llog(__METHOD__, $this->where.'');
+//		llog(__METHOD__, $where);
+//		llog(__METHOD__, $where.'');
 		$data = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		if (is_array($data)) {
@@ -702,13 +727,13 @@ abstract class OODBase
 			nodebug(__METHOD__, $className, $id,
 				sizeof(self::$instances[$className]),
 				isset(self::$instances[$className][$id]));
-			$this->init($data, true);
+			$this->init($data);
 		}
 		return $data;
 	}
 
 	/**
-	 * @return OODBase|LazyPrefs
+	 * @return OODBase
 	 * @throws Exception
 	 */
 	public function getParent()
@@ -724,7 +749,8 @@ abstract class OODBase
 
 	/**
 	 * Override if collection name is different
-	 * @return Collection
+	 * @param array $where
+	 * @return DatabaseResultIteratorAssoc
 	 */
 	public function getChildren(array $where = [])
 	{

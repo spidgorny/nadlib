@@ -10,9 +10,19 @@
 class SQLWhereEqualTest extends PHPUnit\Framework\TestCase
 {
 
+	/** @var DBInterface */
+	protected $db;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->db = Config::getInstance()->getDB();
+	}
+
 	public function testGetWhereItem()
 	{
 		$swe = new SQLWhereEqual('field', 15);
+		$swe->injectDB($this->db);
 		$sql = $swe->__toString();
 		$this->assertEquals('"field" = \'15\'', $sql);
 	}
@@ -20,6 +30,7 @@ class SQLWhereEqualTest extends PHPUnit\Framework\TestCase
 	public function testGetWhereItemAsIs()
 	{
 		$swe = new SQLWhereEqual('field', new AsIs('15'));
+		$swe->injectDB($this->db);
 		$sql = $swe->__toString();
 		$this->assertEquals('"field" = 15', $sql);
 	}

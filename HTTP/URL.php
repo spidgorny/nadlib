@@ -2,6 +2,8 @@
 
 namespace spidgorny\nadlib\HTTP;
 
+use LogEntry;
+use nadlib\Proxy;
 use Request;
 use Path;
 use AutoLoad;
@@ -49,6 +51,19 @@ class URL
 	 */
 	public $cookies = [];
 
+	public $headers = [];
+
+	public $user_agent;
+
+	public $cookie_file;
+
+	public $compression;
+
+	/**
+	 * @var Proxy
+	 */
+	public $proxy;
+
 	/**
 	 * @param string $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
@@ -57,8 +72,11 @@ class URL
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
-		}
-		if (!isset($url)) { // empty string should not default to localhost
+//			throw new \RuntimeException(__METHOD__);
+			foreach (get_object_vars($url) as $key => $val) {
+				$this->$key = $val;
+			}
+		} elseif (empty($url)) { // empty string should not default to localhost
 			$http = Request::getRequestType();
 			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER);
 			$host = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST'], ifsetor($_SERVER['HTTP_HOST']));
@@ -77,6 +95,9 @@ class URL
 //		if (class_exists('Config')) {
 //			$this->setDocumentRoot(Config::getInstance()->documentRoot);
 //		}
+		// infinite recursion
+//		$this->setDocumentRoot(Request::getInstance()->getDocumentRoot());
+		$this->setDocumentRoot(Request::getDocumentRootByRequest());
 	}
 
 	/**
@@ -239,6 +260,8 @@ class URL
 	public function reset()
 	{
 		$this->components['path'] = $this->documentRoot;
+		$this->components['query'] = '';
+		$this->clearParams();
 	}
 
 	/**
@@ -935,6 +958,11 @@ class URL
 		return $this;
 	}
 
+	public function getScheme()
+	{
+		return ifsetor($this->components['scheme']);
+	}
+
 	public function getHost()
 	{
 		return ifsetor($this->components['host']);
@@ -981,9 +1009,17 @@ class URL
 			$newController = implode('/', $newController);
 		}
 		$path = $this->getPath();
-		$diff = str_replace($this->documentRoot, '', $path);
-		//debug($path, $this->documentRoot, $diff);
-		$path = str_replace($diff, $newController, $path);
+		$diff = '';
+		if ($this->documentRoot != '/') {
+			$diff = str_replace($this->documentRoot, '', $path);
+		}
+		debug([
+			'original' => $path.'',
+			'docroot' => $this->documentRoot,
+			'diff' => $diff,
+			'replace-by' => $newController,
+		]);
+		$path = str_replace($diff, '/'.$newController, $path);
 		$this->setPath($path);
 		return $this;
 	}

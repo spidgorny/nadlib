@@ -1,15 +1,22 @@
 <?php
 
-class FloatTime {
+use nadlib\HTTP\Session;
+
+class FloatTime
+{
 
 	var $withCSS;
 
-	function __construct($withCSS) {
+	public function __construct($withCSS)
+	{
 		$this->withCSS = $withCSS;
 	}
 
-	function render() {
-		if (Request::isCLI()) return '';
+	public function render()
+	{
+		if (Request::isCLI()) {
+			return '';
+		}
 		$totalTime = TaylorProfiler::getElapsedTime();
 		$dbTime = $this->getDBTime();
 		if (Session::isActive()) {
@@ -22,17 +29,18 @@ class FloatTime {
 			if ($totalMax > 0) {
 				$totalBar = '<img src="' . ProgressBar::getBar($totalTime / $totalMax * 100) . '" />';
 			} else {
-				$totalBar = '<img src="'.ProgressBar::getBar(0).'" />';
+				$totalBar = '<img src="' . ProgressBar::getBar(0) . '" />';
 			}
 			$_SESSION[__CLASS__]['totalMax'] = max(ifsetor($_SESSION[__CLASS__]['totalMax']), $totalTime);
 
 			// db
 			$dbMax = ifsetor($_SESSION[__CLASS__]['dbMax']);
 			if ($dbMax > 0) {
-				$dbBar = '<img src="'.ProgressBar::getBar($dbTime/$dbMax*100).'" />';
+				$dbBar = '<img src="' . ProgressBar::getBar($dbTime / $dbMax * 100) . '" />';
 			} else {
-				$db = class_exists('Config') ? Config::getInstance()->getDB() : NULL;
-				$ql = $db ? $db->getQueryLog() : NULL;
+				$db = class_exists('Config')
+					? Config::getInstance()->getDB() : null;
+				$ql = $db ? $db->getQueryLog() : null;
 				$dbBar = $ql ? sizeof($ql->queryLog) : typ($ql);
 			}
 			$_SESSION[__CLASS__]['dbMax'] = max(ifsetor($_SESSION[__CLASS__]['dbMax']), $dbTime);
@@ -44,13 +52,13 @@ class FloatTime {
 			$dbMax = '';
 		}
 
-		$peakMem = number_format(memory_get_peak_usage()/1024/1024, 3, '.', '');
+		$peakMem = number_format(memory_get_peak_usage() / 1024 / 1024, 3, '.', '');
 		$maxMem = (new Bytes(ini_get('memory_limit')))->getBytes();
 		$memUsage = memory_get_peak_usage() / $maxMem * 100;
-		$memBar = '<img src="'.ProgressBar::getBar($memUsage).'" />';
+		$memBar = '<img src="' . ProgressBar::getBar($memUsage) . '" />';
 
 		ob_start();
-		require(__DIR__.'/FloatTime.phtml');
+		require(__DIR__ . '/FloatTime.phtml');
 		$content = ob_get_clean();
 
 		if ($this->withCSS) {
@@ -63,11 +71,14 @@ class FloatTime {
 
 	/**
 	 * @return int|number|string
+	 * @throws DatabaseException
 	 */
-	private function getDBTime() {
+	private function getDBTime()
+	{
 		$dbTime = 0;
-		$db = class_exists('Config') ? Config::getInstance()->getDB() : NULL;
-		$ql = $db ? $db->getQueryLog() : NULL;
+		$db = class_exists('Config')
+			? Config::getInstance()->getDB() : null;
+		$ql = $db ? $db->getQueryLog() : null;
 		if ($ql && is_array($ql)) {
 			$dbTime = ArrayPlus::create($ql)->column('sumtime')->sum();
 			$dbTime = number_format($dbTime, 3, '.', '');

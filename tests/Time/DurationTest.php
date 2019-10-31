@@ -1,6 +1,6 @@
 <?php
 
-class DurationTest extends PHPUnit_Framework_TestCase {
+class DurationTest extends PHPUnit\Framework\TestCase {
 
 	function test_Duration_fromHuman() {
 		$d = Duration::fromHuman('1s');

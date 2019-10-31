@@ -2,7 +2,7 @@
 
 class ErrorPage extends AppController {
 
-	protected $http_status_codes = array(
+	protected $http_status_codes = [
 		100 => "Continue",
 		101 => "Switching Protocols",
 		102 => "Processing",
@@ -76,7 +76,7 @@ class ErrorPage extends AppController {
 		511 => "Network Authentication Required",
 		598 => "Network read timeout error",
 		599 => "Network connect timeout error"
-	);
+	];
 
 	function render()
 	{

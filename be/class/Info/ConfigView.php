@@ -4,11 +4,11 @@ class ConfigView extends AppControllerBE {
 
 	protected $prefix = __CLASS__;
 
-	protected $typeMap = array(
+	protected $typeMap = [
 		'string' => 'input',
 		'boolean' => 'checkbox',
 		'integer' => 'input',
-	);
+	];
 
 	var $file;
 
@@ -46,16 +46,16 @@ class ConfigView extends AppControllerBE {
 
 	function renderFormArray(HTMLFormTable $f, $class, array $data) {
 		$f->fieldset($class);
-		$desc = array();
+		$desc = [];
 		foreach ($data as $key => $val) {
 			if (is_scalar($val)) {
-				$desc[$class.'['.$key.']'] = array(
+				$desc[$class.'['.$key.']'] = [
 					'label' => $key,
 					'type' => $this->typeMap[gettype($val)],
 					'value' => $val,
 					'set0' => true,
 					'optional' => true,
-				);
+				];
 			} else if (is_array($val)) {
 				/*$desc[$class.'['.$key.']'] = array(
 					'type' => 'html',

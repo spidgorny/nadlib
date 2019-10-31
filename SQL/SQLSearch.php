@@ -3,15 +3,15 @@
 class SQLSearch extends SQLWherePart {
 	protected $table;
 	protected $sword;
-	protected $words = array();
+	protected $words = [];
 
 	/**
 	 * Update it from outside to search different columns
 	 * @var array
 	 */
-	public $searchableFields = array(
+	public $searchableFields = [
 		'title',
-	);
+	];
 
 	/**
 	 * Not used
@@ -76,7 +76,7 @@ class SQLSearch extends SQLWherePart {
 	 */
 	function getWhere() {
 		$query = '';
-		$where = array();
+		$where = [];
 		$words = $this->words;
 		//debug($words);
 		foreach ($words as $word) {
@@ -106,7 +106,7 @@ class SQLSearch extends SQLWherePart {
 		$table = $this->table;
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
-		$where = new SQLWhere(array());
+		$where = new SQLWhere([]);
 		$query = new SQLSelectQuery($select, $from, $where,
 			NULL, NULL, NULL, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
@@ -130,7 +130,7 @@ class SQLSearch extends SQLWherePart {
 
 		$prefix = $prefix ? $prefix.'.' : '';
 
-		$part = array();
+		$part = [];
 		foreach ($this->searchableFields as $field) {
 			$part[] = "{$prefix}{$field} {$like} '%$1%'";
 		}

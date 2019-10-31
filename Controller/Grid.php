@@ -33,7 +33,7 @@ abstract class Grid extends AppController {
 	 */
 	public $pageSize;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->initFilter();
@@ -63,7 +63,7 @@ abstract class Grid extends AppController {
 	/**
 	 * Either take from URL or take from preferences, not both
 	 */
-	function getSetRequest()
+	public function getSetRequest()
 	{
 		if ($this->request->getAll()) {
 			$this->user->setPref(get_class($this) . '.Request', $this->request);
@@ -81,6 +81,8 @@ abstract class Grid extends AppController {
 	 * Take from preferences and then append/overwrite from URL
 	 * How does it work when some params need to be cleared?
 	 *
+	 * @param null $subname
+	 * @throws LoginException
 	 * @deprecated - use saveFilterColumnsSort() instead
 	 * @param null $subname
 	 */
@@ -103,8 +105,9 @@ abstract class Grid extends AppController {
 	}
 
 	/**
-	 * @param null $cn Supply get_class($this->collection) to the function
+	 * @param string $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
+	 * @throws LoginException
 	 */
 	public function saveFilterAndSort($cn = null)
 	{
@@ -191,14 +194,14 @@ abstract class Grid extends AppController {
 
 	function showFilter()
 	{
-		$content = array();
+		$content = [];
 		if ($this->filter) {
 			$f = new HTMLFormTable($this->filter);
 			$f->method('GET');
 			$f->defaultBR = true;
 			$this->filter = $f->fill($this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn btn-primary'));
+			$f->submit('Filter', ['class' => 'btn btn-primary']);
 			$content[] = $f->getContent();
 		}
 		return $content;
@@ -206,7 +209,7 @@ abstract class Grid extends AppController {
 
 	public function getFilterWhere()
 	{
-		$where = array();
+		$where = [];
 		if ($this->filter) {
 			foreach ($this->filter as $field => $desc) {
 				$value = $this->request->getTrim($field);
@@ -220,7 +223,7 @@ abstract class Grid extends AppController {
 
 	/**
 	 * Only get filter if it's not need to be cleared
-	 * @param $cn
+	 * @param string $cn
 	 * @throws LoginException
 	 */
 	public function setFilter($cn)
@@ -253,8 +256,8 @@ abstract class Grid extends AppController {
 	}
 
 	/**
-	 * @param $cn string
-	 * @param $allowEdit boolean
+	 * @param string $cn
+	 * @param boolean $allowEdit
 	 * @throws LoginException
 	 */
 	public function setColumns($cn, $allowEdit)

@@ -77,11 +77,11 @@ class CsvIterator implements Iterator, Countable
 
 	/**
 	 * Reads past the UTF-8 bom if it is there.
-	 * @param $filename
-	 * @param $mode
+	 * @param string $filename
+	 * @param string $mode
 	 * @return resource
 	 */
-	function fopen_utf8($filename, $mode)
+	public function fopen_utf8($filename, $mode)
 	{
 		$file = fopen($filename, $mode);
 		if (!$file) {

@@ -1,6 +1,6 @@
 <?php
 
-class SQLBuilderTest extends PHPUnit_Framework_TestCase
+class SQLBuilderTest extends PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -15,6 +15,12 @@ class SQLBuilderTest extends PHPUnit_Framework_TestCase
 
 	public function test_getSelectQuery()
 	{
+		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
+			$this->markTestSkipped('MySQL has different SQL');
+		}
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$qb = new SQLBuilder($this->db);
 		$query = $qb->getSelectQueryString('table', [
 			'a' => 'b',
@@ -31,6 +37,12 @@ ORDER BY c";
 
 	public function test_getSelectQueryP()
 	{
+		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
+			$this->markTestSkipped('MySQL has different SQL');
+		}
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$query = SQLSelectQuery::getSelectQueryP($this->db, 'table', [
 			'a' => new SQLLikeContains('b'),
 		], 'ORDER BY c');
@@ -55,6 +67,37 @@ ORDER BY c";
 			"\n" => '',
 		]);
 		return $sql;
+	}
+
+	public function testGetFirstWord()
+	{
+		$room = SQLBuilder::getFirstWord('room');
+		$this->assertEquals('room', $room);
+		$room = SQLBuilder::getFirstWord('room AND something else');
+		$this->assertEquals('room', $room);
+		$room = SQLBuilder::getFirstWord('room
+AND something else');
+		$this->assertEquals('room', $room);
+		$room = SQLBuilder::getFirstWord('room' . TAB . 'AND something else');
+		$this->assertEquals('room', $room);
+		$this->expectException(InvalidArgumentException::class);
+		$room = SQLBuilder::getFirstWord('');
+		$this->assertEquals('room', $room);
+	}
+
+	public function testGetFirstWordAgain()
+	{
+		$this->expectException(InvalidArgumentException::class);
+		$room = SQLBuilder::getFirstWord(null);
+		$this->assertEquals('room', $room);
+	}
+
+	public function testGetFirstWordFromPDO()
+	{
+		$pdo = new DBLayerPDO();
+		$pdo->setQB(new SQLBuilder($pdo));
+		$room = SQLBuilder::getFirstWord('room');
+		$this->assertEquals('room', $room);
 	}
 
 }

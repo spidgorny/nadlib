@@ -6,7 +6,7 @@
 class SQLNotIn extends SQLWherePart
 {
 
-	public $list = array();
+	public $list = [];
 
 	/**
 	 * SQLNotIn constructor.

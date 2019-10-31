@@ -13,7 +13,7 @@ class MarshalParams
 	 * This is an object with functions which require DI or
 	 * Container should have functions starting with 'get' and the class name
 	 */
-	public $object;
+	public $container;
 
 	/**
 	 * @var Request
@@ -22,32 +22,32 @@ class MarshalParams
 
 	public function __construct($object)
 	{
-		$this->object = $object;
+		$this->container = $object;
 		$this->request = Request::getInstance();
 	}
 
 	/**
-	 * @param $class
+	 * @param string $class
 	 * @return object
 	 * @throws ReflectionException
 	 */
 	public function make($class)
 	{
-		return self::makeInstanceWithInjection($class, $this->object);
+		return $this->makeInstanceWithInjection($class);
 	}
 
 	/**
-	 * @param $class
-	 * @param $container
+	 * @param string $class
+	 * @param object $container
 	 * @return object
 	 * @throws ReflectionException
 	 */
-	public static function makeInstanceWithInjection($class, $container)
+	public function makeInstanceWithInjection($class)
 	{
 		$cr = new ReflectionClass($class);
 		$constructor = $cr->getConstructor();
 		if ($constructor) {
-			$init = self::getFunctionArguments($container, $constructor);
+			$init = $this->getFunctionArguments($constructor);
 //			debug($class, $constructor->getName(), $init);
 			// PHP 7
 			//$instance = new $class(...$init);
@@ -60,13 +60,14 @@ class MarshalParams
 	}
 
 	/**
-	 * @param $container
-	 * @param $constructor
+	 * @param object $container
+	 * @param ReflectionMethod $constructor
 	 * @return array
 	 * @throws ReflectionException
 	 */
-	public static function getFunctionArguments($container, ReflectionMethod $constructor)
+	public function getFunctionArguments(ReflectionMethod $constructor)
 	{
+		$container = $this->container;
 		$init = []; // parameter values to the constructor
 		$params = $constructor->getParameters();
 		foreach ($params as $param) {
@@ -80,21 +81,7 @@ class MarshalParams
 					$type = $param->getClass()->name;
 				}
 				if ($type) {
-					if (!is_string($type) && $type->isBuiltin()) {
-						$init[$name] = $param->getDefaultValue();
-					} else {
-						$typeClass = method_exists($type, 'getName')
-							? $type->getName()
-							: $type . '';
-						$typeGenerator = 'get' . $typeClass;
-//						debug($typeClass, get_class($container), $typeGenerator);
-						if (method_exists($container, $typeGenerator)) {
-							$init[$name] = call_user_func([$container, $typeGenerator]);
-						} else {
-							// build the dependency
-							$init[$name] = self::makeInstanceWithInjection($typeClass, $container);
-						}
-					}
+					$init[$name] = $this->getParameterValue($param, $type);
 				} else {
 					$init[$name] = null;
 				}
@@ -103,20 +90,51 @@ class MarshalParams
 		return $init;
 	}
 
+	public function getParameterValue($param, $type)
+	{
+		$container = $this->container;
+		$typeClass = method_exists($type, 'getName')
+			? $type->getName()
+			: $type . '';
+		if (!is_string($type) && $type->isBuiltin()) {
+			$value = $param->getDefaultValue();
+		} elseif (is_object($container)) {
+			$typeGenerator = 'get' . $typeClass;
+//						debug($typeClass, get_class($container), $typeGenerator);
+			// does not work with namespaces
+			// e.g. Config->getSymfony\\Contracts\\Cache\\CacheInterface
+			llog($param->getName(), $typeGenerator);
+			if (method_exists($container, $typeGenerator)) {
+				$value = call_user_func([$container, $typeGenerator]);
+			} else {
+				// build the dependency
+				$value = self::makeInstanceWithInjection($typeClass, $container);
+			}
+		} elseif (is_array($container)) {
+			$injector = ifsetor($container[$typeClass]);
+			if (is_callable($injector)) {
+				$value = $injector();
+			} else {
+				$value = $injector;
+			}
+		}
+		return $value;
+	}
+
 	/**
-	 * @param $method
+	 * @param string $method
 	 * @return mixed
 	 * @throws ReflectionException
 	 */
 	public function call($method)
 	{
-		return $this->callMethodByReflection($this->object, $method);
+		return $this->callMethodByReflection($this->container, $method);
 	}
 
 	/**
 	 * Will detect parameter types and call getInstance() or new $class
-	 * @param $proxy
-	 * @param $method
+	 * @param object $proxy
+	 * @param string $method
 	 * @return mixed
 	 * @throws ReflectionException
 	 */
@@ -124,7 +142,7 @@ class MarshalParams
 	{
 		$r = new ReflectionMethod($proxy, $method);
 		if ($r->getNumberOfParameters()) {
-			$assoc = array();
+			$assoc = [];
 			foreach ($r->getParameters() as $param) {
 				$name = $param->getName();
 				if ($this->request->is_set($name)) {
@@ -136,7 +154,7 @@ class MarshalParams
 				}
 			}
 			//debug($assoc);
-			$content = call_user_func_array(array($proxy, $method), $assoc);
+			$content = call_user_func_array([$proxy, $method], $assoc);
 		} else {
 			$content = $proxy->$method();
 		}

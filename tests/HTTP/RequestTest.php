@@ -6,7 +6,7 @@
  * Time: 15:03
  */
 
-class RequestTest extends PHPUnit_Framework_TestCase
+class RequestTest extends PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -131,8 +131,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	public function test_isAjax()
 	{
 		$r = Request::getInstance();
+		$r->set('ajax', false);
 		$this->assertFalse($r->isAjax());
 		$r->set('ajax', true);
+		$this->assertTrue($r->isAjax());
+		$r->set('ajax', false);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		$this->assertTrue($r->isAjax());
 	}
 

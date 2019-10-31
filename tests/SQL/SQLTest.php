@@ -1,11 +1,6 @@
 <?php
 
-function normalize($s)
-{
-	return implode(PHP_EOL, trimExplode("\n", $s));
-}
-
-class SQLTest extends PHPUnit_Framework_TestCase
+class SQLTest extends PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -21,6 +16,7 @@ class SQLTest extends PHPUnit_Framework_TestCase
 	public function test_SQLNow_PG()
 	{
 		$now = new SQLNow();
+		$now->injectDB($this->db);
 		$string = $now . '';
 
 		$this->assertEquals('now()', $string);
@@ -28,31 +24,43 @@ class SQLTest extends PHPUnit_Framework_TestCase
 
 	public function test_SQLNow_PG_update_no_quote()
 	{
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$now = new SQLNow();
-		$update = array(
+		$now->injectDB($this->db);
+		$update = [
 			'mtime' => $now,
-		);
-		$query = $this->db->getUpdateQuery('asd', $update, array('id' => 1));
+		];
+		$query = $this->db->getUpdateQuery('asd', $update, ['id' => 1]);
 
 		$expected = "UPDATE \"asd\"
 SET \"mtime\" = now()
 WHERE
 \"id\" = '1' ";
-		$this->assertEquals(normalize($expected), normalize($query));
+		$this->assertEquals($this->normalize($expected), $this->normalize($query));
 //		$this->assertEquals($expected, $query);
 	}
 
 	public function test_SQLNow_PG_insert_no_quote()
 	{
+		if ($this->db instanceof DBPlacebo) {
+			$this->markTestSkipped('DBPlacebo has different SQL');
+		}
 		$now = new SQLNow();
-		$update = array(
+		$update = [
 			'mtime' => $now,
-		);
+		];
 		$query = $this->db->getInsertQuery('asd', $update);
 
 		$expected = "INSERT INTO \"asd\" (\"mtime\") VALUES (now())";
 		$expected = str_replace("\r", '', $expected);
 		$this->assertEquals($expected, $query);
+	}
+
+	public function normalize($s)
+	{
+		return implode(PHP_EOL, trimExplode("\n", $s));
 	}
 
 }

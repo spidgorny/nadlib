@@ -1,6 +1,6 @@
 <?php
 
-class StringFunctionsTest extends PHPUnit_Framework_TestCase
+class StringFunctionsTest extends PHPUnit\Framework\TestCase
 {
 
 	public function test_cap()
@@ -25,6 +25,11 @@ class StringFunctionsTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('/asd/qwe', path_plus('/asd/', '/qwe'));
 		$this->assertEquals('/asd/qwe', path_plus('/asd/', '/qwe/'));
 		$this->assertEquals('asd/qwe', path_plus('asd/', '/qwe/'));
+	}
+
+	public function test_path_plus_twice()
+	{
+		$this->assertEquals('/asd/qwe/zxc', path_plus('/asd', 'qwe', 'zxc'));
 	}
 
 	public function test_str_contains()

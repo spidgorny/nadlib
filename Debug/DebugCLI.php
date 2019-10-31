@@ -29,14 +29,15 @@ class DebugCLI
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
 		$trace = [];
-		$i = 0;
+		$row = first($db);
+		$trace[] = $row['file'].':'.$row['line'];
 		foreach ($db as $i => $row) {
 			$trace[] = ' * ' . Debug::getMethod($row, ifsetor($db[$i + 1], []));
 			if (++$i > 7) {
 				break;
 			}
 		}
-		echo '⎯⎯⎯⎯⎯⎯⎯ ¯\_(ツ)_/¯ ' . $this->helper->name . BR .
+		echo '⎯⎯⎯⎯⎯⎯⎯⎯⎯ ¯\_(ツ)_/¯ ' . $this->helper->name . BR .
 			implode(BR, $trace) . "\n";
 
 		if ($args instanceof htmlString) {
