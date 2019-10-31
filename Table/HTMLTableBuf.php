@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @property  table
- * @property  thead
- * @property  tbody
- * @property  tfoot
+ * @property string table
+ * @property array thead
+ * @property array tbody
+ * @property array tfoot
  */
 class HTMLTableBuf extends MergedContent
 {
@@ -13,11 +13,11 @@ class HTMLTableBuf extends MergedContent
 
 	public function __construct()
 	{
-		parent::__construct(array(
+		parent::__construct([
 			'table' => '',
 			'thead' => '',
 			'tbody' => '',
-		));
+		]);
 	}
 
 	public function table($more = "")
@@ -95,7 +95,7 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('tfoot', $text);
 	}
 
-	public function cell($a, array $more = array())
+	public function cell($a, array $more = [])
 	{
 		$this->td(HTMLTag::renderAttr($more));
 		$this->text($a);
@@ -107,7 +107,7 @@ class HTMLTableBuf extends MergedContent
 	 * @param array $thMore - more on each column TH
 	 * @param array $trMore - more on the whole row
 	 */
-	public function thes(array $aCaption, $thMore = array(), $trMore = [])
+	public function thes(array $aCaption, $thMore = [], $trMore = [])
 	{
 		$this->htr($trMore);
 		foreach ($aCaption as $i => $caption) {

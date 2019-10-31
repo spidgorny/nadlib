@@ -16,7 +16,8 @@
  * - don't put collection methods directly into the Model - try to use ArrayPlus
  * - or add Traits that deal with multiple rows
  */
-class Model {
+class Model
+{
 
 	var $table;
 
@@ -25,19 +26,25 @@ class Model {
 	var $titleColumn = 'name';
 
 	/**
-	 * @var DBInterface|SQLBuilder
+	 * @var DBInterface|SQLBuilder|DBLayerBase
 	 */
 	protected $db;
 
 	public $id;
+
+	public $lastSelectQuery;
+	public $lastInsertQuery;
+	public $lastUpdateQuery;
 
 	/**
 	 * Not caching.
 	 * @param array $data
 	 * @param DBInterface $db
 	 * @return static
+	 * @throws DatabaseException
+	 * @throws Exception
 	 */
-	static function getInstance(array $data, DBInterface $db = null)
+	public static function getInstance(array $data, DBInterface $db = null)
 	{
 		$obj = new static(null);
 		$obj->setDB($db ?: Config::getInstance()->getDB());
@@ -51,14 +58,14 @@ class Model {
 	 * @param $id
 	 * @return static
 	 */
-	static function getInstanceByID(DBInterface $db, $id)
+	public static function getInstanceByID(DBInterface $db, $id)
 	{
 		$obj = new static($db, []);
 		$obj->getByID($id);
 		return $obj;
 	}
 
-	function __construct(DBInterface $db = null, array $data = [])
+	public function __construct(DBInterface $db = null, array $data = [])
 	{
 		if ($db) {
 			$this->setDB($db);
@@ -76,7 +83,7 @@ class Model {
 	 * different data types in DB and in runtime.
 	 * @param array $data
 	 */
-	function setData(array $data)
+	public function setData(array $data)
 	{
 		foreach ($data as $key => $val) {
 			$this->$key = $val;
@@ -97,12 +104,14 @@ class Model {
 	}
 
 	/**
+	 * @param array $where
 	 * @return ArrayPlus
 	 * @deprecated
 	 */
 	public function getData($where = [])
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		$this->lastSelectQuery = $this->db->getLastQuery();
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
@@ -110,12 +119,14 @@ class Model {
 	}
 
 	/**
+	 * @param array $where
 	 * @return ArrayPlus
 	 * @deprecated
 	 */
 	public function query($where = [])
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		$this->lastSelectQuery = $this->db->getLastQuery();
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
@@ -125,9 +136,9 @@ class Model {
 		return $data;
 	}
 
-	function renderList()
+	public function renderList()
 	{
-		$list = array();
+		$list = [];
 		if ($this->getData()->count()) {
 			foreach ($this->getData() as $id => $row) {
 				$this->setData($row);
@@ -136,9 +147,9 @@ class Model {
 				} elseif (method_exists($this, 'getSingleLink')) {
 					$link = $this->getSingleLink();
 					if ($link) {
-						$content = new HTMLTag('a', array(
+						$content = new HTMLTag('a', [
 							'href' => $link,
-						), $this->getName());
+						], $this->getName());
 					} else {
 						$content = $this->getName();
 					}
@@ -152,12 +163,13 @@ class Model {
 		return null;
 	}
 
-	function insert(array $data, array $where = [])
+	public function insert(array $data, array $where = [])
 	{
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
 		$res = $this->db->runInsertQuery($this->table, $data, $where);
+		$this->lastInsertQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
 	}
@@ -168,20 +180,22 @@ class Model {
 	 * @param array $data
 	 * @return resource
 	 */
-	function update(array $data)
+	public function update(array $data)
 	{
 		$res = $this->db->runUpdateQuery($this->table, $data, [
 			$this->idField => $this->id,
 		]);
+		$this->lastUpdateQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
 	}
 
-	function getByID($id)
+	public function getByID($id)
 	{
 		$found = $this->db->fetchOneSelectQuery($this->table, [
 			$this->idField => $id,
 		]);
+		$this->lastSelectQuery = $this->db->getLastQuery();
 		if ($found) {
 			$this->setData($found);
 		} else {
@@ -190,7 +204,7 @@ class Model {
 		return $this;
 	}
 
-	function getFormFromModel()
+	public function getFormFromModel()
 	{
 		$desc = [];
 		$fields = $this->getFields();
@@ -209,7 +223,7 @@ class Model {
 	/**
 	 * @return DocCommentParser[]
 	 */
-	function getFields()
+	public function getFields()
 	{
 		$fields = [];
 		foreach (get_object_vars($this) as $fieldName => $_) {
@@ -255,6 +269,11 @@ class Model {
 		return $data;
 	}
 
+	public function getJSON()
+	{
+		return (object)$this->asArray();
+	}
+
 	public function getNameLink()
 	{
 		return HTMLTag::a($this->getSingleLink(), $this->getName());
@@ -297,7 +316,7 @@ class Model {
 				$f->type = $dc2->get('var')
 					? first(trimExplode(' ', $dc2->get('var')))
 					: 'varchar';
-				$f->references = $type->table.'('.$type->idField.')';
+				$f->references = $type->table . '(' . $type->idField . ')';
 			}
 			$columns[] = $f;
 		}

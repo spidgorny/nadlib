@@ -10,12 +10,12 @@ class LocalLangExcel extends LocalLang
 	protected $excel = 'lib/translation.xml';
 	protected $isCache = TRUE;
 
-	function __construct($forceLang = null)
+	public function __construct($forceLang = null)
 	{
 		parent::__construct($forceLang);
 		$this->ll = $this->readPersistant();
 		if (!$this->ll) {
-			$this->ll = $this->readExcel(array_merge(array('code'), $this->possibleLangs));
+			$this->ll = $this->readExcel(array_merge(['code'], $this->possibleLangs));
 			if ($this->ll) {
 				$this->savePersistant($this->ll);
 			}
@@ -23,9 +23,9 @@ class LocalLangExcel extends LocalLang
 		$this->ll = $this->ll[$this->lang];
 	}
 
-	function readPersistant()
+	public function readPersistant()
 	{
-		return null; // temporary until this is rewritten to read data from DB
+		$data = [];
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
 				$data = file_get_contents($this->filename);
@@ -35,17 +35,17 @@ class LocalLangExcel extends LocalLang
 		return $data;
 	}
 
-	function savePersistant($data)
+	public function savePersistant($data)
 	{
 		$data = serialize($data);
 		$data = file_put_contents($this->filename, $data);
 		//debug('save');
 	}
 
-	function readExcel(array $keys)
+	public function readExcel(array $keys)
 	{
 		//debug($keys);
-		$data = array();
+		$data = [];
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
 			$filedata = str_replace('xmlns="http://www.w3.org/TR/REC-html40"', '', $filedata);
@@ -112,19 +112,19 @@ class LocalLangExcel extends LocalLang
 		return $data;
 	}
 
-	static function getInstance()
+	public static function getInstance($forceLang = NULL, $filename = null)
 	{
-		static $instance = NULL;
+		static $instance = null;
 		if (!$instance) {
 			$instance = new LocalLangExcel();
 		}
 		return $instance;
 	}
 
-	function saveMissingMessage($text)
+	public function saveMissingMessage($text)
 	{
 		if (DEVELOPMENT) {
-			$missingWords = array();
+			$missingWords = [];
 			$fp = fopen('lib/missing.txt', 'r');
 			while (!feof($fp)) {
 				$line = fgets($fp);

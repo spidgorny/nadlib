@@ -4,26 +4,29 @@
  * Class MySQLi
  * Should work but it doesn't get num_rows() after store_result().
  */
-class DBLayerMySQLi extends DBLayerBase implements DBInterface {
+class DBLayerMySQLi extends DBLayerBase implements DBInterface
+{
 
 	/**
 	 * @var MySQLi
 	 */
-	var $connection;
+	public $connection;
 
 	/**
 	 * @var array
 	 */
-	var $columns = [];
+	public $columns = [];
 
-	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '') {
+	public function __construct($db = null, $host = '127.0.0.1', $login = 'root', $password = '')
+	{
 		$this->database = $db;
 		if ($this->database) {
 			$this->connect($host, $login, $password);
 		}
 	}
 
-	function connect($host, $login, $password) {
+	public function connect($host, $login, $password)
+	{
 		$this->connection = new mysqli($host, $login, $password, $this->database);
 		if (!$this->connection) {
 			throw new Exception(mysqli_error($this->connection), mysqli_errno($this->connection));
@@ -37,7 +40,8 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 	 * @return bool|mysqli_result
 	 * @throws DatabaseException
 	 */
-	function perform($query, array $params = array()) {
+	public function perform($query, array $params = [])
+	{
 		$this->lastQuery = $query;
 
 		if ($params) {
@@ -45,9 +49,13 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 			if ($stmt) {
 				$types = str_repeat('s', sizeof($params));
 				//			debug($types, $params, $query.'');
-				call_user_func_array([$stmt, 'bind_param'],
-					array_merge([$types],
-						$this->makeValuesReferenced($params)));
+				call_user_func_array(
+					[$stmt, 'bind_param'],
+					array_merge(
+						[$types],
+						$this->makeValuesReferenced($params)
+					)
+				);
 				$stmt->execute();
 				$stmt->store_result();
 				debug($stmt);
@@ -57,12 +65,12 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 					$meta = $stmt->result_metadata();
 					$data = [];
 					while ($field = $meta->fetch_field()) {
-//						debug($field);
+						//						debug($field);
 						$this->columns[$field->name] = &$data[$field->name];
 						// pass by reference
 					}
 					//debug($data, $meta, $field, $this->columns);
-					$ok = call_user_func_array(array($stmt, 'bind_result'), $this->columns);
+					$ok = call_user_func_array([$stmt, 'bind_result'], $this->columns);
 				}
 				if (!$ok) {
 					throw new DatabaseException(mysqli_error($this->connection));
@@ -73,44 +81,47 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 			//debug($query, $params, $stmt->num_rows);
 		} else {
 			$stmt = $this->connection->query($query);
-//			$stmt->fetch_assoc();
+			//			$stmt->fetch_assoc();
 		}
 
 		if (!$stmt) {
-			debug($query.'', $params);
+			debug($query . '', $params);
 			throw new DatabaseException($this->connection->error, $this->connection->errno);
 		}
 		return $stmt;
 	}
 
-	function prepare($sql) {
+	public function prepare($sql)
+	{
 		return mysqli_prepare($this->connection, $sql);
 	}
 
-	private function makeValuesReferenced(array $arr){
-		$refs = array();
+	private function makeValuesReferenced(array $arr)
+	{
+		$refs = [];
 		foreach ($arr as $key => $value) {
 			$refs[$key] = &$arr[$key];
 		}
 		return $refs;
-
 	}
 
 	/**
-	 * @param $res	mysqli_result
+	 * @param resource $res
 	 * @return array|false
+	 * @throws DatabaseException
 	 */
-	function fetchAssoc($res) {
-//		debug(gettype2($res));
+	public function fetchAssoc($res)
+	{
+		//		debug(gettype2($res));
 		if ($res instanceof mysqli_result) {
 			$data = (array)$res->fetch_assoc();
-//			debug(gettype2($res), $data);
+			//			debug(gettype2($res), $data);
 			return $data;
 		} elseif (is_string($res)) {
 			$res = $this->perform($res);
 			return $res->fetch_assoc();
 		} elseif ($res instanceof SQLSelectQuery) {
-			$res = $this->perform($res.'', $res->getParameters());
+			$res = $this->perform($res . '', $res->getParameters());
 			return $res->fetch_assoc();
 		} elseif ($res instanceof mysqli_stmt) {
 			$res->fetch();
@@ -121,24 +132,28 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function affectedRows($res = NULL) {
+	public function affectedRows($res = null)
+	{
 		return $this->connection->affected_rows;
 	}
 
-	function escape($string) {
+	public function escape($string)
+	{
 		return $this->connection->escape_string($string);
 	}
 
-	function escapeBool($value) {
+	public function escapeBool($value)
+	{
 		return intval(!!$value);
 	}
 
 	/**
-	 * @param $res mysqli_result
+	 * @param resource $res
 	 * @param null $table
 	 * @return mixed
 	 */
-	function lastInsertID($res, $table = NULL) {
+	public function lastInsertID($res, $table = null)
+	{
 		return $this->connection->insert_id;
 	}
 
@@ -146,19 +161,22 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 	 * @param mysqli_result $res
 	 * @return mixed
 	 */
-	function numRows($res = NULL) {
+	public function numRows($res = null)
+	{
 		//debug($res->num_rows);
 		return $res->num_rows;
 	}
 
-	function getPlaceholder($field) {
-//		$slug = URL::getSlug($field);
-//		$slug = str_replace('-', '_', $slug);
-//		return '@'.$slug;
+	public function getPlaceholder($field)
+	{
+		//		$slug = ?URL::getSlug($field);
+		//		$slug = str_replace('-', '_', $slug);
+		//		return '@'.$slug;
 		return '?';
 	}
 
-	function getInfo() {
+	public function getInfo()
+	{
 		return [
 			$this->connection->host_info,
 			$this->connection->server_info,
@@ -173,12 +191,12 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface {
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @return string
 	 */
-	function getReplaceQuery($table, $columns) {
+	public function getReplaceQuery($table, $columns)
+	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
 		$q = "REPLACE INTO {$table} ({$fields}) VALUES ({$values})";
 		return $q;
 	}
-
 }

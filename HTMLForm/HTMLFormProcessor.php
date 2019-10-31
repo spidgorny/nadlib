@@ -7,7 +7,8 @@
  * - onSuccess();
  * - submitButton
  */
-abstract class HTMLFormProcessor extends AppController {
+abstract class HTMLFormProcessor extends AppController
+{
 
 	/**
 	 * @var string
@@ -17,7 +18,7 @@ abstract class HTMLFormProcessor extends AppController {
 	/**
 	 * @var array
 	 */
-	public $default = array();
+	public $default = [];
 
 	/**
 	 * @var HTMLFormValidate
@@ -49,9 +50,10 @@ abstract class HTMLFormProcessor extends AppController {
 	 * For debugging
 	 * @var array
 	 */
-	public $method = array();
+	public $method = [];
 
-	function __construct(array $default = array()) {
+	function __construct(array $default = [])
+	{
 		parent::__construct();
 		$this->prefix = get_class($this);
 		$this->default = $default ? $default : $this->default;
@@ -65,11 +67,12 @@ abstract class HTMLFormProcessor extends AppController {
 	 * The idea is to remove all slow operations outside of the constructor.
 	 * Who's gonna call this function? Index?
 	 */
-	function postInit() {
+	function postInit()
+	{
 		TaylorProfiler::start(__METHOD__);
-		$this->form = new HTMLFormTable();	// needed sometime in getDesc
+		$this->form = new HTMLFormTable();    // needed sometime in getDesc
 		$this->form->setDesc($this->getDesc());
-		$this->form = $this->getForm($this->form);		// $this->desc will be used inside
+		$this->form = $this->getForm($this->form);        // $this->desc will be used inside
 		//debug($this->desc);
 		//debug($this->prefix);
 		if ($this->submitted) {
@@ -108,7 +111,8 @@ abstract class HTMLFormProcessor extends AppController {
 	 * If inherited can be used as both string and HTMLFormTable
 	 * @return HTMLFormTable
 	 */
-	function render() {
+	function render()
+	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		if (!$this->form) {
@@ -124,8 +128,8 @@ abstract class HTMLFormProcessor extends AppController {
 			$content .= $this->s($this->onSuccess($data));
 		} else {
 			if ($this->submitted) {
-				$content .= '<div class="error alert alert-error ui-state-error padding">'.
-					__('The form is not complete. Please check the comments next to each field below.').'</div>';
+				$content .= '<div class="error alert alert-error ui-state-error padding">' .
+					__('The form is not complete. Please check the comments next to each field below.') . '</div>';
 			}
 			$content .= $this->s($this->showForm());
 		}
@@ -134,7 +138,8 @@ abstract class HTMLFormProcessor extends AppController {
 		return $content;
 	}
 
-	function getForm(HTMLFormTable $preForm = NULL) {
+	function getForm(HTMLFormTable $preForm = NULL)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$f = $preForm ? $preForm : $this->form;
 		if ($this->ajax) {
@@ -147,21 +152,23 @@ abstract class HTMLFormProcessor extends AppController {
 		return $f;
 	}
 
-	function showForm() {
+	function showForm()
+	{
 		if (!$this->form) {
-			throw new Exception(__METHOD__.': initialize form with getForm()');
+			throw new Exception(__METHOD__ . ': initialize form with getForm()');
 		}
 		TaylorProfiler::start(__METHOD__);
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
-		$this->form->submit($this->submitButton, array('class' => 'btn btn-success'));
+		$this->form->submit($this->submitButton, ['class' => 'btn btn-success']);
 		TaylorProfiler::stop(__METHOD__);
 		return $this->form->getContent();
 	}
 
-	function __toString() {
-		return '<div class="HTMLFormProcessor">'.$this->render().'</div>';
+	function __toString()
+	{
+		return '<div class="HTMLFormProcessor">' . $this->render() . '</div>';
 	}
 
 	abstract function onSuccess(array $data);

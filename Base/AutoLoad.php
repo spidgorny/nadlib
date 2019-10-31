@@ -38,7 +38,7 @@ class AutoLoad
 	 * This prevents searching for each file.
 	 * @var array
 	 */
-	public $classFileMap = array();
+	public $classFileMap = [];
 
 	/**
 	 * @var Config
@@ -77,11 +77,11 @@ class AutoLoad
 	 */
 	public $componentsPath;
 
-	public $stat = array(
+	public $stat = [
 		'findInFolders' => 0,
 		'loadFile1' => 0,
 		'loadFile2' => 0,
-	);
+	];
 
 	/**
 	 * getFolders() is called from outside
@@ -142,7 +142,7 @@ class AutoLoad
 			if (isset($_SESSION[__CLASS__])) {
 				$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
 					? $_SESSION[__CLASS__]['classFileMap']
-					: array();
+					: [];
 			}
 			if (ifsetor($_SERVER['argc'])) {
 				if (in_array('-al', (array)ifsetor($_SERVER['argv']))) {
@@ -212,7 +212,7 @@ class AutoLoad
 
 		if (0) {
 			echo '<pre>';
-			print_r(array(
+			print_r([
 				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 				'rp(SCRIPT_FILENAME)' => realpath($_SERVER['SCRIPT_FILENAME']),
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -222,24 +222,24 @@ class AutoLoad
 				'$scriptWithPath' => $scriptWithPath,
 				'dirname(__FILE__)' => dirname(__FILE__),
 				'baseHref' => Request::getLocation() . '',
-				'$relToNadlibCLI' => $relToNadlibCLI,
-				'$relToNadlibPU' => $relToNadlibPU,
+//				'$relToNadlibCLI' => $relToNadlibCLI,
+//				'$relToNadlibPU' => $relToNadlibPU,
 				'$this->nadlibRoot' => $this->nadlibRoot,
-				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
+//				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
 				'$this->appRoot' => $this->appRoot . '',
 				'appRootIsRoot' => $appRootIsRoot,
-				'Config->appRoot' => isset($config) ? $config->appRoot : NULL,
+//				'Config->appRoot' => isset($config) ? $config->appRoot : null,
 				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
 				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
 				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot() . '',
 				'request->getLocation()' => Request::getInstance()->getLocation() . '',
 				'this->componentsPath' => $this->componentsPath . '',
-			));
+			]);
 			echo '</pre>';
 		}
 	}
 
-	function setComponentsPath()
+	public function setComponentsPath()
 	{
 		if (file_exists('composer.json')) {
 			$json = json_decode(file_get_contents('composer.json'), 1);
@@ -269,14 +269,14 @@ class AutoLoad
 		}
 	}
 
-	function detectAppRoot()
+	public function detectAppRoot()
 	{
 		require_once __DIR__ . '/AppRootDetector.php';
 		$ard = new AppRootDetector();
 		return $ard->get();
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		if ($this->useCookies) {
 			$_SESSION[__CLASS__] = ifsetor($_SESSION[__CLASS__], []);
@@ -287,11 +287,11 @@ class AutoLoad
 
 	/**
 	 * Main __autoload() function
-	 * @param $class
+	 * @param string $class
 	 * @return bool
 	 * @throws Exception
 	 */
-	function load($class)
+	public function load($class)
 	{
 		/** @var TaylorProfiler $tp */
 		//echo TaylorProfiler::getElapsedTimeString().' '.$class.BR;
@@ -339,7 +339,7 @@ class AutoLoad
 		}
 	}
 
-	function loadFileForClass($class)
+	public function loadFileForClass($class)
 	{
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);                // why?
@@ -392,7 +392,7 @@ class AutoLoad
 		return $file;
 	}
 
-	function getFileFromMap($class)
+	public function getFileFromMap($class)
 	{
 		$file = isset($this->classFileMap[$class])
 			? $this->classFileMap[$class] : NULL;
@@ -416,7 +416,7 @@ class AutoLoad
 		return $file;
 	}
 
-	function log($debugLine)
+	public function log($debugLine)
 	{
 		if ($this->debug) {
 			if (Request::isCLI()) {
@@ -429,7 +429,7 @@ class AutoLoad
 		}
 	}
 
-	function logError($debugLine)
+	public function logError($debugLine)
 	{
 		if ($this->debug) {
 			$this->dumpCSS();
@@ -437,7 +437,7 @@ class AutoLoad
 		}
 	}
 
-	function logSuccess($debugLine)
+	public function logSuccess($debugLine)
 	{
 		if ($this->debug) {
 			$this->dumpCSS();
@@ -445,7 +445,7 @@ class AutoLoad
 		}
 	}
 
-	function dumpCSS()
+	public function dumpCSS()
 	{
 		static $once = 0;
 		if (Request::isCLI()) return;
@@ -462,7 +462,7 @@ class AutoLoad
 		$once = 1;
 	}
 
-	static function register()
+	public static function register()
 	{
 		$instance = self::getInstance();
 		if (!$instance->folders) {
@@ -470,7 +470,7 @@ class AutoLoad
 		}
 		// before composer <- incorrect
 		// composer autoload is much faster and should be first
-		$result = spl_autoload_register(array($instance, 'load'), true, false);
+		$result = spl_autoload_register([$instance, 'load'], true, false);
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
 		} else {
@@ -485,7 +485,7 @@ class AutoLoad
 		}
 	}
 
-	function addFolder($path, $namespace = NULL)
+	public function addFolder($path, $namespace = null)
 	{
 		if (!$this->folders) {
 			$this->postInit();

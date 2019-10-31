@@ -24,9 +24,9 @@ class Debug
 	var $name;
 
 	/**
-	 * @param $index Index|IndexBE
+	 * @param Index|IndexBE $index
 	 */
-	function __construct($index)
+	public function __construct($index)
 	{
 		$this->index = $index;
 		self::$instance = $this;
@@ -65,12 +65,14 @@ class Debug
 				? DebugFirebug::class
 				: ($this->canDebugster()
 					? 'Debugster'
-					: (DebugBulma::canBulma()
-						? DebugBulma::class
-						: ($this->canHTML()
-							? 'HTML'
-							: ''
+					: (DEVELOPMENT
+						? (DebugBulma::canBulma()
+							? DebugBulma::class
+							: ($this->canHTML()
+								? 'HTML'
+								: '')
 						)
+						: null
 					)
 				)
 			);
@@ -127,10 +129,10 @@ class Debug
 
 	/**
 	 * Main entry point.
-	 * @param $params
+	 * @param mixed $params
 	 * @return string
 	 */
-	function debug($params)
+	public function debug($params)
 	{
 		$content = '';
 		if ($this->renderer) {
@@ -153,7 +155,7 @@ class Debug
 		return $content;
 	}
 
-	function canHTML()
+	public function canHTML()
 	{
 //		pre_print_r(__METHOD__, $_COOKIE);
 		return ifsetor($_COOKIE['debug']);
@@ -200,7 +202,7 @@ class Debug
 		$traceObj = ArrayPlus::create($db)->column('object')->getData();
 		if (!array_search('slTable', $traceObj) && class_exists('slTable', false)) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">' .
-				new slTable($db, 'class="nospacing"', array(
+				new slTable($db, 'class="nospacing"', [
 					'file' => 'file',
 					'line' => 'line',
 					'class' => 'class',
@@ -208,7 +210,7 @@ class Debug
 					'type' => 'type',
 					'function' => 'function',
 					'args' => 'args',
-				)) . '</pre>';
+				]) . '</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';
 		}
@@ -222,7 +224,7 @@ class Debug
 	static function getTraceTable2(array $db)
 	{
 		$db = self::getSimpleTrace($db);
-		$thes = array(
+		$thes = [
 			'file' => 'file',
 			'line' => 'line',
 //			'class' => 'class',
@@ -230,18 +232,18 @@ class Debug
 //			'type' => 'type',
 			'function' => 'function',
 //			'args' => 'args',
-		);
+		];
 		$trace[] = '<table class="table">';
 		$trace[] = '<thead>';
 		foreach ($thes as $t) {
-			$trace[] = '<td>'.$t.'</td>';
+			$trace[] = '<td>' . $t . '</td>';
 		}
 		$trace[] = '</thead>';
 		$trace[] = '<tbody>';
 		foreach ($db as $row) {
 			$trace[] = '<tr>';
 			foreach ($thes as $t => $_) {
-				$trace[] = '<td>'.ifsetor($row[$t]).'</td>';
+				$trace[] = '<td>' . ifsetor($row[$t]) . '</td>';
 			}
 			$trace[] = '</tr>';
 		}
@@ -256,7 +258,7 @@ class Debug
 	 * @return string
 	 * @throws ReflectionException
 	 */
-	static function getMethod(array $first, array $next = array())
+	public static function getMethod(array $first, array $next = [])
 	{
 //		pre_print_r($_SERVER);
 		$isPhpStorm = isset($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER'])
@@ -266,7 +268,7 @@ class Debug
 		$line = ifsetor($first['line']);
 		$file = ifsetor($first['file']);
 
-		$isPhpStorm = false; 	// don't like it
+		$isPhpStorm = false;    // don't like it
 		if ($isPhpStorm) {
 			$path = $file;
 		} else {
@@ -310,15 +312,12 @@ class Debug
 	 * @param int $stepBack
 	 * @return string
 	 */
-	static function getCaller($stepBack = 2)
+	public static function getCaller($stepBack = 2)
 	{
 		$btl = debug_backtrace();
 		reset($btl);
 		$bt = current($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
-			$bt = next($btl);
-		}
-		if ($bt['function'] == 'runSelectQuery') {
 			$bt = next($btl);
 		}
 		return ifsetor($bt['class'], get_class(ifsetor($bt['object'])))
@@ -333,7 +332,7 @@ class Debug
 	 * @param bool $withHash
 	 * @return string
 	 */
-	static function getBackLog($limit = 5, $cut = 7, $join = ' // ', $withHash = true)
+	public static function getBackLog($limit = 5, $cut = 7, $join = null, $withHash = true)
 	{
 		$debug = debug_backtrace();
 		for ($i = 0; $i < $cut; $i++) {
@@ -357,17 +356,19 @@ class Debug
 				break;
 			}
 		}
-		$content = implode($join, $content);
+		if ($join) {
+			$content = implode($join, $content);
+		}
 		return $content;
 	}
 
 	/**
 	 * http://stackoverflow.com/a/2510459/417153
-	 * @param $bytes
+	 * @param int $bytes
 	 * @param int $precision
 	 * @return string
 	 */
-	static function formatBytes($bytes, $precision = 2)
+	public static function formatBytes($bytes, $precision = 2)
 	{
 		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
@@ -382,7 +383,7 @@ class Debug
 		return round($bytes, $precision) . ' ' . $units[$pow];
 	}
 
-	static function getArraySize(array $tmpArray)
+	public static function getArraySize(array $tmpArray)
 	{
 		$size = [];
 		foreach ($tmpArray as $key => $row) {
@@ -392,17 +393,20 @@ class Debug
 		return array_sum($size);
 	}
 
-	function canDebugster()
+	public function canDebugster()
 	{
 		return false;
 	}
 
 	/**
-	 * @param $debugAccess ...
+	 * @param mixed ..$debugAccess
+	 * @throws Exception
 	 */
 	public function consoleLog($debugAccess)
 	{
-		if ($this->request->isAjax()) return;
+		if ($this->request->isAjax()) {
+			return;
+		}
 		if (func_num_args() > 1) {
 			$debugAccess = func_get_args();
 		}
@@ -421,7 +425,7 @@ class Debug
 		}
 	}
 
-	static function peek($row)
+	public static function peek($row)
 	{
 		if (is_object($row)) {
 			$row = get_object_vars($row);
@@ -434,7 +438,7 @@ class Debug
 				}
 				return [
 					'type' => trim(strip_tags(typ($a) . '')),
-					'value' => $val.''
+					'value' => $val . ''
 				];
 			}, $row);
 			return array_combine(array_keys($row), $types);
@@ -446,7 +450,7 @@ class Debug
 	 * @param     $row
 	 * @param int $spaces
 	 */
-	static function dumpStruct($row, $spaces = 0)
+	public static function dumpStruct($row, $spaces = 0)
 	{
 		static $recursive;
 		if (!$spaces) {

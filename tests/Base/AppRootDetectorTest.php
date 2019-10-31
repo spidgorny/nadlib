@@ -11,7 +11,7 @@ namespace nadlib\Base;
 use AppRootDetector;
 use Request;
 
-class AppRootDetectorTest extends \PHPUnit_Framework_TestCase
+class AppRootDetectorTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**

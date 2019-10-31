@@ -8,10 +8,10 @@
 
 use nadlib\SessionDatabase;
 
-class SessionDatabaseTest extends PHPUnit_Framework_TestCase
+class SessionDatabaseTest extends PHPUnit\Framework\TestCase
 {
 
-	function test_runInsertQuery()
+	public function test_runInsertQuery()
 	{
 		$db = new SessionDatabase();
 		$table = 'application';

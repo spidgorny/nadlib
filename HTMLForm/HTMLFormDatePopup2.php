@@ -17,9 +17,9 @@ class HTMLFormDatePopup2 extends HTMLFormType {
 
 	public $id;
 
-	function __construct(HTMLForm $form, $name, $value, array $desc = array(
+	function __construct(HTMLForm $form, $name, $value, array $desc = [
 		'phpFormat' => 'Y-m-d',
-	))
+	])
 	{
 		$this->form = $form;
 		$this->name = $name;

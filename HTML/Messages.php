@@ -13,6 +13,7 @@ class Messages extends \MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+		return $msg;
 	}
 
 	function error($text)
@@ -24,6 +25,7 @@ class Messages extends \MergedContent
 			$this->content .= $msg;
 		}
 //		debug($this->content);
+		return $msg;
 	}
 
 	function success($text)
@@ -34,6 +36,7 @@ class Messages extends \MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+		return $msg;
 	}
 
 	function info($text)
@@ -44,6 +47,7 @@ class Messages extends \MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+		return $msg;
 	}
 
 	function saveMessages()
@@ -56,7 +60,7 @@ class Messages extends \MergedContent
 //		debug('restoring');
 		if (isset($_SESSION[__CLASS__])) {
 			$this->content = $_SESSION[__CLASS__]['messages'];
-			$_SESSION[__CLASS__]['messages'] = array();
+			$_SESSION[__CLASS__]['messages'] = [];
 		}
 	}
 

@@ -1,6 +1,6 @@
 <?php
 
-class TimeTest extends PHPUnit_Framework_TestCase {
+class TimeTest extends PHPUnit\Framework\TestCase {
 
 	function test_Time_add_Duration() {
 		$t = new Date('2011-08-01');

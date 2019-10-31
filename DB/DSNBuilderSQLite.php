@@ -1,17 +1,18 @@
 <?php
 
-class DSNBuilderSQLite extends DSNBuilder {
+class DSNBuilderSQLite extends DSNBuilder
+{
 
 	var $db;
 
-	function __construct($db)
+	function __construct($host, $user, $pass, $db, $port)
 	{
 		$this->db = $db;
 	}
 
 	function __toString()
 	{
-		return 'sqlite:'.$this->db;
+		return 'sqlite:' . $this->db;
 	}
 
 }
