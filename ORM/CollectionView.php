@@ -19,8 +19,8 @@ class CollectionView
 	public $useSorting = true;
 
 	public $tableMore = [
-		'class' => "nospacing table table-striped",
-		'width' => "100%",
+		'class' => 'nospacing table table-striped',
+		'width' => '100%',
 	];
 
 	public $wrapTag = 'div';
@@ -41,7 +41,7 @@ class CollectionView
 			list($tagClass, $id) = trimExplode('#', $this->wrapTag, 2);
 			list($tag, $class) = trimExplode('.', $tagClass, 2);
 			$content = [
-				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="'.$id.'">',
+				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="' . $id . '">',
 				$content,
 				'</' . $tag . '>'
 			];
@@ -95,14 +95,14 @@ class CollectionView
 			$s = $this->getDataTable();
 			if ($this->collection->pager) {
 				$pages = $this->collection->pager->renderPageSelectors();
-				$content = $pages .
+				$content = [$pages .
 					'<div class="collection"
-					 id="'.get_class($this->collection).'">'.
-					$s->getContent(get_class($this)) .
-					'</div>'.
-					$pages;
+					 id="' . get_class($this->collection) . '">',
+					$s,	// not HTML, may need to process later
+					'</div>',
+					$pages];
 			} else {
-				$content = $s->getContent();
+				$content[] = $s;
 			}
 			$content = $this->wrap($content);
 		} else {
