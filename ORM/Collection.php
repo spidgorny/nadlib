@@ -532,6 +532,7 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
+	 * @param bool $preProcess
 	 * @return ArrayPlus
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
