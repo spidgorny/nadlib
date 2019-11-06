@@ -712,6 +712,10 @@ abstract class OODBase
 	 */
 	public function findInDBsetInstance(array $where, $orderByLimit = '')
 	{
+//		llog(__METHOD__, $this->where);
+//		llog(__METHOD__, $this->where.'');
+//		llog(__METHOD__, $where);
+//		llog(__METHOD__, $where.'');
 		$data = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		if (is_array($data)) {

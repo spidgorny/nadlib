@@ -43,7 +43,7 @@ class slTable implements ToStringable
 	 * @var array
 	 */
 	public $more = [
-		'class' => "nospacing",
+		'class' => 'nospacing',
 	];
 
 	/**
@@ -116,7 +116,7 @@ class slTable implements ToStringable
 
 	public $isCLI = false;
 
-	public function __construct($id = null, $more = "", array $thes = [], Request $request = null)
+	public function __construct($id = null, $more = '', array $thes = [], Request $request = null)
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;
@@ -347,7 +347,7 @@ class slTable implements ToStringable
 				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
 				if (!$this->more) {
 					$this->more = [
-						'class' => "nospacing",
+						'class' => 'nospacing',
 					];
 				}
 			}
@@ -647,7 +647,7 @@ class slTable implements ToStringable
 	/**
 	 * @throws Exception
 	 */
-	function render()
+	public function render()
 	{
 		echo $this->getContent();
 	}
@@ -853,7 +853,7 @@ class slTable implements ToStringable
 			}
 			//debug($col, $numeric);
 			if ($numeric) {
-				$this->thes[$key]['more']['align'] = "right";
+				$this->thes[$key]['more']['align'] = 'right';
 			}
 		}
 	}

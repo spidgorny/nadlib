@@ -20,6 +20,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		$this->isHTML = $isHTML;
 	}
 
+	public static function div($content, array $param = [])
+	{
+		return new HTMLTag('div', $param, $content);
+	}
+
 	public function __toString()
 	{
 		try {

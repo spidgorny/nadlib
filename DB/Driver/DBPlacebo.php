@@ -170,4 +170,9 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		$this->returnNextTime = $columns;
 	}
 
+	public function getFirstWord($asd)
+	{
+		return $asd;
+	}
+
 }

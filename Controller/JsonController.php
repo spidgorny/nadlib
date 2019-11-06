@@ -12,8 +12,8 @@ trait JsonController
 
     public function validateAuthorization($registeredApps)
 	{
-		$headers = apache_request_headers();
-		$authorization = ifsetor($headers['Authorization']);
+		$authorization = $this->request->getHeader('Authorization');
+//		llog($authorization);
 		//debug($headers, $authorization);
 		if (!$authorization || !in_array($authorization, $registeredApps)) {
 			throw new LoginException('Authorization failed.', 401);
@@ -51,7 +51,7 @@ trait JsonController
 		return [$request, $arguments];
 	}
 
-    public function error(Exception $e, $httpCode = 500)
+    public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
     {
         $message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
         llog($message);
@@ -65,13 +65,17 @@ trait JsonController
             'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
             'request' => $_REQUEST,
             'headers' => getallheaders(),
-        ]);
+			'timestamp' => date('Y-m-d H:i:s'),
+			'duration' => microtime(true) - $_REQUEST['REQUEST_TIME_FLOAT'],
+        ] + $extraData);
     }
 
     public function json($key)
     {
         header('Content-Type: application/json');
-        return json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
+		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
+		error_log($response);
+		return $response;
     }
 
 }
