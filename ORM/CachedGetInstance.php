@@ -214,7 +214,8 @@ trait CachedGetInstance
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
 				$c->findInDBsetInstance([
-					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),
+//					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
+					 new SQLWhereEqual('trim(' . $field . ')', $name),
 				]);
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([

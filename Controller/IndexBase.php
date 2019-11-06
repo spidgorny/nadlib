@@ -427,6 +427,7 @@ class IndexBase /*extends Controller*/
 			echo $e->getTraceAsString(), BR;
 			$content = '';
 		} else {
+			http_response_code($e->getCode());
 			if ($this->controller) {
 				$this->controller->title = get_class($this->controller);
 			}
