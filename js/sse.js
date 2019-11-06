@@ -60,4 +60,3 @@ addEvent(document, 'DOMContentLoaded', () => {
     const href = target.getAttribute('href');
     startTask(href, target);
 });
-//# sourceMappingURL=sse.js.map
