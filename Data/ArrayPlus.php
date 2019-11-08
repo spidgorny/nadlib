@@ -1256,6 +1256,14 @@ class ArrayPlus extends ArrayObject implements Countable
 		}
 	}
 
+	public function without(array $keys)
+	{
+		foreach ($keys as $key) {
+			unset($this[$key]);
+		}
+		return $this;
+	}
+
 	public function sort($callback)
 	{
 		$data = $this->getArrayCopy();

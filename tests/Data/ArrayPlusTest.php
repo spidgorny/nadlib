@@ -102,4 +102,11 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		$this->assertEquals(['asd', 'someshit', 'split' => 'a', 'after'], $a->getData());
 	}
 
+	public function test_without()
+	{
+		$a = ArrayPlus::create(['asd' => 1, 'qwe' => 2]);
+		$b = $a->without(['asd']);
+		$this->assertEquals(['qwe' => 2], $b->getArrayCopy());
+	}
+
 }

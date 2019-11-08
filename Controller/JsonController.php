@@ -66,7 +66,7 @@ trait JsonController
             'request' => $_REQUEST,
             'headers' => getallheaders(),
 			'timestamp' => date('Y-m-d H:i:s'),
-			'duration' => microtime(true) - $_REQUEST['REQUEST_TIME_FLOAT'],
+			'duration' => microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
         ] + $extraData);
     }
 
