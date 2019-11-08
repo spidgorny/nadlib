@@ -54,11 +54,11 @@ class RunDispatcher extends AppController {
 		//exec($start);
 //		$process = popen($cmd, "r");
 //		$process = proc_open('cmd /c '.$start, array(
-		$process = proc_open($start, array(
-			array("pipe","r"),
-			array("pipe","w"),
-			array("pipe","w"),
-		), $pipes);
+		$process = proc_open($start, [
+			["pipe","r"],
+			["pipe","w"],
+			["pipe","w"],
+		], $pipes);
 		$pinfo = proc_get_status($process);
 		$task->pinfo = $pinfo;
 		echo 'Start: '.$pinfo['pid'], BR;

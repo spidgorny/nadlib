@@ -11,9 +11,9 @@ class GroupSwitch extends Controller
 	 * @see Index
 	 * @var array
 	 */
-	public $allowedUsers = array();
+	public $allowedUsers = [];
 
-	protected $groups = array();
+	protected $groups = [];
 
 	public function render()
 	{
@@ -52,12 +52,12 @@ class GroupSwitch extends Controller
 
 	public function renderGroups()
 	{
-		$items = array();
+		$items = [];
 		foreach ($this->groups as $groupID => $groupName) {
-			$el = $this->makeLink($groupName, array(
+			$el = $this->makeLink($groupName, [
 					'action' => 'setGroup',
 					'groupID' => $groupID,
-				), get_class($this)) . ' ';
+				], get_class($this)) . ' ';
 			if ($this->isCurrentGroup($groupID)) {
 				$el = '<b>' . $el . '</b>';
 			}

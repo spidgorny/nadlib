@@ -42,11 +42,11 @@ class DebugBulma extends DebugHTML
 		return implode(PHP_EOL, $rows);
 	}
 
-	function renderHTMLView(array $db, $a, $levels)
+	public function renderHTMLView(array $db, $a, $levels)
 	{
 		$props = $this->getProps($db, $a);
 
-		$backlog = Debug::getBackLog(1, 6);
+		$backlog = Debug::getBackLog(1, 6, ' // ');
 		$trace = Debug::getTraceTable2($db);
 //		$trace = '<ul><li>' . Debug::getBackLog(20, 6, '<li>') . '</ul>';
 

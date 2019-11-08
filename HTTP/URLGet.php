@@ -33,14 +33,14 @@ class URLGet
 	 * for file_get_content()
 	 * @var array
 	 */
-	public $context = array();
+	public $context = [];
 
 	/**
 	 * @var array
 	 */
-	public $curlParams = array();
+	public $curlParams = [];
 
-	public $headers = array();
+	public $headers = [];
 
 	/**
 	 *
@@ -51,11 +51,11 @@ class URLGet
 	{
 		$this->url = $url;
 		$this->logger = $logger;
-		$this->context = array(
-			'http' => array(
+		$this->context = [
+			'http' => [
 				'timeout' => $this->timeout,
-			)
-		);
+			]
+		];
 	}
 
 	public function log($method, $message)
@@ -72,10 +72,10 @@ class URLGet
 
 	public function setProxy($host, $username, $password)
 	{
-		$this->proxy = new Proxy(array(
+		$this->proxy = new Proxy([
 			'id' => -1,
 			'proxy' => 'http://' . $username . ':' . $password . '@' . $host,
-		));
+		]);
 	}
 
 	/**
@@ -139,9 +139,9 @@ class URLGet
 		return $html;
 	}
 
-	public function fetchCURL(array $options = array())
+	public function fetchCURL(array $options = [])
 	{
-		$this->logger->log(__METHOD__, $this->url . '');
+		$this->log(__METHOD__, $this->url . '');
 		$process = curl_init($this->url);
 		$headers = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		$headers = trimExplode("\r\n", $headers);
@@ -161,7 +161,7 @@ class URLGet
 
 		$response = curl_exec($process);
 		$header_size = curl_getinfo($process, CURLINFO_HEADER_SIZE);
-		$this->logger->log(__METHOD__, $header_size);
+		$this->log(__METHOD__, $header_size);
 		$headers = substr($response, 0, $header_size);
 		$headlines = explode("\n", $headers);
 		$headlines = array_map('trim', $headlines); // empty line

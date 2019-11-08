@@ -38,7 +38,7 @@ class ConfigBase implements ConfigInterface
 	 */
 	public $documentRoot;
 
-	public static $includeFolders = array(
+	public static $includeFolders = [
 		'.',
 		'Base',
 		'Cache',
@@ -66,7 +66,7 @@ class ConfigBase implements ConfigInterface
 		'be/class/Info',
 		'be/class/Test',
 		'Queue',
-	);
+	];
 
 	/**
 	 * Enables FlexiTable check if the all the necessary tables/columns exist.
@@ -105,10 +105,10 @@ class ConfigBase implements ConfigInterface
 //		debug($this->documentRoot);
 
 		$appRoot = AutoLoad::getInstance()->getAppRoot();
-		0 && pre_print_r(array(
+		0 && pre_print_r([
 			'Config->documentRoot' => $this->documentRoot,
 			'Config->appRoot' => $appRoot,
-		));
+		]);
 		//debug_pre_print_backtrace();
 
 		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));

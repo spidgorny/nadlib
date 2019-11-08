@@ -55,7 +55,7 @@ class DBLayerORA extends DBLayer implements DBInterface
 
 		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
 		if ($this->debugOnce || $this->debug) {
-			debug(array($query, $numRows));
+			debug([$query, $numRows]);
 			$this->debugOnce = false;
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
@@ -69,7 +69,7 @@ class DBLayerORA extends DBLayer implements DBInterface
 		}
 		if ($this->LOG[$query]) {
 			$a = $this->LOG[$query];
-			$this->LOG[$query] = array(
+			$this->LOG[$query] = [
 				'timestamp' => '',
 				'file' => $debug[1]['file'],
 				'function' => $debug[1]['function'],
@@ -80,9 +80,9 @@ class DBLayerORA extends DBLayer implements DBInterface
 				'elapsed' => $a['elapsed'],
 				'count' => 1 + $a['count'],
 				'total' => $elapsed + $a['total'],
-			);
+			];
 		} else {
-			$this->LOG[$query] = array(
+			$this->LOG[$query] = [
 				'timestamp' => date('H:i:s'),
 				'file' => $debug[1]['file'],
 				'function' => $debug[1]['function'],
@@ -93,7 +93,7 @@ class DBLayerORA extends DBLayer implements DBInterface
 				'elapsed' => $elapsed,
 				'count' => 1,
 				'total' => $elapsed,
-			);
+			];
 		}
 		return $this->LAST_PERFORM_RESULT;
 	}
@@ -139,7 +139,7 @@ class DBLayerORA extends DBLayer implements DBInterface
 
 	function fetchAll($result, $key = NULL)
 	{
-		$ret = array();
+		$ret = [];
 		while (($row = $this->fetchAssoc($result)) !== FALSE) {
 			$ret[] = $row;
 		}

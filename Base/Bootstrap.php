@@ -8,12 +8,9 @@ class Bootstrap
 	public function boot()
 	{
 		echo 'cwd: ', basename(getcwd()), "\n";
-		if (basename(getcwd()) == 'tests') {
-		}
 
 		require_once __DIR__ . '/../init.php';
-		@define('BR', \Request::isWindows()
-			? "\r\n" : "\n");
+		@define('BR', \Request::isWindows()	? "\r\n" : "\n");
 
 		// first in order to load phpunit classes
 		$globalAutoload = getenv('USERPROFILE') .

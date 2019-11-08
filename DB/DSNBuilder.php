@@ -3,7 +3,7 @@
 class DSNBuilder
 {
 
-	public static function make($scheme, $host, $user, $pass, $db, $port)
+	public static function make($scheme, $host, $user = null, $pass = null, $db = null, $port = null)
 	{
 		$classMap = [
 			'mysql' => DSNBuilderMySQL::class,

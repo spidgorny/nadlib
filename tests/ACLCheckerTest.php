@@ -8,7 +8,7 @@
 
 namespace tests;
 
-class ACLCheckerTest extends \PHPUnit_Framework_TestCase
+class ACLCheckerTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_compareACL()

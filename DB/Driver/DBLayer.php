@@ -5,6 +5,7 @@
  * @mixin SQLBuilder
  * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
@@ -12,7 +13,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @var resource
 	 */
-	public $connection = null;
+    public $connection = NULL;
 
 	public $LAST_PERFORM_RESULT;
 
@@ -58,7 +59,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	protected $pass;
 
-	protected $host;
+	public $host;
 
 	protected $lastBacktrace;
 
@@ -72,7 +73,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
 	{
 //		debug_pre_print_backtrace();
-		$this->dbName = $dbName;
+		$this->database = $dbName;
 //		pre_print_r($this->dbName);
 		$this->user = $user;
 		$this->pass = $pass;
@@ -93,7 +94,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		}
 	}
 
-	function getVersion()
+	public function getVersion()
 	{
 		$version = pg_version();
 		return $version['server'];
@@ -115,18 +116,28 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	public function reconnect()
 	{
-		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
+		$this->connect($this->database, $this->user, $this->pass, $this->host);
 	}
 
-	public function connect($dbName, $user, $pass, $host = "localhost")
+	public function connect($database = null, $user = null, $pass = null, $host = null)
 	{
-		$this->database = $dbName;
-		$string = "host=$host dbname=$dbName user=$user password=$pass";
-		#debug($string);
-		#debug_print_backtrace();
+		if ($database) {
+			$this->database = $database;
+		}
+		if ($user) {
+			$this->user = $user;
+		}
+		if ($pass) {
+			$this->pass = $pass;
+		}
+		if ($host) {
+			$this->host = $host;
+		}
+		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
+//		debug($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection to $host.");
+			throw new Exception("No PostgreSQL connection to $host. ".json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -185,7 +196,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 		try {
 			if ($params) {
-				pg_prepare($this->connection, '', $query);
+				$ok = pg_prepare($this->connection, '', $query);
+				if (!is_resource($ok)) {
+					throw new DatabaseException($query.' can not be prepared');
+				}
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
@@ -540,7 +554,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			return "'f'";
 		} elseif ($value === true) {
 			return "'t'";
-		} elseif (is_int($value)) {    // is_numeric - bad: operator does not exist: character varying = integer
+		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
 		} elseif (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
@@ -665,8 +679,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Compatibility.
-	 * @param $res
-	 * @param $table - optional
+	 * @param resource $res
+	 * @param string $table - optional
 	 * @return null
 	 */
 	public function lastInsertID($res, $table = null)
@@ -693,7 +707,7 @@ from
 	pg_catalog.pg_attribute a
 	inner join pg_catalog.pg_class c on a.attrelid = c.oid
 where
-		c.relname = ' . $this->quoteSQL($table) . '
+        c.relname = '.$this->quoteSQL($table).'
 	and a.attnum > 0
 	and a.attisdropped is false
 	and pg_catalog.pg_table_is_visible(c.oid)
@@ -729,7 +743,7 @@ order by a.attnum';
 	}
 
 	/**
-	 * @param $method
+	 * @param string $method
 	 * @param array $params
 	 * @return mixed
 	 * @throws Exception
@@ -748,6 +762,8 @@ order by a.attnum';
 	 * If the key contains special chars,
 	 * it thinks it's a function call like trim(field)
 	 * and quoting is not done.
+	 * @param string|AsIs $key
+	 * @return string
 	 */
 	public function quoteKey($key)
 	{
@@ -758,7 +774,9 @@ order by a.attnum';
 			} else {
 				$key = '"' . $key . '"';
 			}
-		} // else it can be functions (of something)
+		} elseif ($key instanceof AsIs) {
+			$key .= '';
+		}// else it can be functions (of something)
 		return $key;
 	}
 
@@ -809,7 +827,7 @@ order by a.attnum';
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 * @throws Exception
 	 */
@@ -840,8 +858,7 @@ order by a.attnum';
 	public function getQb()
 	{
 		if (!isset($this->qb)) {
-			$db = Config::getInstance()->getDB();
-			$this->setQb(new SQLBuilder($db));
+			$this->setQb(new SQLBuilder($this));
 		}
 
 		return $this->qb;
@@ -895,7 +912,7 @@ WHERE ccu.table_name='" . $table . "'");
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $columns
 	 * @return string
 	 * @throws DatabaseException
@@ -969,6 +986,11 @@ WHERE ccu.table_name='" . $table . "'");
 				'host' => pg_host($this->connection),
 				'port' => pg_port($this->connection),
 			];
+	}
+
+	public function getDSN()
+	{
+		return 'pgsql://'.$this->user.'@'.$this->host.'/'.$this->database;
 	}
 
 }

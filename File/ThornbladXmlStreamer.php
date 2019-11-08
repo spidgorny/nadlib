@@ -27,9 +27,9 @@ abstract class ThornbladXmlStreamer
 	/**
 	 * @param string $mixed Path to XML file OR file handle
 	 * @param \Bytes|int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
-	 * @param $customRootNode    Specific root node to use (Optional)
-	 * @param $totalBytes        Xml file size - Required if supplied file handle
-	 * @param null $customChildNode
+	 * @param string $customRootNode Specific root node to use (Optional)
+	 * @param int $totalBytes Xml file size - Required if supplied file handle
+	 * @param string $customChildNode
 	 * @throws Exception
 	 */
 	public function __construct($mixed, $chunkSize = 16384, $customRootNode = null, $totalBytes = null, $customChildNode = null)
@@ -56,10 +56,10 @@ abstract class ThornbladXmlStreamer
 
 	/**
 	 * Gets called for every XML node that is found as a child to the root node
-	 * @param $xmlString        Complete XML tree of the node as a string
-	 * @param $elementName    Name of the node for easy access
-	 * @param $nodeIndex Zero-based index that increments for every node
-	 * @return                If false is returned, the streaming will stop
+	 * @param string $xmlString Complete XML tree of the node as a string
+	 * @param string $elementName Name of the node for easy access
+	 * @param int $nodeIndex Zero-based index that increments for every node
+	 * @return void If false is returned, the streaming will stop
 	 */
 	abstract public function processNode($xmlString, $elementName, $nodeIndex);
 
@@ -170,7 +170,7 @@ abstract class ThornbladXmlStreamer
 
 					$aPositions = [];
 					// find min. (exclude false, as it would convert to int 0)
-					$aPositionsIn = array($spacePos, $crPos, $lfPos, $tabPos);
+					$aPositionsIn = [$spacePos, $crPos, $lfPos, $tabPos];
 					foreach ($aPositionsIn as $iPos) {
 						if ($iPos !== false) {
 							$aPositions[] = $iPos;

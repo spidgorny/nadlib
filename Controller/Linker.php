@@ -48,7 +48,10 @@ class Linker
 			//unset($params['c']);
 		}
 
-		$location = $this->request->getLocation();
+		$location = '';
+		if (!str_startsWith($prefix, 'http')) {
+			$location = $this->request->getLocation();
+		}
 		$url = new URL($prefix
 			? $location . $prefix
 			: $location, $params);
@@ -85,7 +88,7 @@ class Linker
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
-			+ $this->getURL()->getParams()            // 2nd priority
+			+ (new URL())->getParams()            // 2nd priority
 			+ $this->linkVars,
 			$page
 		);                // 3rd priority

@@ -7,7 +7,7 @@
  */
 
 
-class ModelTest extends PHPUnit_Framework_TestCase
+class ModelTest extends PHPUnit\Framework\TestCase
 {
 
 	public function _test_getFormFromModel()

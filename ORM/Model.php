@@ -138,7 +138,7 @@ class Model
 
 	public function renderList()
 	{
-		$list = array();
+		$list = [];
 		if ($this->getData()->count()) {
 			foreach ($this->getData() as $id => $row) {
 				$this->setData($row);
@@ -147,9 +147,9 @@ class Model
 				} elseif (method_exists($this, 'getSingleLink')) {
 					$link = $this->getSingleLink();
 					if ($link) {
-						$content = new HTMLTag('a', array(
+						$content = new HTMLTag('a', [
 							'href' => $link,
-						), $this->getName());
+						], $this->getName());
 					} else {
 						$content = $this->getName();
 					}

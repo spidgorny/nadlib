@@ -60,32 +60,32 @@ class HTML
 		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
 	}
 
-	public function h1($content)
+	public function h1($content, array $attrs = [])
 	{
-		return '<h1>' . $this->s($content) . '</h1>';
+		return '<h1 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h1>';
 	}
 
-	public function h2($content)
+	public function h2($content, array $attrs = [])
 	{
-		return '<h2>' . $this->s($content) . '</h2>';
+		return '<h2 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h2>';
 	}
 
-	public function h3($content)
+	public function h3($content, array $attrs = [])
 	{
-		return '<h3>' . $this->s($content) . '</h3>';
+		return '<h3 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h3>';
 	}
 
-	public function h4($content)
+	public function h4($content, array $attrs = [])
 	{
-		return '<h4>' . $this->s($content) . '</h4>';
+		return '<h4 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h4>';
 	}
 
-	function h5($content, array $more = array())
+	public function h5($content, array $more = [])
 	{
 		return '<h5 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h5>';
 	}
 
-	function h6($content, array $more = array())
+	public function h6($content, array $more = [])
 	{
 		return '<h6 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h6>';
 	}
@@ -139,32 +139,33 @@ class HTML
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	function url($page, array $params = array())
+	public function url($page, array $params = [])
 	{
 		return $page . '?' . http_build_query($params);
 	}
 
-	function pre($text)
+	public function pre($text, array $attr = [])
 	{
-		return '<pre>' . $this->e($text) . '</pre>';
+		$more = HTMLTag::renderAttr($attr);
+		return '<pre '.$more.'>' . $this->e($this->s($text)) . '</pre>';
 	}
 
-	function strong($text)
+	public function strong($text)
 	{
-		return '<strong>' . $this->e($text) . '</strong>';
+		return '<strong>' . $this->e($this->s($text)) . '</strong>';
 	}
 
-	function em($text)
+	public function em($text)
 	{
-		return '<em>' . $this->e($text) . '</em>';
+		return '<em>' . $this->e($this->s($text)) . '</em>';
 	}
 
-	function hr()
+	public function hr()
 	{
 		return '<hr />';
 	}
 
-	function badge($count)
+	public function badge($count)
 	{
 		return '<span class="badge">' . htmlspecialchars($count) . '</span>';
 	}
@@ -174,7 +175,7 @@ class HTML
 		return '<blockquote>' . $this->e($getDescription) . '</blockquote>';
 	}
 
-	function li($text)
+	public function li($text)
 	{
 		return '<li>' . $this->e($text) . '</li>';
 	}

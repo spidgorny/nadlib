@@ -33,7 +33,7 @@ abstract class Grid extends AppController {
 	 */
 	public $pageSize;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->initFilter();
@@ -63,7 +63,7 @@ abstract class Grid extends AppController {
 	/**
 	 * Either take from URL or take from preferences, not both
 	 */
-	function getSetRequest()
+	public function getSetRequest()
 	{
 		if ($this->request->getAll()) {
 			$this->user->setPref(get_class($this) . '.Request', $this->request);
@@ -84,6 +84,7 @@ abstract class Grid extends AppController {
 	 * @param null $subname
 	 * @throws LoginException
 	 * @deprecated - use saveFilterColumnsSort() instead
+	 * @param null $subname
 	 */
 	function mergeRequest($subname = NULL)
 	{

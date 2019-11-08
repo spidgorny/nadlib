@@ -5,7 +5,7 @@
  * mails. No attachments. Use SwiftMailer for anything more complicated. Takes care
  * of the UTF-8 in subjects.
  */
-class Mailer
+class Mailer implements MailerInterface
 {
 
 	/**
@@ -47,11 +47,11 @@ class Mailer
 
 	public function __construct($to, $subject, $bodyText)
 	{
-		if (!is_array($to)) {
+		if ($to && !is_array($to)) {
 			$sep = str_contains($to, ';') ? ';' : ',';
 			$this->to = trimExplode($sep, $to);
 		} else {
-			$this->to = $to;
+			$this->to = $to ?: [];
 		}
 		$this->to = array_unique($this->to);
 		$this->subject = trim($subject);
@@ -240,10 +240,10 @@ class Mailer
 	}
 
 	/**
-	 * @param $cc
-	 * @param $bcc
+	 * @param array $cc
+	 * @param array $bcc
 	 * @param array $attachments
-	 * @param array $additionalSenders
+	 * @param array $additionalSenders - assoc array
 	 * @return Swift_Message
 	 * @throws Exception
 	 */
@@ -261,10 +261,8 @@ class Mailer
 
 		$message->setFrom($this->from, $this->fromName);
 
-		if (!empty($additionalSenders)) {
-			foreach ($additionalSenders as $address => $_) {
-				$message->addFrom($address);
-			}
+		foreach ($additionalSenders as $address => $_) {
+			$message->addFrom($address);
 		}
 
 		$to = $this->to;
@@ -299,9 +297,9 @@ class Mailer
 
 		if (!empty($additionalSenders)) {
 			foreach ($additionalSenders as $address => $name) {
-				empty($address)
-					? NULL
-					: $message->addFrom($address, $name);
+				if (!empty($address)) {
+					$message->addFrom($address, $name);
+				}
 			}
 		}
 
@@ -329,7 +327,7 @@ class Mailer
 		return $shortFile;
 	}
 
-	function getPlainText()
+	public function getPlainText()
 	{
 		if (class_exists('HTMLPurifier_Config')) {
 			$config = HTMLPurifier_Config::createDefault();

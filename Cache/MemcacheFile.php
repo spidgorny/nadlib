@@ -42,13 +42,13 @@ class MemcacheFile implements MemcacheInterface
 
 		$finalCachePath = realpath($sub . $this->folder);
 		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
-			debug(array(
+			debug([
 				'unable to access cache folder',
 				'method' => __METHOD__,
 				'sub' => $sub,
 				'folder' => $this->folder,
 				'finalCachePath' => $finalCachePath,
-			));
+			]);
 			die();
 		} else {
 			$this->folder = cap($finalCachePath);    // important as we concat

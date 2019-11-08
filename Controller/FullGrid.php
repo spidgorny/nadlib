@@ -13,7 +13,7 @@ abstract class FullGrid extends Grid
 	/**
 	 * @var FilterController
 	 */
-	var $filterController;
+	public $filterController;
 
 	/**
 	 */
@@ -46,6 +46,7 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
+	 * Will create collection object
 	 * @param string $collection
 	 * @throws LoginException
 	 * @throws ReflectionException

@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\HTTP\Session;
+
 class IndexBase /*extends Controller*/
 {    // infinite loop
 
@@ -23,7 +25,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string|array|\nadlib\HTML\Messages
+	 * @var \nadlib\HTML\Messages
 	 */
 	public $content;
 
@@ -37,9 +39,9 @@ class IndexBase /*extends Controller*/
 	 */
 	protected static $instance;
 
-	public $header = array();
+	public $header = [];
 
-	public $footer = array();
+	public $footer = [];
 
 	public $loadJSfromGoogle = true;
 
@@ -53,15 +55,15 @@ class IndexBase /*extends Controller*/
 
 	public $keywords = '';
 
-	public $bodyClasses = array();
+	public $bodyClasses = [];
 
 	/**
 	 * @var Config
 	 */
 	protected $config;
 
-	var $csp = array(
-		"default-src" => array(
+	var $csp = [
+		"default-src" => [
 			"'self'",
 			"'unsafe-inline'",
 			'http://maps.google.com/',
@@ -74,8 +76,8 @@ class IndexBase /*extends Controller*/
 			'http://mt1.googleapis.com/',
 			'http://maxcdn.bootstrapcdn.com/',
 			'http://ajax.googleapis.com/',
-		),
-		"img-src" => array(
+		],
+		"img-src" => [
 			"'self'",
 			'http://maps.google.com/',
 			'http://csi.gstatic.com/',
@@ -86,16 +88,16 @@ class IndexBase /*extends Controller*/
 			'http://mt1.googleapis.com/',
 			'http://whc.unesco.org/',
 			'data:',
-		),
-		"connect-src" => array(
+		],
+		"connect-src" => [
 			"'self'",
-		),
+		],
 		"script-src" => [
 			"'self'",
 			"'unsafe-inline'",
 			"'unsafe-eval'",
 		],
-	);
+	];
 
 	/**
 	 * @var Request
@@ -176,7 +178,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @param bool $createNew - must be false
 	 * @param ConfigInterface|null $config
-	 * @return Index|IndexBE
+	 * @return Index
 	 * @throws Exception
 	 */
 	public static function getInstance($createNew = false, ConfigInterface $config = null)
@@ -198,7 +200,7 @@ class IndexBase /*extends Controller*/
 	 * TODO: Remove the boolean parameter from getInstance()
 	 * TODO: And force to use makeInstance() in case it was true
 	 * @param Config|null $config
-	 * @return Index|IndexBE
+	 * @return Index
 	 * @throws Exception
 	 */
 	public static function makeInstance(Config $config = null)
@@ -224,7 +226,7 @@ class IndexBase /*extends Controller*/
 					$this->log(__METHOD__, $slug);
 				}
 				$this->loadController($slug);
-				$this->bodyClasses[] = get_class($this->controller);
+				$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
 			} else {
 				throw new Exception404($slug);
 			}
@@ -259,11 +261,23 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @param string $class
 	 * @return AppController
+	 * @throws ReflectionException
 	 */
 	public function makeController($class)
 	{
 		try {
-			$this->controller = new $class();
+			// v1
+//			$this->controller = new $class();
+			// v3
+			if (method_exists($this->config, 'getDI')) {
+				$di = $this->config->getDI();
+				$this->controller = $di->get($class);
+			} else {
+				// v2
+				$ms = new MarshalParams($this->config);
+				$this->controller = $ms->make($class);
+			}
+
 			// debug($class, get_class($this->controller));
 			if (method_exists($this->controller, 'postInit')) {
 				$this->controller->postInit();
@@ -376,9 +390,12 @@ class IndexBase /*extends Controller*/
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
-		$contentOut .= $this->content->getContent();    // this is already output
-//		$this->content->clear();        // clear for the next output. May affect saveMessages()
+		// this is already output
+		$contentOut .= $this->content->getContent();
+		// clear for the next output. May affect saveMessages()
+//		$this->content->clear();
 		$contentOut .= $this->s($content);
+
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
 		$v->title = strip_tags(ifsetor($this->controller->title));
@@ -467,22 +484,22 @@ class IndexBase /*extends Controller*/
 
 	public function message($text)
 	{
-		$this->content->message($text);
+		return $this->content->message($text);
 	}
 
 	public function error($text)
 	{
-		$this->content->error($text);
+		return $this->content->error($text);
 	}
 
 	public function success($text)
 	{
-		$this->content->success($text);
+		return $this->content->success($text);
 	}
 
 	public function info($text)
 	{
-		$this->content->info($text);
+		return $this->content->info($text);
 	}
 
 	/**
@@ -504,7 +521,7 @@ class IndexBase /*extends Controller*/
 			$jQueryPath = 'jquery/jquery.min.js';
 			$al = AutoLoad::getInstance();
 			$appRoot = $al->getAppRoot();
-			nodebug(array(
+			nodebug([
 				'jQueryPath' => $jQueryPath,
 				'appRoot' => $appRoot,
 				'componentsPath' => $al->componentsPath,
@@ -515,7 +532,7 @@ class IndexBase /*extends Controller*/
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 				'documentRoot' => $al->documentRoot,
 				'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
-			));
+			]);
 			if (file_exists($al->componentsPath . $jQueryPath)) {
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
 				$this->addJS(cap($al->componentsPath->getURL()) . $jQueryPath, $defer);
@@ -550,7 +567,7 @@ class IndexBase /*extends Controller*/
 		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
 		$appRoot = $al->getAppRoot();
-		nodebug(array(
+		nodebug([
 			'jQueryPath' => $jQueryPath,
 			'jQueryPath->exists()' => $jQueryPath->exists(),
 			'appRoot' => $appRoot,
@@ -562,7 +579,7 @@ class IndexBase /*extends Controller*/
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'documentRoot' => $al->documentRoot,
 			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
-		));
+		]);
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			if ($jQueryPath->exists()) {
 				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
@@ -684,7 +701,7 @@ class IndexBase /*extends Controller*/
 
 	public function implodeCSS()
 	{
-		$content = array();
+		$content = [];
 		foreach ($this->header as $key => $script) {
 			$content[] = '<!--' . $key . '-->' . "\n" . $script;
 		}
@@ -706,59 +723,15 @@ class IndexBase /*extends Controller*/
 
 	public function implodeJS()
 	{
-		// composer require mrclay/minify
-		$path = 'vendor/mrclay/minify/';
-		$index_php = __DIR__.'/../../../../'.$path . 'index.php';
-//		debug($index_php, file_exists($index_php));
-		if (
-			true
-			// && !DEVELOPMENT
-			&& file_exists($index_php)) {
-			$include = array(); // some files can't be found
-			$files = array_keys($this->footer);
-
-			$docRoot = realpath($_SERVER['DOCUMENT_ROOT']);
-			$docRoot = str_replace('\\', '/', $docRoot);
-
-			// make absolute paths and check file exists
-			foreach ($files as $f => &$file) {
-				if (file_exists($file)) {
-					if (!Path::isItAbsolute($file)) {
-						$file = $docRoot . $file;
-					}
-					$file = realpath($file);
-					$file = str_replace('\\', '/', $file);	// fix windows
-//					debug($file, file_exists($file), Path::isItAbsolute($file));
-				} else {
-					unset($files[$f]);
-					$include[$file] = $this->footer[$file];
-				}
+		if (!DEVELOPMENT) {
+			$min = new MinifyJS($this->footer);
+			$content = $min->implodeJS();
+			if ($content) {
+				return $content;
 			}
-
-			// remove common base folder
-			// "slawa/mrbs/"
-//			Request::printDocumentRootDebug();
-//			debug($_SERVER);
-			foreach ($files as $f => &$file) {
-				$file2 = substr(
-					$file,
-					strpos($file, $docRoot) + strlen($docRoot)
-				);
-//				debug($docRoot, $file, $file2);
-				$file = $file2;
-			}
-
-			$path .= '?' . http_build_query([
-				//'b' => $docRoot,
-				'f' => implode(",", $files),
-			]);
-			$content = '<script src="' . $path . '"></script>'.PHP_EOL;
-			$content .= implode("\n", $include);
-//			debug($content);
-		} else {
-//			debug('footer', sizeof($this->footer));
-			$content = implode("\n", $this->footer)."\n";
 		}
+//		debug('footer', sizeof($this->footer));
+		$content = implode("\n", $this->footer)."\n";
 		return $content;
 	}
 

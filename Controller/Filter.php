@@ -17,7 +17,7 @@ class Filter extends ArrayObject
 
 	protected $_default = [];
 
-	public function __construct(array $input = array())
+	public function __construct(array $input = [])
 	{
 		parent::__construct($input, ArrayObject::ARRAY_AS_PROPS);
 		$this->setRequest($input);

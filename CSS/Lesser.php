@@ -24,7 +24,7 @@ class Lesser extends Controller
 		$appRoot = AutoLoad::getInstance()->getAppRoot();
 		$this->output = Path::make($appRoot)->appendString($this->output);
 		$cacheDir = dirname($this->output);
-		nodebug(array(
+		nodebug([
 			'lessc' => class_exists('lessc'),
 			'appRoot' => $appRoot,
 			'output' => $this->output,
@@ -32,7 +32,7 @@ class Lesser extends Controller
 			'file_exists()' => file_exists($cacheDir),
 			'is_dir()' => is_dir($cacheDir),
 			'is_writable()' => is_writable($cacheDir)
-		), DebugHTML::LEVELS, 5);
+		], DebugHTML::LEVELS, 5);
 		if (!is_dir($cacheDir)) {
 			echo '#mkdir(', $cacheDir, ');' . "\n";
 			$ok = mkdir($cacheDir);

@@ -10,7 +10,7 @@ namespace nadlib\HTMLForm;
 
 use HTMLFormInline;
 
-class HTMLFormInlineTest extends \PHPUnit_Framework_TestCase
+class HTMLFormInlineTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testSimple()
@@ -26,7 +26,7 @@ class HTMLFormInlineTest extends \PHPUnit_Framework_TestCase
 <div class="form-group">
 <label>
 <span>Name</span>
-<input type="text" class="text" name="name" id="id-name" required="required" />
+<input type="text" class="text form-control" name="name" id="id-name" required="required" />
 </label>
 </div>
 </form>

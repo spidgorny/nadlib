@@ -12,7 +12,7 @@ class NoUser extends UserBase implements UserModelInterface
 	public $prefs;
 
 	/**
-	 * @var AccessRights
+	 * @var AccessRightsInterface
 	 */
 	public $access = [];
 
@@ -106,6 +106,11 @@ class NoUser extends UserBase implements UserModelInterface
 	public function isDev()
 	{
 		return false;
+	}
+
+	public function getGroup()
+	{
+		// TODO: Implement getGroup() method.
 	}
 
 	public function loginFromHTTP()

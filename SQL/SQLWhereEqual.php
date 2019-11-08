@@ -22,6 +22,7 @@ class SQLWhereEqual extends SQLWherePart
 
 	public function __toString()
 	{
+		//llog(__METHOD__, $this->field);
 		if (0) {
 			debug(__METHOD__, $this->field, $this->val);
 //			die;
@@ -34,6 +35,9 @@ class SQLWhereEqual extends SQLWherePart
 		} elseif (is_null($this->val)) {
 			$sql = $this->field . ' IS NULL';
 		} elseif (is_numeric($this->field)) {
+			if ($this->val instanceof SQLWherePart) {
+				$this->val->injectDB($this->db);
+			}
 			$sql = $this->val . '';
 		} else {
 			$sql = $this->getWhereItem($this->field, $this->val);
@@ -41,10 +45,18 @@ class SQLWhereEqual extends SQLWherePart
 		return $sql;
 	}
 
+	/**
+	 * @param string $key
+	 * @param mixed $val
+	 * @param array $where
+	 * @return string
+	 * @throws MustBeStringException
+	 */
 	public function getWhereItem($key, $val, array $where = [])
 	{
-		$set = array();
-		$key = $this->db->quoteKey(trim($key));
+		$set = [];
+//		llog(__METHOD__, $key);
+		$key = $this->db->quoteKey($key);
 //		debug($key);
 		if ($val instanceof AsIsOp) {       // check subclass first
 			$val->injectDB($this->db);
@@ -61,9 +73,11 @@ class SQLWhereEqual extends SQLWherePart
 			$val->injectField(null);
 			$set[] = $key . ' = ' . $val;
 		} elseif ($val instanceof SQLBetween) {
+			$val->injectDB($this->db);
 			$val->injectField($key);
 			$set[] = $val->toString($key);
 		} elseif ($val instanceof SQLWherePart) {
+			$val->injectDB($this->db);
 			if (!is_numeric($key)) {
 				$val->injectField($key);
 			}
@@ -83,8 +97,8 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = "$key IS NULL";
 		} elseif ($val === 'NOTNULL') {
 			$set[] = "$key IS NOT NULL";
-		} elseif (in_array($key{strlen($key) - 1}, array('>', '<'))
-			|| in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
+		} elseif (in_array($key{strlen($key) - 1}, ['>', '<'])
+			|| in_array(substr($key, -2), ['!=', '<=', '>=', '<>'])) {
 			list($key, $sign) = explode(' ', $key); // need to quote separately
 			// TODO: quoteKey was done already?
 			$key = $this->db->quoteKey($key);

@@ -11,7 +11,7 @@ if (!function_exists('str_startsWith')) {
 	function str_startsWith($haystack, $needle)
 	{
 		if (!is_array($needle)) {
-			$needle = array($needle);
+			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
 			if (strpos($haystack, $need) === 0) {
@@ -23,8 +23,8 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * Whether string ends with some chars
-	 * @param $haystack
-	 * @param $needle
+	 * @param string $haystack
+	 * @param string $needle
 	 * @return bool
 	 */
 	function str_endsWith($haystack, $needle)
@@ -70,8 +70,8 @@ if (!function_exists('str_startsWith')) {
 	/**
 	 * Does string splitting with cleanup.
 	 * Added array_pad() to prevent list() complaining about undefined index
-	 * @param $sep string
-	 * @param $str string
+	 * @param string $sep
+	 * @param string $str
 	 * @param int $max
 	 * @return array
 	 */
@@ -83,7 +83,7 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str);
 		}
 		if (!$is_string) {
-			debug('trimExplode', 'must be string', typ($str));
+			debug('trimExplode', 'must be string', new htmlString(typ($str)));
 //			debug_pre_print_backtrace();
 		}
 		if ($max) {
@@ -101,7 +101,7 @@ if (!function_exists('str_startsWith')) {
 	/**
 	 * Replaces "\t" tabs in non breaking spaces so they can be displayed in html
 	 *
-	 * @param $text
+	 * @param string $text
 	 * @param int $tabDepth
 	 * @return mixed
 	 */
@@ -134,7 +134,7 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
-	function path_plus($path, $plus)
+	function path_plus($path, $plus, $plus2 = null)
 	{
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
@@ -142,7 +142,7 @@ if (!function_exists('str_startsWith')) {
 		$isAbs = isset($path[0]) &&
 			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
 
-		$parts = trimExplode('/', $path);
+		$parts = trimExplode('/', $path.'');
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
@@ -151,6 +151,11 @@ if (!function_exists('str_startsWith')) {
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);
+
+		if ($plus2) {
+			$string = path_plus($string, $plus2);
+		}
+
 		return $string;
 	}
 
@@ -183,9 +188,9 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * http://php.net/manual/en/function.str-replace.php#86177
-	 * @param $search
-	 * @param $replace
-	 * @param $subject
+	 * @param string $search
+	 * @param string $replace
+	 * @param string $subject
 	 * @return string
 	 */
 	function str_replace_once($search, $replace, $subject)
@@ -203,7 +208,7 @@ if (!function_exists('str_startsWith')) {
 	/**
 	 * Convert string to in camel-case, useful for class name patterns.
 	 *
-	 * @param $string
+	 * @param string $string
 	 *   Target string.
 	 *
 	 * @return string
@@ -219,7 +224,7 @@ if (!function_exists('str_startsWith')) {
 	}
 
 	/**
-	 * @param $string
+	 * @param string $string
 	 * @return string
 	 */
 	function toDatabaseKey($string)

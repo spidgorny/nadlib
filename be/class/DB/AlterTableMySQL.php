@@ -1,6 +1,7 @@
 <?php
 
-class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface {
+class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface
+{
 
 	/**
 	 * @param string $table
@@ -9,9 +10,9 @@ class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface {
 	 */
 	function getCreateQuery($table, array $columns)
 	{
-		$set = array();
+		$set = [];
 		foreach ($columns as $row) {
-			$col = TableField::init($row);
+			$col = TableField::init((array)$row);
 			$set[] = $this->db->quoteKey($col->field) . ' ' . $col->type . $this->getFieldParams($col);
 		}
 		//debug($col);

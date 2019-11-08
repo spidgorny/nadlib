@@ -31,41 +31,43 @@ class HTMLTable
 		if (!$this->thes) {
 			$this->genThes();
 		}
-		return $this->table();
+		return implode(PHP_EOL, $this->table());
 	}
 
 	public function genThes()
 	{
 		$col1 = current($this->data);
-		if ($col1) {
-		}
 		$this->thes = $col1;
 	}
 
 	public function table()
 	{
-		$content[] = '<table>';
-		$content[] = '<thead><tr>';
+		$content['table'] = '<table>';
+		$content['thead'] = '<thead><tr>';
 		foreach ((array)$this->thes as $key => $_) {
-			$content[] = '<th>' . htmlspecialchars($key) . '</th>';
+			$content['th.'.$key] = '<th>' . htmlspecialchars($key) . '</th>';
 		}
-		$content[] = '</tr></thead>';
-		$content[] = '<tbody>';
+		$content['/thead'] = '</tr></thead>';
+		$content['tbody'] = '<tbody>';
 		foreach ($this->data as $row) {
 			$content[] = $this->row((array)$row);
 		}
-		$content[] = '<tbody>';
-		$content[] = '</table>';
-
-		return implode(PHP_EOL, $content);
+		$content['/tbody'] = '<tbody>';
+		$content['/table'] = '</table>';
+		return $content;
 	}
 
 	public function row(array $row)
 	{
 		$content[] = '<tr>';
 		foreach ($this->thes as $key => $_) {
-			$cell = $row[$key];
-			$content[] = '<td>' . htmlspecialchars($cell) . '</td>';
+			$cell = ifsetor($row[$key]);
+			if ($cell instanceof HTMLTag) {
+			} elseif ($cell instanceof htmlString) {
+			} else {
+				$cell = htmlspecialchars($cell);
+			}
+			$content[] = '<td>' . $cell . '</td>';
 		}
 		$content[] = '</tr>';
 

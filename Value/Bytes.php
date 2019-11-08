@@ -5,16 +5,21 @@ class Bytes
 
 	var $value;
 
-	var $suffix = array(
+	var $suffix = [
 		'b' => 'b',
 		'k' => 'kb',
 		'm' => 'mb',
 		'g' => 'gb',
 		't' => 'tb',
 		'p' => 'pb',
-	);
+	];
 
 	var $precision = 3;
+
+	public static function create($bytes)
+	{
+		return new self($bytes);
+	}
 
 	/**
 	 * Bytes constructor.

@@ -10,7 +10,7 @@ class BEUser extends UserBase
 	 * Loaded from config.json
 	 * @var array
 	 */
-	public $acl = array();
+	public $acl = [];
 
 	public function __construct($id = null)
 	{
@@ -77,4 +77,10 @@ class BEUser extends UserBase
 	{
 		// TODO: Implement getAllSettings() method.
 	}
+
+	public function getGroup()
+	{
+		return null;
+	}
+
 }

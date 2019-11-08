@@ -34,10 +34,10 @@ class AsIsOp extends AsIs
 
 	function debug()
 	{
-		return array(
+		return [
 			'field' => $this->field,
 			'value' => $this->value,
-		);
+		];
 	}
 
 }

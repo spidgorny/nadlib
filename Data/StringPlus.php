@@ -164,7 +164,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @throws BadFunctionCallException
 	 * @see http://php.net/manual/en/language.pseudo-types.php#language.types.callback
 	 */
-	public function callback($name, array $args = array())
+	public function callback($name, array $args = [])
 	{
 		if (!is_callable($name)) {
 			throw new BadFunctionCallException('$name is not a valid callback.');
@@ -654,7 +654,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	public function removeSpaces()
 	{
-		return $this->remove(array(" ", "\r", "\n", "\t", "\0", "\x0B"));
+		return $this->remove([" ", "\r", "\n", "\t", "\0", "\x0B"]);
 	}
 
 	/**
@@ -789,7 +789,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function squeeze()
 	{
 		return $this
-			->replace(array("\r\n", "\r", "\n", "\t", "\0", "\x0B"), ' ')
+			->replace(["\r\n", "\r", "\n", "\t", "\0", "\x0B"], ' ')
 			->removeDuplicates(' ')
 			->trim();
 	}
@@ -1222,7 +1222,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public static function getLoadedExtensions()
 	{
-		$ext = array('standard');
+		$ext = ['standard'];
 		if (self::_mbstringLoaded()) {
 			$ext[] = 'mbstring';
 		}
@@ -1273,7 +1273,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		}
 		$literal = array_shift($args);
 		$string = new self($literal);
-		return call_user_func_array(array($string, $name), $args);
+		return call_user_func_array([$string, $name], $args);
 	}
 
 	/**

@@ -10,7 +10,7 @@ class QueryLog {
 	 * 'results'
 	 * ]
 	 */
-	var $queryLog = array();
+	var $queryLog = [];
 
 	public function log($query, $diffTime, $results = NULL, $ok = NULL) {
 		$key = md5(trim($query));
@@ -18,15 +18,15 @@ class QueryLog {
 		if (isset($this->queryLog[$key])) {
 			$old = $this->queryLog[$key];
 		} else {
-			$old = array();
+			$old = [];
 		}
-		$this->queryLog[$key] = array(
+		$this->queryLog[$key] = [
 			'query' => $query.'',
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
 			'times' => ifsetor($old['times'])+1,
 			'results' => $results,
 			'ok' => (string)$ok,
-		);
+		];
 //		debug($key, $this->queryLog);
 	}
 
@@ -41,27 +41,27 @@ class QueryLog {
 			$query = $row['query'];
 			$time = $row['sumtime'];
 			$times = $row['times'];
-			$row = array(
+			$row = [
 				'times' => $times,
 				'query' => $query,
 				'time' => number_format($time, 3),
 				'time/1' => number_format($time/$times, 3),
 				//'func' => $this->QUERYFUNC[$query],
-			);
+			];
 		}
-		$q = new slTable($q, 'class="view_array table" width="1024"', array(
+		$q = new slTable($q, 'class="view_array table" width="1024"', [
 			'times' => 'Times',
-			'time' => array(
+			'time' => [
 				'name' => 'Time',
 				'align' => 'right',
-			),
-			'time/1' => array(
+			],
+			'time/1' => [
 				'name' => 'Time/1',
 				'align' => 'right',
-			),
+			],
 			'query' => 'Query',
 			'func' => 'Caller',
-		));
+		]);
 		$q->isOddEven = false;
 		$content = '<div class="profiler">'.$q.'</div>';
 		return $content;
@@ -91,19 +91,19 @@ class QueryLog {
 			}
 		}
 		$s = new slTable(NULL, 'width="100%" class="table"');
-		$s->thes(array(
-				'query' => array(
+		$s->thes([
+				'query' => [
 						'label' => 'Query',
 						'no_hsc' => true,
 						'wrap' => new Wrap('<small>|</small>'),
-				),
+				],
 				'function' => 'Function',
 				'line' => 'Line',
 				'results' => 'Rows',
 				'elapsed' => 'Elapsed',
 				'count' => 'Count',
 				'total' => $totalTime,
-				'percent' => '100%'));
+				'percent' => '100%']);
 		$s->data = $log;
 		$s->isOddEven = TRUE;
 		$s->more = 'class="nospacing"';
@@ -120,42 +120,42 @@ class QueryLog {
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
 		//debug($queryLog->getData()); exit();
-		$log = array();
+		$log = [];
 		foreach ($queryLog as $set) {
 			$query = $set['query'];
 			$time = ifsetor($set['time'], $set['sumtime'] / $set['times']);
-			$log[] = array(
+			$log[] = [
 					'times' => $set['times'],
 					'query' => '<small>'.htmlspecialchars($query).'</small>',
 					'sumtime' => number_format($set['sumtime'], 3, '.', '').'s',
 					'time' => number_format($time, 3, '.', '').'s',
 					'%' => $sumTime != 0 ? $pb->getImage($set['sumtime']/$sumTime*100) : '',
 					'results' => $set['results'],
-			);
+			];
 		}
-		$s = new slTable($log, 'class="table"', array(
+		$s = new slTable($log, 'class="table"', [
 				'times' => 'times',
-				'sumtime' => array(
+				'sumtime' => [
 					'name' => 'sumtime ('.number_format($sumTime, 3).')',
 					'align' => 'right',
-				),
-				'time' => array(
+				],
+				'time' => [
 					'name' => 'time',
 					'align' => 'right',
-				),
-				'%' => array(
+				],
+				'%' => [
 					'name' => '%',
 					'align' => 'right',
 					'no_hsc' => true,
-				),
-				'query' => array(
+				],
+				'query' => [
 					'name' => 'query',
 					'no_hsc' => true,
-				),
-				'results' => array(
+				],
+				'results' => [
 					'name' => 'Results',
-				)
-		));
+				]
+		]);
 		return $s;
 	}
 

@@ -32,6 +32,10 @@ class SQLLike extends SQLWherePart
 
 	public function __toString()
 	{
+		if (!$this->db) {
+			throw new InvalidArgumentException(__METHOD__.' has to DB');
+		}
+
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
 		$w = explode('|', $this->wrap);
 		$escape = $this->db->getPlaceholder($this->field);

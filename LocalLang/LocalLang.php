@@ -10,11 +10,11 @@ abstract class LocalLang
 	 * actual messages
 	 * @var array
 	 */
-	var $ll = array();
+	var $ll = [];
 
 	protected $defaultLang = 'en';
 
-	public $possibleLangs = array('en', 'de', 'es', 'ru', 'uk');
+	public $possibleLangs = ['en', 'de', 'es', 'ru', 'uk'];
 
 	/**
 	 * name of the selected language
@@ -24,7 +24,7 @@ abstract class LocalLang
 
 	public $indicateUntranslated = false;
 
-	protected $codeID = array();
+	protected $codeID = [];
 
 	public $editMode = false;
 

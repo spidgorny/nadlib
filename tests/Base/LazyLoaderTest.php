@@ -10,7 +10,7 @@ namespace nadlib\Base;
 
 use LazyLoader;
 
-class LazyLoaderTest extends \PHPUnit_Framework_TestCase
+class LazyLoaderTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_ll_same_value()
