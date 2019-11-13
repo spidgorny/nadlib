@@ -209,7 +209,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 //				}
 			}
 			$this->queryTime = $prof->elapsed();
-			error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
+//			error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
 			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
