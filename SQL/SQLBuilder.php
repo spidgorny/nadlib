@@ -390,12 +390,13 @@ class SQLBuilder
 			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $where + $insert);
-			// array('ctime' => NULL) #TODO: make it manually now
+			// array('ctime' => NULL) # TODO: make it manually now
 			$res = $this->perform($query);
 			$inserted = $this->db->lastInsertID($res, $table);
 		}
 		//debug($query);
 		$this->db->commit();
+		$this->lastQuery = $query;	// overwrite 'commit'
 		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
 	}
