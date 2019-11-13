@@ -303,7 +303,7 @@ class SQLBuilder
 	 * @throws MustBeStringException
 	 * @throws Exception
 	 */
-	public function getDeleteQuery($table, $where = [], $what = '')
+	public function getDeleteQuery($table, array $where = [], $what = '')
 	{
 		$q = "DELETE " . $what . " FROM " . $this->db->quoteKey($table) . " ";
 		$set = $this->quoteWhere($where);
