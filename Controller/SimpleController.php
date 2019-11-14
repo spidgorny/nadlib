@@ -129,7 +129,7 @@ abstract class SimpleController
 	/**
 	 * This function prevents performAction() from doing nothing
 	 * if there is a __CLASS__.phtml file in the same folder
-	 * @return MarkdownView|string|View
+	 * @return MarkdownView|string|View|string[]
 	 */
 	public function indexAction()
 	{
