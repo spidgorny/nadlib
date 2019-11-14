@@ -265,6 +265,8 @@ class Path
 				break;
 			}
 		}
+		// remove empty paths which lead to //
+		$this->aPath = array_filter($this->aPath);
 		$this->implode();
 		return $this;
 	}

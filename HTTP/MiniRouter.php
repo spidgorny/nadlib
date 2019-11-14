@@ -22,11 +22,14 @@ class MiniRouter
 		$requestURL = new URL($_SERVER['REQUEST_URI']);
 		//debug($requestURL, $requestURL->getPath().'', is_file($requestURL->getPath()));
 		$staticPath = $requestURL->getPath();
+		llog('BasePath: '.$this->basePath.'');
+		llog('StaticPath: '.$staticPath.'');
 		if ($this->basePath) {
 			$last = basename($this->basePath);
+			llog('Basename: '.basename($this->basePath));
 			$staticPath->remove($last);
 		}
-		//llog($staticPath.'');
+		llog('StaticPath: '.$staticPath.'');
 		if ($staticPath == '/') {
 			return null;	// default index controller
 		} elseif ($staticPath) {
