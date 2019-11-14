@@ -109,7 +109,7 @@ abstract class HTMLFormProcessor extends AppController
 
 	/**
 	 * If inherited can be used as both string and HTMLFormTable
-	 * @return HTMLFormTable
+	 * @return HTMLFormTable|string[]
 	 */
 	function render()
 	{

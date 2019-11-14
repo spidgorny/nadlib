@@ -282,4 +282,8 @@ class ConfigBase implements ConfigInterface
 		return $this->db_password;
 	}
 
+	public function setUser(UserModelInterface $user)
+	{
+		$this->user = $user;
+	}
 }
