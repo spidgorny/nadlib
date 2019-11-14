@@ -524,7 +524,7 @@ class Pager
 		if ($max - $size > $k + 1) {
 			$pages[] = 'gap2';
 		}
-		for ($i = $max - $size; $i <= $max; $i++) {
+		for ($i = $max - $size + 1; $i <= $max; $i++) {
 			$k = $i;
 			if ($k >= 0 && $k <= $max) {
 				$pages[] = $k;
@@ -635,6 +635,38 @@ class Pager
 		$this->detectCurrentPage();
 		return array_slice($data,
 			$this->getStart(), $this->pageSize->get(), true);
+	}
+
+	public function bulma()
+	{
+		$prevPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage-1]);
+		$nextPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage+1]);
+		$prevDisabled = $this->currentPage === 0 ? 'disabled' : '';
+		$nextDisabled = $this->currentPage === $this->getMaxPage() ? 'disabled' : '';
+		$content[] = '<nav class="pagination" role="navigation" aria-label="pagination">
+  <a href="'.$prevPageLink.'" class="pagination-previous" ' . $prevDisabled . '>Previous</a>
+  <a href="'.$nextPageLink.'" class="pagination-next" '.$nextDisabled.'>Next page</a>
+  <ul class="pagination-list">';
+		foreach ($this->getVisiblePages() as $page) {
+			if (str_startsWith($page, 'gap')) {
+				$content[] = '<li>
+      <span class="pagination-ellipsis">&hellip;</span>
+    </li>';
+			} else {
+				$pageLink = URL::getCurrent()->addParams(['page' => $page]);
+				$isCurrent = $this->currentPage === $page;
+				$isCurrentClass = $isCurrent ? 'is-current' : '';
+				$isCurrentAria = $isCurrent ? 'aria-current="page"' : '';
+				$content[] = '
+    <li>
+      <a href="'.$pageLink.'" class="pagination-link ' . $isCurrentClass . '" aria-label="Page 1" ' . $isCurrentAria . '>' . ($page+1) . '</a>
+    </li>';
+			}
+		}
+		$content[] = '
+  </ul>
+</nav>';
+		return implode(PHP_EOL, $content);
 	}
 
 }
