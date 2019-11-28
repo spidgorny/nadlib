@@ -9,32 +9,32 @@ class Pager
 	 * Total amount of rows in database (with WHERE)
 	 * @var int
 	 */
-	var $numberOfRecords = 0;
+	public $numberOfRecords = 0;
 
 	/**
 	 * Page size
 	 * @var int
 	 */
-	var $itemsPerPage = 20;
+	public $itemsPerPage = 20;
 
 	/**
 	 * Offset in SQL
 	 * @var int
 	 */
-	var $startingRecord = 0;
+	public $startingRecord = 0;
 
 	/**
 	 * Current Page (0+)
 	 * @var int
 	 */
-	var $currentPage = 0;
+	public $currentPage = 0;
 
 	/**
 	 * @var URL
 	 */
-	var $url;
+	public $url;
 
-	var $pagesAround = 3;
+	public $pagesAround = 3;
 
 	/**
 	 * @var Request
@@ -65,18 +65,18 @@ class Pager
 	 * Say yes, if you have PaginationControl CSS included in the header
 	 * @var bool
 	 */
-	static $cssOutput = false;
+	public static $cssOutput = false;
 
 	/**
 	 * Mouse over tooltip text per page
 	 * @var array
 	 */
-	var $pageTitles = [];
+	public $pageTitles = [];
 
 	/**
 	 * @var Iterator
 	 */
-	var $iterator;
+	public $iterator;
 
 	/**
 	 * for debugging
@@ -94,8 +94,12 @@ class Pager
 	 */
 	public $requestedPage;
 
+	/** @var string[] */
+	public $log = [];
+
 	public function __construct($itemsPerPage = null, $prefix = '')
 	{
+		$this->log[] = __METHOD__;
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
 		} else {
@@ -121,9 +125,12 @@ class Pager
 	 */
 	public function detectCurrentPage()
 	{
-		$pagerData = ifsetor($_REQUEST['Pager.' . $this->prefix],
-			ifsetor($_REQUEST['Pager_' . $this->prefix]));
+		$pagerData = ifsetor(
+			$_REQUEST['Pager.' . $this->prefix],
+			ifsetor($_REQUEST['Pager_' . $this->prefix])
+		);
 		//debug($pagerData);
+		$this->log[] = __METHOD__ . ': ' . json_encode($pagerData);
 		if ($pagerData) {
 			if (ifsetor($pagerData['startingRecord'])) {
 				$this->startingRecord = (int)($pagerData['startingRecord']);
@@ -155,6 +162,7 @@ class Pager
 
 	public function initByQuery($originalSQL)
 	{
+		$this->log[] = __METHOD__;
 		if (is_string($originalSQL)) {
 			$this->initByStringQuery($originalSQL);
 		} elseif ($originalSQL instanceof SQLSelectQuery) {
@@ -166,6 +174,7 @@ class Pager
 
 	public function initByStringQuery($originalSQL)
 	{
+		$this->log[] = __METHOD__;
 		//debug_pre_print_backtrace();
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
@@ -199,6 +208,7 @@ class Pager
 
 	public function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = [])
 	{
+		$this->log[] = __METHOD__;
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
 		if (!$originalSQL->getSelect()->contains('count(*)')) {
@@ -230,6 +240,7 @@ class Pager
 	 */
 	public function setNumberOfRecords($i)
 	{
+		$this->log[] = __METHOD__;
 		$this->numberOfRecords = $i;
 		if ($this->startingRecord > $this->numberOfRecords) {    // required
 			$this->setCurrentPage($this->currentPage);
@@ -245,6 +256,7 @@ class Pager
 	 */
 	public function setCurrentPage($page)
 	{
+		$this->log[] = __METHOD__;
 		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
 		$page = min($page, $this->getMaxPage());
 		$this->currentPage = max(0, $page);
@@ -253,6 +265,7 @@ class Pager
 
 	public function saveCurrentPage()
 	{
+		$this->log[] = __METHOD__;
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
 		if ($this->user instanceof UserWithPreferences) {
 			$this->user->setPref('Pager.' . $this->prefix, [
@@ -266,6 +279,7 @@ class Pager
 	 */
 	public function setItemsPerPage($items)
 	{
+		$this->log[] = __METHOD__;
 		if (!$items) {
 			$items = $this->pageSize->get();
 		}
@@ -281,7 +295,7 @@ class Pager
 	public function getSQLLimit($query)
 	{
 		$scheme = $this->db->getScheme();
-		if ($scheme == 'ms') {
+		if ($scheme === 'ms') {
 			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
 		} elseif ($query instanceof SQLSelectQuery) {
 			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->startingRecord));
@@ -366,6 +380,7 @@ class Pager
 
 	public function renderPageSelectors(URL $url = null)
 	{
+		$this->log[] = __METHOD__;
 		$content = '';
 		if ($url) {
 			$this->url = $url;
@@ -386,7 +401,7 @@ class Pager
 		$content = '';
 		if (!self::$cssOutput) {
 			$al = AutoLoad::getInstance();
-			$index = class_exists('Index') ? Index::getInstance() : NULL;
+			$index = class_exists('Index') ? Index::getInstance() : null;
 			if ($index && $this->request->apacheModuleRewrite()) {
 				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
 				$index->addCSS($al->nadlibFromDocRoot . 'CSS/PaginationControl.less');
@@ -407,6 +422,7 @@ class Pager
 			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
+			'pager->log' => $this->log,
 			'pageSize->get' => $this->pageSize->get(),
 			'pageSize->log' => $this->pageSize->log,
 			'currentPage [0..]' => $this->currentPage,
@@ -427,6 +443,7 @@ class Pager
 
 	public function renderPageSize()
 	{
+		$this->log[] = __METHOD__;
 		$this->pageSize->setURL(new URL(null, []));
 		$this->pageSize->set($this->itemsPerPage);
 		$content = '<div class="pageSize pull-right floatRight">' .
@@ -436,6 +453,7 @@ class Pager
 
 	public function showSearchBrowser()
 	{
+		$this->log[] = __METHOD__;
 		$content = '';
 		$maxpage = $this->getMaxPage();
 		$pages = $this->getPagesAround($this->currentPage, $maxpage);
@@ -503,6 +521,7 @@ class Pager
 	 */
 	public function getPagesAround($current, $max)
 	{
+		$this->log[] = __METHOD__;
 		$size = $this->pagesAround;
 		$pages = [];
 		$k = 0;
@@ -604,9 +623,10 @@ class Pager
 
 	public function setIterator(Iterator $iterator)
 	{
+		$this->log[] = __METHOD__;
 		$this->iterator = $iterator;
 		$this->setNumberOfRecords($iterator->count());
-		$this->detectCurrentPage();
+		$this->detectCurrentPage();	// why?
 	}
 
 	public function getPageData()
@@ -631,6 +651,7 @@ class Pager
 
 	public function slice(array $data)
 	{
+		$this->log[] = __METHOD__;
 		$this->setNumberOfRecords(sizeof($data));
 		$this->detectCurrentPage();
 		return array_slice($data,
@@ -639,13 +660,13 @@ class Pager
 
 	public function bulma()
 	{
-		$prevPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage-1]);
-		$nextPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage+1]);
+		$prevPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage - 1]);
+		$nextPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage + 1]);
 		$prevDisabled = $this->currentPage === 0 ? 'disabled' : '';
 		$nextDisabled = $this->currentPage === $this->getMaxPage() ? 'disabled' : '';
 		$content[] = '<nav class="pagination" role="navigation" aria-label="pagination">
-  <a href="'.$prevPageLink.'" class="pagination-previous" ' . $prevDisabled . '>Previous</a>
-  <a href="'.$nextPageLink.'" class="pagination-next" '.$nextDisabled.'>Next page</a>
+  <a href="' . $prevPageLink . '" class="pagination-previous" ' . $prevDisabled . '>Previous</a>
+  <a href="' . $nextPageLink . '" class="pagination-next" ' . $nextDisabled . '>Next page</a>
   <ul class="pagination-list">';
 		foreach ($this->getVisiblePages() as $page) {
 			if (str_startsWith($page, 'gap')) {
@@ -659,7 +680,7 @@ class Pager
 				$isCurrentAria = $isCurrent ? 'aria-current="page"' : '';
 				$content[] = '
     <li>
-      <a href="'.$pageLink.'" class="pagination-link ' . $isCurrentClass . '" aria-label="Page 1" ' . $isCurrentAria . '>' . ($page+1) . '</a>
+      <a href="' . $pageLink . '" class="pagination-link ' . $isCurrentClass . '" aria-label="Page 1" ' . $isCurrentAria . '>' . ($page + 1) . '</a>
     </li>';
 			}
 		}
