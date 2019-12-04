@@ -18,6 +18,7 @@
  * @method getDeleteQuery($table, array $where = [], $what = '');
  * @method getUpdateQuery($table, array $set, array $where);
  * @method runInsertQuery($table, array $data);
+ * @method runDeleteQuery($table, array $where);
  */
 interface DBInterface
 {
@@ -69,7 +70,7 @@ interface DBInterface
 	public function clearQueryLog();
 
 	public function getLastQuery();
-	
+
 	/** @return array */
 	public function getInfo();
 

@@ -634,6 +634,14 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return $this->fetchAssoc($res);
 	}
 
+	/**
+	 * @param $query
+	 * @return array
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 * @deprecated
+	 * @use fetchAll()
+	 */
 	public function getAllRows($query)
 	{
 		$result = $this->perform($query);
