@@ -121,13 +121,13 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public static function parse($str, $recursive = false)
 	{
 		$str = trim($str);
-		if (strlen($str) && $str{0} != '<') {
-			return NULL;
+		if (strlen($str) && $str[0] != '<') {
+			return null;
 		}
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
 		//debug($matches);
 		if (!isset($matches[1])) {
-			return NULL;
+			return null;
 		}
 
 		$tagAndAttributes = trimExplode(' ', ifsetor($matches[1]));
