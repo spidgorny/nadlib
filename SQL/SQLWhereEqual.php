@@ -97,14 +97,14 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = "$key IS NULL";
 		} elseif ($val === 'NOTNULL') {
 			$set[] = "$key IS NOT NULL";
-		} elseif (in_array($key{strlen($key) - 1}, ['>', '<'])
+		} elseif (in_array($key[strlen($key) - 1], ['>', '<'])
 			|| in_array(substr($key, -2), ['!=', '<=', '>=', '<>'])) {
 			list($key, $sign) = explode(' ', $key); // need to quote separately
 			// TODO: quoteKey was done already?
 			$key = $this->db->quoteKey($key);
 			$set[] = "$key $sign '$val'";
 		} elseif (is_bool($val)) {
-			$set[] = ($val ? "" : "NOT ") . $key;
+			$set[] = ($val ? '' : 'NOT ') . $key;
 		} elseif (is_numeric($key)) {        // KEY!!!
 			$set[] = $val;
 		} elseif (is_array($val) && ifsetor($where[$key . '.']['makeIN'])) {

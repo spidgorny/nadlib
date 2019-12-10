@@ -106,7 +106,7 @@ class PGArray extends AsIs
 	public function getPGArray($input)
 	{
 		$input = (string)$input;
-		if (strlen($input) && $input{0} == '{') {    // array inside
+		if (strlen($input) && $input[0] == '{') {    // array inside
 			$input = substr(substr(trim($input), 1), 0, -1);    // cut { and }
 			return $this->getPGArray($input);
 		} else {
@@ -222,12 +222,12 @@ class PGArray extends AsIs
 		$out = [];
 		$o = 0;
 		foreach ($v1 as $word) {
-			if ($word{0} == '"') {
+			if ($word[0] == '"') {
 				$inside = true;
 				$word = substr($word, 1);
 			}
-			if (in_array($word{strlen($word) - 1}, ['"'])
-				&& !in_array($word{strlen($word) - 2}, ['\\'])
+			if (in_array($word[strlen($word) - 1], ['"'])
+				&& !in_array($word[strlen($word) - 2], ['\\'])
 			) {
 				$inside = false;
 				$word = substr($word, 0, -1);
