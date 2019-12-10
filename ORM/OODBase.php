@@ -607,6 +607,7 @@ abstract class OODBase
 				$size = filesize($file);
 				if ($size < 1024 * 4) {
 					$content = file_get_contents($file);
+					/** @noinspection UnserializeExploitsInspection */
 					$graph = unserialize($content); // faster?
 				} else {
 					$graph = self::getInstanceByID($id);
