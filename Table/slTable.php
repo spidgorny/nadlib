@@ -332,7 +332,7 @@ class slTable implements ToStringable
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
 					if (!strlen($i)
-						|| (strlen($i) && $i{strlen($i) - 1} != '.')
+						|| (strlen($i) && $i[strlen($i) - 1] !== '.')
 					) {
 						$th = ['name' => $th];
 					} else {

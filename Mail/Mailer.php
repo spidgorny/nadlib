@@ -120,15 +120,15 @@ class Mailer implements MailerInterface
 
 		//headers - specify your from email address and name here
 		//and specify the boundary for the email
-		$this->headers["MIME-Version"] = 'MIME-Version: 1.0';
-		$this->headers['Content-Type'] = "Content-Type: multipart/mixed; boundary=" . $boundary;
+		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
+		$this->headers['Content-Type'] = 'Content-Type: multipart/mixed; boundary=' . $boundary;
 
 		//here is the content body
 		$message = "This is a MIME encoded message.\r\n";
 		$message .= "\r\n";
 
 		foreach ($this->attachments as $a) {
-			$message .= "--" . $boundary . "\r\n";
+			$message .= '--' . $boundary . "\r\n";
 
 			//Plain text body
 			if (str_startsWith($a['mime'], 'text/plain')) {
@@ -149,7 +149,7 @@ class Mailer implements MailerInterface
 			}
 		}
 
-		$message .= "\r\n\r\n--" . $boundary . "--";
+		$message .= "\r\n\r\n--" . $boundary . '--';
 		$this->bodytext = $message;
 	}
 
@@ -180,7 +180,7 @@ class Mailer implements MailerInterface
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
 		$assoc['isHTML'] = self::isHTML($this->bodytext);
-		$assoc['headers'] = new htmlString(implode("<br />", $this->headers));
+		$assoc['headers'] = new htmlString(implode('<br />', $this->headers));
 		$assoc['params'] = implode(' ', $this->params);
 		$assoc['bodyText'] = nl2br($this->getBodyText());
 		return slTable::showAssoc($assoc);
@@ -237,7 +237,7 @@ class Mailer implements MailerInterface
 		$config = Config::getInstance();
 		$from = new SendGrid\Email(null, $config->mailFrom);
 		$to = new SendGrid\Email(null, $this->to);
-		$content = new SendGrid\Content("text/plain", $this->getPlainText());
+		$content = new SendGrid\Content('text/plain', $this->getPlainText());
 		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
 		return $mail;
 	}

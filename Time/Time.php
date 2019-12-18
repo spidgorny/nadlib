@@ -354,7 +354,7 @@ class Time
 	{
 		TaylorProfiler::start(__METHOD__);
 		$noe = $this->format('H:i');
-		if ($noe{3} . $noe{4} != '00') {
+		if ($noe[3] . $noe[4] !== '00') {
 			//$noe = '<small>'.$noe.'</small>';
 			$noe = new HTMLTag('small', [], $noe);
 		}
