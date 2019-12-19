@@ -14,14 +14,9 @@ class Pager
 	/**
 	 * Page size
 	 * @var int
+	 * @use setItemsPerPage
 	 */
-	public $itemsPerPage = 20;
-
-	/**
-	 * Offset in SQL
-	 * @var int
-	 */
-	public $startingRecord = 0;
+	protected $itemsPerPage = 20;
 
 	/**
 	 * Current Page (0+)
@@ -129,21 +124,16 @@ class Pager
 			$_REQUEST['Pager.' . $this->prefix],
 			ifsetor($_REQUEST['Pager_' . $this->prefix])
 		);
-		//debug($pagerData);
+//		debug($pagerData);
 		$this->log[] = __METHOD__ . ': ' . json_encode($pagerData);
 		if ($pagerData) {
-			if (ifsetor($pagerData['startingRecord'])) {
-				$this->startingRecord = (int)($pagerData['startingRecord']);
-				$this->currentPage = $this->startingRecord / $this->itemsPerPage;
-			} else {
-				// when typing page number in [input] box
-				if (!$this->request->isAjax() && $this->request->isPOST()) {
-					//Debug::debug_args($pagerData);
-					$pagerData['page']--;
-				}
-				$this->setCurrentPage($pagerData['page']);
-				$this->saveCurrentPage();
+			// when typing page number in [input] box
+			if ($this->request->isPOST() && ifsetor($pagerData['decrement'])) {
+				//Debug::debug_args($pagerData);
+				$pagerData['page']--;
 			}
+			$this->setCurrentPage($pagerData['page']);
+			$this->saveCurrentPage();
 		} elseif ($this->user && method_exists($this->user, 'getPref')) {
 			$pager = $this->user->getPref('Pager.' . $this->prefix);
 			if ($pager) {
@@ -240,9 +230,9 @@ class Pager
 	 */
 	public function setNumberOfRecords($i)
 	{
-		$this->log[] = __METHOD__;
+		$this->log[] = __METHOD__ . '(' . $i . ')';
 		$this->numberOfRecords = $i;
-		if ($this->startingRecord > $this->numberOfRecords) {    // required
+		if ($this->getStartingRecord() > $this->numberOfRecords) {    // required
 			$this->setCurrentPage($this->currentPage);
 			if ($this->request->isPOST()) {
 				$_POST['pager']['page'] = $this->currentPage + 1;
@@ -256,11 +246,10 @@ class Pager
 	 */
 	public function setCurrentPage($page)
 	{
-		$this->log[] = __METHOD__;
+		$this->log[] = __METHOD__ . '(' . $page . ')';
 		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
 		$page = min($page, $this->getMaxPage());
 		$this->currentPage = max(0, $page);
-		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
 	}
 
 	public function saveCurrentPage()
@@ -279,13 +268,24 @@ class Pager
 	 */
 	public function setItemsPerPage($items)
 	{
-		$this->log[] = __METHOD__;
+		$this->log[] = __METHOD__ . '(' . $items . ')';
 		if (!$items) {
 			$items = $this->pageSize->get();
 		}
 		$this->itemsPerPage = $items;
-		$this->startingRecord = $this->getPageFirstItem($this->currentPage);
-		//debug($this);
+		if (ArrayPlus::create($this->log)->containsPartly('detectCurrentPage')) {
+			$this->log[] = __METHOD__.' WARNING: make sure to call detectCurrentPage again';
+		}
+	}
+
+	public function getStartingRecord()
+	{
+		return $this->getPageFirstItem($this->currentPage);
+	}
+
+	public function getPageSize()
+	{
+		return $this->itemsPerPage;
 	}
 
 	/**
@@ -296,12 +296,12 @@ class Pager
 	{
 		$scheme = $this->db->getScheme();
 		if ($scheme === 'ms') {
-			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->startingRecord);
+			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->getStartingRecord());
 		} elseif ($query instanceof SQLSelectQuery) {
-			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->startingRecord));
+			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->getStartingRecord()));
 		} else {
 			$limit = "\nLIMIT " . $this->itemsPerPage .
-				"\nOFFSET " . $this->startingRecord;
+				"\nOFFSET " . $this->getStartingRecord();
 			$query .= $limit;
 		}
 		return $query;
@@ -309,7 +309,7 @@ class Pager
 
 	public function getStart()
 	{
-		return $this->startingRecord;
+		return $this->getStartingRecord();
 	}
 
 	public function getLimit()
@@ -340,30 +340,15 @@ class Pager
 	 */
 	public function getMaxPage()
 	{
-		//$maxpage = ceil($this->numberOfRecords/$this->itemsPerPage);
 		if ($this->itemsPerPage) {
-			//$maxpage = floor($this->numberOfRecords/$this->itemsPerPage);	// because a single page is 0
-
-			// new:
 			$div = $this->numberOfRecords / $this->itemsPerPage;
-
-			// zero based, this is wrong
-			//$maxpage = ceil($div);
-
 			// because a single page is 0
-			$maxpage = floor($div);
-
-			// 39/20 = 1.95 - correct
-			// 40/20 = 2.00, but will fit in two pages
-			// 41/20 = 2.05 - floor will make 2 (= 3 pages)
-			//$maxpage += (!($div % 1)) ? -1 : 0;	// will fit completes in maxpage-1 pages
-			$maxpage += ($div == floor($div)) ? -1 : 0;    // will fit completes in maxpage-1 pages
-			$maxpage = max(0, $maxpage);    // not -1
-
-
+			$maxpage = max(0, ceil($div) - 1);
 		} else {
 			$maxpage = 0;
+			$this->log[] = '$this->itemsPerPage: ' . $this->itemsPerPage;
 		}
+		$this->log[] = __METHOD__ . '->' . $maxpage;
 		return $maxpage;
 	}
 
@@ -428,7 +413,7 @@ class Pager
 			'currentPage [0..]' => $this->currentPage,
 			'floatPages' => $this->numberOfRecords / $this->itemsPerPage,
 			'getMaxPage()' => $this->getMaxPage(),
-			'startingRecord' => $this->startingRecord,
+			'startingRecord' => $this->getStartingRecord(),
 			//'getSQLLimit()' => $this->getSQLLimit(),
 			'getPageFirstItem()' => $this->getPageFirstItem($this->currentPage),
 			'getPageLastItem()' => $this->getPageLastItem($this->currentPage),
@@ -626,7 +611,7 @@ class Pager
 		$this->log[] = __METHOD__;
 		$this->iterator = $iterator;
 		$this->setNumberOfRecords($iterator->count());
-		$this->detectCurrentPage();	// why?
+		$this->detectCurrentPage();    // why?
 	}
 
 	public function getPageData()
