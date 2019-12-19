@@ -16,7 +16,7 @@ class LogEntry
 		self::$log2file = DEVELOPMENT;
 	}
 
-	function __construct($action, $data)
+	public function __construct($action, $data)
 	{
 		$this->time = microtime(true);
 		$this->action = $action;
@@ -30,7 +30,7 @@ class LogEntry
 		}
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$floating = substr($this->time - floor($this->time), 2);    // cut 0 from 0.1
 		$floating = substr($floating, 0, 4);
@@ -42,7 +42,7 @@ class LogEntry
 			]) . BR;
 	}
 
-	static function getLogFrom(array $log)
+	public static function getLogFrom(array $log)
 	{
 		return [
 			'<div class="debug" style="font-family: monospace">',
