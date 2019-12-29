@@ -6,8 +6,8 @@
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayerSQLite extends DBLayerBase implements DBInterface
-{
 
+{
 	/**
 	 * @var string
 	 */
@@ -61,7 +61,8 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	public function perform($query, array $params = [])
 	{
 		if (!$this->connection) {
-			debug_pre_print_backtrace();
+//			debug_pre_print_backtrace();
+			$this->connect();
 		}
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
@@ -272,6 +273,11 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	public function getInfo()
 	{
 		return ['class' => get_class($this)];
+	}
+
+	public function getConnection()
+	{
+		return $this->connection;
 	}
 
 }
