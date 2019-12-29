@@ -22,6 +22,10 @@ class POPOBase
 			foreach (get_object_vars($set) as $key => $val) {
 				$this->$key = $this->transform($key, $val);
 			}
+		} elseif (is_array($set)) {
+			foreach ($set as $key => $val) {
+				$this->$key = $this->transform($key, $val);
+			}
 		}
 	}
 
