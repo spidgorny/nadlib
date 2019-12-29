@@ -26,7 +26,10 @@ class HTMLProcessor
 		);
 		$comment = $this->cleanComment($comment);
 		$comment = trim($comment);
-		$comment = nl2br($comment);
+		// remove double empty lines
+		// https://stackoverflow.com/questions/4475042/replacing-multiple-blank-lines-with-one-blank-line-using-regex-search-and-replac
+		$pureHtml = preg_replace('/\n\s*\n\s*/', PHP_EOL, $comment);
+		$comment = nl2br($comment, true);
 		if (class_exists('Essence\Essence')) {
 			$comment .= $this->getEmbeddables($comment);
 		}

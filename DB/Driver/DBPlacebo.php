@@ -7,16 +7,24 @@
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  * @method  getFirstValue($query)
  * @method  performWithParams($query, $params)
- * @method  getInfo()
  * @method  getConnection()
  * @method  getViews()
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBPlacebo extends DBLayerBase implements DBInterface
 {
 	public $lastQuery;
 
+	/**
+	 * @var array
+	 */
+	protected $returnNextTime = [];
+
+	protected $insertedRow = [];
+
 	public function __construct()
 	{
+		//llog(__METHOD__, Debug::getCaller());
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
 	}
@@ -33,13 +41,16 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function fetchAll($res_or_query, $index_by_key = null)
 	{
-		return array();
+		$return = $this->returnNextTime;
+		//debug(__METHOD__, typ($this), $return);
+		$this->returnNextTime = [];
+		return $return;
 	}
 
 	public function __call($method, array $params)
 	{
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			debug(typ($this->qb));
 			throw new Exception($method . ' not found in dbPlacebo and SQLBuilder');
@@ -48,7 +59,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function numRows($res = null)
 	{
-		// TODO: Implement numRows() method.
+		return sizeof($this->returnNextTime);
 	}
 
 	public function affectedRows($res = null)
@@ -63,7 +74,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function lastInsertID($res = null, $table = null)
 	{
-		// TODO: Implement lastInsertID() method.
+		return rand();
 	}
 
 	public function free($res)
@@ -73,7 +84,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function quoteKey($key)
 	{
-		return $key;
+		return '"'.$key.'"';
 	}
 
 	public function escape($string)
@@ -88,7 +99,9 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function fetchAssoc($res)
 	{
-		// TODO: Implement fetchAssoc() method.
+		$return = $this->returnNextTime;
+		$this->returnNextTime = [];
+		return $return;
 	}
 
 	public function transaction()
@@ -108,7 +121,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function getScheme()
 	{
-		// TODO: Implement getScheme() method.
+		return get_class($this).'://';
 	}
 
 	public function getTablesEx()
@@ -126,15 +139,40 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		// TODO: Implement getIndexesFrom() method.
 	}
 
-	public function fetchOneSelectQuery($table, $where = array(), $order = '', $selectPlus = '')
+	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		$this->lastQuery = $query;
-		return array();
+		return $this->fetchAll(null);
 	}
 
 	public function getPlaceholder()
 	{
 		return '?';
 	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
+	public function returnNextTime(array $rows)
+	{
+		$this->returnNextTime = $rows;
+	}
+
+	public function runInsertQuery($table, array $columns)
+	{
+		if (!ifsetor($columns['id'])) {
+			$columns['id'] = rand();
+		}
+		$this->insertedRow = $columns;
+		$this->returnNextTime = $columns;
+	}
+
+	public function getFirstWord($asd)
+	{
+		return $asd;
+	}
+
 }

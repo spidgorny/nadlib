@@ -11,7 +11,7 @@ if (!function_exists('str_startsWith')) {
 	function str_startsWith($haystack, $needle)
 	{
 		if (!is_array($needle)) {
-			$needle = array($needle);
+			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
 			if (strpos($haystack, $need) === 0) {
@@ -83,7 +83,7 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str);
 		}
 		if (!$is_string) {
-			debug('trimExplode', 'must be string', typ($str));
+			debug('trimExplode', 'must be string', new htmlString(typ($str)));
 //			debug_pre_print_backtrace();
 		}
 		if ($max) {
@@ -142,7 +142,7 @@ if (!function_exists('str_startsWith')) {
 		$isAbs = isset($path[0]) &&
 			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
 
-		$parts = trimExplode('/', $path);
+		$parts = trimExplode('/', $path.'');
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';

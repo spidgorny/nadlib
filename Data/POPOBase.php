@@ -13,7 +13,7 @@ class POPOBase
 	 */
 	protected $reflector;
 
-	public $missingProperties = [];
+	public $_missingProperties = [];
 
 	public function __construct($set)
 	{
@@ -73,7 +73,7 @@ class POPOBase
 				}
 			}
 		} catch (ReflectionException $e) {
-			$this->missingProperties[$name] = TAB . 'public $' . $name . ';';
+			$this->_missingProperties[$name] = TAB . 'public $' . $name . ';';
 		}
 		return $value;
 	}

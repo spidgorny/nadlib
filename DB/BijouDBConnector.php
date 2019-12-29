@@ -276,4 +276,10 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 	{
 		// TODO: Implement getTables() method.
 	}
+
+	public function getInfo()
+	{
+		return [];
+	}
+
 }

@@ -6,12 +6,12 @@ class NadlibIndex
 	/**
 	 * @var Request
 	 */
-	var $request;
+	protected $request;
 
 	/**
 	 * @var NadlibIndex
 	 */
-	static $instance;
+	static public $instance;
 
 	/**
 	 * @var DIContainer

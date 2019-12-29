@@ -43,14 +43,14 @@ class DownloadObfuscator
 	{
 		//$link = '?id='.DownloadObfuscator::page.'&type='.DownloadObfuscator::type.'&file='.urlencode($this->filename).'&check='.$this->getHash();
 		//$link = '?id='.DownloadObfuscator::page.'&type='.DownloadObfuscator::type.'&subid='.$this->sub->submission['uid'].'&fileSuffix='.$this->fileSuffix.'&check='.$this->getHash();
-		$link = $this->linkPrefix . http_build_query(array(
+		$link = $this->linkPrefix . http_build_query([
 				'c' => static::class,
 				//'id' => DownloadObfuscator::page,
 				//'type' => DownloadObfuscator::type,
 				'file' => $this->file,
 				'fileSuffix' => $this->fileSuffix,
 				'check' => $this->getHash(),
-			));
+			]);
 		$link .= '&/' . basename($this->file);    // http://stackoverflow.com/a/216777
 		return $link;
 	}

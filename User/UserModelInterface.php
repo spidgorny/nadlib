@@ -38,4 +38,8 @@ interface UserModelInterface
 
 	public function getAllSettings();
 
+	public function getGroup();
+
+//	public function getData();
+
 }

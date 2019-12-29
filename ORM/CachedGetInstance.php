@@ -6,7 +6,7 @@ trait CachedGetInstance
 	/**
 	 * array[get_called_class()][$id]
 	 */
-	public static $instances = array();
+	public static $instances = [];
 
 	/**
 	 * @param $id
@@ -88,13 +88,13 @@ trait CachedGetInstance
 
 	public static function clearInstances()
 	{
-		self::$instances[get_called_class()] = array();
+		self::$instances[get_called_class()] = [];
 		gc_collect_cycles();
 	}
 
 	public static function clearAllInstances()
 	{
-		self::$instances = array();
+		self::$instances = [];
 		gc_collect_cycles();
 	}
 
@@ -116,7 +116,7 @@ trait CachedGetInstance
 
 	public static function getCacheStats()
 	{
-		$stats = array();
+		$stats = [];
 		foreach (self::$instances as $class => $list) {
 			if (!is_array($list)) {
 				debug($list);
@@ -214,7 +214,8 @@ trait CachedGetInstance
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
 				$c->findInDBsetInstance([
-					'trim(' . $field . ')' => $name,
+//					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
+					 new SQLWhereEqual('trim(' . $field . ')', $name),
 				]);
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([

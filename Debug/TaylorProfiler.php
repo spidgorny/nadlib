@@ -513,7 +513,7 @@ class TaylorProfiler
 	 */
 	public static function getMemUsage()
 	{
-		require_once __DIR__ . '/../HTML/Bytes.php';
+		require_once __DIR__ . '/../Value/Bytes.php';
 		$memory_limit = ini_get('memory_limit');
 		$memLimit = new Bytes($memory_limit);
 		$max = $memLimit->getBytes();

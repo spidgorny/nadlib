@@ -2,7 +2,8 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
+class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface
+{
 
 	var $makeFallback = true;
 
@@ -13,12 +14,16 @@ class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface {
 	 * @return mixed
 	 * @throws Exception
 	 */
-	function render() {
+	function render()
+	{
 		$content = [];
+		if (!$this->form) {
+			$this->form = new HTMLForm();
+		}
 		$this->form->action(new URL(NULL, [
 			'action' => 'upload',
 		]));
-		$this->form->formMore['class'] .= ' '.$this->class;
+		$this->form->formMore['class'] .= ' ' . $this->class;
 		$index = Index::getInstance();
 		$index->addJS('vendor/enyo/dropzone/dist/min/dropzone.min.js');
 		$index->addCSS('vendor/enyo/dropzone/dist/min/dropzone.min.css');

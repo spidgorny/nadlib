@@ -68,7 +68,10 @@ class SQLBuilder
 	 */
 	public function quoteSQL($value, $key = null)
 	{
-		if ($value instanceof AsIsOp) {     // check subclass first
+		if ($value instanceof SQLNow) {     // check subclass first
+			$value->injectDB($this->db);
+			return $value . '';
+		} elseif ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
 			$value->injectField($key);
 			$result = $value->__toString();
@@ -144,7 +147,7 @@ class SQLBuilder
 		//		debug(__METHOD__, $a);
 		$c = [];
 		foreach ($a as $key => $b) {
-			$c[] = SQLBuilder::quoteSQL($b, $key);
+			$c[] = $this->quoteSQL($b, $key);
 		}
 		return $c;
 	}
@@ -164,6 +167,7 @@ class SQLBuilder
 		foreach ($where as $key => $val) {
 			if (!strlen($key) || (strlen($key) && $key{strlen($key) - 1} != '.')) {
 				$equal = new SQLWhereEqual($key, $val);
+				$equal->injectDB($this->db);
 				$set[] = $equal->__toString();
 			}
 		}
@@ -237,6 +241,9 @@ class SQLBuilder
 
 	public static function getFirstWord($table)
 	{
+		if (!$table) {
+			throw new InvalidArgumentException(__METHOD__.' called on ['.$table.']');
+		}
 		$table1 = trimExplode(' ', $table);
 		$table0 = $table1[0];
 		$table1 = trimExplode("\t", $table0);
@@ -279,7 +286,6 @@ class SQLBuilder
 		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
 	}
 
-
 	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
 	{
 		$table1 = $this->getFirstWord($table);
@@ -290,7 +296,7 @@ class SQLBuilder
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $where
 	 * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
 	 * @return string
@@ -384,12 +390,13 @@ class SQLBuilder
 			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $where + $insert);
-			// array('ctime' => NULL) #TODO: make it manually now
+			// array('ctime' => NULL) # TODO: make it manually now
 			$res = $this->perform($query);
 			$inserted = $this->db->lastInsertID($res, $table);
 		}
 		//debug($query);
 		$this->db->commit();
+		$this->lastQuery = $query;	// overwrite 'commit'
 		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
 	}
@@ -650,7 +657,9 @@ class SQLBuilder
 	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		llog($query.'', $query->getParameters(), get_class($this->db), $this->db->getConnection());
 		$res = $this->db->perform($query, $query->getParameters());
+		llog('$res', $res);
 		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}
@@ -727,7 +736,7 @@ class SQLBuilder
 
 		$res = $query->fetchAssoc();
 		//		debug($res);
-		$count = $res['count'];
+		$count = ifsetor($res['count']);
 		return $count;
 	}
 

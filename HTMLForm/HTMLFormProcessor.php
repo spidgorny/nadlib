@@ -7,7 +7,7 @@
  * - onSuccess();
  * - submitButton
  */
-abstract class HTMLFormProcessor extends Controller
+abstract class HTMLFormProcessor extends AppController
 {
 
 	/**
@@ -18,7 +18,7 @@ abstract class HTMLFormProcessor extends Controller
 	/**
 	 * @var array
 	 */
-	public $default = array();
+	public $default = [];
 
 	/**
 	 * @var HTMLFormValidate
@@ -50,9 +50,9 @@ abstract class HTMLFormProcessor extends Controller
 	 * For debugging
 	 * @var array
 	 */
-	public $method = array();
+	public $method = [];
 
-	function __construct(array $default = array())
+	function __construct(array $default = [])
 	{
 		parent::__construct();
 		$this->prefix = get_class($this);
@@ -109,7 +109,7 @@ abstract class HTMLFormProcessor extends Controller
 
 	/**
 	 * If inherited can be used as both string and HTMLFormTable
-	 * @return HTMLFormTable
+	 * @return HTMLFormTable|string[]
 	 */
 	function render()
 	{
@@ -161,7 +161,7 @@ abstract class HTMLFormProcessor extends Controller
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
-		$this->form->submit($this->submitButton, array('class' => 'btn btn-success'));
+		$this->form->submit($this->submitButton, ['class' => 'btn btn-success']);
 		TaylorProfiler::stop(__METHOD__);
 		return $this->form->getContent();
 	}

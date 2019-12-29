@@ -64,7 +64,7 @@ class Path
 	 */
 	public function implode()
 	{
-		$notSlash = $this->aPath != array('/');
+		$notSlash = $this->aPath != ['/'];
 		if ($this->isWindows()) {
 			$prefix = '';
 		} else {
@@ -265,6 +265,8 @@ class Path
 				break;
 			}
 		}
+		// remove empty paths which lead to //
+		$this->aPath = array_filter($this->aPath);
 		$this->implode();
 		return $this;
 	}
@@ -319,6 +321,7 @@ class Path
 
 	/**
 	 * Recursive. For no reason?
+	 * Reason is that readlink() fails if the final part is not a link
 	 * @return $this
 	 */
 	public function resolveLinks()
@@ -485,14 +488,14 @@ class Path
 
 	public function getDebug()
 	{
-		return array(
+		return [
 			'sPath' => $this->sPath,
 			'aPath' => $this->aPath,
 			'isAbsolute' => $this->isAbsolute(),
 			'isDir' => $this->isDir,
 			'isFile' => $this->isFile,
 			'exists' => $this->exists(),
-		);
+		];
 	}
 
 	public function getLevels()
@@ -513,7 +516,7 @@ class Path
 	 */
 	private function cutArrayFromArray(array $long, array $short)
 	{
-		$new = array();
+		$new = [];
 		$different = false;
 		foreach ($long as $key => $value) {
 			$other = ifsetor($short[$key]);
@@ -534,7 +537,7 @@ class Path
 	public function getNormalized()
 	{
 		$path = $this->__toString();
-		$parts = array();// Array to build a new path from the good parts
+		$parts = [];// Array to build a new path from the good parts
 		$path = str_replace('\\', '/', $path);// Replace backslashes with forwardslashes
 		$path = preg_replace('/\/+/', '/', $path);// Combine multiple slashes into a single slash
 		$segments = explode('/', $path);// Collect path segments
@@ -588,7 +591,7 @@ class Path
 
 	public function debugPathExists()
 	{
-		$debug = array();
+		$debug = [];
 		$sPath = $this->isAbsolute() ? '/' : '';
 		foreach ($this->aPath as $i => $section) {
 			$sPath .= $section;

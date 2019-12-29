@@ -1,6 +1,7 @@
 <?php
 
-class DBLayerJSON extends DBLayerBase implements DBInterface {
+class DBLayerJSON extends DBLayerBase implements DBInterface
+{
 
 	var $folderName;
 
@@ -8,7 +9,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 
 	var $currentQuery;
 
-	function __construct($folderName)
+	public function __construct($folderName)
 	{
 		$this->folderName = $folderName;
 	}
@@ -17,16 +18,16 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 	 * @param string $name
 	 * @return DBLayerJSONTable
 	 */
-	function getTable($name)
+	public function getTable($name)
 	{
 		$name = trim($name);
 		if (!isset($this->tables[$name])) {
-			$this->tables[$name] = new DBLayerJSONTable(cap($this->folderName).$name.'.json');
+			$this->tables[$name] = new DBLayerJSONTable(cap($this->folderName) . $name . '.json');
 		}
 		return $this->tables[$name];
 	}
 
-	function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = NULL)
 	{
 		if ($res_or_query instanceof DBLayerJSONTable) {
 			return $res_or_query->fetchAll($res_or_query, $index_by_key);
@@ -43,7 +44,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function extractTable($res_or_query)
+	public function extractTable($res_or_query)
 	{
 		$del = " \n\t";
 		$tokens = [];
@@ -51,11 +52,11 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 			$tokens[] = $tok;
 		}
 		$iFROM = array_search('FROM', $tokens);
-		$table = ifsetor($tokens[$iFROM+1]);
+		$table = ifsetor($tokens[$iFROM + 1]);
 		return $table;
 	}
 
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		if ($res instanceof DBLayerJSONTable) {
 			return $res->fetchAssoc($res);
@@ -64,7 +65,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function numRows($res = NULL)
+	public function numRows($res = NULL)
 	{
 		//debug(gettype2($res));
 		if (!($res instanceof DBLayerJSONTable)) {
@@ -81,19 +82,19 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 		return $t->numRows($res);
 	}
 
-	function runInsertQuery($table, array $data)
+	public function runInsertQuery($table, array $data)
 	{
 		$t = $this->getTable($table);
 		return $t->runInsertQuery($table, $data);
 	}
 
-	function runUpdateQuery($table, array $data, array $where)
+	public function runUpdateQuery($table, array $data, array $where)
 	{
 		$t = $this->getTable($table);
 		return $t->runUpdateQuery($table, $data, $where);
 	}
 
-	function getSelectQuery($table, array $where = array(), $order = '', $addSelect = NULL)
+	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = NULL)
 	{
 		$query = parent::getSelectQuery($table, $where, $order, $addSelect);
 		$this->currentQuery = $query;
@@ -103,20 +104,20 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 		return $t;
 	}
 
-	function runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
+	public function runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 	{
 		$t = $this->getTable($table);
 		$res = $t->runSelectQuery($table, $where, $order, $addSelect);
 		return $res;
 	}
 
-	function __call($method, array $params)
+	public function __call($method, array $params)
 	{
 //		echo $method, BR;
 		return parent::__call($method, $params);
 	}
 
-	function perform($query, array $params = [])
+	public function perform($query, array $params = [])
 	{
 		$this->currentQuery = $query;
 		parent::perform($query, $params);
@@ -127,6 +128,11 @@ class DBLayerJSON extends DBLayerBase implements DBInterface {
 			$t = $query;
 		}
 		return $t;
+	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
 	}
 
 }

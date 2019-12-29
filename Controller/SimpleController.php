@@ -5,7 +5,7 @@ use spidgorny\nadlib\HTTP\URL;
 /**
  * Class SimpleController
  * @mixin HTML
- * @method error($content)
+ * @method error($content, $httpCode = 500)
  * @method info($content)
  * @method success($content)
  */
@@ -78,7 +78,7 @@ abstract class SimpleController
 	public function getURL(array $params = [], $prefix = null)
 	{
 		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
+			throw new InvalidArgumentException('Use makeURL() instead of ' . __METHOD__);
 		}
 		//		$params = $params + $this->linkVars;
 		//		debug($params);
@@ -129,7 +129,7 @@ abstract class SimpleController
 	/**
 	 * This function prevents performAction() from doing nothing
 	 * if there is a __CLASS__.phtml file in the same folder
-	 * @return MarkdownView|string|View
+	 * @return MarkdownView|string|View|string[]
 	 */
 	public function indexAction()
 	{
@@ -197,17 +197,17 @@ abstract class SimpleController
 		return $content;
 	}
 
-	public function getCaption($caption, $h)
+	public function getCaption($caption, $hTag)
 	{
-		return '<' . $h . '>' .
+		return '<' . $hTag . '>' .
 			$caption .
-			'</' . $h . '>';
+			'</' . $hTag . '>';
 	}
-	
+
 	public function performAction($action = null)
 	{
 		$content = '';
-		if ($this->request->isCLI()) {
+		if (Request::isCLI()) {
 			//debug($_SERVER['argv']);
 			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
 		} else {
@@ -228,7 +228,7 @@ abstract class SimpleController
 			}
 
 			if (method_exists($proxy, $method)) {
-				if ($this->request->isCLI()) {
+				if (Request::isCLI()) {
 					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
 					$content = call_user_func_array([$proxy, $method], $assoc);
 				} else {
@@ -250,7 +250,7 @@ abstract class SimpleController
 
 	public function log($action, ...$data)
 	{
-		if (is_array($data) && sizeof($data) == 1) {
+		if (is_array($data) && sizeof($data) === 1) {
 			$data = $data[0];
 		}
 		$this->log[] = new LogEntry($action, $data);

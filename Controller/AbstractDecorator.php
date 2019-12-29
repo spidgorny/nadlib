@@ -220,7 +220,7 @@ abstract class AbstractDecorator
 	public function __call($name, $arguments)
 	{
 		if (method_exists($this->component, $name)) {
-			return call_user_func_array(array($this->component, $name), $arguments);
+			return call_user_func_array([$this->component, $name], $arguments);
 		} else {
 			throw new Exception('Method '.$name.' not found.');
 		}

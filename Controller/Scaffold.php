@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Scaffold
  * @deprecated - use HTMLFormProcessor if you only need the edit form
@@ -24,7 +26,7 @@ abstract class Scaffold extends AppController
 	 * @var array
 	 * @deprecated    - why? Use Collection instead?
 	 */
-	protected $thes = array();
+	protected $thes = [];
 
 	/**
 	 * Button label
@@ -109,12 +111,12 @@ abstract class Scaffold extends AppController
 //		debug($this->data);
 		$this->form->desc = $this->getDesc((array)$this->data);
 		//debug($this->form->desc);
-		nodebug(array(
+		nodebug([
 			'id' => $this->id,
 			'isSubmit' => $this->request->isSubmit(),
 			'formPrefix' => $this->formPrefix,
 			'data' => $this->data,
-			'model' => $this->model));
+			'model' => $this->model]);
 	}
 
 	/**
@@ -139,7 +141,7 @@ abstract class Scaffold extends AppController
 				break;
 			default:    // view table
 				if (method_exists($this, $this->action . 'Action')) {
-					$content[] = call_user_func(array($this, $this->action . 'Action'));
+					$content[] = call_user_func([$this, $this->action . 'Action']);
 				} else {
 					$content[] = $this->showDefault();
 				}
@@ -165,7 +167,7 @@ abstract class Scaffold extends AppController
 	 */
 	public function showTable()
 	{
-		$data = array($this->model->data);
+		$data = [$this->model->data];
 		$data = $this->processData($data);
 
 		if ($data) {
@@ -190,26 +192,26 @@ abstract class Scaffold extends AppController
 	public function getEditIcon($id)
 	{
 		//makeAjaxLink
-		$aTag = $this->makeLink($this->editIcon, array(
+		$aTag = $this->makeLink($this->editIcon, [
 			'c' => get_class($this),
 			'pageType' => get_class($this),
 			'ajax' => true,
 			'action' => 'showEdit',
 			$this->table . '.id' => $id,
-		), $this->formPrefix);
+		], $this->formPrefix);
 		$href = $aTag->attr['href'];
-		/** @var $href URL */
+		/** @var URL $href */
 		$aTag->attr['href'] = $href->buildQuery();
 		return $aTag;
 	}
 
 	protected function showButtons()
 	{
-		$content = $this->makeAjaxLink('<button>' . $this->addButton . '</button>', array(
+		$content = $this->makeAjaxLink('<button>' . $this->addButton . '</button>', [
 			'c' => get_class($this),
 			'ajax' => true,
 			'action' => 'showForm',
-		), $this->formPrefix, '', array('class' => "button"));
+		], $this->formPrefix, '', ['class' => "button"]);
 		return $content;
 	}
 
@@ -220,9 +222,9 @@ abstract class Scaffold extends AppController
 		} else {
 			$f = $this->getForm();
 			$f->prefix('');
-			$f->submit($this->addButton, array(
+			$f->submit($this->addButton, [
 				'class' => 'btn btn-primary',
-			));
+			]);
 		}
 		return $f;
 	}
@@ -233,9 +235,9 @@ abstract class Scaffold extends AppController
 	 */
 	protected function showEditForm()
 	{
-		$override = array(
+		$override = [
 			$this->table . '.id' => $this->id,
-		);
+		];
 
 		/*		if ($this->desc['submit']) {
 					$this->desc['submit']['value'] = $this->updateButton;
@@ -246,10 +248,10 @@ abstract class Scaffold extends AppController
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
-		$f->button('<span class="glyphicon glyphicon-floppy-disk"></span> ' . $this->updateButton, array(
+		$f->button('<span class="glyphicon glyphicon-floppy-disk"></span> ' . $this->updateButton, [
 			'type' => 'submit',
 			'class' => 'btn btn-primary',
-		));
+		]);
 		return $f;
 	}
 
@@ -325,11 +327,11 @@ abstract class Scaffold extends AppController
 	 */
 	protected function getDesc(array $data = [])
 	{
-		$desc = array(
-			'name' => array(
+		$desc = [
+			'name' => [
 				'label' => 'Name',
-			),
-		);
+			],
+		];
 		$this->form->desc = $desc;
 		$this->form->fill($data);
 		return $this->form->desc;
@@ -372,21 +374,21 @@ abstract class Scaffold extends AppController
 
 	public function getDescFromThes()
 	{
-		$special = array('id', 'match', 'mtime', 'muser');
-		$desc = array();
+		$special = ['id', 'match', 'mtime', 'muser'];
+		$desc = [];
 		foreach ($this->model->thes as $key => $k) {
-			$k = is_array($k) ? $k : array('name' => $k);
+			$k = is_array($k) ? $k : ['name' => $k];
 			if (!in_array($key, $special) && $k['showSingle'] !== false) {
-				$desc[$key] = array(
+				$desc[$key] = [
 						'label' => $k['name'],
 						'type' => $k['type'],
 						'value' => $this->model->data[$key],
-					) + $k;
+					] + $k;
 				if ($k['type'] == 'combo') {
 					$desc[$key]['options'] = $this->db->getTableOptions(
 						$this->model->table,
 						$key,
-						array(),
+						[],
 						'ORDER BY ' . $this->db->quoteKey($key),
 						$key
 					);

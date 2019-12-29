@@ -3,6 +3,7 @@
 /**
  * Class dbLayerPDO
  * @mixin SQLBuilder
+ * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayerPDO extends DBLayerBase implements DBInterface
 {
@@ -30,7 +31,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	/**
 	 * @var null|int
 	 */
-	protected $dataSeek = NULL;
+	protected $dataSeek = null;
 
 	public function __construct($db = null, $host = null,
 								$user = null, $password = null,
@@ -66,19 +67,12 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 */
 	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
 	{
-		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
-		if ($scheme == 'sqlite') {
-			$this->database = basename($db);
-		} else {
-			$this->database = $db;
-		}
-
 		$builder = DSNBuilder::make($scheme, $host, $user, $password, $db, $port);
 		if ($driver) {
 			$builder->setDriver($driver);
 		}
 		$this->dsn = $builder->__toString();
-		//debug($this->dsn);
+//		debug($this->dsn);
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
 		$this->queryTime += $profiler->elapsed();
@@ -115,22 +109,32 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $out;
 	}
 
-	public function connectDSN($dsn, $user = NULL, $password = NULL)
+	public function connectDSN($dsn, $user = null, $password = null)
 	{
+		$dsnParts = parse_url($dsn);
 		if (!$user) {
-			$dsnParts = parse_url($dsn);
 //			debug($dsnParts);
-			$user = $dsnParts['user'];
-			$password = $dsnParts['pass'];
+			$user = ifsetor($dsnParts['user']);
+			$password = ifsetor($dsnParts['pass']);
 //			$dsn = str_replace($user.':'.$password.'@', '', $dsn);
-			$dsnBuilder = DSNBuilder::make($dsnParts['scheme'], $dsnParts['host'], '', '', trim($dsnParts['path'], '/'), $dsnParts['port']);
+			$dsnBuilder = DSNBuilder::make(
+				$dsnParts['scheme'],
+				ifsetor($dsnParts['host']),
+				'',
+				'',
+				$dsnParts['path'],
+				ifsetor($dsnParts['port'])
+			);
 			$dsn = $dsnBuilder->__toString();
+//			debug($dsnParts);
 		}
+		$this->database = $dsnParts['path'];
+
 		$this->dsn = $dsn;
-		$options = array(
+		$options = [
 			PDO::ATTR_PERSISTENT => false,
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-		);
+		];
 		if ($this->isMySQL()) {
 			$this->dsn .= ';charset=utf8';
 			$options += [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"];
@@ -160,7 +164,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function perform($query, array $params = array())
+	public function perform($query, array $params = [])
 	{
 //		echo $query, BR;
 		//debug($params);
@@ -203,7 +207,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 				$this->queryLog->log($query, $diffTime, $this->lastResult->rowCount());
 			}
 			if (!$ok) {
-				debug(array(
+				debug([
 					'class' => get_class($this),
 					'ok' => $ok,
 					'code' => $this->connection->errorCode(),
@@ -211,8 +215,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 					'query' => $query,
 					'connection' => $this->connection,
 					'result' => $this->lastResult,
-				));
-				$e = new DatabaseException(getDebug(array(
+				]);
+				$e = new DatabaseException(getDebug([
 					'class' => get_class($this),
 					'ok' => $ok,
 					'code' => $this->connection->errorCode(),
@@ -220,20 +224,20 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 					'query' => $query,
 					'connection' => $this->connection,
 					'result' => $this->lastResult,
-				)),
+				]),
 					$this->connection->errorCode() ?: 0);
 				$e->setQuery($query);
 				throw $e;
 			}
 		} else {
-			$e = new DatabaseException(getDebug(array(
+			$e = new DatabaseException(getDebug([
 				'class' => get_class($this),
 				'code' => $this->connection->errorCode(),
 				'errorInfo' => $this->connection->errorInfo(),
 				'query' => $query,
 				'connection' => $this->connection,
 				'result' => $this->lastResult,
-			)),
+			]),
 				$this->connection->errorCode() ?: 0);
 			$e->setQuery($query);
 			throw $e;
@@ -285,7 +289,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 */
 	public function getTablesEx()
 	{
-		$tables = array();
+		$tables = [];
 		$scheme = $this->getScheme();
 		if ($this->isMySQL()) {
 			$res = $this->perform('show tables');
@@ -293,7 +297,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$tables = ArrayPlus::create($tables)->column('0')->getData(); // "Tables_is_DBname"
 			$keys = $tables;
 			foreach ($tables as &$name) {
-				$name = array('table' => $name);
+				$name = ['table' => $name];
 			}
 			$tables = array_combine($keys, $tables);
 		} elseif ($scheme == 'odbc') {
@@ -341,10 +345,10 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	public function getDriver()
 	{
 		$driverMap = [
-			'mysql' => 'MySQL',
-			'pgsql' => 'DBLayer',
-			'sqlite' => 'DBLayerSQLite',
-			'mssql' => 'DBLayerMS',
+			'mysql' => MySQL::class,
+			'pgsql' => DBLayer::class,
+			'sqlite' => DBLayerSQLite::class,
+			'mssql' => DBLayerMS::class,
 		];
 		$scheme = $this->getScheme();
 		if (isset($driverMap[$scheme])) {
@@ -455,7 +459,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 */
 	public function fetchPartitionMySQL($res, $start, $limit)
 	{
-		$data = array();
+		$data = [];
 		for ($i = 0; $i < $start + $limit; $i++) {
 			$row = $this->fetchAssoc($res);
 			if ($row !== false) {
@@ -502,7 +506,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	public function getIndexesFrom($table)
 	{
-		return array();
+		return [];
 	}
 
 	/**
@@ -551,6 +555,34 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		} else {
 			throw new DatabaseException(__METHOD__ . ' is not implemented for ' . get_class($this));
 		}
+	}
+
+	public function getInfo()
+	{
+		$info = [
+			'class' => get_class($this),
+			'errorInfo' => $this->connection->errorInfo(),
+			'errorCode' => $this->connection->errorCode(),
+		];
+		$plus = [
+			'ATTR_CLIENT_VERSION' => PDO::ATTR_CLIENT_VERSION,
+			'ATTR_CONNECTION_STATUS' => PDO::ATTR_CONNECTION_STATUS,
+			'ATTR_DRIVER_NAME' => PDO::ATTR_DRIVER_NAME,
+			'ATTR_SERVER_INFO' => PDO::ATTR_SERVER_INFO,
+			'ATTR_SERVER_VERSION' => PDO::ATTR_SERVER_VERSION,
+			'ATTR_TIMEOUT' => PDO::ATTR_TIMEOUT,
+		];
+		foreach ($plus as $name => $attribute) {
+			try {
+				$info[$name] = $this->connection->getAttribute($attribute);
+			} catch (PDOException $e) {}
+		}
+		return $info;
+	}
+
+	public function getVersion()
+	{
+		return $this->getInfo()['ATTR_SERVER_VERSION'];
 	}
 
 }

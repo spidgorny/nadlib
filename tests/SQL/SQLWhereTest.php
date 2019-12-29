@@ -9,9 +9,19 @@
 class SQLWhereTest extends PHPUnit\Framework\TestCase
 {
 
+	/** @var DBInterface */
+	protected $db;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->db = Config::getInstance()->getDB();
+	}
+
 	public function test_add()
 	{
 		$sq = new SQLWhere();
+		$sq->injectDB($this->db);
 		$sq->add(new SQLWhereEqual('deleted', false));
 		$sql = $sq->__toString();
 		$sql = $this->trim($sql);
@@ -21,6 +31,7 @@ class SQLWhereTest extends PHPUnit\Framework\TestCase
 	public function test_addArray()
 	{
 		$sq = new SQLWhere();
+		$sq->injectDB($this->db);
 		$sq->addArray([
 			'a' => 'b',
 		]);
@@ -31,7 +42,7 @@ class SQLWhereTest extends PHPUnit\Framework\TestCase
 
 	public function test_InvalidArgumentException()
 	{
-		$this->setExpectedException(InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$sq = new SQLWhere();
 		$sq->add([
 			'a' => 'b',

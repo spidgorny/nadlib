@@ -49,4 +49,16 @@ alert("xss");
 </script>', $scripts);
 	}
 
+	public function test_double()
+	{
+		$c = new MockController();
+		$i = new MockIndex($c, Config::getInstance());
+		$v = new View(__DIR__ . '/template.phtml', $i);
+		$html = $v->render();
+		ini_set('xdebug.var_display_max_data', -1);
+//		var_dump($html);
+		$countSidebar = substr_count($html, '<sidebar>');
+		$this->assertEquals(1, $countSidebar);
+	}
+
 }

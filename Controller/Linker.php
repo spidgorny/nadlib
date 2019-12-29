@@ -48,7 +48,10 @@ class Linker
 			//unset($params['c']);
 		}
 
-		$location = $this->request->getLocation();
+		$location = '';
+		if (!str_startsWith($prefix, 'http')) {
+			$location = $this->request->getLocation();
+		}
 		$url = new URL($prefix
 			? $location . $prefix
 			: $location, $params);
@@ -85,7 +88,7 @@ class Linker
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
-			+ $this->getURL()->getParams()            // 2nd priority
+			+ (new URL())->getParams()            // 2nd priority
 			+ $this->linkVars,
 			$page
 		);                // 3rd priority
@@ -166,7 +169,11 @@ class Linker
 		if ($formAction) {
 			$f->action($formAction);
 		} else {
-			$f->hidden('c', get_class($this));
+			$bt = debug_backtrace();
+//			debug($bt[2]);
+			// this autodetection is tricky
+			// better provide $formAction = '?c=SomeController'
+			$f->hidden('c', get_class($bt[2]['object']));
 		}
 		$f->formHideArray($hidden);
 		if (false) {    // this is too specific, not and API

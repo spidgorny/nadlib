@@ -71,7 +71,7 @@ class Pager
 	 * Mouse over tooltip text per page
 	 * @var array
 	 */
-	var $pageTitles = array();
+	var $pageTitles = [];
 
 	/**
 	 * @var Iterator
@@ -88,6 +88,11 @@ class Pager
 	 * @var DBInterface
 	 */
 	protected $db;
+
+	/**
+	 * @var int - can deviate from the valid range of pages
+	 */
+	public $requestedPage;
 
 	public function __construct($itemsPerPage = null, $prefix = '')
 	{
@@ -136,11 +141,16 @@ class Pager
 			$pager = $this->user->getPref('Pager.' . $this->prefix);
 			if ($pager) {
 				//debug(__METHOD__, $this->prefix, $pager['page']);
-				$this->setCurrentPage($pager['page']);
+				$this->setRequestedPage($pager['page']);
 			}
 		} else {
-			$this->setCurrentPage(0);
+			$this->setRequestedPage(0);
 		}
+	}
+
+	public function setRequestedPage($page)
+	{
+		$this->requestedPage = $page;
 	}
 
 	public function initByQuery($originalSQL)
@@ -182,7 +192,8 @@ class Pager
 		// , $query->getParameters()
 		$this->setNumberOfRecords($res['count']);
 		//debug($originalSQL, $query, $res);
-		$this->detectCurrentPage();
+		// validate the requested page is within the allowed range
+		$this->setCurrentPage($this->requestedPage);
 		TaylorProfiler::stop($key);
 	}
 
@@ -194,12 +205,12 @@ class Pager
 			$queryWithoutOrder = clone $originalSQL;
 			$queryWithoutOrder->unsetOrder();
 
-			$subquery = new SQLSubquery($queryWithoutOrder, 'counted');
-			$subquery->parameters = $parameters;
+			$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
+			$subQuery->parameters = $parameters;
 
 			$query = new SQLSelectQuery(
 				new SQLSelect('count(*) AS count'),
-				$subquery
+				$subQuery
 			);
 		} else {
 			$query = $originalSQL;
@@ -209,7 +220,8 @@ class Pager
 
 		$res = $query->fetchAssoc();
 		$this->setNumberOfRecords($res['count']);
-		$this->detectCurrentPage();
+		// validate the requested page is within the allowed range
+		$this->setCurrentPage($this->requestedPage);
 		TaylorProfiler::stop($key);
 	}
 
@@ -243,9 +255,9 @@ class Pager
 	{
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
 		if ($this->user instanceof UserWithPreferences) {
-			$this->user->setPref('Pager.' . $this->prefix, array(
+			$this->user->setPref('Pager.' . $this->prefix, [
 				'page' => $this->currentPage
-			));
+			]);
 		}
 	}
 
@@ -391,7 +403,7 @@ class Pager
 
 	public function debug()
 	{
-		return array(
+		return [
 			'pager hash' => spl_object_hash($this),
 			'numberOfRecords' => $this->numberOfRecords,
 			'itemsPerPage' => $this->itemsPerPage,
@@ -410,12 +422,12 @@ class Pager
 			'showPageJump' => $this->showPageJump,
 			'showPager' => $this->showPager,
 			'prefix' => $this->prefix,
-		);
+		];
 	}
 
 	public function renderPageSize()
 	{
-		$this->pageSize->setURL(new URL(null, array()));
+		$this->pageSize->setURL(new URL(null, []));
 		$this->pageSize->set($this->itemsPerPage);
 		$content = '<div class="pageSize pull-right floatRight">' .
 			$this->pageSize->render() . '&nbsp;' . __('per page') . '</div>';
@@ -429,7 +441,7 @@ class Pager
 		$pages = $this->getPagesAround($this->currentPage, $maxpage);
 		//debug($pages, $maxpage);
 		if ($this->currentPage > 0) {
-			$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $this->currentPage - 1));
+			$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $this->currentPage - 1]);
 			$link = $link->setParam('pageSize', $this->pageSize->get());
 			$content .= '<li><a href="' . $link . '" rel="prev">&lt;</a></li>';
 		} else {
@@ -445,7 +457,7 @@ class Pager
 			}
 		}
 		if ($this->currentPage < $maxpage) {
-			$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $this->currentPage + 1));
+			$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $this->currentPage + 1]);
 			$content .= '<li><a href="' . $link . '" rel="next">&gt;</a></li>' . "\n";
 		} else {
 			$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>' . "\n";
@@ -470,7 +482,7 @@ class Pager
 
 	public function getSinglePageLink($k, $text)
 	{
-		$link = $this->url->setParam('Pager_' . $this->prefix, array('page' => $k));
+		$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $k]);
 		if ($k == $this->currentPage) {
 			$content = '<li class="active"><a href="' . $link . '"
 				class="active"
@@ -492,7 +504,7 @@ class Pager
 	public function getPagesAround($current, $max)
 	{
 		$size = $this->pagesAround;
-		$pages = array();
+		$pages = [];
 		$k = 0;
 		for ($i = 0; $i < $size; $i++) {
 			$k = $i;
@@ -512,7 +524,7 @@ class Pager
 		if ($max - $size > $k + 1) {
 			$pages[] = 'gap2';
 		}
-		for ($i = $max - $size; $i <= $max; $i++) {
+		for ($i = $max - $size + 1; $i <= $max; $i++) {
 			$k = $i;
 			if ($k >= 0 && $k <= $max) {
 				$pages[] = $k;
@@ -582,9 +594,9 @@ class Pager
 			$f->hidden('c', $controller);
 			$f->hidden('action', 'loadMore');
 			$f->hidden('Pager.[page]', $loadPage);
-			$f->formHideArray(array($this->prefix => $this->request->getArray($this->prefix)));
+			$f->formHideArray([$this->prefix => $this->request->getArray($this->prefix)]);
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
-			$f->submit(__('Load more'), array('class' => 'btn'));
+			$f->submit(__('Load more'), ['class' => 'btn']);
 			$content .= '<div id="loadMorePage' . $loadPage . '">' . $f . '</div>';
 		}
 		return $content;
@@ -623,6 +635,38 @@ class Pager
 		$this->detectCurrentPage();
 		return array_slice($data,
 			$this->getStart(), $this->pageSize->get(), true);
+	}
+
+	public function bulma()
+	{
+		$prevPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage-1]);
+		$nextPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage+1]);
+		$prevDisabled = $this->currentPage === 0 ? 'disabled' : '';
+		$nextDisabled = $this->currentPage === $this->getMaxPage() ? 'disabled' : '';
+		$content[] = '<nav class="pagination" role="navigation" aria-label="pagination">
+  <a href="'.$prevPageLink.'" class="pagination-previous" ' . $prevDisabled . '>Previous</a>
+  <a href="'.$nextPageLink.'" class="pagination-next" '.$nextDisabled.'>Next page</a>
+  <ul class="pagination-list">';
+		foreach ($this->getVisiblePages() as $page) {
+			if (str_startsWith($page, 'gap')) {
+				$content[] = '<li>
+      <span class="pagination-ellipsis">&hellip;</span>
+    </li>';
+			} else {
+				$pageLink = URL::getCurrent()->addParams(['page' => $page]);
+				$isCurrent = $this->currentPage === $page;
+				$isCurrentClass = $isCurrent ? 'is-current' : '';
+				$isCurrentAria = $isCurrent ? 'aria-current="page"' : '';
+				$content[] = '
+    <li>
+      <a href="'.$pageLink.'" class="pagination-link ' . $isCurrentClass . '" aria-label="Page 1" ' . $isCurrentAria . '>' . ($page+1) . '</a>
+    </li>';
+			}
+		}
+		$content[] = '
+  </ul>
+</nav>';
+		return implode(PHP_EOL, $content);
 	}
 
 }

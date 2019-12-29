@@ -149,12 +149,14 @@ class SQLSelectQuery extends SQLWherePart
 		}
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getQuery()
 	{
-		$from = ($this->from);
 		$query = trim("SELECT
 {$this->select}
-FROM {$from}
+FROM {$this->from}
 {$this->join}
 {$this->where}
 {$this->group}
@@ -181,8 +183,8 @@ FROM {$from}
 	public static function sqlSH($sql)
 	{
 		$res = '';
-		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL');
-		$breakAfter = array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN', 'NATURAL');
+		$words = ['SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL'];
+		$breakAfter = ['SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN', 'NATURAL'];
 		$sql = str_replace("(", " ( ", $sql);
 		$sql = str_replace(")", " ) ", $sql);
 		$level = 0;
@@ -235,7 +237,7 @@ FROM {$from}
 		if ($this->where) {
 			$params = $this->where->getParameters();
 		} else {
-			$params = array();
+			$params = [];
 		}
 		if ($this->from instanceof SQLSubquery) {
 			$subParams = $this->from->getParameters();
@@ -282,7 +284,7 @@ FROM {$from}
 	public static function getSelectQueryP(
 		DBInterface $db,
 		$table,
-		$where = array(),
+		$where = [],
 		$sOrder = '',
 		$addSelect = null
 	)

@@ -26,7 +26,7 @@ class AlterDB extends AppControllerBE
 	 */
 	protected $installerSQL;
 
-	protected $update_statements = array();
+	protected $update_statements = [];
 
 	protected $file;
 
@@ -101,11 +101,11 @@ class AlterDB extends AppControllerBE
 				$diff = $this->getDiff($query);
 				$cache->set($this->file, $diff);
 			} else {
-				$content .= $this->makeLink('Reload', array(
+				$content .= $this->makeLink('Reload', [
 					'c' => __CLASS__,
 					'file' => $this->file,
 					'reload' => true,
-				));
+				]);
 				$diff = $cache->get($this->file);
 			}
 
@@ -124,7 +124,7 @@ class AlterDB extends AppControllerBE
 
 	public function getFileChoice()
 	{
-		$menu = array();
+		$menu = [];
 		$sqlFolder = Config::getInstance()->appRoot . '/sql/';
 		if (!is_dir($sqlFolder)) {
 			return '<div class="error">No ' . $sqlFolder . '</div>';
@@ -137,12 +137,12 @@ class AlterDB extends AppControllerBE
 			}
 		}
 		foreach ($menu as $key => &$name) {
-			$name = new HTMLTag('a', array(
-				'href' => new URL('', array(
+			$name = new HTMLTag('a', [
+				'href' => new URL('', [
 					'c' => __CLASS__,
 					'file' => $key,
-				))
-			), $name);
+				])
+			], $name);
 		}
 		$content = '<ul><li>' . implode('</li><li>', $menu) . '</li></ul>';
 		return $content;
@@ -240,12 +240,12 @@ class AlterDB extends AppControllerBE
 		if ($update_statements['create_table']) {
 			foreach ($update_statements['create_table'] as $md5 => $query) {
 				$content .= '<pre>' . ($query);
-				$content .= ' ' . $this->makeRelLink('CREATE', array(
+				$content .= ' ' . $this->makeRelLink('CREATE', [
 						'action' => 'do',
 						'file' => $this->file,
 						'key' => 'create_table',
 						'query' => $md5,
-					));
+					]);
 				$content .= '</pre>';
 			}
 		}
@@ -258,23 +258,23 @@ class AlterDB extends AppControllerBE
 		$update_statements = $this->update_statements;
 		//debug($diff['extra'], $update_statements['add']);
 		if ($diff['diff']) foreach ($diff['diff'] as $table => $desc) {
-			$list = array();
+			$list = [];
 			foreach ($desc['fields'] as $field => $type) {
 				$current = $diff['diff_currentValues'][$table]['fields'][$field];
 				if ($type != $current) {
 					//debug($type, $current); exit();
-					$list[] = array(
+					$list[] = [
 						'field' => $field,
 						'file' => $type,
 						'current' => $current,
-						'sql' => $sql = $this->findStringWith($update_statements['change'], array($table, $field)),
-						'do' => $this->makeRelLink('CHANGE', array(
+						'sql' => $sql = $this->findStringWith($update_statements['change'], [$table, $field]),
+						'do' => $this->makeRelLink('CHANGE', [
 							'action' => 'do',
 							'file' => $this->file,
 							'key' => 'change',
 							'query' => md5($sql),
-						)),
-					);
+						]),
+					];
 				}
 			}
 			$content .= $this->showTable($list, $table);
@@ -288,20 +288,20 @@ class AlterDB extends AppControllerBE
 		$update_statements = $this->update_statements;
 		if ($diff['extra']) {
 			foreach ($diff['extra'] as $table => $desc) {
-				$list = array();
+				$list = [];
 				if (is_array($desc['fields'])) {
 					foreach ($desc['fields'] as $field => $type) {
-						$list[] = array(
+						$list[] = [
 							'field' => $field,
 							'file' => $type,
-							'sql' => $sql = $this->findStringWith($update_statements['add'], array($table, $field)),
-							'do' => $this->makeRelLink('ADD', array(
+							'sql' => $sql = $this->findStringWith($update_statements['add'], [$table, $field]),
+							'do' => $this->makeRelLink('ADD', [
 								'action' => 'do',
 								'file' => $this->file,
 								'key' => 'add',
 								'query' => md5($sql),
-							)),
-						);
+							]),
+						];
 					}
 				}
 				$content .= $this->showTable($list, $table);
@@ -315,16 +315,16 @@ class AlterDB extends AppControllerBE
 	public function showTable(array $list, $table)
 	{
 		if ($list) {
-			$s = new slTable($list, 'class="table"', array(
+			$s = new slTable($list, 'class="table"', [
 				'field' => 'field',
 				'file' => 'file',
 				'current' => 'current',
 				'sql' => 'sql',
-				'do' => array(
+				'do' => [
 					'name' => 'do',
 					'no_hsc' => true,
-				),
-			));
+				],
+			]);
 			$content = $this->encloseInAA($s, $table, 'h2');
 		}
 		return $content;

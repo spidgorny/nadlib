@@ -35,7 +35,7 @@ class DebugPanel {
 	static protected $instance;
 	protected $name = 'DebugPanel';
 	protected $content = '';
-	protected $panels = array();
+	protected $panels = [];
 	public $header = 'h6';
 
 	protected function __construct($name = NULL, $content = NULL) {
@@ -98,14 +98,14 @@ class DebugPanel {
 	}
 
 	function viewArray($array) {
-		$table = array();
+		$table = [];
 		foreach ($array as $key => $val) {
-			$row = array();
+			$row = [];
 			$row['key'] = $key;
 			$row += $this->getVarParams($val);
 			$type = $row['type'];
 			//$row['typeName'] = '<div class="'.$type.'">'.$row['typeName'].'</div>';
-			$row['typeName'] = new HTMLTag('td', array('class' => $type), $row['typeName']);
+			$row['typeName'] = new HTMLTag('td', ['class' => $type], $row['typeName']);
 			unset($row['type']);
 			unset($row['size']);
 			unset($row['length']);
@@ -113,9 +113,9 @@ class DebugPanel {
 			unset($row['hash']);
 			unset($row['extends']);
 			if (is_array($val) || is_object($val) || is_null($val)) {
-				$row['value'] = new HTMLTag('td', array('class' => $type), $val ? new DebugPanel($key, $val) : '', TRUE);
+				$row['value'] = new HTMLTag('td', ['class' => $type], $val ? new DebugPanel($key, $val) : '', TRUE);
 			} else {
-				$row['value'] = new HTMLTag('td', array('class' => $type.' overflow'), $val);
+				$row['value'] = new HTMLTag('td', ['class' => $type.' overflow'], $val);
 			}
 			$table[] = $row;
 		}
@@ -123,7 +123,7 @@ class DebugPanel {
 	}
 
 	function getVarParams($var) {
-		$params = array();
+		$params = [];
 		$type = gettype($var);
 		$params['type'] = $type;
 		if (is_array($var)) {

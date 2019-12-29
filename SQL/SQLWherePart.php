@@ -35,7 +35,7 @@ class SQLWherePart
 	{
 		if ($this->field && !is_numeric($this->field)) {
 			$part1 = $this->db->quoteWhere(
-				array($this->field => $this->sql)
+				[$this->field => $this->sql]
 			);
 			return implode('', $part1);
 		} else {
@@ -56,7 +56,10 @@ class SQLWherePart
 
 	public function debug()
 	{
-		return $this->__toString();
+		return [
+			'class' => get_class($this),
+			'sql' => $this->sql,
+		];
 	}
 
 	/**

@@ -4,21 +4,20 @@
  * Class DBLayerBase
  * @mixin SQLBuilder
  * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
- * @method fetchSelectQuery($table, array $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method fetchSelectQuery($table, array $where = [], $order = '', $addFields = '', $idField = null)
  * @method getInsertQuery($table, array $columns)
- * @method getDeleteQuery($table, $where = array(), $what = '')
+ * @method getDeleteQuery($table, array $where = [], $what = '')
  * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
  * @method runInsertQuery($table, array $columns)
- * @method fetchOneSelectQuery($table, $where = array(), $order = '', $addFields = '', $idField = null)
+ * @method fetchOneSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
  * @method  describeView($viewName)
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  * @method  getFirstValue($query)
  * @method  performWithParams($query, $params)
- * @method  getInfo()
  * @method  getConnection()
  * @method  getViews()
  */
-class DBLayerBase implements DBInterface
+abstract class DBLayerBase implements DBInterface
 {
 
 	/**
@@ -31,7 +30,7 @@ class DBLayerBase implements DBInterface
 	 * which can't be used as field names and must be quoted
 	 * @var array
 	 */
-	protected $reserved = array();
+	protected $reserved = [];
 
 	/**
 	 * @var resource
@@ -91,7 +90,7 @@ class DBLayerBase implements DBInterface
 			}
 		}
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
@@ -124,7 +123,7 @@ class DBLayerBase implements DBInterface
 		}
 		$max = $start + $limit;
 		$max = min($max, $this->numRows($res));
-		$data = array();
+		$data = [];
 		for ($i = $start; $i < $max; $i++) {
 			$this->dataSeek($res, $i);
 			$row = $this->fetchAssocSeek($res);
@@ -183,7 +182,7 @@ class DBLayerBase implements DBInterface
 
 	public function getTables()
 	{
-		return array();
+		return [];
 	}
 
 	public function lastInsertID($res, $table = null)
@@ -217,22 +216,22 @@ class DBLayerBase implements DBInterface
 
 	public function fetchAssoc($res)
 	{
-		return array();
+		return [];
 	}
 
 	public function getTablesEx()
 	{
-		return array();
+		return [];
 	}
 
 	public function getTableColumnsEx($table)
 	{
-		return array();
+		return [];
 	}
 
 	public function getIndexesFrom($table)
 	{
-		return array();
+		return [];
 	}
 
 	public function isConnected()
@@ -257,7 +256,7 @@ class DBLayerBase implements DBInterface
 	{
 		return in_array(
 			$this->getScheme(),
-			array('mysql', 'mysqli'));
+			['mysql', 'mysqli']);
 	}
 
 	public function isPostgres()
@@ -282,7 +281,7 @@ class DBLayerBase implements DBInterface
 
 	public function quoteKeys(array $a)
 	{
-		$c = array();
+		$c = [];
 		foreach ($a as $b) {
 			$c[] = $this->quoteKey($b);
 		}
@@ -343,4 +342,15 @@ class DBLayerBase implements DBInterface
 	{
 		return $this->lastQuery;
 	}
+
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
+	public function getDatabaseName()
+	{
+		return $this->database;
+	}
+
 }

@@ -17,18 +17,18 @@ class ClearCache extends AppControllerBE
 		$content = $this->performAction();
 		$files = $this->getFiles();
 		$content .= '<h1>Files in ' . $this->dir . ' (' . sizeof($files) . ')</h1>';
-		$s = new slTable($files, '', array(
-			'filelink' => array(
+		$s = new slTable($files, '', [
+			'filelink' => [
 				'name' => 'file',
 				'no_hsc' => true,
-			),
+			],
 			'size' => 'size',
-			'date' => array(
+			'date' => [
 				'name' => 'date',
 				'type' => 'date',
 				'format' => 'Y-m-d H:i:s',
-			),
-		));
+			],
+		]);
 		$content .= $s;
 		return $content;
 	}

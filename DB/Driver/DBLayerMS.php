@@ -4,9 +4,9 @@
  * Class DBLayerMS
  * @mixin SQLBuilder
  * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
- * @method getDeleteQuery($table, $where = array(), $what = '')
- * @method runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
- * @method getSelectQuery($table, array $where = array(), $order = '', $addSelect = null)
+ * @method getDeleteQuery($table, $where = [], $what = '')
+ * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
  * @method getIterator($query, $className = null)
  * @method runDeleteQuery($table, array $where)
  */
@@ -16,7 +16,13 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 	/**
 	 * @var string
 	 */
-	public $server, $database, $user, $password;
+	public $server;
+
+	public $database;
+
+	public $user;
+
+	public $password;
 
 	/**
 	 * @var string
@@ -43,10 +49,10 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 	 * In MSSQL mssql_select_db() is returning the following as error messages
 	 * @var array
 	 */
-	public $ignoreMessages = array(
+	public $ignoreMessages = [
 		"Changed database context to 'DEV_LOTCHECK'.",
 		"Changed database context to 'PRD_LOTCHECK'.",
-	);
+	];
 
 	public static function getInstance()
 	{
@@ -79,7 +85,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 		mssql_close($this->connection);
 	}
 
-	function perform($query, array $arguments = array())
+	function perform($query, array $arguments = [])
 	{
 		//if (date('s') == '00') return false;    // debug
 		foreach ($arguments as $ar) {
@@ -95,7 +101,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 					mssql_query(
 						'SELECT @@ERROR AS ErrorCode',
 						$this->connection))['ErrorCode'];
-				debug(array(
+				debug([
 					'method' => __METHOD__,
 					'query' => $query . '',
 					'numRows' => is_resource($res)
@@ -107,7 +113,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 					'this' => typ($this) . '',
 					'this->qb' => typ($this->qb) . '',
 					'this->qb->db' => typ($this->qb->db) . '',
-				));
+				]);
 			}
 			$this->close();
 			$this->connect();
@@ -157,7 +163,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
-		$table = array();
+		$table = [];
 		$rows = mssql_num_rows($res);
 		$i = 0;
 		do {
@@ -203,7 +209,7 @@ LEFT OUTER JOIN systypes ON (systypes.xtype = syscolumns.xtype)
 WHERE id = (SELECT id
 FROM sysobjects
 WHERE type = 'U'
-AND name = '?')", array($table));
+AND name = '?')", [$table]);
 		$tables = $this->fetchAll($res);
 		return $tables;
 	}
@@ -218,14 +224,14 @@ AND name = '?')", array($table));
 		if (!isset($data) or empty($data)) return '';
 		if (is_numeric($data)) return $data;
 
-		$non_displayables = array(
+		$non_displayables = [
 			'/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
 			'/%1[0-9a-f]/',             // url encoded 16-31
 			'/[\x00-\x08]/',            // 00-08
 			'/\x0b/',                   // 11
 			'/\x0c/',                   // 12
 			'/[\x0e-\x1f]/'             // 14-31
-		);
+		];
 		foreach ($non_displayables as $regex) {
 			$data = preg_replace($regex, '', $data);
 		}
@@ -292,7 +298,7 @@ AND name = '?')", array($table));
 	function __call($method, array $params)
 	{
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
@@ -387,47 +393,52 @@ AND name = '?')", array($table));
 		$outside = new SQLQuery('SELECT * FROM (subquery123) AS zxc');
 		$outside->parsed['WHERE'] = array_merge(
 		//ifsetor($query->parsed['WHERE'], array()),
-			array(),
+			[],
 			[
-				array(
+				[
 					'expr_type' => 'colref',
 					'base_expr' => 'RowNumber',
 					'no_quotes' =>
-						array(
+						[
 							'delim' => false,
 							'parts' =>
-								array(
+								[
 									0 => 'RowNumber',
-								),
-						),
+								],
+						],
 					'sub_tree' => false,
-				),
-				array(
+				],
+				[
 					'expr_type' => 'operator',
 					'base_expr' => 'BETWEEN',
 					'sub_tree' => false,
-				),
-				array(
+				],
+				[
 					'expr_type' => 'const',
 					'base_expr' => $startingFrom,
 					'sub_tree' => false,
-				),
-				array(
+				],
+				[
 					'expr_type' => 'operator',
 					'base_expr' => 'AND',
 					'sub_tree' => false,
-				),
-				array(
+				],
+				[
 					'expr_type' => 'const',
 					'base_expr' => $startingFrom + $howMany,
 					'sub_tree' => false,
-				),
+				],
 			]
 		);
 		//debug($query->parsed['WHERE']);
 		$outside = $outside->getQuery();
 		$outside = str_replace('subquery123', $query, $outside);
 		return $outside;
+	}
+
+	public function getInfo()
+	{
+		return ['message' => mssql_get_last_message()];
 	}
 
 }
