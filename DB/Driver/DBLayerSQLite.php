@@ -144,7 +144,9 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	public function free($res)
 	{
 		// The SQLite3Result object has not been correctly initialised
-		@$res->finalize();
+		if ($res instanceof SQLite3Result) {
+			@$res->finalize();
+		}
 	}
 
 	public function quoteKey($key)
