@@ -199,17 +199,16 @@ class HTMLFormTable extends HTMLForm
 	}
 
 	/**
-	 * @param array $formData @deprecated - use __construct() instead
 	 * @param array $prefix
 	 * @param bool $mainForm
 	 * @param string $append
 	 * @return $this
 	 */
-	public function showForm(array $formData = NULL, $prefix = [], $mainForm = TRUE, $append = '')
+	public function showForm($prefix = [], $mainForm = TRUE, $append = '')
 	{
 //		echo json_encode(array_keys($this->desc)), BR;
 		$this->tableMore['class'] .= $this->defaultBR ? ' defaultBR' : '';
-		$this->stdout .= $this->getForm($formData ? $formData : $this->desc, $prefix, $mainForm, $append);
+		$this->stdout .= $this->getForm($this->desc, $prefix, $mainForm, $append);
 		return $this;
 	}
 
@@ -440,8 +439,8 @@ class HTMLFormTable extends HTMLForm
 	}
 
 	/**
-	 * @param                            $fieldName
-	 * @param                            $fieldValue
+	 * @param string $fieldName
+	 * @param mixed $fieldValue
 	 * @param array|HTMLFormFieldInterface $descIn
 	 * @return HTMLFormField
 	 */
@@ -525,9 +524,9 @@ class HTMLFormTable extends HTMLForm
 	 * and as $assoc['key']['value'] = $value.
 	 * Non-static due to $this->withValue and $this->formatDate
 	 *
-	 * @param    array $desc - Structure of the HTMLFormTable
-	 * @param    array $assoc - Values in one of the supported formats.
-	 * @param    boolean    ??? what's for?
+	 * @param array $desc - Structure of the HTMLFormTable
+	 * @param array $assoc - Values in one of the supported formats.
+	 * @param boolean    ??? what's for?
 	 * @return    array    HTMLFormTable structure.
 	 */
 	protected function fillValues(array $desc, array $assoc = NULL, $forceInsert = false)

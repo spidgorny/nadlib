@@ -15,4 +15,11 @@ trait DatabaseManipulation
 		return $ok;
 	}
 
+	public function update(array $update)
+	{
+		return $this->db->runUpdateQuery(static::getTableName(), $update, [
+			'id' => $this->id,
+		]);
+	}
+
 }
