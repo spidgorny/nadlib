@@ -47,6 +47,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		if (class_exists('SQLite3')) {
 			$this->connection = new SQLite3($this->file);
 			$this->connection->exec('PRAGMA journal_mode = wal;');
+			$this->connection->enableExceptions(true);
 		} else {
 			throw new Exception('SQLite3 extension is not enabled');
 		}
