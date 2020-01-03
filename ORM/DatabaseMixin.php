@@ -14,7 +14,7 @@ trait DatabaseMixin
 		return null;
 	}
 
-	public static function findByID(DBLayerSQLite $db, $id)
+	public static function findByID(DBInterface $db, $id)
 	{
 		$row = $db->fetchOneSelectQuery(static::getTableName(), [
 			'id' => $id,
@@ -25,7 +25,7 @@ trait DatabaseMixin
 		return $instance;
 	}
 
-	public static function findOne(DBLayerSQLite $db, array $where, $orderBy = '')
+	public static function findOne(DBInterface $db, array $where, $orderBy = '')
 	{
 		$row = $db->fetchOneSelectQuery(static::getTableName(), $where, $orderBy);
 		$instance = new static($row);
@@ -33,7 +33,7 @@ trait DatabaseMixin
 		return $instance;
 	}
 
-	public static function findAll(DBLayerSQLite $db, array $where, $orderBy = '')
+	public static function findAll(DBInterface $db, array $where, $orderBy = '')
 	{
 		$rows = $db->fetchAllSelectQuery(static::getTableName(), $where, $orderBy);
 		$instances = array_map(static function ($row) use ($db) {
