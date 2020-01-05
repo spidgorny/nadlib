@@ -134,6 +134,12 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $plus
+	 * @param null $plus2
+	 * @return string
+	 */
 	function path_plus($path, $plus, $plus2 = null)
 	{
 		$freq = array_count_values(str_split($path));
