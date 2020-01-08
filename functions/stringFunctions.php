@@ -144,11 +144,13 @@ if (!function_exists('str_startsWith')) {
 	{
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
+//		llog($separator);
 
 		$isAbs = isset($path[0]) &&
-			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
+			($path[0] === '/' || $path[0] === '\\' || $path[1] === ':');
 
-		$parts = trimExplode('/', $path.'');
+		$path = str_replace('\\', '/', $path);	// for trim
+		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
