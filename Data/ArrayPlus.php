@@ -144,6 +144,16 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
+	public function remapColumns(array $keys)
+	{
+		$data = $this->getData();
+		foreach ($data as &$row) {
+			$row = array_combine($keys, $row);
+		}
+		$this->setData($data);
+		return $this;
+	}
+
 	/**
 	 * Modifies itself
 	 * @param string $key
