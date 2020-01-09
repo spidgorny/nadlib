@@ -20,9 +20,9 @@ class HTMLTableBuf extends MergedContent
 		]);
 	}
 
-	public function table($more = "")
+	public function table(array $more = [])
 	{
-		$this['table'] = "<table $more>\n";
+		$this['table'] = "<table " . HTMLTag::renderAttr($more) . ">\n";
 	}
 
 	public function tablee()
@@ -40,9 +40,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('thead', "</tr>\n");
 	}
 
-	public function tr($more = "")
+	public function tr(array $more = [])
 	{
-		$this->addSub('tbody', "<tr" . rtrim(' ' . $more) . ">\n");
+		$this->addSub('tbody', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function tre()
@@ -50,9 +50,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('tbody', "</tr>\n");
 	}
 
-	public function ftr($more = "")
+	public function ftr(array $more = [])
 	{
-		$this->addSub('tfoot', "<tr " . $more . ">\n");
+		$this->addSub('tfoot', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function ftre()
@@ -60,9 +60,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('tfoot', "</tr>\n");
 	}
 
-	public function th($more = '')
+	public function th(array $more = [])
 	{
-		$this->addSub('thead', "<th" . rtrim(' ' . $more) . ">\n");
+		$this->addSub('thead', "<th " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function the()
@@ -70,9 +70,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('thead', "</th>\n");
 	}
 
-	public function td($more = "")
+	public function td(array $more = [])
 	{
-		$this->addSub($this->curPart, "<td" . rtrim(' ' . $more) . ">");
+		$this->addSub($this->curPart, "<td " . HTMLTag::renderAttr($more) . ">");
 	}
 
 	public function tde()
@@ -97,7 +97,7 @@ class HTMLTableBuf extends MergedContent
 
 	public function cell($a, array $more = [])
 	{
-		$this->td(HTMLTag::renderAttr($more));
+		$this->td($more);
 		$this->text($a);
 		$this->tde();
 	}
