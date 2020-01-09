@@ -19,9 +19,12 @@ class AlterIndex extends AppControllerBE
 	{
 		parent::__construct();
 		$host = gethostname() ?: $_SERVER['SERVER_NAME'];
-		$filename = $this->request->getFilename('file') ?: $host . '-' . $this->db->database . '.json';
-		$appRoot = AutoLoad::getInstance()->getAppRoot();
-		$this->jsonFile = $appRoot . '/sql/' . $filename;
+		$filename = $this->request->getFilename('file') ?:
+			$host . '-' . $this->db->database . '.json';
+		if (!Path::isItAbsolute($filename)) {
+			$appRoot = AutoLoad::getInstance()->getAppRoot();
+			$this->jsonFile = $appRoot . '/sql/' . $filename;
+		}
 	}
 
 	public function sidebar()
@@ -53,15 +56,17 @@ class AlterIndex extends AppControllerBE
 	public function listFiles()
 	{
 		$li = [];
-		$files = new ListFilesIn($this->config->appRoot . '/sql/');
+		$files = new ListFilesIn(Autoload::getInstance()->getAppRoot() . '/sql/');
 		foreach ($files as $file) {
-			/** @var $file SplFileInfo */
-			if ($file->getExtension() == 'json') {
-				$li[] = $this->a(new URL(NULL, [
-						'c' => get_class($this),
-						'file' => basename($file),
-					]), basename($file)) .
-					'<div style="float: right;">[' . date('Y-m-d H:i', $file->getCTime()) . ']</div>';
+			/** @var $file File|Recursive */
+			if ($file instanceof File) {
+				if ($file->getExtension() == 'json') {
+					$li[] = $this->a(new URL(null, [
+							'c' => get_class($this),
+							'file' => basename($file),
+						]), basename($file)) .
+						'<div style="float: right;">[' . date('Y-m-d H:i', $file->getCTime()) . ']</div>';
+				}
 			}
 		}
 		$ul = new UL($li);

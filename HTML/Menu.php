@@ -427,10 +427,10 @@ class Menu /*extends Controller*/
 	{
 		$ret = false;
 		$combined = null;
-		if ($class{0} == '?') {    // hack begins
+		if ($class[0] === '?') {    // hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);
-			if (end($parts) == $class) {
+			if (end($parts) === $class) {
 				$ret = true;
 			} else {
 				$ret = null;
@@ -452,7 +452,7 @@ class Menu /*extends Controller*/
 		//if ($this->level === 0) {
 		nodebug([
 			'class' => $class,
-			'class{0}' => $class{0},
+			'class[0]' => $class[0],
 			'subMenu' => $subMenu,
 			'combined' => $combined,
 			'current' => $this->current,

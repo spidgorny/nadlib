@@ -422,7 +422,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	public function escape($str)
 	{
 		$quoted = $this->connection->quote($str);
-		if ($quoted{0} == "'") {
+		if ($quoted[0] === "'") {
 			$quoted = substr($quoted, 1, -1);
 		}
 		return $quoted;

@@ -1,6 +1,7 @@
 <?php
 
-class UploadedFile {
+class UploadedFile
+{
 
 	var $name;
 	var $type;
@@ -9,7 +10,7 @@ class UploadedFile {
 	var $size;
 	var $mime;
 
-	function __construct(array $data)
+	public function __construct(array $data)
 	{
 		foreach ($data as $key => $val) {
 			$this->$key = $val;

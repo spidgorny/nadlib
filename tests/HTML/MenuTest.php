@@ -52,8 +52,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 	public function test_less_recursive()
 	{
-//		$localhost = gethostname() ?: 'localhost';
-		$localhost = 'localhost';
+		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([
 			'Page1' => 'Page 1',
 		]);
@@ -74,7 +73,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$m->renderOnlyCurrent = true;
 		$m->basePath->reset();
 		$m->setCurrent(null);
-		
+
 		$link = $m->getClassPath('level2', $m->getRootpath());
 //		pre_print_r($link);
 		$this->assertEquals("http://$localhost/level1/level2", $link);
@@ -82,7 +81,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$level = $m->renderLevel((array)$m->items, $m->getRootpath());
 //		pre_print_r($level);
 		$this->assertContains("http://$localhost/level1/Page1", $level);
-		
+
 		$html = $m->render();
 //		debug($m->debug());
 		$this->assertContains("$localhost/Page1", $html);
@@ -90,8 +89,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 	public function test_getClassPath()
 	{
-//		$localhost = gethostname() ?: 'localhost';
-		$localhost = 'localhost';
+		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([]);
 		$m->basePath->setDocumentRoot('');
 		$m->useControllerSlug = false;

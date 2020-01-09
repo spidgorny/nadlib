@@ -48,7 +48,10 @@ class Linker
 			//unset($params['c']);
 		}
 
-		$location = $this->request->getLocation();
+		$location = '';
+		if (!str_startsWith($prefix, 'http')) {
+			$location = $this->request->getLocation();
+		}
 		$url = new URL($prefix
 			? $location . $prefix
 			: $location, $params);
@@ -195,6 +198,7 @@ class Linker
 		}
 		return $f;
 	}
+
 	public function linkToAction($action = '', array $params = [], $controller = null)
 	{
 		if (!$controller) {

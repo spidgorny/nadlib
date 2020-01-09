@@ -7,7 +7,7 @@
  * - onSuccess();
  * - submitButton
  */
-abstract class HTMLFormProcessor extends Controller
+abstract class HTMLFormProcessor extends AppController
 {
 
 	/**
@@ -52,7 +52,7 @@ abstract class HTMLFormProcessor extends Controller
 	 */
 	public $method = [];
 
-	function __construct(array $default = [])
+	public function __construct(array $default = [])
 	{
 		parent::__construct();
 		$this->prefix = get_class($this);
@@ -67,7 +67,7 @@ abstract class HTMLFormProcessor extends Controller
 	 * The idea is to remove all slow operations outside of the constructor.
 	 * Who's gonna call this function? Index?
 	 */
-	function postInit()
+	public function postInit()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$this->form = new HTMLFormTable();    // needed sometime in getDesc
@@ -105,13 +105,14 @@ abstract class HTMLFormProcessor extends Controller
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	abstract function getDesc();
+	public abstract function getDesc();
 
 	/**
 	 * If inherited can be used as both string and HTMLFormTable
-	 * @return HTMLFormTable
+	 * @return HTMLFormTable|string[]
+	 * @throws Exception
 	 */
-	function render()
+	public function render()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
@@ -138,7 +139,7 @@ abstract class HTMLFormProcessor extends Controller
 		return $content;
 	}
 
-	function getForm(HTMLFormTable $preForm = NULL)
+	public function getForm(HTMLFormTable $preForm = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$f = $preForm ? $preForm : $this->form;
@@ -152,7 +153,7 @@ abstract class HTMLFormProcessor extends Controller
 		return $f;
 	}
 
-	function showForm()
+	public function showForm()
 	{
 		if (!$this->form) {
 			throw new Exception(__METHOD__ . ': initialize form with getForm()');
@@ -166,11 +167,11 @@ abstract class HTMLFormProcessor extends Controller
 		return $this->form->getContent();
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return '<div class="HTMLFormProcessor">' . $this->render() . '</div>';
 	}
 
-	abstract function onSuccess(array $data);
+	public abstract function onSuccess(array $data);
 
 }

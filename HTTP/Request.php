@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/URL.php';
 
+use nadlib\HTTP\Session;
 use spidgorny\nadlib\HTTP\URL;
 
 class Request
@@ -423,8 +424,8 @@ class Request
 	/**
 	 * Will require modifications when realurl is in place
 	 *
-	 * @throws Exception
 	 * @return SimpleController|Controller
+	 * @throws Exception
 	 */
 	public function getController()
 	{
@@ -517,6 +518,7 @@ class Request
 			session_write_close();
 			exit();
 		}
+		return $controller;
 	}
 
 	public function canRedirect($to)
@@ -626,7 +628,11 @@ class Request
 				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
 		}
 		if (function_exists('idn_to_utf8') && $isUTF8) {
-			$try = idn_to_utf8($host);
+			if (phpversion() >= 7.3) {
+				$try = idn_to_utf8($host, 0, defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 1);
+			} else {
+				$try = idn_to_utf8($host);
+			}
 			//debug($host, $try);
 			if ($try) {
 				$host = $try;
@@ -676,16 +682,21 @@ class Request
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			];
 		}
+		$headers = array_change_key_case($headers, CASE_LOWER);
+
 		$isXHR = false;
-		if (isset($headers['X-Requested-With'])) {
-			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
+		if (isset($headers['x-requested-with'])) {
+			$isXHR = $headers['x-requested-with'] === 'XMLHttpRequest';
 		}
 		return $this->getBool('ajax') || $isXHR;
 	}
 
 	public function getHeader($name)
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
+		$headers = function_exists('apache_request_headers')
+			? apache_request_headers() : [];
+//		llog($headers);
+
 		return ifsetor($headers[$name]);
 	}
 
@@ -1066,10 +1077,10 @@ class Request
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		foreach ($params as $tmp => $p) {
-			if ($p{0} == '-') {
+			if ($p[0] == '-') {
 				$pname = substr($p, 1);
 				$value = true;
-				if ($pname{0} == '-') {
+				if ($pname[0] == '-') {
 					// long-opt (--<param>)
 					$pname = substr($pname, 1);
 					if (strpos($p, '=') !== false) {
@@ -1079,7 +1090,7 @@ class Request
 				}
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
-				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') {
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] != '-') {
 					$value = next($params);
 				}
 				$result[$pname] = $value;
@@ -1435,6 +1446,7 @@ class Request
 		if ($ref) {
 			$this->redirect($ref);
 		}
+		return true;
 	}
 
 	public function setProxy($proxy)
@@ -1532,4 +1544,20 @@ class Request
 		}
 		return $action;
 	}
+
+	public function getRawPost()
+	{
+		if (defined('STDIN')) {
+			$post = stream_get_contents(STDIN);
+		} else {
+			$post = file_get_contents('php://input');
+		}
+		return $post;
+	}
+
+	public function getJsonPost()
+	{
+		return json_decode($this->getRawPost());
+	}
+
 }

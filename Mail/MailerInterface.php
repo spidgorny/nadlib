@@ -7,6 +7,4 @@ interface MailerInterface
 
 	public function send();
 
-	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = []);
-
 }

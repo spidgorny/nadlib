@@ -9,7 +9,7 @@ trait CachedGetInstance
 	public static $instances = [];
 
 	/**
-	 * @param $id
+	 * @param int $id
 	 * @return self|$this|static
 	 * @throws Exception
 	 */
@@ -214,7 +214,8 @@ trait CachedGetInstance
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
 				$c->findInDBsetInstance([
-					'trim(' . $field . ')' => $name,
+//					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
+					 new SQLWhereEqual('trim(' . $field . ')', $name),
 				]);
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([

@@ -120,15 +120,15 @@ class Mailer implements MailerInterface
 
 		//headers - specify your from email address and name here
 		//and specify the boundary for the email
-		$this->headers["MIME-Version"] = 'MIME-Version: 1.0';
-		$this->headers['Content-Type'] = "Content-Type: multipart/mixed; boundary=" . $boundary;
+		$this->headers['MIME-Version'] = 'MIME-Version: 1.0';
+		$this->headers['Content-Type'] = 'Content-Type: multipart/mixed; boundary=' . $boundary;
 
 		//here is the content body
 		$message = "This is a MIME encoded message.\r\n";
 		$message .= "\r\n";
 
 		foreach ($this->attachments as $a) {
-			$message .= "--" . $boundary . "\r\n";
+			$message .= '--' . $boundary . "\r\n";
 
 			//Plain text body
 			if (str_startsWith($a['mime'], 'text/plain')) {
@@ -149,7 +149,7 @@ class Mailer implements MailerInterface
 			}
 		}
 
-		$message .= "\r\n\r\n--" . $boundary . "--";
+		$message .= "\r\n\r\n--" . $boundary . '--';
 		$this->bodytext = $message;
 	}
 
@@ -180,7 +180,7 @@ class Mailer implements MailerInterface
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
 		$assoc['isHTML'] = self::isHTML($this->bodytext);
-		$assoc['headers'] = new htmlString(implode("<br />", $this->headers));
+		$assoc['headers'] = new htmlString(implode('<br />', $this->headers));
 		$assoc['params'] = implode(' ', $this->params);
 		$assoc['bodyText'] = nl2br($this->getBodyText());
 		return slTable::showAssoc($assoc);
@@ -197,7 +197,7 @@ class Mailer implements MailerInterface
 		foreach ($emails as $e) {
 			$validEmails += HTMLFormValidate::validEmail($e);
 		}
-		if ($validEmails == sizeof($emails)) {
+		if ($validEmails === sizeof($emails)) {
 			$res = mail(
 				implode(', ', $this->to),
 				$this->getSubject(),
@@ -212,119 +212,6 @@ class Mailer implements MailerInterface
 			throw new MailerException('Invalid email address: ' . implode(', ', $this->to));
 		}
 		return $res;
-	}
-
-	/**
-	 * Method to send emails via SwiftMailer.
-	 * Throws an Exception if SwiftMailer is not installed.
-	 *
-	 * Uses sendmail to deliver messages.
-	 *
-	 * @param mixed $cc
-	 * @param mixed $bcc
-	 * @param array $attachments
-	 * @param array $additionalSenders This will be added to
-	 * @throws Exception
-	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
-	 */
-	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
-	{
-		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
-
-		$transport = new Swift_SendmailTransport();
-		$mailer = new Swift_Mailer($transport);
-		$failedRecipients = [];
-		$sent = $mailer->send($message, $failedRecipients);
-
-		return !empty($failedRecipients) ? $failedRecipients : $sent;
-	}
-
-	/**
-	 * @param array $cc
-	 * @param array $bcc
-	 * @param array $attachments
-	 * @param array $additionalSenders - assoc array
-	 * @return Swift_Message
-	 * @throws Exception
-	 */
-	public function getSwiftMessage($cc = null, $bcc = null, $attachments = [], array $additionalSenders = [])
-	{
-		$messageHTML = $this->getBodyText();
-		$messageText = $this->getPlainText();
-
-		/** @var Swift_Message $message */
-		$message = new Swift_Message();
-		$message->setSubject($this->subject)
-			->setBody($messageHTML, 'text/html')
-			->addPart($messageText, 'text/plain');
-		$message->setCharset('utf-8');
-
-		$message->setFrom($this->from, $this->fromName);
-
-		foreach ($additionalSenders as $address => $_) {
-			$message->addFrom($address);
-		}
-
-		$to = $this->to;
-		foreach ($to as $address) {
-			$message->addTo(trim($address));
-		}
-
-		if (!empty($cc)) {
-			foreach ($cc as $address) {
-				$message->addCc($address);
-			}
-		}
-
-		if (!empty($bcc)) {
-			foreach ($bcc as $address) {
-				$message->addBcc($address);
-			}
-		}
-
-		if (!empty($attachments)) {
-			foreach ($attachments as $attachment) {
-				if (is_string($attachment)) {
-					$smAttachment = Swift_Attachment::fromPath($attachment);
-					$shortFile = $this->getShortFilename($attachment);
-					$smAttachment->setFilename($shortFile);
-					$message->attach($smAttachment);
-				} else {
-					$message->attach($attachment);
-				}
-			}
-		}
-
-		if (!empty($additionalSenders)) {
-			foreach ($additionalSenders as $address => $name) {
-				if (!empty($address)) {
-					$message->addFrom($address, $name);
-				}
-			}
-		}
-
-		return $message;
-	}
-
-	/**
-	 * http://stackoverflow.com/questions/8781911/remove-non-ascii-characters-from-string-in-php
-	 * @param string $attachment
-	 * @return string
-	 */
-	public function getShortFilename($attachment)
-	{
-		$pathInfo = pathinfo($attachment);
-		$ext = $pathInfo['extension'];
-
-		$filename = $pathInfo['filename'];
-		$filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
-		$filename = preg_replace('/([\s])\1+/', ' ', $filename);
-		$filename = str_replace(' ', '_', $filename);
-
-		$extLen = 1 + strlen($ext);
-		$shortFile = substr($filename, 0, 63 - $extLen)
-			. '.' . $ext;
-		return $shortFile;
 	}
 
 	public function getPlainText()
@@ -350,7 +237,7 @@ class Mailer implements MailerInterface
 		$config = Config::getInstance();
 		$from = new SendGrid\Email(null, $config->mailFrom);
 		$to = new SendGrid\Email(null, $this->to);
-		$content = new SendGrid\Content("text/plain", $this->getPlainText());
+		$content = new SendGrid\Content('text/plain', $this->getPlainText());
 		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
 		return $mail;
 	}

@@ -174,18 +174,18 @@ class View extends stdClass {
 		$lines2 = [];
 		$lines = trimExplode("\n", '' . $text);
 		foreach ($lines as $line) {
-			if ($line{0} == '*' || $line{0} == '-') {
+			if ($line[0] === '*' || $line[0] === '-') {
 				if (!$inUL) {
-					$lines2[] = "<ul>";
+					$lines2[] = '<ul>';
 					$inUL = true;
 				}
 			}
 			$lines2[] = $inUL
 				? '<li>' . substr($line, 2) . '</li>'
 				: $line;
-			if ($line{0} != '*' && $line{0} != '-') {
+			if ($line[0] !== '*' && $line[0] !== '-') {
 				if ($inUL) {
-					$lines2[] = "</ul>";
+					$lines2[] = '</ul>';
 					$inUL = false;
 				}
 			}
@@ -197,11 +197,11 @@ class View extends stdClass {
 		//debug($lines2, $text);
 		//$text = str_replace("\n* ", "\n<li> ", $text);
 		//$text = str_replace("\n- ", "\n<li> ", $text);
-		$text = str_replace("\n<ul>\n", "<ul>", $text);
-		$text = str_replace("</ul>\n", "</ul>", $text);
+		$text = str_replace("\n<ul>\n", '<ul>', $text);
+		$text = str_replace("</ul>\n", '</ul>', $text);
 		$text = str_replace("\n\n", "</p>\n<p>", $text);
-		$text = str_replace("<p></p>", "", $text);
-		$text = str_replace("<p></p>", "", $text);
+		$text = str_replace('<p></p>', '', $text);
+		$text = str_replace('<p></p>', '', $text);
 		if ($linkCallback) {
 			$text = preg_replace_callback('/\[\[(.*?)\]\]/', $linkCallback, $text);
 		}

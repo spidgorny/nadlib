@@ -40,4 +40,6 @@ interface UserModelInterface
 
 	public function getGroup();
 
+//	public function getData();
+
 }

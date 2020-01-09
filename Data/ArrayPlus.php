@@ -992,6 +992,16 @@ class ArrayPlus extends ArrayObject implements Countable
 		return in_array($string, $this->getData());
 	}
 
+	public function containsPartly($string)
+	{
+		foreach ($this as $element) {
+			if (str_contains($element, $string)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function convertTo($className)
 	{
 		foreach ($this as $key => $row) {

@@ -17,14 +17,14 @@ use spidgorny\nadlib\HTTP\URL;
  * @mixin HTML
  * @method div($content, $class = '', array $more = [])
  * @method message($content)
- * @method h1($content)
- * @method h2($content)
- * @method h3($content)
- * @method h4($content)
- * @method h5($content)
- * @method h6($content)
+ * @method h1($content, array $attrs = [])
+ * @method h2($content, array $attrs = [])
+ * @method h3($content, array $attrs = [])
+ * @method h4($content, array $attrs = [])
+ * @method h5($content, array $attrs = [])
+ * @method h6($content, array $attrs = [])
  * @method a($href, $text = '', $isHTML = false, array $more = [])
- * @method error($content)
+ * @method error($content, $httpCode = 500)
  * @method info($content)
  * @method success($content)
  * @method img($src, array $attr = [])
@@ -103,7 +103,7 @@ abstract class Controller extends SimpleController
 				$this->config = $this->index->getConfig();
 			}
 		}
-		
+
 		if ($this->config) {
 			// move this into AppController
 			// some projects don't need DB or User
@@ -130,7 +130,7 @@ abstract class Controller extends SimpleController
 			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
 	}
-	
+
 	/**
 	 * @param array $data
 	 * @return array
@@ -339,14 +339,32 @@ abstract class Controller extends SimpleController
 
 	/**
 	 * @param string $caption
+	 * @param string $hTag
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCaption($caption, $hTag = 'h3')
+	{
+//		$al = AutoLoad::getInstance();
+		$slug =  URL::friendlyURL($caption);
+		$content = '
+			<' . $hTag . ' id="' . $slug . '">' .
+			 $caption .
+			'</' . $hTag . '>';
+		return $content;
+	}
+
+	/**
+	 * @param string $caption
 	 * @param string $h
 	 * @return string
 	 * @throws Exception
 	 */
-	public function getCaption($caption, $h)
+	public function getCaptionWithHashLink($caption, $h)
 	{
 		$al = AutoLoad::getInstance();
-		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
+		// optional, use it in a project
+//		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
 		$slug = $this->request->getURL() . URL::friendlyURL($caption);
 		$link = '<a class="header-link" href="#' . $slug . '">
 				<i class="fa fa-link"></i>

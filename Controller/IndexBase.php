@@ -218,6 +218,7 @@ class IndexBase /*extends Controller*/
 	public function initController()
 	{
 		TaylorProfiler::start(__METHOD__);
+		// already created
 		if (!$this->controller instanceof Controller) {
 			$slug = $this->request->getControllerString();
 			if ($slug) {
@@ -260,18 +261,22 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @param string $class
 	 * @return AppController
+	 * @throws ReflectionException
 	 */
 	public function makeController($class)
 	{
 		try {
 			// v1
 //			$this->controller = new $class();
-			// v2
-//			$ms = new MarshalParams($this->config);
-//			$this->controller = $ms->make($class);
 			// v3
-			$di = $this->config->getDI();
-			$this->controller = $di->get($class);
+			if (method_exists($this->config, 'getDI')) {
+				$di = $this->config->getDI();
+				$this->controller = $di->get($class);
+			} else {
+				// v2
+				$ms = new MarshalParams($this->config);
+				$this->controller = $ms->make($class);
+			}
 
 			// debug($class, get_class($this->controller));
 			if (method_exists($this->controller, 'postInit')) {
@@ -422,6 +427,7 @@ class IndexBase /*extends Controller*/
 			echo $e->getTraceAsString(), BR;
 			$content = '';
 		} else {
+			http_response_code($e->getCode());
 			if ($this->controller) {
 				$this->controller->title = get_class($this->controller);
 			}
@@ -478,22 +484,22 @@ class IndexBase /*extends Controller*/
 
 	public function message($text)
 	{
-		$this->content->message($text);
+		return $this->content->message($text);
 	}
 
 	public function error($text)
 	{
-		$this->content->error($text);
+		return $this->content->error($text);
 	}
 
 	public function success($text)
 	{
-		$this->content->success($text);
+		return $this->content->success($text);
 	}
 
 	public function info($text)
 	{
-		$this->content->info($text);
+		return $this->content->info($text);
 	}
 
 	/**
