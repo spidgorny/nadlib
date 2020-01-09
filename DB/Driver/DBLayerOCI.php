@@ -28,7 +28,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 	 * @param string $host - unused, for declaration consistency
 	 * @return bool|null|resource
 	 */
-	function connect($tns, $user, $pass, $host = 'localhost')
+	function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
 	{
 		$this->connection = oci_connect($user, $pass, $tns);
 		if (!$this->connection) {

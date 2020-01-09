@@ -87,7 +87,7 @@ abstract class FullGrid extends Grid
 
 	/**
 	 * Can't use $this->collection at this point as this function is used to initialize the collection!
-	 * @return string
+	 * @return string|null
 	 */
 	public function getOrderBy()
 	{
@@ -109,7 +109,7 @@ abstract class FullGrid extends Grid
 				$sortBy = $desc['source'];
 			}
 			if (ifsetor($desc['sortable']) === false) {
-				$sortBy = NULL;
+				$sortBy = null;
 			}
 		}
 		if (!$sortBy) {
@@ -216,7 +216,7 @@ abstract class FullGrid extends Grid
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
-		$f->formHideArray($this->linkVars);
+		$f->formHideArray($this->linker->linkVars);
 		$f->showForm($desc);
 		$f->submit(__('Set Visible Columns'));
 		return $f;

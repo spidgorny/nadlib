@@ -222,9 +222,11 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			case "datepopup2":
 				$this->form->datepopup2($fieldName, $fieldValue, ifsetor($desc['plusConfig']), $desc->getArray());
 				break;
+
 			case "money":
 				$this->form->money($fieldName, $fieldValue, $desc->getArray());
 				break;
+
 			case "select":
 			case "selection":
 				$this->form->selection($fieldName, NULL,
@@ -237,9 +239,11 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			case "file":
 				$this->form->file($fieldName, $desc->getArray());
 				break;
+
 			case "password":
 				$this->form->password($fieldName, $fieldValue, $desc->getArray());
 				break;
+
 			case "check":
 			case "checkbox":
 				if (ifsetor($desc['set0'])) {
@@ -251,11 +255,13 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 					$fieldValue = $fieldValue === 't';
 				}
 				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
-					$more);
+					$more, ifsetor($desc['autoSubmit']), $desc->getArray());
 				break;
+
 			case "time":
 				$this->form->time($fieldName, $fieldValue, $desc['unlimited']);
 				break;
+
 			case "hidden":
 			case "hide":
 				$this->form->hidden($fieldName, $fieldValue, $desc['id']
@@ -266,10 +272,12 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$name = is_array($fieldName) ? end($fieldName) : $fieldName;
 				$this->form->formHideArray([$name => $fieldValue]);
 				break;
+
 			case 'html':
 				$this->form->text($desc['code']);
 				break;
-			case 'tree':
+
+				case 'tree':
 				$this->form->tree($fieldName, $desc['tree'], $fieldValue);
 				break;
 			case 'popuptree':

@@ -13,6 +13,7 @@ class Messages extends \MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+		return $msg;
 	}
 
 	function error($text)
@@ -24,6 +25,7 @@ class Messages extends \MergedContent
 			$this->content .= $msg;
 		}
 //		debug($this->content);
+		return $msg;
 	}
 
 	function success($text)
@@ -34,6 +36,7 @@ class Messages extends \MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+		return $msg;
 	}
 
 	function info($text)
@@ -44,6 +47,7 @@ class Messages extends \MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+		return $msg;
 	}
 
 	function saveMessages()

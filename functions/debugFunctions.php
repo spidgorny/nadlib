@@ -6,12 +6,12 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param mixed|string|bool|array|int|float|object ...$a
+	 * @param mixed,...$a
 	 */
 	function debug($a)
 	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
-		if (class_exists('Debug')) {
+		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
 		} elseif (DEVELOPMENT) {
@@ -280,7 +280,7 @@ if (!function_exists('debugList')) {
 		if (!Request::isCLI()) {
 			return new HTMLTag('span', ['class' => $class], $typeName, true);
 		}
-		return $typeName;
+		return new htmlString($typeName);
 	}
 
 	/**

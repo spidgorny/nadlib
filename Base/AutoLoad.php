@@ -354,9 +354,9 @@ class AutoLoad
 			include_once $file;
 		} else {
 			$ns = $subFolders ?:
-				(sizeof($namespaces) > 1)
+				(sizeof($namespaces) > 1
 					? first($namespaces)
-					: NULL;
+					: null);
 //			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);

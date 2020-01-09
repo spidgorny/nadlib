@@ -48,4 +48,9 @@ class htmlString implements ToStringable
 		return $this->__toString();
 	}
 
+	public function cli()
+	{
+		return trim(strip_tags($this->render()));
+	}
+
 }

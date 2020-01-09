@@ -1,6 +1,6 @@
 <?php
 
-class AppControllerBE extends Controller
+class AppControllerBE extends AppController
 {
 
 	/**

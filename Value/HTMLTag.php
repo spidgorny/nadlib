@@ -20,6 +20,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		$this->isHTML = $isHTML;
 	}
 
+	public static function div($content, array $param = [])
+	{
+		return new HTMLTag('div', $param, $content);
+	}
+
 	public function __toString()
 	{
 		try {
@@ -116,13 +121,13 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public static function parse($str, $recursive = false)
 	{
 		$str = trim($str);
-		if (strlen($str) && $str{0} != '<') {
-			return NULL;
+		if (strlen($str) && $str[0] != '<') {
+			return null;
 		}
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
 		//debug($matches);
 		if (!isset($matches[1])) {
-			return NULL;
+			return null;
 		}
 
 		$tagAndAttributes = trimExplode(' ', ifsetor($matches[1]));
@@ -277,6 +282,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public static function img($src, array $params = [])
 	{
 		return new self('img', ['src' => $src] + $params);
+	}
+
+	public function cli()
+	{
+		return trim(strip_tags($this->render()));
 	}
 
 }

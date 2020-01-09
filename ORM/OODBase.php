@@ -607,6 +607,7 @@ abstract class OODBase
 				$size = filesize($file);
 				if ($size < 1024 * 4) {
 					$content = file_get_contents($file);
+					/** @noinspection UnserializeExploitsInspection */
 					$graph = unserialize($content); // faster?
 				} else {
 					$graph = self::getInstanceByID($id);
@@ -712,6 +713,10 @@ abstract class OODBase
 	 */
 	public function findInDBsetInstance(array $where, $orderByLimit = '')
 	{
+//		llog(__METHOD__, $this->where);
+//		llog(__METHOD__, $this->where.'');
+//		llog(__METHOD__, $where);
+//		llog(__METHOD__, $where.'');
 		$data = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		if (is_array($data)) {
