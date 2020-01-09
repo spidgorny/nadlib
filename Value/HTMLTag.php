@@ -17,7 +17,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		$key = $candidate;
 		$key = str_replace('<', 'lt', $key);
 		$key = str_replace('>', 'gt', $key);
-		if (is_numeric($key[0])) {
+		if (strlen($key) && is_numeric($key[0])) {
 			$key = '_' . $key;
 		}
 		return $key;
