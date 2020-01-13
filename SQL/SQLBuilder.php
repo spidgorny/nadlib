@@ -338,7 +338,7 @@ class SQLBuilder
 			$or = [];
 			foreach ($array as $langID) {
 				//2010/09/12: modified according to mantis request 0001812	- if/else condition for 4th argument added
-				if ($conditioner == 'ANY') {
+				if ($conditioner === 'ANY') {
 					$or[] = "'" . $langID . "' = ANY(string_to_array(" . $field . ", ','))"; // this line is the original one
 				} else {
 					$or[] = "'" . $langID . "' = " . $field . " ";
