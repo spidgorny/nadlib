@@ -12,7 +12,7 @@ class MailerTest extends PHPUnit\Framework\TestCase
 
 	public function test_getShortFilename()
 	{
-		$sut = new Mailer('asd@qwe.com', 'test', 'test');
+		$sut = new SwiftMailer('asd@qwe.com', 'test', 'test');
 		$filename = './request/97777/RP EA3P40 The Legend of Zelda Tri Force Heroes Some Text Checklists.zip';
 		$short = $sut->getShortFilename($filename);
 		$this->assertEquals('RP_EA3P40_The_Legend_of_Zelda_Tri_Force_Heroes_Some_Text_Ch.zip', $short);
@@ -20,7 +20,7 @@ class MailerTest extends PHPUnit\Framework\TestCase
 
 	public function test_getShortFilename2()
 	{
-		$sut = new Mailer('asd@qwe.com', 'test', 'test');
+		$sut = new SwiftMailer('asd@qwe.com', 'test', 'test');
 		$filename = './request/97777/RP EA3P40 The Рашшан Шит.zip';
 		$short = $sut->getShortFilename($filename);
 		$this->assertEquals('RP_EA3P40_The_.zip', $short);
@@ -36,7 +36,7 @@ class MailerTest extends PHPUnit\Framework\TestCase
 			'RP Nintendo QBFA11 Pokémon Yellow Version.doc' => 'RP_Nintendo_QBFA11_Pokmon_Yellow_Version.doc',
 			'RP Nintendo QBFA11 Pokémon Yellow Version.pdf' => 'RP_Nintendo_QBFA11_Pokmon_Yellow_Version.pdf',
 		];
-		$sut = new Mailer('spidgorny@gmail.com', 'test', 'test');
+		$sut = new SwiftMailer('spidgorny@gmail.com', 'test', 'test');
 		foreach ($fixture as $filename => $must) {
 			$short = $sut->getShortFilename($filename);
 			$this->assertEquals($must, $short);

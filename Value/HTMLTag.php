@@ -12,6 +12,17 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public $isHTML = FALSE;
 	public $closingTag = true;
 
+	public static function key($candidate)
+	{
+		$key = $candidate;
+		$key = str_replace('<', 'lt', $key);
+		$key = str_replace('>', 'gt', $key);
+		if (strlen($key) && is_numeric($key[0])) {
+			$key = '_' . $key;
+		}
+		return $key;
+	}
+
 	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
 	{
 		$this->tag = $tag;

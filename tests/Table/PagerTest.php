@@ -1,7 +1,7 @@
 <?php
 
 
-class PagerTest extends PHPUnit\Framework\TestCase
+class PagerTest extends NadlibTestCase
 {
 
 	public function testDetectCurrentPage()
@@ -27,12 +27,12 @@ class PagerTest extends PHPUnit\Framework\TestCase
 			21 => 2,
 		];
 		foreach ($fixture as $records => $maxPage) {
-			echo '> ', $records, ' => ', $maxPage, PHP_EOL;
-			echo TAB, $records/10, ' => ', ceil($records/10), PHP_EOL;
+			$this->log('> ', $records, ' => ', $maxPage);
+			$this->log(TAB, $records/10, ' => ', ceil($records/10));
 			$p = new Pager();
 			$p->setItemsPerPage(10);
 			$p->setNumberOfRecords($records);
-			echo TAB, TAB, $p->getMaxPage(), PHP_EOL;
+			$this->log(TAB, TAB, $p->getMaxPage());
 			$this->assertEquals($maxPage, $p->getMaxPage());
 		}
 	}
