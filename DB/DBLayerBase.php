@@ -10,12 +10,12 @@
  * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
  * @method runInsertQuery($table, array $columns)
  * @method fetchOneSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
- * @method  describeView($viewName)
- * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
- * @method  getFirstValue($query)
- * @method  performWithParams($query, $params)
- * @method  getConnection()
- * @method  getViews()
+ * @method describeView($viewName)
+ * @method fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method getFirstValue($query)
+ * @method performWithParams($query, $params)
+ * @method getConnection()
+ * @method getViews()
  */
 abstract class DBLayerBase implements DBInterface
 {

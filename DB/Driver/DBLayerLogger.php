@@ -4,14 +4,16 @@
  * Class DBLayerLogger
  * @mixin SQLBuilder
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  getSelectQuery(string $table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayerLogger extends DBLayerBase implements DBInterface
 {
 
-	var $logger;
+	public $logger;
 
-	var $data = [];
+	public $data = [];
 
+	/** @noinspection MagicMethodsValidityInspection */
 	public function __construct()
 	{
 		// recursion:
@@ -39,7 +41,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		return '';
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = null)
 	{
 		$this->log(__METHOD__);
 		return [];
@@ -58,12 +60,12 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function numRows($res = NULL)
+	public function numRows($res = null)
 	{
 		$this->log(__METHOD__);
 	}
 
-	function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		$this->log(__METHOD__);
 	}
@@ -73,7 +75,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		$this->log(__METHOD__);
 	}
 
-	public function lastInsertID($res = NULL, $table = NULL)
+	public function lastInsertID($res = null, $table = null)
 	{
 		$id = $this->data['id'];
 		$this->log(__METHOD__ . ' id: ' . $id);
@@ -140,9 +142,9 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		$this->log(__METHOD__);
 	}
 
-	function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
-		$this->log(__METHOD__);
+//		$this->log(__METHOD__);
 		return $this->data;
 	}
 

@@ -15,6 +15,7 @@ use spidgorny\nadlib\HTTP\URL;
  * @method  getFirstValue($query)
  * @method  performWithParams($query, $params)
  * @method  getConnection()
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class MySQL extends DBLayerBase implements DBInterface
 {

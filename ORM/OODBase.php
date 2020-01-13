@@ -325,7 +325,12 @@ abstract class OODBase
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
-			throw new Exception(__('Updating [' . $this->table . '] is not possible as there is no ID defined. idField: ' . $this->idField));
+			$msg = __(
+				'Updating [$1] is not possible as there is no ID defined. idField: $2',
+				$this->table,
+				$this->idField
+			);
+			throw new Exception($msg);
 		}
 		return $res;
 	}
