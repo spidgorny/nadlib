@@ -103,7 +103,7 @@ class MarshalParams
 //						debug($typeClass, get_class($container), $typeGenerator);
 			// does not work with namespaces
 			// e.g. Config->getSymfony\\Contracts\\Cache\\CacheInterface
-			llog($param->getName(), $typeGenerator);
+			//llog($param->getName(), $typeGenerator);
 			if (method_exists($container, $typeGenerator)) {
 				$value = call_user_func([$container, $typeGenerator]);
 			} else {

@@ -28,7 +28,7 @@ class NoUser extends UserBase implements UserModelInterface
 
 	public function can($name)
 	{
-		return ifsetor($this->access[$name]);
+		return $this->access[$name];
 	}
 
 	public function renderMessages()
