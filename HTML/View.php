@@ -270,7 +270,7 @@ class View extends stdClass {
 			debug_pre_print_backtrace();
 		}
 //		return $this->render().'';
-		return '';
+		return get_class($this).'@'.spl_object_hash($this);
 	}
 
 	/**

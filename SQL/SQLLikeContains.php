@@ -1,6 +1,7 @@
 <?php
 
-class SQLLikeContains extends SQLLike {
+class SQLLikeContains extends SQLLike
+{
 
 	/**
 	 * Replace with "%|%" if you like

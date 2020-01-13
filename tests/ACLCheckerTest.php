@@ -6,7 +6,7 @@
  * Time: 19:07
  */
 
-namespace tests;
+namespace nadlib\Test;
 
 class ACLCheckerTest extends \PHPUnit\Framework\TestCase
 {

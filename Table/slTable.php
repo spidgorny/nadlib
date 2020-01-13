@@ -91,9 +91,9 @@ class slTable implements ToStringable
 	public $isOddEven = true;
 
 	/**
-	 * @var string <tr $thesMore>
+	 * @var array <tr $thesMore>
 	 */
-	public $thesMore;
+	public $thesMore = [];
 
 	/**
 	 * @var string before <tbody>
@@ -393,7 +393,12 @@ class slTable implements ToStringable
 				$thMore[$thk] = isset($thv['thmore'])
 					? $thv['thmore']
 					: (isset($thv['more']) ? $thv['more'] : null);
-				$this->thesMore[$thk] = ifsetor($thv['thmore']);
+
+
+				// gives <tr with properties from column keys>
+				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
+
+
 				if (!is_array($thMore)) {
 					$thMore = ['' => $thMore];
 				}
@@ -484,9 +489,9 @@ class slTable implements ToStringable
 			$this->sort();
 
 			$t = $this->generation;
-			$t->table(HTMLTag::renderAttr([
+			$t->table([
 					'id' => $this->ID,
-				] + HTMLTag::parseAttributes($this->more)));
+				] + HTMLTag::parseAttributes($this->more));
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -504,14 +509,19 @@ class slTable implements ToStringable
 				}
 				++$i;
 				$class = $this->getRowClass($row, $i, $key);
-				$tr = 'class="' . implode(' ', $class) . '"';
+				$trMore = [
+					'class' => implode(' ', $class),
+				];
 				if (is_array($row) && isset($row['###TR_MORE###'])) {
-					$tr .= ' ' . $row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					$trMore += HTMLTag::parseAttributes($row['###TR_MORE###']); // used in class.Loan.php	// don't use for "class"
 				}
 				$rowID = (is_array($row) && isset($row['id']))
 					? $row['id']
 					: '';
-				$t->tr($tr . ' ' . str_replace('###ROW_ID###', $rowID, $this->trmore));
+				// TODO: degradation(!)
+//				$trMore = str_replace('###ROW_ID###', $rowID, $this->trmore);
+
+				$t->tr($trMore);
 				//debug_pre_print_backtrace();
 				$this->genRow($t, $row);
 				$t->tre();
@@ -533,7 +543,9 @@ class slTable implements ToStringable
 			$this->generation->tfoot('<tfoot>');
 			$class = [];
 			$class[] = 'footer';
-			$tr = 'class="' . implode(' ', $class) . '"';
+			$tr = [
+				'class' => implode(' ', $class),
+			];
 			$this->generation->ftr($tr);
 			$this->generation->curPart = 'tfoot';
 			$this->genRow($this->generation, $this->footer);
@@ -596,14 +608,16 @@ class slTable implements ToStringable
 
 	/**
 	 * @param array $k
-	 * @param       $iCol
-	 * @param       $col
+	 * @param int $iCol
+	 * @param string $col
 	 * @param array $row
 	 * @return array
 	 */
 	public function getCellMore(array $k, $iCol, $col, array $row)
 	{
-		$more = [];
+		$more = [
+			'class' => [],
+		];
 		if ($this->isAlternatingColumns) {
 			$more['class'][] = (($iCol % 2) ? 'even' : 'odd');
 		}
@@ -631,7 +645,7 @@ class slTable implements ToStringable
 				? $row[$col]
 				: $k['title'];
 		}
-		$more['class'][] = 'col_'.$col;
+		$more['class'][] = 'col_' . $col;
 		return $more;
 	}
 
@@ -673,9 +687,14 @@ class slTable implements ToStringable
 		}
 	}
 
+	/// https://stackoverflow.com/questions/21104373/tostring-must-not-throw-an-exception-error-when-using-string/26006176
 	public function __toString()
 	{
-		return $this->getContent();
+		try {
+			return $this->getContent();
+		} catch (Exception $e) {
+			return get_class($this).'@'.spl_object_hash($this);
+		}
 	}
 
 	/**
@@ -886,7 +905,7 @@ class slTable implements ToStringable
 		if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
 			$class[] = $this->dataClass[$key];
 		}
-		$class[] = 'id_'.$key;
+		$class[] = 'id_' . $key;
 		return $class;
 	}
 

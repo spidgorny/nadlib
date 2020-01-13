@@ -8,34 +8,44 @@
 
 namespace nadlib\Controller;
 
+use nadlib\Test\MockRequest;
+
 class ControllerTest extends \PHPUnit\Framework\TestCase
 {
 
-//	protected $globalPrefix = '/some/folder';
-	protected $globalPrefix = '';
+	protected $location = 'http://mock.request.tld';
+	protected $globalPrefix = '/some/folder';
+
+	/**
+	 * @var MockRequest
+	 */
+	protected $request;
+
+	public function setUp()
+	{
+		$this->request = new MockRequest();
+	}
 
 	public function test_getLocation()
 	{
-		$request = \Request::getInstance();
-
-		$byRequest = $request->getDocumentRootByRequest();
+		$byRequest = $this->request->getDocumentRootByRequest();
 		$this->assertEquals('/', $byRequest);
 
-		$byDocRoot = $request->getDocumentRootByDocRoot();
+		$byDocRoot = $this->request->getDocumentRootByDocRoot();
 		$this->assertEquals(null, $byDocRoot);
 
-		$docRoot = $request->getDocumentRoot();
+		$docRoot = $this->request->getDocumentRoot();
 		$this->assertEquals('/', $docRoot);
 
-		$location = $request->getLocation();
-		$host = gethostname();
-		$this->assertEquals('http://'.$host.$this->globalPrefix.'/', $location.'');
+		$location = $this->request->getLocation();
+		$this->assertEquals($this->location . $this->globalPrefix.'/', $location.'');
 	}
 
 	public function test_makeLinkSimple()
 	{
 		$c = new \AppController4Test();
 		$c->linker->useRouter = false;
+		$c->request = $this->request;
 		$link = $c->makeURL(['a' => 'b']);
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix.'/?a=b', $link . '');
@@ -45,6 +55,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	{
 		$c = new \AppController4Test();
 		$c->linker->useRouter = false;
+		$c->request = $this->request;
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix.'/prefix?a=b', $link . '');
@@ -54,6 +65,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	{
 		$c = new \AppController4Test();
 		$c->linker->useRouter = true;
+		$c->request = $this->request;
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix.'/prefix?a=b', $link . '');
@@ -63,6 +75,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	{
 		$c = new \AppController4Test();
 		$c->linker->useRouter = true;
+		$c->request = $this->request;
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix.'/prefix?a=b', $link . '');
@@ -72,6 +85,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	{
 		$c = new \AppController4Test();
 		$c->linker->useRouter = false;
+		$c->request = $this->request;
 		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix.'/?a=b&c=Controller', $link . '');
@@ -81,6 +95,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 	{
 		$c = new \AppController4Test();
 		$c->linker->useRouter = true;
+		$c->request = $this->request;
 		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix.'/Controller?a=b', $link . '');
