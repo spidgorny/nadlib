@@ -8,9 +8,26 @@ class Color
 	 */
 	public $r, $g, $b;
 
+	public static function fromRGBArray(array $rgb)
+	{
+		return new Color($rgb);
+	}
+
+	public static function fromRGB($r, $g, $b)
+	{
+		return new Color([$r, $g, $b]);
+	}
+
+	public static function fromHEX($rgb)
+	{
+		assert($rgb[0] === '#');
+		assert(strlen($rgb) === 7);
+		return new Color($rgb);
+	}
+
 	public function __construct($init)
 	{
-		if ($init[0] == '#') {
+		if ($init[0] === '#') {
 			$colourstr = str_replace('#', '', $init);
 			$rhex = substr($colourstr, 0, 2);
 			$ghex = substr($colourstr, 2, 2);
@@ -79,9 +96,9 @@ class Color
 		return $this->getCSS([$this->r, $this->g, $this->b]);
 	}
 
-	public function getCSS($rgb)
+	public function getCSS($rgb = null)
 	{
-		$rgb = array_values($rgb);
+		$rgb = array_values($rgb ?: [$this->r, $this->g, $this->b]);
 		return '#' .
 			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT) .
 			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT) .
