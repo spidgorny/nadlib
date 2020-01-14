@@ -248,4 +248,24 @@ class Color
 		return $c;
 	}
 
+	/**
+	 * https://sighack.com/post/averaging-rgb-colors-the-right-way
+	 * https://youtu.be/LKnqECcg6Gw
+	 * @param array $colors
+	 */
+	public static function average(array $colors)
+	{
+		$sumSquared = [0, 0, 0];	// rgb
+		foreach ($colors as $color) {
+			$sumSquared[0] += $color[0] * $color[0];
+			$sumSquared[1] += $color[1] * $color[1];
+			$sumSquared[2] += $color[2] * $color[2];
+		}
+		$amount = sizeof($colors);
+		return [
+			intval(sqrt($sumSquared[0]/$amount)),
+			intval(sqrt($sumSquared[1]/$amount)),
+			intval(sqrt($sumSquared[2]/$amount))];
+	}
+
 }
