@@ -20,6 +20,9 @@ trait DatabaseMixin
 			'id' => $id,
 		]);
 //		debug($row);
+		if (!$row) {
+			return null;
+		}
 		$instance = new static($row);
 		$instance->db = $db;
 		return $instance;
@@ -28,6 +31,9 @@ trait DatabaseMixin
 	public static function findOne(DBInterface $db, array $where, $orderBy = '')
 	{
 		$row = $db->fetchOneSelectQuery(static::getTableName(), $where, $orderBy);
+		if (!$row) {
+			return null;
+		}
 		$instance = new static($row);
 		$instance->db = $db;
 		return $instance;
