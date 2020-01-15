@@ -20,6 +20,9 @@ trait DatabaseMixin
 			'id' => $id,
 		]);
 //		debug($row);
+		if (!$row) {
+			return null;
+		}
 		$instance = new static($row);
 		$instance->db = $db;
 		return $instance;
