@@ -74,7 +74,7 @@ class Filter extends ArrayObject
 		} elseif (isset($this->_default[$index])) {
 			return $this->_default[$index];
 		}
-		return NULL;
+		return null;
 	}
 
 	public function offsetExists($index)
