@@ -86,7 +86,7 @@ abstract class Grid extends AppController {
 	 * @deprecated - use saveFilterColumnsSort() instead
 	 * @param null $subname
 	 */
-	function mergeRequest($subname = NULL)
+	function mergeRequest($subname = null)
 	{
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
 		if ($subname) {
