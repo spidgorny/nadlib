@@ -321,7 +321,7 @@ class Debug
 			$bt = next($btl);
 		}
 		return ifsetor($bt['class'], get_class(ifsetor($bt['object'])))
-			. '::' . $bt['function'];
+			. '::' . ifsetor($bt['function']);
 	}
 
 	/**
