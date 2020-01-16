@@ -33,10 +33,10 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * Retrieved rows from DB
 	 * Protected in order to force usage of getData()
-	 * @var ArrayPlus
+	 * @var ArrayPlus|null
 	 * @note should not be |array because it's used as ArrayPlus
 	 */
-	protected $data = [];
+	protected $data;
 
 	public $thes = [];
 
@@ -160,7 +160,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public $objectifyByInstance = false;
 
 	/**
-	 * @param                integer /-1 $pid
+	 * @param integer /-1 $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid
@@ -169,9 +169,10 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @param DBInterface $db
 	 * @throws Exception
 	 */
-	public function __construct($pid = null, /*array/SQLWhere*/
-								$where = [], $order = '', DBInterface $db = null)
-	{
+	public function __construct(
+		$pid = null, /*array/SQLWhere*/
+		$where = [], $order = '', DBInterface $db = null
+	) {
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
@@ -273,7 +274,8 @@ class Collection implements IteratorAggregate, ToStringable
 		//debug($this->query);
 
 		// in most cases we don't need to rasterize the query to SQL
-		if ($most_cases = true) {
+		$most_cases = true;
+		if ($most_cases) {
 			$data = $this->db->fetchAll($this->query);
 		} else {
 			// legacy case - need SQL string
@@ -373,7 +375,7 @@ class Collection implements IteratorAggregate, ToStringable
 				$fc = new MemcacheOne($this->query . '.' . $this->pager->currentPage, 60 * 60);            // 1h
 				$this->log('key: ' . substr(basename($fc->map()), 0, 7));
 				$cached = $fc->getValue();                                    // with limit as usual
-				if ($cached && sizeof($cached) == 2) {
+				if ($cached && count($cached) === 2) {
 					list($this->count, $this->data) = $cached;
 					if ($this->pager) {
 						$this->pager->setNumberOfRecords($this->count);
@@ -402,6 +404,9 @@ class Collection implements IteratorAggregate, ToStringable
 			}
 			$this->logger->info($action, $data);
 		} else {
+			if (get_class($this) === SoftwareCollection::class) {
+				llog($action, $data);
+			}
 			$this->log[] = new LogEntry($action, $data);
 		}
 	}
@@ -523,7 +528,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function isFetched()
 	{
-		return $this->query && !is_null($this->data);
+		return $this->query && $this->data !== null;
 		// we may have fetched only 0 rows
 		//|| !$this->data->count())) {
 	}
@@ -536,24 +541,21 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getData($preProcess = true)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
-		$this->log(__METHOD__, [
-			'query' => $this->query
-				? substr($this->query, 0, 25) . '...'
-				: '-'
-		]);
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '('.$preProcess.')');
+		$this->log(__METHOD__, $this->query . '');
 		$this->log(__METHOD__, [
 			'data' => $this->data
-				? sizeof($this->data)
+				? count($this->data)
 				: '-'
 		]);
 		$this->log(__METHOD__, [
 			'data->count' =>
-			is_null($this->data) ? 'NULL' :	count($this->data)
+				$this->data === null ? 'NULL' : count($this->data)
 		]);
 		if (!$this->isFetched()) {
 			$this->retrieveData($preProcess);
 		}
+		// although this is ugly - SoftwareGrid still needs that
 		if (!($this->data instanceof ArrayPlus)) {
 			$this->data = ArrayPlus::create($this->data);
 
@@ -568,14 +570,16 @@ class Collection implements IteratorAggregate, ToStringable
 	{
 		if ($this->processed) {
 			return $this->data;
-		} elseif ($this->data) {
-			$this->preprocessData();
-			return $this->data;
-		} else {
-			$this->getData();
+		}
+
+		if ($this->data) {
 			$this->preprocessData();
 			return $this->data;
 		}
+
+		$this->getData();
+		$this->preprocessData();
+		return $this->data;
 	}
 
 	/**
@@ -1075,7 +1079,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->count = sizeof($this->members);
 		$this->query = __METHOD__;
 
-		$this->data = [];
+		$this->data = ArrayPlus::create();
 		foreach ($this->members as $obj) {
 			$this->data[$obj->id] = $obj->data;
 		}
