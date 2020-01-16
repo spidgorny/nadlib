@@ -1101,10 +1101,10 @@ class Collection implements IteratorAggregate, ToStringable
 	public function getCount()
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
-		if (is_null($this->count)) {
+		if ($this->count === null) {
 			if ($this->pager) {
-				$this->getQueryWithLimit();     // will init pager
-				// and set $this->count
+				$this->query = $this->getQueryWithLimit();     // will init pager
+				$this->count = $this->pager->numberOfRecords;
 			} else {
 				$queryWithLimit = $this->getQueryWithLimit();
 //				debug(__METHOD__, $queryWithLimit.'');
