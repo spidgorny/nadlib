@@ -34,13 +34,13 @@ class SQLOr extends SQLWherePart
 		$ors = [];
 //		llog(typ($this->db)->cli());
 		if (!$this->db) {
-//			ob_start();
-//			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-//			$bt = ob_get_clean();
-//			llog($bt);
+			ob_start();
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			$bt = ob_get_clean();
+			llog($bt);
 			$e = new RuntimeException('SQLOr does not have $db set');
 			trigger_error($e, E_USER_ERROR);
-			return '';
+//			throw $e;	// unable to throw, return without quoteWhere()
 		} elseif (false && $this->db instanceof DBLayerPG) {
 			$ors[] = $this->bijouStyle();
 		} elseif (false && $this->db instanceof DBLayer) {
