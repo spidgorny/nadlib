@@ -3,15 +3,15 @@
 class LogEntry
 {
 
-	var $time;
+	public $time;
 
-	var $action;
+	public $action;
 
-	var $data;
+	public $data;
 
-	static $log2file;
+	public static $log2file;
 
-	static function initLogging()
+	static public function initLogging()
 	{
 		self::$log2file = DEVELOPMENT;
 	}
@@ -38,16 +38,16 @@ class LogEntry
 		return implode("\t", [
 				date('H:i:s', $this->time) . '.' . $floating,
 				$this->action,
-				$this->data ? $sData : NULL
+				$this->data ? $sData : null
 			]) . BR;
 	}
 
 	public static function getLogFrom(array $log)
 	{
 		return [
-			'<div class="debug" style="font-family: monospace">',
-			$log,
-			'</div>',
+			'<pre class="debug" style="font-family: monospace; white-space: pre-wrap;">',
+			implode(PHP_EOL, $log),
+			'</pre>',
 		];
 	}
 

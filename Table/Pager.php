@@ -7,9 +7,10 @@ class Pager
 
 	/**
 	 * Total amount of rows in database (with WHERE)
+	 * Originally null to detect if setNumberOfRecords was called
 	 * @var int
 	 */
-	public $numberOfRecords = 0;
+	public $numberOfRecords = null;
 
 	/**
 	 * Page size
@@ -94,6 +95,7 @@ class Pager
 
 	public function __construct($itemsPerPage = null, $prefix = '')
 	{
+//		debug_pre_print_backtrace();
 		$this->log[] = __METHOD__;
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
@@ -120,6 +122,9 @@ class Pager
 	 */
 	public function detectCurrentPage()
 	{
+		if (null === $this->numberOfRecords) {
+			throw new InvalidArgumentException('Pager->detectCurrentPage() called before Pager->setNumberOfRecords()');
+		}
 		$pagerData = ifsetor(
 			$_REQUEST['Pager.' . $this->prefix],
 			ifsetor($_REQUEST['Pager_' . $this->prefix])
@@ -187,6 +192,7 @@ class Pager
 			$countQuery = $originalSQL;
 		}
 		$this->countQuery = $countQuery;
+		$this->log[] = $this->countQuery;
 		$res = $this->db->fetchAssoc($this->db->perform($countQuery));
 		// , $query->getParameters()
 		$this->setNumberOfRecords($res['count']);
@@ -226,7 +232,7 @@ class Pager
 	}
 
 	/**
-	 * @param $i
+	 * @param int $i
 	 */
 	public function setNumberOfRecords($i)
 	{
@@ -234,9 +240,6 @@ class Pager
 		$this->numberOfRecords = $i;
 		if ($this->getStartingRecord() > $this->numberOfRecords) {    // required
 			$this->setCurrentPage($this->currentPage);
-			if ($this->request->isPOST()) {
-				$_POST['pager']['page'] = $this->currentPage + 1;
-			}
 		}
 	}
 
@@ -312,6 +315,11 @@ class Pager
 		return $this->getStartingRecord();
 	}
 
+	public function getEnd()
+	{
+		return min($this->getStartingRecord() + $this->itemsPerPage, $this->numberOfRecords);
+	}
+
 	public function getLimit()
 	{
 		return $this->itemsPerPage;
@@ -368,7 +376,7 @@ class Pager
 		$this->log[] = __METHOD__;
 		$content = '';
 		if ($url) {
-			$this->url = $url;
+			$this->url = clone $url;	// this->url may be modified
 		}
 
 		$content .= '<div class="paginationControl pagination">' . "\n";
