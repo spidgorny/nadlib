@@ -15,7 +15,7 @@
 	"scripts": {
 		"lint": "parallel-lint class",
 		"phpstan": "phpstan analyze -l 1 --memory-limit 1G .",
-		"test": "phpunit"
+		"test": "phpunit tests"
 	},
 	"suggest": {
 		"flot/flot": "dev-master",
