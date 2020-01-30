@@ -236,11 +236,11 @@ class Collection implements IteratorAggregate, ToStringable
 
 		if (!empty($this->parentID)) {    // > 0 will fail on string ID
 			if ($this->parentID instanceof Date) {
-				$where[$this->parentField] = $this->parentID->getMySQL();
+				$this->where[$this->parentField] = $this->parentID->getMySQL();
 			} elseif ($this->parentID instanceof OODBase) {
-				$where[$this->parentField] = $this->parentID->id;
+				$this->where[$this->parentField] = $this->parentID->id;
 			} else {
-				$where[$this->parentField] = is_array($this->parentID)
+				$this->where[$this->parentField] = is_array($this->parentID)
 					? new SQLIn($this->parentID)
 					: $this->parentID;
 			}
@@ -267,53 +267,8 @@ class Collection implements IteratorAggregate, ToStringable
 			}
 			$this->logger->info($action, $data);
 		} else {
-			if (get_class($this) === SoftwareCollection::class) {
-				llog($action, $data);
-			}
 			$this->log[] = new LogEntry($action, $data);
 		}
-	}
-
-	public function preprocessData()
-	{
-		$profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table}): " . $this->getCount();
-		TaylorProfiler::start($profiler);
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
-		if (!$this->processed) {
-			$count = $this->getCount();
-			// Iterator by reference
-			$data = $this->getData();
-			foreach ($data as $i => &$row) {
-				$row = $this->preprocessRow($row);
-			}
-			$this->setData($data);
-			$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
-			$this->processed = true;
-			$this->count = $count;
-		}
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
-		TaylorProfiler::stop($profiler);
-		return $this->data;    // return something else if you augment $this->data
-	}
-
-	/**
-	 * Override me to make changes
-	 * @param array $row
-	 * @return array
-	 */
-	public function preprocessRow(array $row)
-	{
-		return $row;
-	}
-
-	/**
-	 * @return string - returns the slTable if not using Pager
-	 * @throws Exception
-	 */
-	public function render()
-	{
-		$view = $this->getView();
-		return $view->renderTable();
 	}
 
 	public function isFetched()
@@ -343,7 +298,11 @@ class Collection implements IteratorAggregate, ToStringable
 				$this->data === null ? 'NULL' : count($this->data)
 		]);
 		if (!$this->isFetched()) {
-			$this->retrieveData($preProcess);
+			$this->retrieveData();
+			if ($preProcess) {
+				$this->preprocessData();
+				$this->log(__METHOD__, 'rows: ' . count($this->data));
+			}
 		}
 		// although this is ugly - SoftwareGrid still needs that
 		if (!($this->data instanceof ArrayPlus)) {
@@ -357,21 +316,18 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-	 * -1 will prevent data retrieval
-	 * @param bool $preProcess
+	 * id => -1 will prevent data retrieval
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 * @throws Exception
 	 */
-	public function retrieveData($preProcess = false)
+	public function retrieveData()
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__, [
 			'allowMerge' => $this->allowMerge,
-			'preprocess' => $preProcess,
 		]);
 
 		$cq = $this->getCollectionQuery();
-
 		$data = $cq->retrieveData();
 
 		$this->log(__METHOD__, 'rows: ' . count($data));
@@ -382,10 +338,6 @@ class Collection implements IteratorAggregate, ToStringable
 		//$this->log(__METHOD__, $this->data->pluck('id'));
 		$this->data->IDalize($this->idField, $this->allowMerge);
 		$this->log(__METHOD__, 'rows: ' . count($this->data));
-		if ($preProcess) {
-			$this->preprocessData();
-			$this->log(__METHOD__, 'rows: ' . count($this->data));
-		}
 	}
 
 	public function getQueryWithLimit()
@@ -397,7 +349,6 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * Don't update $this->query otherwise getData() will think we have
 	 * retrieved nothing.
-	 * TODO: Create a new class called SQLCountQuery() and use it here to transform SQL to count(*)
 	 * Count can be a heavy operation, we should only query the count once.
 	 * But if the query changes, the count needs to be updated.
 	 * @return int
@@ -420,6 +371,55 @@ class Collection implements IteratorAggregate, ToStringable
 		}
 		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
 		return $this->count;
+	}
+
+	/**
+	 * Make sure to retrieveData() before
+	 * We can't fetchData here as it will make an infinite loop
+	 * @return ArrayPlus|null
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function preprocessData()
+	{
+		$profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table}): " . $this->getCount();
+		TaylorProfiler::start($profiler);
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
+		if (!$this->processed) {
+			$count = $this->getCount();
+			// Iterator by reference
+			$data = $this->data->getArrayCopy();
+			foreach ($data as $i => &$row) {
+				$row = $this->preprocessRow($row);
+			}
+			$this->data->setData($data);
+			$this->log(__METHOD__, 'rows: ' . count($this->data));
+			$this->processed = true;
+			$this->count = $count;
+		}
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
+		TaylorProfiler::stop($profiler);
+		return $this->data;    // return something else if you augment $this->data
+	}
+
+	/**
+	 * Override me to make changes
+	 * @param array $row
+	 * @return array
+	 */
+	public function preprocessRow(array $row)
+	{
+		return $row;
+	}
+
+	/**
+	 * @return string - returns the slTable if not using Pager
+	 * @throws Exception
+	 */
+	public function render()
+	{
+		$view = $this->getView();
+		return $view->renderTable();
 	}
 
 	public function getProcessedData()
