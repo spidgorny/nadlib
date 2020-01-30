@@ -16,5 +16,11 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
+    - name: lint
+      run: composer run-script lint
+      
+    - name: phpstan
+      run: composer run-script phpstan
+
     - name: Run test suite
       run: composer run-script test
