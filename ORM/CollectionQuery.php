@@ -125,13 +125,12 @@ class CollectionQuery
 	 */
 	private function retrieveDataFromDB()
 	{
-		$taylorKey = get_class($this) . '::' . __FUNCTION__ . '#' . __LINE__ . BR .
-			Debug::getBackLog(15, 0, BR, false);
+		$taylorKey = get_class($this) . '::' . __FUNCTION__;
 		TaylorProfiler::start($taylorKey);
-		$this->log(__METHOD__);
+		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
 
 		$this->query = $this->getQueryWithLimit();
-		//debug($this->query);
+		$this->log(__METHOD__, $this->query . '');
 
 		// in most cases we don't need to rasterize the query to SQL
 		$most_cases = true;
@@ -154,7 +153,9 @@ class CollectionQuery
 
 	protected function log($action, ...$something)
 	{
-		$this->log[] = new LogEntry($action, $something);
+		$logEntry = new LogEntry($action, $something);
+		$this->log[] = $logEntry;
+		llog($logEntry);
 	}
 
 }

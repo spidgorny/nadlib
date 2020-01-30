@@ -229,13 +229,16 @@ if (!function_exists('debugList')) {
 	 * similar to gettype() but return more information depending on data type in HTML
 	 * @param mixed $something
 	 * @param bool $withHash
-	 *
+	 * @param null $isCLI
 	 * @return HTMLTag
 	 */
-	function typ($something, $withHash = true)
+	function typ($something, $withHash = true, $isCLI = null)
 	{
+		if ($isCLI === null) {
+			$isCLI = Request::isCLI();
+		}
 		$type = gettype($something);
-		if ($type == 'object') {
+		if ($type === 'object') {
 			if ($withHash) {
 				$hash = md5(spl_object_hash($something));
 				$hash = substr($hash, 0, 6);
@@ -244,11 +247,11 @@ if (!function_exists('debugList')) {
 					require_once __DIR__ . '/../Value/Color.php';
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
-					if (!Request::isCLI()) {
-						$hash = new HTMLTag('span', array(
+					if (!$isCLI) {
+						$hash = new HTMLTag('span', [
 							'class' => 'tag',
 							'style' => 'background: ' . $color . '; color: ' . $complement,
-						), $hash);
+						], $hash);
 					}
 				}
 				$typeName = get_class($something) . '#' . $hash;

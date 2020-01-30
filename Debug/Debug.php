@@ -341,7 +341,7 @@ class Debug
 		$content = [];
 		foreach ($debug as $i => $debugLine) {
 			if (ifsetor($debugLine['object'])) {
-				$object = typ($debugLine['object'], $withHash);
+				$object = typ($debugLine['object'], $withHash, true);
 			} else {
 				$object = '';
 			}

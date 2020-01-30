@@ -256,5 +256,4 @@ abstract class SimpleController
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-
 }
