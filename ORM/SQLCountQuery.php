@@ -40,4 +40,16 @@ class SQLCountQuery
 		}
 		return $count;
 	}
+
+	public function alternative()
+	{
+		$countCollection = new Collection();
+		$countCollection->select = 'count(*) as id';
+//		$countCollection->where = $this->cq->where;
+		$countCollection->orderBy = '';
+		$countCollection->orderBy = str_replace('LIMIT 50', '', $countCollection->orderBy);
+		$countCollection->allowMerge = true;    // count() can = 0
+		$firstRow = $this->db->fetchAssoc($countCollection->getQueryWithLimit() . '');
+		$count = first($firstRow);
+	}
 }
