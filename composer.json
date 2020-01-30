@@ -13,7 +13,7 @@
 		"phpstan/phpstan": "^0.9.2"
 	},
 	"scripts": {
-		"lint": "parallel-lint .",
+		"lint": "parallel-lint . --exclude vendor",
 		"phpstan": "phpstan analyze -l 1 --memory-limit 1G .",
 		"test": "phpunit tests"
 	},
