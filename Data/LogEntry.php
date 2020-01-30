@@ -11,7 +11,7 @@ class LogEntry
 
 	public static $log2file;
 
-	static public function initLogging()
+	public static function initLogging()
 	{
 		self::$log2file = DEVELOPMENT;
 	}
@@ -39,10 +39,10 @@ class LogEntry
 				date('H:i:s', $this->time) . '.' . $floating,
 				$this->action,
 				$this->data ? $sData : null
-			]) . BR;
+			]);
 	}
 
-	public static function getLogFrom(array $log)
+	public static function getLogFrom(array $log): array
 	{
 		return [
 			'<pre class="debug" style="font-family: monospace; white-space: pre-wrap;">',
@@ -57,10 +57,11 @@ class LogEntry
 	 */
 	public function shorten($data)
 	{
-		if (is_scalar($data)) {
+		if (is_string($data) || is_int($data)) {
 			$sData = $data;
 		} else {
-			$sData = json_encode($data);
+			$jsonOptions = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+			$sData = json_encode($data, $jsonOptions);
 		}
 
 		if (contains($sData, '<')) {

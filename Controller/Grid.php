@@ -86,7 +86,7 @@ abstract class Grid extends AppController {
 	 * @deprecated - use saveFilterColumnsSort() instead
 	 * @param null $subname
 	 */
-	function mergeRequest($subname = null)
+	public function mergeRequest($subname = null)
 	{
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
 		if ($subname) {
@@ -148,20 +148,22 @@ abstract class Grid extends AppController {
 		}
 	}
 
-	function render()
+	public function render()
 	{
 		if (!$this->collection) {
 			$this->injectCollection();
 		}
 		$content[] = $this->collection->render();
 		$content[] = '<hr />';
-		$content = $this->encloseInAA($content,
+		$content = $this->encloseInAA(
+			$content,
 			$this->title = $this->title ?: get_class($this),
-			$this->encloseTag);
+			$this->encloseTag
+		);
 		return $content;
 	}
 
-	function injectCollection()
+	public function injectCollection()
 	{
 		$class = new ReflectionObject($this);
 		$col = $class->getProperty('collection');
@@ -186,17 +188,17 @@ abstract class Grid extends AppController {
 		}
 	}*/
 
-	function sidebar()
+	public function sidebar()
 	{
 		$content = $this->showFilter();
 		return $content;
 	}
 
-	function showFilter()
+	public function showFilter()
 	{
 		$content = [];
 		if ($this->filter) {
-			$f = new HTMLFormTable($this->filter);
+			$f = new HTMLFormTable($this->filter->getArrayCopy());
 			$f->method('GET');
 			$f->defaultBR = true;
 			$this->filter = $f->fill($this->request->getAll());
@@ -229,7 +231,8 @@ abstract class Grid extends AppController {
 	public function setFilter($cn)
 	{
 		$this->filter = new \nadlib\Controller\Filter();
-		if ($this->request->getTrim('action') == 'clearFilter') {
+		$action = $this->request->getTrim('action');
+		if ($action === 'clearFilter') {
 			$this->filter->clear();
 		} else {
 			$this->filter->setRequest($this->request->getArray('filter'));
@@ -307,7 +310,7 @@ abstract class Grid extends AppController {
 	 * Pluck $this->thes[*]['name']
 	 * @return array
 	 */
-	function getGridColumns()
+	public function getGridColumns()
 	{
 		if ($this->collection) {
 			$this->log(__METHOD__, 'Collection exists');
@@ -316,10 +319,10 @@ abstract class Grid extends AppController {
 				->column('name')
 				//->combineSelf() ?!? WTF
 				->getData();
-		} else {
-			$this->log(__METHOD__, 'No collection');
-			return [];
 		}
+
+		$this->log(__METHOD__, 'No collection');
+		return [];
 	}
 
 }
