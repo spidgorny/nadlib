@@ -146,7 +146,8 @@ class CollectionView
 			if ($sort) {
 				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));    // UGLY
 				//debug(Index::getInstance()->controller);
-				$s->sortLinkPrefix = new URL(NULL,
+				$s->sortLinkPrefix = new URL(
+					null,
 					ifsetor($controller->linkVars)
 						? $controller->linkVars
 						: []);

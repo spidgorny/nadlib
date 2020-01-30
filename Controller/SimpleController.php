@@ -250,7 +250,7 @@ abstract class SimpleController
 
 	public function log($action, ...$data)
 	{
-		if (is_array($data) && sizeof($data) === 1) {
+		if (is_array($data) && count($data) === 1) {
 			$data = $data[0];
 		}
 		$this->log[] = new LogEntry($action, $data);

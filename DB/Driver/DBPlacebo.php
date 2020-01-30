@@ -59,7 +59,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function numRows($res = null)
 	{
-		return sizeof($this->returnNextTime);
+		return count($this->returnNextTime);
 	}
 
 	public function affectedRows($res = null)
@@ -144,6 +144,22 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		$this->lastQuery = $query;
 		return $this->fetchAll(null);
+	}
+
+	public function getSelectQuery($table, array $where = [], $order = '', $selectPlus = '')
+	{
+		$query = $this->qb->getSelectQuery($table, $where, $order, $selectPlus);
+		$this->lastQuery = $query;
+		return $query;
+	}
+
+	public function getSelectQuerySW($table, SQLWhere $where, $order = '', $selectPlus = '')
+	{
+		$query = $this->getSelectQuery($table, [
+			new AsIsOp($where->__toString()),
+		], $order, $selectPlus);
+		$this->lastQuery = $query;
+		return $query;
 	}
 
 	public function getPlaceholder()

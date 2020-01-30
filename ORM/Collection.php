@@ -97,7 +97,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 * Is NULL until it's set to 0 or more
 	 * @var integer Total amount of data retrieved (not limited by Pager)
 	 */
-	public $count = NULL;
+	public $count = null;
 
 	/**
 	 * Should it be here? Belongs to the controller?
@@ -160,6 +160,30 @@ class Collection implements IteratorAggregate, ToStringable
 	public $objectifyByInstance = false;
 
 	/**
+	 * @param DBInterface $db
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return Collection
+	 * @throws Exception
+	 */
+	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = '')
+	{
+		$c = new self();
+		$c->db = $db;
+		$c->table = $table;
+		$c->where = $where;
+		$c->orderBy = $orderBy;
+		/** @var DBLayerBase $db */
+		//$db = Config::getInstance()->getDB();
+		$firstWord = SQLBuilder::getFirstWord($c->table);
+		$firstWord = $db->quoteKey($firstWord);
+		$c->select = ' ' . $firstWord . '.*';
+		assert($db === $c->db);
+		return $c;
+	}
+
+	/**
 	 * @param integer /-1 $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
@@ -209,6 +233,19 @@ class Collection implements IteratorAggregate, ToStringable
 			$val = is_array($val) ? $val : ['name' => $val];
 		}
 		$this->translateThes();
+
+		if (!empty($this->parentID)) {    // > 0 will fail on string ID
+			if ($this->parentID instanceof Date) {
+				$where[$this->parentField] = $this->parentID->getMySQL();
+			} elseif ($this->parentID instanceof OODBase) {
+				$where[$this->parentField] = $this->parentID->id;
+			} else {
+				$where[$this->parentField] = is_array($this->parentID)
+					? new SQLIn($this->parentID)
+					: $this->parentID;
+			}
+		}
+
 		TaylorProfiler::stop($taylorKey);
 	}
 
@@ -220,180 +257,6 @@ class Collection implements IteratorAggregate, ToStringable
 			$this->controller = &$index->controller;
 		}
 		//debug(get_class($this->controller));
-	}
-
-	/**
-	 * -1 will prevent data retrieval
-	 * @param bool $preProcess
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
-	 */
-	public function retrieveData($preProcess = true)
-	{
-		$this->log(get_class($this) . '::' . __FUNCTION__, [
-			'allowMerge' => $this->allowMerge,
-			'preprocess' => $preProcess,
-		]);
-		//debug(__METHOD__, $allowMerge, $preprocess);
-		$isMySQL = phpversion() > 5.3 && (
-				$this->db instanceof MySQL
-				|| ($this->db instanceof DBLayerPDO
-					&& $this->db->isMySQL())
-			);
-		if ($isMySQL) {
-			$data = $this->retrieveDataFromMySQL();
-		} else {
-			$data = $this->retrieveDataFromDB();
-		}
-		$this->log(__METHOD__, 'rows: ' . sizeof($data));
-		$this->log(__METHOD__, 'idealize by ' . $this->idField);
-//		debug_pre_print_backtrace();
-//		debug(get_class($this->db), $isMySQL, $this->query, $data, $this->log);
-		$this->data = ArrayPlus::create($data);
-		//$this->log(__METHOD__, $this->data->pluck('id'));
-		$this->data->IDalize($this->idField, $this->allowMerge);
-		$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
-		if ($preProcess) {
-			$this->preprocessData();
-			$this->log(__METHOD__, 'rows: ' . sizeof($this->data));
-		}
-	}
-
-	/**
-	 * @return array
-	 * @throws Exception
-	 */
-	private function retrieveDataFromDB()
-	{
-		$taylorKey = get_class($this) . '::' . __FUNCTION__ . '#' . __LINE__ . BR .
-			Debug::getBackLog(15, 0, BR, false);
-		TaylorProfiler::start($taylorKey);
-		$this->log(__METHOD__);
-
-		$this->query = $this->getQueryWithLimit();
-		//debug($this->query);
-
-		// in most cases we don't need to rasterize the query to SQL
-		$most_cases = true;
-		if ($most_cases) {
-			$data = $this->db->fetchAll($this->query);
-		} else {
-			// legacy case - need SQL string
-			if ($this->query instanceof SQLSelectQuery) {
-				$res = $this->query->perform();
-			} else {
-				$res = $this->db->perform($this->query);
-			}
-
-
-			if ($this->pager) {
-				$this->count = $this->pager->numberOfRecords;
-			} else {
-				$this->count = $this->db->numRows($res);
-			}
-
-			$data = $this->db->fetchAll($res);
-		}
-		// fetchAll does implement free()
-//		$this->db->free($res);
-		TaylorProfiler::stop($taylorKey);
-		return $data;
-	}
-
-	/**
-	 * https://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_found-rows
-	 * @requires PHP 5.3
-	 * @return array
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
-	 */
-	public function retrieveDataFromMySQL()
-	{
-		$taylorKey = get_class($this) . '::' . __FUNCTION__ .
-			" (" . $this->parentField . ':' . (is_array($this->parentID)
-				? json_encode($this->parentID)
-				: $this->parentID) . ")";
-		TaylorProfiler::start($taylorKey);
-		/** @var SQLSelectQuery $query */
-		$query = $this->getQuery();
-		if (class_exists('PHPSQL\Parser') && false) {
-			$sql = new SQLQuery($query);
-			$sql->appendCalcRows();
-			$this->query = $sql->__toString();
-		} else {
-			//$this->query = str_replace('SELECT ', 'SELECT SQL_CALC_FOUND_ROWS ', $query);	// subquery problem
-			$this->query = preg_replace('/SELECT /', 'SELECT SQL_CALC_FOUND_ROWS ', $query, 1);
-		}
-
-		if ($query instanceof SQLSelectQuery) {
-			$params = $query->getParameters();
-			$res = $this->db->perform($this->query, $params);
-		} else {
-			$res = $this->db->perform($this->query);
-		}
-
-		if ($this->pager) {
-			$this->pager->setNumberOfRecords(PHP_INT_MAX);
-			$this->pager->detectCurrentPage();
-			//$this->pager->debug();
-		}
-		$start = $this->pager ? $this->pager->getStart() : 0;
-		$limit = $this->pager ? $this->pager->getLimit() : PHP_INT_MAX;
-
-		//debug($sql.'', $start, $limit);
-		$data = $this->db->fetchPartition($res, $start, $limit);
-
-		$resFoundRows = $this->db->perform('SELECT FOUND_ROWS() AS count');
-		$countRow = $this->db->fetchAssoc($resFoundRows);
-		$this->count = $countRow['count'];
-
-		if ($this->pager) {
-			$this->pager->setNumberOfRecords($this->count);
-			$this->pager->detectCurrentPage();
-			//$this->pager->debug();
-		}
-		TaylorProfiler::stop($taylorKey);
-		return $data;
-	}
-
-	/**
-	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
-	 * @param bool $allowMerge
-	 * @throws Exception
-	 */
-	public function retrieveDataFromCache($allowMerge = false)
-	{
-		if (!$this->data) {                                                    // memory cache
-			$this->query = $this->getQuery();
-			if ($this->doCache) {
-				// this query is intentionally without
-				if ($this->pager) {
-					$this->pager->setNumberOfRecords(PHP_INT_MAX);
-					$this->pager->detectCurrentPage();
-					//$this->pager->debug();
-				}
-				$fc = new MemcacheOne($this->query . '.' . $this->pager->currentPage, 60 * 60);            // 1h
-				$this->log('key: ' . substr(basename($fc->map()), 0, 7));
-				$cached = $fc->getValue();                                    // with limit as usual
-				if ($cached && count($cached) === 2) {
-					list($this->count, $this->data) = $cached;
-					if ($this->pager) {
-						$this->pager->setNumberOfRecords($this->count);
-						$this->pager->detectCurrentPage();
-					}
-					$this->log('found in cache, age: ' . $fc->getAge());
-				} else {
-					$this->retrieveData($allowMerge);    // getQueryWithLimit() inside
-					$fc->set([$this->count, $this->data]);
-					$this->log('no cache, retrieve, store');
-				}
-			} else {
-				$this->retrieveData($allowMerge);
-			}
-			if ($_REQUEST['d']) {
-				//debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));
-			}
-		}
 	}
 
 	public function log($action, $data = [])
@@ -409,84 +272,6 @@ class Collection implements IteratorAggregate, ToStringable
 			}
 			$this->log[] = new LogEntry($action, $data);
 		}
-	}
-
-	/**
-	 * @param array /SQLWhere $where
-	 * @return string|SQLSelectQuery
-	 */
-	public function getQuery($where = [])
-	{
-		TaylorProfiler::start($profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table})");
-		if (!$this->db) {
-			debug_pre_print_backtrace();
-		}
-		if (!$where) {
-			$where = $this->where;
-		}
-		if (!empty($this->parentID)) {    // > 0 will fail on string ID
-			if ($this->parentID instanceof Date) {
-				$where[$this->parentField] = $this->parentID->getMySQL();
-			} elseif ($this->parentID instanceof OODBase) {
-				$where[$this->parentField] = $this->parentID->id;
-			} else {
-				$where[$this->parentField] = is_array($this->parentID)
-					? new SQLIn($this->parentID)
-					: $this->parentID;
-			}
-		}
-		// bijou old style - each collection should care about hidden and deleted
-		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
-		if ($where instanceof SQLWhere) {
-			$query = $this->db->getSelectQuerySW($this->table . ' ' . $this->join, $where, $this->orderBy, $this->select);
-		} else {
-			//debug($where);
-			if ($this->join) {
-				$query = $this->db->getSelectQuery(
-					$this->table . ' ' . $this->join,
-					$where,
-					$this->orderBy,
-					$this->select
-				);
-			} else {
-				// joins are not implemented yet (IMHO)
-				$query = $this->db->getSelectQuerySW(
-					$this->table,
-					$where instanceof SQLWhere ? $where : new SQLWhere($where),
-					$this->orderBy,
-					$this->select
-				);
-			}
-		}
-		if (DEVELOPMENT) {
-//			$index = Index::getInstance();
-//			$controllerCollection = ifsetor($index->controller->collection);
-//			if ($this == $controllerCollection) {
-//				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
-//			}
-		}
-		TaylorProfiler::stop($profiler);
-		return $query;
-	}
-
-	public function getQueryWithLimit()
-	{
-		$query = $this->getQuery();
-		if ($this->pager) {
-			// do it only once
-			if (!$this->pager->numberOfRecords) {
-				//debug($this->pager->getObjectInfo());
-				//			debug($query);
-				$this->pager->initByQuery($query);
-				//			debug($query, $this->query);
-				$this->count = $this->pager->numberOfRecords;
-			}
-			$query = $this->pager->getSQLLimit($query);
-			//debug($query.''); exit();
-		}
-		//debug($query);
-		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
-		return $query;
 	}
 
 	public function preprocessData()
@@ -511,6 +296,11 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this->data;    // return something else if you augment $this->data
 	}
 
+	/**
+	 * Override me to make changes
+	 * @param array $row
+	 * @return array
+	 */
 	public function preprocessRow(array $row)
 	{
 		return $row;
@@ -564,6 +354,72 @@ class Collection implements IteratorAggregate, ToStringable
 			//$this->count = sizeof($this->data);
 		}
 		return $this->data;
+	}
+
+	/**
+	 * -1 will prevent data retrieval
+	 * @param bool $preProcess
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 * @throws Exception
+	 */
+	public function retrieveData($preProcess = false)
+	{
+		$this->log(get_class($this) . '::' . __FUNCTION__, [
+			'allowMerge' => $this->allowMerge,
+			'preprocess' => $preProcess,
+		]);
+
+		$cq = $this->getCollectionQuery();
+
+		$data = $cq->retrieveData();
+
+		$this->log(__METHOD__, 'rows: ' . count($data));
+		$this->log(__METHOD__, 'idealize by ' . $this->idField);
+//		debug_pre_print_backtrace();
+//		debug(get_class($this->db), $isMySQL, $this->query, $data, $this->log);
+		$this->data = ArrayPlus::create($data);
+		//$this->log(__METHOD__, $this->data->pluck('id'));
+		$this->data->IDalize($this->idField, $this->allowMerge);
+		$this->log(__METHOD__, 'rows: ' . count($this->data));
+		if ($preProcess) {
+			$this->preprocessData();
+			$this->log(__METHOD__, 'rows: ' . count($this->data));
+		}
+	}
+
+	public function getQueryWithLimit()
+	{
+		$cq = $this->getCollectionQuery();
+		return $cq->getQueryWithLimit();
+	}
+
+	/**
+	 * Don't update $this->query otherwise getData() will think we have
+	 * retrieved nothing.
+	 * TODO: Create a new class called SQLCountQuery() and use it here to transform SQL to count(*)
+	 * Count can be a heavy operation, we should only query the count once.
+	 * But if the query changes, the count needs to be updated.
+	 * @return int
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function getCount()
+	{
+		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
+		if ($this->count !== null && $this->query === $this->getQueryWithLimit()) {
+			return $this->count;
+		}
+		$this->query = $this->getQueryWithLimit();     // will init pager
+		if ($this->pager) {
+			$this->count = $this->pager->numberOfRecords;
+		} else {
+			$cq = $this->getCollectionQuery();
+			$counter = new SQLCountQuery($cq);
+			$this->count = $counter->getCount();
+		}
+		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
+		return $this->count;
 	}
 
 	public function getProcessedData()
@@ -773,30 +629,6 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-	 * @param DBInterface $db
-	 * @param string $table
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return Collection
-	 * @throws Exception
-	 */
-	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = '')
-	{
-		$c = new self();
-		$c->db = $db;
-		$c->table = $table;
-		$c->where = $where;
-		$c->orderBy = $orderBy;
-		/** @var DBLayerBase $db */
-		//$db = Config::getInstance()->getDB();
-		$firstWord = SQLBuilder::getFirstWord($c->table);
-		$firstWord = $db->quoteKey($firstWord);
-		$c->select = ' ' . $firstWord . '.*';
-		assert($db === $c->db);
-		return $c;
-	}
-
-	/**
 	 * Will detect double-call and do nothing.
 	 *
 	 * @param string $class - required, but is supplied by the subclasses
@@ -885,53 +717,6 @@ class Collection implements IteratorAggregate, ToStringable
 		//debug($before, array_keys($c2->data), array_keys($this->data));
 	}
 
-	/**
-	 * Still buggy. This has to be much more simple.
-	 * @param Grid $grid
-	 * @return string
-	 */
-	/*	function getNextPrevBrowser(OODBase $model) {
-			$content = '';
-
-			//if ($this->data[$model->id]) { // current page contains current element
-
-			$ap = AP($this->data);
-			//debug($this->pager->currentPage, implode(', ', array_keys($this->data)));
-
-			$prev = $ap->getPrevKey($model->id);
-			if ($prev) {
-				$prev = $this->getNextPrevLink($this->data[$prev], '&#x25C4;');
-			} else if ($this->pager) {
-				$copy = clone $this;
-				$copy->pager->setCurrentPage($copy->pager->currentPage-1);
-				$copy->retrieveDataFromDB();
-				$copy->preprocessData();
-
-				$ap2 = AP($copy->data);
-				$prev2 = $ap2->getPrevKey($model->id);
-				$prev = $this->getNextPrevLink($copy->data[$prev2] ?: end($copy->data), '&#x25C4;');
-				//debug('prev', $copy->pager->currentPage, implode(', ', array_keys($copy->data)));
-			}
-
-			$next = $ap->getNextKey($model->id);
-			if ($next) {
-				$next = $this->getNextPrevLink($this->data[$next], '&#x25BA;');
-			} else if ($this->pager) {
-				$copy = clone $this;
-				$copy->pager->setCurrentPage($copy->pager->currentPage+1);
-				$copy->retrieveDataFromDB();
-				$copy->preprocessData();
-
-				$ap2 = AP($copy->data);
-				$next2 = $ap2->getNextKey($model->id);
-				$next = $this->getNextPrevLink($copy->data[$next2] ?: first($copy->data), '&#x25BA;');
-				//debug('next', $copy->pager->currentPage, implode(', ', array_keys($copy->data)));
-			}
-
-			$content = $prev.' '.$model->getName().' '.$next;
-			return $content;
-		}*/
-
 	public function getObjectInfo()
 	{
 		$list = [];
@@ -967,51 +752,6 @@ class Collection implements IteratorAggregate, ToStringable
 		$memberIterator = new LazyMemberIterator($arrayIterator, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
-	}
-
-	/**
-	 * Don't update $this->query otherwise getData() will think we have
-	 * retrieved nothing.
-	 * TODO: Create a new class called SQLCountQuery() and use it here to transform SQL to count(*)
-	 * @return int
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
-	 */
-	public function getCount()
-	{
-		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
-		if ($this->count === null) {
-			if ($this->pager) {
-				$this->query = $this->getQueryWithLimit();     // will init pager
-				$this->count = $this->pager->numberOfRecords;
-			} else {
-				$queryWithLimit = $this->getQueryWithLimit();
-//				debug(__METHOD__, $queryWithLimit.'');
-				if (contains($queryWithLimit, 'LIMIT')) {    // no pager - no limit
-					// we do not preProcessData()
-					// because it's irrelevant for the count
-					// but can make the processing too slow
-					// like in QueueEPES
-					$this->retrieveData(false);
-					// will set the count
-					// actually it doesn't
-					$this->count = sizeof($this->data);
-				} elseif ($queryWithLimit instanceof SQLSelectQuery) {
-					$this->count = $this->db->getCount($queryWithLimit);
-				} else {
-					// this is the same query as $this->retrieveData() !
-					$query = $this->getQuery();
-					//debug('performing', $query);
-					if (is_string($query)) {
-						xdebug_break();
-					}
-					$res = $query->perform();
-					$this->count = $this->db->numRows($res);
-				}
-			}
-		}
-		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
-		return $this->count;
 	}
 
 	public function clearInstances()
@@ -1158,6 +898,23 @@ class Collection implements IteratorAggregate, ToStringable
 	public function getLogger()
 	{
 		return $this->logger;
+	}
+
+	/**
+	 * @return CollectionQuery
+	 */
+	public function getCollectionQuery(): CollectionQuery
+	{
+		$cq = new CollectionQuery(
+			$this->db,
+			$this->table,
+			$this->join,
+			$this->where,
+			$this->orderBy,
+			$this->select,
+			$this->pager
+		);
+		return $cq;
 	}
 
 }
