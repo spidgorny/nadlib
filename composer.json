@@ -1,5 +1,7 @@
 {
 	"name": "spidgorny/nadlib",
+	"description": "Framework started as a collection of PHP classes before php-framework was a thing. Grown over the years a lot. You better use Laravel",
+	"license": "unlicence",
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5 || >=7"
