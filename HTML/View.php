@@ -106,7 +106,7 @@ class View extends stdClass {
 	{
 		ob_start();
 
-		extract($variables);
+		extract($variables, EXTR_OVERWRITE);
 
 		//debug($file);
 		/** @noinspection PhpIncludeInspection */
@@ -314,10 +314,15 @@ class View extends stdClass {
 		return $this->caller->$var;
 	}
 
-	/*	function __set($var, $val) {
-			$this->caller->$var = &$val;
-		}
-	*/
+	public function __set($var, $val)
+	{
+		$this->caller->$var = &$val;
+	}
+
+	public function __isset($name)
+	{
+		return $this->caller->$name;
+	}
 
 	/**
 	 * NAME        : autolink()
