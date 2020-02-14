@@ -2,7 +2,8 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class View extends stdClass {
+class View extends stdClass
+{
 
 	//use HTMLHelper;
 	//use ViewPHP7;
@@ -270,7 +271,7 @@ class View extends stdClass {
 			debug_pre_print_backtrace();
 		}
 //		return $this->render().'';
-		return get_class($this).'@'.spl_object_hash($this);
+		return get_class($this) . '@' . spl_object_hash($this);
 	}
 
 	/**
