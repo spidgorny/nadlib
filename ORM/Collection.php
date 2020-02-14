@@ -905,15 +905,18 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getCollectionQuery(): CollectionQuery
 	{
-		$cq = new CollectionQuery(
-			$this->db,
-			$this->table,
-			$this->join,
-			$this->where,
-			$this->orderBy,
-			$this->select,
-			$this->pager
-		);
+		static $cq;
+		if (!$cq) {
+			$cq = new CollectionQuery(
+				$this->db,
+				$this->table,
+				$this->join,
+				$this->where,
+				$this->orderBy,
+				$this->select,
+				$this->pager
+			);
+		}
 		return $cq;
 	}
 
