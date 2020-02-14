@@ -118,6 +118,30 @@ class Pager
 	}
 
 	/**
+	 * @param int $i
+	 */
+	public function setNumberOfRecords($i)
+	{
+		$this->log[] = __METHOD__ . '(' . $i . ')';
+		$this->numberOfRecords = $i;
+		if ($this->getStartingRecord() > $this->numberOfRecords) {    // required
+			$this->setCurrentPage($this->currentPage);
+		}
+	}
+
+	/**
+	 * Make sure to setNumberOfRecords first(!)
+	 * @param $page
+	 */
+	public function setCurrentPage($page)
+	{
+		$this->log[] = __METHOD__ . '(' . $page . ')';
+		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
+		$page = min($page, $this->getMaxPage());
+		$this->currentPage = max(0, $page);
+	}
+
+	/**
 	 * To be called only after setNumberOfRecords()
 	 */
 	public function detectCurrentPage()
@@ -229,30 +253,6 @@ class Pager
 		// validate the requested page is within the allowed range
 		$this->setCurrentPage($this->requestedPage);
 		TaylorProfiler::stop($key);
-	}
-
-	/**
-	 * @param int $i
-	 */
-	public function setNumberOfRecords($i)
-	{
-		$this->log[] = __METHOD__ . '(' . $i . ')';
-		$this->numberOfRecords = $i;
-		if ($this->getStartingRecord() > $this->numberOfRecords) {    // required
-			$this->setCurrentPage($this->currentPage);
-		}
-	}
-
-	/**
-	 * Make sure to setNumberOfRecords first(!)
-	 * @param $page
-	 */
-	public function setCurrentPage($page)
-	{
-		$this->log[] = __METHOD__ . '(' . $page . ')';
-		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
-		$page = min($page, $this->getMaxPage());
-		$this->currentPage = max(0, $page);
 	}
 
 	public function saveCurrentPage()

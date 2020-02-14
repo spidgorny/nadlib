@@ -317,9 +317,10 @@ class Menu /*extends Controller*/
 					//if (method_exists($o, 'getMenuSuffix')) {
 					$methods = get_class_methods($class);
 					//if ($class == 'AssignHardware') debug($class, $methods, in_array('getMenuSuffix', $methods));
-					if ($methods && in_array('getMenuSuffix', $methods)) {
+					if ($methods && in_array('getMenuSuffix', $methods, true)) {
 						$o = new $class();
-						$name .= call_user_func([$o, 'getMenuSuffix']);
+						$o->postInit();
+						$name .= $o->getMenuSuffix();
 					}
 				} catch (AccessDeniedException $e) {
 					unset($items[$class]);

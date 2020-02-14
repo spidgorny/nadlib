@@ -362,7 +362,7 @@ class Collection implements IteratorAggregate, ToStringable
 			return $this->count;
 		}
 		$this->query = $this->getQueryWithLimit();     // will init pager
-		if ($this->pager) {
+		if ($this->pager && $this->pager->numberOfRecords) {
 			$this->count = $this->pager->numberOfRecords;
 		} else {
 			$cq = $this->getCollectionQuery();
