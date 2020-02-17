@@ -905,9 +905,10 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getCollectionQuery(): CollectionQuery
 	{
-		static $cq;
-		if (!$cq) {
-			$cq = new CollectionQuery(
+		static $cq = [];
+		$hash = spl_object_hash($this);
+		if (!ifsetor($cq[$hash])) {
+			$cq[$hash] = new CollectionQuery(
 				$this->db,
 				$this->table,
 				$this->join,
@@ -917,7 +918,7 @@ class Collection implements IteratorAggregate, ToStringable
 				$this->pager
 			);
 		}
-		return $cq;
+		return $cq[$hash];
 	}
 
 }
