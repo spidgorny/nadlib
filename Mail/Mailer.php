@@ -75,7 +75,7 @@ class Mailer implements MailerInterface
 	public static function isHTML($bodyText)
 	{
 //		return strpos($bodyText, '<') !== FALSE;
-		return strlen($bodyText) && $bodyText[0] == '<';
+		return $bodyText !== '' && $bodyText[0] === '<';
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Mailer implements MailerInterface
 	{
 		// name <email@company.com>
 		$split = trimExplode('<', $mailFrom);
-		if (sizeof($split) == 2) {
+		if (count($split) === 2) {
 			$this->fromName = $split[0];
 			$this->from = str_replace('>', '', $split[1]);
 		}
@@ -98,6 +98,7 @@ class Mailer implements MailerInterface
 		if ($mailFromOnly) {
 			$this->params['-f'] = '-f' . $mailFromOnly;    // no space
 		}
+		return [$this->from => $this->fromName];
 	}
 
 	public function appendPlainText()
