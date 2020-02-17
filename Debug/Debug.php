@@ -427,18 +427,25 @@ class Debug
 
 	public static function peek($row)
 	{
+		$typeName = null;
 		if (is_object($row)) {
+			$typeName = get_class($row);
 			$row = get_object_vars($row);
 		}
-		if (!is_null($row)) {
-			$types = array_map(function ($a) {
+		if ($row !== null) {
+			$types = array_map(static function ($a) use ($typeName) {
 				$val = null;
 				if (is_scalar($a)) {
-					$val = $a;
+					$val = $a . '';
+				} elseif (is_array($a)) {
+					$val = self::peek($a);
+				} elseif (is_object($a)) {
+					$typeName = get_class($a);
+					$val = self::peek($a);
 				}
 				return [
-					'type' => trim(strip_tags(typ($a) . '')),
-					'value' => $val . ''
+					'type' => $typeName ?: trim(strip_tags(typ($a) . '')),
+					'value' => $val
 				];
 			}, $row);
 			return array_combine(array_keys($row), $types);
