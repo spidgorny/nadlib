@@ -94,7 +94,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	/**
 	 * jQuery style
 	 * @param $name
-	 * @param null $value
+	 * @param null|string|mixed $value
 	 * @return mixed
 	 */
 	public function attr($name, $value = null)
