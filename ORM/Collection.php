@@ -286,16 +286,15 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getData($preProcess = true)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '('.$preProcess.')');
-		$this->log(__METHOD__, $this->query . '');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(preProcess='.$preProcess.')');
+		$this->log(__METHOD__, 'query: '.$this->query . '');
 		$this->log(__METHOD__, [
 			'data' => $this->data
 				? count($this->data)
-				: '-'
-		]);
-		$this->log(__METHOD__, [
+				: '-',
 			'data->count' =>
-				$this->data === null ? 'NULL' : count($this->data)
+				$this->data === null ? 'NULL' : count($this->data),
+			'isFetched' => $this->isFetched(),
 		]);
 		if (!$this->isFetched()) {
 			$this->retrieveData();
@@ -357,8 +356,11 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getCount()
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
-		if ($this->count !== null && $this->query === $this->getQueryWithLimit()) {
+		$this->log(get_class($this) . '::' . __FUNCTION__, ['original', $this->count]);
+//		$this->log('this->query', $this->query.'');
+//		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
+		$queryIsTheSame = ($this->query.'') === ($this->getQueryWithLimit().'');
+		if ($this->count !== null && $queryIsTheSame) {
 			return $this->count;
 		}
 		$this->query = $this->getQueryWithLimit();     // will init pager
@@ -369,7 +371,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$counter = new SQLCountQuery($cq);
 			$this->count = $counter->getCount();
 		}
-		$this->log(get_class($this) . '::' . __FUNCTION__, $this->count);
+		$this->log(get_class($this) . '::' . __FUNCTION__, ['exit', $this->count]);
 		return $this->count;
 	}
 
