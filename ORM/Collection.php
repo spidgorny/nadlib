@@ -287,6 +287,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function getData($preProcess = true)
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '(preProcess='.$preProcess.')');
+		$this->log(__METHOD__, 'collection Where'. json_encode($this->where));
 		$this->log(__METHOD__, 'query: '.$this->query . '');
 		$this->log(__METHOD__, [
 			'data' => $this->data
@@ -325,9 +326,10 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->log(get_class($this) . '::' . __FUNCTION__, [
 			'allowMerge' => $this->allowMerge,
 		]);
-
+		$this->log(__METHOD__, 'collection Where' . json_encode($this->where));
 		$cq = $this->getCollectionQuery();
 		$data = $cq->retrieveData();
+		$this->log = array_merge($this->log, $cq->log);
 
 		$this->log(__METHOD__, 'rows: ' . count($data));
 		$this->log(__METHOD__, 'idealize by ' . $this->idField);
@@ -857,7 +859,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function containsName($name)
 	{
 		foreach ($this->getData() as $row) {
-			if ($row[$this->titleColumn] == $name) {
+			if ($row[$this->titleColumn] === $name) {
 				return true;
 			}
 		}
@@ -908,7 +910,15 @@ class Collection implements IteratorAggregate, ToStringable
 	public function getCollectionQuery(): CollectionQuery
 	{
 		static $cq = [];
-		$hash = spl_object_hash($this);
+		$hash = implode(':', [
+			spl_object_hash($this),
+			sha1(json_encode($this->join)),
+			sha1(json_encode($this->where)),
+			sha1(json_encode($this->orderBy)),
+			sha1(json_encode($this->select)),
+			sha1(json_encode($this->pager)),
+		]);
+		$this->log(__METHOD__, $hash . json_encode($this->where));
 		if (!ifsetor($cq[$hash])) {
 			$cq[$hash] = new CollectionQuery(
 				$this->db,

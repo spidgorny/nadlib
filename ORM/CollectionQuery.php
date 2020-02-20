@@ -127,7 +127,7 @@ class CollectionQuery
 	{
 		$taylorKey = get_class($this) . '::' . __FUNCTION__;
 		TaylorProfiler::start($taylorKey);
-		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
+//		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
 
 		$this->query = $this->getQueryWithLimit();
 		$this->log(__METHOD__, $this->query . '');
