@@ -512,7 +512,7 @@ class IndexBase /*extends Controller*/
 			return $this;
 		}
 		if ($this->loadJSfromGoogle) {
-			$jQueryPath = 'components/jquery/jquery.min.js';
+			$jQueryPath = 'node_modules/jquery/dist/jquery.min.js';
 			$this->footer['jquery.js'] = '
 			<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 			<script>window.jQuery || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>
@@ -549,7 +549,7 @@ class IndexBase /*extends Controller*/
 				$this->addJS($al->nadlibFromDocRoot . $jQueryPath, $defer);
 				return $this;
 			} else {
-				$jQueryPath = 'components/jquery/jquery.min.js';
+				$jQueryPath = 'node_modules/jquery/dist/jquery.min.js';
 			}
 			$this->addJS($jQueryPath, $defer);
 		}
@@ -559,7 +559,9 @@ class IndexBase /*extends Controller*/
 	public function addJQueryUI()
 	{
 		$this->addJQuery();
-		if (ifsetor($this->footer['jqueryui.js'])) return $this;
+		if (ifsetor($this->footer['jqueryui.js'])) {
+			return $this;
+		}
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
 		//debug($jQueryPath);
