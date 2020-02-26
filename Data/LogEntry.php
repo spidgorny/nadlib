@@ -35,13 +35,22 @@ class LogEntry
 		$floating = substr($this->time - floor($this->time), 2);    // cut 0 from 0.1
 		$floating = substr($floating, 0, 4);
 		$sData = $this->shorten($this->data);
+		$paddedAction = $this->action;
+		if (strlen($paddedAction) < 20) {
+			$paddedAction = str_pad($paddedAction, 20, ' ', STR_PAD_RIGHT);
+		}
 		return implode("\t", [
-				date('H:i:s', $this->time) . '.' . $floating,
-				$this->action,
-				$this->data ? $sData : null
-			]);
+			date('H:i:s', $this->time) . '.' . $floating,
+			$paddedAction,
+			$this->data ? $sData : null
+		]);
 	}
 
+	/**
+	 * Render function for multiple log entries
+	 * @param array $log
+	 * @return array
+	 */
 	public static function getLogFrom(array $log): array
 	{
 		return [
