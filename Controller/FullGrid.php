@@ -27,7 +27,7 @@ abstract class FullGrid extends Grid
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		parent::initFilter();
 
-		$allowEdit = $this->request->getControllerString() == get_class($this);
+		$allowEdit = $this->request->getControllerString() === get_class($this);
 //		debug($allowEdit);
 		if ($allowEdit) {
 			$this->saveFilterAndSort(get_class($this));
@@ -153,9 +153,7 @@ abstract class FullGrid extends Grid
 	 */
 	public function getFilterWhere()
 	{
-		return $this->filterController->getFilterWhere(
-			$this->getFilterDesc()
-		);
+		return $this->filterController->getFilterWhere();
 	}
 
 	public function sidebar()

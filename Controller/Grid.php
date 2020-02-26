@@ -1,6 +1,9 @@
 <?php
 
-abstract class Grid extends AppController {
+use nadlib\Controller\Filter;
+
+abstract class Grid extends AppController
+{
 
 	/**
 	 * @var Collection
@@ -13,7 +16,7 @@ abstract class Grid extends AppController {
 	public $model;
 
 	/**
-	 * @var \nadlib\Controller\Filter
+	 * @var Filter
 	 */
 	public $filter;
 
@@ -57,7 +60,7 @@ abstract class Grid extends AppController {
 		$this->pageSize = $this->pageSize
 			? $this->pageSize
 			: new PageSize($sizeFromPreferences);
-		$this->user->setSetting(get_class($this).'.pageSize', $this->pageSize->get());
+		$this->user->setSetting(get_class($this) . '.pageSize', $this->pageSize->get());
 	}
 
 	/**
@@ -81,10 +84,9 @@ abstract class Grid extends AppController {
 	 * Take from preferences and then append/overwrite from URL
 	 * How does it work when some params need to be cleared?
 	 *
-	 * @param null $subname
+	 * @param string $subname
 	 * @throws LoginException
 	 * @deprecated - use saveFilterColumnsSort() instead
-	 * @param null $subname
 	 */
 	public function mergeRequest($subname = null)
 	{
@@ -102,6 +104,46 @@ abstract class Grid extends AppController {
 		if ($subname) {
 			$this->request->set($subname, $r->getAll());
 		}
+	}
+
+	/**
+	 * Only get filter if it's not need to be cleared
+	 * @param string $cn
+	 * @throws LoginException
+	 */
+	public function setFilter($cn)
+	{
+		$this->filter = new Filter();
+		$action = $this->request->getTrim('action');
+		if ($action === 'clearFilter') {
+			$this->filter->clear();
+		} else {
+			$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
+			$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
+			if ($this->request->isSubmit() || $this->request->getArray('filter')) {
+				$this->filter->setRequest($this->request->getArray('filter'));
+			}
+			if (method_exists($this->user, 'getPref')) {
+				$prefFilter = $this->user->getPref('Filter.' . $cn);
+//				debug($prefFilter);
+				if ($prefFilter) {
+					$this->log(__METHOD__, 'setPreferences', $prefFilter);
+					$this->filter->setPreferences($prefFilter);
+				}
+			}
+//			d($cn, $this->filter,
+//				array_keys($_SESSION), gettypes($_SESSION),
+//				$_SESSION
+//			);
+			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		}
+		0 && debug([
+			'controller' => $this->request->getControllerString(),
+			'this' => get_class($this),
+			//'allowEdit' => $allowEdit,
+			'this->filter' => $this->filter,
+			'_REQUEST' => $_REQUEST,
+		]);
 	}
 
 	/**
@@ -221,41 +263,6 @@ abstract class Grid extends AppController {
 			}
 		}
 		return $where;
-	}
-
-	/**
-	 * Only get filter if it's not need to be cleared
-	 * @param string $cn
-	 * @throws LoginException
-	 */
-	public function setFilter($cn)
-	{
-		$this->filter = new \nadlib\Controller\Filter();
-		$action = $this->request->getTrim('action');
-		if ($action === 'clearFilter') {
-			$this->filter->clear();
-		} else {
-			$this->filter->setRequest($this->request->getArray('filter'));
-			if (method_exists($this->user, 'getPref')) {
-				$prefFilter = $this->user->getPref('Filter.' . $cn);
-//				debug($prefFilter);
-				if ($prefFilter) {
-					$this->filter->setPreferences($prefFilter);
-				}
-			}
-//			d($cn, $this->filter,
-//				array_keys($_SESSION), gettypes($_SESSION),
-//				$_SESSION
-//			);
-			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		}
-		0 && debug([
-			'controller' => $this->request->getControllerString(),
-			'this' => get_class($this),
-			//'allowEdit' => $allowEdit,
-			'this->filter' => $this->filter,
-			'_REQUEST' => $_REQUEST,
-		]);
 	}
 
 	/**
