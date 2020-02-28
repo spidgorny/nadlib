@@ -344,8 +344,7 @@ class HTMLForm implements ToStringable
 		$name, array $aOptions = null, $default,
 		$autoSubmit = false, array $more = [],
 		$multiple = false, array $desc = []
-	)
-	{
+	) {
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
@@ -971,14 +970,14 @@ document.observe("dom:loaded", () => {
 </div>';
 	}
 
-	public function inLabel($string)
+	public function inLabel($string, array $attrs = [])
 	{
-		$this->stdout .= '<label>' . $string;
+		$this->stdout .= '<label ' . HTMLTag::renderAttr($attrs) . '>' . $string;
 	}
 
 	public function endLabel()
 	{
-		$this->stdout .= '</label>';
+		$this->stdout .= '</label>' . PHP_EOL;
 	}
 
 	/**
@@ -990,7 +989,6 @@ document.observe("dom:loaded", () => {
 	 */
 	public function captcha($fieldName, $fieldValue, array $params)
 	{
-
 	}
 
 	/**
@@ -1005,12 +1003,10 @@ document.observe("dom:loaded", () => {
 	 */
 	public function datatable($fieldName, $fieldValue, $desc, $bool, $doDiv = true, $class = 'htmlftable')
 	{
-
 	}
 
 	public function ajaxSingleChoice($fieldName, $fieldValue, array $desc)
 	{
-
 	}
 
 	/**
@@ -1034,7 +1030,6 @@ document.observe("dom:loaded", () => {
 	 */
 	public function tree($fieldName, $tree, $fieldValue)
 	{
-
 	}
 
 	/**

@@ -7,18 +7,18 @@ class AppControllerBE extends AppController
 	 * -forceDL in CLI will re-download and extract data
 	 * @var bool
 	 */
-	var $forceCronjobDL = false;
+	public $forceCronjobDL = false;
 
 	/**
 	 * - force in CLI will force process data even if they were processed recently
 	 * @var bool
 	 */
-	var $forceCronjob = false;
+	public $forceCronjob = false;
 
 	/**
 	 * @var string
 	 */
-	var $nadlibFromDocRoot;
+	public $nadlibFromDocRoot;
 
 	/**
 	 * Protect from unauthorized access
