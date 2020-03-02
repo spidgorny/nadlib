@@ -55,11 +55,10 @@ abstract class Grid extends AppController
 
 	public function initPageSize()
 	{
-		// PAGE SIZE
 		$sizeFromPreferences = $this->user->getSetting(get_class($this) . '.pageSize');
+		$this->log(__METHOD__, 'sizeFromPreferences', $sizeFromPreferences);
 		$this->pageSize = $this->pageSize
-			? $this->pageSize
-			: new PageSize($sizeFromPreferences);
+			?: new PageSize($sizeFromPreferences);
 		$this->user->setSetting(get_class($this) . '.pageSize', $this->pageSize->get());
 	}
 
@@ -115,28 +114,24 @@ abstract class Grid extends AppController
 	{
 		$this->filter = new Filter();
 		$action = $this->request->getTrim('action');
-		if ($action === 'clearFilter') {
-			$this->filter->clear();
-		} else {
-			$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
-			$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
-			if ($this->request->isSubmit() || $this->request->getArray('filter')) {
-				$this->filter->setRequest($this->request->getArray('filter'));
-			}
-			if (method_exists($this->user, 'getPref')) {
-				$prefFilter = $this->user->getPref('Filter.' . $cn);
+		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
+		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
+		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
+			$this->filter->setRequest($this->request->getArray('filter'));
+		}
+		if (method_exists($this->user, 'getPref')) {
+			$prefFilter = $this->user->getPref('Filter.' . $cn);
 //				debug($prefFilter);
-				if ($prefFilter) {
-					$this->log(__METHOD__, 'setPreferences', $prefFilter);
-					$this->filter->setPreferences($prefFilter);
-				}
+			if ($prefFilter) {
+				$this->log(__METHOD__, 'setPreferences', $prefFilter);
+				$this->filter->setPreferences($prefFilter);
 			}
+		}
 //			d($cn, $this->filter,
 //				array_keys($_SESSION), gettypes($_SESSION),
 //				$_SESSION
 //			);
-			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		}
+		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
 		0 && debug([
 			'controller' => $this->request->getControllerString(),
 			'this' => get_class($this),
@@ -153,7 +148,7 @@ abstract class Grid extends AppController
 	 */
 	public function saveFilterAndSort($cn = null)
 	{
-//		debug(__METHOD__, $cn);
+		$this->log(__METHOD__, $cn);
 		// why do we inject collection
 		// before we have detected the filter (=where)?
 		if (!$this->collection) {
@@ -165,6 +160,7 @@ abstract class Grid extends AppController
 
 		if ($this->filter) {
 			if (method_exists($this->user, 'setPref')) {
+				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
 				$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
 			}
 		}

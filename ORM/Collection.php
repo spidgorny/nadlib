@@ -912,13 +912,15 @@ class Collection implements IteratorAggregate, ToStringable
 		static $cq = [];
 		$hash = implode(':', [
 			spl_object_hash($this),
+			spl_object_hash($this->db),
+			sha1(json_encode($this->table)),
 			sha1(json_encode($this->join)),
 			sha1(json_encode($this->where)),
 			sha1(json_encode($this->orderBy)),
 			sha1(json_encode($this->select)),
-			sha1(json_encode($this->pager)),
+			$this->pager ? spl_object_hash($this->pager) : '',
 		]);
-		$this->log(__METHOD__, $hash . json_encode($this->where));
+		$this->log(__METHOD__, substr(sha1($hash), 0, 6) . json_encode($this->where));
 		if (!ifsetor($cq[$hash])) {
 			$cq[$hash] = new CollectionQuery(
 				$this->db,
