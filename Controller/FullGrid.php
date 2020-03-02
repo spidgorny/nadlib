@@ -79,6 +79,7 @@ abstract class FullGrid extends Grid
 			$reCol = $re->getProperty('collection');
 			$doc = new DocCommentParser($reCol->getDocComment());
 			$collectionName = $doc->getFirstTagValue('var');
+			$collectionName = first(trimExplode('|', $collectionName));
 			$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
 			$collection = new $collectionName();
 		}
