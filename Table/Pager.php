@@ -130,6 +130,22 @@ class Pager
 	}
 
 	/**
+	 * @param int $items
+	 */
+	public function setItemsPerPage($items)
+	{
+		$this->log[] = __METHOD__ . '(' . $items . ')';
+		if (!$items) {
+			$items = $this->pageSize->get();
+		}
+		$this->itemsPerPage = $items;
+		if (ArrayPlus::create($this->log)->containsPartly('detectCurrentPage')) {
+			$this->log[] = __METHOD__.' WARNING: make sure to call detectCurrentPage again';
+		}
+		$this->pageSize->set($items);
+	}
+
+	/**
 	 * Make sure to setNumberOfRecords first(!)
 	 * @param $page
 	 */
@@ -263,21 +279,6 @@ class Pager
 			$this->user->setPref('Pager.' . $this->prefix, [
 				'page' => $this->currentPage
 			]);
-		}
-	}
-
-	/**
-	 * @param int $items
-	 */
-	public function setItemsPerPage($items)
-	{
-		$this->log[] = __METHOD__ . '(' . $items . ')';
-		if (!$items) {
-			$items = $this->pageSize->get();
-		}
-		$this->itemsPerPage = $items;
-		if (ArrayPlus::create($this->log)->containsPartly('detectCurrentPage')) {
-			$this->log[] = __METHOD__.' WARNING: make sure to call detectCurrentPage again';
 		}
 	}
 

@@ -75,6 +75,7 @@ class PageSize extends Controller
 	public function set($value)
 	{
 		$this->selected = $value;
+		$this->options[$this->selected] = $value;
 	}
 
 	/**
