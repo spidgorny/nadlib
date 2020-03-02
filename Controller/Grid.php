@@ -110,7 +110,7 @@ abstract class Grid extends AppController
 	 * @param string $cn
 	 * @throws LoginException
 	 */
-	public function setFilter($cn)
+	public function setFilter($cn = __CLASS__)
 	{
 		$this->filter = new Filter();
 		$action = $this->request->getTrim('action');
@@ -148,6 +148,9 @@ abstract class Grid extends AppController
 	 */
 	public function saveFilterAndSort($cn = null)
 	{
+		if (!$cn) {
+			$cn = get_class($this);
+		}
 		$this->log(__METHOD__, $cn);
 		// why do we inject collection
 		// before we have detected the filter (=where)?
