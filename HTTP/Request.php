@@ -601,17 +601,15 @@ class Request
 
 	public static function getLocationDebug()
 	{
-		$c = null;
 		$docRoot = self::getDocRoot();
 		ksort($_SERVER);
 		pre_print_r([
-			'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
 			'url' => self::getLocation() . '',
 			'server' => array_filter($_SERVER, function ($el) {
-				return strpos($el, '/') !== false;
+				return is_string($el) && strpos($el, '/') !== false;
 			}),
 		]);
 	}

@@ -367,7 +367,6 @@ abstract class OODBase
 	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
 		$taylorKey = Debug::getBackLog(15, 0, BR, false);
-		TaylorProfiler::start($taylorKey);
 		if (!$this->db) {
 			//debug($this->db, $this->db->fetchAssoc('SELECT database()'));
 			//debug($this);

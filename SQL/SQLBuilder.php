@@ -656,9 +656,9 @@ class SQLBuilder
 	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
-		llog($query.'', $query->getParameters(), get_class($this->db), $this->db->getConnection());
+//		llog($query.'', $query->getParameters(), get_class($this->db), $this->db->getConnection());
 		$res = $this->db->perform($query, $query->getParameters());
-		llog('$res', $res);
+//		llog('$res', $res);
 		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}
