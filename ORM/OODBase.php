@@ -883,7 +883,7 @@ abstract class OODBase
 
 	public function getID()
 	{
-		return $this->id;
+		return (int)$this->id;
 	}
 
 	public function getBool($value)

@@ -9,13 +9,15 @@ class JSONResponse
 
 	public $json = null;
 
-	public function __construct($json)
+	public function __construct($json, $httpCode = 200)
 	{
 		$this->json = $json;
+		$this->httpCode = $httpCode;
 	}
 
 	public function __toString()
 	{
+		http_response_code($this->httpCode);
 		Request::getInstance()->set('ajax', true);
 		$options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
 		if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
