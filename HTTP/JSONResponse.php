@@ -9,6 +9,8 @@ class JSONResponse
 
 	public $json = null;
 
+	public $httpCode;
+
 	public function __construct($json, $httpCode = 200)
 	{
 		$this->json = $json;
