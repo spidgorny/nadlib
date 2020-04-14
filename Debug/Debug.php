@@ -3,7 +3,7 @@
 class Debug
 {
 
-	var $index;
+	public $index;
 
 	/**
 	 * @var Debug
@@ -14,14 +14,14 @@ class Debug
 	 * no debug unless $_COOKIE['debug']
 	 * @var string
 	 */
-	var $renderer = 'HTML';
+	public $renderer = 'HTML';
 
 	/**
 	 * @var Request
 	 */
-	var $request;
+	protected $request;
 
-	var $name;
+	public $name;
 
 	/**
 	 * @param Index|IndexBE $index
@@ -57,7 +57,7 @@ class Debug
 		$this->request = Request::getInstance();
 	}
 
-	function detectRenderer()
+	public function detectRenderer()
 	{
 		return DebugCLI::canCLI()
 			? DebugCLI::class
@@ -78,7 +78,7 @@ class Debug
 			);
 	}
 
-	static function getInstance()
+	public static function getInstance()
 	{
 		if (!self::$instance) {
 			$index = class_exists('Index', false) ? Index::getInstance() : null;
@@ -104,7 +104,7 @@ class Debug
 		$dh->render($coming);
 	}
 
-	function getSimpleType($val)
+	public function getSimpleType($val)
 	{
 		if (is_array($val)) {
 			$val = 'array[' . sizeof($val) . ']';
@@ -164,7 +164,7 @@ class Debug
 	/**
 	 * @param mixed $params - any type
 	 */
-	function debugWithHTML($params)
+	public function debugWithHTML($params)
 	{
 		if (!class_exists('DebugHTML')) {
 			debug_pre_print_backtrace();
@@ -179,7 +179,7 @@ class Debug
 		}
 	}
 
-	static function getSimpleTrace($db = null)
+	public static function getSimpleTrace($db = null)
 	{
 		$db = $db ? $db : debug_backtrace();
 		foreach ($db as &$row) {
@@ -195,7 +195,7 @@ class Debug
 	 * @param array $db
 	 * @return string
 	 */
-	static function getTraceTable(array $db)
+	public static function getTraceTable(array $db)
 	{
 		$db = self::getSimpleTrace($db);
 		require_once __DIR__ . '/../Data/ArrayPlus.php';
@@ -221,7 +221,7 @@ class Debug
 	 * @param array $db
 	 * @return string
 	 */
-	static function getTraceTable2(array $db)
+	public static function getTraceTable2(array $db)
 	{
 		$db = self::getSimpleTrace($db);
 		$thes = [
@@ -320,7 +320,8 @@ class Debug
 		for ($i = 0; $i < $stepBack; $i++) {
 			$bt = next($btl);
 		}
-		return ifsetor($bt['class'], get_class(ifsetor($bt['object'])))
+		$object = ifsetor($bt['object']);
+		return ifsetor($bt['class'], is_object($object) ? get_class($object) : null)
 			. '::' . ifsetor($bt['function']);
 	}
 
