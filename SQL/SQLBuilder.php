@@ -583,11 +583,12 @@ class SQLBuilder
 		$prefix = $prefix ?: $table . '.';
 		$query = $this->getSelectQuery($table, $where, $order,
 			'DISTINCT   ' . $prefix . $this->quoteKey($titleField) . ' AS title, ' .
-			$prefix . $this->quoteKey($idField) . ' AS id_field');
+			$prefix . $this->quoteKey($idField) . ' AS id_field' .
+			// for SELECT DISTINCT, ORDER BY expressions must appear in select list
+			($order ? ', ' . $this->getFirstWord(str_replace('ORDER BY', '', $order)) : ''));
 
 		// $prefix.'*, is not selected as DISTINCT will not work
 
-		//debug('Query', $query.''); exit();
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);

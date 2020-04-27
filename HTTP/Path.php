@@ -467,4 +467,9 @@ class Path
 		return $this;
 	}
 
+	public function getFileName()
+	{
+		return last($this->aPath);
+	}
+
 }

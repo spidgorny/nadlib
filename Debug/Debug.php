@@ -323,7 +323,7 @@ class Debug
 			$file = str_replace('.php', '', $file);
 			$nextFunc = ifsetor($debug[$i + 1]['function']);
 			$line = ifsetor($debugLine['line']);
-			$content[] = $file . '::' . $nextFunc . '#' . $line . ':' .
+			$content[] = $file . '::' . $nextFunc . '#' . $line . ' ' .
 				$object . '->' . $debugLine['function'];
 			if (!--$limit) {
 				break;

@@ -25,17 +25,16 @@ if (!function_exists('parseFloat')) {
 	 * isset($variable) ? $variable : $default
 	 * BUT, it creates a NULL elements with the multidimensional arrays!!!
 	 * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
-	 * @param      $variable
+	 * @param mixed $variable
 	 * @param null $default
-	 * @return null
+	 * @return mixed
 	 * @see https://wiki.php.net/rfc/ifsetor
 	 */
 	function ifsetor(&$variable, $default = null)
 	{
+		$tmp = $default;
 		if (isset($variable)) {
 			$tmp = $variable;
-		} else {
-			$tmp = $default;
 		}
 		return $tmp;
 	}
