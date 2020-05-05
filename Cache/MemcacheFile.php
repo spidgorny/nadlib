@@ -26,12 +26,12 @@ class MemcacheFile implements MemcacheInterface
 	 * @param string $key
 	 * @param int $expire
 	 */
-	public function __construct($key = null, $expire = 0)
+	public function __construct($folder = null, $expire = 0)
 	{
 		if (MemcacheArray::$debug) {
 			echo __METHOD__ . '(' . $key . ')' . BR;
 		}
-		$this->folder = self::$defaultFolder;
+		$this->folder = $folder ?: self::$defaultFolder;
 		if (!Path::isItAbsolute($this->folder)) {
 			// if relative, add current app
 			$appRoot = AutoLoad::getInstance()->getAppRoot();
@@ -44,6 +44,8 @@ class MemcacheFile implements MemcacheInterface
 		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
 			debug([
 				'unable to access cache folder',
+				'this->folder' => $this->folder,
+				'isAbsolute' => Path::isItAbsolute($this->folder),
 				'method' => __METHOD__,
 				'sub' => $sub,
 				'folder' => $this->folder,

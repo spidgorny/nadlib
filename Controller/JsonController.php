@@ -66,13 +66,13 @@ trait JsonController
             'request' => $_REQUEST,
             'headers' => getallheaders(),
 			'timestamp' => date('Y-m-d H:i:s'),
-			'duration' => microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
         ] + $extraData);
     }
 
     public function json($key)
     {
         header('Content-Type: application/json');
+        $key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
 		error_log($response);
 		return $response;
