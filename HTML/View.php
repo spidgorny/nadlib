@@ -2,7 +2,8 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class View extends stdClass {
+class View extends stdClass
+{
 
 	//use HTMLHelper;
 	//use ViewPHP7;
@@ -106,7 +107,7 @@ class View extends stdClass {
 	{
 		ob_start();
 
-		extract($variables);
+		extract($variables, EXTR_OVERWRITE);
 
 		//debug($file);
 		/** @noinspection PhpIncludeInspection */
@@ -174,18 +175,18 @@ class View extends stdClass {
 		$lines2 = [];
 		$lines = trimExplode("\n", '' . $text);
 		foreach ($lines as $line) {
-			if ($line{0} == '*' || $line{0} == '-') {
+			if ($line[0] === '*' || $line[0] === '-') {
 				if (!$inUL) {
-					$lines2[] = "<ul>";
+					$lines2[] = '<ul>';
 					$inUL = true;
 				}
 			}
 			$lines2[] = $inUL
 				? '<li>' . substr($line, 2) . '</li>'
 				: $line;
-			if ($line{0} != '*' && $line{0} != '-') {
+			if ($line[0] !== '*' && $line[0] !== '-') {
 				if ($inUL) {
-					$lines2[] = "</ul>";
+					$lines2[] = '</ul>';
 					$inUL = false;
 				}
 			}
@@ -197,11 +198,11 @@ class View extends stdClass {
 		//debug($lines2, $text);
 		//$text = str_replace("\n* ", "\n<li> ", $text);
 		//$text = str_replace("\n- ", "\n<li> ", $text);
-		$text = str_replace("\n<ul>\n", "<ul>", $text);
-		$text = str_replace("</ul>\n", "</ul>", $text);
+		$text = str_replace("\n<ul>\n", '<ul>', $text);
+		$text = str_replace("</ul>\n", '</ul>', $text);
 		$text = str_replace("\n\n", "</p>\n<p>", $text);
-		$text = str_replace("<p></p>", "", $text);
-		$text = str_replace("<p></p>", "", $text);
+		$text = str_replace('<p></p>', '', $text);
+		$text = str_replace('<p></p>', '', $text);
 		if ($linkCallback) {
 			$text = preg_replace_callback('/\[\[(.*?)\]\]/', $linkCallback, $text);
 		}
@@ -270,7 +271,7 @@ class View extends stdClass {
 			debug_pre_print_backtrace();
 		}
 //		return $this->render().'';
-		return '';
+		return get_class($this) . '@' . spl_object_hash($this);
 	}
 
 	/**
@@ -314,10 +315,15 @@ class View extends stdClass {
 		return $this->caller->$var;
 	}
 
-	/*	function __set($var, $val) {
-			$this->caller->$var = &$val;
-		}
-	*/
+	public function __set($var, $val)
+	{
+		$this->caller->$var = &$val;
+	}
+
+	public function __isset($name)
+	{
+		return $this->caller->$name;
+	}
 
 	/**
 	 * NAME        : autolink()

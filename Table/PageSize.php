@@ -10,7 +10,17 @@ class PageSize extends Controller
 	 * @var array
 	 */
 	public $options = [
-		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
+		10 => 10,
+		15 => 15,
+		20 => 20,
+		30 => 30,
+		40 => 40,
+		50 => 50,
+		60 => 60,
+		100 => 100,
+		200 => 200,
+		500 => 500,
+		1000 => 1000,
 	];
 
 	protected $selected;
@@ -31,13 +41,18 @@ class PageSize extends Controller
 	public function __construct($selected = null)
 	{
 		parent::__construct();
+		// priority on Request
 		$this->selected = $this->request->is_set('pageSize')
 			? $this->request->getInt('pageSize') : null;
 
+		// otherwise $selected from the settings
 		if (!$this->selected) {
 			$this->selected = $selected;
+			$this->options[$this->selected] = $selected;
 			$this->log[] = 'Constructor: '.$this->selected;
 		}
+
+		// in the worst case - default
 		if (!$this->selected) {
 			$this->selected = self::$default;
 			$this->log[] = 'Default: '.$this->selected;
@@ -60,6 +75,7 @@ class PageSize extends Controller
 	public function set($value)
 	{
 		$this->selected = $value;
+		$this->options[$this->selected] = $value;
 	}
 
 	/**

@@ -317,9 +317,10 @@ class Menu /*extends Controller*/
 					//if (method_exists($o, 'getMenuSuffix')) {
 					$methods = get_class_methods($class);
 					//if ($class == 'AssignHardware') debug($class, $methods, in_array('getMenuSuffix', $methods));
-					if ($methods && in_array('getMenuSuffix', $methods)) {
+					if ($methods && in_array('getMenuSuffix', $methods, true)) {
 						$o = new $class();
-						$name .= call_user_func([$o, 'getMenuSuffix']);
+						$o->postInit();
+						$name .= $o->getMenuSuffix();
 					}
 				} catch (AccessDeniedException $e) {
 					unset($items[$class]);
@@ -427,10 +428,10 @@ class Menu /*extends Controller*/
 	{
 		$ret = false;
 		$combined = null;
-		if ($class{0} == '?') {    // hack begins
+		if ($class[0] === '?') {    // hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);
-			if (end($parts) == $class) {
+			if (end($parts) === $class) {
 				$ret = true;
 			} else {
 				$ret = null;
@@ -452,7 +453,7 @@ class Menu /*extends Controller*/
 		//if ($this->level === 0) {
 		nodebug([
 			'class' => $class,
-			'class{0}' => $class{0},
+			'class[0]' => $class[0],
 			'subMenu' => $subMenu,
 			'combined' => $combined,
 			'current' => $this->current,

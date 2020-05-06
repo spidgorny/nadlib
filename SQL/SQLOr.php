@@ -40,7 +40,7 @@ class SQLOr extends SQLWherePart
 			llog($bt);
 			$e = new RuntimeException('SQLOr does not have $db set');
 			trigger_error($e, E_USER_ERROR);
-			return '';
+//			throw $e;	// unable to throw, return without quoteWhere()
 		} elseif (false && $this->db instanceof DBLayerPG) {
 			$ors[] = $this->bijouStyle();
 		} elseif (false && $this->db instanceof DBLayer) {

@@ -13,7 +13,8 @@ class Exception404 extends Exception
 	function sendHeader()
 	{
 		if (!headers_sent()) {
-			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+//			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+			http_response_code(404);
 		}
 	}
 

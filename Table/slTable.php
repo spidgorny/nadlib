@@ -91,9 +91,9 @@ class slTable implements ToStringable
 	public $isOddEven = true;
 
 	/**
-	 * @var string <tr $thesMore>
+	 * @var array <tr $thesMore>
 	 */
-	public $thesMore;
+	public $thesMore = [];
 
 	/**
 	 * @var string before <tbody>
@@ -152,7 +152,7 @@ class slTable implements ToStringable
 	}
 
 	/**
-	 * @param array  $aThes
+	 * @param array $aThes
 	 * @param string $thesMore
 	 */
 	public function thes(array $aThes, $thesMore = null)
@@ -259,7 +259,7 @@ class slTable implements ToStringable
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
 			if (sizeof($this->thes)) {
-				$firstElementFromThes = current(array_values( $this->thes ));
+				$firstElementFromThes = current(array_values($this->thes));
 				if (is_array($firstElementFromThes)) {
 					$firstElementFromThes = current(array_values($firstElementFromThes));
 				}
@@ -274,7 +274,7 @@ class slTable implements ToStringable
 	 * Useful only when the complete result set is visible on a single page.
 	 * Otherwise you're sorting just a portion of the data.
 	 *
-	 * @param string  $by - can be array (for easy explode(' ', 'field DESC') processing
+	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
 	 * @param boolean $or
 	 */
 	public function setSortBy($by = null, $or = null)
@@ -332,7 +332,7 @@ class slTable implements ToStringable
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
 					if (!strlen($i)
-						|| (strlen($i) && $i{strlen($i) - 1} != '.')
+						|| (strlen($i) && $i[strlen($i) - 1] !== '.')
 					) {
 						$th = ['name' => $th];
 					} else {
@@ -382,52 +382,59 @@ class slTable implements ToStringable
 
 		$thes2 = [];
 		$thMore = [];
-		if (is_array($thes)) foreach ($thes as $thk => $thv) {
-			if (!is_array($thv)) {
-				$thv = ['name' => $thv];
-			}
-			$thvName = isset($thv['name'])
-				? $thv['name']
-				: (isset($thv['label']) ? $thv['label'] : null);
-			$thMore[$thk] = isset($thv['thmore'])
-				? $thv['thmore']
-				: (isset($thv['more']) ? $thv['more'] : null);
-			$this->thesMore[$thk] = ifsetor($thv['thmore']);
-			if (!is_array($thMore)) {
-				$thMore = ['' => $thMore];
-			}
-			if (isset($thv['align']) && $thv['align']) {
-				$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
-					. '; text-align: ' . $thv['align'];
-			}
-			if ($this->sortable) {
-				if (
-					((isset($thv['dbField'])
-							&& $thv['dbField']
-						) || !isset($thv['dbField']))
-					&& ifsetor($thv['sortable']) !== false
-				) {
-					$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
-					$sortOrder = $this->sortBy == $sortField
-						? !$this->sortOrder
-						: $this->sortOrder;
-					$link = $this->sortLinkPrefix->forceParams([
-						$this->prefix => [
-							'sortBy'    => $sortField,
-							'sortOrder' => $sortOrder,
-						],
-					]);
-					$thes2[$thk] = '<a href="' . $link . '">' . $thvName . '</a>';
+		if (is_array($thes)) {
+			foreach ($thes as $thk => $thv) {
+				if (!is_array($thv)) {
+					$thv = ['name' => $thv];
+				}
+				$thvName = isset($thv['name'])
+					? $thv['name']
+					: (isset($thv['label']) ? $thv['label'] : null);
+				$thMore[$thk] = isset($thv['thmore'])
+					? $thv['thmore']
+					: (isset($thv['more']) ? $thv['more'] : null);
+
+
+				// gives <tr with properties from column keys>
+				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
+
+
+				if (!is_array($thMore)) {
+					$thMore = ['' => $thMore];
+				}
+				if (isset($thv['align']) && $thv['align']) {
+					$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
+						. '; text-align: ' . $thv['align'];
+				}
+				if ($this->sortable) {
+					if (
+						((isset($thv['dbField'])
+								&& $thv['dbField']
+							) || !isset($thv['dbField']))
+						&& ifsetor($thv['sortable']) !== false
+					) {
+						$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
+						$sortOrder = $this->sortBy == $sortField
+							? !$this->sortOrder
+							: $this->sortOrder;
+						$link = $this->sortLinkPrefix->forceParams([
+							$this->prefix => [
+								'sortBy' => $sortField,
+								'sortOrder' => $sortOrder,
+							],
+						]);
+						$thes2[$thk] = '<a href="' . $link . '">' . $thvName . '</a>';
+					} else {
+						$thes2[$thk] = $thvName;
+					}
 				} else {
+					if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
+						$link = URL::getCurrent();
+						$link->setParam($thv['clickSort'], $thk);
+						$thvName = '<a href="' . $link . '">' . $thvName . '</a>';
+					}
 					$thes2[$thk] = $thvName;
 				}
-			} else {
-				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
-					$link = URL::getCurrent();
-					$link->setParam($thv['clickSort'], $thk);
-					$thvName = '<a href="' . $link . '">' . $thvName . '</a>';
-				}
-				$thes2[$thk] = $thvName;
 			}
 		}
 
@@ -456,7 +463,7 @@ class slTable implements ToStringable
 			$key = strip_tags($key);    // <col class="col_E-manual<img src="design/manual.gif">" />
 			$key = URL::getSlug($key);    // special cars and spaces
 			if ($this->isAlternatingColumns) {
-				$key .= ' ' . (++$i % 2 ? 'even' : 'odd');
+				$key .= ' ' . ((++$i % 2) ? 'even' : 'odd');
 			}
 			if (is_array($dummy)) {
 				$colClass = ifsetor($dummy['colClass']);
@@ -482,9 +489,9 @@ class slTable implements ToStringable
 			$this->sort();
 
 			$t = $this->generation;
-			$t->table(HTMLTag::renderAttr([
+			$t->table([
 					'id' => $this->ID,
-				] + HTMLTag::parseAttributes($this->more)));
+				] + HTMLTag::parseAttributes($this->more));
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -501,26 +508,20 @@ class slTable implements ToStringable
 					throw new Exception('slTable row is not an array');
 				}
 				++$i;
-				$class = [];
-				if (is_array($row) && isset($row['###TD_CLASS###'])) {
-					$class[] = $row['###TD_CLASS###'];
-				} else {
-					// only when not manually defined
-					if ($this->isOddEven) {
-						$class[] = $i % 2 ? 'odd' : 'even';
-					}
-				}
-				if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
-					$class[] = $this->dataClass[$key];
-				}
-				$tr = 'class="' . implode(' ', $class) . '"';
+				$class = $this->getRowClass($row, $i, $key);
+				$trMore = [
+					'class' => implode(' ', $class),
+				];
 				if (is_array($row) && isset($row['###TR_MORE###'])) {
-					$tr .= ' ' . $row['###TR_MORE###']; // used in class.Loan.php	// don't use for "class"
+					$trMore += HTMLTag::parseAttributes($row['###TR_MORE###']); // used in class.Loan.php	// don't use for "class"
 				}
 				$rowID = (is_array($row) && isset($row['id']))
 					? $row['id']
 					: '';
-				$t->tr($tr . ' ' . str_replace('###ROW_ID###', $rowID, $this->trmore));
+				// TODO: degradation(!)
+//				$trMore = str_replace('###ROW_ID###', $rowID, $this->trmore);
+
+				$t->tr($trMore);
 				//debug_pre_print_backtrace();
 				$this->genRow($t, $row);
 				$t->tre();
@@ -542,7 +543,9 @@ class slTable implements ToStringable
 			$this->generation->tfoot('<tfoot>');
 			$class = [];
 			$class[] = 'footer';
-			$tr = 'class="' . implode(' ', $class) . '"';
+			$tr = [
+				'class' => implode(' ', $class),
+			];
 			$this->generation->ftr($tr);
 			$this->generation->curPart = 'tfoot';
 			$this->genRow($this->generation, $this->footer);
@@ -569,8 +572,7 @@ class slTable implements ToStringable
 
 			if ($skipCols) {
 				$skipCols--;
-			} elseif (isset($k['!show']) && $k['!show']) {
-			} else {
+			} elseif (!ifsetor($k['!show'])) {
 				$val = isset($row[$col]) ? $row[$col] : null;
 				if ($val instanceof HTMLTag && in_array($val->tag, ['td', 'th'])) {
 					$t->tag($val);
@@ -606,16 +608,18 @@ class slTable implements ToStringable
 
 	/**
 	 * @param array $k
-	 * @param       $iCol
-	 * @param       $col
+	 * @param int $iCol
+	 * @param string $col
 	 * @param array $row
 	 * @return array
 	 */
 	public function getCellMore(array $k, $iCol, $col, array $row)
 	{
-		$more = [];
+		$more = [
+			'class' => [],
+		];
 		if ($this->isAlternatingColumns) {
-			$more['class'][] = ($iCol % 2 ? 'even' : 'odd');
+			$more['class'][] = (($iCol % 2) ? 'even' : 'odd');
 		}
 
 		if (isset($k['more'])) {
@@ -637,10 +641,11 @@ class slTable implements ToStringable
 			$more['width'] = $k['width'];
 		}
 		if (ifsetor($k['title'])) {
-			$more['title'] = $k['title'] == '###SELF###'
+			$more['title'] = $k['title'] === '###SELF###'
 				? $row[$col]
 				: $k['title'];
 		}
+		$more['class'][] = 'col_' . $col;
 		return $more;
 	}
 
@@ -682,9 +687,14 @@ class slTable implements ToStringable
 		}
 	}
 
+	/// https://stackoverflow.com/questions/21104373/tostring-must-not-throw-an-exception-error-when-using-string/26006176
 	public function __toString()
 	{
-		return $this->getContent();
+		try {
+			return $this->getContent();
+		} catch (Exception $e) {
+			return get_class($this).'@'.spl_object_hash($this);
+		}
 	}
 
 	/**
@@ -780,12 +790,12 @@ class slTable implements ToStringable
 
 			$val = [
 				//0 => $key instanceof htmlString ? $key : htmlspecialchars($key),
-				0  => htmlspecialchars($key),
+				0 => htmlspecialchars($key),
 				'' => $val,
 			];
 		}
 		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
-			0  => '',
+			0 => '',
 			'' => ['no_hsc' => $no_hsc],
 		]);
 		return $s;
@@ -873,6 +883,30 @@ class slTable implements ToStringable
 				unset($this->thes[$th]);
 			}
 		}
+	}
+
+	/**
+	 * @param array $row
+	 * @param int $i
+	 * @param $key
+	 * @return array
+	 */
+	public function getRowClass(array $row, int $i, $key): array
+	{
+		$class = [];
+		if (is_array($row) && isset($row['###TD_CLASS###'])) {
+			$class[] = $row['###TD_CLASS###'];
+		} else {
+			// only when not manually defined
+			if ($this->isOddEven) {
+				$class[] = ($i % 2) ? 'odd' : 'even';
+			}
+		}
+		if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
+			$class[] = $this->dataClass[$key];
+		}
+		$class[] = 'id_' . $key;
+		return $class;
 	}
 
 }

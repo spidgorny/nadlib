@@ -2,11 +2,11 @@
 
 namespace spidgorny\nadlib\HTTP;
 
+use AutoLoad;
 use LogEntry;
 use nadlib\Proxy;
-use Request;
 use Path;
-use AutoLoad;
+use Request;
 use URLGet;
 
 class URL
@@ -83,7 +83,7 @@ class URL
 			if ($host) {
 				$url = $http . '://' . $host . ifsetor($_SERVER['REQUEST_URI'], '/');
 			} else {
-				$url = $http . '://localhost/';
+				$url = $http . '://' . (gethostname() ?: 'localhost') . '/';
 			}
 			$this->parseURL($url);
 		} else {
@@ -372,7 +372,7 @@ class URL
 //				&& $this->components['path'] != '/') {
 //				$url .= $this->components['path'];
 //			}
-			$url .= $this->path.'';
+			$url .= $this->path . '';
 			if (ifsetor($this->components['query'])) {
 				$url .= '?' . $this->components['query'];
 			}
@@ -1014,12 +1014,12 @@ class URL
 			$diff = str_replace($this->documentRoot, '', $path);
 		}
 		debug([
-			'original' => $path.'',
+			'original' => $path . '',
 			'docroot' => $this->documentRoot,
 			'diff' => $diff,
 			'replace-by' => $newController,
 		]);
-		$path = str_replace($diff, '/'.$newController, $path);
+		$path = str_replace($diff, '/' . $newController, $path);
 		$this->setPath($path);
 		return $this;
 	}

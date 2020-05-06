@@ -144,6 +144,16 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
+	public function remapColumns(array $keys)
+	{
+		$data = $this->getData();
+		foreach ($data as &$row) {
+			$row = array_combine($keys, $row);
+		}
+		$this->setData($data);
+		return $this;
+	}
+
 	/**
 	 * Modifies itself
 	 * @param string $key
@@ -990,6 +1000,16 @@ class ArrayPlus extends ArrayObject implements Countable
 	public function contains($string)
 	{
 		return in_array($string, $this->getData());
+	}
+
+	public function containsPartly($string)
+	{
+		foreach ($this as $element) {
+			if (str_contains($element, $string)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function convertTo($className)

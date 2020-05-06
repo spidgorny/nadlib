@@ -38,24 +38,24 @@ class ProgressBar {
 	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
 	 * @var int
 	 */
-	var $count = 0;
+	public $count = 0;
 
 	/**
 	 * Force getCss() to NOT load from Index if Index exists
 	 * @var bool
 	 */
-	var $useIndexCss = true;
+	public $useIndexCss = true;
 
-	var $cssFile = 'ProgressBarSimple.css';
+	public $cssFile = 'ProgressBarSimple.css';
 
 	/**
 	 * @ param #2 $color = '#43b6df'
-	 * @param int $percentDone
+	 * @param float $percentDone
 	 * @param int $count
 	 */
-	function __construct($percentDone = 0, $count = 0)
+	public function __construct($percentDone = 0.0, $count = 0)
 	{
-		$this->setID('pb-' . uniqid());
+		$this->setID('pb-' . uniqid('pb', true));
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
@@ -76,7 +76,7 @@ class ProgressBar {
 		$this->textid = 'pb_text-' . $pbid;
 	}
 
-	function render()
+	public function render()
 	{
 		if (!$this->cli) {
 			ini_set('output_buffering', 0); // php_value output_buffering 0

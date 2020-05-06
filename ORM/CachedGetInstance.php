@@ -9,7 +9,7 @@ trait CachedGetInstance
 	public static $instances = [];
 
 	/**
-	 * @param $id
+	 * @param int $id
 	 * @return self|$this|static
 	 * @throws Exception
 	 */

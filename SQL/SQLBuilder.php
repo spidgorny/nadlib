@@ -45,6 +45,8 @@ class SQLBuilder
 	 */
 	public $config;
 
+	public $logToLog = false;
+
 	public function __construct(DBInterface $db)
 	{
 		if (class_exists('Config')) {
@@ -165,7 +167,7 @@ class SQLBuilder
 	{
 		$set = [];
 		foreach ($where as $key => $val) {
-			if (!strlen($key) || (strlen($key) && $key{strlen($key) - 1} != '.')) {
+			if (!strlen($key) || (strlen($key) && $key[strlen($key) - 1] !== '.')) {
 				$equal = new SQLWhereEqual($key, $val);
 				$equal->injectDB($this->db);
 				$set[] = $equal->__toString();
@@ -338,7 +340,7 @@ class SQLBuilder
 			$or = [];
 			foreach ($array as $langID) {
 				//2010/09/12: modified according to mantis request 0001812	- if/else condition for 4th argument added
-				if ($conditioner == 'ANY') {
+				if ($conditioner === 'ANY') {
 					$or[] = "'" . $langID . "' = ANY(string_to_array(" . $field . ", ','))"; // this line is the original one
 				} else {
 					$or[] = "'" . $langID . "' = " . $field . " ";
@@ -390,12 +392,13 @@ class SQLBuilder
 			$inserted = $this->found['id'];
 		} else {
 			$query = $this->getInsertQuery($table, $fields + $where + $insert);
-			// array('ctime' => NULL) #TODO: make it manually now
+			// array('ctime' => NULL) # TODO: make it manually now
 			$res = $this->perform($query);
 			$inserted = $this->db->lastInsertID($res, $table);
 		}
 		//debug($query);
 		$this->db->commit();
+		$this->lastQuery = $query;	// overwrite 'commit'
 		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
 	}
@@ -656,9 +659,13 @@ class SQLBuilder
 	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
-//		llog($query.'', $query->getParameters(), get_class($this->db), $this->db->getConnection());
+		if ($this->logToLog) {
+			llog($query.'', $query->getParameters(), get_class($this->db), $this->db->getConnection());
+		}
 		$res = $this->db->perform($query, $query->getParameters());
-//		llog('$res', $res);
+		if ($this->logToLog) {
+			llog('$res', $res);
+		}
 		$data = $this->db->fetchAssoc($res);
 		return $data;
 	}

@@ -31,6 +31,7 @@ class Time
 	 * Append GMT for Greenwich
 	 * @param string $input
 	 * @param null $relativeTo
+	 * @throws Exception
 	 */
 	public function __construct($input = null, $relativeTo = null)
 	{
@@ -354,7 +355,7 @@ class Time
 	{
 		TaylorProfiler::start(__METHOD__);
 		$noe = $this->format('H:i');
-		if ($noe{3} . $noe{4} != '00') {
+		if ($noe[3] . $noe[4] !== '00') {
 			//$noe = '<small>'.$noe.'</small>';
 			$noe = new HTMLTag('small', [], $noe);
 		}

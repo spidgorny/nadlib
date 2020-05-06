@@ -5,12 +5,12 @@ use nadlib\Controller\Filter;
 class FilterController extends Controller
 {
 
-	var $fields = [];
+	public $fields = [];
 
 	/**
 	 * @var Filter
 	 */
-	var $filter;
+	public $filter;
 
 	/**
 	 * @var OODBase - used to retrieve options for a specific db field
@@ -106,7 +106,7 @@ class FilterController extends Controller
 				'f' => $stv->SLTABLE_IMG_CROSS,
 			];
 			//debug($key, $this->filter[$key]);
-		} elseif (ifsetor($k['type']) == 'select') {
+		} elseif (ifsetor($k['type']) === 'select') {
 			if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
 				$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
 				// convert to string for === operation
@@ -117,7 +117,7 @@ class FilterController extends Controller
 				$options = $k['options'];
 			}
 			//debug($options);
-		} elseif (ifsetor($k['type']) == 'like') {
+		} elseif (ifsetor($k['type']) === 'like') {
 			// this is handled in getFilterWhere
 			$options = null;
 		} else {
@@ -140,7 +140,8 @@ class FilterController extends Controller
 	public function getTableFieldOptions($key, $count = false)
 	{
 		if ($this->model instanceof OODBase) {
-			$res = $this->db->getTableOptions($this->model->table
+			$res = $this->db->getTableOptions(
+				$this->model->table
 				? $this->model->table
 				: $this->collection->table,
 				$key, [], 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)

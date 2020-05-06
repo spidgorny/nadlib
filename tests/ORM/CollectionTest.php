@@ -6,10 +6,11 @@
  * Date: 02.02.2016
  * Time: 16:42
  */
-class CollectionTest extends PHPUnit\Framework\TestCase {
+class CollectionTest extends NadlibTestCase
+{
 
-	function test_lazyMemeberIterator() {
-
+	public function test_lazyMemeberIterator()
+	{
 		$this->markTestIncomplete(
 			'RequestCollection was not found.'
 		);
@@ -19,6 +20,24 @@ class CollectionTest extends PHPUnit\Framework\TestCase {
 		$iterator = $rc->getLazyMemberIterator('ORSRequest');
 		$current = $iterator->current();
 		debug($current);
+	}
+
+	/**
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 * @throws Exception
+	 */
+	public function test_immutability_with_count()
+	{
+		$db = new DBPlacebo();
+		$db->setQB(new SQLBuilder($db));
+		$c = new Collection(null, [], '', $db);
+		$query100 = $c->getQueryWithLimit();
+		$this->assertEqualsIngnoreSpaces('SELECT
+"Collection".*
+FROM "Collection"
+ WHERE
+ORDER BY id', $query100 . '');
 	}
 
 }

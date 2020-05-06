@@ -1,7 +1,5 @@
 <?php
 
-use nadlib\Controller\Filter;
-
 /**
  * Class FullGrid
  * handles sorting by columns, paging, filtering,
@@ -29,7 +27,7 @@ abstract class FullGrid extends Grid
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		parent::initFilter();
 
-		$allowEdit = $this->request->getControllerString() == get_class($this);
+		$allowEdit = $this->request->getControllerString() === get_class($this);
 //		debug($allowEdit);
 		if ($allowEdit) {
 			$this->saveFilterAndSort(get_class($this));
@@ -54,40 +52,43 @@ abstract class FullGrid extends Grid
 	public function postInit($collection = null)
 	{
 		if (!$this->collection) {
-			if (is_string($collection)) {
-				$this->log(__METHOD__ . ' new collection', $collection);
-				$this->collection = new $collection(null, [], $this->getOrderBy());
-				// after construct because we need to modify join
-				$this->collection->where = array_merge(
-					$this->collection->where,
-					$this->getFilterWhere()
-				);
+			$this->collection = $this->makeCollection($collection);
+			// after construct because we need to modify join
+			$this->collection->where = array_merge(
+				$this->collection->where,
+				$this->getFilterWhere()
+			);
 
-				//debug($this->collection->where);
-				//file_put_contents('tests/Fixture/SoftwareGridApostrophe.serial', serialize($this->collection->where));
-				//debug($this->collection->getQuery());
+			$this->log(__METHOD__, 'collection Where', $this->collection->where);
 
-				$this->collection->postInit();
-				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
-			} else {
-				if (!$collection) {
-					$re = new ReflectionClass($this);
-					$reCol = $re->getProperty('collection');
-					$doc = new DocCommentParser($reCol->getDocComment());
-					$collectionName = $doc->getFirstTagValue('var');
-					$collection = new $collectionName();
-				}
-				$this->collection = $collection;
-			}
+			$this->collection->postInit();
+			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
 		}
 		// after collection is made, to run getGridColumns
-		$allowEdit = $this->request->getControllerString() == get_class($this);
-		$this->setColumns(get_class($this->collection), $allowEdit);
+		$allowEdit = $this->request->getControllerString() === get_class($this);
+		$this->setColumns(get_class($this), $allowEdit);
+	}
+
+	public function makeCollection($collectionName)
+	{
+		if (is_string($collectionName)) {
+			$this->log(__METHOD__ . ' new collection', $collectionName);
+			$collection = new $collectionName(null, [], $this->getOrderBy());
+		} else {
+			$re = new ReflectionClass($this);
+			$reCol = $re->getProperty('collection');
+			$doc = new DocCommentParser($reCol->getDocComment());
+			$collectionName = $doc->getFirstTagValue('var');
+			$collectionName = first(trimExplode('|', $collectionName));
+			$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
+			$collection = new $collectionName();
+		}
+		return $collection;
 	}
 
 	/**
 	 * Can't use $this->collection at this point as this function is used to initialize the collection!
-	 * @return string
+	 * @return string|null
 	 */
 	public function getOrderBy()
 	{
@@ -109,7 +110,7 @@ abstract class FullGrid extends Grid
 				$sortBy = $desc['source'];
 			}
 			if (ifsetor($desc['sortable']) === false) {
-				$sortBy = NULL;
+				$sortBy = null;
 			}
 		}
 		if (!$sortBy) {
@@ -153,9 +154,7 @@ abstract class FullGrid extends Grid
 	 */
 	public function getFilterWhere()
 	{
-		return $this->filterController->getFilterWhere(
-			$this->getFilterDesc()
-		);
+		return $this->filterController->getFilterWhere();
 	}
 
 	public function sidebar()
@@ -188,8 +187,8 @@ abstract class FullGrid extends Grid
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
-	 * @throws Exception
 	 * @return array
+	 * @throws Exception
 	 */
 	public function getFilterDesc(array $fields = null)
 	{

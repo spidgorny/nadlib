@@ -74,7 +74,7 @@ class Filter extends ArrayObject
 		} elseif (isset($this->_default[$index])) {
 			return $this->_default[$index];
 		}
-		return NULL;
+		return null;
 	}
 
 	public function offsetExists($index)
@@ -114,12 +114,12 @@ class Filter extends ArrayObject
 		];
 	}
 
-	function __debugInfo()
+	public function __debugInfo()
 	{
 		return $this->getDebug();
 	}
 
-	function ensure($field, array $allowedOptions, $default = NULL)
+	public function ensure($field, array $allowedOptions, $default = null)
 	{
 		$value = $this[$field];
 		if ($value) {

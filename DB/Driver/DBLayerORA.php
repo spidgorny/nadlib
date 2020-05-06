@@ -18,7 +18,7 @@ class DBLayerORA extends DBLayer implements DBInterface
 		$this->connect($tns, '', $pass);
 	}
 
-	function connect($tns, $user, $pass, $host = 'localhost')
+	function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
 	{
 		$this->connection = ora_logon($tns, $pass);
 		ora_commiton($this->connection);

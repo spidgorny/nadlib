@@ -1,6 +1,9 @@
 <?php
 
-abstract class Grid extends AppController {
+use nadlib\Controller\Filter;
+
+abstract class Grid extends AppController
+{
 
 	/**
 	 * @var Collection
@@ -13,7 +16,7 @@ abstract class Grid extends AppController {
 	public $model;
 
 	/**
-	 * @var \nadlib\Controller\Filter
+	 * @var Filter
 	 */
 	public $filter;
 
@@ -52,12 +55,11 @@ abstract class Grid extends AppController {
 
 	public function initPageSize()
 	{
-		// PAGE SIZE
 		$sizeFromPreferences = $this->user->getSetting(get_class($this) . '.pageSize');
+		$this->log(__METHOD__, 'sizeFromPreferences', $sizeFromPreferences);
 		$this->pageSize = $this->pageSize
-			? $this->pageSize
-			: new PageSize($sizeFromPreferences);
-		$this->user->setSetting(get_class($this).'.pageSize', $this->pageSize->get());
+			?: new PageSize($sizeFromPreferences);
+		$this->user->setSetting(get_class($this) . '.pageSize', $this->pageSize->get());
 	}
 
 	/**
@@ -81,12 +83,11 @@ abstract class Grid extends AppController {
 	 * Take from preferences and then append/overwrite from URL
 	 * How does it work when some params need to be cleared?
 	 *
-	 * @param null $subname
+	 * @param string $subname
 	 * @throws LoginException
 	 * @deprecated - use saveFilterColumnsSort() instead
-	 * @param null $subname
 	 */
-	function mergeRequest($subname = NULL)
+	public function mergeRequest($subname = null)
 	{
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
 		if ($subname) {
@@ -105,13 +106,52 @@ abstract class Grid extends AppController {
 	}
 
 	/**
+	 * Only get filter if it's not need to be cleared
+	 * @param string $cn
+	 * @throws LoginException
+	 */
+	public function setFilter($cn = __CLASS__)
+	{
+		$this->filter = new Filter();
+		$action = $this->request->getTrim('action');
+		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
+		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
+		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
+			$this->filter->setRequest($this->request->getArray('filter'));
+		}
+		if (method_exists($this->user, 'getPref')) {
+			$prefFilter = $this->user->getPref('Filter.' . $cn);
+//				debug($prefFilter);
+			if ($prefFilter) {
+				$this->log(__METHOD__, 'setPreferences', $prefFilter);
+				$this->filter->setPreferences($prefFilter);
+			}
+		}
+//			d($cn, $this->filter,
+//				array_keys($_SESSION), gettypes($_SESSION),
+//				$_SESSION
+//			);
+		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		0 && debug([
+			'controller' => $this->request->getControllerString(),
+			'this' => get_class($this),
+			//'allowEdit' => $allowEdit,
+			'this->filter' => $this->filter,
+			'_REQUEST' => $_REQUEST,
+		]);
+	}
+
+	/**
 	 * @param string $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
 	 * @throws LoginException
 	 */
 	public function saveFilterAndSort($cn = null)
 	{
-//		debug(__METHOD__, $cn);
+		if (!$cn) {
+			$cn = get_class($this);
+		}
+		$this->log(__METHOD__, $cn);
 		// why do we inject collection
 		// before we have detected the filter (=where)?
 		if (!$this->collection) {
@@ -123,6 +163,7 @@ abstract class Grid extends AppController {
 
 		if ($this->filter) {
 			if (method_exists($this->user, 'setPref')) {
+				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
 				$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
 			}
 		}
@@ -148,20 +189,22 @@ abstract class Grid extends AppController {
 		}
 	}
 
-	function render()
+	public function render()
 	{
 		if (!$this->collection) {
 			$this->injectCollection();
 		}
 		$content[] = $this->collection->render();
 		$content[] = '<hr />';
-		$content = $this->encloseInAA($content,
+		$content = $this->encloseInAA(
+			$content,
 			$this->title = $this->title ?: get_class($this),
-			$this->encloseTag);
+			$this->encloseTag
+		);
 		return $content;
 	}
 
-	function injectCollection()
+	public function injectCollection()
 	{
 		$class = new ReflectionObject($this);
 		$col = $class->getProperty('collection');
@@ -186,17 +229,17 @@ abstract class Grid extends AppController {
 		}
 	}*/
 
-	function sidebar()
+	public function sidebar()
 	{
 		$content = $this->showFilter();
 		return $content;
 	}
 
-	function showFilter()
+	public function showFilter()
 	{
 		$content = [];
 		if ($this->filter) {
-			$f = new HTMLFormTable($this->filter);
+			$f = new HTMLFormTable($this->filter->getArrayCopy());
 			$f->method('GET');
 			$f->defaultBR = true;
 			$this->filter = $f->fill($this->request->getAll());
@@ -219,40 +262,6 @@ abstract class Grid extends AppController {
 			}
 		}
 		return $where;
-	}
-
-	/**
-	 * Only get filter if it's not need to be cleared
-	 * @param string $cn
-	 * @throws LoginException
-	 */
-	public function setFilter($cn)
-	{
-		$this->filter = new \nadlib\Controller\Filter();
-		if ($this->request->getTrim('action') == 'clearFilter') {
-			$this->filter->clear();
-		} else {
-			$this->filter->setRequest($this->request->getArray('filter'));
-			if (method_exists($this->user, 'getPref')) {
-				$prefFilter = $this->user->getPref('Filter.' . $cn);
-//				debug($prefFilter);
-				if ($prefFilter) {
-					$this->filter->setPreferences($prefFilter);
-				}
-			}
-//			d($cn, $this->filter,
-//				array_keys($_SESSION), gettypes($_SESSION),
-//				$_SESSION
-//			);
-			//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		}
-		0 && debug([
-			'controller' => $this->request->getControllerString(),
-			'this' => get_class($this),
-			//'allowEdit' => $allowEdit,
-			'this->filter' => $this->filter,
-			'_REQUEST' => $_REQUEST,
-		]);
 	}
 
 	/**
@@ -307,7 +316,7 @@ abstract class Grid extends AppController {
 	 * Pluck $this->thes[*]['name']
 	 * @return array
 	 */
-	function getGridColumns()
+	public function getGridColumns()
 	{
 		if ($this->collection) {
 			$this->log(__METHOD__, 'Collection exists');
@@ -316,10 +325,10 @@ abstract class Grid extends AppController {
 				->column('name')
 				//->combineSelf() ?!? WTF
 				->getData();
-		} else {
-			$this->log(__METHOD__, 'No collection');
-			return [];
 		}
+
+		$this->log(__METHOD__, 'No collection');
+		return [];
 	}
 
 }

@@ -189,29 +189,29 @@ FROM {$this->from}
 		$res = '';
 		$words = ['SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL'];
 		$breakAfter = ['SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN', 'NATURAL'];
-		$sql = str_replace("(", " ( ", $sql);
-		$sql = str_replace(")", " ) ", $sql);
+		$sql = str_replace('(', ' ( ', $sql);
+		$sql = str_replace(')', ' ) ', $sql);
 		$level = 0;
 		$open = false;
 		$tok = strtok($sql, " \n\t");
 		while ($tok !== false) {
 			$tok = trim($tok);
-			if ($tok == "(") {
+			if ($tok == '(') {
 				$level++;
-				$res .= " (" . "<br>" . str_repeat("&nbsp;", $level * 4);
-			} elseif ($tok == ")") {
+				$res .= ' (' . '<br>' . str_repeat('&nbsp;', $level * 4);
+			} elseif ($tok == ')') {
 				if ($level > 0) {
 					$level--;
 				}
-				$res .= "<br>" . str_repeat("&nbsp;", $level * 4) . ") ";
-			} elseif ($tok && ($tok{0} == "'" || $tok{strlen($tok) - 1} == "'" || $tok == "'")) {
-				$res .= " ";
-				if ($tok{0} == "'" && !$open) {
+				$res .= '<br>' . str_repeat('&nbsp;', $level * 4) . ') ';
+			} elseif ($tok && ($tok[0] == "'" || $tok[strlen($tok) - 1] == "'" || $tok === "'")) {
+				$res .= ' ';
+				if ($tok[0] == "'" && !$open) {
 					$res .= '<font color="green">';
 					$open = true;
 				}
 				$res .= $tok;
-				if ($tok{strlen($tok) - 1} == "'" && $open) {
+				if ($tok[strlen($tok) - 1] === "'" && $open) {
 					$res .= '</font>';
 					$open = false;
 				}
@@ -221,18 +221,18 @@ FROM {$this->from}
 				$br = strlen($res) ? '<br>' : '';
 				$strange = $tok == 'SELECT' ? '' : ' ';
 				$res .= (!in_array($tok, $breakAfter)
-					? ' ' . $br . str_repeat("&nbsp;", $level * 4)
+					? ' ' . $br . str_repeat('&nbsp;', $level * 4)
 					: $strange);
 				$res .= '<font color="blue">' . strtoupper($tok) . '</font>';
 			} else {
-				$res .= " " . $tok;
+				$res .= ' ' . $tok;
 			}
 			//print('toc: '.$tok.' ');
 			$tok = strtok(" \n\t");
 		}
 		$res = trim($res);
-		$res = str_replace("(<br><br>)", '()', $res);
-		$res = str_replace("(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)", '()', $res);
+		$res = str_replace('(<br><br>)', '()', $res);
+		$res = str_replace('(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)', '()', $res);
 		return new htmlString($res);
 	}
 
@@ -305,7 +305,7 @@ FROM {$this->from}
 
 
 		// must be quoted for SELECT user.* ... because "user" is reserved
-		$select = $addSelect ?: $db->quoteKey($table1) . ".*";
+		$select = $addSelect ?: $db->quoteKey($table1) . '.*';
 
 		$select = new SQLSelect($select);
 		$select->injectDB($db);

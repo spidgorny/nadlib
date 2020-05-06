@@ -12,6 +12,17 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public $isHTML = FALSE;
 	public $closingTag = true;
 
+	public static function key($candidate)
+	{
+		$key = $candidate;
+		$key = str_replace('<', 'lt', $key);
+		$key = str_replace('>', 'gt', $key);
+		if (strlen($key) && is_numeric($key[0])) {
+			$key = '_' . $key;
+		}
+		return $key;
+	}
+
 	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
 	{
 		$this->tag = $tag;
@@ -83,7 +94,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	/**
 	 * jQuery style
 	 * @param $name
-	 * @param null $value
+	 * @param null|string|mixed $value
 	 * @return mixed
 	 */
 	public function attr($name, $value = null)
@@ -121,13 +132,13 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public static function parse($str, $recursive = false)
 	{
 		$str = trim($str);
-		if (strlen($str) && $str{0} != '<') {
-			return NULL;
+		if (strlen($str) && $str[0] != '<') {
+			return null;
 		}
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
 		//debug($matches);
 		if (!isset($matches[1])) {
-			return NULL;
+			return null;
 		}
 
 		$tagAndAttributes = trimExplode(' ', ifsetor($matches[1]));
