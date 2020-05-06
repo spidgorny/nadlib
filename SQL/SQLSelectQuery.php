@@ -94,6 +94,10 @@ class SQLSelectQuery extends SQLWherePart
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
+		$this->from->injectDB($this->db);
+		if ($this->where) {
+			$this->where->injectDB($this->db);
+		}
 	}
 
 	public function setSelect(SQLSelect $select)

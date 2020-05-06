@@ -1,6 +1,7 @@
 <?php
 
-class SQLSearch extends SQLWherePart {
+class SQLSearch extends SQLWherePart
+{
 	protected $table;
 	protected $sword;
 	protected $words = [];
@@ -33,16 +34,19 @@ class SQLSearch extends SQLWherePart {
 
 	public $idField = 'id';
 
-	function __construct($table, $sword) {
+	public function __construct($table, $sword)
+	{
 		//debug(array($table, $sword));
 		$this->table = $table;
 		$this->sword = $sword;
 		$this->words = $this->getSplitWords($this->sword);
 		//debug($this->words);
 		$this->db = Config::getInstance()->getDB();
+		llog(typ($this->db));
 	}
 
-	function getSplitWords($sword) {
+	public function getSplitWords($sword)
+	{
 		$user = Config::getInstance()->getUser();
 		if ($user && $user->id) {
 			$searchAppend = ifsetor($user->data['searchAppend']);
@@ -60,7 +64,8 @@ class SQLSearch extends SQLWherePart {
 		return $words;
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		$where = $this->getWhere();
 		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		$query = '';
@@ -74,7 +79,8 @@ class SQLSearch extends SQLWherePart {
 	/**
 	 * @return array
 	 */
-	function getWhere() {
+	public function getWhere()
+	{
 		$query = '';
 		$where = [];
 		$words = $this->words;
@@ -90,19 +96,20 @@ class SQLSearch extends SQLWherePart {
 				if ($word{0} == '!') {
 					$word = substr($word, 1);
 					$where[] = $tableID .
-							' NOT IN ( '.$this->getSearchSubquery($word, $tableID).') ';
+						' NOT IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
 				} else {
 					//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
 					// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
 					$where[] = $tableID .
-							' IN ( '.$this->getSearchSubquery($word, $tableID).') ';
+						' IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
 				}
 			}
 		}
 		return $where;
 	}
 
-	function getSearchSubquery($word, $select = NULL) {
+	public function getSearchSubquery($word, $select = null)
+	{
 		$table = $this->table;
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
@@ -116,19 +123,21 @@ class SQLSearch extends SQLWherePart {
 		$where = $this->getSearchWhere($word);
 		$where = new SQLWherePart($where);
 		$query->where->add($where);
+		$query->injectDB($this->db);
 		return $query;
 	}
 
-	function getSearchWhere($word, $prefix = '') {
+	function getSearchWhere($word, $prefix = '')
+	{
 		if ($word{0} == '!') {
-			$like = 'NOT '.$this->likeOperator;
+			$like = 'NOT ' . $this->likeOperator;
 			$or = "\n\t\tAND";
 		} else {
 			$like = $this->likeOperator;
 			$or = "\n\t\tOR";
 		}
 
-		$prefix = $prefix ? $prefix.'.' : '';
+		$prefix = $prefix ? $prefix . '.' : '';
 
 		$part = [];
 		foreach ($this->searchableFields as $field) {
@@ -149,7 +158,7 @@ class SQLSearch extends SQLWherePart {
 			";
 		}
 
-		return '('.$part.')'; // because of OR
+		return '(' . $part . ')'; // because of OR
 	}
 
 }
