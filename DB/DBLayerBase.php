@@ -62,7 +62,7 @@ abstract class DBLayerBase implements DBInterface
 	 * @var bool Allows logging every query to the error.log.
 	 * Helps to detect the reason for white screen problems.
 	 */
-	public $logToLog = false;
+	protected $logToLog = false;
 
 	/**
 	 * @var string DB name (file name)

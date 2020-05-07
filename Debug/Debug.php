@@ -545,4 +545,20 @@ class Debug
 		}
 	}
 
+	public static function investigate($var)
+	{
+		error_log('Investigate');
+		if (is_object($var)) {
+			$var = get_object_vars($var);
+		}
+		if (is_scalar($var)) {
+			$var = [$var];
+		}
+		error_log('Keys: ' . implode(',', array_keys($var)));
+		foreach ($var as $key => $var) {
+			error_log(' * ' . $key . ': [' . trim(strip_tags(typ($var))) . ']');
+		}
+		error_log('-----');
+	}
+
 }

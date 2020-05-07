@@ -42,7 +42,7 @@ class SQLSearch extends SQLWherePart
 		$this->words = $this->getSplitWords($this->sword);
 		//debug($this->words);
 		$this->db = Config::getInstance()->getDB();
-		llog(typ($this->db));
+		//llog(strip_tags(typ($this->db)));
 	}
 
 	public function getSplitWords($sword)
