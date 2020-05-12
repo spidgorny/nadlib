@@ -51,6 +51,7 @@ trait JsonController
 		return [$request, $arguments];
 	}
 
+
     public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
     {
         $message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
@@ -63,7 +64,7 @@ trait JsonController
             'file' => $e->getFile(),
             'line' => $e->getLine(),
             'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
-            'request' => $_REQUEST,
+            'request' => $this->request->getAll(),
             'headers' => getallheaders(),
 			'timestamp' => date('Y-m-d H:i:s'),
         ] + $extraData);
