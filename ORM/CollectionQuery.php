@@ -155,7 +155,7 @@ class CollectionQuery
 	{
 		$logEntry = new LogEntry($action, $something);
 		$this->log[] = $logEntry;
-		llog($logEntry);
+//		llog($logEntry);
 	}
 
 }
