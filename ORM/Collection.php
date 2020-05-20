@@ -392,7 +392,7 @@ class Collection implements IteratorAggregate, ToStringable
 		if (!$this->processed) {
 			$count = $this->getCount();
 			// Iterator by reference
-			$data = $this->data->getArrayCopy();
+			$data = $this->getData()->getArrayCopy();
 			foreach ($data as $i => &$row) {
 				$row = $this->preprocessRow($row);
 			}
