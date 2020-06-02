@@ -119,7 +119,7 @@ class NextPrevBrowser
 	 */
 	protected function getNextPrevLink(array $prev, $arrow): \HTMLTag
 	{
-		if ($prev['singleLink']) {
+		if (ifsetor($prev['singleLink'])) {
 			$content = new HTMLTag('a', [
 				'href' => $prev['singleLink'],
 				'title' => ifsetor($prev['name']),
@@ -129,9 +129,10 @@ class NextPrevBrowser
 				//'&#25C0;',		// ◀
 				//'&#x25C4;',		// ◄
 				$arrow,
-				true);
+				true
+			);
 		} else {
-			$content = $arrow;
+			$content = new HTMLTag('span', [], $arrow, true);
 		}
 		return $content;
 	}
