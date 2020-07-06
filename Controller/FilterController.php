@@ -47,6 +47,7 @@ class FilterController extends Controller
 		$f->setAllOptional();
 		$f->method('POST');
 		$f->defaultBR = true;
+		llog($this->linker->linkVars);
 		$f->formHideArray($this->linker->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
@@ -94,7 +95,7 @@ class FilterController extends Controller
 	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
-			in_array('HTMLFormCollection', class_implements($autoClass))
+			in_array(HTMLFormCollection::class, class_implements($autoClass), true)
 		) {
 			$k['type'] = new $autoClass();
 			$options = null;
