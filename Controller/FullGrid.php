@@ -178,7 +178,7 @@ abstract class FullGrid extends Grid
 			$fields = $fields ?: $this->collection->thes;
 			$this->filterController->setFields($fields);
 		}
-		$this->filterController->linkVars['c'] = get_class($this);
+		$this->filterController->linker->linkVars['c'] = get_class($this);
 		return $this->filterController->render();
 	}
 
