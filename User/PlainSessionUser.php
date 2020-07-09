@@ -40,7 +40,7 @@ class PlainSessionUser extends User
 	 * @param $name
 	 * @return mixed
 	 */
-	public function getPref($name)
+	public function getPref($name, $default = null)
 	{
 		return $this->session->get($name);
 	}
