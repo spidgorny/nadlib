@@ -57,6 +57,7 @@ class MergedContent implements ArrayAccess
 
 	public function addSub($key, $value)
 	{
+//		llog('addSub', $key, $this->content[$key]);
 		$this->content[$key][] = $value;
 	}
 

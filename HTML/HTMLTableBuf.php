@@ -14,9 +14,9 @@ class HTMLTableBuf extends MergedContent
 	function __construct()
 	{
 		parent::__construct(array(
-			'table' => '',
-			'thead' => '',
-			'tbody' => '',
+			'table' => [],
+			'thead' => [],
+			'tbody' => [],
 		));
 	}
 

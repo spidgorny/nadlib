@@ -88,7 +88,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	public function getTypeString()
 	{
 		$type = ifsetor($this->data['type']);
-		return is_string($type) ? $type : get_class($type);
+		return is_object($type) ? get_class($type) : $type;
 	}
 
 	public function isObligatory()
@@ -329,7 +329,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				break;
 			case 'checkarray':
 				if (!is_array($fieldValue)) {
-					debug($fieldName, $fieldValue, $desc->getArray());
+					throw new Exception('checkarray value is not array for ' . $fieldName);
 				}
 				$this->form->checkarray($fieldName, $desc['set'], $fieldValue, $desc->getArray());
 				break;
@@ -373,6 +373,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$type = isset($type) ? $type : 'text';
 				//$this->text(htmlspecialchars($desc['more']));
 //				debug($desc);
+				llog($fieldName, $type);
 				$this->form->input($fieldName, $fieldValue,
 					(is_array(ifsetor($desc['more']))
 						? HTMLForm::getAttrHTML($desc['more'])

@@ -145,6 +145,10 @@ class HTMLForm
 			$isHTML = $value instanceof htmlString;
 			//debug($value, $isHTML);
 			if (!$isHTML) {
+				if (is_array($value)) {
+					$sName = $this->getName($name, $namePlus, true);
+					throw new Exception('HTMLForm has an array value for field ' . $sName);
+				}
 				$value = htmlspecialchars($value, ENT_QUOTES);
 			} else {
 				$value = str_replace('"', '&quot;', $value);
