@@ -242,9 +242,14 @@ post_max_size: ' . $post_max_size . '">' .
 	 */
 	function get_mime_type($filename)
 	{
-		if (class_exists('finfo')) {
+		if (class_exists('Mimey\\MimeTypes')) {
+			$mimes = new \Mimey\MimeTypes;
+			$ext = pathinfo($filename, PATHINFO_EXTENSION);
+			$mime = $mimes->getMimeType($ext);
+			$this->mimeMethod = 'mimey';
+		} elseif (class_exists('finfo')) {		// Bug! CSS => text/plain
 			$fi = new finfo();
-			$mime = $fi->file($filename);
+			$mime = $fi->file($filename, FILEINFO_MIME_TYPE);
 			$this->mimeMethod = 'finfo';
 		} elseif (function_exists('finfo_open')) {
 			$fi = finfo_open(FILEINFO_MIME_TYPE);
