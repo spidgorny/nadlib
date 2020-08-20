@@ -284,7 +284,7 @@ class TaylorProfiler
 						? number_format($perc, 2, '.', '') . '%'
 						: $perc,
 					'bar' => is_numeric($perc)
-						? ProgressBar::getImage($perc)
+						? $this->getProgressBar($perc)
 						: NULL,
 					'routine' => '<span title="' . htmlspecialchars($desc) . '">' . $htmlKey . '</span>',
 				);
@@ -668,6 +668,15 @@ class TaylorProfiler
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param $perc
+	 * @return string
+	 */
+	protected function getProgressBar($perc): string
+	{
+		return ProgressBar::getImage($perc);
 	}
 
 }
