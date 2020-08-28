@@ -87,7 +87,7 @@ class Ticker {
 		return self::$instance ?: self::$instance = new static();
 	}
 
-	static function enableTick($ticker = 1000, $func = null)
+	public static function enableTick($ticker = 1000, $func = null)
 	{
 		$tp = self::getInstance();
 		$ok = register_tick_function($func ?: [$tp, 'tick']);
@@ -105,13 +105,13 @@ class Ticker {
 	 * This is not working reliably yet. Stops output forever
 	 * @deprecated
 	 */
-	function stopOutput()
+	public function stopOutput()
 	{
 		ob_start([$this, 'ob_end']);
 		$this->noOutput = true;
 	}
 
-	function ob_end($output)
+	public function ob_end($output)
 	{
 		// don't print
 		return 'Collected output length: ' . strlen($output) . BR;

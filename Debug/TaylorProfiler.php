@@ -121,6 +121,12 @@ class TaylorProfiler
 		}
 	}
 
+	public static function enableLog()
+	{
+		$self = self::getInstance();
+		$self->isLog = true;
+	}
+
 	public function clearMemory()
 	{
 		$this->description = [];
@@ -573,7 +579,7 @@ class TaylorProfiler
 		$method = $method ?: self::getName();
 		$tp = TaylorProfiler::getInstance();
 		if ($tp->isLog) {
-			error_log(strip_tags($method));
+			llog(strip_tags(str_replace(PHP_EOL, ' >> ', $method)));
 			$tp->startTimer($method);
 		}
 	}
