@@ -226,7 +226,7 @@ class Linker
 	public function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-				'c' => get_class($this),
+				'c' => $path ?: get_class($this),
 				'action' => $action,
 			] + $params;
 		$urlParams = array_filter($urlParams);
