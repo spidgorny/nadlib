@@ -212,7 +212,7 @@ class Linker
 				'action' => $action,
 			];
 		}
-		return $this->makeURL($params);
+		return $this->makeURL($params, $controller);
 	}
 
 	public function linkPage($className)
