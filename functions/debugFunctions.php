@@ -273,17 +273,17 @@ if (!function_exists('debugList')) {
 		];
 		$class = ifsetor($bulma[$type]) . ' tag';
 
-		if ($type == 'string') {
+		if ($type === 'string') {
 			$typeName .= '[' . strlen($something) . ']';
 		}
-		if ($type == 'array') {
+		if ($type === 'array') {
 			$typeName .= '[' . sizeof($something) . ']';
 		}
 
 		if (!Request::isCLI()) {
 			return new HTMLTag('span', ['class' => $class], $typeName, true);
 		}
-		return new htmlString($typeName);
+		return $typeName;
 	}
 
 	/**
