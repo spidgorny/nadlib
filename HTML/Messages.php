@@ -5,8 +5,9 @@ namespace nadlib\HTML;
 class Messages extends \MergedContent
 {
 
-	function message($text)
+	public function message($text)
 	{
+		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="message alert alert-info ui-state-message alert alert-notice padding">' . $text . '</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
@@ -16,8 +17,9 @@ class Messages extends \MergedContent
 		return $msg;
 	}
 
-	function error($text)
+	public function error($text)
 	{
+		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">' . $text . '</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
@@ -28,8 +30,9 @@ class Messages extends \MergedContent
 		return $msg;
 	}
 
-	function success($text)
+	public function success($text)
 	{
+		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="alert alert-success padding">' . $text . '</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
@@ -39,8 +42,9 @@ class Messages extends \MergedContent
 		return $msg;
 	}
 
-	function info($text)
+	public function info($text)
 	{
+		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="alert alert-info padding">' . $text . '</div>';
 		if (is_array($this->content)) {
 			$this->content[] = $msg;
@@ -50,12 +54,12 @@ class Messages extends \MergedContent
 		return $msg;
 	}
 
-	function saveMessages()
+	public function saveMessages()
 	{
 		$_SESSION[__CLASS__]['messages'] = $this->content;
 	}
 
-	function restoreMessages()
+	public function restoreMessages()
 	{
 //		debug('restoring');
 		if (isset($_SESSION[__CLASS__])) {
