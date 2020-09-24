@@ -235,7 +235,7 @@ abstract class OODBase
 		//debug($query);
 		// for DBPlacebo to return the same data back
 		$res = $this->db->runInsertQuery($this->table, $data);
-		$this->lastQuery = $this->db->lastQuery;    // save before commit
+		$this->lastQuery = $this->db->getLastQuery();    // save before commit
 
 		// this needs to be checked first,
 		// because SQLite will give some kind of ID
