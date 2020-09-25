@@ -7,9 +7,9 @@ class InitNADLIB {
 	/**
 	 * @var AutoLoad
 	 */
-	var $al;
+	public $al;
 
-	var $startTime;
+	public $startTime;
 
 	var $endTime;
 
@@ -23,7 +23,7 @@ class InitNADLIB {
 	 */
 	public $development;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/AutoLoad.php';
@@ -47,13 +47,13 @@ class InitNADLIB {
 			|| getenv('NADLIB');
 	}
 
-	function disableAutoload()
+	public function disableAutoload()
 	{
 		$this->al = null;
 		return $this;
 	}
 
-	function init()
+	public function init()
 	{
 		// maybe InitNADLIB was loaded by composer autoload
 		require_once __DIR__.'/../init.php';
@@ -83,7 +83,7 @@ class InitNADLIB {
 	/**
 	 * Autoloading done by composer only
 	 */
-	function initWithComposer()
+	public function initWithComposer()
 	{
 		$this->setDefaults();
 		$this->setErrorReporting();
@@ -92,7 +92,7 @@ class InitNADLIB {
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
-	function initWhoops()
+	public function initWhoops()
 	{
 		$run = new Whoops\Run;
 		$handler = new Whoops\Handler\PrettyPageHandler;

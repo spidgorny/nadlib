@@ -336,8 +336,8 @@ class IndexBase /*extends Controller*/
 				ifsetor($_SERVER['argv'], []),
 			1
 			),
-			function ($el) {
-				return $el[0] != '-';	// --options
+			static function ($el) {
+				return $el[0] !== '-';	// --options
 			}
 		);
 //		debug($notOptions); exit;
