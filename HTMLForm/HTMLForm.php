@@ -482,7 +482,7 @@ class HTMLForm implements ToStringable
 	/**
 	 * Changelog: second $more parameter was removed, please use $params instead
 	 *
-	 * @param string $value
+	 * @param string|null $value
 	 * @param array $params
 	 *
 	 * @return HTMLForm

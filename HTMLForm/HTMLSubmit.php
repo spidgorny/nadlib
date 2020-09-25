@@ -16,7 +16,7 @@ class HTMLSubmit implements HTMLFormFieldInterface
 	{
 		$this->value = $value;
 		$this->params = $params;
-		$this->field = ifsetor($params['name']);
+		$this->field = ifsetor($params['name'], 'btnSubmit');
 	}
 
 	/**
