@@ -47,7 +47,7 @@ class FilterController extends Controller
 		$f->setAllOptional();
 		$f->method('POST');
 		$f->defaultBR = true;
-		llog($this->linker->linkVars);
+//		llog($this->linker->linkVars);
 		$f->formHideArray($this->linker->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
