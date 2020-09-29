@@ -687,8 +687,12 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
-			$content = $this->controller->sidebar();
-			$content = $this->s($content);
+			try {
+				$content = $this->controller->sidebar();
+				$content = $this->s($content);
+			} catch (Exception $e) {
+				// no sidebar
+			}
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
@@ -711,7 +715,7 @@ class IndexBase /*extends Controller*/
 		foreach ($this->footer as $key => $script) {
 			$script = strip_tags($script, '<script>');
 			$script = HTMLTag::parse($script);
-			if ($script && $script->tag == 'script') {
+			if ($script && $script->tag === 'script') {
 				$url = $script->getAttr('src');
 				if ($url) {
 					// not needed because we bundle all JS
