@@ -217,21 +217,21 @@ class IndexBase /*extends Controller*/
 	 */
 	public function initController()
 	{
-		TaylorProfiler::start(__METHOD__);
 		// already created
-		if (!$this->controller instanceof Controller) {
-			$slug = $this->request->getControllerString();
-			if ($slug) {
-				if ($_REQUEST['d']) {
-					$this->log(__METHOD__, $slug);
-				}
-				$this->loadController($slug);
-				$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
-			} else {
-				throw new Exception404($slug);
-			}
+		if ($this->controller instanceof Controller) {
+			return;
 		}
-		TaylorProfiler::stop(__METHOD__);
+		$slug = $this->request->getControllerString();
+		llog($slug);
+		if ($slug) {
+			if ($_REQUEST['d']) {
+				$this->log(__METHOD__, $slug);
+			}
+			$this->loadController($slug);
+			$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
+		} else {
+			throw new Exception404($slug);
+		}
 	}
 
 	/**
@@ -334,10 +334,10 @@ class IndexBase /*extends Controller*/
 		$notOptions = array_filter(
 			array_slice(
 				ifsetor($_SERVER['argv'], []),
-			1
+				1
 			),
 			function ($el) {
-				return $el[0] != '-';	// --options
+				return $el[0] != '-';    // --options
 			}
 		);
 //		debug($notOptions); exit;
@@ -733,7 +733,7 @@ class IndexBase /*extends Controller*/
 			}
 		}
 //		debug('footer', sizeof($this->footer));
-		$content = implode("\n", $this->footer)."\n";
+		$content = implode("\n", $this->footer) . "\n";
 		return $content;
 	}
 
