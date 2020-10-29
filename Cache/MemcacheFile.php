@@ -44,6 +44,9 @@ class MemcacheFile implements MemcacheInterface
 		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
 			debug([
 				'unable to access cache folder',
+				'env(storage)' => getenv('storage'),
+				'cwd' => getcwd(),
+				'open_basedir' => ini_get('open_basedir'),
 				'this->folder' => $this->folder,
 				'isAbsolute' => Path::isItAbsolute($this->folder),
 				'method' => __METHOD__,
