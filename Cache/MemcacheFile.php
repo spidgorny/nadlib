@@ -54,7 +54,7 @@ class MemcacheFile implements MemcacheInterface
 				'folder' => $this->folder,
 				'finalCachePath' => $finalCachePath,
 			]);
-			die();
+			die(__METHOD__);
 		} else {
 			$this->folder = cap($finalCachePath);    // important as we concat
 		}
