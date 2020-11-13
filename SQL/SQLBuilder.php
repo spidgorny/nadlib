@@ -150,7 +150,7 @@ class SQLBuilder
 	{
 		$set = array();
 		foreach ($where as $key => $val) {
-			if (!strlen($key) || (strlen($key) && $key{strlen($key) - 1} != '.')) {
+			if (!strlen($key) || (strlen($key) && $key[strlen($key) - 1] != '.')) {
 				$equal = new SQLWhereEqual($key, $val);
 				$set[] = $equal->__toString();
 			}
@@ -578,7 +578,7 @@ class SQLBuilder
 		return call_user_func_array(array($this->getDB(), $method), $params);
 	}
 
-	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'id', $prefix = NULL)
+	function getTableOptions($table, $titleField, $where = array(), $order = null, $idField = 'id', $prefix = null)
 	{
 		$prefix = $prefix ?: $table . '.';
 		$query = $this->getSelectQuery($table, $where, $order,

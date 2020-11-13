@@ -256,7 +256,7 @@ class AutoLoad
 		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
-			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)    // u:\
+			&& !($appRoot[1] == ':' && strlen($appRoot) == 3)    // u:\
 		) {
 			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'index.php';
 			$exists1 = file_exists($config1);
@@ -370,9 +370,9 @@ class AutoLoad
 			include_once $file;
 		} else {
 			$ns = $subFolders ?:
-				(sizeof($namespaces) > 1)
+				((sizeof($namespaces) > 1)
 					? first($namespaces)
-					: NULL;
+					: null);
 //			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);
