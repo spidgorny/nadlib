@@ -861,6 +861,19 @@ class Request
 		return $path;
 	}
 
+	public function baseHref()
+	{
+		$al = AutoLoad::getInstance();
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$path->trimIf($path->basename());
+//		llog('remove', $appRoot.'', 'from', $path.'');
+		$path->remove($appRoot);
+		$path->normalize();
+//		llog($path);
+		return $path;
+	}
+
 	public function getPathAfterAppRootByPath()
 	{
 		$al = AutoLoad::getInstance();
