@@ -861,7 +861,7 @@ class Request
 		return $path;
 	}
 
-	public function baseHref()
+	public function baseHrefFromServer()
 	{
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot()->normalize()->realPath();
@@ -871,7 +871,18 @@ class Request
 		$path->remove($appRoot);
 		$path->normalize();
 //		llog($path);
+//		debug($appRoot.'', $_SERVER['SCRIPT_FILENAME'], $path.'');
 		return $path;
+	}
+
+	public function baseHref()
+	{
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$url = new URL($_SERVER['REQUEST_URI']);
+		$urlPath = $url->getPath();
+		$intersect = array_intersect($path->aPath, $urlPath->aPath);
+//		debug($path.'', $urlPath.'', $intersect);
+		return '/' . implode('/', $intersect) . '/xxx';
 	}
 
 	public function getPathAfterAppRootByPath()
