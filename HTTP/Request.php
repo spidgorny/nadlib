@@ -533,9 +533,10 @@ class Request
 		}
 	}
 
-	public function redirectJS($controller, $delay = 0, $message =
-	'Redirecting to %1')
-	{
+	public function redirectJS(
+		$controller, $delay = 0, $message =
+	'Redirecting to %1'
+	) {
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
@@ -881,8 +882,11 @@ class Request
 		$url = new URL($_SERVER['REQUEST_URI']);
 		$urlPath = $url->getPath();
 		$intersect = array_intersect($path->aPath, $urlPath->aPath);
-//		debug($path.'', $urlPath.'', $intersect);
-		return '/' . implode('/', $intersect) . '/xxx';
+		llog($path . '', $urlPath . '', $intersect);
+		if (count($intersect)) {
+			return '/' . implode('/', $intersect) . '/xxx';
+		}
+		return '/';
 	}
 
 	public function getPathAfterAppRootByPath()
