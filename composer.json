@@ -7,7 +7,7 @@
 		"greenlion/PHP-SQL-Parser": "*",
 		"leafo/lessphp": "0.4.0",
 		"danielstjules/stringy": ">=1.5.1",
-		"phpauth/phpauth": "v1.1",
+		"phpauth/phpauth": "v1.1"
 	},
 	"require-dev": {
 		"sebastian/environment": "1.0.*@dev",
