@@ -81,17 +81,20 @@ class View extends stdClass
 
 	function getFile()
 	{
-		$file = dirname($this->file) != '.'
+		$file = dirname($this->file) !== '.'
 			? $this->file
 			: $this->folder . $this->file;
 		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
 		return $file;
 	}
 
-	function getContent($file)
+	function getContent($file, array $vars = [])
 	{
 		$content = '';
 		ob_start();
+
+		/** @noinspection NonSecureExtractUsageInspection */
+		extract($vars);
 
 		//debug($file);
 		/** @noinspection PhpIncludeInspection */
@@ -107,13 +110,13 @@ class View extends stdClass
 		return $content;
 	}
 
-	function render()
+	function render($vars = [])
 	{
 		$key = __METHOD__ . ' (' . basename($this->file) . ')';
 		TaylorProfiler::start($key);
 
 		$file = $this->getFile();
-		$content = $this->getContent($file);
+		$content = $this->getContent($file, $vars);
 
 		preg_match_all('/__([^ _]+)__/', $content, $matches);
 		foreach ($matches[1] as $ll) {
