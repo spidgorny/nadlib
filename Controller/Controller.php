@@ -63,7 +63,7 @@ abstract class Controller
 	 * Instance per class
 	 * @var Controller[]
 	 */
-	static protected $instance = array();
+	static protected $instance = [];
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -72,7 +72,7 @@ abstract class Controller
 	 */
 	public $layout;
 
-	public $linkVars = array();
+	public $linkVars = [];
 
 	public $encloseTag = 'h2';
 
@@ -92,7 +92,7 @@ abstract class Controller
 	 */
 	protected $al;
 
-	var $log = array();
+	var $log = [];
 
 	/**
 	 * @var HTML
@@ -167,7 +167,7 @@ abstract class Controller
 		}
 		//debug($prefix, get_class($path));
 		$url->setPath($path);
-		nodebug(array(
+		nodebug([
 			'method' => __METHOD__,
 			'params' => $params,
 			'prefix' => $prefix,
@@ -177,7 +177,7 @@ abstract class Controller
 			'class($path)' => get_class($path),
 			'$this->linkVars' => $this->linkVars,
 			'return' => $url . '',
-		));
+		]);
 		return $url;
 	}
 
@@ -188,7 +188,7 @@ abstract class Controller
 	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = array(), $page = NULL)
+	function makeRelURL(array $params = [], $page = NULL)
 	{
 		return $this->makeURL(
 			$params                            // 1st priority
@@ -225,25 +225,25 @@ abstract class Controller
 	 * @param bool $isHTML
 	 * @return HTMLTag
 	 */
-	function makeLink($text, array $params, $page = '', array $more = array(), $isHTML = false)
+	function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
 	{
 		//debug($text, $params, $page, $more, $isHTML);
-		$content = new HTMLTag('a', array(
+		$content = new HTMLTag('a', [
 				'href' => $this->makeURL($params, $page),
-			) + $more, $text, $isHTML);
+			] + $more, $text, $isHTML);
 		return $content;
 	}
 
-	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = array(), $prefix = '')
+	function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = [], $prefix = '')
 	{
 		$url = $this->makeURL($params, $prefix);
-		$link = new HTMLTag('a', $aMore + array(
+		$link = new HTMLTag('a', $aMore + [
 				'href' => $url,
 				'onclick' => '
 			jQuery(\'#' . $div . '\').load(\'' . $url . '\');
 			return false;
 			' . $jsPlus,
-			), $text, true);
+			], $text, true);
 		return $link;
 	}
 
@@ -255,9 +255,9 @@ abstract class Controller
 	 */
 	function getAssocTable(array $data)
 	{
-		$table = array();
+		$table = [];
 		foreach ($data as $key => $val) {
-			$table[] = array('key' => $key, 'val' => $val);
+			$table[] = ['key' => $key, 'val' => $val];
 		}
 		return $table;
 	}
@@ -349,15 +349,15 @@ abstract class Controller
 	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = NULL, array $more = array())
+	function encloseInAA($content, $caption = '', $h = NULL, array $more = [])
 	{
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
-			$content = array(
+			$content = [
 				'caption' => $this->getCaption($caption, $h),
 				$content
-			);
+			];
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);
@@ -417,7 +417,7 @@ abstract class Controller
 			if (method_exists($proxy, $method)) {
 				if ($this->request->isCLI()) {
 					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array(array($proxy, $method), $assoc);
+					$content = call_user_func_array([$proxy, $method], $assoc);
 				} else {
 					$caller = new MarshalParams($proxy);
 					$content = $caller->call($method);
@@ -443,7 +443,7 @@ abstract class Controller
 	function inColumns()
 	{
 		$elements = func_get_args();
-		return call_user_func_array(array(__CLASS__, 'inColumnsHTML5'), $elements);
+		return call_user_func_array([__CLASS__, 'inColumnsHTML5'], $elements);
 		/*		$content = '';
 				foreach ($elements as $html) {
 					$html = $this->s($html);
@@ -478,7 +478,7 @@ abstract class Controller
 		return $content;
 	}
 
-	function encloseInTableHTML3(array $cells, array $more = array())
+	function encloseInTableHTML3(array $cells, array $more = [])
 	{
 		if (!$more) {
 			$more['class'] = "encloseInTable";
@@ -503,9 +503,9 @@ abstract class Controller
 		foreach ($elements as &$el) {
 			if (!$el instanceof HTMLTag) {
 				$el = $this->s($el);
-				$el = new HTMLTag('div', array(
+				$el = new HTMLTag('div', [
 					'class' => 'column',
-				), $el, true);
+				], $el, true);
 			}
 		}
 		$content .= implode("\n", $elements);
@@ -533,9 +533,9 @@ abstract class Controller
 	 */
 	function adjustURL(array $params)
 	{
-		return URL::getCurrent()->addParams(array(
+		return URL::getCurrent()->addParams([
 				'c' => get_class(Index::getInstance()->controller),
-			) + $params);
+			] + $params);
 	}
 
 	/**
@@ -547,9 +547,9 @@ abstract class Controller
 	 */
 	function makeRelLink($text, array $params, $page = '?')
 	{
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 			'href' => $this->makeRelURL($params, $page)
-		), $text);
+		], $text);
 	}
 
 	/**
@@ -563,7 +563,7 @@ abstract class Controller
 	 * @param array $submitParams
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = array(), $submitClass = '', array $submitParams = array())
+	function getActionButton($name, $action, $formAction = NULL, array $hidden = [], $submitClass = '', array $submitParams = [])
 	{
 		$f = new HTMLForm();
 		if ($formAction) {
@@ -581,16 +581,16 @@ abstract class Controller
 			$f->hidden('action', $action);
 		}
 		if ($name instanceof htmlString) {
-			$f->button($name, array(
+			$f->button($name, [
 					'type' => "submit",
 					'id' => 'button-action-' . $action,
 					'class' => $submitClass,
-				) + $submitParams);
+				] + $submitParams);
 		} else {
-			$f->submit($name, array(
+			$f->submit($name, [
 					'id' => 'button-action-' . $action,
 					'class' => $submitClass,
-				) + $submitParams);
+				] + $submitParams);
 		}
 		return $f;
 	}
@@ -601,7 +601,7 @@ abstract class Controller
 	 * @param array $widths
 	 * @return string
 	 */
-	function inTable(array $parts, array $widths = array())
+	function inTable(array $parts, array $widths = [])
 	{
 		$size = sizeof($parts);
 		$equal = round(12 / $size);
@@ -618,7 +618,7 @@ abstract class Controller
 	function attr($s)
 	{
 		if (is_array($s)) {
-			$content = array();
+			$content = [];
 			foreach ($s as $k => $v) {
 				$content[] = $k . '="' . $this->attr($v) . '"';
 			}
@@ -641,21 +641,21 @@ abstract class Controller
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false, array $more = array())
+	function a($href, $text = '', $isHTML = false, array $more = [])
 	{
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 				'href' => $href,
-			) + $more, $text ?: $href, $isHTML);
+			] + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '', array $more = array())
+	function div($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
-	function span($content, $class = '', array $more = array())
+	function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
@@ -724,7 +724,7 @@ abstract class Controller
 		</div>';
 	}
 
-	function linkToAction($action = '', array $params = array(), $controller = NULL)
+	function linkToAction($action = '', array $params = [], $controller = NULL)
 	{
 		if (!$controller) {
 			$controller = get_class($this);
@@ -740,18 +740,18 @@ abstract class Controller
 		return $this->makeURL($params);
 	}
 
-	function p($content, array $attr = array())
+	function p($content, array $attr = [])
 	{
 		$more = HTMLTag::renderAttr($attr);
 		return '<p ' . $more . '>' . $this->s($content) . '</p>';
 	}
 
-	function img($src, array $attr = array())
+	function img($src, array $attr = [])
 	{
-		return new HTMLTag('img', array(
+		return new HTMLTag('img', [
 				'src' => /*$this->e*/
 					($src),    // encoding is not necessary for &amp; in URL
-			) + $attr);
+			] + $attr);
 	}
 
 	function e($content)
@@ -784,12 +784,12 @@ abstract class Controller
 	{
 		/** @var Controller $self */
 		$self = get_called_class();
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 			'href' => $self::href($params)
-		), $text ?: $self);
+		], $text ?: $self);
 	}
 
-	static function href(array $params = array())
+	static function href(array $params = [])
 	{
 		$self = get_called_class();
 		return $self . '?' . http_build_query($params);

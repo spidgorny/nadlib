@@ -5,7 +5,9 @@ class Lesser extends AppController
 
 	public $layout = 'none';
 
-	protected $output = 'cache/merge.css';
+	static $cacheFolder = 'cache/';
+
+	protected $output;
 
 	/**
 	 * No auth needed
@@ -21,9 +23,12 @@ class Lesser extends AppController
 			$_COOKIE['debug'] = 1;
 		}
 		parent::__construct();
+		$lessFile = $this->request->getFilePathName('css');
+		$cssFile = str_replace('.less', '.css', $lessFile);
+		$this->output = static::$cacheFolder . $cssFile;
 		$this->output = Path::make(AutoLoad::getInstance()->appRoot)->appendString($this->output);
 		$cacheDir = dirname($this->output);
-		nodebug(array(
+		$_REQUEST['d'] && debug([
 			'lessc' => class_exists('lessc'),
 			'appRoot' => AutoLoad::getInstance()->appRoot,
 			'output' => $this->output,
@@ -31,7 +36,10 @@ class Lesser extends AppController
 			'file_exists()' => file_exists($cacheDir),
 			'is_dir()' => is_dir($cacheDir),
 			'is_writable()' => is_writable($cacheDir)
-		), DebugHTML::LEVELS, 5);
+		], DebugHTML::LEVELS, 5);
+		if ($_REQUEST['d']) {
+			return;
+		}
 		if (!is_dir($cacheDir)) {
 			echo '#mkdir(', $cacheDir, ');' . "\n";
 			$ok = mkdir($cacheDir);
@@ -70,13 +78,15 @@ class Lesser extends AppController
 			}
 
 			$ext = pathinfo($cssFile, PATHINFO_EXTENSION);
-			if ($ext == 'less') {
+			if ($ext === 'less') {
 				$compiledNearby = str_replace('.less', '.css', $cssFile);
 				if (file_exists($compiledNearby)) {
 					@header('Content-type: text/css');
 					echo file_get_contents($cssFile);
 					exit();
-				} elseif (file_exists('vendor/oyejorge/less.php/lessc.inc.php')) {
+				}
+
+				if (file_exists('vendor/oyejorge/less.php/lessc.inc.php')) {
 					require_once 'vendor/oyejorge/less.php/lessc.inc.php';
 					$less = new lessc();
 					if (is_writable($this->output)) {

@@ -35,24 +35,24 @@ abstract class OODBase
 	/**
 	 * @var array data from DB
 	 */
-	public $data = array();
+	public $data = [];
 
 	/**
 	 * @var array of visible fields which serves as a definition for a corresponding Collection
 	 * and maybe to HTMLFormTable as well
 	 */
-	public $thes = array();
+	public $thes = [];
 
 	/**
 	 * to allow extra filtering
 	 * @var array
 	 */
-	protected $where = array();
+	protected $where = [];
 
 	/**
 	 * array[get_called_class()][$id]
 	 */
-	static $instances = array();
+	static $instances = [];
 
 	/**
 	 * @var string - saved after findInDB
@@ -98,7 +98,7 @@ abstract class OODBase
 		}
 		//echo get_class($this).'::'.__FUNCTION__, ' ', gettype2($this->db), BR;
 		foreach ($this->thes as &$val) {
-			$val = is_array($val) ? $val : array('name' => $val);
+			$val = is_array($val) ? $val : ['name' => $val];
 		}
 		$this->init($id);
 
@@ -139,7 +139,7 @@ abstract class OODBase
 				// TODO
 				throw new InvalidArgumentException(__METHOD__);
 			} else {
-				$this->findInDB(array($this->idField => $this->id));
+				$this->findInDB([$this->idField => $this->id]);
 				// will do $this->init()
 			}
 			if (!$this->data) {
@@ -180,7 +180,7 @@ abstract class OODBase
 		}
 
 		if (is_array($idField)) {
-			$this->id = array();
+			$this->id = [];
 			foreach ($idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
@@ -257,7 +257,7 @@ abstract class OODBase
 			TaylorProfiler::start(__METHOD__);
 			$action = get_called_class() . '::' . __FUNCTION__ . '(' . $this->id . ')';
 			$this->log($action, $data);
-			$where = array();
+			$where = [];
 			if (is_array($this->idField)) {
 				foreach ($this->idField as $field) {
 					$where[$field] = $this->data[$field];
@@ -284,9 +284,9 @@ abstract class OODBase
 			// may lead to infinite loop
 			//$this->init($this->id);
 			// will call init($fromFindInDB = true)
-			$this->findInDB(array(
+			$this->findInDB([
 				$this->idField => $this->id,
-			));
+			]);
 			TaylorProfiler::stop(__METHOD__);
 		} else {
 			//$this->db->rollback();
@@ -299,7 +299,7 @@ abstract class OODBase
 	function delete(array $where = NULL)
 	{
 		if (!$where) {
-			$where = array($this->idField => $this->id);
+			$where = [$this->idField => $this->id];
 		}
 		$this->log(get_called_class() . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
@@ -335,7 +335,7 @@ abstract class OODBase
 			$data = $rows;
 			$this->initByRow($data);
 		} else {
-			$data = array();
+			$data = [];
 			if ($this->forceInit) {
 				$this->init($data, true);
 			}
@@ -383,7 +383,7 @@ abstract class OODBase
 		if ($rows) {
 			$this->data = $rows[0];
 		} else {
-			$this->data = array();
+			$this->data = [];
 		}
 		$this->init($this->data); // array, otherwise infinite loop
 		return $this->id;
@@ -427,9 +427,9 @@ abstract class OODBase
 	 * @return string whether the record already existed
 	 */
 	function insertUpdate(array $fields,
-						  array $where = array(),
-						  array $insert = array(),
-						  array $update = array()
+						  array $where = [],
+						  array $insert = [],
+						  array $update = []
 	)
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -478,21 +478,21 @@ abstract class OODBase
 		$assoc = $assoc ? $assoc : $this->data;
 		//debug($this->thes);
 		if ($this->thes) {
-			$assoc = array();
+			$assoc = [];
 			foreach ($this->thes as $key => $desc) {
-				$desc = is_array($desc) ? $desc : array('name' => $desc);
+				$desc = is_array($desc) ? $desc : ['name' => $desc];
 				if (ifsetor($desc['showSingle']) !== false) {
-					$assoc[$key] = array(
+					$assoc[$key] = [
 						0 => $desc['name'],
 						'' => ifsetor($this->data[$key]),
 						'.' => $desc,
-					);
+					];
 				}
 			}
-			$s = new slTable($assoc, 'class="table table-striped"', array(
+			$s = new slTable($assoc, 'class="table table-striped"', [
 				0 => '',
-				'' => array('no_hsc' => true)
-			));
+				'' => ['no_hsc' => true]
+			]);
 		} else {
 			foreach ($assoc as $key => &$val) {
 				if (!$val && $skipEmpty) {
@@ -512,10 +512,10 @@ abstract class OODBase
 	 * @param null $title
 	 * @return ShowAssoc
 	 */
-	function showAssoc(array $thes = array(
+	function showAssoc(array $thes = [
 		'id' => 'ID',
 		'name' => 'Name'
-	), $title = NULL)
+	], $title = NULL)
 	{
 		$ss = new ShowAssoc($this->data);
 		$ss->setThes($thes);
@@ -625,13 +625,13 @@ abstract class OODBase
 
 	static function clearInstances()
 	{
-		self::$instances[get_called_class()] = array();
+		self::$instances[get_called_class()] = [];
 		gc_collect_cycles();
 	}
 
 	static function clearAllInstances()
 	{
-		self::$instances = array();
+		self::$instances = [];
 		gc_collect_cycles();
 	}
 
@@ -680,9 +680,9 @@ abstract class OODBase
 			/** @var OODBase $c */
 			$field = $field ? $field : $c->titleColumn;
 			if (is_string($field)) {
-				$c->findInDBsetInstance(array(
+				$c->findInDBsetInstance([
 					$field => $name,
-				));
+				]);
 			} elseif ($field instanceof AsIs) {
 				$c->findInDBsetInstance([
 					$field
@@ -804,10 +804,10 @@ abstract class OODBase
 
 	function getJson()
 	{
-		return array(
+		return [
 			'class' => get_class($this),
 			'data' => $this->data,
-		);
+		];
 	}
 
 	function getSingleLink()
@@ -817,9 +817,9 @@ abstract class OODBase
 
 	function getNameLink()
 	{
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 			'href' => $this->getSingleLink(),
-		), $this->getName());
+		], $this->getName());
 	}
 
 	/**
@@ -845,7 +845,7 @@ abstract class OODBase
 
 	public static function getCacheStats()
 	{
-		$stats = array();
+		$stats = [];
 		foreach (self::$instances as $class => $list) {
 			$stats[$class] = sizeof($list);
 		}
@@ -866,13 +866,13 @@ abstract class OODBase
 			});
 		}
 		$stats = $stats->getData();
-		$content[] = new slTable($stats, 'class="table"', array(
+		$content[] = new slTable($stats, 'class="table"', [
 			'class' => 'Class',
 			'count' => 'Count',
-			'bar' => array(
+			'bar' => [
 				'no_hsc' => true,
-			),
-		));
+			],
+		]);
 		return $content;
 	}
 

@@ -7,7 +7,7 @@ class Request
 	 * Assoc array of URL parameters
 	 * @var array
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * @var URL
@@ -237,7 +237,7 @@ class Request
 	 */
 	function getArray($name)
 	{
-		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
+		return isset($this->data[$name]) ? (array)($this->data[$name]) : [];
 	}
 
 	function getTrimArray($name)
@@ -396,7 +396,7 @@ class Request
 				$controller = $resolver->getController($returnDefault);
 			}
 		}   // cli
-		nodebug(array(
+		nodebug([
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
@@ -404,7 +404,7 @@ class Request
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
 				: NULL,
-			'data' => $this->data));
+			'data' => $this->data]);
 		return $controller;
 	}
 
@@ -451,7 +451,7 @@ class Request
 		$return = NULL;
 		$url = $this->getReferer();
 		if ($url) {
-			$url->setParams(array());   // get rid of any action
+			$url->setParams([]);   // get rid of any action
 			$rr = $url->getRequest();
 			$return = $rr->getControllerString();
 		}
@@ -564,14 +564,14 @@ class Request
 
 		$host = self::getHost($isUTF8);
 		$url = Request::getRequestType() . '://' . $host . $docRoot;
-		0 && pre_print_r(array(
+		0 && pre_print_r([
 			'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
 			$_SERVER,
 			'url' => $url,
-		));
+		]);
 
 		$url = new URL($url);
 		return $url;
@@ -608,11 +608,11 @@ class Request
 	 */
 	function isAjax()
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
 		if (!$headers) {
-			$headers = array(
+			$headers = [
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
-			);
+			];
 		}
 		return $this->getBool('ajax') || (
 				isset($headers['X-Requested-With'])
@@ -621,7 +621,7 @@ class Request
 
 	function getHeader($name)
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
 		return ifsetor($headers[$name]);
 	}
 
@@ -753,28 +753,46 @@ class Request
 		return $path;
 	}
 
+	public function baseHref()
+	{
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$url = new URL($_SERVER['REQUEST_URI']);
+		$urlPath = $url->getPath();
+		$intersect = array_intersect($path->aPath, $urlPath->aPath);
+		llog($path . '', $urlPath . '', $intersect);
+		if (count($intersect)) {
+			return '/' . implode('/', $intersect) . '/xxx';
+		}
+		return '/';
+	}
+
 	/**
 	 * @return array
 	 */
 	function getURLLevels()
 	{
-		$path = $this->getPathAfterDocRoot();
+		// this one is not working with open_basedir
+		// $path = $this->getPathAfterDocRoot();
+
+		// we suppose all sites are working from the root
+		$path = new Path($_SERVER['REQUEST_URI']);
+
 		//$path = $path->getURL();
 		//debug($path);
 		if (strlen($path) > 1) {    // "/"
 			$levels = trimExplode('/', $path);
-			if ($levels[0] == 'index.php') {
+			if ($levels[0] === 'index.php') {
 				array_shift($levels);
 			}
 		} else {
-			$levels = array();
+			$levels = [];
 		}
-		nodebug(array(
+		0 && nodebug([
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
 			'getURL()' => $path->getURL() . '',
-			'levels' => $levels));
+			'levels' => $levels]);
 		return $levels;
 	}
 
@@ -915,10 +933,10 @@ class Request
 	 * @param array $noopt List of parameters without values
 	 * @return array
 	 */
-	function parseParameters($noopt = array())
+	function parseParameters($noopt = [])
 	{
-		$result = array();
-		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
+		$result = [];
+		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		while (list($tmp, $p) = each($params)) {
@@ -945,7 +963,7 @@ class Request
 		return $result;
 	}
 
-	function importCLIparams($noopt = array())
+	function importCLIparams($noopt = [])
 	{
 		$this->data += $this->parseParameters($noopt);
 	}
@@ -975,7 +993,7 @@ class Request
 
 	function clear()
 	{
-		$this->data = array();
+		$this->data = [];
 	}
 
 	/**
@@ -989,7 +1007,7 @@ class Request
 	{
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
-		0 && pre_print_r(array(
+		0 && pre_print_r([
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
@@ -997,7 +1015,7 @@ class Request
 			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
 			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
 			'getDocumentRootByScript' => self::getDocumentRootByScript(),
-		));
+		]);
 
 		$docRoot = self::getDocumentRootByRequest();
 		if (!$docRoot) {
@@ -1148,10 +1166,10 @@ class Request
 	function getClientIP()
 	{
 		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
-		if (!$ip || in_array($ip, array(
+		if (!$ip || in_array($ip, [
 				'127.0.0.1',
 				'::1'
-			))) {
+			])) {
 			$ip = $this->fetch('http://ipecho.net/plain');
 		}
 		return $ip;
