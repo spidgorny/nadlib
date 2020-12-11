@@ -11,7 +11,7 @@ if (!function_exists('str_startsWith')) {
 	function str_startsWith($haystack, $needle)
 	{
 		if (!is_array($needle)) {
-			$needle = array($needle);
+			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
 			if (strpos($haystack, $need) === 0) {
@@ -32,12 +32,14 @@ if (!function_exists('str_startsWith')) {
 		return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 	}
 
-	function str_contains($haystack, $needle)
-	{
-		if (is_array($haystack)) {
-			debug_pre_print_backtrace();
+	if (!function_exists('str_contains')) {
+		function str_contains($haystack, $needle)
+		{
+			if (is_array($haystack)) {
+				debug_pre_print_backtrace();
+			}
+			return FALSE !== strpos($haystack, $needle);
 		}
-		return FALSE !== strpos($haystack, $needle);
 	}
 
 	function str_icontains($haystack, $needle)
