@@ -317,6 +317,9 @@ class View extends stdClass
 
 	public function __set($var, $val)
 	{
+		if (!$this->caller) {
+			$this->caller = new stdClass();
+		}
 		$this->caller->$var = &$val;
 	}
 

@@ -46,7 +46,7 @@ class MemcacheFile implements MemcacheInterface
 				'unable to access cache folder',
 				'env(storage)' => getenv('storage'),
 				'cwd' => getcwd(),
-				'open_basedir' => ini_get('open_basedir'),
+				'open_basedir' => trimExplode(':', ini_get('open_basedir')),
 				'this->folder' => $this->folder,
 				'isAbsolute' => Path::isItAbsolute($this->folder),
 				'method' => __METHOD__,
