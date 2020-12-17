@@ -58,15 +58,15 @@ class TaylorProfiler
 	 */
 	function __construct($output_enabled = false, $trace_enabled = false)
 	{
-		$this->description = array();
-		$this->startTime = array();
-		$this->endTime = array();
+		$this->description = [];
+		$this->startTime = [];
+		$this->endTime = [];
 		$this->cur_timer = "";
-		$this->stack = array();
+		$this->stack = [];
 		$this->trail = "";
-		$this->trace = array();
-		$this->count = array();
-		$this->running = array();
+		$this->trace = [];
+		$this->count = [];
+		$this->running = [];
 		$this->initTime = $this->getMicroTime();
 		//$this->initTime = $_SERVER['REQUEST_TIME'];	// since PHP 5.4.0
 		//debug($this->initTime);
@@ -98,11 +98,11 @@ class TaylorProfiler
 	{
 		$name = $name ? $name : $this->getName();
 		if ($this->trace_enabled) {
-			$this->trace[] = array(
+			$this->trace[] = [
 				'time' => time(),
 				'function' => $name . " {",
 				'memory' => memory_get_usage()
-			);
+			];
 		}
 		if ($this->output_enabled) {
 			$n = array_push($this->stack, $this->cur_timer);
@@ -126,15 +126,15 @@ class TaylorProfiler
 
 	public function clearMemory()
 	{
-		$this->description = array();
-		$this->startTime = array();
-		$this->endTime = array();
+		$this->description = [];
+		$this->startTime = [];
+		$this->endTime = [];
 		$this->cur_timer = "";
-		$this->stack = array();
+		$this->stack = [];
 		$this->trail = "";
-		$this->trace = array();
-		$this->count = array();
-		$this->running = array();
+		$this->trace = [];
+		$this->count = [];
+		$this->running = [];
 		$this->trace_enabled = false;
 		$this->output_enabled = false;
 	}
@@ -148,7 +148,7 @@ class TaylorProfiler
 	{
 		$name = $name ? $name : $this->getName();
 		if ($this->trace_enabled) {
-			$this->trace[] = array('time' => time(), 'function' => "$name }", 'memory' => memory_get_usage());
+			$this->trace[] = ['time' => time(), 'function' => "$name }", 'memory' => memory_get_usage()];
 		}
 		if ($this->output_enabled) {
 			$this->endTime[$name] = $this->getMicroTime();
@@ -211,9 +211,9 @@ class TaylorProfiler
 			ksort($this->description);
 			$oaTime = $this->getMicroTime() - $this->initTime;
 
-			$together = array();
+			$together = [];
 			foreach ($this->description as $key => $val) {
-				$row = array();
+				$row = [];
 				$row['desc'] = $val;
 				$row['time'] = $this->elapsedTime($key);
 				$row['total'] = ifsetor($this->running[$key]);
@@ -221,7 +221,7 @@ class TaylorProfiler
 				$row['avg'] = $row['total'] * 1000 / $row['count'];
 				$row['perc'] = ($row['total'] / $oaTime) * 100;
 				$together[$key] = $row;
-				if ($key == 'unprofiled') {
+				if ($key === 'unprofiled') {
 					$together[$key]['bold'] = true;
 					$together[$key]['desc'] = 'Between new TaylorProfiler() and printTimers()';
 				}
@@ -235,33 +235,33 @@ class TaylorProfiler
 			$missed = $oaTime - $TimedTotal;
 			$perc = ($missed / $oaTime) * 100;
 			$tot_perc += $perc;
-			$together['Missed between the calls'] = array(
+			$together['Missed between the calls'] = [
 				'desc' => 'Missed between the calls (' . $oaTime . '-' . $TimedTotal . '[' . sizeof($together) . '])',
 				'bold' => true,
 				'time' => number_format($missed, 2, '.', ''),
 				'total' => number_format($missed, 2, '.', ''),
 				'count' => 0,
 				'perc' => number_format($perc, 2, '.', ''),
-			);
+			];
 
 			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
 				$requestTime = $_SERVER['REQUEST_TIME_FLOAT']
 					? $_SERVER['REQUEST_TIME_FLOAT']
 					: $_SERVER['REQUEST_TIME'];
 				$startup = $this->initTime - $requestTime;
-				$together['Startup'] = array(
+				$together['Startup'] = [
 					'desc' => 'Startup (REQUEST_TIME_FLOAT) (' . $this->initTime . '-' . $requestTime . ')',
 					'bold' => true,
 					'time' => number_format($startup, 2, '.', ''),
 					'total' => number_format($startup, 2, '.', ''),
 					'count' => 1,
 					'perc' => number_format($startup / $oaTime * 100, 2, '.', ''),
-				);
+				];
 			}
 
-			uasort($together, array($this, 'sort'));
+			uasort($together, [$this, 'sort']);
 
-			$table = array();
+			$table = [];
 			$i = 0;
 			foreach ($together as $key => $row) {
 				$desc = $row['desc'];
@@ -275,7 +275,7 @@ class TaylorProfiler
 					$htmlKey = '<b>' . $htmlKey . '</b>';
 				}
 				$desc = $this->description2[$key] ? $this->description2[$key] : $desc;
-				$table[] = array(
+				$table[] = [
 					'nr' => ++$i,
 					'count' => $row['count'],
 					'time, ms' => number_format($total * 1000, 2, '.', '') . '',
@@ -287,44 +287,44 @@ class TaylorProfiler
 						? $this->getProgressBar($perc)
 						: NULL,
 					'routine' => '<span title="' . htmlspecialchars($desc) . '">' . $htmlKey . '</span>',
-				);
+				];
 			}
 
 			$s = new slTable($table, 'class="nospacing no-print table" width="100%"');
-			$s->thes(array(
+			$s->thes([
 				'nr' => 'nr',
-				'count' => array(
+				'count' => [
 					'name' => 'count',
 					'align' => 'right'
-				),
-				'time, ms' => array(
+				],
+				'time, ms' => [
 					'name' => 'time, ms',
 					'align' => 'right'
-				),
-				'avg/1' => array(
+				],
+				'avg/1' => [
 					'name' => 'avg/1',
 					'align' => 'right'
-				),
-				'percent' => array(
+				],
+				'percent' => [
 					'name' => 'percent',
 					'align' => 'right'
-				),
-				'bar' => array(
+				],
+				'bar' => [
 					'no_hsc' => true,
-				),
-				'routine' => array(
+				],
+				'routine' => [
 					'name' => 'routine',
 					'no_hsc' => true,
 					'wrap' => new Wrap('<small>|</small>'),
-				),
-			));
+				],
+			]);
 			$s->isOddEven = true;
-			$s->footer = array(
+			$s->footer = [
 				'nr' => 'total',
 				'time, ms' => number_format($oaTime * 1000, 2, '.', ''),
 				'percent' => number_format($tot_perc, 2, '.', '') . '%',
 				'routine' => "OVERALL TIME (" . number_format(memory_get_peak_usage() / 1024 / 1024, 3, '.', '') . "MB)",
-			);
+			];
 			$content = Request::isCLI()
 				? $s->getCLITable(true)
 				: $s->getContent();
@@ -370,7 +370,7 @@ class TaylorProfiler
 
 	function analyzeTraceForLeak()
 	{
-		$func = array();
+		$func = [];
 		foreach ($this->trace as $i => $trace) {
 			$func[$trace['function']]++;
 		}
@@ -394,7 +394,7 @@ class TaylorProfiler
 	 */
 	function __resumeTimer($name)
 	{
-		$this->trace[] = array('time' => time(), 'function' => "$name {...", 'memory' => memory_get_usage());
+		$this->trace[] = ['time' => time(), 'function' => "$name {...", 'memory' => memory_get_usage()];
 		$this->startTime[$name] = $this->getMicroTime();
 	}
 
@@ -404,7 +404,7 @@ class TaylorProfiler
 	 */
 	function __suspendTimer($name)
 	{
-		$this->trace[] = array('time' => time(), 'function' => "$name }...", 'memory' => memory_get_usage());
+		$this->trace[] = ['time' => time(), 'function' => "$name }...", 'memory' => memory_get_usage()];
 		$this->endTime[$name] = $this->getMicroTime();
 		if (!array_key_exists($name, $this->running))
 			$this->running[$name] = $this->elapsedTime($name);
@@ -458,7 +458,7 @@ class TaylorProfiler
 
 	static function getMemoryMap()
 	{
-		$table = array();
+		$table = [];
 		foreach (self::$sos as $obj) {
 			$class = get_class($obj);
 			$table[$class]['count']++;
@@ -526,7 +526,7 @@ class TaylorProfiler
 	static function enableTick($ticker = 1000)
 	{
 		$tp = self::getInstance();
-		register_tick_function(array($tp, 'tick'));
+		register_tick_function([$tp, 'tick']);
 		declare(ticks=1000);
 		return $tp;
 	}
@@ -535,8 +535,8 @@ class TaylorProfiler
 	{
 		static $prev = 0;
 		$bt = debug_backtrace();
-		$list = array();
-		$prow = array();
+		$list = [];
+		$prow = [];
 		foreach ($bt as $row) {
 			$list[] = basename(ifsetor($row['file'])) .
 				((isset($row['object'])
@@ -585,7 +585,7 @@ class TaylorProfiler
 
 	static function disableTick()
 	{
-		unregister_tick_function(array(__CLASS__, 'tick'));
+		unregister_tick_function([__CLASS__, 'tick']);
 	}
 
 	/**
@@ -630,18 +630,18 @@ class TaylorProfiler
 		$tp ? $tp->stopTimer($method) : NULL;
 	}
 
-	public static function dumpMemory($var, $path = array())
+	public static function dumpMemory($var, $path = [])
 	{
 		static $visited = [];
 		if (is_array($var)) {
-			$log = implode('', array(
+			$log = implode('', [
 				implode('', $path), '[', sizeof($var), ']', BR
-			));
+			]);
 			error_log($log);
 			echo $log;
 			foreach ($var as $key => $val) {
 				if (!is_scalar($val) && $key != 'GLOBALS') {
-					$newPath = array_merge($path, array('.' . $key));
+					$newPath = array_merge($path, ['.' . $key]);
 					self::dumpMemory($val, $newPath);
 				}
 			}
@@ -651,18 +651,18 @@ class TaylorProfiler
 			} else {
 				$visited[] = spl_object_hash($var);
 				$objVars = get_object_vars($var);
-				$log = implode('', array(
+				$log = implode('', [
 					implode('', $path),
 					'{',
 					sizeof($objVars),
 					'}',
 					BR
-				));
+				]);
 				error_log($log);
 				echo $log;
 				foreach ($objVars as $key => $val) {
 					if (!is_scalar($val)) {
-						$newPath = array_merge($path, array('->' . $key));
+						$newPath = array_merge($path, ['->' . $key]);
 						self::dumpMemory($val, $newPath);
 					}
 				}

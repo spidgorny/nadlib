@@ -775,7 +775,8 @@ class Request
 		// $path = $this->getPathAfterDocRoot();
 
 		// we suppose all sites are working from the root
-		$path = new Path($_SERVER['REQUEST_URI']);
+		$url = new URL($_SERVER['REQUEST_URI']);
+		$path = $url->getPath();
 
 		//$path = $path->getURL();
 		//debug($path);

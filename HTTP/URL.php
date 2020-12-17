@@ -13,13 +13,13 @@ class URL
 	 *
 	 * @var array
 	 */
-	public $components = array();
+	public $components = [];
 
 	/**
 	 * $this->components['query'] decomposed into an array
 	 * @var array
 	 */
-	public $params = array();
+	public $params = [];
 
 	/**
 	 * @var string
@@ -35,13 +35,13 @@ class URL
 	/**
 	 * @var array
 	 */
-	var $log = array();
+	var $log = [];
 
 	/**
 	 * @param null $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
-	function __construct($url = NULL, array $params = array())
+	function __construct($url = NULL, array $params = [])
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
@@ -109,7 +109,7 @@ class URL
 		}
 	}
 
-	static function make(array $params = array())
+	static function make(array $params = [])
 	{
 		$url = new self();
 		$url->setParams($params);
@@ -145,7 +145,7 @@ class URL
 	 * @param array $params
 	 * @return $this
 	 */
-	function setParams(array $params = array())
+	function setParams(array $params = [])
 	{
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
@@ -157,14 +157,14 @@ class URL
 	 * @param array $params
 	 * @return $this
 	 */
-	function addParams(array $params = array())
+	function addParams(array $params = [])
 	{
 		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	function forceParams(array $params = array())
+	function forceParams(array $params = [])
 	{
 		$this->params = array_merge($this->params, $params);    // keep default order but overwrite
 		$this->components['query'] = $this->buildQuery();
@@ -173,7 +173,7 @@ class URL
 
 	function clearParams()
 	{
-		$this->setParams(array());
+		$this->setParams([]);
 		return $this;
 	}
 
@@ -189,24 +189,24 @@ class URL
 	function getPath()
 	{
 		$path = $this->path;
-		if (get_class($path) != 'Path') {
+		if (get_class($path) !== 'Path') {
 			debug(gettype($path), get_class($path), get_object_vars($path));
 			debug_pre_print_backtrace();
 		}
-		assert(get_class($path) == 'Path');
-		if ($this->documentRoot != '/') {
+		assert(get_class($path) === 'Path');
+		if ($this->documentRoot !== '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 		}
 		if (!$path instanceof Path) {
 			$path = new Path($path);
 		}
-		nodebug(array(
+		nodebug([
 			'class($this->path)' => get_class($this->path),
 			'$this->path' => $this->path . '',
 			'documentRoot' => $this->documentRoot . '',
 			'class($path)' => get_class($path),
 			'path' => $path . ''
-		));
+		]);
 		return $path;
 	}
 
@@ -321,7 +321,7 @@ class URL
 
 	public function getRequest()
 	{
-		$r = new Request($this->params ? $this->params : array());
+		$r = new Request($this->params ? $this->params : []);
 		$r->url = $this;
 		return $r;
 	}
@@ -345,13 +345,13 @@ class URL
 		if ($login) {
 			$auth = "Authorization: Basic " . base64_encode($login . ':' . $password) . PHP_EOL;
 		}
-		$stream = array(
-			'http' => array(
+		$stream = [
+			'http' => [
 				'method' => 'POST',
 				'header' => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL . $auth,
 				'content' => $this->components['query'],
-			),
-		);
+			],
+		];
 		$context = stream_context_create($stream);
 
 		$noQuery = $this->components;
@@ -596,7 +596,7 @@ class URL
 	{
 		// multi-byte character explode
 		$inSegs = preg_split('!/!u', $path);
-		$outSegs = array();
+		$outSegs = [];
 		foreach ($inSegs as $seg) {
 			if ($seg == '' || $seg == '.')
 				continue;
@@ -624,7 +624,7 @@ class URL
 	 */
 	function split_url($url, $decode = TRUE)
 	{
-		$parts = array();
+		$parts = [];
 		$xunressub = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
 		$xpchar = $xunressub . ':@%';
 
@@ -766,7 +766,7 @@ class URL
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
 		$string = preg_replace("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i", "\\1", $string);
 		if (!$preserveSpaces) {
-			$string = preg_replace(array("`[^a-z0-9]`i", "`[-]+`"), "-", $string);
+			$string = preg_replace(["`[^a-z0-9]`i", "`[-]+`"], "-", $string);
 		}
 		return strtolower(trim($string, '-'));
 	}

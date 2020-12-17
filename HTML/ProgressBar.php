@@ -3,6 +3,8 @@
 class ProgressBar
 {
 
+	// /vendor/spidgorny/nadlib/
+	public static $prefix;
 	var $percentDone = 0;
 
 	var $pbid;
@@ -56,7 +58,7 @@ class ProgressBar
 	 */
 	function __construct($percentDone = 0, $count = 0)
 	{
-		$this->setID('pb-' . uniqid());
+		$this->setID('pb-' . uniqid('', true));
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
@@ -178,7 +180,7 @@ class ProgressBar
 
 	static function flush($ob_flush = false)
 	{
-		print str_pad('', intval(ini_get('output_buffering')), ' ') . "\n";
+		print str_pad('', (int)ini_get('output_buffering'), ' ') . "\n";
 		if ($ob_flush) {
 			ob_end_flush();
 		}
@@ -202,10 +204,12 @@ class ProgressBar
 
 	static function getImage($p, $append = '')
 	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+//		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		// absolute URL to work even before <base href> is defined
-		$prefix = Request::getInstance()->getLocation() . $prefix;
-		$imageURL = $prefix . 'bar.php?rating=' . round($p) . htmlspecialchars($append);
+//		$request = Request::getInstance();
+//		llog($request->getLocation().'', $request->baseHref().'');
+//		$prefix = $request->baseHref() . $prefix;
+		$imageURL = self::$prefix . 'bar.php?rating=' . round($p) . htmlspecialchars($append);
 		return '<img src="' . $imageURL . '"
 		style="vertical-align: middle;"
 		title="' . number_format($p, 2) . '%"
@@ -221,13 +225,14 @@ class ProgressBar
 	 */
 	static function getBar($p, $append = '')
 	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		return $prefix . 'bar.php?rating=' . round($p) . $append;
+//		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return self::$prefix . 'bar.php?rating=' . round($p) . $append;
 	}
 
 	static function getBackground($p, $width = '100px')
 	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+//		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		$prefix = self::$prefix;
 		return '<div style="
 			display: inline-block;
 			width: ' . $width . ';
