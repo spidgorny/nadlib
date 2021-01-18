@@ -267,6 +267,23 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
+	public function encloseInRow(array $elements = [], array $attrs = [])
+	{
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/columnContainer.less');
+		$content = '<div class="columnContainer">';
+		foreach ($elements as $i => &$el) {
+			if (!$el instanceof HTMLTag) {
+				$el = $this->s($el);
+				$el = new HTMLTag('div', [
+					'class' => 'column',
+				] + ifsetor($attrs[$i]), $el, true);
+			}
+		}
+		$content .= implode("\n", $elements);
+		$content .= '</div>';
+		return $content;
+	}
+
 	/**
 	 * Commented to allow get_class_methods() to return false
 	 * @return string

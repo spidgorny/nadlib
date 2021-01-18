@@ -1,6 +1,7 @@
 <?php
 
-class InitNADLIB {
+class InitNADLIB
+{
 
 	var $useCookies = true;
 
@@ -56,7 +57,7 @@ class InitNADLIB {
 	public function init()
 	{
 		// maybe InitNADLIB was loaded by composer autoload
-		require_once __DIR__.'/../init.php';
+		require_once __DIR__ . '/../init.php';
 		//print_r($_SERVER);
 		$this->setDefaults();
 		$this->setErrorReporting();
@@ -135,6 +136,7 @@ class InitNADLIB {
 				pre_print_r('Output has started', $file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
+			@header('X-PHP-version: ' . PHP_VERSION);
 			error_reporting(-1);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -163,7 +165,7 @@ border-radius: 5px;">');
 		} else {
 			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
-			ini_set('display_errors', FALSE);
+			ini_set('display_errors', false);
 		}
 	}
 
