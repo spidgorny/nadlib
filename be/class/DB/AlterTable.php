@@ -9,14 +9,14 @@
 class AlterTable extends AlterIndex
 {
 
-	var $different = 0;
-	var $same = 0;
-	var $missing = 0;
+	public $different = 0;
+	public $same = 0;
+	public $missing = 0;
 
 	/**
 	 * @var AlterTableMySQL|AlterTablePostgres
 	 */
-	var $handler;
+	public $handler;
 
 	public function __construct()
 	{
@@ -24,21 +24,21 @@ class AlterTable extends AlterIndex
 		$this->setHandler();
 	}
 
-	function setHandler()
+	public function setHandler()
 	{
 		$class = $this->getDBclass();
-		if ($class == 'mysql') {
+		if ($class === 'mysql') {
 			$this->handler = new AlterTableMySQL($this->db);
-		} elseif ($class == 'DBLayer') {
+		} elseif ($class === 'DBLayer') {
 			$this->handler = new AlterTablePostgres($this->db);
-		} elseif ($class == 'DBLayerSQLite') {
+		} elseif ($class === 'DBLayerSQLite') {
 			$this->handler = new AlterTableSQLite($this->db);
 		} else {
 			throw new Exception('Undefined AlterTable handler');
 		}
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		$content = [];
 		$content[] = $this->showDBInfo();
@@ -46,7 +46,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function renderTableStruct(array $struct, array $local)
+	public function renderTableStruct(array $struct, array $local)
 	{
 		$class = $this->getDBclass();
 		$func = 'renderTableStruct';
@@ -56,7 +56,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function compareStruct(array $struct, array $local)
+	public function compareStruct(array $struct, array $local)
 	{
 		$content = '';
 		//debug(array_keys($local));
@@ -92,7 +92,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function compareTables($table, array $fromFile, array $fromDatabase)
+	public function compareTables($table, array $fromFile, array $fromDatabase)
 	{
 		$indexCompare = [];
 		foreach ($fromFile as $i => $index) {
@@ -136,7 +136,7 @@ class AlterTable extends AlterIndex
 		return $indexCompare;
 	}
 
-	function click($table, $query)
+	public function click($table, $query)
 	{
 		$link = $this->a($this->makeURL([
 			'c' => get_class($this),
@@ -154,7 +154,7 @@ class AlterTable extends AlterIndex
 	 * @param array $local
 	 * @return string
 	 */
-	function renderTableStructdbLayerBL(array $struct, array $local)
+	public function renderTableStructdbLayerBL(array $struct, array $local)
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -200,7 +200,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function renderTableStructdbLayerSQLite(array $struct, array $local)
+	public function renderTableStructdbLayerSQLite(array $struct, array $local)
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -267,10 +267,10 @@ class AlterTable extends AlterIndex
 
 	/**
 	 * TODO
-	 * @see AlterTableHandler
 	 * @param array $a
 	 * @param array $b
 	 * @return bool
+	 * @see AlterTableHandler
 	 */
 	public function sameType($a, $b)
 	{
