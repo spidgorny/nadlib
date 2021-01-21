@@ -44,7 +44,8 @@ class Request
 		$this->url = new URL(
 			isset($_SERVER['SCRIPT_URL'])
 				? $_SERVER['SCRIPT_URL']
-				: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null)
+				: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null),
+			$this->data
 		);
 	}
 

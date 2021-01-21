@@ -63,6 +63,8 @@ abstract class FullGrid extends Grid
 
 			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
+			$this->collection->pager->setNumberOfRecords($this->collection->getCount());
+			$this->collection->pager->detectCurrentPage();
 		}
 		// after collection is made, to run getGridColumns
 		$allowEdit = $this->request->getControllerString() === get_class($this);
