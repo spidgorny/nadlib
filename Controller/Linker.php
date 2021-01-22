@@ -215,12 +215,14 @@ class Linker
 		return $this->makeURL($params);
 	}
 
-	public function linkPage($className)
+	public function linkPage($className, array $params = [])
 	{
+		/** @var AppController $obj */
 		$obj = new $className();
 		$title = $obj->title;
 		$html = new HTML();
-		return $html->a($className, $title);
+		$href = $className::href($params);
+		return $html->a($href, $title);
 	}
 
 	public function makeActionURL($action = '', array $params = [], $path = '')

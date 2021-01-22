@@ -64,8 +64,10 @@ class AccessRights implements AccessRightsInterface
 		//debug($what, $this->arCache);
 		if (isset($this->arCache[$what])) {
 			return $this->arCache[$what];
-		} else {
-			throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
+		}
+
+		if (DEVELOPMENT) {
+			//throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
 		}
 	}
 
