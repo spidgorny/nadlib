@@ -38,7 +38,7 @@ if (!function_exists('str_startsWith')) {
 			if (is_array($haystack)) {
 				debug_pre_print_backtrace();
 			}
-			return FALSE !== strpos($haystack, $needle);
+			return false !== strpos($haystack, $needle);
 		}
 	}
 
@@ -47,7 +47,7 @@ if (!function_exists('str_startsWith')) {
 		if (is_array($haystack)) {
 			debug_pre_print_backtrace();
 		}
-		return FALSE !== stripos($haystack, $needle);
+		return false !== stripos($haystack, $needle);
 	}
 
 	if (!function_exists('contains')) {
@@ -235,13 +235,13 @@ if (!function_exists('str_startsWith')) {
 		$out = '';
 		$chars = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
 		foreach ($chars as $i => $ch) {
-			if ($ch == ' ') {
-				if ($out[-1] != '_') {
+			if ($ch === ' ') {
+				if ($out[-1] !== '_') {
 					$out .= '_';
 				}
-			} elseif (strtoupper($ch) == $ch) {
+			} elseif (strtoupper($ch) === $ch) {
 				if ($i) {
-					if (strlen($out) && $out[strlen($out)-1] != '_') {
+					if (strlen($out) && $out[strlen($out)-1] !== '_') {
 						$out .= '_';
 					}
 				}
