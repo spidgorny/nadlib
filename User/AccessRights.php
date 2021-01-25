@@ -67,7 +67,7 @@ class AccessRights implements AccessRightsInterface
 		}
 
 		if (DEVELOPMENT) {
-			//throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
+			throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
 		}
 	}
 
