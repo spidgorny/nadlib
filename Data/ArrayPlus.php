@@ -1285,6 +1285,17 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
+	public function any(Closure $check)
+	{
+		foreach ($this->getData() as $el) {
+			$ok = $check($el);
+			if ($ok) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
 
 function AP($a = [])

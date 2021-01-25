@@ -649,7 +649,7 @@ abstract class OODBase
 	 * @return int|null
 	 * @throws Exception
 	 */
-	public static function createRecord(array $insert, $class = NULL)
+	public static function createRecord(array $insert, $class = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
@@ -891,16 +891,22 @@ abstract class OODBase
 		//debug($value, $this->lastSelectQuery);
 		if (is_bool($value)) {
 			return $value;
-		} elseif (is_integer($value)) {
-			return $value !== 0;
-		} elseif (is_numeric($value)) {
-			return intval($value) !== 0;
-		} elseif (is_string($value)) {
-			return $value && $value[0] === 't';
-		} else {
-//			throw new InvalidArgumentException(__METHOD__.' ['.$value.']');
-			return false;
 		}
+
+		if (is_integer($value)) {
+			return $value !== 0;
+		}
+
+		if (is_numeric($value)) {
+			return intval($value) !== 0;
+		}
+
+		if (is_string($value)) {
+			return $value && $value[0] === 't';
+		}
+
+//		throw new InvalidArgumentException(__METHOD__.' ['.$value.']');
+		return false;
 	}
 
 	public function setDB(DBInterface $db)
@@ -911,6 +917,15 @@ abstract class OODBase
 	public function getDB()
 	{
 		return $this->db;
+	}
+
+	public function hash()
+	{
+		return spl_object_hash($this);
+	}
+
+	public function oid() {
+		return get_class($this).'-'.$this->getID().'-'.substr(md5($this->hash()), 0, 8);
 	}
 
 }

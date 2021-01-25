@@ -52,7 +52,7 @@ trait CachedGetInstance
 			}
 		} elseif (is_array($id)) {
 			/** @var OODBase $inst */
-			$inst = new $static();	// only to find ->idField
+			$inst = new $static();    // only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
 			$inst = static::$instances[$static][$intID] ?? $inst;
@@ -105,9 +105,11 @@ trait CachedGetInstance
 	{
 		try {
 			$obj = self::getInstance($id);
+//			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
 		} catch (InvalidArgumentException $e) {
 			$class = get_called_class();
 			$obj = new $class();
+//			llog(get_called_class(), $id, 'new', spl_object_hash($obj));
 		}
 		return $obj;
 	}
@@ -192,38 +194,45 @@ trait CachedGetInstance
 		$self = get_called_class();
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
-		$c = null;
 		// first search instances
+		$c = static::findInstanceByName($name, $field);
+		if ($c) {
+			return $c;
+		}
+
+		$c = new $self();
+		/** @var $c OODBase */
+		$field = $field ? $field : $c->titleColumn;
+		if (is_string($field)) {
+			$c->findInDBsetInstance([
+//					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
+				new SQLWhereEqual('trim(' . $field . ')', $name),
+			]);
+		} elseif ($field instanceof AsIs) {
+			$c->findInDBsetInstance([
+				$field
+			]);
+		} else {
+			throw new RuntimeException(__METHOD__);
+		}
+		return $c;
+	}
+
+	public static function findInstanceByName($name, $field = null)
+	{
+		$self = get_called_class();
 		if (ifsetor(self::$instances[$self], [])) {
 			foreach (self::$instances[$self] as $inst) {
 				if ($inst instanceof OODBase) {
 					$field = $field ? $field : $inst->titleColumn;
+//					llog(__METHOD__, $inst->data[$field], $name);
 					if (ifsetor($inst->data[$field]) == $name) {
-						$c = $inst;
-						break;
+						return $inst;
 					}
 				}
 			}
 		}
-
-		if (!$c) {
-			$c = new $self();
-			/** @var $c OODBase */
-			$field = $field ? $field : $c->titleColumn;
-			if (is_string($field)) {
-				$c->findInDBsetInstance([
-//					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
-					 new SQLWhereEqual('trim(' . $field . ')', $name),
-				]);
-			} elseif ($field instanceof AsIs) {
-				$c->findInDBsetInstance([
-					$field
-				]);
-			} else {
-				throw new RuntimeException(__METHOD__);
-			}
-		}
-		return $c;
+		return null;
 	}
 
 }
