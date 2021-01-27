@@ -222,16 +222,15 @@ class IndexBase /*extends Controller*/
 			return;
 		}
 		$slug = $this->request->getControllerString();
-		llog($slug);
-		if ($slug) {
-			if ($_REQUEST['d']) {
-				$this->log(__METHOD__, $slug);
-			}
-			$this->loadController($slug);
-			$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
-		} else {
+//		llog($slug);
+		if (!$slug) {
 			throw new Exception404($slug);
 		}
+		if ($_REQUEST['d']) {
+			$this->log(__METHOD__, $slug);
+		}
+		$this->loadController($slug);
+		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
 	}
 
 	/**
@@ -265,25 +264,21 @@ class IndexBase /*extends Controller*/
 	 */
 	public function makeController($class)
 	{
-		try {
-			// v1
+		// v1
 //			$this->controller = new $class();
-			// v3
-			if (method_exists($this->config, 'getDI')) {
-				$di = $this->config->getDI();
-				$this->controller = $di->get($class);
-			} else {
-				// v2
-				$ms = new MarshalParams($this->config);
-				$this->controller = $ms->make($class);
-			}
+		// v3
+		if (method_exists($this->config, 'getDI')) {
+			$di = $this->config->getDI();
+			$this->controller = $di->get($class);
+		} else {
+			// v2
+			$ms = new MarshalParams($this->config);
+			$this->controller = $ms->make($class);
+		}
 
-			// debug($class, get_class($this->controller));
-			if (method_exists($this->controller, 'postInit')) {
-				$this->controller->postInit();
-			}
-		} catch (AccessDeniedException $e) {
-			$this->error($e->getMessage());
+		// debug($class, get_class($this->controller));
+		if (method_exists($this->controller, 'postInit')) {
+			$this->controller->postInit();
 		}
 		return $this->controller;
 	}
@@ -425,35 +420,35 @@ class IndexBase /*extends Controller*/
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
 			echo $e->getTraceAsString(), BR;
-			$content = '';
-		} else {
-			http_response_code($e->getCode());
-			if ($this->controller) {
-				$this->controller->title = get_class($this->controller);
-			}
+			return '';
+		}
 
-			$message = $e->getMessage();
-			$message = ($message instanceof htmlString ||
-				$message[0] == '<')
-				? $message . ''
-				: htmlspecialchars($message);
-			$content = '<div class="' . $wrapClass . '">
+		http_response_code($e->getCode());
+		if ($this->controller) {
+			$this->controller->title = get_class($this->controller);
+		}
+
+		$message = $e->getMessage();
+		$message = ($message instanceof htmlString ||
+			$message[0] == '<')
+			? $message . ''
+			: htmlspecialchars($message);
+		$content = '<div class="' . $wrapClass . '">
 				' . get_class($e) .
-				($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
-				nl2br($message);
-			if (DEVELOPMENT || 0) {
-				$content .= BR . '<hr />' . '<div style="text-align: left">' .
-					nl2br($e->getTraceAsString()) . '</div>';
-				//$content .= getDebug($e);
-			}
-			$content .= '</div>';
-			if ($e instanceof LoginException) {
-				// catch this exception in your app Index class, it can't know what to do with all different apps
-				//$lf = new LoginForm();
-				//$content .= $lf;
-			} elseif ($e instanceof Exception404) {
-				$e->sendHeader();
-			}
+			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
+			nl2br($message);
+		if (DEVELOPMENT || 0) {
+			$content .= BR . '<hr />' . '<div style="text-align: left">' .
+				nl2br($e->getTraceAsString()) . '</div>';
+			//$content .= getDebug($e);
+		}
+		$content .= '</div>';
+		if ($e instanceof LoginException) {
+			// catch this exception in your app Index class, it can't know what to do with all different apps
+			//$lf = new LoginForm();
+			//$content .= $lf;
+		} elseif ($e instanceof Exception404) {
+			$e->sendHeader();
 		}
 
 		return $content;
