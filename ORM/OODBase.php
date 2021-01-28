@@ -547,7 +547,7 @@ abstract class OODBase
 	 * @param bool $skipEmpty
 	 * @return slTable
 	 */
-	public function renderAssoc(array $assoc = NULL, $recursive = false, $skipEmpty = true)
+	public function renderAssoc(array $assoc = null, $recursive = false, $skipEmpty = true)
 	{
 		$assoc = $assoc ? $assoc : $this->data;
 		//debug($this->thes);

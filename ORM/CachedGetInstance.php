@@ -194,20 +194,12 @@ trait CachedGetInstance
 		$self = get_called_class();
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
-		$c = null;
 		// first search instances
-		if (ifsetor(self::$instances[$self], [])) {
-			foreach (self::$instances[$self] as $inst) {
-				if ($inst instanceof OODBase) {
-					$field = $field ? $field : $inst->titleColumn;
-					if (ifsetor($inst->data[$field]) == $name) {
-						$c = $inst;
-						break;
-					}
-				}
-			}
+		$c = self::getInstanceFromCache($name, $field);
+		if ($c) {
+			return $c;
 		}
-
+		
 		if (!$c) {
 			$c = new $self();
 			/** @var $c OODBase */
@@ -228,4 +220,21 @@ trait CachedGetInstance
 		return $c;
 	}
 
+	public static function getInstanceFromCache($name, $field)
+	{
+		$self = get_called_class();
+		llog(count(ifsetor(self::$instances[$self])));
+		if (ifsetor(self::$instances[$self], [])) {
+			foreach (self::$instances[$self] as $inst) {
+				if ($inst instanceof OODBase) {
+					$field = $field ? $field : $inst->titleColumn;
+					if (ifsetor($inst->data[$field]) == $name) {
+						return $inst;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
 }
