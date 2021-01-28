@@ -924,8 +924,41 @@ abstract class OODBase
 		return spl_object_hash($this);
 	}
 
-	public function oid() {
+	public function oid()
+	{
 		return get_class($this).'-'.$this->getID().'-'.substr(md5($this->hash()), 0, 8);
 	}
 
+	public function dehydrate()
+	{
+		return [
+			'class' => get_class($this),
+			'id' => $this->id,
+			'data' => $this->data,
+		];
+	}
+
+	/**
+	 * @param array|string $data
+	 * @return OODBase
+	 */
+	public static function hydrate($data)
+	{
+		if (is_string($data)) {
+			/** @noinspection UnserializeExploitsInspection */
+			$data = unserialize($data);
+		}
+		$el = (object)$data;
+		$class = $el->class;
+		$obj = new $class();
+		foreach ($el as $key => $val) {
+			if (is_array($val) && isset($val['class'])) {
+				$val = self::hydrate($val);
+			}
+			/** @noinspection PhpVariableVariableInspection */
+			$obj->$key = $val;
+		}
+		unset($obj->class);	// special case, see above
+		return $obj;
+	}
 }

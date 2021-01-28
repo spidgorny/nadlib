@@ -43,7 +43,7 @@ class InitNADLIB
 		$this->al = AutoLoad::getInstance();
 		$this->al->useCookies = $this->useCookies;
 		$this->development = Request::isWindows()
-			|| ifsetor($_COOKIE['debug'])
+			|| ifsetor($_COOKIE['debug']) === ifsetor($_SERVER['HTTP_HOST'])
 			|| ini_get('debug')
 			|| getenv('NADLIB');
 	}

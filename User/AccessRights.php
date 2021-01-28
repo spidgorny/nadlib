@@ -12,21 +12,32 @@ class AccessRights implements AccessRightsInterface
 
 	public $groupID;
 
-	protected $arCache = [];
+	/**
+	 * @var array
+	 * @public for dehydration
+	 */
+	public $arCache = [];
 
 	/**
 	 * @var DBInterface
 	 */
 	protected $db;
 
-	protected $query;
+	public $query;
 
-	public function __construct($idGroup)
+	/**
+	 * AccessRights constructor.
+	 * @param null|int $idGroup - can be null for dehydration
+	 * @throws Exception
+	 */
+	public function __construct($idGroup = null)
 	{
 		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
 		$this->db = Config::getInstance()->getDB();
 		$this->groupID = $idGroup;
-		$this->reload();
+		if ($this->groupID) {
+			$this->reload();
+		}
 		TaylorProfiler::stop($profiler);
 	}
 
@@ -117,5 +128,15 @@ class AccessRights implements AccessRightsInterface
 	public function setAccess($name, $value)
 	{
 		$this->arCache[$name] = $value;
+	}
+
+	public function dehydrate()
+	{
+		return [
+			'class' => get_class($this),
+			'groupID' => $this->groupID,
+			'arCache' => $this->arCache,
+			'query' => null,
+		];
 	}
 }
