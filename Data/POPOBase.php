@@ -80,7 +80,7 @@ class POPOBase
 
 	public function toJson()
 	{
-		return json_encode($this, JSON_PRETTY_PRINT);
+		return json_encode($this, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
 	}
 
 }
