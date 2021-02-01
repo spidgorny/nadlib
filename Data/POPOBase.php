@@ -34,10 +34,14 @@ class POPOBase
 		try {
 			$prop = $this->reflector->getProperty($name);
 			if ($prop) {
-				$docText = $prop->getDocComment();
-				$doc = new DocCommentParser($docText);
-				$type = $doc->getFirstTagValue('var');
-				//debug($docText, $type);
+				$type = $prop->getType();
+				if (!$type) {
+					$docText = $prop->getDocComment();
+					$doc = new DocCommentParser($docText);
+					$type = $doc->getFirstTagValue('var');
+//					llog($docText, $type, $value);
+				}
+				llog($name, $type.'', $value);
 				switch ($type) {
 					case 'int':
 						$value = intval($value);
@@ -61,8 +65,15 @@ class POPOBase
 					case '\DateTime':
 						if (is_object($value)) {
 							$value = new DateTime($value->date);
-						} else {
+						} elseif ($value) {
 							$value = new DateTime($value);
+						}
+						break;
+					case 'DateTimeImmutable':
+						if (is_object($value)) {
+							$value = new DateTimeImmutable($value->date);
+						} elseif ($value) {
+							$value = new DateTimeImmutable($value);
 						}
 						break;
 					default:
