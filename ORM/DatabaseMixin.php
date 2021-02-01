@@ -39,7 +39,7 @@ trait DatabaseMixin
 		return $instance;
 	}
 
-	public static function findAll(DBInterface $db, array $where, $orderBy = '')
+	public static function findAll(DBInterface $db, array $where = [], $orderBy = '')
 	{
 		$rows = $db->fetchAllSelectQuery(static::getTableName(), $where, $orderBy);
 		$instances = array_map(static function ($row) use ($db) {
