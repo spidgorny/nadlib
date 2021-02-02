@@ -181,7 +181,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 //		echo $query, BR;
 		$prof = new Profiler();
 
-		$this->reportIfLastQueryFailed();
+//		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
 			debug('no connection', $this->connection, $query . '');
@@ -203,10 +203,11 @@ class DBLayer extends DBLayerBase implements DBInterface
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
 				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
-//				$lastError = error_get_last();
-//				if ($lastError) {
-//					throw new Exception(json_encode($lastError));
-//				}
+				$lastError = pg_last_error($this->connection);
+				if ($lastError) {
+					// setQuery will be called in the catch below
+					throw new DatabaseException($lastError);
+				}
 			}
 			$this->queryTime = $prof->elapsed();
 			if ($this->logToLog) {

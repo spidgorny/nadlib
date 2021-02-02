@@ -52,7 +52,7 @@ trait CachedGetInstance
 			}
 		} elseif (is_array($id)) {
 			/** @var OODBase $inst */
-			$inst = new $static();	// only to find ->idField
+			$inst = new $static();    // only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
 			$inst = isset(self::$instances[$static][$intID])
@@ -199,23 +199,21 @@ trait CachedGetInstance
 		if ($c) {
 			return $c;
 		}
-		
-		if (!$c) {
-			$c = new $self();
-			/** @var $c OODBase */
-			$field = $field ? $field : $c->titleColumn;
-			if (is_string($field)) {
-				$c->findInDBsetInstance([
+
+		$c = new $self();
+		/** @var $c OODBase */
+		$field = $field ? $field : $c->titleColumn;
+		if (is_string($field)) {
+			$c->findInDBsetInstance([
 //					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
-					 new SQLWhereEqual('trim(' . $field . ')', $name),
-				]);
-			} elseif ($field instanceof AsIs) {
-				$c->findInDBsetInstance([
-					$field
-				]);
-			} else {
-				throw new RuntimeException(__METHOD__);
-			}
+				new SQLWhereEqual('trim(' . $field . ')', $name),
+			]);
+		} elseif ($field instanceof AsIs) {
+			$c->findInDBsetInstance([
+				$field
+			]);
+		} else {
+			throw new RuntimeException(__METHOD__);
 		}
 		return $c;
 	}
@@ -223,7 +221,7 @@ trait CachedGetInstance
 	public static function getInstanceFromCache($name, $field)
 	{
 		$self = get_called_class();
-		llog(count(ifsetor(self::$instances[$self])));
+//		llog(count(ifsetor(self::$instances[$self], [])));
 		if (ifsetor(self::$instances[$self], [])) {
 			foreach (self::$instances[$self] as $inst) {
 				if ($inst instanceof OODBase) {
@@ -236,5 +234,5 @@ trait CachedGetInstance
 		}
 		return null;
 	}
-	
+
 }
