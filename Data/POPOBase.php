@@ -41,7 +41,7 @@ class POPOBase
 					$type = $doc->getFirstTagValue('var');
 //					llog($docText, $type, $value);
 				}
-				llog($name, $type.'', $value);
+//				llog($name, $type.'', $value);
 				switch ($type) {
 					case 'int':
 						$value = intval($value);
@@ -89,6 +89,11 @@ class POPOBase
 		return $value;
 	}
 
+	/**
+	 * Only public properties will be included
+	 * @return false|string
+	 * @throws JsonException
+	 */
 	public function toJson()
 	{
 		return json_encode($this, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
