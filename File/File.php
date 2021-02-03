@@ -3,11 +3,12 @@
 class File
 {
 
-	protected $dir;
-
 	public bool $isDir;
 
-	protected $name;
+	/**
+	 * @var string this is a relative path (can be absolute as well)
+	 */
+	protected string $name;
 
 	public SplFileInfo $spl;
 
@@ -28,14 +29,20 @@ class File
 	 * 'filename'=>'asd',
 	 * ]
 	 */
-	public $meta;
+	public array $meta;
 
-	public static function fromLocal($file)
+	/**
+	 * @var string|null the path in the $name is relative to this
+	 */
+	public ?string $relativeTo;
+
+	public static function fromLocal($file, string $relativeTo = null)
 	{
-		if (!file_exists($file) && !is_dir($file)) {
-			throw new Exception('File ' . $file . ' does not exists');
-		}
-		$file = new static($file);
+		// relative to some unknown root should work
+//		if (!file_exists($file) && !is_dir($file)) {
+//			throw new Exception('File ' . $file . ' does not exists');
+//		}
+		$file = new static($file, $relativeTo);
 		$file->isDir = is_dir($file);
 		return $file;
 	}
@@ -47,23 +54,18 @@ class File
 		return $file;
 	}
 
-	public static function fromFly(League\Flysystem\Filesystem $fly, array $file)
+	public static function fromFly(League\Flysystem\Filesystem $fly, array $fileMeta)
 	{
-		$file = new static($file['path']);
+		$file = new static($fileMeta['path']);
 		$file->fly = $fly;
-		$file->meta = $file;
+		$file->meta = $fileMeta;
 		return $file;
 	}
 
-	public function __construct($path)
+	public function __construct($path, string $relativeTo = null)
 	{
-		$this->dir = dirname($path) === '.' ? '' : dirname($path);
-		$this->name = basename($path);
-	}
-
-	public function getDir()
-	{
-		return $this->dir;
+		$this->relativeTo = $relativeTo;
+		$this->name = $path;
 	}
 
 	public function getName()
@@ -83,10 +85,9 @@ class File
 
 	public function getPathname()
 	{
-		if ($this->dir) {
-			return $this->dir . '/' . $this->name;
-		}
-		return $this->name;
+		$absolute = path_plus($this->relativeTo, $this->name);
+//		llog(__METHOD__, $this->relativeTo, $this->name, $absolute);
+		return $absolute;
 	}
 
 	public function md5()
