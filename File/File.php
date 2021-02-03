@@ -36,9 +36,7 @@ class File
 			throw new Exception('File ' . $file . ' does not exists');
 		}
 		$file = new static($file);
-		if (is_dir($file)) {
-			$file->isDir = true;
-		}
+		$file->isDir = is_dir($file);
 		return $file;
 	}
 
