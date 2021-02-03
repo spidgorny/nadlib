@@ -44,12 +44,16 @@ class Session implements SessionInterface
 		}
 	}
 
-	public function get($key)
+	public function get($key, $default = null)
 	{
+		if (is_callable($default)) {
+			$default = $default();
+		}
+
 		if ($this->prefix) {
-			return ifsetor($_SESSION[$this->prefix][$key]);
+			return ifsetor($_SESSION[$this->prefix][$key], $default);
 		} else {
-			return ifsetor($_SESSION[$key]);
+			return ifsetor($_SESSION[$key], $default);
 		}
 	}
 

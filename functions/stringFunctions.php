@@ -134,15 +134,23 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $plus
+	 * @param null $plus2
+	 * @return string
+	 */
 	function path_plus($path, $plus, $plus2 = null)
 	{
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
+//		llog($separator);
 
 		$isAbs = isset($path[0]) &&
-			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
+			($path[0] === '/' || $path[0] === '\\' || $path[1] === ':');
 
-		$parts = trimExplode('/', $path.'');
+		$path = str_replace('\\', '/', $path);	// for trim
+		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';

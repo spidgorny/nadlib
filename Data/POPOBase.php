@@ -22,6 +22,10 @@ class POPOBase
 			foreach (get_object_vars($set) as $key => $val) {
 				$this->$key = $this->transform($key, $val);
 			}
+		} elseif (is_array($set)) {
+			foreach ($set as $key => $val) {
+				$this->$key = $this->transform($key, $val);
+			}
 		}
 	}
 
@@ -30,10 +34,14 @@ class POPOBase
 		try {
 			$prop = $this->reflector->getProperty($name);
 			if ($prop) {
-				$docText = $prop->getDocComment();
-				$doc = new DocCommentParser($docText);
-				$type = $doc->getFirstTagValue('var');
-				//debug($docText, $type);
+				$type = $prop->getType();
+				if (!$type) {
+					$docText = $prop->getDocComment();
+					$doc = new DocCommentParser($docText);
+					$type = $doc->getFirstTagValue('var');
+//					llog($docText, $type, $value);
+				}
+//				llog($name, $type.'', $value);
 				switch ($type) {
 					case 'int':
 						$value = intval($value);
@@ -57,8 +65,15 @@ class POPOBase
 					case '\DateTime':
 						if (is_object($value)) {
 							$value = new DateTime($value->date);
-						} else {
+						} elseif ($value) {
 							$value = new DateTime($value);
+						}
+						break;
+					case 'DateTimeImmutable':
+						if (is_object($value)) {
+							$value = new DateTimeImmutable($value->date);
+						} elseif ($value) {
+							$value = new DateTimeImmutable($value);
 						}
 						break;
 					default:
@@ -74,9 +89,14 @@ class POPOBase
 		return $value;
 	}
 
+	/**
+	 * Only public properties will be included
+	 * @return false|string
+	 * @throws JsonException
+	 */
 	public function toJson()
 	{
-		return json_encode($this, JSON_PRETTY_PRINT);
+		return json_encode($this, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
 	}
 
 }

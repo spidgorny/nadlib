@@ -17,6 +17,7 @@ class SQLWhere implements ArrayAccess
 		} elseif ($where) {
 			$this->add($where);
 		}
+//		$this->db = Config::getInstance()->getDB();
 	}
 
 	public function injectDB(DBInterface $db)

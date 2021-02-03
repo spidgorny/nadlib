@@ -36,6 +36,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new HTMLTag('div', $param, $content);
 	}
 
+	public static function span($content, array $param = [])
+	{
+		return new HTMLTag('span', $param, $content);
+	}
+
 	public function __toString()
 	{
 		try {
