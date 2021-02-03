@@ -47,13 +47,13 @@ class InitNADLIB {
 			|| getenv('NADLIB');
 	}
 
-	function disableAutoload()
+	public function disableAutoload()
 	{
 		$this->al = null;
 		return $this;
 	}
 
-	function init()
+	public function init()
 	{
 		//print_r($_SERVER);
 		$this->setDefaults();
@@ -81,7 +81,7 @@ class InitNADLIB {
 	/**
 	 * Autoloading done by composer only
 	 */
-	function initWithComposer()
+	public function initWithComposer()
 	{
 		$this->setDefaults();
 		$this->setErrorReporting();

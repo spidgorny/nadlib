@@ -142,16 +142,15 @@ abstract class OODBase
 			$where = $id->getAsArray();
 			$this->findInDB($where);
 		} elseif (is_scalar($id)) {
-//			debug('set id', $id);
 			$this->id = $id;
 			if (is_array($this->idField)) {
 				// TODO
 				throw new InvalidArgumentException(__METHOD__);
-			} else {
-				// will do $this->init()
-				$this->findByID($this->id);
 			}
-//			debug('data set', $this->data);
+
+			// will do $this->init()
+			$this->findByID($this->id);
+			llog($this->data);
 			if (!$this->data) {
 				$this->id = null;
 			}
