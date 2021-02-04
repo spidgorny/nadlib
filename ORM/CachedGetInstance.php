@@ -191,18 +191,18 @@ trait CachedGetInstance
 	 */
 	public static function getInstanceByName($name, $field = null)
 	{
-		$self = get_called_class();
+		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
 		// first search instances
-		$c = self::getInstanceFromCache($name, $field);
+		$c = static::findInstanceByName($name, $field);
 		if ($c) {
 			return $c;
 		}
 
 		$c = new $self();
 		/** @var $c OODBase */
-		$field = $field ? $field : $c->titleColumn;
+		$field = $field ?: $c->titleColumn;
 		if (is_string($field)) {
 			$c->findInDBsetInstance([
 //					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
@@ -218,15 +218,15 @@ trait CachedGetInstance
 		return $c;
 	}
 
-	public static function getInstanceFromCache($name, $field)
+	public static function findInstanceByName($name, $field = null)
 	{
-		$self = get_called_class();
-//		llog(count(ifsetor(self::$instances[$self], [])));
+		$self = static::class;
 		if (ifsetor(self::$instances[$self], [])) {
 			foreach (self::$instances[$self] as $inst) {
 				if ($inst instanceof OODBase) {
-					$field = $field ? $field : $inst->titleColumn;
-					if (ifsetor($inst->data[$field]) == $name) {
+					$field = $field ?: $inst->titleColumn;
+//					llog(__METHOD__, $inst->data[$field], $name);
+					if (ifsetor($inst->data[$field]) === $name) {
 						return $inst;
 					}
 				}
