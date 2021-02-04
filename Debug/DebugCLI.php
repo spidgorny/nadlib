@@ -17,7 +17,7 @@ class DebugCLI
 
 	public static function canCLI()
 	{
-		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
+		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT'], ''), 'curl');
 		return Request::isCLI() || $isCURL;
 	}
 
