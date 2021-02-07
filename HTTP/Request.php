@@ -937,13 +937,13 @@ class Request
 		//debug($path);
 		if (strlen($path) > 1) {    // "/"
 			$levels = trimExplode('/', $path);
-			if ($levels && $levels[0] == 'index.php') {
+			if ($levels && $levels[0] === 'index.php') {
 				array_shift($levels);
 			}
 		} else {
 			$levels = [];
 		}
-		nodebug([
+		llog([
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
