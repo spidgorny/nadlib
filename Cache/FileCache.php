@@ -15,8 +15,9 @@ class FileCache
 		if ($age) {
 			$this->age = $age;
 		}
-		$this->folder = cap($folder);
+		$this->folder = $folder;
 		$this->folder = realpath($this->folder);
+		$this->folder = cap($this->folder);
 		if (!is_writable($this->folder)) {
 			throw new Exception('Folder ' . $this->folder . ' is not writable');
 		}
