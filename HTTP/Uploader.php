@@ -11,15 +11,15 @@ class Uploader
 	 * Allowed extensions
 	 * @var array|null
 	 */
-	public $allowed = array(
+	public $allowed = [
 		'gif', 'jpg', 'png', 'jpeg',
-	);
+	];
 
 	/**
 	 * Allowed mime types, not checked if empty
 	 * @var array
 	 */
-	public $allowedMime = array();
+	public $allowedMime = [];
 
 	/**
 	 * Which method of mime detection was used
@@ -27,7 +27,7 @@ class Uploader
 	 */
 	public $mimeMethod;
 
-	protected $errors = array(
+	protected $errors = [
 		1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
 		'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
 		'The uploaded file was only partially uploaded.',
@@ -35,13 +35,13 @@ class Uploader
 		6 => 'Missing a temporary folder.',
 		'Failed to write file to disk.',
 		'A PHP extension stopped the file upload.'
-	);
+	];
 
 	/**
 	 *
 	 * @param array|null $allowed If provided this will override allowed extensions
 	 */
-	function __construct($allowed = array())
+	function __construct($allowed = [])
 	{
 		if (!empty($allowed)) {
 			$this->allowed = $allowed;
@@ -81,7 +81,7 @@ class Uploader
 		$f = new HTMLForm();
 		$f->file($fieldName);
 		$f->text('<br />');
-		$f->submit('Upload', array('class' => 'btn btn-primary'));
+		$f->submit('Upload', ['class' => 'btn btn-primary']);
 		$f->text($this->getLimitsDiv());
 		return $f;
 	}
@@ -127,11 +127,11 @@ post_max_size: ' . $post_max_size . '">' .
 
 	function getLimits()
 	{
-		return array(
+		return [
 			'upload_max_filesize' => ini_get('upload_max_filesize'),
 			'post_max_size' => ini_get('post_max_size'),
 			'disk_free_space' => round(disk_free_space('.') / 1024 / 1024) . 'MB',
-		);
+		];
 	}
 
 	/**
@@ -416,20 +416,20 @@ post_max_size: ' . $post_max_size . '">' .
 		)
 		*/
 
-		$Result = array();
-		$Name = array();
-		$Type = array();
-		$TmpName = array();
-		$Error = array();
-		$Size = array();
+		$Result = [];
+		$Name = [];
+		$Type = [];
+		$TmpName = [];
+		$Error = [];
+		$Size = [];
 		foreach ($_FILES as $Field => $Data) {
 			foreach ($Data as $Key => $Val) {
-				$Result[$Field] = array();
+				$Result[$Field] = [];
 				if (!is_array($Val))
 					$Result[$Field] = $Data;
 				else {
-					$Res = array();
-					self::GPF_FilesFlip($Res, array(), $Data);
+					$Res = [];
+					self::GPF_FilesFlip($Res, [], $Data);
 					$Result[$Field] += $Res;
 				}
 			}
@@ -463,7 +463,7 @@ post_max_size: ' . $post_max_size . '">' .
 			$First = array_shift($Keys);
 			array_push($Keys, $First);
 			foreach (array_reverse($Keys) as $K)
-				$Res = array($K => $Res); // you might think we'd say $Res[$K] = $Res, but $Res starts out not as an array
+				$Res = [$K => $Res]; // you might think we'd say $Res[$K] = $Res, but $Res starts out not as an array
 			$Result = self::GPF_ArrayMergeRecursive($Result, $Res);
 		}
 	}
