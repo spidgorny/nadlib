@@ -614,9 +614,8 @@ class Request
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			];
 		}
-		return $this->getBool('ajax') || (
-				isset($headers['X-Requested-With'])
-				&& strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest'));
+		$xRequestedWith = ifsetor($headers['X-Requested-With'], ifsetor($headers['x-requested-with']));
+		return $this->getBool('ajax') || strtolower($xRequestedWith) == strtolower('XMLHttpRequest');
 	}
 
 	function getHeader($name)
