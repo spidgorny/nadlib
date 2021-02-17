@@ -24,9 +24,8 @@ class Lesser extends AppController
 		}
 		parent::__construct();
 		$lessFile = $this->request->getFilePathName('css');
-		$cssFile = str_replace('.less', '.css', $lessFile);
+		$cssFile = str_replace('.less', '.css', basename($lessFile));
 		$this->output = static::$cacheFolder . $cssFile;
-		$this->output = Path::make(AutoLoad::getInstance()->appRoot)->appendString($this->output);
 		$cacheDir = dirname($this->output);
 		$_REQUEST['d'] && debug([
 			'lessc' => class_exists('lessc'),
@@ -38,7 +37,7 @@ class Lesser extends AppController
 			'is_writable()' => is_writable($cacheDir)
 		], DebugHTML::LEVELS, 5);
 		if ($_REQUEST['d']) {
-			return;
+			exit;
 		}
 		if (!is_dir($cacheDir)) {
 			echo '#mkdir(', $cacheDir, ');' . "\n";

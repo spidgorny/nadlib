@@ -11,11 +11,11 @@ class ChangePassword extends HTMLFormProcessor
 
 	function getDesc()
 	{
-		$desc = array();
-		$desc['action'] = array(
+		$desc = [];
+		$desc['action'] = [
 			'type' => 'hidden',
 			'value' => 'changePassword',
-		);
+		];
 		$desc['current'] = [
 			'label' => 'Current password',
 			'type' => 'password',
@@ -33,7 +33,7 @@ class ChangePassword extends HTMLFormProcessor
 	{
 		$content = '';
 		if (strlen($data['password']) >= $this->minLength) {
-			if ($data['password'] == $data['repeat']) {
+			if ($data['password'] === $data['repeat']) {
 				$ok = $this->user->updatePassword($data['current'], $data['password']);
 				if (!$ok['error']) {
 					$content .= $this->success(__('Password changed.'));
