@@ -1083,10 +1083,10 @@ class Request
 			$docRoot = substr(dirname($script), $pos);
 			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
 			return $docRoot;
-		} else {
-			$docRoot = dirname($_SERVER['PHP_SELF']);
-			return $docRoot;
 		}
+
+		$docRoot = dirname($_SERVER['PHP_SELF']);
+		return $docRoot;
 	}
 
 	/**
