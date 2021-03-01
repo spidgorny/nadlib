@@ -1344,20 +1344,21 @@ class Request
 	{
 		if (isset($HTTP_RAW_POST_DATA)) {
 			return $HTTP_RAW_POST_DATA;
-		} else {
-			return file_get_contents("php://input");
 		}
+
+		return file_get_contents("php://input");
 	}
 
-	public function forceDownload($contentType, $filename)
+	/// disposition = inline
+	public function forceDownload($contentType, $filename, $disposition = 'attachment')
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+		header("Content-Disposition: ".$disposition."; filename=\"" . $filename . "\"");
 	}
 
 	public static function isHTTPS()
 	{
-		return self::getRequestType() == 'https';
+		return self::getRequestType() === 'https';
 	}
 
 	public function getNamelessID()
