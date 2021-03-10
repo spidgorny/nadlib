@@ -274,7 +274,7 @@ class slTable
 	 * @param string  $by - can be array (for easy explode(' ', 'field DESC') processing
 	 * @param boolean $or
 	 */
-	function setSortBy($by = null, $or = null)
+	public function setSortBy($by = null, $or = null)
 	{
 		if (is_array($by)) {
 			list($by, $or) = $by;
@@ -286,7 +286,7 @@ class slTable
 //		$this->sort();
 	}
 
-	function sort()
+	public function sort()
 	{
 		//$this->setSortBy();	// don't use - use SQL
 		//debug('$this->sortBy', $this->sortBy);
@@ -317,7 +317,7 @@ class slTable
 		//debug($this->thes[$this->sortBy]);
 	}
 
-	function generateThes()
+	public function generateThes()
 	{
 		if (!sizeof($this->thes)) {
 			$thes = [];
@@ -329,7 +329,7 @@ class slTable
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
 					if (!strlen($i)
-						|| (strlen($i) && $i{strlen($i) - 1} != '.')
+						|| (strlen($i) && $i[strlen($i) - 1] !== '.')
 					) {
 						$th = ['name' => $th];
 					} else {
@@ -352,7 +352,7 @@ class slTable
 		return $this->thes;
 	}
 
-	function getThesNames()
+	public function getThesNames()
 	{
 		$names = [];
 		foreach ($this->thes as $field => $thv) {
@@ -368,7 +368,7 @@ class slTable
 		return $names;
 	}
 
-	function generateThead()
+	public function generateThead()
 	{
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -445,7 +445,7 @@ class slTable
 		$this->generation->addTHead('</thead>');
 	}
 
-	function getColGroup(array $thes)
+	public function getColGroup(array $thes)
 	{
 		$colgroup = '<colgroup>';
 		$i = 0;
@@ -469,7 +469,7 @@ class slTable
 		return $colgroup;
 	}
 
-	function generate($caller = '')
+	public function generate($caller = '')
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$caller})");
 		// footer needs to be displayed
