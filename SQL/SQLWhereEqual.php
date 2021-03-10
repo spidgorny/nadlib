@@ -13,14 +13,14 @@ class SQLWhereEqual extends SQLWherePart
 	 */
 	protected $val;
 
-	function __construct($field, $val)
+	public function __construct($field, $val)
 	{
 		parent::__construct();
 		$this->field = $field;
 		$this->val = $val;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		if (0) {
 			debug(__METHOD__, $this->field, $this->val);
@@ -83,7 +83,7 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = "$key IS NULL";
 		} elseif ($val === 'NOTNULL') {
 			$set[] = "$key IS NOT NULL";
-		} elseif (in_array($key{strlen($key) - 1}, array('>', '<'))
+		} elseif (in_array($key[strlen($key) - 1], array('>', '<'))
 			|| in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 			list($key, $sign) = explode(' ', $key); // need to quote separately
 			// TODO: quoteKey was done already?
@@ -119,12 +119,12 @@ class SQLWhereEqual extends SQLWherePart
 		return first($set);
 	}
 
-	function debug()
+	public function debug()
 	{
 		return $this->__toString();
 	}
 
-	function injectField($field)
+	public function injectField($field)
 	{
 //		debug(__METHOD__, $field);
 		parent::injectField($field);

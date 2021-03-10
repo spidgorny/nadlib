@@ -4,21 +4,24 @@
  * General HTML Tag representation.
  */
 
-class HTMLTag implements ArrayAccess {
+class HTMLTag implements ArrayAccess
+{
 	public $tag;
 	public $attr = array();
 	public $content;
 	public $isHTML = FALSE;
 	public $closingTag = true;
 
-	function __construct($tag, array $attr = array(), $content = '', $isHTML = FALSE) {
+	function __construct($tag, array $attr = array(), $content = '', $isHTML = FALSE)
+	{
 		$this->tag = $tag;
 		$this->attr = $attr;
 		$this->content = $content;
 		$this->isHTML = $isHTML;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		try {
 			return $this->render();
 		} catch (Exception $e) {
@@ -27,7 +30,8 @@ class HTMLTag implements ArrayAccess {
 		}
 	}
 
-	function render() {
+	function render()
+	{
 		if (is_array($this->content) || $this->content instanceof MergedContent) {
 			$content = MergedContent::mergeStringArrayRecursive($this->content);
 		} else {
@@ -39,32 +43,34 @@ class HTMLTag implements ArrayAccess {
 		}
 		$attribs = $this->renderAttr($this->attr);
 		$xmlClose = $this->closingTag ? '' : '/';
-		$tag = '<'.trim($this->tag.' '. $attribs).$xmlClose.'>';
+		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
 		$tag .= $content;
 		if ($this->closingTag) {
-			$tag .= '</' . $this->tag . '>'."\n";
+			$tag .= '</' . $this->tag . '>' . "\n";
 		}
 		return $tag;
 	}
 
-	function getContent() {
+	function getContent()
+	{
 		return $this->content;
 	}
 
-	static function renderAttr(array $attr) {
+	static function renderAttr(array $attr)
+	{
 		$set = array();
 		foreach ($attr as $key => $val) {
 			if (is_array($val) && $key == 'style') {
 				$style = ArrayPlus::create($val);
 				$style = $style->getHeaders('; ');
-				$val = $style; 				  	 	// for style="a: b; c: d"
+				$val = $style;                        // for style="a: b; c: d"
 			} elseif (is_array($val)) {
 				if (ArrayPlus::isRecursive($val)) {
 					debug($val);
 				}
-				$val = implode(' ', $val);		// for class="a b c"
+				$val = implode(' ', $val);        // for class="a b c"
 			}
-			$set[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
+			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES) . '"';
 		}
 		return implode(' ', $set);
 	}
@@ -75,7 +81,8 @@ class HTMLTag implements ArrayAccess {
 	 * @param null $value
 	 * @return mixed
 	 */
-	function attr($name, $value = NULL) {
+	function attr($name, $value = NULL)
+	{
 		if ($value) {
 			$this->attr[$name] = $value;
 			return $this;
@@ -84,34 +91,38 @@ class HTMLTag implements ArrayAccess {
 		}
 	}
 
-	function setAttr($name, $value) {
+	function setAttr($name, $value)
+	{
 		$this->attr[$name] = $value;
 		return $this;
 	}
 
-	function hasAttr($name) {
+	public function hasAttr($name)
+	{
 		return isset($this->attr[$name]);
 	}
 
-	function getAttr($name) {
+	public function getAttr($name)
+	{
 		return ifsetor($this->attr[$name]);
 	}
 
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str
-	 * @param bool   $recursive
+	 * @param bool $recursive
 	 * @return HTMLTag|null
 	 */
-	static function parse($str, $recursive = false) {
+	public static function parse($str, $recursive = false)
+	{
 		$str = trim($str);
-		if (strlen($str) && $str{0} != '<') {
-			return NULL;
+		if (strlen($str) && $str[0] !== '<') {
+			return null;
 		}
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
 		//debug($matches);
 		if (!isset($matches[1])) {
-			return NULL;
+			return null;
 		}
 
 		$tagAndAttributes = trimExplode(' ', ifsetor($matches[1]));
@@ -140,7 +151,8 @@ class HTMLTag implements ArrayAccess {
 		return $obj;
 	}
 
-	static function parseDOM($html) {
+	public static function parseDOM($html)
+	{
 		$content = array();
 		if (is_string($html)) {
 			$doc = new DOMDocument();
@@ -158,7 +170,7 @@ class HTMLTag implements ArrayAccess {
 			if ($child instanceof DOMElement) {
 				$attributes = array();
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
-					/** @var  DOMNode    $attribute_node */
+					/** @var  DOMNode $attribute_node */
 					echo $attribute_name, ': ', typ($attribute_node), BR;
 					$attributes[$attribute_name] = $attribute_node->nodeValue;
 				}
@@ -193,7 +205,8 @@ class HTMLTag implements ArrayAccess {
 	 * @param string $text
 	 * @return array
 	 */
-	static function parseAttributes($text) {
+	static function parseAttributes($text)
+	{
 		if (is_array($text)) {
 			return $text;
 		}
@@ -217,23 +230,28 @@ class HTMLTag implements ArrayAccess {
 		return $attributes;
 	}
 
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		return isset($this->attr[$offset]);
 	}
 
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return $this->getAttr($offset);
 	}
 
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value)
+	{
 		$this->setAttr($offset, $value);
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($this->attr[$offset]);
 	}
 
-	static function __set_state(array $properties) {
+	static function __set_state(array $properties)
+	{
 		$a = new static($properties['tag']);
 		foreach ($properties as $key => $val) {
 			$a->$key = $val;
@@ -241,20 +259,23 @@ class HTMLTag implements ArrayAccess {
 		return $a;
 	}
 
-	function getHash($length = null) {
+	function getHash($length = null)
+	{
 		$hash = spl_object_hash($this);
 		if ($length) {
 			$hash = sha1($hash);
 			$hash = substr($hash, 0, $length);
 		}
-		return '#'.$hash;
+		return '#' . $hash;
 	}
 
-	static function a($href, $name, array $more = [], $isHTML = false) {
+	static function a($href, $name, array $more = [], $isHTML = false)
+	{
 		return new self('a', ['href' => $href] + $more, $name, $isHTML);
 	}
 
-	static function img($src, array $params = []) {
+	static function img($src, array $params = [])
+	{
 		return new self('img', ['src' => $src] + $params);
 	}
 

@@ -168,9 +168,9 @@ FROM {$from}
 		$sql = str_replace("(", " ( ", $sql);
 		$sql = str_replace(")", " ) ", $sql);
 		$level = 0;
-		$open = FALSE;
+		$open = false;
 		$tok = strtok($sql, " \n\t");
-		while ($tok !== FALSE) {
+		while ($tok !== false) {
 			$tok = trim($tok);
 			if ($tok == "(") {
 				$level++;
@@ -180,22 +180,22 @@ FROM {$from}
 					$level--;
 				}
 				$res .= "<br>" . str_repeat("&nbsp;", $level * 4) . ") ";
-			} elseif ($tok && ($tok{0} == "'" || $tok{strlen($tok) - 1} == "'" || $tok == "'")) {
+			} elseif ($tok && ($tok[0] === "'" || $tok[strlen($tok) - 1] === "'" || $tok === "'")) {
 				$res .= " ";
-				if ($tok{0} == "'" && !$open) {
+				if ($tok[0] === "'" && !$open) {
 					$res .= '<font color="green">';
-					$open = TRUE;
+					$open = true;
 				}
 				$res .= $tok;
-				if ($tok{strlen($tok) - 1} == "'" && $open) {
+				if ($tok[strlen($tok) - 1] === "'" && $open) {
 					$res .= '</font>';
-					$open = FALSE;
+					$open = false;
 				}
 			} else if (is_numeric($tok)) {
 				$res .= ' <font color="red">' . $tok . '</font>';
 			} else if (in_array(strtoupper($tok), $words)) {
 				$br = strlen($res) ? '<br>' : '';
-				$strange = $tok == 'SELECT' ? '' : ' ';
+				$strange = $tok === 'SELECT' ? '' : ' ';
 				$res .= (!in_array($tok, $breakAfter)
 					? ' ' . $br . str_repeat("&nbsp;", $level * 4)
 					: $strange);
