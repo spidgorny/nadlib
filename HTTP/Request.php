@@ -1063,10 +1063,10 @@ class Request {
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		foreach ($params as $tmp => $p) {
-			if ($p{0} == '-') {
+			if ($p[0] === '-') {
 				$pname = substr($p, 1);
 				$value = true;
-				if ($pname{0} == '-') {
+				if ($pname[0] === '-') {
 					// long-opt (--<param>)
 					$pname = substr($pname, 1);
 					if (strpos($p, '=') !== false) {
@@ -1076,7 +1076,7 @@ class Request {
 				}
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
-				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') {
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] != '-') {
 					$value = next($params);
 				}
 				$result[$pname] = $value;

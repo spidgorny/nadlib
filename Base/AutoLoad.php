@@ -339,7 +339,7 @@ class AutoLoad
 		}
 	}
 
-	function loadFileForClass($class)
+	public function loadFileForClass($class)
 	{
 		$namespaces = explode('\\', $class);
 		$classFile = end($namespaces);                // why?
@@ -354,9 +354,9 @@ class AutoLoad
 			include_once $file;
 		} else {
 			$ns = $subFolders ?:
-				(sizeof($namespaces) > 1)
+				((sizeof($namespaces) > 1)
 					? first($namespaces)
-					: NULL;
+					: NULL);
 //			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);
