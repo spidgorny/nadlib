@@ -193,7 +193,7 @@ abstract class Controller
 		return $this->makeURL(
 			$params                            // 1st priority
 			+ $this->getURL()->getParams()
-			+ $this->linkVars, $page);
+			+ $this->linkVars, $page ?? static::class);
 	}
 
 	/**
@@ -206,7 +206,7 @@ abstract class Controller
 	public function getURL(array $params = [], $prefix = NULL)
 	{
 		if ($params || $prefix) {
-			throw new InvalidArgumentException('User makeURL() instead of ' . __METHOD__);
+			throw new InvalidArgumentException('Use makeURL() instead of ' . __METHOD__);
 		}
 //		$params = $params + $this->linkVars;
 //		debug($params);
