@@ -3,14 +3,14 @@
 trait JsonController
 {
 
-    public function afterConstruct()
-    {
-        $this->request->set('ajax', true);
-        $this->user = new NoUser();	// prevent API to hijack user session
+	public function afterConstruct()
+	{
+		$this->request->set('ajax', true);
+		$this->user = new NoUser();	// prevent API to hijack user session
 		$this->config->setUser($this->user);
-    }
+	}
 
-    public function validateAuthorization($registeredApps)
+	public function validateAuthorization($registeredApps)
 	{
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
@@ -20,13 +20,13 @@ trait JsonController
 		}
 	}
 
-    public function __invoke()
-    {
+	public function __invoke()
+	{
 		list($request, $arguments) = $this->getActionAndArguments();
-        return call_user_func_array([$this, $request], $arguments);
-    }
+		return call_user_func_array([$this, $request], $arguments);
+	}
 
-    public function getActionAndArguments()
+	public function getActionAndArguments()
 	{
 		//        debug($_SERVER);
 		$requestURI = ifsetor($_SERVER['REQUEST_URI']);
@@ -52,31 +52,31 @@ trait JsonController
 	}
 
 
-    public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
-    {
-        $message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
-        llog($message);
-        http_response_code($httpCode);
-        return $this->json([
-            'status' => 'error',
-            'error_type' => get_class($e),
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
-            'request' => $this->request->getAll(),
-            'headers' => getallheaders(),
+	public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
+	{
+		$message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
+		llog($message);
+		http_response_code($httpCode);
+		return $this->json([
+			'status' => 'error',
+			'error_type' => get_class($e),
+			'message' => $e->getMessage(),
+			'file' => $e->getFile(),
+			'line' => $e->getLine(),
+			'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
+			'request' => $this->request->getAll(),
+			'headers' => getallheaders(),
 			'timestamp' => date('Y-m-d H:i:s'),
-        ] + $extraData);
-    }
+		] + $extraData);
+	}
 
-    public function json($key)
-    {
-        header('Content-Type: application/json');
-        $key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+	public function json($key)
+	{
+		header('Content-Type: application/json');
+		$key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
 //		error_log($response);
 		return $response;
-    }
+	}
 
 }
