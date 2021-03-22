@@ -9,14 +9,14 @@
 class AlterTable extends AlterIndex
 {
 
-	var $different = 0;
-	var $same = 0;
-	var $missing = 0;
+	public $different = 0;
+	public $same = 0;
+	public $missing = 0;
 
 	/**
 	 * @var AlterTableMySQL|AlterTablePostgres
 	 */
-	var $handler;
+	public $handler;
 
 	public function __construct()
 	{
@@ -24,7 +24,7 @@ class AlterTable extends AlterIndex
 		$this->setHandler();
 	}
 
-	function setHandler()
+	public function setHandler()
 	{
 		$class = $this->getDBclass();
 		if ($class == 'mysql') {

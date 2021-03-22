@@ -8,12 +8,12 @@ class AlterIndex extends AppControllerBE
 	/**
 	 * @var string
 	 */
-	var $jsonFile;
+	public $jsonFile;
 
 	/**
 	 * @var DBLayerBase
 	 */
-	var $db;
+	protected $db;
 
 	public function __construct()
 	{

@@ -1,5 +1,6 @@
 <?php
 
+// @phpstan-ignore-next-line
 class MemcacheMemory extends Memcache
 {
 
