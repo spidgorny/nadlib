@@ -205,7 +205,7 @@ class HTMLFormTable extends HTMLForm
 	 * @param string $append
 	 * @return $this
 	 */
-	public function showForm(array $formData = NULL, $prefix = [], $mainForm = TRUE, $append = '')
+	public function showForm(array $formData = null, $prefix = [], $mainForm = true, $append = '')
 	{
 //		echo json_encode(array_keys($this->desc)), BR;
 		$this->tableMore['class'] .= $this->defaultBR ? ' defaultBR' : '';
@@ -213,7 +213,7 @@ class HTMLFormTable extends HTMLForm
 		return $this;
 	}
 
-	public function getForm(array $formData, array $prefix = [], $mainForm = TRUE, $append = '')
+	public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = '')
 	{
 		if (!is_array($formData)) {
 			debug_pre_print_backtrace();
