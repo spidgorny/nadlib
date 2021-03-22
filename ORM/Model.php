@@ -247,17 +247,17 @@ class Model
 		return $fields;
 	}
 
-	function getVisibleFields()
+	public function getVisibleFields()
 	{
 		// TODO
 	}
 
-	function id()
+	public function id()
 	{
 		return $this->id;
 	}
 
-	function get($field)
+	public function get($field)
 	{
 		return ifsetor($this->$field);
 	}
