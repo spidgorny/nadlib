@@ -881,7 +881,7 @@ document.observe("dom:loaded", () => {
 
 	public function popupLink($self, $table, $titleColumn, $selected, $pid, $leaves, $id1, $id2, $functionName, $selectRoot)
 	{
-		$this->stdout .= str::ahref('<img src="skin/default/img/browsefolder.png">',
+		$this->stdout .= Str::ahref('<img src="skin/default/img/browsefolder.png">',
 			'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
 			'&pid=' . $pid . '&leaves=' . $leaves . '&selected=' . $selected . '&callback=' . $functionName .
 			'&selectRoot=' . $selectRoot, false, 'bijouTreeTarget');

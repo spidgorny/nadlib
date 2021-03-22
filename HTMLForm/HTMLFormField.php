@@ -231,7 +231,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			case "selection":
 				$this->form->selection(
 					$fieldName,
-					null,
+					$desc['options'],
 					ifsetor($fieldValue, ifsetor($desc['default'])),
 					$desc['autosubmit'] ?? null,
 					[],    // more
