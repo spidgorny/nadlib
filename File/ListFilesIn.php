@@ -13,7 +13,7 @@ class ListFilesIn extends ArrayObject
 			foreach ($iterator as $file) {
 				/** @var $file SplFileInfo */
 				$filename = $file->getFilename();
-				if ($filename{0} != '.') {
+				if ($filename[0] !== '.') {
 					$pathname = $file->getPathname();
 					//$key = first(trimExplode('.', $filename, 2));	// why?
 					$key = $filename;

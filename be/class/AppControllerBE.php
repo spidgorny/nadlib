@@ -24,7 +24,7 @@ class AppControllerBE extends AppController
 	 * Protect from unauthorized access
 	 * @var bool
 	 */
-	static $public = false;    // must be false at all times!
+	public static $public = false;    // must be false at all times!
 
 	public $layout = '<div class="col-md-9">|</div>';
 

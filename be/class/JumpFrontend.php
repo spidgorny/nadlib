@@ -1,8 +1,10 @@
 <?php
 
-class JumpFrontend extends AppControllerBE {
+class JumpFrontend extends AppControllerBE
+{
 
-	function render() {
+	public function render()
+	{
 		$this->request->redirect('../../../../');
 	}
 
