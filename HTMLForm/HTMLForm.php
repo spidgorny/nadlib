@@ -330,27 +330,30 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param $name
-	 * @param $aOptions
-	 * @param $default
+	 * @param string|string[] $name
+	 * @param array $aOptions
+	 * @param string|int $default
 	 * @param bool $autoSubmit
-	 * @param array $more
+	 * @param array|string $more
 	 * @param bool $multiple
 	 * @param array $desc
 	 *
 	 * @see renderSelectionOptions
 	 */
 	public function selection(
-		$name, array $aOptions = null, $default,
-		$autoSubmit = false, array $more = [],
-		$multiple = false, array $desc = []
+		$name,
+		array $aOptions,
+		$default,
+		$autoSubmit = false,
+		array $more = [],
+		$multiple = false,
+		array $desc = []
 	) {
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
 		$sel->multiple = $multiple;
-		$sel->setDesc($desc);
-		//debug($name, $desc);
+		$sel->setDesc($desc); //debug($name, $desc);
 		$sel->setForm($this);
 		$this->stdout .= $sel->render();
 	}
@@ -384,7 +387,9 @@ class HTMLForm implements ToStringable
 			$extraClass .= ' is-invalid';
 		}
 
-		$this->input($name, $value,
+		$this->input(
+			$name,
+			$value,
 			(isset($desc['id']) ? ['id' => $desc['id']] : []) +
 			ifsetor($desc['more'], []),
 			'date',

@@ -229,12 +229,15 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 
 			case "select":
 			case "selection":
-				$this->form->selection($fieldName, NULL,
+				$this->form->selection(
+					$fieldName,
+					null,
 					ifsetor($fieldValue, ifsetor($desc['default'])),
-					isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
+					$desc['autosubmit'] ?? null,
 					[],    // more
-					isset($desc['multiple']) ? $desc['multiple'] : NULL,
-					$desc->getArray());
+					$desc['multiple'] ?? null,
+					$desc->getArray()
+				);
 				break;
 			case "file":
 				$this->form->file($fieldName, $desc->getArray());
@@ -254,8 +257,15 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				if (ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue === 't';
 				}
-				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
-					$more, ifsetor($desc['autoSubmit']), $desc->getArray());
+				$this->form->check(
+					$fieldName,
+					ifsetor($desc['post-value'], 1),
+					$fieldValue,
+					/*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
+					$more,
+					ifsetor($desc['autoSubmit']),
+					$desc->getArray()
+				);
 				break;
 
 			case "time":

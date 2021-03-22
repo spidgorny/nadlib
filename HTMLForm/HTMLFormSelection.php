@@ -1,45 +1,50 @@
 <?php
 
-class HTMLFormSelection extends HTMLFormType {
+class HTMLFormSelection extends HTMLFormType
+{
 
 	/**
 	 * @var array
 	 */
-	var $options;
+	public $options;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
-	var $autoSubmit;
+	public $autoSubmit;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
-	var $multiple;
+	public $multiple;
 
 	/**
 	 * @var array
 	 */
-	var $more = [];
+	public $more = [];
 
 	/**
 	 * @var HTMLFormField
 	 */
-	var $desc = [];
+	public $desc;
 
-	function __construct($fieldName, array $options = NULL, $selected = NULL) {
+	public function __construct($fieldName, array $options = null, $selected = null)
+	{
 		$this->setField($fieldName);
 		$this->options = $options;
 		$this->value = $selected;
+		$this->desc = new HTMLFormField([], $this->field);
 	}
 
-	function setDesc(array $desc) {
+	public function setDesc(array $desc)
+	{
 		$this->desc = new HTMLFormField($desc);
 	}
 
-	function render() {
+	public function render()
+	{
 		$this->form = $this->form ?: new HTMLForm();
-		$content[] = "<select ".
+		$content[] = "<select " .
 			$this->form->getName($this->field, $this->multiple ? '[]' : '');
 		if ($this->autoSubmit) {
 			$content[] = " onchange='this.form.submit()' ";
@@ -56,13 +61,13 @@ class HTMLFormSelection extends HTMLFormType {
 
 		//debug($this->desc); exit();
 		$more += $this->desc->isObligatory()
-				? ['required' => true] : [];
+			? ['required' => true] : [];
 		if (isset($this->desc['more'])) {
 			$more += is_array($this->desc['more'])
 				? $this->desc['more']
 				: HTMLTag::parseAttributes($this->desc['more']);
 		}
-		$content[] = ' '.HTMLTag::renderAttr($more) . ">\n";
+		$content[] = ' ' . HTMLTag::renderAttr($more) . ">\n";
 
 		if (is_null($this->options)) {
 			$this->options = $this->fetchSelectionOptions($this->desc->getArray());
@@ -78,12 +83,13 @@ class HTMLFormSelection extends HTMLFormType {
 	 * @param array $aOptions
 	 * @param $default  array|mixed
 	 * @param array $desc
-	 * 		boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
-	 * 		string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 *        boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
+	 *        string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
 	 *      boolean 'useTitle'
 	 * @return string
 	 */
-	function getSelectionOptions(array $aOptions, $default, array $desc = []) {
+	public function getSelectionOptions(array $aOptions, $default, array $desc = [])
+	{
 		$content = '';
 		//Debug::debug_args($aOptions);
 		/** PHP feature gettype($value) is integer even if it's string in an array!!! */
@@ -97,7 +103,7 @@ class HTMLFormSelection extends HTMLFormType {
 				// === does not prevent NULL from being selected
 				// ==  does better compare POST value with DB value
 				$justEquals = !is_array($default) && $default == $value;
-				if ($this->field[0] == 'id_person' && $value == 327) {
+				if ($this->field[0] === 'id_person' && $value == 327) {
 					//debug($value, $default, $arrayContains, $justEquals);
 				}
 				if ($arrayContains || $justEquals) {
@@ -114,7 +120,7 @@ class HTMLFormSelection extends HTMLFormType {
 				//$option->content .= ' '.$value.' '.$default;
 				$content .= $option;
 			} elseif ($option instanceof Recursive) {
-				$content .= '<optgroup label="'.$option.'">';
+				$content .= '<optgroup label="' . $option . '">';
 				$content .= $this->getSelectionOptions($option->getChildren(), $default, $desc);
 				$content .= '</optgroup>';
 			} else {
@@ -123,10 +129,10 @@ class HTMLFormSelection extends HTMLFormType {
 					$content .= " selected";
 				}
 				if (isset($desc['classAsValuePrefix'])) {
-					$content .= ' class="'.$desc['classAsValuePrefix'].str_replace(' ', '_', $value).'"';
+					$content .= ' class="' . $desc['classAsValuePrefix'] . str_replace(' ', '_', $value) . '"';
 				}
 				if (isset($desc['useTitle']) && $desc['useTitle'] == true) {
-					$content .= ' title="'.strip_tags($option).'"';
+					$content .= ' title="' . strip_tags($option) . '"';
 				}
 				$content .= ">$option</option>\n";
 			}
@@ -141,17 +147,19 @@ class HTMLFormSelection extends HTMLFormType {
 	 * @param array $desc
 	 * @return array
 	 */
-	function fetchSelectionOptions(array $desc) {
+	public function fetchSelectionOptions(array $desc)
+	{
 		if (ifsetor($desc['from']) && $desc['title']) {
 			/** @var DBLayerBase $db */
 			$db = Config::getInstance()->getDB();
-			$options = $db->getTableOptions($desc['from'],
+			$options = $db->getTableOptions(
+				$desc['from'],
 				$desc['title'],
-				isset($desc['where']) 	? $desc['where'] : [],
-				isset($desc['order']) 	? $desc['order'] : '',
-				isset($desc['idField']) ? $desc['idField'] : 'id',
+				$desc['where'] ?? [],
+				$desc['order'] ?? '',
+				$desc['idField'] ?? 'id',
 				ifsetor($desc['prefix'])
-			//$desc['noDeleted']
+				//$desc['noDeleted']
 			);
 			//debug($db->lastQuery, $options);
 		} else {
@@ -161,7 +169,7 @@ class HTMLFormSelection extends HTMLFormType {
 			$options += $desc['options'];
 		}
 		if (isset($desc['null'])) {
-			$options = [NULL => "---"] + $options;
+			$options = [null => "---"] + $options;
 		}
 		if (isset($desc['map'])) {
 			$options = array_map($desc['map'], $options);
