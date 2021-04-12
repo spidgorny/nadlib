@@ -10,12 +10,27 @@ trait JsonController
 		$this->config->setUser($this->user);
 	}
 
-	public function validateAuthorization($registeredApps)
+	public function isDevServer()
 	{
+//		llog(__METHOD__, DEVELOPMENT, $_SERVER['HTTP_HOST'], gethostname());
+		return DEVELOPMENT &&
+			$_SERVER['HTTP_HOST'] === 'localhost:2000' &&
+			gethostname() === '761K7Y2';
+	}
+
+	/**
+	 * @param array $registeredApps
+	 * @throws LoginException
+	 */
+	public function validateAuthorization(array $registeredApps)
+	{
+		if ($this->isDevServer()) {
+			return;
+		}
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
 		//debug($headers, $authorization);
-		if (!$authorization || !in_array($authorization, $registeredApps)) {
+		if (!$authorization || !in_array($authorization, $registeredApps, false)) {
 			throw new LoginException('Authorization failed.', 401);
 		}
 	}
@@ -38,9 +53,9 @@ trait JsonController
 		$last = null;
 		$arguments = [];
 		foreach ($levels as $i => $el) {
-			if ($el == get_class($this)) {
-				$last = ifsetor($levels[$i+1]);
-				$arguments = array_slice($levels, $i+2);    // rest are args
+			if ($el === get_class($this)) {
+				$last = ifsetor($levels[$i + 1]);
+				$arguments = array_slice($levels, $i + 2);    // rest are args
 				break;
 			}
 		}
@@ -66,7 +81,7 @@ trait JsonController
 			'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
 			'request' => $this->request->getAll(),
 			'headers' => getallheaders(),
-			'timestamp' => date('Y-m-d H:i:s'),
+				'timestamp' => date('Y-m-d H:i:s'),
 		] + $extraData);
 	}
 
@@ -74,7 +89,13 @@ trait JsonController
 	{
 		header('Content-Type: application/json');
 		$key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
+		$jsonOptions = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
+		/** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
+		if (is_numeric(JSON_UNESCAPED_LINE_TERMINATORS)) {
+			/** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
+			$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
+		}
+		$response = json_encode($key, $jsonOptions);
 //		error_log($response);
 		return $response;
 	}
