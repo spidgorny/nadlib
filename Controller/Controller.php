@@ -783,7 +783,7 @@ abstract class Controller
 	static function link($text = NULL, array $params = [])
 	{
 		/** @var Controller $self */
-		$self = get_called_class();
+		$self = static::class;
 		return new HTMLTag('a', [
 			'href' => $self::href($params)
 		], $text ?: $self);
@@ -791,7 +791,7 @@ abstract class Controller
 
 	static function href(array $params = [])
 	{
-		$self = get_called_class();
+		$self = static::class;
 		return $self . '?' . http_build_query($params);
 	}
 
