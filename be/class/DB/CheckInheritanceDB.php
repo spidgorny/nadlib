@@ -23,7 +23,7 @@ class CheckInheritanceDB extends AppController
 		if (class_exists('dbLayerBijou')) {
 			$files[] = 'dbLayerBijou.php';
 		}
-		if (class_exists('dbLayerBL')) {
+		if (class_exists('DBLayerBL')) {
 			$files[] = 'dbLayerBL.php';
 		}
 		$files[] = 'SQLBuilder.php';

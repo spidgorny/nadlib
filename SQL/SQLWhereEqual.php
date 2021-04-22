@@ -32,19 +32,17 @@ class SQLWhereEqual extends SQLWherePart
 		} elseif (is_numeric($this->field)) {
 			$sql = $this->val . '';
 		} else {
-			$sql = $this->getWhereItem($this->field, $this->val);
+			$sql = $this->getWhereItem($this->field, $this->val) . '';
 		}
 		return $sql;
 	}
 
 	function getWhereItem($key, $val)
 	{
-		$set = array();
+		$set = [];
 		$key = $this->db->quoteKey(trim($key));
 //		debug($key);
-		if (false) {
-
-		} elseif ($val instanceof AsIsOp) {       // check subclass first
+		if ($val instanceof AsIsOp) {       // check subclass first
 			$val->injectDB($this->db);
 			$val->injectField($key);
 			if (is_numeric($key)) {
@@ -81,8 +79,8 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = "$key IS NULL";
 		} elseif ($val === 'NOTNULL') {
 			$set[] = "$key IS NOT NULL";
-		} elseif (in_array($key{strlen($key) - 1}, array('>', '<'))
-			|| in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
+		} elseif (in_array($key[strlen($key) - 1], ['>', '<'])
+			|| in_array(substr($key, -2), ['!=', '<=', '>=', '<>'])) {
 			list($key, $sign) = explode(' ', $key); // need to quote separately
 			$key = $this->db->quoteKey($key);
 			$set[] = "$key $sign '$val'";

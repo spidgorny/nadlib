@@ -3,7 +3,7 @@
 class UL
 {
 
-	var $items = array();
+	var $items = [];
 
 	var $before = '<ul>';
 
@@ -23,7 +23,7 @@ class UL
 	 */
 	var $active = ' class="active"';
 
-	var $links = array();
+	var $links = [];
 
 	/**
 	 * <a href="###LINK###">|</a>
@@ -36,10 +36,10 @@ class UL
 	 */
 	public $linkFunc;
 
-	function __construct(array $items = array())
+	function __construct(array $items = [])
 	{
 		$this->items = $items;
-		$this->activeClass = each($this->items);
+		$this->activeClass = first($this->items);
 	}
 
 	public function add($value, $key = NULL)
@@ -58,7 +58,7 @@ class UL
 
 	function render()
 	{
-		$out = array();
+		$out = [];
 		foreach ($this->items as $class => $li) {
 			$link = $this->getLinkFor($class, $li);
 

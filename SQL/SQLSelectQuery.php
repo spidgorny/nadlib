@@ -142,7 +142,7 @@ FROM {$from}
 	function __toString()
 	{
 		try {
-			return $this->getQuery();
+			return $this->getQuery().'';
 		} catch (Exception $e) {
 			echo '<strong>', $e->getMessage(), '</strong>', BR;
 			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;

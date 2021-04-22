@@ -25,13 +25,13 @@ class slTable
 	 * 2D array of rows and columns
 	 * @var array
 	 */
-	var $data = array();
+	var $data = [];
 
 	/**
 	 * Class for each ROW(!)
 	 * @var array
 	 */
-	var $dataClass = array();
+	var $dataClass = [];
 
 	var $iRow = -1;
 
@@ -41,15 +41,15 @@ class slTable
 	 * Columns definition. Will be generated if missing.
 	 * @var array
 	 */
-	var $thes = array();
+	var $thes = [];
 
 	/**
 	 * Appended to <table> tag
 	 * @var string
 	 */
-	var $more = array(
+	var $more = [
 		'class' => "nospacing"
-	);
+	];
 
 	/**
 	 * @var HTMLTableBuf
@@ -81,7 +81,7 @@ class slTable
 	 * last line
 	 * @var array
 	 */
-	var $footer = array();
+	var $footer = [];
 
 	/**
 	 * Vertical stripes
@@ -120,7 +120,7 @@ class slTable
 	 */
 	protected $db;
 
-	function __construct($id = NULL, $more = "", array $thes = array())
+	function __construct($id = NULL, $more = "", array $thes = [])
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;
@@ -269,9 +269,9 @@ class slTable
 		if ($this->sortable && $this->sortBy) {
 			//print view_table($this->data);
 			if ($this->data instanceof ArrayPlus) {
-				$this->data->uasort(array($this, 'tabSortByUrl'));
+				$this->data->uasort([$this, 'tabSortByUrl']);
 			} else {
-				uasort($this->data, array($this, 'tabSortByUrl')); // $this->sortBy is used inside
+				uasort($this->data, [$this, 'tabSortByUrl']); // $this->sortBy is used inside
 			}
 			//print view_table($this->data);
 			//debug($this->thes[$this->sortBy]);
@@ -295,7 +295,7 @@ class slTable
 	function generateThes()
 	{
 		if (!sizeof($this->thes)) {
-			$thes = array();
+			$thes = [];
 			foreach ($this->data as $current) {
 				$thes = array_merge($thes, array_keys($current));
 				$thes = array_unique($thes);    // if put outside the loop may lead to out of memory error
@@ -304,8 +304,8 @@ class slTable
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
 					if (!strlen($i)
-						|| (strlen($i) && $i{strlen($i) - 1} != '.')) {
-						$th = array('name' => $th);
+						|| (strlen($i) && $i[strlen($i) - 1] !== '.')) {
+						$th = ['name' => $th];
 					} else {
 						unset($thes[$i]);
 					}
@@ -317,9 +317,9 @@ class slTable
 				$this->isOddEven = TRUE;
 				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
 				if (!$this->more) {
-					$this->more = array(
+					$this->more = [
 						'class' => "nospacing"
-					);
+					];
 				}
 			}
 		}
@@ -328,7 +328,7 @@ class slTable
 
 	function getThesNames()
 	{
-		$names = array();
+		$names = [];
 		foreach ($this->thes as $field => $thv) {
 			if (is_array($thv)) {
 				$thvName = isset($thv['name'])
@@ -351,11 +351,11 @@ class slTable
 			}
 		}
 
-		$thes2 = array();
-		$thMore = array();
+		$thes2 = [];
+		$thMore = [];
 		if (is_array($thes)) foreach ($thes as $thk => $thv) {
 			if (!is_array($thv)) {
-				$thv = array('name' => $thv);
+				$thv = ['name' => $thv];
 			}
 			$thvName = isset($thv['name'])
 				? $thv['name']
@@ -365,7 +365,7 @@ class slTable
 				: (isset($thv['more']) ? $thv['more'] : NULL);
 			$this->thesMore[$thk] = ifsetor($thv['thmore']);
 			if (!is_array($thMore)) {
-				$thMore = array('' => $thMore);
+				$thMore = ['' => $thMore];
 			}
 			if (isset($thv['align']) && $thv['align']) {
 				$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
@@ -382,10 +382,10 @@ class slTable
 					$sortOrder = $this->sortBy == $sortField
 						? !$this->sortOrder
 						: $this->sortOrder;
-					$link = $this->sortLinkPrefix->forceParams(array($this->prefix => array(
+					$link = $this->sortLinkPrefix->forceParams([$this->prefix => [
 						'sortBy' => $sortField,
 						'sortOrder' => $sortOrder,
-					)));
+					]]);
 					$thes2[$thk] = '<a href="' . $link . '">' . $thvName . '</a>';
 				} else {
 					$thes2[$thk] = $thvName;
@@ -410,7 +410,7 @@ class slTable
 		}
 
 		if ($this->dataPlus) {
-			$this->data = array_merge(array($this->dataPlus), $this->data);
+			$this->data = array_merge([$this->dataPlus], $this->data);
 		}
 
 		$this->generation->addTHead('</thead>');
@@ -450,9 +450,9 @@ class slTable
 			$this->sort();
 
 			$t = $this->generation;
-			$t->table(HTMLTag::renderAttr(array(
+			$t->table(HTMLTag::renderAttr([
 					'id' => $this->ID,
-				) + HTMLTag::parseAttributes($this->more)));
+				] + HTMLTag::parseAttributes($this->more)));
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -460,7 +460,7 @@ class slTable
 			if (is_array($this->data) || $this->data instanceof Traversable) {
 				$data = $this->data;
 			} else {
-				$data = array();
+				$data = [];
 			}
 			$i = -1;
 			foreach ($data as $key => $row) { // (almost $this->data)
@@ -469,7 +469,7 @@ class slTable
 					throw new Exception('slTable row is not an array');
 				}
 				++$i;
-				$class = array();
+				$class = [];
 				if (is_array($row) && isset($row['###TD_CLASS###'])) {
 					$class[] = $row['###TD_CLASS###'];
 				} else {
@@ -508,7 +508,7 @@ class slTable
 	{
 		if ($this->footer) {
 			$this->generation->tfoot('<tfoot>');
-			$class = array();
+			$class = [];
 			$class[] = 'footer';
 			$tr = 'class="' . implode(' ', $class) . '"';
 			$this->generation->ftr($tr);
@@ -525,7 +525,7 @@ class slTable
 		$skipCols = 0;
 		$iCol = 0;
 		foreach ($this->thes as $col => $k) {
-			$k = is_array($k) ? $k : array('name' => $k);
+			$k = is_array($k) ? $k : ['name' => $k];
 
 			// whole column desc is combined with single cell desc
 			if (isset($row[$col . '.']) && is_array($row[$col . '.'])) {
@@ -540,7 +540,7 @@ class slTable
 			} else if (isset($k['!show']) && $k['!show']) {
 			} else {
 				$val = isset($row[$col]) ? $row[$col] : NULL;
-				if ($val instanceof HTMLTag && in_array($val->tag, array('td', 'th'))) {
+				if ($val instanceof HTMLTag && in_array($val->tag, ['td', 'th'])) {
 					$t->tag($val);
 					if (ifsetor($val->attr['colspan'])) {
 						$skipCols = $val->attr['colspan'] - 1;
@@ -581,7 +581,7 @@ class slTable
 	 */
 	function getCellMore(array $k, $iCol, $col, array $row)
 	{
-		$more = array();
+		$more = [];
 		if ($this->isAlternatingColumns) {
 			$more['class'][] = ($iCol % 2 ? 'even' : 'odd');
 		}
@@ -645,7 +645,7 @@ class slTable
 	 */
 	function getData($table)
 	{
-		/** @var dbLayerBase|dbLayerBL $db */
+		/** @var dbLayerBase|DBLayerBL $db */
 		$db = Config::getInstance()->getDB();
 		$cols = $db->getTableColumns($table);
 		$data = $db->getTableDataEx($table, "deleted = 0");
@@ -680,7 +680,7 @@ class slTable
 	 */
 	public function getTotals()
 	{
-		$footer = array();
+		$footer = [];
 		$this->generateThes();
 		reset($this->data);
 		$first = current($this->data);
@@ -698,9 +698,9 @@ class slTable
 					//} else {
 					//	$footer[$col] = '&nbsp;';
 				}
-				$footer[$col] = $footer[$col] ? new slTableValue($footer[$col], array(
+				$footer[$col] = $footer[$col] ? new slTableValue($footer[$col], [
 					'align' => 'right',
-				)) : '';
+				]) : '';
 			}
 		}
 		return $footer;
@@ -764,16 +764,16 @@ class slTable
 				}
 			}
 
-			$val = array(
+			$val = [
 				//0 => $key instanceof htmlString ? $key : htmlspecialchars($key),
 				0 => htmlspecialchars($key),
 				'' => $val,
-			);
+			];
 		}
-		$s = new self($assoc, 'class="visual nospacing table table-striped"', array(
+		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
 			0 => '',
-			'' => array('no_hsc' => $no_hsc),
-		));
+			'' => ['no_hsc' => $no_hsc],
+		]);
 		return $s;
 	}
 
@@ -795,11 +795,11 @@ class slTable
 		$this->generateThes();
 		//debug($this->thes);
 
-		$xls = array();
+		$xls = [];
 		$xls[] = $this->getThesNames();
 
 		foreach ($this->data as $row) {
-			$line = array();
+			$line = [];
 			foreach ($this->thes as $col => $_) {
 				$val = $row[$col];
 				$line[] = strip_tags($val);
@@ -819,8 +819,8 @@ class slTable
 	function getCLITable($cutTooLong = false, $useAvg = false)
 	{
 		$this->generateThes();
-		$widthMax = array();
-		$widthAvg = array();
+		$widthMax = [];
+		$widthAvg = [];
 		// thes should fit into a columns as well
 		foreach ($this->thes as $field => $name) {
 			$widthMax[$field] = is_array($name)
@@ -849,13 +849,13 @@ class slTable
 		//print_r($widthMax);
 
 		$dataWithHeader = array_merge(
-			array($this->getThesNames()),
+			[$this->getThesNames()],
 			$this->data,
-			array($this->footer));
+			[$this->footer]);
 
 		$content = "\n";
 		foreach ($dataWithHeader as $row) {
-			$padRow = array();
+			$padRow = [];
 			foreach ($this->thes as $field => $name) {
 				$value = ifsetor($row[$field]);
 				$value = is_array($value)
@@ -876,7 +876,7 @@ class slTable
 	{
 		$this->generateThes();
 		foreach ($this->thes as $key => $name) {
-			$this->thes[$key] = array('name' => $name);
+			$this->thes[$key] = ['name' => $name];
 			$col = array2::array_column($this->data, $key);
 			$numeric = true;
 			foreach ($col as $val) {
