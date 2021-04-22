@@ -3,23 +3,23 @@
 class InitNADLIB
 {
 
-	var $useCookies = true;
+	public $useCookies = true;
 
 	/**
 	 * @var AutoLoad
 	 */
-	var $al;
+	public $al;
 
-	var $startTime;
+	public $startTime;
 
-	var $endTime;
+	public $endTime;
 
 	function __construct()
 	{
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
-		require_once dirname(__FILE__) . '/AutoLoad.php';
-		require_once dirname(__FILE__) . '/HTTP/Request.php';
-		require_once dirname(__FILE__) . '/Debug/TaylorProfiler.php';
+		require_once __DIR__ . '/AutoLoad.php';
+		require_once __DIR__ . '/HTTP/Request.php';
+		require_once __DIR__ . '/Debug/TaylorProfiler.php';
 		if (!defined('BR')) {
 			if (Request::isCLI()) {
 				define('BR', "\n");
@@ -143,14 +143,7 @@ border-radius: 5px;">');
 		if (DEVELOPMENT) {
 			TaylorProfiler::getInstance(!ifsetor($_REQUEST['fast']));    // usually true
 			/* @var $profiler TaylorProfiler */
-			if (class_exists('Config', false) && !Request::isCLI()) {
-				//print_r(Config::getInstance()->config['Config']);
-				// set_time_limit() has been disabled for security reasons
-				@set_time_limit(Config::getInstance()->timeLimit
-					? Config::getInstance()->timeLimit
-					: 5);    // small enough to notice if the site is having perf. problems
-			}
-			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
+			$_REQUEST['d'] = $_REQUEST['d'] ?? null;
 			if (!Request::isCLI() && !headers_sent()) {
 				header('Cache-Control: no-cache, no-store, max-age=0');
 				header('Expires: -1');

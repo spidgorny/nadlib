@@ -37,7 +37,7 @@ class ConfigBase
 	 */
 	public $documentRoot;
 
-	public static $includeFolders = array(
+	public static $includeFolders = [
 		'.',
 		'Cache',
 		'Controller',
@@ -61,7 +61,7 @@ class ConfigBase
 		'be/class/Info',
 		'be/class/Test',
 		'Queue',
-	);
+	];
 
 	/**
 	 * Enables FlexiTable check if the all the necessary tables/columns exist.
@@ -114,10 +114,10 @@ class ConfigBase
 		}
 
 		//debug_print_backtrace();
-		(array(
+		([
 			'Config->documentRoot' => $this->documentRoot,
 			'Config->appRoot' => $this->appRoot,
-		));
+		]);
 		//debug_pre_print_backtrace();
 
 		//$appRoot = dirname($_SERVER['SCRIPT_FILENAME']);
