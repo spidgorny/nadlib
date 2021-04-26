@@ -848,7 +848,7 @@ class Request
 		}
 	}
 
-	function getNameless($index, $alternative = NULL)
+	function getNameless($index, $alternative = null)
 	{
 		$levels = $this->getURLLevels();
 
@@ -872,7 +872,7 @@ class Request
 	static function isCLI()
 	{
 		//return isset($_SERVER['argc']);
-		return php_sapi_name() == 'cli';
+		return php_sapi_name() === 'cli';
 	}
 
 	/**
