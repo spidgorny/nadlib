@@ -188,7 +188,7 @@ abstract class Controller
 	 * @param string $page
 	 * @return URL
 	 */
-	function makeRelURL(array $params = [], $page = NULL)
+	function makeRelURL(array $params = [], $page = null)
 	{
 		return $this->makeURL(
 			$params                            // 1st priority
@@ -203,7 +203,7 @@ abstract class Controller
 	 * @param string $prefix
 	 * @return URL
 	 */
-	public function getURL(array $params = [], $prefix = NULL)
+	public function getURL(array $params = [], $prefix = null)
 	{
 		if ($params || $prefix) {
 			throw new InvalidArgumentException('Use makeURL() instead of ' . __METHOD__);
