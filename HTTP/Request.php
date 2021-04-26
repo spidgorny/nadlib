@@ -777,17 +777,27 @@ class Request
 		$url = new URL($_SERVER['REQUEST_URI']);
 		$path = $url->getPath();
 
+		// one level only fix for BugLog
+		$cwd = trimExplode('/', getcwd());
+		// stage
+		llog($path->aPath, $cwd);
+		llog($path->aPath[0], end($cwd));
+		if ($path->aPath[0] === end($cwd)) {
+			unset($path->aPath[0]);
+			$path->implode();
+		}
+
 		//$path = $path->getURL();
 		//debug($path);
 		if (strlen($path) > 1) {    // "/"
-			$levels = trimExplode('/', $path);
+			$levels = array_values($path->aPath);
 			if ($levels[0] === 'index.php') {
 				array_shift($levels);
 			}
 		} else {
 			$levels = [];
 		}
-		0 && nodebug([
+		llog([
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
