@@ -51,7 +51,7 @@ class Profiler
 	function elapsedCont()
 	{
 		$out = microtime(true) - $this->startTime;
-		return number_format($out, 5, '.', '');
+		return number_format($out, 4, '.', '');
 	}
 
 	function elapsedNext()
@@ -67,9 +67,9 @@ class Profiler
 		$content = "Done in $out seconds." . BR;
 		if ($isReturn) {
 			return $content;
-		} else {
-			print($content);
 		}
+
+		print($content);
 	}
 
 	function startTimer($method)
@@ -85,6 +85,11 @@ class Profiler
 	function __toString()
 	{
 		return $this->elapsed() . '';
+	}
+
+	public function sinceStart()
+	{
+		return number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4);
 	}
 
 }
